@@ -1,4 +1,4 @@
-import { afterAll, afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import type { PatchesDb } from "../interface";
 import { implementations } from "./test-helpers";
 
@@ -84,7 +84,7 @@ describe.each(implementations)("$name", ({ name, factory }) => {
     });
 
     test("synced patches preserve parentId from client", async () => {
-        const [p1, p2] = await db.write([
+        const [p1] = await db.write([
             { entityId: "e3", entityType: "task", attributes: { a: 1 } },
             { entityId: "e3", entityType: "task", attributes: { a: 2 } },
         ]);

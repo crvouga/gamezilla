@@ -1,9 +1,10 @@
+import { clearLocalDatabaseAndReload } from "@/@shared/patch-db/bootstrap-expo";
 import type { Entity } from "@/@shared/patch-db/interface";
 import { useEntities, usePatchesDb } from "@/@shared/patch-db/react";
 import { useTheme } from "@/@shared/theme";
-import { ConfirmationModal } from "@/components/ui/modal";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { ConfirmationModal } from "@/components/ui/modal";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { FlatList, Pressable, TextInput } from "react-native";
@@ -45,6 +46,7 @@ export function TodoListsOverview() {
     const [input, setInput] = useState("");
     const [adding, setAdding] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+    const [deleteDbModalVisible, setDeleteDbModalVisible] = useState(false);
 
     const listsResult = useEntities({
         entityType: "todoList",
@@ -97,6 +99,11 @@ export function TodoListsOverview() {
         setDeleteTarget(item);
     };
 
+    const deleteLocalDatabase = async () => {
+        setDeleteDbModalVisible(false);
+        await clearLocalDatabaseAndReload("main");
+    };
+
     const inboxCount = todoCounts.get(INBOX_LIST_ID) ?? 0;
 
     const data: { id: string; name: string; count: number }[] = [
@@ -110,9 +117,22 @@ export function TodoListsOverview() {
 
     return (
         <ThemedView style={theme.sx({ flex: 1, p: 4 })}>
-            <ThemedView style={theme.sx({ mb: 4 })}>
-                <ThemedText type="title">Todo Lists</ThemedText>
-                <ThemedText type="subtitle">Group your todos by list</ThemedText>
+            <ThemedView style={theme.sx({ mb: 4, flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" })}>
+                <ThemedView>
+                    <ThemedText type="title">Todo Lists</ThemedText>
+                    <ThemedText type="subtitle">Group your todos by list</ThemedText>
+                </ThemedView>
+                <Pressable
+                    onPress={() => setDeleteDbModalVisible(true)}
+                    style={({ pressed }) => [
+                        theme.sx({ py: 2, px: 3, borderRadius: 8 }),
+                        pressed && theme.sx({ opacity: 0.7 }),
+                    ]}
+                >
+                    <ThemedText style={[theme.sx({ fontSize: 14 }), { color: theme.colors.destructive }]}>
+                        Clear data
+                    </ThemedText>
+                </Pressable>
             </ThemedView>
 
             {adding ? (
@@ -218,6 +238,16 @@ export function TodoListsOverview() {
                     }
                 }}
                 onCancel={() => setDeleteTarget(null)}
+            />
+            <ConfirmationModal
+                visible={deleteDbModalVisible}
+                title="Clear All Data"
+                message="Are you sure you want to delete the local database? All todos and lists will be permanently removed. The app will reload."
+                confirmLabel="Clear"
+                cancelLabel="Cancel"
+                variant="destructive"
+                onConfirm={deleteLocalDatabase}
+                onCancel={() => setDeleteDbModalVisible(false)}
             />
         </ThemedView>
     );

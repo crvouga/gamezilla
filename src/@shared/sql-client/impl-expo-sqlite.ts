@@ -5,7 +5,9 @@ export class SqlClientImplExpoSqlite implements SqlClient {
     constructor(private db: SQLite.SQLiteDatabase) { }
 
     static async open(databaseName: string): Promise<SqlClientImplExpoSqlite> {
-        const db = await SQLite.openDatabaseAsync(databaseName);
+        const db = await SQLite.openDatabaseAsync(databaseName, {
+
+        });
         return new SqlClientImplExpoSqlite(db);
     }
 

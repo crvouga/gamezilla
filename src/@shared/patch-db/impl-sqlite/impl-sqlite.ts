@@ -20,10 +20,9 @@ const insertPatch = `INSERT OR IGNORE INTO
         created_at,
         recorded_at,
         parent_id,
-        lineage_depth,
         metadata
     )
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
 const migrations = `CREATE TABLE IF NOT EXISTS patches (
     patch_id TEXT PRIMARY KEY,
@@ -49,36 +48,59 @@ CREATE TABLE IF NOT EXISTS snapshots (
 
 CREATE INDEX IF NOT EXISTS idx_snapshots_entity_type ON snapshots (entity_type);`;
 
-const migrationAddLineageDepth = `ALTER TABLE patches ADD COLUMN lineage_depth INTEGER NOT NULL DEFAULT 0`;
-
-const migrationBackfillLineageDepth = `WITH RECURSIVE depth AS (
-    SELECT patch_id, 0 AS d FROM patches WHERE parent_id IS NULL
+const resolveParentIdSql = `WITH RECURSIVE lineage AS (
+    SELECT patch_id, 0 AS depth
+    FROM patches
+    WHERE entity_id = ? AND entity_type = ? AND parent_id IS NULL
     UNION ALL
-    SELECT p.patch_id, d.d + 1 FROM patches p JOIN depth d ON p.parent_id = d.patch_id
+    SELECT p.patch_id, l.depth + 1
+    FROM patches p
+    JOIN lineage l ON p.parent_id = l.patch_id
+    WHERE p.entity_id = ? AND entity_type = ?
 )
-UPDATE patches SET lineage_depth = COALESCE((SELECT d FROM depth WHERE depth.patch_id = patches.patch_id), 0)`;
-
-const resolveParentIdSql = `SELECT p.patch_id FROM patches p
+SELECT p.patch_id FROM patches p
+JOIN lineage l ON p.patch_id = l.patch_id
 WHERE p.entity_id = ? AND p.entity_type = ?
   AND NOT EXISTS (
     SELECT 1 FROM patches c
     WHERE c.parent_id = p.patch_id
       AND c.entity_id = p.entity_id AND c.entity_type = p.entity_type
   )
-ORDER BY p.lineage_depth DESC, p.patch_id DESC
+ORDER BY l.depth DESC, p.patch_id ASC
 LIMIT 1`;
 
-const selectPatchesForSnapshot = `SELECT * FROM patches
-WHERE entity_id = ? AND entity_type = ?
-ORDER BY lineage_depth ASC, patch_id ASC`;
+const selectPatchesForSnapshot = `WITH RECURSIVE lineage AS (
+    SELECT patch_id, 0 AS depth
+    FROM patches
+    WHERE entity_id = ? AND entity_type = ? AND parent_id IS NULL
+    UNION ALL
+    SELECT p.patch_id, l.depth + 1
+    FROM patches p
+    JOIN lineage l ON p.parent_id = l.patch_id
+    WHERE p.entity_id = ? AND entity_type = ?
+)
+SELECT p.* FROM patches p
+JOIN lineage l ON p.patch_id = l.patch_id
+WHERE p.entity_id = ? AND p.entity_type = ?
+ORDER BY l.depth ASC, p.patch_id ASC`;
 
 const upsertSnapshot = `INSERT INTO snapshots (entity_id, entity_type, attributes)
 VALUES (?, ?, ?)
 ON CONFLICT (entity_id, entity_type) DO UPDATE SET attributes = excluded.attributes`;
 
-const selectUnsyncedPatches = `SELECT * FROM patches
-WHERE json_extract(metadata, '$.syncedAt') IS NULL
-ORDER BY lineage_depth ASC, patch_id ASC`;
+const selectUnsyncedPatches = `WITH RECURSIVE lineage AS (
+    SELECT patch_id, entity_id, entity_type, 0 AS depth
+    FROM patches
+    WHERE parent_id IS NULL
+    UNION ALL
+    SELECT p.patch_id, p.entity_id, p.entity_type, l.depth + 1
+    FROM patches p
+    JOIN lineage l ON p.parent_id = l.patch_id AND p.entity_id = l.entity_id AND p.entity_type = l.entity_type
+)
+SELECT p.* FROM patches p
+JOIN lineage l ON p.patch_id = l.patch_id AND p.entity_id = l.entity_id AND p.entity_type = l.entity_type
+WHERE json_extract(p.metadata, '$.syncedAt') IS NULL
+ORDER BY p.entity_id ASC, p.entity_type ASC, l.depth ASC, p.patch_id ASC`;
 
 export class PatchDbImplSqlite implements SyncStatePatchesDb {
     constructor(private sqlClient: SqlClient) { }
@@ -89,20 +111,19 @@ export class PatchDbImplSqlite implements SyncStatePatchesDb {
             await this.sqlClient.run(stmt);
         }
         try {
-            await this.sqlClient.run(migrationAddLineageDepth);
+            await this.sqlClient.run("ALTER TABLE patches DROP COLUMN lineage_depth");
         } catch {
-            // Column may already exist
+            // Column may not exist (new DB or already dropped)
         }
         try {
-            await this.sqlClient.run(migrationBackfillLineageDepth);
+            await this.sqlClient.run("DROP INDEX IF EXISTS idx_patches_entity_type_lineage");
         } catch {
-            // Backfill may fail if no patches or schema mismatch
+            // Index may not exist
         }
-        await this.sqlClient.run("CREATE INDEX IF NOT EXISTS idx_patches_entity_type_lineage ON patches (entity_type, lineage_depth, patch_id)");
     }
 
     private async recomputeSnapshot(tx: SqlClient, entityId: string, entityType: string): Promise<void> {
-        const rows = await tx.query<PatchRow>(selectPatchesForSnapshot, [entityId, entityType]);
+        const rows = await tx.query<PatchRow>(selectPatchesForSnapshot, [entityId, entityType, entityId, entityType, entityId, entityType]);
 
         const merged: Record<string, unknown> = {};
         for (const row of rows) {
@@ -124,7 +145,7 @@ export class PatchDbImplSqlite implements SyncStatePatchesDb {
     }
 
     private async resolveParentId(tx: SqlClient, entityId: string, entityType: string): Promise<string | null> {
-        const rows = await tx.query<{ patch_id: string }>(resolveParentIdSql, [entityId, entityType]);
+        const rows = await tx.query<{ patch_id: string }>(resolveParentIdSql, [entityId, entityType, entityId, entityType, entityId, entityType]);
         return rows.length > 0 ? rows[0].patch_id : null;
     }
 
@@ -142,12 +163,6 @@ export class PatchDbImplSqlite implements SyncStatePatchesDb {
                 const parentId: string | null = isSyncedPatch
                     ? (typeof patch.parentId === "string" ? patch.parentId : null)
                     : await this.resolveParentId(tx, patch.entityId, patch.entityType);
-                const lineageDepth = parentId == null
-                    ? 0
-                    : ((await tx.query<{ lineage_depth: number }>(
-                        "SELECT lineage_depth FROM patches WHERE patch_id = ?",
-                        [parentId]
-                    ))[0]?.lineage_depth ?? 0) + 1;
                 lastTimestamp += 1;
                 const now = ("createdAt" in patch && typeof patch.createdAt === "string")
                     ? patch.createdAt
@@ -165,7 +180,6 @@ export class PatchDbImplSqlite implements SyncStatePatchesDb {
                         now,
                         recordedAt,
                         parentId,
-                        lineageDepth,
                         toMetadata(patch),
                     ]
                 );
@@ -224,19 +238,41 @@ export class PatchDbImplSqlite implements SyncStatePatchesDb {
             }
         }
 
+        let cursorCondition = "";
+        const cursorParams: unknown[] = [];
         if (query.after) {
-            const cursorRows = await this.sqlClient.query<{ entity_id: string; entity_type: string; lineage_depth: number; patch_id: string }>(
-                "SELECT entity_id, entity_type, lineage_depth, patch_id FROM patches WHERE patch_id = ?",
+            const cursorRows = await this.sqlClient.query<{ entity_id: string; entity_type: string; patch_id: string }>(
+                "SELECT entity_id, entity_type, patch_id FROM patches WHERE patch_id = ?",
                 [query.after]
             );
             if (cursorRows.length > 0) {
                 const c = cursorRows[0];
-                patchConditions.push("(p.entity_id, p.entity_type, p.lineage_depth, p.patch_id) > (?, ?, ?, ?)");
-                patchParams.push(c.entity_id, c.entity_type, c.lineage_depth, c.patch_id);
+                const depthRows = await this.sqlClient.query<{ depth: number }>(
+                    `WITH RECURSIVE path AS (
+                        SELECT patch_id, parent_id, 1 AS len FROM patches WHERE patch_id = ?
+                        UNION ALL
+                        SELECT p.patch_id, p.parent_id, ptr.len + 1 FROM patches p JOIN path ptr ON p.patch_id = ptr.parent_id
+                    )
+                    SELECT max(len) - 1 AS depth FROM path`,
+                    [query.after]
+                );
+                const cursorDepth = depthRows[0]?.depth ?? 0;
+                cursorCondition = " AND (p.entity_id, p.entity_type, l.depth, p.patch_id) > (?, ?, ?, ?)";
+                cursorParams.push(c.entity_id, c.entity_type, cursorDepth, c.patch_id);
             }
         }
 
         const patchWhereSQL = patchConditions.join(" AND ");
+
+        const lineageCte = `WITH RECURSIVE lineage AS (
+            SELECT patch_id, entity_id, entity_type, 0 AS depth
+            FROM patches
+            WHERE parent_id IS NULL
+            UNION ALL
+            SELECT p.patch_id, p.entity_id, p.entity_type, l.depth + 1
+            FROM patches p
+            JOIN lineage l ON p.parent_id = l.patch_id AND p.entity_id = l.entity_id AND p.entity_type = l.entity_type
+        )`;
 
         const countRows = await this.sqlClient.query<{ cnt: number }>(
             `SELECT COUNT(*) as cnt FROM patches p WHERE ${patchWhereSQL}`,
@@ -244,17 +280,21 @@ export class PatchDbImplSqlite implements SyncStatePatchesDb {
         );
         const total = countRows[0]?.cnt ?? 0;
 
-        const defaultOrder = "ORDER BY p.entity_id ASC, p.entity_type ASC, p.lineage_depth ASC, p.patch_id ASC";
+        const defaultOrder = "ORDER BY p.entity_id ASC, p.entity_type ASC, l.depth ASC, p.patch_id ASC";
         const orderSQL = buildOrderSQL(query, defaultOrder, "p.");
         const limit = buildLimitSQL(query);
 
+        const selectSql = `${lineageCte} SELECT p.* FROM patches p JOIN lineage l ON p.patch_id = l.patch_id AND p.entity_id = l.entity_id AND p.entity_type = l.entity_type WHERE ${patchWhereSQL}${cursorCondition} ${orderSQL}${limit.sql}`;
+
         const rows = await this.sqlClient.query<PatchRow>(
-            `SELECT p.* FROM patches p WHERE ${patchWhereSQL} ${orderSQL}${limit.sql}`,
-            [...patchParams, ...limit.params]
+            selectSql,
+            [...patchParams, ...cursorParams, ...limit.params]
         );
 
         const data = rows.map(toPatch);
-        const hasMore = query.limit != null ? (query.offset ?? 0) + data.length < total : false;
+        const hasMore = query.after != null
+            ? query.limit != null && data.length >= query.limit
+            : query.limit != null ? (query.offset ?? 0) + data.length < total : false;
         const nextCursor = data.length > 0 ? data[data.length - 1].patchId : null;
 
         return { data, total, hasMore, nextCursor };
