@@ -57,6 +57,18 @@ export class SyncPatchesDb implements PatchesDb {
         this.ensurePushTimer();
     }
 
+    /** Stops push/poll timers. Call before disposing of the db. */
+    destroy(): void {
+        if (this.pushTimer != null) {
+            clearInterval(this.pushTimer);
+            this.pushTimer = null;
+        }
+        if (this.pollTimer != null) {
+            clearInterval(this.pollTimer);
+            this.pollTimer = null;
+        }
+    }
+
     async write(patches: PatchInput[]): Promise<Patch[]> {
         const withUnsynced = patches.map((p) => ({
             ...p,

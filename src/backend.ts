@@ -30,6 +30,7 @@ const server = Bun.serve({
     port: Number(PORT),
     fetch(req: Request) {
         const url = new URL(req.url);
+        console.log(req.method, url.pathname);
 
         if (req.method === "OPTIONS") {
             return new Response(null, { status: 204, headers: CORS_HEADERS });
