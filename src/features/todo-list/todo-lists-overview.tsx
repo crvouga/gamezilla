@@ -1,15 +1,12 @@
 import type { Entity } from "@/@shared/patch-db/interface";
 import { useEntities, usePatchesDb } from "@/@shared/patch-db/react";
 import { useTheme } from "@/@shared/theme";
+import { ConfirmationModal } from "@/components/ui/modal";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import {
-    FlatList,
-    Pressable,
-    TextInput,
-} from "react-native";
+import { FlatList, Pressable, TextInput } from "react-native";
 
 const INBOX_LIST_ID = "__inbox__";
 
@@ -47,6 +44,7 @@ export function TodoListsOverview() {
     const db = usePatchesDb();
     const [input, setInput] = useState("");
     const [adding, setAdding] = useState(false);
+    const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
 
     const listsResult = useEntities({
         entityType: "todoList",
@@ -83,6 +81,20 @@ export function TodoListsOverview() {
 
     const openList = (listId: string) => {
         router.push(`/todos/${listId}`);
+    };
+
+    const deleteList = async (listId: string) => {
+        await db.write([
+            {
+                entityId: listId,
+                entityType: "todoList",
+                attributes: { deleted: true },
+            },
+        ]);
+    };
+
+    const confirmDelete = (item: { id: string; name: string }) => {
+        setDeleteTarget(item);
     };
 
     const inboxCount = todoCounts.get(INBOX_LIST_ID) ?? 0;
@@ -146,30 +158,66 @@ export function TodoListsOverview() {
                 style={theme.sx({ flex: 1 })}
                 contentContainerStyle={theme.sx({ pb: 24 })}
                 renderItem={({ item }) => (
-                    <Pressable
-                        onPress={() => openList(item.id)}
-                        style={({ pressed }) => [
-                            theme.sx({
-                                flexDirection: "row",
-                                alignItems: "center",
-                                justifyContent: "space-between",
-                                py: 3.5,
-                                px: 3,
-                                borderRadius: 8,
-                                mb: 1,
-                            }),
-                            pressed && theme.sx({ opacity: 0.7 }),
-                        ]}
+                    <ThemedView
+                        style={theme.sx({
+                            flexDirection: "row",
+                            alignItems: "center",
+                            py: 3.5,
+                            px: 3,
+                            borderRadius: 8,
+                            mb: 1,
+                        })}
                     >
-                        <ThemedText style={theme.sx({ fontSize: 17, fontWeight: "500" })}>{item.name}</ThemedText>
-                        <ThemedText style={theme.sx({ fontSize: 15, opacity: 0.6 })}>{item.count}</ThemedText>
-                    </Pressable>
+                        <Pressable
+                            onPress={() => openList(item.id)}
+                            style={({ pressed }) => [
+                                theme.sx({ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }),
+                                pressed && theme.sx({ opacity: 0.7 }),
+                            ]}
+                        >
+                            <ThemedText style={theme.sx({ fontSize: 17, fontWeight: "500" })}>{item.name}</ThemedText>
+                            <ThemedText style={theme.sx({ fontSize: 15, opacity: 0.6 })}>{item.count}</ThemedText>
+                        </Pressable>
+                        {item.id !== INBOX_LIST_ID && (
+                            <Pressable
+                                onPress={() => confirmDelete(item)}
+                                style={({ pressed }) => [
+                                    theme.sx({ p: 2, ml: 2 }),
+                                    pressed && theme.sx({ opacity: 0.7 }),
+                                ]}
+                                hitSlop={8}
+                            >
+                                <ThemedText style={[theme.sx({ fontSize: 14 }), { color: theme.colors.tint }]}>
+                                    Delete
+                                </ThemedText>
+                            </Pressable>
+                        )}
+                    </ThemedView>
                 )}
                 ListEmptyComponent={
                     <ThemedText style={theme.sx({ opacity: 0.7, fontStyle: "italic", mt: 6 })}>
                         No lists yet. Create one above or add todos to Inbox.
                     </ThemedText>
                 }
+            />
+            <ConfirmationModal
+                visible={!!deleteTarget}
+                title="Delete List"
+                message={
+                    deleteTarget
+                        ? `Are you sure you want to delete "${deleteTarget.name}"? This cannot be undone.`
+                        : ""
+                }
+                confirmLabel="Delete"
+                cancelLabel="Cancel"
+                variant="destructive"
+                onConfirm={() => {
+                    if (deleteTarget) {
+                        deleteList(deleteTarget.id);
+                        setDeleteTarget(null);
+                    }
+                }}
+                onCancel={() => setDeleteTarget(null)}
             />
         </ThemedView>
     );

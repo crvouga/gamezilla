@@ -14,6 +14,7 @@ export type ColorTokens = {
   tintMuted: string;
   tabIconDefault: string;
   tabIconSelected: string;
+  destructive: string;
 };
 
 export const defaultColors: Record<ColorScheme, ColorTokens> = {
@@ -26,6 +27,7 @@ export const defaultColors: Record<ColorScheme, ColorTokens> = {
     tintMuted: "rgba(10, 126, 164, 0.2)",
     tabIconDefault: "#687076",
     tabIconSelected: "#0a7ea4",
+    destructive: "#dc3545",
   },
   dark: {
     paper: "#151718",
@@ -36,6 +38,7 @@ export const defaultColors: Record<ColorScheme, ColorTokens> = {
     tintMuted: "rgba(255, 255, 255, 0.15)",
     tabIconDefault: "#9BA1A6",
     tabIconSelected: "#fff",
+    destructive: "#e74c3c",
   },
 };
 

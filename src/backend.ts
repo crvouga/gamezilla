@@ -43,7 +43,7 @@ const server = Bun.serve({
             return patchDbHandler(req).then(withCors);
         }
 
-        return withCors(new Response("Not Found", { status: 404 }));
+        return withCors(new Response("Not Found", { status: 404, headers: { "Content-Type": "text/plain" } }));
     },
 });
 

@@ -3,10 +3,10 @@
  * Maps shorthand props to React Native styles.
  */
 
-import { StyleSheet } from "react-native";
 import type { TextStyle, ViewStyle } from "react-native";
-import { fontSize, spacing, spacingScale } from "./scale";
+import { StyleSheet } from "react-native";
 import type { ColorTokens } from "./colors";
+import { fontSize, spacing, spacingScale } from "./scale";
 
 export type ColorTokenName = keyof ColorTokens;
 

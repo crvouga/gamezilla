@@ -185,7 +185,7 @@ export function TodoListDetail() {
             style={theme.sx({ flex: 1, p: 4 })}
         >
             <ThemedView style={theme.sx({ mb: 4 })}>
-                <Pressable onPress={() => router.back()} style={theme.sx({ mb: 2 })}>
+                <Pressable onPress={() => router.replace("/todos")} style={theme.sx({ mb: 2 })}>
                     <ThemedText style={theme.sx({ fontSize: 16, opacity: 0.8 })}>← Back</ThemedText>
                 </Pressable>
                 <ThemedText type="title">{listName}</ThemedText>
