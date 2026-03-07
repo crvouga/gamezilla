@@ -11,9 +11,14 @@ import type {
 
 const PATCHES_DB_TOPIC = "patches-db";
 
+export type RemoteInvalidationSource = {
+    subscribe(callback: () => void): Unsubscribe;
+};
+
 export type SyncPatchesDbOptions = {
     pollIntervalMs?: number;
     pushIntervalMs?: number;
+    remoteInvalidationSource?: RemoteInvalidationSource;
 };
 
 type ActiveQuery = {
@@ -47,6 +52,7 @@ export class SyncPatchesDb implements PatchesDb {
     private activeQueries = new Map<string, ActiveQuery>();
     private pollTimer: ReturnType<typeof setInterval> | null = null;
     private pushTimer: ReturnType<typeof setInterval> | null = null;
+    private remoteInvalidationUnsub: Unsubscribe | null = null;
 
     constructor(
         private local: SyncStatePatchesDb,
@@ -66,6 +72,10 @@ export class SyncPatchesDb implements PatchesDb {
         if (this.pollTimer != null) {
             clearInterval(this.pollTimer);
             this.pollTimer = null;
+        }
+        if (this.remoteInvalidationUnsub != null) {
+            this.remoteInvalidationUnsub();
+            this.remoteInvalidationUnsub = null;
         }
     }
 
@@ -132,17 +142,31 @@ export class SyncPatchesDb implements PatchesDb {
     }
 
     private ensurePolling(): void {
-        if (this.pollTimer != null) return;
-        const pollIntervalMs = this.options.pollIntervalMs ?? 5000;
-        this.pollTimer = setInterval(() => {
-            void this.poll();
-        }, pollIntervalMs);
+        const { remoteInvalidationSource } = this.options;
+        if (remoteInvalidationSource) {
+            if (this.remoteInvalidationUnsub != null) return;
+            this.remoteInvalidationUnsub = remoteInvalidationSource.subscribe(() => {
+                void this.poll();
+            });
+        } else {
+            if (this.pollTimer != null) return;
+            const pollIntervalMs = this.options.pollIntervalMs ?? 5000;
+            this.pollTimer = setInterval(() => {
+                void this.poll();
+            }, pollIntervalMs);
+        }
     }
 
     private maybeStopPolling(): void {
-        if (this.activeQueries.size === 0 && this.pollTimer != null) {
-            clearInterval(this.pollTimer);
-            this.pollTimer = null;
+        if (this.activeQueries.size === 0) {
+            if (this.pollTimer != null) {
+                clearInterval(this.pollTimer);
+                this.pollTimer = null;
+            }
+            if (this.remoteInvalidationUnsub != null) {
+                this.remoteInvalidationUnsub();
+                this.remoteInvalidationUnsub = null;
+            }
         }
     }
 

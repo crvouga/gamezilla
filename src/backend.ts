@@ -1,5 +1,6 @@
 import { createPatchDbHttpHandlers } from "@/@shared/patch-db/impl-http";
 import { PatchDbImplSqlite } from "@/@shared/patch-db/impl-sqlite/impl-sqlite";
+import { InMemoryPubSub } from "@/@shared/pub-sub/impl-in-memory";
 import { SqlClientImplBunSqlite } from "@/@shared/sql-client/impl-bun-sqlite";
 
 const PORT = process.env.PORT ?? 5001;
@@ -10,7 +11,8 @@ await sqlClient.connect();
 const patchDb = new PatchDbImplSqlite(sqlClient);
 await patchDb.migrate();
 
-const patchDbHandler = createPatchDbHttpHandlers(patchDb);
+const pubSub = new InMemoryPubSub();
+const patchDbHandler = createPatchDbHttpHandlers(patchDb, pubSub);
 
 const CORS_HEADERS = {
     "Access-Control-Allow-Origin": "*",
@@ -28,7 +30,7 @@ function withCors(res: Response): Response {
 
 const server = Bun.serve({
     port: Number(PORT),
-    fetch(req: Request) {
+    fetch(req: Request, bunServer: { timeout: (req: Request, seconds: number) => void }) {
         const url = new URL(req.url);
         console.log(req.method, url.pathname);
 
@@ -41,6 +43,9 @@ const server = Bun.serve({
         }
 
         if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/patches-db/")) {
+            if (url.pathname === "/patches-db/events" && req.method === "GET") {
+                bunServer.timeout(req, 0);
+            }
             return patchDbHandler(req).then(withCors);
         }
 

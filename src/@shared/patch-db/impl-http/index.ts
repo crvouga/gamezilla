@@ -1,3 +1,7 @@
-export { PatchDbImplHttp } from "./client";
+export {
+    PatchDbImplHttp,
+    createRemoteInvalidationSource,
+    type RemoteInvalidationSource,
+} from "./client";
 export { createPatchDbHttpHandlers } from "./server";
 

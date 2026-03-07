@@ -1,3 +1,4 @@
+import type { Unsubscribe } from "../../pub-sub/interface";
 import type {
     Entity,
     Patch,
@@ -6,7 +7,64 @@ import type {
     PatchesDbResult,
     PatchInput,
 } from "../interface";
-import { ENTITIES_QUERY, PATCHES_QUERY, PATCHES_WRITE } from "./shared";
+import { ENTITIES_QUERY, PATCHES_EVENTS, PATCHES_QUERY, PATCHES_WRITE } from "./shared";
+
+export type RemoteInvalidationSource = {
+    subscribe(callback: () => void): Unsubscribe;
+};
+
+export function createRemoteInvalidationSource(baseUrl: string): RemoteInvalidationSource {
+    const url = `${baseUrl.replace(/\/$/, "")}${PATCHES_EVENTS}`;
+    return {
+        subscribe(callback: () => void): Unsubscribe {
+            let aborted = false;
+            let retryDelayMs = 1000;
+            const maxRetryDelayMs = 30000;
+            let abortController: AbortController | null = null;
+
+            const connect = async (): Promise<void> => {
+                if (aborted) return;
+                abortController = new AbortController();
+                try {
+                    const res = await fetch(url, {
+                        headers: { Accept: "text/event-stream" },
+                        signal: abortController.signal,
+                    });
+                    if (!res.ok || !res.body) {
+                        throw new Error(`SSE ${res.status}`);
+                    }
+                    retryDelayMs = 1000;
+                    const reader = res.body.getReader();
+                    const decoder = new TextDecoder();
+                    let buffer = "";
+                    while (!aborted) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        buffer += decoder.decode(value, { stream: true });
+                        const lines = buffer.split("\n");
+                        buffer = lines.pop() ?? "";
+                        for (const line of lines) {
+                            if (line.startsWith("data: ")) {
+                                callback();
+                            }
+                        }
+                    }
+                } catch (err) {
+                    if (aborted) return;
+                    console.warn("[RemoteInvalidationSource] SSE disconnected, reconnecting:", err);
+                    await new Promise((r) => setTimeout(r, retryDelayMs));
+                    retryDelayMs = Math.min(retryDelayMs * 2, maxRetryDelayMs);
+                }
+                if (!aborted) void connect();
+            };
+            void connect();
+            return () => {
+                aborted = true;
+                abortController?.abort();
+            };
+        },
+    };
+}
 
 export class PatchDbImplHttp implements PatchesDb {
     constructor(private baseUrl: string) { }

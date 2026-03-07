@@ -4,7 +4,7 @@ import { DependencyInjectionContainer } from "../dependency-injection/dependency
 import { InMemoryPubSub } from "../pub-sub/impl-in-memory";
 import type { SqlClient } from "../sql-client/interface";
 import { SqlClientImplExpoSqlite } from "../sql-client/impl-expo-sqlite";
-import { PatchDbImplHttp } from "./impl-http";
+import { createRemoteInvalidationSource, PatchDbImplHttp } from "./impl-http";
 import { PatchDbImplSqlite } from "./impl-sqlite/impl-sqlite";
 import { SyncPatchesDb } from "./impl-sync";
 import { PatchesDbToken } from "./react";
@@ -17,7 +17,6 @@ export type BootstrapResult = {
 export type BootstrapPatchDbExpoSyncOptions = {
     databaseName?: string;
     apiUrl: string;
-    pollIntervalMs?: number;
     pushIntervalMs?: number;
     parentContainer?: DependencyInjectionContainer;
 };
@@ -33,7 +32,6 @@ export async function bootstrapPatchDbExpoSync(
     const {
         databaseName = "main",
         apiUrl,
-        pollIntervalMs = 1000,
         pushIntervalMs = 2000,
         parentContainer,
     } = options;
@@ -53,7 +51,11 @@ export async function bootstrapPatchDbExpoSync(
 
         const remoteDb = new PatchDbImplHttp(apiUrl);
         const pubSub = new InMemoryPubSub();
-        const syncDb = new SyncPatchesDb(localDb, remoteDb, pubSub, { pollIntervalMs, pushIntervalMs });
+        const remoteInvalidationSource = createRemoteInvalidationSource(apiUrl);
+        const syncDb = new SyncPatchesDb(localDb, remoteDb, pubSub, {
+            pushIntervalMs,
+            remoteInvalidationSource,
+        });
 
         const container = new DependencyInjectionContainer(parentContainer);
         container.registerValue(PatchesDbToken, syncDb);
