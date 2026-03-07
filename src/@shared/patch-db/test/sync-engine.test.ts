@@ -144,7 +144,7 @@ describe("SyncPatchesDb", () => {
         expect(last.some((e) => e.entityId === listId && e.attributes?.name === "From Remote")).toBe(true);
     });
 
-    test("poll: patches for deleted entities are not fetched when where excludes them (bug replication)", async () => {
+    test("poll: patches for deleted entities are fetched via tracked-entities query", async () => {
         const listId = crypto.randomUUID();
         await syncDb.remote.write([
             {
@@ -188,6 +188,6 @@ describe("SyncPatchesDb", () => {
         });
         const entity = entitiesResult.data[0];
         expect(entity).toBeDefined();
-        expect(entity?.attributes?.deleted).not.toBe(true);
+        expect(entity?.attributes?.deleted).toBe(true);
     });
 });

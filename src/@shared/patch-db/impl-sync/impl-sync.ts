@@ -181,6 +181,22 @@ export class SyncPatchesDb implements PatchesDb {
                     after: cursorPatchId ?? undefined,
                 });
                 knownPatches.push(localResult.data);
+
+                if (query.where != null) {
+                    const entityIds = [...new Set(localResult.data.map((p) => p.entityId))];
+                    if (entityIds.length > 0) {
+                        const [trackedResult] = await this.local.readPatches([
+                            { entityType: query.entityType, entityId: entityIds },
+                        ]);
+                        const trackedCursor = getCursorPatchId(trackedResult.data);
+                        syncQueries.push({
+                            entityType: query.entityType,
+                            entityId: entityIds,
+                            after: trackedCursor ?? undefined,
+                        });
+                        knownPatches.push(trackedResult.data);
+                    }
+                }
             }
 
             const results = await this.remote.readPatches(syncQueries, knownPatches);
