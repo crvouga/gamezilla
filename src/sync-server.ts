@@ -52,4 +52,4 @@ const server = Bun.serve({
     },
 });
 
-console.log(`Server running at http://localhost:${server.port}`);
+console.log(`Sync server running at http://localhost:${server.port}`);

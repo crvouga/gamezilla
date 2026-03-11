@@ -10,13 +10,13 @@
     "web": "expo start --web",
     "export:web": "expo export -p web",
     "frontend:web:build": "expo export -p web",
-    "backend": "bun run src/backend.ts",
-    "backend:watch": "bun --watch src/backend.ts",
+    "sync-server": "bun run src/sync-server.ts",
+    "sync-server:watch": "bun --watch src/sync-server.ts",
     "test": "bun test",
     "test:fast": "SKIP_POSTGRES_TESTS=1 bun test",
     "lint": "expo lint",
     "tc": "tsc --noEmit",
-    "preview": "bun export:web && bun run backend",
+    "preview": "bun export:web && bun run sync-server",
     "check": "clear && bun run tc && bun run lint && bun run test && echo 'All checks passed ✅'"
   },
   "dependencies": {
