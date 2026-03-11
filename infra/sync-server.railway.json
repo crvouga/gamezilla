@@ -6,6 +6,7 @@
   "deploy": {
     "startCommand": "bun run sync-server",
     "healthcheckPath": "/health",
-    "healthcheckTimeout": 30
+    "healthcheckTimeout": 30,
+    "sleepApplication": true
   }
 }
