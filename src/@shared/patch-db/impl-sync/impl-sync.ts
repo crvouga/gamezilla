@@ -51,6 +51,7 @@ export class SyncPatchesDb implements PatchesDb {
   private activeQueries = new Map<string, ActiveQuery>();
   private pushTimer: ReturnType<typeof setInterval> | null = null;
   private remoteInvalidationUnsub: Unsubscribe | null = null;
+  private pollInProgress = false;
 
   constructor(
     private local: SyncStatePatchesDb,
@@ -144,6 +145,7 @@ export class SyncPatchesDb implements PatchesDb {
       this.options.remoteInvalidationSource.subscribe(() => {
         void this.poll();
       });
+    void this.poll();
   }
 
   private maybeStopPolling(): void {
@@ -176,7 +178,9 @@ export class SyncPatchesDb implements PatchesDb {
   private async poll(): Promise<void> {
     const entries = Array.from(this.activeQueries.values());
     if (entries.length === 0) return;
+    if (this.pollInProgress) return;
 
+    this.pollInProgress = true;
     try {
       const syncQueries: PatchesDbQuery[] = [];
       const knownPatches: Patch[][] = [];
@@ -228,6 +232,8 @@ export class SyncPatchesDb implements PatchesDb {
       }
     } catch (err) {
       console.warn('[SyncPatchesDb] poll failed:', err);
+    } finally {
+      this.pollInProgress = false;
     }
   }
 }
