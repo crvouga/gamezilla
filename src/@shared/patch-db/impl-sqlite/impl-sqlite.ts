@@ -357,7 +357,7 @@ export class PatchDbImplSqlite implements SyncStatePatchesDb {
           : false;
     const nextCursor = data.length > 0 ? data[data.length - 1].patchId : null;
 
-    return { data, total, hasMore, nextCursor };
+    return { query, data, total, hasMore, nextCursor };
   }
 
   async readEntities(
@@ -391,7 +391,7 @@ export class PatchDbImplSqlite implements SyncStatePatchesDb {
     const hasMore =
       query.limit != null ? (query.offset ?? 0) + data.length < total : false;
 
-    return { data, total, hasMore, nextCursor: null };
+    return { query, data, total, hasMore, nextCursor: null };
   }
 
   async getUnsyncedPatches(): Promise<Patch[]> {

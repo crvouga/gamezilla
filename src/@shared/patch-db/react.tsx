@@ -9,13 +9,6 @@ import {
 } from './interface';
 import { SubscribablePatchesDbToken } from './subscribable';
 
-const EMPTY_RESULT: PatchesDbResult<Entity> = {
-  data: [],
-  total: 0,
-  hasMore: false,
-  nextCursor: null,
-};
-
 export const PatchesDbToken: InjectionToken<PatchesDb> = Symbol('PatchesDb');
 
 export function usePatchesDb(): PatchesDb {
@@ -28,7 +21,13 @@ export function usePatchesDb(): PatchesDb {
 
 export function useEntities(query: PatchesDbQuery): PatchesDbResult<Entity> {
   const db = useDependency(SubscribablePatchesDbToken);
-  const [result, setResult] = useState<PatchesDbResult<Entity>>(EMPTY_RESULT);
+  const [result, setResult] = useState<PatchesDbResult<Entity>>(() => ({
+    query,
+    data: [],
+    total: 0,
+    hasMore: false,
+    nextCursor: null,
+  }));
   const queryKey = JSON.stringify(query);
   useEffect(() => {
     const parsedQuery = JSON.parse(queryKey) as PatchesDbQuery;

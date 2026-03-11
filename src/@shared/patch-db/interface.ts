@@ -105,6 +105,7 @@ export type PatchesDbQuery = {
 };
 
 export type PatchesDbResult<T> = {
+  query: PatchesDbQuery;
   data: T[];
   total: number;
   hasMore: boolean;
