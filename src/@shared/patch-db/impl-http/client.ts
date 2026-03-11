@@ -107,7 +107,13 @@ export class PatchDbImplHttp implements PatchesDb {
     return this.post<PatchesDbResult<Entity>[]>(ENTITIES_QUERY, { queries });
   }
 
-  async write(patches: PatchInput[]): Promise<Patch[]> {
+  async append(patches: PatchInput[]): Promise<Patch[]> {
     return this.post<Patch[]>(PATCHES_WRITE, { patches });
+  }
+
+  async updateMetadata(
+    _updates: { patchId: string; metadata: Record<string, unknown> }[]
+  ): Promise<void> {
+    // No-op: metadata updates are local-only for sync; remote does not need
   }
 }

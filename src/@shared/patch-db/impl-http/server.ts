@@ -1,5 +1,5 @@
 import type { PubSub } from '../../pub-sub/interface';
-import type { Patch, PatchesDb, PatchesDbQuery } from '../interface';
+import type { PatchesDb, PatchesDbQuery } from '../interface';
 import {
   ENTITIES_QUERY,
   PATCHES_EVENTS,
@@ -25,7 +25,7 @@ export function createPatchDbHttpHandlers(
       const { queries } = body;
       for (const q of queries) {
         if (q.knownPatches?.length) {
-          await db.write(q.knownPatches);
+          await db.append(q.knownPatches);
           // Do NOT publish here: knownPatches are patches the client already has.
           // Publishing would trigger SSE → poll → knownPatches → infinite loop.
         }
@@ -42,9 +42,9 @@ export function createPatchDbHttpHandlers(
 
     if (url.pathname === PATCHES_WRITE && req.method === 'POST') {
       const body = (await req.json()) as {
-        patches: Parameters<PatchesDb['write']>[0];
+        patches: Parameters<PatchesDb['append']>[0];
       };
-      const patches = await db.write(body.patches);
+      const patches = await db.append(body.patches);
       publishInvalidated(pubSub);
       return Response.json(patches);
     }

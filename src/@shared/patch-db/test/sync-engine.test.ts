@@ -25,7 +25,7 @@ describe('SyncPatchesDb', () => {
 
   test('push: create patch is pushed to remote', async () => {
     const listId = crypto.randomUUID();
-    await syncDb.syncDb.write([
+    await syncDb.syncDb.append([
       {
         entityId: listId,
         entityType: 'todoList',
@@ -51,7 +51,7 @@ describe('SyncPatchesDb', () => {
 
   test('push: soft-delete patch is pushed to remote', async () => {
     const listId = crypto.randomUUID();
-    await syncDb.syncDb.write([
+    await syncDb.syncDb.append([
       {
         entityId: listId,
         entityType: 'todoList',
@@ -65,7 +65,7 @@ describe('SyncPatchesDb', () => {
 
     await new Promise((r) => setTimeout(r, PUSH_WAIT_MS));
 
-    await syncDb.syncDb.write([
+    await syncDb.syncDb.append([
       {
         entityId: listId,
         entityType: 'todoList',
@@ -92,7 +92,7 @@ describe('SyncPatchesDb', () => {
   test('push: multiple unsynced patches are all pushed', async () => {
     const listId1 = crypto.randomUUID();
     const listId2 = crypto.randomUUID();
-    await syncDb.syncDb.write([
+    await syncDb.syncDb.append([
       {
         entityId: listId1,
         entityType: 'todoList',
@@ -129,7 +129,7 @@ describe('SyncPatchesDb', () => {
 
   test('poll: remote patches are merged into local', async () => {
     const listId = crypto.randomUUID();
-    await syncDb.remote.write([
+    await syncDb.remote.append([
       {
         entityId: listId,
         entityType: 'todoList',
@@ -168,7 +168,7 @@ describe('SyncPatchesDb', () => {
 
   test('poll: patches for deleted entities are fetched via tracked-entities query', async () => {
     const listId = crypto.randomUUID();
-    await syncDb.remote.write([
+    await syncDb.remote.append([
       {
         entityId: listId,
         entityType: 'todoList',
@@ -203,7 +203,7 @@ describe('SyncPatchesDb', () => {
       true
     );
 
-    await syncDb.remote.write([
+    await syncDb.remote.append([
       {
         entityId: listId,
         entityType: 'todoList',

@@ -6,7 +6,6 @@ import type {
   PatchesDbQuery,
   PatchesDbResult,
   PatchInput,
-  SyncStatePatchesDb,
 } from '../interface';
 
 const PATCHES_DB_TOPIC = 'patches-db';
@@ -54,7 +53,7 @@ export class SyncPatchesDb implements PatchesDb {
   private pollInProgress = false;
 
   constructor(
-    private local: SyncStatePatchesDb,
+    private local: PatchesDb,
     private remote: PatchesDb,
     private pubSub: PubSub,
     private options: SyncPatchesDbOptions
@@ -74,12 +73,12 @@ export class SyncPatchesDb implements PatchesDb {
     }
   }
 
-  async write(patches: PatchInput[]): Promise<Patch[]> {
+  async append(patches: PatchInput[]): Promise<Patch[]> {
     const withUnsynced = patches.map((p) => ({
       ...p,
       meta: { ...p.meta, syncedAt: null },
     }));
-    const result = await this.local.write(withUnsynced);
+    const result = await this.local.append(withUnsynced);
     this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
     return result;
   }
@@ -88,10 +87,14 @@ export class SyncPatchesDb implements PatchesDb {
     return this.local.readPatches(queries);
   }
 
-  readEntities(
-    queries: PatchesDbQuery[]
-  ): Promise<PatchesDbResult<Entity>[]> {
+  readEntities(queries: PatchesDbQuery[]): Promise<PatchesDbResult<Entity>[]> {
     return this.local.readEntities(queries);
+  }
+
+  async updateMetadata(
+    updates: { patchId: string; metadata: Record<string, unknown> }[]
+  ): Promise<void> {
+    return this.local.updateMetadata(updates);
   }
 
   private queryKey(query: PatchesDbQuery): string {
@@ -164,10 +167,24 @@ export class SyncPatchesDb implements PatchesDb {
 
   private async pushUnsynced(): Promise<void> {
     try {
-      const patches = await this.local.getUnsyncedPatches();
+      const [result] = await this.local.readPatches([
+        {
+          where: {
+            type: 'not_exists',
+            attribute: 'syncedAt',
+            source: 'metadata',
+          },
+        },
+      ]);
+      const patches = result.data;
       if (patches.length === 0) return;
-      await this.remote.write(patches);
-      await this.local.markPatchesSynced(patches.map((p) => p.patchId));
+      await this.remote.append(patches);
+      await this.local.updateMetadata(
+        patches.map((p) => ({
+          patchId: p.patchId,
+          metadata: { syncedAt: '1' },
+        }))
+      );
       this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
     } catch (err) {
       console.warn('[SyncPatchesDb] push failed:', err);
@@ -221,7 +238,7 @@ export class SyncPatchesDb implements PatchesDb {
             ...p,
             meta: { ...p.meta, syncedAt: '1' },
           }));
-          await this.local.write(withSynced);
+          await this.local.append(withSynced);
           hasNewPatches = true;
         }
       }

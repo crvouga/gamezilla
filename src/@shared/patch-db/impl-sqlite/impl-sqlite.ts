@@ -2,16 +2,18 @@ import { SqlClient } from '../../sql-client/interface';
 import {
   Entity,
   Patch,
-  PatchInput,
+  PatchesDb,
   PatchesDbQuery,
   PatchesDbResult,
-  SyncStatePatchesDb,
+  PatchInput,
 } from '../interface';
 import { toEntity, toMetadata, toPatch } from './mappers';
 import {
   buildLimitSQL,
+  buildMetadataWhereClause,
   buildOrderSQL,
   buildSnapshotConditions,
+  extractClausesBySource,
 } from './query-builder';
 import type { PatchRow, SnapshotRow } from './types';
 
@@ -95,21 +97,7 @@ const upsertSnapshot = `INSERT INTO snapshots (entity_id, entity_type, attribute
 VALUES (?, ?, ?)
 ON CONFLICT (entity_id, entity_type) DO UPDATE SET attributes = excluded.attributes`;
 
-const selectUnsyncedPatches = `WITH RECURSIVE lineage AS (
-    SELECT patch_id, entity_id, entity_type, 0 AS depth
-    FROM patches
-    WHERE parent_id IS NULL
-    UNION ALL
-    SELECT p.patch_id, p.entity_id, p.entity_type, l.depth + 1
-    FROM patches p
-    JOIN lineage l ON p.parent_id = l.patch_id AND p.entity_id = l.entity_id AND p.entity_type = l.entity_type
-)
-SELECT p.* FROM patches p
-JOIN lineage l ON p.patch_id = l.patch_id AND p.entity_id = l.entity_id AND p.entity_type = l.entity_type
-WHERE json_extract(p.metadata, '$.syncedAt') IS NULL
-ORDER BY p.entity_id ASC, p.entity_type ASC, l.depth ASC, p.patch_id ASC`;
-
-export class PatchDbImplSqlite implements SyncStatePatchesDb {
+export class PatchDbImplSqlite implements PatchesDb {
   constructor(private sqlClient: SqlClient) {}
 
   async migrate(): Promise<void> {
@@ -187,7 +175,7 @@ export class PatchDbImplSqlite implements SyncStatePatchesDb {
     return rows.length > 0 ? rows[0].patch_id : null;
   }
 
-  async write(patches: PatchInput[]): Promise<Patch[]> {
+  async append(patches: PatchInput[]): Promise<Patch[]> {
     if (patches.length === 0) return [];
     const result: Patch[] = [];
     await this.sqlClient.transaction(async (tx) => {
@@ -257,25 +245,42 @@ export class PatchDbImplSqlite implements SyncStatePatchesDb {
   private async patchesOne(
     query: PatchesDbQuery
   ): Promise<PatchesDbResult<Patch>> {
+    const attributeWhere =
+      query.where != null
+        ? extractClausesBySource(query.where, 'attributes')
+        : null;
+    const metadataWhere =
+      query.where != null
+        ? extractClausesBySource(query.where, 'metadata')
+        : null;
+
     const { conditions: snapConditions, params: snapParams } =
       buildSnapshotConditions(query);
     const snapWhereSQL = snapConditions.join(' AND ');
 
-    const hasSnapshotFilter = query.where != null;
+    const hasSnapshotFilter = attributeWhere != null;
 
-    let patchConditions: string[];
-    let patchParams: unknown[];
+    let patchConditions: string[] = [];
+    let patchParams: unknown[] = [];
 
     if (hasSnapshotFilter) {
-      patchConditions = [
-        `p.entity_id IN (SELECT s.entity_id FROM snapshots s WHERE ${snapWhereSQL})`,
-      ];
-      patchParams = [...snapParams];
-      patchConditions.push('p.entity_type = ?');
-      patchParams.push(query.entityType);
+      if (query.entityType != null) {
+        patchConditions = [
+          `p.entity_id IN (SELECT s.entity_id FROM snapshots s WHERE ${snapWhereSQL})`,
+          'p.entity_type = ?',
+        ];
+        patchParams = [...snapParams, query.entityType];
+      } else {
+        patchConditions = [
+          `(p.entity_id, p.entity_type) IN (SELECT s.entity_id, s.entity_type FROM snapshots s WHERE ${snapWhereSQL})`,
+        ];
+        patchParams = [...snapParams];
+      }
     } else {
-      patchConditions = ['p.entity_type = ?'];
-      patchParams = [query.entityType];
+      if (query.entityType != null) {
+        patchConditions.push('p.entity_type = ?');
+        patchParams.push(query.entityType);
+      }
       if (query.entityId != null) {
         if (Array.isArray(query.entityId)) {
           const placeholders = query.entityId.map(() => '?').join(', ');
@@ -286,6 +291,16 @@ export class PatchDbImplSqlite implements SyncStatePatchesDb {
           patchParams.push(query.entityId);
         }
       }
+    }
+
+    if (metadataWhere != null) {
+      const metaFragment = buildMetadataWhereClause(metadataWhere, 'p.');
+      patchConditions.push(metaFragment.sql);
+      patchParams.push(...metaFragment.params);
+    }
+
+    if (patchConditions.length === 0) {
+      patchConditions.push('1=1');
     }
 
     let cursorCondition = '';
@@ -394,20 +409,30 @@ export class PatchDbImplSqlite implements SyncStatePatchesDb {
     return { query, data, total, hasMore, nextCursor: null };
   }
 
-  async getUnsyncedPatches(): Promise<Patch[]> {
-    const rows = await this.sqlClient.query<PatchRow>(
-      selectUnsyncedPatches,
-      []
-    );
-    return rows.map(toPatch);
-  }
-
-  async markPatchesSynced(patchIds: string[]): Promise<void> {
-    if (patchIds.length === 0) return;
-    const placeholders = patchIds.map(() => '?').join(', ');
-    await this.sqlClient.run(
-      `UPDATE patches SET metadata = json_set(metadata, '$.syncedAt', ?) WHERE patch_id IN (${placeholders})`,
-      ['1', ...patchIds]
-    );
+  async updateMetadata(
+    updates: { patchId: string; metadata: Record<string, unknown> }[]
+  ): Promise<void> {
+    if (updates.length === 0) return;
+    for (const { patchId, metadata } of updates) {
+      if (Object.keys(metadata).length === 0) continue;
+      const jsonSetParts: string[] = [];
+      const jsonSetParams: unknown[] = [];
+      for (const [key, value] of Object.entries(metadata)) {
+        const path = `$.${key}`;
+        jsonSetParts.push(`'${path.replace(/'/g, "''")}', ?`);
+        const sqlValue =
+          value === undefined
+            ? null
+            : typeof value === 'object' && value !== null
+              ? JSON.stringify(value)
+              : value;
+        jsonSetParams.push(sqlValue);
+      }
+      const jsonSetExpr = `json_set(metadata, ${jsonSetParts.join(', ')})`;
+      await this.sqlClient.run(
+        `UPDATE patches SET metadata = ${jsonSetExpr} WHERE patch_id = ?`,
+        [...jsonSetParams, patchId]
+      );
+    }
   }
 }

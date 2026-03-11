@@ -34,8 +34,8 @@ export class SubscribablePatchesDb implements PatchesDb {
     private pubSub: PubSub
   ) {}
 
-  async write(patches: PatchInput[]): Promise<Patch[]> {
-    const result = await this.db.write(patches);
+  async append(patches: PatchInput[]): Promise<Patch[]> {
+    const result = await this.db.append(patches);
     this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
     return result;
   }
@@ -44,10 +44,14 @@ export class SubscribablePatchesDb implements PatchesDb {
     return this.db.readPatches(queries);
   }
 
-  readEntities(
-    queries: PatchesDbQuery[]
-  ): Promise<PatchesDbResult<Entity>[]> {
+  readEntities(queries: PatchesDbQuery[]): Promise<PatchesDbResult<Entity>[]> {
     return this.db.readEntities(queries);
+  }
+
+  async updateMetadata(
+    updates: { patchId: string; metadata: Record<string, unknown> }[]
+  ): Promise<void> {
+    return this.db.updateMetadata(updates);
   }
 
   subscribe = {

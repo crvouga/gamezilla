@@ -69,7 +69,7 @@ export function TodoListsOverview() {
       return;
     }
     const entityId = crypto.randomUUID();
-    await db.write([
+    await db.append([
       {
         entityId,
         entityType: 'todoList',
@@ -89,7 +89,7 @@ export function TodoListsOverview() {
   };
 
   const deleteList = async (listId: string) => {
-    await db.write([
+    await db.append([
       {
         entityId: listId,
         entityType: 'todoList',

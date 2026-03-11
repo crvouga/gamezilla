@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import type { PatchesDb, SyncStatePatchesDb } from '../interface';
+import type { PatchesDb } from '../interface';
 import { implementations } from './test-helpers';
 
 describe.each(implementations)('$name', ({ name, factory }) => {
@@ -35,7 +35,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
       attributes: { priority: null },
     };
 
-    const written = await db.write([p1, p2, p3]);
+    const written = await db.append([p1, p2, p3]);
     expect(written).toHaveLength(3);
 
     const [patchResult] = await db.readPatches([
@@ -67,7 +67,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
   });
 
   test('patches ordered by lineage, nextCursor is patchId for pagination', async () => {
-    await db.write([
+    await db.append([
       { entityId: 'e2', entityType: 'task', attributes: { x: 1 } },
       { entityId: 'e2', entityType: 'task', attributes: { x: 2 } },
       { entityId: 'e2', entityType: 'task', attributes: { x: 3 } },
@@ -95,7 +95,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
   });
 
   test('synced patches preserve parentId from client', async () => {
-    const [p1] = await db.write([
+    const [p1] = await db.append([
       { entityId: 'e3', entityType: 'task', attributes: { a: 1 } },
       { entityId: 'e3', entityType: 'task', attributes: { a: 2 } },
     ]);
@@ -110,7 +110,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
       createdBy: '',
       sessionId: '',
     };
-    await db.write([syncedP3]);
+    await db.append([syncedP3]);
 
     const [result] = await db.readPatches([
       { entityType: 'task', entityId: 'e3' },
@@ -119,12 +119,9 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     expect(p3Read?.parentId).toBe(p1.patchId);
   });
 
-  test('getUnsyncedPatches returns create and soft-delete patches (todo list delete scenario)', async () => {
-    const syncDb = db as SyncStatePatchesDb;
-    if (!('getUnsyncedPatches' in syncDb)) return;
-
+  test('readPatches with where source metadata returns patches without syncedAt (unsynced)', async () => {
     const listId = crypto.randomUUID();
-    const [createPatch] = await db.write([
+    const [createPatch] = await db.append([
       {
         entityId: listId,
         entityType: 'todoList',
@@ -135,7 +132,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
         },
       },
     ]);
-    const [deletePatch] = await db.write([
+    const [deletePatch] = await db.append([
       {
         entityId: listId,
         entityType: 'todoList',
@@ -143,12 +140,35 @@ describe.each(implementations)('$name', ({ name, factory }) => {
       },
     ]);
 
-    const unsynced = await syncDb.getUnsyncedPatches();
+    const [result] = await db.readPatches([
+      {
+        where: {
+          type: 'not_exists',
+          attribute: 'syncedAt',
+          source: 'metadata',
+        },
+      },
+    ]);
+    const unsynced = result.data;
     expect(unsynced).toHaveLength(2);
     expect(unsynced.map((p) => p.patchId)).toContain(createPatch.patchId);
     expect(unsynced.map((p) => p.patchId)).toContain(deletePatch.patchId);
     expect(
       unsynced.find((p) => p.patchId === deletePatch.patchId)?.attributes
     ).toEqual({ deleted: true });
+
+    await db.updateMetadata(
+      unsynced.map((p) => ({ patchId: p.patchId, metadata: { syncedAt: '1' } }))
+    );
+    const [afterSync] = await db.readPatches([
+      {
+        where: {
+          type: 'not_exists',
+          attribute: 'syncedAt',
+          source: 'metadata',
+        },
+      },
+    ]);
+    expect(afterSync.data).toHaveLength(0);
   });
 });

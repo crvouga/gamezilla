@@ -183,7 +183,7 @@ export function TodoListDetail() {
   const addTodo = async () => {
     const title = input.trim();
     if (!title) return;
-    await db.write([
+    await db.append([
       {
         entityId: crypto.randomUUID(),
         entityType: 'todo',
@@ -200,7 +200,7 @@ export function TodoListDetail() {
   };
 
   const toggleTodo = async (entity: TodoEntity) => {
-    await db.write([
+    await db.append([
       {
         entityId: entity.entityId,
         entityType: 'todo',
@@ -210,7 +210,7 @@ export function TodoListDetail() {
   };
 
   const deleteTodo = async (entity: TodoEntity) => {
-    await db.write([
+    await db.append([
       {
         entityId: entity.entityId,
         entityType: 'todo',

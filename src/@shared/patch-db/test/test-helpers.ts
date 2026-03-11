@@ -4,7 +4,7 @@ import { SqlClientImplBunSqlite } from '../../sql-client/impl-bun-sqlite';
 import type { SqlClient } from '../../sql-client/interface';
 import { SyncPatchesDb, type RemoteInvalidationSource } from '../impl-sync';
 import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
-import type { PatchesDb, PatchInput, SyncStatePatchesDb } from '../interface';
+import type { PatchesDb, PatchInput } from '../interface';
 
 /** Creates a RemoteInvalidationSource that tests can trigger manually via invalidate(). */
 export function createManualRemoteInvalidationSource(): RemoteInvalidationSource & {
@@ -47,7 +47,7 @@ export const implementations: { name: string; factory: DbFactory }[] = [
 
 export type SyncDbFixture = {
   syncDb: SyncPatchesDb;
-  local: SyncStatePatchesDb;
+  local: PatchesDb;
   remote: PatchesDb;
   pubSub: InMemoryPubSub;
   /** Call to trigger a poll (simulates remote invalidation). */

@@ -21,59 +21,73 @@ export type Entity = {
   attributes: Record<string, unknown>;
 };
 
+/** Source for where clause attribute lookup. Default is 'attributes'. */
+export type PatchesDbQueryWhereSource = 'attributes' | 'metadata';
+
 export type PatchesDbQueryWhereClause =
   | {
       type: '=';
       attribute: string;
       value: unknown;
+      source?: PatchesDbQueryWhereSource;
     }
   | {
       type: '!=';
       attribute: string;
       value: unknown;
+      source?: PatchesDbQueryWhereSource;
     }
   | {
       type: 'in';
       attribute: string;
       values: unknown[];
+      source?: PatchesDbQueryWhereSource;
     }
   | {
       type: 'not_in';
       attribute: string;
       values: unknown[];
+      source?: PatchesDbQueryWhereSource;
     }
   | {
       type: 'gt';
       attribute: string;
       value: unknown;
+      source?: PatchesDbQueryWhereSource;
     }
   | {
       type: 'gte';
       attribute: string;
       value: unknown;
+      source?: PatchesDbQueryWhereSource;
     }
   | {
       type: 'lt';
       attribute: string;
       value: unknown;
+      source?: PatchesDbQueryWhereSource;
     }
   | {
       type: 'lte';
       attribute: string;
       value: unknown;
+      source?: PatchesDbQueryWhereSource;
     }
   | {
       type: 'contains';
       attribute: string;
       value: string;
+      source?: PatchesDbQueryWhereSource;
     }
   | {
       type: 'exists';
       attribute: string;
+      source?: PatchesDbQueryWhereSource;
     }
   | {
       type: 'not_exists';
       attribute: string;
+      source?: PatchesDbQueryWhereSource;
     }
   | {
       type: 'or';
@@ -94,7 +108,7 @@ export type PatchesDbQueryOrderBy = {
 };
 
 export type PatchesDbQuery = {
-  entityType: string;
+  entityType?: string;
   entityId?: string | string[];
   where?: PatchesDbQueryWhereClause;
   orderBy?: PatchesDbQueryOrderBy[];
@@ -113,12 +127,10 @@ export type PatchesDbResult<T> = {
 };
 
 export interface PatchesDb {
-  write(patches: PatchInput[]): Promise<Patch[]>;
+  append(patches: PatchInput[]): Promise<Patch[]>;
   readPatches(queries: PatchesDbQuery[]): Promise<PatchesDbResult<Patch>[]>;
   readEntities(queries: PatchesDbQuery[]): Promise<PatchesDbResult<Entity>[]>;
-}
-
-export interface SyncStatePatchesDb extends PatchesDb {
-  getUnsyncedPatches(): Promise<Patch[]>;
-  markPatchesSynced(patchIds: string[]): Promise<void>;
+  updateMetadata(
+    updates: { patchId: string; metadata: Record<string, unknown> }[]
+  ): Promise<void>;
 }
