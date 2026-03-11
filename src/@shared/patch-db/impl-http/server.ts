@@ -21,18 +21,13 @@ export function createPatchDbHttpHandlers(
     const url = new URL(req.url);
 
     if (url.pathname === PATCHES_QUERY && req.method === 'POST') {
-      const body = (await req.json()) as {
-        queries: PatchesDbQuery[];
-        knownPatches?: Patch[][];
-      };
-      const { queries, knownPatches } = body;
-      if (knownPatches?.length) {
-        for (const patches of knownPatches) {
-          if (patches.length > 0) {
-            await db.write(patches);
-            // Do NOT publish here: knownPatches are patches the client already has.
-            // Publishing would trigger SSE → poll → knownPatches → infinite loop.
-          }
+      const body = (await req.json()) as { queries: PatchesDbQuery[] };
+      const { queries } = body;
+      for (const q of queries) {
+        if (q.knownPatches?.length) {
+          await db.write(q.knownPatches);
+          // Do NOT publish here: knownPatches are patches the client already has.
+          // Publishing would trigger SSE → poll → knownPatches → infinite loop.
         }
       }
       const results = await db.readPatches(queries);

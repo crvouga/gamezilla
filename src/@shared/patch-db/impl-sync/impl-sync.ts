@@ -84,11 +84,8 @@ export class SyncPatchesDb implements PatchesDb {
     return result;
   }
 
-  readPatches(
-    queries: PatchesDbQuery[],
-    knownPatches?: Patch[][]
-  ): Promise<PatchesDbResult<Patch>[]> {
-    return this.local.readPatches(queries, knownPatches);
+  readPatches(queries: PatchesDbQuery[]): Promise<PatchesDbResult<Patch>[]> {
+    return this.local.readPatches(queries);
   }
 
   readEntities(query: PatchesDbQuery): Promise<PatchesDbResult<Entity>> {
@@ -183,7 +180,6 @@ export class SyncPatchesDb implements PatchesDb {
     this.pollInProgress = true;
     try {
       const syncQueries: PatchesDbQuery[] = [];
-      const knownPatches: Patch[][] = [];
       for (const { query } of entries) {
         const [localResult] = await this.local.readPatches([
           queryForCursor(query),
@@ -192,8 +188,8 @@ export class SyncPatchesDb implements PatchesDb {
         syncQueries.push({
           ...query,
           after: cursorPatchId ?? undefined,
+          knownPatches: localResult.data,
         });
-        knownPatches.push(localResult.data);
 
         if (query.where != null) {
           const entityIds = [
@@ -208,13 +204,13 @@ export class SyncPatchesDb implements PatchesDb {
               entityType: query.entityType,
               entityId: entityIds,
               after: trackedCursor ?? undefined,
+              knownPatches: trackedResult.data,
             });
-            knownPatches.push(trackedResult.data);
           }
         }
       }
 
-      const results = await this.remote.readPatches(syncQueries, knownPatches);
+      const results = await this.remote.readPatches(syncQueries);
 
       let hasNewPatches = false;
       for (const remoteResult of results) {

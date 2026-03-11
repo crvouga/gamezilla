@@ -248,8 +248,7 @@ export class PatchDbImplSqlite implements SyncStatePatchesDb {
   }
 
   async readPatches(
-    queries: PatchesDbQuery[],
-    _knownPatches?: Patch[][]
+    queries: PatchesDbQuery[]
   ): Promise<PatchesDbResult<Patch>[]> {
     if (queries.length === 0) return [];
     return Promise.all(queries.map((q) => this.patchesOne(q)));

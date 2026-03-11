@@ -101,6 +101,7 @@ export type PatchesDbQuery = {
   limit?: number;
   offset?: number;
   after?: string;
+  knownPatches?: Patch[];
 };
 
 export type PatchesDbResult<T> = {
@@ -112,10 +113,7 @@ export type PatchesDbResult<T> = {
 
 export interface PatchesDb {
   write(patches: PatchInput[]): Promise<Patch[]>;
-  readPatches(
-    queries: PatchesDbQuery[],
-    knownPatches?: Patch[][]
-  ): Promise<PatchesDbResult<Patch>[]>;
+  readPatches(queries: PatchesDbQuery[]): Promise<PatchesDbResult<Patch>[]>;
   readEntities(query: PatchesDbQuery): Promise<PatchesDbResult<Entity>>;
 }
 

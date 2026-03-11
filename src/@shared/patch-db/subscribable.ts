@@ -40,11 +40,8 @@ export class SubscribablePatchesDb implements PatchesDb {
     return result;
   }
 
-  readPatches(
-    queries: PatchesDbQuery[],
-    knownPatches?: Patch[][]
-  ): Promise<PatchesDbResult<Patch>[]> {
-    return this.db.readPatches(queries, knownPatches);
+  readPatches(queries: PatchesDbQuery[]): Promise<PatchesDbResult<Patch>[]> {
+    return this.db.readPatches(queries);
   }
 
   readEntities(query: PatchesDbQuery): Promise<PatchesDbResult<Entity>> {
