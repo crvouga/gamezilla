@@ -1,11 +1,6 @@
 import type { PubSub } from '../../pub-sub/interface';
 import type { PatchesDb, PatchesDbQuery } from '../interface';
-import {
-  ENTITIES_QUERY,
-  PATCHES_EVENTS,
-  PATCHES_QUERY,
-  PATCHES_WRITE,
-} from './shared';
+import { PATCHES_EVENTS, PATCHES_READ, PATCHES_WRITE } from './shared';
 
 const PATCHES_DB_TOPIC = 'patches-db';
 
@@ -20,31 +15,25 @@ export function createPatchDbHttpHandlers(
   return async (req: Request): Promise<Response> => {
     const url = new URL(req.url);
 
-    if (url.pathname === PATCHES_QUERY && req.method === 'POST') {
+    if (url.pathname === PATCHES_READ && req.method === 'POST') {
       const body = (await req.json()) as { queries: PatchesDbQuery[] };
       const { queries } = body;
       for (const q of queries) {
         if (q.knownPatches?.length) {
-          await db.append(q.knownPatches);
+          await db.write(q.knownPatches);
           // Do NOT publish here: knownPatches are patches the client already has.
           // Publishing would trigger SSE → poll → knownPatches → infinite loop.
         }
       }
-      const results = await db.readPatches(queries);
-      return Response.json(results);
-    }
-
-    if (url.pathname === ENTITIES_QUERY && req.method === 'POST') {
-      const body = (await req.json()) as { queries: PatchesDbQuery[] };
-      const results = await db.readEntities(body.queries);
+      const results = await db.readEntities(queries);
       return Response.json(results);
     }
 
     if (url.pathname === PATCHES_WRITE && req.method === 'POST') {
       const body = (await req.json()) as {
-        patches: Parameters<PatchesDb['append']>[0];
+        patches: Parameters<PatchesDb['write']>[0];
       };
-      const patches = await db.append(body.patches);
+      const patches = await db.write(body.patches);
       publishInvalidated(pubSub);
       return Response.json(patches);
     }

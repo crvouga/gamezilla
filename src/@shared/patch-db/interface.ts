@@ -118,18 +118,18 @@ export type PatchesDbQuery = {
   knownPatches?: Patch[];
 };
 
-export type PatchesDbResult<T> = {
+export type PatchesDbResult = {
   query: PatchesDbQuery;
-  data: T[];
+  entities: Entity[];
+  patches: Patch[];
   total: number;
   hasMore: boolean;
   nextCursor: string | null;
 };
 
 export interface PatchesDb {
-  append(patches: PatchInput[]): Promise<Patch[]>;
-  readPatches(queries: PatchesDbQuery[]): Promise<PatchesDbResult<Patch>[]>;
-  readEntities(queries: PatchesDbQuery[]): Promise<PatchesDbResult<Entity>[]>;
+  write(patches: PatchInput[]): Promise<Patch[]>;
+  readEntities(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]>;
   updateMetadata(
     updates: { patchId: string; metadata: Record<string, unknown> }[]
   ): Promise<void>;

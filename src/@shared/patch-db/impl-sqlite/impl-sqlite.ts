@@ -175,7 +175,7 @@ export class PatchDbImplSqlite implements PatchesDb {
     return rows.length > 0 ? rows[0].patch_id : null;
   }
 
-  async append(patches: PatchInput[]): Promise<Patch[]> {
+  async write(patches: PatchInput[]): Promise<Patch[]> {
     if (patches.length === 0) return [];
     const result: Patch[] = [];
     await this.sqlClient.transaction(async (tx) => {
@@ -235,16 +235,29 @@ export class PatchDbImplSqlite implements PatchesDb {
     return result;
   }
 
-  async readPatches(
-    queries: PatchesDbQuery[]
-  ): Promise<PatchesDbResult<Patch>[]> {
+  async readEntities(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
     if (queries.length === 0) return [];
-    return Promise.all(queries.map((q) => this.patchesOne(q)));
+    return Promise.all(queries.map((q) => this.readOne(q)));
   }
 
-  private async patchesOne(
+  private async readOne(query: PatchesDbQuery): Promise<PatchesDbResult> {
+    const metadataWhere =
+      query.where != null
+        ? extractClausesBySource(query.where, 'metadata')
+        : null;
+    const isSingleEntityQuery = typeof query.entityId === 'string';
+    const usePatchBasedLogic =
+      metadataWhere != null || query.after != null || isSingleEntityQuery;
+
+    if (usePatchBasedLogic) {
+      return this.readOnePatchBased(query);
+    }
+    return this.readOneSnapshotBased(query);
+  }
+
+  private async readOnePatchBased(
     query: PatchesDbQuery
-  ): Promise<PatchesDbResult<Patch>> {
+  ): Promise<PatchesDbResult> {
     const attributeWhere =
       query.where != null
         ? extractClausesBySource(query.where, 'attributes')
@@ -363,28 +376,43 @@ export class PatchDbImplSqlite implements PatchesDb {
       ...limit.params,
     ]);
 
-    const data = rows.map(toPatch);
+    const patches = rows.map(toPatch);
     const hasMore =
       query.after != null
-        ? query.limit != null && data.length >= query.limit
+        ? query.limit != null && patches.length >= query.limit
         : query.limit != null
-          ? (query.offset ?? 0) + data.length < total
+          ? (query.offset ?? 0) + patches.length < total
           : false;
-    const nextCursor = data.length > 0 ? data[data.length - 1].patchId : null;
+    const nextCursor =
+      patches.length > 0 ? patches[patches.length - 1].patchId : null;
 
-    return { query, data, total, hasMore, nextCursor };
+    const entityKeysOrdered: string[] = [];
+    const entityKeysSeen = new Set<string>();
+    for (const p of patches) {
+      const key = `${p.entityId}\0${p.entityType}`;
+      if (!entityKeysSeen.has(key)) {
+        entityKeysSeen.add(key);
+        entityKeysOrdered.push(key);
+      }
+    }
+    const data: Entity[] = [];
+    for (const key of entityKeysOrdered) {
+      const [entityId, entityType] = key.split('\0');
+      const snapRows = await this.sqlClient.query<SnapshotRow>(
+        'SELECT * FROM snapshots WHERE entity_id = ? AND entity_type = ?',
+        [entityId, entityType]
+      );
+      if (snapRows.length > 0) {
+        data.push(toEntity(snapRows[0]));
+      }
+    }
+
+    return { query, entities: data, patches, total, hasMore, nextCursor };
   }
 
-  async readEntities(
-    queries: PatchesDbQuery[]
-  ): Promise<PatchesDbResult<Entity>[]> {
-    if (queries.length === 0) return [];
-    return Promise.all(queries.map((q) => this.entitiesOne(q)));
-  }
-
-  private async entitiesOne(
+  private async readOneSnapshotBased(
     query: PatchesDbQuery
-  ): Promise<PatchesDbResult<Entity>> {
+  ): Promise<PatchesDbResult> {
     const { conditions, params } = buildSnapshotConditions(query);
     const whereSQL = conditions.join(' AND ');
 
@@ -406,7 +434,30 @@ export class PatchDbImplSqlite implements PatchesDb {
     const hasMore =
       query.limit != null ? (query.offset ?? 0) + data.length < total : false;
 
-    return { query, data, total, hasMore, nextCursor: null };
+    const patches: Patch[] = [];
+    for (const row of rows) {
+      const patchRows = await this.sqlClient.query<PatchRow>(
+        selectPatchesForSnapshot,
+        [
+          row.entity_id,
+          row.entity_type,
+          row.entity_id,
+          row.entity_type,
+          row.entity_id,
+          row.entity_type,
+        ]
+      );
+      patches.push(...patchRows.map(toPatch));
+    }
+
+    return {
+      query,
+      entities: data,
+      patches,
+      total,
+      hasMore,
+      nextCursor: null,
+    };
   }
 
   async updateMetadata(

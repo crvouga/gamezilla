@@ -18,20 +18,20 @@ describe.each(implementations)('$name', ({ name, factory }) => {
 
   describe('where clauses', () => {
     beforeEach(async () => {
-      await db.append(whereClauseFixtures);
+      await db.write(whereClauseFixtures);
     });
 
     test('entities without filter returns all', async () => {
       const [all] = await db.readEntities([{ entityType: 'item' }]);
-      expect(all.data).toHaveLength(4);
+      expect(all.entities).toHaveLength(4);
     });
 
     test('entityId filter works', async () => {
       const [result] = await db.readEntities([
         { entityType: 'item', entityId: 't1' },
       ]);
-      expect(result.data).toHaveLength(1);
-      expect(result.data[0].attributes.tag).toBe('a');
+      expect(result.entities).toHaveLength(1);
+      expect(result.entities[0].attributes.tag).toBe('a');
     });
 
     test('where = matches exact value', async () => {
@@ -41,8 +41,8 @@ describe.each(implementations)('$name', ({ name, factory }) => {
           where: { type: '=', attribute: 'tag', value: 'a' },
         },
       ]);
-      expect(result.data).toHaveLength(2);
-      const ids = result.data.map((e) => e.entityId).sort();
+      expect(result.entities).toHaveLength(2);
+      const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t1', 't3']);
     });
 
@@ -53,7 +53,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
           where: { type: '!=', attribute: 'tag', value: 'a' },
         },
       ]);
-      const ids = result.data.map((e) => e.entityId).sort();
+      const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t2']);
     });
 
@@ -64,7 +64,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
           where: { type: 'in', attribute: 'score', values: [10, 30] },
         },
       ]);
-      const ids = result.data.map((e) => e.entityId).sort();
+      const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t1', 't3']);
     });
 
@@ -75,7 +75,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
           where: { type: 'not_in', attribute: 'score', values: [10, 30] },
         },
       ]);
-      const ids = result.data.map((e) => e.entityId).sort();
+      const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t2', 't4']);
     });
 
@@ -86,7 +86,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
           where: { type: 'gt', attribute: 'score', value: 20 },
         },
       ]);
-      const ids = result.data.map((e) => e.entityId).sort();
+      const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t3', 't4']);
     });
 
@@ -97,7 +97,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
           where: { type: 'gte', attribute: 'score', value: 20 },
         },
       ]);
-      const ids = result.data.map((e) => e.entityId).sort();
+      const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t2', 't3', 't4']);
     });
 
@@ -108,7 +108,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
           where: { type: 'lt', attribute: 'score', value: 20 },
         },
       ]);
-      const ids = result.data.map((e) => e.entityId).sort();
+      const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t1']);
     });
 
@@ -119,7 +119,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
           where: { type: 'lte', attribute: 'score', value: 20 },
         },
       ]);
-      const ids = result.data.map((e) => e.entityId).sort();
+      const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t1', 't2']);
     });
 
@@ -130,8 +130,8 @@ describe.each(implementations)('$name', ({ name, factory }) => {
           where: { type: 'contains', attribute: 'name', value: 'Gadget' },
         },
       ]);
-      expect(result.data).toHaveLength(1);
-      expect(result.data[0].entityId).toBe('t2');
+      expect(result.entities).toHaveLength(1);
+      expect(result.entities[0].entityId).toBe('t2');
     });
 
     test('where exists matches entities that have the attribute', async () => {
@@ -141,7 +141,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
           where: { type: 'exists', attribute: 'tag' },
         },
       ]);
-      const ids = result.data.map((e) => e.entityId).sort();
+      const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t1', 't2', 't3']);
     });
 
@@ -152,8 +152,8 @@ describe.each(implementations)('$name', ({ name, factory }) => {
           where: { type: 'not_exists', attribute: 'tag' },
         },
       ]);
-      expect(result.data).toHaveLength(1);
-      expect(result.data[0].entityId).toBe('t4');
+      expect(result.entities).toHaveLength(1);
+      expect(result.entities[0].entityId).toBe('t4');
     });
 
     test('where and requires all clauses to match', async () => {
@@ -169,8 +169,8 @@ describe.each(implementations)('$name', ({ name, factory }) => {
           },
         },
       ]);
-      expect(result.data).toHaveLength(1);
-      expect(result.data[0].entityId).toBe('t3');
+      expect(result.entities).toHaveLength(1);
+      expect(result.entities[0].entityId).toBe('t3');
     });
 
     test('where or requires any clause to match', async () => {
@@ -186,7 +186,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
           },
         },
       ]);
-      const ids = result.data.map((e) => e.entityId).sort();
+      const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t1', 't4']);
     });
 
@@ -200,7 +200,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
           },
         },
       ]);
-      const ids = result.data.map((e) => e.entityId).sort();
+      const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t2']);
     });
 
@@ -220,7 +220,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
           },
         },
       ]);
-      const ids = result.data.map((e) => e.entityId).sort();
+      const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t2', 't4']);
     });
   });

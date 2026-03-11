@@ -35,29 +35,26 @@ describe.each(implementations)('$name', ({ name, factory }) => {
       attributes: { priority: null },
     };
 
-    const written = await db.append([p1, p2, p3]);
+    const written = await db.write([p1, p2, p3]);
     expect(written).toHaveLength(3);
 
-    const [patchResult] = await db.readPatches([
+    const [result] = await db.readEntities([
       { entityType: 'task', entityId: 'e1' },
     ]);
-    expect(patchResult.data).toHaveLength(3);
-    expect(patchResult.total).toBe(3);
+    expect(result.patches).toHaveLength(3);
+    expect(result.total).toBe(3);
 
-    expect(patchResult.data[0].parentId).toBeNull();
-    expect(patchResult.data[1].parentId).toBe(written[0].patchId);
-    expect(patchResult.data[2].parentId).toBe(written[1].patchId);
+    expect(result.patches[0].parentId).toBeNull();
+    expect(result.patches[1].parentId).toBe(written[0].patchId);
+    expect(result.patches[2].parentId).toBe(written[1].patchId);
 
-    expect(patchResult.data[0].createdAt).toBeDefined();
-    expect(patchResult.data[0].recordedAt).toBeDefined();
-    expect(typeof patchResult.data[0].createdAt).toBe('string');
-    expect(typeof patchResult.data[0].recordedAt).toBe('string');
+    expect(result.patches[0].createdAt).toBeDefined();
+    expect(result.patches[0].recordedAt).toBeDefined();
+    expect(typeof result.patches[0].createdAt).toBe('string');
+    expect(typeof result.patches[0].recordedAt).toBe('string');
 
-    const [entityResult] = await db.readEntities([
-      { entityType: 'task', entityId: 'e1' },
-    ]);
-    expect(entityResult.data).toHaveLength(1);
-    const entity = entityResult.data[0];
+    expect(result.entities).toHaveLength(1);
+    const entity = result.entities[0];
     expect(entity.entityId).toBe('e1');
     expect(entity.entityType).toBe('task');
     expect(entity.attributes.title).toBe('Buy milk');
@@ -67,20 +64,20 @@ describe.each(implementations)('$name', ({ name, factory }) => {
   });
 
   test('patches ordered by lineage, nextCursor is patchId for pagination', async () => {
-    await db.append([
+    await db.write([
       { entityId: 'e2', entityType: 'task', attributes: { x: 1 } },
       { entityId: 'e2', entityType: 'task', attributes: { x: 2 } },
       { entityId: 'e2', entityType: 'task', attributes: { x: 3 } },
     ]);
 
-    const [page1] = await db.readPatches([
+    const [page1] = await db.readEntities([
       { entityType: 'task', entityId: 'e2', limit: 2 },
     ]);
-    expect(page1.data).toHaveLength(2);
-    expect(page1.nextCursor).toBe(page1.data[1].patchId);
+    expect(page1.patches).toHaveLength(2);
+    expect(page1.nextCursor).toBe(page1.patches[1].patchId);
     expect(page1.hasMore).toBe(true);
 
-    const [page2] = await db.readPatches([
+    const [page2] = await db.readEntities([
       {
         entityType: 'task',
         entityId: 'e2',
@@ -88,14 +85,14 @@ describe.each(implementations)('$name', ({ name, factory }) => {
         after: page1.nextCursor!,
       },
     ]);
-    expect(page2.data).toHaveLength(1);
-    expect(page2.data[0].attributes.x).toBe(3);
-    expect(page2.nextCursor).toBe(page2.data[0].patchId);
+    expect(page2.patches).toHaveLength(1);
+    expect(page2.patches[0].attributes.x).toBe(3);
+    expect(page2.nextCursor).toBe(page2.patches[0].patchId);
     expect(page2.hasMore).toBe(false);
   });
 
   test('synced patches preserve parentId from client', async () => {
-    const [p1] = await db.append([
+    const [p1] = await db.write([
       { entityId: 'e3', entityType: 'task', attributes: { a: 1 } },
       { entityId: 'e3', entityType: 'task', attributes: { a: 2 } },
     ]);
@@ -110,18 +107,18 @@ describe.each(implementations)('$name', ({ name, factory }) => {
       createdBy: '',
       sessionId: '',
     };
-    await db.append([syncedP3]);
+    await db.write([syncedP3]);
 
-    const [result] = await db.readPatches([
+    const [result] = await db.readEntities([
       { entityType: 'task', entityId: 'e3' },
     ]);
-    const p3Read = result.data.find((x) => x.patchId === syncedP3.patchId);
+    const p3Read = result.patches.find((x) => x.patchId === syncedP3.patchId);
     expect(p3Read?.parentId).toBe(p1.patchId);
   });
 
-  test('readPatches with where source metadata returns patches without syncedAt (unsynced)', async () => {
+  test('read with where source metadata returns patches without syncedAt (unsynced)', async () => {
     const listId = crypto.randomUUID();
-    const [createPatch] = await db.append([
+    const [createPatch] = await db.write([
       {
         entityId: listId,
         entityType: 'todoList',
@@ -132,7 +129,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
         },
       },
     ]);
-    const [deletePatch] = await db.append([
+    const [deletePatch] = await db.write([
       {
         entityId: listId,
         entityType: 'todoList',
@@ -140,7 +137,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
       },
     ]);
 
-    const [result] = await db.readPatches([
+    const [result] = await db.readEntities([
       {
         where: {
           type: 'not_exists',
@@ -149,7 +146,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
         },
       },
     ]);
-    const unsynced = result.data;
+    const unsynced = result.patches;
     expect(unsynced).toHaveLength(2);
     expect(unsynced.map((p) => p.patchId)).toContain(createPatch.patchId);
     expect(unsynced.map((p) => p.patchId)).toContain(deletePatch.patchId);
@@ -160,7 +157,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     await db.updateMetadata(
       unsynced.map((p) => ({ patchId: p.patchId, metadata: { syncedAt: '1' } }))
     );
-    const [afterSync] = await db.readPatches([
+    const [afterSync] = await db.readEntities([
       {
         where: {
           type: 'not_exists',
@@ -169,6 +166,6 @@ describe.each(implementations)('$name', ({ name, factory }) => {
         },
       },
     ]);
-    expect(afterSync.data).toHaveLength(0);
+    expect(afterSync.patches).toHaveLength(0);
   });
 });

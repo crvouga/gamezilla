@@ -1,18 +1,12 @@
 import type { Unsubscribe } from '../../pub-sub/interface';
 import type {
-  Entity,
   Patch,
   PatchesDb,
   PatchesDbQuery,
   PatchesDbResult,
   PatchInput,
 } from '../interface';
-import {
-  ENTITIES_QUERY,
-  PATCHES_EVENTS,
-  PATCHES_QUERY,
-  PATCHES_WRITE,
-} from './shared';
+import { PATCHES_EVENTS, PATCHES_READ, PATCHES_WRITE } from './shared';
 
 export type RemoteInvalidationSource = {
   subscribe(callback: () => void): Unsubscribe;
@@ -93,21 +87,12 @@ export class PatchDbImplHttp implements PatchesDb {
     return res.json() as Promise<T>;
   }
 
-  async readPatches(
-    queries: PatchesDbQuery[]
-  ): Promise<PatchesDbResult<Patch>[]> {
+  async readEntities(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
     if (queries.length === 0) return [];
-    return this.post<PatchesDbResult<Patch>[]>(PATCHES_QUERY, { queries });
+    return this.post<PatchesDbResult[]>(PATCHES_READ, { queries });
   }
 
-  async readEntities(
-    queries: PatchesDbQuery[]
-  ): Promise<PatchesDbResult<Entity>[]> {
-    if (queries.length === 0) return [];
-    return this.post<PatchesDbResult<Entity>[]>(ENTITIES_QUERY, { queries });
-  }
-
-  async append(patches: PatchInput[]): Promise<Patch[]> {
+  async write(patches: PatchInput[]): Promise<Patch[]> {
     return this.post<Patch[]>(PATCHES_WRITE, { patches });
   }
 

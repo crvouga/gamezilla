@@ -19,11 +19,12 @@ export function usePatchesDb(): PatchesDb {
   return db;
 }
 
-export function useEntities(query: PatchesDbQuery): PatchesDbResult<Entity> {
+export function useEntities(query: PatchesDbQuery): PatchesDbResult {
   const db = useDependency(SubscribablePatchesDbToken);
-  const [result, setResult] = useState<PatchesDbResult<Entity>>(() => ({
+  const [result, setResult] = useState<PatchesDbResult>(() => ({
     query,
-    data: [],
+    entities: [],
+    patches: [],
     total: 0,
     hasMore: false,
     nextCursor: null,
@@ -39,5 +40,5 @@ export function useEntities(query: PatchesDbQuery): PatchesDbResult<Entity> {
 
 export function useEntity(query: PatchesDbQuery): Entity | null {
   const entities = useEntities(query);
-  return entities.data.length > 0 ? entities.data[0] : null;
+  return entities.entities.length > 0 ? entities.entities[0] : null;
 }

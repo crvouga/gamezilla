@@ -1,6 +1,5 @@
 import type { PubSub, Unsubscribe } from '../../pub-sub/interface';
 import type {
-  Entity,
   Patch,
   PatchesDb,
   PatchesDbQuery,
@@ -39,11 +38,11 @@ export class SyncPatchesDb implements PatchesDb {
   subscribe = {
     patches: (
       query: PatchesDbQuery,
-      listener: (result: PatchesDbResult<Patch>) => void
+      listener: (result: PatchesDbResult) => void
     ): Unsubscribe => this.registerAndSubscribe(query, 'patches', listener),
     entities: (
       query: PatchesDbQuery,
-      listener: (result: PatchesDbResult<Entity>) => void
+      listener: (result: PatchesDbResult) => void
     ): Unsubscribe => this.registerAndSubscribe(query, 'entities', listener),
   };
 
@@ -73,21 +72,17 @@ export class SyncPatchesDb implements PatchesDb {
     }
   }
 
-  async append(patches: PatchInput[]): Promise<Patch[]> {
+  async write(patches: PatchInput[]): Promise<Patch[]> {
     const withUnsynced = patches.map((p) => ({
       ...p,
       meta: { ...p.meta, syncedAt: null },
     }));
-    const result = await this.local.append(withUnsynced);
+    const result = await this.local.write(withUnsynced);
     this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
     return result;
   }
 
-  readPatches(queries: PatchesDbQuery[]): Promise<PatchesDbResult<Patch>[]> {
-    return this.local.readPatches(queries);
-  }
-
-  readEntities(queries: PatchesDbQuery[]): Promise<PatchesDbResult<Entity>[]> {
+  readEntities(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
     return this.local.readEntities(queries);
   }
 
@@ -101,10 +96,10 @@ export class SyncPatchesDb implements PatchesDb {
     return JSON.stringify(query);
   }
 
-  private registerAndSubscribe<T extends Patch | Entity>(
+  private registerAndSubscribe(
     query: PatchesDbQuery,
-    mode: 'patches' | 'entities',
-    listener: (result: PatchesDbResult<T>) => void
+    _mode: 'patches' | 'entities',
+    listener: (result: PatchesDbResult) => void
   ): Unsubscribe {
     const key = this.queryKey(query);
     const existing = this.activeQueries.get(key);
@@ -116,10 +111,7 @@ export class SyncPatchesDb implements PatchesDb {
     }
 
     const notify = async () => {
-      const result =
-        mode === 'patches'
-          ? ((await this.local.readPatches([query]))[0] as PatchesDbResult<T>)
-          : ((await this.local.readEntities([query]))[0] as PatchesDbResult<T>);
+      const [result] = await this.local.readEntities([query]);
       listener(result);
     };
     void notify();
@@ -167,7 +159,7 @@ export class SyncPatchesDb implements PatchesDb {
 
   private async pushUnsynced(): Promise<void> {
     try {
-      const [result] = await this.local.readPatches([
+      const [result] = await this.local.readEntities([
         {
           where: {
             type: 'not_exists',
@@ -176,9 +168,9 @@ export class SyncPatchesDb implements PatchesDb {
           },
         },
       ]);
-      const patches = result.data;
+      const patches = result.patches;
       if (patches.length === 0) return;
-      await this.remote.append(patches);
+      await this.remote.write(patches);
       await this.local.updateMetadata(
         patches.map((p) => ({
           patchId: p.patchId,
@@ -200,45 +192,45 @@ export class SyncPatchesDb implements PatchesDb {
     try {
       const syncQueries: PatchesDbQuery[] = [];
       for (const { query } of entries) {
-        const [localResult] = await this.local.readPatches([
+        const [localResult] = await this.local.readEntities([
           queryForCursor(query),
         ]);
-        const cursorPatchId = getCursorPatchId(localResult.data);
+        const cursorPatchId = getCursorPatchId(localResult.patches);
         syncQueries.push({
           ...query,
           after: cursorPatchId ?? undefined,
-          knownPatches: localResult.data,
+          knownPatches: localResult.patches,
         });
 
         if (query.where != null) {
           const entityIds = [
-            ...new Set(localResult.data.map((p) => p.entityId)),
+            ...new Set(localResult.patches.map((p) => p.entityId)),
           ];
           if (entityIds.length > 0) {
-            const [trackedResult] = await this.local.readPatches([
+            const [trackedResult] = await this.local.readEntities([
               { entityType: query.entityType, entityId: entityIds },
             ]);
-            const trackedCursor = getCursorPatchId(trackedResult.data);
+            const trackedCursor = getCursorPatchId(trackedResult.patches);
             syncQueries.push({
               entityType: query.entityType,
               entityId: entityIds,
               after: trackedCursor ?? undefined,
-              knownPatches: trackedResult.data,
+              knownPatches: trackedResult.patches,
             });
           }
         }
       }
 
-      const results = await this.remote.readPatches(syncQueries);
+      const results = await this.remote.readEntities(syncQueries);
 
       let hasNewPatches = false;
       for (const remoteResult of results) {
-        if (remoteResult.data.length > 0) {
-          const withSynced = remoteResult.data.map((p) => ({
+        if (remoteResult.patches.length > 0) {
+          const withSynced = remoteResult.patches.map((p) => ({
             ...p,
             meta: { ...p.meta, syncedAt: '1' },
           }));
-          await this.local.append(withSynced);
+          await this.local.write(withSynced);
           hasNewPatches = true;
         }
       }

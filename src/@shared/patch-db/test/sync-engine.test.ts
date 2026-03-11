@@ -25,7 +25,7 @@ describe('SyncPatchesDb', () => {
 
   test('push: create patch is pushed to remote', async () => {
     const listId = crypto.randomUUID();
-    await syncDb.syncDb.append([
+    await syncDb.syncDb.write([
       {
         entityId: listId,
         entityType: 'todoList',
@@ -39,11 +39,11 @@ describe('SyncPatchesDb', () => {
 
     await new Promise((r) => setTimeout(r, PUSH_WAIT_MS));
 
-    const [remoteResult] = await syncDb.remote.readPatches([
+    const [remoteResult] = await syncDb.remote.readEntities([
       { entityType: 'todoList', entityId: listId },
     ]);
-    expect(remoteResult.data).toHaveLength(1);
-    expect(remoteResult.data[0].attributes).toMatchObject({
+    expect(remoteResult.patches).toHaveLength(1);
+    expect(remoteResult.patches[0].attributes).toMatchObject({
       name: 'My List',
       order: 0,
     });
@@ -51,7 +51,7 @@ describe('SyncPatchesDb', () => {
 
   test('push: soft-delete patch is pushed to remote', async () => {
     const listId = crypto.randomUUID();
-    await syncDb.syncDb.append([
+    await syncDb.syncDb.write([
       {
         entityId: listId,
         entityType: 'todoList',
@@ -65,7 +65,7 @@ describe('SyncPatchesDb', () => {
 
     await new Promise((r) => setTimeout(r, PUSH_WAIT_MS));
 
-    await syncDb.syncDb.append([
+    await syncDb.syncDb.write([
       {
         entityId: listId,
         entityType: 'todoList',
@@ -75,11 +75,11 @@ describe('SyncPatchesDb', () => {
 
     await new Promise((r) => setTimeout(r, PUSH_WAIT_MS));
 
-    const [remoteResult] = await syncDb.remote.readPatches([
+    const [remoteResult] = await syncDb.remote.readEntities([
       { entityType: 'todoList', entityId: listId },
     ]);
-    expect(remoteResult.data).toHaveLength(2);
-    const deletePatch = remoteResult.data.find(
+    expect(remoteResult.patches).toHaveLength(2);
+    const deletePatch = remoteResult.patches.find(
       (p) =>
         p.attributes &&
         'deleted' in p.attributes &&
@@ -92,7 +92,7 @@ describe('SyncPatchesDb', () => {
   test('push: multiple unsynced patches are all pushed', async () => {
     const listId1 = crypto.randomUUID();
     const listId2 = crypto.randomUUID();
-    await syncDb.syncDb.append([
+    await syncDb.syncDb.write([
       {
         entityId: listId1,
         entityType: 'todoList',
@@ -115,21 +115,21 @@ describe('SyncPatchesDb', () => {
 
     await new Promise((r) => setTimeout(r, PUSH_WAIT_MS));
 
-    const [r1] = await syncDb.remote.readPatches([
+    const [r1] = await syncDb.remote.readEntities([
       { entityType: 'todoList', entityId: listId1 },
     ]);
-    const [r2] = await syncDb.remote.readPatches([
+    const [r2] = await syncDb.remote.readEntities([
       { entityType: 'todoList', entityId: listId2 },
     ]);
-    expect(r1.data).toHaveLength(1);
-    expect(r2.data).toHaveLength(1);
-    expect(r1.data[0].attributes).toMatchObject({ name: 'List 1' });
-    expect(r2.data[0].attributes).toMatchObject({ name: 'List 2' });
+    expect(r1.patches).toHaveLength(1);
+    expect(r2.patches).toHaveLength(1);
+    expect(r1.patches[0].attributes).toMatchObject({ name: 'List 1' });
+    expect(r2.patches[0].attributes).toMatchObject({ name: 'List 2' });
   });
 
   test('poll: remote patches are merged into local', async () => {
     const listId = crypto.randomUUID();
-    await syncDb.remote.append([
+    await syncDb.remote.write([
       {
         entityId: listId,
         entityType: 'todoList',
@@ -145,7 +145,7 @@ describe('SyncPatchesDb', () => {
     const unsub = syncDb.syncDb.subscribe.entities(
       { entityType: 'todoList', where: DELETED_CLAUSE },
       (result) => {
-        received.push(result.data);
+        received.push(result.entities);
       }
     );
 
@@ -168,7 +168,7 @@ describe('SyncPatchesDb', () => {
 
   test('poll: patches for deleted entities are fetched via tracked-entities query', async () => {
     const listId = crypto.randomUUID();
-    await syncDb.remote.append([
+    await syncDb.remote.write([
       {
         entityId: listId,
         entityType: 'todoList',
@@ -188,7 +188,7 @@ describe('SyncPatchesDb', () => {
       { entityType: 'todoList', where: DELETED_CLAUSE },
       (result) => {
         received.push(
-          result.data as {
+          result.entities as {
             entityId: string;
             attributes: Record<string, unknown>;
           }[]
@@ -203,7 +203,7 @@ describe('SyncPatchesDb', () => {
       true
     );
 
-    await syncDb.remote.append([
+    await syncDb.remote.write([
       {
         entityId: listId,
         entityType: 'todoList',
@@ -219,7 +219,7 @@ describe('SyncPatchesDb', () => {
     const [entitiesResult] = await syncDb.syncDb.readEntities([
       { entityType: 'todoList', entityId: listId },
     ]);
-    const entity = entitiesResult.data[0];
+    const entity = entitiesResult.entities[0];
     expect(entity).toBeDefined();
     expect(entity?.attributes?.deleted).toBe(true);
   });

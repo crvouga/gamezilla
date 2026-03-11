@@ -30,7 +30,7 @@ function useTodoCountByList() {
     entityType: 'todo',
     where: DELETED_CLAUSE,
   });
-  const todos = (todosResult.data ?? []) as TodoEntity[];
+  const todos = (todosResult.entities ?? []) as TodoEntity[];
   const counts = new Map<string, number>();
   for (const t of todos) {
     const lid = t.attributes.listId ?? INBOX_LIST_ID;
@@ -59,7 +59,7 @@ export function TodoListsOverview() {
       { attribute: 'createdAt', direction: 'asc' as const },
     ],
   });
-  const lists = (listsResult.data ?? []) as TodoListEntity[];
+  const lists = (listsResult.entities ?? []) as TodoListEntity[];
   const todoCounts = useTodoCountByList();
 
   const addList = async () => {
@@ -69,7 +69,7 @@ export function TodoListsOverview() {
       return;
     }
     const entityId = crypto.randomUUID();
-    await db.append([
+    await db.write([
       {
         entityId,
         entityType: 'todoList',
@@ -89,7 +89,7 @@ export function TodoListsOverview() {
   };
 
   const deleteList = async (listId: string) => {
-    await db.append([
+    await db.write([
       {
         entityId: listId,
         entityType: 'todoList',

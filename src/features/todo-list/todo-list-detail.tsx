@@ -160,7 +160,7 @@ export function TodoListDetail() {
 
   const allResult = useEntities(buildTodoQuery(lid, 'all'));
   const filterResult = useEntities(buildTodoQuery(lid, filter));
-  const todos = filterResult.data as TodoEntity[];
+  const todos = filterResult.entities as TodoEntity[];
   const totalCount = allResult.total;
 
   const listEntity = useEntity({
@@ -183,7 +183,7 @@ export function TodoListDetail() {
   const addTodo = async () => {
     const title = input.trim();
     if (!title) return;
-    await db.append([
+    await db.write([
       {
         entityId: crypto.randomUUID(),
         entityType: 'todo',
@@ -200,7 +200,7 @@ export function TodoListDetail() {
   };
 
   const toggleTodo = async (entity: TodoEntity) => {
-    await db.append([
+    await db.write([
       {
         entityId: entity.entityId,
         entityType: 'todo',
@@ -210,7 +210,7 @@ export function TodoListDetail() {
   };
 
   const deleteTodo = async (entity: TodoEntity) => {
-    await db.append([
+    await db.write([
       {
         entityId: entity.entityId,
         entityType: 'todo',

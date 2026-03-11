@@ -1,7 +1,6 @@
 import { InjectionToken } from '../dependency-injection/dependency-injection-container';
 import { PubSub, Unsubscribe } from '../pub-sub/interface';
 import {
-  Entity,
   Patch,
   PatchesDb,
   PatchesDbQuery,
@@ -16,11 +15,11 @@ export type SubscribablePatchesDbLike = PatchesDb & {
   subscribe: {
     patches: (
       query: PatchesDbQuery,
-      listener: (result: PatchesDbResult<Patch>) => void
+      listener: (result: PatchesDbResult) => void
     ) => Unsubscribe;
     entities: (
       query: PatchesDbQuery,
-      listener: (result: PatchesDbResult<Entity>) => void
+      listener: (result: PatchesDbResult) => void
     ) => Unsubscribe;
   };
 };
@@ -34,17 +33,13 @@ export class SubscribablePatchesDb implements PatchesDb {
     private pubSub: PubSub
   ) {}
 
-  async append(patches: PatchInput[]): Promise<Patch[]> {
-    const result = await this.db.append(patches);
+  async write(patches: PatchInput[]): Promise<Patch[]> {
+    const result = await this.db.write(patches);
     this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
     return result;
   }
 
-  readPatches(queries: PatchesDbQuery[]): Promise<PatchesDbResult<Patch>[]> {
-    return this.db.readPatches(queries);
-  }
-
-  readEntities(queries: PatchesDbQuery[]): Promise<PatchesDbResult<Entity>[]> {
+  readEntities(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
     return this.db.readEntities(queries);
   }
 
@@ -57,10 +52,10 @@ export class SubscribablePatchesDb implements PatchesDb {
   subscribe = {
     patches: (
       query: PatchesDbQuery,
-      listener: (result: PatchesDbResult<Patch>) => void
+      listener: (result: PatchesDbResult) => void
     ): Unsubscribe => {
       const notify = async () => {
-        const [result] = await this.db.readPatches([query]);
+        const [result] = await this.db.readEntities([query]);
         listener(result);
       };
       void notify();
@@ -68,7 +63,7 @@ export class SubscribablePatchesDb implements PatchesDb {
     },
     entities: (
       query: PatchesDbQuery,
-      listener: (result: PatchesDbResult<Entity>) => void
+      listener: (result: PatchesDbResult) => void
     ): Unsubscribe => {
       const notify = async () => {
         const [result] = await this.db.readEntities([query]);
