@@ -216,10 +216,9 @@ describe('SyncPatchesDb', () => {
 
     unsub();
 
-    const entitiesResult = await syncDb.syncDb.readEntities({
-      entityType: 'todoList',
-      entityId: listId,
-    });
+    const [entitiesResult] = await syncDb.syncDb.readEntities([
+      { entityType: 'todoList', entityId: listId },
+    ]);
     const entity = entitiesResult.data[0];
     expect(entity).toBeDefined();
     expect(entity?.attributes?.deleted).toBe(true);

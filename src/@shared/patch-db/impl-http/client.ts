@@ -100,8 +100,11 @@ export class PatchDbImplHttp implements PatchesDb {
     return this.post<PatchesDbResult<Patch>[]>(PATCHES_QUERY, { queries });
   }
 
-  async readEntities(query: PatchesDbQuery): Promise<PatchesDbResult<Entity>> {
-    return this.post<PatchesDbResult<Entity>>(ENTITIES_QUERY, { query });
+  async readEntities(
+    queries: PatchesDbQuery[]
+  ): Promise<PatchesDbResult<Entity>[]> {
+    if (queries.length === 0) return [];
+    return this.post<PatchesDbResult<Entity>[]>(ENTITIES_QUERY, { queries });
   }
 
   async write(patches: PatchInput[]): Promise<Patch[]> {

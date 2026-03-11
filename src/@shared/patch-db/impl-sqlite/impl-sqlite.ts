@@ -360,7 +360,16 @@ export class PatchDbImplSqlite implements SyncStatePatchesDb {
     return { data, total, hasMore, nextCursor };
   }
 
-  async readEntities(query: PatchesDbQuery): Promise<PatchesDbResult<Entity>> {
+  async readEntities(
+    queries: PatchesDbQuery[]
+  ): Promise<PatchesDbResult<Entity>[]> {
+    if (queries.length === 0) return [];
+    return Promise.all(queries.map((q) => this.entitiesOne(q)));
+  }
+
+  private async entitiesOne(
+    query: PatchesDbQuery
+  ): Promise<PatchesDbResult<Entity>> {
     const { conditions, params } = buildSnapshotConditions(query);
     const whereSQL = conditions.join(' AND ');
 

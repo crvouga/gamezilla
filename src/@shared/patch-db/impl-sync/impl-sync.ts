@@ -88,8 +88,10 @@ export class SyncPatchesDb implements PatchesDb {
     return this.local.readPatches(queries);
   }
 
-  readEntities(query: PatchesDbQuery): Promise<PatchesDbResult<Entity>> {
-    return this.local.readEntities(query);
+  readEntities(
+    queries: PatchesDbQuery[]
+  ): Promise<PatchesDbResult<Entity>[]> {
+    return this.local.readEntities(queries);
   }
 
   private queryKey(query: PatchesDbQuery): string {
@@ -114,7 +116,7 @@ export class SyncPatchesDb implements PatchesDb {
       const result =
         mode === 'patches'
           ? ((await this.local.readPatches([query]))[0] as PatchesDbResult<T>)
-          : ((await this.local.readEntities(query)) as PatchesDbResult<T>);
+          : ((await this.local.readEntities([query]))[0] as PatchesDbResult<T>);
       listener(result);
     };
     void notify();

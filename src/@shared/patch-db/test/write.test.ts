@@ -53,10 +53,9 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     expect(typeof patchResult.data[0].createdAt).toBe('string');
     expect(typeof patchResult.data[0].recordedAt).toBe('string');
 
-    const entityResult = await db.readEntities({
-      entityType: 'task',
-      entityId: 'e1',
-    });
+    const [entityResult] = await db.readEntities([
+      { entityType: 'task', entityId: 'e1' },
+    ]);
     expect(entityResult.data).toHaveLength(1);
     const entity = entityResult.data[0];
     expect(entity.entityId).toBe('e1');

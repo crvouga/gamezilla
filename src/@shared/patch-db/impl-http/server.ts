@@ -35,9 +35,9 @@ export function createPatchDbHttpHandlers(
     }
 
     if (url.pathname === ENTITIES_QUERY && req.method === 'POST') {
-      const body = (await req.json()) as { query: PatchesDbQuery };
-      const result = await db.readEntities(body.query);
-      return Response.json(result);
+      const body = (await req.json()) as { queries: PatchesDbQuery[] };
+      const results = await db.readEntities(body.queries);
+      return Response.json(results);
     }
 
     if (url.pathname === PATCHES_WRITE && req.method === 'POST') {
