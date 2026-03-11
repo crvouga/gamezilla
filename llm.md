@@ -30,6 +30,7 @@ Backed by Postgres. Used for security-critical and globally authoritative data.
 **Entity types:**
 
 - `account`
+- `account_link`
 - `principal`
 - `account_principal_link`
 - `linked_identity`
@@ -202,25 +203,40 @@ type PatchDbResult<T> = {
 
 ## Identity Model
 
-Gamezilla separates accounts, principals, devices, and provider identities. This enables:
+Gamezilla separates accounts, account links, principals, devices, and provider identities. This enables:
 
 - Guest-first onboarding
 - Local-first ownership
 - Cross-device identity
+- Explicit multi-account linking
 - Social login
 
 ### Account
 
-Canonical user identity shared across devices.
+An account is created the first time a user signs in with a provider identity.
 
 ```
 accountId
 ```
 
-- Created by server
-- Globally unique
-- Linked to provider identities
-- Owns multiple principals
+- Created by server on first provider login
+- Each provider identity maps to exactly one account
+- Accounts are independent — never automatically merged
+- Multiple accounts may belong to the same logical user via explicit linking
+
+### Account Link
+
+Represents that two accounts belong to the same logical user.
+
+```
+account_link(A1, A2)
+```
+
+- Account links form a connected graph
+- The logical user is the set of all accounts reachable through `account_link` relationships
+- Linking is always explicit — never triggered by login
+- Unlinking removes the `account_link` entity — no destructive migration required
+- Accounts themselves are never merged
 
 ### Principal
 
@@ -232,15 +248,15 @@ principalId
 
 - Generated locally on device
 - Used for entity ownership
-- Later linked to an account
+- Linked to an account via `account_principal_link`
 - Multiple principals may belong to one account
 
 **Example:**
 
 ```
-Device A → principalId = P1
-Device B → principalId = P2
-// After login, both map to the same accountId
+Device A → principalId = P1 → accountId = A1
+Device B → principalId = P2 → accountId = A1
+// A1 and A2 may later be linked explicitly
 ```
 
 ### Provider Identity
@@ -252,7 +268,11 @@ provider
 providerUserId
 ```
 
-Mapping: `(provider, providerUserId) → accountId`
+- Provider identities are globally unique
+- Mapping: `(provider, providerUserId) → accountId`
+- Login never performs account linking
+- If a provider identity already exists, login resolves to that account
+- Otherwise a new account is created
 
 ### Device Identity
 
@@ -275,14 +295,17 @@ This ensures a consistent write path, no ownership migration, and correct author
 
 ### Querying User Data
 
-To fetch all entities for the current user:
+To fetch all entities for the current logical user:
 
-1. Resolve `accountId`
-2. Fetch associated `principalId`s
-3. Query entities using `IN` clause
+1. Get the current `accountId` from the session
+2. Resolve all linked account IDs via `account_link`
+3. Resolve all `principalId`s for those accounts
+4. Query entities using `IN` clause
 
 ```typescript
-const principalIds = getPrincipalIdsForAccount(accountId);
+const accountIds = resolveLinkedAccounts(accountId);
+
+const principalIds = getPrincipalsForAccounts(accountIds);
 
 db.query({
   entityType: "puzzle_completion",
@@ -302,19 +325,35 @@ Guest users simply return `[localPrincipalId]`.
 
 Gamezilla uses Google and Apple Sign-In as identity anchors.
 
-**Auth flow:**
+**Login flow:**
 
 1. Device creates local `principalId`
 2. User signs in with provider
 3. Server verifies provider token
-4. Server resolves or creates `accountId`
-5. Server links `principalId → accountId`
-6. Client syncs account data
+4. Server checks `(provider, providerUserId)`
+5. If found → use existing account
+6. If not found → create new account
+7. Server links `principalId → accountId`
+8. Client syncs account data
+
+Login never links accounts. Each provider identity resolves to exactly one account.
+
+**Explicit account linking:**
+
+Users may link accounts manually after login:
+
+1. User is authenticated as account A
+2. User authenticates ownership of account B
+3. Server creates `account_link(A, B)`
+4. Both accounts now belong to the same logical user
+
+Unlinking removes the `account_link` entity. No data is merged or migrated.
 
 **Security rules:**
 
 - `(provider, providerUserId)` must be globally unique
-- Account linking validated by server
+- Account linking requires authentication of both accounts
+- Login never triggers linking
 - Principals cannot be reassigned by clients
 - Device keypairs stored in secure enclave
 - Relay verifies signatures against registered public keys on every request
@@ -457,7 +496,9 @@ Zero ops engineering — push code, done.
 - **Federated client database:** unified query layer across both systems
 - **Guest-first identity:** no login required to start
 - **Principal-based ownership:** simple, consistent write path
-- **Account aggregation:** cross-device identity via principal linking
+- **Explicit account linking:** accounts are never automatically merged — linking is always user-initiated
+- **No account merging:** `account_link` connects accounts into a logical user without destructive migration
+- **Logical user = linked account set:** all accounts reachable via `account_link` belong to the same user
 - **Local-first:** client SQLite is source of truth — relay is coordination, not authority
 - **Append-only history:** no destructive migrations, ever
 - **Signed patches:** tamper-proof, enables P2P and community relays
