@@ -2,6 +2,7 @@ import { createPatchDbHttpHandlers } from "@/@shared/patch-db/impl-http";
 import { PatchDbImplSqlite } from "@/@shared/patch-db/impl-sqlite/impl-sqlite";
 import { InMemoryPubSub } from "@/@shared/pub-sub/impl-in-memory";
 import { SqlClientImplBunSqlite } from "@/@shared/sql-client/impl-bun-sqlite";
+import { PATCHES_DB_BASE_URL } from "./@shared/patch-db/impl-http/shared";
 
 const PORT = process.env.PORT ?? 5001;
 
@@ -42,10 +43,8 @@ const server = Bun.serve({
             return withCors(new Response("ok", { status: 200, headers: { "Content-Type": "text/plain" } }));
         }
 
-        if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/patches-db/")) {
-            if (url.pathname === "/patches-db/events" && req.method === "GET") {
-                bunServer.timeout(req, 0);
-            }
+        if (url.pathname.startsWith(PATCHES_DB_BASE_URL)) {
+            bunServer.timeout(req, 0);
             return patchDbHandler(req).then(withCors);
         }
 
