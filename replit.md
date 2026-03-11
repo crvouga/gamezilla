@@ -1,4 +1,4 @@
-# my-app — Expo Router Project
+# gamezilla — Expo Router Project
 
 ## Overview
 
@@ -40,6 +40,7 @@ The app runs as a web app via Metro bundler on port 5000.
 ## Deployment
 
 Configured as a **static** deployment:
+
 - **Build:** `npx expo export -p web` (outputs to `dist/`)
 - **Serve:** Static files from `dist/`
 
@@ -58,6 +59,7 @@ The `src/backend.ts` Bun server can also serve the static export for self-hosted
 ## Shared Libraries (`src/@shared/`)
 
 ### patch-db
+
 An entity-as-patches abstraction. Entities are represented as an ordered series of patches. Each patch carries a set of attributes to merge; setting an attribute to `null` deletes it from the entity. Supports branching via `parentId` so multiple concurrent writers can contribute patches.
 
 Uses a **snapshots** table that holds the current merged state of each entity. Snapshots are recomputed on every `write()` within the same transaction. `entities()` queries snapshots directly (all filtering, ordering, pagination at the SQL level). `patches()` uses a subquery against snapshots when `where` filters are present, then returns matching patches.
@@ -68,6 +70,7 @@ Uses a **snapshots** table that holds the current merged state of each entity. S
 - **Tests:** `src/@shared/patch-db/interface.test.ts` — tests against the interface, not the implementation
 
 ### sql-client
+
 A minimal SQL database client abstraction with `connect`, `disconnect`, `query`, `run`, and `transaction` methods.
 
 - **Interface:** `src/@shared/sql-client/interface.ts`
@@ -77,6 +80,7 @@ A minimal SQL database client abstraction with `connect`, `disconnect`, `query`,
 - **Tests:** `src/@shared/sql-client/interface.test.ts`
 
 ### pub-sub
+
 A synchronous topic-based publish-subscribe module. Provides a `PublishSubscribe` interface with `publish()` and `subscribe()` methods. Generic message types, returns an `Unsubscribe` function.
 
 - **Interface:** `src/@shared/pub-sub/interface.ts` — `PubSub` interface, `Listener`, `Unsubscribe` types
@@ -84,6 +88,7 @@ A synchronous topic-based publish-subscribe module. Provides a `PublishSubscribe
 - **Tests:** `src/@shared/pub-sub/interface.test.ts`
 
 ### static-file-server
+
 Static file serving with SPA fallback, path traversal protection, and configurable MIME types.
 
 - **Core:** `src/@shared/static-file-server/static-file-server.ts`
