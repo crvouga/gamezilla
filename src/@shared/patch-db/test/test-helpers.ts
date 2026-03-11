@@ -1,9 +1,27 @@
+import type { Unsubscribe } from "../../pub-sub/interface";
 import { InMemoryPubSub } from "../../pub-sub/impl-in-memory";
 import { SqlClientImplBunSqlite } from "../../sql-client/impl-bun-sqlite";
 import type { SqlClient } from "../../sql-client/interface";
-import { SyncPatchesDb } from "../impl-sync";
+import { SyncPatchesDb, type RemoteInvalidationSource } from "../impl-sync";
 import { PatchDbImplSqlite } from "../impl-sqlite/impl-sqlite";
 import type { PatchesDb, PatchInput, SyncStatePatchesDb } from "../interface";
+
+/** Creates a RemoteInvalidationSource that tests can trigger manually via invalidate(). */
+export function createManualRemoteInvalidationSource(): RemoteInvalidationSource & { invalidate: () => void } {
+    const callbacks: (() => void)[] = [];
+    return {
+        subscribe(callback: () => void): Unsubscribe {
+            callbacks.push(callback);
+            return () => {
+                const i = callbacks.indexOf(callback);
+                if (i >= 0) callbacks.splice(i, 1);
+            };
+        },
+        invalidate() {
+            callbacks.forEach((c) => c());
+        },
+    };
+}
 
 export type DbFactory = () => Promise<{ db: PatchesDb; teardown: () => Promise<void> }>;
 
@@ -24,12 +42,13 @@ export type SyncDbFixture = {
     local: SyncStatePatchesDb;
     remote: PatchesDb;
     pubSub: InMemoryPubSub;
+    /** Call to trigger a poll (simulates remote invalidation). */
+    invalidateRemote: () => void;
     teardown: () => Promise<void>;
 };
 
 export async function createSyncDbFactory(options?: {
     pushIntervalMs?: number;
-    pollIntervalMs?: number;
 }): Promise<SyncDbFixture> {
     const localClient: SqlClient = SqlClientImplBunSqlite.open(":memory:");
     const remoteClient: SqlClient = SqlClientImplBunSqlite.open(":memory:");
@@ -42,9 +61,10 @@ export async function createSyncDbFactory(options?: {
     await remote.migrate();
 
     const pubSub = new InMemoryPubSub();
+    const remoteInvalidationSource = createManualRemoteInvalidationSource();
     const syncDb = new SyncPatchesDb(local, remote, pubSub, {
         pushIntervalMs: options?.pushIntervalMs ?? 10,
-        pollIntervalMs: options?.pollIntervalMs ?? 10,
+        remoteInvalidationSource,
     });
 
     return {
@@ -52,6 +72,7 @@ export async function createSyncDbFactory(options?: {
         local,
         remote,
         pubSub,
+        invalidateRemote: () => remoteInvalidationSource.invalidate(),
         teardown: async () => {
             syncDb.destroy();
             await localClient.disconnect();

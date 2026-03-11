@@ -1,1 +1,1 @@
-export { SyncPatchesDb, type SyncPatchesDbOptions } from "./impl-sync";
+export { SyncPatchesDb, type RemoteInvalidationSource, type SyncPatchesDbOptions } from "./impl-sync";

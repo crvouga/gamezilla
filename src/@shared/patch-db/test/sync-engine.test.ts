@@ -3,7 +3,6 @@ import type { PatchesDbQuery } from "../interface";
 import { createSyncDbFactory } from "./test-helpers";
 
 const PUSH_WAIT_MS = 100;
-const POLL_WAIT_MS = 100;
 
 const DELETED_CLAUSE: PatchesDbQuery["where"] = {
     type: "or",
@@ -135,7 +134,8 @@ describe("SyncPatchesDb", () => {
             }
         );
 
-        await new Promise((r) => setTimeout(r, POLL_WAIT_MS));
+        syncDb.invalidateRemote();
+        await new Promise((r) => setTimeout(r, 0));
 
         unsub();
 
@@ -166,7 +166,8 @@ describe("SyncPatchesDb", () => {
             }
         );
 
-        await new Promise((r) => setTimeout(r, POLL_WAIT_MS));
+        syncDb.invalidateRemote();
+        await new Promise((r) => setTimeout(r, 0));
 
         expect(received.some((r) => r.some((e) => e.entityId === listId))).toBe(true);
 
@@ -178,7 +179,8 @@ describe("SyncPatchesDb", () => {
             },
         ]);
 
-        await new Promise((r) => setTimeout(r, POLL_WAIT_MS));
+        syncDb.invalidateRemote();
+        await new Promise((r) => setTimeout(r, 0));
 
         unsub();
 

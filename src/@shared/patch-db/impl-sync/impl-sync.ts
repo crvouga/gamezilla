@@ -16,9 +16,8 @@ export type RemoteInvalidationSource = {
 };
 
 export type SyncPatchesDbOptions = {
-    pollIntervalMs?: number;
     pushIntervalMs?: number;
-    remoteInvalidationSource?: RemoteInvalidationSource;
+    remoteInvalidationSource: RemoteInvalidationSource;
 };
 
 type ActiveQuery = {
@@ -50,7 +49,6 @@ export class SyncPatchesDb implements PatchesDb {
     };
 
     private activeQueries = new Map<string, ActiveQuery>();
-    private pollTimer: ReturnType<typeof setInterval> | null = null;
     private pushTimer: ReturnType<typeof setInterval> | null = null;
     private remoteInvalidationUnsub: Unsubscribe | null = null;
 
@@ -58,20 +56,16 @@ export class SyncPatchesDb implements PatchesDb {
         private local: SyncStatePatchesDb,
         private remote: PatchesDb,
         private pubSub: PubSub,
-        private options: SyncPatchesDbOptions = {}
+        private options: SyncPatchesDbOptions
     ) {
         this.ensurePushTimer();
     }
 
-    /** Stops push/poll timers. Call before disposing of the db. */
+    /** Stops push timer and remote invalidation subscription. Call before disposing of the db. */
     destroy(): void {
         if (this.pushTimer != null) {
             clearInterval(this.pushTimer);
             this.pushTimer = null;
-        }
-        if (this.pollTimer != null) {
-            clearInterval(this.pollTimer);
-            this.pollTimer = null;
         }
         if (this.remoteInvalidationUnsub != null) {
             this.remoteInvalidationUnsub();
@@ -142,31 +136,16 @@ export class SyncPatchesDb implements PatchesDb {
     }
 
     private ensurePolling(): void {
-        const { remoteInvalidationSource } = this.options;
-        if (remoteInvalidationSource) {
-            if (this.remoteInvalidationUnsub != null) return;
-            this.remoteInvalidationUnsub = remoteInvalidationSource.subscribe(() => {
-                void this.poll();
-            });
-        } else {
-            if (this.pollTimer != null) return;
-            const pollIntervalMs = this.options.pollIntervalMs ?? 5000;
-            this.pollTimer = setInterval(() => {
-                void this.poll();
-            }, pollIntervalMs);
-        }
+        if (this.remoteInvalidationUnsub != null) return;
+        this.remoteInvalidationUnsub = this.options.remoteInvalidationSource.subscribe(() => {
+            void this.poll();
+        });
     }
 
     private maybeStopPolling(): void {
-        if (this.activeQueries.size === 0) {
-            if (this.pollTimer != null) {
-                clearInterval(this.pollTimer);
-                this.pollTimer = null;
-            }
-            if (this.remoteInvalidationUnsub != null) {
-                this.remoteInvalidationUnsub();
-                this.remoteInvalidationUnsub = null;
-            }
+        if (this.activeQueries.size === 0 && this.remoteInvalidationUnsub != null) {
+            this.remoteInvalidationUnsub();
+            this.remoteInvalidationUnsub = null;
         }
     }
 
