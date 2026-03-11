@@ -7,42 +7,45 @@
  */
 
 export interface RunResult {
-    changes: number;
-    lastInsertRowid: number;
+  changes: number;
+  lastInsertRowid: number;
 }
 
 export interface SqlClient {
-    /**
-     * Establishes a connection to the database.
-     */
-    connect(): Promise<void>;
+  /**
+   * Establishes a connection to the database.
+   */
+  connect(): Promise<void>;
 
-    /**
-     * Closes the connection to the database.
-     */
-    disconnect(): Promise<void>;
+  /**
+   * Closes the connection to the database.
+   */
+  disconnect(): Promise<void>;
 
-    /**
-     * Executes a SELECT query and returns rows.
-     * @param sql The SQL query string.
-     * @param params Optional parameters for the query.
-     * @returns Array of result rows.
-     */
-    query<T = Record<string, unknown>>(sql: string, params?: unknown[]): Promise<T[]>;
+  /**
+   * Executes a SELECT query and returns rows.
+   * @param sql The SQL query string.
+   * @param params Optional parameters for the query.
+   * @returns Array of result rows.
+   */
+  query<T = Record<string, unknown>>(
+    sql: string,
+    params?: unknown[]
+  ): Promise<T[]>;
 
-    /**
-     * Executes an INSERT, UPDATE, or DELETE statement.
-     * @param sql The SQL statement string.
-     * @param params Optional parameters for the statement.
-     * @returns The number of changes and the last inserted row ID.
-     */
-    run(sql: string, params?: unknown[]): Promise<RunResult>;
+  /**
+   * Executes an INSERT, UPDATE, or DELETE statement.
+   * @param sql The SQL statement string.
+   * @param params Optional parameters for the statement.
+   * @returns The number of changes and the last inserted row ID.
+   */
+  run(sql: string, params?: unknown[]): Promise<RunResult>;
 
-    /**
-     * Executes a function within a transaction.
-     * Rolls back automatically on error.
-     * @param fn Function to run with a transaction-scoped client.
-     * @returns The result of the function.
-     */
-    transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T>;
+  /**
+   * Executes a function within a transaction.
+   * Rolls back automatically on error.
+   * @param fn Function to run with a transaction-scoped client.
+   * @returns The result of the function.
+   */
+  transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T>;
 }

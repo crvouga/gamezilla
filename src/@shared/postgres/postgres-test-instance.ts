@@ -3,9 +3,9 @@
  * within the same process. Exposes wipe() to reset the database for fast test reuse.
  */
 
-import { SQL } from "bun";
-import type { PostgresConfig, StartedPostgres } from "./postgres-container";
-import { startPostgresContainer } from "./postgres-container";
+import { SQL } from 'bun';
+import type { PostgresConfig, StartedPostgres } from './postgres-container';
+import { startPostgresContainer } from './postgres-container';
 
 const WIPE_SQL = `
 DROP SCHEMA IF EXISTS public CASCADE;
@@ -18,23 +18,23 @@ let instance: StartedPostgres | null = null;
 let wipeClient: InstanceType<typeof SQL> | null = null;
 
 export type PostgresTestInstance = {
-    connectionUrl: string;
-    config: StartedPostgres["config"];
-    wipe: () => Promise<void>;
+  connectionUrl: string;
+  config: StartedPostgres['config'];
+  wipe: () => Promise<void>;
 };
 
 async function wipeDatabase(url: string): Promise<void> {
-    try {
-        if (!wipeClient) {
-            wipeClient = new SQL(url);
-        }
-        await wipeClient.unsafe(WIPE_SQL).simple();
-    } catch {
-        wipeClient?.close();
-        wipeClient = null;
-        wipeClient = new SQL(url);
-        await wipeClient.unsafe(WIPE_SQL).simple();
+  try {
+    if (!wipeClient) {
+      wipeClient = new SQL(url);
     }
+    await wipeClient.unsafe(WIPE_SQL).simple();
+  } catch {
+    wipeClient?.close();
+    wipeClient = null;
+    wipeClient = new SQL(url);
+    await wipeClient.unsafe(WIPE_SQL).simple();
+  }
 }
 
 /**
@@ -45,19 +45,19 @@ async function wipeDatabase(url: string): Promise<void> {
  *   running multiple test suites in parallel.
  */
 export async function getPostgresTestInstance(
-    config: Partial<PostgresConfig> = {}
+  config: Partial<PostgresConfig> = {}
 ): Promise<PostgresTestInstance> {
-    if (!instance) {
-        instance = await startPostgresContainer(config);
-    }
+  if (!instance) {
+    instance = await startPostgresContainer(config);
+  }
 
-    return {
-        connectionUrl: instance.connectionUrl,
-        config: instance.config,
-        wipe: async () => {
-            await wipeDatabase(instance!.connectionUrl);
-        },
-    };
+  return {
+    connectionUrl: instance.connectionUrl,
+    config: instance.config,
+    wipe: async () => {
+      await wipeDatabase(instance!.connectionUrl);
+    },
+  };
 }
 
 /**
@@ -65,12 +65,12 @@ export async function getPostgresTestInstance(
  * Call this in afterAll() if you need to release the container.
  */
 export async function stopPostgresTestInstance(): Promise<void> {
-    if (wipeClient) {
-        wipeClient.close();
-        wipeClient = null;
-    }
-    if (instance) {
-        await instance.stop();
-        instance = null;
-    }
+  if (wipeClient) {
+    wipeClient.close();
+    wipeClient = null;
+  }
+  if (instance) {
+    await instance.stop();
+    instance = null;
+  }
 }

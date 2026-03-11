@@ -15,6 +15,8 @@
     "test": "bun test",
     "test:fast": "SKIP_POSTGRES_TESTS=1 bun test",
     "lint": "expo lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "tc": "tsc --noEmit",
     "preview": "bun export:web && bun run sync-server",
     "check": "clear && bun run tc && bun run lint && bun run test && echo 'All checks passed ✅'"
@@ -56,6 +58,7 @@
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "eslint-plugin-naming": "^0.1.10",
+    "prettier": "^3.8.1",
     "typescript": "~5.9.2"
   },
   "private": true,

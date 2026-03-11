@@ -1,28 +1,28 @@
-import type { Listener, PubSub, Unsubscribe } from "./interface";
+import type { Listener, PubSub, Unsubscribe } from './interface';
 
 export class InMemoryPubSub implements PubSub {
-    private listeners = new Map<string, Set<Listener>>();
+  private listeners = new Map<string, Set<Listener>>();
 
-    publish(topic: string, message: unknown): void {
-        const set = this.listeners.get(topic);
-        if (!set) return;
-        for (const listener of set) {
-            listener(message);
-        }
+  publish(topic: string, message: unknown): void {
+    const set = this.listeners.get(topic);
+    if (!set) return;
+    for (const listener of set) {
+      listener(message);
     }
+  }
 
-    subscribe(topic: string, listener: Listener): Unsubscribe {
-        let set = this.listeners.get(topic);
-        if (!set) {
-            set = new Set();
-            this.listeners.set(topic, set);
-        }
-        set.add(listener);
-        return () => {
-            set!.delete(listener);
-            if (set!.size === 0) {
-                this.listeners.delete(topic);
-            }
-        };
+  subscribe(topic: string, listener: Listener): Unsubscribe {
+    let set = this.listeners.get(topic);
+    if (!set) {
+      set = new Set();
+      this.listeners.set(topic, set);
     }
+    set.add(listener);
+    return () => {
+      set!.delete(listener);
+      if (set!.size === 0) {
+        this.listeners.delete(topic);
+      }
+    };
+  }
 }

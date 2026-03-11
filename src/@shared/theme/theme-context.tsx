@@ -3,16 +3,11 @@
  * App provides colorScheme; theme package is app-agnostic.
  */
 
-import {
-  createContext,
-  useContext,
-  useMemo,
-  type ReactNode,
-} from "react";
-import { defaultColors } from "./colors";
-import type { ColorScheme, ColorTokens } from "./colors";
-import { createSx } from "./sx";
-import { fonts } from "./fonts";
+import { createContext, useContext, useMemo, type ReactNode } from 'react';
+import { defaultColors } from './colors';
+import type { ColorScheme, ColorTokens } from './colors';
+import { createSx } from './sx';
+import { fonts } from './fonts';
 
 export type Theme = {
   sx: ReturnType<typeof createSx>;
@@ -38,9 +33,7 @@ export function ThemeProvider({
   const theme = useMemo(() => {
     const base = defaultColors[colorScheme];
     const overrides = colorOverrides?.[colorScheme];
-    const colors: ColorTokens = overrides
-      ? { ...base, ...overrides }
-      : base;
+    const colors: ColorTokens = overrides ? { ...base, ...overrides } : base;
 
     return {
       sx: createSx(colors),
@@ -58,7 +51,7 @@ export function ThemeProvider({
 export function useTheme(): Theme {
   const ctx = useContext(ThemeContext);
   if (!ctx) {
-    throw new Error("useTheme must be used within ThemeProvider");
+    throw new Error('useTheme must be used within ThemeProvider');
   }
   return ctx;
 }

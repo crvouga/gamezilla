@@ -1,33 +1,34 @@
-import type { InjectionToken } from "@/@shared/dependency-injection/dependency-injection-container";
-import { Stage, type IStage } from "@/@shared/stage/stage";
+import type { InjectionToken } from '@/@shared/dependency-injection/dependency-injection-container';
+import { Stage, type IStage } from '@/@shared/stage/stage';
 
-import publicConfig from "../../../public-config.json";
+import publicConfig from '../../../public-config.json';
 
 export interface ConfigService {
-    getString(key: string): string;
+  getString(key: string): string;
 }
 
-export const ConfigServiceToken: InjectionToken<ConfigService> = Symbol("ConfigService");
+export const ConfigServiceToken: InjectionToken<ConfigService> =
+  Symbol('ConfigService');
 
 type PublicConfig = Record<IStage, Record<string, string>>;
 
 function createConfigService(): ConfigService {
-    const stage: IStage = Stage.TRUE ?? "local";
-    const config = (publicConfig as PublicConfig)[stage];
+  const stage: IStage = Stage.TRUE ?? 'local';
+  const config = (publicConfig as PublicConfig)[stage];
 
-    if (!config) {
-        throw new Error(`No config found for stage: ${stage}`);
-    }
+  if (!config) {
+    throw new Error(`No config found for stage: ${stage}`);
+  }
 
-    return {
-        getString(key: string): string {
-            const value = config[key];
-            if (value === undefined || value === null) {
-                throw new Error(`Config key "${key}" not found for stage "${stage}"`);
-            }
-            return String(value);
-        },
-    };
+  return {
+    getString(key: string): string {
+      const value = config[key];
+      if (value === undefined || value === null) {
+        throw new Error(`Config key "${key}" not found for stage "${stage}"`);
+      }
+      return String(value);
+    },
+  };
 }
 
 export { createConfigService };

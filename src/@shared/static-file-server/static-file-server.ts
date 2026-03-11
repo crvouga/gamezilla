@@ -5,23 +5,23 @@
  */
 
 export const DEFAULT_MIME_TYPES: Record<string, string> = {
-  ".html": "text/html",
-  ".htm": "text/html",
-  ".js": "application/javascript",
-  ".mjs": "application/javascript",
-  ".css": "text/css",
-  ".json": "application/json",
-  ".png": "image/png",
-  ".jpg": "image/jpeg",
-  ".jpeg": "image/jpeg",
-  ".gif": "image/gif",
-  ".svg": "image/svg+xml",
-  ".ico": "image/x-icon",
-  ".webp": "image/webp",
-  ".woff": "font/woff",
-  ".woff2": "font/woff2",
-  ".ttf": "font/ttf",
-  ".eot": "application/vnd.ms-fontobject",
+  '.html': 'text/html',
+  '.htm': 'text/html',
+  '.js': 'application/javascript',
+  '.mjs': 'application/javascript',
+  '.css': 'text/css',
+  '.json': 'application/json',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
+  '.webp': 'image/webp',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
+  '.eot': 'application/vnd.ms-fontobject',
 };
 
 export interface StaticFileServerOptions {
@@ -38,21 +38,28 @@ export interface StaticFileServerOptions {
   mimeTypes?: Record<string, string>;
 }
 
-function getMimeType(pathname: string, mimeTypes: Record<string, string>): string {
-  const ext = pathname.includes(".") ? pathname.slice(pathname.lastIndexOf(".")) : "";
-  return mimeTypes[ext] ?? "application/octet-stream";
+function getMimeType(
+  pathname: string,
+  mimeTypes: Record<string, string>
+): string {
+  const ext = pathname.includes('.')
+    ? pathname.slice(pathname.lastIndexOf('.'))
+    : '';
+  return mimeTypes[ext] ?? 'application/octet-stream';
 }
 
 function isUnsafePath(pathname: string): boolean {
-  return pathname.includes("..") || pathname.startsWith("//");
+  return pathname.includes('..') || pathname.startsWith('//');
 }
 
 /**
  * Creates a fetch handler that serves static files.
  * Compatible with any runtime: Bun.serve, Node fetch, Deno.serve, Cloudflare Workers, etc.
  */
-export function createStaticFileHandler(options: StaticFileServerOptions): (request: Request) => Promise<Response> {
-  const { getFile, indexPath = "/index.html", mimeTypes = {} } = options;
+export function createStaticFileHandler(
+  options: StaticFileServerOptions
+): (request: Request) => Promise<Response> {
+  const { getFile, indexPath = '/index.html', mimeTypes = {} } = options;
   const allMimeTypes = { ...DEFAULT_MIME_TYPES, ...mimeTypes };
 
   return async function staticFileHandler(request: Request): Promise<Response> {
@@ -60,16 +67,16 @@ export function createStaticFileHandler(options: StaticFileServerOptions): (requ
     const pathname = decodeURIComponent(url.pathname);
 
     if (isUnsafePath(pathname)) {
-      return new Response("Forbidden", { status: 403 });
+      return new Response('Forbidden', { status: 403 });
     }
 
-    const requestPath = pathname === "/" ? "/index.html" : pathname;
+    const requestPath = pathname === '/' ? '/index.html' : pathname;
     const blob = await Promise.resolve(getFile(requestPath));
 
     if (blob) {
       const contentType = getMimeType(requestPath, allMimeTypes);
       return new Response(blob, {
-        headers: { "Content-Type": contentType },
+        headers: { 'Content-Type': contentType },
       });
     }
 
@@ -77,10 +84,10 @@ export function createStaticFileHandler(options: StaticFileServerOptions): (requ
     const indexBlob = await Promise.resolve(getFile(indexPath));
     if (indexBlob) {
       return new Response(indexBlob, {
-        headers: { "Content-Type": "text/html" },
+        headers: { 'Content-Type': 'text/html' },
       });
     }
 
-    return new Response("Not Found", { status: 404 });
+    return new Response('Not Found', { status: 404 });
   };
 }

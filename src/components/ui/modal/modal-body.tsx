@@ -1,19 +1,19 @@
-import type { PropsWithChildren } from "react";
+import type { PropsWithChildren } from 'react';
 
-import { useTheme } from "@/@shared/theme";
-import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
+import { useTheme } from '@/@shared/theme';
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
 
 type ModalBodyProps = PropsWithChildren<{
-    message: string;
+  message: string;
 }>;
 
 export function ModalBody({ message }: ModalBodyProps) {
-    const theme = useTheme();
+  const theme = useTheme();
 
-    return (
-        <ThemedView style={theme.sx({ mb: 4 })}>
-            <ThemedText>{message}</ThemedText>
-        </ThemedView>
-    );
+  return (
+    <ThemedView style={theme.sx({ mb: 4 })}>
+      <ThemedText>{message}</ThemedText>
+    </ThemedView>
+  );
 }

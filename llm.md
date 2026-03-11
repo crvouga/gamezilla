@@ -101,10 +101,10 @@ FederatedPatchDb
 Queries are routed based on entity type:
 
 ```typescript
-db.entities({ entityType: "account" });
+db.entities({ entityType: 'account' });
 // → server patch db
 
-db.entities({ entityType: "puzzle_completion" });
+db.entities({ entityType: 'puzzle_completion' });
 // → client patch db
 ```
 
@@ -166,20 +166,20 @@ type PatchDbQuery = {
 };
 
 type PatchDbQueryWhereClause =
-  | { type: "="; attribute: string; value: unknown }
-  | { type: "!="; attribute: string; value: unknown }
-  | { type: "in"; attribute: string; values: unknown[] }
-  | { type: "not_in"; attribute: string; values: unknown[] }
-  | { type: "gt"; attribute: string; value: unknown }
-  | { type: "gte"; attribute: string; value: unknown }
-  | { type: "lt"; attribute: string; value: unknown }
-  | { type: "lte"; attribute: string; value: unknown }
-  | { type: "contains"; attribute: string; value: string }
-  | { type: "exists"; attribute: string }
-  | { type: "not_exists"; attribute: string }
-  | { type: "or"; clauses: PatchDbQueryWhereClause[] }
-  | { type: "and"; clauses: PatchDbQueryWhereClause[] }
-  | { type: "not"; clause: PatchDbQueryWhereClause };
+  | { type: '='; attribute: string; value: unknown }
+  | { type: '!='; attribute: string; value: unknown }
+  | { type: 'in'; attribute: string; values: unknown[] }
+  | { type: 'not_in'; attribute: string; values: unknown[] }
+  | { type: 'gt'; attribute: string; value: unknown }
+  | { type: 'gte'; attribute: string; value: unknown }
+  | { type: 'lt'; attribute: string; value: unknown }
+  | { type: 'lte'; attribute: string; value: unknown }
+  | { type: 'contains'; attribute: string; value: string }
+  | { type: 'exists'; attribute: string }
+  | { type: 'not_exists'; attribute: string }
+  | { type: 'or'; clauses: PatchDbQueryWhereClause[] }
+  | { type: 'and'; clauses: PatchDbQueryWhereClause[] }
+  | { type: 'not'; clause: PatchDbQueryWhereClause };
 
 type PatchDbResult<T> = {
   data: T[];
@@ -308,10 +308,10 @@ const accountIds = resolveLinkedAccounts(accountId);
 const principalIds = getPrincipalsForAccounts(accountIds);
 
 db.query({
-  entityType: "puzzle_completion",
+  entityType: 'puzzle_completion',
   where: {
-    type: "in",
-    attribute: "completedByPrincipalId",
+    type: 'in',
+    attribute: 'completedByPrincipalId',
     values: principalIds,
   },
 });
