@@ -18,7 +18,7 @@ export function PatchBootstrap({ children }: { children: ReactNode }) {
     useEffect(() => {
         let cancelled = false;
         bootstrapPatchDbExpoSync({
-            apiUrl: configService.getString("PATCH_DB_RELAY_URL"),
+            apiUrl: configService.getString("PATCH_DB_SYNC_SERVER_URL"),
             parentContainer: configContainer,
         })
             .then(({ container: c }) => {
