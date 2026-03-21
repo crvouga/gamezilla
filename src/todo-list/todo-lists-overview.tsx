@@ -1,5 +1,4 @@
 import { clearLocalDatabaseAndReload } from '@/@shared/patch-db/bootstrap-expo';
-import type { Entity } from '@/@shared/patch-db/interface';
 import { useEntities, usePatchesDb } from '@/@shared/patch-db/react';
 import { useTheme } from '@/@shared/theme';
 import { ThemedText } from '@/components/themed-text';
@@ -27,24 +26,13 @@ const TODO_DELETED_CLAUSE = {
   ],
 };
 
-type TodoListEntity = Entity & {
-  attributes: {
-    'todoList/name'?: string;
-    'todoList/order'?: number;
-    'todoList/createdAt'?: string;
-  };
-};
-
-type TodoEntity = Entity & { attributes: { 'todo/listId'?: string } };
-
 function useTodoCountByList() {
   const todosResult = useEntities({
     entityType: 'todo',
     where: TODO_DELETED_CLAUSE,
   });
-  const todos = (todosResult.entities ?? []) as TodoEntity[];
-  const counts = new Map<string, number>();
-  for (const t of todos) {
+  const counts = new Map<unknown, number>();
+  for (const t of todosResult.entities) {
     const lid = t.attributes['todo/listId'] ?? INBOX_LIST_ID;
     counts.set(lid, (counts.get(lid) ?? 0) + 1);
   }
@@ -67,11 +55,12 @@ export function TodoListsOverview() {
     entityType: 'todoList',
     where: TODO_LIST_DELETED_CLAUSE,
     orderBy: [
-      { attribute: 'todoList/order', direction: 'asc' as const },
-      { attribute: 'todoList/createdAt', direction: 'asc' as const },
+      { attribute: 'todoList/order', direction: 'asc' },
+      { attribute: 'todoList/createdAt', direction: 'asc' },
+      { attribute: 'todoList/id', direction: 'asc' },
     ],
   });
-  const lists = (listsResult.entities ?? []) as TodoListEntity[];
+  const lists = listsResult.entities ?? [];
   const todoCounts = useTodoCountByList();
 
   const addList = async () => {

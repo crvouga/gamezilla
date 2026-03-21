@@ -49,8 +49,11 @@ export function extractClausesBySource(
   return null;
 }
 
+/** Allows simple identifiers and Clojure-style namespaced keys (e.g. my.ns/attr). */
 export function sanitizeIdentifier(name: string): string {
-  if (!/^[a-zA-Z_][a-zA-Z0-9_.]*$/.test(name)) {
+  const simple = /^[a-zA-Z_][a-zA-Z0-9_.]*$/;
+  const namespaced = /^[a-zA-Z_][a-zA-Z0-9_.]*\/[a-zA-Z_][a-zA-Z0-9_.]*$/;
+  if (!simple.test(name) && !namespaced.test(name)) {
     throw new Error(`Invalid attribute name: ${name}`);
   }
   return name;

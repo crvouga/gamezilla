@@ -74,15 +74,6 @@ function buildTodoQuery(listId: string, filter: Filter): PatchesDbQuery {
   };
 }
 
-type TodoEntity = Entity & {
-  attributes: {
-    'todo/title'?: string;
-    'todo/completed'?: boolean;
-    'todo/order'?: number;
-    'todo/listId'?: string;
-  };
-};
-
 function TodoItem({
   entityId,
   onToggle,
@@ -167,7 +158,7 @@ export function TodoListDetail() {
 
   const allResult = useEntities(buildTodoQuery(lid, 'all'));
   const filterResult = useEntities(buildTodoQuery(lid, filter));
-  const todos = filterResult.entities as TodoEntity[];
+  const todos = filterResult.entities;
   const totalCount = allResult.total;
 
   const listEntity = useEntity({
@@ -206,7 +197,7 @@ export function TodoListDetail() {
     setInput('');
   };
 
-  const toggleTodo = async (entity: TodoEntity) => {
+  const toggleTodo = async (entity: Entity) => {
     await db.write([
       {
         entityId: entity.entityId,
@@ -218,7 +209,7 @@ export function TodoListDetail() {
     ]);
   };
 
-  const deleteTodo = async (entity: TodoEntity) => {
+  const deleteTodo = async (entity: Entity) => {
     await db.write([
       {
         entityId: entity.entityId,
