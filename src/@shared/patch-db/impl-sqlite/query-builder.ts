@@ -1,4 +1,4 @@
-import { assert } from '@/@shared/assert';
+import { assert, assertEquals } from '@/@shared/assert';
 import { assertNever } from '@/@shared/assert/assert-never';
 import type { PatchesDbQuery, PatchesDbQueryWhereClause } from '../interface';
 import { assertAttribute } from '../interface';
@@ -12,17 +12,23 @@ function jsonPathForAttribute(attribute: string): string {
     ? `$."${attribute.replace(/"/g, '""')}"`
     : `$.${attribute}`;
 }
-assert(
-  jsonPathForAttribute('todo/title') === '$."todo/title"',
-  'Invalid attribute name'
+assertEquals(
+  jsonPathForAttribute('todo/title'),
+  '$."todo/title"',
+  'Invalid attribute name',
+  { attribute: 'todo/title' }
 );
-assert(
-  jsonPathForAttribute('my.namespace/attr') === '$."my.namespace/attr"',
-  'Invalid attribute name'
+assertEquals(
+  jsonPathForAttribute('my.namespace/attr'),
+  '$."my.namespace/attr"',
+  'Invalid attribute name',
+  { attribute: 'my.namespace/attr' }
 );
-assert(
-  jsonPathForAttribute('todo/title') === '$."todo/title"',
-  'Invalid attribute name.'
+assertEquals(
+  jsonPathForAttribute('todo/title'),
+  '$."todo/title"',
+  'Invalid attribute name.',
+  { attribute: 'todo/title' }
 );
 
 function buildWhereClauseForColumn(
