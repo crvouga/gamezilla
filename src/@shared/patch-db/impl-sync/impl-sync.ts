@@ -23,17 +23,6 @@ type ActiveQuery = {
   refCount: number;
 };
 
-function getCursorPatchId(patches: Patch[]): string | null {
-  if (patches.length === 0) return null;
-  return patches[patches.length - 1].patchId;
-}
-
-/** Strip limit/offset so we get the true last patch in lineage order for cursor. */
-function queryForCursor(query: PatchesDbQuery): PatchesDbQuery {
-  const { limit, offset, ...rest } = query;
-  return rest;
-}
-
 export class SyncPatchesDb implements PatchesDb {
   subscribe = {
     patches: (
@@ -192,13 +181,12 @@ export class SyncPatchesDb implements PatchesDb {
     try {
       const syncQueries: PatchesDbQuery[] = [];
       for (const { query } of entries) {
+        const { limit, offset, ...queryWithoutPagination } = query;
         const [localResult] = await this.local.readEntities([
-          queryForCursor(query),
+          queryWithoutPagination,
         ]);
-        const cursorPatchId = getCursorPatchId(localResult.patches);
         syncQueries.push({
-          ...query,
-          after: cursorPatchId ?? undefined,
+          ...queryWithoutPagination,
           knownPatches: localResult.patches,
         });
 
@@ -210,11 +198,9 @@ export class SyncPatchesDb implements PatchesDb {
             const [trackedResult] = await this.local.readEntities([
               { entityType: query.entityType, entityId: entityIds },
             ]);
-            const trackedCursor = getCursorPatchId(trackedResult.patches);
             syncQueries.push({
               entityType: query.entityType,
               entityId: entityIds,
-              after: trackedCursor ?? undefined,
               knownPatches: trackedResult.patches,
             });
           }

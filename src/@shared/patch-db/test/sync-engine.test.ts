@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import type { PatchesDbQuery } from '../interface';
+import type { Patch, PatchesDbQuery } from '../interface';
 import { createSyncDbFactory } from './test-helpers';
 
 const PUSH_WAIT_MS = 100;
@@ -222,5 +222,83 @@ describe('SyncPatchesDb', () => {
     const entity = entitiesResult.entities[0];
     expect(entity).toBeDefined();
     expect(entity?.attributes?.deleted).toBe(true);
+  });
+
+  test('poll: sibling patch from another client is not missed when its patchId sorts before cursor', async () => {
+    const entityId = crypto.randomUUID();
+    const entityType = 'task';
+
+    // 1. Write root patch on remote (simulates shared initial state)
+    const [rootPatch] = await syncDb.remote.write([
+      { entityId, entityType, attributes: { title: 'Root' } },
+    ]);
+
+    // 2. Subscribe so the sync engine registers an active query, then poll
+    const unsub = syncDb.syncDb.subscribe.entities(
+      { entityType, entityId },
+      () => {}
+    );
+    syncDb.invalidateRemote();
+    await new Promise((r) => setTimeout(r, 50));
+
+    // Verify client got the root patch
+    const [localAfterFirstPoll] = await syncDb.local.readEntities([
+      { entityType, entityId },
+    ]);
+    expect(localAfterFirstPoll.patches).toHaveLength(1);
+
+    // 3. Client writes a local patch (depth 1, parent = root)
+    const [clientAPatch] = await syncDb.syncDb.write([
+      { entityId, entityType, attributes: { status: 'in-progress' } },
+    ]);
+
+    // Wait for push timer to sync it to remote
+    await new Promise((r) => setTimeout(r, 100));
+    const [remoteAfterPush] = await syncDb.remote.readEntities([
+      { entityType, entityId },
+    ]);
+    expect(remoteAfterPush.patches).toHaveLength(2);
+
+    // 4. Another client writes a sibling patch directly to remote (same parent,
+    //    same depth) with a patchId that sorts BEFORE clientAPatch.patchId.
+    //    This simulates a concurrent write from a different device.
+    const siblingPatchId = '00000000-0000-0000-0000-000000000000';
+    expect(siblingPatchId < clientAPatch.patchId).toBe(true);
+
+    await syncDb.remote.write([
+      {
+        entityId,
+        entityType,
+        patchId: siblingPatchId,
+        parentId: rootPatch.patchId,
+        createdAt: new Date().toISOString(),
+        recordedAt: new Date().toISOString(),
+        createdBy: 'other-client',
+        sessionId: 'other-session',
+        attributes: { assignee: 'bob' },
+      } as Patch,
+    ]);
+
+    // Verify remote has all 3 patches
+    const [remoteAll] = await syncDb.remote.readEntities([
+      { entityType, entityId },
+    ]);
+    expect(remoteAll.patches).toHaveLength(3);
+
+    // 5. Client polls again — should bring in the sibling patch
+    syncDb.invalidateRemote();
+    await new Promise((r) => setTimeout(r, 50));
+
+    // 6. Verify local has all 3 patches
+    const [finalLocal] = await syncDb.local.readEntities([
+      { entityType, entityId },
+    ]);
+    unsub();
+
+    const hasSiblingPatch = finalLocal.patches.some(
+      (p) => p.patchId === siblingPatchId
+    );
+    expect(hasSiblingPatch).toBe(true);
+    expect(finalLocal.patches).toHaveLength(3);
   });
 });
