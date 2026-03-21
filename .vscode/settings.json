@@ -35,6 +35,7 @@
     "Pressable",
     "RAILPACK",
     "Replayable",
+    "SAVEPOINT",
     "schemaname",
     "sokoban",
     "sslmode",

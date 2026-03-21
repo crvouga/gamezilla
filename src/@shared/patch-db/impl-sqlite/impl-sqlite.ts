@@ -1,5 +1,6 @@
 import { assert, assertDefined } from '../../assert';
-import { assertQuery, SqlClient } from '../../sql-client/interface';
+import type { SqlClient } from '../../sql-client/interface';
+import { assertSqliteQuery } from '../../sqlite';
 import {
   assertAttribute,
   Entity,
@@ -24,6 +25,7 @@ import type { PatchRow, SnapshotRow } from './types';
 
 const DELETE_SNAPSHOT = `DELETE FROM snapshots
 WHERE entity_id = ? AND entity_type = ?`;
+assertSqliteQuery(DELETE_SNAPSHOT);
 
 const INSERT_PATCH = `INSERT OR IGNORE INTO
     patches (
@@ -36,6 +38,7 @@ const INSERT_PATCH = `INSERT OR IGNORE INTO
         parent_id
     )
 VALUES (?, ?, ?, ?, ?, ?, ?)`;
+assertSqliteQuery(INSERT_PATCH);
 
 const MIGRATIONS = `CREATE TABLE IF NOT EXISTS patches (
     patch_id TEXT PRIMARY KEY,
@@ -59,6 +62,7 @@ CREATE TABLE IF NOT EXISTS snapshots (
 );
 
 CREATE INDEX IF NOT EXISTS idx_snapshots_entity_type ON snapshots (entity_type);`;
+assertSqliteQuery(MIGRATIONS);
 
 const RESOLVE_PARENT_ID = `WITH RECURSIVE lineage AS (
     SELECT patch_id, 0 AS depth
@@ -80,6 +84,7 @@ WHERE p.entity_id = ? AND p.entity_type = ?
   )
 ORDER BY l.depth DESC, p.patch_id ASC
 LIMIT 1`;
+assertSqliteQuery(RESOLVE_PARENT_ID);
 
 const SELECT_PATCHES_FOR_SNAPSHOT = `WITH RECURSIVE lineage AS (
     SELECT patch_id, 0 AS depth
@@ -95,10 +100,12 @@ SELECT p.* FROM patches p
 JOIN lineage l ON p.patch_id = l.patch_id
 WHERE p.entity_id = ? AND p.entity_type = ?
 ORDER BY l.depth ASC, p.patch_id ASC`;
+assertSqliteQuery(SELECT_PATCHES_FOR_SNAPSHOT);
 
 const UPSERT_SNAPSHOT = `INSERT INTO snapshots (entity_id, entity_type, attributes)
 VALUES (?, ?, ?)
 ON CONFLICT (entity_id, entity_type) DO UPDATE SET attributes = excluded.attributes`;
+assertSqliteQuery(MIGRATIONS);
 
 export class PatchDbImplSqlite implements PatchesDb {
   constructor(private sqlClient: SqlClient) {}
@@ -146,13 +153,6 @@ export class PatchDbImplSqlite implements PatchesDb {
     } catch {
       // Forward-compatible: metadata column exists only in pre-migration DBs.
     }
-
-    assertQuery(MIGRATIONS, this.sqlClient);
-    assertQuery(SELECT_PATCHES_FOR_SNAPSHOT, this.sqlClient);
-    assertQuery(UPSERT_SNAPSHOT, this.sqlClient);
-    assertQuery(DELETE_SNAPSHOT, this.sqlClient);
-    assertQuery(RESOLVE_PARENT_ID, this.sqlClient);
-    assertQuery(INSERT_PATCH, this.sqlClient);
   }
 
   private async recomputeSnapshot(
