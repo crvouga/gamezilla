@@ -21,6 +21,8 @@ export type Entity = {
   attributes: Record<string, unknown>;
 };
 
+export type Attribute = string & { __brand: 'attribute' };
+
 /** Clojure-style namespaced key; no whitespace allowed. */
 const ATTRIBUTE_REGEX =
   /^(?!.*\s)[a-zA-Z_][a-zA-Z0-9_.]*\/[a-zA-Z_][a-zA-Z0-9_.]*$/;

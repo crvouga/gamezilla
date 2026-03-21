@@ -239,8 +239,11 @@ export function buildOrderSQL(
       'ORDER BY ' +
       query.orderBy
         .map((o) => {
-          assertAttribute(o.attribute);
           const path = jsonPathForAttribute(o.attribute);
+          assert(
+            o.direction === 'asc' || o.direction === 'desc',
+            'Invalid direction'
+          );
           const dir = o.direction === 'desc' ? 'DESC' : 'ASC';
           return `json_extract(${attributePrefix}attributes, '${path.replace(/'/g, "''")}') ${dir}`;
         })

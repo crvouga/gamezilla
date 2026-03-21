@@ -37,7 +37,11 @@ function buildTodoQuery(filter: Filter) {
             type: 'and' as const,
             clauses: [
               DELETED_CLAUSE,
-              { type: '=' as const, attribute: 'todo/completed', value: true },
+              {
+                type: '=' as const,
+                attribute: 'todo/completed',
+                value: true,
+              },
             ],
           };
   return {
@@ -131,9 +135,7 @@ export function TodoList() {
   const db = usePatchesDb();
   const [input, setInput] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
-  const allResult = useEntities({
-    ...buildTodoQuery('all'),
-  });
+  const allResult = useEntities(buildTodoQuery('all'));
   const filterResult = useEntities(buildTodoQuery(filter));
   const todos = filterResult.entities as TodoEntity[];
   const totalCount = allResult.total;
