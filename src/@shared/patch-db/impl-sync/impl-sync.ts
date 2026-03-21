@@ -71,14 +71,14 @@ export class SyncPatchesDb implements PatchesDb {
     return result;
   }
 
-  readEntities(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
-    return this.local.readEntities(queries);
+  read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
+    return this.local.read(queries);
   }
 
-  async updateMetadata(
+  async update(
     updates: { patchId: string; metadata: Record<string, unknown> }[]
   ): Promise<void> {
-    return this.local.updateMetadata(updates);
+    return this.local.update(updates);
   }
 
   private queryKey(query: PatchesDbQuery): string {
@@ -100,7 +100,7 @@ export class SyncPatchesDb implements PatchesDb {
     }
 
     const notify = async () => {
-      const [result] = await this.local.readEntities([query]);
+      const [result] = await this.local.read([query]);
       listener(result);
     };
     void notify();
@@ -148,7 +148,7 @@ export class SyncPatchesDb implements PatchesDb {
 
   private async pushUnsynced(): Promise<void> {
     try {
-      const [result] = await this.local.readEntities([
+      const [result] = await this.local.read([
         {
           where: {
             type: 'not_exists',
@@ -160,7 +160,7 @@ export class SyncPatchesDb implements PatchesDb {
       const patches = result.patches;
       if (patches.length === 0) return;
       await this.remote.write(patches);
-      await this.local.updateMetadata(
+      await this.local.update(
         patches.map((p) => ({
           patchId: p.patchId,
           metadata: { syncedAt: '1' },
@@ -182,9 +182,7 @@ export class SyncPatchesDb implements PatchesDb {
       const syncQueries: PatchesDbQuery[] = [];
       for (const { query } of entries) {
         const { limit, offset, ...queryWithoutPagination } = query;
-        const [localResult] = await this.local.readEntities([
-          queryWithoutPagination,
-        ]);
+        const [localResult] = await this.local.read([queryWithoutPagination]);
         syncQueries.push({
           ...queryWithoutPagination,
           knownPatches: localResult.patches,
@@ -195,7 +193,7 @@ export class SyncPatchesDb implements PatchesDb {
             ...new Set(localResult.patches.map((p) => p.entityId)),
           ];
           if (entityIds.length > 0) {
-            const [trackedResult] = await this.local.readEntities([
+            const [trackedResult] = await this.local.read([
               { entityType: query.entityType, entityId: entityIds },
             ]);
             syncQueries.push({
@@ -207,7 +205,7 @@ export class SyncPatchesDb implements PatchesDb {
         }
       }
 
-      const results = await this.remote.readEntities(syncQueries);
+      const results = await this.remote.read(syncQueries);
 
       let hasNewPatches = false;
       for (const remoteResult of results) {

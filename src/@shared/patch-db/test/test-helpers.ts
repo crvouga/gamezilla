@@ -94,21 +94,21 @@ export const whereClauseFixtures: PatchInput[] = [
   {
     entityId: 't1',
     entityType: 'item',
-    attributes: { name: 'Alpha Widget', score: 10, tag: 'a' },
+    attributes: { 'item/name': 'Alpha Widget', 'item/score': 10, 'item/tag': 'a' },
   },
   {
     entityId: 't2',
     entityType: 'item',
-    attributes: { name: 'Beta Gadget', score: 20, tag: 'b' },
+    attributes: { 'item/name': 'Beta Gadget', 'item/score': 20, 'item/tag': 'b' },
   },
   {
     entityId: 't3',
     entityType: 'item',
-    attributes: { name: 'Gamma Tool', score: 30, tag: 'a' },
+    attributes: { 'item/name': 'Gamma Tool', 'item/score': 30, 'item/tag': 'a' },
   },
   {
     entityId: 't4',
     entityType: 'item',
-    attributes: { name: 'Delta Device', score: 40 },
+    attributes: { 'item/name': 'Delta Device', 'item/score': 40 },
   },
 ];

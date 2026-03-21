@@ -25,7 +25,7 @@ export function createPatchDbHttpHandlers(
           // Publishing would trigger SSE → poll → knownPatches → infinite loop.
         }
       }
-      const results = await db.readEntities(queries);
+      const results = await db.read(queries);
       return Response.json(results);
     }
 

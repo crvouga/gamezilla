@@ -20,27 +20,29 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     const p1 = {
       entityId: 'e1',
       entityType: 'task',
-      attributes: { title: 'Buy milk', priority: 'low', status: 'open' },
+      attributes: {
+        'task/title': 'Buy milk',
+        'task/priority': 'low',
+        'task/status': 'open',
+      },
     };
 
     const p2 = {
       entityId: 'e1',
       entityType: 'task',
-      attributes: { priority: 'high', assignee: 'alice' },
+      attributes: { 'task/priority': 'high', 'task/assignee': 'alice' },
     };
 
     const p3 = {
       entityId: 'e1',
       entityType: 'task',
-      attributes: { priority: null },
+      attributes: { 'task/priority': null },
     };
 
     const written = await db.write([p1, p2, p3]);
     expect(written).toHaveLength(3);
 
-    const [result] = await db.readEntities([
-      { entityType: 'task', entityId: 'e1' },
-    ]);
+    const [result] = await db.read([{ entityType: 'task', entityId: 'e1' }]);
     expect(result.patches).toHaveLength(3);
     expect(result.total).toBe(3);
 
@@ -57,27 +59,27 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     const entity = result.entities[0];
     expect(entity.entityId).toBe('e1');
     expect(entity.entityType).toBe('task');
-    expect(entity.attributes.title).toBe('Buy milk');
-    expect(entity.attributes.assignee).toBe('alice');
-    expect(entity.attributes.status).toBe('open');
-    expect(entity.attributes).not.toHaveProperty('priority');
+    expect(entity.attributes['task/title']).toBe('Buy milk');
+    expect(entity.attributes['task/assignee']).toBe('alice');
+    expect(entity.attributes['task/status']).toBe('open');
+    expect(entity.attributes).not.toHaveProperty('task/priority');
   });
 
   test('patches ordered by lineage, nextCursor is patchId for pagination', async () => {
     await db.write([
-      { entityId: 'e2', entityType: 'task', attributes: { x: 1 } },
-      { entityId: 'e2', entityType: 'task', attributes: { x: 2 } },
-      { entityId: 'e2', entityType: 'task', attributes: { x: 3 } },
+      { entityId: 'e2', entityType: 'task', attributes: { 'task/x': 1 } },
+      { entityId: 'e2', entityType: 'task', attributes: { 'task/x': 2 } },
+      { entityId: 'e2', entityType: 'task', attributes: { 'task/x': 3 } },
     ]);
 
-    const [page1] = await db.readEntities([
+    const [page1] = await db.read([
       { entityType: 'task', entityId: 'e2', limit: 2 },
     ]);
     expect(page1.patches).toHaveLength(2);
     expect(page1.nextCursor).toBe(page1.patches[1].patchId);
     expect(page1.hasMore).toBe(true);
 
-    const [page2] = await db.readEntities([
+    const [page2] = await db.read([
       {
         entityType: 'task',
         entityId: 'e2',
@@ -86,20 +88,20 @@ describe.each(implementations)('$name', ({ name, factory }) => {
       },
     ]);
     expect(page2.patches).toHaveLength(1);
-    expect(page2.patches[0].attributes.x).toBe(3);
+    expect(page2.patches[0].attributes['task/x']).toBe(3);
     expect(page2.nextCursor).toBe(page2.patches[0].patchId);
     expect(page2.hasMore).toBe(false);
   });
 
   test('synced patches preserve parentId from client', async () => {
     const [p1] = await db.write([
-      { entityId: 'e3', entityType: 'task', attributes: { a: 1 } },
-      { entityId: 'e3', entityType: 'task', attributes: { a: 2 } },
+      { entityId: 'e3', entityType: 'task', attributes: { 'task/a': 1 } },
+      { entityId: 'e3', entityType: 'task', attributes: { 'task/a': 2 } },
     ]);
     const syncedP3 = {
       entityId: 'e3',
       entityType: 'task',
-      attributes: { a: 3 },
+      attributes: { 'task/a': 3 },
       patchId: crypto.randomUUID(),
       parentId: p1.patchId,
       createdAt: new Date().toISOString(),
@@ -109,9 +111,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     };
     await db.write([syncedP3]);
 
-    const [result] = await db.readEntities([
-      { entityType: 'task', entityId: 'e3' },
-    ]);
+    const [result] = await db.read([{ entityType: 'task', entityId: 'e3' }]);
     const p3Read = result.patches.find((x) => x.patchId === syncedP3.patchId);
     expect(p3Read?.parentId).toBe(p1.patchId);
   });
@@ -123,9 +123,9 @@ describe.each(implementations)('$name', ({ name, factory }) => {
         entityId: listId,
         entityType: 'todoList',
         attributes: {
-          name: 'My List',
-          order: 0,
-          createdAt: new Date().toISOString(),
+          'todoList/name': 'My List',
+          'todoList/order': 0,
+          'todoList/createdAt': new Date().toISOString(),
         },
       },
     ]);
@@ -133,11 +133,11 @@ describe.each(implementations)('$name', ({ name, factory }) => {
       {
         entityId: listId,
         entityType: 'todoList',
-        attributes: { deleted: true },
+        attributes: { 'todoList/deleted': true },
       },
     ]);
 
-    const [result] = await db.readEntities([
+    const [result] = await db.read([
       {
         where: {
           type: 'not_exists',
@@ -152,12 +152,12 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     expect(unsynced.map((p) => p.patchId)).toContain(deletePatch.patchId);
     expect(
       unsynced.find((p) => p.patchId === deletePatch.patchId)?.attributes
-    ).toEqual({ deleted: true });
+    ).toEqual({ 'todoList/deleted': true });
 
-    await db.updateMetadata(
+    await db.update(
       unsynced.map((p) => ({ patchId: p.patchId, metadata: { syncedAt: '1' } }))
     );
-    const [afterSync] = await db.readEntities([
+    const [afterSync] = await db.read([
       {
         where: {
           type: 'not_exists',

@@ -116,6 +116,7 @@ export type PatchesDbQuery = {
   offset?: number;
   after?: string;
   knownPatches?: Patch[];
+  on?: 'patches' | 'entities';
 };
 
 export type PatchesDbResult = {
@@ -129,8 +130,8 @@ export type PatchesDbResult = {
 
 export interface PatchesDb {
   write(patches: PatchInput[]): Promise<Patch[]>;
-  readEntities(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]>;
-  updateMetadata(
+  read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]>;
+  update(
     updates: { patchId: string; metadata: Record<string, unknown> }[]
   ): Promise<void>;
 }

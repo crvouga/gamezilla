@@ -235,7 +235,7 @@ export class PatchDbImplSqlite implements PatchesDb {
     return result;
   }
 
-  async readEntities(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
+  async read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
     if (queries.length === 0) return [];
     return Promise.all(queries.map((q) => this.readOne(q)));
   }
@@ -460,7 +460,7 @@ export class PatchDbImplSqlite implements PatchesDb {
     };
   }
 
-  async updateMetadata(
+  async update(
     updates: { patchId: string; metadata: Record<string, unknown> }[]
   ): Promise<void> {
     if (updates.length === 0) return;

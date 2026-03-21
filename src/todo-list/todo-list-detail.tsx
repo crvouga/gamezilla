@@ -1,4 +1,8 @@
-import type { Entity } from '@/@shared/patch-db/interface';
+import type {
+  Entity,
+  PatchesDbQuery,
+  PatchesDbQueryWhereClause,
+} from '@/@shared/patch-db/interface';
 import { useEntities, useEntity, usePatchesDb } from '@/@shared/patch-db/react';
 import { useTheme } from '@/@shared/theme';
 import { ThemedText } from '@/components/themed-text';
@@ -14,68 +18,68 @@ import {
 
 const INBOX_LIST_ID = '__inbox__';
 
-const DELETED_CLAUSE = {
-  type: 'or' as const,
+const DELETED_CLAUSE: PatchesDbQueryWhereClause = {
+  type: 'or',
   clauses: [
-    { type: 'not_exists' as const, attribute: 'deleted' },
-    { type: '=' as const, attribute: 'deleted', value: false },
+    { type: 'not_exists', attribute: 'todo/deleted' },
+    { type: '=', attribute: 'todo/deleted', value: false },
   ],
 };
 
-const ACTIVE_CLAUSE = {
-  type: 'or' as const,
+const ACTIVE_CLAUSE: PatchesDbQueryWhereClause = {
+  type: 'or',
   clauses: [
-    { type: 'not_exists' as const, attribute: 'completed' },
-    { type: '=' as const, attribute: 'completed', value: false },
+    { type: 'not_exists', attribute: 'todo/completed' },
+    { type: '=', attribute: 'todo/completed', value: false },
   ],
 };
 
-function buildTodoQuery(listId: string, filter: Filter) {
-  const listClause =
+function buildTodoQuery(listId: string, filter: Filter): PatchesDbQuery {
+  const listClause: PatchesDbQueryWhereClause =
     listId === INBOX_LIST_ID
       ? {
-          type: 'or' as const,
+          type: 'or',
           clauses: [
-            { type: 'not_exists' as const, attribute: 'listId' },
-            { type: '=' as const, attribute: 'listId', value: null },
-            { type: '=' as const, attribute: 'listId', value: '' },
+            { type: 'not_exists', attribute: 'todo/listId' },
+            { type: '=', attribute: 'todo/listId', value: null },
+            { type: '=', attribute: 'todo/listId', value: '' },
           ],
         }
-      : { type: '=' as const, attribute: 'listId', value: listId };
+      : { type: '=', attribute: 'todo/listId', value: listId };
 
-  const where =
+  const where: PatchesDbQueryWhereClause =
     filter === 'all'
-      ? { type: 'and' as const, clauses: [DELETED_CLAUSE, listClause] }
+      ? { type: 'and', clauses: [DELETED_CLAUSE, listClause] }
       : filter === 'active'
         ? {
-            type: 'and' as const,
+            type: 'and',
             clauses: [DELETED_CLAUSE, listClause, ACTIVE_CLAUSE],
           }
         : {
-            type: 'and' as const,
+            type: 'and',
             clauses: [
               DELETED_CLAUSE,
               listClause,
-              { type: '=' as const, attribute: 'completed', value: true },
+              { type: '=', attribute: 'todo/completed', value: true },
             ],
           };
 
   return {
-    entityType: 'todo' as const,
+    entityType: 'todo',
     where,
     orderBy: [
-      { attribute: 'order', direction: 'asc' as const },
-      { attribute: 'createdAt', direction: 'asc' as const },
+      { attribute: 'todo/order', direction: 'asc' },
+      { attribute: 'todo/createdAt', direction: 'asc' },
     ],
   };
 }
 
 type TodoEntity = Entity & {
   attributes: {
-    title?: string;
-    completed?: boolean;
-    order?: number;
-    listId?: string;
+    'todo/title'?: string;
+    'todo/completed'?: boolean;
+    'todo/order'?: number;
+    'todo/listId'?: string;
   };
 };
 
@@ -89,9 +93,12 @@ function TodoItem({
   onDelete: () => void;
 }) {
   const theme = useTheme();
-  const entity = useEntity({ entityId, entityType: 'todo' });
-  const completed = entity?.attributes.completed === true;
-  const title = (entity?.attributes.title as string) ?? '';
+  const entity = useEntity({
+    entityId,
+    entityType: 'todo',
+  });
+  const completed = entity?.attributes['todo/completed'] === true;
+  const title = (entity?.attributes['todo/title'] as string) ?? '';
 
   return (
     <ThemedView
@@ -170,7 +177,7 @@ export function TodoListDetail() {
   const listName =
     lid === INBOX_LIST_ID
       ? 'Inbox'
-      : ((listEntity?.attributes.name as string) ?? 'List');
+      : ((listEntity?.attributes['todoList/name'] as string) ?? 'List');
 
   const filterButtonStyle = (active: boolean) =>
     theme.sx({
@@ -188,11 +195,11 @@ export function TodoListDetail() {
         entityId: crypto.randomUUID(),
         entityType: 'todo',
         attributes: {
-          title,
-          completed: false,
-          order: totalCount,
-          createdAt: new Date().toISOString(),
-          ...(lid !== INBOX_LIST_ID && { listId: lid }),
+          'todo/title': title,
+          'todo/completed': false,
+          'todo/order': totalCount,
+          'todo/createdAt': new Date().toISOString(),
+          ...(lid !== INBOX_LIST_ID && { 'todo/listId': lid }),
         },
       },
     ]);
@@ -204,7 +211,9 @@ export function TodoListDetail() {
       {
         entityId: entity.entityId,
         entityType: 'todo',
-        attributes: { completed: !Boolean(entity.attributes.completed) },
+        attributes: {
+          'todo/completed': !Boolean(entity.attributes['todo/completed']),
+        },
       },
     ]);
   };
@@ -214,7 +223,7 @@ export function TodoListDetail() {
       {
         entityId: entity.entityId,
         entityType: 'todo',
-        attributes: { deleted: true },
+        attributes: { 'todo/deleted': true },
       },
     ]);
   };

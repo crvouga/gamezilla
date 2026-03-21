@@ -22,23 +22,21 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     });
 
     test('entities without filter returns all', async () => {
-      const [all] = await db.readEntities([{ entityType: 'item' }]);
+      const [all] = await db.read([{ entityType: 'item' }]);
       expect(all.entities).toHaveLength(4);
     });
 
     test('entityId filter works', async () => {
-      const [result] = await db.readEntities([
-        { entityType: 'item', entityId: 't1' },
-      ]);
+      const [result] = await db.read([{ entityType: 'item', entityId: 't1' }]);
       expect(result.entities).toHaveLength(1);
-      expect(result.entities[0].attributes.tag).toBe('a');
+      expect(result.entities[0].attributes['item/tag']).toBe('a');
     });
 
     test('where = matches exact value', async () => {
-      const [result] = await db.readEntities([
+      const [result] = await db.read([
         {
           entityType: 'item',
-          where: { type: '=', attribute: 'tag', value: 'a' },
+          where: { type: '=', attribute: 'item/tag', value: 'a' },
         },
       ]);
       expect(result.entities).toHaveLength(2);
@@ -47,10 +45,10 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     });
 
     test('where != excludes matching value', async () => {
-      const [result] = await db.readEntities([
+      const [result] = await db.read([
         {
           entityType: 'item',
-          where: { type: '!=', attribute: 'tag', value: 'a' },
+          where: { type: '!=', attribute: 'item/tag', value: 'a' },
         },
       ]);
       const ids = result.entities.map((e) => e.entityId).sort();
@@ -58,10 +56,10 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     });
 
     test('where in matches any of given values', async () => {
-      const [result] = await db.readEntities([
+      const [result] = await db.read([
         {
           entityType: 'item',
-          where: { type: 'in', attribute: 'score', values: [10, 30] },
+          where: { type: 'in', attribute: 'item/score', values: [10, 30] },
         },
       ]);
       const ids = result.entities.map((e) => e.entityId).sort();
@@ -69,10 +67,10 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     });
 
     test('where not_in excludes given values', async () => {
-      const [result] = await db.readEntities([
+      const [result] = await db.read([
         {
           entityType: 'item',
-          where: { type: 'not_in', attribute: 'score', values: [10, 30] },
+          where: { type: 'not_in', attribute: 'item/score', values: [10, 30] },
         },
       ]);
       const ids = result.entities.map((e) => e.entityId).sort();
@@ -80,10 +78,10 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     });
 
     test('where gt matches values greater than', async () => {
-      const [result] = await db.readEntities([
+      const [result] = await db.read([
         {
           entityType: 'item',
-          where: { type: 'gt', attribute: 'score', value: 20 },
+          where: { type: 'gt', attribute: 'item/score', value: 20 },
         },
       ]);
       const ids = result.entities.map((e) => e.entityId).sort();
@@ -91,10 +89,10 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     });
 
     test('where gte matches values greater than or equal', async () => {
-      const [result] = await db.readEntities([
+      const [result] = await db.read([
         {
           entityType: 'item',
-          where: { type: 'gte', attribute: 'score', value: 20 },
+          where: { type: 'gte', attribute: 'item/score', value: 20 },
         },
       ]);
       const ids = result.entities.map((e) => e.entityId).sort();
@@ -102,10 +100,10 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     });
 
     test('where lt matches values less than', async () => {
-      const [result] = await db.readEntities([
+      const [result] = await db.read([
         {
           entityType: 'item',
-          where: { type: 'lt', attribute: 'score', value: 20 },
+          where: { type: 'lt', attribute: 'item/score', value: 20 },
         },
       ]);
       const ids = result.entities.map((e) => e.entityId).sort();
@@ -113,10 +111,10 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     });
 
     test('where lte matches values less than or equal', async () => {
-      const [result] = await db.readEntities([
+      const [result] = await db.read([
         {
           entityType: 'item',
-          where: { type: 'lte', attribute: 'score', value: 20 },
+          where: { type: 'lte', attribute: 'item/score', value: 20 },
         },
       ]);
       const ids = result.entities.map((e) => e.entityId).sort();
@@ -124,10 +122,10 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     });
 
     test('where contains matches substring', async () => {
-      const [result] = await db.readEntities([
+      const [result] = await db.read([
         {
           entityType: 'item',
-          where: { type: 'contains', attribute: 'name', value: 'Gadget' },
+          where: { type: 'contains', attribute: 'item/name', value: 'Gadget' },
         },
       ]);
       expect(result.entities).toHaveLength(1);
@@ -135,10 +133,10 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     });
 
     test('where exists matches entities that have the attribute', async () => {
-      const [result] = await db.readEntities([
+      const [result] = await db.read([
         {
           entityType: 'item',
-          where: { type: 'exists', attribute: 'tag' },
+          where: { type: 'exists', attribute: 'item/tag' },
         },
       ]);
       const ids = result.entities.map((e) => e.entityId).sort();
@@ -146,10 +144,10 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     });
 
     test('where not_exists matches entities missing the attribute', async () => {
-      const [result] = await db.readEntities([
+      const [result] = await db.read([
         {
           entityType: 'item',
-          where: { type: 'not_exists', attribute: 'tag' },
+          where: { type: 'not_exists', attribute: 'item/tag' },
         },
       ]);
       expect(result.entities).toHaveLength(1);
@@ -157,14 +155,14 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     });
 
     test('where and requires all clauses to match', async () => {
-      const [result] = await db.readEntities([
+      const [result] = await db.read([
         {
           entityType: 'item',
           where: {
             type: 'and',
             clauses: [
-              { type: '=', attribute: 'tag', value: 'a' },
-              { type: 'gt', attribute: 'score', value: 15 },
+              { type: '=', attribute: 'item/tag', value: 'a' },
+              { type: 'gt', attribute: 'item/score', value: 15 },
             ],
           },
         },
@@ -174,14 +172,14 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     });
 
     test('where or requires any clause to match', async () => {
-      const [result] = await db.readEntities([
+      const [result] = await db.read([
         {
           entityType: 'item',
           where: {
             type: 'or',
             clauses: [
-              { type: '=', attribute: 'score', value: 10 },
-              { type: '=', attribute: 'score', value: 40 },
+              { type: '=', attribute: 'item/score', value: 10 },
+              { type: '=', attribute: 'item/score', value: 40 },
             ],
           },
         },
@@ -191,12 +189,12 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     });
 
     test('where not inverts the clause', async () => {
-      const [result] = await db.readEntities([
+      const [result] = await db.read([
         {
           entityType: 'item',
           where: {
             type: 'not',
-            clause: { type: '=', attribute: 'tag', value: 'a' },
+            clause: { type: '=', attribute: 'item/tag', value: 'a' },
           },
         },
       ]);
@@ -205,7 +203,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     });
 
     test('where not combined with exists covers missing attributes', async () => {
-      const [result] = await db.readEntities([
+      const [result] = await db.read([
         {
           entityType: 'item',
           where: {
@@ -213,9 +211,9 @@ describe.each(implementations)('$name', ({ name, factory }) => {
             clauses: [
               {
                 type: 'not',
-                clause: { type: '=', attribute: 'tag', value: 'a' },
+                clause: { type: '=', attribute: 'item/tag', value: 'a' },
               },
-              { type: 'not_exists', attribute: 'tag' },
+              { type: 'not_exists', attribute: 'item/tag' },
             ],
           },
         },

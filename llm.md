@@ -142,7 +142,8 @@ type Entity = {
 **Rules:**
 
 - Append-only — patches are never deleted or retracted
-- Soft deletes via tombstone: `{ deleted: true }` or null attribute: `{ username: null }`
+- Soft deletes via tombstone: `{ 'entityType/deleted': true }` or null attribute: `{ 'account/username': null }`
+- Attribute keys use namespaced convention: `entityType/attributeName` (e.g., `todo/title`, `todoList/name`, `puzzle_completion/completedByPrincipalId`)
 - Merge resolution only — latest value per attribute key wins across all patches for an entity
 - No joins — single entity queries only, waterfall is fine on local SQLite
 
@@ -288,7 +289,7 @@ publicKey
 All entities are owned by a principal:
 
 ```typescript
-puzzle_completion.completedByPrincipalId;
+puzzle_completion['puzzle_completion/completedByPrincipalId'];
 ```
 
 This ensures a consistent write path, no ownership migration, and correct authorship history.
@@ -311,7 +312,7 @@ db.query({
   entityType: 'puzzle_completion',
   where: {
     type: 'in',
-    attribute: 'completedByPrincipalId',
+    attribute: 'puzzle_completion/completedByPrincipalId',
     values: principalIds,
   },
 });

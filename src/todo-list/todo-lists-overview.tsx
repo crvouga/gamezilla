@@ -11,29 +11,41 @@ import { FlatList, Pressable, TextInput } from 'react-native';
 
 const INBOX_LIST_ID = '__inbox__';
 
-const DELETED_CLAUSE = {
+const TODO_LIST_DELETED_CLAUSE = {
   type: 'or' as const,
   clauses: [
-    { type: 'not_exists' as const, attribute: 'deleted' },
-    { type: '=' as const, attribute: 'deleted', value: false },
+    { type: 'not_exists' as const, attribute: 'todoList/deleted' },
+    { type: '=' as const, attribute: 'todoList/deleted', value: false },
+  ],
+};
+
+const TODO_DELETED_CLAUSE = {
+  type: 'or' as const,
+  clauses: [
+    { type: 'not_exists' as const, attribute: 'todo/deleted' },
+    { type: '=' as const, attribute: 'todo/deleted', value: false },
   ],
 };
 
 type TodoListEntity = Entity & {
-  attributes: { name?: string; order?: number; createdAt?: string };
+  attributes: {
+    'todoList/name'?: string;
+    'todoList/order'?: number;
+    'todoList/createdAt'?: string;
+  };
 };
 
-type TodoEntity = Entity & { attributes: { listId?: string } };
+type TodoEntity = Entity & { attributes: { 'todo/listId'?: string } };
 
 function useTodoCountByList() {
   const todosResult = useEntities({
     entityType: 'todo',
-    where: DELETED_CLAUSE,
+    where: TODO_DELETED_CLAUSE,
   });
   const todos = (todosResult.entities ?? []) as TodoEntity[];
   const counts = new Map<string, number>();
   for (const t of todos) {
-    const lid = t.attributes.listId ?? INBOX_LIST_ID;
+    const lid = t.attributes['todo/listId'] ?? INBOX_LIST_ID;
     counts.set(lid, (counts.get(lid) ?? 0) + 1);
   }
   return counts;
@@ -53,10 +65,10 @@ export function TodoListsOverview() {
 
   const listsResult = useEntities({
     entityType: 'todoList',
-    where: DELETED_CLAUSE,
+    where: TODO_LIST_DELETED_CLAUSE,
     orderBy: [
-      { attribute: 'order', direction: 'asc' as const },
-      { attribute: 'createdAt', direction: 'asc' as const },
+      { attribute: 'todoList/order', direction: 'asc' as const },
+      { attribute: 'todoList/createdAt', direction: 'asc' as const },
     ],
   });
   const lists = (listsResult.entities ?? []) as TodoListEntity[];
@@ -74,9 +86,9 @@ export function TodoListsOverview() {
         entityId,
         entityType: 'todoList',
         attributes: {
-          name,
-          order: lists.length,
-          createdAt: new Date().toISOString(),
+          'todoList/name': name,
+          'todoList/order': lists.length,
+          'todoList/createdAt': new Date().toISOString(),
         },
       },
     ]);
@@ -93,7 +105,7 @@ export function TodoListsOverview() {
       {
         entityId: listId,
         entityType: 'todoList',
-        attributes: { deleted: true },
+        attributes: { 'todoList/deleted': true },
       },
     ]);
   };
@@ -113,7 +125,7 @@ export function TodoListsOverview() {
     { id: INBOX_LIST_ID, name: 'Inbox', count: inboxCount },
     ...lists.map((l) => ({
       id: l.entityId,
-      name: (l.attributes.name as string) ?? 'Untitled',
+      name: (l.attributes['todoList/name'] as string) ?? 'Untitled',
       count: todoCounts.get(l.entityId) ?? 0,
     })),
   ];

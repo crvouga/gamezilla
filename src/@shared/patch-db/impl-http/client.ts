@@ -87,7 +87,7 @@ export class PatchDbImplHttp implements PatchesDb {
     return res.json() as Promise<T>;
   }
 
-  async readEntities(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
+  async read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
     if (queries.length === 0) return [];
     return this.post<PatchesDbResult[]>(PATCHES_READ, { queries });
   }
@@ -96,7 +96,7 @@ export class PatchDbImplHttp implements PatchesDb {
     return this.post<Patch[]>(PATCHES_WRITE, { patches });
   }
 
-  async updateMetadata(
+  async update(
     _updates: { patchId: string; metadata: Record<string, unknown> }[]
   ): Promise<void> {
     // No-op: metadata updates are local-only for sync; remote does not need

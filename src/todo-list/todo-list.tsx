@@ -14,16 +14,16 @@ import {
 const DELETED_CLAUSE = {
   type: 'or' as const,
   clauses: [
-    { type: 'not_exists' as const, attribute: 'deleted' },
-    { type: '=' as const, attribute: 'deleted', value: false },
+    { type: 'not_exists' as const, attribute: 'todo/deleted' },
+    { type: '=' as const, attribute: 'todo/deleted', value: false },
   ],
 };
 
 const ACTIVE_CLAUSE = {
   type: 'or' as const,
   clauses: [
-    { type: 'not_exists' as const, attribute: 'completed' },
-    { type: '=' as const, attribute: 'completed', value: false },
+    { type: 'not_exists' as const, attribute: 'todo/completed' },
+    { type: '=' as const, attribute: 'todo/completed', value: false },
   ],
 };
 
@@ -37,21 +37,25 @@ function buildTodoQuery(filter: Filter) {
             type: 'and' as const,
             clauses: [
               DELETED_CLAUSE,
-              { type: '=' as const, attribute: 'completed', value: true },
+              { type: '=' as const, attribute: 'todo/completed', value: true },
             ],
           };
   return {
     entityType: 'todo' as const,
     where,
     orderBy: [
-      { attribute: 'order', direction: 'asc' as const },
-      { attribute: 'createdAt', direction: 'asc' as const },
+      { attribute: 'todo/order', direction: 'asc' as const },
+      { attribute: 'todo/createdAt', direction: 'asc' as const },
     ],
   };
 }
 
 type TodoEntity = Entity & {
-  attributes: { title?: string; completed?: boolean; order?: number };
+  attributes: {
+    'todo/title'?: string;
+    'todo/completed'?: boolean;
+    'todo/order'?: number;
+  };
 };
 
 function TodoItem({
@@ -65,8 +69,8 @@ function TodoItem({
 }) {
   const theme = useTheme();
   const entity = useEntity({ entityId, entityType: 'todo' });
-  const completed = entity?.attributes.completed === true;
-  const title = (entity?.attributes.title as string) ?? '';
+  const completed = entity?.attributes['todo/completed'] === true;
+  const title = (entity?.attributes['todo/title'] as string) ?? '';
 
   return (
     <ThemedView
@@ -127,7 +131,9 @@ export function TodoList() {
   const db = usePatchesDb();
   const [input, setInput] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
-  const allResult = useEntities(buildTodoQuery('all'));
+  const allResult = useEntities({
+    ...buildTodoQuery('all'),
+  });
   const filterResult = useEntities(buildTodoQuery(filter));
   const todos = filterResult.entities as TodoEntity[];
   const totalCount = allResult.total;
@@ -141,10 +147,10 @@ export function TodoList() {
         entityId,
         entityType: 'todo',
         attributes: {
-          title,
-          completed: false,
-          order: totalCount,
-          createdAt: new Date().toISOString(),
+          'todo/title': title,
+          'todo/completed': false,
+          'todo/order': totalCount,
+          'todo/createdAt': new Date().toISOString(),
         },
       },
     ]);
@@ -152,12 +158,12 @@ export function TodoList() {
   };
 
   const toggleTodo = async (entity: TodoEntity) => {
-    const completed = entity.attributes.completed === true;
+    const completed = entity.attributes['todo/completed'] === true;
     await db.write([
       {
         entityId: entity.entityId,
         entityType: 'todo',
-        attributes: { completed: !completed },
+        attributes: { 'todo/completed': !completed },
       },
     ]);
   };
@@ -167,7 +173,7 @@ export function TodoList() {
       {
         entityId: entity.entityId,
         entityType: 'todo',
-        attributes: { deleted: true },
+        attributes: { 'todo/deleted': true },
       },
     ]);
   };

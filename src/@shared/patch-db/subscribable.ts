@@ -39,14 +39,14 @@ export class SubscribablePatchesDb implements PatchesDb {
     return result;
   }
 
-  readEntities(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
-    return this.db.readEntities(queries);
+  read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
+    return this.db.read(queries);
   }
 
-  async updateMetadata(
+  async update(
     updates: { patchId: string; metadata: Record<string, unknown> }[]
   ): Promise<void> {
-    return this.db.updateMetadata(updates);
+    return this.db.update(updates);
   }
 
   subscribe = {
@@ -55,7 +55,7 @@ export class SubscribablePatchesDb implements PatchesDb {
       listener: (result: PatchesDbResult) => void
     ): Unsubscribe => {
       const notify = async () => {
-        const [result] = await this.db.readEntities([query]);
+        const [result] = await this.db.read([query]);
         listener(result);
       };
       void notify();
@@ -66,7 +66,7 @@ export class SubscribablePatchesDb implements PatchesDb {
       listener: (result: PatchesDbResult) => void
     ): Unsubscribe => {
       const notify = async () => {
-        const [result] = await this.db.readEntities([query]);
+        const [result] = await this.db.read([query]);
         listener(result);
       };
       void notify();

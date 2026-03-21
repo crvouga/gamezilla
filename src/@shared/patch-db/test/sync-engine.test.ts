@@ -7,8 +7,8 @@ const PUSH_WAIT_MS = 100;
 const DELETED_CLAUSE: PatchesDbQuery['where'] = {
   type: 'or',
   clauses: [
-    { type: 'not_exists', attribute: 'deleted' },
-    { type: '=', attribute: 'deleted', value: false },
+    { type: 'not_exists', attribute: 'todoList/deleted' },
+    { type: '=', attribute: 'todoList/deleted', value: false },
   ],
 };
 
@@ -30,22 +30,22 @@ describe('SyncPatchesDb', () => {
         entityId: listId,
         entityType: 'todoList',
         attributes: {
-          name: 'My List',
-          order: 0,
-          createdAt: new Date().toISOString(),
+          'todoList/name': 'My List',
+          'todoList/order': 0,
+          'todoList/createdAt': new Date().toISOString(),
         },
       },
     ]);
 
     await new Promise((r) => setTimeout(r, PUSH_WAIT_MS));
 
-    const [remoteResult] = await syncDb.remote.readEntities([
+    const [remoteResult] = await syncDb.remote.read([
       { entityType: 'todoList', entityId: listId },
     ]);
     expect(remoteResult.patches).toHaveLength(1);
     expect(remoteResult.patches[0].attributes).toMatchObject({
-      name: 'My List',
-      order: 0,
+      'todoList/name': 'My List',
+      'todoList/order': 0,
     });
   });
 
@@ -56,9 +56,9 @@ describe('SyncPatchesDb', () => {
         entityId: listId,
         entityType: 'todoList',
         attributes: {
-          name: 'My List',
-          order: 0,
-          createdAt: new Date().toISOString(),
+          'todoList/name': 'My List',
+          'todoList/order': 0,
+          'todoList/createdAt': new Date().toISOString(),
         },
       },
     ]);
@@ -69,24 +69,26 @@ describe('SyncPatchesDb', () => {
       {
         entityId: listId,
         entityType: 'todoList',
-        attributes: { deleted: true },
+        attributes: { 'todoList/deleted': true },
       },
     ]);
 
     await new Promise((r) => setTimeout(r, PUSH_WAIT_MS));
 
-    const [remoteResult] = await syncDb.remote.readEntities([
+    const [remoteResult] = await syncDb.remote.read([
       { entityType: 'todoList', entityId: listId },
     ]);
     expect(remoteResult.patches).toHaveLength(2);
     const deletePatch = remoteResult.patches.find(
       (p) =>
         p.attributes &&
-        'deleted' in p.attributes &&
-        (p.attributes as { deleted: boolean }).deleted === true
+        'todoList/deleted' in p.attributes &&
+        (p.attributes as { 'todoList/deleted': boolean })[
+          'todoList/deleted'
+        ] === true
     );
     expect(deletePatch).toBeDefined();
-    expect(deletePatch!.attributes).toEqual({ deleted: true });
+    expect(deletePatch!.attributes).toEqual({ 'todoList/deleted': true });
   });
 
   test('push: multiple unsynced patches are all pushed', async () => {
@@ -97,34 +99,38 @@ describe('SyncPatchesDb', () => {
         entityId: listId1,
         entityType: 'todoList',
         attributes: {
-          name: 'List 1',
-          order: 0,
-          createdAt: new Date().toISOString(),
+          'todoList/name': 'List 1',
+          'todoList/order': 0,
+          'todoList/createdAt': new Date().toISOString(),
         },
       },
       {
         entityId: listId2,
         entityType: 'todoList',
         attributes: {
-          name: 'List 2',
-          order: 1,
-          createdAt: new Date().toISOString(),
+          'todoList/name': 'List 2',
+          'todoList/order': 1,
+          'todoList/createdAt': new Date().toISOString(),
         },
       },
     ]);
 
     await new Promise((r) => setTimeout(r, PUSH_WAIT_MS));
 
-    const [r1] = await syncDb.remote.readEntities([
+    const [r1] = await syncDb.remote.read([
       { entityType: 'todoList', entityId: listId1 },
     ]);
-    const [r2] = await syncDb.remote.readEntities([
+    const [r2] = await syncDb.remote.read([
       { entityType: 'todoList', entityId: listId2 },
     ]);
     expect(r1.patches).toHaveLength(1);
     expect(r2.patches).toHaveLength(1);
-    expect(r1.patches[0].attributes).toMatchObject({ name: 'List 1' });
-    expect(r2.patches[0].attributes).toMatchObject({ name: 'List 2' });
+    expect(r1.patches[0].attributes).toMatchObject({
+      'todoList/name': 'List 1',
+    });
+    expect(r2.patches[0].attributes).toMatchObject({
+      'todoList/name': 'List 2',
+    });
   });
 
   test('poll: remote patches are merged into local', async () => {
@@ -134,9 +140,9 @@ describe('SyncPatchesDb', () => {
         entityId: listId,
         entityType: 'todoList',
         attributes: {
-          name: 'From Remote',
-          order: 0,
-          createdAt: new Date().toISOString(),
+          'todoList/name': 'From Remote',
+          'todoList/order': 0,
+          'todoList/createdAt': new Date().toISOString(),
         },
       },
     ]);
@@ -161,7 +167,9 @@ describe('SyncPatchesDb', () => {
     }[];
     expect(
       last.some(
-        (e) => e.entityId === listId && e.attributes?.name === 'From Remote'
+        (e) =>
+          e.entityId === listId &&
+          e.attributes?.['todoList/name'] === 'From Remote'
       )
     ).toBe(true);
   });
@@ -173,9 +181,9 @@ describe('SyncPatchesDb', () => {
         entityId: listId,
         entityType: 'todoList',
         attributes: {
-          name: 'To Be Deleted',
-          order: 0,
-          createdAt: new Date().toISOString(),
+          'todoList/name': 'To Be Deleted',
+          'todoList/order': 0,
+          'todoList/createdAt': new Date().toISOString(),
         },
       },
     ]);
@@ -207,7 +215,7 @@ describe('SyncPatchesDb', () => {
       {
         entityId: listId,
         entityType: 'todoList',
-        attributes: { deleted: true },
+        attributes: { 'todoList/deleted': true },
       },
     ]);
 
@@ -216,12 +224,12 @@ describe('SyncPatchesDb', () => {
 
     unsub();
 
-    const [entitiesResult] = await syncDb.syncDb.readEntities([
+    const [entitiesResult] = await syncDb.syncDb.read([
       { entityType: 'todoList', entityId: listId },
     ]);
     const entity = entitiesResult.entities[0];
     expect(entity).toBeDefined();
-    expect(entity?.attributes?.deleted).toBe(true);
+    expect(entity?.attributes?.['todoList/deleted']).toBe(true);
   });
 
   test('poll: sibling patch from another client is not missed when its patchId sorts before cursor', async () => {
@@ -230,7 +238,7 @@ describe('SyncPatchesDb', () => {
 
     // 1. Write root patch on remote (simulates shared initial state)
     const [rootPatch] = await syncDb.remote.write([
-      { entityId, entityType, attributes: { title: 'Root' } },
+      { entityId, entityType, attributes: { 'task/title': 'Root' } },
     ]);
 
     // 2. Subscribe so the sync engine registers an active query, then poll
@@ -242,19 +250,19 @@ describe('SyncPatchesDb', () => {
     await new Promise((r) => setTimeout(r, 50));
 
     // Verify client got the root patch
-    const [localAfterFirstPoll] = await syncDb.local.readEntities([
+    const [localAfterFirstPoll] = await syncDb.local.read([
       { entityType, entityId },
     ]);
     expect(localAfterFirstPoll.patches).toHaveLength(1);
 
     // 3. Client writes a local patch (depth 1, parent = root)
     const [clientAPatch] = await syncDb.syncDb.write([
-      { entityId, entityType, attributes: { status: 'in-progress' } },
+      { entityId, entityType, attributes: { 'task/status': 'in-progress' } },
     ]);
 
     // Wait for push timer to sync it to remote
     await new Promise((r) => setTimeout(r, 100));
-    const [remoteAfterPush] = await syncDb.remote.readEntities([
+    const [remoteAfterPush] = await syncDb.remote.read([
       { entityType, entityId },
     ]);
     expect(remoteAfterPush.patches).toHaveLength(2);
@@ -275,14 +283,12 @@ describe('SyncPatchesDb', () => {
         recordedAt: new Date().toISOString(),
         createdBy: 'other-client',
         sessionId: 'other-session',
-        attributes: { assignee: 'bob' },
+        attributes: { 'task/assignee': 'bob' },
       } as Patch,
     ]);
 
     // Verify remote has all 3 patches
-    const [remoteAll] = await syncDb.remote.readEntities([
-      { entityType, entityId },
-    ]);
+    const [remoteAll] = await syncDb.remote.read([{ entityType, entityId }]);
     expect(remoteAll.patches).toHaveLength(3);
 
     // 5. Client polls again — should bring in the sibling patch
@@ -290,9 +296,7 @@ describe('SyncPatchesDb', () => {
     await new Promise((r) => setTimeout(r, 50));
 
     // 6. Verify local has all 3 patches
-    const [finalLocal] = await syncDb.local.readEntities([
-      { entityType, entityId },
-    ]);
+    const [finalLocal] = await syncDb.local.read([{ entityType, entityId }]);
     unsub();
 
     const hasSiblingPatch = finalLocal.patches.some(
