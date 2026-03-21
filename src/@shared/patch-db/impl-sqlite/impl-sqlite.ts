@@ -5,6 +5,7 @@ import {
   assertAttribute,
   Entity,
   getPatchTopLevelFromAttributes,
+  isValidAttribute,
   normalizePatchAttributesForStorage,
   Patch,
   PATCH_META_KEYS,
@@ -177,7 +178,7 @@ export class PatchDbImplSqlite implements PatchesDb {
         patch_id: row.patch_id,
       });
       for (const [key, value] of Object.entries(attrs)) {
-        if (PATCH_META_KEYS.includes(key)) continue;
+        if (!isValidAttribute(key) || PATCH_META_KEYS.includes(key)) continue;
         if (value === null) {
           delete merged[key];
         } else {

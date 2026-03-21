@@ -85,6 +85,11 @@ export type Attribute = string & { __brand: 'attribute' };
 /** Clojure-style namespaced key; no whitespace allowed. */
 const ATTRIBUTE_REGEX =
   /^(?!.*\s)[a-zA-Z_][a-zA-Z0-9_.]*\/[a-zA-Z_][a-zA-Z0-9_.]*$/;
+
+/** Returns true if the key is a valid namespaced attribute. Use when reading stored data that may be stale. */
+export function isValidAttribute(key: unknown): key is string {
+  return typeof key === 'string' && ATTRIBUTE_REGEX.test(key);
+}
 /**
  * Sanitizes an attribute name to ensure it follows Clojure-style namespaced key conventions.
  * Valid: Clojure-style namespaced keys (e.g. "todo/title", "patch/syncedAt").
