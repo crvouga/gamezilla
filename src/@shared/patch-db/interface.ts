@@ -1,9 +1,11 @@
 import { assert } from '../assert';
 
+export type AttributeKey = `${string}/${string}`;
+
 export type PatchInput = {
   entityId: string;
   entityType: string;
-  attributes: Record<string, unknown>;
+  attributes: Record<AttributeKey, unknown>;
 };
 
 export type Patch = PatchInput & {
@@ -44,9 +46,13 @@ export function normalizePatchAttributesForStorage(
   patch: PatchInputWithOptionalMeta
 ): Record<string, unknown> {
   const createdBy =
-    ('createdBy' in patch ? patch.createdBy : patch.attributes['patch/createdBy']) ?? '';
+    ('createdBy' in patch
+      ? patch.createdBy
+      : patch.attributes['patch/createdBy']) ?? '';
   const sessionId =
-    'sessionId' in patch ? patch.sessionId : patch.attributes['patch/sessionId'];
+    'sessionId' in patch
+      ? patch.sessionId
+      : patch.attributes['patch/sessionId'];
   const syncedAt = patch.attributes['patch/syncedAt'] ?? null;
 
   return {

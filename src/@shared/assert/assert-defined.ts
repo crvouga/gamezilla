@@ -11,7 +11,8 @@ import { assert } from './assert';
  */
 export function assertDefined<T>(
   value: T | null | undefined,
-  message: string
+  message: string,
+  context?: Record<string, unknown>
 ): asserts value is T {
-  assert(value !== null && value !== undefined, message);
+  assert(value !== null && value !== undefined, message, context);
 }
