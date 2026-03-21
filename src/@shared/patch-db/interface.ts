@@ -96,6 +96,71 @@ const ATTRIBUTE_REGEX =
 export function isValidAttribute(key: unknown): key is string {
   return typeof key === 'string' && ATTRIBUTE_REGEX.test(key);
 }
+
+const ID_MAX_LEN = 1024;
+
+/** Asserts patchId is sufficient for global uniqueness: non-empty, no null bytes, no trim loss, min length. */
+export function assertPatchId(id: unknown): asserts id is string {
+  assert(typeof id === 'string', 'patchId must be string', { id });
+  assert(id.length > 0, 'patchId must be non-empty', { id });
+  assert(id.length <= ID_MAX_LEN, 'patchId must not exceed 1024 chars', { id });
+  assert(!id.includes('\0'), 'patchId must not contain null byte', { id });
+  assert(
+    id === id.trim(),
+    'patchId must not have leading/trailing whitespace',
+    {
+      id,
+    }
+  );
+  assert(
+    id.length >= 8,
+    'patchId must be at least 8 chars for global uniqueness',
+    { id }
+  );
+}
+
+/** Asserts entityId is sufficient for global uniqueness (with entityType): non-empty, no null bytes, no trim loss. */
+export function assertEntityId(id: unknown): asserts id is string {
+  assert(typeof id === 'string', 'entityId must be string', { id });
+  assert(id.length > 0, 'entityId must be non-empty', { id });
+  assert(id.length <= ID_MAX_LEN, 'entityId must not exceed 1024 chars', {
+    id,
+  });
+  assert(!id.includes('\0'), 'entityId must not contain null byte', { id });
+  assert(
+    id === id.trim(),
+    'entityId must not have leading/trailing whitespace',
+    {
+      id,
+    }
+  );
+}
+
+/** Asserts entityType is sufficient for global uniqueness (with entityId): non-empty, no null bytes, no trim loss. */
+export function assertEntityType(t: unknown): asserts t is string {
+  assert(typeof t === 'string', 'entityType must be string', { entityType: t });
+  assert(t.length > 0, 'entityType must be non-empty', { entityType: t });
+  assert(t.length <= ID_MAX_LEN, 'entityType must not exceed 1024 chars', {
+    entityType: t,
+  });
+  assert(!t.includes('\0'), 'entityType must not contain null byte', {
+    entityType: t,
+  });
+  assert(
+    t === t.trim(),
+    'entityType must not have leading/trailing whitespace',
+    { entityType: t }
+  );
+}
+
+/** Asserts entity key (entityId + entityType) is sufficient for global uniqueness. */
+export function assertEntityKey(
+  entityId: unknown,
+  entityType: unknown
+): asserts entityId is string {
+  assertEntityId(entityId);
+  assertEntityType(entityType);
+}
 /**
  * Sanitizes an attribute name to ensure it follows Clojure-style namespaced key conventions.
  * Valid: Clojure-style namespaced keys (e.g. "todo/title", "patch/syncedAt").

@@ -2,6 +2,8 @@ import { assert, assertArray } from '../../assert';
 import type { PubSub } from '../../pub-sub/interface';
 import {
   assertAttribute,
+  assertEntityKey,
+  assertPatchId,
   type PatchesDb,
   type PatchesDbQuery,
   type PatchInput,
@@ -45,6 +47,14 @@ function validatePatchInput(p: unknown): asserts p is PatchInput {
     typeof patch['entityType'] === 'string',
     'patch.entityType must be string'
   );
+  assertEntityKey(patch['entityId'], patch['entityType']);
+  if (
+    patch['patchId'] !== undefined &&
+    patch['patchId'] !== null &&
+    typeof patch['patchId'] === 'string'
+  ) {
+    assertPatchId(patch['patchId']);
+  }
   assert(
     patch['attributes'] !== null &&
       typeof patch['attributes'] === 'object' &&

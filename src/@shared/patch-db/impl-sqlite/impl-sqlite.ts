@@ -3,6 +3,8 @@ import type { SqlClient } from '../../sql-client/interface';
 import { assertSqliteQuery } from '../../sqlite';
 import {
   assertAttribute,
+  assertEntityKey,
+  assertPatchId,
   Entity,
   getPatchTopLevelFromAttributes,
   isValidAttribute,
@@ -218,6 +220,10 @@ export class PatchDbImplSqlite implements PatchesDb {
   private validatePatchInputs(patches: PatchInput[]): void {
     assert(patches.length > 0, 'patches must not be empty');
     for (const patch of patches) {
+      assertEntityKey(patch.entityId, patch.entityType);
+      if ('patchId' in patch && typeof patch.patchId === 'string') {
+        assertPatchId(patch.patchId);
+      }
       for (const key of Object.keys(patch.attributes)) {
         assertAttribute(key);
       }

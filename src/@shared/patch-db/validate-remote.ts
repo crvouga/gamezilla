@@ -1,5 +1,11 @@
 import { assert, assertArray } from '../assert';
-import type { Entity, Patch, PatchesDbResult } from './interface';
+import {
+  assertEntityKey,
+  assertPatchId,
+  type Entity,
+  type Patch,
+  type PatchesDbResult,
+} from './interface';
 
 function assertObject(
   value: unknown,
@@ -46,6 +52,7 @@ function assertEntity(value: unknown): asserts value is Entity {
     typeof value['entityType'] === 'string',
     'Entity.entityType must be string'
   );
+  assertEntityKey(value['entityId'], value['entityType']);
   assertObject(value['attributes'], 'Entity.attributes must be object');
 }
 
@@ -58,6 +65,8 @@ function assertPatch(value: unknown): asserts value is Patch {
     typeof v['entityType'] === 'string',
     'Patch.entityType must be string'
   );
+  assertPatchId(v['patchId']);
+  assertEntityKey(v['entityId'], v['entityType']);
   assertObject(v['attributes'], 'Patch.attributes must be object');
   assert(
     v['parentId'] === null || typeof v['parentId'] === 'string',
