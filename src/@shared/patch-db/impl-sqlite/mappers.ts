@@ -1,5 +1,10 @@
 import { assert } from '../../assert';
-import { assertAttribute, type Entity, type Patch } from '../interface';
+import {
+  assertAttribute,
+  getPatchTopLevelFromAttributes,
+  type Entity,
+  type Patch,
+} from '../interface';
 import type { PatchRow, SnapshotRow } from './types';
 
 /** Parses attributes JSON with contextual error on failure. Use at DB read boundary. */
@@ -29,8 +34,7 @@ export function toPatch(row: PatchRow): Patch {
   for (const key of Object.keys(attrs)) {
     assertAttribute(key);
   }
-  const createdBy = attrs['patch/createdBy'];
-  const sessionId = attrs['patch/sessionId'];
+  const { createdBy, sessionId } = getPatchTopLevelFromAttributes(attrs);
   return {
     patchId: row.patch_id,
     entityId: row.entity_id,
@@ -39,9 +43,8 @@ export function toPatch(row: PatchRow): Patch {
     createdAt: row.created_at,
     recordedAt: row.recorded_at,
     parentId: row.parent_id ?? null,
-    createdBy: String(createdBy ?? ''),
-    sessionId:
-      sessionId !== null && sessionId !== undefined ? String(sessionId) : '',
+    createdBy,
+    sessionId,
   };
 }
 

@@ -66,6 +66,7 @@ async function loadImplementations(): Promise<
         return {
           connect: () => c.connect(),
           disconnect: () => Promise.resolve(),
+          prepare: (sql) => c.prepare(sql),
           query: (sql, params) => c.query(sql, params),
           run: (sql, params) => c.run(sql, params),
           transaction: (fn) => c.transaction(fn),

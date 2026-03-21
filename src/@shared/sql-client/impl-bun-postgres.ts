@@ -1,6 +1,6 @@
 import { assertArray } from '../assert';
 import { SQL } from 'bun';
-import type { RunResult, SqlClient } from './interface';
+import type { PreparedStatement, RunResult, SqlClient } from './interface';
 import { questionMarkParamsToDollarParams } from './positional-params';
 
 type BunSql = InstanceType<typeof SQL>;
@@ -39,6 +39,10 @@ export class SqlClientImplBunPostgres implements SqlClient {
     return this.client.run(sql, params);
   }
 
+  prepare(sql: string): PreparedStatement {
+    return this.client.prepare(sql);
+  }
+
   transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
     return this.client.transaction(fn);
   }
@@ -48,6 +52,32 @@ function createClient(sql: BunSql): SqlClient {
   return {
     connect: () => Promise.resolve(),
     disconnect: () => sql.close(),
+    prepare: (querySql: string): PreparedStatement => ({
+      query: async <T = Record<string, unknown>>(params?: unknown[]) => {
+        const [pgSql, pgParams] = questionMarkParamsToDollarParams(
+          querySql,
+          params
+        );
+        const result = await sql.unsafe(pgSql, pgParams);
+        assertArray(
+          result,
+          'Postgres query must return array of rows; driver contract violation'
+        );
+        return result as T[];
+      },
+      run: async (params?: unknown[]) => {
+        const [pgSql, pgParams] = questionMarkParamsToDollarParams(
+          querySql,
+          params
+        );
+        const result = await sql.unsafe(pgSql, pgParams);
+        const rows = Array.isArray(result) ? result : [];
+        return {
+          changes: getChanges(result, rows),
+          lastInsertRowid: getLastInsertRowid(result, rows),
+        };
+      },
+    }),
     query: async <T = Record<string, unknown>>(
       querySql: string,
       params?: unknown[]

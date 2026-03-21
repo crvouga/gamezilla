@@ -15,6 +15,65 @@ export type Patch = PatchInput & {
   sessionId: string;
 };
 
+/** Attribute keys for patch metadata. Excluded from entity snapshots by implementations. */
+export const PATCH_META_KEYS: readonly string[] = [
+  'patch/createdBy',
+  'patch/sessionId',
+  'patch/syncedAt',
+] as const;
+
+/**
+ * For legacy migration only: maps current metadata attr keys to old metadata column keys.
+ * Used when migrating from DBs that stored metadata in a separate column.
+ */
+export const PATCH_META_LEGACY_KEY_MAP: Record<string, string> = {
+  'patch/createdBy': 'createdBy',
+  'patch/sessionId': 'sessionId',
+  'patch/syncedAt': 'syncedAt',
+};
+
+type PatchInputWithOptionalMeta = PatchInput &
+  Partial<Record<'createdBy' | 'sessionId', unknown>>;
+
+/**
+ * Normalizes patch input into attributes for storage.
+ * Merges optional top-level createdBy/sessionId into attributes.
+ * Implementations should use this instead of interpreting metadata keys.
+ */
+export function normalizePatchAttributesForStorage(
+  patch: PatchInputWithOptionalMeta
+): Record<string, unknown> {
+  const createdBy =
+    ('createdBy' in patch ? patch.createdBy : patch.attributes['patch/createdBy']) ?? '';
+  const sessionId =
+    'sessionId' in patch ? patch.sessionId : patch.attributes['patch/sessionId'];
+  const syncedAt = patch.attributes['patch/syncedAt'] ?? null;
+
+  return {
+    ...patch.attributes,
+    'patch/createdBy': String(createdBy),
+    'patch/sessionId':
+      sessionId !== null && sessionId !== undefined ? String(sessionId) : '',
+    'patch/syncedAt': syncedAt,
+  };
+}
+
+/**
+ * Extracts Patch top-level fields from stored attributes.
+ * Implementations should use this instead of interpreting metadata keys.
+ */
+export function getPatchTopLevelFromAttributes(
+  attrs: Record<string, unknown>
+): Pick<Patch, 'createdBy' | 'sessionId'> {
+  const createdBy = attrs['patch/createdBy'];
+  const sessionId = attrs['patch/sessionId'];
+  return {
+    createdBy: String(createdBy ?? ''),
+    sessionId:
+      sessionId !== null && sessionId !== undefined ? String(sessionId) : '',
+  };
+}
+
 export type Entity = {
   entityId: string;
   entityType: string;

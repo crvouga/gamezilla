@@ -1,5 +1,5 @@
 import { Database, type SQLQueryBindings } from 'bun:sqlite';
-import type { RunResult, SqlClient } from './interface';
+import type { PreparedStatement, RunResult, SqlClient } from './interface';
 
 export class SqlClientImplBunSqlite implements SqlClient {
   constructor(private db: Database) {}
@@ -32,6 +32,24 @@ export class SqlClientImplBunSqlite implements SqlClient {
     return {
       changes: result.changes,
       lastInsertRowid: Number(result.lastInsertRowid),
+    };
+  }
+
+  prepare(sql: string): PreparedStatement {
+    const stmt = this.db.query(sql);
+    return {
+      query: <T = Record<string, unknown>>(params?: unknown[]) => {
+        const bindings = (params ?? []) as SQLQueryBindings[];
+        return Promise.resolve(stmt.all(...bindings) as T[]);
+      },
+      run: (params?: unknown[]) => {
+        const bindings = (params ?? []) as SQLQueryBindings[];
+        const result = stmt.run(...bindings);
+        return Promise.resolve({
+          changes: result.changes,
+          lastInsertRowid: Number(result.lastInsertRowid),
+        });
+      },
     };
   }
 

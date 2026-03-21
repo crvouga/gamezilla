@@ -1,9 +1,13 @@
 import { assert, assertDefined } from '../../assert';
-import { SqlClient } from '../../sql-client/interface';
+import { assertQuery, SqlClient } from '../../sql-client/interface';
 import {
   assertAttribute,
   Entity,
+  getPatchTopLevelFromAttributes,
+  normalizePatchAttributesForStorage,
   Patch,
+  PATCH_META_KEYS,
+  PATCH_META_LEGACY_KEY_MAP,
   PatchesDb,
   PatchesDbQuery,
   PatchesDbResult,
@@ -18,16 +22,10 @@ import {
 } from './query-builder';
 import type { PatchRow, SnapshotRow } from './types';
 
-const PATCH_META_KEYS = [
-  'patch/createdBy',
-  'patch/sessionId',
-  'patch/syncedAt',
-];
-
-const deleteSnapshot = `DELETE FROM snapshots
+const DELETE_SNAPSHOT = `DELETE FROM snapshots
 WHERE entity_id = ? AND entity_type = ?`;
 
-const insertPatch = `INSERT OR IGNORE INTO
+const INSERT_PATCH = `INSERT OR IGNORE INTO
     patches (
         patch_id,
         entity_id,
@@ -39,7 +37,7 @@ const insertPatch = `INSERT OR IGNORE INTO
     )
 VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
-const migrations = `CREATE TABLE IF NOT EXISTS patches (
+const MIGRATIONS = `CREATE TABLE IF NOT EXISTS patches (
     patch_id TEXT PRIMARY KEY,
     entity_id TEXT NOT NULL,
     entity_type TEXT NOT NULL,
@@ -62,7 +60,7 @@ CREATE TABLE IF NOT EXISTS snapshots (
 
 CREATE INDEX IF NOT EXISTS idx_snapshots_entity_type ON snapshots (entity_type);`;
 
-const resolveParentIdSql = `WITH RECURSIVE lineage AS (
+const RESOLVE_PARENT_ID = `WITH RECURSIVE lineage AS (
     SELECT patch_id, 0 AS depth
     FROM patches
     WHERE entity_id = ? AND entity_type = ? AND parent_id IS NULL
@@ -83,7 +81,7 @@ WHERE p.entity_id = ? AND p.entity_type = ?
 ORDER BY l.depth DESC, p.patch_id ASC
 LIMIT 1`;
 
-const selectPatchesForSnapshot = `WITH RECURSIVE lineage AS (
+const SELECT_PATCHES_FOR_SNAPSHOT = `WITH RECURSIVE lineage AS (
     SELECT patch_id, 0 AS depth
     FROM patches
     WHERE entity_id = ? AND entity_type = ? AND parent_id IS NULL
@@ -98,7 +96,7 @@ JOIN lineage l ON p.patch_id = l.patch_id
 WHERE p.entity_id = ? AND p.entity_type = ?
 ORDER BY l.depth ASC, p.patch_id ASC`;
 
-const upsertSnapshot = `INSERT INTO snapshots (entity_id, entity_type, attributes)
+const UPSERT_SNAPSHOT = `INSERT INTO snapshots (entity_id, entity_type, attributes)
 VALUES (?, ?, ?)
 ON CONFLICT (entity_id, entity_type) DO UPDATE SET attributes = excluded.attributes`;
 
@@ -106,8 +104,7 @@ export class PatchDbImplSqlite implements PatchesDb {
   constructor(private sqlClient: SqlClient) {}
 
   async migrate(): Promise<void> {
-    const statements = migrations
-      .split(';')
+    const statements = MIGRATIONS.split(';')
       .map((s) => s.trim())
       .filter(Boolean);
     for (const stmt of statements) {
@@ -130,17 +127,32 @@ export class PatchDbImplSqlite implements PatchesDb {
         "SELECT name FROM pragma_table_info('patches') WHERE name = 'metadata'"
       );
       if (tableInfo.length > 0) {
-        await this.sqlClient.run(`UPDATE patches SET attributes = json_set(
-          attributes,
-          '$.patch/createdBy', coalesce(json_extract(metadata, '$.createdBy'), ''),
-          '$.patch/sessionId', coalesce(json_extract(metadata, '$.sessionId'), ''),
-          '$.patch/syncedAt', json_extract(metadata, '$.syncedAt')
-        )`);
+        const jsonSetArgs = (PATCH_META_KEYS as readonly string[])
+          .flatMap((attrKey) => {
+            const legacyKey = PATCH_META_LEGACY_KEY_MAP[attrKey];
+            const path = `'$.${attrKey.replace(/"/g, '""')}'`;
+            const expr =
+              attrKey === 'patch/syncedAt'
+                ? `json_extract(metadata, '$.${legacyKey}')`
+                : `coalesce(json_extract(metadata, '$.${legacyKey}'), '')`;
+            return [path, expr];
+          })
+          .join(', ');
+        await this.sqlClient.run(
+          `UPDATE patches SET attributes = json_set(attributes, ${jsonSetArgs})`
+        );
         await this.sqlClient.run('ALTER TABLE patches DROP COLUMN metadata');
       }
     } catch {
       // Forward-compatible: metadata column exists only in pre-migration DBs.
     }
+
+    assertQuery(MIGRATIONS, this.sqlClient);
+    assertQuery(SELECT_PATCHES_FOR_SNAPSHOT, this.sqlClient);
+    assertQuery(UPSERT_SNAPSHOT, this.sqlClient);
+    assertQuery(DELETE_SNAPSHOT, this.sqlClient);
+    assertQuery(RESOLVE_PARENT_ID, this.sqlClient);
+    assertQuery(INSERT_PATCH, this.sqlClient);
   }
 
   private async recomputeSnapshot(
@@ -148,7 +160,7 @@ export class PatchDbImplSqlite implements PatchesDb {
     entityId: string,
     entityType: string
   ): Promise<void> {
-    const rows = await tx.query<PatchRow>(selectPatchesForSnapshot, [
+    const rows = await tx.query<PatchRow>(SELECT_PATCHES_FOR_SNAPSHOT, [
       entityId,
       entityType,
       entityId,
@@ -175,9 +187,9 @@ export class PatchDbImplSqlite implements PatchesDb {
     }
 
     if (Object.keys(merged).length === 0) {
-      await tx.run(deleteSnapshot, [entityId, entityType]);
+      await tx.run(DELETE_SNAPSHOT, [entityId, entityType]);
     } else {
-      await tx.run(upsertSnapshot, [
+      await tx.run(UPSERT_SNAPSHOT, [
         entityId,
         entityType,
         JSON.stringify(merged),
@@ -190,7 +202,7 @@ export class PatchDbImplSqlite implements PatchesDb {
     entityId: string,
     entityType: string
   ): Promise<string | null> {
-    const rows = await tx.query<{ patch_id: string }>(resolveParentIdSql, [
+    const rows = await tx.query<{ patch_id: string }>(RESOLVE_PARENT_ID, [
       entityId,
       entityType,
       entityId,
@@ -218,31 +230,14 @@ export class PatchDbImplSqlite implements PatchesDb {
     now: string,
     recordedAt: string
   ): Promise<Patch> {
-    const createdByVal =
-      ('createdBy' in patch
-        ? patch.createdBy
-        : patch.attributes['patch/createdBy']) ?? '';
-    const sessionIdVal =
-      'sessionId' in patch
-        ? patch.sessionId
-        : patch.attributes['patch/sessionId'];
-    const createdBy = String(createdByVal);
-    const sessionId =
-      sessionIdVal !== null && sessionIdVal !== undefined
-        ? String(sessionIdVal)
-        : '';
-    const syncedAt = patch.attributes['patch/syncedAt'] ?? null;
+    const storedAttributes = normalizePatchAttributesForStorage(patch);
+    const { createdBy, sessionId } =
+      getPatchTopLevelFromAttributes(storedAttributes);
     const patchId =
       'patchId' in patch && typeof patch.patchId === 'string'
         ? patch.patchId
         : crypto.randomUUID();
-    const storedAttributes = {
-      ...patch.attributes,
-      'patch/createdBy': createdBy,
-      'patch/sessionId': sessionId,
-      'patch/syncedAt': syncedAt,
-    };
-    await tx.run(insertPatch, [
+    await tx.run(INSERT_PATCH, [
       patchId,
       patch.entityId,
       patch.entityType,
@@ -614,7 +609,7 @@ export class PatchDbImplSqlite implements PatchesDb {
     const patches: Patch[] = [];
     for (const row of rows) {
       const patchRows = await this.sqlClient.query<PatchRow>(
-        selectPatchesForSnapshot,
+        SELECT_PATCHES_FOR_SNAPSHOT,
         [
           row.entity_id,
           row.entity_type,

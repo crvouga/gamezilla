@@ -1,5 +1,5 @@
 import * as SQLite from 'expo-sqlite';
-import type { RunResult, SqlClient } from './interface';
+import type { PreparedStatement, RunResult, SqlClient } from './interface';
 
 export class SqlClientImplExpoSqlite implements SqlClient {
   constructor(private db: SQLite.SQLiteDatabase) {}
@@ -35,6 +35,27 @@ export class SqlClientImplExpoSqlite implements SqlClient {
     return {
       changes: result.changes,
       lastInsertRowid: result.lastInsertRowId,
+    };
+  }
+
+  prepare(sql: string): PreparedStatement {
+    const stmt = this.db.prepareSync(sql);
+    return {
+      query: async <T = Record<string, unknown>>(params?: unknown[]) => {
+        const result = await stmt.executeAsync(
+          (params ?? []) as SQLite.SQLiteBindParams
+        );
+        return result.getAllAsync() as Promise<T[]>;
+      },
+      run: async (params?: unknown[]) => {
+        const result = await stmt.executeAsync(
+          (params ?? []) as SQLite.SQLiteBindParams
+        );
+        return {
+          changes: result.changes,
+          lastInsertRowid: result.lastInsertRowId,
+        };
+      },
     };
   }
 

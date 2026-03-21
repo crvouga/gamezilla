@@ -1,5 +1,5 @@
 import type { PubSub } from '../pub-sub/interface';
-import type { RunResult, SqlClient } from './interface';
+import type { PreparedStatement, RunResult, SqlClient } from './interface';
 
 export type SqlClientEvent =
   | { type: 'connect' }
@@ -74,6 +74,38 @@ export class SqlClientWithPubSub implements SqlClient {
       durationMs,
     } satisfies SqlClientEvent);
     return result;
+  }
+
+  prepare(sql: string): PreparedStatement {
+    const stmt = this.client.prepare(sql);
+    return {
+      query: async <T = Record<string, unknown>>(params?: unknown[]) => {
+        const start = performance.now();
+        const rows = await stmt.query<T>(params);
+        const durationMs = performance.now() - start;
+        this.pubSub.publish(this.topic, {
+          type: 'query',
+          sql,
+          params: params ?? [],
+          rowCount: rows.length,
+          durationMs,
+        } satisfies SqlClientEvent);
+        return rows;
+      },
+      run: async (params?: unknown[]) => {
+        const start = performance.now();
+        const result = await stmt.run(params);
+        const durationMs = performance.now() - start;
+        this.pubSub.publish(this.topic, {
+          type: 'run',
+          sql,
+          params: params ?? [],
+          result,
+          durationMs,
+        } satisfies SqlClientEvent);
+        return result;
+      },
+    };
   }
 
   async transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {

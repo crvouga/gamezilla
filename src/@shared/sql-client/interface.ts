@@ -6,9 +6,16 @@
  * in order: `query("SELECT * FROM t WHERE id = ?", [1])`.
  */
 
+import { assertNotThrows } from '../assert';
+
 export interface RunResult {
   changes: number;
   lastInsertRowid: number;
+}
+
+export interface PreparedStatement {
+  query<T = Record<string, unknown>>(params?: unknown[]): Promise<T[]>;
+  run(params?: unknown[]): Promise<RunResult>;
 }
 
 export interface SqlClient {
@@ -48,4 +55,18 @@ export interface SqlClient {
    * @returns The result of the function.
    */
   transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T>;
+
+  /**
+   * Prepares a statement for execution.
+   * @param sql The SQL statement string.
+   * @returns A prepared statement.
+   */
+  prepare(sql: string): PreparedStatement;
+}
+
+export function assertQuery(
+  sql: string,
+  sqlClient: SqlClient
+): asserts sql is string {
+  assertNotThrows(() => sqlClient.prepare(sql), 'Invalid SQL query', { sql });
 }
