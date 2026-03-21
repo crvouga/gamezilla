@@ -1,4 +1,4 @@
-import type { Entity } from '@/@shared/patch-db/interface';
+import { Entity } from '@/@shared/patch-db/interface';
 import { useEntities, useEntity, usePatchesDb } from '@/@shared/patch-db/react';
 import { useTheme } from '@/@shared/theme';
 import { ThemedText } from '@/components/themed-text';
@@ -53,14 +53,6 @@ function buildTodoQuery(filter: Filter) {
     ],
   };
 }
-
-type TodoEntity = Entity & {
-  attributes: {
-    'todo/title'?: string;
-    'todo/completed'?: boolean;
-    'todo/order'?: number;
-  };
-};
 
 function TodoItem({
   entityId,
@@ -138,8 +130,7 @@ export function TodoList() {
   const [filter, setFilter] = useState<Filter>('all');
   const allResult = useEntities(buildTodoQuery('all'));
   const filterResult = useEntities(buildTodoQuery(filter));
-  // Query uses entityType: 'todo'; all returned entities are TodoEntity.
-  const todos = filterResult.entities as TodoEntity[];
+  const todos = filterResult.entities;
   const totalCount = allResult.total;
 
   const addTodo = async () => {
@@ -161,7 +152,7 @@ export function TodoList() {
     setInput('');
   };
 
-  const toggleTodo = async (entity: TodoEntity) => {
+  const toggleTodo = async (entity: Entity) => {
     const completed = entity.attributes['todo/completed'] === true;
     await db.write([
       {
@@ -172,12 +163,14 @@ export function TodoList() {
     ]);
   };
 
-  const deleteTodo = async (entity: TodoEntity) => {
+  const deleteTodo = async (entity: Entity) => {
     await db.write([
       {
         entityId: entity.entityId,
         entityType: 'todo',
-        attributes: { 'todo/deleted': true },
+        attributes: {
+          'todo/deleted': true,
+        },
       },
     ]);
   };
