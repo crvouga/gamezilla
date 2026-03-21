@@ -24,17 +24,19 @@ describe.each(implementations)('$name', ({ factory }) => {
 
     test('entities without filter returns all', async () => {
       const results = await db.read([{ entityType: 'item' }]);
-      const all = assertDefined(results[0]);
+      const all = results[0];
+      assertDefined(all, 'all must be defined');
       expect(all.entities).toHaveLength(4);
     });
 
     test('entityId filter works', async () => {
       const results = await db.read([{ entityType: 'item', entityId: 't1' }]);
-      const result = assertDefined(results[0]);
+      const result = results[0];
+      assertDefined(result, 'result must be defined');
       expect(result.entities).toHaveLength(1);
-      expect(assertDefined(result.entities[0]).attributes['item/tag']).toBe(
-        'a'
-      );
+      const entity = result.entities[0];
+      assertDefined(entity, 'entity must be defined');
+      expect(entity.attributes['item/tag']).toBe('a');
     });
 
     test('where = matches exact value', async () => {
@@ -44,7 +46,8 @@ describe.each(implementations)('$name', ({ factory }) => {
           where: { type: '=', attribute: 'item/tag', value: 'a' },
         },
       ]);
-      const result = assertDefined(results[0]);
+      const result = results[0];
+      assertDefined(result, 'result must be defined');
       expect(result.entities).toHaveLength(2);
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t1', 't3']);
@@ -57,7 +60,8 @@ describe.each(implementations)('$name', ({ factory }) => {
           where: { type: '!=', attribute: 'item/tag', value: 'a' },
         },
       ]);
-      const result = assertDefined(results[0]);
+      const result = results[0];
+      assertDefined(result, 'result must be defined');
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t2']);
     });
@@ -69,7 +73,8 @@ describe.each(implementations)('$name', ({ factory }) => {
           where: { type: 'in', attribute: 'item/score', values: [10, 30] },
         },
       ]);
-      const result = assertDefined(results[0]);
+      const result = results[0];
+      assertDefined(result, 'result must be defined');
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t1', 't3']);
     });
@@ -85,7 +90,8 @@ describe.each(implementations)('$name', ({ factory }) => {
           },
         },
       ]);
-      const result = assertDefined(results[0]);
+      const result = results[0];
+      assertDefined(result, 'result must be defined');
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t2', 't4']);
     });
@@ -97,7 +103,8 @@ describe.each(implementations)('$name', ({ factory }) => {
           where: { type: 'gt', attribute: 'item/score', value: 20 },
         },
       ]);
-      const result = assertDefined(results[0]);
+      const result = results[0];
+      assertDefined(result, 'result must be defined');
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t3', 't4']);
     });
@@ -109,7 +116,8 @@ describe.each(implementations)('$name', ({ factory }) => {
           where: { type: 'gte', attribute: 'item/score', value: 20 },
         },
       ]);
-      const result = assertDefined(results[0]);
+      const result = results[0];
+      assertDefined(result, 'result must be defined');
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t2', 't3', 't4']);
     });
@@ -121,7 +129,8 @@ describe.each(implementations)('$name', ({ factory }) => {
           where: { type: 'lt', attribute: 'item/score', value: 20 },
         },
       ]);
-      const result = assertDefined(results[0]);
+      const result = results[0];
+      assertDefined(result, 'result must be defined');
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t1']);
     });
@@ -133,7 +142,8 @@ describe.each(implementations)('$name', ({ factory }) => {
           where: { type: 'lte', attribute: 'item/score', value: 20 },
         },
       ]);
-      const result = assertDefined(results[0]);
+      const result = results[0];
+      assertDefined(result, 'result must be defined');
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t1', 't2']);
     });
@@ -149,9 +159,12 @@ describe.each(implementations)('$name', ({ factory }) => {
           },
         },
       ]);
-      const result = assertDefined(results[0]);
+      const result = results[0];
+      assertDefined(result, 'result must be defined');
       expect(result.entities).toHaveLength(1);
-      expect(assertDefined(result.entities[0]).entityId).toBe('t2');
+      const entity = result.entities[0];
+      assertDefined(entity, 'entity must be defined');
+      expect(entity.entityId).toBe('t2');
     });
 
     test('where exists matches entities that have the attribute', async () => {
@@ -161,7 +174,8 @@ describe.each(implementations)('$name', ({ factory }) => {
           where: { type: 'exists', attribute: 'item/tag' },
         },
       ]);
-      const result = assertDefined(results[0]);
+      const result = results[0];
+      assertDefined(result, 'result must be defined');
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t1', 't2', 't3']);
     });
@@ -173,9 +187,12 @@ describe.each(implementations)('$name', ({ factory }) => {
           where: { type: 'not_exists', attribute: 'item/tag' },
         },
       ]);
-      const result = assertDefined(results[0]);
+      const result = results[0];
+      assertDefined(result, 'result must be defined');
       expect(result.entities).toHaveLength(1);
-      expect(assertDefined(result.entities[0]).entityId).toBe('t4');
+      const entity = result.entities[0];
+      assertDefined(entity, 'entity must be defined');
+      expect(entity.entityId).toBe('t4');
     });
 
     test('where and requires all clauses to match', async () => {
@@ -191,9 +208,12 @@ describe.each(implementations)('$name', ({ factory }) => {
           },
         },
       ]);
-      const result = assertDefined(results[0]);
+      const result = results[0];
+      assertDefined(result, 'result must be defined');
       expect(result.entities).toHaveLength(1);
-      expect(assertDefined(result.entities[0]).entityId).toBe('t3');
+      const entity = result.entities[0];
+      assertDefined(entity, 'entity must be defined');
+      expect(entity.entityId).toBe('t3');
     });
 
     test('where or requires any clause to match', async () => {
@@ -209,7 +229,8 @@ describe.each(implementations)('$name', ({ factory }) => {
           },
         },
       ]);
-      const result = assertDefined(results[0]);
+      const result = results[0];
+      assertDefined(result, 'result must be defined');
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t1', 't4']);
     });
@@ -224,7 +245,8 @@ describe.each(implementations)('$name', ({ factory }) => {
           },
         },
       ]);
-      const result = assertDefined(results[0]);
+      const result = results[0];
+      assertDefined(result, 'result must be defined');
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t2']);
     });
@@ -245,7 +267,8 @@ describe.each(implementations)('$name', ({ factory }) => {
           },
         },
       ]);
-      const result = assertDefined(results[0]);
+      const result = results[0];
+      assertDefined(result, 'result must be defined');
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t2', 't4']);
     });

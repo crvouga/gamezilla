@@ -4,10 +4,11 @@
  */
 
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
-import { defaultColors } from './colors';
+import { assertDefined } from '../assert';
 import type { ColorScheme, ColorTokens } from './colors';
-import { createSx } from './sx';
+import { defaultColors } from './colors';
 import { fonts } from './fonts';
+import { createSx } from './sx';
 
 export type Theme = {
   sx: ReturnType<typeof createSx>;
@@ -50,8 +51,6 @@ export function ThemeProvider({
 
 export function useTheme(): Theme {
   const ctx = useContext(ThemeContext);
-  if (!ctx) {
-    throw new Error('useTheme must be used within ThemeProvider');
-  }
+  assertDefined(ctx, 'ThemeContext must be defined');
   return ctx;
 }

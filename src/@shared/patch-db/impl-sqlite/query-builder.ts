@@ -31,56 +31,64 @@ function buildWhereClauseForColumn(
 ): WhereFragment {
   switch (clause.type) {
     case '=': {
-      const path = jsonPathForAttribute(assertAttribute(clause.attribute));
+      assertAttribute(clause.attribute);
+      const path = jsonPathForAttribute(clause.attribute);
       return {
         sql: `json_extract(${jsonColumn}, ?) = ?`,
         params: [path, clause.value],
       };
     }
     case '!=': {
-      const path = jsonPathForAttribute(assertAttribute(clause.attribute));
+      assertAttribute(clause.attribute);
+      const path = jsonPathForAttribute(clause.attribute);
       return {
         sql: `json_extract(${jsonColumn}, ?) != ?`,
         params: [path, clause.value],
       };
     }
     case 'gt': {
-      const path = jsonPathForAttribute(assertAttribute(clause.attribute));
+      assertAttribute(clause.attribute);
+      const path = jsonPathForAttribute(clause.attribute);
       return {
         sql: `json_extract(${jsonColumn}, ?) > ?`,
         params: [path, clause.value],
       };
     }
     case 'gte': {
-      const path = jsonPathForAttribute(assertAttribute(clause.attribute));
+      assertAttribute(clause.attribute);
+      const path = jsonPathForAttribute(clause.attribute);
       return {
         sql: `json_extract(${jsonColumn}, ?) >= ?`,
         params: [path, clause.value],
       };
     }
     case 'lt': {
-      const path = jsonPathForAttribute(assertAttribute(clause.attribute));
+      assertAttribute(clause.attribute);
+      const path = jsonPathForAttribute(clause.attribute);
       return {
         sql: `json_extract(${jsonColumn}, ?) < ?`,
         params: [path, clause.value],
       };
     }
     case 'lte': {
-      const path = jsonPathForAttribute(assertAttribute(clause.attribute));
+      assertAttribute(clause.attribute);
+      const path = jsonPathForAttribute(clause.attribute);
       return {
         sql: `json_extract(${jsonColumn}, ?) <= ?`,
         params: [path, clause.value],
       };
     }
     case 'contains': {
-      const path = jsonPathForAttribute(assertAttribute(clause.attribute));
+      assertAttribute(clause.attribute);
+      const path = jsonPathForAttribute(clause.attribute);
       return {
         sql: `json_extract(${jsonColumn}, ?) LIKE '%' || ? || '%'`,
         params: [path, clause.value],
       };
     }
     case 'in': {
-      const path = jsonPathForAttribute(assertAttribute(clause.attribute));
+      assertAttribute(clause.attribute);
+      const path = jsonPathForAttribute(clause.attribute);
       const placeholders = clause.values.map(() => '?').join(', ');
       return {
         sql: `json_extract(${jsonColumn}, ?) IN (${placeholders})`,
@@ -88,7 +96,8 @@ function buildWhereClauseForColumn(
       };
     }
     case 'not_in': {
-      const path = jsonPathForAttribute(assertAttribute(clause.attribute));
+      assertAttribute(clause.attribute);
+      const path = jsonPathForAttribute(clause.attribute);
       const placeholders = clause.values.map(() => '?').join(', ');
       return {
         sql: `json_extract(${jsonColumn}, ?) NOT IN (${placeholders})`,
@@ -96,14 +105,16 @@ function buildWhereClauseForColumn(
       };
     }
     case 'exists': {
-      const path = jsonPathForAttribute(assertAttribute(clause.attribute));
+      assertAttribute(clause.attribute);
+      const path = jsonPathForAttribute(clause.attribute);
       return {
         sql: `json_extract(${jsonColumn}, ?) IS NOT NULL`,
         params: [path],
       };
     }
     case 'not_exists': {
-      const path = jsonPathForAttribute(assertAttribute(clause.attribute));
+      assertAttribute(clause.attribute);
+      const path = jsonPathForAttribute(clause.attribute);
       return {
         sql: `json_extract(${jsonColumn}, ?) IS NULL`,
         params: [path],
@@ -228,7 +239,8 @@ export function buildOrderSQL(
       'ORDER BY ' +
       query.orderBy
         .map((o) => {
-          const path = jsonPathForAttribute(assertAttribute(o.attribute));
+          assertAttribute(o.attribute);
+          const path = jsonPathForAttribute(o.attribute);
           const dir = o.direction === 'desc' ? 'DESC' : 'ASC';
           return `json_extract(${attributePrefix}attributes, '${path.replace(/'/g, "''")}') ${dir}`;
         })

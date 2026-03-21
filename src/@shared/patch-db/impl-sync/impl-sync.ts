@@ -68,7 +68,7 @@ export class SyncPatchesDb implements PatchesDb {
   async write(patches: PatchInput[]): Promise<Patch[]> {
     const withUnsynced = patches.map((p) => ({
       ...p,
-      meta: { ...p.meta, syncedAt: null },
+      attributes: { ...p.attributes, 'patch/syncedAt': null },
     }));
     const result = await this.local.write(withUnsynced);
     this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
@@ -245,7 +245,7 @@ export class SyncPatchesDb implements PatchesDb {
         if (remoteResult.patches.length > 0) {
           const withSynced = remoteResult.patches.map((p) => ({
             ...p,
-            meta: { ...p.meta, syncedAt: '1' },
+            attributes: { ...p.attributes, 'patch/syncedAt': '1' },
           }));
           await this.local.write(withSynced);
           hasNewPatches = true;

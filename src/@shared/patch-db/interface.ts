@@ -4,8 +4,6 @@ export type PatchInput = {
   entityId: string;
   entityType: string;
   attributes: Record<string, unknown>;
-  /** Merged into attributes on write with patch/ prefix (e.g. patch/createdBy, patch/sessionId, patch/syncedAt) */
-  meta?: Record<string, unknown>;
 };
 
 export type Patch = PatchInput & {
@@ -32,7 +30,9 @@ const ATTRIBUTE_REGEX =
  * @param attribute - The attribute to sanitize.
  * @returns The sanitized attribute.
  */
-export function assertAttribute(attribute: unknown): string {
+export function assertAttribute(
+  attribute: unknown
+): asserts attribute is string {
   assert(
     typeof attribute === 'string',
     'Invalid attribute name — must be a string'
@@ -46,11 +46,18 @@ export function assertAttribute(attribute: unknown): string {
         "Clojure-style namespaced key (e.g. 'todo/title', 'patch/syncedAt')",
     }
   );
-  return attribute;
 }
 assertAttribute('todo/title');
 assertAttribute('my.namespace/attr');
 assertAttribute('todo.title/sub');
+
+export function assertAttributes(
+  attributes: Record<string, unknown>
+): asserts attributes is Record<string, unknown> {
+  for (const key of Object.keys(attributes)) {
+    assertAttribute(key);
+  }
+}
 
 export type PatchesDbQueryWhereClause =
   | {

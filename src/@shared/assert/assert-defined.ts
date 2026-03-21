@@ -9,7 +9,9 @@ import { assert } from './assert';
  * @returns {T} The value, guaranteed to be defined.
  * @throws Will throw an error if the value is null or undefined.
  */
-export function assertDefined<T>(value: T | null | undefined): T {
-  assert(value !== null && value !== undefined, 'Expected value to be defined');
-  return value;
+export function assertDefined<T>(
+  value: T | null | undefined,
+  message: string
+): asserts value is T {
+  assert(value !== null && value !== undefined, message);
 }
