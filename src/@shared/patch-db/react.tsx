@@ -1,3 +1,4 @@
+import { assert } from '@/@shared/assert';
 import { InjectionToken } from '@/@shared/dependency-injection/dependency-injection-container';
 import { useDependency } from '@/@shared/dependency-injection/react';
 import { useEffect, useState } from 'react';
@@ -13,9 +14,7 @@ export const PatchesDbToken: InjectionToken<PatchesDb> = Symbol('PatchesDb');
 
 export function usePatchesDb(): PatchesDb {
   const db = useDependency(PatchesDbToken);
-  if (!db) {
-    throw new Error('PatchesDb not found');
-  }
+  assert(db !== null && db !== undefined, 'PatchesDb not found');
   return db;
 }
 
@@ -40,5 +39,6 @@ export function useEntities(query: PatchesDbQuery): PatchesDbResult {
 
 export function useEntity(query: PatchesDbQuery): Entity | null {
   const entities = useEntities(query);
-  return entities.entities.length > 0 ? entities.entities[0] : null;
+  const first = entities.entities[0];
+  return first ?? null;
 }

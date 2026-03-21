@@ -56,7 +56,7 @@ describe('createStaticFileHandler', () => {
 
   test('correct Content-Type for extensions', async () => {
     const handler = createStaticFileHandler({
-      getFile: (path) => new Blob(['x']),
+      getFile: (_path) => new Blob(['x']),
     });
     const cases = [
       ['/a.js', 'application/javascript'],
@@ -65,6 +65,9 @@ describe('createStaticFileHandler', () => {
       ['/a.png', 'image/png'],
     ];
     for (const [path, expected] of cases) {
+      if (path === null || path === undefined || expected === null || expected === undefined) {
+        throw new Error('Invalid test case: path and expected must be defined');
+      }
       const res = await handler(mockRequest(path));
       expect(res.headers.get('Content-Type')).toBe(expected);
     }
@@ -82,7 +85,7 @@ describe('createStaticFileHandler', () => {
 
   test('custom mimeTypes override defaults', async () => {
     const handler = createStaticFileHandler({
-      getFile: () => new Blob(['x']),
+      getFile: (_path) => new Blob(['x']),
       mimeTypes: { '.foo': 'application/x-foo' },
     });
     const res = await handler(mockRequest('/a.foo'));

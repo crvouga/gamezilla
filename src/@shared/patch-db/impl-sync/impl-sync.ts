@@ -1,3 +1,4 @@
+import { assert } from '../../assert';
 import type { PubSub, Unsubscribe } from '../../pub-sub/interface';
 import type {
   Patch,
@@ -51,11 +52,11 @@ export class SyncPatchesDb implements PatchesDb {
 
   /** Stops push timer and remote invalidation subscription. Call before disposing of the db. */
   destroy(): void {
-    if (this.pushTimer != null) {
+    if (this.pushTimer !== null && this.pushTimer !== undefined) {
       clearInterval(this.pushTimer);
       this.pushTimer = null;
     }
-    if (this.remoteInvalidationUnsub != null) {
+    if (this.remoteInvalidationUnsub !== null && this.remoteInvalidationUnsub !== undefined) {
       this.remoteInvalidationUnsub();
       this.remoteInvalidationUnsub = null;
     }
@@ -101,6 +102,7 @@ export class SyncPatchesDb implements PatchesDb {
 
     const notify = async () => {
       const [result] = await this.local.read([query]);
+      assert(result !== null && result !== undefined, 'read([query]) must return one result');
       listener(result);
     };
     void notify();
@@ -123,7 +125,7 @@ export class SyncPatchesDb implements PatchesDb {
   }
 
   private ensurePolling(): void {
-    if (this.remoteInvalidationUnsub != null) return;
+    if (this.remoteInvalidationUnsub !== null && this.remoteInvalidationUnsub !== undefined) return;
     this.remoteInvalidationUnsub =
       this.options.remoteInvalidationSource.subscribe(() => {
         void this.poll();
@@ -132,14 +134,14 @@ export class SyncPatchesDb implements PatchesDb {
   }
 
   private maybeStopPolling(): void {
-    if (this.activeQueries.size === 0 && this.remoteInvalidationUnsub != null) {
+    if (this.activeQueries.size === 0 && (this.remoteInvalidationUnsub !== null && this.remoteInvalidationUnsub !== undefined)) {
       this.remoteInvalidationUnsub();
       this.remoteInvalidationUnsub = null;
     }
   }
 
   private ensurePushTimer(): void {
-    if (this.pushTimer != null) return;
+    if (this.pushTimer !== null && this.pushTimer !== undefined) return;
     const pushIntervalMs = this.options.pushIntervalMs ?? 2000;
     this.pushTimer = setInterval(() => {
       void this.pushUnsynced();
@@ -157,6 +159,7 @@ export class SyncPatchesDb implements PatchesDb {
           },
         },
       ]);
+      assert(result !== null && result !== undefined, 'read([query]) must return one result');
       const patches = result.patches;
       if (patches.length === 0) return;
       await this.remote.write(patches);
@@ -183,12 +186,13 @@ export class SyncPatchesDb implements PatchesDb {
       for (const { query } of entries) {
         const { limit, offset, ...queryWithoutPagination } = query;
         const [localResult] = await this.local.read([queryWithoutPagination]);
+        assert(localResult !== null && localResult !== undefined, 'read([query]) must return one result');
         syncQueries.push({
           ...queryWithoutPagination,
           knownPatches: localResult.patches,
         });
 
-        if (query.where != null) {
+        if ((query.where !== null && query.where !== undefined) && (query.entityType !== null && query.entityType !== undefined)) {
           const entityIds = [
             ...new Set(localResult.patches.map((p) => p.entityId)),
           ];
@@ -196,6 +200,7 @@ export class SyncPatchesDb implements PatchesDb {
             const [trackedResult] = await this.local.read([
               { entityType: query.entityType, entityId: entityIds },
             ]);
+            assert(trackedResult !== null && trackedResult !== undefined, 'read([query]) must return one result');
             syncQueries.push({
               entityType: query.entityType,
               entityId: entityIds,

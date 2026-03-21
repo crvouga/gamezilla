@@ -104,7 +104,7 @@ function getLastInsertRowid(result: unknown, rows: unknown[]): number {
     if (typeof n === 'bigint') return Number(n);
   }
   const first = rows[0];
-  if (first != null && isObjectWithKey(first, 'id')) {
+  if ((first !== null && first !== undefined) && isObjectWithKey(first, 'id')) {
     const id = first.id;
     if (typeof id === 'number') return id;
     if (typeof id === 'bigint') return Number(id);

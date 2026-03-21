@@ -4,7 +4,7 @@ import { InMemoryPubSub } from '@/@shared/pub-sub/impl-in-memory';
 import { SqlClientImplBunSqlite } from '@/@shared/sql-client/impl-bun-sqlite';
 import { PATCHES_DB_BASE_URL } from './@shared/patch-db/impl-http/shared';
 
-const PORT = process.env.PORT ?? 5001;
+const PORT = process.env['PORT'] ?? 5001;
 
 const sqlClient = SqlClientImplBunSqlite.open(':memory:');
 await sqlClient.connect();

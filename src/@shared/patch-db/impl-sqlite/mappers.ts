@@ -35,8 +35,8 @@ export function toPatch(row: PatchRow): Patch {
     recordedAt: row.recorded_at,
     parentId: row.parent_id ?? null,
     createdBy: String(createdBy ?? ''),
-    sessionId: sessionId != null ? String(sessionId) : '',
-    meta,
+    sessionId: (sessionId !== null && sessionId !== undefined) ? String(sessionId) : '',
+    ...(meta !== undefined ? { meta } : {}),
   };
 }
 

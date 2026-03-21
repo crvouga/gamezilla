@@ -1,3 +1,4 @@
+import { assert } from '../assert';
 import type { Listener, PubSub, Unsubscribe } from './interface';
 
 export class InMemoryPubSub implements PubSub {
@@ -19,8 +20,9 @@ export class InMemoryPubSub implements PubSub {
     }
     set.add(listener);
     return () => {
-      set!.delete(listener);
-      if (set!.size === 0) {
+      assert(set !== null && set !== undefined, 'Listener set must exist when unsubscribing');
+      set.delete(listener);
+      if (set.size === 0) {
         this.listeners.delete(topic);
       }
     };

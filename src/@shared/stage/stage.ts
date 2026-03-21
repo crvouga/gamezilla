@@ -8,7 +8,7 @@ const parse = (value: unknown): IStage | null => {
   return null;
 };
 
-const TRUE = parse(process.env.EXPO_PUBLIC_STAGE);
+const TRUE = parse(process.env['EXPO_PUBLIC_STAGE']);
 
 export const Stage = {
   TRUE,

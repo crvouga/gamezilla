@@ -50,7 +50,7 @@ async function loadImplementations(): Promise<
     // expo-sqlite requires React Native runtime; skip in Bun test env
   }
 
-  if (process.env.SKIP_POSTGRES_TESTS !== '1') {
+  if (process.env['SKIP_POSTGRES_TESTS'] !== '1') {
     impls.push({
       name: 'SqlClientImplBunPostgres',
       createClient: async () => {
@@ -61,12 +61,14 @@ async function loadImplementations(): Promise<
             pg.connectionUrl
           );
         }
+        const c = cachedPostgresClient;
+        if (c === null || c === undefined) throw new Error('cachedPostgresClient must be set');
         return {
-          connect: () => cachedPostgresClient!.connect(),
+          connect: () => c.connect(),
           disconnect: () => Promise.resolve(),
-          query: (sql, params) => cachedPostgresClient!.query(sql, params),
-          run: (sql, params) => cachedPostgresClient!.run(sql, params),
-          transaction: (fn) => cachedPostgresClient!.transaction(fn),
+          query: (sql, params) => c.query(sql, params),
+          run: (sql, params) => c.run(sql, params),
+          transaction: (fn) => c.transaction(fn),
         };
       },
     });
@@ -77,7 +79,7 @@ async function loadImplementations(): Promise<
 
 const implementations = await loadImplementations();
 
-describe.each(implementations)('$name', ({ name, createClient }) => {
+describe.each(implementations)('$name', ({ createClient }) => {
   let client: SqlClient | null = null;
   let available = true;
 
@@ -189,7 +191,8 @@ describe.each(implementations)('$name', ({ name, createClient }) => {
       return 2;
     });
     expect(result).toBe(2);
-    const rows = await client!.query('SELECT * FROM tx_test');
+    if (client === null || client === undefined) throw new Error('client must be set');
+    const rows = await client.query('SELECT * FROM tx_test');
     expect(rows).toHaveLength(2);
     await client.disconnect();
   });
@@ -206,7 +209,8 @@ describe.each(implementations)('$name', ({ name, createClient }) => {
     } catch (e) {
       expect((e as Error).message).toBe('abort');
     }
-    const rows = await client!.query('SELECT * FROM rollback_test');
+    if (client === null || client === undefined) throw new Error('client must be set');
+    const rows = await client.query('SELECT * FROM rollback_test');
     expect(rows).toHaveLength(0);
     await client.disconnect();
   });

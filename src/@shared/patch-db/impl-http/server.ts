@@ -1,3 +1,4 @@
+import { assert } from '../../assert';
 import type { PubSub } from '../../pub-sub/interface';
 import type { PatchesDb, PatchesDbQuery } from '../interface';
 import { PATCHES_EVENTS, PATCHES_READ, PATCHES_WRITE } from './shared';
@@ -17,6 +18,10 @@ export function createPatchDbHttpHandlers(
 
     if (url.pathname === PATCHES_READ && req.method === 'POST') {
       const body = (await req.json()) as { queries: PatchesDbQuery[] };
+      assert(
+        Array.isArray(body?.queries) && body.queries.length > 0,
+        'queries required'
+      );
       const { queries } = body;
       for (const q of queries) {
         if (q.knownPatches?.length) {
@@ -33,6 +38,10 @@ export function createPatchDbHttpHandlers(
       const body = (await req.json()) as {
         patches: Parameters<PatchesDb['write']>[0];
       };
+      assert(
+        Array.isArray(body?.patches) && body.patches.length > 0,
+        'patches required'
+      );
       const patches = await db.write(body.patches);
       publishInvalidated(pubSub);
       return Response.json(patches);

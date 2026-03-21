@@ -39,10 +39,10 @@ export class SqlClientImplExpoSqlite implements SqlClient {
   }
 
   async transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
-    let result: T;
+    const ref: { value: T } = { value: undefined as unknown as T };
     await this.db.withTransactionAsync(async () => {
-      result = await fn(this);
+      ref.value = await fn(this);
     });
-    return result!;
+    return ref.value;
   }
 }

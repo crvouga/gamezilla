@@ -48,7 +48,7 @@ function isBrowser() {
   return typeof document !== 'undefined';
 }
 
-function crashNode(message: string, context?: Record<string, unknown>) {
+function crashNode(_message: string, _context?: Record<string, unknown>) {
   process.exit(1);
 }
 

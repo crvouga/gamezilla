@@ -14,6 +14,8 @@ module.exports = defineConfig([
       naming: eslintPluginNaming,
     },
     rules: {
+      '@typescript-eslint/no-non-null-assertion': 'error',
+      eqeqeq: ['error', 'always'],
       'naming/case': [
         'error',
         {

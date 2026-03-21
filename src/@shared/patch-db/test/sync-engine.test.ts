@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { Patch, PatchesDbQuery } from '../interface';
-import { createSyncDbFactory } from './test-helpers';
+import { createSyncDbFactory, expectDefined } from './test-helpers';
 
 const PUSH_WAIT_MS = 100;
 
@@ -39,11 +39,15 @@ describe('SyncPatchesDb', () => {
 
     await new Promise((r) => setTimeout(r, PUSH_WAIT_MS));
 
-    const [remoteResult] = await syncDb.remote.read([
-      { entityType: 'todoList', entityId: listId },
-    ]);
+    const remoteResult = expectDefined(
+      (
+        await syncDb.remote.read([
+          { entityType: 'todoList', entityId: listId },
+        ])
+      )[0]
+    );
     expect(remoteResult.patches).toHaveLength(1);
-    expect(remoteResult.patches[0].attributes).toMatchObject({
+    expect(expectDefined(remoteResult.patches[0]).attributes).toMatchObject({
       'todoList/name': 'My List',
       'todoList/order': 0,
     });
@@ -75,9 +79,13 @@ describe('SyncPatchesDb', () => {
 
     await new Promise((r) => setTimeout(r, PUSH_WAIT_MS));
 
-    const [remoteResult] = await syncDb.remote.read([
-      { entityType: 'todoList', entityId: listId },
-    ]);
+    const remoteResult = expectDefined(
+      (
+        await syncDb.remote.read([
+          { entityType: 'todoList', entityId: listId },
+        ])
+      )[0]
+    );
     expect(remoteResult.patches).toHaveLength(2);
     const deletePatch = remoteResult.patches.find(
       (p) =>
@@ -87,8 +95,8 @@ describe('SyncPatchesDb', () => {
           'todoList/deleted'
         ] === true
     );
-    expect(deletePatch).toBeDefined();
-    expect(deletePatch!.attributes).toEqual({ 'todoList/deleted': true });
+    const patch = expectDefined(deletePatch);
+    expect(patch.attributes).toEqual({ 'todoList/deleted': true });
   });
 
   test('push: multiple unsynced patches are all pushed', async () => {
@@ -117,18 +125,18 @@ describe('SyncPatchesDb', () => {
 
     await new Promise((r) => setTimeout(r, PUSH_WAIT_MS));
 
-    const [r1] = await syncDb.remote.read([
-      { entityType: 'todoList', entityId: listId1 },
-    ]);
-    const [r2] = await syncDb.remote.read([
-      { entityType: 'todoList', entityId: listId2 },
-    ]);
+    const r1 = expectDefined(
+      (await syncDb.remote.read([{ entityType: 'todoList', entityId: listId1 }]))[0]
+    );
+    const r2 = expectDefined(
+      (await syncDb.remote.read([{ entityType: 'todoList', entityId: listId2 }]))[0]
+    );
     expect(r1.patches).toHaveLength(1);
     expect(r2.patches).toHaveLength(1);
-    expect(r1.patches[0].attributes).toMatchObject({
+    expect(expectDefined(r1.patches[0]).attributes).toMatchObject({
       'todoList/name': 'List 1',
     });
-    expect(r2.patches[0].attributes).toMatchObject({
+    expect(expectDefined(r2.patches[0]).attributes).toMatchObject({
       'todoList/name': 'List 2',
     });
   });
@@ -224,9 +232,13 @@ describe('SyncPatchesDb', () => {
 
     unsub();
 
-    const [entitiesResult] = await syncDb.syncDb.read([
-      { entityType: 'todoList', entityId: listId },
-    ]);
+    const entitiesResult = expectDefined(
+      (
+        await syncDb.syncDb.read([
+          { entityType: 'todoList', entityId: listId },
+        ])
+      )[0]
+    );
     const entity = entitiesResult.entities[0];
     expect(entity).toBeDefined();
     expect(entity?.attributes?.['todoList/deleted']).toBe(true);
@@ -237,9 +249,13 @@ describe('SyncPatchesDb', () => {
     const entityType = 'task';
 
     // 1. Write root patch on remote (simulates shared initial state)
-    const [rootPatch] = await syncDb.remote.write([
-      { entityId, entityType, attributes: { 'task/title': 'Root' } },
-    ]);
+    const rootPatch = expectDefined(
+      (
+        await syncDb.remote.write([
+          { entityId, entityType, attributes: { 'task/title': 'Root' } },
+        ])
+      )[0]
+    );
 
     // 2. Subscribe so the sync engine registers an active query, then poll
     const unsub = syncDb.syncDb.subscribe.entities(
@@ -250,21 +266,25 @@ describe('SyncPatchesDb', () => {
     await new Promise((r) => setTimeout(r, 50));
 
     // Verify client got the root patch
-    const [localAfterFirstPoll] = await syncDb.local.read([
-      { entityType, entityId },
-    ]);
+    const localAfterFirstPoll = expectDefined(
+      (await syncDb.local.read([{ entityType, entityId }]))[0]
+    );
     expect(localAfterFirstPoll.patches).toHaveLength(1);
 
     // 3. Client writes a local patch (depth 1, parent = root)
-    const [clientAPatch] = await syncDb.syncDb.write([
-      { entityId, entityType, attributes: { 'task/status': 'in-progress' } },
-    ]);
+    const clientAPatch = expectDefined(
+      (
+        await syncDb.syncDb.write([
+          { entityId, entityType, attributes: { 'task/status': 'in-progress' } },
+        ])
+      )[0]
+    );
 
     // Wait for push timer to sync it to remote
     await new Promise((r) => setTimeout(r, 100));
-    const [remoteAfterPush] = await syncDb.remote.read([
-      { entityType, entityId },
-    ]);
+    const remoteAfterPush = expectDefined(
+      (await syncDb.remote.read([{ entityType, entityId }]))[0]
+    );
     expect(remoteAfterPush.patches).toHaveLength(2);
 
     // 4. Another client writes a sibling patch directly to remote (same parent,
@@ -288,7 +308,9 @@ describe('SyncPatchesDb', () => {
     ]);
 
     // Verify remote has all 3 patches
-    const [remoteAll] = await syncDb.remote.read([{ entityType, entityId }]);
+    const remoteAll = expectDefined(
+      (await syncDb.remote.read([{ entityType, entityId }]))[0]
+    );
     expect(remoteAll.patches).toHaveLength(3);
 
     // 5. Client polls again — should bring in the sibling patch
@@ -296,7 +318,9 @@ describe('SyncPatchesDb', () => {
     await new Promise((r) => setTimeout(r, 50));
 
     // 6. Verify local has all 3 patches
-    const [finalLocal] = await syncDb.local.read([{ entityType, entityId }]);
+    const finalLocal = expectDefined(
+      (await syncDb.local.read([{ entityType, entityId }]))[0]
+    );
     unsub();
 
     const hasSiblingPatch = finalLocal.patches.some(

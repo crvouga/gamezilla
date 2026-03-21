@@ -5,6 +5,13 @@
 
 import { Platform } from 'react-native';
 
+const DEFAULT_FONTS = {
+  sans: 'normal',
+  serif: 'serif',
+  rounded: 'normal',
+  mono: 'monospace',
+} as const;
+
 export const fonts = Platform.select({
   ios: {
     sans: 'system-ui',
@@ -25,4 +32,4 @@ export const fonts = Platform.select({
       "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
   },
-})!;
+}) ?? DEFAULT_FONTS;

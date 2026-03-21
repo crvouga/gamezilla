@@ -1,3 +1,4 @@
+import { assert } from '../../assert';
 import type { PatchesDbQuery, PatchesDbQueryWhereClause } from '../interface';
 import { assertAttribute } from '../interface';
 
@@ -116,6 +117,10 @@ function buildWhereClauseForColumn(
       const inner = buildWhereClauseForColumn(clause.clause, jsonColumn);
       return { sql: `NOT (${inner.sql})`, params: inner.params };
     }
+    default: {
+      const _exhaustive: never = clause;
+      assert(false, 'Unhandled where clause type', { clause: _exhaustive });
+    }
   }
 }
 
@@ -134,12 +139,12 @@ export function buildSnapshotConditions(query: PatchesDbQuery): {
   const conditions: string[] = [];
   const params: unknown[] = [];
 
-  if (query.entityType != null) {
+  if (query.entityType !== null && query.entityType !== undefined) {
     conditions.push('entity_type = ?');
     params.push(query.entityType);
   }
 
-  if (query.entityId != null) {
+  if (query.entityId !== null && query.entityId !== undefined) {
     if (Array.isArray(query.entityId)) {
       const placeholders = query.entityId.map(() => '?').join(', ');
       conditions.push(`entity_id IN (${placeholders})`);
@@ -170,12 +175,12 @@ export function buildPatchConditions(
   const conditions: string[] = [];
   const params: unknown[] = [];
 
-  if (query.entityType != null) {
+  if (query.entityType !== null && query.entityType !== undefined) {
     conditions.push(`${tableAlias}.entity_type = ?`);
     params.push(query.entityType);
   }
 
-  if (query.entityId != null) {
+  if (query.entityId !== null && query.entityId !== undefined) {
     if (Array.isArray(query.entityId)) {
       const placeholders = query.entityId.map(() => '?').join(', ');
       conditions.push(`${tableAlias}.entity_id IN (${placeholders})`);
@@ -226,11 +231,11 @@ export function buildLimitSQL(query: PatchesDbQuery): {
 } {
   let sql = '';
   const params: unknown[] = [];
-  if (query.limit != null) {
+  if (query.limit !== null && query.limit !== undefined) {
     sql += ' LIMIT ?';
     params.push(query.limit);
   }
-  if (query.offset != null) {
+  if (query.offset !== null && query.offset !== undefined) {
     sql += ' OFFSET ?';
     params.push(query.offset);
   }

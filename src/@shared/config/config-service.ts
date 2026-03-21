@@ -1,3 +1,4 @@
+import { assert } from '@/@shared/assert';
 import type { InjectionToken } from '@/@shared/dependency-injection/dependency-injection-container';
 import { Stage, type IStage } from '@/@shared/stage/stage';
 
@@ -15,10 +16,7 @@ type PublicConfig = Record<IStage, Record<string, string>>;
 function createConfigService(): ConfigService {
   const stage: IStage = Stage.TRUE ?? 'local';
   const config = (publicConfig as PublicConfig)[stage];
-
-  if (!config) {
-    throw new Error(`No config found for stage: ${stage}`);
-  }
+  assert(config !== null && config !== undefined, 'No config found for stage', { stage });
 
   return {
     getString(key: string): string {
