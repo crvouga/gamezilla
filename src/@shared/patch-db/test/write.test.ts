@@ -116,7 +116,7 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     expect(p3Read?.parentId).toBe(p1.patchId);
   });
 
-  test('read with where source metadata returns patches without syncedAt (unsynced)', async () => {
+  test('read with on:patches returns patches without patch/syncedAt (unsynced)', async () => {
     const listId = crypto.randomUUID();
     const [createPatch] = await db.write([
       {
@@ -139,10 +139,10 @@ describe.each(implementations)('$name', ({ name, factory }) => {
 
     const [result] = await db.read([
       {
+        on: 'patches',
         where: {
           type: 'not_exists',
-          attribute: 'syncedAt',
-          source: 'metadata',
+          attribute: 'patch/syncedAt',
         },
       },
     ]);
@@ -155,14 +155,17 @@ describe.each(implementations)('$name', ({ name, factory }) => {
     ).toEqual({ 'todoList/deleted': true });
 
     await db.update(
-      unsynced.map((p) => ({ patchId: p.patchId, metadata: { syncedAt: '1' } }))
+      unsynced.map((p) => ({
+        patchId: p.patchId,
+        attributes: { 'patch/syncedAt': '1' },
+      }))
     );
     const [afterSync] = await db.read([
       {
+        on: 'patches',
         where: {
           type: 'not_exists',
-          attribute: 'syncedAt',
-          source: 'metadata',
+          attribute: 'patch/syncedAt',
         },
       },
     ]);

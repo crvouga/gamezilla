@@ -1,20 +1,42 @@
-import type { Entity, Patch, PatchInput } from '../interface';
+import type { Entity, Patch } from '../interface';
 import type { PatchRow, SnapshotRow } from './types';
 
+const PATCH_META_KEYS = ['patch/createdBy', 'patch/sessionId', 'patch/syncedAt'];
+
+function attributesWithoutPatchMeta(attrs: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(attrs)) {
+    if (!PATCH_META_KEYS.includes(key)) {
+      result[key] = value;
+    }
+  }
+  return result;
+}
+
 export function toPatch(row: PatchRow): Patch {
-  const meta = JSON.parse(row.metadata) as Record<string, unknown>;
-  const { createdBy, sessionId, syncedAt, ...restMeta } = meta;
+  const attrs = JSON.parse(row.attributes) as Record<string, unknown>;
+  const createdBy = attrs['patch/createdBy'];
+  const sessionId = attrs['patch/sessionId'];
+  const otherMetaKeys = Object.keys(attrs).filter(
+    (k) => k.startsWith('patch/') && !PATCH_META_KEYS.includes(k)
+  );
+  const meta =
+    otherMetaKeys.length > 0
+      ? Object.fromEntries(
+          otherMetaKeys.map((k) => [k.replace(/^patch\//, ''), attrs[k]])
+        )
+      : undefined;
   return {
     patchId: row.patch_id,
     entityId: row.entity_id,
     entityType: row.entity_type,
-    attributes: JSON.parse(row.attributes),
+    attributes: attributesWithoutPatchMeta(attrs),
     createdAt: row.created_at,
     recordedAt: row.recorded_at,
     parentId: row.parent_id ?? null,
     createdBy: String(createdBy ?? ''),
     sessionId: sessionId != null ? String(sessionId) : '',
-    meta: Object.keys(restMeta).length > 0 ? restMeta : undefined,
+    meta,
   };
 }
 
@@ -24,14 +46,4 @@ export function toEntity(row: SnapshotRow): Entity {
     entityType: row.entity_type,
     attributes: JSON.parse(row.attributes),
   };
-}
-
-export function toMetadata(patch: PatchInput): string {
-  const meta = patch.meta ?? {};
-  return JSON.stringify({
-    createdBy: meta.createdBy ?? '',
-    sessionId: meta.sessionId ?? '',
-    syncedAt: null,
-    ...meta,
-  });
 }

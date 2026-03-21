@@ -6,7 +6,6 @@ export type PatchRow = {
   created_at: string;
   recorded_at: string;
   parent_id: string | null;
-  metadata: string;
 };
 
 export type SnapshotRow = {

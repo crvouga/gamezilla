@@ -40,6 +40,7 @@
     "sslmode",
     "tablename",
     "TIMESTAMPTZ",
+    "uncatchable",
     "unsub",
     "worklets"
   ]

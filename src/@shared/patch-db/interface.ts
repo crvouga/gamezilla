@@ -1,8 +1,10 @@
+import { assert } from '../assert';
+
 export type PatchInput = {
   entityId: string;
   entityType: string;
   attributes: Record<string, unknown>;
-  /** Dynamic metadata (e.g. createdBy, sessionId, syncedAt) stored in metadata column */
+  /** Merged into attributes on write with patch/ prefix (e.g. patch/createdBy, patch/sessionId, patch/syncedAt) */
   meta?: Record<string, unknown>;
 };
 
@@ -21,73 +23,87 @@ export type Entity = {
   attributes: Record<string, unknown>;
 };
 
-/** Source for where clause attribute lookup. Default is 'attributes'. */
-export type PatchesDbQueryWhereSource = 'attributes' | 'metadata';
+/** Clojure-style namespaced key; no whitespace allowed. */
+const ATTRIBUTE_REGEX =
+  /^(?!.*\s)[a-zA-Z_][a-zA-Z0-9_.]*\/[a-zA-Z_][a-zA-Z0-9_.]*$/;
+/**
+ * Sanitizes an attribute name to ensure it follows Clojure-style namespaced key conventions.
+ * Valid: Clojure-style namespaced keys (e.g. "todo/title", "patch/syncedAt").
+ * @param attribute - The attribute to sanitize.
+ * @returns The sanitized attribute.
+ */
+export function assertAttribute(attribute: unknown): string {
+  assert(
+    typeof attribute === 'string',
+    'Invalid attribute name — must be a string'
+  );
+  assert(
+    ATTRIBUTE_REGEX.test(attribute),
+    'Invalid attribute name — must be a Clojure-style namespaced key',
+    {
+      attribute,
+      expected:
+        "Clojure-style namespaced key (e.g. 'todo/title', 'patch/syncedAt')",
+    }
+  );
+  return attribute;
+}
+assertAttribute('todo/title');
+assertAttribute('my.namespace/attr');
 
 export type PatchesDbQueryWhereClause =
   | {
       type: '=';
       attribute: string;
       value: unknown;
-      source?: PatchesDbQueryWhereSource;
     }
   | {
       type: '!=';
       attribute: string;
       value: unknown;
-      source?: PatchesDbQueryWhereSource;
     }
   | {
       type: 'in';
       attribute: string;
       values: unknown[];
-      source?: PatchesDbQueryWhereSource;
     }
   | {
       type: 'not_in';
       attribute: string;
       values: unknown[];
-      source?: PatchesDbQueryWhereSource;
     }
   | {
       type: 'gt';
       attribute: string;
       value: unknown;
-      source?: PatchesDbQueryWhereSource;
     }
   | {
       type: 'gte';
       attribute: string;
       value: unknown;
-      source?: PatchesDbQueryWhereSource;
     }
   | {
       type: 'lt';
       attribute: string;
       value: unknown;
-      source?: PatchesDbQueryWhereSource;
     }
   | {
       type: 'lte';
       attribute: string;
       value: unknown;
-      source?: PatchesDbQueryWhereSource;
     }
   | {
       type: 'contains';
       attribute: string;
       value: string;
-      source?: PatchesDbQueryWhereSource;
     }
   | {
       type: 'exists';
       attribute: string;
-      source?: PatchesDbQueryWhereSource;
     }
   | {
       type: 'not_exists';
       attribute: string;
-      source?: PatchesDbQueryWhereSource;
     }
   | {
       type: 'or';
@@ -132,6 +148,6 @@ export interface PatchesDb {
   write(patches: PatchInput[]): Promise<Patch[]>;
   read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]>;
   update(
-    updates: { patchId: string; metadata: Record<string, unknown> }[]
+    updates: { patchId: string; attributes: Record<string, unknown> }[]
   ): Promise<void>;
 }

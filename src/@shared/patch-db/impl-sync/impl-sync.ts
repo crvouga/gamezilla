@@ -76,7 +76,7 @@ export class SyncPatchesDb implements PatchesDb {
   }
 
   async update(
-    updates: { patchId: string; metadata: Record<string, unknown> }[]
+    updates: { patchId: string; attributes: Record<string, unknown> }[]
   ): Promise<void> {
     return this.local.update(updates);
   }
@@ -150,10 +150,10 @@ export class SyncPatchesDb implements PatchesDb {
     try {
       const [result] = await this.local.read([
         {
+          on: 'patches',
           where: {
             type: 'not_exists',
-            attribute: 'syncedAt',
-            source: 'metadata',
+            attribute: 'patch/syncedAt',
           },
         },
       ]);
@@ -163,7 +163,7 @@ export class SyncPatchesDb implements PatchesDb {
       await this.local.update(
         patches.map((p) => ({
           patchId: p.patchId,
-          metadata: { syncedAt: '1' },
+          attributes: { 'patch/syncedAt': '1' },
         }))
       );
       this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });

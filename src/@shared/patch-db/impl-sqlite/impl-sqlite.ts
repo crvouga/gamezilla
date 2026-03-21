@@ -1,5 +1,6 @@
 import { SqlClient } from '../../sql-client/interface';
 import {
+  assertAttribute,
   Entity,
   Patch,
   PatchesDb,
@@ -7,15 +8,20 @@ import {
   PatchesDbResult,
   PatchInput,
 } from '../interface';
-import { toEntity, toMetadata, toPatch } from './mappers';
+import { toEntity, toPatch } from './mappers';
 import {
   buildLimitSQL,
-  buildMetadataWhereClause,
   buildOrderSQL,
+  buildPatchConditions,
   buildSnapshotConditions,
-  extractClausesBySource,
 } from './query-builder';
 import type { PatchRow, SnapshotRow } from './types';
+
+const PATCH_META_KEYS = [
+  'patch/createdBy',
+  'patch/sessionId',
+  'patch/syncedAt',
+];
 
 const deleteSnapshot = `DELETE FROM snapshots
 WHERE entity_id = ? AND entity_type = ?`;
@@ -28,10 +34,9 @@ const insertPatch = `INSERT OR IGNORE INTO
         attributes,
         created_at,
         recorded_at,
-        parent_id,
-        metadata
+        parent_id
     )
-VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
 const migrations = `CREATE TABLE IF NOT EXISTS patches (
     patch_id TEXT PRIMARY KEY,
@@ -40,8 +45,7 @@ const migrations = `CREATE TABLE IF NOT EXISTS patches (
     attributes TEXT NOT NULL DEFAULT('{}'),
     created_at TEXT NOT NULL,
     recorded_at TEXT DEFAULT(datetime('now')) NOT NULL,
-    parent_id TEXT REFERENCES patches (patch_id),
-    metadata TEXT NOT NULL DEFAULT '{}'
+    parent_id TEXT REFERENCES patches (patch_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_patches_entity_id ON patches (entity_id);
@@ -120,6 +124,22 @@ export class PatchDbImplSqlite implements PatchesDb {
     } catch {
       // Index may not exist
     }
+    try {
+      const tableInfo = await this.sqlClient.query<{ name: string }>(
+        "SELECT name FROM pragma_table_info('patches') WHERE name = 'metadata'"
+      );
+      if (tableInfo.length > 0) {
+        await this.sqlClient.run(`UPDATE patches SET attributes = json_set(
+          attributes,
+          '$.patch/createdBy', coalesce(json_extract(metadata, '$.createdBy'), ''),
+          '$.patch/sessionId', coalesce(json_extract(metadata, '$.sessionId'), ''),
+          '$.patch/syncedAt', json_extract(metadata, '$.syncedAt')
+        )`);
+        await this.sqlClient.run('ALTER TABLE patches DROP COLUMN metadata');
+      }
+    } catch {
+      // Column may not exist (new DB) or already dropped
+    }
   }
 
   private async recomputeSnapshot(
@@ -140,6 +160,7 @@ export class PatchDbImplSqlite implements PatchesDb {
     for (const row of rows) {
       const attrs = JSON.parse(row.attributes) as Record<string, unknown>;
       for (const [key, value] of Object.entries(attrs)) {
+        if (PATCH_META_KEYS.includes(key)) continue;
         if (value === null) {
           delete merged[key];
         } else {
@@ -204,17 +225,25 @@ export class PatchDbImplSqlite implements PatchesDb {
           'recordedAt' in patch && typeof patch.recordedAt === 'string'
             ? patch.recordedAt
             : now;
+        const meta = patch.meta ?? {};
+        for (const key of Object.keys(patch.attributes)) {
+          assertAttribute(key);
+        }
+        const storedAttributes = {
+          ...patch.attributes,
+          'patch/createdBy': meta.createdBy ?? '',
+          'patch/sessionId': meta.sessionId ?? '',
+          'patch/syncedAt': meta.syncedAt ?? null,
+        };
         await tx.run(insertPatch, [
           patchId,
           patch.entityId,
           patch.entityType,
-          JSON.stringify(patch.attributes),
+          JSON.stringify(storedAttributes),
           now,
           recordedAt,
           parentId,
-          toMetadata(patch),
         ]);
-        const meta = patch.meta ?? {};
         result.push({
           ...patch,
           patchId,
@@ -241,37 +270,84 @@ export class PatchDbImplSqlite implements PatchesDb {
   }
 
   private async readOne(query: PatchesDbQuery): Promise<PatchesDbResult> {
-    const metadataWhere =
-      query.where != null
-        ? extractClausesBySource(query.where, 'metadata')
-        : null;
     const isSingleEntityQuery = typeof query.entityId === 'string';
-    const usePatchBasedLogic =
-      metadataWhere != null || query.after != null || isSingleEntityQuery;
-
+    if (query.on === 'patches') {
+      return this.readOnePatchesMode(query);
+    }
+    const usePatchBasedLogic = query.after != null || isSingleEntityQuery;
     if (usePatchBasedLogic) {
       return this.readOnePatchBased(query);
     }
     return this.readOneSnapshotBased(query);
   }
 
+  private async readOnePatchesMode(
+    query: PatchesDbQuery
+  ): Promise<PatchesDbResult> {
+    const { conditions, params } = buildPatchConditions(query, 'p');
+    const whereSQL = conditions.join(' AND ');
+
+    const countRows = await this.sqlClient.query<{ cnt: number }>(
+      `SELECT COUNT(*) as cnt FROM patches p WHERE ${whereSQL}`,
+      params
+    );
+    const total = countRows[0]?.cnt ?? 0;
+
+    const orderSQL = buildOrderSQL(query, 'ORDER BY p.patch_id ASC', 'p.');
+    const limit = buildLimitSQL(query);
+
+    const rows = await this.sqlClient.query<PatchRow>(
+      `SELECT * FROM patches p WHERE ${whereSQL} ${orderSQL}${limit.sql}`,
+      [...params, ...limit.params]
+    );
+
+    const patches = rows.map(toPatch);
+    const hasMore =
+      query.limit != null
+        ? (query.offset ?? 0) + patches.length < total
+        : false;
+    const nextCursor =
+      patches.length > 0 ? patches[patches.length - 1].patchId : null;
+
+    const entityKeysOrdered: string[] = [];
+    const entityKeysSeen = new Set<string>();
+    for (const p of patches) {
+      const key = `${p.entityId}\0${p.entityType}`;
+      if (!entityKeysSeen.has(key)) {
+        entityKeysSeen.add(key);
+        entityKeysOrdered.push(key);
+      }
+    }
+    const data: Entity[] = [];
+    for (const key of entityKeysOrdered) {
+      const [entityId, entityType] = key.split('\0');
+      const snapRows = await this.sqlClient.query<SnapshotRow>(
+        'SELECT * FROM snapshots WHERE entity_id = ? AND entity_type = ?',
+        [entityId, entityType]
+      );
+      if (snapRows.length > 0) {
+        data.push(toEntity(snapRows[0]));
+      }
+    }
+
+    return {
+      query,
+      entities: data,
+      patches,
+      total,
+      hasMore,
+      nextCursor,
+    };
+  }
+
   private async readOnePatchBased(
     query: PatchesDbQuery
   ): Promise<PatchesDbResult> {
-    const attributeWhere =
-      query.where != null
-        ? extractClausesBySource(query.where, 'attributes')
-        : null;
-    const metadataWhere =
-      query.where != null
-        ? extractClausesBySource(query.where, 'metadata')
-        : null;
-
     const { conditions: snapConditions, params: snapParams } =
       buildSnapshotConditions(query);
     const snapWhereSQL = snapConditions.join(' AND ');
 
-    const hasSnapshotFilter = attributeWhere != null;
+    const hasSnapshotFilter = query.where != null;
 
     let patchConditions: string[] = [];
     let patchParams: unknown[] = [];
@@ -304,12 +380,6 @@ export class PatchDbImplSqlite implements PatchesDb {
           patchParams.push(query.entityId);
         }
       }
-    }
-
-    if (metadataWhere != null) {
-      const metaFragment = buildMetadataWhereClause(metadataWhere, 'p.');
-      patchConditions.push(metaFragment.sql);
-      patchParams.push(...metaFragment.params);
     }
 
     if (patchConditions.length === 0) {
@@ -461,15 +531,20 @@ export class PatchDbImplSqlite implements PatchesDb {
   }
 
   async update(
-    updates: { patchId: string; metadata: Record<string, unknown> }[]
+    updates: { patchId: string; attributes: Record<string, unknown> }[]
   ): Promise<void> {
     if (updates.length === 0) return;
-    for (const { patchId, metadata } of updates) {
-      if (Object.keys(metadata).length === 0) continue;
+    for (const { patchId, attributes } of updates) {
+      if (Object.keys(attributes).length === 0) continue;
+      for (const key of Object.keys(attributes)) {
+        assertAttribute(key);
+      }
       const jsonSetParts: string[] = [];
       const jsonSetParams: unknown[] = [];
-      for (const [key, value] of Object.entries(metadata)) {
-        const path = `$.${key}`;
+      for (const [key, value] of Object.entries(attributes)) {
+        const path = /[./[\]]/.test(key)
+          ? `$."${key.replace(/"/g, '""')}"`
+          : `$.${key}`;
         jsonSetParts.push(`'${path.replace(/'/g, "''")}', ?`);
         const sqlValue =
           value === undefined
@@ -479,9 +554,9 @@ export class PatchDbImplSqlite implements PatchesDb {
               : value;
         jsonSetParams.push(sqlValue);
       }
-      const jsonSetExpr = `json_set(metadata, ${jsonSetParts.join(', ')})`;
+      const jsonSetExpr = `json_set(attributes, ${jsonSetParts.join(', ')})`;
       await this.sqlClient.run(
-        `UPDATE patches SET metadata = ${jsonSetExpr} WHERE patch_id = ?`,
+        `UPDATE patches SET attributes = ${jsonSetExpr} WHERE patch_id = ?`,
         [...jsonSetParams, patchId]
       );
     }

@@ -97,8 +97,8 @@ export class PatchDbImplHttp implements PatchesDb {
   }
 
   async update(
-    _updates: { patchId: string; metadata: Record<string, unknown> }[]
+    _updates: { patchId: string; attributes: Record<string, unknown> }[]
   ): Promise<void> {
-    // No-op: metadata updates are local-only for sync; remote does not need
+    // No-op: attribute updates are local-only for sync; remote does not need
   }
 }

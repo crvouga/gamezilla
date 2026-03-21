@@ -44,7 +44,7 @@ export class SubscribablePatchesDb implements PatchesDb {
   }
 
   async update(
-    updates: { patchId: string; metadata: Record<string, unknown> }[]
+    updates: { patchId: string; attributes: Record<string, unknown> }[]
   ): Promise<void> {
     return this.db.update(updates);
   }
