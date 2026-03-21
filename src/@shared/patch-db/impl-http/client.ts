@@ -1,3 +1,4 @@
+import { assert } from '@/@shared/assert';
 import { fireAndForget } from '../../async/fire-and-forget';
 import type { Unsubscribe } from '../../pub-sub/interface';
 import type {
@@ -61,7 +62,8 @@ export function createRemoteInvalidationSource(
           await new Promise((r) => setTimeout(r, retryDelayMs));
           retryDelayMs = Math.min(retryDelayMs * 2, maxRetryDelayMs);
         }
-        if (!aborted) fireAndForget(connect(), { component: 'SSE', op: 'reconnect' });
+        if (!aborted)
+          fireAndForget(connect(), { component: 'SSE', op: 'reconnect' });
       };
       fireAndForget(connect(), { component: 'SSE', op: 'connect' });
       return () => {
@@ -105,6 +107,9 @@ export class PatchDbImplHttp implements PatchesDb {
   async update(
     _updates: { patchId: string; attributes: Record<string, unknown> }[]
   ): Promise<void> {
-    // No-op: attribute updates are local-only for sync; remote does not need
+    assert(
+      false,
+      'attribute updates are local-only for sync; remote does not need'
+    );
   }
 }

@@ -42,6 +42,7 @@
     "TIMESTAMPTZ",
     "uncatchable",
     "unsub",
+    "Unvalidated",
     "worklets"
   ]
 }
