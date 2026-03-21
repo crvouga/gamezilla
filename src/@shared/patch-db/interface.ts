@@ -50,6 +50,7 @@ export function assertAttribute(attribute: unknown): string {
 }
 assertAttribute('todo/title');
 assertAttribute('my.namespace/attr');
+assertAttribute('todo.title/sub');
 
 export type PatchesDbQueryWhereClause =
   | {

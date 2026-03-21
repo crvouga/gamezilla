@@ -1,4 +1,5 @@
-import { assert } from '../../assert';
+import { assert } from '@/@shared/assert';
+import { assertNever } from '@/@shared/assert/assert-never';
 import type { PatchesDbQuery, PatchesDbQueryWhereClause } from '../interface';
 import { assertAttribute } from '../interface';
 
@@ -6,10 +7,23 @@ export type WhereFragment = { sql: string; params: unknown[] };
 
 /** Builds JSON path for keys; uses quoted form for keys with . / [ ] */
 function jsonPathForAttribute(attribute: string): string {
+  assertAttribute(attribute);
   return /[./[\]]/.test(attribute)
     ? `$."${attribute.replace(/"/g, '""')}"`
     : `$.${attribute}`;
 }
+assert(
+  jsonPathForAttribute('todo/title') === '$."todo/title"',
+  'Invalid attribute name'
+);
+assert(
+  jsonPathForAttribute('my.namespace/attr') === '$."my.namespace/attr"',
+  'Invalid attribute name'
+);
+assert(
+  jsonPathForAttribute('todo/title') === '$."todo/title"',
+  'Invalid attribute name.'
+);
 
 function buildWhereClauseForColumn(
   clause: PatchesDbQueryWhereClause,
@@ -118,8 +132,7 @@ function buildWhereClauseForColumn(
       return { sql: `NOT (${inner.sql})`, params: inner.params };
     }
     default: {
-      const _exhaustive: never = clause;
-      assert(false, 'Unhandled where clause type', { clause: _exhaustive });
+      assertNever(clause);
     }
   }
 }
