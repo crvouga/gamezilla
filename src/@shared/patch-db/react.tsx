@@ -1,4 +1,4 @@
-import { assert } from '@/@shared/assert';
+import { assert, assertDefined } from '@/@shared/assert';
 import { InjectionToken } from '@/@shared/dependency-injection/dependency-injection-container';
 import { useDependency } from '@/@shared/dependency-injection/react';
 import { useEffect, useState } from 'react';
@@ -14,7 +14,7 @@ export const PatchesDbToken: InjectionToken<PatchesDb> = Symbol('PatchesDb');
 
 export function usePatchesDb(): PatchesDb {
   const db = useDependency(PatchesDbToken);
-  assert(db !== null && db !== undefined, 'PatchesDb not found');
+  assertDefined(db, 'PatchesDb not found');
   return db;
 }
 
