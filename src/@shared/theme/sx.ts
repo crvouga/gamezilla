@@ -151,7 +151,6 @@ export function createSx(colors: ColorTokens) {
   return function sx(props: SxProps): ResolvedStyle {
     const result: ResolvedStyle = {};
 
-    // Padding
     if (props.p !== undefined) result.padding = resolveSpacing(props.p);
     if (props.px !== undefined)
       result.paddingHorizontal = resolveSpacing(props.px);
@@ -162,7 +161,6 @@ export function createSx(colors: ColorTokens) {
     if (props.pl !== undefined) result.paddingLeft = resolveSpacing(props.pl);
     if (props.pr !== undefined) result.paddingRight = resolveSpacing(props.pr);
 
-    // Margin
     if (props.m !== undefined) result.margin = resolveSpacing(props.m);
     if (props.mx !== undefined)
       result.marginHorizontal = resolveSpacing(props.mx);
@@ -184,7 +182,6 @@ export function createSx(colors: ColorTokens) {
     if (props.gap !== undefined) result.gap = resolveSpacing(props.gap);
     if (props.flexWrap !== undefined) result.flexWrap = props.flexWrap;
 
-    // Background / color
     const bg = props.background ?? props.backgroundColor;
     if (bg !== undefined) {
       result.backgroundColor = resolveColor(bg, colors);
@@ -193,7 +190,6 @@ export function createSx(colors: ColorTokens) {
       result.color = resolveColor(props.color, colors);
     }
 
-    // Border
     if (props.borderWidth !== undefined) result.borderWidth = props.borderWidth;
     if (props.borderBottomWidth !== undefined) {
       result.borderBottomWidth =
@@ -207,7 +203,6 @@ export function createSx(colors: ColorTokens) {
     if (props.borderRadius !== undefined)
       result.borderRadius = props.borderRadius;
 
-    // Typography
     if (props.fontSize !== undefined)
       result.fontSize = resolveFontSize(props.fontSize);
     if (props.fontWeight !== undefined) result.fontWeight = props.fontWeight;
@@ -217,7 +212,6 @@ export function createSx(colors: ColorTokens) {
       result.textDecorationLine = props.textDecorationLine;
     if (props.fontStyle !== undefined) result.fontStyle = props.fontStyle;
 
-    // Other
     if (props.opacity !== undefined) result.opacity = props.opacity;
     if (props.position !== undefined) result.position = props.position;
     if (props.overflow !== undefined) result.overflow = props.overflow;
@@ -231,7 +225,6 @@ export function createSx(colors: ColorTokens) {
     if (props.maxWidth !== undefined) result.maxWidth = props.maxWidth;
     if (props.transform !== undefined) result.transform = props.transform;
 
-    // Passthrough: any remaining RN style props
     for (const key of Object.keys(props)) {
       if (SHORTHAND_KEYS.has(key)) continue;
       const val = (props as Record<string, unknown>)[key];

@@ -1,3 +1,4 @@
+import { fireAndForget } from '../../async/fire-and-forget';
 import type { Unsubscribe } from '../../pub-sub/interface';
 import type {
   Patch,
@@ -6,6 +7,7 @@ import type {
   PatchesDbResult,
   PatchInput,
 } from '../interface';
+import { validatePatches, validatePatchesDbResults } from '../validate-remote';
 import { PATCHES_EVENTS, PATCHES_READ, PATCHES_WRITE } from './shared';
 
 export type RemoteInvalidationSource = {
@@ -59,9 +61,9 @@ export function createRemoteInvalidationSource(
           await new Promise((r) => setTimeout(r, retryDelayMs));
           retryDelayMs = Math.min(retryDelayMs * 2, maxRetryDelayMs);
         }
-        if (!aborted) void connect();
+        if (!aborted) fireAndForget(connect(), { component: 'SSE', op: 'reconnect' });
       };
-      void connect();
+      fireAndForget(connect(), { component: 'SSE', op: 'connect' });
       return () => {
         aborted = true;
         abortController?.abort();
@@ -73,7 +75,7 @@ export function createRemoteInvalidationSource(
 export class PatchDbImplHttp implements PatchesDb {
   constructor(private baseUrl: string) {}
 
-  private async post<T>(path: string, body: unknown): Promise<T> {
+  private async postUnvalidated(path: string, body: unknown): Promise<unknown> {
     const url = `${this.baseUrl.replace(/\/$/, '')}${path}`;
     const res = await fetch(url, {
       method: 'POST',
@@ -84,16 +86,20 @@ export class PatchDbImplHttp implements PatchesDb {
       const text = await res.text();
       throw new Error(`HTTP ${res.status}: ${text}`);
     }
-    return res.json() as Promise<T>;
+    return res.json();
   }
 
   async read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
     if (queries.length === 0) return [];
-    return this.post<PatchesDbResult[]>(PATCHES_READ, { queries });
+    const raw = await this.postUnvalidated(PATCHES_READ, { queries });
+    validatePatchesDbResults(raw);
+    return raw;
   }
 
   async write(patches: PatchInput[]): Promise<Patch[]> {
-    return this.post<Patch[]>(PATCHES_WRITE, { patches });
+    const raw = await this.postUnvalidated(PATCHES_WRITE, { patches });
+    validatePatches(raw);
+    return raw;
   }
 
   async update(

@@ -30,7 +30,13 @@ export function useEntities(query: PatchesDbQuery): PatchesDbResult {
   }));
   const queryKey = JSON.stringify(query);
   useEffect(() => {
-    const parsedQuery = JSON.parse(queryKey) as PatchesDbQuery;
+    const parsed: unknown = JSON.parse(queryKey);
+    assert(
+      parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed),
+      'queryKey must roundtrip to object (from JSON.stringify of PatchesDbQuery)',
+      { queryKey }
+    );
+    const parsedQuery = parsed as PatchesDbQuery;
     const unsubscribe = db.subscribe.entities(parsedQuery, setResult);
     return unsubscribe;
   }, [db, queryKey]);

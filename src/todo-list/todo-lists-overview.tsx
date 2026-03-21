@@ -110,11 +110,14 @@ export function TodoListsOverview() {
 
   const inboxCount = todoCounts.get(INBOX_LIST_ID) ?? 0;
 
-  const data: { id: string; name: string; count: number }[] = [
+  const listRows: { id: string; name: string; count: number }[] = [
     { id: INBOX_LIST_ID, name: 'Inbox', count: inboxCount },
     ...lists.map((l) => ({
       id: l.entityId,
-      name: (l.attributes['todoList/name'] as string) ?? 'Untitled',
+      name: (() => {
+        const nameRaw = l.attributes['todoList/name'];
+        return typeof nameRaw === 'string' ? nameRaw : 'Untitled';
+      })(),
       count: todoCounts.get(l.entityId) ?? 0,
     })),
   ];
@@ -201,7 +204,7 @@ export function TodoListsOverview() {
       )}
 
       <FlatList
-        data={data}
+        data={listRows}
         keyExtractor={(item) => item.id}
         style={theme.sx({ flex: 1 })}
         contentContainerStyle={theme.sx({ pb: 24 })}

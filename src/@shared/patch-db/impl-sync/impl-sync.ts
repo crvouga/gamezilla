@@ -1,3 +1,4 @@
+import { fireAndForget } from '../../async/fire-and-forget';
 import { assert } from '../../assert';
 import type { PubSub, Unsubscribe } from '../../pub-sub/interface';
 import type {
@@ -9,6 +10,16 @@ import type {
 } from '../interface';
 
 const PATCHES_DB_TOPIC = 'patches-db';
+
+/** Topic for sync errors. Subscribe to surface push/poll failures to the UI after consecutive failures. */
+export const SYNC_ERROR_TOPIC = 'sync-error';
+
+const MAX_CONSECUTIVE_FAILURES = 5;
+
+export type SyncErrorEvent = {
+  source: 'push' | 'poll';
+  error: unknown;
+};
 
 export type RemoteInvalidationSource = {
   subscribe(callback: () => void): Unsubscribe;
@@ -40,6 +51,8 @@ export class SyncPatchesDb implements PatchesDb {
   private pushTimer: ReturnType<typeof setInterval> | null = null;
   private remoteInvalidationUnsub: Unsubscribe | null = null;
   private pollInProgress = false;
+  private pushConsecutiveFailures = 0;
+  private pollConsecutiveFailures = 0;
 
   constructor(
     private local: PatchesDb,
@@ -111,10 +124,18 @@ export class SyncPatchesDb implements PatchesDb {
       );
       listener(result);
     };
-    void notify();
+    fireAndForget(notify(), {
+      component: 'SyncPatchesDb',
+      op: 'notify',
+      queryKey: key,
+    });
 
     const unsub = this.pubSub.subscribe(PATCHES_DB_TOPIC, () => {
-      void notify();
+      fireAndForget(notify(), {
+        component: 'SyncPatchesDb',
+        op: 'notify-invalidation',
+        queryKey: key,
+      });
     });
 
     return () => {
@@ -138,9 +159,15 @@ export class SyncPatchesDb implements PatchesDb {
       return;
     this.remoteInvalidationUnsub =
       this.options.remoteInvalidationSource.subscribe(() => {
-        void this.poll();
+        fireAndForget(this.poll(), {
+          component: 'SyncPatchesDb',
+          op: 'poll-triggered',
+        });
       });
-    void this.poll();
+    fireAndForget(this.poll(), {
+      component: 'SyncPatchesDb',
+      op: 'poll-initial',
+    });
   }
 
   private maybeStopPolling(): void {
@@ -158,7 +185,10 @@ export class SyncPatchesDb implements PatchesDb {
     if (this.pushTimer !== null && this.pushTimer !== undefined) return;
     const pushIntervalMs = this.options.pushIntervalMs ?? 2000;
     this.pushTimer = setInterval(() => {
-      void this.pushUnsynced();
+      fireAndForget(this.pushUnsynced(), {
+        component: 'SyncPatchesDb',
+        op: 'pushUnsynced',
+      });
     }, pushIntervalMs);
   }
 
@@ -178,7 +208,10 @@ export class SyncPatchesDb implements PatchesDb {
         'read([query]) must return one result'
       );
       const patches = result.patches;
-      if (patches.length === 0) return;
+      if (patches.length === 0) {
+        this.pushConsecutiveFailures = 0;
+        return;
+      }
       await this.remote.write(patches);
       await this.local.update(
         patches.map((p) => ({
@@ -186,10 +219,81 @@ export class SyncPatchesDb implements PatchesDb {
           attributes: { 'patch/syncedAt': '1' },
         }))
       );
+      this.pushConsecutiveFailures = 0;
       this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
     } catch (err) {
-      console.warn('[SyncPatchesDb] push failed:', err);
+      this.pushConsecutiveFailures += 1;
+      console.error('[SyncPatchesDb] push failed:', err, {
+        consecutiveFailures: this.pushConsecutiveFailures,
+      });
+      if (this.pushConsecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+        this.pubSub.publish(SYNC_ERROR_TOPIC, {
+          source: 'push',
+          error: err,
+        } satisfies SyncErrorEvent);
+      }
     }
+  }
+
+  private async buildSyncQueries(
+    entries: ActiveQuery[]
+  ): Promise<PatchesDbQuery[]> {
+    const syncQueries: PatchesDbQuery[] = [];
+    for (const { query } of entries) {
+      const { limit, offset, ...queryWithoutPagination } = query;
+      const [localResult] = await this.local.read([queryWithoutPagination]);
+      assert(
+        localResult !== null && localResult !== undefined,
+        'read([query]) must return one result'
+      );
+      syncQueries.push({
+        ...queryWithoutPagination,
+        knownPatches: localResult.patches,
+      });
+
+      if (
+        query.where !== null &&
+        query.where !== undefined &&
+        query.entityType !== null &&
+        query.entityType !== undefined
+      ) {
+        const entityIds = [
+          ...new Set(localResult.patches.map((p) => p.entityId)),
+        ];
+        if (entityIds.length > 0) {
+          const [trackedResult] = await this.local.read([
+            { entityType: query.entityType, entityId: entityIds },
+          ]);
+          assert(
+            trackedResult !== null && trackedResult !== undefined,
+            'read([query]) must return one result'
+          );
+          syncQueries.push({
+            entityType: query.entityType,
+            entityId: entityIds,
+            knownPatches: trackedResult.patches,
+          });
+        }
+      }
+    }
+    return syncQueries;
+  }
+
+  private async mergeRemotePatches(
+    results: PatchesDbResult[]
+  ): Promise<boolean> {
+    let hasNewPatches = false;
+    for (const remoteResult of results) {
+      if (remoteResult.patches.length > 0) {
+        const withSynced = remoteResult.patches.map((p) => ({
+          ...p,
+          attributes: { ...p.attributes, 'patch/syncedAt': '1' },
+        }));
+        await this.local.write(withSynced);
+        hasNewPatches = true;
+      }
+    }
+    return hasNewPatches;
   }
 
   private async poll(): Promise<void> {
@@ -199,63 +303,24 @@ export class SyncPatchesDb implements PatchesDb {
 
     this.pollInProgress = true;
     try {
-      const syncQueries: PatchesDbQuery[] = [];
-      for (const { query } of entries) {
-        const { limit, offset, ...queryWithoutPagination } = query;
-        const [localResult] = await this.local.read([queryWithoutPagination]);
-        assert(
-          localResult !== null && localResult !== undefined,
-          'read([query]) must return one result'
-        );
-        syncQueries.push({
-          ...queryWithoutPagination,
-          knownPatches: localResult.patches,
-        });
-
-        if (
-          query.where !== null &&
-          query.where !== undefined &&
-          query.entityType !== null &&
-          query.entityType !== undefined
-        ) {
-          const entityIds = [
-            ...new Set(localResult.patches.map((p) => p.entityId)),
-          ];
-          if (entityIds.length > 0) {
-            const [trackedResult] = await this.local.read([
-              { entityType: query.entityType, entityId: entityIds },
-            ]);
-            assert(
-              trackedResult !== null && trackedResult !== undefined,
-              'read([query]) must return one result'
-            );
-            syncQueries.push({
-              entityType: query.entityType,
-              entityId: entityIds,
-              knownPatches: trackedResult.patches,
-            });
-          }
-        }
-      }
-
+      const syncQueries = await this.buildSyncQueries(entries);
       const results = await this.remote.read(syncQueries);
-
-      let hasNewPatches = false;
-      for (const remoteResult of results) {
-        if (remoteResult.patches.length > 0) {
-          const withSynced = remoteResult.patches.map((p) => ({
-            ...p,
-            attributes: { ...p.attributes, 'patch/syncedAt': '1' },
-          }));
-          await this.local.write(withSynced);
-          hasNewPatches = true;
-        }
-      }
+      const hasNewPatches = await this.mergeRemotePatches(results);
+      this.pollConsecutiveFailures = 0;
       if (hasNewPatches) {
         this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
       }
     } catch (err) {
-      console.warn('[SyncPatchesDb] poll failed:', err);
+      this.pollConsecutiveFailures += 1;
+      console.error('[SyncPatchesDb] poll failed:', err, {
+        consecutiveFailures: this.pollConsecutiveFailures,
+      });
+      if (this.pollConsecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+        this.pubSub.publish(SYNC_ERROR_TOPIC, {
+          source: 'poll',
+          error: err,
+        } satisfies SyncErrorEvent);
+      }
     } finally {
       this.pollInProgress = false;
     }

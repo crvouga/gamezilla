@@ -1,7 +1,61 @@
-import { assert } from '../../assert';
+import { assert, assertArray } from '../../assert';
 import type { PubSub } from '../../pub-sub/interface';
-import type { PatchesDb, PatchesDbQuery } from '../interface';
+import {
+  assertAttribute,
+  type PatchesDb,
+  type PatchesDbQuery,
+  type PatchInput,
+} from '../interface';
 import { PATCHES_EVENTS, PATCHES_READ, PATCHES_WRITE } from './shared';
+
+function validateQuery(q: unknown): asserts q is PatchesDbQuery {
+  assert(
+    q !== null && typeof q === 'object' && !Array.isArray(q),
+    'Each query must be an object'
+  );
+  const query = q as Record<string, unknown>;
+  if (query['entityType'] !== undefined) {
+    assert(
+      typeof query['entityType'] === 'string',
+      'query.entityType must be string'
+    );
+  }
+  if (query['knownPatches'] !== undefined) {
+    assertArray(
+      query['knownPatches'],
+      'query.knownPatches must be array'
+    );
+    for (const p of query['knownPatches'] as unknown[]) {
+      validatePatchInput(p);
+    }
+  }
+}
+
+function validatePatchInput(p: unknown): asserts p is PatchInput {
+  assert(
+    p !== null && typeof p === 'object' && !Array.isArray(p),
+    'Each patch must be an object'
+  );
+  const patch = p as Record<string, unknown>;
+  assert(
+    typeof patch['entityId'] === 'string',
+    'patch.entityId must be string'
+  );
+  assert(
+    typeof patch['entityType'] === 'string',
+    'patch.entityType must be string'
+  );
+  assert(
+    patch['attributes'] !== null &&
+      typeof patch['attributes'] === 'object' &&
+      !Array.isArray(patch['attributes']),
+    'patch.attributes must be object'
+  );
+  const attrs = patch['attributes'] as Record<string, unknown>;
+  for (const key of Object.keys(attrs)) {
+    assertAttribute(key);
+  }
+}
 
 const PATCHES_DB_TOPIC = 'patches-db';
 
@@ -17,12 +71,17 @@ export function createPatchDbHttpHandlers(
     const url = new URL(req.url);
 
     if (url.pathname === PATCHES_READ && req.method === 'POST') {
-      const body = (await req.json()) as { queries: PatchesDbQuery[] };
+      const body = (await req.json()) as { queries?: unknown };
       assert(
-        Array.isArray(body?.queries) && body.queries.length > 0,
-        'queries required'
+        body !== null && typeof body === 'object' && !Array.isArray(body),
+        'Request body must be object'
       );
-      const { queries } = body;
+      assertArray(body.queries, 'queries required');
+      assert(body.queries.length > 0, 'queries must not be empty');
+      for (const q of body.queries) {
+        validateQuery(q);
+      }
+      const queries = body.queries as PatchesDbQuery[];
       for (const q of queries) {
         if (q.knownPatches?.length) {
           await db.write(q.knownPatches);
@@ -35,14 +94,17 @@ export function createPatchDbHttpHandlers(
     }
 
     if (url.pathname === PATCHES_WRITE && req.method === 'POST') {
-      const body = (await req.json()) as {
-        patches: Parameters<PatchesDb['write']>[0];
-      };
+      const body = (await req.json()) as { patches?: unknown };
       assert(
-        Array.isArray(body?.patches) && body.patches.length > 0,
-        'patches required'
+        body !== null && typeof body === 'object' && !Array.isArray(body),
+        'Request body must be object'
       );
-      const patches = await db.write(body.patches);
+      assertArray(body.patches, 'patches required');
+      assert(body.patches.length > 0, 'patches must not be empty');
+      for (const p of body.patches) {
+        validatePatchInput(p);
+      }
+      const patches = await db.write(body.patches as PatchInput[]);
       publishInvalidated(pubSub);
       return Response.json(patches);
     }

@@ -74,7 +74,8 @@ function TodoItem({
   const theme = useTheme();
   const entity = useEntity({ entityId, entityType: 'todo' });
   const completed = entity?.attributes['todo/completed'] === true;
-  const title = (entity?.attributes['todo/title'] as string) ?? '';
+  const titleRaw = entity?.attributes['todo/title'];
+  const title = typeof titleRaw === 'string' ? titleRaw : '';
 
   return (
     <ThemedView
@@ -137,6 +138,7 @@ export function TodoList() {
   const [filter, setFilter] = useState<Filter>('all');
   const allResult = useEntities(buildTodoQuery('all'));
   const filterResult = useEntities(buildTodoQuery(filter));
+  // Query uses entityType: 'todo'; all returned entities are TodoEntity.
   const todos = filterResult.entities as TodoEntity[];
   const totalCount = allResult.total;
 

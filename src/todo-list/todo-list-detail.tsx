@@ -89,7 +89,8 @@ function TodoItem({
     entityType: 'todo',
   });
   const completed = entity?.attributes['todo/completed'] === true;
-  const title = (entity?.attributes['todo/title'] as string) ?? '';
+  const titleRaw = entity?.attributes['todo/title'];
+  const title = typeof titleRaw === 'string' ? titleRaw : '';
 
   return (
     <ThemedView
@@ -168,7 +169,10 @@ export function TodoListDetail() {
   const listName =
     lid === INBOX_LIST_ID
       ? 'Inbox'
-      : ((listEntity?.attributes['todoList/name'] as string) ?? 'List');
+      : (() => {
+          const nameRaw = listEntity?.attributes['todoList/name'];
+          return typeof nameRaw === 'string' ? nameRaw : 'List';
+        })();
 
   const filterButtonStyle = (active: boolean) =>
     theme.sx({

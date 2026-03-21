@@ -35,6 +35,18 @@ function withCors(res: Response): Response {
 
 const server = Bun.serve({
   port: Number(PORT),
+  error(error) {
+    console.error('[sync-server] Unhandled error:', error);
+    return new Response(
+      JSON.stringify({
+        error: error instanceof Error ? error.message : String(error),
+      }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+      }
+    );
+  },
   fetch(
     req: Request,
     bunServer: { timeout: (req: Request, seconds: number) => void }
@@ -57,7 +69,18 @@ const server = Bun.serve({
 
     if (url.pathname.startsWith(PATCHES_DB_BASE_URL)) {
       bunServer.timeout(req, 0);
-      return patchDbHandler(req).then(withCors);
+      return patchDbHandler(req)
+        .then(withCors)
+        .catch((err: unknown) => {
+          console.error('[sync-server] patchDbHandler failed:', err);
+          const message = err instanceof Error ? err.message : String(err);
+          return withCors(
+            new Response(JSON.stringify({ error: message }), {
+              status: 500,
+              headers: { 'Content-Type': 'application/json' },
+            })
+          );
+        });
     }
 
     return withCors(

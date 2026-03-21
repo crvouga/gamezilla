@@ -65,7 +65,12 @@ describe('createStaticFileHandler', () => {
       ['/a.png', 'image/png'],
     ];
     for (const [path, expected] of cases) {
-      if (path === null || path === undefined || expected === null || expected === undefined) {
+      if (
+        path === null ||
+        path === undefined ||
+        expected === null ||
+        expected === undefined
+      ) {
         throw new Error('Invalid test case: path and expected must be defined');
       }
       const res = await handler(mockRequest(path));

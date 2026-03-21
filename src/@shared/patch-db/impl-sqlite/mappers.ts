@@ -1,8 +1,31 @@
+import { assert } from '../../assert';
 import { assertAttribute, type Entity, type Patch } from '../interface';
 import type { PatchRow, SnapshotRow } from './types';
 
+/** Parses attributes JSON with contextual error on failure. Use at DB read boundary. */
+export function parseAttributes(
+  json: string,
+  context: Record<string, unknown>
+): Record<string, unknown> {
+  try {
+    const parsed = JSON.parse(json);
+    assert(
+      parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed),
+      'attributes must parse to object',
+      { ...context, parsed }
+    );
+    return parsed as Record<string, unknown>;
+  } catch (err) {
+    assert(false, 'Invalid JSON in attributes', { ...context, raw: json, parseError: err });
+  }
+}
+
 export function toPatch(row: PatchRow): Patch {
-  const attrs = JSON.parse(row.attributes);
+  const attrs = parseAttributes(row.attributes, {
+    entity_id: row.entity_id,
+    entity_type: row.entity_type,
+    patch_id: row.patch_id,
+  });
   for (const key of Object.keys(attrs)) {
     assertAttribute(key);
   }
@@ -23,7 +46,10 @@ export function toPatch(row: PatchRow): Patch {
 }
 
 export function toEntity(row: SnapshotRow): Entity {
-  const attrs = JSON.parse(row.attributes);
+  const attrs = parseAttributes(row.attributes, {
+    entity_id: row.entity_id,
+    entity_type: row.entity_type,
+  });
   for (const key of Object.keys(attrs)) {
     assertAttribute(key);
   }

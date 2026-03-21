@@ -9,7 +9,7 @@ import {
   PatchesDbResult,
   PatchInput,
 } from '../interface';
-import { toEntity, toPatch } from './mappers';
+import { parseAttributes, toEntity, toPatch } from './mappers';
 import {
   buildLimitSQL,
   buildOrderSQL,
@@ -116,14 +116,14 @@ export class PatchDbImplSqlite implements PatchesDb {
     try {
       await this.sqlClient.run('ALTER TABLE patches DROP COLUMN lineage_depth');
     } catch {
-      // Column may not exist (new DB or already dropped)
+      // Forward-compatible: old schema may not have lineage_depth; new DBs skip.
     }
     try {
       await this.sqlClient.run(
         'DROP INDEX IF EXISTS idx_patches_entity_type_lineage'
       );
     } catch {
-      // Index may not exist
+      // Forward-compatible: index may be absent on fresh DB or already removed.
     }
     try {
       const tableInfo = await this.sqlClient.query<{ name: string }>(
@@ -139,7 +139,7 @@ export class PatchDbImplSqlite implements PatchesDb {
         await this.sqlClient.run('ALTER TABLE patches DROP COLUMN metadata');
       }
     } catch {
-      // Column may not exist (new DB) or already dropped
+      // Forward-compatible: metadata column exists only in pre-migration DBs.
     }
   }
 
@@ -159,7 +159,11 @@ export class PatchDbImplSqlite implements PatchesDb {
 
     const merged: Record<string, unknown> = {};
     for (const row of rows) {
-      const attrs = JSON.parse(row.attributes) as Record<string, unknown>;
+      const attrs = parseAttributes(row.attributes, {
+        entity_id: row.entity_id,
+        entity_type: row.entity_type,
+        patch_id: row.patch_id,
+      });
       for (const [key, value] of Object.entries(attrs)) {
         if (PATCH_META_KEYS.includes(key)) continue;
         if (value === null) {
@@ -198,24 +202,98 @@ export class PatchDbImplSqlite implements PatchesDb {
     return first !== null && first !== undefined ? first.patch_id : null;
   }
 
-  async write(patches: PatchInput[]): Promise<Patch[]> {
+  private validatePatchInputs(patches: PatchInput[]): void {
+    assert(patches.length > 0, 'patches must not be empty');
     for (const patch of patches) {
       for (const key of Object.keys(patch.attributes)) {
         assertAttribute(key);
       }
     }
-    assert(patches.length > 0, 'patches must not be empty');
+  }
 
-    if (patches.length === 0) return [];
-    const result: Patch[] = [];
+  private async insertPatchRow(
+    tx: SqlClient,
+    patch: PatchInput,
+    parentId: string | null,
+    now: string,
+    recordedAt: string
+  ): Promise<Patch> {
+    const createdByVal =
+      ('createdBy' in patch
+        ? patch.createdBy
+        : patch.attributes['patch/createdBy']) ?? '';
+    const sessionIdVal =
+      'sessionId' in patch
+        ? patch.sessionId
+        : patch.attributes['patch/sessionId'];
+    const createdBy = String(createdByVal);
+    const sessionId =
+      sessionIdVal !== null && sessionIdVal !== undefined
+        ? String(sessionIdVal)
+        : '';
+    const syncedAt = patch.attributes['patch/syncedAt'] ?? null;
+    const patchId =
+      'patchId' in patch && typeof patch.patchId === 'string'
+        ? patch.patchId
+        : crypto.randomUUID();
+    const storedAttributes = {
+      ...patch.attributes,
+      'patch/createdBy': createdBy,
+      'patch/sessionId': sessionId,
+      'patch/syncedAt': syncedAt,
+    };
+    await tx.run(insertPatch, [
+      patchId,
+      patch.entityId,
+      patch.entityType,
+      JSON.stringify(storedAttributes),
+      now,
+      recordedAt,
+      parentId,
+    ]);
+    return {
+      ...patch,
+      patchId,
+      parentId,
+      createdAt: now,
+      recordedAt,
+      createdBy,
+      sessionId,
+    };
+  }
+
+  private async recomputeTouchedSnapshots(
+    tx: SqlClient,
+    touchedEntities: Set<string>
+  ): Promise<void> {
+    for (const key of touchedEntities) {
+      const parts = key.split('\0');
+      assert(
+        parts.length === 2,
+        'Entity key must contain exactly one null separator',
+        { key }
+      );
+      const entityId = parts[0];
+      assertDefined(
+        entityId,
+        'Entity key must contain exactly one null separator'
+      );
+      const entityType = parts[1];
+      assertDefined(
+        entityType,
+        'Entity key must contain exactly one null separator'
+      );
+      await this.recomputeSnapshot(tx, entityId, entityType);
+    }
+  }
+
+  async write(patches: PatchInput[]): Promise<Patch[]> {
+    this.validatePatchInputs(patches);
+    const writtenPatches: Patch[] = [];
     await this.sqlClient.transaction(async (tx) => {
       const touchedEntities = new Set<string>();
       let lastTimestamp = Date.now() - 1;
       for (const patch of patches) {
-        const patchId =
-          'patchId' in patch && typeof patch.patchId === 'string'
-            ? patch.patchId
-            : crypto.randomUUID();
         const isSyncedPatch =
           'patchId' in patch &&
           'parentId' in patch &&
@@ -234,71 +312,19 @@ export class PatchDbImplSqlite implements PatchesDb {
           'recordedAt' in patch && typeof patch.recordedAt === 'string'
             ? patch.recordedAt
             : now;
-        const createdByVal =
-          ('createdBy' in patch
-            ? patch.createdBy
-            : patch.attributes['patch/createdBy']) ?? '';
-        const sessionIdVal =
-          'sessionId' in patch
-            ? patch.sessionId
-            : patch.attributes['patch/sessionId'];
-        const createdBy = String(createdByVal);
-        const sessionId =
-          sessionIdVal !== null && sessionIdVal !== undefined
-            ? String(sessionIdVal)
-            : '';
-        const syncedAt = patch.attributes['patch/syncedAt'] ?? null;
-        for (const key of Object.keys(patch.attributes)) {
-          assertAttribute(key);
-        }
-        const storedAttributes = {
-          ...patch.attributes,
-          'patch/createdBy': createdBy,
-          'patch/sessionId': sessionId,
-          'patch/syncedAt': syncedAt,
-        };
-        await tx.run(insertPatch, [
-          patchId,
-          patch.entityId,
-          patch.entityType,
-          JSON.stringify(storedAttributes),
+        const written = await this.insertPatchRow(
+          tx,
+          patch,
+          parentId,
           now,
-          recordedAt,
-          parentId,
-        ]);
-        result.push({
-          ...patch,
-          patchId,
-          parentId,
-          createdAt: now,
-          recordedAt,
-          createdBy,
-          sessionId,
-        });
+          recordedAt
+        );
+        writtenPatches.push(written);
         touchedEntities.add(`${patch.entityId}\0${patch.entityType}`);
       }
-
-      for (const key of touchedEntities) {
-        const parts = key.split('\0');
-        assert(
-          parts.length === 2,
-          'Entity key must contain exactly one null separator',
-          { key }
-        );
-        const entityId = parts[0];
-        assertDefined(
-          entityId,
-          'Entity key must contain exactly one null separator'
-        );
-        const entityType = parts[1];
-        assertDefined(
-          entityType,
-          'Entity key must contain exactly one null separator'
-        );
-        await this.recomputeSnapshot(tx, entityId, entityType);
-      }
+      await this.recomputeTouchedSnapshots(tx, touchedEntities);
     });
-    return result;
+    return writtenPatches;
   }
 
   async read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
@@ -358,7 +384,7 @@ export class PatchDbImplSqlite implements PatchesDb {
         entityKeysOrdered.push(key);
       }
     }
-    const data: Entity[] = [];
+    const entities: Entity[] = [];
     for (const key of entityKeysOrdered) {
       const parts = key.split('\0');
       assert(
@@ -382,13 +408,13 @@ export class PatchDbImplSqlite implements PatchesDb {
       );
       const snapRow = snapRows[0];
       if (snapRow !== null && snapRow !== undefined) {
-        data.push(toEntity(snapRow));
+        entities.push(toEntity(snapRow));
       }
     }
 
     return {
       query,
-      entities: data,
+      entities,
       patches,
       total,
       hasMore,
@@ -528,7 +554,7 @@ export class PatchDbImplSqlite implements PatchesDb {
         entityKeysOrdered.push(key);
       }
     }
-    const data: Entity[] = [];
+    const entities: Entity[] = [];
     for (const key of entityKeysOrdered) {
       const parts = key.split('\0');
       assert(
@@ -552,11 +578,11 @@ export class PatchDbImplSqlite implements PatchesDb {
       );
       const snapRow = snapRows[0];
       if (snapRow !== null && snapRow !== undefined) {
-        data.push(toEntity(snapRow));
+        entities.push(toEntity(snapRow));
       }
     }
 
-    return { query, entities: data, patches, total, hasMore, nextCursor };
+    return { query, entities, patches, total, hasMore, nextCursor };
   }
 
   private async readOneSnapshotBased(
@@ -579,10 +605,10 @@ export class PatchDbImplSqlite implements PatchesDb {
       [...params, ...limit.params]
     );
 
-    const data = rows.map(toEntity);
+    const entities = rows.map(toEntity);
     const hasMore =
       query.limit !== null && query.limit !== undefined
-        ? (query.offset ?? 0) + data.length < total
+        ? (query.offset ?? 0) + entities.length < total
         : false;
 
     const patches: Patch[] = [];
@@ -603,7 +629,7 @@ export class PatchDbImplSqlite implements PatchesDb {
 
     return {
       query,
-      entities: data,
+      entities,
       patches,
       total,
       hasMore,

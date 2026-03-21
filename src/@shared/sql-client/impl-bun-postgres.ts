@@ -1,3 +1,4 @@
+import { assertArray } from '../assert';
 import { SQL } from 'bun';
 import type { RunResult, SqlClient } from './interface';
 import { questionMarkParamsToDollarParams } from './positional-params';
@@ -56,7 +57,11 @@ function createClient(sql: BunSql): SqlClient {
         params
       );
       const result = await sql.unsafe(pgSql, pgParams);
-      return Array.isArray(result) ? (result as T[]) : [];
+      assertArray(
+        result,
+        'Postgres query must return array of rows; driver contract violation'
+      );
+      return result as T[];
     },
     run: async (querySql: string, params?: unknown[]) => {
       const [pgSql, pgParams] = questionMarkParamsToDollarParams(
@@ -71,6 +76,7 @@ function createClient(sql: BunSql): SqlClient {
     },
     transaction: async (fn) => {
       return sql.begin(async (tx) => {
+        // Bun sql.begin callback receives a tx compatible with BunSql.
         const txClient = createClient(tx as unknown as BunSql);
         return fn(txClient);
       });
