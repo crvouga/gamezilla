@@ -16,6 +16,15 @@ module.exports = defineConfig([
     rules: {
       '@typescript-eslint/no-non-null-assertion': 'error',
       eqeqeq: ['error', 'always'],
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            'CallExpression > MemberExpression[object.type="AwaitExpression"]',
+          message:
+            'Avoid nesting await inside function calls. Extract to a variable first: const x = await ...; fn(x);',
+        },
+      ],
       'naming/case': [
         'error',
         {

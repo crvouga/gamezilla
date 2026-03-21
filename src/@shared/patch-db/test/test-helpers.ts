@@ -1,4 +1,3 @@
-import { assert } from '../../assert';
 import { InMemoryPubSub } from '../../pub-sub/impl-in-memory';
 import type { Unsubscribe } from '../../pub-sub/interface';
 import { SqlClientImplBunSqlite } from '../../sql-client/impl-bun-sqlite';
@@ -6,12 +5,6 @@ import type { SqlClient } from '../../sql-client/interface';
 import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
 import { SyncPatchesDb, type RemoteInvalidationSource } from '../impl-sync';
 import type { PatchesDb, PatchInput } from '../interface';
-
-/** Asserts value is defined; use instead of non-null assertion in tests. */
-export function expectDefined<T>(value: T | null | undefined): T {
-  assert(value !== null && value !== undefined, 'Expected value to be defined');
-  return value;
-}
 
 /** Creates a RemoteInvalidationSource that tests can trigger manually via invalidate(). */
 export function createManualRemoteInvalidationSource(): RemoteInvalidationSource & {
