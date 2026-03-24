@@ -49,14 +49,14 @@ Assertions in Tiger Style are typed by what they protect:
 
 ```zig
 // Invariant: must always hold; crash if violated
-assert(self.state == .ready);
+assert.true(self.state == .ready);
 
 // Precondition: caller's responsibility
-assert(buffer.len > 0);
-assert(offset + length <= self.size);
+assert.true(buffer.len > 0);
+assert.true(offset + length <= self.size);
 
 // Postcondition: callee's guarantee
-defer assert(self.state != .corrupted);
+defer assert.true(self.state != .corrupted);
 
 // Unreachable: documents that a branch cannot be taken
 // Use your language's equivalent: unreachable, std::abort(), etc.

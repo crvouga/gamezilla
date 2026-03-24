@@ -6,7 +6,7 @@
  * in order: `query("SELECT * FROM t WHERE id = ?", [1])`.
  */
 
-import { assertNotThrows } from '../assert';
+import { assert } from '../assert';
 
 export interface RunResult {
   changes: number;
@@ -68,5 +68,5 @@ export function assertQuery(
   sql: string,
   sqlClient: SqlClient
 ): asserts sql is string {
-  assertNotThrows(() => sqlClient.prepare(sql), 'Invalid SQL query', { sql });
+  assert.notThrows(() => sqlClient.prepare(sql), 'Invalid SQL query', { sql });
 }

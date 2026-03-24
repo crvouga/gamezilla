@@ -1,7 +1,6 @@
-import { assert, assertEquals } from '@/@shared/assert';
-import { assertNever } from '@/@shared/assert/assert-never';
+import { assert } from '@/@shared/assert';
 import type { PatchesDbQuery, PatchesDbQueryWhereClause } from '../interface';
-import { assertAttribute } from '../interface';
+import { assertAttribute, assertDirection } from '../interface';
 
 export type WhereFragment = { sql: string; params: unknown[] };
 
@@ -12,19 +11,19 @@ function jsonPathForAttribute(attribute: string): string {
     ? `$."${attribute.replace(/"/g, '""')}"`
     : `$.${attribute}`;
 }
-assertEquals(
+assert.equals(
   jsonPathForAttribute('todo/title'),
   '$."todo/title"',
   'Invalid attribute name',
   { attribute: 'todo/title' }
 );
-assertEquals(
+assert.equals(
   jsonPathForAttribute('my.namespace/attr'),
   '$."my.namespace/attr"',
   'Invalid attribute name',
   { attribute: 'my.namespace/attr' }
 );
-assertEquals(
+assert.equals(
   jsonPathForAttribute('todo/title'),
   '$."todo/title"',
   'Invalid attribute name.',
@@ -149,7 +148,8 @@ function buildWhereClauseForColumn(
       return { sql: `NOT (${inner.sql})`, params: inner.params };
     }
     default: {
-      assertNever(clause);
+      assert.never(clause, 'Invalid where clause type', { clause });
+      throw new Error('Invalid where clause type');
     }
   }
 }
@@ -246,10 +246,7 @@ export function buildOrderSQL(
       query.orderBy
         .map((o) => {
           const path = jsonPathForAttribute(o.attribute);
-          assert(
-            o.direction === 'asc' || o.direction === 'desc',
-            'Invalid direction'
-          );
+          assertDirection(o.direction);
           const dir = o.direction === 'desc' ? 'DESC' : 'ASC';
           return `json_extract(${attributePrefix}attributes, '${path.replace(/'/g, "''")}') ${dir}`;
         })

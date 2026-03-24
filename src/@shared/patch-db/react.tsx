@@ -1,4 +1,4 @@
-import { assert, assertDefined } from '@/@shared/assert';
+import { assert } from '@/@shared/assert';
 import { InjectionToken } from '@/@shared/dependency-injection/dependency-injection-container';
 import { useDependency } from '@/@shared/dependency-injection/react';
 import { useEffect, useState } from 'react';
@@ -14,7 +14,7 @@ export const PatchesDbToken: InjectionToken<PatchesDb> = Symbol('PatchesDb');
 
 export function usePatchesDb(): PatchesDb {
   const db = useDependency(PatchesDbToken);
-  assertDefined(db, 'PatchesDb not found');
+  assert.defined(db, 'PatchesDb not found');
   return db;
 }
 
@@ -31,7 +31,7 @@ export function useEntities(query: PatchesDbQuery): PatchesDbResult {
   const queryKey = JSON.stringify(query);
   useEffect(() => {
     const parsed: unknown = JSON.parse(queryKey);
-    assert(
+    assert.ok(
       parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed),
       'queryKey must roundtrip to object (from JSON.stringify of PatchesDbQuery)',
       { queryKey }

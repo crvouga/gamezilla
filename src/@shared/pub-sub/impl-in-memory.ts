@@ -1,4 +1,4 @@
-import { assertDefined } from '../assert';
+import { assert } from '../assert';
 import type { Listener, PubSub, Unsubscribe } from './interface';
 
 export class InMemoryPubSub implements PubSub {
@@ -20,7 +20,7 @@ export class InMemoryPubSub implements PubSub {
     }
     set.add(listener);
     return () => {
-      assertDefined(set, 'Listener set must exist when unsubscribing', {
+      assert.defined(set, 'Listener set must exist when unsubscribing', {
         topic,
         listener,
         set,
@@ -30,5 +30,14 @@ export class InMemoryPubSub implements PubSub {
         this.listeners.delete(topic);
       }
     };
+  }
+
+  next(topic: string): Promise<unknown> {
+    return new Promise((resolve) => {
+      const unsub = this.subscribe(topic, (message) => {
+        resolve(message);
+        unsub();
+      });
+    });
   }
 }

@@ -1,4 +1,4 @@
-import { assert, assertArray } from '../assert';
+import { assert } from '../assert';
 import {
   assertEntityKey,
   assertPatchId,
@@ -11,7 +11,7 @@ function assertObject(
   value: unknown,
   message: string
 ): asserts value is Record<string, unknown> {
-  assert(
+  assert.ok(
     value !== null &&
       typeof value === 'object' &&
       !Array.isArray(value) &&
@@ -25,18 +25,18 @@ function assertPatchesDbResult(
   value: unknown
 ): asserts value is PatchesDbResult {
   assertObject(value, 'PatchesDbResult must be an object');
-  assert('query' in value, 'PatchesDbResult must have query', { value });
-  assertArray(value['entities'], 'PatchesDbResult.entities must be an array');
-  assertArray(value['patches'], 'PatchesDbResult.patches must be an array');
-  assert(
+  assert.ok('query' in value, 'PatchesDbResult must have query', { value });
+  assert.array(value['entities'], 'PatchesDbResult.entities must be an array');
+  assert.array(value['patches'], 'PatchesDbResult.patches must be an array');
+  assert.ok(
     typeof value['total'] === 'number',
     'PatchesDbResult.total must be number'
   );
-  assert(
+  assert.ok(
     typeof value['hasMore'] === 'boolean',
     'PatchesDbResult.hasMore must be boolean'
   );
-  assert(
+  assert.ok(
     value['nextCursor'] === null || typeof value['nextCursor'] === 'string',
     'PatchesDbResult.nextCursor must be string or null'
   );
@@ -44,11 +44,11 @@ function assertPatchesDbResult(
 
 function assertEntity(value: unknown): asserts value is Entity {
   assertObject(value, 'Entity must be an object');
-  assert(
+  assert.ok(
     typeof value['entityId'] === 'string',
     'Entity.entityId must be string'
   );
-  assert(
+  assert.ok(
     typeof value['entityType'] === 'string',
     'Entity.entityType must be string'
   );
@@ -59,35 +59,44 @@ function assertEntity(value: unknown): asserts value is Entity {
 function assertPatch(value: unknown): asserts value is Patch {
   assertObject(value, 'Patch must be an object');
   const v = value as Record<string, unknown>;
-  assert(typeof v['patchId'] === 'string', 'Patch.patchId must be string');
-  assert(typeof v['entityId'] === 'string', 'Patch.entityId must be string');
-  assert(
+  assert.ok(typeof v['patchId'] === 'string', 'Patch.patchId must be string');
+  assert.ok(typeof v['entityId'] === 'string', 'Patch.entityId must be string');
+  assert.ok(
     typeof v['entityType'] === 'string',
     'Patch.entityType must be string'
   );
   assertPatchId(v['patchId']);
   assertEntityKey(v['entityId'], v['entityType']);
   assertObject(v['attributes'], 'Patch.attributes must be object');
-  assert(
+  assert.ok(
     v['parentId'] === null || typeof v['parentId'] === 'string',
     'Patch.parentId must be string or null'
   );
-  assert(typeof v['createdAt'] === 'string', 'Patch.createdAt must be string');
-  assert(
+  assert.ok(
+    typeof v['createdAt'] === 'string',
+    'Patch.createdAt must be string'
+  );
+  assert.ok(
     typeof v['recordedAt'] === 'string',
     'Patch.recordedAt must be string'
   );
-  assert(typeof v['createdBy'] === 'string', 'Patch.createdBy must be string');
-  assert(typeof v['sessionId'] === 'string', 'Patch.sessionId must be string');
+  assert.ok(
+    typeof v['createdBy'] === 'string',
+    'Patch.createdBy must be string'
+  );
+  assert.ok(
+    typeof v['sessionId'] === 'string',
+    'Patch.sessionId must be string'
+  );
 }
 
 /**
  * Validates remote response for read(). Call after res.json() at trust boundary.
  */
-export function validatePatchesDbResults(
+export function assertPatchesDbResults(
   value: unknown
 ): asserts value is PatchesDbResult[] {
-  assertArray(value, 'Response must be an array of PatchesDbResult');
+  assert.array(value, 'PatchesDbResults must be an array');
   const arr = value as PatchesDbResult[];
   for (const result of arr) {
     assertPatchesDbResult(result);
@@ -103,8 +112,8 @@ export function validatePatchesDbResults(
 /**
  * Validates remote response for write(). Call after res.json() at trust boundary.
  */
-export function validatePatches(value: unknown): asserts value is Patch[] {
-  assertArray(value, 'Response must be an array of Patch');
+export function assertPatches(value: unknown): asserts value is Patch[] {
+  assert.array(value, 'Patches must be an array');
   const arr = value as Patch[];
   for (const patch of arr) {
     assertPatch(patch);

@@ -1,71 +1,15 @@
-import { assert, assertArray } from '../../assert';
+import { assert, Assert } from '../../assert';
 import type { PubSub } from '../../pub-sub/interface';
 import {
-  assertAttribute,
-  assertEntityKey,
-  assertPatchId,
   type PatchesDb,
-  type PatchesDbQuery,
   type PatchInput,
+  assertPatch,
+  assertPatchInput,
+  assertQuery,
+  Patch,
+  PatchesDbQuery,
 } from '../interface';
 import { PATCHES_EVENTS, PATCHES_READ, PATCHES_WRITE } from './shared';
-
-function validateQuery(q: unknown): asserts q is PatchesDbQuery {
-  assert(
-    q !== null && typeof q === 'object' && !Array.isArray(q),
-    'Each query must be an object'
-  );
-  const query = q as Record<string, unknown>;
-  if (query['entityType'] !== undefined) {
-    assert(
-      typeof query['entityType'] === 'string',
-      'query.entityType must be string'
-    );
-  }
-  if (query['knownPatches'] !== undefined) {
-    assertArray(
-      query['knownPatches'],
-      'query.knownPatches must be array'
-    );
-    for (const p of query['knownPatches'] as unknown[]) {
-      validatePatchInput(p);
-    }
-  }
-}
-
-function validatePatchInput(p: unknown): asserts p is PatchInput {
-  assert(
-    p !== null && typeof p === 'object' && !Array.isArray(p),
-    'Each patch must be an object'
-  );
-  const patch = p as Record<string, unknown>;
-  assert(
-    typeof patch['entityId'] === 'string',
-    'patch.entityId must be string'
-  );
-  assert(
-    typeof patch['entityType'] === 'string',
-    'patch.entityType must be string'
-  );
-  assertEntityKey(patch['entityId'], patch['entityType']);
-  if (
-    patch['patchId'] !== undefined &&
-    patch['patchId'] !== null &&
-    typeof patch['patchId'] === 'string'
-  ) {
-    assertPatchId(patch['patchId']);
-  }
-  assert(
-    patch['attributes'] !== null &&
-      typeof patch['attributes'] === 'object' &&
-      !Array.isArray(patch['attributes']),
-    'patch.attributes must be object'
-  );
-  const attrs = patch['attributes'] as Record<string, unknown>;
-  for (const key of Object.keys(attrs)) {
-    assertAttribute(key);
-  }
-}
 
 const PATCHES_DB_TOPIC = 'patches-db';
 
@@ -81,70 +25,83 @@ export function createPatchDbHttpHandlers(
     const url = new URL(req.url);
 
     if (url.pathname === PATCHES_READ && req.method === 'POST') {
-      const body = (await req.json()) as { queries?: unknown };
-      assert(
-        body !== null && typeof body === 'object' && !Array.isArray(body),
-        'Request body must be object'
-      );
-      assertArray(body.queries, 'queries required');
-      assert(body.queries.length > 0, 'queries must not be empty');
-      for (const q of body.queries) {
-        validateQuery(q);
-      }
-      const queries = body.queries as PatchesDbQuery[];
-      for (const q of queries) {
-        if (q.knownPatches?.length) {
-          await db.write(q.knownPatches);
-          // Do NOT publish here: knownPatches are patches the client already has.
-          // Publishing would trigger SSE → poll → knownPatches → infinite loop.
-        }
-      }
-      const results = await db.read(queries);
-      return Response.json(results);
+      return handleRead(req, db);
     }
 
     if (url.pathname === PATCHES_WRITE && req.method === 'POST') {
-      const body = (await req.json()) as { patches?: unknown };
-      assert(
-        body !== null && typeof body === 'object' && !Array.isArray(body),
-        'Request body must be object'
-      );
-      assertArray(body.patches, 'patches required');
-      assert(body.patches.length > 0, 'patches must not be empty');
-      for (const p of body.patches) {
-        validatePatchInput(p);
-      }
-      const patches = await db.write(body.patches as PatchInput[]);
-      publishInvalidated(pubSub);
-      return Response.json(patches);
+      return handleWrite(req, db, pubSub);
     }
 
     if (url.pathname === PATCHES_EVENTS && req.method === 'GET') {
-      const encoder = new TextEncoder();
-      const stream = new ReadableStream({
-        start(controller) {
-          const unsub = pubSub.subscribe(PATCHES_DB_TOPIC, () => {
-            controller.enqueue(
-              encoder.encode(
-                `data: ${JSON.stringify({ type: 'invalidated' })}\n\n`
-              )
-            );
-          });
-          req.signal?.addEventListener('abort', () => {
-            unsub();
-            controller.close();
-          });
-        },
-      });
-      return new Response(stream, {
-        headers: {
-          'Content-Type': 'text/event-stream',
-          'Cache-Control': 'no-cache',
-          Connection: 'keep-alive',
-        },
-      });
+      return handleEvents(req, pubSub);
     }
 
     return new Response('Not Found', { status: 404 });
   };
+}
+
+async function handleEvents(req: Request, pubSub: PubSub): Promise<Response> {
+  const url = new URL(req.url);
+  assert.equals(url.pathname, PATCHES_EVENTS, 'Invalid path');
+  assert.equals(req.method, 'GET', 'Invalid method');
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    start(controller) {
+      const unsub = pubSub.subscribe(PATCHES_DB_TOPIC, () => {
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify({ type: 'invalidated' })}\n\n`)
+        );
+      });
+      req.signal?.addEventListener('abort', () => {
+        unsub();
+        controller.close();
+      });
+    },
+  });
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      Connection: 'keep-alive',
+    },
+  });
+}
+
+async function handleWrite(
+  req: Request,
+  db: PatchesDb,
+  pubSub: PubSub
+): Promise<Response> {
+  const url = new URL(req.url);
+  assert.equals(url.pathname, PATCHES_WRITE, 'Invalid path');
+  assert.equals(req.method, 'POST', 'Invalid method');
+  const body: unknown = await req.json();
+  const a: Assert = Assert.validation();
+  a.record(body, 'Request body must be object');
+  a.field(body, 'patches', 'patches required');
+  a.array(body.patches, 'patches required');
+  a.ok(body.patches.length > 0, 'patches must not be empty');
+  a.all(body.patches, (p): asserts p is PatchInput => assertPatchInput(a, p));
+  const patches = await db.write(body.patches);
+  publishInvalidated(pubSub);
+  return Response.json(patches);
+}
+
+async function handleRead(req: Request, db: PatchesDb): Promise<Response> {
+  const url = new URL(req.url);
+  assert.equals(url.pathname, PATCHES_READ, 'Invalid path');
+  assert.equals(req.method, 'POST', 'Invalid method');
+  const body: unknown = await req.json();
+  const a: Assert = Assert.validation();
+  a.record(body, 'Request body must be object');
+  a.field(body, 'queries', 'queries required');
+  a.array(body.queries, 'queries required');
+  a.ok(body.queries.length > 0, 'queries must not be empty');
+  a.all(body.queries, (q): asserts q is PatchesDbQuery => assertQuery(a, q));
+  const queries = body.queries;
+  const knownPatches = queries.map((q) => q.knownPatches).flat();
+  a.all(knownPatches, (p): asserts p is Patch => assertPatch(a, p));
+  await db.write(knownPatches);
+  const results = await db.read(queries);
+  return Response.json(results);
 }

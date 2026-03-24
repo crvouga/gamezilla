@@ -1,10 +1,11 @@
-import { assert, assertDefined } from '../../assert';
+import { assert } from '../../assert';
 import type { SqlClient } from '../../sql-client/interface';
 import { assertSqliteQuery } from '../../sqlite';
 import {
   assertAttribute,
   assertEntityKey,
   assertPatchId,
+  Attribute,
   Entity,
   getPatchTopLevelFromAttributes,
   isValidAttribute,
@@ -163,6 +164,7 @@ export class PatchDbImplSqlite implements PatchesDb {
     entityId: string,
     entityType: string
   ): Promise<void> {
+    assertEntityKey(entityId, entityType);
     const rows = await tx.query<PatchRow>(SELECT_PATCHES_FOR_SNAPSHOT, [
       entityId,
       entityType,
@@ -217,17 +219,23 @@ export class PatchDbImplSqlite implements PatchesDb {
     return first !== null && first !== undefined ? first.patch_id : null;
   }
 
-  private validatePatchInputs(patches: PatchInput[]): void {
-    assert(patches.length > 0, 'patches must not be empty');
-    for (const patch of patches) {
+  private assertPatchInputs(patches: PatchInput[]): void {
+    assert.ok(patches.length > 0, 'patches must not be empty');
+    assert.all(patches, (patch): asserts patch is PatchInput => {
       assertEntityKey(patch.entityId, patch.entityType);
-      if ('patchId' in patch && typeof patch.patchId === 'string') {
-        assertPatchId(patch.patchId);
+      const raw = patch as Record<string, unknown>;
+      if (
+        raw['patchId'] !== undefined &&
+        raw['patchId'] !== null &&
+        typeof raw['patchId'] === 'string'
+      ) {
+        assertPatchId(raw['patchId']);
       }
-      for (const key of Object.keys(patch.attributes)) {
-        assertAttribute(key);
-      }
-    }
+      assert.all(
+        Object.keys(patch.attributes),
+        (key): asserts key is Attribute => assertAttribute(key)
+      );
+    });
   }
 
   private async insertPatchRow(
@@ -270,18 +278,18 @@ export class PatchDbImplSqlite implements PatchesDb {
   ): Promise<void> {
     for (const key of touchedEntities) {
       const parts = key.split('\0');
-      assert(
+      assert.ok(
         parts.length === 2,
         'Entity key must contain exactly one null separator',
         { key }
       );
       const entityId = parts[0];
-      assertDefined(
+      assert.defined(
         entityId,
         'Entity key must contain exactly one null separator'
       );
       const entityType = parts[1];
-      assertDefined(
+      assert.defined(
         entityType,
         'Entity key must contain exactly one null separator'
       );
@@ -290,7 +298,7 @@ export class PatchDbImplSqlite implements PatchesDb {
   }
 
   async write(patches: PatchInput[]): Promise<Patch[]> {
-    this.validatePatchInputs(patches);
+    this.assertPatchInputs(patches);
     const writtenPatches: Patch[] = [];
     await this.sqlClient.transaction(async (tx) => {
       const touchedEntities = new Set<string>();
@@ -389,14 +397,14 @@ export class PatchDbImplSqlite implements PatchesDb {
     const entities: Entity[] = [];
     for (const key of entityKeysOrdered) {
       const parts = key.split('\0');
-      assert(
+      assert.ok(
         parts.length === 2,
         'Entity key must contain exactly one null separator',
         { key }
       );
       const entityId = parts[0];
       const entityType = parts[1];
-      assert(
+      assert.ok(
         entityId !== null &&
           entityId !== undefined &&
           entityType !== null &&
@@ -481,11 +489,11 @@ export class PatchDbImplSqlite implements PatchesDb {
         'SELECT entity_id, entity_type, patch_id FROM patches WHERE patch_id = ?',
         [query.after]
       );
-      assert(cursorRows.length > 0, 'Cursor patch not found', {
+      assert.ok(cursorRows.length > 0, 'Cursor patch not found', {
         after: query.after,
       });
       const c = cursorRows[0];
-      assert(c !== null && c !== undefined, 'cursorRows[0] must exist', {
+      assert.ok(c !== null && c !== undefined, 'cursorRows[0] must exist', {
         after: query.after,
       });
       const depthRows = await this.sqlClient.query<{ depth: number }>(
@@ -559,14 +567,14 @@ export class PatchDbImplSqlite implements PatchesDb {
     const entities: Entity[] = [];
     for (const key of entityKeysOrdered) {
       const parts = key.split('\0');
-      assert(
+      assert.ok(
         parts.length === 2,
         'Entity key must contain exactly one null separator',
         { key }
       );
       const entityId = parts[0];
       const entityType = parts[1];
-      assert(
+      assert.ok(
         entityId !== null &&
           entityId !== undefined &&
           entityType !== null &&

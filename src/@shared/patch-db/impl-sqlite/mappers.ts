@@ -1,4 +1,4 @@
-import { assert } from '../../assert';
+import { Assert, assert } from '../../assert';
 import {
   getPatchTopLevelFromAttributes,
   isValidAttribute,
@@ -21,18 +21,19 @@ function filterValidAttributes(
 /** Parses attributes JSON with contextual error on failure. Use at DB read boundary. */
 export function parseAttributes(
   json: string,
-  context: Record<string, unknown>
+  context: Record<string, unknown>,
+  a: Assert = assert
 ): Record<string, unknown> {
   try {
     const parsed = JSON.parse(json);
-    assert(
-      parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed),
-      'attributes must parse to object',
-      { ...context, parsed }
-    );
-    return parsed as Record<string, unknown>;
+    a.record(parsed, 'attributes must parse to object');
+    return parsed;
   } catch (err) {
-    assert(false, 'Invalid JSON in attributes', { ...context, raw: json, parseError: err });
+    a.ok(false, 'Invalid JSON in attributes', {
+      ...context,
+      raw: json,
+      parseError: err,
+    });
   }
 }
 

@@ -7,10 +7,19 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
+import { assert } from '@/@shared/assert';
 import { ConfigContainerProvider } from '@/@shared/config/config-container';
+import { polyfill } from '@/@shared/polyfill';
 import { ThemeProvider as AppThemeProvider } from '@/@shared/theme';
 import { PatchBootstrap } from '@/components/patch-bootstrap';
 import { useColorScheme } from '../hooks/use-color-scheme';
+
+polyfill();
+
+assert.notThrows(
+  () => crypto.randomUUID(),
+  'crypto.randomUUID must be available'
+);
 
 export const unstable_settings = {
   anchor: '(tabs)',

@@ -1,5 +1,5 @@
-import { fireAndForget } from '../../async/fire-and-forget';
 import { assert } from '../../assert';
+import { fireAndForget } from '../../async/fire-and-forget';
 import type { PubSub, Unsubscribe } from '../../pub-sub/interface';
 import type {
   Patch,
@@ -118,7 +118,7 @@ export class SyncPatchesDb implements PatchesDb {
 
     const notify = async () => {
       const [result] = await this.local.read([query]);
-      assert(
+      assert.ok(
         result !== null && result !== undefined,
         'read([query]) must return one result'
       );
@@ -203,7 +203,7 @@ export class SyncPatchesDb implements PatchesDb {
           },
         },
       ]);
-      assert(
+      assert.ok(
         result !== null && result !== undefined,
         'read([query]) must return one result'
       );
@@ -242,7 +242,7 @@ export class SyncPatchesDb implements PatchesDb {
     for (const { query } of entries) {
       const { limit, offset, ...queryWithoutPagination } = query;
       const [localResult] = await this.local.read([queryWithoutPagination]);
-      assert(
+      assert.ok(
         localResult !== null && localResult !== undefined,
         'read([query]) must return one result'
       );
@@ -264,7 +264,7 @@ export class SyncPatchesDb implements PatchesDb {
           const [trackedResult] = await this.local.read([
             { entityType: query.entityType, entityId: entityIds },
           ]);
-          assert(
+          assert.ok(
             trackedResult !== null && trackedResult !== undefined,
             'read([query]) must return one result'
           );

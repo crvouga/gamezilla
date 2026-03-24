@@ -1,6 +1,6 @@
-import { assertDefined } from '@/@shared/assert';
+import { assert } from '@/@shared/assert';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import type { Patch, PatchesDbQuery } from '../interface';
+import { assertEntity, type Patch, type PatchesDbQuery } from '../interface';
 import { createSyncDbFactory } from './test-helpers';
 
 const PUSH_WAIT_MS = 100;
@@ -44,10 +44,10 @@ describe('SyncPatchesDb', () => {
       { entityType: 'todoList', entityId: listId },
     ]);
     const remoteResult = remoteResults[0];
-    assertDefined(remoteResult, 'remoteResult must be defined');
+    assert.defined(remoteResult, 'remoteResult must be defined');
     expect(remoteResult.patches).toHaveLength(1);
     const patch = remoteResult.patches[0];
-    assertDefined(patch, 'patch must be defined');
+    assert.defined(patch, 'patch must be defined');
     expect(patch.attributes).toMatchObject({
       'todoList/name': 'My List',
       'todoList/order': 0,
@@ -84,17 +84,15 @@ describe('SyncPatchesDb', () => {
       { entityType: 'todoList', entityId: listId },
     ]);
     const remoteResult = remoteResults[0];
-    assertDefined(remoteResult, 'remoteResult must be defined');
+    assert.defined(remoteResult, 'remoteResult must be defined');
     expect(remoteResult.patches).toHaveLength(2);
     const deletePatch = remoteResult.patches.find(
       (p) =>
         p.attributes &&
         'todoList/deleted' in p.attributes &&
-        (p.attributes as { 'todoList/deleted': boolean })[
-          'todoList/deleted'
-        ] === true
+        p.attributes['todoList/deleted'] === true
     );
-    assertDefined(deletePatch, 'deletePatch must be defined');
+    assert.defined(deletePatch, 'deletePatch must be defined');
     expect(deletePatch.attributes).toMatchObject({ 'todoList/deleted': true });
   });
 
@@ -128,21 +126,21 @@ describe('SyncPatchesDb', () => {
       { entityType: 'todoList', entityId: listId1 },
     ]);
     const r1 = r1Results[0];
-    assertDefined(r1, 'r1 must be defined');
+    assert.defined(r1, 'r1 must be defined');
     const r2Results = await syncDb.remote.read([
       { entityType: 'todoList', entityId: listId2 },
     ]);
     const r2 = r2Results[0];
-    assertDefined(r2, 'r2 must be defined');
+    assert.defined(r2, 'r2 must be defined');
     expect(r1.patches).toHaveLength(1);
     expect(r2.patches).toHaveLength(1);
     const r1Patch = r1.patches[0];
-    assertDefined(r1Patch, 'r1Patch must be defined');
+    assert.defined(r1Patch, 'r1Patch must be defined');
     expect(r1Patch.attributes).toMatchObject({
       'todoList/name': 'List 1',
     });
     const r2Patch = r2.patches[0];
-    assertDefined(r2Patch, 'r2Patch must be defined');
+    assert.defined(r2Patch, 'r2Patch must be defined');
     expect(r2Patch.attributes).toMatchObject({
       'todoList/name': 'List 2',
     });
@@ -176,10 +174,8 @@ describe('SyncPatchesDb', () => {
     unsub();
 
     expect(received.length).toBeGreaterThanOrEqual(1);
-    const last = received[received.length - 1] as {
-      entityId: string;
-      attributes: Record<string, unknown>;
-    }[];
+    const last = received[received.length - 1];
+    assert.all(last, assertEntity);
     expect(
       last.some(
         (e) =>
@@ -243,9 +239,9 @@ describe('SyncPatchesDb', () => {
       { entityType: 'todoList', entityId: listId },
     ]);
     const entitiesResult = entitiesResults[0];
-    assertDefined(entitiesResult, 'entitiesResult must be defined');
+    assert.defined(entitiesResult, 'entitiesResult must be defined');
     const entity = entitiesResult.entities[0];
-    assertDefined(entity, 'entity must be defined');
+    assert.defined(entity, 'entity must be defined');
     expect(entity).toBeDefined();
     expect(entity?.attributes?.['todoList/deleted']).toBe(true);
   });
@@ -259,7 +255,7 @@ describe('SyncPatchesDb', () => {
       { entityId, entityType, attributes: { 'task/title': 'Root' } },
     ]);
     const rootPatch = rootWritten[0];
-    assertDefined(rootPatch, 'rootPatch must be defined');
+    assert.defined(rootPatch, 'rootPatch must be defined');
 
     // 2. Subscribe so the sync engine registers an active query, then poll
     const unsub = syncDb.syncDb.subscribe.entities(
@@ -272,7 +268,7 @@ describe('SyncPatchesDb', () => {
     // Verify client got the root patch
     const localResults = await syncDb.local.read([{ entityType, entityId }]);
     const localAfterFirstPoll = localResults[0];
-    assertDefined(localAfterFirstPoll, 'localAfterFirstPoll must be defined');
+    assert.defined(localAfterFirstPoll, 'localAfterFirstPoll must be defined');
     expect(localAfterFirstPoll.patches).toHaveLength(1);
 
     // 3. Client writes a local patch (depth 1, parent = root)
@@ -280,7 +276,7 @@ describe('SyncPatchesDb', () => {
       { entityId, entityType, attributes: { 'task/status': 'in-progress' } },
     ]);
     const clientAPatch = clientAWritten[0];
-    assertDefined(clientAPatch, 'clientAPatch must be defined');
+    assert.defined(clientAPatch, 'clientAPatch must be defined');
 
     // Wait for push timer to sync it to remote
     await new Promise((r) => setTimeout(r, 100));
@@ -288,7 +284,7 @@ describe('SyncPatchesDb', () => {
       { entityType, entityId },
     ]);
     const remoteAfterPush = remoteAfterPushResults[0];
-    assertDefined(remoteAfterPush, 'remoteAfterPush must be defined');
+    assert.defined(remoteAfterPush, 'remoteAfterPush must be defined');
     expect(remoteAfterPush.patches).toHaveLength(2);
 
     // 4. Another client writes a sibling patch directly to remote (same parent,
@@ -316,7 +312,7 @@ describe('SyncPatchesDb', () => {
       { entityType, entityId },
     ]);
     const remoteAll = remoteAllResults[0];
-    assertDefined(remoteAll, 'remoteAll must be defined');
+    assert.defined(remoteAll, 'remoteAll must be defined');
     expect(remoteAll.patches).toHaveLength(3);
 
     // 5. Client polls again — should bring in the sibling patch
@@ -328,7 +324,7 @@ describe('SyncPatchesDb', () => {
       { entityType, entityId },
     ]);
     const finalLocal = finalLocalResults[0];
-    assertDefined(finalLocal, 'finalLocal must be defined');
+    assert.defined(finalLocal, 'finalLocal must be defined');
     unsub();
 
     const hasSiblingPatch = finalLocal.patches.some(

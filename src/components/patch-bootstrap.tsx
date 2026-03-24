@@ -25,7 +25,7 @@ export function PatchBootstrap({ children }: { children: ReactNode }) {
   const [container, setContainer] = useState<Container | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const rawContainer = useContainer();
-  assert(
+  assert.ok(
     rawContainer instanceof DependencyInjectionContainer,
     'PatchBootstrap must be rendered inside ConfigContainerProvider'
   );

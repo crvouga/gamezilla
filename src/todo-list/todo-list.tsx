@@ -1,3 +1,4 @@
+import { assert } from '@/@shared/assert';
 import { Entity } from '@/@shared/patch-db/interface';
 import { useEntities, useEntity, usePatchesDb } from '@/@shared/patch-db/react';
 import { useTheme } from '@/@shared/theme';
@@ -10,6 +11,11 @@ import {
   Pressable,
   TextInput,
 } from 'react-native';
+
+assert.notThrows(
+  () => crypto.randomUUID(),
+  'crypto.randomUUID must be available'
+);
 
 const DELETED_CLAUSE = {
   type: 'or' as const,

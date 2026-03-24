@@ -1,4 +1,5 @@
 import { Database, type SQLQueryBindings } from 'bun:sqlite';
+import { assert } from '../assert';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
 
 export class SqlClientImplBunSqlite implements SqlClient {
@@ -9,12 +10,22 @@ export class SqlClientImplBunSqlite implements SqlClient {
     return new SqlClientImplBunSqlite(db);
   }
 
-  connect(): Promise<void> {
-    return Promise.resolve();
+  async connect(): Promise<void> {
+    try {
+      this.db.query('SELECT 1').get();
+      return Promise.resolve();
+    } catch (err) {
+      assert.ok(false, 'Database connection failed', { error: err });
+    }
   }
 
   disconnect(): Promise<void> {
-    return Promise.resolve(this.db.close());
+    try {
+      this.db.close(true);
+      return Promise.resolve();
+    } catch (err) {
+      assert.ok(false, 'Database disconnection failed', { error: err });
+    }
   }
 
   query<T = Record<string, unknown>>(

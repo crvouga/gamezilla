@@ -3,8 +3,8 @@
  * within the same process. Exposes wipe() to reset the database for fast test reuse.
  */
 
-import { assert } from '../assert';
 import { SQL } from 'bun';
+import { assert } from '../assert';
 import type { PostgresConfig, StartedPostgres } from './postgres-container';
 import { startPostgresContainer } from './postgres-container';
 
@@ -53,7 +53,7 @@ export async function getPostgresTestInstance(
   }
 
   const inst = instance;
-  assert(inst !== null && inst !== undefined, 'instance must be set');
+  assert.ok(inst !== null && inst !== undefined, 'instance must be set');
   return {
     connectionUrl: inst.connectionUrl,
     config: inst.config,

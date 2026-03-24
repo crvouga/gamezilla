@@ -4,7 +4,7 @@
  */
 
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
-import { assertDefined } from '../assert';
+import { assert } from '../assert';
 import type { ColorScheme, ColorTokens } from './colors';
 import { defaultColors } from './colors';
 import { fonts } from './fonts';
@@ -51,6 +51,6 @@ export function ThemeProvider({
 
 export function useTheme(): Theme {
   const ctx = useContext(ThemeContext);
-  assertDefined(ctx, 'ThemeContext must be defined');
+  assert.defined(ctx, 'ThemeContext must be defined');
   return ctx;
 }

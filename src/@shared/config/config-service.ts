@@ -16,7 +16,11 @@ type PublicConfig = Record<IStage, Record<string, string>>;
 function createConfigService(): ConfigService {
   const stage: IStage = Stage.TRUE ?? 'local';
   const config = (publicConfig as PublicConfig)[stage];
-  assert(config !== null && config !== undefined, 'No config found for stage', { stage });
+  assert.ok(
+    config !== null && config !== undefined,
+    'No config found for stage',
+    { stage }
+  );
 
   return {
     getString(key: string): string {

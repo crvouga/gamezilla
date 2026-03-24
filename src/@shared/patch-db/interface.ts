@@ -1,4 +1,4 @@
-import { assert } from '../assert';
+import { Assert, assert } from '../assert';
 
 export type AttributeKey = `${string}/${string}`;
 
@@ -8,6 +8,44 @@ export type PatchInput = {
   attributes: Record<AttributeKey, unknown>;
 };
 
+export function assertPatchInput(
+  a: Assert,
+  p: unknown
+): asserts p is PatchInput {
+  a.record(p, 'Each patch must be an object');
+  a.field(p, 'entityId', 'patch.entityId must be string');
+  a.field(p, 'entityType', 'patch.entityType must be string');
+  assertEntityKey(p['entityId'], p['entityType'], a);
+  if (p['patchId'] !== undefined) {
+    assertPatchId(p['patchId'], a);
+  }
+  a.record(p['attributes'], 'patch.attributes must be object');
+  for (const key of Object.keys(p['attributes'] as Record<string, unknown>)) {
+    assertAttribute(key, a);
+  }
+  const patch = p as Record<string, unknown>;
+  a.string(patch['entityId'], 'patch.entityId must be string');
+  a.string(patch['entityType'], 'patch.entityType must be string');
+  assertEntityKey(patch['entityId'], patch['entityType'], a);
+  if (
+    patch['patchId'] !== undefined &&
+    patch['patchId'] !== null &&
+    typeof patch['patchId'] === 'string'
+  ) {
+    assertPatchId(patch['patchId'], a);
+  }
+  a.ok(
+    patch['attributes'] !== null &&
+      typeof patch['attributes'] === 'object' &&
+      !Array.isArray(patch['attributes']),
+    'patch.attributes must be object'
+  );
+  const attrs = patch['attributes'] as Record<string, unknown>;
+  for (const key of Object.keys(attrs)) {
+    assertAttribute(key, a);
+  }
+}
+
 export type Patch = PatchInput & {
   patchId: string;
   parentId: string | null;
@@ -16,6 +54,13 @@ export type Patch = PatchInput & {
   createdBy: string;
   sessionId: string;
 };
+
+export function assertPatch(a: Assert, p: unknown): asserts p is Patch {
+  assertPatchInput(a, p);
+  a.field(p, 'patchId', 'patch.patchId must be string');
+  a.field(p, 'parentId', 'patch.parentId must be string or null');
+  a.field(p, 'createdAt', 'patch.createdAt must be string');
+}
 
 /** Attribute keys for patch metadata. Excluded from entity snapshots by implementations. */
 export const PATCH_META_KEYS: readonly string[] = [
@@ -86,6 +131,16 @@ export type Entity = {
   attributes: Record<string, unknown>;
 };
 
+export function assertEntity(
+  e: unknown,
+  a: Assert = assert
+): asserts e is Entity {
+  a.record(e, 'Each entity must be an object');
+  a.field(e, 'entityId', 'entity.entityId must be string');
+  a.field(e, 'entityType', 'entity.entityType must be string');
+  assertEntityKey(e['entityId'], e['entityType'], a);
+}
+
 export type Attribute = string & { __brand: 'attribute' };
 
 /** Clojure-style namespaced key; no whitespace allowed. */
@@ -100,19 +155,16 @@ export function isValidAttribute(key: unknown): key is string {
 const ID_MAX_LEN = 1024;
 
 /** Asserts patchId is sufficient for global uniqueness: non-empty, no null bytes, no trim loss, min length. */
-export function assertPatchId(id: unknown): asserts id is string {
-  assert(typeof id === 'string', 'patchId must be string', { id });
-  assert(id.length > 0, 'patchId must be non-empty', { id });
-  assert(id.length <= ID_MAX_LEN, 'patchId must not exceed 1024 chars', { id });
-  assert(!id.includes('\0'), 'patchId must not contain null byte', { id });
-  assert(
-    id === id.trim(),
-    'patchId must not have leading/trailing whitespace',
-    {
-      id,
-    }
-  );
-  assert(
+export function assertPatchId(
+  id: unknown,
+  a: Assert = assert
+): asserts id is string {
+  a.string(id, 'patchId must be string');
+  a.ok(id.length > 0, 'patchId must be non-empty');
+  a.ok(id.length <= ID_MAX_LEN, 'patchId must not exceed 1024 chars');
+  a.ok(!id.includes('\0'), 'patchId must not contain null byte');
+  a.ok(id === id.trim(), 'patchId must not have leading/trailing whitespace');
+  a.ok(
     id.length >= 8,
     'patchId must be at least 8 chars for global uniqueness',
     { id }
@@ -120,46 +172,37 @@ export function assertPatchId(id: unknown): asserts id is string {
 }
 
 /** Asserts entityId is sufficient for global uniqueness (with entityType): non-empty, no null bytes, no trim loss. */
-export function assertEntityId(id: unknown): asserts id is string {
-  assert(typeof id === 'string', 'entityId must be string', { id });
-  assert(id.length > 0, 'entityId must be non-empty', { id });
-  assert(id.length <= ID_MAX_LEN, 'entityId must not exceed 1024 chars', {
-    id,
-  });
-  assert(!id.includes('\0'), 'entityId must not contain null byte', { id });
-  assert(
-    id === id.trim(),
-    'entityId must not have leading/trailing whitespace',
-    {
-      id,
-    }
-  );
+export function assertEntityId(
+  id: unknown,
+  a: Assert = assert
+): asserts id is string {
+  a.string(id, 'entityId must be string');
+  a.ok(id.length > 0, 'entityId must be non-empty');
+  a.ok(id.length <= ID_MAX_LEN, 'entityId must not exceed 1024 chars');
+  a.ok(!id.includes('\0'), 'entityId must not contain null byte');
+  a.ok(id === id.trim(), 'entityId must not have leading/trailing whitespace');
 }
 
 /** Asserts entityType is sufficient for global uniqueness (with entityId): non-empty, no null bytes, no trim loss. */
-export function assertEntityType(t: unknown): asserts t is string {
-  assert(typeof t === 'string', 'entityType must be string', { entityType: t });
-  assert(t.length > 0, 'entityType must be non-empty', { entityType: t });
-  assert(t.length <= ID_MAX_LEN, 'entityType must not exceed 1024 chars', {
-    entityType: t,
-  });
-  assert(!t.includes('\0'), 'entityType must not contain null byte', {
-    entityType: t,
-  });
-  assert(
-    t === t.trim(),
-    'entityType must not have leading/trailing whitespace',
-    { entityType: t }
-  );
+export function assertEntityType(
+  t: unknown,
+  a: Assert = assert
+): asserts t is string {
+  a.string(t, 'entityType must be string');
+  a.ok(t.length > 0, 'entityType must be non-empty');
+  a.ok(t.length <= ID_MAX_LEN, 'entityType must not exceed 1024 chars');
+  a.ok(!t.includes('\0'), 'entityType must not contain null byte');
+  a.ok(t === t.trim(), 'entityType must not have leading/trailing whitespace');
 }
 
 /** Asserts entity key (entityId + entityType) is sufficient for global uniqueness. */
 export function assertEntityKey(
   entityId: unknown,
-  entityType: unknown
+  entityType: unknown,
+  a?: Assert
 ): asserts entityId is string {
-  assertEntityId(entityId);
-  assertEntityType(entityType);
+  assertEntityId(entityId, a);
+  assertEntityType(entityType, a);
 }
 /**
  * Sanitizes an attribute name to ensure it follows Clojure-style namespaced key conventions.
@@ -168,20 +211,13 @@ export function assertEntityKey(
  * @returns The sanitized attribute.
  */
 export function assertAttribute(
-  attribute: unknown
+  attribute: unknown,
+  a: Assert = assert
 ): asserts attribute is string {
-  assert(
-    typeof attribute === 'string',
-    'Invalid attribute name — must be a string'
-  );
-  assert(
+  a.string(attribute, 'Invalid attribute name — must be a string');
+  a.ok(
     ATTRIBUTE_REGEX.test(attribute),
-    'Invalid attribute name — must be a Clojure-style namespaced key',
-    {
-      attribute,
-      expected:
-        "Clojure-style namespaced key (e.g. 'todo/title', 'patch/syncedAt')",
-    }
+    'Invalid attribute name — must be a Clojure-style namespaced key'
   );
 }
 assertAttribute('todo/title');
@@ -189,10 +225,11 @@ assertAttribute('my.namespace/attr');
 assertAttribute('todo.title/sub');
 
 export function assertAttributes(
-  attributes: Record<string, unknown>
+  attributes: Record<string, unknown>,
+  a: Assert = assert
 ): asserts attributes is Record<string, unknown> {
   for (const key of Object.keys(attributes)) {
-    assertAttribute(key);
+    assertAttribute(key, a);
   }
 }
 
@@ -263,6 +300,15 @@ export type PatchesDbQueryWhereClause =
       clause: PatchesDbQueryWhereClause;
     };
 
+export type Direction = 'asc' | 'desc';
+
+export function assertDirection(
+  direction: unknown,
+  a: Assert = assert
+): asserts direction is Direction {
+  a.enum<Direction>(direction, ['asc', 'desc'], 'Invalid direction');
+}
+
 export type PatchesDbQueryOrderBy = {
   attribute: string;
   direction: 'asc' | 'desc';
@@ -279,6 +325,30 @@ export type PatchesDbQuery = {
   knownPatches?: Patch[];
   on?: 'patches' | 'entities';
 };
+
+export function assertQuery(
+  a: Assert,
+  q: unknown
+): asserts q is PatchesDbQuery {
+  a.record(q, 'Each query must be an object');
+  a.field(q, 'entityType', 'query.entityType must be string');
+  a.field(q, 'knownPatches', 'query.knownPatches must be array');
+  a.array(q.knownPatches, 'query.knownPatches must be array');
+  a.ok(q.knownPatches.length > 0, 'query.knownPatches must not be empty');
+  for (const p of q.knownPatches) {
+    assertPatchInput(a, p);
+  }
+  const query = q as Record<string, unknown>;
+  if (query['entityType'] !== undefined) {
+    a.string(query['entityType'], 'query.entityType must be string');
+  }
+  if (query['knownPatches'] !== undefined) {
+    a.array(query['knownPatches'], 'query.knownPatches must be array');
+    for (const p of query['knownPatches'] as unknown[]) {
+      assertPatchInput(a, p);
+    }
+  }
+}
 
 export type PatchesDbResult = {
   query: PatchesDbQuery;

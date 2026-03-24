@@ -33,5 +33,5 @@ export function assertSqliteQuery(query: string): asserts query is string {
 
   const matches = allowedPrefixes.some((prefix) => trimmed.startsWith(prefix));
 
-  assert(matches, 'Invalid SQLite query', { query: trimmed.slice(0, 50) });
+  assert.ok(matches, 'Invalid SQLite query', { query: trimmed.slice(0, 50) });
 }

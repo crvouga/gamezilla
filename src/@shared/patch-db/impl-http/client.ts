@@ -8,7 +8,7 @@ import type {
   PatchesDbResult,
   PatchInput,
 } from '../interface';
-import { validatePatches, validatePatchesDbResults } from '../validate-remote';
+import { assertPatches, assertPatchesDbResults } from '../validate-remote';
 import { PATCHES_EVENTS, PATCHES_READ, PATCHES_WRITE } from './shared';
 
 export type RemoteInvalidationSource = {
@@ -94,20 +94,20 @@ export class PatchDbImplHttp implements PatchesDb {
   async read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
     if (queries.length === 0) return [];
     const raw = await this.postUnvalidated(PATCHES_READ, { queries });
-    validatePatchesDbResults(raw);
+    assertPatchesDbResults(raw);
     return raw;
   }
 
   async write(patches: PatchInput[]): Promise<Patch[]> {
     const raw = await this.postUnvalidated(PATCHES_WRITE, { patches });
-    validatePatches(raw);
+    assertPatches(raw);
     return raw;
   }
 
   async update(
     _updates: { patchId: string; attributes: Record<string, unknown> }[]
   ): Promise<void> {
-    assert(
+    assert.ok(
       false,
       'attribute updates are local-only for sync; remote does not need'
     );

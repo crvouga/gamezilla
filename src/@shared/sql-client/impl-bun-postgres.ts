@@ -1,5 +1,5 @@
-import { assertArray } from '../assert';
 import { SQL } from 'bun';
+import { assert } from '../assert';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
 import { questionMarkParamsToDollarParams } from './positional-params';
 
@@ -59,7 +59,7 @@ function createClient(sql: BunSql): SqlClient {
           params
         );
         const result = await sql.unsafe(pgSql, pgParams);
-        assertArray(
+        assert.array(
           result,
           'Postgres query must return array of rows; driver contract violation'
         );
@@ -87,7 +87,7 @@ function createClient(sql: BunSql): SqlClient {
         params
       );
       const result = await sql.unsafe(pgSql, pgParams);
-      assertArray(
+      assert.array(
         result,
         'Postgres query must return array of rows; driver contract violation'
       );
@@ -140,7 +140,7 @@ function getLastInsertRowid(result: unknown, rows: unknown[]): number {
     if (typeof n === 'bigint') return Number(n);
   }
   const first = rows[0];
-  if ((first !== null && first !== undefined) && isObjectWithKey(first, 'id')) {
+  if (first !== null && first !== undefined && isObjectWithKey(first, 'id')) {
     const id = first.id;
     if (typeof id === 'number') return id;
     if (typeof id === 'bigint') return Number(id);

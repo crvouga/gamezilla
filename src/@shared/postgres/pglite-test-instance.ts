@@ -5,9 +5,9 @@
  * @see https://pglite.dev/docs/pglite-socket
  */
 
-import { assert } from '../assert';
 import { PGlite } from '@electric-sql/pglite';
 import { PGLiteSocketServer } from '@electric-sql/pglite-socket';
+import { assert } from '../assert';
 
 let server: PGLiteSocketServer | null = null;
 let db: PGlite | null = null;
@@ -57,7 +57,10 @@ export async function getPGliteTestInstance(
   }
 
   const url = connectionUrl;
-  assert(url !== null && url !== undefined, 'connectionUrl must be set after server start');
+  assert.ok(
+    url !== null && url !== undefined,
+    'connectionUrl must be set after server start'
+  );
   return {
     connectionUrl: url,
     wipe: () => wipeDatabase(url),

@@ -1,4 +1,4 @@
-import { assertDefined } from '@/@shared/assert';
+import { assert } from '@/@shared/assert';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { PatchesDb } from '../interface';
 import { implementations } from './test-helpers';
@@ -45,20 +45,20 @@ describe.each(implementations)('$name', ({ factory }) => {
 
     const results = await db.read([{ entityType: 'task', entityId: 'e1' }]);
     const result = results[0];
-    assertDefined(result, 'result must be defined');
+    assert.defined(result, 'result must be defined');
     expect(result.patches).toHaveLength(3);
     expect(result.total).toBe(3);
 
     const patch0 = result.patches[0];
-    assertDefined(patch0, 'patch0 must be defined');
+    assert.defined(patch0, 'patch0 must be defined');
     const patch1 = result.patches[1];
-    assertDefined(patch1, 'patch1 must be defined');
+    assert.defined(patch1, 'patch1 must be defined');
     const patch2 = result.patches[2];
-    assertDefined(patch2, 'patch2 must be defined');
+    assert.defined(patch2, 'patch2 must be defined');
     const written0 = written[0];
-    assertDefined(written0, 'written0 must be defined');
+    assert.defined(written0, 'written0 must be defined');
     const written1 = written[1];
-    assertDefined(written1, 'written1 must be defined');
+    assert.defined(written1, 'written1 must be defined');
     expect(patch0.parentId).toBeNull();
     expect(patch1.parentId).toBe(written0.patchId);
     expect(patch2.parentId).toBe(written1.patchId);
@@ -70,7 +70,7 @@ describe.each(implementations)('$name', ({ factory }) => {
 
     expect(result.entities).toHaveLength(1);
     const entity = result.entities[0];
-    assertDefined(entity, 'entity must be defined');
+    assert.defined(entity, 'entity must be defined');
     expect(entity.entityId).toBe('e1');
     expect(entity.entityType).toBe('task');
     expect(entity.attributes['task/title']).toBe('Buy milk');
@@ -90,15 +90,15 @@ describe.each(implementations)('$name', ({ factory }) => {
       { entityType: 'task', entityId: 'e2', limit: 2 },
     ]);
     const page1 = page1Results[0];
-    assertDefined(page1, 'page1 must be defined');
+    assert.defined(page1, 'page1 must be defined');
     expect(page1.patches).toHaveLength(2);
     const page1Last = page1.patches[1];
-    assertDefined(page1Last, 'page1Last must be defined');
+    assert.defined(page1Last, 'page1Last must be defined');
     expect(page1.nextCursor).toBe(page1Last.patchId);
     expect(page1.hasMore).toBe(true);
 
     const page1Cursor = page1.nextCursor;
-    assertDefined(page1Cursor, 'page1Cursor must be defined');
+    assert.defined(page1Cursor, 'page1Cursor must be defined');
     const page2Results = await db.read([
       {
         entityType: 'task',
@@ -108,10 +108,10 @@ describe.each(implementations)('$name', ({ factory }) => {
       },
     ]);
     const page2 = page2Results[0];
-    assertDefined(page2, 'page2 must be defined');
+    assert.defined(page2, 'page2 must be defined');
     expect(page2.patches).toHaveLength(1);
     const page2First = page2.patches[0];
-    assertDefined(page2First, 'page2First must be defined');
+    assert.defined(page2First, 'page2First must be defined');
     expect(page2First.attributes['task/x']).toBe(3);
     expect(page2.nextCursor).toBe(page2First.patchId);
     expect(page2.hasMore).toBe(false);
@@ -123,7 +123,7 @@ describe.each(implementations)('$name', ({ factory }) => {
       { entityId: 'e3', entityType: 'task', attributes: { 'task/a': 2 } },
     ]);
     const p1 = p1Written[0];
-    assertDefined(p1, 'p1 must be defined');
+    assert.defined(p1, 'p1 must be defined');
     const syncedP3 = {
       entityId: 'e3',
       entityType: 'task',
@@ -139,7 +139,7 @@ describe.each(implementations)('$name', ({ factory }) => {
 
     const readResults = await db.read([{ entityType: 'task', entityId: 'e3' }]);
     const result = readResults[0];
-    assertDefined(result, 'result must be defined');
+    assert.defined(result, 'result must be defined');
     const p3Read = result.patches.find((x) => x.patchId === syncedP3.patchId);
     expect(p3Read?.parentId).toBe(p1.patchId);
   });
@@ -158,7 +158,7 @@ describe.each(implementations)('$name', ({ factory }) => {
       },
     ]);
     const createPatch = createWritten[0];
-    assertDefined(createPatch, 'createPatch must be defined');
+    assert.defined(createPatch, 'createPatch must be defined');
     const deleteWritten = await db.write([
       {
         entityId: listId,
@@ -167,7 +167,7 @@ describe.each(implementations)('$name', ({ factory }) => {
       },
     ]);
     const deletePatch = deleteWritten[0];
-    assertDefined(deletePatch, 'deletePatch must be defined');
+    assert.defined(deletePatch, 'deletePatch must be defined');
 
     const unsyncedResults = await db.read([
       {
@@ -179,7 +179,7 @@ describe.each(implementations)('$name', ({ factory }) => {
       },
     ]);
     const result = unsyncedResults[0];
-    assertDefined(result, 'result must be defined');
+    assert.defined(result, 'result must be defined');
     const unsynced = result.patches;
     expect(unsynced).toHaveLength(2);
     expect(unsynced.map((p) => p.patchId)).toContain(createPatch.patchId);
@@ -204,7 +204,7 @@ describe.each(implementations)('$name', ({ factory }) => {
       },
     ]);
     const afterSync = afterSyncResults[0];
-    assertDefined(afterSync, 'afterSync must be defined');
+    assert.defined(afterSync, 'afterSync must be defined');
     expect(afterSync.patches).toHaveLength(0);
   });
 });

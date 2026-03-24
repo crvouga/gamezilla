@@ -1,4 +1,4 @@
-import { assertDefined } from '@/@shared/assert';
+import { assert } from '@/@shared/assert';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { PatchesDb } from '../interface';
 import { implementations, whereClauseFixtures } from './test-helpers';
@@ -25,17 +25,17 @@ describe.each(implementations)('$name', ({ factory }) => {
     test('entities without filter returns all', async () => {
       const results = await db.read([{ entityType: 'item' }]);
       const all = results[0];
-      assertDefined(all, 'all must be defined');
+      assert.defined(all, 'all must be defined');
       expect(all.entities).toHaveLength(4);
     });
 
     test('entityId filter works', async () => {
       const results = await db.read([{ entityType: 'item', entityId: 't1' }]);
       const result = results[0];
-      assertDefined(result, 'result must be defined');
+      assert.defined(result, 'result must be defined');
       expect(result.entities).toHaveLength(1);
       const entity = result.entities[0];
-      assertDefined(entity, 'entity must be defined');
+      assert.defined(entity, 'entity must be defined');
       expect(entity.attributes['item/tag']).toBe('a');
     });
 
@@ -47,7 +47,7 @@ describe.each(implementations)('$name', ({ factory }) => {
         },
       ]);
       const result = results[0];
-      assertDefined(result, 'result must be defined');
+      assert.defined(result, 'result must be defined');
       expect(result.entities).toHaveLength(2);
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t1', 't3']);
@@ -61,7 +61,7 @@ describe.each(implementations)('$name', ({ factory }) => {
         },
       ]);
       const result = results[0];
-      assertDefined(result, 'result must be defined');
+      assert.defined(result, 'result must be defined');
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t2']);
     });
@@ -74,7 +74,7 @@ describe.each(implementations)('$name', ({ factory }) => {
         },
       ]);
       const result = results[0];
-      assertDefined(result, 'result must be defined');
+      assert.defined(result, 'result must be defined');
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t1', 't3']);
     });
@@ -91,7 +91,7 @@ describe.each(implementations)('$name', ({ factory }) => {
         },
       ]);
       const result = results[0];
-      assertDefined(result, 'result must be defined');
+      assert.defined(result, 'result must be defined');
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t2', 't4']);
     });
@@ -104,7 +104,7 @@ describe.each(implementations)('$name', ({ factory }) => {
         },
       ]);
       const result = results[0];
-      assertDefined(result, 'result must be defined');
+      assert.defined(result, 'result must be defined');
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t3', 't4']);
     });
@@ -117,7 +117,7 @@ describe.each(implementations)('$name', ({ factory }) => {
         },
       ]);
       const result = results[0];
-      assertDefined(result, 'result must be defined');
+      assert.defined(result, 'result must be defined');
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t2', 't3', 't4']);
     });
@@ -130,7 +130,7 @@ describe.each(implementations)('$name', ({ factory }) => {
         },
       ]);
       const result = results[0];
-      assertDefined(result, 'result must be defined');
+      assert.defined(result, 'result must be defined');
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t1']);
     });
@@ -143,7 +143,7 @@ describe.each(implementations)('$name', ({ factory }) => {
         },
       ]);
       const result = results[0];
-      assertDefined(result, 'result must be defined');
+      assert.defined(result, 'result must be defined');
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t1', 't2']);
     });
@@ -160,10 +160,10 @@ describe.each(implementations)('$name', ({ factory }) => {
         },
       ]);
       const result = results[0];
-      assertDefined(result, 'result must be defined');
+      assert.defined(result, 'result must be defined');
       expect(result.entities).toHaveLength(1);
       const entity = result.entities[0];
-      assertDefined(entity, 'entity must be defined');
+      assert.defined(entity, 'entity must be defined');
       expect(entity.entityId).toBe('t2');
     });
 
@@ -175,7 +175,7 @@ describe.each(implementations)('$name', ({ factory }) => {
         },
       ]);
       const result = results[0];
-      assertDefined(result, 'result must be defined');
+      assert.defined(result, 'result must be defined');
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t1', 't2', 't3']);
     });
@@ -188,10 +188,10 @@ describe.each(implementations)('$name', ({ factory }) => {
         },
       ]);
       const result = results[0];
-      assertDefined(result, 'result must be defined');
+      assert.defined(result, 'result must be defined');
       expect(result.entities).toHaveLength(1);
       const entity = result.entities[0];
-      assertDefined(entity, 'entity must be defined');
+      assert.defined(entity, 'entity must be defined');
       expect(entity.entityId).toBe('t4');
     });
 
@@ -209,10 +209,10 @@ describe.each(implementations)('$name', ({ factory }) => {
         },
       ]);
       const result = results[0];
-      assertDefined(result, 'result must be defined');
+      assert.defined(result, 'result must be defined');
       expect(result.entities).toHaveLength(1);
       const entity = result.entities[0];
-      assertDefined(entity, 'entity must be defined');
+      assert.defined(entity, 'entity must be defined');
       expect(entity.entityId).toBe('t3');
     });
 
@@ -230,7 +230,7 @@ describe.each(implementations)('$name', ({ factory }) => {
         },
       ]);
       const result = results[0];
-      assertDefined(result, 'result must be defined');
+      assert.defined(result, 'result must be defined');
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t1', 't4']);
     });
@@ -246,7 +246,7 @@ describe.each(implementations)('$name', ({ factory }) => {
         },
       ]);
       const result = results[0];
-      assertDefined(result, 'result must be defined');
+      assert.defined(result, 'result must be defined');
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t2']);
     });
@@ -268,7 +268,7 @@ describe.each(implementations)('$name', ({ factory }) => {
         },
       ]);
       const result = results[0];
-      assertDefined(result, 'result must be defined');
+      assert.defined(result, 'result must be defined');
       const ids = result.entities.map((e) => e.entityId).sort();
       expect(ids).toEqual(['t2', 't4']);
     });

@@ -57,7 +57,10 @@ export class SubscribablePatchesDb implements PatchesDb {
     ): Unsubscribe => {
       const notify = async () => {
         const [result] = await this.db.read([query]);
-        assert(result !== null && result !== undefined, 'read([query]) must return one result');
+        assert.ok(
+          result !== null && result !== undefined,
+          'read([query]) must return one result'
+        );
         listener(result);
       };
       void notify();
@@ -69,7 +72,10 @@ export class SubscribablePatchesDb implements PatchesDb {
     ): Unsubscribe => {
       const notify = async () => {
         const [result] = await this.db.read([query]);
-        assert(result !== null && result !== undefined, 'read([query]) must return one result');
+        assert.ok(
+          result !== null && result !== undefined,
+          'read([query]) must return one result'
+        );
         listener(result);
       };
       void notify();
