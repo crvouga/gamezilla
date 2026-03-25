@@ -9,9 +9,10 @@ registerTwoClientSimHooks();
 describe('SyncPatchesDb (deterministic sim, multi-client)', () => {
   test('multi-client: second client polls after first pushes', async () => {
     const sim = getTwoClientSim();
-    sim.setRecordingMeta({
+    sim.setMeta({
       title: 'Multi-client: B receives A’s data after poll',
-      intent: 'Second client merges remote patches created by the first client.',
+      intent:
+        'Second client merges remote patches created by the first client.',
       source: {
         testFile: VIZ_FILE,
         testName: 'multi-client: second client polls after first pushes',
@@ -47,7 +48,7 @@ describe('SyncPatchesDb (deterministic sim, multi-client)', () => {
 
   test('multi-client: each client sees lists created by the other after poll', async () => {
     const sim = getTwoClientSim();
-    sim.setRecordingMeta({
+    sim.setMeta({
       title: 'Multi-client: cross visibility after push + poll',
       intent: 'Each peer’s writes appear in the other’s list query after sync.',
       source: {

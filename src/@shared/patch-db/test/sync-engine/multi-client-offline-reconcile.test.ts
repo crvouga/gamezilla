@@ -9,14 +9,16 @@ registerTwoClientSimHooks();
 describe('SyncPatchesDb (deterministic sim, multi-client offline)', () => {
   test('offline client diverges then reconciles with server and peer', async () => {
     const sim = getTwoClientSim();
-    sim.setRecordingMeta({
+    sim.setMeta({
       title: 'Offline client: partition, divergent edits, reconcile',
-      intent: 'After heal, push/poll merge server + peer changes; attribute conflicts resolve consistently.',
+      intent:
+        'After heal, push/poll merge server + peer changes; attribute conflicts resolve consistently.',
       description:
         'B partitions while A continues online; both edit shared entity; reconcile restores full entity set and merged attributes.',
       source: {
         testFile: VIZ_FILE,
-        testName: 'offline client diverges then reconciles with server and peer',
+        testName:
+          'offline client diverges then reconciles with server and peer',
       },
     });
     const a = sim.client('a');

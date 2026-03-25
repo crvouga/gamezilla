@@ -23,12 +23,13 @@ describe('patch-db deterministic simulation', () => {
       .server('s', { useSyncHost: true })
       .client('c', { server: 's' })
       .build();
-    sim.setRecordingMeta({
+    sim.setMeta({
       title: 'Sync host: merge-on-read after parallel server write',
       intent:
         'With useSyncHost, client poll sees server-side patches merged with local lineage.',
       source: {
-        testName: 'server useSyncHost: poll after push merges server-side patches',
+        testName:
+          'server useSyncHost: poll after push merges server-side patches',
       },
     });
     const srv = sim.server('s');

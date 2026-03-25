@@ -8,9 +8,10 @@ registerSyncEngineHooks();
 describe('SyncPatchesDb (deterministic sim)', () => {
   test('subscribe: same query stays live with one of two subscribers unsubscribed', async () => {
     const sim = getSim();
-    sim.setRecordingMeta({
+    sim.setMeta({
       title: 'Subscribe: query stays live after one subscriber leaves',
-      intent: 'Ref-counted subscription: remote updates still reach client with one active listener.',
+      intent:
+        'Ref-counted subscription: remote updates still reach client with one active listener.',
       source: {
         testFile: VIZ_FILE,
         testName:
@@ -58,9 +59,10 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
   test('subscribe.patches mirrors entities for sync lifecycle', async () => {
     const sim = getSim();
-    sim.setRecordingMeta({
+    sim.setMeta({
       title: 'Subscribe: patches stream fires after poll',
-      intent: 'subscribe.patches receives updates when merged patches arrive from poll.',
+      intent:
+        'subscribe.patches receives updates when merged patches arrive from poll.',
       source: {
         testFile: VIZ_FILE,
         testName: 'subscribe.patches mirrors entities for sync lifecycle',

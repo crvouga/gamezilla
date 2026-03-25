@@ -154,11 +154,11 @@
       if (!snapshot) return { entities: [], nodeIds: [], nodeLabels: {} };
       const nodeMap = {}, nodeIds = [], nodeLabels = {};
       for (const s of snapshot.servers) {
-        const nid = 's:' + s.id; nodeIds.push(nid); nodeLabels[nid] = 'Cloud ' + s.id;
+        const nid = 's:' + s.id; nodeIds.push(nid); nodeLabels[nid] = 'server:' + s.id;
         const m = {}; for (const r of s.rows) m[r.entityId] = { type: r.entityType, attrs: new Set(r.attrs) }; nodeMap[nid] = m;
       }
       for (const c of snapshot.clients) {
-        const nid = 'c:' + c.id; nodeIds.push(nid); nodeLabels[nid] = 'Device ' + c.id;
+        const nid = 'c:' + c.id; nodeIds.push(nid); nodeLabels[nid] = 'client:' + c.id;
         const m = {}; for (const r of c.rows) m[r.entityId] = { type: r.entityType, attrs: new Set(r.attrs) }; nodeMap[nid] = m;
       }
       const allEntityIds = new Set();
@@ -225,26 +225,26 @@
     function story(e) {
       if (!e) return '';
       const m = {
-        topology: 'Network topology established.',
-        client_write: () => `Device "${e.clientId}" saves ${e.patchCount} change${e.patchCount===1?'':'s'} locally.`,
-        server_write: () => `Cloud stores ${e.patchCount} new change${e.patchCount===1?'':'s'}.`,
-        push_start: () => `Device "${e.clientId}" begins sending changes to the cloud.`,
-        push_success: () => `Device "${e.clientId}" sent changes \u2014 cloud is updated.`,
-        push_fail: () => `Send failed for "${e.clientId}".`,
-        poll_start: () => `Device "${e.clientId}" checks the cloud for updates.`,
-        poll_success: () => `Device "${e.clientId}" received latest data.`,
-        poll_fail: () => `Update check failed for "${e.clientId}".`,
-        network_op: () => e.phase==='begin' ? `${e.op==='write'?'Uploading':'Downloading'} data\u2026` : (e.ok===false ? 'Network error.' : 'Network operation complete.'),
-        remote_read: () => `Data flows from cloud to device "${e.clientId}".`,
-        remote_write: () => `Data flows from device "${e.clientId}" to cloud.`,
-        partition: () => `Device "${e.clientId}" goes offline.`,
-        heal: () => `Device "${e.clientId}" reconnects.`,
-        invalidation_scheduled: () => `Cloud prepares to notify "${e.clientId}".`,
-        invalidation_delivered: () => `Cloud notifies "${e.clientId}": new data available.`,
-        invalidation_dropped: () => `Notification to "${e.clientId}" lost \u2014 offline.`,
-        subscribe: () => `Device "${e.clientId}" starts listening.`,
-        unsubscribe: () => `Device "${e.clientId}" stops listening.`,
-        sync_error: () => `Sync error on "${e.clientId}".`,
+        topology: 'topology \u2014 network initialized.',
+        client_write: () => `client_write \u2014 client:${e.clientId} writes ${e.patchCount} patch${e.patchCount===1?'':'es'} locally.`,
+        server_write: () => `server_write \u2014 server:${e.serverId} writes ${e.patchCount} patch${e.patchCount===1?'':'es'}.`,
+        push_start: () => `push_start \u2014 client:${e.clientId} pushes patches to server.`,
+        push_success: () => `push_success \u2014 client:${e.clientId} push completed.`,
+        push_fail: () => `push_fail \u2014 client:${e.clientId} push rejected.`,
+        poll_start: () => `poll_start \u2014 client:${e.clientId} polls server for changes.`,
+        poll_success: () => `poll_success \u2014 client:${e.clientId} poll completed.`,
+        poll_fail: () => `poll_fail \u2014 client:${e.clientId} poll rejected.`,
+        network_op: () => `network_op ${e.op} ${e.phase} \u2014 client:${e.clientId}` + (e.phase==='end' && e.ok===false ? ' (error)' : ''),
+        remote_read: () => `remote_read \u2014 server \u2192 client:${e.clientId} (${(e.results||[]).reduce((s,r)=>s+r.entityCount,0)} entities, ${(e.results||[]).reduce((s,r)=>s+r.patchCount,0)} patches).`,
+        remote_write: () => `remote_write \u2014 client:${e.clientId} \u2192 server (${e.returnedPatchCount} patch${e.returnedPatchCount===1?'':'es'}).`,
+        partition: () => `partition \u2014 client:${e.clientId} partitioned from server.`,
+        heal: () => `heal \u2014 client:${e.clientId} partition healed.`,
+        invalidation_scheduled: () => `invalidation_scheduled \u2014 server schedules invalidation for client:${e.clientId}.`,
+        invalidation_delivered: () => `invalidation_delivered \u2014 invalidation reaches client:${e.clientId}.`,
+        invalidation_dropped: () => `invalidation_dropped \u2014 client:${e.clientId} (${e.reason}).`,
+        subscribe: () => `subscribe \u2014 client:${e.clientId} subscribes (${e.mode}).`,
+        unsubscribe: () => `unsubscribe \u2014 client:${e.clientId} unsubscribes (${e.mode}).`,
+        sync_error: () => `sync_error \u2014 client:${e.clientId} (${e.source}).`,
       };
       const fn = m[e.type];
       return typeof fn === 'function' ? fn() : (fn || e.type);
@@ -252,14 +252,14 @@
     function shortDesc(e) {
       if (!e) return '';
       const m = {
-        client_write: `${e.clientId} write(${e.patchCount})`, server_write: `srv write(${e.patchCount})`,
-        push_start: `${e.clientId} push`, push_success: `${e.clientId} push ok`, push_fail: `${e.clientId} push fail`,
-        poll_start: `${e.clientId} poll`, poll_success: `${e.clientId} poll ok`, poll_fail: `${e.clientId} poll fail`,
-        network_op: `net ${e.op} ${e.phase}`, remote_read: `${e.clientId} \u2190 read`, remote_write: `${e.clientId} \u2192 write`,
-        partition: `${e.clientId} offline`, heal: `${e.clientId} online`,
-        invalidation_scheduled: `inv sched`, invalidation_delivered: `${e.clientId} \u2190 inv`,
-        invalidation_dropped: `inv lost`, subscribe: `${e.clientId} sub`, unsubscribe: `${e.clientId} unsub`,
-        sync_error: `${e.clientId} err`, topology: 'topology',
+        client_write: `client_write ${e.clientId} (${e.patchCount})`, server_write: `server_write ${e.serverId} (${e.patchCount})`,
+        push_start: `push_start ${e.clientId}`, push_success: `push_success ${e.clientId}`, push_fail: `push_fail ${e.clientId}`,
+        poll_start: `poll_start ${e.clientId}`, poll_success: `poll_success ${e.clientId}`, poll_fail: `poll_fail ${e.clientId}`,
+        network_op: `network_op ${e.op} ${e.phase}`, remote_read: `remote_read ${e.clientId}`, remote_write: `remote_write ${e.clientId}`,
+        partition: `partition ${e.clientId}`, heal: `heal ${e.clientId}`,
+        invalidation_scheduled: `invalidation_scheduled ${e.clientId}`, invalidation_delivered: `invalidation_delivered ${e.clientId}`,
+        invalidation_dropped: `invalidation_dropped ${e.clientId}`, subscribe: `subscribe ${e.clientId}`, unsubscribe: `unsubscribe ${e.clientId}`,
+        sync_error: `sync_error ${e.clientId}`, topology: 'topology',
       };
       return m[e.type] || e.type;
     }
@@ -333,26 +333,26 @@
       const pp = pktParams(ev);
 
       switch (ev.type) {
-        case 'client_write': { const p=layout.pos['c:'+ev.clientId]; if(!p) break; ring(tl,layer,p.x,p.y,C.blue,24,52,0,0.45); ring(tl,layer,p.x,p.y,C.blue,24,40,0.06,0.38); lbl(tl,layer,p.x,p.y-46,'Saved locally',C.blue,0.02); break; }
-        case 'server_write': { const p=layout.pos['s:'+ev.serverId]; if(!p) break; ring(tl,layer,p.x,p.y,C.yellow,28,54,0,0.45); ring(tl,layer,p.x,p.y,C.yellow,28,42,0.06,0.38); lbl(tl,layer,p.x,p.y-50,'Stored on cloud',C.yellow,0.02); break; }
-        case 'push_start': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.cPos.x,e.cPos.y,C.orange,24,38,0,0.3); pkts(tl,layer,e.cPos,e.ctrl,e.sPos,C.orange,pp.dots,pp.baseR,0.03,0.4); edgeFlash(tl,layer,e.d,C.orange,0,0.45); lbl(tl,layer,e.mid.x,e.mid.y-10,'Sending \u2192',C.orange,0.03); break; }
-        case 'push_success': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.sPos.x,e.sPos.y,C.green,28,52,0,0.4); edgeFlash(tl,layer,e.d,C.green,0,0.28); chk(tl,layer,e.sPos.x,e.sPos.y-42,C.green,0.04); lbl(tl,layer,e.sPos.x,e.sPos.y-52,'Received',C.green,0); break; }
-        case 'push_fail': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.cPos.x,e.cPos.y,C.red,24,48,0,0.5); edgeFlash(tl,layer,e.d,C.red,0,0.38); xMk(tl,layer,e.mid.x,e.mid.y,0.04); lbl(tl,layer,e.mid.x,e.mid.y-14,'Send failed',C.red,0.02); break; }
-        case 'poll_start': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.cPos.x,e.cPos.y,C.teal,24,36,0,0.3); pkts(tl,layer,e.cPos,e.ctrl,e.sPos,C.teal,2,3.5,0.03,0.32); edgeFlash(tl,layer,e.d,C.teal,0,0.35); lbl(tl,layer,e.mid.x,e.mid.y-10,'Checking \u2192',C.teal,0.03); break; }
-        case 'poll_success': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.cPos.x,e.cPos.y,C.green,24,50,0,0.4); edgeFlash(tl,layer,e.d,C.green,0,0.28); chk(tl,layer,e.cPos.x,e.cPos.y-38,C.green,0.04); lbl(tl,layer,e.cPos.x,e.cPos.y-48,'Up to date',C.green,0); break; }
-        case 'poll_fail': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.cPos.x,e.cPos.y,C.red,24,46,0,0.5); edgeFlash(tl,layer,e.d,C.red,0,0.38); xMk(tl,layer,e.mid.x,e.mid.y,0.04); lbl(tl,layer,e.mid.x,e.mid.y-14,'Check failed',C.red,0.02); break; }
-        case 'network_op': { const e=cs(ev.clientId); if(!e) break; if(ev.phase==='begin'){const col=ev.op==='write'?C.orange:C.green;const dir=ev.op==='write';pkts(tl,layer,dir?e.cPos:e.sPos,e.ctrl,dir?e.sPos:e.cPos,col,pp.dots,pp.baseR,0,0.35);edgeFlash(tl,layer,e.d,col,0,0.38);lbl(tl,layer,e.mid.x,e.mid.y-10,ev.op==='write'?'Uploading\u2026':'Downloading\u2026',col,0);}else if(ev.ok===false){edgeFlash(tl,layer,e.d,C.red,0,0.32);xMk(tl,layer,e.mid.x,e.mid.y,0);lbl(tl,layer,e.mid.x,e.mid.y-14,'Network error',C.red,0);}else{edgeFlash(tl,layer,e.d,C.green,0,0.2);} break; }
-        case 'remote_read': { const e=cs(ev.clientId); if(!e) break; pkts(tl,layer,e.sPos,e.ctrl,e.cPos,C.green,pp.dots,pp.baseR,0,0.42); edgeFlash(tl,layer,e.d,C.green,0,0.5); ring(tl,layer,e.cPos.x,e.cPos.y,C.green,24,50,0.26,0.38); const cnt=(ev.results||[]).reduce((s,r)=>s+r.entityCount,0); lbl(tl,layer,e.mid.x,e.mid.y-10,'\u2190 '+cnt+' item'+(cnt===1?'':'s'),C.green,0.03); break; }
-        case 'remote_write': { const e=cs(ev.clientId); if(!e) break; pkts(tl,layer,e.cPos,e.ctrl,e.sPos,C.orange,pp.dots,pp.baseR,0,0.42); edgeFlash(tl,layer,e.d,C.orange,0,0.5); ring(tl,layer,e.sPos.x,e.sPos.y,C.yellow,28,52,0.26,0.38); lbl(tl,layer,e.mid.x,e.mid.y-10,ev.returnedPatchCount+' patch'+(ev.returnedPatchCount===1?'':'es')+' \u2192',C.orange,0.03); break; }
-        case 'partition': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.mid.x,e.mid.y,C.red,6,40,0,0.55); ring(tl,layer,e.cPos.x,e.cPos.y,C.red,24,58,0.03,0.5); xMk(tl,layer,e.mid.x,e.mid.y,0.02); edgeFlash(tl,layer,e.d,C.red,0,0.45); lbl(tl,layer,e.mid.x,e.mid.y-16,'Disconnected',C.red,0); break; }
-        case 'heal': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.mid.x,e.mid.y,C.green,6,34,0,0.45); ring(tl,layer,e.cPos.x,e.cPos.y,C.green,24,54,0.05,0.45); edgeFlash(tl,layer,e.d,C.green,0,0.45); chk(tl,layer,e.mid.x,e.mid.y-14,C.green,0.04); pkts(tl,layer,e.sPos,e.ctrl,e.cPos,C.green,2,3.5,0.1,0.3); lbl(tl,layer,e.mid.x,e.mid.y-24,'Reconnected',C.green,0); break; }
-        case 'invalidation_scheduled': { const sid=srvOf(ev.clientId); if(!sid) break; const p=layout.pos['s:'+sid]; if(!p) break; ring(tl,layer,p.x,p.y,C.violet,28,44,0,0.38); lbl(tl,layer,p.x,p.y-50,'Notifying\u2026',C.violet,0); break; }
-        case 'invalidation_delivered': { const e=cs(ev.clientId); if(!e) break; pkts(tl,layer,e.sPos,e.ctrl,e.cPos,C.violet,2,3.5,0,0.38); ring(tl,layer,e.cPos.x,e.cPos.y,C.violet,24,46,0.22,0.38); edgeFlash(tl,layer,e.d,C.violet,0,0.42); lbl(tl,layer,e.mid.x,e.mid.y-10,'\u2190 New data available',C.violet,0.03); break; }
-        case 'invalidation_dropped': { const e=cs(ev.clientId); if(!e) break; const dot=svgEl(layer,'circle',{cx:e.sPos.x,cy:e.sPos.y,r:4,fill:C.violet,opacity:0}); const proxy={t:0}; tl.to(proxy,{t:0.5,duration:0.26,onStart(){dot.setAttribute('opacity','0.85');},onUpdate(){const p=bezPt(e.sPos,e.ctrl,e.cPos,proxy.t);dot.setAttribute('cx',p.x);dot.setAttribute('cy',p.y);},onComplete(){gsap.to(dot,{attr:{opacity:0,r:0},duration:0.15,onComplete:()=>dot.remove()});},},0); xMk(tl,layer,e.mid.x,e.mid.y,0.16); lbl(tl,layer,e.mid.x,e.mid.y-14,'Notification lost',C.red,0.06); break; }
-        case 'subscribe': { const p=layout.pos['c:'+ev.clientId]; if(!p) break; ring(tl,layer,p.x,p.y,C.teal,24,38,0,0.34); lbl(tl,layer,p.x,p.y-46,'Listening',C.teal,0); break; }
-        case 'unsubscribe': { const p=layout.pos['c:'+ev.clientId]; if(!p) break; ring(tl,layer,p.x,p.y,C.text,24,34,0,0.3); lbl(tl,layer,p.x,p.y-46,'Stopped',C.text,0); break; }
-        case 'sync_error': { const p=layout.pos['c:'+ev.clientId]; if(!p) break; ring(tl,layer,p.x,p.y,C.red,24,54,0,0.5); ring(tl,layer,p.x,p.y,C.red,24,42,0.07,0.42); xMk(tl,layer,p.x,p.y-34,0.02); lbl(tl,layer,p.x,p.y-48,'Sync error',C.red,0); break; }
-        case 'topology': { lbl(tl,layer,layout.W/2,layout.H/2,'Topology established',C.text,0); break; }
+        case 'client_write': { const p=layout.pos['c:'+ev.clientId]; if(!p) break; ring(tl,layer,p.x,p.y,C.blue,24,52,0,0.45); ring(tl,layer,p.x,p.y,C.blue,24,40,0.06,0.38); lbl(tl,layer,p.x,p.y-46,'client_write',C.blue,0.02); break; }
+        case 'server_write': { const p=layout.pos['s:'+ev.serverId]; if(!p) break; ring(tl,layer,p.x,p.y,C.yellow,28,54,0,0.45); ring(tl,layer,p.x,p.y,C.yellow,28,42,0.06,0.38); lbl(tl,layer,p.x,p.y-50,'server_write',C.yellow,0.02); break; }
+        case 'push_start': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.cPos.x,e.cPos.y,C.orange,24,38,0,0.3); pkts(tl,layer,e.cPos,e.ctrl,e.sPos,C.orange,pp.dots,pp.baseR,0.03,0.4); edgeFlash(tl,layer,e.d,C.orange,0,0.45); lbl(tl,layer,e.mid.x,e.mid.y-10,'push \u2192',C.orange,0.03); break; }
+        case 'push_success': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.sPos.x,e.sPos.y,C.green,28,52,0,0.4); edgeFlash(tl,layer,e.d,C.green,0,0.28); chk(tl,layer,e.sPos.x,e.sPos.y-42,C.green,0.04); lbl(tl,layer,e.sPos.x,e.sPos.y-52,'push_success',C.green,0); break; }
+        case 'push_fail': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.cPos.x,e.cPos.y,C.red,24,48,0,0.5); edgeFlash(tl,layer,e.d,C.red,0,0.38); xMk(tl,layer,e.mid.x,e.mid.y,0.04); lbl(tl,layer,e.mid.x,e.mid.y-14,'push_fail',C.red,0.02); break; }
+        case 'poll_start': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.cPos.x,e.cPos.y,C.teal,24,36,0,0.3); pkts(tl,layer,e.cPos,e.ctrl,e.sPos,C.teal,2,3.5,0.03,0.32); edgeFlash(tl,layer,e.d,C.teal,0,0.35); lbl(tl,layer,e.mid.x,e.mid.y-10,'poll \u2192',C.teal,0.03); break; }
+        case 'poll_success': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.cPos.x,e.cPos.y,C.green,24,50,0,0.4); edgeFlash(tl,layer,e.d,C.green,0,0.28); chk(tl,layer,e.cPos.x,e.cPos.y-38,C.green,0.04); lbl(tl,layer,e.cPos.x,e.cPos.y-48,'poll_success',C.green,0); break; }
+        case 'poll_fail': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.cPos.x,e.cPos.y,C.red,24,46,0,0.5); edgeFlash(tl,layer,e.d,C.red,0,0.38); xMk(tl,layer,e.mid.x,e.mid.y,0.04); lbl(tl,layer,e.mid.x,e.mid.y-14,'poll_fail',C.red,0.02); break; }
+        case 'network_op': { const e=cs(ev.clientId); if(!e) break; if(ev.phase==='begin'){const col=ev.op==='write'?C.orange:C.green;const dir=ev.op==='write';pkts(tl,layer,dir?e.cPos:e.sPos,e.ctrl,dir?e.sPos:e.cPos,col,pp.dots,pp.baseR,0,0.35);edgeFlash(tl,layer,e.d,col,0,0.38);lbl(tl,layer,e.mid.x,e.mid.y-10,'network_op '+ev.op,col,0);}else if(ev.ok===false){edgeFlash(tl,layer,e.d,C.red,0,0.32);xMk(tl,layer,e.mid.x,e.mid.y,0);lbl(tl,layer,e.mid.x,e.mid.y-14,'network_op error',C.red,0);}else{edgeFlash(tl,layer,e.d,C.green,0,0.2);} break; }
+        case 'remote_read': { const e=cs(ev.clientId); if(!e) break; pkts(tl,layer,e.sPos,e.ctrl,e.cPos,C.green,pp.dots,pp.baseR,0,0.42); edgeFlash(tl,layer,e.d,C.green,0,0.5); ring(tl,layer,e.cPos.x,e.cPos.y,C.green,24,50,0.26,0.38); const cnt=(ev.results||[]).reduce((s,r)=>s+r.entityCount,0); lbl(tl,layer,e.mid.x,e.mid.y-10,'\u2190 remote_read ('+cnt+')',C.green,0.03); break; }
+        case 'remote_write': { const e=cs(ev.clientId); if(!e) break; pkts(tl,layer,e.cPos,e.ctrl,e.sPos,C.orange,pp.dots,pp.baseR,0,0.42); edgeFlash(tl,layer,e.d,C.orange,0,0.5); ring(tl,layer,e.sPos.x,e.sPos.y,C.yellow,28,52,0.26,0.38); lbl(tl,layer,e.mid.x,e.mid.y-10,'remote_write ('+ev.returnedPatchCount+') \u2192',C.orange,0.03); break; }
+        case 'partition': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.mid.x,e.mid.y,C.red,6,40,0,0.55); ring(tl,layer,e.cPos.x,e.cPos.y,C.red,24,58,0.03,0.5); xMk(tl,layer,e.mid.x,e.mid.y,0.02); edgeFlash(tl,layer,e.d,C.red,0,0.45); lbl(tl,layer,e.mid.x,e.mid.y-16,'partition',C.red,0); break; }
+        case 'heal': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.mid.x,e.mid.y,C.green,6,34,0,0.45); ring(tl,layer,e.cPos.x,e.cPos.y,C.green,24,54,0.05,0.45); edgeFlash(tl,layer,e.d,C.green,0,0.45); chk(tl,layer,e.mid.x,e.mid.y-14,C.green,0.04); pkts(tl,layer,e.sPos,e.ctrl,e.cPos,C.green,2,3.5,0.1,0.3); lbl(tl,layer,e.mid.x,e.mid.y-24,'heal',C.green,0); break; }
+        case 'invalidation_scheduled': { const sid=srvOf(ev.clientId); if(!sid) break; const p=layout.pos['s:'+sid]; if(!p) break; ring(tl,layer,p.x,p.y,C.violet,28,44,0,0.38); lbl(tl,layer,p.x,p.y-50,'invalidation_scheduled',C.violet,0); break; }
+        case 'invalidation_delivered': { const e=cs(ev.clientId); if(!e) break; pkts(tl,layer,e.sPos,e.ctrl,e.cPos,C.violet,2,3.5,0,0.38); ring(tl,layer,e.cPos.x,e.cPos.y,C.violet,24,46,0.22,0.38); edgeFlash(tl,layer,e.d,C.violet,0,0.42); lbl(tl,layer,e.mid.x,e.mid.y-10,'\u2190 invalidation_delivered',C.violet,0.03); break; }
+        case 'invalidation_dropped': { const e=cs(ev.clientId); if(!e) break; const dot=svgEl(layer,'circle',{cx:e.sPos.x,cy:e.sPos.y,r:4,fill:C.violet,opacity:0}); const proxy={t:0}; tl.to(proxy,{t:0.5,duration:0.26,onStart(){dot.setAttribute('opacity','0.85');},onUpdate(){const p=bezPt(e.sPos,e.ctrl,e.cPos,proxy.t);dot.setAttribute('cx',p.x);dot.setAttribute('cy',p.y);},onComplete(){gsap.to(dot,{attr:{opacity:0,r:0},duration:0.15,onComplete:()=>dot.remove()});},},0); xMk(tl,layer,e.mid.x,e.mid.y,0.16); lbl(tl,layer,e.mid.x,e.mid.y-14,'invalidation_dropped',C.red,0.06); break; }
+        case 'subscribe': { const p=layout.pos['c:'+ev.clientId]; if(!p) break; ring(tl,layer,p.x,p.y,C.teal,24,38,0,0.34); lbl(tl,layer,p.x,p.y-46,'subscribe',C.teal,0); break; }
+        case 'unsubscribe': { const p=layout.pos['c:'+ev.clientId]; if(!p) break; ring(tl,layer,p.x,p.y,C.text,24,34,0,0.3); lbl(tl,layer,p.x,p.y-46,'unsubscribe',C.text,0); break; }
+        case 'sync_error': { const p=layout.pos['c:'+ev.clientId]; if(!p) break; ring(tl,layer,p.x,p.y,C.red,24,54,0,0.5); ring(tl,layer,p.x,p.y,C.red,24,42,0.07,0.42); xMk(tl,layer,p.x,p.y-34,0.02); lbl(tl,layer,p.x,p.y-48,'sync_error',C.red,0); break; }
+        case 'topology': { lbl(tl,layer,layout.W/2,layout.H/2,'topology',C.text,0); break; }
       }
       return tl;
     }
@@ -363,7 +363,7 @@
       consistent: { label: 'Consistent', color: C.green, dot: C.green },
       inconsistent: { label: 'Inconsistent', color: C.red, dot: C.red },
       syncing: { label: 'Syncing\u2026', color: C.yellow, dot: C.yellow },
-      partitioned: { label: 'All offline', color: C.red, dot: C.dimRed },
+      partitioned: { label: 'All partitioned', color: C.red, dot: C.dimRed },
     };
     function StatusBadge({ status }) {
       const s = STATUS_MAP[status] || STATUS_MAP.idle;
@@ -449,7 +449,7 @@
 
                   {/* attributes open */}
                   <JsonLine indent={1}>
-                    <span className="text-neutral-500">"attributes"</span>
+                    <span className="text-neutral-500">"attributeKeys"</span>
                     <span className="text-neutral-600">: {'{'}</span>
                   </JsonLine>
 
@@ -525,9 +525,9 @@
         <div className="absolute bottom-0 right-0 top-0 z-30 flex w-full max-w-sm flex-col border-l border-neutral-800 bg-neutral-950/97 shadow-2xl backdrop-blur-md sm:w-[340px]" onClick={e=>e.stopPropagation()}>
           <div className="flex items-start justify-between gap-2 border-b border-neutral-800 px-3 py-2.5">
             <div>
-              <div className="text-sm font-semibold text-neutral-100">{isSrv?'Cloud':'Device'} <span className="font-mono text-blue-400">{id}</span></div>
-              {!isSrv && <div className="mt-1 text-xs text-neutral-500">server \u2192 <span className="font-mono text-neutral-400">{actor.serverId}</span>
-                {actor.partitioned && <span className="ml-2 rounded bg-red-500/15 px-1.5 py-0.5 text-red-400">offline</span>}
+              <div className="text-sm font-semibold text-neutral-100"><span className="text-neutral-500">{isSrv?'server':'client'}:</span><span className="font-mono text-blue-400">{id}</span></div>
+              {!isSrv && <div className="mt-1 text-xs text-neutral-500">serverId: <span className="font-mono text-neutral-400">{actor.serverId}</span>
+                {actor.partitioned && <span className="ml-2 rounded bg-red-500/15 px-1.5 py-0.5 text-red-400">partitioned</span>}
               </div>}
             </div>
             <button type="button" onClick={onClose} className="rounded border border-neutral-800 px-2 py-1 text-[0.65rem] text-neutral-500 hover:bg-neutral-800 hover:text-neutral-300">Esc</button>
@@ -535,7 +535,7 @@
           <div className="min-h-0 flex-1 overflow-y-auto px-3 py-2 text-xs leading-relaxed">
             {!isSrv && actor.lastPoll && (
               <div className="mb-2 rounded border border-emerald-500/20 bg-emerald-950/20 px-2 py-1.5 text-emerald-300/90 text-[0.65rem]">
-                Last poll: {(actor.lastPoll.results||[]).map(r=>r.entityCount+' ent \u00b7 '+r.patchCount+' pat').join(' \u00b7 ')}
+                remote_read results: {(actor.lastPoll.results||[]).map(r=>r.entityCount+' entities \u00b7 '+r.patchCount+' patches').join(' \u00b7 ')}
               </div>
             )}
             <div className="text-[0.6rem] font-semibold uppercase tracking-widest text-neutral-600">Entities ({rows.length})</div>
@@ -684,10 +684,10 @@
             <div className="relative min-h-0 min-w-0 flex-1">
               {/* legend top-right */}
               <div className="pointer-events-none absolute right-3 top-3 z-10 flex gap-3 text-[0.58rem] text-neutral-500">
-                <span><span className="mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle" style={{background:C.blue}}/>local</span>
-                <span><span className="mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle" style={{background:C.orange}}/>upload</span>
-                <span><span className="mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle" style={{background:C.green}}/>download</span>
-                <span><span className="mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle" style={{background:C.violet}}/>notify</span>
+                <span><span className="mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle" style={{background:C.blue}}/>write</span>
+                <span><span className="mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle" style={{background:C.orange}}/>push</span>
+                <span><span className="mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle" style={{background:C.green}}/>poll/read</span>
+                <span><span className="mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle" style={{background:C.violet}}/>invalidation</span>
                 <span><span className="mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle" style={{background:C.red}}/>error</span>
               </div>
 
@@ -743,7 +743,7 @@
                           <rect x="3" y="2" width="8" height="3" rx="0.5" fill="#333" opacity="0.7"/>
                           <rect x="3" y="11" width="8" height="3" rx="0.5" fill="#333" opacity="0.7"/>
                         </g>
-                        <text x={p.x} y={p.y+srvBoxH/2+16} textAnchor="middle" fill={C.textLight} fontSize="11" fontWeight="600" fontFamily="Inter, system-ui">Cloud {s.id}</text>
+                        <text x={p.x} y={p.y+srvBoxH/2+16} textAnchor="middle" fill={C.textLight} fontSize="11" fontWeight="600" fontFamily="'IBM Plex Mono', monospace">server:{s.id}</text>
                         <line x1={p.x-12} y1={p.y+srvBoxH/2+19} x2={p.x+12} y2={p.y+srvBoxH/2+19} stroke={col} strokeWidth="2" opacity="0.6" strokeLinecap="round"/>
                       </g>
                     );
@@ -768,9 +768,9 @@
                           {!part && <rect x="5" y="5" width="14" height="3" rx="0.5" fill={C.blue} opacity="0.2"/>}
                           <rect x="4" y="16.5" width="16" height="2.5" rx="1" fill="#282828" stroke="#3a3a3a" strokeWidth="0.3"/>
                         </g>
-                        <text x={p.x} y={p.y+cliBoxH/2+14} textAnchor="middle" fill={part?C.red:C.textLight} fontSize="11" fontWeight="600" fontFamily="Inter, system-ui">Device {c.id}</text>
+                        <text x={p.x} y={p.y+cliBoxH/2+14} textAnchor="middle" fill={part?C.red:C.textLight} fontSize="11" fontWeight="600" fontFamily="'IBM Plex Mono', monospace">client:{c.id}</text>
                         <line x1={p.x-10} y1={p.y+cliBoxH/2+17} x2={p.x+10} y2={p.y+cliBoxH/2+17} stroke={col} strokeWidth="2" opacity="0.6" strokeLinecap="round"/>
-                        {part && <text x={p.x} y={p.y+cliBoxH/2+26} textAnchor="middle" fill={C.red} fontSize="8" fontWeight="600" fontFamily="Inter, system-ui" opacity="0.6">OFFLINE</text>}
+                        {part && <text x={p.x} y={p.y+cliBoxH/2+26} textAnchor="middle" fill={C.red} fontSize="8" fontWeight="600" fontFamily="'IBM Plex Mono', monospace" opacity="0.6">PARTITIONED</text>}
                       </g>
                     );
                   })}

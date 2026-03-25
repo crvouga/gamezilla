@@ -12,9 +12,10 @@ registerSyncEngineHooks();
 describe('SyncPatchesDb (deterministic sim)', () => {
   test('poll: remote patches are merged into local', async () => {
     const sim = getSim();
-    sim.setRecordingMeta({
+    sim.setMeta({
       title: 'Poll: remote patches merge into local',
-      intent: 'Server writes become visible locally after poll with active subscription.',
+      intent:
+        'Server writes become visible locally after poll with active subscription.',
       source: {
         testFile: VIZ_FILE,
         testName: 'poll: remote patches are merged into local',
@@ -63,7 +64,7 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
   test('poll: patches for deleted entities are fetched via tracked-entities query', async () => {
     const sim = getSim();
-    sim.setRecordingMeta({
+    sim.setMeta({
       title: 'Poll: tracked entities pick up delete patches',
       intent: 'Second poll includes soft-delete patch for subscribed lists.',
       source: {
@@ -134,9 +135,11 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
   test('poll: sibling patch from another client is not missed when its patchId sorts before cursor', async () => {
     const sim = getSim();
-    sim.setRecordingMeta({
-      title: 'Poll: cursor does not skip lexicographically earlier sibling patch',
-      intent: 'Merge logic fetches all known patches, including IDs before cursor.',
+    sim.setMeta({
+      title:
+        'Poll: cursor does not skip lexicographically earlier sibling patch',
+      intent:
+        'Merge logic fetches all known patches, including IDs before cursor.',
       source: {
         testFile: VIZ_FILE,
         testName:
@@ -194,9 +197,7 @@ describe('SyncPatchesDb (deterministic sim)', () => {
       } as Patch,
     ]);
 
-    const remoteAllResults = await srv.db.read([
-      { entityType, entityId },
-    ]);
+    const remoteAllResults = await srv.db.read([{ entityType, entityId }]);
     const remoteAll = remoteAllResults[0];
     assert.defined(remoteAll, 'remoteAll must be defined');
     expect(remoteAll.patches).toHaveLength(3);
@@ -206,18 +207,19 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     const finalLocalResults = await c.read([{ entityType, entityId }]);
     const finalLocal = finalLocalResults[0];
     assert.defined(finalLocal, 'finalLocal must be defined');
-    unsub();
 
     const hasSiblingPatch = finalLocal.patches.some(
       (p) => p.patchId === siblingPatchId
     );
     expect(hasSiblingPatch).toBe(true);
     expect(finalLocal.patches).toHaveLength(3);
+
+    unsub();
   });
 
   test('partition: client cannot poll until link heals', async () => {
     const sim = getSim();
-    sim.setRecordingMeta({
+    sim.setMeta({
       title: 'Partition: poll blocked until heal',
       intent: 'Partitioned link prevents remote read; heal allows merge again.',
       source: {
@@ -228,6 +230,10 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     const c = sim.client('c1');
     const srv = sim.server('s1');
     const listId = crypto.randomUUID();
+    const listQuery = {
+      entityType: 'todoList',
+      where: DELETED_CLAUSE,
+    } as const;
     await srv.db.write([
       {
         entityId: listId,
@@ -240,32 +246,26 @@ describe('SyncPatchesDb (deterministic sim)', () => {
       },
     ]);
 
-    const unsub = c.subscribe.entities(
-      { entityType: 'todoList', entityId: listId },
-      () => {}
-    );
+    const unsub = c.subscribe.entities(listQuery, () => {});
 
     c.link.partition();
     await c.poll();
 
-    const mid = await c.read([
-      { entityType: 'todoList', entityId: listId },
-    ]);
+    const mid = await c.read([{ entityType: 'todoList', entityId: listId }]);
     expect((mid[0]?.patches ?? []).length).toBe(0);
 
     c.link.heal();
     await c.poll();
-    unsub();
 
-    const fin = await c.read([
-      { entityType: 'todoList', entityId: listId },
-    ]);
+    const fin = await c.read([{ entityType: 'todoList', entityId: listId }]);
     expect((fin[0]?.patches ?? []).length).toBeGreaterThanOrEqual(1);
+
+    unsub();
   });
 
   test('poll: SYNC_ERROR_TOPIC after 5 consecutive poll failures', async () => {
     const sim = getSim();
-    sim.setRecordingMeta({
+    sim.setMeta({
       title: 'Poll: SYNC_ERROR_TOPIC after 5 consecutive failures',
       intent: 'Repeated poll read failures publish sync_error after threshold.',
       source: {
@@ -276,6 +276,10 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     const c = sim.client('c1');
     const srv = sim.server('s1');
     const listId = crypto.randomUUID();
+    const listQuery = {
+      entityType: 'todoList',
+      where: DELETED_CLAUSE,
+    } as const;
     await srv.db.write([
       {
         entityId: listId,
@@ -288,10 +292,7 @@ describe('SyncPatchesDb (deterministic sim)', () => {
       },
     ]);
 
-    const unsub = c.subscribe.entities(
-      { entityType: 'todoList', entityId: listId },
-      () => {}
-    );
+    const unsub = c.subscribe.entities(listQuery, () => {});
 
     const errors: SyncErrorEvent[] = [];
     const unsubSync = sim.subscribeSyncErrors((e) => errors.push(e));
@@ -305,13 +306,15 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
     expect(errors).toHaveLength(1);
     expect(errors[0]?.source).toBe('poll');
+
+    await c.poll();
     unsubSync();
     unsub();
   });
 
   test('poll: no SYNC_ERROR_TOPIC when 4 failures then 1 success', async () => {
     const sim = getSim();
-    sim.setRecordingMeta({
+    sim.setMeta({
       title: 'Poll: recovery before fatal threshold',
       intent: 'Successful poll resets failure streak; no sync_error event.',
       source: {
@@ -322,6 +325,10 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     const c = sim.client('c1');
     const srv = sim.server('s1');
     const listId = crypto.randomUUID();
+    const listQuery = {
+      entityType: 'todoList',
+      where: DELETED_CLAUSE,
+    } as const;
     await srv.db.write([
       {
         entityId: listId,
@@ -334,10 +341,7 @@ describe('SyncPatchesDb (deterministic sim)', () => {
       },
     ]);
 
-    const unsub = c.subscribe.entities(
-      { entityType: 'todoList', entityId: listId },
-      () => {}
-    );
+    const unsub = c.subscribe.entities(listQuery, () => {});
 
     const errors: SyncErrorEvent[] = [];
     const unsubSync = sim.subscribeSyncErrors((e) => errors.push(e));
@@ -354,9 +358,7 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
     expect(errors).toHaveLength(0);
 
-    const local = await c.read([
-      { entityType: 'todoList', entityId: listId },
-    ]);
+    const local = await c.read([{ entityType: 'todoList', entityId: listId }]);
     expect((local[0]?.patches ?? []).length).toBeGreaterThanOrEqual(1);
 
     unsubSync();
@@ -365,9 +367,10 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
   test('poll: overlapping runPollNow coalesces while first read is in flight', async () => {
     const sim = getSim();
-    sim.setRecordingMeta({
+    sim.setMeta({
       title: 'Poll: overlapping runPollNow coalesces',
-      intent: 'Concurrent polls share one in-flight read; no duplicate merge corruption.',
+      intent:
+        'Concurrent polls share one in-flight read; no duplicate merge corruption.',
       source: {
         testFile: VIZ_FILE,
         testName:
@@ -405,9 +408,7 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     await sim.scheduler.drain();
     await p1;
 
-    const mid = await c.read([
-      { entityType: 'todoList', entityId: listId },
-    ]);
+    const mid = await c.read([{ entityType: 'todoList', entityId: listId }]);
     expect((mid[0]?.patches ?? []).length).toBeGreaterThanOrEqual(1);
 
     unsub();
@@ -415,7 +416,7 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
   test('poll: second poll with no remote changes keeps patch count stable', async () => {
     const sim = getSim();
-    sim.setRecordingMeta({
+    sim.setMeta({
       title: 'Poll: idempotent when remote unchanged',
       intent: 'Second poll does not duplicate patches locally.',
       source: {
@@ -462,9 +463,10 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
   test('poll: subscription limit does not truncate sync; all matching remote lists merge', async () => {
     const sim = getSim();
-    sim.setRecordingMeta({
+    sim.setMeta({
       title: 'Poll: list query limit does not drop entities from sync',
-      intent: 'Sync merges all matching server entities despite subscribe limit.',
+      intent:
+        'Sync merges all matching server entities despite subscribe limit.',
       source: {
         testFile: VIZ_FILE,
         testName:
@@ -474,7 +476,11 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     const c = sim.client('c1');
     const srv = sim.server('s1');
     const created = new Date(0).toISOString();
-    const lists = [crypto.randomUUID(), crypto.randomUUID(), crypto.randomUUID()];
+    const lists = [
+      crypto.randomUUID(),
+      crypto.randomUUID(),
+      crypto.randomUUID(),
+    ];
     for (let i = 0; i < lists.length; i++) {
       const id = lists[i];
       assert.defined(id, 'list id');

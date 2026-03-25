@@ -1,6 +1,7 @@
 import { assert } from '@/@shared/assert';
 import { describe, expect, test } from 'bun:test';
 import { type SyncErrorEvent } from '../../impl-sync';
+import { DELETED_CLAUSE } from './constants';
 import { getSim, registerSyncEngineHooks } from './harness';
 
 const VIZ_FILE = import.meta.path;
@@ -10,7 +11,7 @@ registerSyncEngineHooks();
 describe('SyncPatchesDb (deterministic sim)', () => {
   test('push: create patch is pushed to remote', async () => {
     const sim = getSim();
-    sim.setRecordingMeta({
+    sim.setMeta({
       title: 'Push: create patch is pushed to remote',
       intent: 'Unsynced local patch appears on server after a successful push.',
       source: {
@@ -19,7 +20,14 @@ describe('SyncPatchesDb (deterministic sim)', () => {
       },
     });
     const c = sim.client('c1');
+    const srv = sim.server('s1');
     const listId = crypto.randomUUID();
+    const listQuery = {
+      entityType: 'todoList',
+      where: DELETED_CLAUSE,
+    } as const;
+    const unsub = c.subscribe.entities(listQuery, () => {});
+
     await c.write([
       {
         entityId: listId,
@@ -34,7 +42,6 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
     await c.push();
 
-    const srv = sim.server('s1');
     const remoteResults = await srv.db.read([
       { entityType: 'todoList', entityId: listId },
     ]);
@@ -47,11 +54,14 @@ describe('SyncPatchesDb (deterministic sim)', () => {
       'todoList/name': 'My List',
       'todoList/order': 0,
     });
+
+    await c.poll();
+    unsub();
   });
 
   test('push: soft-delete patch is pushed to remote', async () => {
     const sim = getSim();
-    sim.setRecordingMeta({
+    sim.setMeta({
       title: 'Push: soft-delete patch is pushed to remote',
       intent: 'Deletion flags sync in a second push after entity creation.',
       source: {
@@ -60,7 +70,11 @@ describe('SyncPatchesDb (deterministic sim)', () => {
       },
     });
     const c = sim.client('c1');
+    const srv = sim.server('s1');
     const listId = crypto.randomUUID();
+    const listQuery = { entityType: 'todoList', entityId: listId } as const;
+    const unsub = c.subscribe.entities(listQuery, () => {});
+
     await c.write([
       {
         entityId: listId,
@@ -85,7 +99,6 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
     await c.push();
 
-    const srv = sim.server('s1');
     const remoteResults = await srv.db.read([
       { entityType: 'todoList', entityId: listId },
     ]);
@@ -100,11 +113,14 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     );
     assert.defined(deletePatch, 'deletePatch must be defined');
     expect(deletePatch.attributes).toMatchObject({ 'todoList/deleted': true });
+
+    await c.poll();
+    unsub();
   });
 
   test('push: multiple unsynced patches are all pushed', async () => {
     const sim = getSim();
-    sim.setRecordingMeta({
+    sim.setMeta({
       title: 'Push: multiple unsynced patches are all pushed',
       intent: 'One push cycle uploads every outstanding unsynced patch.',
       source: {
@@ -113,8 +129,15 @@ describe('SyncPatchesDb (deterministic sim)', () => {
       },
     });
     const c = sim.client('c1');
+    const srv = sim.server('s1');
     const listId1 = crypto.randomUUID();
     const listId2 = crypto.randomUUID();
+    const listQuery = {
+      entityType: 'todoList',
+      where: DELETED_CLAUSE,
+    } as const;
+    const unsub = c.subscribe.entities(listQuery, () => {});
+
     await c.write([
       {
         entityId: listId1,
@@ -138,7 +161,6 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
     await c.push();
 
-    const srv = sim.server('s1');
     const r1Results = await srv.db.read([
       { entityType: 'todoList', entityId: listId1 },
     ]);
@@ -161,11 +183,14 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     expect(r2Patch.attributes).toMatchObject({
       'todoList/name': 'List 2',
     });
+
+    await c.poll();
+    unsub();
   });
 
   test('push: SYNC_ERROR_TOPIC after 5 consecutive push failures', async () => {
     const sim = getSim();
-    sim.setRecordingMeta({
+    sim.setMeta({
       title: 'Push: SYNC_ERROR_TOPIC after 5 consecutive failures',
       intent: 'Repeated transport errors surface on pub/sub after threshold.',
       source: {
@@ -175,6 +200,12 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     });
     const c = sim.client('c1');
     const listId = crypto.randomUUID();
+    const listQuery = {
+      entityType: 'todoList',
+      where: DELETED_CLAUSE,
+    } as const;
+    const unsub = c.subscribe.entities(listQuery, () => {});
+
     await c.write([
       {
         entityId: listId,
@@ -199,21 +230,33 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
     expect(errors).toHaveLength(1);
     expect(errors[0]?.source).toBe('push');
+
+    await c.push();
+    await c.poll();
     unsubSync();
+    unsub();
   });
 
   test('push: no SYNC_ERROR_TOPIC when 4 failures then 1 success', async () => {
     const sim = getSim();
-    sim.setRecordingMeta({
+    sim.setMeta({
       title: 'Push: recovery before fatal SYNC_ERROR_TOPIC threshold',
-      intent: 'Below threshold, a successful push clears streak; no sync_error event.',
+      intent:
+        'Below threshold, a successful push clears streak; no sync_error event.',
       source: {
         testFile: VIZ_FILE,
         testName: 'push: no SYNC_ERROR_TOPIC when 4 failures then 1 success',
       },
     });
     const c = sim.client('c1');
+    const srv = sim.server('s1');
     const listId = crypto.randomUUID();
+    const listQuery = {
+      entityType: 'todoList',
+      where: DELETED_CLAUSE,
+    } as const;
+    const unsub = c.subscribe.entities(listQuery, () => {});
+
     await c.write([
       {
         entityId: listId,
@@ -241,12 +284,13 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
     expect(errors).toHaveLength(0);
 
-    const srv = sim.server('s1');
     const remote = await srv.db.read([
       { entityType: 'todoList', entityId: listId },
     ]);
     expect((remote[0]?.patches ?? []).length).toBe(1);
 
+    await c.poll();
     unsubSync();
+    unsub();
   });
 });

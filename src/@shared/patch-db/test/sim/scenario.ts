@@ -20,9 +20,9 @@ import { PatchDbImplSyncHost } from '../../transport/impl-sync-host';
 import { DeterministicScheduler } from './deterministic-scheduler';
 import {
   SimEventRecorder,
+  type SimRecordingMeta,
   isSimVizEnabled,
   summarizePatchInputs,
-  type SimRecordingMeta,
 } from './event-recorder';
 import { NetworkLink } from './network-link';
 import { NotifyingPatchesDb } from './notifying-patches-db';
@@ -151,7 +151,7 @@ class PatchDbScenarioBuilder {
   private readonly clients: ScenarioClientSpec[] = [];
   private recordingMeta: Partial<SimRecordingMeta> = {};
 
-  /** Defaults merged before any per-test {@link Sim.setRecordingMeta} calls. */
+  /** Defaults merged before any per-test {@link Sim.setMeta} calls. */
   meta(partial: Partial<SimRecordingMeta>): this {
     if (partial.title !== undefined) {
       this.recordingMeta.title = partial.title;
@@ -230,7 +230,7 @@ export class Sim {
   }
 
   /** Merge viz metadata (no-op when SIM_VIZ is off). */
-  setRecordingMeta(partial: Partial<SimRecordingMeta>): void {
+  setMeta(partial: Partial<SimRecordingMeta>): void {
     this.vizRecorder?.setMeta(partial);
   }
 
@@ -389,7 +389,10 @@ async function buildScenario(
 
   if (recorder) {
     recorder.setTopology({
-      servers: serverSpecs.map((s) => ({ id: s.id, useSyncHost: s.useSyncHost })),
+      servers: serverSpecs.map((s) => ({
+        id: s.id,
+        useSyncHost: s.useSyncHost,
+      })),
       clients: clientSpecs.map((c) => ({ id: c.id, serverId: c.serverId })),
     });
   }
