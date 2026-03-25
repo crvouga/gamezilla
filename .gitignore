@@ -37,6 +37,10 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# Sim visualization pipeline (opt-in)
+.sim-recordings/
+sim-viz/
+
 app-example
 
 # generated native folders

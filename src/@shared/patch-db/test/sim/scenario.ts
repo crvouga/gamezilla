@@ -18,8 +18,14 @@ import type {
 } from '../../interface';
 import { PatchDbImplSyncHost } from '../../transport/impl-sync-host';
 import { DeterministicScheduler } from './deterministic-scheduler';
+import {
+  SimEventRecorder,
+  isSimVizEnabled,
+  summarizePatchInputs,
+} from './event-recorder';
 import { NetworkLink } from './network-link';
 import { NotifyingPatchesDb } from './notifying-patches-db';
+import { saveRecording } from './recording-store';
 import {
   type SimServerPort,
   simServerPortFromPubSub,
@@ -66,6 +72,7 @@ type ClientRuntime = {
   syncDb: SyncPatchesDb;
   pubSub: InMemoryPubSub;
   link: NetworkLink;
+  vizUnsubs: Unsubscribe[];
 };
 
 function createSimLink(link: NetworkLink): SimLink {
@@ -79,6 +86,28 @@ function createSimLink(link: NetworkLink): SimLink {
     setLatency: (ms: number) => link.setReadWriteLatencyMs(ms),
     setInvalidationLatency: (ms: number) => link.setInvalidationLatencyMs(ms),
     isPartitioned: () => link.isPartitioned(),
+  };
+}
+
+function wrapServerDbForViz(
+  serverId: string,
+  inner: PatchDbImplSqlite,
+  recorder: SimEventRecorder,
+  getTime: () => number
+): PatchesDb {
+  return {
+    read: (queries: PatchesDbQuery[]) => inner.read(queries),
+    write: async (patches: PatchInput[]) => {
+      recorder.emit({
+        type: 'server_write',
+        serverId,
+        summaries: summarizePatchInputs(patches),
+        patchCount: patches.length,
+        time: getTime(),
+      });
+      return inner.write(patches);
+    },
+    update: (updates) => inner.update(updates),
   };
 }
 
@@ -147,7 +176,8 @@ export class Sim {
     private readonly clientHandles: Map<string, SimClient>,
     private readonly serverHandles: Map<string, SimServer>,
     private readonly clientRuntimes: ClientRuntime[],
-    private readonly serverRuntimes: ServerRuntime[]
+    private readonly serverRuntimes: ServerRuntime[],
+    private readonly vizRecorder: SimEventRecorder | null
   ) {}
 
   client(id: string): SimClient {
@@ -175,6 +205,9 @@ export class Sim {
 
   async destroy(): Promise<void> {
     for (const c of this.clientRuntimes) {
+      for (const u of c.vizUnsubs) {
+        u();
+      }
       c.syncDb.destroy();
       await c.sqlClient.disconnect();
     }
@@ -183,6 +216,10 @@ export class Sim {
     }
     this.clientHandles.clear();
     this.serverHandles.clear();
+
+    if (this.vizRecorder !== null && isSimVizEnabled()) {
+      saveRecording(this.vizRecorder.finalize());
+    }
   }
 }
 
@@ -194,6 +231,9 @@ async function buildScenario(
     throw new Error('patchDbScenario: add at least one .server()');
   }
   const scheduler = new DeterministicScheduler();
+  const recorder = isSimVizEnabled()
+    ? new SimEventRecorder(() => scheduler.now())
+    : null;
 
   const servers: ServerRuntime[] = [];
   const serverById = new Map<string, ServerRuntime>();
@@ -242,8 +282,21 @@ async function buildScenario(
     const local = new PatchDbImplSqlite(sql);
     await local.migrate();
 
-    const link = new NetworkLink(scheduler);
-    const transport = new SimulatedPatchDbClientTransport(server.port, link);
+    const link = new NetworkLink(
+      scheduler,
+      recorder ? { recorder, clientId: cs.id } : undefined
+    );
+    const transport = new SimulatedPatchDbClientTransport(
+      server.port,
+      link,
+      recorder
+        ? {
+            recorder,
+            clientId: cs.id,
+            getTime: () => scheduler.now(),
+          }
+        : undefined
+    );
     const remotePatchesDb = new PatchDbImplClientTransport(transport);
     const pubSub = new InMemoryPubSub();
 
@@ -252,6 +305,7 @@ async function buildScenario(
       pollDriver: 'manual',
       remoteInvalidationSource: transport,
       pushIntervalMs: 10,
+      logPushPollFailures: false,
     });
 
     const cr: ClientRuntime = {
@@ -264,8 +318,33 @@ async function buildScenario(
       syncDb,
       pubSub,
       link,
+      vizUnsubs: [],
     };
+
+    if (recorder) {
+      cr.vizUnsubs.push(
+        pubSub.subscribe(SYNC_ERROR_TOPIC, (msg: unknown) => {
+          const e = msg as SyncErrorEvent;
+          recorder.emit({
+            type: 'sync_error',
+            clientId: cs.id,
+            source: e.source,
+            errorMessage:
+              e.error instanceof Error ? e.error.message : String(e.error),
+            time: scheduler.now(),
+          });
+        })
+      );
+    }
+
     clientRuntimes.push(cr);
+  }
+
+  if (recorder) {
+    recorder.setTopology({
+      servers: serverSpecs.map((s) => ({ id: s.id, useSyncHost: s.useSyncHost })),
+      clients: clientSpecs.map((c) => ({ id: c.id, serverId: c.serverId })),
+    });
   }
 
   const clientHandles = new Map<string, SimClient>();
@@ -273,17 +352,129 @@ async function buildScenario(
     const simLink = createSimLink(c.link);
     const handle: SimClient = {
       id: c.id,
-      write: (patches) => c.syncDb.write(patches),
+      write: async (patches) => {
+        if (recorder) {
+          recorder.emit({
+            type: 'client_write',
+            clientId: c.id,
+            summaries: summarizePatchInputs(patches),
+            patchCount: patches.length,
+            time: scheduler.now(),
+          });
+        }
+        return c.syncDb.write(patches);
+      },
       read: (queries) => c.syncDb.read(queries),
       push: async () => {
-        await c.syncDb.runPushNow();
+        if (recorder) {
+          recorder.emit({
+            type: 'push_start',
+            clientId: c.id,
+            time: scheduler.now(),
+          });
+        }
+        try {
+          await c.syncDb.runPushNow();
+          if (recorder) {
+            recorder.emit({
+              type: 'push_success',
+              clientId: c.id,
+              time: scheduler.now(),
+            });
+          }
+        } catch (e) {
+          if (recorder) {
+            recorder.emit({
+              type: 'push_fail',
+              clientId: c.id,
+              errorMessage: e instanceof Error ? e.message : String(e),
+              time: scheduler.now(),
+            });
+          }
+          throw e;
+        }
         await flushSyncSubscriptionMicrotasks();
       },
       poll: async () => {
-        await c.syncDb.runPollNow();
+        if (recorder) {
+          recorder.emit({
+            type: 'poll_start',
+            clientId: c.id,
+            time: scheduler.now(),
+          });
+        }
+        try {
+          await c.syncDb.runPollNow();
+          if (recorder) {
+            recorder.emit({
+              type: 'poll_success',
+              clientId: c.id,
+              time: scheduler.now(),
+            });
+          }
+        } catch (e) {
+          if (recorder) {
+            recorder.emit({
+              type: 'poll_fail',
+              clientId: c.id,
+              errorMessage: e instanceof Error ? e.message : String(e),
+              time: scheduler.now(),
+            });
+          }
+          throw e;
+        }
         await flushSyncSubscriptionMicrotasks();
       },
-      subscribe: c.syncDb.subscribe,
+      subscribe: {
+        patches: (query, listener) => {
+          if (recorder) {
+            recorder.emit({
+              type: 'subscribe',
+              clientId: c.id,
+              mode: 'patches',
+              queryKey: JSON.stringify(query),
+              time: scheduler.now(),
+            });
+          }
+          const inner = c.syncDb.subscribe.patches(query, listener);
+          return () => {
+            if (recorder) {
+              recorder.emit({
+                type: 'unsubscribe',
+                clientId: c.id,
+                mode: 'patches',
+                queryKey: JSON.stringify(query),
+                time: scheduler.now(),
+              });
+            }
+            inner();
+          };
+        },
+        entities: (query, listener) => {
+          if (recorder) {
+            recorder.emit({
+              type: 'subscribe',
+              clientId: c.id,
+              mode: 'entities',
+              queryKey: JSON.stringify(query),
+              time: scheduler.now(),
+            });
+          }
+          const inner = c.syncDb.subscribe.entities(query, listener);
+          return () => {
+            if (recorder) {
+              recorder.emit({
+                type: 'unsubscribe',
+                clientId: c.id,
+                mode: 'entities',
+                queryKey: JSON.stringify(query),
+                time: scheduler.now(),
+              });
+            }
+            inner();
+          };
+        },
+      },
       link: simLink,
       syncDb: c.syncDb,
     };
@@ -292,7 +483,11 @@ async function buildScenario(
 
   const serverHandles = new Map<string, SimServer>();
   for (const s of servers) {
-    serverHandles.set(s.id, { id: s.id, db: s.backing });
+    const db =
+      recorder !== null
+        ? wrapServerDbForViz(s.id, s.backing, recorder, () => scheduler.now())
+        : s.backing;
+    serverHandles.set(s.id, { id: s.id, db });
   }
 
   return new Sim(
@@ -300,6 +495,7 @@ async function buildScenario(
     clientHandles,
     serverHandles,
     clientRuntimes,
-    servers
+    servers,
+    recorder
   );
 }

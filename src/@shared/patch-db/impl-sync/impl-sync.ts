@@ -65,6 +65,11 @@ export type SyncPatchesDbOptions = {
   pollDriver?: 'remote-invalidation' | 'manual';
   /** When {@link pushDriver} is `interval`, uses this scheduler (default: real-time `setInterval`). */
   pushScheduler?: SyncPatchesDbPushScheduler;
+  /**
+   * When false, failed push/poll cycles are not logged to stderr (failures still increment counters and may publish {@link SYNC_ERROR_TOPIC}).
+   * Default true. Deterministic sim tests set this to false to avoid expected-failure noise.
+   */
+  logPushPollFailures?: boolean;
 };
 
 type ActiveQuery = {
@@ -73,6 +78,8 @@ type ActiveQuery = {
 };
 
 export class SyncPatchesDb implements PatchesDb {
+  private readonly logPushPollFailures: boolean;
+
   subscribe = {
     patches: (
       query: PatchesDbQuery,
@@ -97,6 +104,7 @@ export class SyncPatchesDb implements PatchesDb {
     private pubSub: PubSub,
     private options: SyncPatchesDbOptions
   ) {
+    this.logPushPollFailures = options.logPushPollFailures !== false;
     this.ensurePushTimer();
   }
 
@@ -288,9 +296,11 @@ export class SyncPatchesDb implements PatchesDb {
       this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
     } catch (err) {
       this.pushConsecutiveFailures += 1;
-      console.error('[SyncPatchesDb] push failed:', err, {
-        consecutiveFailures: this.pushConsecutiveFailures,
-      });
+      if (this.logPushPollFailures) {
+        console.error('[SyncPatchesDb] push failed:', err, {
+          consecutiveFailures: this.pushConsecutiveFailures,
+        });
+      }
       if (this.pushConsecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
         this.pubSub.publish(SYNC_ERROR_TOPIC, {
           source: 'push',
@@ -377,9 +387,11 @@ export class SyncPatchesDb implements PatchesDb {
       }
     } catch (err) {
       this.pollConsecutiveFailures += 1;
-      console.error('[SyncPatchesDb] poll failed:', err, {
-        consecutiveFailures: this.pollConsecutiveFailures,
-      });
+      if (this.logPushPollFailures) {
+        console.error('[SyncPatchesDb] poll failed:', err, {
+          consecutiveFailures: this.pollConsecutiveFailures,
+        });
+      }
       if (this.pollConsecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
         this.pubSub.publish(SYNC_ERROR_TOPIC, {
           source: 'poll',
