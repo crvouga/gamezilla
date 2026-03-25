@@ -2,11 +2,21 @@ import { describe, expect, test } from 'bun:test';
 import { DELETED_CLAUSE } from './constants';
 import { getTwoClientSim, registerTwoClientSimHooks } from './two-client-sim';
 
+const VIZ_FILE = import.meta.path;
+
 registerTwoClientSimHooks();
 
 describe('SyncPatchesDb (deterministic sim, multi-client)', () => {
   test('multi-client: second client polls after first pushes', async () => {
     const sim = getTwoClientSim();
+    sim.setRecordingMeta({
+      title: 'Multi-client: B receives A’s data after poll',
+      intent: 'Second client merges remote patches created by the first client.',
+      source: {
+        testFile: VIZ_FILE,
+        testName: 'multi-client: second client polls after first pushes',
+      },
+    });
     const a = sim.client('a');
     const b = sim.client('b');
     const listId = crypto.randomUUID();
@@ -37,6 +47,15 @@ describe('SyncPatchesDb (deterministic sim, multi-client)', () => {
 
   test('multi-client: each client sees lists created by the other after poll', async () => {
     const sim = getTwoClientSim();
+    sim.setRecordingMeta({
+      title: 'Multi-client: cross visibility after push + poll',
+      intent: 'Each peer’s writes appear in the other’s list query after sync.',
+      source: {
+        testFile: VIZ_FILE,
+        testName:
+          'multi-client: each client sees lists created by the other after poll',
+      },
+    });
     const a = sim.client('a');
     const b = sim.client('b');
     const srv = sim.server('s');

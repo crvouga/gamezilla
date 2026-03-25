@@ -2,11 +2,23 @@ import { describe, expect, test } from 'bun:test';
 import { DELETED_CLAUSE } from './constants';
 import { getTwoClientSim, registerTwoClientSimHooks } from './two-client-sim';
 
+const VIZ_FILE = import.meta.path;
+
 registerTwoClientSimHooks();
 
 describe('SyncPatchesDb (deterministic sim, multi-client offline)', () => {
   test('offline client diverges then reconciles with server and peer', async () => {
     const sim = getTwoClientSim();
+    sim.setRecordingMeta({
+      title: 'Offline client: partition, divergent edits, reconcile',
+      intent: 'After heal, push/poll merge server + peer changes; attribute conflicts resolve consistently.',
+      description:
+        'B partitions while A continues online; both edit shared entity; reconcile restores full entity set and merged attributes.',
+      source: {
+        testFile: VIZ_FILE,
+        testName: 'offline client diverges then reconciles with server and peer',
+      },
+    });
     const a = sim.client('a');
     const b = sim.client('b');
     const srv = sim.server('s');

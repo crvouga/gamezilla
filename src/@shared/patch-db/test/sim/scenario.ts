@@ -22,6 +22,7 @@ import {
   SimEventRecorder,
   isSimVizEnabled,
   summarizePatchInputs,
+  type SimRecordingMeta,
 } from './event-recorder';
 import { NetworkLink } from './network-link';
 import { NotifyingPatchesDb } from './notifying-patches-db';
@@ -143,9 +144,35 @@ export type SimServer = {
   db: PatchesDb;
 };
 
+export type { SimRecordingMeta };
+
 class PatchDbScenarioBuilder {
   private readonly servers: ScenarioServerSpec[] = [];
   private readonly clients: ScenarioClientSpec[] = [];
+  private recordingMeta: Partial<SimRecordingMeta> = {};
+
+  /** Defaults merged before any per-test {@link Sim.setRecordingMeta} calls. */
+  meta(partial: Partial<SimRecordingMeta>): this {
+    if (partial.title !== undefined) {
+      this.recordingMeta.title = partial.title;
+    }
+    if (partial.description !== undefined) {
+      this.recordingMeta.description = partial.description;
+    }
+    if (partial.intent !== undefined) {
+      this.recordingMeta.intent = partial.intent;
+    }
+    if (partial.tags !== undefined) {
+      this.recordingMeta.tags = partial.tags;
+    }
+    if (partial.source !== undefined) {
+      this.recordingMeta.source = {
+        ...this.recordingMeta.source,
+        ...partial.source,
+      };
+    }
+    return this;
+  }
 
   server(id: string, options?: { useSyncHost?: boolean }): this {
     this.servers.push({
@@ -161,7 +188,17 @@ class PatchDbScenarioBuilder {
   }
 
   async build(): Promise<Sim> {
-    return buildScenario(this.servers, this.clients);
+    const hasMeta =
+      this.recordingMeta.title !== undefined ||
+      this.recordingMeta.description !== undefined ||
+      this.recordingMeta.intent !== undefined ||
+      this.recordingMeta.tags !== undefined ||
+      this.recordingMeta.source !== undefined;
+    return buildScenario(
+      this.servers,
+      this.clients,
+      hasMeta ? this.recordingMeta : undefined
+    );
   }
 }
 
@@ -190,6 +227,11 @@ export class Sim {
     const s = this.serverHandles.get(id);
     if (!s) throw new Error(`Unknown server id: ${id}`);
     return s;
+  }
+
+  /** Merge viz metadata (no-op when SIM_VIZ is off). */
+  setRecordingMeta(partial: Partial<SimRecordingMeta>): void {
+    this.vizRecorder?.setMeta(partial);
   }
 
   subscribeSyncErrors(listener: (event: SyncErrorEvent) => void): Unsubscribe {
@@ -225,7 +267,8 @@ export class Sim {
 
 async function buildScenario(
   serverSpecs: ScenarioServerSpec[],
-  clientSpecs: ScenarioClientSpec[]
+  clientSpecs: ScenarioClientSpec[],
+  initialRecordingMeta?: Partial<SimRecordingMeta>
 ): Promise<Sim> {
   if (serverSpecs.length === 0) {
     throw new Error('patchDbScenario: add at least one .server()');
@@ -234,6 +277,10 @@ async function buildScenario(
   const recorder = isSimVizEnabled()
     ? new SimEventRecorder(() => scheduler.now())
     : null;
+
+  if (recorder !== null && initialRecordingMeta !== undefined) {
+    recorder.setMeta(initialRecordingMeta);
+  }
 
   const servers: ServerRuntime[] = [];
   const serverById = new Map<string, ServerRuntime>();

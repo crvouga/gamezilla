@@ -3,11 +3,21 @@ import { describe, expect, test } from 'bun:test';
 import { type SyncErrorEvent } from '../../impl-sync';
 import { getSim, registerSyncEngineHooks } from './harness';
 
+const VIZ_FILE = import.meta.path;
+
 registerSyncEngineHooks();
 
 describe('SyncPatchesDb (deterministic sim)', () => {
   test('push: create patch is pushed to remote', async () => {
     const sim = getSim();
+    sim.setRecordingMeta({
+      title: 'Push: create patch is pushed to remote',
+      intent: 'Unsynced local patch appears on server after a successful push.',
+      source: {
+        testFile: VIZ_FILE,
+        testName: 'push: create patch is pushed to remote',
+      },
+    });
     const c = sim.client('c1');
     const listId = crypto.randomUUID();
     await c.write([
@@ -41,6 +51,14 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
   test('push: soft-delete patch is pushed to remote', async () => {
     const sim = getSim();
+    sim.setRecordingMeta({
+      title: 'Push: soft-delete patch is pushed to remote',
+      intent: 'Deletion flags sync in a second push after entity creation.',
+      source: {
+        testFile: VIZ_FILE,
+        testName: 'push: soft-delete patch is pushed to remote',
+      },
+    });
     const c = sim.client('c1');
     const listId = crypto.randomUUID();
     await c.write([
@@ -86,6 +104,14 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
   test('push: multiple unsynced patches are all pushed', async () => {
     const sim = getSim();
+    sim.setRecordingMeta({
+      title: 'Push: multiple unsynced patches are all pushed',
+      intent: 'One push cycle uploads every outstanding unsynced patch.',
+      source: {
+        testFile: VIZ_FILE,
+        testName: 'push: multiple unsynced patches are all pushed',
+      },
+    });
     const c = sim.client('c1');
     const listId1 = crypto.randomUUID();
     const listId2 = crypto.randomUUID();
@@ -139,6 +165,14 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
   test('push: SYNC_ERROR_TOPIC after 5 consecutive push failures', async () => {
     const sim = getSim();
+    sim.setRecordingMeta({
+      title: 'Push: SYNC_ERROR_TOPIC after 5 consecutive failures',
+      intent: 'Repeated transport errors surface on pub/sub after threshold.',
+      source: {
+        testFile: VIZ_FILE,
+        testName: 'push: SYNC_ERROR_TOPIC after 5 consecutive push failures',
+      },
+    });
     const c = sim.client('c1');
     const listId = crypto.randomUUID();
     await c.write([
@@ -170,6 +204,14 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
   test('push: no SYNC_ERROR_TOPIC when 4 failures then 1 success', async () => {
     const sim = getSim();
+    sim.setRecordingMeta({
+      title: 'Push: recovery before fatal SYNC_ERROR_TOPIC threshold',
+      intent: 'Below threshold, a successful push clears streak; no sync_error event.',
+      source: {
+        testFile: VIZ_FILE,
+        testName: 'push: no SYNC_ERROR_TOPIC when 4 failures then 1 success',
+      },
+    });
     const c = sim.client('c1');
     const listId = crypto.randomUUID();
     await c.write([

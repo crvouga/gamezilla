@@ -15,6 +15,22 @@ export type SimTopology = {
   clients: { id: string; serverId: string }[];
 };
 
+export type SimRecordingMetaSource = {
+  testFile?: string;
+  suite?: string;
+  testName?: string;
+};
+
+/** Human context for viz (JSON-safe). Set via {@link SimEventRecorder.setMeta} / {@link Sim.setRecordingMeta}. */
+export type SimRecordingMeta = {
+  title?: string;
+  description?: string;
+  /** One-line: what the test proves. */
+  intent?: string;
+  source?: SimRecordingMetaSource;
+  tags?: string[];
+};
+
 /** JSON-safe summaries only (no circular refs). */
 export type PatchInputSummary = {
   entityId: string;
@@ -186,7 +202,24 @@ export type SimRecording = {
   events: SimEvent[];
   startedAt: number;
   endedAt: number;
+  meta?: SimRecordingMeta;
 };
+
+function buildMetaSnapshot(acc: SimRecordingMeta): SimRecordingMeta | undefined {
+  const out: SimRecordingMeta = {};
+  if (acc.title !== undefined) out.title = acc.title;
+  if (acc.description !== undefined) out.description = acc.description;
+  if (acc.intent !== undefined) out.intent = acc.intent;
+  if (acc.tags !== undefined && acc.tags.length > 0) out.tags = acc.tags;
+  if (acc.source !== undefined) {
+    const s: SimRecordingMetaSource = {};
+    if (acc.source.testFile !== undefined) s.testFile = acc.source.testFile;
+    if (acc.source.suite !== undefined) s.suite = acc.source.suite;
+    if (acc.source.testName !== undefined) s.testName = acc.source.testName;
+    if (Object.keys(s).length > 0) out.source = s;
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
+}
 
 /** Payload for {@link SimEventRecorder.emit} (`seq` is always assigned by the recorder). */
 export type SimEventInput = {
@@ -235,6 +268,7 @@ export class SimEventRecorder {
   private seq = 0;
   private readonly events: SimEvent[] = [];
   private topology: SimTopology = { servers: [], clients: [] };
+  private metaAcc: SimRecordingMeta = {};
   readonly id: string;
   readonly startedAt: number;
 
@@ -244,6 +278,28 @@ export class SimEventRecorder {
   ) {
     this.id = id ?? crypto.randomUUID();
     this.startedAt = this.getTime();
+  }
+
+  /** Shallow-merge recording metadata; `source` fields merge with previous `source`. */
+  setMeta(partial: Partial<SimRecordingMeta>): void {
+    if (partial.title !== undefined) {
+      this.metaAcc.title = partial.title;
+    }
+    if (partial.description !== undefined) {
+      this.metaAcc.description = partial.description;
+    }
+    if (partial.intent !== undefined) {
+      this.metaAcc.intent = partial.intent;
+    }
+    if (partial.tags !== undefined) {
+      this.metaAcc.tags = partial.tags;
+    }
+    if (partial.source !== undefined) {
+      this.metaAcc.source = {
+        ...this.metaAcc.source,
+        ...partial.source,
+      };
+    }
   }
 
   /** Set topology and emit a topology event on the timeline. */
@@ -275,12 +331,18 @@ export class SimEventRecorder {
   }
 
   finalize(): SimRecording {
-    return {
+    const endedAt = this.getTime();
+    const meta = buildMetaSnapshot(this.metaAcc);
+    const rec: SimRecording = {
       id: this.id,
       topology: this.topology,
       events: [...this.events],
       startedAt: this.startedAt,
-      endedAt: this.getTime(),
+      endedAt,
     };
+    if (meta !== undefined) {
+      rec.meta = meta;
+    }
+    return rec;
   }
 }

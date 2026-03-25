@@ -5,11 +5,21 @@ import { assertEntity, type Patch } from '../../interface';
 import { DELETED_CLAUSE } from './constants';
 import { getSim, registerSyncEngineHooks } from './harness';
 
+const VIZ_FILE = import.meta.path;
+
 registerSyncEngineHooks();
 
 describe('SyncPatchesDb (deterministic sim)', () => {
   test('poll: remote patches are merged into local', async () => {
     const sim = getSim();
+    sim.setRecordingMeta({
+      title: 'Poll: remote patches merge into local',
+      intent: 'Server writes become visible locally after poll with active subscription.',
+      source: {
+        testFile: VIZ_FILE,
+        testName: 'poll: remote patches are merged into local',
+      },
+    });
     const c = sim.client('c1');
     const srv = sim.server('s1');
     const listId = crypto.randomUUID();
@@ -53,6 +63,15 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
   test('poll: patches for deleted entities are fetched via tracked-entities query', async () => {
     const sim = getSim();
+    sim.setRecordingMeta({
+      title: 'Poll: tracked entities pick up delete patches',
+      intent: 'Second poll includes soft-delete patch for subscribed lists.',
+      source: {
+        testFile: VIZ_FILE,
+        testName:
+          'poll: patches for deleted entities are fetched via tracked-entities query',
+      },
+    });
     const c = sim.client('c1');
     const srv = sim.server('s1');
     const listId = crypto.randomUUID();
@@ -115,6 +134,15 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
   test('poll: sibling patch from another client is not missed when its patchId sorts before cursor', async () => {
     const sim = getSim();
+    sim.setRecordingMeta({
+      title: 'Poll: cursor does not skip lexicographically earlier sibling patch',
+      intent: 'Merge logic fetches all known patches, including IDs before cursor.',
+      source: {
+        testFile: VIZ_FILE,
+        testName:
+          'poll: sibling patch from another client is not missed when its patchId sorts before cursor',
+      },
+    });
     const c = sim.client('c1');
     const srv = sim.server('s1');
     const entityId = crypto.randomUUID();
@@ -189,6 +217,14 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
   test('partition: client cannot poll until link heals', async () => {
     const sim = getSim();
+    sim.setRecordingMeta({
+      title: 'Partition: poll blocked until heal',
+      intent: 'Partitioned link prevents remote read; heal allows merge again.',
+      source: {
+        testFile: VIZ_FILE,
+        testName: 'partition: client cannot poll until link heals',
+      },
+    });
     const c = sim.client('c1');
     const srv = sim.server('s1');
     const listId = crypto.randomUUID();
@@ -229,6 +265,14 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
   test('poll: SYNC_ERROR_TOPIC after 5 consecutive poll failures', async () => {
     const sim = getSim();
+    sim.setRecordingMeta({
+      title: 'Poll: SYNC_ERROR_TOPIC after 5 consecutive failures',
+      intent: 'Repeated poll read failures publish sync_error after threshold.',
+      source: {
+        testFile: VIZ_FILE,
+        testName: 'poll: SYNC_ERROR_TOPIC after 5 consecutive poll failures',
+      },
+    });
     const c = sim.client('c1');
     const srv = sim.server('s1');
     const listId = crypto.randomUUID();
@@ -267,6 +311,14 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
   test('poll: no SYNC_ERROR_TOPIC when 4 failures then 1 success', async () => {
     const sim = getSim();
+    sim.setRecordingMeta({
+      title: 'Poll: recovery before fatal threshold',
+      intent: 'Successful poll resets failure streak; no sync_error event.',
+      source: {
+        testFile: VIZ_FILE,
+        testName: 'poll: no SYNC_ERROR_TOPIC when 4 failures then 1 success',
+      },
+    });
     const c = sim.client('c1');
     const srv = sim.server('s1');
     const listId = crypto.randomUUID();
@@ -313,6 +365,15 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
   test('poll: overlapping runPollNow coalesces while first read is in flight', async () => {
     const sim = getSim();
+    sim.setRecordingMeta({
+      title: 'Poll: overlapping runPollNow coalesces',
+      intent: 'Concurrent polls share one in-flight read; no duplicate merge corruption.',
+      source: {
+        testFile: VIZ_FILE,
+        testName:
+          'poll: overlapping runPollNow coalesces while first read is in flight',
+      },
+    });
     const c = sim.client('c1');
     const srv = sim.server('s1');
     const listId = crypto.randomUUID();
@@ -354,6 +415,15 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
   test('poll: second poll with no remote changes keeps patch count stable', async () => {
     const sim = getSim();
+    sim.setRecordingMeta({
+      title: 'Poll: idempotent when remote unchanged',
+      intent: 'Second poll does not duplicate patches locally.',
+      source: {
+        testFile: VIZ_FILE,
+        testName:
+          'poll: second poll with no remote changes keeps patch count stable',
+      },
+    });
     const c = sim.client('c1');
     const srv = sim.server('s1');
     const listId = crypto.randomUUID();
@@ -392,6 +462,15 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
   test('poll: subscription limit does not truncate sync; all matching remote lists merge', async () => {
     const sim = getSim();
+    sim.setRecordingMeta({
+      title: 'Poll: list query limit does not drop entities from sync',
+      intent: 'Sync merges all matching server entities despite subscribe limit.',
+      source: {
+        testFile: VIZ_FILE,
+        testName:
+          'poll: subscription limit does not truncate sync; all matching remote lists merge',
+      },
+    });
     const c = sim.client('c1');
     const srv = sim.server('s1');
     const created = new Date(0).toISOString();

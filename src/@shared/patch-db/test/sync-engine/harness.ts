@@ -15,6 +15,9 @@ export function replaceSim(next: Sim): void {
 export function registerSyncEngineHooks(): void {
   beforeEach(async () => {
     sim = await patchDbScenario()
+      .meta({
+        source: { suite: 'sync-engine (single client)' },
+      })
       .server('s1')
       .client('c1', { server: 's1' })
       .build();

@@ -10,6 +10,9 @@ export function getTwoClientSim(): Sim {
 export function registerTwoClientSimHooks(): void {
   beforeEach(async () => {
     sim = await patchDbScenario()
+      .meta({
+        source: { suite: 'sync-engine (two clients)' },
+      })
       .server('s')
       .client('a', { server: 's' })
       .client('b', { server: 's' })

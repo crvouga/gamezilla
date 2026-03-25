@@ -1,11 +1,22 @@
 import { describe, expect, test } from 'bun:test';
 import { getSim, registerSyncEngineHooks } from './harness';
 
+const VIZ_FILE = import.meta.path;
+
 registerSyncEngineHooks();
 
 describe('SyncPatchesDb (deterministic sim)', () => {
   test('subscribe: same query stays live with one of two subscribers unsubscribed', async () => {
     const sim = getSim();
+    sim.setRecordingMeta({
+      title: 'Subscribe: query stays live after one subscriber leaves',
+      intent: 'Ref-counted subscription: remote updates still reach client with one active listener.',
+      source: {
+        testFile: VIZ_FILE,
+        testName:
+          'subscribe: same query stays live with one of two subscribers unsubscribed',
+      },
+    });
     const c = sim.client('c1');
     const srv = sim.server('s1');
     const listId = crypto.randomUUID();
@@ -47,6 +58,14 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
   test('subscribe.patches mirrors entities for sync lifecycle', async () => {
     const sim = getSim();
+    sim.setRecordingMeta({
+      title: 'Subscribe: patches stream fires after poll',
+      intent: 'subscribe.patches receives updates when merged patches arrive from poll.',
+      source: {
+        testFile: VIZ_FILE,
+        testName: 'subscribe.patches mirrors entities for sync lifecycle',
+      },
+    });
     const c = sim.client('c1');
     const srv = sim.server('s1');
     const listId = crypto.randomUUID();
