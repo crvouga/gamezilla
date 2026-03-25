@@ -10,6 +10,7 @@ describe('SyncPatchesDb (deterministic sim, multi-client offline)', () => {
   test('offline client diverges then reconciles with server and peer', async () => {
     const sim = getTwoClientSim();
     sim.setMeta({
+      enableViz: true,
       title: 'Offline client: partition, divergent edits, reconcile',
       intent:
         'After heal, push/poll merge server + peer changes; attribute conflicts resolve consistently.',

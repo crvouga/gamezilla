@@ -10,6 +10,7 @@ import type { SimEventRecorder } from './event-recorder';
 import {
   summarizePatchInputs,
   summarizeQueries,
+  summarizeResultEntities,
   summarizeResults,
 } from './event-recorder';
 import type { NetworkLink } from './network-link';
@@ -37,11 +38,15 @@ export class SimulatedPatchDbClientTransport implements PatchDbClientTransport {
       const results = await this.server.read(queries);
       if (this.recording) {
         const { recorder, clientId, getTime } = this.recording;
+        // #region agent log
+        fetch('http://127.0.0.1:7361/ingest/941b0c72-7feb-4dff-9211-7ec92eb2cf5b',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dffa91'},body:JSON.stringify({sessionId:'dffa91',location:'simulated-client-transport.ts:read',message:'remote_read emitted',data:{clientId,resultSummaries:summarizeResults(results),entityDetails:results.map(r=>r.entities.map(e=>({entityId:e.entityId,entityType:e.entityType,attrKeys:Object.keys(e.attributes||{})})))},timestamp:Date.now(),hypothesisId:'H-A'})}).catch(()=>{});
+        // #endregion
         recorder.emit({
           type: 'remote_read',
           clientId,
           queries: summarizeQueries(queries),
           results: summarizeResults(results),
+          summaries: summarizeResultEntities(results),
           time: getTime(),
         });
       }

@@ -40,6 +40,7 @@ yarn-error.*
 # Sim visualization pipeline (opt-in)
 .sim-recordings/
 sim-viz/
+!**/sim-viz/
 
 app-example
 

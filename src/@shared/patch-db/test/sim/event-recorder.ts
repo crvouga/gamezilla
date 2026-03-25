@@ -122,6 +122,8 @@ export type SimEvent =
       clientId: string;
       queries: QuerySummary[];
       results: ResultSummary[];
+      /** Entities returned by the read, so the viz can update the client's known-entity set. */
+      summaries: PatchInputSummary[];
     }
   | {
       type: 'remote_write';
@@ -274,6 +276,25 @@ export function summarizeResults(results: PatchesDbResult[]): ResultSummary[] {
     entityCount: r.entities.length,
     patchCount: r.patches.length,
   }));
+}
+
+export function summarizeResultEntities(
+  results: PatchesDbResult[]
+): PatchInputSummary[] {
+  const seen = new Set<string>();
+  const out: PatchInputSummary[] = [];
+  for (const r of results) {
+    for (const e of r.entities) {
+      if (seen.has(e.entityId)) continue;
+      seen.add(e.entityId);
+      out.push({
+        entityId: e.entityId,
+        entityType: e.entityType,
+        attributeKeys: Object.keys(e.attributes ?? {}),
+      });
+    }
+  }
+  return out;
 }
 
 export class SimEventRecorder {

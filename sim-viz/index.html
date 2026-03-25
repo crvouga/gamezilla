@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Patch DB — simulation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { fontFamily: {
+        mono: ['IBM Plex Mono', 'monospace'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      } } },
+    };
+  </script>
+  <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js"></script>
+  <style>
+    html, body, #root { height: 100%; margin: 0; }
+    @keyframes edgeFlow { to { stroke-dashoffset: -24; } }
+    .edge-live { stroke-dasharray: 6 5; animation: edgeFlow 1.6s linear infinite; }
+    .edge-dead { stroke-dasharray: 3 5; }
+    @keyframes captionSlide { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .caption-in { animation: captionSlide 0.22s ease-out forwards; }
+    .diff-add { color: #3ddc84; }
+    .diff-del { color: #e5484d; }
+    .diff-mod { color: #e8b931; }
+    @media (prefers-reduced-motion: reduce) {
+      .edge-live { animation: none; stroke-dasharray: none; }
+      .caption-in { animation: none; opacity: 1; }
+    }
+  </style>
+</head>
+<body class="dark h-full overflow-hidden bg-neutral-950 font-sans text-neutral-200 antialiased">
+  <div id="root" class="h-full"></div>
+  <script>
+    var RAW = [{"id":"1d4a7ccd-d73f-4c03-8d16-68f77a14d8e7","topology":{"servers":[{"id":"s","useSyncHost":false}],"clients":[{"id":"a","serverId":"s"},{"id":"b","serverId":"s"}]},"events":[{"type":"topology","topology":{"servers":[{"id":"s","useSyncHost":false}],"clients":[{"id":"a","serverId":"s"},{"id":"b","serverId":"s"}]},"time":0,"seq":1},{"type":"subscribe","clientId":"a","mode":"entities","queryKey":"{\"entityType\":\"todoList\",\"where\":{\"type\":\"or\",\"clauses\":[{\"type\":\"not_exists\",\"attribute\":\"todoList/deleted\"},{\"type\":\"=\",\"attribute\":\"todoList/deleted\",\"value\":false}]}}","time":0,"seq":2},{"type":"subscribe","clientId":"b","mode":"entities","queryKey":"{\"entityType\":\"todoList\",\"where\":{\"type\":\"or\",\"clauses\":[{\"type\":\"not_exists\",\"attribute\":\"todoList/deleted\"},{\"type\":\"=\",\"attribute\":\"todoList/deleted\",\"value\":false}]}}","time":0,"seq":3},{"type":"client_write","clientId":"a","summaries":[{"entityId":"470cc0c4-08d3-4b8e-a424-0c34cf223f55","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt"]}],"patchCount":1,"time":0,"seq":4},{"type":"push_start","clientId":"a","time":0,"seq":5},{"type":"network_op","phase":"begin","clientId":"a","op":"write","time":0,"seq":6},{"type":"invalidation_scheduled","clientId":"a","delayMs":0,"time":0,"seq":7},{"type":"invalidation_scheduled","clientId":"b","delayMs":0,"time":0,"seq":8},{"type":"remote_write","clientId":"a","summaries":[{"entityId":"470cc0c4-08d3-4b8e-a424-0c34cf223f55","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt","patch/syncedAt","patch/createdBy","patch/sessionId"]}],"returnedPatchCount":1,"time":0,"seq":9},{"type":"network_op","phase":"end","clientId":"a","op":"write","time":0,"ok":true,"durationMs":0,"seq":10},{"type":"push_success","clientId":"a","time":0,"seq":11},{"type":"poll_start","clientId":"b","time":0,"seq":12},{"type":"network_op","phase":"begin","clientId":"b","op":"read","time":0,"seq":13},{"type":"remote_read","clientId":"b","queries":[{"hasWhere":true,"entityType":"todoList"}],"results":[{"entityCount":1,"patchCount":1}],"summaries":[{"entityId":"470cc0c4-08d3-4b8e-a424-0c34cf223f55","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt"]}],"time":0,"seq":14},{"type":"network_op","phase":"end","clientId":"b","op":"read","time":0,"ok":true,"durationMs":0,"seq":15},{"type":"poll_success","clientId":"b","time":0,"seq":16},{"type":"partition","clientId":"b","time":0,"seq":17},{"type":"client_write","clientId":"a","summaries":[{"entityId":"7a9f5e51-cd09-4af6-9b7b-a4c81f23ccec","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt"]}],"patchCount":1,"time":0,"seq":18},{"type":"client_write","clientId":"a","summaries":[{"entityId":"71fadd14-c0ee-4570-993d-7687269af6a2","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt"]}],"patchCount":1,"time":0,"seq":19},{"type":"client_write","clientId":"a","summaries":[{"entityId":"f535e89a-4b22-40a9-ace7-d9c65344ef75","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt"]}],"patchCount":1,"time":0,"seq":20},{"type":"client_write","clientId":"a","summaries":[{"entityId":"79ed012e-36bf-44ca-b363-fc59ebc05f87","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt"]}],"patchCount":1,"time":0,"seq":21},{"type":"client_write","clientId":"a","summaries":[{"entityId":"470cc0c4-08d3-4b8e-a424-0c34cf223f55","entityType":"todoList","attributeKeys":["todoList/name"]}],"patchCount":1,"time":0,"seq":22},{"type":"push_start","clientId":"a","time":0,"seq":23},{"type":"network_op","phase":"begin","clientId":"a","op":"write","time":0,"seq":24},{"type":"invalidation_scheduled","clientId":"a","delayMs":0,"time":0,"seq":25},{"type":"remote_write","clientId":"a","summaries":[{"entityId":"470cc0c4-08d3-4b8e-a424-0c34cf223f55","entityType":"todoList","attributeKeys":["todoList/name","patch/syncedAt","patch/createdBy","patch/sessionId"]},{"entityId":"71fadd14-c0ee-4570-993d-7687269af6a2","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt","patch/syncedAt","patch/createdBy","patch/sessionId"]},{"entityId":"f535e89a-4b22-40a9-ace7-d9c65344ef75","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt","patch/syncedAt","patch/createdBy","patch/sessionId"]},{"entityId":"79ed012e-36bf-44ca-b363-fc59ebc05f87","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt","patch/syncedAt","patch/createdBy","patch/sessionId"]},{"entityId":"7a9f5e51-cd09-4af6-9b7b-a4c81f23ccec","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt","patch/syncedAt","patch/createdBy","patch/sessionId"]}],"returnedPatchCount":5,"time":0,"seq":26},{"type":"network_op","phase":"end","clientId":"a","op":"write","time":0,"ok":true,"durationMs":0,"seq":27},{"type":"push_success","clientId":"a","time":0,"seq":28},{"type":"client_write","clientId":"b","summaries":[{"entityId":"a3304807-8f1c-47a8-a496-2d0b6540a334","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt"]}],"patchCount":1,"time":0,"seq":29},{"type":"client_write","clientId":"b","summaries":[{"entityId":"470cc0c4-08d3-4b8e-a424-0c34cf223f55","entityType":"todoList","attributeKeys":["todoList/order"]}],"patchCount":1,"time":0,"seq":30},{"type":"heal","clientId":"b","time":0,"seq":31},{"type":"push_start","clientId":"b","time":0,"seq":32},{"type":"network_op","phase":"begin","clientId":"b","op":"write","time":0,"seq":33},{"type":"invalidation_scheduled","clientId":"a","delayMs":0,"time":0,"seq":34},{"type":"invalidation_scheduled","clientId":"b","delayMs":0,"time":0,"seq":35},{"type":"remote_write","clientId":"b","summaries":[{"entityId":"a3304807-8f1c-47a8-a496-2d0b6540a334","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt","patch/syncedAt","patch/createdBy","patch/sessionId"]},{"entityId":"470cc0c4-08d3-4b8e-a424-0c34cf223f55","entityType":"todoList","attributeKeys":["todoList/order","patch/syncedAt","patch/createdBy","patch/sessionId"]}],"returnedPatchCount":2,"time":0,"seq":36},{"type":"network_op","phase":"end","clientId":"b","op":"write","time":0,"ok":true,"durationMs":0,"seq":37},{"type":"push_success","clientId":"b","time":0,"seq":38},{"type":"poll_start","clientId":"b","time":0,"seq":39},{"type":"network_op","phase":"begin","clientId":"b","op":"read","time":0,"seq":40},{"type":"remote_read","clientId":"b","queries":[{"hasWhere":true,"entityType":"todoList"},{"hasWhere":false,"entityType":"todoList","entityId":["470cc0c4-08d3-4b8e-a424-0c34cf223f55","a3304807-8f1c-47a8-a496-2d0b6540a334"]}],"results":[{"entityCount":6,"patchCount":8},{"entityCount":2,"patchCount":4}],"summaries":[{"entityId":"470cc0c4-08d3-4b8e-a424-0c34cf223f55","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt"]},{"entityId":"71fadd14-c0ee-4570-993d-7687269af6a2","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt"]},{"entityId":"79ed012e-36bf-44ca-b363-fc59ebc05f87","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt"]},{"entityId":"7a9f5e51-cd09-4af6-9b7b-a4c81f23ccec","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt"]},{"entityId":"a3304807-8f1c-47a8-a496-2d0b6540a334","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt"]},{"entityId":"f535e89a-4b22-40a9-ace7-d9c65344ef75","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt"]}],"time":0,"seq":41},{"type":"network_op","phase":"end","clientId":"b","op":"read","time":0,"ok":true,"durationMs":0,"seq":42},{"type":"poll_success","clientId":"b","time":0,"seq":43},{"type":"poll_start","clientId":"a","time":0,"seq":44},{"type":"network_op","phase":"begin","clientId":"a","op":"read","time":0,"seq":45},{"type":"remote_read","clientId":"a","queries":[{"hasWhere":true,"entityType":"todoList"},{"hasWhere":false,"entityType":"todoList","entityId":["470cc0c4-08d3-4b8e-a424-0c34cf223f55","71fadd14-c0ee-4570-993d-7687269af6a2","79ed012e-36bf-44ca-b363-fc59ebc05f87","7a9f5e51-cd09-4af6-9b7b-a4c81f23ccec","f535e89a-4b22-40a9-ace7-d9c65344ef75"]}],"results":[{"entityCount":6,"patchCount":8},{"entityCount":5,"patchCount":7}],"summaries":[{"entityId":"470cc0c4-08d3-4b8e-a424-0c34cf223f55","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt"]},{"entityId":"71fadd14-c0ee-4570-993d-7687269af6a2","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt"]},{"entityId":"79ed012e-36bf-44ca-b363-fc59ebc05f87","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt"]},{"entityId":"7a9f5e51-cd09-4af6-9b7b-a4c81f23ccec","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt"]},{"entityId":"a3304807-8f1c-47a8-a496-2d0b6540a334","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt"]},{"entityId":"f535e89a-4b22-40a9-ace7-d9c65344ef75","entityType":"todoList","attributeKeys":["todoList/name","todoList/order","todoList/createdAt"]}],"time":0,"seq":46},{"type":"network_op","phase":"end","clientId":"a","op":"read","time":0,"ok":true,"durationMs":0,"seq":47},{"type":"poll_success","clientId":"a","time":0,"seq":48},{"type":"invalidation_delivered","clientId":"a","time":0,"seq":49},{"type":"invalidation_delivered","clientId":"b","time":0,"seq":50},{"type":"invalidation_delivered","clientId":"a","time":0,"seq":51},{"type":"invalidation_delivered","clientId":"a","time":0,"seq":52},{"type":"invalidation_delivered","clientId":"b","time":0,"seq":53},{"type":"unsubscribe","clientId":"a","mode":"entities","queryKey":"{\"entityType\":\"todoList\",\"where\":{\"type\":\"or\",\"clauses\":[{\"type\":\"not_exists\",\"attribute\":\"todoList/deleted\"},{\"type\":\"=\",\"attribute\":\"todoList/deleted\",\"value\":false}]}}","time":0,"seq":54},{"type":"unsubscribe","clientId":"b","mode":"entities","queryKey":"{\"entityType\":\"todoList\",\"where\":{\"type\":\"or\",\"clauses\":[{\"type\":\"not_exists\",\"attribute\":\"todoList/deleted\"},{\"type\":\"=\",\"attribute\":\"todoList/deleted\",\"value\":false}]}}","time":0,"seq":55}],"startedAt":0,"endedAt":0,"meta":{"title":"Offline client: partition, divergent edits, reconcile","description":"B partitions while A continues online; both edit shared entity; reconcile restores full entity set and merged attributes.","intent":"After heal, push/poll merge server + peer changes; attribute conflicts resolve consistently.","source":{"testFile":"/Users/chrisvouga/gamezilla.app/src/@shared/patch-db/test/sync-engine/multi-client-offline-reconcile.test.ts","suite":"sync-engine (two clients)","testName":"offline client diverges then reconciles with server and peer"}},"viz":{"schema":1,"timeline":"discrete-seq","stepCount":55}}];
+    var DIR_LABEL = ".sim-recordings";
+  </script>
+  <script>(() => {
+  // src/@shared/patch-db/test/sim/sim-viz/constants.ts
+  var NS = "http://www.w3.org/2000/svg";
+  var STEP_MS = 600;
+  var C = {
+    bg: "#0a0a0a",
+    node: "#161616",
+    nodeBorder: "#333",
+    nodeSelBg: "#1a1a30",
+    nodeSelBorder: "#4f6df5",
+    text: "#999",
+    textLight: "#ccc",
+    textDim: "#555",
+    edge: "#3a3a3a",
+    edgeBroken: "#222",
+    blue: "#4f8ff5",
+    green: "#3ddc84",
+    orange: "#f59e42",
+    red: "#e5484d",
+    violet: "#9b8afb",
+    teal: "#36c5a0",
+    yellow: "#e8b931",
+    dimRed: "#5c2024"
+  };
+  var NODE_COLORS = [
+    "#4f8ff5",
+    "#f59e42",
+    "#3ddc84",
+    "#e5484d",
+    "#9b8afb",
+    "#36c5a0",
+    "#e8b931",
+    "#f472b6",
+    "#67e8f9",
+    "#a78bfa"
+  ];
+  function nodeColor(allIds, id) {
+    const i = allIds.indexOf(id);
+    return NODE_COLORS[i >= 0 ? i % NODE_COLORS.length : 0];
+  }
+  var STATUS_MAP = {
+    idle: { label: "Idle", color: C.text, dot: C.text },
+    consistent: { label: "Consistent", color: C.green, dot: C.green },
+    inconsistent: { label: "Inconsistent", color: C.red, dot: C.red },
+    syncing: { label: "Syncing…", color: C.yellow, dot: C.yellow },
+    partitioned: { label: "All partitioned", color: C.red, dot: C.dimRed }
+  };
+
+  // src/@shared/patch-db/test/sim/sim-viz/data.ts
+  function sortRecordings(raw) {
+    const arr = Array.isArray(raw) ? raw.slice() : [];
+    arr.sort((a, b) => (a.meta?.title || a.id).localeCompare(b.meta?.title || b.id) || a.id.localeCompare(b.id));
+    return arr;
+  }
+  function getOrderedEvents(rec) {
+    return rec.events.slice().sort((a, b) => a.seq - b.seq);
+  }
+  function mergeSummariesInto(store, summaries) {
+    if (!summaries)
+      return;
+    for (const s of summaries) {
+      let row = store[s.entityId];
+      if (!row) {
+        row = { entityType: s.entityType, attrs: {} };
+        store[s.entityId] = row;
+      }
+      for (const k of s.attributeKeys || [])
+        row.attrs[k] = true;
+    }
+  }
+  function replayNodeStates(rec, count) {
+    const topo = rec.topology;
+    const srvS = {};
+    const cliS = {};
+    const cliPart = {};
+    const cliPoll = {};
+    const srv4cli = {};
+    for (const s of topo.servers)
+      srvS[s.id] = {};
+    for (const c of topo.clients) {
+      cliS[c.id] = {};
+      cliPart[c.id] = false;
+      cliPoll[c.id] = null;
+      srv4cli[c.id] = c.serverId;
+    }
+    const ordered = getOrderedEvents(rec);
+    const n = Math.max(0, Math.min(count, ordered.length));
+    for (let i = 0;i < n; i++) {
+      const e = ordered[i];
+      switch (e.type) {
+        case "client_write":
+          mergeSummariesInto(cliS[e.clientId], e.summaries);
+          break;
+        case "server_write":
+          mergeSummariesInto(srvS[e.serverId], e.summaries);
+          break;
+        case "remote_write": {
+          const sid = srv4cli[e.clientId];
+          if (sid)
+            mergeSummariesInto(srvS[sid], e.summaries);
+          mergeSummariesInto(cliS[e.clientId], e.summaries);
+          break;
+        }
+        case "remote_read":
+          cliPoll[e.clientId] = { results: e.results ?? [] };
+          break;
+        case "partition":
+          cliPart[e.clientId] = true;
+          break;
+        case "heal":
+          cliPart[e.clientId] = false;
+          break;
+      }
+    }
+    const toRows = (s) => Object.keys(s).sort().map((id) => ({
+      entityId: id,
+      entityType: s[id].entityType,
+      attrs: Object.keys(s[id].attrs).sort()
+    }));
+    return {
+      servers: topo.servers.map((s) => ({ id: s.id, rows: toRows(srvS[s.id]) })),
+      clients: topo.clients.map((c) => ({
+        id: c.id,
+        serverId: c.serverId,
+        partitioned: cliPart[c.id],
+        rows: toRows(cliS[c.id]),
+        lastPoll: cliPoll[c.id]
+      }))
+    };
+  }
+  function checkConsistency(rec, step) {
+    const snap = replayNodeStates(rec, step);
+    const ordered = getOrderedEvents(rec);
+    const applied = ordered.slice(0, step);
+    const srvMap = {};
+    for (const s of snap.servers)
+      srvMap[s.id] = s;
+    let allMatch = true, anyOnline = false, pendingOps = false;
+    const openPush = {};
+    const openPoll = {};
+    for (const e of applied) {
+      if (e.type === "push_start")
+        openPush[e.clientId] = true;
+      if (e.type === "push_success" || e.type === "push_fail")
+        delete openPush[e.clientId];
+      if (e.type === "poll_start")
+        openPoll[e.clientId] = true;
+      if (e.type === "poll_success" || e.type === "poll_fail")
+        delete openPoll[e.clientId];
+    }
+    for (const c of snap.clients) {
+      if (c.partitioned)
+        continue;
+      anyOnline = true;
+      if (openPush[c.id] || openPoll[c.id]) {
+        pendingOps = true;
+        continue;
+      }
+      const srv = srvMap[c.serverId];
+      if (!srv) {
+        allMatch = false;
+        continue;
+      }
+      const srvIds = new Set(srv.rows.map((r) => r.entityId));
+      const cliIds = new Set(c.rows.map((r) => r.entityId));
+      if (srvIds.size !== cliIds.size) {
+        allMatch = false;
+        continue;
+      }
+      for (const id of srvIds) {
+        if (!cliIds.has(id)) {
+          allMatch = false;
+          break;
+        }
+      }
+      if (!allMatch)
+        break;
+      const srvAttrs = {};
+      for (const r of srv.rows)
+        srvAttrs[r.entityId] = r.attrs.join(",");
+      for (const r of c.rows) {
+        if (srvAttrs[r.entityId] !== r.attrs.join(",")) {
+          allMatch = false;
+          break;
+        }
+      }
+      if (!allMatch)
+        break;
+    }
+    if (step === 0)
+      return "idle";
+    if (!anyOnline)
+      return "partitioned";
+    if (pendingOps)
+      return "syncing";
+    return allMatch ? "consistent" : "inconsistent";
+  }
+  function buildEntityDiff(snapshot, _topo) {
+    if (!snapshot)
+      return { entities: [], nodeIds: [], nodeLabels: {} };
+    const nodeMap = {};
+    const nodeIds = [];
+    const nodeLabels = {};
+    for (const s of snapshot.servers) {
+      const nid = "s:" + s.id;
+      nodeIds.push(nid);
+      nodeLabels[nid] = "server:" + s.id;
+      const m = {};
+      for (const r of s.rows)
+        m[r.entityId] = { type: r.entityType, attrs: new Set(r.attrs) };
+      nodeMap[nid] = m;
+    }
+    for (const c of snapshot.clients) {
+      const nid = "c:" + c.id;
+      nodeIds.push(nid);
+      nodeLabels[nid] = "client:" + c.id;
+      const m = {};
+      for (const r of c.rows)
+        m[r.entityId] = { type: r.entityType, attrs: new Set(r.attrs) };
+      nodeMap[nid] = m;
+    }
+    const allEntityIds = new Set;
+    for (const nid of nodeIds)
+      for (const eid of Object.keys(nodeMap[nid]))
+        allEntityIds.add(eid);
+    const entities = [];
+    for (const eid of [...allEntityIds].sort()) {
+      const perNode = {};
+      let anyType = "";
+      for (const nid of nodeIds) {
+        const e = nodeMap[nid][eid];
+        if (e) {
+          perNode[nid] = e;
+          anyType = e.type;
+        }
+      }
+      const presentOn = Object.keys(perNode);
+      const missingOn = nodeIds.filter((n) => !perNode[n]);
+      const entityDiffers = missingOn.length > 0;
+      const allAttrs = new Set;
+      for (const nid of nodeIds) {
+        const e = perNode[nid];
+        if (e)
+          e.attrs.forEach((a) => allAttrs.add(a));
+      }
+      const attrLines = [...allAttrs].sort().map((attr) => {
+        const nodesWith = nodeIds.filter((n) => perNode[n]?.attrs.has(attr));
+        const nodesWithout = nodeIds.filter((n) => perNode[n] && !perNode[n].attrs.has(attr));
+        const allPresent = nodesWith.length === presentOn.length && missingOn.length === 0;
+        return { attr, allConsistent: allPresent, nodesWith, nodesWithout };
+      });
+      const hasDiff = entityDiffers || attrLines.some((l) => !l.allConsistent);
+      entities.push({ entityId: eid, entityType: anyType, perNode, missingOn, attrLines, hasDiff });
+    }
+    return { entities, nodeIds, nodeLabels };
+  }
+
+  // src/@shared/patch-db/test/sim/sim-viz/layout.ts
+  function buildLayout(topo, W, H) {
+    const srvY = 90, cliY = H - 90;
+    const pos = {};
+    const links = [];
+    const bySrv = {};
+    for (const c of topo.clients)
+      (bySrv[c.serverId] ||= []).push(c);
+    const nS = topo.servers.length, pad = 140, inner = W - 2 * pad;
+    topo.servers.forEach((s, i) => {
+      pos["s:" + s.id] = {
+        x: nS <= 1 ? W / 2 : pad + inner * i / Math.max(nS - 1, 1),
+        y: srvY
+      };
+    });
+    topo.clients.forEach((c) => {
+      const list = bySrv[c.serverId] || [c], ci = list.indexOf(c), n = list.length;
+      const sx = pos["s:" + c.serverId]?.x ?? W / 2;
+      const spread = Math.min(180, inner / Math.max(nS * 2, 1));
+      pos["c:" + c.id] = { x: sx + (ci - (n - 1) / 2) * spread, y: cliY };
+      links.push({ s: "s:" + c.serverId, c: "c:" + c.id, clientId: c.id });
+    });
+    return { pos, links, W, H };
+  }
+  function edgeGeo(a, b) {
+    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    const bend = Math.abs(b.y - a.y) < 8 ? 0 : (b.y - a.y) * 0.3;
+    const cx = mx, cy = my - bend;
+    return {
+      d: `M${a.x},${a.y} Q${cx},${cy} ${b.x},${b.y}`,
+      ctrl: { x: cx, y: cy },
+      mid: {
+        x: 0.25 * a.x + 0.5 * cx + 0.25 * b.x,
+        y: 0.25 * a.y + 0.5 * cy + 0.25 * b.y
+      }
+    };
+  }
+  function bezPt(a, c, b, t) {
+    const u = 1 - t;
+    return {
+      x: u * u * a.x + 2 * u * t * c.x + t * t * b.x,
+      y: u * u * a.y + 2 * u * t * c.y + t * t * b.y
+    };
+  }
+
+  // src/@shared/patch-db/test/sim/sim-viz/narration.ts
+  function story(e) {
+    if (!e)
+      return "";
+    const m = {
+      topology: "topology — network initialized.",
+      client_write: () => `client_write — client:${e.clientId} writes ${e.patchCount} patch${e.patchCount === 1 ? "" : "es"} locally.`,
+      server_write: () => `server_write — server:${e.serverId} writes ${e.patchCount} patch${e.patchCount === 1 ? "" : "es"}.`,
+      push_start: () => `push_start — client:${e.clientId} pushes patches to server.`,
+      push_success: () => `push_success — client:${e.clientId} push completed.`,
+      push_fail: () => `push_fail — client:${e.clientId} push rejected.`,
+      poll_start: () => `poll_start — client:${e.clientId} polls server for changes.`,
+      poll_success: () => `poll_success — client:${e.clientId} poll completed.`,
+      poll_fail: () => `poll_fail — client:${e.clientId} poll rejected.`,
+      network_op: () => `network_op ${e.op} ${e.phase} — client:${e.clientId}` + (e.phase === "end" && e.ok === false ? " (error)" : ""),
+      remote_read: () => `remote_read — server → client:${e.clientId} (${(e.results || []).reduce((s, r) => s + r.entityCount, 0)} entities, ${(e.results || []).reduce((s, r) => s + r.patchCount, 0)} patches).`,
+      remote_write: () => `remote_write — client:${e.clientId} → server (${e.returnedPatchCount} patch${e.returnedPatchCount === 1 ? "" : "es"}).`,
+      partition: () => `partition — client:${e.clientId} partitioned from server.`,
+      heal: () => `heal — client:${e.clientId} partition healed.`,
+      invalidation_scheduled: () => `invalidation_scheduled — server schedules invalidation for client:${e.clientId}.`,
+      invalidation_delivered: () => `invalidation_delivered — invalidation reaches client:${e.clientId}.`,
+      invalidation_dropped: () => `invalidation_dropped — client:${e.clientId} (${e.reason}).`,
+      subscribe: () => `subscribe — client:${e.clientId} subscribes (${e.mode}).`,
+      unsubscribe: () => `unsubscribe — client:${e.clientId} unsubscribes (${e.mode}).`,
+      sync_error: () => `sync_error — client:${e.clientId} (${e.source}).`
+    };
+    const fn = m[e.type];
+    return typeof fn === "function" ? fn() : fn || e.type;
+  }
+  function shortDesc(e) {
+    if (!e)
+      return "";
+    const m = {
+      client_write: `client_write ${e.clientId} (${e.patchCount})`,
+      server_write: `server_write ${e.serverId} (${e.patchCount})`,
+      push_start: `push_start ${e.clientId}`,
+      push_success: `push_success ${e.clientId}`,
+      push_fail: `push_fail ${e.clientId}`,
+      poll_start: `poll_start ${e.clientId}`,
+      poll_success: `poll_success ${e.clientId}`,
+      poll_fail: `poll_fail ${e.clientId}`,
+      network_op: `network_op ${e.op} ${e.phase}`,
+      remote_read: `remote_read ${e.clientId}`,
+      remote_write: `remote_write ${e.clientId}`,
+      partition: `partition ${e.clientId}`,
+      heal: `heal ${e.clientId}`,
+      invalidation_scheduled: `invalidation_scheduled ${e.clientId}`,
+      invalidation_delivered: `invalidation_delivered ${e.clientId}`,
+      invalidation_dropped: `invalidation_dropped ${e.clientId}`,
+      subscribe: `subscribe ${e.clientId}`,
+      unsubscribe: `unsubscribe ${e.clientId}`,
+      sync_error: `sync_error ${e.clientId}`,
+      topology: "topology"
+    };
+    return m[e.type] || e.type;
+  }
+
+  // src/@shared/patch-db/test/sim/sim-viz/animation.ts
+  function dataMagnitude(ev) {
+    switch (ev.type) {
+      case "client_write":
+      case "server_write":
+        return {
+          count: ev.patchCount || 1,
+          weight: (ev.summaries || []).reduce((s, x) => s + (x.attributeKeys?.length || 1), 0)
+        };
+      case "remote_write":
+        return {
+          count: ev.returnedPatchCount || 1,
+          weight: (ev.summaries || []).reduce((s, x) => s + (x.attributeKeys?.length || 1), 0)
+        };
+      case "remote_read": {
+        const r = ev.results || [];
+        const cnt = r.reduce((s, x) => s + x.entityCount, 0);
+        const w = r.reduce((s, x) => s + x.patchCount, 0);
+        return { count: cnt || 1, weight: w || 1 };
+      }
+      default:
+        return { count: 1, weight: 1 };
+    }
+  }
+  function pktParams(ev) {
+    const m = dataMagnitude(ev);
+    return {
+      dots: Math.max(2, Math.min(8, m.count)),
+      baseR: Math.max(3, Math.min(7, 2.5 + m.weight * 0.4))
+    };
+  }
+  function svgEl(parent, tag, attrs) {
+    const el = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs))
+      el.setAttribute(k, String(v));
+    parent.appendChild(el);
+    return el;
+  }
+  function ring(tl, layer, x, y, color, r0, r1, delay, dur) {
+    const c = svgEl(layer, "circle", {
+      cx: x,
+      cy: y,
+      r: r0,
+      fill: "none",
+      stroke: color,
+      "stroke-width": 2.5,
+      opacity: 0
+    });
+    tl.fromTo(c, { attr: { r: r0, opacity: 0.85, "stroke-width": 2.5 } }, { attr: { r: r1, opacity: 0, "stroke-width": 0.3 }, duration: dur, ease: "power2.out", onComplete: () => c.remove() }, delay);
+  }
+  function lbl(tl, layer, x, y, text, color, delay) {
+    const t = svgEl(layer, "text", {
+      x,
+      y,
+      "text-anchor": "middle",
+      fill: color,
+      stroke: C.bg,
+      "stroke-width": 4,
+      "paint-order": "stroke",
+      "font-size": 11,
+      "font-weight": 500,
+      "font-family": "'Inter', system-ui",
+      opacity: 0
+    });
+    t.textContent = text;
+    tl.fromTo(t, { attr: { opacity: 0, y: y + 3 } }, { attr: { opacity: 1, y }, duration: 0.18, ease: "power2.out" }, delay);
+    tl.to(t, { attr: { opacity: 0, y: y - 5 }, duration: 0.16, onComplete: () => t.remove() }, delay + 0.32);
+  }
+  function edgeFlash(tl, layer, d, color, delay, dur) {
+    const p = svgEl(layer, "path", {
+      d,
+      fill: "none",
+      stroke: color,
+      "stroke-width": 4,
+      "stroke-linecap": "round",
+      opacity: 0
+    });
+    tl.fromTo(p, { attr: { opacity: 0.6 } }, { attr: { opacity: 0 }, duration: dur, ease: "power1.out", onComplete: () => p.remove() }, delay);
+  }
+  function pkts(tl, layer, from, ctrl, to, color, n, baseR, delay, dur) {
+    for (let i = 0;i < n; i++) {
+      const r = Math.max(2, baseR - i * 0.4);
+      const dot = svgEl(layer, "circle", { cx: from.x, cy: from.y, r, fill: color, opacity: 0 });
+      const glow = svgEl(layer, "circle", { cx: from.x, cy: from.y, r: r * 2, fill: color, opacity: 0 });
+      const proxy = { t: 0 }, d0 = delay + i * 0.055;
+      tl.to(proxy, {
+        t: 1,
+        duration: dur,
+        ease: "power1.inOut",
+        onStart() {
+          dot.setAttribute("opacity", "0.92");
+          glow.setAttribute("opacity", "0.14");
+        },
+        onUpdate() {
+          const p = bezPt(from, ctrl, to, proxy.t);
+          dot.setAttribute("cx", String(p.x));
+          dot.setAttribute("cy", String(p.y));
+          glow.setAttribute("cx", String(p.x));
+          glow.setAttribute("cy", String(p.y));
+        },
+        onComplete() {
+          dot.remove();
+          glow.remove();
+        }
+      }, d0);
+    }
+  }
+  function xMk(tl, layer, x, y, delay) {
+    const a = svgEl(layer, "line", { x1: x - 7, y1: y - 7, x2: x + 7, y2: y + 7, stroke: C.red, "stroke-width": 2, "stroke-linecap": "round", opacity: 0 });
+    const b = svgEl(layer, "line", { x1: x + 7, y1: y - 7, x2: x - 7, y2: y + 7, stroke: C.red, "stroke-width": 2, "stroke-linecap": "round", opacity: 0 });
+    tl.to([a, b], { attr: { opacity: 1 }, duration: 0.1 }, delay);
+    tl.to([a, b], { attr: { opacity: 0 }, duration: 0.2, onComplete() {
+      a.remove();
+      b.remove();
+    } }, delay + 0.3);
+  }
+  function chk(tl, layer, x, y, color, delay) {
+    const p = svgEl(layer, "polyline", {
+      points: `${x - 5},${y} ${x - 1},${y + 4} ${x + 6},${y - 4}`,
+      fill: "none",
+      stroke: color,
+      "stroke-width": 2,
+      "stroke-linecap": "round",
+      "stroke-linejoin": "round",
+      opacity: 0
+    });
+    tl.to(p, { attr: { opacity: 1 }, duration: 0.12 }, delay);
+    tl.to(p, { attr: { opacity: 0 }, duration: 0.18, onComplete: () => p.remove() }, delay + 0.32);
+  }
+  function buildEventAnim(ev, layer, layout, topo) {
+    const tl = gsap.timeline();
+    const srvOf = (cid) => topo.clients.find((c) => c.id === cid)?.serverId;
+    const cs = (cid) => {
+      const sid = srvOf(cid);
+      if (!sid)
+        return null;
+      const a = layout.pos["s:" + sid], b = layout.pos["c:" + cid];
+      if (!a || !b)
+        return null;
+      return { sPos: a, cPos: b, ...edgeGeo(a, b) };
+    };
+    const pp = pktParams(ev);
+    switch (ev.type) {
+      case "client_write": {
+        const p = layout.pos["c:" + ev.clientId];
+        if (!p)
+          break;
+        ring(tl, layer, p.x, p.y, C.blue, 24, 52, 0, 0.45);
+        ring(tl, layer, p.x, p.y, C.blue, 24, 40, 0.06, 0.38);
+        lbl(tl, layer, p.x, p.y - 46, "client_write", C.blue, 0.02);
+        break;
+      }
+      case "server_write": {
+        const p = layout.pos["s:" + ev.serverId];
+        if (!p)
+          break;
+        ring(tl, layer, p.x, p.y, C.yellow, 28, 54, 0, 0.45);
+        ring(tl, layer, p.x, p.y, C.yellow, 28, 42, 0.06, 0.38);
+        lbl(tl, layer, p.x, p.y - 50, "server_write", C.yellow, 0.02);
+        break;
+      }
+      case "push_start": {
+        const e = cs(ev.clientId);
+        if (!e)
+          break;
+        ring(tl, layer, e.cPos.x, e.cPos.y, C.orange, 24, 38, 0, 0.3);
+        pkts(tl, layer, e.cPos, e.ctrl, e.sPos, C.orange, pp.dots, pp.baseR, 0.03, 0.4);
+        edgeFlash(tl, layer, e.d, C.orange, 0, 0.45);
+        lbl(tl, layer, e.mid.x, e.mid.y - 10, "push →", C.orange, 0.03);
+        break;
+      }
+      case "push_success": {
+        const e = cs(ev.clientId);
+        if (!e)
+          break;
+        ring(tl, layer, e.sPos.x, e.sPos.y, C.green, 28, 52, 0, 0.4);
+        edgeFlash(tl, layer, e.d, C.green, 0, 0.28);
+        chk(tl, layer, e.sPos.x, e.sPos.y - 42, C.green, 0.04);
+        lbl(tl, layer, e.sPos.x, e.sPos.y - 52, "push_success", C.green, 0);
+        break;
+      }
+      case "push_fail": {
+        const e = cs(ev.clientId);
+        if (!e)
+          break;
+        ring(tl, layer, e.cPos.x, e.cPos.y, C.red, 24, 48, 0, 0.5);
+        edgeFlash(tl, layer, e.d, C.red, 0, 0.38);
+        xMk(tl, layer, e.mid.x, e.mid.y, 0.04);
+        lbl(tl, layer, e.mid.x, e.mid.y - 14, "push_fail", C.red, 0.02);
+        break;
+      }
+      case "poll_start": {
+        const e = cs(ev.clientId);
+        if (!e)
+          break;
+        ring(tl, layer, e.cPos.x, e.cPos.y, C.teal, 24, 36, 0, 0.3);
+        pkts(tl, layer, e.cPos, e.ctrl, e.sPos, C.teal, 2, 3.5, 0.03, 0.32);
+        edgeFlash(tl, layer, e.d, C.teal, 0, 0.35);
+        lbl(tl, layer, e.mid.x, e.mid.y - 10, "poll →", C.teal, 0.03);
+        break;
+      }
+      case "poll_success": {
+        const e = cs(ev.clientId);
+        if (!e)
+          break;
+        ring(tl, layer, e.cPos.x, e.cPos.y, C.green, 24, 50, 0, 0.4);
+        edgeFlash(tl, layer, e.d, C.green, 0, 0.28);
+        chk(tl, layer, e.cPos.x, e.cPos.y - 38, C.green, 0.04);
+        lbl(tl, layer, e.cPos.x, e.cPos.y - 48, "poll_success", C.green, 0);
+        break;
+      }
+      case "poll_fail": {
+        const e = cs(ev.clientId);
+        if (!e)
+          break;
+        ring(tl, layer, e.cPos.x, e.cPos.y, C.red, 24, 46, 0, 0.5);
+        edgeFlash(tl, layer, e.d, C.red, 0, 0.38);
+        xMk(tl, layer, e.mid.x, e.mid.y, 0.04);
+        lbl(tl, layer, e.mid.x, e.mid.y - 14, "poll_fail", C.red, 0.02);
+        break;
+      }
+      case "network_op": {
+        const e = cs(ev.clientId);
+        if (!e)
+          break;
+        if (ev.phase === "begin") {
+          const col = ev.op === "write" ? C.orange : C.green;
+          const dir = ev.op === "write";
+          pkts(tl, layer, dir ? e.cPos : e.sPos, e.ctrl, dir ? e.sPos : e.cPos, col, pp.dots, pp.baseR, 0, 0.35);
+          edgeFlash(tl, layer, e.d, col, 0, 0.38);
+          lbl(tl, layer, e.mid.x, e.mid.y - 10, "network_op " + ev.op, col, 0);
+        } else if (ev.ok === false) {
+          edgeFlash(tl, layer, e.d, C.red, 0, 0.32);
+          xMk(tl, layer, e.mid.x, e.mid.y, 0);
+          lbl(tl, layer, e.mid.x, e.mid.y - 14, "network_op error", C.red, 0);
+        } else {
+          edgeFlash(tl, layer, e.d, C.green, 0, 0.2);
+        }
+        break;
+      }
+      case "remote_read": {
+        const e = cs(ev.clientId);
+        if (!e)
+          break;
+        pkts(tl, layer, e.sPos, e.ctrl, e.cPos, C.green, pp.dots, pp.baseR, 0, 0.42);
+        edgeFlash(tl, layer, e.d, C.green, 0, 0.5);
+        ring(tl, layer, e.cPos.x, e.cPos.y, C.green, 24, 50, 0.26, 0.38);
+        const cnt = (ev.results || []).reduce((s, r) => s + r.entityCount, 0);
+        lbl(tl, layer, e.mid.x, e.mid.y - 10, "← remote_read (" + cnt + ")", C.green, 0.03);
+        break;
+      }
+      case "remote_write": {
+        const e = cs(ev.clientId);
+        if (!e)
+          break;
+        pkts(tl, layer, e.cPos, e.ctrl, e.sPos, C.orange, pp.dots, pp.baseR, 0, 0.42);
+        edgeFlash(tl, layer, e.d, C.orange, 0, 0.5);
+        ring(tl, layer, e.sPos.x, e.sPos.y, C.yellow, 28, 52, 0.26, 0.38);
+        lbl(tl, layer, e.mid.x, e.mid.y - 10, "remote_write (" + ev.returnedPatchCount + ") →", C.orange, 0.03);
+        break;
+      }
+      case "partition": {
+        const e = cs(ev.clientId);
+        if (!e)
+          break;
+        ring(tl, layer, e.mid.x, e.mid.y, C.red, 6, 40, 0, 0.55);
+        ring(tl, layer, e.cPos.x, e.cPos.y, C.red, 24, 58, 0.03, 0.5);
+        xMk(tl, layer, e.mid.x, e.mid.y, 0.02);
+        edgeFlash(tl, layer, e.d, C.red, 0, 0.45);
+        lbl(tl, layer, e.mid.x, e.mid.y - 16, "partition", C.red, 0);
+        break;
+      }
+      case "heal": {
+        const e = cs(ev.clientId);
+        if (!e)
+          break;
+        ring(tl, layer, e.mid.x, e.mid.y, C.green, 6, 34, 0, 0.45);
+        ring(tl, layer, e.cPos.x, e.cPos.y, C.green, 24, 54, 0.05, 0.45);
+        edgeFlash(tl, layer, e.d, C.green, 0, 0.45);
+        chk(tl, layer, e.mid.x, e.mid.y - 14, C.green, 0.04);
+        pkts(tl, layer, e.sPos, e.ctrl, e.cPos, C.green, 2, 3.5, 0.1, 0.3);
+        lbl(tl, layer, e.mid.x, e.mid.y - 24, "heal", C.green, 0);
+        break;
+      }
+      case "invalidation_scheduled": {
+        const sid = srvOf(ev.clientId);
+        if (!sid)
+          break;
+        const p = layout.pos["s:" + sid];
+        if (!p)
+          break;
+        ring(tl, layer, p.x, p.y, C.violet, 28, 44, 0, 0.38);
+        lbl(tl, layer, p.x, p.y - 50, "invalidation_scheduled", C.violet, 0);
+        break;
+      }
+      case "invalidation_delivered": {
+        const e = cs(ev.clientId);
+        if (!e)
+          break;
+        pkts(tl, layer, e.sPos, e.ctrl, e.cPos, C.violet, 2, 3.5, 0, 0.38);
+        ring(tl, layer, e.cPos.x, e.cPos.y, C.violet, 24, 46, 0.22, 0.38);
+        edgeFlash(tl, layer, e.d, C.violet, 0, 0.42);
+        lbl(tl, layer, e.mid.x, e.mid.y - 10, "← invalidation_delivered", C.violet, 0.03);
+        break;
+      }
+      case "invalidation_dropped": {
+        const e = cs(ev.clientId);
+        if (!e)
+          break;
+        const dot = svgEl(layer, "circle", { cx: e.sPos.x, cy: e.sPos.y, r: 4, fill: C.violet, opacity: 0 });
+        const proxy = { t: 0 };
+        tl.to(proxy, {
+          t: 0.5,
+          duration: 0.26,
+          onStart() {
+            dot.setAttribute("opacity", "0.85");
+          },
+          onUpdate() {
+            const p = bezPt(e.sPos, e.ctrl, e.cPos, proxy.t);
+            dot.setAttribute("cx", String(p.x));
+            dot.setAttribute("cy", String(p.y));
+          },
+          onComplete() {
+            gsap.to(dot, { attr: { opacity: 0, r: 0 }, duration: 0.15, onComplete: () => dot.remove() });
+          }
+        }, 0);
+        xMk(tl, layer, e.mid.x, e.mid.y, 0.16);
+        lbl(tl, layer, e.mid.x, e.mid.y - 14, "invalidation_dropped", C.red, 0.06);
+        break;
+      }
+      case "subscribe": {
+        const p = layout.pos["c:" + ev.clientId];
+        if (!p)
+          break;
+        ring(tl, layer, p.x, p.y, C.teal, 24, 38, 0, 0.34);
+        lbl(tl, layer, p.x, p.y - 46, "subscribe", C.teal, 0);
+        break;
+      }
+      case "unsubscribe": {
+        const p = layout.pos["c:" + ev.clientId];
+        if (!p)
+          break;
+        ring(tl, layer, p.x, p.y, C.text, 24, 34, 0, 0.3);
+        lbl(tl, layer, p.x, p.y - 46, "unsubscribe", C.text, 0);
+        break;
+      }
+      case "sync_error": {
+        const p = layout.pos["c:" + ev.clientId];
+        if (!p)
+          break;
+        ring(tl, layer, p.x, p.y, C.red, 24, 54, 0, 0.5);
+        ring(tl, layer, p.x, p.y, C.red, 24, 42, 0.07, 0.42);
+        xMk(tl, layer, p.x, p.y - 34, 0.02);
+        lbl(tl, layer, p.x, p.y - 48, "sync_error", C.red, 0);
+        break;
+      }
+      case "topology": {
+        lbl(tl, layer, layout.W / 2, layout.H / 2, "topology", C.text, 0);
+        break;
+      }
+    }
+    return tl;
+  }
+
+  // src/@shared/patch-db/test/sim/sim-viz/status-badge.tsx
+  function StatusBadge({ status }) {
+    const s = STATUS_MAP[status] || STATUS_MAP.idle;
+    return /* @__PURE__ */ React.createElement("div", {
+      className: "flex items-center gap-1.5 rounded border border-neutral-800 bg-neutral-900 px-2 py-1 text-[0.65rem] font-medium",
+      style: { color: s.color }
+    }, /* @__PURE__ */ React.createElement("span", {
+      className: "inline-block h-2 w-2 rounded-full",
+      style: { background: s.dot }
+    }), s.label);
+  }
+
+  // src/@shared/patch-db/test/sim/sim-viz/diff-panel.tsx
+  var { useMemo } = React;
+  function shortAttr(a) {
+    return a.includes("/") ? a.slice(a.lastIndexOf("/") + 1) : a;
+  }
+  function shortId(id) {
+    return id.length > 18 ? id.slice(0, 16) + "…" : id;
+  }
+  function JsonLine({
+    indent,
+    children,
+    gutter,
+    className
+  }) {
+    return /* @__PURE__ */ React.createElement("div", {
+      className: `flex min-h-[18px] items-start font-mono text-[0.62rem] leading-[18px] ${className || ""}`
+    }, /* @__PURE__ */ React.createElement("div", {
+      className: "w-[3px] shrink-0 self-stretch rounded-sm",
+      style: { background: gutter || "transparent" }
+    }), /* @__PURE__ */ React.createElement("span", {
+      className: "shrink-0 select-none text-neutral-700",
+      style: { width: indent * 12 + 8, paddingLeft: 6 }
+    }, ""), /* @__PURE__ */ React.createElement("span", {
+      className: "min-w-0 flex-1"
+    }, children));
+  }
+  function DiffPanel({
+    snapshot,
+    topo,
+    allNodeIds
+  }) {
+    const diff = useMemo(() => buildEntityDiff(snapshot, topo), [snapshot, topo]);
+    if (!diff.entities.length) {
+      return /* @__PURE__ */ React.createElement("div", {
+        className: "flex h-full items-center justify-center p-4 text-center text-[0.7rem] text-neutral-600"
+      }, "No entities yet \\u2014 step forward.");
+    }
+    return /* @__PURE__ */ React.createElement("div", {
+      className: "flex h-full flex-col"
+    }, /* @__PURE__ */ React.createElement("div", {
+      className: "shrink-0 border-b border-neutral-800 px-3 py-2"
+    }, /* @__PURE__ */ React.createElement("div", {
+      className: "text-[0.6rem] font-semibold uppercase tracking-widest text-neutral-500"
+    }, "State Diff"), /* @__PURE__ */ React.createElement("div", {
+      className: "mt-1.5 flex flex-wrap gap-x-3 gap-y-1"
+    }, diff.nodeIds.map((nid) => /* @__PURE__ */ React.createElement("span", {
+      key: nid,
+      className: "flex items-center gap-1 text-[0.55rem]",
+      style: { color: nodeColor(allNodeIds, nid) }
+    }, /* @__PURE__ */ React.createElement("span", {
+      className: "inline-block h-2 w-2 rounded-sm",
+      style: { background: nodeColor(allNodeIds, nid) }
+    }), diff.nodeLabels[nid])))), /* @__PURE__ */ React.createElement("div", {
+      className: "min-h-0 flex-1 overflow-y-auto bg-[#0c0c0c]"
+    }, diff.entities.map((ent) => {
+      const eid = ent.entityId;
+      return /* @__PURE__ */ React.createElement("div", {
+        key: eid,
+        className: "border-b border-neutral-800/40"
+      }, /* @__PURE__ */ React.createElement(JsonLine, {
+        indent: 0,
+        gutter: ent.hasDiff ? C.red : undefined
+      }, /* @__PURE__ */ React.createElement("span", {
+        className: "text-neutral-500"
+      }, "{"), ent.hasDiff && /* @__PURE__ */ React.createElement("span", {
+        className: "ml-2 rounded bg-red-500/10 px-1 py-0 text-[0.5rem] font-semibold text-red-400"
+      }, "DIFF")), /* @__PURE__ */ React.createElement(JsonLine, {
+        indent: 1
+      }, /* @__PURE__ */ React.createElement("span", {
+        className: "text-neutral-500"
+      }, '"entityId"'), /* @__PURE__ */ React.createElement("span", {
+        className: "text-neutral-600"
+      }, ": "), /* @__PURE__ */ React.createElement("span", {
+        className: "text-amber-300/90"
+      }, '"', shortId(eid), '"'), /* @__PURE__ */ React.createElement("span", {
+        className: "text-neutral-700"
+      }, ",")), /* @__PURE__ */ React.createElement(JsonLine, {
+        indent: 1
+      }, /* @__PURE__ */ React.createElement("span", {
+        className: "text-neutral-500"
+      }, '"entityType"'), /* @__PURE__ */ React.createElement("span", {
+        className: "text-neutral-600"
+      }, ": "), /* @__PURE__ */ React.createElement("span", {
+        className: "text-teal-300/80"
+      }, '"', ent.entityType, '"'), /* @__PURE__ */ React.createElement("span", {
+        className: "text-neutral-700"
+      }, ",")), ent.missingOn.map((nid) => {
+        const col = nodeColor(allNodeIds, nid);
+        return /* @__PURE__ */ React.createElement(JsonLine, {
+          key: "miss-" + nid,
+          indent: 1,
+          gutter: col,
+          className: "bg-red-950/8"
+        }, /* @__PURE__ */ React.createElement("span", {
+          className: "text-neutral-600"
+        }, "// "), /* @__PURE__ */ React.createElement("span", {
+          style: { color: col }
+        }, diff.nodeLabels[nid]), /* @__PURE__ */ React.createElement("span", {
+          className: "text-red-400/70"
+        }, " \\u2014 entity missing"));
+      }), /* @__PURE__ */ React.createElement(JsonLine, {
+        indent: 1
+      }, /* @__PURE__ */ React.createElement("span", {
+        className: "text-neutral-500"
+      }, '"attributeKeys"'), /* @__PURE__ */ React.createElement("span", {
+        className: "text-neutral-600"
+      }, ": ", "{")), ent.attrLines.map((line, li) => {
+        const comma = li < ent.attrLines.length - 1 ? "," : "";
+        const key = shortAttr(line.attr);
+        if (line.allConsistent) {
+          return /* @__PURE__ */ React.createElement(JsonLine, {
+            key: line.attr,
+            indent: 2
+          }, /* @__PURE__ */ React.createElement("span", {
+            className: "text-neutral-500"
+          }, '"', key, '"'), /* @__PURE__ */ React.createElement("span", {
+            className: "text-neutral-600"
+          }, ": "), /* @__PURE__ */ React.createElement("span", {
+            className: "text-blue-300/70"
+          }, "true"), /* @__PURE__ */ React.createElement("span", {
+            className: "text-neutral-700"
+          }, comma));
+        }
+        return /* @__PURE__ */ React.createElement(React.Fragment, {
+          key: line.attr
+        }, /* @__PURE__ */ React.createElement(JsonLine, {
+          indent: 2
+        }, /* @__PURE__ */ React.createElement("span", {
+          className: "text-neutral-500"
+        }, '"', key, '"'), /* @__PURE__ */ React.createElement("span", {
+          className: "text-neutral-600"
+        }, ":")), line.nodesWith.map((nid) => {
+          const col = nodeColor(allNodeIds, nid);
+          return /* @__PURE__ */ React.createElement(JsonLine, {
+            key: nid + "+" + line.attr,
+            indent: 3,
+            gutter: col,
+            className: "bg-green-950/8"
+          }, /* @__PURE__ */ React.createElement("span", {
+            style: { color: col },
+            className: "opacity-80"
+          }, "+ ", diff.nodeLabels[nid]), /* @__PURE__ */ React.createElement("span", {
+            className: "text-neutral-600"
+          }, ": "), /* @__PURE__ */ React.createElement("span", {
+            className: "text-green-400/80"
+          }, "true"));
+        }), line.nodesWithout.map((nid) => {
+          const col = nodeColor(allNodeIds, nid);
+          return /* @__PURE__ */ React.createElement(JsonLine, {
+            key: nid + "-" + line.attr,
+            indent: 3,
+            gutter: col,
+            className: "bg-red-950/8"
+          }, /* @__PURE__ */ React.createElement("span", {
+            style: { color: col },
+            className: "opacity-80"
+          }, "−", " ", diff.nodeLabels[nid]), /* @__PURE__ */ React.createElement("span", {
+            className: "text-neutral-600"
+          }, ": "), /* @__PURE__ */ React.createElement("span", {
+            className: "text-red-400/70"
+          }, "undefined"));
+        }));
+      }), /* @__PURE__ */ React.createElement(JsonLine, {
+        indent: 1
+      }, /* @__PURE__ */ React.createElement("span", {
+        className: "text-neutral-600"
+      }, "}")), /* @__PURE__ */ React.createElement(JsonLine, {
+        indent: 0
+      }, /* @__PURE__ */ React.createElement("span", {
+        className: "text-neutral-500"
+      }, "}")));
+    })));
+  }
+
+  // src/@shared/patch-db/test/sim/sim-viz/inspector.tsx
+  function Inspector({
+    selectedKey,
+    snapshot,
+    onClose
+  }) {
+    if (!selectedKey || !snapshot)
+      return null;
+    const isSrv = selectedKey.startsWith("s:"), id = selectedKey.slice(2);
+    const actor = isSrv ? snapshot.servers.find((s) => s.id === id) : snapshot.clients.find((c) => c.id === id);
+    if (!actor)
+      return null;
+    const rows = actor.rows || [];
+    const client = !isSrv ? snapshot.clients.find((c) => c.id === id) : null;
+    return /* @__PURE__ */ React.createElement("div", {
+      className: "absolute bottom-0 right-0 top-0 z-30 flex w-full max-w-sm flex-col border-l border-neutral-800 bg-neutral-950/97 shadow-2xl backdrop-blur-md sm:w-[340px]",
+      onClick: (e) => e.stopPropagation()
+    }, /* @__PURE__ */ React.createElement("div", {
+      className: "flex items-start justify-between gap-2 border-b border-neutral-800 px-3 py-2.5"
+    }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", {
+      className: "text-sm font-semibold text-neutral-100"
+    }, /* @__PURE__ */ React.createElement("span", {
+      className: "text-neutral-500"
+    }, isSrv ? "server" : "client", ":"), /* @__PURE__ */ React.createElement("span", {
+      className: "font-mono text-blue-400"
+    }, id)), client && /* @__PURE__ */ React.createElement("div", {
+      className: "mt-1 text-xs text-neutral-500"
+    }, "serverId: ", /* @__PURE__ */ React.createElement("span", {
+      className: "font-mono text-neutral-400"
+    }, client.serverId), client.partitioned && /* @__PURE__ */ React.createElement("span", {
+      className: "ml-2 rounded bg-red-500/15 px-1.5 py-0.5 text-red-400"
+    }, "partitioned"))), /* @__PURE__ */ React.createElement("button", {
+      type: "button",
+      onClick: onClose,
+      className: "rounded border border-neutral-800 px-2 py-1 text-[0.65rem] text-neutral-500 hover:bg-neutral-800 hover:text-neutral-300"
+    }, "Esc")), /* @__PURE__ */ React.createElement("div", {
+      className: "min-h-0 flex-1 overflow-y-auto px-3 py-2 text-xs leading-relaxed"
+    }, client?.lastPoll && /* @__PURE__ */ React.createElement("div", {
+      className: "mb-2 rounded border border-emerald-500/20 bg-emerald-950/20 px-2 py-1.5 text-emerald-300/90 text-[0.65rem]"
+    }, "remote_read results:", " ", (client.lastPoll.results || []).map((r) => r.entityCount + " entities · " + r.patchCount + " patches").join(" · ")), /* @__PURE__ */ React.createElement("div", {
+      className: "text-[0.6rem] font-semibold uppercase tracking-widest text-neutral-600"
+    }, "Entities (", rows.length, ")"), /* @__PURE__ */ React.createElement("ul", {
+      className: "mt-1.5 space-y-1.5"
+    }, rows.length === 0 && /* @__PURE__ */ React.createElement("li", {
+      className: "text-neutral-600"
+    }, "Empty"), rows.map((row) => /* @__PURE__ */ React.createElement("li", {
+      key: row.entityId,
+      className: "rounded border border-neutral-800/60 bg-neutral-900/60 px-2 py-1.5"
+    }, /* @__PURE__ */ React.createElement("div", {
+      className: "font-mono text-[0.65rem] text-amber-300/80"
+    }, row.entityId.length > 14 ? row.entityId.slice(0, 12) + "…" : row.entityId), /* @__PURE__ */ React.createElement("div", {
+      className: "text-[0.6rem] text-neutral-600"
+    }, row.entityType), /* @__PURE__ */ React.createElement("div", {
+      className: "mt-1 flex flex-wrap gap-1"
+    }, row.attrs.slice(0, 12).map((a) => {
+      const s = a.includes("/") ? a.slice(a.lastIndexOf("/") + 1) : a;
+      return /* @__PURE__ */ React.createElement("span", {
+        key: a,
+        className: "rounded bg-neutral-800 px-1 py-0.5 font-mono text-[0.5rem] text-neutral-400",
+        title: a
+      }, s);
+    }), row.attrs.length > 12 && /* @__PURE__ */ React.createElement("span", {
+      className: "text-neutral-600"
+    }, "+", row.attrs.length - 12)))))));
+  }
+
+  // src/@shared/patch-db/test/sim/sim-viz/app.tsx
+  var { useState, useMemo: useMemo2, useEffect, useRef } = React;
+  function readHash() {
+    const h = location.hash.replace("#", "");
+    const p = new URLSearchParams(h);
+    return { sim: p.get("sim") || null, step: parseInt(p.get("step"), 10) || 0 };
+  }
+  function writeHash(simId, step) {
+    const p = new URLSearchParams;
+    if (simId)
+      p.set("sim", simId);
+    if (step > 0)
+      p.set("step", String(step));
+    const h = p.toString();
+    history.replaceState(null, "", h ? "#" + h : location.pathname);
+  }
+  function App() {
+    const recordings = useMemo2(() => sortRecordings(RAW), []);
+    const initialState = useMemo2(() => {
+      const h = readHash();
+      let idx2 = 0;
+      if (h.sim) {
+        const i = recordings.findIndex((r) => r.id === h.sim);
+        if (i >= 0)
+          idx2 = i;
+      }
+      return { idx: idx2, step: h.step };
+    }, []);
+    const [idx, setIdx] = useState(initialState.idx);
+    const [step, setStep] = useState(initialState.step);
+    const [playing, setPlaying] = useState(false);
+    const [loop, setLoop] = useState(true);
+    const [speed, setSpeed] = useState(1);
+    const [sel, setSel] = useState(null);
+    const [showDiff, setShowDiff] = useState(true);
+    const animLayerRef = useRef(null);
+    const tlRef = useRef(null);
+    const prevStepRef = useRef(step);
+    const rec = recordings[idx];
+    const ordered = useMemo2(() => rec ? getOrderedEvents(rec) : [], [rec]);
+    const total = ordered.length;
+    const layout = useMemo2(() => rec ? buildLayout(rec.topology, 1100, 580) : null, [rec]);
+    const snapshot = useMemo2(() => rec ? replayNodeStates(rec, step) : null, [rec, step]);
+    const partMap = useMemo2(() => {
+      const m = {};
+      if (snapshot)
+        snapshot.clients.forEach((c) => {
+          m[c.id] = c.partitioned;
+        });
+      return m;
+    }, [snapshot]);
+    const latestEv = step > 0 ? ordered[step - 1] ?? null : null;
+    const metaTitle = rec ? rec.meta?.title || rec.id : "";
+    const consistency = useMemo2(() => rec ? checkConsistency(rec, step) : "idle", [rec, step]);
+    const allNodeIds = useMemo2(() => {
+      if (!rec)
+        return [];
+      return [...rec.topology.servers.map((s) => "s:" + s.id), ...rec.topology.clients.map((c) => "c:" + c.id)];
+    }, [rec]);
+    useEffect(() => {
+      if (rec)
+        writeHash(rec.id, step);
+    }, [rec, step]);
+    useEffect(() => {
+      const prev = prevStepRef.current;
+      prevStepRef.current = step;
+      if (tlRef.current) {
+        tlRef.current.kill();
+        tlRef.current = null;
+      }
+      const layer = animLayerRef.current;
+      if (layer)
+        while (layer.firstChild)
+          layer.removeChild(layer.firstChild);
+      if (step === prev + 1 && step > 0 && layer && layout && rec) {
+        const ev = ordered[step - 1];
+        if (ev)
+          tlRef.current = buildEventAnim(ev, layer, layout, rec.topology);
+      }
+    }, [step, layout, rec, ordered]);
+    useEffect(() => {
+      setStep(0);
+      setSel(null);
+      setPlaying(false);
+    }, [idx]);
+    useEffect(() => {
+      if (!playing || !rec || total === 0)
+        return;
+      const ms = Math.max(160, STEP_MS / speed);
+      const id = setInterval(() => {
+        setStep((s) => {
+          if (s >= total) {
+            if (loop)
+              return 0;
+            setPlaying(false);
+            return s;
+          }
+          return s + 1;
+        });
+      }, ms);
+      return () => clearInterval(id);
+    }, [playing, rec, total, loop, speed]);
+    useEffect(() => {
+      function onKey(e) {
+        const tag = document.activeElement?.tagName;
+        if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA")
+          return;
+        switch (e.key) {
+          case " ":
+            e.preventDefault();
+            setPlaying((p) => !p);
+            break;
+          case "Escape":
+            setSel(null);
+            break;
+          case "ArrowRight":
+            e.preventDefault();
+            setPlaying(false);
+            setStep((s) => Math.min(s + 1, total));
+            break;
+          case "ArrowLeft":
+            e.preventDefault();
+            setPlaying(false);
+            setStep((s) => Math.max(s - 1, 0));
+            break;
+          case "Home":
+            e.preventDefault();
+            setPlaying(false);
+            setStep(0);
+            break;
+          case "End":
+            e.preventDefault();
+            setPlaying(false);
+            setStep(total);
+            break;
+          case "l":
+          case "L":
+            setLoop((l) => !l);
+            break;
+          case "d":
+          case "D":
+            setShowDiff((d) => !d);
+            break;
+          case "1":
+            setSpeed(0.25);
+            break;
+          case "2":
+            setSpeed(0.5);
+            break;
+          case "3":
+            setSpeed(1);
+            break;
+          case "4":
+            setSpeed(2);
+            break;
+          case "5":
+            setSpeed(4);
+            break;
+          case "[": {
+            e.preventDefault();
+            const ni = Math.max(0, idx - 1);
+            setIdx(ni);
+            setPlaying(false);
+            break;
+          }
+          case "]": {
+            e.preventDefault();
+            const ni = Math.min(recordings.length - 1, idx + 1);
+            setIdx(ni);
+            setPlaying(false);
+            break;
+          }
+        }
+      }
+      document.addEventListener("keydown", onKey);
+      return () => document.removeEventListener("keydown", onKey);
+    }, [total, idx, recordings.length]);
+    if (!recordings.length) {
+      return /* @__PURE__ */ React.createElement("div", {
+        className: "flex h-full items-center justify-center text-neutral-500"
+      }, /* @__PURE__ */ React.createElement("p", null, "No recordings. Run ", /* @__PURE__ */ React.createElement("code", {
+        className: "rounded bg-neutral-800 px-2 py-0.5 text-amber-400"
+      }, "bun run test:viz")));
+    }
+    const svgW = layout?.W || 1100, svgH = layout?.H || 580;
+    const srvBoxW = 58, srvBoxH = 40, cliBoxW = 50, cliBoxH = 36;
+    return /* @__PURE__ */ React.createElement("div", {
+      className: "flex h-full flex-col",
+      style: { background: C.bg }
+    }, /* @__PURE__ */ React.createElement("header", {
+      className: "flex shrink-0 items-center gap-3 border-b border-neutral-800 px-3 py-1.5"
+    }, /* @__PURE__ */ React.createElement("span", {
+      className: "text-[0.7rem] font-semibold tracking-wide text-neutral-500"
+    }, "PATCH DB"), /* @__PURE__ */ React.createElement("select", {
+      value: idx,
+      onChange: (e) => {
+        setIdx(Number(e.target.value));
+        setPlaying(false);
+      },
+      className: "max-w-[min(340px,50vw)] flex-1 rounded border border-neutral-800 bg-neutral-900 py-1 pl-2 pr-6 text-[0.75rem] text-neutral-300"
+    }, recordings.map((r, i) => /* @__PURE__ */ React.createElement("option", {
+      key: r.id,
+      value: i
+    }, r.meta?.title || r.id))), /* @__PURE__ */ React.createElement(StatusBadge, {
+      status: consistency
+    }), /* @__PURE__ */ React.createElement("button", {
+      type: "button",
+      onClick: () => setShowDiff((d) => !d),
+      className: `rounded border px-2 py-1 text-[0.65rem] font-medium ${showDiff ? "border-neutral-700 bg-neutral-800 text-neutral-300" : "border-neutral-800 bg-neutral-900 text-neutral-500"} hover:bg-neutral-800`
+    }, "Diff ", /* @__PURE__ */ React.createElement("kbd", {
+      className: "ml-1 text-neutral-600"
+    }, "D"))), rec && rec.meta?.intent && /* @__PURE__ */ React.createElement("div", {
+      className: "shrink-0 border-b border-neutral-800/50 px-3 py-1 text-center text-[0.7rem] text-neutral-500"
+    }, rec.meta.intent), /* @__PURE__ */ React.createElement("div", {
+      className: "relative flex min-h-0 flex-1"
+    }, /* @__PURE__ */ React.createElement("div", {
+      className: "relative min-h-0 min-w-0 flex-1"
+    }, /* @__PURE__ */ React.createElement("div", {
+      className: "pointer-events-none absolute right-3 top-3 z-10 flex gap-3 text-[0.58rem] text-neutral-500"
+    }, /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("span", {
+      className: "mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle",
+      style: { background: C.blue }
+    }), "write"), /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("span", {
+      className: "mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle",
+      style: { background: C.orange }
+    }), "push"), /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("span", {
+      className: "mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle",
+      style: { background: C.green }
+    }), "poll/read"), /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("span", {
+      className: "mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle",
+      style: { background: C.violet }
+    }), "invalidation"), /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("span", {
+      className: "mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle",
+      style: { background: C.red }
+    }), "error")), /* @__PURE__ */ React.createElement("div", {
+      className: "pointer-events-none absolute inset-x-0 bottom-14 z-10 flex justify-center px-4"
+    }, /* @__PURE__ */ React.createElement("div", {
+      key: step + "-" + (latestEv?.seq ?? "x"),
+      className: "caption-in max-w-lg rounded-lg border border-neutral-800 bg-neutral-950/95 px-4 py-2 shadow-lg backdrop-blur"
+    }, /* @__PURE__ */ React.createElement("p", {
+      className: "text-center text-[0.8rem] leading-snug text-neutral-200"
+    }, latestEv ? story(latestEv) : "Press Space or → to begin."))), layout && rec && /* @__PURE__ */ React.createElement("svg", {
+      className: "h-full w-full",
+      viewBox: `0 0 ${svgW} ${svgH}`,
+      preserveAspectRatio: "xMidYMid meet",
+      onClick: () => setSel(null)
+    }, /* @__PURE__ */ React.createElement("rect", {
+      width: svgW,
+      height: svgH,
+      fill: C.bg
+    }), layout.links.map((L, i) => {
+      const a = layout.pos[L.s], b = layout.pos[L.c];
+      if (!a || !b)
+        return null;
+      const broken = !!partMap[L.clientId];
+      const { d, mid } = edgeGeo(a, b);
+      return /* @__PURE__ */ React.createElement("g", {
+        key: i
+      }, /* @__PURE__ */ React.createElement("path", {
+        d,
+        fill: "none",
+        stroke: broken ? C.edgeBroken : C.edge,
+        strokeWidth: broken ? 0.8 : 1.2,
+        strokeLinecap: "round",
+        opacity: broken ? 0.35 : 0.65,
+        className: broken ? "edge-dead" : "edge-live",
+        style: broken ? undefined : { animationDelay: i * 0.12 + "s" }
+      }), broken && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("line", {
+        x1: mid.x - 6,
+        y1: mid.y - 6,
+        x2: mid.x + 6,
+        y2: mid.y + 6,
+        stroke: C.red,
+        strokeWidth: "1.5",
+        strokeLinecap: "round",
+        opacity: "0.45"
+      }), /* @__PURE__ */ React.createElement("line", {
+        x1: mid.x + 6,
+        y1: mid.y - 6,
+        x2: mid.x - 6,
+        y2: mid.y + 6,
+        stroke: C.red,
+        strokeWidth: "1.5",
+        strokeLinecap: "round",
+        opacity: "0.45"
+      })));
+    }), rec.topology.servers.map((s) => {
+      const k = "s:" + s.id, p = layout.pos[k];
+      if (!p)
+        return null;
+      const isSel = sel === k, dim = !!sel && sel !== k;
+      const col = nodeColor(allNodeIds, k);
+      return /* @__PURE__ */ React.createElement("g", {
+        key: k,
+        style: { opacity: dim ? 0.25 : 1, cursor: "pointer" },
+        onClick: (e) => {
+          e.stopPropagation();
+          setSel(k);
+        }
+      }, /* @__PURE__ */ React.createElement("rect", {
+        x: p.x - srvBoxW / 2 - 4,
+        y: p.y - srvBoxH / 2 - 4,
+        width: srvBoxW + 8,
+        height: srvBoxH + 8,
+        rx: 8,
+        fill: "transparent"
+      }), /* @__PURE__ */ React.createElement("rect", {
+        x: p.x - srvBoxW / 2,
+        y: p.y - srvBoxH / 2,
+        width: srvBoxW,
+        height: srvBoxH,
+        rx: 6,
+        fill: isSel ? C.nodeSelBg : C.node,
+        stroke: isSel ? C.nodeSelBorder : C.nodeBorder,
+        strokeWidth: isSel ? 2 : 1
+      }), /* @__PURE__ */ React.createElement("g", {
+        transform: `translate(${p.x - 14},${p.y - 12})`
+      }, /* @__PURE__ */ React.createElement("rect", {
+        x: "0",
+        y: "0",
+        width: "28",
+        height: "7",
+        rx: "1.5",
+        fill: "#222",
+        stroke: "#444",
+        strokeWidth: "0.5"
+      }), /* @__PURE__ */ React.createElement("rect", {
+        x: "0",
+        y: "9",
+        width: "28",
+        height: "7",
+        rx: "1.5",
+        fill: "#222",
+        stroke: "#444",
+        strokeWidth: "0.5"
+      }), /* @__PURE__ */ React.createElement("circle", {
+        cx: "23",
+        cy: "3.5",
+        r: "1.8",
+        fill: C.green,
+        opacity: "0.9"
+      }), /* @__PURE__ */ React.createElement("circle", {
+        cx: "23",
+        cy: "12.5",
+        r: "1.8",
+        fill: C.blue,
+        opacity: "0.9"
+      }), /* @__PURE__ */ React.createElement("rect", {
+        x: "3",
+        y: "2",
+        width: "8",
+        height: "3",
+        rx: "0.5",
+        fill: "#333",
+        opacity: "0.7"
+      }), /* @__PURE__ */ React.createElement("rect", {
+        x: "3",
+        y: "11",
+        width: "8",
+        height: "3",
+        rx: "0.5",
+        fill: "#333",
+        opacity: "0.7"
+      })), /* @__PURE__ */ React.createElement("text", {
+        x: p.x,
+        y: p.y + srvBoxH / 2 + 16,
+        textAnchor: "middle",
+        fill: C.textLight,
+        fontSize: "11",
+        fontWeight: "600",
+        fontFamily: "'IBM Plex Mono', monospace"
+      }, "server:", s.id), /* @__PURE__ */ React.createElement("line", {
+        x1: p.x - 12,
+        y1: p.y + srvBoxH / 2 + 19,
+        x2: p.x + 12,
+        y2: p.y + srvBoxH / 2 + 19,
+        stroke: col,
+        strokeWidth: "2",
+        opacity: "0.6",
+        strokeLinecap: "round"
+      }));
+    }), rec.topology.clients.map((c) => {
+      const k = "c:" + c.id, p = layout.pos[k];
+      if (!p)
+        return null;
+      const part = !!partMap[c.id], isSel = sel === k, dim = !!sel && sel !== k;
+      const col = nodeColor(allNodeIds, k);
+      return /* @__PURE__ */ React.createElement("g", {
+        key: k,
+        style: { opacity: dim ? 0.25 : 1, cursor: "pointer" },
+        onClick: (e) => {
+          e.stopPropagation();
+          setSel(k);
+        }
+      }, /* @__PURE__ */ React.createElement("rect", {
+        x: p.x - cliBoxW / 2 - 4,
+        y: p.y - cliBoxH / 2 - 4,
+        width: cliBoxW + 8,
+        height: cliBoxH + 8,
+        rx: 7,
+        fill: "transparent"
+      }), /* @__PURE__ */ React.createElement("rect", {
+        x: p.x - cliBoxW / 2,
+        y: p.y - cliBoxH / 2,
+        width: cliBoxW,
+        height: cliBoxH,
+        rx: 5,
+        fill: isSel ? C.nodeSelBg : part ? "#1a0a0a" : C.node,
+        stroke: isSel ? C.nodeSelBorder : part ? C.red : C.nodeBorder,
+        strokeWidth: isSel ? 2 : part ? 1.5 : 1
+      }), /* @__PURE__ */ React.createElement("g", {
+        transform: `translate(${p.x - 12},${p.y - 10})`
+      }, /* @__PURE__ */ React.createElement("rect", {
+        x: "0",
+        y: "0",
+        width: "24",
+        height: "15",
+        rx: "2",
+        fill: "#222",
+        stroke: "#444",
+        strokeWidth: "0.5"
+      }), /* @__PURE__ */ React.createElement("rect", {
+        x: "2",
+        y: "2",
+        width: "20",
+        height: "10",
+        rx: "1",
+        fill: part ? "#2a1515" : "#181830",
+        opacity: "0.95"
+      }), !part && /* @__PURE__ */ React.createElement("rect", {
+        x: "5",
+        y: "5",
+        width: "14",
+        height: "3",
+        rx: "0.5",
+        fill: C.blue,
+        opacity: "0.2"
+      }), /* @__PURE__ */ React.createElement("rect", {
+        x: "4",
+        y: "16.5",
+        width: "16",
+        height: "2.5",
+        rx: "1",
+        fill: "#282828",
+        stroke: "#3a3a3a",
+        strokeWidth: "0.3"
+      })), /* @__PURE__ */ React.createElement("text", {
+        x: p.x,
+        y: p.y + cliBoxH / 2 + 14,
+        textAnchor: "middle",
+        fill: part ? C.red : C.textLight,
+        fontSize: "11",
+        fontWeight: "600",
+        fontFamily: "'IBM Plex Mono', monospace"
+      }, "client:", c.id), /* @__PURE__ */ React.createElement("line", {
+        x1: p.x - 10,
+        y1: p.y + cliBoxH / 2 + 17,
+        x2: p.x + 10,
+        y2: p.y + cliBoxH / 2 + 17,
+        stroke: col,
+        strokeWidth: "2",
+        opacity: "0.6",
+        strokeLinecap: "round"
+      }), part && /* @__PURE__ */ React.createElement("text", {
+        x: p.x,
+        y: p.y + cliBoxH / 2 + 26,
+        textAnchor: "middle",
+        fill: C.red,
+        fontSize: "8",
+        fontWeight: "600",
+        fontFamily: "'IBM Plex Mono', monospace",
+        opacity: "0.6"
+      }, "PARTITIONED"));
+    }), /* @__PURE__ */ React.createElement("g", {
+      ref: animLayerRef
+    })), /* @__PURE__ */ React.createElement(Inspector, {
+      selectedKey: sel,
+      snapshot,
+      title: metaTitle,
+      onClose: () => setSel(null)
+    })), showDiff && /* @__PURE__ */ React.createElement("div", {
+      className: "hidden w-[280px] shrink-0 border-l border-neutral-800 bg-neutral-950 md:block lg:w-[320px]"
+    }, /* @__PURE__ */ React.createElement(DiffPanel, {
+      snapshot,
+      topo: rec?.topology,
+      allNodeIds
+    }))), /* @__PURE__ */ React.createElement("footer", {
+      className: "flex shrink-0 flex-wrap items-center gap-2 border-t border-neutral-800 px-3 py-1.5"
+    }, /* @__PURE__ */ React.createElement("button", {
+      type: "button",
+      onClick: () => setPlaying((p) => !p),
+      className: "rounded border border-neutral-800 bg-neutral-900 px-3 py-1 text-[0.7rem] font-medium text-neutral-300 hover:bg-neutral-800"
+    }, playing ? "Pause" : "Play", " ", /* @__PURE__ */ React.createElement("kbd", {
+      className: "ml-1 text-neutral-600"
+    }, "Space")), /* @__PURE__ */ React.createElement("button", {
+      type: "button",
+      onClick: () => {
+        setPlaying(false);
+        setStep((s) => Math.max(s - 1, 0));
+      },
+      className: "rounded border border-neutral-800 bg-neutral-900 px-2 py-1 text-[0.7rem] text-neutral-400 hover:bg-neutral-800"
+    }, "←"), /* @__PURE__ */ React.createElement("button", {
+      type: "button",
+      onClick: () => {
+        setPlaying(false);
+        setStep((s) => Math.min(s + 1, total));
+      },
+      className: "rounded border border-neutral-800 bg-neutral-900 px-2 py-1 text-[0.7rem] text-neutral-400 hover:bg-neutral-800"
+    }, "→"), /* @__PURE__ */ React.createElement("input", {
+      type: "range",
+      min: 0,
+      max: total,
+      step: 1,
+      value: Math.min(step, total),
+      className: "h-1 min-w-[80px] flex-1 accent-neutral-500",
+      "aria-label": "Step",
+      onChange: (e) => {
+        setPlaying(false);
+        setStep(Number(e.target.value));
+      }
+    }), /* @__PURE__ */ React.createElement("label", {
+      className: "flex items-center gap-1 text-[0.65rem] text-neutral-500"
+    }, /* @__PURE__ */ React.createElement("input", {
+      type: "checkbox",
+      checked: loop,
+      onChange: (e) => setLoop(e.target.checked),
+      className: "accent-neutral-500"
+    }), " loop ", /* @__PURE__ */ React.createElement("kbd", {
+      className: "text-neutral-700"
+    }, "L")), /* @__PURE__ */ React.createElement("select", {
+      value: String(speed),
+      onChange: (e) => setSpeed(Number(e.target.value)),
+      className: "rounded border border-neutral-800 bg-neutral-900 py-0.5 pl-1.5 pr-5 text-[0.65rem] text-neutral-400"
+    }, /* @__PURE__ */ React.createElement("option", {
+      value: "0.25"
+    }, "0.25", "×"), /* @__PURE__ */ React.createElement("option", {
+      value: "0.5"
+    }, "0.5", "×"), /* @__PURE__ */ React.createElement("option", {
+      value: "1"
+    }, "1", "×"), /* @__PURE__ */ React.createElement("option", {
+      value: "2"
+    }, "2", "×"), /* @__PURE__ */ React.createElement("option", {
+      value: "4"
+    }, "4", "×")), /* @__PURE__ */ React.createElement("span", {
+      className: "font-mono text-[0.6rem] text-neutral-600 tabular-nums"
+    }, step, "/", total), latestEv && /* @__PURE__ */ React.createElement("span", {
+      className: "hidden truncate text-[0.6rem] text-neutral-600 sm:inline"
+    }, shortDesc(latestEv)), /* @__PURE__ */ React.createElement("span", {
+      className: "hidden text-[0.55rem] text-neutral-700 lg:inline"
+    }, "1-5 speed ", "·", " Home/End ", "·", " [ ] scenario ", "·", " D diff")));
+  }
+
+  // src/@shared/patch-db/test/sim/sim-viz/entry.tsx
+  var root = ReactDOM.createRoot(document.getElementById("root"));
+  root.render(/* @__PURE__ */ React.createElement(App, null));
+})();
+</script>
+</body>
+</html>

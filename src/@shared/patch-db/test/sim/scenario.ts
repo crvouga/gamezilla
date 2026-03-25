@@ -208,6 +208,8 @@ export function patchDbScenario(): PatchDbScenarioBuilder {
 }
 
 export class Sim {
+  private vizOptedIn = false;
+
   constructor(
     /** Escape hatch for latency / deterministic time (advanced tests). */
     readonly scheduler: DeterministicScheduler,
@@ -230,9 +232,11 @@ export class Sim {
     return s;
   }
 
-  /** Merge viz metadata (no-op when SIM_VIZ is off). */
-  setMeta(partial: Partial<SimRecordingMeta>): void {
-    this.vizRecorder?.setMeta(partial);
+  /** Merge viz metadata. Set `enableViz` to persist the recording (requires `SIM_VIZ=1`). */
+  setMeta(options: Partial<SimRecordingMeta> & { enableViz?: boolean }): void {
+    const { enableViz, ...meta } = options;
+    if (enableViz) this.vizOptedIn = true;
+    this.vizRecorder?.setMeta(meta);
   }
 
   subscribeSyncErrors(listener: (event: SyncErrorEvent) => void): Unsubscribe {
@@ -277,17 +281,19 @@ export class Sim {
     const nodes: { nodeId: string; entities: Entity[] }[] = [];
     for (const [id, client] of this.clientHandles) {
       const results = await client.read([query]);
-      nodes.push({
-        nodeId: `client:${id}`,
-        entities: results[0]?.entities ?? [],
-      });
+      const ents = results[0]?.entities ?? [];
+      // #region agent log
+      fetch('http://127.0.0.1:7361/ingest/941b0c72-7feb-4dff-9211-7ec92eb2cf5b',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dffa91'},body:JSON.stringify({sessionId:'dffa91',location:'scenario.ts:readAllNodes',message:'client read',data:{nodeId:`client:${id}`,entityCount:ents.length,entityIds:ents.map((e: Entity)=>e.entityId)},timestamp:Date.now(),hypothesisId:'H-C'})}).catch(()=>{});
+      // #endregion
+      nodes.push({ nodeId: `client:${id}`, entities: ents });
     }
     for (const [id, server] of this.serverHandles) {
       const results = await server.db.read([query]);
-      nodes.push({
-        nodeId: `server:${id}`,
-        entities: results[0]?.entities ?? [],
-      });
+      const ents = results[0]?.entities ?? [];
+      // #region agent log
+      fetch('http://127.0.0.1:7361/ingest/941b0c72-7feb-4dff-9211-7ec92eb2cf5b',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dffa91'},body:JSON.stringify({sessionId:'dffa91',location:'scenario.ts:readAllNodes',message:'server read',data:{nodeId:`server:${id}`,entityCount:ents.length,entityIds:ents.map((e: Entity)=>e.entityId)},timestamp:Date.now(),hypothesisId:'H-C'})}).catch(()=>{});
+      // #endregion
+      nodes.push({ nodeId: `server:${id}`, entities: ents });
     }
     return nodes;
   }
@@ -306,7 +312,7 @@ export class Sim {
     this.clientHandles.clear();
     this.serverHandles.clear();
 
-    if (this.vizRecorder !== null && isSimVizEnabled()) {
+    if (this.vizRecorder !== null && this.vizOptedIn) {
       saveRecording(this.vizRecorder.finalize());
     }
   }
