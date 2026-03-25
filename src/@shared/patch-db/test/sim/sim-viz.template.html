@@ -3,827 +3,822 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Patch DB — simulation timelines</title>
+  <title>Patch DB — simulation</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            display: ['Fraunces', 'Georgia', 'serif'],
-            sans: ['Source Sans 3', 'system-ui', 'sans-serif'],
-          },
-        },
-      },
+      theme: { extend: { fontFamily: {
+        mono: ['IBM Plex Mono', 'monospace'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      } } },
     };
   </script>
   <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone@7.26.9/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js"></script>
   <style>
     html, body, #root { height: 100%; margin: 0; }
+    @keyframes edgeFlow { to { stroke-dashoffset: -24; } }
+    .edge-live { stroke-dasharray: 6 5; animation: edgeFlow 1.6s linear infinite; }
+    .edge-dead { stroke-dasharray: 3 5; }
+    @keyframes captionSlide { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .caption-in { animation: captionSlide 0.22s ease-out forwards; }
+    .diff-add { color: #3ddc84; }
+    .diff-del { color: #e5484d; }
+    .diff-mod { color: #e8b931; }
     @media (prefers-reduced-motion: reduce) {
-      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      .edge-live { animation: none; stroke-dasharray: none; }
+      .caption-in { animation: none; opacity: 1; }
     }
-    .pan-scroll { cursor: grab; }
-    .pan-scroll.panning { cursor: grabbing; }
   </style>
 </head>
-<body class="dark bg-slate-950 text-slate-100 font-sans antialiased overflow-hidden">
-  <div id="root"></div>
+<body class="dark h-full overflow-hidden bg-neutral-950 font-sans text-neutral-200 antialiased">
+  <div id="root" class="h-full"></div>
   <script type="text/babel" data-presets="react">
     const { useState, useMemo, useEffect, useRef, useCallback } = React;
-    const WALL_MS = 14000;
+    const NS = 'http://www.w3.org/2000/svg';
+    const STEP_MS = 600;
 
-    /* GEN_VIZ_SLOTS: the next two assignments are filled by generate-sim-viz.ts
-       (recordings JSON + dir label string). */
     const RAW = __RECORDINGS_JSON__;
     const DIR_LABEL = __DIR_LABEL__;
 
+    /* ── palette ── */
+    const C = {
+      bg: '#0a0a0a', node: '#161616', nodeBorder: '#333', nodeSelBg: '#1a1a30',
+      nodeSelBorder: '#4f6df5', text: '#999', textLight: '#ccc', textDim: '#555',
+      edge: '#3a3a3a', edgeBroken: '#222',
+      blue: '#4f8ff5', green: '#3ddc84', orange: '#f59e42', red: '#e5484d',
+      violet: '#9b8afb', teal: '#36c5a0', yellow: '#e8b931', dimRed: '#5c2024',
+    };
+
+    /* per-node colors: each node gets a distinct hue for the diff panel */
+    const NODE_COLORS = [
+      '#4f8ff5', '#f59e42', '#3ddc84', '#e5484d', '#9b8afb',
+      '#36c5a0', '#e8b931', '#f472b6', '#67e8f9', '#a78bfa',
+    ];
+    function nodeColor(allIds, id) {
+      const i = allIds.indexOf(id);
+      return NODE_COLORS[i >= 0 ? i % NODE_COLORS.length : 0];
+    }
+
+    /* ── data helpers ── */
     function sortRecordings(raw) {
       const arr = Array.isArray(raw) ? raw.slice() : [];
-      arr.sort((a, b) => {
-        const ta = a.meta && a.meta.title ? a.meta.title : a.id;
-        const tb = b.meta && b.meta.title ? b.meta.title : b.id;
-        const c = String(ta).localeCompare(String(tb));
-        return c !== 0 ? c : a.id.localeCompare(b.id);
-      });
+      arr.sort((a, b) => (a.meta?.title || a.id).localeCompare(b.meta?.title || b.id) || a.id.localeCompare(b.id));
       return arr;
     }
+    function getOrderedEvents(rec) { return rec.events.slice().sort((a, b) => a.seq - b.seq); }
 
-    function timeBounds(rec) {
-      let t0 = rec.startedAt;
-      let t1 = rec.endedAt;
-      for (const e of rec.events) {
-        if (e.time < t0) t0 = e.time;
-        if (e.time > t1) t1 = e.time;
+    function mergeSummariesInto(store, summaries) {
+      if (!summaries) return;
+      for (const s of summaries) {
+        let row = store[s.entityId];
+        if (!row) { row = { entityType: s.entityType, attrs: {} }; store[s.entityId] = row; }
+        for (const k of (s.attributeKeys || [])) row.attrs[k] = true;
       }
-      if (t1 <= t0) t1 = t0 + 1;
-      return { t0, t1 };
     }
 
-    function laneIndex(topology, ev) {
-      const order = [
-        ...topology.servers.map((s) => 'srv:' + s.id),
-        ...topology.clients.map((c) => 'cli:' + c.id),
-      ];
-      const idxFor = (key) => {
-        const i = order.indexOf(key);
-        return i >= 0 ? i : 0;
-      };
-      if (ev.type === 'topology') return -1;
-      if (ev.type === 'server_write') return idxFor('srv:' + ev.serverId);
-      if ('clientId' in ev) return idxFor('cli:' + ev.clientId);
-      return 0;
-    }
-
-    function evtClass(t) {
-      const m = {
-        client_write: 'fill-sky-400',
-        push_start: 'fill-amber-400',
-        push_success: 'fill-amber-400',
-        push_fail: 'fill-rose-400',
-        poll_start: 'fill-emerald-400',
-        poll_success: 'fill-emerald-400',
-        poll_fail: 'fill-rose-400',
-        network_op: 'fill-violet-400',
-        remote_read: 'fill-teal-400',
-        remote_write: 'fill-teal-400',
-        partition: 'fill-rose-400',
-        heal: 'fill-emerald-400',
-        invalidation_scheduled: 'fill-slate-400',
-        invalidation_delivered: 'fill-slate-400',
-        invalidation_dropped: 'fill-slate-400',
-        subscribe: 'fill-sky-300',
-        unsubscribe: 'fill-sky-300',
-        server_write: 'fill-amber-500',
-        sync_error: 'fill-rose-500',
-      };
-      return m[t] || 'fill-violet-400';
-    }
-
-    function recLabel(r) {
-      return r.meta && r.meta.title ? r.meta.title : r.id;
-    }
-
-    function recSummaryLine(r) {
-      const s = r.topology.servers.length;
-      const c = r.topology.clients.length;
-      const parts = [s + ' srv · ' + c + ' cli · ' + r.events.length + ' events'];
-      if (r.meta && r.meta.source && r.meta.source.testName) parts.push(r.meta.source.testName);
-      return parts.join(' — ');
-    }
-
-    function escapeHtml(s) {
-      return String(s)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-    }
-
-    function LegendDot({ color }) {
-      return <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: color }} />;
-    }
-
-    function HeroChips({ rec }) {
-      const chips = [];
-      const ids = rec.topology.servers.map((x) => x.id).join(', ');
-      const cid = rec.topology.clients.map((x) => x.id + '→' + x.serverId).join(', ');
-      const push = (label, value) => chips.push({ label, value });
-
-      push('Servers', ids || '—');
-      push('Clients', cid || '—');
-      if (rec.meta && rec.meta.source) {
-        const src = rec.meta.source;
-        if (src.suite) push('Suite', src.suite);
-        if (src.testFile) {
-          const p = src.testFile.split('/');
-          push('File', p[p.length - 1] || src.testFile);
+    function replayNodeStates(rec, count) {
+      const topo = rec.topology;
+      const srvS = {}, cliS = {}, cliPart = {}, cliPoll = {}, srv4cli = {};
+      for (const s of topo.servers) srvS[s.id] = {};
+      for (const c of topo.clients) { cliS[c.id] = {}; cliPart[c.id] = false; cliPoll[c.id] = null; srv4cli[c.id] = c.serverId; }
+      const ordered = getOrderedEvents(rec);
+      const n = Math.max(0, Math.min(count, ordered.length));
+      for (let i = 0; i < n; i++) {
+        const e = ordered[i];
+        switch (e.type) {
+          case 'client_write': mergeSummariesInto(cliS[e.clientId], e.summaries); break;
+          case 'server_write': mergeSummariesInto(srvS[e.serverId], e.summaries); break;
+          case 'remote_write': { const sid = srv4cli[e.clientId]; if (sid) mergeSummariesInto(srvS[sid], e.summaries); mergeSummariesInto(cliS[e.clientId], e.summaries); break; }
+          case 'remote_read': cliPoll[e.clientId] = { results: e.results }; break;
+          case 'partition': cliPart[e.clientId] = true; break;
+          case 'heal': cliPart[e.clientId] = false; break;
         }
-        if (src.testName) push('Test', src.testName);
       }
-      push('Recording id', rec.id.slice(0, 8) + '…');
+      const toRows = (s) => Object.keys(s).sort().map(id => ({ entityId: id, entityType: s[id].entityType, attrs: Object.keys(s[id].attrs).sort() }));
+      return {
+        servers: topo.servers.map(s => ({ id: s.id, rows: toRows(srvS[s.id]) })),
+        clients: topo.clients.map(c => ({ id: c.id, serverId: c.serverId, partitioned: cliPart[c.id], rows: toRows(cliS[c.id]), lastPoll: cliPoll[c.id] })),
+      };
+    }
 
+    function checkConsistency(rec, step) {
+      const snap = replayNodeStates(rec, step);
+      const ordered = getOrderedEvents(rec);
+      const applied = ordered.slice(0, step);
+      const srvMap = {};
+      for (const s of snap.servers) srvMap[s.id] = s;
+      let allMatch = true, anyOnline = false, pendingOps = false;
+      const openPush = {}, openPoll = {};
+      for (const e of applied) {
+        if (e.type === 'push_start') openPush[e.clientId] = true;
+        if (e.type === 'push_success' || e.type === 'push_fail') delete openPush[e.clientId];
+        if (e.type === 'poll_start') openPoll[e.clientId] = true;
+        if (e.type === 'poll_success' || e.type === 'poll_fail') delete openPoll[e.clientId];
+      }
+      for (const c of snap.clients) {
+        if (c.partitioned) continue;
+        anyOnline = true;
+        if (openPush[c.id] || openPoll[c.id]) { pendingOps = true; continue; }
+        const srv = srvMap[c.serverId];
+        if (!srv) { allMatch = false; continue; }
+        const srvIds = new Set(srv.rows.map(r => r.entityId));
+        const cliIds = new Set(c.rows.map(r => r.entityId));
+        if (srvIds.size !== cliIds.size) { allMatch = false; continue; }
+        for (const id of srvIds) { if (!cliIds.has(id)) { allMatch = false; break; } }
+        if (!allMatch) break;
+        const srvAttrs = {};
+        for (const r of srv.rows) srvAttrs[r.entityId] = r.attrs.join(',');
+        for (const r of c.rows) { if (srvAttrs[r.entityId] !== r.attrs.join(',')) { allMatch = false; break; } }
+        if (!allMatch) break;
+      }
+      if (step === 0) return 'idle';
+      if (!anyOnline) return 'partitioned';
+      if (pendingOps) return 'syncing';
+      return allMatch ? 'consistent' : 'inconsistent';
+    }
+
+    /**
+     * Builds a unified JSON diff structure.
+     * For each entity, produces "lines" representing a single JSON view.
+     * Each attribute line knows whether all nodes agree or not, and if not,
+     * which nodes have it / lack it.
+     */
+    function buildEntityDiff(snapshot, topo) {
+      if (!snapshot) return { entities: [], nodeIds: [], nodeLabels: {} };
+      const nodeMap = {}, nodeIds = [], nodeLabels = {};
+      for (const s of snapshot.servers) {
+        const nid = 's:' + s.id; nodeIds.push(nid); nodeLabels[nid] = 'Cloud ' + s.id;
+        const m = {}; for (const r of s.rows) m[r.entityId] = { type: r.entityType, attrs: new Set(r.attrs) }; nodeMap[nid] = m;
+      }
+      for (const c of snapshot.clients) {
+        const nid = 'c:' + c.id; nodeIds.push(nid); nodeLabels[nid] = 'Device ' + c.id;
+        const m = {}; for (const r of c.rows) m[r.entityId] = { type: r.entityType, attrs: new Set(r.attrs) }; nodeMap[nid] = m;
+      }
+      const allEntityIds = new Set();
+      for (const nid of nodeIds) for (const eid of Object.keys(nodeMap[nid])) allEntityIds.add(eid);
+
+      const entities = [];
+      for (const eid of [...allEntityIds].sort()) {
+        const perNode = {};
+        let anyType = '';
+        for (const nid of nodeIds) { const e = nodeMap[nid][eid]; if (e) { perNode[nid] = e; anyType = e.type; } }
+        const presentOn = Object.keys(perNode);
+        const missingOn = nodeIds.filter(n => !perNode[n]);
+        const entityDiffers = missingOn.length > 0;
+
+        const allAttrs = new Set();
+        for (const nid of nodeIds) { const e = perNode[nid]; if (e) e.attrs.forEach(a => allAttrs.add(a)); }
+        const sortedAttrs = [...allAttrs].sort();
+
+        const attrLines = sortedAttrs.map(attr => {
+          const nodesWith = nodeIds.filter(n => perNode[n]?.attrs.has(attr));
+          const nodesWithout = nodeIds.filter(n => perNode[n] && !perNode[n].attrs.has(attr));
+          const allPresent = nodesWith.length === presentOn.length && missingOn.length === 0;
+          return { attr, allConsistent: allPresent, nodesWith, nodesWithout };
+        });
+
+        const hasDiff = entityDiffers || attrLines.some(l => !l.allConsistent);
+        entities.push({ entityId: eid, entityType: anyType, perNode, missingOn, attrLines, hasDiff });
+      }
+      return { entities, nodeIds, nodeLabels };
+    }
+
+    /* ── layout ── */
+    function buildLayout(topo, W, H) {
+      const srvY = 90, cliY = H - 90;
+      const pos = {}, links = [], bySrv = {};
+      for (const c of topo.clients) { (bySrv[c.serverId] ||= []).push(c); }
+      const nS = topo.servers.length, pad = 140, inner = W - 2 * pad;
+      topo.servers.forEach((s, i) => {
+        pos['s:' + s.id] = { x: nS <= 1 ? W / 2 : pad + (inner * i) / Math.max(nS - 1, 1), y: srvY };
+      });
+      topo.clients.forEach(c => {
+        const list = bySrv[c.serverId] || [c], ci = list.indexOf(c), n = list.length;
+        const sx = pos['s:' + c.serverId]?.x ?? W / 2;
+        const spread = Math.min(180, inner / Math.max(nS * 2, 1));
+        pos['c:' + c.id] = { x: sx + (ci - (n - 1) / 2) * spread, y: cliY };
+        links.push({ s: 's:' + c.serverId, c: 'c:' + c.id, clientId: c.id });
+      });
+      return { pos, links, W, H };
+    }
+
+    function edgeGeo(a, b) {
+      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      const bend = Math.abs(b.y - a.y) < 8 ? 0 : (b.y - a.y) * 0.3;
+      const cx = mx, cy = my - bend;
+      return { d: `M${a.x},${a.y} Q${cx},${cy} ${b.x},${b.y}`, ctrl: { x: cx, y: cy }, mid: { x: 0.25*a.x+0.5*cx+0.25*b.x, y: 0.25*a.y+0.5*cy+0.25*b.y } };
+    }
+
+    function bezPt(a, c, b, t) {
+      const u = 1 - t;
+      return { x: u*u*a.x+2*u*t*c.x+t*t*b.x, y: u*u*a.y+2*u*t*c.y+t*t*b.y };
+    }
+
+    /* ── narration ── */
+    function story(e) {
+      if (!e) return '';
+      const m = {
+        topology: 'Network topology established.',
+        client_write: () => `Device "${e.clientId}" saves ${e.patchCount} change${e.patchCount===1?'':'s'} locally.`,
+        server_write: () => `Cloud stores ${e.patchCount} new change${e.patchCount===1?'':'s'}.`,
+        push_start: () => `Device "${e.clientId}" begins sending changes to the cloud.`,
+        push_success: () => `Device "${e.clientId}" sent changes \u2014 cloud is updated.`,
+        push_fail: () => `Send failed for "${e.clientId}".`,
+        poll_start: () => `Device "${e.clientId}" checks the cloud for updates.`,
+        poll_success: () => `Device "${e.clientId}" received latest data.`,
+        poll_fail: () => `Update check failed for "${e.clientId}".`,
+        network_op: () => e.phase==='begin' ? `${e.op==='write'?'Uploading':'Downloading'} data\u2026` : (e.ok===false ? 'Network error.' : 'Network operation complete.'),
+        remote_read: () => `Data flows from cloud to device "${e.clientId}".`,
+        remote_write: () => `Data flows from device "${e.clientId}" to cloud.`,
+        partition: () => `Device "${e.clientId}" goes offline.`,
+        heal: () => `Device "${e.clientId}" reconnects.`,
+        invalidation_scheduled: () => `Cloud prepares to notify "${e.clientId}".`,
+        invalidation_delivered: () => `Cloud notifies "${e.clientId}": new data available.`,
+        invalidation_dropped: () => `Notification to "${e.clientId}" lost \u2014 offline.`,
+        subscribe: () => `Device "${e.clientId}" starts listening.`,
+        unsubscribe: () => `Device "${e.clientId}" stops listening.`,
+        sync_error: () => `Sync error on "${e.clientId}".`,
+      };
+      const fn = m[e.type];
+      return typeof fn === 'function' ? fn() : (fn || e.type);
+    }
+    function shortDesc(e) {
+      if (!e) return '';
+      const m = {
+        client_write: `${e.clientId} write(${e.patchCount})`, server_write: `srv write(${e.patchCount})`,
+        push_start: `${e.clientId} push`, push_success: `${e.clientId} push ok`, push_fail: `${e.clientId} push fail`,
+        poll_start: `${e.clientId} poll`, poll_success: `${e.clientId} poll ok`, poll_fail: `${e.clientId} poll fail`,
+        network_op: `net ${e.op} ${e.phase}`, remote_read: `${e.clientId} \u2190 read`, remote_write: `${e.clientId} \u2192 write`,
+        partition: `${e.clientId} offline`, heal: `${e.clientId} online`,
+        invalidation_scheduled: `inv sched`, invalidation_delivered: `${e.clientId} \u2190 inv`,
+        invalidation_dropped: `inv lost`, subscribe: `${e.clientId} sub`, unsubscribe: `${e.clientId} unsub`,
+        sync_error: `${e.clientId} err`, topology: 'topology',
+      };
+      return m[e.type] || e.type;
+    }
+
+    /* ── data-aware packet sizing ── */
+    function dataMagnitude(ev) {
+      switch (ev.type) {
+        case 'client_write': return { count: ev.patchCount || 1, weight: (ev.summaries || []).reduce((s, x) => s + (x.attributeKeys?.length || 1), 0) };
+        case 'server_write': return { count: ev.patchCount || 1, weight: (ev.summaries || []).reduce((s, x) => s + (x.attributeKeys?.length || 1), 0) };
+        case 'remote_write': return { count: ev.returnedPatchCount || 1, weight: (ev.summaries || []).reduce((s, x) => s + (x.attributeKeys?.length || 1), 0) };
+        case 'remote_read': { const r = (ev.results || []); const cnt = r.reduce((s, x) => s + x.entityCount, 0); const w = r.reduce((s, x) => s + x.patchCount, 0); return { count: cnt || 1, weight: w || 1 }; }
+        default: return { count: 1, weight: 1 };
+      }
+    }
+    function pktParams(ev) {
+      const m = dataMagnitude(ev);
+      const dots = Math.max(2, Math.min(8, m.count));
+      const baseR = Math.max(3, Math.min(7, 2.5 + m.weight * 0.4));
+      return { dots, baseR };
+    }
+
+    /* ── GSAP animation engine ── */
+    function svgEl(p, tag, attrs) {
+      const el = document.createElementNS(NS, tag);
+      for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, String(v));
+      p.appendChild(el); return el;
+    }
+    function ring(tl, l, x, y, color, r0, r1, delay, dur) {
+      const c = svgEl(l, 'circle', { cx:x, cy:y, r:r0, fill:'none', stroke:color, 'stroke-width':2.5, opacity:0 });
+      tl.fromTo(c, { attr:{r:r0, opacity:0.85, 'stroke-width':2.5} }, { attr:{r:r1, opacity:0, 'stroke-width':0.3}, duration:dur, ease:'power2.out', onComplete:()=>c.remove() }, delay);
+    }
+    function lbl(tl, l, x, y, text, color, delay) {
+      const t = svgEl(l, 'text', { x, y, 'text-anchor':'middle', fill:color, stroke:C.bg, 'stroke-width':4, 'paint-order':'stroke', 'font-size':11, 'font-weight':500, 'font-family':"'Inter', system-ui", opacity:0 });
+      t.textContent = text;
+      tl.fromTo(t, { attr:{opacity:0, y:y+3} }, { attr:{opacity:1, y}, duration:0.18, ease:'power2.out' }, delay);
+      tl.to(t, { attr:{opacity:0, y:y-5}, duration:0.16, onComplete:()=>t.remove() }, delay+0.32);
+    }
+    function edgeFlash(tl, l, d, color, delay, dur) {
+      const p = svgEl(l, 'path', { d, fill:'none', stroke:color, 'stroke-width':4, 'stroke-linecap':'round', opacity:0 });
+      tl.fromTo(p, { attr:{opacity:0.6} }, { attr:{opacity:0}, duration:dur, ease:'power1.out', onComplete:()=>p.remove() }, delay);
+    }
+    function pkts(tl, l, from, ctrl, to, color, n, baseR, delay, dur) {
+      for (let i=0;i<n;i++) {
+        const r=Math.max(2, baseR - i*0.4);
+        const dot=svgEl(l,'circle',{cx:from.x,cy:from.y,r,fill:color,opacity:0});
+        const glow=svgEl(l,'circle',{cx:from.x,cy:from.y,r:r*2,fill:color,opacity:0});
+        const proxy={t:0}, d0=delay+i*0.055;
+        tl.to(proxy,{t:1,duration:dur,ease:'power1.inOut',
+          onStart(){dot.setAttribute('opacity','0.92');glow.setAttribute('opacity','0.14');},
+          onUpdate(){const p=bezPt(from,ctrl,to,proxy.t);dot.setAttribute('cx',p.x);dot.setAttribute('cy',p.y);glow.setAttribute('cx',p.x);glow.setAttribute('cy',p.y);},
+          onComplete(){dot.remove();glow.remove();},
+        },d0);
+      }
+    }
+    function xMk(tl, l, x, y, delay) {
+      const a=svgEl(l,'line',{x1:x-7,y1:y-7,x2:x+7,y2:y+7,stroke:C.red,'stroke-width':2,'stroke-linecap':'round',opacity:0});
+      const b=svgEl(l,'line',{x1:x+7,y1:y-7,x2:x-7,y2:y+7,stroke:C.red,'stroke-width':2,'stroke-linecap':'round',opacity:0});
+      tl.to([a,b],{attr:{opacity:1},duration:0.1},delay);
+      tl.to([a,b],{attr:{opacity:0},duration:0.2,onComplete(){a.remove();b.remove();}},delay+0.3);
+    }
+    function chk(tl, l, x, y, color, delay) {
+      const p=svgEl(l,'polyline',{points:`${x-5},${y} ${x-1},${y+4} ${x+6},${y-4}`,fill:'none',stroke:color,'stroke-width':2,'stroke-linecap':'round','stroke-linejoin':'round',opacity:0});
+      tl.to(p,{attr:{opacity:1},duration:0.12},delay);
+      tl.to(p,{attr:{opacity:0},duration:0.18,onComplete:()=>p.remove()},delay+0.32);
+    }
+
+    function buildEventAnim(ev, layer, layout, topo) {
+      const tl = gsap.timeline();
+      const srvOf = (cid) => topo.clients.find(c=>c.id===cid)?.serverId;
+      const cs = (cid) => { const sid=srvOf(cid); if(!sid) return null; const a=layout.pos['s:'+sid],b=layout.pos['c:'+cid]; if(!a||!b) return null; return {sPos:a,cPos:b,...edgeGeo(a,b)}; };
+      const pp = pktParams(ev);
+
+      switch (ev.type) {
+        case 'client_write': { const p=layout.pos['c:'+ev.clientId]; if(!p) break; ring(tl,layer,p.x,p.y,C.blue,24,52,0,0.45); ring(tl,layer,p.x,p.y,C.blue,24,40,0.06,0.38); lbl(tl,layer,p.x,p.y-46,'Saved locally',C.blue,0.02); break; }
+        case 'server_write': { const p=layout.pos['s:'+ev.serverId]; if(!p) break; ring(tl,layer,p.x,p.y,C.yellow,28,54,0,0.45); ring(tl,layer,p.x,p.y,C.yellow,28,42,0.06,0.38); lbl(tl,layer,p.x,p.y-50,'Stored on cloud',C.yellow,0.02); break; }
+        case 'push_start': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.cPos.x,e.cPos.y,C.orange,24,38,0,0.3); pkts(tl,layer,e.cPos,e.ctrl,e.sPos,C.orange,pp.dots,pp.baseR,0.03,0.4); edgeFlash(tl,layer,e.d,C.orange,0,0.45); lbl(tl,layer,e.mid.x,e.mid.y-10,'Sending \u2192',C.orange,0.03); break; }
+        case 'push_success': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.sPos.x,e.sPos.y,C.green,28,52,0,0.4); edgeFlash(tl,layer,e.d,C.green,0,0.28); chk(tl,layer,e.sPos.x,e.sPos.y-42,C.green,0.04); lbl(tl,layer,e.sPos.x,e.sPos.y-52,'Received',C.green,0); break; }
+        case 'push_fail': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.cPos.x,e.cPos.y,C.red,24,48,0,0.5); edgeFlash(tl,layer,e.d,C.red,0,0.38); xMk(tl,layer,e.mid.x,e.mid.y,0.04); lbl(tl,layer,e.mid.x,e.mid.y-14,'Send failed',C.red,0.02); break; }
+        case 'poll_start': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.cPos.x,e.cPos.y,C.teal,24,36,0,0.3); pkts(tl,layer,e.cPos,e.ctrl,e.sPos,C.teal,2,3.5,0.03,0.32); edgeFlash(tl,layer,e.d,C.teal,0,0.35); lbl(tl,layer,e.mid.x,e.mid.y-10,'Checking \u2192',C.teal,0.03); break; }
+        case 'poll_success': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.cPos.x,e.cPos.y,C.green,24,50,0,0.4); edgeFlash(tl,layer,e.d,C.green,0,0.28); chk(tl,layer,e.cPos.x,e.cPos.y-38,C.green,0.04); lbl(tl,layer,e.cPos.x,e.cPos.y-48,'Up to date',C.green,0); break; }
+        case 'poll_fail': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.cPos.x,e.cPos.y,C.red,24,46,0,0.5); edgeFlash(tl,layer,e.d,C.red,0,0.38); xMk(tl,layer,e.mid.x,e.mid.y,0.04); lbl(tl,layer,e.mid.x,e.mid.y-14,'Check failed',C.red,0.02); break; }
+        case 'network_op': { const e=cs(ev.clientId); if(!e) break; if(ev.phase==='begin'){const col=ev.op==='write'?C.orange:C.green;const dir=ev.op==='write';pkts(tl,layer,dir?e.cPos:e.sPos,e.ctrl,dir?e.sPos:e.cPos,col,pp.dots,pp.baseR,0,0.35);edgeFlash(tl,layer,e.d,col,0,0.38);lbl(tl,layer,e.mid.x,e.mid.y-10,ev.op==='write'?'Uploading\u2026':'Downloading\u2026',col,0);}else if(ev.ok===false){edgeFlash(tl,layer,e.d,C.red,0,0.32);xMk(tl,layer,e.mid.x,e.mid.y,0);lbl(tl,layer,e.mid.x,e.mid.y-14,'Network error',C.red,0);}else{edgeFlash(tl,layer,e.d,C.green,0,0.2);} break; }
+        case 'remote_read': { const e=cs(ev.clientId); if(!e) break; pkts(tl,layer,e.sPos,e.ctrl,e.cPos,C.green,pp.dots,pp.baseR,0,0.42); edgeFlash(tl,layer,e.d,C.green,0,0.5); ring(tl,layer,e.cPos.x,e.cPos.y,C.green,24,50,0.26,0.38); const cnt=(ev.results||[]).reduce((s,r)=>s+r.entityCount,0); lbl(tl,layer,e.mid.x,e.mid.y-10,'\u2190 '+cnt+' item'+(cnt===1?'':'s'),C.green,0.03); break; }
+        case 'remote_write': { const e=cs(ev.clientId); if(!e) break; pkts(tl,layer,e.cPos,e.ctrl,e.sPos,C.orange,pp.dots,pp.baseR,0,0.42); edgeFlash(tl,layer,e.d,C.orange,0,0.5); ring(tl,layer,e.sPos.x,e.sPos.y,C.yellow,28,52,0.26,0.38); lbl(tl,layer,e.mid.x,e.mid.y-10,ev.returnedPatchCount+' patch'+(ev.returnedPatchCount===1?'':'es')+' \u2192',C.orange,0.03); break; }
+        case 'partition': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.mid.x,e.mid.y,C.red,6,40,0,0.55); ring(tl,layer,e.cPos.x,e.cPos.y,C.red,24,58,0.03,0.5); xMk(tl,layer,e.mid.x,e.mid.y,0.02); edgeFlash(tl,layer,e.d,C.red,0,0.45); lbl(tl,layer,e.mid.x,e.mid.y-16,'Disconnected',C.red,0); break; }
+        case 'heal': { const e=cs(ev.clientId); if(!e) break; ring(tl,layer,e.mid.x,e.mid.y,C.green,6,34,0,0.45); ring(tl,layer,e.cPos.x,e.cPos.y,C.green,24,54,0.05,0.45); edgeFlash(tl,layer,e.d,C.green,0,0.45); chk(tl,layer,e.mid.x,e.mid.y-14,C.green,0.04); pkts(tl,layer,e.sPos,e.ctrl,e.cPos,C.green,2,3.5,0.1,0.3); lbl(tl,layer,e.mid.x,e.mid.y-24,'Reconnected',C.green,0); break; }
+        case 'invalidation_scheduled': { const sid=srvOf(ev.clientId); if(!sid) break; const p=layout.pos['s:'+sid]; if(!p) break; ring(tl,layer,p.x,p.y,C.violet,28,44,0,0.38); lbl(tl,layer,p.x,p.y-50,'Notifying\u2026',C.violet,0); break; }
+        case 'invalidation_delivered': { const e=cs(ev.clientId); if(!e) break; pkts(tl,layer,e.sPos,e.ctrl,e.cPos,C.violet,2,3.5,0,0.38); ring(tl,layer,e.cPos.x,e.cPos.y,C.violet,24,46,0.22,0.38); edgeFlash(tl,layer,e.d,C.violet,0,0.42); lbl(tl,layer,e.mid.x,e.mid.y-10,'\u2190 New data available',C.violet,0.03); break; }
+        case 'invalidation_dropped': { const e=cs(ev.clientId); if(!e) break; const dot=svgEl(layer,'circle',{cx:e.sPos.x,cy:e.sPos.y,r:4,fill:C.violet,opacity:0}); const proxy={t:0}; tl.to(proxy,{t:0.5,duration:0.26,onStart(){dot.setAttribute('opacity','0.85');},onUpdate(){const p=bezPt(e.sPos,e.ctrl,e.cPos,proxy.t);dot.setAttribute('cx',p.x);dot.setAttribute('cy',p.y);},onComplete(){gsap.to(dot,{attr:{opacity:0,r:0},duration:0.15,onComplete:()=>dot.remove()});},},0); xMk(tl,layer,e.mid.x,e.mid.y,0.16); lbl(tl,layer,e.mid.x,e.mid.y-14,'Notification lost',C.red,0.06); break; }
+        case 'subscribe': { const p=layout.pos['c:'+ev.clientId]; if(!p) break; ring(tl,layer,p.x,p.y,C.teal,24,38,0,0.34); lbl(tl,layer,p.x,p.y-46,'Listening',C.teal,0); break; }
+        case 'unsubscribe': { const p=layout.pos['c:'+ev.clientId]; if(!p) break; ring(tl,layer,p.x,p.y,C.text,24,34,0,0.3); lbl(tl,layer,p.x,p.y-46,'Stopped',C.text,0); break; }
+        case 'sync_error': { const p=layout.pos['c:'+ev.clientId]; if(!p) break; ring(tl,layer,p.x,p.y,C.red,24,54,0,0.5); ring(tl,layer,p.x,p.y,C.red,24,42,0.07,0.42); xMk(tl,layer,p.x,p.y-34,0.02); lbl(tl,layer,p.x,p.y-48,'Sync error',C.red,0); break; }
+        case 'topology': { lbl(tl,layer,layout.W/2,layout.H/2,'Topology established',C.text,0); break; }
+      }
+      return tl;
+    }
+
+    /* ── Consistency indicator ── */
+    const STATUS_MAP = {
+      idle: { label: 'Idle', color: C.text, dot: C.text },
+      consistent: { label: 'Consistent', color: C.green, dot: C.green },
+      inconsistent: { label: 'Inconsistent', color: C.red, dot: C.red },
+      syncing: { label: 'Syncing\u2026', color: C.yellow, dot: C.yellow },
+      partitioned: { label: 'All offline', color: C.red, dot: C.dimRed },
+    };
+    function StatusBadge({ status }) {
+      const s = STATUS_MAP[status] || STATUS_MAP.idle;
       return (
-        <div className="mt-2 flex flex-wrap gap-2">
-          {chips.map((c) => (
-            <span
-              key={c.label}
-              className="rounded-full border border-slate-700 bg-white/5 px-2.5 py-1 text-[0.68rem] text-slate-400"
-            >
-              <strong className="font-semibold text-slate-200">{escapeHtml(c.label)}</strong>{' '}
-              {escapeHtml(c.value)}
-            </span>
-          ))}
+        <div className="flex items-center gap-1.5 rounded border border-neutral-800 bg-neutral-900 px-2 py-1 text-[0.65rem] font-medium" style={{ color: s.color }}>
+          <span className="inline-block h-2 w-2 rounded-full" style={{ background: s.dot }} />
+          {s.label}
         </div>
       );
     }
 
-    function TimelineSvg({
-      rec,
-      tPlay,
-      scale,
-      panX,
-      panY,
-      selectedEventSeq,
-      onSelectSeq,
-      onPointerHover,
-    }) {
-      const topology = rec.topology;
-      const servers = topology.servers;
-      const clients = topology.clients;
-      const laneLabels = [
-        ...servers.map((s) => 'Server ' + s.id),
-        ...clients.map((c) => 'Client ' + c.id),
-      ];
-      const laneCount = laneLabels.length;
-      const { t0, t1 } = timeBounds(rec);
-      const duration = t1 - t0;
-      const laneH = 44;
-      const topPad = 36;
-      const leftPad = 120;
-      const rightPad = 40;
-      const wTime = Math.max(800, duration * scale) + leftPad + rightPad;
-      const h = topPad + laneCount * laneH + 24;
+    /* ── JSON Diff panel ── */
+    function shortAttr(a) { return a.includes('/') ? a.slice(a.lastIndexOf('/') + 1) : a; }
+    function shortId(id) { return id.length > 18 ? id.slice(0, 16) + '\u2026' : id; }
 
-      const xAt = (t) => leftPad + ((t - t0) / duration) * (wTime - leftPad - rightPad);
-      const xPlay = xAt(tPlay);
-
-      const markers = (
-        <defs>
-          <marker id="arrowOrange" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
-            <path d="M0,0 L8,4 L0,8 z" fill="#f59e0b" />
-          </marker>
-          <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
-            <path d="M0,0 L8,4 L0,8 z" fill="#34d399" />
-          </marker>
-        </defs>
-      );
-
-      const elements = [];
-
-      const partState = {};
-      for (let ei = 0; ei < rec.events.length; ei++) {
-        const e = rec.events[ei];
-        if (e.type === 'partition' && e.clientId) partState[e.clientId] = e.time;
-        if (e.type === 'heal' && e.clientId && partState[e.clientId] != null) {
-          const cid = e.clientId;
-          const xEnd = Math.min(xAt(e.time), xPlay);
-          const li = laneIndex(topology, { type: 'partition', clientId: cid });
-          const y = topPad + li * laneH;
-          const x0 = xAt(partState[cid]);
-          if (x0 < xPlay) {
-            elements.push(
-              <rect
-                key={'part-' + e.seq}
-                className="fill-rose-400/20"
-                x={Math.min(x0, xEnd)}
-                y={y + 4}
-                width={Math.abs(xEnd - Math.min(x0, xPlay))}
-                height={laneH - 8}
-                opacity={xAt(e.time) > xPlay ? 0.35 : 1}
-              />
-            );
-          }
-          partState[cid] = null;
-        }
-      }
-
-      const subs = {};
-      for (let ej = 0; ej < rec.events.length; ej++) {
-        const ev2 = rec.events[ej];
-        if (ev2.type === 'subscribe' && ev2.clientId) {
-          subs[ev2.clientId + '|' + ev2.mode + '|' + ev2.queryKey] = ev2.time;
-        }
-        if (ev2.type === 'unsubscribe' && ev2.clientId) {
-          const k = ev2.clientId + '|' + ev2.mode + '|' + ev2.queryKey;
-          if (subs[k] != null) {
-            const li2 = laneIndex(topology, ev2);
-            const y2 = topPad + li2 * laneH;
-            const xs0 = xAt(subs[k]);
-            const xs1 = Math.min(xAt(ev2.time), xPlay);
-            if (xs0 < xPlay) {
-              elements.push(
-                <rect
-                  key={'sub-' + ev2.seq}
-                  className="fill-emerald-400/15"
-                  x={Math.min(xs0, xs1)}
-                  y={y2 + 10}
-                  width={Math.abs(xs1 - xs0)}
-                  height={laneH - 20}
-                  opacity={xAt(ev2.time) > xPlay ? 0.4 : 1}
-                />
-              );
-            }
-            subs[k] = null;
-          }
-        }
-      }
-
-      for (let li3 = 0; li3 < laneCount; li3++) {
-        const y3 = topPad + li3 * laneH;
-        elements.push(
-          <rect
-            key={'lane-' + li3}
-            className="fill-slate-800/80"
-            x={0}
-            y={y3}
-            width={wTime}
-            height={laneH}
-            opacity={li3 % 2 ? 0.5 : 0.35}
-          />
-        );
-        elements.push(
-          <line
-            key={'ln-' + li3}
-            className="stroke-slate-700"
-            strokeWidth={1}
-            x1={0}
-            x2={wTime}
-            y1={y3 + laneH}
-            y2={y3 + laneH}
-          />
-        );
-        elements.push(
-          <text
-            key={'lb-' + li3}
-            className="fill-slate-100 text-[11px] font-semibold"
-            x={8}
-            y={y3 + laneH / 2 + 4}
-          >
-            {laneLabels[li3]}
-          </text>
-        );
-      }
-
-      const ticks = Math.min(12, Math.ceil(duration / 10) + 1);
-      for (let ti = 0; ti <= ticks; ti++) {
-        const tt = t0 + (duration * ti) / ticks;
-        const xx = xAt(tt);
-        elements.push(
-          <line
-            key={'tk-' + ti}
-            className="stroke-slate-700/80"
-            strokeWidth={0.5}
-            x1={xx}
-            x2={xx}
-            y1={topPad - 6}
-            y2={h - 8}
-          />
-        );
-        elements.push(
-          <text key={'tl-' + ti} className="fill-slate-500 text-[10px]" x={xx - 12} y={topPad - 10}>
-            {String(Math.round(tt - t0))}
-          </text>
-        );
-      }
-
-      for (let ek = 0; ek < rec.events.length; ek++) {
-        const e3 = rec.events[ek];
-        if (e3.type === 'push_success' && e3.clientId && e3.time <= tPlay) {
-          const cli = clients.find((c) => c.id === e3.clientId);
-          if (!cli) continue;
-          const si = servers.findIndex((s) => s.id === cli.serverId);
-          const ci = servers.length + clients.findIndex((c) => c.id === e3.clientId);
-          if (si < 0 || ci < 0) continue;
-          const yS = topPad + si * laneH + laneH / 2;
-          const yC = topPad + ci * laneH + laneH / 2;
-          const xa = xAt(e3.time);
-          elements.push(
-            <path
-              key={'arrp-' + e3.seq}
-              className="fill-none stroke-amber-400"
-              strokeWidth={1.5}
-              markerEnd="url(#arrowOrange)"
-              opacity={0.9}
-              d={'M' + xa + ',' + yC + ' L' + xa + ',' + yS}
-            />
-          );
-        }
-        if (e3.type === 'poll_success' && e3.clientId && e3.time <= tPlay) {
-          const cliP = clients.find((c) => c.id === e3.clientId);
-          if (!cliP) continue;
-          const siP = servers.findIndex((s) => s.id === cliP.serverId);
-          const ciP = servers.length + clients.findIndex((c) => c.id === e3.clientId);
-          if (siP < 0 || ciP < 0) continue;
-          const ySp = topPad + siP * laneH + laneH / 2;
-          const yCp = topPad + ciP * laneH + laneH / 2;
-          const xaP = xAt(e3.time);
-          elements.push(
-            <path
-              key={'arrl-' + e3.seq}
-              className="fill-none stroke-emerald-400"
-              strokeWidth={1.5}
-              markerEnd="url(#arrowGreen)"
-              opacity={0.9}
-              d={'M' + xaP + ',' + ySp + ' L' + xaP + ',' + yCp}
-            />
-          );
-        }
-        if (e3.type === 'invalidation_delivered' && e3.clientId && e3.time <= tPlay) {
-          const li4 = laneIndex(topology, e3);
-          const prev = rec.events.filter(
-            (x) => x.seq < e3.seq && x.type === 'invalidation_scheduled' && x.clientId === e3.clientId
-          );
-          const sch = prev.length ? prev[prev.length - 1] : null;
-          if (sch && sch.time <= tPlay) {
-            const y4 = topPad + li4 * laneH + laneH / 2;
-            const x0b = xAt(sch.time);
-            const x1b = xAt(e3.time);
-            elements.push(
-              <path
-                key={'inv-' + e3.seq}
-                className="fill-none stroke-slate-400 opacity-85"
-                strokeWidth={1}
-                strokeDasharray="4 3"
-                d={'M' + x0b + ',' + (y4 + 6) + ' Q' + (x0b + x1b) / 2 + ',' + (y4 - 14) + ' ' + x1b + ',' + y4}
-              />
-            );
-          }
-        }
-      }
-
-      const events = rec.events.filter((e) => e.type !== 'topology');
-      let lastPastSeq = -1;
-      for (const ev3 of events) {
-        if (ev3.time <= tPlay) lastPastSeq = ev3.seq;
-      }
-
-      for (const ev3 of events) {
-        const li5 = laneIndex(topology, ev3);
-        if (li5 < 0) continue;
-        const past = ev3.time <= tPlay;
-        const y5 = topPad + li5 * laneH + laneH / 2;
-        const x5 = xAt(ev3.time);
-        const op = past ? '1' : '0.22';
-        const boost = past && selectedEventSeq === ev3.seq;
-        const isFail = ev3.type === 'push_fail' || ev3.type === 'poll_fail' || ev3.type === 'sync_error';
-        const isLine = ev3.type === 'partition' || ev3.type === 'heal';
-
-        const commonHandlers = {
-          onClick: (ev) => {
-            ev.stopPropagation();
-            onSelectSeq(ev3.seq);
-          },
-          onMouseEnter: (ev) =>
-            onPointerHover({
-              text: ev3.type + ' @t=' + ev3.time + ' seq=' + ev3.seq,
-              x: ev.clientX,
-              y: ev.clientY,
-            }),
-          onMouseLeave: () => onPointerHover(null),
-        };
-
-        if (isLine) {
-          elements.push(
-            <line
-              key={'ev-' + ev3.seq}
-              stroke={ev3.type === 'partition' ? '#f87171' : '#34d399'}
-              strokeWidth={2}
-              x1={x5}
-              x2={x5}
-              y1={topPad + li5 * laneH + 4}
-              y2={topPad + li5 * laneH + laneH - 4}
-              opacity={op}
-              className="cursor-pointer transition-opacity duration-150"
-              data-seq={ev3.seq}
-              {...commonHandlers}
-            />
-          );
-        } else if (isFail) {
-          elements.push(
-            <text
-              key={'ev-' + ev3.seq}
-              x={x5 - 5}
-              y={y5 + 4}
-              fill="#f87171"
-              fontWeight="bold"
-              opacity={op}
-              className="cursor-pointer"
-              {...commonHandlers}
-            >
-              ✕
-            </text>
-          );
-        } else {
-          let r = ev3.type === 'network_op' && ev3.phase === 'begin' ? 3 : 5;
-          if (past && ev3.seq === lastPastSeq && selectedEventSeq == null) r += 1.5;
-          elements.push(
-            <circle
-              key={'ev-' + ev3.seq}
-              className={
-                evtClass(ev3.type) + ' cursor-pointer transition-all duration-150'
-              }
-              cx={x5}
-              cy={y5}
-              r={r}
-              opacity={op}
-              stroke={boost ? '#fff' : 'none'}
-              strokeWidth={boost ? 2 : 0}
-              {...commonHandlers}
-            />
-          );
-        }
-      }
-
-      elements.push(
-        <line
-          key="playhead"
-          className="stroke-white/85 pointer-events-none"
-          strokeWidth={1.5}
-          x1={xPlay}
-          x2={xPlay}
-          y1={topPad - 4}
-          y2={h - 4}
-        />
-      );
-
+    function JsonLine({ indent, children, gutter, className }) {
       return (
-        <svg
-          className="block min-w-full"
-          xmlns="http://www.w3.org/2000/svg"
-          width={wTime}
-          height={h}
-          viewBox={'0 0 ' + wTime + ' ' + h}
-        >
-          {markers}
-          <g transform={'translate(' + panX + ',' + panY + ')'}>{elements}</g>
-        </svg>
+        <div className={`flex min-h-[18px] items-start font-mono text-[0.62rem] leading-[18px] ${className || ''}`}>
+          <div className="w-[3px] shrink-0 self-stretch rounded-sm" style={{ background: gutter || 'transparent' }} />
+          <span className="shrink-0 select-none text-neutral-700" style={{ width: indent * 12 + 8, paddingLeft: 6 }}>{''}</span>
+          <span className="min-w-0 flex-1">{children}</span>
+        </div>
       );
     }
 
+    function DiffPanel({ snapshot, topo, allNodeIds }) {
+      const diff = useMemo(() => buildEntityDiff(snapshot, topo), [snapshot, topo]);
+      if (!diff.entities.length) return (
+        <div className="flex h-full items-center justify-center p-4 text-center text-[0.7rem] text-neutral-600">No entities yet \u2014 step forward.</div>
+      );
+
+      return (
+        <div className="flex h-full flex-col">
+          <div className="shrink-0 border-b border-neutral-800 px-3 py-2">
+            <div className="text-[0.6rem] font-semibold uppercase tracking-widest text-neutral-500">State Diff</div>
+            <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1">
+              {diff.nodeIds.map(nid => (
+                <span key={nid} className="flex items-center gap-1 text-[0.55rem]" style={{ color: nodeColor(allNodeIds, nid) }}>
+                  <span className="inline-block h-2 w-2 rounded-sm" style={{ background: nodeColor(allNodeIds, nid) }} />
+                  {diff.nodeLabels[nid]}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto bg-[#0c0c0c]">
+            {diff.entities.map(ent => {
+              const eid = ent.entityId;
+              return (
+                <div key={eid} className="border-b border-neutral-800/40">
+                  {/* opening brace */}
+                  <JsonLine indent={0} gutter={ent.hasDiff ? C.red : undefined}>
+                    <span className="text-neutral-500">{'{'}</span>
+                    {ent.hasDiff && <span className="ml-2 rounded bg-red-500/10 px-1 py-0 text-[0.5rem] font-semibold text-red-400">DIFF</span>}
+                  </JsonLine>
+
+                  {/* entityId */}
+                  <JsonLine indent={1}>
+                    <span className="text-neutral-500">"entityId"</span>
+                    <span className="text-neutral-600">: </span>
+                    <span className="text-amber-300/90">"{shortId(eid)}"</span>
+                    <span className="text-neutral-700">,</span>
+                  </JsonLine>
+
+                  {/* entityType */}
+                  <JsonLine indent={1}>
+                    <span className="text-neutral-500">"entityType"</span>
+                    <span className="text-neutral-600">: </span>
+                    <span className="text-teal-300/80">"{ent.entityType}"</span>
+                    <span className="text-neutral-700">,</span>
+                  </JsonLine>
+
+                  {/* entity-level missing: which nodes don't have this entity at all */}
+                  {ent.missingOn.map(nid => {
+                    const col = nodeColor(allNodeIds, nid);
+                    return (
+                      <JsonLine key={'miss-'+nid} indent={1} gutter={col} className="bg-red-950/8">
+                        <span className="text-neutral-600">// </span>
+                        <span style={{ color: col }}>{diff.nodeLabels[nid]}</span>
+                        <span className="text-red-400/70"> \u2014 entity missing</span>
+                      </JsonLine>
+                    );
+                  })}
+
+                  {/* attributes open */}
+                  <JsonLine indent={1}>
+                    <span className="text-neutral-500">"attributes"</span>
+                    <span className="text-neutral-600">: {'{'}</span>
+                  </JsonLine>
+
+                  {/* each attribute */}
+                  {ent.attrLines.map((line, li) => {
+                    const comma = li < ent.attrLines.length - 1 ? ',' : '';
+                    const key = shortAttr(line.attr);
+                    if (line.allConsistent) {
+                      return (
+                        <JsonLine key={line.attr} indent={2}>
+                          <span className="text-neutral-500">"{key}"</span>
+                          <span className="text-neutral-600">: </span>
+                          <span className="text-blue-300/70">true</span>
+                          <span className="text-neutral-700">{comma}</span>
+                        </JsonLine>
+                      );
+                    }
+                    return (
+                      <React.Fragment key={line.attr}>
+                        <JsonLine indent={2}>
+                          <span className="text-neutral-500">"{key}"</span>
+                          <span className="text-neutral-600">:</span>
+                        </JsonLine>
+                        {line.nodesWith.map(nid => {
+                          const col = nodeColor(allNodeIds, nid);
+                          return (
+                            <JsonLine key={nid+'+'+line.attr} indent={3} gutter={col} className="bg-green-950/8">
+                              <span style={{ color: col }} className="opacity-80">+ {diff.nodeLabels[nid]}</span>
+                              <span className="text-neutral-600">: </span>
+                              <span className="text-green-400/80">true</span>
+                            </JsonLine>
+                          );
+                        })}
+                        {line.nodesWithout.map(nid => {
+                          const col = nodeColor(allNodeIds, nid);
+                          return (
+                            <JsonLine key={nid+'-'+line.attr} indent={3} gutter={col} className="bg-red-950/8">
+                              <span style={{ color: col }} className="opacity-80">\u2212 {diff.nodeLabels[nid]}</span>
+                              <span className="text-neutral-600">: </span>
+                              <span className="text-red-400/70">undefined</span>
+                            </JsonLine>
+                          );
+                        })}
+                      </React.Fragment>
+                    );
+                  })}
+
+                  {/* attributes close */}
+                  <JsonLine indent={1}>
+                    <span className="text-neutral-600">{'}'}</span>
+                  </JsonLine>
+
+                  {/* closing brace */}
+                  <JsonLine indent={0}>
+                    <span className="text-neutral-500">{'}'}</span>
+                  </JsonLine>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    /* ── Inspector ── */
+    function Inspector({ selectedKey, snapshot, title, onClose }) {
+      if (!selectedKey || !snapshot) return null;
+      const isSrv = selectedKey.startsWith('s:'), id = selectedKey.slice(2);
+      const actor = isSrv ? snapshot.servers.find(s=>s.id===id) : snapshot.clients.find(c=>c.id===id);
+      if (!actor) return null;
+      const rows = actor.rows || [];
+      return (
+        <div className="absolute bottom-0 right-0 top-0 z-30 flex w-full max-w-sm flex-col border-l border-neutral-800 bg-neutral-950/97 shadow-2xl backdrop-blur-md sm:w-[340px]" onClick={e=>e.stopPropagation()}>
+          <div className="flex items-start justify-between gap-2 border-b border-neutral-800 px-3 py-2.5">
+            <div>
+              <div className="text-sm font-semibold text-neutral-100">{isSrv?'Cloud':'Device'} <span className="font-mono text-blue-400">{id}</span></div>
+              {!isSrv && <div className="mt-1 text-xs text-neutral-500">server \u2192 <span className="font-mono text-neutral-400">{actor.serverId}</span>
+                {actor.partitioned && <span className="ml-2 rounded bg-red-500/15 px-1.5 py-0.5 text-red-400">offline</span>}
+              </div>}
+            </div>
+            <button type="button" onClick={onClose} className="rounded border border-neutral-800 px-2 py-1 text-[0.65rem] text-neutral-500 hover:bg-neutral-800 hover:text-neutral-300">Esc</button>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto px-3 py-2 text-xs leading-relaxed">
+            {!isSrv && actor.lastPoll && (
+              <div className="mb-2 rounded border border-emerald-500/20 bg-emerald-950/20 px-2 py-1.5 text-emerald-300/90 text-[0.65rem]">
+                Last poll: {(actor.lastPoll.results||[]).map(r=>r.entityCount+' ent \u00b7 '+r.patchCount+' pat').join(' \u00b7 ')}
+              </div>
+            )}
+            <div className="text-[0.6rem] font-semibold uppercase tracking-widest text-neutral-600">Entities ({rows.length})</div>
+            <ul className="mt-1.5 space-y-1.5">
+              {rows.length===0 && <li className="text-neutral-600">Empty</li>}
+              {rows.map(row=>(
+                <li key={row.entityId} className="rounded border border-neutral-800/60 bg-neutral-900/60 px-2 py-1.5">
+                  <div className="font-mono text-[0.65rem] text-amber-300/80">{row.entityId.length>14?row.entityId.slice(0,12)+'\u2026':row.entityId}</div>
+                  <div className="text-[0.6rem] text-neutral-600">{row.entityType}</div>
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {row.attrs.slice(0,12).map(a=>{const s=a.includes('/')?a.slice(a.lastIndexOf('/')+1):a; return <span key={a} className="rounded bg-neutral-800 px-1 py-0.5 font-mono text-[0.5rem] text-neutral-400" title={a}>{s}</span>;})}
+                    {row.attrs.length>12 && <span className="text-neutral-600">+{row.attrs.length-12}</span>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      );
+    }
+
+    /* ── URL hash ── */
+    function readHash() {
+      const h = location.hash.replace('#','');
+      const p = new URLSearchParams(h);
+      return { sim: p.get('sim') || null, step: parseInt(p.get('step'),10) || 0 };
+    }
+    function writeHash(simId, step) {
+      const p = new URLSearchParams();
+      if (simId) p.set('sim', simId);
+      if (step > 0) p.set('step', String(step));
+      const h = p.toString();
+      history.replaceState(null, '', h ? '#' + h : location.pathname);
+    }
+
+    /* ── App ── */
     function App() {
       const recordings = useMemo(() => sortRecordings(RAW), []);
-      const [selectedIdx, setSelectedIdx] = useState(0);
-      const [selectedEventSeq, setSelectedEventSeq] = useState(null);
-      const [scale, setScale] = useState(2);
-      const [panX, setPanX] = useState(40);
-      const [panY, setPanY] = useState(20);
-      const [tPlay, setTPlay] = useState(0);
-      const [isPlaying, setIsPlaying] = useState(false);
+      const initialState = useMemo(() => { const h = readHash(); let idx = 0; if (h.sim) { const i = recordings.findIndex(r => r.id === h.sim); if (i >= 0) idx = i; } return { idx, step: h.step }; }, []);
+
+      const [idx, setIdx] = useState(initialState.idx);
+      const [step, setStep] = useState(initialState.step);
+      const [playing, setPlaying] = useState(false);
       const [loop, setLoop] = useState(true);
       const [speed, setSpeed] = useState(1);
-      const [hoverTip, setHoverTip] = useState(null);
-      const tipTrackRef = useRef(false);
-      const [panningUi, setPanningUi] = useState(false);
-      const panRef = useRef({ x: 40, y: 20 });
-      const dragRef = useRef(null);
-      const rafRef = useRef(0);
-      const lastFtRef = useRef(0);
+      const [sel, setSel] = useState(null);
+      const [showDiff, setShowDiff] = useState(true);
+
+      const animLayerRef = useRef(null);
+      const tlRef = useRef(null);
+      const prevStepRef = useRef(step);
+
+      const rec = recordings[idx];
+      const ordered = useMemo(() => rec ? getOrderedEvents(rec) : [], [rec]);
+      const total = ordered.length;
+      const layout = useMemo(() => rec ? buildLayout(rec.topology, 1100, 580) : null, [rec]);
+      const snapshot = useMemo(() => rec ? replayNodeStates(rec, step) : null, [rec, step]);
+      const partMap = useMemo(() => { const m = {}; if (snapshot) snapshot.clients.forEach(c => { m[c.id] = c.partitioned; }); return m; }, [snapshot]);
+      const latestEv = step > 0 ? ordered[step - 1] : null;
+      const metaTitle = rec ? (rec.meta?.title || rec.id) : '';
+      const consistency = useMemo(() => rec ? checkConsistency(rec, step) : 'idle', [rec, step]);
+
+      const allNodeIds = useMemo(() => {
+        if (!rec) return [];
+        return [...rec.topology.servers.map(s => 's:' + s.id), ...rec.topology.clients.map(c => 'c:' + c.id)];
+      }, [rec]);
+
+      useEffect(() => { if (rec) writeHash(rec.id, step); }, [rec, step]);
 
       useEffect(() => {
-        panRef.current = { x: panX, y: panY };
-      }, [panX, panY]);
-
-      const rec = recordings[selectedIdx];
-      const bounds = useMemo(() => (rec ? timeBounds(rec) : { t0: 0, t1: 1 }), [rec]);
-      const { t0: tMin, t1: tMax } = bounds;
-      const span = tMax - tMin;
-
-      useEffect(() => {
-        setTPlay(tMin);
-        setSelectedEventSeq(null);
-      }, [selectedIdx, tMin]);
-
-      const updateScrubberValue = () =>
-        span > 0 ? Math.round(Math.max(0, Math.min(1000, ((tPlay - tMin) / span) * 1000))) : 0;
-
-      const scrubValue = updateScrubberValue();
-
-      useEffect(() => {
-        if (!isPlaying || !rec) return;
-        lastFtRef.current = 0;
-        const tick = (now) => {
-          if (!lastFtRef.current) lastFtRef.current = now;
-          const dt = now - lastFtRef.current;
-          lastFtRef.current = now;
-          const logicalPerReal = (span / WALL_MS) * speed;
-          setTPlay((tp) => {
-            let next = tp + dt * logicalPerReal;
-            if (next >= tMax) {
-              if (loop) return tMin;
-              setIsPlaying(false);
-              return tMax;
-            }
-            return next;
-          });
-          rafRef.current = requestAnimationFrame(tick);
-        };
-        rafRef.current = requestAnimationFrame(tick);
-        return () => {
-          cancelAnimationFrame(rafRef.current);
-          lastFtRef.current = 0;
-        };
-      }, [isPlaying, rec, span, tMin, tMax, loop, speed]);
-
-      useEffect(() => {
-        function up() {
-          dragRef.current = null;
-          setPanningUi(false);
+        const prev = prevStepRef.current; prevStepRef.current = step;
+        if (tlRef.current) { tlRef.current.kill(); tlRef.current = null; }
+        const layer = animLayerRef.current;
+        if (layer) while (layer.firstChild) layer.removeChild(layer.firstChild);
+        if (step === prev + 1 && step > 0 && layer && layout && rec) {
+          const ev = ordered[step - 1];
+          if (ev) tlRef.current = buildEventAnim(ev, layer, layout, rec.topology);
         }
-        function move(e) {
-          const d = dragRef.current;
-          if (!d) return;
-          setPanX(d.px + (e.clientX - d.x));
-          setPanY(d.py + (e.clientY - d.y));
-        }
-        window.addEventListener('mouseup', up);
-        window.addEventListener('mousemove', move);
-        return () => {
-          window.removeEventListener('mouseup', up);
-          window.removeEventListener('mousemove', move);
-        };
-      }, []);
+      }, [step, layout, rec, ordered]);
+
+      useEffect(() => { setStep(0); setSel(null); setPlaying(false); }, [idx]);
+
+      useEffect(() => {
+        if (!playing || !rec || total === 0) return;
+        const ms = Math.max(160, STEP_MS / speed);
+        const id = setInterval(() => { setStep(s => { if (s >= total) { if (loop) return 0; setPlaying(false); return s; } return s + 1; }); }, ms);
+        return () => clearInterval(id);
+      }, [playing, rec, total, loop, speed]);
 
       useEffect(() => {
         function onKey(e) {
-          const el = document.activeElement;
-          if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT')) return;
-          if (e.code === 'Space') {
-            e.preventDefault();
-            setIsPlaying((p) => !p);
-            return;
-          }
-          if (!rec) return;
-          const evs2 = rec.events.filter((x) => x.type !== 'topology');
-          if (!evs2.length) return;
-          const sp = tMax - tMin;
-          if (e.key === 'ArrowLeft') {
-            setIsPlaying(false);
-            setTPlay((tp) => Math.max(tMin, tp - sp * 0.02));
-          } else if (e.key === 'ArrowRight') {
-            setIsPlaying(false);
-            setTPlay((tp) => Math.min(tMax, tp + sp * 0.02));
+          const tag = document.activeElement?.tagName;
+          if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+          switch (e.key) {
+            case ' ': e.preventDefault(); setPlaying(p => !p); break;
+            case 'Escape': setSel(null); break;
+            case 'ArrowRight': e.preventDefault(); setPlaying(false); setStep(s => Math.min(s + 1, total)); break;
+            case 'ArrowLeft': e.preventDefault(); setPlaying(false); setStep(s => Math.max(s - 1, 0)); break;
+            case 'Home': e.preventDefault(); setPlaying(false); setStep(0); break;
+            case 'End': e.preventDefault(); setPlaying(false); setStep(total); break;
+            case 'l': case 'L': setLoop(l => !l); break;
+            case 'd': case 'D': setShowDiff(d => !d); break;
+            case '1': setSpeed(0.25); break;
+            case '2': setSpeed(0.5); break;
+            case '3': setSpeed(1); break;
+            case '4': setSpeed(2); break;
+            case '5': setSpeed(4); break;
+            case '[': { e.preventDefault(); const ni = Math.max(0, idx - 1); setIdx(ni); setPlaying(false); break; }
+            case ']': { e.preventDefault(); const ni = Math.min(recordings.length - 1, idx + 1); setIdx(ni); setPlaying(false); break; }
           }
         }
         document.addEventListener('keydown', onKey);
         return () => document.removeEventListener('keydown', onKey);
-      }, [rec, tMin, tMax]);
-
-      useEffect(() => {
-        function move(e) {
-          if (!tipTrackRef.current) return;
-          setHoverTip((h) => (h ? { ...h, x: e.clientX, y: e.clientY } : null));
-        }
-        window.addEventListener('mousemove', move);
-        return () => window.removeEventListener('mousemove', move);
-      }, []);
-
-      const onWheel = useCallback(
-        (e) => {
-          e.preventDefault();
-          const d = e.deltaY > 0 ? -0.15 : 0.15;
-          setScale((s) => Math.min(12, Math.max(0.3, s * (1 + d))));
-        },
-        []
-      );
-
-      const selectedEventJson = useMemo(() => {
-        if (selectedEventSeq == null || !rec) return '';
-        const evFound = rec.events.find((x) => x.seq === selectedEventSeq);
-        return evFound ? JSON.stringify(evFound, null, 2) : '';
-      }, [rec, selectedEventSeq]);
-
-      const onSelectRecording = (i) => {
-        setSelectedIdx(i);
-        setSelectedEventSeq(null);
-        setIsPlaying(false);
-      };
+      }, [total, idx, recordings.length]);
 
       if (!recordings.length) {
-        return (
-          <div className="flex h-full flex-col items-center justify-center gap-4 text-slate-400">
-            <p className="font-display text-xl text-slate-200">No recordings</p>
-            <p className="text-sm">
-              Run <code className="rounded bg-slate-800 px-2 py-0.5 text-amber-200">bun run test:viz</code> first.
-            </p>
-          </div>
-        );
+        return <div className="flex h-full items-center justify-center text-neutral-500"><p>No recordings. Run <code className="rounded bg-neutral-800 px-2 py-0.5 text-amber-400">bun run test:viz</code></p></div>;
       }
 
+      const svgW = layout?.W || 1100, svgH = layout?.H || 580;
+      const srvBoxW = 58, srvBoxH = 40, cliBoxW = 50, cliBoxH = 36;
+
       return (
-        <div className="flex h-full flex-col">
-          <header className="flex shrink-0 flex-wrap items-center gap-4 border-b border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 px-5 py-2.5">
-            <h1 className="font-display text-lg font-semibold tracking-tight text-slate-100">Patch DB sim</h1>
-            <span className="text-sm text-slate-500">
-              Recordings: <span className="text-slate-400">{DIR_LABEL}</span>
-            </span>
-            <span className="min-w-2 flex-1" />
-            <span className="text-sm text-slate-500">
-              <kbd className="rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5 text-xs">Space</kbd> play/pause ·{' '}
-              <kbd className="rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5 text-xs">←</kbd>
-              <kbd className="rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5 text-xs">→</kbd> step · wheel zoom · drag pan
-            </span>
+        <div className="flex h-full flex-col" style={{ background: C.bg }}>
+          {/* header */}
+          <header className="flex shrink-0 items-center gap-3 border-b border-neutral-800 px-3 py-1.5">
+            <span className="text-[0.7rem] font-semibold tracking-wide text-neutral-500">PATCH DB</span>
+            <select value={idx} onChange={e=>{setIdx(Number(e.target.value));setPlaying(false);}}
+              className="max-w-[min(340px,50vw)] flex-1 rounded border border-neutral-800 bg-neutral-900 py-1 pl-2 pr-6 text-[0.75rem] text-neutral-300">
+              {recordings.map((r,i)=><option key={r.id} value={i}>{r.meta?.title||r.id}</option>)}
+            </select>
+            <StatusBadge status={consistency} />
+            <button type="button" onClick={()=>setShowDiff(d=>!d)}
+              className={`rounded border px-2 py-1 text-[0.65rem] font-medium ${showDiff ? 'border-neutral-700 bg-neutral-800 text-neutral-300' : 'border-neutral-800 bg-neutral-900 text-neutral-500'} hover:bg-neutral-800`}>
+              Diff <kbd className="ml-1 text-neutral-600">D</kbd>
+            </button>
           </header>
 
-          <div className="flex min-h-0 flex-1">
-            <aside className="w-[300px] shrink-0 overflow-y-auto border-r border-slate-800 bg-slate-900/80">
-              <h2 className="px-[18px] pb-2 pt-3.5 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-slate-500">
-                Scenarios
-              </h2>
-              <ul className="list-none space-y-1.5 px-2.5 pb-5">
-                {recordings.map((r, i) => (
-                  <li key={r.id}>
-                    <button
-                      type="button"
-                      onClick={() => onSelectRecording(i)}
-                      className={
-                        'w-full rounded-[10px] border px-3.5 py-3 text-left transition-colors ' +
-                        (i === selectedIdx
-                          ? 'border-sky-500/80 bg-sky-500/10'
-                          : 'border-transparent hover:bg-white/5')
-                      }
-                    >
-                      <div className="text-[0.92rem] font-semibold leading-snug text-slate-100">{recLabel(r)}</div>
-                      <div className="mt-1.5 break-words text-[0.72rem] text-slate-500">{recSummaryLine(r)}</div>
-                      <div className="mt-1 font-mono text-[0.65rem] text-slate-500 opacity-75">{r.id}</div>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </aside>
+          {rec && rec.meta?.intent && (
+            <div className="shrink-0 border-b border-neutral-800/50 px-3 py-1 text-center text-[0.7rem] text-neutral-500">{rec.meta.intent}</div>
+          )}
 
-            <div className="flex min-w-0 flex-1 flex-col bg-slate-950">
-              {rec && (
-                <section className="shrink-0 border-b border-slate-800 bg-gradient-to-b from-slate-800/40 to-transparent px-6 py-4">
-                  <h2 className="font-display text-2xl font-semibold tracking-tight text-slate-50">{recLabel(rec)}</h2>
-                  {rec.meta && rec.meta.intent && (
-                    <p className="mt-2 max-w-prose text-sm leading-relaxed text-slate-400">{rec.meta.intent}</p>
-                  )}
-                  {rec.meta && rec.meta.description && (
-                    <p className="mt-2 max-w-[80ch] text-[0.82rem] leading-relaxed text-slate-300/90">{rec.meta.description}</p>
-                  )}
-                  <HeroChips rec={rec} />
-                </section>
-              )}
-
-              <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-slate-800 bg-slate-900/80 px-6 py-2.5">
-                <button
-                  type="button"
-                  aria-pressed={isPlaying}
-                  onClick={() => setIsPlaying((p) => !p)}
-                  className="rounded-lg border border-slate-700 bg-sky-500/15 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:bg-sky-500/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
-                >
-                  {isPlaying ? 'Pause' : 'Play'}
-                </button>
-                <input
-                  type="range"
-                  min={0}
-                  max={1000}
-                  value={scrubValue}
-                  aria-label="Timeline"
-                  className="h-2 min-w-[120px] max-w-md flex-1 accent-sky-400"
-                  onChange={(e) => {
-                    setIsPlaying(false);
-                    const p = Number(e.target.value) / 1000;
-                    setTPlay(tMin + p * span);
-                  }}
-                />
-                <label className="flex cursor-pointer items-center gap-1.5 text-sm text-slate-400">
-                  <input type="checkbox" checked={loop} onChange={(e) => setLoop(e.target.checked)} className="accent-sky-400" />
-                  Loop
-                </label>
-                <label className="flex items-center gap-2 text-sm text-slate-400">
-                  Speed
-                  <select
-                    value={String(speed)}
-                    aria-label="Playback speed"
-                    className="rounded-md border border-slate-700 bg-slate-800 px-2 py-1.5 text-sm text-slate-100"
-                    onChange={(e) => setSpeed(Number(e.target.value))}
-                  >
-                    <option value="0.5">0.5×</option>
-                    <option value="1">1×</option>
-                    <option value="2">2×</option>
-                  </select>
-                </label>
-                <span className="min-w-[7.5rem] tabular-nums text-sm text-slate-500">
-                  t = {Math.round(tPlay - tMin)} / {Math.round(span)}
-                </span>
+          {/* main: viz + diff panel */}
+          <div className="relative flex min-h-0 flex-1">
+            {/* viz area */}
+            <div className="relative min-h-0 min-w-0 flex-1">
+              {/* legend top-right */}
+              <div className="pointer-events-none absolute right-3 top-3 z-10 flex gap-3 text-[0.58rem] text-neutral-500">
+                <span><span className="mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle" style={{background:C.blue}}/>local</span>
+                <span><span className="mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle" style={{background:C.orange}}/>upload</span>
+                <span><span className="mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle" style={{background:C.green}}/>download</span>
+                <span><span className="mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle" style={{background:C.violet}}/>notify</span>
+                <span><span className="mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle" style={{background:C.red}}/>error</span>
               </div>
 
-              <div className="flex min-h-0 min-w-0 flex-1">
-                <aside className="w-36 shrink-0 overflow-y-auto border-r border-slate-800 bg-slate-900/80 p-3.5 text-[0.72rem] text-slate-500">
-                  <h3 className="mb-2.5 text-[0.65rem] font-normal uppercase tracking-widest text-slate-500">Legend</h3>
-                  <div className="space-y-2">
-                    {[
-                      ['#38bdf8', 'Local write'],
-                      ['#f59e0b', 'Push'],
-                      ['#34d399', 'Poll'],
-                      ['#e2e8f0', 'Network / remote'],
-                      ['#f87171', 'Failure / sync_error'],
-                      ['rgba(248,113,113,0.6)', 'Partition'],
-                      ['rgba(52,211,153,0.7)', 'Heal'],
-                      ['#94a3b8', 'Invalidation'],
-                      ['#7dd3fc', 'Subscribe'],
-                      ['rgba(52,211,153,0.15)', 'Sub window'],
-                      ['rgba(248,113,113,0.22)', 'Partition span'],
-                    ].map(([c, lab]) => (
-                      <div key={lab} className="flex items-center gap-2">
-                        <LegendDot color={c} />
-                        <span>{lab}</span>
-                      </div>
-                    ))}
-                  </div>
-                </aside>
-
-                <div
-                  className={'pan-scroll min-h-0 min-w-0 flex-1 overflow-auto ' + (panningUi ? 'panning' : '')}
-                  onMouseDown={(e) => {
-                    if (e.button !== 0) return;
-                    dragRef.current = {
-                      x: e.clientX,
-                      y: e.clientY,
-                      px: panRef.current.x,
-                      py: panRef.current.y,
-                    };
-                    setPanningUi(true);
-                  }}
-                  onWheel={onWheel}
-                >
-                  {rec && (
-                    <TimelineSvg
-                      rec={rec}
-                      tPlay={tPlay}
-                      scale={scale}
-                      panX={panX}
-                      panY={panY}
-                      selectedEventSeq={selectedEventSeq}
-                      onSelectSeq={(seq) => setSelectedEventSeq(seq)}
-                      onPointerHover={(payload) => {
-                        tipTrackRef.current = Boolean(payload);
-                        setHoverTip(payload);
-                      }}
-                    />
-                  )}
+              {/* story caption */}
+              <div className="pointer-events-none absolute inset-x-0 bottom-14 z-10 flex justify-center px-4">
+                <div key={step+'-'+(latestEv?.seq??'x')} className="caption-in max-w-lg rounded-lg border border-neutral-800 bg-neutral-950/95 px-4 py-2 shadow-lg backdrop-blur">
+                  <p className="text-center text-[0.8rem] leading-snug text-neutral-200">
+                    {latestEv ? story(latestEv) : 'Press Space or \u2192 to begin.'}
+                  </p>
                 </div>
               </div>
 
-              <div className="h-44 shrink-0 overflow-auto border-t border-slate-800 bg-slate-900 p-4 font-mono text-[11px] leading-relaxed text-slate-300">
-                {selectedEventJson
-                  ? selectedEventJson
-                  : 'Scrub or play the timeline, then click an event for JSON.'}
-              </div>
+              {/* SVG */}
+              {layout && rec && (
+                <svg className="h-full w-full" viewBox={`0 0 ${svgW} ${svgH}`} preserveAspectRatio="xMidYMid meet" onClick={()=>setSel(null)}>
+                  <rect width={svgW} height={svgH} fill={C.bg}/>
+
+                  {/* edges */}
+                  {layout.links.map((L,i)=>{
+                    const a=layout.pos[L.s],b=layout.pos[L.c]; if(!a||!b) return null;
+                    const broken=!!partMap[L.clientId];
+                    const {d,mid}=edgeGeo(a,b);
+                    return (
+                      <g key={i}>
+                        <path d={d} fill="none" stroke={broken?C.edgeBroken:C.edge} strokeWidth={broken?0.8:1.2}
+                          strokeLinecap="round" opacity={broken?0.35:0.65}
+                          className={broken?'edge-dead':'edge-live'}
+                          style={broken?undefined:{animationDelay:i*0.12+'s'}}/>
+                        {broken && <>
+                          <line x1={mid.x-6} y1={mid.y-6} x2={mid.x+6} y2={mid.y+6} stroke={C.red} strokeWidth="1.5" strokeLinecap="round" opacity="0.45"/>
+                          <line x1={mid.x+6} y1={mid.y-6} x2={mid.x-6} y2={mid.y+6} stroke={C.red} strokeWidth="1.5" strokeLinecap="round" opacity="0.45"/>
+                        </>}
+                      </g>
+                    );
+                  })}
+
+                  {/* server nodes — rounded rectangles */}
+                  {rec.topology.servers.map(s=>{
+                    const k='s:'+s.id,p=layout.pos[k]; if(!p) return null;
+                    const isSel=sel===k,dim=!!sel&&sel!==k;
+                    const col = nodeColor(allNodeIds, k);
+                    return (
+                      <g key={k} style={{opacity:dim?0.25:1,cursor:'pointer'}} onClick={e=>{e.stopPropagation();setSel(k);}}>
+                        <rect x={p.x-srvBoxW/2-4} y={p.y-srvBoxH/2-4} width={srvBoxW+8} height={srvBoxH+8} rx={8} fill="transparent"/>
+                        <rect x={p.x-srvBoxW/2} y={p.y-srvBoxH/2} width={srvBoxW} height={srvBoxH} rx={6}
+                          fill={isSel?C.nodeSelBg:C.node} stroke={isSel?C.nodeSelBorder:C.nodeBorder} strokeWidth={isSel?2:1}/>
+                        {/* server rack art */}
+                        <g transform={`translate(${p.x-14},${p.y-12})`}>
+                          <rect x="0" y="0" width="28" height="7" rx="1.5" fill="#222" stroke="#444" strokeWidth="0.5"/>
+                          <rect x="0" y="9" width="28" height="7" rx="1.5" fill="#222" stroke="#444" strokeWidth="0.5"/>
+                          <circle cx="23" cy="3.5" r="1.8" fill={C.green} opacity="0.9"/>
+                          <circle cx="23" cy="12.5" r="1.8" fill={C.blue} opacity="0.9"/>
+                          <rect x="3" y="2" width="8" height="3" rx="0.5" fill="#333" opacity="0.7"/>
+                          <rect x="3" y="11" width="8" height="3" rx="0.5" fill="#333" opacity="0.7"/>
+                        </g>
+                        <text x={p.x} y={p.y+srvBoxH/2+16} textAnchor="middle" fill={C.textLight} fontSize="11" fontWeight="600" fontFamily="Inter, system-ui">Cloud {s.id}</text>
+                        <line x1={p.x-12} y1={p.y+srvBoxH/2+19} x2={p.x+12} y2={p.y+srvBoxH/2+19} stroke={col} strokeWidth="2" opacity="0.6" strokeLinecap="round"/>
+                      </g>
+                    );
+                  })}
+
+                  {/* client nodes — rounded rectangles */}
+                  {rec.topology.clients.map(c=>{
+                    const k='c:'+c.id,p=layout.pos[k]; if(!p) return null;
+                    const part=!!partMap[c.id],isSel=sel===k,dim=!!sel&&sel!==k;
+                    const col = nodeColor(allNodeIds, k);
+                    return (
+                      <g key={k} style={{opacity:dim?0.25:1,cursor:'pointer'}} onClick={e=>{e.stopPropagation();setSel(k);}}>
+                        <rect x={p.x-cliBoxW/2-4} y={p.y-cliBoxH/2-4} width={cliBoxW+8} height={cliBoxH+8} rx={7} fill="transparent"/>
+                        <rect x={p.x-cliBoxW/2} y={p.y-cliBoxH/2} width={cliBoxW} height={cliBoxH} rx={5}
+                          fill={isSel?C.nodeSelBg:part?'#1a0a0a':C.node}
+                          stroke={isSel?C.nodeSelBorder:part?C.red:C.nodeBorder}
+                          strokeWidth={isSel?2:part?1.5:1}/>
+                        {/* laptop art */}
+                        <g transform={`translate(${p.x-12},${p.y-10})`}>
+                          <rect x="0" y="0" width="24" height="15" rx="2" fill="#222" stroke="#444" strokeWidth="0.5"/>
+                          <rect x="2" y="2" width="20" height="10" rx="1" fill={part?'#2a1515':'#181830'} opacity="0.95"/>
+                          {!part && <rect x="5" y="5" width="14" height="3" rx="0.5" fill={C.blue} opacity="0.2"/>}
+                          <rect x="4" y="16.5" width="16" height="2.5" rx="1" fill="#282828" stroke="#3a3a3a" strokeWidth="0.3"/>
+                        </g>
+                        <text x={p.x} y={p.y+cliBoxH/2+14} textAnchor="middle" fill={part?C.red:C.textLight} fontSize="11" fontWeight="600" fontFamily="Inter, system-ui">Device {c.id}</text>
+                        <line x1={p.x-10} y1={p.y+cliBoxH/2+17} x2={p.x+10} y2={p.y+cliBoxH/2+17} stroke={col} strokeWidth="2" opacity="0.6" strokeLinecap="round"/>
+                        {part && <text x={p.x} y={p.y+cliBoxH/2+26} textAnchor="middle" fill={C.red} fontSize="8" fontWeight="600" fontFamily="Inter, system-ui" opacity="0.6">OFFLINE</text>}
+                      </g>
+                    );
+                  })}
+
+                  <g ref={animLayerRef}/>
+                </svg>
+              )}
+
+              <Inspector selectedKey={sel} snapshot={snapshot} title={metaTitle} onClose={()=>setSel(null)}/>
             </div>
+
+            {/* diff panel (right side) */}
+            {showDiff && (
+              <div className="hidden w-[280px] shrink-0 border-l border-neutral-800 bg-neutral-950 md:block lg:w-[320px]">
+                <DiffPanel snapshot={snapshot} topo={rec?.topology} allNodeIds={allNodeIds}/>
+              </div>
+            )}
           </div>
 
-          {hoverTip && (
-            <div
-              className="pointer-events-none fixed z-[100] max-w-sm rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs shadow-xl"
-              style={{ left: hoverTip.x + 14, top: hoverTip.y + 14 }}
-            >
-              {hoverTip.text}
-            </div>
-          )}
+          {/* footer */}
+          <footer className="flex shrink-0 flex-wrap items-center gap-2 border-t border-neutral-800 px-3 py-1.5">
+            <button type="button" onClick={()=>setPlaying(p=>!p)} className="rounded border border-neutral-800 bg-neutral-900 px-3 py-1 text-[0.7rem] font-medium text-neutral-300 hover:bg-neutral-800">
+              {playing?'Pause':'Play'} <kbd className="ml-1 text-neutral-600">Space</kbd>
+            </button>
+            <button type="button" onClick={()=>{setPlaying(false);setStep(s=>Math.max(s-1,0));}} className="rounded border border-neutral-800 bg-neutral-900 px-2 py-1 text-[0.7rem] text-neutral-400 hover:bg-neutral-800">\u2190</button>
+            <button type="button" onClick={()=>{setPlaying(false);setStep(s=>Math.min(s+1,total));}} className="rounded border border-neutral-800 bg-neutral-900 px-2 py-1 text-[0.7rem] text-neutral-400 hover:bg-neutral-800">\u2192</button>
+            <input type="range" min={0} max={total} step={1} value={Math.min(step,total)}
+              className="h-1 min-w-[80px] flex-1 accent-neutral-500" aria-label="Step"
+              onChange={e=>{setPlaying(false);setStep(Number(e.target.value));}}/>
+            <label className="flex items-center gap-1 text-[0.65rem] text-neutral-500">
+              <input type="checkbox" checked={loop} onChange={e=>setLoop(e.target.checked)} className="accent-neutral-500"/> loop <kbd className="text-neutral-700">L</kbd>
+            </label>
+            <select value={String(speed)} onChange={e=>setSpeed(Number(e.target.value))}
+              className="rounded border border-neutral-800 bg-neutral-900 py-0.5 pl-1.5 pr-5 text-[0.65rem] text-neutral-400">
+              <option value="0.25">0.25\u00d7</option><option value="0.5">0.5\u00d7</option><option value="1">1\u00d7</option><option value="2">2\u00d7</option><option value="4">4\u00d7</option>
+            </select>
+            <span className="font-mono text-[0.6rem] text-neutral-600 tabular-nums">{step}/{total}</span>
+            {latestEv && <span className="hidden truncate text-[0.6rem] text-neutral-600 sm:inline">{shortDesc(latestEv)}</span>}
+            <span className="hidden text-[0.55rem] text-neutral-700 lg:inline">
+              1-5 speed \u00b7 Home/End \u00b7 [ ] scenario \u00b7 D diff
+            </span>
+          </footer>
         </div>
       );
     }
 
     const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
+    root.render(<App/>);
   </script>
 </body>
 </html>

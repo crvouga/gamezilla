@@ -196,6 +196,16 @@ export type SimEvent =
       errorMessage: string;
     };
 
+/** Optional hints for the sim HTML viz (safe to ignore). */
+export type SimRecordingVizMeta = {
+  /** Schema version for the viz bundle. */
+  schema: 1;
+  /** Use discrete timeline steps (one per event, ordered by `seq`). */
+  timeline: 'discrete-seq';
+  /** Same as `events.length` after finalize. */
+  stepCount: number;
+};
+
 export type SimRecording = {
   id: string;
   topology: SimTopology;
@@ -203,6 +213,8 @@ export type SimRecording = {
   startedAt: number;
   endedAt: number;
   meta?: SimRecordingMeta;
+  /** Present when recorded with {@link isSimVizEnabled}. */
+  viz?: SimRecordingVizMeta;
 };
 
 function buildMetaSnapshot(acc: SimRecordingMeta): SimRecordingMeta | undefined {
@@ -333,15 +345,23 @@ export class SimEventRecorder {
   finalize(): SimRecording {
     const endedAt = this.getTime();
     const meta = buildMetaSnapshot(this.metaAcc);
+    const events = [...this.events];
     const rec: SimRecording = {
       id: this.id,
       topology: this.topology,
-      events: [...this.events],
+      events,
       startedAt: this.startedAt,
       endedAt,
     };
     if (meta !== undefined) {
       rec.meta = meta;
+    }
+    if (isSimVizEnabled()) {
+      rec.viz = {
+        schema: 1,
+        timeline: 'discrete-seq',
+        stepCount: events.length,
+      };
     }
     return rec;
   }
