@@ -1,3 +1,4 @@
+import { assert } from '@/@shared/assert';
 import type {
   SimRecording,
   SimEvent,
@@ -56,30 +57,65 @@ export function replayNodeStates(rec: SimRecording, count: number): Snapshot {
   const n = Math.max(0, Math.min(count, ordered.length));
 
   for (let i = 0; i < n; i++) {
-    const e = ordered[i]!;
+    const e = ordered[i];
+    assert.defined(e, 'replayNodeStates: event in range', { i, n });
     switch (e.type) {
-      case 'client_write':
-        mergeSummariesInto(cliS[e.clientId!]!, e.summaries);
-        break;
-      case 'server_write':
-        mergeSummariesInto(srvS[e.serverId!]!, e.summaries);
-        break;
-      case 'remote_write': {
-        const sid = srv4cli[e.clientId!];
-        if (sid) mergeSummariesInto(srvS[sid]!, e.summaries);
-        mergeSummariesInto(cliS[e.clientId!]!, e.summaries);
+      case 'client_write': {
+        const cid = e.clientId;
+        assert.defined(cid, 'client_write: clientId', { seq: e.seq });
+        const store = cliS[cid];
+        assert.defined(store, 'client_write: client store', { cid });
+        mergeSummariesInto(store, e.summaries);
         break;
       }
-      case 'remote_read':
-        cliPoll[e.clientId!] = { results: e.results ?? [] };
-        if (e.summaries) mergeSummariesInto(cliS[e.clientId!]!, e.summaries);
+      case 'server_write': {
+        const sid = e.serverId;
+        assert.defined(sid, 'server_write: serverId', { seq: e.seq });
+        const store = srvS[sid];
+        assert.defined(store, 'server_write: server store', { sid });
+        mergeSummariesInto(store, e.summaries);
         break;
-      case 'partition':
-        cliPart[e.clientId!] = true;
+      }
+      case 'remote_write': {
+        const cid = e.clientId;
+        assert.defined(cid, 'remote_write: clientId', { seq: e.seq });
+        const srvId = srv4cli[cid];
+        if (srvId) {
+          const srvStore = srvS[srvId];
+          assert.defined(srvStore, 'remote_write: server store', {
+            srvId,
+            cid,
+          });
+          mergeSummariesInto(srvStore, e.summaries);
+        }
+        const cliStore = cliS[cid];
+        assert.defined(cliStore, 'remote_write: client store', { cid });
+        mergeSummariesInto(cliStore, e.summaries);
         break;
-      case 'heal':
-        cliPart[e.clientId!] = false;
+      }
+      case 'remote_read': {
+        const cid = e.clientId;
+        assert.defined(cid, 'remote_read: clientId', { seq: e.seq });
+        cliPoll[cid] = { results: e.results ?? [] };
+        if (e.summaries) {
+          const cliStore = cliS[cid];
+          assert.defined(cliStore, 'remote_read: client store', { cid });
+          mergeSummariesInto(cliStore, e.summaries);
+        }
         break;
+      }
+      case 'partition': {
+        const cid = e.clientId;
+        assert.defined(cid, 'partition: clientId', { seq: e.seq });
+        cliPart[cid] = true;
+        break;
+      }
+      case 'heal': {
+        const cid = e.clientId;
+        assert.defined(cid, 'heal: clientId', { seq: e.seq });
+        cliPart[cid] = false;
+        break;
+      }
     }
   }
 
@@ -88,21 +124,47 @@ export function replayNodeStates(rec: SimRecording, count: number): Snapshot {
   ): NodeRow[] =>
     Object.keys(s)
       .sort()
-      .map((id) => ({
-        entityId: id,
-        entityType: s[id]!.entityType,
-        attrs: Object.keys(s[id]!.attrs).sort(),
-      }));
+      .map((id) => {
+        const row = s[id];
+        assert.defined(row, 'toRows: entity row', { id });
+        return {
+          entityId: id,
+          entityType: row.entityType,
+          attrs: Object.keys(row.attrs).sort(),
+        };
+      });
 
   return {
-    servers: topo.servers.map((s) => ({ id: s.id, rows: toRows(srvS[s.id]!) })),
-    clients: topo.clients.map((c) => ({
-      id: c.id,
-      serverId: c.serverId,
-      partitioned: cliPart[c.id]!,
-      rows: toRows(cliS[c.id]!),
-      lastPoll: cliPoll[c.id]!,
-    })),
+    servers: topo.servers.map((s) => {
+      const rows = srvS[s.id];
+      assert.defined(rows, 'replayNodeStates: server rows', {
+        serverId: s.id,
+      });
+      return { id: s.id, rows: toRows(rows) };
+    }),
+    clients: topo.clients.map((c) => {
+      const partitioned = cliPart[c.id];
+      const cliRows = cliS[c.id];
+      const lastPoll = cliPoll[c.id];
+      assert.defined(partitioned, 'replayNodeStates: partition flag', {
+        clientId: c.id,
+      });
+      assert.defined(cliRows, 'replayNodeStates: client rows', {
+        clientId: c.id,
+      });
+      assert.ok(
+        lastPoll !== undefined,
+        'replayNodeStates: lastPoll slot',
+        { clientId: c.id }
+      );
+      return {
+        id: c.id,
+        serverId: c.serverId,
+        partitioned,
+        rows: toRows(cliRows),
+        lastPoll,
+      };
+    }),
   };
 }
 
@@ -124,12 +186,22 @@ export function checkConsistency(
   const openPoll: Record<string, boolean> = {};
 
   for (const e of applied) {
-    if (e.type === 'push_start') openPush[e.clientId!] = true;
-    if (e.type === 'push_success' || e.type === 'push_fail')
-      delete openPush[e.clientId!];
-    if (e.type === 'poll_start') openPoll[e.clientId!] = true;
-    if (e.type === 'poll_success' || e.type === 'poll_fail')
-      delete openPoll[e.clientId!];
+    if (e.type === 'push_start') {
+      assert.defined(e.clientId, 'push_start: clientId', { seq: e.seq });
+      openPush[e.clientId] = true;
+    }
+    if (e.type === 'push_success' || e.type === 'push_fail') {
+      assert.defined(e.clientId, 'push end: clientId', { seq: e.seq });
+      delete openPush[e.clientId];
+    }
+    if (e.type === 'poll_start') {
+      assert.defined(e.clientId, 'poll_start: clientId', { seq: e.seq });
+      openPoll[e.clientId] = true;
+    }
+    if (e.type === 'poll_success' || e.type === 'poll_fail') {
+      assert.defined(e.clientId, 'poll end: clientId', { seq: e.seq });
+      delete openPoll[e.clientId];
+    }
   }
 
   for (const c of snap.clients) {
@@ -217,16 +289,21 @@ export function buildEntityDiff(
   }
 
   const allEntityIds = new Set<string>();
-  for (const nid of nodeIds)
-    for (const eid of Object.keys(nodeMap[nid]!)) allEntityIds.add(eid);
+  for (const nid of nodeIds) {
+    const nm = nodeMap[nid];
+    assert.defined(nm, 'buildEntityDiff: node map', { nid });
+    for (const eid of Object.keys(nm)) allEntityIds.add(eid);
+  }
 
   const entities: EntityDiff[] = [];
   for (const eid of [...allEntityIds].sort()) {
     const perNode: Record<string, { type: string; attrs: Set<string> }> = {};
     let anyType = '';
     for (const nid of nodeIds) {
-      const e = nodeMap[nid]![eid];
-      if (e) { perNode[nid] = e; anyType = e.type; }
+      const nm = nodeMap[nid];
+      assert.defined(nm, 'buildEntityDiff: node map cell', { nid });
+      const cell = nm[eid];
+      if (cell) { perNode[nid] = cell; anyType = cell.type; }
     }
     const presentOn = Object.keys(perNode);
     const missingOn = nodeIds.filter((n) => !perNode[n]);
@@ -240,9 +317,10 @@ export function buildEntityDiff(
 
     const attrLines: EntityDiffLine[] = [...allAttrs].sort().map((attr) => {
       const nodesWith = nodeIds.filter((n) => perNode[n]?.attrs.has(attr));
-      const nodesWithout = nodeIds.filter(
-        (n) => perNode[n] && !perNode[n]!.attrs.has(attr)
-      );
+      const nodesWithout = nodeIds.filter((n) => {
+        const pn = perNode[n];
+        return !!pn && !pn.attrs.has(attr);
+      });
       const allPresent =
         nodesWith.length === presentOn.length && missingOn.length === 0;
       return { attr, allConsistent: allPresent, nodesWith, nodesWithout };

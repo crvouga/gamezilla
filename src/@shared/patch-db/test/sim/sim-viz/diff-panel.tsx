@@ -1,8 +1,7 @@
+import * as React from 'react';
 import { C, nodeColor } from './constants';
-import { buildEntityDiff } from './data';
-import type { Snapshot, SimTopology } from './types';
-
-const { useMemo } = React;
+import { buildEntityDiff, type EntityDiff, type EntityDiffLine } from './data';
+import type { SimTopology, Snapshot } from './types';
 
 function shortAttr(a: string) {
   return a.includes('/') ? a.slice(a.lastIndexOf('/') + 1) : a;
@@ -51,7 +50,10 @@ export function DiffPanel({
   topo: SimTopology | undefined;
   allNodeIds: string[];
 }) {
-  const diff = useMemo(() => buildEntityDiff(snapshot, topo), [snapshot, topo]);
+  const diff = React.useMemo(
+    () => buildEntityDiff(snapshot, topo),
+    [snapshot, topo]
+  );
 
   if (!diff.entities.length) {
     return (
@@ -68,7 +70,7 @@ export function DiffPanel({
           State Diff
         </div>
         <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1">
-          {diff.nodeIds.map((nid) => (
+          {diff.nodeIds.map((nid: string) => (
             <span
               key={nid}
               className="flex items-center gap-1 text-[0.55rem]"
@@ -85,11 +87,11 @@ export function DiffPanel({
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto bg-[#0c0c0c]">
-        {diff.entities.map((ent) => {
+        {diff.entities.map((ent: EntityDiff) => {
           const eid = ent.entityId;
           return (
             <div key={eid} className="border-b border-neutral-800/40">
-              <JsonLine indent={0} gutter={ent.hasDiff ? C.red : undefined}>
+              <JsonLine indent={0} {...(ent.hasDiff ? { gutter: C.red } : {})}>
                 <span className="text-neutral-500">{'{'}</span>
                 {ent.hasDiff && (
                   <span className="ml-2 rounded bg-red-500/10 px-1 py-0 text-[0.5rem] font-semibold text-red-400">
@@ -99,42 +101,50 @@ export function DiffPanel({
               </JsonLine>
 
               <JsonLine indent={1}>
-                <span className="text-neutral-500">"entityId"</span>
+                <span className="text-neutral-500">{'"entityId"'}</span>
                 <span className="text-neutral-600">: </span>
-                <span className="text-amber-300/90">"{shortId(eid)}"</span>
+                <span className="text-amber-300/90">{`"${shortId(eid)}"`}</span>
                 <span className="text-neutral-700">,</span>
               </JsonLine>
 
               <JsonLine indent={1}>
-                <span className="text-neutral-500">"entityType"</span>
+                <span className="text-neutral-500">{'"entityType"'}</span>
                 <span className="text-neutral-600">: </span>
-                <span className="text-teal-300/80">"{ent.entityType}"</span>
+                <span className="text-teal-300/80">{`"${ent.entityType}"`}</span>
                 <span className="text-neutral-700">,</span>
               </JsonLine>
 
-              {ent.missingOn.map((nid) => {
+              {ent.missingOn.map((nid: string) => {
                 const col = nodeColor(allNodeIds, nid);
                 return (
-                  <JsonLine key={'miss-' + nid} indent={1} gutter={col} className="bg-red-950/8">
-                    <span className="text-neutral-600">// </span>
+                  <JsonLine
+                    key={'miss-' + nid}
+                    indent={1}
+                    gutter={col}
+                    className="bg-red-950/8"
+                  >
+                    <span className="text-neutral-600">{'// '}</span>
                     <span style={{ color: col }}>{diff.nodeLabels[nid]}</span>
-                    <span className="text-red-400/70"> \u2014 entity missing</span>
+                    <span className="text-red-400/70">
+                      {' '}
+                      \u2014 entity missing
+                    </span>
                   </JsonLine>
                 );
               })}
 
               <JsonLine indent={1}>
-                <span className="text-neutral-500">"attributeKeys"</span>
+                <span className="text-neutral-500">{'"attributeKeys"'}</span>
                 <span className="text-neutral-600">: {'{'}</span>
               </JsonLine>
 
-              {ent.attrLines.map((line, li) => {
+              {ent.attrLines.map((line: EntityDiffLine, li: number) => {
                 const comma = li < ent.attrLines.length - 1 ? ',' : '';
                 const key = shortAttr(line.attr);
                 if (line.allConsistent) {
                   return (
                     <JsonLine key={line.attr} indent={2}>
-                      <span className="text-neutral-500">"{key}"</span>
+                      <span className="text-neutral-500">{`"${key}"`}</span>
                       <span className="text-neutral-600">: </span>
                       <span className="text-blue-300/70">true</span>
                       <span className="text-neutral-700">{comma}</span>
@@ -144,24 +154,38 @@ export function DiffPanel({
                 return (
                   <React.Fragment key={line.attr}>
                     <JsonLine indent={2}>
-                      <span className="text-neutral-500">"{key}"</span>
+                      <span className="text-neutral-500">{`"${key}"`}</span>
                       <span className="text-neutral-600">:</span>
                     </JsonLine>
-                    {line.nodesWith.map((nid) => {
+                    {line.nodesWith.map((nid: string) => {
                       const col = nodeColor(allNodeIds, nid);
                       return (
-                        <JsonLine key={nid + '+' + line.attr} indent={3} gutter={col} className="bg-green-950/8">
-                          <span style={{ color: col }} className="opacity-80">+ {diff.nodeLabels[nid]}</span>
+                        <JsonLine
+                          key={nid + '+' + line.attr}
+                          indent={3}
+                          gutter={col}
+                          className="bg-green-950/8"
+                        >
+                          <span style={{ color: col }} className="opacity-80">
+                            + {diff.nodeLabels[nid]}
+                          </span>
                           <span className="text-neutral-600">: </span>
                           <span className="text-green-400/80">true</span>
                         </JsonLine>
                       );
                     })}
-                    {line.nodesWithout.map((nid) => {
+                    {line.nodesWithout.map((nid: string) => {
                       const col = nodeColor(allNodeIds, nid);
                       return (
-                        <JsonLine key={nid + '-' + line.attr} indent={3} gutter={col} className="bg-red-950/8">
-                          <span style={{ color: col }} className="opacity-80">{'\u2212'} {diff.nodeLabels[nid]}</span>
+                        <JsonLine
+                          key={nid + '-' + line.attr}
+                          indent={3}
+                          gutter={col}
+                          className="bg-red-950/8"
+                        >
+                          <span style={{ color: col }} className="opacity-80">
+                            {'\u2212'} {diff.nodeLabels[nid]}
+                          </span>
                           <span className="text-neutral-600">: </span>
                           <span className="text-red-400/70">undefined</span>
                         </JsonLine>
@@ -171,8 +195,12 @@ export function DiffPanel({
                 );
               })}
 
-              <JsonLine indent={1}><span className="text-neutral-600">{'}'}</span></JsonLine>
-              <JsonLine indent={0}><span className="text-neutral-500">{'}'}</span></JsonLine>
+              <JsonLine indent={1}>
+                <span className="text-neutral-600">{'}'}</span>
+              </JsonLine>
+              <JsonLine indent={0}>
+                <span className="text-neutral-500">{'}'}</span>
+              </JsonLine>
             </div>
           );
         })}

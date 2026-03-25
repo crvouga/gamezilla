@@ -1,3 +1,4 @@
+import { assert } from '@/@shared/assert';
 import type { ConsistencyStatus } from './types';
 
 export const NS = 'http://www.w3.org/2000/svg';
@@ -31,7 +32,11 @@ const NODE_COLORS = [
 
 export function nodeColor(allIds: string[], id: string): string {
   const i = allIds.indexOf(id);
-  return NODE_COLORS[i >= 0 ? i % NODE_COLORS.length : 0];
+  const idx = i >= 0 ? i % NODE_COLORS.length : 0;
+  const fromIdx = NODE_COLORS[idx];
+  const fallback = NODE_COLORS[0];
+  assert.defined(fallback, 'nodeColor: palette must be non-empty');
+  return fromIdx ?? fallback;
 }
 
 export const STATUS_MAP: Record<

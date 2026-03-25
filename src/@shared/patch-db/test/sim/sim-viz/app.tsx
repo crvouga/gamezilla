@@ -1,21 +1,28 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { C, nodeColor, STEP_MS } from './constants';
 import { sortRecordings, getOrderedEvents, replayNodeStates, checkConsistency } from './data';
-import { buildLayout, edgeGeo } from './layout';
-import { story, shortDesc } from './narration';
 import { buildEventAnim } from './animation';
-import { StatusBadge } from './status-badge';
 import { DiffPanel } from './diff-panel';
 import { Inspector } from './inspector';
-import type { SimRecording } from './types';
-
-const { useState, useMemo, useEffect, useRef } = React;
+import { buildLayout, edgeGeo } from './layout';
+import { story, shortDesc } from './narration';
+import { StatusBadge } from './status-badge';
+import type { ClientSnapshot, LayoutLink, SimRecording } from './types';
+import { RAW } from './viz-data';
 
 /* ── URL hash persistence ── */
 
 function readHash() {
   const h = location.hash.replace('#', '');
   const p = new URLSearchParams(h);
-  return { sim: p.get('sim') || null, step: parseInt(p.get('step')!, 10) || 0 };
+  const stepRaw = p.get('step');
+  return {
+    sim: p.get('sim') || null,
+    step:
+      stepRaw === null || stepRaw === ''
+        ? 0
+        : parseInt(stepRaw, 10) || 0,
+  };
 }
 
 function writeHash(simId: string, step: number) {
@@ -38,7 +45,7 @@ export function App() {
       if (i >= 0) idx = i;
     }
     return { idx, step: h.step };
-  }, []);
+  }, [recordings]);
 
   const [idx, setIdx] = useState(initialState.idx);
   const [step, setStep] = useState(initialState.step);
@@ -59,7 +66,7 @@ export function App() {
   const snapshot = useMemo(() => (rec ? replayNodeStates(rec, step) : null), [rec, step]);
   const partMap = useMemo(() => {
     const m: Record<string, boolean> = {};
-    if (snapshot) snapshot.clients.forEach((c) => { m[c.id] = c.partitioned; });
+    if (snapshot) snapshot.clients.forEach((c: ClientSnapshot) => { m[c.id] = c.partitioned; });
     return m;
   }, [snapshot]);
   const latestEv = step > 0 ? ordered[step - 1] ?? null : null;
@@ -90,7 +97,7 @@ export function App() {
     if (!playing || !rec || total === 0) return;
     const ms = Math.max(160, STEP_MS / speed);
     const id = setInterval(() => {
-      setStep((s) => {
+      setStep((s: number) => {
         if (s >= total) { if (loop) return 0; setPlaying(false); return s; }
         return s + 1;
       });
@@ -103,14 +110,14 @@ export function App() {
       const tag = (document.activeElement as HTMLElement)?.tagName;
       if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
       switch (e.key) {
-        case ' ':  e.preventDefault(); setPlaying((p) => !p); break;
+        case ' ':  e.preventDefault(); setPlaying((p: boolean) => !p); break;
         case 'Escape': setSel(null); break;
-        case 'ArrowRight': e.preventDefault(); setPlaying(false); setStep((s) => Math.min(s + 1, total)); break;
-        case 'ArrowLeft':  e.preventDefault(); setPlaying(false); setStep((s) => Math.max(s - 1, 0)); break;
+        case 'ArrowRight': e.preventDefault(); setPlaying(false); setStep((s: number) => Math.min(s + 1, total)); break;
+        case 'ArrowLeft':  e.preventDefault(); setPlaying(false); setStep((s: number) => Math.max(s - 1, 0)); break;
         case 'Home': e.preventDefault(); setPlaying(false); setStep(0); break;
         case 'End':  e.preventDefault(); setPlaying(false); setStep(total); break;
-        case 'l': case 'L': setLoop((l) => !l); break;
-        case 'd': case 'D': setShowDiff((d) => !d); break;
+        case 'l': case 'L': setLoop((l: boolean) => !l); break;
+        case 'd': case 'D': setShowDiff((d: boolean) => !d); break;
         case '1': setSpeed(0.25); break;
         case '2': setSpeed(0.5); break;
         case '3': setSpeed(1); break;
@@ -152,7 +159,7 @@ export function App() {
         <StatusBadge status={consistency} />
         <button
           type="button"
-          onClick={() => setShowDiff((d) => !d)}
+          onClick={() => setShowDiff((d: boolean) => !d)}
           className={`rounded border px-2 py-1 text-[0.65rem] font-medium ${showDiff ? 'border-neutral-700 bg-neutral-800 text-neutral-300' : 'border-neutral-800 bg-neutral-900 text-neutral-500'} hover:bg-neutral-800`}
         >
           Diff <kbd className="ml-1 text-neutral-600">D</kbd>
@@ -185,7 +192,7 @@ export function App() {
             <svg className="h-full w-full" viewBox={`0 0 ${svgW} ${svgH}`} preserveAspectRatio="xMidYMid meet" onClick={() => setSel(null)}>
               <rect width={svgW} height={svgH} fill={C.bg} />
 
-              {layout.links.map((L, i) => {
+              {layout.links.map((L: LayoutLink, i: number) => {
                 const a = layout.pos[L.s], b = layout.pos[L.c];
                 if (!a || !b) return null;
                 const broken = !!partMap[L.clientId];
@@ -263,11 +270,11 @@ export function App() {
       </div>
 
       <footer className="flex shrink-0 flex-wrap items-center gap-2 border-t border-neutral-800 px-3 py-1.5">
-        <button type="button" onClick={() => setPlaying((p) => !p)} className="rounded border border-neutral-800 bg-neutral-900 px-3 py-1 text-[0.7rem] font-medium text-neutral-300 hover:bg-neutral-800">
+        <button type="button" onClick={() => setPlaying((p: boolean) => !p)} className="rounded border border-neutral-800 bg-neutral-900 px-3 py-1 text-[0.7rem] font-medium text-neutral-300 hover:bg-neutral-800">
           {playing ? 'Pause' : 'Play'} <kbd className="ml-1 text-neutral-600">Space</kbd>
         </button>
-        <button type="button" onClick={() => { setPlaying(false); setStep((s) => Math.max(s - 1, 0)); }} className="rounded border border-neutral-800 bg-neutral-900 px-2 py-1 text-[0.7rem] text-neutral-400 hover:bg-neutral-800">{'\u2190'}</button>
-        <button type="button" onClick={() => { setPlaying(false); setStep((s) => Math.min(s + 1, total)); }} className="rounded border border-neutral-800 bg-neutral-900 px-2 py-1 text-[0.7rem] text-neutral-400 hover:bg-neutral-800">{'\u2192'}</button>
+        <button type="button" onClick={() => { setPlaying(false); setStep((s: number) => Math.max(s - 1, 0)); }} className="rounded border border-neutral-800 bg-neutral-900 px-2 py-1 text-[0.7rem] text-neutral-400 hover:bg-neutral-800">{'\u2190'}</button>
+        <button type="button" onClick={() => { setPlaying(false); setStep((s: number) => Math.min(s + 1, total)); }} className="rounded border border-neutral-800 bg-neutral-900 px-2 py-1 text-[0.7rem] text-neutral-400 hover:bg-neutral-800">{'\u2192'}</button>
         <input type="range" min={0} max={total} step={1} value={Math.min(step, total)} className="h-1 min-w-[80px] flex-1 accent-neutral-500" aria-label="Step" onChange={(e: any) => { setPlaying(false); setStep(Number(e.target.value)); }} />
         <label className="flex items-center gap-1 text-[0.65rem] text-neutral-500">
           <input type="checkbox" checked={loop} onChange={(e: any) => setLoop(e.target.checked)} className="accent-neutral-500" /> loop <kbd className="text-neutral-700">L</kbd>
