@@ -436,4 +436,387 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     expect(errors[0]?.source).toBe('push');
     unsubSync();
   });
+
+  test('poll: SYNC_ERROR_TOPIC after 5 consecutive poll failures', async () => {
+    const c = sim.client('c1');
+    const srv = sim.server('s1');
+    const listId = crypto.randomUUID();
+    await srv.db.write([
+      {
+        entityId: listId,
+        entityType: 'todoList',
+        attributes: {
+          'todoList/name': 'Remote',
+          'todoList/order': 0,
+          'todoList/createdAt': new Date().toISOString(),
+        },
+      },
+    ]);
+
+    const unsub = c.subscribe.entities(
+      { entityType: 'todoList', entityId: listId },
+      () => {}
+    );
+
+    const errors: SyncErrorEvent[] = [];
+    const unsubSync = sim.subscribeSyncErrors((e) => errors.push(e));
+
+    for (let i = 0; i < 5; i++) {
+      c.link.failNextRead(new Error(`poll fail ${i}`));
+      const p = c.poll();
+      await sim.scheduler.drain();
+      await p;
+    }
+
+    expect(errors).toHaveLength(1);
+    expect(errors[0]?.source).toBe('poll');
+    unsubSync();
+    unsub();
+  });
+
+  test('push: no SYNC_ERROR_TOPIC when 4 failures then 1 success', async () => {
+    const c = sim.client('c1');
+    const listId = crypto.randomUUID();
+    await c.write([
+      {
+        entityId: listId,
+        entityType: 'todoList',
+        attributes: {
+          'todoList/name': 'Eventually ok',
+          'todoList/order': 0,
+          'todoList/createdAt': new Date().toISOString(),
+        },
+      },
+    ]);
+
+    const errors: SyncErrorEvent[] = [];
+    const unsubSync = sim.subscribeSyncErrors((e) => errors.push(e));
+
+    for (let i = 0; i < 4; i++) {
+      c.link.failNextWrite(new Error(`push fail ${i}`));
+      const p = c.push();
+      await sim.scheduler.drain();
+      await p;
+    }
+
+    await c.push();
+    await sim.scheduler.drain();
+
+    expect(errors).toHaveLength(0);
+
+    const srv = sim.server('s1');
+    const remote = await srv.db.read([
+      { entityType: 'todoList', entityId: listId },
+    ]);
+    expect((remote[0]?.patches ?? []).length).toBe(1);
+
+    unsubSync();
+  });
+
+  test('poll: no SYNC_ERROR_TOPIC when 4 failures then 1 success', async () => {
+    const c = sim.client('c1');
+    const srv = sim.server('s1');
+    const listId = crypto.randomUUID();
+    await srv.db.write([
+      {
+        entityId: listId,
+        entityType: 'todoList',
+        attributes: {
+          'todoList/name': 'Remote',
+          'todoList/order': 0,
+          'todoList/createdAt': new Date().toISOString(),
+        },
+      },
+    ]);
+
+    const unsub = c.subscribe.entities(
+      { entityType: 'todoList', entityId: listId },
+      () => {}
+    );
+
+    const errors: SyncErrorEvent[] = [];
+    const unsubSync = sim.subscribeSyncErrors((e) => errors.push(e));
+
+    for (let i = 0; i < 4; i++) {
+      c.link.failNextRead(new Error(`poll fail ${i}`));
+      const p = c.poll();
+      await sim.scheduler.drain();
+      await p;
+    }
+
+    await c.poll();
+    await sim.scheduler.drain();
+
+    expect(errors).toHaveLength(0);
+
+    const local = await c.read([
+      { entityType: 'todoList', entityId: listId },
+    ]);
+    expect((local[0]?.patches ?? []).length).toBeGreaterThanOrEqual(1);
+
+    unsubSync();
+    unsub();
+  });
+
+  test('poll: overlapping runPollNow coalesces while first read is in flight', async () => {
+    const c = sim.client('c1');
+    const srv = sim.server('s1');
+    const listId = crypto.randomUUID();
+    await srv.db.write([
+      {
+        entityId: listId,
+        entityType: 'todoList',
+        attributes: {
+          'todoList/name': 'Lag',
+          'todoList/order': 0,
+          'todoList/createdAt': new Date().toISOString(),
+        },
+      },
+    ]);
+
+    c.link.setLatency(20);
+    const unsub = c.subscribe.entities(
+      { entityType: 'todoList', entityId: listId },
+      () => {}
+    );
+
+    const p1 = c.syncDb.runPollNow();
+    await c.syncDb.runPollNow();
+
+    for (let i = 0; i < 48; i++) {
+      if (sim.scheduler.pendingCount() > 0) break;
+      await Promise.resolve();
+    }
+    await sim.scheduler.drain();
+    await p1;
+
+    const mid = await c.read([
+      { entityType: 'todoList', entityId: listId },
+    ]);
+    expect((mid[0]?.patches ?? []).length).toBeGreaterThanOrEqual(1);
+
+    unsub();
+  });
+
+  test('poll: second poll with no remote changes keeps patch count stable', async () => {
+    const c = sim.client('c1');
+    const srv = sim.server('s1');
+    const listId = crypto.randomUUID();
+    await srv.db.write([
+      {
+        entityId: listId,
+        entityType: 'todoList',
+        attributes: {
+          'todoList/name': 'Stable',
+          'todoList/order': 0,
+          'todoList/createdAt': new Date().toISOString(),
+        },
+      },
+    ]);
+
+    const unsub = c.subscribe.entities(
+      { entityType: 'todoList', entityId: listId },
+      () => {}
+    );
+
+    await c.poll();
+    const afterFirst = await c.read([
+      { entityType: 'todoList', entityId: listId },
+    ]);
+    const n1 = (afterFirst[0]?.patches ?? []).length;
+    expect(n1).toBeGreaterThanOrEqual(1);
+
+    await c.poll();
+    const afterSecond = await c.read([
+      { entityType: 'todoList', entityId: listId },
+    ]);
+    expect((afterSecond[0]?.patches ?? []).length).toBe(n1);
+
+    unsub();
+  });
+
+  test('subscribe: same query stays live with one of two subscribers unsubscribed', async () => {
+    const c = sim.client('c1');
+    const srv = sim.server('s1');
+    const listId = crypto.randomUUID();
+    await srv.db.write([
+      {
+        entityId: listId,
+        entityType: 'todoList',
+        attributes: {
+          'todoList/name': 'Ref',
+          'todoList/order': 0,
+          'todoList/createdAt': new Date().toISOString(),
+        },
+      },
+    ]);
+
+    const q = { entityType: 'todoList', entityId: listId } as const;
+    const u1 = c.subscribe.entities(q, () => {});
+    const u2 = c.subscribe.entities(q, () => {});
+    u1();
+
+    await srv.db.write([
+      {
+        entityId: listId,
+        entityType: 'todoList',
+        attributes: { 'todoList/name': 'Updated After Partial Unsub' },
+      },
+    ]);
+
+    await c.poll();
+    u2();
+
+    const local = await c.read([q]);
+    expect(
+      (local[0]?.entities ?? []).some(
+        (e) => e.attributes?.['todoList/name'] === 'Updated After Partial Unsub'
+      )
+    ).toBe(true);
+  });
+
+  test('poll: subscription limit does not truncate sync; all matching remote lists merge', async () => {
+    const c = sim.client('c1');
+    const srv = sim.server('s1');
+    const created = new Date(0).toISOString();
+    const lists = [crypto.randomUUID(), crypto.randomUUID(), crypto.randomUUID()];
+    for (let i = 0; i < lists.length; i++) {
+      const id = lists[i];
+      assert.defined(id, 'list id');
+      await srv.db.write([
+        {
+          entityId: id,
+          entityType: 'todoList',
+          attributes: {
+            'todoList/name': `L${i}`,
+            'todoList/order': i,
+            'todoList/createdAt': created,
+          },
+        },
+      ]);
+    }
+
+    const unsub = c.subscribe.entities(
+      { entityType: 'todoList', where: DELETED_CLAUSE, limit: 1 },
+      () => {}
+    );
+
+    await c.poll();
+    unsub();
+
+    const all = await c.read([
+      { entityType: 'todoList', where: DELETED_CLAUSE },
+    ]);
+    const entityIds = new Set((all[0]?.entities ?? []).map((e) => e.entityId));
+    for (const id of lists) {
+      expect(entityIds.has(id)).toBe(true);
+    }
+  });
+
+  test('multi-client: each client sees lists created by the other after poll', async () => {
+    await sim.destroy();
+    sim = await patchDbScenario()
+      .server('s')
+      .client('a', { server: 's' })
+      .client('b', { server: 's' })
+      .build();
+
+    const a = sim.client('a');
+    const b = sim.client('b');
+    const srv = sim.server('s');
+    const created = new Date(0).toISOString();
+    const listA = crypto.randomUUID();
+    const listB = crypto.randomUUID();
+
+    const unsubA = a.subscribe.entities(
+      { entityType: 'todoList', where: DELETED_CLAUSE },
+      () => {}
+    );
+    const unsubB = b.subscribe.entities(
+      { entityType: 'todoList', where: DELETED_CLAUSE },
+      () => {}
+    );
+
+    await a.write([
+      {
+        entityId: listA,
+        entityType: 'todoList',
+        attributes: {
+          'todoList/name': 'By A',
+          'todoList/order': 0,
+          'todoList/createdAt': created,
+        },
+      },
+    ]);
+    await b.write([
+      {
+        entityId: listB,
+        entityType: 'todoList',
+        attributes: {
+          'todoList/name': 'By B',
+          'todoList/order': 1,
+          'todoList/createdAt': created,
+        },
+      },
+    ]);
+
+    await a.push();
+    await b.push();
+
+    await a.poll();
+    await b.poll();
+
+    unsubA();
+    unsubB();
+
+    const localA = await a.read([
+      { entityType: 'todoList', where: DELETED_CLAUSE },
+    ]);
+    const localB = await b.read([
+      { entityType: 'todoList', where: DELETED_CLAUSE },
+    ]);
+    const idsA = new Set((localA[0]?.entities ?? []).map((e) => e.entityId));
+    const idsB = new Set((localB[0]?.entities ?? []).map((e) => e.entityId));
+    expect(idsA.has(listA)).toBe(true);
+    expect(idsA.has(listB)).toBe(true);
+    expect(idsB.has(listA)).toBe(true);
+    expect(idsB.has(listB)).toBe(true);
+
+    const remoteLists = await srv.db.read([
+      { entityType: 'todoList', where: DELETED_CLAUSE },
+    ]);
+    const idsR = new Set((remoteLists[0]?.entities ?? []).map((e) => e.entityId));
+    expect(idsR.has(listA)).toBe(true);
+    expect(idsR.has(listB)).toBe(true);
+  });
+
+  test('subscribe.patches mirrors entities for sync lifecycle', async () => {
+    const c = sim.client('c1');
+    const srv = sim.server('s1');
+    const listId = crypto.randomUUID();
+    await srv.db.write([
+      {
+        entityId: listId,
+        entityType: 'todoList',
+        attributes: {
+          'todoList/name': 'Patch sub',
+          'todoList/order': 0,
+          'todoList/createdAt': new Date().toISOString(),
+        },
+      },
+    ]);
+
+    const notifications: number[] = [];
+    const unsub = c.subscribe.patches(
+      { entityType: 'todoList', entityId: listId },
+      (result) => {
+        notifications.push(result.patches.length);
+      }
+    );
+
+    await c.poll();
+    unsub();
+
+    expect(notifications.some((n) => n >= 1)).toBe(true);
+  });
 });
