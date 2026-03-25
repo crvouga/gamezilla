@@ -1,3 +1,4 @@
+/** Wire path prefix for patch-db HTTP transport (client + server must agree). */
 export const PATCHES_DB_BASE_URL = '/patch-db';
 export const PATCHES_READ = `${PATCHES_DB_BASE_URL}/patches/read`;
 export const PATCHES_WRITE = `${PATCHES_DB_BASE_URL}/patches/write`;

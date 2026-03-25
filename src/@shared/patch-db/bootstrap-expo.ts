@@ -4,9 +4,10 @@ import { DependencyInjectionContainer } from '../dependency-injection/dependency
 import { InMemoryPubSub } from '../pub-sub/impl-in-memory';
 import type { SqlClient } from '../sql-client/interface';
 import { SqlClientImplExpoSqlite } from '../sql-client/impl-expo-sqlite';
-import { createRemoteInvalidationSource, PatchDbImplHttp } from './impl-http';
+import { PatchDbImplClientTransport } from './impl-client-transport';
 import { PatchDbImplSqlite } from './impl-sqlite/impl-sqlite';
 import { SyncPatchesDb } from './impl-sync';
+import { PatchDbClientTransportHttpFetch } from './transport';
 import { PatchesDbToken } from './react';
 import { SubscribablePatchesDbToken } from './subscribable';
 
@@ -50,12 +51,12 @@ export async function bootstrapPatchDbExpoSync(
     const localDb = new PatchDbImplSqlite(sqlClient);
     await localDb.migrate();
 
-    const remoteDb = new PatchDbImplHttp(apiUrl);
+    const transport = new PatchDbClientTransportHttpFetch(apiUrl);
+    const remoteDb = new PatchDbImplClientTransport(transport);
     const pubSub = new InMemoryPubSub();
-    const remoteInvalidationSource = createRemoteInvalidationSource(apiUrl);
     const syncDb = new SyncPatchesDb(localDb, remoteDb, pubSub, {
       pushIntervalMs,
-      remoteInvalidationSource,
+      remoteInvalidationSource: transport,
     });
 
     const container = new DependencyInjectionContainer(parentContainer);

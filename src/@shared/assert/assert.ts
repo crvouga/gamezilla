@@ -50,6 +50,21 @@ export class Assert {
   }
 
   /**
+   * Indicates unreachable code. Always fails the assertion.
+   *
+   * @param message - Message to describe why this code path is unreachable.
+   * @param context - Optional structured context attached to the failure.
+   * @throws ValidationError if in validation mode.
+   * @throws Error (crashes) if in crash mode.
+   */
+  unreachable(
+    message: string,
+    context?: Record<string, unknown>
+  ): asserts message is never {
+    this.ok(false, message, context);
+  }
+
+  /**
    * Asserts that `value` is one of the strings in `values`.
    *
    * @param value - Value to check.

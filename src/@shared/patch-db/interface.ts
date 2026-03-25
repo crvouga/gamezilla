@@ -359,10 +359,21 @@ export type PatchesDbResult = {
   nextCursor: string | null;
 };
 
-export interface PatchesDb {
-  write(patches: PatchInput[]): Promise<Patch[]>;
+/** Query side of {@link PatchesDb}; contract varies by implementation (local read vs sync merge-then-read). */
+export type PatchesDbRead = {
   read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]>;
+};
+
+/** Write side of {@link PatchesDb}; contract varies by implementation (local persist vs sync + invalidation). */
+export type PatchesDbWrite = {
+  write(patches: PatchInput[]): Promise<Patch[]>;
+};
+
+/** Update side of {@link PatchesDb}; contract varies by implementation (local persist vs sync + invalidation). */
+type PatchesDbUpdate = {
   update(
     updates: { patchId: string; attributes: Record<string, unknown> }[]
   ): Promise<void>;
-}
+};
+
+export type PatchesDb = PatchesDbRead & PatchesDbWrite & PatchesDbUpdate;
