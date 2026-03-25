@@ -10,6 +10,7 @@ import {
   SyncPatchesDb,
 } from '../../impl-sync';
 import type {
+  Entity,
   Patch,
   PatchInput,
   PatchesDb,
@@ -243,6 +244,52 @@ export class Sim {
     return () => {
       for (const u of unsubs) u();
     };
+  }
+
+  /**
+   * Read `query` on every client and every server, then assert they all
+   * agree on the same set of entity IDs and the same attribute values.
+   */
+  async assertConsistent(query: PatchesDbQuery): Promise<void> {
+    const nodes = await this.readAllNodes(query);
+    assertNodesConsistent(nodes);
+  }
+
+  /**
+   * Assert that specific entities (by ID) have identical attributes across
+   * every client and every server.
+   */
+  async assertEntitiesConsistent(
+    entityType: string,
+    entityIds: string[]
+  ): Promise<void> {
+    const query: PatchesDbQuery = {
+      entityType,
+      entityId: entityIds,
+    };
+    const nodes = await this.readAllNodes(query);
+    assertNodesConsistent(nodes);
+  }
+
+  private async readAllNodes(
+    query: PatchesDbQuery
+  ): Promise<{ nodeId: string; entities: Entity[] }[]> {
+    const nodes: { nodeId: string; entities: Entity[] }[] = [];
+    for (const [id, client] of this.clientHandles) {
+      const results = await client.read([query]);
+      nodes.push({
+        nodeId: `client:${id}`,
+        entities: results[0]?.entities ?? [],
+      });
+    }
+    for (const [id, server] of this.serverHandles) {
+      const results = await server.db.read([query]);
+      nodes.push({
+        nodeId: `server:${id}`,
+        entities: results[0]?.entities ?? [],
+      });
+    }
+    return nodes;
   }
 
   async destroy(): Promise<void> {
@@ -548,4 +595,80 @@ async function buildScenario(
     servers,
     recorder
   );
+}
+
+type NodeSnapshot = { nodeId: string; entities: Entity[] };
+
+function canonicalizeEntity(e: Entity): string {
+  const sortedAttrs: Record<string, unknown> = {};
+  for (const key of Object.keys(e.attributes).sort()) {
+    sortedAttrs[key] = e.attributes[key];
+  }
+  return JSON.stringify({
+    entityId: e.entityId,
+    entityType: e.entityType,
+    attributes: sortedAttrs,
+  });
+}
+
+function assertNodesConsistent(nodes: NodeSnapshot[]): void {
+  if (nodes.length < 2) return;
+
+  const first = nodes[0];
+  if (!first) return;
+  const firstIds = new Set(first.entities.map((e) => e.entityId));
+
+  for (let i = 1; i < nodes.length; i++) {
+    const other = nodes[i];
+    if (!other) continue;
+    const otherIds = new Set(other.entities.map((e) => e.entityId));
+
+    const missingFromOther = [...firstIds].filter((id) => !otherIds.has(id));
+    const extraInOther = [...otherIds].filter((id) => !firstIds.has(id));
+
+    if (missingFromOther.length > 0 || extraInOther.length > 0) {
+      const parts: string[] = [
+        `Entity set mismatch between ${first.nodeId} and ${other.nodeId}.`,
+      ];
+      if (missingFromOther.length > 0) {
+        parts.push(
+          `  Missing from ${other.nodeId}: ${missingFromOther.join(', ')}`
+        );
+      }
+      if (extraInOther.length > 0) {
+        parts.push(`  Extra in ${other.nodeId}: ${extraInOther.join(', ')}`);
+      }
+      throw new Error(parts.join('\n'));
+    }
+  }
+
+  const entityMap = new Map<string, Map<string, string>>();
+
+  for (const node of nodes) {
+    for (const entity of node.entities) {
+      let perNode = entityMap.get(entity.entityId);
+      if (!perNode) {
+        perNode = new Map();
+        entityMap.set(entity.entityId, perNode);
+      }
+      perNode.set(node.nodeId, canonicalizeEntity(entity));
+    }
+  }
+
+  for (const [entityId, perNode] of entityMap) {
+    const values = [...perNode.values()];
+    const reference = values[0];
+    if (!reference) continue;
+    for (let i = 1; i < values.length; i++) {
+      if (values[i] !== reference) {
+        const nodeEntries = [...perNode.entries()];
+        const lines = nodeEntries.map(
+          ([nodeId, json]) => `  ${nodeId}: ${json}`
+        );
+        throw new Error(
+          `Entity ${entityId} differs across nodes:\n${lines.join('\n')}`
+        );
+      }
+    }
+  }
 }

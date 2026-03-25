@@ -57,6 +57,7 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
     await c.poll();
     unsub();
+    await sim.assertConsistent(listQuery);
   });
 
   test('push: soft-delete patch is pushed to remote', async () => {
@@ -72,7 +73,7 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     const c = sim.client('c1');
     const srv = sim.server('s1');
     const listId = crypto.randomUUID();
-    const listQuery = { entityType: 'todoList', entityId: listId } as const;
+    const listQuery = { entityType: 'todoList', where: DELETED_CLAUSE } as const;
     const unsub = c.subscribe.entities(listQuery, () => {});
 
     await c.write([
@@ -116,6 +117,7 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
     await c.poll();
     unsub();
+    await sim.assertConsistent(listQuery);
   });
 
   test('push: multiple unsynced patches are all pushed', async () => {
@@ -186,6 +188,7 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
     await c.poll();
     unsub();
+    await sim.assertConsistent(listQuery);
   });
 
   test('push: SYNC_ERROR_TOPIC after 5 consecutive push failures', async () => {
@@ -235,6 +238,7 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     await c.poll();
     unsubSync();
     unsub();
+    await sim.assertConsistent(listQuery);
   });
 
   test('push: no SYNC_ERROR_TOPIC when 4 failures then 1 success', async () => {
@@ -292,5 +296,6 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     await c.poll();
     unsubSync();
     unsub();
+    await sim.assertConsistent(listQuery);
   });
 });

@@ -60,6 +60,8 @@ describe('SyncPatchesDb (deterministic sim)', () => {
           e.attributes?.['todoList/name'] === 'From Remote'
       )
     ).toBe(true);
+
+    await sim.assertConsistent({ entityType: 'todoList', where: DELETED_CLAUSE });
   });
 
   test('poll: patches for deleted entities are fetched via tracked-entities query', async () => {
@@ -131,6 +133,8 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     assert.defined(entity, 'entity must be defined');
     expect(entity).toBeDefined();
     expect(entity?.attributes?.['todoList/deleted']).toBe(true);
+
+    await sim.assertEntitiesConsistent('todoList', [listId]);
   });
 
   test('poll: sibling patch from another client is not missed when its patchId sorts before cursor', async () => {
@@ -215,6 +219,8 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     expect(finalLocal.patches).toHaveLength(3);
 
     unsub();
+
+    await sim.assertEntitiesConsistent('task', [entityId]);
   });
 
   test('partition: client cannot poll until link heals', async () => {
@@ -261,6 +267,8 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     expect((fin[0]?.patches ?? []).length).toBeGreaterThanOrEqual(1);
 
     unsub();
+
+    await sim.assertConsistent(listQuery);
   });
 
   test('poll: SYNC_ERROR_TOPIC after 5 consecutive poll failures', async () => {
@@ -310,6 +318,8 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     await c.poll();
     unsubSync();
     unsub();
+
+    await sim.assertConsistent(listQuery);
   });
 
   test('poll: no SYNC_ERROR_TOPIC when 4 failures then 1 success', async () => {
@@ -363,6 +373,8 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
     unsubSync();
     unsub();
+
+    await sim.assertConsistent(listQuery);
   });
 
   test('poll: overlapping runPollNow coalesces while first read is in flight', async () => {
@@ -393,10 +405,8 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     ]);
 
     c.link.setLatency(20);
-    const unsub = c.subscribe.entities(
-      { entityType: 'todoList', entityId: listId },
-      () => {}
-    );
+    const listQuery = { entityType: 'todoList', where: DELETED_CLAUSE } as const;
+    const unsub = c.subscribe.entities(listQuery, () => {});
 
     const p1 = c.syncDb.runPollNow();
     await c.syncDb.runPollNow();
@@ -412,6 +422,8 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     expect((mid[0]?.patches ?? []).length).toBeGreaterThanOrEqual(1);
 
     unsub();
+
+    await sim.assertConsistent(listQuery);
   });
 
   test('poll: second poll with no remote changes keeps patch count stable', async () => {
@@ -440,10 +452,8 @@ describe('SyncPatchesDb (deterministic sim)', () => {
       },
     ]);
 
-    const unsub = c.subscribe.entities(
-      { entityType: 'todoList', entityId: listId },
-      () => {}
-    );
+    const listQuery = { entityType: 'todoList', where: DELETED_CLAUSE } as const;
+    const unsub = c.subscribe.entities(listQuery, () => {});
 
     await c.poll();
     const afterFirst = await c.read([
@@ -459,6 +469,8 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     expect((afterSecond[0]?.patches ?? []).length).toBe(n1);
 
     unsub();
+
+    await sim.assertConsistent(listQuery);
   });
 
   test('poll: subscription limit does not truncate sync; all matching remote lists merge', async () => {
@@ -497,6 +509,8 @@ describe('SyncPatchesDb (deterministic sim)', () => {
       ]);
     }
 
+    const listQuery = { entityType: 'todoList', where: DELETED_CLAUSE } as const;
+    const unsubAll = c.subscribe.entities(listQuery, () => {});
     const unsub = c.subscribe.entities(
       { entityType: 'todoList', where: DELETED_CLAUSE, limit: 1 },
       () => {}
@@ -504,6 +518,7 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
     await c.poll();
     unsub();
+    unsubAll();
 
     const all = await c.read([
       { entityType: 'todoList', where: DELETED_CLAUSE },
@@ -512,5 +527,7 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     for (const id of lists) {
       expect(entityIds.has(id)).toBe(true);
     }
+
+    await sim.assertConsistent(listQuery);
   });
 });

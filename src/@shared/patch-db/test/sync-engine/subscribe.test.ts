@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { DELETED_CLAUSE } from './constants';
 import { getSim, registerSyncEngineHooks } from './harness';
 
 const VIZ_FILE = import.meta.path;
@@ -33,9 +34,9 @@ describe('SyncPatchesDb (deterministic sim)', () => {
       },
     ]);
 
-    const q = { entityType: 'todoList', entityId: listId } as const;
-    const u1 = c.subscribe.entities(q, () => {});
-    const u2 = c.subscribe.entities(q, () => {});
+    const listQuery = { entityType: 'todoList', where: DELETED_CLAUSE } as const;
+    const u1 = c.subscribe.entities(listQuery, () => {});
+    const u2 = c.subscribe.entities(listQuery, () => {});
     u1();
 
     await srv.db.write([
@@ -49,12 +50,14 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     await c.poll();
     u2();
 
-    const local = await c.read([q]);
+    const local = await c.read([{ entityType: 'todoList', entityId: listId }]);
     expect(
       (local[0]?.entities ?? []).some(
         (e) => e.attributes?.['todoList/name'] === 'Updated After Partial Unsub'
       )
     ).toBe(true);
+
+    await sim.assertConsistent(listQuery);
   });
 
   test('subscribe.patches mirrors entities for sync lifecycle', async () => {
@@ -83,6 +86,9 @@ describe('SyncPatchesDb (deterministic sim)', () => {
       },
     ]);
 
+    const listQuery = { entityType: 'todoList', where: DELETED_CLAUSE } as const;
+    const unsubEntities = c.subscribe.entities(listQuery, () => {});
+
     const notifications: number[] = [];
     const unsub = c.subscribe.patches(
       { entityType: 'todoList', entityId: listId },
@@ -93,7 +99,10 @@ describe('SyncPatchesDb (deterministic sim)', () => {
 
     await c.poll();
     unsub();
+    unsubEntities();
 
     expect(notifications.some((n) => n >= 1)).toBe(true);
+
+    await sim.assertConsistent(listQuery);
   });
 });

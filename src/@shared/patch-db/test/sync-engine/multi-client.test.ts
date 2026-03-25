@@ -21,6 +21,9 @@ describe('SyncPatchesDb (deterministic sim, multi-client)', () => {
     const a = sim.client('a');
     const b = sim.client('b');
     const listId = crypto.randomUUID();
+    const listQuery = { entityType: 'todoList', where: DELETED_CLAUSE } as const;
+    const unsubA = a.subscribe.entities(listQuery, () => {});
+    const unsubB = b.subscribe.entities(listQuery, () => {});
 
     await a.write([
       {
@@ -35,15 +38,16 @@ describe('SyncPatchesDb (deterministic sim, multi-client)', () => {
     ]);
     await a.push();
 
-    const unsub = b.subscribe.entities(
-      { entityType: 'todoList', entityId: listId },
-      () => {}
-    );
+    await a.poll();
     await b.poll();
-    unsub();
 
     const bLocal = await b.read([{ entityType: 'todoList', entityId: listId }]);
     expect((bLocal[0]?.patches ?? []).length).toBeGreaterThanOrEqual(1);
+
+    unsubA();
+    unsubB();
+
+    await sim.assertConsistent(listQuery);
   });
 
   test('multi-client: each client sees lists created by the other after poll', async () => {
@@ -126,5 +130,7 @@ describe('SyncPatchesDb (deterministic sim, multi-client)', () => {
     );
     expect(idsR.has(listA)).toBe(true);
     expect(idsR.has(listB)).toBe(true);
+
+    await sim.assertConsistent({ entityType: 'todoList', where: DELETED_CLAUSE });
   });
 });

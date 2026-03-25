@@ -162,5 +162,7 @@ describe('SyncPatchesDb (deterministic sim, multi-client offline)', () => {
     expect(bNameA[0]?.entities[0]?.attributes?.['todoList/name']).toBe(
       'Created-by-B-while-offline'
     );
+
+    await sim.assertConsistent(listQuery);
   });
 });

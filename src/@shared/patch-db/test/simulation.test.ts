@@ -1,6 +1,7 @@
 import { assert } from '@/@shared/assert';
 import { afterEach, describe, expect, test } from 'bun:test';
 import { type Sim, patchDbScenario } from './sim/scenario';
+import { DELETED_CLAUSE } from './sync-engine/constants';
 
 describe('patch-db deterministic simulation', () => {
   let sim: Sim | null = null;
@@ -54,12 +55,9 @@ describe('patch-db deterministic simulation', () => {
         attributes: { 'todoList/name': 'From other writer on server' },
       },
     ]);
-    const unsub = c.subscribe.entities(
-      { entityType: 'todoList', entityId: listId },
-      () => {}
-    );
+    const listQuery = { entityType: 'todoList', where: DELETED_CLAUSE } as const;
+    const unsub = c.subscribe.entities(listQuery, () => {});
     await c.poll();
-    unsub();
     const local = await c.read([{ entityType: 'todoList', entityId: listId }]);
     const loc = local[0];
     assert.defined(loc, 'local');
@@ -67,5 +65,8 @@ describe('patch-db deterministic simulation', () => {
       (e) => e.attributes?.['todoList/name'] as string
     );
     expect(names.some((n) => n === 'From other writer on server')).toBe(true);
+    unsub();
+
+    await sim.assertConsistent(listQuery);
   });
 });
