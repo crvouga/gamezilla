@@ -21,7 +21,8 @@ export class SqlClientImplBunSqlite implements SqlClient {
 
   disconnect(): Promise<void> {
     try {
-      this.db.close(true);
+      // false: sqlite3_close_v2 — defer close until statements finish; close(true) throws "database is locked".
+      this.db.close(false);
       return Promise.resolve();
     } catch (err) {
       assert.ok(false, 'Database disconnection failed', { error: err });
