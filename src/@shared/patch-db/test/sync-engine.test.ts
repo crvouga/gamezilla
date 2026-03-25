@@ -1,9 +1,8 @@
 import { assert } from '@/@shared/assert';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { type SyncErrorEvent } from '../impl-sync';
 import { assertEntity, type Patch, type PatchesDbQuery } from '../interface';
-import { createSyncDbFactory } from './test-helpers';
-
-const PUSH_WAIT_MS = 100;
+import { type BuiltPatchDbScenario, patchDbScenario } from './sim/scenario';
 
 const DELETED_CLAUSE: PatchesDbQuery['where'] = {
   type: 'or',
@@ -13,20 +12,31 @@ const DELETED_CLAUSE: PatchesDbQuery['where'] = {
   ],
 };
 
-describe('SyncPatchesDb', () => {
-  let syncDb: Awaited<ReturnType<typeof createSyncDbFactory>>;
+/** Let `fireAndForget` subscription notifies run after `runPoll` publishes. */
+async function flushSubscriptionNotifies(): Promise<void> {
+  for (let i = 0; i < 32; i++) {
+    await Promise.resolve();
+  }
+}
+
+describe('SyncPatchesDb (deterministic sim)', () => {
+  let sim: BuiltPatchDbScenario;
 
   beforeEach(async () => {
-    syncDb = await createSyncDbFactory();
+    sim = await patchDbScenario()
+      .server('s1')
+      .client('c1', { server: 's1' })
+      .build();
   });
 
   afterEach(async () => {
-    await syncDb.teardown();
+    await sim.destroy();
   });
 
   test('push: create patch is pushed to remote', async () => {
+    const c = sim.getClient('c1');
     const listId = crypto.randomUUID();
-    await syncDb.syncDb.write([
+    await c.syncDb.write([
       {
         entityId: listId,
         entityType: 'todoList',
@@ -38,9 +48,10 @@ describe('SyncPatchesDb', () => {
       },
     ]);
 
-    await new Promise((r) => setTimeout(r, PUSH_WAIT_MS));
+    await c.runPush();
 
-    const remoteResults = await syncDb.remote.read([
+    const srv = sim.getServer('s1');
+    const remoteResults = await srv.authority.read([
       { entityType: 'todoList', entityId: listId },
     ]);
     const remoteResult = remoteResults[0];
@@ -55,8 +66,9 @@ describe('SyncPatchesDb', () => {
   });
 
   test('push: soft-delete patch is pushed to remote', async () => {
+    const c = sim.getClient('c1');
     const listId = crypto.randomUUID();
-    await syncDb.syncDb.write([
+    await c.syncDb.write([
       {
         entityId: listId,
         entityType: 'todoList',
@@ -68,9 +80,9 @@ describe('SyncPatchesDb', () => {
       },
     ]);
 
-    await new Promise((r) => setTimeout(r, PUSH_WAIT_MS));
+    await c.runPush();
 
-    await syncDb.syncDb.write([
+    await c.syncDb.write([
       {
         entityId: listId,
         entityType: 'todoList',
@@ -78,9 +90,10 @@ describe('SyncPatchesDb', () => {
       },
     ]);
 
-    await new Promise((r) => setTimeout(r, PUSH_WAIT_MS));
+    await c.runPush();
 
-    const remoteResults = await syncDb.remote.read([
+    const srv = sim.getServer('s1');
+    const remoteResults = await srv.authority.read([
       { entityType: 'todoList', entityId: listId },
     ]);
     const remoteResult = remoteResults[0];
@@ -97,9 +110,10 @@ describe('SyncPatchesDb', () => {
   });
 
   test('push: multiple unsynced patches are all pushed', async () => {
+    const c = sim.getClient('c1');
     const listId1 = crypto.randomUUID();
     const listId2 = crypto.randomUUID();
-    await syncDb.syncDb.write([
+    await c.syncDb.write([
       {
         entityId: listId1,
         entityType: 'todoList',
@@ -120,14 +134,15 @@ describe('SyncPatchesDb', () => {
       },
     ]);
 
-    await new Promise((r) => setTimeout(r, PUSH_WAIT_MS));
+    await c.runPush();
 
-    const r1Results = await syncDb.remote.read([
+    const srv = sim.getServer('s1');
+    const r1Results = await srv.authority.read([
       { entityType: 'todoList', entityId: listId1 },
     ]);
     const r1 = r1Results[0];
     assert.defined(r1, 'r1 must be defined');
-    const r2Results = await syncDb.remote.read([
+    const r2Results = await srv.authority.read([
       { entityType: 'todoList', entityId: listId2 },
     ]);
     const r2 = r2Results[0];
@@ -147,8 +162,10 @@ describe('SyncPatchesDb', () => {
   });
 
   test('poll: remote patches are merged into local', async () => {
+    const c = sim.getClient('c1');
+    const srv = sim.getServer('s1');
     const listId = crypto.randomUUID();
-    await syncDb.remote.write([
+    await srv.authority.write([
       {
         entityId: listId,
         entityType: 'todoList',
@@ -161,23 +178,25 @@ describe('SyncPatchesDb', () => {
     ]);
 
     const received: unknown[] = [];
-    const unsub = syncDb.syncDb.subscribe.entities(
+    const unsub = c.syncDb.subscribe.entities(
       { entityType: 'todoList', where: DELETED_CLAUSE },
       (result) => {
         received.push(result.entities);
       }
     );
 
-    syncDb.invalidateRemote();
-    await new Promise((r) => setTimeout(r, 0));
+    await c.runPoll();
+    await flushSubscriptionNotifies();
 
     unsub();
 
     expect(received.length).toBeGreaterThanOrEqual(1);
-    const last = received[received.length - 1];
+    const last = received[received.length - 1] as unknown[];
     assert.all(last, assertEntity);
     expect(
-      last.some(
+      (
+        last as { entityId: string; attributes?: Record<string, unknown> }[]
+      ).some(
         (e) =>
           e.entityId === listId &&
           e.attributes?.['todoList/name'] === 'From Remote'
@@ -186,8 +205,10 @@ describe('SyncPatchesDb', () => {
   });
 
   test('poll: patches for deleted entities are fetched via tracked-entities query', async () => {
+    const c = sim.getClient('c1');
+    const srv = sim.getServer('s1');
     const listId = crypto.randomUUID();
-    await syncDb.remote.write([
+    await srv.authority.write([
       {
         entityId: listId,
         entityType: 'todoList',
@@ -203,7 +224,7 @@ describe('SyncPatchesDb', () => {
       entityId: string;
       attributes: Record<string, unknown>;
     }[][] = [];
-    const unsub = syncDb.syncDb.subscribe.entities(
+    const unsub = c.syncDb.subscribe.entities(
       { entityType: 'todoList', where: DELETED_CLAUSE },
       (result) => {
         received.push(
@@ -215,14 +236,14 @@ describe('SyncPatchesDb', () => {
       }
     );
 
-    syncDb.invalidateRemote();
-    await new Promise((r) => setTimeout(r, 0));
+    await c.runPoll();
+    await flushSubscriptionNotifies();
 
     expect(received.some((r) => r.some((e) => e.entityId === listId))).toBe(
       true
     );
 
-    await syncDb.remote.write([
+    await srv.authority.write([
       {
         entityId: listId,
         entityType: 'todoList',
@@ -230,12 +251,12 @@ describe('SyncPatchesDb', () => {
       },
     ]);
 
-    syncDb.invalidateRemote();
-    await new Promise((r) => setTimeout(r, 0));
+    await c.runPoll();
+    await flushSubscriptionNotifies();
 
     unsub();
 
-    const entitiesResults = await syncDb.syncDb.read([
+    const entitiesResults = await c.syncDb.read([
       { entityType: 'todoList', entityId: listId },
     ]);
     const entitiesResult = entitiesResults[0];
@@ -247,53 +268,48 @@ describe('SyncPatchesDb', () => {
   });
 
   test('poll: sibling patch from another client is not missed when its patchId sorts before cursor', async () => {
+    const c = sim.getClient('c1');
+    const srv = sim.getServer('s1');
     const entityId = crypto.randomUUID();
     const entityType = 'task';
 
-    // 1. Write root patch on remote (simulates shared initial state)
-    const rootWritten = await syncDb.remote.write([
+    const rootWritten = await srv.authority.write([
       { entityId, entityType, attributes: { 'task/title': 'Root' } },
     ]);
     const rootPatch = rootWritten[0];
     assert.defined(rootPatch, 'rootPatch must be defined');
 
-    // 2. Subscribe so the sync engine registers an active query, then poll
-    const unsub = syncDb.syncDb.subscribe.entities(
+    const unsub = c.syncDb.subscribe.entities(
       { entityType, entityId },
       () => {}
     );
-    syncDb.invalidateRemote();
-    await new Promise((r) => setTimeout(r, 50));
+    await c.runPoll();
+    await flushSubscriptionNotifies();
 
-    // Verify client got the root patch
-    const localResults = await syncDb.local.read([{ entityType, entityId }]);
+    const localResults = await c.localDb.read([{ entityType, entityId }]);
     const localAfterFirstPoll = localResults[0];
     assert.defined(localAfterFirstPoll, 'localAfterFirstPoll must be defined');
     expect(localAfterFirstPoll.patches).toHaveLength(1);
 
-    // 3. Client writes a local patch (depth 1, parent = root)
-    const clientAWritten = await syncDb.syncDb.write([
+    const clientAWritten = await c.syncDb.write([
       { entityId, entityType, attributes: { 'task/status': 'in-progress' } },
     ]);
     const clientAPatch = clientAWritten[0];
     assert.defined(clientAPatch, 'clientAPatch must be defined');
 
-    // Wait for push timer to sync it to remote
-    await new Promise((r) => setTimeout(r, 100));
-    const remoteAfterPushResults = await syncDb.remote.read([
+    await c.runPush();
+
+    const remoteAfterPushResults = await srv.authority.read([
       { entityType, entityId },
     ]);
     const remoteAfterPush = remoteAfterPushResults[0];
     assert.defined(remoteAfterPush, 'remoteAfterPush must be defined');
     expect(remoteAfterPush.patches).toHaveLength(2);
 
-    // 4. Another client writes a sibling patch directly to remote (same parent,
-    //    same depth) with a patchId that sorts BEFORE clientAPatch.patchId.
-    //    This simulates a concurrent write from a different device.
     const siblingPatchId = '00000000-0000-0000-0000-000000000000';
     expect(siblingPatchId < clientAPatch.patchId).toBe(true);
 
-    await syncDb.remote.write([
+    await srv.authority.write([
       {
         entityId,
         entityType,
@@ -307,22 +323,17 @@ describe('SyncPatchesDb', () => {
       } as Patch,
     ]);
 
-    // Verify remote has all 3 patches
-    const remoteAllResults = await syncDb.remote.read([
+    const remoteAllResults = await srv.authority.read([
       { entityType, entityId },
     ]);
     const remoteAll = remoteAllResults[0];
     assert.defined(remoteAll, 'remoteAll must be defined');
     expect(remoteAll.patches).toHaveLength(3);
 
-    // 5. Client polls again — should bring in the sibling patch
-    syncDb.invalidateRemote();
-    await new Promise((r) => setTimeout(r, 50));
+    await c.runPoll();
+    await flushSubscriptionNotifies();
 
-    // 6. Verify local has all 3 patches
-    const finalLocalResults = await syncDb.local.read([
-      { entityType, entityId },
-    ]);
+    const finalLocalResults = await c.localDb.read([{ entityType, entityId }]);
     const finalLocal = finalLocalResults[0];
     assert.defined(finalLocal, 'finalLocal must be defined');
     unsub();
@@ -332,5 +343,114 @@ describe('SyncPatchesDb', () => {
     );
     expect(hasSiblingPatch).toBe(true);
     expect(finalLocal.patches).toHaveLength(3);
+  });
+
+  test('multi-client: second client polls after first pushes', async () => {
+    await sim.destroy();
+    sim = await patchDbScenario()
+      .server('s')
+      .client('a', { server: 's' })
+      .client('b', { server: 's' })
+      .build();
+
+    const a = sim.getClient('a');
+    const b = sim.getClient('b');
+    const listId = crypto.randomUUID();
+
+    await a.syncDb.write([
+      {
+        entityId: listId,
+        entityType: 'todoList',
+        attributes: {
+          'todoList/name': 'Shared',
+          'todoList/order': 0,
+          'todoList/createdAt': new Date().toISOString(),
+        },
+      },
+    ]);
+    await a.runPush();
+
+    const unsub = b.syncDb.subscribe.entities(
+      { entityType: 'todoList', entityId: listId },
+      () => {}
+    );
+    await b.runPoll();
+    await flushSubscriptionNotifies();
+    unsub();
+
+    const bLocal = await b.localDb.read([
+      { entityType: 'todoList', entityId: listId },
+    ]);
+    expect((bLocal[0]?.patches ?? []).length).toBeGreaterThanOrEqual(1);
+  });
+
+  test('partition: client cannot poll until link heals', async () => {
+    const c = sim.getClient('c1');
+    const srv = sim.getServer('s1');
+    const listId = crypto.randomUUID();
+    await srv.authority.write([
+      {
+        entityId: listId,
+        entityType: 'todoList',
+        attributes: {
+          'todoList/name': 'Remote',
+          'todoList/order': 0,
+          'todoList/createdAt': new Date().toISOString(),
+        },
+      },
+    ]);
+
+    const unsub = c.syncDb.subscribe.entities(
+      { entityType: 'todoList', entityId: listId },
+      () => {}
+    );
+
+    sim.link('c1', 's1').setPartitioned(true);
+    await c.runPoll();
+
+    const mid = await c.localDb.read([
+      { entityType: 'todoList', entityId: listId },
+    ]);
+    expect((mid[0]?.patches ?? []).length).toBe(0);
+
+    sim.link('c1', 's1').setPartitioned(false);
+    await c.runPoll();
+    await flushSubscriptionNotifies();
+    unsub();
+
+    const fin = await c.localDb.read([
+      { entityType: 'todoList', entityId: listId },
+    ]);
+    expect((fin[0]?.patches ?? []).length).toBeGreaterThanOrEqual(1);
+  });
+
+  test('push: SYNC_ERROR_TOPIC after 5 consecutive push failures', async () => {
+    const c = sim.getClient('c1');
+    const listId = crypto.randomUUID();
+    await c.syncDb.write([
+      {
+        entityId: listId,
+        entityType: 'todoList',
+        attributes: {
+          'todoList/name': 'Needs push',
+          'todoList/order': 0,
+          'todoList/createdAt': new Date().toISOString(),
+        },
+      },
+    ]);
+
+    const errors: SyncErrorEvent[] = [];
+    const unsubSync = sim.subscribeSyncErrors((e) => errors.push(e));
+
+    for (let i = 0; i < 5; i++) {
+      sim.link('c1', 's1').failNextWriteWith(new Error(`push fail ${i}`));
+      const p = c.runPush();
+      await sim.runUntilIdle();
+      await p;
+    }
+
+    expect(errors).toHaveLength(1);
+    expect(errors[0]?.source).toBe('push');
+    unsubSync();
   });
 });
