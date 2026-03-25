@@ -1,0 +1,44 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Fredoka', system-ui, sans-serif;
+  --font-sans: 'Nunito', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  --pg-bg: radial-gradient(120% 90% at 50% -10%, #2d1f4a 0%, #12081c 45%, #06040a 100%);
+  background: var(--pg-bg);
+  color: #f4f4f8;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+@keyframes edgeFlow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+.edge-live {
+  stroke-dasharray: 6 5;
+  animation: edgeFlow 1.6s linear infinite;
+}
+.edge-dead {
+  stroke-dasharray: 4 6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edge-live {
+    animation: none;
+    stroke-dasharray: none;
+  }
+}

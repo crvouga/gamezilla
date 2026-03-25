@@ -1,6 +1,6 @@
 import { assert } from '../../../assert';
-import type { DeterministicScheduler } from './deterministic-scheduler';
 import type { SimEventRecorder } from './event-recorder';
+import type { SimLinkScheduler } from './sim-link-scheduler';
 
 export type NetworkOp = 'read' | 'write';
 
@@ -21,7 +21,7 @@ export class NetworkLink {
   private failNextWrite = false;
 
   constructor(
-    private readonly scheduler: DeterministicScheduler,
+    private readonly scheduler: SimLinkScheduler,
     private readonly recording?: NetworkLinkRecordingContext
   ) {
     assert.defined(scheduler, 'NetworkLink: scheduler required');

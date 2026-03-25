@@ -1,4 +1,6 @@
-export function isBrowser() {
+import { CrashHandler } from './crash-handler';
+
+function isBrowser() {
   return typeof window !== 'undefined' && typeof document !== 'undefined';
 }
 
@@ -20,10 +22,7 @@ function updateSuppressedCount() {
   }
 }
 
-export function crashBrowser(
-  message: string,
-  context?: Record<string, unknown>
-) {
+function crashBrowser(message: string, context?: Record<string, unknown>) {
   const existing = document.getElementById(OVERLAY_ID);
   if (existing) {
     suppressedCount++;
@@ -161,4 +160,14 @@ export function crashBrowser(
 </div>`;
 
   document.body.appendChild(overlay);
+}
+
+export class BrowserCrashHandler implements CrashHandler {
+  readonly priority: number = 10;
+  match(): boolean {
+    return isBrowser();
+  }
+  crash(message: string, context?: Record<string, unknown>): void {
+    crashBrowser(message, context);
+  }
 }

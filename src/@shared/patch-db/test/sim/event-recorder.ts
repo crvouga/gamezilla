@@ -4,10 +4,12 @@ import type {
   PatchesDbResult,
 } from '../../interface';
 
-/** True when sim should record events and persist on destroy. */
+/**
+ * True when sim should record events and persist on destroy.
+ * TODO: Re-enable when sim-viz recording returns (e.g. `SIM_VIZ_RECORDING=1`).
+ */
 export function isSimVizEnabled(): boolean {
-  const v = process.env.SIM_VIZ;
-  return v === '1' || v === 'true';
+  return false;
 }
 
 export type SimTopology = {

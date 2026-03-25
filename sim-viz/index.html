@@ -3,40 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Patch DB — simulation</title>
+  <title>Patch playground</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: { extend: { fontFamily: {
-        mono: ['IBM Plex Mono', 'monospace'],
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-      } } },
-    };
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js"></script>
-  <style>
-    html, body, #root { height: 100%; margin: 0; }
-    @keyframes edgeFlow { to { stroke-dashoffset: -24; } }
-    .edge-live { stroke-dasharray: 6 5; animation: edgeFlow 1.6s linear infinite; }
-    .edge-dead { stroke-dasharray: 3 5; }
-    @keyframes captionSlide { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-    .caption-in { animation: captionSlide 0.22s ease-out forwards; }
-    .diff-add { color: #3ddc84; }
-    .diff-del { color: #e5484d; }
-    .diff-mod { color: #e8b931; }
-    @media (prefers-reduced-motion: reduce) {
-      .edge-live { animation: none; stroke-dasharray: none; }
-      .caption-in { animation: none; opacity: 1; }
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script type="module" crossorigin src="./assets/index-BSadC-Xv.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-CaqdgA04.css">
 </head>
-<body class="dark h-full overflow-hidden bg-neutral-950 font-sans text-neutral-200 antialiased">
-  <div id="root" class="h-full"></div>
-  <!-- Classic script (not type="module") so file:// works; ES modules are CORS-blocked with null origin. -->
-  <script defer src="./bundle.js"></script>
+<body class="h-full overflow-hidden antialiased">
+  <div id="root" class="h-full min-h-0"></div>
 </body>
 </html>

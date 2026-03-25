@@ -1,9 +1,8 @@
 import { assert } from '@/@shared/assert';
-import type { ConsistencyStatus } from './types';
 
 export const NS = 'http://www.w3.org/2000/svg';
-export const STEP_MS = 600;
 
+/** Core neutrals + accents for the playground graph and chrome. */
 export const C = {
   bg: '#0a0a0a',
   node: '#161616',
@@ -38,14 +37,3 @@ export function nodeColor(allIds: string[], id: string): string {
   assert.defined(fallback, 'nodeColor: palette must be non-empty');
   return fromIdx ?? fallback;
 }
-
-export const STATUS_MAP: Record<
-  ConsistencyStatus,
-  { label: string; color: string; dot: string }
-> = {
-  idle:         { label: 'Idle',            color: C.text,   dot: C.text   },
-  consistent:   { label: 'Consistent',      color: C.green,  dot: C.green  },
-  inconsistent: { label: 'Inconsistent',    color: C.red,    dot: C.red    },
-  syncing:      { label: 'Syncing\u2026',   color: C.yellow, dot: C.yellow },
-  partitioned:  { label: 'All partitioned', color: C.red,    dot: C.dimRed },
-};

@@ -4,6 +4,7 @@
  */
 
 import { assert } from '@/@shared/assert';
+import type { SimLinkScheduler } from './sim-link-scheduler';
 
 type Job = {
   time: number;
@@ -11,7 +12,7 @@ type Job = {
   run: () => Promise<void>;
 };
 
-export class DeterministicScheduler {
+export class DeterministicScheduler implements SimLinkScheduler {
   private time = 0;
   private seq = 0;
   private readonly heap: Job[] = [];

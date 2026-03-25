@@ -7,6 +7,9 @@ import {
 import { InMemoryPubSub } from '@/@shared/pub-sub/impl-in-memory';
 import { SqlClientImplBunSqlite } from '@/@shared/sql-client/impl-bun-sqlite';
 import { assert } from './@shared/assert';
+import { NodeCrashHandler } from './@shared/assert/crash/crash-handler/crash-handler-node';
+
+assert.registerCrashHandler(new NodeCrashHandler());
 
 const PORT = parseInt(process.env['PORT'] ?? '5001');
 assert.integer(PORT, 'PORT must be an integer');
@@ -75,7 +78,8 @@ const server = Bun.serve({
 
     if (url.pathname.startsWith(PATCHES_DB_BASE_URL)) {
       bunServer.timeout(req, 0);
-      return patchDbTransport.handleRequest(req)
+      return patchDbTransport
+        .handleRequest(req)
         .then(withCors)
         .catch((err: unknown) => {
           console.error('[sync-server] patchDbHandler failed:', err);

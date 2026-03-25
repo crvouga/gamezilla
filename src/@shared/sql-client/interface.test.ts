@@ -13,6 +13,7 @@ import {
 import { InMemoryPubSub } from '../pub-sub/impl-in-memory';
 import { SqlClientImplBunPostgres } from './impl-bun-postgres';
 import { SqlClientImplBunSqlite } from './impl-bun-sqlite';
+import { SqlClientImplSqlJs } from './impl-sql-js';
 import { SqlClientWithPubSub } from './impl-with-pub-sub';
 import type { SqlClient } from './interface';
 
@@ -24,6 +25,10 @@ async function loadImplementations(): Promise<
   { name: string; createClient: ClientFactory }[]
 > {
   const impls: { name: string; createClient: ClientFactory }[] = [
+    {
+      name: 'SqlClientImplSqlJs',
+      createClient: () => SqlClientImplSqlJs.openMemory(),
+    },
     {
       name: 'SqlClientImplBunSqlite',
       createClient: () =>

@@ -1,4 +1,5 @@
-import { crash } from './crash/crash';
+import { registerCrashHandler as addCrashHandler, crash } from './crash/crash';
+import type { CrashHandler } from './crash/crash-handler/crash-handler';
 import { ValidationError } from './validation-error';
 
 /**
@@ -18,6 +19,23 @@ export class Assert {
    */
   static crash(): Assert {
     return new Assert('crash');
+  }
+
+  /**
+   * Installs a {@link CrashHandler} for {@link Assert.crash} failures. Handlers are ordered by
+   * {@link CrashHandler.priority} (lower first); the first matching handler wins.
+   *
+   * @returns Disposer that removes this handler.
+   */
+  static registerCrashHandler(handler: CrashHandler): () => void {
+    return addCrashHandler(handler);
+  }
+
+  /**
+   * @see Assert.registerCrashHandler
+   */
+  registerCrashHandler(handler: CrashHandler): () => void {
+    return Assert.registerCrashHandler(handler);
   }
 
   private constructor(
