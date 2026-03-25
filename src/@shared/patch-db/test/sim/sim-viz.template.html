@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Patch DB — simulation timelines</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Fraunces', 'Georgia', 'serif'],
+            sans: ['Source Sans 3', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.26.9/babel.min.js"></script>
+  <style>
+    html, body, #root { height: 100%; margin: 0; }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+    .pan-scroll { cursor: grab; }
+    .pan-scroll.panning { cursor: grabbing; }
+  </style>
+</head>
+<body class="dark bg-slate-950 text-slate-100 font-sans antialiased overflow-hidden">
+  <div id="root"></div>
+  <script type="text/babel" data-presets="react">
+    const { useState, useMemo, useEffect, useRef, useCallback } = React;
+    const WALL_MS = 14000;
+
+    /* GEN_VIZ_SLOTS: the next two assignments are filled by generate-sim-viz.ts
+       (recordings JSON + dir label string). */
+    const RAW = __RECORDINGS_JSON__;
+    const DIR_LABEL = __DIR_LABEL__;
+
+    function sortRecordings(raw) {
+      const arr = Array.isArray(raw) ? raw.slice() : [];
+      arr.sort((a, b) => {
+        const ta = a.meta && a.meta.title ? a.meta.title : a.id;
+        const tb = b.meta && b.meta.title ? b.meta.title : b.id;
+        const c = String(ta).localeCompare(String(tb));
+        return c !== 0 ? c : a.id.localeCompare(b.id);
+      });
+      return arr;
+    }
+
+    function timeBounds(rec) {
+      let t0 = rec.startedAt;
+      let t1 = rec.endedAt;
+      for (const e of rec.events) {
+        if (e.time < t0) t0 = e.time;
+        if (e.time > t1) t1 = e.time;
+      }
+      if (t1 <= t0) t1 = t0 + 1;
+      return { t0, t1 };
+    }
+
+    function laneIndex(topology, ev) {
+      const order = [
+        ...topology.servers.map((s) => 'srv:' + s.id),
+        ...topology.clients.map((c) => 'cli:' + c.id),
+      ];
+      const idxFor = (key) => {
+        const i = order.indexOf(key);
+        return i >= 0 ? i : 0;
+      };
+      if (ev.type === 'topology') return -1;
+      if (ev.type === 'server_write') return idxFor('srv:' + ev.serverId);
+      if ('clientId' in ev) return idxFor('cli:' + ev.clientId);
+      return 0;
+    }
+
+    function evtClass(t) {
+      const m = {
+        client_write: 'fill-sky-400',
+        push_start: 'fill-amber-400',
+        push_success: 'fill-amber-400',
+        push_fail: 'fill-rose-400',
+        poll_start: 'fill-emerald-400',
+        poll_success: 'fill-emerald-400',
+        poll_fail: 'fill-rose-400',
+        network_op: 'fill-violet-400',
+        remote_read: 'fill-teal-400',
+        remote_write: 'fill-teal-400',
+        partition: 'fill-rose-400',
+        heal: 'fill-emerald-400',
+        invalidation_scheduled: 'fill-slate-400',
+        invalidation_delivered: 'fill-slate-400',
+        invalidation_dropped: 'fill-slate-400',
+        subscribe: 'fill-sky-300',
+        unsubscribe: 'fill-sky-300',
+        server_write: 'fill-amber-500',
+        sync_error: 'fill-rose-500',
+      };
+      return m[t] || 'fill-violet-400';
+    }
+
+    function recLabel(r) {
+      return r.meta && r.meta.title ? r.meta.title : r.id;
+    }
+
+    function recSummaryLine(r) {
+      const s = r.topology.servers.length;
+      const c = r.topology.clients.length;
+      const parts = [s + ' srv · ' + c + ' cli · ' + r.events.length + ' events'];
+      if (r.meta && r.meta.source && r.meta.source.testName) parts.push(r.meta.source.testName);
+      return parts.join(' — ');
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function LegendDot({ color }) {
+      return <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: color }} />;
+    }
+
+    function HeroChips({ rec }) {
+      const chips = [];
+      const ids = rec.topology.servers.map((x) => x.id).join(', ');
+      const cid = rec.topology.clients.map((x) => x.id + '→' + x.serverId).join(', ');
+      const push = (label, value) => chips.push({ label, value });
+
+      push('Servers', ids || '—');
+      push('Clients', cid || '—');
+      if (rec.meta && rec.meta.source) {
+        const src = rec.meta.source;
+        if (src.suite) push('Suite', src.suite);
+        if (src.testFile) {
+          const p = src.testFile.split('/');
+          push('File', p[p.length - 1] || src.testFile);
+        }
+        if (src.testName) push('Test', src.testName);
+      }
+      push('Recording id', rec.id.slice(0, 8) + '…');
+
+      return (
+        <div className="mt-2 flex flex-wrap gap-2">
+          {chips.map((c) => (
+            <span
+              key={c.label}
+              className="rounded-full border border-slate-700 bg-white/5 px-2.5 py-1 text-[0.68rem] text-slate-400"
+            >
+              <strong className="font-semibold text-slate-200">{escapeHtml(c.label)}</strong>{' '}
+              {escapeHtml(c.value)}
+            </span>
+          ))}
+        </div>
+      );
+    }
+
+    function TimelineSvg({
+      rec,
+      tPlay,
+      scale,
+      panX,
+      panY,
+      selectedEventSeq,
+      onSelectSeq,
+      onPointerHover,
+    }) {
+      const topology = rec.topology;
+      const servers = topology.servers;
+      const clients = topology.clients;
+      const laneLabels = [
+        ...servers.map((s) => 'Server ' + s.id),
+        ...clients.map((c) => 'Client ' + c.id),
+      ];
+      const laneCount = laneLabels.length;
+      const { t0, t1 } = timeBounds(rec);
+      const duration = t1 - t0;
+      const laneH = 44;
+      const topPad = 36;
+      const leftPad = 120;
+      const rightPad = 40;
+      const wTime = Math.max(800, duration * scale) + leftPad + rightPad;
+      const h = topPad + laneCount * laneH + 24;
+
+      const xAt = (t) => leftPad + ((t - t0) / duration) * (wTime - leftPad - rightPad);
+      const xPlay = xAt(tPlay);
+
+      const markers = (
+        <defs>
+          <marker id="arrowOrange" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 z" fill="#f59e0b" />
+          </marker>
+          <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 z" fill="#34d399" />
+          </marker>
+        </defs>
+      );
+
+      const elements = [];
+
+      const partState = {};
+      for (let ei = 0; ei < rec.events.length; ei++) {
+        const e = rec.events[ei];
+        if (e.type === 'partition' && e.clientId) partState[e.clientId] = e.time;
+        if (e.type === 'heal' && e.clientId && partState[e.clientId] != null) {
+          const cid = e.clientId;
+          const xEnd = Math.min(xAt(e.time), xPlay);
+          const li = laneIndex(topology, { type: 'partition', clientId: cid });
+          const y = topPad + li * laneH;
+          const x0 = xAt(partState[cid]);
+          if (x0 < xPlay) {
+            elements.push(
+              <rect
+                key={'part-' + e.seq}
+                className="fill-rose-400/20"
+                x={Math.min(x0, xEnd)}
+                y={y + 4}
+                width={Math.abs(xEnd - Math.min(x0, xPlay))}
+                height={laneH - 8}
+                opacity={xAt(e.time) > xPlay ? 0.35 : 1}
+              />
+            );
+          }
+          partState[cid] = null;
+        }
+      }
+
+      const subs = {};
+      for (let ej = 0; ej < rec.events.length; ej++) {
+        const ev2 = rec.events[ej];
+        if (ev2.type === 'subscribe' && ev2.clientId) {
+          subs[ev2.clientId + '|' + ev2.mode + '|' + ev2.queryKey] = ev2.time;
+        }
+        if (ev2.type === 'unsubscribe' && ev2.clientId) {
+          const k = ev2.clientId + '|' + ev2.mode + '|' + ev2.queryKey;
+          if (subs[k] != null) {
+            const li2 = laneIndex(topology, ev2);
+            const y2 = topPad + li2 * laneH;
+            const xs0 = xAt(subs[k]);
+            const xs1 = Math.min(xAt(ev2.time), xPlay);
+            if (xs0 < xPlay) {
+              elements.push(
+                <rect
+                  key={'sub-' + ev2.seq}
+                  className="fill-emerald-400/15"
+                  x={Math.min(xs0, xs1)}
+                  y={y2 + 10}
+                  width={Math.abs(xs1 - xs0)}
+                  height={laneH - 20}
+                  opacity={xAt(ev2.time) > xPlay ? 0.4 : 1}
+                />
+              );
+            }
+            subs[k] = null;
+          }
+        }
+      }
+
+      for (let li3 = 0; li3 < laneCount; li3++) {
+        const y3 = topPad + li3 * laneH;
+        elements.push(
+          <rect
+            key={'lane-' + li3}
+            className="fill-slate-800/80"
+            x={0}
+            y={y3}
+            width={wTime}
+            height={laneH}
+            opacity={li3 % 2 ? 0.5 : 0.35}
+          />
+        );
+        elements.push(
+          <line
+            key={'ln-' + li3}
+            className="stroke-slate-700"
+            strokeWidth={1}
+            x1={0}
+            x2={wTime}
+            y1={y3 + laneH}
+            y2={y3 + laneH}
+          />
+        );
+        elements.push(
+          <text
+            key={'lb-' + li3}
+            className="fill-slate-100 text-[11px] font-semibold"
+            x={8}
+            y={y3 + laneH / 2 + 4}
+          >
+            {laneLabels[li3]}
+          </text>
+        );
+      }
+
+      const ticks = Math.min(12, Math.ceil(duration / 10) + 1);
+      for (let ti = 0; ti <= ticks; ti++) {
+        const tt = t0 + (duration * ti) / ticks;
+        const xx = xAt(tt);
+        elements.push(
+          <line
+            key={'tk-' + ti}
+            className="stroke-slate-700/80"
+            strokeWidth={0.5}
+            x1={xx}
+            x2={xx}
+            y1={topPad - 6}
+            y2={h - 8}
+          />
+        );
+        elements.push(
+          <text key={'tl-' + ti} className="fill-slate-500 text-[10px]" x={xx - 12} y={topPad - 10}>
+            {String(Math.round(tt - t0))}
+          </text>
+        );
+      }
+
+      for (let ek = 0; ek < rec.events.length; ek++) {
+        const e3 = rec.events[ek];
+        if (e3.type === 'push_success' && e3.clientId && e3.time <= tPlay) {
+          const cli = clients.find((c) => c.id === e3.clientId);
+          if (!cli) continue;
+          const si = servers.findIndex((s) => s.id === cli.serverId);
+          const ci = servers.length + clients.findIndex((c) => c.id === e3.clientId);
+          if (si < 0 || ci < 0) continue;
+          const yS = topPad + si * laneH + laneH / 2;
+          const yC = topPad + ci * laneH + laneH / 2;
+          const xa = xAt(e3.time);
+          elements.push(
+            <path
+              key={'arrp-' + e3.seq}
+              className="fill-none stroke-amber-400"
+              strokeWidth={1.5}
+              markerEnd="url(#arrowOrange)"
+              opacity={0.9}
+              d={'M' + xa + ',' + yC + ' L' + xa + ',' + yS}
+            />
+          );
+        }
+        if (e3.type === 'poll_success' && e3.clientId && e3.time <= tPlay) {
+          const cliP = clients.find((c) => c.id === e3.clientId);
+          if (!cliP) continue;
+          const siP = servers.findIndex((s) => s.id === cliP.serverId);
+          const ciP = servers.length + clients.findIndex((c) => c.id === e3.clientId);
+          if (siP < 0 || ciP < 0) continue;
+          const ySp = topPad + siP * laneH + laneH / 2;
+          const yCp = topPad + ciP * laneH + laneH / 2;
+          const xaP = xAt(e3.time);
+          elements.push(
+            <path
+              key={'arrl-' + e3.seq}
+              className="fill-none stroke-emerald-400"
+              strokeWidth={1.5}
+              markerEnd="url(#arrowGreen)"
+              opacity={0.9}
+              d={'M' + xaP + ',' + ySp + ' L' + xaP + ',' + yCp}
+            />
+          );
+        }
+        if (e3.type === 'invalidation_delivered' && e3.clientId && e3.time <= tPlay) {
+          const li4 = laneIndex(topology, e3);
+          const prev = rec.events.filter(
+            (x) => x.seq < e3.seq && x.type === 'invalidation_scheduled' && x.clientId === e3.clientId
+          );
+          const sch = prev.length ? prev[prev.length - 1] : null;
+          if (sch && sch.time <= tPlay) {
+            const y4 = topPad + li4 * laneH + laneH / 2;
+            const x0b = xAt(sch.time);
+            const x1b = xAt(e3.time);
+            elements.push(
+              <path
+                key={'inv-' + e3.seq}
+                className="fill-none stroke-slate-400 opacity-85"
+                strokeWidth={1}
+                strokeDasharray="4 3"
+                d={'M' + x0b + ',' + (y4 + 6) + ' Q' + (x0b + x1b) / 2 + ',' + (y4 - 14) + ' ' + x1b + ',' + y4}
+              />
+            );
+          }
+        }
+      }
+
+      const events = rec.events.filter((e) => e.type !== 'topology');
+      let lastPastSeq = -1;
+      for (const ev3 of events) {
+        if (ev3.time <= tPlay) lastPastSeq = ev3.seq;
+      }
+
+      for (const ev3 of events) {
+        const li5 = laneIndex(topology, ev3);
+        if (li5 < 0) continue;
+        const past = ev3.time <= tPlay;
+        const y5 = topPad + li5 * laneH + laneH / 2;
+        const x5 = xAt(ev3.time);
+        const op = past ? '1' : '0.22';
+        const boost = past && selectedEventSeq === ev3.seq;
+        const isFail = ev3.type === 'push_fail' || ev3.type === 'poll_fail' || ev3.type === 'sync_error';
+        const isLine = ev3.type === 'partition' || ev3.type === 'heal';
+
+        const commonHandlers = {
+          onClick: (ev) => {
+            ev.stopPropagation();
+            onSelectSeq(ev3.seq);
+          },
+          onMouseEnter: (ev) =>
+            onPointerHover({
+              text: ev3.type + ' @t=' + ev3.time + ' seq=' + ev3.seq,
+              x: ev.clientX,
+              y: ev.clientY,
+            }),
+          onMouseLeave: () => onPointerHover(null),
+        };
+
+        if (isLine) {
+          elements.push(
+            <line
+              key={'ev-' + ev3.seq}
+              stroke={ev3.type === 'partition' ? '#f87171' : '#34d399'}
+              strokeWidth={2}
+              x1={x5}
+              x2={x5}
+              y1={topPad + li5 * laneH + 4}
+              y2={topPad + li5 * laneH + laneH - 4}
+              opacity={op}
+              className="cursor-pointer transition-opacity duration-150"
+              data-seq={ev3.seq}
+              {...commonHandlers}
+            />
+          );
+        } else if (isFail) {
+          elements.push(
+            <text
+              key={'ev-' + ev3.seq}
+              x={x5 - 5}
+              y={y5 + 4}
+              fill="#f87171"
+              fontWeight="bold"
+              opacity={op}
+              className="cursor-pointer"
+              {...commonHandlers}
+            >
+              ✕
+            </text>
+          );
+        } else {
+          let r = ev3.type === 'network_op' && ev3.phase === 'begin' ? 3 : 5;
+          if (past && ev3.seq === lastPastSeq && selectedEventSeq == null) r += 1.5;
+          elements.push(
+            <circle
+              key={'ev-' + ev3.seq}
+              className={
+                evtClass(ev3.type) + ' cursor-pointer transition-all duration-150'
+              }
+              cx={x5}
+              cy={y5}
+              r={r}
+              opacity={op}
+              stroke={boost ? '#fff' : 'none'}
+              strokeWidth={boost ? 2 : 0}
+              {...commonHandlers}
+            />
+          );
+        }
+      }
+
+      elements.push(
+        <line
+          key="playhead"
+          className="stroke-white/85 pointer-events-none"
+          strokeWidth={1.5}
+          x1={xPlay}
+          x2={xPlay}
+          y1={topPad - 4}
+          y2={h - 4}
+        />
+      );
+
+      return (
+        <svg
+          className="block min-w-full"
+          xmlns="http://www.w3.org/2000/svg"
+          width={wTime}
+          height={h}
+          viewBox={'0 0 ' + wTime + ' ' + h}
+        >
+          {markers}
+          <g transform={'translate(' + panX + ',' + panY + ')'}>{elements}</g>
+        </svg>
+      );
+    }
+
+    function App() {
+      const recordings = useMemo(() => sortRecordings(RAW), []);
+      const [selectedIdx, setSelectedIdx] = useState(0);
+      const [selectedEventSeq, setSelectedEventSeq] = useState(null);
+      const [scale, setScale] = useState(2);
+      const [panX, setPanX] = useState(40);
+      const [panY, setPanY] = useState(20);
+      const [tPlay, setTPlay] = useState(0);
+      const [isPlaying, setIsPlaying] = useState(false);
+      const [loop, setLoop] = useState(true);
+      const [speed, setSpeed] = useState(1);
+      const [hoverTip, setHoverTip] = useState(null);
+      const tipTrackRef = useRef(false);
+      const [panningUi, setPanningUi] = useState(false);
+      const panRef = useRef({ x: 40, y: 20 });
+      const dragRef = useRef(null);
+      const rafRef = useRef(0);
+      const lastFtRef = useRef(0);
+
+      useEffect(() => {
+        panRef.current = { x: panX, y: panY };
+      }, [panX, panY]);
+
+      const rec = recordings[selectedIdx];
+      const bounds = useMemo(() => (rec ? timeBounds(rec) : { t0: 0, t1: 1 }), [rec]);
+      const { t0: tMin, t1: tMax } = bounds;
+      const span = tMax - tMin;
+
+      useEffect(() => {
+        setTPlay(tMin);
+        setSelectedEventSeq(null);
+      }, [selectedIdx, tMin]);
+
+      const updateScrubberValue = () =>
+        span > 0 ? Math.round(Math.max(0, Math.min(1000, ((tPlay - tMin) / span) * 1000))) : 0;
+
+      const scrubValue = updateScrubberValue();
+
+      useEffect(() => {
+        if (!isPlaying || !rec) return;
+        lastFtRef.current = 0;
+        const tick = (now) => {
+          if (!lastFtRef.current) lastFtRef.current = now;
+          const dt = now - lastFtRef.current;
+          lastFtRef.current = now;
+          const logicalPerReal = (span / WALL_MS) * speed;
+          setTPlay((tp) => {
+            let next = tp + dt * logicalPerReal;
+            if (next >= tMax) {
+              if (loop) return tMin;
+              setIsPlaying(false);
+              return tMax;
+            }
+            return next;
+          });
+          rafRef.current = requestAnimationFrame(tick);
+        };
+        rafRef.current = requestAnimationFrame(tick);
+        return () => {
+          cancelAnimationFrame(rafRef.current);
+          lastFtRef.current = 0;
+        };
+      }, [isPlaying, rec, span, tMin, tMax, loop, speed]);
+
+      useEffect(() => {
+        function up() {
+          dragRef.current = null;
+          setPanningUi(false);
+        }
+        function move(e) {
+          const d = dragRef.current;
+          if (!d) return;
+          setPanX(d.px + (e.clientX - d.x));
+          setPanY(d.py + (e.clientY - d.y));
+        }
+        window.addEventListener('mouseup', up);
+        window.addEventListener('mousemove', move);
+        return () => {
+          window.removeEventListener('mouseup', up);
+          window.removeEventListener('mousemove', move);
+        };
+      }, []);
+
+      useEffect(() => {
+        function onKey(e) {
+          const el = document.activeElement;
+          if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT')) return;
+          if (e.code === 'Space') {
+            e.preventDefault();
+            setIsPlaying((p) => !p);
+            return;
+          }
+          if (!rec) return;
+          const evs2 = rec.events.filter((x) => x.type !== 'topology');
+          if (!evs2.length) return;
+          const sp = tMax - tMin;
+          if (e.key === 'ArrowLeft') {
+            setIsPlaying(false);
+            setTPlay((tp) => Math.max(tMin, tp - sp * 0.02));
+          } else if (e.key === 'ArrowRight') {
+            setIsPlaying(false);
+            setTPlay((tp) => Math.min(tMax, tp + sp * 0.02));
+          }
+        }
+        document.addEventListener('keydown', onKey);
+        return () => document.removeEventListener('keydown', onKey);
+      }, [rec, tMin, tMax]);
+
+      useEffect(() => {
+        function move(e) {
+          if (!tipTrackRef.current) return;
+          setHoverTip((h) => (h ? { ...h, x: e.clientX, y: e.clientY } : null));
+        }
+        window.addEventListener('mousemove', move);
+        return () => window.removeEventListener('mousemove', move);
+      }, []);
+
+      const onWheel = useCallback(
+        (e) => {
+          e.preventDefault();
+          const d = e.deltaY > 0 ? -0.15 : 0.15;
+          setScale((s) => Math.min(12, Math.max(0.3, s * (1 + d))));
+        },
+        []
+      );
+
+      const selectedEventJson = useMemo(() => {
+        if (selectedEventSeq == null || !rec) return '';
+        const evFound = rec.events.find((x) => x.seq === selectedEventSeq);
+        return evFound ? JSON.stringify(evFound, null, 2) : '';
+      }, [rec, selectedEventSeq]);
+
+      const onSelectRecording = (i) => {
+        setSelectedIdx(i);
+        setSelectedEventSeq(null);
+        setIsPlaying(false);
+      };
+
+      if (!recordings.length) {
+        return (
+          <div className="flex h-full flex-col items-center justify-center gap-4 text-slate-400">
+            <p className="font-display text-xl text-slate-200">No recordings</p>
+            <p className="text-sm">
+              Run <code className="rounded bg-slate-800 px-2 py-0.5 text-amber-200">bun run test:viz</code> first.
+            </p>
+          </div>
+        );
+      }
+
+      return (
+        <div className="flex h-full flex-col">
+          <header className="flex shrink-0 flex-wrap items-center gap-4 border-b border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 px-5 py-2.5">
+            <h1 className="font-display text-lg font-semibold tracking-tight text-slate-100">Patch DB sim</h1>
+            <span className="text-sm text-slate-500">
+              Recordings: <span className="text-slate-400">{DIR_LABEL}</span>
+            </span>
+            <span className="min-w-2 flex-1" />
+            <span className="text-sm text-slate-500">
+              <kbd className="rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5 text-xs">Space</kbd> play/pause ·{' '}
+              <kbd className="rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5 text-xs">←</kbd>
+              <kbd className="rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5 text-xs">→</kbd> step · wheel zoom · drag pan
+            </span>
+          </header>
+
+          <div className="flex min-h-0 flex-1">
+            <aside className="w-[300px] shrink-0 overflow-y-auto border-r border-slate-800 bg-slate-900/80">
+              <h2 className="px-[18px] pb-2 pt-3.5 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                Scenarios
+              </h2>
+              <ul className="list-none space-y-1.5 px-2.5 pb-5">
+                {recordings.map((r, i) => (
+                  <li key={r.id}>
+                    <button
+                      type="button"
+                      onClick={() => onSelectRecording(i)}
+                      className={
+                        'w-full rounded-[10px] border px-3.5 py-3 text-left transition-colors ' +
+                        (i === selectedIdx
+                          ? 'border-sky-500/80 bg-sky-500/10'
+                          : 'border-transparent hover:bg-white/5')
+                      }
+                    >
+                      <div className="text-[0.92rem] font-semibold leading-snug text-slate-100">{recLabel(r)}</div>
+                      <div className="mt-1.5 break-words text-[0.72rem] text-slate-500">{recSummaryLine(r)}</div>
+                      <div className="mt-1 font-mono text-[0.65rem] text-slate-500 opacity-75">{r.id}</div>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </aside>
+
+            <div className="flex min-w-0 flex-1 flex-col bg-slate-950">
+              {rec && (
+                <section className="shrink-0 border-b border-slate-800 bg-gradient-to-b from-slate-800/40 to-transparent px-6 py-4">
+                  <h2 className="font-display text-2xl font-semibold tracking-tight text-slate-50">{recLabel(rec)}</h2>
+                  {rec.meta && rec.meta.intent && (
+                    <p className="mt-2 max-w-prose text-sm leading-relaxed text-slate-400">{rec.meta.intent}</p>
+                  )}
+                  {rec.meta && rec.meta.description && (
+                    <p className="mt-2 max-w-[80ch] text-[0.82rem] leading-relaxed text-slate-300/90">{rec.meta.description}</p>
+                  )}
+                  <HeroChips rec={rec} />
+                </section>
+              )}
+
+              <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-slate-800 bg-slate-900/80 px-6 py-2.5">
+                <button
+                  type="button"
+                  aria-pressed={isPlaying}
+                  onClick={() => setIsPlaying((p) => !p)}
+                  className="rounded-lg border border-slate-700 bg-sky-500/15 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:bg-sky-500/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
+                >
+                  {isPlaying ? 'Pause' : 'Play'}
+                </button>
+                <input
+                  type="range"
+                  min={0}
+                  max={1000}
+                  value={scrubValue}
+                  aria-label="Timeline"
+                  className="h-2 min-w-[120px] max-w-md flex-1 accent-sky-400"
+                  onChange={(e) => {
+                    setIsPlaying(false);
+                    const p = Number(e.target.value) / 1000;
+                    setTPlay(tMin + p * span);
+                  }}
+                />
+                <label className="flex cursor-pointer items-center gap-1.5 text-sm text-slate-400">
+                  <input type="checkbox" checked={loop} onChange={(e) => setLoop(e.target.checked)} className="accent-sky-400" />
+                  Loop
+                </label>
+                <label className="flex items-center gap-2 text-sm text-slate-400">
+                  Speed
+                  <select
+                    value={String(speed)}
+                    aria-label="Playback speed"
+                    className="rounded-md border border-slate-700 bg-slate-800 px-2 py-1.5 text-sm text-slate-100"
+                    onChange={(e) => setSpeed(Number(e.target.value))}
+                  >
+                    <option value="0.5">0.5×</option>
+                    <option value="1">1×</option>
+                    <option value="2">2×</option>
+                  </select>
+                </label>
+                <span className="min-w-[7.5rem] tabular-nums text-sm text-slate-500">
+                  t = {Math.round(tPlay - tMin)} / {Math.round(span)}
+                </span>
+              </div>
+
+              <div className="flex min-h-0 min-w-0 flex-1">
+                <aside className="w-36 shrink-0 overflow-y-auto border-r border-slate-800 bg-slate-900/80 p-3.5 text-[0.72rem] text-slate-500">
+                  <h3 className="mb-2.5 text-[0.65rem] font-normal uppercase tracking-widest text-slate-500">Legend</h3>
+                  <div className="space-y-2">
+                    {[
+                      ['#38bdf8', 'Local write'],
+                      ['#f59e0b', 'Push'],
+                      ['#34d399', 'Poll'],
+                      ['#e2e8f0', 'Network / remote'],
+                      ['#f87171', 'Failure / sync_error'],
+                      ['rgba(248,113,113,0.6)', 'Partition'],
+                      ['rgba(52,211,153,0.7)', 'Heal'],
+                      ['#94a3b8', 'Invalidation'],
+                      ['#7dd3fc', 'Subscribe'],
+                      ['rgba(52,211,153,0.15)', 'Sub window'],
+                      ['rgba(248,113,113,0.22)', 'Partition span'],
+                    ].map(([c, lab]) => (
+                      <div key={lab} className="flex items-center gap-2">
+                        <LegendDot color={c} />
+                        <span>{lab}</span>
+                      </div>
+                    ))}
+                  </div>
+                </aside>
+
+                <div
+                  className={'pan-scroll min-h-0 min-w-0 flex-1 overflow-auto ' + (panningUi ? 'panning' : '')}
+                  onMouseDown={(e) => {
+                    if (e.button !== 0) return;
+                    dragRef.current = {
+                      x: e.clientX,
+                      y: e.clientY,
+                      px: panRef.current.x,
+                      py: panRef.current.y,
+                    };
+                    setPanningUi(true);
+                  }}
+                  onWheel={onWheel}
+                >
+                  {rec && (
+                    <TimelineSvg
+                      rec={rec}
+                      tPlay={tPlay}
+                      scale={scale}
+                      panX={panX}
+                      panY={panY}
+                      selectedEventSeq={selectedEventSeq}
+                      onSelectSeq={(seq) => setSelectedEventSeq(seq)}
+                      onPointerHover={(payload) => {
+                        tipTrackRef.current = Boolean(payload);
+                        setHoverTip(payload);
+                      }}
+                    />
+                  )}
+                </div>
+              </div>
+
+              <div className="h-44 shrink-0 overflow-auto border-t border-slate-800 bg-slate-900 p-4 font-mono text-[11px] leading-relaxed text-slate-300">
+                {selectedEventJson
+                  ? selectedEventJson
+                  : 'Scrub or play the timeline, then click an event for JSON.'}
+              </div>
+            </div>
+          </div>
+
+          {hoverTip && (
+            <div
+              className="pointer-events-none fixed z-[100] max-w-sm rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs shadow-xl"
+              style={{ left: hoverTip.x + 14, top: hoverTip.y + 14 }}
+            >
+              {hoverTip.text}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
