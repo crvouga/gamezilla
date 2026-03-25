@@ -59,10 +59,14 @@ export class SimulatedPatchDbClientTransport implements PatchDbClientTransport {
       const out = await this.server.write(patches);
       if (this.recording) {
         const { recorder, clientId, getTime } = this.recording;
+        const writeSummaries = summarizePatchInputs(patches);
+        // #region agent log
+        fetch('http://127.0.0.1:7361/ingest/941b0c72-7feb-4dff-9211-7ec92eb2cf5b',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dffa91'},body:JSON.stringify({sessionId:'dffa91',location:'simulated-client-transport.ts:write',message:'remote_write summaries after filter',data:{clientId,summaries:writeSummaries.map(s=>({entityId:s.entityId,attrKeys:s.attributeKeys})),rawAttrKeys:patches.map(p=>Object.keys(p.attributes??{}))},timestamp:Date.now(),hypothesisId:'H1'})}).catch(()=>{});
+        // #endregion
         recorder.emit({
           type: 'remote_write',
           clientId,
-          summaries: summarizePatchInputs(patches),
+          summaries: writeSummaries,
           returnedPatchCount: out.length,
           time: getTime(),
         });

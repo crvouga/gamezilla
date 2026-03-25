@@ -243,11 +243,16 @@ export type SimEventInput = {
 export function summarizePatchInputs(
   patches: PatchInput[]
 ): PatchInputSummary[] {
-  return patches.map((p) => ({
-    entityId: p.entityId,
-    entityType: p.entityType,
-    attributeKeys: Object.keys(p.attributes ?? {}),
-  }));
+  return patches.map((p) => {
+    const prefix = p.entityType + '/';
+    return {
+      entityId: p.entityId,
+      entityType: p.entityType,
+      attributeKeys: Object.keys(p.attributes ?? {}).filter((k) =>
+        k.startsWith(prefix)
+      ),
+    };
+  });
 }
 
 export function summarizeQueries(queries: PatchesDbQuery[]): QuerySummary[] {

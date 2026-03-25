@@ -72,6 +72,7 @@ export function replayNodeStates(rec: SimRecording, count: number): Snapshot {
       }
       case 'remote_read':
         cliPoll[e.clientId!] = { results: e.results ?? [] };
+        if (e.summaries) mergeSummariesInto(cliS[e.clientId!]!, e.summaries);
         break;
       case 'partition':
         cliPart[e.clientId!] = true;
