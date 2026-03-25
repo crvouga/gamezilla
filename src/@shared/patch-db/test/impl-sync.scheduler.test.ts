@@ -107,6 +107,10 @@ describe('SyncPatchesDb scheduler hooks', () => {
     });
 
     expect(scheduleCalls).toBe(1);
+    assert.defined(
+      capturedMs,
+      'pushScheduler should receive pushIntervalMs from options'
+    );
     assert.equals(
       capturedMs,
       1234,

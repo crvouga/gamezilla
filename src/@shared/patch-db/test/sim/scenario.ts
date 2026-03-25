@@ -9,7 +9,13 @@ import {
   type SyncErrorEvent,
   SyncPatchesDb,
 } from '../../impl-sync';
-import type { PatchesDb } from '../../interface';
+import type {
+  Patch,
+  PatchInput,
+  PatchesDb,
+  PatchesDbQuery,
+  PatchesDbResult,
+} from '../../interface';
 import { PatchDbImplSyncHost } from '../../transport/impl-sync-host';
 import { DeterministicScheduler } from './deterministic-scheduler';
 import { NetworkLink } from './network-link';
@@ -20,6 +26,16 @@ import {
   simServerPortFromSyncHost,
 } from './server-port';
 import { SimulatedPatchDbClientTransport } from './simulated-client-transport';
+
+const SYNC_SUBSCRIPTION_MICROTASK_ROUNDS = 32;
+
+async function flushSyncSubscriptionMicrotasks(
+  rounds: number = SYNC_SUBSCRIPTION_MICROTASK_ROUNDS
+): Promise<void> {
+  for (let i = 0; i < rounds; i++) {
+    await Promise.resolve();
+  }
+}
 
 export type ScenarioServerSpec = {
   id: string;
@@ -52,24 +68,53 @@ type ClientRuntime = {
   link: NetworkLink;
 };
 
-export type PatchDbSimClient = {
+function createSimLink(link: NetworkLink): SimLink {
+  return {
+    partition: () => link.setPartitioned(true),
+    heal: () => link.setPartitioned(false),
+    failNextRead: (err?: Error) =>
+      link.failNextReadWith(err ?? new Error('simulated read failure')),
+    failNextWrite: (err?: Error) =>
+      link.failNextWriteWith(err ?? new Error('simulated write failure')),
+    setLatency: (ms: number) => link.setReadWriteLatencyMs(ms),
+    setInvalidationLatency: (ms: number) => link.setInvalidationLatencyMs(ms),
+    isPartitioned: () => link.isPartitioned(),
+  };
+}
+
+export type SimLink = {
+  partition(): void;
+  heal(): void;
+  failNextRead(err?: Error): void;
+  failNextWrite(err?: Error): void;
+  setLatency(ms: number): void;
+  setInvalidationLatency(ms: number): void;
+  isPartitioned(): boolean;
+};
+
+export type SimClient = {
   id: string;
+  /** Write patches to local (unsynced). */
+  write(patches: PatchInput[]): Promise<Patch[]>;
+  /** Read from local db. */
+  read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]>;
+  /** Run one push cycle + flush microtasks. */
+  push(): Promise<void>;
+  /** Run one poll cycle + flush microtasks. */
+  poll(): Promise<void>;
+  subscribe: SyncPatchesDb['subscribe'];
+  link: SimLink;
+  /** Escape hatch: raw SyncPatchesDb (for edge-case tests). */
   syncDb: SyncPatchesDb;
-  localDb: PatchesDb;
-  remoteDb: PatchesDb;
-  transport: SimulatedPatchDbClientTransport;
-  runPush: () => Promise<void>;
-  runPoll: () => Promise<void>;
-  link: NetworkLink;
 };
 
-export type PatchDbSimServer = {
+export type SimServer = {
   id: string;
-  authority: PatchesDb;
-  pubSub: InMemoryPubSub;
+  /** The authority PatchesDb (write here to simulate other clients). */
+  db: PatchesDb;
 };
 
-export class PatchDbScenarioBuilder {
+class PatchDbScenarioBuilder {
   private readonly servers: ScenarioServerSpec[] = [];
   private readonly clients: ScenarioClientSpec[] = [];
 
@@ -86,7 +131,7 @@ export class PatchDbScenarioBuilder {
     return this;
   }
 
-  async build(): Promise<BuiltPatchDbScenario> {
+  async build(): Promise<Sim> {
     return buildScenario(this.servers, this.clients);
   }
 }
@@ -95,68 +140,30 @@ export function patchDbScenario(): PatchDbScenarioBuilder {
   return new PatchDbScenarioBuilder();
 }
 
-export class BuiltPatchDbScenario {
-  private readonly serverMap = new Map<string, ServerRuntime>();
-  private readonly clientMap = new Map<string, ClientRuntime>();
-  private readonly linkIndex = new Map<string, NetworkLink>();
-
+export class Sim {
   constructor(
+    /** Escape hatch for latency / deterministic time (advanced tests). */
     readonly scheduler: DeterministicScheduler,
-    servers: ServerRuntime[],
-    clientRuntimes: ClientRuntime[],
-    links: { key: string; link: NetworkLink }[]
-  ) {
-    for (const s of servers) this.serverMap.set(s.id, s);
-    for (const c of clientRuntimes) this.clientMap.set(c.id, c);
-    for (const { key, link } of links) this.linkIndex.set(key, link);
-  }
+    private readonly clientHandles: Map<string, SimClient>,
+    private readonly serverHandles: Map<string, SimServer>,
+    private readonly clientRuntimes: ClientRuntime[],
+    private readonly serverRuntimes: ServerRuntime[]
+  ) {}
 
-  private linkKey(clientId: string, serverId: string): string {
-    return `${clientId}→${serverId}`;
-  }
-
-  getServer(id: string): PatchDbSimServer {
-    const s = this.serverMap.get(id);
-    if (!s) throw new Error(`Unknown server id: ${id}`);
-    return { id: s.id, authority: s.backing, pubSub: s.pubSub };
-  }
-
-  getClient(id: string): PatchDbSimClient {
-    const c = this.clientMap.get(id);
+  client(id: string): SimClient {
+    const c = this.clientHandles.get(id);
     if (!c) throw new Error(`Unknown client id: ${id}`);
-    const link = this.linkIndex.get(this.linkKey(c.id, c.serverId));
-    if (!link) {
-      throw new Error(`Missing link for client ${c.id} server ${c.serverId}`);
-    }
-    return {
-      id: c.id,
-      syncDb: c.syncDb,
-      localDb: c.localDb,
-      remoteDb: c.remoteDb,
-      transport: c.transport,
-      runPush: () => c.syncDb.runPushNow(),
-      runPoll: () => c.syncDb.runPollNow(),
-      link,
-    };
+    return c;
   }
 
-  link(clientId: string, serverId: string): NetworkLink {
-    const k = this.linkKey(clientId, serverId);
-    const l = this.linkIndex.get(k);
-    if (!l) throw new Error(`No link for ${k}`);
-    return l;
-  }
-
-  async runUntilIdle(): Promise<void> {
-    await this.scheduler.drain();
-  }
-
-  async tick(): Promise<boolean> {
-    return this.scheduler.tick();
+  server(id: string): SimServer {
+    const s = this.serverHandles.get(id);
+    if (!s) throw new Error(`Unknown server id: ${id}`);
+    return s;
   }
 
   subscribeSyncErrors(listener: (event: SyncErrorEvent) => void): Unsubscribe {
-    const unsubs = [...this.clientMap.values()].map((c) =>
+    const unsubs = this.clientRuntimes.map((c) =>
       c.pubSub.subscribe(SYNC_ERROR_TOPIC, (msg: unknown) => {
         listener(msg as SyncErrorEvent);
       })
@@ -167,83 +174,22 @@ export class BuiltPatchDbScenario {
   }
 
   async destroy(): Promise<void> {
-    for (const c of this.clientMap.values()) {
+    for (const c of this.clientRuntimes) {
       c.syncDb.destroy();
       await c.sqlClient.disconnect();
     }
-    for (const s of this.serverMap.values()) {
+    for (const s of this.serverRuntimes) {
       await s.sql.disconnect();
     }
-    this.clientMap.clear();
-    this.serverMap.clear();
-    this.linkIndex.clear();
-  }
-}
-
-/**
- * Scripted steps for scenarios (partition, latency, flush, …). Execute with {@link PatchDbSimDSL.runWith}.
- */
-export class PatchDbSimDSL {
-  private readonly steps: ((
-    sim: BuiltPatchDbScenario
-  ) => void | Promise<void>)[] = [];
-
-  /** Block read/write + invalidation delivery on the link (like total partition). */
-  partition(clientId: string, serverId: string): this {
-    this.steps.push(async (sim) => {
-      sim.link(clientId, serverId).setPartitioned(true);
-    });
-    return this;
-  }
-
-  heal(clientId: string, serverId: string): this {
-    this.steps.push(async (sim) => {
-      sim.link(clientId, serverId).setPartitioned(false);
-    });
-    return this;
-  }
-
-  setReadWriteLatencyMs(clientId: string, serverId: string, ms: number): this {
-    this.steps.push(async (sim) => {
-      sim.link(clientId, serverId).setReadWriteLatencyMs(ms);
-    });
-    return this;
-  }
-
-  setInvalidationLatencyMs(
-    clientId: string,
-    serverId: string,
-    ms: number
-  ): this {
-    this.steps.push(async (sim) => {
-      sim.link(clientId, serverId).setInvalidationLatencyMs(ms);
-    });
-    return this;
-  }
-
-  flush(): this {
-    this.steps.push((sim) => sim.runUntilIdle());
-    return this;
-  }
-
-  runSteps(n: number): this {
-    this.steps.push(async (sim) => {
-      for (let i = 0; i < n; i++) {
-        await sim.tick();
-      }
-    });
-    return this;
-  }
-
-  async runWith(sim: BuiltPatchDbScenario): Promise<void> {
-    for (const step of this.steps) await step(sim);
+    this.clientHandles.clear();
+    this.serverHandles.clear();
   }
 }
 
 async function buildScenario(
   serverSpecs: ScenarioServerSpec[],
   clientSpecs: ScenarioClientSpec[]
-): Promise<BuiltPatchDbScenario> {
+): Promise<Sim> {
   if (serverSpecs.length === 0) {
     throw new Error('patchDbScenario: add at least one .server()');
   }
@@ -284,7 +230,6 @@ async function buildScenario(
   }
 
   const clientRuntimes: ClientRuntime[] = [];
-  const links: { key: string; link: NetworkLink }[] = [];
 
   for (const cs of clientSpecs) {
     const server = serverById.get(cs.serverId);
@@ -321,8 +266,40 @@ async function buildScenario(
       link,
     };
     clientRuntimes.push(cr);
-    links.push({ key: `${cs.id}→${cs.serverId}`, link });
   }
 
-  return new BuiltPatchDbScenario(scheduler, servers, clientRuntimes, links);
+  const clientHandles = new Map<string, SimClient>();
+  for (const c of clientRuntimes) {
+    const simLink = createSimLink(c.link);
+    const handle: SimClient = {
+      id: c.id,
+      write: (patches) => c.syncDb.write(patches),
+      read: (queries) => c.syncDb.read(queries),
+      push: async () => {
+        await c.syncDb.runPushNow();
+        await flushSyncSubscriptionMicrotasks();
+      },
+      poll: async () => {
+        await c.syncDb.runPollNow();
+        await flushSyncSubscriptionMicrotasks();
+      },
+      subscribe: c.syncDb.subscribe,
+      link: simLink,
+      syncDb: c.syncDb,
+    };
+    clientHandles.set(c.id, handle);
+  }
+
+  const serverHandles = new Map<string, SimServer>();
+  for (const s of servers) {
+    serverHandles.set(s.id, { id: s.id, db: s.backing });
+  }
+
+  return new Sim(
+    scheduler,
+    clientHandles,
+    serverHandles,
+    clientRuntimes,
+    servers
+  );
 }
