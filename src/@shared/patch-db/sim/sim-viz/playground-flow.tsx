@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ReactFlow,
   Background,
+  Panel,
   useReactFlow,
   type Node,
   type Edge,
@@ -13,6 +14,7 @@ import {
 } from '@xyflow/react';
 
 import type { PlaygroundClientHandle, PlaygroundSim } from '../playground-sim';
+import { IconAutoLayout } from './icons';
 import { ServerNodePanel } from './server-node-panel';
 import { ClientNodePanel } from './client-node-panel';
 
@@ -129,6 +131,55 @@ function AutoFitOnClientChange({ count }: { count: number }) {
   return null;
 }
 
+function AutoLayoutPanel({ setNodes }: { setNodes: React.Dispatch<React.SetStateAction<Node[]>> }) {
+  const { fitView } = useReactFlow();
+
+  const handleAutoLayout = useCallback(() => {
+    setNodes((prev) => {
+      const serverNode = prev.find((n) => n.id === SERVER_NODE_ID);
+      const clientNodes = prev.filter((n) => n.id !== SERVER_NODE_ID);
+      const count = clientNodes.length;
+
+      const spacing = NODE_WIDTH + 40;
+      const totalWidth = Math.max(0, (count - 1) * spacing);
+
+      const laid: Node[] = [];
+
+      if (serverNode) {
+        laid.push({ ...serverNode, position: { x: 0, y: 0 } });
+      }
+
+      for (const [i, node] of clientNodes.entries()) {
+        laid.push({
+          ...node,
+          position: {
+            x: -totalWidth / 2 + i * spacing,
+            y: 450,
+          },
+        });
+      }
+
+      return laid;
+    });
+
+    setTimeout(() => fitView({ padding: 0.2, duration: 300 }), 50);
+  }, [setNodes, fitView]);
+
+  return (
+    <Panel position="bottom-left">
+      <button
+        type="button"
+        onClick={handleAutoLayout}
+        className="flex items-center gap-1.5 rounded-lg border border-white/15 bg-black/70 px-3 py-1.5 text-xs font-semibold text-white/70 backdrop-blur-md transition-colors hover:bg-white/10 hover:text-white/90"
+        title="Auto-layout nodes"
+      >
+        <IconAutoLayout size={14} />
+        Tidy
+      </button>
+    </Panel>
+  );
+}
+
 export function PlaygroundFlow({
   sim,
   pulseKey,
@@ -177,6 +228,7 @@ export function PlaygroundFlow({
     >
       <Background color="rgba(255,255,255,0.04)" gap={24} size={1} />
       <AutoFitOnClientChange count={sim.clients.length} />
+      <AutoLayoutPanel setNodes={setNodes} />
     </ReactFlow>
   );
 }

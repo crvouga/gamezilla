@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import {
   nextShapeOrder,
-  playgroundServerClearAllShapes,
   playgroundServerCreateShape,
   playgroundServerDeleteShape,
   playgroundServerRandomizeShape,
@@ -125,12 +124,12 @@ export function ServerNodePanel() {
           disabled={busy}
           onClick={() =>
             run(async () => {
-              animatePollAll();
-              await playgroundServerClearAllShapes(sim, entities);
+              await sim.serverSql.run('DELETE FROM patches');
+              await sim.serverSql.run('DELETE FROM snapshots');
             })
           }
-          className={`${btnSmall} ml-auto`}
-          title="Clear all shapes"
+          className={`${btnSmall} ml-auto hover:text-red-400`}
+          title="Wipe server database (simulate data loss)"
         >
           <IconClear />
         </button>

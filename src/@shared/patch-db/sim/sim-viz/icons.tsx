@@ -221,6 +221,47 @@ export function IconLaptop({ size = 18 }: { size?: number }) {
   );
 }
 
+export function IconAutoLayout({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" fill="none">
+      <rect
+        x={7}
+        y={2}
+        width={6}
+        height={5}
+        rx={1.2}
+        stroke="currentColor"
+        strokeWidth={1.5}
+      />
+      <rect
+        x={1}
+        y={13}
+        width={6}
+        height={5}
+        rx={1.2}
+        stroke="currentColor"
+        strokeWidth={1.5}
+      />
+      <rect
+        x={13}
+        y={13}
+        width={6}
+        height={5}
+        rx={1.2}
+        stroke="currentColor"
+        strokeWidth={1.5}
+      />
+      <path
+        d="M10 7v3M10 10H4v3M10 10h6v3"
+        stroke="currentColor"
+        strokeWidth={1.4}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function IconClock({ size = 14 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none">

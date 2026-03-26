@@ -5,7 +5,6 @@ import { PatchesDbToken, useEntities } from '../../../patch-db/react';
 import { SubscribablePatchesDbToken } from '../../../patch-db/subscribable';
 import {
   nextShapeOrder,
-  playgroundClearAllShapes,
   playgroundCreateShape,
   playgroundDeleteShape,
   playgroundRandomizeShape,
@@ -185,12 +184,12 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
           disabled={busy}
           onClick={() =>
             run(async () => {
-              animatePush();
-              await playgroundClearAllShapes(sim, client.id, entities);
+              await client.sqlClient.run('DELETE FROM patches');
+              await client.sqlClient.run('DELETE FROM snapshots');
             })
           }
-          className={btnSmall}
-          title="Clear all shapes"
+          className={`${btnSmall} hover:text-red-400`}
+          title="Wipe local database (simulate data loss)"
         >
           <IconClear />
         </button>
