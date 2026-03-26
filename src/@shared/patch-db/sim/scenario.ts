@@ -153,7 +153,7 @@ export type SimServer = {
 
 export type { SimRecordingMeta };
 
-class PatchDbScenarioBuilder {
+export class PatchDbScenarioBuilder {
   private readonly servers: ScenarioServerSpec[] = [];
   private readonly clients: ScenarioClientSpec[] = [];
   private recordingMeta: Partial<SimRecordingMeta> = {};
@@ -207,10 +207,6 @@ class PatchDbScenarioBuilder {
       hasMeta ? this.recordingMeta : undefined
     );
   }
-}
-
-export function patchDbScenario(): PatchDbScenarioBuilder {
-  return new PatchDbScenarioBuilder();
 }
 
 export class Sim {
@@ -324,7 +320,7 @@ async function buildScenario(
   initialRecordingMeta?: Partial<SimRecordingMeta>
 ): Promise<Sim> {
   if (serverSpecs.length === 0) {
-    throw new Error('patchDbScenario: add at least one .server()');
+    throw new Error('PatchDbScenarioBuilder: add at least one .server()');
   }
   const scheduler = new DeterministicScheduler();
   const recorder = isSimVizEnabled()

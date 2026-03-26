@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import { assert } from '../../assert';
-import { type Sim, patchDbScenario } from '../sim/scenario';
+import { type Sim, PatchDbScenarioBuilder } from '../sim/scenario';
 import { DELETED_CLAUSE } from './sync-engine/constants';
 
 describe('patch-db deterministic simulation', () => {
@@ -14,7 +14,7 @@ describe('patch-db deterministic simulation', () => {
   });
 
   test('server useSyncHost: poll after push merges server-side patches', async () => {
-    sim = await patchDbScenario()
+    sim = await new PatchDbScenarioBuilder()
       .meta({
         source: {
           suite: 'patch-db deterministic simulation',

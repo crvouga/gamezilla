@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import type { PatchesDbQuery } from '../../interface';
-import { patchDbScenario, type Sim } from '../../sim/scenario';
+import { PatchDbScenarioBuilder, type Sim } from '../../sim/scenario';
 import { DELETED_CLAUSE } from './constants';
 
 const VIZ_FILE = import.meta.path;
@@ -13,7 +13,7 @@ describe('SyncPatchesDb (data loss recovery)', () => {
   });
 
   test('server wipe + concurrent offline writes converge to same order', async () => {
-    sim = await patchDbScenario()
+    sim = await new PatchDbScenarioBuilder()
       .server('s')
       .client('a', { server: 's' })
       .client('b', { server: 's' })
@@ -40,7 +40,11 @@ describe('SyncPatchesDb (data loss recovery)', () => {
       {
         entityId: x,
         entityType: 'todoList',
-        attributes: { 'todoList/name': 'X', 'todoList/order': 0, 'todoList/createdAt': created },
+        attributes: {
+          'todoList/name': 'X',
+          'todoList/order': 0,
+          'todoList/createdAt': created,
+        },
       },
     ]);
     await a.push();
@@ -50,7 +54,11 @@ describe('SyncPatchesDb (data loss recovery)', () => {
       {
         entityId: y,
         entityType: 'todoList',
-        attributes: { 'todoList/name': 'Y', 'todoList/order': 1, 'todoList/createdAt': created },
+        attributes: {
+          'todoList/name': 'Y',
+          'todoList/order': 1,
+          'todoList/createdAt': created,
+        },
       },
     ]);
     await b.push();
@@ -70,14 +78,22 @@ describe('SyncPatchesDb (data loss recovery)', () => {
       {
         entityId: z,
         entityType: 'todoList',
-        attributes: { 'todoList/name': 'Z', 'todoList/order': 2, 'todoList/createdAt': created },
+        attributes: {
+          'todoList/name': 'Z',
+          'todoList/order': 2,
+          'todoList/createdAt': created,
+        },
       },
     ]);
     await b.write([
       {
         entityId: w,
         entityType: 'todoList',
-        attributes: { 'todoList/name': 'W', 'todoList/order': 2, 'todoList/createdAt': created },
+        attributes: {
+          'todoList/name': 'W',
+          'todoList/order': 2,
+          'todoList/createdAt': created,
+        },
       },
     ]);
 
@@ -109,7 +125,7 @@ describe('SyncPatchesDb (data loss recovery)', () => {
   });
 
   test('client and server data loss self-heals after enough sync rounds', async () => {
-    sim = await patchDbScenario()
+    sim = await new PatchDbScenarioBuilder()
       .meta({
         source: { suite: 'sync-engine (data loss recovery)' },
       })

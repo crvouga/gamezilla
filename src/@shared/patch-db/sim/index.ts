@@ -4,5 +4,5 @@ export {
   type SimLink,
   type SimRecordingMeta,
   type SimServer,
-  patchDbScenario,
+  PatchDbScenarioBuilder,
 } from './scenario';

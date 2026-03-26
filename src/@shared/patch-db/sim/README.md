@@ -6,7 +6,7 @@ In-memory SQLite + simulated transport + manual push/poll for sync tests.
 
 | Export           | Role |
 |------------------|------|
-| `patchDbScenario()` | Fluent builder → `Sim` |
+| `PatchDbScenarioBuilder` | Fluent builder → `Sim` |
 | `Sim`            | Scenario root: `client(id)`, `server(id)`, `subscribeSyncErrors`, `destroy`, escape `scheduler` |
 | `SimClient`      | `write` / `read`, `push` / `poll`, `subscribe`, `link`, `syncDb` |
 | `SimServer`      | `db` — write/read as server authority |
@@ -15,9 +15,9 @@ In-memory SQLite + simulated transport + manual push/poll for sync tests.
 ## Example
 
 ```ts
-import { patchDbScenario } from './sim/scenario';
+import { PatchDbScenarioBuilder } from './sim/scenario';
 
-const sim = await patchDbScenario()
+const sim = await new PatchDbScenarioBuilder()
   .server('s')
   .client('a', { server: 's' })
   .client('b', { server: 's' })

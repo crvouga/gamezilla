@@ -1,5 +1,5 @@
 import { afterEach, beforeEach } from 'bun:test';
-import { type Sim, patchDbScenario } from '../../sim/scenario';
+import { type Sim, PatchDbScenarioBuilder } from '../../sim/scenario';
 
 let sim: Sim;
 
@@ -14,7 +14,7 @@ export function replaceSim(next: Sim): void {
 
 export function registerSyncEngineHooks(): void {
   beforeEach(async () => {
-    sim = await patchDbScenario()
+    sim = await new PatchDbScenarioBuilder()
       .meta({
         source: { suite: 'sync-engine (single client)' },
       })

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach } from 'bun:test';
-import { patchDbScenario, type Sim } from '../../sim/scenario';
+import { PatchDbScenarioBuilder, type Sim } from '../../sim/scenario';
 
 let sim: Sim;
 
@@ -9,7 +9,7 @@ export function getTwoClientSim(): Sim {
 
 export function registerTwoClientSimHooks(): void {
   beforeEach(async () => {
-    sim = await patchDbScenario()
+    sim = await new PatchDbScenarioBuilder()
       .meta({
         source: { suite: 'sync-engine (two clients)' },
       })
