@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  ci:
+  check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -32,3 +32,57 @@ jobs:
 
       - name: Test
         run: bun test
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Generate router types
+        run: bunx expo customize tsconfig.json
+
+      - name: CDK deploy
+        working-directory: aws
+        run: npm ci && npx cdk deploy --require-approval never --outputs-file cdk-outputs.json
+
+      - name: Inject sync server URL and build web app
+        run: |
+          SYNC_URL=$(jq -r '.GamezillaStack.SyncServerUrl' aws/cdk-outputs.json)
+          WEB_BUCKET=$(jq -r '.GamezillaStack.WebAppBucketName' aws/cdk-outputs.json)
+          WEB_DIST=$(jq -r '.GamezillaStack.WebDistributionId' aws/cdk-outputs.json)
+          jq --arg url "$SYNC_URL" '.prod.PATCH_DB_SYNC_SERVER_URL = $url' public-config.json > tmp.json && mv tmp.json public-config.json
+          EXPO_PUBLIC_STAGE=prod bunx expo export -p web
+          aws s3 sync dist/ "s3://${WEB_BUCKET}/" --delete
+          aws cloudfront create-invalidation --distribution-id "$WEB_DIST" --paths "/*"
+          rm -rf dist/
+
+      - name: Build sim-viz and deploy
+        run: |
+          VIZ_BUCKET=$(jq -r '.GamezillaStack.SimVizBucketName' aws/cdk-outputs.json)
+          VIZ_DIST=$(jq -r '.GamezillaStack.SimVizDistributionId' aws/cdk-outputs.json)
+          bun run viz:build
+          aws s3 sync dist/ "s3://${VIZ_BUCKET}/" --delete
+          aws cloudfront create-invalidation --distribution-id "$VIZ_DIST" --paths "/*"

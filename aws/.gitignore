@@ -1,0 +1,35 @@
+# Compiled CloudFormation templates and assets
+cdk.out/
+*.cdk.staging
+
+# CDK context file
+cdk.context.json
+
+# CDK asset files (local asset cache)
+asset.*
+.assets.json
+
+# CDK deployment logs
+cdk*.log
+
+# Ignore .env files that may contain secrets
+.env
+.env.*
+
+# Ignore Node dependencies if generated inside aws/
+node_modules/
+
+# Ignore editor folders if present
+.idea/
+.vscode/
+
+# Ignore TypeScript build artifacts
+dist/
+lib/
+build/
+
+# Ignore AWS credentials/config if set up locally
+.aws/
+
+# Ignore macOS and system files
+.DS_Store

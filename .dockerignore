@@ -1,0 +1,13 @@
+aws/
+node_modules/
+.git/
+dist/
+.expo/
+web-build/
+ios/
+android/
+.sim-recordings/
+.cursor/
+**/.DS_Store
+pnpm-lock.yaml
+package-lock.json
