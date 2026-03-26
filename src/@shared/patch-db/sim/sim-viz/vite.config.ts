@@ -24,7 +24,7 @@ export default defineConfig({
     fs: { allow: [repoRoot, dir] },
   },
   build: {
-    outDir: path.join(repoRoot, 'sim-viz'),
+    outDir: path.join(repoRoot, 'dist'),
     emptyOutDir: true,
     sourcemap: true,
   },
