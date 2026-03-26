@@ -13,5 +13,12 @@
     "noUnusedParameters": true,
     "paths": { "@/*": ["./src/*"] }
   },
-  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
+  "exclude": [
+    "node_modules",
+    "aws/cdk.out",
+    "aws/node_modules",
+    "dist",
+    "web-build"
+  ]
 }

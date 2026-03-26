@@ -50,6 +50,10 @@ jobs:
             echo "::error title=Missing GitHub Actions secret::Repository secret AWS_SECRET_ACCESS_KEY is empty or unset. Add it under Settings → Secrets and variables → Actions."
             missing=1
           fi
+          if [ -z "${{ secrets.AWS_REGION }}" ]; then
+            echo "::error title=Missing GitHub Actions secret::Repository secret AWS_REGION is empty or unset. Add it under Settings → Secrets and variables → Actions."
+            missing=1
+          fi
           if [ "$missing" -ne 0 ]; then
             echo "::error::Deploy job is blocked: fix the secrets above, then re-run the workflow."
             exit 1
@@ -69,7 +73,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
