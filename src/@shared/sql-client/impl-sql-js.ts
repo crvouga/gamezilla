@@ -81,6 +81,23 @@ export class SqlClientImplSqlJs implements SqlClient {
     return new SqlClientImplSqlJs(db);
   }
 
+  static async openFromData(
+    data: Uint8Array,
+    config?: SqlJsInitConfig
+  ): Promise<SqlClientImplSqlJs> {
+    const initConfig = mergeSqlJsInitConfig(config);
+    if (sharedSqlJsPromise === null) {
+      sharedSqlJsPromise = initSqlJs(initConfig);
+    }
+    const SQL = await sharedSqlJsPromise;
+    const db = new SQL.Database(data);
+    return new SqlClientImplSqlJs(db);
+  }
+
+  exportData(): Uint8Array {
+    return this.db.export();
+  }
+
   connect(): Promise<void> {
     try {
       this.db.exec('SELECT 1');

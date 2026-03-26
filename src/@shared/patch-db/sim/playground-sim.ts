@@ -20,6 +20,21 @@ import {
 import { BrowserWallClockScheduler } from './sim-link-scheduler';
 import { SimulatedPatchDbClientTransport } from './simulated-client-transport';
 
+// ─── Snapshot types ───────────────────────────────────────────────────
+
+export type PlaygroundSimSnapshot = {
+  serverId: string;
+  serverDb: Uint8Array;
+  clients: PlaygroundClientSnapshot[];
+};
+
+export type PlaygroundClientSnapshot = {
+  id: string;
+  db: Uint8Array;
+  latencyMs: number;
+  partitioned: boolean;
+};
+
 const SYNC_SUBSCRIPTION_MICROTASK_ROUNDS = 32;
 
 async function flushSyncSubscriptionMicrotasks(
@@ -74,6 +89,7 @@ export type PlaygroundSim = {
   addClient(): Promise<PlaygroundClientHandle>;
   removeClient(id: string): Promise<void>;
   destroy(): Promise<void>;
+  takeSnapshot(): PlaygroundSimSnapshot;
 };
 
 export type CreatePlaygroundSimOptions = {
@@ -212,6 +228,23 @@ export async function createPlaygroundSim(
     clientRuntimes.length = 0;
   }
 
+  function takeSnapshot(): PlaygroundSimSnapshot {
+    const serverSqlJs = serverSql as SqlClientImplSqlJs;
+    return {
+      serverId,
+      serverDb: serverSqlJs.exportData(),
+      clients: clients.map((c) => {
+        const clientSqlJs = c.sqlClient as SqlClientImplSqlJs;
+        return {
+          id: c.id,
+          db: clientSqlJs.exportData(),
+          latencyMs: c.link.getLatency(),
+          partitioned: c.link.isPartitioned(),
+        };
+      }),
+    };
+  }
+
   return {
     serverId,
     scheduler,
@@ -223,6 +256,198 @@ export async function createPlaygroundSim(
     addClient,
     removeClient,
     destroy,
+    takeSnapshot,
+  };
+}
+
+/**
+ * Restore a sim from a previously taken snapshot.
+ * All SQLite databases are recreated from exported binary data.
+ */
+export async function restorePlaygroundSim(
+  snapshot: PlaygroundSimSnapshot,
+  options?: { sqlJs?: SqlJsInitConfig }
+): Promise<PlaygroundSim> {
+  const sqlJs = options?.sqlJs;
+  const scheduler = new BrowserWallClockScheduler();
+
+  const serverSql = await SqlClientImplSqlJs.openFromData(
+    snapshot.serverDb,
+    sqlJs
+  );
+  await serverSql.connect();
+  const serverBacking = new PatchDbImplSqlite(serverSql);
+  const serverPubSub = new InMemoryPubSub();
+  const notifying = new NotifyingPatchesDb(serverBacking, serverPubSub);
+  const port: SimServerPort = simServerPortFromPubSub(
+    (q) => notifying.read(q),
+    (p) => notifying.write(p),
+    serverPubSub
+  );
+
+  const clientRuntimes: ClientRuntime[] = [];
+  const clients: PlaygroundClientHandle[] = [];
+  const clientById = new Map<string, ClientRuntime>();
+  let nextClientNum =
+    snapshot.clients.reduce((max, c) => {
+      const n = parseInt(c.id.replace(/\D/g, ''), 10);
+      return Number.isFinite(n) ? Math.max(max, n) : max;
+    }, 0) + 1;
+
+  for (const cs of snapshot.clients) {
+    const sqlClient = await SqlClientImplSqlJs.openFromData(cs.db, sqlJs);
+    await sqlClient.connect();
+    const localDb = new PatchDbImplSqlite(sqlClient);
+
+    const link = new NetworkLink(scheduler);
+    if (cs.latencyMs > 0) link.setReadWriteLatencyMs(cs.latencyMs);
+    if (cs.partitioned) link.setPartitioned(true);
+
+    const transport = new SimulatedPatchDbClientTransport(port, link);
+    const remotePatchesDb = new PatchDbImplClientTransport(transport);
+    const clientPubSub = new InMemoryPubSub();
+
+    const syncDb = new SyncPatchesDb(localDb, remotePatchesDb, clientPubSub, {
+      pushDriver: 'manual',
+      pollDriver: 'manual',
+      remoteInvalidationSource: transport,
+      pushIntervalMs: 10,
+      logPushPollFailures: false,
+    });
+
+    const runtime: ClientRuntime = {
+      id: cs.id,
+      sqlClient,
+      localDb,
+      transport,
+      syncDb,
+      link,
+    };
+    const handle: PlaygroundClientHandle = {
+      id: cs.id,
+      syncDb,
+      link: createSimLink(link),
+      sqlClient,
+      localDb,
+      transport,
+    };
+    clientRuntimes.push(runtime);
+    clients.push(handle);
+    clientById.set(cs.id, runtime);
+  }
+
+  async function createClientRuntime(
+    id: string
+  ): Promise<{ runtime: ClientRuntime; handle: PlaygroundClientHandle }> {
+    const sqlClient = await SqlClientImplSqlJs.openMemory(sqlJs);
+    await sqlClient.connect();
+    const localDb = new PatchDbImplSqlite(sqlClient);
+    await localDb.migrate();
+
+    const link = new NetworkLink(scheduler);
+    const transport = new SimulatedPatchDbClientTransport(port, link);
+    const remotePatchesDb = new PatchDbImplClientTransport(transport);
+    const clientPubSub = new InMemoryPubSub();
+
+    const syncDb = new SyncPatchesDb(localDb, remotePatchesDb, clientPubSub, {
+      pushDriver: 'manual',
+      pollDriver: 'manual',
+      remoteInvalidationSource: transport,
+      pushIntervalMs: 10,
+      logPushPollFailures: false,
+    });
+
+    const runtime: ClientRuntime = {
+      id,
+      sqlClient,
+      localDb,
+      transport,
+      syncDb,
+      link,
+    };
+    const handle: PlaygroundClientHandle = {
+      id,
+      syncDb,
+      link: createSimLink(link),
+      sqlClient,
+      localDb,
+      transport,
+    };
+    return { runtime, handle };
+  }
+
+  async function syncNow(actorClientId: string): Promise<void> {
+    const actor = clientById.get(actorClientId);
+    if (!actor) {
+      throw new Error(`syncNow: unknown client ${actorClientId}`);
+    }
+    await actor.syncDb.runPushNow();
+    for (const c of clientRuntimes) {
+      await c.syncDb.runPollNow();
+    }
+    await flushSyncSubscriptionMicrotasks();
+  }
+
+  async function addClient(): Promise<PlaygroundClientHandle> {
+    const id = `c${nextClientNum++}`;
+    const { runtime, handle } = await createClientRuntime(id);
+    clientRuntimes.push(runtime);
+    clients.push(handle);
+    clientById.set(id, runtime);
+    await runtime.syncDb.runPollNow();
+    await flushSyncSubscriptionMicrotasks();
+    return handle;
+  }
+
+  async function removeClient(id: string): Promise<void> {
+    const runtime = clientById.get(id);
+    if (!runtime) throw new Error(`removeClient: unknown client ${id}`);
+    runtime.syncDb.destroy();
+    await runtime.sqlClient.disconnect();
+    clientById.delete(id);
+    const ri = clientRuntimes.indexOf(runtime);
+    if (ri >= 0) clientRuntimes.splice(ri, 1);
+    const ci = clients.findIndex((c) => c.id === id);
+    if (ci >= 0) clients.splice(ci, 1);
+  }
+
+  async function destroy(): Promise<void> {
+    for (const c of clientRuntimes) {
+      c.syncDb.destroy();
+      await c.sqlClient.disconnect();
+    }
+    await serverSql.disconnect();
+    clientRuntimes.length = 0;
+  }
+
+  function takeSnapshot(): PlaygroundSimSnapshot {
+    return {
+      serverId: snapshot.serverId,
+      serverDb: serverSql.exportData(),
+      clients: clients.map((c) => {
+        const clientSqlJs = c.sqlClient as SqlClientImplSqlJs;
+        return {
+          id: c.id,
+          db: clientSqlJs.exportData(),
+          latencyMs: c.link.getLatency(),
+          partitioned: c.link.isPartitioned(),
+        };
+      }),
+    };
+  }
+
+  return {
+    serverId: snapshot.serverId,
+    scheduler,
+    serverBacking,
+    serverSql,
+    serverDb: serverBacking,
+    clients,
+    syncNow,
+    addClient,
+    removeClient,
+    destroy,
+    takeSnapshot,
   };
 }
 

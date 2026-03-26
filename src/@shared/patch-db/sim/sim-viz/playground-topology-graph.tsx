@@ -8,7 +8,7 @@ import {
   useRef,
 } from 'react';
 import type { PlaygroundSim } from '../playground-sim';
-import { C } from './constants';
+import { C, SERVER_NODE_ID } from './constants';
 import {
   PLAYGROUND_GRAPH_VIEW_H,
   PLAYGROUND_GRAPH_VIEW_W,
@@ -22,8 +22,6 @@ export type TopoAnimHandle = {
   /** @param durationMs Travel time for the dot. Defaults to 150ms minimum. */
   animateMessage(fromNodeId: string, toNodeId: string, durationMs?: number): void;
 };
-
-const SERVER_NODE_ID = '__server__';
 
 /**
  * Server icon: a tiny rack/tower icon in a 24x24 viewBox.

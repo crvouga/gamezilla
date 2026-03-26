@@ -29,6 +29,8 @@ const NODE_COLORS = [
   '#36c5a0', '#e8b931', '#f472b6', '#67e8f9', '#a78bfa',
 ];
 
+export const SERVER_NODE_ID = '__server__';
+
 export function nodeColor(allIds: string[], id: string): string {
   const i = allIds.indexOf(id);
   const idx = i >= 0 ? i % NODE_COLORS.length : 0;
