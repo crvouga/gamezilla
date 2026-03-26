@@ -15,7 +15,6 @@ import {
 import type { PlaygroundClientHandle } from '../playground-sim';
 import {
   IconClear,
-  IconClock,
   IconLaptop,
   IconPartition,
   IconRemove,
@@ -29,12 +28,28 @@ import { useAsyncAction } from './use-async-action';
 import { useDragReorder } from './use-drag-reorder';
 import { useClientTopoAnimation } from './use-topo-animation';
 
+const LATENCY_BUCKETS: { value: number; label: string }[] = [
+  { value: 0, label: '0ms' },
+  { value: 50, label: '50ms' },
+  { value: 150, label: '150ms' },
+  { value: 500, label: '500ms' },
+  { value: 1000, label: '1s' },
+  { value: 2000, label: '2s' },
+  { value: 5000, label: '5s' },
+];
+
 function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
   const { sim, topoRef, bumpGraph, bumpLink, removeClient } = useSimContext();
 
   const shapeQuery = useMemo(() => shapeListQuery(), []);
   const { entities } = useEntities(shapeQuery);
-  const [latencyMs, setLatencyMs] = useState(() => client.link.getLatency());
+  const [latencyMs, setLatencyMs] = useState(() => {
+    const raw = client.link.getLatency();
+    const closest = LATENCY_BUCKETS.reduce((prev, cur) =>
+      Math.abs(cur.value - raw) < Math.abs(prev.value - raw) ? cur : prev
+    );
+    return closest.value;
+  });
   const partitioned = client.link.isPartitioned();
 
   const animatePush = useClientTopoAnimation(client, sim, topoRef);
@@ -114,26 +129,6 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
         </>
       }
     >
-      {/* Latency slider */}
-      <div className="mb-2 flex items-center gap-2 rounded-lg border border-white/8 bg-white/4 px-2 py-1.5">
-        <span className="text-white/40">
-          <IconClock />
-        </span>
-        <input
-          type="range"
-          min={0}
-          max={3000}
-          step={50}
-          value={latencyMs}
-          onChange={(e) => handleLatencyChange(Number(e.target.value))}
-          className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-white/15 accent-violet-400"
-        />
-        <span className="w-14 text-right font-mono text-[0.65rem] text-white/50">
-          {latencyMs}ms
-        </span>
-      </div>
-
-      {/* Action toolbar */}
       <div className="mb-2 flex flex-wrap items-center gap-1.5">
         <button
           type="button"
@@ -172,6 +167,18 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
           <IconSync size={14} />
           Sync
         </button>
+
+        <select
+          value={latencyMs}
+          onChange={(e) => handleLatencyChange(Number(e.target.value))}
+          className={`${btnAction} appearance-none bg-white/8 pr-5 cursor-pointer`}
+        >
+          {LATENCY_BUCKETS.map((b) => (
+            <option key={b.value} value={b.value}>
+              {b.label}
+            </option>
+          ))}
+        </select>
 
         <button
           type="button"

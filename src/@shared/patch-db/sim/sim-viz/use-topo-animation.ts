@@ -12,11 +12,12 @@ export function useServerTopoAnimation(
   topoRef: React.RefObject<TopoAnimHandle | null>
 ) {
   return useCallback(() => {
+    if (sim.isServerPartitioned()) return;
     for (const c of sim.clients) {
       if (c.link.isPartitioned()) continue;
       topoRef.current?.animateMessage(SERVER_NODE_ID, c.id, c.link.getLatency());
     }
-  }, [sim.clients, topoRef]);
+  }, [sim, topoRef]);
 }
 
 /**
@@ -29,12 +30,14 @@ export function useClientTopoAnimation(
   topoRef: React.RefObject<TopoAnimHandle | null>
 ) {
   return useCallback(() => {
+    if (sim.isServerPartitioned()) return;
     const pushLatency = client.link.getLatency();
     if (!client.link.isPartitioned()) {
       topoRef.current?.animateMessage(client.id, SERVER_NODE_ID, pushLatency);
     }
     const pollDelay = Math.max(pushLatency, 150);
     setTimeout(() => {
+      if (sim.isServerPartitioned()) return;
       for (const c of sim.clients) {
         if (c.link.isPartitioned()) continue;
         topoRef.current?.animateMessage(
@@ -44,5 +47,5 @@ export function useClientTopoAnimation(
         );
       }
     }, pollDelay);
-  }, [client.id, client.link, sim.clients, topoRef]);
+  }, [client.id, client.link, sim, topoRef]);
 }

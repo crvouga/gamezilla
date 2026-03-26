@@ -25,6 +25,7 @@ import { SimulatedPatchDbClientTransport } from './simulated-client-transport';
 export type PlaygroundSimSnapshot = {
   serverId: string;
   serverDb: Uint8Array;
+  serverPartitioned?: boolean;
   clients: PlaygroundClientSnapshot[];
 };
 
@@ -60,6 +61,40 @@ function createSimLink(link: NetworkLink): SimLink {
   };
 }
 
+class PartitionableServerPort {
+  private partitioned = false;
+
+  constructor(private readonly inner: SimServerPort) {}
+
+  setPartitioned(value: boolean): void {
+    this.partitioned = value;
+  }
+
+  isPartitioned(): boolean {
+    return this.partitioned;
+  }
+
+  read(queries: Parameters<SimServerPort['read']>[0]) {
+    if (this.partitioned) {
+      return Promise.reject(new Error('server is partitioned'));
+    }
+    return this.inner.read(queries);
+  }
+
+  write(patches: Parameters<SimServerPort['write']>[0]) {
+    if (this.partitioned) {
+      return Promise.reject(new Error('server is partitioned'));
+    }
+    return this.inner.write(patches);
+  }
+
+  subscribeInvalidations(callback: () => void) {
+    return this.inner.subscribeInvalidations(() => {
+      if (!this.partitioned) callback();
+    });
+  }
+}
+
 type ClientRuntime = {
   id: string;
   sqlClient: SqlClient;
@@ -90,6 +125,9 @@ export type PlaygroundSim = {
   removeClient(id: string): Promise<void>;
   destroy(): Promise<void>;
   takeSnapshot(): PlaygroundSimSnapshot;
+  isServerPartitioned(): boolean;
+  partitionServer(): void;
+  healServer(): void;
 };
 
 export type CreatePlaygroundSimOptions = {
@@ -118,18 +156,19 @@ export async function createPlaygroundSim(
   await serverBacking.migrate();
   const serverPubSub = new InMemoryPubSub();
 
-  let port: SimServerPort;
+  let innerPort: SimServerPort;
   if (useSyncHost) {
     const host = new PatchDbImplSyncHost(serverBacking, serverPubSub);
-    port = simServerPortFromSyncHost(host);
+    innerPort = simServerPortFromSyncHost(host);
   } else {
     const notifying = new NotifyingPatchesDb(serverBacking, serverPubSub);
-    port = simServerPortFromPubSub(
+    innerPort = simServerPortFromPubSub(
       (q) => notifying.read(q),
       (p) => notifying.write(p),
       serverPubSub
     );
   }
+  const port = new PartitionableServerPort(innerPort);
 
   const clientRuntimes: ClientRuntime[] = [];
   const clients: PlaygroundClientHandle[] = [];
@@ -233,6 +272,7 @@ export async function createPlaygroundSim(
     return {
       serverId,
       serverDb: serverSqlJs.exportData(),
+      serverPartitioned: port.isPartitioned(),
       clients: clients.map((c) => {
         const clientSqlJs = c.sqlClient as SqlClientImplSqlJs;
         return {
@@ -257,6 +297,9 @@ export async function createPlaygroundSim(
     removeClient,
     destroy,
     takeSnapshot,
+    isServerPartitioned: () => port.isPartitioned(),
+    partitionServer: () => port.setPartitioned(true),
+    healServer: () => port.setPartitioned(false),
   };
 }
 
@@ -279,11 +322,13 @@ export async function restorePlaygroundSim(
   const serverBacking = new PatchDbImplSqlite(serverSql);
   const serverPubSub = new InMemoryPubSub();
   const notifying = new NotifyingPatchesDb(serverBacking, serverPubSub);
-  const port: SimServerPort = simServerPortFromPubSub(
+  const innerPort: SimServerPort = simServerPortFromPubSub(
     (q) => notifying.read(q),
     (p) => notifying.write(p),
     serverPubSub
   );
+  const port = new PartitionableServerPort(innerPort);
+  if (snapshot.serverPartitioned) port.setPartitioned(true);
 
   const clientRuntimes: ClientRuntime[] = [];
   const clients: PlaygroundClientHandle[] = [];
@@ -424,6 +469,7 @@ export async function restorePlaygroundSim(
     return {
       serverId: snapshot.serverId,
       serverDb: serverSql.exportData(),
+      serverPartitioned: port.isPartitioned(),
       clients: clients.map((c) => {
         const clientSqlJs = c.sqlClient as SqlClientImplSqlJs;
         return {
@@ -448,6 +494,9 @@ export async function restorePlaygroundSim(
     removeClient,
     destroy,
     takeSnapshot,
+    isServerPartitioned: () => port.isPartitioned(),
+    partitionServer: () => port.setPartitioned(true),
+    healServer: () => port.setPartitioned(false),
   };
 }
 

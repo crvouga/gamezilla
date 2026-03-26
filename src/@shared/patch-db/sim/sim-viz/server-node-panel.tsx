@@ -7,20 +7,21 @@ import {
   playgroundServerRandomizeShape,
   playgroundServerReorderShapes,
 } from '../playground-shapes';
-import { IconClear, IconServer } from './icons';
+import { IconClear, IconPartition, IconServer } from './icons';
 import { NodePanelShell } from './node-panel-shell';
 import { ShapeList } from './shape-list';
 import { useSimContext } from './sim-context';
-import { btnSmall } from './styles';
+import { btnAction, btnSmall } from './styles';
 import { useAsyncAction } from './use-async-action';
 import { useDragReorder } from './use-drag-reorder';
 import { useServerShapes } from './use-server-shapes';
 import { useServerTopoAnimation } from './use-topo-animation';
 
 export function ServerNodePanel() {
-  const { sim, topoRef, bumpGraph } = useSimContext();
+  const { sim, topoRef, bumpGraph, bumpLink } = useSimContext();
   const { entities, readError, refresh } = useServerShapes(sim);
   const animatePollAll = useServerTopoAnimation(sim, topoRef);
+  const serverPartitioned = sim.isServerPartitioned();
 
   const onSuccess = useCallback(() => {
     refresh();
@@ -76,12 +77,45 @@ export function ServerNodePanel() {
   return (
     <NodePanelShell
       icon={<IconServer />}
-      iconColor="text-violet-400"
+      iconColor={serverPartitioned ? 'text-red-400' : 'text-violet-400'}
       title={sim.serverId}
+      partitioned={serverPartitioned}
       headerExtra={
-        <span className="ml-auto text-[0.65rem] text-white/35">authority</span>
+        <>
+          {serverPartitioned && (
+            <span className="rounded bg-red-950/80 px-1.5 py-0.5 text-[0.55rem] font-bold uppercase text-red-400">
+              offline
+            </span>
+          )}
+          <span className="ml-auto text-[0.65rem] text-white/35">authority</span>
+        </>
       }
     >
+      <div className="mb-2 flex flex-wrap items-center gap-1.5">
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() =>
+            run(async () => {
+              if (sim.isServerPartitioned()) {
+                sim.healServer();
+              } else {
+                sim.partitionServer();
+              }
+              bumpLink();
+            })
+          }
+          className={`${btnAction} ${
+            serverPartitioned
+              ? 'border-red-400/50 bg-red-950/40 text-red-200'
+              : ''
+          }`}
+        >
+          <IconPartition active={serverPartitioned} size={14} />
+          {serverPartitioned ? 'Reconnect' : 'Partition'}
+        </button>
+      </div>
+
       <div className="mb-2 flex items-center gap-2">
         <span className="text-[0.7rem] text-white/45">
           {entities.length} shape(s)

@@ -16,7 +16,7 @@ import {
   playgroundGraphServerAnchor,
 } from './playground-graph-layout';
 
-type ClientVm = { id: string; partitioned: boolean };
+type ClientVm = { id: string; partitioned: boolean; serverPartitioned: boolean };
 
 export type TopoAnimHandle = {
   /** @param durationMs Travel time for the dot. Defaults to 150ms minimum. */
@@ -27,7 +27,9 @@ export type TopoAnimHandle = {
  * Server icon: a tiny rack/tower icon in a 24x24 viewBox.
  * Rendered at the server anchor position.
  */
-function ServerIcon({ x, y }: { x: number; y: number }) {
+function ServerIcon({ x, y, partitioned }: { x: number; y: number; partitioned: boolean }) {
+  const accent = partitioned ? C.red : C.violet;
+  const indicator = partitioned ? C.red : C.green;
   return (
     <g transform={`translate(${x - 16}, ${y - 18})`}>
       <rect
@@ -37,16 +39,27 @@ function ServerIcon({ x, y }: { x: number; y: number }) {
         height={32}
         rx={3}
         fill={C.node}
-        stroke={C.nodeSelBorder}
+        stroke={partitioned ? C.red : C.nodeSelBorder}
         strokeWidth={1.5}
       />
-      <rect x={8} y={6} width={16} height={4} rx={1} fill={C.violet} opacity={0.7} />
-      <circle cx={22} cy={8} r={1} fill={C.green} />
-      <rect x={8} y={13} width={16} height={4} rx={1} fill={C.violet} opacity={0.5} />
-      <circle cx={22} cy={15} r={1} fill={C.green} />
-      <rect x={8} y={20} width={16} height={4} rx={1} fill={C.violet} opacity={0.35} />
-      <circle cx={22} cy={22} r={1} fill={C.teal} />
+      <rect x={8} y={6} width={16} height={4} rx={1} fill={accent} opacity={0.7} />
+      <circle cx={22} cy={8} r={1} fill={indicator} />
+      <rect x={8} y={13} width={16} height={4} rx={1} fill={accent} opacity={0.5} />
+      <circle cx={22} cy={15} r={1} fill={indicator} />
+      <rect x={8} y={20} width={16} height={4} rx={1} fill={accent} opacity={0.35} />
+      <circle cx={22} cy={22} r={1} fill={partitioned ? C.dimRed : C.teal} />
       <rect x={12} y={28} width={8} height={3} rx={1} fill={C.nodeBorder} />
+      {partitioned && (
+        <line
+          x1={6}
+          y1={4}
+          x2={26}
+          y2={30}
+          stroke={C.red}
+          strokeWidth={1.8}
+          opacity={0.7}
+        />
+      )}
     </g>
   );
 }
@@ -109,14 +122,16 @@ export const PlaygroundTopologyGraph = forwardRef<
     [sim.clients.length]
   );
 
+  const serverPartitioned = sim.isServerPartitioned();
   const clients: ClientVm[] = useMemo(
     () =>
       sim.clients.map((c) => ({
         id: c.id,
         partitioned: c.link.isPartitioned(),
+        serverPartitioned,
       })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sim, linkEpoch]
+    [sim, linkEpoch, serverPartitioned]
   );
 
   const edgesRef = useRef<(SVGLineElement | null)[]>([]);
@@ -217,7 +232,7 @@ export const PlaygroundTopologyGraph = forwardRef<
         {clients.map((c, i) => {
           const ap = anchors[i];
           if (!ap) return null;
-          const partition = c.partitioned;
+          const broken = c.partitioned || c.serverPartitioned;
           return (
             <line
               key={`e-${c.id}`}
@@ -228,22 +243,23 @@ export const PlaygroundTopologyGraph = forwardRef<
               y1={serverPos.y}
               x2={ap.x}
               y2={ap.y}
-              stroke={partition ? C.red : C.teal}
-              strokeWidth={partition ? 1.8 : 2.2}
+              stroke={broken ? C.red : C.teal}
+              strokeWidth={broken ? 1.8 : 2.2}
               strokeLinecap="round"
-              className={partition ? 'edge-dead' : 'edge-live'}
+              strokeDasharray={c.serverPartitioned ? '6 4' : 'none'}
+              className={broken ? 'edge-dead' : 'edge-live'}
               opacity={0.9}
             />
           );
         })}
       </g>
 
-      <ServerIcon x={serverPos.x} y={serverPos.y} />
+      <ServerIcon x={serverPos.x} y={serverPos.y} partitioned={serverPartitioned} />
       <text
         x={serverPos.x}
         y={serverPos.y + 24}
         textAnchor="middle"
-        fill={C.textLight}
+        fill={serverPartitioned ? C.red : C.textLight}
         fontSize={9}
         fontFamily="var(--font-mono)"
         fontWeight={600}
