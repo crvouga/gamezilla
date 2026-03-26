@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, test } from 'bun:test';
+import type { PatchesDbQuery } from '../../interface';
 import { patchDbScenario, type Sim } from '../../sim/scenario';
 import { DELETED_CLAUSE } from './constants';
 
@@ -9,6 +10,100 @@ describe('SyncPatchesDb (data loss recovery)', () => {
 
   afterEach(async () => {
     await sim.destroy();
+  });
+
+  test('server wipe + concurrent offline writes converge to same order', async () => {
+    sim = await patchDbScenario()
+      .server('s')
+      .client('a', { server: 's' })
+      .client('b', { server: 's' })
+      .build();
+
+    const a = sim.client('a');
+    const b = sim.client('b');
+    const srv = sim.server('s');
+    const created = new Date(0).toISOString();
+
+    const orderedQuery: PatchesDbQuery = {
+      entityType: 'todoList',
+      where: DELETED_CLAUSE,
+      orderBy: [{ attribute: 'todoList/order', direction: 'asc' }],
+    };
+    const unsubA = a.subscribe.entities(orderedQuery, () => {});
+    const unsubB = b.subscribe.entities(orderedQuery, () => {});
+
+    // ─── baseline: two synced items ───────────────────────────────────
+    const x = crypto.randomUUID();
+    const y = crypto.randomUUID();
+
+    await a.write([
+      {
+        entityId: x,
+        entityType: 'todoList',
+        attributes: { 'todoList/name': 'X', 'todoList/order': 0, 'todoList/createdAt': created },
+      },
+    ]);
+    await a.push();
+    await b.poll();
+
+    await b.write([
+      {
+        entityId: y,
+        entityType: 'todoList',
+        attributes: { 'todoList/name': 'Y', 'todoList/order': 1, 'todoList/createdAt': created },
+      },
+    ]);
+    await b.push();
+    await a.poll();
+    await b.poll();
+
+    await sim.assertConsistent(orderedQuery);
+
+    // ─── server wipe (simulate data loss) ─────────────────────────────
+    await sim.wipeServerStorage('s');
+    await sim.markClientPatchesUnsynced('a');
+    await sim.markClientPatchesUnsynced('b');
+
+    // ─── both clients create a shape offline (same order value) ───────
+    const z = crypto.randomUUID();
+    const w = crypto.randomUUID();
+
+    await a.write([
+      {
+        entityId: z,
+        entityType: 'todoList',
+        attributes: { 'todoList/name': 'Z', 'todoList/order': 2, 'todoList/createdAt': created },
+      },
+    ]);
+    await b.write([
+      {
+        entityId: w,
+        entityType: 'todoList',
+        attributes: { 'todoList/name': 'W', 'todoList/order': 2, 'todoList/createdAt': created },
+      },
+    ]);
+
+    // ─── reconnect: push then converge ────────────────────────────────
+    await a.push();
+    await b.push();
+    await a.poll();
+    await b.poll();
+
+    // entity sets and attributes must match
+    await sim.assertConsistent(orderedQuery);
+
+    // read order must be identical across every node
+    const [aRes] = await a.read([orderedQuery]);
+    const [bRes] = await b.read([orderedQuery]);
+    const [sRes] = await srv.db.read([orderedQuery]);
+
+    const ids = (r: typeof aRes) => r?.entities.map((e) => e.entityId);
+
+    expect(ids(aRes)).toEqual(ids(sRes));
+    expect(ids(bRes)).toEqual(ids(sRes));
+
+    unsubA();
+    unsubB();
   });
 
   test('client and server data loss self-heals after enough sync rounds', async () => {

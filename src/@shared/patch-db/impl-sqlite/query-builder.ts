@@ -1,4 +1,8 @@
 import { assert } from '@/@shared/assert';
+import {
+  assertOffsetLimitFragment,
+  assertOrderByFragment,
+} from '@/@shared/sqlite';
 import type { PatchesDbQuery, PatchesDbQueryWhereClause } from '../interface';
 import { assertAttribute, assertDirection } from '../interface';
 
@@ -241,18 +245,20 @@ export function buildOrderSQL(
   attributePrefix = ''
 ): string {
   if (query.orderBy && query.orderBy.length > 0) {
-    return (
-      'ORDER BY ' +
-      query.orderBy
-        .map((o) => {
-          const path = jsonPathForAttribute(o.attribute);
-          assertDirection(o.direction);
-          const dir = o.direction === 'desc' ? 'DESC' : 'ASC';
-          return `json_extract(${attributePrefix}attributes, '${path.replace(/'/g, "''")}') ${dir}`;
-        })
-        .join(', ')
-    );
+    const custom = query.orderBy
+      .map((o) => {
+        const path = jsonPathForAttribute(o.attribute);
+        assertDirection(o.direction);
+        const dir = o.direction === 'desc' ? 'DESC' : 'ASC';
+        return `json_extract(${attributePrefix}attributes, '${path.replace(/'/g, "''")}') ${dir}`;
+      })
+      .join(', ');
+    const tiebreaker = defaultOrder.replace(/^ORDER BY\s+/i, '');
+    const orderBy = `ORDER BY ${custom}, ${tiebreaker}`;
+    assertOrderByFragment(orderBy);
+    return orderBy;
   }
+  assertOrderByFragment(defaultOrder);
   return defaultOrder;
 }
 
@@ -270,5 +276,6 @@ export function buildLimitSQL(query: PatchesDbQuery): {
     sql += ' OFFSET ?';
     params.push(query.offset);
   }
+  assertOffsetLimitFragment(sql);
   return { sql, params };
 }
