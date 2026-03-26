@@ -33,9 +33,32 @@ jobs:
       - name: Test
         run: bun test
 
+  # Runs in parallel with `check` on main pushes so misconfigured secrets fail in seconds (not after tests + CDK).
+  assert-deploy-ready:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if AWS deploy secrets are missing
+        run: |
+          set -euo pipefail
+          missing=0
+          if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then
+            echo "::error title=Missing GitHub Actions secret::Repository secret AWS_ACCESS_KEY_ID is empty or unset. Add it under Settings → Secrets and variables → Actions."
+            missing=1
+          fi
+          if [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]; then
+            echo "::error title=Missing GitHub Actions secret::Repository secret AWS_SECRET_ACCESS_KEY is empty or unset. Add it under Settings → Secrets and variables → Actions."
+            missing=1
+          fi
+          if [ "$missing" -ne 0 ]; then
+            echo "::error::Deploy job is blocked: fix the secrets above, then re-run the workflow."
+            exit 1
+          fi
+          echo "::notice::AWS credential secrets are configured for deploy."
+
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: check
+    needs: [check, assert-deploy-ready]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
