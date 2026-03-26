@@ -1,14 +1,7 @@
 import { useMemo } from 'react';
 import type { PlaygroundSim } from '../playground-sim';
-import { ClientNodePanel } from './client-node-panel';
+import { PlaygroundFlow } from './playground-flow';
 import { PlaygroundHeader } from './playground-header';
-import {
-  PLAYGROUND_GRAPH_VIEW_H,
-  PLAYGROUND_GRAPH_VIEW_W,
-} from './playground-graph-layout';
-import { PlaygroundTopologyGraph } from './playground-topology-graph';
-import type { TopoAnimHandle } from './playground-topology-graph';
-import { ServerNodePanel } from './server-node-panel';
 import { SimProvider, type SimContextValue } from './sim-context';
 import { usePlaygroundBoot } from './use-playground-boot';
 
@@ -38,7 +31,6 @@ export function PlaygroundApp() {
   return (
     <PlaygroundShell
       sim={boot.sim}
-      topoRef={boot.topoRef}
       pulseKey={boot.pulseKey}
       linkEpoch={boot.linkEpoch}
       bumpGraph={boot.bumpGraph}
@@ -52,7 +44,6 @@ export function PlaygroundApp() {
 
 function PlaygroundShell({
   sim,
-  topoRef,
   pulseKey,
   linkEpoch,
   bumpGraph,
@@ -62,7 +53,6 @@ function PlaygroundShell({
   reset,
 }: {
   sim: PlaygroundSim;
-  topoRef: React.RefObject<TopoAnimHandle | null>;
   pulseKey: number;
   linkEpoch: number;
   bumpGraph: () => void;
@@ -72,40 +62,25 @@ function PlaygroundShell({
   reset: () => Promise<void>;
 }) {
   const ctx = useMemo<SimContextValue>(
-    () => ({ sim, topoRef, bumpGraph, bumpLink, addClient, removeClient, reset }),
-    [sim, topoRef, bumpGraph, bumpLink, addClient, removeClient, reset]
+    () => ({
+      sim,
+      topoRef: { current: null },
+      bumpGraph,
+      bumpLink,
+      addClient,
+      removeClient,
+      reset,
+    }),
+    [sim, bumpGraph, bumpLink, addClient, removeClient, reset]
   );
 
   return (
     <SimProvider value={ctx}>
       <div className="flex h-screen min-h-0 flex-col overflow-hidden bg-(--pg-bg) text-white">
         <PlaygroundHeader />
-
-        <section className="shrink-0 border-b border-white/8 px-4 py-3">
-          <div
-            className="mx-auto"
-            style={{
-              maxWidth: 640,
-              aspectRatio: `${PLAYGROUND_GRAPH_VIEW_W} / ${PLAYGROUND_GRAPH_VIEW_H}`,
-            }}
-          >
-            <PlaygroundTopologyGraph
-              ref={topoRef}
-              sim={sim}
-              pulseKey={pulseKey}
-              linkEpoch={linkEpoch}
-            />
-          </div>
-        </section>
-
-        <section className="min-h-0 flex-1 overflow-y-auto p-4">
-          <div className="mx-auto grid max-w-5xl gap-4 grid-cols-[repeat(auto-fill,minmax(260px,1fr))]">
-            <ServerNodePanel />
-            {sim.clients.map((c) => (
-              <ClientNodePanel key={c.id} client={c} />
-            ))}
-          </div>
-        </section>
+        <div className="min-h-0 flex-1">
+          <PlaygroundFlow sim={sim} pulseKey={pulseKey} linkEpoch={linkEpoch} />
+        </div>
       </div>
     </SimProvider>
   );

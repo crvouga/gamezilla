@@ -20,14 +20,14 @@ export function NodePanelShell({
     <div
       className={`${cardChrome} ${partitioned ? 'ring-1 ring-red-500/40' : ''}`}
     >
-      <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2">
+      <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2 cursor-grab active:cursor-grabbing">
         <span className={iconColor}>{icon}</span>
         <span className="font-mono text-sm font-semibold text-white/90">
           {title}
         </span>
         {headerExtra}
       </div>
-      <div className="p-3">{children}</div>
+      <div className="nodrag nowheel p-3">{children}</div>
     </div>
   );
 }

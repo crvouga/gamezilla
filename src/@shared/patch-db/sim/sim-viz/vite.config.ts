@@ -15,8 +15,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.join(repoRoot, 'src'),
-      react: path.join(repoRoot, 'node_modules/react'),
-      'react-dom': path.join(repoRoot, 'node_modules/react-dom'),
     },
     dedupe: ['react', 'react-dom', 'sql.js'],
   },
