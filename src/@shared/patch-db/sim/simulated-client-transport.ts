@@ -1,11 +1,11 @@
-import type { Unsubscribe } from '../../../pub-sub/interface';
+import type { Unsubscribe } from '../../pub-sub/interface';
 import type {
   Patch,
   PatchesDbQuery,
   PatchesDbResult,
   PatchInput,
-} from '../../interface';
-import type { PatchDbClientTransport } from '../../transport/interface';
+} from '../interface';
+import type { PatchDbClientTransport } from '../transport/interface';
 import type { SimEventRecorder } from './event-recorder';
 import {
   summarizePatchInputs,

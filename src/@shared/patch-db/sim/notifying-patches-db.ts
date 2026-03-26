@@ -1,11 +1,11 @@
-import type { PubSub } from '../../../pub-sub/interface';
+import type { PubSub } from '../../pub-sub/interface';
 import type {
   Patch,
   PatchesDb,
   PatchesDbQuery,
   PatchesDbResult,
   PatchInput,
-} from '../../interface';
+} from '../interface';
 
 const PATCHES_DB_TOPIC = 'patches-db';
 

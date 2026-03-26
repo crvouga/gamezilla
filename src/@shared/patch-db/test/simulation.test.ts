@@ -1,6 +1,6 @@
-import { assert } from '@/@shared/assert';
 import { afterEach, describe, expect, test } from 'bun:test';
-import { type Sim, patchDbScenario } from './sim/scenario';
+import { assert } from '../../assert';
+import { type Sim, patchDbScenario } from '../sim/scenario';
 import { DELETED_CLAUSE } from './sync-engine/constants';
 
 describe('patch-db deterministic simulation', () => {
@@ -55,7 +55,10 @@ describe('patch-db deterministic simulation', () => {
         attributes: { 'todoList/name': 'From other writer on server' },
       },
     ]);
-    const listQuery = { entityType: 'todoList', where: DELETED_CLAUSE } as const;
+    const listQuery = {
+      entityType: 'todoList',
+      where: DELETED_CLAUSE,
+    } as const;
     const unsub = c.subscribe.entities(listQuery, () => {});
     await c.poll();
     const local = await c.read([{ entityType: 'todoList', entityId: listId }]);

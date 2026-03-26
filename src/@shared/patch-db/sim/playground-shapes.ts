@@ -1,10 +1,10 @@
+import { randomUuidV4 } from '../../random-uuid';
 import type {
   Entity,
   PatchInput,
   PatchesDbQuery,
   PatchesDbQueryWhereClause,
-} from '../../interface';
-import { randomUuidV4 } from '../../../random-uuid';
+} from '../interface';
 import { playgroundPollAllClients, type PlaygroundSim } from './playground-sim';
 
 export const SHAPE_ENTITY_TYPE = 'shape';
@@ -68,10 +68,8 @@ const shapeKindRegistryBase = {
 export type ShapeKind = keyof typeof shapeKindRegistryBase;
 
 /** Mutable map for runtime lookup; keys match {@link ShapeKind}. */
-export const shapeKindRegistry: Record<
-  ShapeKind,
-  ShapeKindDefinition
-> = shapeKindRegistryBase;
+export const shapeKindRegistry: Record<ShapeKind, ShapeKindDefinition> =
+  shapeKindRegistryBase;
 
 export const defaultShapeKindKey: ShapeKind = 'triangle';
 
@@ -154,7 +152,8 @@ export async function playgroundCreateShape(
   order: number
 ): Promise<void> {
   const client = sim.clients.find((c) => c.id === clientId);
-  if (!client) throw new Error(`playgroundCreateShape: unknown client ${clientId}`);
+  if (!client)
+    throw new Error(`playgroundCreateShape: unknown client ${clientId}`);
   const input = createShapeInput(order);
   await client.syncDb.write([input]);
   await sim.syncNow(clientId);
@@ -168,7 +167,8 @@ export async function playgroundUpdateRandomShape(
   const entity = randomEntity(localEntities);
   if (!entity) return false;
   const client = sim.clients.find((c) => c.id === clientId);
-  if (!client) throw new Error(`playgroundUpdateRandomShape: unknown client ${clientId}`);
+  if (!client)
+    throw new Error(`playgroundUpdateRandomShape: unknown client ${clientId}`);
   const picked = pickRandomRegisteredKind();
   const def =
     shapeKindRegistryBase[picked] ?? shapeKindRegistryBase[defaultShapeKindKey];
@@ -197,7 +197,9 @@ export async function playgroundSoftDeleteRandomShape(
   if (!entity) return false;
   const client = sim.clients.find((c) => c.id === clientId);
   if (!client)
-    throw new Error(`playgroundSoftDeleteRandomShape: unknown client ${clientId}`);
+    throw new Error(
+      `playgroundSoftDeleteRandomShape: unknown client ${clientId}`
+    );
   await client.syncDb.write([
     {
       entityId: entity.entityId,

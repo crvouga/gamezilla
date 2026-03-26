@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.join(dir, '..', '..', '..', '..', '..', '..');
+const repoRoot = path.join(dir, '..', '..', '..', '..', '..');
 
 export default defineConfig({
   /** Relative `assets/` URLs so `file://` and `bun run viz:serve` both work. */

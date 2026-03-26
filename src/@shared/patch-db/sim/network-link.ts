@@ -1,4 +1,4 @@
-import { assert } from '../../../assert';
+import { assert } from '../../assert';
 import type { SimEventRecorder } from './event-recorder';
 import type { SimLinkScheduler } from './sim-link-scheduler';
 
@@ -46,16 +46,24 @@ export class NetworkLink {
   }
 
   setReadWriteLatencyMs(ms: number): void {
-    assert.ok(Number.isFinite(ms) && ms >= 0, 'latency must be finite non-negative', {
-      ms,
-    });
+    assert.ok(
+      Number.isFinite(ms) && ms >= 0,
+      'latency must be finite non-negative',
+      {
+        ms,
+      }
+    );
     this.readWriteLatencyMs = ms;
   }
 
   setInvalidationLatencyMs(ms: number): void {
-    assert.ok(Number.isFinite(ms) && ms >= 0, 'latency must be finite non-negative', {
-      ms,
-    });
+    assert.ok(
+      Number.isFinite(ms) && ms >= 0,
+      'latency must be finite non-negative',
+      {
+        ms,
+      }
+    );
     this.invalidationLatencyMs = ms;
   }
 

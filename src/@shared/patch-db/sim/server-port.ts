@@ -1,12 +1,12 @@
-import type { Unsubscribe } from '../../../pub-sub/interface';
-import type { PatchDbSyncHost } from '../../transport/interface';
+import type { InMemoryPubSub } from '../../pub-sub/impl-in-memory';
+import type { Unsubscribe } from '../../pub-sub/interface';
 import type {
   Patch,
   PatchesDbQuery,
   PatchesDbResult,
   PatchInput,
-} from '../../interface';
-import type { InMemoryPubSub } from '../../../pub-sub/impl-in-memory';
+} from '../interface';
+import type { PatchDbSyncHost } from '../transport/interface';
 
 const PATCHES_DB_TOPIC = 'patches-db';
 
@@ -19,7 +19,9 @@ export type SimServerPort = {
   subscribeInvalidations(callback: () => void): Unsubscribe;
 };
 
-export function simServerPortFromSyncHost(host: PatchDbSyncHost): SimServerPort {
+export function simServerPortFromSyncHost(
+  host: PatchDbSyncHost
+): SimServerPort {
   return {
     read: (q) => host.read(q),
     write: (p) => host.write(p),

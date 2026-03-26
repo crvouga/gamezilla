@@ -1,8 +1,4 @@
-import type {
-  PatchInput,
-  PatchesDbQuery,
-  PatchesDbResult,
-} from '../../interface';
+import type { PatchInput, PatchesDbQuery, PatchesDbResult } from '../interface';
 
 /**
  * True when sim should record events and persist on destroy.
@@ -221,7 +217,9 @@ export type SimRecording = {
   viz?: SimRecordingVizMeta;
 };
 
-function buildMetaSnapshot(acc: SimRecordingMeta): SimRecordingMeta | undefined {
+function buildMetaSnapshot(
+  acc: SimRecordingMeta
+): SimRecordingMeta | undefined {
   const out: SimRecordingMeta = {};
   if (acc.title !== undefined) out.title = acc.title;
   if (acc.description !== undefined) out.description = acc.description;

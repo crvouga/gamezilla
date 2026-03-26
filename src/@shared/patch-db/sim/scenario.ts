@@ -1,14 +1,14 @@
-import { InMemoryPubSub } from '../../../pub-sub/impl-in-memory';
-import type { Unsubscribe } from '../../../pub-sub/interface';
-import { SqlClientImplBunSqlite } from '../../../sql-client/impl-bun-sqlite';
-import type { SqlClient } from '../../../sql-client/interface';
-import { PatchDbImplClientTransport } from '../../impl-client-transport';
-import { PatchDbImplSqlite } from '../../impl-sqlite/impl-sqlite';
+import { InMemoryPubSub } from '../../pub-sub/impl-in-memory';
+import type { Unsubscribe } from '../../pub-sub/interface';
+import { SqlClientImplBunSqlite } from '../../sql-client/impl-bun-sqlite';
+import type { SqlClient } from '../../sql-client/interface';
+import { PatchDbImplClientTransport } from '../impl-client-transport';
+import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
 import {
   SYNC_ERROR_TOPIC,
   type SyncErrorEvent,
   SyncPatchesDb,
-} from '../../impl-sync';
+} from '../impl-sync';
 import type {
   Entity,
   Patch,
@@ -16,8 +16,8 @@ import type {
   PatchesDb,
   PatchesDbQuery,
   PatchesDbResult,
-} from '../../interface';
-import { PatchDbImplSyncHost } from '../../transport/impl-sync-host';
+} from '../interface';
+import { PatchDbImplSyncHost } from '../transport/impl-sync-host';
 import { DeterministicScheduler } from './deterministic-scheduler';
 import {
   SimEventRecorder,

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach } from 'bun:test';
-import { patchDbScenario, type Sim } from '../sim/scenario';
+import { patchDbScenario, type Sim } from '../../sim/scenario';
 
 let sim: Sim;
 

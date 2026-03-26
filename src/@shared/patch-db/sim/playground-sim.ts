@@ -1,24 +1,24 @@
-import { InMemoryPubSub } from '../../../pub-sub/impl-in-memory';
+import { InMemoryPubSub } from '../../pub-sub/impl-in-memory';
 import {
   SqlClientImplSqlJs,
   type SqlJsInitConfig,
-} from '../../../sql-client/impl-sql-js';
-import type { SqlClient } from '../../../sql-client/interface';
-import { PatchDbImplClientTransport } from '../../impl-client-transport';
-import { PatchDbImplSqlite } from '../../impl-sqlite/impl-sqlite';
-import { SyncPatchesDb } from '../../impl-sync';
-import type { PatchesDb } from '../../interface';
-import { PatchDbImplSyncHost } from '../../transport/impl-sync-host';
-import { BrowserWallClockScheduler } from './sim-link-scheduler';
+} from '../../sql-client/impl-sql-js';
+import type { SqlClient } from '../../sql-client/interface';
+import { PatchDbImplClientTransport } from '../impl-client-transport';
+import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
+import { SyncPatchesDb } from '../impl-sync';
+import type { PatchesDb } from '../interface';
+import { PatchDbImplSyncHost } from '../transport/impl-sync-host';
 import { NetworkLink } from './network-link';
 import { NotifyingPatchesDb } from './notifying-patches-db';
+import type { SimLink } from './scenario';
 import {
   type SimServerPort,
   simServerPortFromPubSub,
   simServerPortFromSyncHost,
 } from './server-port';
+import { BrowserWallClockScheduler } from './sim-link-scheduler';
 import { SimulatedPatchDbClientTransport } from './simulated-client-transport';
-import type { SimLink } from './scenario';
 
 const SYNC_SUBSCRIPTION_MICROTASK_ROUNDS = 32;
 
@@ -206,7 +206,9 @@ export async function createPlaygroundSim(
 }
 
 /** Run {@link SyncPatchesDb.runPollNow} on every client (e.g. after a direct {@link PlaygroundSim.serverBacking} write). */
-export async function playgroundPollAllClients(sim: PlaygroundSim): Promise<void> {
+export async function playgroundPollAllClients(
+  sim: PlaygroundSim
+): Promise<void> {
   for (const c of sim.clients) {
     await c.syncDb.runPollNow();
   }

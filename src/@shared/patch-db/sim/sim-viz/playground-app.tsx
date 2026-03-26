@@ -1,10 +1,10 @@
-import { DependencyInjectionContainer } from '@/@shared/dependency-injection/dependency-injection-container';
-import { ContainerProvider } from '@/@shared/dependency-injection/react';
-import type { Entity } from '@/@shared/patch-db/interface';
-import { PatchesDbToken, useEntities } from '@/@shared/patch-db/react';
-import { SubscribablePatchesDbToken } from '@/@shared/patch-db/subscribable';
 import type { CSSProperties } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { DependencyInjectionContainer } from '../../../dependency-injection/dependency-injection-container';
+import { ContainerProvider } from '../../../dependency-injection/react';
+import type { Entity } from '../../../patch-db/interface';
+import { PatchesDbToken, useEntities } from '../../../patch-db/react';
+import { SubscribablePatchesDbToken } from '../../../patch-db/subscribable';
 import {
   nextShapeOrder,
   playgroundCreateShape,
