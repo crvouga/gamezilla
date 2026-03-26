@@ -4,7 +4,8 @@ import type {
   PatchesDbQuery,
   PatchesDbQueryWhereClause,
 } from '../../interface';
-import type { PlaygroundSim } from './playground-sim';
+import { randomUuidV4 } from '../../../random-uuid';
+import { playgroundPollAllClients, type PlaygroundSim } from './playground-sim';
 
 export const SHAPE_ENTITY_TYPE = 'shape';
 
@@ -110,28 +111,9 @@ export function nextShapeOrder(entities: Entity[]): number {
   return max + 1;
 }
 
-/**
- * Prefer {@link Crypto.randomUUID}; fall back for non-secure contexts (e.g. `file://`)
- * where `randomUUID` throws or is unavailable.
- */
+/** Entity id for playground patches; same fallback as patch rows ({@link randomUuidV4}). */
 export function randomEntityId(): string {
-  const c = globalThis.crypto;
-  if (c !== undefined && typeof c.randomUUID === 'function') {
-    try {
-      return c.randomUUID();
-    } catch {
-      /* fall through */
-    }
-  }
-  if (c !== undefined && typeof c.getRandomValues === 'function') {
-    const bytes = new Uint8Array(16);
-    c.getRandomValues(bytes);
-    bytes[6] = (bytes[6]! & 0x0f) | 0x40;
-    bytes[8] = (bytes[8]! & 0x3f) | 0x80;
-    const p = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
-    return `${p.slice(0, 8)}-${p.slice(8, 12)}-${p.slice(12, 16)}-${p.slice(16, 20)}-${p.slice(20)}`;
-  }
-  return `ent-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+  return randomUuidV4();
 }
 
 export function createShapeInput(order: number): PatchInput {
@@ -173,7 +155,8 @@ export async function playgroundCreateShape(
 ): Promise<void> {
   const client = sim.clients.find((c) => c.id === clientId);
   if (!client) throw new Error(`playgroundCreateShape: unknown client ${clientId}`);
-  await client.syncDb.write([createShapeInput(order)]);
+  const input = createShapeInput(order);
+  await client.syncDb.write([input]);
   await sim.syncNow(clientId);
 }
 
@@ -237,4 +220,54 @@ export async function seedPlaygroundShapes(
       await playgroundCreateShape(sim, c.id, i);
     }
   }
+}
+
+export async function playgroundServerCreateShape(
+  sim: PlaygroundSim,
+  order: number
+): Promise<void> {
+  await sim.serverBacking.write([createShapeInput(order)]);
+  await playgroundPollAllClients(sim);
+}
+
+export async function playgroundServerUpdateRandomShape(
+  sim: PlaygroundSim,
+  entities: Entity[]
+): Promise<boolean> {
+  const entity = randomEntity(entities);
+  if (!entity) return false;
+  const picked = pickRandomRegisteredKind();
+  const def =
+    shapeKindRegistryBase[picked] ?? shapeKindRegistryBase[defaultShapeKindKey];
+  const attrs: Record<string, unknown> = {
+    [SHAPE_ATTR.kind]: def.id,
+    [SHAPE_ATTR.fill]: randomHueColor(),
+    [SHAPE_ATTR.points]: def.svgPoints(),
+  };
+  await sim.serverBacking.write([
+    {
+      entityId: entity.entityId,
+      entityType: SHAPE_ENTITY_TYPE,
+      attributes: attrs,
+    },
+  ]);
+  await playgroundPollAllClients(sim);
+  return true;
+}
+
+export async function playgroundServerSoftDeleteRandomShape(
+  sim: PlaygroundSim,
+  entities: Entity[]
+): Promise<boolean> {
+  const entity = randomEntity(entities);
+  if (!entity) return false;
+  await sim.serverBacking.write([
+    {
+      entityId: entity.entityId,
+      entityType: SHAPE_ENTITY_TYPE,
+      attributes: { [SHAPE_ATTR.deleted]: true },
+    },
+  ]);
+  await playgroundPollAllClients(sim);
+  return true;
 }

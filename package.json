@@ -17,7 +17,7 @@
     "viz:build:open": "bun run viz:build && bun run viz:open",
     "viz:open": "open sim-viz/index.html",
     "viz:serve": "bun run src/@shared/patch-db/test/sim/serve-sim-viz.ts",
-    "viz:dev": "vite --config ./src/@shared/patch-db/test/sim/sim-viz/vite.config.ts",
+    "viz:dev": "vite --config ./src/@shared/patch-db/test/sim/sim-viz/vite.config.ts --open",
     "test:fast": "SKIP_POSTGRES_TESTS=1 bun test",
     "lint": "expo lint",
     "format": "prettier --write .",

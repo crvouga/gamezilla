@@ -18,7 +18,7 @@ export default defineConfig({
       react: path.join(repoRoot, 'node_modules/react'),
       'react-dom': path.join(repoRoot, 'node_modules/react-dom'),
     },
-    dedupe: ['react', 'react-dom'],
+    dedupe: ['react', 'react-dom', 'sql.js'],
   },
   server: {
     fs: { allow: [repoRoot, dir] },

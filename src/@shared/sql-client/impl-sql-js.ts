@@ -13,6 +13,21 @@ type SqlJsBindParams = NonNullable<Parameters<SqlStatement['bind']>[0]>;
 /** One wasm load per JS realm (many in-memory DBs per module). */
 let sharedSqlJsPromise: Promise<SqlJs> | null = null;
 
+function mergeSqlJsInitConfig(
+  config?: SqlJsInitConfig
+): SqlJsInitConfig | undefined {
+  if (typeof globalThis.document === 'undefined') {
+    return config;
+  }
+  const locateFile = (file: string) =>
+    new URL(file, globalThis.document.baseURI).href;
+  const base = { locateFile } as SqlJsInitConfig;
+  if (config === undefined || config === null) {
+    return base;
+  }
+  return { ...base, ...config } as SqlJsInitConfig;
+}
+
 /** sql.js `SELECT changes(), last_insert_rowid()` right after a mutating statement. */
 function readRunMeta(db: SqlDatabase): RunResult {
   const stmt = db.prepare('SELECT changes() AS c, last_insert_rowid() AS r');
@@ -48,6 +63,7 @@ function rowsFromStatement(stmt: SqlStatement): Record<string, unknown>[] {
 }
 
 export class SqlClientImplSqlJs implements SqlClient {
+  private closed = false;
   private constructor(private readonly db: SqlDatabase) {}
 
   /**
@@ -56,15 +72,7 @@ export class SqlClientImplSqlJs implements SqlClient {
    * In Bun/Node, omit `locateFile` (bundled wasm path) unless you override.
    */
   static async openMemory(config?: SqlJsInitConfig): Promise<SqlClientImplSqlJs> {
-    const initConfig =
-      config ??
-      (typeof globalThis.document !== 'undefined'
-        ? {
-            /** Co-locate `sql-wasm-browser.wasm` with `index.html`, or pass an explicit Vite `?url` config. */
-            locateFile: (file: string) =>
-              new URL(file, globalThis.document.baseURI).href,
-          }
-        : undefined);
+    const initConfig = mergeSqlJsInitConfig(config);
     if (sharedSqlJsPromise === null) {
       sharedSqlJsPromise = initSqlJs(initConfig);
     }
@@ -83,6 +91,7 @@ export class SqlClientImplSqlJs implements SqlClient {
   }
 
   disconnect(): Promise<void> {
+    this.closed = true;
     try {
       this.db.close();
       return Promise.resolve();
@@ -95,6 +104,7 @@ export class SqlClientImplSqlJs implements SqlClient {
     sql: string,
     params?: unknown[]
   ): Promise<T[]> {
+    if (this.closed) return Promise.resolve([] as T[]);
     const stmt = this.db.prepare(sql);
     try {
       stmt.bind((params ?? []) as SqlJsBindParams);
@@ -105,7 +115,20 @@ export class SqlClientImplSqlJs implements SqlClient {
   }
 
   run(sql: string, params?: unknown[]): Promise<RunResult> {
-    this.db.run(sql, (params ?? []) as SqlJsBindParams);
+    if (this.closed) return Promise.resolve({ changes: 0, lastInsertRowid: 0 });
+    // Workaround: sql.js browser build's Database.run(sql, params) silently
+    // drops params because its minified Database.prepare() ignores the second
+    // argument. Manually prepare → bind → step → free to call Statement.bind
+    // directly, which IS correctly implemented.
+    const stmt = this.db.prepare(sql);
+    try {
+      if (params !== undefined && params !== null && params.length > 0) {
+        stmt.bind(params as SqlJsBindParams);
+      }
+      stmt.step();
+    } finally {
+      stmt.free();
+    }
     return Promise.resolve(readRunMeta(this.db));
   }
 

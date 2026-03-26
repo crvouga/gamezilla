@@ -3,14 +3,19 @@ import { ContainerProvider } from '@/@shared/dependency-injection/react';
 import type { Entity } from '@/@shared/patch-db/interface';
 import { PatchesDbToken, useEntities } from '@/@shared/patch-db/react';
 import { SubscribablePatchesDbToken } from '@/@shared/patch-db/subscribable';
+import type { CSSProperties } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   nextShapeOrder,
   playgroundCreateShape,
+  playgroundServerCreateShape,
+  playgroundServerSoftDeleteRandomShape,
+  playgroundServerUpdateRandomShape,
   playgroundSoftDeleteRandomShape,
   playgroundUpdateRandomShape,
   seedPlaygroundShapes,
   SHAPE_ATTR,
+  SHAPE_ENTITY_TYPE,
   shapeListQuery,
 } from '../playground-shapes';
 import {
@@ -18,78 +23,200 @@ import {
   type PlaygroundClientHandle,
   type PlaygroundSim,
 } from '../playground-sim';
+import {
+  PLAYGROUND_GRAPH_VIEW_H,
+  PLAYGROUND_GRAPH_VIEW_W,
+  playgroundGraphClientAnchors,
+  playgroundGraphServerAnchor,
+} from './playground-graph-layout';
 import { PlaygroundTopologyGraph } from './playground-topology-graph';
 import { browserSqlJsInit } from './sql-js-browser';
 
-function CompactServerStrip({
-  sim,
-  maxThumbs,
-}: {
-  sim: PlaygroundSim;
-  maxThumbs?: number;
-}) {
-  const shapeQuery = useMemo(() => shapeListQuery(), []);
-  const [entities, setEntities] = useState<Entity[]>([]);
-  const cap = maxThumbs ?? 14;
-
-  const refresh = useCallback(() => {
-    void sim.serverBacking.read([shapeQuery]).then((r) => {
-      setEntities(r[0]?.entities ?? []);
-    });
-  }, [sim, shapeQuery]);
-
-  useEffect(() => {
-    refresh();
-    const id = window.setInterval(refresh, 1100);
-    return () => clearInterval(id);
-  }, [refresh]);
-
-  const shown = entities.slice(0, cap);
-
+/**
+ * Serialize `destroy()` across remounts so HMR never runs two sims on one sql.js heap.
+ * Uses a global Symbol key so the promise survives Vite module re-evaluation on HMR.
+ */
+const SIM_TEARDOWN_KEY = Symbol.for('playground-sim-teardown');
+function getSimTeardown(): Promise<void> {
   return (
-    <div className="rounded-2xl border-2 border-white/15 bg-white/5 px-3 py-2 backdrop-blur-sm">
-      <div className="mb-1.5 flex flex-wrap items-center gap-2">
-        <span className="text-sm font-bold text-white/90">Server vault</span>
-        <span className="rounded-full bg-violet-500/25 px-2 py-0.5 font-mono text-xs text-violet-100">
-          {sim.serverId}
-        </span>
-        <span className="text-xs text-white/45">
-          {entities.length} shape{entities.length === 1 ? '' : 's'}
-        </span>
-      </div>
-      <div className="flex max-h-16 flex-wrap gap-1.5 overflow-y-auto overscroll-contain">
-        {shown.map((e) => (
+    (globalThis as unknown as Record<symbol, Promise<void>>)[
+      SIM_TEARDOWN_KEY
+    ] ?? Promise.resolve()
+  );
+}
+function setSimTeardown(p: Promise<void>): void {
+  (globalThis as unknown as Record<symbol, Promise<void>>)[SIM_TEARDOWN_KEY] =
+    p;
+}
+
+/** Anchor to graph node center (circle); row extends right from the node with a small gap. */
+function nodePanelsRowStyle(anchor: { x: number; y: number }): CSSProperties {
+  return {
+    position: 'absolute',
+    left: `${(anchor.x / PLAYGROUND_GRAPH_VIEW_W) * 100}%`,
+    top: `${(anchor.y / PLAYGROUND_GRAPH_VIEW_H) * 100}%`,
+    transform: 'translate(12px, -50%)',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: '0.5rem',
+  };
+}
+
+const listPanelChrome =
+  'w-[min(200px,38vw)] shrink-0 rounded-xl border border-white/20 bg-black/75 p-2 shadow-xl backdrop-blur-md';
+const actionPanelChrome =
+  'w-[min(200px,38vw)] shrink-0 rounded-xl border border-white/20 bg-black/70 p-2 shadow-xl backdrop-blur-md';
+
+function OrderedShapeList({ entities }: { entities: Entity[] }) {
+  if (entities.length === 0) {
+    return <p className="text-[0.7rem] text-white/40">No rows.</p>;
+  }
+  return (
+    <ol className="max-h-40 space-y-1.5 overflow-y-auto overscroll-contain pl-0 text-[0.72rem] text-white/80">
+      {entities.map((e) => (
+        <li key={e.entityId} className="flex items-center gap-2">
+          <span className="w-7 shrink-0 text-white/45">
+            {String(e.attributes[SHAPE_ATTR.order] ?? '')}
+          </span>
           <svg
-            key={e.entityId}
             viewBox="0 0 100 100"
-            className="h-10 w-10 shrink-0 rounded-lg border border-white/10 bg-black/30"
+            className="h-7 w-7 shrink-0 rounded border border-white/10 bg-black/40"
           >
             <polygon
               points={String(e.attributes[SHAPE_ATTR.points] ?? '')}
               fill={String(e.attributes[SHAPE_ATTR.fill] ?? '#666')}
-              stroke="rgba(255,255,255,0.15)"
+              stroke="rgba(255,255,255,0.12)"
               strokeWidth={0.35}
             />
           </svg>
-        ))}
-        {entities.length > cap ? (
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-dashed border-white/20 text-xs text-white/40">
-            +{entities.length - cap}
-          </div>
+          <span className="min-w-0 truncate font-mono text-[0.65rem]">
+            {String(e.attributes[SHAPE_ATTR.kind] ?? '')}
+          </span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function ServerNodePanel({
+  sim,
+  onGraphPulse,
+}: {
+  sim: PlaygroundSim;
+  onGraphPulse: () => void;
+}) {
+  const shapeQuery = useMemo(() => shapeListQuery(), []);
+  const [entities, setEntities] = useState<Entity[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
+
+  const refresh = useCallback(() => {
+    void sim.serverBacking
+      .read([shapeQuery])
+      .then((r) => {
+        setEntities(r[0]?.entities ?? []);
+      })
+      .catch((err: unknown) => {
+        const msg = err instanceof Error ? err.message : String(err);
+        setNote(`Read failed: ${msg}`);
+        setEntities([]);
+      });
+  }, [sim, shapeQuery]);
+
+  useEffect(() => {
+    refresh();
+    const id = window.setInterval(refresh, 900);
+    return () => clearInterval(id);
+  }, [refresh]);
+
+  const run = useCallback(
+    async (fn: () => Promise<void | boolean>) => {
+      setBusy(true);
+      setNote(null);
+      try {
+        const r = await fn();
+        if (r === false) setNote('Nothing to update (empty list).');
+        refresh();
+        onGraphPulse();
+      } catch (err) {
+        setNote(err instanceof Error ? err.message : String(err));
+      } finally {
+        setBusy(false);
+      }
+    },
+    [onGraphPulse, refresh]
+  );
+
+  const anchor = playgroundGraphServerAnchor;
+
+  return (
+    <div className="pointer-events-auto" style={nodePanelsRowStyle(anchor)}>
+      <div className={listPanelChrome}>
+        <div className="mb-1 border-b border-white/10 pb-1 font-mono text-[0.7rem] font-semibold text-white/90">
+          {sim.serverId} — local DB
+        </div>
+        <p className="mb-1 text-[0.65rem] text-white/45">
+          {entities.length} live shape(s) on authority DB
+        </p>
+        <OrderedShapeList entities={entities} />
+      </div>
+      <div className={actionPanelChrome}>
+        <div className="mb-1 border-b border-white/10 pb-1 font-mono text-[0.7rem] text-white/80">
+          {sim.serverId} — actions
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() =>
+              run(() =>
+                playgroundServerCreateShape(sim, nextShapeOrder(entities))
+              )
+            }
+            className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm font-semibold text-white hover:bg-white/15 disabled:opacity-40"
+          >
+            Create
+          </button>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() =>
+              run(() => playgroundServerUpdateRandomShape(sim, entities))
+            }
+            className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm font-semibold text-white hover:bg-white/15 disabled:opacity-40"
+          >
+            Update rnd
+          </button>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() =>
+              run(() => playgroundServerSoftDeleteRandomShape(sim, entities))
+            }
+            className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm font-semibold text-white hover:bg-white/15 disabled:opacity-40"
+          >
+            Delete rnd
+          </button>
+        </div>
+        {note ? (
+          <p className="mt-1.5 text-[0.7rem] text-amber-300">{note}</p>
         ) : null}
       </div>
     </div>
   );
 }
 
-function ClientControlDeck({
+function ClientNodePanel({
   client,
   sim,
+  anchor,
   onGraphPulse,
   onLinkChange,
 }: {
   client: PlaygroundClientHandle;
   sim: PlaygroundSim;
+  anchor: { x: number; y: number };
   onGraphPulse: () => void;
   onLinkChange: () => void;
 }) {
@@ -98,13 +225,15 @@ function ClientControlDeck({
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
 
+  const partitioned = client.link.isPartitioned();
+
   const run = useCallback(
     async (fn: () => Promise<void | boolean>) => {
       setBusy(true);
       setNote(null);
       try {
         const r = await fn();
-        if (r === false) setNote('Nothing to poke (empty).');
+        if (r === false) setNote('Nothing to update (empty list).');
         onGraphPulse();
       } catch (err) {
         setNote(err instanceof Error ? err.message : String(err));
@@ -116,102 +245,102 @@ function ClientControlDeck({
   );
 
   return (
-    <div className="flex min-w-0 flex-col gap-2 rounded-2xl border-2 border-white/12 bg-white/5 p-3 backdrop-blur-sm">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="font-display text-lg font-bold tracking-tight text-white">
-          {client.id}
-        </span>
-        {client.link.isPartitioned() ? (
-          <span className="rounded-full bg-red-500/30 px-2 py-0.5 text-xs font-bold uppercase text-red-100">
-            link off
-          </span>
-        ) : (
-          <span className="rounded-full bg-emerald-500/25 px-2 py-0.5 text-xs font-bold text-emerald-100">
-            link on
-          </span>
-        )}
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() =>
-            run(() =>
-              playgroundCreateShape(sim, client.id, nextShapeOrder(entities))
-            )
-          }
-          className="rounded-2xl bg-linear-to-b from-cyan-400 to-cyan-600 px-4 py-3 text-base font-bold text-cyan-950 shadow-lg shadow-cyan-500/20 hover:brightness-110 disabled:opacity-40"
-        >
-          Spawn shape
-        </button>
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() =>
-            run(() => playgroundUpdateRandomShape(sim, client.id, entities))
-          }
-          className="rounded-2xl border-2 border-amber-400/50 bg-amber-500/20 px-4 py-3 text-base font-bold text-amber-100 hover:bg-amber-500/30 disabled:opacity-40"
-        >
-          Chaos edit
-        </button>
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() =>
-            run(() => playgroundSoftDeleteRandomShape(sim, client.id, entities))
-          }
-          className="rounded-2xl border-2 border-rose-400/40 bg-rose-500/15 px-4 py-3 text-base font-bold text-rose-100 hover:bg-rose-500/25 disabled:opacity-40"
-        >
-          Poof one
-        </button>
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() =>
-            run(async () => {
-              client.link.partition();
-              onLinkChange();
-            })
-          }
-          className="rounded-2xl border-2 border-orange-400/35 bg-orange-950/40 px-3 py-3 text-sm font-bold text-orange-100 disabled:opacity-40"
-        >
-          ZAP link
-        </button>
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() =>
-            run(async () => {
-              client.link.heal();
-              onLinkChange();
-            })
-          }
-          className="rounded-2xl border-2 border-teal-400/35 bg-teal-950/35 px-3 py-3 text-sm font-bold text-teal-100 disabled:opacity-40"
-        >
-          Fix link
-        </button>
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() =>
-            run(async () => {
-              await sim.syncNow(client.id);
-            })
-          }
-          className="rounded-2xl border-2 border-violet-400/40 bg-violet-950/40 px-4 py-3 text-base font-bold text-violet-100 disabled:opacity-40"
-        >
-          Sync push
-        </button>
-      </div>
-
-      {note ? (
-        <p className="text-sm text-amber-200/90">{note}</p>
-      ) : (
-        <p className="text-xs text-white/35">
-          {entities.length} local shape{entities.length === 1 ? '' : 's'}
+    <div className="pointer-events-auto" style={nodePanelsRowStyle(anchor)}>
+      <div className={listPanelChrome}>
+        <div className="mb-1 border-b border-white/10 pb-1 font-mono text-[0.7rem] font-semibold text-white/90">
+          {client.id} — local DB
+        </div>
+        <p className="mb-1 text-[0.65rem] text-white/45">
+          {entities.length} local shape(s)
         </p>
-      )}
+        <OrderedShapeList entities={entities} />
+      </div>
+      <div className={actionPanelChrome}>
+        <div className="mb-1 flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-1">
+          <span className="font-mono text-[0.7rem] text-white/80">
+            {client.id} — actions
+          </span>
+          {partitioned ? (
+            <span className="rounded bg-red-950/80 px-1.5 py-0.5 text-[0.6rem] font-bold uppercase text-red-400">
+              partitioned
+            </span>
+          ) : null}
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() =>
+              run(() =>
+                playgroundCreateShape(sim, client.id, nextShapeOrder(entities))
+              )
+            }
+            className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm font-semibold text-white hover:bg-white/15 disabled:opacity-40"
+          >
+            Create
+          </button>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() =>
+              run(() => playgroundUpdateRandomShape(sim, client.id, entities))
+            }
+            className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm font-semibold text-white hover:bg-white/15 disabled:opacity-40"
+          >
+            Update rnd
+          </button>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() =>
+              run(() =>
+                playgroundSoftDeleteRandomShape(sim, client.id, entities)
+              )
+            }
+            className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm font-semibold text-white hover:bg-white/15 disabled:opacity-40"
+          >
+            Delete rnd
+          </button>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={partitioned}
+            disabled={busy}
+            onClick={() =>
+              run(async () => {
+                if (client.link.isPartitioned()) {
+                  client.link.heal();
+                } else {
+                  client.link.partition();
+                }
+                onLinkChange();
+              })
+            }
+            className={`rounded-lg border px-3 py-2 text-sm font-semibold transition-colors disabled:opacity-40 ${
+              partitioned
+                ? 'border-red-400/60 bg-red-950/50 text-red-100'
+                : 'border-white/20 bg-white/10 text-white hover:bg-white/15'
+            }`}
+          >
+            Partition {partitioned ? 'on' : 'off'}
+          </button>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() =>
+              run(async () => {
+                await sim.syncNow(client.id);
+              })
+            }
+            className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm font-semibold text-white hover:bg-white/15 disabled:opacity-40"
+          >
+            Sync
+          </button>
+        </div>
+        {note ? (
+          <p className="mt-1.5 text-[0.7rem] text-amber-300">{note}</p>
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -219,11 +348,13 @@ function ClientControlDeck({
 function PlaygroundClientProviders({
   client,
   sim,
+  anchor,
   onGraphPulse,
   onLinkChange,
 }: {
   client: PlaygroundClientHandle;
   sim: PlaygroundSim;
+  anchor: { x: number; y: number };
   onGraphPulse: () => void;
   onLinkChange: () => void;
 }) {
@@ -236,9 +367,10 @@ function PlaygroundClientProviders({
 
   return (
     <ContainerProvider container={container}>
-      <ClientControlDeck
+      <ClientNodePanel
         client={client}
         sim={sim}
+        anchor={anchor}
         onGraphPulse={onGraphPulse}
         onLinkChange={onLinkChange}
       />
@@ -249,10 +381,15 @@ function PlaygroundClientProviders({
 export function PlaygroundApp() {
   const [sim, setSim] = useState<PlaygroundSim | null>(null);
   const [bootErr, setBootErr] = useState<string | null>(null);
-  const [bootLabel, setBootLabel] = useState('Waking up the mesh…');
+  const [bootLabel, setBootLabel] = useState('Starting sql.js + sync stack…');
   const [pulseKey, setPulseKey] = useState(0);
   const [linkEpoch, setLinkEpoch] = useState(0);
   const simRef = useRef<PlaygroundSim | null>(null);
+
+  const clientAnchors = useMemo(
+    () => (sim ? playgroundGraphClientAnchors(sim.clients.length) : []),
+    [sim]
+  );
 
   const bumpGraph = useCallback(() => {
     setPulseKey((k) => k + 1);
@@ -265,20 +402,27 @@ export function PlaygroundApp() {
 
   useEffect(() => {
     let mounted = true;
-    simRef.current = null;
     setBootErr(null);
-    setBootLabel('Waking up the mesh…');
-    void createPlaygroundSim({ clientCount: 2, sqlJs: browserSqlJsInit }).then(
-      async (p) => {
+    setBootLabel('Starting sql.js + sync stack…');
+    void (async () => {
+      await getSimTeardown();
+      if (!mounted) return;
+      setSim(null);
+      try {
+        const p = await createPlaygroundSim({
+          clientCount: 2,
+          sqlJs: browserSqlJsInit,
+        });
         if (!mounted) {
           await p.destroy();
           return;
         }
         simRef.current = p;
-        setBootLabel('Sprinkling random shapes…');
+        setBootLabel('seedPlaygroundShapes…');
         try {
           await seedPlaygroundShapes(p, { shapesPerClient: 2 });
         } catch (e) {
+          simRef.current = null;
           if (!mounted) {
             await p.destroy();
             return;
@@ -288,32 +432,37 @@ export function PlaygroundApp() {
           return;
         }
         if (!mounted) {
+          simRef.current = null;
           await p.destroy();
           return;
         }
         setSim(p);
         setPulseKey((k) => k + 1);
-      },
-      (e: unknown) => {
+      } catch (e: unknown) {
         if (!mounted) return;
         setBootErr(e instanceof Error ? e.message : String(e));
       }
-    );
+    })();
     return () => {
       mounted = false;
       const x = simRef.current;
       simRef.current = null;
-      void x?.destroy();
+      const prev = getSimTeardown();
+      setSimTeardown(
+        prev.then(() =>
+          x !== null && x !== undefined ? x.destroy() : Promise.resolve()
+        )
+      );
     };
   }, []);
 
   if (bootErr) {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-3 p-6 text-center">
-        <p className="font-display text-2xl font-bold text-rose-300">
-          Oops—playground crashed
+        <p className="text-lg font-semibold text-red-300">
+          Playground failed to start
         </p>
-        <p className="max-w-md text-base text-white/55">{bootErr}</p>
+        <p className="max-w-md text-sm text-white/55">{bootErr}</p>
         <p className="text-sm text-white/40">
           Try <code className="text-cyan-300">bun run viz:serve</code> if WASM
           acts up.
@@ -324,54 +473,48 @@ export function PlaygroundApp() {
 
   if (!sim) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center gap-3">
-        <div className="font-display animate-pulse text-2xl font-bold text-white">
-          {bootLabel}
-        </div>
-        <p className="text-sm text-white/40">Tiny sqlite brains loading…</p>
+      <div className="flex h-screen flex-col items-center justify-center gap-2">
+        <p className="text-sm text-white/70">{bootLabel}</p>
       </div>
     );
   }
 
   return (
     <div className="flex h-screen min-h-0 flex-col overflow-hidden bg-(--pg-bg) text-white">
-      <header className="shrink-0 border-b border-white/10 px-4 py-3">
-        <h1 className="font-display text-2xl font-bold tracking-tight text-white md:text-3xl">
-          Patch playground
+      <header className="shrink-0 border-b border-white/10 px-4 py-2">
+        <h1 className="font-mono text-lg font-semibold text-white">
+          playground — {SHAPE_ENTITY_TYPE} / {sim.serverId}
         </h1>
-        <p className="mt-0.5 text-sm text-white/50 md:text-base">
-          Smash buttons, watch the hub &amp; clients gossip. Nothing here is
-          serious.
-        </p>
       </header>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-3 p-3 md:flex-row md:gap-4 md:p-4">
-        <section className="flex min-h-0 min-w-0 flex-[1.35] flex-col md:flex-[1.6]">
-          <div className="relative min-h-0 flex-1 overflow-hidden rounded-3xl border-2 border-white/10 bg-black/25 shadow-inner shadow-black/40">
-            <PlaygroundTopologyGraph
-              sim={sim}
-              pulseKey={pulseKey}
-              linkEpoch={linkEpoch}
-            />
-          </div>
-        </section>
-
-        <aside className="flex min-h-0 w-full shrink-0 flex-col gap-3 md:w-[min(420px,40vw)] md:max-w-md">
-          <div className="max-h-[28vh] shrink-0 overflow-y-auto md:max-h-[32vh]">
-            <CompactServerStrip sim={sim} />
-          </div>
-          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain pb-2">
-            {sim.clients.map((c) => (
+      <div className="relative min-h-0 flex-1 p-3">
+        <div
+          className="relative mx-auto h-full max-h-[min(92vh,100%)] w-full max-w-[960px]"
+          style={{
+            aspectRatio: `${PLAYGROUND_GRAPH_VIEW_W} / ${PLAYGROUND_GRAPH_VIEW_H}`,
+          }}
+        >
+          <PlaygroundTopologyGraph
+            sim={sim}
+            pulseKey={pulseKey}
+            linkEpoch={linkEpoch}
+          />
+          <ServerNodePanel sim={sim} onGraphPulse={bumpGraph} />
+          {sim.clients.map((c, i) => {
+            const anchor = clientAnchors[i];
+            if (!anchor) return null;
+            return (
               <PlaygroundClientProviders
                 key={c.id}
                 client={c}
                 sim={sim}
+                anchor={anchor}
                 onGraphPulse={bumpGraph}
                 onLinkChange={bumpLink}
               />
-            ))}
-          </div>
-        </aside>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

@@ -79,6 +79,8 @@ type ActiveQuery = {
 
 export class SyncPatchesDb implements PatchesDb {
   private readonly logPushPollFailures: boolean;
+  /** Stops subscription callbacks after {@link destroy} (e.g. HMR / teardown races). */
+  private destroyed = false;
 
   subscribe = {
     patches: (
@@ -126,6 +128,7 @@ export class SyncPatchesDb implements PatchesDb {
 
   /** Stops push scheduling and remote invalidation subscription. Call before disposing of the db. */
   destroy(): void {
+    this.destroyed = true;
     if (this.pushScheduleHandle !== null && this.pushScheduleHandle !== undefined) {
       this.pushScheduleHandle.cancel();
       this.pushScheduleHandle = null;
@@ -178,7 +181,9 @@ export class SyncPatchesDb implements PatchesDb {
     }
 
     const notify = async () => {
+      if (this.destroyed) return;
       const [result] = await this.local.read([query]);
+      if (this.destroyed) return;
       assert.ok(
         result !== null && result !== undefined,
         'read([query]) must return one result'
@@ -266,6 +271,7 @@ export class SyncPatchesDb implements PatchesDb {
   }
 
   private async pushUnsynced(): Promise<void> {
+    if (this.destroyed) return;
     try {
       const [result] = await this.local.read([
         {
@@ -372,6 +378,7 @@ export class SyncPatchesDb implements PatchesDb {
   }
 
   private async poll(): Promise<void> {
+    if (this.destroyed) return;
     const entries = Array.from(this.activeQueries.values());
     if (entries.length === 0) return;
     if (this.pollInProgress) return;

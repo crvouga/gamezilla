@@ -1,4 +1,5 @@
 import { assert } from '../../assert';
+import { randomUuidV4 } from '../../random-uuid';
 import type { SqlClient } from '../../sql-client/interface';
 import { assertSqliteQuery } from '../../sqlite';
 import {
@@ -76,7 +77,7 @@ const RESOLVE_PARENT_ID = `WITH RECURSIVE lineage AS (
     SELECT p.patch_id, l.depth + 1
     FROM patches p
     JOIN lineage l ON p.parent_id = l.patch_id
-    WHERE p.entity_id = ? AND entity_type = ?
+    WHERE p.entity_id = ? AND p.entity_type = ?
 )
 SELECT p.patch_id FROM patches p
 JOIN lineage l ON p.patch_id = l.patch_id
@@ -98,7 +99,7 @@ const SELECT_PATCHES_FOR_SNAPSHOT = `WITH RECURSIVE lineage AS (
     SELECT p.patch_id, l.depth + 1
     FROM patches p
     JOIN lineage l ON p.parent_id = l.patch_id
-    WHERE p.entity_id = ? AND entity_type = ?
+    WHERE p.entity_id = ? AND p.entity_type = ?
 )
 SELECT p.* FROM patches p
 JOIN lineage l ON p.patch_id = l.patch_id
@@ -251,7 +252,7 @@ export class PatchDbImplSqlite implements PatchesDb {
     const patchId =
       'patchId' in patch && typeof patch.patchId === 'string'
         ? patch.patchId
-        : crypto.randomUUID();
+        : randomUuidV4();
     await tx.run(INSERT_PATCH, [
       patchId,
       patch.entityId,

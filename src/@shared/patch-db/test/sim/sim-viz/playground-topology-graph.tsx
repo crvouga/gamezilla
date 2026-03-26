@@ -1,28 +1,15 @@
-import gsap from 'gsap';
+import { default as gsap } from 'gsap';
 import { useEffect, useMemo, useRef } from 'react';
 import type { PlaygroundSim } from '../playground-sim';
-import { C, NS, nodeColor } from './constants';
+import { C } from './constants';
+import {
+  PLAYGROUND_GRAPH_VIEW_H,
+  PLAYGROUND_GRAPH_VIEW_W,
+  playgroundGraphClientAnchors,
+  playgroundGraphServerAnchor,
+} from './playground-graph-layout';
 
 type ClientVm = { id: string; partitioned: boolean };
-
-function clientAnchorPositions(
-  count: number,
-  vw: number,
-  vh: number
-): { x: number; y: number }[] {
-  const cx = vw / 2;
-  const rowY = vh * 0.72;
-  if (count <= 0) return [];
-  if (count === 1) return [{ x: cx, y: rowY }];
-  const maxSpread = vw * 0.72;
-  const spread = Math.min(maxSpread, 56 + count * 48);
-  const left = cx - spread / 2;
-  const step = count > 1 ? spread / (count - 1) : 0;
-  return Array.from({ length: count }, (_, i) => ({
-    x: left + i * step,
-    y: rowY,
-  }));
-}
 
 export function PlaygroundTopologyGraph({
   sim,
@@ -31,14 +18,13 @@ export function PlaygroundTopologyGraph({
 }: {
   sim: PlaygroundSim;
   pulseKey: number;
-  /** Bump when link partition/heal might change so edges re-read state. */
   linkEpoch: number;
 }) {
-  const serverPos = { x: 240, y: 62 };
-  const viewW = 480;
-  const viewH = 280;
+  const serverPos = playgroundGraphServerAnchor;
+  const viewW = PLAYGROUND_GRAPH_VIEW_W;
+  const viewH = PLAYGROUND_GRAPH_VIEW_H;
   const anchors = useMemo(
-    () => clientAnchorPositions(sim.clients.length, viewW, viewH),
+    () => playgroundGraphClientAnchors(sim.clients.length),
     [sim.clients.length]
   );
 
@@ -48,12 +34,8 @@ export function PlaygroundTopologyGraph({
         id: c.id,
         partitioned: c.link.isPartitioned(),
       })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [sim, linkEpoch]
-  );
-
-  const allIds = useMemo(
-    () => ['s:' + sim.serverId, ...clients.map((c) => 'c:' + c.id)],
-    [sim.serverId, clients]
   );
 
   const edgesRef = useRef<(SVGLineElement | null)[]>([]);
@@ -71,7 +53,7 @@ export function PlaygroundTopologyGraph({
 
   return (
     <svg
-      className="h-full w-full max-h-full"
+      className="pointer-events-none absolute inset-0 h-full w-full"
       viewBox={`0 0 ${viewW} ${viewH}`}
       preserveAspectRatio="xMidYMid meet"
     >
@@ -101,9 +83,9 @@ export function PlaygroundTopologyGraph({
                 edgesRef.current[i] = el;
               }}
               x1={serverPos.x}
-              y1={serverPos.y + 18}
+              y1={serverPos.y}
               x2={ap.x}
-              y2={ap.y - 18}
+              y2={ap.y}
               stroke={partition ? C.red : C.teal}
               strokeWidth={partition ? 2.2 : 2.6}
               strokeDasharray={partition ? '4 6' : '6 5'}
@@ -115,94 +97,20 @@ export function PlaygroundTopologyGraph({
         })}
       </g>
 
-      <g transform={`translate(${serverPos.x}, ${serverPos.y})`}>
-        <rect
-          x={-52}
-          y={-22}
-          rx={14}
-          width={104}
-          height={44}
-          fill={C.node}
-          stroke={C.nodeSelBorder}
-          strokeWidth={2}
-        />
-        <text
-          xmlns={NS}
-          textAnchor="middle"
-          y={6}
-          fill={C.textLight}
-          fontSize={13}
-          fontWeight={700}
-          className="font-sans"
-        >
-          {sim.serverId}
-        </text>
-        <text
-          xmlns={NS}
-          textAnchor="middle"
-          y={22}
-          fill={C.teal}
-          fontSize={9}
-          fontWeight={600}
-          className="font-sans"
-        >
-          hub
-        </text>
-      </g>
-
+      <circle cx={serverPos.x} cy={serverPos.y} r={9} fill={C.node} stroke={C.nodeSelBorder} strokeWidth={2} />
       {clients.map((c, i) => {
         const ap = anchors[i];
         if (!ap) return null;
-        const col = nodeColor(allIds, 'c:' + c.id);
         return (
-          <g key={c.id} transform={`translate(${ap.x}, ${ap.y})`}>
-            <rect
-              x={-44}
-              y={-26}
-              rx={12}
-              width={88}
-              height={52}
-              fill={C.node}
-              stroke={col}
-              strokeWidth={c.partitioned ? 2 : 2.4}
-            />
-            <text
-              xmlns={NS}
-              textAnchor="middle"
-              y={2}
-              fill={C.textLight}
-              fontSize={12}
-              fontWeight={700}
-              className="font-sans"
-            >
-              {c.id}
-            </text>
-            {c.partitioned ? (
-              <text
-                xmlns={NS}
-                textAnchor="middle"
-                y={18}
-                fill={C.red}
-                fontSize={8}
-                fontWeight={700}
-                className="font-sans"
-              >
-                zapped
-              </text>
-            ) : (
-              <text
-                xmlns={NS}
-                textAnchor="middle"
-                y={18}
-                fill={C.green}
-                fontSize={8}
-                fontWeight={600}
-                className="font-sans"
-              >
-                online
-              </text>
-            )}
-          </g>
+          <circle
+            key={`n-${c.id}`}
+            cx={ap.x}
+            cy={ap.y}
+            r={8}
+            fill={C.node}
+            stroke={c.partitioned ? C.red : C.teal}
+            strokeWidth={2}
+          />
         );
       })}
     </svg>

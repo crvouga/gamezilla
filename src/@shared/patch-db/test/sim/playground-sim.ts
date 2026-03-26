@@ -204,3 +204,11 @@ export async function createPlaygroundSim(
     destroy,
   };
 }
+
+/** Run {@link SyncPatchesDb.runPollNow} on every client (e.g. after a direct {@link PlaygroundSim.serverBacking} write). */
+export async function playgroundPollAllClients(sim: PlaygroundSim): Promise<void> {
+  for (const c of sim.clients) {
+    await c.syncDb.runPollNow();
+  }
+  await flushSyncSubscriptionMicrotasks();
+}
