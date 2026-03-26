@@ -263,6 +263,21 @@ function IconLaptop({ size = 18 }: { size?: number }) {
   );
 }
 
+function IconClock({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" fill="none">
+      <circle cx={10} cy={10} r={8} stroke="currentColor" strokeWidth={1.5} />
+      <path
+        d="M10 5v5l3.5 2"
+        stroke="currentColor"
+        strokeWidth={1.6}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 // ─── Teardown ─────────────────────────────────────────────────────────
 
 const SIM_TEARDOWN_KEY = Symbol.for('playground-sim-teardown');
@@ -416,18 +431,17 @@ function ServerNodePanel({
 
   const animatePollAll = useCallback(() => {
     for (const c of sim.clients) {
-      setTimeout(
-        () => topoRef.current?.animateMessage(SERVER_NODE_ID, c.id),
-        Math.random() * 150
-      );
+      if (c.link.isPartitioned()) continue;
+      const latency = c.link.getLatency();
+      topoRef.current?.animateMessage(SERVER_NODE_ID, c.id, latency);
     }
   }, [sim.clients, topoRef]);
 
   const handleRandomize = useCallback(
     (entityId: string) =>
       run(async () => {
-        await playgroundServerRandomizeShape(sim, entityId);
         animatePollAll();
+        await playgroundServerRandomizeShape(sim, entityId);
       }),
     [run, sim, animatePollAll]
   );
@@ -435,8 +449,8 @@ function ServerNodePanel({
   const handleDelete = useCallback(
     (entityId: string) =>
       run(async () => {
-        await playgroundServerDeleteShape(sim, entityId);
         animatePollAll();
+        await playgroundServerDeleteShape(sim, entityId);
       }),
     [run, sim, animatePollAll]
   );
@@ -458,11 +472,11 @@ function ServerNodePanel({
       if (moved) {
         reordered.splice(dropIdx, 0, moved);
         void run(async () => {
+          animatePollAll();
           await playgroundServerReorderShapes(
             sim,
             reordered.map((e) => e.entityId)
           );
-          animatePollAll();
         });
       }
       setDragIdx(null);
@@ -492,8 +506,8 @@ function ServerNodePanel({
             disabled={busy}
             onClick={() =>
               run(async () => {
-                await playgroundServerClearAllShapes(sim, entities);
                 animatePollAll();
+                await playgroundServerClearAllShapes(sim, entities);
               })
             }
             className={`${btnSmall} ml-auto`}
@@ -530,8 +544,8 @@ function ServerNodePanel({
           disabled={busy}
           onClick={() =>
             run(async () => {
-              await playgroundServerCreateShape(sim, nextShapeOrder(entities));
               animatePollAll();
+              await playgroundServerCreateShape(sim, nextShapeOrder(entities));
             })
           }
           className={`${btnAction} mt-2 w-full justify-center`}
@@ -569,6 +583,7 @@ function ClientNodePanel({
   const { entities } = useEntities(shapeQuery);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
+  const [latencyMs, setLatencyMs] = useState(0);
   const partitioned = client.link.isPartitioned();
 
   const run = useCallback(
@@ -588,20 +603,34 @@ function ClientNodePanel({
     [onGraphPulse]
   );
 
+  const handleLatencyChange = useCallback(
+    (ms: number) => {
+      setLatencyMs(ms);
+      client.link.setLatency(ms);
+    },
+    [client.link]
+  );
+
   const animatePush = useCallback(() => {
-    topoRef.current?.animateMessage(client.id, SERVER_NODE_ID);
+    const pushLatency = client.link.getLatency();
+    if (!client.link.isPartitioned()) {
+      topoRef.current?.animateMessage(client.id, SERVER_NODE_ID, pushLatency);
+    }
+    const pollDelay = Math.max(pushLatency, 150);
     setTimeout(() => {
       for (const c of sim.clients) {
-        topoRef.current?.animateMessage(SERVER_NODE_ID, c.id);
+        if (c.link.isPartitioned()) continue;
+        const pollLatency = c.link.getLatency();
+        topoRef.current?.animateMessage(SERVER_NODE_ID, c.id, pollLatency);
       }
-    }, 350);
-  }, [client.id, sim.clients, topoRef]);
+    }, pollDelay);
+  }, [client.id, client.link, sim.clients, topoRef]);
 
   const handleRandomize = useCallback(
     (entityId: string) =>
       run(async () => {
-        await playgroundRandomizeShape(sim, client.id, entityId);
         animatePush();
+        await playgroundRandomizeShape(sim, client.id, entityId);
       }),
     [run, sim, client.id, animatePush]
   );
@@ -609,8 +638,8 @@ function ClientNodePanel({
   const handleDelete = useCallback(
     (entityId: string) =>
       run(async () => {
-        await playgroundDeleteShape(sim, client.id, entityId);
         animatePush();
+        await playgroundDeleteShape(sim, client.id, entityId);
       }),
     [run, sim, client.id, animatePush]
   );
@@ -632,12 +661,12 @@ function ClientNodePanel({
       if (moved) {
         reordered.splice(dropIdx, 0, moved);
         void run(async () => {
+          animatePush();
           await playgroundReorderShapes(
             sim,
             client.id,
             reordered.map((e) => e.entityId)
           );
-          animatePush();
         });
       }
       setDragIdx(null);
@@ -672,6 +701,25 @@ function ClientNodePanel({
       </div>
 
       <div className="p-3">
+        {/* Latency control */}
+        <div className="mb-2 flex items-center gap-2 rounded-lg border border-white/8 bg-white/4 px-2 py-1.5">
+          <span className="text-white/40">
+            <IconClock />
+          </span>
+          <input
+            type="range"
+            min={0}
+            max={3000}
+            step={50}
+            value={latencyMs}
+            onChange={(e) => handleLatencyChange(Number(e.target.value))}
+            className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-white/15 accent-violet-400"
+          />
+          <span className="w-14 text-right font-mono text-[0.65rem] text-white/50">
+            {latencyMs}ms
+          </span>
+        </div>
+
         <div className="mb-2 flex flex-wrap items-center gap-1.5">
           <button
             type="button"
@@ -701,8 +749,8 @@ function ClientNodePanel({
             disabled={busy}
             onClick={() =>
               run(async () => {
-                await sim.syncNow(client.id);
                 animatePush();
+                await sim.syncNow(client.id);
               })
             }
             className={btnAction}
@@ -716,8 +764,8 @@ function ClientNodePanel({
             disabled={busy}
             onClick={() =>
               run(async () => {
-                await playgroundClearAllShapes(sim, client.id, entities);
                 animatePush();
+                await playgroundClearAllShapes(sim, client.id, entities);
               })
             }
             className={btnSmall}
@@ -758,12 +806,12 @@ function ClientNodePanel({
           disabled={busy}
           onClick={() =>
             run(async () => {
+              animatePush();
               await playgroundCreateShape(
                 sim,
                 client.id,
                 nextShapeOrder(entities)
               );
-              animatePush();
             })
           }
           className={`${btnAction} mt-2 w-full justify-center`}

@@ -86,6 +86,7 @@ function createSimLink(link: NetworkLink): SimLink {
     failNextWrite: (err?: Error) =>
       link.failNextWriteWith(err ?? new Error('simulated write failure')),
     setLatency: (ms: number) => link.setReadWriteLatencyMs(ms),
+    getLatency: () => link.getReadWriteLatencyMs(),
     setInvalidationLatency: (ms: number) => link.setInvalidationLatencyMs(ms),
     isPartitioned: () => link.isPartitioned(),
   };
@@ -119,6 +120,7 @@ export type SimLink = {
   failNextRead(err?: Error): void;
   failNextWrite(err?: Error): void;
   setLatency(ms: number): void;
+  getLatency(): number;
   setInvalidationLatency(ms: number): void;
   isPartitioned(): boolean;
 };

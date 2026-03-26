@@ -45,6 +45,10 @@ export class NetworkLink {
     return this.partitioned;
   }
 
+  getReadWriteLatencyMs(): number {
+    return this.readWriteLatencyMs;
+  }
+
   setReadWriteLatencyMs(ms: number): void {
     assert.ok(
       Number.isFinite(ms) && ms >= 0,

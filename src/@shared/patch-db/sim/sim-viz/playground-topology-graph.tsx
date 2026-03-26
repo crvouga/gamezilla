@@ -19,7 +19,8 @@ import {
 type ClientVm = { id: string; partitioned: boolean };
 
 export type TopoAnimHandle = {
-  animateMessage(fromNodeId: string, toNodeId: string): void;
+  /** @param durationMs Travel time for the dot. Defaults to 150ms minimum. */
+  animateMessage(fromNodeId: string, toNodeId: string, durationMs?: number): void;
 };
 
 const SERVER_NODE_ID = '__server__';
@@ -145,10 +146,12 @@ export const PlaygroundTopologyGraph = forwardRef<
   );
 
   const animateMessage = useCallback(
-    (fromNodeId: string, toNodeId: string) => {
+    (fromNodeId: string, toNodeId: string, durationMs?: number) => {
       const fromPos = nodePosition(fromNodeId);
       const toPos = nodePosition(toNodeId);
       if (!fromPos || !toPos || !particlesRef.current) return;
+
+      const travelSec = Math.max(durationMs ?? 0, 150) / 1000;
 
       const ns = 'http://www.w3.org/2000/svg';
       const dot = document.createElementNS(ns, 'circle');
@@ -165,13 +168,13 @@ export const PlaygroundTopologyGraph = forwardRef<
         {
           attr: { cx: toPos.x, cy: toPos.y },
           opacity: 1,
-          duration: 0.5,
+          duration: travelSec,
           ease: 'power2.inOut',
           onComplete: () => {
             gsap.to(dot, {
               opacity: 0,
               attr: { r: 8 },
-              duration: 0.25,
+              duration: 0.2,
               onComplete: () => dot.remove(),
             });
           },
