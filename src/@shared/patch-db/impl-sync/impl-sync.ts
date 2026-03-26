@@ -126,6 +126,14 @@ export class SyncPatchesDb implements PatchesDb {
     await this.poll();
   }
 
+  /**
+   * Publishes an invalidation so active subscription listeners re-read from the local db.
+   * Call after out-of-band mutations (e.g. raw SQL wipes) that bypass {@link write}.
+   */
+  notifyInvalidated(): void {
+    this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
+  }
+
   /** Stops push scheduling and remote invalidation subscription. Call before disposing of the db. */
   destroy(): void {
     this.destroyed = true;

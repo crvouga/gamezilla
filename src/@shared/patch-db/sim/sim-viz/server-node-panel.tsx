@@ -6,7 +6,7 @@ import {
   playgroundServerRandomizeShape,
   playgroundServerReorderShapes,
 } from '../playground-shapes';
-import { IconClear, IconPartition, IconServer } from './icons';
+import { IconClear, IconPartition, IconServer, IconSync } from './icons';
 import { NodePanelShell } from './node-panel-shell';
 import { ShapeList } from './shape-list';
 import { useSimContext } from './sim-context';
@@ -112,6 +112,20 @@ export function ServerNodePanel() {
         >
           <IconPartition active={serverPartitioned} size={14} />
           {serverPartitioned ? 'Reconnect' : 'Partition'}
+        </button>
+
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() =>
+            run(async () => {
+              await sim.pollAllClients();
+            })
+          }
+          className={btnAction}
+        >
+          <IconSync size={14} />
+          Sync All
         </button>
       </div>
 

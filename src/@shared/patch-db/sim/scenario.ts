@@ -252,6 +252,32 @@ export class Sim {
     };
   }
 
+  /** Wipe all data from a client's local DB (simulate catastrophic data loss). */
+  async wipeClientStorage(clientId: string): Promise<void> {
+    const rt = this.clientRuntimes.find((c) => c.id === clientId);
+    if (!rt) throw new Error(`wipeClientStorage: unknown client ${clientId}`);
+    await rt.sqlClient.run('DELETE FROM patches');
+    await rt.sqlClient.run('DELETE FROM snapshots');
+  }
+
+  /** Wipe all data from a server's DB (simulate catastrophic data loss). */
+  async wipeServerStorage(serverId: string): Promise<void> {
+    const rt = this.serverRuntimes.find((s) => s.id === serverId);
+    if (!rt) throw new Error(`wipeServerStorage: unknown server ${serverId}`);
+    await rt.sql.run('DELETE FROM patches');
+    await rt.sql.run('DELETE FROM snapshots');
+  }
+
+  /** Clear sync markers on all client patches, forcing them to be re-pushed. */
+  async markClientPatchesUnsynced(clientId: string): Promise<void> {
+    const rt = this.clientRuntimes.find((c) => c.id === clientId);
+    if (!rt)
+      throw new Error(`markClientPatchesUnsynced: unknown client ${clientId}`);
+    await rt.sqlClient.run(
+      `UPDATE patches SET attributes = json_remove(attributes, '$."patch/syncedAt"')`
+    );
+  }
+
   /**
    * Read `query` on every client and every server, then assert they all
    * agree on the same set of entity IDs and the same attribute values.

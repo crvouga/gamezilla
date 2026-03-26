@@ -125,6 +125,7 @@ export type PlaygroundSim = {
   removeClient(id: string): Promise<void>;
   destroy(): Promise<void>;
   takeSnapshot(): PlaygroundSimSnapshot;
+  pollAllClients(): Promise<void>;
   isServerPartitioned(): boolean;
   partitionServer(): void;
   healServer(): void;
@@ -285,6 +286,13 @@ export async function createPlaygroundSim(
     };
   }
 
+  async function pollAllClients(): Promise<void> {
+    for (const c of clientRuntimes) {
+      await c.syncDb.runPollNow();
+    }
+    await flushSyncSubscriptionMicrotasks();
+  }
+
   return {
     serverId,
     scheduler,
@@ -297,6 +305,7 @@ export async function createPlaygroundSim(
     removeClient,
     destroy,
     takeSnapshot,
+    pollAllClients,
     isServerPartitioned: () => port.isPartitioned(),
     partitionServer: () => port.setPartitioned(true),
     healServer: () => port.setPartitioned(false),
@@ -482,6 +491,13 @@ export async function restorePlaygroundSim(
     };
   }
 
+  async function pollAllClients(): Promise<void> {
+    for (const c of clientRuntimes) {
+      await c.syncDb.runPollNow();
+    }
+    await flushSyncSubscriptionMicrotasks();
+  }
+
   return {
     serverId: snapshot.serverId,
     scheduler,
@@ -494,6 +510,7 @@ export async function restorePlaygroundSim(
     removeClient,
     destroy,
     takeSnapshot,
+    pollAllClients,
     isServerPartitioned: () => port.isPartitioned(),
     partitionServer: () => port.setPartitioned(true),
     healServer: () => port.setPartitioned(false),

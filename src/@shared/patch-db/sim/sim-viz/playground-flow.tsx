@@ -1,22 +1,22 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ReactFlow,
   Background,
-  Panel,
-  useReactFlow,
-  type Node,
-  type Edge,
-  type NodeProps,
-  type NodeChange,
   Handle,
+  Panel,
   Position,
+  ReactFlow,
   applyNodeChanges,
+  useReactFlow,
+  type Edge,
+  type Node,
+  type NodeChange,
+  type NodeProps,
 } from '@xyflow/react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { PlaygroundClientHandle, PlaygroundSim } from '../playground-sim';
+import { ClientNodePanel } from './client-node-panel';
 import { IconAutoLayout } from './icons';
 import { ServerNodePanel } from './server-node-panel';
-import { ClientNodePanel } from './client-node-panel';
 
 const NODE_WIDTH = 280;
 const SERVER_NODE_ID = '__server__';
@@ -64,7 +64,7 @@ const nodeTypes = {
 
 function defaultClientPosition(
   index: number,
-  total: number,
+  total: number
 ): { x: number; y: number } {
   const spacing = NODE_WIDTH + 40;
   const totalWidth = Math.max(0, (total - 1) * spacing);
@@ -76,7 +76,7 @@ function defaultClientPosition(
 
 function buildNodes(
   sim: PlaygroundSim,
-  posOverrides: Record<string, { x: number; y: number }>,
+  posOverrides: Record<string, { x: number; y: number }>
 ): Node[] {
   const count = sim.clients.length;
   const nodes: Node[] = [
@@ -127,11 +127,16 @@ function AutoFitOnClientChange({ count }: { count: number }) {
       const t = setTimeout(() => fitView({ padding: 0.2, duration: 300 }), 50);
       return () => clearTimeout(t);
     }
+    return () => {};
   }, [count, fitView]);
   return null;
 }
 
-function AutoLayoutPanel({ setNodes }: { setNodes: React.Dispatch<React.SetStateAction<Node[]>> }) {
+function AutoLayoutPanel({
+  setNodes,
+}: {
+  setNodes: React.Dispatch<React.SetStateAction<Node[]>>;
+}) {
   const { fitView } = useReactFlow();
 
   const handleAutoLayout = useCallback(() => {
@@ -202,13 +207,13 @@ export function PlaygroundFlow({
   const edges = useMemo(
     () => buildEdges(sim),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sim, linkEpoch],
+    [sim, linkEpoch]
   );
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) =>
       setNodes((nds) => applyNodeChanges(changes, nds)),
-    [],
+    []
   );
 
   return (
