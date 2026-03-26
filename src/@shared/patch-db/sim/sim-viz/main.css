@@ -23,6 +23,8 @@ body {
   font-family: var(--font-display);
 }
 
+/* ── Edge animations ───────────────────────────────────────── */
+
 @keyframes edgeFlow {
   to {
     stroke-dashoffset: -24;
@@ -34,6 +36,28 @@ body {
 }
 .edge-dead {
   stroke-dasharray: 4 6;
+}
+
+/* ── Scrollbar styling ─────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* ── Drag-and-drop hint ────────────────────────────────────── */
+
+li[draggable='true']:active {
+  opacity: 0.6;
 }
 
 @media (prefers-reduced-motion: reduce) {

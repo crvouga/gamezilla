@@ -48,6 +48,7 @@
     "tablename",
     "TIMESTAMPTZ",
     "topo",
+    "Tweens",
     "uncatchable",
     "unsub",
     "unsubs",

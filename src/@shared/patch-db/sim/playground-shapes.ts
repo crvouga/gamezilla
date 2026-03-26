@@ -273,3 +273,149 @@ export async function playgroundServerSoftDeleteRandomShape(
   await playgroundPollAllClients(sim);
   return true;
 }
+
+export async function playgroundDeleteShape(
+  sim: PlaygroundSim,
+  clientId: string,
+  entityId: string
+): Promise<void> {
+  const client = sim.clients.find((c) => c.id === clientId);
+  if (!client)
+    throw new Error(`playgroundDeleteShape: unknown client ${clientId}`);
+  await client.syncDb.write([
+    {
+      entityId,
+      entityType: SHAPE_ENTITY_TYPE,
+      attributes: { [SHAPE_ATTR.deleted]: true },
+    },
+  ]);
+  await sim.syncNow(clientId);
+}
+
+export async function playgroundServerDeleteShape(
+  sim: PlaygroundSim,
+  entityId: string
+): Promise<void> {
+  await sim.serverBacking.write([
+    {
+      entityId,
+      entityType: SHAPE_ENTITY_TYPE,
+      attributes: { [SHAPE_ATTR.deleted]: true },
+    },
+  ]);
+  await playgroundPollAllClients(sim);
+}
+
+export async function playgroundRandomizeShape(
+  sim: PlaygroundSim,
+  clientId: string,
+  entityId: string
+): Promise<void> {
+  const client = sim.clients.find((c) => c.id === clientId);
+  if (!client)
+    throw new Error(`playgroundRandomizeShape: unknown client ${clientId}`);
+  const picked = pickRandomRegisteredKind();
+  const def =
+    shapeKindRegistryBase[picked] ?? shapeKindRegistryBase[defaultShapeKindKey];
+  await client.syncDb.write([
+    {
+      entityId,
+      entityType: SHAPE_ENTITY_TYPE,
+      attributes: {
+        [SHAPE_ATTR.kind]: def.id,
+        [SHAPE_ATTR.fill]: randomHueColor(),
+        [SHAPE_ATTR.points]: def.svgPoints(),
+      },
+    },
+  ]);
+  await sim.syncNow(clientId);
+}
+
+export async function playgroundServerRandomizeShape(
+  sim: PlaygroundSim,
+  entityId: string
+): Promise<void> {
+  const picked = pickRandomRegisteredKind();
+  const def =
+    shapeKindRegistryBase[picked] ?? shapeKindRegistryBase[defaultShapeKindKey];
+  await sim.serverBacking.write([
+    {
+      entityId,
+      entityType: SHAPE_ENTITY_TYPE,
+      attributes: {
+        [SHAPE_ATTR.kind]: def.id,
+        [SHAPE_ATTR.fill]: randomHueColor(),
+        [SHAPE_ATTR.points]: def.svgPoints(),
+      },
+    },
+  ]);
+  await playgroundPollAllClients(sim);
+}
+
+/** Rewrite order attributes for a client after reordering. */
+export async function playgroundReorderShapes(
+  sim: PlaygroundSim,
+  clientId: string,
+  orderedEntityIds: string[]
+): Promise<void> {
+  const client = sim.clients.find((c) => c.id === clientId);
+  if (!client)
+    throw new Error(`playgroundReorderShapes: unknown client ${clientId}`);
+  const patches = orderedEntityIds.map((entityId, i) => ({
+    entityId,
+    entityType: SHAPE_ENTITY_TYPE,
+    attributes: { [SHAPE_ATTR.order]: i },
+  }));
+  if (patches.length > 0) {
+    await client.syncDb.write(patches);
+    await sim.syncNow(clientId);
+  }
+}
+
+export async function playgroundServerReorderShapes(
+  sim: PlaygroundSim,
+  orderedEntityIds: string[]
+): Promise<void> {
+  const patches = orderedEntityIds.map((entityId, i) => ({
+    entityId,
+    entityType: SHAPE_ENTITY_TYPE,
+    attributes: { [SHAPE_ATTR.order]: i },
+  }));
+  if (patches.length > 0) {
+    await sim.serverBacking.write(patches);
+    await playgroundPollAllClients(sim);
+  }
+}
+
+/** Soft-delete all shapes for a client (clear DB). */
+export async function playgroundClearAllShapes(
+  sim: PlaygroundSim,
+  clientId: string,
+  localEntities: Entity[]
+): Promise<void> {
+  const client = sim.clients.find((c) => c.id === clientId);
+  if (!client)
+    throw new Error(`playgroundClearAllShapes: unknown client ${clientId}`);
+  if (localEntities.length === 0) return;
+  const patches = localEntities.map((e) => ({
+    entityId: e.entityId,
+    entityType: SHAPE_ENTITY_TYPE,
+    attributes: { [SHAPE_ATTR.deleted]: true },
+  }));
+  await client.syncDb.write(patches);
+  await sim.syncNow(clientId);
+}
+
+export async function playgroundServerClearAllShapes(
+  sim: PlaygroundSim,
+  entities: Entity[]
+): Promise<void> {
+  if (entities.length === 0) return;
+  const patches = entities.map((e) => ({
+    entityId: e.entityId,
+    entityType: SHAPE_ENTITY_TYPE,
+    attributes: { [SHAPE_ATTR.deleted]: true },
+  }));
+  await sim.serverBacking.write(patches);
+  await playgroundPollAllClients(sim);
+}

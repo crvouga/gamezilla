@@ -64,46 +64,31 @@ export type PlaygroundClientHandle = {
 
 export type PlaygroundSim = {
   serverId: string;
-  /** Wall clock + microtasks for {@link NetworkLink}. */
   scheduler: BrowserWallClockScheduler;
-  /** Authoritative server backing store (read-only debugging). */
   serverBacking: PatchDbImplSqlite;
   serverSql: SqlClient;
   serverDb: PatchesDb;
   clients: PlaygroundClientHandle[];
-  /**
-   * After a local write on `actorClientId`, push that client then poll every client
-   * so peers converge without background timers.
-   */
   syncNow(actorClientId: string): Promise<void>;
+  addClient(): Promise<PlaygroundClientHandle>;
+  removeClient(id: string): Promise<void>;
   destroy(): Promise<void>;
 };
 
 export type CreatePlaygroundSimOptions = {
   /** @default 2 */
   clientCount?: number;
-  /** @default false — use {@link NotifyingPatchesDb} server. */
+  /** @default false */
   useSyncHost?: boolean;
   /** @default `'srv'` */
   serverId?: string;
-  /**
-   * Passed to every {@link SqlClientImplSqlJs.openMemory} call (browser builds should set WASM `locateFile`, e.g. Vite `?url`).
-   * The first call initializes the shared sql.js module; later calls reuse it with this same config.
-   */
   sqlJs?: SqlJsInitConfig;
 };
 
-/**
- * One server + N browser-style clients: {@link SqlClientImplSqlJs}, {@link BrowserWallClockScheduler},
- * manual push/poll (no {@link SimEventRecorder}).
- */
 export async function createPlaygroundSim(
   options?: CreatePlaygroundSimOptions
 ): Promise<PlaygroundSim> {
   const clientCount = options?.clientCount ?? 2;
-  if (clientCount < 1) {
-    throw new Error('createPlaygroundSim: clientCount must be >= 1');
-  }
   const useSyncHost = options?.useSyncHost ?? false;
   const serverId = options?.serverId ?? 'srv';
   const sqlJs = options?.sqlJs;
@@ -130,9 +115,13 @@ export async function createPlaygroundSim(
   }
 
   const clientRuntimes: ClientRuntime[] = [];
+  const clients: PlaygroundClientHandle[] = [];
+  const clientById = new Map<string, ClientRuntime>();
+  let nextClientNum = 1;
 
-  for (let i = 0; i < clientCount; i++) {
-    const id = `c${i + 1}`;
+  async function createClientRuntime(
+    id: string
+  ): Promise<{ runtime: ClientRuntime; handle: PlaygroundClientHandle }> {
     const sqlClient = await SqlClientImplSqlJs.openMemory(sqlJs);
     await sqlClient.connect();
     const localDb = new PatchDbImplSqlite(sqlClient);
@@ -151,26 +140,32 @@ export async function createPlaygroundSim(
       logPushPollFailures: false,
     });
 
-    clientRuntimes.push({
+    const runtime: ClientRuntime = {
       id,
       sqlClient,
       localDb,
       transport,
       syncDb,
       link,
-    });
+    };
+    const handle: PlaygroundClientHandle = {
+      id,
+      syncDb,
+      link: createSimLink(link),
+      sqlClient,
+      localDb,
+      transport,
+    };
+    return { runtime, handle };
   }
 
-  const clients: PlaygroundClientHandle[] = clientRuntimes.map((c) => ({
-    id: c.id,
-    syncDb: c.syncDb,
-    link: createSimLink(c.link),
-    sqlClient: c.sqlClient,
-    localDb: c.localDb,
-    transport: c.transport,
-  }));
-
-  const clientById = new Map(clientRuntimes.map((c) => [c.id, c]));
+  for (let i = 0; i < clientCount; i++) {
+    const id = `c${nextClientNum++}`;
+    const { runtime, handle } = await createClientRuntime(id);
+    clientRuntimes.push(runtime);
+    clients.push(handle);
+    clientById.set(id, runtime);
+  }
 
   async function syncNow(actorClientId: string): Promise<void> {
     const actor = clientById.get(actorClientId);
@@ -182,6 +177,29 @@ export async function createPlaygroundSim(
       await c.syncDb.runPollNow();
     }
     await flushSyncSubscriptionMicrotasks();
+  }
+
+  async function addClient(): Promise<PlaygroundClientHandle> {
+    const id = `c${nextClientNum++}`;
+    const { runtime, handle } = await createClientRuntime(id);
+    clientRuntimes.push(runtime);
+    clients.push(handle);
+    clientById.set(id, runtime);
+    await runtime.syncDb.runPollNow();
+    await flushSyncSubscriptionMicrotasks();
+    return handle;
+  }
+
+  async function removeClient(id: string): Promise<void> {
+    const runtime = clientById.get(id);
+    if (!runtime) throw new Error(`removeClient: unknown client ${id}`);
+    runtime.syncDb.destroy();
+    await runtime.sqlClient.disconnect();
+    clientById.delete(id);
+    const ri = clientRuntimes.indexOf(runtime);
+    if (ri >= 0) clientRuntimes.splice(ri, 1);
+    const ci = clients.findIndex((c) => c.id === id);
+    if (ci >= 0) clients.splice(ci, 1);
   }
 
   async function destroy(): Promise<void> {
@@ -201,6 +219,8 @@ export async function createPlaygroundSim(
     serverDb: serverBacking,
     clients,
     syncNow,
+    addClient,
+    removeClient,
     destroy,
   };
 }
