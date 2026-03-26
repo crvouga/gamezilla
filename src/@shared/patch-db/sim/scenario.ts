@@ -135,6 +135,8 @@ export type SimClient = {
   push(): Promise<void>;
   /** Run one poll cycle + flush microtasks. */
   poll(): Promise<void>;
+  /** Wipe all local data (simulate catastrophic client data loss). */
+  wipeStorage(): Promise<void>;
   subscribe: SyncPatchesDb['subscribe'];
   link: SimLink;
   /** Escape hatch: raw SyncPatchesDb (for edge-case tests). */
@@ -145,6 +147,8 @@ export type SimServer = {
   id: string;
   /** The authority PatchesDb (write here to simulate other clients). */
   db: PatchesDb;
+  /** Wipe all server data (simulate catastrophic server data loss). */
+  wipeStorage(): Promise<void>;
 };
 
 export type { SimRecordingMeta };
@@ -250,32 +254,6 @@ export class Sim {
     return () => {
       for (const u of unsubs) u();
     };
-  }
-
-  /** Wipe all data from a client's local DB (simulate catastrophic data loss). */
-  async wipeClientStorage(clientId: string): Promise<void> {
-    const rt = this.clientRuntimes.find((c) => c.id === clientId);
-    if (!rt) throw new Error(`wipeClientStorage: unknown client ${clientId}`);
-    await rt.sqlClient.run('DELETE FROM patches');
-    await rt.sqlClient.run('DELETE FROM snapshots');
-  }
-
-  /** Wipe all data from a server's DB (simulate catastrophic data loss). */
-  async wipeServerStorage(serverId: string): Promise<void> {
-    const rt = this.serverRuntimes.find((s) => s.id === serverId);
-    if (!rt) throw new Error(`wipeServerStorage: unknown server ${serverId}`);
-    await rt.sql.run('DELETE FROM patches');
-    await rt.sql.run('DELETE FROM snapshots');
-  }
-
-  /** Clear sync markers on all client patches, forcing them to be re-pushed. */
-  async markClientPatchesUnsynced(clientId: string): Promise<void> {
-    const rt = this.clientRuntimes.find((c) => c.id === clientId);
-    if (!rt)
-      throw new Error(`markClientPatchesUnsynced: unknown client ${clientId}`);
-    await rt.sqlClient.run(
-      `UPDATE patches SET attributes = json_remove(attributes, '$."patch/syncedAt"')`
-    );
   }
 
   /**
@@ -600,6 +578,10 @@ async function buildScenario(
           };
         },
       },
+      wipeStorage: async () => {
+        await c.sqlClient.run('DELETE FROM patches');
+        await c.sqlClient.run('DELETE FROM snapshots');
+      },
       link: simLink,
       syncDb: c.syncDb,
     };
@@ -612,7 +594,14 @@ async function buildScenario(
       recorder !== null
         ? wrapServerDbForViz(s.id, s.backing, recorder, () => scheduler.now())
         : s.backing;
-    serverHandles.set(s.id, { id: s.id, db });
+    serverHandles.set(s.id, {
+      id: s.id,
+      db,
+      wipeStorage: async () => {
+        await s.sql.run('DELETE FROM patches');
+        await s.sql.run('DELETE FROM snapshots');
+      },
+    });
   }
 
   return new Sim(

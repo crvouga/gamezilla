@@ -133,6 +133,9 @@ export type PlaygroundSim = {
   isServerPartitioned(): boolean;
   partitionServer(): void;
   healServer(): void;
+  /** Set baseline latency on all current and future client links. */
+  setGlobalLatency(ms: number): void;
+  getGlobalLatency(): number;
 };
 
 export type CreatePlaygroundSimOptions = {
@@ -179,6 +182,7 @@ export async function createPlaygroundSim(
   const clients: PlaygroundClientHandle[] = [];
   const clientById = new Map<string, ClientRuntime>();
   let nextClientNum = 1;
+  let globalLatencyMs = 0;
 
   async function createClientRuntime(
     id: string
@@ -189,6 +193,7 @@ export async function createPlaygroundSim(
     await localDb.migrate();
 
     const link = new NetworkLink(scheduler);
+    if (globalLatencyMs > 0) link.setReadWriteLatencyMs(globalLatencyMs);
     const transport = new SimulatedPatchDbClientTransport(port, link);
     const remotePatchesDb = new PatchDbImplClientTransport(transport);
     const clientPubSub = new InMemoryPubSub();
@@ -332,6 +337,13 @@ export async function createPlaygroundSim(
     isServerPartitioned: () => port.isPartitioned(),
     partitionServer: () => port.setPartitioned(true),
     healServer: () => port.setPartitioned(false),
+    setGlobalLatency(ms: number) {
+      globalLatencyMs = ms;
+      for (const c of clientRuntimes) {
+        c.link.setReadWriteLatencyMs(ms);
+      }
+    },
+    getGlobalLatency: () => globalLatencyMs,
   };
 }
 
@@ -365,6 +377,7 @@ export async function restorePlaygroundSim(
   const clientRuntimes: ClientRuntime[] = [];
   const clients: PlaygroundClientHandle[] = [];
   const clientById = new Map<string, ClientRuntime>();
+  let globalLatencyMs = 0;
   let nextClientNum =
     snapshot.clients.reduce((max, c) => {
       const n = parseInt(c.id.replace(/\D/g, ''), 10);
@@ -422,6 +435,7 @@ export async function restorePlaygroundSim(
     await localDb.migrate();
 
     const link = new NetworkLink(scheduler);
+    if (globalLatencyMs > 0) link.setReadWriteLatencyMs(globalLatencyMs);
     const transport = new SimulatedPatchDbClientTransport(port, link);
     const remotePatchesDb = new PatchDbImplClientTransport(transport);
     const clientPubSub = new InMemoryPubSub();
@@ -556,6 +570,13 @@ export async function restorePlaygroundSim(
     isServerPartitioned: () => port.isPartitioned(),
     partitionServer: () => port.setPartitioned(true),
     healServer: () => port.setPartitioned(false),
+    setGlobalLatency(ms: number) {
+      globalLatencyMs = ms;
+      for (const c of clientRuntimes) {
+        c.link.setReadWriteLatencyMs(ms);
+      }
+    },
+    getGlobalLatency: () => globalLatencyMs,
   };
 }
 

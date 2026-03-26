@@ -385,6 +385,50 @@ export class SyncPatchesDb implements PatchesDb {
     return hasNewPatches;
   }
 
+  /**
+   * Detects server data loss by comparing the server's response against locally
+   * synced patches. For each query without a `where` clause (entity-tracking
+   * queries), if the server is missing patches the client had already pushed,
+   * those patches are marked unsynced so the next push cycle re-sends them.
+   *
+   * Only checks queries without `where` to avoid false positives caused by
+   * snapshot-level filtering differences between client and server.
+   */
+  private async markMissingSyncedPatches(
+    queries: PatchesDbQuery[],
+    results: PatchesDbResult[]
+  ): Promise<boolean> {
+    const patchIdsToUnsync = new Set<string>();
+
+    for (let i = 0; i < queries.length; i++) {
+      const query = queries[i];
+      const result = results[i];
+      if (!query?.knownPatches || !result) continue;
+      if (query.where) continue;
+
+      const serverPatchIds = new Set(result.patches.map((p) => p.patchId));
+
+      for (const localPatch of query.knownPatches) {
+        const isSynced =
+          localPatch.attributes['patch/syncedAt'] !== null &&
+          localPatch.attributes['patch/syncedAt'] !== undefined;
+        if (isSynced && !serverPatchIds.has(localPatch.patchId)) {
+          patchIdsToUnsync.add(localPatch.patchId);
+        }
+      }
+    }
+
+    if (patchIdsToUnsync.size === 0) return false;
+
+    await this.local.update(
+      [...patchIdsToUnsync].map((patchId) => ({
+        patchId,
+        attributes: { 'patch/syncedAt': null },
+      }))
+    );
+    return true;
+  }
+
   private async poll(): Promise<void> {
     if (this.destroyed) return;
     const entries = Array.from(this.activeQueries.values());
@@ -395,9 +439,11 @@ export class SyncPatchesDb implements PatchesDb {
     try {
       const syncQueries = await this.buildSyncQueries(entries);
       const results = await this.remote.read(syncQueries);
+      const recoveredPatches =
+        await this.markMissingSyncedPatches(syncQueries, results);
       const hasNewPatches = await this.mergeRemotePatches(results);
       this.pollConsecutiveFailures = 0;
-      if (hasNewPatches) {
+      if (hasNewPatches || recoveredPatches) {
         this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
       }
     } catch (err) {

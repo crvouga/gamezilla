@@ -60,9 +60,7 @@ describe('SyncPatchesDb (data loss recovery)', () => {
     await sim.assertConsistent(orderedQuery);
 
     // ─── server wipe (simulate data loss) ─────────────────────────────
-    await sim.wipeServerStorage('s');
-    await sim.markClientPatchesUnsynced('a');
-    await sim.markClientPatchesUnsynced('b');
+    await srv.wipeStorage();
 
     // ─── both clients create a shape offline (same order value) ───────
     const z = crypto.randomUUID();
@@ -83,7 +81,11 @@ describe('SyncPatchesDb (data loss recovery)', () => {
       },
     ]);
 
-    // ─── reconnect: push then converge ────────────────────────────────
+    // ─── reconnect: push+poll detects server data loss, then re-push converges ──
+    await a.push();
+    await b.push();
+    await a.poll();
+    await b.poll();
     await a.push();
     await b.push();
     await a.poll();
@@ -175,7 +177,7 @@ describe('SyncPatchesDb (data loss recovery)', () => {
     await sim.assertConsistent(listQuery);
 
     // ─── Phase 2: client data loss ───────────────────────────────────
-    await sim.wipeClientStorage('a');
+    await a.wipeStorage();
 
     const aAfterWipe = await a.read([listQuery]);
     expect(aAfterWipe[0]?.entities.length).toBe(0);
@@ -189,19 +191,19 @@ describe('SyncPatchesDb (data loss recovery)', () => {
     await sim.assertConsistent(listQuery);
 
     // ─── Phase 3: server data loss ───────────────────────────────────
-    await sim.wipeServerStorage('s');
+    await srv.wipeStorage();
 
     const srvAfterWipe = await srv.db.read([listQuery]);
     expect(srvAfterWipe[0]?.entities.length).toBe(0);
 
-    // Clearing sync markers makes clients re-push all their patches.
-    await sim.markClientPatchesUnsynced('a');
-    await sim.markClientPatchesUnsynced('b');
-
+    // Poll detects missing synced patches → marks them unsynced.
+    // Push re-sends them. Extra round to converge.
     await a.push();
     await b.push();
-
-    // Final poll round to converge.
+    await a.poll();
+    await b.poll();
+    await a.push();
+    await b.push();
     await a.poll();
     await b.poll();
 
