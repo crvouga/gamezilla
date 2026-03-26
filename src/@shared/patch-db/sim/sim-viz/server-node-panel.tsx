@@ -86,7 +86,9 @@ export function ServerNodePanel() {
               offline
             </span>
           )}
-          <span className="ml-auto text-[0.65rem] text-white/35">authority</span>
+          <span className="ml-auto text-[0.65rem] text-white/35">
+            authority
+          </span>
         </>
       }
     >
@@ -138,8 +140,7 @@ export function ServerNodePanel() {
           disabled={busy}
           onClick={() =>
             run(async () => {
-              await sim.serverSql.run('DELETE FROM patches');
-              await sim.serverSql.run('DELETE FROM snapshots');
+              await sim.wipeServerDb();
             })
           }
           className={`${btnSmall} ml-auto hover:text-red-400`}

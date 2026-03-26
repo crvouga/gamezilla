@@ -20,6 +20,8 @@ import {
 import { BrowserWallClockScheduler } from './sim-link-scheduler';
 import { SimulatedPatchDbClientTransport } from './simulated-client-transport';
 
+const MARK_ALL_UNSYNCED = `UPDATE patches SET attributes = json_remove(attributes, '$."patch/syncedAt"')`;
+
 // ─── Snapshot types ───────────────────────────────────────────────────
 
 export type PlaygroundSimSnapshot = {
@@ -126,6 +128,8 @@ export type PlaygroundSim = {
   destroy(): Promise<void>;
   takeSnapshot(): PlaygroundSimSnapshot;
   pollAllClients(): Promise<void>;
+  wipeServerDb(): Promise<void>;
+  wipeClientDb(clientId: string): Promise<void>;
   isServerPartitioned(): boolean;
   partitionServer(): void;
   healServer(): void;
@@ -293,6 +297,23 @@ export async function createPlaygroundSim(
     await flushSyncSubscriptionMicrotasks();
   }
 
+  async function wipeServerDb(): Promise<void> {
+    await serverSql.run('DELETE FROM patches');
+    await serverSql.run('DELETE FROM snapshots');
+    for (const c of clientRuntimes) {
+      await c.sqlClient.run(MARK_ALL_UNSYNCED);
+      c.syncDb.notifyInvalidated();
+    }
+  }
+
+  async function wipeClientDb(clientId: string): Promise<void> {
+    const c = clientRuntimes.find((r) => r.id === clientId);
+    if (!c) return;
+    await c.sqlClient.run('DELETE FROM patches');
+    await c.sqlClient.run('DELETE FROM snapshots');
+    c.syncDb.notifyInvalidated();
+  }
+
   return {
     serverId,
     scheduler,
@@ -306,6 +327,8 @@ export async function createPlaygroundSim(
     destroy,
     takeSnapshot,
     pollAllClients,
+    wipeServerDb,
+    wipeClientDb,
     isServerPartitioned: () => port.isPartitioned(),
     partitionServer: () => port.setPartitioned(true),
     healServer: () => port.setPartitioned(false),
@@ -498,6 +521,23 @@ export async function restorePlaygroundSim(
     await flushSyncSubscriptionMicrotasks();
   }
 
+  async function wipeServerDb(): Promise<void> {
+    await serverSql.run('DELETE FROM patches');
+    await serverSql.run('DELETE FROM snapshots');
+    for (const c of clientRuntimes) {
+      await c.sqlClient.run(MARK_ALL_UNSYNCED);
+      c.syncDb.notifyInvalidated();
+    }
+  }
+
+  async function wipeClientDb(clientId: string): Promise<void> {
+    const c = clientRuntimes.find((r) => r.id === clientId);
+    if (!c) return;
+    await c.sqlClient.run('DELETE FROM patches');
+    await c.sqlClient.run('DELETE FROM snapshots');
+    c.syncDb.notifyInvalidated();
+  }
+
   return {
     serverId: snapshot.serverId,
     scheduler,
@@ -511,6 +551,8 @@ export async function restorePlaygroundSim(
     destroy,
     takeSnapshot,
     pollAllClients,
+    wipeServerDb,
+    wipeClientDb,
     isServerPartitioned: () => port.isPartitioned(),
     partitionServer: () => port.setPartitioned(true),
     healServer: () => port.setPartitioned(false),

@@ -184,9 +184,7 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
           disabled={busy}
           onClick={() =>
             run(async () => {
-              await client.sqlClient.run('DELETE FROM patches');
-              await client.sqlClient.run('DELETE FROM snapshots');
-              client.syncDb.notifyInvalidated();
+              await sim.wipeClientDb(client.id);
             })
           }
           className={`${btnSmall} hover:text-red-400`}
