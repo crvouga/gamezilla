@@ -16,8 +16,7 @@
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
   "exclude": [
     "node_modules",
-    "aws/cdk.out",
-    "aws/node_modules",
+    "aws",
     "dist",
     "web-build"
   ]
