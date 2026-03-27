@@ -8,6 +8,7 @@
     "@aws-cdk/aws-signer:signingProfileNamePassedToCfn": true,
     "@aws-cdk/aws-ecs-patterns:secGroupsDisablesImplicitOpenListener": true,
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
-    "customDomain": false
+    "customDomain": false,
+    "customDomainBootstrap": false
   }
 }

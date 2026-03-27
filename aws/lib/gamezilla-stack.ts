@@ -66,6 +66,11 @@ export class GamezillaStack extends cdk.Stack {
     super(scope, id, props);
 
     const customDomain = isContextFlagTrue(this, 'customDomain');
+    /** When true with customDomain: create hosted zone + output NS only. Skip ACM and www on CloudFront until Route 53 nameservers are delegated at the registrar; otherwise ACM DNS validation never completes (15m–hours). */
+    const customDomainBootstrap = isContextFlagTrue(
+      this,
+      'customDomainBootstrap'
+    );
 
     let hostedZone: route53.HostedZone | undefined;
     let webCertificate: acm.Certificate | undefined;
@@ -74,10 +79,12 @@ export class GamezillaStack extends cdk.Stack {
       hostedZone = new route53.HostedZone(this, 'HostedZone', {
         zoneName: 'gamezilla.app',
       });
-      webCertificate = new acm.Certificate(this, 'WebCertificate', {
-        domainName: 'www.gamezilla.app',
-        validation: acm.CertificateValidation.fromDns(hostedZone),
-      });
+      if (!customDomainBootstrap) {
+        webCertificate = new acm.Certificate(this, 'WebCertificate', {
+          domainName: 'www.gamezilla.app',
+          validation: acm.CertificateValidation.fromDns(hostedZone),
+        });
+      }
     }
 
     const webBucket = new s3.Bucket(this, 'WebAppBucket', {
@@ -99,7 +106,7 @@ export class GamezillaStack extends cdk.Stack {
         : {}
     );
 
-    if (customDomain && hostedZone) {
+    if (customDomain && hostedZone && webCertificate) {
       void new route53.ARecord(this, 'WebAliasRecord', {
         zone: hostedZone,
         recordName: 'www',
