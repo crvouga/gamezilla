@@ -53,6 +53,47 @@ jobs:
           fi
           echo "::notice::AWS deploy secrets present."
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Fail if GamezillaStack is mid-update (CloudFormation locks)
+        run: |
+          set -euo pipefail
+          STATUS="$(
+            aws cloudformation describe-stacks \
+              --stack-name GamezillaStack \
+              --query 'Stacks[0].StackStatus' \
+              --output text 2>/dev/null || true
+          )"
+          if [ -z "$STATUS" ]; then
+            echo "::notice::Stack GamezillaStack not found yet (first deploy) or describe failed; deploy will try to create."
+            exit 0
+          fi
+          case "$STATUS" in
+            UPDATE_COMPLETE|CREATE_COMPLETE|UPDATE_ROLLBACK_COMPLETE|ROLLBACK_COMPLETE|IMPORT_COMPLETE|IMPORT_ROLLBACK_COMPLETE)
+              echo "::notice::Stack GamezillaStack status: $STATUS"
+              ;;
+            UPDATE_IN_PROGRESS|UPDATE_COMPLETE_CLEANUP_IN_PROGRESS|CREATE_IN_PROGRESS)
+              echo "::error::GamezillaStack is $STATUS — another update is still running or stuck (e.g. hung ACM). Unblock: AWS Console → CloudFormation → GamezillaStack → Stack actions → Cancel update, or wait for rollback. CLI: aws cloudformation cancel-update-stack --stack-name GamezillaStack"
+              exit 1
+              ;;
+            UPDATE_ROLLBACK_IN_PROGRESS|UPDATE_ROLLBACK_FAILED)
+              echo "::error::GamezillaStack is $STATUS — finish rollback in CloudFormation (Continue update rollback / fix resources) before deploying again."
+              exit 1
+              ;;
+            DELETE_IN_PROGRESS|DELETE_FAILED)
+              echo "::error::GamezillaStack is $STATUS — resolve stack deletion in AWS before deploying."
+              exit 1
+              ;;
+            *)
+              echo "::notice::Stack GamezillaStack status: $STATUS (unusual; deploy may still work)"
+              ;;
+          esac
+
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [check, assert-deploy-ready]
