@@ -1,5 +1,7 @@
+import { assert } from '@/@shared/assert';
 import { fireAndForget } from '../../async/fire-and-forget';
 import type { Unsubscribe } from '../../pub-sub/interface';
+import { assertPatchDbSyncServerBaseUrl } from '../assert-sync-server-base-url';
 import type {
   Patch,
   PatchesDbQuery,
@@ -11,10 +13,33 @@ import type { PatchDbClientTransport } from './interface';
 import { PATCHES_EVENTS, PATCHES_READ, PATCHES_WRITE } from './paths';
 
 export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
-  constructor(private baseUrl: string) {}
+  constructor(private baseUrl: string) {
+    assertPatchDbSyncServerBaseUrl(baseUrl);
+  }
+
+  private requestUrl(path: string): string {
+    const url = `${this.baseUrl.replace(/\/$/, '')}${path}`;
+    let parsed: URL;
+    try {
+      parsed = new URL(url);
+    } catch (error) {
+      assert.ok(false, 'Constructed patch-db URL must parse as an absolute URL', {
+        baseUrl: this.baseUrl,
+        path,
+        url,
+        error,
+      });
+    }
+    assert.ok(
+      parsed.protocol === 'http:' || parsed.protocol === 'https:',
+      'Constructed patch-db URL must use http: or https:',
+      { baseUrl: this.baseUrl, path, url, protocol: parsed.protocol }
+    );
+    return url;
+  }
 
   private async postUnvalidated(path: string, body: unknown): Promise<unknown> {
-    const url = `${this.baseUrl.replace(/\/$/, '')}${path}`;
+    const url = this.requestUrl(path);
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -41,7 +66,7 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
   }
 
   subscribe(callback: () => void): Unsubscribe {
-    const url = `${this.baseUrl.replace(/\/$/, '')}${PATCHES_EVENTS}`;
+    const url = this.requestUrl(PATCHES_EVENTS);
     let aborted = false;
     let retryDelayMs = 1000;
     const maxRetryDelayMs = 30000;

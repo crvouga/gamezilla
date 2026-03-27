@@ -25,6 +25,7 @@
     "apprunner",
     "bunx",
     "certificatemanager",
+    "Consolas",
     "credentialless",
     "fontobject",
     "Fraunces",
@@ -57,6 +58,7 @@
     "unsubs",
     "Unsync",
     "Unvalidated",
+    "WHATWG",
     "worklets",
     "xyflow"
   ]

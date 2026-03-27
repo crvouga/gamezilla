@@ -1,5 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
+import { assertPatchDbSyncServerBaseUrl } from './assert-sync-server-base-url';
 import { DependencyInjectionContainer } from '../dependency-injection/dependency-injection-container';
 import { InMemoryPubSub } from '../pub-sub/impl-in-memory';
 import type { SqlClient } from '../sql-client/interface';
@@ -37,6 +38,8 @@ export async function bootstrapPatchDbExpoSync(
     pushIntervalMs = 2000,
     parentContainer,
   } = options;
+
+  assertPatchDbSyncServerBaseUrl(apiUrl);
 
   const key = `${databaseName}:${apiUrl}`;
   if (Platform.OS === 'web' && cachedBootstrap?.key === key) {

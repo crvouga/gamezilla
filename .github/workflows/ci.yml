@@ -91,7 +91,21 @@ jobs:
       - name: Read CDK outputs
         id: cdk
         run: |
-          echo "sync_url=https://$(jq -r '.GamezillaStack.SyncServerUrl' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
+          SYNC_HOST="$(jq -r '.GamezillaStack.SyncServerUrl' aws/cdk-outputs.json)"
+          if [ -z "$SYNC_HOST" ] || [ "$SYNC_HOST" = "null" ]; then
+            echo "::error::GamezillaStack.SyncServerUrl missing or null in aws/cdk-outputs.json"
+            exit 1
+          fi
+          # App Runner returns hostname only; strip a scheme if present so we never double-prefix.
+          SYNC_HOST="${SYNC_HOST#https://}"
+          SYNC_HOST="${SYNC_HOST#http://}"
+          SYNC_URL="https://${SYNC_HOST}"
+          {
+            echo "sync_url<<CDK_SYNC_URL_EOF"
+            echo "$SYNC_URL"
+            echo "CDK_SYNC_URL_EOF"
+          } >> "$GITHUB_OUTPUT"
           echo "web_bucket=$(jq -r '.GamezillaStack.WebAppBucketName' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
           echo "web_dist=$(jq -r '.GamezillaStack.WebDistributionId' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
           echo "web_url=$(jq -r '.GamezillaStack.WebAppUrl' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
@@ -101,7 +115,13 @@ jobs:
 
       - name: Build and deploy web app
         run: |
+          set -euo pipefail
           jq --arg url "${{ steps.cdk.outputs.sync_url }}" '.prod.PATCH_DB_SYNC_SERVER_URL = $url' public-config.json > tmp.json && mv tmp.json public-config.json
+          PATCH_SYNC_URL="$(jq -r '.prod.PATCH_DB_SYNC_SERVER_URL' public-config.json)"
+          if [[ ! "$PATCH_SYNC_URL" =~ ^https:// ]]; then
+            echo "::error::prod PATCH_DB_SYNC_SERVER_URL must be an absolute https:// URL after CDK inject (got: ${PATCH_SYNC_URL})"
+            exit 1
+          fi
           EXPO_PUBLIC_STAGE=prod bunx expo export -p web
           aws s3 sync dist/ "s3://${{ steps.cdk.outputs.web_bucket }}/" --delete
           aws cloudfront create-invalidation --distribution-id "${{ steps.cdk.outputs.web_dist }}" --paths "/*"
