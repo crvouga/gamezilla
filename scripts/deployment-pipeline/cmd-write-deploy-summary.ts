@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { appendFileSync } from 'node:fs';
-import { BaseCiCommand } from './base-command';
+import { BasePipelineCommand } from './base-command';
 import { ghNotice, mustEnv } from './gh';
 
 const TLS_NOTE =
   '**Bootstrap deploy:** ACM and the `www.gamezilla.app` CloudFront alias are skipped in CI so the stack does not block on DNS. After nameservers propagate, run `cdk deploy -c customDomain=true -c customDomainBootstrap=false` locally (or adjust this workflow) to add TLS and `https://www.gamezilla.app`.';
 
-export class WriteDeploySummaryCommand extends BaseCiCommand {
+export class WriteDeploySummaryCommand extends BasePipelineCommand {
   readonly id = 'write-deploy-summary';
   readonly summary = 'Append job summary markdown';
 

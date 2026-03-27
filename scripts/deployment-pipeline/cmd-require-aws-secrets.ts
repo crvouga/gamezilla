@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import { BaseCiCommand } from './base-command';
+import { BasePipelineCommand } from './base-command';
 import { ghError, ghNotice } from './gh';
 
-export class RequireAwsSecretsCommand extends BaseCiCommand {
+export class RequireAwsSecretsCommand extends BasePipelineCommand {
   readonly id = 'require-aws-secrets';
   readonly summary =
     'Verify AWS_* env (inject secrets on the step)';

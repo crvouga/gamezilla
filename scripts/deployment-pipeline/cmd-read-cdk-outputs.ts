@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { appendFileSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { BaseCiCommand } from './base-command';
+import { BasePipelineCommand } from './base-command';
 import { STACK_NAME, SYNC_URL_DELIM } from './cfn-shared';
 import { ghError, ghNotice, mustEnv } from './gh';
 
@@ -18,7 +18,7 @@ type GamezillaStackOutputs = {
 
 type CdkOutputsFile = Record<string, GamezillaStackOutputs | undefined>;
 
-export class ReadCdkOutputsCommand extends BaseCiCommand {
+export class ReadCdkOutputsCommand extends BasePipelineCommand {
   readonly id = 'read-cdk-outputs';
   readonly summary = 'aws/cdk-outputs.json → GITHUB_OUTPUT';
 

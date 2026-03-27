@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
-import { BaseCiCommand } from './base-command';
+import { BasePipelineCommand } from './base-command';
 import { ghNotice, mustEnv } from './gh';
 import { run } from './run-subprocess';
 
-export class DeployVizCommand extends BaseCiCommand {
+export class DeployVizCommand extends BasePipelineCommand {
   readonly id = 'deploy-viz';
   readonly summary = 'viz:build + S3 + invalidation';
 

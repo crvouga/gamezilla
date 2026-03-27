@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { BaseCiCommand } from './base-command';
+import { BasePipelineCommand } from './base-command';
 import { ghNotice } from './gh';
 import { run } from './run-subprocess';
 
-export class CdkDeployCommand extends BaseCiCommand {
+export class CdkDeployCommand extends BasePipelineCommand {
   readonly id = 'cdk-deploy';
   readonly summary = 'npm ci + cdk bootstrap + deploy (aws/)';
 

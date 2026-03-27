@@ -3,7 +3,7 @@ import {
   DescribeStackEventsCommand,
   type CloudFormationClient,
 } from '@aws-sdk/client-cloudformation';
-import { BaseCiCommand } from './base-command';
+import { BasePipelineCommand } from './base-command';
 import { cloudFormation } from './aws';
 import {
   DEPLOYABLE_STATUSES,
@@ -13,7 +13,7 @@ import {
 } from './cfn-shared';
 import { ghError, ghNotice } from './gh';
 
-export class PreCdkCommand extends BaseCiCommand {
+export class PreCdkCommand extends BasePipelineCommand {
   readonly id = 'pre-cdk';
   readonly summary = 'Assert stack deployable immediately before CDK (fail fast)';
 

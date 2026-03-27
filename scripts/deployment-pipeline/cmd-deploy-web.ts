@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { BaseCiCommand } from './base-command';
+import { BasePipelineCommand } from './base-command';
 import { ghError, ghNotice, mustEnv } from './gh';
 import { run } from './run-subprocess';
 
-export class DeployWebCommand extends BaseCiCommand {
+export class DeployWebCommand extends BasePipelineCommand {
   readonly id = 'deploy-web';
   readonly summary = 'Expo export + S3 + invalidation';
 

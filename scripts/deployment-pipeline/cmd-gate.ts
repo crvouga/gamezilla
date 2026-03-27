@@ -4,7 +4,7 @@ import {
   DescribeStackEventsCommand,
   DescribeStacksCommand,
 } from '@aws-sdk/client-cloudformation';
-import { BaseCiCommand } from './base-command';
+import { BasePipelineCommand } from './base-command';
 import { cloudFormation } from './aws';
 import {
   DEPLOYABLE_STATUSES,
@@ -14,7 +14,7 @@ import {
 } from './cfn-shared';
 import { ghError, ghNotice } from './gh';
 
-export class CfnGateCommand extends BaseCiCommand {
+export class CfnGateCommand extends BasePipelineCommand {
   readonly id = 'gate';
   readonly summary =
     'Assert stack is absent or deployable — fail fast on anything else';

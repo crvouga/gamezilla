@@ -1,5 +1,5 @@
 # https://minimumcd.org/
-name: CI
+name: Deployment Pipeline
 
 on:
   push:
@@ -57,7 +57,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
-        run: bun run scripts/ci.ts require-aws-secrets
+        run: bun run scripts/deployment-pipeline.ts require-aws-secrets
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -67,10 +67,10 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Assert AWS caller identity
-        run: bun run scripts/ci.ts assert-aws
+        run: bun run scripts/deployment-pipeline.ts assert-aws
 
       - name: Assert stack deployable (fail fast — no wait, no cancel)
-        run: bun run scripts/ci.ts gate
+        run: bun run scripts/deployment-pipeline.ts gate
 
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -107,28 +107,28 @@ jobs:
         run: bunx expo customize tsconfig.json
 
       - name: Assert stack still deployable immediately before CDK
-        run: bun run scripts/ci.ts pre-cdk
+        run: bun run scripts/deployment-pipeline.ts pre-cdk
 
       - name: CDK deploy
         timeout-minutes: 45
-        run: bun run scripts/ci.ts cdk-deploy
+        run: bun run scripts/deployment-pipeline.ts cdk-deploy
 
       - name: Read CDK outputs
         id: cdk
-        run: bun run scripts/ci.ts read-cdk-outputs
+        run: bun run scripts/deployment-pipeline.ts read-cdk-outputs
 
       - name: Build and deploy web app
         env:
           SYNC_URL: ${{ steps.cdk.outputs.sync_url }}
           WEB_BUCKET: ${{ steps.cdk.outputs.web_bucket }}
           WEB_DIST: ${{ steps.cdk.outputs.web_dist }}
-        run: bun run scripts/ci.ts deploy-web
+        run: bun run scripts/deployment-pipeline.ts deploy-web
 
       - name: Build and deploy sim-viz
         env:
           VIZ_BUCKET: ${{ steps.cdk.outputs.viz_bucket }}
           VIZ_DIST: ${{ steps.cdk.outputs.viz_dist }}
-        run: bun run scripts/ci.ts deploy-viz
+        run: bun run scripts/deployment-pipeline.ts deploy-viz
 
       - name: Deployment summary
         env:
@@ -136,4 +136,4 @@ jobs:
           CI_VIZ_URL: ${{ steps.cdk.outputs.viz_url }}
           CI_SYNC_URL: ${{ steps.cdk.outputs.sync_url }}
           CI_NAMESERVERS: ${{ steps.cdk.outputs.nameservers }}
-        run: bun run scripts/ci.ts write-deploy-summary
+        run: bun run scripts/deployment-pipeline.ts write-deploy-summary
