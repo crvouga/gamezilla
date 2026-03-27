@@ -96,16 +96,17 @@ jobs:
           WEB_DIST: ${{ steps.cdk.outputs.web_dist }}
         run: bun run scripts/deployment-pipeline.ts deploy-web
 
-      - name: Build and deploy sim-viz
+      - name: Build and deploy PatchDB app
         env:
-          VIZ_BUCKET: ${{ steps.cdk.outputs.viz_bucket }}
-          VIZ_DIST: ${{ steps.cdk.outputs.viz_dist }}
-        run: bun run scripts/deployment-pipeline.ts deploy-viz
+          PATCH_DB_APP_BUCKET: ${{ steps.cdk.outputs.patch_db_app_bucket }}
+          PATCH_DB_APP_DIST: ${{ steps.cdk.outputs.patch_db_app_dist }}
+        run: bun run scripts/deployment-pipeline.ts deploy-patch-db-app
 
       - name: Deployment summary
         env:
           CI_WEB_URL: ${{ steps.cdk.outputs.web_url }}
-          CI_VIZ_URL: ${{ steps.cdk.outputs.viz_url }}
+          CI_PATCH_DB_APP_URL: ${{ steps.cdk.outputs.patch_db_app_url }}
           CI_SYNC_URL: ${{ steps.cdk.outputs.sync_url }}
           CI_NAMESERVERS: ${{ steps.cdk.outputs.nameservers }}
+          CI_PATCHDB_NAMESERVERS: ${{ steps.cdk.outputs.patchdb_nameservers }}
         run: bun run scripts/deployment-pipeline.ts write-deploy-summary

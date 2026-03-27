@@ -40,7 +40,6 @@ export class SyncServer extends Construct {
     dockerAsset.repository.grantPull(ecrAccessRole);
 
     this.service = new apprunner.CfnService(this, 'Service', {
-      serviceName: 'gamezilla-sync',
       sourceConfiguration: {
         autoDeploymentsEnabled: false,
         imageRepository: {

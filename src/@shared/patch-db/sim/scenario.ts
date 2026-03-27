@@ -22,7 +22,7 @@ import { DeterministicScheduler } from './deterministic-scheduler';
 import {
   SimEventRecorder,
   type SimRecordingMeta,
-  isSimVizEnabled,
+  isPatchDbAppEnabled,
   summarizePatchInputs,
 } from './event-recorder';
 import { NetworkLink } from './network-link';
@@ -234,7 +234,7 @@ export class Sim {
     return s;
   }
 
-  /** Merge viz metadata. Set `enableViz` to persist the recording (requires `SIM_VIZ=1`). */
+  /** Merge viz metadata. Set `enableViz` to persist the recording (requires `PATCHDB_APP=1`). */
   setMeta(options: Partial<SimRecordingMeta> & { enableViz?: boolean }): void {
     const { enableViz, ...meta } = options;
     if (enableViz) this.vizOptedIn = true;
@@ -323,7 +323,7 @@ async function buildScenario(
     throw new Error('PatchDbScenarioBuilder: add at least one .server()');
   }
   const scheduler = new DeterministicScheduler();
-  const recorder = isSimVizEnabled()
+  const recorder = isPatchDbAppEnabled()
     ? new SimEventRecorder(() => scheduler.now())
     : null;
 

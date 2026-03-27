@@ -1,12 +1,12 @@
 /**
- * Serves the generated `sim-viz/` folder over HTTP (default port 8765).
+ * Serves the generated `patchdb-app/` folder over HTTP (default port 8765).
  * Use if `file://` blocks sql.js WASM; open http://127.0.0.1:8765
  */
 import { join } from 'node:path';
 
-const ROOT = join(import.meta.dir, '..', '..', '..', '..', '..', 'sim-viz');
+const ROOT = join(import.meta.dir, '..', '..', '..', '..', '..', 'patchdb-app');
 
-const port = Number(process.env['SIM_VIZ_PORT'] ?? '8765');
+const port = Number(process.env['PATCHDB_APP_PORT'] ?? '8765');
 
 Bun.serve({
   port,
@@ -19,4 +19,4 @@ Bun.serve({
   },
 });
 
-console.log(`sim-viz → http://127.0.0.1:${port}`);
+console.log(`patchdb-app → http://127.0.0.1:${port}`);

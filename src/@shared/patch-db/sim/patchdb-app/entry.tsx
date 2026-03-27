@@ -16,6 +16,6 @@ import { BrowserCrashHandler } from '../../../assert/crash/crash-handler/crash-h
 import { PlaygroundApp } from './playground-app';
 assert.registerCrashHandler(new BrowserCrashHandler());
 const el = document.getElementById('root');
-assert.defined(el, 'sim viz: #root element');
+assert.defined(el, 'patchdb-app: #root element');
 const root = createRoot(el);
 root.render(<PlaygroundApp />);

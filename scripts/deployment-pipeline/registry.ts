@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import type { PipelineCommand } from './base-command';
 import { AssertAwsCommand } from './cmd-assert-aws';
 import { CdkDeployCommand } from './cmd-cdk-deploy';
-import { DeployVizCommand } from './cmd-deploy-viz';
+import { DeployPatchDbAppCommand } from './cmd-deploy-patch-db-app';
 import { DeployWebCommand } from './cmd-deploy-web';
 import { CfnGateCommand } from './cmd-gate';
 import { PreCdkCommand } from './cmd-pre-cdk';
@@ -18,7 +18,7 @@ export const COMMAND_REGISTRY: PipelineCommand[] = [
   new ReadCdkOutputsCommand(),
   new CdkDeployCommand(),
   new DeployWebCommand(),
-  new DeployVizCommand(),
+  new DeployPatchDbAppCommand(),
   new WriteDeploySummaryCommand(),
 ];
 

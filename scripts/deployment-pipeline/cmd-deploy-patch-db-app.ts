@@ -3,14 +3,20 @@ import { BasePipelineCommand } from './base-command';
 import { ghNotice, mustEnv } from './gh';
 import { run } from './run-subprocess';
 
-export class DeployVizCommand extends BasePipelineCommand {
-  readonly id = 'deploy-viz';
+export class DeployPatchDbAppCommand extends BasePipelineCommand {
+  readonly id = 'deploy-patch-db-app';
   readonly summary = 'viz:build + S3 + invalidation';
 
   execute(argv: string[]): void {
     assert(Array.isArray(argv));
-    const bucket = mustEnv(process.env['VIZ_BUCKET'], 'VIZ_BUCKET');
-    const distId = mustEnv(process.env['VIZ_DIST'], 'VIZ_DIST');
+    const bucket = mustEnv(
+      process.env['PATCH_DB_APP_BUCKET'],
+      'PATCH_DB_APP_BUCKET'
+    );
+    const distId = mustEnv(
+      process.env['PATCH_DB_APP_DIST'],
+      'PATCH_DB_APP_DIST'
+    );
     assert(bucket.length > 0 && distId.length > 0);
 
     run('bun', ['run', 'viz:build']);
@@ -23,6 +29,6 @@ export class DeployVizCommand extends BasePipelineCommand {
       '--paths',
       '/*',
     ]);
-    ghNotice('Sim viz built and synced to S3.');
+    ghNotice('PatchDB app built and synced to S3.');
   }
 }

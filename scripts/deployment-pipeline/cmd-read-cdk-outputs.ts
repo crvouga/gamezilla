@@ -10,10 +10,11 @@ type GamezillaStackOutputs = {
   WebAppBucketName?: string;
   WebDistributionId?: string;
   WebAppUrl?: string;
-  SimVizBucketName?: string;
-  SimVizDistributionId?: string;
-  SimVizUrl?: string;
+  PatchDbAppBucketName?: string;
+  PatchDbAppDistributionId?: string;
+  PatchDbAppUrl?: string;
   Route53Nameservers?: string;
+  PatchDbNameservers?: string;
 };
 
 type CdkOutputsFile = Record<string, GamezillaStackOutputs | undefined>;
@@ -49,7 +50,9 @@ export class ReadCdkOutputsCommand extends BasePipelineCommand {
     const nonEmpty = (v: string | undefined, field: string): string => {
       if (v === undefined || v === '' || v === 'null') {
         ghError(`GamezillaStack.${field} missing or null`);
-        assert.fail(`read-cdk-outputs: ${STACK_NAME}.${field} must be non-empty`);
+        assert.fail(
+          `read-cdk-outputs: ${STACK_NAME}.${field} must be non-empty`
+        );
       }
       assert(v.length > 0);
       return v;
@@ -68,13 +71,20 @@ export class ReadCdkOutputsCommand extends BasePipelineCommand {
     const webBucket = nonEmpty(stack.WebAppBucketName, 'WebAppBucketName');
     const webDist = nonEmpty(stack.WebDistributionId, 'WebDistributionId');
     const webUrl = nonEmpty(stack.WebAppUrl, 'WebAppUrl');
-    const vizBucket = nonEmpty(stack.SimVizBucketName, 'SimVizBucketName');
-    const vizDist = nonEmpty(
-      stack.SimVizDistributionId,
-      'SimVizDistributionId'
+    const vizBucket = nonEmpty(
+      stack.PatchDbAppBucketName,
+      'PatchDbAppBucketName'
     );
-    const vizUrl = nonEmpty(stack.SimVizUrl, 'SimVizUrl');
+    const vizDist = nonEmpty(
+      stack.PatchDbAppDistributionId,
+      'PatchDbAppDistributionId'
+    );
+    const vizUrl = nonEmpty(stack.PatchDbAppUrl, 'PatchDbAppUrl');
     const nsRaw = nonEmpty(stack.Route53Nameservers, 'Route53Nameservers');
+    const patchdbNsRaw = nonEmpty(
+      stack.PatchDbNameservers,
+      'PatchDbNameservers'
+    );
 
     assert(syncUrl.startsWith('https://'));
     const outPath = mustEnv(process.env['GITHUB_OUTPUT'], 'GITHUB_OUTPUT');
@@ -101,10 +111,11 @@ export class ReadCdkOutputsCommand extends BasePipelineCommand {
     setGithubOutput('web_bucket', webBucket, false);
     setGithubOutput('web_dist', webDist, false);
     setGithubOutput('web_url', webUrl, false);
-    setGithubOutput('viz_bucket', vizBucket, false);
-    setGithubOutput('viz_dist', vizDist, false);
-    setGithubOutput('viz_url', vizUrl, false);
+    setGithubOutput('patch_db_app_bucket', vizBucket, false);
+    setGithubOutput('patch_db_app_dist', vizDist, false);
+    setGithubOutput('patch_db_app_url', vizUrl, false);
     setGithubOutput('nameservers', nsRaw, false);
+    setGithubOutput('patchdb_nameservers', patchdbNsRaw, false);
 
     ghNotice('CDK outputs mapped to GITHUB_OUTPUT.');
   }

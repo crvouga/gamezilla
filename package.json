@@ -13,8 +13,8 @@
     "sync-server": "bun run src/sync-server.ts",
     "sync-server:watch": "bun --watch src/sync-server.ts",
     "test": "bun test",
-    "viz:dev": "vite --config ./src/@shared/patch-db/sim/sim-viz/vite.config.ts --open",
-    "viz:build": "vite --config ./src/@shared/patch-db/sim/sim-viz/vite.config.ts build",
+    "viz:dev": "vite --config ./src/@shared/patch-db/sim/patchdb-app/vite.config.ts --open",
+    "viz:build": "vite --config ./src/@shared/patch-db/sim/patchdb-app/vite.config.ts build",
     "viz:serve": "bun x serve dist",
     "viz:preview": "bun run viz:build && bun run viz:serve",
     "test:fast": "SKIP_POSTGRES_TESTS=1 bun test",
@@ -31,7 +31,7 @@
     "deploy:read-cdk-outputs": "bun run scripts/deployment-pipeline.ts read-cdk-outputs",
     "deploy:cdk-deploy": "bun run scripts/deployment-pipeline.ts cdk-deploy",
     "deploy:deploy-web": "bun run scripts/deployment-pipeline.ts deploy-web",
-    "deploy:deploy-viz": "bun run scripts/deployment-pipeline.ts deploy-viz",
+    "deploy:deploy-patch-db-app": "bun run scripts/deployment-pipeline.ts deploy-patch-db-app",
     "deploy:write-deploy-summary": "bun run scripts/deployment-pipeline.ts write-deploy-summary"
   },
   "dependencies": {

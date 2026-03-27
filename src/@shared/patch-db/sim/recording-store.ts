@@ -5,7 +5,7 @@ import type { SimRecording } from './event-recorder';
 const DEFAULT_DIR = '.sim-recordings';
 
 export function getRecordingsDir(): string {
-  return process.env.SIM_VIZ_OUT ?? DEFAULT_DIR;
+  return process.env.PATCHDB_APP_OUT ?? DEFAULT_DIR;
 }
 
 export function saveRecording(recording: SimRecording): void {

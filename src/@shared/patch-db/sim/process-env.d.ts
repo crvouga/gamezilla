@@ -2,9 +2,9 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       /** When `1` or `true`, sim records events for visualization. */
-      SIM_VIZ?: string;
+      PATCHDB_APP?: string;
       /** Override directory for recording JSON (default `.sim-recordings`). */
-      SIM_VIZ_OUT?: string;
+      PATCHDB_APP_OUT?: string;
     }
   }
 }

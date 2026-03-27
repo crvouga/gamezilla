@@ -2,7 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import type { Construct } from 'constructs';
-import { SimViz } from './sim-viz';
+import { PatchDbApp } from './patchdb-app';
 import { SyncServer } from './sync-server';
 import { WebApp } from './web-app';
 
@@ -27,42 +27,67 @@ export class GamezillaStack extends cdk.Stack {
       'customDomainBootstrap'
     );
 
-    const hostedZone = customDomain
+    const gamezillaZone = customDomain
       ? new route53.HostedZone(this, 'HostedZone', {
           zoneName: 'gamezilla.app',
         })
       : undefined;
 
     const webCertificate =
-      hostedZone && !customDomainBootstrap
+      gamezillaZone && !customDomainBootstrap
         ? new acm.Certificate(this, 'WebCertificate', {
             domainName: 'www.gamezilla.app',
-            validation: acm.CertificateValidation.fromDns(hostedZone),
+            validation: acm.CertificateValidation.fromDns(gamezillaZone),
+          })
+        : undefined;
+
+    const patchdbZone = customDomain
+      ? new route53.HostedZone(this, 'PatchDbHostedZone', {
+          zoneName: 'patchdb.dev',
+        })
+      : undefined;
+
+    const patchdbCertificate =
+      patchdbZone && !customDomainBootstrap
+        ? new acm.Certificate(this, 'PatchDbCertificate', {
+            domainName: 'patchdb.dev',
+            validation: acm.CertificateValidation.fromDns(patchdbZone),
           })
         : undefined;
 
     const webApp = new WebApp(this, 'WebApp', {
-      hostedZone,
+      hostedZone: gamezillaZone,
       certificate: webCertificate,
     });
 
-    const simViz = new SimViz(this, 'SimViz');
+    const patchDbApp = new PatchDbApp(this, 'PatchDbApp', {
+      hostedZone: patchdbZone,
+      certificate: patchdbCertificate,
+    });
 
     const syncServer = new SyncServer(this, 'SyncServer');
 
-    this.addOutputs({ webApp, simViz, syncServer, hostedZone });
+    this.addOutputs({
+      webApp,
+      patchDbApp,
+      syncServer,
+      gamezillaZone,
+      patchdbZone,
+    });
   }
 
   private addOutputs({
     webApp,
-    simViz,
+    patchDbApp,
     syncServer,
-    hostedZone,
+    gamezillaZone,
+    patchdbZone,
   }: {
     webApp: WebApp;
-    simViz: SimViz;
+    patchDbApp: PatchDbApp;
     syncServer: SyncServer;
-    hostedZone: route53.HostedZone | undefined;
+    gamezillaZone: route53.HostedZone | undefined;
+    patchdbZone: route53.HostedZone | undefined;
   }): void {
     new cdk.CfnOutput(this, 'SyncServerUrl', {
       value: syncServer.service.attrServiceUrl,
@@ -70,31 +95,41 @@ export class GamezillaStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'WebAppBucketName', {
       value: webApp.bucket.bucketName,
     });
-    new cdk.CfnOutput(this, 'SimVizBucketName', {
-      value: simViz.bucket.bucketName,
+    new cdk.CfnOutput(this, 'PatchDbAppBucketName', {
+      value: patchDbApp.bucket.bucketName,
     });
     new cdk.CfnOutput(this, 'WebDistributionId', {
       value: webApp.distribution.distributionId,
     });
-    new cdk.CfnOutput(this, 'SimVizDistributionId', {
-      value: simViz.distribution.distributionId,
+    new cdk.CfnOutput(this, 'PatchDbAppDistributionId', {
+      value: patchDbApp.distribution.distributionId,
     });
     new cdk.CfnOutput(this, 'WebAppUrl', {
       value: `https://${webApp.distribution.distributionDomainName}`,
     });
-    new cdk.CfnOutput(this, 'SimVizUrl', {
-      value: `https://${simViz.distribution.distributionDomainName}`,
+    new cdk.CfnOutput(this, 'PatchDbAppUrl', {
+      value: `https://${patchDbApp.distribution.distributionDomainName}`,
     });
 
-    if (!hostedZone) return;
-    const nameServers = hostedZone.hostedZoneNameServers;
+    this.addNameserverOutput(gamezillaZone, 'Route53Nameservers',
+      'Set these nameservers at your domain registrar for gamezilla.app');
+    this.addNameserverOutput(patchdbZone, 'PatchDbNameservers',
+      'Set these nameservers at your domain registrar for patchdb.dev');
+  }
+
+  private addNameserverOutput(
+    zone: route53.HostedZone | undefined,
+    outputId: string,
+    description: string
+  ): void {
+    if (!zone) return;
+    const nameServers = zone.hostedZoneNameServers;
     if (nameServers === undefined) {
-      throw new Error('Hosted zone must expose name servers');
+      throw new Error(`${outputId}: hosted zone must expose name servers`);
     }
-    new cdk.CfnOutput(this, 'Route53Nameservers', {
+    new cdk.CfnOutput(this, outputId, {
       value: cdk.Fn.join(', ', nameServers),
-      description:
-        'Set these nameservers at your domain registrar (e.g. Squarespace)',
+      description,
     });
   }
 }

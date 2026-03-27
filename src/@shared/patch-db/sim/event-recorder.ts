@@ -2,9 +2,9 @@ import type { PatchInput, PatchesDbQuery, PatchesDbResult } from '../interface';
 
 /**
  * True when sim should record events and persist on destroy.
- * TODO: Re-enable when sim-viz recording returns (e.g. `SIM_VIZ_RECORDING=1`).
+ * TODO: Re-enable when patchdb-app recording returns (e.g. `PATCHDB_APP_RECORDING=1`).
  */
-export function isSimVizEnabled(): boolean {
+export function isPatchDbAppEnabled(): boolean {
   return false;
 }
 
@@ -213,7 +213,7 @@ export type SimRecording = {
   startedAt: number;
   endedAt: number;
   meta?: SimRecordingMeta;
-  /** Present when recorded with {@link isSimVizEnabled}. */
+  /** Present when recorded with {@link isPatchDbAppEnabled}. */
   viz?: SimRecordingVizMeta;
 };
 
@@ -382,7 +382,7 @@ export class SimEventRecorder {
     if (meta !== undefined) {
       rec.meta = meta;
     }
-    if (isSimVizEnabled()) {
+    if (isPatchDbAppEnabled()) {
       rec.viz = {
         schema: 1,
         timeline: 'discrete-seq',
