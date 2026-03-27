@@ -3,7 +3,7 @@ import type { PipelineCommand } from './base-command';
 import { AssertAwsCommand } from './cmd-assert-aws';
 import { CdkDeployCommand } from './cmd-cdk-deploy';
 import { DeployPatchDbAppCommand } from './cmd-deploy-patch-db-app';
-import { DeployWebCommand } from './cmd-deploy-web';
+import { DeployWebAppCommand } from './cmd-deploy-web-app-app';
 import { CfnGateCommand } from './cmd-gate';
 import { PreCdkCommand } from './cmd-pre-cdk';
 import { ReadCdkOutputsCommand } from './cmd-read-cdk-outputs';
@@ -17,7 +17,7 @@ export const COMMAND_REGISTRY: PipelineCommand[] = [
   new PreCdkCommand(),
   new ReadCdkOutputsCommand(),
   new CdkDeployCommand(),
-  new DeployWebCommand(),
+  new DeployWebAppCommand(),
   new DeployPatchDbAppCommand(),
   new WriteDeploySummaryCommand(),
 ];

@@ -65,7 +65,7 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
         run: bun run scripts/deployment-pipeline.ts require-aws-secrets
 
       - name: Configure AWS credentials
@@ -73,7 +73,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Assert AWS caller identity
         run: bun run scripts/deployment-pipeline.ts assert-aws
@@ -94,7 +94,7 @@ jobs:
           SYNC_URL: ${{ steps.cdk.outputs.sync_url }}
           WEB_BUCKET: ${{ steps.cdk.outputs.web_bucket }}
           WEB_DIST: ${{ steps.cdk.outputs.web_dist }}
-        run: bun run scripts/deployment-pipeline.ts deploy-web
+        run: bun run scripts/deployment-pipeline.ts deploy-web-app
 
       - name: Build and deploy PatchDB app
         env:

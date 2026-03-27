@@ -5,8 +5,8 @@ import { BasePipelineCommand } from './base-command';
 import { ghError, ghNotice, mustEnv } from './gh';
 import { run } from './run-subprocess';
 
-export class DeployWebCommand extends BasePipelineCommand {
-  readonly id = 'deploy-web';
+export class DeployWebAppCommand extends BasePipelineCommand {
+  readonly id = 'deploy-web-app';
   readonly summary = 'Expo export + S3 + invalidation';
 
   execute(argv: string[]): void {
@@ -17,8 +17,10 @@ export class DeployWebCommand extends BasePipelineCommand {
     assert(bucket.length > 0 && distId.length > 0);
 
     if (!/^https:\/\//.test(syncUrl)) {
-      ghError(`prod PATCH_DB_SYNC_SERVER_URL must be https:// (got: ${syncUrl})`);
-      assert.fail('deploy-web: sync URL must be https://');
+      ghError(
+        `prod PATCH_DB_SYNC_SERVER_URL must be https:// (got: ${syncUrl})`
+      );
+      assert.fail('deploy-web-app: sync URL must be https://');
     }
     assert(/^https:\/\//.test(syncUrl));
 
@@ -29,7 +31,7 @@ export class DeployWebCommand extends BasePipelineCommand {
       doc = JSON.parse(readFileSync(configPath, 'utf8'));
     } catch (e) {
       ghError(`public-config.json: ${String(e)}`);
-      assert.fail('deploy-web: public-config.json must be valid JSON');
+      assert.fail('deploy-web-app: public-config.json must be valid JSON');
     }
     if (
       typeof doc !== 'object' ||
@@ -39,16 +41,14 @@ export class DeployWebCommand extends BasePipelineCommand {
       (doc as { prod: unknown }).prod === null
     ) {
       ghError('public-config.json missing prod object');
-      assert.fail('deploy-web: public-config.json must contain prod object');
+      assert.fail(
+        'deploy-web-app: public-config.json must contain prod object'
+      );
     }
     const o = doc as { local: unknown; prod: Record<string, unknown> };
     o.prod['PATCH_DB_SYNC_SERVER_URL'] = syncUrl;
     assert.strictEqual(o.prod['PATCH_DB_SYNC_SERVER_URL'], syncUrl);
-    writeFileSync(
-      configPath,
-      `${JSON.stringify(o, null, 2)}\n`,
-      'utf8'
-    );
+    writeFileSync(configPath, `${JSON.stringify(o, null, 2)}\n`, 'utf8');
 
     run('bunx', ['expo', 'export', '-p', 'web'], {
       env: { ...process.env, EXPO_PUBLIC_STAGE: 'prod' },

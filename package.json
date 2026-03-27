@@ -30,7 +30,7 @@
     "deploy:pre-cdk": "bun run scripts/deployment-pipeline.ts pre-cdk",
     "deploy:read-cdk-outputs": "bun run scripts/deployment-pipeline.ts read-cdk-outputs",
     "deploy:cdk-deploy": "bun run scripts/deployment-pipeline.ts cdk-deploy",
-    "deploy:deploy-web": "bun run scripts/deployment-pipeline.ts deploy-web",
+    "deploy:deploy-web-app": "bun run scripts/deployment-pipeline.ts deploy-web-app",
     "deploy:deploy-patch-db-app": "bun run scripts/deployment-pipeline.ts deploy-patch-db-app",
     "deploy:write-deploy-summary": "bun run scripts/deployment-pipeline.ts write-deploy-summary"
   },

@@ -1,7 +1,7 @@
-import assert from 'node:assert/strict';
 import { GetCallerIdentityCommand, STSClient } from '@aws-sdk/client-sts';
-import { BasePipelineCommand } from './base-command';
+import assert from 'node:assert/strict';
 import { requireAwsRegion } from './aws';
+import { BasePipelineCommand } from './base-command';
 import { ghError, ghNotice } from './gh';
 
 export class AssertAwsCommand extends BasePipelineCommand {
