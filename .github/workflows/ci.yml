@@ -112,7 +112,13 @@ jobs:
           echo "viz_bucket=$(jq -r '.GamezillaStack.SimVizBucketName' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
           echo "viz_dist=$(jq -r '.GamezillaStack.SimVizDistributionId' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
           echo "viz_url=$(jq -r '.GamezillaStack.SimVizUrl' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
-          echo "nameservers=$(jq -r '.GamezillaStack.Route53Nameservers // empty' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
+          NS_RAW="$(jq -r '.GamezillaStack.Route53Nameservers // empty' aws/cdk-outputs.json)"
+          if [ -z "$NS_RAW" ] || [ "$NS_RAW" = "null" ]; then
+            echo "::error::Route53Nameservers missing or empty in aws/cdk-outputs.json. Deploy uses -c customDomain=true; GamezillaStack must create the hosted zone and Route53Nameservers output."
+            cat aws/cdk-outputs.json >&2 || true
+            exit 1
+          fi
+          echo "nameservers=$NS_RAW" >> "$GITHUB_OUTPUT"
 
       - name: Build and deploy web app
         run: |

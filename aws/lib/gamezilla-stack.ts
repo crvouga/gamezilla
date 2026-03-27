@@ -13,6 +13,12 @@ import * as path from 'node:path';
 
 const REPO_ROOT = path.join(__dirname, '..', '..');
 
+/** CDK `-c key=true` passes string `"true"`; cdk.json may use boolean `true`. */
+function isContextFlagTrue(scope: Construct, key: string): boolean {
+  const v = scope.node.tryGetContext(key);
+  return v === true || v === 'true' || v === 1 || v === '1';
+}
+
 function createSpaDistribution(
   scope: Construct,
   id: string,
@@ -59,7 +65,7 @@ export class GamezillaStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const customDomain = this.node.tryGetContext('customDomain') === true;
+    const customDomain = isContextFlagTrue(this, 'customDomain');
 
     let hostedZone: route53.HostedZone | undefined;
     let webCertificate: acm.Certificate | undefined;
