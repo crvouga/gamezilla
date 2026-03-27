@@ -12,6 +12,10 @@ export function run(
     args.every((a) => typeof a === 'string'),
     'run: args must be string[]'
   );
+  assert(
+    opts?.cwd === undefined || opts.cwd.length > 0,
+    'run: cwd when set must be non-empty'
+  );
   const base = {
     env: opts?.env ?? process.env,
     stdout: 'inherit' as const,
@@ -20,15 +24,16 @@ export function run(
   };
   const spawnOpts =
     opts?.cwd !== undefined ? { ...base, cwd: opts.cwd } : base;
-  assert(
-    opts?.cwd === undefined || opts.cwd.length > 0,
-    'run: cwd when set must be non-empty'
-  );
   const r = Bun.spawnSync([cmd, ...args], spawnOpts);
-  assert(r.exitCode !== null && r.exitCode !== undefined, 'run: spawn exitCode');
+  assert(
+    r.exitCode !== null && r.exitCode !== undefined,
+    `run: Bun.spawnSync returned no exitCode for: ${cmd} ${args.join(' ')}`
+  );
   if (r.exitCode !== 0) {
     ghError(`${cmd} ${args.join(' ')} failed (exit ${r.exitCode})`);
-    process.exit(r.exitCode ?? 1);
+    assert.fail(
+      `run: ${cmd} ${args.join(' ')} exited ${r.exitCode} — crash, do not continue`
+    );
   }
   assert.strictEqual(r.exitCode, 0);
 }

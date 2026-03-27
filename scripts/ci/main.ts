@@ -3,17 +3,21 @@
  * Usage: bun run scripts/ci.ts <command>
  */
 import assert from 'node:assert/strict';
+import { ghError } from './gh';
 import { CI_COMMAND_REGISTRY, printUsage } from './registry';
 
 export async function main(): Promise<void> {
   const argv = process.argv;
   assert(Array.isArray(argv));
   assert(CI_COMMAND_REGISTRY.length > 0);
+
   const command = CI_COMMAND_REGISTRY.find((c) => c.match(argv));
   if (command === undefined) {
     printUsage();
-    process.exit(2);
+    ghError(`Unknown command: ${argv[2] ?? '(none)'}`);
+    assert.fail(`main: unrecognized command "${argv[2] ?? '(none)'}" — crash, do not continue`);
   }
+
   assert(command !== undefined && command !== null);
   await Promise.resolve(command.execute(argv));
 }

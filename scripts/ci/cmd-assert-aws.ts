@@ -28,14 +28,14 @@ export class AssertAwsCommand extends BaseCiCommand {
     );
     if (id.Account === undefined || id.Account === '') {
       ghError('STS Account missing');
-      process.exit(1);
+      assert.fail('assert-aws: STS Account must be present');
     }
     if (id.Arn === undefined || id.Arn === '') {
       ghError('STS Arn missing');
-      process.exit(1);
+      assert.fail('assert-aws: STS Arn must be present');
     }
-    assert(id.Account !== undefined && id.Account.length > 0);
-    assert(id.Arn !== undefined && id.Arn.length > 0);
+    assert(id.Account.length > 0);
+    assert(id.Arn.length > 0);
     ghNotice(
       `ASSERT ok: caller ${id.Arn} account=${id.Account} region=${process.env['AWS_REGION']}`
     );

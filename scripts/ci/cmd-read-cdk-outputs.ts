@@ -24,8 +24,7 @@ export class ReadCdkOutputsCommand extends BaseCiCommand {
 
   execute(argv: string[]): void {
     assert(Array.isArray(argv));
-    const file =
-      argv[3] ?? join(process.cwd(), 'aws', 'cdk-outputs.json');
+    const file = argv[3] ?? join(process.cwd(), 'aws', 'cdk-outputs.json');
     assert(typeof file === 'string' && file.length > 0);
 
     let raw: unknown;
@@ -33,32 +32,35 @@ export class ReadCdkOutputsCommand extends BaseCiCommand {
       raw = JSON.parse(readFileSync(file, 'utf8'));
     } catch (e) {
       ghError(`Failed to read ${file}: ${String(e)}`);
-      process.exit(1);
+      assert.fail(`read-cdk-outputs: cannot parse ${file}`);
     }
     if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) {
       ghError(`Invalid CDK outputs JSON (expected object)`);
-      process.exit(1);
+      assert.fail('read-cdk-outputs: CDK outputs must be a JSON object');
     }
     assert(typeof raw === 'object' && raw !== null && !Array.isArray(raw));
     const doc = raw as CdkOutputsFile;
     const stack = doc[STACK_NAME];
     if (stack === undefined || typeof stack !== 'object') {
       ghError(`Missing ${STACK_NAME} in CDK outputs`);
-      process.exit(1);
+      assert.fail(`read-cdk-outputs: ${STACK_NAME} key missing`);
     }
 
     const nonEmpty = (v: string | undefined, field: string): string => {
       if (v === undefined || v === '' || v === 'null') {
         ghError(`GamezillaStack.${field} missing or null`);
-        process.exit(1);
+        assert.fail(`read-cdk-outputs: ${STACK_NAME}.${field} must be non-empty`);
       }
+      assert(v.length > 0);
       return v;
     };
 
     const toSyncUrl = (syncRaw: string): string => {
+      assert(syncRaw.length > 0);
       let host = syncRaw.trim();
       if (host.startsWith('https://')) host = host.slice('https://'.length);
       if (host.startsWith('http://')) host = host.slice('http://'.length);
+      assert(host.length > 0);
       return `https://${host}`;
     };
 
@@ -67,7 +69,10 @@ export class ReadCdkOutputsCommand extends BaseCiCommand {
     const webDist = nonEmpty(stack.WebDistributionId, 'WebDistributionId');
     const webUrl = nonEmpty(stack.WebAppUrl, 'WebAppUrl');
     const vizBucket = nonEmpty(stack.SimVizBucketName, 'SimVizBucketName');
-    const vizDist = nonEmpty(stack.SimVizDistributionId, 'SimVizDistributionId');
+    const vizDist = nonEmpty(
+      stack.SimVizDistributionId,
+      'SimVizDistributionId'
+    );
     const vizUrl = nonEmpty(stack.SimVizUrl, 'SimVizUrl');
     const nsRaw = nonEmpty(stack.Route53Nameservers, 'Route53Nameservers');
 

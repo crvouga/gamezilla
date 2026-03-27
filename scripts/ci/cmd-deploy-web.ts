@@ -18,9 +18,10 @@ export class DeployWebCommand extends BaseCiCommand {
 
     if (!/^https:\/\//.test(syncUrl)) {
       ghError(`prod PATCH_DB_SYNC_SERVER_URL must be https:// (got: ${syncUrl})`);
-      process.exit(1);
+      assert.fail('deploy-web: sync URL must be https://');
     }
     assert(/^https:\/\//.test(syncUrl));
+
     const configPath = join(process.cwd(), 'public-config.json');
     assert(configPath.length > 0);
     let doc: unknown;
@@ -28,7 +29,7 @@ export class DeployWebCommand extends BaseCiCommand {
       doc = JSON.parse(readFileSync(configPath, 'utf8'));
     } catch (e) {
       ghError(`public-config.json: ${String(e)}`);
-      process.exit(1);
+      assert.fail('deploy-web: public-config.json must be valid JSON');
     }
     if (
       typeof doc !== 'object' ||
@@ -38,15 +39,8 @@ export class DeployWebCommand extends BaseCiCommand {
       (doc as { prod: unknown }).prod === null
     ) {
       ghError('public-config.json missing prod object');
-      process.exit(1);
+      assert.fail('deploy-web: public-config.json must contain prod object');
     }
-    assert(
-      typeof doc === 'object' &&
-        doc !== null &&
-        'prod' in doc &&
-        typeof (doc as { prod?: unknown }).prod === 'object' &&
-        (doc as { prod: unknown }).prod !== null
-    );
     const o = doc as { local: unknown; prod: Record<string, unknown> };
     o.prod['PATCH_DB_SYNC_SERVER_URL'] = syncUrl;
     assert.strictEqual(o.prod['PATCH_DB_SYNC_SERVER_URL'], syncUrl);

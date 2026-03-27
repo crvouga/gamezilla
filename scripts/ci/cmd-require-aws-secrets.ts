@@ -32,7 +32,9 @@ export class RequireAwsSecretsCommand extends BaseCiCommand {
       ghError(
         `Missing or empty Actions secrets (inject env on this step): ${missing.join(', ')}`
       );
-      process.exit(1);
+      assert.fail(
+        `require-aws-secrets: missing ${missing.join(', ')} — crash, do not continue`
+      );
     }
     assert(missing.length === 0);
     ghNotice('AWS deploy secrets present.');
