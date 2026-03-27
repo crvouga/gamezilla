@@ -12,17 +12,11 @@ import {
   shapeListQuery,
 } from '../playground-shapes';
 import type { PlaygroundClientHandle } from '../playground-sim';
-import {
-  IconClear,
-  IconLaptop,
-  IconPartition,
-  IconRemove,
-  IconSync,
-} from './icons';
+import { IconLaptop, IconPartition, IconSync } from './icons';
 import { NodePanelShell } from './node-panel-shell';
 import { ShapeList } from './shape-list';
 import { useSimContext } from './sim-context';
-import { btnAction, btnSmall } from './styles';
+import { btnAction, btnTiny } from './styles';
 import { useAsyncAction } from './use-async-action';
 import { useDragReorder } from './use-drag-reorder';
 import { useClientTopoAnimation } from './use-topo-animation';
@@ -120,10 +114,9 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
           <button
             type="button"
             onClick={() => removeClient(client.id)}
-            className={`${btnSmall} ml-auto hover:text-red-400`}
-            title="Remove client"
+            className={`${btnTiny} ml-auto hover:text-red-400`}
           >
-            <IconRemove />
+            Remove
           </button>
         </>
       }
@@ -187,10 +180,25 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
               await sim.wipeClientDb(client.id);
             })
           }
-          className={`${btnSmall} hover:text-red-400`}
-          title="Wipe local database (simulate data loss)"
+          className={`${btnAction} hover:text-red-400`}
         >
-          <IconClear />
+          Wipe
+        </button>
+
+        <button
+          type="button"
+          disabled={busy || entities.length === 0}
+          onClick={() =>
+            run(async () => {
+              animatePush();
+              for (const e of entities) {
+                await playgroundRandomizeShape(sim, client.id, e.entityId);
+              }
+            })
+          }
+          className={btnAction}
+        >
+          Shuffle
         </button>
       </div>
 

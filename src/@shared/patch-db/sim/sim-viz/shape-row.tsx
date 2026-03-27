@@ -1,8 +1,8 @@
 import type { DragEvent as ReactDragEvent } from 'react';
 import type { Entity } from '../../../patch-db/interface';
 import { SHAPE_ATTR } from '../playground-shapes';
-import { IconGrip, IconShuffle, IconTrash } from './icons';
-import { btnSmall } from './styles';
+import { IconGrip } from './icons';
+import { btnTiny } from './styles';
 
 export function ShapeRow({
   entity,
@@ -55,19 +55,17 @@ export function ShapeRow({
         type="button"
         disabled={busy}
         onClick={() => onRandomize(entity.entityId)}
-        className={btnSmall}
-        title="Randomize shape"
+        className={btnTiny}
       >
-        <IconShuffle />
+        Rand
       </button>
       <button
         type="button"
         disabled={busy}
         onClick={() => onDelete(entity.entityId)}
-        className={`${btnSmall} hover:text-red-400`}
-        title="Delete shape"
+        className={`${btnTiny} hover:text-red-400`}
       >
-        <IconTrash />
+        Del
       </button>
     </li>
   );

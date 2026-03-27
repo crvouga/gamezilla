@@ -6,11 +6,11 @@ import {
   playgroundServerRandomizeShape,
   playgroundServerReorderShapes,
 } from '../playground-shapes';
-import { IconClear, IconPartition, IconServer, IconSync } from './icons';
+import { IconPartition, IconServer, IconSync } from './icons';
 import { NodePanelShell } from './node-panel-shell';
 import { ShapeList } from './shape-list';
 import { useSimContext } from './sim-context';
-import { btnAction, btnSmall } from './styles';
+import { btnAction } from './styles';
 import { useAsyncAction } from './use-async-action';
 import { useDragReorder } from './use-drag-reorder';
 import { useServerShapes } from './use-server-shapes';
@@ -129,12 +129,7 @@ export function ServerNodePanel() {
           <IconSync size={14} />
           Sync All
         </button>
-      </div>
 
-      <div className="mb-2 flex items-center gap-2">
-        <span className="text-[0.7rem] text-white/45">
-          {entities.length} shape(s)
-        </span>
         <button
           type="button"
           disabled={busy}
@@ -143,12 +138,31 @@ export function ServerNodePanel() {
               await sim.wipeServerDb();
             })
           }
-          className={`${btnSmall} ml-auto hover:text-red-400`}
-          title="Wipe server database (simulate data loss)"
+          className={`${btnAction} hover:text-red-400`}
         >
-          <IconClear />
+          Wipe
+        </button>
+
+        <button
+          type="button"
+          disabled={busy || entities.length === 0}
+          onClick={() =>
+            run(async () => {
+              animatePollAll();
+              for (const e of entities) {
+                await playgroundServerRandomizeShape(sim, e.entityId);
+              }
+            })
+          }
+          className={btnAction}
+        >
+          Shuffle
         </button>
       </div>
+
+      <p className="mb-1.5 text-[0.65rem] text-white/40">
+        {entities.length} shape(s)
+      </p>
 
       <ShapeList
         entities={entities}
