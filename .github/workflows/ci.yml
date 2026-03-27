@@ -86,7 +86,7 @@ jobs:
 
       - name: CDK deploy
         working-directory: aws
-        run: npm ci && npx cdk bootstrap && npx cdk deploy --require-approval never --outputs-file cdk-outputs.json
+        run: npm ci && npx cdk bootstrap && npx cdk deploy -c customDomain=true --require-approval never --outputs-file cdk-outputs.json
 
       - name: Read CDK outputs
         id: cdk
@@ -112,6 +112,7 @@ jobs:
           echo "viz_bucket=$(jq -r '.GamezillaStack.SimVizBucketName' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
           echo "viz_dist=$(jq -r '.GamezillaStack.SimVizDistributionId' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
           echo "viz_url=$(jq -r '.GamezillaStack.SimVizUrl' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
+          echo "nameservers=$(jq -r '.GamezillaStack.Route53Nameservers // empty' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
 
       - name: Build and deploy web app
         run: |
@@ -135,7 +136,7 @@ jobs:
 
       - name: Deployment summary
         run: |
-          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          cat >> "$GITHUB_STEP_SUMMARY" <<'SUMMARY_EOF'
           ## Deployment Complete
 
           | Service | URL |
@@ -143,4 +144,14 @@ jobs:
           | **Web App** | ${{ steps.cdk.outputs.web_url }} |
           | **Sim Viz** | ${{ steps.cdk.outputs.viz_url }} |
           | **Sync Server** | ${{ steps.cdk.outputs.sync_url }} |
-          EOF
+
+          ### Custom Domain Setup (`www.gamezilla.app`)
+
+          **Nameservers** — set these at [Squarespace Domains](https://account.squarespace.com/domains) → `gamezilla.app` → DNS → Nameservers → Use custom nameservers:
+
+          ```
+          ${{ steps.cdk.outputs.nameservers }}
+          ```
+
+          Once nameservers propagate (15–60 min), ACM validates the TLS cert automatically and `https://www.gamezilla.app` goes live.
+          SUMMARY_EOF
