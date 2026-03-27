@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import {
-  CancelUpdateStackCommand,
   type CloudFormationClient,
   DescribeStackEventsCommand,
   DescribeStacksCommand,
@@ -18,12 +17,12 @@ import {
   describeStack,
   reasonIsSet,
 } from './cfn-shared';
-import { ghError, ghNotice, ghWarning } from './gh';
+import { ghError, ghNotice } from './gh';
 
 export class CfnGateCommand extends BaseCiCommand {
   readonly id = 'gate';
   readonly summary =
-    'CloudFormation gate (cancel / wait / classify)';
+    'CloudFormation gate (wait for stable / classify; never cancel updates)';
 
   async execute(argv: string[]): Promise<void> {
     assert(Array.isArray(argv));
@@ -55,18 +54,9 @@ export class CfnGateCommand extends BaseCiCommand {
     }
 
     if (status === 'UPDATE_IN_PROGRESS') {
-      ghWarning(
-        `${STACK_NAME} is UPDATE_IN_PROGRESS (often stuck on ACM DNS). cancel-update-stack then wait for rollback.`
+      ghNotice(
+        `${STACK_NAME} is UPDATE_IN_PROGRESS — waiting for completion (no cancel-update-stack).`
       );
-      try {
-        await client.send(
-          new CancelUpdateStackCommand({ StackName: STACK_NAME })
-        );
-      } catch (e: unknown) {
-        ghNotice(
-          `cancel-update-stack failed — polling anyway: ${String((e as Error)?.message ?? e)}`
-        );
-      }
       await this.waitForStable(client);
       await this.assertDeployableOrAbsent(client);
       return;

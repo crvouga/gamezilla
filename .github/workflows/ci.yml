@@ -36,9 +36,6 @@ jobs:
   assert-deploy-ready:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    concurrency:
-      group: gamezilla-cfn-production
-      cancel-in-progress: false
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -68,6 +65,7 @@ jobs:
       - name: Assert AWS caller identity
         run: bun run scripts/ci.ts assert-aws
 
+      # Gate waits for a stable stack; it does not call CancelUpdateStack.
       - name: CloudFormation deploy gate
         run: bun run scripts/ci.ts gate
 
@@ -75,9 +73,6 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [check, assert-deploy-ready]
     runs-on: ubuntu-latest
-    concurrency:
-      group: gamezilla-cfn-production
-      cancel-in-progress: false
     steps:
       - name: Checkout
         uses: actions/checkout@v6
