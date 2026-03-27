@@ -93,22 +93,11 @@ export class PatchDbImplSyncHost implements PatchDbSyncHost {
         'PatchDbImplSyncHost.read: knownPatches must be an array',
         { i }
       );
-      assert.ok(
-        kp.length > 0,
-        'PatchDbImplSyncHost.read: knownPatches must not be empty',
-        { i }
-      );
       for (const p of kp) {
         assertPatch(assert, p);
         knownPatches.push(p);
       }
     }
-
-    assert.ok(
-      knownPatches.length > 0,
-      'PatchDbImplSyncHost.read: merged knownPatches must not be empty',
-      { queryCount: queries.length }
-    );
 
     const writtenKnown = await this.db.write(knownPatches);
     assert.array(

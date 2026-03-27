@@ -334,7 +334,6 @@ export function assertQuery(
   a.field(q, 'entityType', 'query.entityType must be string');
   a.field(q, 'knownPatches', 'query.knownPatches must be array');
   a.array(q.knownPatches, 'query.knownPatches must be array');
-  a.ok(q.knownPatches.length > 0, 'query.knownPatches must not be empty');
   for (const p of q.knownPatches) {
     assertPatchInput(a, p);
   }
