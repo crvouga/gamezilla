@@ -88,21 +88,39 @@ jobs:
         working-directory: aws
         run: npm ci && npx cdk bootstrap && npx cdk deploy --require-approval never --outputs-file cdk-outputs.json
 
-      - name: Inject sync server URL and build web app
+      - name: Read CDK outputs
+        id: cdk
         run: |
-          SYNC_URL=$(jq -r '.GamezillaStack.SyncServerUrl' aws/cdk-outputs.json)
-          WEB_BUCKET=$(jq -r '.GamezillaStack.WebAppBucketName' aws/cdk-outputs.json)
-          WEB_DIST=$(jq -r '.GamezillaStack.WebDistributionId' aws/cdk-outputs.json)
-          jq --arg url "$SYNC_URL" '.prod.PATCH_DB_SYNC_SERVER_URL = $url' public-config.json > tmp.json && mv tmp.json public-config.json
+          echo "sync_url=https://$(jq -r '.GamezillaStack.SyncServerUrl' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
+          echo "web_bucket=$(jq -r '.GamezillaStack.WebAppBucketName' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
+          echo "web_dist=$(jq -r '.GamezillaStack.WebDistributionId' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
+          echo "web_url=$(jq -r '.GamezillaStack.WebAppUrl' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
+          echo "viz_bucket=$(jq -r '.GamezillaStack.SimVizBucketName' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
+          echo "viz_dist=$(jq -r '.GamezillaStack.SimVizDistributionId' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
+          echo "viz_url=$(jq -r '.GamezillaStack.SimVizUrl' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Build and deploy web app
+        run: |
+          jq --arg url "${{ steps.cdk.outputs.sync_url }}" '.prod.PATCH_DB_SYNC_SERVER_URL = $url' public-config.json > tmp.json && mv tmp.json public-config.json
           EXPO_PUBLIC_STAGE=prod bunx expo export -p web
-          aws s3 sync dist/ "s3://${WEB_BUCKET}/" --delete
-          aws cloudfront create-invalidation --distribution-id "$WEB_DIST" --paths "/*"
+          aws s3 sync dist/ "s3://${{ steps.cdk.outputs.web_bucket }}/" --delete
+          aws cloudfront create-invalidation --distribution-id "${{ steps.cdk.outputs.web_dist }}" --paths "/*"
           rm -rf dist/
 
-      - name: Build sim-viz and deploy
+      - name: Build and deploy sim-viz
         run: |
-          VIZ_BUCKET=$(jq -r '.GamezillaStack.SimVizBucketName' aws/cdk-outputs.json)
-          VIZ_DIST=$(jq -r '.GamezillaStack.SimVizDistributionId' aws/cdk-outputs.json)
           bun run viz:build
-          aws s3 sync dist/ "s3://${VIZ_BUCKET}/" --delete
-          aws cloudfront create-invalidation --distribution-id "$VIZ_DIST" --paths "/*"
+          aws s3 sync dist/ "s3://${{ steps.cdk.outputs.viz_bucket }}/" --delete
+          aws cloudfront create-invalidation --distribution-id "${{ steps.cdk.outputs.viz_dist }}" --paths "/*"
+
+      - name: Deployment summary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ## Deployment Complete
+
+          | Service | URL |
+          |---------|-----|
+          | **Web App** | ${{ steps.cdk.outputs.web_url }} |
+          | **Sim Viz** | ${{ steps.cdk.outputs.viz_url }} |
+          | **Sync Server** | ${{ steps.cdk.outputs.sync_url }} |
+          EOF
