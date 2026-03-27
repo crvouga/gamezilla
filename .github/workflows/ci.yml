@@ -36,6 +36,9 @@ jobs:
   assert-deploy-ready:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    concurrency:
+      group: gamezilla-cfn-production
+      cancel-in-progress: false
     steps:
       - name: Fail if AWS deploy secrets are missing
         env:
@@ -60,37 +63,75 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Fail if GamezillaStack is mid-update (CloudFormation locks)
+      - name: Cancel stuck stack update if needed, then wait for stable status
         run: |
           set -euo pipefail
-          STATUS="$(
+          STACK=GamezillaStack
+          cfn_status() {
             aws cloudformation describe-stacks \
-              --stack-name GamezillaStack \
+              --stack-name "$STACK" \
               --query 'Stacks[0].StackStatus' \
               --output text 2>/dev/null || true
-          )"
+          }
+          wait_for_stable() {
+            local i
+            for i in $(seq 1 120); do
+              local s
+              s="$(cfn_status)"
+              case "$s" in
+                UPDATE_COMPLETE|CREATE_COMPLETE|UPDATE_ROLLBACK_COMPLETE|ROLLBACK_COMPLETE|IMPORT_COMPLETE|IMPORT_ROLLBACK_COMPLETE)
+                  echo "::notice::$STACK is $s — ready to deploy."
+                  return 0
+                  ;;
+                UPDATE_ROLLBACK_FAILED|CREATE_FAILED|UPDATE_FAILED|DELETE_FAILED)
+                  echo "::error::$STACK is $s — fix in AWS CloudFormation, then re-run."
+                  return 1
+                  ;;
+                DELETE_IN_PROGRESS)
+                  echo "::error::$STACK is DELETE_IN_PROGRESS — wait for deletion to finish."
+                  return 1
+                  ;;
+                "")
+                  echo "::error::$STACK missing during wait."
+                  return 1
+                  ;;
+              esac
+              echo "Waiting for $STACK (status=$s) — $i/120 (~30 min max)"
+              sleep 15
+            done
+            echo "::error::Timeout waiting for $STACK to stabilize (last: $(cfn_status))"
+            return 1
+          }
+
+          STATUS="$(cfn_status)"
           if [ -z "$STATUS" ]; then
-            echo "::notice::Stack GamezillaStack not found yet (first deploy) or describe failed; deploy will try to create."
+            echo "::notice::$STACK not found yet (first deploy) or describe failed; deploy will try to create."
             exit 0
           fi
+
           case "$STATUS" in
             UPDATE_COMPLETE|CREATE_COMPLETE|UPDATE_ROLLBACK_COMPLETE|ROLLBACK_COMPLETE|IMPORT_COMPLETE|IMPORT_ROLLBACK_COMPLETE)
-              echo "::notice::Stack GamezillaStack status: $STATUS"
+              echo "::notice::$STACK status: $STATUS"
+              exit 0
               ;;
-            UPDATE_IN_PROGRESS|UPDATE_COMPLETE_CLEANUP_IN_PROGRESS|CREATE_IN_PROGRESS)
-              echo "::error::GamezillaStack is $STATUS — another update is still running or stuck (e.g. hung ACM). Unblock: AWS Console → CloudFormation → GamezillaStack → Stack actions → Cancel update, or wait for rollback. CLI: aws cloudformation cancel-update-stack --stack-name GamezillaStack"
+            DELETE_IN_PROGRESS|DELETE_FAILED|UPDATE_ROLLBACK_FAILED|CREATE_FAILED|UPDATE_FAILED)
+              echo "::error::$STACK is $STATUS — resolve in AWS CloudFormation before deploying."
               exit 1
               ;;
-            UPDATE_ROLLBACK_IN_PROGRESS|UPDATE_ROLLBACK_FAILED)
-              echo "::error::GamezillaStack is $STATUS — finish rollback in CloudFormation (Continue update rollback / fix resources) before deploying again."
-              exit 1
+            UPDATE_IN_PROGRESS)
+              echo "::warning::$STACK is UPDATE_IN_PROGRESS (often stuck on ACM DNS). Calling cancel-update-stack to roll back this update."
+              aws cloudformation cancel-update-stack --stack-name "$STACK" || {
+                echo "::notice::cancel-update-stack failed (stack may already be moving); continuing to poll."
+              }
+              wait_for_stable
               ;;
-            DELETE_IN_PROGRESS|DELETE_FAILED)
-              echo "::error::GamezillaStack is $STATUS — resolve stack deletion in AWS before deploying."
-              exit 1
+            UPDATE_COMPLETE_CLEANUP_IN_PROGRESS|CREATE_IN_PROGRESS|UPDATE_ROLLBACK_IN_PROGRESS)
+              echo "::notice::$STACK is $STATUS — waiting for transition (no cancel)."
+              wait_for_stable
               ;;
             *)
-              echo "::notice::Stack GamezillaStack status: $STATUS (unusual; deploy may still work)"
+              echo "::notice::$STACK status: $STATUS (unusual; deploy may still work)"
+              exit 0
               ;;
           esac
 
@@ -98,6 +139,9 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [check, assert-deploy-ready]
     runs-on: ubuntu-latest
+    concurrency:
+      group: gamezilla-cfn-production
+      cancel-in-progress: false
     steps:
       - name: Checkout
         uses: actions/checkout@v6
