@@ -23,7 +23,16 @@
     "format:check": "prettier --check .",
     "tc": "tsc --noEmit",
     "preview": "bun export:web && bun run sync-server",
-    "check": "clear && bun run tc && bun run lint && bun run test && echo 'All checks passed ✅'"
+    "check": "clear && bun run tc && bun run lint && bun run test && echo 'All checks passed ✅'",
+    "cfn-gate:assert-aws": "bun run scripts/ci.ts assert-aws",
+    "cfn-gate:gate": "bun run scripts/ci.ts gate",
+    "cfn-gate:pre-cdk": "bun run scripts/ci.ts pre-cdk",
+    "ci:require-aws-secrets": "bun run scripts/ci.ts require-aws-secrets",
+    "ci:read-cdk-outputs": "bun run scripts/ci.ts read-cdk-outputs",
+    "ci:cdk-deploy": "bun run scripts/ci.ts cdk-deploy",
+    "ci:deploy-web": "bun run scripts/ci.ts deploy-web",
+    "ci:deploy-viz": "bun run scripts/ci.ts deploy-viz",
+    "ci:write-deploy-summary": "bun run scripts/ci.ts write-deploy-summary"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -57,6 +66,8 @@
     "sql.js": "^1.14.0"
   },
   "devDependencies": {
+    "@aws-sdk/client-cloudformation": "^3.1018.0",
+    "@aws-sdk/client-sts": "^3.1018.0",
     "@electric-sql/pglite": "0.3.15",
     "@electric-sql/pglite-socket": "^0.0.21",
     "@tailwindcss/vite": "^4.2.2",

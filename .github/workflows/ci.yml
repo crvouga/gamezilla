@@ -40,21 +40,23 @@ jobs:
       group: gamezilla-cfn-production
       cancel-in-progress: false
     steps:
-      - name: Fail if AWS deploy secrets are missing
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Require AWS Actions secrets
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
-        run: |
-          bad=
-          for v in AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_REGION; do
-            [ -n "${!v:-}" ] || bad="${bad:+$bad, }$v"
-          done
-          if [ -n "$bad" ]; then
-            echo "::error::Missing or empty Actions secrets: $bad. Add under Settings → Secrets and variables → Actions."
-            exit 1
-          fi
-          echo "::notice::AWS deploy secrets present."
+        run: bun run scripts/ci.ts require-aws-secrets
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -63,77 +65,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Cancel stuck stack update if needed, then wait for stable status
-        run: |
-          set -euo pipefail
-          STACK=GamezillaStack
-          cfn_status() {
-            aws cloudformation describe-stacks \
-              --stack-name "$STACK" \
-              --query 'Stacks[0].StackStatus' \
-              --output text 2>/dev/null || true
-          }
-          wait_for_stable() {
-            local i
-            for i in $(seq 1 120); do
-              local s
-              s="$(cfn_status)"
-              case "$s" in
-                UPDATE_COMPLETE|CREATE_COMPLETE|UPDATE_ROLLBACK_COMPLETE|ROLLBACK_COMPLETE|IMPORT_COMPLETE|IMPORT_ROLLBACK_COMPLETE)
-                  echo "::notice::$STACK is $s — ready to deploy."
-                  return 0
-                  ;;
-                UPDATE_ROLLBACK_FAILED|CREATE_FAILED|UPDATE_FAILED|DELETE_FAILED)
-                  echo "::error::$STACK is $s — fix in AWS CloudFormation, then re-run."
-                  return 1
-                  ;;
-                DELETE_IN_PROGRESS)
-                  echo "::error::$STACK is DELETE_IN_PROGRESS — wait for deletion to finish."
-                  return 1
-                  ;;
-                "")
-                  echo "::error::$STACK missing during wait."
-                  return 1
-                  ;;
-              esac
-              echo "Waiting for $STACK (status=$s) — $i/120 (~30 min max)"
-              sleep 15
-            done
-            echo "::error::Timeout waiting for $STACK to stabilize (last: $(cfn_status))"
-            return 1
-          }
+      - name: Assert AWS caller identity
+        run: bun run scripts/ci.ts assert-aws
 
-          STATUS="$(cfn_status)"
-          if [ -z "$STATUS" ]; then
-            echo "::notice::$STACK not found yet (first deploy) or describe failed; deploy will try to create."
-            exit 0
-          fi
-
-          case "$STATUS" in
-            UPDATE_COMPLETE|CREATE_COMPLETE|UPDATE_ROLLBACK_COMPLETE|ROLLBACK_COMPLETE|IMPORT_COMPLETE|IMPORT_ROLLBACK_COMPLETE)
-              echo "::notice::$STACK status: $STATUS"
-              exit 0
-              ;;
-            DELETE_IN_PROGRESS|DELETE_FAILED|UPDATE_ROLLBACK_FAILED|CREATE_FAILED|UPDATE_FAILED)
-              echo "::error::$STACK is $STATUS — resolve in AWS CloudFormation before deploying."
-              exit 1
-              ;;
-            UPDATE_IN_PROGRESS)
-              echo "::warning::$STACK is UPDATE_IN_PROGRESS (often stuck on ACM DNS). Calling cancel-update-stack to roll back this update."
-              aws cloudformation cancel-update-stack --stack-name "$STACK" || {
-                echo "::notice::cancel-update-stack failed (stack may already be moving); continuing to poll."
-              }
-              wait_for_stable
-              ;;
-            UPDATE_COMPLETE_CLEANUP_IN_PROGRESS|CREATE_IN_PROGRESS|UPDATE_ROLLBACK_IN_PROGRESS)
-              echo "::notice::$STACK is $STATUS — waiting for transition (no cancel)."
-              wait_for_stable
-              ;;
-            *)
-              echo "::notice::$STACK status: $STATUS (unusual; deploy may still work)"
-              exit 0
-              ;;
-          esac
+      - name: CloudFormation deploy gate
+        run: bun run scripts/ci.ts gate
 
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -169,84 +105,34 @@ jobs:
       - name: Generate router types
         run: bunx expo customize tsconfig.json
 
+      - name: Assert stack still deployable immediately before CDK
+        run: bun run scripts/ci.ts pre-cdk
+
       - name: CDK deploy
-        working-directory: aws
         timeout-minutes: 45
-        run: |
-          set -euo pipefail
-          npm ci && npx cdk bootstrap && npx cdk deploy -c customDomain=true -c customDomainBootstrap=true --require-approval never --outputs-file cdk-outputs.json
+        run: bun run scripts/ci.ts cdk-deploy
 
       - name: Read CDK outputs
         id: cdk
-        run: |
-          set -euo pipefail
-          SYNC_HOST="$(jq -r '.GamezillaStack.SyncServerUrl' aws/cdk-outputs.json)"
-          if [ -z "$SYNC_HOST" ] || [ "$SYNC_HOST" = "null" ]; then
-            echo "::error::GamezillaStack.SyncServerUrl missing or null in aws/cdk-outputs.json"
-            exit 1
-          fi
-          # App Runner returns hostname only; strip a scheme if present so we never double-prefix.
-          SYNC_HOST="${SYNC_HOST#https://}"
-          SYNC_HOST="${SYNC_HOST#http://}"
-          SYNC_URL="https://${SYNC_HOST}"
-          {
-            echo "sync_url<<CDK_SYNC_URL_EOF"
-            echo "$SYNC_URL"
-            echo "CDK_SYNC_URL_EOF"
-          } >> "$GITHUB_OUTPUT"
-          echo "web_bucket=$(jq -r '.GamezillaStack.WebAppBucketName' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
-          echo "web_dist=$(jq -r '.GamezillaStack.WebDistributionId' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
-          echo "web_url=$(jq -r '.GamezillaStack.WebAppUrl' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
-          echo "viz_bucket=$(jq -r '.GamezillaStack.SimVizBucketName' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
-          echo "viz_dist=$(jq -r '.GamezillaStack.SimVizDistributionId' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
-          echo "viz_url=$(jq -r '.GamezillaStack.SimVizUrl' aws/cdk-outputs.json)" >> "$GITHUB_OUTPUT"
-          NS_RAW="$(jq -r '.GamezillaStack.Route53Nameservers // empty' aws/cdk-outputs.json)"
-          if [ -z "$NS_RAW" ] || [ "$NS_RAW" = "null" ]; then
-            echo "::error::Route53Nameservers missing or empty in aws/cdk-outputs.json. Deploy uses -c customDomain=true; GamezillaStack must create the hosted zone and Route53Nameservers output."
-            cat aws/cdk-outputs.json >&2 || true
-            exit 1
-          fi
-          echo "nameservers=$NS_RAW" >> "$GITHUB_OUTPUT"
+        run: bun run scripts/ci.ts read-cdk-outputs
 
       - name: Build and deploy web app
-        run: |
-          set -euo pipefail
-          jq --arg url "${{ steps.cdk.outputs.sync_url }}" '.prod.PATCH_DB_SYNC_SERVER_URL = $url' public-config.json > tmp.json && mv tmp.json public-config.json
-          PATCH_SYNC_URL="$(jq -r '.prod.PATCH_DB_SYNC_SERVER_URL' public-config.json)"
-          if [[ ! "$PATCH_SYNC_URL" =~ ^https:// ]]; then
-            echo "::error::prod PATCH_DB_SYNC_SERVER_URL must be an absolute https:// URL after CDK inject (got: ${PATCH_SYNC_URL})"
-            exit 1
-          fi
-          EXPO_PUBLIC_STAGE=prod bunx expo export -p web
-          aws s3 sync dist/ "s3://${{ steps.cdk.outputs.web_bucket }}/" --delete
-          aws cloudfront create-invalidation --distribution-id "${{ steps.cdk.outputs.web_dist }}" --paths "/*"
-          rm -rf dist/
+        env:
+          SYNC_URL: ${{ steps.cdk.outputs.sync_url }}
+          WEB_BUCKET: ${{ steps.cdk.outputs.web_bucket }}
+          WEB_DIST: ${{ steps.cdk.outputs.web_dist }}
+        run: bun run scripts/ci.ts deploy-web
 
       - name: Build and deploy sim-viz
-        run: |
-          bun run viz:build
-          aws s3 sync dist/ "s3://${{ steps.cdk.outputs.viz_bucket }}/" --delete
-          aws cloudfront create-invalidation --distribution-id "${{ steps.cdk.outputs.viz_dist }}" --paths "/*"
+        env:
+          VIZ_BUCKET: ${{ steps.cdk.outputs.viz_bucket }}
+          VIZ_DIST: ${{ steps.cdk.outputs.viz_dist }}
+        run: bun run scripts/ci.ts deploy-viz
 
       - name: Deployment summary
-        run: |
-          TLS_NOTE='**Bootstrap deploy:** ACM and the `www.gamezilla.app` CloudFront alias are skipped in CI so the stack does not block on DNS. After nameservers propagate, run `cdk deploy -c customDomain=true -c customDomainBootstrap=false` locally (or adjust this workflow) to add TLS and `https://www.gamezilla.app`.'
-          cat >> "$GITHUB_STEP_SUMMARY" <<'SUMMARY_EOF'
-          ## Deployment Complete
-
-          | Service | URL |
-          |---------|-----|
-          | **Web App** | ${{ steps.cdk.outputs.web_url }} |
-          | **Sim Viz** | ${{ steps.cdk.outputs.viz_url }} |
-          | **Sync Server** | ${{ steps.cdk.outputs.sync_url }} |
-
-          ### Custom Domain Setup (`www.gamezilla.app`)
-
-          **Nameservers** — set these at [Squarespace Domains](https://account.squarespace.com/domains) → `gamezilla.app` → DNS → Nameservers → Use custom nameservers:
-
-          ```
-          ${{ steps.cdk.outputs.nameservers }}
-          ```
-          SUMMARY_EOF
-          echo >> "$GITHUB_STEP_SUMMARY"
-          echo "$TLS_NOTE" >> "$GITHUB_STEP_SUMMARY"
+        env:
+          CI_WEB_URL: ${{ steps.cdk.outputs.web_url }}
+          CI_VIZ_URL: ${{ steps.cdk.outputs.viz_url }}
+          CI_SYNC_URL: ${{ steps.cdk.outputs.sync_url }}
+          CI_NAMESERVERS: ${{ steps.cdk.outputs.nameservers }}
+        run: bun run scripts/ci.ts write-deploy-summary
