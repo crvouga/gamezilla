@@ -86,7 +86,7 @@ jobs:
 
       - name: CDK deploy
         working-directory: aws
-        run: npm ci && npx cdk deploy --require-approval never --outputs-file cdk-outputs.json
+        run: npm ci && npx cdk bootstrap && npx cdk deploy --require-approval never --outputs-file cdk-outputs.json
 
       - name: Inject sync server URL and build web app
         run: |
