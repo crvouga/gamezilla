@@ -57,9 +57,6 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [check, assert-deploy-ready]
     runs-on: ubuntu-latest
-    env:
-      # After Route 53 nameservers are live at the registrar, set to `true` (repo → Settings → Variables → Actions) so deploy creates ACM + www on CloudFront. Until then, bootstrap deploy avoids ACM DNS validation hanging for hours.
-      DEPLOY_CUSTOM_DOMAIN_TLS: ${{ vars.DEPLOY_CUSTOM_DOMAIN_TLS }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -92,11 +89,7 @@ jobs:
         timeout-minutes: 45
         run: |
           set -euo pipefail
-          BOOTSTRAP_FLAG=-c customDomainBootstrap=true
-          if [ "${DEPLOY_CUSTOM_DOMAIN_TLS:-}" = "true" ]; then
-            BOOTSTRAP_FLAG=-c customDomainBootstrap=false
-          fi
-          npm ci && npx cdk bootstrap && npx cdk deploy -c customDomain=true $BOOTSTRAP_FLAG --require-approval never --outputs-file cdk-outputs.json
+          npm ci && npx cdk bootstrap && npx cdk deploy -c customDomain=true -c customDomainBootstrap=true --require-approval never --outputs-file cdk-outputs.json
 
       - name: Read CDK outputs
         id: cdk
@@ -152,12 +145,7 @@ jobs:
 
       - name: Deployment summary
         run: |
-          set -euo pipefail
-          if [ "${DEPLOY_CUSTOM_DOMAIN_TLS:-}" = "true" ]; then
-            TLS_NOTE='This run included ACM and the `www.gamezilla.app` alias on CloudFront (requires nameservers already delegated to this hosted zone, or ACM will hang).'
-          else
-            TLS_NOTE='**Bootstrap:** this run skipped ACM and custom `www` on CloudFront so the stack does not block on DNS (that can take hours). After nameservers propagate, set repository variable **`DEPLOY_CUSTOM_DOMAIN_TLS`** to **`true`** and push to `main` again to enable `https://www.gamezilla.app`.'
-          fi
+          TLS_NOTE='**Bootstrap deploy:** ACM and the `www.gamezilla.app` CloudFront alias are skipped in CI so the stack does not block on DNS. After nameservers propagate, run `cdk deploy -c customDomain=true -c customDomainBootstrap=false` locally (or adjust this workflow) to add TLS and `https://www.gamezilla.app`.'
           cat >> "$GITHUB_STEP_SUMMARY" <<'SUMMARY_EOF'
           ## Deployment Complete
 
