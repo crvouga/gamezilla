@@ -1,17 +1,10 @@
 import * as cdk from 'aws-cdk-lib';
-import * as apprunner from 'aws-cdk-lib/aws-apprunner';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
-import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
-import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
-import * as ecr_assets from 'aws-cdk-lib/aws-ecr-assets';
-import * as iam from 'aws-cdk-lib/aws-iam';
 import * as route53 from 'aws-cdk-lib/aws-route53';
-import * as route53targets from 'aws-cdk-lib/aws-route53-targets';
-import * as s3 from 'aws-cdk-lib/aws-s3';
 import type { Construct } from 'constructs';
-import * as path from 'node:path';
-
-const REPO_ROOT = path.join(__dirname, '..', '..');
+import { SimViz } from './sim-viz';
+import { SyncServer } from './sync-server';
+import { WebApp } from './web-app';
 
 /** CDK `-c key=true` passes string `"true"`; cdk.json may use boolean `true`. */
 function isContextFlagTrue(scope: Construct, key: string): boolean {
@@ -19,54 +12,16 @@ function isContextFlagTrue(scope: Construct, key: string): boolean {
   return v === true || v === 'true' || v === 1 || v === '1';
 }
 
-function createSpaDistribution(
-  scope: Construct,
-  id: string,
-  bucket: s3.Bucket,
-  props: {
-    certificate?: acm.ICertificate;
-    domainNames?: string[];
-  }
-): cloudfront.Distribution {
-  const customTls =
-    props.certificate !== undefined && props.domainNames !== undefined
-      ? { certificate: props.certificate, domainNames: props.domainNames }
-      : {};
-
-  return new cloudfront.Distribution(scope, id, {
-    defaultBehavior: {
-      origin: origins.S3BucketOrigin.withOriginAccessControl(bucket),
-      viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-      allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
-      cachedMethods: cloudfront.CachedMethods.CACHE_GET_HEAD_OPTIONS,
-      compress: true,
-    },
-    defaultRootObject: 'index.html',
-    ...customTls,
-    minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
-    errorResponses: [
-      {
-        httpStatus: 403,
-        responseHttpStatus: 200,
-        responsePagePath: '/index.html',
-        ttl: cdk.Duration.minutes(0),
-      },
-      {
-        httpStatus: 404,
-        responseHttpStatus: 200,
-        responsePagePath: '/index.html',
-        ttl: cdk.Duration.minutes(0),
-      },
-    ],
-  });
-}
-
 export class GamezillaStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     const customDomain = isContextFlagTrue(this, 'customDomain');
-    /** When true with customDomain: create hosted zone + output NS only. Skip ACM and www on CloudFront until Route 53 nameservers are delegated at the registrar; otherwise ACM DNS validation never completes (15m–hours). */
+    /**
+     * When true with customDomain: create hosted zone + output NS only.
+     * Skip ACM and www on CloudFront until Route 53 nameservers are delegated
+     * at the registrar; otherwise ACM DNS validation never completes.
+     */
     const customDomainBootstrap = isContextFlagTrue(
       this,
       'customDomainBootstrap'
@@ -87,130 +42,35 @@ export class GamezillaStack extends cdk.Stack {
       }
     }
 
-    const webBucket = new s3.Bucket(this, 'WebAppBucket', {
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      encryption: s3.BucketEncryption.S3_MANAGED,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      autoDeleteObjects: true,
+    const webApp = new WebApp(this, 'WebApp', {
+      hostedZone,
+      certificate: webCertificate,
     });
 
-    const webDistribution = createSpaDistribution(
-      this,
-      'WebDistribution',
-      webBucket,
-      customDomain && webCertificate
-        ? {
-            certificate: webCertificate,
-            domainNames: ['www.gamezilla.app'],
-          }
-        : {}
-    );
+    const simViz = new SimViz(this, 'SimViz');
 
-    if (customDomain && hostedZone && webCertificate) {
-      void new route53.ARecord(this, 'WebAliasRecord', {
-        zone: hostedZone,
-        recordName: 'www',
-        target: route53.RecordTarget.fromAlias(
-          new route53targets.CloudFrontTarget(webDistribution)
-        ),
-      });
-    }
-
-    const simVizBucket = new s3.Bucket(this, 'SimVizBucket', {
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      encryption: s3.BucketEncryption.S3_MANAGED,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      autoDeleteObjects: true,
-    });
-
-    const simVizDistribution = createSpaDistribution(
-      this,
-      'SimVizDistribution',
-      simVizBucket,
-      {}
-    );
-
-    const dockerAsset = new ecr_assets.DockerImageAsset(
-      this,
-      'SyncServerImage',
-      {
-        directory: REPO_ROOT,
-        file: 'Dockerfile',
-        exclude: [
-          'aws',
-          'node_modules',
-          '.git',
-          'dist',
-          '.expo',
-          'web-build',
-          'ios',
-          'android',
-          '.sim-recordings',
-          '.cursor',
-        ],
-      }
-    );
-
-    const ecrAccessRole = new iam.Role(this, 'AppRunnerEcrAccess', {
-      assumedBy: new iam.ServicePrincipal('build.apprunner.amazonaws.com'),
-      managedPolicies: [
-        iam.ManagedPolicy.fromAwsManagedPolicyName(
-          'service-role/AWSAppRunnerServicePolicyForECRAccess'
-        ),
-      ],
-    });
-    dockerAsset.repository.grantPull(ecrAccessRole);
-
-    const syncService = new apprunner.CfnService(this, 'SyncServer', {
-      serviceName: 'gamezilla-sync',
-      sourceConfiguration: {
-        autoDeploymentsEnabled: false,
-        imageRepository: {
-          imageIdentifier: dockerAsset.imageUri,
-          imageConfiguration: {
-            port: '8080',
-          },
-          imageRepositoryType: 'ECR',
-        },
-        authenticationConfiguration: {
-          accessRoleArn: ecrAccessRole.roleArn,
-        },
-      },
-      instanceConfiguration: {
-        cpu: '256',
-        memory: '512',
-      },
-      healthCheckConfiguration: {
-        protocol: 'HTTP',
-        path: '/health',
-        interval: 10,
-        timeout: 5,
-        healthyThreshold: 1,
-        unhealthyThreshold: 5,
-      },
-    });
-    syncService.node.addDependency(dockerAsset);
+    const syncServer = new SyncServer(this, 'SyncServer');
 
     new cdk.CfnOutput(this, 'SyncServerUrl', {
-      value: syncService.attrServiceUrl,
+      value: syncServer.service.attrServiceUrl,
     });
     new cdk.CfnOutput(this, 'WebAppBucketName', {
-      value: webBucket.bucketName,
+      value: webApp.bucket.bucketName,
     });
     new cdk.CfnOutput(this, 'SimVizBucketName', {
-      value: simVizBucket.bucketName,
+      value: simViz.bucket.bucketName,
     });
     new cdk.CfnOutput(this, 'WebDistributionId', {
-      value: webDistribution.distributionId,
+      value: webApp.distribution.distributionId,
     });
     new cdk.CfnOutput(this, 'SimVizDistributionId', {
-      value: simVizDistribution.distributionId,
+      value: simViz.distribution.distributionId,
     });
     new cdk.CfnOutput(this, 'WebAppUrl', {
-      value: `https://${webDistribution.distributionDomainName}`,
+      value: `https://${webApp.distribution.distributionDomainName}`,
     });
     new cdk.CfnOutput(this, 'SimVizUrl', {
-      value: `https://${simVizDistribution.distributionDomainName}`,
+      value: `https://${simViz.distribution.distributionDomainName}`,
     });
 
     if (customDomain && hostedZone) {
