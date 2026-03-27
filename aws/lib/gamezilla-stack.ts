@@ -27,20 +27,19 @@ export class GamezillaStack extends cdk.Stack {
       'customDomainBootstrap'
     );
 
-    let hostedZone: route53.HostedZone | undefined;
-    let webCertificate: acm.Certificate | undefined;
+    const hostedZone = customDomain
+      ? new route53.HostedZone(this, 'HostedZone', {
+          zoneName: 'gamezilla.app',
+        })
+      : undefined;
 
-    if (customDomain) {
-      hostedZone = new route53.HostedZone(this, 'HostedZone', {
-        zoneName: 'gamezilla.app',
-      });
-      if (!customDomainBootstrap) {
-        webCertificate = new acm.Certificate(this, 'WebCertificate', {
-          domainName: 'www.gamezilla.app',
-          validation: acm.CertificateValidation.fromDns(hostedZone),
-        });
-      }
-    }
+    const webCertificate =
+      hostedZone && !customDomainBootstrap
+        ? new acm.Certificate(this, 'WebCertificate', {
+            domainName: 'www.gamezilla.app',
+            validation: acm.CertificateValidation.fromDns(hostedZone),
+          })
+        : undefined;
 
     const webApp = new WebApp(this, 'WebApp', {
       hostedZone,
@@ -51,6 +50,20 @@ export class GamezillaStack extends cdk.Stack {
 
     const syncServer = new SyncServer(this, 'SyncServer');
 
+    this.addOutputs({ webApp, simViz, syncServer, hostedZone });
+  }
+
+  private addOutputs({
+    webApp,
+    simViz,
+    syncServer,
+    hostedZone,
+  }: {
+    webApp: WebApp;
+    simViz: SimViz;
+    syncServer: SyncServer;
+    hostedZone: route53.HostedZone | undefined;
+  }): void {
     new cdk.CfnOutput(this, 'SyncServerUrl', {
       value: syncServer.service.attrServiceUrl,
     });
@@ -73,16 +86,15 @@ export class GamezillaStack extends cdk.Stack {
       value: `https://${simViz.distribution.distributionDomainName}`,
     });
 
-    if (customDomain && hostedZone) {
-      const nameServers = hostedZone.hostedZoneNameServers;
-      if (nameServers === undefined) {
-        throw new Error('Hosted zone must expose name servers');
-      }
-      new cdk.CfnOutput(this, 'Route53Nameservers', {
-        value: cdk.Fn.join(', ', nameServers),
-        description:
-          'Set these nameservers at your domain registrar (e.g. Squarespace)',
-      });
+    if (!hostedZone) return;
+    const nameServers = hostedZone.hostedZoneNameServers;
+    if (nameServers === undefined) {
+      throw new Error('Hosted zone must expose name servers');
     }
+    new cdk.CfnOutput(this, 'Route53Nameservers', {
+      value: cdk.Fn.join(', ', nameServers),
+      description:
+        'Set these nameservers at your domain registrar (e.g. Squarespace)',
+    });
   }
 }
