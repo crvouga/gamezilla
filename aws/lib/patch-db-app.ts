@@ -8,16 +8,32 @@ import { Construct } from 'constructs';
 import { createSpaDistribution } from './spa-distribution';
 
 export interface PatchDbAppProps {
-  hostedZone?: route53.IHostedZone;
-  certificate?: acm.ICertificate;
+  customDomain?: boolean;
+  customDomainBootstrap?: boolean;
 }
 
 export class PatchDbApp extends Construct {
   readonly bucket: s3.Bucket;
   readonly distribution: cloudfront.Distribution;
+  readonly hostedZone?: route53.HostedZone;
 
   constructor(scope: Construct, id: string, props: PatchDbAppProps = {}) {
     super(scope, id);
+
+    this.hostedZone = props.customDomain
+      ? new route53.HostedZone(this, 'HostedZone', {
+          zoneName: 'patchdb.dev',
+        })
+      : undefined;
+
+    const certificate =
+      this.hostedZone && !props.customDomainBootstrap
+        ? new acm.Certificate(this, 'Certificate', {
+            domainName: 'patchdb.dev',
+            subjectAlternativeNames: ['www.patchdb.dev'],
+            validation: acm.CertificateValidation.fromDns(this.hostedZone),
+          })
+        : undefined;
 
     this.bucket = new s3.Bucket(this, 'Bucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
@@ -30,17 +46,26 @@ export class PatchDbApp extends Construct {
       this,
       'Distribution',
       this.bucket,
-      props.certificate
-        ? { certificate: props.certificate, domainNames: ['patchdb.dev'] }
+      certificate
+        ? {
+            certificate,
+            domainNames: ['www.patchdb.dev', 'patchdb.dev'],
+          }
         : {}
     );
 
-    if (props.hostedZone && props.certificate) {
-      void new route53.ARecord(this, 'AliasRecord', {
-        zone: props.hostedZone,
-        target: route53.RecordTarget.fromAlias(
-          new route53targets.CloudFrontTarget(this.distribution)
-        ),
+    if (this.hostedZone && certificate) {
+      const cfTarget = route53.RecordTarget.fromAlias(
+        new route53targets.CloudFrontTarget(this.distribution)
+      );
+      void new route53.ARecord(this, 'WwwAliasRecord', {
+        zone: this.hostedZone,
+        recordName: 'www',
+        target: cfTarget,
+      });
+      void new route53.ARecord(this, 'ApexAliasRecord', {
+        zone: this.hostedZone,
+        target: cfTarget,
       });
     }
   }

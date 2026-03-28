@@ -19,6 +19,34 @@ export function createSpaDistribution(
       ? { certificate: props.certificate, domainNames: props.domainNames }
       : {};
 
+  const functionAssociations: cloudfront.FunctionAssociation[] = [];
+
+  if (props.domainNames) {
+    const apexRedirectFn = new cloudfront.Function(
+      scope,
+      `${id}ApexRedirectFn`,
+      {
+        code: cloudfront.FunctionCode.fromInline(`\
+function handler(event) {
+  var host = event.request.headers.host.value;
+  if (!host.startsWith("www.")) {
+    return {
+      statusCode: 301,
+      statusDescription: "Moved Permanently",
+      headers: { location: { value: "https://www." + host + event.request.uri } }
+    };
+  }
+  return event.request;
+}`),
+        runtime: cloudfront.FunctionRuntime.JS_2_0,
+      }
+    );
+    functionAssociations.push({
+      function: apexRedirectFn,
+      eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
+    });
+  }
+
   return new cloudfront.Distribution(scope, id, {
     defaultBehavior: {
       origin: origins.S3BucketOrigin.withOriginAccessControl(bucket),
@@ -26,6 +54,7 @@ export function createSpaDistribution(
       allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
       cachedMethods: cloudfront.CachedMethods.CACHE_GET_HEAD_OPTIONS,
       compress: true,
+      functionAssociations,
     },
     defaultRootObject: 'index.html',
     ...customTls,

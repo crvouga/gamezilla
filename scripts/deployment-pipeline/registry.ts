@@ -1,25 +1,13 @@
 import assert from 'node:assert/strict';
 import type { PipelineCommand } from './base-command';
-import { AssertAwsCommand } from './cmd-assert-aws';
 import { CdkDeployCommand } from './cmd-cdk-deploy';
-import { DeployPatchDbAppCommand } from './cmd-deploy-patch-db-app';
-import { DeployWebAppCommand } from './cmd-deploy-web-app';
-import { CfnGateCommand } from './cmd-gate';
-import { PreCdkCommand } from './cmd-pre-cdk';
-import { ReadCdkOutputsCommand } from './cmd-read-cdk-outputs';
-import { RequireAwsSecretsCommand } from './cmd-require-aws-secrets';
-import { WriteDeploySummaryCommand } from './cmd-write-deploy-summary';
+import { DeployAppsCommand } from './cmd-deploy-apps';
+import { PreflightCommand } from './cmd-preflight';
 
 export const COMMAND_REGISTRY: PipelineCommand[] = [
-  new RequireAwsSecretsCommand(),
-  new AssertAwsCommand(),
-  new CfnGateCommand(),
-  new PreCdkCommand(),
-  new ReadCdkOutputsCommand(),
+  new PreflightCommand(),
   new CdkDeployCommand(),
-  new DeployWebAppCommand(),
-  new DeployPatchDbAppCommand(),
-  new WriteDeploySummaryCommand(),
+  new DeployAppsCommand(),
 ];
 
 assert(COMMAND_REGISTRY.length > 0, 'COMMAND_REGISTRY must not be empty');

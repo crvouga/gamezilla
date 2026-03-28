@@ -5,10 +5,8 @@ import {
 } from '@aws-sdk/client-cloudformation';
 
 export const STACK_NAME = 'GamezillaStack';
-export const SYNC_URL_DELIM = 'CDK_SYNC_URL_EOF';
 
 assert(STACK_NAME.length > 0);
-assert(SYNC_URL_DELIM.length > 0);
 
 export const DEPLOYABLE_STATUSES = new Set([
   'UPDATE_COMPLETE',

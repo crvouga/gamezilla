@@ -1,37 +1,31 @@
 import assert from 'node:assert/strict';
 import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { BasePipelineCommand } from './base-command';
-import { ghError, ghNotice, mustEnv } from './gh';
+import { requireOutput, type StackOutputs } from './cdk-outputs';
+import type { Deployable } from './deployable';
+import { ghError, ghNotice } from './gh';
 import { run } from './run-subprocess';
 
-export class DeployWebAppCommand extends BasePipelineCommand {
-  readonly id = 'deploy-web-app';
-  readonly summary = 'Expo export + S3 + invalidation';
+export class WebAppDeployable implements Deployable {
+  readonly id = 'web-app';
 
-  execute(argv: string[]): void {
-    assert(Array.isArray(argv));
-    const syncUrl = mustEnv(process.env['SYNC_URL'], 'SYNC_URL');
-    const bucket = mustEnv(process.env['WEB_BUCKET'], 'WEB_BUCKET');
-    const distId = mustEnv(process.env['WEB_DIST'], 'WEB_DIST');
-    assert(bucket.length > 0 && distId.length > 0);
+  deploy(outputs: StackOutputs): void {
+    const syncUrl = toHttps(requireOutput(outputs, 'SyncServerUrl'));
+    const bucket = requireOutput(outputs, 'WebAppBucketName');
+    const distId = requireOutput(outputs, 'WebDistributionId');
 
     if (!/^https:\/\//.test(syncUrl)) {
-      ghError(
-        `prod PATCH_DB_SYNC_SERVER_URL must be https:// (got: ${syncUrl})`
-      );
-      assert.fail('deploy-web-app: sync URL must be https://');
+      ghError(`PATCH_DB_SYNC_SERVER_URL must be https:// (got: ${syncUrl})`);
+      assert.fail('web-app: sync URL must be https://');
     }
-    assert(/^https:\/\//.test(syncUrl));
 
     const configPath = join(process.cwd(), 'public-config.json');
-    assert(configPath.length > 0);
     let doc: unknown;
     try {
       doc = JSON.parse(readFileSync(configPath, 'utf8'));
     } catch (e) {
       ghError(`public-config.json: ${String(e)}`);
-      assert.fail('deploy-web-app: public-config.json must be valid JSON');
+      assert.fail('web-app: public-config.json must be valid JSON');
     }
     if (
       typeof doc !== 'object' ||
@@ -41,9 +35,7 @@ export class DeployWebAppCommand extends BasePipelineCommand {
       (doc as { prod: unknown }).prod === null
     ) {
       ghError('public-config.json missing prod object');
-      assert.fail(
-        'deploy-web-app: public-config.json must contain prod object'
-      );
+      assert.fail('web-app: public-config.json must contain prod object');
     }
     const o = doc as { local: unknown; prod: Record<string, unknown> };
     o.prod['PATCH_DB_SYNC_SERVER_URL'] = syncUrl;
@@ -67,4 +59,16 @@ export class DeployWebAppCommand extends BasePipelineCommand {
     rmSync(join(process.cwd(), 'dist'), { recursive: true, force: true });
     ghNotice('Web app exported and synced to S3.');
   }
+}
+
+function toHttps(raw: string): string {
+  assert(raw.length > 0);
+  let host = raw.trim();
+  if (host.startsWith('https://')) host = host.slice('https://'.length);
+  if (host.startsWith('http://')) host = host.slice('http://'.length);
+  assert(host.length > 0);
+  const output = `https://${host}`;
+  assert(output.length > 0);
+  assert(/^https:\/\//.test(output));
+  return output;
 }

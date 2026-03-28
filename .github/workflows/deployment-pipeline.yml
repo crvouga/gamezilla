@@ -39,8 +39,12 @@ jobs:
     needs: [check]
     runs-on: ubuntu-latest
     concurrency:
-      group: gamezilla-deploy-production
+      group: deploy
       cancel-in-progress: false
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -58,55 +62,12 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Generate router types
-        run: bunx expo customize tsconfig.json
+      - name: Preflight — validate secrets, assert identity, gate stack
+        run: bun run scripts/deployment-pipeline.ts preflight
 
-      - name: Require AWS Actions secrets
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ vars.AWS_REGION }}
-        run: bun run scripts/deployment-pipeline.ts require-aws-secrets
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v6
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_REGION }}
-
-      - name: Assert AWS caller identity
-        run: bun run scripts/deployment-pipeline.ts assert-aws
-
-      - name: Assert stack deployable (fail fast — no wait, no cancel)
-        run: bun run scripts/deployment-pipeline.ts gate
-
-      - name: CDK deploy
+      - name: CDK deploy - provision resources
         timeout-minutes: 45
         run: bun run scripts/deployment-pipeline.ts cdk-deploy
 
-      - name: Read CDK outputs
-        id: cdk
-        run: bun run scripts/deployment-pipeline.ts read-cdk-outputs
-
-      - name: Build and deploy web app
-        env:
-          SYNC_URL: ${{ steps.cdk.outputs.sync_url }}
-          WEB_BUCKET: ${{ steps.cdk.outputs.web_bucket }}
-          WEB_DIST: ${{ steps.cdk.outputs.web_dist }}
-        run: bun run scripts/deployment-pipeline.ts deploy-web-app
-
-      - name: Build and deploy PatchDB app
-        env:
-          PATCH_DB_APP_BUCKET: ${{ steps.cdk.outputs.patch_db_app_bucket }}
-          PATCH_DB_APP_DIST: ${{ steps.cdk.outputs.patch_db_app_dist }}
-        run: bun run scripts/deployment-pipeline.ts deploy-patch-db-app
-
-      - name: Deployment summary
-        env:
-          CI_WEB_URL: ${{ steps.cdk.outputs.web_url }}
-          CI_PATCH_DB_APP_URL: ${{ steps.cdk.outputs.patch_db_app_url }}
-          CI_SYNC_URL: ${{ steps.cdk.outputs.sync_url }}
-          CI_NAMESERVERS: ${{ steps.cdk.outputs.nameservers }}
-          CI_PATCHDB_NAMESERVERS: ${{ steps.cdk.outputs.patchdb_nameservers }}
-        run: bun run scripts/deployment-pipeline.ts write-deploy-summary
+      - name: Deploy apps - deploy apps
+        run: bun run scripts/deployment-pipeline.ts deploy-apps
