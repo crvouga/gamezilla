@@ -3,11 +3,13 @@ import type { PipelineCommand } from './base-command';
 import { CdkDeployCommand } from './cmd-cdk-deploy';
 import { DeployAppsCommand } from './cmd-deploy-apps';
 import { PreflightCommand } from './cmd-preflight';
+import { WriteSummaryCommand } from './cmd-write-summary';
 
 export const COMMAND_REGISTRY: PipelineCommand[] = [
   new PreflightCommand(),
   new CdkDeployCommand(),
   new DeployAppsCommand(),
+  new WriteSummaryCommand(),
 ];
 
 assert(COMMAND_REGISTRY.length > 0, 'COMMAND_REGISTRY must not be empty');

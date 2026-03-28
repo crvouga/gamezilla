@@ -69,5 +69,8 @@ jobs:
         timeout-minutes: 45
         run: bun run scripts/deployment-pipeline.ts cdk-deploy
 
-      - name: Deploy apps - deploy apps
+      - name: Deploy apps
         run: bun run scripts/deployment-pipeline.ts deploy-apps
+
+      - name: Write summary
+        run: bun run scripts/deployment-pipeline.ts write-summary
