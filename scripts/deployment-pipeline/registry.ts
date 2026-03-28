@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import type { PipelineCommand } from './base-command';
 import { CdkDeployCommand } from './cmd-cdk-deploy';
 import { DeployAppsCommand } from './cmd-deploy-apps';
+import { PostDeployCommand } from './cmd-post-deploy';
 import { PreflightCommand } from './cmd-preflight';
 import { WriteSummaryCommand } from './cmd-write-summary';
 
@@ -9,6 +10,7 @@ export const COMMAND_REGISTRY: PipelineCommand[] = [
   new PreflightCommand(),
   new CdkDeployCommand(),
   new DeployAppsCommand(),
+  new PostDeployCommand(),
   new WriteSummaryCommand(),
 ];
 

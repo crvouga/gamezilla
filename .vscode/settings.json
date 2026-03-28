@@ -44,6 +44,8 @@
     "pglite",
     "pipefail",
     "playhead",
+    "Postchecks",
+    "Prechecks",
     "Pressable",
     "RAILPACK",
     "Replayable",

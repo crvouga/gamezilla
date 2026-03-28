@@ -24,15 +24,10 @@
     "tc": "tsc --noEmit",
     "preview": "bun export:web && bun run sync-server",
     "check": "clear && bun run tc && bun run lint && bun run test && echo 'All checks passed ✅'",
-    "deploy:require-aws-secrets": "bun run scripts/deployment-pipeline.ts require-aws-secrets",
-    "deploy:assert-aws": "bun run scripts/deployment-pipeline.ts assert-aws",
-    "deploy:gate": "bun run scripts/deployment-pipeline.ts gate",
-    "deploy:pre-cdk": "bun run scripts/deployment-pipeline.ts pre-cdk",
-    "deploy:read-cdk-outputs": "bun run scripts/deployment-pipeline.ts read-cdk-outputs",
-    "deploy:cdk-deploy": "bun run scripts/deployment-pipeline.ts cdk-deploy",
-    "deploy:deploy-web-app": "bun run scripts/deployment-pipeline.ts deploy-web-app",
-    "deploy:deploy-patch-db-app": "bun run scripts/deployment-pipeline.ts deploy-patch-db-app",
-    "deploy:write-deploy-summary": "bun run scripts/deployment-pipeline.ts write-deploy-summary"
+    "deploy:prechecks": "bun run scripts/deployment-pipeline.ts preflight",
+    "deploy": "bun run scripts/deployment-pipeline.ts cdk-deploy && bun run scripts/deployment-pipeline.ts deploy-apps",
+    "deploy:postchecks": "bun run scripts/deployment-pipeline.ts post-deploy",
+    "deploy:summary": "bun run scripts/deployment-pipeline.ts write-summary"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

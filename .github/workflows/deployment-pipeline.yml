@@ -62,15 +62,15 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Preflight — validate secrets, assert identity, gate stack
-        run: bun run scripts/deployment-pipeline.ts preflight
+      - name: Prechecks
+        run: bun run deploy:prechecks
 
-      - name: CDK deploy - provision resources
+      - name: Deploy
         timeout-minutes: 45
-        run: bun run scripts/deployment-pipeline.ts cdk-deploy
+        run: bun run deploy
 
-      - name: Deploy apps
-        run: bun run scripts/deployment-pipeline.ts deploy-apps
+      - name: Postchecks
+        run: bun run deploy:postchecks
 
-      - name: Write summary
-        run: bun run scripts/deployment-pipeline.ts write-summary
+      - name: Summary
+        run: bun run deploy:summary
