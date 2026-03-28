@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useState } from 'react';
-import { DependencyInjectionContainer } from '../../../dependency-injection/dependency-injection-container';
-import { ContainerProvider } from '../../../dependency-injection/react';
-import { PatchesDbToken, useEntities } from '../../../patch-db/react';
-import { SubscribablePatchesDbToken } from '../../../patch-db/subscribable';
+import { DependencyInjectionContainer } from '../../dependency-injection/dependency-injection-container';
+import { ContainerProvider } from '../../dependency-injection/react';
+import { PatchesDbToken, useEntities } from '../react';
+import { SubscribablePatchesDbToken } from '../subscribable';
 import {
   nextShapeOrder,
   playgroundCreateShape,
@@ -10,8 +10,8 @@ import {
   playgroundRandomizeShape,
   playgroundReorderShapes,
   shapeListQuery,
-} from '../playground-shapes';
-import type { PlaygroundClientHandle } from '../playground-sim';
+} from '../sim/playground-shapes';
+import type { PlaygroundClientHandle } from '../sim/playground-sim';
 import { IconLaptop, IconPartition, IconSync } from './icons';
 import { NodePanelShell } from './node-panel-shell';
 import { ShapeList } from './shape-list';

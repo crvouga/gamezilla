@@ -1,5 +1,5 @@
 import type { DragEvent as ReactDragEvent } from 'react';
-import type { Entity } from '../../../patch-db/interface';
+import type { Entity } from '../interface';
 import { IconPlus } from './icons';
 import { ShapeRow } from './shape-row';
 import { btnAction } from './styles';

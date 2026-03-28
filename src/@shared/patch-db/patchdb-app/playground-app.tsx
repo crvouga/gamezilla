@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { PlaygroundSim } from '../playground-sim';
+import type { PlaygroundSim } from '../sim/playground-sim';
 import {
   PatchdbAppNav,
   readStoredMode,

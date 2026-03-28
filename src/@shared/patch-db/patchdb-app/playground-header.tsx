@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { SHAPE_ENTITY_TYPE } from '../playground-shapes';
+import { SHAPE_ENTITY_TYPE } from '../sim/playground-shapes';
 import { IconClear, IconPlus } from './icons';
 import { useSimContext } from './sim-context';
 

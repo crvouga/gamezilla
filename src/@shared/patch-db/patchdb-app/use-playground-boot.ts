@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { PlaygroundSim } from '../playground-sim';
+import type { PlaygroundSim } from '../sim/playground-sim';
 import {
   createPlaygroundSim,
   restorePlaygroundSim,
-} from '../playground-sim';
-import { seedPlaygroundShapes } from '../playground-shapes';
+} from '../sim/playground-sim';
+import { seedPlaygroundShapes } from '../sim/playground-shapes';
 import type { TopoAnimHandle } from './playground-topology-graph';
 import { clearSnapshot, loadSnapshot, saveSnapshot } from './persist';
 import { browserSqlJsInit } from './sql-js-browser';

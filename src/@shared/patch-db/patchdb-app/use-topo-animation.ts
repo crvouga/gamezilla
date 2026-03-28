@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import type { PlaygroundClientHandle, PlaygroundSim } from '../playground-sim';
+import type { PlaygroundClientHandle, PlaygroundSim } from '../sim/playground-sim';
 import type { TopoAnimHandle } from './playground-topology-graph';
 import { SERVER_NODE_ID } from './constants';
 

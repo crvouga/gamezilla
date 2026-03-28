@@ -6,14 +6,35 @@ import { ADMIN_METRIC_ENTITY_TYPE } from '@/sync-server-instrumentation';
 
 const URL_STORAGE_KEY = 'patchdb-inspector-sync-url';
 
+function defaultUrlWhenNoStorage(): string {
+  if (import.meta.env.DEV && typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  return 'http://localhost:5001';
+}
+
+const DIRECT_SYNC_DEV_URLS = new Set([
+  'http://localhost:5001',
+  'http://127.0.0.1:5001',
+]);
+
 function readStoredUrl(): string {
   try {
     const u = localStorage.getItem(URL_STORAGE_KEY);
-    if (typeof u === 'string') return u;
+    if (typeof u === 'string' && u.length > 0) {
+      if (
+        import.meta.env.DEV &&
+        typeof window !== 'undefined' &&
+        DIRECT_SYNC_DEV_URLS.has(u)
+      ) {
+        return window.location.origin;
+      }
+      return u;
+    }
   } catch {
     /* ignore */
   }
-  return 'http://localhost:5001';
+  return defaultUrlWhenNoStorage();
 }
 
 function persistUrl(url: string): void {
@@ -134,9 +155,13 @@ export function SyncServerInspector() {
       </div>
 
       <p className="text-xs text-white/45">
-        Metrics load through patch-db read + SSE. Point at a running sync server
-        (e.g.{' '}
-        <code className="text-white/60">bun run sync-server</code>).
+        Metrics use patch-db read + SSE. With{' '}
+        <code className="text-white/60">viz:dev</code>, keep the URL as this page’s
+        origin so Vite proxies <code className="text-white/60">/patch-db</code> to{' '}
+        <code className="text-white/60">127.0.0.1:5001</code> (
+        <code className="text-white/60">PATCHDB_SYNC_PROXY_TARGET</code> to override).
+        Run <code className="text-white/60">bun run sync-server</code> in another
+        terminal.
       </p>
 
       {error !== null ? (

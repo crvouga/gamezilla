@@ -1,4 +1,4 @@
-import type { PlaygroundSimSnapshot } from '../playground-sim';
+import type { PlaygroundSimSnapshot } from '../sim/playground-sim';
 
 const DB_NAME = 'playground-sim-persist';
 const DB_VERSION = 1;

@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { PlaygroundSim } from '../playground-sim';
+import type { PlaygroundSim } from '../sim/playground-sim';
 import type { TopoAnimHandle } from './playground-topology-graph';
 
 export type SimContextValue = {

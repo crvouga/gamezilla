@@ -7,7 +7,7 @@ import {
   useMemo,
   useRef,
 } from 'react';
-import type { PlaygroundSim } from '../playground-sim';
+import type { PlaygroundSim } from '../sim/playground-sim';
 import { C, SERVER_NODE_ID } from './constants';
 import {
   PLAYGROUND_GRAPH_VIEW_H,
