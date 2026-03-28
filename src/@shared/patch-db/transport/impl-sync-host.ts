@@ -99,7 +99,10 @@ export class PatchDbImplSyncHost implements PatchDbSyncHost {
       }
     }
 
-    const writtenKnown = await this.db.write(knownPatches);
+    const writtenKnown =
+      knownPatches.length === 0
+        ? []
+        : await this.db.write(knownPatches);
     assert.array(
       writtenKnown,
       'PatchDbImplSyncHost.read: db.write(knownPatches) must return an array'

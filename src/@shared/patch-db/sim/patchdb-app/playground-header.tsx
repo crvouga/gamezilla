@@ -30,7 +30,7 @@ export function PlaygroundHeader() {
   return (
     <header className="flex shrink-0 items-center gap-3 border-b border-white/10 px-4 py-2">
       <h1 className="font-display text-lg font-semibold tracking-tight text-white/90">
-        Patch Playground
+        Patch DB simulator playground
       </h1>
       <span className="rounded bg-white/8 px-2 py-0.5 font-mono text-[0.65rem] text-white/50">
         {SHAPE_ENTITY_TYPE} / {sim.serverId}

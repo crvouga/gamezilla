@@ -1,16 +1,37 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { PlaygroundSim } from '../playground-sim';
+import {
+  PatchdbAppNav,
+  readStoredMode,
+  type PatchdbAppMode,
+} from './patchdb-app-nav';
 import { PlaygroundFlow } from './playground-flow';
 import { PlaygroundHeader } from './playground-header';
 import { SimProvider, type SimContextValue } from './sim-context';
+import { SyncServerInspector } from './sync-server-inspector';
 import { usePlaygroundBoot } from './use-playground-boot';
 
 export function PlaygroundApp() {
+  const [mode, setMode] = useState<PatchdbAppMode>(readStoredMode);
+
+  return (
+    <div className="flex h-screen min-h-0 flex-col overflow-hidden bg-(--pg-bg) text-white">
+      <PatchdbAppNav mode={mode} onModeChange={setMode} />
+      {mode === 'syncInspector' ? (
+        <SyncServerInspector />
+      ) : (
+        <PlaygroundRoute />
+      )}
+    </div>
+  );
+}
+
+function PlaygroundRoute() {
   const boot = usePlaygroundBoot();
 
   if (boot.bootErr) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center gap-3 p-6 text-center">
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
         <p className="text-lg font-semibold text-red-300">
           Playground failed to start
         </p>
@@ -21,7 +42,7 @@ export function PlaygroundApp() {
 
   if (!boot.sim) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center gap-2">
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2">
         <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/20 border-t-violet-400" />
         <p className="text-sm text-white/70">{boot.bootLabel}</p>
       </div>
@@ -76,7 +97,7 @@ function PlaygroundShell({
 
   return (
     <SimProvider value={ctx}>
-      <div className="flex h-screen min-h-0 flex-col overflow-hidden bg-(--pg-bg) text-white">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <PlaygroundHeader />
         <div className="min-h-0 flex-1">
           <PlaygroundFlow sim={sim} pulseKey={pulseKey} linkEpoch={linkEpoch} />

@@ -8,6 +8,7 @@ import { InMemoryPubSub } from '@/@shared/pub-sub/impl-in-memory';
 import { SqlClientImplBunSqlite } from '@/@shared/sql-client/impl-bun-sqlite';
 import { assert } from './@shared/assert';
 import { NodeCrashHandler } from './@shared/assert/crash/crash-handler/crash-handler-node';
+import { PatchDbImplInstrumentedSyncHost } from './sync-server-instrumentation';
 
 assert.registerCrashHandler(new NodeCrashHandler());
 
@@ -21,7 +22,12 @@ const patchDb = new PatchDbImplSqlite(sqlClient);
 await patchDb.migrate();
 
 const pubSub = new InMemoryPubSub();
-const syncHost = new PatchDbImplSyncHost(patchDb, pubSub);
+const syncHostInner = new PatchDbImplSyncHost(patchDb, pubSub);
+const syncHost = new PatchDbImplInstrumentedSyncHost(
+  syncHostInner,
+  patchDb,
+  pubSub
+);
 const patchDbTransport = new PatchDbHttpSyncServerAdapter(syncHost);
 
 const CORS_HEADERS = {
