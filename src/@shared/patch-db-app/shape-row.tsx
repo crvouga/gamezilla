@@ -1,6 +1,6 @@
 import type { DragEvent as ReactDragEvent } from 'react';
-import type { Entity } from '../interface';
-import { SHAPE_ATTR } from '../sim/playground-shapes';
+import type { Entity } from '../patch-db/interface';
+import { SHAPE_ATTR } from '../patch-db/sim/playground-shapes';
 import { IconGrip } from './icons';
 import { btnTiny } from './styles';
 

@@ -1,10 +1,18 @@
 /**
- * Serves the generated `patchdb-app/` folder over HTTP (default port 8765).
+ * Serves the generated `patch-db-app/` folder over HTTP (default port 8765).
  * Use if `file://` blocks sql.js WASM; open http://127.0.0.1:8765
  */
 import { join } from 'node:path';
 
-const ROOT = join(import.meta.dir, '..', '..', '..', '..', '..', 'patchdb-app');
+const ROOT = join(
+  import.meta.dir,
+  '..',
+  '..',
+  '..',
+  '..',
+  '..',
+  'patch-db-app'
+);
 
 const port = Number(process.env['PATCHDB_APP_PORT'] ?? '8765');
 
@@ -19,4 +27,4 @@ Bun.serve({
   },
 });
 
-console.log(`patchdb-app → http://127.0.0.1:${port}`);
+console.log(`patch-db-app → http://127.0.0.1:${port}`);

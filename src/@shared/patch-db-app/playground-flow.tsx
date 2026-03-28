@@ -13,7 +13,10 @@ import {
 } from '@xyflow/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import type { PlaygroundClientHandle, PlaygroundSim } from '../sim/playground-sim';
+import type {
+  PlaygroundClientHandle,
+  PlaygroundSim,
+} from '../patch-db/sim/playground-sim';
 import { ClientNodePanel } from './client-node-panel';
 import { IconAutoLayout } from './icons';
 import { ServerNodePanel } from './server-node-panel';

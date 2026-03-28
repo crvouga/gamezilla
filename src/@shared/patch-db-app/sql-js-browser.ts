@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 import sqlWasmUrl from 'sql.js/dist/sql-wasm-browser.wasm?url';
-import type { SqlJsInitConfig } from '../../sql-client/impl-sql-js';
+import type { SqlJsInitConfig } from '../sql-client/impl-sql-js';
 
 /**
  * `openMemory` init: bundle WASM via Vite.

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { Entity } from '../interface';
-import type { PlaygroundSim } from '../sim/playground-sim';
-import { shapeListQuery } from '../sim/playground-shapes';
+import type { Entity } from '../patch-db/interface';
+import { shapeListQuery } from '../patch-db/sim/playground-shapes';
+import type { PlaygroundSim } from '../patch-db/sim/playground-sim';
 
 const SERVER_POLL_MS = 900;
 

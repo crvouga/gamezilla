@@ -5,7 +5,7 @@ import {
   playgroundServerDeleteShape,
   playgroundServerRandomizeShape,
   playgroundServerReorderShapes,
-} from '../sim/playground-shapes';
+} from '../patch-db/sim/playground-shapes';
 import { IconPartition, IconServer, IconSync } from './icons';
 import { NodePanelShell } from './node-panel-shell';
 import { ShapeList } from './shape-list';

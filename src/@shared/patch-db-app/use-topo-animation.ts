@@ -1,7 +1,10 @@
 import { useCallback } from 'react';
-import type { PlaygroundClientHandle, PlaygroundSim } from '../sim/playground-sim';
-import type { TopoAnimHandle } from './playground-topology-graph';
+import type {
+  PlaygroundClientHandle,
+  PlaygroundSim,
+} from '../patch-db/sim/playground-sim';
 import { SERVER_NODE_ID } from './constants';
+import type { TopoAnimHandle } from './playground-topology-graph';
 
 /**
  * Returns a callback that animates server -> all connected clients
@@ -15,7 +18,11 @@ export function useServerTopoAnimation(
     if (sim.isServerPartitioned()) return;
     for (const c of sim.clients) {
       if (c.link.isPartitioned()) continue;
-      topoRef.current?.animateMessage(SERVER_NODE_ID, c.id, c.link.getLatency());
+      topoRef.current?.animateMessage(
+        SERVER_NODE_ID,
+        c.id,
+        c.link.getLatency()
+      );
     }
   }, [sim, topoRef]);
 }

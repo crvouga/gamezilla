@@ -11,11 +11,11 @@ window.ResizeObserver = class extends ro {
 };
 
 import { createRoot } from 'react-dom/client';
-import { assert } from '../../assert';
-import { BrowserCrashHandler } from '../../assert/crash/crash-handler/crash-handler-browser';
+import { assert } from '../assert';
+import { BrowserCrashHandler } from '../assert/crash/crash-handler/crash-handler-browser';
 import { PlaygroundApp } from './playground-app';
 assert.registerCrashHandler(new BrowserCrashHandler());
 const el = document.getElementById('root');
-assert.defined(el, 'patchdb-app: #root element');
+assert.defined(el, 'patch-db-app: #root element');
 const root = createRoot(el);
 root.render(<PlaygroundApp />);

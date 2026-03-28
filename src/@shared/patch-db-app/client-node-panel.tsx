@@ -1,8 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
-import { DependencyInjectionContainer } from '../../dependency-injection/dependency-injection-container';
-import { ContainerProvider } from '../../dependency-injection/react';
-import { PatchesDbToken, useEntities } from '../react';
-import { SubscribablePatchesDbToken } from '../subscribable';
+import { DependencyInjectionContainer } from '../dependency-injection/dependency-injection-container';
+import { ContainerProvider } from '../dependency-injection/react';
+import { PatchesDbToken, useEntities } from '../patch-db/react';
 import {
   nextShapeOrder,
   playgroundCreateShape,
@@ -10,8 +9,9 @@ import {
   playgroundRandomizeShape,
   playgroundReorderShapes,
   shapeListQuery,
-} from '../sim/playground-shapes';
-import type { PlaygroundClientHandle } from '../sim/playground-sim';
+} from '../patch-db/sim/playground-shapes';
+import type { PlaygroundClientHandle } from '../patch-db/sim/playground-sim';
+import { SubscribablePatchesDbToken } from '../patch-db/subscribable';
 import { IconLaptop, IconPartition, IconSync } from './icons';
 import { NodePanelShell } from './node-panel-shell';
 import { ShapeList } from './shape-list';
@@ -136,9 +136,7 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
             })
           }
           className={`${btnAction} ${
-            partitioned
-              ? 'border-red-400/50 bg-red-950/40 text-red-200'
-              : ''
+            partitioned ? 'border-red-400/50 bg-red-950/40 text-red-200' : ''
           }`}
         >
           <IconPartition active={partitioned} size={14} />
@@ -225,7 +223,11 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
  * DI wrapper: each client gets its own container so `useEntities`
  * reads from the correct local SyncPatchesDb.
  */
-export function ClientNodePanel({ client }: { client: PlaygroundClientHandle }) {
+export function ClientNodePanel({
+  client,
+}: {
+  client: PlaygroundClientHandle;
+}) {
   const container = useMemo(() => {
     const c = new DependencyInjectionContainer();
     c.registerValue(PatchesDbToken, client.syncDb);

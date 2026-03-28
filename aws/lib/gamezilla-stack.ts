@@ -2,7 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import type { Construct } from 'constructs';
-import { PatchDbApp } from './patchdb-app';
+import { PatchDbApp } from './patch-db-app';
 import { SyncServer } from './sync-server';
 import { WebApp } from './web-app';
 
@@ -111,10 +111,16 @@ export class GamezillaStack extends cdk.Stack {
       value: `https://${patchDbApp.distribution.distributionDomainName}`,
     });
 
-    this.addNameserverOutput(gamezillaZone, 'Route53Nameservers',
-      'Set these nameservers at your domain registrar for gamezilla.app');
-    this.addNameserverOutput(patchdbZone, 'PatchDbNameservers',
-      'Set these nameservers at your domain registrar for patchdb.dev');
+    this.addNameserverOutput(
+      gamezillaZone,
+      'Route53Nameservers',
+      'Set these nameservers at your domain registrar for gamezilla.app'
+    );
+    this.addNameserverOutput(
+      patchdbZone,
+      'PatchDbNameservers',
+      'Set these nameservers at your domain registrar for patchdb.dev'
+    );
   }
 
   private addNameserverOutput(

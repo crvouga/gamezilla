@@ -1,10 +1,6 @@
 import { useMemo, useState } from 'react';
-import type { PlaygroundSim } from '../sim/playground-sim';
-import {
-  PatchdbAppNav,
-  readStoredMode,
-  type PatchdbAppMode,
-} from './patchdb-app-nav';
+import type { PlaygroundSim } from '../patch-db/sim/playground-sim';
+import { PatchdbAppNav, readStoredMode, type PatchdbAppMode } from './nav';
 import { PlaygroundFlow } from './playground-flow';
 import { PlaygroundHeader } from './playground-header';
 import { SimProvider, type SimContextValue } from './sim-context';
@@ -17,11 +13,7 @@ export function PlaygroundApp() {
   return (
     <div className="flex h-screen min-h-0 flex-col overflow-hidden bg-(--pg-bg) text-white">
       <PatchdbAppNav mode={mode} onModeChange={setMode} />
-      {mode === 'syncInspector' ? (
-        <SyncServerInspector />
-      ) : (
-        <PlaygroundRoute />
-      )}
+      {mode === 'syncInspector' ? <SyncServerInspector /> : <PlaygroundRoute />}
     </div>
   );
 }

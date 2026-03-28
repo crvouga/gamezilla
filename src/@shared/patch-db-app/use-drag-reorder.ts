@@ -1,6 +1,6 @@
 import type { DragEvent as ReactDragEvent } from 'react';
 import { useCallback, useState } from 'react';
-import type { Entity } from '../interface';
+import type { Entity } from '../patch-db/interface';
 
 export function useDragReorder(
   entities: Entity[],

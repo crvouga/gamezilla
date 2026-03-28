@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { PlaygroundSim } from '../sim/playground-sim';
+import { seedPlaygroundShapes } from '../patch-db/sim/playground-shapes';
+import type { PlaygroundSim } from '../patch-db/sim/playground-sim';
 import {
   createPlaygroundSim,
   restorePlaygroundSim,
-} from '../sim/playground-sim';
-import { seedPlaygroundShapes } from '../sim/playground-shapes';
-import type { TopoAnimHandle } from './playground-topology-graph';
+} from '../patch-db/sim/playground-sim';
 import { clearSnapshot, loadSnapshot, saveSnapshot } from './persist';
+import type { TopoAnimHandle } from './playground-topology-graph';
 import { browserSqlJsInit } from './sql-js-browser';
 
 const SIM_TEARDOWN_KEY = Symbol.for('playground-sim-teardown');

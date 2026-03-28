@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { assertPatchDbSyncServerBaseUrl } from '@/@shared/patch-db/assert-sync-server-base-url';
 import type { Patch, PatchesDbResult } from '@/@shared/patch-db/interface';
 import { PatchDbClientTransportHttpFetch } from '@/@shared/patch-db/transport';
 import { ADMIN_METRIC_ENTITY_TYPE } from '@/sync-server-instrumentation';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const URL_STORAGE_KEY = 'patchdb-inspector-sync-url';
 
@@ -153,16 +153,6 @@ export function SyncServerInspector() {
           Connect
         </button>
       </div>
-
-      <p className="text-xs text-white/45">
-        Metrics use patch-db read + SSE. With{' '}
-        <code className="text-white/60">viz:dev</code>, keep the URL as this page’s
-        origin so Vite proxies <code className="text-white/60">/patch-db</code> to{' '}
-        <code className="text-white/60">127.0.0.1:5001</code> (
-        <code className="text-white/60">PATCHDB_SYNC_PROXY_TARGET</code> to override).
-        Run <code className="text-white/60">bun run sync-server</code> in another
-        terminal.
-      </p>
 
       {error !== null ? (
         <div className="rounded-lg border border-red-500/30 bg-red-950/40 px-3 py-2 text-sm text-red-200">

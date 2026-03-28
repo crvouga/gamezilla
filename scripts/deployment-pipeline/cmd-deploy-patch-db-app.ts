@@ -5,7 +5,7 @@ import { run } from './run-subprocess';
 
 export class DeployPatchDbAppCommand extends BasePipelineCommand {
   readonly id = 'deploy-patch-db-app';
-  readonly summary = 'viz:build + S3 + invalidation';
+  readonly summary = 'PatchDB build + S3 + invalidation';
 
   execute(argv: string[]): void {
     assert(Array.isArray(argv));
@@ -19,7 +19,7 @@ export class DeployPatchDbAppCommand extends BasePipelineCommand {
     );
     assert(bucket.length > 0 && distId.length > 0);
 
-    run('bun', ['run', 'viz:build']);
+    run('bun', ['run', 'patch-db-app:build']);
     run('aws', ['s3', 'sync', 'dist/', `s3://${bucket}/`, '--delete']);
     run('aws', [
       'cloudfront',

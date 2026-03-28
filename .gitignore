@@ -43,7 +43,7 @@ yarn-error.*
 
 # PatchDB app build output (opt-in)
 .sim-recordings/
-/patchdb-app/**
+/patch-db-app/**
 
 
 app-example

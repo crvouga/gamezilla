@@ -7,7 +7,7 @@ import {
   useMemo,
   useRef,
 } from 'react';
-import type { PlaygroundSim } from '../sim/playground-sim';
+import type { PlaygroundSim } from '../patch-db/sim/playground-sim';
 import { C, SERVER_NODE_ID } from './constants';
 import {
   PLAYGROUND_GRAPH_VIEW_H,
@@ -16,18 +16,34 @@ import {
   playgroundGraphServerAnchor,
 } from './playground-graph-layout';
 
-type ClientVm = { id: string; partitioned: boolean; serverPartitioned: boolean };
+type ClientVm = {
+  id: string;
+  partitioned: boolean;
+  serverPartitioned: boolean;
+};
 
 export type TopoAnimHandle = {
   /** @param durationMs Travel time for the dot. Defaults to 150ms minimum. */
-  animateMessage(fromNodeId: string, toNodeId: string, durationMs?: number): void;
+  animateMessage(
+    fromNodeId: string,
+    toNodeId: string,
+    durationMs?: number
+  ): void;
 };
 
 /**
  * Server icon: a tiny rack/tower icon in a 24x24 viewBox.
  * Rendered at the server anchor position.
  */
-function ServerIcon({ x, y, partitioned }: { x: number; y: number; partitioned: boolean }) {
+function ServerIcon({
+  x,
+  y,
+  partitioned,
+}: {
+  x: number;
+  y: number;
+  partitioned: boolean;
+}) {
   const accent = partitioned ? C.red : C.violet;
   const indicator = partitioned ? C.red : C.green;
   return (
@@ -42,11 +58,35 @@ function ServerIcon({ x, y, partitioned }: { x: number; y: number; partitioned: 
         stroke={partitioned ? C.red : C.nodeSelBorder}
         strokeWidth={1.5}
       />
-      <rect x={8} y={6} width={16} height={4} rx={1} fill={accent} opacity={0.7} />
+      <rect
+        x={8}
+        y={6}
+        width={16}
+        height={4}
+        rx={1}
+        fill={accent}
+        opacity={0.7}
+      />
       <circle cx={22} cy={8} r={1} fill={indicator} />
-      <rect x={8} y={13} width={16} height={4} rx={1} fill={accent} opacity={0.5} />
+      <rect
+        x={8}
+        y={13}
+        width={16}
+        height={4}
+        rx={1}
+        fill={accent}
+        opacity={0.5}
+      />
       <circle cx={22} cy={15} r={1} fill={indicator} />
-      <rect x={8} y={20} width={16} height={4} rx={1} fill={accent} opacity={0.35} />
+      <rect
+        x={8}
+        y={20}
+        width={16}
+        height={4}
+        rx={1}
+        fill={accent}
+        opacity={0.35}
+      />
       <circle cx={22} cy={22} r={1} fill={partitioned ? C.dimRed : C.teal} />
       <rect x={12} y={28} width={8} height={3} rx={1} fill={C.nodeBorder} />
       {partitioned && (
@@ -89,7 +129,15 @@ function ClientIcon({
         stroke={accent}
         strokeWidth={1.4}
       />
-      <rect x={5} y={4} width={18} height={10} rx={1} fill={accent} opacity={0.18} />
+      <rect
+        x={5}
+        y={4}
+        width={18}
+        height={10}
+        rx={1}
+        fill={accent}
+        opacity={0.18}
+      />
       <rect x={6} y={19} width={16} height={2} rx={1} fill={C.nodeBorder} />
       {partitioned && (
         <line
@@ -254,7 +302,11 @@ export const PlaygroundTopologyGraph = forwardRef<
         })}
       </g>
 
-      <ServerIcon x={serverPos.x} y={serverPos.y} partitioned={serverPartitioned} />
+      <ServerIcon
+        x={serverPos.x}
+        y={serverPos.y}
+        partitioned={serverPartitioned}
+      />
       <text
         x={serverPos.x}
         y={serverPos.y + 24}

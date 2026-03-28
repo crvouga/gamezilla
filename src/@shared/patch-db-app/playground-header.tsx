@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { SHAPE_ENTITY_TYPE } from '../sim/playground-shapes';
+import { SHAPE_ENTITY_TYPE } from '../patch-db/sim/playground-shapes';
 import { IconClear, IconPlus } from './icons';
 import { useSimContext } from './sim-context';
 
@@ -15,8 +15,8 @@ const LATENCY_BUCKETS: { value: number; label: string }[] = [
 
 export function PlaygroundHeader() {
   const { sim, addClient, reset } = useSimContext();
-  const [globalLatency, setGlobalLatency] = useState(
-    () => sim.getGlobalLatency()
+  const [globalLatency, setGlobalLatency] = useState(() =>
+    sim.getGlobalLatency()
   );
 
   const handleGlobalLatencyChange = useCallback(
@@ -40,9 +40,7 @@ export function PlaygroundHeader() {
           Latency
           <select
             value={globalLatency}
-            onChange={(e) =>
-              handleGlobalLatencyChange(Number(e.target.value))
-            }
+            onChange={(e) => handleGlobalLatencyChange(Number(e.target.value))}
             className="appearance-none cursor-pointer rounded-lg border border-white/15 bg-white/5 px-2.5 py-1.5 pr-6 text-xs font-semibold text-white/70 transition-colors hover:bg-white/10 hover:text-white/90"
           >
             {LATENCY_BUCKETS.map((b) => (

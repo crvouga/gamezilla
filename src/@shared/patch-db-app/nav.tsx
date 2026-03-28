@@ -1,6 +1,6 @@
 export type PatchdbAppMode = 'playground' | 'syncInspector';
 
-const MODE_STORAGE_KEY = 'patchdb-app-mode';
+const MODE_STORAGE_KEY = 'patch-db-app-mode';
 
 export function readStoredMode(): PatchdbAppMode {
   try {
