@@ -1,6 +1,7 @@
 FROM oven/bun:1 AS base
 WORKDIR /app
 COPY package.json bun.lock ./
+COPY aws/package.json ./aws/
 RUN bun install --frozen-lockfile --production
 COPY src/ ./src/
 COPY tsconfig.json ./

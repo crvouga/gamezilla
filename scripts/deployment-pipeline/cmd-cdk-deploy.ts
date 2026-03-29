@@ -12,7 +12,6 @@ export class CdkDeployCommand extends BasePipelineCommand {
     assert(Array.isArray(argv));
     const awsDir = join(process.cwd(), 'aws');
     assert(awsDir.length > 0);
-    run('bun', ['install', '--frozen-lockfile'], { cwd: awsDir });
     run('bunx', ['cdk', 'bootstrap'], { cwd: awsDir });
     run(
       'bunx',
