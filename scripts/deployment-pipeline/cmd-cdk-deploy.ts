@@ -6,16 +6,16 @@ import { run } from './run-subprocess';
 
 export class CdkDeployCommand extends BasePipelineCommand {
   readonly id = 'cdk-deploy';
-  readonly summary = 'npm ci + cdk bootstrap + deploy (aws/)';
+  readonly summary = 'bun install + cdk bootstrap + deploy (aws/)';
 
   execute(argv: string[]): void {
     assert(Array.isArray(argv));
     const awsDir = join(process.cwd(), 'aws');
     assert(awsDir.length > 0);
-    run('npm', ['ci'], { cwd: awsDir });
-    run('npx', ['cdk', 'bootstrap'], { cwd: awsDir });
+    run('bun', ['install', '--frozen-lockfile'], { cwd: awsDir });
+    run('bunx', ['cdk', 'bootstrap'], { cwd: awsDir });
     run(
-      'npx',
+      'bunx',
       [
         'cdk',
         'deploy',
