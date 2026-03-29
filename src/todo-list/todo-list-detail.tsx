@@ -5,8 +5,8 @@ import type {
 } from '@/@shared/patch-db/interface';
 import { useEntities, useEntity, usePatchesDb } from '@/@shared/patch-db/react';
 import { useTheme } from '@/@shared/theme';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import { ThemedText } from '@/ui/themed-text';
+import { ThemedView } from '@/ui/themed-view';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import {

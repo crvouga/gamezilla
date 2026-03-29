@@ -1,8 +1,8 @@
 import type { PropsWithChildren } from 'react';
 
 import { useTheme } from '@/@shared/theme';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import { ThemedText } from '@/ui/themed-text';
+import { ThemedView } from '@/ui/themed-view';
 
 type ModalHeaderProps = PropsWithChildren<{
   title: string;

@@ -1,8 +1,8 @@
 import { Link } from 'expo-router';
 
 import { useTheme } from '@/@shared/theme';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import { ThemedText } from '@/ui/themed-text';
+import { ThemedView } from '@/ui/themed-view';
 
 export default function ModalScreen() {
   const theme = useTheme();

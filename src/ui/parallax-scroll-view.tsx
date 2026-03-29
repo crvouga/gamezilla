@@ -7,7 +7,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { useTheme } from '@/@shared/theme';
-import { ThemedView } from '@/components/themed-view';
+import { ThemedView } from '@/ui/themed-view';
 
 const HEADER_HEIGHT = 250;
 

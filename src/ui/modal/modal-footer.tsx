@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from 'react';
 
 import { useTheme } from '@/@shared/theme';
-import { ThemedView } from '@/components/themed-view';
+import { ThemedView } from '@/ui/themed-view';
 
 export function ModalFooter({ children }: PropsWithChildren) {
   const theme = useTheme();

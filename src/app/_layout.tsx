@@ -13,8 +13,8 @@ import { ExpoCrashHandler } from '@/@shared/assert/crash/crash-handler/crash-han
 import { ConfigContainerProvider } from '@/@shared/config/config-container';
 import { polyfill } from '@/@shared/polyfill';
 import { ThemeProvider as AppThemeProvider } from '@/@shared/theme';
-import { PatchBootstrap } from '@/components/patch-bootstrap';
-import { useColorScheme } from '../hooks/use-color-scheme';
+import { PatchBootstrap } from '@/ui/patch-bootstrap';
+import { useColorScheme } from '../ui/use-color-scheme';
 
 assert.registerCrashHandler(new BrowserCrashHandler());
 assert.registerCrashHandler(new ExpoCrashHandler());

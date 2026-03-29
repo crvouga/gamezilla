@@ -1,9 +1,9 @@
 import { clearLocalDatabaseAndReload } from '@/@shared/patch-db/bootstrap-expo';
 import { useEntities, usePatchesDb } from '@/@shared/patch-db/react';
 import { useTheme } from '@/@shared/theme';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { ConfirmationModal } from '@/components/ui/modal';
+import { ThemedText } from '@/ui/themed-text';
+import { ThemedView } from '@/ui/themed-view';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { FlatList, Pressable, TextInput } from 'react-native';

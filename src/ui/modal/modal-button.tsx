@@ -1,7 +1,7 @@
 import { Pressable } from 'react-native';
 
 import { useTheme } from '@/@shared/theme';
-import { ThemedText } from '@/components/themed-text';
+import { ThemedText } from '@/ui/themed-text';
 
 type ModalButtonProps = {
   label: string;
