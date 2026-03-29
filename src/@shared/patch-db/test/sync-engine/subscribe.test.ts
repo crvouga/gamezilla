@@ -34,7 +34,10 @@ describe('SyncPatchesDb (deterministic sim)', () => {
       },
     ]);
 
-    const listQuery = { entityType: 'todoList', where: DELETED_CLAUSE } as const;
+    const listQuery = {
+      entityType: 'todoList',
+      where: DELETED_CLAUSE,
+    } as const;
     const u1 = c.subscribe.entities(listQuery, () => {});
     const u2 = c.subscribe.entities(listQuery, () => {});
     u1();
@@ -86,7 +89,10 @@ describe('SyncPatchesDb (deterministic sim)', () => {
       },
     ]);
 
-    const listQuery = { entityType: 'todoList', where: DELETED_CLAUSE } as const;
+    const listQuery = {
+      entityType: 'todoList',
+      where: DELETED_CLAUSE,
+    } as const;
     const unsubEntities = c.subscribe.entities(listQuery, () => {});
 
     const notifications: number[] = [];

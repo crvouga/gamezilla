@@ -2,7 +2,7 @@ import { PropsWithChildren, useState } from 'react';
 import { TouchableOpacity } from 'react-native';
 
 import { useTheme } from '@/@shared/theme';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import { IconSymbol } from '@/ui/icon-symbol';
 import { ThemedText } from '@/ui/themed-text';
 import { ThemedView } from '@/ui/themed-view';
 

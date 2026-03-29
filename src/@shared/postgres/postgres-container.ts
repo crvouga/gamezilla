@@ -6,6 +6,16 @@
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 
+/** Narrow spawn result: bundled typings omit `on` on `ChildProcess` in some environments. */
+type SpawnPiped = {
+  stdout: NodeJS.ReadableStream | null;
+  stderr: NodeJS.ReadableStream | null;
+  on(
+    event: 'close',
+    listener: (code: number | null, signal?: NodeJS.Signals) => void
+  ): void;
+};
+
 export type PostgresConfig = {
   host?: string;
   port?: number;
@@ -41,12 +51,14 @@ function exec(
     const proc = spawn(command, args, {
       stdio: ['ignore', 'pipe', 'pipe'],
       env: { ...process.env, ...env } as NodeJS.ProcessEnv,
-    });
+    }) as unknown as SpawnPiped;
     let stdout = '';
     let stderr = '';
     proc.stdout?.on('data', (d) => (stdout += d.toString()));
     proc.stderr?.on('data', (d) => (stderr += d.toString()));
-    proc.on('close', (code) => resolve({ stdout, stderr, code: code ?? 1 }));
+    proc.on('close', (code, _signal) =>
+      resolve({ stdout, stderr, code: code ?? 1 })
+    );
   });
 }
 

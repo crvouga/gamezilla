@@ -21,7 +21,10 @@ describe('SyncPatchesDb (deterministic sim, multi-client)', () => {
     const a = sim.client('a');
     const b = sim.client('b');
     const listId = crypto.randomUUID();
-    const listQuery = { entityType: 'todoList', where: DELETED_CLAUSE } as const;
+    const listQuery = {
+      entityType: 'todoList',
+      where: DELETED_CLAUSE,
+    } as const;
     const unsubA = a.subscribe.entities(listQuery, () => {});
     const unsubB = b.subscribe.entities(listQuery, () => {});
 
@@ -131,6 +134,9 @@ describe('SyncPatchesDb (deterministic sim, multi-client)', () => {
     expect(idsR.has(listA)).toBe(true);
     expect(idsR.has(listB)).toBe(true);
 
-    await sim.assertConsistent({ entityType: 'todoList', where: DELETED_CLAUSE });
+    await sim.assertConsistent({
+      entityType: 'todoList',
+      where: DELETED_CLAUSE,
+    });
   });
 });

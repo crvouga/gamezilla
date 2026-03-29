@@ -29,6 +29,6 @@ export function printUsage(): void {
     (c) => `  ${c.id.padEnd(width)}  ${c.summary}`
   );
   console.error(
-    `Usage: bun run scripts/deployment-pipeline.ts <command>\n\n${lines.join('\n')}`
+    `Usage: bun run aws/bin/deployment-pipeline-cli.ts <command>\n\n${lines.join('\n')}`
   );
 }

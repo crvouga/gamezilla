@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { requireOutput, type StackOutputs } from './cdk-outputs';
 import type { Deployable } from './deployable';
 import { ghError, ghNotice } from './gh';
+import { REPO_ROOT } from './paths';
 import { run } from './run-subprocess';
 
 export class WebAppDeployable implements Deployable {
@@ -19,7 +20,7 @@ export class WebAppDeployable implements Deployable {
       assert.fail('web-app: sync URL must be https://');
     }
 
-    const configPath = join(process.cwd(), 'public-config.json');
+    const configPath = join(REPO_ROOT, 'public-config.json');
     let doc: unknown;
     try {
       doc = JSON.parse(readFileSync(configPath, 'utf8'));
@@ -44,20 +45,27 @@ export class WebAppDeployable implements Deployable {
     writeFileSync(configPath, `${JSON.stringify(o, null, 2)}\n`, 'utf8');
 
     run('bunx', ['expo', 'export', '-p', 'web'], {
+      cwd: REPO_ROOT,
       env: { ...process.env, EXPO_PUBLIC_STAGE: 'prod' },
     });
 
-    run('aws', ['s3', 'sync', 'dist/', `s3://${bucket}/`, '--delete']);
-    run('aws', [
-      'cloudfront',
-      'create-invalidation',
-      '--distribution-id',
-      distId,
-      '--paths',
-      '/*',
-    ]);
+    run('aws', ['s3', 'sync', 'dist/', `s3://${bucket}/`, '--delete'], {
+      cwd: REPO_ROOT,
+    });
+    run(
+      'aws',
+      [
+        'cloudfront',
+        'create-invalidation',
+        '--distribution-id',
+        distId,
+        '--paths',
+        '/*',
+      ],
+      { cwd: REPO_ROOT }
+    );
 
-    rmSync(join(process.cwd(), 'dist'), { recursive: true, force: true });
+    rmSync(join(REPO_ROOT, 'dist'), { recursive: true, force: true });
     ghNotice('Web app exported and synced to S3.');
   }
 }

@@ -42,6 +42,10 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
     private readonly pubSub: PubSub,
     private readonly flushIntervalMs = 5000
   ) {
+    assert.nonNegativeInteger(
+      flushIntervalMs,
+      'flushIntervalMs must be a non-negative integer'
+    );
     assert.defined(inner, 'instrumented host: inner required');
     assert.defined(db, 'instrumented host: db required');
     assert.defined(pubSub, 'instrumented host: pubSub required');
@@ -96,6 +100,11 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
       Number.isFinite(started) && started > 0
         ? Math.max(0, Math.floor((now - started) / 1000))
         : 0;
+
+    assert.nonNegativeInteger(
+      uptimeSeconds,
+      'uptimeSeconds must be a non-negative integer'
+    );
 
     try {
       await this.db.write([

@@ -137,7 +137,10 @@ export class SyncPatchesDb implements PatchesDb {
   /** Stops push scheduling and remote invalidation subscription. Call before disposing of the db. */
   destroy(): void {
     this.destroyed = true;
-    if (this.pushScheduleHandle !== null && this.pushScheduleHandle !== undefined) {
+    if (
+      this.pushScheduleHandle !== null &&
+      this.pushScheduleHandle !== undefined
+    ) {
       this.pushScheduleHandle.cancel();
       this.pushScheduleHandle = null;
     }
@@ -260,22 +263,22 @@ export class SyncPatchesDb implements PatchesDb {
   }
 
   private ensurePushTimer(): void {
-    if (this.pushScheduleHandle !== null && this.pushScheduleHandle !== undefined)
+    if (
+      this.pushScheduleHandle !== null &&
+      this.pushScheduleHandle !== undefined
+    )
       return;
     const pushDriver = this.options.pushDriver ?? 'interval';
     if (pushDriver === 'manual') return;
     const pushIntervalMs = this.options.pushIntervalMs ?? 2000;
     const scheduler =
       this.options.pushScheduler ?? defaultSyncPatchesDbPushScheduler;
-    this.pushScheduleHandle = scheduler.scheduleInterval(
-      pushIntervalMs,
-      () => {
-        fireAndForget(this.pushUnsynced(), {
-          component: 'SyncPatchesDb',
-          op: 'pushUnsynced',
-        });
-      }
-    );
+    this.pushScheduleHandle = scheduler.scheduleInterval(pushIntervalMs, () => {
+      fireAndForget(this.pushUnsynced(), {
+        component: 'SyncPatchesDb',
+        op: 'pushUnsynced',
+      });
+    });
   }
 
   private async pushUnsynced(): Promise<void> {
@@ -439,8 +442,10 @@ export class SyncPatchesDb implements PatchesDb {
     try {
       const syncQueries = await this.buildSyncQueries(entries);
       const results = await this.remote.read(syncQueries);
-      const recoveredPatches =
-        await this.markMissingSyncedPatches(syncQueries, results);
+      const recoveredPatches = await this.markMissingSyncedPatches(
+        syncQueries,
+        results
+      );
       const hasNewPatches = await this.mergeRemotePatches(results);
       this.pollConsecutiveFailures = 0;
       if (hasNewPatches || recoveredPatches) {

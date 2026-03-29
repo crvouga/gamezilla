@@ -5,7 +5,7 @@ import { createStaticFileHandler } from './static-file-server';
 function createBunFileAdapter(rootDir: string) {
   return (pathname: string): Blob | null => {
     const safePath =
-      pathname === '/' ? 'index.html' : pathname.slice(1).split('?')[0] ?? '';
+      pathname === '/' ? 'index.html' : (pathname.slice(1).split('?')[0] ?? '');
     const filePath = resolve(rootDir, safePath);
 
     if (!filePath.startsWith(resolve(rootDir))) {

@@ -1,6 +1,6 @@
 /**
  * Deployment pipeline entrypoint: AWS secrets, CloudFormation gate, CDK deploy, artifact sync, summaries.
- * Usage: bun run scripts/deployment-pipeline.ts <command>
+ * Usage: bun run aws/bin/deployment-pipeline-cli.ts <command>
  */
 import assert from 'node:assert/strict';
 import { ghError } from './gh';
@@ -15,7 +15,9 @@ export async function main(): Promise<void> {
   if (command === undefined) {
     printUsage();
     ghError(`Unknown command: ${argv[2] ?? '(none)'}`);
-    assert.fail(`main: unrecognized command "${argv[2] ?? '(none)'}" — crash, do not continue`);
+    assert.fail(
+      `main: unrecognized command "${argv[2] ?? '(none)'}" — crash, do not continue`
+    );
   }
 
   assert(command !== undefined && command !== null);

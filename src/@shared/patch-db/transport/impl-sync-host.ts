@@ -14,10 +14,7 @@ import type { PatchDbSyncHost } from './interface';
 
 const PATCHES_DB_TOPIC = 'patches-db';
 
-function assertPatchesDbResultShape(
-  r: PatchesDbResult,
-  index: number
-): void {
+function assertPatchesDbResultShape(r: PatchesDbResult, index: number): void {
   assert.ok(
     r !== null && r !== undefined,
     'PatchDbImplSyncHost.read: result must be defined',
@@ -32,9 +29,13 @@ function assertPatchesDbResultShape(
     index,
   });
   assert.number(r.total, 'PatchesDbResult.total must be a finite number');
-  assert.ok(typeof r.hasMore === 'boolean', 'PatchesDbResult.hasMore must be boolean', {
-    index,
-  });
+  assert.ok(
+    typeof r.hasMore === 'boolean',
+    'PatchesDbResult.hasMore must be boolean',
+    {
+      index,
+    }
+  );
   assert.ok(
     r.nextCursor === null || typeof r.nextCursor === 'string',
     'PatchesDbResult.nextCursor must be string or null',
@@ -52,10 +53,7 @@ export class PatchDbImplSyncHost implements PatchDbSyncHost {
   }
 
   async read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
-    assert.array(
-      queries,
-      'PatchDbImplSyncHost.read: queries must be an array'
-    );
+    assert.array(queries, 'PatchDbImplSyncHost.read: queries must be an array');
     if (queries.length === 0) {
       return [];
     }
@@ -100,9 +98,7 @@ export class PatchDbImplSyncHost implements PatchDbSyncHost {
     }
 
     const writtenKnown =
-      knownPatches.length === 0
-        ? []
-        : await this.db.write(knownPatches);
+      knownPatches.length === 0 ? [] : await this.db.write(knownPatches);
     assert.array(
       writtenKnown,
       'PatchDbImplSyncHost.read: db.write(knownPatches) must return an array'
@@ -117,7 +113,10 @@ export class PatchDbImplSyncHost implements PatchDbSyncHost {
     );
 
     const results = await this.db.read(queries);
-    assert.array(results, 'PatchDbImplSyncHost.read: db.read must return an array');
+    assert.array(
+      results,
+      'PatchDbImplSyncHost.read: db.read must return an array'
+    );
     assert.ok(
       results.length === queries.length,
       'PatchDbImplSyncHost.read: db.read must return one result per query',
@@ -151,13 +150,15 @@ export class PatchDbImplSyncHost implements PatchDbSyncHost {
       { length: patches.length }
     );
 
-    assert.all(
-      patches,
-      (p): asserts p is PatchInput => assertPatchInput(assert, p)
+    assert.all(patches, (p): asserts p is PatchInput =>
+      assertPatchInput(assert, p)
     );
 
     const out = await this.db.write(patches);
-    assert.array(out, 'PatchDbImplSyncHost.write: db.write must return an array');
+    assert.array(
+      out,
+      'PatchDbImplSyncHost.write: db.write must return an array'
+    );
     assert.ok(
       out.length === patches.length,
       'PatchDbImplSyncHost.write: db.write must return one Patch per input patch',

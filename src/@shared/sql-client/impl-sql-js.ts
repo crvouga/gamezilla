@@ -71,7 +71,9 @@ export class SqlClientImplSqlJs implements SqlClient {
    * In browsers, WASM is loaded via `locateFile` → https://sql.js.org/dist/… so `file://` viz bundles work.
    * In Bun/Node, omit `locateFile` (bundled wasm path) unless you override.
    */
-  static async openMemory(config?: SqlJsInitConfig): Promise<SqlClientImplSqlJs> {
+  static async openMemory(
+    config?: SqlJsInitConfig
+  ): Promise<SqlClientImplSqlJs> {
     const initConfig = mergeSqlJsInitConfig(config);
     if (sharedSqlJsPromise === null) {
       sharedSqlJsPromise = initSqlJs(initConfig);

@@ -1,8 +1,8 @@
 import { Tabs } from 'expo-router';
 
 import { useTheme } from '@/@shared/theme';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { HapticTab } from '@/ui/haptic-tab';
+import { IconSymbol } from '@/ui/icon-symbol';
 
 export default function TabLayout() {
   const theme = useTheme();

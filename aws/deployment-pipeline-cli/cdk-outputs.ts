@@ -3,11 +3,12 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { STACK_NAME } from './cfn-shared';
 import { ghError } from './gh';
+import { AWS_PACKAGE_ROOT } from './paths';
 
 export type StackOutputs = Readonly<Record<string, string | undefined>>;
 
 export function readCdkOutputs(file?: string): StackOutputs {
-  const path = file ?? join(process.cwd(), 'aws', 'cdk-outputs.json');
+  const path = file ?? join(AWS_PACKAGE_ROOT, 'cdk-outputs.json');
   assert(typeof path === 'string' && path.length > 0);
 
   let raw: unknown;

@@ -264,6 +264,31 @@ export class Assert {
   }
 
   /**
+   * Asserts that `value` is a non-negative number (i.e., `value >= 0`).
+   *
+   * @param value - Value to check.
+   * @param message - Message when the assertion fails.
+   */
+  nonNegative(value: unknown, message: string): asserts value is number {
+    this.number(value, message);
+    this.ok(value >= 0, message, {
+      value,
+      isNonNegative: value >= 0,
+    });
+  }
+
+  /**
+   * Asserts that `value` is a non-negative integer (i.e., a safe integer >= 0).
+   *
+   * @param value - Value to check.
+   * @param message - Message when the assertion fails.
+   */
+  nonNegativeInteger(value: unknown, message: string): asserts value is number {
+    this.integer(value, message);
+    this.nonNegative(value, message);
+  }
+
+  /**
    * Asserts that `fn` completes without throwing.
    *
    * @param fn - Function to invoke.

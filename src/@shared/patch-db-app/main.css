@@ -14,7 +14,12 @@ body,
 }
 
 body {
-  --pg-bg: radial-gradient(120% 90% at 50% -10%, #2d1f4a 0%, #12081c 45%, #06040a 100%);
+  --pg-bg: radial-gradient(
+    120% 90% at 50% -10%,
+    #2d1f4a 0%,
+    #12081c 45%,
+    #06040a 100%
+  );
   background: var(--pg-bg);
   color: #f4f4f8;
 }

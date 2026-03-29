@@ -73,7 +73,10 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     const c = sim.client('c1');
     const srv = sim.server('s1');
     const listId = crypto.randomUUID();
-    const listQuery = { entityType: 'todoList', where: DELETED_CLAUSE } as const;
+    const listQuery = {
+      entityType: 'todoList',
+      where: DELETED_CLAUSE,
+    } as const;
     const unsub = c.subscribe.entities(listQuery, () => {});
 
     await c.write([

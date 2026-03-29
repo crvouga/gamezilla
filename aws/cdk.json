@@ -2,7 +2,17 @@
   "app": "bunx tsx bin/app.ts",
   "watch": {
     "include": ["**"],
-    "exclude": ["README.md", "cdk*.json", "**/*.d.ts", "**/*.js", "tsconfig.json", "package*.json", "bun.lockb", "node_modules", "test"]
+    "exclude": [
+      "README.md",
+      "cdk*.json",
+      "**/*.d.ts",
+      "**/*.js",
+      "tsconfig.json",
+      "package*.json",
+      "bun.lockb",
+      "node_modules",
+      "test"
+    ]
   },
   "context": {
     "@aws-cdk/aws-signer:signingProfileNamePassedToCfn": true,

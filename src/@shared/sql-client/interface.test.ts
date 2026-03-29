@@ -67,7 +67,8 @@ async function loadImplementations(): Promise<
           );
         }
         const c = cachedPostgresClient;
-        if (c === null || c === undefined) throw new Error('cachedPostgresClient must be set');
+        if (c === null || c === undefined)
+          throw new Error('cachedPostgresClient must be set');
         return {
           connect: () => c.connect(),
           disconnect: () => Promise.resolve(),
@@ -197,7 +198,8 @@ describe.each(implementations)('$name', ({ createClient }) => {
       return 2;
     });
     expect(result).toBe(2);
-    if (client === null || client === undefined) throw new Error('client must be set');
+    if (client === null || client === undefined)
+      throw new Error('client must be set');
     const rows = await client.query('SELECT * FROM tx_test');
     expect(rows).toHaveLength(2);
     await client.disconnect();
@@ -215,7 +217,8 @@ describe.each(implementations)('$name', ({ createClient }) => {
     } catch (e) {
       expect((e as Error).message).toBe('abort');
     }
-    if (client === null || client === undefined) throw new Error('client must be set');
+    if (client === null || client === undefined)
+      throw new Error('client must be set');
     const rows = await client.query('SELECT * FROM rollback_test');
     expect(rows).toHaveLength(0);
     await client.disconnect();

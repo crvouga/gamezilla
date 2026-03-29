@@ -6,7 +6,10 @@ export function run(
   args: string[],
   opts?: { cwd?: string; env?: NodeJS.ProcessEnv }
 ): void {
-  assert(typeof cmd === 'string' && cmd.length > 0, 'run: cmd must be non-empty');
+  assert(
+    typeof cmd === 'string' && cmd.length > 0,
+    'run: cmd must be non-empty'
+  );
   assert(Array.isArray(args));
   assert(
     args.every((a) => typeof a === 'string'),
@@ -22,8 +25,7 @@ export function run(
     stderr: 'inherit' as const,
     stdin: 'inherit' as const,
   };
-  const spawnOpts =
-    opts?.cwd !== undefined ? { ...base, cwd: opts.cwd } : base;
+  const spawnOpts = opts?.cwd !== undefined ? { ...base, cwd: opts.cwd } : base;
   const r = Bun.spawnSync([cmd, ...args], spawnOpts);
   assert(
     r.exitCode !== null && r.exitCode !== undefined,

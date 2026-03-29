@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { join } from 'node:path';
 import { BasePipelineCommand } from './base-command';
 import { ghNotice } from './gh';
+import { AWS_PACKAGE_ROOT } from './paths';
 import { run } from './run-subprocess';
 
 export class CdkDeployCommand extends BasePipelineCommand {
@@ -10,9 +10,8 @@ export class CdkDeployCommand extends BasePipelineCommand {
 
   execute(argv: string[]): void {
     assert(Array.isArray(argv));
-    const awsDir = join(process.cwd(), 'aws');
-    assert(awsDir.length > 0);
-    run('bunx', ['cdk', 'bootstrap'], { cwd: awsDir });
+    assert(AWS_PACKAGE_ROOT.length > 0);
+    run('bunx', ['cdk', 'bootstrap'], { cwd: AWS_PACKAGE_ROOT });
     run(
       'bunx',
       [
@@ -27,7 +26,7 @@ export class CdkDeployCommand extends BasePipelineCommand {
         '--outputs-file',
         'cdk-outputs.json',
       ],
-      { cwd: awsDir }
+      { cwd: AWS_PACKAGE_ROOT }
     );
     ghNotice('CDK deploy finished.');
   }

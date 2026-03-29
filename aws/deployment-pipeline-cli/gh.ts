@@ -9,4 +9,3 @@ export function ghNotice(message: string): void {
   assert(typeof message === 'string' && message.length > 0);
   console.log(`::notice::${message}`);
 }
-

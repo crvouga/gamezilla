@@ -25,8 +25,16 @@ export const C = {
 };
 
 const NODE_COLORS = [
-  '#4f8ff5', '#f59e42', '#3ddc84', '#e5484d', '#9b8afb',
-  '#36c5a0', '#e8b931', '#f472b6', '#67e8f9', '#a78bfa',
+  '#4f8ff5',
+  '#f59e42',
+  '#3ddc84',
+  '#e5484d',
+  '#9b8afb',
+  '#36c5a0',
+  '#e8b931',
+  '#f472b6',
+  '#67e8f9',
+  '#a78bfa',
 ];
 
 export const SERVER_NODE_ID = '__server__';

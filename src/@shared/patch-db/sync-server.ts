@@ -1,8 +1,9 @@
-import type { PatchesDb } from './interface';
+import { assert } from '../assert';
 import type { PubSub } from '../pub-sub/interface';
-import { PatchDbImplInstrumentedSyncHost } from './transport/instrumented-sync-host';
+import type { PatchesDb } from './interface';
 import { PatchDbHttpRequestHandler } from './transport/impl-http-request-handler';
 import { PatchDbImplSyncHost } from './transport/impl-sync-host';
+import { PatchDbImplInstrumentedSyncHost } from './transport/instrumented-sync-host';
 import type { PatchDbSyncHost } from './transport/interface';
 import { patchDbPaths } from './transport/paths';
 
@@ -49,6 +50,10 @@ export function createPatchDbSyncHandler(
       typeof inst.flushIntervalMs === 'number'
         ? inst.flushIntervalMs
         : 5000;
+    assert.nonNegativeInteger(
+      flushIntervalMs,
+      'flushIntervalMs must be a non-negative integer'
+    );
     const instrumented = new PatchDbImplInstrumentedSyncHost(
       host,
       config.db,
@@ -64,6 +69,8 @@ export function createPatchDbSyncHandler(
   return {
     basePath: normalizedBase,
     handleRequest: (req) => http.handleRequest(req),
-    dispose: disposeInstrumentation,
+    ...(disposeInstrumentation !== undefined
+      ? { dispose: disposeInstrumentation }
+      : {}),
   };
 }

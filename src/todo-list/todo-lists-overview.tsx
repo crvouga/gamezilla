@@ -1,7 +1,7 @@
 import { clearLocalDatabaseAndReload } from '@/@shared/patch-db/bootstrap-expo';
 import { useEntities, usePatchesDb } from '@/@shared/patch-db/react';
 import { useTheme } from '@/@shared/theme';
-import { ConfirmationModal } from '@/components/ui/modal';
+import { ConfirmationModal } from '@/ui/modal';
 import { ThemedText } from '@/ui/themed-text';
 import { ThemedView } from '@/ui/themed-view';
 import { useRouter } from 'expo-router';

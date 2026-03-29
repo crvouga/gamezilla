@@ -27,12 +27,16 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
     try {
       parsed = new URL(url);
     } catch (error) {
-      assert.ok(false, 'Constructed patch-db URL must parse as an absolute URL', {
-        baseUrl: this.baseUrl,
-        path,
-        url,
-        error,
-      });
+      assert.ok(
+        false,
+        'Constructed patch-db URL must parse as an absolute URL',
+        {
+          baseUrl: this.baseUrl,
+          path,
+          url,
+          error,
+        }
+      );
     }
     assert.ok(
       parsed.protocol === 'http:' || parsed.protocol === 'https:',

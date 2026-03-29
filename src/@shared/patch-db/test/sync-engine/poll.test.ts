@@ -61,7 +61,10 @@ describe('SyncPatchesDb (deterministic sim)', () => {
       )
     ).toBe(true);
 
-    await sim.assertConsistent({ entityType: 'todoList', where: DELETED_CLAUSE });
+    await sim.assertConsistent({
+      entityType: 'todoList',
+      where: DELETED_CLAUSE,
+    });
   });
 
   test('poll: patches for deleted entities are fetched via tracked-entities query', async () => {
@@ -405,7 +408,10 @@ describe('SyncPatchesDb (deterministic sim)', () => {
     ]);
 
     c.link.setLatency(20);
-    const listQuery = { entityType: 'todoList', where: DELETED_CLAUSE } as const;
+    const listQuery = {
+      entityType: 'todoList',
+      where: DELETED_CLAUSE,
+    } as const;
     const unsub = c.subscribe.entities(listQuery, () => {});
 
     const p1 = c.syncDb.runPollNow();
@@ -452,7 +458,10 @@ describe('SyncPatchesDb (deterministic sim)', () => {
       },
     ]);
 
-    const listQuery = { entityType: 'todoList', where: DELETED_CLAUSE } as const;
+    const listQuery = {
+      entityType: 'todoList',
+      where: DELETED_CLAUSE,
+    } as const;
     const unsub = c.subscribe.entities(listQuery, () => {});
 
     await c.poll();
@@ -509,7 +518,10 @@ describe('SyncPatchesDb (deterministic sim)', () => {
       ]);
     }
 
-    const listQuery = { entityType: 'todoList', where: DELETED_CLAUSE } as const;
+    const listQuery = {
+      entityType: 'todoList',
+      where: DELETED_CLAUSE,
+    } as const;
     const unsubAll = c.subscribe.entities(listQuery, () => {});
     const unsub = c.subscribe.entities(
       { entityType: 'todoList', where: DELETED_CLAUSE, limit: 1 },

@@ -4,13 +4,13 @@ In-memory SQLite + simulated transport + manual push/poll for sync tests.
 
 ## Public API (`sim/index.ts`)
 
-| Export           | Role |
-|------------------|------|
-| `PatchDbScenarioBuilder` | Fluent builder → `Sim` |
-| `Sim`            | Scenario root: `client(id)`, `server(id)`, `subscribeSyncErrors`, `destroy`, escape `scheduler` |
-| `SimClient`      | `write` / `read`, `push` / `poll`, `subscribe`, `link`, `syncDb` |
-| `SimServer`      | `db` — write/read as server authority |
-| `SimLink`        | `partition` / `heal`, failures, latency |
+| Export                   | Role                                                                                            |
+| ------------------------ | ----------------------------------------------------------------------------------------------- |
+| `PatchDbScenarioBuilder` | Fluent builder → `Sim`                                                                          |
+| `Sim`                    | Scenario root: `client(id)`, `server(id)`, `subscribeSyncErrors`, `destroy`, escape `scheduler` |
+| `SimClient`              | `write` / `read`, `push` / `poll`, `subscribe`, `link`, `syncDb`                                |
+| `SimServer`              | `db` — write/read as server authority                                                           |
+| `SimLink`                | `partition` / `heal`, failures, latency                                                         |
 
 ## Example
 
