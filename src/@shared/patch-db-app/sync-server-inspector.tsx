@@ -1,7 +1,7 @@
 import { assertPatchDbSyncServerBaseUrl } from '@/@shared/patch-db/assert-sync-server-base-url';
 import type { Patch, PatchesDbResult } from '@/@shared/patch-db/interface';
 import { PatchDbClientTransportHttpFetch } from '@/@shared/patch-db/transport';
-import { ADMIN_METRIC_ENTITY_TYPE } from '@/sync-server-instrumentation';
+import { ADMIN_METRIC_ENTITY_TYPE } from '@/@shared/patch-db/transport';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 const URL_STORAGE_KEY = 'patchdb-inspector-sync-url';

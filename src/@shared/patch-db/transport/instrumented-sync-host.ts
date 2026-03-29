@@ -1,13 +1,13 @@
-import { assert } from './@shared/assert';
-import type { PubSub } from './@shared/pub-sub/interface';
+import { assert } from '../../assert';
+import type { PubSub } from '../../pub-sub/interface';
 import type {
   Patch,
   PatchesDb,
   PatchesDbQuery,
   PatchesDbResult,
   PatchInput,
-} from './@shared/patch-db/interface';
-import type { PatchDbSyncHost } from './@shared/patch-db/transport/interface';
+} from '../interface';
+import type { PatchDbSyncHost } from './interface';
 
 const PATCHES_DB_TOPIC = 'patches-db';
 
@@ -114,7 +114,7 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
       ]);
       this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
     } catch (err) {
-      console.error('[sync-server] flushMetricsSnapshot failed:', err);
+      console.error('[patch-db] flushMetricsSnapshot failed:', err);
     }
   }
 }

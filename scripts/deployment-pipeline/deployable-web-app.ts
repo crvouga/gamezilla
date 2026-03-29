@@ -38,8 +38,9 @@ export class WebAppDeployable implements Deployable {
       assert.fail('web-app: public-config.json must contain prod object');
     }
     const o = doc as { local: unknown; prod: Record<string, unknown> };
-    o.prod['PATCH_DB_SYNC_SERVER_URL'] = syncUrl;
-    assert.strictEqual(o.prod['PATCH_DB_SYNC_SERVER_URL'], syncUrl);
+    const syncBaseUrl = `${syncUrl.replace(/\/$/, '')}/patch-db`;
+    o.prod['PATCH_DB_SYNC_SERVER_URL'] = syncBaseUrl;
+    assert.strictEqual(o.prod['PATCH_DB_SYNC_SERVER_URL'], syncBaseUrl);
     writeFileSync(configPath, `${JSON.stringify(o, null, 2)}\n`, 'utf8');
 
     run('bunx', ['expo', 'export', '-p', 'web'], {

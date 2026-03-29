@@ -1,8 +1,8 @@
 {
   "local": {
-    "PATCH_DB_SYNC_SERVER_URL": "http://localhost:5001"
+    "PATCH_DB_SYNC_SERVER_URL": "http://localhost:5001/patch-db"
   },
   "prod": {
-    "PATCH_DB_SYNC_SERVER_URL": "https://sync-server-production-a17b.up.railway.app"
+    "PATCH_DB_SYNC_SERVER_URL": "https://sync-server-production-a17b.up.railway.app/patch-db"
   }
 }

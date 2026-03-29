@@ -1,14 +1,9 @@
 import { PatchDbImplSqlite } from '@/@shared/patch-db/impl-sqlite/impl-sqlite';
-import {
-  PATCHES_DB_BASE_URL,
-  PatchDbHttpSyncServerAdapter,
-  PatchDbImplSyncHost,
-} from '@/@shared/patch-db/transport';
+import { createPatchDbSyncHandler } from '@/@shared/patch-db/sync-server';
 import { InMemoryPubSub } from '@/@shared/pub-sub/impl-in-memory';
 import { SqlClientImplBunSqlite } from '@/@shared/sql-client/impl-bun-sqlite';
 import { assert } from './@shared/assert';
 import { NodeCrashHandler } from './@shared/assert/crash/crash-handler/crash-handler-node';
-import { PatchDbImplInstrumentedSyncHost } from './sync-server-instrumentation';
 
 assert.registerCrashHandler(new NodeCrashHandler());
 
@@ -21,14 +16,12 @@ await sqlClient.connect();
 const patchDb = new PatchDbImplSqlite(sqlClient);
 await patchDb.migrate();
 
-const pubSub = new InMemoryPubSub();
-const syncHostInner = new PatchDbImplSyncHost(patchDb, pubSub);
-const syncHost = new PatchDbImplInstrumentedSyncHost(
-  syncHostInner,
-  patchDb,
-  pubSub
-);
-const patchDbTransport = new PatchDbHttpSyncServerAdapter(syncHost);
+const { handleRequest: handlePatchDb, basePath: patchDbBasePath } =
+  createPatchDbSyncHandler({
+    db: patchDb,
+    pubSub: new InMemoryPubSub(),
+    instrumentation: true,
+  });
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -82,11 +75,20 @@ const server = Bun.serve({
       );
     }
 
-    if (url.pathname.startsWith(PATCHES_DB_BASE_URL)) {
+    if (url.pathname.startsWith(patchDbBasePath)) {
       bunServer.timeout(req, 0);
-      return patchDbTransport
-        .handleRequest(req)
-        .then(withCors)
+      return handlePatchDb(req)
+        .then((res) => {
+          if (res === null) {
+            return withCors(
+              new Response('Not Found', {
+                status: 404,
+                headers: { 'Content-Type': 'text/plain' },
+              })
+            );
+          }
+          return withCors(res);
+        })
         .catch((err: unknown) => {
           console.error('[sync-server] patchDbHandler failed:', err);
           const message = err instanceof Error ? err.message : String(err);

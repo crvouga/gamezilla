@@ -8,35 +8,38 @@ import {
   PatchesDbQuery,
 } from '../interface';
 import type { PatchDbSyncHost } from './interface';
-import { PATCHES_EVENTS, PATCHES_READ, PATCHES_WRITE } from './paths';
+import { DEFAULT_BASE_PATH, patchDbPaths } from './paths';
 
-export {
-  PATCHES_DB_BASE_URL,
-  PATCHES_EVENTS,
-  PATCHES_READ,
-  PATCHES_WRITE,
-} from './paths';
+type ResolvedPaths = ReturnType<typeof patchDbPaths>;
 
-/** HTTP adapter: validates wire JSON, delegates to {@link PatchDbSyncHost}. */
-export class PatchDbHttpSyncServerAdapter {
-  constructor(private host: PatchDbSyncHost) {}
+/** HTTP adapter: validates wire JSON, delegates to {@link PatchDbSyncHost}. Web standard Request/Response only. */
+export class PatchDbHttpRequestHandler {
+  private readonly paths: ResolvedPaths;
 
-  async handleRequest(req: Request): Promise<Response> {
+  constructor(
+    private readonly host: PatchDbSyncHost,
+    basePath: string = DEFAULT_BASE_PATH
+  ) {
+    this.paths = patchDbPaths(basePath);
+  }
+
+  /** Returns a {@link Response} for patch-db routes, or `null` if this request does not match. */
+  async handleRequest(req: Request): Promise<Response | null> {
     const url = new URL(req.url);
 
-    if (url.pathname === PATCHES_READ && req.method === 'POST') {
+    if (url.pathname === this.paths.read && req.method === 'POST') {
       return this.handleRead(req, this.host);
     }
 
-    if (url.pathname === PATCHES_WRITE && req.method === 'POST') {
+    if (url.pathname === this.paths.write && req.method === 'POST') {
       return this.handleWrite(req, this.host);
     }
 
-    if (url.pathname === PATCHES_EVENTS && req.method === 'GET') {
+    if (url.pathname === this.paths.events && req.method === 'GET') {
       return this.handleEvents(req, this.host);
     }
 
-    return new Response('Not Found', { status: 404 });
+    return null;
   }
 
   private async handleEvents(
@@ -44,7 +47,7 @@ export class PatchDbHttpSyncServerAdapter {
     host: PatchDbSyncHost
   ): Promise<Response> {
     const url = new URL(req.url);
-    assert.equals(url.pathname, PATCHES_EVENTS, 'Invalid path');
+    assert.equals(url.pathname, this.paths.events, 'Invalid path');
     assert.equals(req.method, 'GET', 'Invalid method');
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
@@ -74,7 +77,7 @@ export class PatchDbHttpSyncServerAdapter {
     host: PatchDbSyncHost
   ): Promise<Response> {
     const url = new URL(req.url);
-    assert.equals(url.pathname, PATCHES_WRITE, 'Invalid path');
+    assert.equals(url.pathname, this.paths.write, 'Invalid path');
     assert.equals(req.method, 'POST', 'Invalid method');
     const body: unknown = await req.json();
     const a: Assert = Assert.validation();
@@ -92,7 +95,7 @@ export class PatchDbHttpSyncServerAdapter {
     host: PatchDbSyncHost
   ): Promise<Response> {
     const url = new URL(req.url);
-    assert.equals(url.pathname, PATCHES_READ, 'Invalid path');
+    assert.equals(url.pathname, this.paths.read, 'Invalid path');
     assert.equals(req.method, 'POST', 'Invalid method');
     const body: unknown = await req.json();
     const a: Assert = Assert.validation();

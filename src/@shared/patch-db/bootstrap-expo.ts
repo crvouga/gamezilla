@@ -18,6 +18,7 @@ export type BootstrapResult = {
 
 export type BootstrapPatchDbExpoSyncOptions = {
   databaseName?: string;
+  /** Absolute URL including patch-db base path, e.g. `https://host/patch-db`. */
   apiUrl: string;
   pushIntervalMs?: number;
   parentContainer?: DependencyInjectionContainer;

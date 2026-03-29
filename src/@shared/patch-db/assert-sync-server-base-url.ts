@@ -6,6 +6,8 @@ import { assert } from '@/@shared/assert';
  * If the value is hostname-only (no scheme), the WHATWG URL implementation in fetch() resolves
  * paths against the current document origin — on web that produces broken URLs like
  * `https://<cloudfront>/<apprunner-host>/patch-db/...`.
+ *
+ * Include the wire base path in the URL (default `/patch-db`), e.g. `https://host/patch-db`.
  */
 export function assertPatchDbSyncServerBaseUrl(
   baseUrl: string

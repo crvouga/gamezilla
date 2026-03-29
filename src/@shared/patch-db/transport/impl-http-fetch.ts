@@ -10,7 +10,11 @@ import type {
 } from '../interface';
 import { assertPatches, assertPatchesDbResults } from '../validate-remote';
 import type { PatchDbClientTransport } from './interface';
-import { PATCHES_EVENTS, PATCHES_READ, PATCHES_WRITE } from './paths';
+import {
+  PATCH_SUFFIX_EVENTS,
+  PATCH_SUFFIX_READ,
+  PATCH_SUFFIX_WRITE,
+} from './paths';
 
 export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
   constructor(private baseUrl: string) {
@@ -54,19 +58,19 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
 
   async read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
     if (queries.length === 0) return [];
-    const raw = await this.postUnvalidated(PATCHES_READ, { queries });
+    const raw = await this.postUnvalidated(PATCH_SUFFIX_READ, { queries });
     assertPatchesDbResults(raw);
     return raw;
   }
 
   async write(patches: PatchInput[]): Promise<Patch[]> {
-    const raw = await this.postUnvalidated(PATCHES_WRITE, { patches });
+    const raw = await this.postUnvalidated(PATCH_SUFFIX_WRITE, { patches });
     assertPatches(raw);
     return raw;
   }
 
   subscribe(callback: () => void): Unsubscribe {
-    const url = this.requestUrl(PATCHES_EVENTS);
+    const url = this.requestUrl(PATCH_SUFFIX_EVENTS);
     let aborted = false;
     let retryDelayMs = 1000;
     const maxRetryDelayMs = 30000;
