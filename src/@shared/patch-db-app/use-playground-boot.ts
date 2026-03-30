@@ -6,7 +6,6 @@ import {
   restorePlaygroundSim,
 } from '../patch-db/sim/playground-sim';
 import { clearSnapshot, loadSnapshot, saveSnapshot } from './persist';
-import type { TopoAnimHandle } from './playground-topology-graph';
 import { browserSqlJsInit } from './sql-js-browser';
 
 const SIM_TEARDOWN_KEY = Symbol.for('playground-sim-teardown');
@@ -32,7 +31,6 @@ export function usePlaygroundBoot() {
   const [linkEpoch, setLinkEpoch] = useState(0);
   const [, setClientEpoch] = useState(0);
   const simRef = useRef<PlaygroundSim | null>(null);
-  const topoRef = useRef<TopoAnimHandle | null>(null);
 
   const bumpGraph = useCallback(() => setPulseKey((k) => k + 1), []);
   const bumpLink = useCallback(() => {
@@ -161,7 +159,6 @@ export function usePlaygroundBoot() {
     sim,
     bootErr,
     bootLabel,
-    topoRef,
     pulseKey,
     linkEpoch,
     bumpGraph,

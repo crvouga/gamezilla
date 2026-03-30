@@ -28,38 +28,6 @@ body {
   font-family: var(--font-display);
 }
 
-/* ── React Flow overrides ─────────────────────────────────── */
-
-.react-flow__node-server,
-.react-flow__node-client {
-  cursor: default;
-}
-
-.react-flow__controls button {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.6);
-  fill: rgba(255, 255, 255, 0.6);
-}
-.react-flow__controls button:hover {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-/* ── Edge animations ───────────────────────────────────────── */
-
-@keyframes edgeFlow {
-  to {
-    stroke-dashoffset: -24;
-  }
-}
-.edge-live {
-  stroke-dasharray: 6 5;
-  animation: edgeFlow 1.6s linear infinite;
-}
-.edge-dead {
-  stroke-dasharray: 4 6;
-}
-
 /* ── Scrollbar styling ─────────────────────────────────────── */
 
 ::-webkit-scrollbar {
@@ -76,15 +44,3 @@ body {
   background: rgba(255, 255, 255, 0.22);
 }
 
-/* ── Drag-and-drop hint ────────────────────────────────────── */
-
-li[draggable='true']:active {
-  opacity: 0.6;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .edge-live {
-    animation: none;
-    stroke-dasharray: none;
-  }
-}

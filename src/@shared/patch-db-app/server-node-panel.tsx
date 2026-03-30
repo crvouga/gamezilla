@@ -12,14 +12,11 @@ import { ShapeList } from './shape-list';
 import { useSimContext } from './sim-context';
 import { btnAction } from './styles';
 import { useAsyncAction } from './use-async-action';
-import { useDragReorder } from './use-drag-reorder';
 import { useServerShapes } from './use-server-shapes';
-import { useServerTopoAnimation } from './use-topo-animation';
 
 export function ServerNodePanel() {
-  const { sim, topoRef, bumpGraph, bumpLink } = useSimContext();
+  const { sim, bumpGraph, bumpLink } = useSimContext();
   const { entities, readError, refresh } = useServerShapes(sim);
-  const animatePollAll = useServerTopoAnimation(sim, topoRef);
   const serverPartitioned = sim.isServerPartitioned();
 
   const onSuccess = useCallback(() => {
@@ -32,43 +29,34 @@ export function ServerNodePanel() {
   const handleRandomize = useCallback(
     (entityId: string) =>
       run(async () => {
-        animatePollAll();
         await playgroundServerRandomizeShape(sim, entityId);
       }),
-    [run, sim, animatePollAll]
+    [run, sim]
   );
 
   const handleDelete = useCallback(
     (entityId: string) =>
       run(async () => {
-        animatePollAll();
         await playgroundServerDeleteShape(sim, entityId);
       }),
-    [run, sim, animatePollAll]
+    [run, sim]
   );
 
   const handleCreate = useCallback(
     () =>
       run(async () => {
-        animatePollAll();
         await playgroundServerCreateShape(sim, nextShapeOrder(entities));
       }),
-    [run, sim, entities, animatePollAll]
+    [run, sim, entities]
   );
 
   const handleReorder = useCallback(
     (entityIds: string[]) => {
       void run(async () => {
-        animatePollAll();
         await playgroundServerReorderShapes(sim, entityIds);
       });
     },
-    [run, sim, animatePollAll]
-  );
-
-  const { handleDragStart, handleDragOver, handleDrop } = useDragReorder(
-    entities,
-    handleReorder
+    [run, sim]
   );
 
   const displayNote = readError ?? note;
@@ -148,7 +136,6 @@ export function ServerNodePanel() {
           disabled={busy || entities.length === 0}
           onClick={() =>
             run(async () => {
-              animatePollAll();
               for (const e of entities) {
                 await playgroundServerRandomizeShape(sim, e.entityId);
               }
@@ -171,9 +158,7 @@ export function ServerNodePanel() {
         onRandomize={handleRandomize}
         onDelete={handleDelete}
         onCreate={handleCreate}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
+        onReorder={handleReorder}
       />
     </NodePanelShell>
   );

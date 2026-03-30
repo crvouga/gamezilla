@@ -1,10 +1,8 @@
 import { createContext, useContext } from 'react';
 import type { PlaygroundSim } from '../patch-db/sim/playground-sim';
-import type { TopoAnimHandle } from './playground-topology-graph';
 
 export type SimContextValue = {
   sim: PlaygroundSim;
-  topoRef: React.RefObject<TopoAnimHandle | null>;
   bumpGraph: () => void;
   bumpLink: () => void;
   addClient: () => Promise<void>;

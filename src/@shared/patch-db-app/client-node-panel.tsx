@@ -18,8 +18,6 @@ import { ShapeList } from './shape-list';
 import { useSimContext } from './sim-context';
 import { btnAction, btnTiny } from './styles';
 import { useAsyncAction } from './use-async-action';
-import { useDragReorder } from './use-drag-reorder';
-import { useClientTopoAnimation } from './use-topo-animation';
 
 const LATENCY_BUCKETS: { value: number; label: string }[] = [
   { value: 0, label: '0ms' },
@@ -32,7 +30,7 @@ const LATENCY_BUCKETS: { value: number; label: string }[] = [
 ];
 
 function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
-  const { sim, topoRef, bumpGraph, bumpLink, removeClient } = useSimContext();
+  const { sim, bumpGraph, bumpLink, removeClient } = useSimContext();
 
   const shapeQuery = useMemo(() => shapeListQuery(), []);
   const { entities } = useEntities(shapeQuery);
@@ -45,7 +43,6 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
   });
   const partitioned = client.link.isPartitioned();
 
-  const animatePush = useClientTopoAnimation(client, sim, topoRef);
   const { busy, note, run } = useAsyncAction(bumpGraph);
 
   const handleLatencyChange = useCallback(
@@ -59,43 +56,34 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
   const handleRandomize = useCallback(
     (entityId: string) =>
       run(async () => {
-        animatePush();
         await playgroundRandomizeShape(sim, client.id, entityId);
       }),
-    [run, sim, client.id, animatePush]
+    [run, sim, client.id]
   );
 
   const handleDelete = useCallback(
     (entityId: string) =>
       run(async () => {
-        animatePush();
         await playgroundDeleteShape(sim, client.id, entityId);
       }),
-    [run, sim, client.id, animatePush]
+    [run, sim, client.id]
   );
 
   const handleCreate = useCallback(
     () =>
       run(async () => {
-        animatePush();
         await playgroundCreateShape(sim, client.id, nextShapeOrder(entities));
       }),
-    [run, sim, client.id, entities, animatePush]
+    [run, sim, client.id, entities]
   );
 
   const handleReorder = useCallback(
     (entityIds: string[]) => {
       void run(async () => {
-        animatePush();
         await playgroundReorderShapes(sim, client.id, entityIds);
       });
     },
-    [run, sim, client.id, animatePush]
-  );
-
-  const { handleDragStart, handleDragOver, handleDrop } = useDragReorder(
-    entities,
-    handleReorder
+    [run, sim, client.id]
   );
 
   return (
@@ -148,7 +136,6 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
           disabled={busy}
           onClick={() =>
             run(async () => {
-              animatePush();
               await sim.syncNow(client.id);
             })
           }
@@ -188,7 +175,6 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
           disabled={busy || entities.length === 0}
           onClick={() =>
             run(async () => {
-              animatePush();
               for (const e of entities) {
                 await playgroundRandomizeShape(sim, client.id, e.entityId);
               }
@@ -211,9 +197,7 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
         onRandomize={handleRandomize}
         onDelete={handleDelete}
         onCreate={handleCreate}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
+        onReorder={handleReorder}
       />
     </NodePanelShell>
   );

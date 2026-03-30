@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import type { PlaygroundSim } from '../patch-db/sim/playground-sim';
 import { PatchdbAppNav, readStoredMode, type PatchdbAppMode } from './nav';
-import { PlaygroundFlow } from './playground-flow';
 import { PlaygroundHeader } from './playground-header';
+import { PlaygroundLayout } from './playground-layout';
 import { SimProvider, type SimContextValue } from './sim-context';
 import { SyncServerInspector } from './sync-server-inspector';
 import { usePlaygroundBoot } from './use-playground-boot';
@@ -77,7 +77,6 @@ function PlaygroundShell({
   const ctx = useMemo<SimContextValue>(
     () => ({
       sim,
-      topoRef: { current: null },
       bumpGraph,
       bumpLink,
       addClient,
@@ -91,9 +90,7 @@ function PlaygroundShell({
     <SimProvider value={ctx}>
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <PlaygroundHeader />
-        <div className="min-h-0 flex-1">
-          <PlaygroundFlow sim={sim} pulseKey={pulseKey} linkEpoch={linkEpoch} />
-        </div>
+        <PlaygroundLayout sim={sim} pulseKey={pulseKey} linkEpoch={linkEpoch} />
       </div>
     </SimProvider>
   );

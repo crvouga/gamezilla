@@ -80,8 +80,7 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
     const maxRetryDelayMs = 30000;
     let abortController: AbortController | null = null;
 
-    let lastReconnectLogMs = 0;
-    const reconnectLogIntervalMs = 12_000;
+    let loggedFirstError = false;
 
     const connect = async (): Promise<void> => {
       if (aborted) return;
@@ -95,6 +94,7 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
           throw new Error(`SSE ${res.status}`);
         }
         retryDelayMs = 1000;
+        loggedFirstError = false;
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
         let buffer = '';
@@ -112,11 +112,10 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
         }
       } catch (err) {
         if (aborted) return;
-        const now = Date.now();
-        if (now - lastReconnectLogMs >= reconnectLogIntervalMs) {
-          lastReconnectLogMs = now;
+        if (!loggedFirstError) {
+          loggedFirstError = true;
           console.warn(
-            '[PatchDbClientTransportHttpFetch] SSE disconnected, reconnecting (quiet until next log):',
+            '[PatchDbClientTransportHttpFetch] SSE disconnected, will retry silently:',
             err
           );
         }

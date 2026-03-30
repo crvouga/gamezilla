@@ -1,37 +1,47 @@
-import type { DragEvent as ReactDragEvent } from 'react';
+import type { PointerEvent as ReactPointerEvent } from 'react';
 import type { Entity } from '../patch-db/interface';
 import { SHAPE_ATTR } from '../patch-db/sim/playground-shapes';
 import { IconGrip } from './icons';
 import { btnTiny } from './styles';
+import type { DragState } from './use-drag-reorder';
 
 export function ShapeRow({
   entity,
   index,
   busy,
+  dragState,
   onRandomize,
   onDelete,
-  onDragStart,
-  onDragOver,
-  onDrop,
+  onGripPointerDown,
 }: {
   entity: Entity;
   index: number;
   busy: boolean;
+  dragState: DragState | null;
   onRandomize: (entityId: string) => void;
   onDelete: (entityId: string) => void;
-  onDragStart: (e: ReactDragEvent, index: number) => void;
-  onDragOver: (e: ReactDragEvent, index: number) => void;
-  onDrop: (e: ReactDragEvent, index: number) => void;
+  onGripPointerDown: (e: ReactPointerEvent, index: number) => void;
 }) {
+  const isDragging = dragState?.fromIdx === index;
+  const isDropTarget =
+    dragState !== null &&
+    dragState.overIdx === index &&
+    dragState.fromIdx !== index;
+
   return (
     <li
-      draggable
-      onDragStart={(e) => onDragStart(e, index)}
-      onDragOver={(e) => onDragOver(e, index)}
-      onDrop={(e) => onDrop(e, index)}
-      className="group flex items-center gap-1.5 rounded-lg border border-transparent px-1 py-0.5 transition-colors hover:border-white/10 hover:bg-white/5"
+      className={`group flex items-center gap-1.5 rounded-lg border px-1 py-0.5 transition-all duration-150 ${
+        isDragging
+          ? 'border-transparent opacity-30'
+          : isDropTarget
+            ? 'border-teal-400/40 bg-teal-500/10'
+            : 'border-transparent hover:border-white/10 hover:bg-white/5'
+      }`}
     >
-      <span className="cursor-grab text-white/25 active:cursor-grabbing">
+      <span
+        className="cursor-grab text-white/25 active:cursor-grabbing touch-none select-none"
+        onPointerDown={(e) => onGripPointerDown(e, index)}
+      >
         <IconGrip />
       </span>
       <span className="w-5 shrink-0 text-center text-[0.6rem] text-white/35 font-mono">
@@ -46,6 +56,7 @@ export function ShapeRow({
           fill={String(entity.attributes[SHAPE_ATTR.fill] ?? '#666')}
           stroke="rgba(255,255,255,0.12)"
           strokeWidth={0.5}
+          className="transition-[fill] duration-300"
         />
       </svg>
       <span className="min-w-0 flex-1 truncate font-mono text-[0.65rem] text-white/65">
