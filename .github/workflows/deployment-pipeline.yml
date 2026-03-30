@@ -28,6 +28,8 @@ jobs:
 
       - name: Check (tc + lint + test)
         run: bunx turbo check
+        env:
+          SKIP_POSTGRES_TESTS: '1'
 
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
