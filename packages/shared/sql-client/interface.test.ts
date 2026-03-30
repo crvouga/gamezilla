@@ -6,12 +6,8 @@ import {
   expect,
   test,
 } from 'bun:test';
-import {
-  getPGliteTestInstance,
-  stopPGliteTestInstance,
-} from '../postgres/pglite-test-instance';
+import { stopPGliteTestInstance } from '../postgres/pglite-test-instance';
 import { InMemoryPubSub } from '../pub-sub/impl-in-memory';
-import { SqlClientImplBunPostgres } from './impl-bun-postgres';
 import { SqlClientImplBunSqlite } from './impl-bun-sqlite';
 import { SqlClientImplSqlJs } from './impl-sql-js';
 import { SqlClientWithPubSub } from './impl-with-pub-sub';
@@ -53,32 +49,6 @@ async function loadImplementations(): Promise<
     });
   } catch {
     // expo-sqlite requires React Native runtime; skip in Bun test env
-  }
-
-  if (process.env['SKIP_POSTGRES_TESTS'] !== '1') {
-    impls.push({
-      name: 'SqlClientImplBunPostgres',
-      createClient: async () => {
-        const pg = await getPGliteTestInstance(25433);
-        if (!cachedPostgresClient) {
-          await pg.wipe();
-          cachedPostgresClient = SqlClientImplBunPostgres.connect(
-            pg.connectionUrl
-          );
-        }
-        const c = cachedPostgresClient;
-        if (c === null || c === undefined)
-          throw new Error('cachedPostgresClient must be set');
-        return {
-          connect: () => c.connect(),
-          disconnect: () => Promise.resolve(),
-          prepare: (sql) => c.prepare(sql),
-          query: (sql, params) => c.query(sql, params),
-          run: (sql, params) => c.run(sql, params),
-          transaction: (fn) => c.transaction(fn),
-        };
-      },
-    });
   }
 
   return impls;
