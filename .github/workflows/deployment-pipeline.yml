@@ -27,7 +27,7 @@ jobs:
         run: bunx expo customize tsconfig.json
 
       - name: Check (tc + lint + test)
-        run: turbo check
+        run: bunx turbo check
 
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -58,14 +58,14 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Prechecks
-        run: turbo deploy:prechecks
+        run: bunx turbo deploy:prechecks
 
       - name: Deploy
         timeout-minutes: 45
-        run: turbo deploy
+        run: bunx turbo deploy
 
       - name: Postchecks
-        run: turbo deploy:postchecks
+        run: bunx turbo deploy:postchecks
 
       - name: Summary
-        run: turbo deploy:summary
+        run: bunx turbo deploy:summary

@@ -1,6 +1,0 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "bun run --filter @gamezilla/app frontend:web:build",
-  "outputDirectory": "packages/app/dist",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
-}
