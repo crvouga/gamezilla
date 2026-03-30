@@ -16,7 +16,10 @@ export class SyncServer extends Construct {
       directory: REPO_ROOT,
       file: 'Dockerfile',
       exclude: [
-        'aws',
+        'aws/**',
+        '!aws/package.json',
+        'patch-db-app/**',
+        '!patch-db-app/package.json',
         'node_modules',
         '.git',
         'dist',

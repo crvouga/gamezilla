@@ -15,6 +15,8 @@ import {
   reasonIsSet,
 } from './cfn-shared';
 import { ghError, ghNotice } from './gh';
+import { REPO_ROOT } from './paths';
+import { run } from './run-subprocess';
 
 function isValidAwsAccessKeyId(value: string | undefined): boolean {
   return typeof value === 'string' && /^[A-Z0-9]{20}$/.test(value.trim());
@@ -31,7 +33,7 @@ function isValidAwsRegion(value: string | undefined): boolean {
 export class PreflightCommand extends BasePipelineCommand {
   readonly id = 'preflight';
   readonly summary =
-    'Validate AWS secrets, assert caller identity, gate stack — one shot';
+    'Validate AWS secrets, assert caller identity, gate stack, Docker build — one shot';
 
   async execute(argv: string[]): Promise<void> {
     assert(Array.isArray(argv));
@@ -45,6 +47,9 @@ export class PreflightCommand extends BasePipelineCommand {
 
     // ── 3. Gate: stack must be absent or deployable ─────────────────
     await this.gateStack();
+
+    // ── 4. Docker image must build ───────────────────────────────────
+    this.assertDockerBuild();
   }
 
   private requireAwsSecrets(): void {
@@ -76,7 +81,7 @@ export class PreflightCommand extends BasePipelineCommand {
     }
 
     assert(errors.length === 0);
-    ghNotice('PREFLIGHT 1/3: AWS deploy secrets present and valid.');
+    ghNotice('PREFLIGHT 1/4: AWS deploy secrets present and valid.');
   }
 
   private async assertCallerIdentity(region: string): Promise<void> {
@@ -102,7 +107,7 @@ export class PreflightCommand extends BasePipelineCommand {
     assert(id.Account.length > 0);
     assert(id.Arn.length > 0);
     ghNotice(
-      `PREFLIGHT 2/3: caller ${id.Arn} account=${id.Account} region=${region}`
+      `PREFLIGHT 2/4: caller ${id.Arn} account=${id.Account} region=${region}`
     );
   }
 
@@ -113,7 +118,7 @@ export class PreflightCommand extends BasePipelineCommand {
     const d = await describeStack(client);
 
     if (d === null) {
-      ghNotice(`PREFLIGHT 3/3: ${STACK_NAME} absent — CDK will CREATE.`);
+      ghNotice(`PREFLIGHT 3/4: ${STACK_NAME} absent — CDK will CREATE.`);
       return;
     }
 
@@ -143,7 +148,7 @@ export class PreflightCommand extends BasePipelineCommand {
     assert(DEPLOYABLE_STATUSES.has(status));
     assert(!reasonIsSet(reason));
     ghNotice(
-      `PREFLIGHT 3/3: ${STACK_NAME} status=${status} — safe for CDK deploy.`
+      `PREFLIGHT 3/4: ${STACK_NAME} status=${status} — safe for CDK deploy.`
     );
   }
 
@@ -186,5 +191,10 @@ export class PreflightCommand extends BasePipelineCommand {
     }
 
     assert.fail(message);
+  }
+
+  private assertDockerBuild(): void {
+    run('docker', ['build', '--quiet', '.'], { cwd: REPO_ROOT });
+    ghNotice('PREFLIGHT 4/4: Docker image builds successfully.');
   }
 }
