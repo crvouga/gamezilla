@@ -21,6 +21,7 @@
     "aws/dist",
     "aws/cdk.out",
     "aws/lib",
-    "aws/bin/app.ts"
+    "aws/bin/app.ts",
+    "patch-db-app"
   ]
 }
