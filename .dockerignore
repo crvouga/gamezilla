@@ -1,5 +1,7 @@
-packages/aws/**
-packages/patch-db-app/**
+# Keep package.json in context for workspace lockfile install; exclude synth output only.
+packages/aws/cdk.out
+# Local `turbo prune` output; pruner stage regenerates inside the image.
+out/
 node_modules/
 .git/
 dist/
