@@ -27,7 +27,7 @@ jobs:
         run: bunx expo customize tsconfig.json
 
       - name: Check (tc + lint + test)
-        run: bun run check
+        run: turbo check
 
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -58,14 +58,14 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Prechecks
-        run: bun run --filter gamezilla-aws deploy:prechecks
+        run: turbo deploy:prechecks
 
       - name: Deploy
         timeout-minutes: 45
-        run: bun run --filter gamezilla-aws deploy
+        run: turbo deploy
 
       - name: Postchecks
-        run: bun run --filter gamezilla-aws deploy:postchecks
+        run: turbo deploy:postchecks
 
       - name: Summary
-        run: bun run --filter gamezilla-aws deploy:summary
+        run: turbo deploy:summary
