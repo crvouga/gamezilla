@@ -6,7 +6,7 @@ import {
 } from '@aws-sdk/client-cloudformation';
 import { GetCallerIdentityCommand, STSClient } from '@aws-sdk/client-sts';
 import assert from 'node:assert/strict';
-import { cloudFormation } from './aws';
+import { cloudFormation, requireAwsRegion } from './aws';
 import { BasePipelineCommand } from './base-command';
 import {
   DEPLOYABLE_STATUSES,
@@ -16,72 +16,38 @@ import {
 } from './cfn-shared';
 import { ghError, ghNotice } from './gh';
 import { REPO_ROOT } from './paths';
+import { PROJECT_CONFIG } from '../project-config';
 import { run } from './run-subprocess';
 
-function isValidAwsAccessKeyId(value: string | undefined): boolean {
-  return typeof value === 'string' && /^[A-Z0-9]{20}$/.test(value.trim());
-}
-
-function isValidAwsSecretAccessKey(value: string | undefined): boolean {
-  return typeof value === 'string' && /^[A-Za-z0-9/+=]{40}$/.test(value.trim());
-}
-
-function isValidAwsRegion(value: string | undefined): boolean {
+function isValidAwsRegionFormat(value: string): boolean {
   return typeof value === 'string' && /^[a-z]{2}-[a-z]+-\d$/.test(value.trim());
 }
 
 export class PreflightCommand extends BasePipelineCommand {
   readonly id = 'preflight';
   readonly summary =
-    'Validate AWS secrets, assert caller identity, gate stack, Docker build — one shot';
+    'Validate AWS credentials (STS), gate stack, Docker build — one shot';
 
   async execute(argv: string[]): Promise<void> {
     assert(Array.isArray(argv));
 
-    // ── 1. Require AWS secrets ──────────────────────────────────────
-    this.requireAwsSecrets();
-
-    // ── 2. Assert caller identity (STS) ─────────────────────────────
-    const region = (process.env['AWS_REGION'] ?? '').trim();
+    const region = this.requireAwsRegionValid();
     await this.assertCallerIdentity(region);
 
-    // ── 3. Gate: stack must be absent or deployable ─────────────────
     await this.gateStack();
 
-    // ── 4. Docker image must build ───────────────────────────────────
     this.assertDockerBuild();
   }
 
-  private requireAwsSecrets(): void {
-    const errors: string[] = [];
-
-    const accessKeyId = process.env['AWS_ACCESS_KEY_ID'];
-    const secretAccessKey = process.env['AWS_SECRET_ACCESS_KEY'];
-    const region = process.env['AWS_REGION'];
-
-    if (!accessKeyId || !isValidAwsAccessKeyId(accessKeyId)) {
-      errors.push('AWS_ACCESS_KEY_ID (expected 20 uppercase letters/digits)');
-    }
-    if (!secretAccessKey || !isValidAwsSecretAccessKey(secretAccessKey)) {
-      errors.push(
-        'AWS_SECRET_ACCESS_KEY (expected 40 chars: letters, digits, /, +, =)'
-      );
-    }
-    if (!region || !isValidAwsRegion(region)) {
-      errors.push('AWS_REGION (expected format like "us-east-1")');
-    }
-
-    if (errors.length > 0) {
-      ghError(
-        `Missing, empty, or invalid Actions secrets: ${errors.join(', ')}`
-      );
+  private requireAwsRegionValid(): string {
+    const region = requireAwsRegion().trim();
+    if (!isValidAwsRegionFormat(region)) {
+      ghError('AWS_REGION invalid (expected format like "us-east-1")');
       assert.fail(
-        `preflight: missing or invalid ${errors.join(', ')} — crash, do not continue`
+        'preflight: AWS_REGION must match a valid region pattern — crash, do not continue'
       );
     }
-
-    assert(errors.length === 0);
-    ghNotice('PREFLIGHT 1/4: AWS deploy secrets present and valid.');
+    return region;
   }
 
   private async assertCallerIdentity(region: string): Promise<void> {
@@ -106,8 +72,22 @@ export class PreflightCommand extends BasePipelineCommand {
     }
     assert(id.Account.length > 0);
     assert(id.Arn.length > 0);
+
+    const inGithubActions = process.env['GITHUB_ACTIONS'] === 'true';
+    if (inGithubActions) {
+      const expected = PROJECT_CONFIG.githubActionsRoleName;
+      if (!id.Arn.includes(expected)) {
+        ghError(
+          `Expected CI caller to assume role containing "${expected}", got ARN: ${id.Arn}`
+        );
+        assert.fail(
+          'preflight: GitHub Actions must use OIDC deploy role — crash, do not continue'
+        );
+      }
+    }
+
     ghNotice(
-      `PREFLIGHT 2/4: caller ${id.Arn} account=${id.Account} region=${region}`
+      `PREFLIGHT 1/3: caller ${id.Arn} account=${id.Account} region=${region}`
     );
   }
 
@@ -118,7 +98,7 @@ export class PreflightCommand extends BasePipelineCommand {
     const d = await describeStack(client);
 
     if (d === null) {
-      ghNotice(`PREFLIGHT 3/4: ${STACK_NAME} absent — CDK will CREATE.`);
+      ghNotice(`PREFLIGHT 2/3 (stack): ${STACK_NAME} absent — CDK will CREATE.`);
       return;
     }
 
@@ -148,7 +128,7 @@ export class PreflightCommand extends BasePipelineCommand {
     assert(DEPLOYABLE_STATUSES.has(status));
     assert(!reasonIsSet(reason));
     ghNotice(
-      `PREFLIGHT 3/4: ${STACK_NAME} status=${status} — safe for CDK deploy.`
+      `PREFLIGHT 2/3 (stack): ${STACK_NAME} status=${status} — safe for CDK deploy.`
     );
   }
 
@@ -195,6 +175,7 @@ export class PreflightCommand extends BasePipelineCommand {
 
   private assertDockerBuild(): void {
     run('docker', ['build', '--quiet', '.'], { cwd: REPO_ROOT });
-    ghNotice('PREFLIGHT 4/4: Docker image builds successfully.');
+    ghNotice('PREFLIGHT 3/3 (docker): Docker image builds successfully.');
   }
 }
+

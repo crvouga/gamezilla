@@ -5,6 +5,12 @@ import { PatchDbApp } from './patch-db-app';
 import { SyncServer } from './sync-server';
 import { WebApp } from './web-app';
 
+const RESOURCE_TAGS = {
+  Project: 'gamezilla',
+  ManagedBy: 'cdk',
+  Environment: 'production',
+} as const;
+
 /** CDK `-c key=true` passes string `"true"`; cdk.json may use boolean `true`. */
 function isContextFlagTrue(scope: Construct, key: string): boolean {
   const v = scope.node.tryGetContext(key);
@@ -13,7 +19,14 @@ function isContextFlagTrue(scope: Construct, key: string): boolean {
 
 export class GamezillaStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-    super(scope, id, props);
+    super(scope, id, {
+      ...props,
+      terminationProtection: true,
+    });
+
+    for (const [k, v] of Object.entries(RESOURCE_TAGS)) {
+      cdk.Tags.of(this).add(k, v);
+    }
 
     const customDomain = isContextFlagTrue(this, 'customDomain');
     /**

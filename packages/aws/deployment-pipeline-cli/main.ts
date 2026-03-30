@@ -1,5 +1,5 @@
 /**
- * Deployment pipeline entrypoint: AWS secrets, CloudFormation gate, CDK deploy, artifact sync, summaries.
+ * Deployment pipeline entrypoint: AWS credentials (OIDC or env), CloudFormation gate, CDK deploy, artifact sync, summaries.
  * Usage: bun run aws/bin/deployment-pipeline-cli.ts <command>
  */
 import assert from 'node:assert/strict';

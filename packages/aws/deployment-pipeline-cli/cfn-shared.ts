@@ -1,10 +1,11 @@
-import assert from 'node:assert/strict';
 import {
   DescribeStacksCommand,
   type CloudFormationClient,
 } from '@aws-sdk/client-cloudformation';
+import assert from 'node:assert/strict';
+import { PROJECT_CONFIG } from '../project-config';
 
-export const STACK_NAME = 'GamezillaStack';
+export const STACK_NAME = PROJECT_CONFIG.stack.name;
 
 assert(STACK_NAME.length > 0);
 
