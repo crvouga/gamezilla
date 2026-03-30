@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { ghError } from './gh';
+import { reportError } from './ci-platform';
 
 export function run(
   cmd: string,
@@ -32,7 +32,7 @@ export function run(
     `run: Bun.spawnSync returned no exitCode for: ${cmd} ${args.join(' ')}`
   );
   if (r.exitCode !== 0) {
-    ghError(`${cmd} ${args.join(' ')} failed (exit ${r.exitCode})`);
+    reportError(`${cmd} ${args.join(' ')} failed (exit ${r.exitCode})`);
     assert.fail(
       `run: ${cmd} ${args.join(' ')} exited ${r.exitCode} — crash, do not continue`
     );

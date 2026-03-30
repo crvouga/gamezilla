@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { requireOutput, type StackOutputs } from './cdk-outputs';
+import { reportNotice } from './ci-platform';
 import type { Deployable } from './deployable';
-import { ghNotice } from './gh';
 import { REPO_ROOT } from './paths';
 import { run } from './run-subprocess';
 
@@ -15,7 +15,9 @@ export class PatchDbAppDeployable implements Deployable {
     const distId = requireOutput(outputs, 'PatchDbAppDistributionId');
     assert(bucket.length > 0 && distId.length > 0);
 
-    run('bun', ['run', '--filter', 'patch-db-app', 'build'], { cwd: REPO_ROOT });
+    run('bun', ['run', '--filter', 'patch-db-app', 'build'], {
+      cwd: REPO_ROOT,
+    });
     run(
       'aws',
       [
@@ -46,6 +48,6 @@ export class PatchDbAppDeployable implements Deployable {
       recursive: true,
       force: true,
     });
-    ghNotice('PatchDB app built and synced to S3.');
+    reportNotice('PatchDB app built and synced to S3.');
   }
 }

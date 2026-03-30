@@ -1,12 +1,11 @@
 import assert from 'node:assert/strict';
-import { appendFileSync } from 'node:fs';
 import { BasePipelineCommand } from './base-command';
 import {
   readCdkOutputs,
   requireOutput,
   type StackOutputs,
 } from './cdk-outputs';
-import { ghNotice } from './gh';
+import { getCiPlatform, reportNotice } from './ci-platform';
 
 const SUMMARY_SERVICES = [
   { label: 'Web App', outputKey: 'WebAppUrl' },
@@ -24,7 +23,7 @@ const TLS_NOTE =
 
 export class WriteSummaryCommand extends BasePipelineCommand {
   readonly id = 'write-summary';
-  readonly summary = 'Read CDK outputs → write GitHub Actions job summary';
+  readonly summary = 'Read CDK outputs → write CI job summary';
 
   execute(argv: string[]): void {
     assert(Array.isArray(argv));
@@ -33,12 +32,6 @@ export class WriteSummaryCommand extends BasePipelineCommand {
   }
 
   private writeSummary(outputs: StackOutputs): void {
-    const summaryPath = process.env['GITHUB_STEP_SUMMARY'] ?? '';
-    if (summaryPath === undefined || summaryPath === '') {
-      ghNotice('GITHUB_STEP_SUMMARY not set — skipping summary.');
-      return;
-    }
-
     const serviceRows = SUMMARY_SERVICES.map(({ label, outputKey }) => {
       const url = requireOutput(outputs, outputKey);
       return `| **${label}** | ${url} |`;
@@ -69,7 +62,7 @@ ${serviceRows}
 ${nsBlocks}
 `;
 
-    appendFileSync(summaryPath, `${body}\n${TLS_NOTE}\n`, 'utf8');
-    ghNotice('Job summary appended.');
+    getCiPlatform().appendJobSummary(`${body}\n${TLS_NOTE}\n`);
+    reportNotice('Summary written.');
   }
 }

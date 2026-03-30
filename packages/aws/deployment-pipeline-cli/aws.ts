@@ -1,11 +1,11 @@
 import { CloudFormationClient } from '@aws-sdk/client-cloudformation';
 import assert from 'node:assert/strict';
-import { ghError } from './gh';
+import { reportError } from './ci-platform';
 
 export function requireAwsRegion(): string {
   const r = process.env['AWS_REGION']?.trim();
   if (r === undefined || r === '') {
-    ghError(
+    reportError(
       'AWS_REGION is empty (invariant: must be set after configure-aws-credentials).'
     );
     assert.fail(

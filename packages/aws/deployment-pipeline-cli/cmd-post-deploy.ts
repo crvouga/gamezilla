@@ -5,7 +5,7 @@ import {
   requireOutput,
   type StackOutputs,
 } from './cdk-outputs';
-import { ghError, ghNotice } from './gh';
+import { reportError, reportNotice } from './ci-platform';
 
 const DNS_DOMAINS = [
   { domain: 'gamezilla.app', outputKey: 'Route53Nameservers' },
@@ -49,7 +49,7 @@ export class PostDeployCommand extends BasePipelineCommand {
     }
 
     assert.strictEqual(step, total);
-    ghNotice(`POST-DEPLOY: all ${total} checks passed.`);
+    reportNotice(`POST-DEPLOY: all ${total} checks passed.`);
   }
 
   private checkDns(
@@ -63,7 +63,7 @@ export class PostDeployCommand extends BasePipelineCommand {
 
     const raw = outputs[outputKey];
     if (raw === undefined || raw === '') {
-      ghNotice(
+      reportNotice(
         `POST-DEPLOY ${step}/${total}: ${domain} NS — skipped (no ${outputKey} output).`
       );
       return;
@@ -82,7 +82,9 @@ export class PostDeployCommand extends BasePipelineCommand {
 
     if (result.exitCode !== 0) {
       const stderr = result.stderr.toString().trim();
-      ghError(`dig NS ${domain} failed (exit ${result.exitCode}): ${stderr}`);
+      reportError(
+        `dig NS ${domain} failed (exit ${result.exitCode}): ${stderr}`
+      );
       assert.fail(`post-deploy: dig NS ${domain} failed`);
     }
 
@@ -90,7 +92,7 @@ export class PostDeployCommand extends BasePipelineCommand {
     const actual = parseNameservers(result.stdout.toString());
 
     if (actual.size === 0) {
-      ghError(
+      reportError(
         `dig NS ${domain} +short returned no records — delegation not configured at registrar.`
       );
       assert.fail(`post-deploy: ${domain} has no NS records`);
@@ -104,14 +106,14 @@ export class PostDeployCommand extends BasePipelineCommand {
       if (missing.length > 0) parts.push(`missing=[${missing.join(', ')}]`);
       if (extra.length > 0) parts.push(`unexpected=[${extra.join(', ')}]`);
       assert(parts.length > 0);
-      ghError(
+      reportError(
         `${domain} NS mismatch: ${parts.join('; ')}  expected=[${[...expected].join(', ')}]  actual=[${[...actual].join(', ')}]`
       );
       assert.fail(`post-deploy: ${domain} NS records do not match Route53`);
     }
 
     assert(missing.length === 0 && extra.length === 0);
-    ghNotice(
+    reportNotice(
       `POST-DEPLOY ${step}/${total}: ${domain} NS — ${actual.size} records match Route53.`
     );
   }
@@ -134,19 +136,19 @@ export class PostDeployCommand extends BasePipelineCommand {
       });
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
-      ghError(`${label} ${url} — fetch failed: ${msg}`);
+      reportError(`${label} ${url} — fetch failed: ${msg}`);
       assert.fail(`post-deploy: ${label} unreachable at ${url}`);
     }
 
     if (!response.ok) {
-      ghError(
+      reportError(
         `${label} ${url} — HTTP ${response.status} ${response.statusText}`
       );
       assert.fail(`post-deploy: ${label} returned HTTP ${response.status}`);
     }
 
     assert(response.ok);
-    ghNotice(
+    reportNotice(
       `POST-DEPLOY ${step}/${total}: ${label} ${url} — HTTP ${response.status} OK.`
     );
   }

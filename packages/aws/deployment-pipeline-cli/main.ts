@@ -3,7 +3,7 @@
  * Usage: bun run aws/bin/deployment-pipeline-cli.ts <command>
  */
 import assert from 'node:assert/strict';
-import { ghError } from './gh';
+import { reportError } from './ci-platform';
 import { COMMAND_REGISTRY, printUsage } from './registry';
 
 export async function main(): Promise<void> {
@@ -14,7 +14,7 @@ export async function main(): Promise<void> {
   const command = COMMAND_REGISTRY.find((c) => c.match(argv));
   if (command === undefined) {
     printUsage();
-    ghError(`Unknown command: ${argv[2] ?? '(none)'}`);
+    reportError(`Unknown command: ${argv[2] ?? '(none)'}`);
     assert.fail(
       `main: unrecognized command "${argv[2] ?? '(none)'}" — crash, do not continue`
     );

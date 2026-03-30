@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { requireOutput, type StackOutputs } from './cdk-outputs';
+import { reportError, reportNotice } from './ci-platform';
 import type { Deployable } from './deployable';
-import { ghError, ghNotice } from './gh';
 import { REPO_ROOT } from './paths';
 import { run } from './run-subprocess';
 
@@ -16,7 +16,9 @@ export class WebAppDeployable implements Deployable {
     const distId = requireOutput(outputs, 'WebDistributionId');
 
     if (!/^https:\/\//.test(syncUrl)) {
-      ghError(`PATCH_DB_SYNC_SERVER_URL must be https:// (got: ${syncUrl})`);
+      reportError(
+        `PATCH_DB_SYNC_SERVER_URL must be https:// (got: ${syncUrl})`
+      );
       assert.fail('web-app: sync URL must be https://');
     }
 
@@ -25,7 +27,7 @@ export class WebAppDeployable implements Deployable {
     try {
       doc = JSON.parse(readFileSync(configPath, 'utf8'));
     } catch (e) {
-      ghError(`public-config.json: ${String(e)}`);
+      reportError(`public-config.json: ${String(e)}`);
       assert.fail('web-app: public-config.json must be valid JSON');
     }
     if (
@@ -35,7 +37,7 @@ export class WebAppDeployable implements Deployable {
       typeof (doc as { prod?: unknown }).prod !== 'object' ||
       (doc as { prod: unknown }).prod === null
     ) {
-      ghError('public-config.json missing prod object');
+      reportError('public-config.json missing prod object');
       assert.fail('web-app: public-config.json must contain prod object');
     }
     const o = doc as { local: unknown; prod: Record<string, unknown> };
@@ -67,8 +69,11 @@ export class WebAppDeployable implements Deployable {
       { cwd: REPO_ROOT }
     );
 
-    rmSync(join(REPO_ROOT, 'packages/app/dist'), { recursive: true, force: true });
-    ghNotice('Web app exported and synced to S3.');
+    rmSync(join(REPO_ROOT, 'packages/app/dist'), {
+      recursive: true,
+      force: true,
+    });
+    reportNotice('Web app exported and synced to S3.');
   }
 }
 

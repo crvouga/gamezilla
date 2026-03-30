@@ -1,4 +1,3 @@
-/* eslint-disable expo/no-dynamic-env-var */
 import {
   type CloudFormationClient,
   DescribeStackEventsCommand,
@@ -6,6 +5,7 @@ import {
 } from '@aws-sdk/client-cloudformation';
 import { GetCallerIdentityCommand, STSClient } from '@aws-sdk/client-sts';
 import assert from 'node:assert/strict';
+import { PROJECT_CONFIG } from '../project-config';
 import { cloudFormation, requireAwsRegion } from './aws';
 import { BasePipelineCommand } from './base-command';
 import {
@@ -14,9 +14,8 @@ import {
   describeStack,
   reasonIsSet,
 } from './cfn-shared';
-import { ghError, ghNotice } from './gh';
+import { getCiPlatform, reportError, reportNotice } from './ci-platform';
 import { REPO_ROOT } from './paths';
-import { PROJECT_CONFIG } from '../project-config';
 import { run } from './run-subprocess';
 
 function isValidAwsRegionFormat(value: string): boolean {
@@ -42,7 +41,7 @@ export class PreflightCommand extends BasePipelineCommand {
   private requireAwsRegionValid(): string {
     const region = requireAwsRegion().trim();
     if (!isValidAwsRegionFormat(region)) {
-      ghError('AWS_REGION invalid (expected format like "us-east-1")');
+      reportError('AWS_REGION invalid (expected format like "us-east-1")');
       assert.fail(
         'preflight: AWS_REGION must match a valid region pattern — crash, do not continue'
       );
@@ -63,30 +62,29 @@ export class PreflightCommand extends BasePipelineCommand {
       )
     );
     if (id.Account === undefined || id.Account === '') {
-      ghError('STS Account missing');
+      reportError('STS Account missing');
       assert.fail('preflight: STS Account must be present');
     }
     if (id.Arn === undefined || id.Arn === '') {
-      ghError('STS Arn missing');
+      reportError('STS Arn missing');
       assert.fail('preflight: STS Arn must be present');
     }
     assert(id.Account.length > 0);
     assert(id.Arn.length > 0);
 
-    const inGithubActions = process.env['GITHUB_ACTIONS'] === 'true';
-    if (inGithubActions) {
+    if (getCiPlatform().enforceDeployRole) {
       const expected = PROJECT_CONFIG.githubActionsRoleName;
       if (!id.Arn.includes(expected)) {
-        ghError(
+        reportError(
           `Expected CI caller to assume role containing "${expected}", got ARN: ${id.Arn}`
         );
         assert.fail(
-          'preflight: GitHub Actions must use OIDC deploy role — crash, do not continue'
+          'preflight: CI must use OIDC deploy role — crash, do not continue'
         );
       }
     }
 
-    ghNotice(
+    reportNotice(
       `PREFLIGHT 1/3: caller ${id.Arn} account=${id.Account} region=${region}`
     );
   }
@@ -98,7 +96,9 @@ export class PreflightCommand extends BasePipelineCommand {
     const d = await describeStack(client);
 
     if (d === null) {
-      ghNotice(`PREFLIGHT 2/3 (stack): ${STACK_NAME} absent — CDK will CREATE.`);
+      reportNotice(
+        `PREFLIGHT 2/3 (stack): ${STACK_NAME} absent — CDK will CREATE.`
+      );
       return;
     }
 
@@ -127,7 +127,7 @@ export class PreflightCommand extends BasePipelineCommand {
 
     assert(DEPLOYABLE_STATUSES.has(status));
     assert(!reasonIsSet(reason));
-    ghNotice(
+    reportNotice(
       `PREFLIGHT 2/3 (stack): ${STACK_NAME} status=${status} — safe for CDK deploy.`
     );
   }
@@ -139,7 +139,7 @@ export class PreflightCommand extends BasePipelineCommand {
     assert(client !== undefined && client !== null);
     assert(typeof message === 'string' && message.length > 0);
 
-    ghError(message);
+    reportError(message);
 
     try {
       const events = await client.send(
@@ -150,7 +150,7 @@ export class PreflightCommand extends BasePipelineCommand {
       console.error(`--- ${STACK_NAME} recent events (${items.length}) ---`);
       console.error(JSON.stringify(items.slice(0, 25), null, 2));
     } catch (evtErr: unknown) {
-      ghError(
+      reportError(
         `Additionally failed to fetch stack events: ${String(evtErr instanceof Error ? evtErr.message : evtErr)}`
       );
     }
@@ -165,7 +165,7 @@ export class PreflightCommand extends BasePipelineCommand {
         console.error(JSON.stringify(stack, null, 2));
       }
     } catch (descErr: unknown) {
-      ghError(
+      reportError(
         `Additionally failed to describe stack: ${String(descErr instanceof Error ? descErr.message : descErr)}`
       );
     }
@@ -175,7 +175,6 @@ export class PreflightCommand extends BasePipelineCommand {
 
   private assertDockerBuild(): void {
     run('docker', ['build', '--quiet', '.'], { cwd: REPO_ROOT });
-    ghNotice('PREFLIGHT 3/3 (docker): Docker image builds successfully.');
+    reportNotice('PREFLIGHT 3/3 (docker): Docker image builds successfully.');
   }
 }
-

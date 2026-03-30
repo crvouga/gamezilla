@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { BasePipelineCommand } from './base-command';
-import { ghNotice } from './gh';
+import { reportNotice } from './ci-platform';
 import { AWS_PACKAGE_ROOT } from './paths';
 import { run } from './run-subprocess';
 
@@ -28,6 +28,6 @@ export class CdkDeployCommand extends BasePipelineCommand {
       ],
       { cwd: AWS_PACKAGE_ROOT }
     );
-    ghNotice('CDK deploy finished.');
+    reportNotice('CDK deploy finished.');
   }
 }
