@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "bun run frontend:web:build",
-  "outputDirectory": "dist",
+  "outputDirectory": "packages/app/dist",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }

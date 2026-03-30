@@ -2,16 +2,14 @@
 
 # dependencies
 node_modules/
-aws/node_modules/
 
 # AWS CDK
-aws/cdk.out/
+packages/aws/cdk.out/
 
 # Expo
 .expo/
-dist/
+**/dist/
 web-build/
-expo-env.d.ts
 
 # Native
 .kotlin/
@@ -37,20 +35,16 @@ yarn-error.*
 # local env files
 .env*.local
 
-
 # typescript
 *.tsbuildinfo
 
 # PatchDB app build output (opt-in)
 .sim-recordings/
-/patch-db-app/**
-
 
 app-example
 
 # generated native folders
 /ios
 /android
-
 
 .cursor/debug*.log

@@ -11,17 +11,30 @@
     "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "paths": { "@/*": ["./src/*"] }
+    "paths": {
+      "@/*": ["./packages/app/src/*"],
+      "@gamezilla/shared/*": ["./packages/shared/*"],
+      "@gamezilla/patch-db/*": ["./packages/patch-db/*"]
+    }
   },
-  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
+  "include": [
+    "packages/app/src/**/*.ts",
+    "packages/app/src/**/*.tsx",
+    "packages/shared/**/*.ts",
+    "packages/shared/**/*.tsx",
+    "packages/patch-db/**/*.ts",
+    "packages/patch-db/**/*.tsx",
+    "packages/app/.expo/types/**/*.ts",
+    "packages/app/expo-env.d.ts"
+  ],
   "exclude": [
     "node_modules",
     "dist",
     "web-build",
-    "aws/dist",
-    "aws/cdk.out",
-    "aws/lib",
-    "aws/bin/app.ts",
-    "patch-db-app"
+    "packages/aws/dist",
+    "packages/aws/cdk.out",
+    "packages/aws/lib",
+    "packages/aws/bin/app.ts",
+    "packages/patch-db-app"
   ]
 }

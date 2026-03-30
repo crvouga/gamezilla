@@ -1,10 +1,9 @@
-aws/**
-!aws/package.json
-patch-db-app/**
-!patch-db-app/package.json
+packages/aws/**
+packages/patch-db-app/**
 node_modules/
 .git/
 dist/
+packages/**/dist/
 .expo/
 web-build/
 ios/

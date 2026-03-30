@@ -23,16 +23,17 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Generate router types
+        working-directory: packages/app
         run: bunx expo customize tsconfig.json
 
       - name: Type check
-        run: bun run tc
+        run: bun run --filter @gamezilla/app tc
 
       - name: Lint
-        run: bun run lint
+        run: bun run --filter @gamezilla/app lint
 
       - name: Test
-        run: bun test
+        run: bun run --filter @gamezilla/app test
 
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -63,14 +64,14 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Prechecks
-        run: bun run deploy:prechecks
+        run: bun run --filter gamezilla-aws deploy:prechecks
 
       - name: Deploy
         timeout-minutes: 45
-        run: bun run deploy
+        run: bun run --filter gamezilla-aws deploy
 
       - name: Postchecks
-        run: bun run deploy:postchecks
+        run: bun run --filter gamezilla-aws deploy:postchecks
 
       - name: Summary
-        run: bun run deploy:summary
+        run: bun run --filter gamezilla-aws deploy:summary

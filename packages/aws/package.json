@@ -1,0 +1,25 @@
+{
+  "name": "gamezilla-aws",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "cdk": "cdk",
+    "deploy": "bun run ./bin/deployment-pipeline-cli.ts cdk-deploy && bun run ./bin/deployment-pipeline-cli.ts deploy-apps",
+    "deploy:postchecks": "bun run ./bin/deployment-pipeline-cli.ts post-deploy",
+    "deploy:prechecks": "bun run ./bin/deployment-pipeline-cli.ts preflight",
+    "deploy:summary": "bun run ./bin/deployment-pipeline-cli.ts write-summary",
+    "watch": "tsc -w"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.170.0",
+    "constructs": "^10.4.2"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-cloudformation": "^3.1018.0",
+    "@aws-sdk/client-sts": "^3.1018.0",
+    "@types/node": "^20.17.0",
+    "aws-cdk": "^2.170.0",
+    "tsx": "^4.19.2",
+    "typescript": "~5.6.3"
+  }
+}

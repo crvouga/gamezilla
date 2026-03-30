@@ -1,2 +1,7 @@
 [test]
-pathIgnorePatterns = ["aws/cdk.out/**", "dist/**", "node_modules/**"]
+pathIgnorePatterns = [
+  "packages/aws/cdk.out/**",
+  "dist/**",
+  "**/dist/**",
+  "node_modules/**",
+]
