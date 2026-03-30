@@ -7,8 +7,8 @@ import {
   useContainer,
   useDependency,
 } from '@/@shared/dependency-injection/react';
-import { bootstrapPatchDbExpoSync } from '@/@shared/patch-db/bootstrap-expo';
 import { useTheme } from '@/@shared/theme';
+import { bootstrapPatchDbExpoSync } from '@/patch-db/bootstrap-expo';
 import { ThemedText } from '@/ui/themed-text';
 import { ThemedView } from '@/ui/themed-view';
 import {

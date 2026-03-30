@@ -1,10 +1,10 @@
+import { useTheme } from '@/@shared/theme';
 import type {
   Entity,
   PatchesDbQuery,
   PatchesDbQueryWhereClause,
-} from '@/@shared/patch-db/interface';
-import { useEntities, useEntity, usePatchesDb } from '@/@shared/patch-db/react';
-import { useTheme } from '@/@shared/theme';
+} from '@/patch-db/interface';
+import { useEntities, useEntity, usePatchesDb } from '@/patch-db/react';
 import { ThemedText } from '@/ui/themed-text';
 import { ThemedView } from '@/ui/themed-view';
 import { useLocalSearchParams, useRouter } from 'expo-router';
