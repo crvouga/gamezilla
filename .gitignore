@@ -35,6 +35,9 @@ yarn-error.*
 # local env files
 .env*.local
 
+# Turbo
+.turbo
+
 # typescript
 *.tsbuildinfo
 

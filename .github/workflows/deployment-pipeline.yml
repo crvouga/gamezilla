@@ -26,14 +26,8 @@ jobs:
         working-directory: packages/app
         run: bunx expo customize tsconfig.json
 
-      - name: Type check
-        run: bun run --filter @gamezilla/app tc
-
-      - name: Lint
-        run: bun run --filter @gamezilla/app lint
-
-      - name: Test
-        run: bun run --filter @gamezilla/app test
+      - name: Check (tc + lint + test)
+        run: bun run check
 
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

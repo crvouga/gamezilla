@@ -36,31 +36,26 @@
     "sql.js": "^1.14.0"
   },
   "devDependencies": {
+    "@types/bun": "^1.3.9",
     "@types/react": "~19.1.0",
     "@types/react-dom": "~19.1.11",
     "@types/sql.js": "^1.4.10",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "eslint-plugin-naming": "^0.1.10",
-    "prettier": "^3.8.1",
-    "sort-package-json": "^3.6.1",
     "typescript": "~5.9.2"
   },
   "scripts": {
     "android": "expo start --android",
-    "check": "clear && bun run tc && bun run lint && bun run test && echo 'All checks passed ✅'",
+    "dev": "expo start --web --port 8082",
     "export:web": "expo export -p web",
-    "format": "cd ../.. && sort-package-json && prettier --write .",
-    "format:check": "cd ../.. && prettier --check .",
     "frontend:web:build": "expo export -p web",
     "ios": "expo start --ios",
     "lint": "expo lint",
-    "preview": "bun run export:web && bun run sync-server",
     "start": "expo start",
     "sync-server": "bun run src/sync-server.ts",
     "sync-server:watch": "bun --watch src/sync-server.ts",
     "tc": "tsc --noEmit -p ../../tsconfig.json",
-    "test": "cd ../.. && bun test",
     "web": "expo start --web"
   }
 }

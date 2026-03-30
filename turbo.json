@@ -1,0 +1,45 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "dev": {
+      "persistent": true,
+      "cache": false
+    },
+    "check": {
+      "dependsOn": ["tc", "lint", "test"]
+    },
+    "tc": {
+      "dependsOn": ["^tc"],
+      "inputs": ["**/*.ts", "**/*.tsx", "tsconfig.json", "../../tsconfig.json"],
+      "outputs": []
+    },
+    "lint": {
+      "dependsOn": ["^tc"],
+      "inputs": ["**/*.ts", "**/*.tsx", "eslint.config.js"],
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": ["^tc"],
+      "inputs": ["**/*.ts", "**/*.tsx", "**/*.test.ts"],
+      "outputs": []
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["**/*.ts", "**/*.tsx", "**/*.css", "**/*.html", "vite.config.ts", "tsconfig.json"],
+      "outputs": ["dist/**"]
+    },
+    "deploy": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
+    "deploy:prechecks": {
+      "cache": false
+    },
+    "deploy:postchecks": {
+      "cache": false
+    },
+    "deploy:summary": {
+      "cache": false
+    }
+  }
+}
