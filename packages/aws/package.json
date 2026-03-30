@@ -4,7 +4,7 @@
   "scripts": {
     "build": "tsc",
     "cdk": "cdk",
-    "setup": "bun run ./scripts/setup.ts",
+    "setup": "bun run ./bin/setup-cli.ts",
     "deploy": "bun run ./bin/deployment-pipeline-cli.ts cdk-deploy && bun run ./bin/deployment-pipeline-cli.ts deploy-apps",
     "deploy:postchecks": "bun run ./bin/deployment-pipeline-cli.ts post-deploy",
     "deploy:prechecks": "bun run ./bin/deployment-pipeline-cli.ts preflight",

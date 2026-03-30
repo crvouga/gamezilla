@@ -20,6 +20,29 @@ const HTTP_ENDPOINTS = [
 
 const HTTP_TIMEOUT_MS = 30_000;
 
+/** HTTP(S) smoke tests only (no DNS NS checks) — used by setup-cli `deploy` during bootstrap. */
+export async function runHttpSmokeTestsOnly(
+  platform: CiPlatform,
+  outputs: StackOutputs
+): Promise<void> {
+  let step = 0;
+  const total = HTTP_ENDPOINTS.length;
+  assert.ok(total > 0, 'runHttpSmokeTestsOnly: must have endpoints');
+
+  for (const { label, outputKey } of HTTP_ENDPOINTS) {
+    step++;
+    await checkHttpEndpoint(
+      platform,
+      step,
+      total,
+      label,
+      requireOutput(platform, outputs, outputKey)
+    );
+  }
+  assert.equals(step, total, 'runHttpSmokeTestsOnly: step count');
+  platform.notice(`HTTP smoke: all ${total} endpoint checks passed.`);
+}
+
 export class PostDeployCommand extends BasePipelineCommand {
   readonly id = 'post-deploy';
   readonly summary =
@@ -44,7 +67,8 @@ export class PostDeployCommand extends BasePipelineCommand {
 
     for (const { label, outputKey } of HTTP_ENDPOINTS) {
       step++;
-      await this.checkHttp(
+      await checkHttpEndpoint(
+        this.platform,
         step,
         total,
         label,
@@ -120,40 +144,42 @@ export class PostDeployCommand extends BasePipelineCommand {
     );
   }
 
-  private async checkHttp(
-    step: number,
-    total: number,
-    label: string,
-    url: string
-  ): Promise<void> {
-    assert.ok(url.length > 0, 'checkHttp: url must be non-empty');
-    assert.ok(/^https?:\/\//.test(url), `${label} URL must be http(s)://`);
+}
 
-    let response: Response;
-    try {
-      response = await fetch(url, {
-        method: 'GET',
-        redirect: 'follow',
-        signal: AbortSignal.timeout(HTTP_TIMEOUT_MS),
-      });
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e);
-      this.platform.error(`${label} ${url} — fetch failed: ${msg}`);
-      assert.fail(`post-deploy: ${label} unreachable at ${url}`);
-    }
+async function checkHttpEndpoint(
+  platform: CiPlatform,
+  step: number,
+  total: number,
+  label: string,
+  url: string
+): Promise<void> {
+  assert.ok(url.length > 0, 'checkHttp: url must be non-empty');
+  assert.ok(/^https?:\/\//.test(url), `${label} URL must be http(s)://`);
 
-    if (!response.ok) {
-      this.platform.error(
-        `${label} ${url} — HTTP ${response.status} ${response.statusText}`
-      );
-      assert.fail(`post-deploy: ${label} returned HTTP ${response.status}`);
-    }
-
-    assert.ok(response.ok, 'checkHttp: response must be ok');
-    this.platform.notice(
-      `POST-DEPLOY ${step}/${total}: ${label} ${url} — HTTP ${response.status} OK.`
-    );
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: 'GET',
+      redirect: 'follow',
+      signal: AbortSignal.timeout(HTTP_TIMEOUT_MS),
+    });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    platform.error(`${label} ${url} — fetch failed: ${msg}`);
+    assert.fail(`post-deploy: ${label} unreachable at ${url}`);
   }
+
+  if (!response.ok) {
+    platform.error(
+      `${label} ${url} — HTTP ${response.status} ${response.statusText}`
+    );
+    assert.fail(`post-deploy: ${label} returned HTTP ${response.status}`);
+  }
+
+  assert.ok(response.ok, 'checkHttp: response must be ok');
+  platform.notice(
+    `POST-DEPLOY ${step}/${total}: ${label} ${url} — HTTP ${response.status} OK.`
+  );
 }
 
 function parseNameservers(raw: string): Set<string> {

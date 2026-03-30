@@ -68,5 +68,8 @@
     "WHATWG",
     "worklets",
     "xyflow"
+  ],
+  "github-actions.workflows.pinned.workflows": [
+    ".github/workflows/deployment-pipeline.yml"
   ]
 }
