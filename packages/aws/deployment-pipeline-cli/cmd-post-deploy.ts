@@ -1,11 +1,11 @@
-import assert from 'node:assert/strict';
+import { assert } from '@gamezilla/shared/assert';
 import { BasePipelineCommand } from './base-command';
 import {
   readCdkOutputs,
   requireOutput,
   type StackOutputs,
 } from './cdk-outputs';
-import { reportError, reportNotice } from './ci-platform';
+import type { CiPlatform } from './ci-platform';
 
 const DNS_DOMAINS = [
   { domain: 'gamezilla.app', outputKey: 'Route53Nameservers' },
@@ -25,13 +25,17 @@ export class PostDeployCommand extends BasePipelineCommand {
   readonly summary =
     'Smoke-test live infrastructure — DNS records, HTTP health';
 
+  constructor(platform: CiPlatform) {
+    super(platform);
+  }
+
   async execute(argv: string[]): Promise<void> {
-    assert(Array.isArray(argv));
-    const outputs = readCdkOutputs();
+    assert.array(argv, 'execute: argv must be an array');
+    const outputs = readCdkOutputs(this.platform);
 
     let step = 0;
     const total = DNS_DOMAINS.length + HTTP_ENDPOINTS.length;
-    assert(total > 0);
+    assert.ok(total > 0, 'execute: must have at least one check');
 
     for (const { domain, outputKey } of DNS_DOMAINS) {
       step++;
@@ -44,12 +48,12 @@ export class PostDeployCommand extends BasePipelineCommand {
         step,
         total,
         label,
-        requireOutput(outputs, outputKey)
+        requireOutput(this.platform, outputs, outputKey)
       );
     }
 
-    assert.strictEqual(step, total);
-    reportNotice(`POST-DEPLOY: all ${total} checks passed.`);
+    assert.equals(step, total, 'execute: step count must match total');
+    this.platform.notice(`POST-DEPLOY: all ${total} checks passed.`);
   }
 
   private checkDns(
@@ -59,18 +63,18 @@ export class PostDeployCommand extends BasePipelineCommand {
     outputs: StackOutputs,
     outputKey: string
   ): void {
-    assert(domain.length > 0);
+    assert.ok(domain.length > 0, 'checkDns: domain must be non-empty');
 
     const raw = outputs[outputKey];
     if (raw === undefined || raw === '') {
-      reportNotice(
+      this.platform.notice(
         `POST-DEPLOY ${step}/${total}: ${domain} NS — skipped (no ${outputKey} output).`
       );
       return;
     }
 
     const expected = parseNameservers(raw);
-    assert(
+    assert.ok(
       expected.size > 0,
       `${outputKey} must contain at least one nameserver`
     );
@@ -82,17 +86,15 @@ export class PostDeployCommand extends BasePipelineCommand {
 
     if (result.exitCode !== 0) {
       const stderr = result.stderr.toString().trim();
-      reportError(
-        `dig NS ${domain} failed (exit ${result.exitCode}): ${stderr}`
-      );
+      this.platform.error(`dig NS ${domain} failed (exit ${result.exitCode}): ${stderr}`);
       assert.fail(`post-deploy: dig NS ${domain} failed`);
     }
 
-    assert.strictEqual(result.exitCode, 0);
+    assert.equals(result.exitCode, 0, `checkDns: dig must exit 0 for ${domain}`);
     const actual = parseNameservers(result.stdout.toString());
 
     if (actual.size === 0) {
-      reportError(
+      this.platform.error(
         `dig NS ${domain} +short returned no records — delegation not configured at registrar.`
       );
       assert.fail(`post-deploy: ${domain} has no NS records`);
@@ -105,15 +107,15 @@ export class PostDeployCommand extends BasePipelineCommand {
       const parts: string[] = [];
       if (missing.length > 0) parts.push(`missing=[${missing.join(', ')}]`);
       if (extra.length > 0) parts.push(`unexpected=[${extra.join(', ')}]`);
-      assert(parts.length > 0);
-      reportError(
+      assert.ok(parts.length > 0, 'checkDns: parts must be non-empty on mismatch');
+      this.platform.error(
         `${domain} NS mismatch: ${parts.join('; ')}  expected=[${[...expected].join(', ')}]  actual=[${[...actual].join(', ')}]`
       );
       assert.fail(`post-deploy: ${domain} NS records do not match Route53`);
     }
 
-    assert(missing.length === 0 && extra.length === 0);
-    reportNotice(
+    assert.ok(missing.length === 0 && extra.length === 0, 'checkDns: no NS mismatches');
+    this.platform.notice(
       `POST-DEPLOY ${step}/${total}: ${domain} NS — ${actual.size} records match Route53.`
     );
   }
@@ -124,8 +126,8 @@ export class PostDeployCommand extends BasePipelineCommand {
     label: string,
     url: string
   ): Promise<void> {
-    assert(url.length > 0);
-    assert(/^https?:\/\//.test(url), `${label} URL must be http(s)://`);
+    assert.ok(url.length > 0, 'checkHttp: url must be non-empty');
+    assert.ok(/^https?:\/\//.test(url), `${label} URL must be http(s)://`);
 
     let response: Response;
     try {
@@ -136,33 +138,34 @@ export class PostDeployCommand extends BasePipelineCommand {
       });
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
-      reportError(`${label} ${url} — fetch failed: ${msg}`);
+      this.platform.error(`${label} ${url} — fetch failed: ${msg}`);
       assert.fail(`post-deploy: ${label} unreachable at ${url}`);
     }
 
     if (!response.ok) {
-      reportError(
+      this.platform.error(
         `${label} ${url} — HTTP ${response.status} ${response.statusText}`
       );
       assert.fail(`post-deploy: ${label} returned HTTP ${response.status}`);
     }
 
-    assert(response.ok);
-    reportNotice(
+    assert.ok(response.ok, 'checkHttp: response must be ok');
+    this.platform.notice(
       `POST-DEPLOY ${step}/${total}: ${label} ${url} — HTTP ${response.status} OK.`
     );
   }
 }
 
 function parseNameservers(raw: string): Set<string> {
-  assert(typeof raw === 'string');
+  assert.string(raw, 'parseNameservers: raw must be a string');
   const entries = raw
     .split(/[\n,]+/)
     .map((s) => s.trim().toLowerCase().replace(/\.$/, ''))
     .filter((s) => s.length > 0);
   const set = new Set(entries);
-  assert(
-    set.size === entries.length,
+  assert.equals(
+    set.size,
+    entries.length,
     'parseNameservers: duplicate entries in input'
   );
   return set;

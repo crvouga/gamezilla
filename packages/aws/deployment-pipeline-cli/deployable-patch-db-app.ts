@@ -1,8 +1,8 @@
-import assert from 'node:assert/strict';
+import { assert } from '@gamezilla/shared/assert';
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { requireOutput, type StackOutputs } from './cdk-outputs';
-import { reportNotice } from './ci-platform';
+import { CiPlatform } from './ci-platform';
 import type { Deployable } from './deployable';
 import { REPO_ROOT } from './paths';
 import { run } from './run-subprocess';
@@ -10,15 +10,29 @@ import { run } from './run-subprocess';
 export class PatchDbAppDeployable implements Deployable {
   readonly id = 'patch-db-app';
 
-  deploy(outputs: StackOutputs): void {
-    const bucket = requireOutput(outputs, 'PatchDbAppBucketName');
-    const distId = requireOutput(outputs, 'PatchDbAppDistributionId');
-    assert(bucket.length > 0 && distId.length > 0);
+  constructor(protected readonly platform: CiPlatform) {}
 
-    run('bun', ['run', '--filter', 'patch-db-app', 'build'], {
+  deploy(outputs: StackOutputs): void {
+    const bucket = requireOutput(
+      this.platform,
+      outputs,
+      'PatchDbAppBucketName'
+    );
+    const distId = requireOutput(
+      this.platform,
+      outputs,
+      'PatchDbAppDistributionId'
+    );
+    assert.ok(
+      bucket.length > 0 && distId.length > 0,
+      'deploy: bucket and distId must be non-empty'
+    );
+
+    run(this.platform, 'bun', ['run', '--filter', 'patch-db-app', 'build'], {
       cwd: REPO_ROOT,
     });
     run(
+      this.platform,
       'aws',
       [
         's3',
@@ -32,6 +46,7 @@ export class PatchDbAppDeployable implements Deployable {
       }
     );
     run(
+      this.platform,
       'aws',
       [
         'cloudfront',
@@ -48,6 +63,6 @@ export class PatchDbAppDeployable implements Deployable {
       recursive: true,
       force: true,
     });
-    reportNotice('PatchDB app built and synced to S3.');
+    this.platform.notice('PatchDB app built and synced to S3.');
   }
 }

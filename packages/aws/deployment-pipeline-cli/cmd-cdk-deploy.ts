@@ -1,6 +1,6 @@
-import assert from 'node:assert/strict';
+import { assert } from '@gamezilla/shared/assert';
 import { BasePipelineCommand } from './base-command';
-import { reportNotice } from './ci-platform';
+import type { CiPlatform } from './ci-platform';
 import { AWS_PACKAGE_ROOT } from './paths';
 import { run } from './run-subprocess';
 
@@ -8,11 +8,16 @@ export class CdkDeployCommand extends BasePipelineCommand {
   readonly id = 'cdk-deploy';
   readonly summary = 'bun install + cdk bootstrap + deploy (aws/)';
 
+  constructor(platform: CiPlatform) {
+    super(platform);
+  }
+
   execute(argv: string[]): void {
-    assert(Array.isArray(argv));
-    assert(AWS_PACKAGE_ROOT.length > 0);
-    run('bunx', ['cdk', 'bootstrap'], { cwd: AWS_PACKAGE_ROOT });
+    assert.array(argv, 'execute: argv must be an array');
+    assert.ok(AWS_PACKAGE_ROOT.length > 0, 'execute: AWS_PACKAGE_ROOT must be non-empty');
+    run(this.platform, 'bunx', ['cdk', 'bootstrap'], { cwd: AWS_PACKAGE_ROOT });
     run(
+      this.platform,
       'bunx',
       [
         'cdk',
@@ -28,6 +33,6 @@ export class CdkDeployCommand extends BasePipelineCommand {
       ],
       { cwd: AWS_PACKAGE_ROOT }
     );
-    reportNotice('CDK deploy finished.');
+    this.platform.notice('CDK deploy finished.');
   }
 }

@@ -152,8 +152,7 @@ function buildWhereClauseForColumn(
       return { sql: `NOT (${inner.sql})`, params: inner.params };
     }
     default: {
-      assert.never(clause, 'Invalid where clause type', { clause });
-      throw new Error('Invalid where clause type');
+      assert.fail('Invalid where clause type', { clause });
     }
   }
 }

@@ -4,17 +4,17 @@ import {
   DescribeStacksCommand,
 } from '@aws-sdk/client-cloudformation';
 import { GetCallerIdentityCommand, STSClient } from '@aws-sdk/client-sts';
-import assert from 'node:assert/strict';
-import { PROJECT_CONFIG } from '../project-config';
+import { assert } from '@gamezilla/shared/assert';
 import { cloudFormation, requireAwsRegion } from './aws';
 import { BasePipelineCommand } from './base-command';
+import type { CiPlatform } from './ci-platform';
 import {
   DEPLOYABLE_STATUSES,
   STACK_NAME,
   describeStack,
   reasonIsSet,
 } from './cfn-shared';
-import { getCiPlatform, reportError, reportNotice } from './ci-platform';
+import { PROJECT_CONFIG } from '../project-config';
 import { REPO_ROOT } from './paths';
 import { run } from './run-subprocess';
 
@@ -27,21 +27,23 @@ export class PreflightCommand extends BasePipelineCommand {
   readonly summary =
     'Validate AWS credentials (STS), gate stack, Docker build — one shot';
 
+  constructor(platform: CiPlatform) {
+    super(platform);
+  }
+
   async execute(argv: string[]): Promise<void> {
-    assert(Array.isArray(argv));
+    assert.array(argv, 'execute: argv must be an array');
 
     const region = this.requireAwsRegionValid();
     await this.assertCallerIdentity(region);
-
     await this.gateStack();
-
     this.assertDockerBuild();
   }
 
   private requireAwsRegionValid(): string {
-    const region = requireAwsRegion().trim();
+    const region = requireAwsRegion(this.platform).trim();
     if (!isValidAwsRegionFormat(region)) {
-      reportError('AWS_REGION invalid (expected format like "us-east-1")');
+      this.platform.error('AWS_REGION invalid (expected format like "us-east-1")');
       assert.fail(
         'preflight: AWS_REGION must match a valid region pattern — crash, do not continue'
       );
@@ -50,10 +52,10 @@ export class PreflightCommand extends BasePipelineCommand {
   }
 
   private async assertCallerIdentity(region: string): Promise<void> {
-    assert(region.length > 0);
+    assert.ok(region.length > 0, 'assertCallerIdentity: region must be non-empty');
     const sts = new STSClient({ region });
     const id = await sts.send(new GetCallerIdentityCommand({}));
-    assert(id !== undefined && id !== null && typeof id === 'object');
+    assert.defined(id, 'assertCallerIdentity: STS response must be defined');
     console.log(
       JSON.stringify(
         { Account: id.Account, Arn: id.Arn, UserId: id.UserId },
@@ -62,20 +64,20 @@ export class PreflightCommand extends BasePipelineCommand {
       )
     );
     if (id.Account === undefined || id.Account === '') {
-      reportError('STS Account missing');
+      this.platform.error('STS Account missing');
       assert.fail('preflight: STS Account must be present');
     }
     if (id.Arn === undefined || id.Arn === '') {
-      reportError('STS Arn missing');
+      this.platform.error('STS Arn missing');
       assert.fail('preflight: STS Arn must be present');
     }
-    assert(id.Account.length > 0);
-    assert(id.Arn.length > 0);
+    assert.ok(id.Account.length > 0, 'preflight: Account must be non-empty');
+    assert.ok(id.Arn.length > 0, 'preflight: Arn must be non-empty');
 
-    if (getCiPlatform().enforceDeployRole) {
+    if (this.platform.enforceDeployRole) {
       const expected = PROJECT_CONFIG.githubActionsRoleName;
       if (!id.Arn.includes(expected)) {
-        reportError(
+        this.platform.error(
           `Expected CI caller to assume role containing "${expected}", got ARN: ${id.Arn}`
         );
         assert.fail(
@@ -84,21 +86,19 @@ export class PreflightCommand extends BasePipelineCommand {
       }
     }
 
-    reportNotice(
+    this.platform.notice(
       `PREFLIGHT 1/3: caller ${id.Arn} account=${id.Account} region=${region}`
     );
   }
 
   private async gateStack(): Promise<void> {
-    const client = cloudFormation();
-    assert(client !== undefined && client !== null);
+    const client = cloudFormation(this.platform);
+    assert.defined(client, 'gateStack: CloudFormation client must be defined');
 
     const d = await describeStack(client);
 
     if (d === null) {
-      reportNotice(
-        `PREFLIGHT 2/3 (stack): ${STACK_NAME} absent — CDK will CREATE.`
-      );
+      this.platform.notice(`PREFLIGHT 2/3 (stack): ${STACK_NAME} absent — CDK will CREATE.`);
       return;
     }
 
@@ -125,9 +125,9 @@ export class PreflightCommand extends BasePipelineCommand {
       );
     }
 
-    assert(DEPLOYABLE_STATUSES.has(status));
-    assert(!reasonIsSet(reason));
-    reportNotice(
+    assert.ok(DEPLOYABLE_STATUSES.has(status), 'gateStack: status must be deployable');
+    assert.ok(!reasonIsSet(reason), 'gateStack: reason must not be set');
+    this.platform.notice(
       `PREFLIGHT 2/3 (stack): ${STACK_NAME} status=${status} — safe for CDK deploy.`
     );
   }
@@ -136,21 +136,21 @@ export class PreflightCommand extends BasePipelineCommand {
     client: CloudFormationClient,
     message: string
   ): Promise<never> {
-    assert(client !== undefined && client !== null);
-    assert(typeof message === 'string' && message.length > 0);
+    assert.defined(client, 'failWithEvents: client is required');
+    assert.ok(typeof message === 'string' && message.length > 0, 'failWithEvents: message must be non-empty');
 
-    reportError(message);
+    this.platform.error(message);
 
     try {
       const events = await client.send(
         new DescribeStackEventsCommand({ StackName: STACK_NAME })
       );
       const items = events.StackEvents ?? [];
-      assert(Array.isArray(items));
+      assert.array(items, 'failWithEvents: StackEvents must be an array');
       console.error(`--- ${STACK_NAME} recent events (${items.length}) ---`);
       console.error(JSON.stringify(items.slice(0, 25), null, 2));
     } catch (evtErr: unknown) {
-      reportError(
+      this.platform.error(
         `Additionally failed to fetch stack events: ${String(evtErr instanceof Error ? evtErr.message : evtErr)}`
       );
     }
@@ -165,7 +165,7 @@ export class PreflightCommand extends BasePipelineCommand {
         console.error(JSON.stringify(stack, null, 2));
       }
     } catch (descErr: unknown) {
-      reportError(
+      this.platform.error(
         `Additionally failed to describe stack: ${String(descErr instanceof Error ? descErr.message : descErr)}`
       );
     }
@@ -174,7 +174,7 @@ export class PreflightCommand extends BasePipelineCommand {
   }
 
   private assertDockerBuild(): void {
-    run('docker', ['build', '--quiet', '.'], { cwd: REPO_ROOT });
-    reportNotice('PREFLIGHT 3/3 (docker): Docker image builds successfully.');
+    run(this.platform, 'docker', ['build', '--quiet', '.'], { cwd: REPO_ROOT });
+    this.platform.notice('PREFLIGHT 3/3 (docker): Docker image builds successfully.');
   }
 }

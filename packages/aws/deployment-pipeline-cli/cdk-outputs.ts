@@ -1,46 +1,64 @@
-import assert from 'node:assert/strict';
+import { assert } from '@gamezilla/shared/assert';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { STACK_NAME } from './cfn-shared';
-import { reportError } from './ci-platform';
+import { CiPlatform } from './ci-platform';
 import { AWS_PACKAGE_ROOT } from './paths';
 
 export type StackOutputs = Readonly<Record<string, string | undefined>>;
 
-export function readCdkOutputs(file?: string): StackOutputs {
+export function readCdkOutputs(
+  platform: CiPlatform,
+  file?: string
+): StackOutputs {
   const path = file ?? join(AWS_PACKAGE_ROOT, 'cdk-outputs.json');
-  assert(typeof path === 'string' && path.length > 0);
+  assert.ok(
+    typeof path === 'string' && path.length > 0,
+    'readCdkOutputs: path must be non-empty'
+  );
 
   let raw: unknown;
   try {
     raw = JSON.parse(readFileSync(path, 'utf8'));
   } catch (e) {
-    reportError(`Failed to read ${path}: ${String(e)}`);
+    platform.error(`Failed to read ${path}: ${String(e)}`);
     assert.fail(`readCdkOutputs: cannot parse ${path}`);
   }
 
   if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) {
-    reportError('Invalid CDK outputs JSON (expected object)');
+    platform.error('Invalid CDK outputs JSON (expected object)');
     assert.fail('readCdkOutputs: must be a JSON object');
   }
 
   const doc = raw as Record<string, Record<string, string> | undefined>;
   const stack = doc[STACK_NAME];
   if (stack === undefined || typeof stack !== 'object') {
-    reportError(`Missing "${STACK_NAME}" in CDK outputs`);
+    platform.error(`Missing "${STACK_NAME}" in CDK outputs`);
     assert.fail(`readCdkOutputs: "${STACK_NAME}" key missing`);
   }
 
   return stack;
 }
 
-export function requireOutput(outputs: StackOutputs, key: string): string {
-  assert(typeof key === 'string' && key.length > 0);
+export function requireOutput(
+  platform: CiPlatform,
+  outputs: StackOutputs,
+  key: string
+): string {
+  assert.ok(
+    typeof key === 'string' && key.length > 0,
+    'requireOutput: key must be non-empty'
+  );
   const v = outputs[key];
   if (v === undefined || v === '' || v === 'null') {
-    reportError(`CDK output "${key}" missing or empty`);
+    platform.error(
+      `CDK output "${key}" missing or empty (invariant: must be set after cdk deploy)`
+    );
     assert.fail(`requireOutput: "${key}" must be non-empty`);
   }
-  assert(typeof v === 'string' && v.length > 0);
+  assert.ok(
+    typeof v === 'string' && v.length > 0,
+    `requireOutput: "${key}" must be a non-empty string`
+  );
   return v;
 }

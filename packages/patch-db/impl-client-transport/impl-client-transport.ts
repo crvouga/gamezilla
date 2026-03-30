@@ -25,7 +25,7 @@ export class PatchDbImplClientTransport implements PatchesDb {
   async update(
     _updates: { patchId: string; attributes: Record<string, unknown> }[]
   ): Promise<void> {
-    assert.unreachable(
+    assert.fail(
       'attribute updates are local-only for sync; remote does not need'
     );
   }

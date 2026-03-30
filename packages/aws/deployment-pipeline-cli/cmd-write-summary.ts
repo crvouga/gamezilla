@@ -1,11 +1,11 @@
-import assert from 'node:assert/strict';
+import { assert } from '@gamezilla/shared/assert';
 import { BasePipelineCommand } from './base-command';
 import {
   readCdkOutputs,
   requireOutput,
   type StackOutputs,
 } from './cdk-outputs';
-import { getCiPlatform, reportNotice } from './ci-platform';
+import type { CiPlatform } from './ci-platform';
 
 const SUMMARY_SERVICES = [
   { label: 'Web App', outputKey: 'WebAppUrl' },
@@ -25,15 +25,19 @@ export class WriteSummaryCommand extends BasePipelineCommand {
   readonly id = 'write-summary';
   readonly summary = 'Read CDK outputs → write CI job summary';
 
+  constructor(platform: CiPlatform) {
+    super(platform);
+  }
+
   execute(argv: string[]): void {
-    assert(Array.isArray(argv));
-    const outputs = readCdkOutputs();
+    assert.array(argv, 'execute: argv must be an array');
+    const outputs = readCdkOutputs(this.platform);
     this.writeSummary(outputs);
   }
 
   private writeSummary(outputs: StackOutputs): void {
     const serviceRows = SUMMARY_SERVICES.map(({ label, outputKey }) => {
-      const url = requireOutput(outputs, outputKey);
+      const url = requireOutput(this.platform, outputs, outputKey);
       return `| **${label}** | ${url} |`;
     }).join('\n');
 
@@ -62,7 +66,7 @@ ${serviceRows}
 ${nsBlocks}
 `;
 
-    getCiPlatform().appendJobSummary(`${body}\n${TLS_NOTE}\n`);
-    reportNotice('Summary written.');
+    this.platform.appendJobSummary(`${body}\n${TLS_NOTE}\n`);
+    this.platform.notice('Summary written.');
   }
 }

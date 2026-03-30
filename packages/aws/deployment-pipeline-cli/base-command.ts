@@ -1,4 +1,5 @@
-import assert from 'node:assert/strict';
+import { assert } from '@gamezilla/shared/assert';
+import { CiPlatform } from './ci-platform';
 
 export interface PipelineCommand {
   readonly id: string;
@@ -11,10 +12,15 @@ export abstract class BasePipelineCommand implements PipelineCommand {
   abstract readonly id: string;
   abstract readonly summary: string;
 
+  constructor(protected readonly platform: CiPlatform) {}
+
   match(argv: string[]): boolean {
-    assert(Array.isArray(argv));
-    assert(typeof this.id === 'string' && this.id.length > 0);
-    assert(
+    assert.array(argv, 'match: argv must be an array');
+    assert.ok(
+      typeof this.id === 'string' && this.id.length > 0,
+      'match: id must be non-empty'
+    );
+    assert.ok(
       typeof this.summary === 'string' && this.summary.length > 0,
       'PipelineCommand.summary must be a non-empty string'
     );

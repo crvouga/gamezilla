@@ -75,10 +75,7 @@ export class Assert {
    * @throws ValidationError if in validation mode.
    * @throws Error (crashes) if in crash mode.
    */
-  unreachable(
-    message: string,
-    context?: Record<string, unknown>
-  ): asserts message is never {
+  fail(message: string, context?: Record<string, unknown>): never {
     this.ok(false, message, context);
   }
 
@@ -175,21 +172,6 @@ export class Assert {
     message: string
   ): asserts value is T {
     this.ok(value instanceof ctor, message, { value, ctor: ctor.name });
-  }
-
-  /**
-   * Unreachable-arm assertion: narrows `never` after exhaustive checks.
-   *
-   * @param value - Value that should be impossible at this point.
-   * @param message - Message when the assertion fails.
-   * @param context - Optional extra context (merged with `value`).
-   */
-  never(
-    value: never,
-    message: string,
-    context?: Record<string, unknown>
-  ): asserts value is never {
-    this.ok(false, message, { ...context, value });
   }
 
   /**

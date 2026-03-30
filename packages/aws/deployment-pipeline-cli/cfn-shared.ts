@@ -2,12 +2,12 @@ import {
   DescribeStacksCommand,
   type CloudFormationClient,
 } from '@aws-sdk/client-cloudformation';
-import assert from 'node:assert/strict';
+import { assert } from '@gamezilla/shared/assert';
 import { PROJECT_CONFIG } from '../project-config';
 
 export const STACK_NAME = PROJECT_CONFIG.stack.name;
 
-assert(STACK_NAME.length > 0);
+assert.ok(STACK_NAME.length > 0, 'STACK_NAME must be non-empty');
 
 export const DEPLOYABLE_STATUSES = new Set([
   'UPDATE_COMPLETE',
@@ -18,7 +18,7 @@ export const DEPLOYABLE_STATUSES = new Set([
   'IMPORT_ROLLBACK_COMPLETE',
 ]);
 
-assert(DEPLOYABLE_STATUSES.size > 0);
+assert.ok(DEPLOYABLE_STATUSES.size > 0, 'DEPLOYABLE_STATUSES must not be empty');
 
 function isStackMissingError(e: unknown): boolean {
   if (typeof e !== 'object' || e === null || !('name' in e)) return false;
@@ -34,7 +34,7 @@ function isStackMissingError(e: unknown): boolean {
 export async function describeStack(
   client: CloudFormationClient
 ): Promise<{ status?: string; reason?: string } | null> {
-  assert(client !== undefined && client !== null);
+  assert.defined(client, 'describeStack: client is required');
   try {
     const out = await client.send(
       new DescribeStacksCommand({ StackName: STACK_NAME })
@@ -43,7 +43,7 @@ export async function describeStack(
     if (s === undefined) {
       return null;
     }
-    assert(out.Stacks !== undefined && out.Stacks.length > 0);
+    assert.ok(out.Stacks !== undefined && out.Stacks.length > 0, 'describeStack: expected at least one stack');
     const row: { status?: string; reason?: string } = {};
     if (s.StackStatus !== undefined) row.status = s.StackStatus;
     if (s.StackStatusReason !== undefined) row.reason = s.StackStatusReason;

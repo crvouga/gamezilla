@@ -1,16 +1,16 @@
-import assert from 'node:assert/strict';
+import { assert } from '@gamezilla/shared/assert';
 import type { CiPlatform } from './ci-platform';
 
 export class LocalPlatform implements CiPlatform {
   readonly enforceDeployRole = false;
 
   error(message: string): void {
-    assert(typeof message === 'string' && message.length > 0);
+    assert.ok(typeof message === 'string' && message.length > 0, 'error: message must be non-empty');
     console.error(`[ERROR] ${message}`);
   }
 
   notice(message: string): void {
-    assert(typeof message === 'string' && message.length > 0);
+    assert.ok(typeof message === 'string' && message.length > 0, 'notice: message must be non-empty');
     console.log(`[NOTICE] ${message}`);
   }
 
