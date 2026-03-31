@@ -12,11 +12,18 @@ const DNS_DOMAINS = [
   { domain: 'patchdb.dev', outputKey: 'PatchDbNameservers' },
 ] as const;
 
-const HTTP_ENDPOINTS = [
+type HttpEndpointCheck = {
+  readonly label: string;
+  readonly outputKey: string;
+  /** If set, GET this path on the base URL (App Runner sync API has no document at `/`). */
+  readonly probePath?: string;
+};
+
+const HTTP_ENDPOINTS: readonly HttpEndpointCheck[] = [
   { label: 'WebApp', outputKey: 'WebAppUrl' },
   { label: 'PatchDbApp', outputKey: 'PatchDbAppUrl' },
-  { label: 'SyncServer', outputKey: 'SyncServerUrl' },
-] as const;
+  { label: 'SyncServer', outputKey: 'SyncServerUrl', probePath: '/health' },
+];
 
 const HTTP_TIMEOUT_MS = 30_000;
 
@@ -38,6 +45,53 @@ const normalizeUrlForHttpCheck = assert.fn({
   },
 });
 
+function probeUrl(rawUrl: string, probePath?: string): string {
+  const base = normalizeUrlForHttpCheck(rawUrl);
+  if (probePath === undefined || probePath === '') {
+    return base;
+  }
+  const path = probePath.startsWith('/') ? probePath : `/${probePath}`;
+  return new URL(path, base.endsWith('/') ? base : `${base}/`).href;
+}
+
+async function checkHttpEndpointForPostDeploy(
+  platform: CiPlatform,
+  opts: {
+    step: number;
+    total: number;
+    label: string;
+    rawUrl: string;
+    probePath?: string;
+  }
+): Promise<void> {
+  const url = probeUrl(opts.rawUrl, opts.probePath);
+
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: 'GET',
+      redirect: 'follow',
+      signal: AbortSignal.timeout(HTTP_TIMEOUT_MS),
+    });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    platform.error(`${opts.label} ${url} — fetch failed: ${msg}`);
+    assert.fail(`post-deploy: ${opts.label} unreachable at ${url}`);
+  }
+
+  if (!response.ok) {
+    platform.error(
+      `${opts.label} ${url} — HTTP ${response.status} ${response.statusText}`
+    );
+    assert.fail(`post-deploy: ${opts.label} returned HTTP ${response.status}`);
+  }
+
+  assert.ok(response.ok, 'checkHttp: response must be ok');
+  platform.notice(
+    `POST-DEPLOY ${opts.step}/${opts.total}: ${opts.label} ${url} — HTTP ${response.status} OK.`
+  );
+}
+
 /** HTTP(S) smoke tests only (no DNS NS checks) — used by setup-cli `deploy` during bootstrap. */
 export async function runHttpSmokeTestsOnly(
   platform: CiPlatform,
@@ -47,13 +101,14 @@ export async function runHttpSmokeTestsOnly(
   const total = HTTP_ENDPOINTS.length;
   assert.ok(total > 0, 'runHttpSmokeTestsOnly: must have endpoints');
 
-  for (const { label, outputKey } of HTTP_ENDPOINTS) {
+  for (const ep of HTTP_ENDPOINTS) {
     step++;
-    await this.checkHttpEndpoint({
+    await checkHttpEndpointForPostDeploy(platform, {
       step,
-      total: HTTP_ENDPOINTS.length,
-      label,
-      rawUrl: requireOutput(platform, outputs, outputKey),
+      total,
+      label: ep.label,
+      rawUrl: requireOutput(platform, outputs, ep.outputKey),
+      probePath: ep.probePath,
     });
   }
   assert.equals(step, total, 'runHttpSmokeTestsOnly: step count');
@@ -82,13 +137,14 @@ export class PostDeployCommand extends BasePipelineCommand {
       this.checkDns(step, total, domain, outputs, outputKey);
     }
 
-    for (const { label, outputKey } of HTTP_ENDPOINTS) {
+    for (const ep of HTTP_ENDPOINTS) {
       step++;
-      await this.checkHttpEndpoint({
+      await checkHttpEndpointForPostDeploy(this.platform, {
         step,
-        total: HTTP_ENDPOINTS.length,
-        label,
-        rawUrl: requireOutput(this.platform, outputs, outputKey),
+        total,
+        label: ep.label,
+        rawUrl: requireOutput(this.platform, outputs, ep.outputKey),
+        probePath: ep.probePath,
       });
     }
 
@@ -169,44 +225,6 @@ export class PostDeployCommand extends BasePipelineCommand {
     );
     this.platform.notice(
       `POST-DEPLOY ${step}/${total}: ${domain} NS — ${actual.size} records match Route53.`
-    );
-  }
-  private async checkHttpEndpoint({
-    step,
-    total,
-    label,
-    rawUrl,
-  }: {
-    step: number;
-    total: number;
-    label: string;
-    rawUrl: string;
-  }): Promise<void> {
-    const url = normalizeUrlForHttpCheck(rawUrl);
-
-    let response: Response;
-    try {
-      response = await fetch(url, {
-        method: 'GET',
-        redirect: 'follow',
-        signal: AbortSignal.timeout(HTTP_TIMEOUT_MS),
-      });
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e);
-      this.platform.error(`${label} ${url} — fetch failed: ${msg}`);
-      assert.fail(`post-deploy: ${label} unreachable at ${url}`);
-    }
-
-    if (!response.ok) {
-      this.platform.error(
-        `${label} ${url} — HTTP ${response.status} ${response.statusText}`
-      );
-      assert.fail(`post-deploy: ${label} returned HTTP ${response.status}`);
-    }
-
-    assert.ok(response.ok, 'checkHttp: response must be ok');
-    this.platform.notice(
-      `POST-DEPLOY ${step}/${total}: ${label} ${url} — HTTP ${response.status} OK.`
     );
   }
 }
