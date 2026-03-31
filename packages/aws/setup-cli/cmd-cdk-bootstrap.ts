@@ -1,4 +1,5 @@
 import { GetCallerIdentityCommand, STSClient } from '@aws-sdk/client-sts';
+import { CDK_BOOTSTRAP_CLOUDFORMATION_EXECUTION_POLICY } from '../deployment-pipeline-cli/cdk-bootstrap-flags';
 import { BaseSetupCommand } from './base-command';
 import { PROJECT_CONFIG } from '../project-config';
 import { AWS_PACKAGE_ROOT, runLocal } from './shared';
@@ -19,8 +20,16 @@ export class CdkBootstrapCommand extends BaseSetupCommand {
       throw new Error('STS GetCallerIdentity: missing account');
     }
     console.log(`CDK bootstrap aws://${account}/${region} …`);
-    runLocal('bunx', ['cdk', 'bootstrap', `aws://${account}/${region}`], {
-      cwd: AWS_PACKAGE_ROOT,
-    });
+    runLocal(
+      'bunx',
+      [
+        'cdk',
+        'bootstrap',
+        '--cloudformation-execution-policies',
+        CDK_BOOTSTRAP_CLOUDFORMATION_EXECUTION_POLICY,
+        `aws://${account}/${region}`,
+      ],
+      { cwd: AWS_PACKAGE_ROOT }
+    );
   }
 }

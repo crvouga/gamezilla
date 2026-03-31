@@ -42,6 +42,7 @@ function withCors(res: Response): Response {
 }
 
 const server = Bun.serve({
+  hostname: '0.0.0.0',
   port: Number(PORT),
   error(error) {
     console.error('[sync-server] Unhandled error:', error);

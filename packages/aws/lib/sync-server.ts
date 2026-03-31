@@ -15,6 +15,8 @@ export class SyncServer extends Construct {
     const dockerAsset = new ecr_assets.DockerImageAsset(this, 'Image', {
       directory: REPO_ROOT,
       file: 'Dockerfile',
+      // App Runner only runs linux/amd64; default Docker on Apple Silicon is arm64 → failed health checks.
+      platform: ecr_assets.Platform.LINUX_AMD64,
       exclude: [
         'packages/aws/**',
         'packages/patch-db-app/**',
@@ -64,7 +66,8 @@ export class SyncServer extends Construct {
         interval: 10,
         timeout: 5,
         healthyThreshold: 1,
-        unhealthyThreshold: 5,
+        /** Bun + SQLite migrate cold start can exceed 5 quick failures on first deploy. */
+        unhealthyThreshold: 8,
       },
     });
     this.service.node.addDependency(dockerAsset);

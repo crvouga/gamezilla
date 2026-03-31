@@ -3,6 +3,6 @@
     "PATCH_DB_SYNC_SERVER_URL": "http://localhost:5001/patch-db"
   },
   "prod": {
-    "PATCH_DB_SYNC_SERVER_URL": "https://sync-server-production-a17b.up.railway.app/patch-db"
+    "PATCH_DB_SYNC_SERVER_URL": "https://jd6kyb2g2a.us-east-1.awsapprunner.com/patch-db"
   }
 }
