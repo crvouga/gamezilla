@@ -4,9 +4,20 @@ import { PROJECT_CONFIG } from '../project-config';
 import { BaseSetupCommand } from './base-command';
 import { CUSTOM_HTTPS_HOSTS, SETUP_DNS_DOMAINS } from './dns-config';
 import { parseNameservers } from './ns-parse';
+import { statusRule, statusSym } from './status-symbols';
 import { AWS_PACKAGE_ROOT, runLocalCapture } from './shared';
 
 const ACM_REGION = 'us-east-1';
+
+function hr(): void {
+  console.log('');
+}
+
+function section(title: string): void {
+  hr();
+  console.log(`${'─'.repeat(3)} ${title} ${'─'.repeat(3)}`);
+  hr();
+}
 
 export class DomainsStatusCommand extends BaseSetupCommand {
   readonly id = 'domains-status';
@@ -28,17 +39,31 @@ export class DomainsStatusCommand extends BaseSetupCommand {
         >;
         stack = doc[PROJECT_CONFIG.stack.name];
       } catch {
-        console.log(`(could not parse ${outputsPath})`);
+        console.log(
+          statusRule(statusSym.warn, `Could not parse ${outputsPath}`)
+        );
       }
     } else {
-      console.log(`(no ${outputsPath} — some checks skipped)\n`);
+      console.log(
+        statusRule(
+          statusSym.warn,
+          `No ${outputsPath}`,
+          'some checks skipped — run deploy once to generate outputs'
+        )
+      );
     }
 
-    console.log('=== Route53 outputs vs public NS (dig) ===\n');
+    let nsOk = 0;
+    let nsFail = 0;
+    let nsSkip = 0;
+
+    section('NS delegation (Route53 stack vs public DNS)');
+
     for (const { domain, outputKey } of SETUP_DNS_DOMAINS) {
       const raw = stack?.[outputKey];
       if (raw !== undefined && raw !== '') {
-        console.log(`${outputKey} (${domain}): ${raw}`);
+        console.log(`${statusSym.bullet} ${domain} (${outputKey})`);
+        console.log(`    Stack NS: ${raw}`);
         const expected = parseNameservers(raw);
         const dig = runLocalCapture('dig', ['NS', domain, '+short']);
         const actual =
@@ -50,20 +75,36 @@ export class DomainsStatusCommand extends BaseSetupCommand {
           actual.size > 0 &&
           [...expected].every((n) => actual.has(n)) &&
           [...actual].every((n) => expected.has(n));
-        console.log(
-          `  dig NS ${domain}: ${match ? 'MATCH' : 'MISMATCH or incomplete'}`
-        );
-        if (!match) {
-          console.log(`    expected: ${[...expected].join(', ')}`);
-          console.log(`    actual:   ${[...actual].join(', ') || '(empty)'}`);
+        if (match) {
+          console.log(
+            `    ${statusRule(statusSym.ok, 'Public DNS matches stack — delegation looks correct')}`
+          );
+          nsOk++;
+        } else {
+          console.log(
+            `    ${statusRule(statusSym.fail, 'Mismatch — update registrar nameservers to Stack NS above')}`
+          );
+          console.log(
+            `    ${statusSym.bullet} Public NS: ${[...actual].join(', ') || '(empty / dig failed)'}`
+          );
+          nsFail++;
         }
       } else {
-        console.log(`${domain}: no ${outputKey} in outputs (custom domain off?)`);
+        console.log(
+          statusRule(
+            statusSym.skip,
+            `${domain}`,
+            `no ${outputKey} in outputs (custom domain not in this deploy?)`
+          )
+        );
+        nsSkip++;
       }
-      console.log('');
+      hr();
     }
 
-    console.log('=== ACM (us-east-1, CloudFront region) ===\n');
+    let acmLine = '';
+    section(`ACM certificates (${ACM_REGION})`);
+
     const list = runLocalCapture(
       'aws',
       [
@@ -76,6 +117,7 @@ export class DomainsStatusCommand extends BaseSetupCommand {
       ],
       { cwd: AWS_PACKAGE_ROOT }
     );
+    let acmOk = false;
     if (list.ok) {
       try {
         const doc = JSON.parse(list.stdout) as {
@@ -92,23 +134,49 @@ export class DomainsStatusCommand extends BaseSetupCommand {
               c.DomainName.includes('patchdb'))
         );
         if (interesting.length === 0) {
-          console.log('(no gamezilla/patchdb certs found in summary)');
+          console.log(
+            statusRule(
+              statusSym.warn,
+              'No gamezilla / patchdb certs in ACM list',
+              'normal until NS delegates and you run domains-finalize'
+            )
+          );
+          acmLine = 'none listed';
         } else {
+          acmOk = interesting.some((c) => c.Status === 'ISSUED');
           for (const c of interesting) {
-            console.log(
-              `  ${c.DomainName ?? '?'}  status=${c.Status ?? '?'}`
-            );
+            const st = c.Status ?? '?';
+            const mark =
+              st === 'ISSUED'
+                ? statusSym.ok
+                : st === 'PENDING_VALIDATION'
+                  ? statusSym.warn
+                  : statusSym.bullet;
+            console.log(`    ${mark} ${c.DomainName ?? '?'}  (${st})`);
           }
+          acmLine = `${interesting.length} cert(s) listed${acmOk ? ', ISSUED present' : ', none ISSUED yet'}`;
         }
       } catch {
+        console.log(statusRule(statusSym.fail, 'Parse error', 'raw output below'));
         console.log(list.stdout.slice(0, 500));
+        acmLine = 'parse error';
       }
     } else {
-      console.log(`aws acm list-certificates failed: ${list.stderr}`);
+      console.log(
+        statusRule(
+          statusSym.fail,
+          'aws acm list-certificates failed',
+          list.stderr.trim()
+        )
+      );
+      acmLine = 'error';
     }
-    console.log('');
 
-    console.log('=== CloudFront alternate domain names ===\n');
+    let cfAliasesOk = 0;
+    let cfAliasesWarn = 0;
+
+    section('CloudFront alternate domain names');
+
     const webId = stack?.WebDistributionId;
     const patchId = stack?.PatchDbAppDistributionId;
     for (const [label, id] of [
@@ -116,7 +184,10 @@ export class DomainsStatusCommand extends BaseSetupCommand {
       ['PatchDbApp', patchId],
     ] as const) {
       if (id === undefined || id === '') {
-        console.log(`${label}: (no distribution id in outputs)\n`);
+        console.log(
+          statusRule(statusSym.skip, label, 'no distribution id in outputs')
+        );
+        hr();
         continue;
       }
       const g = runLocalCapture(
@@ -134,14 +205,46 @@ export class DomainsStatusCommand extends BaseSetupCommand {
         { cwd: AWS_PACKAGE_ROOT }
       );
       if (g.ok) {
-        console.log(`${label} (${id}): ${g.stdout.trim()}`);
+        try {
+          const cfg = JSON.parse(g.stdout) as {
+            Aliases?: { Quantity?: number; Items?: string[] };
+            Enabled?: boolean;
+          };
+          const q = cfg.Aliases?.Quantity ?? 0;
+          const items = cfg.Aliases?.Items ?? [];
+          const en = cfg.Enabled === true;
+          if (q > 0 && items.length > 0) {
+            console.log(
+              `${statusSym.ok} ${label} (${id}) — ${q} alias(es): ${items.join(', ')}`
+            );
+            cfAliasesOk++;
+          } else {
+            console.log(
+              `${statusSym.warn} ${label} (${id}) — no custom aliases yet (typical before domains-finalize)`
+            );
+            cfAliasesWarn++;
+          }
+          console.log(`    ${statusSym.bullet} Enabled: ${en}`);
+        } catch {
+          console.log(`${statusSym.bullet} ${label} (${id}): ${g.stdout.trim()}`);
+        }
       } else {
-        console.log(`${label}: get-distribution failed: ${g.stderr}`);
+        console.log(
+          statusRule(
+            statusSym.fail,
+            `${label} get-distribution`,
+            g.stderr.trim()
+          )
+        );
       }
-      console.log('');
+      hr();
     }
 
-    console.log('=== HTTPS reachability (custom hosts) ===\n');
+    let httpsOk = 0;
+    let httpsFail = 0;
+
+    section('HTTPS (custom hostnames)');
+
     for (const url of CUSTOM_HTTPS_HOSTS) {
       const curl = runLocalCapture('curl', [
         '-sS',
@@ -154,10 +257,38 @@ export class DomainsStatusCommand extends BaseSetupCommand {
         url,
       ]);
       if (curl.ok) {
-        console.log(`  ${url} → HTTP ${curl.stdout.trim()}`);
+        const code = curl.stdout.trim();
+        const n = parseInt(code, 10);
+        if (n >= 200 && n < 400) {
+          console.log(statusRule(statusSym.ok, url, `HTTP ${code}`));
+          httpsOk++;
+        } else {
+          console.log(
+            statusRule(statusSym.warn, url, `HTTP ${code} (unexpected for probe)`)
+          );
+          httpsFail++;
+        }
       } else {
-        console.log(`  ${url} → failed (${curl.stderr.trim() || curl.code})`);
+        const err = curl.stderr.trim() || `exit ${curl.code}`;
+        console.log(statusRule(statusSym.fail, url, err));
+        httpsFail++;
       }
     }
+
+    hr();
+    console.log(`${'─'.repeat(3)} Summary ${'─'.repeat(3)}`);
+    console.log(
+      `  ${statusSym.ok} NS delegation ok: ${nsOk}   ${statusSym.fail} mismatch / incomplete: ${nsFail}   ${statusSym.skip} skipped: ${nsSkip}`
+    );
+    console.log(
+      `  ACM (${ACM_REGION}): ${acmOk ? `${statusSym.ok} at least one ISSUED` : `${statusSym.warn} ${acmLine}`}`
+    );
+    console.log(
+      `  CloudFront aliases: ${statusSym.ok} with aliases: ${cfAliasesOk}   ${statusSym.warn} none yet: ${cfAliasesWarn}`
+    );
+    console.log(
+      `  HTTPS probes: ${statusSym.ok} ok: ${httpsOk}   ${statusSym.fail} failed: ${httpsFail}`
+    );
+    hr();
   }
 }

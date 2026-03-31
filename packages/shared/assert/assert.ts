@@ -202,6 +202,17 @@ export class Assert {
   }
 
   /**
+   * Asserts that `value` is a non-empty string.
+   *
+   * @param value - Value to check.
+   * @param message - Message when the assertion fails.
+   */
+  nonEmptyString(value: unknown, message: string): asserts value is string {
+    this.string(value, message);
+    this.ok(value.length > 0, message, { value });
+  }
+
+  /**
    * Asserts that `value` is a finite number (not NaN, not ±Infinity).
    *
    * @param value - Value to check.

@@ -45,10 +45,7 @@ export function requireOutput(
   outputs: StackOutputs,
   key: string
 ): string {
-  assert.ok(
-    typeof key === 'string' && key.length > 0,
-    'requireOutput: key must be non-empty'
-  );
+  assert.nonEmptyString(key, 'requireOutput: key must be non-empty');
   const v = outputs[key];
   if (v === undefined || v === '' || v === 'null') {
     platform.error(
