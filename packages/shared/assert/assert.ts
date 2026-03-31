@@ -305,4 +305,37 @@ export class Assert {
       fn(value);
     }
   }
+
+  fn<TFunc extends (...args: any) => any>(
+    checks: {
+      fn: TFunc;
+      pre?: (...args: Parameters<TFunc>) => void;
+      post?: (returnValue: ReturnType<TFunc>) => void;
+    },
+    message?: string,
+    context?: Record<string, unknown>
+  ): (...args: Parameters<TFunc>) => ReturnType<TFunc> {
+    return (...args: Parameters<TFunc>) => {
+      if (checks.pre) {
+        this.notThrows(
+          () => checks.pre?.(...args),
+          message ?? 'Pre-check failed',
+          context
+        );
+      }
+      try {
+        const returnValue = checks.fn(...args);
+        if (checks.post) {
+          this.notThrows(
+            () => checks.post?.(returnValue),
+            message ?? 'Post-check failed',
+            context
+          );
+        }
+        return returnValue;
+      } catch (error) {
+        this.ok(false, message ?? 'Function failed', { ...context, error });
+      }
+    };
+  }
 }

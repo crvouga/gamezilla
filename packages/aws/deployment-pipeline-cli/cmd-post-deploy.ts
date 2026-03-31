@@ -20,6 +20,24 @@ const HTTP_ENDPOINTS = [
 
 const HTTP_TIMEOUT_MS = 30_000;
 
+/** App Runner outputs are host-only; fetch() needs an absolute URL. */
+const normalizeUrlForHttpCheck = assert.fn({
+  fn(raw: string) {
+    const t = raw.trim();
+    return /^https?:\/\//.test(t) ? t : `https://${t}`;
+  },
+  pre(raw) {
+    assert.string(raw, 'normalizeUrlForHttpCheck: raw');
+    const t = raw.trim();
+    assert.ok(t.length > 0, 'URL must be non-empty');
+  },
+  post(returnValue) {
+    assert.string(returnValue, 'normalizeUrlForHttpCheck: returnValue');
+    assert.ok(returnValue.length > 0, 'URL must be non-empty');
+    assert.ok(/^https?:\/\//.test(returnValue), 'URL must be http(s)://');
+  },
+});
+
 /** HTTP(S) smoke tests only (no DNS NS checks) — used by setup-cli `deploy` during bootstrap. */
 export async function runHttpSmokeTestsOnly(
   platform: CiPlatform,
@@ -31,13 +49,12 @@ export async function runHttpSmokeTestsOnly(
 
   for (const { label, outputKey } of HTTP_ENDPOINTS) {
     step++;
-    await checkHttpEndpoint(
-      platform,
+    await this.checkHttpEndpoint({
       step,
-      total,
+      total: HTTP_ENDPOINTS.length,
       label,
-      requireOutput(platform, outputs, outputKey)
-    );
+      rawUrl: requireOutput(platform, outputs, outputKey),
+    });
   }
   assert.equals(step, total, 'runHttpSmokeTestsOnly: step count');
   platform.notice(`HTTP smoke: all ${total} endpoint checks passed.`);
@@ -67,13 +84,12 @@ export class PostDeployCommand extends BasePipelineCommand {
 
     for (const { label, outputKey } of HTTP_ENDPOINTS) {
       step++;
-      await checkHttpEndpoint(
-        this.platform,
+      await this.checkHttpEndpoint({
         step,
-        total,
+        total: HTTP_ENDPOINTS.length,
         label,
-        requireOutput(this.platform, outputs, outputKey)
-      );
+        rawUrl: requireOutput(this.platform, outputs, outputKey),
+      });
     }
 
     assert.equals(step, total, 'execute: step count must match total');
@@ -110,11 +126,17 @@ export class PostDeployCommand extends BasePipelineCommand {
 
     if (result.exitCode !== 0) {
       const stderr = result.stderr.toString().trim();
-      this.platform.error(`dig NS ${domain} failed (exit ${result.exitCode}): ${stderr}`);
+      this.platform.error(
+        `dig NS ${domain} failed (exit ${result.exitCode}): ${stderr}`
+      );
       assert.fail(`post-deploy: dig NS ${domain} failed`);
     }
 
-    assert.equals(result.exitCode, 0, `checkDns: dig must exit 0 for ${domain}`);
+    assert.equals(
+      result.exitCode,
+      0,
+      `checkDns: dig must exit 0 for ${domain}`
+    );
     const actual = parseNameservers(result.stdout.toString());
 
     if (actual.size === 0) {
@@ -131,55 +153,62 @@ export class PostDeployCommand extends BasePipelineCommand {
       const parts: string[] = [];
       if (missing.length > 0) parts.push(`missing=[${missing.join(', ')}]`);
       if (extra.length > 0) parts.push(`unexpected=[${extra.join(', ')}]`);
-      assert.ok(parts.length > 0, 'checkDns: parts must be non-empty on mismatch');
+      assert.ok(
+        parts.length > 0,
+        'checkDns: parts must be non-empty on mismatch'
+      );
       this.platform.error(
         `${domain} NS mismatch: ${parts.join('; ')}  expected=[${[...expected].join(', ')}]  actual=[${[...actual].join(', ')}]`
       );
       assert.fail(`post-deploy: ${domain} NS records do not match Route53`);
     }
 
-    assert.ok(missing.length === 0 && extra.length === 0, 'checkDns: no NS mismatches');
+    assert.ok(
+      missing.length === 0 && extra.length === 0,
+      'checkDns: no NS mismatches'
+    );
     this.platform.notice(
       `POST-DEPLOY ${step}/${total}: ${domain} NS — ${actual.size} records match Route53.`
     );
   }
+  private async checkHttpEndpoint({
+    step,
+    total,
+    label,
+    rawUrl,
+  }: {
+    step: number;
+    total: number;
+    label: string;
+    rawUrl: string;
+  }): Promise<void> {
+    const url = normalizeUrlForHttpCheck(rawUrl);
 
-}
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        method: 'GET',
+        redirect: 'follow',
+        signal: AbortSignal.timeout(HTTP_TIMEOUT_MS),
+      });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      this.platform.error(`${label} ${url} — fetch failed: ${msg}`);
+      assert.fail(`post-deploy: ${label} unreachable at ${url}`);
+    }
 
-async function checkHttpEndpoint(
-  platform: CiPlatform,
-  step: number,
-  total: number,
-  label: string,
-  url: string
-): Promise<void> {
-  assert.ok(url.length > 0, 'checkHttp: url must be non-empty');
-  assert.ok(/^https?:\/\//.test(url), `${label} URL must be http(s)://`);
+    if (!response.ok) {
+      this.platform.error(
+        `${label} ${url} — HTTP ${response.status} ${response.statusText}`
+      );
+      assert.fail(`post-deploy: ${label} returned HTTP ${response.status}`);
+    }
 
-  let response: Response;
-  try {
-    response = await fetch(url, {
-      method: 'GET',
-      redirect: 'follow',
-      signal: AbortSignal.timeout(HTTP_TIMEOUT_MS),
-    });
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : String(e);
-    platform.error(`${label} ${url} — fetch failed: ${msg}`);
-    assert.fail(`post-deploy: ${label} unreachable at ${url}`);
-  }
-
-  if (!response.ok) {
-    platform.error(
-      `${label} ${url} — HTTP ${response.status} ${response.statusText}`
+    assert.ok(response.ok, 'checkHttp: response must be ok');
+    this.platform.notice(
+      `POST-DEPLOY ${step}/${total}: ${label} ${url} — HTTP ${response.status} OK.`
     );
-    assert.fail(`post-deploy: ${label} returned HTTP ${response.status}`);
   }
-
-  assert.ok(response.ok, 'checkHttp: response must be ok');
-  platform.notice(
-    `POST-DEPLOY ${step}/${total}: ${label} ${url} — HTTP ${response.status} OK.`
-  );
 }
 
 function parseNameservers(raw: string): Set<string> {

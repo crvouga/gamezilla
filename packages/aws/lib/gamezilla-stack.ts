@@ -64,7 +64,8 @@ export class GamezillaStack extends cdk.Stack {
     syncServer: SyncServer;
   }): void {
     new cdk.CfnOutput(this, 'SyncServerUrl', {
-      value: syncServer.service.attrServiceUrl,
+      // App Runner attrServiceUrl is hostname-only; align with WebApp/PatchDb https:// outputs.
+      value: `https://${syncServer.service.attrServiceUrl}`,
     });
     new cdk.CfnOutput(this, 'WebAppBucketName', {
       value: webApp.bucket.bucketName,
