@@ -1,5 +1,5 @@
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
-import { createPatchDbServerReqResHandler } from '@gamezilla/patch-db/server-req-res';
+import { createPatchDbReqResHandler } from '@gamezilla/patch-db/req-res';
 import { assert } from '@gamezilla/shared/assert';
 import { NodeCrashHandler } from '@gamezilla/shared/assert/crash/crash-handler/crash-handler-node';
 import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
@@ -17,7 +17,7 @@ const patchDb = new PatchDbImplSqlite(sqlClient);
 await patchDb.migrate();
 
 const { handleRequest: handlePatchDb, basePath: patchDbBasePath } =
-  createPatchDbServerReqResHandler({
+  createPatchDbReqResHandler({
     db: patchDb,
     pubSub: new InMemoryPubSub(),
     instrumentation: true,
@@ -45,7 +45,7 @@ const server = Bun.serve({
   hostname: '0.0.0.0',
   port: Number(PORT),
   error(error) {
-    console.error('[server-req-res] Unhandled error:', error);
+    console.error('[req-res] Unhandled error:', error);
     return new Response(
       JSON.stringify({
         error: error instanceof Error ? error.message : String(error),
@@ -91,7 +91,7 @@ const server = Bun.serve({
           return withCors(res);
         })
         .catch((err: unknown) => {
-          console.error('[server-req-res] patchDbHandler failed:', err);
+          console.error('[req-res] patchDbHandler failed:', err);
           const message = err instanceof Error ? err.message : String(err);
           return withCors(
             new Response(JSON.stringify({ error: message }), {
@@ -111,4 +111,4 @@ const server = Bun.serve({
   },
 });
 
-console.log(`Server req res running at http://localhost:${server.port}`);
+console.log(`Req res running at http://localhost:${server.port}`);

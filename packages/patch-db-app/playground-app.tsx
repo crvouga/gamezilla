@@ -4,7 +4,7 @@ import { PatchdbAppNav, readStoredMode, type PatchdbAppMode } from './nav';
 import { PlaygroundHeader } from './playground-header';
 import { PlaygroundLayout } from './playground-layout';
 import { SimProvider, type SimContextValue } from './sim-context';
-import { ServerReqResInspector } from './server-req-res-inspector';
+import { ReqResInspector } from './req-res-inspector';
 import { usePlaygroundBoot } from './use-playground-boot';
 
 export function PlaygroundApp() {
@@ -13,7 +13,7 @@ export function PlaygroundApp() {
   return (
     <div className="flex h-screen min-h-0 flex-col overflow-hidden bg-(--pg-bg) text-white">
       <PatchdbAppNav mode={mode} onModeChange={setMode} />
-      {mode === 'syncInspector' ? <ServerReqResInspector /> : <PlaygroundRoute />}
+      {mode === 'syncInspector' ? <ReqResInspector /> : <PlaygroundRoute />}
     </div>
   );
 }

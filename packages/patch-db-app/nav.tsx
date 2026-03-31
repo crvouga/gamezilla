@@ -55,7 +55,7 @@ export function PatchdbAppNav({
             : 'rounded-lg px-3 py-1.5 text-xs font-semibold text-white/45 transition-colors hover:bg-white/8 hover:text-white/75'
         }
       >
-        Server Req Res
+        Req Res
       </button>
     </nav>
   );

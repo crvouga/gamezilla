@@ -37,7 +37,7 @@ export function PatchBootstrap({ children }: { children: ReactNode }) {
   const runBootstrap = useCallback(() => {
     setError(null);
     bootstrapPatchDbExpoSync({
-      apiUrl: configService.getString('PATCH_DB_SERVER_REQ_RES_URL'),
+      apiUrl: configService.getString('PATCH_DB_REQ_RES_URL'),
       parentContainer: configContainer,
     })
       .then(({ container: c }) => {

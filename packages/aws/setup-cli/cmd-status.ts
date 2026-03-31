@@ -140,7 +140,7 @@ export class StatusCommand extends BaseSetupCommand {
       const keys = [
         'WebAppUrl',
         'PatchDbAppUrl',
-        'ServerReqResUrl',
+        'ReqResUrl',
         'WebAppBucketName',
         'Route53Nameservers',
       ] as const;

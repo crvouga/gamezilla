@@ -14,14 +14,14 @@ export class WebAppDeployable implements Deployable {
 
   deploy(outputs: StackOutputs): void {
     const syncUrl = toHttps(
-      requireOutput(this.platform, outputs, 'ServerReqResUrl')
+      requireOutput(this.platform, outputs, 'ReqResUrl')
     );
     const bucket = requireOutput(this.platform, outputs, 'WebAppBucketName');
     const distId = requireOutput(this.platform, outputs, 'WebDistributionId');
 
     if (!/^https:\/\//.test(syncUrl)) {
       this.platform.error(
-        `PATCH_DB_SERVER_REQ_RES_URL must be https:// (got: ${syncUrl})`
+        `PATCH_DB_REQ_RES_URL must be https:// (got: ${syncUrl})`
       );
       assert.fail('web-app: sync URL must be https://');
     }
@@ -46,9 +46,9 @@ export class WebAppDeployable implements Deployable {
     }
     const o = doc as { local: unknown; prod: Record<string, unknown> };
     const syncBaseUrl = `${syncUrl.replace(/\/$/, '')}/patch-db`;
-    o.prod['PATCH_DB_SERVER_REQ_RES_URL'] = syncBaseUrl;
+    o.prod['PATCH_DB_REQ_RES_URL'] = syncBaseUrl;
     assert.equals(
-      o.prod['PATCH_DB_SERVER_REQ_RES_URL'],
+      o.prod['PATCH_DB_REQ_RES_URL'],
       syncBaseUrl,
       'web-app: sync URL must be set'
     );

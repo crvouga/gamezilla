@@ -4,7 +4,7 @@ import { DependencyInjectionContainer } from '@gamezilla/shared/dependency-injec
 import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
 import { SqlClientImplExpoSqlite } from '@gamezilla/shared/sql-client/impl-expo-sqlite';
 import type { SqlClient } from '@gamezilla/shared/sql-client/interface';
-import { assertPatchDbServerReqResBaseUrl } from './assert-server-req-res-base-url';
+import { assertPatchDbReqResBaseUrl } from './assert-req-res-base-url';
 import { PatchDbImplClientTransport } from './impl-client-transport';
 import { PatchDbImplSqlite } from './impl-sqlite/impl-sqlite';
 import { SyncPatchesDb } from './impl-sync';
@@ -40,7 +40,7 @@ export async function bootstrapPatchDbExpoSync(
     parentContainer,
   } = options;
 
-  assertPatchDbServerReqResBaseUrl(apiUrl);
+  assertPatchDbReqResBaseUrl(apiUrl);
 
   const key = `${databaseName}:${apiUrl}`;
   if (Platform.OS === 'web' && cachedBootstrap?.key === key) {

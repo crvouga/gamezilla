@@ -2,7 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import type { Construct } from 'constructs';
 import { PatchDbApp } from './patch-db-app';
-import { ServerReqRes } from './server-req-res';
+import { ReqRes } from './req-res';
 import { WebApp } from './web-app';
 
 const RESOURCE_TAGS = {
@@ -49,23 +49,23 @@ export class GamezillaStack extends cdk.Stack {
       customDomainBootstrap,
     });
 
-    const serverReqRes = new ServerReqRes(this, 'ServerReqRes');
+    const reqRes = new ReqRes(this, 'ReqRes');
 
-    this.addOutputs({ webApp, patchDbApp, serverReqRes });
+    this.addOutputs({ webApp, patchDbApp, reqRes });
   }
 
   private addOutputs({
     webApp,
     patchDbApp,
-    serverReqRes,
+    reqRes,
   }: {
     webApp: WebApp;
     patchDbApp: PatchDbApp;
-    serverReqRes: ServerReqRes;
+    reqRes: ReqRes;
   }): void {
-    new cdk.CfnOutput(this, 'ServerReqResUrl', {
+    new cdk.CfnOutput(this, 'ReqResUrl', {
       // App Runner attrServiceUrl is hostname-only; align with WebApp/PatchDb https:// outputs.
-      value: `https://${serverReqRes.service.attrServiceUrl}`,
+      value: `https://${reqRes.service.attrServiceUrl}`,
     });
     new cdk.CfnOutput(this, 'WebAppBucketName', {
       value: webApp.bucket.bucketName,

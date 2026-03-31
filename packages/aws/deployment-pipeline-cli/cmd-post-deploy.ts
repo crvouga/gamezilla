@@ -22,7 +22,7 @@ type HttpEndpointCheck = {
 const HTTP_ENDPOINTS: readonly HttpEndpointCheck[] = [
   { label: 'WebApp', outputKey: 'WebAppUrl' },
   { label: 'PatchDbApp', outputKey: 'PatchDbAppUrl' },
-  { label: 'ServerReqRes', outputKey: 'ServerReqResUrl', probePath: '/health' },
+  { label: 'ReqRes', outputKey: 'ReqResUrl', probePath: '/health' },
 ];
 
 const HTTP_TIMEOUT_MS = 30_000;
