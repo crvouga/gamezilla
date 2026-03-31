@@ -1,7 +1,9 @@
 import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
 import type { Unsubscribe } from '@gamezilla/shared/pub-sub/interface';
+import { SqlClientImplBunPostgres } from '@gamezilla/shared/sql-client/impl-bun-postgres';
 import { SqlClientImplBunSqlite } from '@gamezilla/shared/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@gamezilla/shared/sql-client/interface';
+import { PatchDbImplPostgres } from '../impl-postgres/impl-postgres';
 import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
 import {
   SyncPatchesDb,
@@ -46,8 +48,24 @@ export async function createSqliteFactory(): Promise<{
   return { db, teardown: () => client.disconnect() };
 }
 
+export async function createPostgresFactory(): Promise<{
+  db: PatchesDb;
+  teardown: () => Promise<void>;
+}> {
+  const url = process.env['DATABASE_URL'];
+  if (url === undefined || url === '') {
+    throw new Error('createPostgresFactory: DATABASE_URL must be set');
+  }
+  const client: SqlClient = SqlClientImplBunPostgres.connect(url);
+  await client.connect();
+  const db = new PatchDbImplPostgres(client);
+  await db.migrate();
+  return { db, teardown: () => client.disconnect() };
+}
+
 export const implementations: { name: string; factory: DbFactory }[] = [
   { name: 'PatchDbImplSqlite', factory: createSqliteFactory },
+  // { name: 'PatchDbImplPostgres', factory: createPostgresFactory },
 ];
 
 export type SyncDbFixture = {

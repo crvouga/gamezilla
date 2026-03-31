@@ -86,9 +86,15 @@
                   "Resource": "*"
                 },
                 {
-                  "Sid": "AppRunner",
+                  "Sid": "ECS",
                   "Effect": "Allow",
-                  "Action": ["apprunner:*"],
+                  "Action": ["ecs:*"],
+                  "Resource": "*"
+                },
+                {
+                  "Sid": "ElasticLoadBalancing",
+                  "Effect": "Allow",
+                  "Action": ["elasticloadbalancing:*"],
                   "Resource": "*"
                 },
                 {

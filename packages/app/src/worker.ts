@@ -5,10 +5,12 @@ import { assert } from '@gamezilla/shared/assert';
 import { NodeCrashHandler } from '@gamezilla/shared/assert/crash/crash-handler/crash-handler-node';
 import { connectAsync, type MqttClient } from 'mqtt';
 import { resolveDatabaseUrl } from './database-url';
+import { getRuntimeEnv } from './runtime-env';
 
 assert.registerCrashHandler(new NodeCrashHandler());
 
-const PORT = parseInt(process.env['PORT'] ?? '8081');
+const runtimeEnv = getRuntimeEnv();
+const PORT = parseInt(runtimeEnv.PORT ?? '8081');
 assert.integer(PORT, 'PORT must be an integer');
 
 const databaseUrl = resolveDatabaseUrl();
@@ -18,7 +20,7 @@ if (databaseUrl === undefined) {
   );
 }
 
-const pubSubUrl = process.env['PUBSUB_URL'];
+const pubSubUrl = runtimeEnv.PUBSUB_URL;
 assert.ok(
   pubSubUrl !== undefined && pubSubUrl !== '',
   'PUBSUB_URL is required for worker'

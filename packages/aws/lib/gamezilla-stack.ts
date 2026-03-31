@@ -54,15 +54,11 @@ export class GamezillaStack extends cdk.Stack {
     });
 
     const appVpc = new AppVpc(this, 'AppVpc');
-    const appRunnerConnectorSg = new ec2.SecurityGroup(
-      this,
-      'AppRunnerConnectorSg',
-      {
-        vpc: appVpc.vpc,
-        description: 'App Runner VPC connector — reach Aurora + EMQX',
-        allowAllOutbound: true,
-      }
-    );
+    const reqResTaskSg = new ec2.SecurityGroup(this, 'ReqResTaskSg', {
+      vpc: appVpc.vpc,
+      description: 'ECS req-res tasks — reach Aurora + EMQX',
+      allowAllOutbound: true,
+    });
     const workerSg = new ec2.SecurityGroup(this, 'WorkerSg', {
       vpc: appVpc.vpc,
       description: 'ECS worker tasks',
@@ -71,7 +67,7 @@ export class GamezillaStack extends cdk.Stack {
 
     const database = new AppDatabase(this, 'Database', {
       vpc: appVpc.vpc,
-      allowedClients: [appRunnerConnectorSg, workerSg],
+      allowedClients: [reqResTaskSg, workerSg],
     });
 
     const dockerAsset = new ecr_assets.DockerImageAsset(this, 'AppImage', {
@@ -98,7 +94,7 @@ export class GamezillaStack extends cdk.Stack {
 
     const emqx = new EmqxCluster(this, 'Emqx', {
       vpc: appVpc.vpc,
-      vpcClientSecurityGroups: [appRunnerConnectorSg, workerSg],
+      vpcClientSecurityGroups: [reqResTaskSg, workerSg],
     });
 
     new WorkerService(this, 'Worker', {
@@ -110,17 +106,12 @@ export class GamezillaStack extends cdk.Stack {
       taskSecurityGroup: workerSg,
     });
 
-    const privateWithEgress = appVpc.vpc.selectSubnets({
-      subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-    });
-
     const reqRes = new ReqRes(this, 'ReqRes', {
       dockerAsset,
-      vpc: appVpc.vpc,
       database: database.cluster,
       internalMqttUrl: emqx.internalMqttUrl,
-      vpcConnectorSubnets: privateWithEgress.subnets,
-      vpcConnectorSecurityGroups: [appRunnerConnectorSg],
+      cluster: emqx.ecsCluster,
+      taskSecurityGroup: reqResTaskSg,
     });
 
     this.addOutputs({ webApp, patchDbApp, reqRes, database, emqx });
@@ -140,7 +131,9 @@ export class GamezillaStack extends cdk.Stack {
     emqx: EmqxCluster;
   }): void {
     new cdk.CfnOutput(this, 'ReqResUrl', {
-      value: `https://${reqRes.service.attrServiceUrl}`,
+      value: `https://${reqRes.distribution.distributionDomainName}`,
+      description:
+        'Patch DB req-res base URL (HTTPS via CloudFront; path /patch-db)',
     });
     new cdk.CfnOutput(this, 'DatabaseClusterEndpoint', {
       value: database.cluster.clusterEndpoint.hostname,
@@ -148,7 +141,7 @@ export class GamezillaStack extends cdk.Stack {
     });
     new cdk.CfnOutput(this, 'EmqxInternalMqttUrl', {
       value: emqx.internalMqttUrl,
-      description: 'VPC-internal MQTT URL for App Runner / worker',
+      description: 'VPC-internal MQTT URL for req-res / worker',
     });
     new cdk.CfnOutput(this, 'EmqxPublicNlbDns', {
       value: emqx.publicNlbDnsName,

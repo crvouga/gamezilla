@@ -1,23 +1,31 @@
-import * as apprunner from 'aws-cdk-lib/aws-apprunner';
 import * as cdk from 'aws-cdk-lib';
+import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
+import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ecr_assets from 'aws-cdk-lib/aws-ecr-assets';
-import * as iam from 'aws-cdk-lib/aws-iam';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as ecs_patterns from 'aws-cdk-lib/aws-ecs-patterns';
+import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import * as logs from 'aws-cdk-lib/aws-logs';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import { Construct } from 'constructs';
 
 export interface ReqResProps {
   readonly dockerAsset: ecr_assets.DockerImageAsset;
-  readonly vpc: ec2.IVpc;
   readonly database: rds.DatabaseCluster;
   /** mqtt://emqx.app.local:1883 (VPC-internal). */
   readonly internalMqttUrl: string;
-  readonly vpcConnectorSubnets: ec2.ISubnet[];
-  readonly vpcConnectorSecurityGroups: ec2.ISecurityGroup[];
+  readonly cluster: ecs.ICluster;
+  readonly taskSecurityGroup: ec2.ISecurityGroup;
 }
 
+/**
+ * Patch DB HTTP API on **ECS Fargate** (same cluster as the MQTT worker), public **ALB**, **CloudFront**
+ * for HTTPS (browser-safe sync URL; ALB alone is HTTP-only on the default hostname).
+ */
 export class ReqRes extends Construct {
-  readonly service: apprunner.CfnService;
+  readonly loadBalancedService: ecs_patterns.ApplicationLoadBalancedFargateService;
+  readonly distribution: cloudfront.Distribution;
 
   constructor(scope: Construct, id: string, props: ReqResProps) {
     super(scope, id);
@@ -27,89 +35,72 @@ export class ReqRes extends Construct {
       throw new Error('ReqRes: Aurora cluster must have a generated secret');
     }
 
-    const ecrAccessRole = new iam.Role(this, 'EcrAccess', {
-      assumedBy: new iam.ServicePrincipal('build.apprunner.amazonaws.com'),
-      managedPolicies: [
-        iam.ManagedPolicy.fromAwsManagedPolicyName(
-          'service-role/AWSAppRunnerServicePolicyForECRAccess'
-        ),
-      ],
-    });
-    props.dockerAsset.repository.grantPull(ecrAccessRole);
-
-    const instanceRole = new iam.Role(this, 'InstanceRole', {
-      assumedBy: new iam.ServicePrincipal('tasks.apprunner.amazonaws.com'),
-      description: 'ReqRes runtime access (Secrets Manager, etc.)',
-    });
-    dbSecret.grantRead(instanceRole);
-
-    const vpcConnector = new apprunner.CfnVpcConnector(this, 'VpcConnector', {
-      vpcConnectorName: 'req-res-vpc-connector',
-      subnets: props.vpcConnectorSubnets.map((s) => s.subnetId),
-      securityGroups: props.vpcConnectorSecurityGroups.map(
-        (sg) => sg.securityGroupId
-      ),
-    });
-
-    this.service = new apprunner.CfnService(this, 'Service', {
-      sourceConfiguration: {
-        autoDeploymentsEnabled: false,
-        imageRepository: {
-          imageIdentifier: props.dockerAsset.imageUri,
-          imageConfiguration: {
-            port: '8080',
-            runtimeEnvironmentVariables: [
-              {
-                name: 'DATABASE_HOST',
-                value: props.database.clusterEndpoint.hostname,
-              },
-              { name: 'DATABASE_PORT', value: '5432' },
-              { name: 'DATABASE_NAME', value: 'postgres' },
-              { name: 'PUBSUB_URL', value: props.internalMqttUrl },
-              { name: 'PORT', value: '8080' },
-              { name: 'NODE_ENV', value: 'production' },
-            ],
-            runtimeEnvironmentSecrets: [
-              {
-                name: 'DATABASE_USERNAME',
-                value: cdk.Fn.join('', [dbSecret.secretArn, ':username::']),
-              },
-              {
-                name: 'DATABASE_PASSWORD',
-                value: cdk.Fn.join('', [dbSecret.secretArn, ':password::']),
-              },
-            ],
+    this.loadBalancedService =
+      new ecs_patterns.ApplicationLoadBalancedFargateService(this, 'AlbService', {
+        cluster: props.cluster,
+        memoryLimitMiB: 512,
+        cpu: 256,
+        desiredCount: 1,
+        publicLoadBalancer: true,
+        assignPublicIp: false,
+        taskSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+        securityGroups: [props.taskSecurityGroup],
+        listenerPort: 80,
+        protocol: elbv2.ApplicationProtocol.HTTP,
+        taskImageOptions: {
+          image: ecs.ContainerImage.fromDockerImageAsset(props.dockerAsset),
+          command: ['bun', 'run', 'packages/app/src/req-res.ts'],
+          containerPort: 8080,
+          environment: {
+            DATABASE_HOST: props.database.clusterEndpoint.hostname,
+            DATABASE_PORT: '5432',
+            DATABASE_NAME: 'postgres',
+            PUBSUB_URL: props.internalMqttUrl,
+            PORT: '8080',
+            NODE_ENV: 'production',
           },
-          imageRepositoryType: 'ECR',
+          secrets: {
+            DATABASE_USERNAME: ecs.Secret.fromSecretsManager(dbSecret, 'username'),
+            DATABASE_PASSWORD: ecs.Secret.fromSecretsManager(dbSecret, 'password'),
+          },
+          logDriver: ecs.LogDrivers.awsLogs({
+            streamPrefix: 'req-res',
+            logRetention: logs.RetentionDays.ONE_WEEK,
+          }),
         },
-        authenticationConfiguration: {
-          accessRoleArn: ecrAccessRole.roleArn,
-        },
-      },
-      instanceConfiguration: {
-        cpu: '256',
-        memory: '512',
-        instanceRoleArn: instanceRole.roleArn,
-      },
-      healthCheckConfiguration: {
-        protocol: 'HTTP',
-        path: '/health',
-        interval: 10,
-        timeout: 5,
-        healthyThreshold: 1,
-        unhealthyThreshold: 8,
-      },
-      networkConfiguration: {
-        egressConfiguration: {
-          egressType: 'VPC',
-          vpcConnectorArn: vpcConnector.attrVpcConnectorArn,
-        },
-        ingressConfiguration: {
-          isPubliclyAccessible: true,
-        },
-      },
+        healthCheckGracePeriod: cdk.Duration.seconds(60),
+      });
+
+    this.loadBalancedService.targetGroup.configureHealthCheck({
+      path: '/health',
+      healthyHttpCodes: '200',
+      interval: cdk.Duration.seconds(10),
+      timeout: cdk.Duration.seconds(5),
+      healthyThresholdCount: 1,
+      unhealthyThresholdCount: 8,
     });
-    this.service.node.addDependency(props.dockerAsset);
-    this.service.node.addDependency(vpcConnector);
+
+    this.loadBalancedService.node.addDependency(props.dockerAsset);
+    cdk.Tags.of(this.loadBalancedService.service).add('Project', 'app');
+    cdk.Tags.of(this.loadBalancedService.service).add('Service', 'req-res');
+
+    this.distribution = new cloudfront.Distribution(this, 'PublicApi', {
+      comment: 'Req res — HTTPS via CloudFront, origin ECS/ALB',
+      defaultBehavior: {
+        origin: new origins.LoadBalancerV2Origin(
+          this.loadBalancedService.loadBalancer,
+          {
+            protocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY,
+            httpPort: 80,
+          }
+        ),
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+        cachedMethods: cloudfront.CachedMethods.CACHE_GET_HEAD_OPTIONS,
+        cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+        originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER,
+      },
+      priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
+    });
   }
 }

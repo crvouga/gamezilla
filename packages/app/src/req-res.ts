@@ -9,14 +9,16 @@ import type { PubSub } from '@gamezilla/shared/pub-sub/interface';
 import { SqlClientImplBunPostgres } from '@gamezilla/shared/sql-client/impl-bun-postgres';
 import { SqlClientImplBunSqlite } from '@gamezilla/shared/sql-client/impl-bun-sqlite';
 import { resolveDatabaseUrl } from './database-url';
+import { getRuntimeEnv } from './runtime-env';
 
 assert.registerCrashHandler(new NodeCrashHandler());
 
-const PORT = parseInt(process.env['PORT'] ?? '5001');
+const runtimeEnv = getRuntimeEnv();
+const PORT = parseInt(runtimeEnv.PORT ?? '5001');
 assert.integer(PORT, 'PORT must be an integer');
 
 const databaseUrl = resolveDatabaseUrl();
-const pubSubUrl = process.env['PUBSUB_URL'];
+const pubSubUrl = runtimeEnv.PUBSUB_URL;
 
 let patchDb: PatchDbImplSqlite | PatchDbImplPostgres;
 let pubSub: PubSub;

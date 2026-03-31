@@ -1,15 +1,18 @@
 /**
  * Resolves a Postgres connection URL from DATABASE_URL or split RDS-style env vars.
  */
+import { getRuntimeEnv } from './runtime-env';
+
 export function resolveDatabaseUrl(): string | undefined {
-  const direct = process.env['DATABASE_URL'];
+  const env = getRuntimeEnv();
+  const direct = env.DATABASE_URL;
   if (direct !== undefined && direct !== '') return direct;
 
-  const host = process.env['DATABASE_HOST'];
-  const user = process.env['DATABASE_USERNAME'];
-  const password = process.env['DATABASE_PASSWORD'];
-  const port = process.env['DATABASE_PORT'] ?? '5432';
-  const name = process.env['DATABASE_NAME'] ?? 'postgres';
+  const host = env.DATABASE_HOST;
+  const user = env.DATABASE_USERNAME;
+  const password = env.DATABASE_PASSWORD;
+  const port = env.DATABASE_PORT ?? '5432';
+  const name = env.DATABASE_NAME ?? 'postgres';
 
   if (
     host !== undefined &&
