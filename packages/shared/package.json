@@ -5,6 +5,7 @@
   "dependencies": {
     "expo-crypto": "~15.0.8",
     "expo-sqlite": "~16.0.10",
+    "mqtt": "^5.10.3",
     "react": "19.1.0",
     "react-native": "0.81.5",
     "sql.js": "^1.14.0"

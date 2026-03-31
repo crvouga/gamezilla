@@ -4,9 +4,9 @@
   "private": true,
   "main": "expo-router/entry",
   "dependencies": {
+    "@expo/vector-icons": "^15.0.3",
     "@gamezilla/patch-db": "workspace:*",
     "@gamezilla/shared": "workspace:*",
-    "@expo/vector-icons": "^15.0.3",
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
@@ -24,6 +24,7 @@
     "expo-symbols": "~1.0.8",
     "expo-system-ui": "~6.0.9",
     "expo-web-browser": "~15.0.10",
+    "mqtt": "^5.15.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
@@ -55,8 +56,12 @@
     "start": "expo start",
     "req-res": "bun run src/req-res.ts",
     "pub-sub": "bun run src/req-res.ts",
-    "worker": "bun run src/req-res.ts",
+    "worker": "bun run src/worker.ts",
     "req-res:watch": "bun --watch src/req-res.ts",
+    "dev:req-res":
+      "DATABASE_URL=postgresql://postgres:localpass@127.0.0.1:5432/postgres PUBSUB_URL=mqtt://127.0.0.1:1883 PORT=5001 bun --watch src/req-res.ts",
+    "dev:worker":
+      "DATABASE_URL=postgresql://postgres:localpass@127.0.0.1:5432/postgres PUBSUB_URL=mqtt://127.0.0.1:1883 PORT=8081 bun --watch src/worker.ts",
     "tc": "tsc --noEmit -p ../../tsconfig.json",
     "web": "expo start --web"
   }

@@ -36,8 +36,17 @@ export class DeployCommand extends BaseSetupCommand {
     await runHttpSmokeTestsOnly(platform, outputs);
 
     console.log('\nDeployed URLs (from CDK outputs):');
-    console.log(`  WebAppUrl:      ${outputs.WebAppUrl ?? '(missing)'}`);
-    console.log(`  PatchDbAppUrl:  ${outputs.PatchDbAppUrl ?? '(missing)'}`);
-    console.log(`  ReqResUrl:  ${outputs.ReqResUrl ?? '(missing)'}\n`);
+    console.log(`  WebAppUrl:             ${outputs.WebAppUrl ?? '(missing)'}`);
+    console.log(`  PatchDbAppUrl:         ${outputs.PatchDbAppUrl ?? '(missing)'}`);
+    console.log(`  ReqResUrl:             ${outputs.ReqResUrl ?? '(missing)'}`);
+    console.log(
+      `  DatabaseClusterEndpoint: ${outputs.DatabaseClusterEndpoint ?? '(missing)'}`
+    );
+    console.log(
+      `  EmqxInternalMqttUrl:   ${outputs.EmqxInternalMqttUrl ?? '(missing)'}`
+    );
+    console.log(
+      `  EmqxPublicNlbDns:      ${outputs.EmqxPublicNlbDns ?? '(missing)'}\n`
+    );
   }
 }

@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: localpass
+      POSTGRES_DB: postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  emqx:
+    image: emqx/emqx:5
+    ports:
+      - '1883:1883' # MQTT
+      - '8083:8083' # MQTT Dashboard
+      - '18083:18083' # MQTT Dashboard
+    environment:
+      EMQX_NODE_NAME: emqx@127.0.0.1
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: localpass
+
+volumes:
+  pgdata:

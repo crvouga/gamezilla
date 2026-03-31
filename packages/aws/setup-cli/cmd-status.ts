@@ -105,8 +105,8 @@ export class StatusCommand extends BaseSetupCommand {
     );
 
     section(`App stack · ${STACK_NAME}`);
-    const gamezilla = await describeStack(cfn);
-    if (gamezilla === null) {
+    const appStack = await describeStack(cfn);
+    if (appStack === null) {
       console.log(
         statusRule(
           statusSym.fail,
@@ -115,10 +115,10 @@ export class StatusCommand extends BaseSetupCommand {
         )
       );
     } else {
-      const st = gamezilla.status ?? '?';
+      const st = appStack.status ?? '?';
       if (
-        gamezilla.status !== undefined &&
-        DEPLOYABLE_STATUSES.has(gamezilla.status)
+        appStack.status !== undefined &&
+        DEPLOYABLE_STATUSES.has(appStack.status)
       ) {
         console.log(statusRule(statusSym.ok, `Status: ${st}`));
       } else {
@@ -130,8 +130,8 @@ export class StatusCommand extends BaseSetupCommand {
           )
         );
       }
-      if (gamezilla.reason !== undefined && gamezilla.reason !== '') {
-        console.log(`${statusSym.warn} StackStatusReason: ${gamezilla.reason}`);
+      if (appStack.reason !== undefined && appStack.reason !== '') {
+        console.log(`${statusSym.warn} StackStatusReason: ${appStack.reason}`);
       }
       const outs = await cfn.send(
         new DescribeStacksCommand({ StackName: STACK_NAME })
@@ -141,6 +141,9 @@ export class StatusCommand extends BaseSetupCommand {
         'WebAppUrl',
         'PatchDbAppUrl',
         'ReqResUrl',
+        'DatabaseClusterEndpoint',
+        'EmqxInternalMqttUrl',
+        'EmqxPublicNlbDns',
         'WebAppBucketName',
         'Route53Nameservers',
       ] as const;

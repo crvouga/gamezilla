@@ -10,7 +10,20 @@
     "GITHUB_STEP_SUMMARY"
   ],
   "tasks": {
+    "up": {
+      "cache": false
+    },
     "dev": {
+      "persistent": true,
+      "cache": false
+    },
+    "dev:req-res": {
+      "dependsOn": ["@gamezilla/local#up"],
+      "persistent": true,
+      "cache": false
+    },
+    "dev:worker": {
+      "dependsOn": ["@gamezilla/local#up"],
       "persistent": true,
       "cache": false
     },

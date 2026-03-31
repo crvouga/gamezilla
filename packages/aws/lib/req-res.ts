@@ -1,38 +1,31 @@
 import * as apprunner from 'aws-cdk-lib/aws-apprunner';
+import * as cdk from 'aws-cdk-lib';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ecr_assets from 'aws-cdk-lib/aws-ecr-assets';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as rds from 'aws-cdk-lib/aws-rds';
 import { Construct } from 'constructs';
-import * as path from 'node:path';
 
-const REPO_ROOT = path.join(__dirname, '..', '..', '..');
+export interface ReqResProps {
+  readonly dockerAsset: ecr_assets.DockerImageAsset;
+  readonly vpc: ec2.IVpc;
+  readonly database: rds.DatabaseCluster;
+  /** mqtt://emqx.app.local:1883 (VPC-internal). */
+  readonly internalMqttUrl: string;
+  readonly vpcConnectorSubnets: ec2.ISubnet[];
+  readonly vpcConnectorSecurityGroups: ec2.ISecurityGroup[];
+}
 
 export class ReqRes extends Construct {
   readonly service: apprunner.CfnService;
 
-  constructor(scope: Construct, id: string) {
+  constructor(scope: Construct, id: string, props: ReqResProps) {
     super(scope, id);
 
-    const dockerAsset = new ecr_assets.DockerImageAsset(this, 'Image', {
-      directory: REPO_ROOT,
-      file: 'Dockerfile',
-      // App Runner only runs linux/amd64; default Docker on Apple Silicon is arm64 → failed health checks.
-      platform: ecr_assets.Platform.LINUX_AMD64,
-      exclude: [
-        'packages/aws/**',
-        'packages/patch-db-app/**',
-        'node_modules',
-        '.git',
-        'dist',
-        'packages/app/dist',
-        'packages/patch-db-app/dist',
-        '.expo',
-        'web-build',
-        'ios',
-        'android',
-        '.sim-recordings',
-        '.cursor',
-      ],
-    });
+    const dbSecret = props.database.secret;
+    if (!dbSecret) {
+      throw new Error('ReqRes: Aurora cluster must have a generated secret');
+    }
 
     const ecrAccessRole = new iam.Role(this, 'EcrAccess', {
       assumedBy: new iam.ServicePrincipal('build.apprunner.amazonaws.com'),
@@ -42,14 +35,51 @@ export class ReqRes extends Construct {
         ),
       ],
     });
-    dockerAsset.repository.grantPull(ecrAccessRole);
+    props.dockerAsset.repository.grantPull(ecrAccessRole);
+
+    const instanceRole = new iam.Role(this, 'InstanceRole', {
+      assumedBy: new iam.ServicePrincipal('tasks.apprunner.amazonaws.com'),
+      description: 'ReqRes runtime access (Secrets Manager, etc.)',
+    });
+    dbSecret.grantRead(instanceRole);
+
+    const vpcConnector = new apprunner.CfnVpcConnector(this, 'VpcConnector', {
+      vpcConnectorName: 'req-res-vpc-connector',
+      subnets: props.vpcConnectorSubnets.map((s) => s.subnetId),
+      securityGroups: props.vpcConnectorSecurityGroups.map(
+        (sg) => sg.securityGroupId
+      ),
+    });
 
     this.service = new apprunner.CfnService(this, 'Service', {
       sourceConfiguration: {
         autoDeploymentsEnabled: false,
         imageRepository: {
-          imageIdentifier: dockerAsset.imageUri,
-          imageConfiguration: { port: '8080' },
+          imageIdentifier: props.dockerAsset.imageUri,
+          imageConfiguration: {
+            port: '8080',
+            runtimeEnvironmentVariables: [
+              {
+                name: 'DATABASE_HOST',
+                value: props.database.clusterEndpoint.hostname,
+              },
+              { name: 'DATABASE_PORT', value: '5432' },
+              { name: 'DATABASE_NAME', value: 'postgres' },
+              { name: 'PUBSUB_URL', value: props.internalMqttUrl },
+              { name: 'PORT', value: '8080' },
+              { name: 'NODE_ENV', value: 'production' },
+            ],
+            runtimeEnvironmentSecrets: [
+              {
+                name: 'DATABASE_USERNAME',
+                value: cdk.Fn.join('', [dbSecret.secretArn, ':username::']),
+              },
+              {
+                name: 'DATABASE_PASSWORD',
+                value: cdk.Fn.join('', [dbSecret.secretArn, ':password::']),
+              },
+            ],
+          },
           imageRepositoryType: 'ECR',
         },
         authenticationConfiguration: {
@@ -59,6 +89,7 @@ export class ReqRes extends Construct {
       instanceConfiguration: {
         cpu: '256',
         memory: '512',
+        instanceRoleArn: instanceRole.roleArn,
       },
       healthCheckConfiguration: {
         protocol: 'HTTP',
@@ -66,10 +97,19 @@ export class ReqRes extends Construct {
         interval: 10,
         timeout: 5,
         healthyThreshold: 1,
-        /** Bun + SQLite migrate cold start can exceed 5 quick failures on first deploy. */
         unhealthyThreshold: 8,
       },
+      networkConfiguration: {
+        egressConfiguration: {
+          egressType: 'VPC',
+          vpcConnectorArn: vpcConnector.attrVpcConnectorArn,
+        },
+        ingressConfiguration: {
+          isPubliclyAccessible: true,
+        },
+      },
     });
-    this.service.node.addDependency(dockerAsset);
+    this.service.node.addDependency(props.dockerAsset);
+    this.service.node.addDependency(vpcConnector);
   }
 }

@@ -8,7 +8,8 @@
   ],
   "scripts": {
     "format": "sort-package-json && prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "dev:backend": "turbo run dev:req-res dev:worker --parallel"
   },
   "devDependencies": {
     "@types/bun": "^1.3.9",

@@ -1,12 +1,21 @@
 import * as cdk from 'aws-cdk-lib';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as ecr_assets from 'aws-cdk-lib/aws-ecr-assets';
+import * as path from 'node:path';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import type { Construct } from 'constructs';
+import { AppDatabase } from './database';
+import { AppVpc } from './vpc';
+import { WorkerService } from './ecs-worker';
 import { PatchDbApp } from './patch-db-app';
+import { EmqxCluster } from './pub-sub';
 import { ReqRes } from './req-res';
 import { WebApp } from './web-app';
 
+const REPO_ROOT = path.join(__dirname, '..', '..', '..');
+
 const RESOURCE_TAGS = {
-  Project: 'gamezilla',
+  Project: 'app',
   ManagedBy: 'cdk',
   Environment: 'production',
 } as const;
@@ -29,11 +38,6 @@ export class GamezillaStack extends cdk.Stack {
     }
 
     const customDomain = isContextFlagTrue(this, 'customDomain');
-    /**
-     * When true with customDomain: create hosted zone + output NS only.
-     * Skip ACM and CloudFront aliases until Route 53 nameservers are
-     * delegated at the registrar; otherwise ACM DNS validation never completes.
-     */
     const customDomainBootstrap = isContextFlagTrue(
       this,
       'customDomainBootstrap'
@@ -49,23 +53,106 @@ export class GamezillaStack extends cdk.Stack {
       customDomainBootstrap,
     });
 
-    const reqRes = new ReqRes(this, 'ReqRes');
+    const appVpc = new AppVpc(this, 'AppVpc');
+    const appRunnerConnectorSg = new ec2.SecurityGroup(
+      this,
+      'AppRunnerConnectorSg',
+      {
+        vpc: appVpc.vpc,
+        description: 'App Runner VPC connector — reach Aurora + EMQX',
+        allowAllOutbound: true,
+      }
+    );
+    const workerSg = new ec2.SecurityGroup(this, 'WorkerSg', {
+      vpc: appVpc.vpc,
+      description: 'ECS worker tasks',
+      allowAllOutbound: true,
+    });
 
-    this.addOutputs({ webApp, patchDbApp, reqRes });
+    const database = new AppDatabase(this, 'Database', {
+      vpc: appVpc.vpc,
+      allowedClients: [appRunnerConnectorSg, workerSg],
+    });
+
+    const dockerAsset = new ecr_assets.DockerImageAsset(this, 'AppImage', {
+      directory: REPO_ROOT,
+      file: 'Dockerfile',
+      platform: ecr_assets.Platform.LINUX_AMD64,
+      exclude: [
+        'packages/aws/**',
+        'packages/patch-db-app/**',
+        'packages/local/**',
+        'node_modules',
+        '.git',
+        'dist',
+        'packages/app/dist',
+        'packages/patch-db-app/dist',
+        '.expo',
+        'web-build',
+        'ios',
+        'android',
+        '.sim-recordings',
+        '.cursor',
+      ],
+    });
+
+    const emqx = new EmqxCluster(this, 'Emqx', {
+      vpc: appVpc.vpc,
+      vpcClientSecurityGroups: [appRunnerConnectorSg, workerSg],
+    });
+
+    new WorkerService(this, 'Worker', {
+      vpc: appVpc.vpc,
+      cluster: emqx.ecsCluster,
+      dockerAsset,
+      database: database.cluster,
+      emqx,
+      taskSecurityGroup: workerSg,
+    });
+
+    const privateWithEgress = appVpc.vpc.selectSubnets({
+      subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+    });
+
+    const reqRes = new ReqRes(this, 'ReqRes', {
+      dockerAsset,
+      vpc: appVpc.vpc,
+      database: database.cluster,
+      internalMqttUrl: emqx.internalMqttUrl,
+      vpcConnectorSubnets: privateWithEgress.subnets,
+      vpcConnectorSecurityGroups: [appRunnerConnectorSg],
+    });
+
+    this.addOutputs({ webApp, patchDbApp, reqRes, database, emqx });
   }
 
   private addOutputs({
     webApp,
     patchDbApp,
     reqRes,
+    database,
+    emqx,
   }: {
     webApp: WebApp;
     patchDbApp: PatchDbApp;
     reqRes: ReqRes;
+    database: AppDatabase;
+    emqx: EmqxCluster;
   }): void {
     new cdk.CfnOutput(this, 'ReqResUrl', {
-      // App Runner attrServiceUrl is hostname-only; align with WebApp/PatchDb https:// outputs.
       value: `https://${reqRes.service.attrServiceUrl}`,
+    });
+    new cdk.CfnOutput(this, 'DatabaseClusterEndpoint', {
+      value: database.cluster.clusterEndpoint.hostname,
+      description: 'Aurora PostgreSQL writer hostname',
+    });
+    new cdk.CfnOutput(this, 'EmqxInternalMqttUrl', {
+      value: emqx.internalMqttUrl,
+      description: 'VPC-internal MQTT URL for App Runner / worker',
+    });
+    new cdk.CfnOutput(this, 'EmqxPublicNlbDns', {
+      value: emqx.publicNlbDnsName,
+      description: 'Public NLB DNS — mqtt://host:1883 and tcp :8083 for WebSocket',
     });
     new cdk.CfnOutput(this, 'WebAppBucketName', {
       value: webApp.bucket.bucketName,

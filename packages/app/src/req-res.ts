@@ -1,25 +1,48 @@
+import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
 import { createPatchDbReqResHandler } from '@gamezilla/patch-db/req-res';
 import { assert } from '@gamezilla/shared/assert';
 import { NodeCrashHandler } from '@gamezilla/shared/assert/crash/crash-handler/crash-handler-node';
 import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
+import { MqttPubSub } from '@gamezilla/shared/pub-sub/impl-mqtt';
+import type { PubSub } from '@gamezilla/shared/pub-sub/interface';
+import { SqlClientImplBunPostgres } from '@gamezilla/shared/sql-client/impl-bun-postgres';
 import { SqlClientImplBunSqlite } from '@gamezilla/shared/sql-client/impl-bun-sqlite';
+import { resolveDatabaseUrl } from './database-url';
 
 assert.registerCrashHandler(new NodeCrashHandler());
 
 const PORT = parseInt(process.env['PORT'] ?? '5001');
 assert.integer(PORT, 'PORT must be an integer');
 
-const sqlClient = SqlClientImplBunSqlite.open(':memory:');
-await sqlClient.connect();
+const databaseUrl = resolveDatabaseUrl();
+const pubSubUrl = process.env['PUBSUB_URL'];
 
-const patchDb = new PatchDbImplSqlite(sqlClient);
-await patchDb.migrate();
+let patchDb: PatchDbImplSqlite | PatchDbImplPostgres;
+let pubSub: PubSub;
+
+if (databaseUrl !== undefined) {
+  const sqlClient = SqlClientImplBunPostgres.connect(databaseUrl);
+  await sqlClient.connect();
+  patchDb = new PatchDbImplPostgres(sqlClient);
+  await patchDb.migrate();
+} else {
+  const sqlClient = SqlClientImplBunSqlite.open(':memory:');
+  await sqlClient.connect();
+  patchDb = new PatchDbImplSqlite(sqlClient);
+  await patchDb.migrate();
+}
+
+if (pubSubUrl !== undefined && pubSubUrl !== '') {
+  pubSub = await MqttPubSub.connect(pubSubUrl);
+} else {
+  pubSub = new InMemoryPubSub();
+}
 
 const { handleRequest: handlePatchDb, basePath: patchDbBasePath } =
   createPatchDbReqResHandler({
     db: patchDb,
-    pubSub: new InMemoryPubSub(),
+    pubSub,
     instrumentation: true,
   });
 

@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 /** This file lives in `packages/aws/setup-cli/`. */
 const SETUP_CLI_DIR = dirname(fileURLToPath(import.meta.url));
 
-/** Directory containing `cdk.json` (the `gamezilla-aws` package). */
+/** Directory containing `cdk.json` (the `packages/aws` package). */
 export const AWS_PACKAGE_ROOT = join(SETUP_CLI_DIR, '..');
 
 export const OIDC_TEMPLATE_PATH = join(

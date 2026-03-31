@@ -13,6 +13,12 @@ const SUMMARY_SERVICES = [
   { label: 'Req Res', outputKey: 'ReqResUrl' },
 ] as const;
 
+const SUMMARY_INFRA = [
+  { label: 'Aurora endpoint', outputKey: 'DatabaseClusterEndpoint' },
+  { label: 'EMQX (VPC)', outputKey: 'EmqxInternalMqttUrl' },
+  { label: 'EMQX public NLB', outputKey: 'EmqxPublicNlbDns' },
+] as const;
+
 const SUMMARY_NAMESERVERS = [
   { domain: 'gamezilla.app', outputKey: 'Route53Nameservers' },
   { domain: 'patchdb.dev', outputKey: 'PatchDbNameservers' },
@@ -41,6 +47,13 @@ export class WriteSummaryCommand extends BasePipelineCommand {
       return `| **${label}** | ${url} |`;
     }).join('\n');
 
+    const infraRows = SUMMARY_INFRA.map(({ label, outputKey }) => {
+      const v = outputs[outputKey];
+      const cell =
+        v !== undefined && v !== '' && v !== 'null' ? v : '_(not in outputs)_';
+      return `| **${label}** | ${cell} |`;
+    }).join('\n');
+
     const nsBlocks = SUMMARY_NAMESERVERS.map(({ domain, outputKey }) => {
       const raw = outputs[outputKey];
       if (raw === undefined || raw === '') return '';
@@ -60,6 +73,10 @@ export class WriteSummaryCommand extends BasePipelineCommand {
 | Service | URL |
 |---------|-----|
 ${serviceRows}
+
+| Infra | Value |
+|-------|-------|
+${infraRows}
 
 ### Custom Domain Setup
 

@@ -699,43 +699,22 @@ Chess.com          500k-1M       ~$6,752
 4x Chess.com       4M            architecture unchanged, add EMQX nodes
 ```
 
-### docker-compose
+### Local infra (`packages/local`)
 
-```yaml
-services:
-  reqres:
-    build: .
-    environment:
-      SERVICE: ReqRes
-      DATABASE_URL: postgresql://postgres:localpass@postgres:5432/gamedb
-      PUBSUB_URL: mqtt://emqx:1883
-    ports:
-      - "3000:3000"
+Postgres + EMQX run via Docker Compose in the **`@gamezilla/local`** workspace package (infra only — no app containers).
 
-  emqx:
-    image: emqx:5
-    ports:
-      - "1883:1883"    # MQTT TCP
-      - "8083:8083"    # MQTT WebSocket (clients connect here)
-      - "18083:18083"  # Dashboard — visualize connections, topics, message rates
-    environment:
-      EMQX_NODE_NAME: emqx@127.0.0.1
-      EMQX_DASHBOARD__DEFAULT_PASSWORD: localpass
+```bash
+# From repo root: start postgres + emqx
+bun run --filter @gamezilla/local up
 
-  worker:
-    build: .
-    environment:
-      SERVICE: Worker
-      DATABASE_URL: postgresql://postgres:localpass@postgres:5432/gamedb
-      PUBSUB_URL: mqtt://emqx:1883
-
-  postgres:
-    image: postgres:16
-    environment:
-      POSTGRES_PASSWORD: localpass
-    ports:
-      - "5432:5432"
+# Req res + worker with hot reload (after infra is up)
+bun run dev:backend
+# or: turbo run dev:req-res dev:worker --parallel
 ```
+
+Compose file: [`packages/local/docker-compose.yml`](packages/local/docker-compose.yml) — `postgres:16`, `emqx/emqx:5`, ports `5432`, `1883`, `8083`, `18083`.
+
+Run **Req res** and **Worker** on the host with Bun (`packages/app` scripts `dev:req-res` / `dev:worker`): they use `DATABASE_URL` + `PUBSUB_URL` pointing at `127.0.0.1` and the same credentials as compose.
 
 ---
 
