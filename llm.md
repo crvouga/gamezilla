@@ -102,4 +102,4 @@ A lightweight container with typed tokens, parent/child scoping, and circular de
 
 ### Deployment
 
-AWS CDK provisions everything. GitHub Actions runs the full pipeline on every push to `main`. The sync server runs as a Bun container on App Runner. The web app is a static Expo export served from S3 + CloudFront.
+AWS CDK provisions everything. GitHub Actions runs the full pipeline on every push to `main`. The server req res runs as a Bun container on App Runner. The web app is a static Expo export served from S3 + CloudFront.

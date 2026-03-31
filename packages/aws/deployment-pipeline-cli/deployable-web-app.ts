@@ -14,14 +14,14 @@ export class WebAppDeployable implements Deployable {
 
   deploy(outputs: StackOutputs): void {
     const syncUrl = toHttps(
-      requireOutput(this.platform, outputs, 'SyncServerUrl')
+      requireOutput(this.platform, outputs, 'ServerReqResUrl')
     );
     const bucket = requireOutput(this.platform, outputs, 'WebAppBucketName');
     const distId = requireOutput(this.platform, outputs, 'WebDistributionId');
 
     if (!/^https:\/\//.test(syncUrl)) {
       this.platform.error(
-        `PATCH_DB_SYNC_SERVER_URL must be https:// (got: ${syncUrl})`
+        `PATCH_DB_SERVER_REQ_RES_URL must be https:// (got: ${syncUrl})`
       );
       assert.fail('web-app: sync URL must be https://');
     }
@@ -46,9 +46,9 @@ export class WebAppDeployable implements Deployable {
     }
     const o = doc as { local: unknown; prod: Record<string, unknown> };
     const syncBaseUrl = `${syncUrl.replace(/\/$/, '')}/patch-db`;
-    o.prod['PATCH_DB_SYNC_SERVER_URL'] = syncBaseUrl;
+    o.prod['PATCH_DB_SERVER_REQ_RES_URL'] = syncBaseUrl;
     assert.equals(
-      o.prod['PATCH_DB_SYNC_SERVER_URL'],
+      o.prod['PATCH_DB_SERVER_REQ_RES_URL'],
       syncBaseUrl,
       'web-app: sync URL must be set'
     );
@@ -64,10 +64,33 @@ export class WebAppDeployable implements Deployable {
     run(
       this.platform,
       'aws',
-      ['s3', 'sync', 'dist/', `s3://${bucket}/`, '--delete'],
-      {
-        cwd: appDir,
-      }
+      [
+        's3',
+        'sync',
+        'dist/',
+        `s3://${bucket}/`,
+        '--delete',
+        '--exclude',
+        '*.wasm',
+      ],
+      { cwd: appDir }
+    );
+    run(
+      this.platform,
+      'aws',
+      [
+        's3',
+        'sync',
+        'dist/',
+        `s3://${bucket}/`,
+        '--exclude',
+        '*',
+        '--include',
+        '*.wasm',
+        '--content-type',
+        'application/wasm',
+      ],
+      { cwd: appDir }
     );
     run(
       this.platform,

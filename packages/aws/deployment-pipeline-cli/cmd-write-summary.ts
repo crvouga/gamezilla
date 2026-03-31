@@ -10,7 +10,7 @@ import type { CiPlatform } from './ci-platform';
 const SUMMARY_SERVICES = [
   { label: 'Web App', outputKey: 'WebAppUrl' },
   { label: 'PatchDB App', outputKey: 'PatchDbAppUrl' },
-  { label: 'Sync Server', outputKey: 'SyncServerUrl' },
+  { label: 'Server Req Res', outputKey: 'ServerReqResUrl' },
 ] as const;
 
 const SUMMARY_NAMESERVERS = [

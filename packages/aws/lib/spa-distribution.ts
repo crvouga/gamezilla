@@ -1,4 +1,3 @@
-import * as cdk from 'aws-cdk-lib';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
@@ -88,13 +87,5 @@ export function createSpaDistribution(
     defaultRootObject: 'index.html',
     ...customTls,
     minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
-    errorResponses: [
-      {
-        httpStatus: 403,
-        responseHttpStatus: 200,
-        responsePagePath: '/index.html',
-        ttl: cdk.Duration.minutes(0),
-      },
-    ],
   });
 }

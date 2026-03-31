@@ -53,11 +53,11 @@
     "ios": "expo start --ios",
     "lint": "expo lint",
     "start": "expo start",
-    "req-res": "bun run src/sync-server.ts",
-    "pub-sub": "bun run src/sync-server.ts",
-    "worker": "bun run src/sync-server.ts",
-    "sync-server": "bun run src/sync-server.ts",
-    "sync-server:watch": "bun --watch src/sync-server.ts",
+    "req-res": "bun run src/server-req-res.ts",
+    "pub-sub": "bun run src/server-req-res.ts",
+    "worker": "bun run src/server-req-res.ts",
+    "server-req-res": "bun run src/server-req-res.ts",
+    "server-req-res:watch": "bun --watch src/server-req-res.ts",
     "tc": "tsc --noEmit -p ../../tsconfig.json",
     "web": "expo start --web"
   }

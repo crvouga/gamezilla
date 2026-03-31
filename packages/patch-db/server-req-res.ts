@@ -7,7 +7,7 @@ import { PatchDbImplInstrumentedSyncHost } from './transport/instrumented-sync-h
 import type { PatchDbSyncHost } from './transport/interface';
 import { patchDbPaths } from './transport/paths';
 
-export type PatchDbSyncServerConfig = {
+export type PatchDbServerReqResConfig = {
   db: PatchesDb;
   pubSub: PubSub;
   /** Default: `/patch-db`. */
@@ -19,12 +19,12 @@ export type PatchDbSyncServerConfig = {
       };
 };
 
-export type PatchDbSyncRequestHandler = (
+export type PatchDbServerReqResRequestHandler = (
   req: Request
 ) => Promise<Response | null>;
 
-export type PatchDbSyncHandlerBundle = {
-  handleRequest: PatchDbSyncRequestHandler;
+export type PatchDbServerReqResHandlerBundle = {
+  handleRequest: PatchDbServerReqResRequestHandler;
   basePath: string;
   /** Present when `instrumentation` is enabled; stops periodic metric writes. */
   dispose?: () => void;
@@ -34,9 +34,9 @@ export type PatchDbSyncHandlerBundle = {
  * Wires PatchesDb + PubSub into a sync host (optional instrumentation) and an
  * HTTP handler that speaks the patch-db wire protocol (Request / Response).
  */
-export function createPatchDbSyncHandler(
-  config: PatchDbSyncServerConfig
-): PatchDbSyncHandlerBundle {
+export function createPatchDbServerReqResHandler(
+  config: PatchDbServerReqResConfig
+): PatchDbServerReqResHandlerBundle {
   const { basePath: normalizedBase } = patchDbPaths(config.basePath);
 
   let host: PatchDbSyncHost = new PatchDbImplSyncHost(config.db, config.pubSub);

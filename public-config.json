@@ -1,8 +1,8 @@
 {
   "local": {
-    "PATCH_DB_SYNC_SERVER_URL": "http://localhost:5001/patch-db"
+    "PATCH_DB_SERVER_REQ_RES_URL": "http://localhost:5001/patch-db"
   },
   "prod": {
-    "PATCH_DB_SYNC_SERVER_URL": "https://jd6kyb2g2a.us-east-1.awsapprunner.com/patch-db"
+    "PATCH_DB_SERVER_REQ_RES_URL": "https://jd6kyb2g2a.us-east-1.awsapprunner.com/patch-db"
   }
 }

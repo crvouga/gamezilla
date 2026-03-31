@@ -35,15 +35,20 @@ export class PatchDbAppDeployable implements Deployable {
       this.platform,
       'aws',
       [
-        's3',
-        'sync',
-        'packages/patch-db-app/dist/',
-        `s3://${bucket}/`,
-        '--delete',
+        's3', 'sync', 'packages/patch-db-app/dist/', `s3://${bucket}/`,
+        '--delete', '--exclude', '*.wasm',
       ],
-      {
-        cwd: REPO_ROOT,
-      }
+      { cwd: REPO_ROOT }
+    );
+    run(
+      this.platform,
+      'aws',
+      [
+        's3', 'sync', 'packages/patch-db-app/dist/', `s3://${bucket}/`,
+        '--exclude', '*', '--include', '*.wasm',
+        '--content-type', 'application/wasm',
+      ],
+      { cwd: REPO_ROOT }
     );
     run(
       this.platform,

@@ -6,7 +6,7 @@ import * as path from 'node:path';
 
 const REPO_ROOT = path.join(__dirname, '..', '..', '..');
 
-export class SyncServer extends Construct {
+export class ServerReqRes extends Construct {
   readonly service: apprunner.CfnService;
 
   constructor(scope: Construct, id: string) {

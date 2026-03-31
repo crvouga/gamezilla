@@ -38,6 +38,6 @@ export class DeployCommand extends BaseSetupCommand {
     console.log('\nDeployed URLs (from CDK outputs):');
     console.log(`  WebAppUrl:      ${outputs.WebAppUrl ?? '(missing)'}`);
     console.log(`  PatchDbAppUrl:  ${outputs.PatchDbAppUrl ?? '(missing)'}`);
-    console.log(`  SyncServerUrl:  ${outputs.SyncServerUrl ?? '(missing)'}\n`);
+    console.log(`  ServerReqResUrl:  ${outputs.ServerReqResUrl ?? '(missing)'}\n`);
   }
 }

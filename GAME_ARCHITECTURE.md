@@ -5,9 +5,10 @@
 **Smart clients, dumb servers.** All game intelligence lives in shared client code. Servers are stateless dumb relays — they move bytes, nothing else. This follows the end-to-end principle from original internet architecture: intelligence belongs at the endpoints, not in the network.
 
 ```
-Dumb relay boxes     → clients route via consistent hashing
-Dumb pub/sub broker  → clients handle consensus
-Dumb event log       → clients replay and reconstruct state
+ReqRes (HTTP)        → clients sync local DBs, create games
+PubSub (EMQX MQTT)   → global broker, clients connect to nearest node
+Worker (MQTT sub)    → referee validates commands, persists event log
+Aurora (DB)          → event log, reconnect recovery, never primary storage
 ```
 
 ---
@@ -173,7 +174,7 @@ t=30ms  All peers receive event → handleEvent → committed state
 t=30ms  Optimistic cleared, UI re-renders with committed state
 ```
 
-30ms total. One box hop. No server authority.
+30ms total. One EMQX hop. No server authority.
 
 ### On rejection
 
@@ -185,39 +186,29 @@ Quorum rejects → rollback optimistic state
 
 ---
 
-## Transport — Smart Clients, MQTT Relay
+## Transport — Smart Clients, MQTT + EMQX
 
-### Broker
-
-MQTT is the relay protocol in all environments. Same client code, same topics, same behavior — only the broker changes.
+MQTT is the protocol in all environments. Same client code, same topics, same behavior — only the broker URL changes.
 
 ```
-Production:  AWS IoT Core   wss://{account}.iot.{region}.amazonaws.com/mqtt
-Local dev:   Mosquitto       mqtt://localhost:1883
+Production:  EMQX cluster (4 nodes globally)   wss://mqtt.yourgame.com/mqtt
+Local dev:   EMQX single node (Docker)          mqtt://localhost:1883
 ```
 
-IoT Core handles TLS and SigV4 auth. Mosquitto is anonymous. Everything above the adapter is identical.
+EMQX handles cross-node routing natively — clients connect to any node, messages reach all subscribers regardless of which node they're on. No consistent hashing needed on the client.
 
-### MQTT Relay Adapter
+### MQTT Adapter
 
 ```typescript
-// shared/adapters/mqtt-relay.adapter.ts
+// shared/adapters/mqtt.adapter.ts
 import * as mqtt from 'mqtt';
 
-export class MqttRelayAdapter implements PubSubPort {
+export class MqttAdapter implements PubSubPort {
   private client: mqtt.MqttClient;
   private handlers = new Map<string, Set<(payload: object) => Promise<void>>>();
 
-  constructor() {
-    this.client = mqtt.connect(
-      process.env.NODE_ENV === 'production'
-        ? `wss://${process.env.IOT_ENDPOINT}/mqtt`  // IoT Core
-        : 'mqtt://localhost:1883',                   // Mosquitto
-      {
-        username: process.env.IOT_ACCESS_KEY,        // IoT Core auth
-        password: process.env.IOT_SESSION_TOKEN,     // ignored by Mosquitto
-      }
-    );
+  constructor(url: string) {
+    this.client = mqtt.connect(url);
 
     this.client.on('message', (topic, message) => {
       const payload = JSON.parse(message.toString());
@@ -240,89 +231,23 @@ export class MqttRelayAdapter implements PubSubPort {
 }
 ```
 
-### Local dev — Mosquitto via docker-compose
+### Client connection — dead simple
 
-```yaml
-services:
-  mosquitto:
-    image: eclipse-mosquitto:2
-    ports:
-      - "1883:1883"
-      - "9001:9001"   # WebSocket for browser clients
-    volumes:
-      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
-```
-
-```conf
-# mosquitto.conf
-listener 1883
-listener 9001
-protocol websockets
-allow_anonymous true
-```
-
-### Infrastructure
-
-3-5 IoT Core endpoints distributed globally via Route 53 latency routing. No server-to-server communication. No shared state. Pure MQTT relay.
-
-```
-IoT Core (us-east-1)
-IoT Core (eu-west-1)       ← stateless dumb MQTT brokers
-IoT Core (ap-northeast-1)
-```
-
-### Deterministic endpoint assignment
-
-Every client independently computes the same IoT Core endpoint for a given game. No coordination, no RPC lookup needed.
+No routing logic. Route 53 latency-based routing sends clients to nearest EMQX node automatically:
 
 ```typescript
-import ConsistentHashing from 'consistent-hashing';
-
-const ENDPOINTS = [
-  'wss://xxx.iot.us-east-1.amazonaws.com/mqtt',
-  'wss://xxx.iot.eu-west-1.amazonaws.com/mqtt',
-  'wss://xxx.iot.ap-northeast-1.amazonaws.com/mqtt',
-];
-
-const ring = new ConsistentHashing(ENDPOINTS);
-
-function getEndpointForGame(gameId: string): string {
-  return ring.getNode(gameId); // same answer on every client
-}
+// one URL, forever — Route 53 handles geography
+const pubsub = new MqttAdapter(process.env.PUBSUB_URL);
+// Tokyo client    → ap-northeast-1 node
+// London client   → eu-west-1 node
+// New York client → us-east-1 node
 ```
-
-Consistent hashing means adding/removing endpoints only remaps that endpoint's games, not all games.
-
-### Client holds 1 MQTT connection per active game
-
-```typescript
-const endpoint = getEndpointForGame(gameId);
-const pubsub = new MqttRelayAdapter(endpoint);
-```
-
-Player A, Player B, and Referee all hash `gameId` and arrive at the same IoT Core endpoint independently.
-
-### Scaling model
-
-```
-IoT Core pricing:
-  $0.042  per million connection-minutes
-  $0.08   per million messages (5kb chunks)
-
-3 regions   ~$50/month at 10k users    scales to millions of connections
-5 regions   ~$100/month at 10k users   consistent hashing distributes load
-10 regions  add regions freely         clients auto-route, no config change
-```
-
-IoT Core wins vs Ably below ~150M messages/month on ops simplicity. Above that, self-hosted dumb relay boxes on App Runner/EC2 win on flat compute cost (~$360-600/month for 3-5 boxes, ~2.6B messages/month per box).
 
 ### Offline / P2P fallback
 
-Same `GameModule`, same consensus protocol, different transport:
-
 ```typescript
-// online — IoT Core via MQTT
-const transport = new MqttTransport(getEndpointForGame(gameId));
+// online — EMQX cluster
+const transport = new MqttTransport(process.env.PUBSUB_URL);
 
 // offline — WebRTC direct
 const transport = new WebRtcTransport(peerId);
@@ -330,6 +255,164 @@ const transport = new WebRtcTransport(peerId);
 // same engine, unaware of transport
 const engine = new GameEngine(ChessModule, playerId, transport, ...);
 ```
+
+---
+
+## Compute Resources — Two App Runner Services + EMQX
+
+### Philosophy
+
+```
+ReqRes   synchronous request/response    HTTP only         App Runner
+Worker   asynchronous message processing MQTT sub only     App Runner
+PubSub   asynchronous message relay      MQTT broker       EMQX cluster
+```
+
+PubSub is not an app — it is a deployment of EMQX. Zero application code. Config only.
+
+### Service contracts
+
+```
+ReqRes:
+  IN:   HTTP requests from clients
+  OUT:  HTTP responses + MQTT publish to EMQX
+  DB:   read + write (Aurora)
+  MQTT: publish only — never subscribes
+
+EMQX (PubSub):
+  IN:   MQTT from clients + Worker + ReqRes
+  OUT:  MQTT to clients + Worker
+  DB:   never touches
+  HTTP: never touches
+  Logic: zero — pure broker, no application code
+
+Worker:
+  IN:   MQTT from EMQX ($share/workers/# shared subscription)
+  OUT:  MQTT publish back to EMQX
+  DB:   read + write (Aurora)
+  HTTP: never touches clients
+```
+
+### Scaling model
+
+```
+ReqRes   round robin replicas         App Runner load balancer
+         scale trigger: request volume
+
+EMQX     4 nodes globally             Route 53 latency routing
+         scale trigger: geography     NOT capacity — 1 node handles 1M connections
+         add nodes for new regions    not for more users
+
+Worker   competing consumers          MQTT shared subscriptions
+         scale trigger: message throughput
+```
+
+### EMQX — 4 nodes handles Chess.com scale
+
+```
+Chess.com peak: ~1M concurrent connections
+EMQX per node:  ~1M connections (benchmarked, Erlang/OTP actor model)
+
+Nodes needed for capacity:   1
+Nodes needed for geography:  4
+
+Node layout:
+  us-east-1        North + South America   ~250k connections
+  eu-west-1        Europe + Africa         ~250k connections
+  ap-northeast-1   Japan, Korea, China     ~250k connections
+  ap-southeast-1   India, SEA, Australia   ~250k connections
+
+Instance per node: c6g.2xlarge (8 vCPU, 16GB) = $200/month
+Total EMQX cost:   4 × $200 = $800/month for Chess.com scale
+```
+
+EMQX cluster gossip routes messages between nodes natively. A game where Player A is on the Tokyo node and Player B is on the London node works automatically — no application code handles this.
+
+### Worker — competing consumers via shared subscriptions
+
+MQTT shared subscriptions ensure exactly one Worker instance processes each message:
+
+```typescript
+// worker/main.ts
+const mqtt = connect(process.env.PUBSUB_URL);
+
+// $share/{group}/{topic} — only one Worker gets each message
+mqtt.subscribe('$share/workers/games/+/commands');  // referee validation
+mqtt.subscribe('$share/workers/sync/+/mutations');  // reconciliation
+
+mqtt.on('message', async (topic, payload) => {
+  if (topic.includes('/commands')) await handleCommand(topic, payload);
+  if (topic.includes('/mutations')) await handleMutation(topic, payload);
+});
+```
+
+### Worker — game state from Aurora, no Redis needed
+
+Worker fetches game state directly from Aurora. Redis is not needed because:
+
+- Worker is not in the critical path — quorum reached on Player B + Worker ACK in parallel
+- Worker latency only matters in dispute resolution (rare)
+- Aurora in same region ~5ms — Redis would save 2ms, not worth the ops cost
+- Event sourced state is fully derivable from event log — no cache coherence problems
+
+### Worker latency — not in critical path
+
+```
+Happy path (no dispute):
+  Player B ACK:    ~10ms  ← quorum reached here, game commits
+  Worker ACK:      ~20ms  ← arrives after commit, irrelevant
+
+Dispute path (Player B lies):
+  Player B REJECT: ~10ms
+  Worker ACK:      ~20ms  ← tiebreaker, commits game
+  Total:           ~20ms  ← invisible in turn-based chess
+
+Worker down:
+  No quorum in dispute → timeout after 5s → surface to user
+```
+
+### Worker down handling
+
+```typescript
+const QUORUM_TIMEOUT = 5_000;
+
+setTimeout(() => {
+  if (consensus.status === 'PENDING') {
+    onRefereeUnavailable();
+  }
+}, QUORUM_TIMEOUT);
+```
+
+### CDK — two App Runner services, one Docker image
+
+```typescript
+const services = [
+  { name: 'ReqRes', port: 3000, minSize: 1, maxSize: 10 },
+  { name: 'Worker', port: 3000, minSize: 1, maxSize: 20 },
+];
+
+services.forEach(({ name, port, minSize, maxSize }) => {
+  new apprunner.Service(stack, name, {
+    source: apprunner.Source.fromEcr({
+      imageConfiguration: {
+        port,
+        environmentVariables: {
+          SERVICE: name,
+          DATABASE_URL: cluster.clusterEndpoint.socketAddress,
+          PUBSUB_URL: process.env.EMQX_URL,
+        },
+      },
+      repository: ecrRepo,
+      tag: 'latest',
+    }),
+    autoScalingConfiguration: new apprunner.AutoScalingConfiguration(
+      stack, `${name}Scale`, { minSize, maxSize }
+    ),
+  });
+});
+```
+
+`SERVICE` env var determines which `main.ts` boots. Same Docker image for both.
 
 ---
 
@@ -452,13 +535,13 @@ export interface PubSubPort {
 ```
 Environment         GameTransport         PubSub
 ──────────────────────────────────────────────────────
-Online              MqttTransport         MqttRelayAdapter (IoT Core)
+Online              MqttTransport         MqttAdapter (EMQX cluster)
 Offline P2P         WebRtcTransport       WebRtcAdapter
-Local dev           MqttTransport         MqttRelayAdapter (Mosquitto)
-Server (optional)   MqttTransport         MqttRelayAdapter (IoT Core)
+Local dev           MqttTransport         MqttAdapter (EMQX single node)
+Worker              MqttTransport         MqttAdapter (EMQX shared subscription)
 ```
 
-Same `MqttRelayAdapter` in all networked environments — env vars swap the broker.
+Same `MqttAdapter` everywhere — `PUBSUB_URL` env var is the only difference between local and prod.
 
 ---
 
@@ -471,7 +554,7 @@ export function useGame(gameId: string, playerId: string) {
   const engineRef = useRef<GameEngine<...>>();
 
   useEffect(() => {
-    const transport = new WsTransport(getBoxForGame(gameId));
+    const transport = new MqttTransport(process.env.PUBSUB_URL);
     engineRef.current = new GameEngine(ChessModule, playerId, transport, setState, setError);
 
     // rehydrate from event log on mount/reconnect
@@ -510,45 +593,64 @@ function ChessGame({ gameId, playerId }: Props) {
 
 ---
 
-## Server — Optional, Never Authority
+## Worker — Peer, Never Authority
 
-The server is always a peer, never a ruler. It participates in consensus using identical `GameModule` code:
+Worker participates in consensus using identical `GameModule` code. It is always a peer, never a ruler.
 
 ```typescript
-// server subscribes to commands, validates, votes
-this.pubsub.subscribe('games/+/commands', async (cmd) => {
-  const state = await this.getState(cmd.gameId);
-  const result = GameModule.handleCommand({ state, command: cmd });
+// worker/game-command.handler.ts
+mqtt.subscribe('$share/workers/games/+/commands');
 
-  await this.pubsub.publish(`games/${cmd.gameId}/votes`, {
-    commandId: cmd.id,
-    from: 'server',
+mqtt.on('message', async (topic, raw) => {
+  const command = JSON.parse(raw.toString());
+  const gameId = topic.split('/')[1];
+
+  // fetch minimal state from Aurora
+  const events = await db.query(
+    'SELECT * FROM game_events WHERE game_id = $1 ORDER BY seq ASC',
+    [gameId]
+  );
+  const state = reduce(GameModule, events.rows);
+
+  // validate using identical GameModule — same code as clients
+  const result = GameModule.handleCommand({ state, command });
+
+  // publish vote back to PubSub
+  await pubsub.publish(`games/${gameId}/votes`, {
+    commandId: command.id,
+    from: 'worker',
     vote: result.ok ? 'ACK' : 'REJECT',
+    reason: result.ok ? undefined : result.error.message,
   });
 
-  // persist if valid — for reconnect recovery only
-  if (result.ok) await this.appendEvent(cmd.gameId, cmd);
+  // persist event log if valid — for reconnect recovery
+  if (result.ok) {
+    await db.query(
+      'INSERT INTO game_events (game_id, seq, type, payload) VALUES ($1, $2, $3, $4)',
+      [gameId, command.seq, command.payload.type, command.payload]
+    );
+  }
 });
 ```
 
-Server roles by game mode:
+Worker roles by game mode:
 
 ```
-Casual      → not involved
-Competitive → votes as fourth participant, persists event log
+Casual      → not involved (peer only consensus)
+Competitive → votes as referee, persists event log
 Ranked      → persists event log, flags suspicious patterns async
 ```
 
 ### Reconnect recovery
 
-Because state is event sourced, reconnect is trivial:
+State is event sourced — reconnect fetches missed events and replays:
 
 ```typescript
-ws.onclose = async () => {
+mqtt.on('disconnect', async () => {
   const missed = await gameApi.getEvents(gameId, { fromSeq: lastKnownSeq });
-  setState(reduce(module, missed));
+  setState(reduce(GameModule, missed));
   reconnect();
-};
+});
 ```
 
 ---
@@ -556,27 +658,83 @@ ws.onclose = async () => {
 ## Infrastructure Summary
 
 ```
-MQTT relay              AWS IoT Core, 3-5 regions globally
-                        Stateless dumb MQTT broker
-                        $0.042/million connection-minutes
-                        $0.08/million messages
-                        Consistent hashing assigns games to regions
+ReqRes         App Runner
+               HTTP request/response
+               Writes to Aurora, publishes invalidations to EMQX
+               Scales: round robin replicas — App Runner handles automatically
 
-RPC server              App Runner
-                        Game creation, referee selection, endpoint assignment
-                        Stateless HTTP
+Worker         App Runner
+               MQTT subscriber — referee + reconciliation
+               Shared subscriptions — competing consumers
+               Writes to Aurora, publishes votes/events/invalidations
+               Scales: add instances, EMQX distributes via shared subscriptions
 
-SSE sync server         App Runner
-                        PatchDB invalidation signals
-                        Stateless, one SSE connection per client
+EMQX           4 EC2 nodes globally (c6g.2xlarge, $200/month each)
+               Pure MQTT broker — zero application code, config only
+               1M connections per node — scales for geography not capacity
+               EMQX cluster gossip handles cross-node message routing
+               Route 53 latency routing — one URL, clients auto-route to nearest
+               Upgrade path: add nodes for new regions, never for more users
 
-Aurora Postgres         Event log, game registry, reputation
-                        Source of truth for reconnects only
+Aurora         Serverless v2 — scales to zero (CPU), memory floor ~$10/month
+               Event log, game registry, player reputation
+               Source of truth for reconnect recovery only
+               Clients never write directly — local first
 
-Local dev               docker-compose
-                        Mosquitto replaces IoT Core (same MQTT protocol)
-                        postgres:16 replaces Aurora
-                        Same Docker image as prod — perfect parity
+Local dev      docker-compose — one command, full stack
+               EMQX single node replaces 4-node cluster
+               Same Docker image for ReqRes + Worker
+               SERVICE env var boots correct process
+```
+
+### Scale at real world benchmarks
+
+```
+Scale              Concurrent    Monthly cost
+────────────────────────────────────────────────────
+Your game (early)  1k            ~$115
+Growing            10k           ~$280
+Lichess            147k          ~$1,933
+Chess.com          500k-1M       ~$6,752
+4x Chess.com       4M            architecture unchanged, add EMQX nodes
+```
+
+### docker-compose
+
+```yaml
+services:
+  reqres:
+    build: .
+    environment:
+      SERVICE: ReqRes
+      DATABASE_URL: postgresql://postgres:localpass@postgres:5432/gamedb
+      PUBSUB_URL: mqtt://emqx:1883
+    ports:
+      - "3000:3000"
+
+  emqx:
+    image: emqx:5
+    ports:
+      - "1883:1883"    # MQTT TCP
+      - "8083:8083"    # MQTT WebSocket (clients connect here)
+      - "18083:18083"  # Dashboard — visualize connections, topics, message rates
+    environment:
+      EMQX_NODE_NAME: emqx@127.0.0.1
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: localpass
+
+  worker:
+    build: .
+    environment:
+      SERVICE: Worker
+      DATABASE_URL: postgresql://postgres:localpass@postgres:5432/gamedb
+      PUBSUB_URL: mqtt://emqx:1883
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: localpass
+    ports:
+      - "5432:5432"
 ```
 
 ---
@@ -584,11 +742,11 @@ Local dev               docker-compose
 ## Dependencies
 
 ```typescript
-import { ulid } from 'ulid';                    // command IDs
-import murmurhash from 'murmurhash';            // box hashing
-import ConsistentHashing from 'consistent-hashing'; // stable box assignment
-import { Result, ok, err } from 'neverthrow';  // Result type
+import { ulid } from 'ulid';                 // command IDs
+import { Result, ok, err } from 'neverthrow'; // Result type
 ```
+
+No consistent hashing library needed — EMQX handles cross-node routing natively.
 
 Everything else — `GameModule`, `GameEngine`, `ConsensusProtocol`, `GameTransport` — is your code. ~500 lines total. No framework needed.
 
@@ -599,7 +757,13 @@ Everything else — `GameModule`, `GameEngine`, `ConsensusProtocol`, `GameTransp
 1. Events come only from `handleCommand` — never from outside
 2. State comes only from `handleEvent` — never mutated directly
 3. UI dispatches commands — never events
-4. Servers are peers — never authorities
-5. Boxes are relays — never stateful
-6. `GameModule` is pure — no side effects, no network, no DB
-7. Same `GameModule` code runs on all participants — client, referee, server
+4. Worker is a peer — never an authority
+5. EMQX is a relay — never stateful, never contains business logic
+6. ReqRes is HTTP only — never subscribes to MQTT
+7. Worker is MQTT only — never handles HTTP
+8. `GameModule` is pure — no side effects, no network, no DB
+9. Same `GameModule` code runs on all participants — client, Worker, offline
+10. Clients never write directly to Aurora — local first, sync via ReqRes
+11. No Redis — Worker fetches game state from Aurora directly, not in critical path
+12. No consistent hashing — EMQX cluster gossip handles cross-node routing natively
+13. EMQX scales for geography not capacity — add nodes for new regions, not more users

@@ -11,8 +11,8 @@ WORKDIR /app
 COPY --from=pruner /app/out/json/ .
 RUN bun install --frozen-lockfile --production
 COPY --from=pruner /app/out/full/ .
-# Root tsconfig is not part of the pruned tree; keep path aliases for sync-server.
+# Root tsconfig is not part of the pruned tree; keep path aliases for server-req-res.
 COPY --from=pruner /app/tsconfig.json ./tsconfig.json
 ENV PORT=8080
 EXPOSE 8080
-CMD ["bun", "run", "packages/app/src/sync-server.ts"]
+CMD ["bun", "run", "packages/app/src/server-req-res.ts"]

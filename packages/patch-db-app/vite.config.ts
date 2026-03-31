@@ -7,7 +7,7 @@ import { defineConfig } from 'vite';
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.join(dir, '..', '..');
 
-/** Dev: same-origin `/patch-db` → sync server so SSE + POST work without browser CORS issues. */
+/** Dev: same-origin `/patch-db` → server req res so SSE + POST work without browser CORS issues. */
 const syncProxyTarget =
   process.env['PATCHDB_SYNC_PROXY_TARGET'] ?? 'http://127.0.0.1:5001';
 
