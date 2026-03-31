@@ -30,8 +30,10 @@ export class CdkDeployCommand extends BasePipelineCommand {
         'deploy',
         '-c',
         'customDomain=true',
+        // Keep false so CI does not strip ACM + CloudFront aliases + Route53 www/apex
+        // (bootstrap=true is only for the one-time phase in `bun run setup domains-bootstrap`).
         '-c',
-        'customDomainBootstrap=true',
+        'customDomainBootstrap=false',
         '--require-approval',
         'never',
         '--outputs-file',

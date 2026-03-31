@@ -18,8 +18,8 @@ const SUMMARY_NAMESERVERS = [
   { domain: 'patchdb.dev', outputKey: 'PatchDbNameservers' },
 ] as const;
 
-const TLS_NOTE =
-  '**Bootstrap deploy:** ACM and CloudFront aliases are skipped in CI so the stack does not block on DNS. After nameservers propagate, run `cdk deploy -c customDomain=true -c customDomainBootstrap=false` locally (or adjust this workflow) to add TLS for `https://www.gamezilla.app` and `https://www.patchdb.dev`.';
+const CUSTOM_DOMAIN_NOTE =
+  '**Custom domain:** CI deploy uses `customDomainBootstrap=false` (TLS + `www` aliases). First-time setup: delegate NS at your registrar (see below), then run `bun run setup domains-finalize` from `packages/aws` if certs/aliases are not yet live.';
 
 export class WriteSummaryCommand extends BasePipelineCommand {
   readonly id = 'write-summary';
@@ -66,7 +66,7 @@ ${serviceRows}
 ${nsBlocks}
 `;
 
-    this.platform.appendJobSummary(`${body}\n${TLS_NOTE}\n`);
+    this.platform.appendJobSummary(`${body}\n${CUSTOM_DOMAIN_NOTE}\n`);
     this.platform.notice('Summary written.');
   }
 }
