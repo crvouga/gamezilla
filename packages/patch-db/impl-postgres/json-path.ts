@@ -7,25 +7,42 @@ import { assert } from '@gamezilla/shared/assert';
  * @example sqliteJsonPathToKey('$.foo') → 'foo'
  * @example sqliteJsonPathToKey('$."a/b"') → 'a/b'
  */
-export function sqliteJsonPathToKey(path: string): string {
-  assert.ok(path.startsWith('$.'), 'Invalid PostgreSQL JSON path', { path });
-  const rest = path.slice(2);
-  if (rest.startsWith('"')) {
-    let out = '';
-    for (let i = 1; i < rest.length; i++) {
-      const c = rest[i];
-      assert.defined(c, 'path parse');
-      if (c === '"') break;
-      if (c === '\\') {
-        i++;
-        const next = rest[i];
-        assert.defined(next, 'path parse escape');
-        out += next;
-        continue;
+export const sqliteJsonPathToKey = assert.fn({
+  pre: (path: string): void => {
+    assert.string(path, 'Invalid PostgreSQL JSON path');
+    assert.ok(path.startsWith('$.'), 'Invalid PostgreSQL JSON path');
+  },
+  post: (key: string): void => {
+    assert.string(key, 'Invalid PostgreSQL JSON path key (must be a string)');
+    assert.ok(key.length > 0, 'Invalid PostgreSQL JSON path key');
+    assert.ok(
+      !key.includes('/'),
+      'Invalid PostgreSQL JSON path key (contains /)'
+    );
+    assert.ok(
+      !key.includes('.'),
+      'Invalid PostgreSQL JSON path key (contains .)'
+    );
+  },
+  fn: (path: string): string => {
+    const rest = path.slice(2);
+    if (rest.startsWith('"')) {
+      let out = '';
+      for (let i = 1; i < rest.length; i++) {
+        const c = rest[i];
+        assert.defined(c, 'path parse');
+        if (c === '"') break;
+        if (c === '\\') {
+          i++;
+          const next = rest[i];
+          assert.defined(next, 'path parse escape');
+          out += next;
+          continue;
+        }
+        out += c;
       }
-      out += c;
+      return out;
     }
-    return out;
-  }
-  return rest;
-}
+    return rest;
+  },
+});

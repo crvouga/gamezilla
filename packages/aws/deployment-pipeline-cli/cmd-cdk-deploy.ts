@@ -2,6 +2,7 @@ import { assert } from '@gamezilla/shared/assert';
 import { BasePipelineCommand } from './base-command';
 import type { CiPlatform } from './ci-platform';
 import { CDK_BOOTSTRAP_CLOUDFORMATION_EXECUTION_POLICY } from './cdk-bootstrap-flags';
+import { CDK_DEPLOY_CONTEXT_ARGS } from './cdk-deploy-context';
 import { AWS_PACKAGE_ROOT } from './paths';
 import { run } from './run-subprocess';
 
@@ -28,12 +29,8 @@ export class CdkDeployCommand extends BasePipelineCommand {
       [
         'cdk',
         'deploy',
-        '-c',
-        'customDomain=true',
-        // Keep false so CI does not strip ACM + CloudFront aliases + Route53 www/apex
-        // (bootstrap=true is only for the one-time phase in `bun run setup domains-bootstrap`).
-        '-c',
-        'customDomainBootstrap=false',
+        ...CDK_DEPLOY_CONTEXT_ARGS,
+        // customDomainBootstrap=false: CI keeps ACM + CloudFront aliases (bootstrap=true is only for `setup domains-bootstrap`).
         '--require-approval',
         'never',
         '--outputs-file',

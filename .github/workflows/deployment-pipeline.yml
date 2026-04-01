@@ -70,6 +70,7 @@ jobs:
         run: bunx turbo deploy
 
       - name: Postchecks
+        timeout-minutes: 35
         run: bunx turbo deploy:postchecks
 
       - name: Summary

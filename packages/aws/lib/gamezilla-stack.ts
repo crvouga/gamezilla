@@ -4,6 +4,7 @@ import * as ecr_assets from 'aws-cdk-lib/aws-ecr-assets';
 import * as path from 'node:path';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import type { Construct } from 'constructs';
+import { assertAwsEc2SecurityGroupDescription } from './cdk-aws-preconditions';
 import { AppDatabase } from './database';
 import { AppVpc } from './vpc';
 import { WorkerService } from './ecs-worker';
@@ -54,14 +55,18 @@ export class GamezillaStack extends cdk.Stack {
     });
 
     const appVpc = new AppVpc(this, 'AppVpc');
+    const reqResTaskSgDesc = 'ECS req-res tasks - reach Aurora and EMQX';
+    assertAwsEc2SecurityGroupDescription(reqResTaskSgDesc, 'ReqResTaskSg');
     const reqResTaskSg = new ec2.SecurityGroup(this, 'ReqResTaskSg', {
       vpc: appVpc.vpc,
-      description: 'ECS req-res tasks — reach Aurora + EMQX',
+      description: reqResTaskSgDesc,
       allowAllOutbound: true,
     });
+    const workerSgDesc = 'ECS worker tasks';
+    assertAwsEc2SecurityGroupDescription(workerSgDesc, 'WorkerSg');
     const workerSg = new ec2.SecurityGroup(this, 'WorkerSg', {
       vpc: appVpc.vpc,
-      description: 'ECS worker tasks',
+      description: workerSgDesc,
       allowAllOutbound: true,
     });
 
@@ -145,7 +150,8 @@ export class GamezillaStack extends cdk.Stack {
     });
     new cdk.CfnOutput(this, 'EmqxPublicNlbDns', {
       value: emqx.publicNlbDnsName,
-      description: 'Public NLB DNS — mqtt://host:1883 and tcp :8083 for WebSocket',
+      description:
+        'Public NLB DNS: mqtt://host:1883 and tcp :8083 for WebSocket',
     });
     new cdk.CfnOutput(this, 'WebAppBucketName', {
       value: webApp.bucket.bucketName,

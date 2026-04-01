@@ -15,7 +15,8 @@ import {
   reasonIsSet,
 } from './cfn-shared';
 import { PROJECT_CONFIG } from '../project-config';
-import { REPO_ROOT } from './paths';
+import { CDK_DEPLOY_CONTEXT_ARGS } from './cdk-deploy-context';
+import { AWS_PACKAGE_ROOT, REPO_ROOT } from './paths';
 import { run } from './run-subprocess';
 
 function isValidAwsRegionFormat(value: string): boolean {
@@ -25,7 +26,7 @@ function isValidAwsRegionFormat(value: string): boolean {
 export class PreflightCommand extends BasePipelineCommand {
   readonly id = 'preflight';
   readonly summary =
-    'Validate AWS credentials (STS), gate stack, Docker build — one shot';
+    'Validate AWS (STS), stack gate, CDK synth invariants, Docker build';
 
   constructor(platform: CiPlatform) {
     super(platform);
@@ -37,6 +38,7 @@ export class PreflightCommand extends BasePipelineCommand {
     const region = this.requireAwsRegionValid();
     await this.assertCallerIdentity(region);
     await this.gateStack();
+    this.assertCdkSynthMatchesDeploy();
     this.assertDockerBuild();
   }
 
@@ -87,7 +89,7 @@ export class PreflightCommand extends BasePipelineCommand {
     }
 
     this.platform.notice(
-      `PREFLIGHT 1/3: caller ${id.Arn} account=${id.Account} region=${region}`
+      `PREFLIGHT 1/4: caller ${id.Arn} account=${id.Account} region=${region}`
     );
   }
 
@@ -98,7 +100,7 @@ export class PreflightCommand extends BasePipelineCommand {
     const d = await describeStack(client);
 
     if (d === null) {
-      this.platform.notice(`PREFLIGHT 2/3 (stack): ${STACK_NAME} absent — CDK will CREATE.`);
+      this.platform.notice(`PREFLIGHT 2/4 (stack): ${STACK_NAME} absent — CDK will CREATE.`);
       return;
     }
 
@@ -128,7 +130,23 @@ export class PreflightCommand extends BasePipelineCommand {
     assert.ok(DEPLOYABLE_STATUSES.has(status), 'gateStack: status must be deployable');
     assert.ok(!reasonIsSet(reason), 'gateStack: reason must not be set');
     this.platform.notice(
-      `PREFLIGHT 2/3 (stack): ${STACK_NAME} status=${status} — safe for CDK deploy.`
+      `PREFLIGHT 2/4 (stack): ${STACK_NAME} status=${status} — safe for CDK deploy.`
+    );
+  }
+
+  /**
+   * Fails fast on CDK construct mistakes (ASCII/ALB rules, etc.) before `cdk deploy`
+   * and Docker image push. Uses the same `-c` flags as deploy.
+   */
+  private assertCdkSynthMatchesDeploy(): void {
+    run(
+      this.platform,
+      'bunx',
+      ['cdk', 'synth', ...CDK_DEPLOY_CONTEXT_ARGS, '-q'],
+      { cwd: AWS_PACKAGE_ROOT }
+    );
+    this.platform.notice(
+      'PREFLIGHT 3/4 (cdk): template synthesized with deploy context — resource precondition asserts ran.'
     );
   }
 
@@ -175,6 +193,6 @@ export class PreflightCommand extends BasePipelineCommand {
 
   private assertDockerBuild(): void {
     run(this.platform, 'docker', ['build', '--quiet', '.'], { cwd: REPO_ROOT });
-    this.platform.notice('PREFLIGHT 3/3 (docker): Docker image builds successfully.');
+    this.platform.notice('PREFLIGHT 4/4 (docker): Docker image builds successfully.');
   }
 }

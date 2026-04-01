@@ -1,5 +1,5 @@
 {
-  "name": "gamezilla-aws",
+  "name": "@gamezilla/aws",
   "private": true,
   "scripts": {
     "build": "tsc",

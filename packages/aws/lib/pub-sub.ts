@@ -4,6 +4,7 @@ import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as servicediscovery from 'aws-cdk-lib/aws-servicediscovery';
 import { Construct } from 'constructs';
+import { assertAwsEc2SecurityGroupDescription } from './cdk-aws-preconditions';
 
 export const EMQX_DNS_NAMESPACE = 'app.local';
 export const EMQX_SERVICE_NAME = 'emqx';
@@ -40,9 +41,11 @@ export class EmqxCluster extends Construct {
       containerInsights: true,
     });
 
+    const emqxSgDesc = 'EMQX broker';
+    assertAwsEc2SecurityGroupDescription(emqxSgDesc, 'EmqxSg');
     const emqxSg = new ec2.SecurityGroup(this, 'EmqxSg', {
       vpc: props.vpc,
-      description: 'EMQX broker',
+      description: emqxSgDesc,
     });
     emqxSg.addIngressRule(
       ec2.Peer.anyIpv4(),
@@ -85,6 +88,8 @@ export class EmqxCluster extends Construct {
       cluster: this.ecsCluster,
       taskDefinition: taskDef,
       desiredCount: 1,
+      minHealthyPercent: 100,
+      maxHealthyPercent: 200,
       assignPublicIp: false,
       vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
       securityGroups: [emqxSg],

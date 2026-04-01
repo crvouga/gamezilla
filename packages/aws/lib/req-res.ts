@@ -9,6 +9,7 @@ import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import { Construct } from 'constructs';
+import { assertApplicationLoadBalancerTargetGroupHealthCheckCounts } from './cdk-aws-preconditions';
 
 export interface ReqResProps {
   readonly dockerAsset: ecr_assets.DockerImageAsset;
@@ -41,6 +42,8 @@ export class ReqRes extends Construct {
         memoryLimitMiB: 512,
         cpu: 256,
         desiredCount: 1,
+        minHealthyPercent: 100,
+        maxHealthyPercent: 200,
         publicLoadBalancer: true,
         assignPublicIp: false,
         taskSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
@@ -71,13 +74,20 @@ export class ReqRes extends Construct {
         healthCheckGracePeriod: cdk.Duration.seconds(60),
       });
 
+    const healthyThresholdCount = 2;
+    const unhealthyThresholdCount = 8;
+    assertApplicationLoadBalancerTargetGroupHealthCheckCounts({
+      healthyThresholdCount,
+      unhealthyThresholdCount,
+      context: 'ReqRes/ALB target group',
+    });
     this.loadBalancedService.targetGroup.configureHealthCheck({
       path: '/health',
       healthyHttpCodes: '200',
       interval: cdk.Duration.seconds(10),
       timeout: cdk.Duration.seconds(5),
-      healthyThresholdCount: 1,
-      unhealthyThresholdCount: 8,
+      healthyThresholdCount,
+      unhealthyThresholdCount,
     });
 
     this.loadBalancedService.node.addDependency(props.dockerAsset);
@@ -85,7 +95,7 @@ export class ReqRes extends Construct {
     cdk.Tags.of(this.loadBalancedService.service).add('Service', 'req-res');
 
     this.distribution = new cloudfront.Distribution(this, 'PublicApi', {
-      comment: 'Req res — HTTPS via CloudFront, origin ECS/ALB',
+      comment: 'Req res: HTTPS via CloudFront, origin ECS/ALB',
       defaultBehavior: {
         origin: new origins.LoadBalancerV2Origin(
           this.loadBalancedService.loadBalancer,
@@ -102,5 +112,10 @@ export class ReqRes extends Construct {
       },
       priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
     });
+
+    // Prefer creating the ECS service before the distribution so the first
+    // origin requests are less likely to race an empty target group (post-deploy
+    // still retries until HTTP succeeds).
+    this.distribution.node.addDependency(this.loadBalancedService.service);
   }
 }

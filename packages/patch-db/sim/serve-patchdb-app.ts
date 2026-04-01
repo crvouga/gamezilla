@@ -10,7 +10,7 @@ const ROOT = join(
   '..',
   '..',
   'packages',
-  'patch-db-app'
+  '@gamezilla/patch-db-app'
 );
 
 const port = Number(process.env['PATCHDB_APP_PORT'] ?? '8765');

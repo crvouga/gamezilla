@@ -28,7 +28,7 @@ export class PatchDbAppDeployable implements Deployable {
       'deploy: bucket and distId must be non-empty'
     );
 
-    run(this.platform, 'bun', ['run', '--filter', 'patch-db-app', 'build'], {
+    run(this.platform, 'bun', ['run', '--filter', '@gamezilla/patch-db-app', 'build'], {
       cwd: REPO_ROOT,
     });
     run(

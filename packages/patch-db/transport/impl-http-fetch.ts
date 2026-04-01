@@ -1,7 +1,7 @@
 import { assert } from '@gamezilla/shared/assert';
 import { fireAndForget } from '@gamezilla/shared/async/fire-and-forget';
 import type { Unsubscribe } from '@gamezilla/shared/pub-sub/interface';
-import { assertPatchDbReqResBaseUrl } from '../assert-req-res-base-url';
+import { assertUrl } from '../assert-url';
 import type {
   Patch,
   PatchesDbQuery,
@@ -18,7 +18,7 @@ import {
 
 export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
   constructor(private baseUrl: string) {
-    assertPatchDbReqResBaseUrl(baseUrl);
+    assertUrl(baseUrl);
   }
 
   private requestUrl(path: string): string {

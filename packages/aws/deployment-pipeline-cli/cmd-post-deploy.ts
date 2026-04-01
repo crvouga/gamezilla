@@ -15,7 +15,7 @@ const DNS_DOMAINS = [
 type HttpEndpointCheck = {
   readonly label: string;
   readonly outputKey: string;
-  /** If set, GET this path on the base URL (App Runner sync API has no document at `/`). */
+  /** If set, GET this path on the base URL (sync API may have no document at `/`). */
   readonly probePath?: string;
 };
 
@@ -27,7 +27,34 @@ const HTTP_ENDPOINTS: readonly HttpEndpointCheck[] = [
 
 const HTTP_TIMEOUT_MS = 30_000;
 
-/** App Runner outputs are host-only; fetch() needs an absolute URL. */
+function parsePositiveIntMsEnv(name: string, fallback: number): number {
+  const raw = process.env[name];
+  if (raw === undefined || raw === '') return fallback;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n < 1) return fallback;
+  return Math.floor(n);
+}
+
+/** ECS + CloudFront often stay unhealthy briefly after CloudFormation completes. */
+const POST_DEPLOY_HTTP_MAX_WAIT_MS = parsePositiveIntMsEnv(
+  'POST_DEPLOY_HTTP_MAX_WAIT_MS',
+  20 * 60 * 1000
+);
+const POST_DEPLOY_HTTP_RETRY_MS = parsePositiveIntMsEnv(
+  'POST_DEPLOY_HTTP_RETRY_MS',
+  10_000
+);
+
+function sleep(ms: number): Promise<void> {
+  assert.ok(ms >= 0, 'sleep: ms must be non-negative');
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function httpStatusShouldRetry(status: number): boolean {
+  return status === 429 || status >= 500;
+}
+
+/** Legacy / CDK outputs: host-only; fetch() needs an absolute URL. */
 const normalizeUrlForHttpCheck = assert.fn({
   fn(raw: string) {
     const t = raw.trim();
@@ -65,31 +92,60 @@ async function checkHttpEndpointForPostDeploy(
   }
 ): Promise<void> {
   const url = probeUrl(opts.rawUrl, opts.probePath);
+  const started = Date.now();
 
-  let response: Response;
-  try {
-    response = await fetch(url, {
-      method: 'GET',
-      redirect: 'follow',
-      signal: AbortSignal.timeout(HTTP_TIMEOUT_MS),
-    });
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : String(e);
-    platform.error(`${opts.label} ${url} — fetch failed: ${msg}`);
-    assert.fail(`post-deploy: ${opts.label} unreachable at ${url}`);
-  }
+  for (let attempt = 1; ; attempt++) {
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        method: 'GET',
+        redirect: 'follow',
+        signal: AbortSignal.timeout(HTTP_TIMEOUT_MS),
+      });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      const elapsed = Date.now() - started;
+      if (elapsed >= POST_DEPLOY_HTTP_MAX_WAIT_MS) {
+        platform.error(
+          `${opts.label} ${url} — fetch failed after ${elapsed}ms: ${msg}`
+        );
+        assert.fail(`post-deploy: ${opts.label} unreachable at ${url}`);
+      }
+      platform.notice(
+        `POST-DEPLOY ${opts.step}/${opts.total}: ${opts.label} — attempt ${attempt}, ${msg} (retry in ${POST_DEPLOY_HTTP_RETRY_MS}ms, max wait ${POST_DEPLOY_HTTP_MAX_WAIT_MS}ms)`
+      );
+      await sleep(POST_DEPLOY_HTTP_RETRY_MS);
+      continue;
+    }
 
-  if (!response.ok) {
-    platform.error(
-      `${opts.label} ${url} — HTTP ${response.status} ${response.statusText}`
+    if (response.ok) {
+      assert.ok(response.ok, 'checkHttp: response must be ok');
+      platform.notice(
+        `POST-DEPLOY ${opts.step}/${opts.total}: ${opts.label} ${url} — HTTP ${response.status} OK.`
+      );
+      return;
+    }
+
+    const status = response.status;
+    if (!httpStatusShouldRetry(status)) {
+      platform.error(
+        `${opts.label} ${url} — HTTP ${status} ${response.statusText}`
+      );
+      assert.fail(`post-deploy: ${opts.label} returned HTTP ${status}`);
+    }
+
+    const elapsed = Date.now() - started;
+    if (elapsed >= POST_DEPLOY_HTTP_MAX_WAIT_MS) {
+      platform.error(
+        `${opts.label} ${url} — HTTP ${status} after ${elapsed}ms (max wait exceeded)`
+      );
+      assert.fail(`post-deploy: ${opts.label} still HTTP ${status}`);
+    }
+    platform.notice(
+      `POST-DEPLOY ${opts.step}/${opts.total}: ${opts.label} — attempt ${attempt}, HTTP ${status} (retry in ${POST_DEPLOY_HTTP_RETRY_MS}ms)`
     );
-    assert.fail(`post-deploy: ${opts.label} returned HTTP ${response.status}`);
+    await sleep(POST_DEPLOY_HTTP_RETRY_MS);
   }
-
-  assert.ok(response.ok, 'checkHttp: response must be ok');
-  platform.notice(
-    `POST-DEPLOY ${opts.step}/${opts.total}: ${opts.label} ${url} — HTTP ${response.status} OK.`
-  );
 }
 
 /** HTTP(S) smoke tests only (no DNS NS checks) — used by setup-cli `deploy` during bootstrap. */
@@ -229,17 +285,27 @@ export class PostDeployCommand extends BasePipelineCommand {
   }
 }
 
-function parseNameservers(raw: string): Set<string> {
-  assert.string(raw, 'parseNameservers: raw must be a string');
-  const entries = raw
-    .split(/[\n,]+/)
-    .map((s) => s.trim().toLowerCase().replace(/\.$/, ''))
-    .filter((s) => s.length > 0);
-  const set = new Set(entries);
-  assert.equals(
-    set.size,
-    entries.length,
-    'parseNameservers: duplicate entries in input'
-  );
-  return set;
-}
+const parseNameservers = assert.fn({
+  pre: (raw) => {
+    assert.string(raw, 'parseNameservers: raw must be a string');
+  },
+  post: (returnValue) => {
+    assert.all(Array.from(returnValue), (ns) =>
+      assert.nonEmptyString(
+        ns,
+        'parseNameservers: ns must be a non-empty string'
+      )
+    );
+    assert.ok(
+      returnValue.size > 0,
+      'parseNameservers: returnValue must be non-empty'
+    );
+  },
+  fn: (raw: string): Set<string> => {
+    const entries = raw
+      .split(/[\n,]+/)
+      .map((s) => s.trim().toLowerCase().replace(/\.$/, ''))
+      .filter((s) => s.length > 0);
+    return new Set(entries);
+  },
+});

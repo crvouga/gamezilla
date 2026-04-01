@@ -1,4 +1,4 @@
-import { assertPatchDbReqResBaseUrl } from '@gamezilla/patch-db/assert-req-res-base-url';
+import { assertUrl } from '@gamezilla/patch-db/assert-req-res-base-url';
 import type { Patch, PatchesDbResult } from '@gamezilla/patch-db/interface';
 import {
   ADMIN_METRIC_ENTITY_TYPE,
@@ -60,7 +60,7 @@ function tryInitialConnectedUrl(): string | null {
   if (!hasExplicitlyStoredUrl()) return null;
   try {
     const u = readStoredUrl().trim();
-    assertPatchDbReqResBaseUrl(u);
+    assertUrl(u);
     return u;
   } catch {
     return null;
@@ -86,7 +86,7 @@ export function ReqResInspector() {
     const trimmed = urlInput.trim();
     setError(null);
     try {
-      assertPatchDbReqResBaseUrl(trimmed);
+      assertUrl(trimmed);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
       setConnectedUrl(null);
@@ -143,9 +143,7 @@ export function ReqResInspector() {
     <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto p-4 text-white">
       <div className="flex flex-wrap items-end gap-3">
         <label className="flex min-w-[240px] flex-1 flex-col gap-1">
-          <span className="text-xs font-medium text-white/50">
-            Req Res URL
-          </span>
+          <span className="text-xs font-medium text-white/50">Req Res URL</span>
           <input
             type="url"
             value={urlInput}

@@ -12,7 +12,7 @@ const syncProxyTarget =
   process.env['PATCHDB_SYNC_PROXY_TARGET'] ?? 'http://127.0.0.1:5001';
 
 export default defineConfig({
-  /** Relative `assets/` URLs so `file://` and `bun run --filter patch-db-app serve` both work. */
+  /** Relative `assets/` URLs so `file://` and `bun run --filter @gamezilla/patch-db-app serve` both work. */
   base: './',
   root: dir,
   plugins: [react(), tailwindcss()],

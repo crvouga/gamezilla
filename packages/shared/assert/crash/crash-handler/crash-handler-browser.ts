@@ -1,3 +1,4 @@
+/// <reference lib="dom" />
 import { CrashHandler } from './crash-handler';
 
 function isBrowser() {

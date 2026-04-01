@@ -9,9 +9,7 @@ import { assert } from '@gamezilla/shared/assert';
  *
  * Include the wire base path in the URL (default `/patch-db`), e.g. `https://host/patch-db`.
  */
-export function assertPatchDbReqResBaseUrl(
-  baseUrl: string
-): asserts baseUrl is string {
+export function assertUrl(baseUrl: string): asserts baseUrl is string {
   assert.string(baseUrl, 'PATCH_DB_REQ_RES_URL must be a string');
   assert.ok(
     baseUrl.length > 0,
