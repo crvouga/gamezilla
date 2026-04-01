@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
+import { expoSqlitePlaygroundDbFactory } from '@gamezilla/patch-db/sim/playground-db-factory-expo';
 import { seedPlaygroundShapes } from '@gamezilla/patch-db/sim/playground-shapes';
 import type { PlaygroundSim } from '@gamezilla/patch-db/sim/playground-sim';
 import {
@@ -7,6 +8,8 @@ import {
   restorePlaygroundSim,
 } from '@gamezilla/patch-db/sim/playground-sim';
 import { clearSnapshot, loadSnapshot, saveSnapshot } from './persist';
+
+const dbFactory = expoSqlitePlaygroundDbFactory();
 
 const SIM_TEARDOWN_KEY = Symbol.for('playground-sim-teardown');
 
@@ -26,7 +29,7 @@ function setSimTeardown(p: Promise<void>): void {
 export function usePlaygroundBoot() {
   const [sim, setSim] = useState<PlaygroundSim | null>(null);
   const [bootErr, setBootErr] = useState<string | null>(null);
-  const [bootLabel, setBootLabel] = useState('Starting sql.js + sync stack…');
+  const [bootLabel, setBootLabel] = useState('Starting sync stack…');
   const [pulseKey, setPulseKey] = useState(0);
   const [linkEpoch, setLinkEpoch] = useState(0);
   const [, setClientEpoch] = useState(0);
@@ -57,10 +60,18 @@ export function usePlaygroundBoot() {
   }, []);
 
   const reset = useCallback(async () => {
-    await clearSnapshot();
     const s = simRef.current;
     simRef.current = null;
+    const snapshot = s?.takeSnapshot();
     if (s) await s.destroy();
+    if (snapshot) {
+      const labels = [
+        `playground_${snapshot.serverId}`,
+        ...snapshot.clients.map((c) => `playground_${c.id}`),
+      ];
+      await dbFactory.removeAll(labels);
+    }
+    await clearSnapshot();
     setSim(null);
     setResetKey((k) => k + 1);
   }, []);
@@ -68,7 +79,7 @@ export function usePlaygroundBoot() {
   useEffect(() => {
     let mounted = true;
     setBootErr(null);
-    setBootLabel('Starting sql.js + sync stack…');
+    setBootLabel('Starting sync stack…');
 
     void (async () => {
       await getSimTeardown();
@@ -81,10 +92,11 @@ export function usePlaygroundBoot() {
 
         if (snapshot && snapshot.clients.length > 0) {
           setBootLabel('Restoring saved session…');
-          p = await restorePlaygroundSim(snapshot);
+          p = await restorePlaygroundSim(snapshot, { dbFactory });
         } else {
           p = await createPlaygroundSim({
             clientCount: 2,
+            dbFactory,
           });
           if (!mounted) {
             await p.destroy();
@@ -128,7 +140,7 @@ export function usePlaygroundBoot() {
         try {
           saveSnapshot(x.takeSnapshot()).catch(() => {});
         } catch {
-          // export may fail if already destroyed
+          // may fail if already destroyed
         }
       }
       const prev = getSimTeardown();
@@ -149,7 +161,7 @@ export function usePlaygroundBoot() {
         // may fail if sim is mid-teardown
       }
     };
-    const id = setInterval(save, 2000);
+    const id = setInterval(save, 5000);
 
     const subscription = AppState.addEventListener('change', (nextState) => {
       if (nextState === 'background' || nextState === 'inactive') {

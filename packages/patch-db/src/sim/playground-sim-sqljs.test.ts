@@ -1,10 +1,13 @@
 import { describe, expect, test } from 'bun:test';
+import { sqlJsPlaygroundDbFactory } from './playground-db-factory-sqljs';
 import { shapeListQuery } from './playground-shapes';
 import { createPlaygroundSim } from './playground-sim';
 
+const dbFactory = sqlJsPlaygroundDbFactory();
+
 describe('playground sim (sql.js)', () => {
   test('two clients sync a shape through manual push/poll', async () => {
-    const sim = await createPlaygroundSim({ clientCount: 2 });
+    const sim = await createPlaygroundSim({ clientCount: 2, dbFactory });
     try {
       const a = sim.clients[0];
       const b = sim.clients[1];
@@ -42,7 +45,7 @@ describe('playground sim (sql.js)', () => {
   });
 
   test('clients tolerate server partition and converge after heal', async () => {
-    const sim = await createPlaygroundSim({ clientCount: 2 });
+    const sim = await createPlaygroundSim({ clientCount: 2, dbFactory });
     try {
       const a = sim.clients[0];
       const b = sim.clients[1];

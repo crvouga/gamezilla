@@ -1,8 +1,4 @@
 import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
-import {
-  SqlClientImplSqlJs,
-  type SqlJsInitConfig,
-} from '@gamezilla/shared/sql-client/impl-sql-js';
 import type { SqlClient } from '@gamezilla/shared/sql-client/interface';
 import { PatchDbImplClientTransport } from '../impl-client-transport';
 import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
@@ -22,18 +18,29 @@ import { SimulatedPatchDbClientTransport } from './simulated-client-transport';
 
 const MARK_ALL_UNSYNCED = `UPDATE patches SET attributes = json_remove(attributes, '$."patch/syncedAt"')`;
 
+// ─── Database factory ─────────────────────────────────────────────────
+
+export type PlaygroundDbFactory = {
+  /** Create a fresh, empty database for the given playground node. */
+  create(label: string): Promise<SqlClient>;
+  /** Reopen a previously created database (for session restore). */
+  reopen(label: string): Promise<SqlClient>;
+  /** Called when a playground node's database is being permanently removed. */
+  remove(label: string): Promise<void>;
+  /** Remove all playground databases (full reset). */
+  removeAll(labels: string[]): Promise<void>;
+};
+
 // ─── Snapshot types ───────────────────────────────────────────────────
 
 export type PlaygroundSimSnapshot = {
   serverId: string;
-  serverDb: Uint8Array;
   serverPartitioned?: boolean;
   clients: PlaygroundClientSnapshot[];
 };
 
 export type PlaygroundClientSnapshot = {
   id: string;
-  db: Uint8Array;
   latencyMs: number;
   partitioned: boolean;
 };
@@ -139,26 +146,27 @@ export type PlaygroundSim = {
 };
 
 export type CreatePlaygroundSimOptions = {
+  /** Required factory for creating/restoring SqlClient instances. */
+  dbFactory: PlaygroundDbFactory;
   /** @default 2 */
   clientCount?: number;
   /** @default false */
   useSyncHost?: boolean;
   /** @default `'srv'` */
   serverId?: string;
-  sqlJs?: SqlJsInitConfig;
 };
 
 export async function createPlaygroundSim(
-  options?: CreatePlaygroundSimOptions
+  options: CreatePlaygroundSimOptions
 ): Promise<PlaygroundSim> {
-  const clientCount = options?.clientCount ?? 2;
-  const useSyncHost = options?.useSyncHost ?? false;
-  const serverId = options?.serverId ?? 'srv';
-  const sqlJs = options?.sqlJs;
+  const { dbFactory } = options;
+  const clientCount = options.clientCount ?? 2;
+  const useSyncHost = options.useSyncHost ?? false;
+  const serverId = options.serverId ?? 'srv';
 
   const scheduler = new BrowserWallClockScheduler();
 
-  const serverSql = await SqlClientImplSqlJs.openMemory(sqlJs);
+  const serverSql = await dbFactory.create(`playground_${serverId}`);
   await serverSql.connect();
   const serverBacking = new PatchDbImplSqlite(serverSql);
   await serverBacking.migrate();
@@ -187,7 +195,7 @@ export async function createPlaygroundSim(
   async function createClientRuntime(
     id: string
   ): Promise<{ runtime: ClientRuntime; handle: PlaygroundClientHandle }> {
-    const sqlClient = await SqlClientImplSqlJs.openMemory(sqlJs);
+    const sqlClient = await dbFactory.create(`playground_${id}`);
     await sqlClient.connect();
     const localDb = new PatchDbImplSqlite(sqlClient);
     await localDb.migrate();
@@ -261,6 +269,7 @@ export async function createPlaygroundSim(
     if (!runtime) throw new Error(`removeClient: unknown client ${id}`);
     runtime.syncDb.destroy();
     await runtime.sqlClient.disconnect();
+    await dbFactory.remove(`playground_${id}`);
     clientById.delete(id);
     const ri = clientRuntimes.indexOf(runtime);
     if (ri >= 0) clientRuntimes.splice(ri, 1);
@@ -278,20 +287,14 @@ export async function createPlaygroundSim(
   }
 
   function takeSnapshot(): PlaygroundSimSnapshot {
-    const serverSqlJs = serverSql as SqlClientImplSqlJs;
     return {
       serverId,
-      serverDb: serverSqlJs.exportData(),
       serverPartitioned: port.isPartitioned(),
-      clients: clients.map((c) => {
-        const clientSqlJs = c.sqlClient as SqlClientImplSqlJs;
-        return {
-          id: c.id,
-          db: clientSqlJs.exportData(),
-          latencyMs: c.link.getLatency(),
-          partitioned: c.link.isPartitioned(),
-        };
-      }),
+      clients: clients.map((c) => ({
+        id: c.id,
+        latencyMs: c.link.getLatency(),
+        partitioned: c.link.isPartitioned(),
+      })),
     };
   }
 
@@ -349,18 +352,17 @@ export async function createPlaygroundSim(
 
 /**
  * Restore a sim from a previously taken snapshot.
- * All SQLite databases are recreated from exported binary data.
+ * Databases are reopened via the factory (file-backed DBs already contain their data).
  */
 export async function restorePlaygroundSim(
   snapshot: PlaygroundSimSnapshot,
-  options?: { sqlJs?: SqlJsInitConfig }
+  options: { dbFactory: PlaygroundDbFactory }
 ): Promise<PlaygroundSim> {
-  const sqlJs = options?.sqlJs;
+  const { dbFactory } = options;
   const scheduler = new BrowserWallClockScheduler();
 
-  const serverSql = await SqlClientImplSqlJs.openFromData(
-    snapshot.serverDb,
-    sqlJs
+  const serverSql = await dbFactory.reopen(
+    `playground_${snapshot.serverId}`
   );
   await serverSql.connect();
   const serverBacking = new PatchDbImplSqlite(serverSql);
@@ -385,7 +387,7 @@ export async function restorePlaygroundSim(
     }, 0) + 1;
 
   for (const cs of snapshot.clients) {
-    const sqlClient = await SqlClientImplSqlJs.openFromData(cs.db, sqlJs);
+    const sqlClient = await dbFactory.reopen(`playground_${cs.id}`);
     await sqlClient.connect();
     const localDb = new PatchDbImplSqlite(sqlClient);
 
@@ -429,7 +431,7 @@ export async function restorePlaygroundSim(
   async function createClientRuntime(
     id: string
   ): Promise<{ runtime: ClientRuntime; handle: PlaygroundClientHandle }> {
-    const sqlClient = await SqlClientImplSqlJs.openMemory(sqlJs);
+    const sqlClient = await dbFactory.create(`playground_${id}`);
     await sqlClient.connect();
     const localDb = new PatchDbImplSqlite(sqlClient);
     await localDb.migrate();
@@ -495,6 +497,7 @@ export async function restorePlaygroundSim(
     if (!runtime) throw new Error(`removeClient: unknown client ${id}`);
     runtime.syncDb.destroy();
     await runtime.sqlClient.disconnect();
+    await dbFactory.remove(`playground_${id}`);
     clientById.delete(id);
     const ri = clientRuntimes.indexOf(runtime);
     if (ri >= 0) clientRuntimes.splice(ri, 1);
@@ -514,17 +517,12 @@ export async function restorePlaygroundSim(
   function takeSnapshot(): PlaygroundSimSnapshot {
     return {
       serverId: snapshot.serverId,
-      serverDb: serverSql.exportData(),
       serverPartitioned: port.isPartitioned(),
-      clients: clients.map((c) => {
-        const clientSqlJs = c.sqlClient as SqlClientImplSqlJs;
-        return {
-          id: c.id,
-          db: clientSqlJs.exportData(),
-          latencyMs: c.link.getLatency(),
-          partitioned: c.link.isPartitioned(),
-        };
-      }),
+      clients: clients.map((c) => ({
+        id: c.id,
+        latencyMs: c.link.getLatency(),
+        partitioned: c.link.isPartitioned(),
+      })),
     };
   }
 

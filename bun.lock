@@ -113,7 +113,6 @@
         "react-native": "0.81.5",
         "react-native-svg": "15.12.1",
         "react-native-web": "~0.21.0",
-        "sql.js": "^1.14.0",
       },
       "devDependencies": {
         "@types/react": "~19.1.0",
