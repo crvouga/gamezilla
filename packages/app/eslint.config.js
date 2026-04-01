@@ -10,6 +10,11 @@ module.exports = defineConfig([
     ignores: ['dist/*'],
   },
   {
+    settings: {
+      'import/resolver': {
+        typescript: true,
+      },
+    },
     plugins: {
       naming: eslintPluginNaming,
     },

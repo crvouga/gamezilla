@@ -43,6 +43,7 @@
     "@types/sql.js": "^1.4.10",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
+    "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-naming": "^0.1.10",
     "typescript": "~5.9.2"
   },
@@ -58,10 +59,8 @@
     "pub-sub": "bun run src/req-res.ts",
     "worker": "bun run src/worker.ts",
     "req-res:watch": "bun --watch src/req-res.ts",
-    "dev:req-res":
-      "DATABASE_URL=postgresql://postgres:localpass@127.0.0.1:5432/postgres PUBSUB_URL=mqtt://127.0.0.1:1883 PORT=5001 bun --watch src/req-res.ts",
-    "dev:worker":
-      "DATABASE_URL=postgresql://postgres:localpass@127.0.0.1:5432/postgres PUBSUB_URL=mqtt://127.0.0.1:1883 PORT=8081 bun --watch src/worker.ts",
+    "dev:req-res": "DATABASE_URL=postgresql://postgres:localpass@127.0.0.1:5432/postgres PUBSUB_URL=mqtt://127.0.0.1:1883 PORT=5001 bun --watch src/req-res.ts",
+    "dev:worker": "DATABASE_URL=postgresql://postgres:localpass@127.0.0.1:5432/postgres PUBSUB_URL=mqtt://127.0.0.1:1883 PORT=8081 bun --watch src/worker.ts",
     "tc": "tsc --noEmit -p ../../tsconfig.json",
     "web": "expo start --web"
   }

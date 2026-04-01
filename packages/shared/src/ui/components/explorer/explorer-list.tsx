@@ -6,8 +6,8 @@
 
 import { Pressable, View } from 'react-native';
 import { useTheme } from '../../theme';
-import { Text } from '../text';
 import { ScrollView } from '../scroll-view';
+import { Text } from '../text';
 import { categories, componentRegistry } from './component-registry';
 
 export type ExplorerListProps = {

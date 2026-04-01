@@ -4,7 +4,7 @@
  */
 
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
-import { assert } from '../assert';
+import { assert } from '../../assert';
 import type { ColorScheme, ColorTokens } from './colors';
 import { defaultColors } from './colors';
 import { fonts } from './fonts';
