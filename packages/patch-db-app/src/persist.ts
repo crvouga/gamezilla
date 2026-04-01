@@ -1,120 +1,76 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { PlaygroundSimSnapshot } from '@gamezilla/patch-db/sim/playground-sim';
 
-const DB_NAME = 'playground-sim-persist';
-const DB_VERSION = 1;
-const STORE_NAME = 'snapshots';
-const SNAPSHOT_KEY = 'current';
+const SNAPSHOT_KEY = 'playground-sim-snapshot';
 
-function openDb(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = () => {
-      const db = req.result;
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME);
-      }
-    };
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-  });
+function uint8ToBase64(u8: Uint8Array): string {
+  let binary = '';
+  for (let i = 0; i < u8.byteLength; i++) {
+    binary += String.fromCharCode(u8[i]!);
+  }
+  return btoa(binary);
+}
+
+function base64ToUint8(b64: string): Uint8Array {
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
 }
 
 type StoredSnapshot = {
   serverId: string;
-  serverDb: ArrayBuffer;
+  serverDb: string;
   clients: {
     id: string;
-    db: ArrayBuffer;
+    db: string;
     latencyMs: number;
     partitioned: boolean;
   }[];
 };
-
-function toArrayBuffer(u8: Uint8Array): ArrayBuffer {
-  const buf = new ArrayBuffer(u8.byteLength);
-  new Uint8Array(buf).set(u8);
-  return buf;
-}
 
 export async function saveSnapshot(
   snapshot: PlaygroundSimSnapshot
 ): Promise<void> {
   const stored: StoredSnapshot = {
     serverId: snapshot.serverId,
-    serverDb: toArrayBuffer(snapshot.serverDb),
+    serverDb: uint8ToBase64(snapshot.serverDb),
     clients: snapshot.clients.map((c) => ({
       id: c.id,
-      db: toArrayBuffer(c.db),
+      db: uint8ToBase64(c.db),
       latencyMs: c.latencyMs,
       partitioned: c.partitioned,
     })),
   };
-  const db = await openDb();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    tx.objectStore(STORE_NAME).put(stored, SNAPSHOT_KEY);
-    tx.oncomplete = () => {
-      db.close();
-      resolve();
-    };
-    tx.onerror = () => {
-      db.close();
-      reject(tx.error);
-    };
-  });
+  await AsyncStorage.setItem(SNAPSHOT_KEY, JSON.stringify(stored));
 }
 
 export async function loadSnapshot(): Promise<PlaygroundSimSnapshot | null> {
-  let db: IDBDatabase;
   try {
-    db = await openDb();
+    const raw = await AsyncStorage.getItem(SNAPSHOT_KEY);
+    if (!raw) return null;
+    const stored: StoredSnapshot = JSON.parse(raw);
+    return {
+      serverId: stored.serverId,
+      serverDb: base64ToUint8(stored.serverDb),
+      clients: stored.clients.map((c) => ({
+        id: c.id,
+        db: base64ToUint8(c.db),
+        latencyMs: c.latencyMs,
+        partitioned: c.partitioned,
+      })),
+    };
   } catch {
     return null;
   }
-  return new Promise((resolve) => {
-    const tx = db.transaction(STORE_NAME, 'readonly');
-    const req = tx.objectStore(STORE_NAME).get(SNAPSHOT_KEY);
-    req.onsuccess = () => {
-      db.close();
-      const stored = req.result as StoredSnapshot | undefined;
-      if (!stored) {
-        resolve(null);
-        return;
-      }
-      resolve({
-        serverId: stored.serverId,
-        serverDb: new Uint8Array(stored.serverDb),
-        clients: stored.clients.map((c) => ({
-          id: c.id,
-          db: new Uint8Array(c.db),
-          latencyMs: c.latencyMs,
-          partitioned: c.partitioned,
-        })),
-      });
-    };
-    req.onerror = () => {
-      db.close();
-      resolve(null);
-    };
-  });
 }
 
 export async function clearSnapshot(): Promise<void> {
   try {
-    const db = await openDb();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, 'readwrite');
-      tx.objectStore(STORE_NAME).delete(SNAPSHOT_KEY);
-      tx.oncomplete = () => {
-        db.close();
-        resolve();
-      };
-      tx.onerror = () => {
-        db.close();
-        reject(tx.error);
-      };
-    });
+    await AsyncStorage.removeItem(SNAPSHOT_KEY);
   } catch {
-    // IndexedDB not available — nothing to clear
+    // storage not available
   }
 }

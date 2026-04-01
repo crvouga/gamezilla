@@ -27,6 +27,10 @@
     "packages/patch-db/src/**/*.tsx",
     "packages/peer-store/src/**/*.ts",
     "packages/peer-store/src/**/*.tsx",
+    "packages/patch-db-app/src/**/*.ts",
+    "packages/patch-db-app/src/**/*.tsx",
+    "packages/peer-store-app/src/**/*.ts",
+    "packages/peer-store-app/src/**/*.tsx",
     "packages/app/.expo/types/**/*.ts",
     "packages/app/expo-env.d.ts"
   ],
@@ -37,8 +41,6 @@
     "packages/aws/dist",
     "packages/aws/cdk.out",
     "packages/aws/lib",
-    "packages/aws/bin/app.ts",
-    "packages/patch-db-app",
-    "packages/peer-store-app"
+    "packages/aws/bin/app.ts"
   ]
 }

@@ -1,32 +1,56 @@
-import type { MessageLogEntry } from '../simulator/playground'
+import type { MessageLogEntry } from '../simulator/playground';
+import { Card, Stack, Text } from '@gamezilla/shared/ui';
+import { useTheme } from '@gamezilla/shared/ui';
 
 const KIND_COLORS: Record<string, string> = {
-  command: 'text-sky-300',
-  vote: 'text-amber-300',
-  commit: 'text-emerald-300',
-  timeout: 'text-red-300',
-  error: 'text-white/40',
-}
+  command: '#7dd3fc',
+  vote: '#fcd34d',
+  commit: '#6ee7b7',
+  timeout: '#fca5a5',
+  error: '#999',
+};
 
 export function MessageLog({ entries }: { entries: MessageLogEntry[] }) {
+  const theme = useTheme();
+
   return (
-    <div className="flex flex-col gap-1 overflow-y-auto rounded-lg border border-white/10 bg-black/40 p-5">
-      <h4 className="mb-2 text-sm font-bold text-white/40 uppercase">
+    <Card elevation={1} sx={{ p: 4, gap: 1 }}>
+      <Text variant="label" sx={{ mb: 1 }} style={{ textTransform: 'uppercase', fontWeight: 'bold' }}>
         Message Log
-      </h4>
+      </Text>
       {entries.length === 0 && (
-        <p className="text-xs text-white/20">No messages yet.</p>
+        <Text variant="caption">No messages yet.</Text>
       )}
       {entries.map((entry) => (
-        <div
-          key={entry.id}
-          className={`flex items-baseline gap-3 text-xs font-mono ${KIND_COLORS[entry.kind] ?? 'text-white/40'}`}
-        >
-          <span className="w-16 shrink-0 text-white/25">{entry.from}</span>
-          <span className="w-14 shrink-0 font-semibold">{entry.kind}</span>
-          <span className="truncate text-white/50">{entry.summary}</span>
-        </div>
+        <Stack key={entry.id} direction="horizontal" spacing={2} align="center">
+          <Text
+            variant="mono"
+            style={{ width: 64, fontSize: 11, color: theme.colors.textSecondary }}
+            numberOfLines={1}
+          >
+            {entry.from}
+          </Text>
+          <Text
+            variant="mono"
+            style={{
+              width: 56,
+              fontSize: 11,
+              fontWeight: '600',
+              color: KIND_COLORS[entry.kind] ?? theme.colors.textSecondary,
+            }}
+            numberOfLines={1}
+          >
+            {entry.kind}
+          </Text>
+          <Text
+            variant="mono"
+            style={{ flex: 1, fontSize: 11, color: theme.colors.textSecondary }}
+            numberOfLines={1}
+          >
+            {entry.summary}
+          </Text>
+        </Stack>
       ))}
-    </div>
-  )
+    </Card>
+  );
 }

@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { PlaygroundSim } from '@gamezilla/patch-db/sim/playground-sim';
+import { Box, SafeAreaView, Text, Spinner, Stack } from '@gamezilla/shared/ui';
+import { useTheme } from '@gamezilla/shared/ui';
 import { PatchdbAppNav, readStoredMode, type PatchdbAppMode } from './nav';
 import { PlaygroundHeader } from './playground-header';
 import { PlaygroundLayout } from './playground-layout';
@@ -9,35 +11,56 @@ import { usePlaygroundBoot } from './use-playground-boot';
 
 export function PlaygroundApp() {
   const [mode, setMode] = useState<PatchdbAppMode>(readStoredMode);
+  const theme = useTheme();
 
   return (
-    <div className="flex h-screen min-h-0 flex-col overflow-hidden bg-(--pg-bg) text-white">
-      <PatchdbAppNav mode={mode} onModeChange={setMode} />
-      {mode === 'syncInspector' ? <ReqResInspector /> : <PlaygroundRoute />}
-    </div>
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.paper }}>
+      <Box sx={{ flex: 1 }}>
+        <Box sx={{ px: 3, py: 2 }}>
+          <PatchdbAppNav mode={mode} onModeChange={setMode} />
+        </Box>
+        {mode === 'syncInspector' ? <ReqResInspector /> : <PlaygroundRoute />}
+      </Box>
+    </SafeAreaView>
   );
 }
 
 function PlaygroundRoute() {
   const boot = usePlaygroundBoot();
+  const theme = useTheme();
 
   if (boot.bootErr) {
     return (
-      <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
-        <p className="text-lg font-semibold text-red-300">
+      <Box
+        sx={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          p: 6,
+          gap: 3,
+        }}
+      >
+        <Text variant="subtitle" style={{ color: theme.colors.destructive }}>
           Playground failed to start
-        </p>
-        <p className="max-w-md text-sm text-white/55">{boot.bootErr}</p>
-      </div>
+        </Text>
+        <Text variant="caption">{boot.bootErr}</Text>
+      </Box>
     );
   }
 
   if (!boot.sim) {
     return (
-      <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/20 border-t-violet-400" />
-        <p className="text-sm text-white/70">{boot.bootLabel}</p>
-      </div>
+      <Box
+        sx={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: 2,
+        }}
+      >
+        <Spinner size="large" />
+        <Text variant="caption">{boot.bootLabel}</Text>
+      </Box>
     );
   }
 
@@ -88,10 +111,10 @@ function PlaygroundShell({
 
   return (
     <SimProvider value={ctx}>
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <Stack sx={{ flex: 1 }}>
         <PlaygroundHeader />
         <PlaygroundLayout sim={sim} pulseKey={pulseKey} linkEpoch={linkEpoch} />
-      </div>
+      </Stack>
     </SimProvider>
   );
 }

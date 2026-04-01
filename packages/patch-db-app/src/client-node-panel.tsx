@@ -12,14 +12,14 @@ import {
 } from '@gamezilla/patch-db/sim/playground-shapes';
 import type { PlaygroundClientHandle } from '@gamezilla/patch-db/sim/playground-sim';
 import { SubscribablePatchesDbToken } from '@gamezilla/patch-db/subscribable';
+import { Badge, Box, Button, Select, Stack } from '@gamezilla/shared/ui';
 import { IconLaptop, IconPartition, IconSync } from './icons';
 import { NodePanelShell } from './node-panel-shell';
 import { ShapeList } from './shape-list';
 import { useSimContext } from './sim-context';
-import { btnAction, btnTiny } from './styles';
 import { useAsyncAction } from './use-async-action';
 
-const LATENCY_BUCKETS: { value: number; label: string }[] = [
+const LATENCY_BUCKETS = [
   { value: 0, label: '0ms' },
   { value: 50, label: '50ms' },
   { value: 150, label: '150ms' },
@@ -89,124 +89,103 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
   return (
     <NodePanelShell
       icon={<IconLaptop />}
-      iconColor={partitioned ? 'text-red-400' : 'text-teal-400'}
       title={client.id}
       partitioned={partitioned}
       headerExtra={
-        <>
+        <Stack direction="horizontal" spacing={1} align="center">
           {partitioned && (
-            <span className="rounded bg-red-950/80 px-1.5 py-0.5 text-[0.55rem] font-bold uppercase text-red-400">
-              offline
-            </span>
+            <Badge label="OFFLINE" color="destructive" size="sm" />
           )}
-          <button
-            type="button"
-            onClick={() => removeClient(client.id)}
-            className={`${btnTiny} ml-auto hover:text-red-400`}
-          >
-            Remove
-          </button>
-        </>
+          <Button
+            title="Remove"
+            variant="text"
+            size="sm"
+            color="destructive"
+            onPress={() => removeClient(client.id)}
+          />
+        </Stack>
       }
     >
-      <div className="mb-2 flex flex-wrap items-center gap-1.5">
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() =>
-            run(async () => {
-              if (client.link.isPartitioned()) {
-                client.link.heal();
-              } else {
-                client.link.partition();
-              }
-              bumpLink();
-            })
-          }
-          className={`${btnAction} ${
-            partitioned ? 'border-red-400/50 bg-red-950/40 text-red-200' : ''
-          }`}
-        >
-          <IconPartition active={partitioned} size={14} />
-          {partitioned ? 'Reconnect' : 'Partition'}
-        </button>
+      <Stack spacing={2}>
+        <Stack direction="horizontal" spacing={1} wrap>
+          <Button
+            title={partitioned ? 'Reconnect' : 'Partition'}
+            variant="outlined"
+            size="sm"
+            disabled={busy}
+            startIcon={<IconPartition active={partitioned} size={14} />}
+            onPress={() =>
+              run(async () => {
+                if (client.link.isPartitioned()) {
+                  client.link.heal();
+                } else {
+                  client.link.partition();
+                }
+                bumpLink();
+              })
+            }
+          />
+          <Button
+            title="Sync"
+            variant="outlined"
+            size="sm"
+            disabled={busy}
+            startIcon={<IconSync size={14} />}
+            onPress={() =>
+              run(async () => {
+                await sim.syncNow(client.id);
+              })
+            }
+          />
+          <Button
+            title="Wipe"
+            variant="outlined"
+            size="sm"
+            color="destructive"
+            disabled={busy}
+            onPress={() =>
+              run(async () => {
+                await sim.wipeClientDb(client.id);
+              })
+            }
+          />
+          <Button
+            title="Shuffle"
+            variant="outlined"
+            size="sm"
+            disabled={busy || entities.length === 0}
+            onPress={() =>
+              run(async () => {
+                for (const e of entities) {
+                  await playgroundRandomizeShape(sim, client.id, e.entityId);
+                }
+              })
+            }
+          />
+        </Stack>
 
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() =>
-            run(async () => {
-              await sim.syncNow(client.id);
-            })
-          }
-          className={btnAction}
-        >
-          <IconSync size={14} />
-          Sync
-        </button>
+        <Box style={{ maxWidth: 160 }}>
+          <Select
+            options={LATENCY_BUCKETS}
+            value={latencyMs}
+            onValueChange={handleLatencyChange}
+          />
+        </Box>
 
-        <select
-          value={latencyMs}
-          onChange={(e) => handleLatencyChange(Number(e.target.value))}
-          className={`${btnAction} appearance-none bg-white/8 pr-5 cursor-pointer`}
-        >
-          {LATENCY_BUCKETS.map((b) => (
-            <option key={b.value} value={b.value}>
-              {b.label}
-            </option>
-          ))}
-        </select>
-
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() =>
-            run(async () => {
-              await sim.wipeClientDb(client.id);
-            })
-          }
-          className={`${btnAction} hover:text-red-400`}
-        >
-          Wipe
-        </button>
-
-        <button
-          type="button"
-          disabled={busy || entities.length === 0}
-          onClick={() =>
-            run(async () => {
-              for (const e of entities) {
-                await playgroundRandomizeShape(sim, client.id, e.entityId);
-              }
-            })
-          }
-          className={btnAction}
-        >
-          Shuffle
-        </button>
-      </div>
-
-      <p className="mb-1.5 text-[0.65rem] text-white/40">
-        {entities.length} shape(s)
-      </p>
-
-      <ShapeList
-        entities={entities}
-        busy={busy}
-        note={note}
-        onRandomize={handleRandomize}
-        onDelete={handleDelete}
-        onCreate={handleCreate}
-        onReorder={handleReorder}
-      />
+        <ShapeList
+          entities={entities}
+          busy={busy}
+          note={note}
+          onRandomize={handleRandomize}
+          onDelete={handleDelete}
+          onCreate={handleCreate}
+          onReorder={handleReorder}
+        />
+      </Stack>
     </NodePanelShell>
   );
 }
 
-/**
- * DI wrapper: each client gets its own container so `useEntities`
- * reads from the correct local SyncPatchesDb.
- */
 export function ClientNodePanel({
   client,
 }: {

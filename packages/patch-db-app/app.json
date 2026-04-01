@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "patch-db-app",
+    "slug": "patch-db-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.gamezilla.patchdbapp"
+    },
+    "android": {
+      "adaptiveIcon": {},
+      "package": "com.gamezilla.patchdbapp"
+    },
+    "plugins": ["expo-sqlite"]
+  }
+}

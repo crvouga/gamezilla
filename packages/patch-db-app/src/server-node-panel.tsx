@@ -6,11 +6,11 @@ import {
   playgroundServerRandomizeShape,
   playgroundServerReorderShapes,
 } from '@gamezilla/patch-db/sim/playground-shapes';
+import { Badge, Button, Stack, Text } from '@gamezilla/shared/ui';
 import { IconPartition, IconServer, IconSync } from './icons';
 import { NodePanelShell } from './node-panel-shell';
 import { ShapeList } from './shape-list';
 import { useSimContext } from './sim-context';
-import { btnAction } from './styles';
 import { useAsyncAction } from './use-async-action';
 import { useServerShapes } from './use-server-shapes';
 
@@ -64,102 +64,89 @@ export function ServerNodePanel() {
   return (
     <NodePanelShell
       icon={<IconServer />}
-      iconColor={serverPartitioned ? 'text-red-400' : 'text-violet-400'}
       title={sim.serverId}
       partitioned={serverPartitioned}
       headerExtra={
-        <>
+        <Stack direction="horizontal" spacing={1} align="center">
           {serverPartitioned && (
-            <span className="rounded bg-red-950/80 px-1.5 py-0.5 text-[0.55rem] font-bold uppercase text-red-400">
-              offline
-            </span>
+            <Badge label="OFFLINE" color="destructive" size="sm" />
           )}
-          <span className="ml-auto text-[0.65rem] text-white/35">
-            authority
-          </span>
-        </>
+          <Text variant="caption">authority</Text>
+        </Stack>
       }
     >
-      <div className="mb-2 flex flex-wrap items-center gap-1.5">
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() =>
-            run(async () => {
-              if (sim.isServerPartitioned()) {
-                sim.healServer();
-              } else {
-                sim.partitionServer();
-              }
-              bumpLink();
-            })
-          }
-          className={`${btnAction} ${
-            serverPartitioned
-              ? 'border-red-400/50 bg-red-950/40 text-red-200'
-              : ''
-          }`}
-        >
-          <IconPartition active={serverPartitioned} size={14} />
-          {serverPartitioned ? 'Reconnect' : 'Partition'}
-        </button>
+      <Stack spacing={2}>
+        <Stack direction="horizontal" spacing={1} wrap>
+          <Button
+            title={serverPartitioned ? 'Reconnect' : 'Partition'}
+            variant="outlined"
+            size="sm"
+            disabled={busy}
+            startIcon={<IconPartition active={serverPartitioned} size={14} />}
+            onPress={() =>
+              run(async () => {
+                if (sim.isServerPartitioned()) {
+                  sim.healServer();
+                } else {
+                  sim.partitionServer();
+                }
+                bumpLink();
+              })
+            }
+          />
+          <Button
+            title="Sync All"
+            variant="outlined"
+            size="sm"
+            disabled={busy}
+            startIcon={<IconSync size={14} />}
+            onPress={() =>
+              run(async () => {
+                await sim.pollAllClients();
+              })
+            }
+          />
+          <Button
+            title="Wipe"
+            variant="outlined"
+            size="sm"
+            color="destructive"
+            disabled={busy}
+            onPress={() =>
+              run(async () => {
+                await sim.wipeServerDb();
+              })
+            }
+          />
+          <Button
+            title="Shuffle"
+            variant="outlined"
+            size="sm"
+            disabled={busy || entities.length === 0}
+            onPress={() =>
+              run(async () => {
+                for (const e of entities) {
+                  await playgroundServerRandomizeShape(sim, e.entityId);
+                }
+              })
+            }
+          />
+        </Stack>
 
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() =>
-            run(async () => {
-              await sim.pollAllClients();
-            })
-          }
-          className={btnAction}
-        >
-          <IconSync size={14} />
-          Sync All
-        </button>
+        <Text variant="caption">
+          {entities.length} shape(s)
+        </Text>
 
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() =>
-            run(async () => {
-              await sim.wipeServerDb();
-            })
-          }
-          className={`${btnAction} hover:text-red-400`}
-        >
-          Wipe
-        </button>
-
-        <button
-          type="button"
-          disabled={busy || entities.length === 0}
-          onClick={() =>
-            run(async () => {
-              for (const e of entities) {
-                await playgroundServerRandomizeShape(sim, e.entityId);
-              }
-            })
-          }
-          className={btnAction}
-        >
-          Shuffle
-        </button>
-      </div>
-
-      <p className="mb-1.5 text-[0.65rem] text-white/40">
-        {entities.length} shape(s)
-      </p>
-
-      <ShapeList
-        entities={entities}
-        busy={busy}
-        note={displayNote}
-        onRandomize={handleRandomize}
-        onDelete={handleDelete}
-        onCreate={handleCreate}
-        onReorder={handleReorder}
-      />
+        <ShapeList
+          entities={entities}
+          busy={busy}
+          note={displayNote}
+          onRandomize={handleRandomize}
+          onDelete={handleDelete}
+          onCreate={handleCreate}
+          onReorder={handleReorder}
+        />
+      </Stack>
     </NodePanelShell>
   );
 }

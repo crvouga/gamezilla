@@ -1,27 +1,27 @@
 {
   "name": "@gamezilla/peer-store-app",
+  "version": "0.0.1",
   "private": true,
+  "main": "src/main.tsx",
   "scripts": {
-    "build": "vite build",
-    "dev": "vite --open",
-    "lint": "eslint .",
-    "preview": "bun run build && bun x serve dist",
-    "serve": "bun x serve dist"
+    "install:deps": "npx expo install --check",
+    "dev": "expo start --web --port 8084",
+    "start": "expo start --web --port 8084",
+    "android": "expo start --android --port 8084",
+    "ios": "expo start --ios --port 8084",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@gamezilla/peer-store": "workspace:*",
     "@gamezilla/shared": "workspace:*",
+    "expo": "~54.0.33",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-web": "~0.21.0"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.2.2",
     "@types/react": "~19.1.0",
-    "@types/react-dom": "~19.1.11",
-    "@vitejs/plugin-react": "^6.0.1",
-    "tailwindcss": "^4.2.2",
-    "typescript": "~5.9.2",
-    "vite": "^8.0.2",
-    "vite-tsconfig-paths": "^6.1.1"
+    "typescript": "~5.9.2"
   }
 }

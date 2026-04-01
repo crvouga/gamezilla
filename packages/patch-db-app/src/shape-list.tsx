@@ -1,10 +1,8 @@
-import { useAutoAnimate } from '@formkit/auto-animate/react';
-import { useCallback } from 'react';
 import type { Entity } from '@gamezilla/patch-db/interface';
+import { Box, Button, Stack, Text } from '@gamezilla/shared/ui';
 import { IconPlus } from './icons';
 import { ShapeRow } from './shape-row';
-import { btnAction } from './styles';
-import { useDragReorder } from './use-drag-reorder';
+import { useReorder } from './use-drag-reorder';
 
 export function ShapeList({
   entities,
@@ -23,59 +21,47 @@ export function ShapeList({
   onCreate: () => void;
   onReorder: (entityIds: string[]) => void;
 }) {
-  const [animateRef] = useAutoAnimate({ duration: 200 });
-  const { listRef, dragState, handleGripPointerDown } = useDragReorder(
-    entities,
-    onReorder
-  );
-
-  const mergedRef = useCallback(
-    (node: HTMLOListElement | null) => {
-      if (typeof animateRef === 'function') animateRef(node);
-      listRef.current = node;
-    },
-    [animateRef, listRef]
-  );
+  const { moveUp, moveDown } = useReorder(entities, onReorder);
 
   return (
-    <>
+    <Stack spacing={1}>
       {entities.length === 0 ? (
-        <p className="py-2 text-center text-[0.7rem] text-white/30">
+        <Text variant="caption" style={{ textAlign: 'center', paddingVertical: 8 }}>
           No shapes
-        </p>
+        </Text>
       ) : (
-        <ol
-          ref={mergedRef}
-          className="max-h-48 space-y-0.5 overflow-x-hidden overflow-y-auto overscroll-contain pr-1 text-[0.72rem]"
-        >
+        <Box style={{ maxHeight: 200 }}>
           {entities.map((e, i) => (
             <ShapeRow
               key={e.entityId}
               entity={e}
               index={i}
+              isFirst={i === 0}
+              isLast={i === entities.length - 1}
               busy={busy}
-              dragState={dragState}
               onRandomize={onRandomize}
               onDelete={onDelete}
-              onGripPointerDown={handleGripPointerDown}
+              onMoveUp={() => moveUp(i)}
+              onMoveDown={() => moveDown(i)}
             />
           ))}
-        </ol>
+        </Box>
       )}
 
-      <button
-        type="button"
+      <Button
+        title="Create shape"
+        variant="outlined"
+        size="sm"
         disabled={busy}
-        onClick={onCreate}
-        className={`${btnAction} mt-2 w-full justify-center`}
-      >
-        <IconPlus size={14} />
-        Create shape
-      </button>
+        startIcon={<IconPlus size={14} />}
+        onPress={onCreate}
+      />
 
       {note ? (
-        <p className="mt-1.5 text-[0.7rem] text-amber-300">{note}</p>
+        <Text variant="caption" style={{ color: '#e8b931' }}>
+          {note}
+        </Text>
       ) : null}
-    </>
+    </Stack>
   );
 }

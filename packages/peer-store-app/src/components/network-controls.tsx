@@ -1,5 +1,4 @@
-const btnClass =
-  'rounded-lg border border-white/15 bg-white/8 px-4 py-2 text-sm font-semibold text-white/70 transition-colors hover:bg-white/14 hover:text-white disabled:opacity-30'
+import { Button, Card, Stack, Text } from '@gamezilla/shared/ui';
 
 export function NetworkControls({
   onPause,
@@ -11,63 +10,56 @@ export function NetworkControls({
   isPaused,
   disconnectedPeers,
 }: {
-  onPause: () => void
-  onResume: () => void
-  onDrop: () => void
-  onAdvance: () => void
-  onDisconnect: (peerId: string) => void
-  onReconnect: (peerId: string) => void
-  isPaused: boolean
-  disconnectedPeers: Set<string>
+  onPause: () => void;
+  onResume: () => void;
+  onDrop: () => void;
+  onAdvance: () => void;
+  onDisconnect: (peerId: string) => void;
+  onReconnect: (peerId: string) => void;
+  isPaused: boolean;
+  disconnectedPeers: Set<string>;
 }) {
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-white/10 bg-black/40 p-5">
-      <h4 className="text-sm font-bold text-white/40 uppercase">
+    <Card elevation={1} sx={{ p: 4, gap: 3 }}>
+      <Text variant="label" style={{ textTransform: 'uppercase', fontWeight: 'bold' }}>
         Network Controls
-      </h4>
-      <div className="flex flex-wrap gap-2.5">
-        <button
-          type="button"
-          className={btnClass}
-          onClick={onPause}
+      </Text>
+      <Stack direction="horizontal" spacing={2} wrap>
+        <Button
+          title="Pause"
+          variant="outlined"
+          size="sm"
+          onPress={onPause}
           disabled={isPaused}
-        >
-          Pause
-        </button>
-        <button
-          type="button"
-          className={btnClass}
-          onClick={onResume}
+        />
+        <Button
+          title="Resume"
+          variant="outlined"
+          size="sm"
+          onPress={onResume}
           disabled={!isPaused}
-        >
-          Resume
-        </button>
-        <button type="button" className={btnClass} onClick={onDrop}>
-          Drop next
-        </button>
-        <button type="button" className={btnClass} onClick={onAdvance}>
-          Advance 5s
-        </button>
-      </div>
-      <div className="flex flex-wrap gap-2.5">
+        />
+        <Button title="Drop next" variant="outlined" size="sm" onPress={onDrop} />
+        <Button title="Advance 5s" variant="outlined" size="sm" onPress={onAdvance} />
+      </Stack>
+      <Stack direction="horizontal" spacing={2} wrap>
         {['player-x', 'player-o', 'worker'].map((peerId) => {
-          const is_disconnected = disconnectedPeers.has(peerId)
+          const isDisconnected = disconnectedPeers.has(peerId);
           return (
-            <button
+            <Button
               key={peerId}
-              type="button"
-              className={btnClass}
-              onClick={() =>
-                is_disconnected
+              title={isDisconnected ? `Reconnect ${peerId}` : `Disconnect ${peerId}`}
+              variant="outlined"
+              size="sm"
+              onPress={() =>
+                isDisconnected
                   ? onReconnect(peerId)
                   : onDisconnect(peerId)
               }
-            >
-              {is_disconnected ? `Reconnect ${peerId}` : `Disconnect ${peerId}`}
-            </button>
-          )
+            />
+          );
         })}
-      </div>
-    </div>
-  )
+      </Stack>
+    </Card>
+  );
 }

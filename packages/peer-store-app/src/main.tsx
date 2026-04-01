@@ -1,13 +1,19 @@
-import './main.css'
+import { registerRootComponent } from 'expo';
+import { Assert } from '@gamezilla/shared/assert';
+import { ExpoCrashHandler } from '@gamezilla/shared/assert/crash/crash-handler/crash-handler-expo';
+import { ThemeProvider } from '@gamezilla/shared/ui';
+import { useColorScheme } from 'react-native';
+import { App } from './app';
 
-import { Assert } from '@gamezilla/shared/assert'
-import { BrowserCrashHandler } from '@gamezilla/shared/assert/crash/crash-handler/crash-handler-browser'
-import { createRoot } from 'react-dom/client'
-import { App } from './app'
+Assert.registerCrashHandler(new ExpoCrashHandler());
 
-Assert.registerCrashHandler(new BrowserCrashHandler())
+function Root() {
+  const colorScheme = useColorScheme() ?? 'dark';
+  return (
+    <ThemeProvider colorScheme={colorScheme}>
+      <App />
+    </ThemeProvider>
+  );
+}
 
-const el = document.getElementById('root')
-if (!el) throw new Error('peer-store-app: #root element not found')
-const root = createRoot(el)
-root.render(<App />)
+registerRootComponent(Root);

@@ -5,67 +5,12 @@ import {
   PatchDbClientTransportHttpFetch,
 } from '@gamezilla/patch-db/transport';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Box, Button, Card, ScrollView, Spinner, Stack, Text, TextInput } from '@gamezilla/shared/ui';
+import { useTheme } from '@gamezilla/shared/ui';
 
 const URL_STORAGE_KEY = 'patchdb-inspector-sync-url';
-
-function defaultUrlWhenNoStorage(): string {
-  if (import.meta.env.DEV && typeof window !== 'undefined') {
-    return window.location.origin;
-  }
-  return 'http://localhost:5001';
-}
-
-const DIRECT_SYNC_DEV_URLS = new Set([
-  'http://localhost:5001',
-  'http://127.0.0.1:5001',
-]);
-
-function readStoredUrl(): string {
-  try {
-    const u = localStorage.getItem(URL_STORAGE_KEY);
-    if (typeof u === 'string' && u.length > 0) {
-      if (
-        import.meta.env.DEV &&
-        typeof window !== 'undefined' &&
-        DIRECT_SYNC_DEV_URLS.has(u)
-      ) {
-        return window.location.origin;
-      }
-      return u;
-    }
-  } catch {
-    /* ignore */
-  }
-  return defaultUrlWhenNoStorage();
-}
-
-function persistUrl(url: string): void {
-  try {
-    localStorage.setItem(URL_STORAGE_KEY, url);
-  } catch {
-    /* ignore */
-  }
-}
-
-function hasExplicitlyStoredUrl(): boolean {
-  try {
-    const u = localStorage.getItem(URL_STORAGE_KEY);
-    return typeof u === 'string' && u.length > 0;
-  } catch {
-    return false;
-  }
-}
-
-function tryInitialConnectedUrl(): string | null {
-  if (!hasExplicitlyStoredUrl()) return null;
-  try {
-    const u = readStoredUrl().trim();
-    assertUrl(u);
-    return u;
-  } catch {
-    return null;
-  }
-}
+const DEFAULT_URL = 'http://localhost:5001';
 
 function formatAttrValue(value: unknown): string {
   if (value === null || value === undefined) return '—';
@@ -74,13 +19,26 @@ function formatAttrValue(value: unknown): string {
 }
 
 export function ReqResInspector() {
-  const [urlInput, setUrlInput] = useState(readStoredUrl);
-  const [connectedUrl, setConnectedUrl] = useState<string | null>(
-    tryInitialConnectedUrl
-  );
+  const [urlInput, setUrlInput] = useState(DEFAULT_URL);
+  const [connectedUrl, setConnectedUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<PatchesDbResult | null>(null);
   const knownPatchesRef = useRef<Patch[]>([]);
+  const theme = useTheme();
+
+  useEffect(() => {
+    void AsyncStorage.getItem(URL_STORAGE_KEY).then((stored) => {
+      if (typeof stored === 'string' && stored.length > 0) {
+        setUrlInput(stored);
+        try {
+          assertUrl(stored);
+          setConnectedUrl(stored);
+        } catch {
+          // invalid stored url
+        }
+      }
+    });
+  }, []);
 
   const handleConnect = useCallback(() => {
     const trimmed = urlInput.trim();
@@ -95,7 +53,7 @@ export function ReqResInspector() {
     knownPatchesRef.current = [];
     setResult(null);
     setConnectedUrl(trimmed);
-    persistUrl(trimmed);
+    void AsyncStorage.setItem(URL_STORAGE_KEY, trimmed);
   }, [urlInput]);
 
   useEffect(() => {
@@ -140,75 +98,82 @@ export function ReqResInspector() {
   const entity = result?.entities[0];
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto p-4 text-white">
-      <div className="flex flex-wrap items-end gap-3">
-        <label className="flex min-w-[240px] flex-1 flex-col gap-1">
-          <span className="text-xs font-medium text-white/50">Req Res URL</span>
-          <input
-            type="url"
-            value={urlInput}
-            onChange={(e) => setUrlInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleConnect();
-            }}
-            placeholder="https://…"
-            className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 font-mono text-sm text-white/90 outline-none ring-violet-500/40 focus:border-violet-500/50 focus:ring-2"
-          />
-        </label>
-        <button
-          type="button"
-          onClick={handleConnect}
-          className="rounded-lg border border-teal-500/40 bg-teal-950/40 px-4 py-2 text-sm font-semibold text-teal-200 transition-colors hover:bg-teal-900/50"
-        >
-          Connect
-        </button>
-      </div>
+    <ScrollView sx={{ flex: 1, p: 4, gap: 4 }}>
+      <Stack spacing={3}>
+        <Text variant="caption">Req Res URL</Text>
+        <TextInput
+          value={urlInput}
+          onChangeText={setUrlInput}
+          placeholder="https://…"
+          onSubmitEditing={handleConnect}
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="url"
+        />
+        <Button
+          title="Connect"
+          variant="solid"
+          size="md"
+          onPress={handleConnect}
+        />
+      </Stack>
 
       {error !== null ? (
-        <div className="rounded-lg border border-red-500/30 bg-red-950/40 px-3 py-2 text-sm text-red-200">
-          {error}
-        </div>
+        <Card sx={{ p: 3, mt: 3 }}>
+          <Text variant="body" style={{ color: theme.colors.destructive }}>
+            {error}
+          </Text>
+        </Card>
       ) : null}
 
       {entity !== null && entity !== undefined ? (
-        <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5">
-          <table className="w-full border-collapse text-left text-sm">
-            <thead>
-              <tr className="border-b border-white/10 text-xs uppercase tracking-wide text-white/45">
-                <th className="px-4 py-2 font-medium">Attribute</th>
-                <th className="px-4 py-2 font-medium">Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(entity.attributes)
-                .filter(([k]) => k.startsWith('admin/'))
-                .sort(([a], [b]) => a.localeCompare(b))
-                .map(([key, value]) => (
-                  <tr
-                    key={key}
-                    className="border-b border-white/5 last:border-0"
-                  >
-                    <td className="px-4 py-2 font-mono text-xs text-violet-200/90">
-                      {key}
-                    </td>
-                    <td className="px-4 py-2 font-mono text-xs text-white/80">
-                      {formatAttrValue(value)}
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-          <p className="border-t border-white/10 px-4 py-2 text-[0.65rem] text-white/40">
-            entity {entity.entityId} · {entity.entityType} · patches in result:{' '}
-            {result?.patches.length ?? 0}
-          </p>
-        </div>
+        <Card sx={{ mt: 3, p: 0 }} elevation={1}>
+          <Stack
+            direction="horizontal"
+            sx={{ px: 4, py: 2 }}
+            style={{
+              borderBottomWidth: 1,
+              borderBottomColor: theme.colors.border,
+            }}
+          >
+            <Text variant="label" style={{ flex: 1 }}>Attribute</Text>
+            <Text variant="label" style={{ flex: 1 }}>Value</Text>
+          </Stack>
+
+          {Object.entries(entity.attributes)
+            .filter(([k]) => k.startsWith('admin/'))
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([key, value]) => (
+              <Stack
+                key={key}
+                direction="horizontal"
+                sx={{ px: 4, py: 2 }}
+                style={{
+                  borderBottomWidth: 1,
+                  borderBottomColor: theme.colors.border + '33',
+                }}
+              >
+                <Text variant="mono" style={{ flex: 1, fontSize: 12, color: theme.colors.tint }}>
+                  {key}
+                </Text>
+                <Text variant="mono" style={{ flex: 1, fontSize: 12 }}>
+                  {formatAttrValue(value)}
+                </Text>
+              </Stack>
+            ))}
+
+          <Box sx={{ px: 4, py: 2 }}>
+            <Text variant="caption">
+              entity {entity.entityId} · {entity.entityType} · patches: {result?.patches.length ?? 0}
+            </Text>
+          </Box>
+        </Card>
       ) : connectedUrl !== null && error === null ? (
-        <div className="flex items-center gap-2 text-sm text-white/55">
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/15 border-t-violet-400" />
-          Waiting for metrics from server…
-        </div>
+        <Stack direction="horizontal" spacing={2} align="center" sx={{ mt: 3 }}>
+          <Spinner size="small" />
+          <Text variant="caption">Waiting for metrics from server…</Text>
+        </Stack>
       ) : null}
-    </div>
+    </ScrollView>
   );
 }

@@ -40,6 +40,13 @@ export { ProgressBar, type ProgressBarProps } from './progress-bar';
 // Disclosure
 export { Collapsible, type CollapsibleProps } from './collapsible';
 
+// Compound Inputs
+export { Select, type SelectProps, type SelectOption } from './select';
+export { SegmentedControl, type SegmentedControlProps, type Segment } from './segmented-control';
+
+// Status
+export { StatusDot, type StatusDotProps, type StatusDotStatus } from './status-dot';
+
 // Overlay
 export {
   ModalRoot,

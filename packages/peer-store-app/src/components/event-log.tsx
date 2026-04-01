@@ -1,35 +1,46 @@
-import type { Event } from '@gamezilla/peer-store/types'
+import type { Event } from '@gamezilla/peer-store/types';
+import { Card, Stack, Text } from '@gamezilla/shared/ui';
+import { useTheme } from '@gamezilla/shared/ui';
 
 export function EventLog({ events }: { events: Event[] }) {
+  const theme = useTheme();
+
   return (
-    <div className="flex flex-col gap-1 overflow-y-auto rounded-lg border border-white/10 bg-black/40 p-5">
-      <h4 className="mb-2 text-sm font-bold text-white/40 uppercase">
+    <Card elevation={1} sx={{ p: 4, gap: 1 }}>
+      <Text variant="label" sx={{ mb: 1 }} style={{ textTransform: 'uppercase', fontWeight: 'bold' }}>
         Committed Events
-      </h4>
+      </Text>
       {events.length === 0 && (
-        <p className="text-xs text-white/20">No committed events yet.</p>
+        <Text variant="caption">No committed events yet.</Text>
       )}
       {events.map((event, i) => {
-        const payload = event.payload as Record<string, unknown> | undefined
+        const payload = event.payload as Record<string, unknown> | undefined;
         return (
-          <div
-            key={i}
-            className="flex items-baseline gap-3 text-xs font-mono"
-          >
-            <span className="w-5 shrink-0 text-right text-white/20">
+          <Stack key={i} direction="horizontal" spacing={2} align="center">
+            <Text
+              variant="mono"
+              style={{ width: 24, textAlign: 'right', fontSize: 11, color: theme.colors.textSecondary }}
+            >
               {i + 1}
-            </span>
-            <span className="font-semibold text-emerald-300">
+            </Text>
+            <Text
+              variant="mono"
+              style={{ fontSize: 11, fontWeight: '600', color: theme.colors.success }}
+            >
               {event.type}
-            </span>
+            </Text>
             {payload && (
-              <span className="truncate text-white/35">
+              <Text
+                variant="mono"
+                style={{ flex: 1, fontSize: 11, color: theme.colors.textSecondary }}
+                numberOfLines={1}
+              >
                 {JSON.stringify(payload)}
-              </span>
+              </Text>
             )}
-          </div>
-        )
+          </Stack>
+        );
       })}
-    </div>
-  )
+    </Card>
+  );
 }

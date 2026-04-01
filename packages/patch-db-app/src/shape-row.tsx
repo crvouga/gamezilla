@@ -1,83 +1,109 @@
-import type { PointerEvent as ReactPointerEvent } from 'react';
 import type { Entity } from '@gamezilla/patch-db/interface';
 import { SHAPE_ATTR } from '@gamezilla/patch-db/sim/playground-shapes';
-import { IconGrip } from './icons';
-import { btnTiny } from './styles';
-import type { DragState } from './use-drag-reorder';
+import Svg, { Polygon } from 'react-native-svg';
+import { Box, Button, Stack, Text } from '@gamezilla/shared/ui';
+import { useTheme } from '@gamezilla/shared/ui';
 
 export function ShapeRow({
   entity,
   index,
+  isFirst,
+  isLast,
   busy,
-  dragState,
   onRandomize,
   onDelete,
-  onGripPointerDown,
+  onMoveUp,
+  onMoveDown,
 }: {
   entity: Entity;
   index: number;
+  isFirst: boolean;
+  isLast: boolean;
   busy: boolean;
-  dragState: DragState | null;
   onRandomize: (entityId: string) => void;
   onDelete: (entityId: string) => void;
-  onGripPointerDown: (e: ReactPointerEvent, index: number) => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
 }) {
-  const isDragging = dragState?.fromIdx === index;
-  const isDropTarget =
-    dragState !== null &&
-    dragState.overIdx === index &&
-    dragState.fromIdx !== index;
+  const theme = useTheme();
 
   return (
-    <li
-      className={`group flex items-center gap-1.5 rounded-lg border px-1 py-0.5 transition-all duration-150 ${
-        isDragging
-          ? 'border-transparent opacity-30'
-          : isDropTarget
-            ? 'border-teal-400/40 bg-teal-500/10'
-            : 'border-transparent hover:border-white/10 hover:bg-white/5'
-      }`}
+    <Stack
+      direction="horizontal"
+      spacing={1}
+      align="center"
+      sx={{ px: 1, py: 0.5 }}
+      style={{
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: 'transparent',
+      }}
     >
-      <span
-        className="cursor-grab text-white/25 active:cursor-grabbing touch-none select-none"
-        onPointerDown={(e) => onGripPointerDown(e, index)}
-      >
-        <IconGrip />
-      </span>
-      <span className="w-5 shrink-0 text-center text-[0.6rem] text-white/35 font-mono">
-        {String(entity.attributes[SHAPE_ATTR.order] ?? index)}
-      </span>
-      <svg
-        viewBox="0 0 100 100"
-        className="h-6 w-6 shrink-0 rounded border border-white/10 bg-black/40"
-      >
-        <polygon
-          points={String(entity.attributes[SHAPE_ATTR.points] ?? '')}
-          fill={String(entity.attributes[SHAPE_ATTR.fill] ?? '#666')}
-          stroke="rgba(255,255,255,0.12)"
-          strokeWidth={0.5}
-          className="transition-[fill] duration-300"
+      <Stack spacing={0}>
+        <Button
+          title="▲"
+          variant="text"
+          size="sm"
+          disabled={busy || isFirst}
+          onPress={onMoveUp}
         />
-      </svg>
-      <span className="min-w-0 flex-1 truncate font-mono text-[0.65rem] text-white/65">
+        <Button
+          title="▼"
+          variant="text"
+          size="sm"
+          disabled={busy || isLast}
+          onPress={onMoveDown}
+        />
+      </Stack>
+
+      <Text variant="mono" style={{ width: 24, textAlign: 'center', fontSize: 10, color: theme.colors.textSecondary }}>
+        {String(entity.attributes[SHAPE_ATTR.order] ?? index)}
+      </Text>
+
+      <Box
+        style={{
+          width: 28,
+          height: 28,
+          borderRadius: 4,
+          borderWidth: 1,
+          borderColor: theme.colors.border,
+          backgroundColor: theme.colors.surface,
+          overflow: 'hidden',
+        }}
+      >
+        <Svg viewBox="0 0 100 100" width={26} height={26}>
+          <Polygon
+            points={String(entity.attributes[SHAPE_ATTR.points] ?? '')}
+            fill={String(entity.attributes[SHAPE_ATTR.fill] ?? '#666')}
+            stroke="rgba(255,255,255,0.12)"
+            strokeWidth={0.5}
+          />
+        </Svg>
+      </Box>
+
+      <Text
+        variant="mono"
+        numberOfLines={1}
+        style={{ flex: 1, fontSize: 11, color: theme.colors.textSecondary }}
+      >
         {String(entity.attributes[SHAPE_ATTR.kind] ?? '')}
-      </span>
-      <button
-        type="button"
+      </Text>
+
+      <Button
+        title="Rand"
+        variant="text"
+        size="sm"
         disabled={busy}
-        onClick={() => onRandomize(entity.entityId)}
-        className={btnTiny}
-      >
-        Rand
-      </button>
-      <button
-        type="button"
+        onPress={() => onRandomize(entity.entityId)}
+      />
+      <Button
+        title="Del"
+        variant="text"
+        size="sm"
+        color="destructive"
         disabled={busy}
-        onClick={() => onDelete(entity.entityId)}
-        className={`${btnTiny} hover:text-red-400`}
-      >
-        Del
-      </button>
-    </li>
+        onPress={() => onDelete(entity.entityId)}
+      />
+    </Stack>
   );
 }

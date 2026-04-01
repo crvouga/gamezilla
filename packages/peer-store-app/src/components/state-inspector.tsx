@@ -1,80 +1,95 @@
-import type { State } from '@gamezilla/peer-store/types'
-import { useState } from 'react'
+import type { State } from '@gamezilla/peer-store/types';
+import { useState } from 'react';
+import { Pressable } from 'react-native';
+import { Box, Stack, Text } from '@gamezilla/shared/ui';
+import { useTheme } from '@gamezilla/shared/ui';
 
 export function StateInspector({
   committedState,
   displayState,
 }: {
-  committedState: State
-  displayState: State
+  committedState: State;
+  displayState: State;
 }) {
-  const [expanded, setExpanded] = useState(false)
-  const has_diff = JSON.stringify(committedState) !== JSON.stringify(displayState)
+  const [expanded, setExpanded] = useState(false);
+  const hasDiff = JSON.stringify(committedState) !== JSON.stringify(displayState);
+  const theme = useTheme();
 
   if (!expanded) {
     return (
-      <button
-        type="button"
-        onClick={() => setExpanded(true)}
-        className="text-left text-xs text-white/30 hover:text-white/50"
-      >
-        {has_diff ? '▸ state (differs)' : '▸ state'}
-      </button>
-    )
+      <Pressable onPress={() => setExpanded(true)}>
+        <Text variant="caption" style={{ color: theme.colors.textSecondary }}>
+          {hasDiff ? '▸ state (differs)' : '▸ state'}
+        </Text>
+      </Pressable>
+    );
   }
 
   return (
-    <div className="text-xs">
-      <button
-        type="button"
-        onClick={() => setExpanded(false)}
-        className="mb-1.5 text-white/30 hover:text-white/50"
-      >
-        ▾ state
-      </button>
+    <Box>
+      <Pressable onPress={() => setExpanded(false)}>
+        <Text variant="caption" sx={{ mb: 1 }} style={{ color: theme.colors.textSecondary }}>
+          ▾ state
+        </Text>
+      </Pressable>
       <DiffView committed={committedState} display={displayState} />
-    </div>
-  )
+    </Box>
+  );
 }
 
 function DiffView({
   committed,
   display,
 }: {
-  committed: State
-  display: State
+  committed: State;
+  display: State;
 }) {
-  const all_keys = new Set([
+  const theme = useTheme();
+  const allKeys = new Set([
     ...Object.keys(committed),
     ...Object.keys(display),
-  ])
+  ]);
 
   return (
-    <div className="space-y-0.5 font-mono">
-      {[...all_keys].map((key) => {
-        const c_val = JSON.stringify(committed[key])
-        const d_val = JSON.stringify(display[key])
-        const is_same = c_val === d_val
+    <Stack spacing={0.5}>
+      {[...allKeys].map((key) => {
+        const cVal = JSON.stringify(committed[key]);
+        const dVal = JSON.stringify(display[key]);
+        const isSame = cVal === dVal;
 
-        if (is_same) {
+        if (isSame) {
           return (
-            <div key={key} className="text-emerald-300/50">
-              {key}: {c_val}
-            </div>
-          )
+            <Text
+              key={key}
+              variant="mono"
+              style={{ fontSize: 11, color: theme.colors.success + '80' }}
+            >
+              {key}: {cVal}
+            </Text>
+          );
         }
 
         return (
-          <div key={key}>
-            <div className="text-red-300/60 line-through">
-              {key}: {c_val}
-            </div>
-            <div className="text-amber-300/80">
-              {key}: {d_val}
-            </div>
-          </div>
-        )
+          <Box key={key}>
+            <Text
+              variant="mono"
+              style={{
+                fontSize: 11,
+                color: theme.colors.destructive + '99',
+                textDecorationLine: 'line-through',
+              }}
+            >
+              {key}: {cVal}
+            </Text>
+            <Text
+              variant="mono"
+              style={{ fontSize: 11, color: theme.colors.warning + 'cc' }}
+            >
+              {key}: {dVal}
+            </Text>
+          </Box>
+        );
       })}
-    </div>
-  )
+    </Stack>
+  );
 }

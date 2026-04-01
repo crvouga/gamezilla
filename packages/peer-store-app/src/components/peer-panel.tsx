@@ -1,10 +1,9 @@
-import type { Event, State } from '@gamezilla/peer-store/types'
-import type { PeerId } from '../simulator/playground'
-import { StateInspector } from './state-inspector'
-import { TicTacToeBoard } from './tic-tac-toe-board'
+import type { Event, State } from '@gamezilla/peer-store/types';
+import { Badge, Box, Card, Stack, StatusDot, Text } from '@gamezilla/shared/ui';
+import { StateInspector } from './state-inspector';
+import { TicTacToeBoard } from './tic-tac-toe-board';
 
 export function PeerPanel({
-  peerId,
   displayState,
   committedState,
   events,
@@ -13,74 +12,69 @@ export function PeerPanel({
   player,
   onCellClick,
 }: {
-  peerId: PeerId
-  displayState: State
-  committedState: State
-  events: Event[]
-  isOnline: boolean
-  isBadActor: boolean
-  player: 'X' | 'O' | null
-  onCellClick?: ((cell: number) => void) | undefined
+  displayState: State;
+  committedState: State;
+  events: Event[];
+  isOnline: boolean;
+  isBadActor: boolean;
+  player: 'X' | 'O' | null;
+  onCellClick?: ((cell: number) => void) | undefined;
 }) {
-  const is_worker = player === null
-  const has_optimistic =
-    JSON.stringify(displayState) !== JSON.stringify(committedState)
+  const isWorker = player === null;
+  const hasOptimistic =
+    JSON.stringify(displayState) !== JSON.stringify(committedState);
 
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-white/10 bg-black/50 p-5">
-      <div className="flex items-center justify-between">
-        <h3 className="font-display text-base font-semibold">
-          {is_worker ? 'Worker' : `Player ${player}`}
-        </h3>
-        <div className="flex items-center gap-2">
+    <Card elevation={1} sx={{ p: 4, gap: 3 }}>
+      <Stack direction="horizontal" align="center" justify="space-between">
+        <Text variant="subtitle">
+          {isWorker ? 'Worker' : `Player ${player}`}
+        </Text>
+        <Stack direction="horizontal" spacing={2} align="center">
           {isBadActor && (
-            <span className="rounded bg-red-500/20 px-2 py-0.5 text-xs font-bold text-red-400">
-              BAD ACTOR
-            </span>
+            <Badge label="BAD ACTOR" color="destructive" size="sm" />
           )}
-          <span
-            className={`h-2.5 w-2.5 rounded-full ${isOnline ? 'bg-emerald-400' : 'bg-red-400'}`}
-          />
-        </div>
-      </div>
+          <StatusDot status={isOnline ? 'online' : 'offline'} />
+        </Stack>
+      </Stack>
 
       <TicTacToeBoard
         state={displayState}
         onCellClick={onCellClick}
-        readonly={is_worker}
+        readonly={isWorker}
       />
 
-      <div className="flex items-center gap-3 text-xs">
-        <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-emerald-400" />
-          committed
-        </span>
-        {has_optimistic && (
-          <span className="flex items-center gap-1.5 text-amber-300">
-            <span className="h-2 w-2 rounded-full bg-amber-400" />
-            optimistic
-          </span>
+      <Stack direction="horizontal" spacing={3} align="center">
+        <Stack direction="horizontal" spacing={1} align="center">
+          <StatusDot status="online" size={8} />
+          <Text variant="caption">committed</Text>
+        </Stack>
+        {hasOptimistic && (
+          <Stack direction="horizontal" spacing={1} align="center">
+            <StatusDot status="warning" size={8} />
+            <Text variant="caption">optimistic</Text>
+          </Stack>
         )}
-      </div>
+      </Stack>
 
       <StateInspector
         committedState={committedState}
         displayState={displayState}
       />
 
-      <div className="max-h-32 overflow-y-auto">
-        <p className="mb-1.5 text-xs font-semibold text-white/40 uppercase">
+      <Box style={{ maxHeight: 120 }}>
+        <Text variant="caption" style={{ fontWeight: '600', textTransform: 'uppercase', marginBottom: 6 }}>
           Events ({events.length})
-        </p>
+        </Text>
         {events.length === 0 && (
-          <p className="text-xs text-white/20">none</p>
+          <Text variant="caption">none</Text>
         )}
         {events.slice(-6).map((e, i) => (
-          <div key={i} className="text-xs text-white/50">
+          <Text key={i} variant="caption">
             {e.type}
-          </div>
+          </Text>
         ))}
-      </div>
-    </div>
-  )
+      </Box>
+    </Card>
+  );
 }

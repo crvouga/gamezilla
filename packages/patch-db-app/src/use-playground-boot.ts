@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { AppState } from 'react-native';
 import { seedPlaygroundShapes } from '@gamezilla/patch-db/sim/playground-shapes';
 import type { PlaygroundSim } from '@gamezilla/patch-db/sim/playground-sim';
 import {
@@ -6,7 +7,6 @@ import {
   restorePlaygroundSim,
 } from '@gamezilla/patch-db/sim/playground-sim';
 import { clearSnapshot, loadSnapshot, saveSnapshot } from './persist';
-import { browserSqlJsInit } from './sql-js-browser';
 
 const SIM_TEARDOWN_KEY = Symbol.for('playground-sim-teardown');
 
@@ -30,6 +30,7 @@ export function usePlaygroundBoot() {
   const [pulseKey, setPulseKey] = useState(0);
   const [linkEpoch, setLinkEpoch] = useState(0);
   const [, setClientEpoch] = useState(0);
+  const [resetKey, setResetKey] = useState(0);
   const simRef = useRef<PlaygroundSim | null>(null);
 
   const bumpGraph = useCallback(() => setPulseKey((k) => k + 1), []);
@@ -57,7 +58,11 @@ export function usePlaygroundBoot() {
 
   const reset = useCallback(async () => {
     await clearSnapshot();
-    window.location.reload();
+    const s = simRef.current;
+    simRef.current = null;
+    if (s) await s.destroy();
+    setSim(null);
+    setResetKey((k) => k + 1);
   }, []);
 
   useEffect(() => {
@@ -76,13 +81,10 @@ export function usePlaygroundBoot() {
 
         if (snapshot && snapshot.clients.length > 0) {
           setBootLabel('Restoring saved session…');
-          p = await restorePlaygroundSim(snapshot, {
-            sqlJs: browserSqlJsInit,
-          });
+          p = await restorePlaygroundSim(snapshot);
         } else {
           p = await createPlaygroundSim({
             clientCount: 2,
-            sqlJs: browserSqlJsInit,
           });
           if (!mounted) {
             await p.destroy();
@@ -136,7 +138,7 @@ export function usePlaygroundBoot() {
         )
       );
     };
-  }, []);
+  }, [resetKey]);
 
   useEffect(() => {
     if (!sim) return;
@@ -147,11 +149,17 @@ export function usePlaygroundBoot() {
         // may fail if sim is mid-teardown
       }
     };
-    const id = window.setInterval(save, 2000);
-    window.addEventListener('beforeunload', save);
+    const id = setInterval(save, 2000);
+
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'background' || nextState === 'inactive') {
+        save();
+      }
+    });
+
     return () => {
       clearInterval(id);
-      window.removeEventListener('beforeunload', save);
+      subscription.remove();
     };
   }, [sim]);
 

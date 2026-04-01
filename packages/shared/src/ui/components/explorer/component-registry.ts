@@ -29,6 +29,11 @@ import { default as ProgressBarExample } from '../progress-bar/progress-bar.exam
 
 import { default as CollapsibleExample } from '../collapsible/collapsible.example';
 
+import { default as SelectExample } from '../select/select.example';
+import { default as SegmentedControlExample } from '../segmented-control/segmented-control.example';
+
+import { default as StatusDotExample } from '../status-dot/status-dot.example';
+
 import { default as ModalExample } from '../modal/modal.example';
 
 export type ComponentEntry = {
@@ -72,6 +77,13 @@ export const componentRegistry: ComponentEntry[] = [
 
   // Disclosure
   { name: 'Collapsible', category: 'Disclosure', Example: CollapsibleExample },
+
+  // Compound Inputs
+  { name: 'Select', category: 'Inputs', Example: SelectExample },
+  { name: 'SegmentedControl', category: 'Inputs', Example: SegmentedControlExample },
+
+  // Status
+  { name: 'StatusDot', category: 'Data Display', Example: StatusDotExample },
 
   // Overlay
   { name: 'Modal', category: 'Overlay', Example: ModalExample },

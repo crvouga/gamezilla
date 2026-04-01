@@ -27,7 +27,7 @@ export function useServerShapes(sim: PlaygroundSim) {
 
   useEffect(() => {
     refresh();
-    const id = window.setInterval(refresh, SERVER_POLL_MS);
+    const id = setInterval(refresh, SERVER_POLL_MS);
     return () => clearInterval(id);
   }, [refresh]);
 

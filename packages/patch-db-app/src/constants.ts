@@ -1,7 +1,5 @@
 import { assert } from '@gamezilla/shared/assert';
 
-export const NS = 'http://www.w3.org/2000/svg';
-
 /** Core neutrals + accents for the playground graph and chrome. */
 export const C = {
   bg: '#0a0a0a',

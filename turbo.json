@@ -16,7 +16,11 @@
     "up": {
       "cache": false
     },
+    "install:deps": {
+      "cache": false
+    },
     "dev": {
+      "dependsOn": ["install:deps"],
       "persistent": true,
       "cache": false
     },

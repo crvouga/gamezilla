@@ -2,9 +2,10 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "noUnusedLocals": false,
-    "noUnusedParameters": false
+    "paths": {
+      "@gamezilla/shared/*": ["../shared/src/*"],
+      "@gamezilla/patch-db/*": ["../patch-db/src/*"]
+    }
   },
-  "include": ["./src/**/*.ts", "./src/**/*.tsx"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["./src/**/*.ts", "./src/**/*.tsx"]
 }

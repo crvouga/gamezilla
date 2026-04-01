@@ -1,33 +1,44 @@
 import type { ReactNode } from 'react';
-import { cardChrome } from './styles';
+import { Box, Card, Stack, Text } from '@gamezilla/shared/ui';
+import { useTheme } from '@gamezilla/shared/ui';
 
 export function NodePanelShell({
   icon,
-  iconColor,
   title,
   headerExtra,
   partitioned,
   children,
 }: {
   icon: ReactNode;
-  iconColor?: string;
   title: string;
   headerExtra?: ReactNode;
   partitioned?: boolean;
   children: ReactNode;
 }) {
+  const theme = useTheme();
+
   return (
-    <div
-      className={`${cardChrome} ${partitioned ? 'ring-1 ring-red-500/40' : ''}`}
+    <Card
+      elevation={2}
+      style={partitioned ? { borderWidth: 1, borderColor: theme.colors.destructive + '66' } : undefined}
     >
-      <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2">
-        <span className={iconColor}>{icon}</span>
-        <span className="font-mono text-sm font-semibold text-white/90">
+      <Stack
+        direction="horizontal"
+        spacing={2}
+        align="center"
+        sx={{ px: 3, py: 2 }}
+        style={{
+          borderBottomWidth: 1,
+          borderBottomColor: theme.colors.border,
+        }}
+      >
+        <Box>{icon}</Box>
+        <Text variant="mono" sx={{ fontSize: 'sm' }} style={{ fontWeight: '600', flex: 1 }}>
           {title}
-        </span>
+        </Text>
         {headerExtra}
-      </div>
-      <div className="p-3">{children}</div>
-    </div>
+      </Stack>
+      <Box sx={{ p: 3 }}>{children}</Box>
+    </Card>
   );
 }
