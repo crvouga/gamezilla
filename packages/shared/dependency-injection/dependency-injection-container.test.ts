@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { Assert } from '../assert';
 import {
   DependencyInjectionContainer,
   type InjectionToken,
@@ -77,7 +78,7 @@ describe('DependencyInjectionContainer', () => {
   });
 
   test('get throws for unregistered token', () => {
-    const c = new DependencyInjectionContainer();
+    const c = new DependencyInjectionContainer(undefined, Assert.validation());
     expect(() => c.get(TokenA)).toThrow('No registration found');
   });
 
@@ -101,7 +102,7 @@ describe('DependencyInjectionContainer', () => {
   });
 
   test('circular dependency throws', () => {
-    const c = new DependencyInjectionContainer();
+    const c = new DependencyInjectionContainer(undefined, Assert.validation());
     const TokenX = Symbol('X') as InjectionToken<unknown>;
     const TokenY = Symbol('Y') as InjectionToken<unknown>;
     c.register(TokenX, () => c.get(TokenY), { singleton: true });

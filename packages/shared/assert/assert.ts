@@ -21,6 +21,10 @@ export class Assert {
     return new Assert('crash');
   }
 
+  static withErrorMode(errorMode: 'validation' | 'crash'): Assert {
+    return new Assert(errorMode);
+  }
+
   /**
    * Installs a {@link CrashHandler} for {@link Assert.crash} failures. Handlers are ordered by
    * {@link CrashHandler.priority} (lower first); the first matching handler wins.

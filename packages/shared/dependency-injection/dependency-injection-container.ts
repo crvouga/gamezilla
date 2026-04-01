@@ -1,3 +1,5 @@
+import { assert, Assert } from '@gamezilla/shared/assert';
+
 /**
  * Token used to identify a dependency in the container.
  * Use a symbol or string as the runtime value. The phantom type preserves T for
@@ -34,12 +36,23 @@ export class DependencyInjectionContainer implements Container {
   private registrations = new Map<symbol | string, Registration<unknown>>();
   private parent: DependencyInjectionContainer | null = null;
   private resolutionStack: Set<symbol | string> = new Set();
+  private assert: Assert;
 
   /**
    * @param parent - Optional parent container. Child inherits parent registrations
    * and can override them. Resolution falls back to parent when token is not found.
    */
-  constructor(parent?: DependencyInjectionContainer) {
+  constructor(
+    parent?: DependencyInjectionContainer,
+    assertParam: Assert = assert
+  ) {
+    this.assert = assertParam;
+    if (parent) {
+      this.assert.ok(
+        parent instanceof DependencyInjectionContainer,
+        'Parent must be a DependencyInjectionContainer'
+      );
+    }
     this.parent = parent ?? null;
   }
 
@@ -55,6 +68,18 @@ export class DependencyInjectionContainer implements Container {
     factory: () => T,
     options?: { singleton?: boolean }
   ): void {
+    this.assert.ok(
+      token !== undefined && token !== null,
+      'register: Injection token must be defined'
+    );
+    this.assert.ok(
+      typeof factory === 'function',
+      'register: Factory must be a function'
+    );
+    this.assert.ok(
+      !this.registrations.has(token),
+      `register: Token already registered: ${String(token)}`
+    );
     this.registrations.set(token, {
       kind: 'factory',
       factory,
@@ -69,6 +94,14 @@ export class DependencyInjectionContainer implements Container {
    * @param value - The dependency instance
    */
   registerValue<T>(token: InjectionToken<T>, value: T): void {
+    this.assert.ok(
+      token !== undefined && token !== null,
+      'registerValue: Injection token must be defined'
+    );
+    this.assert.ok(
+      !this.registrations.has(token),
+      `registerValue: Token already registered: ${String(token)}`
+    );
     this.registrations.set(token, { kind: 'value', value });
   }
 
@@ -81,24 +114,43 @@ export class DependencyInjectionContainer implements Container {
    * @throws If circular dependency is detected during factory resolution
    */
   get<T>(token: InjectionToken<T>): T {
+    this.assert.ok(
+      token !== undefined && token !== null,
+      'get: Injection token must be defined'
+    );
     const reg = this.registrations.get(token);
 
     if (!reg) {
       if (this.parent) {
+        this.assert.ok(
+          this.parent !== this,
+          'get: Parent container must not be self (infinite loop prevention)'
+        );
         return this.parent.get(token);
       }
-      throw new Error(`No registration found for token: ${String(token)}`);
+      this.assert.fail(`No registration found for token: ${String(token)}`);
     }
 
-    if (this.resolutionStack.has(token)) {
-      const stack = [...this.resolutionStack, token].map(String).join(' -> ');
-      throw new Error(`Circular dependency detected: ${stack}`);
-    }
+    this.assert.ok(
+      !this.resolutionStack.has(token),
+      (() => {
+        const stack = [...this.resolutionStack, token].map(String).join(' -> ');
+        return `Circular dependency detected: ${stack}`;
+      })()
+    );
 
     if (reg.kind === 'value') {
+      this.assert.ok(
+        'value' in reg,
+        `get: Registration for token must have value`
+      );
       return reg.value as T;
     }
 
+    this.assert.ok(
+      reg.kind === 'factory',
+      `get: Registration for token must be of kind "factory" if not value`
+    );
     if (reg.singleton && reg.instance !== undefined) {
       return reg.instance as T;
     }
@@ -106,6 +158,10 @@ export class DependencyInjectionContainer implements Container {
     this.resolutionStack.add(token);
     try {
       const instance = reg.factory() as T;
+      this.assert.ok(
+        instance !== undefined,
+        `get: Factory for token returned undefined (${String(token)})`
+      );
       if (reg.singleton) {
         (reg as { instance?: T }).instance = instance;
       }
@@ -122,6 +178,10 @@ export class DependencyInjectionContainer implements Container {
    * @returns True if the token is registered
    */
   has(token: InjectionToken<unknown>): boolean {
+    this.assert.ok(
+      token !== undefined && token !== null,
+      'has: Injection token must be defined'
+    );
     return this.registrations.has(token) || (this.parent?.has(token) ?? false);
   }
 
@@ -132,6 +192,11 @@ export class DependencyInjectionContainer implements Container {
    * @returns A new container with this container as its parent
    */
   createChild(): DependencyInjectionContainer {
-    return new DependencyInjectionContainer(this);
+    const child = new DependencyInjectionContainer(this);
+    this.assert.ok(
+      child.parent === this,
+      'createChild: Child container parent must be the current container'
+    );
+    return child;
   }
 }
