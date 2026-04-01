@@ -1,4 +1,4 @@
-import { assertUrl } from '@gamezilla/patch-db/assert-req-res-base-url';
+import { assertUrl } from '@gamezilla/patch-db/assert-url';
 import type { Patch, PatchesDbResult } from '@gamezilla/patch-db/interface';
 import {
   ADMIN_METRIC_ENTITY_TYPE,
