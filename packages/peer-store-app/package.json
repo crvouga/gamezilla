@@ -4,6 +4,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite --open",
+    "lint": "eslint .",
     "preview": "bun run build && bun x serve dist",
     "serve": "bun x serve dist"
   },

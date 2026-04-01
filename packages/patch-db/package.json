@@ -9,6 +9,7 @@
     "react-native": "0.81.5"
   },
   "scripts": {
+    "lint": "eslint .",
     "test": "bun test"
   },
   "devDependencies": {

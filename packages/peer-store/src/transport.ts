@@ -107,6 +107,8 @@ export class InMemoryTransport implements Transport {
   private is_connected = true
   private is_destroyed = false
   private readonly unsubscribers: Array<() => void> = []
+  private readonly outgoing_queue: Array<{ topic: string; payload: unknown }> =
+    []
 
   constructor(bus: InMemoryBus, peerId: string) {
     crash.nonEmptyString(peerId, 'peerId must be non-empty string')
@@ -126,12 +128,19 @@ export class InMemoryTransport implements Transport {
   reconnect(): void {
     crash.ok(!this.is_connected, 'peer is not disconnected')
     this.is_connected = true
+    const snapshot = this.outgoing_queue.splice(0, this.outgoing_queue.length)
+    for (const msg of snapshot) {
+      this.bus.publish(msg.topic, msg.payload)
+    }
   }
 
   publish(topic: string, payload: unknown): void {
     crash.ok(!this.is_destroyed, 'cannot publish on destroyed transport')
     crash.nonEmptyString(topic, 'topic must be non-empty string')
-    if (!this.is_connected) return
+    if (!this.is_connected) {
+      this.outgoing_queue.push({ topic, payload })
+      return
+    }
     this.bus.publish(topic, payload)
   }
 

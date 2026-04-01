@@ -6,6 +6,7 @@
     "@gamezilla/shared": "workspace:*"
   },
   "scripts": {
+    "lint": "eslint .",
     "test": "bun test",
     "tc": "tsc --noEmit -p ./tsconfig.json"
   },

@@ -63,7 +63,6 @@ export function PlaygroundLayout({
 }) {
   const clients = useMemo(
     () => [...sim.clients],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [sim, pulseKey]
   );
 

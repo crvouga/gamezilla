@@ -11,6 +11,7 @@
     "sql.js": "^1.14.0"
   },
   "scripts": {
+    "lint": "eslint .",
     "test": "bun test"
   },
   "devDependencies": {

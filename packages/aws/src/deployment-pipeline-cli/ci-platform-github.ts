@@ -1,4 +1,3 @@
-/* eslint-disable expo/no-dynamic-env-var */
 import { appendFileSync } from 'node:fs';
 import { assert } from '@gamezilla/shared/assert';
 import type { CiPlatform } from './ci-platform';

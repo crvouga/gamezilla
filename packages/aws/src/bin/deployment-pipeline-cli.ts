@@ -1,4 +1,3 @@
-/* eslint-disable expo/no-dynamic-env-var */
 import { assert } from '@gamezilla/shared/assert';
 import { GitHubActionsPlatform } from '../deployment-pipeline-cli/ci-platform-github';
 import { LocalPlatform } from '../deployment-pipeline-cli/ci-platform-local';
