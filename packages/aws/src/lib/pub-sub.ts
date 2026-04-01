@@ -1,8 +1,10 @@
+import * as cdk from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as servicediscovery from 'aws-cdk-lib/aws-servicediscovery';
+import { CdkDia, CdkDiaDecorator, CollapseTypes } from 'cdk-dia';
 import { Construct } from 'constructs';
 import { assertAwsEc2SecurityGroupDescription } from './cdk-aws-preconditions';
 
@@ -18,13 +20,18 @@ export interface EmqxClusterProps {
 /**
  * EMQX 5 on Fargate + internal Cloud Map DNS + public NLB (MQTT 1883, WebSocket 8083).
  */
-export class EmqxCluster extends Construct {
+export class EmqxCluster extends Construct implements cdk.IInspectable {
   readonly ecsCluster: ecs.Cluster;
   /** EMQX broker task service (for CloudFormation dependsOn ordering). */
   readonly emqxService: ecs.FargateService;
   /** e.g. mqtt://emqx.app.local:1883 */
   readonly internalMqttUrl: string;
   readonly publicNlbDnsName: string;
+
+  inspect(inspector: cdk.TreeInspector): void {
+    CdkDia.decorate(inspector,
+      new CdkDiaDecorator().collapse(CollapseTypes.FORCE_NON_COLLAPSE));
+  }
 
   constructor(scope: Construct, id: string, props: EmqxClusterProps) {
     super(scope, id);

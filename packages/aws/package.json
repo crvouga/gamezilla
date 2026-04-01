@@ -12,7 +12,11 @@
     "watch": "tsc -w",
     "lint": "eslint .",
     "tc": "tsc --noEmit -p ./tsconfig.json",
-    "test": "echo 'TODO: test'"
+    "test": "echo 'TODO: test'",
+    "diagram": "cdk synth --quiet && bun x cdk-dia",
+    "diagram:install": "brew install graphviz",
+    "diagram:html": "cdk synth --quiet && bun x cdk-dia --rendering cytoscape-html",
+    "diagram:html:preview": "bun run diagram:html && bun x serve diagram"
   },
   "dependencies": {
     "@gamezilla/shared": "workspace:*",
@@ -24,6 +28,7 @@
     "@aws-sdk/client-sts": "^3.1018.0",
     "@types/node": "^20.17.0",
     "aws-cdk": "^2.170.0",
+    "cdk-dia": "^0.12.3",
     "tsx": "^4.19.2",
     "typescript": "~5.6.3"
   }

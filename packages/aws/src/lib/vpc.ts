@@ -1,4 +1,6 @@
+import * as cdk from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import { CdkDia, CdkDiaDecorator, CollapseTypes } from 'cdk-dia';
 import { Construct } from 'constructs';
 
 export interface AppVpcProps {
@@ -8,8 +10,13 @@ export interface AppVpcProps {
 /**
  * Shared VPC: public + private subnets with NAT (default single NAT for cost).
  */
-export class AppVpc extends Construct {
+export class AppVpc extends Construct implements cdk.IInspectable {
   readonly vpc: ec2.Vpc;
+
+  inspect(inspector: cdk.TreeInspector): void {
+    CdkDia.decorate(inspector,
+      new CdkDiaDecorator().collapse(CollapseTypes.FORCE_COLLAPSE));
+  }
 
   constructor(scope: Construct, id: string, props: AppVpcProps = {}) {
     super(scope, id);

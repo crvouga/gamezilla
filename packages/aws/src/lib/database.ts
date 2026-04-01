@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as rds from 'aws-cdk-lib/aws-rds';
+import { CdkDia, CdkDiaDecorator, CollapseTypes } from 'cdk-dia';
 import { Construct } from 'constructs';
 
 export interface AppDatabaseProps {
@@ -15,9 +16,14 @@ const DEFAULT_DB_NAME = 'postgres';
 /**
  * Aurora PostgreSQL Serverless v2 cluster (writer only, small capacity range).
  */
-export class AppDatabase extends Construct {
+export class AppDatabase extends Construct implements cdk.IInspectable {
   readonly cluster: rds.DatabaseCluster;
   readonly connections: ec2.Connections;
+
+  inspect(inspector: cdk.TreeInspector): void {
+    CdkDia.decorate(inspector,
+      new CdkDiaDecorator().collapse(CollapseTypes.FORCE_NON_COLLAPSE));
+  }
 
   constructor(scope: Construct, id: string, props: AppDatabaseProps) {
     super(scope, id);

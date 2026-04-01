@@ -4,6 +4,7 @@ import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as route53targets from 'aws-cdk-lib/aws-route53-targets';
 import * as s3 from 'aws-cdk-lib/aws-s3';
+import { CdkDia, CdkDiaDecorator, CollapseTypes } from 'cdk-dia';
 import { Construct } from 'constructs';
 import { createSpaDistribution } from './spa-distribution';
 
@@ -12,10 +13,15 @@ export interface WebAppProps {
   customDomainBootstrap?: boolean;
 }
 
-export class WebApp extends Construct {
+export class WebApp extends Construct implements cdk.IInspectable {
   readonly bucket: s3.Bucket;
   readonly distribution: cloudfront.Distribution;
   readonly hostedZone?: route53.HostedZone;
+
+  inspect(inspector: cdk.TreeInspector): void {
+    CdkDia.decorate(inspector,
+      new CdkDiaDecorator().collapse(CollapseTypes.FORCE_NON_COLLAPSE));
+  }
 
   constructor(scope: Construct, id: string, props: WebAppProps = {}) {
     super(scope, id);

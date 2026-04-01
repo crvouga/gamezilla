@@ -4,6 +4,7 @@ import * as ecr_assets from 'aws-cdk-lib/aws-ecr-assets';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as rds from 'aws-cdk-lib/aws-rds';
+import { CdkDia, CdkDiaDecorator, CollapseTypes } from 'cdk-dia';
 import { Construct } from 'constructs';
 import type { EmqxCluster } from './pub-sub';
 
@@ -19,8 +20,13 @@ export interface WorkerServiceProps {
 /**
  * Bun worker on Fargate (MQTT subscriber + /health). Same image as ReqRes; different command.
  */
-export class WorkerService extends Construct {
+export class WorkerService extends Construct implements cdk.IInspectable {
   readonly service: ecs.FargateService;
+
+  inspect(inspector: cdk.TreeInspector): void {
+    CdkDia.decorate(inspector,
+      new CdkDiaDecorator().collapse(CollapseTypes.FORCE_NON_COLLAPSE));
+  }
 
   constructor(scope: Construct, id: string, props: WorkerServiceProps) {
     super(scope, id);

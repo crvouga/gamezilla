@@ -30,5 +30,10 @@ build/
 # Ignore AWS credentials/config if set up locally
 .aws/
 
+# cdk-dia generated diagrams
+diagram/
+diagram.png
+diagram.dot
+
 # Ignore macOS and system files
 .DS_Store

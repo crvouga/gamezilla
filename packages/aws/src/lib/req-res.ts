@@ -8,6 +8,7 @@ import * as ecs_patterns from 'aws-cdk-lib/aws-ecs-patterns';
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as rds from 'aws-cdk-lib/aws-rds';
+import { CdkDia, CdkDiaDecorator, CollapseTypes } from 'cdk-dia';
 import { Construct } from 'constructs';
 import { assertApplicationLoadBalancerTargetGroupHealthCheckCounts } from './cdk-aws-preconditions';
 
@@ -24,9 +25,14 @@ export interface ReqResProps {
  * Patch DB HTTP API on **ECS Fargate** (same cluster as the MQTT worker), public **ALB**, **CloudFront**
  * for HTTPS (browser-safe sync URL; ALB alone is HTTP-only on the default hostname).
  */
-export class ReqRes extends Construct {
+export class ReqRes extends Construct implements cdk.IInspectable {
   readonly loadBalancedService: ecs_patterns.ApplicationLoadBalancedFargateService;
   readonly distribution: cloudfront.Distribution;
+
+  inspect(inspector: cdk.TreeInspector): void {
+    CdkDia.decorate(inspector,
+      new CdkDiaDecorator().collapse(CollapseTypes.FORCE_NON_COLLAPSE));
+  }
 
   constructor(scope: Construct, id: string, props: ReqResProps) {
     super(scope, id);
