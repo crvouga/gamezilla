@@ -16,7 +16,7 @@ export function StateInspector({
       <button
         type="button"
         onClick={() => setExpanded(true)}
-        className="text-left text-[0.6rem] text-white/30 hover:text-white/50"
+        className="text-left text-xs text-white/30 hover:text-white/50"
       >
         {has_diff ? '▸ state (differs)' : '▸ state'}
       </button>
@@ -24,11 +24,11 @@ export function StateInspector({
   }
 
   return (
-    <div className="text-[0.6rem]">
+    <div className="text-xs">
       <button
         type="button"
         onClick={() => setExpanded(false)}
-        className="mb-1 text-white/30 hover:text-white/50"
+        className="mb-1.5 text-white/30 hover:text-white/50"
       >
         ▾ state
       </button>

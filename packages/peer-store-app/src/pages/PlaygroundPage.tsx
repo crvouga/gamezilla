@@ -10,7 +10,7 @@ import {
 } from '../simulator/playground'
 
 const scenarioBtnClass =
-  'rounded-md border border-white/15 bg-white/6 px-2.5 py-1 text-[0.65rem] font-semibold text-white/60 transition-colors hover:bg-white/12 hover:text-white'
+  'rounded-lg border border-white/15 bg-white/6 px-4 py-2 text-sm font-semibold text-white/60 transition-colors hover:bg-white/12 hover:text-white'
 
 export function PlaygroundPage() {
   const simRef = useRef<PlaygroundSimulator | null>(null)
@@ -130,12 +130,12 @@ export function PlaygroundPage() {
   const eventLog = sim.getEventLog('player-x')
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4">
-      <h2 className="font-display text-lg font-bold">
+    <div className="mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col gap-5 overflow-y-auto p-6">
+      <h2 className="font-display text-2xl font-bold">
         peer-store playground
       </h2>
 
-      <div className="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-3">
+      <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-3">
         {PEERS.map((peerId) => {
           const player =
             peerId === 'player-x'
@@ -174,7 +174,7 @@ export function PlaygroundPage() {
         disconnectedPeers={disconnectedPeers.current}
       />
 
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-2.5">
         <button type="button" className={scenarioBtnClass} onClick={handleReset}>
           Reset
         </button>
@@ -194,7 +194,7 @@ export function PlaygroundPage() {
         </button>
       </div>
 
-      <div className="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-2">
+      <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
         <MessageLog entries={messageLog} />
         <EventLog events={eventLog} />
       </div>

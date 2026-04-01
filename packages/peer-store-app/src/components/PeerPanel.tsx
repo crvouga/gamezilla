@@ -27,19 +27,19 @@ export function PeerPanel({
     JSON.stringify(displayState) !== JSON.stringify(committedState)
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-black/50 p-4">
+    <div className="flex flex-col gap-4 rounded-xl border border-white/10 bg-black/50 p-5">
       <div className="flex items-center justify-between">
-        <h3 className="font-display text-sm font-semibold">
+        <h3 className="font-display text-base font-semibold">
           {is_worker ? 'Worker' : `Player ${player}`}
         </h3>
         <div className="flex items-center gap-2">
           {isBadActor && (
-            <span className="rounded bg-red-500/20 px-1.5 py-0.5 text-[0.6rem] font-bold text-red-400">
+            <span className="rounded bg-red-500/20 px-2 py-0.5 text-xs font-bold text-red-400">
               BAD ACTOR
             </span>
           )}
           <span
-            className={`h-2 w-2 rounded-full ${isOnline ? 'bg-emerald-400' : 'bg-red-400'}`}
+            className={`h-2.5 w-2.5 rounded-full ${isOnline ? 'bg-emerald-400' : 'bg-red-400'}`}
           />
         </div>
       </div>
@@ -50,14 +50,14 @@ export function PeerPanel({
         readonly={is_worker}
       />
 
-      <div className="flex items-center gap-2 text-[0.6rem]">
-        <span className="flex items-center gap-1">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+      <div className="flex items-center gap-3 text-xs">
+        <span className="flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-emerald-400" />
           committed
         </span>
         {has_optimistic && (
-          <span className="flex items-center gap-1 text-amber-300">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+          <span className="flex items-center gap-1.5 text-amber-300">
+            <span className="h-2 w-2 rounded-full bg-amber-400" />
             optimistic
           </span>
         )}
@@ -68,15 +68,15 @@ export function PeerPanel({
         displayState={displayState}
       />
 
-      <div className="max-h-24 overflow-y-auto">
-        <p className="mb-1 text-[0.6rem] font-semibold text-white/40 uppercase">
+      <div className="max-h-32 overflow-y-auto">
+        <p className="mb-1.5 text-xs font-semibold text-white/40 uppercase">
           Events ({events.length})
         </p>
         {events.length === 0 && (
-          <p className="text-[0.6rem] text-white/20">none</p>
+          <p className="text-xs text-white/20">none</p>
         )}
         {events.slice(-6).map((e, i) => (
-          <div key={i} className="text-[0.6rem] text-white/50">
+          <div key={i} className="text-xs text-white/50">
             {e.type}
           </div>
         ))}

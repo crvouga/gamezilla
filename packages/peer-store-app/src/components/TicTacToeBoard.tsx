@@ -14,15 +14,15 @@ export function TicTacToeBoard({
   const status = state['status'] as string
 
   return (
-    <div className="flex flex-col items-center gap-1.5">
-      <div className="grid grid-cols-3 gap-1">
+    <div className="flex flex-col items-center gap-2.5">
+      <div className="grid grid-cols-3 gap-1.5">
         {board.map((mark, i) => (
           <button
             key={i}
             type="button"
             disabled={readonly || !!winner || status === 'completed' || !!mark}
             onClick={() => onCellClick?.(i)}
-            className={`flex h-10 w-10 items-center justify-center rounded text-sm font-bold transition-colors ${
+            className={`flex h-14 w-14 items-center justify-center rounded-lg text-lg font-bold transition-colors ${
               mark
                 ? mark === 'X'
                   ? 'bg-sky-500/25 text-sky-300'
@@ -35,7 +35,7 @@ export function TicTacToeBoard({
         ))}
       </div>
       {winner && (
-        <p className="text-xs font-semibold text-white/60">
+        <p className="text-sm font-semibold text-white/60">
           {winner === 'draw' ? 'Draw' : `${winner} wins`}
         </p>
       )}
