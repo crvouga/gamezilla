@@ -71,7 +71,8 @@ export class ReqRes extends Construct {
             logRetention: logs.RetentionDays.ONE_WEEK,
           }),
         },
-        healthCheckGracePeriod: cdk.Duration.seconds(60),
+        // Long grace: async boot connects Aurora + MQTT after listen; peers may still be warming.
+        healthCheckGracePeriod: cdk.Duration.seconds(420),
       });
 
     const healthyThresholdCount = 2;

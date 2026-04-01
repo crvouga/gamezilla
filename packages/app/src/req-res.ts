@@ -17,36 +17,56 @@ const runtimeEnv = getRuntimeEnv();
 const PORT = parseInt(runtimeEnv.PORT ?? '5001');
 assert.integer(PORT, 'PORT must be an integer');
 
-const databaseUrl = resolveDatabaseUrl();
-const pubSubUrl = runtimeEnv.PUBSUB_URL;
+type PatchDb = PatchDbImplSqlite | PatchDbImplPostgres;
 
-let patchDb: PatchDbImplSqlite | PatchDbImplPostgres;
-let pubSub: PubSub;
+/** Must not block `Bun.serve` — ALB/ECS health checks need TCP :PORT open while EMQX/Aurora come up. */
+type BootState = 'pending' | 'ready' | 'failed';
 
-if (databaseUrl !== undefined) {
-  const sqlClient = SqlClientImplBunPostgres.connect(databaseUrl);
-  await sqlClient.connect();
-  patchDb = new PatchDbImplPostgres(sqlClient);
-  await patchDb.migrate();
-} else {
-  const sqlClient = SqlClientImplBunSqlite.open(':memory:');
-  await sqlClient.connect();
-  patchDb = new PatchDbImplSqlite(sqlClient);
-  await patchDb.migrate();
+let bootState: BootState = 'pending';
+let bootError: string | undefined;
+let patchHandler: ReturnType<typeof createPatchDbReqResHandler> | undefined;
+
+async function boot(): Promise<void> {
+  const databaseUrl = resolveDatabaseUrl();
+  const pubSubUrl = runtimeEnv.PUBSUB_URL;
+
+  let patchDb: PatchDb;
+  let pubSub: PubSub;
+
+  try {
+    if (databaseUrl !== undefined) {
+      const sqlClient = SqlClientImplBunPostgres.connect(databaseUrl);
+      await sqlClient.connect();
+      patchDb = new PatchDbImplPostgres(sqlClient);
+      await patchDb.migrate();
+    } else {
+      const sqlClient = SqlClientImplBunSqlite.open(':memory:');
+      await sqlClient.connect();
+      patchDb = new PatchDbImplSqlite(sqlClient);
+      await patchDb.migrate();
+    }
+
+    if (pubSubUrl !== undefined && pubSubUrl !== '') {
+      pubSub = await MqttPubSub.connect(pubSubUrl);
+    } else {
+      pubSub = new InMemoryPubSub();
+    }
+
+    patchHandler = createPatchDbReqResHandler({
+      db: patchDb,
+      pubSub,
+      instrumentation: true,
+    });
+    bootState = 'ready';
+    console.log('[req-res] ready (database + pubsub)');
+  } catch (e) {
+    bootState = 'failed';
+    bootError = e instanceof Error ? e.message : String(e);
+    console.error('[req-res] boot failed:', e);
+  }
 }
 
-if (pubSubUrl !== undefined && pubSubUrl !== '') {
-  pubSub = await MqttPubSub.connect(pubSubUrl);
-} else {
-  pubSub = new InMemoryPubSub();
-}
-
-const { handleRequest: handlePatchDb, basePath: patchDbBasePath } =
-  createPatchDbReqResHandler({
-    db: patchDb,
-    pubSub,
-    instrumentation: true,
-  });
+void boot();
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -93,13 +113,45 @@ const server = Bun.serve({
     }
 
     if (url.pathname === '/health') {
+      if (bootState === 'ready') {
+        return withCors(
+          new Response('ok', {
+            status: 200,
+            headers: { 'Content-Type': 'text/plain' },
+          })
+        );
+      }
+      if (bootState === 'failed') {
+        return withCors(
+          new Response(bootError ?? 'boot failed', {
+            status: 503,
+            headers: { 'Content-Type': 'text/plain' },
+          })
+        );
+      }
       return withCors(
-        new Response('ok', {
-          status: 200,
+        new Response('starting', {
+          status: 503,
           headers: { 'Content-Type': 'text/plain' },
         })
       );
     }
+
+    if (bootState !== 'ready' || patchHandler === undefined) {
+      const body =
+        bootState === 'failed'
+          ? JSON.stringify({ error: bootError ?? 'boot failed' })
+          : JSON.stringify({ error: 'Service starting' });
+      return withCors(
+        new Response(body, {
+          status: 503,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      );
+    }
+
+    const { handleRequest: handlePatchDb, basePath: patchDbBasePath } =
+      patchHandler;
 
     if (url.pathname.startsWith(patchDbBasePath)) {
       bunServer.timeout(req, 0);
@@ -136,4 +188,4 @@ const server = Bun.serve({
   },
 });
 
-console.log(`Req res running at http://localhost:${server.port}`);
+console.log(`Req res listening on :${server.port} (async boot in progress)`);

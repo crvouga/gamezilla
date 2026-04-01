@@ -119,6 +119,9 @@ export class GamezillaStack extends cdk.Stack {
       taskSecurityGroup: reqResTaskSg,
     });
 
+    // Req-res needs EMQX (and Cloud Map DNS) reachable before MQTT connectAsync can finish.
+    reqRes.loadBalancedService.service.node.addDependency(emqx.emqxService);
+
     this.addOutputs({ webApp, patchDbApp, reqRes, database, emqx });
   }
 

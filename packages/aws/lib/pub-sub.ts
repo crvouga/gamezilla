@@ -20,6 +20,8 @@ export interface EmqxClusterProps {
  */
 export class EmqxCluster extends Construct {
   readonly ecsCluster: ecs.Cluster;
+  /** EMQX broker task service (for CloudFormation dependsOn ordering). */
+  readonly emqxService: ecs.FargateService;
   /** e.g. mqtt://emqx.app.local:1883 */
   readonly internalMqttUrl: string;
   readonly publicNlbDnsName: string;
@@ -84,7 +86,7 @@ export class EmqxCluster extends Construct {
       },
     });
 
-    const service = new ecs.FargateService(this, 'EmqxService', {
+    this.emqxService = new ecs.FargateService(this, 'EmqxService', {
       cluster: this.ecsCluster,
       taskDefinition: taskDef,
       desiredCount: 1,
@@ -122,7 +124,7 @@ export class EmqxCluster extends Construct {
       port: 1883,
       protocol: elbv2.Protocol.TCP,
       targets: [
-        service.loadBalancerTarget({
+        this.emqxService.loadBalancerTarget({
           containerName: 'emqx',
           containerPort: 1883,
         }),
@@ -141,7 +143,7 @@ export class EmqxCluster extends Construct {
       port: 8083,
       protocol: elbv2.Protocol.TCP,
       targets: [
-        service.loadBalancerTarget({
+        this.emqxService.loadBalancerTarget({
           containerName: 'emqx',
           containerPort: 8083,
         }),
