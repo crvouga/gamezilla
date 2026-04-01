@@ -2,7 +2,7 @@
   "name": "@gamezilla/aws",
   "private": true,
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --noEmit -p ./tsconfig.json",
     "cdk": "cdk",
     "setup": "bun run ./bin/setup-cli.ts",
     "deploy": "bun run ./bin/deployment-pipeline-cli.ts cdk-deploy && bun run ./bin/deployment-pipeline-cli.ts deploy-apps",

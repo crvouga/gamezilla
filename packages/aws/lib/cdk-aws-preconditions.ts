@@ -1,7 +1,10 @@
-import { assert } from '@gamezilla/shared/assert';
+import assert from 'node:assert/strict';
 
 /**
  * EC2 security group descriptions must be ASCII-only (API rejects Unicode e.g. em dash).
+ *
+ * Uses `node:assert` (not `@gamezilla/shared`) so `tsc` for CDK `lib/` does not load the full
+ * shared / react-native type graph (~2500+ files).
  *
  * @see https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateSecurityGroup.html
  */
@@ -9,8 +12,12 @@ export function assertAwsEc2SecurityGroupDescription(
   description: string,
   context: string
 ): void {
-  assert.string(description, `${context}: description must be a string`);
-  assert.nonEmptyString(description, `${context}: description must be non-empty`);
+  assert.equal(
+    typeof description,
+    'string',
+    `${context}: description must be a string`
+  );
+  assert.ok(description.length > 0, `${context}: description must be non-empty`);
   assert.ok(
     description.length <= 255,
     `${context}: security group description must be at most 255 characters`

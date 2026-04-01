@@ -1,5 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "ui": "stream",
   "globalPassThroughEnv": [
     "AWS_ACCESS_KEY_ID",
     "AWS_DEFAULT_REGION",

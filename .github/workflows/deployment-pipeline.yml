@@ -1,6 +1,10 @@
 # https://minimumcd.org/
 name: Deployment Pipeline
 
+# Turborepo reads this for all jobs/steps (`turbo.json` has no `logOrder` key).
+env:
+  TURBO_LOG_ORDER: stream
+
 on:
   push:
     branches: [main]
@@ -67,6 +71,8 @@ jobs:
 
       - name: Deploy
         timeout-minutes: 45
+        env:
+          NODE_OPTIONS: --max-old-space-size=8192
         run: bunx turbo deploy
 
       - name: Postchecks
