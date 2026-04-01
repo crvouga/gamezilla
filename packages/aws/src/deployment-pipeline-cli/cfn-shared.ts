@@ -18,7 +18,10 @@ export const DEPLOYABLE_STATUSES = new Set([
   'IMPORT_ROLLBACK_COMPLETE',
 ]);
 
-assert.ok(DEPLOYABLE_STATUSES.size > 0, 'DEPLOYABLE_STATUSES must not be empty');
+assert.ok(
+  DEPLOYABLE_STATUSES.size > 0,
+  'DEPLOYABLE_STATUSES must not be empty'
+);
 
 function isStackMissingError(e: unknown): boolean {
   if (typeof e !== 'object' || e === null || !('name' in e)) return false;
@@ -43,7 +46,10 @@ export async function describeStack(
     if (s === undefined) {
       return null;
     }
-    assert.ok(out.Stacks !== undefined && out.Stacks.length > 0, 'describeStack: expected at least one stack');
+    assert.ok(
+      out.Stacks !== undefined && out.Stacks.length > 0,
+      'describeStack: expected at least one stack'
+    );
     const row: { status?: string; reason?: string } = {};
     if (s.StackStatus !== undefined) row.status = s.StackStatus;
     if (s.StackStatusReason !== undefined) row.reason = s.StackStatusReason;

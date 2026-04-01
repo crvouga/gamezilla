@@ -2,7 +2,7 @@ import { assert } from '../assert';
 import type { InjectionToken } from '../dependency-injection/dependency-injection-container';
 import { Stage, type IStage } from '../stage/stage';
 
-import publicConfig from '../../../public-config.json';
+import publicConfig from '../../../../public-config.json';
 
 export interface ConfigService {
   getString(key: string): string;

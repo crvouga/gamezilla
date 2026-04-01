@@ -12,8 +12,11 @@
     "declaration": false,
     "sourceMap": true,
     "outDir": "dist",
-    "rootDir": "."
+    "baseUrl": ".",
+    "paths": {
+      "@gamezilla/shared/*": ["../shared/src/*"]
+    }
   },
-  "include": ["bin/app.ts", "lib/**/*.ts"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "cdk.out"]
 }

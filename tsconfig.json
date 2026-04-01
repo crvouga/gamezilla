@@ -13,17 +13,20 @@
     "noUnusedParameters": true,
     "paths": {
       "@/*": ["./packages/app/src/*"],
-      "@gamezilla/shared/*": ["./packages/shared/*"],
-      "@gamezilla/patch-db/*": ["./packages/patch-db/*"]
+      "@gamezilla/shared/*": ["./packages/shared/src/*"],
+      "@gamezilla/patch-db/*": ["./packages/patch-db/src/*"],
+      "@gamezilla/peer-store/*": ["./packages/peer-store/src/*"]
     }
   },
   "include": [
     "packages/app/src/**/*.ts",
     "packages/app/src/**/*.tsx",
-    "packages/shared/**/*.ts",
-    "packages/shared/**/*.tsx",
-    "packages/patch-db/**/*.ts",
-    "packages/patch-db/**/*.tsx",
+    "packages/shared/src/**/*.ts",
+    "packages/shared/src/**/*.tsx",
+    "packages/patch-db/src/**/*.ts",
+    "packages/patch-db/src/**/*.tsx",
+    "packages/peer-store/src/**/*.ts",
+    "packages/peer-store/src/**/*.tsx",
     "packages/app/.expo/types/**/*.ts",
     "packages/app/expo-env.d.ts"
   ],
@@ -35,6 +38,7 @@
     "packages/aws/cdk.out",
     "packages/aws/lib",
     "packages/aws/bin/app.ts",
-    "packages/patch-db-app"
+    "packages/patch-db-app",
+    "packages/peer-store-app"
   ]
 }

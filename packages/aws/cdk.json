@@ -1,5 +1,5 @@
 {
-  "app": "bunx tsx bin/app.ts",
+  "app": "bunx tsx src/bin/app.ts",
   "watch": {
     "include": ["**"],
     "exclude": [

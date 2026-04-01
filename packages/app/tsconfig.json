@@ -3,8 +3,8 @@
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"],
-      "@gamezilla/shared/*": ["../shared/*"],
-      "@gamezilla/patch-db/*": ["../patch-db/*"]
+      "@gamezilla/shared/*": ["../shared/src/*"],
+      "@gamezilla/patch-db/*": ["../patch-db/src/*"]
     }
   },
   "include": [

@@ -1,0 +1,16 @@
+{
+  "name": "@gamezilla/peer-store",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@gamezilla/shared": "workspace:*"
+  },
+  "scripts": {
+    "test": "bun test",
+    "tc": "tsc --noEmit -p ./tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.9",
+    "typescript": "~5.9.2"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "@gamezilla/peer-store-app",
+  "private": true,
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite --open",
+    "preview": "bun run build && bun x serve dist",
+    "serve": "bun x serve dist"
+  },
+  "dependencies": {
+    "@gamezilla/peer-store": "workspace:*",
+    "@gamezilla/shared": "workspace:*",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "@types/react": "~19.1.0",
+    "@types/react-dom": "~19.1.11",
+    "@vitejs/plugin-react": "^6.0.1",
+    "tailwindcss": "^4.2.2",
+    "typescript": "~5.9.2",
+    "vite": "^8.0.2",
+    "vite-tsconfig-paths": "^6.1.1"
+  }
+}
