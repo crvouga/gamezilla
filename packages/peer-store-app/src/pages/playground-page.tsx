@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react'
-import { EventLog } from '../components/EventLog'
-import { MessageLog } from '../components/MessageLog'
-import { NetworkControls } from '../components/NetworkControls'
-import { PeerPanel } from '../components/PeerPanel'
+import { EventLog } from '../components/event-log'
+import { MessageLog } from '../components/message-log'
+import { NetworkControls } from '../components/network-controls'
+import { PeerPanel } from '../components/peer-panel'
 import {
   PEERS,
   PlaygroundSimulator,

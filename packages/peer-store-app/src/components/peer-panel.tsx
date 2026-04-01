@@ -1,7 +1,7 @@
 import type { Event, State } from '@gamezilla/peer-store/types'
 import type { PeerId } from '../simulator/playground'
-import { StateInspector } from './StateInspector'
-import { TicTacToeBoard } from './TicTacToeBoard'
+import { StateInspector } from './state-inspector'
+import { TicTacToeBoard } from './tic-tac-toe-board'
 
 export function PeerPanel({
   peerId,

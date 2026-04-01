@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { PlaygroundPage } from './pages/PlaygroundPage'
+import { PlaygroundPage } from './pages/playground-page'
 
 type Mode = 'playground' | 'docs'
 

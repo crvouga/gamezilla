@@ -236,4 +236,33 @@ describe('TicTacToe integration', () => {
     expect(after).toBe(before)
     sim.destroy()
   })
+
+  it('offline dispatch: move made while offline is committed after reconnection', () => {
+    const sim = createSim({ consensusTimeoutMs: 5000 })
+
+    sim.dispatch('player-x', {
+      type: 'PLACE_MARK',
+      payload: { cell: 0, player: 'X' },
+    })
+    sim.assertConverged()
+    expect(board(sim.getCommittedState('player-x'))[0]).toBe('X')
+
+    sim.disconnectPeer('player-o')
+
+    sim.dispatch('player-o', {
+      type: 'PLACE_MARK',
+      payload: { cell: 4, player: 'O' },
+    })
+
+    expect(board(sim.getState('player-o'))[4]).toBe('O')
+
+    sim.reconnectPeer('player-o')
+
+    sim.advanceTime(5001)
+
+    expect(board(sim.getState('player-o'))[4]).toBe('O')
+    expect(board(sim.getCommittedState('player-o'))[4]).toBe('O')
+
+    sim.destroy()
+  })
 })
