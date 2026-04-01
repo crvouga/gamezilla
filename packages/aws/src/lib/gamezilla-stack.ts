@@ -13,7 +13,7 @@ import { EmqxCluster } from './pub-sub';
 import { ReqRes } from './req-res';
 import { WebApp } from './web-app';
 
-const REPO_ROOT = path.join(__dirname, '..', '..', '..');
+const REPO_ROOT = path.join(__dirname, '..', '..', '..', '..');
 
 const RESOURCE_TAGS = {
   Project: 'app',
