@@ -7,7 +7,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { useTheme } from '@gamezilla/shared/theme';
-import { ThemedView } from '@/ui/themed-view';
+import { Box } from '@gamezilla/shared/ui';
 
 const HEADER_HEIGHT = 250;
 
@@ -61,11 +61,11 @@ export default function ParallaxScrollView({
       >
         {headerImage}
       </Animated.View>
-      <ThemedView
+      <Box
         style={theme.sx({ flex: 1, p: 8, gap: 4, overflow: 'hidden' })}
       >
         {children}
-      </ThemedView>
+      </Box>
     </Animated.ScrollView>
   );
 }

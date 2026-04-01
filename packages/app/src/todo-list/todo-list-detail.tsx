@@ -1,12 +1,11 @@
 import { useTheme } from '@gamezilla/shared/theme';
+import { Box, Text } from '@gamezilla/shared/ui';
 import type {
   Entity,
   PatchesDbQuery,
   PatchesDbQueryWhereClause,
 } from '@gamezilla/patch-db/interface';
 import { useEntities, useEntity, usePatchesDb } from '@gamezilla/patch-db/react';
-import { ThemedText } from '@/ui/themed-text';
-import { ThemedView } from '@/ui/themed-view';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -93,8 +92,8 @@ function TodoItem({
   const title = typeof titleRaw === 'string' ? titleRaw : '';
 
   return (
-    <ThemedView
-      style={theme.sx({
+    <Box
+      sx={{
         flexDirection: 'row',
         alignItems: 'center',
         py: 3,
@@ -103,7 +102,7 @@ function TodoItem({
         borderBottomWidth: 'hairline',
         borderColor: 'border',
         userSelect: 'none',
-      })}
+      }}
     >
       <Pressable
         onPress={onToggle}
@@ -114,7 +113,7 @@ function TodoItem({
           gap: 3,
         })}
       >
-        <ThemedText
+        <Text
           style={[
             theme.sx({ fontSize: 20 }),
             completed &&
@@ -122,8 +121,8 @@ function TodoItem({
           ]}
         >
           {completed ? '✓' : '○'}
-        </ThemedText>
-        <ThemedText
+        </Text>
+        <Text
           style={[
             theme.sx({ flex: 1, fontSize: 16 }),
             completed &&
@@ -132,16 +131,16 @@ function TodoItem({
           numberOfLines={1}
         >
           {title || '(untitled)'}
-        </ThemedText>
+        </Text>
       </Pressable>
       <Pressable onPress={onDelete} style={theme.sx({ p: 1 })} hitSlop={8}>
-        <ThemedText
+        <Text
           style={[theme.sx({ fontSize: 14 }), { color: theme.colors.tint }]}
         >
           Delete
-        </ThemedText>
+        </Text>
       </Pressable>
-    </ThemedView>
+    </Box>
   );
 }
 
@@ -228,48 +227,48 @@ export function TodoListDetail() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={theme.sx({ flex: 1, p: 4 })}
     >
-      <ThemedView style={theme.sx({ mb: 4 })}>
+      <Box sx={{ mb: 4 }}>
         <Pressable
           onPress={() => router.replace('/todos')}
           style={theme.sx({ mb: 2 })}
         >
-          <ThemedText style={theme.sx({ fontSize: 16, opacity: 0.8 })}>
+          <Text style={theme.sx({ fontSize: 16, opacity: 0.8 })}>
             ← Back
-          </ThemedText>
+          </Text>
         </Pressable>
-        <ThemedText type="title">{listName}</ThemedText>
-        <ThemedText type="subtitle">Powered by patch-db</ThemedText>
-      </ThemedView>
-      <ThemedView style={theme.sx({ flexDirection: 'row', gap: 2, mb: 3 })}>
+        <Text variant="title">{listName}</Text>
+        <Text variant="subtitle">Powered by patch-db</Text>
+      </Box>
+      <Box sx={{ flexDirection: 'row', gap: 2, mb: 3 }}>
         <Pressable
           onPress={() => setFilter('all')}
           style={filterButtonStyle(filter === 'all')}
         >
-          <ThemedText
+          <Text
             style={
               filter === 'all' ? theme.sx({ fontWeight: '600' }) : undefined
             }
           >
             All
-          </ThemedText>
+          </Text>
         </Pressable>
         <Pressable
           onPress={() => setFilter('active')}
           style={filterButtonStyle(filter === 'active')}
         >
-          <ThemedText
+          <Text
             style={
               filter === 'active' ? theme.sx({ fontWeight: '600' }) : undefined
             }
           >
             Active
-          </ThemedText>
+          </Text>
         </Pressable>
         <Pressable
           onPress={() => setFilter('completed')}
           style={filterButtonStyle(filter === 'completed')}
         >
-          <ThemedText
+          <Text
             style={
               filter === 'completed'
                 ? theme.sx({ fontWeight: '600' })
@@ -277,10 +276,10 @@ export function TodoListDetail() {
             }
           >
             Completed
-          </ThemedText>
+          </Text>
         </Pressable>
-      </ThemedView>
-      <ThemedView style={theme.sx({ flexDirection: 'row', gap: 2, mb: 4 })}>
+      </Box>
+      <Box sx={{ flexDirection: 'row', gap: 2, mb: 4 }}>
         <TextInput
           style={theme.sx({
             flex: 1,
@@ -304,16 +303,16 @@ export function TodoListDetail() {
           onPress={addTodo}
           style={theme.sx({ justifyContent: 'center', px: 4 })}
         >
-          <ThemedText type="defaultSemiBold">Add</ThemedText>
+          <Text variant="bodyBold">Add</Text>
         </Pressable>
-      </ThemedView>
-      <ThemedView style={theme.sx({ flex: 1 })}>
+      </Box>
+      <Box sx={{ flex: 1 }}>
         {todos.length === 0 ? (
-          <ThemedText style={theme.sx({ opacity: 0.7, fontStyle: 'italic' })}>
+          <Text style={theme.sx({ opacity: 0.7, fontStyle: 'italic' })}>
             {filter === 'all'
               ? 'No todos yet. Add one above!'
               : `No ${filter} todos.`}
-          </ThemedText>
+          </Text>
         ) : (
           todos.map((entity) => (
             <TodoItem
@@ -324,7 +323,7 @@ export function TodoListDetail() {
             />
           ))
         )}
-      </ThemedView>
+      </Box>
     </KeyboardAvoidingView>
   );
 }

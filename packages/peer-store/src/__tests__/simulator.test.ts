@@ -192,4 +192,51 @@ describe('DeterministicSimulator', () => {
     expect(events.length).toBeGreaterThanOrEqual(1)
     sim.destroy()
   })
+
+  it('BUG: player disconnects after move, misses opponent move, rehydrates with stale events and cannot move', () => {
+    const sim = createSim()
+
+    // player-x places mark — committed on all peers via synchronous delivery
+    sim.dispatch('player-x', { type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
+    sim.assertConverged()
+
+    // player-x disconnects
+    sim.disconnectPeer('player-x')
+
+    // player-o places mark — committed on player-o + worker (quorum 2/3)
+    // player-x is disconnected and never sees this command or the votes
+    sim.dispatch('player-o', { type: 'PLACE_MARK', payload: { cell: 4, player: 'O' } })
+
+    // Verify player-o and worker have both moves committed
+    const state_o = sim.getCommittedState('player-o')
+    expect((state_o['board'] as Array<null | string>)[4]).toBe('O')
+    expect(state_o['currentTurn']).toBe('X')
+
+    // player-x's committed events are stale — only has the first move
+    const stale_events = sim.getEventLog('player-x')
+    expect(stale_events.length).toBe(1)
+
+    // player-x reconnects and rehydrates from own stale committed events
+    sim.reconnectPeer('player-x')
+    sim.getStore('player-x').rehydrate(stale_events)
+
+    // player-x's state diverges from player-o — the board hasn't updated
+    const state_x_after = sim.getCommittedState('player-x')
+    expect(state_x_after['currentTurn']).toBe('O')
+    expect((state_x_after['board'] as Array<null | string>)[4]).toBeNull()
+
+    // player-x tries to place mark — WRONG_TURN because player-x thinks it's O's turn
+    sim.dispatch('player-x', { type: 'PLACE_MARK', payload: { cell: 1, player: 'X' } })
+    expect(sim.getErrorLog().some((e) => e.code === 'WRONG_TURN')).toBe(true)
+
+    // Repeated attempts all fail — player-x is stuck
+    sim.dispatch('player-x', { type: 'PLACE_MARK', payload: { cell: 2, player: 'X' } })
+    sim.dispatch('player-x', { type: 'PLACE_MARK', payload: { cell: 3, player: 'X' } })
+    expect(sim.getErrorLog().filter((e) => e.code === 'WRONG_TURN').length).toBe(3)
+
+    // The fundamental problem: peers have diverged and player-x can never catch up
+    expect(() => sim.assertConverged()).toThrow('diverged')
+
+    sim.destroy()
+  })
 })

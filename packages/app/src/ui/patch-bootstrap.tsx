@@ -7,10 +7,8 @@ import {
   useContainer,
   useDependency,
 } from '@gamezilla/shared/dependency-injection/react';
-import { useTheme } from '@gamezilla/shared/theme';
+import { Box, Text, Button, Center, Spinner } from '@gamezilla/shared/ui';
 import { bootstrapPatchDbExpoSync } from '@gamezilla/patch-db/bootstrap-expo';
-import { ThemedText } from '@/ui/themed-text';
-import { ThemedView } from '@/ui/themed-view';
 import {
   useCallback,
   useEffect,
@@ -18,10 +16,8 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { ActivityIndicator, Pressable } from 'react-native';
 
 export function PatchBootstrap({ children }: { children: ReactNode }) {
-  const theme = useTheme();
   const [container, setContainer] = useState<Container | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const rawContainer = useContainer();
@@ -61,65 +57,26 @@ export function PatchBootstrap({ children }: { children: ReactNode }) {
 
   if (error !== null) {
     return (
-      <ThemedView
-        style={theme.sx({
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: 4,
-          p: 4,
-        })}
-      >
-        <ThemedText
-          style={theme.sx({ fontSize: 16, textAlign: 'center' })}
-          type="defaultSemiBold"
-        >
+      <Center sx={{ flex: 1, gap: 4, p: 4 }}>
+        <Text variant="bodyBold" sx={{ fontSize: 'base' }} style={{ textAlign: 'center' }}>
           Failed to initialize
-        </ThemedText>
-        <ThemedText
-          style={theme.sx({ fontSize: 14, opacity: 0.8, textAlign: 'center' })}
-        >
+        </Text>
+        <Text sx={{ fontSize: 'sm', opacity: 0.8 }} style={{ textAlign: 'center' }}>
           {error.message}
-        </ThemedText>
-        <Pressable
-          onPress={runBootstrap}
-          style={({ pressed }) => [
-            theme.sx({
-              mt: 4,
-              py: 2.5,
-              px: 4,
-              borderRadius: 8,
-              backgroundColor: 'tint',
-            }),
-            pressed && theme.sx({ opacity: 0.8 }),
-          ]}
-        >
-          <ThemedText
-            style={theme.sx({ color: 'paper' })}
-            type="defaultSemiBold"
-          >
-            Retry
-          </ThemedText>
-        </Pressable>
-      </ThemedView>
+        </Text>
+        <Box sx={{ mt: 4 }}>
+          <Button title="Retry" onPress={runBootstrap} />
+        </Box>
+      </Center>
     );
   }
 
   if (container === null) {
     return (
-      <ThemedView
-        style={theme.sx({
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: 4,
-        })}
-      >
-        <ActivityIndicator size="large" />
-        <ThemedText style={theme.sx({ fontSize: 16 })}>
-          Loading container...
-        </ThemedText>
-      </ThemedView>
+      <Center sx={{ flex: 1, gap: 4 }}>
+        <Spinner size="large" />
+        <Text sx={{ fontSize: 'base' }}>Loading container...</Text>
+      </Center>
     );
   }
 

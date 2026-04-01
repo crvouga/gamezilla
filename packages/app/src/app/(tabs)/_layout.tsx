@@ -42,6 +42,15 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="ui"
+        options={{
+          title: 'UI',
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="paintbrush.fill" color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

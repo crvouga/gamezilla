@@ -1,11 +1,10 @@
 import { Image } from 'expo-image';
 import { Platform, type ImageStyle } from 'react-native';
 
-import { useTheme } from '@gamezilla/shared/theme';
 import { HelloWave } from '@/ui/hello-wave';
 import ParallaxScrollView from '@/ui/parallax-scroll-view';
-import { ThemedText } from '@/ui/themed-text';
-import { ThemedView } from '@/ui/themed-view';
+import { useTheme } from '@gamezilla/shared/theme';
+import { Box, Text } from '@gamezilla/shared/ui';
 import { Link } from 'expo-router';
 
 export default function HomeScreen() {
@@ -29,32 +28,31 @@ export default function HomeScreen() {
         />
       }
     >
-      <ThemedView
+      <Box
         style={theme.sx({ flexDirection: 'row', alignItems: 'center', gap: 2 })}
       >
-        <ThemedText type="title">Welcome!</ThemedText>
+        <Text variant="title">Welcome!</Text>
         <HelloWave />
-      </ThemedView>
-      <ThemedView style={theme.sx({ gap: 2, mb: 2 })}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{' '}
-          to see changes. Press{' '}
-          <ThemedText type="defaultSemiBold">
+      </Box>
+      <Box style={theme.sx({ gap: 2, mb: 2 })}>
+        <Text variant="subtitle">Step 1: Try it</Text>
+        <Text>
+          Edit <Text variant="bodyBold">app/(tabs)/index.tsx</Text> to see
+          changes. Press{' '}
+          <Text variant="bodyBold">
             {Platform.select({
               ios: 'cmd + d',
               android: 'cmd + m',
               web: 'F12',
             })}
-          </ThemedText>{' '}
+          </Text>{' '}
           to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={theme.sx({ gap: 2, mb: 2 })}>
+        </Text>
+      </Box>
+      <Box style={theme.sx({ gap: 2, mb: 2 })}>
         <Link href="/modal">
           <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
+            <Text variant="subtitle">Step 2: Explore</Text>
           </Link.Trigger>
           <Link.Preview />
           <Link.Menu>
@@ -79,23 +77,20 @@ export default function HomeScreen() {
           </Link.Menu>
         </Link>
 
-        <ThemedText>
+        <Text>
           {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={theme.sx({ gap: 2, mb: 2 })}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
+        </Text>
+      </Box>
+      <Box style={theme.sx({ gap: 2, mb: 2 })}>
+        <Text variant="subtitle">Step 3: Get a fresh start</Text>
+        <Text>
           {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">
-            npm run reset-project
-          </ThemedText>{' '}
-          to get a fresh <ThemedText type="defaultSemiBold">app</ThemedText>{' '}
-          directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
+          <Text variant="bodyBold">npm run reset-project</Text> to get a fresh{' '}
+          <Text variant="bodyBold">app</Text> directory. This will move the
+          current <Text variant="bodyBold">app</Text> to{' '}
+          <Text variant="bodyBold">app-example</Text>.
+        </Text>
+      </Box>
     </ParallaxScrollView>
   );
 }

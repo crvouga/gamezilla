@@ -1,9 +1,7 @@
 import { useTheme } from '@gamezilla/shared/theme';
+import { Box, Text, ConfirmationModal } from '@gamezilla/shared/ui';
 import { clearLocalDatabaseAndReload } from '@gamezilla/patch-db/bootstrap-expo';
 import { useEntities, usePatchesDb } from '@gamezilla/patch-db/react';
-import { ConfirmationModal } from '@/ui/modal';
-import { ThemedText } from '@/ui/themed-text';
-import { ThemedView } from '@/ui/themed-view';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { FlatList, Pressable, TextInput } from 'react-native';
@@ -123,19 +121,19 @@ export function TodoListsOverview() {
   ];
 
   return (
-    <ThemedView style={theme.sx({ flex: 1, p: 4 })}>
-      <ThemedView
-        style={theme.sx({
+    <Box sx={{ flex: 1, p: 4 }}>
+      <Box
+        sx={{
           mb: 4,
           flexDirection: 'row',
           justifyContent: 'space-between',
           alignItems: 'flex-start',
-        })}
+        }}
       >
-        <ThemedView>
-          <ThemedText type="title">Todo Lists</ThemedText>
-          <ThemedText type="subtitle">Group your todos by list</ThemedText>
-        </ThemedView>
+        <Box>
+          <Text variant="title">Todo Lists</Text>
+          <Text variant="subtitle">Group your todos by list</Text>
+        </Box>
         <Pressable
           onPress={() => setDeleteDbModalVisible(true)}
           style={({ pressed }) => [
@@ -143,19 +141,19 @@ export function TodoListsOverview() {
             pressed && theme.sx({ opacity: 0.7 }),
           ]}
         >
-          <ThemedText
+          <Text
             style={[
               theme.sx({ fontSize: 14 }),
               { color: theme.colors.destructive },
             ]}
           >
             Clear data
-          </ThemedText>
+          </Text>
         </Pressable>
-      </ThemedView>
+      </Box>
 
       {adding ? (
-        <ThemedView style={theme.sx({ flexDirection: 'row', gap: 2, mb: 3 })}>
+        <Box sx={{ flexDirection: 'row', gap: 2, mb: 3 }}>
           <TextInput
             style={theme.sx({
               flex: 1,
@@ -182,9 +180,9 @@ export function TodoListsOverview() {
             onPress={addList}
             style={theme.sx({ justifyContent: 'center', px: 4 })}
           >
-            <ThemedText type="defaultSemiBold">Add</ThemedText>
+            <Text variant="bodyBold">Add</Text>
           </Pressable>
-        </ThemedView>
+        </Box>
       ) : (
         <Pressable
           onPress={() => setAdding(true)}
@@ -199,7 +197,7 @@ export function TodoListsOverview() {
             { backgroundColor: theme.colors.tintMuted },
           ]}
         >
-          <ThemedText type="defaultSemiBold">+ New List</ThemedText>
+          <Text variant="bodyBold">+ New List</Text>
         </Pressable>
       )}
 
@@ -209,15 +207,15 @@ export function TodoListsOverview() {
         style={theme.sx({ flex: 1 })}
         contentContainerStyle={theme.sx({ pb: 24 })}
         renderItem={({ item }) => (
-          <ThemedView
-            style={theme.sx({
+          <Box
+            sx={{
               flexDirection: 'row',
               alignItems: 'center',
               py: 3.5,
               px: 3,
               borderRadius: 8,
               mb: 1,
-            })}
+            }}
           >
             <Pressable
               onPress={() => openList(item.id)}
@@ -231,12 +229,12 @@ export function TodoListsOverview() {
                 pressed && theme.sx({ opacity: 0.7 }),
               ]}
             >
-              <ThemedText style={theme.sx({ fontSize: 17, fontWeight: '500' })}>
+              <Text style={theme.sx({ fontSize: 17, fontWeight: '500' })}>
                 {item.name}
-              </ThemedText>
-              <ThemedText style={theme.sx({ fontSize: 15, opacity: 0.6 })}>
+              </Text>
+              <Text style={theme.sx({ fontSize: 15, opacity: 0.6 })}>
                 {item.count}
-              </ThemedText>
+              </Text>
             </Pressable>
             {item.id !== INBOX_LIST_ID && (
               <Pressable
@@ -247,24 +245,24 @@ export function TodoListsOverview() {
                 ]}
                 hitSlop={8}
               >
-                <ThemedText
+                <Text
                   style={[
                     theme.sx({ fontSize: 14 }),
                     { color: theme.colors.tint },
                   ]}
                 >
                   Delete
-                </ThemedText>
+                </Text>
               </Pressable>
             )}
-          </ThemedView>
+          </Box>
         )}
         ListEmptyComponent={
-          <ThemedText
+          <Text
             style={theme.sx({ opacity: 0.7, fontStyle: 'italic', mt: 6 })}
           >
             No lists yet. Create one above or add todos to Inbox.
-          </ThemedText>
+          </Text>
         }
       />
       <ConfirmationModal
@@ -296,6 +294,6 @@ export function TodoListsOverview() {
         onConfirm={deleteLocalDatabase}
         onCancel={() => setDeleteDbModalVisible(false)}
       />
-    </ThemedView>
+    </Box>
   );
 }

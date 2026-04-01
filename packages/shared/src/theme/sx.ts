@@ -71,7 +71,7 @@ export type SxProps = {
   animationIterationCount?: number;
   animationDuration?: string;
 } & Partial<
-  Omit<ViewStyle & TextStyle, 'backgroundColor' | 'color' | 'borderBottomWidth'>
+  Omit<ViewStyle & TextStyle, 'backgroundColor' | 'color' | 'borderBottomWidth' | 'fontSize'>
 >;
 
 type ResolvedStyle = ViewStyle & TextStyle;

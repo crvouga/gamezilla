@@ -12,4 +12,12 @@ export type { Theme, ThemeProviderProps } from './theme-context';
 export { defaultColors, type ColorScheme, type ColorTokens } from './colors';
 export { fonts } from './fonts';
 export { createSx, type SxProps } from './sx';
-export { spacing, fontSize, lineHeight } from './scale';
+export {
+  spacing,
+  fontSize,
+  lineHeight,
+  borderRadius,
+  elevation,
+  type BorderRadiusKey,
+  type ElevationLevel,
+} from './scale';
