@@ -38,9 +38,24 @@ export type ButtonProps = {
 };
 
 const sizeMap = {
-  sm: { py: 1 as number, px: 3 as number, fontSize: 'sm' as const, borderRadius: 6 },
-  md: { py: 2 as number, px: 4 as number, fontSize: 'base' as const, borderRadius: 8 },
-  lg: { py: 3 as number, px: 6 as number, fontSize: 'lg' as const, borderRadius: 10 },
+  sm: {
+    py: 1 as number,
+    px: 3 as number,
+    fontSize: 'sm' as const,
+    borderRadius: 6,
+  },
+  md: {
+    py: 2 as number,
+    px: 4 as number,
+    fontSize: 'base' as const,
+    borderRadius: 8,
+  },
+  lg: {
+    py: 3 as number,
+    px: 6 as number,
+    fontSize: 'lg' as const,
+    borderRadius: 10,
+  },
 };
 
 export function Button({
@@ -60,8 +75,17 @@ export function Button({
   const isDisabled = disabled || loading;
 
   const bgColor =
-    variant === 'solid' ? (isDisabled ? theme.colors.disabled : accent) : 'transparent';
-  const borderColor = variant === 'outlined' ? (isDisabled ? theme.colors.disabled : accent) : 'transparent';
+    variant === 'solid'
+      ? isDisabled
+        ? theme.colors.disabled
+        : accent
+      : 'transparent';
+  const borderColor =
+    variant === 'outlined'
+      ? isDisabled
+        ? theme.colors.disabled
+        : accent
+      : 'transparent';
   const textColor =
     variant === 'solid'
       ? theme.colors.paper
@@ -82,6 +106,7 @@ export function Button({
           alignItems: 'center',
           justifyContent: 'center',
           gap: 2,
+          userSelect: 'none',
         }),
         { backgroundColor: bgColor },
         variant === 'outlined' && { borderWidth: 1, borderColor },

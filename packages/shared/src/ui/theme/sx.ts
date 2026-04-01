@@ -70,8 +70,12 @@ export type SxProps = {
   animationName?: unknown;
   animationIterationCount?: number;
   animationDuration?: string;
+  userSelect?: TextStyle['userSelect'];
 } & Partial<
-  Omit<ViewStyle & TextStyle, 'backgroundColor' | 'color' | 'borderBottomWidth' | 'fontSize'>
+  Omit<
+    ViewStyle & TextStyle,
+    'backgroundColor' | 'color' | 'borderBottomWidth' | 'fontSize'
+  >
 >;
 
 type ResolvedStyle = ViewStyle & TextStyle;
