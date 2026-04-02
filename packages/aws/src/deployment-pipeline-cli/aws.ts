@@ -8,6 +8,9 @@ export function requireAwsRegion(platform: CiPlatform): string {
     platform.error(
       'AWS_REGION is empty (invariant: must be set after configure-aws-credentials).'
     );
+    platform.error(
+      'Fix: Check that the configure-aws-credentials step ran successfully and sets aws-region.'
+    );
     assert.fail(
       'requireAwsRegion: AWS_REGION must be set — crash, do not continue'
     );

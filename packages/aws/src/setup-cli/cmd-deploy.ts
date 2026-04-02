@@ -28,9 +28,9 @@ export class DeployCommand extends BaseSetupCommand {
 
     const platform = new LocalPlatform();
     platform.notice('Running CDK deploy (customDomain=true, customDomainBootstrap=true)…');
-    new CdkDeployCommand(platform).execute(argv);
+    await new CdkDeployCommand(platform).execute(argv);
     platform.notice('Deploying web + patch-db artifacts…');
-    new DeployAppsCommand(platform).execute(argv);
+    await new DeployAppsCommand(platform).execute(argv);
 
     const outputs = readCdkOutputs(platform);
     await runHttpSmokeTestsOnly(platform, outputs);

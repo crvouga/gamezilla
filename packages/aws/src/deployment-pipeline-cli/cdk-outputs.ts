@@ -22,11 +22,17 @@ export function readCdkOutputs(
     raw = JSON.parse(readFileSync(path, 'utf8'));
   } catch (e) {
     platform.error(`Failed to read ${path}: ${String(e)}`);
+    platform.error(
+      'Fix: Ensure "cdk deploy --outputs-file cdk-outputs.json" ran successfully before this step.'
+    );
     assert.fail(`readCdkOutputs: cannot parse ${path}`);
   }
 
   if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) {
     platform.error('Invalid CDK outputs JSON (expected object)');
+    platform.error(
+      `Fix: ${path} must be a JSON object written by "cdk deploy --outputs-file". Delete and re-run cdk deploy.`
+    );
     assert.fail('readCdkOutputs: must be a JSON object');
   }
 
@@ -34,6 +40,9 @@ export function readCdkOutputs(
   const stack = doc[STACK_NAME];
   if (stack === undefined || typeof stack !== 'object') {
     platform.error(`Missing "${STACK_NAME}" in CDK outputs`);
+    platform.error(
+      `Fix: ${path} exists but does not contain the key "${STACK_NAME}". Re-run "cdk deploy --outputs-file cdk-outputs.json".`
+    );
     assert.fail(`readCdkOutputs: "${STACK_NAME}" key missing`);
   }
 
@@ -49,7 +58,10 @@ export function requireOutput(
   const v = outputs[key];
   if (v === undefined || v === '' || v === 'null') {
     platform.error(
-      `CDK output "${key}" missing or empty (invariant: must be set after cdk deploy)`
+      `CDK output "${key}" missing or empty (invariant: must be set after cdk deploy).`
+    );
+    platform.error(
+      `Fix: Ensure the CDK stack exports "${key}" via CfnOutput. Re-run "cdk deploy" if the stack was updated.`
     );
     assert.fail(`requireOutput: "${key}" must be non-empty`);
   }

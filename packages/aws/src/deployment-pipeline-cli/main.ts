@@ -17,6 +17,9 @@ export async function main(platform: CiPlatform): Promise<void> {
   if (command === undefined) {
     printUsage(commands);
     platform.error(`Unknown command: ${argv[2] ?? '(none)'}`);
+    platform.error(
+      `Fix: Pass one of [${commands.map((c) => c.id).join(', ')}] as the command argument.`
+    );
     assert.fail(
       `main: unrecognized command "${argv[2] ?? '(none)'}" — crash, do not continue`
     );

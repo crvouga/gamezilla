@@ -6,6 +6,7 @@ import {
   type StackOutputs,
 } from './cdk-outputs';
 import type { CiPlatform } from './ci-platform';
+import { runStep } from './ci-platform';
 
 const DNS_DOMAINS = [
   { domain: 'gamezilla.app', outputKey: 'Route53Nameservers' },
@@ -15,7 +16,6 @@ const DNS_DOMAINS = [
 type HttpEndpointCheck = {
   readonly label: string;
   readonly outputKey: string;
-  /** If set, GET this path on the base URL (sync API may have no document at `/`). */
   readonly probePath?: string;
 };
 
@@ -35,10 +35,9 @@ function parsePositiveIntMsEnv(name: string, fallback: number): number {
   return Math.floor(n);
 }
 
-/** ECS + CloudFront often stay unhealthy briefly after CloudFormation completes. */
 const POST_DEPLOY_HTTP_MAX_WAIT_MS = parsePositiveIntMsEnv(
   'POST_DEPLOY_HTTP_MAX_WAIT_MS',
-  20 * 60 * 1000
+  10 * 60 * 1000
 );
 const POST_DEPLOY_HTTP_RETRY_MS = parsePositiveIntMsEnv(
   'POST_DEPLOY_HTTP_RETRY_MS',
@@ -54,7 +53,13 @@ function httpStatusShouldRetry(status: number): boolean {
   return status === 429 || status >= 500;
 }
 
-/** Legacy / CDK outputs: host-only; fetch() needs an absolute URL. */
+function fmtElapsed(ms: number): string {
+  if (ms < 1_000) return `${Math.round(ms)}ms`;
+  const s = Math.round(ms / 1_000);
+  if (s < 120) return `${s}s`;
+  return `${Math.floor(s / 60)}m${s % 60}s`;
+}
+
 const normalizeUrlForHttpCheck = assert.fn({
   fn(raw: string) {
     const t = raw.trim();
@@ -93,8 +98,20 @@ async function checkHttpEndpointForPostDeploy(
 ): Promise<void> {
   const url = probeUrl(opts.rawUrl, opts.probePath);
   const started = Date.now();
+  const maxWaitStr = fmtElapsed(POST_DEPLOY_HTTP_MAX_WAIT_MS);
+  let warnedHalfway = false;
 
   for (let attempt = 1; ; attempt++) {
+    const elapsed = Date.now() - started;
+    const elapsedStr = fmtElapsed(elapsed);
+
+    if (!warnedHalfway && elapsed >= POST_DEPLOY_HTTP_MAX_WAIT_MS / 2) {
+      warnedHalfway = true;
+      platform.warning(
+        `${opts.label} ${url} — still waiting after ${elapsedStr} (max ${maxWaitStr}). Service may be slow to start.`
+      );
+    }
+
     let response: Response;
     try {
       response = await fetch(url, {
@@ -104,15 +121,17 @@ async function checkHttpEndpointForPostDeploy(
       });
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
-      const elapsed = Date.now() - started;
       if (elapsed >= POST_DEPLOY_HTTP_MAX_WAIT_MS) {
         platform.error(
-          `${opts.label} ${url} — fetch failed after ${elapsed}ms: ${msg}`
+          `${opts.label} ${url} — unreachable after ${elapsedStr}: ${msg}`
+        );
+        platform.error(
+          'Fix: Check ECS service events, task logs in CloudWatch, and target group health in the AWS Console.'
         );
         assert.fail(`post-deploy: ${opts.label} unreachable at ${url}`);
       }
       platform.notice(
-        `POST-DEPLOY ${opts.step}/${opts.total}: ${opts.label} — attempt ${attempt}, ${msg} (retry in ${POST_DEPLOY_HTTP_RETRY_MS}ms, max wait ${POST_DEPLOY_HTTP_MAX_WAIT_MS}ms)`
+        `Waiting for ${opts.label} — attempt ${attempt}, ${elapsedStr} elapsed (max ${maxWaitStr}): ${msg}`
       );
       await sleep(POST_DEPLOY_HTTP_RETRY_MS);
       continue;
@@ -121,7 +140,7 @@ async function checkHttpEndpointForPostDeploy(
     if (response.ok) {
       assert.ok(response.ok, 'checkHttp: response must be ok');
       platform.notice(
-        `POST-DEPLOY ${opts.step}/${opts.total}: ${opts.label} ${url} — HTTP ${response.status} OK.`
+        `POST-DEPLOY ${opts.step}/${opts.total}: ${opts.label} ${url} — HTTP ${response.status} OK (${elapsedStr}).`
       );
       return;
     }
@@ -131,18 +150,23 @@ async function checkHttpEndpointForPostDeploy(
       platform.error(
         `${opts.label} ${url} — HTTP ${status} ${response.statusText}`
       );
+      platform.error(
+        `Fix: This is a non-retryable HTTP error. Check the application logs for ${opts.label}.`
+      );
       assert.fail(`post-deploy: ${opts.label} returned HTTP ${status}`);
     }
 
-    const elapsed = Date.now() - started;
     if (elapsed >= POST_DEPLOY_HTTP_MAX_WAIT_MS) {
       platform.error(
-        `${opts.label} ${url} — HTTP ${status} after ${elapsed}ms (max wait exceeded)`
+        `${opts.label} ${url} — still HTTP ${status} after ${elapsedStr} (max ${maxWaitStr} exceeded).`
+      );
+      platform.error(
+        'Fix: Check ECS service events, task logs in CloudWatch, and target group health in the AWS Console.'
       );
       assert.fail(`post-deploy: ${opts.label} still HTTP ${status}`);
     }
     platform.notice(
-      `POST-DEPLOY ${opts.step}/${opts.total}: ${opts.label} — attempt ${attempt}, HTTP ${status} (retry in ${POST_DEPLOY_HTTP_RETRY_MS}ms)`
+      `Waiting for ${opts.label} — attempt ${attempt}, HTTP ${status}, ${elapsedStr} elapsed (max ${maxWaitStr})`
     );
     await sleep(POST_DEPLOY_HTTP_RETRY_MS);
   }
@@ -159,13 +183,18 @@ export async function runHttpSmokeTestsOnly(
 
   for (const ep of HTTP_ENDPOINTS) {
     step++;
-    await checkHttpEndpointForPostDeploy(platform, {
-      step,
-      total,
-      label: ep.label,
-      rawUrl: requireOutput(platform, outputs, ep.outputKey),
-      probePath: ep.probePath,
-    });
+    await runStep(
+      platform,
+      `HTTP smoke ${step}/${total} — ${ep.label}`,
+      () =>
+        checkHttpEndpointForPostDeploy(platform, {
+          step,
+          total,
+          label: ep.label,
+          rawUrl: requireOutput(platform, outputs, ep.outputKey),
+          probePath: ep.probePath,
+        })
+    );
   }
   assert.equals(step, total, 'runHttpSmokeTestsOnly: step count');
   platform.notice(`HTTP smoke: all ${total} endpoint checks passed.`);
@@ -190,18 +219,27 @@ export class PostDeployCommand extends BasePipelineCommand {
 
     for (const { domain, outputKey } of DNS_DOMAINS) {
       step++;
-      this.checkDns(step, total, domain, outputs, outputKey);
+      await runStep(
+        this.platform,
+        `POST-DEPLOY ${step}/${total} — DNS NS ${domain}`,
+        () => this.checkDns(step, total, domain, outputs, outputKey)
+      );
     }
 
     for (const ep of HTTP_ENDPOINTS) {
       step++;
-      await checkHttpEndpointForPostDeploy(this.platform, {
-        step,
-        total,
-        label: ep.label,
-        rawUrl: requireOutput(this.platform, outputs, ep.outputKey),
-        probePath: ep.probePath,
-      });
+      await runStep(
+        this.platform,
+        `POST-DEPLOY ${step}/${total} — HTTP ${ep.label}`,
+        () =>
+          checkHttpEndpointForPostDeploy(this.platform, {
+            step,
+            total,
+            label: ep.label,
+            rawUrl: requireOutput(this.platform, outputs, ep.outputKey),
+            probePath: ep.probePath,
+          })
+      );
     }
 
     assert.equals(step, total, 'execute: step count must match total');
@@ -220,7 +258,7 @@ export class PostDeployCommand extends BasePipelineCommand {
     const raw = outputs[outputKey];
     if (raw === undefined || raw === '') {
       this.platform.notice(
-        `POST-DEPLOY ${step}/${total}: ${domain} NS — skipped (no ${outputKey} output).`
+        `${domain} NS — skipped (no ${outputKey} output).`
       );
       return;
     }
@@ -241,6 +279,9 @@ export class PostDeployCommand extends BasePipelineCommand {
       this.platform.error(
         `dig NS ${domain} failed (exit ${result.exitCode}): ${stderr}`
       );
+      this.platform.error(
+        'Fix: Ensure "dig" is installed (apt-get install dnsutils) and DNS resolution is working.'
+      );
       assert.fail(`post-deploy: dig NS ${domain} failed`);
     }
 
@@ -254,6 +295,9 @@ export class PostDeployCommand extends BasePipelineCommand {
     if (actual.size === 0) {
       this.platform.error(
         `dig NS ${domain} +short returned no records — delegation not configured at registrar.`
+      );
+      this.platform.error(
+        `Fix: Update nameservers at your domain registrar for "${domain}" to match the Route53 hosted zone NS records.`
       );
       assert.fail(`post-deploy: ${domain} has no NS records`);
     }
@@ -272,6 +316,9 @@ export class PostDeployCommand extends BasePipelineCommand {
       this.platform.error(
         `${domain} NS mismatch: ${parts.join('; ')}  expected=[${[...expected].join(', ')}]  actual=[${[...actual].join(', ')}]`
       );
+      this.platform.error(
+        `Fix: Update nameservers at your domain registrar for "${domain}" to match the Route53 hosted zone.`
+      );
       assert.fail(`post-deploy: ${domain} NS records do not match Route53`);
     }
 
@@ -280,7 +327,7 @@ export class PostDeployCommand extends BasePipelineCommand {
       'checkDns: no NS mismatches'
     );
     this.platform.notice(
-      `POST-DEPLOY ${step}/${total}: ${domain} NS — ${actual.size} records match Route53.`
+      `${domain} NS — ${actual.size} records match Route53.`
     );
   }
 }

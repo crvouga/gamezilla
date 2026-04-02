@@ -1,17 +1,14 @@
-import {
-  type CloudFormationClient,
-  DescribeStackEventsCommand,
-  DescribeStacksCommand,
-} from '@aws-sdk/client-cloudformation';
 import { GetCallerIdentityCommand, STSClient } from '@aws-sdk/client-sts';
 import { assert } from '@gamezilla/shared/assert';
 import { cloudFormation, requireAwsRegion } from './aws';
 import { BasePipelineCommand } from './base-command';
 import type { CiPlatform } from './ci-platform';
+import { runStep } from './ci-platform';
 import {
   DEPLOYABLE_STATUSES,
   STACK_NAME,
   describeStack,
+  failWithEvents,
   reasonIsSet,
 } from './cfn-shared';
 import { PROJECT_CONFIG } from '../project-config';
@@ -36,16 +33,29 @@ export class PreflightCommand extends BasePipelineCommand {
     assert.array(argv, 'execute: argv must be an array');
 
     const region = this.requireAwsRegionValid();
-    await this.assertCallerIdentity(region);
-    await this.gateStack();
-    this.assertCdkSynthMatchesDeploy();
-    this.assertDockerBuild();
+    await runStep(this.platform, 'PREFLIGHT 1/4 — AWS caller identity', () =>
+      this.assertCallerIdentity(region)
+    );
+    await runStep(this.platform, 'PREFLIGHT 2/4 — CloudFormation stack gate', () =>
+      this.gateStack()
+    );
+    await runStep(this.platform, 'PREFLIGHT 3/4 — CDK synth', () =>
+      this.assertCdkSynthMatchesDeploy()
+    );
+    await runStep(this.platform, 'PREFLIGHT 4/4 — Docker build', () =>
+      this.assertDockerBuild()
+    );
   }
 
   private requireAwsRegionValid(): string {
     const region = requireAwsRegion(this.platform).trim();
     if (!isValidAwsRegionFormat(region)) {
-      this.platform.error('AWS_REGION invalid (expected format like "us-east-1")');
+      this.platform.error(
+        `AWS_REGION="${region}" invalid (expected format like "us-east-1").`
+      );
+      this.platform.error(
+        'Fix: Check the aws-region input in the configure-aws-credentials step of the workflow.'
+      );
       assert.fail(
         'preflight: AWS_REGION must match a valid region pattern — crash, do not continue'
       );
@@ -66,11 +76,17 @@ export class PreflightCommand extends BasePipelineCommand {
       )
     );
     if (id.Account === undefined || id.Account === '') {
-      this.platform.error('STS Account missing');
+      this.platform.error('STS GetCallerIdentity returned no Account.');
+      this.platform.error(
+        'Fix: Ensure the configure-aws-credentials step succeeded and AWS_ACCESS_KEY_ID is set.'
+      );
       assert.fail('preflight: STS Account must be present');
     }
     if (id.Arn === undefined || id.Arn === '') {
-      this.platform.error('STS Arn missing');
+      this.platform.error('STS GetCallerIdentity returned no Arn.');
+      this.platform.error(
+        'Fix: Ensure the configure-aws-credentials step succeeded and AWS credentials are valid.'
+      );
       assert.fail('preflight: STS Arn must be present');
     }
     assert.ok(id.Account.length > 0, 'preflight: Account must be non-empty');
@@ -82,6 +98,9 @@ export class PreflightCommand extends BasePipelineCommand {
         this.platform.error(
           `Expected CI caller to assume role containing "${expected}", got ARN: ${id.Arn}`
         );
+        this.platform.error(
+          'Fix: Verify the OIDC role ARN in GitHub repo variables (Settings > Secrets and variables > Actions > AWS_ROLE_ARN).'
+        );
         assert.fail(
           'preflight: CI must use OIDC deploy role — crash, do not continue'
         );
@@ -89,7 +108,7 @@ export class PreflightCommand extends BasePipelineCommand {
     }
 
     this.platform.notice(
-      `PREFLIGHT 1/4: caller ${id.Arn} account=${id.Account} region=${region}`
+      `Caller: ${id.Arn}  Account: ${id.Account}  Region: ${region}`
     );
   }
 
@@ -100,99 +119,63 @@ export class PreflightCommand extends BasePipelineCommand {
     const d = await describeStack(client);
 
     if (d === null) {
-      this.platform.notice(`PREFLIGHT 2/4 (stack): ${STACK_NAME} absent — CDK will CREATE.`);
+      this.platform.notice(`${STACK_NAME} absent — CDK will CREATE.`);
       return;
     }
 
     const { status, reason } = d;
 
     if (status === undefined || status === '') {
-      return this.failWithEvents(
+      return failWithEvents(
+        this.platform,
         client,
-        `${STACK_NAME} returned empty stack status — invariant violated.`
+        `${STACK_NAME} returned empty stack status — invariant violated.`,
+        'Open the CloudFormation console and inspect the stack directly.'
       );
     }
 
     if (!DEPLOYABLE_STATUSES.has(status)) {
-      return this.failWithEvents(
+      return failWithEvents(
+        this.platform,
         client,
-        `${STACK_NAME} status=${status} is NOT deployable. Only ${[...DEPLOYABLE_STATUSES].join(', ')} are accepted. Fix the stack in AWS Console, then re-run.`
+        `${STACK_NAME} status=${status} is NOT deployable. Only ${[...DEPLOYABLE_STATUSES].join(', ')} are accepted.`,
+        `Open the AWS CloudFormation console, find "${STACK_NAME}", and resolve the failed state (delete and recreate if ROLLBACK_COMPLETE).`
       );
     }
 
     if (reasonIsSet(reason)) {
-      return this.failWithEvents(
+      return failWithEvents(
+        this.platform,
         client,
-        `${STACK_NAME} status=${status} but StackStatusReason="${reason}" — previous operation left a warning. Resolve in AWS Console.`
+        `${STACK_NAME} status=${status} but StackStatusReason="${reason}" — previous operation left a warning.`,
+        `Open the AWS CloudFormation console, inspect "${STACK_NAME}", and resolve the warning before re-deploying.`
       );
     }
 
     assert.ok(DEPLOYABLE_STATUSES.has(status), 'gateStack: status must be deployable');
     assert.ok(!reasonIsSet(reason), 'gateStack: reason must not be set');
     this.platform.notice(
-      `PREFLIGHT 2/4 (stack): ${STACK_NAME} status=${status} — safe for CDK deploy.`
+      `${STACK_NAME} status=${status} — safe for CDK deploy.`
     );
   }
 
-  /**
-   * Fails fast on CDK construct mistakes (ASCII/ALB rules, etc.) before `cdk deploy`
-   * and Docker image push. Uses the same `-c` flags as deploy.
-   */
   private assertCdkSynthMatchesDeploy(): void {
     run(
       this.platform,
       'bunx',
       ['cdk', 'synth', ...CDK_DEPLOY_CONTEXT_ARGS, '-q'],
-      { cwd: AWS_PACKAGE_ROOT }
+      { cwd: AWS_PACKAGE_ROOT, label: 'CDK synth (deploy context)' }
     );
     this.platform.notice(
-      'PREFLIGHT 3/4 (cdk): template synthesized with deploy context — resource precondition asserts ran.'
+      'Template synthesized with deploy context — resource precondition asserts ran.'
     );
-  }
-
-  private async failWithEvents(
-    client: CloudFormationClient,
-    message: string
-  ): Promise<never> {
-    assert.defined(client, 'failWithEvents: client is required');
-    assert.ok(typeof message === 'string' && message.length > 0, 'failWithEvents: message must be non-empty');
-
-    this.platform.error(message);
-
-    try {
-      const events = await client.send(
-        new DescribeStackEventsCommand({ StackName: STACK_NAME })
-      );
-      const items = events.StackEvents ?? [];
-      assert.array(items, 'failWithEvents: StackEvents must be an array');
-      console.error(`--- ${STACK_NAME} recent events (${items.length}) ---`);
-      console.error(JSON.stringify(items.slice(0, 25), null, 2));
-    } catch (evtErr: unknown) {
-      this.platform.error(
-        `Additionally failed to fetch stack events: ${String(evtErr instanceof Error ? evtErr.message : evtErr)}`
-      );
-    }
-
-    try {
-      const full = await client.send(
-        new DescribeStacksCommand({ StackName: STACK_NAME })
-      );
-      const stack = full.Stacks?.[0];
-      if (stack !== undefined) {
-        console.error(`--- ${STACK_NAME} full describe ---`);
-        console.error(JSON.stringify(stack, null, 2));
-      }
-    } catch (descErr: unknown) {
-      this.platform.error(
-        `Additionally failed to describe stack: ${String(descErr instanceof Error ? descErr.message : descErr)}`
-      );
-    }
-
-    assert.fail(message);
   }
 
   private assertDockerBuild(): void {
-    run(this.platform, 'docker', ['build', '--quiet', '.'], { cwd: REPO_ROOT });
-    this.platform.notice('PREFLIGHT 4/4 (docker): Docker image builds successfully.');
+    run(this.platform, 'docker', ['build', '.'], {
+      cwd: REPO_ROOT,
+      label: 'Docker build',
+    });
+    this.platform.notice('Docker image builds successfully.');
   }
 }

@@ -23,6 +23,9 @@ export class WebAppDeployable implements Deployable {
       this.platform.error(
         `PATCH_DB_REQ_RES_URL must be https:// (got: ${syncUrl})`
       );
+      this.platform.error(
+        'Fix: Check the ReqResUrl CDK output — it should be an HTTPS CloudFront URL.'
+      );
       assert.fail('web-app: sync URL must be https://');
     }
 
@@ -32,6 +35,9 @@ export class WebAppDeployable implements Deployable {
       doc = JSON.parse(readFileSync(configPath, 'utf8'));
     } catch (e) {
       this.platform.error(`public-config.json: ${String(e)}`);
+      this.platform.error(
+        'Fix: Ensure public-config.json exists at the repo root and contains valid JSON.'
+      );
       assert.fail('web-app: public-config.json must be valid JSON');
     }
     if (
@@ -42,6 +48,9 @@ export class WebAppDeployable implements Deployable {
       (doc as { prod: unknown }).prod === null
     ) {
       this.platform.error('public-config.json missing prod object');
+      this.platform.error(
+        'Fix: public-config.json must have a top-level "prod" object.'
+      );
       assert.fail('web-app: public-config.json must contain prod object');
     }
     const o = doc as { local: unknown; prod: Record<string, unknown> };
@@ -59,6 +68,7 @@ export class WebAppDeployable implements Deployable {
     run(this.platform, 'bunx', ['expo', 'export', '-p', 'web'], {
       cwd: appDir,
       env: { ...process.env, EXPO_PUBLIC_STAGE: 'prod' },
+      label: 'web-app: expo export',
     });
 
     run(
@@ -73,7 +83,7 @@ export class WebAppDeployable implements Deployable {
         '--exclude',
         '*.wasm',
       ],
-      { cwd: appDir }
+      { cwd: appDir, label: 'web-app: S3 sync (non-wasm)' }
     );
     run(
       this.platform,
@@ -90,7 +100,7 @@ export class WebAppDeployable implements Deployable {
         '--content-type',
         'application/wasm',
       ],
-      { cwd: appDir }
+      { cwd: appDir, label: 'web-app: S3 sync (wasm)' }
     );
     run(
       this.platform,
@@ -103,7 +113,7 @@ export class WebAppDeployable implements Deployable {
         '--paths',
         '/*',
       ],
-      { cwd: REPO_ROOT }
+      { cwd: REPO_ROOT, label: 'web-app: CloudFront invalidation' }
     );
 
     rmSync(join(REPO_ROOT, 'packages/app/dist'), {

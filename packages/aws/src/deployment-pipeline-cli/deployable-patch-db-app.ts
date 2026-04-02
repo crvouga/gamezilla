@@ -2,7 +2,7 @@ import { assert } from '@gamezilla/shared/assert';
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { requireOutput, type StackOutputs } from './cdk-outputs';
-import { CiPlatform } from './ci-platform';
+import type { CiPlatform } from './ci-platform';
 import type { Deployable } from './deployable';
 import { REPO_ROOT } from './paths';
 import { run } from './run-subprocess';
@@ -30,6 +30,7 @@ export class PatchDbAppDeployable implements Deployable {
 
     run(this.platform, 'bun', ['run', '--filter', '@gamezilla/patch-db-app', 'build'], {
       cwd: REPO_ROOT,
+      label: 'patch-db-app: build',
     });
     run(
       this.platform,
@@ -38,7 +39,7 @@ export class PatchDbAppDeployable implements Deployable {
         's3', 'sync', 'packages/patch-db-app/dist/', `s3://${bucket}/`,
         '--delete', '--exclude', '*.wasm',
       ],
-      { cwd: REPO_ROOT }
+      { cwd: REPO_ROOT, label: 'patch-db-app: S3 sync (non-wasm)' }
     );
     run(
       this.platform,
@@ -48,7 +49,7 @@ export class PatchDbAppDeployable implements Deployable {
         '--exclude', '*', '--include', '*.wasm',
         '--content-type', 'application/wasm',
       ],
-      { cwd: REPO_ROOT }
+      { cwd: REPO_ROOT, label: 'patch-db-app: S3 sync (wasm)' }
     );
     run(
       this.platform,
@@ -61,7 +62,7 @@ export class PatchDbAppDeployable implements Deployable {
         '--paths',
         '/*',
       ],
-      { cwd: REPO_ROOT }
+      { cwd: REPO_ROOT, label: 'patch-db-app: CloudFront invalidation' }
     );
 
     rmSync(join(REPO_ROOT, 'packages/patch-db-app/dist'), {
