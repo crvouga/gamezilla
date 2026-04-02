@@ -102,7 +102,7 @@ export class GamezillaStack extends cdk.Stack {
       vpcClientSecurityGroups: [reqResTaskSg, workerSg],
     });
 
-    new WorkerService(this, 'Worker', {
+    const worker = new WorkerService(this, 'Worker', {
       vpc: appVpc.vpc,
       cluster: emqx.ecsCluster,
       dockerAsset,
@@ -110,6 +110,8 @@ export class GamezillaStack extends cdk.Stack {
       emqx,
       taskSecurityGroup: workerSg,
     });
+
+    worker.service.node.addDependency(emqx.emqxService);
 
     const reqRes = new ReqRes(this, 'ReqRes', {
       dockerAsset,
