@@ -7,7 +7,7 @@ import type { Construct } from 'constructs';
 import { assertAwsEc2SecurityGroupDescription } from './cdk-aws-preconditions';
 import { AppDatabase } from './database';
 import { AppVpc } from './vpc';
-import { WorkerService } from './ecs-worker';
+import { WorkerService } from './worker';
 import { PatchDbApp } from './patch-db-app';
 import { PubSubBroker } from './pub-sub';
 import { ReqRes } from './req-res';
@@ -55,14 +55,14 @@ export class GamezillaStack extends cdk.Stack {
     });
 
     const appVpc = new AppVpc(this, 'AppVpc');
-    const reqResTaskSgDesc = 'ECS req-res tasks - reach Aurora and pub/sub broker';
+    const reqResTaskSgDesc = 'Req-res tasks - reach Aurora and pub/sub broker';
     assertAwsEc2SecurityGroupDescription(reqResTaskSgDesc, 'ReqResTaskSg');
     const reqResTaskSg = new ec2.SecurityGroup(this, 'ReqResTaskSg', {
       vpc: appVpc.vpc,
       description: reqResTaskSgDesc,
       allowAllOutbound: true,
     });
-    const workerSgDesc = 'ECS worker tasks';
+    const workerSgDesc = 'Worker tasks';
     assertAwsEc2SecurityGroupDescription(workerSgDesc, 'WorkerSg');
     const workerSg = new ec2.SecurityGroup(this, 'WorkerSg', {
       vpc: appVpc.vpc,

@@ -18,7 +18,8 @@ export interface WorkerServiceProps {
 }
 
 /**
- * Bun worker on Fargate (MQTT subscriber + /health). Same image as ReqRes; different command.
+ * Worker service: competing-consumer subscriber on the pub/sub broker.
+ * Same container image as ReqRes; different entrypoint command.
  */
 export class WorkerService extends Construct implements cdk.IInspectable {
   readonly service: ecs.FargateService;

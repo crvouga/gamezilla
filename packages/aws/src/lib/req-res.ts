@@ -22,8 +22,8 @@ export interface ReqResProps {
 }
 
 /**
- * Patch DB HTTP API on **ECS Fargate** (same cluster as the MQTT worker), public **ALB**, **CloudFront**
- * for HTTPS (browser-safe sync URL; ALB alone is HTTP-only on the default hostname).
+ * Stateless req-res HTTP API (Patch DB). Public ALB + CloudFront for HTTPS.
+ * Shares compute cluster with the worker; ALB alone is HTTP-only on the default hostname.
  */
 export class ReqRes extends Construct implements cdk.IInspectable {
   readonly loadBalancedService: ecs_patterns.ApplicationLoadBalancedFargateService;
