@@ -8,41 +8,42 @@ import { CdkDia, CdkDiaDecorator, CollapseTypes } from 'cdk-dia';
 import { Construct } from 'constructs';
 import { assertAwsEc2SecurityGroupDescription } from './cdk-aws-preconditions';
 
-export const EMQX_DNS_NAMESPACE = 'app.local';
-export const EMQX_SERVICE_NAME = 'emqx';
+export const PUBSUB_DNS_NAMESPACE = 'app.local';
+export const PUBSUB_SERVICE_NAME = 'emqx';
 
-export interface EmqxClusterProps {
+export interface PubSubBrokerProps {
   readonly vpc: ec2.IVpc;
-  /** Security groups allowed to reach EMQX on 1883 inside the VPC (e.g. worker, App Runner connector). */
+  /** Security groups allowed to reach the MQTT broker on 1883 inside the VPC (e.g. worker, req-res). */
   readonly vpcClientSecurityGroups: ec2.ISecurityGroup[];
 }
 
 /**
- * EMQX 5 on Fargate + internal Cloud Map DNS + public NLB (MQTT 1883, WebSocket 8083).
+ * MQTT pub/sub broker on Fargate + internal Cloud Map DNS + public NLB (MQTT 1883, WebSocket 8083).
+ * Currently backed by EMQX 5; swappable with any MQTT-compatible broker.
  */
-export class EmqxCluster extends Construct implements cdk.IInspectable {
+export class PubSubBroker extends Construct implements cdk.IInspectable {
   readonly ecsCluster: ecs.Cluster;
-  /** EMQX broker task service (for CloudFormation dependsOn ordering). */
-  readonly emqxService: ecs.FargateService;
-  /** e.g. mqtt://emqx.app.local:1883 */
+  /** Broker Fargate service (for CloudFormation dependsOn ordering). */
+  readonly brokerService: ecs.FargateService;
+  /** VPC-internal MQTT URL, e.g. mqtt://emqx.app.local:1883 */
   readonly internalMqttUrl: string;
   readonly publicNlbDnsName: string;
 
   inspect(inspector: cdk.TreeInspector): void {
-    inspector.addAttribute('diagram:label', 'EMQX Pub/Sub\n(ECS Fargate + NLB)');
+    inspector.addAttribute('diagram:label', 'Pub/Sub Broker\n(ECS Fargate + NLB)');
     inspector.addAttribute('diagram:tier', 'compute');
     CdkDia.decorate(inspector,
       new CdkDiaDecorator().collapse(CollapseTypes.FORCE_NON_COLLAPSE));
   }
 
-  constructor(scope: Construct, id: string, props: EmqxClusterProps) {
+  constructor(scope: Construct, id: string, props: PubSubBrokerProps) {
     super(scope, id);
 
     const namespace = new servicediscovery.PrivateDnsNamespace(
       this,
       'Namespace',
       {
-        name: EMQX_DNS_NAMESPACE,
+        name: PUBSUB_DNS_NAMESPACE,
         vpc: props.vpc,
       }
     );
@@ -52,23 +53,24 @@ export class EmqxCluster extends Construct implements cdk.IInspectable {
       containerInsightsV2: ecs.ContainerInsights.ENABLED,
     });
 
-    const emqxSgDesc = 'EMQX broker';
-    assertAwsEc2SecurityGroupDescription(emqxSgDesc, 'EmqxSg');
-    const emqxSg = new ec2.SecurityGroup(this, 'EmqxSg', {
+    // CDK construct IDs (e.g. 'EmqxSg') are preserved to avoid CloudFormation resource replacement.
+    const brokerSgDesc = 'Pub/sub MQTT broker';
+    assertAwsEc2SecurityGroupDescription(brokerSgDesc, 'EmqxSg');
+    const brokerSg = new ec2.SecurityGroup(this, 'EmqxSg', {
       vpc: props.vpc,
-      description: emqxSgDesc,
+      description: brokerSgDesc,
     });
-    emqxSg.addIngressRule(
+    brokerSg.addIngressRule(
       ec2.Peer.anyIpv4(),
       ec2.Port.tcp(1883),
       'MQTT TCP (NLB)'
     );
-    emqxSg.addIngressRule(
+    brokerSg.addIngressRule(
       ec2.Peer.anyIpv4(),
       ec2.Port.tcp(8083),
       'MQTT WebSocket (NLB)'
     );
-    emqxSg.addIngressRule(
+    brokerSg.addIngressRule(
       ec2.Peer.anyIpv4(),
       ec2.Port.tcp(18083),
       'Dashboard (optional)'
@@ -95,7 +97,7 @@ export class EmqxCluster extends Construct implements cdk.IInspectable {
       },
     });
 
-    this.emqxService = new ecs.FargateService(this, 'EmqxService', {
+    this.brokerService = new ecs.FargateService(this, 'EmqxService', {
       cluster: this.ecsCluster,
       taskDefinition: taskDef,
       desiredCount: 1,
@@ -104,16 +106,16 @@ export class EmqxCluster extends Construct implements cdk.IInspectable {
       circuitBreaker: { rollback: true },
       assignPublicIp: false,
       vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
-      securityGroups: [emqxSg],
+      securityGroups: [brokerSg],
       cloudMapOptions: {
-        name: EMQX_SERVICE_NAME,
+        name: PUBSUB_SERVICE_NAME,
         cloudMapNamespace: namespace,
         dnsRecordType: servicediscovery.DnsRecordType.A,
       },
     });
 
     for (const clientSg of props.vpcClientSecurityGroups) {
-      emqxSg.addIngressRule(
+      brokerSg.addIngressRule(
         clientSg,
         ec2.Port.tcp(1883),
         'MQTT from VPC clients'
@@ -134,7 +136,7 @@ export class EmqxCluster extends Construct implements cdk.IInspectable {
       port: 1883,
       protocol: elbv2.Protocol.TCP,
       targets: [
-        this.emqxService.loadBalancerTarget({
+        this.brokerService.loadBalancerTarget({
           containerName: 'emqx',
           containerPort: 1883,
         }),
@@ -153,7 +155,7 @@ export class EmqxCluster extends Construct implements cdk.IInspectable {
       port: 8083,
       protocol: elbv2.Protocol.TCP,
       targets: [
-        this.emqxService.loadBalancerTarget({
+        this.brokerService.loadBalancerTarget({
           containerName: 'emqx',
           containerPort: 8083,
         }),
@@ -164,7 +166,7 @@ export class EmqxCluster extends Construct implements cdk.IInspectable {
       },
     });
 
-    this.internalMqttUrl = `mqtt://${EMQX_SERVICE_NAME}.${EMQX_DNS_NAMESPACE}:1883`;
+    this.internalMqttUrl = `mqtt://${PUBSUB_SERVICE_NAME}.${PUBSUB_DNS_NAMESPACE}:1883`;
     this.publicNlbDnsName = nlb.loadBalancerDnsName;
   }
 }

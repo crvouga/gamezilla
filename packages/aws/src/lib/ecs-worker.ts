@@ -6,14 +6,14 @@ import * as logs from 'aws-cdk-lib/aws-logs';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import { CdkDia, CdkDiaDecorator, CollapseTypes } from 'cdk-dia';
 import { Construct } from 'constructs';
-import type { EmqxCluster } from './pub-sub';
+import type { PubSubBroker } from './pub-sub';
 
 export interface WorkerServiceProps {
   readonly vpc: ec2.IVpc;
   readonly cluster: ecs.ICluster;
   readonly dockerAsset: ecr_assets.DockerImageAsset;
   readonly database: rds.DatabaseCluster;
-  readonly emqx: EmqxCluster;
+  readonly pubSub: PubSubBroker;
   readonly taskSecurityGroup: ec2.ISecurityGroup;
 }
 
@@ -55,7 +55,7 @@ export class WorkerService extends Construct implements cdk.IInspectable {
         DATABASE_HOST: props.database.clusterEndpoint.hostname,
         DATABASE_PORT: '5432',
         DATABASE_NAME: 'postgres',
-        PUBSUB_URL: props.emqx.internalMqttUrl,
+        PUBSUB_URL: props.pubSub.internalMqttUrl,
         NODE_ENV: 'production',
       },
       secrets: {

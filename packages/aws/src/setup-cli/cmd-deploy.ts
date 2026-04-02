@@ -43,10 +43,10 @@ export class DeployCommand extends BaseSetupCommand {
       `  DatabaseClusterEndpoint: ${outputs.DatabaseClusterEndpoint ?? '(missing)'}`
     );
     console.log(
-      `  EmqxInternalMqttUrl:   ${outputs.EmqxInternalMqttUrl ?? '(missing)'}`
+      `  PubSubInternalMqttUrl: ${outputs.PubSubInternalMqttUrl ?? '(missing)'}`
     );
     console.log(
-      `  EmqxPublicNlbDns:      ${outputs.EmqxPublicNlbDns ?? '(missing)'}\n`
+      `  PubSubPublicNlbDns:    ${outputs.PubSubPublicNlbDns ?? '(missing)'}\n`
     );
   }
 }

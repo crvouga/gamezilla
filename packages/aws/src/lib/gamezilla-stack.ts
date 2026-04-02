@@ -9,7 +9,7 @@ import { AppDatabase } from './database';
 import { AppVpc } from './vpc';
 import { WorkerService } from './ecs-worker';
 import { PatchDbApp } from './patch-db-app';
-import { EmqxCluster } from './pub-sub';
+import { PubSubBroker } from './pub-sub';
 import { ReqRes } from './req-res';
 import { WebApp } from './web-app';
 
@@ -55,7 +55,7 @@ export class GamezillaStack extends cdk.Stack {
     });
 
     const appVpc = new AppVpc(this, 'AppVpc');
-    const reqResTaskSgDesc = 'ECS req-res tasks - reach Aurora and EMQX';
+    const reqResTaskSgDesc = 'ECS req-res tasks - reach Aurora and pub/sub broker';
     assertAwsEc2SecurityGroupDescription(reqResTaskSgDesc, 'ReqResTaskSg');
     const reqResTaskSg = new ec2.SecurityGroup(this, 'ReqResTaskSg', {
       vpc: appVpc.vpc,
@@ -97,34 +97,35 @@ export class GamezillaStack extends cdk.Stack {
       ],
     });
 
-    const emqx = new EmqxCluster(this, 'Emqx', {
+    // CDK construct ID 'Emqx' is preserved to avoid CloudFormation resource replacement.
+    const pubSub = new PubSubBroker(this, 'Emqx', {
       vpc: appVpc.vpc,
       vpcClientSecurityGroups: [reqResTaskSg, workerSg],
     });
 
     const worker = new WorkerService(this, 'Worker', {
       vpc: appVpc.vpc,
-      cluster: emqx.ecsCluster,
+      cluster: pubSub.ecsCluster,
       dockerAsset,
       database: database.cluster,
-      emqx,
+      pubSub,
       taskSecurityGroup: workerSg,
     });
 
-    worker.service.node.addDependency(emqx.emqxService);
+    worker.service.node.addDependency(pubSub.brokerService);
 
     const reqRes = new ReqRes(this, 'ReqRes', {
       dockerAsset,
       database: database.cluster,
-      internalMqttUrl: emqx.internalMqttUrl,
-      cluster: emqx.ecsCluster,
+      internalMqttUrl: pubSub.internalMqttUrl,
+      cluster: pubSub.ecsCluster,
       taskSecurityGroup: reqResTaskSg,
     });
 
-    // Req-res needs EMQX (and Cloud Map DNS) reachable before MQTT connectAsync can finish.
-    reqRes.loadBalancedService.service.node.addDependency(emqx.emqxService);
+    // Req-res needs the pub/sub broker (and Cloud Map DNS) reachable before MQTT connectAsync can finish.
+    reqRes.loadBalancedService.service.node.addDependency(pubSub.brokerService);
 
-    this.addOutputs({ webApp, patchDbApp, reqRes, database, emqx });
+    this.addOutputs({ webApp, patchDbApp, reqRes, database, pubSub });
   }
 
   private addOutputs({
@@ -132,13 +133,13 @@ export class GamezillaStack extends cdk.Stack {
     patchDbApp,
     reqRes,
     database,
-    emqx,
+    pubSub,
   }: {
     webApp: WebApp;
     patchDbApp: PatchDbApp;
     reqRes: ReqRes;
     database: AppDatabase;
-    emqx: EmqxCluster;
+    pubSub: PubSubBroker;
   }): void {
     new cdk.CfnOutput(this, 'ReqResUrl', {
       value: `https://${reqRes.distribution.distributionDomainName}`,
@@ -149,12 +150,12 @@ export class GamezillaStack extends cdk.Stack {
       value: database.cluster.clusterEndpoint.hostname,
       description: 'Aurora PostgreSQL writer hostname',
     });
-    new cdk.CfnOutput(this, 'EmqxInternalMqttUrl', {
-      value: emqx.internalMqttUrl,
+    new cdk.CfnOutput(this, 'PubSubInternalMqttUrl', {
+      value: pubSub.internalMqttUrl,
       description: 'VPC-internal MQTT URL for req-res / worker',
     });
-    new cdk.CfnOutput(this, 'EmqxPublicNlbDns', {
-      value: emqx.publicNlbDnsName,
+    new cdk.CfnOutput(this, 'PubSubPublicNlbDns', {
+      value: pubSub.publicNlbDnsName,
       description:
         'Public NLB DNS: mqtt://host:1883 and tcp :8083 for WebSocket',
     });

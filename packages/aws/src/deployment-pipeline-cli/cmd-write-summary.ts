@@ -15,8 +15,8 @@ const SUMMARY_SERVICES = [
 
 const SUMMARY_INFRA = [
   { label: 'Aurora endpoint', outputKey: 'DatabaseClusterEndpoint' },
-  { label: 'EMQX (VPC)', outputKey: 'EmqxInternalMqttUrl' },
-  { label: 'EMQX public NLB', outputKey: 'EmqxPublicNlbDns' },
+  { label: 'Pub/Sub broker (VPC)', outputKey: 'PubSubInternalMqttUrl' },
+  { label: 'Pub/Sub broker NLB', outputKey: 'PubSubPublicNlbDns' },
 ] as const;
 
 const SUMMARY_NAMESERVERS = [

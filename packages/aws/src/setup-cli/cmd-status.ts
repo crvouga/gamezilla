@@ -142,8 +142,8 @@ export class StatusCommand extends BaseSetupCommand {
         'PatchDbAppUrl',
         'ReqResUrl',
         'DatabaseClusterEndpoint',
-        'EmqxInternalMqttUrl',
-        'EmqxPublicNlbDns',
+        'PubSubInternalMqttUrl',
+        'PubSubPublicNlbDns',
         'WebAppBucketName',
         'Route53Nameservers',
       ] as const;

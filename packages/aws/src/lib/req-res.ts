@@ -15,7 +15,7 @@ import { assertApplicationLoadBalancerTargetGroupHealthCheckCounts } from './cdk
 export interface ReqResProps {
   readonly dockerAsset: ecr_assets.DockerImageAsset;
   readonly database: rds.DatabaseCluster;
-  /** mqtt://emqx.app.local:1883 (VPC-internal). */
+  /** VPC-internal MQTT broker URL, e.g. mqtt://host:1883. */
   readonly internalMqttUrl: string;
   readonly cluster: ecs.ICluster;
   readonly taskSecurityGroup: ec2.ISecurityGroup;
