@@ -13,10 +13,11 @@
     "lint": "eslint .",
     "tc": "tsc --noEmit -p ./tsconfig.json",
     "test": "echo 'TODO: test'",
-    "diagram": "cdk synth --quiet && bun x cdk-dia",
+    "diagram": "cdk synth --quiet && bunx tsx src/bin/diagram.ts",
     "diagram:install": "brew install graphviz",
-    "diagram:html": "cdk synth --quiet && bun x cdk-dia --rendering cytoscape-html",
-    "diagram:html:preview": "bun run diagram:html && bun x serve diagram"
+    "diagram:cdk-dia": "cdk synth --quiet && bun x cdk-dia",
+    "diagram:cdk-dia:html": "cdk synth --quiet && bun x cdk-dia --rendering cytoscape-html",
+    "diagram:cdk-dia:html:preview": "bun run diagram:cdk-dia:html && bun x serve diagram"
   },
   "dependencies": {
     "@gamezilla/shared": "workspace:*",

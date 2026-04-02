@@ -24,6 +24,8 @@ export class WorkerService extends Construct implements cdk.IInspectable {
   readonly service: ecs.FargateService;
 
   inspect(inspector: cdk.TreeInspector): void {
+    inspector.addAttribute('diagram:label', 'Worker\n(ECS Fargate)');
+    inspector.addAttribute('diagram:tier', 'compute');
     CdkDia.decorate(inspector,
       new CdkDiaDecorator().collapse(CollapseTypes.FORCE_NON_COLLAPSE));
   }

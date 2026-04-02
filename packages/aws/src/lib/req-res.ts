@@ -30,6 +30,8 @@ export class ReqRes extends Construct implements cdk.IInspectable {
   readonly distribution: cloudfront.Distribution;
 
   inspect(inspector: cdk.TreeInspector): void {
+    inspector.addAttribute('diagram:label', 'Req-Res Server\n(ECS Fargate + ALB + CloudFront)');
+    inspector.addAttribute('diagram:tier', 'compute');
     CdkDia.decorate(inspector,
       new CdkDiaDecorator().collapse(CollapseTypes.FORCE_NON_COLLAPSE));
   }

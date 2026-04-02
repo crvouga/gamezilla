@@ -14,6 +14,8 @@ export class AppVpc extends Construct implements cdk.IInspectable {
   readonly vpc: ec2.Vpc;
 
   inspect(inspector: cdk.TreeInspector): void {
+    inspector.addAttribute('diagram:label', 'VPC');
+    inspector.addAttribute('diagram:tier', 'network');
     CdkDia.decorate(inspector,
       new CdkDiaDecorator().collapse(CollapseTypes.FORCE_COLLAPSE));
   }

@@ -29,6 +29,8 @@ export class EmqxCluster extends Construct implements cdk.IInspectable {
   readonly publicNlbDnsName: string;
 
   inspect(inspector: cdk.TreeInspector): void {
+    inspector.addAttribute('diagram:label', 'EMQX Pub/Sub\n(ECS Fargate + NLB)');
+    inspector.addAttribute('diagram:tier', 'compute');
     CdkDia.decorate(inspector,
       new CdkDiaDecorator().collapse(CollapseTypes.FORCE_NON_COLLAPSE));
   }

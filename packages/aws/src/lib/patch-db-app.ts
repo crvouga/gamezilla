@@ -19,6 +19,8 @@ export class PatchDbApp extends Construct implements cdk.IInspectable {
   readonly hostedZone?: route53.HostedZone;
 
   inspect(inspector: cdk.TreeInspector): void {
+    inspector.addAttribute('diagram:label', 'Patch DB App\n(S3 + CloudFront)');
+    inspector.addAttribute('diagram:tier', 'static');
     CdkDia.decorate(inspector,
       new CdkDiaDecorator().collapse(CollapseTypes.FORCE_NON_COLLAPSE));
   }

@@ -21,6 +21,8 @@ export class AppDatabase extends Construct implements cdk.IInspectable {
   readonly connections: ec2.Connections;
 
   inspect(inspector: cdk.TreeInspector): void {
+    inspector.addAttribute('diagram:label', 'Aurora PostgreSQL\n(Serverless v2)');
+    inspector.addAttribute('diagram:tier', 'data');
     CdkDia.decorate(inspector,
       new CdkDiaDecorator().collapse(CollapseTypes.FORCE_NON_COLLAPSE));
   }
