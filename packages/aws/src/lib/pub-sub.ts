@@ -1,5 +1,7 @@
+import * as path from 'node:path';
 import * as cdk from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as ecr_assets from 'aws-cdk-lib/aws-ecr-assets';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as logs from 'aws-cdk-lib/aws-logs';
@@ -81,8 +83,13 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
       cpu: 1024,
     });
 
+    const emqxImage = new ecr_assets.DockerImageAsset(this, 'EmqxImage', {
+      directory: path.join(__dirname, '..', '..', 'emqx-image'),
+      platform: ecr_assets.Platform.LINUX_AMD64,
+    });
+
     taskDef.addContainer('emqx', {
-      image: ecs.ContainerImage.fromRegistry('emqx/emqx:5.8.0'),
+      image: ecs.ContainerImage.fromDockerImageAsset(emqxImage),
       logging: ecs.LogDrivers.awsLogs({
         streamPrefix: 'emqx',
         logRetention: logs.RetentionDays.ONE_WEEK,
@@ -94,6 +101,13 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
       ],
       environment: {
         EMQX_NODE__NAME: 'emqx@127.0.0.1',
+      },
+      healthCheck: {
+        command: ['CMD-SHELL', 'emqx ping || exit 1'],
+        interval: cdk.Duration.seconds(10),
+        timeout: cdk.Duration.seconds(5),
+        retries: 3,
+        startPeriod: cdk.Duration.seconds(30),
       },
     });
 
@@ -112,6 +126,8 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
         cloudMapNamespace: namespace,
         dnsRecordType: servicediscovery.DnsRecordType.A,
       },
+      enableExecuteCommand: true,
+      healthCheckGracePeriod: cdk.Duration.seconds(60),
     });
 
     for (const clientSg of props.vpcClientSecurityGroups) {
@@ -141,9 +157,13 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
           containerPort: 1883,
         }),
       ],
+      deregistrationDelay: cdk.Duration.seconds(30),
       healthCheck: {
         protocol: elbv2.Protocol.TCP,
         port: '1883',
+        interval: cdk.Duration.seconds(10),
+        healthyThresholdCount: 2,
+        unhealthyThresholdCount: 2,
       },
     });
 
@@ -160,9 +180,13 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
           containerPort: 8083,
         }),
       ],
+      deregistrationDelay: cdk.Duration.seconds(30),
       healthCheck: {
         protocol: elbv2.Protocol.TCP,
         port: '8083',
+        interval: cdk.Duration.seconds(10),
+        healthyThresholdCount: 2,
+        unhealthyThresholdCount: 2,
       },
     });
 
