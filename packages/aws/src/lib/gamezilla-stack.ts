@@ -8,7 +8,6 @@ import { assertAwsEc2SecurityGroupDescription } from './cdk-aws-preconditions';
 import { AppDatabase } from './database';
 import { AppVpc } from './vpc';
 import { WorkerService } from './worker';
-import { PatchDbApp } from './patch-db-app';
 import { PubSubBroker } from './pub-sub';
 import { ReqRes } from './req-res';
 import { WebApp } from './web-app';
@@ -49,11 +48,6 @@ export class GamezillaStack extends cdk.Stack {
       customDomainBootstrap,
     });
 
-    const patchDbApp = new PatchDbApp(this, 'PatchDbApp', {
-      customDomain,
-      customDomainBootstrap,
-    });
-
     const appVpc = new AppVpc(this, 'AppVpc');
     const reqResTaskSgDesc = 'Req-res tasks - reach Aurora and pub/sub broker';
     assertAwsEc2SecurityGroupDescription(reqResTaskSgDesc, 'ReqResTaskSg');
@@ -81,13 +75,11 @@ export class GamezillaStack extends cdk.Stack {
       platform: ecr_assets.Platform.LINUX_AMD64,
       exclude: [
         'packages/aws/**',
-        'packages/patch-db-app/**',
         'packages/local/**',
         'node_modules',
         '.git',
         'dist',
         'packages/app/dist',
-        'packages/patch-db-app/dist',
         '.expo',
         'web-build',
         'ios',
@@ -125,18 +117,16 @@ export class GamezillaStack extends cdk.Stack {
     // Req-res needs the pub/sub broker (and Cloud Map DNS) reachable before MQTT connectAsync can finish.
     reqRes.loadBalancedService.service.node.addDependency(pubSub.brokerService);
 
-    this.addOutputs({ webApp, patchDbApp, reqRes, database, pubSub });
+    this.addOutputs({ webApp, reqRes, database, pubSub });
   }
 
   private addOutputs({
     webApp,
-    patchDbApp,
     reqRes,
     database,
     pubSub,
   }: {
     webApp: WebApp;
-    patchDbApp: PatchDbApp;
     reqRes: ReqRes;
     database: AppDatabase;
     pubSub: PubSubBroker;
@@ -162,31 +152,16 @@ export class GamezillaStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'WebAppBucketName', {
       value: webApp.bucket.bucketName,
     });
-    new cdk.CfnOutput(this, 'PatchDbAppBucketName', {
-      value: patchDbApp.bucket.bucketName,
-    });
     new cdk.CfnOutput(this, 'WebDistributionId', {
       value: webApp.distribution.distributionId,
-    });
-    new cdk.CfnOutput(this, 'PatchDbAppDistributionId', {
-      value: patchDbApp.distribution.distributionId,
     });
     new cdk.CfnOutput(this, 'WebAppUrl', {
       value: `https://${webApp.distribution.distributionDomainName}`,
     });
-    new cdk.CfnOutput(this, 'PatchDbAppUrl', {
-      value: `https://${patchDbApp.distribution.distributionDomainName}`,
-    });
-
     this.addNameserverOutput(
       webApp.hostedZone,
       'Route53Nameservers',
       'Set these nameservers at your domain registrar for gamezilla.app'
-    );
-    this.addNameserverOutput(
-      patchDbApp.hostedZone,
-      'PatchDbNameservers',
-      'Set these nameservers at your domain registrar for patchdb.dev'
     );
   }
 

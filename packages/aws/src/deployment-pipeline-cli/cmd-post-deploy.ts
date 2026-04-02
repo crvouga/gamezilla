@@ -10,7 +10,6 @@ import { runStep } from './ci-platform';
 
 const DNS_DOMAINS = [
   { domain: 'gamezilla.app', outputKey: 'Route53Nameservers' },
-  { domain: 'patchdb.dev', outputKey: 'PatchDbNameservers' },
 ] as const;
 
 type HttpEndpointCheck = {
@@ -21,7 +20,6 @@ type HttpEndpointCheck = {
 
 const HTTP_ENDPOINTS: readonly HttpEndpointCheck[] = [
   { label: 'WebApp', outputKey: 'WebAppUrl' },
-  { label: 'PatchDbApp', outputKey: 'PatchDbAppUrl' },
   { label: 'ReqRes', outputKey: 'ReqResUrl', probePath: '/health' },
 ];
 

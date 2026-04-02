@@ -1,7 +1,6 @@
 import { assert } from '@gamezilla/shared/assert';
 import { CiPlatform } from './ci-platform';
 import type { Deployable } from './deployable';
-import { PatchDbAppDeployable } from './deployable-patch-db-app';
 import { WebAppDeployable } from './deployable-web-app';
 
 export const createDeployRegistry = (
@@ -9,7 +8,6 @@ export const createDeployRegistry = (
 ): readonly Deployable[] => {
   const registry: readonly Deployable[] = [
     new WebAppDeployable(platform),
-    new PatchDbAppDeployable(platform),
   ];
   assert.ok(registry.length > 0, 'DEPLOY_REGISTRY must not be empty');
   const ids = registry.map((d) => d.id);

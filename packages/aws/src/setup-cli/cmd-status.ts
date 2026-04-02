@@ -139,7 +139,6 @@ export class StatusCommand extends BaseSetupCommand {
       const outputs = outs.Stacks?.[0]?.Outputs ?? [];
       const keys = [
         'WebAppUrl',
-        'PatchDbAppUrl',
         'ReqResUrl',
         'DatabaseClusterEndpoint',
         'PubSubInternalMqttUrl',

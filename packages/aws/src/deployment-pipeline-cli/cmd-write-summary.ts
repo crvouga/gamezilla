@@ -9,7 +9,6 @@ import type { CiPlatform } from './ci-platform';
 
 const SUMMARY_SERVICES = [
   { label: 'Web App', outputKey: 'WebAppUrl' },
-  { label: 'PatchDB App', outputKey: 'PatchDbAppUrl' },
   { label: 'Req Res', outputKey: 'ReqResUrl' },
 ] as const;
 
@@ -21,7 +20,6 @@ const SUMMARY_INFRA = [
 
 const SUMMARY_NAMESERVERS = [
   { domain: 'gamezilla.app', outputKey: 'Route53Nameservers' },
-  { domain: 'patchdb.dev', outputKey: 'PatchDbNameservers' },
 ] as const;
 
 const CUSTOM_DOMAIN_NOTE =

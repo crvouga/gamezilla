@@ -178,10 +178,8 @@ export class DomainsStatusCommand extends BaseSetupCommand {
     section('CloudFront alternate domain names');
 
     const webId = stack?.WebDistributionId;
-    const patchId = stack?.PatchDbAppDistributionId;
     for (const [label, id] of [
       ['WebApp', webId],
-      ['PatchDbApp', patchId],
     ] as const) {
       if (id === undefined || id === '') {
         console.log(

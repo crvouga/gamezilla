@@ -29,7 +29,7 @@ export class DeployCommand extends BaseSetupCommand {
     const platform = new LocalPlatform();
     platform.notice('Running CDK deploy (customDomain=true, customDomainBootstrap=true)…');
     await new CdkDeployCommand(platform).execute(argv);
-    platform.notice('Deploying web + patch-db artifacts…');
+    platform.notice('Deploying web artifacts…');
     await new DeployAppsCommand(platform).execute(argv);
 
     const outputs = readCdkOutputs(platform);
@@ -37,7 +37,6 @@ export class DeployCommand extends BaseSetupCommand {
 
     console.log('\nDeployed URLs (from CDK outputs):');
     console.log(`  WebAppUrl:             ${outputs.WebAppUrl ?? '(missing)'}`);
-    console.log(`  PatchDbAppUrl:         ${outputs.PatchDbAppUrl ?? '(missing)'}`);
     console.log(`  ReqResUrl:             ${outputs.ReqResUrl ?? '(missing)'}`);
     console.log(
       `  DatabaseClusterEndpoint: ${outputs.DatabaseClusterEndpoint ?? '(missing)'}`

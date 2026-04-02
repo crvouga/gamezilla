@@ -4,7 +4,10 @@
     "paths": {
       "@/*": ["./src/*"],
       "@gamezilla/shared/*": ["../shared/src/*"],
-      "@gamezilla/patch-db/*": ["../patch-db/src/*"]
+      "@gamezilla/patch-db/*": ["../patch-db/src/*"],
+      "@gamezilla/peer-store/*": ["../peer-store/src/*"],
+      "@gamezilla/patch-db-app/*": ["../patch-db-app/src/*"],
+      "@gamezilla/peer-store-app/*": ["../peer-store-app/src/*"]
     }
   },
   "include": [

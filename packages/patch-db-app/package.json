@@ -5,10 +5,6 @@
   "main": "src/entry.tsx",
   "scripts": {
     "install:deps": "npx expo install --check",
-    "dev": "expo start --web --port 8083",
-    "start": "expo start --web --port 8083",
-    "android": "expo start --android --port 8083",
-    "ios": "expo start --ios --port 8083",
     "lint": "eslint ."
   },
   "dependencies": {
