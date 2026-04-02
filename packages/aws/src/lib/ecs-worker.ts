@@ -71,6 +71,7 @@ export class WorkerService extends Construct implements cdk.IInspectable {
       securityGroups: [props.taskSecurityGroup],
       minHealthyPercent: 100,
       maxHealthyPercent: 200,
+      circuitBreaker: { rollback: true },
     });
 
     this.service.node.addDependency(props.dockerAsset);

@@ -99,6 +99,7 @@ export class EmqxCluster extends Construct implements cdk.IInspectable {
       desiredCount: 1,
       minHealthyPercent: 100,
       maxHealthyPercent: 200,
+      circuitBreaker: { rollback: true },
       assignPublicIp: false,
       vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
       securityGroups: [emqxSg],

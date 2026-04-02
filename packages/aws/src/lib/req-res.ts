@@ -50,6 +50,7 @@ export class ReqRes extends Construct implements cdk.IInspectable {
         desiredCount: 1,
         minHealthyPercent: 100,
         maxHealthyPercent: 200,
+        circuitBreaker: { rollback: true },
         publicLoadBalancer: true,
         assignPublicIp: false,
         taskSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
