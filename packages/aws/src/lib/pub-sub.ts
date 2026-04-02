@@ -47,7 +47,7 @@ export class EmqxCluster extends Construct implements cdk.IInspectable {
 
     this.ecsCluster = new ecs.Cluster(this, 'EcsCluster', {
       vpc: props.vpc,
-      containerInsights: true,
+      containerInsightsV2: ecs.ContainerInsights.ENABLED,
     });
 
     const emqxSgDesc = 'EMQX broker';

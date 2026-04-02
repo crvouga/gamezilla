@@ -20,14 +20,14 @@
   },
   "dependencies": {
     "@gamezilla/shared": "workspace:*",
-    "aws-cdk-lib": "^2.170.0",
+    "aws-cdk-lib": "^2.247.0",
     "constructs": "^10.4.2"
   },
   "devDependencies": {
     "@aws-sdk/client-cloudformation": "^3.1018.0",
     "@aws-sdk/client-sts": "^3.1018.0",
     "@types/node": "^20.17.0",
-    "aws-cdk": "^2.170.0",
+    "aws-cdk": "^2.1116.0",
     "cdk-dia": "^0.12.3",
     "tsx": "^4.19.2",
     "typescript": "~5.6.3"
