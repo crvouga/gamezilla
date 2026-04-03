@@ -6,12 +6,18 @@ const crash: Assert = Assert.crash()
 type Subscriber = (payload: unknown) => void
 type QueuedMessage = { topic: string; payload: unknown }
 
+export type MessageInterceptor = (
+  topic: string,
+  payload: unknown,
+) => unknown | null
+
 export class InMemoryBus {
   private readonly subscribers = new Map<string, Set<Subscriber>>()
   private is_destroyed = false
   private is_paused = false
   private readonly queue: QueuedMessage[] = []
   private readonly QUEUE_BOUND = 10_000
+  private interceptor: MessageInterceptor | null = null
 
   publish(topic: string, payload: unknown): void {
     crash.ok(!this.is_destroyed, 'cannot publish on destroyed bus')
@@ -85,14 +91,25 @@ export class InMemoryBus {
     return this.is_paused
   }
 
+  setInterceptor(fn: MessageInterceptor | null): void {
+    crash.ok(!this.is_destroyed, 'cannot setInterceptor on destroyed bus')
+    this.interceptor = fn
+  }
+
   destroy(): void {
     if (this.is_destroyed) return
     this.is_destroyed = true
     this.subscribers.clear()
     this.queue.length = 0
+    this.interceptor = null
   }
 
   private deliverToSubscribers(topic: string, payload: unknown): void {
+    if (this.interceptor) {
+      const result = this.interceptor(topic, payload)
+      if (result === null) return
+      payload = result
+    }
     const handlers = this.subscribers.get(topic)
     if (!handlers) return
     for (const handler of [...handlers]) {

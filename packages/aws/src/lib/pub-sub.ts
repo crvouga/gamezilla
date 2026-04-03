@@ -113,10 +113,10 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
           'CMD-SHELL',
           'curl -sf http://localhost:18083/status || exit 1',
         ],
-        interval: cdk.Duration.seconds(30),
-        timeout: cdk.Duration.seconds(10),
-        retries: 5,
-        startPeriod: cdk.Duration.seconds(120),
+        interval: cdk.Duration.seconds(10),
+        timeout: cdk.Duration.seconds(5),
+        retries: 3,
+        startPeriod: cdk.Duration.seconds(30),
       },
     });
 
@@ -136,7 +136,7 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
         dnsRecordType: servicediscovery.DnsRecordType.A,
       },
       enableExecuteCommand: true,
-      healthCheckGracePeriod: cdk.Duration.seconds(300),
+      healthCheckGracePeriod: cdk.Duration.seconds(60),
     });
 
     for (const clientSg of props.vpcClientSecurityGroups) {
@@ -152,6 +152,19 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
       internetFacing: true,
       crossZoneEnabled: true,
     });
+
+    nlb.connections.allowFromAnyIpv4(ec2.Port.tcp(1883), 'MQTT TCP');
+    nlb.connections.allowFromAnyIpv4(ec2.Port.tcp(8083), 'MQTT WebSocket');
+    nlb.connections.allowTo(
+      this.brokerService,
+      ec2.Port.tcp(1883),
+      'NLB to broker MQTT'
+    );
+    nlb.connections.allowTo(
+      this.brokerService,
+      ec2.Port.tcp(8083),
+      'NLB to broker WebSocket'
+    );
 
     const listener1883 = nlb.addListener('Mqtt', {
       port: 1883,
@@ -170,9 +183,9 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
       healthCheck: {
         protocol: elbv2.Protocol.TCP,
         port: '1883',
-        interval: cdk.Duration.seconds(30),
+        interval: cdk.Duration.seconds(10),
         healthyThresholdCount: 2,
-        unhealthyThresholdCount: 3,
+        unhealthyThresholdCount: 2,
       },
     });
 
@@ -193,9 +206,9 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
       healthCheck: {
         protocol: elbv2.Protocol.TCP,
         port: '8083',
-        interval: cdk.Duration.seconds(30),
+        interval: cdk.Duration.seconds(10),
         healthyThresholdCount: 2,
-        unhealthyThresholdCount: 3,
+        unhealthyThresholdCount: 2,
       },
     });
 

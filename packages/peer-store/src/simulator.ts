@@ -2,10 +2,13 @@ import { Assert } from '@gamezilla/shared/assert'
 import { ConsensusAuthority } from './consensus-authority'
 import { PeerStore } from './peer-store'
 import { designatedSyncPeer } from './sync-policy'
-import { InMemoryBus, InMemoryTransport } from './transport'
-import type { Authority, Event, Message, State, StoreModule, SyncPolicy } from './types'
+import { InMemoryBus, InMemoryTransport, type MessageInterceptor } from './transport'
+import type { Authority, Command, Event, Message, State, StoreModule, SyncPolicy } from './types'
+import { generateId } from './utils'
 
 const crash: Assert = Assert.crash()
+
+const TOPIC = 'peer-store'
 
 export type AuthorityFactory = (config: {
   peerId: string
@@ -195,6 +198,36 @@ export class DeterministicSimulator {
 
   getErrorLog(): Array<{ code: string; message: string }> {
     return [...this.error_log]
+  }
+
+  injectWireMessage(wireMessage: unknown): void {
+    crash.ok(!this.is_destroyed, 'cannot inject on destroyed simulator')
+    this.bus.publish(TOPIC, wireMessage)
+  }
+
+  setMessageInterceptor(fn: MessageInterceptor | null): void {
+    crash.ok(!this.is_destroyed, 'cannot set interceptor on destroyed simulator')
+    this.bus.setInterceptor(fn)
+  }
+
+  forgeCommand(
+    peerId: string,
+    message: Message,
+    overrides?: { id?: string; seq?: number; fakePeerId?: string },
+  ): Command {
+    crash.ok(!this.is_destroyed, 'cannot forge on destroyed simulator')
+    return {
+      id: overrides?.id ?? generateId(),
+      seq: overrides?.seq ?? 0,
+      peerId: overrides?.fakePeerId ?? peerId,
+      message,
+    }
+  }
+
+  getTransport(peerId: string): InMemoryTransport {
+    crash.ok(!this.is_destroyed, 'cannot getTransport on destroyed simulator')
+    this.assertPeerExists(peerId)
+    return this.transports.get(peerId)!
   }
 
   reset(): void {

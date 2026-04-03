@@ -8,6 +8,7 @@ const KIND_COLORS: Record<string, string> = {
   commit: '#6ee7b7',
   timeout: '#fca5a5',
   error: '#999',
+  cheat: '#f472b6',
 };
 
 export function MessageLog({ entries }: { entries: MessageLogEntry[] }) {

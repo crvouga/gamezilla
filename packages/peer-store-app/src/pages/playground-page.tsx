@@ -8,9 +8,10 @@ import {
 } from '@gamezilla/shared/ui';
 import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react';
 import { useWindowDimensions } from 'react-native';
+import { CheatLog } from '../components/cheat-log';
 import { EventLog } from '../components/event-log';
 import { MessageLog } from '../components/message-log';
-import { PeerPanel } from '../components/peer-panel';
+import { PeerPanel, type PeerAction } from '../components/peer-panel';
 import {
   PEERS,
   PlaygroundSimulator,
@@ -18,6 +19,25 @@ import {
 } from '../simulator/playground';
 
 const PANEL_MIN_WIDTH = 280;
+
+function peerRole(peerId: PeerId): string {
+  switch (peerId) {
+    case 'player-x':
+      return 'Player X';
+    case 'player-o':
+      return 'Player O';
+    case 'server':
+      return 'Server';
+    case 'observer':
+      return 'Observer';
+  }
+}
+
+function peerPlayer(peerId: PeerId): 'X' | 'O' | null {
+  if (peerId === 'player-x') return 'X';
+  if (peerId === 'player-o') return 'O';
+  return null;
+}
 
 export function PlaygroundPage() {
   const simRef = useRef<PlaygroundSimulator | null>(null);
@@ -43,11 +63,13 @@ export function PlaygroundPage() {
   const disconnectedPeers = useRef(new Set<string>());
   const isPaused = useRef(false);
 
+  // ─── Per-peer handlers ────────────────────────────────────────
+
   const handleDispatch = useCallback(
     (peerId: PeerId, cell: number) => {
       const player = peerId === 'player-x' ? 'X' : 'O';
       try {
-        sim.dispatch(peerId, {
+        sim.dispatchWithSpoof(peerId, {
           type: 'PLACE_MARK',
           payload: { cell, player },
         });
@@ -57,6 +79,32 @@ export function PlaygroundPage() {
     },
     [sim]
   );
+
+  const handleDisconnect = useCallback(
+    (peerId: string) => {
+      try {
+        sim.disconnectPeer(peerId as PeerId);
+        disconnectedPeers.current.add(peerId);
+      } catch {
+        /* already disconnected */
+      }
+    },
+    [sim]
+  );
+
+  const handleReconnect = useCallback(
+    (peerId: string) => {
+      try {
+        sim.reconnectPeer(peerId as PeerId);
+        disconnectedPeers.current.delete(peerId);
+      } catch {
+        /* not disconnected */
+      }
+    },
+    [sim]
+  );
+
+  // ─── Global controls ─────────────────────────────────────────
 
   const handlePause = useCallback(() => {
     try {
@@ -92,30 +140,6 @@ export function PlaygroundPage() {
     }
   }, [sim]);
 
-  const handleDisconnect = useCallback(
-    (peerId: string) => {
-      try {
-        sim.disconnectPeer(peerId as PeerId);
-        disconnectedPeers.current.add(peerId);
-      } catch {
-        /* already disconnected */
-      }
-    },
-    [sim]
-  );
-
-  const handleReconnect = useCallback(
-    (peerId: string) => {
-      try {
-        sim.reconnectPeer(peerId as PeerId);
-        disconnectedPeers.current.delete(peerId);
-      } catch {
-        /* not disconnected */
-      }
-    },
-    [sim]
-  );
-
   const handleReset = useCallback(() => {
     sim.reset();
     disconnectedPeers.current.clear();
@@ -137,10 +161,8 @@ export function PlaygroundPage() {
   const handleScenarioTimeout = useCallback(() => {
     handleReset();
     setTimeout(() => {
-      sim.disconnectPeer('player-o');
-      sim.disconnectPeer('worker');
-      disconnectedPeers.current.add('player-o');
-      disconnectedPeers.current.add('worker');
+      sim.disconnectPeer('server');
+      disconnectedPeers.current.add('server');
       sim.dispatch('player-x', {
         type: 'PLACE_MARK',
         payload: { cell: 0, player: 'X' },
@@ -153,9 +175,95 @@ export function PlaygroundPage() {
     }, 50);
   }, [sim, handleReset]);
 
+  // ─── Wire-level cheat handlers ───────────────────────────────
+
+  const handleCheatFabricate = useCallback(() => {
+    try {
+      sim.cheatFabricateCommit();
+    } catch {
+      /* logged */
+    }
+  }, [sim]);
+
+  const handleCheatReplay = useCallback(() => {
+    try {
+      sim.cheatReplay();
+    } catch {
+      /* logged */
+    }
+  }, [sim]);
+
+  const handleCheatTamper = useCallback(() => {
+    try {
+      sim.cheatTamperEvents();
+    } catch {
+      /* logged */
+    }
+  }, [sim]);
+
+  const handleCheatClearTamper = useCallback(() => {
+    try {
+      sim.cheatClearInterceptor();
+    } catch {
+      /* logged */
+    }
+  }, [sim]);
+
+  // ─── Per-peer action builders ─────────────────────────────────
+
+  const peerActions = useMemo((): Record<PeerId, PeerAction[]> => {
+    const spoofAction = (peerId: PeerId): PeerAction => {
+      const other = peerId === 'player-x' ? 'O' : 'X';
+      return {
+        label: sim.isSpoofing(peerId) ? `Spoofing ${other}` : `Spoof as ${other}`,
+        color: 'destructive',
+        active: sim.isSpoofing(peerId),
+        onPress: () => sim.toggleSpoof(peerId),
+      };
+    };
+
+    return {
+      'player-x': [
+        {
+          label: 'Flood',
+          color: 'destructive',
+          onPress: () => {
+            try { sim.cheatFlood('player-x'); } catch { /* logged */ }
+          },
+        },
+        spoofAction('player-x'),
+      ],
+      'player-o': [
+        {
+          label: 'Flood',
+          color: 'destructive',
+          onPress: () => {
+            try { sim.cheatFlood('player-o'); } catch { /* logged */ }
+          },
+        },
+        spoofAction('player-o'),
+      ],
+      server: [],
+      observer: [],
+    };
+  }, [sim, tick]);
+
+  // ─── Derived state ───────────────────────────────────────────
+
   const badActorIds = useMemo(() => {
     return new Set(sim.getBadActorLog().map((e) => e.peerId));
   }, [tick, sim]);
+
+  const cheatLog = sim.getCheatLog();
+  const cheaterIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const entry of cheatLog) {
+      if (!entry.detected && entry.peerId && entry.peerId !== 'wire') {
+        ids.add(entry.peerId);
+      }
+    }
+    return ids;
+  }, [cheatLog]);
 
   const messageLog = sim.getMessageLog();
   const eventLog = sim.getEventLog('player-x');
@@ -170,6 +278,8 @@ export function PlaygroundPage() {
       <Stack spacing={4} sx={{ pb: 8 }}>
         <Stack spacing={2}>
           <Text variant="heading">peer-store playground</Text>
+
+          <Text variant="label">Network Controls</Text>
           <Stack direction="horizontal" spacing={2} wrap>
             <Button
               title={isPaused.current ? 'Resume' : 'Pause'}
@@ -208,28 +318,58 @@ export function PlaygroundPage() {
               onPress={handleScenarioTimeout}
             />
           </Stack>
+
+          <Text variant="label">Wire Attacks (MITM)</Text>
+          <Stack direction="horizontal" spacing={2} wrap>
+            <Button
+              title="Fabricate Commit"
+              variant="outlined"
+              size="sm"
+              color="destructive"
+              onPress={handleCheatFabricate}
+            />
+            <Button
+              title="Replay Events"
+              variant="outlined"
+              size="sm"
+              color="destructive"
+              onPress={handleCheatReplay}
+            />
+            <Button
+              title="Tamper Events"
+              variant="outlined"
+              size="sm"
+              color="destructive"
+              onPress={handleCheatTamper}
+            />
+            <Button
+              title="Clear Tamper"
+              variant="outlined"
+              size="sm"
+              onPress={handleCheatClearTamper}
+            />
+          </Stack>
         </Stack>
 
-        <Stack direction="horizontal" spacing={3} wrap justify="center">
+        <Stack direction="horizontal" spacing={3} wrap justify="center" align="stretch">
           {PEERS.map((peerId) => {
-            const player =
-              peerId === 'player-x'
-                ? ('X' as const)
-                : peerId === 'player-o'
-                  ? ('O' as const)
-                  : null;
+            const player = peerPlayer(peerId);
             return (
               <Box
                 key={peerId}
                 style={panelWidth ? { width: panelWidth } : undefined}
               >
                 <PeerPanel
+                  peerId={peerId}
+                  role={peerRole(peerId)}
                   displayState={sim.getState(peerId)}
                   committedState={sim.getCommittedState(peerId)}
                   events={sim.getEventLog(peerId)}
                   isOnline={!disconnectedPeers.current.has(peerId)}
                   isBadActor={badActorIds.has(peerId)}
+                  isCheater={cheaterIds.has(peerId)}
                   player={player}
+                  actions={peerActions[peerId]}
                   onCellClick={
                     player ? (cell) => handleDispatch(peerId, cell) : undefined
                   }
@@ -240,6 +380,10 @@ export function PlaygroundPage() {
             );
           })}
         </Stack>
+
+        <Collapsible title={`Cheat Log (${cheatLog.length})`}>
+          <CheatLog entries={cheatLog} />
+        </Collapsible>
 
         <Collapsible title={`Message Log (${messageLog.length})`}>
           <MessageLog entries={messageLog} />

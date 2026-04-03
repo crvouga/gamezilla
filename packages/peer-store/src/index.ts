@@ -5,7 +5,7 @@ export { PeerStore } from './peer-store'
 export { ServerAuthority } from './server-authority'
 export { DeterministicSimulator, type AuthorityFactory } from './simulator'
 export { anyPeerSync, designatedSyncPeer } from './sync-policy'
-export { InMemoryBus, InMemoryTransport } from './transport'
+export { InMemoryBus, InMemoryTransport, type MessageInterceptor } from './transport'
 export type {
   Authority,
   AuthoritySink,
