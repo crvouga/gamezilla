@@ -238,7 +238,7 @@ describe('DeterministicSimulator', () => {
     sim.destroy();
   });
 
-  it('BUG: alternating disconnects — player-x never syncs after reconnect because playground rehydrates from player-x event log', () => {
+  it('alternating disconnects — player-x syncs after reconnect via transport replay', () => {
     const sim = createSim();
 
     // 1. player-o disconnects
@@ -252,16 +252,15 @@ describe('DeterministicSimulator', () => {
     expect(sim.getCommittedState('player-x')['currentTurn']).toBe('O');
     expect(sim.getCommittedState('worker')['currentTurn']).toBe('O');
 
-    // 3. player-o reconnects + rehydrates from player-x's event log (playground behavior)
+    // 3. player-o reconnects — transport replays missed messages, state converges
     sim.reconnectPeer('player-o');
-    sim.getStore('player-o').rehydrate(sim.getEventLog('player-x'));
     sim.assertConverged();
 
     // 4. player-x disconnects
     sim.disconnectPeer('player-x');
 
     // 5. player-o places mark — committed on player-o + worker (quorum 2/3)
-    //    player-x is disconnected and misses this command + votes
+    //    player-x is disconnected; transport queues the messages
     sim.dispatch('player-o', {
       type: 'PLACE_MARK',
       payload: { cell: 4, player: 'O' },
@@ -269,31 +268,26 @@ describe('DeterministicSimulator', () => {
     expect(sim.getCommittedState('player-o')['currentTurn']).toBe('X');
     expect(sim.getCommittedState('worker')['currentTurn']).toBe('X');
 
-    // 6. player-x reconnects + rehydrates from player-x's event log (playground behavior)
-    //    But player-x's log is stale — it never committed player-o's move
+    // 6. player-x reconnects — transport replays missed messages, player-x catches up
     sim.reconnectPeer('player-x');
-    const stale_events = sim.getEventLog('player-x');
-    expect(stale_events.length).toBe(1); // only the first move
-    sim.getStore('player-x').rehydrate(stale_events);
+    expect(sim.getEventLog('player-x').length).toBe(2);
+    expect(sim.getCommittedState('player-x')['currentTurn']).toBe('X');
 
-    // player-x thinks it's O's turn; everyone else knows it's X's turn
-    expect(sim.getCommittedState('player-x')['currentTurn']).toBe('O');
-    expect(sim.getCommittedState('player-o')['currentTurn']).toBe('X');
-
-    // player-x tries to move — WRONG_TURN because it thinks it's O's turn
+    // player-x can move
     sim.dispatch('player-x', {
       type: 'PLACE_MARK',
       payload: { cell: 1, player: 'X' },
     });
-    expect(sim.getErrorLog().some((e) => e.code === 'WRONG_TURN')).toBe(true);
+    expect(
+      sim.getErrorLog().filter((e) => e.code === 'WRONG_TURN').length
+    ).toBe(0);
 
-    // peers have diverged — player-x is stuck and can never catch up
     sim.assertConverged();
 
     sim.destroy();
   });
 
-  it('BUG: player disconnects after move, misses opponent move, rehydrates with stale events and cannot move', () => {
+  it('player disconnects after move, misses opponent move, syncs on reconnect via transport replay', () => {
     const sim = createSim();
 
     // player-x places mark — committed on all peers via synchronous delivery
@@ -307,51 +301,38 @@ describe('DeterministicSimulator', () => {
     sim.disconnectPeer('player-x');
 
     // player-o places mark — committed on player-o + worker (quorum 2/3)
-    // player-x is disconnected and never sees this command or the votes
+    // player-x is disconnected; transport queues the messages
     sim.dispatch('player-o', {
       type: 'PLACE_MARK',
       payload: { cell: 4, player: 'O' },
     });
 
     // Verify player-o and worker have both moves committed
-    const state_o = sim.getCommittedState('player-o');
-    expect((state_o['board'] as Array<null | string>)[4]).toBe('O');
-    expect(state_o['currentTurn']).toBe('X');
+    expect(
+      (sim.getCommittedState('player-o')['board'] as Array<null | string>)[4]
+    ).toBe('O');
+    expect(sim.getCommittedState('player-o')['currentTurn']).toBe('X');
 
-    // player-x's committed events are stale — only has the first move
-    const stale_events = sim.getEventLog('player-x');
-    expect(stale_events.length).toBe(1);
+    // player-x's committed events are stale while still disconnected
+    expect(sim.getEventLog('player-x').length).toBe(1);
 
-    // player-x reconnects and rehydrates from own stale committed events
+    // player-x reconnects — transport replays missed messages, player-x catches up
     sim.reconnectPeer('player-x');
-    sim.getStore('player-x').rehydrate(stale_events);
+    expect(sim.getEventLog('player-x').length).toBe(2);
+    expect(sim.getCommittedState('player-x')['currentTurn']).toBe('X');
+    expect(
+      (sim.getCommittedState('player-x')['board'] as Array<null | string>)[4]
+    ).toBe('O');
 
-    // player-x's state diverges from player-o — the board hasn't updated
-    const state_x_after = sim.getCommittedState('player-x');
-    expect(state_x_after['currentTurn']).toBe('O');
-    expect((state_x_after['board'] as Array<null | string>)[4]).toBeNull();
-
-    // player-x tries to place mark — WRONG_TURN because player-x thinks it's O's turn
+    // player-x can move
     sim.dispatch('player-x', {
       type: 'PLACE_MARK',
       payload: { cell: 1, player: 'X' },
     });
-    expect(sim.getErrorLog().some((e) => e.code === 'WRONG_TURN')).toBe(true);
-
-    // Repeated attempts all fail — player-x is stuck
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 2, player: 'X' },
-    });
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 3, player: 'X' },
-    });
     expect(
       sim.getErrorLog().filter((e) => e.code === 'WRONG_TURN').length
-    ).toBe(3);
+    ).toBe(0);
 
-    // The fundamental problem: peers have diverged and player-x can never catch up
     sim.assertConverged();
 
     sim.destroy();

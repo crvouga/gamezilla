@@ -109,6 +109,10 @@ export class InMemoryTransport implements Transport {
   private readonly unsubscribers: Array<() => void> = []
   private readonly outgoing_queue: Array<{ topic: string; payload: unknown }> =
     []
+  private readonly incoming_queue: Array<{
+    handler: (payload: unknown) => void
+    payload: unknown
+  }> = []
 
   constructor(bus: InMemoryBus, peerId: string) {
     crash.nonEmptyString(peerId, 'peerId must be non-empty string')
@@ -128,9 +132,13 @@ export class InMemoryTransport implements Transport {
   reconnect(): void {
     crash.ok(!this.is_connected, 'peer is not disconnected')
     this.is_connected = true
-    const snapshot = this.outgoing_queue.splice(0, this.outgoing_queue.length)
-    for (const msg of snapshot) {
+    const outgoing = this.outgoing_queue.splice(0, this.outgoing_queue.length)
+    for (const msg of outgoing) {
       this.bus.publish(msg.topic, msg.payload)
+    }
+    const incoming = this.incoming_queue.splice(0, this.incoming_queue.length)
+    for (const msg of incoming) {
+      msg.handler(msg.payload)
     }
   }
 
@@ -150,7 +158,10 @@ export class InMemoryTransport implements Transport {
     crash.ok(typeof handler === 'function', 'handler must be a function')
 
     const wrappedHandler = (payload: unknown) => {
-      if (!this.is_connected) return
+      if (!this.is_connected) {
+        this.incoming_queue.push({ handler, payload })
+        return
+      }
       handler(payload)
     }
 
