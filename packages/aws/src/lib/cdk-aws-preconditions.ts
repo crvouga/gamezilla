@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import type * as ec2 from 'aws-cdk-lib/aws-ec2';
 
 /**
@@ -182,6 +183,59 @@ export function assertFargateTaskResources(opts: {
       `Fix: Choose a valid cpu/memory combination. ` +
       `See https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-cpu-memory-error.html`
   );
+}
+
+/**
+ * Bun v1.x silently drops `compilerOptions.paths` from any tsconfig that uses `extends`.
+ * The root tsconfig must own the path aliases; child configs must NOT redefine them.
+ * If this invariant breaks, every ECS container will crash on startup with
+ * "Cannot find module '@gamezilla/…'" and the deployment circuit breaker fires.
+ */
+export function assertDockerEntrypointTsconfigPaths(repoRoot: string): void {
+  const appTsconfigPath = `${repoRoot}/packages/app/tsconfig.json`;
+  const rootTsconfigPath = `${repoRoot}/tsconfig.json`;
+
+  let appTsconfig: Record<string, unknown>;
+  let rootTsconfig: Record<string, unknown>;
+  try {
+    appTsconfig = JSON.parse(readFileSync(appTsconfigPath, 'utf-8'));
+  } catch (e) {
+    assert.fail(
+      `Cannot read ${appTsconfigPath}: ${e instanceof Error ? e.message : e}. ` +
+        `Fix: Ensure packages/app/tsconfig.json exists and is valid JSON.`
+    );
+  }
+  try {
+    rootTsconfig = JSON.parse(readFileSync(rootTsconfigPath, 'utf-8'));
+  } catch (e) {
+    assert.fail(
+      `Cannot read ${rootTsconfigPath}: ${e instanceof Error ? e.message : e}. ` +
+        `Fix: Ensure the root tsconfig.json exists and is valid JSON.`
+    );
+  }
+
+  if (appTsconfig['extends']) {
+    const paths = (appTsconfig['compilerOptions'] as Record<string, unknown> | undefined)?.['paths'];
+    assert.ok(
+      paths === undefined || Object.keys(paths as Record<string, unknown>).length === 0,
+      `packages/app/tsconfig.json has both "extends" and "compilerOptions.paths". ` +
+        `Bun silently ignores child paths when extends is used — every ECS container will crash. ` +
+        `Fix: Remove "paths" from packages/app/tsconfig.json; the root tsconfig already has them.`
+    );
+  }
+
+  const rootPaths = (rootTsconfig['compilerOptions'] as Record<string, unknown> | undefined)?.['paths'] as
+    | Record<string, unknown>
+    | undefined;
+  const requiredPrefixes = ['@gamezilla/shared/*', '@gamezilla/patch-db/*', '@gamezilla/peer-store/*'];
+  for (const prefix of requiredPrefixes) {
+    assert.ok(
+      rootPaths?.[prefix] !== undefined,
+      `Root tsconfig.json is missing paths entry "${prefix}". ` +
+        `Bun resolves workspace imports via tsconfig paths — without it, ECS containers will crash. ` +
+        `Fix: Add "${prefix}" to the root tsconfig.json compilerOptions.paths.`
+    );
+  }
 }
 
 /**

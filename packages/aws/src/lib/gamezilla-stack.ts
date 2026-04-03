@@ -9,7 +9,10 @@ import {
   AssertEcsServiceHealthCheckConfig,
   AssertSecurityGroupHasRules,
 } from './cdk-aspects';
-import { assertAwsEc2SecurityGroupDescription } from './cdk-aws-preconditions';
+import {
+  assertAwsEc2SecurityGroupDescription,
+  assertDockerEntrypointTsconfigPaths,
+} from './cdk-aws-preconditions';
 import { AppDatabase } from './database';
 import { AppVpc } from './vpc';
 import { WorkerService } from './worker';
@@ -41,6 +44,8 @@ export class GamezillaStack extends cdk.Stack {
     for (const [k, v] of Object.entries(RESOURCE_TAGS)) {
       cdk.Tags.of(this).add(k, v);
     }
+
+    assertDockerEntrypointTsconfigPaths(REPO_ROOT);
 
     cdk.Aspects.of(this).add(new AssertNlbSecurityGroupRules());
     cdk.Aspects.of(this).add(new AssertEcsServiceHealthCheckConfig());
