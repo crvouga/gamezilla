@@ -25,6 +25,7 @@ function createSim(opts?: { consensusTimeoutMs?: number; quorum?: number }) {
   return new DeterministicSimulator(TicTacToeModule, {
     peers: PEERS,
     advanceTime: (ms) => jest.advanceTimersByTime(ms),
+    authority: 'worker',
     ...opts,
   });
 }
@@ -114,7 +115,7 @@ describe('DeterministicSimulator', () => {
       type: 'PLACE_MARK',
       payload: { cell: 0, player: 'X' },
     });
-    sim.reconnectPeer('player-o', { rehydrateFrom: 'worker' });
+    sim.reconnectPeer('player-o');
 
     const state_o = sim.getCommittedState('player-o');
     expect((state_o['board'] as Array<null | string>)[0]).toBe('X');

@@ -1,7 +1,8 @@
 import { Assert } from '@gamezilla/shared/assert'
+import { designatedAuthority } from './authority'
 import { PeerStore } from './peer-store'
 import { InMemoryBus, InMemoryTransport } from './transport'
-import type { Event, Message, State, StoreModule } from './types'
+import type { AuthorityPolicy, Event, Message, State, StoreModule } from './types'
 
 const crash: Assert = Assert.crash()
 
@@ -16,6 +17,7 @@ type MessageLogEntry = {
 export class DeterministicSimulator {
   private readonly module: StoreModule
   private readonly peer_ids: string[]
+  private readonly authority: AuthorityPolicy | undefined
   private readonly bus: InMemoryBus
   private readonly transports = new Map<string, InMemoryTransport>()
   private readonly stores = new Map<string, PeerStore>()
@@ -37,6 +39,7 @@ export class DeterministicSimulator {
       quorum?: number
       consensusTimeoutMs?: number
       advanceTime?: (ms: number) => void
+      authority?: AuthorityPolicy | string
     },
   ) {
     crash.ok(config.peers.length >= 2, 'simulator requires at least 2 peers')
@@ -46,6 +49,12 @@ export class DeterministicSimulator {
     this.advanceTimeFn = config.advanceTime ?? (() => {
       crash.fail('advanceTime requires a config.advanceTime function')
     })
+
+    this.authority =
+      typeof config.authority === 'string'
+        ? designatedAuthority(config.authority)
+        : config.authority
+
     this.bus = new InMemoryBus()
 
     for (const peerId of this.peer_ids) {
@@ -60,6 +69,7 @@ export class DeterministicSimulator {
           transport,
           ...(config.quorum !== undefined ? { quorum: config.quorum } : {}),
           ...(config.consensusTimeoutMs !== undefined ? { consensusTimeoutMs: config.consensusTimeoutMs } : {}),
+          ...(this.authority !== undefined ? { authority: this.authority } : {}),
         },
         {
           onBadActor: (badPeerId, commandId) => {
@@ -135,7 +145,7 @@ export class DeterministicSimulator {
     transport.disconnect()
   }
 
-  reconnectPeer(peerId: string, opts?: { rehydrateFrom?: string }): void {
+  reconnectPeer(peerId: string): void {
     crash.ok(
       !this.is_destroyed,
       'cannot reconnect peer on destroyed simulator',
@@ -143,13 +153,6 @@ export class DeterministicSimulator {
     this.assertPeerExists(peerId)
     const transport = this.transports.get(peerId)!
     transport.reconnect()
-
-    const source = opts?.rehydrateFrom
-    if (source !== undefined) {
-      this.assertPeerExists(source)
-      const events = this.stores.get(source)!.getCommittedEvents()
-      this.stores.get(peerId)!.rehydrate(events)
-    }
   }
 
   assertConverged(): void {
@@ -233,6 +236,7 @@ export class DeterministicSimulator {
           peerId,
           peers: this.peer_ids,
           transport,
+          ...(this.authority !== undefined ? { authority: this.authority } : {}),
         },
         {
           onBadActor: (badPeerId, commandId) => {

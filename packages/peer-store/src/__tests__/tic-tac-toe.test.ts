@@ -27,6 +27,7 @@ function createSim(opts?: { consensusTimeoutMs?: number }) {
     peers: PEERS,
     consensusTimeoutMs: opts?.consensusTimeoutMs ?? 5000,
     advanceTime: (ms) => jest.advanceTimersByTime(ms),
+    authority: 'worker',
   });
 }
 
@@ -287,7 +288,7 @@ describe('TicTacToe integration', () => {
     sim.destroy();
   });
 
-  it('reconnect after partition: Player O rehydrates, state converges', () => {
+  it('reconnect after partition: Player O syncs via authority, state converges', () => {
     const sim = createSim();
     sim.disconnectPeer('player-o');
     sim.dispatch('player-x', {
@@ -295,7 +296,7 @@ describe('TicTacToe integration', () => {
       payload: { cell: 0, player: 'X' },
     });
 
-    sim.reconnectPeer('player-o', { rehydrateFrom: 'worker' });
+    sim.reconnectPeer('player-o');
 
     sim.assertConverged();
     sim.destroy();
@@ -361,7 +362,7 @@ describe('TicTacToe integration', () => {
     sim.destroy();
   });
 
-  it('player O move preserved when rehydrating from worker events after reconnect', () => {
+  it('player O move preserved when syncing from authority after reconnect', () => {
     const sim = createSim();
 
     sim.dispatch('player-x', {
@@ -378,7 +379,7 @@ describe('TicTacToe integration', () => {
       payload: { cell: 4, player: 'O' },
     });
 
-    sim.reconnectPeer('player-o', { rehydrateFrom: 'worker' });
+    sim.reconnectPeer('player-o');
 
     expect(board(sim.getCommittedState('worker'))[4]).toBe('O');
     expect(board(sim.getState('player-o'))[4]).toBe('O');

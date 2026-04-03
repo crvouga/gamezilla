@@ -44,17 +44,23 @@ export type StoreModule = {
   reduce(state: State, event: Event): State
 }
 
+export type AuthorityPolicy = {
+  isAuthority(localPeerId: string, allPeers: string[]): boolean
+}
+
 export interface PeerStoreApi {
   dispatch(message: Message): void
   dispatchOptimistic(event: Event): void
   subscribe(callback: (state: State) => void): () => void
   getState(): State
   rehydrate(events: Event[]): void
+  requestSync(): void
   destroy(): void
 }
 
 export interface Transport {
   publish(topic: string, payload: unknown, options?: { qos?: 0 | 1 }): void
   subscribe(topic: string, handler: (payload: unknown) => void): () => void
+  onConnect(handler: () => void): () => void
   destroy(): void
 }

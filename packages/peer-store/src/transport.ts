@@ -107,6 +107,7 @@ export class InMemoryTransport implements Transport {
   private is_connected = true
   private is_destroyed = false
   private readonly unsubscribers: Array<() => void> = []
+  private readonly connect_handlers = new Set<() => void>()
   private readonly outgoing_queue: Array<{ topic: string; payload: unknown }> =
     []
   private readonly incoming_queue: Array<{
@@ -139,6 +140,18 @@ export class InMemoryTransport implements Transport {
     const incoming = this.incoming_queue.splice(0, this.incoming_queue.length)
     for (const msg of incoming) {
       msg.handler(msg.payload)
+    }
+    for (const handler of [...this.connect_handlers]) {
+      handler()
+    }
+  }
+
+  onConnect(handler: () => void): () => void {
+    crash.ok(!this.is_destroyed, 'cannot onConnect on destroyed transport')
+    crash.ok(typeof handler === 'function', 'handler must be a function')
+    this.connect_handlers.add(handler)
+    return () => {
+      this.connect_handlers.delete(handler)
     }
   }
 
@@ -177,5 +190,6 @@ export class InMemoryTransport implements Transport {
       unsub()
     }
     this.unsubscribers.length = 0
+    this.connect_handlers.clear()
   }
 }

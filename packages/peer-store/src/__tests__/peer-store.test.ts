@@ -9,9 +9,10 @@ import {
   jest,
 } from 'bun:test'
 import { Assert } from '@gamezilla/shared/assert'
+import { anyPeerAuthority, designatedAuthority } from '../authority'
 import { PeerStore } from '../peer-store'
 import { InMemoryBus, InMemoryTransport } from '../transport'
-import type { Event, HandleResult, State, StoreModule } from '../types'
+import type { AuthorityPolicy, Event, HandleResult, State, StoreModule } from '../types'
 import { TicTacToeModule } from '../__fixtures__/tic-tac-toe.module'
 import { TestCrashHandler } from './test-crash-handler'
 
@@ -25,13 +26,18 @@ afterAll(() => disposeCrashHandler())
 
 const PEERS = ['player-x', 'player-o', 'worker']
 
-function setup(opts?: { quorum?: number; consensusTimeoutMs?: number }) {
+function setup(opts?: {
+  quorum?: number
+  consensusTimeoutMs?: number
+  authority?: AuthorityPolicy
+}) {
   const bus = new InMemoryBus()
   const transports = new Map<string, InMemoryTransport>()
   const stores = new Map<string, PeerStore>()
   const bad_actors: Array<{ peerId: string; commandId: string }> = []
   const timeouts: string[] = []
   const errors: Array<{ code: string; message: string }> = []
+  const syncs: string[] = []
 
   for (const peerId of PEERS) {
     const transport = new InMemoryTransport(bus, peerId)
@@ -45,18 +51,20 @@ function setup(opts?: { quorum?: number; consensusTimeoutMs?: number }) {
         transport,
         ...(opts?.quorum !== undefined ? { quorum: opts.quorum } : {}),
         ...(opts?.consensusTimeoutMs !== undefined ? { consensusTimeoutMs: opts.consensusTimeoutMs } : {}),
+        ...(opts?.authority !== undefined ? { authority: opts.authority } : {}),
       },
       {
         onBadActor: (badPeerId, commandId) =>
           bad_actors.push({ peerId: badPeerId, commandId }),
         onTimeout: (commandId) => timeouts.push(commandId),
         onError: (error) => errors.push(error),
+        onSync: () => syncs.push(peerId),
       },
     )
     stores.set(peerId, store)
   }
 
-  return { bus, transports, stores, bad_actors, timeouts, errors }
+  return { bus, transports, stores, bad_actors, timeouts, errors, syncs }
 }
 
 describe('PeerStore', () => {

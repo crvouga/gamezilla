@@ -1,6 +1,7 @@
 import { Assert } from '@gamezilla/shared/assert'
 import { ConsensusProtocol } from './consensus-protocol'
 import type {
+  AuthorityPolicy,
   Command,
   Event,
   HandleResult,
@@ -23,18 +24,23 @@ type OptimisticEvent = Event & { readonly _commandId: string }
 type WireMessage =
   | { kind: 'command'; command: Command; events: Event[] }
   | { kind: 'vote'; vote: Vote }
+  | { kind: 'sync-request'; from: string }
+  | { kind: 'sync-response'; to: string; events: Event[] }
 
 export class PeerStore implements PeerStoreApi {
   private readonly module: StoreModule
   private readonly peerId: string
+  private readonly peers: string[]
   private readonly transport: Transport
   private readonly consensus: ConsensusProtocol
   private readonly consensusTimeoutMs: number
+  private readonly authority: AuthorityPolicy | null
 
   private readonly callbacks: {
     onBadActor?: (peerId: string, commandId: string) => void
     onTimeout?: (commandId: string) => void
     onError?: (error: { code: string; message: string }) => void
+    onSync?: () => void
   }
 
   private committed_state: State
@@ -42,6 +48,7 @@ export class PeerStore implements PeerStoreApi {
   private optimistic_events: OptimisticEvent[] = []
   private seq = 0
   private is_destroyed = false
+  private sync_pending = false
 
   private readonly subscribers = new Set<(state: State) => void>()
   private readonly pending_timeouts = new Map<
@@ -52,6 +59,7 @@ export class PeerStore implements PeerStoreApi {
   private readonly resolved_command_ids = new Set<string>()
 
   private transport_unsubscribe: (() => void) | null = null
+  private connect_unsubscribe: (() => void) | null = null
 
   constructor(
     module: StoreModule,
@@ -61,11 +69,13 @@ export class PeerStore implements PeerStoreApi {
       transport: Transport
       quorum?: number
       consensusTimeoutMs?: number
+      authority?: AuthorityPolicy
     },
     callbacks?: {
       onBadActor?: (peerId: string, commandId: string) => void
       onTimeout?: (commandId: string) => void
       onError?: (error: { code: string; message: string }) => void
+      onSync?: () => void
     },
   ) {
     crash.nonEmptyString(config.peerId, 'config.peerId must be non-empty')
@@ -81,8 +91,10 @@ export class PeerStore implements PeerStoreApi {
 
     this.module = module
     this.peerId = config.peerId
+    this.peers = [...config.peers]
     this.transport = config.transport
     this.consensusTimeoutMs = config.consensusTimeoutMs ?? 5000
+    this.authority = config.authority ?? null
     this.callbacks = callbacks ?? {}
 
     this.consensus = new ConsensusProtocol(config.peers, config.quorum)
@@ -96,6 +108,12 @@ export class PeerStore implements PeerStoreApi {
       TOPIC,
       (payload: unknown) => this.handleWireMessage(payload),
     )
+
+    if (this.authority) {
+      this.connect_unsubscribe = this.transport.onConnect(() => {
+        this.requestSync()
+      })
+    }
   }
 
   dispatch(message: Message): void {
@@ -221,6 +239,13 @@ export class PeerStore implements PeerStoreApi {
     return [...this.committed_events]
   }
 
+  requestSync(): void {
+    crash.ok(!this.is_destroyed, 'cannot requestSync on destroyed store')
+    this.sync_pending = true
+    const wire: WireMessage = { kind: 'sync-request', from: this.peerId }
+    this.transport.publish(TOPIC, wire)
+  }
+
   rehydrate(events: Event[]): void {
     crash.ok(!this.is_destroyed, 'cannot rehydrate on destroyed store')
     crash.array(events, 'events must be an array')
@@ -240,6 +265,12 @@ export class PeerStore implements PeerStoreApi {
     }
     this.pending_timeouts.clear()
     this.pending_command_events.clear()
+
+    for (const commandId of this.resolved_command_ids) {
+      this.consensus.reset(commandId)
+    }
+    this.resolved_command_ids.clear()
+
     this.notifySubscribers()
   }
 
@@ -256,6 +287,10 @@ export class PeerStore implements PeerStoreApi {
     if (this.transport_unsubscribe) {
       this.transport_unsubscribe()
       this.transport_unsubscribe = null
+    }
+    if (this.connect_unsubscribe) {
+      this.connect_unsubscribe()
+      this.connect_unsubscribe = null
     }
   }
 
@@ -286,6 +321,10 @@ export class PeerStore implements PeerStoreApi {
       this.handleIncomingCommand(msg as unknown as WireMessage & { kind: 'command' })
     } else if (msg['kind'] === 'vote') {
       this.handleIncomingVote(msg as unknown as WireMessage & { kind: 'vote' })
+    } else if (msg['kind'] === 'sync-request') {
+      this.handleSyncRequest(msg as unknown as WireMessage & { kind: 'sync-request' })
+    } else if (msg['kind'] === 'sync-response') {
+      this.handleSyncResponse(msg as unknown as WireMessage & { kind: 'sync-response' })
     }
   }
 
@@ -402,6 +441,31 @@ export class PeerStore implements PeerStoreApi {
     }
 
     this.notifySubscribers()
+  }
+
+  private handleSyncRequest(
+    wire: WireMessage & { kind: 'sync-request' },
+  ): void {
+    if (wire.from === this.peerId) return
+    if (!this.authority) return
+    if (!this.authority.isAuthority(this.peerId, this.peers)) return
+
+    const response: WireMessage = {
+      kind: 'sync-response',
+      to: wire.from,
+      events: this.getCommittedEvents(),
+    }
+    this.transport.publish(TOPIC, response)
+  }
+
+  private handleSyncResponse(
+    wire: WireMessage & { kind: 'sync-response' },
+  ): void {
+    if (wire.to !== this.peerId) return
+    if (!this.sync_pending) return
+    this.sync_pending = false
+    this.rehydrate(wire.events)
+    this.callbacks.onSync?.()
   }
 
   private assertHandleResult(result: HandleResult): void {

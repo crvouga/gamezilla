@@ -27,6 +27,7 @@ export class PlaygroundSimulator {
     return new DeterministicSimulator(TicTacToeModule, {
       peers: [...PEERS],
       consensusTimeoutMs: 5000,
+      authority: 'worker',
     })
   }
 
@@ -71,8 +72,8 @@ export class PlaygroundSimulator {
   }
 
   reconnectPeer(peerId: PeerId): void {
-    this.sim.reconnectPeer(peerId, { rehydrateFrom: 'worker' })
-    this.log(peerId, 'commit', `${peerId} reconnected + rehydrated`)
+    this.sim.reconnectPeer(peerId)
+    this.log(peerId, 'commit', `${peerId} reconnected + synced`)
     this.notify()
   }
 
