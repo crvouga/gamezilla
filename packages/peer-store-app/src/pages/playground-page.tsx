@@ -1,5 +1,3 @@
-import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react';
-import { useWindowDimensions } from 'react-native';
 import {
   Box,
   Button,
@@ -8,6 +6,8 @@ import {
   Stack,
   Text,
 } from '@gamezilla/shared/ui';
+import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react';
+import { useWindowDimensions } from 'react-native';
 import { EventLog } from '../components/event-log';
 import { MessageLog } from '../components/message-log';
 import { PeerPanel } from '../components/peer-panel';
@@ -28,11 +28,15 @@ export function PlaygroundPage() {
 
   const versionRef = useRef(0);
   const tick = useSyncExternalStore(
-    useCallback((cb) => sim.subscribe(() => {
-      versionRef.current += 1;
-      cb();
-    }), [sim]),
-    useCallback(() => versionRef.current, []),
+    useCallback(
+      (cb) =>
+        sim.subscribe(() => {
+          versionRef.current += 1;
+          cb();
+        }),
+      [sim]
+    ),
+    useCallback(() => versionRef.current, [])
   );
   void tick;
 
@@ -51,29 +55,41 @@ export function PlaygroundPage() {
         /* error logged via onError callback */
       }
     },
-    [sim],
+    [sim]
   );
 
   const handlePause = useCallback(() => {
     try {
       sim.pauseDelivery();
       isPaused.current = true;
-    } catch { /* already paused */ }
+    } catch {
+      /* already paused */
+    }
   }, [sim]);
 
   const handleResume = useCallback(() => {
     try {
       sim.resumeDelivery();
       isPaused.current = false;
-    } catch { /* not paused */ }
+    } catch {
+      /* not paused */
+    }
   }, [sim]);
 
   const handleDrop = useCallback(() => {
-    try { sim.dropNextMessage(); } catch { /* no messages */ }
+    try {
+      sim.dropNextMessage();
+    } catch {
+      /* no messages */
+    }
   }, [sim]);
 
   const handleAdvance = useCallback(() => {
-    try { sim.advanceTime(5001); } catch { /* ignore */ }
+    try {
+      sim.advanceTime(5001);
+    } catch {
+      /* ignore */
+    }
   }, [sim]);
 
   const handleDisconnect = useCallback(
@@ -81,9 +97,11 @@ export function PlaygroundPage() {
       try {
         sim.disconnectPeer(peerId as PeerId);
         disconnectedPeers.current.add(peerId);
-      } catch { /* already disconnected */ }
+      } catch {
+        /* already disconnected */
+      }
     },
-    [sim],
+    [sim]
   );
 
   const handleReconnect = useCallback(
@@ -91,9 +109,11 @@ export function PlaygroundPage() {
       try {
         sim.reconnectPeer(peerId as PeerId);
         disconnectedPeers.current.delete(peerId);
-      } catch { /* not disconnected */ }
+      } catch {
+        /* not disconnected */
+      }
     },
-    [sim],
+    [sim]
   );
 
   const handleReset = useCallback(() => {
@@ -125,7 +145,11 @@ export function PlaygroundPage() {
         type: 'PLACE_MARK',
         payload: { cell: 0, player: 'X' },
       });
-      try { sim.advanceTime(5001); } catch { /* ignore */ }
+      try {
+        sim.advanceTime(5001);
+      } catch {
+        /* ignore */
+      }
     }, 50);
   }, [sim, handleReset]);
 
@@ -138,9 +162,8 @@ export function PlaygroundPage() {
 
   const { width } = useWindowDimensions();
   const columns = Math.max(1, Math.floor(width / PANEL_MIN_WIDTH));
-  const panelWidth = columns > 1
-    ? (width - 32 - (columns - 1) * 12) / columns
-    : undefined;
+  const panelWidth =
+    columns > 1 ? (width - 32 - (columns - 1) * 12) / columns : undefined;
 
   return (
     <ScrollView sx={{ flex: 1, px: 4, py: 3 }}>
@@ -154,11 +177,36 @@ export function PlaygroundPage() {
               size="sm"
               onPress={isPaused.current ? handleResume : handlePause}
             />
-            <Button title="Drop next" variant="outlined" size="sm" onPress={handleDrop} />
-            <Button title="Advance 5s" variant="outlined" size="sm" onPress={handleAdvance} />
-            <Button title="Reset" variant="outlined" size="sm" onPress={handleReset} />
-            <Button title="Partition" variant="outlined" size="sm" onPress={handleScenarioPartition} />
-            <Button title="Timeout" variant="outlined" size="sm" onPress={handleScenarioTimeout} />
+            <Button
+              title="Drop next"
+              variant="outlined"
+              size="sm"
+              onPress={handleDrop}
+            />
+            <Button
+              title="Advance 5s"
+              variant="outlined"
+              size="sm"
+              onPress={handleAdvance}
+            />
+            <Button
+              title="Reset"
+              variant="outlined"
+              size="sm"
+              onPress={handleReset}
+            />
+            <Button
+              title="Partition"
+              variant="outlined"
+              size="sm"
+              onPress={handleScenarioPartition}
+            />
+            <Button
+              title="Timeout"
+              variant="outlined"
+              size="sm"
+              onPress={handleScenarioTimeout}
+            />
           </Stack>
         </Stack>
 
@@ -183,9 +231,7 @@ export function PlaygroundPage() {
                   isBadActor={badActorIds.has(peerId)}
                   player={player}
                   onCellClick={
-                    player
-                      ? (cell) => handleDispatch(peerId, cell)
-                      : undefined
+                    player ? (cell) => handleDispatch(peerId, cell) : undefined
                   }
                   onDisconnect={() => handleDisconnect(peerId)}
                   onReconnect={() => handleReconnect(peerId)}
