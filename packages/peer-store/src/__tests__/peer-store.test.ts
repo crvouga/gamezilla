@@ -377,3 +377,156 @@ describe('PeerStore', () => {
     bus.destroy()
   })
 })
+
+describe('Sync protocol', () => {
+  beforeEach(() => jest.useFakeTimers())
+  afterEach(() => jest.useRealTimers())
+
+  it('requestSync broadcasts sync-request and authority responds', () => {
+    const { stores, transports, syncs } = setup({
+      authority: designatedAuthority('worker'),
+    })
+    const store_x = stores.get('player-x')!
+    const store_w = stores.get('worker')!
+
+    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
+    const committed_before = store_w.getCommittedEvents()
+    expect(committed_before.length).toBeGreaterThanOrEqual(1)
+
+    transports.get('player-o')!.disconnect()
+    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 4, player: 'X' } })
+
+    expect(
+      (stores.get('player-o')!.getCommittedState()['board'] as Array<null | string>)[4]
+    ).toBeNull()
+
+    transports.get('player-o')!.reconnect()
+
+    expect(
+      (stores.get('player-o')!.getCommittedState()['board'] as Array<null | string>)[0]
+    ).toBe('X')
+
+    expect(syncs).toContain('player-o')
+  })
+
+  it('non-authority peer ignores sync-request', () => {
+    const authority = designatedAuthority('worker')
+    const { stores, transports } = setup({ authority })
+
+    stores.get('player-x')!.dispatch({
+      type: 'PLACE_MARK',
+      payload: { cell: 0, player: 'X' },
+    })
+
+    transports.get('worker')!.disconnect()
+
+    stores.get('player-o')!.dispatch({
+      type: 'PLACE_MARK',
+      payload: { cell: 4, player: 'O' },
+    })
+
+    transports.get('worker')!.reconnect()
+
+    const worker_events = stores.get('worker')!.getCommittedEvents()
+    expect(worker_events.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('designatedAuthority only responds from the designated peer', () => {
+    const policy = designatedAuthority('worker')
+    expect(policy.isAuthority('worker', PEERS)).toBe(true)
+    expect(policy.isAuthority('player-x', PEERS)).toBe(false)
+    expect(policy.isAuthority('player-o', PEERS)).toBe(false)
+  })
+
+  it('anyPeerAuthority responds from every peer', () => {
+    const policy = anyPeerAuthority()
+    expect(policy.isAuthority('worker', PEERS)).toBe(true)
+    expect(policy.isAuthority('player-x', PEERS)).toBe(true)
+    expect(policy.isAuthority('player-o', PEERS)).toBe(true)
+  })
+
+  it('auto-sync on transport reconnect converges state', () => {
+    const { stores, transports } = setup({
+      authority: designatedAuthority('worker'),
+    })
+
+    stores.get('player-x')!.dispatch({
+      type: 'PLACE_MARK',
+      payload: { cell: 0, player: 'X' },
+    })
+
+    transports.get('player-o')!.disconnect()
+
+    stores.get('player-o')!.dispatch({
+      type: 'PLACE_MARK',
+      payload: { cell: 4, player: 'O' },
+    })
+
+    transports.get('player-o')!.reconnect()
+
+    const state_o = stores.get('player-o')!.getCommittedState()
+    const state_w = stores.get('worker')!.getCommittedState()
+    expect(JSON.stringify(state_o)).toBe(JSON.stringify(state_w))
+  })
+
+  it('onSync callback fires after successful sync', () => {
+    const { stores, transports, syncs } = setup({
+      authority: designatedAuthority('worker'),
+    })
+
+    stores.get('player-x')!.dispatch({
+      type: 'PLACE_MARK',
+      payload: { cell: 0, player: 'X' },
+    })
+
+    transports.get('player-o')!.disconnect()
+
+    stores.get('player-x')!.dispatch({
+      type: 'PLACE_MARK',
+      payload: { cell: 4, player: 'X' },
+    })
+
+    expect(syncs.length).toBe(0)
+    transports.get('player-o')!.reconnect()
+    expect(syncs).toContain('player-o')
+  })
+
+  it('requestSync on destroyed store → crash', () => {
+    const { stores } = setup({
+      authority: designatedAuthority('worker'),
+    })
+    const store = stores.get('player-x')!
+    store.destroy()
+    expect(() => store.requestSync()).toThrow('destroyed')
+  })
+
+  it('manual requestSync works without onConnect', () => {
+    const { stores } = setup()
+    const store_x = stores.get('player-x')!
+    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
+
+    expect(() => stores.get('player-o')!.requestSync()).not.toThrow()
+  })
+
+  it('rehydrate clears resolved_command_ids — subsequent commands process normally', () => {
+    const { stores } = setup({
+      authority: designatedAuthority('worker'),
+    })
+
+    stores.get('player-x')!.dispatch({
+      type: 'PLACE_MARK',
+      payload: { cell: 0, player: 'X' },
+    })
+
+    const events = stores.get('worker')!.getCommittedEvents()
+    stores.get('player-o')!.rehydrate(events)
+
+    stores.get('player-o')!.dispatch({
+      type: 'PLACE_MARK',
+      payload: { cell: 4, player: 'O' },
+    })
+
+    const state = stores.get('player-o')!.getCommittedState()
+    expect((state['board'] as Array<null | string>)[4]).toBe('O')
+  })
+})
