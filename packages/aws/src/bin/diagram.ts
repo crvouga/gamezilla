@@ -118,6 +118,12 @@ for (const [logicalId, resource] of Object.entries(template.Resources)) {
   }
 }
 
+// Runtime edges not captured by CloudFormation references (e.g. the web app's
+// JavaScript calls the req-res API and connects to the MQTT broker at runtime).
+for (const edge of ['WebApp -> ReqRes', 'WebApp -> Emqx']) {
+  edgeSet.add(edge);
+}
+
 // ---------------------------------------------------------------------------
 // 3. Emit Graphviz .dot
 // ---------------------------------------------------------------------------
@@ -141,6 +147,21 @@ for (const n of nodes) {
   const list = nodesByTier.get(n.tier) ?? [];
   list.push(n);
   nodesByTier.set(n.tier, list);
+}
+
+// Left-to-right node order within tiers to minimise edge crossings.
+const TIER_NODE_ORDER: Record<string, string[]> = {
+  compute: ['ReqRes', 'Emqx', 'Worker'],
+};
+for (const [tier, order] of Object.entries(TIER_NODE_ORDER)) {
+  const tierNodes = nodesByTier.get(tier);
+  if (tierNodes) {
+    tierNodes.sort((a, b) => {
+      const ai = order.indexOf(a.id);
+      const bi = order.indexOf(b.id);
+      return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi);
+    });
+  }
 }
 
 let dot = `digraph Architecture {
@@ -233,12 +254,20 @@ if (networkTier.length > 0) {
   }
 }
 
+// Keep intra-cluster edges from pulling nodes to different ranks; this
+// prevents the K_{2,2} bipartite crossing between {ReqRes,Worker}→{Emqx,Database}.
+const EDGE_OVERRIDES: Record<string, string> = {
+  'ReqRes -> Emqx': 'constraint=false',
+  'Worker -> Emqx': 'constraint=false',
+};
+
 for (const edge of [...edgeSet].sort()) {
   const parts = edge.split(' -> ');
   const from = parts[0];
   const to = parts[1];
   if (networkNodeIds.has(from) || networkNodeIds.has(to)) continue;
-  dot += `  ${edge};\n`;
+  const attrs = EDGE_OVERRIDES[edge];
+  dot += attrs ? `  ${edge} [${attrs}];\n` : `  ${edge};\n`;
 }
 
 dot += `}\n`;
