@@ -6,6 +6,7 @@ import { runStep } from './ci-platform';
 import { CDK_BOOTSTRAP_CLOUDFORMATION_EXECUTION_POLICY } from './cdk-bootstrap-flags';
 import { CDK_DEPLOY_CONTEXT_ARGS } from './cdk-deploy-context';
 import { failWithEvents } from './cfn-shared';
+import { diagnoseEcsFailures } from './ecs-diagnostics';
 import { AWS_PACKAGE_ROOT } from './paths';
 import { run } from './run-subprocess';
 
@@ -55,13 +56,22 @@ export class CdkDeployCommand extends BasePipelineCommand {
       );
       this.platform.notice('CDK deploy finished.');
     } catch {
-      this.platform.error('CDK deploy failed — fetching CloudFormation events for diagnosis…');
+      this.platform.error('CDK deploy failed — running post-mortem diagnosis…');
       const client = cloudFormation(this.platform);
+
+      try {
+        await diagnoseEcsFailures(this.platform, client);
+      } catch (diagErr) {
+        this.platform.warning(
+          `ECS diagnosis could not complete: ${diagErr instanceof Error ? diagErr.message : String(diagErr)}`
+        );
+      }
+
       await failWithEvents(
         this.platform,
         client,
         'CDK deploy exited with a non-zero status.',
-        'Review the FAILED resources above. Run "bunx cdk deploy" locally to reproduce, or open the CloudFormation console to inspect the stack events.'
+        'Review the FAILED resources and container logs above. Run "bunx cdk deploy" locally to reproduce, or open the CloudFormation console to inspect the stack events.'
       );
     }
   }

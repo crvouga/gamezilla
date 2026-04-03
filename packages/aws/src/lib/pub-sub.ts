@@ -101,13 +101,15 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
       ],
       environment: {
         EMQX_NODE__NAME: 'emqx@127.0.0.1',
+        EMQX_LOG__CONSOLE__LEVEL: 'info',
+        EMQX_LOG__CONSOLE__FORMATTER: 'text',
       },
       healthCheck: {
         command: ['CMD-SHELL', 'emqx ping || exit 1'],
-        interval: cdk.Duration.seconds(10),
-        timeout: cdk.Duration.seconds(5),
-        retries: 3,
-        startPeriod: cdk.Duration.seconds(30),
+        interval: cdk.Duration.seconds(30),
+        timeout: cdk.Duration.seconds(10),
+        retries: 5,
+        startPeriod: cdk.Duration.seconds(120),
       },
     });
 
@@ -127,7 +129,7 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
         dnsRecordType: servicediscovery.DnsRecordType.A,
       },
       enableExecuteCommand: true,
-      healthCheckGracePeriod: cdk.Duration.seconds(60),
+      healthCheckGracePeriod: cdk.Duration.seconds(180),
     });
 
     for (const clientSg of props.vpcClientSecurityGroups) {
@@ -161,9 +163,9 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
       healthCheck: {
         protocol: elbv2.Protocol.TCP,
         port: '1883',
-        interval: cdk.Duration.seconds(10),
+        interval: cdk.Duration.seconds(30),
         healthyThresholdCount: 2,
-        unhealthyThresholdCount: 2,
+        unhealthyThresholdCount: 3,
       },
     });
 
@@ -184,9 +186,9 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
       healthCheck: {
         protocol: elbv2.Protocol.TCP,
         port: '8083',
-        interval: cdk.Duration.seconds(10),
+        interval: cdk.Duration.seconds(30),
         healthyThresholdCount: 2,
-        unhealthyThresholdCount: 2,
+        unhealthyThresholdCount: 3,
       },
     });
 
