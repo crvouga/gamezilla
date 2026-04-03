@@ -120,7 +120,7 @@ for (const [logicalId, resource] of Object.entries(template.Resources)) {
 
 // Runtime edges not captured by CloudFormation references (e.g. the web app's
 // JavaScript calls the req-res API and connects to the MQTT broker at runtime).
-for (const edge of ['WebApp -> ReqRes', 'WebApp -> Emqx']) {
+for (const edge of ['WebApp -> ReqRes', 'WebApp -> Emqx', 'Worker -> Emqx']) {
   edgeSet.add(edge);
 }
 
@@ -173,7 +173,7 @@ let dot = `digraph Architecture {
     pad = 0.4
     nodesep = 0.6
     ranksep = 1.0
-    splines = "spline"
+    splines = "curved"
     compound = true
     newrank = true
   ];
@@ -258,7 +258,11 @@ if (networkTier.length > 0) {
 // prevents the K_{2,2} bipartite crossing between {ReqRes,Worker}→{Emqx,Database}.
 const EDGE_OVERRIDES: Record<string, string> = {
   'ReqRes -> Emqx': 'constraint=false',
-  'Worker -> Emqx': 'constraint=false',
+  'Worker -> Emqx': 'constraint=false tailport=sw headport=se',
+  'WebApp -> ReqRes': 'tailport=sw headport=n',
+  'WebApp -> Emqx': 'tailport=se headport=n',
+  'ReqRes -> Database': 'tailport=s headport=nw',
+  'Worker -> Database': 'tailport=s headport=ne',
 };
 
 for (const edge of [...edgeSet].sort()) {

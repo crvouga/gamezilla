@@ -39,6 +39,8 @@ export class PeerStore implements PeerStoreApi {
     onTimeout?: (commandId: string) => void
     onError?: (error: { code: string; message: string }) => void
     onSync?: () => void
+    onCommit?: (commandId: string, events: Event[]) => void
+    onReject?: (commandId: string) => void
   }
 
   private committed_state: State
@@ -73,6 +75,8 @@ export class PeerStore implements PeerStoreApi {
       onTimeout?: (commandId: string) => void
       onError?: (error: { code: string; message: string }) => void
       onSync?: () => void
+      onCommit?: (commandId: string, events: Event[]) => void
+      onReject?: (commandId: string) => void
     },
   ) {
     crash.nonEmptyString(config.peerId, 'config.peerId must be non-empty')
@@ -342,6 +346,7 @@ export class PeerStore implements PeerStoreApi {
       this.pending_timeouts.delete(commandId)
     }
 
+    this.callbacks.onCommit?.(commandId, events)
     this.notifySubscribers()
   }
 
@@ -359,6 +364,7 @@ export class PeerStore implements PeerStoreApi {
       this.pending_timeouts.delete(commandId)
     }
 
+    this.callbacks.onReject?.(commandId)
     this.notifySubscribers()
   }
 
