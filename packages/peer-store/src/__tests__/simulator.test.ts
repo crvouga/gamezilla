@@ -114,10 +114,7 @@ describe('DeterministicSimulator', () => {
       type: 'PLACE_MARK',
       payload: { cell: 0, player: 'X' },
     });
-    sim.reconnectPeer('player-o');
-
-    const events = sim.getEventLog('player-x');
-    sim.getStore('player-o').rehydrate(events);
+    sim.reconnectPeer('player-o', { rehydrateFrom: 'worker' });
 
     const state_o = sim.getCommittedState('player-o');
     expect((state_o['board'] as Array<null | string>)[0]).toBe('X');

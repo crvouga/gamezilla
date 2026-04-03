@@ -135,7 +135,7 @@ export class DeterministicSimulator {
     transport.disconnect()
   }
 
-  reconnectPeer(peerId: string): void {
+  reconnectPeer(peerId: string, opts?: { rehydrateFrom?: string }): void {
     crash.ok(
       !this.is_destroyed,
       'cannot reconnect peer on destroyed simulator',
@@ -143,6 +143,13 @@ export class DeterministicSimulator {
     this.assertPeerExists(peerId)
     const transport = this.transports.get(peerId)!
     transport.reconnect()
+
+    const source = opts?.rehydrateFrom
+    if (source !== undefined) {
+      this.assertPeerExists(source)
+      const events = this.stores.get(source)!.getCommittedEvents()
+      this.stores.get(peerId)!.rehydrate(events)
+    }
   }
 
   assertConverged(): void {

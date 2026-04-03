@@ -71,9 +71,7 @@ export class PlaygroundSimulator {
   }
 
   reconnectPeer(peerId: PeerId): void {
-    this.sim.reconnectPeer(peerId)
-    const events = this.sim.getEventLog('player-x')
-    this.sim.getStore(peerId).rehydrate(events)
+    this.sim.reconnectPeer(peerId, { rehydrateFrom: 'worker' })
     this.log(peerId, 'commit', `${peerId} reconnected + rehydrated`)
     this.notify()
   }

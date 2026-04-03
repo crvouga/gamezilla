@@ -295,9 +295,7 @@ describe('TicTacToe integration', () => {
       payload: { cell: 0, player: 'X' },
     });
 
-    sim.reconnectPeer('player-o');
-    const events = sim.getEventLog('player-x');
-    sim.getStore('player-o').rehydrate(events);
+    sim.reconnectPeer('player-o', { rehydrateFrom: 'worker' });
 
     sim.assertConverged();
     sim.destroy();
@@ -363,7 +361,7 @@ describe('TicTacToe integration', () => {
     sim.destroy();
   });
 
-  it('BUG: player O move disappears when rehydrating from stale player-x events after reconnect', () => {
+  it('player O move preserved when rehydrating from worker events after reconnect', () => {
     const sim = createSim();
 
     sim.dispatch('player-x', {
@@ -380,60 +378,11 @@ describe('TicTacToe integration', () => {
       payload: { cell: 4, player: 'O' },
     });
 
-    sim.reconnectPeer('player-o');
+    sim.reconnectPeer('player-o', { rehydrateFrom: 'worker' });
 
     expect(board(sim.getCommittedState('worker'))[4]).toBe('O');
-
-    // Rehydrate from player-x (what the playground does) — player-x is
-    // still offline and hasn't received O's move, so the events are stale.
-    const stale_events = sim.getEventLog('player-x');
-    sim.getStore('player-o').rehydrate(stale_events);
-
-    // O's move should still be visible after rehydrate because the worker
-    // committed it, but it disappears due to stale player-x events.
     expect(board(sim.getState('player-o'))[4]).toBe('O');
-
-    sim.destroy();
-  });
-
-  it('BUG: second reconnect of player O restores missing move after player-x catches up', () => {
-    const sim = createSim();
-
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    });
-    sim.assertConverged();
-
-    sim.disconnectPeer('player-x');
-    sim.disconnectPeer('player-o');
-
-    sim.dispatch('player-o', {
-      type: 'PLACE_MARK',
-      payload: { cell: 4, player: 'O' },
-    });
-
-    // First reconnect — rehydrate from stale player-x events.
-    sim.reconnectPeer('player-o');
-    const stale_events = sim.getEventLog('player-x');
-    sim.getStore('player-o').rehydrate(stale_events);
-
-    // O's move is gone.
-    expect(board(sim.getState('player-o'))[4]).toBeNull();
-
-    // X reconnects — processes O's queued messages, commits O's move.
-    sim.reconnectPeer('player-x');
-    const fresh_x_events = sim.getEventLog('player-x');
-    sim.getStore('player-x').rehydrate(fresh_x_events);
-
-    // Second reconnect of O — player-x events are now up to date.
-    sim.disconnectPeer('player-o');
-    sim.reconnectPeer('player-o');
-    const fresh_events = sim.getEventLog('player-x');
-    sim.getStore('player-o').rehydrate(fresh_events);
-
-    // O's move is back.
-    expect(board(sim.getState('player-o'))[4]).toBe('O');
+    expect(sim.getCommittedState('player-o')['currentTurn']).toBe('X');
 
     sim.destroy();
   });
