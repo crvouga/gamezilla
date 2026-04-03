@@ -8,10 +8,8 @@ import {
 } from '@gamezilla/shared/ui';
 import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react';
 import { useWindowDimensions } from 'react-native';
-import { CheatLog } from '../components/cheat-log';
-import { EventLog } from '../components/event-log';
-import { MessageLog } from '../components/message-log';
 import { PeerPanel, type PeerAction } from '../components/peer-panel';
+import { SimulatorLog } from '../components/simulator-log';
 import {
   PEERS,
   PlaygroundSimulator,
@@ -254,19 +252,23 @@ export function PlaygroundPage() {
     return new Set(sim.getBadActorLog().map((e) => e.peerId));
   }, [tick, sim]);
 
-  const cheatLog = sim.getCheatLog();
+  const log = sim.getLog();
   const cheaterIds = useMemo(() => {
     const ids = new Set<string>();
-    for (const entry of cheatLog) {
-      if (!entry.detected && entry.peerId && entry.peerId !== 'wire') {
+    for (const entry of log) {
+      if (entry.kind === 'cheat' && !entry.detected && entry.peerId && entry.peerId !== 'wire') {
         ids.add(entry.peerId);
       }
     }
     return ids;
-  }, [cheatLog]);
+  }, [log]);
 
-  const messageLog = sim.getMessageLog();
-  const eventLog = sim.getEventLog('player-x');
+  const handleCopyLog = useCallback(() => {
+    const text = sim.formatLogForClipboard();
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(text).catch(() => {});
+    }
+  }, [sim, tick]);
 
   const { width } = useWindowDimensions();
   const columns = Math.max(1, Math.floor(width / PANEL_MIN_WIDTH));
@@ -381,16 +383,8 @@ export function PlaygroundPage() {
           })}
         </Stack>
 
-        <Collapsible title={`Cheat Log (${cheatLog.length})`}>
-          <CheatLog entries={cheatLog} />
-        </Collapsible>
-
-        <Collapsible title={`Message Log (${messageLog.length})`}>
-          <MessageLog entries={messageLog} />
-        </Collapsible>
-
-        <Collapsible title={`Committed Events (${eventLog.length})`}>
-          <EventLog events={eventLog} />
+        <Collapsible title={`Log (${log.length})`} defaultOpen>
+          <SimulatorLog entries={log} onCopy={handleCopyLog} />
         </Collapsible>
       </Stack>
     </ScrollView>

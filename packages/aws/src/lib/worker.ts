@@ -6,6 +6,7 @@ import * as logs from 'aws-cdk-lib/aws-logs';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import { CdkDia, CdkDiaDecorator, CollapseTypes } from 'cdk-dia';
 import { Construct } from 'constructs';
+import { assertFargateTaskResources, assertVpcSubnetSelection } from './cdk-aws-preconditions';
 import type { PubSubBroker } from './pub-sub';
 
 export interface WorkerServiceProps {
@@ -34,9 +35,14 @@ export class WorkerService extends Construct implements cdk.IInspectable {
   constructor(scope: Construct, id: string, props: WorkerServiceProps) {
     super(scope, id);
 
+    assertVpcSubnetSelection(props.vpc, ec2.SubnetType.PRIVATE_WITH_EGRESS, 'WorkerService');
+    const cpu = 256;
+    const memoryMiB = 512;
+    assertFargateTaskResources({ cpu, memoryMiB, context: 'WorkerService/Task' });
+
     const taskDef = new ecs.FargateTaskDefinition(this, 'Task', {
-      memoryLimitMiB: 512,
-      cpu: 256,
+      memoryLimitMiB: memoryMiB,
+      cpu,
       runtimePlatform: {
         cpuArchitecture: ecs.CpuArchitecture.X86_64,
         operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,

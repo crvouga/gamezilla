@@ -7,6 +7,8 @@ import {
 } from './cdk-outputs';
 import type { CiPlatform } from './ci-platform';
 import { runStep } from './ci-platform';
+import { checkInfrastructureHealth } from './infrastructure-health';
+import { requireAwsRegion } from './aws';
 
 const DNS_DOMAINS = [
   { domain: 'gamezilla.app', outputKey: 'Route53Nameservers' },
@@ -210,10 +212,23 @@ export class PostDeployCommand extends BasePipelineCommand {
   async execute(argv: string[]): Promise<void> {
     assert.array(argv, 'execute: argv must be an array');
     const outputs = readCdkOutputs(this.platform);
+    const region = requireAwsRegion(this.platform);
 
+    const infraCheckCount = 1;
     let step = 0;
-    const total = DNS_DOMAINS.length + HTTP_ENDPOINTS.length;
+    const total = infraCheckCount + DNS_DOMAINS.length + HTTP_ENDPOINTS.length;
     assert.ok(total > 0, 'execute: must have at least one check');
+
+    step++;
+    await runStep(
+      this.platform,
+      `POST-DEPLOY ${step}/${total} — Infrastructure health`,
+      () =>
+        checkInfrastructureHealth({
+          platform: this.platform,
+          region,
+        })
+    );
 
     for (const { domain, outputKey } of DNS_DOMAINS) {
       step++;

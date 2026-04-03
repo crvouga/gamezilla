@@ -10,7 +10,10 @@ import * as logs from 'aws-cdk-lib/aws-logs';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import { CdkDia, CdkDiaDecorator, CollapseTypes } from 'cdk-dia';
 import { Construct } from 'constructs';
-import { assertApplicationLoadBalancerTargetGroupHealthCheckCounts } from './cdk-aws-preconditions';
+import {
+  assertApplicationLoadBalancerTargetGroupHealthCheckCounts,
+  assertFargateTaskResources,
+} from './cdk-aws-preconditions';
 
 export interface ReqResProps {
   readonly dockerAsset: ecr_assets.DockerImageAsset;
@@ -44,11 +47,15 @@ export class ReqRes extends Construct implements cdk.IInspectable {
       throw new Error('ReqRes: Aurora cluster must have a generated secret');
     }
 
+    const cpu = 256;
+    const memoryMiB = 512;
+    assertFargateTaskResources({ cpu, memoryMiB, context: 'ReqRes/AlbService' });
+
     this.loadBalancedService =
       new ecs_patterns.ApplicationLoadBalancedFargateService(this, 'AlbService', {
         cluster: props.cluster,
-        memoryLimitMiB: 512,
-        cpu: 256,
+        memoryLimitMiB: memoryMiB,
+        cpu,
         runtimePlatform: {
           cpuArchitecture: ecs.CpuArchitecture.X86_64,
           operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,

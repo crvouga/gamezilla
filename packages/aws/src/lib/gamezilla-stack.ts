@@ -4,6 +4,11 @@ import * as ecr_assets from 'aws-cdk-lib/aws-ecr-assets';
 import * as path from 'node:path';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import type { Construct } from 'constructs';
+import {
+  AssertNlbSecurityGroupRules,
+  AssertEcsServiceHealthCheckConfig,
+  AssertSecurityGroupHasRules,
+} from './cdk-aspects';
 import { assertAwsEc2SecurityGroupDescription } from './cdk-aws-preconditions';
 import { AppDatabase } from './database';
 import { AppVpc } from './vpc';
@@ -36,6 +41,10 @@ export class GamezillaStack extends cdk.Stack {
     for (const [k, v] of Object.entries(RESOURCE_TAGS)) {
       cdk.Tags.of(this).add(k, v);
     }
+
+    cdk.Aspects.of(this).add(new AssertNlbSecurityGroupRules());
+    cdk.Aspects.of(this).add(new AssertEcsServiceHealthCheckConfig());
+    cdk.Aspects.of(this).add(new AssertSecurityGroupHasRules());
 
     const customDomain = isContextFlagTrue(this, 'customDomain');
     const customDomainBootstrap = isContextFlagTrue(

@@ -8,7 +8,13 @@ import * as logs from 'aws-cdk-lib/aws-logs';
 import * as servicediscovery from 'aws-cdk-lib/aws-servicediscovery';
 import { CdkDia, CdkDiaDecorator, CollapseTypes } from 'cdk-dia';
 import { Construct } from 'constructs';
-import { assertAwsEc2SecurityGroupDescription } from './cdk-aws-preconditions';
+import {
+  assertAwsEc2SecurityGroupDescription,
+  assertEcsHealthCheckTimers,
+  assertFargateTaskResources,
+  assertNlbTargetGroupHealthCheck,
+  assertVpcSubnetSelection,
+} from './cdk-aws-preconditions';
 
 export const PUBSUB_DNS_NAMESPACE = 'app.local';
 export const PUBSUB_SERVICE_NAME = 'emqx';
@@ -40,6 +46,8 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
 
   constructor(scope: Construct, id: string, props: PubSubBrokerProps) {
     super(scope, id);
+
+    assertVpcSubnetSelection(props.vpc, ec2.SubnetType.PRIVATE_WITH_EGRESS, 'PubSubBroker');
 
     const namespace = new servicediscovery.PrivateDnsNamespace(
       this,
@@ -78,9 +86,13 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
       'Dashboard (optional)'
     );
 
+    const cpu = 2048;
+    const memoryMiB = 4096;
+    assertFargateTaskResources({ cpu, memoryMiB, context: 'PubSubBroker/EmqxTask' });
+
     const taskDef = new ecs.FargateTaskDefinition(this, 'EmqxTask', {
-      memoryLimitMiB: 4096,
-      cpu: 2048,
+      memoryLimitMiB: memoryMiB,
+      cpu,
       runtimePlatform: {
         cpuArchitecture: ecs.CpuArchitecture.X86_64,
         operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,
@@ -90,6 +102,20 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
     const emqxImage = new ecr_assets.DockerImageAsset(this, 'EmqxImage', {
       directory: path.join(__dirname, '..', '..', 'emqx-image'),
       platform: ecr_assets.Platform.LINUX_AMD64,
+    });
+
+    const hcInterval = 10;
+    const hcTimeout = 5;
+    const hcRetries = 3;
+    const hcStartPeriod = 30;
+    const hcGracePeriod = 60;
+    assertEcsHealthCheckTimers({
+      intervalSeconds: hcInterval,
+      timeoutSeconds: hcTimeout,
+      retries: hcRetries,
+      startPeriodSeconds: hcStartPeriod,
+      gracePeriodSeconds: hcGracePeriod,
+      context: 'PubSubBroker/EmqxService',
     });
 
     taskDef.addContainer('emqx', {
@@ -113,10 +139,10 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
           'CMD-SHELL',
           'curl -sf http://localhost:18083/status || exit 1',
         ],
-        interval: cdk.Duration.seconds(10),
-        timeout: cdk.Duration.seconds(5),
-        retries: 3,
-        startPeriod: cdk.Duration.seconds(30),
+        interval: cdk.Duration.seconds(hcInterval),
+        timeout: cdk.Duration.seconds(hcTimeout),
+        retries: hcRetries,
+        startPeriod: cdk.Duration.seconds(hcStartPeriod),
       },
     });
 
@@ -136,7 +162,7 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
         dnsRecordType: servicediscovery.DnsRecordType.A,
       },
       enableExecuteCommand: true,
-      healthCheckGracePeriod: cdk.Duration.seconds(60),
+      healthCheckGracePeriod: cdk.Duration.seconds(hcGracePeriod),
     });
 
     for (const clientSg of props.vpcClientSecurityGroups) {
@@ -166,6 +192,17 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
       'NLB to broker WebSocket'
     );
 
+    const nlbHcInterval = 10;
+    const nlbHcHealthy = 2;
+    const nlbHcUnhealthy = 2;
+    assertNlbTargetGroupHealthCheck({
+      protocol: 'TCP',
+      intervalSeconds: nlbHcInterval,
+      healthyThresholdCount: nlbHcHealthy,
+      unhealthyThresholdCount: nlbHcUnhealthy,
+      context: 'PubSubBroker/NlbTargetGroups',
+    });
+
     const listener1883 = nlb.addListener('Mqtt', {
       port: 1883,
       protocol: elbv2.Protocol.TCP,
@@ -183,9 +220,9 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
       healthCheck: {
         protocol: elbv2.Protocol.TCP,
         port: '1883',
-        interval: cdk.Duration.seconds(10),
-        healthyThresholdCount: 2,
-        unhealthyThresholdCount: 2,
+        interval: cdk.Duration.seconds(nlbHcInterval),
+        healthyThresholdCount: nlbHcHealthy,
+        unhealthyThresholdCount: nlbHcUnhealthy,
       },
     });
 
@@ -206,9 +243,9 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
       healthCheck: {
         protocol: elbv2.Protocol.TCP,
         port: '8083',
-        interval: cdk.Duration.seconds(10),
-        healthyThresholdCount: 2,
-        unhealthyThresholdCount: 2,
+        interval: cdk.Duration.seconds(nlbHcInterval),
+        healthyThresholdCount: nlbHcHealthy,
+        unhealthyThresholdCount: nlbHcUnhealthy,
       },
     });
 

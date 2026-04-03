@@ -23,6 +23,7 @@ import { assert } from '@gamezilla/shared/assert';
 import type { CiPlatform } from './ci-platform';
 import { requireAwsRegion } from './aws';
 import { STACK_NAME } from './cfn-shared';
+import { diagnoseElbFailures } from './elb-diagnostics';
 
 const MAX_LOG_EVENTS_PER_STREAM = 80;
 const MAX_LOG_STREAMS = 3;
@@ -69,7 +70,82 @@ export async function diagnoseEcsFailures(
   const ecsClient = new ECSClient({ region });
 
   await tryDiagnoseStoppedTasks(platform, ecsClient, ecsServiceFailures);
+  await tryDiagnoseElbConnectivity(platform, region, ecsServiceFailures);
   await tryDiagnoseContainerLogs(platform, cwClient, events);
+  printDiagnosisSummary(platform, ecsServiceFailures);
+}
+
+/**
+ * For each failed ECS service that has load balancers, run the full ELB
+ * networking diagnostic: target group health, LB security groups, ENIs.
+ */
+async function tryDiagnoseElbConnectivity(
+  platform: CiPlatform,
+  region: string,
+  ecsServiceFailures: StackEvent[]
+): Promise<void> {
+  for (const failure of ecsServiceFailures) {
+    const serviceArn = failure.PhysicalResourceId;
+    if (!serviceArn) continue;
+
+    const clusterArn = extractClusterArnFromServiceArn(serviceArn);
+    if (!clusterArn) continue;
+
+    try {
+      await diagnoseElbFailures({
+        platform,
+        region,
+        clusterArn,
+        serviceArn,
+      });
+    } catch {
+      platform.warning(
+        `ELB diagnostics failed for ${serviceArn} — cluster may have been deleted during rollback.`
+      );
+    }
+  }
+}
+
+function printDiagnosisSummary(
+  platform: CiPlatform,
+  ecsServiceFailures: StackEvent[]
+): void {
+  platform.error('\n╔══════════════════════════════════════════════╗');
+  platform.error('║              DIAGNOSIS SUMMARY               ║');
+  platform.error('╚══════════════════════════════════════════════╝');
+  platform.error('');
+  platform.error(
+    '  Service                     │ Status          │ Reason'
+  );
+  platform.error(
+    '  ────────────────────────────┼─────────────────┼──────────────────────────────'
+  );
+
+  for (const f of ecsServiceFailures) {
+    const name = (f.LogicalResourceId ?? '(unknown)').padEnd(28);
+    const status = (f.ResourceStatus ?? '?').padEnd(15);
+    const reason = truncate(f.ResourceStatusReason ?? '(none)', 60);
+    platform.error(`  ${name} │ ${status} │ ${reason}`);
+  }
+
+  platform.error('');
+  platform.error('Common root causes:');
+  platform.error(
+    '  1. LB security group blocks health checks → Check SG ingress/egress above'
+  );
+  platform.error(
+    '  2. Container crashes on start → Check container logs above'
+  );
+  platform.error(
+    '  3. Health check path/port wrong → Check target group config'
+  );
+  platform.error(
+    '  4. VPC/subnet misconfiguration → Check task ENI details above'
+  );
+}
+
+function truncate(s: string, max: number): string {
+  return s.length <= max ? s : s.slice(0, max - 1) + '…';
 }
 
 async function fetchAllRecentEvents(
