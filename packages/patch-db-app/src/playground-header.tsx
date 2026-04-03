@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react';
 import { SHAPE_ENTITY_TYPE } from '@gamezilla/patch-db/sim/playground-shapes';
-import { Box, Button, Select, Stack, Text } from '@gamezilla/shared/ui';
+import { Badge, Box, Button, Divider, Select, Stack, Text } from '@gamezilla/shared/ui';
 import { useTheme } from '@gamezilla/shared/ui';
+import { IconPlus } from './icons';
 import { useSimContext } from './sim-context';
 
 const LATENCY_BUCKETS = [
@@ -31,31 +32,53 @@ export function PlaygroundHeader() {
 
   return (
     <Box
-      sx={{ px: 3, py: 2, gap: 2 }}
+      sx={{ px: 4, py: 3, gap: 3 }}
       style={{ borderBottomWidth: 1, borderBottomColor: theme.colors.border }}
     >
-      <Stack direction="horizontal" spacing={2} align="center">
-        <Text variant="subtitle" style={{ flex: 1 }}>
-          Patch DB Playground
-        </Text>
+      <Stack direction="horizontal" spacing={3} align="center">
+        <Box style={{ flex: 1 }}>
+          <Stack direction="horizontal" spacing={2} align="center">
+            <Text variant="subtitle">Patch DB Playground</Text>
+            <Badge label={SHAPE_ENTITY_TYPE} size="sm" color={theme.colors.tintMuted} />
+          </Stack>
+          <Text
+            variant="mono"
+            style={{
+              fontSize: 11,
+              color: theme.colors.textSecondary,
+              marginTop: 2,
+            }}
+          >
+            {sim.serverId}
+          </Text>
+        </Box>
+
+        <Button
+          title="Reset"
+          variant="ghost"
+          size="sm"
+          color="destructive"
+          onPress={reset}
+        />
       </Stack>
-      <Text variant="mono" sx={{ mb: 1 }}>
-        {SHAPE_ENTITY_TYPE} / {sim.serverId}
-      </Text>
-      <Stack direction="horizontal" spacing={2} wrap>
+
+      <Divider />
+
+      <Stack direction="horizontal" spacing={3} align="center" wrap>
         <Box style={{ minWidth: 120 }}>
           <Select
-            label="Latency"
+            label="Global latency"
             options={LATENCY_BUCKETS}
             value={globalLatency}
             onValueChange={handleGlobalLatencyChange}
           />
         </Box>
-        <Button title="Reset" variant="outlined" size="sm" onPress={reset} />
+        <Box style={{ flex: 1 }} />
         <Button
           title="Add Client"
           variant="solid"
           size="sm"
+          startIcon={<IconPlus size={14} />}
           onPress={addClient}
         />
       </Stack>

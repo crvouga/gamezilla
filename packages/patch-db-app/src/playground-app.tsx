@@ -16,7 +16,7 @@ export function PlaygroundApp() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.paper }}>
       <Box sx={{ flex: 1 }}>
-        <Box sx={{ px: 3, py: 2 }}>
+        <Box sx={{ px: 4, py: 3 }}>
           <PatchdbAppNav mode={mode} onModeChange={setMode} />
         </Box>
         {mode === 'syncInspector' ? <ReqResInspector /> : <PlaygroundRoute />}
@@ -43,7 +43,12 @@ function PlaygroundRoute() {
         <Text variant="subtitle" style={{ color: theme.colors.destructive }}>
           Playground failed to start
         </Text>
-        <Text variant="caption">{boot.bootErr}</Text>
+        <Text
+          variant="caption"
+          style={{ color: theme.colors.textSecondary, textAlign: 'center' }}
+        >
+          {boot.bootErr}
+        </Text>
       </Box>
     );
   }
@@ -55,11 +60,16 @@ function PlaygroundRoute() {
           flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
-          gap: 2,
+          gap: 3,
         }}
       >
         <Spinner size="large" />
-        <Text variant="caption">{boot.bootLabel}</Text>
+        <Text
+          variant="caption"
+          style={{ color: theme.colors.textSecondary }}
+        >
+          {boot.bootLabel}
+        </Text>
       </Box>
     );
   }

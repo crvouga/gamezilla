@@ -6,16 +6,89 @@ import {
 } from '@gamezilla/patch-db/transport';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Box, Button, Card, ScrollView, Spinner, Stack, Text, TextInput } from '@gamezilla/shared/ui';
+import {
+  Box,
+  Button,
+  Card,
+  Divider,
+  ScrollView,
+  Spinner,
+  Stack,
+  StatusDot,
+  Text,
+  TextInput,
+} from '@gamezilla/shared/ui';
 import { useTheme } from '@gamezilla/shared/ui';
 
 const URL_STORAGE_KEY = 'patchdb-inspector-sync-url';
 const DEFAULT_URL = 'http://localhost:5001';
 
 function formatAttrValue(value: unknown): string {
-  if (value === null || value === undefined) return '—';
+  if (value === null || value === undefined) return '\u2014';
   if (typeof value === 'object') return JSON.stringify(value);
   return String(value);
+}
+
+function AttributeRow({
+  attrKey,
+  value,
+  isLast,
+}: {
+  attrKey: string;
+  value: unknown;
+  isLast: boolean;
+}) {
+  const theme = useTheme();
+  return (
+    <Box>
+      <Stack
+        direction="horizontal"
+        spacing={3}
+        sx={{ px: 4, py: 2.5 }}
+        align="center"
+      >
+        <Text
+          variant="mono"
+          style={{
+            flex: 1,
+            fontSize: 12,
+            color: theme.colors.tint,
+          }}
+        >
+          {attrKey}
+        </Text>
+        <Text
+          variant="mono"
+          style={{ flex: 1, fontSize: 12, textAlign: 'right' }}
+        >
+          {formatAttrValue(value)}
+        </Text>
+      </Stack>
+      {!isLast && <Divider />}
+    </Box>
+  );
+}
+
+function ConnectionStatus({
+  connected,
+  url,
+}: {
+  connected: boolean;
+  url: string | null;
+}) {
+  const theme = useTheme();
+  if (!url) return null;
+  return (
+    <Stack direction="horizontal" spacing={2} align="center" sx={{ py: 1 }}>
+      <StatusDot status={connected ? 'online' : 'warning'} size={8} />
+      <Text
+        variant="caption"
+        style={{ color: theme.colors.textSecondary }}
+      >
+        {connected ? 'Connected' : 'Connecting'} to {url}
+      </Text>
+    </Stack>
+  );
 }
 
 export function ReqResInspector() {
@@ -96,84 +169,108 @@ export function ReqResInspector() {
   }, [connectedUrl]);
 
   const entity = result?.entities[0];
+  const adminAttrs = entity
+    ? Object.entries(entity.attributes)
+        .filter(([k]) => k.startsWith('admin/'))
+        .sort(([a], [b]) => a.localeCompare(b))
+    : [];
 
   return (
-    <ScrollView sx={{ flex: 1, p: 4, gap: 4 }}>
-      <Stack spacing={3}>
-        <Text variant="caption">Req Res URL</Text>
-        <TextInput
-          value={urlInput}
-          onChangeText={setUrlInput}
-          placeholder="https://…"
-          onSubmitEditing={handleConnect}
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="url"
-        />
-        <Button
-          title="Connect"
-          variant="solid"
-          size="md"
-          onPress={handleConnect}
-        />
-      </Stack>
-
-      {error !== null ? (
-        <Card sx={{ p: 3, mt: 3 }}>
-          <Text variant="body" style={{ color: theme.colors.destructive }}>
-            {error}
-          </Text>
+    <ScrollView sx={{ flex: 1, p: 4 }}>
+      <Stack spacing={4}>
+        <Card elevation={1} sx={{ p: 4 }}>
+          <Stack spacing={3}>
+            <Text variant="bodyBold">Server Connection</Text>
+            <TextInput
+              value={urlInput}
+              onChangeText={setUrlInput}
+              placeholder="https://..."
+              onSubmitEditing={handleConnect}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="url"
+            />
+            <Stack direction="horizontal" spacing={2} align="center">
+              <Button
+                title={connectedUrl ? 'Reconnect' : 'Connect'}
+                variant="solid"
+                size="md"
+                onPress={handleConnect}
+              />
+              {connectedUrl && (
+                <Button
+                  title="Disconnect"
+                  variant="ghost"
+                  size="md"
+                  onPress={() => {
+                    setConnectedUrl(null);
+                    setResult(null);
+                    setError(null);
+                  }}
+                />
+              )}
+            </Stack>
+            <ConnectionStatus
+              connected={result !== null}
+              url={connectedUrl}
+            />
+          </Stack>
         </Card>
-      ) : null}
 
-      {entity !== null && entity !== undefined ? (
-        <Card sx={{ mt: 3, p: 0 }} elevation={1}>
-          <Stack
-            direction="horizontal"
-            sx={{ px: 4, py: 2 }}
+        {error !== null && (
+          <Card
+            elevation={0}
+            sx={{ p: 4 }}
             style={{
-              borderBottomWidth: 1,
-              borderBottomColor: theme.colors.border,
+              borderColor: theme.colors.destructive + '44',
+              backgroundColor: theme.colors.destructive + '0a',
             }}
           >
-            <Text variant="label" style={{ flex: 1 }}>Attribute</Text>
-            <Text variant="label" style={{ flex: 1 }}>Value</Text>
-          </Stack>
+            <Text variant="body" style={{ color: theme.colors.destructive }}>
+              {error}
+            </Text>
+          </Card>
+        )}
 
-          {Object.entries(entity.attributes)
-            .filter(([k]) => k.startsWith('admin/'))
-            .sort(([a], [b]) => a.localeCompare(b))
-            .map(([key, value]) => (
-              <Stack
-                key={key}
-                direction="horizontal"
-                sx={{ px: 4, py: 2 }}
+        {entity !== null && entity !== undefined ? (
+          <Card elevation={1}>
+            <Box sx={{ px: 4, py: 3 }}>
+              <Text variant="bodyBold">Admin Metrics</Text>
+              <Text
+                variant="caption"
                 style={{
-                  borderBottomWidth: 1,
-                  borderBottomColor: theme.colors.border + '33',
+                  color: theme.colors.textSecondary,
+                  marginTop: 2,
                 }}
               >
-                <Text variant="mono" style={{ flex: 1, fontSize: 12, color: theme.colors.tint }}>
-                  {key}
-                </Text>
-                <Text variant="mono" style={{ flex: 1, fontSize: 12 }}>
-                  {formatAttrValue(value)}
-                </Text>
-              </Stack>
+                {entity.entityType} / {entity.entityId.slice(0, 16)} &middot;{' '}
+                {result?.patches.length ?? 0} patches
+              </Text>
+            </Box>
+            <Divider />
+            {adminAttrs.map(([key, value], i) => (
+              <AttributeRow
+                key={key}
+                attrKey={key}
+                value={value}
+                isLast={i === adminAttrs.length - 1}
+              />
             ))}
-
-          <Box sx={{ px: 4, py: 2 }}>
-            <Text variant="caption">
-              entity {entity.entityId} · {entity.entityType} · patches: {result?.patches.length ?? 0}
-            </Text>
-          </Box>
-        </Card>
-      ) : connectedUrl !== null && error === null ? (
-        <Stack direction="horizontal" spacing={2} align="center" sx={{ mt: 3 }}>
-          <Spinner size="small" />
-          <Text variant="caption">Waiting for metrics from server…</Text>
-        </Stack>
-      ) : null}
+          </Card>
+        ) : connectedUrl !== null && error === null ? (
+          <Card elevation={1} sx={{ p: 6 }}>
+            <Stack spacing={3} align="center">
+              <Spinner size="large" />
+              <Text
+                variant="caption"
+                style={{ color: theme.colors.textSecondary }}
+              >
+                Waiting for metrics from server...
+              </Text>
+            </Stack>
+          </Card>
+        ) : null}
+      </Stack>
     </ScrollView>
   );
 }

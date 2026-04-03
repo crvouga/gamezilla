@@ -1,14 +1,23 @@
 import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react';
-import { Button, ScrollView, Stack, Text } from '@gamezilla/shared/ui';
+import { useWindowDimensions } from 'react-native';
+import {
+  Box,
+  Button,
+  Collapsible,
+  ScrollView,
+  Stack,
+  Text,
+} from '@gamezilla/shared/ui';
 import { EventLog } from '../components/event-log';
 import { MessageLog } from '../components/message-log';
-import { NetworkControls } from '../components/network-controls';
 import { PeerPanel } from '../components/peer-panel';
 import {
   PEERS,
   PlaygroundSimulator,
   type PeerId,
 } from '../simulator/playground';
+
+const PANEL_MIN_WIDTH = 280;
 
 export function PlaygroundPage() {
   const simRef = useRef<PlaygroundSimulator | null>(null);
@@ -127,12 +136,33 @@ export function PlaygroundPage() {
   const messageLog = sim.getMessageLog();
   const eventLog = sim.getEventLog('player-x');
 
+  const { width } = useWindowDimensions();
+  const columns = Math.max(1, Math.floor(width / PANEL_MIN_WIDTH));
+  const panelWidth = columns > 1
+    ? (width - 32 - (columns - 1) * 12) / columns
+    : undefined;
+
   return (
     <ScrollView sx={{ flex: 1, px: 4, py: 3 }}>
       <Stack spacing={4} sx={{ pb: 8 }}>
-        <Text variant="heading">peer-store playground</Text>
+        <Stack spacing={2}>
+          <Text variant="heading">peer-store playground</Text>
+          <Stack direction="horizontal" spacing={2} wrap>
+            <Button
+              title={isPaused.current ? 'Resume' : 'Pause'}
+              variant="outlined"
+              size="sm"
+              onPress={isPaused.current ? handleResume : handlePause}
+            />
+            <Button title="Drop next" variant="outlined" size="sm" onPress={handleDrop} />
+            <Button title="Advance 5s" variant="outlined" size="sm" onPress={handleAdvance} />
+            <Button title="Reset" variant="outlined" size="sm" onPress={handleReset} />
+            <Button title="Partition" variant="outlined" size="sm" onPress={handleScenarioPartition} />
+            <Button title="Timeout" variant="outlined" size="sm" onPress={handleScenarioTimeout} />
+          </Stack>
+        </Stack>
 
-        <Stack spacing={3}>
+        <Stack direction="horizontal" spacing={3} wrap justify="center">
           {PEERS.map((peerId) => {
             const player =
               peerId === 'player-x'
@@ -141,45 +171,37 @@ export function PlaygroundPage() {
                   ? ('O' as const)
                   : null;
             return (
-              <PeerPanel
+              <Box
                 key={peerId}
-                displayState={sim.getState(peerId)}
-                committedState={sim.getCommittedState(peerId)}
-                events={sim.getEventLog(peerId)}
-                isOnline={!disconnectedPeers.current.has(peerId)}
-                isBadActor={badActorIds.has(peerId)}
-                player={player}
-                onCellClick={
-                  player
-                    ? (cell) => handleDispatch(peerId, cell)
-                    : undefined
-                }
-              />
+                style={panelWidth ? { width: panelWidth } : undefined}
+              >
+                <PeerPanel
+                  displayState={sim.getState(peerId)}
+                  committedState={sim.getCommittedState(peerId)}
+                  events={sim.getEventLog(peerId)}
+                  isOnline={!disconnectedPeers.current.has(peerId)}
+                  isBadActor={badActorIds.has(peerId)}
+                  player={player}
+                  onCellClick={
+                    player
+                      ? (cell) => handleDispatch(peerId, cell)
+                      : undefined
+                  }
+                  onDisconnect={() => handleDisconnect(peerId)}
+                  onReconnect={() => handleReconnect(peerId)}
+                />
+              </Box>
             );
           })}
         </Stack>
 
-        <NetworkControls
-          onPause={handlePause}
-          onResume={handleResume}
-          onDrop={handleDrop}
-          onAdvance={handleAdvance}
-          onDisconnect={handleDisconnect}
-          onReconnect={handleReconnect}
-          isPaused={isPaused.current}
-          disconnectedPeers={disconnectedPeers.current}
-        />
-
-        <Stack direction="horizontal" spacing={2} wrap>
-          <Button title="Reset" variant="outlined" size="sm" onPress={handleReset} />
-          <Button title="Partition" variant="outlined" size="sm" onPress={handleScenarioPartition} />
-          <Button title="Timeout" variant="outlined" size="sm" onPress={handleScenarioTimeout} />
-        </Stack>
-
-        <Stack spacing={3}>
+        <Collapsible title={`Message Log (${messageLog.length})`}>
           <MessageLog entries={messageLog} />
+        </Collapsible>
+
+        <Collapsible title={`Committed Events (${eventLog.length})`}>
           <EventLog events={eventLog} />
-        </Stack>
+        </Collapsible>
       </Stack>
     </ScrollView>
   );

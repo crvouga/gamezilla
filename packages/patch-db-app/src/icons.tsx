@@ -1,5 +1,7 @@
 import Svg, { Circle, Line, Path, Rect } from 'react-native-svg';
-import { C } from './constants';
+
+const RED = '#e5484d';
+const GREEN = '#3ddc84';
 
 export function IconPlus({ size = 16 }: { size?: number }) {
   return (
@@ -77,7 +79,7 @@ export function IconPartition({
         r={3}
         stroke="currentColor"
         strokeWidth={1.6}
-        fill={active ? C.red : 'none'}
+        fill={active ? RED : 'none'}
         opacity={active ? 0.5 : 1}
       />
       <Circle
@@ -86,7 +88,7 @@ export function IconPartition({
         r={3}
         stroke="currentColor"
         strokeWidth={1.6}
-        fill={active ? C.red : 'none'}
+        fill={active ? RED : 'none'}
         opacity={active ? 0.5 : 1}
       />
       {active ? (
@@ -95,7 +97,7 @@ export function IconPartition({
           y1={3}
           x2={17}
           y2={17}
-          stroke={C.red}
+          stroke={RED}
           strokeWidth={1.8}
           strokeLinecap="round"
         />
@@ -188,8 +190,8 @@ export function IconServer({ size = 18 }: { size?: number }) {
         stroke="currentColor"
         strokeWidth={1.5}
       />
-      <Circle cx={17} cy={5.5} r={1} fill={C.green} />
-      <Circle cx={17} cy={14.5} r={1} fill={C.green} />
+      <Circle cx={17} cy={5.5} r={1} fill={GREEN} />
+      <Circle cx={17} cy={14.5} r={1} fill={GREEN} />
       <Path
         d="M8 20h8M12 18v2"
         stroke="currentColor"

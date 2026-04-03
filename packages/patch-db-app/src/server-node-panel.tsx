@@ -6,8 +6,9 @@ import {
   playgroundServerRandomizeShape,
   playgroundServerReorderShapes,
 } from '@gamezilla/patch-db/sim/playground-shapes';
-import { Badge, Button, Stack, Text } from '@gamezilla/shared/ui';
-import { IconPartition, IconServer, IconSync } from './icons';
+import { Box, Button, Divider, IconButton, Stack, Text } from '@gamezilla/shared/ui';
+import { useTheme } from '@gamezilla/shared/ui';
+import { IconPartition, IconServer, IconSync, IconShuffle, IconClear } from './icons';
 import { NodePanelShell } from './node-panel-shell';
 import { ShapeList } from './shape-list';
 import { useSimContext } from './sim-context';
@@ -18,6 +19,7 @@ export function ServerNodePanel() {
   const { sim, bumpGraph, bumpLink } = useSimContext();
   const { entities, readError, refresh } = useServerShapes(sim);
   const serverPartitioned = sim.isServerPartitioned();
+  const theme = useTheme();
 
   const onSuccess = useCallback(() => {
     refresh();
@@ -65,22 +67,16 @@ export function ServerNodePanel() {
     <NodePanelShell
       icon={<IconServer />}
       title={sim.serverId}
+      subtitle="Authority"
       partitioned={serverPartitioned}
-      headerExtra={
-        <Stack direction="horizontal" spacing={1} align="center">
-          {serverPartitioned && (
-            <Badge label="OFFLINE" color="destructive" size="sm" />
-          )}
-          <Text variant="caption">authority</Text>
-        </Stack>
-      }
     >
-      <Stack spacing={2}>
-        <Stack direction="horizontal" spacing={1} wrap>
+      <Stack spacing={3}>
+        <Stack direction="horizontal" spacing={2} align="center">
           <Button
             title={serverPartitioned ? 'Reconnect' : 'Partition'}
-            variant="outlined"
+            variant={serverPartitioned ? 'solid' : 'ghost'}
             size="sm"
+            {...(serverPartitioned ? { color: 'destructive' } : {})}
             disabled={busy}
             startIcon={<IconPartition active={serverPartitioned} size={14} />}
             onPress={() =>
@@ -94,34 +90,22 @@ export function ServerNodePanel() {
               })
             }
           />
-          <Button
-            title="Sync All"
-            variant="outlined"
-            size="sm"
+          <Box style={{ flex: 1 }} />
+          <IconButton
+            size={32}
+            background={theme.colors.surface}
             disabled={busy}
-            startIcon={<IconSync size={14} />}
             onPress={() =>
               run(async () => {
                 await sim.pollAllClients();
               })
             }
-          />
-          <Button
-            title="Wipe"
-            variant="outlined"
-            size="sm"
-            color="destructive"
-            disabled={busy}
-            onPress={() =>
-              run(async () => {
-                await sim.wipeServerDb();
-              })
-            }
-          />
-          <Button
-            title="Shuffle"
-            variant="outlined"
-            size="sm"
+          >
+            <IconSync size={16} />
+          </IconButton>
+          <IconButton
+            size={32}
+            background={theme.colors.surface}
             disabled={busy || entities.length === 0}
             onPress={() =>
               run(async () => {
@@ -130,22 +114,41 @@ export function ServerNodePanel() {
                 }
               })
             }
-          />
+          >
+            <IconShuffle size={16} />
+          </IconButton>
+          <IconButton
+            size={32}
+            disabled={busy}
+            onPress={() =>
+              run(async () => {
+                await sim.wipeServerDb();
+              })
+            }
+          >
+            <IconClear size={16} />
+          </IconButton>
         </Stack>
 
-        <Text variant="caption">
-          {entities.length} shape(s)
-        </Text>
+        <Divider />
 
-        <ShapeList
-          entities={entities}
-          busy={busy}
-          note={displayNote}
-          onRandomize={handleRandomize}
-          onDelete={handleDelete}
-          onCreate={handleCreate}
-          onReorder={handleReorder}
-        />
+        <Box>
+          <Text
+            variant="caption"
+            style={{ color: theme.colors.textSecondary, marginBottom: 8 }}
+          >
+            Shapes ({entities.length})
+          </Text>
+          <ShapeList
+            entities={entities}
+            busy={busy}
+            note={displayNote}
+            onRandomize={handleRandomize}
+            onDelete={handleDelete}
+            onCreate={handleCreate}
+            onReorder={handleReorder}
+          />
+        </Box>
       </Stack>
     </NodePanelShell>
   );

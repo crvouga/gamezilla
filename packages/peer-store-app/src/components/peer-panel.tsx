@@ -1,5 +1,13 @@
 import type { Event, State } from '@gamezilla/peer-store/types';
-import { Badge, Box, Card, Stack, StatusDot, Text } from '@gamezilla/shared/ui';
+import {
+  Badge,
+  Button,
+  Card,
+  Collapsible,
+  Stack,
+  StatusDot,
+  Text,
+} from '@gamezilla/shared/ui';
 import { StateInspector } from './state-inspector';
 import { TicTacToeBoard } from './tic-tac-toe-board';
 
@@ -11,6 +19,8 @@ export function PeerPanel({
   isBadActor,
   player,
   onCellClick,
+  onDisconnect,
+  onReconnect,
 }: {
   displayState: State;
   committedState: State;
@@ -19,6 +29,8 @@ export function PeerPanel({
   isBadActor: boolean;
   player: 'X' | 'O' | null;
   onCellClick?: ((cell: number) => void) | undefined;
+  onDisconnect: () => void;
+  onReconnect: () => void;
 }) {
   const isWorker = player === null;
   const hasOptimistic =
@@ -27,15 +39,22 @@ export function PeerPanel({
   return (
     <Card elevation={1} sx={{ p: 4, gap: 3 }}>
       <Stack direction="horizontal" align="center" justify="space-between">
-        <Text variant="subtitle">
-          {isWorker ? 'Worker' : `Player ${player}`}
-        </Text>
         <Stack direction="horizontal" spacing={2} align="center">
+          <Text variant="subtitle">
+            {isWorker ? 'Worker' : `Player ${player}`}
+          </Text>
           {isBadActor && (
             <Badge label="BAD ACTOR" color="destructive" size="sm" />
           )}
           <StatusDot status={isOnline ? 'online' : 'offline'} />
         </Stack>
+        <Button
+          title={isOnline ? 'Disconnect' : 'Reconnect'}
+          variant="outlined"
+          size="sm"
+          color={isOnline ? 'destructive' : 'success'}
+          onPress={isOnline ? onDisconnect : onReconnect}
+        />
       </Stack>
 
       <TicTacToeBoard
@@ -62,10 +81,7 @@ export function PeerPanel({
         displayState={displayState}
       />
 
-      <Box style={{ maxHeight: 120 }}>
-        <Text variant="caption" style={{ fontWeight: '600', textTransform: 'uppercase', marginBottom: 6 }}>
-          Events ({events.length})
-        </Text>
+      <Collapsible title={`Events (${events.length})`}>
         {events.length === 0 && (
           <Text variant="caption">none</Text>
         )}
@@ -74,7 +90,7 @@ export function PeerPanel({
             {e.type}
           </Text>
         ))}
-      </Box>
+      </Collapsible>
     </Card>
   );
 }

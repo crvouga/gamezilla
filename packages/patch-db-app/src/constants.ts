@@ -1,27 +1,5 @@
 import { assert } from '@gamezilla/shared/assert';
 
-/** Core neutrals + accents for the playground graph and chrome. */
-export const C = {
-  bg: '#0a0a0a',
-  node: '#161616',
-  nodeBorder: '#333',
-  nodeSelBg: '#1a1a30',
-  nodeSelBorder: '#4f6df5',
-  text: '#999',
-  textLight: '#ccc',
-  textDim: '#555',
-  edge: '#3a3a3a',
-  edgeBroken: '#222',
-  blue: '#4f8ff5',
-  green: '#3ddc84',
-  orange: '#f59e42',
-  red: '#e5484d',
-  violet: '#9b8afb',
-  teal: '#36c5a0',
-  yellow: '#e8b931',
-  dimRed: '#5c2024',
-};
-
 const NODE_COLORS = [
   '#4f8ff5',
   '#f59e42',

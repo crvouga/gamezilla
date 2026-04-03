@@ -12,25 +12,27 @@ import {
 } from '@gamezilla/patch-db/sim/playground-shapes';
 import type { PlaygroundClientHandle } from '@gamezilla/patch-db/sim/playground-sim';
 import { SubscribablePatchesDbToken } from '@gamezilla/patch-db/subscribable';
-import { Badge, Box, Button, Select, Stack } from '@gamezilla/shared/ui';
-import { IconLaptop, IconPartition, IconSync } from './icons';
+import { Box, Button, Divider, IconButton, Select, Stack, Text } from '@gamezilla/shared/ui';
+import { useTheme } from '@gamezilla/shared/ui';
+import { IconLaptop, IconPartition, IconRemove, IconShuffle, IconSync, IconClear } from './icons';
 import { NodePanelShell } from './node-panel-shell';
 import { ShapeList } from './shape-list';
 import { useSimContext } from './sim-context';
 import { useAsyncAction } from './use-async-action';
 
 const LATENCY_BUCKETS = [
-  { value: 0, label: '0ms' },
-  { value: 50, label: '50ms' },
-  { value: 150, label: '150ms' },
-  { value: 500, label: '500ms' },
-  { value: 1000, label: '1s' },
-  { value: 2000, label: '2s' },
-  { value: 5000, label: '5s' },
+  { value: 0, label: '0 ms' },
+  { value: 50, label: '50 ms' },
+  { value: 150, label: '150 ms' },
+  { value: 500, label: '500 ms' },
+  { value: 1000, label: '1 s' },
+  { value: 2000, label: '2 s' },
+  { value: 5000, label: '5 s' },
 ];
 
 function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
   const { sim, bumpGraph, bumpLink, removeClient } = useSimContext();
+  const theme = useTheme();
 
   const shapeQuery = useMemo(() => shapeListQuery(), []);
   const { entities } = useEntities(shapeQuery);
@@ -90,28 +92,24 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
     <NodePanelShell
       icon={<IconLaptop />}
       title={client.id}
+      subtitle={`Latency: ${LATENCY_BUCKETS.find((b) => b.value === latencyMs)?.label ?? `${latencyMs} ms`}`}
       partitioned={partitioned}
       headerExtra={
-        <Stack direction="horizontal" spacing={1} align="center">
-          {partitioned && (
-            <Badge label="OFFLINE" color="destructive" size="sm" />
-          )}
-          <Button
-            title="Remove"
-            variant="text"
-            size="sm"
-            color="destructive"
-            onPress={() => removeClient(client.id)}
-          />
-        </Stack>
+        <IconButton
+          size={28}
+          onPress={() => removeClient(client.id)}
+        >
+          <IconRemove size={16} />
+        </IconButton>
       }
     >
-      <Stack spacing={2}>
-        <Stack direction="horizontal" spacing={1} wrap>
+      <Stack spacing={3}>
+        <Stack direction="horizontal" spacing={2} align="center">
           <Button
             title={partitioned ? 'Reconnect' : 'Partition'}
-            variant="outlined"
+            variant={partitioned ? 'solid' : 'ghost'}
             size="sm"
+            {...(partitioned ? { color: 'destructive' } : {})}
             disabled={busy}
             startIcon={<IconPartition active={partitioned} size={14} />}
             onPress={() =>
@@ -125,34 +123,22 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
               })
             }
           />
-          <Button
-            title="Sync"
-            variant="outlined"
-            size="sm"
+          <Box style={{ flex: 1 }} />
+          <IconButton
+            size={32}
+            background={theme.colors.surface}
             disabled={busy}
-            startIcon={<IconSync size={14} />}
             onPress={() =>
               run(async () => {
                 await sim.syncNow(client.id);
               })
             }
-          />
-          <Button
-            title="Wipe"
-            variant="outlined"
-            size="sm"
-            color="destructive"
-            disabled={busy}
-            onPress={() =>
-              run(async () => {
-                await sim.wipeClientDb(client.id);
-              })
-            }
-          />
-          <Button
-            title="Shuffle"
-            variant="outlined"
-            size="sm"
+          >
+            <IconSync size={16} />
+          </IconButton>
+          <IconButton
+            size={32}
+            background={theme.colors.surface}
             disabled={busy || entities.length === 0}
             onPress={() =>
               run(async () => {
@@ -161,26 +147,50 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
                 }
               })
             }
-          />
+          >
+            <IconShuffle size={16} />
+          </IconButton>
+          <IconButton
+            size={32}
+            disabled={busy}
+            onPress={() =>
+              run(async () => {
+                await sim.wipeClientDb(client.id);
+              })
+            }
+          >
+            <IconClear size={16} />
+          </IconButton>
         </Stack>
 
         <Box style={{ maxWidth: 160 }}>
           <Select
+            label="Latency"
             options={LATENCY_BUCKETS}
             value={latencyMs}
             onValueChange={handleLatencyChange}
           />
         </Box>
 
-        <ShapeList
-          entities={entities}
-          busy={busy}
-          note={note}
-          onRandomize={handleRandomize}
-          onDelete={handleDelete}
-          onCreate={handleCreate}
-          onReorder={handleReorder}
-        />
+        <Divider />
+
+        <Box>
+          <Text
+            variant="caption"
+            style={{ color: theme.colors.textSecondary, marginBottom: 8 }}
+          >
+            Shapes ({entities.length})
+          </Text>
+          <ShapeList
+            entities={entities}
+            busy={busy}
+            note={note}
+            onRandomize={handleRandomize}
+            onDelete={handleDelete}
+            onCreate={handleCreate}
+            onReorder={handleReorder}
+          />
+        </Box>
       </Stack>
     </NodePanelShell>
   );
