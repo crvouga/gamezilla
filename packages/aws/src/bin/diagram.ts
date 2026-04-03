@@ -6,7 +6,7 @@ const CDK_OUT = path.join(__dirname, '..', '..', 'cdk.out');
 const TREE_PATH = path.join(CDK_OUT, 'tree.json');
 const OUTPUT_DIR = path.join(__dirname, '..', '..');
 const DOT_PATH = path.join(OUTPUT_DIR, 'diagram.dot');
-const PNG_PATH = path.join(OUTPUT_DIR, 'diagram.png');
+const SVG_PATH = path.join(OUTPUT_DIR, 'diagram.svg');
 
 interface TreeNode {
   id: string;
@@ -128,6 +128,61 @@ for (const edge of ['WebApp -> ReqRes', 'WebApp -> Emqx', 'Worker -> Emqx']) {
 // 3. Emit Graphviz .dot
 // ---------------------------------------------------------------------------
 
+interface IconEntry {
+  file: string;
+  label: string;
+}
+
+const NODE_ICONS: Record<string, IconEntry[]> = {
+  WebApp: [
+    { file: 's3', label: 'S3' },
+    { file: 'cloudfront', label: 'CloudFront' },
+  ],
+  ReqRes: [
+    { file: 'fargate', label: 'Fargate' },
+    { file: 'elb', label: 'ALB' },
+    { file: 'cloudfront', label: 'CloudFront' },
+  ],
+  Emqx: [
+    { file: 'fargate', label: 'Fargate' },
+    { file: 'elb', label: 'NLB' },
+  ],
+  Worker: [{ file: 'fargate', label: 'Fargate' }],
+  Database: [{ file: 'aurora', label: 'Aurora' }],
+};
+
+const ICONS_DIR = path.join(OUTPUT_DIR, 'icons');
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function nodeHtmlLabel(n: DiagramNode): string {
+  const icons = NODE_ICONS[n.id];
+  const title = escapeHtml(n.label.split('\n')[0]);
+  if (!icons || icons.length === 0) {
+    return `"${title}"`;
+  }
+  const cols = icons.length;
+  const colspan = cols > 1 ? ` COLSPAN="${cols}"` : '';
+  const iconCells = icons
+    .map((ic) => `<TD><IMG SRC="icons/${ic.file}.svg"/></TD>`)
+    .join('');
+  const labelCells = icons
+    .map(
+      (ic) =>
+        `<TD><FONT FACE="Helvetica" POINT-SIZE="8" COLOR="#666666">${escapeHtml(ic.label)}</FONT></TD>`
+    )
+    .join('');
+  return (
+    `<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4">` +
+    `<TR><TD${colspan}><FONT FACE="Helvetica" POINT-SIZE="11">${title}</FONT></TD></TR>` +
+    `<TR>${iconCells}</TR>` +
+    `<TR>${labelCells}</TR>` +
+    `</TABLE>>`
+  );
+}
+
 const TIER_STYLES: Record<
   string,
   { label: string; fillcolor: string; fontcolor: string }
@@ -173,7 +228,7 @@ let dot = `digraph Architecture {
     pad = 0.4
     nodesep = 0.6
     ranksep = 1.0
-    splines = "curved"
+    splines = "line"
     compound = true
     newrank = true
   ];
@@ -220,7 +275,7 @@ function emitCluster(tier: string, indent: string): string {
   out += `${indent}  penwidth = 1.5;\n`;
   out += `${indent}  margin = 16;\n\n`;
   for (const n of tierNodes) {
-    out += `${indent}  "${n.id}" [label="${n.label}"];\n`;
+    out += `${indent}  "${n.id}" [label=${nodeHtmlLabel(n)}];\n`;
   }
   out += `${indent}}\n\n`;
   return out;
@@ -258,11 +313,7 @@ if (networkTier.length > 0) {
 // prevents the K_{2,2} bipartite crossing between {ReqRes,Worker}→{Emqx,Database}.
 const EDGE_OVERRIDES: Record<string, string> = {
   'ReqRes -> Emqx': 'constraint=false',
-  'Worker -> Emqx': 'constraint=false tailport=sw headport=se',
-  'WebApp -> ReqRes': 'tailport=sw headport=n',
-  'WebApp -> Emqx': 'tailport=se headport=n',
-  'ReqRes -> Database': 'tailport=s headport=nw',
-  'Worker -> Database': 'tailport=s headport=ne',
+  'Worker -> Emqx': 'constraint=false',
 };
 
 for (const edge of [...edgeSet].sort()) {
@@ -280,17 +331,26 @@ fs.writeFileSync(DOT_PATH, dot, 'utf8');
 console.log(`Wrote ${DOT_PATH}`);
 
 // ---------------------------------------------------------------------------
-// 4. Render PNG
+// 4. Render SVG
 // ---------------------------------------------------------------------------
 
 try {
-  execSync(`dot -Tpng -Gdpi=200 -o "${PNG_PATH}" "${DOT_PATH}"`, {
+  execSync(`dot -Tsvg -o "${SVG_PATH}" "${DOT_PATH}"`, {
     stdio: 'inherit',
+    cwd: OUTPUT_DIR,
   });
-  console.log(`Rendered ${PNG_PATH}`);
+
+  let svg = fs.readFileSync(SVG_PATH, 'utf8');
+  svg = svg.replace(/xlink:href="icons\/([^"]+\.svg)"/g, (_match, file) => {
+    const buf = fs.readFileSync(path.join(ICONS_DIR, file));
+    return `xlink:href="data:image/svg+xml;base64,${buf.toString('base64')}"`;
+  });
+  fs.writeFileSync(SVG_PATH, svg, 'utf8');
+
+  console.log(`Rendered ${SVG_PATH}`);
 } catch {
   console.error(
-    'Failed to render PNG. Ensure graphviz is installed: brew install graphviz'
+    'Failed to render SVG. Ensure graphviz is installed: brew install graphviz'
   );
   process.exit(1);
 }

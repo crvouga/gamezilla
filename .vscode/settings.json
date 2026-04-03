@@ -25,6 +25,8 @@
     "apprunner",
     "bgcolor",
     "bunx",
+    "CELLBORDER",
+    "CELLSPACING",
     "certificatemanager",
     "Consolas",
     "credentialless",

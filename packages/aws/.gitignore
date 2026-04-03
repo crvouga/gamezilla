@@ -32,8 +32,6 @@ build/
 
 # cdk-dia generated diagrams
 diagram/
-diagram.png
-diagram.dot
 
 # Ignore macOS and system files
 .DS_Store
