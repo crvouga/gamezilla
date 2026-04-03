@@ -9,6 +9,7 @@ import {
   jest,
 } from 'bun:test'
 import { Assert } from '@gamezilla/shared/assert'
+import { ConsensusAuthority } from '../consensus-authority'
 import { PeerStore } from '../peer-store'
 import { anyPeerSync, designatedSyncPeer } from '../sync-policy'
 import { InMemoryBus, InMemoryTransport } from '../transport'
@@ -30,6 +31,7 @@ function setup(opts?: {
   quorum?: number
   consensusTimeoutMs?: number
   syncPolicy?: SyncPolicy
+  weights?: Record<string, number>
 }) {
   const bus = new InMemoryBus()
   const transports = new Map<string, InMemoryTransport>()
@@ -43,15 +45,26 @@ function setup(opts?: {
     const transport = new InMemoryTransport(bus, peerId)
     transports.set(peerId, transport)
 
+    const authority = new ConsensusAuthority({
+      peerId,
+      peers: PEERS,
+      ...(opts?.quorum !== undefined ? { quorum: opts.quorum } : {}),
+      ...(opts?.weights !== undefined ? { weights: opts.weights } : {}),
+    })
+
     const store = new PeerStore(
       TicTacToeModule,
       {
         peerId,
         peers: PEERS,
         transport,
-        ...(opts?.quorum !== undefined ? { quorum: opts.quorum } : {}),
-        ...(opts?.consensusTimeoutMs !== undefined ? { consensusTimeoutMs: opts.consensusTimeoutMs } : {}),
-        ...(opts?.syncPolicy !== undefined ? { syncPolicy: opts.syncPolicy } : {}),
+        authority,
+        ...(opts?.consensusTimeoutMs !== undefined
+          ? { consensusTimeoutMs: opts.consensusTimeoutMs }
+          : {}),
+        ...(opts?.syncPolicy !== undefined
+          ? { syncPolicy: opts.syncPolicy }
+          : {}),
       },
       {
         onBadActor: (badPeerId, commandId) =>
@@ -135,12 +148,22 @@ describe('PeerStore', () => {
 
     transport_o.disconnect()
 
+    const authority_x = new ConsensusAuthority({
+      peerId: 'player-x',
+      peers: ['player-x', 'player-o'],
+    })
+    const authority_o = new ConsensusAuthority({
+      peerId: 'player-o',
+      peers: ['player-x', 'player-o'],
+    })
+
     const store_x = new PeerStore(
       TicTacToeModule,
       {
         peerId: 'player-x',
         peers: ['player-x', 'player-o'],
         transport: transport_x,
+        authority: authority_x,
         consensusTimeoutMs: 5000,
       },
       {
@@ -154,6 +177,7 @@ describe('PeerStore', () => {
         peerId: 'player-o',
         peers: ['player-x', 'player-o'],
         transport: transport_o,
+        authority: authority_o,
       },
     )
 
@@ -321,15 +345,19 @@ describe('PeerStore', () => {
     const bus = new InMemoryBus()
     const t1 = new InMemoryTransport(bus, 'a')
     const t2 = new InMemoryTransport(bus, 'b')
+    const a1 = new ConsensusAuthority({ peerId: 'a', peers: ['a', 'b'] })
+    const a2 = new ConsensusAuthority({ peerId: 'b', peers: ['a', 'b'] })
     const store = new PeerStore(badModule, {
       peerId: 'a',
       peers: ['a', 'b'],
       transport: t1,
+      authority: a1,
     })
     const _store2 = new PeerStore(badModule, {
       peerId: 'b',
       peers: ['a', 'b'],
       transport: t2,
+      authority: a2,
     })
 
     expect(() =>
@@ -355,15 +383,19 @@ describe('PeerStore', () => {
     const bus = new InMemoryBus()
     const t1 = new InMemoryTransport(bus, 'a')
     const t2 = new InMemoryTransport(bus, 'b')
+    const a1 = new ConsensusAuthority({ peerId: 'a', peers: ['a', 'b'] })
+    const a2 = new ConsensusAuthority({ peerId: 'b', peers: ['a', 'b'] })
     const store = new PeerStore(badModule, {
       peerId: 'a',
       peers: ['a', 'b'],
       transport: t1,
+      authority: a1,
     })
     const _store2 = new PeerStore(badModule, {
       peerId: 'b',
       peers: ['a', 'b'],
       transport: t2,
+      authority: a2,
     })
 
     expect(() =>
@@ -397,13 +429,13 @@ describe('Sync protocol', () => {
     store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 4, player: 'X' } })
 
     expect(
-      (stores.get('player-o')!.getCommittedState()['board'] as Array<null | string>)[4]
+      (stores.get('player-o')!.getCommittedState()['board'] as Array<null | string>)[4],
     ).toBeNull()
 
     transports.get('player-o')!.reconnect()
 
     expect(
-      (stores.get('player-o')!.getCommittedState()['board'] as Array<null | string>)[0]
+      (stores.get('player-o')!.getCommittedState()['board'] as Array<null | string>)[0],
     ).toBe('X')
 
     expect(syncs).toContain('player-o')
@@ -508,7 +540,7 @@ describe('Sync protocol', () => {
     expect(() => stores.get('player-o')!.requestSync()).not.toThrow()
   })
 
-  it('rehydrate clears resolved_command_ids — subsequent commands process normally', () => {
+  it('rehydrate clears finalized_command_ids — subsequent commands process normally', () => {
     const { stores } = setup({
       syncPolicy: designatedSyncPeer('worker'),
     })

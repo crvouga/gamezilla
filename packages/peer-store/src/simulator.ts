@@ -1,27 +1,26 @@
 import { Assert } from '@gamezilla/shared/assert'
+import { ConsensusAuthority } from './consensus-authority'
 import { PeerStore } from './peer-store'
 import { designatedSyncPeer } from './sync-policy'
 import { InMemoryBus, InMemoryTransport } from './transport'
-import type { Event, Message, State, StoreModule, SyncPolicy } from './types'
+import type { Authority, Event, Message, State, StoreModule, SyncPolicy } from './types'
 
 const crash: Assert = Assert.crash()
 
-type MessageLogEntry = {
-  from: string
-  kind: string
-  payload: unknown
-  delivered: boolean
-  timestamp: number
-}
+export type AuthorityFactory = (config: {
+  peerId: string
+  peers: string[]
+}) => Authority
 
 export class DeterministicSimulator {
   private readonly module: StoreModule
   private readonly peer_ids: string[]
   private readonly syncPolicy: SyncPolicy | undefined
+  private readonly createAuthority: AuthorityFactory
+  private readonly consensusTimeoutMs: number | undefined
   private readonly bus: InMemoryBus
   private readonly transports = new Map<string, InMemoryTransport>()
   private readonly stores = new Map<string, PeerStore>()
-  private readonly message_log: MessageLogEntry[] = []
   private readonly bad_actor_log: Array<{
     peerId: string
     commandId: string
@@ -36,10 +35,9 @@ export class DeterministicSimulator {
     module: StoreModule,
     config: {
       peers: string[]
-      quorum?: number
+      createAuthority?: AuthorityFactory
       consensusTimeoutMs?: number
       advanceTime?: (ms: number) => void
-      weights?: Record<string, number>
       syncPolicy?: SyncPolicy | string
     },
   ) {
@@ -47,9 +45,17 @@ export class DeterministicSimulator {
 
     this.module = module
     this.peer_ids = [...config.peers]
-    this.advanceTimeFn = config.advanceTime ?? (() => {
-      crash.fail('advanceTime requires a config.advanceTime function')
-    })
+    this.advanceTimeFn =
+      config.advanceTime ??
+      (() => {
+        crash.fail('advanceTime requires a config.advanceTime function')
+      })
+
+    this.createAuthority =
+      config.createAuthority ??
+      (({ peerId, peers }) => new ConsensusAuthority({ peerId, peers }))
+
+    this.consensusTimeoutMs = config.consensusTimeoutMs
 
     this.syncPolicy =
       typeof config.syncPolicy === 'string'
@@ -57,36 +63,7 @@ export class DeterministicSimulator {
         : config.syncPolicy
 
     this.bus = new InMemoryBus()
-
-    for (const peerId of this.peer_ids) {
-      const transport = new InMemoryTransport(this.bus, peerId)
-      this.transports.set(peerId, transport)
-
-      const store = new PeerStore(
-        module,
-        {
-          peerId,
-          peers: config.peers,
-          transport,
-          ...(config.quorum !== undefined ? { quorum: config.quorum } : {}),
-          ...(config.consensusTimeoutMs !== undefined ? { consensusTimeoutMs: config.consensusTimeoutMs } : {}),
-          ...(config.weights !== undefined ? { weights: config.weights } : {}),
-          ...(this.syncPolicy !== undefined ? { syncPolicy: this.syncPolicy } : {}),
-        },
-        {
-          onBadActor: (badPeerId, commandId) => {
-            this.bad_actor_log.push({ peerId: badPeerId, commandId })
-          },
-          onTimeout: (commandId) => {
-            this.timeout_log.push(commandId)
-          },
-          onError: (error) => {
-            this.error_log.push(error)
-          },
-        },
-      )
-      this.stores.set(peerId, store)
-    }
+    this.buildStores(this.bus, config.peers)
   }
 
   getStore(peerId: string): PeerStore {
@@ -179,7 +156,12 @@ export class DeterministicSimulator {
       const peer_json = JSON.stringify(peer_state, null, 2)
 
       if (reference_json !== peer_json) {
-        const diff = buildStateDiff(reference_id, reference_state, peerId, peer_state)
+        const diff = buildStateDiff(
+          reference_id,
+          reference_state,
+          peerId,
+          peer_state,
+        )
         crash.fail(
           `peers diverged: ${reference_id} vs ${peerId}\n${diff}`,
         )
@@ -221,24 +203,56 @@ export class DeterministicSimulator {
     for (const store of this.stores.values()) {
       store.destroy()
     }
+    for (const transport of this.transports.values()) {
+      transport.destroy()
+    }
     this.stores.clear()
     this.transports.clear()
     this.bus.destroy()
 
-    const new_bus_ref = new InMemoryBus()
-    Object.assign(this, { bus: new_bus_ref })
+    const new_bus = new InMemoryBus()
+    Object.assign(this, { bus: new_bus })
+    this.buildStores(new_bus, this.peer_ids)
 
-    for (const peerId of this.peer_ids) {
-      const transport = new InMemoryTransport(new_bus_ref, peerId)
+    this.bad_actor_log.length = 0
+    this.timeout_log.length = 0
+    this.error_log.length = 0
+    this.logical_time = 0
+  }
+
+  destroy(): void {
+    if (this.is_destroyed) return
+    this.is_destroyed = true
+
+    for (const store of this.stores.values()) {
+      store.destroy()
+    }
+    for (const transport of this.transports.values()) {
+      transport.destroy()
+    }
+    this.bus.destroy()
+  }
+
+  private buildStores(bus: InMemoryBus, peers: string[]): void {
+    for (const peerId of peers) {
+      const transport = new InMemoryTransport(bus, peerId)
       this.transports.set(peerId, transport)
+
+      const authority = this.createAuthority({ peerId, peers })
 
       const store = new PeerStore(
         this.module,
         {
           peerId,
-          peers: this.peer_ids,
+          peers,
           transport,
-          ...(this.syncPolicy !== undefined ? { syncPolicy: this.syncPolicy } : {}),
+          authority,
+          ...(this.consensusTimeoutMs !== undefined
+            ? { consensusTimeoutMs: this.consensusTimeoutMs }
+            : {}),
+          ...(this.syncPolicy !== undefined
+            ? { syncPolicy: this.syncPolicy }
+            : {}),
         },
         {
           onBadActor: (badPeerId, commandId) => {
@@ -254,25 +268,6 @@ export class DeterministicSimulator {
       )
       this.stores.set(peerId, store)
     }
-
-    this.bad_actor_log.length = 0
-    this.timeout_log.length = 0
-    this.error_log.length = 0
-    this.message_log.length = 0
-    this.logical_time = 0
-  }
-
-  destroy(): void {
-    if (this.is_destroyed) return
-    this.is_destroyed = true
-
-    for (const store of this.stores.values()) {
-      store.destroy()
-    }
-    for (const transport of this.transports.values()) {
-      transport.destroy()
-    }
-    this.bus.destroy()
   }
 
   private assertPeerExists(peerId: string): void {

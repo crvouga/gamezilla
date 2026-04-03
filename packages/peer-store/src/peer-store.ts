@@ -1,6 +1,7 @@
 import { Assert } from '@gamezilla/shared/assert'
-import { ConsensusProtocol } from './consensus-protocol'
 import type {
+  Authority,
+  AuthoritySink,
   Command,
   Event,
   HandleResult,
@@ -10,7 +11,6 @@ import type {
   StoreModule,
   SyncPolicy,
   Transport,
-  Vote,
 } from './types'
 import { generateId, replayEvents } from './utils'
 
@@ -21,9 +21,7 @@ const TOPIC = 'peer-store'
 
 type OptimisticEvent = Event & { readonly _commandId: string }
 
-type WireMessage =
-  | { kind: 'command'; command: Command; events: Event[] }
-  | { kind: 'vote'; vote: Vote }
+type SyncWireMessage =
   | { kind: 'sync-request'; from: string }
   | { kind: 'sync-response'; to: string; events: Event[] }
 
@@ -32,7 +30,7 @@ export class PeerStore implements PeerStoreApi {
   private readonly peerId: string
   private readonly peers: string[]
   private readonly transport: Transport
-  private readonly consensus: ConsensusProtocol
+  private readonly authority: Authority
   private readonly consensusTimeoutMs: number
   private readonly syncPolicy: SyncPolicy | null
 
@@ -55,8 +53,7 @@ export class PeerStore implements PeerStoreApi {
     string,
     ReturnType<typeof setTimeout>
   >()
-  private readonly pending_command_events = new Map<string, Event[]>()
-  private readonly resolved_command_ids = new Set<string>()
+  private readonly finalized_command_ids = new Set<string>()
 
   private transport_unsubscribe: (() => void) | null = null
   private connect_unsubscribe: (() => void) | null = null
@@ -67,9 +64,8 @@ export class PeerStore implements PeerStoreApi {
       peerId: string
       peers: string[]
       transport: Transport
-      quorum?: number
+      authority: Authority
       consensusTimeoutMs?: number
-      weights?: Record<string, number>
       syncPolicy?: SyncPolicy
     },
     callbacks?: {
@@ -94,20 +90,27 @@ export class PeerStore implements PeerStoreApi {
     this.peerId = config.peerId
     this.peers = [...config.peers]
     this.transport = config.transport
+    this.authority = config.authority
     this.consensusTimeoutMs = config.consensusTimeoutMs ?? 5000
     this.syncPolicy = config.syncPolicy ?? null
     this.callbacks = callbacks ?? {}
 
-    this.consensus = new ConsensusProtocol(
-      config.peers,
-      config.quorum,
-      config.weights,
-    )
     this.committed_state = module.initialState()
     crash.record(
       this.committed_state,
       'initialState must return a plain object',
     )
+
+    const sink: AuthoritySink = {
+      commit: (commandId, events) => this.handleCommit(commandId, events),
+      reject: (commandId) => this.handleReject(commandId),
+      reportBadActor: (badPeerId, commandId) =>
+        this.callbacks.onBadActor?.(badPeerId, commandId),
+      broadcast: (payload) => this.transport.publish(TOPIC, payload),
+      getCommittedState: () => this.committed_state,
+      getModule: () => this.module,
+    }
+    this.authority.bind(sink)
 
     this.transport_unsubscribe = this.transport.subscribe(
       TOPIC,
@@ -157,7 +160,6 @@ export class PeerStore implements PeerStoreApi {
     )
 
     const events = result.value.events
-    this.pending_command_events.set(command.id, events)
 
     for (const event of events) {
       this.optimistic_events.push({
@@ -166,38 +168,23 @@ export class PeerStore implements PeerStoreApi {
       })
     }
 
-    this.processVote({
-      commandId: command.id,
-      from: this.peerId,
-      vote: 'ACK',
-    })
+    this.authority.onLocalCommand(command, events)
 
-    this.notifySubscribers()
-
-    const wire: WireMessage = { kind: 'command', command, events }
-    this.transport.publish(TOPIC, wire)
-
-    const vote_wire: WireMessage = {
-      kind: 'vote',
-      vote: { commandId: command.id, from: this.peerId, vote: 'ACK' },
-    }
-    this.transport.publish(TOPIC, vote_wire)
-
-    if (!this.resolved_command_ids.has(command.id)) {
+    if (!this.finalized_command_ids.has(command.id)) {
       const timeout = setTimeout(() => {
         this.pending_timeouts.delete(command.id)
-        if (this.resolved_command_ids.has(command.id)) return
-        this.resolved_command_ids.add(command.id)
+        if (this.finalized_command_ids.has(command.id)) return
 
         this.optimistic_events = this.optimistic_events.filter(
           (e) => e._commandId !== command.id,
         )
-        this.pending_command_events.delete(command.id)
         this.notifySubscribers()
         this.callbacks.onTimeout?.(command.id)
       }, this.consensusTimeoutMs)
       this.pending_timeouts.set(command.id, timeout)
     }
+
+    this.notifySubscribers()
   }
 
   dispatchOptimistic(event: Event): void {
@@ -247,7 +234,7 @@ export class PeerStore implements PeerStoreApi {
   requestSync(): void {
     crash.ok(!this.is_destroyed, 'cannot requestSync on destroyed store')
     this.sync_pending = true
-    const wire: WireMessage = { kind: 'sync-request', from: this.peerId }
+    const wire: SyncWireMessage = { kind: 'sync-request', from: this.peerId }
     this.transport.publish(TOPIC, wire)
   }
 
@@ -269,12 +256,8 @@ export class PeerStore implements PeerStoreApi {
       clearTimeout(timeout)
     }
     this.pending_timeouts.clear()
-    this.pending_command_events.clear()
-
-    for (const commandId of this.resolved_command_ids) {
-      this.consensus.reset(commandId)
-    }
-    this.resolved_command_ids.clear()
+    this.finalized_command_ids.clear()
+    this.authority.reset()
 
     this.notifySubscribers()
   }
@@ -288,6 +271,7 @@ export class PeerStore implements PeerStoreApi {
     }
     this.pending_timeouts.clear()
     this.subscribers.clear()
+    this.authority.destroy()
 
     if (this.transport_unsubscribe) {
       this.transport_unsubscribe()
@@ -322,80 +306,24 @@ export class PeerStore implements PeerStoreApi {
     const msg = payload as Record<string, unknown>
     crash.nonEmptyString(msg['kind'], 'wire message must have a kind')
 
-    if (msg['kind'] === 'command') {
-      this.handleIncomingCommand(msg as unknown as WireMessage & { kind: 'command' })
-    } else if (msg['kind'] === 'vote') {
-      this.handleIncomingVote(msg as unknown as WireMessage & { kind: 'vote' })
-    } else if (msg['kind'] === 'sync-request') {
-      this.handleSyncRequest(msg as unknown as WireMessage & { kind: 'sync-request' })
+    if (msg['kind'] === 'sync-request') {
+      this.handleSyncRequest(
+        msg as unknown as SyncWireMessage & { kind: 'sync-request' },
+      )
     } else if (msg['kind'] === 'sync-response') {
-      this.handleSyncResponse(msg as unknown as WireMessage & { kind: 'sync-response' })
+      this.handleSyncResponse(
+        msg as unknown as SyncWireMessage & { kind: 'sync-response' },
+      )
+    } else {
+      this.authority.onMessage(payload)
     }
   }
 
-  private handleIncomingCommand(
-    wire: WireMessage & { kind: 'command' },
-  ): void {
-    const { command, events } = wire
+  private handleCommit(commandId: string, events: Event[]): void {
+    if (this.finalized_command_ids.has(commandId)) return
+    this.finalized_command_ids.add(commandId)
 
-    if (command.peerId === this.peerId) return
-    if (this.resolved_command_ids.has(command.id)) return
-
-    this.pending_command_events.set(command.id, events)
-
-    const result = this.module.handle(this.committed_state, command)
-    this.assertHandleResult(result)
-
-    const vote: Vote = result.ok
-      ? { commandId: command.id, from: this.peerId, vote: 'ACK' }
-      : {
-          commandId: command.id,
-          from: this.peerId,
-          vote: 'REJECT',
-          reason: result.error.message,
-        }
-
-    this.processVote(vote)
-
-    if (!this.resolved_command_ids.has(command.id)) {
-      const vote_wire: WireMessage = { kind: 'vote', vote }
-      this.transport.publish(TOPIC, vote_wire)
-    }
-  }
-
-  private handleIncomingVote(wire: WireMessage & { kind: 'vote' }): void {
-    const { vote } = wire
-    if (vote.from === this.peerId) return
-    if (this.resolved_command_ids.has(vote.commandId)) return
-    if (this.consensus.isResolved(vote.commandId)) return
-
-    this.processVote(vote)
-  }
-
-  private processVote(vote: Vote): void {
-    if (this.resolved_command_ids.has(vote.commandId)) return
-    if (this.consensus.isResolved(vote.commandId)) return
-
-    const result = this.consensus.record(vote)
-
-    if (result.status === 'COMMITTED') {
-      this.applyCommit(vote.commandId)
-    } else if (result.status === 'REJECTED') {
-      this.applyReject(vote.commandId)
-    }
-  }
-
-  private applyCommit(commandId: string): void {
-    if (this.resolved_command_ids.has(commandId)) return
-    this.resolved_command_ids.add(commandId)
-
-    const events = this.pending_command_events.get(commandId)
-    crash.defined(
-      events,
-      `no events found for committed command: ${commandId}`,
-    )
-
-    for (const event of events!) {
+    for (const event of events) {
       this.committed_state = this.module.reduce(this.committed_state, event)
       crash.record(
         this.committed_state,
@@ -414,19 +342,12 @@ export class PeerStore implements PeerStoreApi {
       this.pending_timeouts.delete(commandId)
     }
 
-    this.pending_command_events.delete(commandId)
-
-    const bad_actors = this.consensus.getBadActors(commandId)
-    for (const bad_actor of bad_actors) {
-      this.callbacks.onBadActor?.(bad_actor, commandId)
-    }
-
     this.notifySubscribers()
   }
 
-  private applyReject(commandId: string): void {
-    if (this.resolved_command_ids.has(commandId)) return
-    this.resolved_command_ids.add(commandId)
+  private handleReject(commandId: string): void {
+    if (this.finalized_command_ids.has(commandId)) return
+    this.finalized_command_ids.add(commandId)
 
     this.optimistic_events = this.optimistic_events.filter(
       (e) => e._commandId !== commandId,
@@ -438,24 +359,17 @@ export class PeerStore implements PeerStoreApi {
       this.pending_timeouts.delete(commandId)
     }
 
-    this.pending_command_events.delete(commandId)
-
-    const bad_actors = this.consensus.getBadActors(commandId)
-    for (const bad_actor of bad_actors) {
-      this.callbacks.onBadActor?.(bad_actor, commandId)
-    }
-
     this.notifySubscribers()
   }
 
   private handleSyncRequest(
-    wire: WireMessage & { kind: 'sync-request' },
+    wire: SyncWireMessage & { kind: 'sync-request' },
   ): void {
     if (wire.from === this.peerId) return
     if (!this.syncPolicy) return
     if (!this.syncPolicy.isSyncSource(this.peerId, this.peers)) return
 
-    const response: WireMessage = {
+    const response: SyncWireMessage = {
       kind: 'sync-response',
       to: wire.from,
       events: this.getCommittedEvents(),
@@ -464,7 +378,7 @@ export class PeerStore implements PeerStoreApi {
   }
 
   private handleSyncResponse(
-    wire: WireMessage & { kind: 'sync-response' },
+    wire: SyncWireMessage & { kind: 'sync-response' },
   ): void {
     if (wire.to !== this.peerId) return
     if (!this.sync_pending) return
@@ -475,7 +389,10 @@ export class PeerStore implements PeerStoreApi {
 
   private assertHandleResult(result: HandleResult): void {
     crash.defined(result, 'module.handle must return a result')
-    crash.ok(typeof result.ok === 'boolean', 'handle result must have ok: boolean')
+    crash.ok(
+      typeof result.ok === 'boolean',
+      'handle result must have ok: boolean',
+    )
     if (result.ok) {
       crash.array(result.value.events, 'handle success must have events array')
     } else {
@@ -483,7 +400,10 @@ export class PeerStore implements PeerStoreApi {
         result.error.code,
         'handle error must have non-empty code',
       )
-      crash.string(result.error.message, 'handle error must have message string')
+      crash.string(
+        result.error.message,
+        'handle error must have message string',
+      )
     }
   }
 }
