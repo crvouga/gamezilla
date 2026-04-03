@@ -1,7 +1,6 @@
 import { Assert } from '@gamezilla/shared/assert'
 import { ConsensusProtocol } from './consensus-protocol'
 import type {
-  AuthorityPolicy,
   Command,
   Event,
   HandleResult,
@@ -9,6 +8,7 @@ import type {
   PeerStoreApi,
   State,
   StoreModule,
+  SyncPolicy,
   Transport,
   Vote,
 } from './types'
@@ -34,7 +34,7 @@ export class PeerStore implements PeerStoreApi {
   private readonly transport: Transport
   private readonly consensus: ConsensusProtocol
   private readonly consensusTimeoutMs: number
-  private readonly authority: AuthorityPolicy | null
+  private readonly syncPolicy: SyncPolicy | null
 
   private readonly callbacks: {
     onBadActor?: (peerId: string, commandId: string) => void
@@ -69,7 +69,8 @@ export class PeerStore implements PeerStoreApi {
       transport: Transport
       quorum?: number
       consensusTimeoutMs?: number
-      authority?: AuthorityPolicy
+      weights?: Record<string, number>
+      syncPolicy?: SyncPolicy
     },
     callbacks?: {
       onBadActor?: (peerId: string, commandId: string) => void
@@ -94,10 +95,14 @@ export class PeerStore implements PeerStoreApi {
     this.peers = [...config.peers]
     this.transport = config.transport
     this.consensusTimeoutMs = config.consensusTimeoutMs ?? 5000
-    this.authority = config.authority ?? null
+    this.syncPolicy = config.syncPolicy ?? null
     this.callbacks = callbacks ?? {}
 
-    this.consensus = new ConsensusProtocol(config.peers, config.quorum)
+    this.consensus = new ConsensusProtocol(
+      config.peers,
+      config.quorum,
+      config.weights,
+    )
     this.committed_state = module.initialState()
     crash.record(
       this.committed_state,
@@ -109,7 +114,7 @@ export class PeerStore implements PeerStoreApi {
       (payload: unknown) => this.handleWireMessage(payload),
     )
 
-    if (this.authority) {
+    if (this.syncPolicy) {
       this.connect_unsubscribe = this.transport.onConnect(() => {
         this.requestSync()
       })
@@ -447,8 +452,8 @@ export class PeerStore implements PeerStoreApi {
     wire: WireMessage & { kind: 'sync-request' },
   ): void {
     if (wire.from === this.peerId) return
-    if (!this.authority) return
-    if (!this.authority.isAuthority(this.peerId, this.peers)) return
+    if (!this.syncPolicy) return
+    if (!this.syncPolicy.isSyncSource(this.peerId, this.peers)) return
 
     const response: WireMessage = {
       kind: 'sync-response',

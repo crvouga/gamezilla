@@ -44,8 +44,8 @@ export type StoreModule = {
   reduce(state: State, event: Event): State
 }
 
-export type AuthorityPolicy = {
-  isAuthority(localPeerId: string, allPeers: string[]): boolean
+export type SyncPolicy = {
+  isSyncSource(localPeerId: string, allPeers: string[]): boolean
 }
 
 export interface PeerStoreApi {

@@ -9,10 +9,10 @@ import {
   jest,
 } from 'bun:test'
 import { Assert } from '@gamezilla/shared/assert'
-import { anyPeerAuthority, designatedAuthority } from '../authority'
 import { PeerStore } from '../peer-store'
+import { anyPeerSync, designatedSyncPeer } from '../sync-policy'
 import { InMemoryBus, InMemoryTransport } from '../transport'
-import type { AuthorityPolicy, Event, HandleResult, State, StoreModule } from '../types'
+import type { Event, HandleResult, State, StoreModule, SyncPolicy } from '../types'
 import { TicTacToeModule } from '../__fixtures__/tic-tac-toe.module'
 import { TestCrashHandler } from './test-crash-handler'
 
@@ -29,7 +29,7 @@ const PEERS = ['player-x', 'player-o', 'worker']
 function setup(opts?: {
   quorum?: number
   consensusTimeoutMs?: number
-  authority?: AuthorityPolicy
+  syncPolicy?: SyncPolicy
 }) {
   const bus = new InMemoryBus()
   const transports = new Map<string, InMemoryTransport>()
@@ -51,7 +51,7 @@ function setup(opts?: {
         transport,
         ...(opts?.quorum !== undefined ? { quorum: opts.quorum } : {}),
         ...(opts?.consensusTimeoutMs !== undefined ? { consensusTimeoutMs: opts.consensusTimeoutMs } : {}),
-        ...(opts?.authority !== undefined ? { authority: opts.authority } : {}),
+        ...(opts?.syncPolicy !== undefined ? { syncPolicy: opts.syncPolicy } : {}),
       },
       {
         onBadActor: (badPeerId, commandId) =>
@@ -382,9 +382,9 @@ describe('Sync protocol', () => {
   beforeEach(() => jest.useFakeTimers())
   afterEach(() => jest.useRealTimers())
 
-  it('requestSync broadcasts sync-request and authority responds', () => {
+  it('requestSync broadcasts sync-request and sync source responds', () => {
     const { stores, transports, syncs } = setup({
-      authority: designatedAuthority('worker'),
+      syncPolicy: designatedSyncPeer('worker'),
     })
     const store_x = stores.get('player-x')!
     const store_w = stores.get('worker')!
@@ -409,9 +409,9 @@ describe('Sync protocol', () => {
     expect(syncs).toContain('player-o')
   })
 
-  it('non-authority peer ignores sync-request', () => {
-    const authority = designatedAuthority('worker')
-    const { stores, transports } = setup({ authority })
+  it('non-sync-source peer ignores sync-request', () => {
+    const policy = designatedSyncPeer('worker')
+    const { stores, transports } = setup({ syncPolicy: policy })
 
     stores.get('player-x')!.dispatch({
       type: 'PLACE_MARK',
@@ -431,23 +431,23 @@ describe('Sync protocol', () => {
     expect(worker_events.length).toBeGreaterThanOrEqual(1)
   })
 
-  it('designatedAuthority only responds from the designated peer', () => {
-    const policy = designatedAuthority('worker')
-    expect(policy.isAuthority('worker', PEERS)).toBe(true)
-    expect(policy.isAuthority('player-x', PEERS)).toBe(false)
-    expect(policy.isAuthority('player-o', PEERS)).toBe(false)
+  it('designatedSyncPeer only responds from the designated peer', () => {
+    const policy = designatedSyncPeer('worker')
+    expect(policy.isSyncSource('worker', PEERS)).toBe(true)
+    expect(policy.isSyncSource('player-x', PEERS)).toBe(false)
+    expect(policy.isSyncSource('player-o', PEERS)).toBe(false)
   })
 
-  it('anyPeerAuthority responds from every peer', () => {
-    const policy = anyPeerAuthority()
-    expect(policy.isAuthority('worker', PEERS)).toBe(true)
-    expect(policy.isAuthority('player-x', PEERS)).toBe(true)
-    expect(policy.isAuthority('player-o', PEERS)).toBe(true)
+  it('anyPeerSync responds from every peer', () => {
+    const policy = anyPeerSync()
+    expect(policy.isSyncSource('worker', PEERS)).toBe(true)
+    expect(policy.isSyncSource('player-x', PEERS)).toBe(true)
+    expect(policy.isSyncSource('player-o', PEERS)).toBe(true)
   })
 
   it('auto-sync on transport reconnect converges state', () => {
     const { stores, transports } = setup({
-      authority: designatedAuthority('worker'),
+      syncPolicy: designatedSyncPeer('worker'),
     })
 
     stores.get('player-x')!.dispatch({
@@ -471,7 +471,7 @@ describe('Sync protocol', () => {
 
   it('onSync callback fires after successful sync', () => {
     const { stores, transports, syncs } = setup({
-      authority: designatedAuthority('worker'),
+      syncPolicy: designatedSyncPeer('worker'),
     })
 
     stores.get('player-x')!.dispatch({
@@ -493,7 +493,7 @@ describe('Sync protocol', () => {
 
   it('requestSync on destroyed store → crash', () => {
     const { stores } = setup({
-      authority: designatedAuthority('worker'),
+      syncPolicy: designatedSyncPeer('worker'),
     })
     const store = stores.get('player-x')!
     store.destroy()
@@ -510,7 +510,7 @@ describe('Sync protocol', () => {
 
   it('rehydrate clears resolved_command_ids — subsequent commands process normally', () => {
     const { stores } = setup({
-      authority: designatedAuthority('worker'),
+      syncPolicy: designatedSyncPeer('worker'),
     })
 
     stores.get('player-x')!.dispatch({

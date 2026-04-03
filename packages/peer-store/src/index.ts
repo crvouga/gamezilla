@@ -1,10 +1,9 @@
-export { designatedAuthority, anyPeerAuthority } from './authority'
 export { ConsensusProtocol } from './consensus-protocol'
 export { PeerStore } from './peer-store'
 export { DeterministicSimulator } from './simulator'
+export { anyPeerSync, designatedSyncPeer } from './sync-policy'
 export { InMemoryBus, InMemoryTransport } from './transport'
 export type {
-  AuthorityPolicy,
   Command,
   ConsensusResult,
   Event,
@@ -14,6 +13,7 @@ export type {
   State,
   StoreError,
   StoreModule,
+  SyncPolicy,
   Transport,
   Vote,
 } from './types'

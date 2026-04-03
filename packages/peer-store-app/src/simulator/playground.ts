@@ -27,7 +27,7 @@ export class PlaygroundSimulator {
     return new DeterministicSimulator(TicTacToeModule, {
       peers: [...PEERS],
       consensusTimeoutMs: 5000,
-      authority: 'worker',
+      syncPolicy: 'worker',
     })
   }
 

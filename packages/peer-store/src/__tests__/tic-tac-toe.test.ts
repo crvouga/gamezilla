@@ -27,7 +27,7 @@ function createSim(opts?: { consensusTimeoutMs?: number }) {
     peers: PEERS,
     consensusTimeoutMs: opts?.consensusTimeoutMs ?? 5000,
     advanceTime: (ms) => jest.advanceTimersByTime(ms),
-    authority: 'worker',
+    syncPolicy: 'worker',
   });
 }
 

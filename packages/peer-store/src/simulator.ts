@@ -1,8 +1,8 @@
 import { Assert } from '@gamezilla/shared/assert'
-import { designatedAuthority } from './authority'
 import { PeerStore } from './peer-store'
+import { designatedSyncPeer } from './sync-policy'
 import { InMemoryBus, InMemoryTransport } from './transport'
-import type { AuthorityPolicy, Event, Message, State, StoreModule } from './types'
+import type { Event, Message, State, StoreModule, SyncPolicy } from './types'
 
 const crash: Assert = Assert.crash()
 
@@ -17,7 +17,7 @@ type MessageLogEntry = {
 export class DeterministicSimulator {
   private readonly module: StoreModule
   private readonly peer_ids: string[]
-  private readonly authority: AuthorityPolicy | undefined
+  private readonly syncPolicy: SyncPolicy | undefined
   private readonly bus: InMemoryBus
   private readonly transports = new Map<string, InMemoryTransport>()
   private readonly stores = new Map<string, PeerStore>()
@@ -39,7 +39,8 @@ export class DeterministicSimulator {
       quorum?: number
       consensusTimeoutMs?: number
       advanceTime?: (ms: number) => void
-      authority?: AuthorityPolicy | string
+      weights?: Record<string, number>
+      syncPolicy?: SyncPolicy | string
     },
   ) {
     crash.ok(config.peers.length >= 2, 'simulator requires at least 2 peers')
@@ -50,10 +51,10 @@ export class DeterministicSimulator {
       crash.fail('advanceTime requires a config.advanceTime function')
     })
 
-    this.authority =
-      typeof config.authority === 'string'
-        ? designatedAuthority(config.authority)
-        : config.authority
+    this.syncPolicy =
+      typeof config.syncPolicy === 'string'
+        ? designatedSyncPeer(config.syncPolicy)
+        : config.syncPolicy
 
     this.bus = new InMemoryBus()
 
@@ -69,7 +70,8 @@ export class DeterministicSimulator {
           transport,
           ...(config.quorum !== undefined ? { quorum: config.quorum } : {}),
           ...(config.consensusTimeoutMs !== undefined ? { consensusTimeoutMs: config.consensusTimeoutMs } : {}),
-          ...(this.authority !== undefined ? { authority: this.authority } : {}),
+          ...(config.weights !== undefined ? { weights: config.weights } : {}),
+          ...(this.syncPolicy !== undefined ? { syncPolicy: this.syncPolicy } : {}),
         },
         {
           onBadActor: (badPeerId, commandId) => {
@@ -236,7 +238,7 @@ export class DeterministicSimulator {
           peerId,
           peers: this.peer_ids,
           transport,
-          ...(this.authority !== undefined ? { authority: this.authority } : {}),
+          ...(this.syncPolicy !== undefined ? { syncPolicy: this.syncPolicy } : {}),
         },
         {
           onBadActor: (badPeerId, commandId) => {

@@ -25,7 +25,7 @@ function createSim(opts?: { consensusTimeoutMs?: number; quorum?: number }) {
   return new DeterministicSimulator(TicTacToeModule, {
     peers: PEERS,
     advanceTime: (ms) => jest.advanceTimersByTime(ms),
-    authority: 'worker',
+    syncPolicy: 'worker',
     ...opts,
   });
 }
