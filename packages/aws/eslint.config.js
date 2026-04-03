@@ -3,7 +3,7 @@ const eslintPluginNaming = require('eslint-plugin-naming')
 
 module.exports = [
   {
-    ignores: ['dist/**', 'cdk.out/**'],
+    ignores: ['dist/**', 'cdk.out/**', 'diagram/**'],
   },
   {
     files: ['**/*.ts', '**/*.tsx'],
