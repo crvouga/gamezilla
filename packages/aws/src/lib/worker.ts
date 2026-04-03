@@ -37,6 +37,10 @@ export class WorkerService extends Construct implements cdk.IInspectable {
     const taskDef = new ecs.FargateTaskDefinition(this, 'Task', {
       memoryLimitMiB: 512,
       cpu: 256,
+      runtimePlatform: {
+        cpuArchitecture: ecs.CpuArchitecture.X86_64,
+        operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,
+      },
     });
 
     const dbSecret = props.database.secret;

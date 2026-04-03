@@ -37,5 +37,26 @@ export class AppVpc extends Construct implements cdk.IInspectable {
         },
       ],
     });
+
+    // VPC endpoints for Fargate in private subnets — avoids NAT gateway
+    // bottleneck for ECR image pulls, log shipping, and ECS Exec (SSM).
+    this.vpc.addGatewayEndpoint('S3Endpoint', {
+      service: ec2.GatewayVpcEndpointAwsService.S3,
+    });
+    this.vpc.addInterfaceEndpoint('EcrDockerEndpoint', {
+      service: ec2.InterfaceVpcEndpointAwsService.ECR_DOCKER,
+    });
+    this.vpc.addInterfaceEndpoint('EcrApiEndpoint', {
+      service: ec2.InterfaceVpcEndpointAwsService.ECR,
+    });
+    this.vpc.addInterfaceEndpoint('CloudWatchLogsEndpoint', {
+      service: ec2.InterfaceVpcEndpointAwsService.CLOUDWATCH_LOGS,
+    });
+    this.vpc.addInterfaceEndpoint('SsmEndpoint', {
+      service: ec2.InterfaceVpcEndpointAwsService.SSM,
+    });
+    this.vpc.addInterfaceEndpoint('SsmMessagesEndpoint', {
+      service: ec2.InterfaceVpcEndpointAwsService.SSM_MESSAGES,
+    });
   }
 }

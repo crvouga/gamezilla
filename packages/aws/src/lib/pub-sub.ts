@@ -81,6 +81,10 @@ export class PubSubBroker extends Construct implements cdk.IInspectable {
     const taskDef = new ecs.FargateTaskDefinition(this, 'EmqxTask', {
       memoryLimitMiB: 2048,
       cpu: 1024,
+      runtimePlatform: {
+        cpuArchitecture: ecs.CpuArchitecture.X86_64,
+        operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,
+      },
     });
 
     const emqxImage = new ecr_assets.DockerImageAsset(this, 'EmqxImage', {

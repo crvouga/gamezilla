@@ -49,6 +49,10 @@ export class ReqRes extends Construct implements cdk.IInspectable {
         cluster: props.cluster,
         memoryLimitMiB: 512,
         cpu: 256,
+        runtimePlatform: {
+          cpuArchitecture: ecs.CpuArchitecture.X86_64,
+          operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,
+        },
         desiredCount: 1,
         minHealthyPercent: 100,
         maxHealthyPercent: 200,
