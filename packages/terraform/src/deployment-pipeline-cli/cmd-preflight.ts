@@ -5,6 +5,7 @@ import { BasePipelineCommand } from './base-command';
 import type { CiPlatform } from './ci-platform';
 import { runStep } from './ci-platform';
 import { PROJECT_CONFIG } from '../project-config';
+import { join } from 'node:path';
 import { REPO_ROOT, TF_PACKAGE_ROOT } from './paths';
 import { run } from './run-subprocess';
 
@@ -15,7 +16,7 @@ function isValidAwsRegionFormat(value: string): boolean {
 export class PreflightCommand extends BasePipelineCommand {
   readonly id = 'preflight';
   readonly summary =
-    'Validate AWS (STS), terraform validate, Docker build';
+    'Validate AWS (STS), terraform validate, Docker builds (app + emqx)';
 
   constructor(platform: CiPlatform) {
     super(platform);
@@ -25,17 +26,20 @@ export class PreflightCommand extends BasePipelineCommand {
     assert.array(argv, 'execute: argv must be an array');
 
     const region = this.requireAwsRegionValid();
-    await runStep(this.platform, 'PREFLIGHT 1/4 — AWS caller identity', () =>
+    await runStep(this.platform, 'PREFLIGHT 1/5 — AWS caller identity', () =>
       this.assertCallerIdentity(region)
     );
-    await runStep(this.platform, 'PREFLIGHT 2/4 — Terraform init', () =>
+    await runStep(this.platform, 'PREFLIGHT 2/5 — Terraform init', () =>
       this.terraformInit()
     );
-    await runStep(this.platform, 'PREFLIGHT 3/4 — Terraform validate', () =>
+    await runStep(this.platform, 'PREFLIGHT 3/5 — Terraform validate', () =>
       this.terraformValidate()
     );
-    await runStep(this.platform, 'PREFLIGHT 4/4 — Docker build', () =>
-      this.assertDockerBuild()
+    await runStep(this.platform, 'PREFLIGHT 4/5 — Docker build (app)', () =>
+      this.assertDockerBuild(REPO_ROOT, 'Docker build (app)')
+    );
+    await runStep(this.platform, 'PREFLIGHT 5/5 — Docker build (emqx)', () =>
+      this.assertDockerBuild(join(REPO_ROOT, 'packages', 'aws', 'emqx-image'), 'Docker build (emqx)')
     );
   }
 
@@ -84,11 +88,11 @@ export class PreflightCommand extends BasePipelineCommand {
     this.platform.notice('Terraform configuration is valid.');
   }
 
-  private assertDockerBuild(): void {
+  private assertDockerBuild(contextDir: string, label: string): void {
     run(this.platform, 'docker', ['build', '.'], {
-      cwd: REPO_ROOT,
-      label: 'Docker build (app)',
+      cwd: contextDir,
+      label,
     });
-    this.platform.notice('Docker image builds successfully.');
+    this.platform.notice(`${label} — OK.`);
   }
 }

@@ -2,6 +2,7 @@ import { assert } from '@gamezilla/shared/assert';
 import type { PipelineCommand } from './base-command';
 import type { CiPlatform } from './ci-platform';
 import { CdkDeployCommand } from './cmd-cdk-deploy';
+import { CdkDestroyCommand } from './cmd-cdk-destroy';
 import { DeployAppsCommand } from './cmd-deploy-apps';
 import { PostDeployCommand } from './cmd-post-deploy';
 import { PreflightCommand } from './cmd-preflight';
@@ -13,6 +14,7 @@ export function createCommandRegistry(
   const commands: PipelineCommand[] = [
     new PreflightCommand(platform),
     new CdkDeployCommand(platform),
+    new CdkDestroyCommand(platform),
     new DeployAppsCommand(platform),
     new PostDeployCommand(platform),
     new WriteSummaryCommand(platform),

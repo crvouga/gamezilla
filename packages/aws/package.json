@@ -9,6 +9,7 @@
     "deploy:postchecks": "bun run ./src/bin/deployment-pipeline-cli.ts post-deploy",
     "deploy:prechecks": "bun run ./src/bin/deployment-pipeline-cli.ts preflight",
     "deploy:summary": "bun run ./src/bin/deployment-pipeline-cli.ts write-summary",
+    "unprovision": "bun run ./src/bin/deployment-pipeline-cli.ts cdk-destroy",
     "watch": "tsc -w",
     "lint": "eslint .",
     "tc": "tsc --noEmit -p ./tsconfig.json",

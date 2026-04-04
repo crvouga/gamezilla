@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "dev": "docker compose up",
     "up": "docker compose up -d",
     "down": "docker compose down",
     "logs": "docker compose logs -f",

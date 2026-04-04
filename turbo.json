@@ -56,19 +56,6 @@
       "dependsOn": ["^build"],
       "inputs": ["**/*.ts", "**/*.tsx", "**/*.css", "**/*.html", "vite.config.ts", "tsconfig.json"],
       "outputs": ["dist/**"]
-    },
-    "deploy": {
-      "dependsOn": ["build"],
-      "cache": false
-    },
-    "deploy:prechecks": {
-      "cache": false
-    },
-    "deploy:postchecks": {
-      "cache": false
-    },
-    "deploy:summary": {
-      "cache": false
     }
   }
 }

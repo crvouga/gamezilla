@@ -57,6 +57,11 @@ jobs:
         with:
           node-version: 20
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
@@ -66,18 +71,29 @@ jobs:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Prechecks
-        run: bunx turbo deploy:prechecks
+      # --- Phase 1: Unprovision CDK (idempotent — safe to re-run) ---
 
-      - name: Deploy
+      - name: Unprovision CDK stack
+        timeout-minutes: 30
+        working-directory: packages/aws
+        run: bun run unprovision
+
+      # --- Phase 2: Provision with Terraform ---
+
+      - name: Prechecks (Terraform)
+        working-directory: packages/terraform
+        run: bun run deploy:prechecks
+
+      - name: Deploy (Terraform)
         timeout-minutes: 45
-        env:
-          NODE_OPTIONS: --max-old-space-size=8192
-        run: bunx turbo deploy
+        working-directory: packages/terraform
+        run: bun run deploy
 
-      - name: Postchecks
+      - name: Postchecks (Terraform)
         timeout-minutes: 35
-        run: bunx turbo deploy:postchecks
+        working-directory: packages/terraform
+        run: bun run deploy:postchecks
 
-      - name: Summary
-        run: bunx turbo deploy:summary
+      - name: Summary (Terraform)
+        working-directory: packages/terraform
+        run: bun run deploy:summary

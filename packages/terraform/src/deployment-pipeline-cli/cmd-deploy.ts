@@ -94,15 +94,21 @@ export class DeployCommand extends BasePipelineCommand {
     }
   }
 
-  private ecrLogin(registryUri: string, region: string): void {
+  private async ecrLogin(registryUri: string, region: string): Promise<void> {
     const password = runCapture('aws', [
       'ecr', 'get-login-password', '--region', region,
     ]);
-    const r = Bun.spawnSync(
-      ['docker', 'login', '--username', 'AWS', '--password-stdin', registryUri],
-      { stdin: new TextEncoder().encode(password), stdout: 'inherit', stderr: 'inherit' }
+    assert.ok(
+      password.length > 0,
+      'deploy: aws ecr get-login-password returned empty — check AWS credentials and ecr:GetAuthorizationToken permission',
     );
-    assert.ok(r.exitCode === 0, `deploy: docker login failed (exit ${r.exitCode})`);
+
+    const proc = Bun.spawn(
+      ['docker', 'login', '--username', 'AWS', '--password-stdin', registryUri],
+      { stdout: 'inherit', stderr: 'inherit', stdin: new Blob([password]) },
+    );
+    const exitCode = await proc.exited;
+    assert.ok(exitCode === 0, `deploy: docker login failed (exit ${exitCode})`);
   }
 
   private buildAndPush(contextDir: string, dockerfile: string, imageUri: string): void {

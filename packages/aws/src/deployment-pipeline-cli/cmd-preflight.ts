@@ -13,6 +13,7 @@ import {
 } from './cfn-shared';
 import { PROJECT_CONFIG } from '../project-config';
 import { CDK_DEPLOY_CONTEXT_ARGS } from './cdk-deploy-context';
+import { join } from 'node:path';
 import { AWS_PACKAGE_ROOT, REPO_ROOT } from './paths';
 import { run } from './run-subprocess';
 
@@ -23,7 +24,7 @@ function isValidAwsRegionFormat(value: string): boolean {
 export class PreflightCommand extends BasePipelineCommand {
   readonly id = 'preflight';
   readonly summary =
-    'Validate AWS (STS), stack gate, CDK synth invariants, Docker build';
+    'Validate AWS (STS), stack gate, CDK synth invariants, Docker builds (app + emqx)';
 
   constructor(platform: CiPlatform) {
     super(platform);
@@ -33,17 +34,20 @@ export class PreflightCommand extends BasePipelineCommand {
     assert.array(argv, 'execute: argv must be an array');
 
     const region = this.requireAwsRegionValid();
-    await runStep(this.platform, 'PREFLIGHT 1/4 — AWS caller identity', () =>
+    await runStep(this.platform, 'PREFLIGHT 1/5 — AWS caller identity', () =>
       this.assertCallerIdentity(region)
     );
-    await runStep(this.platform, 'PREFLIGHT 2/4 — CloudFormation stack gate', () =>
+    await runStep(this.platform, 'PREFLIGHT 2/5 — CloudFormation stack gate', () =>
       this.gateStack()
     );
-    await runStep(this.platform, 'PREFLIGHT 3/4 — CDK synth', () =>
+    await runStep(this.platform, 'PREFLIGHT 3/5 — CDK synth', () =>
       this.assertCdkSynthMatchesDeploy()
     );
-    await runStep(this.platform, 'PREFLIGHT 4/4 — Docker build', () =>
-      this.assertDockerBuild()
+    await runStep(this.platform, 'PREFLIGHT 4/5 — Docker build (app)', () =>
+      this.assertDockerBuild(REPO_ROOT, 'Docker build (app)')
+    );
+    await runStep(this.platform, 'PREFLIGHT 5/5 — Docker build (emqx)', () =>
+      this.assertDockerBuild(join(AWS_PACKAGE_ROOT, 'emqx-image'), 'Docker build (emqx)')
     );
   }
 
@@ -171,11 +175,11 @@ export class PreflightCommand extends BasePipelineCommand {
     );
   }
 
-  private assertDockerBuild(): void {
+  private assertDockerBuild(contextDir: string, label: string): void {
     run(this.platform, 'docker', ['build', '.'], {
-      cwd: REPO_ROOT,
-      label: 'Docker build',
+      cwd: contextDir,
+      label,
     });
-    this.platform.notice('Docker image builds successfully.');
+    this.platform.notice(`${label} — OK.`);
   }
 }
