@@ -11,9 +11,11 @@ import { requireAwsRegion } from './aws';
 export class DeployCommand extends BasePipelineCommand {
   readonly id = 'deploy';
   readonly summary = 'Docker build+push, terraform init + apply';
+  private readonly tfVarOverrides: readonly string[] | undefined;
 
-  constructor(platform: CiPlatform) {
+  constructor(platform: CiPlatform, opts?: { tfVarOverrides?: readonly string[] }) {
     super(platform);
+    this.tfVarOverrides = opts?.tfVarOverrides;
   }
 
   async execute(argv: string[]): Promise<void> {
@@ -140,6 +142,7 @@ export class DeployCommand extends BasePipelineCommand {
   }
 
   private terraformApply(appImageUri: string, emqxImageUri: string): void {
+    const varArgs = this.tfVarOverrides ?? TF_DEPLOY_VAR_ARGS;
     run(
       this.platform,
       'terraform',
@@ -148,7 +151,7 @@ export class DeployCommand extends BasePipelineCommand {
         '-auto-approve',
         '-input=false',
         '-lock-timeout=120s',
-        ...TF_DEPLOY_VAR_ARGS,
+        ...varArgs,
         `-var`, `app_image=${appImageUri}`,
         `-var`, `emqx_image=${emqxImageUri}`,
       ],

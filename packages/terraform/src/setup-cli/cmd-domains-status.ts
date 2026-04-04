@@ -2,8 +2,9 @@ import { spawnSync } from 'node:child_process';
 import { BaseSetupCommand } from './base-command';
 import { readTfOutputs } from '../deployment-pipeline-cli/tf-outputs';
 import { LocalPlatform } from '../deployment-pipeline-cli/ci-platform-local';
-import { SETUP_DNS_DOMAINS, CUSTOM_HTTPS_HOSTS } from './dns-config';
+import { CUSTOM_HTTPS_HOSTS } from './dns-config';
 import { statusSym, statusRule } from './status-symbols';
+import { checkDnsDelegation } from './dns-delegation';
 
 export class DomainsStatusCommand extends BaseSetupCommand {
   readonly id = 'domains-status';
@@ -20,32 +21,10 @@ export class DomainsStatusCommand extends BaseSetupCommand {
 
     console.log('\n=== Domain Status ===\n');
 
-    for (const { domain, outputKey } of SETUP_DNS_DOMAINS) {
-      const expectedRaw = outputs[outputKey];
-      if (!expectedRaw || expectedRaw === '') {
-        console.log(statusRule(statusSym.skip, `${domain} NS`, `no ${outputKey} output`));
-        continue;
-      }
-
-      const expected = parseNs(expectedRaw);
-      const result = spawnSync('dig', ['NS', domain, '+short'], { encoding: 'utf-8' });
-      if (result.status !== 0) {
-        console.log(statusRule(statusSym.fail, `${domain} NS`, 'dig failed'));
-        continue;
-      }
-
-      const actual = parseNs(result.stdout);
-      if (actual.size === 0) {
-        console.log(statusRule(statusSym.fail, `${domain} NS`, 'no records — delegation not configured'));
-        continue;
-      }
-
-      const missing = [...expected].filter((ns) => !actual.has(ns));
-      if (missing.length > 0) {
-        console.log(statusRule(statusSym.fail, `${domain} NS`, `mismatch — missing: ${missing.join(', ')}`));
-      } else {
-        console.log(statusRule(statusSym.ok, `${domain} NS`, `${actual.size} records match`));
-      }
+    const delegation = checkDnsDelegation(outputs);
+    for (const d of delegation.details) {
+      const sym = d.delegated ? statusSym.ok : statusSym.fail;
+      console.log(statusRule(sym, `${d.domain} NS`, d.message));
     }
 
     console.log('');
@@ -73,13 +52,4 @@ export class DomainsStatusCommand extends BaseSetupCommand {
       }
     }
   }
-}
-
-function parseNs(raw: string): Set<string> {
-  return new Set(
-    raw
-      .split(/[\n,]+/)
-      .map((s) => s.trim().toLowerCase().replace(/\.$/, ''))
-      .filter((s) => s.length > 0)
-  );
 }

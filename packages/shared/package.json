@@ -3,6 +3,13 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
+    "./assert": "./src/assert/index.ts",
+    "./dependency-injection": "./src/dependency-injection/index.ts",
+    "./polyfill": "./src/polyfill/index.ts",
+    "./sqlite": "./src/sqlite/index.ts",
+    "./theme": "./src/theme/index.ts",
+    "./ui": "./src/ui/index.ts",
+    "./ui/explorer": "./src/ui/explorer/index.ts",
     "./*": "./src/*"
   },
   "dependencies": {
