@@ -15,7 +15,6 @@ import { InMemoryEventLog, recoverFromEventLog } from '../event-log'
 import { MqttEventLog, type MqttPublisher } from '../event-log-mqtt'
 import { SqliteEventLog } from '../event-log-sqlite'
 import { PeerStore } from '../peer-store'
-import { ServerAuthority } from '../server-authority'
 import { InMemoryBus, InMemoryTransport } from '../transport'
 import type { Command, Event, State } from '../types'
 import { TestCrashHandler } from './test-crash-handler'
@@ -494,8 +493,8 @@ describe('PeerStore + EventLog integration', () => {
     const bus = new InMemoryBus()
     const t_x = new InMemoryTransport(bus, 'player-x')
     const t_o = new InMemoryTransport(bus, 'player-o')
-    const t_server = new InMemoryTransport(bus, 'server')
-    const peers = ['player-x', 'player-o', 'server']
+    const t_auth = new InMemoryTransport(bus, 'authority')
+    const peers = { 'player-x': 1, 'player-o': 1, 'authority': 3 }
 
     const log = new InMemoryEventLog()
     const gameId = 'game-1'
@@ -504,44 +503,20 @@ describe('PeerStore + EventLog integration', () => {
 
     const store_x = new PeerStore(
       TicTacToeModule,
-      {
-        peerId: 'player-x',
-        peers,
-        transport: t_x,
-        authority: new ServerAuthority({
-          peerId: 'player-x',
-          serverId: 'server',
-        }),
-      },
+      { peerId: 'player-x', peers, transport: t_x },
     )
     const store_o = new PeerStore(
       TicTacToeModule,
-      {
-        peerId: 'player-o',
-        peers,
-        transport: t_o,
-        authority: new ServerAuthority({
-          peerId: 'player-o',
-          serverId: 'server',
-        }),
-      },
+      { peerId: 'player-o', peers, transport: t_o },
       {
         onReject(commandId) {
           rejected.push(commandId)
         },
       },
     )
-    const store_server = new PeerStore(
+    const store_auth = new PeerStore(
       TicTacToeModule,
-      {
-        peerId: 'server',
-        peers,
-        transport: t_server,
-        authority: new ServerAuthority({
-          peerId: 'server',
-          serverId: 'server',
-        }),
-      },
+      { peerId: 'authority', peers, transport: t_auth },
       {
         onCommit(commandId, events) {
           committed.push({ commandId, events })
@@ -556,143 +531,82 @@ describe('PeerStore + EventLog integration', () => {
     function destroy() {
       store_x.destroy()
       store_o.destroy()
-      store_server.destroy()
+      store_auth.destroy()
       t_x.destroy()
       t_o.destroy()
-      t_server.destroy()
+      t_auth.destroy()
       bus.destroy()
     }
 
     return {
       store_x,
       store_o,
-      store_server,
+      store_auth,
       log,
       gameId,
       committed,
       rejected,
       destroy,
+      t_x,
+      t_o,
+      t_auth,
+      bus,
     }
   }
 
   it('onCommit callback captures all committed events', () => {
-    const { store_x, store_o, store_server, committed, destroy } = setup()
+    const { store_x, store_o, store_auth, committed, destroy } = setup()
 
-    store_x.dispatch({
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
-    store_o.dispatch({
-      type: 'PLACE_MARK',
-      payload: { cell: 3, player: 'O' },
-    })
-    store_x.dispatch({
-      type: 'PLACE_MARK',
-      payload: { cell: 1, player: 'X' },
-    })
+    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
+    store_o.dispatch({ type: 'PLACE_MARK', payload: { cell: 3, player: 'O' } })
+    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 1, player: 'X' } })
 
     expect(committed).toHaveLength(3)
 
-    const serverEvents = store_server.getCommittedEvents()
+    const authEvents = store_auth.getCommittedEvents()
     const loggedEvents = committed.flatMap((c) => c.events)
-    expect(loggedEvents).toHaveLength(serverEvents.length)
+    expect(loggedEvents).toHaveLength(authEvents.length)
 
     destroy()
   })
 
   it('onReject callback fires for rejected commands', () => {
-    const bus = new InMemoryBus()
-    const t_x = new InMemoryTransport(bus, 'player-x')
-    const t_o = new InMemoryTransport(bus, 'player-o')
-    const t_server = new InMemoryTransport(bus, 'server')
-    const peers = ['player-x', 'player-o', 'server']
-    const rejected: string[] = []
+    const { store_x, store_o, rejected, destroy, t_o } = setup()
 
-    const _store_x = new PeerStore(TicTacToeModule, {
-      peerId: 'player-x',
-      peers,
-      transport: t_x,
-      authority: new ServerAuthority({ peerId: 'player-x', serverId: 'server' }),
-    })
-    const store_o = new PeerStore(
-      TicTacToeModule,
-      {
-        peerId: 'player-o',
-        peers,
-        transport: t_o,
-        authority: new ServerAuthority({ peerId: 'player-o', serverId: 'server' }),
-      },
-      { onReject: (id) => rejected.push(id) },
-    )
-    const _store_server = new PeerStore(TicTacToeModule, {
-      peerId: 'server',
-      peers,
-      transport: t_server,
-      authority: new ServerAuthority({ peerId: 'server', serverId: 'server' }),
-    })
-
-    // Disconnect player-o so it doesn't see player-x's commit
     t_o.disconnect()
 
-    // Player-x takes cell 0 → server commits, player-o doesn't see it
-    _store_x.dispatch({
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
 
-    // Player-o has stale state (currentTurn=X, cell 0 empty).
-    // It dispatches for cell 0 — local handle succeeds against stale state.
-    store_o.dispatch({
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    store_o.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
 
-    // Reconnect: outgoing submit reaches server, server sees cell 0 occupied → rejects
     t_o.reconnect()
 
     expect(rejected.length).toBeGreaterThanOrEqual(1)
 
-    _store_x.destroy()
-    store_o.destroy()
-    _store_server.destroy()
-    t_x.destroy()
-    t_o.destroy()
-    t_server.destroy()
-    bus.destroy()
+    destroy()
   })
 
   it('recovery from event log rebuilds state', async () => {
-    const { store_x, store_o, store_server, log, gameId, destroy } = setup()
+    const { store_x, store_o, store_auth, log, gameId, destroy } = setup()
 
-    store_x.dispatch({
-      type: 'PLACE_MARK',
-      payload: { cell: 4, player: 'X' },
-    })
-    store_o.dispatch({
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'O' },
-    })
+    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 4, player: 'X' } })
+    store_o.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'O' } })
 
-    const originalState = store_server.getCommittedState()
+    const originalState = store_auth.getCommittedState()
     expect(board(originalState)[4]).toBe('X')
     expect(board(originalState)[0]).toBe('O')
 
     destroy()
 
-    // Create a fresh store and recover from the log
     const bus2 = new InMemoryBus()
-    const t_recovery = new InMemoryTransport(bus2, 'server')
+    const t_recovery = new InMemoryTransport(bus2, 'authority')
     const t_dummy = new InMemoryTransport(bus2, 'dummy')
     const recoveredStore = new PeerStore(
       TicTacToeModule,
       {
-        peerId: 'server',
-        peers: ['server', 'dummy'],
+        peerId: 'authority',
+        peers: { 'authority': 3, 'dummy': 1 },
         transport: t_recovery,
-        authority: new ServerAuthority({
-          peerId: 'server',
-          serverId: 'server',
-        }),
       },
     )
 

@@ -10,7 +10,6 @@ import {
   jest,
 } from 'bun:test'
 import { TicTacToeModule } from '../__fixtures__/tic-tac-toe.module'
-import { ServerAuthority } from '../server-authority'
 import { DeterministicSimulator } from '../simulator'
 import type { State } from '../types'
 import { TestCrashHandler } from './test-crash-handler'
@@ -21,26 +20,14 @@ beforeAll(() => {
 })
 afterAll(() => disposeCrashHandler())
 
-const SERVER_PEERS = ['player-x', 'player-o', 'server']
-const CONSENSUS_PEERS = ['player-x', 'player-o', 'worker']
+const TRUST = { 'player-x': 1, 'player-o': 1, 'authority': 3 }
+const PEER_IDS = Object.keys(TRUST)
 
-function createServerSim(opts?: { consensusTimeoutMs?: number }) {
+function createSim(opts?: { timeoutMs?: number }) {
   return new DeterministicSimulator(TicTacToeModule, {
-    peers: SERVER_PEERS,
-    consensusTimeoutMs: opts?.consensusTimeoutMs ?? 5000,
+    peers: TRUST,
+    timeoutMs: opts?.timeoutMs ?? 5000,
     advanceTime: (ms) => jest.advanceTimersByTime(ms),
-    syncPolicy: 'server',
-    createAuthority: ({ peerId }) =>
-      new ServerAuthority({ peerId, serverId: 'server' }),
-  })
-}
-
-function createConsensusSim(opts?: { consensusTimeoutMs?: number }) {
-  return new DeterministicSimulator(TicTacToeModule, {
-    peers: CONSENSUS_PEERS,
-    consensusTimeoutMs: opts?.consensusTimeoutMs ?? 5000,
-    advanceTime: (ms) => jest.advanceTimersByTime(ms),
-    syncPolicy: 'worker',
   })
 }
 
@@ -48,31 +35,29 @@ function board(state: State): Array<null | string> {
   return state['board'] as Array<null | string>
 }
 
-// ─── Server Authority ────────────────────────────────────────────────
-
-describe('Cheating: Server Authority', () => {
+describe('Cheating: Authority', () => {
   beforeEach(() => jest.useFakeTimers())
   afterEach(() => jest.useRealTimers())
 
-  it('fabricated commit — client injects committed message without server', () => {
-    const sim = createServerSim()
+  it('fabricated commit — client injects accepted message without authority', () => {
+    const sim = createSim()
 
     sim.injectWireMessage({
-      kind: 'committed',
+      kind: 'accepted',
       commandId: 'fabricated-1',
       events: [
         { type: 'MARK_PLACED', payload: { cell: 4, player: 'X', seq: 1 } },
       ],
     })
 
-    for (const peerId of SERVER_PEERS) {
+    for (const peerId of PEER_IDS) {
       expect(board(sim.getCommittedState(peerId))[4]).toBe('X')
     }
     sim.destroy()
   })
 
   it('identity spoofing — player-o plays as X via payload mismatch', () => {
-    const sim = createServerSim()
+    const sim = createSim()
 
     sim.dispatch('player-o', {
       type: 'PLACE_MARK',
@@ -80,31 +65,31 @@ describe('Cheating: Server Authority', () => {
     })
 
     sim.assertConverged()
-    expect(board(sim.getCommittedState('server'))[0]).toBe('X')
-    expect(sim.getCommittedState('server')['currentTurn']).toBe('O')
+    expect(board(sim.getCommittedState('authority'))[0]).toBe('X')
+    expect(sim.getCommittedState('authority')['currentTurn']).toBe('O')
     sim.destroy()
   })
 
-  it('identity spoofing — forged peerId in injected submit', () => {
-    const sim = createServerSim()
+  it('identity spoofing — forged peerId in injected propose', () => {
+    const sim = createSim()
 
     const forged = sim.forgeCommand(
       'player-o',
       { type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } },
       { fakePeerId: 'player-x' },
     )
-    sim.injectWireMessage({ kind: 'submit', command: forged })
+    sim.injectWireMessage({ kind: 'propose', command: forged })
 
-    expect(board(sim.getCommittedState('server'))[0]).toBe('X')
+    expect(board(sim.getCommittedState('authority'))[0]).toBe('X')
     sim.destroy()
   })
 
-  it('event tampering (MITM) — interceptor modifies committed events', () => {
-    const sim = createServerSim()
+  it('event tampering (MITM) — interceptor modifies accepted events', () => {
+    const sim = createSim()
 
     sim.setMessageInterceptor((_topic, payload) => {
       const msg = payload as Record<string, unknown>
-      if (msg['kind'] === 'committed') {
+      if (msg['kind'] === 'accepted') {
         const events = msg['events'] as Array<Record<string, unknown>>
         return {
           ...msg,
@@ -125,8 +110,8 @@ describe('Cheating: Server Authority', () => {
       payload: { cell: 0, player: 'X' },
     })
 
-    expect(board(sim.getCommittedState('server'))[0]).toBe('X')
-    expect(board(sim.getCommittedState('server'))[8]).toBeNull()
+    expect(board(sim.getCommittedState('authority'))[0]).toBe('X')
+    expect(board(sim.getCommittedState('authority'))[8]).toBeNull()
 
     expect(board(sim.getCommittedState('player-x'))[8]).toBe('X')
     expect(board(sim.getCommittedState('player-x'))[0]).toBeNull()
@@ -135,13 +120,13 @@ describe('Cheating: Server Authority', () => {
     sim.destroy()
   })
 
-  it('replay with same commandId — resolved set prevents double-commit', () => {
-    const sim = createServerSim()
+  it('replay with same commandId — finalized set prevents double-commit', () => {
+    const sim = createSim()
 
     let captured: unknown = null
     sim.setMessageInterceptor((_topic, payload) => {
       const msg = payload as Record<string, unknown>
-      if (msg['kind'] === 'committed' && !captured) {
+      if (msg['kind'] === 'accepted' && !captured) {
         captured = structuredClone(payload)
       }
       return payload
@@ -163,7 +148,7 @@ describe('Cheating: Server Authority', () => {
   })
 
   it('replay with new commandId — duplicate events are applied', () => {
-    const sim = createServerSim()
+    const sim = createSim()
 
     sim.dispatch('player-x', {
       type: 'PLACE_MARK',
@@ -172,10 +157,10 @@ describe('Cheating: Server Authority', () => {
     sim.assertConverged()
 
     const eventCountBefore = sim.getEventLog('player-o').length
-    const events = sim.getEventLog('server')
+    const events = sim.getEventLog('authority')
 
     sim.injectWireMessage({
-      kind: 'committed',
+      kind: 'accepted',
       commandId: 'replayed-new-id',
       events: [...events],
     })
@@ -185,217 +170,60 @@ describe('Cheating: Server Authority', () => {
     sim.destroy()
   })
 
-  it('out-of-turn via injected submit — server rejects, board unchanged', () => {
-    const sim = createServerSim()
+  it('out-of-turn via injected propose — authority rejects, board unchanged', () => {
+    const sim = createSim()
 
-    const boardBefore = JSON.stringify(board(sim.getCommittedState('server')))
+    const boardBefore = JSON.stringify(board(sim.getCommittedState('authority')))
 
     const forged = sim.forgeCommand('player-o', {
       type: 'PLACE_MARK',
       payload: { cell: 0, player: 'O' },
     })
-    sim.injectWireMessage({ kind: 'submit', command: forged })
+    sim.injectWireMessage({ kind: 'propose', command: forged })
 
-    const boardAfter = JSON.stringify(board(sim.getCommittedState('server')))
+    const boardAfter = JSON.stringify(board(sim.getCommittedState('authority')))
     expect(boardAfter).toBe(boardBefore)
     sim.destroy()
   })
 
-  it('double submit — server ignores the duplicate', () => {
-    const sim = createServerSim()
+  it('double propose — authority ignores the duplicate', () => {
+    const sim = createSim()
 
     const cmd = sim.forgeCommand('player-x', {
       type: 'PLACE_MARK',
       payload: { cell: 0, player: 'X' },
     })
 
-    sim.injectWireMessage({ kind: 'submit', command: cmd })
-    expect(board(sim.getCommittedState('server'))[0]).toBe('X')
+    sim.injectWireMessage({ kind: 'propose', command: cmd })
+    expect(board(sim.getCommittedState('authority'))[0]).toBe('X')
 
-    const seqBefore = sim.getCommittedState('server')['seq'] as number
-    sim.injectWireMessage({ kind: 'submit', command: cmd })
-    const seqAfter = sim.getCommittedState('server')['seq'] as number
+    const seqBefore = sim.getCommittedState('authority')['seq'] as number
+    sim.injectWireMessage({ kind: 'propose', command: cmd })
+    const seqAfter = sim.getCommittedState('authority')['seq'] as number
 
     expect(seqAfter).toBe(seqBefore)
     sim.destroy()
   })
 
   it('unknown message kind — silently ignored, state unchanged', () => {
-    const sim = createServerSim()
+    const sim = createSim()
 
-    const stateBefore = JSON.stringify(sim.getCommittedState('server'))
+    const stateBefore = JSON.stringify(sim.getCommittedState('authority'))
 
     sim.injectWireMessage({ kind: 'totally_bogus', data: 'garbage' })
 
-    const stateAfter = JSON.stringify(sim.getCommittedState('server'))
+    const stateAfter = JSON.stringify(sim.getCommittedState('authority'))
     expect(stateAfter).toBe(stateBefore)
     sim.destroy()
   })
 })
-
-// ─── Consensus Authority ─────────────────────────────────────────────
-
-describe('Cheating: Consensus Authority', () => {
-  beforeEach(() => jest.useFakeTimers())
-  afterEach(() => jest.useRealTimers())
-
-  it('forged vote — pre-injected REJECT frames peer as bad actor', () => {
-    const sim = createConsensusSim()
-
-    const forged = sim.forgeCommand(
-      'player-x',
-      { type: 'PLACE_MARK', payload: { cell: 4, player: 'X' } },
-      { id: 'framed-cmd' },
-    )
-
-    sim.pauseDelivery()
-
-    sim.injectWireMessage({
-      kind: 'vote',
-      vote: { commandId: 'framed-cmd', from: 'player-x', vote: 'REJECT' },
-    })
-
-    sim.injectWireMessage({
-      kind: 'command',
-      command: forged,
-      events: [
-        { type: 'MARK_PLACED', payload: { cell: 4, player: 'X', seq: 1 } },
-      ],
-    })
-
-    sim.resumeDelivery()
-
-    expect(board(sim.getCommittedState('worker'))[4]).toBe('X')
-
-    const badActors = sim.getBadActorLog()
-    const framed = badActors.filter((e) => e.peerId === 'player-x')
-    expect(framed.length).toBeGreaterThan(0)
-
-    sim.destroy()
-  })
-
-  it('tampered proposed events — interceptor changes events in command broadcast', () => {
-    const sim = createConsensusSim()
-
-    sim.setMessageInterceptor((_topic, payload) => {
-      const msg = payload as Record<string, unknown>
-      if (msg['kind'] === 'command') {
-        const events = msg['events'] as Array<Record<string, unknown>>
-        return {
-          ...msg,
-          events: events.map((e) => {
-            if (e['type'] === 'MARK_PLACED') {
-              const p = e['payload'] as Record<string, unknown>
-              return { ...e, payload: { ...p, cell: 7 } }
-            }
-            return e
-          }),
-        }
-      }
-      return payload
-    })
-
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 4, player: 'X' },
-    })
-    sim.setMessageInterceptor(null)
-
-    const xBoard = board(sim.getCommittedState('player-x'))
-    const oBoard = board(sim.getCommittedState('player-o'))
-
-    expect(xBoard[4]).toBe('X')
-
-    const oHasTampered = oBoard[7] === 'X'
-    const oHasOriginal = oBoard[4] === 'X'
-    expect(oHasTampered || oHasOriginal).toBe(true)
-
-    sim.destroy()
-  })
-
-  it('phantom command — injected vote for non-existent command is buffered', () => {
-    const sim = createConsensusSim()
-
-    const stateBefore = JSON.stringify(sim.getCommittedState('player-x'))
-
-    sim.injectWireMessage({
-      kind: 'vote',
-      vote: {
-        commandId: 'phantom-cmd-999',
-        from: 'player-o',
-        vote: 'ACK',
-      },
-    })
-
-    const stateAfter = JSON.stringify(sim.getCommittedState('player-x'))
-    expect(stateAfter).toBe(stateBefore)
-    sim.destroy()
-  })
-
-  it('bad actor detection — ACK on invalid command flags cheater', () => {
-    const sim = createConsensusSim()
-
-    const forged = sim.forgeCommand(
-      'player-x',
-      { type: 'PLACE_MARK', payload: { cell: -1, player: 'X' } },
-      { id: 'bad-cmd', fakePeerId: 'player-x' },
-    )
-
-    sim.pauseDelivery()
-
-    sim.injectWireMessage({
-      kind: 'vote',
-      vote: { commandId: 'bad-cmd', from: 'player-x', vote: 'ACK' },
-    })
-
-    sim.injectWireMessage({
-      kind: 'command',
-      command: forged,
-      events: [
-        { type: 'MARK_PLACED', payload: { cell: -1, player: 'X', seq: 1 } },
-      ],
-    })
-
-    sim.resumeDelivery()
-
-    const badActors = sim.getBadActorLog()
-    const cheater = badActors.filter((e) => e.peerId === 'player-x')
-    expect(cheater.length).toBeGreaterThan(0)
-
-    sim.destroy()
-  })
-
-  it('command injection — inject fake command, peers validate and commit', () => {
-    const sim = createConsensusSim()
-
-    const forged = sim.forgeCommand(
-      'player-x',
-      { type: 'PLACE_MARK', payload: { cell: 4, player: 'X' } },
-      { fakePeerId: 'external' },
-    )
-
-    sim.injectWireMessage({
-      kind: 'command',
-      command: forged,
-      events: [
-        { type: 'MARK_PLACED', payload: { cell: 4, player: 'X', seq: 1 } },
-      ],
-    })
-
-    expect(board(sim.getCommittedState('player-o'))[4]).toBe('X')
-    expect(board(sim.getCommittedState('worker'))[4]).toBe('X')
-    sim.destroy()
-  })
-})
-
-// ─── Cross-cutting ───────────────────────────────────────────────────
 
 describe('Cheating: Cross-cutting', () => {
   beforeEach(() => jest.useFakeTimers())
   afterEach(() => jest.useRealTimers())
 
   it('flood attack — rapid-fire dispatches, no crash', () => {
-    const sim = createServerSim()
+    const sim = createSim()
 
     for (let i = 0; i < 50; i++) {
       try {
@@ -408,26 +236,26 @@ describe('Cheating: Cross-cutting', () => {
       }
     }
 
-    const state = sim.getCommittedState('server')
+    const state = sim.getCommittedState('authority')
     expect(state['board']).toBeDefined()
     expect(state['status']).toBeDefined()
     sim.destroy()
   })
 
   it('disconnect + cheat — inject messages while peer offline', () => {
-    const sim = createServerSim()
+    const sim = createSim()
 
     sim.disconnectPeer('player-o')
 
     sim.injectWireMessage({
-      kind: 'committed',
+      kind: 'accepted',
       commandId: 'offline-cheat-1',
       events: [
         { type: 'MARK_PLACED', payload: { cell: 0, player: 'X', seq: 1 } },
       ],
     })
 
-    expect(board(sim.getCommittedState('server'))[0]).toBe('X')
+    expect(board(sim.getCommittedState('authority'))[0]).toBe('X')
     expect(board(sim.getCommittedState('player-o'))[0]).toBeNull()
 
     sim.reconnectPeer('player-o')
@@ -437,7 +265,7 @@ describe('Cheating: Cross-cutting', () => {
   })
 
   it('interceptor drop all — causes timeout on pending commands', () => {
-    const sim = createServerSim({ consensusTimeoutMs: 3000 })
+    const sim = createSim({ timeoutMs: 3000 })
 
     sim.setMessageInterceptor(() => null)
 
@@ -459,35 +287,26 @@ describe('Cheating: Cross-cutting', () => {
   })
 
   it('convergence after cheating — honest peers converge after junk injection', () => {
-    const sim = createServerSim()
+    const sim = createSim()
 
     sim.injectWireMessage({ kind: 'totally_bogus', data: [1, 2, 3] })
     sim.injectWireMessage({ kind: 'unknown', commandId: 'fake' })
 
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
-    sim.dispatch('player-o', {
-      type: 'PLACE_MARK',
-      payload: { cell: 3, player: 'O' },
-    })
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 1, player: 'X' },
-    })
+    sim.dispatch('player-x', { type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
+    sim.dispatch('player-o', { type: 'PLACE_MARK', payload: { cell: 3, player: 'O' } })
+    sim.dispatch('player-x', { type: 'PLACE_MARK', payload: { cell: 1, player: 'X' } })
 
     sim.assertConverged()
 
-    const serverBoard = board(sim.getCommittedState('server'))
-    expect(serverBoard[0]).toBe('X')
-    expect(serverBoard[3]).toBe('O')
-    expect(serverBoard[1]).toBe('X')
+    const authBoard = board(sim.getCommittedState('authority'))
+    expect(authBoard[0]).toBe('X')
+    expect(authBoard[3]).toBe('O')
+    expect(authBoard[1]).toBe('X')
     sim.destroy()
   })
 
   it('forgeCommand utility — produces command with overridden fields', () => {
-    const sim = createServerSim()
+    const sim = createSim()
 
     const cmd = sim.forgeCommand(
       'player-x',

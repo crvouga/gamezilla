@@ -1,10 +1,16 @@
 import { TicTacToeModule } from '@gamezilla/peer-store/__fixtures__/tic-tac-toe.module';
-import { ServerAuthority } from '@gamezilla/peer-store/server-authority';
 import { DeterministicSimulator } from '@gamezilla/peer-store/simulator';
 import type { Event, Message, State } from '@gamezilla/peer-store/types';
 
-export const PEERS = ['player-x', 'player-o', 'server', 'observer'] as const;
-export type PeerId = (typeof PEERS)[number];
+export const TRUST_MAP = {
+  'player-x': 1,
+  'player-o': 1,
+  server: 3,
+  observer: 1,
+} as const;
+
+export const PEERS = Object.keys(TRUST_MAP) as PeerId[];
+export type PeerId = keyof typeof TRUST_MAP;
 
 export type LogEntry = {
   id: number;
@@ -44,11 +50,7 @@ export class PlaygroundSimulator {
 
   private createSim(): DeterministicSimulator {
     return new DeterministicSimulator(TicTacToeModule, {
-      peers: [...PEERS],
-      consensusTimeoutMs: 5000,
-      syncPolicy: 'server',
-      createAuthority: ({ peerId }) =>
-        new ServerAuthority({ peerId, serverId: 'server' }),
+      peers: { ...TRUST_MAP },
     });
   }
 
@@ -145,16 +147,16 @@ export class PlaygroundSimulator {
     this.notify();
   }
 
-  getBadActorLog() {
-    return this.sim.getBadActorLog();
-  }
-
   getTimeoutLog() {
     return this.sim.getTimeoutLog();
   }
 
   getErrorLog() {
     return this.sim.getErrorLog();
+  }
+
+  getAuthorityChangeLog() {
+    return this.sim.getAuthorityChangeLog();
   }
 
   getLog(): LogEntry[] {
@@ -237,7 +239,7 @@ export class PlaygroundSimulator {
       this.pushEntry({
         kind: 'cheat',
         tag: 'cheat',
-        summary: `${attackerId} played as ${spoofedPlayer} — server accepted`,
+        summary: `${attackerId} played as ${spoofedPlayer} — authority accepted`,
         code: `sim.dispatch('${attackerId}', ${JSON.stringify(message)})`,
         peerId: attackerId,
         detected: false,
@@ -415,9 +417,7 @@ export class PlaygroundSimulator {
     lines.push('## Peer-Store Playground Session');
     lines.push('');
     lines.push('Setup:');
-    lines.push(`  peers: ${JSON.stringify([...PEERS])}`);
-    lines.push('  syncPolicy: "server"');
-    lines.push('  serverId: "server"');
+    lines.push(`  peers: ${JSON.stringify(TRUST_MAP)}`);
     lines.push('  module: TicTacToeModule');
     lines.push('');
     lines.push('Steps:');
@@ -456,12 +456,14 @@ export class PlaygroundSimulator {
       }
     }
 
-    const badActors = this.sim.getBadActorLog();
-    if (badActors.length > 0) {
+    const authorityChanges = this.sim.getAuthorityChangeLog();
+    if (authorityChanges.length > 0) {
       lines.push('');
-      lines.push('Bad actors:');
-      for (const ba of badActors) {
-        lines.push(`  - ${ba.peerId} (commandId: ${ba.commandId})`);
+      lines.push('Authority changes:');
+      for (const change of authorityChanges) {
+        lines.push(
+          `  - ${change.previousAuthority} → ${change.newAuthority}`,
+        );
       }
     }
 

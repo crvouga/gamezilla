@@ -9,11 +9,9 @@ import {
   jest,
 } from 'bun:test'
 import { Assert } from '@gamezilla/shared/assert'
-import { ConsensusAuthority } from '../consensus-authority'
 import { PeerStore } from '../peer-store'
-import { anyPeerSync, designatedSyncPeer } from '../sync-policy'
 import { InMemoryBus, InMemoryTransport } from '../transport'
-import type { Event, HandleResult, State, StoreModule, SyncPolicy } from '../types'
+import type { Event, HandleResult, State, StoreModule } from '../types'
 import { TicTacToeModule } from '../__fixtures__/tic-tac-toe.module'
 import { TestCrashHandler } from './test-crash-handler'
 
@@ -25,59 +23,63 @@ beforeAll(() => {
 })
 afterAll(() => disposeCrashHandler())
 
-const PEERS = ['player-x', 'player-o', 'worker']
+const TRUST = { 'player-x': 1, 'player-o': 1, 'authority': 3 } as const
+const PEER_IDS = Object.keys(TRUST)
 
 function setup(opts?: {
-  quorum?: number
-  consensusTimeoutMs?: number
-  syncPolicy?: SyncPolicy
-  weights?: Record<string, number>
+  peers?: Record<string, number>
+  timeoutMs?: number
+  heartbeatIntervalMs?: number
+  heartbeatTimeoutMs?: number
 }) {
+  const peers = opts?.peers ?? TRUST
+  const peerIds = Object.keys(peers)
   const bus = new InMemoryBus()
   const transports = new Map<string, InMemoryTransport>()
   const stores = new Map<string, PeerStore>()
-  const bad_actors: Array<{ peerId: string; commandId: string }> = []
   const timeouts: string[] = []
   const errors: Array<{ code: string; message: string }> = []
   const syncs: string[] = []
+  const authorityChanges: Array<{
+    newAuthority: string
+    previousAuthority: string
+  }> = []
 
-  for (const peerId of PEERS) {
+  for (const peerId of peerIds) {
     const transport = new InMemoryTransport(bus, peerId)
     transports.set(peerId, transport)
-
-    const authority = new ConsensusAuthority({
-      peerId,
-      peers: PEERS,
-      ...(opts?.quorum !== undefined ? { quorum: opts.quorum } : {}),
-      ...(opts?.weights !== undefined ? { weights: opts.weights } : {}),
-    })
 
     const store = new PeerStore(
       TicTacToeModule,
       {
         peerId,
-        peers: PEERS,
+        peers,
         transport,
-        authority,
-        ...(opts?.consensusTimeoutMs !== undefined
-          ? { consensusTimeoutMs: opts.consensusTimeoutMs }
+        ...(opts?.timeoutMs !== undefined
+          ? { timeoutMs: opts.timeoutMs }
           : {}),
-        ...(opts?.syncPolicy !== undefined
-          ? { syncPolicy: opts.syncPolicy }
+        ...(opts?.heartbeatIntervalMs !== undefined
+          ? { heartbeatIntervalMs: opts.heartbeatIntervalMs }
+          : {}),
+        ...(opts?.heartbeatTimeoutMs !== undefined
+          ? { heartbeatTimeoutMs: opts.heartbeatTimeoutMs }
           : {}),
       },
       {
-        onBadActor: (badPeerId, commandId) =>
-          bad_actors.push({ peerId: badPeerId, commandId }),
         onTimeout: (commandId) => timeouts.push(commandId),
         onError: (error) => errors.push(error),
         onSync: () => syncs.push(peerId),
+        onAuthorityChange: (newAuth, prevAuth) =>
+          authorityChanges.push({
+            newAuthority: newAuth,
+            previousAuthority: prevAuth,
+          }),
       },
     )
     stores.set(peerId, store)
   }
 
-  return { bus, transports, stores, bad_actors, timeouts, errors, syncs }
+  return { bus, transports, stores, timeouts, errors, syncs, authorityChanges }
 }
 
 describe('PeerStore', () => {
@@ -93,7 +95,7 @@ describe('PeerStore', () => {
     ).toThrow('destroyed')
   })
 
-  it('dispatch calls onError and does not publish when handle returns error', () => {
+  it('dispatch calls onError when handle returns error', () => {
     const { stores, errors } = setup()
     const store = stores.get('player-o')!
     store.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'O' } })
@@ -101,18 +103,41 @@ describe('PeerStore', () => {
     expect(errors[0]!.code).toBe('WRONG_TURN')
   })
 
-  it('dispatch applies optimistic state immediately', () => {
+  it('authority dispatch commits immediately', () => {
+    const { stores } = setup()
+    const store_auth = stores.get('authority')!
+    expect(store_auth.isAuthority()).toBe(true)
+
+    store_auth.dispatch({ type: 'PLACE_MARK', payload: { cell: 4, player: 'X' } })
+
+    const committed = store_auth.getCommittedState()
+    expect((committed['board'] as Array<null | string>)[4]).toBe('X')
+  })
+
+  it('non-authority dispatch applies optimistic state and commits via authority', () => {
     const { stores } = setup()
     const store_x = stores.get('player-x')!
-
-    const states_seen: State[] = []
-    store_x.subscribe((s) => states_seen.push(s))
+    expect(store_x.isAuthority()).toBe(false)
 
     store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 4, player: 'X' } })
 
-    const state = store_x.getState()
-    const board = state['board'] as Array<null | string>
-    expect(board[4]).toBe('X')
+    const display = store_x.getState()
+    expect((display['board'] as Array<null | string>)[4]).toBe('X')
+
+    const committed = store_x.getCommittedState()
+    expect((committed['board'] as Array<null | string>)[4]).toBe('X')
+  })
+
+  it('authority broadcasts accepted to all peers', () => {
+    const { stores } = setup()
+    const store_x = stores.get('player-x')!
+
+    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
+
+    for (const peerId of PEER_IDS) {
+      const s = stores.get(peerId)!
+      expect((s.getCommittedState()['board'] as Array<null | string>)[0]).toBe('X')
+    }
   })
 
   it('dispatch increments seq monotonically', () => {
@@ -130,57 +155,14 @@ describe('PeerStore', () => {
     crash.ok(events.length >= 1, 'expected at least 1 committed event')
   })
 
-  it('optimistic cleared on consensus commit', () => {
-    const { stores } = setup()
-    const store_x = stores.get('player-x')!
-
-    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
-
-    const committed = store_x.getCommittedState()
-    const board = committed['board'] as Array<null | string>
-    expect(board[0]).toBe('X')
-  })
-
   it('onTimeout fires and rolls back optimistic after timeout', () => {
-    const bus = new InMemoryBus()
-    const transport_x = new InMemoryTransport(bus, 'player-x')
-    const transport_o = new InMemoryTransport(bus, 'player-o')
-
-    transport_o.disconnect()
-
-    const authority_x = new ConsensusAuthority({
-      peerId: 'player-x',
-      peers: ['player-x', 'player-o'],
-    })
-    const authority_o = new ConsensusAuthority({
-      peerId: 'player-o',
-      peers: ['player-x', 'player-o'],
+    const { stores, transports, timeouts } = setup({
+      timeoutMs: 5000,
     })
 
-    const store_x = new PeerStore(
-      TicTacToeModule,
-      {
-        peerId: 'player-x',
-        peers: ['player-x', 'player-o'],
-        transport: transport_x,
-        authority: authority_x,
-        consensusTimeoutMs: 5000,
-      },
-      {
-        onTimeout: () => {},
-      },
-    )
+    transports.get('authority')!.disconnect()
 
-    const _store_o = new PeerStore(
-      TicTacToeModule,
-      {
-        peerId: 'player-o',
-        peers: ['player-x', 'player-o'],
-        transport: transport_o,
-        authority: authority_o,
-      },
-    )
-
+    const store_x = stores.get('player-x')!
     store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
 
     const before = store_x.getState()
@@ -190,12 +172,7 @@ describe('PeerStore', () => {
 
     const after = store_x.getState()
     expect((after['board'] as Array<null | string>)[0]).toBeNull()
-
-    store_x.destroy()
-    _store_o.destroy()
-    transport_x.destroy()
-    transport_o.destroy()
-    bus.destroy()
+    expect(timeouts.length).toBe(1)
   })
 
   it('subscribe receives state on every change', () => {
@@ -221,8 +198,10 @@ describe('PeerStore', () => {
 
     unsub()
 
-    const store_o = stores.get('player-o')!
-    store_o.dispatch({ type: 'PLACE_MARK', payload: { cell: 1, player: 'O' } })
+    stores.get('player-o')!.dispatch({
+      type: 'PLACE_MARK',
+      payload: { cell: 1, player: 'O' },
+    })
     expect(states_seen.length).toBe(count_after_first)
   })
 
@@ -231,14 +210,6 @@ describe('PeerStore', () => {
     const store = stores.get('player-x')!
     store.destroy()
     expect(() => store.subscribe(() => {})).toThrow('destroyed')
-  })
-
-  it('getState returns displayState (committed + optimistic)', () => {
-    const { stores } = setup()
-    const store_x = stores.get('player-x')!
-    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
-    const state = store_x.getState()
-    expect((state['board'] as Array<null | string>)[0]).toBe('X')
   })
 
   it('rehydrate replaces committed events and clears optimistic', () => {
@@ -287,17 +258,6 @@ describe('PeerStore', () => {
     expect(call_count).toBe(count_before)
   })
 
-  it('destroy cleans up all pending timeouts', () => {
-    const { stores, transports } = setup({ consensusTimeoutMs: 5000 })
-
-    for (const t of transports.values()) t.disconnect()
-    for (const t of transports.values()) t.reconnect()
-
-    stores.get('player-x')!.destroy()
-
-    jest.advanceTimersByTime(10000)
-  })
-
   it('destroy is idempotent (second call is no-op)', () => {
     const { stores } = setup()
     const store = stores.get('player-x')!
@@ -323,7 +283,7 @@ describe('PeerStore', () => {
     expect(JSON.stringify(store_o.getState())).toBe(initial_o)
   })
 
-  it('dispatchOptimistic does not trigger consensus', () => {
+  it('dispatchOptimistic does not trigger commit', () => {
     const { stores } = setup()
     const store_x = stores.get('player-x')!
 
@@ -345,19 +305,15 @@ describe('PeerStore', () => {
     const bus = new InMemoryBus()
     const t1 = new InMemoryTransport(bus, 'a')
     const t2 = new InMemoryTransport(bus, 'b')
-    const a1 = new ConsensusAuthority({ peerId: 'a', peers: ['a', 'b'] })
-    const a2 = new ConsensusAuthority({ peerId: 'b', peers: ['a', 'b'] })
     const store = new PeerStore(badModule, {
       peerId: 'a',
-      peers: ['a', 'b'],
+      peers: { a: 1, b: 3 },
       transport: t1,
-      authority: a1,
     })
     const _store2 = new PeerStore(badModule, {
       peerId: 'b',
-      peers: ['a', 'b'],
+      peers: { a: 1, b: 3 },
       transport: t2,
-      authority: a2,
     })
 
     expect(() =>
@@ -383,19 +339,15 @@ describe('PeerStore', () => {
     const bus = new InMemoryBus()
     const t1 = new InMemoryTransport(bus, 'a')
     const t2 = new InMemoryTransport(bus, 'b')
-    const a1 = new ConsensusAuthority({ peerId: 'a', peers: ['a', 'b'] })
-    const a2 = new ConsensusAuthority({ peerId: 'b', peers: ['a', 'b'] })
     const store = new PeerStore(badModule, {
-      peerId: 'a',
-      peers: ['a', 'b'],
-      transport: t1,
-      authority: a1,
+      peerId: 'b',
+      peers: { a: 1, b: 3 },
+      transport: t2,
     })
     const _store2 = new PeerStore(badModule, {
-      peerId: 'b',
-      peers: ['a', 'b'],
-      transport: t2,
-      authority: a2,
+      peerId: 'a',
+      peers: { a: 1, b: 3 },
+      transport: t1,
     })
 
     expect(() =>
@@ -408,22 +360,33 @@ describe('PeerStore', () => {
     t2.destroy()
     bus.destroy()
   })
+
+  it('getAuthorityPeerId returns highest-trust peer', () => {
+    const { stores } = setup()
+    for (const store of stores.values()) {
+      expect(store.getAuthorityPeerId()).toBe('authority')
+    }
+  })
+
+  it('equal trust ties broken by peerId alphabetical order', () => {
+    const { stores } = setup({
+      peers: { 'bob': 1, 'alice': 1, 'charlie': 1 },
+    })
+    for (const store of stores.values()) {
+      expect(store.getAuthorityPeerId()).toBe('alice')
+    }
+  })
 })
 
 describe('Sync protocol', () => {
   beforeEach(() => jest.useFakeTimers())
   afterEach(() => jest.useRealTimers())
 
-  it('requestSync broadcasts sync-request and sync source responds', () => {
-    const { stores, transports, syncs } = setup({
-      syncPolicy: designatedSyncPeer('worker'),
-    })
+  it('requestSync broadcasts sync-request and authority responds', () => {
+    const { stores, transports, syncs } = setup()
     const store_x = stores.get('player-x')!
-    const store_w = stores.get('worker')!
 
     store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
-    const committed_before = store_w.getCommittedEvents()
-    expect(committed_before.length).toBeGreaterThanOrEqual(1)
 
     transports.get('player-o')!.disconnect()
     store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 4, player: 'X' } })
@@ -441,46 +404,29 @@ describe('Sync protocol', () => {
     expect(syncs).toContain('player-o')
   })
 
-  it('non-sync-source peer ignores sync-request', () => {
-    const policy = designatedSyncPeer('worker')
-    const { stores, transports } = setup({ syncPolicy: policy })
+  it('non-authority peer ignores sync-request', () => {
+    const { stores, transports } = setup()
 
     stores.get('player-x')!.dispatch({
       type: 'PLACE_MARK',
       payload: { cell: 0, player: 'X' },
     })
 
-    transports.get('worker')!.disconnect()
+    transports.get('authority')!.disconnect()
 
     stores.get('player-o')!.dispatch({
       type: 'PLACE_MARK',
       payload: { cell: 4, player: 'O' },
     })
 
-    transports.get('worker')!.reconnect()
+    transports.get('authority')!.reconnect()
 
-    const worker_events = stores.get('worker')!.getCommittedEvents()
-    expect(worker_events.length).toBeGreaterThanOrEqual(1)
-  })
-
-  it('designatedSyncPeer only responds from the designated peer', () => {
-    const policy = designatedSyncPeer('worker')
-    expect(policy.isSyncSource('worker', PEERS)).toBe(true)
-    expect(policy.isSyncSource('player-x', PEERS)).toBe(false)
-    expect(policy.isSyncSource('player-o', PEERS)).toBe(false)
-  })
-
-  it('anyPeerSync responds from every peer', () => {
-    const policy = anyPeerSync()
-    expect(policy.isSyncSource('worker', PEERS)).toBe(true)
-    expect(policy.isSyncSource('player-x', PEERS)).toBe(true)
-    expect(policy.isSyncSource('player-o', PEERS)).toBe(true)
+    const auth_events = stores.get('authority')!.getCommittedEvents()
+    expect(auth_events.length).toBeGreaterThanOrEqual(1)
   })
 
   it('auto-sync on transport reconnect converges state', () => {
-    const { stores, transports } = setup({
-      syncPolicy: designatedSyncPeer('worker'),
-    })
+    const { stores, transports } = setup()
 
     stores.get('player-x')!.dispatch({
       type: 'PLACE_MARK',
@@ -497,14 +443,12 @@ describe('Sync protocol', () => {
     transports.get('player-o')!.reconnect()
 
     const state_o = stores.get('player-o')!.getCommittedState()
-    const state_w = stores.get('worker')!.getCommittedState()
-    expect(JSON.stringify(state_o)).toBe(JSON.stringify(state_w))
+    const state_auth = stores.get('authority')!.getCommittedState()
+    expect(JSON.stringify(state_o)).toBe(JSON.stringify(state_auth))
   })
 
   it('onSync callback fires after successful sync', () => {
-    const { stores, transports, syncs } = setup({
-      syncPolicy: designatedSyncPeer('worker'),
-    })
+    const { stores, transports, syncs } = setup()
 
     stores.get('player-x')!.dispatch({
       type: 'PLACE_MARK',
@@ -524,33 +468,21 @@ describe('Sync protocol', () => {
   })
 
   it('requestSync on destroyed store → crash', () => {
-    const { stores } = setup({
-      syncPolicy: designatedSyncPeer('worker'),
-    })
+    const { stores } = setup()
     const store = stores.get('player-x')!
     store.destroy()
     expect(() => store.requestSync()).toThrow('destroyed')
   })
 
-  it('manual requestSync works without onConnect', () => {
-    const { stores } = setup()
-    const store_x = stores.get('player-x')!
-    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
-
-    expect(() => stores.get('player-o')!.requestSync()).not.toThrow()
-  })
-
   it('rehydrate clears finalized_command_ids — subsequent commands process normally', () => {
-    const { stores } = setup({
-      syncPolicy: designatedSyncPeer('worker'),
-    })
+    const { stores } = setup()
 
     stores.get('player-x')!.dispatch({
       type: 'PLACE_MARK',
       payload: { cell: 0, player: 'X' },
     })
 
-    const events = stores.get('worker')!.getCommittedEvents()
+    const events = stores.get('authority')!.getCommittedEvents()
     stores.get('player-o')!.rehydrate(events)
 
     stores.get('player-o')!.dispatch({
@@ -560,5 +492,48 @@ describe('Sync protocol', () => {
 
     const state = stores.get('player-o')!.getCommittedState()
     expect((state['board'] as Array<null | string>)[4]).toBe('O')
+  })
+})
+
+describe('Authority failover', () => {
+  beforeEach(() => jest.useFakeTimers())
+  afterEach(() => jest.useRealTimers())
+
+  it('authority failover when primary goes offline', () => {
+    const { stores, transports, authorityChanges } = setup({
+      heartbeatIntervalMs: 100,
+      heartbeatTimeoutMs: 300,
+    })
+
+    for (const store of stores.values()) {
+      expect(store.getAuthorityPeerId()).toBe('authority')
+    }
+
+    transports.get('authority')!.disconnect()
+
+    jest.advanceTimersByTime(500)
+
+    const store_x = stores.get('player-x')!
+    expect(store_x.getAuthorityPeerId()).not.toBe('authority')
+
+    expect(authorityChanges.length).toBeGreaterThan(0)
+  })
+
+  it('authority restored when primary comes back online', () => {
+    const { stores, transports } = setup({
+      heartbeatIntervalMs: 100,
+      heartbeatTimeoutMs: 300,
+    })
+
+    transports.get('authority')!.disconnect()
+    jest.advanceTimersByTime(500)
+
+    const store_x = stores.get('player-x')!
+    expect(store_x.getAuthorityPeerId()).not.toBe('authority')
+
+    transports.get('authority')!.reconnect()
+    jest.advanceTimersByTime(200)
+
+    expect(store_x.getAuthorityPeerId()).toBe('authority')
   })
 })

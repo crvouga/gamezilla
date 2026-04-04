@@ -1,35 +1,29 @@
 import { Assert } from '@gamezilla/shared/assert'
-import { ConsensusAuthority } from './consensus-authority'
 import { PeerStore } from './peer-store'
-import { designatedSyncPeer } from './sync-policy'
 import { InMemoryBus, InMemoryTransport, type MessageInterceptor } from './transport'
-import type { Authority, Command, Event, Message, State, StoreModule, SyncPolicy } from './types'
+import type { Command, Event, Message, State, StoreModule } from './types'
 import { generateId } from './utils'
 
 const crash: Assert = Assert.crash()
 
 const TOPIC = 'peer-store'
 
-export type AuthorityFactory = (config: {
-  peerId: string
-  peers: string[]
-}) => Authority
-
 export class DeterministicSimulator {
   private readonly module: StoreModule
   private readonly peer_ids: string[]
-  private readonly syncPolicy: SyncPolicy | undefined
-  private readonly createAuthority: AuthorityFactory
-  private readonly consensusTimeoutMs: number | undefined
+  private readonly trustMap: Record<string, number>
+  private readonly timeoutMs: number | undefined
+  private readonly heartbeatIntervalMs: number | undefined
+  private readonly heartbeatTimeoutMs: number | undefined
   private readonly bus: InMemoryBus
   private readonly transports = new Map<string, InMemoryTransport>()
   private readonly stores = new Map<string, PeerStore>()
-  private readonly bad_actor_log: Array<{
-    peerId: string
-    commandId: string
-  }> = []
   private readonly timeout_log: string[] = []
   private readonly error_log: Array<{ code: string; message: string }> = []
+  private readonly authority_change_log: Array<{
+    newAuthority: string
+    previousAuthority: string
+  }> = []
   private readonly advanceTimeFn: (ms: number) => void
   private is_destroyed = false
   private logical_time = 0
@@ -37,36 +31,30 @@ export class DeterministicSimulator {
   constructor(
     module: StoreModule,
     config: {
-      peers: string[]
-      createAuthority?: AuthorityFactory
-      consensusTimeoutMs?: number
+      peers: Record<string, number>
+      timeoutMs?: number
+      heartbeatIntervalMs?: number
+      heartbeatTimeoutMs?: number
       advanceTime?: (ms: number) => void
-      syncPolicy?: SyncPolicy | string
     },
   ) {
-    crash.ok(config.peers.length >= 2, 'simulator requires at least 2 peers')
+    const peerIds = Object.keys(config.peers)
+    crash.ok(peerIds.length >= 2, 'simulator requires at least 2 peers')
 
     this.module = module
-    this.peer_ids = [...config.peers]
+    this.peer_ids = peerIds
+    this.trustMap = { ...config.peers }
+    this.timeoutMs = config.timeoutMs
+    this.heartbeatIntervalMs = config.heartbeatIntervalMs
+    this.heartbeatTimeoutMs = config.heartbeatTimeoutMs
     this.advanceTimeFn =
       config.advanceTime ??
       (() => {
         crash.fail('advanceTime requires a config.advanceTime function')
       })
 
-    this.createAuthority =
-      config.createAuthority ??
-      (({ peerId, peers }) => new ConsensusAuthority({ peerId, peers }))
-
-    this.consensusTimeoutMs = config.consensusTimeoutMs
-
-    this.syncPolicy =
-      typeof config.syncPolicy === 'string'
-        ? designatedSyncPeer(config.syncPolicy)
-        : config.syncPolicy
-
     this.bus = new InMemoryBus()
-    this.buildStores(this.bus, config.peers)
+    this.buildStores(this.bus)
   }
 
   getStore(peerId: string): PeerStore {
@@ -188,16 +176,19 @@ export class DeterministicSimulator {
     return this.stores.get(peerId)!.getCommittedEvents()
   }
 
-  getBadActorLog(): Array<{ peerId: string; commandId: string }> {
-    return [...this.bad_actor_log]
-  }
-
   getTimeoutLog(): string[] {
     return [...this.timeout_log]
   }
 
   getErrorLog(): Array<{ code: string; message: string }> {
     return [...this.error_log]
+  }
+
+  getAuthorityChangeLog(): Array<{
+    newAuthority: string
+    previousAuthority: string
+  }> {
+    return [...this.authority_change_log]
   }
 
   injectWireMessage(wireMessage: unknown): void {
@@ -245,11 +236,11 @@ export class DeterministicSimulator {
 
     const new_bus = new InMemoryBus()
     Object.assign(this, { bus: new_bus })
-    this.buildStores(new_bus, this.peer_ids)
+    this.buildStores(new_bus)
 
-    this.bad_actor_log.length = 0
     this.timeout_log.length = 0
     this.error_log.length = 0
+    this.authority_change_log.length = 0
     this.logical_time = 0
   }
 
@@ -266,36 +257,36 @@ export class DeterministicSimulator {
     this.bus.destroy()
   }
 
-  private buildStores(bus: InMemoryBus, peers: string[]): void {
-    for (const peerId of peers) {
+  private buildStores(bus: InMemoryBus): void {
+    for (const peerId of this.peer_ids) {
       const transport = new InMemoryTransport(bus, peerId)
       this.transports.set(peerId, transport)
-
-      const authority = this.createAuthority({ peerId, peers })
 
       const store = new PeerStore(
         this.module,
         {
           peerId,
-          peers,
+          peers: this.trustMap,
           transport,
-          authority,
-          ...(this.consensusTimeoutMs !== undefined
-            ? { consensusTimeoutMs: this.consensusTimeoutMs }
+          ...(this.timeoutMs !== undefined
+            ? { timeoutMs: this.timeoutMs }
             : {}),
-          ...(this.syncPolicy !== undefined
-            ? { syncPolicy: this.syncPolicy }
+          ...(this.heartbeatIntervalMs !== undefined
+            ? { heartbeatIntervalMs: this.heartbeatIntervalMs }
+            : {}),
+          ...(this.heartbeatTimeoutMs !== undefined
+            ? { heartbeatTimeoutMs: this.heartbeatTimeoutMs }
             : {}),
         },
         {
-          onBadActor: (badPeerId, commandId) => {
-            this.bad_actor_log.push({ peerId: badPeerId, commandId })
-          },
           onTimeout: (commandId) => {
             this.timeout_log.push(commandId)
           },
           onError: (error) => {
             this.error_log.push(error)
+          },
+          onAuthorityChange: (newAuthority, previousAuthority) => {
+            this.authority_change_log.push({ newAuthority, previousAuthority })
           },
         },
       )

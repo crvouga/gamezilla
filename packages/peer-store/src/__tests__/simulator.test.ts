@@ -9,7 +9,6 @@ import {
   it,
   jest,
 } from 'bun:test'
-import { ConsensusAuthority } from '../consensus-authority'
 import { TicTacToeModule } from '../__fixtures__/tic-tac-toe.module'
 import { DeterministicSimulator } from '../simulator'
 import { TestCrashHandler } from './test-crash-handler'
@@ -20,22 +19,13 @@ beforeAll(() => {
 })
 afterAll(() => disposeCrashHandler())
 
-const PEERS = ['player-x', 'player-o', 'worker']
+const TRUST = { 'player-x': 1, 'player-o': 1, 'authority': 3 }
 
-function createSim(opts?: { consensusTimeoutMs?: number; quorum?: number }) {
-  const quorum = opts?.quorum
-  const consensusTimeoutMs = opts?.consensusTimeoutMs
+function createSim(opts?: { timeoutMs?: number }) {
   return new DeterministicSimulator(TicTacToeModule, {
-    peers: PEERS,
+    peers: TRUST,
     advanceTime: (ms) => jest.advanceTimersByTime(ms),
-    syncPolicy: 'worker',
-    ...(consensusTimeoutMs !== undefined ? { consensusTimeoutMs } : {}),
-    ...(quorum !== undefined
-      ? {
-          createAuthority: ({ peerId, peers }) =>
-            new ConsensusAuthority({ peerId, peers, quorum }),
-        }
-      : {}),
+    ...(opts?.timeoutMs !== undefined ? { timeoutMs: opts.timeoutMs } : {}),
   })
 }
 
@@ -155,10 +145,9 @@ describe('DeterministicSimulator', () => {
   })
 
   it('advanceTime triggers timeouts in order', () => {
-    const sim = createSim({ consensusTimeoutMs: 3000 })
+    const sim = createSim({ timeoutMs: 3000 })
 
-    sim.disconnectPeer('player-o')
-    sim.disconnectPeer('worker')
+    sim.disconnectPeer('authority')
 
     sim.dispatch('player-x', {
       type: 'PLACE_MARK',
@@ -190,6 +179,7 @@ describe('DeterministicSimulator', () => {
     const events = sim.getEventLog('player-x')
     expect(events.length).toBeGreaterThanOrEqual(2)
     expect(events[0]!.type).toBe('MARK_PLACED')
+    sim.destroy()
   })
 
   it('reset returns all stores to initial state', () => {
@@ -207,8 +197,7 @@ describe('DeterministicSimulator', () => {
   it('getCommittedState excludes optimistic events', () => {
     const sim = createSim()
 
-    sim.disconnectPeer('player-o')
-    sim.disconnectPeer('worker')
+    sim.disconnectPeer('authority')
     sim.dispatch('player-x', {
       type: 'PLACE_MARK',
       payload: { cell: 0, player: 'X' },
@@ -223,8 +212,7 @@ describe('DeterministicSimulator', () => {
 
   it('getState includes optimistic events', () => {
     const sim = createSim()
-    sim.disconnectPeer('player-o')
-    sim.disconnectPeer('worker')
+    sim.disconnectPeer('authority')
     sim.dispatch('player-x', {
       type: 'PLACE_MARK',
       payload: { cell: 0, player: 'X' },
@@ -255,7 +243,7 @@ describe('DeterministicSimulator', () => {
       payload: { cell: 0, player: 'X' },
     })
     expect(sim.getCommittedState('player-x')['currentTurn']).toBe('O')
-    expect(sim.getCommittedState('worker')['currentTurn']).toBe('O')
+    expect(sim.getCommittedState('authority')['currentTurn']).toBe('O')
 
     sim.reconnectPeer('player-o')
     sim.assertConverged()
@@ -267,7 +255,7 @@ describe('DeterministicSimulator', () => {
       payload: { cell: 4, player: 'O' },
     })
     expect(sim.getCommittedState('player-o')['currentTurn']).toBe('X')
-    expect(sim.getCommittedState('worker')['currentTurn']).toBe('X')
+    expect(sim.getCommittedState('authority')['currentTurn']).toBe('X')
 
     sim.reconnectPeer('player-x')
     expect(sim.getEventLog('player-x').length).toBe(2)

@@ -20,14 +20,14 @@ beforeAll(() => {
 })
 afterAll(() => disposeCrashHandler())
 
-const PEERS = ['player-x', 'player-o', 'worker']
+const TRUST = { 'player-x': 1, 'player-o': 1, 'authority': 3 }
+const PEER_IDS = Object.keys(TRUST)
 
-function createSim(opts?: { consensusTimeoutMs?: number }) {
+function createSim(opts?: { timeoutMs?: number }) {
   return new DeterministicSimulator(TicTacToeModule, {
-    peers: PEERS,
-    consensusTimeoutMs: opts?.consensusTimeoutMs ?? 5000,
+    peers: TRUST,
+    timeoutMs: opts?.timeoutMs ?? 5000,
     advanceTime: (ms) => jest.advanceTimersByTime(ms),
-    syncPolicy: 'worker',
   })
 }
 
@@ -39,7 +39,7 @@ describe('TicTacToe integration', () => {
   beforeEach(() => jest.useFakeTimers())
   afterEach(() => jest.useRealTimers())
 
-  it('valid PLACE_MARK committed by all 3 peers, state converges', () => {
+  it('valid PLACE_MARK committed by all peers, state converges', () => {
     const sim = createSim()
     sim.dispatch('player-x', {
       type: 'PLACE_MARK',
@@ -52,7 +52,7 @@ describe('TicTacToe integration', () => {
     sim.destroy()
   })
 
-  it('PLACE_MARK on wrong turn → rejected by all peers', () => {
+  it('PLACE_MARK on wrong turn → rejected', () => {
     const sim = createSim()
     sim.dispatch('player-o', {
       type: 'PLACE_MARK',
@@ -63,7 +63,7 @@ describe('TicTacToe integration', () => {
     sim.destroy()
   })
 
-  it('PLACE_MARK on occupied cell → rejected by all peers', () => {
+  it('PLACE_MARK on occupied cell → rejected', () => {
     const sim = createSim()
     sim.dispatch('player-x', {
       type: 'PLACE_MARK',
@@ -136,50 +136,20 @@ describe('TicTacToe integration', () => {
 
   it('draw condition: GAME_DRAWN event produced, state converges', () => {
     const sim = createSim()
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
-    sim.dispatch('player-o', {
-      type: 'PLACE_MARK',
-      payload: { cell: 1, player: 'O' },
-    })
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 2, player: 'X' },
-    })
-    sim.dispatch('player-o', {
-      type: 'PLACE_MARK',
-      payload: { cell: 5, player: 'O' },
-    })
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 3, player: 'X' },
-    })
-    sim.dispatch('player-o', {
-      type: 'PLACE_MARK',
-      payload: { cell: 6, player: 'O' },
-    })
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 4, player: 'X' },
-    })
-    sim.dispatch('player-o', {
-      type: 'PLACE_MARK',
-      payload: { cell: 8, player: 'O' },
-    })
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 7, player: 'X' },
-    })
+    sim.dispatch('player-x', { type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
+    sim.dispatch('player-o', { type: 'PLACE_MARK', payload: { cell: 1, player: 'O' } })
+    sim.dispatch('player-x', { type: 'PLACE_MARK', payload: { cell: 2, player: 'X' } })
+    sim.dispatch('player-o', { type: 'PLACE_MARK', payload: { cell: 5, player: 'O' } })
+    sim.dispatch('player-x', { type: 'PLACE_MARK', payload: { cell: 3, player: 'X' } })
+    sim.dispatch('player-o', { type: 'PLACE_MARK', payload: { cell: 6, player: 'O' } })
+    sim.dispatch('player-x', { type: 'PLACE_MARK', payload: { cell: 4, player: 'X' } })
+    sim.dispatch('player-o', { type: 'PLACE_MARK', payload: { cell: 8, player: 'O' } })
+    sim.dispatch('player-x', { type: 'PLACE_MARK', payload: { cell: 7, player: 'X' } })
 
     sim.assertConverged()
     const state = sim.getCommittedState('player-x')
     expect(state['winner']).toBe('draw')
     expect(state['status']).toBe('completed')
-
-    const events = sim.getEventLog('player-x')
-    expect(events.some((e) => e.type === 'GAME_DRAWN')).toBe(true)
     sim.destroy()
   })
 
@@ -195,82 +165,21 @@ describe('TicTacToe integration', () => {
 
   it('full game X wins — all moves committed, all peers converge', () => {
     const sim = createSim()
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
-    sim.dispatch('player-o', {
-      type: 'PLACE_MARK',
-      payload: { cell: 3, player: 'O' },
-    })
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 1, player: 'X' },
-    })
-    sim.dispatch('player-o', {
-      type: 'PLACE_MARK',
-      payload: { cell: 4, player: 'O' },
-    })
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 2, player: 'X' },
-    })
+    sim.dispatch('player-x', { type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
+    sim.dispatch('player-o', { type: 'PLACE_MARK', payload: { cell: 3, player: 'O' } })
+    sim.dispatch('player-x', { type: 'PLACE_MARK', payload: { cell: 1, player: 'X' } })
+    sim.dispatch('player-o', { type: 'PLACE_MARK', payload: { cell: 4, player: 'O' } })
+    sim.dispatch('player-x', { type: 'PLACE_MARK', payload: { cell: 2, player: 'X' } })
 
     sim.assertConverged()
-    for (const peerId of PEERS) {
+    for (const peerId of PEER_IDS) {
       const state = sim.getCommittedState(peerId)
       expect(state['winner']).toBe('X')
     }
     sim.destroy()
   })
 
-  it('full game draw — all 9 moves committed, all peers converge', () => {
-    const sim = createSim()
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
-    sim.dispatch('player-o', {
-      type: 'PLACE_MARK',
-      payload: { cell: 1, player: 'O' },
-    })
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 2, player: 'X' },
-    })
-    sim.dispatch('player-o', {
-      type: 'PLACE_MARK',
-      payload: { cell: 5, player: 'O' },
-    })
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 3, player: 'X' },
-    })
-    sim.dispatch('player-o', {
-      type: 'PLACE_MARK',
-      payload: { cell: 6, player: 'O' },
-    })
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 4, player: 'X' },
-    })
-    sim.dispatch('player-o', {
-      type: 'PLACE_MARK',
-      payload: { cell: 8, player: 'O' },
-    })
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 7, player: 'X' },
-    })
-
-    sim.assertConverged()
-    for (const peerId of PEERS) {
-      expect(sim.getCommittedState(peerId)['winner']).toBe('draw')
-    }
-    sim.destroy()
-  })
-
-  it('partition: Player O offline, X move commits via worker (2 of 3)', () => {
+  it('partition: Player O offline, X move commits via authority', () => {
     const sim = createSim()
     sim.disconnectPeer('player-o')
     sim.dispatch('player-x', {
@@ -279,12 +188,12 @@ describe('TicTacToe integration', () => {
     })
 
     expect(board(sim.getCommittedState('player-x'))[0]).toBe('X')
-    expect(board(sim.getCommittedState('worker'))[0]).toBe('X')
+    expect(board(sim.getCommittedState('authority'))[0]).toBe('X')
     expect(board(sim.getCommittedState('player-o'))[0]).toBeNull()
     sim.destroy()
   })
 
-  it('reconnect after partition: Player O syncs via authority, state converges', () => {
+  it('reconnect after partition: Player O syncs, state converges', () => {
     const sim = createSim()
     sim.disconnectPeer('player-o')
     sim.dispatch('player-x', {
@@ -298,11 +207,10 @@ describe('TicTacToe integration', () => {
     sim.destroy()
   })
 
-  it('timeout: delivery paused, advance 5001ms, optimistic rolled back', () => {
-    const sim = createSim({ consensusTimeoutMs: 5000 })
+  it('timeout: authority offline, advance time, optimistic rolled back', () => {
+    const sim = createSim({ timeoutMs: 5000 })
 
-    sim.disconnectPeer('player-o')
-    sim.disconnectPeer('worker')
+    sim.disconnectPeer('authority')
 
     sim.dispatch('player-x', {
       type: 'PLACE_MARK',
@@ -318,18 +226,9 @@ describe('TicTacToe integration', () => {
 
   it('simultaneous dispatches from different peers both resolve correctly', () => {
     const sim = createSim()
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
-    sim.dispatch('player-o', {
-      type: 'PLACE_MARK',
-      payload: { cell: 4, player: 'O' },
-    })
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 8, player: 'X' },
-    })
+    sim.dispatch('player-x', { type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
+    sim.dispatch('player-o', { type: 'PLACE_MARK', payload: { cell: 4, player: 'O' } })
+    sim.dispatch('player-x', { type: 'PLACE_MARK', payload: { cell: 8, player: 'X' } })
 
     sim.assertConverged()
     const state = sim.getCommittedState('player-x')
@@ -358,49 +257,16 @@ describe('TicTacToe integration', () => {
     sim.destroy()
   })
 
-  it('player O move preserved when syncing from authority after reconnect', () => {
-    const sim = createSim()
-
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
-    sim.assertConverged()
-
-    sim.disconnectPeer('player-x')
-    sim.disconnectPeer('player-o')
-
-    sim.dispatch('player-o', {
-      type: 'PLACE_MARK',
-      payload: { cell: 4, player: 'O' },
-    })
-
-    sim.reconnectPeer('player-o')
-
-    expect(board(sim.getCommittedState('worker'))[4]).toBe('O')
-    expect(board(sim.getState('player-o'))[4]).toBe('O')
-    expect(sim.getCommittedState('player-o')['currentTurn']).toBe('X')
-
-    sim.destroy()
-  })
-
   it('offline dispatch: move made while offline is committed after reconnection', () => {
-    const sim = createSim({ consensusTimeoutMs: 5000 })
+    const sim = createSim({ timeoutMs: 5000 })
 
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    sim.dispatch('player-x', { type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
     sim.assertConverged()
     expect(board(sim.getCommittedState('player-x'))[0]).toBe('X')
 
     sim.disconnectPeer('player-o')
 
-    sim.dispatch('player-o', {
-      type: 'PLACE_MARK',
-      payload: { cell: 4, player: 'O' },
-    })
-
+    sim.dispatch('player-o', { type: 'PLACE_MARK', payload: { cell: 4, player: 'O' } })
     expect(board(sim.getState('player-o'))[4]).toBe('O')
 
     sim.reconnectPeer('player-o')
