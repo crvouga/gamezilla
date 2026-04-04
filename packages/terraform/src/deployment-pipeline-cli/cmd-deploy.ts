@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { assert } from '@gamezilla/shared/assert';
 import { BasePipelineCommand } from './base-command';
 import type { CiPlatform } from './ci-platform';
@@ -17,6 +18,8 @@ export class DeployCommand extends BasePipelineCommand {
 
   async execute(argv: string[]): Promise<void> {
     assert.array(argv, 'execute: argv must be an array');
+
+    this.assertDockerDaemon();
 
     const region = requireAwsRegion(this.platform);
     const accountId = await runStep(this.platform, 'Get AWS account ID', () =>
@@ -91,6 +94,14 @@ export class DeployCommand extends BasePipelineCommand {
       }
       this.platform.warning(`Could not check ECR repo ${repo}: ${msg} — will attempt create.`);
       return false;
+    }
+  }
+
+  private assertDockerDaemon(): void {
+    if (!existsSync('/var/run/docker.sock')) {
+      this.platform.error('Docker socket not found at /var/run/docker.sock.');
+      this.platform.error('Fix: Start a Docker-compatible daemon. On macOS: "brew install colima && colima start"');
+      assert.fail('deploy: Docker daemon is not running — all docker commands will hang without it');
     }
   }
 
