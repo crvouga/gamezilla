@@ -11,8 +11,6 @@ import { requireAwsRegion } from './aws';
 import type { CiPlatform } from './ci-platform';
 import { runStep } from './ci-platform';
 import { STACK_NAME } from './cfn-shared';
-import { AWS_PACKAGE_ROOT } from './paths';
-import { run } from './run-subprocess';
 
 const IN_PROGRESS_STATES = new Set([
   'CREATE_IN_PROGRESS',
@@ -118,16 +116,16 @@ export class CdkDestroyCommand extends BasePipelineCommand {
     const buckets = this.discoverBucketNames(region);
     for (const bucket of buckets) {
       this.platform.notice(`Emptying S3 bucket: ${bucket}`);
-      try {
-        run(this.platform, 'aws', [
-          's3', 'rm', `s3://${bucket}`, '--recursive', '--region', region,
-        ], { label: `Empty bucket ${bucket}` });
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e);
-        if (msg.includes('NoSuchBucket') || msg.includes('does not exist')) {
+      const r = Bun.spawnSync(
+        ['aws', 's3', 'rm', `s3://${bucket}`, '--recursive', '--region', region],
+        { stdout: 'pipe', stderr: 'pipe' }
+      );
+      if (r.exitCode !== 0) {
+        const stderr = r.stderr.toString();
+        if (stderr.includes('NoSuchBucket') || stderr.includes('does not exist')) {
           this.platform.notice(`Bucket ${bucket} already gone.`);
         } else {
-          this.platform.warning(`Could not empty bucket ${bucket}: ${msg} — delete may fail for this resource.`);
+          this.platform.warning(`Could not empty bucket ${bucket}: ${stderr} — delete may fail for this resource.`);
         }
       }
     }
