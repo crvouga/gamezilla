@@ -70,7 +70,6 @@ export class TrustElection {
   private connect_unsubscribe: (() => void) | null = null
   private timeout_handle: ReturnType<typeof setTimeout> | null = null
   private resolve_fn: ((map: Record<string, number>) => void) | null = null
-  private reject_fn: ((reason: Error) => void) | null = null
 
   constructor(config: {
     peerId: string
@@ -122,8 +121,6 @@ export class TrustElection {
 
     return new Promise<Record<string, number>>((resolve, reject) => {
       this.resolve_fn = resolve
-      this.reject_fn = reject
-
       if (this.hasAllVotes()) {
         this.finalize()
         return
@@ -154,7 +151,6 @@ export class TrustElection {
       this.connect_unsubscribe = null
     }
     this.resolve_fn = null
-    this.reject_fn = null
   }
 
   private broadcastVote(): void {

@@ -249,7 +249,12 @@ export function PlaygroundPage() {
   // ─── Derived state ───────────────────────────────────────────
 
   const badActorIds = useMemo(() => {
-    return new Set(sim.getBadActorLog().map((e) => e.peerId));
+    return new Set(
+      sim
+        .getLog()
+        .filter((e) => e.kind === 'cheat' && e.peerId)
+        .map((e) => e.peerId),
+    );
   }, [tick, sim]);
 
   const log = sim.getLog();
