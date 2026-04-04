@@ -63,6 +63,10 @@ export class CdkDestroyCommand extends BasePipelineCommand {
       this.emptyBuckets(region)
     );
 
+    await runStep(this.platform, 'Empty Route53 hosted zones (CDK)', () =>
+      this.emptyHostedZones(region)
+    );
+
     await runStep(this.platform, 'Delete CDK stack', () =>
       this.deleteStack(client)
     );
@@ -150,6 +154,91 @@ export class CdkDestroyCommand extends BasePipelineCommand {
     }
   }
 
+  private emptyHostedZones(region: string): void {
+    const zoneIds = this.discoverHostedZoneIds(region);
+    for (const zoneId of zoneIds) {
+      this.platform.notice(`Emptying Route53 hosted zone: ${zoneId}`);
+      this.emptyHostedZone(zoneId);
+    }
+  }
+
+  private discoverHostedZoneIds(region: string): string[] {
+    try {
+      const r = Bun.spawnSync(
+        ['aws', 'cloudformation', 'list-stack-resources', '--stack-name', STACK_NAME, '--region', region, '--output', 'json'],
+        { stdout: 'pipe', stderr: 'pipe' }
+      );
+      if (r.exitCode !== 0) return [];
+      const data = JSON.parse(r.stdout.toString()) as {
+        StackResourceSummaries?: Array<{
+          ResourceType?: string;
+          PhysicalResourceId?: string;
+        }>;
+      };
+      return (data.StackResourceSummaries ?? [])
+        .filter((s) => s.ResourceType === 'AWS::Route53::HostedZone' && s.PhysicalResourceId)
+        .map((s) => s.PhysicalResourceId as string);
+    } catch {
+      return [];
+    }
+  }
+
+  private emptyHostedZone(zoneId: string): void {
+    try {
+      const r = Bun.spawnSync(
+        ['aws', 'route53', 'list-resource-record-sets', '--hosted-zone-id', zoneId, '--output', 'json'],
+        { stdout: 'pipe', stderr: 'pipe' }
+      );
+      if (r.exitCode !== 0) {
+        const stderr = r.stderr.toString();
+        if (stderr.includes('NoSuchHostedZone') || stderr.includes('does not exist')) {
+          this.platform.notice(`Zone ${zoneId} already gone.`);
+          return;
+        }
+        this.platform.warning(`Could not list record sets for zone ${zoneId}: ${stderr}`);
+        return;
+      }
+
+      const data = JSON.parse(r.stdout.toString()) as {
+        ResourceRecordSets?: Array<Record<string, unknown> & { Name: string; Type: string }>;
+      };
+
+      const deletable = (data.ResourceRecordSets ?? []).filter(
+        (rrs) => rrs.Type !== 'NS' && rrs.Type !== 'SOA'
+      );
+
+      if (deletable.length === 0) {
+        this.platform.notice(`Zone ${zoneId} has no deletable records.`);
+        return;
+      }
+
+      const changeBatch = JSON.stringify({
+        Changes: deletable.map((rrs) => ({
+          Action: 'DELETE',
+          ResourceRecordSet: rrs,
+        })),
+      });
+
+      const del = Bun.spawnSync(
+        ['aws', 'route53', 'change-resource-record-sets', '--hosted-zone-id', zoneId, '--change-batch', changeBatch],
+        { stdout: 'pipe', stderr: 'pipe' }
+      );
+
+      if (del.exitCode !== 0) {
+        this.platform.warning(`Could not delete records in zone ${zoneId}: ${del.stderr.toString()}`);
+      } else {
+        this.platform.notice(`Deleted ${deletable.length} record(s) from zone ${zoneId}.`);
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes('NoSuchHostedZone') || msg.includes('does not exist')) {
+        this.platform.notice(`Zone ${zoneId} already gone.`);
+        return;
+      }
+      this.platform.warning(`Error emptying zone ${zoneId}: ${msg} — delete may fail for this resource.`);
+    }
+  }
+
   private async deleteStack(client: CloudFormationClient): Promise<void> {
     const stack = await this.describeStack(client);
     if (stack === null || stack.status === 'DELETE_COMPLETE') {
@@ -179,15 +268,18 @@ export class CdkDestroyCommand extends BasePipelineCommand {
       throw e;
     }
 
-    await waitUntilStackDeleteComplete(
-      { client, maxWaitTime: MAX_DELETE_WAIT },
-      { StackName: STACK_NAME }
-    );
-
-    const after = await this.describeStack(client);
-    if (after !== null && after.status === 'DELETE_FAILED') {
-      this.platform.warning(`Stack delete failed (status: ${after.status}). Retrying with --retain-resources...`);
-      await this.retryDeleteWithRetain(client);
+    try {
+      await waitUntilStackDeleteComplete(
+        { client, maxWaitTime: MAX_DELETE_WAIT },
+        { StackName: STACK_NAME }
+      );
+    } catch {
+      const after = await this.describeStack(client);
+      if (after !== null && after.status === 'DELETE_FAILED') {
+        this.platform.warning(`Stack delete failed (status: ${after.status}). Retrying with --retain-resources...`);
+        await this.retryDeleteWithRetain(client);
+        return;
+      }
     }
 
     this.platform.notice(`Stack "${STACK_NAME}" deleted.`);
