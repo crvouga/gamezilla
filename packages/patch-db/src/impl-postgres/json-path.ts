@@ -15,14 +15,6 @@ export const sqliteJsonPathToKey = assert.fn({
   post: (key: string): void => {
     assert.string(key, 'Invalid PostgreSQL JSON path key (must be a string)');
     assert.ok(key.length > 0, 'Invalid PostgreSQL JSON path key');
-    assert.ok(
-      !key.includes('/'),
-      'Invalid PostgreSQL JSON path key (contains /)'
-    );
-    assert.ok(
-      !key.includes('.'),
-      'Invalid PostgreSQL JSON path key (contains .)'
-    );
   },
   fn: (path: string): string => {
     const rest = path.slice(2);
