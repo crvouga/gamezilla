@@ -23,8 +23,6 @@ resource "aws_service_discovery_service" "emqx" {
     routing_policy = "MULTIVALUE"
   }
 
-  health_check_custom_config {}
-
   tags = { Name = "${var.name_prefix}-emqx-discovery" }
 }
 

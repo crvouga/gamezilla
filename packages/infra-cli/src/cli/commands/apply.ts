@@ -59,6 +59,9 @@ export class ApplyCommand implements Command {
     await runStep(this.platform, 'Terraform apply', () =>
       this.terraformApply(appImageUri, emqxImageUri),
     );
+    await runStep(this.platform, 'Force ECS redeployment', () =>
+      this.forceEcsRedeploy(region),
+    );
   }
 
   private async getAccountId(region: string): Promise<string> {
@@ -194,5 +197,24 @@ export class ApplyCommand implements Command {
       { cwd: TF_PACKAGE_ROOT, label: 'Terraform apply' },
     );
     this.platform.notice('Terraform apply finished.');
+  }
+
+  private async forceEcsRedeploy(region: string): Promise<void> {
+    const { ECSClient, UpdateServiceCommand, ListServicesCommand } = await import('@aws-sdk/client-ecs');
+    const ecs = new ECSClient({ region });
+    const cluster = 'gamezilla-cluster';
+
+    const list = await ecs.send(new ListServicesCommand({ cluster }));
+    const arns = list.serviceArns ?? [];
+
+    for (const arn of arns) {
+      const name = arn.split('/').pop() ?? arn;
+      await ecs.send(new UpdateServiceCommand({
+        cluster,
+        service: arn,
+        forceNewDeployment: true,
+      }));
+      this.platform.notice(`Forced new deployment: ${name}`);
+    }
   }
 }

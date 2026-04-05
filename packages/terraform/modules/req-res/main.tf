@@ -197,12 +197,11 @@ resource "aws_security_group_rule" "task_ingress_from_alb" {
 }
 
 resource "aws_ecs_service" "req_res" {
-  name                 = "${var.name_prefix}-req-res"
-  cluster              = var.ecs_cluster_id
-  task_definition      = aws_ecs_task_definition.req_res.arn
-  desired_count        = 1
-  launch_type          = "FARGATE"
-  force_new_deployment = true
+  name            = "${var.name_prefix}-req-res"
+  cluster         = var.ecs_cluster_id
+  task_definition = aws_ecs_task_definition.req_res.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
 
   network_configuration {
     subnets          = var.private_subnet_ids

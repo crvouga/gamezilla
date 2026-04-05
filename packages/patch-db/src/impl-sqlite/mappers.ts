@@ -25,7 +25,8 @@ export function parseAttributes(
   a: Assert = assert
 ): Record<string, unknown> {
   try {
-    const parsed = JSON.parse(json);
+    let parsed: unknown = JSON.parse(json);
+    if (typeof parsed === 'string') parsed = JSON.parse(parsed);
     a.record(parsed, 'attributes must parse to object');
     return parsed;
   } catch (err) {
