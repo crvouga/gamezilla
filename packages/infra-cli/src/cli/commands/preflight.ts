@@ -5,7 +5,7 @@ import type { Command } from '../command';
 import type { CiPlatform } from '../platform';
 import { runStep } from '../platform';
 import { run } from '../subprocess';
-import { requireAwsRegion } from '../lib/aws-creds';
+import { ensureAwsEnvCredentials, requireAwsRegion } from '../lib/aws-creds';
 import { PROJECT_CONFIG } from '../../project-config';
 import { REPO_ROOT, TF_PACKAGE_ROOT } from '../paths';
 
@@ -21,6 +21,8 @@ export class PreflightCommand implements Command {
   constructor(private readonly platform: CiPlatform) {}
 
   async execute(): Promise<void> {
+    process.env['AWS_REGION'] = process.env['AWS_REGION'] ?? PROJECT_CONFIG.aws.region;
+    ensureAwsEnvCredentials();
     const region = this.requireAwsRegionValid();
     await runStep(this.platform, 'PREFLIGHT 1/5 — AWS caller identity', () =>
       this.assertCallerIdentity(region),

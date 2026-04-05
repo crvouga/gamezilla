@@ -71,16 +71,7 @@ jobs:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      # --- Phase 1: Unprovision CDK (idempotent — safe to re-run) ---
-
-      - name: Unprovision CDK stack
-        timeout-minutes: 30
-        working-directory: packages/aws
-        run: bun run unprovision
-
-      # --- Phase 2: Provision with Terraform ---
-
-      - name: Prechecks (Terraform)
+      - name: Preflight (Terraform)
         working-directory: packages/infra-cli
         run: bun run infra preflight
 
@@ -89,7 +80,7 @@ jobs:
         working-directory: packages/infra-cli
         run: bun run infra deploy
 
-      - name: Postchecks (Terraform)
+      - name: Post-deploy (Terraform)
         timeout-minutes: 35
         working-directory: packages/infra-cli
         run: bun run infra post-deploy

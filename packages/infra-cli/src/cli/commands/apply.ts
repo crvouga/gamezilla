@@ -6,7 +6,8 @@ import { runStep } from '../platform';
 import { run, runCapture } from '../subprocess';
 import { TF_DEPLOY_VAR_ARGS } from '../lib/tf-vars';
 import { TF_PACKAGE_ROOT, REPO_ROOT } from '../paths';
-import { requireAwsRegion } from '../lib/aws-creds';
+import { ensureAwsEnvCredentials, requireAwsRegion } from '../lib/aws-creds';
+import { PROJECT_CONFIG } from '../../project-config';
 
 export class ApplyCommand implements Command {
   readonly id = 'apply';
@@ -22,6 +23,8 @@ export class ApplyCommand implements Command {
   }
 
   async execute(): Promise<void> {
+    process.env['AWS_REGION'] = process.env['AWS_REGION'] ?? PROJECT_CONFIG.aws.region;
+    ensureAwsEnvCredentials();
     this.assertDockerDaemon();
 
     const region = requireAwsRegion(this.platform);

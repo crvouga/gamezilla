@@ -5,6 +5,7 @@ import { runStep } from '../platform';
 import { readTfOutputs, requireOutput, type TfOutputs } from '../lib/tf-outputs';
 import { checkInfrastructureHealth } from '../lib/infra-health';
 import { ensureAwsEnvCredentials, requireAwsRegion } from '../lib/aws-creds';
+import { PROJECT_CONFIG } from '../../project-config';
 import { DNS_DOMAINS, parseNs } from '../lib/dns';
 import { fmtElapsed } from '../fmt';
 
@@ -131,6 +132,7 @@ export class PostDeployCommand implements Command {
   constructor(private readonly platform: CiPlatform) {}
 
   async execute(): Promise<void> {
+    process.env['AWS_REGION'] = process.env['AWS_REGION'] ?? PROJECT_CONFIG.aws.region;
     ensureAwsEnvCredentials();
     const outputs = readTfOutputs(this.platform);
     const region = requireAwsRegion(this.platform);
