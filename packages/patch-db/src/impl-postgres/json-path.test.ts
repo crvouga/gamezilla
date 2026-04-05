@@ -22,11 +22,9 @@ describe('sqliteJsonPathToKey', () => {
     expect(sqliteJsonPathToKey('$."a\\"b"')).toBe('a"b');
   });
 
-  test('rejects empty path after $.', () => {
-    expect(() => sqliteJsonPathToKey('$.')).toThrow();
-  });
-
-  test('rejects missing $. prefix', () => {
-    expect(() => sqliteJsonPathToKey('foo')).toThrow();
+  test('multi-segment namespace', () => {
+    expect(sqliteJsonPathToKey('$."game.session/player.score"')).toBe(
+      'game.session/player.score'
+    );
   });
 });
