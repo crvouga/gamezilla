@@ -115,11 +115,12 @@ resource "aws_ecs_task_definition" "worker" {
 # ── ECS service ──────────────────────────────────────────────────────────────
 
 resource "aws_ecs_service" "worker" {
-  name            = "${var.name_prefix}-worker"
-  cluster         = var.ecs_cluster_id
-  task_definition = aws_ecs_task_definition.worker.arn
-  desired_count   = 1
-  launch_type     = "FARGATE"
+  name                 = "${var.name_prefix}-worker"
+  cluster              = var.ecs_cluster_id
+  task_definition      = aws_ecs_task_definition.worker.arn
+  desired_count        = 1
+  launch_type          = "FARGATE"
+  force_new_deployment = true
 
   network_configuration {
     subnets          = var.private_subnet_ids

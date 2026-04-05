@@ -126,6 +126,25 @@ resource "aws_acm_certificate_validation" "this" {
   validation_record_fqdns = [for r in aws_route53_record.cert_validation : r.fqdn]
 }
 
+# ── Response headers policy (COEP / COOP for SharedArrayBuffer) ──────────────
+
+resource "aws_cloudfront_response_headers_policy" "web" {
+  name = "${var.name_prefix}-web-response-headers"
+
+  custom_headers_config {
+    items {
+      header   = "Cross-Origin-Embedder-Policy"
+      value    = "credentialless"
+      override = true
+    }
+    items {
+      header   = "Cross-Origin-Opener-Policy"
+      value    = "same-origin"
+      override = true
+    }
+  }
+}
+
 # ── CloudFront distribution ─────────────────────────────────────────────────
 
 resource "aws_cloudfront_distribution" "web" {
@@ -144,9 +163,10 @@ resource "aws_cloudfront_distribution" "web" {
   }
 
   default_cache_behavior {
-    target_origin_id       = "s3"
-    viewer_protocol_policy = "redirect-to-https"
-    compress               = true
+    target_origin_id           = "s3"
+    viewer_protocol_policy     = "redirect-to-https"
+    compress                   = true
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.web.id
 
     allowed_methods = ["GET", "HEAD", "OPTIONS"]
     cached_methods  = ["GET", "HEAD", "OPTIONS"]
