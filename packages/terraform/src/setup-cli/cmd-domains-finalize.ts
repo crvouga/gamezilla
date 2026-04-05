@@ -1,5 +1,5 @@
 import { BaseSetupCommand } from './base-command';
-import { getTfPackageRoot, runLocal } from './shared';
+import { ensureAwsEnvCredentials, getTfPackageRoot, runLocal } from './shared';
 import { readTfOutputs } from '../deployment-pipeline-cli/tf-outputs';
 import { LocalPlatform } from '../deployment-pipeline-cli/ci-platform-local';
 import { checkDnsDelegation } from './dns-delegation';
@@ -9,6 +9,7 @@ export class DomainsFinalizeCommand extends BaseSetupCommand {
   readonly summary = 'Verify public NS, then phase 2 ACM + aliases';
 
   async execute(): Promise<void> {
+    ensureAwsEnvCredentials();
     const platform = new LocalPlatform();
     let outputs: Record<string, string | undefined>;
     try {

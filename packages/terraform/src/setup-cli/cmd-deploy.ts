@@ -1,4 +1,5 @@
 import { BaseSetupCommand } from './base-command';
+import { ensureAwsEnvCredentials } from './shared';
 import { LocalPlatform } from '../deployment-pipeline-cli/ci-platform-local';
 import { DeployCommand } from '../deployment-pipeline-cli/cmd-deploy';
 import { DeployAppsCommand } from '../deployment-pipeline-cli/cmd-deploy-apps';
@@ -14,6 +15,7 @@ export class SetupDeployCommand extends BaseSetupCommand {
 
   async execute(): Promise<void> {
     process.env['AWS_REGION'] = process.env['AWS_REGION'] ?? PROJECT_CONFIG.aws.region;
+    ensureAwsEnvCredentials();
 
     const platform = new LocalPlatform();
 

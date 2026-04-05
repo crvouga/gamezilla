@@ -8,11 +8,13 @@ import { DomainsFinalizeCommand } from './cmd-domains-finalize';
 import { DomainsStatusCommand } from './cmd-domains-status';
 import { GitHubCommand } from './cmd-github';
 import { StatusCommand } from './cmd-status';
+import { TfBackendCommand } from './cmd-tf-backend';
 
 export function createSetupRegistry(): SetupCommand[] {
   return [
     new CheckCommand(),
     new AwsOidcCommand(),
+    new TfBackendCommand(),
     new GitHubCommand(),
     new AllCommand(),
     new SetupDeployCommand(),

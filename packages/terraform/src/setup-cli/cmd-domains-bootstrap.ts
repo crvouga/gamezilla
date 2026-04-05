@@ -1,5 +1,5 @@
 import { BaseSetupCommand } from './base-command';
-import { getTfPackageRoot, runLocal } from './shared';
+import { ensureAwsEnvCredentials, getTfPackageRoot, runLocal } from './shared';
 import { readTfOutputs } from '../deployment-pipeline-cli/tf-outputs';
 import { LocalPlatform } from '../deployment-pipeline-cli/ci-platform-local';
 import { SETUP_DNS_DOMAINS } from './dns-config';
@@ -9,6 +9,7 @@ export class DomainsBootstrapCommand extends BaseSetupCommand {
   readonly summary = 'Terraform phase 1: zones + NS outputs';
 
   async execute(): Promise<void> {
+    ensureAwsEnvCredentials();
     const tfRoot = getTfPackageRoot();
 
     runLocal('terraform', ['init', '-input=false', '-reconfigure'], { cwd: tfRoot });
