@@ -140,15 +140,33 @@
                   "Resource": "*"
                 },
                 {
-                  "Sid": "EC2Describe",
+                  "Sid": "EC2",
                   "Effect": "Allow",
-                  "Action": [
-                    "ec2:DescribeAvailabilityZones",
-                    "ec2:DescribeVpcs",
-                    "ec2:DescribeSubnets",
-                    "ec2:DescribeRouteTables",
-                    "ec2:DescribeAccountAttributes"
-                  ],
+                  "Action": ["ec2:*"],
+                  "Resource": "*"
+                },
+                {
+                  "Sid": "DynamoDB",
+                  "Effect": "Allow",
+                  "Action": ["dynamodb:*"],
+                  "Resource": "*"
+                },
+                {
+                  "Sid": "SecretsManager",
+                  "Effect": "Allow",
+                  "Action": ["secretsmanager:*"],
+                  "Resource": "*"
+                },
+                {
+                  "Sid": "RDS",
+                  "Effect": "Allow",
+                  "Action": ["rds:*"],
+                  "Resource": "*"
+                },
+                {
+                  "Sid": "ServiceDiscovery",
+                  "Effect": "Allow",
+                  "Action": ["servicediscovery:*"],
                   "Resource": "*"
                 }
               ]
