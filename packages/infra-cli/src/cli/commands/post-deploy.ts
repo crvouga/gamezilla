@@ -13,11 +13,21 @@ type HttpEndpointCheck = {
   readonly label: string;
   readonly outputKey: string;
   readonly probePath?: string;
+  /**
+   * When true, accept any response that is not a gateway error (502/503/504).
+   * Use for paths that may return 4xx but must never be unreachable.
+   */
+  readonly gatewayCheck?: boolean;
 };
+
+function isGatewayError(status: number): boolean {
+  return status === 502 || status === 503 || status === 504;
+}
 
 const HTTP_ENDPOINTS: readonly HttpEndpointCheck[] = [
   { label: 'WebApp', outputKey: 'web_app_url' },
-  { label: 'ReqRes', outputKey: 'req_res_url', probePath: '/health' },
+  { label: 'ReqRes /health', outputKey: 'req_res_url', probePath: '/health' },
+  { label: 'ReqRes (origin)', outputKey: 'req_res_url', gatewayCheck: true },
 ];
 
 const HTTP_TIMEOUT_MS = 30_000;
@@ -55,7 +65,7 @@ function probeUrl(rawUrl: string, probePath?: string): string {
 
 async function checkHttpEndpoint(
   platform: CiPlatform,
-  opts: { step: number; total: number; label: string; rawUrl: string; probePath?: string },
+  opts: { step: number; total: number; label: string; rawUrl: string; probePath?: string; gatewayCheck?: boolean },
 ): Promise<void> {
   const url = probeUrl(opts.rawUrl, opts.probePath);
   const started = Date.now();
@@ -83,12 +93,20 @@ async function checkHttpEndpoint(
       continue;
     }
 
-    if (response.ok) {
+    const acceptable = opts.gatewayCheck
+      ? !isGatewayError(response.status)
+      : response.ok;
+
+    if (acceptable) {
       platform.notice(`POST-DEPLOY ${opts.step}/${opts.total}: ${opts.label} ${url} — HTTP ${response.status} OK (${elapsedStr}).`);
       return;
     }
 
-    if (!httpStatusShouldRetry(response.status)) {
+    const shouldRetry = opts.gatewayCheck
+      ? isGatewayError(response.status)
+      : httpStatusShouldRetry(response.status);
+
+    if (!shouldRetry) {
       platform.error(`${opts.label} ${url} — HTTP ${response.status} ${response.statusText}`);
       assert.fail(`post-deploy: ${opts.label} returned HTTP ${response.status}`);
     }
@@ -118,6 +136,7 @@ export async function runHttpSmokeTestsOnly(
         label: ep.label,
         rawUrl: requireOutput(platform, outputs, ep.outputKey),
         probePath: ep.probePath,
+        gatewayCheck: ep.gatewayCheck,
       }),
     );
   }
@@ -162,6 +181,7 @@ export class PostDeployCommand implements Command {
           label: ep.label,
           rawUrl: requireOutput(this.platform, outputs, ep.outputKey),
           probePath: ep.probePath,
+          gatewayCheck: ep.gatewayCheck,
         }),
       );
     }
