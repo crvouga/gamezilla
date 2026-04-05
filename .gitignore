@@ -3,9 +3,6 @@
 # dependencies
 node_modules/
 
-# AWS CDK
-packages/aws/cdk.out/
-
 # Expo
 .expo/
 **/dist/

@@ -50,6 +50,7 @@
     "graphviz",
     "Gsap",
     "healthcheck",
+    "hostnames",
     "impls",
     "Inspectable",
     "labeljust",

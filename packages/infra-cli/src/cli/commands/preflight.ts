@@ -7,7 +7,7 @@ import { runStep } from '../platform';
 import { run } from '../subprocess';
 import { ensureAwsEnvCredentials, requireAwsRegion } from '../lib/aws-creds';
 import { PROJECT_CONFIG } from '../../project-config';
-import { REPO_ROOT, TF_PACKAGE_ROOT } from '../paths';
+import { REPO_ROOT, TF_PACKAGE_ROOT, INFRA_CLI_ROOT } from '../paths';
 
 function isValidAwsRegionFormat(value: string): boolean {
   return /^[a-z]{2}-[a-z]+-\d$/.test(value.trim());
@@ -37,7 +37,7 @@ export class PreflightCommand implements Command {
       this.assertDockerBuild(REPO_ROOT, 'Docker build (app)'),
     );
     await runStep(this.platform, 'PREFLIGHT 5/5 — Docker build (emqx)', () =>
-      this.assertDockerBuild(join(REPO_ROOT, 'packages', 'aws', 'emqx-image'), 'Docker build (emqx)'),
+      this.assertDockerBuild(join(INFRA_CLI_ROOT, 'emqx-image'), 'Docker build (emqx)'),
     );
   }
 

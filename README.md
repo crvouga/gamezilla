@@ -2,4 +2,4 @@
 
 ## Architecture
 
-![Architecture Diagram](packages/aws/diagram.svg)
+<!-- TODO: update architecture diagram -->

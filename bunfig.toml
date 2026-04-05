@@ -1,6 +1,5 @@
 [test]
 pathIgnorePatterns = [
-  "packages/aws/cdk.out/**",
   "dist/**",
   "**/dist/**",
   "node_modules/**",

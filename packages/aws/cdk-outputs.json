@@ -1,9 +1,0 @@
-{
-  "GamezillaStack": {
-    "Route53Nameservers": "ns-1982.awsdns-55.co.uk, ns-865.awsdns-44.net, ns-1407.awsdns-47.org, ns-263.awsdns-32.com",
-    "WebAppUrl": "https://dqfer677ax0oz.cloudfront.net",
-    "WebDistributionId": "E246VROUX6XJ12",
-    "WebAppBucketName": "gamezillastack-webappbucketb4cb5d48-1ll1c2bvzcm5",
-    "SyncServerUrl": "https://jd6kyb2g2a.us-east-1.awsapprunner.com"
-  }
-}

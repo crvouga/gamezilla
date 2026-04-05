@@ -39,10 +39,6 @@
   "exclude": [
     "node_modules",
     "dist",
-    "web-build",
-    "packages/aws/dist",
-    "packages/aws/cdk.out",
-    "packages/aws/lib",
-    "packages/aws/bin/app.ts"
+    "web-build"
   ]
 }

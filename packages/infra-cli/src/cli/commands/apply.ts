@@ -1,11 +1,12 @@
 import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { assert } from '@gamezilla/shared/assert';
 import type { Command } from '../command';
 import type { CiPlatform } from '../platform';
 import { runStep } from '../platform';
 import { run, runCapture } from '../subprocess';
 import { TF_DEPLOY_VAR_ARGS } from '../lib/tf-vars';
-import { TF_PACKAGE_ROOT, REPO_ROOT } from '../paths';
+import { TF_PACKAGE_ROOT, REPO_ROOT, INFRA_CLI_ROOT } from '../paths';
 import { ensureAwsEnvCredentials, requireAwsRegion } from '../lib/aws-creds';
 import { PROJECT_CONFIG } from '../../project-config';
 
@@ -46,7 +47,7 @@ export class ApplyCommand implements Command {
       this.buildAndPush(REPO_ROOT, 'Dockerfile', appImageUri),
     );
     await runStep(this.platform, 'Docker build + push (emqx)', () =>
-      this.buildAndPush(`${TF_PACKAGE_ROOT}/../aws/emqx-image`, 'Dockerfile', emqxImageUri),
+      this.buildAndPush(join(INFRA_CLI_ROOT, 'emqx-image'), 'Dockerfile', emqxImageUri),
     );
     await runStep(this.platform, 'Terraform init', () =>
       this.terraformInit(),
