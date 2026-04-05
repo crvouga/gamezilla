@@ -22,7 +22,9 @@
       "dependencies": {
         "@expo/vector-icons": "^15.0.3",
         "@gamezilla/patch-db": "workspace:*",
+        "@gamezilla/patch-db-app": "workspace:*",
         "@gamezilla/peer-store": "workspace:*",
+        "@gamezilla/peer-store-app": "workspace:*",
         "@gamezilla/shared": "workspace:*",
         "@react-native-async-storage/async-storage": "^2.1.2",
         "@react-navigation/bottom-tabs": "^7.4.0",

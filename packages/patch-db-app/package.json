@@ -3,6 +3,10 @@
   "version": "0.0.1",
   "private": true,
   "main": "src/entry.tsx",
+  "exports": {
+    "./playground-app": "./src/playground-app.tsx",
+    "./*": "./src/*"
+  },
   "scripts": {
     "install:deps": "npx expo install --check",
     "lint": "eslint .",

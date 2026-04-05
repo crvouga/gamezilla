@@ -4,8 +4,12 @@
   "private": true,
   "exports": {
     "./assert-url": "./src/assert-url.ts",
+    "./bootstrap-expo": "./src/bootstrap-expo.ts",
+    "./impl-postgres/impl-postgres": "./src/impl-postgres/impl-postgres.ts",
+    "./impl-sqlite/impl-sqlite": "./src/impl-sqlite/impl-sqlite.ts",
     "./interface": "./src/interface.ts",
     "./react": "./src/react.tsx",
+    "./req-res": "./src/req-res.ts",
     "./sim/playground-db-factory-expo": "./src/sim/playground-db-factory-expo.ts",
     "./sim/playground-db-factory-sqljs": "./src/sim/playground-db-factory-sqljs.ts",
     "./sim/playground-shapes": "./src/sim/playground-shapes.ts",
