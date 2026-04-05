@@ -33,6 +33,10 @@ export class ApplyCommand implements Command {
       this.getAccountId(region),
     );
 
+    await runStep(this.platform, 'Preflight: DynamoDB lock table access', () =>
+      this.assertTfLockTableAccess(region),
+    );
+
     const appImageUri = `${accountId}.dkr.ecr.${region}.amazonaws.com/gamezilla/app:latest`;
     const emqxImageUri = `${accountId}.dkr.ecr.${region}.amazonaws.com/gamezilla/emqx:latest`;
     const registryUri = `${accountId}.dkr.ecr.${region}.amazonaws.com`;
@@ -104,6 +108,33 @@ export class ApplyCommand implements Command {
     }
   }
 
+  private async assertTfLockTableAccess(region: string): Promise<void> {
+    const { DynamoDBClient, GetItemCommand } = await import('@aws-sdk/client-dynamodb');
+    const table = PROJECT_CONFIG.tfBackend.dynamodbTable;
+    const client = new DynamoDBClient({ region });
+    try {
+      await client.send(new GetItemCommand({
+        TableName: table,
+        Key: { LockID: { S: '__preflight_probe__' } },
+      }));
+    } catch (e: unknown) {
+      const code = (e as { name?: string }).name ?? '';
+      const msg = e instanceof Error ? e.message : String(e);
+      if (code === 'AccessDeniedException' || msg.includes('AccessDeniedException') || msg.includes('not authorized')) {
+        this.platform.error(`DynamoDB lock table "${table}" is NOT accessible — Terraform will fail to acquire the state lock.`);
+        this.platform.error('The IAM role needs dynamodb:GetItem, dynamodb:PutItem, and dynamodb:DeleteItem');
+        this.platform.error(`on arn:aws:dynamodb:${region}:*:table/${table}`);
+        assert.fail(`preflight: DynamoDB lock table "${table}" is not accessible — crash, do not continue`);
+      }
+      if (code === 'ResourceNotFoundException' || msg.includes('ResourceNotFoundException') || msg.includes('not found')) {
+        this.platform.error(`DynamoDB lock table "${table}" does not exist in ${region}.`);
+        this.platform.error('Run "bun run infra bootstrap" to create the Terraform backend resources.');
+        assert.fail(`preflight: DynamoDB lock table "${table}" not found — crash, do not continue`);
+      }
+      throw e;
+    }
+  }
+
   private assertDockerDaemon(): void {
     if (!existsSync('/var/run/docker.sock')) {
       this.platform.error('Docker socket not found at /var/run/docker.sock.');
@@ -131,7 +162,7 @@ export class ApplyCommand implements Command {
 
   private buildAndPush(contextDir: string, dockerfile: string, imageUri: string): void {
     run(this.platform, 'docker', [
-      'build', '-t', imageUri, '-f', dockerfile, '.',
+      'build', '--platform', 'linux/amd64', '-t', imageUri, '-f', dockerfile, '.',
     ], { cwd: contextDir, label: `Docker build ${imageUri.split('/').pop()}` });
 
     run(this.platform, 'docker', ['push', imageUri], {

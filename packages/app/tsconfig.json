@@ -1,5 +1,15 @@
 {
   "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"],
+      "@gamezilla/shared/*": ["../../packages/shared/src/*"],
+      "@gamezilla/patch-db/*": ["../../packages/patch-db/src/*"],
+      "@gamezilla/peer-store/*": ["../../packages/peer-store/src/*"],
+      "@gamezilla/patch-db-app/*": ["../../packages/patch-db-app/src/*"],
+      "@gamezilla/peer-store-app/*": ["../../packages/peer-store-app/src/*"]
+    }
+  },
   "include": [
     "./src/**/*.ts",
     "./src/**/*.tsx",

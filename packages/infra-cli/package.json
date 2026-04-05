@@ -12,6 +12,7 @@
   "devDependencies": {
     "@aws-sdk/client-cloudformation": "^3.1018.0",
     "@aws-sdk/client-cloudwatch-logs": "^3.1023.0",
+    "@aws-sdk/client-dynamodb": "^3.1024.0",
     "@aws-sdk/client-ec2": "^3.1024.0",
     "@aws-sdk/client-ecs": "^3.1023.0",
     "@aws-sdk/client-elastic-load-balancing-v2": "^3.1024.0",
