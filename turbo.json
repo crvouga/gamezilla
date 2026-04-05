@@ -52,6 +52,13 @@
       "inputs": ["**/*.ts", "**/*.tsx", "**/*.test.ts"],
       "outputs": []
     },
+    "export:web": {
+      "dependsOn": ["^build"],
+      "env": ["EXPO_PUBLIC_STAGE"],
+      "inputs": ["**/*.ts", "**/*.tsx", "**/*.css", "**/*.json", "tsconfig.json"],
+      "outputs": ["dist/**"],
+      "cache": false
+    },
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["**/*.ts", "**/*.tsx", "**/*.css", "**/*.html", "vite.config.ts", "tsconfig.json"],

@@ -60,10 +60,12 @@ export class WebAppDeployable implements Deployable {
 
     const appDir = join(REPO_ROOT, 'packages/app');
 
-    run(this.platform, 'bunx', ['expo', 'export', '-p', 'web'], {
-      cwd: appDir,
+    run(this.platform, 'bunx', [
+      'turbo', 'run', 'export:web', '--filter=@gamezilla/app',
+    ], {
+      cwd: REPO_ROOT,
       env: { ...process.env, EXPO_PUBLIC_STAGE: 'prod' },
-      label: 'web-app: expo export',
+      label: 'web-app: expo export (turbo)',
     });
 
     run(this.platform, 'aws', [
