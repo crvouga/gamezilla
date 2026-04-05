@@ -69,8 +69,10 @@ resource "aws_rds_cluster" "this" {
   db_subnet_group_name   = aws_db_subnet_group.this.name
   vpc_security_group_ids = [aws_security_group.db.id]
 
-  storage_encrypted   = true
-  deletion_protection = false
+  storage_encrypted                   = true
+  deletion_protection                 = true
+  iam_database_authentication_enabled = true
+  copy_tags_to_snapshot               = true
 
   # Mirrors CDK RemovalPolicy.SNAPSHOT
   final_snapshot_identifier = "${var.name_prefix}-aurora-final"
