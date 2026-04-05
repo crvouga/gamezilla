@@ -1,0 +1,62 @@
+import type { CiPlatform } from './platform';
+import type { Command, CommandGroup } from './command';
+import { fmt } from './fmt';
+
+import { CheckCommand } from './commands/check';
+import { BootstrapCommand } from './commands/bootstrap';
+import { DeployCommand } from './commands/deploy';
+import { StatusCommand } from './commands/status';
+
+import { DomainsSetupCommand } from './commands/domains-setup';
+import { DomainsCertCommand } from './commands/domains-cert';
+
+import { PreflightCommand } from './commands/preflight';
+import { ApplyCommand } from './commands/apply';
+import { DeployAppsCommand } from './commands/deploy-apps';
+import { PostDeployCommand } from './commands/post-deploy';
+import { SummaryCommand } from './commands/summary';
+
+export function createRegistry(platform: CiPlatform): Command[] {
+  return [
+    new CheckCommand(platform),
+    new BootstrapCommand(platform),
+    new DeployCommand(platform),
+    new StatusCommand(platform),
+
+    new DomainsSetupCommand(platform),
+    new DomainsCertCommand(platform),
+
+    new PreflightCommand(platform),
+    new ApplyCommand(platform),
+    new DeployAppsCommand(platform),
+    new PostDeployCommand(platform),
+    new SummaryCommand(platform),
+  ];
+}
+
+const GROUP_ORDER: CommandGroup[] = ['main', 'domains', 'ci'];
+const GROUP_LABELS: Record<CommandGroup, string> = {
+  main: 'Main',
+  domains: 'Domains',
+  ci: 'CI Pipeline',
+};
+
+export function printHelp(commands: Command[]): void {
+  console.log('');
+  console.log(fmt.bold('infra') + fmt.dim(' — gamezilla infrastructure CLI'));
+  console.log('');
+  console.log(`Usage: ${fmt.cyan('bun run infra <command>')}`);
+
+  for (const group of GROUP_ORDER) {
+    const cmds = commands.filter((c) => c.group === group);
+    if (cmds.length === 0) continue;
+
+    console.log('');
+    console.log(fmt.dim(`  ${GROUP_LABELS[group]}`));
+    const width = Math.max(...cmds.map((c) => c.id.length));
+    for (const c of cmds) {
+      console.log(`  ${fmt.green(c.id.padEnd(width))}  ${c.summary}`);
+    }
+  }
+  console.log('');
+}

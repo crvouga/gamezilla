@@ -81,19 +81,19 @@ jobs:
       # --- Phase 2: Provision with Terraform ---
 
       - name: Prechecks (Terraform)
-        working-directory: packages/terraform
-        run: bun run deploy:prechecks
+        working-directory: packages/infra-cli
+        run: bun run infra preflight
 
       - name: Deploy (Terraform)
         timeout-minutes: 45
-        working-directory: packages/terraform
-        run: bun run deploy
+        working-directory: packages/infra-cli
+        run: bun run infra deploy
 
       - name: Postchecks (Terraform)
         timeout-minutes: 35
-        working-directory: packages/terraform
-        run: bun run deploy:postchecks
+        working-directory: packages/infra-cli
+        run: bun run infra post-deploy
 
       - name: Summary (Terraform)
-        working-directory: packages/terraform
-        run: bun run deploy:summary
+        working-directory: packages/infra-cli
+        run: bun run infra summary

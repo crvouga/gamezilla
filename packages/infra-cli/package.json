@@ -1,0 +1,22 @@
+{
+  "name": "@gamezilla/infra-cli",
+  "private": true,
+  "scripts": {
+    "tc": "tsc --noEmit -p ./tsconfig.json",
+    "infra": "bun run ./src/bin/cli.ts"
+  },
+  "dependencies": {
+    "@gamezilla/shared": "workspace:*",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-cloudformation": "^3.1018.0",
+    "@aws-sdk/client-cloudwatch-logs": "^3.1023.0",
+    "@aws-sdk/client-ec2": "^3.1024.0",
+    "@aws-sdk/client-ecs": "^3.1023.0",
+    "@aws-sdk/client-elastic-load-balancing-v2": "^3.1024.0",
+    "@aws-sdk/client-sts": "^3.1018.0",
+    "@types/node": "^20.17.0",
+    "typescript": "~5.6.3"
+  }
+}

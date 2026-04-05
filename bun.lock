@@ -88,6 +88,23 @@
         "typescript": "~5.6.3",
       },
     },
+    "packages/infra-cli": {
+      "name": "@gamezilla/infra-cli",
+      "dependencies": {
+        "@gamezilla/shared": "workspace:*",
+        "picocolors": "^1.1.1",
+      },
+      "devDependencies": {
+        "@aws-sdk/client-cloudformation": "^3.1018.0",
+        "@aws-sdk/client-cloudwatch-logs": "^3.1023.0",
+        "@aws-sdk/client-ec2": "^3.1024.0",
+        "@aws-sdk/client-ecs": "^3.1023.0",
+        "@aws-sdk/client-elastic-load-balancing-v2": "^3.1024.0",
+        "@aws-sdk/client-sts": "^3.1018.0",
+        "@types/node": "^20.17.0",
+        "typescript": "~5.6.3",
+      },
+    },
     "packages/local": {
       "name": "@gamezilla/local",
       "version": "1.0.0",
@@ -173,23 +190,6 @@
         "@types/react": "~19.1.0",
         "@types/sql.js": "^1.4.10",
         "typescript": "~5.9.2",
-      },
-    },
-    "packages/terraform": {
-      "name": "@gamezilla/terraform",
-      "dependencies": {
-        "@gamezilla/shared": "workspace:*",
-      },
-      "devDependencies": {
-        "@aws-sdk/client-cloudformation": "^3.1018.0",
-        "@aws-sdk/client-cloudwatch-logs": "^3.1023.0",
-        "@aws-sdk/client-ec2": "^3.1024.0",
-        "@aws-sdk/client-ecs": "^3.1023.0",
-        "@aws-sdk/client-elastic-load-balancing-v2": "^3.1024.0",
-        "@aws-sdk/client-sts": "^3.1018.0",
-        "@types/node": "^20.17.0",
-        "tsx": "^4.19.2",
-        "typescript": "~5.6.3",
       },
     },
   },
@@ -602,6 +602,8 @@
 
     "@gamezilla/aws": ["@gamezilla/aws@workspace:packages/aws"],
 
+    "@gamezilla/infra-cli": ["@gamezilla/infra-cli@workspace:packages/infra-cli"],
+
     "@gamezilla/local": ["@gamezilla/local@workspace:packages/local"],
 
     "@gamezilla/patch-db": ["@gamezilla/patch-db@workspace:packages/patch-db"],
@@ -613,8 +615,6 @@
     "@gamezilla/peer-store-app": ["@gamezilla/peer-store-app@workspace:packages/peer-store-app"],
 
     "@gamezilla/shared": ["@gamezilla/shared@workspace:packages/shared"],
-
-    "@gamezilla/terraform": ["@gamezilla/terraform@workspace:packages/terraform"],
 
     "@humanfs/core": ["@humanfs/core@0.19.1", "", {}, "sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA=="],
 
@@ -2476,7 +2476,7 @@
 
     "@gamezilla/aws/typescript": ["typescript@5.6.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw=="],
 
-    "@gamezilla/terraform/typescript": ["typescript@5.6.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw=="],
+    "@gamezilla/infra-cli/typescript": ["typescript@5.6.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw=="],
 
     "@istanbuljs/load-nyc-config/camelcase": ["camelcase@5.3.1", "", {}, "sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg=="],
 
