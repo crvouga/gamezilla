@@ -5,7 +5,8 @@
   "main": "src/entry.tsx",
   "scripts": {
     "install:deps": "npx expo install --check",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "tc": "tsc --noEmit"
   },
   "dependencies": {
     "@gamezilla/patch-db": "workspace:*",

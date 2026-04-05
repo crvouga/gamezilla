@@ -5,7 +5,8 @@
   "main": "src/main.tsx",
   "scripts": {
     "install:deps": "npx expo install --check",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "tc": "tsc --noEmit"
   },
   "dependencies": {
     "@gamezilla/peer-store": "workspace:*",

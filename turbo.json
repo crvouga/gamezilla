@@ -53,7 +53,6 @@
       "outputs": []
     },
     "export:web": {
-      "dependsOn": ["^build"],
       "env": ["EXPO_PUBLIC_STAGE"],
       "inputs": ["**/*.ts", "**/*.tsx", "**/*.css", "**/*.json", "tsconfig.json"],
       "outputs": ["dist/**"],

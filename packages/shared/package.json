@@ -4,8 +4,25 @@
   "private": true,
   "exports": {
     "./assert": "./src/assert/index.ts",
+    "./assert/crash/crash-handler/crash-handler": "./src/assert/crash/crash-handler/crash-handler.ts",
+    "./assert/crash/crash-handler/crash-handler-browser": "./src/assert/crash/crash-handler/crash-handler-browser.ts",
+    "./assert/crash/crash-handler/crash-handler-default": "./src/assert/crash/crash-handler/crash-handler-default.ts",
+    "./assert/crash/crash-handler/crash-handler-expo": "./src/assert/crash/crash-handler/crash-handler-expo.ts",
+    "./assert/crash/crash-handler/crash-handler-node": "./src/assert/crash/crash-handler/crash-handler-node.ts",
+    "./config/config-container": "./src/config/config-container.tsx",
+    "./config/config-service": "./src/config/config-service.ts",
     "./dependency-injection": "./src/dependency-injection/index.ts",
+    "./dependency-injection/dependency-injection-container": "./src/dependency-injection/dependency-injection-container.ts",
+    "./dependency-injection/react": "./src/dependency-injection/react.tsx",
     "./polyfill": "./src/polyfill/index.ts",
+    "./pub-sub/impl-in-memory": "./src/pub-sub/impl-in-memory.ts",
+    "./pub-sub/impl-mqtt": "./src/pub-sub/impl-mqtt.ts",
+    "./pub-sub/interface": "./src/pub-sub/interface.ts",
+    "./sql-client/impl-bun-postgres": "./src/sql-client/impl-bun-postgres.ts",
+    "./sql-client/impl-bun-sqlite": "./src/sql-client/impl-bun-sqlite.ts",
+    "./sql-client/impl-expo-sqlite": "./src/sql-client/impl-expo-sqlite.ts",
+    "./sql-client/impl-sql-js": "./src/sql-client/impl-sql-js.ts",
+    "./sql-client/interface": "./src/sql-client/interface.ts",
     "./sqlite": "./src/sqlite/index.ts",
     "./theme": "./src/theme/index.ts",
     "./ui": "./src/ui/index.ts",
@@ -22,6 +39,7 @@
   },
   "scripts": {
     "lint": "eslint .",
+    "tc": "tsc --noEmit",
     "test": "bun test"
   },
   "devDependencies": {

@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
+    "./__fixtures__/tic-tac-toe.module": "./src/__fixtures__/tic-tac-toe.module.ts",
+    "./simulator": "./src/simulator.ts",
+    "./types": "./src/types.ts",
     "./*": "./src/*"
   },
   "dependencies": {

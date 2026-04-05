@@ -55,7 +55,6 @@
     "install:deps": "npx expo install --check",
     "dev": "expo start --web --port 8082",
     "export:web": "expo export -p web",
-    "frontend:web:build": "expo export -p web",
     "ios": "expo start --ios",
     "lint": "expo lint",
     "start": "expo start --web",
