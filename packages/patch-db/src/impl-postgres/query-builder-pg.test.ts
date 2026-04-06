@@ -1,5 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 import { buildWhereClause } from './query-builder-pg';
+import { questionMarkParamsToDollarParams } from '@gamezilla/shared/sql-client/positional-params';
+
+function toPgSql(clause: Parameters<typeof buildWhereClause>[0]): string {
+  const { sql, params } = buildWhereClause(clause);
+  const [pgSql] = questionMarkParamsToDollarParams(sql, params);
+  return pgSql;
+}
 
 describe('buildWhereClause with namespaced attributes', () => {
   test('= clause with namespaced attribute', () => {
@@ -12,17 +19,6 @@ describe('buildWhereClause with namespaced attributes', () => {
     expect(sql).toContain('?::text');
     expect(params[0]).toBe('task/title');
     expect(params[1]).toBe('hello');
-  });
-
-  test('= clause with boolean value casts to text', () => {
-    const { sql, params } = buildWhereClause({
-      type: '=',
-      attribute: 'task/done',
-      value: true,
-    });
-    expect(sql).toContain('= ?::text');
-    expect(params[0]).toBe('task/done');
-    expect(params[1]).toBe(true);
   });
 
   test('!= clause with namespaced attribute', () => {
@@ -71,5 +67,56 @@ describe('buildWhereClause with namespaced attributes', () => {
     expect(sql).toContain('?::text');
     expect(params[0]).toBe('game.session/score');
     expect(params[1]).toBe(42);
+  });
+});
+
+describe('->> value params cast to ::text (prevents PG "operator does not exist: text = <type>")', () => {
+  test('= with boolean produces $N::text, not bare $N', () => {
+    const pgSql = toPgSql({ type: '=', attribute: 'task/done', value: true });
+    expect(pgSql).toContain('$2::text');
+    expect(pgSql).not.toMatch(/= \$2(?!::text)/);
+  });
+
+  test('= with number produces $N::text', () => {
+    const pgSql = toPgSql({ type: '=', attribute: 'task/score', value: 42 });
+    expect(pgSql).toContain('$2::text');
+  });
+
+  test('!= with boolean produces $N::text', () => {
+    const pgSql = toPgSql({ type: '!=', attribute: 'task/done', value: false });
+    expect(pgSql).toContain('$2::text');
+  });
+
+  test('gt/gte/lt/lte cast value to ::text', () => {
+    for (const type of ['gt', 'gte', 'lt', 'lte'] as const) {
+      const pgSql = toPgSql({ type, attribute: 'task/score', value: 10 });
+      expect(pgSql).toContain('$2::text');
+    }
+  });
+
+  test('in with mixed types casts every value to ::text', () => {
+    const pgSql = toPgSql({
+      type: 'in',
+      attribute: 'task/status',
+      values: ['open', true, 7],
+    });
+    expect(pgSql).toContain('$2::text');
+    expect(pgSql).toContain('$3::text');
+    expect(pgSql).toContain('$4::text');
+  });
+
+  test('not_in casts every value to ::text', () => {
+    const pgSql = toPgSql({
+      type: 'not_in',
+      attribute: 'task/status',
+      values: [false, 'closed'],
+    });
+    expect(pgSql).toContain('$3::text');
+    expect(pgSql).toContain('$4::text');
+  });
+
+  test('contains casts value to ::text', () => {
+    const pgSql = toPgSql({ type: 'contains', attribute: 'task/name', value: 'foo' });
+    expect(pgSql).toContain('$2::text');
   });
 });
