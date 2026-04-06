@@ -1,14 +1,12 @@
 import type { Command } from '../command';
 import type { CiPlatform } from '../platform';
-import { ok, banner } from '../fmt';
-import { runLocal } from '../subprocess';
+import { ALL_DEPS } from '../dep';
+import { ok, fail, banner, info } from '../fmt';
 import { PROJECT_CONFIG } from '../../project-config';
-
-const REQUIRED_CLIS = ['aws', 'gh', 'bun', 'docker', 'terraform'] as const;
 
 export class CheckCommand implements Command {
   readonly id = 'check';
-  readonly summary = 'Verify prerequisites (aws, gh, docker, terraform)';
+  readonly summary = 'Verify that all CLI dependencies are installed and reachable';
   readonly group = 'main' as const;
 
   constructor(private readonly platform: CiPlatform) {}
@@ -16,24 +14,36 @@ export class CheckCommand implements Command {
   execute(): void {
     banner('Prerequisite Check');
 
-    for (const cli of REQUIRED_CLIS) {
-      requireCliOnPath(cli);
-      ok(cli, 'found');
+    const failures: string[] = [];
+
+    for (const dep of ALL_DEPS) {
+      const status = dep.check();
+      if (!status.ok) {
+        fail(dep.name, status.reason);
+        failures.push(dep.name);
+        continue;
+      }
+      ok(dep.name, status.version);
+
+      if (dep.verify) {
+        try {
+          dep.verify();
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          fail(`${dep.name} verify`, msg);
+          failures.push(dep.name);
+          continue;
+        }
+      }
     }
 
-    runLocal('aws', ['sts', 'get-caller-identity']);
-    runLocal('gh', ['auth', 'status']);
-    runLocal('bun', ['--version']);
-    runLocal('docker', ['info', '--format', '{{.ServerVersion}}']);
-    runLocal('terraform', ['version']);
+    info('Fly.io org', PROJECT_CONFIG.fly.org);
+    info('Fly.io region', PROJECT_CONFIG.fly.region);
 
-    ok('Region', PROJECT_CONFIG.aws.region);
-  }
-}
-
-function requireCliOnPath(name: string): void {
-  const r = Bun.spawnSync(['which', name], { stdout: 'pipe', stderr: 'pipe' });
-  if (r.exitCode !== 0) {
-    throw new Error(`"${name}" not found on PATH. Install it first.`);
+    if (failures.length > 0) {
+      throw new Error(
+        `Missing deps: ${failures.join(', ')}. Run "bun run infra install-deps" to install them.`,
+      );
+    }
   }
 }

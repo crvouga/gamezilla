@@ -1,27 +1,27 @@
-variable "region" {
-  description = "AWS region"
+variable "cloudflare_account_id" {
+  description = "Cloudflare account ID"
   type        = string
-  default     = "us-east-1"
+}
+
+variable "cloudflare_zone_id" {
+  description = "Cloudflare zone ID for gamezilla.app"
+  type        = string
+}
+
+variable "fly_org" {
+  description = "Fly.io organization slug"
+  type        = string
+  default     = "personal"
+}
+
+variable "fly_region" {
+  description = "Primary Fly.io region"
+  type        = string
+  default     = "iad"
 }
 
 variable "custom_domain" {
-  description = "Enable Route 53 hosted zone and ACM certificate for gamezilla.app"
+  description = "Enable custom domain DNS records"
   type        = bool
   default     = false
-}
-
-variable "custom_domain_bootstrap" {
-  description = "When true, create the hosted zone but skip the ACM certificate (for initial NS delegation)"
-  type        = bool
-  default     = false
-}
-
-variable "app_image" {
-  description = "Full ECR image URI (repo:tag) for the application container"
-  type        = string
-}
-
-variable "emqx_image" {
-  description = "Full ECR image URI (repo:tag) for the EMQX broker container"
-  type        = string
 }

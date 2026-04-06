@@ -20,8 +20,7 @@ export class WebAppDeployable implements Deployable {
 
   deploy(outputs: TfOutputs): void {
     const syncUrl = toHttps(requireOutput(this.platform, outputs, 'req_res_url'));
-    const bucket = requireOutput(this.platform, outputs, 'web_app_bucket_name');
-    const distId = requireOutput(this.platform, outputs, 'web_distribution_id');
+    const pagesProject = requireOutput(this.platform, outputs, 'pages_project_name');
 
     if (!/^https:\/\//.test(syncUrl)) {
       this.platform.error(`PATCH_DB_REQ_RES_URL must be https:// (got: ${syncUrl})`);
@@ -68,21 +67,14 @@ export class WebAppDeployable implements Deployable {
       label: 'web-app: expo export (turbo)',
     });
 
-    run(this.platform, 'aws', [
-      's3', 'sync', 'dist/', `s3://${bucket}/`, '--delete', '--exclude', '*.wasm',
-    ], { cwd: appDir, label: 'web-app: S3 sync (non-wasm)' });
-
-    run(this.platform, 'aws', [
-      's3', 'sync', 'dist/', `s3://${bucket}/`,
-      '--exclude', '*', '--include', '*.wasm', '--content-type', 'application/wasm',
-    ], { cwd: appDir, label: 'web-app: S3 sync (wasm)' });
-
-    run(this.platform, 'aws', [
-      'cloudfront', 'create-invalidation', '--distribution-id', distId, '--paths', '/*',
-    ], { cwd: REPO_ROOT, label: 'web-app: CloudFront invalidation' });
+    run(this.platform, 'wrangler', [
+      'pages', 'deploy', 'dist/',
+      '--project-name', pagesProject,
+      '--branch', 'main',
+    ], { cwd: appDir, label: 'web-app: Cloudflare Pages deploy' });
 
     rmSync(join(REPO_ROOT, 'packages/app/dist'), { recursive: true, force: true });
-    this.platform.notice('Web app exported and synced to S3.');
+    this.platform.notice('Web app exported and deployed to Cloudflare Pages.');
   }
 }
 

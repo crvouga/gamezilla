@@ -3,20 +3,12 @@ import type { Command } from '../command';
 import type { CiPlatform } from '../platform';
 import { runStep } from '../platform';
 import { readTfOutputs, requireOutput, type TfOutputs } from '../lib/tf-outputs';
-import { checkInfrastructureHealth } from '../lib/infra-health';
-import { ensureAwsEnvCredentials, requireAwsRegion } from '../lib/aws-creds';
-import { PROJECT_CONFIG } from '../../project-config';
-import { DNS_DOMAINS, parseNs } from '../lib/dns';
 import { fmtElapsed } from '../fmt';
 
 type HttpEndpointCheck = {
   readonly label: string;
   readonly outputKey: string;
   readonly probePath?: string;
-  /**
-   * When true, accept any response that is not a gateway error (502/503/504).
-   * Use for paths that may return 4xx but must never be unreachable.
-   */
   readonly gatewayCheck?: boolean;
 };
 
@@ -145,90 +137,14 @@ export async function runHttpSmokeTestsOnly(
 
 export class PostDeployCommand implements Command {
   readonly id = 'post-deploy';
-  readonly summary = 'Health checks + HTTP smoke tests';
+  readonly summary = 'HTTP smoke tests against deployed services';
   readonly group = 'ci' as const;
 
   constructor(private readonly platform: CiPlatform) {}
 
   async execute(): Promise<void> {
-    process.env['AWS_REGION'] = process.env['AWS_REGION'] ?? PROJECT_CONFIG.aws.region;
-    ensureAwsEnvCredentials();
     const outputs = readTfOutputs(this.platform);
-    const region = requireAwsRegion(this.platform);
-
-    const infraCheckCount = 1;
-    let step = 0;
-    const total = infraCheckCount + DNS_DOMAINS.length + HTTP_ENDPOINTS.length;
-
-    step++;
-    await runStep(this.platform, `POST-DEPLOY ${step}/${total} — Infrastructure health`, () =>
-      checkInfrastructureHealth({ platform: this.platform, region }),
-    );
-
-    for (const { domain, outputKey } of DNS_DOMAINS) {
-      step++;
-      await runStep(this.platform, `POST-DEPLOY ${step}/${total} — DNS NS ${domain}`, () =>
-        this.checkDns(step, total, domain, outputs, outputKey),
-      );
-    }
-
-    for (const ep of HTTP_ENDPOINTS) {
-      step++;
-      await runStep(this.platform, `POST-DEPLOY ${step}/${total} — HTTP ${ep.label}`, () =>
-        checkHttpEndpoint(this.platform, {
-          step,
-          total,
-          label: ep.label,
-          rawUrl: requireOutput(this.platform, outputs, ep.outputKey),
-          probePath: ep.probePath,
-          gatewayCheck: ep.gatewayCheck,
-        }),
-      );
-    }
-
-    this.platform.notice(`POST-DEPLOY: all ${total} checks passed.`);
-  }
-
-  private checkDns(step: number, total: number, domain: string, outputs: TfOutputs, outputKey: string): void {
-    const raw = outputs[outputKey];
-    if (raw === undefined || raw === '') {
-      this.platform.notice(`${domain} NS — skipped (no ${outputKey} output).`);
-      return;
-    }
-
-    const expected = parseNs(raw);
-    if (expected.size === 0) {
-      this.platform.notice(`${domain} NS — skipped (empty nameservers).`);
-      return;
-    }
-
-    const result = Bun.spawnSync(['dig', 'NS', domain, '+short'], { stdout: 'pipe', stderr: 'pipe' });
-    if (result.exitCode === null) {
-      this.platform.warning(`dig NS ${domain} — killed by signal, skipping DNS check.`);
-      return;
-    }
-    if (result.exitCode !== 0) {
-      this.platform.warning(`dig NS ${domain} failed (exit ${result.exitCode}) — skipping DNS check. Is "dig" installed?`);
-      return;
-    }
-
-    const actual = parseNs(result.stdout.toString());
-    if (actual.size === 0) {
-      this.platform.error(`dig NS ${domain} returned no records — delegation not configured.`);
-      assert.fail(`post-deploy: ${domain} has no NS records`);
-    }
-
-    const missing = [...expected].filter((ns) => !actual.has(ns));
-    const extra = [...actual].filter((ns) => !expected.has(ns));
-
-    if (missing.length > 0 || extra.length > 0) {
-      const parts: string[] = [];
-      if (missing.length > 0) parts.push(`missing=[${missing.join(', ')}]`);
-      if (extra.length > 0) parts.push(`unexpected=[${extra.join(', ')}]`);
-      this.platform.error(`${domain} NS mismatch: ${parts.join('; ')}`);
-      assert.fail(`post-deploy: ${domain} NS records do not match`);
-    }
-
-    this.platform.notice(`${domain} NS — ${actual.size} records match.`);
+    await runHttpSmokeTestsOnly(this.platform, outputs);
+    this.platform.notice('POST-DEPLOY: all checks passed.');
   }
 }

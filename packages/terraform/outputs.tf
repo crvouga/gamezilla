@@ -1,36 +1,39 @@
-output "req_res_url" {
-  description = "Patch DB req-res base URL (HTTPS via CloudFront)"
-  value       = module.req_res.url
+output "web_app_url" {
+  description = "Cloudflare Pages web app URL"
+  value       = module.cloudflare_pages.url
 }
 
-output "database_cluster_endpoint" {
-  description = "Aurora PostgreSQL writer hostname"
-  value       = module.database.cluster_endpoint
+output "pages_project_name" {
+  description = "Cloudflare Pages project name (for wrangler deploy)"
+  value       = module.cloudflare_pages.project_name
+}
+
+output "req_res_url" {
+  description = "Req-res API public URL"
+  value       = var.custom_domain ? "https://api.gamezilla.app" : module.fly_req_res.public_url
+}
+
+output "req_res_app_name" {
+  description = "Fly.io app name for req-res"
+  value       = module.fly_req_res.app_name
+}
+
+output "worker_app_name" {
+  description = "Fly.io app name for worker"
+  value       = module.fly_worker.app_name
+}
+
+output "emqx_app_name" {
+  description = "Fly.io app name for EMQX"
+  value       = module.fly_emqx.app_name
 }
 
 output "pubsub_internal_mqtt_url" {
-  description = "VPC-internal MQTT URL for req-res / worker"
-  value       = module.pub_sub.internal_mqtt_url
+  description = "Fly internal network MQTT URL for req-res and worker"
+  value       = module.fly_emqx.internal_mqtt_url
 }
 
-output "pubsub_public_nlb_dns" {
-  description = "Public NLB DNS: mqtt://host:1883 and tcp :8083 for WebSocket"
-  value       = module.pub_sub.public_nlb_dns_name
-}
-
-output "web_app_bucket_name" {
-  value = module.web_app.bucket_name
-}
-
-output "web_distribution_id" {
-  value = module.web_app.distribution_id
-}
-
-output "web_app_url" {
-  value = module.web_app.url
-}
-
-output "route53_nameservers" {
-  description = "Set these nameservers at your domain registrar for gamezilla.app"
-  value       = join(", ", module.web_app.hosted_zone_nameservers)
+output "pubsub_public_url" {
+  description = "Public EMQX URL"
+  value       = var.custom_domain ? "mqtt://mqtt.gamezilla.app:1883" : module.fly_emqx.public_url
 }

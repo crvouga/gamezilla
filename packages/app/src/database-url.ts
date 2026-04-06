@@ -1,5 +1,5 @@
 /**
- * Resolves a Postgres connection URL from DATABASE_URL or split RDS-style env vars.
+ * Resolves a Postgres connection URL from DATABASE_URL or split env vars.
  */
 import { getRuntimeEnv } from './runtime-env';
 

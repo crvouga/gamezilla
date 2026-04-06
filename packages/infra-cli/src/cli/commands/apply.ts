@@ -7,12 +7,11 @@ import { runStep } from '../platform';
 import { run, runCapture } from '../subprocess';
 import { TF_DEPLOY_VAR_ARGS } from '../lib/tf-vars';
 import { TF_PACKAGE_ROOT, REPO_ROOT, INFRA_CLI_ROOT } from '../paths';
-import { ensureAwsEnvCredentials, requireAwsRegion } from '../lib/aws-creds';
 import { PROJECT_CONFIG } from '../../project-config';
 
 export class ApplyCommand implements Command {
   readonly id = 'apply';
-  readonly summary = 'Docker build+push, terraform apply';
+  readonly summary = 'Docker build, flyctl deploy, terraform apply';
   readonly group = 'ci' as const;
   private readonly tfVarOverrides: readonly string[] | undefined;
 
@@ -24,122 +23,34 @@ export class ApplyCommand implements Command {
   }
 
   async execute(): Promise<void> {
-    process.env['AWS_REGION'] = process.env['AWS_REGION'] ?? PROJECT_CONFIG.aws.region;
-    ensureAwsEnvCredentials();
     this.assertDockerDaemon();
 
-    const region = requireAwsRegion(this.platform);
-    const accountId = await runStep(this.platform, 'Get AWS account ID', () =>
-      this.getAccountId(region),
-    );
-
-    const appImageUri = `${accountId}.dkr.ecr.${region}.amazonaws.com/gamezilla/app:latest`;
-    const emqxImageUri = `${accountId}.dkr.ecr.${region}.amazonaws.com/gamezilla/emqx:latest`;
-    const registryUri = `${accountId}.dkr.ecr.${region}.amazonaws.com`;
-
-    await runStep(this.platform, 'Ensure ECR repositories', () =>
-      this.ensureEcrRepos(region),
-    );
-    await runStep(this.platform, 'ECR login', () =>
-      this.ecrLogin(registryUri, region),
-    );
-    await runStep(this.platform, 'Docker build + push (app)', () =>
-      this.buildAndPush(REPO_ROOT, 'Dockerfile', appImageUri),
-    );
-    await runStep(this.platform, 'Docker build + push (emqx)', () =>
-      this.buildAndPush(join(INFRA_CLI_ROOT, 'emqx-image'), 'Dockerfile', emqxImageUri),
-    );
     await runStep(this.platform, 'Terraform init', () =>
       this.terraformInit(),
     );
     await runStep(this.platform, 'Terraform apply', () =>
-      this.terraformApply(appImageUri, emqxImageUri),
+      this.terraformApply(),
     );
-    await runStep(this.platform, 'Force ECS redeployment', () =>
-      this.forceEcsRedeploy(region),
+    await runStep(this.platform, 'Fly deploy: req-res', () =>
+      this.flyDeploy(PROJECT_CONFIG.fly.apps.reqRes, 'req-res.toml'),
     );
-  }
-
-  private async getAccountId(region: string): Promise<string> {
-    const { GetCallerIdentityCommand, STSClient } = await import('@aws-sdk/client-sts');
-    const sts = new STSClient({ region });
-    const id = await sts.send(new GetCallerIdentityCommand({}));
-    assert.ok(id.Account !== undefined && id.Account.length > 0, 'deploy: AWS account ID required');
-    return id.Account as string;
-  }
-
-  private ensureEcrRepos(region: string): void {
-    for (const repo of ['gamezilla/app', 'gamezilla/emqx']) {
-      if (this.ecrRepoExists(repo, region)) {
-        this.platform.notice(`ECR repository ${repo} already exists.`);
-        continue;
-      }
-      this.platform.notice(`Creating ECR repository: ${repo}`);
-      try {
-        run(this.platform, 'aws', [
-          'ecr', 'create-repository',
-          '--repository-name', repo,
-          '--region', region,
-          '--image-scanning-configuration', 'scanOnPush=true',
-        ], { label: `Create ECR repo ${repo}` });
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e);
-        if (msg.includes('RepositoryAlreadyExistsException') || msg.includes('already exists')) {
-          this.platform.notice(`ECR repository ${repo} was created concurrently — OK.`);
-        } else {
-          throw e;
-        }
-      }
-    }
-  }
-
-  private ecrRepoExists(repo: string, region: string): boolean {
-    try {
-      runCapture('aws', ['ecr', 'describe-repositories', '--repository-names', repo, '--region', region]);
-      return true;
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      if (msg.includes('RepositoryNotFoundException') || msg.includes('does not exist')) {
-        return false;
-      }
-      this.platform.warning(`Could not check ECR repo ${repo}: ${msg} — will attempt create.`);
-      return false;
-    }
+    await runStep(this.platform, 'Fly deploy: worker', () =>
+      this.flyDeploy(PROJECT_CONFIG.fly.apps.worker, 'worker.toml'),
+    );
+    await runStep(this.platform, 'Fly deploy: emqx', () =>
+      this.flyDeploy(PROJECT_CONFIG.fly.apps.emqx, 'emqx.toml'),
+    );
+    await runStep(this.platform, 'Set Fly secrets', () =>
+      this.setFlySecrets(),
+    );
   }
 
   private assertDockerDaemon(): void {
     if (!existsSync('/var/run/docker.sock')) {
       this.platform.error('Docker socket not found at /var/run/docker.sock.');
       this.platform.error('Fix: Start a Docker-compatible daemon. On macOS: "brew install colima && colima start"');
-      assert.fail('deploy: Docker daemon is not running — all docker commands will hang without it');
+      assert.fail('deploy: Docker daemon is not running');
     }
-  }
-
-  private async ecrLogin(registryUri: string, region: string): Promise<void> {
-    const password = runCapture('aws', [
-      'ecr', 'get-login-password', '--region', region,
-    ]);
-    assert.ok(
-      password.length > 0,
-      'deploy: aws ecr get-login-password returned empty — check AWS credentials and ecr:GetAuthorizationToken permission',
-    );
-
-    const proc = Bun.spawn(
-      ['docker', 'login', '--username', 'AWS', '--password-stdin', registryUri],
-      { stdout: 'inherit', stderr: 'inherit', stdin: new Blob([password]) },
-    );
-    const exitCode = await proc.exited;
-    assert.ok(exitCode === 0, `deploy: docker login failed (exit ${exitCode})`);
-  }
-
-  private buildAndPush(contextDir: string, dockerfile: string, imageUri: string): void {
-    run(this.platform, 'docker', [
-      'build', '--platform', 'linux/amd64', '-t', imageUri, '-f', dockerfile, '.',
-    ], { cwd: contextDir, label: `Docker build ${imageUri.split('/').pop()}` });
-
-    run(this.platform, 'docker', ['push', imageUri], {
-      label: `Docker push ${imageUri.split('/').pop()}`,
-    });
   }
 
   private terraformInit(): void {
@@ -149,7 +60,7 @@ export class ApplyCommand implements Command {
     });
   }
 
-  private terraformApply(appImageUri: string, emqxImageUri: string): void {
+  private terraformApply(): void {
     const varArgs = this.tfVarOverrides ?? TF_DEPLOY_VAR_ARGS;
     run(
       this.platform,
@@ -160,30 +71,62 @@ export class ApplyCommand implements Command {
         '-input=false',
         '-lock-timeout=120s',
         ...varArgs,
-        `-var`, `app_image=${appImageUri}`,
-        `-var`, `emqx_image=${emqxImageUri}`,
       ],
       { cwd: TF_PACKAGE_ROOT, label: 'Terraform apply' },
     );
     this.platform.notice('Terraform apply finished.');
   }
 
-  private async forceEcsRedeploy(region: string): Promise<void> {
-    const { ECSClient, UpdateServiceCommand, ListServicesCommand } = await import('@aws-sdk/client-ecs');
-    const ecs = new ECSClient({ region });
-    const cluster = 'gamezilla-cluster';
+  private flyDeploy(appName: string, configFile: string): void {
+    const configPath = join(INFRA_CLI_ROOT, 'fly', configFile);
+    run(
+      this.platform,
+      'flyctl',
+      [
+        'deploy',
+        '--config', configPath,
+        '--app', appName,
+        '--region', PROJECT_CONFIG.fly.region,
+        '--remote-only',
+        '--wait-timeout', '300',
+      ],
+      { cwd: REPO_ROOT, label: `Fly deploy ${appName}` },
+    );
+    this.platform.notice(`Fly deploy ${appName} — OK.`);
+  }
 
-    const list = await ecs.send(new ListServicesCommand({ cluster }));
-    const arns = list.serviceArns ?? [];
+  private setFlySecrets(): void {
+    const databaseUrl = process.env['DATABASE_URL'];
+    const emqxDashboardPassword = process.env['EMQX_DASHBOARD_PASSWORD'];
+    const pubsubUrl = `mqtt://${PROJECT_CONFIG.fly.apps.emqx}.internal:1883`;
 
-    for (const arn of arns) {
-      const name = arn.split('/').pop() ?? arn;
-      await ecs.send(new UpdateServiceCommand({
-        cluster,
-        service: arn,
-        forceNewDeployment: true,
-      }));
-      this.platform.notice(`Forced new deployment: ${name}`);
+    for (const appName of [PROJECT_CONFIG.fly.apps.reqRes, PROJECT_CONFIG.fly.apps.worker]) {
+      const secrets: Record<string, string> = {
+        PUBSUB_URL: pubsubUrl,
+      };
+      if (databaseUrl) {
+        secrets['DATABASE_URL'] = databaseUrl;
+      }
+      this.setSecrets(appName, secrets);
+    }
+
+    const emqxSecrets: Record<string, string> = {};
+    if (emqxDashboardPassword) {
+      emqxSecrets['EMQX_DASHBOARD__DEFAULT_PASSWORD'] = emqxDashboardPassword;
+    }
+    this.setSecrets(PROJECT_CONFIG.fly.apps.emqx, emqxSecrets);
+  }
+
+  private setSecrets(appName: string, secrets: Record<string, string>): void {
+    const args = Object.entries(secrets).map(([k, v]) => `${k}=${v}`);
+    if (args.length === 0) return;
+
+    try {
+      run(this.platform, 'flyctl', ['secrets', 'set', ...args, '--app', appName, '--stage'], {
+        label: `Set secrets on ${appName}`,
+      });
+    } catch {
+      this.platform.warning(`Failed to set secrets on ${appName} — they may already be set.`);
     }
   }
 }

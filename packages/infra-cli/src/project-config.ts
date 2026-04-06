@@ -1,11 +1,22 @@
 export const PROJECT_CONFIG = {
   github: {
     owner: 'crvouga',
-    repo: 'gamezilla.app',
+    repo: 'gamezilla',
   },
-  aws: {
-    region: 'us-east-1',
-    bootstrapStackName: 'GamezillaGitHubOidc',
+  fly: {
+    org: 'personal',
+    region: 'iad',
+    apps: {
+      reqRes: 'gamezilla-req-res',
+      worker: 'gamezilla-worker',
+      emqx: 'gamezilla-emqx',
+    },
   },
-  githubActionsRoleName: 'GamezillaGitHubActionsRole',
+  cloudflare: {
+    pagesProject: 'gamezilla',
+  },
+  planetscale: {
+    org: 'crvouga',
+    database: 'gamezilla',
+  },
 } as const;

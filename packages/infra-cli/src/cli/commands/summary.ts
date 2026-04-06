@@ -1,6 +1,5 @@
 import type { Command } from '../command';
 import type { CiPlatform } from '../platform';
-import { ensureAwsEnvCredentials } from '../lib/aws-creds';
 import { readTfOutputs, type TfOutputs } from '../lib/tf-outputs';
 
 const SUMMARY_SERVICES = [
@@ -9,13 +8,11 @@ const SUMMARY_SERVICES = [
 ] as const;
 
 const SUMMARY_INFRA = [
-  { label: 'Aurora endpoint', outputKey: 'database_cluster_endpoint' },
-  { label: 'Pub/Sub broker (VPC)', outputKey: 'pubsub_internal_mqtt_url' },
-  { label: 'Pub/Sub broker NLB', outputKey: 'pubsub_public_nlb_dns' },
-] as const;
-
-const SUMMARY_NAMESERVERS = [
-  { domain: 'gamezilla.app', outputKey: 'route53_nameservers' },
+  { label: 'EMQX (internal)', outputKey: 'pubsub_internal_mqtt_url' },
+  { label: 'EMQX (public)', outputKey: 'pubsub_public_url' },
+  { label: 'Req-res app', outputKey: 'req_res_app_name' },
+  { label: 'Worker app', outputKey: 'worker_app_name' },
+  { label: 'EMQX app', outputKey: 'emqx_app_name' },
 ] as const;
 
 export class SummaryCommand implements Command {
@@ -26,7 +23,6 @@ export class SummaryCommand implements Command {
   constructor(private readonly platform: CiPlatform) {}
 
   execute(): void {
-    ensureAwsEnvCredentials();
     let outputs: TfOutputs;
     try {
       outputs = readTfOutputs(this.platform);
@@ -49,21 +45,7 @@ export class SummaryCommand implements Command {
       return `| **${label}** | ${cell} |`;
     }).join('\n');
 
-    const nsBlocks = SUMMARY_NAMESERVERS.map(({ domain, outputKey }) => {
-      const raw = outputs[outputKey];
-      if (raw === undefined || raw === '') return '';
-      const list = raw
-        .split(',')
-        .map((s) => s.trim())
-        .filter((s) => s.length > 0)
-        .map((s) => `- \`${s}\``)
-        .join('\n');
-      return `#### \`${domain}\`\n\nSet these nameservers at your domain registrar:\n\n${list}`;
-    })
-      .filter((b) => b.length > 0)
-      .join('\n\n');
-
-    const body = `## Deployment Complete (Terraform)
+    const body = `## Deployment Complete
 
 | Service | URL |
 |---------|-----|
@@ -72,10 +54,6 @@ ${serviceRows}
 | Infra | Value |
 |-------|-------|
 ${infraRows}
-
-### Custom Domain Setup
-
-${nsBlocks}
 `;
 
     this.platform.appendJobSummary(body);

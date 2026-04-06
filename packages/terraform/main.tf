@@ -1,113 +1,55 @@
-# ── Web app (S3 + CloudFront + optional Route 53/ACM) ────────────────────────
+# -- Static web app (Cloudflare Pages) ----------------------------------------
 
-module "web_app" {
-  source = "./modules/web-app"
+module "cloudflare_pages" {
+  source = "./modules/cloudflare-pages"
 
-  custom_domain           = var.custom_domain
-  custom_domain_bootstrap = var.custom_domain_bootstrap
-  name_prefix             = "gamezilla"
+  cloudflare_account_id = var.cloudflare_account_id
+  cloudflare_zone_id    = var.cloudflare_zone_id
+  custom_domain         = var.custom_domain
 }
 
-# ── VPC ──────────────────────────────────────────────────────────────────────
+# -- Req-res API (Fly.io) -----------------------------------------------------
 
-module "vpc" {
-  source = "./modules/vpc"
+module "fly_req_res" {
+  source = "./modules/fly-app"
 
-  nat_gateways = 1
-  name_prefix  = "gamezilla"
+  name            = "gamezilla-req-res"
+  fly_org         = var.fly_org
+  fly_region      = var.fly_region
+  custom_hostname = var.custom_domain ? "api.gamezilla.app" : ""
 }
 
-# ── Security groups (req-res tasks, worker) ──────────────────────────────────
+# -- Worker (Fly.io) ----------------------------------------------------------
 
-resource "aws_security_group" "req_res_task" {
-  name_prefix = "gamezilla-rr-task-"
-  description = "Req-res tasks - reach Aurora and pub/sub broker"
-  vpc_id      = module.vpc.vpc_id
+module "fly_worker" {
+  source = "./modules/fly-app"
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = { Name = "gamezilla-req-res-task-sg" }
+  name       = "gamezilla-worker"
+  fly_org    = var.fly_org
+  fly_region = var.fly_region
 }
 
-resource "aws_security_group" "worker" {
-  name_prefix = "gamezilla-worker-"
-  description = "Worker tasks"
-  vpc_id      = module.vpc.vpc_id
+# -- EMQX pub-sub broker (Fly.io + volume) ------------------------------------
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+module "fly_emqx" {
+  source = "./modules/fly-emqx"
 
-  tags = { Name = "gamezilla-worker-sg" }
+  name            = "gamezilla-emqx"
+  fly_org         = var.fly_org
+  fly_region      = var.fly_region
+  custom_hostname = var.custom_domain ? "mqtt.gamezilla.app" : ""
 }
 
-# ── Database ─────────────────────────────────────────────────────────────────
+# -- DNS records (Cloudflare -> Fly.io) ----------------------------------------
 
-module "database" {
-  source = "./modules/database"
+module "dns" {
+  source = "./modules/dns"
 
-  vpc_id             = module.vpc.vpc_id
-  private_subnet_ids = module.vpc.private_subnet_ids
-  allowed_security_group_ids = [
-    aws_security_group.req_res_task.id,
-    aws_security_group.worker.id,
-  ]
-  name_prefix = "gamezilla"
-}
+  cloudflare_zone_id = var.cloudflare_zone_id
+  enabled            = var.custom_domain
 
-# ── Pub/sub broker (EMQX on Fargate + NLB) ──────────────────────────────────
-
-module "pub_sub" {
-  source = "./modules/pub-sub"
-
-  vpc_id             = module.vpc.vpc_id
-  private_subnet_ids = module.vpc.private_subnet_ids
-  public_subnet_ids  = module.vpc.public_subnet_ids
-  vpc_client_security_group_ids = [
-    aws_security_group.req_res_task.id,
-    aws_security_group.worker.id,
-  ]
-  emqx_image  = var.emqx_image
-  name_prefix = "gamezilla"
-}
-
-# ── Worker ───────────────────────────────────────────────────────────────────
-
-module "worker" {
-  source = "./modules/worker"
-
-  vpc_id                 = module.vpc.vpc_id
-  private_subnet_ids     = module.vpc.private_subnet_ids
-  ecs_cluster_id         = module.pub_sub.ecs_cluster_id
-  app_image              = var.app_image
-  database_host          = module.database.cluster_endpoint
-  database_secret_arn    = module.database.secret_arn
-  pubsub_url             = module.pub_sub.internal_mqtt_url
-  task_security_group_id = aws_security_group.worker.id
-  name_prefix            = "gamezilla"
-}
-
-# ── Req-res (ALB + Fargate + CloudFront) ─────────────────────────────────────
-
-module "req_res" {
-  source = "./modules/req-res"
-
-  vpc_id                 = module.vpc.vpc_id
-  private_subnet_ids     = module.vpc.private_subnet_ids
-  public_subnet_ids      = module.vpc.public_subnet_ids
-  ecs_cluster_id         = module.pub_sub.ecs_cluster_id
-  app_image              = var.app_image
-  database_host          = module.database.cluster_endpoint
-  database_secret_arn    = module.database.secret_arn
-  pubsub_url             = module.pub_sub.internal_mqtt_url
-  task_security_group_id = aws_security_group.req_res_task.id
-  name_prefix            = "gamezilla"
+  req_res_ipv4 = module.fly_req_res.ipv4
+  req_res_ipv6 = module.fly_req_res.ipv6
+  emqx_ipv4    = module.fly_emqx.ipv4
+  emqx_ipv6    = module.fly_emqx.ipv6
 }

@@ -1,11 +1,3 @@
-provider "aws" {
-  region = var.region
+provider "cloudflare" {}
 
-  default_tags {
-    tags = {
-      Project     = "app"
-      ManagedBy   = "terraform"
-      Environment = "production"
-    }
-  }
-}
+provider "fly" {}
