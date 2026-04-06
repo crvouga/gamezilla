@@ -49,3 +49,6 @@ app-example
 /android
 
 .cursor/debug*.log
+
+# infra-cli cost report
+.cost-report.md

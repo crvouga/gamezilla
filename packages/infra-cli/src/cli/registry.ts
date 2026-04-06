@@ -15,6 +15,7 @@ import { ApplyCommand } from './commands/apply';
 import { DeployAppsCommand } from './commands/deploy-apps';
 import { PostDeployCommand } from './commands/post-deploy';
 import { SummaryCommand } from './commands/summary';
+import { CostReportCommand } from './commands/cost-report';
 
 export function createRegistry(platform: CiPlatform): Command[] {
   return [
@@ -22,6 +23,7 @@ export function createRegistry(platform: CiPlatform): Command[] {
     new BootstrapCommand(platform),
     new DeployCommand(platform),
     new StatusCommand(platform),
+    new CostReportCommand(platform),
 
     new DomainsSetupCommand(platform),
     new DomainsCertCommand(platform),
