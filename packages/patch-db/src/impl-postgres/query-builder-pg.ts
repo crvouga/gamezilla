@@ -28,7 +28,7 @@ function buildWhereClauseForColumn(
       const path = jsonPathForAttribute(clause.attribute);
       const key = sqliteJsonPathToKey(path);
       return {
-        sql: `(${col} ->> ?) = ?`,
+        sql: `(${col} ->> ?) = ?::text`,
         params: [key, clause.value],
       };
     }
@@ -37,7 +37,7 @@ function buildWhereClauseForColumn(
       const path = jsonPathForAttribute(clause.attribute);
       const key = sqliteJsonPathToKey(path);
       return {
-        sql: `(${col} ->> ?) IS DISTINCT FROM ?`,
+        sql: `(${col} ->> ?) IS DISTINCT FROM ?::text`,
         params: [key, clause.value],
       };
     }
@@ -46,7 +46,7 @@ function buildWhereClauseForColumn(
       const path = jsonPathForAttribute(clause.attribute);
       const key = sqliteJsonPathToKey(path);
       return {
-        sql: `(${col} ->> ?) > ?`,
+        sql: `(${col} ->> ?) > ?::text`,
         params: [key, clause.value],
       };
     }
@@ -55,7 +55,7 @@ function buildWhereClauseForColumn(
       const path = jsonPathForAttribute(clause.attribute);
       const key = sqliteJsonPathToKey(path);
       return {
-        sql: `(${col} ->> ?) >= ?`,
+        sql: `(${col} ->> ?) >= ?::text`,
         params: [key, clause.value],
       };
     }
@@ -64,7 +64,7 @@ function buildWhereClauseForColumn(
       const path = jsonPathForAttribute(clause.attribute);
       const key = sqliteJsonPathToKey(path);
       return {
-        sql: `(${col} ->> ?) < ?`,
+        sql: `(${col} ->> ?) < ?::text`,
         params: [key, clause.value],
       };
     }
@@ -73,7 +73,7 @@ function buildWhereClauseForColumn(
       const path = jsonPathForAttribute(clause.attribute);
       const key = sqliteJsonPathToKey(path);
       return {
-        sql: `(${col} ->> ?) <= ?`,
+        sql: `(${col} ->> ?) <= ?::text`,
         params: [key, clause.value],
       };
     }
@@ -82,7 +82,7 @@ function buildWhereClauseForColumn(
       const path = jsonPathForAttribute(clause.attribute);
       const key = sqliteJsonPathToKey(path);
       return {
-        sql: `(${col} ->> ?) LIKE '%' || ? || '%'`,
+        sql: `(${col} ->> ?) LIKE '%' || ?::text || '%'`,
         params: [key, clause.value],
       };
     }
@@ -90,7 +90,7 @@ function buildWhereClauseForColumn(
       assertAttribute(clause.attribute);
       const path = jsonPathForAttribute(clause.attribute);
       const key = sqliteJsonPathToKey(path);
-      const placeholders = clause.values.map(() => '?').join(', ');
+      const placeholders = clause.values.map(() => '?::text').join(', ');
       return {
         sql: `(${col} ->> ?) IN (${placeholders})`,
         params: [key, ...clause.values],
@@ -100,7 +100,7 @@ function buildWhereClauseForColumn(
       assertAttribute(clause.attribute);
       const path = jsonPathForAttribute(clause.attribute);
       const key = sqliteJsonPathToKey(path);
-      const placeholders = clause.values.map(() => '?').join(', ');
+      const placeholders = clause.values.map(() => '?::text').join(', ');
       return {
         sql: `((${col} ->> ?) IS NULL OR (${col} ->> ?) NOT IN (${placeholders}))`,
         params: [key, key, ...clause.values],

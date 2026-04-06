@@ -9,8 +9,20 @@ describe('buildWhereClause with namespaced attributes', () => {
       value: 'hello',
     });
     expect(sql).toContain('->>');
+    expect(sql).toContain('?::text');
     expect(params[0]).toBe('task/title');
     expect(params[1]).toBe('hello');
+  });
+
+  test('= clause with boolean value casts to text', () => {
+    const { sql, params } = buildWhereClause({
+      type: '=',
+      attribute: 'task/done',
+      value: true,
+    });
+    expect(sql).toContain('= ?::text');
+    expect(params[0]).toBe('task/done');
+    expect(params[1]).toBe(true);
   });
 
   test('!= clause with namespaced attribute', () => {
@@ -19,7 +31,7 @@ describe('buildWhereClause with namespaced attributes', () => {
       attribute: 'task/done',
       value: true,
     });
-    expect(sql).toContain('IS DISTINCT FROM');
+    expect(sql).toContain('IS DISTINCT FROM ?::text');
     expect(params[0]).toBe('task/done');
     expect(params[1]).toBe(true);
   });
@@ -31,6 +43,7 @@ describe('buildWhereClause with namespaced attributes', () => {
       values: ['open', 'closed'],
     });
     expect(sql).toContain('IN');
+    expect(sql).toContain('?::text');
     expect(params[0]).toBe('task/status');
     expect(params).toContain('open');
     expect(params).toContain('closed');
@@ -55,6 +68,7 @@ describe('buildWhereClause with namespaced attributes', () => {
       value: 42,
     });
     expect(sql).toContain('->>');
+    expect(sql).toContain('?::text');
     expect(params[0]).toBe('game.session/score');
     expect(params[1]).toBe(42);
   });
