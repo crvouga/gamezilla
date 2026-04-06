@@ -74,15 +74,10 @@ jobs:
         uses: dopplerhq/cli-action@v3
 
       - name: Fetch secrets from Doppler
+        working-directory: packages/infra-cli
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
-        run: |
-          echo "TF_TOKEN_app_terraform_io=$(doppler secrets get TF_TOKEN --plain)" >> "$GITHUB_ENV"
-          echo "FLY_API_TOKEN=$(doppler secrets get FLY_API_TOKEN --plain)" >> "$GITHUB_ENV"
-          echo "CLOUDFLARE_API_TOKEN=$(doppler secrets get CLOUDFLARE_API_TOKEN --plain)" >> "$GITHUB_ENV"
-          echo "CLOUDFLARE_ACCOUNT_ID=$(doppler secrets get CLOUDFLARE_ACCOUNT_ID --plain)" >> "$GITHUB_ENV"
-          echo "DATABASE_URL=$(doppler secrets get DATABASE_URL --plain)" >> "$GITHUB_ENV"
-          echo "EMQX_DASHBOARD_PASSWORD=$(doppler secrets get EMQX_DASHBOARD_PASSWORD --plain)" >> "$GITHUB_ENV"
+        run: bun run infra fetch-secrets
 
       - name: Preflight
         working-directory: packages/infra-cli

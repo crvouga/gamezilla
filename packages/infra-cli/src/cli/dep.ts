@@ -152,6 +152,24 @@ export const BunDep: Dep = {
   },
 };
 
+export const DopplerDep: Dep = {
+  name: 'doppler',
+  bin: 'doppler',
+  version: () => captureVersion('doppler', ['--version']),
+  check() {
+    if (!whichSync('doppler')) return { ok: false, reason: 'not found on PATH' };
+    const v = this.version();
+    if (!v) return { ok: false, reason: 'could not determine version' };
+    return { ok: true, version: v };
+  },
+  install() {
+    spawnInstall('brew', ['install', 'dopplerhq/cli/doppler']);
+  },
+  verify() {
+    verifyRun('doppler', ['--version']);
+  },
+};
+
 // ---------------------------------------------------------------------------
 // Registry
 // ---------------------------------------------------------------------------
@@ -162,4 +180,5 @@ export const ALL_DEPS: readonly Dep[] = [
   TerraformDep,
   DockerDep,
   BunDep,
+  DopplerDep,
 ];

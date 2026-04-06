@@ -1,18 +1,19 @@
-import type { CiPlatform } from './platform';
 import type { Command, CommandGroup } from './command';
 import { fmt } from './fmt';
+import type { CiPlatform } from './platform';
 
 import { CheckCommand } from './commands/check';
-import { InstallDepsCommand } from './commands/install-deps';
 import { DeployCommand } from './commands/deploy';
+import { InstallDepsCommand } from './commands/install-deps';
 import { StatusCommand } from './commands/status';
 
 import { DomainsSetupCommand } from './commands/domains-setup';
 
-import { PreflightCommand } from './commands/preflight';
 import { ApplyCommand } from './commands/apply';
 import { DeployAppsCommand } from './commands/deploy-apps';
+import { FetchSecretsCommand } from './commands/fetch-secrets';
 import { PostDeployCommand } from './commands/post-deploy';
+import { PreflightCommand } from './commands/preflight';
 import { SummaryCommand } from './commands/summary';
 
 export function createRegistry(platform: CiPlatform): Command[] {
@@ -21,9 +22,8 @@ export function createRegistry(platform: CiPlatform): Command[] {
     new InstallDepsCommand(platform),
     new DeployCommand(platform),
     new StatusCommand(platform),
-
     new DomainsSetupCommand(platform),
-
+    new FetchSecretsCommand(platform),
     new PreflightCommand(platform),
     new ApplyCommand(platform),
     new DeployAppsCommand(platform),
