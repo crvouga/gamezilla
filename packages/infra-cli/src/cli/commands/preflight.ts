@@ -24,22 +24,19 @@ export class PreflightCommand implements Command {
     process.env['AWS_REGION'] = process.env['AWS_REGION'] ?? PROJECT_CONFIG.aws.region;
     ensureAwsEnvCredentials();
     const region = this.requireAwsRegionValid();
-    await runStep(this.platform, 'PREFLIGHT 1/6 — AWS caller identity', () =>
+    await runStep(this.platform, 'PREFLIGHT 1/5 — AWS caller identity', () =>
       this.assertCallerIdentity(region),
     );
-    await runStep(this.platform, 'PREFLIGHT 2/6 — DynamoDB lock table access', () =>
-      this.assertTfLockTableAccess(region),
-    );
-    await runStep(this.platform, 'PREFLIGHT 3/6 — Terraform init', () =>
+    await runStep(this.platform, 'PREFLIGHT 2/5 — Terraform init', () =>
       this.terraformInit(),
     );
-    await runStep(this.platform, 'PREFLIGHT 4/6 — Terraform validate', () =>
+    await runStep(this.platform, 'PREFLIGHT 3/5 — Terraform validate', () =>
       this.terraformValidate(),
     );
-    await runStep(this.platform, 'PREFLIGHT 5/6 — Docker build (app)', () =>
+    await runStep(this.platform, 'PREFLIGHT 4/5 — Docker build (app)', () =>
       this.assertDockerBuild(REPO_ROOT, 'Docker build (app)'),
     );
-    await runStep(this.platform, 'PREFLIGHT 6/6 — Docker build (emqx)', () =>
+    await runStep(this.platform, 'PREFLIGHT 5/5 — Docker build (emqx)', () =>
       this.assertDockerBuild(join(INFRA_CLI_ROOT, 'emqx-image'), 'Docker build (emqx)'),
     );
   }
@@ -74,35 +71,8 @@ export class PreflightCommand implements Command {
     this.platform.notice(`Caller: ${id.Arn}  Account: ${id.Account}  Region: ${region}`);
   }
 
-  private async assertTfLockTableAccess(region: string): Promise<void> {
-    const { DynamoDBClient, GetItemCommand } = await import('@aws-sdk/client-dynamodb');
-    const table = PROJECT_CONFIG.tfBackend.dynamodbTable;
-    const client = new DynamoDBClient({ region });
-    try {
-      await client.send(new GetItemCommand({
-        TableName: table,
-        Key: { LockID: { S: '__preflight_probe__' } },
-      }));
-    } catch (e: unknown) {
-      const code = (e as { name?: string }).name ?? '';
-      const msg = e instanceof Error ? e.message : String(e);
-      if (code === 'AccessDeniedException' || msg.includes('AccessDeniedException') || msg.includes('not authorized')) {
-        this.platform.error(`DynamoDB lock table "${table}" is NOT accessible — Terraform will fail to acquire the state lock.`);
-        this.platform.error('The IAM role needs dynamodb:GetItem, dynamodb:PutItem, and dynamodb:DeleteItem');
-        this.platform.error(`on arn:aws:dynamodb:${region}:*:table/${table}`);
-        assert.fail(`preflight: DynamoDB lock table "${table}" is not accessible — crash, do not continue`);
-      }
-      if (code === 'ResourceNotFoundException' || msg.includes('ResourceNotFoundException') || msg.includes('not found')) {
-        this.platform.error(`DynamoDB lock table "${table}" does not exist in ${region}.`);
-        this.platform.error('Run "bun run infra bootstrap" to create the Terraform backend resources.');
-        assert.fail(`preflight: DynamoDB lock table "${table}" not found — crash, do not continue`);
-      }
-      throw e;
-    }
-  }
-
   private terraformInit(): void {
-    run(this.platform, 'terraform', ['init', '-input=false', '-reconfigure'], {
+    run(this.platform, 'terraform', ['init', '-input=false'], {
       cwd: TF_PACKAGE_ROOT,
       label: 'Terraform init',
     });

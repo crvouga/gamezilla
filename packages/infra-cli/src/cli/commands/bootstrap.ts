@@ -5,7 +5,7 @@ import { banner, heading, ok } from '../fmt';
 import { runLocal, runCapture } from '../subprocess';
 import { PROJECT_CONFIG } from '../../project-config';
 import { deployOidcStackIdempotent, requireStackOutput } from '../lib/oidc-stack';
-import { ensureTfBackend } from '../lib/tf-backend';
+import { teardownOldTfBackend } from '../lib/tf-backend';
 
 export class BootstrapCommand implements Command {
   readonly id = 'bootstrap';
@@ -28,8 +28,8 @@ export class BootstrapCommand implements Command {
     const roleArn = await deployOidcStackIdempotent();
     ok('OIDC RoleArn', roleArn);
 
-    heading('Terraform State Backend');
-    ensureTfBackend();
+    heading('Terraform State Backend (cleanup old S3 backend)');
+    teardownOldTfBackend();
 
     heading('GitHub Variables');
     const client = new CloudFormationClient({ region: PROJECT_CONFIG.aws.region });

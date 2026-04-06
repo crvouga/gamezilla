@@ -1,59 +1,75 @@
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
-import { ok } from '../fmt';
-import { runLocal, runCapture } from '../subprocess';
-import { TF_PACKAGE_ROOT } from '../paths';
+import { ok, heading } from '../fmt';
+import { runCapture } from '../subprocess';
 import { PROJECT_CONFIG } from '../../project-config';
-import { ensureAwsEnvCredentials } from './aws-creds';
 
-export function ensureTfBackend(): void {
+const OLD_BUCKET = 'gamezilla-terraform-state';
+const OLD_DYNAMODB_TABLE = 'gamezilla-terraform-lock';
+
+export function teardownOldTfBackend(): void {
   const { region } = PROJECT_CONFIG.aws;
-  const { bucket, dynamodbTable } = PROJECT_CONFIG.tfBackend;
 
-  ensureS3Bucket(bucket, region);
-  ensureDynamoDbTable(dynamodbTable, region);
-  ensureAwsEnvCredentials();
-  migrateStateIfNeeded();
+  heading('Tear down old S3 state backend');
+
+  deleteS3Bucket(OLD_BUCKET, region);
+  deleteDynamoDbTable(OLD_DYNAMODB_TABLE, region);
 }
 
-function ensureS3Bucket(bucket: string, region: string): void {
-  if (s3BucketExists(bucket, region)) {
-    ok(`S3 bucket "${bucket}" already exists`);
+function deleteS3Bucket(bucket: string, region: string): void {
+  if (!s3BucketExists(bucket, region)) {
+    ok(`S3 bucket "${bucket}" already gone`);
     return;
   }
 
-  console.log(`Creating S3 bucket "${bucket}"...`);
+  console.log(`Emptying S3 bucket "${bucket}" (including old versions)...`);
+  runCapture('aws', [
+    's3api', 'list-object-versions',
+    '--bucket', bucket,
+    '--region', region,
+    '--output', 'json',
+    '--query', 'Versions[].{Key:Key,VersionId:VersionId}',
+  ]);
 
-  const createArgs = ['s3api', 'create-bucket', '--bucket', bucket, '--region', region];
-  if (region !== 'us-east-1') {
-    createArgs.push('--create-bucket-configuration', `LocationConstraint=${region}`);
+  try {
+    runCapture('aws', ['s3', 'rm', `s3://${bucket}`, '--recursive', '--region', region]);
+  } catch {
+    // bucket may already be empty
   }
-  runLocal('aws', createArgs);
 
-  runLocal('aws', [
-    's3api', 'put-bucket-versioning',
+  deleteAllObjectVersions(bucket, region);
+
+  console.log(`Deleting S3 bucket "${bucket}"...`);
+  runCapture('aws', ['s3api', 'delete-bucket', '--bucket', bucket, '--region', region]);
+  ok(`S3 bucket "${bucket}" deleted`);
+}
+
+function deleteAllObjectVersions(bucket: string, region: string): void {
+  const raw = runCapture('aws', [
+    's3api', 'list-object-versions',
     '--bucket', bucket,
-    '--versioning-configuration', 'Status=Enabled',
     '--region', region,
+    '--output', 'json',
   ]);
 
-  runLocal('aws', [
-    's3api', 'put-bucket-encryption',
-    '--bucket', bucket,
-    '--server-side-encryption-configuration',
-    '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"AES256"},"BucketKeyEnabled":true}]}',
-    '--region', region,
-  ]);
+  const data = JSON.parse(raw) as {
+    Versions?: { Key: string; VersionId: string }[];
+    DeleteMarkers?: { Key: string; VersionId: string }[];
+  };
 
-  runLocal('aws', [
-    's3api', 'put-public-access-block',
-    '--bucket', bucket,
-    '--public-access-block-configuration',
-    'BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true',
-    '--region', region,
-  ]);
+  const objects = [
+    ...(data.Versions ?? []).map(v => ({ Key: v.Key, VersionId: v.VersionId })),
+    ...(data.DeleteMarkers ?? []).map(d => ({ Key: d.Key, VersionId: d.VersionId })),
+  ];
 
-  ok(`S3 bucket "${bucket}" created with versioning + encryption`);
+  if (objects.length === 0) return;
+
+  const deletePayload = JSON.stringify({ Objects: objects, Quiet: true });
+  runCapture('aws', [
+    's3api', 'delete-objects',
+    '--bucket', bucket,
+    '--region', region,
+    '--delete', deletePayload,
+  ]);
+  ok(`Deleted ${objects.length} object version(s) / delete marker(s)`);
 }
 
 function s3BucketExists(bucket: string, region: string): boolean {
@@ -65,59 +81,27 @@ function s3BucketExists(bucket: string, region: string): boolean {
   }
 }
 
-function ensureDynamoDbTable(table: string, region: string): void {
-  if (dynamoDbTableExists(table, region)) {
-    ok(`DynamoDB table "${table}" already exists`);
+function deleteDynamoDbTable(table: string, region: string): void {
+  if (!dynamoDbTableExists(table, region)) {
+    ok(`DynamoDB table "${table}" already gone`);
     return;
   }
 
-  console.log(`Creating DynamoDB table "${table}"...`);
-  runLocal('aws', [
-    'dynamodb', 'create-table',
-    '--table-name', table,
-    '--attribute-definitions', 'AttributeName=LockID,AttributeType=S',
-    '--key-schema', 'AttributeName=LockID,KeyType=HASH',
-    '--billing-mode', 'PAY_PER_REQUEST',
-    '--region', region,
-  ]);
+  console.log(`Deleting DynamoDB table "${table}"...`);
+  runCapture('aws', ['dynamodb', 'delete-table', '--table-name', table, '--region', region]);
 
-  runLocal('aws', [
-    'dynamodb', 'wait', 'table-exists',
-    '--table-name', table,
-    '--region', region,
-  ]);
-
-  ok(`DynamoDB table "${table}" created`);
+  console.log('Waiting for table deletion...');
+  try {
+    runCapture('aws', ['dynamodb', 'wait', 'table-not-exists', '--table-name', table, '--region', region]);
+  } catch {
+    // wait may timeout but table is still being deleted
+  }
+  ok(`DynamoDB table "${table}" deleted`);
 }
 
 function dynamoDbTableExists(table: string, region: string): boolean {
   try {
     runCapture('aws', ['dynamodb', 'describe-table', '--table-name', table, '--region', region]);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function migrateStateIfNeeded(): void {
-  const { region } = PROJECT_CONFIG.aws;
-  const { bucket, key } = PROJECT_CONFIG.tfBackend;
-  const localState = join(TF_PACKAGE_ROOT, 'terraform.tfstate');
-
-  if (existsSync(localState) && !s3StateExists(bucket, key, region)) {
-    console.log('Uploading local terraform.tfstate to S3...');
-    runLocal('aws', ['s3', 'cp', localState, `s3://${bucket}/${key}`, '--region', region]);
-    ok('State uploaded to S3');
-  }
-
-  console.log('Initializing S3 backend...');
-  runLocal('terraform', ['init', '-input=false', '-reconfigure'], { cwd: TF_PACKAGE_ROOT });
-  ok('Terraform backend configured');
-}
-
-function s3StateExists(bucket: string, key: string, region: string): boolean {
-  try {
-    runCapture('aws', ['s3api', 'head-object', '--bucket', bucket, '--key', key, '--region', region]);
     return true;
   } catch {
     return false;

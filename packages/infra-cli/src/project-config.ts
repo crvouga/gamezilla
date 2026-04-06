@@ -8,9 +8,4 @@ export const PROJECT_CONFIG = {
     bootstrapStackName: 'GamezillaGitHubOidc',
   },
   githubActionsRoleName: 'GamezillaGitHubActionsRole',
-  tfBackend: {
-    bucket: 'gamezilla-terraform-state',
-    key: 'gamezilla/terraform.tfstate',
-    dynamodbTable: 'gamezilla-terraform-lock',
-  },
 } as const;
