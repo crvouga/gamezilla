@@ -3,6 +3,7 @@ import type { CiPlatform } from '../platform/platform';
 import type { Command } from './types';
 
 import { DeployCommand } from './deploy';
+import { DestroyCommand } from './destroy';
 import { FetchSecretsCommand } from './fetch-secrets';
 import { SetupCommand } from './setup';
 import { SetupSecretsCommand } from './setup-secrets';
@@ -14,6 +15,7 @@ export function createRegistry(platform: CiPlatform): Command[] {
     new SetupCommand(platform),
     new StatusCommand(platform),
     new DeployCommand(platform),
+    new DestroyCommand(platform),
     new SummaryCommand(platform),
     new FetchSecretsCommand(platform),
     new SetupSecretsCommand(platform),
