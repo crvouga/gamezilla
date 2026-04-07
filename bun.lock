@@ -82,6 +82,7 @@
       "name": "@gamezilla/infra-cli",
       "dependencies": {
         "@gamezilla/shared": "workspace:*",
+        "@neondatabase/serverless": "^1.0.0",
         "picocolors": "^1.1.1",
       },
       "devDependencies": {

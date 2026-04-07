@@ -10,7 +10,7 @@ export class CfApiToken implements SecretEntry {
     'Start with the "Edit Zone DNS" template, then add:',
     '  Zone permissions:    DNS Edit, Zone Settings Write, Workers Routes Edit',
     '  Account permissions: Cloudflare Pages Edit, Workers Scripts Edit,',
-    '                       Workers KV Storage Edit, D1 Edit, Account Settings Read',
+    '                       Workers KV Storage Edit, Account Settings Read',
     'Zone Resources: All zones  |  Account Resources: All accounts',
   ].join('\n');
 
@@ -75,14 +75,6 @@ export class CfApiToken implements SecretEntry {
             `https://api.cloudflare.com/client/v4/accounts/${accountId}/storage/kv/namespaces`,
           ),
         },
-        {
-          label: 'D1 Edit               (Account permission — for D1 database)',
-          probe: probeCfPermission(
-            headers,
-            'GET',
-            `https://api.cloudflare.com/client/v4/accounts/${accountId}/d1/database`,
-          ),
-        },
       ];
 
       const zonesRes = await fetchWithRetry(
@@ -143,7 +135,7 @@ export class CfApiToken implements SecretEntry {
           'Tip: start with the "Edit Zone DNS" template, then add:',
           '  Zone: Workers Routes Edit',
           '  Account: Cloudflare Pages Edit, Workers Scripts Edit,',
-          '           Workers KV Storage Edit, D1 Edit, Account Settings Read',
+          '           Workers KV Storage Edit, Account Settings Read',
           'Zone Resources → All zones  |  Account Resources → All accounts',
         ].join('\n');
       }

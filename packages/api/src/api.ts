@@ -1,10 +1,10 @@
-import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
+import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
 import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
-import { SqlClientImplD1 } from '@gamezilla/shared/sql-client/impl-d1';
+import { SqlClientImplPlanetScale } from '@gamezilla/shared/sql-client/impl-planetscale';
 import { createApiHandler } from './api-handler';
 
 export interface Env {
-  DB: D1Database;
+  DATABASE_URL: string;
 }
 
 const CORS_HEADERS: Record<string, string> = {
@@ -36,8 +36,8 @@ export default {
     }
 
     try {
-      const sqlClient = new SqlClientImplD1(env.DB);
-      const db = new PatchDbImplSqlite(sqlClient);
+      const sqlClient = new SqlClientImplPlanetScale(env.DATABASE_URL);
+      const db = new PatchDbImplPostgres(sqlClient);
       if (!migrated) {
         await db.migrate();
         migrated = true;

@@ -64,13 +64,16 @@ export function run(
 export function runCapture(
   cmd: string,
   args: string[],
-  opts?: { cwd?: string; env?: NodeJS.ProcessEnv }
+  opts?: { cwd?: string; env?: NodeJS.ProcessEnv; input?: string }
 ): string {
   const r = Bun.spawnSync([cmd, ...args], {
     env: opts?.env ?? process.env,
     stdout: 'pipe',
     stderr: 'pipe',
     ...(opts?.cwd ? { cwd: opts.cwd } : {}),
+    ...(opts?.input !== undefined
+      ? { stdin: Buffer.from(opts.input) }
+      : {}),
   });
   if (r.exitCode === null) {
     throw new Error(`${cmd} ${args.join(' ')} was killed by a signal`);

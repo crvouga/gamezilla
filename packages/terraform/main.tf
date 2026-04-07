@@ -17,14 +17,3 @@ module "cloudflare_pages" {
   cloudflare_zone_id    = cloudflare_zone.main.id
   custom_domain         = var.custom_domain
 }
-
-# -- Cloudflare D1 (SQLite database for the API worker) ----------------------
-
-resource "cloudflare_d1_database" "main" {
-  account_id = var.cloudflare_account_id
-  name       = "gamezilla-db"
-
-  read_replication = {
-    mode = "disabled"
-  }
-}

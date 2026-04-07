@@ -22,8 +22,3 @@ output "api_url" {
   description = "API public URL (Workers custom domain)"
   value       = "https://api.gamezilla.app"
 }
-
-output "d1_database_id" {
-  description = "Cloudflare D1 database UUID (needed by wrangler.toml)"
-  value       = cloudflare_d1_database.main.id
-}

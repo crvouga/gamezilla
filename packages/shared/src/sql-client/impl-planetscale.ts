@@ -4,7 +4,9 @@ import { questionMarkParamsToDollarParams } from './positional-params';
 
 /**
  * {@link SqlClient} adapter for Postgres via the Neon serverless driver.
- * Connects over WebSocket — works in Cloudflare Workers, Node, and Bun.
+ * Uses WebSocket (Pool) for interactive transactions; the HTTP fetch
+ * endpoint is configured so that callers using `neon()` can reach
+ * PlanetScale over plain HTTP as well.
  *
  * Automatically detects local dev (127.0.0.1 / localhost) and configures
  * the WebSocket proxy accordingly. In production the PlanetScale Postgres
@@ -117,7 +119,7 @@ function createTxSqlClient(client: PoolClient): SqlClient {
   };
 }
 
-function configureNeon(connectionString: string) {
+export function configureNeon(connectionString: string) {
   const url = new URL(connectionString.replace(/^postgres(ql)?:\/\//, 'http://'));
   const isLocal =
     url.hostname === '127.0.0.1' || url.hostname === 'localhost';
@@ -130,6 +132,7 @@ function configureNeon(connectionString: string) {
     neonConfig.pipelineTLS = false;
     neonConfig.forceDisablePgSSL = true;
   } else {
+    neonConfig.fetchEndpoint = (host) => `https://${host}/sql`;
     neonConfig.wsProxy = (host, port) => `${host}/v2?address=${host}:${port}`;
   }
 }

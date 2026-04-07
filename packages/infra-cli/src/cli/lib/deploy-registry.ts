@@ -8,7 +8,7 @@ import {
 import { join } from 'node:path';
 import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
-import { run } from '../subprocess';
+import { run, runCapture } from '../subprocess';
 import { requireOutput, type TfOutputs } from './tf-outputs';
 
 /**
@@ -35,29 +35,28 @@ export class WorkersDeployable implements Deployable {
 
   constructor(private readonly platform: CiPlatform) {}
 
-  deploy(outputs: TfOutputs): void {
+  deploy(_outputs: TfOutputs): void {
     const apiDir = join(REPO_ROOT, 'packages/api');
     const env = wranglerEnv();
-    const tomlPath = join(apiDir, 'wrangler.toml');
 
-    const d1Id = requireOutput(this.platform, outputs, 'd1_database_id');
-
-    const original = readFileSync(tomlPath, 'utf8');
-    const patched = original.replace(
-      /^(database_id\s*=\s*)"[^"]*"/m,
-      `$1"${d1Id}"`
+    const databaseUrl = process.env['DATABASE_URL'] ?? '';
+    assert.ok(
+      databaseUrl.length > 0,
+      'DATABASE_URL must be set (loaded from Doppler as PLANETSCALE_DATABASE_URL)',
     );
-    writeFileSync(tomlPath, patched, 'utf8');
 
-    try {
-      run(this.platform, 'wrangler', ['deploy'], {
-        cwd: apiDir,
-        env,
-        label: 'workers-api: Cloudflare Workers deploy',
-      });
-    } finally {
-      writeFileSync(tomlPath, original, 'utf8');
-    }
+    runCapture('wrangler', ['secret', 'put', 'DATABASE_URL'], {
+      cwd: apiDir,
+      env,
+      input: databaseUrl,
+    });
+    this.platform.notice('DATABASE_URL secret pushed to Workers.');
+
+    run(this.platform, 'wrangler', ['deploy'], {
+      cwd: apiDir,
+      env,
+      label: 'workers-api: Cloudflare Workers deploy',
+    });
 
     this.platform.notice('Workers API deployed.');
   }
