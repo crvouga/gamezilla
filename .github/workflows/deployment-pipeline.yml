@@ -27,7 +27,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Generate router types
-        working-directory: packages/app
+        working-directory: packages/client
         run: bunx expo customize tsconfig.json
 
       - name: Check (tc + lint + test)

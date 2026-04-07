@@ -19,10 +19,6 @@
       "persistent": true,
       "cache": false
     },
-    "dev:api": {
-      "persistent": true,
-      "cache": false
-    },
     "check": {
       "dependsOn": ["tc", "lint", "test"]
     },
@@ -41,16 +37,12 @@
       "inputs": ["**/*.ts", "**/*.tsx", "**/*.test.ts"],
       "outputs": []
     },
-    "export:web": {
-      "env": ["EXPO_PUBLIC_STAGE"],
-      "inputs": ["**/*.ts", "**/*.tsx", "**/*.css", "**/*.json", "tsconfig.json"],
-      "outputs": ["dist/**"],
-      "cache": false
-    },
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["**/*.ts", "**/*.tsx", "**/*.css", "**/*.html", "vite.config.ts", "tsconfig.json"],
-      "outputs": ["dist/**"]
+      "env": ["EXPO_PUBLIC_STAGE"],
+      "inputs": ["**/*.ts", "**/*.tsx", "**/*.css", "**/*.json", "**/*.html", "vite.config.ts", "tsconfig.json"],
+      "outputs": ["dist/**"],
+      "cache": false
     }
   }
 }

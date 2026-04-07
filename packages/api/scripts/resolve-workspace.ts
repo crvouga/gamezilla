@@ -3,7 +3,7 @@
  * exports don't resolve when the importing file lives inside a workspace sub-package.
  *
  * Expands the wildcard into explicit per-file entries derived from the filesystem.
- * Run once at image build time:  `RUN bun packages/app/scripts/resolve-workspace.ts`
+ * Run once at image build time:  `RUN bun packages/api/scripts/resolve-workspace.ts`
  */
 import { readdirSync, readFileSync, writeFileSync, statSync } from 'fs';
 import { join, relative } from 'path';

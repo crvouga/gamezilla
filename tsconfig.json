@@ -12,7 +12,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "paths": {
-      "@/*": ["./packages/app/src/*"],
+      "@/*": ["./packages/client/src/*"],
       "@gamezilla/shared/*": ["./packages/shared/src/*"],
       "@gamezilla/patch-db/*": ["./packages/patch-db/src/*"],
       "@gamezilla/peer-store/*": ["./packages/peer-store/src/*"],
@@ -21,8 +21,9 @@
     }
   },
   "include": [
-    "packages/app/src/**/*.ts",
-    "packages/app/src/**/*.tsx",
+    "packages/api/src/**/*.ts",
+    "packages/client/src/**/*.ts",
+    "packages/client/src/**/*.tsx",
     "packages/shared/src/**/*.ts",
     "packages/shared/src/**/*.tsx",
     "packages/patch-db/src/**/*.ts",
@@ -33,8 +34,8 @@
     "packages/patch-db-app/src/**/*.tsx",
     "packages/peer-store-app/src/**/*.ts",
     "packages/peer-store-app/src/**/*.tsx",
-    "packages/app/.expo/types/**/*.ts",
-    "packages/app/expo-env.d.ts"
+    "packages/client/.expo/types/**/*.ts",
+    "packages/client/expo-env.d.ts"
   ],
   "exclude": [
     "node_modules",

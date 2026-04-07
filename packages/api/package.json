@@ -1,0 +1,17 @@
+{
+  "name": "@gamezilla/api",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@gamezilla/patch-db": "workspace:*",
+    "@gamezilla/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.9",
+    "typescript": "~5.9.2"
+  },
+  "scripts": {
+    "dev": "wrangler dev",
+    "tc": "tsc --noEmit -p ../../tsconfig.json"
+  }
+}

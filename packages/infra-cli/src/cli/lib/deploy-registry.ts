@@ -20,14 +20,14 @@ export class WorkersDeployable implements Deployable {
   constructor(private readonly platform: CiPlatform) {}
 
   deploy(outputs: TfOutputs): void {
-    const appDir = join(REPO_ROOT, 'packages/app');
+    const apiDir = join(REPO_ROOT, 'packages/api');
 
     const databaseUrl = requireOutput(this.platform, outputs, 'database_url');
     const tmp = join(tmpdir(), `wrangler-secrets-${Date.now()}.json`);
     writeFileSync(tmp, JSON.stringify({ DATABASE_URL: databaseUrl }), 'utf8');
     try {
       run(this.platform, 'wrangler', ['secret', 'bulk', tmp], {
-        cwd: appDir,
+        cwd: apiDir,
         label: 'workers-api: sync DATABASE_URL secret',
       });
     } finally {
@@ -35,7 +35,7 @@ export class WorkersDeployable implements Deployable {
     }
 
     run(this.platform, 'wrangler', ['deploy'], {
-      cwd: appDir,
+      cwd: apiDir,
       label: 'workers-api: Cloudflare Workers deploy',
     });
     this.platform.notice('Workers API deployed.');
@@ -86,10 +86,10 @@ export class WebAppDeployable implements Deployable {
     o.prod['PATCH_DB_REQ_RES_URL'] = syncBaseUrl;
     writeFileSync(configPath, `${JSON.stringify(o, null, 2)}\n`, 'utf8');
 
-    const appDir = join(REPO_ROOT, 'packages/app');
+    const clientDir = join(REPO_ROOT, 'packages/client');
 
     run(this.platform, 'bunx', [
-      'turbo', 'run', 'export:web', '--filter=@gamezilla/app',
+      'turbo', 'run', 'build', '--filter=@gamezilla/client',
     ], {
       cwd: REPO_ROOT,
       env: { ...process.env, EXPO_PUBLIC_STAGE: 'prod' },
@@ -100,9 +100,9 @@ export class WebAppDeployable implements Deployable {
       'pages', 'deploy', 'dist/',
       '--project-name', pagesProject,
       '--branch', 'main',
-    ], { cwd: appDir, label: 'web-app: Cloudflare Pages deploy' });
+    ], { cwd: clientDir, label: 'web-app: Cloudflare Pages deploy' });
 
-    rmSync(join(REPO_ROOT, 'packages/app/dist'), { recursive: true, force: true });
+    rmSync(join(REPO_ROOT, 'packages/client/dist'), { recursive: true, force: true });
     this.platform.notice('Web app exported and deployed to Cloudflare Pages.');
   }
 }
