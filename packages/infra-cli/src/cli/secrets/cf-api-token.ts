@@ -1,3 +1,4 @@
+import { fetchWithRetry } from '@gamezilla/shared/async/fetch-with-retry';
 import type { SecretEntry } from './types';
 import { cfHeaders, probeCfPermission } from './cloudflare';
 
@@ -17,7 +18,7 @@ export class CfApiToken implements SecretEntry {
     try {
       const headers = cfHeaders(token);
 
-      const res = await fetch(
+      const res = await fetchWithRetry(
         'https://api.cloudflare.com/client/v4/user/tokens/verify',
         { headers },
       );
@@ -27,7 +28,7 @@ export class CfApiToken implements SecretEntry {
         return `Token status is "${body.result?.status ?? 'unknown'}", expected "active"`;
       }
 
-      const acctRes = await fetch(
+      const acctRes = await fetchWithRetry(
         'https://api.cloudflare.com/client/v4/accounts',
         { headers },
       );
@@ -68,7 +69,7 @@ export class CfApiToken implements SecretEntry {
         },
       ];
 
-      const zonesRes = await fetch(
+      const zonesRes = await fetchWithRetry(
         `https://api.cloudflare.com/client/v4/zones?account.id=${accountId}&per_page=1`,
         { headers },
       );
