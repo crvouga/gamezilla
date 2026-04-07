@@ -8,8 +8,7 @@
   ],
   "scripts": {
     "format": "sort-package-json && prettier --write .",
-    "format:check": "prettier --check .",
-    "infra": "bun run ./packages/infra-cli/src/bin/cli.ts"
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
     "@types/bun": "^1.3.9",
