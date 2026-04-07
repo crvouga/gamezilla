@@ -1,8 +1,8 @@
-import type { Command } from '../command';
-import type { CiPlatform } from '../platform';
-import { banner, ok, fail, warn, kv, heading } from '../fmt';
 import { PROJECT_CONFIG } from '../../project-config';
+import { banner, fail, heading, kv, ok, warn } from '../lib/fmt';
 import { readTfOutputs } from '../lib/tf-outputs';
+import type { CiPlatform } from '../platform/platform';
+import type { Command } from './types';
 
 export class StatusCommand implements Command {
   readonly id = 'status';
@@ -27,16 +27,23 @@ export class StatusCommand implements Command {
 
     heading('Endpoints');
     const { domain } = PROJECT_CONFIG;
-    const urls = [
-      `https://www.${domain}`,
-      `https://api.${domain}/health`,
-    ];
+    const urls = [`https://www.${domain}`, `https://api.${domain}/health`];
 
     for (const url of urls) {
       try {
         const resp = Bun.spawnSync(
-          ['curl', '-sI', '-o', '/dev/null', '-w', '%{http_code}', '--max-time', '10', url],
-          { stdout: 'pipe', stderr: 'pipe' },
+          [
+            'curl',
+            '-sI',
+            '-o',
+            '/dev/null',
+            '-w',
+            '%{http_code}',
+            '--max-time',
+            '10',
+            url,
+          ],
+          { stdout: 'pipe', stderr: 'pipe' }
         );
         if (resp.exitCode !== 0) {
           fail(url, `curl exited ${resp.exitCode}`);

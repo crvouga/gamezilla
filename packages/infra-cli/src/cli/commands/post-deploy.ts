@@ -1,9 +1,13 @@
 import { assert } from '@gamezilla/shared/assert';
-import type { Command } from '../command';
-import type { CiPlatform } from '../platform';
-import { runStep } from '../platform';
-import { readTfOutputs, requireOutput, type TfOutputs } from '../lib/tf-outputs';
-import { fmtElapsed } from '../fmt';
+import { fmtElapsed } from '../lib/fmt';
+import {
+  readTfOutputs,
+  requireOutput,
+  type TfOutputs,
+} from '../lib/tf-outputs';
+import type { CiPlatform } from '../platform/platform';
+import { runStep } from '../platform/platform';
+import type { Command } from './types';
 
 type HttpEndpointCheck = {
   readonly label: string;
@@ -31,8 +35,14 @@ function parsePositiveIntMsEnv(name: string, fallback: number): number {
   return Math.floor(n);
 }
 
-const POST_DEPLOY_HTTP_MAX_WAIT_MS = parsePositiveIntMsEnv('POST_DEPLOY_HTTP_MAX_WAIT_MS', 10 * 60 * 1000);
-const POST_DEPLOY_HTTP_RETRY_MS = parsePositiveIntMsEnv('POST_DEPLOY_HTTP_RETRY_MS', 10_000);
+const POST_DEPLOY_HTTP_MAX_WAIT_MS = parsePositiveIntMsEnv(
+  'POST_DEPLOY_HTTP_MAX_WAIT_MS',
+  10 * 60 * 1000
+);
+const POST_DEPLOY_HTTP_RETRY_MS = parsePositiveIntMsEnv(
+  'POST_DEPLOY_HTTP_RETRY_MS',
+  10_000
+);
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -56,7 +66,14 @@ function probeUrl(rawUrl: string, probePath?: string): string {
 
 async function checkHttpEndpoint(
   platform: CiPlatform,
-  opts: { step: number; total: number; label: string; rawUrl: string; probePath?: string; gatewayCheck?: boolean },
+  opts: {
+    step: number;
+    total: number;
+    label: string;
+    rawUrl: string;
+    probePath?: string;
+    gatewayCheck?: boolean;
+  }
 ): Promise<void> {
   const url = probeUrl(opts.rawUrl, opts.probePath);
   const started = Date.now();
@@ -76,10 +93,14 @@ async function checkHttpEndpoint(
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       if (elapsed >= POST_DEPLOY_HTTP_MAX_WAIT_MS) {
-        platform.error(`${opts.label} ${url} — unreachable after ${elapsedStr}: ${msg}`);
+        platform.error(
+          `${opts.label} ${url} — unreachable after ${elapsedStr}: ${msg}`
+        );
         assert.fail(`post-deploy: ${opts.label} unreachable at ${url}`);
       }
-      platform.notice(`Waiting for ${opts.label} — attempt ${attempt}, ${elapsedStr} elapsed (max ${maxWaitStr}): ${msg}`);
+      platform.notice(
+        `Waiting for ${opts.label} — attempt ${attempt}, ${elapsedStr} elapsed (max ${maxWaitStr}): ${msg}`
+      );
       await sleep(POST_DEPLOY_HTTP_RETRY_MS);
       continue;
     }
@@ -89,7 +110,9 @@ async function checkHttpEndpoint(
       : response.ok;
 
     if (acceptable) {
-      platform.notice(`POST-DEPLOY ${opts.step}/${opts.total}: ${opts.label} ${url} — HTTP ${response.status} OK (${elapsedStr}).`);
+      platform.notice(
+        `POST-DEPLOY ${opts.step}/${opts.total}: ${opts.label} ${url} — HTTP ${response.status} OK (${elapsedStr}).`
+      );
       return;
     }
 
@@ -98,23 +121,31 @@ async function checkHttpEndpoint(
       : httpStatusShouldRetry(response.status);
 
     if (!shouldRetry) {
-      platform.error(`${opts.label} ${url} — HTTP ${response.status} ${response.statusText}`);
-      assert.fail(`post-deploy: ${opts.label} returned HTTP ${response.status}`);
+      platform.error(
+        `${opts.label} ${url} — HTTP ${response.status} ${response.statusText}`
+      );
+      assert.fail(
+        `post-deploy: ${opts.label} returned HTTP ${response.status}`
+      );
     }
 
     if (elapsed >= POST_DEPLOY_HTTP_MAX_WAIT_MS) {
-      platform.error(`${opts.label} ${url} — still HTTP ${response.status} after ${elapsedStr}`);
+      platform.error(
+        `${opts.label} ${url} — still HTTP ${response.status} after ${elapsedStr}`
+      );
       assert.fail(`post-deploy: ${opts.label} still HTTP ${response.status}`);
     }
 
-    platform.notice(`Waiting for ${opts.label} — attempt ${attempt}, HTTP ${response.status}, ${elapsedStr} elapsed`);
+    platform.notice(
+      `Waiting for ${opts.label} — attempt ${attempt}, HTTP ${response.status}, ${elapsedStr} elapsed`
+    );
     await sleep(POST_DEPLOY_HTTP_RETRY_MS);
   }
 }
 
 export async function runHttpSmokeTestsOnly(
   platform: CiPlatform,
-  outputs: TfOutputs,
+  outputs: TfOutputs
 ): Promise<void> {
   let step = 0;
   const total = HTTP_ENDPOINTS.length;
@@ -128,7 +159,7 @@ export async function runHttpSmokeTestsOnly(
         rawUrl: requireOutput(platform, outputs, ep.outputKey),
         probePath: ep.probePath,
         gatewayCheck: ep.gatewayCheck,
-      }),
+      })
     );
   }
   platform.notice(`HTTP smoke: all ${total} endpoint checks passed.`);

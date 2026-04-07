@@ -1,6 +1,6 @@
-import type { CiPlatform } from './platform';
-import { createRegistry, printHelp } from './registry';
-import { fail } from './fmt';
+import { createRegistry, printHelp } from './commands/commands';
+import { fail } from './lib/fmt';
+import type { CiPlatform } from './platform/platform';
 
 export async function main(platform: CiPlatform): Promise<void> {
   const commandId = process.argv[2];

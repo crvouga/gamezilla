@@ -1,6 +1,13 @@
-import { appendFileSync } from 'node:fs';
 import { assert } from '@gamezilla/shared/assert';
-import { fmt, heading, ok, fail as fmtFail, warn as fmtWarn, info, stepDone } from './fmt';
+import { appendFileSync } from 'node:fs';
+import {
+  fmt,
+  fail as fmtFail,
+  warn as fmtWarn,
+  heading,
+  info,
+  stepDone,
+} from '../lib/fmt';
 
 export interface CiPlatform {
   error(message: string): void;
@@ -15,7 +22,7 @@ export interface CiPlatform {
 export async function runStep<T>(
   platform: CiPlatform,
   label: string,
-  fn: () => T | Promise<T>,
+  fn: () => T | Promise<T>
 ): Promise<T> {
   platform.startGroup(label);
   const t0 = performance.now();
@@ -37,29 +44,44 @@ export class LocalPlatform implements CiPlatform {
   readonly enforceDeployRole = false;
 
   error(message: string): void {
-    assert.ok(typeof message === 'string' && message.length > 0, 'error: message must be non-empty');
+    assert.ok(
+      typeof message === 'string' && message.length > 0,
+      'error: message must be non-empty'
+    );
     fmtFail('ERROR', message);
   }
 
   warning(message: string): void {
-    assert.ok(typeof message === 'string' && message.length > 0, 'warning: message must be non-empty');
+    assert.ok(
+      typeof message === 'string' && message.length > 0,
+      'warning: message must be non-empty'
+    );
     fmtWarn('WARNING', message);
   }
 
   notice(message: string): void {
-    assert.ok(typeof message === 'string' && message.length > 0, 'notice: message must be non-empty');
+    assert.ok(
+      typeof message === 'string' && message.length > 0,
+      'notice: message must be non-empty'
+    );
     info('', message);
   }
 
   startGroup(title: string): void {
-    assert.ok(typeof title === 'string' && title.length > 0, 'startGroup: title must be non-empty');
+    assert.ok(
+      typeof title === 'string' && title.length > 0,
+      'startGroup: title must be non-empty'
+    );
     heading(title);
   }
 
   endGroup(): void {}
 
   appendJobSummary(markdown: string): void {
-    assert.ok(typeof markdown === 'string' && markdown.length > 0, 'appendJobSummary: markdown must be non-empty');
+    assert.ok(
+      typeof markdown === 'string' && markdown.length > 0,
+      'appendJobSummary: markdown must be non-empty'
+    );
     console.log(markdown);
   }
 }
@@ -68,22 +90,34 @@ export class GitHubActionsPlatform implements CiPlatform {
   readonly enforceDeployRole = true;
 
   error(message: string): void {
-    assert.ok(typeof message === 'string' && message.length > 0, 'error: message must be non-empty');
+    assert.ok(
+      typeof message === 'string' && message.length > 0,
+      'error: message must be non-empty'
+    );
     console.error(`::error::${message}`);
   }
 
   warning(message: string): void {
-    assert.ok(typeof message === 'string' && message.length > 0, 'warning: message must be non-empty');
+    assert.ok(
+      typeof message === 'string' && message.length > 0,
+      'warning: message must be non-empty'
+    );
     console.error(`::warning::${message}`);
   }
 
   notice(message: string): void {
-    assert.ok(typeof message === 'string' && message.length > 0, 'notice: message must be non-empty');
+    assert.ok(
+      typeof message === 'string' && message.length > 0,
+      'notice: message must be non-empty'
+    );
     console.log(`::notice::${message}`);
   }
 
   startGroup(title: string): void {
-    assert.ok(typeof title === 'string' && title.length > 0, 'startGroup: title must be non-empty');
+    assert.ok(
+      typeof title === 'string' && title.length > 0,
+      'startGroup: title must be non-empty'
+    );
     console.log(`::group::${title}`);
   }
 
@@ -92,7 +126,10 @@ export class GitHubActionsPlatform implements CiPlatform {
   }
 
   appendJobSummary(markdown: string): void {
-    assert.ok(typeof markdown === 'string' && markdown.length > 0, 'appendJobSummary: markdown must be non-empty');
+    assert.ok(
+      typeof markdown === 'string' && markdown.length > 0,
+      'appendJobSummary: markdown must be non-empty'
+    );
     const summaryPath = process.env['GITHUB_STEP_SUMMARY'] ?? '';
     if (summaryPath === '') {
       this.notice('GITHUB_STEP_SUMMARY not set — skipping summary.');
@@ -102,7 +139,9 @@ export class GitHubActionsPlatform implements CiPlatform {
       appendFileSync(summaryPath, markdown, 'utf8');
       this.notice('Job summary appended.');
     } catch (e) {
-      this.warning(`Could not write job summary to ${summaryPath}: ${e instanceof Error ? e.message : String(e)}`);
+      this.warning(
+        `Could not write job summary to ${summaryPath}: ${e instanceof Error ? e.message : String(e)}`
+      );
     }
   }
 }

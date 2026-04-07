@@ -1,7 +1,7 @@
-import type { Command } from '../command';
-import type { CiPlatform } from '../platform';
-import { ALL_DEPS } from '../dep';
-import { banner, ok, fail, warn, info } from '../fmt';
+import { ALL_DEPS } from '../deps/deps';
+import { banner, fail, info, ok, warn } from '../lib/fmt';
+import type { CiPlatform } from '../platform/platform';
+import type { Command } from './types';
 
 export class InstallDepsCommand implements Command {
   readonly id = 'install-deps';

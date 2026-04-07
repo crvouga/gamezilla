@@ -1,9 +1,9 @@
-import type { Command } from '../command';
-import type { CiPlatform } from '../platform';
-import { runStep } from '../platform';
-import { run } from '../subprocess';
 import { TF_DEPLOY_VAR_ARGS } from '../lib/tf-vars';
 import { TF_PACKAGE_ROOT } from '../paths';
+import type { CiPlatform } from '../platform/platform';
+import { runStep } from '../platform/platform';
+import { run } from '../subprocess';
+import type { Command } from './types';
 
 /**
  * Runs Terraform init + apply. Worker deployment is handled separately by
@@ -16,17 +16,15 @@ export class ApplyCommand implements Command {
 
   constructor(
     private readonly platform: CiPlatform,
-    opts?: { tfVarOverrides?: readonly string[] },
+    opts?: { tfVarOverrides?: readonly string[] }
   ) {
     this.tfVarOverrides = opts?.tfVarOverrides;
   }
 
   async execute(): Promise<void> {
-    await runStep(this.platform, 'Terraform init', () =>
-      this.terraformInit(),
-    );
+    await runStep(this.platform, 'Terraform init', () => this.terraformInit());
     await runStep(this.platform, 'Terraform apply', () =>
-      this.terraformApply(),
+      this.terraformApply()
     );
   }
 
@@ -49,7 +47,7 @@ export class ApplyCommand implements Command {
         '-lock-timeout=120s',
         ...varArgs,
       ],
-      { cwd: TF_PACKAGE_ROOT, label: 'Terraform apply' },
+      { cwd: TF_PACKAGE_ROOT, label: 'Terraform apply' }
     );
     this.platform.notice('Terraform apply finished.');
   }

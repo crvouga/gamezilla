@@ -7,8 +7,9 @@ export class CfApiToken implements SecretEntry {
   readonly hint = [
     'https://dash.cloudflare.com/profile/api-tokens → Create Token',
     'Start with the "Edit Zone DNS" template, then add:',
-    '  Zone permissions:    DNS Write, Zone Settings Write',
-    '  Account permissions: Cloudflare Pages Write, Workers Scripts Write',
+    '  Zone permissions:    DNS Edit, Zone Settings Write',
+    '  Account permissions: Cloudflare Pages Edit, Workers Scripts Edit,',
+    '                       Account Settings Read',
     'Zone Resources: All zones  |  Account Resources: All accounts',
   ].join('\n');
 
@@ -42,7 +43,15 @@ export class CfApiToken implements SecretEntry {
 
       const checks: Array<{ label: string; probe: Promise<boolean> }> = [
         {
-          label: 'Cloudflare Pages Write  (Account permission)',
+          label: 'Account Settings Read  (Account permission — wrangler account discovery)',
+          probe: probeCfPermission(
+            headers,
+            'GET',
+            `https://api.cloudflare.com/client/v4/accounts/${accountId}`,
+          ),
+        },
+        {
+          label: 'Cloudflare Pages Edit  (Account permission)',
           probe: probeCfPermission(
             headers,
             'GET',
@@ -50,7 +59,7 @@ export class CfApiToken implements SecretEntry {
           ),
         },
         {
-          label: 'Workers Scripts Write   (Account permission)',
+          label: 'Workers Scripts Edit   (Account permission)',
           probe: probeCfPermission(
             headers,
             'GET',
@@ -106,8 +115,8 @@ export class CfApiToken implements SecretEntry {
           'Missing:',
           ...missing.map((p) => `  - ${p}`),
           '',
-          'Tip: start with the "Edit Zone DNS" template, then add the Account',
-          'permissions (Cloudflare Pages, Workers Scripts) manually.',
+          'Tip: start with the "Edit Zone DNS" template, then add Account',
+          'permissions: Cloudflare Pages Edit, Workers Scripts Edit, Account Settings Read.',
           'Zone Resources → All zones  |  Account Resources → All accounts',
         ].join('\n');
       }

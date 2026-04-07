@@ -1,6 +1,6 @@
-import type { Command } from '../command';
-import type { CiPlatform } from '../platform';
 import { readTfOutputs, type TfOutputs } from '../lib/tf-outputs';
+import type { CiPlatform } from '../platform/platform';
+import type { Command } from './types';
 
 const SUMMARY_SERVICES = [
   { label: 'Web App', outputKey: 'web_app_url' },
@@ -19,7 +19,9 @@ export class SummaryCommand implements Command {
     try {
       outputs = readTfOutputs(this.platform);
     } catch (e) {
-      this.platform.warning(`Could not read Terraform outputs for summary: ${e instanceof Error ? e.message : String(e)}`);
+      this.platform.warning(
+        `Could not read Terraform outputs for summary: ${e instanceof Error ? e.message : String(e)}`
+      );
       return;
     }
     this.writeSummary(outputs);
@@ -28,7 +30,8 @@ export class SummaryCommand implements Command {
   private writeSummary(outputs: TfOutputs): void {
     const serviceRows = SUMMARY_SERVICES.map((svc) => {
       let url = outputs[svc.outputKey] ?? '_(unavailable)_';
-      if ('redact' in svc && svc.redact && url !== '_(unavailable)_') url = '_(set)_';
+      if ('redact' in svc && svc.redact && url !== '_(unavailable)_')
+        url = '_(set)_';
       return `| **${svc.label}** | ${url} |`;
     }).join('\n');
 

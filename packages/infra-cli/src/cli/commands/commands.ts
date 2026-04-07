@@ -1,20 +1,20 @@
-import type { Command } from './command';
-import { fmt } from './fmt';
-import type { CiPlatform } from './platform';
+import { fmt } from '../lib/fmt';
+import type { CiPlatform } from '../platform/platform';
+import type { Command } from './types';
 
-import { ApplyCommand } from './commands/apply';
-import { BootstrapCommand } from './commands/bootstrap';
-import { CheckCommand } from './commands/check';
-import { DeployCommand } from './commands/deploy';
-import { DeployAppsCommand } from './commands/deploy-apps';
-import { DomainsSetupCommand } from './commands/domains-setup';
-import { FetchSecretsCommand } from './commands/fetch-secrets';
-import { InstallDepsCommand } from './commands/install-deps';
-import { PostDeployCommand } from './commands/post-deploy';
-import { PreDeployCommand } from './commands/pre-deploy';
-import { SetupSecretsCommand } from './commands/setup-secrets';
-import { StatusCommand } from './commands/status';
-import { SummaryCommand } from './commands/summary';
+import { ApplyCommand } from './apply';
+import { BootstrapCommand } from './bootstrap';
+import { CheckCommand } from './check';
+import { DeployCommand } from './deploy';
+import { DeployAppsCommand } from './deploy-apps';
+import { DomainsSetupCommand } from './domains-setup';
+import { FetchSecretsCommand } from './fetch-secrets';
+import { InstallDepsCommand } from './install-deps';
+import { PostDeployCommand } from './post-deploy';
+import { PreDeployCommand } from './pre-deploy';
+import { SetupSecretsCommand } from './setup-secrets';
+import { StatusCommand } from './status';
+import { SummaryCommand } from './summary';
 
 export function createRegistry(platform: CiPlatform): Command[] {
   return [

@@ -1,8 +1,8 @@
-import type { Command } from '../command';
-import type { CiPlatform } from '../platform';
-import { runStep } from '../platform';
-import { run } from '../subprocess';
 import { TF_PACKAGE_ROOT } from '../paths';
+import type { CiPlatform } from '../platform/platform';
+import { runStep } from '../platform/platform';
+import { run } from '../subprocess';
+import type { Command } from './types';
 
 export class DomainsSetupCommand implements Command {
   readonly id = 'domains-setup';
@@ -26,13 +26,18 @@ export class DomainsSetupCommand implements Command {
           'apply',
           '-auto-approve',
           '-input=false',
-          '-var', 'custom_domain=true',
+          '-var',
+          'custom_domain=true',
         ],
-        { cwd: TF_PACKAGE_ROOT, label: 'Terraform apply' },
+        { cwd: TF_PACKAGE_ROOT, label: 'Terraform apply' }
       );
     });
 
-    this.platform.notice('Domain setup complete. DNS records and redirect managed by Cloudflare.');
-    this.platform.notice('One-time: set Cloudflare nameservers in Squarespace Domains (see `bun run infra summary`).');
+    this.platform.notice(
+      'Domain setup complete. DNS records and redirect managed by Cloudflare.'
+    );
+    this.platform.notice(
+      'One-time: set Cloudflare nameservers in Squarespace Domains (see `bun run infra summary`).'
+    );
   }
 }

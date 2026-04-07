@@ -1,6 +1,6 @@
 import { assert } from '@gamezilla/shared/assert';
-import { GitHubActionsPlatform, LocalPlatform } from '../cli/platform';
 import { main } from '../cli/main';
+import { GitHubActionsPlatform, LocalPlatform } from '../cli/platform/platform';
 
 const isGitHubActions = process.env['GITHUB_ACTIONS'] === 'true';
 const platform = isGitHubActions

@@ -1,14 +1,14 @@
-import { runCapture } from './subprocess';
-import type { SecretEntry } from './secrets/types';
-import { TfToken } from './secrets/tf-token';
-import { CfApiToken } from './secrets/cf-api-token';
-import { CfAccountId } from './secrets/cf-account-id';
-import { PsServiceTokenId, PsServiceToken } from './secrets/ps-credentials';
-import { PsOrg } from './secrets/ps-org';
-import { PsDatabase } from './secrets/ps-database';
+import { runCapture } from '../subprocess';
+import { CfAccountId } from './cf-account-id';
+import { CfApiToken } from './cf-api-token';
+import { PsServiceToken, PsServiceTokenId } from './ps-credentials';
+import { PsDatabase } from './ps-database';
+import { PsOrg } from './ps-org';
+import { TfToken } from './tf-token';
+import type { SecretEntry } from './types';
 
-export type { SecretEntry } from './secrets/types';
-export { validateSecret } from './secrets/types';
+export { validateSecret } from './types';
+export type { SecretEntry } from './types';
 
 const SECRET_MAP: ReadonlyArray<SecretEntry> = [
   new TfToken(),

@@ -1,13 +1,13 @@
 import { createInterface } from 'node:readline/promises';
-import type { Command } from '../command';
-import type { CiPlatform } from '../platform';
-import { banner, ok, info, fail, fmt } from '../fmt';
+import { banner, fail, fmt, info, ok } from '../lib/fmt';
+import type { CiPlatform } from '../platform/platform';
 import {
-  getSecretMap,
   dopplerSecretExists,
+  getSecretMap,
   setDopplerSecret,
   validateSecret,
-} from '../secrets';
+} from '../secrets/secrets';
+import type { Command } from './types';
 
 /**
  * Interactive command that checks which Doppler secrets are missing and
@@ -15,7 +15,8 @@ import {
  */
 export class SetupSecretsCommand implements Command {
   readonly id = 'secrets-setup';
-  readonly summary = 'Check for missing Doppler secrets and set them interactively';
+  readonly summary =
+    'Check for missing Doppler secrets and set them interactively';
 
   constructor(private readonly _platform: CiPlatform) {}
 
@@ -26,14 +27,14 @@ export class SetupSecretsCommand implements Command {
     const missing = secrets.filter((s) => !dopplerSecretExists(s.doppler));
 
     if (missing.length === 0) {
-      ok('all secrets present', `${secrets.length}/${secrets.length} configured`);
+      ok(
+        'all secrets present',
+        `${secrets.length}/${secrets.length} configured`
+      );
       return;
     }
 
-    info(
-      'status',
-      `${missing.length} of ${secrets.length} secrets missing`,
-    );
+    info('status', `${missing.length} of ${secrets.length} secrets missing`);
 
     for (const s of secrets) {
       const exists = !missing.includes(s);
@@ -44,7 +45,10 @@ export class SetupSecretsCommand implements Command {
       }
     }
 
-    const rl = createInterface({ input: process.stdin, output: process.stdout });
+    const rl = createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
 
     try {
       console.log('');

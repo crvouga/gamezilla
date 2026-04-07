@@ -1,15 +1,19 @@
 import { assert } from '@gamezilla/shared/assert';
-import type { Command } from '../command';
-import { banner, heading, ok, warn, fail as fmtFail, info, fmt } from '../fmt';
-import type { CiPlatform } from '../platform';
-import { runStep } from '../platform';
-import { run, runSafe } from '../subprocess';
-import { getSecretMap, loadSecretsIntoEnv, validateSecret } from '../secrets';
-import { cfHeaders, cfAccountId } from '../secrets/cloudflare';
-import { psHeaders } from '../secrets/planetscale';
+import { PROJECT_CONFIG } from '../../project-config';
+import { banner, fail as fmtFail, heading, info, ok, warn } from '../lib/fmt';
 import { TF_DEPLOY_VAR_ARGS } from '../lib/tf-vars';
 import { TF_PACKAGE_ROOT } from '../paths';
-import { PROJECT_CONFIG } from '../../project-config';
+import type { CiPlatform } from '../platform/platform';
+import { runStep } from '../platform/platform';
+import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
+import { psHeaders } from '../secrets/planetscale';
+import {
+  getSecretMap,
+  loadSecretsIntoEnv,
+  validateSecret,
+} from '../secrets/secrets';
+import { run, runSafe } from '../subprocess';
+import type { Command } from './types';
 
 interface ImportableResource {
   readonly address: string;
@@ -27,7 +31,7 @@ const IMPORTABLE_RESOURCES: readonly ImportableResource[] = [
       try {
         const res = await fetch(
           `https://api.cloudflare.com/client/v4/zones?name=${PROJECT_CONFIG.domain}&per_page=1`,
-          { headers: cfHeaders() },
+          { headers: cfHeaders() }
         );
         if (!res.ok) return null;
         const body = (await res.json()) as { result?: Array<{ id: string }> };
@@ -44,7 +48,7 @@ const IMPORTABLE_RESOURCES: readonly ImportableResource[] = [
       try {
         const res = await fetch(
           `https://api.cloudflare.com/client/v4/accounts/${cfAccountId()}/pages/projects/${PROJECT_CONFIG.cloudflare.pagesProject}/domains/${PROJECT_CONFIG.domain}`,
-          { headers: cfHeaders() },
+          { headers: cfHeaders() }
         );
         if (!res.ok) return null;
         return `${cfAccountId()}/${PROJECT_CONFIG.cloudflare.pagesProject}/${PROJECT_CONFIG.domain}`;
@@ -60,7 +64,7 @@ const IMPORTABLE_RESOURCES: readonly ImportableResource[] = [
       try {
         const res = await fetch(
           `https://api.cloudflare.com/client/v4/accounts/${cfAccountId()}/pages/projects/${PROJECT_CONFIG.cloudflare.pagesProject}/domains/www.${PROJECT_CONFIG.domain}`,
-          { headers: cfHeaders() },
+          { headers: cfHeaders() }
         );
         if (!res.ok) return null;
         return `${cfAccountId()}/${PROJECT_CONFIG.cloudflare.pagesProject}/www.${PROJECT_CONFIG.domain}`;
@@ -74,11 +78,12 @@ const IMPORTABLE_RESOURCES: readonly ImportableResource[] = [
     lookupId: async () => {
       const org = process.env['TF_VAR_planetscale_org'];
       const db = process.env['TF_VAR_planetscale_database'];
-      if (!org || !db || !process.env['PLANETSCALE_SERVICE_TOKEN_ID']) return null;
+      if (!org || !db || !process.env['PLANETSCALE_SERVICE_TOKEN_ID'])
+        return null;
       try {
         const res = await fetch(
           `https://api.planetscale.com/v1/organizations/${org}/databases/${db}/branches/main`,
-          { headers: psHeaders() },
+          { headers: psHeaders() }
         );
         if (!res.ok) return null;
         const body = (await res.json()) as { id?: string };
@@ -115,7 +120,8 @@ interface DiagnosticResult {
 
 export class BootstrapCommand implements Command {
   readonly id = 'bootstrap';
-  readonly summary = 'Self-healing init: secrets, state repair, targeted applies';
+  readonly summary =
+    'Self-healing init: secrets, state repair, targeted applies';
 
   constructor(private readonly platform: CiPlatform) {}
 
@@ -127,12 +133,16 @@ export class BootstrapCommand implements Command {
     const secrets = loadSecretsIntoEnv();
     for (const s of secrets) {
       if (s.set) ok(s.env);
-      else fmtFail(s.env, 'not found in Doppler — run `bun run infra secrets-setup`');
+      else
+        fmtFail(
+          s.env,
+          'not found in Doppler — run `bun run infra secrets-setup`'
+        );
     }
     const missing = secrets.filter((s) => !s.set);
     if (missing.length > 0) {
       this.platform.warning(
-        `${missing.length} secret(s) missing — bootstrap will continue but Terraform may fail`,
+        `${missing.length} secret(s) missing — bootstrap will continue but Terraform may fail`
       );
     }
 
@@ -153,7 +163,7 @@ export class BootstrapCommand implements Command {
     }
     assert.ok(
       !validationFailed,
-      'Secret validation failed — fix the issues above before continuing',
+      'Secret validation failed — fix the issues above before continuing'
     );
 
     // ── 3. Terraform init ───────────────────────────────────────────────
@@ -162,7 +172,7 @@ export class BootstrapCommand implements Command {
       run(this.platform, 'terraform', ['init', '-input=false'], {
         cwd: TF_PACKAGE_ROOT,
         label: 'Terraform init',
-      }),
+      })
     );
 
     // ── 4. Diagnose state health ────────────────────────────────────────
@@ -207,9 +217,15 @@ export class BootstrapCommand implements Command {
           run(
             this.platform,
             'terraform',
-            ['import', '-lock-timeout=120s', ...TF_DEPLOY_VAR_ARGS, res.address, existingId],
-            { cwd: TF_PACKAGE_ROOT, label: `Import ${res.address}` },
-          ),
+            [
+              'import',
+              '-lock-timeout=120s',
+              ...TF_DEPLOY_VAR_ARGS,
+              res.address,
+              existingId,
+            ],
+            { cwd: TF_PACKAGE_ROOT, label: `Import ${res.address}` }
+          )
         );
       } else if (res.foundation) {
         info('Creating', res.address);
@@ -225,11 +241,14 @@ export class BootstrapCommand implements Command {
               `-target=${res.address}`,
               ...TF_DEPLOY_VAR_ARGS,
             ],
-            { cwd: TF_PACKAGE_ROOT, label: `Apply ${res.address}` },
-          ),
+            { cwd: TF_PACKAGE_ROOT, label: `Apply ${res.address}` }
+          )
         );
       } else {
-        info('Will be created', `${res.address} (not found upstream, full apply will handle it)`);
+        info(
+          'Will be created',
+          `${res.address} (not found upstream, full apply will handle it)`
+        );
       }
     }
 
@@ -246,13 +265,16 @@ export class BootstrapCommand implements Command {
           '-lock-timeout=120s',
           ...TF_DEPLOY_VAR_ARGS,
         ],
-        { cwd: TF_PACKAGE_ROOT, label: 'Terraform apply' },
-      ),
+        { cwd: TF_PACKAGE_ROOT, label: 'Terraform apply' }
+      )
     );
 
     banner('Bootstrap Complete');
     ok('Infrastructure is healthy');
-    info('Next step', 'Run `bun run infra deploy` for a full deploy with app deployment');
+    info(
+      'Next step',
+      'Run `bun run infra deploy` for a full deploy with app deployment'
+    );
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────
@@ -267,7 +289,11 @@ export class BootstrapCommand implements Command {
     for (const res of IMPORTABLE_RESOURCES) {
       const inState = this.stateHas(res.address);
       if (inState) {
-        results.push({ label: res.address, healthy: true, detail: 'exists in state' });
+        results.push({
+          label: res.address,
+          healthy: true,
+          detail: 'exists in state',
+        });
         continue;
       }
       const upstreamId = await res.lookupId();

@@ -1,8 +1,12 @@
 import { appendFileSync } from 'node:fs';
-import type { Command } from '../command';
-import type { CiPlatform } from '../platform';
-import { banner, ok, fail, info } from '../fmt';
-import { getSecretMap, fetchDopplerSecret, validateSecret } from '../secrets';
+import { banner, fail, info, ok } from '../lib/fmt';
+import type { CiPlatform } from '../platform/platform';
+import {
+  fetchDopplerSecret,
+  getSecretMap,
+  validateSecret,
+} from '../secrets/secrets';
+import type { Command } from './types';
 
 /**
  * Fetches all required secrets from Doppler and exports them.
@@ -43,7 +47,10 @@ export class FetchSecretsCommand implements Command {
 
         if (isCI) {
           const delimiter = `INFRA_EOF_${env}`;
-          appendFileSync(ghEnvPath, `${env}<<${delimiter}\n${value}\n${delimiter}\n`);
+          appendFileSync(
+            ghEnvPath,
+            `${env}<<${delimiter}\n${value}\n${delimiter}\n`
+          );
         } else {
           console.log(`${env}=${value}`);
         }

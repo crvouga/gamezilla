@@ -1,8 +1,8 @@
-import type { Command } from '../command';
-import type { CiPlatform } from '../platform';
-import { runStep } from '../platform';
-import { readTfOutputs } from '../lib/tf-outputs';
 import { createDeployRegistry } from '../lib/deploy-registry';
+import { readTfOutputs } from '../lib/tf-outputs';
+import type { CiPlatform } from '../platform/platform';
+import { runStep } from '../platform/platform';
+import type { Command } from './types';
 
 export class DeployAppsCommand implements Command {
   readonly id = 'ci-deploy-apps';
@@ -16,7 +16,7 @@ export class DeployAppsCommand implements Command {
 
     for (const deployable of registry) {
       await runStep(this.platform, `Deploy: ${deployable.id}`, () =>
-        deployable.deploy(outputs),
+        deployable.deploy(outputs)
       );
     }
   }

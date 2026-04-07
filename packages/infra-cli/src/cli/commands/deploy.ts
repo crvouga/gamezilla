@@ -1,11 +1,11 @@
-import type { Command } from '../command';
-import { banner, heading, ok } from '../fmt';
+import { banner, heading, ok } from '../lib/fmt';
 import { readTfOutputs, requireOutput } from '../lib/tf-outputs';
-import type { CiPlatform } from '../platform';
-import { loadSecretsIntoEnv } from '../secrets';
+import type { CiPlatform } from '../platform/platform';
+import { loadSecretsIntoEnv } from '../secrets/secrets';
 import { ApplyCommand } from './apply';
 import { DeployAppsCommand } from './deploy-apps';
 import { runHttpSmokeTestsOnly } from './post-deploy';
+import type { Command } from './types';
 
 export class DeployCommand implements Command {
   readonly id = 'deploy';

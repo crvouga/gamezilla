@@ -1,11 +1,12 @@
-import type { Command } from '../command';
-import type { CiPlatform } from '../platform';
-import { ALL_DEPS } from '../dep';
-import { ok, fail, banner } from '../fmt';
+import { ALL_DEPS } from '../deps/deps';
+import { banner, fail, ok } from '../lib/fmt';
+import type { CiPlatform } from '../platform/platform';
+import type { Command } from './types';
 
 export class CheckCommand implements Command {
   readonly id = 'check';
-  readonly summary = 'Verify that all CLI dependencies are installed and reachable';
+  readonly summary =
+    'Verify that all CLI dependencies are installed and reachable';
 
   constructor(private readonly platform: CiPlatform) {}
 
@@ -37,7 +38,7 @@ export class CheckCommand implements Command {
 
     if (failures.length > 0) {
       throw new Error(
-        `Missing deps: ${failures.join(', ')}. Run "bun run infra install-deps" to install them.`,
+        `Missing deps: ${failures.join(', ')}. Run "bun run infra install-deps" to install them.`
       );
     }
   }

@@ -1,6 +1,6 @@
 import { assert } from '@gamezilla/shared/assert';
-import type { CiPlatform } from './platform';
-import { fmtMs } from './fmt';
+import { fmtMs } from './lib/fmt';
+import type { CiPlatform } from './platform/platform';
 
 export interface RunOpts {
   cwd?: string;
@@ -12,9 +12,12 @@ export function run(
   platform: CiPlatform,
   cmd: string,
   args: string[],
-  opts?: RunOpts,
+  opts?: RunOpts
 ): void {
-  assert.ok(typeof cmd === 'string' && cmd.length > 0, 'run: cmd must be non-empty');
+  assert.ok(
+    typeof cmd === 'string' && cmd.length > 0,
+    'run: cmd must be non-empty'
+  );
   assert.array(args, 'run: args must be an array');
 
   const fullCmd = `${cmd} ${args.join(' ')}`;
@@ -41,21 +44,27 @@ export function run(
         opts?.cwd ? `Cwd:      ${opts.cwd}` : '',
       ]
         .filter(Boolean)
-        .join('\n'),
+        .join('\n')
     );
-    assert.fail(`run: "${label}" exited ${r.exitCode} — crash, do not continue`);
+    assert.fail(
+      `run: "${label}" exited ${r.exitCode} — crash, do not continue`
+    );
   }
 
   if (r.exitCode === null) {
-    platform.error(`=== KILLED: ${label} === (signal or unknown termination, ${elapsed})`);
-    assert.fail(`run: "${label}" was killed by a signal — crash, do not continue`);
+    platform.error(
+      `=== KILLED: ${label} === (signal or unknown termination, ${elapsed})`
+    );
+    assert.fail(
+      `run: "${label}" was killed by a signal — crash, do not continue`
+    );
   }
 }
 
 export function runCapture(
   cmd: string,
   args: string[],
-  opts?: { cwd?: string; env?: NodeJS.ProcessEnv },
+  opts?: { cwd?: string; env?: NodeJS.ProcessEnv }
 ): string {
   const r = Bun.spawnSync([cmd, ...args], {
     env: opts?.env ?? process.env,
@@ -82,7 +91,7 @@ export interface SpawnResult {
 export function runSafe(
   cmd: string,
   args: string[],
-  opts?: { cwd?: string; env?: NodeJS.ProcessEnv },
+  opts?: { cwd?: string; env?: NodeJS.ProcessEnv }
 ): SpawnResult {
   const r = Bun.spawnSync([cmd, ...args], {
     env: opts?.env ?? process.env,
@@ -100,7 +109,7 @@ export function runSafe(
 export function runLocal(
   cmd: string,
   args: string[],
-  opts?: { cwd?: string },
+  opts?: { cwd?: string }
 ): void {
   console.log(`> ${cmd} ${args.join(' ')}`);
   const base = {

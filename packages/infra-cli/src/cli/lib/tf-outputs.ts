@@ -1,6 +1,6 @@
 import { assert } from '@gamezilla/shared/assert';
 import { TF_PACKAGE_ROOT } from '../paths';
-import type { CiPlatform } from '../platform';
+import type { CiPlatform } from '../platform/platform';
 import { runCapture } from '../subprocess';
 
 export type TfOutputs = Readonly<Record<string, string | undefined>>;

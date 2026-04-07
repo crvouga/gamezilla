@@ -67,7 +67,8 @@ export const WranglerDep: Dep = {
   bin: 'wrangler',
   version: () => captureVersion('wrangler', ['--version']),
   check() {
-    if (!whichSync('wrangler')) return { ok: false, reason: 'not found on PATH' };
+    if (!whichSync('wrangler'))
+      return { ok: false, reason: 'not found on PATH' };
     const v = this.version();
     if (!v) return { ok: false, reason: 'could not determine version' };
     return { ok: true, version: v };
@@ -85,7 +86,8 @@ export const TerraformDep: Dep = {
   bin: 'terraform',
   version: () => captureVersion('terraform', ['version']),
   check() {
-    if (!whichSync('terraform')) return { ok: false, reason: 'not found on PATH' };
+    if (!whichSync('terraform'))
+      return { ok: false, reason: 'not found on PATH' };
     const v = this.version();
     if (!v) return { ok: false, reason: 'could not determine version' };
     return { ok: true, version: v };
@@ -121,7 +123,8 @@ export const DopplerDep: Dep = {
   bin: 'doppler',
   version: () => captureVersion('doppler', ['--version']),
   check() {
-    if (!whichSync('doppler')) return { ok: false, reason: 'not found on PATH' };
+    if (!whichSync('doppler'))
+      return { ok: false, reason: 'not found on PATH' };
     const v = this.version();
     if (!v) return { ok: false, reason: 'could not determine version' };
     return { ok: true, version: v };
