@@ -4,3 +4,7 @@ compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat", "no_handle_cross_request_promise_resolution"]
 
 routes = [{ pattern = "api.gamezilla.app", custom_domain = true }]
+
+[[migrations]]
+tag = "v1"
+deleted_classes = ["PubSubDurableObject"]
