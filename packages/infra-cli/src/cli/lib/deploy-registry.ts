@@ -42,7 +42,7 @@ export class WorkersDeployable implements Deployable {
     const databaseUrl = process.env['DATABASE_URL'] ?? '';
     assert.ok(
       databaseUrl.length > 0,
-      'DATABASE_URL must be set (loaded from Doppler as PLANETSCALE_DATABASE_URL)',
+      'DATABASE_URL must be set (resolved from PlanetScale Roles API)',
     );
 
     runCapture('wrangler', ['secret', 'put', 'DATABASE_URL'], {

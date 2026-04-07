@@ -1,15 +1,27 @@
 import { assert } from '@gamezilla/shared/assert';
+import { createInterface } from 'node:readline/promises';
 import { PROJECT_CONFIG } from '../../project-config';
 import { ALL_DEPS } from '../deps/registry';
-import { banner, fail as fmtFail, heading, info, ok, warn } from '../lib/fmt';
+import {
+  banner,
+  fail as fmtFail,
+  fmt,
+  heading,
+  info,
+  ok,
+  warn,
+} from '../lib/fmt';
+import { resolveDatabaseUrl } from '../lib/resolve-database-url';
 import { TF_DEPLOY_VAR_ARGS } from '../lib/tf-vars';
 import { TF_PACKAGE_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
 import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
 import {
+  dopplerSecretExists,
   getSecretMap,
   loadSecretsIntoEnv,
+  setDopplerSecret,
   validateSecret,
 } from '../secrets/secrets';
 import { run, runSafe } from '../subprocess';
@@ -109,17 +121,14 @@ export class SetupCommand implements Command {
     const secrets = loadSecretsIntoEnv();
     for (const s of secrets) {
       if (s.set) ok(s.env);
-      else
-        fmtFail(
-          s.env,
-          'not found in Doppler — run `bun run infra secrets-setup`'
-        );
+      else fmtFail(s.env, 'not found in Doppler');
     }
-    const missing = secrets.filter((s) => !s.set);
-    if (missing.length > 0) {
-      this.platform.warning(
-        `${missing.length} secret(s) missing — setup will continue but Terraform may fail`
-      );
+
+    const missingEnvs = new Set(
+      secrets.filter((s) => !s.set).map((s) => s.env),
+    );
+    if (missingEnvs.size > 0) {
+      await this.promptForMissingSecrets(missingEnvs);
     }
 
     // ── 3. Validate secrets ─────────────────────────────────────────────
@@ -142,7 +151,14 @@ export class SetupCommand implements Command {
       'Secret validation failed — fix the issues above before continuing'
     );
 
-    // ── 4. Terraform init ───────────────────────────────────────────────
+    // ── 4. Resolve DATABASE_URL from PlanetScale ─────────────────────
+    heading('Database');
+    await runStep(this.platform, 'Resolve DATABASE_URL', async () => {
+      const url = await resolveDatabaseUrl();
+      ok('DATABASE_URL', url.replace(/\/\/[^@]+@/, '//***:***@'));
+    });
+
+    // ── 5. Terraform init ───────────────────────────────────────────────
     heading('Terraform init');
     await runStep(this.platform, 'Terraform init', () =>
       run(this.platform, 'terraform', ['init', '-input=false'], {
@@ -151,7 +167,7 @@ export class SetupCommand implements Command {
       })
     );
 
-    // ── 5. Diagnose state health ────────────────────────────────────────
+    // ── 6. Diagnose state health ────────────────────────────────────────
     heading('Diagnose state');
     const diagnostics = await this.diagnoseState();
     for (const d of diagnostics) {
@@ -166,7 +182,7 @@ export class SetupCommand implements Command {
       return;
     }
 
-    // ── 6. Remove stale state entries ───────────────────────────────────
+    // ── 7. Remove stale state entries ───────────────────────────────────
     heading('Repair state');
     for (const addr of STALE_STATE_ENTRIES) {
       if (this.stateHas(addr)) {
@@ -176,7 +192,7 @@ export class SetupCommand implements Command {
       }
     }
 
-    // ── 7. Import / create missing resources ────────────────────────────
+    // ── 8. Import / create missing resources ────────────────────────────
     heading('Reconcile resources');
     const sorted = [
       ...IMPORTABLE_RESOURCES.filter((r) => r.foundation),
@@ -227,7 +243,7 @@ export class SetupCommand implements Command {
       }
     }
 
-    // ── 8. Full apply ───────────────────────────────────────────────────
+    // ── 9. Full apply ───────────────────────────────────────────────────
     heading('Full apply');
     await runStep(this.platform, 'Terraform apply', () =>
       run(
@@ -250,6 +266,59 @@ export class SetupCommand implements Command {
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────
+
+  private async promptForMissingSecrets(
+    missingEnvs: Set<string>,
+  ): Promise<void> {
+    const secretMap = getSecretMap();
+    const missing = secretMap.filter((s) => missingEnvs.has(s.env));
+    if (missing.length === 0) return;
+
+    if (process.env['CI']) {
+      this.platform.warning(
+        `${missing.length} secret(s) missing — cannot prompt in CI`,
+      );
+      return;
+    }
+
+    info('tip', 'leave blank to skip a secret');
+    const rl = createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+
+    try {
+      let set = 0;
+      for (const s of missing) {
+        console.log('');
+        console.log(`  ${fmt.bold(s.doppler)}`);
+        console.log(`  ${fmt.dim(s.hint)}`);
+        const value = await rl.question(`  ${fmt.cyan('value:')} `);
+        const trimmed = value.trim();
+
+        if (trimmed === '') {
+          info(s.doppler, 'skipped');
+          continue;
+        }
+
+        const error = await validateSecret(s, trimmed);
+        if (error !== null) {
+          fmtFail(s.doppler, error);
+          continue;
+        }
+
+        setDopplerSecret(s.doppler, trimmed);
+        process.env[s.env] = trimmed;
+        ok(s.doppler, 'saved to Doppler');
+        set++;
+      }
+
+      console.log('');
+      info('done', `${set} secret(s) added, ${missing.length - set} skipped`);
+    } finally {
+      rl.close();
+    }
+  }
 
   private ensureDeps(): void {
     for (const dep of ALL_DEPS) {

@@ -1,6 +1,7 @@
 import { assert } from '@gamezilla/shared/assert';
 import { createDeployRegistry } from '../lib/deploy-registry';
 import { banner, heading, ok } from '../lib/fmt';
+import { resolveDatabaseUrl } from '../lib/resolve-database-url';
 import { runHttpSmokeTests } from '../lib/smoke-tests';
 import { TF_DEPLOY_VAR_ARGS } from '../lib/tf-vars';
 import { readTfOutputs, requireOutput } from '../lib/tf-outputs';
@@ -38,7 +39,14 @@ export class DeployCommand implements Command {
       this.validateSecrets()
     );
 
-    // ── 3. Terraform init + apply ───────────────────────────────────────
+    // ── 3. Resolve DATABASE_URL from PlanetScale ─────────────────────
+    heading('Database');
+    await runStep(this.platform, 'Resolve DATABASE_URL', async () => {
+      const url = await resolveDatabaseUrl();
+      ok('DATABASE_URL', url.replace(/\/\/[^@]+@/, '//***:***@'));
+    });
+
+    // ── 4. Terraform init + apply ───────────────────────────────────────
     heading('Terraform');
     await runStep(this.platform, 'Terraform init', () =>
       run(this.platform, 'terraform', ['init', '-input=false'], {
@@ -67,7 +75,7 @@ export class DeployCommand implements Command {
       )
     );
 
-    // ── 4. Deploy apps ──────────────────────────────────────────────────
+    // ── 5. Deploy apps ──────────────────────────────────────────────────
     heading('Apps');
     const outputs = readTfOutputs(this.platform);
     const registry = createDeployRegistry(this.platform);
@@ -77,7 +85,7 @@ export class DeployCommand implements Command {
       );
     }
 
-    // ── 5. Smoke tests ──────────────────────────────────────────────────
+    // ── 6. Smoke tests ──────────────────────────────────────────────────
     heading('Smoke tests');
     await runHttpSmokeTests(this.platform, outputs);
 

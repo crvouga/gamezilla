@@ -2,7 +2,6 @@ import { runCapture } from '../subprocess';
 import { CfAccountId } from './cf-account-id';
 import { CfApiToken } from './cf-api-token';
 import { PsServiceTokenId, PsServiceToken } from './ps-credentials';
-import { PsDatabaseUrl } from './ps-database-url';
 import { PsDatabase } from './ps-database';
 import { PsOrg } from './ps-org';
 import { TfToken } from './tf-token';
@@ -19,7 +18,6 @@ const SECRET_MAP: ReadonlyArray<SecretEntry> = [
   new PsServiceToken(),
   new PsOrg(),
   new PsDatabase(),
-  new PsDatabaseUrl(),
 ];
 
 export function getSecretMap(): ReadonlyArray<SecretEntry> {
