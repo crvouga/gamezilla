@@ -5,6 +5,7 @@ import type { CiPlatform } from './platform';
 import { CheckCommand } from './commands/check';
 import { DeployCommand } from './commands/deploy';
 import { InstallDepsCommand } from './commands/install-deps';
+import { SetupSecretsCommand } from './commands/setup-secrets';
 import { StatusCommand } from './commands/status';
 
 import { DomainsSetupCommand } from './commands/domains-setup';
@@ -21,6 +22,7 @@ export function createRegistry(platform: CiPlatform): Command[] {
     new CheckCommand(platform),
     new InstallDepsCommand(platform),
     new DeployCommand(platform),
+    new SetupSecretsCommand(platform),
     new StatusCommand(platform),
     new DomainsSetupCommand(platform),
     new FetchSecretsCommand(platform),
