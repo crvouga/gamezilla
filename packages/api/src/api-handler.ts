@@ -3,16 +3,7 @@ import {
   type PatchDbApiConfig,
 } from '@gamezilla/patch-db/api';
 
-/**
- * Platform-agnostic handler for real-time event streams (SSE / WebSocket).
- * Cloudflare forwards these to a Durable Object; other runtimes can use any
- * push mechanism.
- */
-export type EventsHandler = (request: Request) => Promise<Response>;
-
-export type ApiHandlerConfig = PatchDbApiConfig & {
-  eventsHandler?: EventsHandler;
-};
+export type ApiHandlerConfig = PatchDbApiConfig;
 
 const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
@@ -36,7 +27,6 @@ export function createApiHandler(
   config: ApiHandlerConfig,
 ): (request: Request) => Promise<Response> {
   const { handleRequest, basePath } = createPatchDbApiHandler(config);
-  const { eventsHandler } = config;
 
   return async (request: Request): Promise<Response> => {
     const url = new URL(request.url);
@@ -52,15 +42,6 @@ export function createApiHandler(
           headers: { 'Content-Type': 'text/plain' },
         }),
       );
-    }
-
-    if (
-      eventsHandler &&
-      url.pathname.endsWith('/events') &&
-      request.method === 'GET'
-    ) {
-      const res = await eventsHandler(request);
-      return withCors(res);
     }
 
     try {

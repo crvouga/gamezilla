@@ -5,6 +5,6 @@ export const PROJECT_CONFIG = {
     repo: 'gamezilla',
   },
   cloudflare: {
-    pagesProject: 'gamezilla',
+    pagesProject: 'gamezilla-client',
   },
 } as const;

@@ -1,21 +1,6 @@
 name = "gamezilla-api"
 main = "src/api.ts"
 compatibility_date = "2025-01-01"
-compatibility_flags = ["nodejs_compat"]
+compatibility_flags = ["nodejs_compat", "no_handle_cross_request_promise_resolution"]
 
 routes = [{ pattern = "api.gamezilla.app", custom_domain = true }]
-
-# PlanetScale Postgres credentials — set via:
-#   wrangler secret put DATABASE_URL
-# Local dev uses the PGlite server from packages/local
-[vars]
-DATABASE_URL = "postgres://postgres:postgres@127.0.0.1:5432/postgres"
-
-[durable_objects]
-bindings = [
-  { name = "PUBSUB_DO", class_name = "PubSubDurableObject" },
-]
-
-[[migrations]]
-tag = "v1"
-new_sqlite_classes = ["PubSubDurableObject"]

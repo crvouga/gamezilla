@@ -2,6 +2,9 @@
   "name": "@gamezilla/api",
   "version": "1.0.0",
   "private": true,
+  "exports": {
+    "./api-handler": "./src/api-handler.ts"
+  },
   "dependencies": {
     "@gamezilla/patch-db": "workspace:*",
     "@gamezilla/shared": "workspace:*"
@@ -11,7 +14,6 @@
     "typescript": "~5.9.2"
   },
   "scripts": {
-    "dev": "wrangler dev",
     "tc": "tsc --noEmit -p ../../tsconfig.json"
   }
 }

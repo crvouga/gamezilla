@@ -1,19 +1,24 @@
 /**
- * Local dev server: PGlite backed by a neon-compatible WebSocket proxy.
- * No Docker required — runs entirely in-process.
+ * Local dev server: PGlite with API served directly via Bun.
+ * No Docker, no wrangler, no miniflare — runs entirely in-process.
  *
- * The @neondatabase/serverless driver connects via WebSocket. This server
- * accepts those WebSocket connections and bridges them over TCP to an
- * in-process PGlite socket server.
- *
- * PORT (default 5432) — the WebSocket proxy port exposed to wrangler dev.
+ * - PGlite runs in-process
+ * - PGLiteSocketServer exposes a Postgres wire protocol on a local TCP port
+ * - Bun's native SQL driver connects via TCP (no WebSocket overhead)
+ * - The API handler is served on port 8787 (same as wrangler dev)
+ * - A neon-compat WS proxy is kept on port 5432 for other clients
  */
 
 import { PGlite } from '@electric-sql/pglite';
 import { PGLiteSocketServer } from '@electric-sql/pglite-socket';
+import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
+import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
+import { SqlClientImplBunPostgres } from '@gamezilla/shared/sql-client/impl-bun-postgres';
+import { createApiHandler } from '@gamezilla/api/api-handler';
 import { connect, type Socket } from 'net';
 
-const PORT = parseInt(process.env['PORT'] ?? '5432', 10);
+const WS_PORT = parseInt(process.env['PORT'] ?? '5432', 10);
+const API_PORT = parseInt(process.env['API_PORT'] ?? '8787', 10);
 const PG_INTERNAL_PORT = 15432;
 const HOST = '127.0.0.1';
 const DATA_DIR = process.env['DATA_DIR'];
@@ -32,8 +37,31 @@ async function main() {
   });
   await pgServer.start();
 
+  // Connect to PGlite via Bun's native Postgres driver (TCP, no WebSocket)
+  const sqlClient = new SqlClientImplBunPostgres(
+    `postgres://localhost:${PG_INTERNAL_PORT}/postgres`
+  );
+  await sqlClient.connect();
+
+  const patchDb = new PatchDbImplPostgres(sqlClient);
+  await patchDb.migrate();
+
+  const pubSub = new InMemoryPubSub();
+  const handle = createApiHandler({ db: patchDb, pubSub });
+
+  // API server on port 8787
+  Bun.serve({
+    port: API_PORT,
+    hostname: HOST,
+    idleTimeout: 255,
+    fetch: handle,
+  });
+
+  console.log(`[local] API server on http://${HOST}:${API_PORT}`);
+
+  // Neon-compat WS proxy on port 5432 (for other clients that need it)
   Bun.serve<WsData>({
-    port: PORT,
+    port: WS_PORT,
     hostname: HOST,
     fetch(req, server) {
       if (server.upgrade(req, { data: { tcp: null } })) return;
@@ -59,11 +87,12 @@ async function main() {
     },
   });
 
-  console.log(`[pglite] neon-compat WS proxy on ws://${HOST}:${PORT}`);
-  console.log(`[pglite] data: ${DATA_DIR ?? 'in-memory'}`);
+  console.log(`[local] neon-compat WS proxy on ws://${HOST}:${WS_PORT}`);
+  console.log(`[local] pglite data: ${DATA_DIR ?? 'in-memory'}`);
 
   const shutdown = async () => {
-    console.log('\n[pglite] shutting down...');
+    console.log('\n[local] shutting down...');
+    await sqlClient.disconnect();
     await pgServer.stop();
     await db.close();
     process.exit(0);

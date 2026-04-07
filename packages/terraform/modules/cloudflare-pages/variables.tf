@@ -8,7 +8,7 @@ variable "cloudflare_zone_id" {
 
 variable "project_name" {
   type    = string
-  default = "gamezilla"
+  default = "gamezilla-client"
 }
 
 variable "domain" {

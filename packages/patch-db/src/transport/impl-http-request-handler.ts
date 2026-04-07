@@ -53,9 +53,13 @@ export class PatchDbHttpRequestHandler {
     const stream = new ReadableStream({
       start(controller) {
         const unsub = host.subscribe(() => {
-          const data = JSON.stringify({ type: 'invalidated' });
-          const encoded = encoder.encode(`data: ${data}\n\n`);
-          controller.enqueue(encoded);
+          try {
+            const data = JSON.stringify({ type: 'invalidated' });
+            const encoded = encoder.encode(`data: ${data}\n\n`);
+            controller.enqueue(encoded);
+          } catch {
+            unsub();
+          }
         });
         req.signal?.addEventListener('abort', () => {
           unsub();
