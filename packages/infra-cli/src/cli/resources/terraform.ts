@@ -30,7 +30,13 @@ export class TerraformResource implements Resource {
     if (result.exitCode === 0) {
       ok('Terraform destroy', 'all resources deleted');
     } else {
-      warn('Terraform destroy', 'some resources could not be API-deleted');
+      const output = (result.stderr || result.stdout).trim();
+      warn('Terraform destroy', `exit ${result.exitCode} — some resources could not be API-deleted`);
+      if (output) {
+        for (const line of output.split('\n')) {
+          info('terraform', line);
+        }
+      }
       this.abandonRemainingState(platform);
     }
   }
