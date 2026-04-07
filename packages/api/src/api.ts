@@ -1,10 +1,10 @@
-import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
+import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
 import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
-import { SqlClientImplPlanetScale } from '@gamezilla/shared/sql-client/impl-planetscale';
+import { SqlClientImplD1 } from '@gamezilla/shared/sql-client/impl-d1';
 import { createApiHandler } from './api-handler';
 
 export interface Env {
-  DATABASE_URL: string;
+  DB: D1Database;
 }
 
 const CORS_HEADERS: Record<string, string> = {
@@ -35,21 +35,9 @@ export default {
       });
     }
 
-    let sqlClient: SqlClientImplPlanetScale;
     try {
-      sqlClient = new SqlClientImplPlanetScale(env.DATABASE_URL);
-      await sqlClient.connect();
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      console.error('[api] DB connect failed:', message);
-      return new Response(
-        JSON.stringify({ error: 'DB connect failed', detail: message }),
-        { status: 503, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
-      );
-    }
-
-    try {
-      const db = new PatchDbImplPostgres(sqlClient);
+      const sqlClient = new SqlClientImplD1(env.DB);
+      const db = new PatchDbImplSqlite(sqlClient);
       if (!migrated) {
         await db.migrate();
         migrated = true;

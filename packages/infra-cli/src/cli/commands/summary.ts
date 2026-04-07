@@ -3,9 +3,9 @@ import type { CiPlatform } from '../platform/platform';
 import type { Command } from './types';
 
 const SUMMARY_SERVICES = [
-  { label: 'Web App', outputKey: 'web_app_url' },
+  { label: 'Client', outputKey: 'web_app_url' },
   { label: 'API (Workers)', outputKey: 'api_url' },
-  { label: 'Database (PlanetScale)', outputKey: 'database_url', redact: true },
+  { label: 'Database (D1)', outputKey: 'd1_database_id' },
 ] as const;
 
 export class SummaryCommand implements Command {

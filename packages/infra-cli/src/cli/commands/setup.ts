@@ -7,7 +7,6 @@ import { TF_PACKAGE_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
 import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
-import { psHeaders } from '../secrets/planetscale';
 import {
   getSecretMap,
   loadSecretsIntoEnv,
@@ -68,27 +67,6 @@ const IMPORTABLE_RESOURCES: readonly ImportableResource[] = [
         );
         if (!res.ok) return null;
         return `${cfAccountId()}/${PROJECT_CONFIG.cloudflare.pagesProject}/www.${PROJECT_CONFIG.domain}`;
-      } catch {
-        return null;
-      }
-    },
-  },
-  {
-    address: 'planetscale_postgres_branch.main',
-    lookupId: async () => {
-      const org = process.env['TF_VAR_planetscale_org'];
-      const db = process.env['TF_VAR_planetscale_database'];
-      if (!org || !db || !process.env['PLANETSCALE_SERVICE_TOKEN_ID'])
-        return null;
-      try {
-        const res = await fetch(
-          `https://api.planetscale.com/v1/organizations/${org}/databases/${db}/branches/main`,
-          { headers: psHeaders() }
-        );
-        if (!res.ok) return null;
-        const body = (await res.json()) as { id?: string };
-        if (!body.id) return null;
-        return JSON.stringify({ organization: org, database: db, id: body.id });
       } catch {
         return null;
       }

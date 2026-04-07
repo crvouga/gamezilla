@@ -23,8 +23,7 @@ output "api_url" {
   value       = "https://api.gamezilla.app"
 }
 
-output "database_url" {
-  description = "PlanetScale Postgres connection string for the Worker"
-  sensitive   = true
-  value       = "postgres://${planetscale_postgres_branch_role.app.username}:${planetscale_postgres_branch_role.app.password}@${planetscale_postgres_branch_role.app.access_host_url}/${planetscale_postgres_branch_role.app.database_name}"
+output "d1_database_id" {
+  description = "Cloudflare D1 database UUID (needed by wrangler.toml)"
+  value       = cloudflare_d1_database.main.id
 }

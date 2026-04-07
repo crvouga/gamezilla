@@ -1,25 +1,19 @@
-import { join } from 'node:path';
+import { assert } from '@gamezilla/shared/assert';
 import { createDeployRegistry } from '../lib/deploy-registry';
 import { banner, heading, ok } from '../lib/fmt';
 import { runHttpSmokeTests } from '../lib/smoke-tests';
 import { TF_DEPLOY_VAR_ARGS } from '../lib/tf-vars';
 import { readTfOutputs, requireOutput } from '../lib/tf-outputs';
-import { REPO_ROOT, TF_PACKAGE_ROOT } from '../paths';
+import { TF_PACKAGE_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
 import {
   fetchDopplerSecret,
   getSecretMap,
+  validateSecret,
 } from '../secrets/secrets';
-import { run, runCapture, runSafe } from '../subprocess';
+import { run, runCapture } from '../subprocess';
 import type { Command } from './types';
-
-function wranglerEnv(): NodeJS.ProcessEnv {
-  return {
-    ...process.env,
-    CLOUDFLARE_ACCOUNT_ID: process.env['TF_VAR_cloudflare_account_id'],
-  };
-}
 
 export class DeployCommand implements Command {
   readonly id = 'deploy';
@@ -40,8 +34,8 @@ export class DeployCommand implements Command {
     await runStep(this.platform, 'Wrangler auth', () =>
       this.assertWranglerAuth()
     );
-    await runStep(this.platform, 'PlanetScale credentials', () =>
-      this.assertPlanetScaleCredentials()
+    await runStep(this.platform, 'Validate secrets', () =>
+      this.validateSecrets()
     );
 
     // ── 3. Terraform init + apply ───────────────────────────────────────
@@ -57,9 +51,6 @@ export class DeployCommand implements Command {
         cwd: TF_PACKAGE_ROOT,
         label: 'Terraform validate',
       })
-    );
-    await runStep(this.platform, 'Wrangler binding audit', () =>
-      this.auditWorkerBindings()
     );
     await runStep(this.platform, 'Terraform apply', () =>
       run(
@@ -103,9 +94,6 @@ export class DeployCommand implements Command {
 
   // ── Helpers ──────────────────────────────────────────────────────────
 
-  /**
-   * Idempotent: skip secrets already in env, load missing ones from Doppler.
-   */
   private ensureSecrets(): void {
     const secretMap = getSecretMap();
     let loaded = 0;
@@ -141,62 +129,25 @@ export class DeployCommand implements Command {
     this.platform.notice(`Wrangler identity: ${whoami}`);
   }
 
-  private assertPlanetScaleCredentials(): void {
-    const id = process.env['PLANETSCALE_SERVICE_TOKEN_ID'];
-    const token = process.env['PLANETSCALE_SERVICE_TOKEN'];
-    if (!id || !token) {
-      throw new Error(
-        'Missing PLANETSCALE_SERVICE_TOKEN_ID and/or PLANETSCALE_SERVICE_TOKEN. ' +
-          'Add them to Doppler or export them before deploying.'
-      );
-    }
-    this.platform.notice('PlanetScale service token credentials present.');
-  }
+  private async validateSecrets(): Promise<void> {
+    const secretMap = getSecretMap();
+    const errors: string[] = [];
 
-  private auditWorkerBindings(): void {
-    const apiDir = join(REPO_ROOT, 'packages/api');
-    const env = wranglerEnv();
-    const secretNames = new Set(['DATABASE_URL']);
-
-    const result = runSafe('wrangler', ['secret', 'list', '--format=json'], {
-      cwd: apiDir,
-      env,
-    });
-
-    if (result.exitCode !== 0) {
-      this.platform.warning(
-        `Could not list Worker secrets (exit ${result.exitCode}). ` +
-          'Binding conflicts will only be caught at deploy time.'
-      );
-      return;
+    for (const entry of secretMap) {
+      const value = process.env[entry.env];
+      if (!value) continue;
+      const err = await validateSecret(entry, value);
+      if (err) {
+        this.platform.error(`${entry.doppler}: ${err}`);
+        errors.push(entry.doppler);
+      } else {
+        ok(entry.doppler);
+      }
     }
 
-    let bindings: Array<{ name?: string; type?: string }>;
-    try {
-      bindings = JSON.parse(result.stdout);
-    } catch {
-      this.platform.warning(
-        'Could not parse wrangler secret list output. ' +
-          'Binding conflicts will only be caught at deploy time.'
-      );
-      return;
-    }
-
-    const conflicts = bindings.filter(
-      (b) => b.name && secretNames.has(b.name) && b.type !== 'secret_text'
-    );
-
-    if (conflicts.length > 0) {
-      const names = conflicts.map((b) => `${b.name} (${b.type})`).join(', ');
-      this.platform.warning(
-        `Binding conflict detected: ${names}. ` +
-          'These exist as non-secret bindings but deploy will set them as secrets. ' +
-          'The deploy step will attempt to clear them automatically.'
-      );
-    }
-
-    this.platform.notice(
-      `Worker binding audit passed (${bindings.length} existing binding(s)).`
+    assert.ok(
+      errors.length === 0,
+      `Secret validation failed for: ${errors.join(', ')}`
     );
   }
 }

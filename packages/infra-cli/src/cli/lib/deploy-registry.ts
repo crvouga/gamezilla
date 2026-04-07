@@ -3,14 +3,12 @@ import {
   existsSync,
   readFileSync,
   rmSync,
-  unlinkSync,
   writeFileSync,
 } from 'node:fs';
-import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
-import { run, runSafe } from '../subprocess';
+import { run } from '../subprocess';
 import { requireOutput, type TfOutputs } from './tf-outputs';
 
 /**
@@ -40,55 +38,33 @@ export class WorkersDeployable implements Deployable {
   deploy(outputs: TfOutputs): void {
     const apiDir = join(REPO_ROOT, 'packages/api');
     const env = wranglerEnv();
+    const tomlPath = join(apiDir, 'wrangler.toml');
 
-    const secretNames = ['DATABASE_URL'] as const;
-    const secrets: Record<string, string> = {
-      DATABASE_URL: requireOutput(this.platform, outputs, 'database_url'),
-    };
+    const d1Id = requireOutput(this.platform, outputs, 'd1_database_id');
 
-    // Deploy the worker first so wrangler.toml is the source of truth for
-    // non-secret bindings — this clears any stale plain-text vars that would
-    // collide with `wrangler secret bulk` (Cloudflare API error 10053).
-    run(this.platform, 'wrangler', ['deploy'], {
-      cwd: apiDir,
-      env,
-      label: 'workers-api: Cloudflare Workers deploy',
-    });
+    const original = readFileSync(tomlPath, 'utf8');
+    const patched = original.replace(
+      /^(database_id\s*=\s*)"[^"]*"/m,
+      `$1"${d1Id}"`
+    );
+    writeFileSync(tomlPath, patched, 'utf8');
 
-    // Best-effort delete of each secret name to avoid "binding name already in
-    // use" when the binding type changed (e.g. plain_text → secret_text).
-    for (const name of secretNames) {
-      const del = runSafe('wrangler', ['secret', 'delete', name, '--force'], {
-        cwd: apiDir,
-        env,
-      });
-      if (del.exitCode === 0) {
-        this.platform.notice(`Cleared existing binding: ${name}`);
-      }
-    }
-
-    const tmp = join(tmpdir(), `wrangler-secrets-${Date.now()}.json`);
-    writeFileSync(tmp, JSON.stringify(secrets), 'utf8');
     try {
-      run(this.platform, 'wrangler', ['secret', 'bulk', tmp], {
+      run(this.platform, 'wrangler', ['deploy'], {
         cwd: apiDir,
         env,
-        label: 'workers-api: sync secrets',
+        label: 'workers-api: Cloudflare Workers deploy',
       });
     } finally {
-      try {
-        unlinkSync(tmp);
-      } catch {
-        /* best-effort cleanup */
-      }
+      writeFileSync(tomlPath, original, 'utf8');
     }
 
     this.platform.notice('Workers API deployed.');
   }
 }
 
-export class WebAppDeployable implements Deployable {
-  readonly id = 'web-app';
+export class ClientDeployable implements Deployable {
+  readonly id = 'client';
 
   constructor(private readonly platform: CiPlatform) {}
 
@@ -102,14 +78,14 @@ export class WebAppDeployable implements Deployable {
 
     if (!/^https:\/\//.test(syncUrl)) {
       this.platform.error(`API_URL must be https:// (got: ${syncUrl})`);
-      assert.fail('web-app: sync URL must be https://');
+      assert.fail('client: sync URL must be https://');
     }
 
     const configPath = join(REPO_ROOT, 'public-config.json');
     let doc: unknown;
 
     if (!existsSync(configPath)) {
-      this.platform.notice('public-config.json not found — creating default.');
+      this.platform.notice('public-config.json not found — creating default');
       doc = structuredClone(DEFAULT_PUBLIC_CONFIG);
     } else {
       try {
@@ -149,7 +125,7 @@ export class WebAppDeployable implements Deployable {
       {
         cwd: REPO_ROOT,
         env: { ...process.env, EXPO_PUBLIC_STAGE: 'prod' },
-        label: 'web-app: expo export (turbo)',
+        label: 'client: expo export (turbo)',
       }
     );
 
@@ -165,14 +141,14 @@ export class WebAppDeployable implements Deployable {
         '--branch',
         'main',
       ],
-      { cwd: clientDir, env: wranglerEnv(), label: 'web-app: Cloudflare Pages deploy' }
+      { cwd: clientDir, env: wranglerEnv(), label: 'client: Cloudflare Pages deploy' }
     );
 
     rmSync(join(REPO_ROOT, 'packages/client/dist'), {
       recursive: true,
       force: true,
     });
-    this.platform.notice('Web app exported and deployed to Cloudflare Pages.');
+    this.platform.notice('Client exported and deployed to Cloudflare Pages.');
   }
 }
 
@@ -188,7 +164,7 @@ export function createDeployRegistry(
 ): readonly Deployable[] {
   const registry: readonly Deployable[] = [
     new WorkersDeployable(platform),
-    new WebAppDeployable(platform),
+    new ClientDeployable(platform),
   ];
   assert.ok(registry.length > 0, 'DEPLOY_REGISTRY must not be empty');
   return registry;

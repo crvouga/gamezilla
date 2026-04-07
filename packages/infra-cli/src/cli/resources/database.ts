@@ -1,64 +1,53 @@
 import { ok, warn } from '../lib/fmt';
-import { psHeaders } from '../secrets/planetscale';
+import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
 import type { Resource } from './types';
 
-const PS_API = 'https://api.planetscale.com/v1';
+const CF_API = 'https://api.cloudflare.com/client/v4';
+const DB_NAME = 'gamezilla-db';
 
-/**
- * Best-effort cleanup for PlanetScale branch passwords/roles.
- * The default branch ("main") cannot be deleted, so we only
- * remove passwords created on it.
- */
 export class DatabaseResource implements Resource {
   readonly id = 'database';
 
   async destroy(): Promise<void> {
-    const org = process.env['TF_VAR_planetscale_org'];
-    const db = process.env['TF_VAR_planetscale_database'];
-    if (!org || !db) {
-      warn('Database', 'missing PLANETSCALE_ORG or PLANETSCALE_DATABASE — skipping');
+    const accountId = cfAccountId();
+    const headers = cfHeaders();
+    if (!accountId) {
+      warn('Database', 'missing Cloudflare account ID — skipping');
       return;
     }
 
-    await this.deletePasswords(org, db, 'main', psHeaders());
+    const dbId = await this.findDatabase(accountId, headers);
+    if (!dbId) {
+      ok('D1 database', 'not found — nothing to delete');
+      return;
+    }
+
+    const res = await fetch(
+      `${CF_API}/accounts/${accountId}/d1/database/${dbId}`,
+      { method: 'DELETE', headers }
+    );
+
+    if (res.ok) {
+      ok('D1 database deleted', DB_NAME);
+    } else {
+      const body = await res.text();
+      warn('D1 database delete', `HTTP ${res.status}: ${body}`);
+    }
   }
 
-  private async deletePasswords(
-    org: string,
-    db: string,
-    branch: string,
+  private async findDatabase(
+    accountId: string,
     headers: Record<string, string>
-  ): Promise<void> {
-    const url = `${PS_API}/organizations/${org}/databases/${db}/branches/${branch}/passwords`;
-    const res = await fetch(url, { headers });
-    if (!res.ok) {
-      if (res.status === 404) {
-        ok('Database passwords', 'none found');
-        return;
-      }
-      warn('Database passwords list', `HTTP ${res.status} — skipping`);
-      return;
-    }
-
+  ): Promise<string | null> {
+    const res = await fetch(
+      `${CF_API}/accounts/${accountId}/d1/database?name=${DB_NAME}&per_page=1`,
+      { headers }
+    );
+    if (!res.ok) return null;
     const body = (await res.json()) as {
-      data?: Array<{ id: string; name: string }>;
+      result?: Array<{ uuid: string; name: string }>;
     };
-    const passwords = body.data ?? [];
-    if (passwords.length === 0) {
-      ok('Database passwords', 'none to delete');
-      return;
-    }
-
-    for (const pw of passwords) {
-      const del = await fetch(`${url}/${pw.id}`, {
-        method: 'DELETE',
-        headers,
-      });
-      if (del.ok || del.status === 404) {
-        ok('Deleted password', pw.name || pw.id);
-      } else {
-        warn('Password delete', `${pw.name || pw.id} — HTTP ${del.status}`);
-      }
-    }
+    const match = body.result?.find((db) => db.name === DB_NAME);
+    return match?.uuid ?? null;
   }
 }

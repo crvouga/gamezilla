@@ -18,15 +18,13 @@ module "cloudflare_pages" {
   custom_domain         = var.custom_domain
 }
 
-# -- PlanetScale Postgres -----------------------------------------------------
-# The "main" branch is the default branch created with the database.
-# PlanetScale prevents creation/deletion of default branches, so we
-# reference it by name rather than managing it as a resource.
+# -- Cloudflare D1 (SQLite database for the API worker) ----------------------
 
-resource "planetscale_postgres_branch_role" "app" {
-  organization    = var.planetscale_org
-  database        = var.planetscale_database
-  branch          = "main"
-  name            = "app"
-  inherited_roles = ["pg_read_all_data", "pg_write_all_data", "postgres"]
+resource "cloudflare_d1_database" "main" {
+  account_id = var.cloudflare_account_id
+  name       = "gamezilla-db"
+
+  read_replication = {
+    mode = "disabled"
+  }
 }

@@ -6,9 +6,5 @@ terraform {
       source  = "cloudflare/cloudflare"
       version = "~> 5.0"
     }
-    planetscale = {
-      source  = "planetscale/planetscale"
-      version = "~> 1.0"
-    }
   }
 }

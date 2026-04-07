@@ -1,12 +1,13 @@
 import { assert } from '@gamezilla/shared/assert';
+import { PROJECT_CONFIG } from '../../project-config';
 import { fmtElapsed } from './fmt';
-import { requireOutput, type TfOutputs } from './tf-outputs';
+import type { TfOutputs } from './tf-outputs';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
 
 type HttpEndpointCheck = {
   readonly label: string;
-  readonly outputKey: string;
+  readonly url: string;
   readonly probePath?: string;
   readonly gatewayCheck?: boolean;
 };
@@ -16,8 +17,8 @@ function isGatewayError(status: number): boolean {
 }
 
 const HTTP_ENDPOINTS: readonly HttpEndpointCheck[] = [
-  { label: 'WebApp', outputKey: 'web_app_url' },
-  { label: 'API /health', outputKey: 'api_url', probePath: '/health' },
+  { label: 'Client', url: `https://www.${PROJECT_CONFIG.domain}` },
+  { label: 'API /health', url: `https://api.${PROJECT_CONFIG.domain}`, probePath: '/health' },
 ];
 
 const HTTP_TIMEOUT_MS = 30_000;
@@ -151,7 +152,7 @@ export async function runHttpSmokeTests(
         step,
         total,
         label: ep.label,
-        rawUrl: requireOutput(platform, outputs, ep.outputKey),
+        rawUrl: ep.url,
         probePath: ep.probePath,
         gatewayCheck: ep.gatewayCheck,
       })

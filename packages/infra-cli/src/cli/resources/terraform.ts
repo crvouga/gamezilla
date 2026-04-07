@@ -37,8 +37,7 @@ export class TerraformResource implements Resource {
 
   /**
    * After a failed destroy, terraform already API-deleted what it could.
-   * Resources still in state are ones the provider refuses to delete
-   * (e.g. PlanetScale default branch, roles that own objects).
+   * Resources still in state are ones the provider refuses to delete.
    * Remove them from state so it's clean.
    */
   private abandonRemainingState(platform: CiPlatform): void {
