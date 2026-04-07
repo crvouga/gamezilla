@@ -142,8 +142,10 @@ async function checkHttpEndpoint(
   }
 }
 
-function digQuery(host: string, type: string): string[] {
-  const r = runSafe('dig', ['+short', host, type]);
+function digQuery(host: string, type: string, server?: string): string[] {
+  const args = ['+short', host, type];
+  if (server) args.push(`@${server}`);
+  const r = runSafe('dig', args);
   if (r.exitCode !== 0) return [];
   return r.stdout
     .split('\n')
@@ -177,18 +179,31 @@ function checkDns(platform: CiPlatform, outputs: TfOutputs): void {
     );
   }
 
+  const authNs = expectedNs[0];
+
   for (const sub of ['www', 'api']) {
     const host = `${sub}.${domain}`;
-    const cname = digQuery(host, 'CNAME');
-    const a = digQuery(host, 'A');
-    const aaaa = digQuery(host, 'AAAA');
-    const records = [...cname, ...a, ...aaaa];
-    if (records.length > 0) {
-      ok(`DNS ${host}`, records.join(', '));
+
+    const localA = digQuery(host, 'A');
+    const localAAAA = digQuery(host, 'AAAA');
+    const localRecords = [...localA, ...localAAAA];
+
+    const authA = digQuery(host, 'A', authNs);
+    const authAAAA = digQuery(host, 'AAAA', authNs);
+    const authRecords = [...authA, ...authAAAA];
+
+    if (localRecords.length > 0) {
+      ok(`DNS ${host}`, localRecords.join(', '));
+    } else if (authRecords.length > 0) {
+      warn(
+        `DNS ${host}`,
+        `local resolver has no records, but authoritative NS (${authNs}) returns [${authRecords.join(', ')}] — ` +
+          'DNS propagation pending, try flushing local DNS cache'
+      );
     } else {
       warn(
         `DNS ${host}`,
-        'no A/AAAA/CNAME records found — endpoint will be unreachable'
+        'no records at local resolver or authoritative NS — check Cloudflare dashboard'
       );
     }
   }
