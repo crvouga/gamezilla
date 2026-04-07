@@ -60,7 +60,6 @@
     "lint": "expo lint",
     "start": "expo start --web",
     "dev:api": "wrangler dev",
-    "test": "bun test",
     "tc": "tsc --noEmit -p ../../tsconfig.json",
     "web": "expo start --web"
   }
