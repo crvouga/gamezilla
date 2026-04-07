@@ -13,6 +13,18 @@ import type { CiPlatform } from '../platform/platform';
 import { run } from '../subprocess';
 import { requireOutput, type TfOutputs } from './tf-outputs';
 
+/**
+ * Wrangler reads CLOUDFLARE_ACCOUNT_ID to skip /memberships account discovery
+ * (which fails for scoped API tokens). Secrets load the value as
+ * TF_VAR_cloudflare_account_id for Terraform, so we bridge the two here.
+ */
+function wranglerEnv(): NodeJS.ProcessEnv {
+  return {
+    ...process.env,
+    CLOUDFLARE_ACCOUNT_ID: process.env['TF_VAR_cloudflare_account_id'],
+  };
+}
+
 export interface Deployable {
   readonly id: string;
   deploy(outputs: TfOutputs): void;
@@ -34,6 +46,7 @@ export class WorkersDeployable implements Deployable {
     try {
       run(this.platform, 'wrangler', ['secret', 'bulk', tmp], {
         cwd: apiDir,
+        env: wranglerEnv(),
         label: 'workers-api: sync DATABASE_URL secret',
       });
     } finally {
@@ -46,6 +59,7 @@ export class WorkersDeployable implements Deployable {
 
     run(this.platform, 'wrangler', ['deploy'], {
       cwd: apiDir,
+      env: wranglerEnv(),
       label: 'workers-api: Cloudflare Workers deploy',
     });
     this.platform.notice('Workers API deployed.');
@@ -130,7 +144,7 @@ export class WebAppDeployable implements Deployable {
         '--branch',
         'main',
       ],
-      { cwd: clientDir, label: 'web-app: Cloudflare Pages deploy' }
+      { cwd: clientDir, env: wranglerEnv(), label: 'web-app: Cloudflare Pages deploy' }
     );
 
     rmSync(join(REPO_ROOT, 'packages/client/dist'), {
