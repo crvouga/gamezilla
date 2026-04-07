@@ -1,13 +1,8 @@
 import { assert } from '@gamezilla/shared/assert';
-import { fmtElapsed } from '../lib/fmt';
-import {
-  readTfOutputs,
-  requireOutput,
-  type TfOutputs,
-} from '../lib/tf-outputs';
+import { fmtElapsed } from './fmt';
+import { requireOutput, type TfOutputs } from './tf-outputs';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
-import type { Command } from './types';
 
 type HttpEndpointCheck = {
   readonly label: string;
@@ -96,7 +91,7 @@ async function checkHttpEndpoint(
         platform.error(
           `${opts.label} ${url} — unreachable after ${elapsedStr}: ${msg}`
         );
-        assert.fail(`post-deploy: ${opts.label} unreachable at ${url}`);
+        assert.fail(`smoke-test: ${opts.label} unreachable at ${url}`);
       }
       platform.notice(
         `Waiting for ${opts.label} — attempt ${attempt}, ${elapsedStr} elapsed (max ${maxWaitStr}): ${msg}`
@@ -111,7 +106,7 @@ async function checkHttpEndpoint(
 
     if (acceptable) {
       platform.notice(
-        `POST-DEPLOY ${opts.step}/${opts.total}: ${opts.label} ${url} — HTTP ${response.status} OK (${elapsedStr}).`
+        `Smoke ${opts.step}/${opts.total}: ${opts.label} ${url} — HTTP ${response.status} OK (${elapsedStr}).`
       );
       return;
     }
@@ -125,7 +120,7 @@ async function checkHttpEndpoint(
         `${opts.label} ${url} — HTTP ${response.status} ${response.statusText}`
       );
       assert.fail(
-        `post-deploy: ${opts.label} returned HTTP ${response.status}`
+        `smoke-test: ${opts.label} returned HTTP ${response.status}`
       );
     }
 
@@ -133,7 +128,7 @@ async function checkHttpEndpoint(
       platform.error(
         `${opts.label} ${url} — still HTTP ${response.status} after ${elapsedStr}`
       );
-      assert.fail(`post-deploy: ${opts.label} still HTTP ${response.status}`);
+      assert.fail(`smoke-test: ${opts.label} still HTTP ${response.status}`);
     }
 
     platform.notice(
@@ -143,7 +138,7 @@ async function checkHttpEndpoint(
   }
 }
 
-export async function runHttpSmokeTestsOnly(
+export async function runHttpSmokeTests(
   platform: CiPlatform,
   outputs: TfOutputs
 ): Promise<void> {
@@ -163,17 +158,4 @@ export async function runHttpSmokeTestsOnly(
     );
   }
   platform.notice(`HTTP smoke: all ${total} endpoint checks passed.`);
-}
-
-export class PostDeployCommand implements Command {
-  readonly id = 'post-deploy';
-  readonly summary = 'HTTP smoke tests against deployed services';
-
-  constructor(private readonly platform: CiPlatform) {}
-
-  async execute(): Promise<void> {
-    const outputs = readTfOutputs(this.platform);
-    await runHttpSmokeTestsOnly(this.platform, outputs);
-    this.platform.notice('POST-DEPLOY: all checks passed.');
-  }
 }

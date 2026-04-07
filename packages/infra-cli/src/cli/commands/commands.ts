@@ -2,42 +2,27 @@ import { fmt } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import type { Command } from './types';
 
-import { ApplyCommand } from './apply';
-import { BootstrapCommand } from './bootstrap';
-import { CheckCommand } from './check';
 import { DeployCommand } from './deploy';
-import { DeployAppsCommand } from './deploy-apps';
-import { DomainsSetupCommand } from './domains-setup';
 import { FetchSecretsCommand } from './fetch-secrets';
-import { InstallDepsCommand } from './install-deps';
-import { PostDeployCommand } from './post-deploy';
-import { PreDeployCommand } from './pre-deploy';
+import { SetupCommand } from './setup';
 import { SetupSecretsCommand } from './setup-secrets';
 import { StatusCommand } from './status';
 import { SummaryCommand } from './summary';
 
 export function createRegistry(platform: CiPlatform): Command[] {
   return [
-    new BootstrapCommand(platform),
-    new CheckCommand(platform),
-    new DeployCommand(platform),
-    new InstallDepsCommand(platform),
+    new SetupCommand(platform),
     new StatusCommand(platform),
-    new ApplyCommand(platform),
-    new DeployAppsCommand(platform),
-    new PostDeployCommand(platform),
-    new PreDeployCommand(platform),
+    new DeployCommand(platform),
     new SummaryCommand(platform),
-    new DomainsSetupCommand(platform),
     new FetchSecretsCommand(platform),
     new SetupSecretsCommand(platform),
   ];
 }
 
 /** Known prefixes and display order. Commands without a prefix go first. */
-const GROUP_ORDER = ['', 'domains', 'secrets'] as const;
+const GROUP_ORDER = ['', 'secrets'] as const;
 const GROUP_LABELS: Record<string, string> = {
-  domains: 'Domains',
   secrets: 'Secrets',
 };
 

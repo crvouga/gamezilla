@@ -1,5 +1,6 @@
 import { assert } from '@gamezilla/shared/assert';
 import { PROJECT_CONFIG } from '../../project-config';
+import { ALL_DEPS } from '../deps/deps';
 import { banner, fail as fmtFail, heading, info, ok, warn } from '../lib/fmt';
 import { TF_DEPLOY_VAR_ARGS } from '../lib/tf-vars';
 import { TF_PACKAGE_ROOT } from '../paths';
@@ -17,7 +18,6 @@ import type { Command } from './types';
 
 interface ImportableResource {
   readonly address: string;
-  /** If true, this resource must be imported/created before others can refresh. */
   readonly foundation?: boolean;
   readonly lookupId: () => Promise<string | null>;
 }
@@ -96,12 +96,6 @@ const IMPORTABLE_RESOURCES: readonly ImportableResource[] = [
   },
 ];
 
-/**
- * State entries from previous Terraform configs that no longer exist in the
- * current code.  If left in state, Terraform tries to destroy them (which
- * can fail — e.g. RDS deletion protection).  We unconditionally remove
- * these from state when found.
- */
 const STALE_STATE_ENTRIES = [
   'module.database.aws_rds_cluster.this',
   'module.database.aws_db_subnet_group.this',
@@ -118,17 +112,21 @@ interface DiagnosticResult {
   readonly detail: string;
 }
 
-export class BootstrapCommand implements Command {
-  readonly id = 'bootstrap';
+export class SetupCommand implements Command {
+  readonly id = 'setup';
   readonly summary =
-    'Self-healing init: secrets, state repair, targeted applies';
+    'Self-healing init: deps, secrets, state repair, targeted applies';
 
   constructor(private readonly platform: CiPlatform) {}
 
   async execute(): Promise<void> {
-    banner('Bootstrap');
+    banner('Setup');
 
-    // ── 1. Secrets ──────────────────────────────────────────────────────
+    // ── 1. Dependencies ─────────────────────────────────────────────────
+    heading('Dependencies');
+    this.ensureDeps();
+
+    // ── 2. Secrets ──────────────────────────────────────────────────────
     heading('Load secrets');
     const secrets = loadSecretsIntoEnv();
     for (const s of secrets) {
@@ -142,11 +140,11 @@ export class BootstrapCommand implements Command {
     const missing = secrets.filter((s) => !s.set);
     if (missing.length > 0) {
       this.platform.warning(
-        `${missing.length} secret(s) missing — bootstrap will continue but Terraform may fail`
+        `${missing.length} secret(s) missing — setup will continue but Terraform may fail`
       );
     }
 
-    // ── 2. Validate secrets ─────────────────────────────────────────────
+    // ── 3. Validate secrets ─────────────────────────────────────────────
     heading('Validate secrets');
     const secretMap = getSecretMap();
     let validationFailed = false;
@@ -166,7 +164,7 @@ export class BootstrapCommand implements Command {
       'Secret validation failed — fix the issues above before continuing'
     );
 
-    // ── 3. Terraform init ───────────────────────────────────────────────
+    // ── 4. Terraform init ───────────────────────────────────────────────
     heading('Terraform init');
     await runStep(this.platform, 'Terraform init', () =>
       run(this.platform, 'terraform', ['init', '-input=false'], {
@@ -175,7 +173,7 @@ export class BootstrapCommand implements Command {
       })
     );
 
-    // ── 4. Diagnose state health ────────────────────────────────────────
+    // ── 5. Diagnose state health ────────────────────────────────────────
     heading('Diagnose state');
     const diagnostics = await this.diagnoseState();
     for (const d of diagnostics) {
@@ -190,7 +188,7 @@ export class BootstrapCommand implements Command {
       return;
     }
 
-    // ── 5. Remove stale state entries ───────────────────────────────────
+    // ── 6. Remove stale state entries ───────────────────────────────────
     heading('Repair state');
     for (const addr of STALE_STATE_ENTRIES) {
       if (this.stateHas(addr)) {
@@ -200,8 +198,7 @@ export class BootstrapCommand implements Command {
       }
     }
 
-    // ── 6. Import / create missing resources ─────────────────────────────
-    // Foundation resources first (others depend on them), then the rest.
+    // ── 7. Import / create missing resources ────────────────────────────
     heading('Reconcile resources');
     const sorted = [
       ...IMPORTABLE_RESOURCES.filter((r) => r.foundation),
@@ -252,7 +249,7 @@ export class BootstrapCommand implements Command {
       }
     }
 
-    // ── 7. Full apply ───────────────────────────────────────────────────
+    // ── 8. Full apply ───────────────────────────────────────────────────
     heading('Full apply');
     await runStep(this.platform, 'Terraform apply', () =>
       run(
@@ -269,20 +266,43 @@ export class BootstrapCommand implements Command {
       )
     );
 
-    banner('Bootstrap Complete');
+    banner('Setup Complete');
     ok('Infrastructure is healthy');
-    info(
-      'Next step',
-      'Run `bun run infra deploy` for a full deploy with app deployment'
-    );
+    info('Next step', 'Run `bun run infra deploy` for a full deploy');
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────
 
-  /**
-   * Probe the state for common chicken-and-egg problems.
-   * Returns a list of diagnostics describing what we found.
-   */
+  private ensureDeps(): void {
+    for (const dep of ALL_DEPS) {
+      const status = dep.check();
+      if (status.ok) {
+        ok(dep.name, status.version);
+        if (dep.verify) dep.verify();
+        continue;
+      }
+
+      warn(dep.name, status.reason);
+      info(dep.name, 'installing…');
+
+      try {
+        dep.install();
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        fmtFail(dep.name, `install failed — ${msg}`);
+        assert.fail(`setup: could not install ${dep.name}`);
+      }
+
+      const after = dep.check();
+      if (after.ok) {
+        ok(dep.name, `installed (${after.version})`);
+      } else {
+        fmtFail(dep.name, `still not available — ${after.reason}`);
+        assert.fail(`setup: ${dep.name} not available after install`);
+      }
+    }
+  }
+
   private async diagnoseState(): Promise<DiagnosticResult[]> {
     const results: DiagnosticResult[] = [];
 
