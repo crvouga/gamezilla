@@ -9,7 +9,7 @@ const SUMMARY_SERVICES = [
 ] as const;
 
 export class SummaryCommand implements Command {
-  readonly id = 'ci-summary';
+  readonly id = 'summary';
   readonly summary = 'Write CI job summary';
 
   constructor(private readonly platform: CiPlatform) {}

@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
-import { run } from '../subprocess';
+import { run, runSafe } from '../subprocess';
 import { requireOutput, type TfOutputs } from './tf-outputs';
 
 /**
@@ -39,15 +39,41 @@ export class WorkersDeployable implements Deployable {
 
   deploy(outputs: TfOutputs): void {
     const apiDir = join(REPO_ROOT, 'packages/api');
+    const env = wranglerEnv();
 
-    const databaseUrl = requireOutput(this.platform, outputs, 'database_url');
+    const secretNames = ['DATABASE_URL'] as const;
+    const secrets: Record<string, string> = {
+      DATABASE_URL: requireOutput(this.platform, outputs, 'database_url'),
+    };
+
+    // Deploy the worker first so wrangler.toml is the source of truth for
+    // non-secret bindings — this clears any stale plain-text vars that would
+    // collide with `wrangler secret bulk` (Cloudflare API error 10053).
+    run(this.platform, 'wrangler', ['deploy'], {
+      cwd: apiDir,
+      env,
+      label: 'workers-api: Cloudflare Workers deploy',
+    });
+
+    // Best-effort delete of each secret name to avoid "binding name already in
+    // use" when the binding type changed (e.g. plain_text → secret_text).
+    for (const name of secretNames) {
+      const del = runSafe('wrangler', ['secret', 'delete', name, '--force'], {
+        cwd: apiDir,
+        env,
+      });
+      if (del.exitCode === 0) {
+        this.platform.notice(`Cleared existing binding: ${name}`);
+      }
+    }
+
     const tmp = join(tmpdir(), `wrangler-secrets-${Date.now()}.json`);
-    writeFileSync(tmp, JSON.stringify({ DATABASE_URL: databaseUrl }), 'utf8');
+    writeFileSync(tmp, JSON.stringify(secrets), 'utf8');
     try {
       run(this.platform, 'wrangler', ['secret', 'bulk', tmp], {
         cwd: apiDir,
-        env: wranglerEnv(),
-        label: 'workers-api: sync DATABASE_URL secret',
+        env,
+        label: 'workers-api: sync secrets',
       });
     } finally {
       try {
@@ -57,11 +83,6 @@ export class WorkersDeployable implements Deployable {
       }
     }
 
-    run(this.platform, 'wrangler', ['deploy'], {
-      cwd: apiDir,
-      env: wranglerEnv(),
-      label: 'workers-api: Cloudflare Workers deploy',
-    });
     this.platform.notice('Workers API deployed.');
   }
 }

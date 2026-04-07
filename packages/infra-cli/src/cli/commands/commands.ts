@@ -35,9 +35,8 @@ export function createRegistry(platform: CiPlatform): Command[] {
 }
 
 /** Known prefixes and display order. Commands without a prefix go first. */
-const GROUP_ORDER = ['', 'ci', 'domains', 'secrets'] as const;
+const GROUP_ORDER = ['', 'domains', 'secrets'] as const;
 const GROUP_LABELS: Record<string, string> = {
-  ci: 'CI',
   domains: 'Domains',
   secrets: 'Secrets',
 };

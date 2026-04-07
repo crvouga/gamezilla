@@ -10,7 +10,7 @@ import type { Command } from './types';
  * {@link WorkersDeployable} in the deploy registry.
  */
 export class ApplyCommand implements Command {
-  readonly id = 'ci-apply';
+  readonly id = 'apply';
   readonly summary = 'Terraform init + apply';
   private readonly tfVarOverrides: readonly string[] | undefined;
 

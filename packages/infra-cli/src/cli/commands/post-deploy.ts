@@ -166,7 +166,7 @@ export async function runHttpSmokeTestsOnly(
 }
 
 export class PostDeployCommand implements Command {
-  readonly id = 'ci-post-deploy';
+  readonly id = 'post-deploy';
   readonly summary = 'HTTP smoke tests against deployed services';
 
   constructor(private readonly platform: CiPlatform) {}

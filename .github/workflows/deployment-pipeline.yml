@@ -63,7 +63,7 @@ jobs:
         run: bun add -g wrangler
 
       - name: Install Doppler CLI
-        uses: dopplerhq/cli-action@v3
+        uses: dopplerhq/cli-action@v4
 
       - name: Fetch secrets from Doppler
         working-directory: packages/infra-cli
@@ -73,7 +73,7 @@ jobs:
 
       - name: Pre-deploy
         working-directory: packages/infra-cli
-        run: bun run infra ci-pre-deploy
+        run: bun run infra pre-deploy
 
       - name: Deploy
         timeout-minutes: 45
@@ -83,8 +83,8 @@ jobs:
       - name: Post-deploy
         timeout-minutes: 15
         working-directory: packages/infra-cli
-        run: bun run infra ci-post-deploy
+        run: bun run infra post-deploy
 
       - name: Summary
         working-directory: packages/infra-cli
-        run: bun run infra ci-summary
+        run: bun run infra summary

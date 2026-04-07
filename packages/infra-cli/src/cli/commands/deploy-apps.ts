@@ -5,7 +5,7 @@ import { runStep } from '../platform/platform';
 import type { Command } from './types';
 
 export class DeployAppsCommand implements Command {
-  readonly id = 'ci-deploy-apps';
+  readonly id = 'deploy-apps';
   readonly summary = 'Build + deploy web app to Cloudflare Pages';
 
   constructor(private readonly platform: CiPlatform) {}
