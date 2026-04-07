@@ -5,6 +5,13 @@ compatibility_flags = ["nodejs_compat", "no_handle_cross_request_promise_resolut
 
 routes = [{ pattern = "api.gamezilla.app", custom_domain = true }]
 
+[durable_objects]
+bindings = []
+
 [[migrations]]
 tag = "v1"
+new_classes = ["PubSubDurableObject"]
+
+[[migrations]]
+tag = "v2"
 deleted_classes = ["PubSubDurableObject"]
