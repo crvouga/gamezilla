@@ -26,7 +26,7 @@ const HTTP_ENDPOINTS: readonly HttpEndpointCheck[] = [
   },
 ];
 
-const HTTP_TIMEOUT_MS = 30_000;
+const CURL_TIMEOUT_S = 30;
 
 function parsePositiveIntMsEnv(name: string, fallback: number): number {
   const raw = process.env[name];
@@ -65,6 +65,52 @@ function probeUrl(rawUrl: string, probePath?: string): string {
   return new URL(path, base.endsWith('/') ? base : `${base}/`).href;
 }
 
+/**
+ * Resolve a hostname to an IP via Cloudflare's public DNS (1.1.1.1),
+ * bypassing stale local DNS caches.
+ */
+function resolveVia1111(hostname: string): string | null {
+  const r = runSafe('dig', ['+short', hostname, 'A', '@1.1.1.1']);
+  if (r.exitCode !== 0) return null;
+  const ip = r.stdout.split('\n').map((l) => l.trim()).find((l) => /^\d+\.\d+\.\d+\.\d+$/.test(l));
+  return ip ?? null;
+}
+
+/**
+ * Use curl with --resolve to force DNS resolution through Cloudflare's
+ * 1.1.1.1 resolver, bypassing stale local caches.
+ */
+function curlStatus(url: string): { ok: boolean; status: number; error?: string } {
+  const parsed = new URL(url);
+  const hostname = parsed.hostname;
+  const port = parsed.port || (parsed.protocol === 'https:' ? '443' : '80');
+
+  const ip = resolveVia1111(hostname);
+
+  const args = [
+    '-s', '-o', '/dev/null',
+    '-w', '%{http_code}',
+    '--max-time', String(CURL_TIMEOUT_S),
+    '-L',
+  ];
+
+  if (ip) {
+    args.push('--resolve', `${hostname}:${port}:${ip}`);
+  }
+
+  args.push(url);
+
+  const r = runSafe('curl', args);
+  if (r.exitCode !== 0) {
+    return { ok: false, status: 0, error: r.stderr.trim() || `curl exit ${r.exitCode}` };
+  }
+  const status = parseInt(r.stdout.trim(), 10);
+  if (Number.isNaN(status)) {
+    return { ok: false, status: 0, error: `unexpected curl output: ${r.stdout.trim()}` };
+  }
+  return { ok: status >= 200 && status < 400, status };
+}
+
 async function checkHttpEndpoint(
   platform: CiPlatform,
   opts: {
@@ -84,59 +130,53 @@ async function checkHttpEndpoint(
     const elapsed = Date.now() - started;
     const elapsedStr = fmtElapsed(elapsed);
 
-    let response: Response;
-    try {
-      response = await fetch(url, {
-        method: 'GET',
-        redirect: 'follow',
-        signal: AbortSignal.timeout(HTTP_TIMEOUT_MS),
-      });
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e);
+    const result = curlStatus(url);
+
+    if (result.status === 0) {
       if (elapsed >= POST_DEPLOY_HTTP_MAX_WAIT_MS) {
         platform.error(
-          `${opts.label} ${url} — unreachable after ${elapsedStr}: ${msg}`
+          `${opts.label} ${url} — unreachable after ${elapsedStr}: ${result.error}`
         );
         assert.fail(`smoke-test: ${opts.label} unreachable at ${url}`);
       }
       platform.notice(
-        `Waiting for ${opts.label} ${url} — attempt ${attempt}, ${elapsedStr} elapsed (max ${maxWaitStr}): ${msg}`
+        `Waiting for ${opts.label} ${url} — attempt ${attempt}, ${elapsedStr} elapsed (max ${maxWaitStr}): ${result.error}`
       );
       await sleep(POST_DEPLOY_HTTP_RETRY_MS);
       continue;
     }
 
     const acceptable = opts.gatewayCheck
-      ? !isGatewayError(response.status)
-      : response.ok;
+      ? !isGatewayError(result.status)
+      : result.ok;
 
     if (acceptable) {
       platform.notice(
-        `Smoke ${opts.step}/${opts.total}: ${opts.label} ${url} — HTTP ${response.status} OK (${elapsedStr}).`
+        `Smoke ${opts.step}/${opts.total}: ${opts.label} ${url} — HTTP ${result.status} OK (${elapsedStr}).`
       );
       return;
     }
 
     const shouldRetry = opts.gatewayCheck
-      ? isGatewayError(response.status)
-      : httpStatusShouldRetry(response.status);
+      ? isGatewayError(result.status)
+      : httpStatusShouldRetry(result.status);
 
     if (!shouldRetry) {
       platform.error(
-        `${opts.label} ${url} — HTTP ${response.status} ${response.statusText}`
+        `${opts.label} ${url} — HTTP ${result.status}`
       );
-      assert.fail(`smoke-test: ${opts.label} returned HTTP ${response.status}`);
+      assert.fail(`smoke-test: ${opts.label} returned HTTP ${result.status}`);
     }
 
     if (elapsed >= POST_DEPLOY_HTTP_MAX_WAIT_MS) {
       platform.error(
-        `${opts.label} ${url} — still HTTP ${response.status} after ${elapsedStr}`
+        `${opts.label} ${url} — still HTTP ${result.status} after ${elapsedStr}`
       );
-      assert.fail(`smoke-test: ${opts.label} still HTTP ${response.status}`);
+      assert.fail(`smoke-test: ${opts.label} still HTTP ${result.status}`);
     }
 
     platform.notice(
-      `Waiting for ${opts.label} ${url} — attempt ${attempt}, HTTP ${response.status}, ${elapsedStr} elapsed`
+      `Waiting for ${opts.label} ${url} — attempt ${attempt}, HTTP ${result.status}, ${elapsedStr} elapsed`
     );
     await sleep(POST_DEPLOY_HTTP_RETRY_MS);
   }
