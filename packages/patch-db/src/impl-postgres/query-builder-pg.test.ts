@@ -29,7 +29,7 @@ describe('buildWhereClause with namespaced attributes', () => {
     });
     expect(sql).toContain('IS DISTINCT FROM ?::text');
     expect(params[0]).toBe('task/done');
-    expect(params[1]).toBe(true);
+    expect(params[1]).toBe('true');
   });
 
   test('in clause with namespaced attribute', () => {
@@ -54,7 +54,7 @@ describe('buildWhereClause with namespaced attributes', () => {
       ],
     });
     expect(sql).toContain('AND');
-    expect(params).toEqual(['task/title', 'a', 'task/done', false]);
+    expect(params).toEqual(['task/title', 'a', 'task/done', 'false']);
   });
 
   test('attribute with dot in namespace', () => {
@@ -66,7 +66,7 @@ describe('buildWhereClause with namespaced attributes', () => {
     expect(sql).toContain('->>');
     expect(sql).toContain('?::text');
     expect(params[0]).toBe('game.session/score');
-    expect(params[1]).toBe(42);
+    expect(params[1]).toBe('42');
   });
 });
 
