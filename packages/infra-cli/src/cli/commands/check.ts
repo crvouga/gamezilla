@@ -6,7 +6,6 @@ import { ok, fail, banner } from '../fmt';
 export class CheckCommand implements Command {
   readonly id = 'check';
   readonly summary = 'Verify that all CLI dependencies are installed and reachable';
-  readonly group = 'main' as const;
 
   constructor(private readonly platform: CiPlatform) {}
 

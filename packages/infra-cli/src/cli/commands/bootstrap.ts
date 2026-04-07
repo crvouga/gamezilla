@@ -116,7 +116,6 @@ interface DiagnosticResult {
 export class BootstrapCommand implements Command {
   readonly id = 'bootstrap';
   readonly summary = 'Self-healing init: secrets, state repair, targeted applies';
-  readonly group = 'main' as const;
 
   constructor(private readonly platform: CiPlatform) {}
 
@@ -128,7 +127,7 @@ export class BootstrapCommand implements Command {
     const secrets = loadSecretsIntoEnv();
     for (const s of secrets) {
       if (s.set) ok(s.env);
-      else fmtFail(s.env, 'not found in Doppler — run `bun run infra setup-secrets`');
+      else fmtFail(s.env, 'not found in Doppler — run `bun run infra secrets-setup`');
     }
     const missing = secrets.filter((s) => !s.set);
     if (missing.length > 0) {

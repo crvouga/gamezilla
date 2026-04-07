@@ -7,7 +7,6 @@ import { TF_PACKAGE_ROOT } from '../paths';
 export class DomainsSetupCommand implements Command {
   readonly id = 'domains-setup';
   readonly summary = 'Enable custom domain via Terraform';
-  readonly group = 'domains' as const;
 
   constructor(private readonly platform: CiPlatform) {}
 

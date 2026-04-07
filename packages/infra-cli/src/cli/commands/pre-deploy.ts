@@ -4,24 +4,23 @@ import { runStep } from '../platform';
 import { run, runCapture } from '../subprocess';
 import { TF_PACKAGE_ROOT } from '../paths';
 
-export class PreflightCommand implements Command {
-  readonly id = 'preflight';
+export class PreDeployCommand implements Command {
+  readonly id = 'ci-pre-deploy';
   readonly summary = 'Validate Wrangler auth, PlanetScale creds, Terraform config';
-  readonly group = 'ci' as const;
 
   constructor(private readonly platform: CiPlatform) {}
 
   async execute(): Promise<void> {
-    await runStep(this.platform, 'PREFLIGHT 1/4 — Wrangler auth', () =>
+    await runStep(this.platform, 'PRE-DEPLOY 1/4 — Wrangler auth', () =>
       this.assertWranglerAuth(),
     );
-    await runStep(this.platform, 'PREFLIGHT 2/4 — PlanetScale credentials', () =>
+    await runStep(this.platform, 'PRE-DEPLOY 2/4 — PlanetScale credentials', () =>
       this.assertPlanetScaleCredentials(),
     );
-    await runStep(this.platform, 'PREFLIGHT 3/4 — Terraform init', () =>
+    await runStep(this.platform, 'PRE-DEPLOY 3/4 — Terraform init', () =>
       this.terraformInit(),
     );
-    await runStep(this.platform, 'PREFLIGHT 4/4 — Terraform validate', () =>
+    await runStep(this.platform, 'PRE-DEPLOY 4/4 — Terraform validate', () =>
       this.terraformValidate(),
     );
   }

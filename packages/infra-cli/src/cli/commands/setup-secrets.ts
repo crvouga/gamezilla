@@ -14,9 +14,8 @@ import {
  * prompts the operator to provide values for each one.
  */
 export class SetupSecretsCommand implements Command {
-  readonly id = 'setup-secrets';
+  readonly id = 'secrets-setup';
   readonly summary = 'Check for missing Doppler secrets and set them interactively';
-  readonly group = 'main' as const;
 
   constructor(private readonly _platform: CiPlatform) {}
 

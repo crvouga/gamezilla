@@ -69,11 +69,11 @@ jobs:
         working-directory: packages/infra-cli
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
-        run: bun run infra fetch-secrets
+        run: bun run infra secrets-fetch
 
-      - name: Preflight
+      - name: Pre-deploy
         working-directory: packages/infra-cli
-        run: bun run infra preflight
+        run: bun run infra ci-pre-deploy
 
       - name: Deploy
         timeout-minutes: 45
@@ -83,8 +83,8 @@ jobs:
       - name: Post-deploy
         timeout-minutes: 15
         working-directory: packages/infra-cli
-        run: bun run infra post-deploy
+        run: bun run infra ci-post-deploy
 
       - name: Summary
         working-directory: packages/infra-cli
-        run: bun run infra summary
+        run: bun run infra ci-summary

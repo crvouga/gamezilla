@@ -6,7 +6,6 @@ import { banner, ok, fail, warn, info } from '../fmt';
 export class InstallDepsCommand implements Command {
   readonly id = 'install-deps';
   readonly summary = 'Install or upgrade missing / outdated CLI dependencies';
-  readonly group = 'main' as const;
 
   constructor(private readonly platform: CiPlatform) {}
 

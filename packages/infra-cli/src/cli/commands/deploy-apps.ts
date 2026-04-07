@@ -5,9 +5,8 @@ import { readTfOutputs } from '../lib/tf-outputs';
 import { createDeployRegistry } from '../lib/deploy-registry';
 
 export class DeployAppsCommand implements Command {
-  readonly id = 'deploy-apps';
+  readonly id = 'ci-deploy-apps';
   readonly summary = 'Build + deploy web app to Cloudflare Pages';
-  readonly group = 'ci' as const;
 
   constructor(private readonly platform: CiPlatform) {}
 

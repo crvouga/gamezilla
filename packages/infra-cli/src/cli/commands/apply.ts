@@ -10,9 +10,8 @@ import { TF_PACKAGE_ROOT } from '../paths';
  * {@link WorkersDeployable} in the deploy registry.
  */
 export class ApplyCommand implements Command {
-  readonly id = 'apply';
+  readonly id = 'ci-apply';
   readonly summary = 'Terraform init + apply';
-  readonly group = 'ci' as const;
   private readonly tfVarOverrides: readonly string[] | undefined;
 
   constructor(

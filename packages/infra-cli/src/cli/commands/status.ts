@@ -7,7 +7,6 @@ import { readTfOutputs } from '../lib/tf-outputs';
 export class StatusCommand implements Command {
   readonly id = 'status';
   readonly summary = 'Infrastructure status dashboard';
-  readonly group = 'main' as const;
 
   constructor(private readonly platform: CiPlatform) {}
 

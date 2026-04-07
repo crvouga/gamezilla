@@ -12,9 +12,8 @@ import { getSecretMap, fetchDopplerSecret, validateSecret } from '../secrets';
  * - Locally: prints KEY=VALUE lines to stdout.
  */
 export class FetchSecretsCommand implements Command {
-  readonly id = 'fetch-secrets';
+  readonly id = 'secrets-fetch';
   readonly summary = 'Fetch secrets from Doppler and export as env vars';
-  readonly group = 'ci' as const;
 
   constructor(private readonly platform: CiPlatform) {}
 

@@ -10,7 +10,6 @@ import { runHttpSmokeTestsOnly } from './post-deploy';
 export class DeployCommand implements Command {
   readonly id = 'deploy';
   readonly summary = 'Full deploy: terraform + workers + pages + smoke tests';
-  readonly group = 'main' as const;
 
   constructor(private readonly platform: CiPlatform) {}
 
