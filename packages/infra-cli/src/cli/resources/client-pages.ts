@@ -1,8 +1,10 @@
 import { ok, warn } from '../lib/fmt';
 import { PROJECT_CONFIG } from '../../project-config';
 import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
-import { runSafe } from '../subprocess';
+import { runSafe, type SpawnResult } from '../subprocess';
 import type { Resource } from './types';
+
+const NOT_FOUND_CODES = [8000007];
 
 export class ClientPagesResource implements Resource {
   readonly id = 'client-pages';
@@ -18,10 +20,10 @@ export class ClientPagesResource implements Resource {
 
     const r = runSafe('wrangler', ['pages', 'project', 'delete', name, '--yes'], { env });
 
-    if (r.exitCode === 0) {
+    if (r.exitCode === 0 || isNotFound(r)) {
       ok('Pages project deleted', name);
     } else {
-      warn('Pages project delete', r.stderr.trim() || 'may already be gone');
+      warn('Pages project delete', r.stderr.trim() || 'unexpected failure');
     }
   }
 
@@ -59,4 +61,8 @@ export class ClientPagesResource implements Resource {
       }
     }
   }
+}
+
+function isNotFound(r: SpawnResult): boolean {
+  return NOT_FOUND_CODES.some((code) => r.stderr.includes(`[code: ${code}]`));
 }

@@ -2,8 +2,10 @@ import { join } from 'node:path';
 import { ok, warn } from '../lib/fmt';
 import { REPO_ROOT } from '../paths';
 import { cfAccountId } from '../secrets/cloudflare';
-import { runSafe } from '../subprocess';
+import { runSafe, type SpawnResult } from '../subprocess';
 import type { Resource } from './types';
+
+const NOT_FOUND_CODES = [10007, 10090];
 
 export class ApiWorkerResource implements Resource {
   readonly id = 'api-worker';
@@ -20,10 +22,14 @@ export class ApiWorkerResource implements Resource {
       env,
     });
 
-    if (r.exitCode === 0) {
+    if (r.exitCode === 0 || isNotFound(r)) {
       ok('Worker deleted', 'gamezilla-api');
     } else {
-      warn('Worker delete', r.stderr.trim() || 'may already be gone');
+      warn('Worker delete', r.stderr.trim() || 'unexpected failure');
     }
   }
+}
+
+function isNotFound(r: SpawnResult): boolean {
+  return NOT_FOUND_CODES.some((code) => r.stderr.includes(`[code: ${code}]`));
 }
