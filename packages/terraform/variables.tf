@@ -8,20 +8,21 @@ variable "cloudflare_zone_id" {
   type        = string
 }
 
-variable "fly_org" {
-  description = "Fly.io organization slug"
-  type        = string
-  default     = "personal"
-}
-
-variable "fly_region" {
-  description = "Primary Fly.io region"
-  type        = string
-  default     = "iad"
-}
-
 variable "custom_domain" {
   description = "Enable custom domain DNS records"
   type        = bool
   default     = false
+}
+
+# -- PlanetScale ---------------------------------------------------------------
+
+variable "planetscale_org" {
+  description = "PlanetScale organization slug"
+  type        = string
+}
+
+variable "planetscale_database" {
+  description = "PlanetScale database name (must already exist)"
+  type        = string
+  default     = "gamezilla"
 }

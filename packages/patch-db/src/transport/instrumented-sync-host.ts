@@ -11,7 +11,7 @@ import type { PatchDbSyncHost } from './interface';
 
 const PATCHES_DB_TOPIC = 'patches-db';
 
-/** Fixed entity for req-res instrumentation snapshot (see plan: admin/metric). */
+/** Fixed entity for api instrumentation snapshot (see plan: admin/metric). */
 export const ADMIN_METRIC_ENTITY_ID = 'server-stats';
 export const ADMIN_METRIC_ENTITY_TYPE = 'admin/metric';
 

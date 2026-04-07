@@ -1,7 +1,5 @@
 export { InMemoryEventLog, recoverFromEventLog } from './event-log'
 export type { EventLog, LogEntry } from './event-log'
-export { MqttEventLog } from './event-log-mqtt'
-export type { MqttPublisher } from './event-log-mqtt'
 export { PostgresEventLog } from './event-log-postgres'
 export { SqliteEventLog } from './event-log-sqlite'
 export { PeerStore } from './peer-store'

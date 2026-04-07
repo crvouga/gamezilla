@@ -2,11 +2,6 @@
   "$schema": "https://turbo.build/schema.json",
   "ui": "stream",
   "globalPassThroughEnv": [
-    "AWS_ACCESS_KEY_ID",
-    "AWS_DEFAULT_REGION",
-    "AWS_REGION",
-    "AWS_SECRET_ACCESS_KEY",
-    "AWS_SESSION_TOKEN",
     "GITHUB_ACTIONS",
     "GITHUB_STEP_SUMMARY",
     "POST_DEPLOY_HTTP_MAX_WAIT_MS",
@@ -24,13 +19,7 @@
       "persistent": true,
       "cache": false
     },
-    "dev:req-res": {
-      "dependsOn": ["@gamezilla/local#up"],
-      "persistent": true,
-      "cache": false
-    },
-    "dev:worker": {
-      "dependsOn": ["@gamezilla/local#up"],
+    "dev:api": {
       "persistent": true,
       "cache": false
     },

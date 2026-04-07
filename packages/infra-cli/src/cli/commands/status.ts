@@ -1,9 +1,8 @@
 import type { Command } from '../command';
 import type { CiPlatform } from '../platform';
-import { banner, ok, fail, warn, kv, heading, fmt } from '../fmt';
+import { banner, ok, fail, warn, kv, heading } from '../fmt';
 import { PROJECT_CONFIG } from '../../project-config';
 import { readTfOutputs } from '../lib/tf-outputs';
-import { runCapture } from '../subprocess';
 
 export class StatusCommand implements Command {
   readonly id = 'status';
@@ -14,17 +13,6 @@ export class StatusCommand implements Command {
 
   async execute(): Promise<void> {
     banner('Infrastructure Status');
-
-    heading('Fly.io Apps');
-    for (const [label, appName] of Object.entries(PROJECT_CONFIG.fly.apps)) {
-      try {
-        const status = runCapture('flyctl', ['status', '--app', appName, '--json']);
-        const parsed = JSON.parse(status);
-        ok(label, `${appName} — ${parsed?.Status ?? 'unknown'}`);
-      } catch (e) {
-        fail(label, `${appName}: ${e instanceof Error ? e.message : String(e)}`);
-      }
-    }
 
     heading('Terraform Outputs');
     try {
@@ -41,7 +29,7 @@ export class StatusCommand implements Command {
     heading('Endpoints');
     const urls = [
       `https://${PROJECT_CONFIG.cloudflare.pagesProject}.pages.dev`,
-      `https://${PROJECT_CONFIG.fly.apps.reqRes}.fly.dev/health`,
+      'https://api.gamezilla.app/health',
     ];
 
     for (const url of urls) {

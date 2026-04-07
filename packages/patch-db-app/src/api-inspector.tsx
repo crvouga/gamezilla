@@ -91,7 +91,7 @@ function ConnectionStatus({
   );
 }
 
-export function ReqResInspector() {
+export function ApiInspector() {
   const [urlInput, setUrlInput] = useState(DEFAULT_URL);
   const [connectedUrl, setConnectedUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);

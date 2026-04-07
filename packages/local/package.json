@@ -3,10 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "docker compose up",
-    "up": "docker compose up -d",
-    "down": "docker compose down",
-    "logs": "docker compose logs -f",
-    "reset": "docker compose down -v && docker compose up -d"
+    "dev": "bun run src/server.ts",
+    "up": "bun run src/server.ts"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.4.3",
+    "@electric-sql/pglite-socket": "^0.1.3"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.9"
   }
 }

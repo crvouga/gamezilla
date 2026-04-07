@@ -4,7 +4,6 @@
  */
 export interface AppRuntimeEnv {
   readonly PORT?: string;
-  readonly PUBSUB_URL?: string;
   readonly DATABASE_URL?: string;
   readonly DATABASE_HOST?: string;
   readonly DATABASE_USERNAME?: string;

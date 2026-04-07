@@ -1,8 +1,7 @@
 import type { Command } from '../command';
 import type { CiPlatform } from '../platform';
 import { ALL_DEPS } from '../dep';
-import { ok, fail, banner, info } from '../fmt';
-import { PROJECT_CONFIG } from '../../project-config';
+import { ok, fail, banner } from '../fmt';
 
 export class CheckCommand implements Command {
   readonly id = 'check';
@@ -36,9 +35,6 @@ export class CheckCommand implements Command {
         }
       }
     }
-
-    info('Fly.io org', PROJECT_CONFIG.fly.org);
-    info('Fly.io region', PROJECT_CONFIG.fly.region);
 
     if (failures.length > 0) {
       throw new Error(

@@ -51,18 +51,10 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 20
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v4
         with:
           terraform_wrapper: false
-
-      - name: Setup flyctl
-        uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Install dependencies
         run: bun install --frozen-lockfile

@@ -4,15 +4,8 @@ import { readTfOutputs, type TfOutputs } from '../lib/tf-outputs';
 
 const SUMMARY_SERVICES = [
   { label: 'Web App', outputKey: 'web_app_url' },
-  { label: 'Req Res', outputKey: 'req_res_url' },
-] as const;
-
-const SUMMARY_INFRA = [
-  { label: 'EMQX (internal)', outputKey: 'pubsub_internal_mqtt_url' },
-  { label: 'EMQX (public)', outputKey: 'pubsub_public_url' },
-  { label: 'Req-res app', outputKey: 'req_res_app_name' },
-  { label: 'Worker app', outputKey: 'worker_app_name' },
-  { label: 'EMQX app', outputKey: 'emqx_app_name' },
+  { label: 'API (Workers)', outputKey: 'api_url' },
+  { label: 'Database (PlanetScale)', outputKey: 'database_url', redact: true },
 ] as const;
 
 export class SummaryCommand implements Command {
@@ -34,15 +27,10 @@ export class SummaryCommand implements Command {
   }
 
   private writeSummary(outputs: TfOutputs): void {
-    const serviceRows = SUMMARY_SERVICES.map(({ label, outputKey }) => {
-      const url = outputs[outputKey] ?? '_(unavailable)_';
-      return `| **${label}** | ${url} |`;
-    }).join('\n');
-
-    const infraRows = SUMMARY_INFRA.map(({ label, outputKey }) => {
-      const v = outputs[outputKey];
-      const cell = v !== undefined && v !== '' ? v : '_(not in outputs)_';
-      return `| **${label}** | ${cell} |`;
+    const serviceRows = SUMMARY_SERVICES.map((svc) => {
+      let url = outputs[svc.outputKey] ?? '_(unavailable)_';
+      if ('redact' in svc && svc.redact && url !== '_(unavailable)_') url = '_(set)_';
+      return `| **${svc.label}** | ${url} |`;
     }).join('\n');
 
     const body = `## Deployment Complete
@@ -50,10 +38,6 @@ export class SummaryCommand implements Command {
 | Service | URL |
 |---------|-----|
 ${serviceRows}
-
-| Infra | Value |
-|-------|-------|
-${infraRows}
 `;
 
     this.platform.appendJobSummary(body);

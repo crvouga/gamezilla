@@ -7,11 +7,11 @@ import { runCapture } from './subprocess';
  */
 const SECRET_MAP: ReadonlyArray<{ doppler: string; env: string }> = [
   { doppler: 'TF_TOKEN', env: 'TF_TOKEN_app_terraform_io' },
-  { doppler: 'FLY_API_TOKEN', env: 'FLY_API_TOKEN' },
   { doppler: 'CLOUDFLARE_API_TOKEN', env: 'CLOUDFLARE_API_TOKEN' },
   { doppler: 'CLOUDFLARE_ACCOUNT_ID', env: 'CLOUDFLARE_ACCOUNT_ID' },
-  { doppler: 'DATABASE_URL', env: 'DATABASE_URL' },
-  { doppler: 'EMQX_DASHBOARD_PASSWORD', env: 'EMQX_DASHBOARD_PASSWORD' },
+  { doppler: 'PLANETSCALE_SERVICE_TOKEN_ID', env: 'PLANETSCALE_SERVICE_TOKEN_ID' },
+  { doppler: 'PLANETSCALE_SERVICE_TOKEN', env: 'PLANETSCALE_SERVICE_TOKEN' },
+  { doppler: 'PLANETSCALE_ORG', env: 'TF_VAR_planetscale_org' },
 ];
 
 export function getSecretMap(): ReadonlyArray<{ doppler: string; env: string }> {

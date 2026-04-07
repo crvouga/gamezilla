@@ -1,0 +1,22 @@
+name = "gamezilla-api"
+main = "src/api.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Custom domain — managed by Cloudflare, TLS automatic
+# routes = [{ pattern = "api.gamezilla.app", custom_domain = true }]
+
+# PlanetScale Postgres credentials — set via:
+#   wrangler secret put DATABASE_URL
+# Local dev uses the PGlite server from packages/local
+[vars]
+DATABASE_URL = "postgres://postgres:postgres@127.0.0.1:5432/postgres"
+
+[durable_objects]
+bindings = [
+  { name = "PUBSUB_DO", class_name = "PubSubDurableObject" },
+]
+
+[[migrations]]
+tag = "v1"
+new_classes = ["PubSubDurableObject"]

@@ -1,5 +1,6 @@
 import { assert } from '@gamezilla/shared/assert';
-import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { requireOutput, type TfOutputs } from './tf-outputs';
 import type { CiPlatform } from '../platform';
@@ -13,17 +14,45 @@ export interface Deployable {
 
 const DEFAULT_PUBLIC_CONFIG = { local: {}, prod: {} };
 
+export class WorkersDeployable implements Deployable {
+  readonly id = 'workers-api';
+
+  constructor(private readonly platform: CiPlatform) {}
+
+  deploy(outputs: TfOutputs): void {
+    const appDir = join(REPO_ROOT, 'packages/app');
+
+    const databaseUrl = requireOutput(this.platform, outputs, 'database_url');
+    const tmp = join(tmpdir(), `wrangler-secrets-${Date.now()}.json`);
+    writeFileSync(tmp, JSON.stringify({ DATABASE_URL: databaseUrl }), 'utf8');
+    try {
+      run(this.platform, 'wrangler', ['secret', 'bulk', tmp], {
+        cwd: appDir,
+        label: 'workers-api: sync DATABASE_URL secret',
+      });
+    } finally {
+      try { unlinkSync(tmp); } catch { /* best-effort cleanup */ }
+    }
+
+    run(this.platform, 'wrangler', ['deploy'], {
+      cwd: appDir,
+      label: 'workers-api: Cloudflare Workers deploy',
+    });
+    this.platform.notice('Workers API deployed.');
+  }
+}
+
 export class WebAppDeployable implements Deployable {
   readonly id = 'web-app';
 
   constructor(private readonly platform: CiPlatform) {}
 
   deploy(outputs: TfOutputs): void {
-    const syncUrl = toHttps(requireOutput(this.platform, outputs, 'req_res_url'));
+    const syncUrl = toHttps(requireOutput(this.platform, outputs, 'api_url'));
     const pagesProject = requireOutput(this.platform, outputs, 'pages_project_name');
 
     if (!/^https:\/\//.test(syncUrl)) {
-      this.platform.error(`PATCH_DB_REQ_RES_URL must be https:// (got: ${syncUrl})`);
+      this.platform.error(`API_URL must be https:// (got: ${syncUrl})`);
       assert.fail('web-app: sync URL must be https://');
     }
 
@@ -87,6 +116,7 @@ function toHttps(raw: string): string {
 
 export function createDeployRegistry(platform: CiPlatform): readonly Deployable[] {
   const registry: readonly Deployable[] = [
+    new WorkersDeployable(platform),
     new WebAppDeployable(platform),
   ];
   assert.ok(registry.length > 0, 'DEPLOY_REGISTRY must not be empty');

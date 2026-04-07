@@ -3,11 +3,10 @@ import type { CiPlatform } from '../platform';
 import { runStep } from '../platform';
 import { run } from '../subprocess';
 import { TF_PACKAGE_ROOT } from '../paths';
-import { PROJECT_CONFIG } from '../../project-config';
 
 export class DomainsSetupCommand implements Command {
   readonly id = 'domains-setup';
-  readonly summary = 'Enable custom domain via Terraform + Fly certs';
+  readonly summary = 'Enable custom domain via Terraform';
   readonly group = 'domains' as const;
 
   constructor(private readonly platform: CiPlatform) {}
@@ -34,23 +33,8 @@ export class DomainsSetupCommand implements Command {
       );
     });
 
-    await runStep(this.platform, 'Fly.io certs', () => {
-      for (const [label, appName] of [
-        ['api.gamezilla.app', PROJECT_CONFIG.fly.apps.reqRes],
-        ['mqtt.gamezilla.app', PROJECT_CONFIG.fly.apps.emqx],
-      ] as const) {
-        try {
-          run(this.platform, 'flyctl', ['certs', 'add', label, '--app', appName], {
-            label: `Fly cert ${label}`,
-          });
-        } catch {
-          this.platform.notice(`Cert for ${label} may already exist — skipping.`);
-        }
-      }
-    });
-
     this.platform.notice('Domain setup complete. DNS records managed by Cloudflare via Terraform.');
-    this.platform.notice('Cloudflare handles TLS automatically for Pages.');
-    this.platform.notice('Fly.io TLS certs will be provisioned automatically via ALPN.');
+    this.platform.notice('Workers custom domains are configured in wrangler.toml.');
+    this.platform.notice('Cloudflare handles TLS automatically for Pages and Workers.');
   }
 }

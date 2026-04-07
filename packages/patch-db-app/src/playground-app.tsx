@@ -6,7 +6,7 @@ import { PatchdbAppNav, readStoredMode, type PatchdbAppMode } from './nav';
 import { PlaygroundHeader } from './playground-header';
 import { PlaygroundLayout } from './playground-layout';
 import { SimProvider, type SimContextValue } from './sim-context';
-import { ReqResInspector } from './req-res-inspector';
+import { ApiInspector } from './api-inspector';
 import { usePlaygroundBoot } from './use-playground-boot';
 
 export function PlaygroundApp() {
@@ -19,7 +19,7 @@ export function PlaygroundApp() {
         <Box sx={{ px: 4, py: 3 }}>
           <PatchdbAppNav mode={mode} onModeChange={setMode} />
         </Box>
-        {mode === 'syncInspector' ? <ReqResInspector /> : <PlaygroundRoute />}
+        {mode === 'syncInspector' ? <ApiInspector /> : <PlaygroundRoute />}
       </Box>
     </SafeAreaView>
   );

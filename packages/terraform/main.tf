@@ -8,48 +8,27 @@ module "cloudflare_pages" {
   custom_domain         = var.custom_domain
 }
 
-# -- Req-res API (Fly.io) -----------------------------------------------------
-
-module "fly_req_res" {
-  source = "./modules/fly-app"
-
-  name            = "gamezilla-req-res"
-  fly_org         = var.fly_org
-  fly_region      = var.fly_region
-  custom_hostname = var.custom_domain ? "api.gamezilla.app" : ""
-}
-
-# -- Worker (Fly.io) ----------------------------------------------------------
-
-module "fly_worker" {
-  source = "./modules/fly-app"
-
-  name       = "gamezilla-worker"
-  fly_org    = var.fly_org
-  fly_region = var.fly_region
-}
-
-# -- EMQX pub-sub broker (Fly.io + volume) ------------------------------------
-
-module "fly_emqx" {
-  source = "./modules/fly-emqx"
-
-  name            = "gamezilla-emqx"
-  fly_org         = var.fly_org
-  fly_region      = var.fly_region
-  custom_hostname = var.custom_domain ? "mqtt.gamezilla.app" : ""
-}
-
-# -- DNS records (Cloudflare -> Fly.io) ----------------------------------------
+# -- DNS records (Cloudflare) -------------------------------------------------
 
 module "dns" {
   source = "./modules/dns"
 
   cloudflare_zone_id = var.cloudflare_zone_id
   enabled            = var.custom_domain
+}
 
-  req_res_ipv4 = module.fly_req_res.ipv4
-  req_res_ipv6 = module.fly_req_res.ipv6
-  emqx_ipv4    = module.fly_emqx.ipv4
-  emqx_ipv6    = module.fly_emqx.ipv6
+# -- PlanetScale Postgres -----------------------------------------------------
+
+resource "planetscale_postgres_branch" "main" {
+  organization = var.planetscale_org
+  database     = var.planetscale_database
+  name         = "main"
+}
+
+resource "planetscale_postgres_branch_role" "app" {
+  organization    = var.planetscale_org
+  database        = var.planetscale_database
+  branch          = planetscale_postgres_branch.main.id
+  name            = "app"
+  inherited_roles = ["pg_read_all_data", "pg_write_all_data"]
 }

@@ -18,8 +18,7 @@ function isGatewayError(status: number): boolean {
 
 const HTTP_ENDPOINTS: readonly HttpEndpointCheck[] = [
   { label: 'WebApp', outputKey: 'web_app_url' },
-  { label: 'ReqRes /health', outputKey: 'req_res_url', probePath: '/health' },
-  { label: 'ReqRes (origin)', outputKey: 'req_res_url', gatewayCheck: true },
+  { label: 'API /health', outputKey: 'api_url', probePath: '/health' },
 ];
 
 const HTTP_TIMEOUT_MS = 30_000;

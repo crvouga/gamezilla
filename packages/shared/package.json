@@ -16,12 +16,13 @@
     "./dependency-injection/react": "./src/dependency-injection/react.tsx",
     "./polyfill": "./src/polyfill/index.ts",
     "./pub-sub/impl-in-memory": "./src/pub-sub/impl-in-memory.ts",
-    "./pub-sub/impl-mqtt": "./src/pub-sub/impl-mqtt.ts",
+    "./pub-sub/impl-durable-object": "./src/pub-sub/impl-durable-object.ts",
     "./pub-sub/interface": "./src/pub-sub/interface.ts",
     "./sql-client/impl-bun-postgres": "./src/sql-client/impl-bun-postgres.ts",
     "./sql-client/impl-bun-sqlite": "./src/sql-client/impl-bun-sqlite.ts",
     "./sql-client/impl-expo-sqlite": "./src/sql-client/impl-expo-sqlite.ts",
     "./sql-client/impl-sql-js": "./src/sql-client/impl-sql-js.ts",
+    "./sql-client/impl-planetscale": "./src/sql-client/impl-planetscale.ts",
     "./sql-client/interface": "./src/sql-client/interface.ts",
     "./sqlite": "./src/sqlite/index.ts",
     "./theme": "./src/theme/index.ts",
@@ -32,9 +33,9 @@
   "dependencies": {
     "expo-crypto": "~15.0.8",
     "expo-sqlite": "~16.0.10",
-    "mqtt": "^5.10.3",
     "react": "19.1.0",
     "react-native": "0.81.5",
+    "@neondatabase/serverless": "^1.0.0",
     "sql.js": "^1.14.0"
   },
   "scripts": {

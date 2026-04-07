@@ -9,7 +9,7 @@ export interface Dep {
   check(): DepStatus;
   /** Installs or upgrades the dep. Throws on failure. */
   install(): void;
-  /** Optional verification command(s) to run after check passes (e.g. `flyctl auth whoami`). */
+  /** Optional verification command(s) to run after check passes (e.g. `wrangler whoami`). */
   verify?(): void;
 }
 
@@ -62,24 +62,6 @@ function verifyRun(bin: string, args: string[]): void {
 // Implementations
 // ---------------------------------------------------------------------------
 
-export const FlyctlDep: Dep = {
-  name: 'flyctl',
-  bin: 'flyctl',
-  version: () => captureVersion('flyctl', ['version']),
-  check() {
-    if (!whichSync('flyctl')) return { ok: false, reason: 'not found on PATH' };
-    const v = this.version();
-    if (!v) return { ok: false, reason: 'could not determine version' };
-    return { ok: true, version: v };
-  },
-  install() {
-    spawnInstall('bash', ['-c', 'curl -L https://fly.io/install.sh | sh']);
-  },
-  verify() {
-    verifyRun('flyctl', ['auth', 'whoami']);
-  },
-};
-
 export const WranglerDep: Dep = {
   name: 'wrangler',
   bin: 'wrangler',
@@ -94,7 +76,7 @@ export const WranglerDep: Dep = {
     spawnInstall('bun', ['add', '-g', 'wrangler']);
   },
   verify() {
-    verifyRun('wrangler', ['--version']);
+    verifyRun('wrangler', ['whoami']);
   },
 };
 
@@ -113,24 +95,6 @@ export const TerraformDep: Dep = {
   },
   verify() {
     verifyRun('terraform', ['version']);
-  },
-};
-
-export const DockerDep: Dep = {
-  name: 'docker',
-  bin: 'docker',
-  version: () => captureVersion('docker', ['--version']),
-  check() {
-    if (!whichSync('docker')) return { ok: false, reason: 'not found on PATH' };
-    const v = this.version();
-    if (!v) return { ok: false, reason: 'could not determine version' };
-    return { ok: true, version: v };
-  },
-  install() {
-    spawnInstall('brew', ['install', '--cask', 'docker']);
-  },
-  verify() {
-    verifyRun('docker', ['info', '--format', '{{.ServerVersion}}']);
   },
 };
 
@@ -175,10 +139,8 @@ export const DopplerDep: Dep = {
 // ---------------------------------------------------------------------------
 
 export const ALL_DEPS: readonly Dep[] = [
-  FlyctlDep,
   WranglerDep,
   TerraformDep,
-  DockerDep,
   BunDep,
   DopplerDep,
 ];

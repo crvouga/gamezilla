@@ -8,32 +8,13 @@ output "pages_project_name" {
   value       = module.cloudflare_pages.project_name
 }
 
-output "req_res_url" {
-  description = "Req-res API public URL"
-  value       = var.custom_domain ? "https://api.gamezilla.app" : module.fly_req_res.public_url
+output "api_url" {
+  description = "API public URL (Workers custom domain)"
+  value       = "https://api.gamezilla.app"
 }
 
-output "req_res_app_name" {
-  description = "Fly.io app name for req-res"
-  value       = module.fly_req_res.app_name
-}
-
-output "worker_app_name" {
-  description = "Fly.io app name for worker"
-  value       = module.fly_worker.app_name
-}
-
-output "emqx_app_name" {
-  description = "Fly.io app name for EMQX"
-  value       = module.fly_emqx.app_name
-}
-
-output "pubsub_internal_mqtt_url" {
-  description = "Fly internal network MQTT URL for req-res and worker"
-  value       = module.fly_emqx.internal_mqtt_url
-}
-
-output "pubsub_public_url" {
-  description = "Public EMQX URL"
-  value       = var.custom_domain ? "mqtt://mqtt.gamezilla.app:1883" : module.fly_emqx.public_url
+output "database_url" {
+  description = "PlanetScale Postgres connection string for the Worker"
+  sensitive   = true
+  value       = "postgres://${planetscale_postgres_branch_role.app.username}:${planetscale_postgres_branch_role.app.password}@${planetscale_postgres_branch_role.app.access_host_url}/${planetscale_postgres_branch_role.app.database_name}"
 }

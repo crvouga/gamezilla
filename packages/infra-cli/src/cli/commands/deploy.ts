@@ -8,7 +8,7 @@ import { runHttpSmokeTestsOnly } from './post-deploy';
 
 export class DeployCommand implements Command {
   readonly id = 'deploy';
-  readonly summary = 'Full deploy: terraform + fly + pages + smoke tests';
+  readonly summary = 'Full deploy: terraform + workers + pages + smoke tests';
   readonly group = 'main' as const;
 
   constructor(private readonly platform: CiPlatform) {}
@@ -16,7 +16,7 @@ export class DeployCommand implements Command {
   async execute(): Promise<void> {
     banner('Deploy');
 
-    heading('Running Terraform apply + Fly.io deploys');
+    heading('Terraform apply');
 
     const tfVarOverrides = [
       '-var', 'custom_domain=true',
@@ -33,7 +33,7 @@ export class DeployCommand implements Command {
     await runHttpSmokeTestsOnly(this.platform, outputs);
 
     banner('Deploy Complete');
-    for (const key of ['web_app_url', 'req_res_url'] as const) {
+    for (const key of ['web_app_url', 'api_url'] as const) {
       try {
         ok(key, requireOutput(this.platform, outputs, key));
       } catch { /* output not available */ }
