@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.json",
-    "infra": "bun run ./src/bin/cli.ts"
+    "infra": "bun run ./src/bin/cli.ts",
+    "nuke-pages-deployments": "bun run ./src/scripts/nuke-pages-deployments.ts"
   },
   "dependencies": {
     "@gamezilla/shared": "workspace:*",
