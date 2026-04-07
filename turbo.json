@@ -1,6 +1,5 @@
 {
-  "$schema": "https://turbo.build/schema.json",
-  "ui": "stream",
+  "$schema": "https://v2-9-4.turborepo.dev/schema.json",
   "globalPassThroughEnv": [
     "GITHUB_ACTIONS",
     "GITHUB_STEP_SUMMARY",
@@ -40,7 +39,15 @@
     "build": {
       "dependsOn": ["^build"],
       "env": ["EXPO_PUBLIC_STAGE"],
-      "inputs": ["**/*.ts", "**/*.tsx", "**/*.css", "**/*.json", "**/*.html", "vite.config.ts", "tsconfig.json"],
+      "inputs": [
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.css",
+        "**/*.json",
+        "**/*.html",
+        "vite.config.ts",
+        "tsconfig.json"
+      ],
       "outputs": ["dist/**"],
       "cache": false
     }

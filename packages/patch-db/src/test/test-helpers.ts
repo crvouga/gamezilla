@@ -43,6 +43,7 @@ export async function createSqliteFactory(): Promise<{
 }> {
   const client: SqlClient = SqlClientImplBunSqlite.open(':memory:');
   await client.connect();
+  await client.run('PRAGMA foreign_keys = ON');
   const db = new PatchDbImplSqlite(client);
   await db.migrate();
   return { db, teardown: () => client.disconnect() };

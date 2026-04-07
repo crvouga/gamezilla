@@ -144,6 +144,60 @@ describe.each(implementations)('$name', ({ factory }) => {
     expect(p3Read?.parentId).toBe(p1.patchId);
   });
 
+  test('synced patch batch with out-of-order parent references does not violate FK', async () => {
+    const root = await db.write([
+      { entityId: 'e4', entityType: 'todo', attributes: { 'todo/done': false } },
+    ]);
+    const rootPatch = root[0];
+    assert.defined(rootPatch, 'rootPatch must be defined');
+
+    const idA = crypto.randomUUID();
+    const idB = crypto.randomUUID();
+    const idC = crypto.randomUUID();
+    const idD = crypto.randomUUID();
+    const idE = crypto.randomUUID();
+    const now = new Date().toISOString();
+
+    const makeSynced = (
+      patchId: string,
+      parentId: string,
+      value: unknown
+    ) => ({
+      entityId: 'e4',
+      entityType: 'todo',
+      attributes: { 'todo/done': value, 'patch/syncedAt': null, 'patch/createdBy': '', 'patch/sessionId': '' },
+      patchId,
+      parentId,
+      createdAt: now,
+      recordedAt: now,
+      createdBy: '',
+      sessionId: '',
+    });
+
+    // Chain: root -> A -> B -> C -> D -> E
+    // Intentionally scrambled so children precede parents in the array.
+    const patches = [
+      makeSynced(idD, idC, false),  // D before C
+      makeSynced(idB, idA, false),  // B before A
+      makeSynced(idE, idD, true),   // E before D
+      makeSynced(idA, rootPatch.patchId, true), // A (first in chain)
+      makeSynced(idC, idB, true),   // C before B
+    ];
+
+    const written = await db.write(patches);
+    expect(written).toHaveLength(5);
+
+    const results = await db.read([{ entityType: 'todo', entityId: 'e4' }]);
+    const result = results[0];
+    assert.defined(result, 'result must be defined');
+    expect(result.patches).toHaveLength(6);
+
+    const last = result.patches[result.patches.length - 1];
+    assert.defined(last, 'last patch must be defined');
+    expect(last.patchId).toBe(idE);
+    expect(last.attributes['todo/done']).toBe(true);
+  });
+
   test('read with on:patches returns patches without patch/syncedAt (unsynced)', async () => {
     const listId = crypto.randomUUID();
     const createWritten = await db.write([

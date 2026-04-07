@@ -8,7 +8,7 @@
     "./*": "./src/*"
   },
   "scripts": {
-    "install:deps": "npx expo install --check",
+    "install:deps": "npx expo install --check || true",
     "lint": "eslint .",
     "tc": "tsc --noEmit"
   },

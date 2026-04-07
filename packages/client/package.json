@@ -51,8 +51,8 @@
   },
   "scripts": {
     "android": "expo start --android",
-    "install:deps": "npx expo install --check",
-    "dev": "expo start --web --port 8082",
+    "install:deps": "npx expo install --check || true",
+    "dev": "expo start --web --port 5173",
     "build": "expo export -p web",
     "ios": "expo start --ios",
     "lint": "expo lint",

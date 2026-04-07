@@ -17,6 +17,7 @@ import {
   PatchesDbQuery,
   PatchesDbResult,
   PatchInput,
+  topologicalSortPatches,
 } from '../interface';
 import { parseAttributes, toEntity, toPatch } from './mappers';
 import {
@@ -308,7 +309,8 @@ export class PatchDbImplSqlite implements PatchesDb {
     await this.sqlClient.transaction(async (tx) => {
       const touchedEntities = new Set<string>();
       let lastTimestamp = Date.now() - 1;
-      for (const patch of patches) {
+      const sorted = topologicalSortPatches(patches);
+      for (const patch of sorted) {
         const isSyncedPatch =
           'patchId' in patch &&
           'parentId' in patch &&

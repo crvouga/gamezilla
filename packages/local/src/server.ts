@@ -11,17 +11,25 @@
 
 import { PGlite } from '@electric-sql/pglite';
 import { PGLiteSocketServer } from '@electric-sql/pglite-socket';
+import { createApiHandler } from '@gamezilla/api/api-handler';
 import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
+import { assert } from '@gamezilla/shared/assert';
 import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
 import { SqlClientImplBunPostgres } from '@gamezilla/shared/sql-client/impl-bun-postgres';
-import { createApiHandler } from '@gamezilla/api/api-handler';
 import { connect, type Socket } from 'net';
 
 const WS_PORT = parseInt(process.env['PORT'] ?? '5432', 10);
+assert.nonNegativeInteger(WS_PORT, 'PORT must be a non-negative integer');
 const API_PORT = parseInt(process.env['API_PORT'] ?? '8787', 10);
+assert.nonNegativeInteger(API_PORT, 'API_PORT must be a non-negative integer');
 const PG_INTERNAL_PORT = 15432;
+assert.nonNegativeInteger(
+  PG_INTERNAL_PORT,
+  'PG_INTERNAL_PORT must be a non-negative integer'
+);
 const HOST = '127.0.0.1';
-const DATA_DIR = process.env['DATA_DIR'];
+assert.string(HOST, 'HOST must be a string');
+const DATA_DIR = process.env['GAMEZILLA_DATA_DIR'];
 
 interface WsData {
   tcp: Socket | null;
@@ -77,7 +85,7 @@ async function main() {
       },
       message(ws, message) {
         ws.data.tcp?.write(
-          typeof message === 'string' ? Buffer.from(message) : message,
+          typeof message === 'string' ? Buffer.from(message) : message
         );
       },
       close(ws) {
