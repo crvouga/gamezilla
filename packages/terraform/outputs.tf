@@ -1,6 +1,6 @@
-output "web_app_url" {
-  description = "Cloudflare Pages web app URL"
-  value       = module.cloudflare_pages.url
+output "client_url" {
+  description = "Client URL (custom domain)"
+  value       = "https://www.gamezilla.app"
 }
 
 output "pages_project_name" {

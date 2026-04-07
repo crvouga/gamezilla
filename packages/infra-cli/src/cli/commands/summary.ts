@@ -3,7 +3,7 @@ import type { CiPlatform } from '../platform/platform';
 import type { Command } from './types';
 
 const SUMMARY_SERVICES = [
-  { label: 'Client', outputKey: 'web_app_url' },
+  { label: 'Client', outputKey: 'client_url' },
   { label: 'API (Workers)', outputKey: 'api_url' },
   { label: 'Database (D1)', outputKey: 'd1_database_id' },
 ] as const;

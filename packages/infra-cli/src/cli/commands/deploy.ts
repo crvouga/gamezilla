@@ -83,7 +83,7 @@ export class DeployCommand implements Command {
 
     // ── Done ────────────────────────────────────────────────────────────
     banner('Deploy Complete');
-    for (const key of ['web_app_url', 'api_url'] as const) {
+    for (const key of ['client_url', 'api_url'] as const) {
       try {
         ok(key, requireOutput(this.platform, outputs, key));
       } catch {
