@@ -9,6 +9,17 @@ import { sqliteJsonPathToKey } from './json-path';
 
 export type WhereFragment = { sql: string; params: unknown[] };
 
+/**
+ * PGlite's extended query protocol requires params to match the SQL-declared
+ * type exactly.  Since our WHERE clauses use `?::text` to compare against the
+ * text output of JSONB `->>`, every value in that position must be a string.
+ */
+function toTextParam(v: unknown): string {
+  if (typeof v === 'string') return v;
+  if (v == null) return String(v);
+  return String(v);
+}
+
 /** Builds JSON path for keys; uses same quoting rules as SQLite query-builder */
 function jsonPathForAttribute(attribute: string): string {
   assertAttribute(attribute);
@@ -29,7 +40,7 @@ function buildWhereClauseForColumn(
       const key = sqliteJsonPathToKey(path);
       return {
         sql: `(${col} ->> ?) = ?::text`,
-        params: [key, clause.value],
+        params: [key, toTextParam(clause.value)],
       };
     }
     case '!=': {
@@ -38,7 +49,7 @@ function buildWhereClauseForColumn(
       const key = sqliteJsonPathToKey(path);
       return {
         sql: `(${col} ->> ?) IS DISTINCT FROM ?::text`,
-        params: [key, clause.value],
+        params: [key, toTextParam(clause.value)],
       };
     }
     case 'gt': {
@@ -47,7 +58,7 @@ function buildWhereClauseForColumn(
       const key = sqliteJsonPathToKey(path);
       return {
         sql: `(${col} ->> ?) > ?::text`,
-        params: [key, clause.value],
+        params: [key, toTextParam(clause.value)],
       };
     }
     case 'gte': {
@@ -56,7 +67,7 @@ function buildWhereClauseForColumn(
       const key = sqliteJsonPathToKey(path);
       return {
         sql: `(${col} ->> ?) >= ?::text`,
-        params: [key, clause.value],
+        params: [key, toTextParam(clause.value)],
       };
     }
     case 'lt': {
@@ -65,7 +76,7 @@ function buildWhereClauseForColumn(
       const key = sqliteJsonPathToKey(path);
       return {
         sql: `(${col} ->> ?) < ?::text`,
-        params: [key, clause.value],
+        params: [key, toTextParam(clause.value)],
       };
     }
     case 'lte': {
@@ -74,7 +85,7 @@ function buildWhereClauseForColumn(
       const key = sqliteJsonPathToKey(path);
       return {
         sql: `(${col} ->> ?) <= ?::text`,
-        params: [key, clause.value],
+        params: [key, toTextParam(clause.value)],
       };
     }
     case 'contains': {
@@ -83,7 +94,7 @@ function buildWhereClauseForColumn(
       const key = sqliteJsonPathToKey(path);
       return {
         sql: `(${col} ->> ?) LIKE '%' || ?::text || '%'`,
-        params: [key, clause.value],
+        params: [key, toTextParam(clause.value)],
       };
     }
     case 'in': {
@@ -93,7 +104,7 @@ function buildWhereClauseForColumn(
       const placeholders = clause.values.map(() => '?::text').join(', ');
       return {
         sql: `(${col} ->> ?) IN (${placeholders})`,
-        params: [key, ...clause.values],
+        params: [key, ...clause.values.map(toTextParam)],
       };
     }
     case 'not_in': {
@@ -103,7 +114,7 @@ function buildWhereClauseForColumn(
       const placeholders = clause.values.map(() => '?::text').join(', ');
       return {
         sql: `((${col} ->> ?) IS NULL OR (${col} ->> ?) NOT IN (${placeholders}))`,
-        params: [key, key, ...clause.values],
+        params: [key, key, ...clause.values.map(toTextParam)],
       };
     }
     case 'exists': {

@@ -31,5 +31,5 @@ resource "planetscale_postgres_branch_role" "app" {
   database        = var.planetscale_database
   branch          = planetscale_postgres_branch.main.id
   name            = "app"
-  inherited_roles = ["pg_read_all_data", "pg_write_all_data"]
+  inherited_roles = ["pg_read_all_data", "pg_write_all_data", "postgres"]
 }

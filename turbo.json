@@ -14,8 +14,11 @@
       "cache": false
     },
     "dev": {
-      "dependsOn": ["install:deps"],
+      "dependsOn": ["kill", "install:deps"],
       "persistent": true,
+      "cache": false
+    },
+    "kill": {
       "cache": false
     },
     "check": {

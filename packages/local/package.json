@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "bun run src/server.ts",
+    "kill": "lsof -ti :15432 -ti :8787 | xargs kill -9 2>/dev/null || true",
     "up": "bun run src/server.ts"
   },
   "dependencies": {
