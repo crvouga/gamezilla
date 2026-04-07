@@ -27,9 +27,10 @@ export class StatusCommand implements Command {
     }
 
     heading('Endpoints');
+    const { domain } = PROJECT_CONFIG;
     const urls = [
-      `https://${PROJECT_CONFIG.cloudflare.pagesProject}.pages.dev`,
-      'https://api.gamezilla.app/health',
+      `https://www.${domain}`,
+      `https://api.${domain}/health`,
     ];
 
     for (const url of urls) {

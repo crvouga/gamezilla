@@ -1,4 +1,5 @@
 export const PROJECT_CONFIG = {
+  domain: 'gamezilla.app',
   github: {
     owner: 'crvouga',
     repo: 'gamezilla',

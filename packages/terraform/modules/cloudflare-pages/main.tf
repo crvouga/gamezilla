@@ -49,3 +49,27 @@ resource "cloudflare_record" "pages_www" {
   type    = "CNAME"
   proxied = true
 }
+
+resource "cloudflare_ruleset" "redirect_apex_to_www" {
+  count   = var.custom_domain ? 1 : 0
+  zone_id = var.cloudflare_zone_id
+  name    = "Redirect apex to www"
+  kind    = "zone"
+  phase   = "http_request_dynamic_redirect"
+
+  rules = [{
+    action = "redirect"
+    action_parameters = {
+      from_value = {
+        status_code           = 301
+        target_url            = {
+          expression = "concat(\"https://www.${var.domain}\", http.request.uri.path)"
+        }
+        preserve_query_string = true
+      }
+    }
+    expression  = "(http.host eq \"${var.domain}\")"
+    description = "Redirect apex to www"
+    enabled     = true
+  }]
+}
