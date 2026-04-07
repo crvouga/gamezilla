@@ -1,5 +1,5 @@
 import { PROJECT_CONFIG } from '../../project-config';
-import { ALL_DEPS } from '../deps/deps';
+import { ALL_DEPS } from '../deps/registry';
 import { banner, fail, heading, kv, ok, warn } from '../lib/fmt';
 import { readTfOutputs } from '../lib/tf-outputs';
 import type { CiPlatform } from '../platform/platform';

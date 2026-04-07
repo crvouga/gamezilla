@@ -1,6 +1,6 @@
 import { assert } from '@gamezilla/shared/assert';
 import { PROJECT_CONFIG } from '../../project-config';
-import { ALL_DEPS } from '../deps/deps';
+import { ALL_DEPS } from '../deps/registry';
 import { banner, fail as fmtFail, heading, info, ok, warn } from '../lib/fmt';
 import { TF_DEPLOY_VAR_ARGS } from '../lib/tf-vars';
 import { TF_PACKAGE_ROOT } from '../paths';
@@ -276,30 +276,43 @@ export class SetupCommand implements Command {
   private ensureDeps(): void {
     for (const dep of ALL_DEPS) {
       const status = dep.check();
-      if (status.ok) {
-        ok(dep.name, status.version);
-        if (dep.verify) dep.verify();
+
+      if (!status.ok) {
+        warn(dep.name, status.reason);
+        info(dep.name, 'installing…');
+        try {
+          dep.install();
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          fmtFail(dep.name, `install failed — ${msg}`);
+          assert.fail(`setup: could not install ${dep.name}`);
+        }
+        const after = dep.check();
+        if (!after.ok) {
+          fmtFail(dep.name, `still not available — ${after.reason}`);
+          assert.fail(`setup: ${dep.name} not available after install`);
+        }
+        ok(dep.name, `installed (${after.version})`);
         continue;
       }
 
-      warn(dep.name, status.reason);
-      info(dep.name, 'installing…');
-
+      const before = status.version;
+      info(dep.name, `${before} — upgrading…`);
       try {
-        dep.install();
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e);
-        fmtFail(dep.name, `install failed — ${msg}`);
-        assert.fail(`setup: could not install ${dep.name}`);
+        dep.upgrade();
+      } catch {
+        ok(dep.name, `${before} (upgrade skipped)`);
+        continue;
+      }
+      const after = dep.check();
+      const afterVersion = after.ok ? after.version : before;
+      if (afterVersion !== before) {
+        ok(dep.name, `${before} → ${afterVersion}`);
+      } else {
+        ok(dep.name, `${afterVersion} (latest)`);
       }
 
-      const after = dep.check();
-      if (after.ok) {
-        ok(dep.name, `installed (${after.version})`);
-      } else {
-        fmtFail(dep.name, `still not available — ${after.reason}`);
-        assert.fail(`setup: ${dep.name} not available after install`);
-      }
+      if (dep.verify) dep.verify();
     }
   }
 
