@@ -5,31 +5,29 @@ import type { CiPlatform } from '../platform';
 import { runStep } from '../platform';
 import { run, runSafe } from '../subprocess';
 import { getSecretMap, loadSecretsIntoEnv, validateSecret } from '../secrets';
+import { cfHeaders, cfAccountId } from '../secrets/cloudflare';
+import { psHeaders } from '../secrets/planetscale';
 import { TF_DEPLOY_VAR_ARGS } from '../lib/tf-vars';
 import { TF_PACKAGE_ROOT } from '../paths';
 import { PROJECT_CONFIG } from '../../project-config';
 
 interface ImportableResource {
   readonly address: string;
+  /** If true, this resource must be imported/created before others can refresh. */
+  readonly foundation?: boolean;
   readonly lookupId: () => Promise<string | null>;
 }
 
-/**
- * Resources that must exist before anything that references them can be
- * refreshed.  Each entry is a Terraform address + a way to look up whether
- * the resource already exists in the upstream provider so we can import
- * rather than create.
- */
-const FOUNDATION_RESOURCES: readonly ImportableResource[] = [
+const IMPORTABLE_RESOURCES: readonly ImportableResource[] = [
   {
     address: 'cloudflare_zone.main',
+    foundation: true,
     lookupId: async () => {
-      const token = process.env['CLOUDFLARE_API_TOKEN'];
-      if (!token) return null;
+      if (!process.env['CLOUDFLARE_API_TOKEN']) return null;
       try {
         const res = await fetch(
           `https://api.cloudflare.com/client/v4/zones?name=${PROJECT_CONFIG.domain}&per_page=1`,
-          { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
+          { headers: cfHeaders() },
         );
         if (!res.ok) return null;
         const body = (await res.json()) as { result?: Array<{ id: string }> };
@@ -39,19 +37,59 @@ const FOUNDATION_RESOURCES: readonly ImportableResource[] = [
       }
     },
   },
+  {
+    address: 'module.cloudflare_pages.cloudflare_pages_domain.apex[0]',
+    lookupId: async () => {
+      if (!process.env['CLOUDFLARE_API_TOKEN'] || !cfAccountId()) return null;
+      try {
+        const res = await fetch(
+          `https://api.cloudflare.com/client/v4/accounts/${cfAccountId()}/pages/projects/${PROJECT_CONFIG.cloudflare.pagesProject}/domains/${PROJECT_CONFIG.domain}`,
+          { headers: cfHeaders() },
+        );
+        if (!res.ok) return null;
+        return `${cfAccountId()}/${PROJECT_CONFIG.cloudflare.pagesProject}/${PROJECT_CONFIG.domain}`;
+      } catch {
+        return null;
+      }
+    },
+  },
+  {
+    address: 'module.cloudflare_pages.cloudflare_pages_domain.www[0]',
+    lookupId: async () => {
+      if (!process.env['CLOUDFLARE_API_TOKEN'] || !cfAccountId()) return null;
+      try {
+        const res = await fetch(
+          `https://api.cloudflare.com/client/v4/accounts/${cfAccountId()}/pages/projects/${PROJECT_CONFIG.cloudflare.pagesProject}/domains/www.${PROJECT_CONFIG.domain}`,
+          { headers: cfHeaders() },
+        );
+        if (!res.ok) return null;
+        return `${cfAccountId()}/${PROJECT_CONFIG.cloudflare.pagesProject}/www.${PROJECT_CONFIG.domain}`;
+      } catch {
+        return null;
+      }
+    },
+  },
+  {
+    address: 'planetscale_postgres_branch.main',
+    lookupId: async () => {
+      const org = process.env['TF_VAR_planetscale_org'];
+      const db = process.env['TF_VAR_planetscale_database'];
+      if (!org || !db || !process.env['PLANETSCALE_SERVICE_TOKEN_ID']) return null;
+      try {
+        const res = await fetch(
+          `https://api.planetscale.com/v1/organizations/${org}/databases/${db}/branches/main`,
+          { headers: psHeaders() },
+        );
+        if (!res.ok) return null;
+        const body = (await res.json()) as { id?: string };
+        if (!body.id) return null;
+        return JSON.stringify({ organization: org, database: db, id: body.id });
+      } catch {
+        return null;
+      }
+    },
+  },
 ];
-
-/**
- * Known Terraform state entries that may reference foundation resources.
- * If a foundation resource doesn't exist yet **and** these entries are
- * already in state, refreshing them will 500 / fail.  We remove them
- * from state so the targeted apply can succeed, then let the full apply
- * recreate them cleanly.
- */
-const ORPHAN_STATE_ENTRIES = [
-  'module.cloudflare_pages.cloudflare_pages_domain.apex[0]',
-  'module.cloudflare_pages.cloudflare_pages_domain.www[0]',
-] as const;
 
 /**
  * State entries from previous Terraform configs that no longer exist in the
@@ -143,7 +181,7 @@ export class BootstrapCommand implements Command {
       return;
     }
 
-    // ── 5. Remove stale + orphaned state entries ──────────────────────
+    // ── 5. Remove stale state entries ───────────────────────────────────
     heading('Repair state');
     for (const addr of STALE_STATE_ENTRIES) {
       if (this.stateHas(addr)) {
@@ -152,22 +190,20 @@ export class BootstrapCommand implements Command {
         ok('Removed', addr);
       }
     }
-    for (const addr of ORPHAN_STATE_ENTRIES) {
-      if (this.stateHas(addr)) {
-        info('Removing orphan', addr);
-        this.stateRm(addr);
-        ok('Removed', addr);
-      }
-    }
 
-    // ── 6. Import or targeted-apply foundation resources ─────────────────
-    heading('Foundation resources');
-    for (const res of FOUNDATION_RESOURCES) {
+    // ── 6. Import / create missing resources ─────────────────────────────
+    // Foundation resources first (others depend on them), then the rest.
+    heading('Reconcile resources');
+    const sorted = [
+      ...IMPORTABLE_RESOURCES.filter((r) => r.foundation),
+      ...IMPORTABLE_RESOURCES.filter((r) => !r.foundation),
+    ];
+    for (const res of sorted) {
       if (this.stateHas(res.address)) continue;
 
       const existingId = await res.lookupId();
       if (existingId) {
-        info('Importing', `${res.address} (id: ${existingId})`);
+        info('Importing', `${res.address}`);
         await runStep(this.platform, `Import ${res.address}`, () =>
           run(
             this.platform,
@@ -176,7 +212,7 @@ export class BootstrapCommand implements Command {
             { cwd: TF_PACKAGE_ROOT, label: `Import ${res.address}` },
           ),
         );
-      } else {
+      } else if (res.foundation) {
         info('Creating', res.address);
         await runStep(this.platform, `Apply ${res.address}`, () =>
           run(
@@ -193,6 +229,8 @@ export class BootstrapCommand implements Command {
             { cwd: TF_PACKAGE_ROOT, label: `Apply ${res.address}` },
           ),
         );
+      } else {
+        info('Will be created', `${res.address} (not found upstream, full apply will handle it)`);
       }
     }
 
@@ -227,7 +265,7 @@ export class BootstrapCommand implements Command {
   private async diagnoseState(): Promise<DiagnosticResult[]> {
     const results: DiagnosticResult[] = [];
 
-    for (const res of FOUNDATION_RESOURCES) {
+    for (const res of IMPORTABLE_RESOURCES) {
       const inState = this.stateHas(res.address);
       if (inState) {
         results.push({ label: res.address, healthy: true, detail: 'exists in state' });
@@ -238,8 +276,8 @@ export class BootstrapCommand implements Command {
         label: res.address,
         healthy: false,
         detail: upstreamId
-          ? `missing from state but exists upstream (${upstreamId}) — will import`
-          : 'missing from state and not found upstream — will create',
+          ? 'missing from state but exists upstream — will import'
+          : 'missing — will be created',
       });
     }
 
@@ -249,27 +287,6 @@ export class BootstrapCommand implements Command {
           label: addr,
           healthy: false,
           detail: 'stale — no longer in config, will be removed from state',
-        });
-      }
-    }
-
-    for (const addr of ORPHAN_STATE_ENTRIES) {
-      const exists = this.stateHas(addr);
-      const foundationMissing = results.some((r) => !r.healthy);
-
-      if (exists && foundationMissing) {
-        results.push({
-          label: addr,
-          healthy: false,
-          detail: 'in state but depends on missing foundation — will be removed',
-        });
-      } else if (exists) {
-        results.push({ label: addr, healthy: true, detail: 'exists in state' });
-      } else {
-        results.push({
-          label: addr,
-          healthy: true,
-          detail: 'not in state (will be created on next full apply)',
         });
       }
     }
