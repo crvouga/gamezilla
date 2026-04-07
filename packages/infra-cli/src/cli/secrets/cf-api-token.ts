@@ -8,7 +8,7 @@ export class CfApiToken implements SecretEntry {
   readonly hint = [
     'https://dash.cloudflare.com/profile/api-tokens → Create Token',
     'Start with the "Edit Zone DNS" template, then add:',
-    '  Zone permissions:    DNS Edit, Zone Settings Write',
+    '  Zone permissions:    DNS Edit, Zone Settings Write, Workers Routes Edit',
     '  Account permissions: Cloudflare Pages Edit, Workers Scripts Edit,',
     '                       Account Settings Read',
     'Zone Resources: All zones  |  Account Resources: All accounts',
@@ -97,6 +97,14 @@ export class CfApiToken implements SecretEntry {
                 `https://api.cloudflare.com/client/v4/zones/${zoneId}/rulesets`,
               ),
             },
+            {
+              label: 'Workers Routes Edit    (Zone permission — for custom domain routing)',
+              probe: probeCfPermission(
+                headers,
+                'GET',
+                `https://api.cloudflare.com/client/v4/zones/${zoneId}/workers/routes`,
+              ),
+            },
           );
         }
       } else {
@@ -116,8 +124,9 @@ export class CfApiToken implements SecretEntry {
           'Missing:',
           ...missing.map((p) => `  - ${p}`),
           '',
-          'Tip: start with the "Edit Zone DNS" template, then add Account',
-          'permissions: Cloudflare Pages Edit, Workers Scripts Edit, Account Settings Read.',
+          'Tip: start with the "Edit Zone DNS" template, then add:',
+          '  Zone: Workers Routes Edit',
+          '  Account: Cloudflare Pages Edit, Workers Scripts Edit, Account Settings Read',
           'Zone Resources → All zones  |  Account Resources → All accounts',
         ].join('\n');
       }

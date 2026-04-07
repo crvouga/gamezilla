@@ -22,6 +22,7 @@
     "./sql-client/impl-bun-sqlite": "./src/sql-client/impl-bun-sqlite.ts",
     "./sql-client/impl-expo-sqlite": "./src/sql-client/impl-expo-sqlite.ts",
     "./sql-client/impl-sql-js": "./src/sql-client/impl-sql-js.ts",
+    "./sql-client/impl-pglite-http": "./src/sql-client/impl-pglite-http.ts",
     "./sql-client/impl-planetscale": "./src/sql-client/impl-planetscale.ts",
     "./sql-client/interface": "./src/sql-client/interface.ts",
     "./sqlite": "./src/sqlite/index.ts",

@@ -1,113 +1,119 @@
 /**
- * Local dev server: PGlite with API served directly via Bun.
- * No Docker, no wrangler, no miniflare — runs entirely in-process.
+ * Local dev server: PGlite exposed over a tiny HTTP SQL API + the game API.
  *
- * - PGlite runs in-process
- * - PGLiteSocketServer exposes a Postgres wire protocol on a local TCP port
- * - Bun's native SQL driver connects via TCP (no WebSocket overhead)
- * - The API handler is served on port 8787 (same as wrangler dev)
- * - A neon-compat WS proxy is kept on port 5432 for other clients
+ * PGlite runs in-process (no socket server, no WS proxy). A single
+ * `POST /sql` endpoint accepts `{ sql, params? }` and returns rows +
+ * metadata. Limits mimic PlanetScale's HTTP API so issues surface locally
+ * before hitting production.
+ *
+ * The game API handler is served on a separate port using the same worker
+ * entry-point code path — it connects back to the HTTP SQL API via
+ * {@link SqlClientImplPgliteHttp}, exercising the same SQL-over-HTTP path
+ * that production uses with PlanetScale.
  */
 
 import { PGlite } from '@electric-sql/pglite';
-import { PGLiteSocketServer } from '@electric-sql/pglite-socket';
 import { createApiHandler } from '@gamezilla/api/api-handler';
 import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
-import { assert } from '@gamezilla/shared/assert';
 import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
-import { SqlClientImplBunPostgres } from '@gamezilla/shared/sql-client/impl-bun-postgres';
-import { connect, type Socket } from 'net';
+import { SqlClientImplPgliteHttp } from '@gamezilla/shared/sql-client/impl-pglite-http';
 
-const WS_PORT = parseInt(process.env['PORT'] ?? '5432', 10);
-assert.nonNegativeInteger(WS_PORT, 'PORT must be a non-negative integer');
+const SQL_PORT = parseInt(process.env['SQL_PORT'] ?? '15432', 10);
 const API_PORT = parseInt(process.env['API_PORT'] ?? '8787', 10);
-assert.nonNegativeInteger(API_PORT, 'API_PORT must be a non-negative integer');
-const PG_INTERNAL_PORT = 15432;
-assert.nonNegativeInteger(
-  PG_INTERNAL_PORT,
-  'PG_INTERNAL_PORT must be a non-negative integer'
-);
 const HOST = '127.0.0.1';
-assert.string(HOST, 'HOST must be a string');
 const DATA_DIR = process.env['GAMEZILLA_DATA_DIR'];
 
-interface WsData {
-  tcp: Socket | null;
+// PlanetScale HTTP API limits
+const LIMITS = {
+  maxBodyBytes: 16 * 1024 * 1024,
+  maxSqlBytes: 16 * 1024 * 1024,
+  maxParams: 65_535,
+  maxRows: 100_000,
+} as const;
+
+const db = await PGlite.create(DATA_DIR);
+
+function json(body: unknown, status = 200): Response {
+  return Response.json(body, { status });
 }
 
-async function main() {
-  const db = await PGlite.create(DATA_DIR);
+async function handleSql(req: Request): Promise<Response> {
+  const url = new URL(req.url);
 
-  const pgServer = new PGLiteSocketServer({
-    db,
-    port: PG_INTERNAL_PORT,
-    host: HOST,
-  });
-  await pgServer.start();
+  if (url.pathname === '/health') {
+    return json({ ok: true });
+  }
 
-  // Connect to PGlite via Bun's native Postgres driver (TCP, no WebSocket)
-  const sqlClient = new SqlClientImplBunPostgres(
-    `postgres://localhost:${PG_INTERNAL_PORT}/postgres`
-  );
-  await sqlClient.connect();
+  if (url.pathname !== '/sql' || req.method !== 'POST') {
+    return json({ error: 'Not Found' }, 404);
+  }
 
-  const patchDb = new PatchDbImplPostgres(sqlClient);
-  await patchDb.migrate();
+  const cl = parseInt(req.headers.get('content-length') ?? '0', 10);
+  if (cl > LIMITS.maxBodyBytes) {
+    return json({ error: 'Request body too large' }, 413);
+  }
 
-  const pubSub = new InMemoryPubSub();
-  const handle = createApiHandler({ db: patchDb, pubSub });
+  let body: { sql?: unknown; params?: unknown };
+  try {
+    body = await req.json();
+  } catch {
+    return json({ error: 'Invalid JSON' }, 400);
+  }
 
-  // API server on port 8787
-  Bun.serve({
-    port: API_PORT,
-    hostname: HOST,
-    idleTimeout: 255,
-    fetch: handle,
-  });
+  const { sql, params } = body;
 
-  console.log(`[local] API server on http://${HOST}:${API_PORT}`);
+  if (typeof sql !== 'string' || sql.length === 0) {
+    return json({ error: 'Missing or empty sql field' }, 400);
+  }
+  if (new TextEncoder().encode(sql).byteLength > LIMITS.maxSqlBytes) {
+    return json({ error: 'SQL exceeds 16 MB limit' }, 413);
+  }
 
-  // Neon-compat WS proxy on port 5432 (for other clients that need it)
-  Bun.serve<WsData>({
-    port: WS_PORT,
-    hostname: HOST,
-    fetch(req, server) {
-      if (server.upgrade(req, { data: { tcp: null } })) return;
-      return new Response('pglite ws proxy', { status: 200 });
-    },
-    websocket: {
-      open(ws) {
-        const tcp = connect(PG_INTERNAL_PORT, HOST);
-        ws.data.tcp = tcp;
-        tcp.on('data', (chunk: Buffer) => ws.sendBinary(new Uint8Array(chunk)));
-        tcp.on('close', () => ws.close());
-        tcp.on('error', () => ws.close());
-      },
-      message(ws, message) {
-        ws.data.tcp?.write(
-          typeof message === 'string' ? Buffer.from(message) : message
-        );
-      },
-      close(ws) {
-        ws.data.tcp?.destroy();
-        ws.data.tcp = null;
-      },
-    },
-  });
+  const paramArray = Array.isArray(params) ? params : [];
+  if (paramArray.length > LIMITS.maxParams) {
+    return json({ error: `Params exceed ${LIMITS.maxParams} limit` }, 400);
+  }
 
-  console.log(`[local] neon-compat WS proxy on ws://${HOST}:${WS_PORT}`);
-  console.log(`[local] pglite data: ${DATA_DIR ?? 'in-memory'}`);
-
-  const shutdown = async () => {
-    console.log('\n[local] shutting down...');
-    await sqlClient.disconnect();
-    await pgServer.stop();
-    await db.close();
-    process.exit(0);
-  };
-
-  process.on('SIGINT', shutdown);
-  process.on('SIGTERM', shutdown);
+  try {
+    const result = await db.query(
+      sql,
+      paramArray.length > 0 ? paramArray : undefined,
+    );
+    const rows = result.rows.slice(0, LIMITS.maxRows);
+    return json({
+      rows,
+      affectedRows: result.affectedRows ?? 0,
+      truncated: result.rows.length > LIMITS.maxRows,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return json({ error: message }, 400);
+  }
 }
 
-void main();
+Bun.serve({ port: SQL_PORT, hostname: HOST, fetch: handleSql });
+console.log(`[local] PGlite HTTP on http://${HOST}:${SQL_PORT}`);
+
+// Wire up the API handler through the HTTP sql-client (same path as production)
+const sqlClient = new SqlClientImplPgliteHttp(`http://${HOST}:${SQL_PORT}`);
+await sqlClient.connect();
+
+const patchDb = new PatchDbImplPostgres(sqlClient);
+await patchDb.migrate();
+
+const handle = createApiHandler({ db: patchDb, pubSub: new InMemoryPubSub() });
+
+Bun.serve({ port: API_PORT, hostname: HOST, idleTimeout: 255, fetch: handle });
+
+console.log(`[local] API on http://${HOST}:${API_PORT}`);
+console.log(`[local] data: ${DATA_DIR ?? 'in-memory'}`);
+
+const shutdown = async () => {
+  console.log('\n[local] shutting down...');
+  await sqlClient.disconnect();
+  await db.close();
+  process.exit(0);
+};
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
