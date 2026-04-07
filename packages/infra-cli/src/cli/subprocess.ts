@@ -73,6 +73,30 @@ export function runCapture(
   return r.stdout.toString().trim();
 }
 
+export interface SpawnResult {
+  exitCode: number | null;
+  stdout: string;
+  stderr: string;
+}
+
+export function runSafe(
+  cmd: string,
+  args: string[],
+  opts?: { cwd?: string; env?: NodeJS.ProcessEnv },
+): SpawnResult {
+  const r = Bun.spawnSync([cmd, ...args], {
+    env: opts?.env ?? process.env,
+    stdout: 'pipe',
+    stderr: 'pipe',
+    ...(opts?.cwd ? { cwd: opts.cwd } : {}),
+  });
+  return {
+    exitCode: r.exitCode,
+    stdout: r.stdout.toString(),
+    stderr: r.stderr.toString(),
+  };
+}
+
 export function runLocal(
   cmd: string,
   args: string[],

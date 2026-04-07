@@ -33,11 +33,22 @@ export class SummaryCommand implements Command {
       return `| **${svc.label}** | ${url} |`;
     }).join('\n');
 
+    const nameservers = outputs['cloudflare_nameservers'] ?? '_(unavailable)_';
+
     const body = `## Deployment Complete
 
 | Service | URL |
 |---------|-----|
 ${serviceRows}
+
+### Squarespace Nameserver Setup (one-time)
+
+Point your domain to Cloudflare in [Squarespace Domains](https://domains.squarespace.com):
+
+**Nameservers:** \`${nameservers}\`
+
+> DNS records and the apex-to-www redirect are managed by Cloudflare via Terraform.
+> Once nameservers are delegated, no further Squarespace configuration is needed.
 `;
 
     this.platform.appendJobSummary(body);

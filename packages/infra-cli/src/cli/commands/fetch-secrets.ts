@@ -2,7 +2,7 @@ import { appendFileSync } from 'node:fs';
 import type { Command } from '../command';
 import type { CiPlatform } from '../platform';
 import { banner, ok, fail, info } from '../fmt';
-import { getSecretMap, fetchDopplerSecret } from '../secrets';
+import { getSecretMap, fetchDopplerSecret, validateSecret } from '../secrets';
 
 /**
  * Fetches all required secrets from Doppler and exports them.
@@ -18,7 +18,7 @@ export class FetchSecretsCommand implements Command {
 
   constructor(private readonly platform: CiPlatform) {}
 
-  execute(): void {
+  async execute(): Promise<void> {
     const ghEnvPath = process.env['GITHUB_ENV'];
     const isCI = ghEnvPath !== undefined && ghEnvPath !== '';
 
@@ -27,9 +27,19 @@ export class FetchSecretsCommand implements Command {
     const secrets = getSecretMap();
     let failed = 0;
 
-    for (const { doppler, env } of secrets) {
+    for (const secret of secrets) {
+      const { doppler, env } = secret;
       try {
         const value = fetchDopplerSecret(doppler);
+
+        const error = await validateSecret(secret, value);
+        if (error !== null) {
+          if (!isCI) fail(env, `invalid — ${error}`);
+          else this.platform.warning(`${doppler} invalid: ${error}`);
+          failed++;
+          continue;
+        }
+
         process.env[env] = value;
 
         if (isCI) {

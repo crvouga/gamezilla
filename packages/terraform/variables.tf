@@ -3,15 +3,9 @@ variable "cloudflare_account_id" {
   type        = string
 }
 
-variable "cloudflare_zone_id" {
-  description = "Cloudflare zone ID for gamezilla.app"
-  type        = string
-}
-
 variable "custom_domain" {
   description = "Enable custom domain DNS records"
   type        = bool
-  default     = false
 }
 
 # -- PlanetScale ---------------------------------------------------------------
@@ -22,7 +16,6 @@ variable "planetscale_org" {
 }
 
 variable "planetscale_database" {
-  description = "PlanetScale database name (must already exist)"
+  description = "PlanetScale database name"
   type        = string
-  default     = "gamezilla"
 }

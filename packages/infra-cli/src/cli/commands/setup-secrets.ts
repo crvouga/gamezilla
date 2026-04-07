@@ -6,6 +6,7 @@ import {
   getSecretMap,
   dopplerSecretExists,
   setDopplerSecret,
+  validateSecret,
 } from '../secrets';
 
 /**
@@ -60,6 +61,12 @@ export class SetupSecretsCommand implements Command {
 
         if (trimmed === '') {
           info(s.doppler, 'skipped');
+          continue;
+        }
+
+        const error = await validateSecret(s, trimmed);
+        if (error !== null) {
+          fail(s.doppler, error);
           continue;
         }
 

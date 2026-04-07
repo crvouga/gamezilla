@@ -33,8 +33,7 @@ export class DomainsSetupCommand implements Command {
       );
     });
 
-    this.platform.notice('Domain setup complete. DNS records managed by Cloudflare via Terraform.');
-    this.platform.notice('Workers custom domains are configured in wrangler.toml.');
-    this.platform.notice('Cloudflare handles TLS automatically for Pages and Workers.');
+    this.platform.notice('Domain setup complete. DNS records and redirect managed by Cloudflare.');
+    this.platform.notice('One-time: set Cloudflare nameservers in Squarespace Domains (see `bun run infra summary`).');
   }
 }

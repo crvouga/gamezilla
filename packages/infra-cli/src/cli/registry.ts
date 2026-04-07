@@ -11,6 +11,7 @@ import { StatusCommand } from './commands/status';
 import { DomainsSetupCommand } from './commands/domains-setup';
 
 import { ApplyCommand } from './commands/apply';
+import { BootstrapCommand } from './commands/bootstrap';
 import { DeployAppsCommand } from './commands/deploy-apps';
 import { FetchSecretsCommand } from './commands/fetch-secrets';
 import { PostDeployCommand } from './commands/post-deploy';
@@ -19,6 +20,7 @@ import { SummaryCommand } from './commands/summary';
 
 export function createRegistry(platform: CiPlatform): Command[] {
   return [
+    new BootstrapCommand(platform),
     new CheckCommand(platform),
     new InstallDepsCommand(platform),
     new DeployCommand(platform),

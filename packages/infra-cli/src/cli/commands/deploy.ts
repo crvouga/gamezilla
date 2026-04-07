@@ -1,7 +1,8 @@
 import type { Command } from '../command';
-import type { CiPlatform } from '../platform';
 import { banner, heading, ok } from '../fmt';
 import { readTfOutputs, requireOutput } from '../lib/tf-outputs';
+import type { CiPlatform } from '../platform';
+import { loadSecretsIntoEnv } from '../secrets';
 import { ApplyCommand } from './apply';
 import { DeployAppsCommand } from './deploy-apps';
 import { runHttpSmokeTestsOnly } from './post-deploy';
@@ -16,11 +17,12 @@ export class DeployCommand implements Command {
   async execute(): Promise<void> {
     banner('Deploy');
 
+    heading('Load secrets');
+    loadSecretsIntoEnv();
+
     heading('Terraform apply');
 
-    const tfVarOverrides = [
-      '-var', 'custom_domain=true',
-    ] as const;
+    const tfVarOverrides = ['-var', 'custom_domain=true'] as const;
 
     const applyCmd = new ApplyCommand(this.platform, { tfVarOverrides });
     await applyCmd.execute();
@@ -36,7 +38,9 @@ export class DeployCommand implements Command {
     for (const key of ['web_app_url', 'api_url'] as const) {
       try {
         ok(key, requireOutput(this.platform, outputs, key));
-      } catch { /* output not available */ }
+      } catch {
+        /* output not available */
+      }
     }
   }
 }
