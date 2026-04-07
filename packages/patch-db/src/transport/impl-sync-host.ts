@@ -74,7 +74,7 @@ export class PatchDbImplSyncHost implements PatchDbSyncHost {
       assertQuery(assert, q);
     }
 
-    const knownPatches: Patch[] = [];
+    const knownPatchesById = new Map<string, Patch>();
     for (let i = 0; i < queries.length; i++) {
       const q = queries[i];
       assert.defined(q, 'PatchDbImplSyncHost.read: query must be defined', {
@@ -93,9 +93,10 @@ export class PatchDbImplSyncHost implements PatchDbSyncHost {
       );
       for (const p of kp) {
         assertPatch(assert, p);
-        knownPatches.push(p);
+        knownPatchesById.set(p.patchId, p);
       }
     }
+    const knownPatches = Array.from(knownPatchesById.values());
 
     const writtenKnown =
       knownPatches.length === 0 ? [] : await this.db.write(knownPatches);
