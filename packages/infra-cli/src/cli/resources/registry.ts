@@ -7,10 +7,10 @@ import type { Resource } from './types';
 
 export function createDestroyRegistry(): readonly Resource[] {
   return [
-    new TerraformResource(),
     new ApiWorkerResource(),
     new ClientPagesResource(),
     new DatabaseResource(),
     new DnsZoneResource(),
+    new TerraformResource(),
   ];
 }

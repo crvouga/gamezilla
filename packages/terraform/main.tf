@@ -19,17 +19,14 @@ module "cloudflare_pages" {
 }
 
 # -- PlanetScale Postgres -----------------------------------------------------
-
-resource "planetscale_postgres_branch" "main" {
-  organization = var.planetscale_org
-  database     = var.planetscale_database
-  name         = "main"
-}
+# The "main" branch is the default branch created with the database.
+# PlanetScale prevents creation/deletion of default branches, so we
+# reference it by name rather than managing it as a resource.
 
 resource "planetscale_postgres_branch_role" "app" {
   organization    = var.planetscale_org
   database        = var.planetscale_database
-  branch          = planetscale_postgres_branch.main.id
+  branch          = "main"
   name            = "app"
   inherited_roles = ["pg_read_all_data", "pg_write_all_data", "postgres"]
 }

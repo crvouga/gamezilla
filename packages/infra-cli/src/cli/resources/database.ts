@@ -4,6 +4,11 @@ import type { Resource } from './types';
 
 const PS_API = 'https://api.planetscale.com/v1';
 
+/**
+ * Best-effort cleanup for PlanetScale branch passwords/roles.
+ * The default branch ("main") cannot be deleted, so we only
+ * remove passwords created on it.
+ */
 export class DatabaseResource implements Resource {
   readonly id = 'database';
 
@@ -15,10 +20,7 @@ export class DatabaseResource implements Resource {
       return;
     }
 
-    const headers = psHeaders();
-
-    await this.deletePasswords(org, db, 'main', headers);
-    await this.deleteBranch(org, db, 'main', headers);
+    await this.deletePasswords(org, db, 'main', psHeaders());
   }
 
   private async deletePasswords(
@@ -30,8 +32,11 @@ export class DatabaseResource implements Resource {
     const url = `${PS_API}/organizations/${org}/databases/${db}/branches/${branch}/passwords`;
     const res = await fetch(url, { headers });
     if (!res.ok) {
-      if (res.status === 404) return;
-      warn('PlanetScale passwords list', `HTTP ${res.status}`);
+      if (res.status === 404) {
+        ok('Database passwords', 'none found');
+        return;
+      }
+      warn('Database passwords list', `HTTP ${res.status} — skipping`);
       return;
     }
 
@@ -39,6 +44,10 @@ export class DatabaseResource implements Resource {
       data?: Array<{ id: string; name: string }>;
     };
     const passwords = body.data ?? [];
+    if (passwords.length === 0) {
+      ok('Database passwords', 'none to delete');
+      return;
+    }
 
     for (const pw of passwords) {
       const del = await fetch(`${url}/${pw.id}`, {
@@ -50,25 +59,6 @@ export class DatabaseResource implements Resource {
       } else {
         warn('Password delete', `${pw.name || pw.id} — HTTP ${del.status}`);
       }
-    }
-  }
-
-  private async deleteBranch(
-    org: string,
-    db: string,
-    branch: string,
-    headers: Record<string, string>
-  ): Promise<void> {
-    const url = `${PS_API}/organizations/${org}/databases/${db}/branches/${branch}`;
-    const res = await fetch(url, { method: 'DELETE', headers });
-
-    if (res.ok) {
-      ok('Branch deleted', `${db}/${branch}`);
-    } else if (res.status === 404) {
-      ok('Branch', `${db}/${branch} — not found`);
-    } else {
-      const body = await res.text();
-      warn('Branch delete', `${db}/${branch} — HTTP ${res.status}: ${body}`);
     }
   }
 }
