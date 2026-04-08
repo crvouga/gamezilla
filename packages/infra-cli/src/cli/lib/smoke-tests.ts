@@ -37,11 +37,11 @@ function parsePositiveIntMsEnv(name: string, fallback: number): number {
 
 const POST_DEPLOY_HTTP_MAX_WAIT_MS = parsePositiveIntMsEnv(
   'POST_DEPLOY_HTTP_MAX_WAIT_MS',
-  2 * 60 * 1000
+  5 * 60 * 1000
 );
 const POST_DEPLOY_HTTP_RETRY_MS = parsePositiveIntMsEnv(
   'POST_DEPLOY_HTTP_RETRY_MS',
-  10_000
+  5_000
 );
 
 function sleep(ms: number): Promise<void> {
