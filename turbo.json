@@ -28,16 +28,19 @@
     "tc": {
       "dependsOn": ["^tc"],
       "inputs": ["**/*.ts", "**/*.tsx", "tsconfig.json", "../../tsconfig.json"],
+      "outputLogs": "new-only",
       "outputs": []
     },
     "lint": {
       "dependsOn": ["^tc"],
       "inputs": ["**/*.ts", "**/*.tsx", "eslint.config.js"],
+      "outputLogs": "new-only",
       "outputs": []
     },
     "test": {
       "dependsOn": ["^tc"],
       "inputs": ["**/*.ts", "**/*.tsx", "**/*.test.ts"],
+      "outputLogs": "new-only",
       "outputs": []
     },
     "build": {
@@ -52,6 +55,7 @@
         "vite.config.ts",
         "tsconfig.json"
       ],
+      "outputLogs": "new-only",
       "outputs": ["dist/**"]
     }
   }

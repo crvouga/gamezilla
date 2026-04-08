@@ -8,6 +8,7 @@ const DEFAULTS: Record<string, () => string> = {
     `https://${PROJECT_CONFIG.cloudflare.turboCacheWorker}.${PROJECT_CONFIG.cloudflare.accountSubdomain}.workers.dev`,
   TURBO_TEAM: () => `team_${PROJECT_CONFIG.domain.replace(/\.\w+$/, '')}`,
   TURBO_LOG_ORDER: () => 'stream',
+  EXPO_PUBLIC_API_URL: () => `https://api.${PROJECT_CONFIG.domain}`,
 };
 
 /**
