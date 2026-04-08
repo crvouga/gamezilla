@@ -67,19 +67,30 @@ async function handleSql(req: Request): Promise<Response> {
     return json({ error: `Params exceed ${LIMITS.maxParams} limit` }, 400);
   }
 
+  const start = performance.now();
   try {
     const result = await db.query(
       sql,
       paramArray.length > 0 ? paramArray : undefined,
     );
     const rows = result.rows.slice(0, LIMITS.maxRows);
+    const durationMs = Math.round((performance.now() - start) * 100) / 100;
+    log.info('query ok', {
+      sql,
+      params: paramArray.length > 0 ? paramArray : undefined,
+      rows: rows.length,
+      affectedRows: result.affectedRows ?? 0,
+      durationMs,
+    });
     return json({
       rows,
       affectedRows: result.affectedRows ?? 0,
       truncated: result.rows.length > LIMITS.maxRows,
     });
   } catch (err) {
+    const durationMs = Math.round((performance.now() - start) * 100) / 100;
     const message = err instanceof Error ? err.message : String(err);
+    log.error('query failed', { sql, params: paramArray.length > 0 ? paramArray : undefined, error: message, durationMs });
     return json({ error: message }, 400);
   }
 }

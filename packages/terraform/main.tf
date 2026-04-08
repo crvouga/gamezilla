@@ -10,10 +10,14 @@ resource "cloudflare_zone" "main" {
 
 # -- Static web app (Cloudflare Pages) ----------------------------------------
 
+locals {
+  cloudflare_zone_id = cloudflare_zone.main.id
+}
+
 module "cloudflare_pages" {
   source = "./modules/cloudflare-pages"
 
   cloudflare_account_id = var.cloudflare_account_id
-  cloudflare_zone_id    = cloudflare_zone.main.id
+  cloudflare_zone_id    = local.cloudflare_zone_id
   custom_domain         = var.custom_domain
 }

@@ -84,6 +84,7 @@ async function checkHttpEndpoint(
   const url = probeUrl(opts.rawUrl, opts.probePath);
   const started = Date.now();
   const maxWaitStr = fmtElapsed(POST_DEPLOY_HTTP_MAX_WAIT_MS);
+  const maxAttempts = Math.ceil(POST_DEPLOY_HTTP_MAX_WAIT_MS / POST_DEPLOY_HTTP_RETRY_MS);
 
   for (let attempt = 1; ; attempt++) {
     const elapsed = Date.now() - started;
@@ -99,7 +100,7 @@ async function checkHttpEndpoint(
         assert.fail(`smoke-test: ${opts.label} unreachable at ${url}`);
       }
       platform.notice(
-        `Waiting for ${opts.label} ${url} — attempt ${attempt}, ${elapsedStr} elapsed (max ${maxWaitStr}): ${result.error}`
+        `Waiting for ${opts.label} ${url} — attempt ${attempt}/${maxAttempts}, ${elapsedStr} elapsed (max ${maxWaitStr}): ${result.error}`
       );
       await sleep(POST_DEPLOY_HTTP_RETRY_MS);
       continue;
@@ -133,7 +134,7 @@ async function checkHttpEndpoint(
       : `HTTP ${result.status} (unexpected, retrying)`;
 
     platform.notice(
-      `Waiting for ${opts.label} ${url} — attempt ${attempt}, ${detail}, ${elapsedStr} elapsed (max ${maxWaitStr})`
+      `Waiting for ${opts.label} ${url} — attempt ${attempt}/${maxAttempts}, ${detail}, ${elapsedStr} elapsed (max ${maxWaitStr})`
     );
     await sleep(POST_DEPLOY_HTTP_RETRY_MS);
   }

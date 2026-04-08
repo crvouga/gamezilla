@@ -6,6 +6,8 @@ import { createLogger } from '@gamezilla/shared/logger';
 
 export type ApiHandlerConfig = PatchDbApiConfig;
 
+const log = createLogger({ name: 'api:handler' });
+
 const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -59,8 +61,8 @@ export function createApiHandler(
         return withCors(res);
       }
     } catch (err: unknown) {
-      console.error('[api] handler error:', err);
       const message = err instanceof Error ? err.message : String(err);
+      log.error('handler error', { error: message });
       return withCors(
         new Response(JSON.stringify({ error: message }), {
           status: 500,
