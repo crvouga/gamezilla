@@ -8,6 +8,7 @@
  */
 
 import { PGlite } from '@electric-sql/pglite';
+import { createLogger } from '@gamezilla/shared/logger';
 
 const SQL_PORT = parseInt(process.env['SQL_PORT'] ?? '15432', 10);
 const HOST = '127.0.0.1';
@@ -20,6 +21,8 @@ const LIMITS = {
   maxParams: 65_535,
   maxRows: 100_000,
 } as const;
+
+const log = createLogger({ name: 'db' });
 
 const db = await PGlite.create(DATA_DIR);
 
@@ -83,11 +86,10 @@ async function handleSql(req: Request): Promise<Response> {
 
 Bun.serve({ port: SQL_PORT, hostname: HOST, fetch: handleSql });
 
-console.log(`[db] PGlite HTTP on http://${HOST}:${SQL_PORT}`);
-console.log(`[db] data: ${DATA_DIR ?? 'in-memory'}`);
+log.info('server started', { host: HOST, port: SQL_PORT, dataDir: DATA_DIR ?? 'in-memory' });
 
 const shutdown = async () => {
-  console.log('\n[db] shutting down...');
+  log.info('shutting down');
   await db.close();
   process.exit(0);
 };

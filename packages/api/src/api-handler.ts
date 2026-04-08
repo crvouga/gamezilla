@@ -2,6 +2,7 @@ import {
   createPatchDbApiHandler,
   type PatchDbApiConfig,
 } from '@gamezilla/patch-db/api';
+import { createLogger } from '@gamezilla/shared/logger';
 
 export type ApiHandlerConfig = PatchDbApiConfig;
 

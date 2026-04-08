@@ -3,11 +3,14 @@ import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
 import { SqlClientImplPgliteHttp } from '@gamezilla/shared/sql-client/impl-pglite-http';
 import { SqlClientImplPlanetScale } from '@gamezilla/shared/sql-client/impl-planetscale';
 import type { SqlClient } from '@gamezilla/shared/sql-client/interface';
+import { createLogger } from '@gamezilla/shared/logger';
 import { createApiHandler } from './api-handler';
 
 export interface Env {
   DATABASE_URL: string;
 }
+
+const log = createLogger({ name: 'api' });
 
 const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
@@ -76,10 +79,9 @@ export default {
       return handle(request);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      console.error('[api] handler error:', message);
-
       const isTimeout =
         message.includes('timed out') || message.includes('timeout');
+      log.error('handler error', { error: message, isTimeout });
       const status = isTimeout ? 503 : 500;
 
       return new Response(JSON.stringify({ error: message }), {
