@@ -1,5 +1,4 @@
 import { assert } from '@gamezilla/shared/assert';
-import type { Unsubscribe } from '@gamezilla/shared/pub-sub/interface';
 import {
   assertPatch,
   assertPatchInput,
@@ -55,10 +54,6 @@ export class PatchDbTransportInProcess implements PatchDbClientTransport {
     assert.ok(
       typeof host.write === 'function',
       'PatchDbTransportInProcess: host.write must be a function'
-    );
-    assert.ok(
-      typeof host.subscribe === 'function',
-      'PatchDbTransportInProcess: host.subscribe must be a function'
     );
   }
 
@@ -152,24 +147,5 @@ export class PatchDbTransportInProcess implements PatchDbClientTransport {
     }
 
     return out;
-  }
-
-  subscribe(callback: () => void): Unsubscribe {
-    assert.ok(
-      typeof callback === 'function',
-      'PatchDbTransportInProcess.subscribe: callback must be a function',
-      { callback }
-    );
-    assert.defined(
-      this.host,
-      'PatchDbTransportInProcess.subscribe: host must be defined'
-    );
-
-    const unsub = this.host.subscribe(callback);
-    assert.ok(
-      typeof unsub === 'function',
-      'PatchDbTransportInProcess.subscribe: host must return an unsubscribe function'
-    );
-    return unsub;
   }
 }

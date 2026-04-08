@@ -26,16 +26,6 @@ export class StatusCommand implements Command {
         continue;
       }
       ok(dep.name, status.version);
-
-      if (dep.verify) {
-        try {
-          dep.verify();
-        } catch (e) {
-          const msg = e instanceof Error ? e.message : String(e);
-          fail(`${dep.name} verify`, msg);
-          depFailures.push(dep.name);
-        }
-      }
     }
     if (depFailures.length > 0) {
       warn(

@@ -399,7 +399,6 @@ async function buildScenario(
     const syncDb = new SyncPatchesDb(local, remotePatchesDb, pubSub, {
       pushDriver: 'manual',
       pollDriver: 'manual',
-      remoteInvalidationSource: transport,
       pushIntervalMs: 10,
       logPushPollFailures: false,
     });

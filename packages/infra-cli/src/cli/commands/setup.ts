@@ -24,7 +24,7 @@ import {
   setDopplerSecret,
   validateSecret,
 } from '../secrets/secrets';
-import { run, runSafe } from '../subprocess';
+import { run, runSafe, runQuiet } from '../subprocess';
 import type { Command } from './types';
 
 interface ImportableResource {
@@ -221,8 +221,7 @@ export class SetupCommand implements Command {
       } else if (res.foundation) {
         info('Creating', res.address);
         await runStep(this.platform, `Apply ${res.address}`, () =>
-          run(
-            this.platform,
+          runQuiet(
             'terraform',
             [
               'apply',

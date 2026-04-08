@@ -21,27 +21,23 @@ export type SyncErrorEvent = {
   error: unknown;
 };
 
-export type RemoteInvalidationSource = {
-  subscribe(callback: () => void): Unsubscribe;
-};
-
-/** Handle returned by {@link SyncPatchesDbPushScheduler.scheduleInterval}. */
-export type SyncPatchesDbPushScheduleHandle = {
+/** Handle returned by {@link SyncPatchesDbScheduler.scheduleInterval}. */
+export type SyncPatchesDbScheduleHandle = {
   cancel: () => void;
 };
 
 /**
- * Injectable push interval (default: {@link defaultSyncPatchesDbPushScheduler} uses `setInterval`).
+ * Injectable interval scheduler (default uses `setInterval`).
  * Use in tests with a deterministic scheduler.
  */
-export type SyncPatchesDbPushScheduler = {
+export type SyncPatchesDbScheduler = {
   scheduleInterval(
     intervalMs: number,
     callback: () => void
-  ): SyncPatchesDbPushScheduleHandle;
+  ): SyncPatchesDbScheduleHandle;
 };
 
-export const defaultSyncPatchesDbPushScheduler: SyncPatchesDbPushScheduler = {
+export const defaultSyncPatchesDbScheduler: SyncPatchesDbScheduler = {
   scheduleInterval(intervalMs, callback) {
     const id = setInterval(callback, intervalMs);
     return {
@@ -52,19 +48,19 @@ export const defaultSyncPatchesDbPushScheduler: SyncPatchesDbPushScheduler = {
 
 export type SyncPatchesDbOptions = {
   pushIntervalMs?: number;
-  remoteInvalidationSource: RemoteInvalidationSource;
+  pollIntervalMs?: number;
   /**
    * `interval` (default): repeat {@link SyncPatchesDb.runPushNow} on a timer.
    * `manual`: no timer; call {@link SyncPatchesDb.runPushNow} explicitly (tests / simulation).
    */
   pushDriver?: 'interval' | 'manual';
   /**
-   * `remote-invalidation` (default): poll when the remote invalidation source fires and once when the first query subscription registers.
-   * `manual`: call {@link SyncPatchesDb.runPollNow} explicitly (tests / simulation).
+   * `interval` (default): repeat {@link SyncPatchesDb.runPollNow} on a timer.
+   * `manual`: no timer; call {@link SyncPatchesDb.runPollNow} explicitly (tests / simulation).
    */
-  pollDriver?: 'remote-invalidation' | 'manual';
-  /** When {@link pushDriver} is `interval`, uses this scheduler (default: real-time `setInterval`). */
-  pushScheduler?: SyncPatchesDbPushScheduler;
+  pollDriver?: 'interval' | 'manual';
+  /** Scheduler for push and poll timers (default: real-time `setInterval`). */
+  scheduler?: SyncPatchesDbScheduler;
   /**
    * When false, failed push/poll cycles are not logged to stderr (failures still increment counters and may publish {@link SYNC_ERROR_TOPIC}).
    * Default true. Deterministic sim tests set this to false to avoid expected-failure noise.
@@ -94,8 +90,8 @@ export class SyncPatchesDb implements PatchesDb {
   };
 
   private activeQueries = new Map<string, ActiveQuery>();
-  private pushScheduleHandle: SyncPatchesDbPushScheduleHandle | null = null;
-  private remoteInvalidationUnsub: Unsubscribe | null = null;
+  private pushScheduleHandle: SyncPatchesDbScheduleHandle | null = null;
+  private pollScheduleHandle: SyncPatchesDbScheduleHandle | null = null;
   private pollInProgress = false;
   private pushConsecutiveFailures = 0;
   private pollConsecutiveFailures = 0;
@@ -111,7 +107,7 @@ export class SyncPatchesDb implements PatchesDb {
   }
 
   /**
-   * Runs a single push cycle (read unsynced locals → remote.write → local.update synced flags).
+   * Runs a single push cycle (read unsynced locals -> remote.write -> local.update synced flags).
    * Use with {@link SyncPatchesDbOptions.pushDriver} `"manual"` or to force an extra push.
    */
   async runPushNow(): Promise<void> {
@@ -134,22 +130,16 @@ export class SyncPatchesDb implements PatchesDb {
     this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
   }
 
-  /** Stops push scheduling and remote invalidation subscription. Call before disposing of the db. */
+  /** Stops push and poll timers. Call before disposing of the db. */
   destroy(): void {
     this.destroyed = true;
-    if (
-      this.pushScheduleHandle !== null &&
-      this.pushScheduleHandle !== undefined
-    ) {
+    if (this.pushScheduleHandle !== null && this.pushScheduleHandle !== undefined) {
       this.pushScheduleHandle.cancel();
       this.pushScheduleHandle = null;
     }
-    if (
-      this.remoteInvalidationUnsub !== null &&
-      this.remoteInvalidationUnsub !== undefined
-    ) {
-      this.remoteInvalidationUnsub();
-      this.remoteInvalidationUnsub = null;
+    if (this.pollScheduleHandle !== null && this.pollScheduleHandle !== undefined) {
+      this.pollScheduleHandle.cancel();
+      this.pollScheduleHandle = null;
     }
   }
 
@@ -188,7 +178,7 @@ export class SyncPatchesDb implements PatchesDb {
       existing.refCount++;
     } else {
       this.activeQueries.set(key, { query, refCount: 1 });
-      this.ensurePolling();
+      this.ensurePollTimer();
     }
 
     const notify = async () => {
@@ -222,43 +212,39 @@ export class SyncPatchesDb implements PatchesDb {
         entry.refCount--;
         if (entry.refCount <= 0) {
           this.activeQueries.delete(key);
-          this.maybeStopPolling();
+          this.maybeStopPollTimer();
         }
       }
     };
   }
 
-  private ensurePolling(): void {
-    if (
-      this.remoteInvalidationUnsub !== null &&
-      this.remoteInvalidationUnsub !== undefined
-    )
+  private ensurePollTimer(): void {
+    if (this.pollScheduleHandle !== null && this.pollScheduleHandle !== undefined)
       return;
-    const pollDriver = this.options.pollDriver ?? 'remote-invalidation';
-    this.remoteInvalidationUnsub =
-      this.options.remoteInvalidationSource.subscribe(() => {
-        if (pollDriver !== 'remote-invalidation') return;
-        fireAndForget(this.poll(), {
-          component: 'SyncPatchesDb',
-          op: 'poll-triggered',
-        });
-      });
-    if (pollDriver === 'remote-invalidation') {
+    const pollDriver = this.options.pollDriver ?? 'interval';
+    if (pollDriver === 'manual') return;
+    const pollIntervalMs = this.options.pollIntervalMs ?? 5000;
+    const scheduler = this.options.scheduler ?? defaultSyncPatchesDbScheduler;
+    this.pollScheduleHandle = scheduler.scheduleInterval(pollIntervalMs, () => {
       fireAndForget(this.poll(), {
         component: 'SyncPatchesDb',
-        op: 'poll-initial',
+        op: 'poll-interval',
       });
-    }
+    });
+    fireAndForget(this.poll(), {
+      component: 'SyncPatchesDb',
+      op: 'poll-initial',
+    });
   }
 
-  private maybeStopPolling(): void {
+  private maybeStopPollTimer(): void {
     if (
       this.activeQueries.size === 0 &&
-      this.remoteInvalidationUnsub !== null &&
-      this.remoteInvalidationUnsub !== undefined
+      this.pollScheduleHandle !== null &&
+      this.pollScheduleHandle !== undefined
     ) {
-      this.remoteInvalidationUnsub();
-      this.remoteInvalidationUnsub = null;
+      this.pollScheduleHandle.cancel();
+      this.pollScheduleHandle = null;
     }
   }
 
@@ -271,8 +257,7 @@ export class SyncPatchesDb implements PatchesDb {
     const pushDriver = this.options.pushDriver ?? 'interval';
     if (pushDriver === 'manual') return;
     const pushIntervalMs = this.options.pushIntervalMs ?? 2000;
-    const scheduler =
-      this.options.pushScheduler ?? defaultSyncPatchesDbPushScheduler;
+    const scheduler = this.options.scheduler ?? defaultSyncPatchesDbScheduler;
     this.pushScheduleHandle = scheduler.scheduleInterval(pushIntervalMs, () => {
       fireAndForget(this.pushUnsynced(), {
         component: 'SyncPatchesDb',

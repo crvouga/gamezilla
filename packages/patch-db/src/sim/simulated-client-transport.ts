@@ -1,4 +1,3 @@
-import type { Unsubscribe } from '@gamezilla/shared/pub-sub/interface';
 import type {
   Patch,
   PatchesDbQuery,
@@ -23,8 +22,7 @@ export type SimulatedTransportRecordingContext = {
 };
 
 /**
- * Deterministic counterpart to HTTP+SSE: read/write go through a {@link NetworkLink};
- * invalidations are scheduled on the same scheduler as the link.
+ * Deterministic counterpart to HTTP: read/write go through a {@link NetworkLink}.
  */
 export class SimulatedPatchDbClientTransport implements PatchDbClientTransport {
   constructor(
@@ -65,13 +63,6 @@ export class SimulatedPatchDbClientTransport implements PatchDbClientTransport {
         });
       }
       return out;
-    });
-  }
-
-  subscribe(callback: () => void): Unsubscribe {
-    return this.server.subscribeInvalidations(() => {
-      if (this.link.blocksInvalidations()) return;
-      this.link.scheduleInvalidation(() => callback());
     });
   }
 }

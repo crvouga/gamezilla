@@ -61,6 +61,42 @@ export function run(
   }
 }
 
+/**
+ * Run a command, capturing all output. On success the output is discarded;
+ * on failure it is printed to stderr before throwing.  Useful for commands
+ * (like `terraform apply -target`) that emit noisy but harmless warnings.
+ */
+export function runQuiet(
+  cmd: string,
+  args: string[],
+  opts?: RunOpts
+): void {
+  assert.ok(
+    typeof cmd === 'string' && cmd.length > 0,
+    'runQuiet: cmd must be non-empty'
+  );
+  assert.array(args, 'runQuiet: args must be an array');
+
+  const label = opts?.label ?? `${cmd} ${args.join(' ')}`;
+  const r = Bun.spawnSync([cmd, ...args], {
+    env: opts?.env ?? process.env,
+    stdout: 'pipe',
+    stderr: 'pipe',
+    ...(opts?.cwd ? { cwd: opts.cwd } : {}),
+  });
+
+  if (r.exitCode !== 0 && r.exitCode !== null) {
+    const stderr = r.stderr.toString().trim();
+    const stdout = r.stdout.toString().trim();
+    if (stdout) console.log(stdout);
+    if (stderr) console.error(stderr);
+    assert.fail(`runQuiet: "${label}" exited ${r.exitCode}`);
+  }
+  if (r.exitCode === null) {
+    assert.fail(`runQuiet: "${label}" was killed by a signal`);
+  }
+}
+
 export function runCapture(
   cmd: string,
   args: string[],

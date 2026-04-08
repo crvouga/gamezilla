@@ -1,10 +1,9 @@
 export {
   SYNC_ERROR_TOPIC,
   SyncPatchesDb,
-  defaultSyncPatchesDbPushScheduler,
-  type RemoteInvalidationSource,
+  defaultSyncPatchesDbScheduler,
   type SyncErrorEvent,
   type SyncPatchesDbOptions,
-  type SyncPatchesDbPushScheduleHandle,
-  type SyncPatchesDbPushScheduler,
+  type SyncPatchesDbScheduleHandle,
+  type SyncPatchesDbScheduler,
 } from './impl-sync';

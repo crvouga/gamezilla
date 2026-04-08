@@ -1,8 +1,8 @@
 import { assert } from '@gamezilla/shared/assert';
 import { describe, expect, test } from 'bun:test';
 import {
-  defaultSyncPatchesDbPushScheduler,
-  type SyncPatchesDbPushScheduler,
+  defaultSyncPatchesDbScheduler,
+  type SyncPatchesDbScheduler,
 } from '../impl-sync';
 import { createSyncDbFactory } from './test-helpers';
 
@@ -42,12 +42,11 @@ describe('SyncPatchesDb scheduler hooks', () => {
     await teardown();
   });
 
-  test('pollDriver manual does not poll on invalidate; runPollNow merges', async () => {
-    const { syncDb, remote, invalidateRemote, teardown } =
-      await createSyncDbFactory({
-        pushDriver: 'manual',
-        pollDriver: 'manual',
-      });
+  test('pollDriver manual does not poll automatically; runPollNow merges', async () => {
+    const { syncDb, remote, teardown } = await createSyncDbFactory({
+      pushDriver: 'manual',
+      pollDriver: 'manual',
+    });
     const listId = crypto.randomUUID();
     await remote.write([
       {
@@ -69,8 +68,6 @@ describe('SyncPatchesDb scheduler hooks', () => {
       }
     );
 
-    invalidateRemote();
-
     const localMid = await syncDb.read([
       { entityType: 'todoList', entityId: listId },
     ]);
@@ -85,14 +82,14 @@ describe('SyncPatchesDb scheduler hooks', () => {
     await teardown();
   });
 
-  test('pushScheduler receives pushIntervalMs from options', async () => {
+  test('scheduler receives pushIntervalMs from options', async () => {
     let capturedMs: number | null = null;
     let scheduleCalls = 0;
-    const customScheduler: SyncPatchesDbPushScheduler = {
+    const customScheduler: SyncPatchesDbScheduler = {
       scheduleInterval(intervalMs, callback) {
         scheduleCalls++;
         capturedMs = intervalMs;
-        return defaultSyncPatchesDbPushScheduler.scheduleInterval(
+        return defaultSyncPatchesDbScheduler.scheduleInterval(
           intervalMs,
           callback
         );
@@ -103,18 +100,18 @@ describe('SyncPatchesDb scheduler hooks', () => {
       pushDriver: 'interval',
       pollDriver: 'manual',
       pushIntervalMs: 1234,
-      pushScheduler: customScheduler,
+      scheduler: customScheduler,
     });
 
     expect(scheduleCalls).toBe(1);
     assert.defined(
       capturedMs,
-      'pushScheduler should receive pushIntervalMs from options'
+      'scheduler should receive pushIntervalMs from options'
     );
     assert.equals(
       capturedMs,
       1234,
-      'pushScheduler should receive pushIntervalMs from options'
+      'scheduler should receive pushIntervalMs from options'
     );
 
     syncDb.destroy();

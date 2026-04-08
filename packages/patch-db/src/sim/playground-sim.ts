@@ -96,12 +96,6 @@ class PartitionableServerPort {
     }
     return this.inner.write(patches);
   }
-
-  subscribeInvalidations(callback: () => void) {
-    return this.inner.subscribeInvalidations(() => {
-      if (!this.partitioned) callback();
-    });
-  }
 }
 
 type ClientRuntime = {
@@ -209,7 +203,7 @@ export async function createPlaygroundSim(
     const syncDb = new SyncPatchesDb(localDb, remotePatchesDb, clientPubSub, {
       pushDriver: 'manual',
       pollDriver: 'manual',
-      remoteInvalidationSource: transport,
+
       pushIntervalMs: 10,
       logPushPollFailures: false,
     });
@@ -402,7 +396,7 @@ export async function restorePlaygroundSim(
     const syncDb = new SyncPatchesDb(localDb, remotePatchesDb, clientPubSub, {
       pushDriver: 'manual',
       pollDriver: 'manual',
-      remoteInvalidationSource: transport,
+
       pushIntervalMs: 10,
       logPushPollFailures: false,
     });
@@ -445,7 +439,7 @@ export async function restorePlaygroundSim(
     const syncDb = new SyncPatchesDb(localDb, remotePatchesDb, clientPubSub, {
       pushDriver: 'manual',
       pollDriver: 'manual',
-      remoteInvalidationSource: transport,
+
       pushIntervalMs: 10,
       logPushPollFailures: false,
     });

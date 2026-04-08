@@ -157,14 +157,12 @@ export function ApiInspector() {
       }
     };
 
-    const unsub = transport.subscribe(() => {
-      void refresh();
-    });
     void refresh();
+    const pollTimer = setInterval(() => void refresh(), 5000);
 
     return () => {
       cancelled = true;
-      unsub();
+      clearInterval(pollTimer);
     };
   }, [connectedUrl]);
 

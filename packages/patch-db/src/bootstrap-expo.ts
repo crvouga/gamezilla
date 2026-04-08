@@ -21,6 +21,7 @@ export type BootstrapPatchDbExpoSyncOptions = {
   /** Absolute URL including patch-db base path, e.g. `https://host/patch-db`. */
   apiUrl: string;
   pushIntervalMs?: number;
+  pollIntervalMs?: number;
   parentContainer?: DependencyInjectionContainer;
 };
 
@@ -37,6 +38,7 @@ export async function bootstrapPatchDbExpoSync(
     databaseName = 'main',
     apiUrl,
     pushIntervalMs = 2000,
+    pollIntervalMs = 5000,
     parentContainer,
   } = options;
 
@@ -60,7 +62,7 @@ export async function bootstrapPatchDbExpoSync(
     const pubSub = new InMemoryPubSub();
     const syncDb = new SyncPatchesDb(localDb, remoteDb, pubSub, {
       pushIntervalMs,
-      remoteInvalidationSource: transport,
+      pollIntervalMs,
     });
 
     const container = new DependencyInjectionContainer(parentContainer);

@@ -72,10 +72,9 @@ jobs:
         run: bun run infra secrets-fetch
 
       - name: Deploy
-        if: false
         timeout-minutes: 45
         working-directory: packages/infra-cli
-        run: bun run infra deploy
+        run: bun run infra slaughter-cattle
 
       - name: Summary
         working-directory: packages/infra-cli

@@ -1,5 +1,4 @@
 import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
-import type { Unsubscribe } from '@gamezilla/shared/pub-sub/interface';
 import { SqlClientImplBunPostgres } from '@gamezilla/shared/sql-client/impl-bun-postgres';
 import { SqlClientImplBunSqlite } from '@gamezilla/shared/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@gamezilla/shared/sql-client/interface';
@@ -7,30 +6,10 @@ import { PatchDbImplPostgres } from '../impl-postgres/impl-postgres';
 import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
 import {
   SyncPatchesDb,
-  type RemoteInvalidationSource,
   type SyncPatchesDbOptions,
-  type SyncPatchesDbPushScheduler,
+  type SyncPatchesDbScheduler,
 } from '../impl-sync';
 import type { PatchesDb, PatchInput } from '../interface';
-
-/** Creates a RemoteInvalidationSource that tests can trigger manually via invalidate(). */
-export function createManualRemoteInvalidationSource(): RemoteInvalidationSource & {
-  invalidate: () => void;
-} {
-  const callbacks: (() => void)[] = [];
-  return {
-    subscribe(callback: () => void): Unsubscribe {
-      callbacks.push(callback);
-      return () => {
-        const i = callbacks.indexOf(callback);
-        if (i >= 0) callbacks.splice(i, 1);
-      };
-    },
-    invalidate() {
-      callbacks.forEach((c) => c());
-    },
-  };
-}
 
 export type DbFactory = () => Promise<{
   db: PatchesDb;
@@ -74,16 +53,14 @@ export type SyncDbFixture = {
   local: PatchesDb;
   remote: PatchesDb;
   pubSub: InMemoryPubSub;
-  /** Call to trigger a poll (simulates remote invalidation). */
-  invalidateRemote: () => void;
   teardown: () => Promise<void>;
 };
 
 export async function createSyncDbFactory(options?: {
   pushIntervalMs?: number;
   pushDriver?: 'interval' | 'manual';
-  pollDriver?: 'remote-invalidation' | 'manual';
-  pushScheduler?: SyncPatchesDbPushScheduler;
+  pollDriver?: 'interval' | 'manual';
+  scheduler?: SyncPatchesDbScheduler;
 }): Promise<SyncDbFixture> {
   const localClient: SqlClient = SqlClientImplBunSqlite.open(':memory:');
   const remoteClient: SqlClient = SqlClientImplBunSqlite.open(':memory:');
@@ -96,15 +73,13 @@ export async function createSyncDbFactory(options?: {
   await remote.migrate();
 
   const pubSub = new InMemoryPubSub();
-  const remoteInvalidationSource = createManualRemoteInvalidationSource();
   const syncOptions: SyncPatchesDbOptions = {
     pushIntervalMs: options?.pushIntervalMs ?? 10,
     pushDriver: options?.pushDriver ?? 'interval',
-    pollDriver: options?.pollDriver ?? 'remote-invalidation',
-    remoteInvalidationSource,
+    pollDriver: options?.pollDriver ?? 'manual',
   };
-  if (options?.pushScheduler !== undefined) {
-    syncOptions.pushScheduler = options.pushScheduler;
+  if (options?.scheduler !== undefined) {
+    syncOptions.scheduler = options.scheduler;
   }
   const syncDb = new SyncPatchesDb(local, remote, pubSub, syncOptions);
 
@@ -113,7 +88,6 @@ export async function createSyncDbFactory(options?: {
     local,
     remote,
     pubSub,
-    invalidateRemote: () => remoteInvalidationSource.invalidate(),
     teardown: async () => {
       syncDb.destroy();
       await localClient.disconnect();

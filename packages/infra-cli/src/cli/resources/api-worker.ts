@@ -5,7 +5,7 @@ import { cfAccountId } from '../secrets/cloudflare';
 import { runSafe, type SpawnResult } from '../subprocess';
 import type { Resource } from './types';
 
-const NOT_FOUND_CODES = [10007, 10090];
+const NOT_FOUND_CODES = [10000, 10007, 10090];
 
 export class ApiWorkerResource implements Resource {
   readonly id = 'api-worker';

@@ -1,17 +1,16 @@
 export type {
   PatchDbClientTransport,
   PatchDbSyncHost,
-  PatchesDbTransportSubscriptions,
 } from './interface';
 export {
   PATCHES_DB_BASE_URL,
-  PATCHES_EVENTS,
   PATCHES_READ,
   PATCHES_WRITE,
   DEFAULT_BASE_PATH,
   PATCH_SUFFIX_READ,
   PATCH_SUFFIX_WRITE,
-  PATCH_SUFFIX_EVENTS,
+  NO_CACHE_REQUEST_HEADERS,
+  NO_CACHE_RESPONSE_HEADERS,
   patchDbPaths,
 } from './paths';
 export { PatchDbClientTransportHttpFetch } from './impl-http-fetch';

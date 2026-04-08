@@ -1,5 +1,5 @@
 import { assert } from '@gamezilla/shared/assert';
-import type { PubSub, Unsubscribe } from '@gamezilla/shared/pub-sub/interface';
+import type { PubSub } from '@gamezilla/shared/pub-sub/interface';
 import {
   assertPatch,
   assertPatchInput,
@@ -172,16 +172,5 @@ export class PatchDbImplSyncHost implements PatchDbSyncHost {
 
     this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
     return out;
-  }
-
-  subscribe(callback: () => void): Unsubscribe {
-    assert.ok(
-      typeof callback === 'function',
-      'PatchDbImplSyncHost.subscribe: callback must be a function',
-      { callback }
-    );
-    return this.pubSub.subscribe(PATCHES_DB_TOPIC, () => {
-      callback();
-    });
   }
 }

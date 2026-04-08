@@ -1,11 +1,15 @@
-import { useTheme } from '@gamezilla/shared/theme';
-import { Box, Text } from '@gamezilla/shared/ui';
 import type {
   Entity,
   PatchesDbQuery,
   PatchesDbQueryWhereClause,
 } from '@gamezilla/patch-db/interface';
-import { useEntities, useEntity, usePatchesDb } from '@gamezilla/patch-db/react';
+import {
+  useEntities,
+  useEntity,
+  usePatchesDb,
+} from '@gamezilla/patch-db/react';
+import { useTheme } from '@gamezilla/shared/theme';
+import { Box, Text } from '@gamezilla/shared/ui';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -232,9 +236,7 @@ export function TodoListDetail() {
           onPress={() => router.replace('/todos')}
           style={theme.sx({ mb: 2 })}
         >
-          <Text style={theme.sx({ fontSize: 16, opacity: 0.8 })}>
-            ← Back
-          </Text>
+          <Text style={theme.sx({ fontSize: 16, opacity: 0.8 })}>← Back</Text>
         </Pressable>
         <Text variant="title">{listName}</Text>
         <Text variant="subtitle">Powered by patch-db</Text>

@@ -18,20 +18,18 @@ export const ADMIN_METRIC_ENTITY_TYPE = 'admin/metric';
 type Counters = {
   totalPatchesWritten: number;
   totalReadsServed: number;
-  activeConnections: number;
 };
 
 /**
- * Wraps a {@link PatchDbSyncHost}: counts traffic, tracks live SSE subscribers,
- * and periodically persists a metric entity to `db` + pub/sub invalidation
- * (bypasses inner `write` so metrics do not inflate {@link Counters}).
+ * Wraps a {@link PatchDbSyncHost}: counts traffic and periodically persists a
+ * metric entity to `db` + pub/sub invalidation (bypasses inner `write` so
+ * metrics do not inflate {@link Counters}).
  */
 export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
   private readonly startedAt = new Date().toISOString();
   private readonly counters: Counters = {
     totalPatchesWritten: 0,
     totalReadsServed: 0,
-    activeConnections: 0,
   };
   private lastActivityAt = this.startedAt;
   private flushTimer: ReturnType<typeof setInterval> | null = null;
@@ -77,18 +75,6 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
     return this.inner.write(patches);
   }
 
-  subscribe(callback: () => void): () => void {
-    this.counters.activeConnections += 1;
-    const innerUnsub = this.inner.subscribe(callback);
-    return () => {
-      this.counters.activeConnections = Math.max(
-        0,
-        this.counters.activeConnections - 1
-      );
-      innerUnsub();
-    };
-  }
-
   private touchActivity(): void {
     this.lastActivityAt = new Date().toISOString();
   }
@@ -116,7 +102,6 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
             'admin/uptimeSeconds': uptimeSeconds,
             'admin/totalPatchesWritten': this.counters.totalPatchesWritten,
             'admin/totalReadsServed': this.counters.totalReadsServed,
-            'admin/activeConnections': this.counters.activeConnections,
             'admin/lastActivityAt': this.lastActivityAt,
           },
         },
