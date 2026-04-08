@@ -98,6 +98,37 @@ export class DeployCommand implements Command {
         /* output not available */
       }
     }
+
+    this.writeSummary(outputs);
+  }
+
+  private writeSummary(outputs: Record<string, string | undefined>): void {
+    const services = [
+      { label: 'Client', key: 'client_url' },
+      { label: 'API (Workers)', key: 'api_url' },
+    ] as const;
+
+    const rows = services
+      .map((s) => `| **${s.label}** | ${outputs[s.key] ?? '_(unavailable)_'} |`)
+      .join('\n');
+
+    const ns = outputs['cloudflare_nameservers'] ?? '_(unavailable)_';
+
+    this.platform.appendJobSummary(`## Deployment Complete
+
+| Service | URL |
+|---------|-----|
+${rows}
+
+### Squarespace Nameserver Setup (one-time)
+
+Point your domain to Cloudflare in [Squarespace Domains](https://domains.squarespace.com):
+
+**Nameservers:** \`${ns}\`
+
+> DNS records and the apex-to-www redirect are managed by Cloudflare via Terraform.
+> Once nameservers are delegated, no further Squarespace configuration is needed.
+`);
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────

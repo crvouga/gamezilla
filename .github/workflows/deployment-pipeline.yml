@@ -71,7 +71,3 @@ jobs:
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
         run: bun run infra deploy
-
-      - name: Summary
-        working-directory: packages/infra-cli
-        run: bun run infra summary

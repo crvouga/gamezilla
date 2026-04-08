@@ -6,7 +6,6 @@ import { DeployCommand } from './deploy';
 import { DestroyCommand } from './destroy';
 import { SetupCommand } from './setup';
 import { StatusCommand } from './status';
-import { SummaryCommand } from './summary';
 
 export function createRegistry(platform: CiPlatform): Command[] {
   return [
@@ -14,7 +13,6 @@ export function createRegistry(platform: CiPlatform): Command[] {
     new StatusCommand(platform),
     new DeployCommand(platform),
     new DestroyCommand(platform),
-    new SummaryCommand(platform),
   ];
 }
 
