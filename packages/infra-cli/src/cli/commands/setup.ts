@@ -1,5 +1,6 @@
 import { assert } from '@gamezilla/shared/assert';
 import { createInterface } from 'node:readline/promises';
+import { PROJECT_CONFIG } from '../../project-config';
 import { ALL_DEPS } from '../deps/registry';
 import { ensureDopplerDefaults } from '../lib/ensure-doppler-defaults';
 import { ensureR2Enabled } from '../lib/ensure-r2';
