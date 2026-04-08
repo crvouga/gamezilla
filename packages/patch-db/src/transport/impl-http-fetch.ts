@@ -78,6 +78,7 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
     let aborted = false;
     let retryDelayMs = 1000;
     const maxRetryDelayMs = 30000;
+    const MIN_STABLE_MS = 5000;
     let abortController: AbortController | null = null;
 
     let loggedFirstError = false;
@@ -93,8 +94,8 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
         if (!res.ok || !res.body) {
           throw new Error(`SSE ${res.status}`);
         }
-        retryDelayMs = 1000;
         loggedFirstError = false;
+        const connectedAt = Date.now();
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
         let buffer = '';
@@ -106,9 +107,13 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
           buffer = lines.pop() ?? '';
           for (const line of lines) {
             if (line.startsWith('data: ')) {
+              retryDelayMs = 1000;
               callback();
             }
           }
+        }
+        if (Date.now() - connectedAt >= MIN_STABLE_MS) {
+          retryDelayMs = 1000;
         }
       } catch (err) {
         if (aborted) return;
@@ -119,11 +124,12 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
             err
           );
         }
+      }
+      if (!aborted) {
         await new Promise((r) => setTimeout(r, retryDelayMs));
         retryDelayMs = Math.min(retryDelayMs * 2, maxRetryDelayMs);
-      }
-      if (!aborted)
         fireAndForget(connect(), { component: 'SSE', op: 'reconnect' });
+      }
     };
     fireAndForget(connect(), { component: 'SSE', op: 'connect' });
     return () => {
