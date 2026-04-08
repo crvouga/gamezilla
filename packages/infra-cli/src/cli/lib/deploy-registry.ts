@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
 import { runAsync, runCaptureAsync } from '../subprocess';
+import { ensureTurboCacheSecret } from './ensure-turbo-cache-secret';
 import { requireOutput, type TfOutputs } from './tf-outputs';
 
 /**
@@ -29,25 +30,11 @@ export class TurboCacheDeployable implements Deployable {
   constructor(private readonly platform: CiPlatform) {}
 
   async deploy(_outputs: TfOutputs): Promise<void> {
-    const cacheDir = join(REPO_ROOT, 'packages/turbo-cache');
-    const env = wranglerEnv();
-
-    const turboToken = process.env['TURBO_TOKEN'] ?? '';
-    assert.ok(
-      turboToken.length > 0,
-      'TURBO_TOKEN must be set (loaded from Doppler)',
-    );
-
-    await runCaptureAsync('wrangler', ['secret', 'put', 'TURBO_TOKEN'], {
-      cwd: cacheDir,
-      env,
-      input: turboToken,
-    });
-    this.platform.notice('TURBO_TOKEN secret pushed to turbo-cache Worker.');
+    ensureTurboCacheSecret();
 
     await runAsync(this.platform, 'wrangler', ['deploy'], {
-      cwd: cacheDir,
-      env,
+      cwd: join(REPO_ROOT, 'packages/turbo-cache'),
+      env: wranglerEnv(),
       label: 'turbo-cache: Cloudflare Workers deploy',
     });
 
@@ -67,7 +54,7 @@ export class WorkersDeployable implements Deployable {
     const databaseUrl = process.env['DATABASE_URL'] ?? '';
     assert.ok(
       databaseUrl.length > 0,
-      'DATABASE_URL must be set (resolved from PlanetScale Roles API)',
+      'DATABASE_URL must be set (resolved from PlanetScale Roles API)'
     );
 
     await runCaptureAsync('wrangler', ['secret', 'put', 'DATABASE_URL'], {
@@ -97,7 +84,7 @@ export class ClientDeployable implements Deployable {
     const pagesProject = requireOutput(
       this.platform,
       outputs,
-      'pages_project_name',
+      'pages_project_name'
     );
 
     if (!/^https:\/\//.test(apiUrl)) {
@@ -118,7 +105,7 @@ export class ClientDeployable implements Deployable {
           EXPO_PUBLIC_API_URL: apiUrl.replace(/\/$/, ''),
         },
         label: 'client: expo export (turbo)',
-      },
+      }
     );
 
     await runAsync(
@@ -133,7 +120,11 @@ export class ClientDeployable implements Deployable {
         '--branch',
         'main',
       ],
-      { cwd: clientDir, env: wranglerEnv(), label: 'client: Cloudflare Pages deploy' },
+      {
+        cwd: clientDir,
+        env: wranglerEnv(),
+        label: 'client: Cloudflare Pages deploy',
+      }
     );
 
     rmSync(join(REPO_ROOT, 'packages/client/dist'), {
@@ -152,7 +143,7 @@ function toHttps(raw: string): string {
 }
 
 export function createDeployRegistry(
-  platform: CiPlatform,
+  platform: CiPlatform
 ): readonly Deployable[] {
   const registry: readonly Deployable[] = [
     new TurboCacheDeployable(platform),

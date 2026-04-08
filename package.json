@@ -7,6 +7,7 @@
     "packages/*"
   ],
   "scripts": {
+    "check": "doppler run -- turbo check build",
     "format": "sort-package-json && prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -18,7 +19,7 @@
     "expo": "~54.0.33",
     "prettier": "^3.8.1",
     "sort-package-json": "^3.6.1",
-    "turbo": "^2.9.4",
+    "turbo": "^2.9.5",
     "typescript": "~5.9.2"
   }
 }

@@ -1,6 +1,8 @@
 import { PROJECT_CONFIG } from '../../project-config';
 import type { SecretEntry } from './types';
 
+const TURBO_CACHE_WORKERS_DEV = `https://${PROJECT_CONFIG.cloudflare.turboCacheWorker}.${PROJECT_CONFIG.cloudflare.accountSubdomain}.workers.dev`;
+
 export class TurboToken implements SecretEntry {
   readonly doppler = 'TURBO_TOKEN';
   readonly env = 'TURBO_TOKEN';
@@ -8,7 +10,7 @@ export class TurboToken implements SecretEntry {
 
   async validate(token: string): Promise<string | null> {
     try {
-      const res = await fetch(`https://turbo-cache.${PROJECT_CONFIG.domain}/health`, {
+      const res = await fetch(`${TURBO_CACHE_WORKERS_DEV}/health`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) return null;
@@ -22,7 +24,7 @@ export class TurboToken implements SecretEntry {
 export class TurboApi implements SecretEntry {
   readonly doppler = 'TURBO_API';
   readonly env = 'TURBO_API';
-  readonly hint = `https://turbo-cache.${PROJECT_CONFIG.domain}`;
+  readonly hint = TURBO_CACHE_WORKERS_DEV;
 
   async validate(url: string): Promise<string | null> {
     try {

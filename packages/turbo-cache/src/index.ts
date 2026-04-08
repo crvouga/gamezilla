@@ -40,6 +40,22 @@ export default {
       return Response.json({ status: 'enabled' });
     }
 
+    if (request.method === 'GET' && url.pathname === '/v2/user') {
+      return Response.json({
+        user: { id: 'turbo-cache', username: 'turbo-cache', email: 'cache@localhost' },
+      });
+    }
+
+    if (request.method === 'GET' && url.pathname === '/v2/teams') {
+      const slug = url.searchParams.get('slug') ?? 'default';
+      return Response.json({ teams: [{ id: slug, slug, name: slug }] });
+    }
+
+    if (request.method === 'GET' && url.pathname.startsWith('/v2/teams/')) {
+      const teamId = url.pathname.slice('/v2/teams/'.length);
+      return Response.json({ id: teamId, slug: teamId, name: teamId });
+    }
+
     return Response.json({ error: 'Not found' }, { status: 404 });
   },
 } satisfies ExportedHandler<Env>;

@@ -6,5 +6,7 @@ export const PROJECT_CONFIG = {
   },
   cloudflare: {
     pagesProject: 'gamezilla-client',
+    turboCacheWorker: 'gamezilla-turbo-cache',
+    accountSubdomain: 'crvouga',
   },
 } as const;

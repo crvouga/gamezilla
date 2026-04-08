@@ -4,6 +4,7 @@ import { PROJECT_CONFIG } from '../../project-config';
 import { ALL_DEPS } from '../deps/registry';
 import { ensureDopplerDefaults } from '../lib/ensure-doppler-defaults';
 import { ensureR2Enabled } from '../lib/ensure-r2';
+import { ensureTurboCacheSecret } from '../lib/ensure-turbo-cache-secret';
 import {
   banner,
   fmt,
@@ -154,7 +155,13 @@ export class SetupCommand implements Command {
       )
     );
 
-    // ── 5. Resolve DATABASE_URL from PlanetScale ─────────────────────
+    // ── 5. Sync turbo-cache Worker secret ──────────────────────────
+    heading('Turbo remote cache');
+    await runStep(this.platform, 'Sync TURBO_TOKEN to Worker', () =>
+      ensureTurboCacheSecret()
+    );
+
+    // ── 6. Resolve DATABASE_URL from PlanetScale ─────────────────────
     heading('Database');
     await runStep(this.platform, 'Resolve DATABASE_URL', async () => {
       const url = await resolveDatabaseUrl();
