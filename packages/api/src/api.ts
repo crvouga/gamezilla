@@ -1,6 +1,8 @@
 import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
 import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
+import { SqlClientImplPgliteHttp } from '@gamezilla/shared/sql-client/impl-pglite-http';
 import { SqlClientImplPlanetScale } from '@gamezilla/shared/sql-client/impl-planetscale';
+import type { SqlClient } from '@gamezilla/shared/sql-client/interface';
 import { createApiHandler } from './api-handler';
 
 export interface Env {
@@ -18,15 +20,25 @@ const MIGRATE_TIMEOUT_MS = 15_000;
 const pubSub = new InMemoryPubSub();
 let migrated = false;
 
-function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+  label: string
+): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     const timer = setTimeout(
       () => reject(new Error(`${label}: timed out after ${ms}ms`)),
       ms
     );
     promise.then(
-      (v) => { clearTimeout(timer); resolve(v); },
-      (e) => { clearTimeout(timer); reject(e); }
+      (v) => {
+        clearTimeout(timer);
+        resolve(v);
+      },
+      (e) => {
+        clearTimeout(timer);
+        reject(e);
+      }
     );
   });
 }
@@ -51,7 +63,9 @@ export default {
     }
 
     try {
-      const sqlClient = new SqlClientImplPlanetScale(env.DATABASE_URL);
+      const sqlClient: SqlClient = env.DATABASE_URL.startsWith('http')
+        ? new SqlClientImplPgliteHttp(env.DATABASE_URL)
+        : new SqlClientImplPlanetScale(env.DATABASE_URL);
       const db = new PatchDbImplPostgres(sqlClient);
       if (!migrated) {
         await withTimeout(db.migrate(), MIGRATE_TIMEOUT_MS, 'db.migrate');
@@ -64,13 +78,18 @@ export default {
       const message = err instanceof Error ? err.message : String(err);
       console.error('[api] handler error:', message);
 
-      const isTimeout = message.includes('timed out') || message.includes('timeout');
+      const isTimeout =
+        message.includes('timed out') || message.includes('timeout');
       const status = isTimeout ? 503 : 500;
 
-      return new Response(
-        JSON.stringify({ error: message }),
-        { status, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json', ...(isTimeout ? { 'Retry-After': '5' } : {}) } },
-      );
+      return new Response(JSON.stringify({ error: message }), {
+        status,
+        headers: {
+          ...CORS_HEADERS,
+          'Content-Type': 'application/json',
+          ...(isTimeout ? { 'Retry-After': '5' } : {}),
+        },
+      });
     }
   },
 } satisfies ExportedHandler<Env>;

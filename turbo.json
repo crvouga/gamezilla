@@ -1,5 +1,6 @@
 {
   "$schema": "https://v2-9-4.turborepo.dev/schema.json",
+  "ui": "tui",
   "globalPassThroughEnv": [
     "GITHUB_ACTIONS",
     "GITHUB_STEP_SUMMARY",

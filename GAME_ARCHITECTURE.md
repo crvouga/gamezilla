@@ -5,10 +5,9 @@
 **Smart clients, dumb servers.** All game intelligence lives in shared client code. Servers are stateless dumb relays — they move bytes, nothing else. This follows the end-to-end principle from original internet architecture: intelligence belongs at the endpoints, not in the network.
 
 ```
-ReqRes (HTTP)        → clients sync local DBs, create games
-PubSub (EMQX MQTT)   → global broker, clients connect to nearest node
-Worker (MQTT sub)    → referee validates commands, persists event log
-Aurora (DB)          → event log, reconnect recovery, never primary storage
+Worker (HTTP)             → stateless API, game creation, auth, sync
+Durable Object (WS)      → per-game peer store, WebSocket relay, referee
+PlanetScale (DB)          → event log, reconnect recovery, player data
 ```
 
 ---
@@ -23,7 +22,7 @@ type GameModule<TState, TCommand, TEvent> = {
 }
 ```
 
-Three methods. All pure functions. No side effects. Runs identically on client, referee, and optional server.
+Three methods. All pure functions. No side effects. Runs identically on client, Durable Object, and optional server.
 
 ### Rules
 
@@ -35,7 +34,6 @@ Three methods. All pure functions. No side effects. Runs identically on client, 
 ### Derived utilities
 
 ```typescript
-// reduce is just handleEvent folded over a list — not part of the interface
 function reduce<TState, TEvent>(
   module: GameModule<TState, any, TEvent>,
   events: TEvent[],
@@ -64,9 +62,9 @@ type Command<TCommand> = {
 // MOVE_PIECE command might produce:
 [
   { type: 'PIECE_MOVED', from, to },
-  { type: 'PAWN_PROMOTED', piece: 'QUEEN' },   // if applicable
-  { type: 'CHECK_DECLARED', kingSquare: 'e8' }, // if applicable
-  { type: 'GAME_ENDED', result: 'WHITE_WINS' }, // if checkmate
+  { type: 'PAWN_PROMOTED', piece: 'QUEEN' },
+  { type: 'CHECK_DECLARED', kingSquare: 'e8' },
+  { type: 'GAME_ENDED', result: 'WHITE_WINS' },
 ]
 ```
 
@@ -85,17 +83,6 @@ UI        — reads state, dispatches commands, never produces events
 UI ──► handleCommand ──► events ──► handleEvent ──► state ──► UI
 ```
 
-### Topics
-
-```
-games/{gameId}/commands   ← players publish (intents)
-games/{gameId}/votes      ← all peers publish (ACK/REJECT)
-games/{gameId}/events     ← committed facts (immutable)
-games/{gameId}/presence   ← connection lifecycle
-```
-
-Clients never publish to `events`. Events are only published after quorum is reached.
-
 ---
 
 ## Consensus Model — Leaderless, Peer Validated
@@ -105,14 +92,14 @@ Clients never publish to `events`. Events are only published after quorum is rea
 ```
 Player A  — makes moves, validates peer moves
 Player B  — makes moves, validates peer moves
-Referee   — first class role in the app, validates all moves, tiebreaker
+Referee   — Durable Object, validates all moves, tiebreaker
 ```
 
 Quorum: **2 of 3**. Any two agreeing commits the move.
 
 ### Why the referee exists
 
-Without a referee, Player B can falsely reject Player A's legal move and there is no arbiter. The referee breaks the tie:
+Without a referee, Player B can falsely reject Player A's legal move and there is no arbiter. The Durable Object breaks the tie:
 
 ```
 Player A sends legal move:
@@ -130,19 +117,13 @@ Player B falsely rejects legal move:
   Referee  → ACK
   Result   → COMMITTED (2/3), Player B flagged
 
-Referee is corrupt:
+Referee is corrupt (bug):
   Player B → ACK
-  Referee  → REJECT  ← corrupt
+  Referee  → REJECT  ← bug
   Result   → COMMITTED (2/3), Referee flagged
 ```
 
 Any single participant can be dishonest. The other two always outvote them. This is Byzantine Fault Tolerance at its minimum viable configuration.
-
-### This model has no canonical name — closest descriptions
-
-- **Leaderless consensus** — no single node has authority
-- **PBFT (Practical Byzantine Fault Tolerance)** — closest algorithm, three phases map to commands/votes/events
-- **Witnessed consensus with event sourcing** — plain language description
 
 ### Game modes
 
@@ -152,7 +133,7 @@ type GameMode =
   | { type: 'competitive' } // referee required, online only
 ```
 
-Competitive refuses to start without referee connection. Casual works fully offline.
+Competitive refuses to start without Durable Object connection. Casual works fully offline.
 
 ---
 
@@ -162,19 +143,22 @@ Competitive refuses to start without referee connection. Casual works fully offl
 t=0ms   UI dispatches command
 t=0ms   handleCommand validates locally → fast fail before network
 t=0ms   Optimistic update → UI updates instantly
-t=0ms   Command published to pub/sub box
+t=0ms   Command sent via WebSocket to Durable Object
 
-t=10ms  Player B receives → handleCommand validates → publishes ACK
-t=10ms  Referee receives  → handleCommand validates → publishes ACK
+t=5ms   DO receives command → validates with handleCommand → publishes ACK
+t=5ms   DO forwards command to Player B via WebSocket
 
-t=20ms  Mover receives 2 ACKs → quorum (2 of 3) reached
-t=20ms  Mover publishes committed event to games/{gameId}/events
+t=15ms  Player B receives → handleCommand validates → sends ACK via WebSocket
+t=15ms  DO receives Player B ACK → quorum (2 of 3) reached
 
-t=30ms  All peers receive event → handleEvent → committed state
-t=30ms  Optimistic cleared, UI re-renders with committed state
+t=15ms  DO broadcasts committed event to all peers via WebSocket
+t=15ms  DO persists event to PlanetScale (async, non-blocking)
+
+t=20ms  All peers receive event → handleEvent → committed state
+t=20ms  Optimistic cleared, UI re-renders with committed state
 ```
 
-30ms total. One EMQX hop. No server authority.
+20ms total. One Cloudflare hop. No server authority.
 
 ### On rejection
 
@@ -186,68 +170,136 @@ Quorum rejects → rollback optimistic state
 
 ---
 
-## Transport — Smart Clients, MQTT + EMQX
+## Transport — WebSockets via Durable Objects
 
-MQTT is the protocol in all environments. Same client code, same topics, same behavior — only the broker URL changes.
+Each game session is a Durable Object instance. Players connect via WebSockets. The DO is the relay and referee — same `GameModule` code runs inside the DO.
 
-```
-Production:  EMQX cluster (4 nodes globally)   wss://mqtt.yourgame.com/mqtt
-Local dev:   EMQX single node (Docker)          mqtt://localhost:1883
-```
+### Why Durable Objects
 
-EMQX handles cross-node routing natively — clients connect to any node, messages reach all subscribers regardless of which node they're on. No consistent hashing needed on the client.
+- **Per-game isolation** — each game is its own actor, no shared state between games
+- **Co-located state** — game events live in memory on the DO, no DB round-trip for validation
+- **WebSocket native** — built-in hibernatable WebSocket support, no external broker
+- **Global single-instance** — exactly one DO per game, no split-brain possible
+- **Auto-scales to zero** — no cost when no games are active
 
-### MQTT Adapter
+### Durable Object — Game Peer Store
 
 ```typescript
-// shared/adapters/mqtt.adapter.ts
-import * as mqtt from 'mqtt';
+export class GamePeerStore extends DurableObject {
+  private connections = new Map<string, WebSocket>();
+  private committedEvents: GameEvent[] = [];
+  private consensus = new ConsensusProtocol(['playerA', 'playerB', 'referee']);
 
-export class MqttAdapter implements PubSubPort {
-  private client: mqtt.MqttClient;
-  private handlers = new Map<string, Set<(payload: object) => Promise<void>>>();
+  async fetch(request: Request): Promise<Response> {
+    const url = new URL(request.url);
 
-  constructor(url: string) {
-    this.client = mqtt.connect(url);
-
-    this.client.on('message', (topic, message) => {
-      const payload = JSON.parse(message.toString());
-      this.handlers.get(topic)?.forEach(h => h(payload));
-    });
-  }
-
-  async publish(topic: string, payload: object) {
-    await this.client.publishAsync(topic, JSON.stringify(payload), { qos: 0 });
-  }
-
-  subscribe(topic: string, handler: (payload: object) => Promise<void>) {
-    if (!this.handlers.has(topic)) {
-      this.handlers.set(topic, new Set());
-      this.client.subscribe(topic);
+    if (url.pathname === '/ws') {
+      const { 0: client, 1: server } = new WebSocketPair();
+      const playerId = url.searchParams.get('playerId')!;
+      this.ctx.acceptWebSocket(server, [playerId]);
+      this.connections.set(playerId, server);
+      return new Response(null, { status: 101, webSocket: client });
     }
-    this.handlers.get(topic)!.add(handler);
-    return () => this.handlers.get(topic)?.delete(handler);
+
+    return new Response('not found', { status: 404 });
+  }
+
+  async webSocketMessage(ws: WebSocket, raw: string) {
+    const msg = JSON.parse(raw);
+    const senderId = this.ctx.getTags(ws)[0];
+
+    switch (msg.type) {
+      case 'command':
+        await this.handleCommand(senderId, msg.command);
+        break;
+      case 'vote':
+        await this.handleVote(senderId, msg.vote);
+        break;
+    }
+  }
+
+  private async handleCommand(senderId: string, cmd: Command<unknown>) {
+    const state = reduce(GameModule, this.committedEvents);
+    const result = GameModule.handleCommand({ state, command: cmd });
+
+    // referee votes immediately
+    const refereeVote = result.ok ? 'ACK' : 'REJECT';
+    this.consensus.record({ commandId: cmd.id, from: 'referee', vote: refereeVote });
+
+    // forward command to other player
+    this.broadcast({ type: 'peer-command', command: cmd }, senderId);
+  }
+
+  private async handleVote(senderId: string, vote: Vote) {
+    const result = this.consensus.record(vote);
+
+    if (result.status === 'COMMITTED') {
+      this.broadcast({ type: 'committed', commandId: vote.commandId, events: result.events });
+      result.events.forEach(e => this.committedEvents.push(e));
+
+      // persist to PlanetScale — async, does not block commit
+      this.ctx.waitUntil(this.persistEvents(result.events));
+    }
+
+    if (result.status === 'REJECTED') {
+      this.broadcast({ type: 'rejected', commandId: vote.commandId });
+    }
+  }
+
+  private broadcast(msg: object, exclude?: string) {
+    const raw = JSON.stringify(msg);
+    for (const [id, ws] of this.connections) {
+      if (id !== exclude) ws.send(raw);
+    }
+  }
+
+  private async persistEvents(events: GameEvent[]) {
+    // PlanetScale write — fire and forget, for reconnect recovery only
+  }
+
+  async webSocketClose(ws: WebSocket) {
+    const playerId = this.ctx.getTags(ws)[0];
+    this.connections.delete(playerId);
+    this.broadcast({ type: 'presence', playerId, status: 'disconnected' });
   }
 }
 ```
 
-### Client connection — dead simple
-
-No routing logic. Route 53 latency-based routing sends clients to nearest EMQX node automatically:
+### Client connection
 
 ```typescript
-// one URL, forever — Route 53 handles geography
-const pubsub = new MqttAdapter(process.env.PUBSUB_URL);
-// Tokyo client    → ap-northeast-1 node
-// London client   → eu-west-1 node
-// New York client → us-east-1 node
+const gameId = 'game-abc123';
+const playerId = 'player-1';
+
+const ws = new WebSocket(
+  `https://api.gamezilla.app/game/${gameId}/ws?playerId=${playerId}`
+);
+```
+
+The stateless Worker routes the WebSocket upgrade to the correct Durable Object by game ID:
+
+```typescript
+// Worker — routes WS upgrade to DO
+export default {
+  async fetch(request: Request, env: Env) {
+    const url = new URL(request.url);
+    const match = url.pathname.match(/^\/game\/([^/]+)\/ws$/);
+    if (match) {
+      const gameId = match[1];
+      const id = env.GAME_PEER_STORE.idFromName(gameId);
+      const stub = env.GAME_PEER_STORE.get(id);
+      return stub.fetch(request);
+    }
+    return handleApiRequest(request, env);
+  },
+};
 ```
 
 ### Offline / P2P fallback
 
 ```typescript
-// online — EMQX cluster
-const transport = new MqttTransport(process.env.PUBSUB_URL);
+// online — Durable Object via WebSocket
+const transport = new DurableObjectTransport(gameId, playerId);
 
 // offline — WebRTC direct
 const transport = new WebRtcTransport(peerId);
@@ -258,161 +310,73 @@ const engine = new GameEngine(ChessModule, playerId, transport, ...);
 
 ---
 
-## Compute Resources — Two App Runner Services + EMQX
+## Compute Resources — Cloudflare Workers + Durable Objects
 
 ### Philosophy
 
 ```
-ReqRes   synchronous request/response    HTTP only         App Runner
-Worker   asynchronous message processing MQTT sub only     App Runner
-PubSub   asynchronous message relay      MQTT broker       EMQX cluster
+Worker (stateless)      HTTP request/response           Cloudflare Workers
+Durable Object          per-game peer store + referee   Cloudflare Durable Objects
+PlanetScale             event log + game registry       PlanetScale (serverless MySQL)
 ```
-
-PubSub is not an app — it is a deployment of EMQX. Zero application code. Config only.
 
 ### Service contracts
 
 ```
-ReqRes:
+Worker (stateless):
   IN:   HTTP requests from clients
-  OUT:  HTTP responses + MQTT publish to EMQX
-  DB:   read + write (Aurora)
-  MQTT: publish only — never subscribes
+  OUT:  HTTP responses, routes WS upgrades to DOs
+  DB:   read + write (PlanetScale) for non-game queries
+  DO:   routes game traffic to Durable Objects
+  Logic: API handlers, auth, game creation, sync
 
-EMQX (PubSub):
-  IN:   MQTT from clients + Worker + ReqRes
-  OUT:  MQTT to clients + Worker
-  DB:   never touches
-  HTTP: never touches
-  Logic: zero — pure broker, no application code
+Durable Object (GamePeerStore):
+  IN:   WebSocket messages from players
+  OUT:  WebSocket messages to players
+  DB:   async write to PlanetScale (event log persistence)
+  Logic: relay, referee validation, consensus coordination
+  State: in-memory committed events, WebSocket connections
 
-Worker:
-  IN:   MQTT from EMQX ($share/workers/# shared subscription)
-  OUT:  MQTT publish back to EMQX
-  DB:   read + write (Aurora)
-  HTTP: never touches clients
+PlanetScale:
+  Role: event log, game registry, player data
+  Source of truth for reconnect recovery only
+  Clients never write directly — local first
 ```
 
 ### Scaling model
 
 ```
-ReqRes   round robin replicas         App Runner load balancer
-         scale trigger: request volume
+Worker           stateless, scales automatically        Cloudflare edge network
+                 runs in 300+ locations globally
+                 zero config, zero ops
 
-EMQX     4 nodes globally             Route 53 latency routing
-         scale trigger: geography     NOT capacity — 1 node handles 1M connections
-         add nodes for new regions    not for more users
+Durable Object   one instance per game                  Cloudflare global network
+                 auto-created on first request
+                 hibernates when idle (zero cost)
+                 migrates to optimal location automatically
 
-Worker   competing consumers          MQTT shared subscriptions
-         scale trigger: message throughput
+PlanetScale      serverless MySQL, scales automatically
+                 read replicas in multiple regions
+                 branching for schema changes
 ```
 
-### EMQX — 4 nodes handles Chess.com scale
+### Why this is simpler than EMQX + App Runner
 
 ```
-Chess.com peak: ~1M concurrent connections
-EMQX per node:  ~1M connections (benchmarked, Erlang/OTP actor model)
+Before (EMQX architecture):
+  4 EMQX nodes globally              → config, monitoring, cluster gossip
+  2 App Runner services              → Docker images, scaling config
+  Aurora Serverless                   → VPC, security groups
+  Route 53 latency routing           → DNS config per region
+  Shared MQTT subscriptions           → competing consumer setup
+  Total moving parts: ~12
 
-Nodes needed for capacity:   1
-Nodes needed for geography:  4
-
-Node layout:
-  us-east-1        North + South America   ~250k connections
-  eu-west-1        Europe + Africa         ~250k connections
-  ap-northeast-1   Japan, Korea, China     ~250k connections
-  ap-southeast-1   India, SEA, Australia   ~250k connections
-
-Instance per node: c6g.2xlarge (8 vCPU, 16GB) = $200/month
-Total EMQX cost:   4 × $200 = $800/month for Chess.com scale
+After (Cloudflare + PlanetScale):
+  1 Worker (stateless)                → zero config scaling
+  1 Durable Object class              → per-game isolation, auto-scales
+  PlanetScale                         → serverless, zero ops
+  Total moving parts: 3
 ```
-
-EMQX cluster gossip routes messages between nodes natively. A game where Player A is on the Tokyo node and Player B is on the London node works automatically — no application code handles this.
-
-### Worker — competing consumers via shared subscriptions
-
-MQTT shared subscriptions ensure exactly one Worker instance processes each message:
-
-```typescript
-// worker/main.ts
-const mqtt = connect(process.env.PUBSUB_URL);
-
-// $share/{group}/{topic} — only one Worker gets each message
-mqtt.subscribe('$share/workers/games/+/commands');  // referee validation
-mqtt.subscribe('$share/workers/sync/+/mutations');  // reconciliation
-
-mqtt.on('message', async (topic, payload) => {
-  if (topic.includes('/commands')) await handleCommand(topic, payload);
-  if (topic.includes('/mutations')) await handleMutation(topic, payload);
-});
-```
-
-### Worker — game state from Aurora, no Redis needed
-
-Worker fetches game state directly from Aurora. Redis is not needed because:
-
-- Worker is not in the critical path — quorum reached on Player B + Worker ACK in parallel
-- Worker latency only matters in dispute resolution (rare)
-- Aurora in same region ~5ms — Redis would save 2ms, not worth the ops cost
-- Event sourced state is fully derivable from event log — no cache coherence problems
-
-### Worker latency — not in critical path
-
-```
-Happy path (no dispute):
-  Player B ACK:    ~10ms  ← quorum reached here, game commits
-  Worker ACK:      ~20ms  ← arrives after commit, irrelevant
-
-Dispute path (Player B lies):
-  Player B REJECT: ~10ms
-  Worker ACK:      ~20ms  ← tiebreaker, commits game
-  Total:           ~20ms  ← invisible in turn-based chess
-
-Worker down:
-  No quorum in dispute → timeout after 5s → surface to user
-```
-
-### Worker down handling
-
-```typescript
-const QUORUM_TIMEOUT = 5_000;
-
-setTimeout(() => {
-  if (consensus.status === 'PENDING') {
-    onRefereeUnavailable();
-  }
-}, QUORUM_TIMEOUT);
-```
-
-### CDK — two App Runner services, one Docker image
-
-```typescript
-const services = [
-  { name: 'ReqRes', port: 3000, minSize: 1, maxSize: 10 },
-  { name: 'Worker', port: 3000, minSize: 1, maxSize: 20 },
-];
-
-services.forEach(({ name, port, minSize, maxSize }) => {
-  new apprunner.Service(stack, name, {
-    source: apprunner.Source.fromEcr({
-      imageConfiguration: {
-        port,
-        environmentVariables: {
-          SERVICE: name,
-          DATABASE_URL: cluster.clusterEndpoint.socketAddress,
-          PUBSUB_URL: process.env.EMQX_URL,
-        },
-      },
-      repository: ecrRepo,
-      tag: 'latest',
-    }),
-    autoScalingConfiguration: new apprunner.AutoScalingConfiguration(
-      stack, `${name}Scale`, { minSize, maxSize }
-    ),
-  });
-});
-```
-
-`SERVICE` env var determines which `main.ts` boots. Same Docker image for both.
 
 ---
 
@@ -422,7 +386,6 @@ services.forEach(({ name, port, minSize, maxSize }) => {
 export class GameEngine<TState, TCommand, TEvent> {
   private committedEvents: TEvent[] = [];
   private optimisticEvents: TEvent[] = [];
-  private consensus: ConsensusProtocol;
 
   constructor(
     private module: GameModule<TState, TCommand, TEvent>,
@@ -431,11 +394,9 @@ export class GameEngine<TState, TCommand, TEvent> {
     private onStateChange: (state: TState) => void,
     private onError: (error: GameError) => void,
   ) {
-    this.consensus = new ConsensusProtocol(transport.peers);
     transport.onMessage(msg => this.handleMessage(msg));
   }
 
-  // UI entry point — only public method
   dispatch(command: TCommand) {
     const cmd = buildCommand(command, this.playerId, this.committedState.seq);
 
@@ -443,36 +404,28 @@ export class GameEngine<TState, TCommand, TEvent> {
     if (!result.ok) { this.onError(result.error); return; }
 
     this.applyOptimistic(cmd.id, result.value.events);
-    this.transport.publish(`games/${gameId}/commands`, cmd);
+    this.transport.send({ type: 'command', command: cmd });
   }
 
-  // peer sent command — validate and vote
   private handlePeerCommand(cmd: Command<TCommand>) {
     const result = this.module.handleCommand({ state: this.committedState, command: cmd });
-    this.transport.publish(`games/${gameId}/votes`, {
-      commandId: cmd.id,
-      from: this.playerId,
-      vote: result.ok ? 'ACK' : 'REJECT',
+    this.transport.send({
+      type: 'vote',
+      vote: { commandId: cmd.id, from: this.playerId, vote: result.ok ? 'ACK' : 'REJECT' },
     });
   }
 
-  // vote received — check quorum
-  private handleVote(vote: Vote) {
-    const result = this.consensus.record(vote);
-    if (result.status === 'COMMITTED') this.publishEvent(vote.commandId);
-    if (result.status === 'REJECTED') { this.rollbackOptimistic(vote.commandId); this.flagBadActor(result); }
-  }
-
-  // committed event — apply to state
-  private handleCommittedEvent(payload: { commandId: string; events: TEvent[] }) {
+  private handleCommitted(payload: { commandId: string; events: TEvent[] }) {
     this.optimisticEvents = this.optimisticEvents.filter(e => e.commandId !== payload.commandId);
-    payload.events.forEach(event => {
-      this.committedEvents.push(event);
-    });
+    payload.events.forEach(event => this.committedEvents.push(event));
     this.emitState();
   }
 
-  // UI always sees optimistic state on top of committed
+  private handleRejected(payload: { commandId: string }) {
+    this.rollbackOptimistic(payload.commandId);
+    this.emitState();
+  }
+
   private get committedState() { return reduce(this.module, this.committedEvents); }
   private get optimisticState() { return reduce(this.module, [...this.committedEvents, ...this.optimisticEvents]); }
   private emitState() { this.onStateChange(this.optimisticState); }
@@ -515,33 +468,55 @@ export class ConsensusProtocol {
 ## Ports and Adapters
 
 ```typescript
-// transport port — engine never knows what's underneath
 export interface GameTransportPort {
   send(message: Message): Promise<void>;
   onMessage(handler: (message: Message) => void): () => void;
   onDisconnect(handler: () => void): () => void;
-  peers: string[];
-}
-
-// pub/sub port — broker never knows game logic
-export interface PubSubPort {
-  publish(topic: string, payload: object): Promise<void>;
-  subscribe(topic: string, handler: (payload: object) => Promise<void>): () => void;
 }
 ```
 
 ### Adapters matrix
 
 ```
-Environment         GameTransport         PubSub
-──────────────────────────────────────────────────────
-Online              MqttTransport         MqttAdapter (EMQX cluster)
-Offline P2P         WebRtcTransport       WebRtcAdapter
-Local dev           MqttTransport         MqttAdapter (EMQX single node)
-Worker              MqttTransport         MqttAdapter (EMQX shared subscription)
+Environment         GameTransport              Peer Store
+──────────────────────────────────────────────────────────────
+Online              DurableObjectTransport     Durable Object (GamePeerStore)
+Offline P2P         WebRtcTransport            Local (in-memory)
+Local dev           WebSocketTransport         Bun WebSocket server (same logic)
 ```
 
-Same `MqttAdapter` everywhere — `PUBSUB_URL` env var is the only difference between local and prod.
+### DurableObjectTransport
+
+```typescript
+export class DurableObjectTransport implements GameTransportPort {
+  private ws: WebSocket;
+  private handlers = new Set<(msg: Message) => void>();
+
+  constructor(gameId: string, playerId: string) {
+    this.ws = new WebSocket(
+      `${process.env.API_URL}/game/${gameId}/ws?playerId=${playerId}`
+    );
+    this.ws.onmessage = (e) => {
+      const msg = JSON.parse(e.data);
+      this.handlers.forEach(h => h(msg));
+    };
+  }
+
+  async send(message: Message) {
+    this.ws.send(JSON.stringify(message));
+  }
+
+  onMessage(handler: (msg: Message) => void) {
+    this.handlers.add(handler);
+    return () => this.handlers.delete(handler);
+  }
+
+  onDisconnect(handler: () => void) {
+    this.ws.onclose = handler;
+    return () => { this.ws.onclose = null; };
+  }
+}
+```
 
 ---
 
@@ -554,10 +529,9 @@ export function useGame(gameId: string, playerId: string) {
   const engineRef = useRef<GameEngine<...>>();
 
   useEffect(() => {
-    const transport = new MqttTransport(process.env.PUBSUB_URL);
+    const transport = new DurableObjectTransport(gameId, playerId);
     engineRef.current = new GameEngine(ChessModule, playerId, transport, setState, setError);
 
-    // rehydrate from event log on mount/reconnect
     gameApi.getEvents(gameId).then(events => {
       events.forEach(e => engineRef.current!.applyCommitted(e));
     });
@@ -593,64 +567,76 @@ function ChessGame({ gameId, playerId }: Props) {
 
 ---
 
-## Worker — Peer, Never Authority
+## Durable Object — Peer, Never Authority
 
-Worker participates in consensus using identical `GameModule` code. It is always a peer, never a ruler.
-
-```typescript
-// worker/game-command.handler.ts
-mqtt.subscribe('$share/workers/games/+/commands');
-
-mqtt.on('message', async (topic, raw) => {
-  const command = JSON.parse(raw.toString());
-  const gameId = topic.split('/')[1];
-
-  // fetch minimal state from Aurora
-  const events = await db.query(
-    'SELECT * FROM game_events WHERE game_id = $1 ORDER BY seq ASC',
-    [gameId]
-  );
-  const state = reduce(GameModule, events.rows);
-
-  // validate using identical GameModule — same code as clients
-  const result = GameModule.handleCommand({ state, command });
-
-  // publish vote back to PubSub
-  await pubsub.publish(`games/${gameId}/votes`, {
-    commandId: command.id,
-    from: 'worker',
-    vote: result.ok ? 'ACK' : 'REJECT',
-    reason: result.ok ? undefined : result.error.message,
-  });
-
-  // persist event log if valid — for reconnect recovery
-  if (result.ok) {
-    await db.query(
-      'INSERT INTO game_events (game_id, seq, type, payload) VALUES ($1, $2, $3, $4)',
-      [gameId, command.seq, command.payload.type, command.payload]
-    );
-  }
-});
-```
-
-Worker roles by game mode:
-
-```
-Casual      → not involved (peer only consensus)
-Competitive → votes as referee, persists event log
-Ranked      → persists event log, flags suspicious patterns async
-```
+The Durable Object participates in consensus using identical `GameModule` code. It is always a peer (the referee), never a ruler. Its vote counts as 1 of 3 — same as any player.
 
 ### Reconnect recovery
 
-State is event sourced — reconnect fetches missed events and replays:
+State is event sourced — reconnect fetches missed events from PlanetScale and replays:
 
 ```typescript
-mqtt.on('disconnect', async () => {
+ws.onclose = async () => {
   const missed = await gameApi.getEvents(gameId, { fromSeq: lastKnownSeq });
   setState(reduce(GameModule, missed));
   reconnect();
-});
+};
+```
+
+The DO also rehydrates from PlanetScale on cold start (after hibernation or migration):
+
+```typescript
+export class GamePeerStore extends DurableObject {
+  private async rehydrate(gameId: string) {
+    if (this.committedEvents.length > 0) return; // already warm
+    const events = await this.env.DB.query(
+      'SELECT * FROM game_events WHERE game_id = ? ORDER BY seq ASC',
+      [gameId]
+    );
+    this.committedEvents = events;
+  }
+}
+```
+
+### DO down handling
+
+Cloudflare guarantees DO availability — if the host goes down, the DO migrates automatically. But for defense in depth:
+
+```typescript
+const WS_CONNECT_TIMEOUT = 5_000;
+
+setTimeout(() => {
+  if (ws.readyState !== WebSocket.OPEN) {
+    onRefereeUnavailable();
+  }
+}, WS_CONNECT_TIMEOUT);
+```
+
+---
+
+## Wrangler Configuration
+
+```toml
+name = "gamezilla-api"
+main = "src/api.ts"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+
+[[durable_objects.bindings]]
+name = "GAME_PEER_STORE"
+class_name = "GamePeerStore"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["GamePeerStore"]
+
+[vars]
+ENVIRONMENT = "production"
+
+# DATABASE_URL set via `wrangler secret put`
 ```
 
 ---
@@ -658,63 +644,60 @@ mqtt.on('disconnect', async () => {
 ## Infrastructure Summary
 
 ```
-ReqRes         App Runner
-               HTTP request/response
-               Writes to Aurora, publishes invalidations to EMQX
-               Scales: round robin replicas — App Runner handles automatically
+Worker (stateless)  Cloudflare Workers
+                    HTTP request/response — API, auth, game creation, sync
+                    Routes WebSocket upgrades to Durable Objects
+                    Runs at 300+ edge locations globally
+                    Scales: automatic, zero config
 
-Worker         App Runner
-               MQTT subscriber — referee + reconciliation
-               Shared subscriptions — competing consumers
-               Writes to Aurora, publishes votes/events/invalidations
-               Scales: add instances, EMQX distributes via shared subscriptions
+Durable Object      Cloudflare Durable Objects
+                    Per-game peer store — WebSocket relay + referee
+                    In-memory game state for fast validation
+                    Hibernatable WebSockets — zero cost when idle
+                    Async persistence to PlanetScale
+                    Scales: one instance per game, auto-created, auto-migrated
 
-EMQX           4 EC2 nodes globally (c6g.2xlarge, $200/month each)
-               Pure MQTT broker — zero application code, config only
-               1M connections per node — scales for geography not capacity
-               EMQX cluster gossip handles cross-node message routing
-               Route 53 latency routing — one URL, clients auto-route to nearest
-               Upgrade path: add nodes for new regions, never for more users
+PlanetScale         Serverless MySQL
+                    Event log, game registry, player data
+                    Source of truth for reconnect recovery only
+                    Clients never write directly — local first
+                    Read replicas for global low-latency reads
 
-Aurora         Serverless v2 — scales to zero (CPU), memory floor ~$10/month
-               Event log, game registry, player reputation
-               Source of truth for reconnect recovery only
-               Clients never write directly — local first
-
-Local dev      docker-compose — one command, full stack
-               EMQX single node replaces 4-node cluster
-               Same Docker image for ReqRes + Worker
-               SERVICE env var boots correct process
+Local dev           Bun + PGlite (packages/local)
+                    PGlite in-process — no Docker, no external DB
+                    HTTP /sql endpoint mimics PlanetScale limits
+                    Same createApiHandler as prod Worker
+                    bun run dev starts everything
 ```
 
-### Scale at real world benchmarks
+### Scale estimates
 
 ```
-Scale              Concurrent    Monthly cost
+Scale              Concurrent    Monthly cost (est.)
 ────────────────────────────────────────────────────
-Your game (early)  1k            ~$115
-Growing            10k           ~$280
-Lichess            147k          ~$1,933
-Chess.com          500k-1M       ~$6,752
-4x Chess.com       4M            architecture unchanged, add EMQX nodes
+Your game (early)  1k            ~$10 (Workers free tier + PS hobby)
+Growing            10k           ~$50
+Lichess            147k          ~$500
+Chess.com          500k-1M       ~$2,000-5,000
 ```
+
+Cloudflare Workers: 10M requests/month free, then $0.50/M. Durable Objects: first 1M requests free, $0.15/M after. PlanetScale: hobby tier free, scaler from $39/month.
 
 ### Local infra (`packages/local`)
 
-Postgres + EMQX run via Docker Compose in the **`@gamezilla/local`** workspace package (infra only — no app containers).
+PGlite runs in-process via Bun — no Docker, no external services.
 
 ```bash
-# From repo root: start postgres + emqx
+# From repo root: start local dev (PGlite + API)
 bun run --filter @gamezilla/local up
 
-# Req res + worker with hot reload (after infra is up)
-bun run dev:backend
-# or: turbo run dev:req-res dev:worker --parallel
+# Or with turbo
+turbo run dev --filter=@gamezilla/local
 ```
 
-Compose file: [`packages/local/docker-compose.yml`](packages/local/docker-compose.yml) — `postgres:16`, `emqx/emqx:5`, ports `5432`, `1883`, `8083`, `18083`.
-
-Run **Req res** and **Worker** on the host with Bun (`packages/app` scripts `dev:req-res` / `dev:worker`): they use `DATABASE_URL` + `PUBSUB_URL` pointing at `127.0.0.1` and the same credentials as compose.
+Local server (`packages/local/src/server.ts`):
+- **Port 15432**: HTTP `/sql` endpoint with PlanetScale-like limits
+- **Port 8787**: Same `createApiHandler` as prod, backed by PGlite
 
 ---
 
@@ -725,9 +708,7 @@ import { ulid } from 'ulid';                 // command IDs
 import { Result, ok, err } from 'neverthrow'; // Result type
 ```
 
-No consistent hashing library needed — EMQX handles cross-node routing natively.
-
-Everything else — `GameModule`, `GameEngine`, `ConsensusProtocol`, `GameTransport` — is your code. ~500 lines total. No framework needed.
+Everything else — `GameModule`, `GameEngine`, `ConsensusProtocol`, `GameTransportPort` — is your code. ~500 lines total. No framework needed.
 
 ---
 
@@ -736,13 +717,13 @@ Everything else — `GameModule`, `GameEngine`, `ConsensusProtocol`, `GameTransp
 1. Events come only from `handleCommand` — never from outside
 2. State comes only from `handleEvent` — never mutated directly
 3. UI dispatches commands — never events
-4. Worker is a peer — never an authority
-5. EMQX is a relay — never stateful, never contains business logic
-6. ReqRes is HTTP only — never subscribes to MQTT
-7. Worker is MQTT only — never handles HTTP
+4. Durable Object is a peer (referee) — never an authority
+5. Workers are stateless — game state lives only in Durable Objects
+6. Worker handles HTTP only — never holds WebSocket connections directly
+7. Durable Object handles WebSockets only — never serves HTTP API responses
 8. `GameModule` is pure — no side effects, no network, no DB
-9. Same `GameModule` code runs on all participants — client, Worker, offline
-10. Clients never write directly to Aurora — local first, sync via ReqRes
-11. No Redis — Worker fetches game state from Aurora directly, not in critical path
-12. No consistent hashing — EMQX cluster gossip handles cross-node routing natively
-13. EMQX scales for geography not capacity — add nodes for new regions, not more users
+9. Same `GameModule` code runs on all participants — client, Durable Object, offline
+10. Clients never write directly to PlanetScale — local first, sync via Worker
+11. No Redis — Durable Object holds game state in memory, PlanetScale for cold start only
+12. No message broker — Durable Objects are the coordination layer
+13. No Docker in production — Cloudflare runs everything at the edge

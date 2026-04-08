@@ -1,25 +1,15 @@
 /**
- * Local dev server: PGlite exposed over a tiny HTTP SQL API + the game API.
+ * Local dev server: PGlite exposed over a tiny HTTP SQL API.
  *
  * PGlite runs in-process (no socket server, no WS proxy). A single
  * `POST /sql` endpoint accepts `{ sql, params? }` and returns rows +
  * metadata. Limits mimic PlanetScale's HTTP API so issues surface locally
  * before hitting production.
- *
- * The game API handler is served on a separate port using the same worker
- * entry-point code path — it connects back to the HTTP SQL API via
- * {@link SqlClientImplPgliteHttp}, exercising the same SQL-over-HTTP path
- * that production uses with PlanetScale.
  */
 
 import { PGlite } from '@electric-sql/pglite';
-import { createApiHandler } from '@gamezilla/api/api-handler';
-import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
-import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
-import { SqlClientImplPgliteHttp } from '@gamezilla/shared/sql-client/impl-pglite-http';
 
 const SQL_PORT = parseInt(process.env['SQL_PORT'] ?? '15432', 10);
-const API_PORT = parseInt(process.env['API_PORT'] ?? '8787', 10);
 const HOST = '127.0.0.1';
 const DATA_DIR = process.env['GAMEZILLA_DATA_DIR'];
 
@@ -92,25 +82,12 @@ async function handleSql(req: Request): Promise<Response> {
 }
 
 Bun.serve({ port: SQL_PORT, hostname: HOST, fetch: handleSql });
+
 console.log(`[local] PGlite HTTP on http://${HOST}:${SQL_PORT}`);
-
-// Wire up the API handler through the HTTP sql-client (same path as production)
-const sqlClient = new SqlClientImplPgliteHttp(`http://${HOST}:${SQL_PORT}`);
-await sqlClient.connect();
-
-const patchDb = new PatchDbImplPostgres(sqlClient);
-await patchDb.migrate();
-
-const handle = createApiHandler({ db: patchDb, pubSub: new InMemoryPubSub() });
-
-Bun.serve({ port: API_PORT, hostname: HOST, idleTimeout: 255, fetch: handle });
-
-console.log(`[local] API on http://${HOST}:${API_PORT}`);
 console.log(`[local] data: ${DATA_DIR ?? 'in-memory'}`);
 
 const shutdown = async () => {
   console.log('\n[local] shutting down...');
-  await sqlClient.disconnect();
   await db.close();
   process.exit(0);
 };
