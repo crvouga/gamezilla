@@ -344,6 +344,71 @@ export class PatchDbImplSqlite implements PatchesDb {
     return writtenPatches;
   }
 
+  private async batchFetchSnapshots(
+    entityKeys: string[]
+  ): Promise<Entity[]> {
+    if (entityKeys.length === 0) return [];
+    const pairs: [string, string][] = entityKeys.map((key) => {
+      const parts = key.split('\0');
+      assert.ok(
+        parts.length === 2,
+        'Entity key must contain exactly one null separator',
+        { key }
+      );
+      const entityId = parts[0];
+      const entityType = parts[1];
+      assert.defined(entityId, 'entityId must be defined');
+      assert.defined(entityType, 'entityType must be defined');
+      return [entityId, entityType] as [string, string];
+    });
+    const placeholders = pairs.map(() => '(?, ?)').join(', ');
+    const params = pairs.flatMap(([id, type]) => [id, type]);
+    const rows = await this.sqlClient.query<SnapshotRow>(
+      `SELECT * FROM snapshots WHERE (entity_id, entity_type) IN (VALUES ${placeholders})`,
+      params
+    );
+    const map = new Map<string, SnapshotRow>();
+    for (const row of rows) {
+      map.set(`${row.entity_id}\0${row.entity_type}`, row);
+    }
+    const entities: Entity[] = [];
+    for (const key of entityKeys) {
+      const row = map.get(key);
+      if (row) {
+        entities.push(toEntity(row));
+      }
+    }
+    return entities;
+  }
+
+  private async batchFetchPatchesForEntities(
+    entities: readonly { entity_id: string; entity_type: string }[]
+  ): Promise<Patch[]> {
+    if (entities.length === 0) return [];
+    const placeholders = entities.map(() => '(?, ?)').join(', ');
+    const params = entities.flatMap((r) => [r.entity_id, r.entity_type]);
+    const patchRows = await this.sqlClient.query<PatchRow>(
+      `WITH RECURSIVE lineage AS (
+          SELECT patch_id, entity_id, entity_type, 0 AS depth
+          FROM patches
+          WHERE (entity_id, entity_type) IN (VALUES ${placeholders})
+            AND parent_id IS NULL
+          UNION ALL
+          SELECT p.patch_id, p.entity_id, p.entity_type, l.depth + 1
+          FROM patches p
+          JOIN lineage l ON p.parent_id = l.patch_id
+            AND p.entity_id = l.entity_id
+            AND p.entity_type = l.entity_type
+      )
+      SELECT p.*
+      FROM patches p
+      JOIN lineage l ON p.patch_id = l.patch_id
+      ORDER BY p.entity_id, p.entity_type, l.depth ASC, p.patch_id ASC`,
+      params
+    );
+    return patchRows.map(toPatch);
+  }
+
   async read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
     if (queries.length === 0) return [];
     return Promise.all(queries.map((q) => this.readOne(q)));
@@ -369,20 +434,15 @@ export class PatchDbImplSqlite implements PatchesDb {
     const { conditions, params } = buildPatchConditions(query, 'p');
     const whereSQL = conditions.join(' AND ');
 
-    const countRows = await this.sqlClient.query<{ cnt: number }>(
-      `SELECT COUNT(*) as cnt FROM patches p WHERE ${whereSQL}`,
-      params
-    );
-    const total = countRows[0]?.cnt ?? 0;
-
     const orderSQL = buildOrderSQL(query, 'ORDER BY p.patch_id ASC', 'p.');
     const limit = buildLimitSQL(query);
 
-    const rows = await this.sqlClient.query<PatchRow>(
-      `SELECT * FROM patches p WHERE ${whereSQL} ${orderSQL}${limit.sql}`,
+    const rows = await this.sqlClient.query<PatchRow & { total_count: number }>(
+      `SELECT p.*, COUNT(*) OVER() AS total_count FROM patches p WHERE ${whereSQL} ${orderSQL}${limit.sql}`,
       [...params, ...limit.params]
     );
 
+    const total = rows.length > 0 ? Number(rows[0]!.total_count) : 0;
     const patches = rows.map(toPatch);
     const hasMore =
       query.limit !== null && query.limit !== undefined
@@ -401,33 +461,7 @@ export class PatchDbImplSqlite implements PatchesDb {
         entityKeysOrdered.push(key);
       }
     }
-    const entities: Entity[] = [];
-    for (const key of entityKeysOrdered) {
-      const parts = key.split('\0');
-      assert.ok(
-        parts.length === 2,
-        'Entity key must contain exactly one null separator',
-        { key }
-      );
-      const entityId = parts[0];
-      const entityType = parts[1];
-      assert.ok(
-        entityId !== null &&
-          entityId !== undefined &&
-          entityType !== null &&
-          entityType !== undefined,
-        'parts must have 2 elements',
-        { key }
-      );
-      const snapRows = await this.sqlClient.query<SnapshotRow>(
-        'SELECT * FROM snapshots WHERE entity_id = ? AND entity_type = ?',
-        [entityId, entityType]
-      );
-      const snapRow = snapRows[0];
-      if (snapRow !== null && snapRow !== undefined) {
-        entities.push(toEntity(snapRow));
-      }
-    }
+    const entities = await this.batchFetchSnapshots(entityKeysOrdered);
 
     return {
       query,
@@ -571,33 +605,7 @@ export class PatchDbImplSqlite implements PatchesDb {
         entityKeysOrdered.push(key);
       }
     }
-    const entities: Entity[] = [];
-    for (const key of entityKeysOrdered) {
-      const parts = key.split('\0');
-      assert.ok(
-        parts.length === 2,
-        'Entity key must contain exactly one null separator',
-        { key }
-      );
-      const entityId = parts[0];
-      const entityType = parts[1];
-      assert.ok(
-        entityId !== null &&
-          entityId !== undefined &&
-          entityType !== null &&
-          entityType !== undefined,
-        'parts must have 2 elements',
-        { key }
-      );
-      const snapRows = await this.sqlClient.query<SnapshotRow>(
-        'SELECT * FROM snapshots WHERE entity_id = ? AND entity_type = ?',
-        [entityId, entityType]
-      );
-      const snapRow = snapRows[0];
-      if (snapRow !== null && snapRow !== undefined) {
-        entities.push(toEntity(snapRow));
-      }
-    }
+    const entities = await this.batchFetchSnapshots(entityKeysOrdered);
 
     return { query, entities, patches, total, hasMore, nextCursor };
   }
@@ -608,41 +616,22 @@ export class PatchDbImplSqlite implements PatchesDb {
     const { conditions, params } = buildSnapshotConditions(query);
     const whereSQL = conditions.join(' AND ');
 
-    const countRows = await this.sqlClient.query<{ cnt: number }>(
-      `SELECT COUNT(*) as cnt FROM snapshots WHERE ${whereSQL}`,
-      params
-    );
-    const total = countRows[0]?.cnt ?? 0;
-
     const orderSQL = buildOrderSQL(query, 'ORDER BY entity_id ASC');
     const limit = buildLimitSQL(query);
 
-    const rows = await this.sqlClient.query<SnapshotRow>(
-      `SELECT * FROM snapshots WHERE ${whereSQL} ${orderSQL}${limit.sql}`,
+    const rows = await this.sqlClient.query<SnapshotRow & { total_count: number }>(
+      `SELECT *, COUNT(*) OVER() AS total_count FROM snapshots WHERE ${whereSQL} ${orderSQL}${limit.sql}`,
       [...params, ...limit.params]
     );
 
+    const total = rows.length > 0 ? Number(rows[0]!.total_count) : 0;
     const entities = rows.map(toEntity);
     const hasMore =
       query.limit !== null && query.limit !== undefined
         ? (query.offset ?? 0) + entities.length < total
         : false;
 
-    const patches: Patch[] = [];
-    for (const row of rows) {
-      const patchRows = await this.sqlClient.query<PatchRow>(
-        SELECT_PATCHES_FOR_SNAPSHOT,
-        [
-          row.entity_id,
-          row.entity_type,
-          row.entity_id,
-          row.entity_type,
-          row.entity_id,
-          row.entity_type,
-        ]
-      );
-      patches.push(...patchRows.map(toPatch));
-    }
+    const patches = await this.batchFetchPatchesForEntities(rows);
 
     return {
       query,

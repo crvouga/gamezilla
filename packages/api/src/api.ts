@@ -1,8 +1,8 @@
 import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
+import { createLogger } from '@gamezilla/shared/logger';
 import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
 import { SqlClientImplPgliteHttp } from '@gamezilla/shared/sql-client/impl-pglite-http';
-import { SqlClientImplPlanetScale } from '@gamezilla/shared/sql-client/impl-planetscale';
-import { createLogger } from '@gamezilla/shared/logger';
+import { SqlClientImplPlanetScalePostgres } from '@gamezilla/shared/sql-client/impl-planetscale-postgres';
 import { createApiHandler } from './api-handler';
 
 export interface Env {
@@ -27,7 +27,7 @@ function getDb(env: Env): PatchDbImplPostgres {
   if (!db) {
     const sqlClient = env.DATABASE_URL.startsWith('http')
       ? new SqlClientImplPgliteHttp(env.DATABASE_URL)
-      : new SqlClientImplPlanetScale(env.DATABASE_URL);
+      : new SqlClientImplPlanetScalePostgres(env.DATABASE_URL);
     db = new PatchDbImplPostgres(sqlClient);
   }
   return db;
@@ -78,7 +78,11 @@ export default {
     try {
       const currentDb = getDb(env);
       if (!migrated) {
-        await withTimeout(currentDb.migrate(), MIGRATE_TIMEOUT_MS, 'db.migrate');
+        await withTimeout(
+          currentDb.migrate(),
+          MIGRATE_TIMEOUT_MS,
+          'db.migrate'
+        );
         migrated = true;
       }
 

@@ -17,7 +17,7 @@ import { questionMarkParamsToDollarParams } from './positional-params';
  *
  * @see https://api-docs.planetscale.com/docs/postgres/connecting/neon-serverless-driver
  */
-export class SqlClientImplPlanetScale implements SqlClient {
+export class SqlClientImplPlanetScalePostgres implements SqlClient {
   private sql: NeonQueryFunction<false, true>;
 
   constructor(connectionString: string) {
@@ -33,7 +33,7 @@ export class SqlClientImplPlanetScale implements SqlClient {
 
   async query<T = Record<string, unknown>>(
     sql: string,
-    params?: unknown[],
+    params?: unknown[]
   ): Promise<T[]> {
     const [pgSql, pgParams] = questionMarkParamsToDollarParams(sql, params);
     const result = await this.sql.query(pgSql, pgParams);
@@ -46,7 +46,7 @@ export class SqlClientImplPlanetScale implements SqlClient {
     return {
       changes: result.rowCount ?? 0,
       lastInsertRowid: getLastInsertRowid(
-        result.rows as Record<string, unknown>[],
+        result.rows as Record<string, unknown>[]
       ),
     };
   }
