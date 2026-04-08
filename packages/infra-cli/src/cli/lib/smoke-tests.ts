@@ -3,6 +3,7 @@ import { PROJECT_CONFIG } from '../../project-config';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
 import { runSafe } from '../subprocess';
+import { curlStatus } from './curl-status';
 import { fmtElapsed, ok, warn } from './fmt';
 import { requireOutput, type TfOutputs } from './tf-outputs';
 
@@ -25,8 +26,6 @@ const HTTP_ENDPOINTS: readonly HttpEndpointCheck[] = [
     probePath: '/health',
   },
 ];
-
-const CURL_TIMEOUT_S = 30;
 
 function parsePositiveIntMsEnv(name: string, fallback: number): number {
   const raw = process.env[name];
@@ -65,51 +64,6 @@ function probeUrl(rawUrl: string, probePath?: string): string {
   return new URL(path, base.endsWith('/') ? base : `${base}/`).href;
 }
 
-/**
- * Resolve a hostname to an IP via Cloudflare's public DNS (1.1.1.1),
- * bypassing stale local DNS caches.
- */
-function resolveVia1111(hostname: string): string | null {
-  const r = runSafe('dig', ['+short', hostname, 'A', '@1.1.1.1']);
-  if (r.exitCode !== 0) return null;
-  const ip = r.stdout.split('\n').map((l) => l.trim()).find((l) => /^\d+\.\d+\.\d+\.\d+$/.test(l));
-  return ip ?? null;
-}
-
-/**
- * Use curl with --resolve to force DNS resolution through Cloudflare's
- * 1.1.1.1 resolver, bypassing stale local caches.
- */
-function curlStatus(url: string): { ok: boolean; status: number; error?: string } {
-  const parsed = new URL(url);
-  const hostname = parsed.hostname;
-  const port = parsed.port || (parsed.protocol === 'https:' ? '443' : '80');
-
-  const ip = resolveVia1111(hostname);
-
-  const args = [
-    '-s', '-o', '/dev/null',
-    '-w', '%{http_code}',
-    '--max-time', String(CURL_TIMEOUT_S),
-    '-L',
-  ];
-
-  if (ip) {
-    args.push('--resolve', `${hostname}:${port}:${ip}`);
-  }
-
-  args.push(url);
-
-  const r = runSafe('curl', args);
-  if (r.exitCode !== 0) {
-    return { ok: false, status: 0, error: r.stderr.trim() || `curl exit ${r.exitCode}` };
-  }
-  const status = parseInt(r.stdout.trim(), 10);
-  if (Number.isNaN(status)) {
-    return { ok: false, status: 0, error: `unexpected curl output: ${r.stdout.trim()}` };
-  }
-  return { ok: status >= 200 && status < 400, status };
-}
 
 async function checkHttpEndpoint(
   platform: CiPlatform,
