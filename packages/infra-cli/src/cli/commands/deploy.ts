@@ -1,9 +1,9 @@
-import { PROJECT_CONFIG } from '../../project-config';
 import {
   ClientDeployable,
   TurboCacheDeployable,
   WorkersDeployable,
 } from '../lib/deploy-registry';
+import { ensureDopplerDefaults } from '../lib/ensure-doppler-defaults';
 import { ensureR2Enabled } from '../lib/ensure-r2';
 import { banner, ok } from '../lib/fmt';
 import { resolveDatabaseUrl } from '../lib/resolve-database-url';
@@ -17,7 +17,6 @@ import { cfAccountId } from '../secrets/cloudflare';
 import {
   fetchDopplerSecret,
   getSecretMap,
-  setDopplerSecret,
   validateSecret,
 } from '../secrets/secrets';
 import { runAsync, runCaptureAsync } from '../subprocess';
@@ -192,7 +191,7 @@ Point your domain to Cloudflare in [Squarespace Domains](https://domains.squares
       }
     }
 
-    this.ensureDopplerDefaults();
+    ensureDopplerDefaults();
 
     if (alreadySet > 0) ok('Secrets in env', String(alreadySet));
     if (loaded > 0) ok('Loaded from Doppler', String(loaded));
@@ -206,30 +205,4 @@ Point your domain to Cloudflare in [Squarespace Domains](https://domains.squares
     }
   }
 
-  /**
-   * Populate Doppler with default values for config that can be derived
-   * automatically (turbo cache URL, team slug, bearer token, log order).
-   */
-  private ensureDopplerDefaults(): void {
-    const defaults: Record<string, () => string> = {
-      TURBO_TOKEN: () => crypto.randomUUID(),
-      TURBO_API: () => `https://turbo-cache.${PROJECT_CONFIG.domain}`,
-      TURBO_TEAM: () => `team_${PROJECT_CONFIG.domain.replace(/\.\w+$/, '')}`,
-      TURBO_LOG_ORDER: () => 'stream',
-    };
-
-    for (const [key, generate] of Object.entries(defaults)) {
-      if (process.env[key]) continue;
-
-      const value = generate();
-      process.env[key] = value;
-
-      try {
-        setDopplerSecret(key, value);
-        ok(key, 'populated in Doppler');
-      } catch {
-        ok(key, 'set in env (Doppler save skipped)');
-      }
-    }
-  }
 }

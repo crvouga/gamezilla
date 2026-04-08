@@ -1,7 +1,7 @@
 import { assert } from '@gamezilla/shared/assert';
 import { createInterface } from 'node:readline/promises';
-import { PROJECT_CONFIG } from '../../project-config';
 import { ALL_DEPS } from '../deps/registry';
+import { ensureDopplerDefaults } from '../lib/ensure-doppler-defaults';
 import { ensureR2Enabled } from '../lib/ensure-r2';
 import {
   banner,
@@ -113,6 +113,8 @@ export class SetupCommand implements Command {
       if (s.set) ok(s.env);
       else fmtFail(s.env, 'not found in Doppler');
     }
+
+    ensureDopplerDefaults();
 
     const missingEnvs = new Set(
       secrets.filter((s) => !s.set).map((s) => s.env)
