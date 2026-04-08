@@ -35,6 +35,13 @@ function getDb(env: Env): PatchDbImplPostgres {
   return db;
 }
 
+function resetDb(): void {
+  sqlClient?.disconnect().catch(() => {});
+  sqlClient = null;
+  db = null;
+  migrated = false;
+}
+
 function withTimeout<T>(
   promise: Promise<T>,
   ms: number,
@@ -90,6 +97,11 @@ export default {
       const message = err instanceof Error ? err.message : String(err);
       const isTimeout =
         message.includes('timed out') || message.includes('timeout');
+
+      if (isTimeout) {
+        resetDb();
+      }
+
       log.error('handler error', { error: message, isTimeout });
       const status = isTimeout ? 503 : 500;
 
