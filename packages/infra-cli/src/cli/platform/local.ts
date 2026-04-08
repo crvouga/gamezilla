@@ -1,9 +1,8 @@
 import { assert } from '@gamezilla/shared/assert';
 import {
+  fmt,
   fail as fmtFail,
   warn as fmtWarn,
-  heading,
-  info,
 } from '../lib/fmt';
 import type { CiPlatform } from './platform';
 
@@ -31,15 +30,14 @@ export class LocalPlatform implements CiPlatform {
       typeof message === 'string' && message.length > 0,
       'notice: message must be non-empty'
     );
-    info('', message);
+    console.log(`  ${fmt.dim(message)}`);
   }
 
-  startGroup(title: string): void {
+  startGroup(_title: string): void {
     assert.ok(
-      typeof title === 'string' && title.length > 0,
+      typeof _title === 'string' && _title.length > 0,
       'startGroup: title must be non-empty'
     );
-    heading(title);
   }
 
   endGroup(): void {}

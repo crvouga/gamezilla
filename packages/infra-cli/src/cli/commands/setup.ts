@@ -9,7 +9,6 @@ import {
   banner,
   fmt,
   fail as fmtFail,
-  heading,
   info,
   ok,
   warn,
@@ -102,84 +101,73 @@ export class SetupCommand implements Command {
   constructor(private readonly platform: CiPlatform) {}
 
   async execute(): Promise<void> {
+    const t0 = performance.now();
     banner('Setup');
+    const p = this.platform;
 
-    // ── 1. Dependencies ─────────────────────────────────────────────────
-    heading('Dependencies');
-    this.ensureDeps();
+    await runStep(p, 'Dependencies', () => this.ensureDeps());
 
-    // ── 2. Secrets ──────────────────────────────────────────────────────
-    heading('Load secrets');
-    const secrets = loadSecretsIntoEnv();
-    for (const s of secrets) {
-      if (s.set) ok(s.env);
-      else fmtFail(s.env, 'not found in Doppler');
-    }
+    const missingEnvs = await runStep(p, 'Load secrets', () => {
+      const secrets = loadSecretsIntoEnv();
+      for (const s of secrets) {
+        if (s.set) ok(s.env);
+        else fmtFail(s.env, 'not found in Doppler');
+      }
+      ensureDopplerDefaults();
+      return new Set(secrets.filter((s) => !s.set).map((s) => s.env));
+    });
 
-    ensureDopplerDefaults();
-
-    const missingEnvs = new Set(
-      secrets.filter((s) => !s.set).map((s) => s.env)
-    );
     if (missingEnvs.size > 0) {
       await this.promptForMissingSecrets(missingEnvs);
     }
 
-    // ── 3. Validate secrets ─────────────────────────────────────────────
-    heading('Validate secrets');
-    const secretMap = getSecretMap();
-    let validationFailed = false;
-    for (const entry of secretMap) {
-      const value = process.env[entry.env];
-      if (!value) continue;
-      const err = await validateSecret(entry, value);
-      if (err) {
-        fmtFail(entry.doppler, err);
-        validationFailed = true;
-      } else {
-        ok(entry.doppler);
+    await runStep(p, 'Validate secrets', async () => {
+      const secretMap = getSecretMap();
+      let validationFailed = false;
+      for (const entry of secretMap) {
+        const value = process.env[entry.env];
+        if (!value) continue;
+        const err = await validateSecret(entry, value);
+        if (err) {
+          fmtFail(entry.doppler, err);
+          validationFailed = true;
+        } else {
+          ok(entry.doppler);
+        }
       }
-    }
-    assert.ok(
-      !validationFailed,
-      'Secret validation failed — fix the issues above before continuing'
-    );
+      assert.ok(
+        !validationFailed,
+        'Secret validation failed — fix the issues above before continuing'
+      );
+    });
 
-    // ── 4. R2 activation ──────────────────────────────────────────────
-    heading('R2 activation');
-    await runStep(this.platform, 'Ensure R2 enabled', () =>
+    await runStep(p, 'Ensure R2 enabled', () =>
       ensureR2Enabled(
-        this.platform,
+        p,
         cfAccountId(),
         process.env['CLOUDFLARE_API_TOKEN'] ?? ''
       )
     );
 
-    // ── 5. Sync turbo-cache Worker secret ──────────────────────────
-    heading('Turbo remote cache');
-    await runStep(this.platform, 'Sync TURBO_TOKEN to Worker', () =>
+    await runStep(p, 'Sync TURBO_TOKEN to Worker', () =>
       ensureTurboCacheSecret()
     );
 
-    // ── 6. Resolve DATABASE_URL from PlanetScale ─────────────────────
-    heading('Database');
-    await runStep(this.platform, 'Resolve DATABASE_URL', async () => {
+    await runStep(p, 'Resolve DATABASE_URL', async () => {
       const url = await resolveDatabaseUrl();
       ok('DATABASE_URL', url.replace(/\/\/[^@]+@/, '//***:***@'));
     });
 
-    // ── 5. Terraform init ───────────────────────────────────────────────
-    heading('Terraform init');
-    await runStep(this.platform, 'Terraform init', () =>
-      run(this.platform, 'terraform', ['init', '-input=false'], {
+    await runStep(p, 'Terraform init', () =>
+      run(p, 'terraform', ['init', '-input=false'], {
         cwd: TF_PACKAGE_ROOT,
         label: 'Terraform init',
       })
     );
 
-    // ── 6. Diagnose state health ────────────────────────────────────────
-    heading('Diagnose state');
-    const diagnostics = await this.diagnoseState();
+    const diagnostics = await runStep(p, 'Diagnose state', () =>
+      this.diagnoseState()
+    );
     for (const d of diagnostics) {
       if (d.healthy) ok(d.label, d.detail);
       else warn(d.label, d.detail);
@@ -187,13 +175,12 @@ export class SetupCommand implements Command {
 
     const needsRepair = diagnostics.some((d) => !d.healthy);
     if (!needsRepair) {
-      ok('State is healthy', 'no repair needed');
-      info('Tip', 'Run `bun run infra deploy` to do a full deploy');
+      banner('Setup Complete', performance.now() - t0);
+      ok('Infrastructure is healthy');
+      info('Next step', 'Run `bun run infra deploy` for a full deploy');
       return;
     }
 
-    // ── 7. Import / create missing resources ────────────────────────────
-    heading('Reconcile resources');
     const sorted = [
       ...IMPORTABLE_RESOURCES.filter((r) => r.foundation),
       ...IMPORTABLE_RESOURCES.filter((r) => !r.foundation),
@@ -203,10 +190,9 @@ export class SetupCommand implements Command {
 
       const existingId = await res.lookupId();
       if (existingId) {
-        info('Importing', `${res.address}`);
-        await runStep(this.platform, `Import ${res.address}`, () =>
+        await runStep(p, `Import ${res.address}`, () =>
           run(
-            this.platform,
+            p,
             'terraform',
             [
               'import',
@@ -219,8 +205,7 @@ export class SetupCommand implements Command {
           )
         );
       } else if (res.foundation) {
-        info('Creating', res.address);
-        await runStep(this.platform, `Apply ${res.address}`, () =>
+        await runStep(p, `Apply ${res.address}`, () =>
           runQuiet(
             'terraform',
             [
@@ -242,11 +227,9 @@ export class SetupCommand implements Command {
       }
     }
 
-    // ── 9. Full apply ───────────────────────────────────────────────────
-    heading('Full apply');
-    await runStep(this.platform, 'Terraform apply', () =>
+    await runStep(p, 'Terraform apply', () =>
       run(
-        this.platform,
+        p,
         'terraform',
         [
           'apply',
@@ -259,7 +242,7 @@ export class SetupCommand implements Command {
       )
     );
 
-    banner('Setup Complete');
+    banner('Setup Complete', performance.now() - t0);
     ok('Infrastructure is healthy');
     info('Next step', 'Run `bun run infra deploy` for a full deploy');
   }

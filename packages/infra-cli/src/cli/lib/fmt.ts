@@ -10,11 +10,13 @@ export const fmt = {
   magenta: pc.magenta,
 } as const;
 
-export function banner(text: string): void {
-  const rule = '─'.repeat(Math.max(text.length + 4, 40));
+export function banner(text: string, elapsedMs?: number): void {
+  const timeStr = elapsedMs !== undefined ? ` (${fmtMs(elapsedMs)})` : '';
+  const lineLen = Math.max(text.length + timeStr.length + 4, 40);
+  const rule = '─'.repeat(lineLen);
   console.log('');
   console.log(fmt.dim(rule));
-  console.log(fmt.bold(`  ${text}`));
+  console.log(`  ${fmt.bold(text)}${timeStr ? fmt.dim(timeStr) : ''}`);
   console.log(fmt.dim(rule));
 }
 
@@ -28,6 +30,10 @@ export function step(label: string): void {
 
 export function stepDone(label: string, ms: number): void {
   console.log(`${fmt.green('●')} ${label} ${fmt.dim(`(${fmtMs(ms)})`)}`);
+}
+
+export function stepFail(label: string, ms: number): void {
+  console.log(`${fmt.red('✗')} ${label} ${fmt.dim(`(${fmtMs(ms)})`)}`);
 }
 
 export function ok(label: string, detail?: string): void {

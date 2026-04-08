@@ -30,6 +30,7 @@ export class DeployCommand implements Command {
   constructor(private readonly platform: CiPlatform) {}
 
   async execute(): Promise<void> {
+    const t0 = performance.now();
     banner('Deploy');
     const p = this.platform;
 
@@ -127,7 +128,7 @@ export class DeployCommand implements Command {
     await runStep(p, 'Smoke tests', () => runHttpSmokeTests(p, outputs));
 
     // ── Done ─────────────────────────────────────────────────────────────
-    banner('Deploy Complete');
+    banner('Deploy Complete', performance.now() - t0);
     for (const key of ['client_url', 'api_url'] as const) {
       try {
         ok(key, requireOutput(p, outputs, key));

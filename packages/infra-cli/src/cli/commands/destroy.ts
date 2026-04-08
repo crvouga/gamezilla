@@ -12,9 +12,10 @@ export class DestroyCommand implements Command {
   constructor(private readonly platform: CiPlatform) {}
 
   async execute(): Promise<void> {
+    const t0 = performance.now();
     banner('Destroy');
 
-    this.ensureSecrets();
+    await runStep(this.platform, 'Secrets', () => this.ensureSecrets());
 
     const resources = createDestroyRegistry();
 
@@ -24,7 +25,7 @@ export class DestroyCommand implements Command {
       );
     }
 
-    banner('Destroy Complete');
+    banner('Destroy Complete', performance.now() - t0);
     ok('All managed infrastructure has been torn down');
   }
 

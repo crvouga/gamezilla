@@ -1,7 +1,4 @@
-import {
-  fmt,
-  stepDone,
-} from '../lib/fmt';
+import { stepDone, stepFail } from '../lib/fmt';
 
 export interface CiPlatform {
   error(message: string): void;
@@ -23,13 +20,13 @@ export async function runStep<T>(
   try {
     const result = await fn();
     const ms = performance.now() - t0;
+    platform.endGroup();
     stepDone(label, ms);
     return result;
   } catch (e) {
     const ms = performance.now() - t0;
-    platform.error(`${label} — FAILED after ${fmt.red(`${Math.round(ms)}ms`)}`);
-    throw e;
-  } finally {
     platform.endGroup();
+    stepFail(label, ms);
+    throw e;
   }
 }
