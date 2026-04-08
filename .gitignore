@@ -33,7 +33,8 @@ yarn-error.*
 .env*.local
 
 # Turbo
-.turbo
+.turbo/
+!.turbo/config.json
 /out
 
 # typescript

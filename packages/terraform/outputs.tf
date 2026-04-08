@@ -22,3 +22,8 @@ output "api_url" {
   description = "API public URL (Workers custom domain)"
   value       = "https://api.gamezilla.app"
 }
+
+output "turbo_cache_url" {
+  description = "Turborepo remote cache URL (Workers custom domain)"
+  value       = "https://turbo-cache.gamezilla.app"
+}

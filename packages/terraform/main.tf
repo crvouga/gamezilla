@@ -21,3 +21,11 @@ module "cloudflare_pages" {
   cloudflare_zone_id    = local.cloudflare_zone_id
   custom_domain         = var.custom_domain
 }
+
+# -- Turborepo remote cache (R2 bucket) ---------------------------------------
+
+resource "cloudflare_r2_bucket" "turbo_cache" {
+  account_id = var.cloudflare_account_id
+  name       = "turborepo-cache"
+  location   = "ENAM"
+}

@@ -29,12 +29,15 @@ export function spawnInstall(cmd: string, args: string[]): void {
 
 export function verifyRun(bin: string, args: string[]): void {
   const r = Bun.spawnSync([bin, ...args], {
-    stdout: 'inherit',
-    stderr: 'inherit',
-    stdin: 'inherit',
+    stdout: 'pipe',
+    stderr: 'pipe',
     env: process.env,
   });
   if (r.exitCode !== 0) {
+    const stderr = r.stderr.toString().trim();
+    const stdout = r.stdout.toString().trim();
+    if (stdout) console.error(stdout);
+    if (stderr) console.error(stderr);
     throw new Error(`${bin} ${args.join(' ')} exited ${r.exitCode}`);
   }
 }

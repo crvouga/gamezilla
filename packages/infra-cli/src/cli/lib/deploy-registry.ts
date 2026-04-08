@@ -3,7 +3,7 @@ import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
-import { run, runCapture } from '../subprocess';
+import { runAsync, runCaptureAsync } from '../subprocess';
 import { requireOutput, type TfOutputs } from './tf-outputs';
 
 /**
@@ -20,7 +20,39 @@ function wranglerEnv(): NodeJS.ProcessEnv {
 
 export interface Deployable {
   readonly id: string;
-  deploy(outputs: TfOutputs): void;
+  deploy(outputs: TfOutputs): Promise<void>;
+}
+
+export class TurboCacheDeployable implements Deployable {
+  readonly id = 'turbo-cache';
+
+  constructor(private readonly platform: CiPlatform) {}
+
+  async deploy(_outputs: TfOutputs): Promise<void> {
+    const cacheDir = join(REPO_ROOT, 'packages/turbo-cache');
+    const env = wranglerEnv();
+
+    const turboToken = process.env['TURBO_TOKEN'] ?? '';
+    assert.ok(
+      turboToken.length > 0,
+      'TURBO_TOKEN must be set (loaded from Doppler)',
+    );
+
+    await runCaptureAsync('wrangler', ['secret', 'put', 'TURBO_TOKEN'], {
+      cwd: cacheDir,
+      env,
+      input: turboToken,
+    });
+    this.platform.notice('TURBO_TOKEN secret pushed to turbo-cache Worker.');
+
+    await runAsync(this.platform, 'wrangler', ['deploy'], {
+      cwd: cacheDir,
+      env,
+      label: 'turbo-cache: Cloudflare Workers deploy',
+    });
+
+    this.platform.notice('Turbo remote cache deployed.');
+  }
 }
 
 export class WorkersDeployable implements Deployable {
@@ -28,7 +60,7 @@ export class WorkersDeployable implements Deployable {
 
   constructor(private readonly platform: CiPlatform) {}
 
-  deploy(_outputs: TfOutputs): void {
+  async deploy(_outputs: TfOutputs): Promise<void> {
     const apiDir = join(REPO_ROOT, 'packages/api');
     const env = wranglerEnv();
 
@@ -38,14 +70,14 @@ export class WorkersDeployable implements Deployable {
       'DATABASE_URL must be set (resolved from PlanetScale Roles API)',
     );
 
-    runCapture('wrangler', ['secret', 'put', 'DATABASE_URL'], {
+    await runCaptureAsync('wrangler', ['secret', 'put', 'DATABASE_URL'], {
       cwd: apiDir,
       env,
       input: databaseUrl,
     });
     this.platform.notice('DATABASE_URL secret pushed to Workers.');
 
-    run(this.platform, 'wrangler', ['deploy'], {
+    await runAsync(this.platform, 'wrangler', ['deploy'], {
       cwd: apiDir,
       env,
       label: 'workers-api: Cloudflare Workers deploy',
@@ -60,12 +92,12 @@ export class ClientDeployable implements Deployable {
 
   constructor(private readonly platform: CiPlatform) {}
 
-  deploy(outputs: TfOutputs): void {
+  async deploy(outputs: TfOutputs): Promise<void> {
     const apiUrl = toHttps(requireOutput(this.platform, outputs, 'api_url'));
     const pagesProject = requireOutput(
       this.platform,
       outputs,
-      'pages_project_name'
+      'pages_project_name',
     );
 
     if (!/^https:\/\//.test(apiUrl)) {
@@ -75,7 +107,7 @@ export class ClientDeployable implements Deployable {
 
     const clientDir = join(REPO_ROOT, 'packages/client');
 
-    run(
+    await runAsync(
       this.platform,
       'bunx',
       ['turbo', 'run', 'build', '--filter=@gamezilla/client'],
@@ -86,10 +118,10 @@ export class ClientDeployable implements Deployable {
           EXPO_PUBLIC_API_URL: apiUrl.replace(/\/$/, ''),
         },
         label: 'client: expo export (turbo)',
-      }
+      },
     );
 
-    run(
+    await runAsync(
       this.platform,
       'wrangler',
       [
@@ -101,7 +133,7 @@ export class ClientDeployable implements Deployable {
         '--branch',
         'main',
       ],
-      { cwd: clientDir, env: wranglerEnv(), label: 'client: Cloudflare Pages deploy' }
+      { cwd: clientDir, env: wranglerEnv(), label: 'client: Cloudflare Pages deploy' },
     );
 
     rmSync(join(REPO_ROOT, 'packages/client/dist'), {
@@ -120,9 +152,10 @@ function toHttps(raw: string): string {
 }
 
 export function createDeployRegistry(
-  platform: CiPlatform
+  platform: CiPlatform,
 ): readonly Deployable[] {
   const registry: readonly Deployable[] = [
+    new TurboCacheDeployable(platform),
     new WorkersDeployable(platform),
     new ClientDeployable(platform),
   ];

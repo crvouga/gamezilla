@@ -2,10 +2,11 @@ import { assert } from '@gamezilla/shared/assert';
 import { createInterface } from 'node:readline/promises';
 import { PROJECT_CONFIG } from '../../project-config';
 import { ALL_DEPS } from '../deps/registry';
+import { ensureR2Enabled } from '../lib/ensure-r2';
 import {
   banner,
-  fail as fmtFail,
   fmt,
+  fail as fmtFail,
   heading,
   info,
   ok,
@@ -18,13 +19,12 @@ import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
 import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
 import {
-  dopplerSecretExists,
   getSecretMap,
   loadSecretsIntoEnv,
   setDopplerSecret,
   validateSecret,
 } from '../secrets/secrets';
-import { run, runSafe, runQuiet } from '../subprocess';
+import { run, runQuiet, runSafe } from '../subprocess';
 import type { Command } from './types';
 
 interface ImportableResource {
@@ -86,16 +86,6 @@ const IMPORTABLE_RESOURCES: readonly ImportableResource[] = [
   },
 ];
 
-const STALE_STATE_ENTRIES = [
-  'module.database.aws_rds_cluster.this',
-  'module.database.aws_db_subnet_group.this',
-  'module.database.aws_security_group.db',
-  'module.database.random_password.db',
-  'module.vpc.aws_subnet.private[0]',
-  'module.vpc.aws_subnet.private[1]',
-  'module.vpc.aws_vpc.this',
-] as const;
-
 interface DiagnosticResult {
   readonly label: string;
   readonly healthy: boolean;
@@ -125,7 +115,7 @@ export class SetupCommand implements Command {
     }
 
     const missingEnvs = new Set(
-      secrets.filter((s) => !s.set).map((s) => s.env),
+      secrets.filter((s) => !s.set).map((s) => s.env)
     );
     if (missingEnvs.size > 0) {
       await this.promptForMissingSecrets(missingEnvs);
@@ -151,7 +141,17 @@ export class SetupCommand implements Command {
       'Secret validation failed — fix the issues above before continuing'
     );
 
-    // ── 4. Resolve DATABASE_URL from PlanetScale ─────────────────────
+    // ── 4. R2 activation ──────────────────────────────────────────────
+    heading('R2 activation');
+    await runStep(this.platform, 'Ensure R2 enabled', () =>
+      ensureR2Enabled(
+        this.platform,
+        cfAccountId(),
+        process.env['CLOUDFLARE_API_TOKEN'] ?? ''
+      )
+    );
+
+    // ── 5. Resolve DATABASE_URL from PlanetScale ─────────────────────
     heading('Database');
     await runStep(this.platform, 'Resolve DATABASE_URL', async () => {
       const url = await resolveDatabaseUrl();
@@ -182,17 +182,7 @@ export class SetupCommand implements Command {
       return;
     }
 
-    // ── 7. Remove stale state entries ───────────────────────────────────
-    heading('Repair state');
-    for (const addr of STALE_STATE_ENTRIES) {
-      if (this.stateHas(addr)) {
-        info('Removing stale resource', addr);
-        this.stateRm(addr);
-        ok('Removed', addr);
-      }
-    }
-
-    // ── 8. Import / create missing resources ────────────────────────────
+    // ── 7. Import / create missing resources ────────────────────────────
     heading('Reconcile resources');
     const sorted = [
       ...IMPORTABLE_RESOURCES.filter((r) => r.foundation),
@@ -267,7 +257,7 @@ export class SetupCommand implements Command {
   // ── Helpers ──────────────────────────────────────────────────────────
 
   private async promptForMissingSecrets(
-    missingEnvs: Set<string>,
+    missingEnvs: Set<string>
   ): Promise<void> {
     const secretMap = getSecretMap();
     const missing = secretMap.filter((s) => missingEnvs.has(s.env));
@@ -275,7 +265,7 @@ export class SetupCommand implements Command {
 
     if (process.env['CI']) {
       this.platform.warning(
-        `${missing.length} secret(s) missing — cannot prompt in CI`,
+        `${missing.length} secret(s) missing — cannot prompt in CI`
       );
       return;
     }
@@ -323,40 +313,26 @@ export class SetupCommand implements Command {
     for (const dep of ALL_DEPS) {
       const status = dep.check();
 
-      if (!status.ok) {
-        warn(dep.name, status.reason);
-        info(dep.name, 'installing…');
-        try {
-          dep.install();
-        } catch (e) {
-          const msg = e instanceof Error ? e.message : String(e);
-          fmtFail(dep.name, `install failed — ${msg}`);
-          assert.fail(`setup: could not install ${dep.name}`);
-        }
-        const after = dep.check();
-        if (!after.ok) {
-          fmtFail(dep.name, `still not available — ${after.reason}`);
-          assert.fail(`setup: ${dep.name} not available after install`);
-        }
-        ok(dep.name, `installed (${after.version})`);
+      if (status.ok) {
+        ok(dep.name, status.version);
         continue;
       }
 
-      const before = status.version;
-      info(dep.name, `${before} — upgrading…`);
+      warn(dep.name, status.reason);
+      info(dep.name, 'installing…');
       try {
-        dep.upgrade();
-      } catch {
-        ok(dep.name, `${before} (upgrade skipped)`);
-        continue;
+        dep.install();
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        fmtFail(dep.name, `install failed — ${msg}`);
+        assert.fail(`setup: could not install ${dep.name}`);
       }
       const after = dep.check();
-      const afterVersion = after.ok ? after.version : before;
-      if (afterVersion !== before) {
-        ok(dep.name, `${before} → ${afterVersion}`);
-      } else {
-        ok(dep.name, `${afterVersion} (latest)`);
+      if (!after.ok) {
+        fmtFail(dep.name, `still not available — ${after.reason}`);
+        assert.fail(`setup: ${dep.name} not available after install`);
       }
+      ok(dep.name, `installed (${after.version})`);
 
       if (dep.verify) dep.verify();
     }
@@ -385,16 +361,6 @@ export class SetupCommand implements Command {
       });
     }
 
-    for (const addr of STALE_STATE_ENTRIES) {
-      if (this.stateHas(addr)) {
-        results.push({
-          label: addr,
-          healthy: false,
-          detail: 'stale — no longer in config, will be removed from state',
-        });
-      }
-    }
-
     return results;
   }
 
@@ -403,12 +369,5 @@ export class SetupCommand implements Command {
       cwd: TF_PACKAGE_ROOT,
     });
     return r.exitCode === 0;
-  }
-
-  private stateRm(address: string): void {
-    run(this.platform, 'terraform', ['state', 'rm', address], {
-      cwd: TF_PACKAGE_ROOT,
-      label: `state rm ${address}`,
-    });
   }
 }

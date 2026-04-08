@@ -52,8 +52,7 @@
         "vite.config.ts",
         "tsconfig.json"
       ],
-      "outputs": ["dist/**"],
-      "cache": false
+      "outputs": ["dist/**"]
     }
   }
 }

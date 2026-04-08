@@ -1,0 +1,12 @@
+{
+  "name": "@gamezilla/turbo-cache",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "tc": "tsc --noEmit -p ../../tsconfig.json",
+    "dev": "wrangler dev --port 8787"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.2"
+  }
+}

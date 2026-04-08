@@ -30,6 +30,7 @@
     "./theme": "./src/theme/index.ts",
     "./ui": "./src/ui/index.ts",
     "./logger": "./src/logger/index.ts",
+    "./task-dag": "./src/task-dag/index.ts",
     "./ui/explorer": "./src/ui/explorer/index.ts",
     "./*": "./src/*"
   },

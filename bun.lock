@@ -83,6 +83,7 @@
       "version": "1.0.0",
       "dependencies": {
         "@electric-sql/pglite": "^0.4.3",
+        "@gamezilla/shared": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "^1.3.9",
@@ -180,6 +181,13 @@
         "@types/bun": "^1.3.9",
         "@types/react": "~19.1.0",
         "@types/sql.js": "^1.4.10",
+        "typescript": "~5.9.2",
+      },
+    },
+    "packages/turbo-cache": {
+      "name": "@gamezilla/turbo-cache",
+      "version": "1.0.0",
+      "devDependencies": {
         "typescript": "~5.9.2",
       },
     },
@@ -472,6 +480,8 @@
     "@gamezilla/peer-store-app": ["@gamezilla/peer-store-app@workspace:packages/peer-store-app"],
 
     "@gamezilla/shared": ["@gamezilla/shared@workspace:packages/shared"],
+
+    "@gamezilla/turbo-cache": ["@gamezilla/turbo-cache@workspace:packages/turbo-cache"],
 
     "@humanfs/core": ["@humanfs/core@0.19.1", "", {}, "sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA=="],
 

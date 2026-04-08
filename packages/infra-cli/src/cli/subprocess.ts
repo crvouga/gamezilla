@@ -166,3 +166,74 @@ export function runLocal(
     throw new Error(`${cmd} ${args.join(' ')} killed by signal`);
   }
 }
+
+// ── Async variants (non-blocking, safe for parallel DAG execution) ───
+
+export async function runAsync(
+  platform: CiPlatform,
+  cmd: string,
+  args: string[],
+  opts?: RunOpts,
+): Promise<void> {
+  assert.ok(
+    typeof cmd === 'string' && cmd.length > 0,
+    'runAsync: cmd must be non-empty',
+  );
+  assert.array(args, 'runAsync: args must be an array');
+
+  const fullCmd = `${cmd} ${args.join(' ')}`;
+  const label = opts?.label ?? fullCmd;
+  const t0 = performance.now();
+
+  const base = {
+    env: opts?.env ?? process.env,
+    stdout: 'inherit' as const,
+    stderr: 'inherit' as const,
+    stdin: 'inherit' as const,
+  };
+  const spawnOpts = opts?.cwd !== undefined ? { ...base, cwd: opts.cwd } : base;
+  const proc = Bun.spawn([cmd, ...args], spawnOpts);
+  const exitCode = await proc.exited;
+  const elapsed = fmtMs(performance.now() - t0);
+
+  if (exitCode !== 0) {
+    const detail = [
+      `Command:  ${fullCmd}`,
+      `Exit:     ${exitCode}`,
+      `Duration: ${elapsed}`,
+      opts?.cwd ? `Cwd:      ${opts.cwd}` : '',
+    ]
+      .filter(Boolean)
+      .join('\n');
+    throw new Error(`${label} failed (exit ${exitCode})\n${detail}`);
+  }
+}
+
+export async function runCaptureAsync(
+  cmd: string,
+  args: string[],
+  opts?: { cwd?: string; env?: NodeJS.ProcessEnv; input?: string },
+): Promise<string> {
+  const proc = Bun.spawn([cmd, ...args], {
+    env: opts?.env ?? process.env,
+    stdout: 'pipe',
+    stderr: 'pipe',
+    ...(opts?.cwd ? { cwd: opts.cwd } : {}),
+    ...(opts?.input !== undefined
+      ? { stdin: new Blob([opts.input]) }
+      : {}),
+  });
+
+  const [stdout, stderr, exitCode] = await Promise.all([
+    new Response(proc.stdout).text(),
+    new Response(proc.stderr).text(),
+    proc.exited,
+  ]);
+
+  if (exitCode !== 0) {
+    throw new Error(
+      `${cmd} ${args.join(' ')} exited ${exitCode}: ${stderr.trim()}`,
+    );
+  }
+  return stdout.trim();
+}

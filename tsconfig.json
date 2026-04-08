@@ -34,6 +34,7 @@
     "packages/patch-db-app/src/**/*.tsx",
     "packages/peer-store-app/src/**/*.ts",
     "packages/peer-store-app/src/**/*.tsx",
+    "packages/turbo-cache/src/**/*.ts",
     "packages/client/.expo/types/**/*.ts",
     "packages/client/expo-env.d.ts"
   ],

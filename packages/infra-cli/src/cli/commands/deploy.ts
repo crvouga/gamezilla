@@ -1,19 +1,25 @@
-import { assert } from '@gamezilla/shared/assert';
-import { createDeployRegistry } from '../lib/deploy-registry';
-import { banner, heading, ok } from '../lib/fmt';
+import {
+  ClientDeployable,
+  TurboCacheDeployable,
+  WorkersDeployable,
+} from '../lib/deploy-registry';
+import { ensureR2Enabled } from '../lib/ensure-r2';
+import { banner, ok } from '../lib/fmt';
 import { resolveDatabaseUrl } from '../lib/resolve-database-url';
 import { runHttpSmokeTests } from '../lib/smoke-tests';
-import { TF_DEPLOY_VAR_ARGS } from '../lib/tf-vars';
 import { readTfOutputs, requireOutput } from '../lib/tf-outputs';
+import { TF_DEPLOY_VAR_ARGS } from '../lib/tf-vars';
 import { TF_PACKAGE_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
+import { cfAccountId } from '../secrets/cloudflare';
 import {
   fetchDopplerSecret,
   getSecretMap,
+  setDopplerSecret,
   validateSecret,
 } from '../secrets/secrets';
-import { run, runCapture } from '../subprocess';
+import { runAsync, runCaptureAsync } from '../subprocess';
 import type { Command } from './types';
 
 export class DeployCommand implements Command {
@@ -25,44 +31,68 @@ export class DeployCommand implements Command {
 
   async execute(): Promise<void> {
     banner('Deploy');
+    const p = this.platform;
 
-    // ── 1. Ensure secrets ───────────────────────────────────────────────
-    heading('Secrets');
-    this.ensureSecrets();
+    // ── 1. Secrets ──────────────────────────────────────────────────────
+    await runStep(p, 'Secrets', () => this.ensureSecrets());
 
-    // ── 2. Validate ─────────────────────────────────────────────────────
-    heading('Validate');
-    await runStep(this.platform, 'Wrangler auth', () =>
-      this.assertWranglerAuth()
+    // ── 2. Wrangler auth ────────────────────────────────────────────────
+    await runStep(p, 'Wrangler auth', async () => {
+      const whoami = await runCaptureAsync('wrangler', ['whoami']);
+      p.notice(`Wrangler identity: ${whoami}`);
+    });
+
+    // ── 3. Validate secrets ─────────────────────────────────────────────
+    await runStep(p, 'Validate secrets', async () => {
+      const secretMap = getSecretMap();
+      const errors: string[] = [];
+      for (const entry of secretMap) {
+        const value = process.env[entry.env];
+        if (!value) continue;
+        const err = await validateSecret(entry, value);
+        if (err) {
+          p.error(`${entry.doppler}: ${err}`);
+          errors.push(entry.doppler);
+        } else {
+          ok(entry.doppler);
+        }
+      }
+      if (errors.length > 0) {
+        throw new Error(`Secret validation failed: ${errors.join(', ')}`);
+      }
+    });
+
+    // ── 4. R2 activation ──────────────────────────────────────────────
+    await runStep(p, 'Ensure R2 enabled', () =>
+      ensureR2Enabled(p, cfAccountId(), process.env['CLOUDFLARE_API_TOKEN'] ?? '')
     );
-    await runStep(this.platform, 'Validate secrets', () =>
-      this.validateSecrets()
-    );
 
-    // ── 3. Resolve DATABASE_URL from PlanetScale ─────────────────────
-    heading('Database');
-    await runStep(this.platform, 'Resolve DATABASE_URL', async () => {
+    // ── 5. Resolve DATABASE_URL ─────────────────────────────────────────
+    await runStep(p, 'Resolve DATABASE_URL', async () => {
       const url = await resolveDatabaseUrl();
       ok('DATABASE_URL', url.replace(/\/\/[^@]+@/, '//***:***@'));
     });
 
-    // ── 4. Terraform init + apply ───────────────────────────────────────
-    heading('Terraform');
-    await runStep(this.platform, 'Terraform init', () =>
-      run(this.platform, 'terraform', ['init', '-input=false'], {
+    // ── 5. Terraform init ───────────────────────────────────────────────
+    await runStep(p, 'Terraform init', () =>
+      runAsync(p, 'terraform', ['init', '-input=false'], {
         cwd: TF_PACKAGE_ROOT,
         label: 'Terraform init',
       })
     );
-    await runStep(this.platform, 'Terraform validate', () =>
-      run(this.platform, 'terraform', ['validate'], {
+
+    // ── 6. Terraform validate ───────────────────────────────────────────
+    await runStep(p, 'Terraform validate', () =>
+      runAsync(p, 'terraform', ['validate'], {
         cwd: TF_PACKAGE_ROOT,
         label: 'Terraform validate',
       })
     );
-    await runStep(this.platform, 'Terraform apply', () =>
-      run(
-        this.platform,
+
+    // ── 7. Terraform apply ──────────────────────────────────────────────
+    await runStep(p, 'Terraform apply', () =>
+      runAsync(
+        p,
         'terraform',
         [
           'apply',
@@ -75,25 +105,32 @@ export class DeployCommand implements Command {
       )
     );
 
-    // ── 5. Deploy apps ──────────────────────────────────────────────────
-    heading('Apps');
-    const outputs = readTfOutputs(this.platform);
-    const registry = createDeployRegistry(this.platform);
-    for (const deployable of registry) {
-      await runStep(this.platform, `Deploy: ${deployable.id}`, () =>
-        deployable.deploy(outputs)
-      );
-    }
+    // ── 8. Read TF outputs ──────────────────────────────────────────────
+    const outputs = await runStep(p, 'Read TF outputs', () => readTfOutputs(p));
 
-    // ── 6. Smoke tests ──────────────────────────────────────────────────
-    heading('Smoke tests');
-    await runHttpSmokeTests(this.platform, outputs);
+    // ── 9. Deploy turbo-cache ───────────────────────────────────────────
+    await runStep(p, 'Deploy: turbo-cache', () =>
+      new TurboCacheDeployable(p).deploy({})
+    );
 
-    // ── Done ────────────────────────────────────────────────────────────
+    // ── 10. Deploy workers-api ──────────────────────────────────────────
+    await runStep(p, 'Deploy: workers-api', () =>
+      new WorkersDeployable(p).deploy({})
+    );
+
+    // ── 11. Deploy client ───────────────────────────────────────────────
+    await runStep(p, 'Deploy: client', () =>
+      new ClientDeployable(p).deploy(outputs)
+    );
+
+    // ── 12. Smoke tests ─────────────────────────────────────────────────
+    await runStep(p, 'Smoke tests', () => runHttpSmokeTests(p, outputs));
+
+    // ── Done ─────────────────────────────────────────────────────────────
     banner('Deploy Complete');
     for (const key of ['client_url', 'api_url'] as const) {
       try {
-        ok(key, requireOutput(this.platform, outputs, key));
+        ok(key, requireOutput(p, outputs, key));
       } catch {
         /* output not available */
       }
@@ -154,39 +191,32 @@ Point your domain to Cloudflare in [Squarespace Domains](https://domains.squares
       }
     }
 
+    this.ensureAutoGeneratedSecrets();
+
     if (alreadySet > 0) ok('Secrets in env', String(alreadySet));
     if (loaded > 0) ok('Loaded from Doppler', String(loaded));
     if (failed > 0) {
-      this.platform.warning(
-        `${failed} secret(s) unavailable — deploy may fail`
-      );
-    }
-  }
-
-  private assertWranglerAuth(): void {
-    const whoami = runCapture('wrangler', ['whoami']);
-    this.platform.notice(`Wrangler identity: ${whoami}`);
-  }
-
-  private async validateSecrets(): Promise<void> {
-    const secretMap = getSecretMap();
-    const errors: string[] = [];
-
-    for (const entry of secretMap) {
-      const value = process.env[entry.env];
-      if (!value) continue;
-      const err = await validateSecret(entry, value);
-      if (err) {
-        this.platform.error(`${entry.doppler}: ${err}`);
-        errors.push(entry.doppler);
-      } else {
-        ok(entry.doppler);
+      const stillMissing = secretMap.filter((s) => !process.env[s.env]);
+      if (stillMissing.length > 0) {
+        this.platform.warning(
+          `${stillMissing.length} secret(s) unavailable — deploy may fail`
+        );
       }
     }
+  }
 
-    assert.ok(
-      errors.length === 0,
-      `Secret validation failed for: ${errors.join(', ')}`
-    );
+  /** Auto-generate secrets that are random bearer tokens (not external credentials). */
+  private ensureAutoGeneratedSecrets(): void {
+    if (process.env['TURBO_TOKEN']) return;
+
+    const token = crypto.randomUUID();
+    process.env['TURBO_TOKEN'] = token;
+
+    try {
+      setDopplerSecret('TURBO_TOKEN', token);
+      ok('TURBO_TOKEN', 'auto-generated and saved to Doppler');
+    } catch {
+      ok('TURBO_TOKEN', 'auto-generated (Doppler save skipped)');
+    }
   }
 }

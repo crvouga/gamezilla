@@ -1,0 +1,17 @@
+name = "gamezilla-turbo-cache"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+preview_urls = false
+
+routes = [{ pattern = "turbo-cache.gamezilla.app", custom_domain = true }]
+
+[[r2_buckets]]
+binding = "CACHE_BUCKET"
+bucket_name = "turborepo-cache"
+
+[observability]
+[observability.logs]
+enabled = true
+invocation_logs = true
