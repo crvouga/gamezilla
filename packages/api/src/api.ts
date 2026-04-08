@@ -2,7 +2,6 @@ import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-post
 import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
 import { SqlClientImplPgliteHttp } from '@gamezilla/shared/sql-client/impl-pglite-http';
 import { SqlClientImplPlanetScale } from '@gamezilla/shared/sql-client/impl-planetscale';
-import type { SqlClient } from '@gamezilla/shared/sql-client/interface';
 import { createLogger } from '@gamezilla/shared/logger';
 import { createApiHandler } from './api-handler';
 
@@ -22,24 +21,16 @@ const MIGRATE_TIMEOUT_MS = 15_000;
 
 const pubSub = new InMemoryPubSub();
 let migrated = false;
-let sqlClient: SqlClient | null = null;
 let db: PatchDbImplPostgres | null = null;
 
 function getDb(env: Env): PatchDbImplPostgres {
   if (!db) {
-    sqlClient = env.DATABASE_URL.startsWith('http')
+    const sqlClient = env.DATABASE_URL.startsWith('http')
       ? new SqlClientImplPgliteHttp(env.DATABASE_URL)
       : new SqlClientImplPlanetScale(env.DATABASE_URL);
     db = new PatchDbImplPostgres(sqlClient);
   }
   return db;
-}
-
-function resetDb(): void {
-  sqlClient?.disconnect().catch(() => {});
-  sqlClient = null;
-  db = null;
-  migrated = false;
 }
 
 function withTimeout<T>(
@@ -95,22 +86,13 @@ export default {
       return handle(request);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      const isTimeout =
-        message.includes('timed out') || message.includes('timeout');
-
-      if (isTimeout) {
-        resetDb();
-      }
-
-      log.error('handler error', { error: message, isTimeout });
-      const status = isTimeout ? 503 : 500;
+      log.error('handler error', { error: message });
 
       return new Response(JSON.stringify({ error: message }), {
-        status,
+        status: 500,
         headers: {
           ...CORS_HEADERS,
           'Content-Type': 'application/json',
-          ...(isTimeout ? { 'Retry-After': '5' } : {}),
         },
       });
     }

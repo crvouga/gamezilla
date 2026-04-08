@@ -62,11 +62,6 @@ export function createApiHandler(
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      const isTimeout =
-        message.includes('timed out') || message.includes('timeout');
-      if (isTimeout) {
-        throw err;
-      }
       log.error('handler error', { error: message });
       return withCors(
         new Response(JSON.stringify({ error: message }), {
