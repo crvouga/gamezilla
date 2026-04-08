@@ -22,6 +22,18 @@ const MIGRATE_TIMEOUT_MS = 15_000;
 
 const pubSub = new InMemoryPubSub();
 let migrated = false;
+let sqlClient: SqlClient | null = null;
+let db: PatchDbImplPostgres | null = null;
+
+function getDb(env: Env): PatchDbImplPostgres {
+  if (!db) {
+    sqlClient = env.DATABASE_URL.startsWith('http')
+      ? new SqlClientImplPgliteHttp(env.DATABASE_URL)
+      : new SqlClientImplPlanetScale(env.DATABASE_URL);
+    db = new PatchDbImplPostgres(sqlClient);
+  }
+  return db;
+}
 
 function withTimeout<T>(
   promise: Promise<T>,
@@ -66,16 +78,13 @@ export default {
     }
 
     try {
-      const sqlClient: SqlClient = env.DATABASE_URL.startsWith('http')
-        ? new SqlClientImplPgliteHttp(env.DATABASE_URL)
-        : new SqlClientImplPlanetScale(env.DATABASE_URL);
-      const db = new PatchDbImplPostgres(sqlClient);
+      const currentDb = getDb(env);
       if (!migrated) {
-        await withTimeout(db.migrate(), MIGRATE_TIMEOUT_MS, 'db.migrate');
+        await withTimeout(currentDb.migrate(), MIGRATE_TIMEOUT_MS, 'db.migrate');
         migrated = true;
       }
 
-      const handle = createApiHandler({ db, pubSub });
+      const handle = createApiHandler({ db: currentDb, pubSub });
       return handle(request);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);

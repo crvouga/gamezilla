@@ -23,6 +23,7 @@ export class SqlClientImplPlanetScale implements SqlClient {
     this.pool = new Pool({
       connectionString,
       connectionTimeoutMillis: 10_000,
+      max: 5,
     });
   }
 
