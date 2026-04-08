@@ -8,7 +8,7 @@ export type ApiHandlerConfig = PatchDbApiConfig;
 const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type, Cache-Control, Pragma',
 };
 
 function withCors(res: Response): Response {

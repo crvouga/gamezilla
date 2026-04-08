@@ -10,7 +10,7 @@ export interface Env {
 const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type, Cache-Control, Pragma',
 };
 
 const MIGRATE_TIMEOUT_MS = 15_000;
