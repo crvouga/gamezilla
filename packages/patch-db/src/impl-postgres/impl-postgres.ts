@@ -122,6 +122,11 @@ export class PatchDbImplPostgres implements PatchesDb {
   constructor(private sqlClient: SqlClient) {}
 
   async migrate(): Promise<void> {
+    const existing = await this.sqlClient.query<{ tablename: string }>(
+      `SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename IN ('patches', 'snapshots')`,
+    );
+    if (existing.length >= 2) return;
+
     const statements = MIGRATIONS.split(';')
       .map((s) => s.trim())
       .filter(Boolean);

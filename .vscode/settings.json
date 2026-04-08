@@ -97,6 +97,7 @@
     "sslmode",
     "superfly",
     "tablename",
+    "tableowner",
     "tfstate",
     "TIMESTAMPTZ",
     "topo",

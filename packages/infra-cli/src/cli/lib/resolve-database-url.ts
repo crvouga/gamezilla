@@ -1,9 +1,15 @@
 import { neon, neonConfig } from '@neondatabase/serverless';
 import { psHeaders } from '../secrets/planetscale';
+import {
+  dopplerSecretExists,
+  fetchDopplerSecret,
+  setDopplerSecret,
+} from '../secrets/secrets';
 
 const PS_API = 'https://api.planetscale.com/v1';
 const ROLE_NAME = 'infra-deploy';
 const BRANCH = 'main';
+const DOPPLER_KEY = 'PLANETSCALE_DATABASE_URL';
 
 interface PsRole {
   id: string;
@@ -30,7 +36,9 @@ function rolesUrl(): string {
 async function listRoles(): Promise<PsRole[]> {
   const res = await fetch(rolesUrl(), { headers: psHeaders() });
   if (!res.ok) {
-    throw new Error(`PlanetScale list roles: HTTP ${res.status} — ${await res.text()}`);
+    throw new Error(
+      `PlanetScale list roles: HTTP ${res.status} — ${await res.text()}`,
+    );
   }
   const body = (await res.json()) as { data: PsRole[] };
   return body.data;
@@ -56,7 +64,9 @@ async function createRole(): Promise<PsRole> {
     }),
   });
   if (!res.ok) {
-    throw new Error(`PlanetScale create role: HTTP ${res.status} — ${await res.text()}`);
+    throw new Error(
+      `PlanetScale create role: HTTP ${res.status} — ${await res.text()}`,
+    );
   }
   return (await res.json()) as PsRole;
 }
@@ -69,32 +79,73 @@ function buildDatabaseUrl(role: PsRole): string {
   return `postgresql://${user}:${pass}@${host}:5432/${db}?sslmode=verify-full`;
 }
 
-async function validateConnectivity(url: string): Promise<void> {
+function neonSql(url: string) {
   neonConfig.fetchEndpoint = (host) => `https://${host}/sql`;
-  const sql = neon(url);
-  const rows = await sql`SELECT 1 AS ok`;
-  if (!Array.isArray(rows) || rows.length === 0) {
-    throw new Error('SELECT 1 returned no rows');
+  return neon(url);
+}
+
+async function validateConnectivity(url: string): Promise<boolean> {
+  try {
+    const sql = neonSql(url);
+    const rows = await sql`SELECT 1 AS ok`;
+    return Array.isArray(rows) && rows.length > 0;
+  } catch {
+    return false;
   }
 }
 
 /**
- * Derives DATABASE_URL from PlanetScale credentials by creating a role
- * on the main branch via the Roles API.
+ * Reassigns ownership of public-schema tables/sequences to CURRENT_USER.
+ * Fixes orphaned ownership left by previously deleted PlanetScale roles.
+ */
+async function claimTableOwnership(url: string): Promise<void> {
+  const sql = neonSql(url);
+  try {
+    await sql`
+      DO $$
+      DECLARE r RECORD;
+      BEGIN
+        FOR r IN
+          SELECT tablename FROM pg_tables
+          WHERE schemaname = 'public'
+            AND tableowner <> current_user
+        LOOP
+          EXECUTE format('ALTER TABLE public.%I OWNER TO %I', r.tablename, current_user);
+        END LOOP;
+      END$$
+    `;
+  } catch {
+    // Best-effort: if the role lacks permission, the Worker migration
+    // will handle it by skipping DDL on existing tables.
+  }
+}
+
+/**
+ * Derives DATABASE_URL from PlanetScale credentials via the Roles API
+ * and caches the result in Doppler.
  *
- * Requires PLANETSCALE_SERVICE_TOKEN_ID, PLANETSCALE_SERVICE_TOKEN,
- * TF_VAR_planetscale_org, and TF_VAR_planetscale_database in process.env.
+ * 1. Check Doppler for a cached URL — if it works, reuse it.
+ * 2. Otherwise, clean up stale roles, create a fresh one, cache the URL.
  *
- * Deletes any existing "infra-deploy" role first (the plain-text password
- * is only available at creation time), creates a fresh one, builds the
- * connection URL, validates it with SELECT 1 over HTTP, and sets
- * process.env.DATABASE_URL.
+ * Keeping the same role across deploys is critical: the role that creates
+ * the tables owns them, and a different role cannot run DDL (ALTER TABLE,
+ * CREATE INDEX) on tables it doesn't own.
  */
 export async function resolveDatabaseUrl(): Promise<string> {
   if (!psOrg() || !psDatabase()) {
     throw new Error(
       'Cannot resolve DATABASE_URL: TF_VAR_planetscale_org and TF_VAR_planetscale_database must be set',
     );
+  }
+
+  const cached = tryFetchCachedUrl();
+  if (cached) {
+    const ok = await validateConnectivity(cached);
+    if (ok) {
+      await claimTableOwnership(cached);
+      process.env['DATABASE_URL'] = cached;
+      return cached;
+    }
   }
 
   const existing = await listRoles();
@@ -106,8 +157,25 @@ export async function resolveDatabaseUrl(): Promise<string> {
   const role = await createRole();
   const url = buildDatabaseUrl(role);
 
-  await validateConnectivity(url);
+  const ok = await validateConnectivity(url);
+  if (!ok) {
+    throw new Error('DATABASE_URL connectivity check failed after role creation');
+  }
 
+  await claimTableOwnership(url);
+  setDopplerSecret(DOPPLER_KEY, url);
   process.env['DATABASE_URL'] = url;
   return url;
+}
+
+function tryFetchCachedUrl(): string | null {
+  try {
+    if (!dopplerSecretExists(DOPPLER_KEY)) return null;
+    const url = fetchDopplerSecret(DOPPLER_KEY);
+    return url.startsWith('postgresql://') || url.startsWith('postgres://')
+      ? url
+      : null;
+  } catch {
+    return null;
+  }
 }
