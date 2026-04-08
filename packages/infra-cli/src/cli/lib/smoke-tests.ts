@@ -48,8 +48,13 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function httpStatusShouldRetry(status: number): boolean {
-  return status === 429 || status >= 500;
+function isTransientHttpStatus(status: number): boolean {
+  if (status === 429) return true;
+  if (status >= 500) return true;
+  // Cloudflare Pages returns 409 while a custom domain is activating.
+  // 408 and 421 can appear when TLS/routing hasn't propagated yet.
+  if (status === 408 || status === 409 || status === 421) return true;
+  return false;
 }
 
 function normalizeUrl(raw: string): string {
@@ -111,26 +116,24 @@ async function checkHttpEndpoint(
       return;
     }
 
-    const shouldRetry = opts.gatewayCheck
-      ? isGatewayError(result.status)
-      : httpStatusShouldRetry(result.status);
-
-    if (!shouldRetry) {
-      platform.error(
-        `${opts.label} ${url} — HTTP ${result.status}`
-      );
-      assert.fail(`smoke-test: ${opts.label} returned HTTP ${result.status}`);
-    }
-
+    // Any non-acceptable status is retried within the time window.
+    // After a destroy→deploy cycle, Cloudflare needs time to activate custom
+    // domains and propagate TLS certificates, so transient 4xx/5xx are expected.
     if (elapsed >= POST_DEPLOY_HTTP_MAX_WAIT_MS) {
       platform.error(
-        `${opts.label} ${url} — still HTTP ${result.status} after ${elapsedStr}`
+        `${opts.label} ${url} — HTTP ${result.status} after ${elapsedStr}`
       );
-      assert.fail(`smoke-test: ${opts.label} still HTTP ${result.status}`);
+      assert.fail(
+        `smoke-test: ${opts.label} returned HTTP ${result.status} after ${elapsedStr}`
+      );
     }
 
+    const detail = isTransientHttpStatus(result.status)
+      ? `HTTP ${result.status} (transient, retrying)`
+      : `HTTP ${result.status} (unexpected, retrying)`;
+
     platform.notice(
-      `Waiting for ${opts.label} ${url} — attempt ${attempt}, HTTP ${result.status}, ${elapsedStr} elapsed`
+      `Waiting for ${opts.label} ${url} — attempt ${attempt}, ${detail}, ${elapsedStr} elapsed (max ${maxWaitStr})`
     );
     await sleep(POST_DEPLOY_HTTP_RETRY_MS);
   }
