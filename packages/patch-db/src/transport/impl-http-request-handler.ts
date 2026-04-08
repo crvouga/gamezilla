@@ -1,9 +1,10 @@
 import { assert, Assert } from '@gamezilla/shared/assert';
 import {
   type PatchInput,
+  type PatchesDbQuery,
   assertPatchInput,
   assertQuery,
-  PatchesDbQuery,
+  stripKnownPatchesFromQuery,
 } from '../interface';
 import type { PatchDbSyncHost } from './interface';
 import {
@@ -29,7 +30,7 @@ export class PatchDbHttpRequestHandler {
   async handleRequest(req: Request): Promise<Response | null> {
     const url = new URL(req.url);
 
-    if (url.pathname === this.paths.read && req.method === 'GET') {
+    if (url.pathname === this.paths.read && req.method === 'POST') {
       return this.handleRead(req, this.host);
     }
 
@@ -64,15 +65,8 @@ export class PatchDbHttpRequestHandler {
   ): Promise<Response> {
     const url = new URL(req.url);
     assert.equals(url.pathname, this.paths.read, 'Invalid path');
-    assert.equals(req.method, 'GET', 'Invalid method');
-
-    const qParam = url.searchParams.get('q');
-    assert.ok(
-      qParam !== null && qParam !== '',
-      'GET read requires ?q= query parameter'
-    );
-    const body: unknown = JSON.parse(decodeURIComponent(qParam));
-
+    assert.equals(req.method, 'POST', 'Invalid method');
+    const body: unknown = await req.json();
     const a: Assert = Assert.validation();
     a.record(body, 'Request body must be object');
     a.field(body, 'queries', 'queries required');
@@ -81,6 +75,10 @@ export class PatchDbHttpRequestHandler {
     a.all(body.queries, (q): asserts q is PatchesDbQuery => assertQuery(a, q));
     const queries = body.queries;
     const results = await host.read(queries);
-    return Response.json(results, { headers: NO_CACHE_RESPONSE_HEADERS });
+    const stripped = results.map((r) => ({
+      ...r,
+      query: stripKnownPatchesFromQuery(r.query),
+    }));
+    return Response.json(stripped, { headers: NO_CACHE_RESPONSE_HEADERS });
   }
 }

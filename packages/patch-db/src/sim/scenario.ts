@@ -17,7 +17,6 @@ import type {
   PatchesDbQuery,
   PatchesDbResult,
 } from '../interface';
-import { PatchDbImplSyncHost } from '../transport/impl-sync-host';
 import { DeterministicScheduler } from './deterministic-scheduler';
 import {
   SimEventRecorder,
@@ -31,7 +30,6 @@ import { saveRecording } from './recording-store';
 import {
   type SimServerPort,
   simServerPortFromPubSub,
-  simServerPortFromSyncHost,
 } from './server-port';
 import { SimulatedPatchDbClientTransport } from './simulated-client-transport';
 
@@ -47,8 +45,6 @@ async function flushSyncSubscriptionMicrotasks(
 
 export type ScenarioServerSpec = {
   id: string;
-  /** When true, use {@link PatchDbImplSyncHost} merge-on-read semantics. */
-  useSyncHost: boolean;
 };
 
 export type ScenarioClientSpec = {
@@ -181,11 +177,8 @@ export class PatchDbScenarioBuilder {
     return this;
   }
 
-  server(id: string, options?: { useSyncHost?: boolean }): this {
-    this.servers.push({
-      id,
-      useSyncHost: options?.useSyncHost ?? false,
-    });
+  server(id: string): this {
+    this.servers.push({ id });
     return this;
   }
 
@@ -341,18 +334,12 @@ async function buildScenario(
     await backing.migrate();
     const pubSub = new InMemoryPubSub();
 
-    let port: SimServerPort;
-    if (spec.useSyncHost) {
-      const host = new PatchDbImplSyncHost(backing, pubSub);
-      port = simServerPortFromSyncHost(host);
-    } else {
-      const notifying = new NotifyingPatchesDb(backing, pubSub);
-      port = simServerPortFromPubSub(
-        (q) => notifying.read(q),
-        (p) => notifying.write(p),
-        pubSub
-      );
-    }
+    const notifying = new NotifyingPatchesDb(backing, pubSub);
+    const port: SimServerPort = simServerPortFromPubSub(
+      (q) => notifying.read(q),
+      (p) => notifying.write(p),
+      pubSub
+    );
 
     const rt: ServerRuntime = {
       id: spec.id,
@@ -437,10 +424,7 @@ async function buildScenario(
 
   if (recorder) {
     recorder.setTopology({
-      servers: serverSpecs.map((s) => ({
-        id: s.id,
-        useSyncHost: s.useSyncHost,
-      })),
+      servers: serverSpecs.map((s) => ({ id: s.id })),
       clients: clientSpecs.map((c) => ({ id: c.id, serverId: c.serverId })),
     });
   }

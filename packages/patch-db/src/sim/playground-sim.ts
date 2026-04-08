@@ -4,14 +4,12 @@ import { PatchDbImplClientTransport } from '../impl-client-transport';
 import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
 import { SyncPatchesDb } from '../impl-sync';
 import type { PatchesDb } from '../interface';
-import { PatchDbImplSyncHost } from '../transport/impl-sync-host';
 import { NetworkLink } from './network-link';
 import { NotifyingPatchesDb } from './notifying-patches-db';
 import type { SimLink } from './scenario';
 import {
   type SimServerPort,
   simServerPortFromPubSub,
-  simServerPortFromSyncHost,
 } from './server-port';
 import { BrowserWallClockScheduler } from './sim-link-scheduler';
 import { SimulatedPatchDbClientTransport } from './simulated-client-transport';
@@ -144,8 +142,6 @@ export type CreatePlaygroundSimOptions = {
   dbFactory: PlaygroundDbFactory;
   /** @default 2 */
   clientCount?: number;
-  /** @default false */
-  useSyncHost?: boolean;
   /** @default `'srv'` */
   serverId?: string;
 };
@@ -155,7 +151,6 @@ export async function createPlaygroundSim(
 ): Promise<PlaygroundSim> {
   const { dbFactory } = options;
   const clientCount = options.clientCount ?? 2;
-  const useSyncHost = options.useSyncHost ?? false;
   const serverId = options.serverId ?? 'srv';
 
   const scheduler = new BrowserWallClockScheduler();
@@ -166,18 +161,12 @@ export async function createPlaygroundSim(
   await serverBacking.migrate();
   const serverPubSub = new InMemoryPubSub();
 
-  let innerPort: SimServerPort;
-  if (useSyncHost) {
-    const host = new PatchDbImplSyncHost(serverBacking, serverPubSub);
-    innerPort = simServerPortFromSyncHost(host);
-  } else {
-    const notifying = new NotifyingPatchesDb(serverBacking, serverPubSub);
-    innerPort = simServerPortFromPubSub(
-      (q) => notifying.read(q),
-      (p) => notifying.write(p),
-      serverPubSub
-    );
-  }
+  const notifying = new NotifyingPatchesDb(serverBacking, serverPubSub);
+  const innerPort: SimServerPort = simServerPortFromPubSub(
+    (q) => notifying.read(q),
+    (p) => notifying.write(p),
+    serverPubSub
+  );
   const port = new PartitionableServerPort(innerPort);
 
   const clientRuntimes: ClientRuntime[] = [];

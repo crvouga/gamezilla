@@ -11,7 +11,7 @@ const PATCHES_DB_TOPIC = 'patches-db';
 
 /**
  * Wraps a {@link PatchesDb} and publishes on `patches-db` after successful writes
- * so simulated transports can mirror "server pushed invalidation" without `PatchDbImplSyncHost`.
+ * so simulated transports can mirror "server pushed invalidation".
  */
 export class NotifyingPatchesDb implements PatchesDb {
   constructor(

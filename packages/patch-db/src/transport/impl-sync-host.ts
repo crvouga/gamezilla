@@ -57,33 +57,6 @@ export class PatchDbImplSyncHost implements PatchDbSyncHost {
       return [];
     }
 
-    const knownPatchesById = new Map<string, Patch>();
-    for (let i = 0; i < queries.length; i++) {
-      const q = queries[i]!;
-      const kp = q.knownPatches;
-      if (kp) {
-        for (const p of kp) {
-          knownPatchesById.set(p.patchId, p);
-        }
-      }
-    }
-    const knownPatches = Array.from(knownPatchesById.values());
-
-    const writtenKnown =
-      knownPatches.length === 0 ? [] : await this.db.write(knownPatches);
-    assert.array(
-      writtenKnown,
-      'PatchDbImplSyncHost.read: db.write(knownPatches) must return an array'
-    );
-    assert.ok(
-      writtenKnown.length === knownPatches.length,
-      'PatchDbImplSyncHost.read: db.write must return one Patch per merged known patch',
-      {
-        expected: knownPatches.length,
-        actual: writtenKnown.length,
-      }
-    );
-
     const results = await this.db.read(queries);
     assert.array(
       results,

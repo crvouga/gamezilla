@@ -302,6 +302,8 @@ export type PatchesDbQuery = {
   offset?: number;
   after?: string;
   knownPatches?: Patch[];
+  /** Lightweight alternative to knownPatches for wire protocol — just patch IDs. */
+  knownPatchIds?: string[];
   on?: 'patches' | 'entities';
 };
 
@@ -314,11 +316,17 @@ export function assertQuery(
   if (query['entityType'] !== undefined) {
     a.string(query['entityType'], 'query.entityType must be string');
   }
-  a.field(q, 'knownPatches', 'query.knownPatches must be array');
-  a.array(q.knownPatches, 'query.knownPatches must be array');
-  for (const p of q.knownPatches) {
-    assertPatchInput(a, p);
+  if (query['knownPatchIds'] !== undefined) {
+    a.array(query['knownPatchIds'], 'query.knownPatchIds must be array');
   }
+}
+
+/** Strips knownPatches/knownPatchIds from a query for wire responses. */
+export function stripKnownPatchesFromQuery(
+  query: PatchesDbQuery
+): PatchesDbQuery {
+  const { knownPatches, knownPatchIds, ...rest } = query;
+  return rest;
 }
 
 export type PatchesDbResult = {

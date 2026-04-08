@@ -13,7 +13,7 @@ describe('patch-db deterministic simulation', () => {
     }
   });
 
-  test('server useSyncHost: poll after push merges server-side patches', async () => {
+  test('poll after push sees server-side patches from another writer', async () => {
     sim = await new PatchDbScenarioBuilder()
       .meta({
         source: {
@@ -21,16 +21,16 @@ describe('patch-db deterministic simulation', () => {
           testFile: import.meta.path,
         },
       })
-      .server('s', { useSyncHost: true })
+      .server('s')
       .client('c', { server: 's' })
       .build();
     sim.setMeta({
-      title: 'Sync host: merge-on-read after parallel server write',
+      title: 'Poll sees parallel server write',
       intent:
-        'With useSyncHost, client poll sees server-side patches merged with local lineage.',
+        'Client poll sees server-side patches written by another writer.',
       source: {
         testName:
-          'server useSyncHost: poll after push merges server-side patches',
+          'poll after push sees server-side patches from another writer',
       },
     });
     const srv = sim.server('s');

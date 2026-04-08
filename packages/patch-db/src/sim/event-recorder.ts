@@ -9,7 +9,7 @@ export function isPatchDbAppEnabled(): boolean {
 }
 
 export type SimTopology = {
-  servers: { id: string; useSyncHost: boolean }[];
+  servers: { id: string }[];
   clients: { id: string; serverId: string }[];
 };
 

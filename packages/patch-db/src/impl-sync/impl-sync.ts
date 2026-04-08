@@ -417,6 +417,18 @@ export class SyncPatchesDb implements PatchesDb {
     return true;
   }
 
+  /**
+   * Builds lightweight wire queries from full sync queries by replacing
+   * full Patch objects with just their IDs. The server only needs IDs
+   * to know what the client already has.
+   */
+  private static toWireQueries(syncQueries: PatchesDbQuery[]): PatchesDbQuery[] {
+    return syncQueries.map(({ knownPatches, ...rest }) => ({
+      ...rest,
+      knownPatchIds: knownPatches?.map((p) => p.patchId) ?? [],
+    }));
+  }
+
   private async poll(): Promise<void> {
     if (this.destroyed) return;
     const entries = Array.from(this.activeQueries.values());
@@ -426,7 +438,8 @@ export class SyncPatchesDb implements PatchesDb {
     this.pollInProgress = true;
     try {
       const syncQueries = await this.buildSyncQueries(entries);
-      const results = await this.remote.read(syncQueries);
+      const wireQueries = SyncPatchesDb.toWireQueries(syncQueries);
+      const results = await this.remote.read(wireQueries);
       const recoveredPatches = await this.markMissingSyncedPatches(
         syncQueries,
         results

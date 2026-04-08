@@ -47,13 +47,14 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
   async read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
     if (queries.length === 0) return [];
     const url = this.requestUrl(PATCH_SUFFIX_READ);
-    const encoded = encodeURIComponent(JSON.stringify({ queries }));
-    const res = await fetch(`${url}?q=${encoded}`, {
-      method: 'GET',
+    const res = await fetch(url, {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         Accept: 'application/json',
         ...NO_CACHE_REQUEST_HEADERS,
       },
+      body: JSON.stringify({ queries }),
     });
     if (!res.ok) {
       const text = await res.text();
