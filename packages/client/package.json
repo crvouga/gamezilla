@@ -54,7 +54,7 @@
     "install:deps": "npx expo install --check || true",
     "dev": "expo start --web --port 5173",
     "kill": "lsof -ti :5173 | xargs kill -9 2>/dev/null || true",
-    "build": "expo export -p web",
+    "build": "expo customize tsconfig.json && expo export -p web",
     "ios": "expo start --ios",
     "lint": "expo lint",
     "start": "expo start --web",
