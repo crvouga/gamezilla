@@ -23,27 +23,6 @@ export function assertPatchInput(
   for (const key of Object.keys(p['attributes'] as Record<string, unknown>)) {
     assertAttribute(key, a);
   }
-  const patch = p as Record<string, unknown>;
-  a.string(patch['entityId'], 'patch.entityId must be string');
-  a.string(patch['entityType'], 'patch.entityType must be string');
-  assertEntityKey(patch['entityId'], patch['entityType'], a);
-  if (
-    patch['patchId'] !== undefined &&
-    patch['patchId'] !== null &&
-    typeof patch['patchId'] === 'string'
-  ) {
-    assertPatchId(patch['patchId'], a);
-  }
-  a.ok(
-    patch['attributes'] !== null &&
-      typeof patch['attributes'] === 'object' &&
-      !Array.isArray(patch['attributes']),
-    'patch.attributes must be object'
-  );
-  const attrs = patch['attributes'] as Record<string, unknown>;
-  for (const key of Object.keys(attrs)) {
-    assertAttribute(key, a);
-  }
 }
 
 export type Patch = PatchInput & {
@@ -331,21 +310,14 @@ export function assertQuery(
   q: unknown
 ): asserts q is PatchesDbQuery {
   a.record(q, 'Each query must be an object');
-  a.field(q, 'entityType', 'query.entityType must be string');
-  a.field(q, 'knownPatches', 'query.knownPatches must be array');
-  a.array(q.knownPatches, 'query.knownPatches must be array');
-  for (const p of q.knownPatches) {
-    assertPatchInput(a, p);
-  }
   const query = q as Record<string, unknown>;
   if (query['entityType'] !== undefined) {
     a.string(query['entityType'], 'query.entityType must be string');
   }
-  if (query['knownPatches'] !== undefined) {
-    a.array(query['knownPatches'], 'query.knownPatches must be array');
-    for (const p of query['knownPatches'] as unknown[]) {
-      assertPatchInput(a, p);
-    }
+  a.field(q, 'knownPatches', 'query.knownPatches must be array');
+  a.array(q.knownPatches, 'query.knownPatches must be array');
+  for (const p of q.knownPatches) {
+    assertPatchInput(a, p);
   }
 }
 

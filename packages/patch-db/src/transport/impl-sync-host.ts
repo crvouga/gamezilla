@@ -3,7 +3,6 @@ import type { PubSub } from '@gamezilla/shared/pub-sub/interface';
 import {
   assertPatch,
   assertPatchInput,
-  assertQuery,
   type Patch,
   type PatchesDb,
   type PatchesDbQuery,
@@ -58,42 +57,14 @@ export class PatchDbImplSyncHost implements PatchDbSyncHost {
       return [];
     }
 
-    assert.ok(
-      queries.length > 0,
-      'PatchDbImplSyncHost.read: non-empty queries array invariant',
-      { length: queries.length }
-    );
-
-    for (let i = 0; i < queries.length; i++) {
-      const q = queries[i];
-      assert.defined(
-        q,
-        'PatchDbImplSyncHost.read: query slot must be defined',
-        { i }
-      );
-      assertQuery(assert, q);
-    }
-
     const knownPatchesById = new Map<string, Patch>();
     for (let i = 0; i < queries.length; i++) {
-      const q = queries[i];
-      assert.defined(q, 'PatchDbImplSyncHost.read: query must be defined', {
-        i,
-      });
+      const q = queries[i]!;
       const kp = q.knownPatches;
-      assert.defined(
-        kp,
-        'PatchDbImplSyncHost.read: knownPatches required after assertQuery',
-        { i }
-      );
-      assert.array(
-        kp,
-        'PatchDbImplSyncHost.read: knownPatches must be an array',
-        { i }
-      );
-      for (const p of kp) {
-        assertPatch(assert, p);
-        knownPatchesById.set(p.patchId, p);
+      if (kp) {
+        for (const p of kp) {
+          knownPatchesById.set(p.patchId, p);
+        }
       }
     }
     const knownPatches = Array.from(knownPatchesById.values());

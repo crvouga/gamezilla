@@ -1,10 +1,8 @@
 import { assert, Assert } from '@gamezilla/shared/assert';
 import {
   type PatchInput,
-  assertPatch,
   assertPatchInput,
   assertQuery,
-  Patch,
   PatchesDbQuery,
 } from '../interface';
 import type { PatchDbSyncHost } from './interface';
@@ -82,8 +80,6 @@ export class PatchDbHttpRequestHandler {
     a.ok(body.queries.length > 0, 'queries must not be empty');
     a.all(body.queries, (q): asserts q is PatchesDbQuery => assertQuery(a, q));
     const queries = body.queries;
-    const knownPatches = queries.map((q) => q.knownPatches).flat();
-    a.all(knownPatches, (p): asserts p is Patch => assertPatch(a, p));
     const results = await host.read(queries);
     return Response.json(results, { headers: NO_CACHE_RESPONSE_HEADERS });
   }
