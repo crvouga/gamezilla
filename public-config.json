@@ -1,6 +1,6 @@
 {
   "local": {
-    "PATCH_DB_REQ_RES_URL": "http://localhost:8787/patch-db"
+    "PATCH_DB_REQ_RES_URL": "http://localhost:8788/patch-db"
   },
   "prod": {
     "PATCH_DB_REQ_RES_URL": "https://api.gamezilla.app/patch-db"

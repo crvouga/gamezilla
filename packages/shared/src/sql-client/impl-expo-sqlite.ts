@@ -2,6 +2,8 @@ import * as SQLite from 'expo-sqlite';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
 
 export class SqlClientImplExpoSqlite implements SqlClient {
+  private txQueue: Promise<unknown> = Promise.resolve();
+
   constructor(private db: SQLite.SQLiteDatabase) {}
 
   static async open(databaseName: string): Promise<SqlClientImplExpoSqlite> {
@@ -60,10 +62,22 @@ export class SqlClientImplExpoSqlite implements SqlClient {
   }
 
   async transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
-    const ref: { value: T } = { value: undefined as unknown as T };
-    await this.db.withTransactionAsync(async () => {
-      ref.value = await fn(this);
+    let resolve!: (v: unknown) => void;
+    const gate = new Promise<unknown>((r) => {
+      resolve = r;
     });
-    return ref.value;
+    const waiting = this.txQueue;
+    this.txQueue = gate;
+
+    await waiting;
+    try {
+      const ref: { value: T } = { value: undefined as unknown as T };
+      await this.db.withTransactionAsync(async () => {
+        ref.value = await fn(this);
+      });
+      return ref.value;
+    } finally {
+      resolve(undefined);
+    }
   }
 }
