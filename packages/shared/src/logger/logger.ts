@@ -29,24 +29,20 @@ export interface CreateLoggerOptions {
 }
 
 export function createLogger(options: CreateLoggerOptions): Logger {
-  return buildLogger(
-    options.name,
-    options.level ?? 'debug',
-    {},
-  );
+  return buildLogger(options.name, options.level ?? 'debug', {});
 }
 
 function buildLogger(
   name: string,
   level: LogLevel,
-  bindings: Record<string, unknown>,
+  bindings: Record<string, unknown>
 ): Logger {
   const threshold = LEVEL_VALUE[level];
 
   function emit(
     lvl: Exclude<LogLevel, 'silent'>,
     msg: string,
-    context?: Record<string, unknown>,
+    context?: Record<string, unknown>
   ): void {
     if (LEVEL_VALUE[lvl] < threshold) return;
 
@@ -60,7 +56,6 @@ function buildLogger(
     };
 
     const method = CONSOLE_METHOD[lvl];
-    // eslint-disable-next-line no-console
     (console[method] as (...args: unknown[]) => void)(JSON.stringify(entry));
   }
 
@@ -69,7 +64,6 @@ function buildLogger(
     info: (msg, context) => emit('info', msg, context),
     warn: (msg, context) => emit('warn', msg, context),
     error: (msg, context) => emit('error', msg, context),
-    child: (extra) =>
-      buildLogger(name, level, { ...bindings, ...extra }),
+    child: (extra) => buildLogger(name, level, { ...bindings, ...extra }),
   };
 }
