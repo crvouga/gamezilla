@@ -74,7 +74,7 @@ jobs:
       - name: Deploy
         timeout-minutes: 45
         working-directory: packages/infra-cli
-        run: bun run infra slaughter-cattle
+        run: bun run deploy
 
       - name: Summary
         working-directory: packages/infra-cli
