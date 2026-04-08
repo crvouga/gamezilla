@@ -4,6 +4,7 @@ import {
   ThemeProvider,
 } from '@react-navigation/native';
 import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
@@ -25,6 +26,8 @@ assert.notThrows(
   () => crypto.randomUUID(),
   'crypto.randomUUID must be available'
 );
+
+SplashScreen.preventAutoHideAsync();
 
 export const unstable_settings = {
   anchor: '(tabs)',
