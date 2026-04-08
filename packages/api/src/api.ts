@@ -13,8 +13,23 @@ const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
+const MIGRATE_TIMEOUT_MS = 15_000;
+
 const pubSub = new InMemoryPubSub();
 let migrated = false;
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(
+      () => reject(new Error(`${label}: timed out after ${ms}ms`)),
+      ms
+    );
+    promise.then(
+      (v) => { clearTimeout(timer); resolve(v); },
+      (e) => { clearTimeout(timer); reject(e); }
+    );
+  });
+}
 
 export default {
   async fetch(
@@ -39,7 +54,7 @@ export default {
       const sqlClient = new SqlClientImplPlanetScale(env.DATABASE_URL);
       const db = new PatchDbImplPostgres(sqlClient);
       if (!migrated) {
-        await db.migrate();
+        await withTimeout(db.migrate(), MIGRATE_TIMEOUT_MS, 'db.migrate');
         migrated = true;
       }
 
@@ -48,9 +63,13 @@ export default {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       console.error('[api] handler error:', message);
+
+      const isTimeout = message.includes('timed out') || message.includes('timeout');
+      const status = isTimeout ? 503 : 500;
+
       return new Response(
         JSON.stringify({ error: message }),
-        { status: 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+        { status, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json', ...(isTimeout ? { 'Retry-After': '5' } : {}) } },
       );
     }
   },

@@ -20,7 +20,10 @@ export class SqlClientImplPlanetScale implements SqlClient {
 
   constructor(connectionString: string) {
     configureNeon(connectionString);
-    this.pool = new Pool({ connectionString });
+    this.pool = new Pool({
+      connectionString,
+      connectionTimeoutMillis: 10_000,
+    });
   }
 
   async connect(): Promise<void> {

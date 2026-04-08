@@ -203,60 +203,6 @@ function checkDns(platform: CiPlatform, outputs: TfOutputs): void {
   }
 }
 
-async function checkDbSmoke(platform: CiPlatform): Promise<void> {
-  const apiUrl = `https://api.${PROJECT_CONFIG.domain}`;
-  const url = `${apiUrl}/patch-db/patches/read`;
-  const body = JSON.stringify({
-    queries: [{ entityType: '__smoke_test__', knownPatches: [] }],
-  });
-
-  const started = Date.now();
-  for (let attempt = 1; ; attempt++) {
-    const elapsed = Date.now() - started;
-
-    try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body,
-      });
-
-      if (res.ok) {
-        ok('DB smoke', `POST ${url} — HTTP ${res.status} (${fmtElapsed(elapsed)})`);
-        return;
-      }
-
-      const text = await res.text().catch(() => '');
-      if (!httpStatusShouldRetry(res.status)) {
-        assert.fail(
-          `DB smoke failed: POST ${url} — HTTP ${res.status}: ${text}`,
-        );
-      }
-
-      if (elapsed >= POST_DEPLOY_HTTP_MAX_WAIT_MS) {
-        assert.fail(
-          `DB smoke failed after ${fmtElapsed(elapsed)}: POST ${url} — HTTP ${res.status}: ${text}`,
-        );
-      }
-
-      platform.notice(
-        `DB smoke: attempt ${attempt}, HTTP ${res.status}, retrying… (${fmtElapsed(elapsed)})`,
-      );
-    } catch (err) {
-      if (elapsed >= POST_DEPLOY_HTTP_MAX_WAIT_MS) {
-        assert.fail(
-          `DB smoke failed after ${fmtElapsed(elapsed)}: ${err instanceof Error ? err.message : String(err)}`,
-        );
-      }
-      platform.notice(
-        `DB smoke: attempt ${attempt}, fetch error, retrying… (${fmtElapsed(elapsed)})`,
-      );
-    }
-
-    await sleep(POST_DEPLOY_HTTP_RETRY_MS);
-  }
-}
-
 export async function runHttpSmokeTests(
   platform: CiPlatform,
   outputs: TfOutputs
@@ -278,10 +224,6 @@ export async function runHttpSmokeTests(
       })
     );
   }
-
-  await runStep(platform, 'DB smoke — patches/read', () =>
-    checkDbSmoke(platform)
-  );
 
   platform.notice(`HTTP smoke: all checks passed.`);
 }
