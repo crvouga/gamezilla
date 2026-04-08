@@ -4,7 +4,8 @@
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.json",
     "infra": "bun run ./src/bin/cli.ts",
-    "nuke-pages-deployments": "bun run ./src/scripts/nuke-pages-deployments.ts"
+    "nuke-pages-deployments": "bun run ./src/scripts/nuke-pages-deployments.ts",
+    "slaughter-cattle": "bun infra setup && bun infra status && bun infra destroy && bun infra status && bun infra deploy && bun infra status"
   },
   "dependencies": {
     "@gamezilla/shared": "workspace:*",

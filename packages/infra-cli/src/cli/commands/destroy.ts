@@ -1,5 +1,4 @@
-import { createInterface } from 'node:readline/promises';
-import { banner, fmt, ok } from '../lib/fmt';
+import { banner, ok } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
 import { createDestroyRegistry } from '../resources/registry';
@@ -16,30 +15,6 @@ export class DestroyCommand implements Command {
     banner('Destroy');
 
     this.ensureSecrets();
-
-    if (!process.env['CI']) {
-      const rl = createInterface({
-        input: process.stdin,
-        output: process.stdout,
-      });
-      try {
-        console.log('');
-        console.log(
-          fmt.red(fmt.bold('  This will destroy ALL managed infrastructure.'))
-        );
-        console.log('');
-        const answer = await rl.question(
-          `  ${fmt.yellow('Type "destroy" to confirm:')} `
-        );
-        if (answer.trim() !== 'destroy') {
-          console.log('');
-          ok('Aborted', 'no changes made');
-          return;
-        }
-      } finally {
-        rl.close();
-      }
-    }
 
     const resources = createDestroyRegistry();
 
