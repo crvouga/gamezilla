@@ -34,7 +34,6 @@ yarn-error.*
 
 # Turbo
 .turbo/
-!.turbo/config.json
 /out
 
 # typescript

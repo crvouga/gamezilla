@@ -5,7 +5,12 @@ import { PsServiceTokenId, PsServiceToken } from './ps-credentials';
 import { PsDatabase } from './ps-database';
 import { PsOrg } from './ps-org';
 import { TfToken } from './tf-token';
-import { TurboToken } from './turbo-token';
+import {
+  TurboApi,
+  TurboLogOrder,
+  TurboTeam,
+  TurboToken,
+} from './turbo-token';
 import type { SecretEntry } from './types';
 
 export { validateSecret } from './types';
@@ -20,6 +25,9 @@ const SECRET_MAP: ReadonlyArray<SecretEntry> = [
   new PsOrg(),
   new PsDatabase(),
   new TurboToken(),
+  new TurboApi(),
+  new TurboTeam(),
+  new TurboLogOrder(),
 ];
 
 export function getSecretMap(): ReadonlyArray<SecretEntry> {
