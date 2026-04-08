@@ -42,6 +42,9 @@ export class PatchDbHttpRequestHandler {
     return null;
   }
 
+  private static readonly HEARTBEAT_INTERVAL_MS = 15_000;
+  private static readonly MAX_CONNECTION_MS = 5 * 60_000;
+
   private async handleEvents(
     req: Request,
     host: PatchDbSyncHost
@@ -50,21 +53,44 @@ export class PatchDbHttpRequestHandler {
     assert.equals(url.pathname, this.paths.events, 'Invalid path');
     assert.equals(req.method, 'GET', 'Invalid method');
     const encoder = new TextEncoder();
+    const heartbeatMs = PatchDbHttpRequestHandler.HEARTBEAT_INTERVAL_MS;
+    const maxMs = PatchDbHttpRequestHandler.MAX_CONNECTION_MS;
+
     const stream = new ReadableStream({
       start(controller) {
+        let closed = false;
+
+        const cleanup = () => {
+          if (closed) return;
+          closed = true;
+          clearInterval(heartbeatTimer);
+          clearTimeout(maxTimer);
+          unsub();
+          try { controller.close(); } catch { /* already closed */ }
+        };
+
         const unsub = host.subscribe(() => {
+          if (closed) return;
           try {
             const data = JSON.stringify({ type: 'invalidated' });
-            const encoded = encoder.encode(`data: ${data}\n\n`);
-            controller.enqueue(encoded);
+            controller.enqueue(encoder.encode(`data: ${data}\n\n`));
           } catch {
-            unsub();
+            cleanup();
           }
         });
-        req.signal?.addEventListener('abort', () => {
-          unsub();
-          controller.close();
-        });
+
+        const heartbeatTimer = setInterval(() => {
+          if (closed) return;
+          try {
+            controller.enqueue(encoder.encode(`:heartbeat\n\n`));
+          } catch {
+            cleanup();
+          }
+        }, heartbeatMs);
+
+        const maxTimer = setTimeout(cleanup, maxMs);
+
+        req.signal?.addEventListener('abort', cleanup);
       },
     });
     return new Response(stream, {
