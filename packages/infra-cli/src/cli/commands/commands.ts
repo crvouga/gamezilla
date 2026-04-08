@@ -4,7 +4,6 @@ import type { Command } from './types';
 
 import { DeployCommand } from './deploy';
 import { DestroyCommand } from './destroy';
-import { FetchSecretsCommand } from './fetch-secrets';
 import { SetupCommand } from './setup';
 import { StatusCommand } from './status';
 import { SummaryCommand } from './summary';
@@ -16,15 +15,12 @@ export function createRegistry(platform: CiPlatform): Command[] {
     new DeployCommand(platform),
     new DestroyCommand(platform),
     new SummaryCommand(platform),
-    new FetchSecretsCommand(platform),
   ];
 }
 
 /** Known prefixes and display order. Commands without a prefix go first. */
-const GROUP_ORDER = ['', 'secrets'] as const;
-const GROUP_LABELS: Record<string, string> = {
-  secrets: 'Secrets',
-};
+const GROUP_ORDER = [''] as const;
+const GROUP_LABELS: Record<string, string> = {};
 
 function commandPrefix(id: string): string {
   const dash = id.indexOf('-');

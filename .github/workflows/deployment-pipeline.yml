@@ -65,15 +65,11 @@ jobs:
       - name: Install Doppler CLI
         uses: dopplerhq/cli-action@v4
 
-      - name: Fetch secrets from Doppler
-        working-directory: packages/infra-cli
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
-        run: bun run infra secrets-fetch
-
       - name: Deploy
         timeout-minutes: 45
         working-directory: packages/infra-cli
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
         run: bun run infra deploy
 
       - name: Summary
