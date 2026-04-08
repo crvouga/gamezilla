@@ -42,7 +42,7 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "env": ["EXPO_PUBLIC_STAGE"],
+      "env": ["EXPO_PUBLIC_API_URL"],
       "inputs": [
         "**/*.ts",
         "**/*.tsx",

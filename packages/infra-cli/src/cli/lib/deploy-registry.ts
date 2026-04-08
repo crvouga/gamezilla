@@ -1,10 +1,5 @@
 import { assert } from '@gamezilla/shared/assert';
-import {
-  existsSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
@@ -27,8 +22,6 @@ export interface Deployable {
   readonly id: string;
   deploy(outputs: TfOutputs): void;
 }
-
-const DEFAULT_PUBLIC_CONFIG = { local: {}, prod: {} };
 
 export class WorkersDeployable implements Deployable {
   readonly id = 'workers-api';
@@ -68,52 +61,17 @@ export class ClientDeployable implements Deployable {
   constructor(private readonly platform: CiPlatform) {}
 
   deploy(outputs: TfOutputs): void {
-    const syncUrl = toHttps(requireOutput(this.platform, outputs, 'api_url'));
+    const apiUrl = toHttps(requireOutput(this.platform, outputs, 'api_url'));
     const pagesProject = requireOutput(
       this.platform,
       outputs,
       'pages_project_name'
     );
 
-    if (!/^https:\/\//.test(syncUrl)) {
-      this.platform.error(`API_URL must be https:// (got: ${syncUrl})`);
-      assert.fail('client: sync URL must be https://');
+    if (!/^https:\/\//.test(apiUrl)) {
+      this.platform.error(`API_URL must be https:// (got: ${apiUrl})`);
+      assert.fail('client: API URL must be https://');
     }
-
-    const configPath = join(REPO_ROOT, 'public-config.json');
-    let doc: unknown;
-
-    if (!existsSync(configPath)) {
-      this.platform.notice('public-config.json not found — creating default');
-      doc = structuredClone(DEFAULT_PUBLIC_CONFIG);
-    } else {
-      try {
-        doc = JSON.parse(readFileSync(configPath, 'utf8'));
-      } catch (e) {
-        this.platform.warning(
-          `public-config.json is invalid JSON (${String(e)}) — recreating.`
-        );
-        doc = structuredClone(DEFAULT_PUBLIC_CONFIG);
-      }
-    }
-
-    if (
-      typeof doc !== 'object' ||
-      doc === null ||
-      !('prod' in doc) ||
-      typeof (doc as { prod?: unknown }).prod !== 'object' ||
-      (doc as { prod: unknown }).prod === null
-    ) {
-      this.platform.warning(
-        'public-config.json missing "prod" object — adding it.'
-      );
-      (doc as Record<string, unknown>)['prod'] = {};
-    }
-
-    const o = doc as { local: unknown; prod: Record<string, unknown> };
-    const syncBaseUrl = `${syncUrl.replace(/\/$/, '')}/patch-db`;
-    o.prod['PATCH_DB_REQ_RES_URL'] = syncBaseUrl;
-    writeFileSync(configPath, `${JSON.stringify(o, null, 2)}\n`, 'utf8');
 
     const clientDir = join(REPO_ROOT, 'packages/client');
 
@@ -123,7 +81,10 @@ export class ClientDeployable implements Deployable {
       ['turbo', 'run', 'build', '--filter=@gamezilla/client'],
       {
         cwd: REPO_ROOT,
-        env: { ...process.env, EXPO_PUBLIC_STAGE: 'prod' },
+        env: {
+          ...process.env,
+          EXPO_PUBLIC_API_URL: apiUrl.replace(/\/$/, ''),
+        },
         label: 'client: expo export (turbo)',
       }
     );

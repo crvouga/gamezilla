@@ -1,5 +1,5 @@
 /**
- * Local dev server: PGlite exposed over a tiny HTTP SQL API.
+ * Dev DB server: PGlite exposed over a tiny HTTP SQL API.
  *
  * PGlite runs in-process (no socket server, no WS proxy). A single
  * `POST /sql` endpoint accepts `{ sql, params? }` and returns rows +
@@ -83,11 +83,11 @@ async function handleSql(req: Request): Promise<Response> {
 
 Bun.serve({ port: SQL_PORT, hostname: HOST, fetch: handleSql });
 
-console.log(`[local] PGlite HTTP on http://${HOST}:${SQL_PORT}`);
-console.log(`[local] data: ${DATA_DIR ?? 'in-memory'}`);
+console.log(`[db] PGlite HTTP on http://${HOST}:${SQL_PORT}`);
+console.log(`[db] data: ${DATA_DIR ?? 'in-memory'}`);
 
 const shutdown = async () => {
-  console.log('\n[local] shutting down...');
+  console.log('\n[db] shutting down...');
   await db.close();
   process.exit(0);
 };

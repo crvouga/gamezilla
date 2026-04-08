@@ -10,10 +10,10 @@ import { assert } from '@gamezilla/shared/assert';
  * Include the wire base path in the URL (default `/patch-db`), e.g. `https://host/patch-db`.
  */
 export function assertUrl(baseUrl: string): asserts baseUrl is string {
-  assert.string(baseUrl, 'PATCH_DB_REQ_RES_URL must be a string');
+  assert.string(baseUrl, 'API URL must be a string');
   assert.ok(
     baseUrl.length > 0,
-    'PATCH_DB_REQ_RES_URL must be non-empty (hostname-only values break web fetch resolution)',
+    'API URL must be non-empty (hostname-only values break web fetch resolution)',
     { baseUrl }
   );
 
@@ -23,19 +23,19 @@ export function assertUrl(baseUrl: string): asserts baseUrl is string {
   } catch (error) {
     assert.ok(
       false,
-      'PATCH_DB_REQ_RES_URL must be an absolute URL with a scheme (e.g. https://…). A bare hostname is treated as a path on the web app origin.',
+      'API URL must be an absolute URL with a scheme (e.g. https://…). A bare hostname is treated as a path on the web app origin.',
       { baseUrl, error }
     );
   }
 
   assert.ok(
     parsed.protocol === 'http:' || parsed.protocol === 'https:',
-    'PATCH_DB_REQ_RES_URL must use http:// or https://',
+    'API URL must use http:// or https://',
     { baseUrl, protocol: parsed.protocol }
   );
   assert.ok(
     parsed.host.length > 0,
-    'PATCH_DB_REQ_RES_URL must include a non-empty host',
+    'API URL must include a non-empty host',
     { baseUrl }
   );
 }
