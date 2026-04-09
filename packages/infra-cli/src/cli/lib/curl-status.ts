@@ -3,13 +3,8 @@ import { runSafe } from '../subprocess';
 const IPV4_RE = /^\d+\.\d+\.\d+\.\d+$/;
 const IPV6_RE = /^[0-9a-fA-F:]+$/;
 
-/**
- * Resolve a hostname via Cloudflare's public DNS (1.1.1.1),
- * bypassing stale local DNS caches. Tries A first, falls back to AAAA
- * (Workers custom domains only have an AAAA record: `100::`).
- */
-export function resolveVia1111(hostname: string): string | null {
-  const a = runSafe('dig', ['+short', hostname, 'A', '@1.1.1.1']);
+function digResolve(hostname: string, server: string): string | null {
+  const a = runSafe('dig', ['+short', hostname, 'A', `@${server}`]);
   if (a.exitCode === 0) {
     const ipv4 = a.stdout
       .split('\n')
@@ -18,13 +13,55 @@ export function resolveVia1111(hostname: string): string | null {
     if (ipv4) return ipv4;
   }
 
-  const aaaa = runSafe('dig', ['+short', hostname, 'AAAA', '@1.1.1.1']);
+  const aaaa = runSafe('dig', ['+short', hostname, 'AAAA', `@${server}`]);
   if (aaaa.exitCode === 0) {
     const ipv6 = aaaa.stdout
       .split('\n')
       .map((l) => l.trim())
       .find((l) => IPV6_RE.test(l) && l.includes(':'));
     if (ipv6) return ipv6;
+  }
+
+  return null;
+}
+
+/**
+ * Walk up from the hostname to find the zone's authoritative nameserver.
+ * NS records are long-lived, so even when A/AAAA records are negatively
+ * cached, the NS lookup almost always succeeds.
+ */
+function findAuthoritativeNs(hostname: string): string | null {
+  const parts = hostname.split('.');
+  for (let i = 0; i < parts.length - 1; i++) {
+    const zone = parts.slice(i).join('.');
+    const r = runSafe('dig', ['+short', zone, 'NS', '@1.1.1.1']);
+    if (r.exitCode === 0) {
+      const ns = r.stdout
+        .split('\n')
+        .map((l) => l.trim().replace(/\.+$/, ''))
+        .find(Boolean);
+      if (ns) return ns;
+    }
+  }
+  return null;
+}
+
+/**
+ * Resolve a hostname, trying multiple strategies to beat negative DNS caching:
+ *   1. Cloudflare public DNS (1.1.1.1)
+ *   2. Google public DNS (8.8.8.8) — independent cache
+ *   3. Authoritative NS for the zone — bypasses all recursive caches
+ */
+export function resolveVia1111(hostname: string): string | null {
+  for (const server of ['1.1.1.1', '8.8.8.8']) {
+    const ip = digResolve(hostname, server);
+    if (ip) return ip;
+  }
+
+  const ns = findAuthoritativeNs(hostname);
+  if (ns) {
+    const ip = digResolve(hostname, ns);
+    if (ip) return ip;
   }
 
   return null;
