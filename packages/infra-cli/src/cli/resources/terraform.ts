@@ -2,8 +2,7 @@ import { heading, info, ok, warn } from '../lib/fmt';
 import { TF_DEPLOY_VAR_ARGS } from '../lib/tf-vars';
 import { TF_PACKAGE_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
-import { run } from '../subprocess';
-import { runSafe } from '../subprocess';
+import { run, runSafe } from '../subprocess';
 import type { Resource } from './types';
 
 export class TerraformResource implements Resource {
@@ -15,28 +14,29 @@ export class TerraformResource implements Resource {
       label: 'Terraform init',
     });
 
-    const result = runSafe(
-      'terraform',
-      [
-        'destroy',
-        '-auto-approve',
-        '-input=false',
-        '-lock-timeout=120s',
-        ...TF_DEPLOY_VAR_ARGS,
-      ],
-      { cwd: TF_PACKAGE_ROOT }
-    );
+    const destroyArgs = [
+      'destroy',
+      '-auto-approve',
+      '-input=false',
+      '-lock-timeout=120s',
+      ...TF_DEPLOY_VAR_ARGS,
+    ];
 
-    if (result.exitCode === 0) {
+    // Use inherited stdio to avoid pipe-buffer deadlock on long-running
+    // remote (HCP Terraform) destroys. spawnSync + piped stdio deadlocks
+    // when the child writes more than the OS pipe buffer (~64 KB).
+    const r = Bun.spawnSync(['terraform', ...destroyArgs], {
+      cwd: TF_PACKAGE_ROOT,
+      env: process.env,
+      stdout: 'inherit',
+      stderr: 'inherit',
+      stdin: 'inherit',
+    });
+
+    if (r.exitCode === 0) {
       ok('Terraform destroy', 'all resources deleted');
     } else {
-      const output = (result.stderr || result.stdout).trim();
-      warn('Terraform destroy', `exit ${result.exitCode} — some resources could not be API-deleted`);
-      if (output) {
-        for (const line of output.split('\n')) {
-          info('terraform', line);
-        }
-      }
+      warn('Terraform destroy', `exit ${r.exitCode} — some resources could not be API-deleted`);
       this.abandonRemainingState(platform);
     }
   }
