@@ -52,3 +52,6 @@ app-example
 
 # infra-cli cost report
 .cost-report.md
+
+/.turbo/
+/turbo/
