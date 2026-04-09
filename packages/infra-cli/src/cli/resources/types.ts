@@ -8,6 +8,8 @@ export interface InfraContext {
 
 export interface Resource {
   readonly id: string;
+  dependsOn(): readonly string[];
   ensure(platform: CiPlatform, ctx: InfraContext): void | Promise<void>;
+  deploy?(platform: CiPlatform, ctx: InfraContext): void | Promise<void>;
   destroy(platform: CiPlatform): void | Promise<void>;
 }

@@ -25,6 +25,10 @@ interface R2ListResponse {
 export class R2BucketResource implements Resource {
   readonly id = 'r2-buckets';
 
+  dependsOn(): readonly string[] {
+    return ['r2-subscription'];
+  }
+
   async ensure(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const accountId = cfAccountId();
     const headers = cfHeaders();

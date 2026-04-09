@@ -14,6 +14,10 @@ const REQUIRED_DOMAINS: readonly string[] = [
 export class PagesDomainResource implements Resource {
   readonly id = 'pages-domains';
 
+  dependsOn(): readonly string[] {
+    return ['pages-project'];
+  }
+
   async ensure(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const accountId = cfAccountId();
     const headers = cfHeaders();

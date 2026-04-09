@@ -1,8 +1,6 @@
 import { assert } from '@gamezilla/shared/assert';
 import { createInterface } from 'node:readline/promises';
 import { ALL_DEPS } from '../deps/registry';
-import { ensureDopplerDefaults } from '../lib/ensure-doppler-defaults';
-import { ensureTurboCacheSecret } from '../lib/ensure-turbo-cache-secret';
 import {
   banner,
   fmt,
@@ -11,11 +9,8 @@ import {
   ok,
   warn,
 } from '../lib/fmt';
-import { resolveDatabaseUrl } from '../lib/resolve-database-url';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
-import { createEnsureRegistry } from '../resources/registry';
-import type { InfraContext } from '../resources/types';
 import {
   getSecretMap,
   loadSecretsIntoEnv,
@@ -27,24 +22,22 @@ import type { Command } from './types';
 export class SetupCommand implements Command {
   readonly id = 'setup';
   readonly summary =
-    'Self-healing init: deps, secrets, idempotent resource ensures';
+    'Install CLI dependencies and configure Doppler secrets';
 
   constructor(private readonly platform: CiPlatform) {}
 
   async execute(): Promise<void> {
     const t0 = performance.now();
     banner('Setup');
-    const p = this.platform;
 
-    await runStep(p, 'Dependencies', () => this.ensureDeps());
+    await runStep(this.platform, 'Dependencies', () => this.ensureDeps());
 
-    const missingEnvs = await runStep(p, 'Load secrets', () => {
+    const missingEnvs = await runStep(this.platform, 'Load secrets', () => {
       const secrets = loadSecretsIntoEnv();
       for (const s of secrets) {
         if (s.set) ok(s.env);
         else fmtFail(s.env, 'not found in Doppler');
       }
-      ensureDopplerDefaults();
       return new Set(secrets.filter((s) => !s.set).map((s) => s.env));
     });
 
@@ -52,52 +45,15 @@ export class SetupCommand implements Command {
       await this.promptForMissingSecrets(missingEnvs);
     }
 
-    await runStep(p, 'Validate secrets', async () => {
-      const secretMap = getSecretMap();
-      let validationFailed = false;
-      for (const entry of secretMap) {
-        const value = process.env[entry.env];
-        if (!value) continue;
-        const err = await validateSecret(entry, value);
-        if (err) {
-          fmtFail(entry.doppler, err);
-          validationFailed = true;
-        } else {
-          ok(entry.doppler);
-        }
-      }
-      assert.ok(
-        !validationFailed,
-        'Secret validation failed — fix the issues above before continuing'
-      );
-    });
-
-    await runStep(p, 'Sync TURBO_TOKEN to Worker', () =>
-      ensureTurboCacheSecret()
-    );
-
-    await runStep(p, 'Resolve DATABASE_URL', async () => {
-      const url = await resolveDatabaseUrl();
-      ok('DATABASE_URL', url.replace(/\/\/[^@]+@/, '//***:***@'));
-    });
-
-    const ctx: InfraContext = {};
-    const resources = createEnsureRegistry();
-    for (const resource of resources) {
-      await runStep(p, `Ensure: ${resource.id}`, () =>
-        resource.ensure(p, ctx)
-      );
-    }
-
     banner('Setup Complete', performance.now() - t0);
-    ok('Infrastructure is healthy');
+    ok('CLI is ready');
     info('Next step', 'Run `bun run infra deploy` for a full deploy');
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────
 
   private async promptForMissingSecrets(
-    missingEnvs: Set<string>
+    missingEnvs: Set<string>,
   ): Promise<void> {
     const secretMap = getSecretMap();
     const missing = secretMap.filter((s) => missingEnvs.has(s.env));
@@ -105,7 +61,7 @@ export class SetupCommand implements Command {
 
     if (process.env['CI']) {
       this.platform.warning(
-        `${missing.length} secret(s) missing — cannot prompt in CI`
+        `${missing.length} secret(s) missing — cannot prompt in CI`,
       );
       return;
     }

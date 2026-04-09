@@ -19,6 +19,10 @@ interface CfApiResponse {
 export class R2SubscriptionResource implements Resource {
   readonly id = 'r2-subscription';
 
+  dependsOn(): readonly string[] {
+    return ['doppler'];
+  }
+
   async ensure(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const accountId = cfAccountId();
     const token = process.env['CLOUDFLARE_API_TOKEN'] ?? '';

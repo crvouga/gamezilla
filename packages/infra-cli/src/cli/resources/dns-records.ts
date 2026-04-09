@@ -15,6 +15,10 @@ interface RequiredCname {
 export class DnsRecordsResource implements Resource {
   readonly id = 'dns-records';
 
+  dependsOn(): readonly string[] {
+    return ['zone', 'pages-project'];
+  }
+
   async ensure(_platform: CiPlatform, ctx: InfraContext): Promise<void> {
     assert.ok(!!ctx.zoneId, 'dns-records: ctx.zoneId must be set by ZoneResource');
     assert.ok(!!ctx.pagesSubdomain, 'dns-records: ctx.pagesSubdomain must be set by PagesProjectResource');

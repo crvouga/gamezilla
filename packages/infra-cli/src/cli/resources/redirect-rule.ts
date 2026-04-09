@@ -11,6 +11,10 @@ const PHASE = 'http_request_dynamic_redirect';
 export class RedirectRuleResource implements Resource {
   readonly id = 'redirect-rule';
 
+  dependsOn(): readonly string[] {
+    return ['zone'];
+  }
+
   async ensure(_platform: CiPlatform, ctx: InfraContext): Promise<void> {
     assert.ok(!!ctx.zoneId, 'redirect-rule: ctx.zoneId must be set by ZoneResource');
 

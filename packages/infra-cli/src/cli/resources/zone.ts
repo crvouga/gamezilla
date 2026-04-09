@@ -10,6 +10,10 @@ const CF_API = 'https://api.cloudflare.com/client/v4';
 export class ZoneResource implements Resource {
   readonly id = 'zone';
 
+  dependsOn(): readonly string[] {
+    return ['doppler'];
+  }
+
   async ensure(_platform: CiPlatform, ctx: InfraContext): Promise<void> {
     const headers = cfHeaders();
     const domain = PROJECT_CONFIG.domain;

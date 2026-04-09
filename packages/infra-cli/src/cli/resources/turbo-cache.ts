@@ -1,17 +1,43 @@
+import { assert } from '@gamezilla/shared/assert';
 import { join } from 'node:path';
 import { ok, warn } from '../lib/fmt';
 import { REPO_ROOT } from '../paths';
 import { cfAccountId } from '../secrets/cloudflare';
-import { runSafe, type SpawnResult } from '../subprocess';
+import { runAsync, runCapture, runSafe, type SpawnResult } from '../subprocess';
 import type { CiPlatform } from '../platform/platform';
 import type { InfraContext, Resource } from './types';
 
 const NOT_FOUND_CODES = [10000, 10007, 10090];
 
+function wranglerEnv(): NodeJS.ProcessEnv {
+  return {
+    ...process.env,
+    CLOUDFLARE_ACCOUNT_ID: process.env['TF_VAR_cloudflare_account_id'],
+  };
+}
+
 export class TurboCacheResource implements Resource {
   readonly id = 'turbo-cache';
 
-  async ensure(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {}
+  dependsOn(): readonly string[] {
+    return ['r2-buckets'];
+  }
+
+  async ensure(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
+    this.syncTurboToken();
+  }
+
+  async deploy(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
+    this.syncTurboToken();
+
+    await runAsync(platform, 'wrangler', ['deploy'], {
+      cwd: join(REPO_ROOT, 'packages/turbo-cache'),
+      env: wranglerEnv(),
+      label: 'turbo-cache: Cloudflare Workers deploy',
+    });
+
+    platform.notice('Turbo remote cache deployed.');
+  }
 
   destroy(): void {
     const cacheDir = join(REPO_ROOT, 'packages/turbo-cache');
@@ -30,6 +56,19 @@ export class TurboCacheResource implements Resource {
     } else {
       warn('Worker delete', r.stderr.trim() || 'unexpected failure');
     }
+  }
+
+  private syncTurboToken(): void {
+    const token = process.env['TURBO_TOKEN'] ?? '';
+    assert.ok(token.length > 0, 'TURBO_TOKEN must be set');
+
+    runCapture('wrangler', ['secret', 'put', 'TURBO_TOKEN'], {
+      cwd: join(REPO_ROOT, 'packages', 'turbo-cache'),
+      env: wranglerEnv(),
+      input: token,
+    });
+
+    ok('TURBO_TOKEN', 'synced to turbo-cache Worker');
   }
 }
 

@@ -12,6 +12,10 @@ const NOT_FOUND_CODES = [8000007];
 export class PagesProjectResource implements Resource {
   readonly id = 'pages-project';
 
+  dependsOn(): readonly string[] {
+    return ['doppler'];
+  }
+
   async ensure(_platform: CiPlatform, ctx: InfraContext): Promise<void> {
     const accountId = cfAccountId();
     const headers = cfHeaders();
