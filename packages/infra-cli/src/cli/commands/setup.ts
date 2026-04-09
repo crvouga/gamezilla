@@ -1,9 +1,7 @@
 import { assert } from '@gamezilla/shared/assert';
 import { createInterface } from 'node:readline/promises';
-import { PROJECT_CONFIG } from '../../project-config';
 import { ALL_DEPS } from '../deps/registry';
 import { ensureDopplerDefaults } from '../lib/ensure-doppler-defaults';
-import { ensureR2Enabled } from '../lib/ensure-r2';
 import { ensureTurboCacheSecret } from '../lib/ensure-turbo-cache-secret';
 import {
   banner,
@@ -14,89 +12,22 @@ import {
   warn,
 } from '../lib/fmt';
 import { resolveDatabaseUrl } from '../lib/resolve-database-url';
-import { TF_DEPLOY_VAR_ARGS } from '../lib/tf-vars';
-import { TF_PACKAGE_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
-import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
+import { createEnsureRegistry } from '../resources/registry';
+import type { InfraContext } from '../resources/types';
 import {
   getSecretMap,
   loadSecretsIntoEnv,
   setDopplerSecret,
   validateSecret,
 } from '../secrets/secrets';
-import { run, runQuiet, runSafe } from '../subprocess';
 import type { Command } from './types';
-
-interface ImportableResource {
-  readonly address: string;
-  readonly foundation?: boolean;
-  readonly lookupId: () => Promise<string | null>;
-}
-
-const IMPORTABLE_RESOURCES: readonly ImportableResource[] = [
-  {
-    address: 'cloudflare_zone.main',
-    foundation: true,
-    lookupId: async () => {
-      if (!process.env['CLOUDFLARE_API_TOKEN']) return null;
-      try {
-        const res = await fetch(
-          `https://api.cloudflare.com/client/v4/zones?name=${PROJECT_CONFIG.domain}&per_page=1`,
-          { headers: cfHeaders() }
-        );
-        if (!res.ok) return null;
-        const body = (await res.json()) as { result?: Array<{ id: string }> };
-        return body.result?.[0]?.id ?? null;
-      } catch {
-        return null;
-      }
-    },
-  },
-  {
-    address: 'module.cloudflare_pages.cloudflare_pages_domain.apex[0]',
-    lookupId: async () => {
-      if (!process.env['CLOUDFLARE_API_TOKEN'] || !cfAccountId()) return null;
-      try {
-        const res = await fetch(
-          `https://api.cloudflare.com/client/v4/accounts/${cfAccountId()}/pages/projects/${PROJECT_CONFIG.cloudflare.pagesProject}/domains/${PROJECT_CONFIG.domain}`,
-          { headers: cfHeaders() }
-        );
-        if (!res.ok) return null;
-        return `${cfAccountId()}/${PROJECT_CONFIG.cloudflare.pagesProject}/${PROJECT_CONFIG.domain}`;
-      } catch {
-        return null;
-      }
-    },
-  },
-  {
-    address: 'module.cloudflare_pages.cloudflare_pages_domain.www[0]',
-    lookupId: async () => {
-      if (!process.env['CLOUDFLARE_API_TOKEN'] || !cfAccountId()) return null;
-      try {
-        const res = await fetch(
-          `https://api.cloudflare.com/client/v4/accounts/${cfAccountId()}/pages/projects/${PROJECT_CONFIG.cloudflare.pagesProject}/domains/www.${PROJECT_CONFIG.domain}`,
-          { headers: cfHeaders() }
-        );
-        if (!res.ok) return null;
-        return `${cfAccountId()}/${PROJECT_CONFIG.cloudflare.pagesProject}/www.${PROJECT_CONFIG.domain}`;
-      } catch {
-        return null;
-      }
-    },
-  },
-];
-
-interface DiagnosticResult {
-  readonly label: string;
-  readonly healthy: boolean;
-  readonly detail: string;
-}
 
 export class SetupCommand implements Command {
   readonly id = 'setup';
   readonly summary =
-    'Self-healing init: deps, secrets, state repair, targeted applies';
+    'Self-healing init: deps, secrets, idempotent resource ensures';
 
   constructor(private readonly platform: CiPlatform) {}
 
@@ -141,14 +72,6 @@ export class SetupCommand implements Command {
       );
     });
 
-    await runStep(p, 'Ensure R2 enabled', () =>
-      ensureR2Enabled(
-        p,
-        cfAccountId(),
-        process.env['CLOUDFLARE_API_TOKEN'] ?? ''
-      )
-    );
-
     await runStep(p, 'Sync TURBO_TOKEN to Worker', () =>
       ensureTurboCacheSecret()
     );
@@ -158,89 +81,13 @@ export class SetupCommand implements Command {
       ok('DATABASE_URL', url.replace(/\/\/[^@]+@/, '//***:***@'));
     });
 
-    await runStep(p, 'Terraform init', () =>
-      run(p, 'terraform', ['init', '-input=false'], {
-        cwd: TF_PACKAGE_ROOT,
-        label: 'Terraform init',
-      })
-    );
-
-    const diagnostics = await runStep(p, 'Diagnose state', () =>
-      this.diagnoseState()
-    );
-    for (const d of diagnostics) {
-      if (d.healthy) ok(d.label, d.detail);
-      else warn(d.label, d.detail);
+    const ctx: InfraContext = {};
+    const resources = createEnsureRegistry();
+    for (const resource of resources) {
+      await runStep(p, `Ensure: ${resource.id}`, () =>
+        resource.ensure(p, ctx)
+      );
     }
-
-    const needsRepair = diagnostics.some((d) => !d.healthy);
-    if (!needsRepair) {
-      banner('Setup Complete', performance.now() - t0);
-      ok('Infrastructure is healthy');
-      info('Next step', 'Run `bun run infra deploy` for a full deploy');
-      return;
-    }
-
-    const sorted = [
-      ...IMPORTABLE_RESOURCES.filter((r) => r.foundation),
-      ...IMPORTABLE_RESOURCES.filter((r) => !r.foundation),
-    ];
-    for (const res of sorted) {
-      if (this.stateHas(res.address)) continue;
-
-      const existingId = await res.lookupId();
-      if (existingId) {
-        await runStep(p, `Import ${res.address}`, () =>
-          run(
-            p,
-            'terraform',
-            [
-              'import',
-              '-lock-timeout=120s',
-              ...TF_DEPLOY_VAR_ARGS,
-              res.address,
-              existingId,
-            ],
-            { cwd: TF_PACKAGE_ROOT, label: `Import ${res.address}` }
-          )
-        );
-      } else if (res.foundation) {
-        await runStep(p, `Apply ${res.address}`, () =>
-          runQuiet(
-            'terraform',
-            [
-              'apply',
-              '-auto-approve',
-              '-input=false',
-              '-lock-timeout=120s',
-              `-target=${res.address}`,
-              ...TF_DEPLOY_VAR_ARGS,
-            ],
-            { cwd: TF_PACKAGE_ROOT, label: `Apply ${res.address}` }
-          )
-        );
-      } else {
-        info(
-          'Will be created',
-          `${res.address} (not found upstream, full apply will handle it)`
-        );
-      }
-    }
-
-    await runStep(p, 'Terraform apply', () =>
-      run(
-        p,
-        'terraform',
-        [
-          'apply',
-          '-auto-approve',
-          '-input=false',
-          '-lock-timeout=120s',
-          ...TF_DEPLOY_VAR_ARGS,
-        ],
-        { cwd: TF_PACKAGE_ROOT, label: 'Terraform apply' }
-      )
-    );
 
     banner('Setup Complete', performance.now() - t0);
     ok('Infrastructure is healthy');
@@ -329,38 +176,5 @@ export class SetupCommand implements Command {
 
       if (dep.verify) dep.verify();
     }
-  }
-
-  private async diagnoseState(): Promise<DiagnosticResult[]> {
-    const results: DiagnosticResult[] = [];
-
-    for (const res of IMPORTABLE_RESOURCES) {
-      const inState = this.stateHas(res.address);
-      if (inState) {
-        results.push({
-          label: res.address,
-          healthy: true,
-          detail: 'exists in state',
-        });
-        continue;
-      }
-      const upstreamId = await res.lookupId();
-      results.push({
-        label: res.address,
-        healthy: false,
-        detail: upstreamId
-          ? 'missing from state but exists upstream — will import'
-          : 'missing — will be created',
-      });
-    }
-
-    return results;
-  }
-
-  private stateHas(address: string): boolean {
-    const r = runSafe('terraform', ['state', 'show', address], {
-      cwd: TF_PACKAGE_ROOT,
-    });
-    return r.exitCode === 0;
   }
 }

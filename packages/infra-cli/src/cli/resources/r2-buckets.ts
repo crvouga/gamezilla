@@ -2,31 +2,74 @@ import { PROJECT_CONFIG } from '../../project-config';
 import { ok, warn } from '../lib/fmt';
 import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
 import type { CiPlatform } from '../platform/platform';
-import type { Resource } from './types';
+import type { InfraContext, Resource } from './types';
+
+const CF_API = 'https://api.cloudflare.com/client/v4';
 
 const BUCKET_NAMES: readonly string[] = [
   PROJECT_CONFIG.cloudflare.turboCacheBucket,
 ];
 
+const BUCKET_LOCATION = 'ENAM';
+
+interface R2Object {
+  key: string;
+}
+
 interface R2ListResponse {
   success: boolean;
-  result?: { objects?: Array<{ key: string }> };
+  result?: R2Object[] | null;
   result_info?: { cursor?: string };
 }
 
-/**
- * Empty all R2 buckets tracked by Terraform so `terraform destroy` can
- * delete them cleanly. Cloudflare's API refuses to delete non-empty buckets.
- */
-export class R2BucketsResource implements Resource {
+export class R2BucketResource implements Resource {
   readonly id = 'r2-buckets';
 
-  async destroy(platform: CiPlatform): Promise<void> {
+  async ensure(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const accountId = cfAccountId();
     const headers = cfHeaders();
 
     for (const bucket of BUCKET_NAMES) {
+      const res = await fetch(
+        `${CF_API}/accounts/${accountId}/r2/buckets/${bucket}`,
+        { headers: { ...headers, 'cf-r2-jurisdiction': 'default' } },
+      );
+
+      if (res.ok) {
+        ok(`R2 ${bucket}`, 'exists');
+        continue;
+      }
+
+      if (res.status !== 404) {
+        const text = await res.text();
+        throw new Error(`R2 ${bucket}: lookup failed: HTTP ${res.status} — ${text}`);
+      }
+
+      const create = await fetch(
+        `${CF_API}/accounts/${accountId}/r2/buckets`,
+        {
+          method: 'POST',
+          headers: { ...headers, 'cf-r2-jurisdiction': 'default' },
+          body: JSON.stringify({ name: bucket, locationHint: BUCKET_LOCATION }),
+        },
+      );
+
+      if (!create.ok) {
+        const text = await create.text();
+        throw new Error(`R2 ${bucket}: create failed: HTTP ${create.status} — ${text}`);
+      }
+
+      ok(`R2 ${bucket}`, 'created');
+    }
+  }
+
+  async destroy(platform: CiPlatform): Promise<void> {
+    const accountId = cfAccountId();
+    const headers = { ...cfHeaders(), 'cf-r2-jurisdiction': 'default' };
+
+    for (const bucket of BUCKET_NAMES) {
       await emptyBucket(platform, accountId, headers, bucket);
+      await deleteBucket(accountId, headers, bucket);
     }
   }
 }
@@ -42,14 +85,12 @@ async function emptyBucket(
 
   for (;;) {
     const url = new URL(
-      `https://api.cloudflare.com/client/v4/accounts/${accountId}/r2/buckets/${bucket}/objects`,
+      `${CF_API}/accounts/${accountId}/r2/buckets/${bucket}/objects`,
     );
     url.searchParams.set('per_page', '500');
     if (cursor) url.searchParams.set('cursor', cursor);
 
-    const res = await fetch(url.href, {
-      headers: { ...headers, 'cf-r2-jurisdiction': 'default' },
-    });
+    const res = await fetch(url.href, { headers });
 
     if (res.status === 404) {
       ok(`R2 ${bucket}`, 'not found — nothing to empty');
@@ -63,27 +104,23 @@ async function emptyBucket(
     }
 
     const body = (await res.json()) as R2ListResponse;
-    const objects = body.result?.objects ?? [];
+    const objects = body.result ?? [];
     if (objects.length === 0) break;
 
-    const keys = objects.map((o) => o.key);
-    const delRes = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${accountId}/r2/buckets/${bucket}/objects/delete`,
-      {
-        method: 'POST',
-        headers: { ...headers, 'cf-r2-jurisdiction': 'default' },
-        body: JSON.stringify({ keys }),
-      },
-    );
+    for (const obj of objects) {
+      const encodedKey = encodeURIComponent(obj.key);
+      const delRes = await fetch(
+        `${CF_API}/accounts/${accountId}/r2/buckets/${bucket}/objects/${encodedKey}`,
+        { method: 'DELETE', headers },
+      );
 
-    if (!delRes.ok) {
-      const text = await delRes.text();
-      warn(`R2 ${bucket}`, `bulk delete failed: HTTP ${delRes.status} — ${text}`);
-      return;
+      if (!delRes.ok && delRes.status !== 404) {
+        warn(`R2 ${bucket}`, `delete ${obj.key} failed: HTTP ${delRes.status}`);
+      }
     }
 
-    totalDeleted += keys.length;
-    platform.notice(`R2 ${bucket}: deleted ${keys.length} objects (${totalDeleted} total)`);
+    totalDeleted += objects.length;
+    platform.notice(`R2 ${bucket}: deleted ${objects.length} objects (${totalDeleted} total)`);
 
     cursor = body.result_info?.cursor;
     if (!cursor) break;
@@ -94,4 +131,27 @@ async function emptyBucket(
   } else {
     ok(`R2 ${bucket}`, 'already empty');
   }
+}
+
+async function deleteBucket(
+  accountId: string,
+  headers: Record<string, string>,
+  bucket: string,
+): Promise<void> {
+  const res = await fetch(
+    `${CF_API}/accounts/${accountId}/r2/buckets/${bucket}`,
+    { method: 'DELETE', headers },
+  );
+
+  if (res.status === 404) {
+    ok(`R2 ${bucket}`, 'not found — nothing to delete');
+    return;
+  }
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`R2 ${bucket}: delete failed: HTTP ${res.status} — ${text}`);
+  }
+
+  ok(`R2 ${bucket}`, 'deleted');
 }

@@ -3,12 +3,15 @@ import { ok, warn } from '../lib/fmt';
 import { REPO_ROOT } from '../paths';
 import { cfAccountId } from '../secrets/cloudflare';
 import { runSafe, type SpawnResult } from '../subprocess';
-import type { Resource } from './types';
+import type { CiPlatform } from '../platform/platform';
+import type { InfraContext, Resource } from './types';
 
 const NOT_FOUND_CODES = [10000, 10007, 10090];
 
 export class TurboCacheResource implements Resource {
   readonly id = 'turbo-cache';
+
+  async ensure(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {}
 
   destroy(): void {
     const cacheDir = join(REPO_ROOT, 'packages/turbo-cache');

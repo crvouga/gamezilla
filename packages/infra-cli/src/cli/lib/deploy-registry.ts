@@ -5,12 +5,12 @@ import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
 import { runAsync, runCaptureAsync } from '../subprocess';
 import { ensureTurboCacheSecret } from './ensure-turbo-cache-secret';
-import { requireOutput, type TfOutputs } from './tf-outputs';
+import type { InfraOutputs } from './infra-outputs';
 
 /**
  * Wrangler reads CLOUDFLARE_ACCOUNT_ID to skip /memberships account discovery
  * (which fails for scoped API tokens). Secrets load the value as
- * TF_VAR_cloudflare_account_id for Terraform, so we bridge the two here.
+ * TF_VAR_cloudflare_account_id, so we bridge the two here.
  */
 function wranglerEnv(): NodeJS.ProcessEnv {
   return {
@@ -21,7 +21,7 @@ function wranglerEnv(): NodeJS.ProcessEnv {
 
 export interface Deployable {
   readonly id: string;
-  deploy(outputs: TfOutputs): Promise<void>;
+  deploy(outputs: InfraOutputs): Promise<void>;
 }
 
 export class TurboCacheDeployable implements Deployable {
@@ -29,7 +29,7 @@ export class TurboCacheDeployable implements Deployable {
 
   constructor(private readonly platform: CiPlatform) {}
 
-  async deploy(_outputs: TfOutputs): Promise<void> {
+  async deploy(_outputs: InfraOutputs): Promise<void> {
     ensureTurboCacheSecret();
 
     await runAsync(this.platform, 'wrangler', ['deploy'], {
@@ -47,7 +47,7 @@ export class WorkersDeployable implements Deployable {
 
   constructor(private readonly platform: CiPlatform) {}
 
-  async deploy(_outputs: TfOutputs): Promise<void> {
+  async deploy(_outputs: InfraOutputs): Promise<void> {
     const apiDir = join(REPO_ROOT, 'packages/api');
     const env = wranglerEnv();
 
@@ -79,13 +79,9 @@ export class ClientDeployable implements Deployable {
 
   constructor(private readonly platform: CiPlatform) {}
 
-  async deploy(outputs: TfOutputs): Promise<void> {
-    const apiUrl = toHttps(requireOutput(this.platform, outputs, 'api_url'));
-    const pagesProject = requireOutput(
-      this.platform,
-      outputs,
-      'pages_project_name'
-    );
+  async deploy(outputs: InfraOutputs): Promise<void> {
+    const apiUrl = toHttps(outputs.api_url);
+    const pagesProject = outputs.pages_project_name;
 
     if (!/^https:\/\//.test(apiUrl)) {
       this.platform.error(`API_URL must be https:// (got: ${apiUrl})`);

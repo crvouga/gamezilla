@@ -2,13 +2,13 @@ import { PROJECT_CONFIG } from '../../project-config';
 import { ALL_DEPS } from '../deps/registry';
 import { banner, fail, heading, kv, ok, warn } from '../lib/fmt';
 import { httpProbe } from '../lib/http-probe';
-import { readTfOutputs } from '../lib/tf-outputs';
+import { infraOutputs, type InfraOutputs } from '../lib/infra-outputs';
 import type { CiPlatform } from '../platform/platform';
 import type { Command } from './types';
 
 export class StatusCommand implements Command {
   readonly id = 'status';
-  readonly summary = 'Health dashboard: deps, terraform outputs, endpoints';
+  readonly summary = 'Health dashboard: deps, infra outputs, endpoints';
 
   constructor(private readonly platform: CiPlatform) {}
 
@@ -34,17 +34,11 @@ export class StatusCommand implements Command {
       );
     }
 
-    // ── 2. Terraform Outputs ────────────────────────────────────────────
-    heading('Terraform Outputs');
-    try {
-      const outputs = readTfOutputs(this.platform);
-      const keys = Object.keys(outputs);
-      ok('Terraform outputs', `${keys.length} outputs`);
-      for (const [k, v] of Object.entries(outputs)) {
-        if (v) kv(k, v);
-      }
-    } catch {
-      warn('Terraform outputs', 'not available');
+    // ── 2. Infra Outputs ────────────────────────────────────────────────
+    heading('Infra Outputs');
+    const outputs: InfraOutputs = infraOutputs({});
+    for (const [k, v] of Object.entries(outputs)) {
+      if (v) kv(k, v);
     }
 
     // ── 3. Endpoints ────────────────────────────────────────────────────

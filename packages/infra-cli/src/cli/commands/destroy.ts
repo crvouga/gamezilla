@@ -7,7 +7,7 @@ import type { Command } from './types';
 
 export class DestroyCommand implements Command {
   readonly id = 'destroy';
-  readonly summary = 'Tear down all infrastructure managed by Terraform';
+  readonly summary = 'Tear down all managed infrastructure';
 
   constructor(private readonly platform: CiPlatform) {}
 

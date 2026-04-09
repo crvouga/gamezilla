@@ -63,8 +63,7 @@ export function run(
 
 /**
  * Run a command, capturing all output. On success the output is discarded;
- * on failure it is printed to stderr before throwing.  Useful for commands
- * (like `terraform apply -target`) that emit noisy but harmless warnings.
+ * on failure it is printed to stderr before throwing.
  */
 export function runQuiet(
   cmd: string,

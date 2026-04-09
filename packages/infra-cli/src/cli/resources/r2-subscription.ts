@@ -1,5 +1,7 @@
-import { ok, info } from './fmt';
+import { ok, info } from '../lib/fmt';
+import { cfAccountId } from '../secrets/cloudflare';
 import type { CiPlatform } from '../platform/platform';
+import type { InfraContext, Resource } from './types';
 
 const R2_NOT_ENABLED_CODE = 10042;
 
@@ -14,41 +16,47 @@ interface CfApiResponse {
   errors?: Array<{ code: number; message: string }>;
 }
 
-export async function ensureR2Enabled(
-  platform: CiPlatform,
-  accountId: string,
-  token: string,
-): Promise<void> {
-  const status = await probeR2(accountId, token);
+export class R2SubscriptionResource implements Resource {
+  readonly id = 'r2-subscription';
 
-  if (status === 'enabled') {
-    ok('R2', 'already enabled');
-    return;
-  }
+  async ensure(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
+    const accountId = cfAccountId();
+    const token = process.env['CLOUDFLARE_API_TOKEN'] ?? '';
+    const status = await probeR2(accountId, token);
 
-  if (status !== 'not-enabled') {
-    platform.warning(`R2 probe returned unexpected status: ${status}`);
-    return;
-  }
-
-  info('R2', 'not enabled — activating subscription…');
-
-  for (const planId of R2_RATE_PLAN_IDS) {
-    const activated = await tryActivate(accountId, token, planId);
-    if (activated) {
-      ok('R2', `activated with rate plan "${planId}"`);
+    if (status === 'enabled') {
+      ok('R2', 'already enabled');
       return;
     }
+
+    if (status !== 'not-enabled') {
+      platform.warning(`R2 probe returned unexpected status: ${status}`);
+      return;
+    }
+
+    info('R2', 'not enabled — activating subscription…');
+
+    for (const planId of R2_RATE_PLAN_IDS) {
+      const activated = await tryActivate(accountId, token, planId);
+      if (activated) {
+        ok('R2', `activated with rate plan "${planId}"`);
+        return;
+      }
+    }
+
+    throw new Error(
+      [
+        'Could not activate R2 via API.',
+        'Please enable R2 manually (one-time, free):',
+        '  https://dash.cloudflare.com → R2 in the sidebar → accept terms',
+        'Then re-run the deploy.',
+      ].join('\n'),
+    );
   }
 
-  throw new Error(
-    [
-      'Could not activate R2 via API.',
-      'Please enable R2 manually (one-time, free):',
-      '  https://dash.cloudflare.com → R2 in the sidebar → accept terms',
-      'Then re-run the deploy.',
-    ].join('\n'),
-  );
+  async destroy(): Promise<void> {
+    ok('R2 subscription', 'cannot un-subscribe — skipping');
+  }
 }
 
 async function probeR2(

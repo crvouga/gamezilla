@@ -4,28 +4,26 @@ import {
   WorkersDeployable,
 } from '../lib/deploy-registry';
 import { ensureDopplerDefaults } from '../lib/ensure-doppler-defaults';
-import { ensureR2Enabled } from '../lib/ensure-r2';
 import { banner, ok } from '../lib/fmt';
+import { infraOutputs } from '../lib/infra-outputs';
 import { resolveDatabaseUrl } from '../lib/resolve-database-url';
 import { runHttpSmokeTests } from '../lib/smoke-tests';
-import { readTfOutputs, requireOutput } from '../lib/tf-outputs';
-import { TF_DEPLOY_VAR_ARGS } from '../lib/tf-vars';
-import { TF_PACKAGE_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
-import { cfAccountId } from '../secrets/cloudflare';
+import { createEnsureRegistry } from '../resources/registry';
+import type { InfraContext } from '../resources/types';
 import {
   fetchDopplerSecret,
   getSecretMap,
   validateSecret,
 } from '../secrets/secrets';
-import { runAsync, runCaptureAsync } from '../subprocess';
+import { runCaptureAsync } from '../subprocess';
 import type { Command } from './types';
 
 export class DeployCommand implements Command {
   readonly id = 'deploy';
   readonly summary =
-    'Full idempotent deploy: validate → terraform → apps → smoke tests';
+    'Full idempotent deploy: validate → ensure infra → apps → smoke tests';
 
   constructor(private readonly platform: CiPlatform) {}
 
@@ -63,94 +61,60 @@ export class DeployCommand implements Command {
       }
     });
 
-    // ── 4. R2 activation ──────────────────────────────────────────────
-    await runStep(p, 'Ensure R2 enabled', () =>
-      ensureR2Enabled(p, cfAccountId(), process.env['CLOUDFLARE_API_TOKEN'] ?? '')
-    );
-
-    // ── 5. Resolve DATABASE_URL ─────────────────────────────────────────
+    // ── 4. Resolve DATABASE_URL ─────────────────────────────────────────
     await runStep(p, 'Resolve DATABASE_URL', async () => {
       const url = await resolveDatabaseUrl();
       ok('DATABASE_URL', url.replace(/\/\/[^@]+@/, '//***:***@'));
     });
 
-    // ── 5. Terraform init ───────────────────────────────────────────────
-    await runStep(p, 'Terraform init', () =>
-      runAsync(p, 'terraform', ['init', '-input=false'], {
-        cwd: TF_PACKAGE_ROOT,
-        label: 'Terraform init',
-      })
-    );
+    // ── 5. Ensure infrastructure ────────────────────────────────────────
+    const ctx: InfraContext = {};
+    const resources = createEnsureRegistry();
+    for (const resource of resources) {
+      await runStep(p, `Ensure: ${resource.id}`, () =>
+        resource.ensure(p, ctx)
+      );
+    }
 
-    // ── 6. Terraform validate ───────────────────────────────────────────
-    await runStep(p, 'Terraform validate', () =>
-      runAsync(p, 'terraform', ['validate'], {
-        cwd: TF_PACKAGE_ROOT,
-        label: 'Terraform validate',
-      })
-    );
+    const outputs = infraOutputs(ctx);
 
-    // ── 7. Terraform apply ──────────────────────────────────────────────
-    await runStep(p, 'Terraform apply', () =>
-      runAsync(
-        p,
-        'terraform',
-        [
-          'apply',
-          '-auto-approve',
-          '-input=false',
-          '-lock-timeout=120s',
-          ...TF_DEPLOY_VAR_ARGS,
-        ],
-        { cwd: TF_PACKAGE_ROOT, label: 'Terraform apply' }
-      )
-    );
-
-    // ── 8. Read TF outputs ──────────────────────────────────────────────
-    const outputs = await runStep(p, 'Read TF outputs', () => readTfOutputs(p));
-
-    // ── 9. Deploy turbo-cache ───────────────────────────────────────────
+    // ── 6. Deploy turbo-cache ───────────────────────────────────────────
     await runStep(p, 'Deploy: turbo-cache', () =>
-      new TurboCacheDeployable(p).deploy({})
+      new TurboCacheDeployable(p).deploy(outputs)
     );
 
-    // ── 10. Deploy workers-api ──────────────────────────────────────────
+    // ── 7. Deploy workers-api ───────────────────────────────────────────
     await runStep(p, 'Deploy: workers-api', () =>
-      new WorkersDeployable(p).deploy({})
+      new WorkersDeployable(p).deploy(outputs)
     );
 
-    // ── 11. Deploy client ───────────────────────────────────────────────
+    // ── 8. Deploy client ────────────────────────────────────────────────
     await runStep(p, 'Deploy: client', () =>
       new ClientDeployable(p).deploy(outputs)
     );
 
-    // ── 12. Smoke tests ─────────────────────────────────────────────────
+    // ── 9. Smoke tests ──────────────────────────────────────────────────
     await runStep(p, 'Smoke tests', () => runHttpSmokeTests(p, outputs));
 
     // ── Done ─────────────────────────────────────────────────────────────
     banner('Deploy Complete', performance.now() - t0);
-    for (const key of ['client_url', 'api_url'] as const) {
-      try {
-        ok(key, requireOutput(p, outputs, key));
-      } catch {
-        /* output not available */
-      }
-    }
+    ok('client_url', outputs.client_url);
+    ok('api_url', outputs.api_url);
 
     this.writeSummary(outputs);
   }
 
-  private writeSummary(outputs: Record<string, string | undefined>): void {
+  private writeSummary(outputs: ReturnType<typeof infraOutputs>): void {
     const services = [
-      { label: 'Client', key: 'client_url' },
-      { label: 'API (Workers)', key: 'api_url' },
+      { label: 'Client', url: outputs.client_url },
+      { label: 'API (Workers)', url: outputs.api_url },
     ] as const;
 
     const rows = services
-      .map((s) => `| **${s.label}** | ${outputs[s.key] ?? '_(unavailable)_'} |`)
+      .map((s) => `| **${s.label}** | ${s.url} |`)
       .join('\n');
 
-    const ns = outputs['cloudflare_nameservers'] ?? '_(unavailable)_';
+    const ns = outputs.cloudflare_nameservers || '_(unavailable)_';
 
     this.platform.appendJobSummary(`## Deployment Complete
 
@@ -164,7 +128,7 @@ Point your domain to Cloudflare in [Squarespace Domains](https://domains.squares
 
 **Nameservers:** \`${ns}\`
 
-> DNS records and the apex-to-www redirect are managed by Cloudflare via Terraform.
+> DNS records and the apex-to-www redirect are managed by the infra CLI.
 > Once nameservers are delegated, no further Squarespace configuration is needed.
 `);
   }
@@ -205,5 +169,4 @@ Point your domain to Cloudflare in [Squarespace Domains](https://domains.squares
       }
     }
   }
-
 }

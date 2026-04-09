@@ -5,7 +5,7 @@ import { runStep } from '../platform/platform';
 import { runSafe } from '../subprocess';
 import { httpProbe } from './http-probe';
 import { fmtElapsed, ok, warn } from './fmt';
-import { requireOutput, type TfOutputs } from './tf-outputs';
+import type { InfraOutputs } from './infra-outputs';
 
 type HttpEndpointCheck = {
   readonly label: string;
@@ -151,10 +151,10 @@ function digQuery(host: string, type: string, server?: string): string[] {
     .filter(Boolean);
 }
 
-function checkDns(platform: CiPlatform, outputs: TfOutputs): void {
+function checkDns(platform: CiPlatform, outputs: InfraOutputs): void {
   const domain = PROJECT_CONFIG.domain;
 
-  const expectedNs = requireOutput(platform, outputs, 'cloudflare_nameservers')
+  const expectedNs = outputs.cloudflare_nameservers
     .split(',')
     .map((s) => s.trim().toLowerCase())
     .sort();
@@ -209,7 +209,7 @@ function checkDns(platform: CiPlatform, outputs: TfOutputs): void {
 
 export async function runHttpSmokeTests(
   platform: CiPlatform,
-  outputs: TfOutputs
+  outputs: InfraOutputs
 ): Promise<void> {
   await runStep(platform, 'DNS diagnostics', () => checkDns(platform, outputs));
 

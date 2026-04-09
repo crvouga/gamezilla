@@ -4,14 +4,12 @@ import { CfApiToken } from './cf-api-token';
 import { PsServiceTokenId, PsServiceToken } from './ps-credentials';
 import { PsDatabase } from './ps-database';
 import { PsOrg } from './ps-org';
-import { TfToken } from './tf-token';
 import type { SecretEntry } from './types';
 
 export { validateSecret } from './types';
 export type { SecretEntry } from './types';
 
 const SECRET_MAP: ReadonlyArray<SecretEntry> = [
-  new TfToken(),
   new CfApiToken(),
   new CfAccountId(),
   new PsServiceTokenId(),
