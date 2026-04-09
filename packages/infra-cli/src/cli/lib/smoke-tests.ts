@@ -3,8 +3,8 @@ import { PROJECT_CONFIG } from '../../project-config';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
 import { runSafe } from '../subprocess';
-import { httpProbe } from './http-probe';
 import { fmtElapsed, ok, warn } from './fmt';
+import { httpProbe } from './http-probe';
 import type { InfraOutputs } from './infra-outputs';
 
 type HttpEndpointCheck = {
@@ -69,7 +69,6 @@ function probeUrl(rawUrl: string, probePath?: string): string {
   return new URL(path, base.endsWith('/') ? base : `${base}/`).href;
 }
 
-
 async function checkHttpEndpoint(
   platform: CiPlatform,
   opts: {
@@ -84,7 +83,9 @@ async function checkHttpEndpoint(
   const url = probeUrl(opts.rawUrl, opts.probePath);
   const started = Date.now();
   const maxWaitStr = fmtElapsed(POST_DEPLOY_HTTP_MAX_WAIT_MS);
-  const maxAttempts = Math.ceil(POST_DEPLOY_HTTP_MAX_WAIT_MS / POST_DEPLOY_HTTP_RETRY_MS);
+  const maxAttempts = Math.ceil(
+    POST_DEPLOY_HTTP_MAX_WAIT_MS / POST_DEPLOY_HTTP_RETRY_MS
+  );
 
   for (let attempt = 1; ; attempt++) {
     const elapsed = Date.now() - started;
@@ -137,6 +138,22 @@ async function checkHttpEndpoint(
       `Waiting for ${opts.label} ${url} — attempt ${attempt}/${maxAttempts}, ${detail}, ${elapsedStr} elapsed (max ${maxWaitStr})`
     );
     await sleep(POST_DEPLOY_HTTP_RETRY_MS);
+  }
+}
+
+function flushDnsCache(): void {
+  if (process.platform === 'darwin') {
+    runSafe('dscacheutil', ['-flushcache']);
+    runSafe('killall', ['-HUP', 'mDNSResponder']);
+    ok('DNS cache', 'flushed (macOS)');
+  } else if (process.platform === 'linux') {
+    const r = runSafe('systemd-resolve', ['--flush-caches']);
+    if (r.exitCode !== 0) {
+      runSafe('resolvectl', ['flush-caches']);
+    }
+    ok('DNS cache', 'flushed (Linux)');
+  } else {
+    ok('DNS cache', `flush not supported on ${process.platform} — skipping`);
   }
 }
 
@@ -211,6 +228,7 @@ export async function runHttpSmokeTests(
   platform: CiPlatform,
   outputs: InfraOutputs
 ): Promise<void> {
+  await runStep(platform, 'Flush DNS cache', () => flushDnsCache());
   await runStep(platform, 'DNS diagnostics', () => checkDns(platform, outputs));
 
   let step = 0;
