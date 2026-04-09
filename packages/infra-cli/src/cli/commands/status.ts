@@ -1,7 +1,7 @@
 import { PROJECT_CONFIG } from '../../project-config';
 import { ALL_DEPS } from '../deps/registry';
-import { curlStatus } from '../lib/curl-status';
 import { banner, fail, heading, kv, ok, warn } from '../lib/fmt';
+import { httpProbe } from '../lib/http-probe';
 import { readTfOutputs } from '../lib/tf-outputs';
 import type { CiPlatform } from '../platform/platform';
 import type { Command } from './types';
@@ -53,7 +53,7 @@ export class StatusCommand implements Command {
     const urls = [`https://www.${domain}`, `https://api.${domain}/health`];
 
     for (const url of urls) {
-      const result = curlStatus(url, { timeoutS: 10 });
+      const result = await httpProbe(url, { timeoutS: 10 });
       if (result.status === 0) {
         fail(url, result.error ?? 'unreachable');
       } else if (result.ok) {

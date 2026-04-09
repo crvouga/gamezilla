@@ -3,7 +3,7 @@ import { PROJECT_CONFIG } from '../../project-config';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
 import { runSafe } from '../subprocess';
-import { curlStatus } from './curl-status';
+import { httpProbe } from './http-probe';
 import { fmtElapsed, ok, warn } from './fmt';
 import { requireOutput, type TfOutputs } from './tf-outputs';
 
@@ -90,7 +90,7 @@ async function checkHttpEndpoint(
     const elapsed = Date.now() - started;
     const elapsedStr = fmtElapsed(elapsed);
 
-    const result = curlStatus(url);
+    const result = await httpProbe(url);
 
     if (result.status === 0) {
       if (elapsed >= POST_DEPLOY_HTTP_MAX_WAIT_MS) {
