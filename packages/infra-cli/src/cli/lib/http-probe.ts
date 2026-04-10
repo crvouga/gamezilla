@@ -1,50 +1,25 @@
 export type HttpProbeResult = { ok: boolean; status: number; error?: string };
 
 /**
- * HTTP probe via curl subprocess. Using curl instead of Bun's fetch avoids
- * stale negative DNS cache entries that persist within a long-running Bun
- * process (e.g. after a destroy → recreate cycle where DNS records change
- * mid-run). Each curl invocation gets a fresh DNS resolution.
+ * HTTP probe via global `fetch`. Each request uses the runtime’s DNS resolver
+ * (fresh lookups per request in Node/Bun), avoiding a dependency on curl and
+ * keeping behavior consistent across operating systems.
  */
 export async function httpProbe(
   url: string,
   opts?: { timeoutS?: number }
 ): Promise<HttpProbeResult> {
   const timeoutS = opts?.timeoutS ?? 30;
+  const ms = Math.max(1, timeoutS * 1000);
   try {
-    const proc = Bun.spawn(
-      [
-        'curl',
-        '-s',
-        '-o',
-        '/dev/null',
-        '-w',
-        '%{http_code}',
-        '-L',
-        '--max-time',
-        String(timeoutS),
-        url,
-      ],
-      { stdout: 'pipe', stderr: 'pipe' }
-    );
-
-    const [stdout, exitCode] = await Promise.all([
-      new Response(proc.stdout).text(),
-      proc.exited,
-    ]);
-
-    const status = parseInt(stdout.trim(), 10);
-
-    if (exitCode !== 0 || isNaN(status) || status === 0) {
-      const stderr = await new Response(proc.stderr).text();
-      return {
-        ok: false,
-        status: 0,
-        error: stderr.trim() || `curl exit ${exitCode}`,
-      };
-    }
-
-    return { ok: status >= 200 && status < 400, status };
+    const res = await fetch(url, {
+      redirect: 'follow',
+      signal: AbortSignal.timeout(ms),
+      cache: 'no-store',
+    });
+    const status = res.status;
+    const ok = status >= 200 && status < 400;
+    return { ok, status };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     return { ok: false, status: 0, error: msg };

@@ -1,8 +1,8 @@
+import { Resolver, resolve4, resolve6, resolveNs } from 'node:dns/promises';
 import { assert } from '@gamezilla/shared/assert';
 import { PROJECT_CONFIG } from '../../project-config';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
-import { runSafe } from '../subprocess';
 import { fmtElapsed, ok, warn } from './fmt';
 import { httpProbe } from './http-probe';
 import type { InfraOutputs } from './infra-outputs';
@@ -69,6 +69,134 @@ function probeUrl(rawUrl: string, probePath?: string): string {
   return new URL(path, base.endsWith('/') ? base : `${base}/`).href;
 }
 
+function normalizeDnsLabel(s: string): string {
+  return s.trim().toLowerCase().replace(/\.+$/, '');
+}
+
+/** Resolve nameserver hostname to an IP for `dns.Resolver.setServers` (requires IPs). */
+async function resolveNsHostToIp(nsHost: string): Promise<string | undefined> {
+  try {
+    const a = await resolve4(nsHost);
+    return a[0];
+  } catch {
+    try {
+      const aaaa = await resolve6(nsHost);
+      return aaaa[0];
+    } catch {
+      return undefined;
+    }
+  }
+}
+
+async function lookupAaaa(host: string): Promise<string[]> {
+  try {
+    return await resolve6(host);
+  } catch {
+    return [];
+  }
+}
+
+/** Records from the system / default resolver (same idea as `dig` without @server). */
+async function lookupViaDefaultResolver(host: string): Promise<string[]> {
+  const a: string[] = [];
+  try {
+    a.push(...(await resolve4(host)));
+  } catch {
+    /* empty */
+  }
+  a.push(...(await lookupAaaa(host)));
+  return a;
+}
+
+/** Query A/AAAA at a specific authoritative nameserver (by hostname). */
+async function lookupViaAuthNs(
+  host: string,
+  authNsHostname: string
+): Promise<string[]> {
+  const ip = await resolveNsHostToIp(authNsHostname);
+  if (!ip) return [];
+
+  const resolver = new Resolver();
+  resolver.setServers([ip]);
+  const out: string[] = [];
+  try {
+    out.push(...(await resolver.resolve4(host)));
+  } catch {
+    /* empty */
+  }
+  try {
+    out.push(...(await resolver.resolve6(host)));
+  } catch {
+    /* empty */
+  }
+  return out;
+}
+
+async function checkDns(
+  platform: CiPlatform,
+  outputs: InfraOutputs
+): Promise<void> {
+  const domain = PROJECT_CONFIG.domain;
+
+  const expectedNs = outputs.cloudflare_nameservers
+    .split(',')
+    .map((s) => normalizeDnsLabel(s))
+    .filter(Boolean)
+    .sort();
+
+  let actualNs: string[] = [];
+  try {
+    actualNs = (await resolveNs(domain))
+      .map((s) => normalizeDnsLabel(s))
+      .sort();
+  } catch {
+    actualNs = [];
+  }
+
+  if (actualNs.length === 0) {
+    warn(
+      'DNS nameservers',
+      `NS lookup for ${domain} returned nothing — domain may not be delegated yet`
+    );
+  } else if (expectedNs.every((ns) => actualNs.includes(ns))) {
+    ok('DNS nameservers', actualNs.join(', '));
+  } else {
+    warn(
+      'DNS nameservers',
+      `expected [${expectedNs.join(', ')}] but got [${actualNs.join(', ')}] — ` +
+        'update nameservers at your registrar'
+    );
+  }
+
+  const authNs = expectedNs[0];
+  if (!authNs) {
+    warn('DNS checks', 'no expected nameservers in infra outputs — skipping host checks');
+    return;
+  }
+
+  for (const sub of ['www', 'api']) {
+    const host = `${sub}.${domain}`;
+
+    const localRecords = await lookupViaDefaultResolver(host);
+    const authRecords = await lookupViaAuthNs(host, authNs);
+
+    if (localRecords.length > 0) {
+      ok(`DNS ${host}`, localRecords.join(', '));
+    } else if (authRecords.length > 0) {
+      warn(
+        `DNS ${host}`,
+        `default resolver has no records, but authoritative NS (${authNs}) returns [${authRecords.join(', ')}] — ` +
+          'DNS propagation may still be pending'
+      );
+    } else {
+      warn(
+        `DNS ${host}`,
+        'no records at default resolver or authoritative NS — check Cloudflare dashboard'
+      );
+    }
+  }
+}
+
 async function checkHttpEndpoint(
   platform: CiPlatform,
   opts: {
@@ -118,9 +246,6 @@ async function checkHttpEndpoint(
       return;
     }
 
-    // Any non-acceptable status is retried within the time window.
-    // After a destroy→deploy cycle, Cloudflare needs time to activate custom
-    // domains and propagate TLS certificates, so transient 4xx/5xx are expected.
     if (elapsed >= POST_DEPLOY_HTTP_MAX_WAIT_MS) {
       platform.error(
         `${opts.label} ${url} — HTTP ${result.status} after ${elapsedStr}`
@@ -141,94 +266,10 @@ async function checkHttpEndpoint(
   }
 }
 
-function flushDnsCache(): void {
-  if (process.platform === 'darwin') {
-    runSafe('dscacheutil', ['-flushcache']);
-    runSafe('killall', ['-HUP', 'mDNSResponder']);
-    ok('DNS cache', 'flushed (macOS)');
-  } else if (process.platform === 'linux') {
-    const r = runSafe('systemd-resolve', ['--flush-caches']);
-    if (r.exitCode !== 0) {
-      runSafe('resolvectl', ['flush-caches']);
-    }
-    ok('DNS cache', 'flushed (Linux)');
-  } else {
-    ok('DNS cache', `flush not supported on ${process.platform} — skipping`);
-  }
-}
-
-function digQuery(host: string, type: string, server?: string): string[] {
-  const args = ['+short', host, type];
-  if (server) args.push(`@${server}`);
-  const r = runSafe('dig', args);
-  if (r.exitCode !== 0) return [];
-  return r.stdout
-    .split('\n')
-    .map((l) => l.trim().replace(/\.+$/, ''))
-    .filter(Boolean);
-}
-
-function checkDns(platform: CiPlatform, outputs: InfraOutputs): void {
-  const domain = PROJECT_CONFIG.domain;
-
-  const expectedNs = outputs.cloudflare_nameservers
-    .split(',')
-    .map((s) => s.trim().toLowerCase())
-    .sort();
-  const actualNs = digQuery(domain, 'NS')
-    .map((s) => s.toLowerCase())
-    .sort();
-
-  if (actualNs.length === 0) {
-    warn(
-      'DNS nameservers',
-      `dig NS ${domain} returned nothing — domain may not be delegated yet`
-    );
-  } else if (expectedNs.every((ns) => actualNs.includes(ns))) {
-    ok('DNS nameservers', actualNs.join(', '));
-  } else {
-    warn(
-      'DNS nameservers',
-      `expected [${expectedNs.join(', ')}] but got [${actualNs.join(', ')}] — ` +
-        'update nameservers at your registrar'
-    );
-  }
-
-  const authNs = expectedNs[0];
-
-  for (const sub of ['www', 'api']) {
-    const host = `${sub}.${domain}`;
-
-    const localA = digQuery(host, 'A');
-    const localAAAA = digQuery(host, 'AAAA');
-    const localRecords = [...localA, ...localAAAA];
-
-    const authA = digQuery(host, 'A', authNs);
-    const authAAAA = digQuery(host, 'AAAA', authNs);
-    const authRecords = [...authA, ...authAAAA];
-
-    if (localRecords.length > 0) {
-      ok(`DNS ${host}`, localRecords.join(', '));
-    } else if (authRecords.length > 0) {
-      warn(
-        `DNS ${host}`,
-        `local resolver has no records, but authoritative NS (${authNs}) returns [${authRecords.join(', ')}] — ` +
-          'DNS propagation pending, try flushing local DNS cache'
-      );
-    } else {
-      warn(
-        `DNS ${host}`,
-        'no records at local resolver or authoritative NS — check Cloudflare dashboard'
-      );
-    }
-  }
-}
-
 export async function runHttpSmokeTests(
   platform: CiPlatform,
   outputs: InfraOutputs
 ): Promise<void> {
-  await runStep(platform, 'Flush DNS cache', () => flushDnsCache());
   await runStep(platform, 'DNS diagnostics', () => checkDns(platform, outputs));
 
   let step = 0;

@@ -1,3 +1,4 @@
+import { spawn, spawnSync } from 'node:child_process';
 import { assert } from '@gamezilla/shared/assert';
 import { fmtMs } from './lib/fmt';
 import type { CiPlatform } from './platform/platform';
@@ -6,6 +7,59 @@ export interface RunOpts {
   cwd?: string;
   env?: NodeJS.ProcessEnv;
   label?: string;
+}
+
+function stringsFromSpawn(
+  stdout: string | Buffer | null | undefined,
+  stderr: string | Buffer | null | undefined
+): { stdout: string; stderr: string } {
+  return {
+    stdout:
+      typeof stdout === 'string'
+        ? stdout
+        : stdout != null
+          ? stdout.toString()
+          : '',
+    stderr:
+      typeof stderr === 'string'
+        ? stderr
+        : stderr != null
+          ? stderr.toString()
+          : '',
+  };
+}
+
+function spawnSyncCaptured(
+  cmd: string,
+  args: string[],
+  opts?: {
+    cwd?: string;
+    env?: NodeJS.ProcessEnv;
+    input?: string;
+  }
+): SpawnResult {
+  const r = spawnSync(cmd, args, {
+    env: opts?.env ?? process.env,
+    cwd: opts?.cwd,
+    encoding: 'utf8',
+    input: opts?.input,
+    stdio: opts?.input !== undefined ? ['pipe', 'pipe', 'pipe'] : ['ignore', 'pipe', 'pipe'],
+  });
+
+  if (r.error) {
+    return {
+      exitCode: r.status ?? 127,
+      stdout: '',
+      stderr: r.error.message,
+    };
+  }
+
+  const { stdout, stderr } = stringsFromSpawn(r.stdout, r.stderr);
+  return {
+    exitCode: r.status === null ? -1 : r.status,
+    stdout,
+    stderr,
+  };
 }
 
 export function run(
@@ -24,22 +78,19 @@ export function run(
   const label = opts?.label ?? fullCmd;
   const t0 = performance.now();
 
-  const base = {
+  const r = spawnSync(cmd, args, {
     env: opts?.env ?? process.env,
-    stdout: 'inherit' as const,
-    stderr: 'inherit' as const,
-    stdin: 'inherit' as const,
-  };
-  const spawnOpts = opts?.cwd !== undefined ? { ...base, cwd: opts.cwd } : base;
-  const r = Bun.spawnSync([cmd, ...args], spawnOpts);
+    cwd: opts?.cwd,
+    stdio: 'inherit',
+  });
   const elapsed = fmtMs(performance.now() - t0);
 
-  if (r.exitCode !== 0 && r.exitCode !== null) {
+  if (r.error) {
     platform.error(
       [
         `=== FAILED: ${label} ===`,
         `Command:  ${fullCmd}`,
-        `Exit:     ${r.exitCode}`,
+        `Error:    ${r.error.message}`,
         `Duration: ${elapsed}`,
         opts?.cwd ? `Cwd:      ${opts.cwd}` : '',
       ]
@@ -47,13 +98,30 @@ export function run(
         .join('\n')
     );
     assert.fail(
-      `run: "${label}" exited ${r.exitCode} — crash, do not continue`
+      `run: "${label}" — ${r.error.message} (is ${cmd} installed and on PATH?)`
     );
   }
 
-  if (r.exitCode === null) {
+  if (r.status !== 0 && r.status !== null) {
     platform.error(
-      `=== KILLED: ${label} === (signal or unknown termination, ${elapsed})`
+      [
+        `=== FAILED: ${label} ===`,
+        `Command:  ${fullCmd}`,
+        `Exit:     ${r.status}`,
+        `Duration: ${elapsed}`,
+        opts?.cwd ? `Cwd:      ${opts.cwd}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n')
+    );
+    assert.fail(
+      `run: "${label}" exited ${r.status} — crash, do not continue`
+    );
+  }
+
+  if (r.signal) {
+    platform.error(
+      `=== KILLED: ${label} === (signal ${r.signal}, ${elapsed})`
     );
     assert.fail(
       `run: "${label}" was killed by a signal — crash, do not continue`
@@ -77,22 +145,25 @@ export function runQuiet(
   assert.array(args, 'runQuiet: args must be an array');
 
   const label = opts?.label ?? `${cmd} ${args.join(' ')}`;
-  const r = Bun.spawnSync([cmd, ...args], {
+  const r = spawnSync(cmd, args, {
     env: opts?.env ?? process.env,
-    stdout: 'pipe',
-    stderr: 'pipe',
-    ...(opts?.cwd ? { cwd: opts.cwd } : {}),
+    cwd: opts?.cwd,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
   });
 
-  if (r.exitCode !== 0 && r.exitCode !== null) {
-    const stderr = r.stderr.toString().trim();
-    const stdout = r.stdout.toString().trim();
-    if (stdout) console.log(stdout);
-    if (stderr) console.error(stderr);
-    assert.fail(`runQuiet: "${label}" exited ${r.exitCode}`);
+  if (r.error) {
+    assert.fail(`runQuiet: "${label}" — ${r.error.message}`);
   }
-  if (r.exitCode === null) {
-    assert.fail(`runQuiet: "${label}" was killed by a signal`);
+
+  if (r.status !== 0 && r.status !== null) {
+    const { stdout, stderr } = stringsFromSpawn(r.stdout, r.stderr);
+    if (stdout.trim()) console.log(stdout.trim());
+    if (stderr.trim()) console.error(stderr.trim());
+    assert.fail(`runQuiet: "${label}" exited ${r.status}`);
+  }
+  if (r.signal) {
+    assert.fail(`runQuiet: "${label}" was killed by signal ${r.signal}`);
   }
 }
 
@@ -101,23 +172,12 @@ export function runCapture(
   args: string[],
   opts?: { cwd?: string; env?: NodeJS.ProcessEnv; input?: string }
 ): string {
-  const r = Bun.spawnSync([cmd, ...args], {
-    env: opts?.env ?? process.env,
-    stdout: 'pipe',
-    stderr: 'pipe',
-    ...(opts?.cwd ? { cwd: opts.cwd } : {}),
-    ...(opts?.input !== undefined
-      ? { stdin: Buffer.from(opts.input) }
-      : {}),
-  });
-  if (r.exitCode === null) {
-    throw new Error(`${cmd} ${args.join(' ')} was killed by a signal`);
-  }
+  const r = spawnSyncCaptured(cmd, args, opts);
   if (r.exitCode !== 0) {
-    const stderr = r.stderr.toString().trim();
+    const stderr = r.stderr.trim();
     throw new Error(`${cmd} ${args.join(' ')} exited ${r.exitCode}: ${stderr}`);
   }
-  return r.stdout.toString().trim();
+  return r.stdout.trim();
 }
 
 export interface SpawnResult {
@@ -131,17 +191,7 @@ export function runSafe(
   args: string[],
   opts?: { cwd?: string; env?: NodeJS.ProcessEnv }
 ): SpawnResult {
-  const r = Bun.spawnSync([cmd, ...args], {
-    env: opts?.env ?? process.env,
-    stdout: 'pipe',
-    stderr: 'pipe',
-    ...(opts?.cwd ? { cwd: opts.cwd } : {}),
-  });
-  return {
-    exitCode: r.exitCode,
-    stdout: r.stdout.toString(),
-    stderr: r.stderr.toString(),
-  };
+  return spawnSyncCaptured(cmd, args, opts);
 }
 
 export function runLocal(
@@ -150,33 +200,33 @@ export function runLocal(
   opts?: { cwd?: string }
 ): void {
   console.log(`> ${cmd} ${args.join(' ')}`);
-  const base = {
+  const r = spawnSync(cmd, args, {
     env: process.env,
-    stdout: 'inherit' as const,
-    stderr: 'inherit' as const,
-    stdin: 'inherit' as const,
-  };
-  const spawnOpts = opts?.cwd !== undefined ? { ...base, cwd: opts.cwd } : base;
-  const r = Bun.spawnSync([cmd, ...args], spawnOpts);
-  if (r.exitCode !== 0 && r.exitCode !== null) {
-    throw new Error(`${cmd} ${args.join(' ')} exited ${r.exitCode}`);
+    cwd: opts?.cwd,
+    stdio: 'inherit',
+  });
+  if (r.error) {
+    throw new Error(`${cmd} ${args.join(' ')} — ${r.error.message}`);
   }
-  if (r.exitCode === null) {
-    throw new Error(`${cmd} ${args.join(' ')} killed by signal`);
+  if (r.status !== 0 && r.status !== null) {
+    throw new Error(`${cmd} ${args.join(' ')} exited ${r.status}`);
+  }
+  if (r.signal) {
+    throw new Error(`${cmd} ${args.join(' ')} killed by signal ${r.signal}`);
   }
 }
 
 // ── Async variants (non-blocking, safe for parallel DAG execution) ───
 
 export async function runAsync(
-  platform: CiPlatform,
+  _platform: CiPlatform,
   cmd: string,
   args: string[],
-  opts?: RunOpts,
+  opts?: RunOpts
 ): Promise<void> {
   assert.ok(
     typeof cmd === 'string' && cmd.length > 0,
-    'runAsync: cmd must be non-empty',
+    'runAsync: cmd must be non-empty'
   );
   assert.array(args, 'runAsync: args must be an array');
 
@@ -184,55 +234,87 @@ export async function runAsync(
   const label = opts?.label ?? fullCmd;
   const t0 = performance.now();
 
-  const base = {
-    env: opts?.env ?? process.env,
-    stdout: 'inherit' as const,
-    stderr: 'inherit' as const,
-    stdin: 'inherit' as const,
-  };
-  const spawnOpts = opts?.cwd !== undefined ? { ...base, cwd: opts.cwd } : base;
-  const proc = Bun.spawn([cmd, ...args], spawnOpts);
-  const exitCode = await proc.exited;
-  const elapsed = fmtMs(performance.now() - t0);
-
-  if (exitCode !== 0) {
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const child = spawn(cmd, args, {
+        env: opts?.env ?? process.env,
+        cwd: opts?.cwd,
+        stdio: 'inherit',
+      });
+      child.on('error', reject);
+      child.on('close', (code, signal) => {
+        if (signal) {
+          reject(new Error(`${label} killed by signal ${signal}`));
+          return;
+        }
+        if (code === 0) {
+          resolve();
+          return;
+        }
+        reject(new Error(`${label} failed (exit ${code})`));
+      });
+    });
+  } catch (e: unknown) {
+    const elapsed = fmtMs(performance.now() - t0);
+    const err = e instanceof Error ? e.message : String(e);
     const detail = [
       `Command:  ${fullCmd}`,
-      `Exit:     ${exitCode}`,
+      `Error:    ${err}`,
       `Duration: ${elapsed}`,
       opts?.cwd ? `Cwd:      ${opts.cwd}` : '',
     ]
       .filter(Boolean)
       .join('\n');
-    throw new Error(`${label} failed (exit ${exitCode})\n${detail}`);
+    throw new Error(`${label} failed\n${detail}`);
   }
 }
 
 export async function runCaptureAsync(
   cmd: string,
   args: string[],
-  opts?: { cwd?: string; env?: NodeJS.ProcessEnv; input?: string },
+  opts?: { cwd?: string; env?: NodeJS.ProcessEnv; input?: string }
 ): Promise<string> {
-  const proc = Bun.spawn([cmd, ...args], {
-    env: opts?.env ?? process.env,
-    stdout: 'pipe',
-    stderr: 'pipe',
-    ...(opts?.cwd ? { cwd: opts.cwd } : {}),
-    ...(opts?.input !== undefined
-      ? { stdin: new Blob([opts.input]) }
-      : {}),
+  return new Promise((resolve, reject) => {
+    const child = spawn(cmd, args, {
+      cwd: opts?.cwd,
+      env: opts?.env ?? process.env,
+      stdio:
+        opts?.input !== undefined
+          ? ['pipe', 'pipe', 'pipe']
+          : ['ignore', 'pipe', 'pipe'],
+    });
+
+    if (opts?.input !== undefined && child.stdin) {
+      child.stdin.write(opts.input, 'utf8');
+      child.stdin.end();
+    }
+
+    let stdout = '';
+    let stderr = '';
+    child.stdout?.setEncoding('utf8');
+    child.stderr?.setEncoding('utf8');
+    child.stdout?.on('data', (c: string | Buffer) => {
+      stdout += typeof c === 'string' ? c : c.toString('utf8');
+    });
+    child.stderr?.on('data', (c: string | Buffer) => {
+      stderr += typeof c === 'string' ? c : c.toString('utf8');
+    });
+
+    child.on('error', (err: NodeJS.ErrnoException) => {
+      const msg =
+        err.code === 'ENOENT'
+          ? `Executable not found in PATH: ${cmd}`
+          : err.message;
+      reject(new Error(`${cmd} ${args.join(' ')}: ${msg}`));
+    });
+
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve(stdout.trim());
+        return;
+      }
+      const detail = stderr.trim() || `exit ${code}`;
+      reject(new Error(`${cmd} ${args.join(' ')}: ${detail}`));
+    });
   });
-
-  const [stdout, stderr, exitCode] = await Promise.all([
-    new Response(proc.stdout).text(),
-    new Response(proc.stderr).text(),
-    proc.exited,
-  ]);
-
-  if (exitCode !== 0) {
-    throw new Error(
-      `${cmd} ${args.join(' ')} exited ${exitCode}: ${stderr.trim()}`,
-    );
-  }
-  return stdout.trim();
 }
