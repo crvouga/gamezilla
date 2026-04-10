@@ -59,7 +59,7 @@ jobs:
 
       - name: Deploy
         timeout-minutes: 45
-        working-directory: packages/infra-cli
+        working-directory: packages/infra
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
         run: doppler run -- bun run infra deploy

@@ -50,7 +50,7 @@ app-example
 
 .cursor/debug*.log
 
-# infra-cli cost report
+# infra cost report
 .cost-report.md
 
 /.turbo/

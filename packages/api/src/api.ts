@@ -69,9 +69,9 @@ export default {
     const url = new URL(request.url);
 
     if (url.pathname === '/health') {
-      return new Response('ok', {
+      return new Response(JSON.stringify({ status: 'ok' }), {
         status: 200,
-        headers: { ...CORS_HEADERS, 'Content-Type': 'text/plain' },
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
       });
     }
 

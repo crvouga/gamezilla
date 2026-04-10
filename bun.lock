@@ -89,8 +89,8 @@
         "@types/bun": "^1.3.9",
       },
     },
-    "packages/infra-cli": {
-      "name": "@gamezilla/infra-cli",
+    "packages/infra": {
+      "name": "@gamezilla/infra",
       "dependencies": {
         "@gamezilla/shared": "workspace:*",
         "@neondatabase/serverless": "^1.0.0",
@@ -469,7 +469,7 @@
 
     "@gamezilla/db": ["@gamezilla/db@workspace:packages/db"],
 
-    "@gamezilla/infra-cli": ["@gamezilla/infra-cli@workspace:packages/infra-cli"],
+    "@gamezilla/infra": ["@gamezilla/infra@workspace:packages/infra"],
 
     "@gamezilla/patch-db": ["@gamezilla/patch-db@workspace:packages/patch-db"],
 
@@ -2015,7 +2015,7 @@
 
     "@expo/xcpretty/@babel/code-frame": ["@babel/code-frame@7.29.0", "", { "dependencies": { "@babel/helper-validator-identifier": "^7.28.5", "js-tokens": "^4.0.0", "picocolors": "^1.1.1" } }, "sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw=="],
 
-    "@gamezilla/infra-cli/typescript": ["typescript@5.6.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw=="],
+    "@gamezilla/infra/typescript": ["typescript@5.6.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw=="],
 
     "@gamezilla/shared/@electric-sql/pglite": ["@electric-sql/pglite@0.3.15", "", {}, "sha512-Cj++n1Mekf9ETfdc16TlDi+cDDQF0W7EcbyRHYOAeZdsAe8M/FJg18itDTSwyHfar2WIezawM9o0EKaRGVKygQ=="],
 

@@ -11,5 +11,5 @@ const platform = isGitHubActions
 main(platform).catch((e: unknown) => {
   const message = e instanceof Error ? e.message : String(e);
   platform.error(message);
-  assert.fail(`infra-cli: unhandled error — ${message}`);
+  assert.fail(`infra: unhandled error — ${message}`);
 });
