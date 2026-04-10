@@ -1,8 +1,16 @@
+import { mkdirSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 import { captureVersion, spawnInstall, verifyRun, whichSync } from './spawn';
 import type { Dep, DepStatus } from './types';
 
 const UA = 'gamezilla-infra-cli';
 const FETCH_TIMEOUT_MS = 15_000;
+
+/** Same directory as the Bun installer uses so one PATH entry covers both. */
+function dopplerInstallBinDir(): string {
+  return join(homedir(), '.bun', 'bin');
+}
 
 export class DopplerDep implements Dep {
   readonly name = 'doppler';
@@ -43,11 +51,17 @@ export class DopplerDep implements Dep {
   }
 
   install(): void {
-    spawnInstall('brew', ['install', 'dopplerhq/cli/doppler']);
+    const binDir = dopplerInstallBinDir();
+    mkdirSync(binDir, { recursive: true });
+    const escaped = binDir.replace(/'/g, `'\\''`);
+    spawnInstall('bash', [
+      '-c',
+      `curl -fsSL https://cli.doppler.com/install.sh | sh -s -- --install-path '${escaped}'`,
+    ]);
   }
 
   upgrade(): void {
-    spawnInstall('brew', ['upgrade', 'dopplerhq/cli/doppler']);
+    spawnInstall('doppler', ['update']);
   }
 
   verify(): void {
