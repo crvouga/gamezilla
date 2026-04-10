@@ -13,18 +13,43 @@ import type { Resource } from './types';
 import { ZoneResource } from './zone';
 
 export function createRegistry(): readonly Resource[] {
+  const doppler = new DopplerResource();
+  const r2Subscription = new R2SubscriptionResource();
+  const zone = new ZoneResource();
+  const pagesProject = new PagesProjectResource();
+  const database = new DatabaseResource();
+  const r2Bucket = new R2BucketResource();
+  const dnsRecords = new DnsRecordsResource();
+  const pagesDomain = new PagesDomainResource();
+  const redirectRule = new RedirectRuleResource();
+  const turboCache = new TurboCacheResource();
+  const apiWorker = new ApiWorkerResource();
+  const client = new ClientResource();
+
+  r2Subscription.needs(doppler);
+  zone.needs(doppler);
+  pagesProject.needs(doppler);
+  database.needs(doppler);
+  r2Bucket.needs(r2Subscription);
+  dnsRecords.needs(zone, pagesProject);
+  pagesDomain.needs(pagesProject);
+  redirectRule.needs(zone);
+  turboCache.needs(doppler, r2Bucket);
+  apiWorker.needs(database, dnsRecords);
+  client.needs(apiWorker, dnsRecords);
+
   return [
-    new DopplerResource(),
-    new R2SubscriptionResource(),
-    new ZoneResource(),
-    new PagesProjectResource(),
-    new DatabaseResource(),
-    new R2BucketResource(),
-    new DnsRecordsResource(),
-    new PagesDomainResource(),
-    new RedirectRuleResource(),
-    new TurboCacheResource(),
-    new ApiWorkerResource(),
-    new ClientResource(),
+    doppler,
+    r2Subscription,
+    zone,
+    pagesProject,
+    database,
+    r2Bucket,
+    dnsRecords,
+    pagesDomain,
+    redirectRule,
+    turboCache,
+    apiWorker,
+    client,
   ];
 }

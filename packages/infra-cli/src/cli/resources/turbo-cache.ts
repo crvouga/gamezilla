@@ -2,10 +2,10 @@ import { assert } from '@gamezilla/shared/assert';
 import { join } from 'node:path';
 import { ok, warn } from '../lib/fmt';
 import { REPO_ROOT } from '../paths';
+import type { CiPlatform } from '../platform/platform';
 import { cfAccountId } from '../secrets/cloudflare';
 import { runAsync, runCapture, runSafe, type SpawnResult } from '../subprocess';
-import type { CiPlatform } from '../platform/platform';
-import type { InfraContext, Resource } from './types';
+import { ResourceBase, type InfraContext } from './types';
 
 const NOT_FOUND_CODES = [10000, 10007, 10090];
 
@@ -16,12 +16,8 @@ function wranglerEnv(): NodeJS.ProcessEnv {
   };
 }
 
-export class TurboCacheResource implements Resource {
+export class TurboCacheResource extends ResourceBase {
   readonly id = 'turbo-cache';
-
-  dependsOn(): readonly string[] {
-    return ['r2-buckets'];
-  }
 
   async ensure(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     this.syncTurboToken();

@@ -2,7 +2,7 @@ import { PROJECT_CONFIG } from '../../project-config';
 import { ok, warn } from '../lib/fmt';
 import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
 import type { CiPlatform } from '../platform/platform';
-import type { InfraContext, Resource } from './types';
+import { ResourceBase, type InfraContext } from './types';
 
 const CF_API = 'https://api.cloudflare.com/client/v4';
 
@@ -22,12 +22,8 @@ interface R2ListResponse {
   result_info?: { cursor?: string };
 }
 
-export class R2BucketResource implements Resource {
+export class R2BucketResource extends ResourceBase {
   readonly id = 'r2-buckets';
-
-  dependsOn(): readonly string[] {
-    return ['r2-subscription'];
-  }
 
   async ensure(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const accountId = cfAccountId();

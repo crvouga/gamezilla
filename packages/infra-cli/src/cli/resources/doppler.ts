@@ -9,7 +9,7 @@ import {
   validateSecret,
 } from '../secrets/secrets';
 import type { CiPlatform } from '../platform/platform';
-import type { InfraContext, Resource } from './types';
+import { ResourceBase, type InfraContext } from './types';
 
 const DERIVED_DEFAULTS: Record<string, () => string> = {
   TURBO_TOKEN: () => crypto.randomUUID(),
@@ -20,12 +20,8 @@ const DERIVED_DEFAULTS: Record<string, () => string> = {
   EXPO_PUBLIC_API_URL: () => `https://api.${PROJECT_CONFIG.domain}`,
 };
 
-export class DopplerResource implements Resource {
+export class DopplerResource extends ResourceBase {
   readonly id = 'doppler';
-
-  dependsOn(): readonly string[] {
-    return [];
-  }
 
   async ensure(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     this.loadSecrets(platform);

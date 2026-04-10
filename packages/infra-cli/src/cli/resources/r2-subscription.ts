@@ -1,7 +1,7 @@
 import { ok, info } from '../lib/fmt';
 import { cfAccountId } from '../secrets/cloudflare';
 import type { CiPlatform } from '../platform/platform';
-import type { InfraContext, Resource } from './types';
+import { ResourceBase, type InfraContext } from './types';
 
 const R2_NOT_ENABLED_CODE = 10042;
 
@@ -16,12 +16,8 @@ interface CfApiResponse {
   errors?: Array<{ code: number; message: string }>;
 }
 
-export class R2SubscriptionResource implements Resource {
+export class R2SubscriptionResource extends ResourceBase {
   readonly id = 'r2-subscription';
-
-  dependsOn(): readonly string[] {
-    return ['doppler'];
-  }
 
   async ensure(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const accountId = cfAccountId();

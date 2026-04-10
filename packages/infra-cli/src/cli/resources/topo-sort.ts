@@ -20,7 +20,7 @@ export function topoSort(resources: readonly Resource[]): Resource[] {
   }
 
   for (const r of resources) {
-    for (const dep of r.dependsOn()) {
+    for (const dep of r.dependencyIds()) {
       assert.ok(
         byId.has(dep),
         `topoSort: resource "${r.id}" depends on unknown resource "${dep}"`,

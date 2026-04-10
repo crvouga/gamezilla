@@ -5,7 +5,7 @@ import { REPO_ROOT } from '../paths';
 import { cfAccountId } from '../secrets/cloudflare';
 import { runAsync, runCaptureAsync, runSafe, type SpawnResult } from '../subprocess';
 import type { CiPlatform } from '../platform/platform';
-import type { InfraContext, Resource } from './types';
+import { ResourceBase, type InfraContext } from './types';
 
 const NOT_FOUND_CODES = [10000, 10007, 10090];
 
@@ -16,12 +16,8 @@ function wranglerEnv(): NodeJS.ProcessEnv {
   };
 }
 
-export class ApiWorkerResource implements Resource {
+export class ApiWorkerResource extends ResourceBase {
   readonly id = 'api-worker';
-
-  dependsOn(): readonly string[] {
-    return ['database'];
-  }
 
   async ensure(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {}
 

@@ -7,7 +7,7 @@ import {
   fetchDopplerSecret,
   setDopplerSecret,
 } from '../secrets/secrets';
-import type { InfraContext, Resource } from './types';
+import { ResourceBase, type InfraContext } from './types';
 
 const PS_API = 'https://api.planetscale.com/v1';
 const ROLE_NAME = 'infra-deploy';
@@ -36,12 +36,8 @@ function rolesUrl(): string {
   return `${PS_API}/organizations/${psOrg()}/databases/${psDatabase()}/branches/${BRANCH}/roles`;
 }
 
-export class DatabaseResource implements Resource {
+export class DatabaseResource extends ResourceBase {
   readonly id = 'database';
-
-  dependsOn(): readonly string[] {
-    return ['doppler'];
-  }
 
   async ensure(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const url = await resolveDatabaseUrl();

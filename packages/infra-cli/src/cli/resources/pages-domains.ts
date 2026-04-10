@@ -2,7 +2,7 @@ import { ok, warn } from '../lib/fmt';
 import { PROJECT_CONFIG } from '../../project-config';
 import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
 import type { CiPlatform } from '../platform/platform';
-import type { InfraContext, Resource } from './types';
+import { ResourceBase, type InfraContext } from './types';
 
 const CF_API = 'https://api.cloudflare.com/client/v4';
 
@@ -11,12 +11,8 @@ const REQUIRED_DOMAINS: readonly string[] = [
   `www.${PROJECT_CONFIG.domain}`,
 ];
 
-export class PagesDomainResource implements Resource {
+export class PagesDomainResource extends ResourceBase {
   readonly id = 'pages-domains';
-
-  dependsOn(): readonly string[] {
-    return ['pages-project'];
-  }
 
   async ensure(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const accountId = cfAccountId();

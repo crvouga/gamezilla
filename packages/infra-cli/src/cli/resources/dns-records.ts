@@ -3,7 +3,7 @@ import { info, ok, warn } from '../lib/fmt';
 import { PROJECT_CONFIG } from '../../project-config';
 import { cfHeaders } from '../secrets/cloudflare';
 import type { CiPlatform } from '../platform/platform';
-import type { InfraContext, Resource } from './types';
+import { ResourceBase, type InfraContext } from './types';
 
 const CF_API = 'https://api.cloudflare.com/client/v4';
 
@@ -12,12 +12,8 @@ interface RequiredCname {
   readonly content: string;
 }
 
-export class DnsRecordsResource implements Resource {
+export class DnsRecordsResource extends ResourceBase {
   readonly id = 'dns-records';
-
-  dependsOn(): readonly string[] {
-    return ['zone', 'pages-project'];
-  }
 
   async ensure(_platform: CiPlatform, ctx: InfraContext): Promise<void> {
     assert.ok(!!ctx.zoneId, 'dns-records: ctx.zoneId must be set by ZoneResource');

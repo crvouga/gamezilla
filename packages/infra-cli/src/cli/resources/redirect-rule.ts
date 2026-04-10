@@ -3,17 +3,13 @@ import { info, ok, warn } from '../lib/fmt';
 import { PROJECT_CONFIG } from '../../project-config';
 import { cfHeaders } from '../secrets/cloudflare';
 import type { CiPlatform } from '../platform/platform';
-import type { InfraContext, Resource } from './types';
+import { ResourceBase, type InfraContext } from './types';
 
 const CF_API = 'https://api.cloudflare.com/client/v4';
 const PHASE = 'http_request_dynamic_redirect';
 
-export class RedirectRuleResource implements Resource {
+export class RedirectRuleResource extends ResourceBase {
   readonly id = 'redirect-rule';
-
-  dependsOn(): readonly string[] {
-    return ['zone'];
-  }
 
   async ensure(_platform: CiPlatform, ctx: InfraContext): Promise<void> {
     assert.ok(!!ctx.zoneId, 'redirect-rule: ctx.zoneId must be set by ZoneResource');

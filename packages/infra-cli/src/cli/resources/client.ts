@@ -6,7 +6,7 @@ import { infraOutputs } from '../lib/infra-outputs';
 import { REPO_ROOT } from '../paths';
 import { runAsync } from '../subprocess';
 import type { CiPlatform } from '../platform/platform';
-import type { InfraContext, Resource } from './types';
+import { ResourceBase, type InfraContext } from './types';
 
 function wranglerEnv(): NodeJS.ProcessEnv {
   return {
@@ -15,12 +15,8 @@ function wranglerEnv(): NodeJS.ProcessEnv {
   };
 }
 
-export class ClientResource implements Resource {
+export class ClientResource extends ResourceBase {
   readonly id = 'client';
-
-  dependsOn(): readonly string[] {
-    return ['pages-project', 'api-worker'];
-  }
 
   async ensure(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {}
 
