@@ -3,6 +3,8 @@ export interface Dep {
   readonly bin: string;
   version(): string | null;
   check(): DepStatus;
+  /** Latest stable version from upstream (npm / GitHub). Null if lookup failed. */
+  fetchLatestVersion(): Promise<string | null>;
   install(): void;
   upgrade(): void;
   verify?(): void;

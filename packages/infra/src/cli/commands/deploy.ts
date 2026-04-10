@@ -1,4 +1,6 @@
-import { banner, ok } from '../lib/fmt';
+import { ALL_DEPS } from '../deps/registry';
+import { collectDepVersionIssues } from '../deps/version-check';
+import { banner, fail, ok, warn } from '../lib/fmt';
 import { infraOutputs } from '../lib/infra-outputs';
 import { runHttpSmokeTests } from '../lib/smoke-tests';
 import type { CiPlatform } from '../platform/platform';
@@ -20,6 +22,40 @@ export class DeployCommand implements Command {
     const t0 = performance.now();
     banner('Deploy');
     const p = this.platform;
+
+    // ── 0. CLI dependencies at latest ───────────────────────────────────
+    await runStep(p, 'Dependency versions', async () => {
+      const problems: string[] = [];
+      for (const dep of ALL_DEPS) {
+        const r = await collectDepVersionIssues(dep);
+        if (r.ok === true) {
+          ok(dep.name, r.version);
+          continue;
+        }
+        if (r.ok === 'unknown-latest') {
+          warn(
+            r.name,
+            `${r.version} — could not resolve latest, continuing`,
+          );
+          continue;
+        }
+        if (r.issue.kind === 'missing') {
+          fail(r.issue.name, r.issue.reason);
+          problems.push(r.issue.name);
+          continue;
+        }
+        fail(
+          r.issue.name,
+          `outdated ${r.issue.current} — latest is ${r.issue.latest}`,
+        );
+        problems.push(r.issue.name);
+      }
+      if (problems.length > 0) {
+        throw new Error(
+          `Update CLI dependencies (${problems.join(', ')}) — run \`bun run infra setup\``,
+        );
+      }
+    });
 
     // ── 1. Wrangler auth ────────────────────────────────────────────────
     await runStep(p, 'Wrangler auth', async () => {

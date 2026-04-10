@@ -9,7 +9,8 @@
   "scripts": {
     "check": "doppler run -- turbo check build",
     "format": "sort-package-json && prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "infra": "bun run packages/infra/src/bin/cli.ts"
   },
   "devDependencies": {
     "@types/bun": "^1.3.9",

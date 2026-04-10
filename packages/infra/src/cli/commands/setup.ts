@@ -1,6 +1,7 @@
 import { assert } from '@gamezilla/shared/assert';
 import { createInterface } from 'node:readline/promises';
 import { ALL_DEPS } from '../deps/registry';
+import { isAtLeastLatest } from '../deps/semver';
 import {
   banner,
   fmt,
@@ -30,7 +31,7 @@ export class SetupCommand implements Command {
     const t0 = performance.now();
     banner('Setup');
 
-    await runStep(this.platform, 'Dependencies', () => this.ensureDeps());
+    await runStep(this.platform, 'Dependencies', () => this.ensureDepsAsync());
 
     const missingEnvs = await runStep(this.platform, 'Load secrets', () => {
       const secrets = loadSecretsIntoEnv();
@@ -105,31 +106,56 @@ export class SetupCommand implements Command {
     }
   }
 
-  private ensureDeps(): void {
+  private async ensureDepsAsync(): Promise<void> {
     for (const dep of ALL_DEPS) {
-      const status = dep.check();
+      let st = dep.check();
 
-      if (status.ok) {
-        ok(dep.name, status.version);
-        continue;
+      if (!st.ok) {
+        warn(dep.name, st.reason);
+        info(dep.name, 'installing…');
+        try {
+          dep.install();
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          fmtFail(dep.name, `install failed — ${msg}`);
+          assert.fail(`setup: could not install ${dep.name}`);
+        }
+        st = dep.check();
+        if (!st.ok) {
+          fmtFail(dep.name, `still not available — ${st.reason}`);
+          assert.fail(`setup: ${dep.name} not available after install`);
+        }
       }
 
-      warn(dep.name, status.reason);
-      info(dep.name, 'installing…');
-      try {
-        dep.install();
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e);
-        fmtFail(dep.name, `install failed — ${msg}`);
-        assert.fail(`setup: could not install ${dep.name}`);
+      let latest = await dep.fetchLatestVersion();
+      if (latest && !isAtLeastLatest(st.version, latest)) {
+        warn(dep.name, `outdated (${st.version} → ${latest}), upgrading…`);
+        try {
+          dep.upgrade();
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          fmtFail(dep.name, `upgrade failed — ${msg}`);
+          assert.fail(`setup: could not upgrade ${dep.name}`);
+        }
+        st = dep.check();
+        if (!st.ok) {
+          fmtFail(dep.name, `not available after upgrade — ${st.reason}`);
+          assert.fail(`setup: ${dep.name} broken after upgrade`);
+        }
+        latest = await dep.fetchLatestVersion();
+        if (latest && !isAtLeastLatest(st.version, latest)) {
+          assert.fail(
+            `setup: ${dep.name} is still behind latest (${latest}), have ${st.version}`,
+          );
+        }
+      } else if (!latest) {
+        warn(
+          dep.name,
+          'could not resolve latest version — skipped strict upgrade check',
+        );
       }
-      const after = dep.check();
-      if (!after.ok) {
-        fmtFail(dep.name, `still not available — ${after.reason}`);
-        assert.fail(`setup: ${dep.name} not available after install`);
-      }
-      ok(dep.name, `installed (${after.version})`);
 
+      ok(dep.name, st.version);
       if (dep.verify) dep.verify();
     }
   }

@@ -1,6 +1,9 @@
 import { captureVersion, spawnInstall, verifyRun, whichSync } from './spawn';
 import type { Dep, DepStatus } from './types';
 
+const UA = 'gamezilla-infra-cli';
+const FETCH_TIMEOUT_MS = 15_000;
+
 export class WranglerDep implements Dep {
   readonly name = 'wrangler';
   readonly bin = 'wrangler';
@@ -17,8 +20,12 @@ export class WranglerDep implements Dep {
     return { ok: true, version: v };
   }
 
+  fetchLatestVersion(): Promise<string | null> {
+    return fetchLatestWranglerVersion();
+  }
+
   install(): void {
-    spawnInstall('bun', ['add', '-g', 'wrangler']);
+    spawnInstall('bun', ['add', '-g', 'wrangler@latest']);
   }
 
   upgrade(): void {
@@ -27,5 +34,19 @@ export class WranglerDep implements Dep {
 
   verify(): void {
     verifyRun('wrangler', ['whoami']);
+  }
+}
+
+async function fetchLatestWranglerVersion(): Promise<string | null> {
+  try {
+    const res = await fetch('https://registry.npmjs.org/wrangler/latest', {
+      headers: { Accept: 'application/json', 'User-Agent': UA },
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    });
+    if (!res.ok) return null;
+    const j = (await res.json()) as { version?: string };
+    return typeof j.version === 'string' ? j.version.trim() : null;
+  } catch {
+    return null;
   }
 }
