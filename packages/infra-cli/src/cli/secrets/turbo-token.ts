@@ -1,7 +1,5 @@
-import { PROJECT_CONFIG } from '../../project-config';
+import { PROJECT_CONFIG, turboCachePublicUrl } from '../../project-config';
 import type { SecretEntry } from './types';
-
-const TURBO_CACHE_WORKERS_DEV = `https://${PROJECT_CONFIG.cloudflare.turboCacheWorker}.${PROJECT_CONFIG.cloudflare.accountSubdomain}.workers.dev`;
 
 export class TurboToken implements SecretEntry {
   readonly doppler = 'TURBO_TOKEN';
@@ -10,11 +8,14 @@ export class TurboToken implements SecretEntry {
 
   async validate(token: string): Promise<string | null> {
     try {
-      const res = await fetch(`${TURBO_CACHE_WORKERS_DEV}/health`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${turboCachePublicUrl()}/v8/artifacts/status?teamId=default`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       if (res.ok) return null;
-      return `Turbo cache health check returned HTTP ${res.status}`;
+      return `Turbo cache token check returned HTTP ${res.status}`;
     } catch {
       return null;
     }
@@ -24,11 +25,15 @@ export class TurboToken implements SecretEntry {
 export class TurboApi implements SecretEntry {
   readonly doppler = 'TURBO_API';
   readonly env = 'TURBO_API';
-  readonly hint = TURBO_CACHE_WORKERS_DEV;
+  readonly hint = turboCachePublicUrl();
 
   async validate(url: string): Promise<string | null> {
     try {
-      new URL(url);
+      const parsed = new URL(url);
+      const expected = new URL(turboCachePublicUrl());
+      if (parsed.origin !== expected.origin) {
+        return `Expected TURBO_API origin ${expected.origin} (use the turbo-cache custom domain, not *.workers.dev)`;
+      }
       return null;
     } catch {
       return `Invalid URL: ${url}`;

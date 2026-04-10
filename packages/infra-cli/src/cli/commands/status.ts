@@ -1,4 +1,4 @@
-import { PROJECT_CONFIG } from '../../project-config';
+import { PROJECT_CONFIG, turboCachePublicUrl } from '../../project-config';
 import { ALL_DEPS } from '../deps/registry';
 import { banner, fail, heading, kv, ok, warn } from '../lib/fmt';
 import { httpProbe } from '../lib/http-probe';
@@ -44,7 +44,11 @@ export class StatusCommand implements Command {
     // ── 3. Endpoints ────────────────────────────────────────────────────
     heading('Endpoints');
     const { domain } = PROJECT_CONFIG;
-    const urls = [`https://www.${domain}`, `https://api.${domain}/health`];
+    const urls = [
+      `https://www.${domain}`,
+      `https://api.${domain}/health`,
+      `${turboCachePublicUrl()}/health`,
+    ];
 
     for (const url of urls) {
       const result = await httpProbe(url, { timeoutS: 10 });

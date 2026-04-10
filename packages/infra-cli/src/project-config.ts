@@ -11,3 +11,8 @@ export const PROJECT_CONFIG = {
     accountSubdomain: 'crvouga',
   },
 } as const;
+
+/** HTTPS origin for the Turbo remote-cache Worker (custom domain, not *.workers.dev). */
+export function turboCachePublicUrl(): string {
+  return `https://turbo-cache.${PROJECT_CONFIG.domain}`;
+}

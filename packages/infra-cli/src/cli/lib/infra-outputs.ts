@@ -1,4 +1,4 @@
-import { PROJECT_CONFIG } from '../../project-config';
+import { PROJECT_CONFIG, turboCachePublicUrl } from '../../project-config';
 import type { InfraContext } from '../resources/types';
 
 export interface InfraOutputs {
@@ -15,7 +15,7 @@ export function infraOutputs(ctx: InfraContext): InfraOutputs {
   return {
     client_url: `https://www.${d}`,
     api_url: `https://api.${d}`,
-    turbo_cache_url: `https://turbo-cache.${d}`,
+    turbo_cache_url: turboCachePublicUrl(),
     pages_project_name: PROJECT_CONFIG.cloudflare.pagesProject,
     pages_subdomain:
       ctx.pagesSubdomain ??

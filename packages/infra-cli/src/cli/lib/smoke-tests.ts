@@ -1,6 +1,6 @@
 import { Resolver, resolve4, resolve6, resolveNs } from 'node:dns/promises';
 import { assert } from '@gamezilla/shared/assert';
-import { PROJECT_CONFIG } from '../../project-config';
+import { PROJECT_CONFIG, turboCachePublicUrl } from '../../project-config';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
 import { fmtElapsed, ok, warn } from './fmt';
@@ -23,6 +23,11 @@ const HTTP_ENDPOINTS: readonly HttpEndpointCheck[] = [
   {
     label: 'API /health',
     url: `https://api.${PROJECT_CONFIG.domain}`,
+    probePath: '/health',
+  },
+  {
+    label: 'Turbo cache /health',
+    url: turboCachePublicUrl(),
     probePath: '/health',
   },
 ];
@@ -174,7 +179,7 @@ async function checkDns(
     return;
   }
 
-  for (const sub of ['www', 'api']) {
+  for (const sub of ['www', 'api', 'turbo-cache']) {
     const host = `${sub}.${domain}`;
 
     const localRecords = await lookupViaDefaultResolver(host);

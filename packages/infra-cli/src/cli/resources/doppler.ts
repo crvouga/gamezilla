@@ -1,6 +1,7 @@
 import { assert } from '@gamezilla/shared/assert';
-import { PROJECT_CONFIG } from '../../project-config';
+import { PROJECT_CONFIG, turboCachePublicUrl } from '../../project-config';
 import { ok, warn } from '../lib/fmt';
+import type { CiPlatform } from '../platform/platform';
 import {
   fetchDopplerSecret,
   getSecretMap,
@@ -8,13 +9,16 @@ import {
   setDopplerSecret,
   validateSecret,
 } from '../secrets/secrets';
-import type { CiPlatform } from '../platform/platform';
 import { ResourceBase, type InfraContext } from './types';
+
+assert.notThrows(
+  () => crypto.randomUUID(),
+  'crypto.randomUUID must be available'
+);
 
 const DERIVED_DEFAULTS: Record<string, () => string> = {
   TURBO_TOKEN: () => crypto.randomUUID(),
-  TURBO_API: () =>
-    `https://${PROJECT_CONFIG.cloudflare.turboCacheWorker}.${PROJECT_CONFIG.cloudflare.accountSubdomain}.workers.dev`,
+  TURBO_API: () => turboCachePublicUrl(),
   TURBO_TEAM: () => `team_${PROJECT_CONFIG.domain.replace(/\.\w+$/, '')}`,
   TURBO_LOG_ORDER: () => 'stream',
   EXPO_PUBLIC_API_URL: () => `https://api.${PROJECT_CONFIG.domain}`,
@@ -86,7 +90,7 @@ export class DopplerResource extends ResourceBase {
 
     assert.ok(
       !validationFailed,
-      'Secret validation failed — fix the issues above before continuing',
+      'Secret validation failed — fix the issues above before continuing'
     );
   }
 

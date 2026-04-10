@@ -2,7 +2,7 @@ name = "gamezilla-turbo-cache"
 main = "src/index.ts"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat"]
-workers_dev = true
+workers_dev = false
 preview_urls = false
 
 routes = [{ pattern = "turbo-cache.gamezilla.app", custom_domain = true }]
