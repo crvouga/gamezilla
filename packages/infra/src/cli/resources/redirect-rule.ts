@@ -1,8 +1,8 @@
 import { assert } from '@gamezilla/shared/assert';
-import { info, ok, warn } from '../lib/fmt';
 import { PROJECT_CONFIG } from '../../project-config';
-import { cfHeaders } from '../secrets/cloudflare';
+import { info, ok, warn } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
+import { cfHeaders } from '../secrets/cloudflare';
 import { ResourceBase, type InfraContext } from './types';
 
 const CF_API = 'https://api.cloudflare.com/client/v4';
@@ -11,8 +11,11 @@ const PHASE = 'http_request_dynamic_redirect';
 export class RedirectRuleResource extends ResourceBase {
   readonly id = 'redirect-rule';
 
-  async ensure(_platform: CiPlatform, ctx: InfraContext): Promise<void> {
-    assert.ok(!!ctx.zoneId, 'redirect-rule: ctx.zoneId must be set by ZoneResource');
+  async provision(_platform: CiPlatform, ctx: InfraContext): Promise<void> {
+    assert.ok(
+      !!ctx.zoneId,
+      'redirect-rule: ctx.zoneId must be set by ZoneResource'
+    );
 
     const headers = cfHeaders();
     const zoneId = ctx.zoneId;
@@ -20,7 +23,7 @@ export class RedirectRuleResource extends ResourceBase {
 
     const res = await fetch(
       `${CF_API}/zones/${zoneId}/rulesets?phase=${PHASE}`,
-      { headers },
+      { headers }
     );
 
     if (res.ok) {
@@ -28,7 +31,7 @@ export class RedirectRuleResource extends ResourceBase {
         result?: Array<{ id: string; phase: string; kind: string }>;
       };
       const existing = (body.result ?? []).find(
-        (r) => r.phase === PHASE && r.kind === 'zone',
+        (r) => r.phase === PHASE && r.kind === 'zone'
       );
       if (existing) {
         ok('Redirect rule', `apex → www (exists)`);
@@ -36,35 +39,32 @@ export class RedirectRuleResource extends ResourceBase {
       }
     }
 
-    const create = await fetch(
-      `${CF_API}/zones/${zoneId}/rulesets`,
-      {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          name: 'Redirect apex to www',
-          kind: 'zone',
-          phase: PHASE,
-          rules: [
-            {
-              action: 'redirect',
-              action_parameters: {
-                from_value: {
-                  status_code: 301,
-                  target_url: {
-                    expression: `concat("https://www.${domain}", http.request.uri.path)`,
-                  },
-                  preserve_query_string: true,
+    const create = await fetch(`${CF_API}/zones/${zoneId}/rulesets`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        name: 'Redirect apex to www',
+        kind: 'zone',
+        phase: PHASE,
+        rules: [
+          {
+            action: 'redirect',
+            action_parameters: {
+              from_value: {
+                status_code: 301,
+                target_url: {
+                  expression: `concat("https://www.${domain}", http.request.uri.path)`,
                 },
+                preserve_query_string: true,
               },
-              expression: `(http.host eq "${domain}")`,
-              description: 'Redirect apex to www',
-              enabled: true,
             },
-          ],
-        }),
-      },
-    );
+            expression: `(http.host eq "${domain}")`,
+            description: 'Redirect apex to www',
+            enabled: true,
+          },
+        ],
+      }),
+    });
     assert.ok(create.ok, `Redirect rule create failed: HTTP ${create.status}`);
     ok('Redirect rule', `apex → www (created)`);
   }
@@ -86,10 +86,10 @@ export class RedirectRuleResource extends ResourceBase {
     if (rulesets.length === 0) return;
 
     for (const rs of rulesets) {
-      const del = await fetch(
-        `${CF_API}/zones/${zoneId}/rulesets/${rs.id}`,
-        { method: 'DELETE', headers },
-      );
+      const del = await fetch(`${CF_API}/zones/${zoneId}/rulesets/${rs.id}`, {
+        method: 'DELETE',
+        headers,
+      });
       if (del.ok || del.status === 404) {
         info('Deleted ruleset', rs.name);
       } else {
@@ -99,16 +99,18 @@ export class RedirectRuleResource extends ResourceBase {
   }
 
   private async findZoneId(
-    headers: Record<string, string>,
+    headers: Record<string, string>
   ): Promise<string | null> {
     const res = await fetch(
       `${CF_API}/zones?name=${PROJECT_CONFIG.domain}&per_page=1`,
-      { headers },
+      { headers }
     );
     if (!res.ok) return null;
     const body = (await res.json()) as {
       result?: Array<{ id: string; name: string }>;
     };
-    return body.result?.find((z) => z.name === PROJECT_CONFIG.domain)?.id ?? null;
+    return (
+      body.result?.find((z) => z.name === PROJECT_CONFIG.domain)?.id ?? null
+    );
   }
 }

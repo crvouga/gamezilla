@@ -27,7 +27,7 @@ const DERIVED_DEFAULTS: Record<string, () => string> = {
 export class DopplerResource extends ResourceBase {
   readonly id = 'doppler';
 
-  async ensure(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
+  async provision(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     this.loadSecrets(platform);
     await this.validateSecrets(platform);
     this.ensureDefaults();

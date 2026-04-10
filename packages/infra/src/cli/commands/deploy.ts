@@ -33,10 +33,7 @@ export class DeployCommand implements Command {
           continue;
         }
         if (r.ok === 'unknown-latest') {
-          warn(
-            r.name,
-            `${r.version} — could not resolve latest, continuing`,
-          );
+          warn(r.name, `${r.version} — could not resolve latest, continuing`);
           continue;
         }
         if (r.issue.kind === 'missing') {
@@ -46,13 +43,13 @@ export class DeployCommand implements Command {
         }
         fail(
           r.issue.name,
-          `outdated ${r.issue.current} — latest is ${r.issue.latest}`,
+          `outdated ${r.issue.current} — latest is ${r.issue.latest}`
         );
         problems.push(r.issue.name);
       }
       if (problems.length > 0) {
         throw new Error(
-          `Update CLI dependencies (${problems.join(', ')}) — run \`bun run infra setup\``,
+          `Update CLI dependencies (${problems.join(', ')}) — run \`bun run infra setup\``
         );
       }
     });
@@ -68,7 +65,9 @@ export class DeployCommand implements Command {
     const ctx: InfraContext = {};
 
     for (const resource of resources) {
-      await runStep(p, `Ensure: ${resource.id}`, () => resource.ensure(p, ctx));
+      await runStep(p, `Ensure: ${resource.id}`, () =>
+        resource.provision(p, ctx)
+      );
     }
 
     // ── 3. Deploy resources that have a deploy method (topological order)

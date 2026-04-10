@@ -2,9 +2,14 @@ import { assert } from '@gamezilla/shared/assert';
 import { join } from 'node:path';
 import { ok, warn } from '../lib/fmt';
 import { REPO_ROOT } from '../paths';
-import { cfAccountId } from '../secrets/cloudflare';
-import { runAsync, runCaptureAsync, runSafe, type SpawnResult } from '../subprocess';
 import type { CiPlatform } from '../platform/platform';
+import { cfAccountId } from '../secrets/cloudflare';
+import {
+  runAsync,
+  runCaptureAsync,
+  runSafe,
+  type SpawnResult,
+} from '../subprocess';
 import { ResourceBase, type InfraContext } from './types';
 
 const NOT_FOUND_CODES = [10000, 10007, 10090];
@@ -19,7 +24,7 @@ function wranglerEnv(): NodeJS.ProcessEnv {
 export class ApiWorkerResource extends ResourceBase {
   readonly id = 'api-worker';
 
-  async ensure(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {}
+  async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {}
 
   async deploy(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const apiDir = join(REPO_ROOT, 'packages/api');
@@ -28,7 +33,7 @@ export class ApiWorkerResource extends ResourceBase {
     const databaseUrl = process.env['DATABASE_URL'] ?? '';
     assert.ok(
       databaseUrl.length > 0,
-      'DATABASE_URL must be set (resolved from PlanetScale Roles API)',
+      'DATABASE_URL must be set (resolved from PlanetScale Roles API)'
     );
 
     await runCaptureAsync('wrangler', ['secret', 'put', 'DATABASE_URL'], {

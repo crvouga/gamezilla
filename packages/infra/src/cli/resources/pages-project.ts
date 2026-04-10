@@ -1,9 +1,9 @@
 import { assert } from '@gamezilla/shared/assert';
-import { ok, warn } from '../lib/fmt';
 import { PROJECT_CONFIG } from '../../project-config';
+import { ok, warn } from '../lib/fmt';
+import type { CiPlatform } from '../platform/platform';
 import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
 import { runSafe, type SpawnResult } from '../subprocess';
-import type { CiPlatform } from '../platform/platform';
 import { ResourceBase, type InfraContext } from './types';
 
 const CF_API = 'https://api.cloudflare.com/client/v4';
@@ -12,14 +12,14 @@ const NOT_FOUND_CODES = [8000007];
 export class PagesProjectResource extends ResourceBase {
   readonly id = 'pages-project';
 
-  async ensure(_platform: CiPlatform, ctx: InfraContext): Promise<void> {
+  async provision(_platform: CiPlatform, ctx: InfraContext): Promise<void> {
     const accountId = cfAccountId();
     const headers = cfHeaders();
     const name = PROJECT_CONFIG.cloudflare.pagesProject;
 
     const res = await fetch(
       `${CF_API}/accounts/${accountId}/pages/projects/${name}`,
-      { headers },
+      { headers }
     );
 
     if (res.ok) {
@@ -33,7 +33,9 @@ export class PagesProjectResource extends ResourceBase {
 
     if (res.status !== 404) {
       const text = await res.text();
-      throw new Error(`Pages project lookup failed: HTTP ${res.status} — ${text}`);
+      throw new Error(
+        `Pages project lookup failed: HTTP ${res.status} — ${text}`
+      );
     }
 
     const create = await fetch(
@@ -49,7 +51,7 @@ export class PagesProjectResource extends ResourceBase {
             preview: { compatibility_date: '2024-01-01' },
           },
         }),
-      },
+      }
     );
     assert.ok(create.ok, `Pages project create failed: HTTP ${create.status}`);
 
@@ -67,7 +69,11 @@ export class PagesProjectResource extends ResourceBase {
       CLOUDFLARE_ACCOUNT_ID: cfAccountId(),
     };
 
-    const r = runSafe('wrangler', ['pages', 'project', 'delete', name, '--yes'], { env });
+    const r = runSafe(
+      'wrangler',
+      ['pages', 'project', 'delete', name, '--yes'],
+      { env }
+    );
 
     if (r.exitCode === 0 || isNotFound(r)) {
       ok('Pages project deleted', name);

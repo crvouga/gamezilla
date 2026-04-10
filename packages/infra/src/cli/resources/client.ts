@@ -4,8 +4,8 @@ import { join } from 'node:path';
 import { ok } from '../lib/fmt';
 import { infraOutputs } from '../lib/infra-outputs';
 import { REPO_ROOT } from '../paths';
-import { runAsync } from '../subprocess';
 import type { CiPlatform } from '../platform/platform';
+import { runAsync } from '../subprocess';
 import { ResourceBase, type InfraContext } from './types';
 
 function wranglerEnv(): NodeJS.ProcessEnv {
@@ -18,7 +18,7 @@ function wranglerEnv(): NodeJS.ProcessEnv {
 export class ClientResource extends ResourceBase {
   readonly id = 'client';
 
-  async ensure(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {}
+  async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {}
 
   async deploy(platform: CiPlatform, ctx: InfraContext): Promise<void> {
     const outputs = infraOutputs(ctx);
@@ -43,7 +43,7 @@ export class ClientResource extends ResourceBase {
           EXPO_PUBLIC_API_URL: apiUrl.replace(/\/$/, ''),
         },
         label: 'client: expo export (turbo)',
-      },
+      }
     );
 
     await runAsync(
@@ -62,7 +62,7 @@ export class ClientResource extends ResourceBase {
         cwd: clientDir,
         env: wranglerEnv(),
         label: 'client: Cloudflare Pages deploy',
-      },
+      }
     );
 
     rmSync(join(REPO_ROOT, 'packages/client/dist'), {

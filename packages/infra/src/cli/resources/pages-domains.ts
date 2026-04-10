@@ -1,7 +1,7 @@
-import { ok, warn } from '../lib/fmt';
 import { PROJECT_CONFIG } from '../../project-config';
-import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
+import { ok, warn } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
+import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
 import { ResourceBase, type InfraContext } from './types';
 
 const CF_API = 'https://api.cloudflare.com/client/v4';
@@ -14,7 +14,7 @@ const REQUIRED_DOMAINS: readonly string[] = [
 export class PagesDomainResource extends ResourceBase {
   readonly id = 'pages-domains';
 
-  async ensure(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
+  async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const accountId = cfAccountId();
     const headers = cfHeaders();
     const project = PROJECT_CONFIG.cloudflare.pagesProject;
@@ -27,7 +27,9 @@ export class PagesDomainResource extends ResourceBase {
         return;
       }
       const text = await listRes.text();
-      throw new Error(`Pages domains list failed: HTTP ${listRes.status} — ${text}`);
+      throw new Error(
+        `Pages domains list failed: HTTP ${listRes.status} — ${text}`
+      );
     }
 
     const body = (await listRes.json()) as {
@@ -48,7 +50,10 @@ export class PagesDomainResource extends ResourceBase {
       });
 
       if (create.ok || create.status === 409) {
-        ok('Pages domain', `${domain} (${create.status === 409 ? 'already attached' : 'attached'})`);
+        ok(
+          'Pages domain',
+          `${domain} (${create.status === 409 ? 'already attached' : 'attached'})`
+        );
       } else {
         const text = await create.text();
         warn('Pages domain', `${domain} — HTTP ${create.status}: ${text}`);

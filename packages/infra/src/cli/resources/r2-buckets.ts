@@ -1,7 +1,7 @@
 import { PROJECT_CONFIG } from '../../project-config';
 import { ok, warn } from '../lib/fmt';
-import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
 import type { CiPlatform } from '../platform/platform';
+import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
 import { ResourceBase, type InfraContext } from './types';
 
 const CF_API = 'https://api.cloudflare.com/client/v4';
@@ -25,14 +25,14 @@ interface R2ListResponse {
 export class R2BucketResource extends ResourceBase {
   readonly id = 'r2-buckets';
 
-  async ensure(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
+  async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const accountId = cfAccountId();
     const headers = cfHeaders();
 
     for (const bucket of BUCKET_NAMES) {
       const res = await fetch(
         `${CF_API}/accounts/${accountId}/r2/buckets/${bucket}`,
-        { headers: { ...headers, 'cf-r2-jurisdiction': 'default' } },
+        { headers: { ...headers, 'cf-r2-jurisdiction': 'default' } }
       );
 
       if (res.ok) {
@@ -42,21 +42,22 @@ export class R2BucketResource extends ResourceBase {
 
       if (res.status !== 404) {
         const text = await res.text();
-        throw new Error(`R2 ${bucket}: lookup failed: HTTP ${res.status} — ${text}`);
+        throw new Error(
+          `R2 ${bucket}: lookup failed: HTTP ${res.status} — ${text}`
+        );
       }
 
-      const create = await fetch(
-        `${CF_API}/accounts/${accountId}/r2/buckets`,
-        {
-          method: 'POST',
-          headers: { ...headers, 'cf-r2-jurisdiction': 'default' },
-          body: JSON.stringify({ name: bucket, locationHint: BUCKET_LOCATION }),
-        },
-      );
+      const create = await fetch(`${CF_API}/accounts/${accountId}/r2/buckets`, {
+        method: 'POST',
+        headers: { ...headers, 'cf-r2-jurisdiction': 'default' },
+        body: JSON.stringify({ name: bucket, locationHint: BUCKET_LOCATION }),
+      });
 
       if (!create.ok) {
         const text = await create.text();
-        throw new Error(`R2 ${bucket}: create failed: HTTP ${create.status} — ${text}`);
+        throw new Error(
+          `R2 ${bucket}: create failed: HTTP ${create.status} — ${text}`
+        );
       }
 
       ok(`R2 ${bucket}`, 'created');
@@ -78,14 +79,14 @@ async function emptyBucket(
   platform: CiPlatform,
   accountId: string,
   headers: Record<string, string>,
-  bucket: string,
+  bucket: string
 ): Promise<void> {
   let totalDeleted = 0;
   let cursor: string | undefined;
 
   for (;;) {
     const url = new URL(
-      `${CF_API}/accounts/${accountId}/r2/buckets/${bucket}/objects`,
+      `${CF_API}/accounts/${accountId}/r2/buckets/${bucket}/objects`
     );
     url.searchParams.set('per_page', '500');
     if (cursor) url.searchParams.set('cursor', cursor);
@@ -111,7 +112,7 @@ async function emptyBucket(
       const encodedKey = encodeURIComponent(obj.key);
       const delRes = await fetch(
         `${CF_API}/accounts/${accountId}/r2/buckets/${bucket}/objects/${encodedKey}`,
-        { method: 'DELETE', headers },
+        { method: 'DELETE', headers }
       );
 
       if (!delRes.ok && delRes.status !== 404) {
@@ -120,7 +121,9 @@ async function emptyBucket(
     }
 
     totalDeleted += objects.length;
-    platform.notice(`R2 ${bucket}: deleted ${objects.length} objects (${totalDeleted} total)`);
+    platform.notice(
+      `R2 ${bucket}: deleted ${objects.length} objects (${totalDeleted} total)`
+    );
 
     cursor = body.result_info?.cursor;
     if (!cursor) break;
@@ -136,11 +139,11 @@ async function emptyBucket(
 async function deleteBucket(
   accountId: string,
   headers: Record<string, string>,
-  bucket: string,
+  bucket: string
 ): Promise<void> {
   const res = await fetch(
     `${CF_API}/accounts/${accountId}/r2/buckets/${bucket}`,
-    { method: 'DELETE', headers },
+    { method: 'DELETE', headers }
   );
 
   if (res.status === 404) {
@@ -150,7 +153,9 @@ async function deleteBucket(
 
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`R2 ${bucket}: delete failed: HTTP ${res.status} — ${text}`);
+    throw new Error(
+      `R2 ${bucket}: delete failed: HTTP ${res.status} — ${text}`
+    );
   }
 
   ok(`R2 ${bucket}`, 'deleted');

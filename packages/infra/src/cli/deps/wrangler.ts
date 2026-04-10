@@ -20,8 +20,18 @@ export class WranglerDep implements Dep {
     return { ok: true, version: v };
   }
 
-  fetchLatestVersion(): Promise<string | null> {
-    return fetchLatestWranglerVersion();
+  async fetchLatestVersion(): Promise<string | null> {
+    try {
+      const res = await fetch('https://registry.npmjs.org/wrangler/latest', {
+        headers: { Accept: 'application/json', 'User-Agent': UA },
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      });
+      if (!res.ok) return null;
+      const j = (await res.json()) as { version?: string };
+      return typeof j.version === 'string' ? j.version.trim() : null;
+    } catch {
+      return null;
+    }
   }
 
   install(): void {
@@ -34,19 +44,5 @@ export class WranglerDep implements Dep {
 
   verify(): void {
     verifyRun('wrangler', ['whoami']);
-  }
-}
-
-async function fetchLatestWranglerVersion(): Promise<string | null> {
-  try {
-    const res = await fetch('https://registry.npmjs.org/wrangler/latest', {
-      headers: { Accept: 'application/json', 'User-Agent': UA },
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-    });
-    if (!res.ok) return null;
-    const j = (await res.json()) as { version?: string };
-    return typeof j.version === 'string' ? j.version.trim() : null;
-  } catch {
-    return null;
   }
 }

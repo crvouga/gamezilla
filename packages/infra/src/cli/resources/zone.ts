@@ -1,8 +1,8 @@
 import { assert } from '@gamezilla/shared/assert';
-import { ok, warn } from '../lib/fmt';
 import { PROJECT_CONFIG } from '../../project-config';
-import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
+import { ok, warn } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
+import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
 import { ResourceBase, type InfraContext } from './types';
 
 const CF_API = 'https://api.cloudflare.com/client/v4';
@@ -10,14 +10,13 @@ const CF_API = 'https://api.cloudflare.com/client/v4';
 export class ZoneResource extends ResourceBase {
   readonly id = 'zone';
 
-  async ensure(_platform: CiPlatform, ctx: InfraContext): Promise<void> {
+  async provision(_platform: CiPlatform, ctx: InfraContext): Promise<void> {
     const headers = cfHeaders();
     const domain = PROJECT_CONFIG.domain;
 
-    const res = await fetch(
-      `${CF_API}/zones?name=${domain}&per_page=1`,
-      { headers },
-    );
+    const res = await fetch(`${CF_API}/zones?name=${domain}&per_page=1`, {
+      headers,
+    });
     assert.ok(res.ok, `Zone lookup failed: HTTP ${res.status}`);
 
     const body = (await res.json()) as {
@@ -78,17 +77,19 @@ export class ZoneResource extends ResourceBase {
   }
 
   private async findZone(
-    headers: Record<string, string>,
+    headers: Record<string, string>
   ): Promise<string | null> {
     const res = await fetch(
       `${CF_API}/zones?name=${PROJECT_CONFIG.domain}&per_page=1`,
-      { headers },
+      { headers }
     );
     if (!res.ok) return null;
 
     const body = (await res.json()) as {
       result?: Array<{ id: string; name: string }>;
     };
-    return body.result?.find((z) => z.name === PROJECT_CONFIG.domain)?.id ?? null;
+    return (
+      body.result?.find((z) => z.name === PROJECT_CONFIG.domain)?.id ?? null
+    );
   }
 }

@@ -39,7 +39,7 @@ function rolesUrl(): string {
 export class DatabaseResource extends ResourceBase {
   readonly id = 'database';
 
-  async ensure(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
+  async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const url = await resolveDatabaseUrl();
     ok('DATABASE_URL', url.replace(/\/\/[^@]+@/, '//***:***@'));
   }
@@ -55,7 +55,7 @@ async function listRoles(): Promise<PsRole[]> {
   const res = await fetch(rolesUrl(), { headers: psHeaders() });
   if (!res.ok) {
     throw new Error(
-      `PlanetScale list roles: HTTP ${res.status} — ${await res.text()}`,
+      `PlanetScale list roles: HTTP ${res.status} — ${await res.text()}`
     );
   }
   const body = (await res.json()) as { data: PsRole[] };
@@ -83,7 +83,7 @@ async function createRole(): Promise<PsRole> {
   });
   if (!res.ok) {
     throw new Error(
-      `PlanetScale create role: HTTP ${res.status} — ${await res.text()}`,
+      `PlanetScale create role: HTTP ${res.status} — ${await res.text()}`
     );
   }
   return (await res.json()) as PsRole;
@@ -152,7 +152,7 @@ async function claimTableOwnership(url: string): Promise<void> {
 async function resolveDatabaseUrl(): Promise<string> {
   if (!psOrg() || !psDatabase()) {
     throw new Error(
-      'Cannot resolve DATABASE_URL: TF_VAR_planetscale_org and TF_VAR_planetscale_database must be set',
+      'Cannot resolve DATABASE_URL: TF_VAR_planetscale_org and TF_VAR_planetscale_database must be set'
     );
   }
 
@@ -177,7 +177,9 @@ async function resolveDatabaseUrl(): Promise<string> {
 
   const valid = await validateConnectivity(url);
   if (!valid) {
-    throw new Error('DATABASE_URL connectivity check failed after role creation');
+    throw new Error(
+      'DATABASE_URL connectivity check failed after role creation'
+    );
   }
 
   await claimTableOwnership(url);

@@ -19,7 +19,7 @@ function wranglerEnv(): NodeJS.ProcessEnv {
 export class TurboCacheResource extends ResourceBase {
   readonly id = 'turbo-cache';
 
-  async ensure(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
+  async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     this.syncTurboToken();
   }
 

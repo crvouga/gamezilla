@@ -19,8 +19,26 @@ export class BunDep implements Dep {
     return { ok: true, version: v };
   }
 
-  fetchLatestVersion(): Promise<string | null> {
-    return fetchLatestBunVersion();
+  async fetchLatestVersion(): Promise<string | null> {
+    try {
+      const res = await fetch(
+        'https://api.github.com/repos/oven-sh/bun/releases/latest',
+        {
+          headers: {
+            Accept: 'application/vnd.github+json',
+            'User-Agent': UA,
+          },
+          signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+        }
+      );
+      if (!res.ok) return null;
+      const j = (await res.json()) as { tag_name?: string };
+      const tag = j.tag_name?.trim() ?? '';
+      const m = /^bun-v(.+)$/i.exec(tag) ?? /^v?([\d.]+)/.exec(tag);
+      return m?.[1]?.trim() ?? null;
+    } catch {
+      return null;
+    }
   }
 
   install(): void {
@@ -33,27 +51,5 @@ export class BunDep implements Dep {
 
   verify(): void {
     verifyRun('bun', ['--version']);
-  }
-}
-
-async function fetchLatestBunVersion(): Promise<string | null> {
-  try {
-    const res = await fetch(
-      'https://api.github.com/repos/oven-sh/bun/releases/latest',
-      {
-        headers: {
-          Accept: 'application/vnd.github+json',
-          'User-Agent': UA,
-        },
-        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-      },
-    );
-    if (!res.ok) return null;
-    const j = (await res.json()) as { tag_name?: string };
-    const tag = j.tag_name?.trim() ?? '';
-    const m = /^bun-v(.+)$/i.exec(tag) ?? /^v?([\d.]+)/.exec(tag);
-    return m?.[1]?.trim() ?? null;
-  } catch {
-    return null;
   }
 }

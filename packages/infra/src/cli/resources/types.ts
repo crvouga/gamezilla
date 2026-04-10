@@ -12,7 +12,7 @@ export interface Resource {
   dependencyIds(): readonly string[];
   /** Declare upstream resources by reference; call from the registry only. */
   needs(...deps: Resource[]): Resource;
-  ensure(platform: CiPlatform, ctx: InfraContext): void | Promise<void>;
+  provision(platform: CiPlatform, ctx: InfraContext): void | Promise<void>;
   deploy?(platform: CiPlatform, ctx: InfraContext): void | Promise<void>;
   destroy(platform: CiPlatform): void | Promise<void>;
 }
@@ -30,9 +30,9 @@ export abstract class ResourceBase implements Resource {
   }
 
   abstract readonly id: string;
-  abstract ensure(
+  abstract provision(
     platform: CiPlatform,
-    ctx: InfraContext,
+    ctx: InfraContext
   ): void | Promise<void>;
   abstract destroy(platform: CiPlatform): void | Promise<void>;
 }

@@ -20,8 +20,26 @@ export class DopplerDep implements Dep {
     return { ok: true, version: v };
   }
 
-  fetchLatestVersion(): Promise<string | null> {
-    return fetchLatestDopplerVersion();
+  async fetchLatestVersion(): Promise<string | null> {
+    try {
+      const res = await fetch(
+        'https://api.github.com/repos/DopplerHQ/cli/releases/latest',
+        {
+          headers: {
+            Accept: 'application/vnd.github+json',
+            'User-Agent': UA,
+          },
+          signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+        }
+      );
+      if (!res.ok) return null;
+      const j = (await res.json()) as { tag_name?: string };
+      const tag = j.tag_name?.trim() ?? '';
+      const m = /^v?([\d.]+(?:\.[\d]+)*)$/.exec(tag);
+      return m?.[1]?.trim() ?? null;
+    } catch {
+      return null;
+    }
   }
 
   install(): void {
@@ -34,27 +52,5 @@ export class DopplerDep implements Dep {
 
   verify(): void {
     verifyRun('doppler', ['--version']);
-  }
-}
-
-async function fetchLatestDopplerVersion(): Promise<string | null> {
-  try {
-    const res = await fetch(
-      'https://api.github.com/repos/DopplerHQ/cli/releases/latest',
-      {
-        headers: {
-          Accept: 'application/vnd.github+json',
-          'User-Agent': UA,
-        },
-        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-      },
-    );
-    if (!res.ok) return null;
-    const j = (await res.json()) as { tag_name?: string };
-    const tag = j.tag_name?.trim() ?? '';
-    const m = /^v?([\d.]+(?:\.[\d]+)*)$/.exec(tag);
-    return m?.[1]?.trim() ?? null;
-  } catch {
-    return null;
   }
 }

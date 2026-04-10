@@ -1,6 +1,6 @@
-import { ok, info } from '../lib/fmt';
-import { cfAccountId } from '../secrets/cloudflare';
+import { info, ok } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
+import { cfAccountId } from '../secrets/cloudflare';
 import { ResourceBase, type InfraContext } from './types';
 
 const R2_NOT_ENABLED_CODE = 10042;
@@ -19,7 +19,7 @@ interface CfApiResponse {
 export class R2SubscriptionResource extends ResourceBase {
   readonly id = 'r2-subscription';
 
-  async ensure(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
+  async provision(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const accountId = cfAccountId();
     const token = process.env['CLOUDFLARE_API_TOKEN'] ?? '';
     const status = await probeR2(accountId, token);
@@ -50,7 +50,7 @@ export class R2SubscriptionResource extends ResourceBase {
         'Please enable R2 manually (one-time, free):',
         '  https://dash.cloudflare.com → R2 in the sidebar → accept terms',
         'Then re-run the deploy.',
-      ].join('\n'),
+      ].join('\n')
     );
   }
 
@@ -61,7 +61,7 @@ export class R2SubscriptionResource extends ResourceBase {
 
 async function probeR2(
   accountId: string,
-  token: string,
+  token: string
 ): Promise<'enabled' | 'not-enabled' | string> {
   try {
     const res = await fetch(
@@ -71,15 +71,13 @@ async function probeR2(
           Authorization: `Bearer ${token}`,
           'cf-r2-jurisdiction': 'default',
         },
-      },
+      }
     );
 
     if (res.ok) return 'enabled';
 
     const body = (await res.json()) as CfApiResponse;
-    const notEnabled = body.errors?.some(
-      (e) => e.code === R2_NOT_ENABLED_CODE,
-    );
+    const notEnabled = body.errors?.some((e) => e.code === R2_NOT_ENABLED_CODE);
     if (notEnabled) return 'not-enabled';
 
     return `HTTP ${res.status}: ${body.errors?.[0]?.message ?? 'unknown'}`;
@@ -91,7 +89,7 @@ async function probeR2(
 async function tryActivate(
   accountId: string,
   token: string,
-  ratePlanId: string,
+  ratePlanId: string
 ): Promise<boolean> {
   try {
     const res = await fetch(
@@ -105,7 +103,7 @@ async function tryActivate(
         body: JSON.stringify({
           rate_plan: { id: ratePlanId },
         }),
-      },
+      }
     );
 
     if (res.ok) return true;
