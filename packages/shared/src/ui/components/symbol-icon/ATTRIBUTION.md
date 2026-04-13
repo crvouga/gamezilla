@@ -18,3 +18,4 @@ Icons in this folder are **vendored SVG path data** from **Font Awesome Free 7.x
 | `checklist` | `list-check.svg` |
 | `paintbrush.fill` | `paintbrush.svg` |
 | `ellipsis` | `ellipsis.svg` |
+| `gearshape.fill` | `gear.svg` (path from FA 6 solid gear, viewBox 512) |

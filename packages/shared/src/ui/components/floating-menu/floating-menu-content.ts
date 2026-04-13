@@ -1,0 +1,33 @@
+import type { IconSymbolName } from '../symbol-icon';
+
+/** Header block above menu rows. */
+export type FloatingMenuHeaderSpec = {
+  title: string;
+  subtitle?: string;
+};
+
+export type FloatingMenuItemRow = {
+  type: 'item';
+  /** Stable React key and a11y id. */
+  id: string;
+  label: string;
+  icon?: IconSymbolName;
+  onPress?: () => void;
+  disabled?: boolean;
+  accessibilityLabel?: string;
+};
+
+export type FloatingMenuDividerRow = {
+  type: 'divider';
+  id: string;
+};
+
+export type FloatingMenuContentRow =
+  | FloatingMenuItemRow
+  | FloatingMenuDividerRow;
+
+/** Declarative body for {@link FloatingMenu}. */
+export type FloatingMenuContent = {
+  header: FloatingMenuHeaderSpec;
+  rows: FloatingMenuContentRow[];
+};

@@ -26,7 +26,11 @@ export default function SpacesScreen() {
   return (
     <Box sx={{ flex: 1 }}>
       <ConstrainedContent>
-        <ScreenHeader title="Spaces" subtitle="Rooms to play with friends" />
+        <ScreenHeader
+          title="Spaces"
+          subtitle="Rooms to play with friends"
+          showAccountMenu
+        />
         <Box sx={{ px: 4, pt: 2, pb: 2 }}>
           <SegmentedControl<SpaceFilter>
             segments={[

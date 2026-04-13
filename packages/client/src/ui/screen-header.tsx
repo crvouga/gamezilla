@@ -4,6 +4,9 @@ import { useNavigation } from '@react-navigation/native';
 import type { ReactNode } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Box, Pressable, Text } from '@gamezilla/shared/ui';
+import { useBreakpoint } from '@gamezilla/shared/theme';
+
+import { AccountMenu } from '@/ui/account-menu';
 
 /** Fixed content height below the status inset (with or without subtitle). */
 const BAR_CONTENT_HEIGHT = 58;
@@ -20,6 +23,10 @@ export type ScreenHeaderProps = {
   fallbackHref?: Href;
   /** Trailing control (e.g. destructive action). Sits on the right of the bar. */
   end?: ReactNode;
+  /**
+   * On mobile, shows the account avatar menu on the right (desktop uses the shell sidebar).
+   */
+  showAccountMenu?: boolean;
 };
 
 /**
@@ -32,10 +39,16 @@ export function ScreenHeader({
   subtitle,
   fallbackHref,
   end,
+  showAccountMenu = false,
 }: ScreenHeaderProps) {
   const navigation = useNavigation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const isMobile = useBreakpoint() === 'mobile';
+
+  const accountEnd =
+    showAccountMenu && isMobile ? <AccountMenu variant="header" /> : undefined;
+  const resolvedEnd = end ?? accountEnd;
 
   const showBack = fallbackHref !== undefined;
   const hasSubtitle = subtitle !== undefined && subtitle !== '';
@@ -114,7 +127,7 @@ export function ScreenHeader({
           </Pressable>
         ) : null}
 
-        {end !== undefined && end !== null ? (
+        {resolvedEnd !== undefined && resolvedEnd !== null ? (
           <Box
             sx={{
               position: 'absolute',
@@ -123,10 +136,10 @@ export function ScreenHeader({
               bottom: 0,
               justifyContent: 'center',
               zIndex: 2,
-              maxWidth: 140,
+              maxWidth: 200,
             }}
           >
-            {end}
+            {resolvedEnd}
           </Box>
         ) : null}
       </Box>

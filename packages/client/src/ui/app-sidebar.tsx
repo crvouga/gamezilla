@@ -8,6 +8,8 @@ import {
 import { useTheme } from '@gamezilla/shared/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AccountMenu } from '@/ui/account-menu';
+
 type NavItem = {
   href: '/' | '/profile';
   label: string;
@@ -35,12 +37,13 @@ export function AppSidebar() {
     <Box
       sx={{
         width,
+        flex: 1,
         flexShrink: 0,
+        flexDirection: 'column',
         background: 'paper',
         borderRightWidth: 1,
         borderColor: 'border',
         paddingTop: insets.top,
-        paddingBottom: insets.bottom,
       }}
     >
       <Box sx={{ py: 4, px: 3, gap: 1 }}>
@@ -89,6 +92,20 @@ export function AppSidebar() {
             </Link>
           );
         })}
+      </Box>
+
+      <Box sx={{ flex: 1 }} />
+
+      <Box
+        sx={{
+          borderTopWidth: 1,
+          borderColor: 'border',
+          paddingHorizontal: 3,
+          paddingTop: 3,
+          paddingBottom: insets.bottom,
+        }}
+      >
+        <AccountMenu variant="sidebar" />
       </Box>
     </Box>
   );

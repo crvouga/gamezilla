@@ -10,6 +10,7 @@ import {
   ChevronRightFa,
   CodeSlashFa,
   EllipsisFa,
+  GearFillFa,
   HouseFillFa,
   PaintbrushFillFa,
   PaperplaneFillFa,
@@ -28,6 +29,7 @@ export const ICON_REGISTRY = {
   checklist: ChecklistFa,
   'paintbrush.fill': PaintbrushFillFa,
   ellipsis: EllipsisFa,
+  'gearshape.fill': GearFillFa,
 } as const satisfies Record<string, FaIconComponent>;
 
 export type IconSymbolName = keyof typeof ICON_REGISTRY;

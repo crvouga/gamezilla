@@ -53,6 +53,19 @@ export { ProgressBar, type ProgressBarProps } from './progress-bar';
 // Disclosure
 export { Collapsible, type CollapsibleProps } from './collapsible';
 
+// Anchored overlay
+export {
+  FloatingMenu,
+  FLOATING_MENU_DEFAULT_WIDTH,
+  type FloatingMenuProps,
+  type FloatingMenuContent,
+  type FloatingMenuContentRow,
+  type FloatingMenuDividerRow,
+  type FloatingMenuHeaderSpec,
+  type FloatingMenuItemRow,
+  type FloatingMenuInsets,
+} from './floating-menu';
+
 // Compound Inputs
 export { Select, type SelectProps, type SelectOption } from './select';
 export { SegmentedControl, type SegmentedControlProps, type Segment } from './segmented-control';
