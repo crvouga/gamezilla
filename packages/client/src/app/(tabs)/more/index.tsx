@@ -2,6 +2,8 @@ import { useRouter } from 'expo-router';
 import { useTheme } from '@gamezilla/shared/theme';
 import { Box, IconSymbol, Pressable, Text } from '@gamezilla/shared/ui';
 
+import { ScreenHeader } from '@/ui/screen-header';
+
 const ITEMS = [
   {
     key: 'patch-db' as const,
@@ -20,10 +22,9 @@ export default function MoreIndex() {
   const theme = useTheme();
 
   return (
-    <Box sx={{ flex: 1, py: 2 }}>
-      <Box sx={{ px: 4, pb: 3 }}>
-        <Text variant="heading">More</Text>
-      </Box>
+    <Box sx={{ flex: 1 }}>
+      <ScreenHeader title="More" />
+      <Box sx={{ flex: 1, py: 2 }}>
       {ITEMS.map((item) => (
         <Pressable
           key={item.key}
@@ -52,6 +53,7 @@ export default function MoreIndex() {
           </Box>
         </Pressable>
       ))}
+      </Box>
     </Box>
   );
 }

@@ -285,8 +285,6 @@ export function PlaygroundPage() {
     <ScrollView sx={{ flex: 1, px: 4, py: 3 }}>
       <Stack spacing={4} sx={{ pb: 8 }}>
         <Stack spacing={2}>
-          <Text variant="heading">peer-store playground</Text>
-
           <Text variant="label">Network Controls</Text>
           <Stack direction="horizontal" spacing={2} wrap>
             <Button

@@ -11,6 +11,8 @@ import { Entity } from '@gamezilla/patch-db/interface';
 import { useEntities, useEntity, usePatchesDb } from '@gamezilla/patch-db/react';
 import { useState } from 'react';
 
+import { ScreenHeader } from '@/ui/screen-header';
+
 assert.notThrows(
   () => crypto.randomUUID(),
   'crypto.randomUUID must be available'
@@ -189,11 +191,9 @@ export function TodoList() {
     });
 
   return (
-    <KeyboardAvoidingView sx={{ flex: 1, p: 4 }}>
-      <Box sx={{ mb: 4 }}>
-        <Text variant="title">Todos</Text>
-        <Text variant="subtitle">Powered by patch-db</Text>
-      </Box>
+    <Box sx={{ flex: 1 }}>
+      <ScreenHeader title="Todos" />
+      <KeyboardAvoidingView sx={{ flex: 1, p: 4 }}>
       <Box sx={{ flexDirection: 'row', gap: 2, mb: 3 }}>
         <Pressable
           onPress={() => setFilter('all')}
@@ -279,6 +279,7 @@ export function TodoList() {
           ))
         )}
       </Box>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </Box>
   );
 }

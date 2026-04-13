@@ -16,8 +16,10 @@ import {
   Text,
   TextInput,
 } from '@gamezilla/shared/ui';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
+
+import { ScreenHeader } from '@/ui/screen-header';
 
 const INBOX_LIST_ID = '__inbox__';
 
@@ -153,7 +155,6 @@ type Filter = 'all' | 'active' | 'completed';
 export function TodoListDetail() {
   const theme = useTheme();
   const { listId } = useLocalSearchParams<{ listId: string }>();
-  const router = useRouter();
   const db = usePatchesDb();
   const [input, setInput] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
@@ -227,17 +228,9 @@ export function TodoListDetail() {
   };
 
   return (
-    <KeyboardAvoidingView sx={{ flex: 1, p: 4 }}>
-      <Box sx={{ mb: 4 }}>
-        <Pressable
-          onPress={() => router.replace('/todos')}
-          style={theme.sx({ mb: 2 })}
-        >
-          <Text style={theme.sx({ fontSize: 16, opacity: 0.8 })}>← Back</Text>
-        </Pressable>
-        <Text variant="title">{listName}</Text>
-        <Text variant="subtitle">Powered by patch-db</Text>
-      </Box>
+    <Box sx={{ flex: 1 }}>
+      <ScreenHeader title={listName} fallbackHref="/todos" />
+      <KeyboardAvoidingView sx={{ flex: 1, p: 4 }}>
       <Box sx={{ flexDirection: 'row', gap: 2, mb: 3 }}>
         <Pressable
           onPress={() => setFilter('all')}
@@ -323,6 +316,7 @@ export function TodoListDetail() {
           ))
         )}
       </Box>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </Box>
   );
 }

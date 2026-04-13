@@ -45,7 +45,8 @@ export function CustomTabBar({
         }
 
         const options: ExpoTabOptions = descriptor.options as ExpoTabOptions;
-        if (options.href === null) {
+        // Expo Router: `href: null` hides a screen from the tab bar (may not always reach custom bars).
+        if (options.href === null || route.name === 'index') {
           return null;
         }
 

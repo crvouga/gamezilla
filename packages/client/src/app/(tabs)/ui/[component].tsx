@@ -2,7 +2,7 @@ import { ExplorerDetail } from '@gamezilla/shared/ui/explorer';
 import { Box } from '@gamezilla/shared/ui';
 import { useLocalSearchParams } from 'expo-router';
 
-import { StackScreenHeader } from '@/ui/stack-screen-header';
+import { ScreenHeader } from '@/ui/screen-header';
 
 export default function UIExplorerDetail() {
   const { component } = useLocalSearchParams<{ component: string }>();
@@ -10,7 +10,7 @@ export default function UIExplorerDetail() {
 
   return (
     <Box sx={{ flex: 1 }}>
-      <StackScreenHeader
+      <ScreenHeader
         title={name || 'Component'}
         fallbackHref="/(tabs)/ui"
       />

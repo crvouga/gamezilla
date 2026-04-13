@@ -12,6 +12,8 @@ import { useEntities, usePatchesDb } from '@gamezilla/patch-db/react';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
+import { ScreenHeader } from '@/ui/screen-header';
+
 const INBOX_LIST_ID = '__inbox__';
 
 const TODO_LIST_DELETED_CLAUSE = {
@@ -127,37 +129,30 @@ export function TodoListsOverview() {
   ];
 
   return (
-    <Box sx={{ flex: 1, p: 4 }}>
-      <Box
-        sx={{
-          mb: 4,
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-        }}
-      >
-        <Box>
-          <Text variant="title">Todo Lists</Text>
-          <Text variant="subtitle">Group your todos by list</Text>
-        </Box>
-        <Pressable
-          onPress={() => setDeleteDbModalVisible(true)}
-          style={({ pressed }) => [
-            theme.sx({ py: 2, px: 3, borderRadius: 8 }),
-            pressed && theme.sx({ opacity: 0.7 }),
-          ]}
-        >
-          <Text
-            style={[
-              theme.sx({ fontSize: 14 }),
-              { color: theme.colors.destructive },
+    <Box sx={{ flex: 1 }}>
+      <ScreenHeader
+        title="Todo Lists"
+        subtitle="Group your todos by list"
+        end={
+          <Pressable
+            onPress={() => setDeleteDbModalVisible(true)}
+            style={({ pressed }) => [
+              theme.sx({ py: 2, px: 2, borderRadius: 8 }),
+              pressed && theme.sx({ opacity: 0.7 }),
             ]}
           >
-            Clear data
-          </Text>
-        </Pressable>
-      </Box>
-
+            <Text
+              style={[
+                theme.sx({ fontSize: 14 }),
+                { color: theme.colors.destructive },
+              ]}
+            >
+              Clear data
+            </Text>
+          </Pressable>
+        }
+      />
+      <Box sx={{ flex: 1, p: 4 }}>
       {adding ? (
         <Box sx={{ flexDirection: 'row', gap: 2, mb: 3 }}>
           <TextInput
@@ -300,6 +295,7 @@ export function TodoListsOverview() {
         onConfirm={deleteLocalDatabase}
         onCancel={() => setDeleteDbModalVisible(false)}
       />
+      </Box>
     </Box>
   );
 }

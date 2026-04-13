@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { PlaygroundSim } from '@gamezilla/patch-db/sim/playground-sim';
 import { useTheme } from '@gamezilla/shared/theme';
-import { Box, SafeAreaView, Text, Spinner, Stack } from '@gamezilla/shared/ui';
+import { Box, Text, Spinner, Stack } from '@gamezilla/shared/ui';
 import { PatchdbAppNav, readStoredMode, type PatchdbAppMode } from './nav';
 import { PlaygroundHeader } from './playground-header';
 import { PlaygroundLayout } from './playground-layout';
@@ -12,16 +13,23 @@ import { usePlaygroundBoot } from './use-playground-boot';
 export function PlaygroundApp() {
   const [mode, setMode] = useState<PatchdbAppMode>(readStoredMode);
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.paper }}>
+    <Box
+      style={{
+        flex: 1,
+        backgroundColor: theme.colors.paper,
+        paddingBottom: insets.bottom,
+      }}
+    >
       <Box sx={{ flex: 1 }}>
         <Box sx={{ px: 4, py: 3 }}>
           <PatchdbAppNav mode={mode} onModeChange={setMode} />
         </Box>
         {mode === 'syncInspector' ? <ApiInspector /> : <PlaygroundRoute />}
       </Box>
-    </SafeAreaView>
+    </Box>
   );
 }
 

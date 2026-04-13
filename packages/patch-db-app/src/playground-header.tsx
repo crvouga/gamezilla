@@ -37,20 +37,18 @@ export function PlaygroundHeader() {
     >
       <Stack direction="horizontal" spacing={3} align="center">
         <Box style={{ flex: 1 }}>
-          <Stack direction="horizontal" spacing={2} align="center">
-            <Text variant="subtitle">Patch DB Playground</Text>
+          <Stack direction="horizontal" spacing={2} align="center" wrap>
             <Badge label={SHAPE_ENTITY_TYPE} size="sm" color={theme.colors.tintMuted} />
+            <Text
+              variant="mono"
+              style={{
+                fontSize: 11,
+                color: theme.colors.textSecondary,
+              }}
+            >
+              {sim.serverId}
+            </Text>
           </Stack>
-          <Text
-            variant="mono"
-            style={{
-              fontSize: 11,
-              color: theme.colors.textSecondary,
-              marginTop: 2,
-            }}
-          >
-            {sim.serverId}
-          </Text>
         </Box>
 
         <Button
