@@ -1,3 +1,4 @@
+import * as Clipboard from 'expo-clipboard';
 import { Alert, DevSettings, Platform } from 'react-native';
 
 import type { CrashHandler } from './crash-handler';
@@ -13,8 +14,34 @@ function truncate(s: string): string {
   return `${s.slice(0, CONTEXT_MAX)}\n\n… (truncated)`;
 }
 
+/** RN Alert always dismisses its action buttons; we re-show so Copy does not end the crash UI. */
+function showAssertionAlert(fullText: string): void {
+  Alert.alert(
+    'Assertion failed',
+    truncate(fullText),
+    [
+      {
+        text: 'Copy error',
+        onPress: () => {
+          void Clipboard.setStringAsync(fullText);
+          setTimeout(() => showAssertionAlert(fullText), 0);
+        },
+      },
+      {
+        text: 'Reload',
+        onPress: () => {
+          DevSettings.reload();
+        },
+      },
+    ],
+    {
+      cancelable: false,
+    }
+  );
+}
+
 /**
- * iOS/Android assertion UI: blocking Alert + Reload (same spirit as the browser overlay).
+ * iOS/Android assertion UI: blocking Alert with Copy error + Reload (same spirit as the browser overlay).
  * Register with `Assert.registerCrashHandler` (or the `assert` singleton) from the Expo app.
  * Use static RN imports here; only import this module from native-capable entry points.
  */
@@ -37,21 +64,8 @@ export class ExpoCrashHandler implements CrashHandler {
     const body = contextJson !== '' ? `${message}\n\n${contextJson}` : message;
     const suffix =
       suppressedCount > 0 ? `\n\n(+${suppressedCount} more suppressed)` : '';
+    const fullText = body + suffix;
 
-    Alert.alert(
-      'Assertion failed',
-      truncate(body + suffix),
-      [
-        {
-          text: 'Reload',
-          onPress: () => {
-            DevSettings.reload();
-          },
-        },
-      ],
-      {
-        cancelable: false,
-      }
-    );
+    showAssertionAlert(fullText);
   }
 }

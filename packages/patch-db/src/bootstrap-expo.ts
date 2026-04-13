@@ -9,7 +9,10 @@ import { PatchDbImplClientTransport } from './impl-client-transport';
 import { PatchDbImplSqlite } from './impl-sqlite/impl-sqlite';
 import { SyncPatchesDb } from './impl-sync';
 import { PatchesDbToken } from './react';
-import { SubscribablePatchesDbToken } from './subscribable';
+import {
+  SubscribablePatchesDbToken,
+  type SubscribablePatchesDbLike,
+} from './subscribable';
 import { PatchDbClientTransportHttpFetch } from './transport';
 
 export type BootstrapResult = {
@@ -23,6 +26,13 @@ export type BootstrapPatchDbExpoSyncOptions = {
   pushIntervalMs?: number;
   pollIntervalMs?: number;
   parentContainer?: DependencyInjectionContainer;
+  /**
+   * Wrap the sync DB (e.g. stamp every patch with principalId via `createdBy`).
+   * Must preserve {@link SubscribablePatchesDbLike.subscribe}.
+   */
+  decoratePatchesDb?: (
+    db: SubscribablePatchesDbLike
+  ) => SubscribablePatchesDbLike;
 };
 
 /** On web, expo-sqlite uses File System API which allows only one access handle per file.
@@ -40,6 +50,7 @@ export async function bootstrapPatchDbExpoSync(
     pushIntervalMs = 2000,
     pollIntervalMs = 5000,
     parentContainer,
+    decoratePatchesDb,
   } = options;
 
   assertUrl(apiUrl);
@@ -65,9 +76,12 @@ export async function bootstrapPatchDbExpoSync(
       pollIntervalMs,
     });
 
+    const dbForDi: SubscribablePatchesDbLike =
+      decoratePatchesDb !== undefined ? decoratePatchesDb(syncDb) : syncDb;
+
     const container = new DependencyInjectionContainer(parentContainer);
-    container.registerValue(PatchesDbToken, syncDb);
-    container.registerValue(SubscribablePatchesDbToken, syncDb);
+    container.registerValue(PatchesDbToken, dbForDi);
+    container.registerValue(SubscribablePatchesDbToken, dbForDi);
 
     return { container };
   })();

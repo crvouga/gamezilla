@@ -7,6 +7,8 @@ import { createApiHandler } from './api-handler';
 
 export interface Env {
   DATABASE_URL: string;
+  /** Optional: Google Web client ID for verifying id_token `aud`. */
+  GOOGLE_CLIENT_ID?: string;
 }
 
 const log = createLogger({ name: 'api' });
@@ -14,7 +16,8 @@ const log = createLogger({ name: 'api' });
 const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Cache-Control, Pragma',
+  'Access-Control-Allow-Headers':
+    'Content-Type, Cache-Control, Pragma, Authorization',
 };
 
 const MIGRATE_TIMEOUT_MS = 15_000;
@@ -86,7 +89,13 @@ export default {
         migrated = true;
       }
 
-      const handle = createApiHandler({ db: currentDb, pubSub });
+      const handle = createApiHandler({
+        db: currentDb,
+        pubSub,
+        ...(env.GOOGLE_CLIENT_ID !== undefined && env.GOOGLE_CLIENT_ID !== ''
+          ? { googleClientId: env.GOOGLE_CLIENT_ID }
+          : {}),
+      });
       return handle(request);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);

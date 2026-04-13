@@ -21,11 +21,6 @@ module.exports = [
         {
           paths: [
             {
-              name: 'react-native',
-              message:
-                'Import UI and layout from @gamezilla/shared/ui or @gamezilla/shared/theme.',
-            },
-            {
               name: 'react-native-svg',
               message: 'Import vector primitives from @gamezilla/shared/ui/svg.',
             },

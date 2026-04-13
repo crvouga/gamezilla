@@ -26,11 +26,6 @@ module.exports = defineConfig([
         {
           paths: [
             {
-              name: 'react-native',
-              message:
-                'Use @gamezilla/shared/ui or @gamezilla/shared/theme instead.',
-            },
-            {
               name: 'react-native-svg',
               message:
                 'Import vector primitives from @gamezilla/shared/ui/svg.',

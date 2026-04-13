@@ -10,6 +10,7 @@ import { useEffect, type ReactNode } from 'react';
 import 'react-native-reanimated';
 
 import { AuthProvider } from '@/features/auth/auth-context';
+import { PrincipalAuthShell } from '@/features/auth/principal-auth-shell';
 import {
   ThemePreferenceProvider,
   useThemePreference,
@@ -82,24 +83,20 @@ function RootNavigation() {
 
   return (
     <NavThemeProvider value={navigationTheme}>
-      <ConfigContainerProvider>
-        <PatchBootstrap>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="space" />
-            <Stack.Screen name="more" />
-            <Stack.Screen name="todos" />
-            <Stack.Screen name="ui" />
-            <Stack.Screen
-              name="modal"
-              options={{
-                presentation: 'modal',
-              }}
-            />
-          </Stack>
-          <AppStatusBar />
-        </PatchBootstrap>
-      </ConfigContainerProvider>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="space" />
+        <Stack.Screen name="more" />
+        <Stack.Screen name="todos" />
+        <Stack.Screen name="ui" />
+        <Stack.Screen
+          name="modal"
+          options={{
+            presentation: 'modal',
+          }}
+        />
+      </Stack>
+      <AppStatusBar />
     </NavThemeProvider>
   );
 }
@@ -126,9 +123,15 @@ export default function RootLayout() {
       <AppThemeShell
         {...(fontsLoaded ? { fonts: nunitoFontStacks } : {})}
       >
-        <AuthProvider>
-          <RootNavigation />
-        </AuthProvider>
+        <ConfigContainerProvider>
+          <PrincipalAuthShell>
+            <PatchBootstrap>
+              <AuthProvider>
+                <RootNavigation />
+              </AuthProvider>
+            </PatchBootstrap>
+          </PrincipalAuthShell>
+        </ConfigContainerProvider>
       </AppThemeShell>
     </ThemePreferenceProvider>
   );

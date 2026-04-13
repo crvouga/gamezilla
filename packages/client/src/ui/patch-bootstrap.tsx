@@ -1,3 +1,12 @@
+import { ensurePrincipalEntity } from '@/features/auth/ensure-principal-entity';
+import { PrincipalPatchesDb } from '@/features/auth/principal-patches-db';
+import { PrincipalServiceToken } from '@/features/auth/principal-service';
+import {
+  createSessionService,
+  SessionServiceToken,
+} from '@/features/auth/session-service';
+import { bootstrapPatchDbExpoSync } from '@gamezilla/patch-db/bootstrap-expo';
+import { PatchesDbToken } from '@gamezilla/patch-db/react';
 import { assert } from '@gamezilla/shared/assert';
 import { ConfigServiceToken } from '@gamezilla/shared/config/config-service';
 import type { Container } from '@gamezilla/shared/dependency-injection/dependency-injection-container';
@@ -7,8 +16,7 @@ import {
   useContainer,
   useDependency,
 } from '@gamezilla/shared/dependency-injection/react';
-import { Box, Text, Button, Center, hideSplash } from '@gamezilla/shared/ui';
-import { bootstrapPatchDbExpoSync } from '@gamezilla/patch-db/bootstrap-expo';
+import { Box, Button, Center, hideSplash, Text } from '@gamezilla/shared/ui';
 import {
   useCallback,
   useEffect,
@@ -23,21 +31,35 @@ export function PatchBootstrap({ children }: { children: ReactNode }) {
   const rawContainer = useContainer();
   assert.ok(
     rawContainer instanceof DependencyInjectionContainer,
-    'PatchBootstrap must be rendered inside ConfigContainerProvider'
+    'PatchBootstrap must be rendered inside ConfigContainerProvider (and PrincipalAuthShell for principal)'
   );
-  const configContainer = rawContainer;
+  const parentContainer = rawContainer;
   const configService = useDependency(ConfigServiceToken);
+  const principalService = useDependency(PrincipalServiceToken);
 
   const mountedRef = useRef(true);
 
   const runBootstrap = useCallback(() => {
     setError(null);
-    bootstrapPatchDbExpoSync({
+    const principalId = principalService.getPrincipalId();
+    void bootstrapPatchDbExpoSync({
       apiUrl: `${configService.getApiUrl()}/patch-db`,
-      parentContainer: configContainer,
+      parentContainer,
+      decoratePatchesDb: (db) => new PrincipalPatchesDb(db, principalId),
     })
-      .then(({ container: c }) => {
-        if (mountedRef.current) setContainer(c);
+      .then(async ({ container: c }) => {
+        assert.ok(
+          c instanceof DependencyInjectionContainer,
+          'bootstrap must return DependencyInjectionContainer'
+        );
+        const db = c.get(PatchesDbToken);
+        await ensurePrincipalEntity(db, principalId);
+        const sessionService = createSessionService(db, principalService);
+        await sessionService.refresh();
+        c.registerValue(SessionServiceToken, sessionService);
+        if (mountedRef.current) {
+          setContainer(c);
+        }
       })
       .catch((err: unknown) => {
         console.error('[PatchBootstrap] Bootstrap failed:', err);
@@ -45,7 +67,7 @@ export function PatchBootstrap({ children }: { children: ReactNode }) {
           setError(err instanceof Error ? err : new Error(String(err)));
         }
       });
-  }, [configService, configContainer]);
+  }, [configService, parentContainer, principalService]);
 
   useEffect(() => {
     mountedRef.current = true;

@@ -13,7 +13,13 @@ export default function ProfileScreen() {
       <ConstrainedContent>
         <Box sx={{ flex: 1, px: 4, pt: 4, gap: 4 }}>
           <Box sx={{ alignItems: 'center', gap: 2 }}>
-            <Avatar initials={auth.displayName.slice(0, 2)} size={80} />
+            <Avatar
+              initials={(auth.displayName.length > 0
+                ? auth.displayName
+                : 'Guest'
+              ).slice(0, 2)}
+              size={80}
+            />
             <Text variant="title" label={auth.displayName} />
           </Box>
         </Box>

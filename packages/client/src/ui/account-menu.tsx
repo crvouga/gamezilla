@@ -54,6 +54,19 @@ export function AccountMenu({ variant }: AccountMenuProps) {
     router.push('/more');
   }, [close, router]);
 
+  const onAuth = useCallback(async () => {
+    close();
+    try {
+      if (auth.mode === 'signed-in') {
+        await auth.signOut();
+      } else {
+        await auth.signInWithGoogle();
+      }
+    } catch (err: unknown) {
+      console.error('[AccountMenu] auth action failed:', err);
+    }
+  }, [auth, close]);
+
   const menuContent = useMemo((): FloatingMenuContent => {
     return {
       header: {
@@ -72,16 +85,11 @@ export function AccountMenu({ variant }: AccountMenuProps) {
         {
           type: 'item',
           id: 'sign-in',
-          label: 'Sign in',
-          disabled: true,
-          accessibilityLabel: 'Sign in',
-        },
-        {
-          type: 'item',
-          id: 'create-account',
-          label: 'Create account',
-          disabled: true,
-          accessibilityLabel: 'Create account',
+          label:
+            auth.mode === 'signed-in' ? 'Sign out' : 'Sign in with Google',
+          onPress: onAuth,
+          accessibilityLabel:
+            auth.mode === 'signed-in' ? 'Sign out' : 'Sign in with Google',
         },
         { type: 'divider', id: 'after-auth' },
         {
@@ -94,7 +102,7 @@ export function AccountMenu({ variant }: AccountMenuProps) {
         },
       ],
     };
-  }, [auth.displayName, auth.mode, onProfile, onSettings]);
+  }, [auth.displayName, auth.mode, onAuth, onProfile, onSettings]);
 
   return (
     <>
@@ -111,7 +119,10 @@ export function AccountMenu({ variant }: AccountMenuProps) {
           }}
         >
           <Avatar
-            initials={auth.displayName.slice(0, 2)}
+            initials={(auth.displayName.length > 0
+              ? auth.displayName
+              : 'Guest'
+            ).slice(0, 2)}
             size={variant === 'sidebar' ? 40 : 36}
           />
         </Pressable>
