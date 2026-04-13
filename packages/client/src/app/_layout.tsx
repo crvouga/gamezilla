@@ -1,5 +1,12 @@
+import {
+  Nunito_400Regular,
+  Nunito_600SemiBold,
+  Nunito_700Bold,
+  useFonts,
+} from '@expo-google-fonts/nunito';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
+import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { PatchBootstrap } from '@/ui/patch-bootstrap';
@@ -11,9 +18,11 @@ import { polyfill } from '@gamezilla/shared/polyfill';
 import {
   ThemeProvider as AppThemeProvider,
   useTheme,
+  type FontStacks,
 } from '@gamezilla/shared/theme';
 import {
   AppStatusBar,
+  hideSplash,
   preventSplashAutoHide,
   reactNavigationThemeFromTokens,
 } from '@gamezilla/shared/ui';
@@ -29,6 +38,12 @@ assert.notThrows(
 );
 
 void preventSplashAutoHide();
+
+const nunitoFontStacks: Partial<FontStacks> = {
+  sans: 'Nunito_400Regular',
+  sansSemibold: 'Nunito_600SemiBold',
+  rounded: 'Nunito_700Bold',
+};
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -64,8 +79,28 @@ function RootNavigation() {
 }
 
 export default function RootLayout() {
+  const [fontsLoaded, fontError] = useFonts({
+    Nunito_400Regular,
+    Nunito_600SemiBold,
+    Nunito_700Bold,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded || fontError !== null) {
+      void hideSplash();
+    }
+  }, [fontsLoaded, fontError]);
+
+  if (!fontsLoaded && fontError === null) {
+    return null;
+  }
+
   return (
-    <AppThemeProvider colorScheme="system" systemFallback="light">
+    <AppThemeProvider
+      colorScheme="system"
+      systemFallback="light"
+      {...(fontsLoaded ? { fonts: nunitoFontStacks } : {})}
+    >
       <RootNavigation />
     </AppThemeProvider>
   );

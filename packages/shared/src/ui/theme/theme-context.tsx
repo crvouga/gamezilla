@@ -14,7 +14,7 @@ import { useColorScheme, useWindowDimensions } from 'react-native';
 import { assert } from '../../assert';
 import type { ColorScheme, ColorTokens } from './colors';
 import { defaultColors } from './colors';
-import { fonts } from './fonts';
+import { fonts, type FontStacks } from './fonts';
 import { createSx } from './sx';
 
 export type ThemeLayout = {
@@ -28,7 +28,7 @@ export type Theme = {
   sx: ReturnType<typeof createSx>;
   colors: ColorTokens;
   colorScheme: ColorScheme;
-  fonts: typeof fonts;
+  fonts: FontStacks;
   layout: ThemeLayout;
 };
 
@@ -47,6 +47,8 @@ export type ThemeProviderProps = {
   children: ReactNode;
   /** Optional color overrides per scheme */
   colors?: Partial<Record<ColorScheme, Partial<ColorTokens>>>;
+  /** Optional font stack overrides (merged onto defaults) */
+  fonts?: Partial<FontStacks>;
 };
 
 export function ThemeProvider({
@@ -54,6 +56,7 @@ export function ThemeProvider({
   systemFallback = 'light',
   children,
   colors: colorOverrides,
+  fonts: fontsProp,
 }: ThemeProviderProps) {
   const systemScheme = useColorScheme();
   const layout = useWindowDimensions();
@@ -72,12 +75,15 @@ export function ThemeProvider({
     const base = defaultColors[resolvedScheme];
     const overrides = colorOverrides?.[resolvedScheme];
     const colors: ColorTokens = overrides ? { ...base, ...overrides } : base;
+    const mergedFonts: FontStacks = fontsProp
+      ? { ...fonts, ...fontsProp }
+      : fonts;
 
     return {
       sx: createSx(colors),
       colors,
       colorScheme: resolvedScheme,
-      fonts,
+      fonts: mergedFonts,
       layout: {
         width: layout.width,
         height: layout.height,
@@ -85,7 +91,7 @@ export function ThemeProvider({
         fontScale: layout.fontScale,
       },
     };
-  }, [resolvedScheme, colorOverrides, layout]);
+  }, [resolvedScheme, colorOverrides, fontsProp, layout]);
 
   return (
     <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>

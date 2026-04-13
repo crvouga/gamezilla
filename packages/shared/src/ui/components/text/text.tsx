@@ -14,7 +14,7 @@
 import { forwardRef } from 'react';
 import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
 import { useTheme } from '../../theme';
-import type { SxProps } from '../../theme';
+import type { SxProps, Theme } from '../../theme';
 
 export type TextVariant =
   | 'body'
@@ -30,22 +30,47 @@ export type TextVariant =
   | 'mono';
 
 const variantStyles: Record<TextVariant, SxProps> = {
-  body: { fontSize: 'base', lineHeight: 24, color: 'text' },
-  bodyBold: { fontSize: 'base', lineHeight: 24, fontWeight: '600', color: 'text' },
-  caption: { fontSize: 'xs', lineHeight: 16, color: 'textSecondary' },
-  label: { fontSize: 'sm', lineHeight: 20, fontWeight: '500', color: 'text' },
-  title: { fontSize: '4xl', fontWeight: 'bold', lineHeight: 40, color: 'text' },
-  subtitle: { fontSize: 'xl', fontWeight: 'bold', color: 'text' },
-  heading: { fontSize: '2xl', fontWeight: 'bold', lineHeight: 32, color: 'text' },
+  body: { fontSize: 'base', lineHeight: 26, color: 'text' },
+  bodyBold: { fontSize: 'base', lineHeight: 26, fontWeight: '600', color: 'text' },
+  caption: { fontSize: 'xs', lineHeight: 18, color: 'textSecondary' },
+  label: { fontSize: 'sm', lineHeight: 22, fontWeight: '500', color: 'text' },
+  title: { fontSize: '4xl', fontWeight: 'bold', lineHeight: 44, color: 'text' },
+  subtitle: { fontSize: 'xl', fontWeight: 'bold', lineHeight: 28, color: 'text' },
+  heading: { fontSize: '2xl', fontWeight: 'bold', lineHeight: 34, color: 'text' },
   navigationTitle: {
     fontSize: 'lg',
-    lineHeight: 22,
+    lineHeight: 24,
     fontWeight: '600',
     color: 'text',
   },
-  link: { fontSize: 'base', lineHeight: 24, color: 'tint' },
-  mono: { fontSize: 'sm', lineHeight: 20, color: 'text' },
+  link: { fontSize: 'base', lineHeight: 26, color: 'tint' },
+  mono: { fontSize: 'sm', lineHeight: 22, color: 'text' },
 };
+
+function variantFontFamily(
+  variant: TextVariant,
+  theme: Theme
+): { fontFamily?: string } {
+  if (variant === 'mono') {
+    return { fontFamily: theme.fonts.mono };
+  }
+  if (
+    variant === 'title' ||
+    variant === 'subtitle' ||
+    variant === 'heading' ||
+    variant === 'label' ||
+    variant === 'navigationTitle'
+  ) {
+    return { fontFamily: theme.fonts.rounded };
+  }
+  if (variant === 'bodyBold') {
+    const semi = theme.fonts.sansSemibold;
+    return semi !== undefined
+      ? { fontFamily: semi }
+      : { fontFamily: theme.fonts.sans };
+  }
+  return { fontFamily: theme.fonts.sans };
+}
 
 export type TextProps = RNTextProps & {
   /** Typographic variant preset. Defaults to `"body"`. */
@@ -60,7 +85,7 @@ export const Text = forwardRef<RNText, TextProps>(function Text(
 ) {
   const theme = useTheme();
   const base = theme.sx(variantStyles[variant]);
-  const monoFont = variant === 'mono' ? { fontFamily: theme.fonts.mono } : undefined;
+  const variantFont = variantFontFamily(variant, theme);
   const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
-  return <RNText ref={ref} style={[base, monoFont, sxStyle, style]} {...rest} />;
+  return <RNText ref={ref} style={[base, variantFont, sxStyle, style]} {...rest} />;
 });

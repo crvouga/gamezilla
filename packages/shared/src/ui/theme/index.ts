@@ -14,7 +14,7 @@ export type {
   ThemeProviderProps,
 } from './theme-context';
 export { defaultColors, type ColorScheme, type ColorTokens } from './colors';
-export { fonts } from './fonts';
+export { fonts, type FontStacks } from './fonts';
 export { createSx, type SxProps } from './sx';
 export {
   spacing,

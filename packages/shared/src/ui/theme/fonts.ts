@@ -5,14 +5,23 @@
 
 import { Platform } from 'react-native';
 
-const DEFAULT_FONTS = {
+export type FontStacks = {
+  sans: string;
+  serif: string;
+  rounded: string;
+  mono: string;
+  /** When using custom loaded fonts (e.g. Nunito), use for semibold body text on Android. */
+  sansSemibold?: string;
+};
+
+const DEFAULT_FONTS: FontStacks = {
   sans: 'normal',
   serif: 'serif',
   rounded: 'normal',
   mono: 'monospace',
-} as const;
+};
 
-export const fonts =
+export const fonts: FontStacks =
   Platform.select({
     ios: {
       sans: 'system-ui',
@@ -20,10 +29,10 @@ export const fonts =
       rounded: 'ui-rounded',
       mono: 'ui-monospace',
     },
-    default: {
-      sans: 'normal',
+    android: {
+      sans: 'sans-serif',
       serif: 'serif',
-      rounded: 'normal',
+      rounded: 'sans-serif-medium',
       mono: 'monospace',
     },
     web: {
@@ -32,5 +41,11 @@ export const fonts =
       rounded:
         "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
       mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+    },
+    default: {
+      sans: 'sans-serif',
+      serif: 'serif',
+      rounded: 'sans-serif',
+      mono: 'monospace',
     },
   }) ?? DEFAULT_FONTS;

@@ -42,19 +42,19 @@ const sizeMap = {
     py: 1 as number,
     px: 3 as number,
     fontSize: 'sm' as const,
-    borderRadius: 6,
+    borderRadius: 12,
   },
   md: {
     py: 2 as number,
     px: 4 as number,
     fontSize: 'base' as const,
-    borderRadius: 8,
+    borderRadius: 16,
   },
   lg: {
     py: 3 as number,
     px: 6 as number,
     fontSize: 'lg' as const,
-    borderRadius: 10,
+    borderRadius: 20,
   },
 };
 
