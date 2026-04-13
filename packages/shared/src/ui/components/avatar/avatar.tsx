@@ -57,9 +57,10 @@ export function Avatar({
   const fontSize = Math.round(size * 0.4);
   return (
     <View style={containerStyle}>
-      <Text style={{ color: theme.colors.paper, fontSize, fontWeight: 'bold' }}>
-        {(initials ?? '?').slice(0, 2).toUpperCase()}
-      </Text>
+      <Text
+        style={{ color: theme.colors.paper, fontSize, fontWeight: 'bold' }}
+        label={(initials ?? '?').slice(0, 2).toUpperCase()}
+      />
     </View>
   );
 }

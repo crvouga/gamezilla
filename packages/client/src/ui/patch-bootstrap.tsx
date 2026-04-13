@@ -64,12 +64,17 @@ export function PatchBootstrap({ children }: { children: ReactNode }) {
   if (error !== null) {
     return (
       <Center sx={{ flex: 1, gap: 4, p: 4 }}>
-        <Text variant="bodyBold" sx={{ fontSize: 'base' }} style={{ textAlign: 'center' }}>
-          Failed to initialize
-        </Text>
-        <Text sx={{ fontSize: 'sm', opacity: 0.8 }} style={{ textAlign: 'center' }}>
-          {error.message}
-        </Text>
+        <Text
+          variant="bodyBold"
+          sx={{ fontSize: 'base' }}
+          style={{ textAlign: 'center' }}
+          label="Failed to initialize"
+        />
+        <Text
+          sx={{ fontSize: 'sm', opacity: 0.8 }}
+          style={{ textAlign: 'center' }}
+          label={error.message}
+        />
         <Box sx={{ mt: 4 }}>
           <Button title="Retry" onPress={runBootstrap} />
         </Box>

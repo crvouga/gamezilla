@@ -7,11 +7,14 @@ export function EventLog({ events }: { events: Event[] }) {
 
   return (
     <Card elevation={1} sx={{ p: 4, gap: 1 }}>
-      <Text variant="label" sx={{ mb: 1 }} style={{ textTransform: 'uppercase', fontWeight: 'bold' }}>
-        Committed Events
-      </Text>
+      <Text
+        variant="label"
+        sx={{ mb: 1 }}
+        style={{ textTransform: 'uppercase', fontWeight: 'bold' }}
+        label="Committed Events"
+      />
       {events.length === 0 && (
-        <Text variant="caption">No committed events yet.</Text>
+        <Text variant="caption" label="No committed events yet." />
       )}
       {events.map((event, i) => {
         const payload = event.payload as Record<string, unknown> | undefined;
@@ -19,24 +22,34 @@ export function EventLog({ events }: { events: Event[] }) {
           <Stack key={i} direction="horizontal" spacing={2} align="center">
             <Text
               variant="mono"
-              style={{ width: 24, textAlign: 'right', fontSize: 11, color: theme.colors.textSecondary }}
-            >
-              {i + 1}
-            </Text>
+              style={{
+                width: 24,
+                textAlign: 'right',
+                fontSize: 11,
+                color: theme.colors.textSecondary,
+              }}
+              label={String(i + 1)}
+            />
             <Text
               variant="mono"
-              style={{ fontSize: 11, fontWeight: '600', color: theme.colors.success }}
-            >
-              {event.type}
-            </Text>
+              style={{
+                fontSize: 11,
+                fontWeight: '600',
+                color: theme.colors.success,
+              }}
+              label={event.type}
+            />
             {payload && (
               <Text
                 variant="mono"
-                style={{ flex: 1, fontSize: 11, color: theme.colors.textSecondary }}
+                style={{
+                  flex: 1,
+                  fontSize: 11,
+                  color: theme.colors.textSecondary,
+                }}
                 numberOfLines={1}
-              >
-                {JSON.stringify(payload)}
-              </Text>
+                label={JSON.stringify(payload)}
+              />
             )}
           </Stack>
         );

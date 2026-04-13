@@ -10,7 +10,7 @@ export default function SegmentedControlExample() {
 
   return (
     <Box sx={{ p: 4, gap: 4 }}>
-      <Text variant="heading">SegmentedControl</Text>
+      <Text variant="heading" label="SegmentedControl" />
 
       <Stack spacing={4}>
         <SegmentedControl
@@ -23,7 +23,7 @@ export default function SegmentedControlExample() {
           onSelect={setMode}
         />
 
-        <Text variant="caption">Selected: {mode}</Text>
+        <Text variant="caption" label={`Selected: ${mode}`} />
 
         <SegmentedControl
           segments={[
@@ -35,7 +35,7 @@ export default function SegmentedControlExample() {
           onSelect={setSize}
         />
 
-        <Text variant="caption">Selected: {size}</Text>
+        <Text variant="caption" label={`Selected: ${size}`} />
       </Stack>
     </Box>
   );

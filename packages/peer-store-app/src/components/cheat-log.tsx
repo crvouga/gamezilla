@@ -10,11 +10,10 @@ export function CheatLog({ entries }: { entries: CheatLogEntry[] }) {
         variant="label"
         sx={{ mb: 1 }}
         style={{ textTransform: 'uppercase', fontWeight: 'bold' }}
-      >
-        Cheat Log
-      </Text>
+        label="Cheat Log"
+      />
       {entries.length === 0 && (
-        <Text variant="caption">No cheat attempts yet.</Text>
+        <Text variant="caption" label="No cheat attempts yet." />
       )}
       {entries.map((entry) => (
         <Stack key={entry.id} direction="horizontal" spacing={2} align="center">
@@ -27,9 +26,8 @@ export function CheatLog({ entries }: { entries: CheatLogEntry[] }) {
               color: entry.detected ? '#6ee7b7' : '#fca5a5',
             }}
             numberOfLines={1}
-          >
-            {entry.detected ? 'CAUGHT' : 'UNDETECTED'}
-          </Text>
+            label={entry.detected ? 'CAUGHT' : 'UNDETECTED'}
+          />
           {entry.peerId && (
             <Text
               variant="mono"
@@ -39,9 +37,8 @@ export function CheatLog({ entries }: { entries: CheatLogEntry[] }) {
                 color: entry.peerId === 'wire' ? '#facc15' : theme.colors.text,
               }}
               numberOfLines={1}
-            >
-              {entry.peerId}
-            </Text>
+              label={entry.peerId}
+            />
           )}
           <Text
             variant="mono"
@@ -51,9 +48,8 @@ export function CheatLog({ entries }: { entries: CheatLogEntry[] }) {
               color: theme.colors.textSecondary,
             }}
             numberOfLines={1}
-          >
-            {entry.scenario}
-          </Text>
+            label={entry.scenario}
+          />
           <Text
             variant="mono"
             sx={{
@@ -62,9 +58,8 @@ export function CheatLog({ entries }: { entries: CheatLogEntry[] }) {
               color: theme.colors.textSecondary,
             }}
             numberOfLines={1}
-          >
-            {entry.detail}
-          </Text>
+            label={entry.detail}
+          />
         </Stack>
       ))}
     </Card>

@@ -6,7 +6,7 @@ import { Spinner } from './spinner';
 export default function SpinnerExample() {
   return (
     <Box sx={{ p: 4, gap: 4 }}>
-      <Text variant="heading">Spinner</Text>
+      <Text variant="heading" label="Spinner" />
 
       <Stack direction="horizontal" spacing={4} align="center">
         <Spinner size="small" />

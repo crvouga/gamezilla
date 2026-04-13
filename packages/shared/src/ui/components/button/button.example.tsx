@@ -10,10 +10,10 @@ export default function ButtonExample() {
 
   return (
     <Box sx={{ p: 4, gap: 4 }}>
-      <Text variant="heading">Button</Text>
+      <Text variant="heading" label="Button" />
 
       <Stack spacing={2}>
-        <Text variant="label">Variants</Text>
+        <Text variant="label" label="Variants" />
         <Button title="Solid" variant="solid" onPress={() => {}} />
         <Button title="Outlined" variant="outlined" onPress={() => {}} />
         <Button title="Ghost" variant="ghost" onPress={() => {}} />
@@ -23,7 +23,7 @@ export default function ButtonExample() {
       <Divider />
 
       <Stack spacing={2}>
-        <Text variant="label">Sizes</Text>
+        <Text variant="label" label="Sizes" />
         <Button title="Small" size="sm" onPress={() => {}} />
         <Button title="Medium" size="md" onPress={() => {}} />
         <Button title="Large" size="lg" onPress={() => {}} />
@@ -32,7 +32,7 @@ export default function ButtonExample() {
       <Divider />
 
       <Stack spacing={2}>
-        <Text variant="label">Colors</Text>
+        <Text variant="label" label="Colors" />
         <Button title="Tint (default)" color="tint" onPress={() => {}} />
         <Button title="Success" color="success" onPress={() => {}} />
         <Button title="Warning" color="warning" onPress={() => {}} />
@@ -42,7 +42,7 @@ export default function ButtonExample() {
       <Divider />
 
       <Stack spacing={2}>
-        <Text variant="label">States</Text>
+        <Text variant="label" label="States" />
         <Button title="Disabled" disabled onPress={() => {}} />
         <Button
           title={loading ? 'Loading...' : 'Tap to load'}

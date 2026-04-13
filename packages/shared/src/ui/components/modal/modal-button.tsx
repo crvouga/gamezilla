@@ -34,9 +34,7 @@ export function ModalButton({
         pressed && { opacity: 0.7 },
       ]}
     >
-      <Text variant="bodyBold" style={{ color }}>
-        {label}
-      </Text>
+      <Text variant="bodyBold" style={{ color }} label={label} />
     </Pressable>
   );
 }

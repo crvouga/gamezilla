@@ -131,9 +131,8 @@ export function TodoList() {
               style={
                 filter === 'all' ? theme.sx({ fontWeight: '600' }) : undefined
               }
-            >
-              All
-            </Text>
+              label="All"
+            />
           </Pressable>
           <Pressable
             onPress={() => setFilter('active')}
@@ -145,9 +144,8 @@ export function TodoList() {
                   ? theme.sx({ fontWeight: '600' })
                   : undefined
               }
-            >
-              Active
-            </Text>
+              label="Active"
+            />
           </Pressable>
           <Pressable
             onPress={() => setFilter('completed')}
@@ -159,9 +157,8 @@ export function TodoList() {
                   ? theme.sx({ fontWeight: '600' })
                   : undefined
               }
-            >
-              Completed
-            </Text>
+              label="Completed"
+            />
           </Pressable>
         </Box>
         <Box sx={{ flexDirection: 'row', gap: 2, mb: 4 }}>
@@ -188,16 +185,19 @@ export function TodoList() {
             onPress={addTodo}
             style={theme.sx({ justifyContent: 'center', px: 4 })}
           >
-            <Text variant="bodyBold">Add</Text>
+            <Text variant="bodyBold" label="Add" />
           </Pressable>
         </Box>
         <Box sx={{ flex: 1 }}>
           {todos.length === 0 ? (
-            <Text style={theme.sx({ opacity: 0.7, fontStyle: 'italic' })}>
-              {filter === 'all'
-                ? 'No todos yet. Add one above!'
-                : `No ${filter} todos.`}
-            </Text>
+            <Text
+              style={theme.sx({ opacity: 0.7, fontStyle: 'italic' })}
+              label={
+                filter === 'all'
+                  ? 'No todos yet. Add one above!'
+                  : `No ${filter} todos.`
+              }
+            />
           ) : (
             todos.map((entity) => (
               <TodoItem

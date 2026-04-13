@@ -24,7 +24,7 @@ export default function SelectExample() {
 
   return (
     <Box sx={{ p: 4, gap: 4 }}>
-      <Text variant="heading">Select</Text>
+      <Text variant="heading" label="Select" />
 
       <Stack spacing={3}>
         <Select

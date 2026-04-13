@@ -43,7 +43,7 @@ export function FloatingMenuItem({
       {...rest}
     >
       {leading}
-      <Text variant="body">{label}</Text>
+      <Text variant="body" label={label} />
     </Pressable>
   );
 }

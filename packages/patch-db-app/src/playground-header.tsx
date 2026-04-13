@@ -45,9 +45,8 @@ export function PlaygroundHeader() {
                 fontSize: 11,
                 color: theme.colors.textSecondary,
               }}
-            >
-              {sim.serverId}
-            </Text>
+              label={sim.serverId}
+            />
           </Stack>
         </Box>
 

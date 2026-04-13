@@ -9,7 +9,7 @@ export default function TextInputExample() {
 
   return (
     <Box sx={{ p: 4, gap: 4 }}>
-      <Text variant="heading">TextInput</Text>
+      <Text variant="heading" label="TextInput" />
 
       <TextInput
         label="Name"

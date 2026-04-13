@@ -25,12 +25,12 @@ export default function SpacesScreen() {
 
   return (
     <Box sx={{ flex: 1 }}>
+      <ScreenHeader
+        title="Spaces"
+        subtitle="Rooms to play with friends"
+        showAccountMenu
+      />
       <ConstrainedContent>
-        <ScreenHeader
-          title="Spaces"
-          subtitle="Rooms to play with friends"
-          showAccountMenu
-        />
         <Box sx={{ px: 4, pt: 2, pb: 2 }}>
           <SegmentedControl<SpaceFilter>
             segments={[
@@ -52,9 +52,11 @@ export default function SpacesScreen() {
         >
           {spaces.length === 0 ? (
             <Box sx={{ py: 8, alignItems: 'center' }}>
-              <Text variant="body" sx={{ color: 'textSecondary' }}>
-                No spaces match this filter.
-              </Text>
+              <Text
+                variant="body"
+                sx={{ color: 'textSecondary' }}
+                label="No spaces match this filter."
+              />
             </Box>
           ) : (
             spaces.map((space) => (

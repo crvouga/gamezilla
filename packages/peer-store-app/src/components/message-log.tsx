@@ -16,21 +16,27 @@ export function MessageLog({ entries }: { entries: MessageLogEntry[] }) {
 
   return (
     <Card elevation={1} sx={{ p: 4, gap: 1 }}>
-      <Text variant="label" sx={{ mb: 1 }} style={{ textTransform: 'uppercase', fontWeight: 'bold' }}>
-        Message Log
-      </Text>
+      <Text
+        variant="label"
+        sx={{ mb: 1 }}
+        style={{ textTransform: 'uppercase', fontWeight: 'bold' }}
+        label="Message Log"
+      />
       {entries.length === 0 && (
-        <Text variant="caption">No messages yet.</Text>
+        <Text variant="caption" label="No messages yet." />
       )}
       {entries.map((entry) => (
         <Stack key={entry.id} direction="horizontal" spacing={2} align="center">
           <Text
             variant="mono"
-            style={{ width: 64, fontSize: 11, color: theme.colors.textSecondary }}
+            style={{
+              width: 64,
+              fontSize: 11,
+              color: theme.colors.textSecondary,
+            }}
             numberOfLines={1}
-          >
-            {entry.from}
-          </Text>
+            label={entry.from}
+          />
           <Text
             variant="mono"
             style={{
@@ -40,16 +46,14 @@ export function MessageLog({ entries }: { entries: MessageLogEntry[] }) {
               color: KIND_COLORS[entry.kind] ?? theme.colors.textSecondary,
             }}
             numberOfLines={1}
-          >
-            {entry.kind}
-          </Text>
+            label={entry.kind}
+          />
           <Text
             variant="mono"
             style={{ flex: 1, fontSize: 11, color: theme.colors.textSecondary }}
             numberOfLines={1}
-          >
-            {entry.summary}
-          </Text>
+            label={entry.summary}
+          />
         </Stack>
       ))}
     </Card>

@@ -1,10 +1,10 @@
+import { useBreakpoint } from '@gamezilla/shared/theme';
+import { Box, Pressable, Text } from '@gamezilla/shared/ui';
+import { useNavigation } from '@react-navigation/native';
 import type { Href } from 'expo-router';
 import { useRouter } from 'expo-router';
-import { useNavigation } from '@react-navigation/native';
 import type { ReactNode } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Box, Pressable, Text } from '@gamezilla/shared/ui';
-import { useBreakpoint } from '@gamezilla/shared/theme';
 
 import { AccountMenu } from '@/ui/account-menu';
 
@@ -91,18 +91,16 @@ export function ScreenHeader({
             ellipsizeMode="tail"
             variant="navigationTitle"
             sx={{ textAlign: 'center' }}
-          >
-            {title}
-          </Text>
+            label={title}
+          />
           {hasSubtitle ? (
             <Text
               variant="caption"
               numberOfLines={2}
               ellipsizeMode="tail"
               sx={{ textAlign: 'center' }}
-            >
-              {subtitle}
-            </Text>
+              label={subtitle}
+            />
           ) : null}
         </Box>
 
@@ -121,9 +119,7 @@ export function ScreenHeader({
               zIndex: 1,
             }}
           >
-            <Text variant="label" sx={{ color: 'tint' }}>
-              Back
-            </Text>
+            <Text variant="label" sx={{ color: 'tint' }} label="Back" />
           </Pressable>
         ) : null}
 
@@ -146,6 +142,3 @@ export function ScreenHeader({
     </Box>
   );
 }
-
-/** @deprecated Use `ScreenHeader` */
-export const StackScreenHeader = ScreenHeader;

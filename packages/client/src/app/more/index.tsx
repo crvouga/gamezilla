@@ -44,7 +44,11 @@ export default function MoreIndex() {
 
   return (
     <Box sx={{ flex: 1 }}>
-      <ScreenHeader title="Settings" subtitle="App and developer tools" />
+      <ScreenHeader
+        title="Settings"
+        subtitle="App and developer tools"
+        fallbackHref="/"
+      />
       <Box sx={{ flex: 1, py: 2 }}>
         {ITEMS.map((item) => (
           <Pressable
@@ -61,8 +65,8 @@ export default function MoreIndex() {
               }}
             >
               <Box sx={{ flex: 1, gap: 1 }}>
-                <Text variant="bodyBold">{item.label}</Text>
-                <Text variant="caption">{item.description}</Text>
+                <Text variant="bodyBold" label={item.label} />
+                <Text variant="caption" label={item.description} />
               </Box>
               <IconSymbol
                 name="chevron.right"

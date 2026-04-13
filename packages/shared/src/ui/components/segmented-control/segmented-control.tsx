@@ -82,9 +82,8 @@ export function SegmentedControl<K extends string = string>({
                 color: isActive ? theme.colors.text : theme.colors.textSecondary,
                 fontWeight: isActive ? '600' : '400',
               }}
-            >
-              {seg.label}
-            </Text>
+              label={seg.label}
+            />
           </Pressable>
         );
       })}

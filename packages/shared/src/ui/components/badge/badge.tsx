@@ -40,9 +40,10 @@ export function Badge({ label, color = 'tint', size = 'md' }: BadgeProps) {
         paddingVertical: py,
       }}
     >
-      <Text style={{ color: theme.colors.paper, fontSize, fontWeight: 'bold' }}>
-        {label}
-      </Text>
+      <Text
+        style={{ color: theme.colors.paper, fontSize, fontWeight: 'bold' }}
+        label={label}
+      />
     </View>
   );
 }

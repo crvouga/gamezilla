@@ -19,7 +19,10 @@ export function ExplorerDetail({ componentName }: ExplorerDetailProps) {
   if (!entry) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text variant="body">Component "{componentName}" not found.</Text>
+        <Text
+          variant="body"
+          label={`Component "${componentName}" not found.`}
+        />
       </View>
     );
   }

@@ -136,9 +136,8 @@ export function ServerNodePanel() {
           <Text
             variant="caption"
             style={{ color: theme.colors.textSecondary, marginBottom: 8 }}
-          >
-            Shapes ({entities.length})
-          </Text>
+            label={`Shapes (${entities.length})`}
+          />
           <ShapeList
             entities={entities}
             busy={busy}

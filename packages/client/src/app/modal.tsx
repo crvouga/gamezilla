@@ -18,12 +18,12 @@ export default function ModalScreen() {
           p: 5,
         }}
       >
-        <Text variant="body">This is a modal screen.</Text>
+        <Text variant="body" label="This is a modal screen." />
         <Pressable
           onPress={() => router.dismissTo('/more')}
           sx={{ mt: 3.75, py: 3.75 }}
         >
-          <Text variant="link">Back to Dev</Text>
+          <Text variant="link" label="Back to Dev" />
         </Pressable>
       </Box>
     </Box>

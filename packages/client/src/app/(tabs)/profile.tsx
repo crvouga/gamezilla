@@ -9,12 +9,12 @@ export default function ProfileScreen() {
 
   return (
     <Box sx={{ flex: 1 }}>
+      <ScreenHeader title="Profile" showAccountMenu />
       <ConstrainedContent>
-        <ScreenHeader title="Profile" showAccountMenu />
         <Box sx={{ flex: 1, px: 4, pt: 4, gap: 4 }}>
           <Box sx={{ alignItems: 'center', gap: 2 }}>
             <Avatar initials={auth.displayName.slice(0, 2)} size={80} />
-            <Text variant="title">{auth.displayName}</Text>
+            <Text variant="title" label={auth.displayName} />
           </Box>
         </Box>
       </ConstrainedContent>

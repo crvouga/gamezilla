@@ -50,9 +50,10 @@ export function Chip({
         disabled && { opacity: 0.4 },
       ]}
     >
-      <Text style={{ color: textColor, fontSize: 14, fontWeight: '500' }}>
-        {label}
-      </Text>
+      <Text
+        style={{ color: textColor, fontSize: 14, fontWeight: '500' }}
+        label={label}
+      />
     </Pressable>
   );
 }

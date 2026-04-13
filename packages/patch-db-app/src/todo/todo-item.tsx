@@ -45,9 +45,8 @@ export function TodoItem({
             completed &&
               theme.sx({ textDecorationLine: 'line-through', opacity: 0.6 }),
           ]}
-        >
-          {completed ? '✓' : '○'}
-        </Text>
+          label={completed ? '✓' : '○'}
+        />
         <Text
           style={[
             theme.sx({ flex: 1, fontSize: 16 }),
@@ -55,16 +54,14 @@ export function TodoItem({
               theme.sx({ textDecorationLine: 'line-through', opacity: 0.6 }),
           ]}
           numberOfLines={1}
-        >
-          {title || '(untitled)'}
-        </Text>
+          label={title || '(untitled)'}
+        />
       </Pressable>
       <Pressable onPress={onDelete} style={theme.sx({ p: 1 })} hitSlop={8}>
         <Text
           style={[theme.sx({ fontSize: 14 }), { color: theme.colors.tint }]}
-        >
-          Delete
-        </Text>
+          label="Delete"
+        />
       </Pressable>
     </Box>
   );

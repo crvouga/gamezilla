@@ -16,16 +16,19 @@ export default function ProgressBarExample() {
 
   return (
     <Box sx={{ p: 4, gap: 4 }}>
-      <Text variant="heading">ProgressBar</Text>
+      <Text variant="heading" label="ProgressBar" />
 
       <Stack spacing={3}>
-        <Text variant="label">Determinate ({Math.round(progress * 100)}%)</Text>
+        <Text
+          variant="label"
+          label={`Determinate (${Math.round(progress * 100)}%)`}
+        />
         <ProgressBar progress={progress} />
 
-        <Text variant="label">Indeterminate</Text>
+        <Text variant="label" label="Indeterminate" />
         <ProgressBar indeterminate />
 
-        <Text variant="label">Custom color &amp; height</Text>
+        <Text variant="label" label="Custom color & height" />
         <ProgressBar progress={0.7} color="success" height={8} />
         <ProgressBar progress={0.3} color="warning" height={8} />
         <ProgressBar progress={0.9} color="destructive" height={8} />

@@ -63,12 +63,11 @@ export function Checkbox({
               fontWeight: 'bold',
               lineHeight: 16,
             }}
-          >
-            ✓
-          </Text>
+            label="✓"
+          />
         )}
       </View>
-      {label && <Text variant="body">{label}</Text>}
+      {label && <Text variant="body" label={label} />}
     </Pressable>
   );
 }

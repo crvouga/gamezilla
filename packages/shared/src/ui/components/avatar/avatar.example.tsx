@@ -6,7 +6,7 @@ import { Avatar } from './avatar';
 export default function AvatarExample() {
   return (
     <Box sx={{ p: 4, gap: 4 }}>
-      <Text variant="heading">Avatar</Text>
+      <Text variant="heading" label="Avatar" />
 
       <Stack direction="horizontal" spacing={3} align="center">
         <Avatar initials="JD" size={32} />

@@ -58,18 +58,25 @@ export function TicTacToeBoard({
                   pressed && !isDisabled && { opacity: 0.7 },
                 ]}
               >
-                <Text style={{ fontSize: 18, fontWeight: 'bold', color: textColor }}>
-                  {mark ?? ''}
-                </Text>
+                <Text
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 'bold',
+                    color: textColor,
+                  }}
+                  label={mark ?? ''}
+                />
               </Pressable>
             );
           })}
         </Stack>
       ))}
       {winner && (
-        <Text variant="label" sx={{ mt: 1 }}>
-          {winner === 'draw' ? 'Draw' : `${winner} wins`}
-        </Text>
+        <Text
+          variant="label"
+          sx={{ mt: 1 }}
+          label={winner === 'draw' ? 'Draw' : `${winner} wins`}
+        />
       )}
     </Stack>
   );

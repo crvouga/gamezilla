@@ -48,15 +48,16 @@ function PlaygroundRoute() {
           gap: 3,
         }}
       >
-        <Text variant="subtitle" style={{ color: theme.colors.destructive }}>
-          Playground failed to start
-        </Text>
+        <Text
+          variant="subtitle"
+          style={{ color: theme.colors.destructive }}
+          label="Playground failed to start"
+        />
         <Text
           variant="caption"
           style={{ color: theme.colors.textSecondary, textAlign: 'center' }}
-        >
-          {boot.bootErr}
-        </Text>
+          label={boot.bootErr}
+        />
       </Box>
     );
   }
@@ -75,9 +76,8 @@ function PlaygroundRoute() {
         <Text
           variant="caption"
           style={{ color: theme.colors.textSecondary }}
-        >
-          {boot.bootLabel}
-        </Text>
+          label={boot.bootLabel}
+        />
       </Box>
     );
   }

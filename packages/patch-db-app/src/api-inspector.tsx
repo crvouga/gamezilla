@@ -54,15 +54,13 @@ function AttributeRow({
             fontSize: 12,
             color: theme.colors.tint,
           }}
-        >
-          {attrKey}
-        </Text>
+          label={attrKey}
+        />
         <Text
           variant="mono"
           style={{ flex: 1, fontSize: 12, textAlign: 'right' }}
-        >
-          {formatAttrValue(value)}
-        </Text>
+          label={formatAttrValue(value)}
+        />
       </Stack>
       {!isLast && <Divider />}
     </Box>
@@ -84,9 +82,8 @@ function ConnectionStatus({
       <Text
         variant="caption"
         style={{ color: theme.colors.textSecondary }}
-      >
-        {connected ? 'Connected' : 'Connecting'} to {url}
-      </Text>
+        label={`${connected ? 'Connected' : 'Connecting'} to ${url}`}
+      />
     </Stack>
   );
 }
@@ -178,7 +175,7 @@ export function ApiInspector() {
       <Stack spacing={4}>
         <Card elevation={1} sx={{ p: 4 }}>
           <Stack spacing={3}>
-            <Text variant="bodyBold">Server Connection</Text>
+            <Text variant="bodyBold" label="Server Connection" />
             <TextInput
               value={urlInput}
               onChangeText={setUrlInput}
@@ -224,26 +221,26 @@ export function ApiInspector() {
               backgroundColor: theme.colors.destructive + '0a',
             }}
           >
-            <Text variant="body" style={{ color: theme.colors.destructive }}>
-              {error}
-            </Text>
+            <Text
+              variant="body"
+              style={{ color: theme.colors.destructive }}
+              label={error}
+            />
           </Card>
         )}
 
         {entity !== null && entity !== undefined ? (
           <Card elevation={1}>
             <Box sx={{ px: 4, py: 3 }}>
-              <Text variant="bodyBold">Admin Metrics</Text>
+              <Text variant="bodyBold" label="Admin Metrics" />
               <Text
                 variant="caption"
                 style={{
                   color: theme.colors.textSecondary,
                   marginTop: 2,
                 }}
-              >
-                {entity.entityType} / {entity.entityId.slice(0, 16)} &middot;{' '}
-                {result?.patches.length ?? 0} patches
-              </Text>
+                label={`${entity.entityType} / ${entity.entityId.slice(0, 16)} · ${result?.patches.length ?? 0} patches`}
+              />
             </Box>
             <Divider />
             {adminAttrs.map(([key, value], i) => (
@@ -262,9 +259,8 @@ export function ApiInspector() {
               <Text
                 variant="caption"
                 style={{ color: theme.colors.textSecondary }}
-              >
-                Waiting for metrics from server...
-              </Text>
+                label="Waiting for metrics from server..."
+              />
             </Stack>
           </Card>
         ) : null}

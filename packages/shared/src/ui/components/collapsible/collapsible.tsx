@@ -34,9 +34,8 @@ function DefaultIcon({ isOpen }: { isOpen: boolean }) {
         fontSize: 16,
         transform: [{ rotate: isOpen ? '90deg' : '0deg' }],
       }}
-    >
-      ›
-    </Text>
+      label="›"
+    />
   );
 }
 
@@ -64,7 +63,7 @@ export function Collapsible({
         ]}
       >
         {renderIcon ? renderIcon(isOpen) : <DefaultIcon isOpen={isOpen} />}
-        <Text variant="bodyBold">{title}</Text>
+        <Text variant="bodyBold" label={title} />
       </Pressable>
       {isOpen && <Box sx={{ ml: 6, mb: 2 }}>{children}</Box>}
     </View>

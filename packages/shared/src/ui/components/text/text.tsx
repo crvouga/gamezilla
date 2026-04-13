@@ -6,12 +6,12 @@
  *
  * @example
  * ```tsx
- * <Text variant="heading">Page Title</Text>
- * <Text variant="caption" sx={{ color: 'textSecondary' }}>Footnote</Text>
+ * <Text variant="heading" label="Page Title" />
+ * <Text variant="caption" sx={{ color: 'textSecondary' }} label="Footnote" />
  * ```
  */
 
-import { forwardRef } from 'react';
+import { forwardRef, type ReactNode } from 'react';
 import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
 import { useTheme } from '../../theme';
 import type { SxProps, Theme } from '../../theme';
@@ -77,15 +77,25 @@ export type TextProps = RNTextProps & {
   variant?: TextVariant;
   /** Utility-first style shorthand resolved against the current theme. */
   sx?: SxProps;
+  /**
+   * Primary text content. Prefer this over `children` outside the design-system
+   * package so copy is not embedded as JSX text nodes.
+   */
+  label?: ReactNode;
 };
 
 export const Text = forwardRef<RNText, TextProps>(function Text(
-  { variant = 'body', sx: sxProp, style, ...rest },
+  { variant = 'body', sx: sxProp, style, label, children, ...rest },
   ref,
 ) {
   const theme = useTheme();
   const base = theme.sx(variantStyles[variant]);
   const variantFont = variantFontFamily(variant, theme);
   const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
-  return <RNText ref={ref} style={[base, variantFont, sxStyle, style]} {...rest} />;
+  const content = label ?? children;
+  return (
+    <RNText ref={ref} style={[base, variantFont, sxStyle, style]} {...rest}>
+      {content}
+    </RNText>
+  );
 });

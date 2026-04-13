@@ -35,7 +35,7 @@ export function Switch({ label, ...rest }: SwitchProps) {
         thumbColor={theme.colors.paper}
         {...rest}
       />
-      {label && <Text variant="body">{label}</Text>}
+      {label && <Text variant="body" label={label} />}
     </View>
   );
 }

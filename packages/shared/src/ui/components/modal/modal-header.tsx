@@ -12,7 +12,7 @@ export type ModalHeaderProps = {
 export function ModalHeader({ title }: ModalHeaderProps) {
   return (
     <Box sx={{ mb: 3 }}>
-      <Text variant="subtitle">{title}</Text>
+      <Text variant="subtitle" label={title} />
     </Box>
   );
 }

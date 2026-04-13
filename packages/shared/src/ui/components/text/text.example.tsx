@@ -16,16 +16,21 @@ const variants = [
 export default function TextExample() {
   return (
     <Box sx={{ p: 4, gap: 3 }}>
-      <Text variant="heading">Text</Text>
+      <Text variant="heading" label="Text" />
       {variants.map((v) => (
         <Box key={v} sx={{ gap: 0.5 }}>
-          <Text variant="caption">{v}</Text>
-          <Text variant={v}>The quick brown fox jumps over the lazy dog</Text>
+          <Text variant="caption" label={v} />
+          <Text
+            variant={v}
+            label="The quick brown fox jumps over the lazy dog"
+          />
         </Box>
       ))}
-      <Text variant="body" sx={{ color: 'textSecondary' }}>
-        Custom sx color override
-      </Text>
+      <Text
+        variant="body"
+        sx={{ color: 'textSecondary' }}
+        label="Custom sx color override"
+      />
     </Box>
   );
 }

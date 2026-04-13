@@ -58,7 +58,7 @@ export function PeerPanel({
       <Stack spacing={1}>
         <Stack direction="horizontal" align="center" justify="space-between">
           <Stack direction="horizontal" spacing={2} align="center">
-            <Text variant="subtitle" numberOfLines={1}>{role}</Text>
+            <Text variant="subtitle" numberOfLines={1} label={role} />
             <StatusDot status={isOnline ? 'online' : 'offline'} />
           </Stack>
           <Button
@@ -90,12 +90,12 @@ export function PeerPanel({
       <Stack direction="horizontal" spacing={3} align="center">
         <Stack direction="horizontal" spacing={1} align="center">
           <StatusDot status="online" size={8} />
-          <Text variant="caption">committed</Text>
+          <Text variant="caption" label="committed" />
         </Stack>
         {hasOptimistic && (
           <Stack direction="horizontal" spacing={1} align="center">
             <StatusDot status="warning" size={8} />
-            <Text variant="caption">optimistic</Text>
+            <Text variant="caption" label="optimistic" />
           </Stack>
         )}
       </Stack>
@@ -117,7 +117,7 @@ export function PeerPanel({
         ) : null}
       </Box>
 
-      <Text variant="caption">{peerId}</Text>
+      <Text variant="caption" label={peerId} />
 
       <StateInspector
         committedState={committedState}
@@ -126,12 +126,10 @@ export function PeerPanel({
 
       <Collapsible title={`Events (${events.length})`}>
         {events.length === 0 && (
-          <Text variant="caption">none</Text>
+          <Text variant="caption" label="none" />
         )}
         {events.slice(-6).map((e, i) => (
-          <Text key={i} variant="caption">
-            {e.type}
-          </Text>
+          <Text key={i} variant="caption" label={e.type} />
         ))}
       </Collapsible>
     </Card>

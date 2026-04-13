@@ -1,5 +1,6 @@
 const tsParser = require('@typescript-eslint/parser')
 const eslintPluginNaming = require('eslint-plugin-naming')
+const eslintPluginGamezillaText = require('../../eslint-rules/gamezilla-text.cjs')
 
 module.exports = [
   {
@@ -12,6 +13,7 @@ module.exports = [
     },
     plugins: {
       naming: eslintPluginNaming,
+      gamezillaText: eslintPluginGamezillaText,
     },
     rules: {
       'no-restricted-imports': [
@@ -38,6 +40,7 @@ module.exports = [
           ignore: ['^index\\.(ts|tsx|js|jsx)$'],
         },
       ],
+      'gamezillaText/text-use-label': 'error',
     },
   },
 ]

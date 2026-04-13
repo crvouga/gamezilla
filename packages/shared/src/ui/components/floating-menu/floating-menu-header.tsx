@@ -32,13 +32,13 @@ export function FloatingMenuHeader({
         gap: 0.5,
       }}
     >
-      <Text variant="bodyBold" numberOfLines={1}>
-        {title}
-      </Text>
+      <Text variant="bodyBold" numberOfLines={1} label={title} />
       {hasSubtitle ? (
-        <Text variant="caption" sx={{ color: 'textSecondary' }}>
-          {subtitle}
-        </Text>
+        <Text
+          variant="caption"
+          sx={{ color: 'textSecondary' }}
+          label={subtitle}
+        />
       ) : null}
       {children}
     </Box>

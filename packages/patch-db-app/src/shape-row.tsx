@@ -23,9 +23,8 @@ function ReorderButton({
           fontWeight: '600',
           color: theme.colors.textSecondary,
         }}
-      >
-        {label}
-      </Text>
+        label={label}
+      />
     </IconButton>
   );
 }
@@ -85,9 +84,8 @@ export function ShapeRow({
           fontSize: 10,
           color: theme.colors.textSecondary,
         }}
-      >
-        {String(entity.attributes[SHAPE_ATTR.order] ?? index)}
-      </Text>
+        label={String(entity.attributes[SHAPE_ATTR.order] ?? index)}
+      />
 
       <Box
         style={{
@@ -117,9 +115,8 @@ export function ShapeRow({
           variant="mono"
           numberOfLines={1}
           style={{ fontSize: 12, color: theme.colors.text }}
-        >
-          {String(entity.attributes[SHAPE_ATTR.kind] ?? '')}
-        </Text>
+          label={String(entity.attributes[SHAPE_ATTR.kind] ?? '')}
+        />
         <Text
           variant="mono"
           numberOfLines={1}
@@ -128,9 +125,8 @@ export function ShapeRow({
             color: theme.colors.textSecondary,
             marginTop: 1,
           }}
-        >
-          {entity.entityId.slice(0, 12)}
-        </Text>
+          label={entity.entityId.slice(0, 12)}
+        />
       </Box>
 
       <IconButton

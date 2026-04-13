@@ -21,9 +21,11 @@ export function ExplorerList({ onSelect }: ExplorerListProps) {
     <ScrollView sx={{ p: 4, gap: 6, pb: 16 }}>
       {categories.map((cat) => (
         <View key={cat} style={{ gap: 4, marginBottom: 16 }}>
-          <Text variant="label" sx={{ color: 'textSecondary' }}>
-            {cat.toUpperCase()}
-          </Text>
+          <Text
+            variant="label"
+            sx={{ color: 'textSecondary' }}
+            label={cat.toUpperCase()}
+          />
           {componentRegistry
             .filter((c) => c.category === cat)
             .map((c) => (
@@ -43,8 +45,8 @@ export function ExplorerList({ onSelect }: ExplorerListProps) {
                   pressed && { opacity: 0.7 },
                 ]}
               >
-                <Text variant="body">{c.name}</Text>
-                <Text variant="caption">›</Text>
+                <Text variant="body" label={c.name} />
+                <Text variant="caption" label="›" />
               </Pressable>
             ))}
         </View>

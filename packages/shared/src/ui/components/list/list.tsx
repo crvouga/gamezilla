@@ -5,7 +5,7 @@
  * ```tsx
  * <List>
  *   <ListItem title="Profile" subtitle="Edit your info" onPress={goProfile} />
- *   <ListItem title="Settings" trailing={<Text>›</Text>} onPress={goSettings} />
+ *   <ListItem title="Settings" trailing={<Text label="›" variant="caption" />} onPress={goSettings} />
  * </List>
  * ```
  */
@@ -78,8 +78,8 @@ export function ListItem({
     >
       {leading}
       <View style={{ flex: 1 }}>
-        <Text variant="body">{title}</Text>
-        {subtitle && <Text variant="caption">{subtitle}</Text>}
+        <Text variant="body" label={title} />
+        {subtitle && <Text variant="caption" label={subtitle} />}
       </View>
       {trailing}
     </View>

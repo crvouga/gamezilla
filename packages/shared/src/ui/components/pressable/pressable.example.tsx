@@ -8,13 +8,13 @@ export default function PressableExample() {
 
   return (
     <Box sx={{ p: 4, gap: 4 }}>
-      <Text variant="heading">Pressable</Text>
+      <Text variant="heading" label="Pressable" />
 
       <Pressable
         sx={{ p: 4, background: 'surface', borderRadius: 8 }}
         onPress={() => setCount((c) => c + 1)}
       >
-        <Text variant="body">Tap count: {count}</Text>
+        <Text variant="body" label={`Tap count: ${count}`} />
       </Pressable>
 
       <Pressable
@@ -26,9 +26,7 @@ export default function PressableExample() {
         }}
         onPress={() => setCount(0)}
       >
-        <Text variant="bodyBold" sx={{ color: 'paper' }}>
-          Reset
-        </Text>
+        <Text variant="bodyBold" sx={{ color: 'paper' }} label="Reset" />
       </Pressable>
 
       <Pressable
@@ -40,9 +38,11 @@ export default function PressableExample() {
         }}
         disabled
       >
-        <Text variant="body" sx={{ color: 'disabled' }}>
-          Disabled pressable
-        </Text>
+        <Text
+          variant="body"
+          sx={{ color: 'disabled' }}
+          label="Disabled pressable"
+        />
       </Pressable>
     </Box>
   );

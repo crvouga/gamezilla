@@ -32,9 +32,11 @@ export default function SpaceDetailScreen() {
         <ScreenHeader title="Space" fallbackHref="/" />
         <ConstrainedContent>
           <Box sx={{ flex: 1, p: 4, justifyContent: 'center' }}>
-            <Text variant="body" sx={{ color: 'textSecondary' }}>
-              This space could not be found.
-            </Text>
+            <Text
+              variant="body"
+              sx={{ color: 'textSecondary' }}
+              label="This space could not be found."
+            />
             <Box sx={{ mt: 3 }}>
               <Button title="Go back" variant="solid" onPress={() => router.back()} />
             </Box>
@@ -56,11 +58,9 @@ export default function SpaceDetailScreen() {
       <ConstrainedContent>
         <Box sx={{ flex: 1, p: 4, gap: 4 }}>
           <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-            <Text variant="label">{GAME_LABEL[space.gameType]}</Text>
+            <Text variant="label" label={GAME_LABEL[space.gameType]} />
             {space.live ? (
-              <Text variant="caption" sx={{ color: 'success' }}>
-                Live
-              </Text>
+              <Text variant="caption" sx={{ color: 'success' }} label="Live" />
             ) : null}
           </Box>
 
@@ -80,22 +80,25 @@ export default function SpaceDetailScreen() {
             <Text
               variant="body"
               sx={{ color: 'textSecondary', textAlign: 'center' }}
-            >
-              Game area (placeholder). Different game types render here.
-            </Text>
+              label="Game area (placeholder). Different game types render here."
+            />
           </Box>
 
           <Box sx={{ gap: 2 }}>
-            <Text variant="label" sx={{ color: 'textSecondary' }}>
-              People here
-            </Text>
+            <Text
+              variant="label"
+              sx={{ color: 'textSecondary' }}
+              label="People here"
+            />
             <Box sx={{ flexDirection: 'row', flexWrap: 'wrap', gap: 2 }}>
               {participants.map((p) => (
                 <Box key={p.id} sx={{ alignItems: 'center', gap: 1 }}>
                   <Avatar initials={initialsFromName(p.displayName)} size={40} />
-                  <Text variant="caption" numberOfLines={1}>
-                    {p.displayName}
-                  </Text>
+                  <Text
+                    variant="caption"
+                    numberOfLines={1}
+                    label={p.displayName}
+                  />
                 </Box>
               ))}
             </Box>

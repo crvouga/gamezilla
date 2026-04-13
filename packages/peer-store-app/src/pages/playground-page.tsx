@@ -285,7 +285,7 @@ export function PlaygroundPage() {
     <ScrollView sx={{ flex: 1, px: 4, py: 3 }}>
       <Stack spacing={4} sx={{ pb: 8 }}>
         <Stack spacing={2}>
-          <Text variant="label">Network Controls</Text>
+          <Text variant="label" label="Network Controls" />
           <Stack direction="horizontal" spacing={2} wrap>
             <Button
               title={isPaused.current ? 'Resume' : 'Pause'}
@@ -325,7 +325,7 @@ export function PlaygroundPage() {
             />
           </Stack>
 
-          <Text variant="label">Wire Attacks (MITM)</Text>
+          <Text variant="label" label="Wire Attacks (MITM)" />
           <Stack direction="horizontal" spacing={2} wrap>
             <Button
               title="Fabricate Commit"

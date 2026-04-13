@@ -17,9 +17,11 @@ export function StateInspector({
   if (!expanded) {
     return (
       <Pressable onPress={() => setExpanded(true)}>
-        <Text variant="caption" style={{ color: theme.colors.textSecondary }}>
-          {hasDiff ? '▸ state (differs)' : '▸ state'}
-        </Text>
+        <Text
+          variant="caption"
+          style={{ color: theme.colors.textSecondary }}
+          label={hasDiff ? '▸ state (differs)' : '▸ state'}
+        />
       </Pressable>
     );
   }
@@ -27,9 +29,12 @@ export function StateInspector({
   return (
     <Box>
       <Pressable onPress={() => setExpanded(false)}>
-        <Text variant="caption" sx={{ mb: 1 }} style={{ color: theme.colors.textSecondary }}>
-          ▾ state
-        </Text>
+        <Text
+          variant="caption"
+          sx={{ mb: 1 }}
+          style={{ color: theme.colors.textSecondary }}
+          label="▾ state"
+        />
       </Pressable>
       <DiffView committed={committedState} display={displayState} />
     </Box>
@@ -62,9 +67,8 @@ function DiffView({
               key={key}
               variant="mono"
               style={{ fontSize: 11, color: theme.colors.success + '80' }}
-            >
-              {key}: {cVal}
-            </Text>
+              label={`${key}: ${cVal}`}
+            />
           );
         }
 
@@ -77,15 +81,13 @@ function DiffView({
                 color: theme.colors.destructive + '99',
                 textDecorationLine: 'line-through',
               }}
-            >
-              {key}: {cVal}
-            </Text>
+              label={`${key}: ${cVal}`}
+            />
             <Text
               variant="mono"
               style={{ fontSize: 11, color: theme.colors.warning + 'cc' }}
-            >
-              {key}: {dVal}
-            </Text>
+              label={`${key}: ${dVal}`}
+            />
           </Box>
         );
       })}

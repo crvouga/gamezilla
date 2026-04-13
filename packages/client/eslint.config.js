@@ -3,6 +3,7 @@
 const { defineConfig } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
 const eslintPluginNaming = require('eslint-plugin-naming');
+const eslintPluginGamezillaText = require('../../eslint-rules/gamezilla-text.cjs');
 
 module.exports = defineConfig([
   expoConfig,
@@ -17,6 +18,7 @@ module.exports = defineConfig([
     },
     plugins: {
       naming: eslintPluginNaming,
+      gamezillaText: eslintPluginGamezillaText,
     },
     rules: {
       'no-restricted-imports': [
@@ -73,6 +75,7 @@ module.exports = defineConfig([
           ],
         },
       ],
+      'gamezillaText/text-use-label': 'error',
     },
   },
 ]);

@@ -6,27 +6,27 @@ import { StatusDot } from './status-dot';
 export default function StatusDotExample() {
   return (
     <Box sx={{ p: 4, gap: 4 }}>
-      <Text variant="heading">StatusDot</Text>
+      <Text variant="heading" label="StatusDot" />
 
       <Stack spacing={3}>
         <Stack direction="horizontal" spacing={2} align="center">
           <StatusDot status="online" />
-          <Text variant="label">Online</Text>
+          <Text variant="label" label="Online" />
         </Stack>
 
         <Stack direction="horizontal" spacing={2} align="center">
           <StatusDot status="offline" />
-          <Text variant="label">Offline</Text>
+          <Text variant="label" label="Offline" />
         </Stack>
 
         <Stack direction="horizontal" spacing={2} align="center">
           <StatusDot status="warning" />
-          <Text variant="label">Warning</Text>
+          <Text variant="label" label="Warning" />
         </Stack>
 
         <Stack direction="horizontal" spacing={2} align="center">
           <StatusDot status="online" size={16} />
-          <Text variant="label">Large (16px)</Text>
+          <Text variant="label" label="Large (16px)" />
         </Stack>
       </Stack>
     </Box>

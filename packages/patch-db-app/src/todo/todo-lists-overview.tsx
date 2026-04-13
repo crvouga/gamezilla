@@ -45,9 +45,11 @@ function useTodoCountByList() {
 
 export type TodoListsOverviewProps = {
   onOpenList: (listId: string) => void;
+  /** When set, shows Back in the header (e.g. stack navigation + fallback replace). */
+  onBack?: () => void;
 };
 
-export function TodoListsOverview({ onOpenList }: TodoListsOverviewProps) {
+export function TodoListsOverview({ onOpenList, onBack }: TodoListsOverviewProps) {
   const theme = useTheme();
   const db = usePatchesDb();
   const [input, setInput] = useState('');
@@ -130,6 +132,7 @@ export function TodoListsOverview({ onOpenList }: TodoListsOverviewProps) {
       <TodoScreenHeader
         title="Todo Lists"
         subtitle="Group your todos by list"
+        {...(onBack !== undefined ? { onBack } : {})}
         end={
           <Pressable
             onPress={() => setDeleteDbModalVisible(true)}
@@ -143,9 +146,8 @@ export function TodoListsOverview({ onOpenList }: TodoListsOverviewProps) {
                 theme.sx({ fontSize: 14 }),
                 { color: theme.colors.destructive },
               ]}
-            >
-              Clear data
-            </Text>
+              label="Clear data"
+            />
           </Pressable>
         }
       />
@@ -178,7 +180,7 @@ export function TodoListsOverview({ onOpenList }: TodoListsOverviewProps) {
               onPress={addList}
               style={theme.sx({ justifyContent: 'center', px: 4 })}
             >
-              <Text variant="bodyBold">Add</Text>
+              <Text variant="bodyBold" label="Add" />
             </Pressable>
           </Box>
         ) : (
@@ -195,7 +197,7 @@ export function TodoListsOverview({ onOpenList }: TodoListsOverviewProps) {
               { backgroundColor: theme.colors.tintMuted },
             ]}
           >
-            <Text variant="bodyBold">+ New List</Text>
+            <Text variant="bodyBold" label="+ New List" />
           </Pressable>
         )}
 
@@ -227,12 +229,14 @@ export function TodoListsOverview({ onOpenList }: TodoListsOverviewProps) {
                   pressed && theme.sx({ opacity: 0.7 }),
                 ]}
               >
-                <Text style={theme.sx({ fontSize: 17, fontWeight: '500' })}>
-                  {item.name}
-                </Text>
-                <Text style={theme.sx({ fontSize: 15, opacity: 0.6 })}>
-                  {item.count}
-                </Text>
+                <Text
+                  style={theme.sx({ fontSize: 17, fontWeight: '500' })}
+                  label={item.name}
+                />
+                <Text
+                  style={theme.sx({ fontSize: 15, opacity: 0.6 })}
+                  label={String(item.count)}
+                />
               </Pressable>
               {item.id !== INBOX_LIST_ID && (
                 <Pressable
@@ -248,9 +252,8 @@ export function TodoListsOverview({ onOpenList }: TodoListsOverviewProps) {
                       theme.sx({ fontSize: 14 }),
                       { color: theme.colors.tint },
                     ]}
-                  >
-                    Delete
-                  </Text>
+                    label="Delete"
+                  />
                 </Pressable>
               )}
             </Box>
@@ -258,9 +261,8 @@ export function TodoListsOverview({ onOpenList }: TodoListsOverviewProps) {
           ListEmptyComponent={
             <Text
               style={theme.sx({ opacity: 0.7, fontStyle: 'italic', mt: 6 })}
-            >
-              No lists yet. Create one above or add todos to Inbox.
-            </Text>
+              label="No lists yet. Create one above or add todos to Inbox."
+            />
           }
         />
         <ConfirmationModal

@@ -34,9 +34,10 @@ function ConnectionLine({ partitioned }: { partitioned: boolean }) {
             justifyContent: 'center',
           }}
         >
-          <Text style={{ color: '#fff', fontSize: 8, fontWeight: 'bold' }}>
-            ✕
-          </Text>
+          <Text
+            style={{ color: '#fff', fontSize: 8, fontWeight: 'bold' }}
+            label="✕"
+          />
         </Box>
       )}
     </Box>
@@ -59,16 +60,14 @@ function SectionLabel({
       <Text
         variant="caption"
         style={{ color: theme.colors.textSecondary, letterSpacing: 1 }}
-      >
-        {label.toUpperCase()}
-      </Text>
+        label={label.toUpperCase()}
+      />
       {count !== undefined && (
         <Text
           variant="caption"
           style={{ color: theme.colors.textSecondary, opacity: 0.6 }}
-        >
-          ({count})
-        </Text>
+          label={`(${count})`}
+        />
       )}
     </Stack>
   );

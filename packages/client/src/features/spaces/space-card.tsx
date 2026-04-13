@@ -56,12 +56,17 @@ export function SpaceCard({ space }: SpaceCardProps) {
               background="rgba(255,255,255,0.22)"
             />
             <Box sx={{ flex: 1, gap: 0.5 }}>
-              <Text variant="bodyBold" sx={{ color: '#FFFFFF' }} numberOfLines={1}>
-                {space.title}
-              </Text>
-              <Text variant="caption" sx={{ color: 'rgba(255,255,255,0.85)' }}>
-                {space.host.displayName}
-              </Text>
+              <Text
+                variant="bodyBold"
+                sx={{ color: '#FFFFFF' }}
+                numberOfLines={1}
+                label={space.title}
+              />
+              <Text
+                variant="caption"
+                sx={{ color: 'rgba(255,255,255,0.85)' }}
+                label={space.host.displayName}
+              />
             </Box>
           </Box>
           {space.live ? (
@@ -78,9 +83,7 @@ export function SpaceCard({ space }: SpaceCardProps) {
               }}
             >
               <StatusDot status="online" size={8} />
-              <Text variant="caption" sx={{ color: '#FFFFFF' }}>
-                Live
-              </Text>
+              <Text variant="caption" sx={{ color: '#FFFFFF' }} label="Live" />
             </Box>
           ) : (
             <Box
@@ -92,9 +95,11 @@ export function SpaceCard({ space }: SpaceCardProps) {
                 py: 1,
               }}
             >
-              <Text variant="caption" sx={{ color: 'rgba(255,255,255,0.9)' }}>
-                Soon
-              </Text>
+              <Text
+                variant="caption"
+                sx={{ color: 'rgba(255,255,255,0.9)' }}
+                label="Soon"
+              />
             </Box>
           )}
         </Box>
@@ -107,12 +112,16 @@ export function SpaceCard({ space }: SpaceCardProps) {
             mt: 3,
           }}
         >
-          <Text variant="caption" sx={{ color: 'rgba(255,255,255,0.95)' }}>
-            {GAME_LABEL[space.gameType]}
-          </Text>
-          <Text variant="caption" sx={{ color: 'rgba(255,255,255,0.9)' }}>
-            {space.listenerCount} listening
-          </Text>
+          <Text
+            variant="caption"
+            sx={{ color: 'rgba(255,255,255,0.95)' }}
+            label={GAME_LABEL[space.gameType]}
+          />
+          <Text
+            variant="caption"
+            sx={{ color: 'rgba(255,255,255,0.9)' }}
+            label={`${space.listenerCount} listening`}
+          />
         </Box>
       </GradientBox>
     </Pressable>

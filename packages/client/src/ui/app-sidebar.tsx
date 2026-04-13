@@ -37,7 +37,10 @@ export function AppSidebar() {
     <Box
       sx={{
         width,
-        flex: 1,
+        minWidth: width,
+        maxWidth: width,
+        flexBasis: width,
+        flexGrow: 0,
         flexShrink: 0,
         flexDirection: 'column',
         background: 'paper',
@@ -50,9 +53,8 @@ export function AppSidebar() {
         <Text
           variant="label"
           sx={{ color: 'textSecondary', mb: 2, letterSpacing: 0.5 }}
-        >
-          Gamezilla
-        </Text>
+          label="Gamezilla"
+        />
         {ITEMS.map((item) => {
           const active =
             item.href === '/profile'
@@ -85,9 +87,8 @@ export function AppSidebar() {
                   sx={{
                     color: active ? 'text' : 'textSecondary',
                   }}
-                >
-                  {item.label}
-                </Text>
+                  label={item.label}
+                />
               </Pressable>
             </Link>
           );

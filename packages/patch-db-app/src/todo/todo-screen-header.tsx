@@ -57,18 +57,16 @@ export function TodoScreenHeader({
             ellipsizeMode="tail"
             variant="navigationTitle"
             sx={{ textAlign: 'center' }}
-          >
-            {title}
-          </Text>
+            label={title}
+          />
           {hasSubtitle ? (
             <Text
               variant="caption"
               numberOfLines={2}
               ellipsizeMode="tail"
               sx={{ textAlign: 'center' }}
-            >
-              {subtitle}
-            </Text>
+              label={subtitle}
+            />
           ) : null}
         </Box>
 
@@ -87,9 +85,7 @@ export function TodoScreenHeader({
               zIndex: 1,
             }}
           >
-            <Text variant="label" sx={{ color: 'tint' }}>
-              Back
-            </Text>
+            <Text variant="label" sx={{ color: 'tint' }} label="Back" />
           </Pressable>
         ) : null}
 

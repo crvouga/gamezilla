@@ -55,18 +55,16 @@ export function NodePanelShell({
                 variant="bodyBold"
                 numberOfLines={1}
                 style={{ flex: 1 }}
-              >
-                {title}
-              </Text>
+                label={title}
+              />
               <StatusDot status={partitioned ? 'offline' : 'online'} size={8} />
             </Stack>
             {subtitle ? (
               <Text
                 variant="caption"
                 style={{ color: theme.colors.textSecondary, marginTop: 2 }}
-              >
-                {subtitle}
-              </Text>
+                label={subtitle}
+              />
             ) : null}
           </Box>
           {headerExtra}

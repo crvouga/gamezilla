@@ -19,7 +19,7 @@ export default function ChipExample() {
 
   return (
     <Box sx={{ p: 4, gap: 4 }}>
-      <Text variant="heading">Chip</Text>
+      <Text variant="heading" label="Chip" />
 
       <Stack direction="horizontal" spacing={2} wrap>
         {tags.map((t) => (

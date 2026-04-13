@@ -42,7 +42,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
 
     return (
       <View style={[{ gap: 4 }, sxStyle]}>
-        {label && <Text variant="label">{label}</Text>}
+        {label && <Text variant="label" label={label} />}
         <RNTextInput
           ref={ref}
           placeholderTextColor={theme.colors.disabled}
@@ -63,11 +63,9 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
           {...rest}
         />
         {error ? (
-          <Text variant="caption" sx={{ color: 'destructive' }}>
-            {error}
-          </Text>
+          <Text variant="caption" sx={{ color: 'destructive' }} label={error} />
         ) : helperText ? (
-          <Text variant="caption">{helperText}</Text>
+          <Text variant="caption" label={helperText} />
         ) : null}
       </View>
     );

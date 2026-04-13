@@ -59,9 +59,8 @@ export function Select<T extends string | number = string>({
           variant="caption"
           sx={{ mb: 0.5 }}
           style={{ color: theme.colors.textSecondary }}
-        >
-          {label}
-        </Text>
+          label={label}
+        />
       )}
       <Pressable
         onPress={() => setOpen(true)}
@@ -83,20 +82,23 @@ export function Select<T extends string | number = string>({
       >
         <Text
           variant="label"
-          style={{ flex: 1, color: selected ? theme.colors.text : theme.colors.textSecondary }}
-        >
-          {selected?.label ?? placeholder}
-        </Text>
-        <Text style={{ color: theme.colors.textSecondary, fontSize: 10 }}>▼</Text>
+          style={{
+            flex: 1,
+            color: selected ? theme.colors.text : theme.colors.textSecondary,
+          }}
+          label={selected?.label ?? placeholder}
+        />
+        <Text
+          style={{ color: theme.colors.textSecondary, fontSize: 10 }}
+          label="▼"
+        />
       </Pressable>
 
       <ModalRoot visible={open} onRequestClose={() => setOpen(false)}>
         <ModalBackdrop onPress={() => setOpen(false)}>
           <ModalContent style={{ width: 280 }}>
             {label !== undefined && (
-              <Text variant="subtitle" sx={{ mb: 2 }}>
-                {label}
-              </Text>
+              <Text variant="subtitle" sx={{ mb: 2 }} label={label} />
             )}
             <FlatList
               data={options}
@@ -130,11 +132,13 @@ export function Select<T extends string | number = string>({
                           color: isSelected ? theme.colors.tint : theme.colors.text,
                           fontWeight: isSelected ? '600' : '400',
                         }}
-                      >
-                        {item.label}
-                      </Text>
+                        label={item.label}
+                      />
                       {isSelected && (
-                        <Text style={{ color: theme.colors.tint, fontSize: 16 }}>✓</Text>
+                        <Text
+                          style={{ color: theme.colors.tint, fontSize: 16 }}
+                          label="✓"
+                        />
                       )}
                     </View>
                   </Pressable>

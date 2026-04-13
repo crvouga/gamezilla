@@ -11,7 +11,7 @@ export default function ModalExample() {
 
   return (
     <Box sx={{ p: 4, gap: 4 }}>
-      <Text variant="heading">Modal</Text>
+      <Text variant="heading" label="Modal" />
 
       <Stack spacing={2}>
         <Button title="Open Default Modal" onPress={() => setDefaultOpen(true)} />

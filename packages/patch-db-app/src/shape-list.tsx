@@ -40,9 +40,8 @@ export function ShapeList({
           <Text
             variant="caption"
             style={{ color: theme.colors.textSecondary }}
-          >
-            No shapes yet
-          </Text>
+            label="No shapes yet"
+          />
         </Box>
       ) : (
         <Stack spacing={1}>
@@ -83,9 +82,8 @@ export function ShapeList({
           <Text
             variant="caption"
             style={{ color: theme.colors.warning }}
-          >
-            {note}
-          </Text>
+            label={note}
+          />
         </Box>
       ) : null}
     </Stack>

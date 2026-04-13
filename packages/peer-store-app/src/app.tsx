@@ -28,7 +28,7 @@ export function App() {
           <PlaygroundPage />
         ) : (
           <Box sx={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text variant="caption">Documentation coming soon.</Text>
+            <Text variant="caption" label="Documentation coming soon." />
           </Box>
         )}
       </Box>

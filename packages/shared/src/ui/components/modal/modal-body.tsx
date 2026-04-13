@@ -13,7 +13,7 @@ export type ModalBodyProps = PropsWithChildren<{
 export function ModalBody({ message, children }: ModalBodyProps) {
   return (
     <Box sx={{ mb: 4 }}>
-      {message ? <Text variant="body">{message}</Text> : children}
+      {message ? <Text variant="body" label={message} /> : children}
     </Box>
   );
 }

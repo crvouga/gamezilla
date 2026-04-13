@@ -53,9 +53,8 @@ export function SimulatorLog({
         <Text
           variant="label"
           style={{ textTransform: 'uppercase', fontWeight: 'bold' }}
-        >
-          Log ({entries.length})
-        </Text>
+          label={`Log (${entries.length})`}
+        />
         <Button
           title={copiedRef.current ? 'Copied' : 'Copy for LLM'}
           variant="outlined"
@@ -65,7 +64,7 @@ export function SimulatorLog({
       </Stack>
 
       {entries.length === 0 && (
-        <Text variant="caption">No activity yet.</Text>
+        <Text variant="caption" label="No activity yet." />
       )}
 
       <Stack spacing={0}>
@@ -85,9 +84,8 @@ export function SimulatorLog({
                 fontSize: 10,
                 color: theme.colors.textSecondary,
               }}
-            >
-              {entry.id + 1}
-            </Text>
+              label={String(entry.id + 1)}
+            />
 
             <Text
               variant="mono"
@@ -98,9 +96,8 @@ export function SimulatorLog({
                 color: kindColor(entry),
               }}
               numberOfLines={1}
-            >
-              {kindLabel(entry)}
-            </Text>
+              label={kindLabel(entry)}
+            />
 
             <Text
               variant="mono"
@@ -110,9 +107,8 @@ export function SimulatorLog({
                 color: TAG_COLORS[entry.tag] ?? theme.colors.textSecondary,
               }}
               numberOfLines={1}
-            >
-              {entry.tag}
-            </Text>
+              label={entry.tag}
+            />
 
             {entry.peerId ? (
               <Text
@@ -123,16 +119,14 @@ export function SimulatorLog({
                   color: entry.peerId === 'wire' ? '#facc15' : theme.colors.text,
                 }}
                 numberOfLines={1}
-              >
-                {entry.peerId}
-              </Text>
+                label={entry.peerId}
+              />
             ) : (
               <Text
                 variant="mono"
                 style={{ width: 64, fontSize: 10, color: 'transparent' }}
-              >
-                {'-'}
-              </Text>
+                label="-"
+              />
             )}
 
             <Text
@@ -143,9 +137,8 @@ export function SimulatorLog({
                 color: theme.colors.textSecondary,
               }}
               numberOfLines={2}
-            >
-              {entry.summary}
-            </Text>
+              label={entry.summary}
+            />
           </Stack>
         ))}
       </Stack>

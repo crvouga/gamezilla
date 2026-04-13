@@ -6,7 +6,7 @@ import { Badge } from './badge';
 export default function BadgeExample() {
   return (
     <Box sx={{ p: 4, gap: 4 }}>
-      <Text variant="heading">Badge</Text>
+      <Text variant="heading" label="Badge" />
 
       <Stack direction="horizontal" spacing={2} wrap>
         <Badge label="Default" />

@@ -15,20 +15,25 @@ export default function GradientBoxExample() {
         GradientBox
       </RNText>
 
-      <Text variant="caption" sx={{ color: 'textSecondary' }}>
-        Default horizontal gradient uses theme gradientPrimaryStart →
-        gradientPrimaryEnd.
-      </Text>
+      <Text
+        variant="caption"
+        sx={{ color: 'textSecondary' }}
+        label="Default horizontal gradient uses theme gradientPrimaryStart → gradientPrimaryEnd."
+      />
 
       <GradientBox
         sx={{ p: 4, borderRadius: 16, minHeight: 88, justifyContent: 'center' }}
       >
-        <Text variant="bodyBold" sx={{ color: '#FFFFFF' }}>
-          Primary gradient card
-        </Text>
-        <Text variant="caption" sx={{ color: 'rgba(255,255,255,0.9)', mt: 1 }}>
-          Rounded, padded surface
-        </Text>
+        <Text
+          variant="bodyBold"
+          sx={{ color: '#FFFFFF' }}
+          label="Primary gradient card"
+        />
+        <Text
+          variant="caption"
+          sx={{ color: 'rgba(255,255,255,0.9)', mt: 1 }}
+          label="Rounded, padded surface"
+        />
       </GradientBox>
 
       <GradientBox
@@ -37,9 +42,11 @@ export default function GradientBoxExample() {
         end={{ x: 1, y: 1 }}
         sx={{ p: 4, borderRadius: 12 }}
       >
-        <Text variant="bodyBold" sx={{ color: '#FFFFFF' }}>
-          Custom stops (diagonal)
-        </Text>
+        <Text
+          variant="bodyBold"
+          sx={{ color: '#FFFFFF' }}
+          label="Custom stops (diagonal)"
+        />
       </GradientBox>
     </Box>
   );
