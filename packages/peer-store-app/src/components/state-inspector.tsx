@@ -1,8 +1,7 @@
 import type { State } from '@gamezilla/peer-store/types';
 import { useState } from 'react';
-import { Pressable } from 'react-native';
-import { Box, Stack, Text } from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/ui';
+import { Box, Pressable, Stack, Text } from '@gamezilla/shared/ui';
+import { useTheme } from '@gamezilla/shared/theme';
 
 export function StateInspector({
   committedState,

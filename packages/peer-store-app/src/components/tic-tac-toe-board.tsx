@@ -1,7 +1,6 @@
 import type { State } from '@gamezilla/peer-store/types';
-import { Pressable } from 'react-native';
-import { Stack, Text } from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/ui';
+import { Pressable, Stack, Text } from '@gamezilla/shared/ui';
+import { useTheme } from '@gamezilla/shared/theme';
 
 export function TicTacToeBoard({
   state,

@@ -1,15 +1,15 @@
 import { assert } from '@gamezilla/shared/assert';
 import { useTheme } from '@gamezilla/shared/theme';
-import { Box, Text } from '@gamezilla/shared/ui';
+import {
+  Box,
+  KeyboardAvoidingView,
+  Pressable,
+  Text,
+  TextInput,
+} from '@gamezilla/shared/ui';
 import { Entity } from '@gamezilla/patch-db/interface';
 import { useEntities, useEntity, usePatchesDb } from '@gamezilla/patch-db/react';
 import { useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  TextInput,
-} from 'react-native';
 
 assert.notThrows(
   () => crypto.randomUUID(),
@@ -189,10 +189,7 @@ export function TodoList() {
     });
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={theme.sx({ flex: 1, p: 4 })}
-    >
+    <KeyboardAvoidingView sx={{ flex: 1, p: 4 }}>
       <Box sx={{ mb: 4 }}>
         <Text variant="title">Todos</Text>
         <Text variant="subtitle">Powered by patch-db</Text>
@@ -239,7 +236,7 @@ export function TodoList() {
       </Box>
       <Box sx={{ flexDirection: 'row', gap: 2, mb: 4 }}>
         <TextInput
-          style={theme.sx({
+          sx={{
             flex: 1,
             borderWidth: 1,
             borderRadius: 8,
@@ -249,7 +246,7 @@ export function TodoList() {
             background: 'paper',
             color: 'text',
             borderColor: 'border',
-          })}
+          }}
           placeholder="Add a todo..."
           placeholderTextColor={theme.colors.icon}
           value={input}

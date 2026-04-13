@@ -1,8 +1,6 @@
 import { useRouter } from 'expo-router';
-import { Pressable } from 'react-native';
 import { useTheme } from '@gamezilla/shared/theme';
-import { Box, Text } from '@gamezilla/shared/ui';
-import { IconSymbol } from '@/ui/icon-symbol';
+import { Box, IconSymbol, Pressable, Text } from '@gamezilla/shared/ui';
 
 const ITEMS = [
   {

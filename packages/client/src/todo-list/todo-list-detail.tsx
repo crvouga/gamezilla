@@ -9,15 +9,15 @@ import {
   usePatchesDb,
 } from '@gamezilla/patch-db/react';
 import { useTheme } from '@gamezilla/shared/theme';
-import { Box, Text } from '@gamezilla/shared/ui';
+import {
+  Box,
+  KeyboardAvoidingView,
+  Pressable,
+  Text,
+  TextInput,
+} from '@gamezilla/shared/ui';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  TextInput,
-} from 'react-native';
 
 const INBOX_LIST_ID = '__inbox__';
 
@@ -227,10 +227,7 @@ export function TodoListDetail() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={theme.sx({ flex: 1, p: 4 })}
-    >
+    <KeyboardAvoidingView sx={{ flex: 1, p: 4 }}>
       <Box sx={{ mb: 4 }}>
         <Pressable
           onPress={() => router.replace('/todos')}
@@ -283,7 +280,7 @@ export function TodoListDetail() {
       </Box>
       <Box sx={{ flexDirection: 'row', gap: 2, mb: 4 }}>
         <TextInput
-          style={theme.sx({
+          sx={{
             flex: 1,
             borderWidth: 1,
             borderRadius: 8,
@@ -293,7 +290,7 @@ export function TodoListDetail() {
             background: 'paper',
             color: 'text',
             borderColor: 'border',
-          })}
+          }}
           placeholder="Add a todo..."
           placeholderTextColor={theme.colors.icon}
           value={input}

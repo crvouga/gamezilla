@@ -14,6 +14,22 @@ module.exports = [
       naming: eslintPluginNaming,
     },
     rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'react-native',
+              message:
+                'Import UI from @gamezilla/shared/ui or @gamezilla/shared/theme.',
+            },
+            {
+              name: 'react-native-svg',
+              message: 'Import vector primitives from @gamezilla/shared/ui/svg.',
+            },
+          ],
+        },
+      ],
       'naming/case': [
         'error',
         {
@@ -22,6 +38,12 @@ module.exports = [
           ignore: ['^index\\.(ts|tsx|js|jsx)$'],
         },
       ],
+    },
+  },
+  {
+    files: ['src/use-playground-boot.ts'],
+    rules: {
+      'no-restricted-imports': 'off',
     },
   },
 ]

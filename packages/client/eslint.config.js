@@ -19,6 +19,36 @@ module.exports = defineConfig([
       naming: eslintPluginNaming,
     },
     rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'react-native',
+              message:
+                'Use @gamezilla/shared/ui or @gamezilla/shared/theme instead.',
+            },
+            {
+              name: 'react-native-svg',
+              message:
+                'Import vector primitives from @gamezilla/shared/ui/svg.',
+            },
+            {
+              name: 'expo-status-bar',
+              message: 'Use AppStatusBar from @gamezilla/shared/ui.',
+            },
+            {
+              name: 'expo-splash-screen',
+              message:
+                'Use preventSplashAutoHide or hideSplash from @gamezilla/shared/ui.',
+            },
+            {
+              name: 'expo-symbols',
+              message: 'Use IconSymbol from @gamezilla/shared/ui.',
+            },
+          ],
+        },
+      ],
       '@typescript-eslint/no-non-null-assertion': 'error',
       eqeqeq: ['error', 'always'],
       'no-restricted-syntax': [

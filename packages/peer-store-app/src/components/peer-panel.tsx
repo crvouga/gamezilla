@@ -1,6 +1,7 @@
 import type { Event, State } from '@gamezilla/peer-store/types';
 import {
   Badge,
+  Box,
   Button,
   Card,
   Collapsible,
@@ -8,7 +9,6 @@ import {
   StatusDot,
   Text,
 } from '@gamezilla/shared/ui';
-import { View } from 'react-native';
 import { StateInspector } from './state-inspector';
 import { TicTacToeBoard } from './tic-tac-toe-board';
 
@@ -100,7 +100,7 @@ export function PeerPanel({
         )}
       </Stack>
 
-      <View style={{ minHeight: 28 }}>
+      <Box sx={{ minHeight: 28 }}>
         {actions && actions.length > 0 ? (
           <Stack direction="horizontal" spacing={2} wrap>
             {actions.map((action) => (
@@ -115,7 +115,7 @@ export function PeerPanel({
             ))}
           </Stack>
         ) : null}
-      </View>
+      </Box>
 
       <Text variant="caption">{peerId}</Text>
 

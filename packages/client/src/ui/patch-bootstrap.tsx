@@ -7,9 +7,8 @@ import {
   useContainer,
   useDependency,
 } from '@gamezilla/shared/dependency-injection/react';
-import { Box, Text, Button, Center } from '@gamezilla/shared/ui';
+import { Box, Text, Button, Center, hideSplash } from '@gamezilla/shared/ui';
 import { bootstrapPatchDbExpoSync } from '@gamezilla/patch-db/bootstrap-expo';
-import * as SplashScreen from 'expo-splash-screen';
 import {
   useCallback,
   useEffect,
@@ -58,7 +57,7 @@ export function PatchBootstrap({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (container !== null || error !== null) {
-      SplashScreen.hideAsync();
+      void hideSplash();
     }
   }, [container, error]);
 

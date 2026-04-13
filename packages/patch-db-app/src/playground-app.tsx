@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { PlaygroundSim } from '@gamezilla/patch-db/sim/playground-sim';
+import { useTheme } from '@gamezilla/shared/theme';
 import { Box, SafeAreaView, Text, Spinner, Stack } from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/ui';
 import { PatchdbAppNav, readStoredMode, type PatchdbAppMode } from './nav';
 import { PlaygroundHeader } from './playground-header';
 import { PlaygroundLayout } from './playground-layout';

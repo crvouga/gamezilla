@@ -17,6 +17,18 @@ export { Divider, type DividerProps } from './divider';
 export { Spacer } from './spacer';
 export { ScrollView, type ScrollViewProps } from './scroll-view';
 export { SafeAreaView, type SafeAreaViewProps } from './safe-area-view';
+export { FlatList, type FlatListProps } from './flat-list';
+export {
+  KeyboardAvoidingView,
+  type KeyboardAvoidingViewProps,
+} from './keyboard-avoiding-view';
+
+// Icons
+export {
+  IconSymbol,
+  type IconSymbolProps,
+  type IconSymbolName,
+} from './symbol-icon';
 
 // Inputs / Actions
 export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from './button';

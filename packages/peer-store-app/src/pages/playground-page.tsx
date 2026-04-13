@@ -6,8 +6,8 @@ import {
   Stack,
   Text,
 } from '@gamezilla/shared/ui';
+import { useTheme } from '@gamezilla/shared/theme';
 import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react';
-import { useWindowDimensions } from 'react-native';
 import { PeerPanel, type PeerAction } from '../components/peer-panel';
 import { SimulatorLog } from '../components/simulator-log';
 import {
@@ -38,6 +38,7 @@ function peerPlayer(peerId: PeerId): 'X' | 'O' | null {
 }
 
 export function PlaygroundPage() {
+  const { layout } = useTheme();
   const simRef = useRef<PlaygroundSimulator | null>(null);
   if (!simRef.current) {
     simRef.current = new PlaygroundSimulator();
@@ -275,7 +276,7 @@ export function PlaygroundPage() {
     }
   }, [sim, tick]);
 
-  const { width } = useWindowDimensions();
+  const { width } = layout;
   const columns = Math.max(1, Math.floor(width / PANEL_MIN_WIDTH));
   const panelWidth =
     columns > 1 ? (width - 32 - (columns - 1) * 12) / columns : undefined;

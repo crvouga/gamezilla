@@ -1,10 +1,16 @@
 import { useTheme } from '@gamezilla/shared/theme';
-import { Box, Text, ConfirmationModal } from '@gamezilla/shared/ui';
+import {
+  Box,
+  ConfirmationModal,
+  FlatList,
+  Pressable,
+  Text,
+  TextInput,
+} from '@gamezilla/shared/ui';
 import { clearLocalDatabaseAndReload } from '@gamezilla/patch-db/bootstrap-expo';
 import { useEntities, usePatchesDb } from '@gamezilla/patch-db/react';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { FlatList, Pressable, TextInput } from 'react-native';
 
 const INBOX_LIST_ID = '__inbox__';
 
@@ -155,7 +161,7 @@ export function TodoListsOverview() {
       {adding ? (
         <Box sx={{ flexDirection: 'row', gap: 2, mb: 3 }}>
           <TextInput
-            style={theme.sx({
+            sx={{
               flex: 1,
               borderWidth: 1,
               borderRadius: 8,
@@ -165,7 +171,7 @@ export function TodoListsOverview() {
               background: 'paper',
               color: 'text',
               borderColor: 'border',
-            })}
+            }}
             placeholder="List name..."
             placeholderTextColor={theme.colors.icon}
             value={input}
@@ -205,7 +211,7 @@ export function TodoListsOverview() {
         data={listRows}
         keyExtractor={(item) => item.id}
         style={theme.sx({ flex: 1 })}
-        contentContainerStyle={theme.sx({ pb: 24 })}
+        sx={{ pb: 24 }}
         renderItem={({ item }) => (
           <Box
             sx={{

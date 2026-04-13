@@ -1,8 +1,8 @@
 import { Tabs } from 'expo-router';
 
 import { useTheme } from '@gamezilla/shared/theme';
+import { IconSymbol } from '@gamezilla/shared/ui';
 import { HapticTab } from '@/ui/haptic-tab';
-import { IconSymbol } from '@/ui/icon-symbol';
 
 export default function TabLayout() {
   const theme = useTheme();

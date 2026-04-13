@@ -32,13 +32,20 @@
     "./logger": "./src/logger/index.ts",
     "./task-dag": "./src/task-dag/index.ts",
     "./ui/explorer": "./src/ui/explorer/index.ts",
+    "./ui/svg": "./src/ui/svg/index.ts",
     "./*": "./src/*"
   },
   "dependencies": {
+    "@expo/vector-icons": "^15.0.3",
+    "@react-navigation/native": "^7.1.8",
     "expo-crypto": "~15.0.8",
+    "expo-splash-screen": "~31.0.13",
     "expo-sqlite": "~16.0.10",
+    "expo-status-bar": "~3.0.9",
+    "expo-symbols": "~1.0.8",
     "react": "19.1.0",
     "react-native": "0.81.5",
+    "react-native-svg": "15.12.1",
     "@neondatabase/serverless": "^1.0.0",
     "sql.js": "^1.14.0"
   },
