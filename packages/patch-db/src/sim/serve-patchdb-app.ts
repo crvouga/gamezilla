@@ -3,8 +3,11 @@
  * Use if `file://` blocks sql.js WASM; open http://127.0.0.1:8765
  */
 import { join } from 'node:path';
+import { createLogger } from '@gamezilla/shared/logger';
 import { Hono } from 'hono';
 import { serveStatic } from 'hono/bun';
+
+const log = createLogger({ name: 'patch-db:app' });
 
 const ROOT = join(
   import.meta.dir,
@@ -33,4 +36,4 @@ Bun.serve({
   fetch: app.fetch,
 });
 
-console.log(`patch-db-app → http://127.0.0.1:${port}`);
+log.info('server started', { url: `http://127.0.0.1:${port}` });

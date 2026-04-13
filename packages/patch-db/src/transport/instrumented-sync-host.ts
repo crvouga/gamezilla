@@ -1,4 +1,5 @@
 import { assert } from '@gamezilla/shared/assert';
+import { createLogger, type Logger } from '@gamezilla/shared/logger';
 import type { PubSub } from '@gamezilla/shared/pub-sub/interface';
 import type {
   Patch,
@@ -25,7 +26,10 @@ type Counters = {
  * metric entity to `db` + pub/sub invalidation (bypasses inner `write` so
  * metrics do not inflate {@link Counters}).
  */
+const defaultLog = createLogger({ name: 'patch-db:metrics' });
+
 export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
+  private readonly log: Logger;
   private readonly startedAt = new Date().toISOString();
   private readonly counters: Counters = {
     totalPatchesWritten: 0,
@@ -38,8 +42,10 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
     private readonly inner: PatchDbSyncHost,
     private readonly db: PatchesDb,
     private readonly pubSub: PubSub,
-    private readonly flushIntervalMs = 5000
+    private readonly flushIntervalMs = 5000,
+    logger?: Logger
   ) {
+    this.log = logger ?? defaultLog;
     assert.nonNegativeInteger(
       flushIntervalMs,
       'flushIntervalMs must be a non-negative integer'
@@ -108,7 +114,9 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
       ]);
       this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
     } catch (err) {
-      console.error('[patch-db] flushMetricsSnapshot failed:', err);
+      this.log.error('flushMetricsSnapshot failed', {
+        error: err instanceof Error ? err.message : String(err),
+      });
     }
   }
 }

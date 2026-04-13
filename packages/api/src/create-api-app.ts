@@ -14,7 +14,9 @@ const log = createLogger({ name: 'api:app' });
 
 export type { ApiHandlerConfig } from './api-types';
 
-function isAssertionCrash(value: unknown): value is { message: string; context?: Record<string, unknown> } {
+function isAssertionCrash(
+  value: unknown
+): value is { message: string; context?: Record<string, unknown> } {
   return (
     value !== null &&
     typeof value === 'object' &&
@@ -41,7 +43,7 @@ export function createApiApp(config: ApiHandlerConfig) {
   return new Hono()
     .use('*', apiCors)
     .route('/', healthApp)
-    .route('/', createClientConfigApp(config.googleClientId))
+    .route('/', createClientConfigApp(db, log, config.googleClientId))
     .route('/', createAuthClaimApp(db, authOpts))
     .route(patchMount, patchDbApp)
     .onError((err, c) => {
@@ -55,12 +57,21 @@ export function createApiApp(config: ApiHandlerConfig) {
         return c.json({ error: err.message }, err.status);
       }
       if (isAssertionCrash(err as unknown)) {
-        const crash = err as unknown as { message: string; context?: Record<string, unknown> };
-        log.error('assertion failure', { error: crash.message, context: crash.context });
+        const crash = err as unknown as {
+          message: string;
+          context?: Record<string, unknown>;
+        };
+        log.error('assertion failure', {
+          error: crash.message,
+          context: crash.context,
+        });
         return c.json({ error: 'Internal server error' }, 500);
       }
-      const message = err instanceof Error ? err.message : 'Internal server error';
-      log.error('handler error', { error: err instanceof Error ? err.message : String(err) });
+      const message =
+        err instanceof Error ? err.message : 'Internal server error';
+      log.error('handler error', {
+        error: err instanceof Error ? err.message : String(err),
+      });
       return c.json({ error: message }, 500);
     });
 }

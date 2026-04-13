@@ -1,37 +1,37 @@
-import { createGamezillaApiClient } from '@/features/api/hc';
+import {
+  CLIENT_CONFIG_ENTITY_ID,
+  CLIENT_CONFIG_ENTITY_TYPE,
+  ClientConfigAttr,
+} from '@gamezilla/shared/auth';
+import type { PatchesDb } from '@gamezilla/patch-db/interface';
+import type { GamezillaApiClient } from '@/features/api/hc';
 
 export type ClientRuntimeConfig = {
   googleWebClientId: string | null;
 };
 
-/**
- * Public client configuration from the API (same Google Web client ID the server
- * uses for id_token audience checks). No build-time secrets.
- */
-export async function fetchClientRuntimeConfig(
-  apiUrl: string
+export async function readClientRuntimeConfig(
+  db: PatchesDb
 ): Promise<ClientRuntimeConfig> {
-  const client = createGamezillaApiClient(apiUrl);
-  const res = await client['client-config'].$get();
-  if (!res.ok) {
-    throw new Error(`client-config request failed (${String(res.status)})`);
-  }
-  let json: unknown;
-  try {
-    json = await res.json();
-  } catch {
-    throw new Error('client-config response is not valid JSON');
-  }
-  if (json === null || typeof json !== 'object' || Array.isArray(json)) {
-    throw new Error('client-config response must be a JSON object');
-  }
-  const rec = json as Record<string, unknown>;
-  const id = rec['googleWebClientId'];
-  if (id === null || id === undefined) {
-    return { googleWebClientId: null };
-  }
-  if (typeof id !== 'string') {
-    throw new Error('googleWebClientId must be string or null');
-  }
-  return { googleWebClientId: id.length > 0 ? id : null };
+  const [result] = await db.read([
+    {
+      entityType: CLIENT_CONFIG_ENTITY_TYPE,
+      entityId: CLIENT_CONFIG_ENTITY_ID,
+    },
+  ]);
+  const entity = result?.entities[0];
+  if (!entity) return { googleWebClientId: null };
+  const raw = entity.attributes[ClientConfigAttr.googleWebClientId];
+  const id = typeof raw === 'string' && raw.length > 0 ? raw : null;
+  return { googleWebClientId: id };
+}
+
+/**
+ * Tells the server to write the latest client config into patch-db.
+ * The sync cycle then delivers it to the client.
+ */
+export async function refreshClientConfig(
+  client: GamezillaApiClient
+): Promise<void> {
+  await client['client-config']['refresh'].$post();
 }

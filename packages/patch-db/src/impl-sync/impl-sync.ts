@@ -1,5 +1,6 @@
 import { assert } from '@gamezilla/shared/assert';
 import { fireAndForget } from '@gamezilla/shared/async/fire-and-forget';
+import { createLogger, type Logger } from '@gamezilla/shared/logger';
 import type { PubSub, Unsubscribe } from '@gamezilla/shared/pub-sub/interface';
 import type {
   Patch,
@@ -66,6 +67,8 @@ export type SyncPatchesDbOptions = {
    * Default true. Deterministic sim tests set this to false to avoid expected-failure noise.
    */
   logPushPollFailures?: boolean;
+  /** Structured logger for push/poll diagnostics. Falls back to a default logger if omitted. */
+  logger?: Logger;
 };
 
 type ActiveQuery = {
@@ -73,7 +76,10 @@ type ActiveQuery = {
   refCount: number;
 };
 
+const defaultLog = createLogger({ name: 'patch-db:sync' });
+
 export class SyncPatchesDb implements PatchesDb {
+  private readonly log: Logger;
   private readonly logPushPollFailures: boolean;
   /** Stops subscription callbacks after {@link destroy} (e.g. HMR / teardown races). */
   private destroyed = false;
@@ -102,6 +108,7 @@ export class SyncPatchesDb implements PatchesDb {
     private pubSub: PubSub,
     private options: SyncPatchesDbOptions
   ) {
+    this.log = options.logger ?? defaultLog;
     this.logPushPollFailures = options.logPushPollFailures !== false;
     this.ensurePushTimer();
   }
@@ -299,7 +306,8 @@ export class SyncPatchesDb implements PatchesDb {
     } catch (err) {
       this.pushConsecutiveFailures += 1;
       if (this.logPushPollFailures) {
-        console.error('[SyncPatchesDb] push failed:', err, {
+        this.log.error('push failed', {
+          error: err instanceof Error ? err.message : String(err),
           consecutiveFailures: this.pushConsecutiveFailures,
         });
       }
@@ -452,7 +460,8 @@ export class SyncPatchesDb implements PatchesDb {
     } catch (err) {
       this.pollConsecutiveFailures += 1;
       if (this.logPushPollFailures) {
-        console.error('[SyncPatchesDb] poll failed:', err, {
+        this.log.error('poll failed', {
+          error: err instanceof Error ? err.message : String(err),
           consecutiveFailures: this.pollConsecutiveFailures,
         });
       }

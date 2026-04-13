@@ -4,6 +4,7 @@ import {
   ContainerProvider,
   useContainer,
 } from '@gamezilla/shared/dependency-injection/react';
+import { useLogger } from '@gamezilla/shared/logger/react';
 import { SecureStorageToken } from '@gamezilla/shared/secure-storage/interface';
 import { Box, Button, Center, Text } from '@gamezilla/shared/ui';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
@@ -14,6 +15,7 @@ import {
 } from './principal-service';
 
 export function PrincipalAuthShell({ children }: { children: ReactNode }) {
+  const log = useLogger('auth');
   const parentContainer = useContainer();
   assert.ok(
     parentContainer instanceof DependencyInjectionContainer,
@@ -38,7 +40,9 @@ export function PrincipalAuthShell({ children }: { children: ReactNode }) {
           setChildContainer(child);
         }
       } catch (err: unknown) {
-        console.error('[PrincipalAuthShell] init failed:', err);
+        log.error('principal init failed', {
+          error: err instanceof Error ? err.message : String(err),
+        });
         if (mountedRef.current) {
           setError(err instanceof Error ? err : new Error(String(err)));
         }
@@ -56,7 +60,7 @@ export function PrincipalAuthShell({ children }: { children: ReactNode }) {
 
   if (error !== null) {
     return (
-      <Center sx={{ flex: 1, gap: 4, p: 4 }}>
+      <Center sx={{ flex: 1, gap: 4, p: 4, background: 'paper' }}>
         <Text
           variant="bodyBold"
           sx={{ fontSize: 'base' }}

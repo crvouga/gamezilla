@@ -7,7 +7,7 @@ WebBrowser.maybeCompleteAuthSession();
 
 /**
  * Returns a function that runs Google OAuth and resolves the OpenID `id_token`.
- * `clientId` is the Google Web client ID from the API (`GET /client-config`), matching server audience checks.
+ * `clientId` is the Google Web client ID from the `clientConfig` patch-db entity, matching server audience checks.
  */
 export function useGoogleIdTokenPrompt(
   clientId: string

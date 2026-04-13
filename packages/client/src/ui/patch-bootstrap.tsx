@@ -18,6 +18,7 @@ import {
   useContainer,
   useDependency,
 } from '@gamezilla/shared/dependency-injection/react';
+import { useLogger } from '@gamezilla/shared/logger/react';
 import { Box, Button, Center, hideSplash, Text } from '@gamezilla/shared/ui';
 import {
   useCallback,
@@ -28,6 +29,7 @@ import {
 } from 'react';
 
 export function PatchBootstrap({ children }: { children: ReactNode }) {
+  const log = useLogger('patch-bootstrap');
   const [container, setContainer] = useState<Container | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const rawContainer = useContainer();
@@ -66,7 +68,9 @@ export function PatchBootstrap({ children }: { children: ReactNode }) {
         }
       })
       .catch((err: unknown) => {
-        console.error('[PatchBootstrap] Bootstrap failed:', err);
+        log.error('bootstrap failed', {
+          error: err instanceof Error ? err.message : String(err),
+        });
         if (mountedRef.current) {
           setError(err instanceof Error ? err : new Error(String(err)));
         }
@@ -89,7 +93,7 @@ export function PatchBootstrap({ children }: { children: ReactNode }) {
 
   if (error !== null) {
     return (
-      <Center sx={{ flex: 1, gap: 4, p: 4 }}>
+      <Center sx={{ flex: 1, gap: 4, p: 4, background: 'paper' }}>
         <Text
           variant="bodyBold"
           sx={{ fontSize: 'base' }}

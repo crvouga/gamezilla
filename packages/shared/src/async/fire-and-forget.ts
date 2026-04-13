@@ -1,3 +1,7 @@
+import { createLogger } from '../logger/logger';
+
+const log = createLogger({ name: 'fire-and-forget' });
+
 /**
  * Wraps a promise to log rejections with structured context instead of silently swallowing.
  * Use when intentionally not awaiting an async operation but still needing visibility on failures.
@@ -14,7 +18,9 @@ export function fireAndForget(
   context: Record<string, unknown>
 ): void {
   promise.catch((err: unknown) => {
-    console.error('[fire-and-forget] Unhandled rejection', context);
-    console.error(err);
+    log.error('unhandled rejection', {
+      ...context,
+      error: err instanceof Error ? err.message : String(err),
+    });
   });
 }

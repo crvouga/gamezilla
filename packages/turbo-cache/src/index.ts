@@ -1,4 +1,7 @@
+import { createLogger } from '@gamezilla/shared/logger';
 import { Hono } from 'hono';
+
+const log = createLogger({ name: 'turbo-cache' });
 
 interface Env {
   CACHE_BUCKET: R2Bucket;
@@ -70,8 +73,18 @@ const app = new Hono<{ Bindings: Env }>()
   });
 
 export default {
-  fetch(request: Request, env: Env, _ctx: ExecutionContext): Response | Promise<Response> {
-    return app.fetch(request, env);
+  async fetch(request: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
+    const start = Date.now();
+    const { method } = request;
+    const url = new URL(request.url);
+    const response = await app.fetch(request, env);
+    log.info('request', {
+      method,
+      path: url.pathname,
+      status: response.status,
+      durationMs: Date.now() - start,
+    });
+    return response;
   },
 } satisfies ExportedHandler<Env>;
 

@@ -10,6 +10,7 @@
     "typescript": "~5.9.2"
   },
   "dependencies": {
+    "@gamezilla/shared": "workspace:*",
     "hono": "^4.7.0"
   }
 }

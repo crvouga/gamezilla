@@ -1,3 +1,4 @@
+import { useLogger } from '@gamezilla/shared/logger/react';
 import {
   Avatar,
   Box,
@@ -24,6 +25,7 @@ export type AccountMenuProps = {
  * App shell: avatar opens a {@link FloatingMenu} with profile and settings routes.
  */
 export function AccountMenu({ variant }: AccountMenuProps) {
+  const log = useLogger('account-menu');
   const router = useRouter();
   const auth = useAuth();
   const insets = useSafeAreaInsets();
@@ -63,9 +65,11 @@ export function AccountMenu({ variant }: AccountMenuProps) {
         await auth.signInWithGoogle();
       }
     } catch (err: unknown) {
-      console.error('[AccountMenu] auth action failed:', err);
+      log.error('auth action failed', {
+        error: err instanceof Error ? err.message : String(err),
+      });
     }
-  }, [auth, close]);
+  }, [auth, close, log]);
 
   const menuContent = useMemo((): FloatingMenuContent => {
     return {

@@ -1,8 +1,12 @@
 import {
+  CLIENT_CONFIG_ENTITY_ID,
+  CLIENT_CONFIG_ENTITY_TYPE,
+  ClientConfigAttr,
   PRINCIPAL_SESSION_ENTITY_TYPE,
   PrincipalSessionAttr,
 } from '@gamezilla/shared/auth';
 import { assert } from '@gamezilla/shared/assert';
+import { fireAndForget } from '@gamezilla/shared/async/fire-and-forget';
 import { ConfigServiceToken } from '@gamezilla/shared/config/config-service';
 import { DependencyInjectionContainer } from '@gamezilla/shared/dependency-injection/dependency-injection-container';
 import {
@@ -10,9 +14,8 @@ import {
   useContainer,
   useDependency,
 } from '@gamezilla/shared/dependency-injection/react';
-import { PatchesDbToken } from '@gamezilla/patch-db/react';
+import { PatchesDbToken, useEntity } from '@gamezilla/patch-db/react';
 import { SubscribablePatchesDbToken } from '@gamezilla/patch-db/subscribable';
-import { Box, Button, Center, Text } from '@gamezilla/shared/ui';
 import {
   createContext,
   useCallback,
@@ -22,8 +25,9 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { createGamezillaApiClient } from '@/features/api/hc';
 import { AuthServiceToken, createAuthService } from './auth-service';
-import { fetchClientRuntimeConfig } from './fetch-client-runtime-config';
+import { refreshClientConfig } from './fetch-client-runtime-config';
 import { PrincipalServiceToken } from './principal-service';
 import {
   SessionServiceToken,
@@ -228,70 +232,25 @@ function AuthStubGoogleBridge({ children }: { children: ReactNode }) {
 
 function AuthContainerBridge({ children }: { children: ReactNode }) {
   const configService = useDependency(ConfigServiceToken);
-  const [loadAttempt, setLoadAttempt] = useState(0);
-  const [phase, setPhase] = useState<
-    | { kind: 'loading' }
-    | { kind: 'ready'; googleWebClientId: string | null }
-    | { kind: 'error'; error: Error }
-  >({ kind: 'loading' });
+
+  const entity = useEntity({
+    entityType: CLIENT_CONFIG_ENTITY_TYPE,
+    entityId: CLIENT_CONFIG_ENTITY_ID,
+  });
 
   useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      try {
-        const { googleWebClientId } = await fetchClientRuntimeConfig(
-          configService.getApiUrl()
-        );
-        if (!cancelled) {
-          setPhase({ kind: 'ready', googleWebClientId });
-        }
-      } catch (err: unknown) {
-        if (!cancelled) {
-          setPhase({
-            kind: 'error',
-            error: err instanceof Error ? err : new Error(String(err)),
-          });
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [configService, loadAttempt]);
+    const client = createGamezillaApiClient(configService.getApiUrl());
+    fireAndForget(refreshClientConfig(client), {
+      component: 'AuthContainerBridge',
+      op: 'refreshClientConfig',
+    });
+  }, [configService]);
 
-  if (phase.kind === 'loading') {
-    return null;
-  }
+  const raw = entity?.attributes[ClientConfigAttr.googleWebClientId];
+  const googleWebClientId =
+    typeof raw === 'string' && raw.length > 0 ? raw : null;
 
-  if (phase.kind === 'error') {
-    return (
-      <Center sx={{ flex: 1, gap: 4, p: 4 }}>
-        <Text
-          variant="bodyBold"
-          sx={{ fontSize: 'base' }}
-          style={{ textAlign: 'center' }}
-          label="Could not load sign-in configuration"
-        />
-        <Text
-          sx={{ fontSize: 'sm', opacity: 0.8 }}
-          style={{ textAlign: 'center' }}
-          label={phase.error.message}
-        />
-        <Box sx={{ mt: 4 }}>
-          <Button
-            title="Retry"
-            onPress={() => {
-              setPhase({ kind: 'loading' });
-              setLoadAttempt((n) => n + 1);
-            }}
-          />
-        </Box>
-      </Center>
-    );
-  }
-
-  const { googleWebClientId } = phase;
-  if (googleWebClientId !== null && googleWebClientId.length > 0) {
+  if (googleWebClientId !== null) {
     return (
       <AuthWithGoogleBridge googleWebClientId={googleWebClientId}>
         {children}
