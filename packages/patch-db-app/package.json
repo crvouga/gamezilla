@@ -5,6 +5,7 @@
   "main": "src/entry.tsx",
   "exports": {
     "./playground-app": "./src/playground-app.tsx",
+    "./todo": "./src/todo/index.ts",
     "./*": "./src/*"
   },
   "scripts": {

@@ -1,5 +1,9 @@
-import { TodoListsOverview } from '@/todo-list/todo-lists-overview';
+import { TodoListsOverview } from '@gamezilla/patch-db-app/todo';
+import { useRouter } from 'expo-router';
 
 export default function TodoListsScreen() {
-  return <TodoListsOverview />;
+  const router = useRouter();
+  return (
+    <TodoListsOverview onOpenList={(id) => router.push(`/todos/${id}`)} />
+  );
 }
