@@ -95,6 +95,7 @@ export class DeployCommand implements Command {
     banner('Deploy Complete', performance.now() - t0);
     ok('client_url', outputs.client_url);
     ok('api_url', outputs.api_url);
+    ok('turbo_cache_url', outputs.turbo_cache_url);
 
     this.writeSummary(outputs);
   }
