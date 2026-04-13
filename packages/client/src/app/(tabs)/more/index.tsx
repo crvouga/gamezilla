@@ -21,6 +21,9 @@ export default function MoreIndex() {
 
   return (
     <Box sx={{ flex: 1, py: 2 }}>
+      <Box sx={{ px: 4, pb: 3 }}>
+        <Text variant="heading">More</Text>
+      </Box>
       {ITEMS.map((item) => (
         <Pressable
           key={item.key}

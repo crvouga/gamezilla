@@ -1,18 +1,16 @@
 import { Tabs } from 'expo-router';
 
-import { useTheme } from '@gamezilla/shared/theme';
+import { CustomTabBar } from '@/ui/custom-tab-bar';
 import { IconSymbol } from '@gamezilla/shared/ui';
-import { HapticTab } from '@/ui/haptic-tab';
+
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
 export default function TabLayout() {
-  const theme = useTheme();
-
   return (
     <Tabs
+      tabBar={(props: BottomTabBarProps) => <CustomTabBar {...props} />}
       screenOptions={{
-        tabBarActiveTintColor: theme.colors.tint,
         headerShown: false,
-        tabBarButton: HapticTab,
       }}
     >
       <Tabs.Screen

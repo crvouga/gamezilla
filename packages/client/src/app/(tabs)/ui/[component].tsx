@@ -1,16 +1,20 @@
 import { ExplorerDetail } from '@gamezilla/shared/ui/explorer';
-import { useLocalSearchParams, useNavigation } from 'expo-router';
-import { useEffect } from 'react';
+import { Box } from '@gamezilla/shared/ui';
+import { useLocalSearchParams } from 'expo-router';
+
+import { StackScreenHeader } from '@/ui/stack-screen-header';
 
 export default function UIExplorerDetail() {
   const { component } = useLocalSearchParams<{ component: string }>();
-  const navigation = useNavigation();
+  const name = component ?? '';
 
-  useEffect(() => {
-    if (component) {
-      navigation.setOptions({ title: component });
-    }
-  }, [component, navigation]);
-
-  return <ExplorerDetail componentName={component ?? ''} />;
+  return (
+    <Box sx={{ flex: 1 }}>
+      <StackScreenHeader
+        title={name || 'Component'}
+        fallbackHref="/(tabs)/ui"
+      />
+      <ExplorerDetail componentName={name} />
+    </Box>
+  );
 }

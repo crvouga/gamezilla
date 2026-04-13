@@ -1,10 +1,9 @@
-import { Link } from 'expo-router';
+import { useRouter } from 'expo-router';
 
-import { useTheme } from '@gamezilla/shared/theme';
-import { Box, Text } from '@gamezilla/shared/ui';
+import { Box, Pressable, Text } from '@gamezilla/shared/ui';
 
 export default function ModalScreen() {
-  const theme = useTheme();
+  const router = useRouter();
 
   return (
     <Box
@@ -16,9 +15,12 @@ export default function ModalScreen() {
       }}
     >
       <Text variant="title">This is a modal</Text>
-      <Link href="/todos" dismissTo style={theme.sx({ mt: 3.75, py: 3.75 })}>
+      <Pressable
+        onPress={() => router.dismissTo('/todos')}
+        sx={{ mt: 3.75, py: 3.75 }}
+      >
         <Text variant="link">Back to Todos</Text>
-      </Link>
+      </Pressable>
     </Box>
   );
 }

@@ -24,6 +24,8 @@ export type TextVariant =
   | 'title'
   | 'subtitle'
   | 'heading'
+  /** Compact navigation bar title (stack headers, not page heroes). */
+  | 'navigationTitle'
   | 'link'
   | 'mono';
 
@@ -35,6 +37,12 @@ const variantStyles: Record<TextVariant, SxProps> = {
   title: { fontSize: '4xl', fontWeight: 'bold', lineHeight: 40, color: 'text' },
   subtitle: { fontSize: 'xl', fontWeight: 'bold', color: 'text' },
   heading: { fontSize: '2xl', fontWeight: 'bold', lineHeight: 32, color: 'text' },
+  navigationTitle: {
+    fontSize: 'lg',
+    lineHeight: 22,
+    fontWeight: '600',
+    color: 'text',
+  },
   link: { fontSize: 'base', lineHeight: 24, color: 'tint' },
   mono: { fontSize: 'sm', lineHeight: 20, color: 'text' },
 };
