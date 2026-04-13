@@ -46,7 +46,7 @@ const nunitoFontStacks: Partial<FontStacks> = {
 };
 
 export const unstable_settings = {
-  anchor: '(tabs)',
+  anchor: 'more',
 };
 
 function RootNavigation() {
@@ -61,8 +61,10 @@ function RootNavigation() {
       <ConfigContainerProvider>
         <PatchBootstrap>
           <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="more" options={{ headerShown: false }} />
             <Stack.Screen name="todos" options={{ headerShown: false }} />
+            <Stack.Screen name="ui" options={{ headerShown: false }} />
             <Stack.Screen
               name="modal"
               options={{

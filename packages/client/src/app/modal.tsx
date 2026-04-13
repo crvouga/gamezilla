@@ -9,7 +9,7 @@ export default function ModalScreen() {
 
   return (
     <Box sx={{ flex: 1 }}>
-      <ScreenHeader title="Modal" fallbackHref="/todos" />
+      <ScreenHeader title="Modal" fallbackHref="/more" />
       <Box
         sx={{
           flex: 1,
@@ -20,10 +20,10 @@ export default function ModalScreen() {
       >
         <Text variant="body">This is a modal screen.</Text>
         <Pressable
-          onPress={() => router.dismissTo('/todos')}
+          onPress={() => router.dismissTo('/more')}
           sx={{ mt: 3.75, py: 3.75 }}
         >
-          <Text variant="link">Back to Todos</Text>
+          <Text variant="link">Back to Dev</Text>
         </Pressable>
       </Box>
     </Box>

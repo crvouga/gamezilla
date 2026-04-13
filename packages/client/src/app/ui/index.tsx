@@ -9,11 +9,11 @@ export default function UIExplorerIndex() {
 
   return (
     <Box sx={{ flex: 1 }}>
-      <ScreenHeader title="UI Components" />
+      <ScreenHeader title="UI Components" fallbackHref="/more" />
       <ExplorerList
         onSelect={(name) =>
           router.push({
-            pathname: '/(tabs)/ui/[component]',
+            pathname: '/ui/[component]',
             params: { component: name },
           })
         }

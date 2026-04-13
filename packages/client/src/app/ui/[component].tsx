@@ -12,7 +12,7 @@ export default function UIExplorerDetail() {
     <Box sx={{ flex: 1 }}>
       <ScreenHeader
         title={name || 'Component'}
-        fallbackHref="/(tabs)/ui"
+        fallbackHref="/ui"
       />
       <ExplorerDetail componentName={name} />
     </Box>
