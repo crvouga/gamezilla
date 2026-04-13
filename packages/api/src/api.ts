@@ -4,6 +4,7 @@ import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
 import { SqlClientImplPgliteHttp } from '@gamezilla/shared/sql-client/impl-pglite-http';
 import { SqlClientImplPlanetScalePostgres } from '@gamezilla/shared/sql-client/impl-planetscale-postgres';
 import { createApiApp } from './create-api-app';
+import { validateEnv } from './env';
 import type { Env } from './env';
 
 const log = createLogger({ name: 'api' });
@@ -54,6 +55,7 @@ export default {
     _ctx: ExecutionContext
   ): Promise<Response> {
     try {
+      validateEnv(env);
       const currentDb = getDb(env);
       if (!migrated) {
         await withTimeout(
@@ -74,9 +76,9 @@ export default {
       return app.fetch(request, env);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      log.error('handler error', { error: message });
+      log.error('top-level handler error', { error: message });
 
-      return new Response(JSON.stringify({ error: message }), {
+      return new Response(JSON.stringify({ error: 'Internal server error' }), {
         status: 500,
         headers: {
           'Content-Type': 'application/json',

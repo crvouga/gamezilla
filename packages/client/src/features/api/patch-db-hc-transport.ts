@@ -36,7 +36,14 @@ export function createPatchDbHcTransport(
         const text = await res.text();
         throw new Error(`HTTP ${String(res.status)}: ${text}`);
       }
-      const raw: unknown = await res.json();
+      let raw: unknown;
+      try {
+        raw = await res.json();
+      } catch {
+        throw new Error(
+          `Response body is not valid JSON (status ${String(res.status)})`
+        );
+      }
       assertPatchesDbResults(raw);
       return raw;
     },
@@ -55,7 +62,14 @@ export function createPatchDbHcTransport(
         const text = await res.text();
         throw new Error(`HTTP ${String(res.status)}: ${text}`);
       }
-      const raw: unknown = await res.json();
+      let raw: unknown;
+      try {
+        raw = await res.json();
+      } catch {
+        throw new Error(
+          `Response body is not valid JSON (status ${String(res.status)})`
+        );
+      }
       assertPatches(raw);
       return raw;
     },

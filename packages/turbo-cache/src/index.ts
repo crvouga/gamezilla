@@ -5,7 +5,14 @@ interface Env {
   TURBO_TOKEN: string;
 }
 
-const HEX_HASH = /^[a-f0-9]+$/;
+const HEX_HASH = /^[a-f0-9]{1,128}$/;
+const SAFE_KEY_SEGMENT = /^[\w.@-]{1,256}$/;
+
+function sanitizeHeaderValue(raw: string | null): string | undefined {
+  if (raw === null) return undefined;
+  const clean = raw.replace(/[\r\n\x00-\x1f]/g, '').slice(0, 256);
+  return clean.length > 0 ? clean : undefined;
+}
 
 const app = new Hono<{ Bindings: Env }>()
   .use('*', async (c, next) => {
@@ -16,6 +23,9 @@ const app = new Hono<{ Bindings: Env }>()
     if (c.req.method === 'GET' && path === '/health') {
       return c.json({ status: 'ok' });
     }
+    if (typeof c.env.TURBO_TOKEN !== 'string' || c.env.TURBO_TOKEN.length === 0) {
+      return c.json({ error: 'Server misconfigured' }, 500);
+    }
     if (!authorize(c.req.raw, c.env.TURBO_TOKEN)) {
       return c.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -24,9 +34,12 @@ const app = new Hono<{ Bindings: Env }>()
   .all('/v8/artifacts/:hash', async (c) => {
     const hash = c.req.param('hash');
     if (!HEX_HASH.test(hash)) {
-      return c.json({ error: 'Not found' }, 404);
+      return c.json({ error: 'Invalid artifact hash' }, 400);
     }
     const teamId = new URL(c.req.url).searchParams.get('teamId') ?? 'default';
+    if (!SAFE_KEY_SEGMENT.test(teamId)) {
+      return c.json({ error: 'Invalid teamId' }, 400);
+    }
     const key = `${teamId}/${hash}`;
     if (c.req.method === 'PUT') {
       return handlePut(c.env, key, c.req.raw);
@@ -74,7 +87,7 @@ async function handlePut(
   request: Request
 ): Promise<Response> {
   const body = await request.arrayBuffer();
-  const tag = request.headers.get('x-artifact-tag') ?? undefined;
+  const tag = sanitizeHeaderValue(request.headers.get('x-artifact-tag'));
 
   const customMetadata: Record<string, string> = {};
   if (tag) customMetadata['artifactTag'] = tag;

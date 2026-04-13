@@ -6,6 +6,18 @@ import type { AppTypeWithGlobalErrors } from '@gamezilla/api/rpc';
  * origin (no `/patch-db` suffix).
  */
 export function createGamezillaApiClient(apiUrl: string) {
+  if (typeof apiUrl !== 'string' || apiUrl.length === 0) {
+    throw new Error('apiUrl must be a non-empty string');
+  }
+  let parsed: URL;
+  try {
+    parsed = new URL(apiUrl);
+  } catch {
+    throw new Error(`apiUrl must be a valid URL, got: ${apiUrl}`);
+  }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    throw new Error(`apiUrl must use http or https, got: ${parsed.protocol}`);
+  }
   const base = apiUrl.replace(/\/$/, '');
   return hc<AppTypeWithGlobalErrors>(`${base}/`);
 }

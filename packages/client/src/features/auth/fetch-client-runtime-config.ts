@@ -16,8 +16,13 @@ export async function fetchClientRuntimeConfig(
   if (!res.ok) {
     throw new Error(`client-config request failed (${String(res.status)})`);
   }
-  const json: unknown = await res.json();
-  if (json === null || typeof json !== 'object') {
+  let json: unknown;
+  try {
+    json = await res.json();
+  } catch {
+    throw new Error('client-config response is not valid JSON');
+  }
+  if (json === null || typeof json !== 'object' || Array.isArray(json)) {
     throw new Error('client-config response must be a JSON object');
   }
   const rec = json as Record<string, unknown>;

@@ -6,6 +6,8 @@ export type GoogleIdTokenClaims = {
   aud?: string;
 };
 
+const GOOGLE_TOKENINFO_TIMEOUT_MS = 10_000;
+
 /**
  * Verifies a Google OIDC id_token via Google's tokeninfo endpoint.
  * Rejects invalid tokens — never continues on failure.
@@ -16,9 +18,31 @@ export async function verifyGoogleIdToken(
 ): Promise<GoogleIdTokenClaims> {
   assert.string(idToken, 'google id_token must be string');
   assert.ok(idToken.length > 0, 'google id_token must be non-empty');
+  assert.ok(
+    idToken.length <= 8192,
+    'google id_token exceeds maximum length',
+    { length: idToken.length }
+  );
 
   const url = `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`;
-  const res = await fetch(url);
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(),
+    GOOGLE_TOKENINFO_TIMEOUT_MS
+  );
+
+  let res: Response;
+  try {
+    res = await fetch(url, { signal: controller.signal });
+  } catch (err: unknown) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new Error('Google token verification timed out');
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
+
   const text = await res.text();
   if (!res.ok) {
     throw new Error(`Google token verification failed (${String(res.status)})`);
