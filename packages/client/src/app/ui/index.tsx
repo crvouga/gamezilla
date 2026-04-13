@@ -9,7 +9,7 @@ export default function UIExplorerIndex() {
 
   return (
     <Box sx={{ flex: 1 }}>
-      <ScreenHeader title="UI Components" fallbackHref="/more" />
+      <ScreenHeader title="UI Components" fallbackHref="/more/developer" />
       <ExplorerList
         onSelect={(name) =>
           router.push({

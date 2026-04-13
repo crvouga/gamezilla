@@ -6,10 +6,14 @@ import {
 } from '@expo-google-fonts/nunito';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import 'react-native-reanimated';
 
 import { AuthProvider } from '@/features/auth/auth-context';
+import {
+  ThemePreferenceProvider,
+  useThemePreference,
+} from '@/features/theme/theme-preference-context';
 import { PatchBootstrap } from '@/ui/patch-bootstrap';
 import { assert } from '@gamezilla/shared/assert';
 import { BrowserCrashHandler } from '@gamezilla/shared/assert/crash/crash-handler/crash-handler-browser';
@@ -49,6 +53,25 @@ const nunitoFontStacks: Partial<FontStacks> = {
 export const unstable_settings = {
   anchor: '(tabs)',
 };
+
+function AppThemeShell({
+  children,
+  fonts,
+}: {
+  children: ReactNode;
+  fonts?: Partial<FontStacks>;
+}) {
+  const { preference } = useThemePreference();
+  return (
+    <AppThemeProvider
+      colorScheme={preference}
+      systemFallback="light"
+      {...(fonts !== undefined ? { fonts } : {})}
+    >
+      {children}
+    </AppThemeProvider>
+  );
+}
 
 function RootNavigation() {
   const theme = useTheme();
@@ -99,14 +122,14 @@ export default function RootLayout() {
   }
 
   return (
-    <AppThemeProvider
-      colorScheme="system"
-      systemFallback="light"
-      {...(fontsLoaded ? { fonts: nunitoFontStacks } : {})}
-    >
-      <AuthProvider>
-        <RootNavigation />
-      </AuthProvider>
-    </AppThemeProvider>
+    <ThemePreferenceProvider>
+      <AppThemeShell
+        {...(fontsLoaded ? { fonts: nunitoFontStacks } : {})}
+      >
+        <AuthProvider>
+          <RootNavigation />
+        </AuthProvider>
+      </AppThemeShell>
+    </ThemePreferenceProvider>
   );
 }

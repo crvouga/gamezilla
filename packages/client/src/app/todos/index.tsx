@@ -11,7 +11,7 @@ export default function TodoListsScreen() {
       navigation.goBack();
       return;
     }
-    router.replace('/more');
+    router.replace('/more/developer');
   };
 
   return (

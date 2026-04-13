@@ -6,7 +6,7 @@ import { ScreenHeader } from '@/ui/screen-header';
 export default function PeerStoreScreen() {
   return (
     <Box sx={{ flex: 1 }}>
-      <ScreenHeader title="Peer Store Playground" fallbackHref="/more" />
+      <ScreenHeader title="Peer Store Playground" fallbackHref="/more/developer" />
       <PlaygroundPage />
     </Box>
   );
