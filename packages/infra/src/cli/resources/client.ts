@@ -57,6 +57,8 @@ export class ClientResource extends ResourceBase {
         pagesProject,
         '--branch',
         'main',
+        '--commit-dirty',
+        'true',
       ],
       {
         cwd: clientDir,

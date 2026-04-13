@@ -10,7 +10,8 @@
     "check": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID doppler run -- turbo check build",
     "format": "sort-package-json && prettier --write .",
     "format:check": "prettier --check .",
-    "infra": "bun run packages/infra/src/bin/cli.ts"
+    "infra": "bun run packages/infra/src/bin/cli.ts",
+    "gh": "gh run view --web"
   },
   "devDependencies": {
     "@types/bun": "^1.3.9",
