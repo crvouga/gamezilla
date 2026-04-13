@@ -7,6 +7,13 @@
  *   <View style={theme.sx({ px: 2, py: 1, background: "paper" })} />
  */
 
+export {
+  BREAKPOINT_MIN_DESKTOP,
+  BREAKPOINT_MIN_TABLET,
+  getBreakpoint,
+  type BreakpointName,
+} from './breakpoints';
+export { useBreakpoint } from './use-breakpoint';
 export { ThemeProvider, useTheme } from './theme-context';
 export type {
   Theme,

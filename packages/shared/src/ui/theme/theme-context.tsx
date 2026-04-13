@@ -15,6 +15,7 @@ import { assert } from '../../assert';
 import type { ColorScheme, ColorTokens } from './colors';
 import { defaultColors } from './colors';
 import { fonts, type FontStacks } from './fonts';
+import { getBreakpoint, type BreakpointName } from './breakpoints';
 import { createSx } from './sx';
 
 export type ThemeLayout = {
@@ -30,6 +31,8 @@ export type Theme = {
   colorScheme: ColorScheme;
   fonts: FontStacks;
   layout: ThemeLayout;
+  /** Derived from `layout.width` via {@link getBreakpoint}. */
+  breakpoint: BreakpointName;
 };
 
 const ThemeContext = createContext<Theme | null>(null);
@@ -90,6 +93,7 @@ export function ThemeProvider({
         scale: layout.scale,
         fontScale: layout.fontScale,
       },
+      breakpoint: getBreakpoint(layout.width),
     };
   }, [resolvedScheme, colorOverrides, fontsProp, layout]);
 
