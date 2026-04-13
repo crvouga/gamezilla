@@ -12,14 +12,13 @@ import {
 import { assertPrincipalId, assertUuid } from '@gamezilla/shared/auth/principal-id';
 import { assert } from '@gamezilla/shared/assert';
 import type { PatchInput, PatchesDb } from '@gamezilla/patch-db/interface';
+import type { z } from 'zod';
+import { authClaimRequestSchema } from '../schemas';
 import { verifyGoogleIdToken } from './google-token';
 
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
-export type ClaimRequestBody = {
-  googleIdToken: string;
-  principalId: string;
-};
+export type ClaimRequestBody = z.infer<typeof authClaimRequestSchema>;
 
 export type ClaimSuccessBody = {
   accountId: string;
@@ -27,23 +26,23 @@ export type ClaimSuccessBody = {
   expiresAt: string;
 };
 
-function jsonResponse(body: unknown, status: number): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  });
-}
+export type AuthClaimErrorBody = { error: string };
 
-export async function handleAuthClaim(
+export type AuthClaimResult =
+  | { status: 200; json: ClaimSuccessBody }
+  | { status: 400; json: AuthClaimErrorBody }
+  | { status: 401; json: AuthClaimErrorBody }
+  | { status: 409; json: AuthClaimErrorBody };
+
+/**
+ * Google OAuth claim: validates token, links account + session. Typed for Hono RPC (`c.json`).
+ */
+export async function handleAuthClaimResult(
   db: PatchesDb,
-  body: unknown,
+  body: ClaimRequestBody,
   options: { googleClientId?: string }
-): Promise<Response> {
-  assert.record(body, 'claim body must be object');
-  const googleIdToken = body['googleIdToken'];
-  const principalId = body['principalId'];
-  assert.string(googleIdToken, 'googleIdToken must be string');
-  assert.string(principalId, 'principalId must be string');
+): Promise<AuthClaimResult> {
+  const { googleIdToken, principalId } = body;
   assertPrincipalId(principalId);
 
   let claims;
@@ -55,7 +54,7 @@ export async function handleAuthClaim(
     claims = await verifyGoogleIdToken(googleIdToken, verifyOpts);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
-    return jsonResponse({ error: message }, 401);
+    return { status: 401, json: { error: message } };
   }
 
   const providerAccountId = claims.sub;
@@ -137,12 +136,12 @@ export async function handleAuthClaim(
     typeof existingAccountId === 'string' &&
     existingAccountId !== accountId
   ) {
-    return jsonResponse(
-      {
+    return {
+      status: 409,
+      json: {
         error: 'principal already claimed by a different account',
       },
-      409
-    );
+    };
   }
 
   const idempotentSameAccount =
@@ -181,5 +180,5 @@ export async function handleAuthClaim(
   await db.write(patchesToWrite);
 
   const success: ClaimSuccessBody = { accountId, sessionToken, expiresAt };
-  return jsonResponse(success, 200);
+  return { status: 200, json: success };
 }

@@ -17,18 +17,16 @@ const ROOT = join(
 
 const port = Number(process.env['PATCHDB_APP_PORT'] ?? '8765');
 
-const app = new Hono();
-
-app.get(
-  '/*',
-  serveStatic({
-    root: ROOT,
-    rewriteRequestPath: (path) =>
-      path === '/' || path === '' ? '/index.html' : path,
-  })
-);
-
-app.notFound((c) => c.text('Not found', 404));
+const app = new Hono()
+  .get(
+    '/*',
+    serveStatic({
+      root: ROOT,
+      rewriteRequestPath: (path) =>
+        path === '/' || path === '' ? '/index.html' : path,
+    })
+  )
+  .notFound((c) => c.text('Not found', 404));
 
 Bun.serve({
   port,

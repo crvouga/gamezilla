@@ -9,6 +9,7 @@
 
 import { PGlite } from '@electric-sql/pglite';
 import { createLogger } from '@gamezilla/shared/logger';
+import type { Context } from 'hono';
 import { Hono } from 'hono';
 
 const SQL_PORT = parseInt(process.env['SQL_PORT'] ?? '15432', 10);
@@ -27,11 +28,7 @@ const log = createLogger({ name: 'db' });
 
 const db = await PGlite.create(DATA_DIR);
 
-const app = new Hono();
-
-app.get('/health', (c) => c.json({ ok: true }));
-
-app.post('/sql', async (c) => {
+async function handleSql(c: Context) {
   const cl = parseInt(c.req.header('content-length') ?? '0', 10);
   if (cl > LIMITS.maxBodyBytes) {
     return c.json({ error: 'Request body too large' }, 413);
@@ -89,9 +86,12 @@ app.post('/sql', async (c) => {
     });
     return c.json({ error: message }, 400);
   }
-});
+}
 
-app.notFound((c) => c.json({ error: 'Not Found' }, 404));
+const app = new Hono()
+  .get('/health', (c) => c.json({ ok: true }))
+  .post('/sql', handleSql)
+  .notFound((c) => c.json({ error: 'Not Found' }, 404));
 
 Bun.serve({ port: SQL_PORT, hostname: HOST, fetch: app.fetch });
 

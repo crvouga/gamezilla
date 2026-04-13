@@ -13,6 +13,7 @@ import {
   SubscribablePatchesDbToken,
   type SubscribablePatchesDbLike,
 } from './subscribable';
+import type { PatchDbClientTransport } from './transport';
 import { PatchDbClientTransportHttpFetch } from './transport';
 
 export type BootstrapResult = {
@@ -23,6 +24,8 @@ export type BootstrapPatchDbExpoSyncOptions = {
   databaseName?: string;
   /** Absolute URL including patch-db base path, e.g. `https://host/patch-db`. */
   apiUrl: string;
+  /** If set, used instead of {@link PatchDbClientTransportHttpFetch}(apiUrl). */
+  transport?: PatchDbClientTransport;
   pushIntervalMs?: number;
   pollIntervalMs?: number;
   parentContainer?: DependencyInjectionContainer;
@@ -47,6 +50,7 @@ export async function bootstrapPatchDbExpoSync(
   const {
     databaseName = 'main',
     apiUrl,
+    transport: transportOption,
     pushIntervalMs = 2000,
     pollIntervalMs = 5000,
     parentContainer,
@@ -68,7 +72,8 @@ export async function bootstrapPatchDbExpoSync(
     const localDb = new PatchDbImplSqlite(sqlClient);
     await localDb.migrate();
 
-    const transport = new PatchDbClientTransportHttpFetch(apiUrl);
+    const transport =
+      transportOption ?? new PatchDbClientTransportHttpFetch(apiUrl);
     const remoteDb = new PatchDbImplClientTransport(transport);
     const pubSub = new InMemoryPubSub();
     const syncDb = new SyncPatchesDb(localDb, remoteDb, pubSub, {

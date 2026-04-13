@@ -1,5 +1,6 @@
-import type { Hono } from 'hono';
+import { Hono } from 'hono';
 
-export function registerHealth(app: Hono): void {
-  app.get('/health', (c) => c.json({ status: 'ok' }));
-}
+/** GET `/health` — liveness for load balancers and deploy checks. */
+export const healthApp = new Hono().get('/health', (c) =>
+  c.json({ status: 'ok' as const }, 200)
+);

@@ -10,6 +10,7 @@ import { assert } from '@gamezilla/shared/assert';
 import type { ConfigService } from '@gamezilla/shared/config/config-service';
 import type { InjectionToken } from '@gamezilla/shared/dependency-injection/dependency-injection-container';
 import type { PatchesDb } from '@gamezilla/patch-db/interface';
+import { createGamezillaApiClient } from '@/features/api/hc';
 import type { PrincipalService } from './principal-service';
 import type { SessionService } from './session-service';
 
@@ -64,11 +65,9 @@ export function createAuthService(deps: {
       assertPrincipalId(principalId);
 
       const apiUrl = configService.getApiUrl();
-      const url = `${apiUrl}/auth/claim`;
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ googleIdToken, principalId }),
+      const client = createGamezillaApiClient(apiUrl);
+      const response = await client.auth.claim.$post({
+        json: { googleIdToken, principalId },
       });
 
       const text = await response.text();

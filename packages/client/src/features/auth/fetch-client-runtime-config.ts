@@ -1,3 +1,5 @@
+import { createGamezillaApiClient } from '@/features/api/hc';
+
 export type ClientRuntimeConfig = {
   googleWebClientId: string | null;
 };
@@ -9,8 +11,8 @@ export type ClientRuntimeConfig = {
 export async function fetchClientRuntimeConfig(
   apiUrl: string
 ): Promise<ClientRuntimeConfig> {
-  const base = apiUrl.replace(/\/$/, '');
-  const res = await fetch(`${base}/client-config`);
+  const client = createGamezillaApiClient(apiUrl);
+  const res = await client['client-config'].$get();
   if (!res.ok) {
     throw new Error(`client-config request failed (${String(res.status)})`);
   }

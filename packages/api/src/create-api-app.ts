@@ -1,47 +1,44 @@
+import { createPatchDbApiHandler } from '@gamezilla/patch-db/api';
 import { createLogger } from '@gamezilla/shared/logger';
 import { Hono } from 'hono';
-import { cors } from 'hono/cors';
 import type { ApiHandlerConfig } from './api-types';
 import { UnauthorizedError } from './auth/unauthorized-error';
-import { registerAuthClaim } from './routes/auth-claim';
-import { registerClientConfig } from './routes/client-config';
-import { registerHealth } from './routes/health';
-import { registerPatchDbRoutes } from './routes/patch-db';
+import { apiCors } from './middleware/api-cors';
+import { createAuthClaimApp } from './routes/auth-claim';
+import { createClientConfigApp } from './routes/client-config';
+import { healthApp } from './routes/health';
 
 const log = createLogger({ name: 'api:app' });
 
 export type { ApiHandlerConfig } from './api-types';
 
-export function createApiApp(config: ApiHandlerConfig): Hono {
-  const app = new Hono();
+/**
+ * Composes the API Worker app from mounted sub-apps (`app.route()`), per
+ * [Hono best practices](https://hono.dev/docs/guides/best-practices).
+ */
+export function createApiApp(config: ApiHandlerConfig) {
+  const { honoApp: patchDbApp, basePath } = createPatchDbApiHandler(config);
+  /** RPC client keys use the literal mount path; wire URL stays `basePath`-driven. */
+  const patchMount = basePath as '/patch-db';
+  const db = config.db;
+  const googleClientId = config.googleClientId;
+  const authOpts =
+    googleClientId !== undefined && googleClientId !== ''
+      ? { googleClientId }
+      : {};
 
-  app.use(
-    '*',
-    cors({
-      origin: '*',
-      allowMethods: ['GET', 'POST', 'OPTIONS'],
-      allowHeaders: [
-        'Content-Type',
-        'Cache-Control',
-        'Pragma',
-        'Authorization',
-      ],
-    })
-  );
-
-  registerHealth(app);
-  registerClientConfig(app, config.googleClientId);
-  registerAuthClaim(app, config.db, config.googleClientId);
-  registerPatchDbRoutes(app, config);
-
-  app.onError((err, c) => {
-    if (err instanceof UnauthorizedError) {
-      return c.json({ error: err.message }, 401);
-    }
-    const message = err instanceof Error ? err.message : String(err);
-    log.error('handler error', { error: message });
-    return c.json({ error: message }, 500);
-  });
-
-  return app;
+  return new Hono()
+    .use('*', apiCors)
+    .route('/', healthApp)
+    .route('/', createClientConfigApp(config.googleClientId))
+    .route('/', createAuthClaimApp(db, authOpts))
+    .route(patchMount, patchDbApp)
+    .onError((err, c) => {
+      if (err instanceof UnauthorizedError) {
+        return c.json({ error: err.message }, 401);
+      }
+      const message = err instanceof Error ? err.message : String(err);
+      log.error('handler error', { error: message });
+      return c.json({ error: message }, 500);
+    });
 }

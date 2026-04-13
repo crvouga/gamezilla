@@ -1,3 +1,5 @@
+import { createGamezillaApiClient } from '@/features/api/hc';
+import { createPatchDbHcTransport } from '@/features/api/patch-db-hc-transport';
 import { ensurePrincipalEntity } from '@/features/auth/ensure-principal-entity';
 import { PrincipalPatchesDb } from '@/features/auth/principal-patches-db';
 import { PrincipalServiceToken } from '@/features/auth/principal-service';
@@ -42,8 +44,10 @@ export function PatchBootstrap({ children }: { children: ReactNode }) {
   const runBootstrap = useCallback(() => {
     setError(null);
     const principalId = principalService.getPrincipalId();
+    const apiBase = configService.getApiUrl();
     void bootstrapPatchDbExpoSync({
-      apiUrl: `${configService.getApiUrl()}/patch-db`,
+      apiUrl: `${apiBase}/patch-db`,
+      transport: createPatchDbHcTransport(createGamezillaApiClient(apiBase)),
       parentContainer,
       decoratePatchesDb: (db) => new PrincipalPatchesDb(db, principalId),
     })

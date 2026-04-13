@@ -1,23 +1,21 @@
-import type { Hono } from 'hono';
 import type { PatchesDb } from '@gamezilla/patch-db/interface';
-import { handleAuthClaim } from '../auth/claim-handler';
+import { zValidator } from '@hono/zod-validator';
+import { Hono } from 'hono';
+import { handleAuthClaimResult } from '../auth/claim-handler';
+import { authClaimRequestSchema } from '../schemas';
 
-export function registerAuthClaim(
-  app: Hono,
+/** POST `/auth/claim` — Google id_token + principal binding. */
+export function createAuthClaimApp(
   db: PatchesDb,
-  googleClientId: string | undefined
-): void {
-  app.post('/auth/claim', async (c) => {
-    let body: unknown;
-    try {
-      body = await c.req.json();
-    } catch {
-      return c.json({ error: 'Invalid JSON body' }, 400);
+  authOpts: { googleClientId?: string }
+) {
+  return new Hono().post(
+    '/auth/claim',
+    zValidator('json', authClaimRequestSchema),
+    async (c) => {
+      const body = c.req.valid('json');
+      const result = await handleAuthClaimResult(db, body, authOpts);
+      return c.json(result.json, result.status);
     }
-    const authOpts =
-      googleClientId !== undefined && googleClientId !== ''
-        ? { googleClientId }
-        : {};
-    return handleAuthClaim(db, body, authOpts);
-  });
+  );
 }

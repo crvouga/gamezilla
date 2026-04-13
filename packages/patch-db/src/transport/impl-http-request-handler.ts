@@ -1,5 +1,7 @@
-import { assert, Assert } from '@gamezilla/shared/assert';
+import { zValidator } from '@hono/zod-validator';
+import { Assert } from '@gamezilla/shared/assert';
 import { Hono } from 'hono';
+import type { Context } from 'hono';
 import {
   type PatchInput,
   type PatchesDbQuery,
@@ -15,49 +17,63 @@ import {
   PATCH_SUFFIX_WRITE,
   patchDbPaths,
 } from './paths';
+import { patchDbReadBodySchema, patchDbWriteBodySchema } from './wire-schemas';
 
 type ResolvedPaths = ReturnType<typeof patchDbPaths>;
+
+function applyNoCacheHeaders(c: Context): void {
+  for (const [k, v] of Object.entries(NO_CACHE_RESPONSE_HEADERS)) {
+    c.header(k, v);
+  }
+}
 
 /**
  * Hono sub-app routes (paths relative to {@link patchDbPaths} `basePath` mount).
  * Matches wire URLs `{base}/patches/read` and `{base}/patches/write`.
  */
-export function createPatchDbHttpHono(host: PatchDbSyncHost): Hono {
-  const app = new Hono();
-  app.post(PATCH_SUFFIX_READ, async (c) => handleRead(c.req.raw, host));
-  app.post(PATCH_SUFFIX_WRITE, async (c) => handleWrite(c.req.raw, host));
-  return app;
-}
-
-async function handleWrite(req: Request, host: PatchDbSyncHost): Promise<Response> {
-  assert.equals(req.method, 'POST', 'Invalid method');
-  const body: unknown = await req.json();
-  const a: Assert = Assert.validation();
-  a.record(body, 'Request body must be object');
-  a.field(body, 'patches', 'patches required');
-  a.array(body.patches, 'patches required');
-  a.ok(body.patches.length > 0, 'patches must not be empty');
-  a.all(body.patches, (p): asserts p is PatchInput => assertPatchInput(a, p));
-  const patches = await host.write(body.patches);
-  return Response.json(patches, { headers: NO_CACHE_RESPONSE_HEADERS });
-}
-
-async function handleRead(req: Request, host: PatchDbSyncHost): Promise<Response> {
-  assert.equals(req.method, 'POST', 'Invalid method');
-  const body: unknown = await req.json();
-  const a: Assert = Assert.validation();
-  a.record(body, 'Request body must be object');
-  a.field(body, 'queries', 'queries required');
-  a.array(body.queries, 'queries required');
-  a.ok(body.queries.length > 0, 'queries must not be empty');
-  a.all(body.queries, (q): asserts q is PatchesDbQuery => assertQuery(a, q));
-  const queries = body.queries;
-  const results = await host.read(queries);
-  const stripped = results.map((r) => ({
-    ...r,
-    query: stripKnownPatchesFromQuery(r.query),
-  }));
-  return Response.json(stripped, { headers: NO_CACHE_RESPONSE_HEADERS });
+export function createPatchDbHttpHono(host: PatchDbSyncHost) {
+  return new Hono()
+    .post(
+      PATCH_SUFFIX_READ,
+      zValidator('json', patchDbReadBodySchema),
+      async (c) => {
+        const body = c.req.valid('json');
+        const a: Assert = Assert.validation();
+        a.record(body, 'Request body must be object');
+        a.field(body, 'queries', 'queries required');
+        a.array(body.queries, 'queries required');
+        a.ok(body.queries.length > 0, 'queries must not be empty');
+        a.all(body.queries, (q): asserts q is PatchesDbQuery =>
+          assertQuery(a, q)
+        );
+        const queries = body.queries;
+        const results = await host.read(queries);
+        const stripped = results.map((r) => ({
+          ...r,
+          query: stripKnownPatchesFromQuery(r.query),
+        }));
+        applyNoCacheHeaders(c);
+        return c.json(stripped, 200);
+      }
+    )
+    .post(
+      PATCH_SUFFIX_WRITE,
+      zValidator('json', patchDbWriteBodySchema),
+      async (c) => {
+        const body = c.req.valid('json');
+        const a: Assert = Assert.validation();
+        a.record(body, 'Request body must be object');
+        a.field(body, 'patches', 'patches required');
+        a.array(body.patches, 'patches required');
+        a.ok(body.patches.length > 0, 'patches must not be empty');
+        a.all(body.patches, (p): asserts p is PatchInput =>
+          assertPatchInput(a, p)
+        );
+        const patches = await host.write(body.patches);
+        applyNoCacheHeaders(c);
+        return c.json(patches, 200);
+      }
+    );
 }
 
 /**
@@ -65,7 +81,7 @@ async function handleRead(req: Request, host: PatchDbSyncHost): Promise<Response
  * Mount with `parent.route(basePath, handler.honoApp)` or call {@link handleRequest}.
  */
 export class PatchDbHttpRequestHandler {
-  readonly honoApp: Hono;
+  readonly honoApp: ReturnType<typeof createPatchDbHttpHono>;
   private readonly paths: ResolvedPaths;
 
   constructor(
