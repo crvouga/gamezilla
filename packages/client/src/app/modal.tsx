@@ -16,8 +16,8 @@ export default function ModalScreen() {
       }}
     >
       <Text variant="title">This is a modal</Text>
-      <Link href="/" dismissTo style={theme.sx({ mt: 3.75, py: 3.75 })}>
-        <Text variant="link">Go to home screen</Text>
+      <Link href="/todos" dismissTo style={theme.sx({ mt: 3.75, py: 3.75 })}>
+        <Text variant="link">Back to Todos</Text>
       </Link>
     </Box>
   );
