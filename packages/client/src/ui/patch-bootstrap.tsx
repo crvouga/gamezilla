@@ -75,7 +75,7 @@ export function PatchBootstrap({ children }: { children: ReactNode }) {
           setError(err instanceof Error ? err : new Error(String(err)));
         }
       });
-  }, [configService, parentContainer, principalService]);
+  }, [configService, log, parentContainer, principalService]);
 
   useEffect(() => {
     mountedRef.current = true;

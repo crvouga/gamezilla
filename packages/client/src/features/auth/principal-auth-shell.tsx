@@ -48,7 +48,7 @@ export function PrincipalAuthShell({ children }: { children: ReactNode }) {
         }
       }
     })();
-  }, [parentContainer]);
+  }, [log, parentContainer]);
 
   useEffect(() => {
     mountedRef.current = true;
