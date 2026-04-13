@@ -1,7 +1,9 @@
+import { assert } from '@gamezilla/shared/assert';
 import { ALL_DEPS } from '../deps/registry';
 import { collectDepVersionIssues } from '../deps/version-check';
 import { banner, fail, ok, warn } from '../lib/fmt';
 import { infraOutputs } from '../lib/infra-outputs';
+import { refreshClientConfig } from '../lib/refresh-client-config';
 import { runHttpSmokeTests } from '../lib/smoke-tests';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
@@ -14,7 +16,7 @@ import type { Command } from './types';
 export class DeployCommand implements Command {
   readonly id = 'deploy';
   readonly summary =
-    'Full idempotent deploy: ensure infra → deploy apps → smoke tests';
+    'Full idempotent deploy: ensure infra → deploy apps → smoke tests → refresh client config';
 
   constructor(private readonly platform: CiPlatform) {}
 
@@ -73,14 +75,21 @@ export class DeployCommand implements Command {
     // ── 3. Deploy resources that have a deploy method (topological order)
     for (const resource of resources) {
       if (!resource.deploy) continue;
-      await runStep(p, `Deploy: ${resource.id}`, () =>
-        resource.deploy!(p, ctx)
-      );
+      assert.defined(resource.deploy, 'resource.deploy is defined');
+      await runStep(p, `Deploy: ${resource.id}`, () => {
+        assert.defined(resource.deploy, 'resource.deploy is defined');
+        resource.deploy(p, ctx);
+      });
     }
 
     // ── 4. Smoke tests ──────────────────────────────────────────────────
     const outputs = infraOutputs(ctx);
     await runStep(p, 'Smoke tests', () => runHttpSmokeTests(p, outputs));
+
+    // ── 5. Refresh client config (PatchDB singleton) ───────────────────
+    await runStep(p, 'Refresh client config', () =>
+      refreshClientConfig(p, outputs)
+    );
 
     // ── Done ─────────────────────────────────────────────────────────────
     banner('Deploy Complete', performance.now() - t0);

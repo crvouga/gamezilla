@@ -6,7 +6,6 @@ import {
   PrincipalSessionAttr,
 } from '@gamezilla/shared/auth';
 import { assert } from '@gamezilla/shared/assert';
-import { fireAndForget } from '@gamezilla/shared/async/fire-and-forget';
 import { ConfigServiceToken } from '@gamezilla/shared/config/config-service';
 import { DependencyInjectionContainer } from '@gamezilla/shared/dependency-injection/dependency-injection-container';
 import {
@@ -25,9 +24,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { createGamezillaApiClient } from '@/features/api/hc';
 import { AuthServiceToken, createAuthService } from './auth-service';
-import { refreshClientConfig } from './fetch-client-runtime-config';
 import { PrincipalServiceToken } from './principal-service';
 import {
   SessionServiceToken,
@@ -231,20 +228,10 @@ function AuthStubGoogleBridge({ children }: { children: ReactNode }) {
 }
 
 function AuthContainerBridge({ children }: { children: ReactNode }) {
-  const configService = useDependency(ConfigServiceToken);
-
   const entity = useEntity({
     entityType: CLIENT_CONFIG_ENTITY_TYPE,
     entityId: CLIENT_CONFIG_ENTITY_ID,
   });
-
-  useEffect(() => {
-    const client = createGamezillaApiClient(configService.getApiUrl());
-    fireAndForget(refreshClientConfig(client), {
-      component: 'AuthContainerBridge',
-      op: 'refreshClientConfig',
-    });
-  }, [configService]);
 
   const raw = entity?.attributes[ClientConfigAttr.googleWebClientId];
   const googleWebClientId =

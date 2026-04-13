@@ -4,7 +4,6 @@ import {
   ClientConfigAttr,
 } from '@gamezilla/shared/auth';
 import type { PatchesDb } from '@gamezilla/patch-db/interface';
-import type { GamezillaApiClient } from '@/features/api/hc';
 
 export type ClientRuntimeConfig = {
   googleWebClientId: string | null;
@@ -24,14 +23,4 @@ export async function readClientRuntimeConfig(
   const raw = entity.attributes[ClientConfigAttr.googleWebClientId];
   const id = typeof raw === 'string' && raw.length > 0 ? raw : null;
   return { googleWebClientId: id };
-}
-
-/**
- * Tells the server to write the latest client config into patch-db.
- * The sync cycle then delivers it to the client.
- */
-export async function refreshClientConfig(
-  client: GamezillaApiClient
-): Promise<void> {
-  await client['client-config']['refresh'].$post();
 }
