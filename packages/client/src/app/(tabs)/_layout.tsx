@@ -1,8 +1,13 @@
 import { BottomTabBar } from '@react-navigation/bottom-tabs';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { useTheme } from '@react-navigation/native';
 import { Tabs } from 'expo-router';
-import { Box, IconSymbol } from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/theme';
+import {
+  Box,
+  IconSymbol,
+  type AppNavigationTheme,
+} from '@gamezilla/shared/ui';
+import { useBreakpoint } from '@gamezilla/shared/theme';
 
 import { AppSidebar } from '@/ui/app-sidebar';
 
@@ -11,8 +16,8 @@ function MainTabBar(props: BottomTabBarProps) {
 }
 
 export default function TabsLayout() {
-  const theme = useTheme();
-  const isMobile = theme.breakpoint === 'mobile';
+  const theme = useTheme() as AppNavigationTheme;
+  const isMobile = useBreakpoint() === 'mobile';
 
   return (
     <Box sx={{ flex: 1, flexDirection: 'row' }}>

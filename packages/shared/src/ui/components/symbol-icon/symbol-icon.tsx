@@ -1,14 +1,11 @@
-// Fallback: Material Icons on Android and web.
+/**
+ * Themed icon primitive: Font Awesome 7.x SVGs via `react-native-svg` (see ATTRIBUTION.md).
+ */
 
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { SymbolWeight } from 'expo-symbols';
-import { type ComponentProps, type ReactNode } from 'react';
-import {
-  ICON_SYMBOL_TO_MATERIAL,
-  type IconSymbolName,
-} from './mapping';
+import { View } from 'react-native';
 
-type MaterialName = ComponentProps<typeof MaterialIcons>['name'];
+import { assert } from '../../../assert';
+import { ICON_REGISTRY, type IconSymbolName } from './icon-registry';
 
 export type { IconSymbolName };
 
@@ -17,25 +14,14 @@ export type IconSymbolProps = {
   size?: number;
   color: string;
   style?: object;
-  weight?: SymbolWeight;
 };
 
-/**
- * Native SF Symbols on iOS (`symbol-icon.ios.tsx`); Material Icons elsewhere.
- */
-export function IconSymbol({
-  name,
-  size = 24,
-  color,
-  style,
-}: IconSymbolProps): ReactNode {
-  const materialName = ICON_SYMBOL_TO_MATERIAL[name] as MaterialName;
+export function IconSymbol({ name, size = 24, color, style }: IconSymbolProps) {
+  const Icon = ICON_REGISTRY[name];
+  assert.defined(Icon, `IconSymbol: unknown name "${String(name)}"`);
   return (
-    <MaterialIcons
-      color={color}
-      size={size}
-      name={materialName}
-      style={style}
-    />
+    <View style={[{ alignItems: 'center', justifyContent: 'center' }, style]}>
+      <Icon size={size} color={color} />
+    </View>
   );
 }

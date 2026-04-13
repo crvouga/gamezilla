@@ -25,24 +25,50 @@ const workspacePackages = {
   '@gamezilla/patch-db-app': path.resolve(monorepoRoot, 'packages/patch-db-app/src'),
   '@gamezilla/peer-store-app': path.resolve(monorepoRoot, 'packages/peer-store-app/src'),
 };
+
+/** Single module id for theme context so Metro never bundles two `createContext` instances. */
+const sharedThemeContextPath = path.resolve(
+  monorepoRoot,
+  'packages/shared/src/ui/theme/theme-context.tsx',
+);
+
+function normalizeResolvedThemeContext(result) {
+  if (
+    result &&
+    result.type === 'sourceFile' &&
+    typeof result.filePath === 'string' &&
+    result.filePath.replace(/\\/g, '/').endsWith(
+      'packages/shared/src/ui/theme/theme-context.tsx',
+    )
+  ) {
+    return { ...result, filePath: sharedThemeContextPath };
+  }
+  return result;
+}
+
 config.resolver.resolveRequest = (context, moduleName, platform) => {
+  const finish = (result) => normalizeResolvedThemeContext(result);
   if (moduleName.startsWith('@/')) {
-    return context.resolveRequest(
-      context,
-      path.resolve(srcDir, moduleName.slice(2)),
-      platform,
+    return finish(
+      context.resolveRequest(
+        context,
+        path.resolve(srcDir, moduleName.slice(2)),
+        platform,
+      ),
     );
   }
   for (const [pkg, pkgSrcDir] of Object.entries(workspacePackages)) {
     if (moduleName.startsWith(pkg + '/')) {
-      return context.resolveRequest(
-        context,
-        path.resolve(pkgSrcDir, moduleName.slice(pkg.length + 1)),
-        platform,
+      return finish(
+        context.resolveRequest(
+          context,
+          path.resolve(pkgSrcDir, moduleName.slice(pkg.length + 1)),
+          platform,
+        ),
       );
     }
   }
-  return context.resolveRequest(context, moduleName, platform);
+  return finish(context.resolveRequest(context, moduleName, platform));
 };
 
 // expo-sqlite web: support wasm files
