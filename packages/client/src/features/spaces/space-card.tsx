@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import { useTheme } from '@gamezilla/shared/theme';
 import {
   Avatar,
   Box,
@@ -31,6 +32,11 @@ export type SpaceCardProps = {
 
 export function SpaceCard({ space }: SpaceCardProps) {
   const router = useRouter();
+  const theme = useTheme();
+  const spaceCardGradientColors =
+    theme.colorScheme === 'dark'
+      ? (['#1D4ED8', '#2563EB', '#0284C7'] as const)
+      : (['#2563EB', '#3B82F6', '#0EA5E9'] as const);
 
   return (
     <Pressable
@@ -41,6 +47,9 @@ export function SpaceCard({ space }: SpaceCardProps) {
       accessibilityLabel={`Open space ${space.title}`}
     >
       <GradientBox
+        colors={spaceCardGradientColors}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
         sx={{
           borderRadius: 16,
           p: 4,
