@@ -1,6 +1,7 @@
 import { createGamezillaApiClient } from '@/features/api/hc';
 import { createPatchDbHcTransport } from '@/features/api/patch-db-hc-transport';
 import { ensurePrincipalEntity } from '@/features/auth/ensure-principal-entity';
+import { ensureProfileEntity } from '@/features/auth/ensure-profile-entity';
 import { PrincipalPatchesDb } from '@/features/auth/principal-patches-db';
 import { PrincipalServiceToken } from '@/features/auth/principal-service';
 import {
@@ -60,6 +61,7 @@ export function PatchBootstrap({ children }: { children: ReactNode }) {
         );
         const db = c.get(PatchesDbToken);
         await ensurePrincipalEntity(db, principalId);
+        await ensureProfileEntity(db, principalId);
         const sessionService = createSessionService(db, principalService);
         await sessionService.refresh();
         c.registerValue(SessionServiceToken, sessionService);

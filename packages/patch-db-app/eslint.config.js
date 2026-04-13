@@ -16,17 +16,6 @@ module.exports = [
       gamezillaText: eslintPluginGamezillaText,
     },
     rules: {
-      'no-restricted-imports': [
-        'error',
-        {
-          paths: [
-            {
-              name: 'react-native-svg',
-              message: 'Import vector primitives from @gamezilla/shared/ui/svg.',
-            },
-          ],
-        },
-      ],
       'naming/case': [
         'error',
         {

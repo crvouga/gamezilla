@@ -1,6 +1,5 @@
 import { useLogger } from '@gamezilla/shared/logger/react';
 import {
-  Avatar,
   Box,
   FloatingMenu,
   Pressable,
@@ -11,6 +10,8 @@ import { useCallback, useMemo, useRef, useState, type ElementRef } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/features/auth/auth-context';
+import { ProfileDiceBearAvatar } from '@/features/profile/profile-dicebear-avatar';
+import { useProfile } from '@/features/profile/use-profile';
 
 /** Matches `measureInWindow` layout. */
 type AnchorRect = { x: number; y: number; width: number; height: number };
@@ -28,6 +29,7 @@ export function AccountMenu({ variant }: AccountMenuProps) {
   const log = useLogger('account-menu');
   const router = useRouter();
   const auth = useAuth();
+  const profile = useProfile();
   const insets = useSafeAreaInsets();
   const triggerRef = useRef<ElementRef<typeof Box>>(null);
 
@@ -74,8 +76,13 @@ export function AccountMenu({ variant }: AccountMenuProps) {
   const menuContent = useMemo((): FloatingMenuContent => {
     return {
       header: {
-        title: auth.displayName,
-        subtitle: auth.mode === 'guest' ? 'Guest' : 'Signed in',
+        title: profile.displayLabel,
+        ...(profile.hasCustomDisplayName
+          ? {
+              subtitle:
+                auth.mode === 'guest' ? 'Guest' : 'Signed in',
+            }
+          : {}),
       },
       rows: [
         {
@@ -106,7 +113,14 @@ export function AccountMenu({ variant }: AccountMenuProps) {
         },
       ],
     };
-  }, [auth.displayName, auth.mode, onAuth, onProfile, onSettings]);
+  }, [
+    auth.mode,
+    onAuth,
+    onProfile,
+    onSettings,
+    profile.displayLabel,
+    profile.hasCustomDisplayName,
+  ]);
 
   return (
     <>
@@ -122,11 +136,8 @@ export function AccountMenu({ variant }: AccountMenuProps) {
             p: variant === 'sidebar' ? 1 : 0,
           }}
         >
-          <Avatar
-            initials={(auth.displayName.length > 0
-              ? auth.displayName
-              : 'Guest'
-            ).slice(0, 2)}
+          <ProfileDiceBearAvatar
+            seed={profile.avatarSeed}
             size={variant === 'sidebar' ? 40 : 36}
           />
         </Pressable>

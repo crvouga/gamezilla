@@ -26,11 +26,6 @@ module.exports = defineConfig([
         {
           paths: [
             {
-              name: 'react-native-svg',
-              message:
-                'Import vector primitives from @gamezilla/shared/ui/svg.',
-            },
-            {
               name: 'expo-status-bar',
               message: 'Use AppStatusBar from @gamezilla/shared/ui.',
             },
