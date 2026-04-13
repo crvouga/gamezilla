@@ -1,15 +1,10 @@
-import { assert, Assert } from '@gamezilla/shared/assert';
+import { Assert } from '@gamezilla/shared/assert';
 import type { Event, State, StoreModule } from './types';
 
 const crash: Assert = Assert.crash();
 
-assert.notThrows(
-  () => crypto.randomUUID(),
-  'crypto.randomUUID must be available'
-);
-
 export function generateId(): string {
-  return crypto.randomUUID();
+  return globalThis.crypto.randomUUID();
 }
 
 export function replayEvents(module: StoreModule, events: Event[]): State {

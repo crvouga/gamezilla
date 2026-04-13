@@ -14,8 +14,7 @@
 
 import { forwardRef } from 'react';
 import { View, type ViewProps } from 'react-native';
-import { useTheme } from '../../theme';
-import type { SxProps } from '../../theme';
+import { useTheme, type SxProps } from '@gamezilla/shared/theme';
 
 export type BoxProps = ViewProps & {
   /** Utility-first style shorthand resolved against the current theme. */

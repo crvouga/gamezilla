@@ -1,4 +1,3 @@
-import { assert } from '@gamezilla/shared/assert';
 import { useTheme } from '@gamezilla/shared/theme';
 import {
   Box,
@@ -13,11 +12,6 @@ import { useState } from 'react';
 
 import { TodoItem } from './todo-item';
 import { TodoScreenHeader } from './todo-screen-header';
-
-assert.notThrows(
-  () => crypto.randomUUID(),
-  'crypto.randomUUID must be available'
-);
 
 const DELETED_CLAUSE = {
   type: 'or' as const,
@@ -77,7 +71,7 @@ export function TodoList() {
   const addTodo = async () => {
     const title = input.trim();
     if (!title) return;
-    const entityId = crypto.randomUUID();
+    const entityId = globalThis.crypto.randomUUID();
     await db.write([
       {
         entityId,

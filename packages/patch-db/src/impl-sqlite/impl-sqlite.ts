@@ -28,11 +28,6 @@ import {
 } from './query-builder';
 import type { PatchRow, SnapshotRow } from './types';
 
-assert.notThrows(
-  () => crypto.randomUUID(),
-  'crypto.randomUUID must be available'
-);
-
 const DELETE_SNAPSHOT = `DELETE FROM snapshots
 WHERE entity_id = ? AND entity_type = ?`;
 assertSqliteQuery(DELETE_SNAPSHOT);
@@ -257,7 +252,7 @@ export class PatchDbImplSqlite implements PatchesDb {
     const patchId =
       'patchId' in patch && typeof patch.patchId === 'string'
         ? patch.patchId
-        : crypto.randomUUID();
+        : globalThis.crypto.randomUUID();
     await tx.run(INSERT_PATCH, [
       patchId,
       patch.entityId,

@@ -34,7 +34,7 @@ assert.registerCrashHandler(new ExpoCrashHandler());
 polyfill();
 
 assert.notThrows(
-  () => crypto.randomUUID(),
+  () => globalThis.crypto.randomUUID(),
   'crypto.randomUUID must be available'
 );
 

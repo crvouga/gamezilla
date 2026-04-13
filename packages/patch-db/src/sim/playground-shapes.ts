@@ -1,4 +1,3 @@
-import { assert } from '@gamezilla/shared/assert';
 import type {
   Entity,
   PatchInput,
@@ -6,11 +5,6 @@ import type {
   PatchesDbQueryWhereClause,
 } from '../interface';
 import { playgroundPollAllClients, type PlaygroundSim } from './playground-sim';
-
-assert.notThrows(
-  () => crypto.randomUUID(),
-  'crypto.randomUUID must be available'
-);
 
 export const SHAPE_ENTITY_TYPE = 'shape';
 
@@ -116,7 +110,7 @@ export function nextShapeOrder(entities: Entity[]): number {
 
 /** Entity id for playground patches; same fallback as patch rows ({@link randomUuidV4}). */
 export function randomEntityId(): string {
-  return crypto.randomUUID();
+  return globalThis.crypto.randomUUID();
 }
 
 export function createShapeInput(order: number): PatchInput {
