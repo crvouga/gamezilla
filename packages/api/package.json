@@ -15,7 +15,7 @@
   },
   "scripts": {
     "tc": "tsc --noEmit -p ../../tsconfig.json",
-    "dev": "wrangler dev --port 8788",
+    "dev": "wrangler dev --port 8788 --inspector-port 9231",
     "kill": "lsof -ti :8788 | xargs kill -9 2>/dev/null || true"
   }
 }

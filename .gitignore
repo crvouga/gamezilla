@@ -55,3 +55,4 @@ app-example
 
 /.turbo/
 /turbo/
+.wrangler/
