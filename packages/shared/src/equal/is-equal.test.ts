@@ -100,7 +100,9 @@ describe('isEqual', () => {
     });
 
     test('nested', () => {
-      expect(isEqual({ x: { y: { z: 1 } } }, { x: { y: { z: 1 } } })).toBe(true);
+      expect(isEqual({ x: { y: { z: 1 } } }, { x: { y: { z: 1 } } })).toBe(
+        true
+      );
       expect(isEqual({ x: { y: 1 } }, { x: { y: 2 } })).toBe(false);
     });
 
@@ -126,12 +128,9 @@ describe('isEqual', () => {
     });
 
     test('different instants', () => {
-      expect(
-        isEqual(
-          new Date('2020-01-01'),
-          new Date('2021-01-01')
-        )
-      ).toBe(false);
+      expect(isEqual(new Date('2020-01-01'), new Date('2021-01-01'))).toBe(
+        false
+      );
     });
 
     test('Date vs object', () => {
@@ -173,10 +172,7 @@ describe('isEqual', () => {
 
     test('nested values', () => {
       expect(
-        isEqual(
-          new Map([['k', { a: 1 }]]),
-          new Map([['k', { a: 1 }]])
-        )
+        isEqual(new Map([['k', { a: 1 }]]), new Map([['k', { a: 1 }]]))
       ).toBe(true);
     });
   });
@@ -223,8 +219,12 @@ describe('isEqual', () => {
 
   describe('client config shape', () => {
     test('matches when attributes equal', () => {
-      const prev = { 'clientConfig/googleWebClientId': 'abc.apps.googleusercontent.com' };
-      const next = { 'clientConfig/googleWebClientId': 'abc.apps.googleusercontent.com' };
+      const prev = {
+        'clientConfig/googleWebClientId': 'abc.apps.googleusercontent.com',
+      };
+      const next = {
+        'clientConfig/googleWebClientId': 'abc.apps.googleusercontent.com',
+      };
       expect(isEqual(prev, next)).toBe(true);
     });
 
