@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
 
 import { default as BoxExample } from '../box/box.example';
+import { default as GradientBoxExample } from '../gradient-box/gradient-box.example';
 import { default as TextExample } from '../text/text.example';
 import { default as PressableExample } from '../pressable/pressable.example';
 
@@ -45,6 +46,7 @@ export type ComponentEntry = {
 export const componentRegistry: ComponentEntry[] = [
   // Foundation
   { name: 'Box', category: 'Foundation', Example: BoxExample },
+  { name: 'GradientBox', category: 'Foundation', Example: GradientBoxExample },
   { name: 'Text', category: 'Foundation', Example: TextExample },
   { name: 'Pressable', category: 'Foundation', Example: PressableExample },
 

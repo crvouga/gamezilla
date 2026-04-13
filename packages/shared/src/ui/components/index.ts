@@ -7,6 +7,7 @@
 
 // Foundation
 export { Box, type BoxProps } from './box';
+export { GradientBox, type GradientBoxProps } from './gradient-box';
 export { Text, type TextProps, type TextVariant } from './text';
 export { Pressable, type PressableProps } from './pressable';
 

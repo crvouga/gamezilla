@@ -9,6 +9,7 @@ import { Stack } from 'expo-router';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
+import { AuthProvider } from '@/features/auth/auth-context';
 import { PatchBootstrap } from '@/ui/patch-bootstrap';
 import { assert } from '@gamezilla/shared/assert';
 import { BrowserCrashHandler } from '@gamezilla/shared/assert/crash/crash-handler/crash-handler-browser';
@@ -46,7 +47,7 @@ const nunitoFontStacks: Partial<FontStacks> = {
 };
 
 export const unstable_settings = {
-  anchor: 'more',
+  anchor: '(tabs)',
 };
 
 function RootNavigation() {
@@ -60,16 +61,16 @@ function RootNavigation() {
     <NavThemeProvider value={navigationTheme}>
       <ConfigContainerProvider>
         <PatchBootstrap>
-          <Stack>
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="more" options={{ headerShown: false }} />
-            <Stack.Screen name="todos" options={{ headerShown: false }} />
-            <Stack.Screen name="ui" options={{ headerShown: false }} />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="space" />
+            <Stack.Screen name="more" />
+            <Stack.Screen name="todos" />
+            <Stack.Screen name="ui" />
             <Stack.Screen
               name="modal"
               options={{
                 presentation: 'modal',
-                headerShown: false,
               }}
             />
           </Stack>
@@ -103,7 +104,9 @@ export default function RootLayout() {
       systemFallback="light"
       {...(fontsLoaded ? { fonts: nunitoFontStacks } : {})}
     >
-      <RootNavigation />
+      <AuthProvider>
+        <RootNavigation />
+      </AuthProvider>
     </AppThemeProvider>
   );
 }

@@ -22,6 +22,9 @@ export type ColorTokens = {
   warning: string;
   info: string;
   disabled: string;
+  /** Primary brand gradient (e.g. space cards). */
+  gradientPrimaryStart: string;
+  gradientPrimaryEnd: string;
 };
 
 /** Neutral paper/surface; sky-blue accent for controls and links. */
@@ -43,6 +46,8 @@ export const defaultColors: Record<ColorScheme, ColorTokens> = {
     warning: '#EA580C',
     info: '#0EA5E9',
     disabled: '#D4D4D8',
+    gradientPrimaryStart: '#1D4ED8',
+    gradientPrimaryEnd: '#60A5FA',
   },
   dark: {
     paper: '#0A0A0A',
@@ -61,6 +66,8 @@ export const defaultColors: Record<ColorScheme, ColorTokens> = {
     warning: '#FBBF24',
     info: '#38BDF8',
     disabled: '#52525B',
+    gradientPrimaryStart: '#1E3A8A',
+    gradientPrimaryEnd: '#93C5FD',
   },
 };
 

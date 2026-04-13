@@ -10,6 +10,7 @@ type IconMapping = Record<
  */
 export const ICON_SYMBOL_TO_MATERIAL = {
   'house.fill': 'home',
+  'person.fill': 'person',
   'paperplane.fill': 'send',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
