@@ -8,5 +8,8 @@
   },
   "devDependencies": {
     "typescript": "~5.9.2"
+  },
+  "dependencies": {
+    "hono": "^4.7.0"
   }
 }

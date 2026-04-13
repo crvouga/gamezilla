@@ -9,6 +9,7 @@
 
 import { PGlite } from '@electric-sql/pglite';
 import { createLogger } from '@gamezilla/shared/logger';
+import { Hono } from 'hono';
 
 const SQL_PORT = parseInt(process.env['SQL_PORT'] ?? '15432', 10);
 const HOST = '127.0.0.1';
@@ -26,52 +27,42 @@ const log = createLogger({ name: 'db' });
 
 const db = await PGlite.create(DATA_DIR);
 
-function json(body: unknown, status = 200): Response {
-  return Response.json(body, { status });
-}
+const app = new Hono();
 
-async function handleSql(req: Request): Promise<Response> {
-  const url = new URL(req.url);
+app.get('/health', (c) => c.json({ ok: true }));
 
-  if (url.pathname === '/health') {
-    return json({ ok: true });
-  }
-
-  if (url.pathname !== '/sql' || req.method !== 'POST') {
-    return json({ error: 'Not Found' }, 404);
-  }
-
-  const cl = parseInt(req.headers.get('content-length') ?? '0', 10);
+app.post('/sql', async (c) => {
+  const cl = parseInt(c.req.header('content-length') ?? '0', 10);
   if (cl > LIMITS.maxBodyBytes) {
-    return json({ error: 'Request body too large' }, 413);
+    return c.json({ error: 'Request body too large' }, 413);
   }
 
   let body: { sql?: unknown; params?: unknown };
   try {
-    body = await req.json();
+    body = await c.req.json();
   } catch {
-    return json({ error: 'Invalid JSON' }, 400);
+    return c.json({ error: 'Invalid JSON' }, 400);
   }
 
   const { sql, params } = body;
 
   if (typeof sql !== 'string' || sql.length === 0) {
-    return json({ error: 'Missing or empty sql field' }, 400);
+    return c.json({ error: 'Missing or empty sql field' }, 400);
   }
   if (new TextEncoder().encode(sql).byteLength > LIMITS.maxSqlBytes) {
-    return json({ error: 'SQL exceeds 16 MB limit' }, 413);
+    return c.json({ error: 'SQL exceeds 16 MB limit' }, 413);
   }
 
   const paramArray = Array.isArray(params) ? params : [];
   if (paramArray.length > LIMITS.maxParams) {
-    return json({ error: `Params exceed ${LIMITS.maxParams} limit` }, 400);
+    return c.json({ error: `Params exceed ${LIMITS.maxParams} limit` }, 400);
   }
 
   const start = performance.now();
   try {
     const result = await db.query(
       sql,
-      paramArray.length > 0 ? paramArray : undefined,
+      paramArray.length > 0 ? paramArray : undefined
     );
     const rows = result.rows.slice(0, LIMITS.maxRows);
     const durationMs = Math.round((performance.now() - start) * 100) / 100;
@@ -82,7 +73,7 @@ async function handleSql(req: Request): Promise<Response> {
       affectedRows: result.affectedRows ?? 0,
       durationMs,
     });
-    return json({
+    return c.json({
       rows,
       affectedRows: result.affectedRows ?? 0,
       truncated: result.rows.length > LIMITS.maxRows,
@@ -90,14 +81,25 @@ async function handleSql(req: Request): Promise<Response> {
   } catch (err) {
     const durationMs = Math.round((performance.now() - start) * 100) / 100;
     const message = err instanceof Error ? err.message : String(err);
-    log.error('query failed', { sql, params: paramArray.length > 0 ? paramArray : undefined, error: message, durationMs });
-    return json({ error: message }, 400);
+    log.error('query failed', {
+      sql,
+      params: paramArray.length > 0 ? paramArray : undefined,
+      error: message,
+      durationMs,
+    });
+    return c.json({ error: message }, 400);
   }
-}
+});
 
-Bun.serve({ port: SQL_PORT, hostname: HOST, fetch: handleSql });
+app.notFound((c) => c.json({ error: 'Not Found' }, 404));
 
-log.info('server started', { host: HOST, port: SQL_PORT, dataDir: DATA_DIR ?? 'in-memory' });
+Bun.serve({ port: SQL_PORT, hostname: HOST, fetch: app.fetch });
+
+log.info('server started', {
+  host: HOST,
+  port: SQL_PORT,
+  dataDir: DATA_DIR ?? 'in-memory',
+});
 
 const shutdown = async () => {
   log.info('shutting down');

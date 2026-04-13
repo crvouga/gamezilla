@@ -3,22 +3,10 @@ import { createLogger } from '@gamezilla/shared/logger';
 import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
 import { SqlClientImplPgliteHttp } from '@gamezilla/shared/sql-client/impl-pglite-http';
 import { SqlClientImplPlanetScalePostgres } from '@gamezilla/shared/sql-client/impl-planetscale-postgres';
-import { createApiHandler } from './api-handler';
-
-export interface Env {
-  DATABASE_URL: string;
-  /** Optional: Google Web client ID for verifying id_token `aud`. */
-  GOOGLE_CLIENT_ID?: string;
-}
+import { createApiApp } from './create-api-app';
+import type { Env } from './env';
 
 const log = createLogger({ name: 'api' });
-
-const CORS_HEADERS: Record<string, string> = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers':
-    'Content-Type, Cache-Control, Pragma, Authorization',
-};
 
 const MIGRATE_TIMEOUT_MS = 15_000;
 
@@ -65,19 +53,6 @@ export default {
     env: Env,
     _ctx: ExecutionContext
   ): Promise<Response> {
-    if (request.method === 'OPTIONS') {
-      return new Response(null, { status: 204, headers: CORS_HEADERS });
-    }
-
-    const url = new URL(request.url);
-
-    if (url.pathname === '/health') {
-      return new Response(JSON.stringify({ status: 'ok' }), {
-        status: 200,
-        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-      });
-    }
-
     try {
       const currentDb = getDb(env);
       if (!migrated) {
@@ -89,14 +64,14 @@ export default {
         migrated = true;
       }
 
-      const handle = createApiHandler({
+      const app = createApiApp({
         db: currentDb,
         pubSub,
         ...(env.GOOGLE_CLIENT_ID !== undefined && env.GOOGLE_CLIENT_ID !== ''
           ? { googleClientId: env.GOOGLE_CLIENT_ID }
           : {}),
       });
-      return handle(request);
+      return app.fetch(request, env);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       log.error('handler error', { error: message });
@@ -104,8 +79,11 @@ export default {
       return new Response(JSON.stringify({ error: message }), {
         status: 500,
         headers: {
-          ...CORS_HEADERS,
           'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Headers':
+            'Content-Type, Cache-Control, Pragma, Authorization',
         },
       });
     }

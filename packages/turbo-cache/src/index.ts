@@ -1,62 +1,71 @@
+import { Hono } from 'hono';
+
 interface Env {
   CACHE_BUCKET: R2Bucket;
   TURBO_TOKEN: string;
 }
 
+const HEX_HASH = /^[a-f0-9]+$/;
+
+const app = new Hono<{ Bindings: Env }>();
+
+app.use('*', async (c, next) => {
+  if (c.req.method === 'OPTIONS') {
+    return new Response(null, { status: 204 });
+  }
+  const path = new URL(c.req.url).pathname;
+  if (c.req.method === 'GET' && path === '/health') {
+    return c.json({ status: 'ok' });
+  }
+  if (!authorize(c.req.raw, c.env.TURBO_TOKEN)) {
+    return c.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  return next();
+});
+
+app.all('/v8/artifacts/:hash', async (c) => {
+  const hash = c.req.param('hash');
+  if (!HEX_HASH.test(hash)) {
+    return c.json({ error: 'Not found' }, 404);
+  }
+  const teamId = new URL(c.req.url).searchParams.get('teamId') ?? 'default';
+  const key = `${teamId}/${hash}`;
+  if (c.req.method === 'PUT') {
+    return handlePut(c.env, key, c.req.raw);
+  }
+  if (c.req.method === 'GET') {
+    return handleGet(c.env, key);
+  }
+  return c.json({ error: 'Method not allowed' }, 405);
+});
+
+app.post('/v8/artifacts/events', (c) => c.json({}));
+
+app.get('/v8/artifacts/status', (c) => c.json({ status: 'enabled' }));
+
+app.get('/v2/user', (c) =>
+  c.json({
+    user: {
+      id: 'turbo-cache',
+      username: 'turbo-cache',
+      email: 'cache@localhost',
+    },
+  })
+);
+
+app.get('/v2/teams', (c) => {
+  const slug = new URL(c.req.url).searchParams.get('slug') ?? 'default';
+  return c.json({ teams: [{ id: slug, slug, name: slug }] });
+});
+
+app.get('/v2/teams/:teamId', (c) => {
+  const teamId = c.req.param('teamId');
+  return c.json({ id: teamId, slug: teamId, name: teamId });
+});
+
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
-    if (request.method === 'OPTIONS') return new Response(null, { status: 204 });
-    if (request.method === 'GET' && new URL(request.url).pathname === '/health')
-      return Response.json({ status: 'ok' });
-
-    if (!authorize(request, env.TURBO_TOKEN)) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const url = new URL(request.url);
-    const match = url.pathname.match(/^\/v8\/artifacts\/([a-f0-9]+)$/);
-
-    if (match) {
-      const hash = match[1];
-      const teamId = url.searchParams.get('teamId') ?? 'default';
-      const key = `${teamId}/${hash}`;
-
-      if (request.method === 'PUT') return handlePut(env, key, request);
-      if (request.method === 'GET') return handleGet(env, key);
-      return Response.json({ error: 'Method not allowed' }, { status: 405 });
-    }
-
-    if (
-      request.method === 'POST' &&
-      url.pathname === '/v8/artifacts/events'
-    ) {
-      return Response.json({});
-    }
-
-    if (
-      request.method === 'GET' &&
-      url.pathname === '/v8/artifacts/status'
-    ) {
-      return Response.json({ status: 'enabled' });
-    }
-
-    if (request.method === 'GET' && url.pathname === '/v2/user') {
-      return Response.json({
-        user: { id: 'turbo-cache', username: 'turbo-cache', email: 'cache@localhost' },
-      });
-    }
-
-    if (request.method === 'GET' && url.pathname === '/v2/teams') {
-      const slug = url.searchParams.get('slug') ?? 'default';
-      return Response.json({ teams: [{ id: slug, slug, name: slug }] });
-    }
-
-    if (request.method === 'GET' && url.pathname.startsWith('/v2/teams/')) {
-      const teamId = url.pathname.slice('/v2/teams/'.length);
-      return Response.json({ id: teamId, slug: teamId, name: teamId });
-    }
-
-    return Response.json({ error: 'Not found' }, { status: 404 });
+  fetch(request: Request, env: Env, _ctx: ExecutionContext): Response | Promise<Response> {
+    return app.fetch(request, env);
   },
 } satisfies ExportedHandler<Env>;
 
@@ -69,7 +78,7 @@ function authorize(request: Request, token: string): boolean {
 async function handlePut(
   env: Env,
   key: string,
-  request: Request,
+  request: Request
 ): Promise<Response> {
   const body = await request.arrayBuffer();
   const tag = request.headers.get('x-artifact-tag') ?? undefined;

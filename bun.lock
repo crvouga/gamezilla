@@ -22,6 +22,7 @@
       "dependencies": {
         "@gamezilla/patch-db": "workspace:*",
         "@gamezilla/shared": "workspace:*",
+        "hono": "^4.7.0",
       },
       "devDependencies": {
         "@types/bun": "^1.3.9",
@@ -86,6 +87,7 @@
       "dependencies": {
         "@electric-sql/pglite": "^0.4.3",
         "@gamezilla/shared": "workspace:*",
+        "hono": "^4.7.0",
       },
       "devDependencies": {
         "@types/bun": "^1.3.9",
@@ -195,6 +197,9 @@
     "packages/turbo-cache": {
       "name": "@gamezilla/turbo-cache",
       "version": "1.0.0",
+      "dependencies": {
+        "hono": "^4.7.0",
+      },
       "devDependencies": {
         "typescript": "~5.9.2",
       },
@@ -1218,6 +1223,8 @@
     "hermes-parser": ["hermes-parser@0.29.1", "", { "dependencies": { "hermes-estree": "0.29.1" } }, "sha512-xBHWmUtRC5e/UL0tI7Ivt2riA/YBq9+SiYFU7C1oBa/j2jYGlIF9043oak1F47ihuDIxQ5nbsKueYJDRY02UgA=="],
 
     "hoist-non-react-statics": ["hoist-non-react-statics@3.3.2", "", { "dependencies": { "react-is": "^16.7.0" } }, "sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw=="],
+
+    "hono": ["hono@4.12.12", "", {}, "sha512-p1JfQMKaceuCbpJKAPKVqyqviZdS0eUxH9v82oWo1kb9xjQ5wA6iP3FNVAPDFlz5/p7d45lO+BpSk1tuSZMF4Q=="],
 
     "hosted-git-info": ["hosted-git-info@7.0.2", "", { "dependencies": { "lru-cache": "^10.0.1" } }, "sha512-puUZAUKT5m8Zzvs72XWy3HtvVbTWljRE66cP60bxJzAqf2DgICo7lYTY2IHUmLnNpjYvw5bvmoHvPc0QO2a62w=="],
 
