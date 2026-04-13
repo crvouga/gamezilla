@@ -1,5 +1,6 @@
 import { assert } from '@gamezilla/shared/assert';
 import type { PubSub } from '@gamezilla/shared/pub-sub/interface';
+import type { Hono } from 'hono';
 import type { PatchesDb } from './interface';
 import { PatchDbHttpRequestHandler } from './transport/impl-http-request-handler';
 import { PatchDbImplSyncHost } from './transport/impl-sync-host';
@@ -25,7 +26,10 @@ export type PatchDbApiRequestHandler = (
 
 export type PatchDbApiHandlerBundle = {
   handleRequest: PatchDbApiRequestHandler;
+  /** Base URL prefix (e.g. `/patch-db`). Mount {@link honoApp} with `parent.route(basePath, honoApp)`. */
   basePath: string;
+  /** Hono sub-app with POST `/patches/read` and `/patches/write` relative to {@link basePath}. */
+  honoApp: Hono;
   /** Present when `instrumentation` is enabled; stops periodic metric writes. */
   dispose?: () => void;
 };
@@ -69,6 +73,7 @@ export function createPatchDbApiHandler(
   return {
     basePath: normalizedBase,
     handleRequest: (req) => http.handleRequest(req),
+    honoApp: http.honoApp,
     ...(disposeInstrumentation !== undefined
       ? { dispose: disposeInstrumentation }
       : {}),
