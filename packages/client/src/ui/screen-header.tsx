@@ -1,6 +1,5 @@
 import { useBreakpoint } from '@gamezilla/shared/theme';
 import { Box, Pressable, Text } from '@gamezilla/shared/ui';
-import { useNavigation } from '@react-navigation/native';
 import type { Href } from 'expo-router';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
@@ -41,7 +40,6 @@ export function ScreenHeader({
   end,
   showAccountMenu = false,
 }: ScreenHeaderProps) {
-  const navigation = useNavigation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const isMobile = useBreakpoint() === 'mobile';
@@ -55,8 +53,8 @@ export function ScreenHeader({
 
   const onBackPress = () => {
     if (fallbackHref === undefined) return;
-    if (navigation.canGoBack()) {
-      navigation.goBack();
+    if (router.canGoBack()) {
+      router.back();
       return;
     }
     router.replace(fallbackHref);

@@ -70,7 +70,7 @@ export class StatusCommand implements Command {
     ];
 
     for (const url of urls) {
-      const result = await httpProbe(url, { timeoutS: 10 });
+      const result = await httpProbe(url, 10_000);
       if (result.status === 0) {
         fail(url, result.error ?? 'unreachable');
         failed = true;

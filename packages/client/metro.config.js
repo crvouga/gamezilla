@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 const { getDefaultConfig } = require('expo/metro-config');
 
 const projectRoot = __dirname;
@@ -6,18 +7,39 @@ const monorepoRoot = path.resolve(projectRoot, '../..');
 
 const config = getDefaultConfig(projectRoot);
 
-config.watchFolders = [monorepoRoot];
+const expoVirtualEnvModulePath = fs.realpathSync(
+  path.resolve(projectRoot, 'node_modules/expo/virtual/env.js')
+);
+const expoVirtualEnvDir = path.dirname(expoVirtualEnvModulePath);
+const reactModulePath = fs.realpathSync(
+  path.resolve(projectRoot, 'node_modules/react/index.js')
+);
+const reactJsxRuntimePath = fs.realpathSync(
+  path.resolve(projectRoot, 'node_modules/react/jsx-runtime.js')
+);
+const reactJsxDevRuntimePath = fs.realpathSync(
+  path.resolve(projectRoot, 'node_modules/react/jsx-dev-runtime.js')
+);
+const reactDomModulePath = fs.realpathSync(
+  path.resolve(projectRoot, 'node_modules/react-dom/index.js')
+);
+const reactDomClientModulePath = fs.realpathSync(
+  path.resolve(projectRoot, 'node_modules/react-dom/client.js')
+);
+const reactNativeWebModulePath = fs.realpathSync(
+  path.resolve(projectRoot, 'node_modules/react-native-web/dist/cjs/index.js')
+);
+
+config.watchFolders = [monorepoRoot, expoVirtualEnvDir];
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),
   path.resolve(monorepoRoot, 'node_modules'),
 ];
-config.resolver.disableHierarchicalLookup = true;
 config.resolver.extraNodeModules = {
   ...(config.resolver.extraNodeModules ?? {}),
   expo: path.resolve(projectRoot, 'node_modules/expo'),
   react: path.resolve(projectRoot, 'node_modules/react'),
   'react-dom': path.resolve(projectRoot, 'node_modules/react-dom'),
-  'react-native': path.resolve(projectRoot, 'node_modules/react-native'),
   'react-native-web': path.resolve(projectRoot, 'node_modules/react-native-web'),
 };
 
@@ -66,6 +88,30 @@ function normalizeResolvedThemeContext(result) {
 
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   const finish = (result) => normalizeResolvedThemeContext(result);
+  if (moduleName === 'expo/virtual/env') {
+    return finish({
+      type: 'sourceFile',
+      filePath: expoVirtualEnvModulePath,
+    });
+  }
+  if (moduleName === 'react') {
+    return finish({ type: 'sourceFile', filePath: reactModulePath });
+  }
+  if (moduleName === 'react/jsx-runtime') {
+    return finish({ type: 'sourceFile', filePath: reactJsxRuntimePath });
+  }
+  if (moduleName === 'react/jsx-dev-runtime') {
+    return finish({ type: 'sourceFile', filePath: reactJsxDevRuntimePath });
+  }
+  if (moduleName === 'react-dom') {
+    return finish({ type: 'sourceFile', filePath: reactDomModulePath });
+  }
+  if (moduleName === 'react-dom/client') {
+    return finish({ type: 'sourceFile', filePath: reactDomClientModulePath });
+  }
+  if (moduleName === 'react-native' && platform === 'web') {
+    return finish({ type: 'sourceFile', filePath: reactNativeWebModulePath });
+  }
   if (moduleName.startsWith('@/')) {
     return finish(
       context.resolveRequest(

@@ -267,7 +267,7 @@ async function checkHttpEndpoint(
     }
 
     const acceptable = opts.gatewayCheck
-      ? !isGatewayError(result.status)
+      ? !isGatewayError(result.status ?? 0)
       : result.ok;
 
     if (acceptable) {
@@ -286,7 +286,7 @@ async function checkHttpEndpoint(
       );
     }
 
-    const detail = isTransientHttpStatus(result.status)
+    const detail = isTransientHttpStatus(result.status ?? 0)
       ? `HTTP ${result.status} (transient, retrying)`
       : `HTTP ${result.status} (unexpected, retrying)`;
 
