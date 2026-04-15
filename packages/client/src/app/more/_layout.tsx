@@ -7,6 +7,7 @@ export default function MoreLayout() {
       <Stack.Screen name="theme" />
       <Stack.Screen name="developer" />
       <Stack.Screen name="patch-db" />
+      <Stack.Screen name="db-client" />
       <Stack.Screen name="peer-store" />
     </Stack>
   );

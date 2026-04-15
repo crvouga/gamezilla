@@ -4,7 +4,12 @@ import { Box, IconSymbol, Pressable, Text } from '@gamezilla/shared/ui';
 
 import { ScreenHeader } from '@/ui/screen-header';
 
-type DevHref = '/todos' | '/ui' | '/more/patch-db' | '/more/peer-store';
+type DevHref =
+  | '/todos'
+  | '/ui'
+  | '/more/patch-db'
+  | '/more/db-client'
+  | '/more/peer-store';
 
 const ITEMS: readonly {
   key: string;
@@ -29,6 +34,12 @@ const ITEMS: readonly {
     href: '/more/patch-db',
     label: 'Patch DB Playground',
     description: 'Sync simulation with server and clients',
+  },
+  {
+    key: 'db-client',
+    href: '/more/db-client',
+    label: 'Patch DB Client',
+    description: 'Browse entities, attributes, and patch history',
   },
   {
     key: 'peer-store',

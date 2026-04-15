@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "check": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID doppler run -- turbo check build",
+    "dev": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID doppler run -- turbo dev",
     "format": "sort-package-json && prettier --write .",
     "format:check": "prettier --check .",
     "infra": "bun run packages/infra/src/bin/cli.ts",
