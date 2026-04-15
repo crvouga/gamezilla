@@ -14,6 +14,7 @@ import {
   TextInput,
 } from '@gamezilla/shared/ui';
 import { useState } from 'react';
+import { useWindowDimensions } from 'react-native';
 
 export type QueryScreenProps = {
   onClose?: () => void;
@@ -22,6 +23,8 @@ export type QueryScreenProps = {
 export function QueryScreen({ onClose }: QueryScreenProps) {
   const db = usePatchesDb();
   const theme = useTheme();
+  const { height: windowHeight } = useWindowDimensions();
+  const scrollMaxHeight = Math.min(560, windowHeight * 0.72);
   const [entityType, setEntityType] = useState('');
   const [entityId, setEntityId] = useState('');
   const [whereJson, setWhereJson] = useState('');
@@ -63,7 +66,11 @@ export function QueryScreen({ onClose }: QueryScreenProps) {
   };
 
   return (
-    <ScrollView sx={{ flex: 1 }} contentContainerStyle={{ padding: 16 }}>
+    <ScrollView
+      sx={{ flex: 1 }}
+      style={{ maxHeight: scrollMaxHeight }}
+      contentContainerStyle={{ padding: 16 }}
+    >
       <Stack spacing={3}>
         {onClose !== undefined ? (
           <Button title="Close" variant="ghost" size="sm" onPress={onClose} />

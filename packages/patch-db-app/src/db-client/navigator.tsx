@@ -1,5 +1,12 @@
 import type { Patch } from '@gamezilla/patch-db/interface';
-import { Box, Pressable, Text } from '@gamezilla/shared/ui';
+import {
+  Box,
+  ModalBackdrop,
+  ModalContent,
+  ModalRoot,
+  Pressable,
+  Text,
+} from '@gamezilla/shared/ui';
 import {
   createNativeStackNavigator,
   type NativeStackScreenProps,
@@ -108,9 +115,17 @@ function closeQuery(prev: PatchDbExplorerParams): PatchDbExplorerParams {
   return compactParams(rest);
 }
 
-type ColumnKind = 'types' | 'entities' | 'entityDetail' | 'patch' | 'query';
+type ColumnKind = 'types' | 'entities' | 'entityDetail' | 'patch';
 
-function buildColumnKinds(p: PatchDbExplorerParams): ColumnKind[] {
+/** Left-to-right column roles (query is a modal, not a column). */
+const EXPLORER_COLUMN_SLOTS: ColumnKind[] = [
+  'types',
+  'entities',
+  'entityDetail',
+  'patch',
+];
+
+function buildFilledKinds(p: PatchDbExplorerParams): ColumnKind[] {
   const cols: ColumnKind[] = ['types'];
   if (p.entityType !== undefined && p.entityType !== '') {
     cols.push('entities');
@@ -133,16 +148,46 @@ function buildColumnKinds(p: PatchDbExplorerParams): ColumnKind[] {
   ) {
     cols.push('patch');
   }
-  if (p.query === '1') {
-    cols.push('query');
-  }
   return cols;
 }
 
-function visibleColumnCount(width: number, total: number): number {
-  if (total <= 1) return 1;
-  const maxByWidth = width < 640 ? 1 : width < 900 ? 2 : width < 1200 ? 3 : 4;
-  return Math.min(total, Math.max(1, maxByWidth));
+/** How many column frames to show for this width (always filled or empty). */
+function maxSlotCountForWidth(width: number): number {
+  return width < 640 ? 1 : width < 900 ? 2 : width < 1200 ? 3 : 4;
+}
+
+/**
+ * When navigation is shallow, anchor columns to the left with empty placeholders.
+ * When deeper than fits, show the rightmost slice (Finder-style).
+ */
+function visibleKindsForLayout(
+  filled: ColumnKind[],
+  slotCount: number
+): ColumnKind[] {
+  if (filled.length <= slotCount) {
+    return EXPLORER_COLUMN_SLOTS.slice(0, slotCount);
+  }
+  return filled.slice(-slotCount);
+}
+
+function EmptyColumnPlaceholder({ hint }: { hint: string }) {
+  return (
+    <Box
+      sx={{
+        flex: 1,
+        px: 3,
+        py: 4,
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <Text
+        variant="caption"
+        style={{ textAlign: 'center', opacity: 0.65 }}
+        label={hint}
+      />
+    </Box>
+  );
 }
 
 function short(value: string, max = 28): string {
@@ -245,11 +290,13 @@ function ExplorerRoute({
     onExit?.();
   }, [applyParams, onExit, params]);
 
-  const kinds = useMemo(() => buildColumnKinds(params), [params]);
-  const totalCols = kinds.length;
-  const visCount = visibleColumnCount(width, totalCols);
-  const visibleKinds = kinds.slice(-visCount);
-  const showBreadcrumbs = visCount === 1 && totalCols > 1;
+  const filledKinds = useMemo(() => buildFilledKinds(params), [params]);
+  const slotCount = maxSlotCountForWidth(width);
+  const visibleKinds = useMemo(
+    () => visibleKindsForLayout(filledKinds, slotCount),
+    [filledKinds, slotCount]
+  );
+  const showBreadcrumbs = slotCount === 1 && filledKinds.length > 1;
 
   const breadcrumbs: BreadcrumbItem[] = useMemo(() => {
     const items: BreadcrumbItem[] = [
@@ -337,21 +384,23 @@ function ExplorerRoute({
     return () => sub.remove();
   }, [goBackOneLevel, onExit, params]);
 
+  const topVisibleKind = visibleKinds[visibleKinds.length - 1];
+
   const headerTitle =
-    visibleKinds[visibleKinds.length - 1] === 'query'
+    params.query === '1'
       ? 'Query'
-      : visibleKinds[visibleKinds.length - 1] === 'patch'
+      : topVisibleKind === 'patch'
         ? short(params.patchId ?? 'Patch', 24)
-        : visibleKinds[visibleKinds.length - 1] === 'entityDetail'
+        : topVisibleKind === 'entityDetail'
           ? short(params.entityId ?? 'Entity', 28)
-          : visibleKinds[visibleKinds.length - 1] === 'entities'
+          : topVisibleKind === 'entities'
             ? (params.entityType ?? 'Entities')
             : 'Patch DB Client';
 
   const headerSubtitle =
-    visibleKinds[visibleKinds.length - 1] === 'entityDetail'
+    topVisibleKind === 'entityDetail'
       ? params.entityType
-      : visibleKinds[visibleKinds.length - 1] === 'patch'
+      : topVisibleKind === 'patch'
         ? 'Patch'
         : undefined;
 
@@ -371,62 +420,62 @@ function ExplorerRoute({
             />
           ),
         });
-      } else if (k === 'entities' && params.entityType !== undefined) {
+      } else if (k === 'entities') {
         out.push({
           key: 'entities',
           title: 'Entities',
-          children: (
-            <EntitiesScreen
-              entityType={params.entityType}
-              onSelectEntity={(entityId) =>
-                applyParams(selectEntityId(params, entityId))
-              }
-            />
-          ),
+          children:
+            params.entityType !== undefined && params.entityType !== '' ? (
+              <EntitiesScreen
+                entityType={params.entityType}
+                onSelectEntity={(entityId) =>
+                  applyParams(selectEntityId(params, entityId))
+                }
+              />
+            ) : (
+              <EmptyColumnPlaceholder hint="Select an entity type in the first column." />
+            ),
         });
-      } else if (
-        k === 'entityDetail' &&
-        params.entityType !== undefined &&
-        params.entityId !== undefined
-      ) {
+      } else if (k === 'entityDetail') {
         out.push({
           key: 'detail',
           title: 'Entity',
-          children: (
-            <EntityDetailScreen
-              entityType={params.entityType}
-              entityId={params.entityId}
-              onSelectPatch={(patch) => applyParams(selectPatch(params, patch))}
-            />
-          ),
+          children:
+            params.entityType !== undefined &&
+            params.entityType !== '' &&
+            params.entityId !== undefined &&
+            params.entityId !== '' ? (
+              <EntityDetailScreen
+                entityType={params.entityType}
+                entityId={params.entityId}
+                onSelectPatch={(patch) => applyParams(selectPatch(params, patch))}
+              />
+            ) : (
+              <EmptyColumnPlaceholder hint="Choose an entity from the list in the previous column." />
+            ),
         });
-      } else if (
-        k === 'patch' &&
-        params.entityType !== undefined &&
-        params.entityId !== undefined &&
-        params.patchId !== undefined
-      ) {
+      } else if (k === 'patch') {
         out.push({
           key: 'patch',
           title: 'Patch',
-          children: (
-            <PatchDetailScreen
-              entityType={params.entityType}
-              entityId={params.entityId}
-              patchId={params.patchId}
-              onNavigateToPatch={(patch) =>
-                applyParams(selectPatch(params, patch))
-              }
-            />
-          ),
-        });
-      } else if (k === 'query') {
-        out.push({
-          key: 'query',
-          title: 'Query',
-          children: (
-            <QueryScreen onClose={() => applyParams(closeQuery(params))} />
-          ),
+          children:
+            params.entityType !== undefined &&
+            params.entityType !== '' &&
+            params.entityId !== undefined &&
+            params.entityId !== '' &&
+            params.patchId !== undefined &&
+            params.patchId !== '' ? (
+              <PatchDetailScreen
+                entityType={params.entityType}
+                entityId={params.entityId}
+                patchId={params.patchId}
+                onNavigateToPatch={(patch) =>
+                  applyParams(selectPatch(params, patch))
+                }
+              />
+            ) : (
+              <EmptyColumnPlaceholder hint="Open a patch from the entity detail column." />
+            ),
         });
       }
     }
@@ -438,6 +487,10 @@ function ExplorerRoute({
     (params.entityId !== undefined && params.entityId !== '') ||
     (params.patchId !== undefined && params.patchId !== '') ||
     params.query === '1';
+
+  const dismissQuery = useCallback(() => {
+    applyParams(closeQuery(params));
+  }, [applyParams, params]);
 
   return (
     <Box sx={{ flex: 1 }}>
@@ -454,6 +507,22 @@ function ExplorerRoute({
         showBreadcrumbs={showBreadcrumbs}
         breadcrumbs={breadcrumbs}
       />
+      <ModalRoot
+        visible={params.query === '1'}
+        onRequestClose={dismissQuery}
+      >
+        <ModalBackdrop onPress={dismissQuery}>
+          <ModalContent
+            style={{
+              maxWidth: 720,
+              width: '92%',
+              maxHeight: '88%',
+            }}
+          >
+            <QueryScreen onClose={dismissQuery} />
+          </ModalContent>
+        </ModalBackdrop>
+      </ModalRoot>
     </Box>
   );
 }
