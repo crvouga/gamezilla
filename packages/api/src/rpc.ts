@@ -1,4 +1,4 @@
-import type { ApplyGlobalResponse } from 'hono/client';
+import { hc, type ApplyGlobalResponse } from 'hono/client';
 import type { createApiApp } from './create-api-app';
 
 /** Hono app shape for `hono/client` RPC. Use `import type` from client — no runtime import. */
@@ -12,3 +12,11 @@ export type AppTypeWithGlobalErrors = ApplyGlobalResponse<
     500: { json: { error: string } };
   }
 >;
+
+/** Typed Hono RPC client for API callers (base URL should be API origin). */
+export function createApiRpcClient(apiUrl: string) {
+  const base = apiUrl.replace(/\/+$/, '');
+  return hc<AppTypeWithGlobalErrors>(`${base}/`);
+}
+
+export type ApiRpcClient = ReturnType<typeof createApiRpcClient>;

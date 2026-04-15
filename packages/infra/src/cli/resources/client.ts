@@ -1,10 +1,13 @@
 import { assert } from '@gamezilla/shared/assert';
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
-import { ok } from '../lib/fmt';
+import { PROJECT_CONFIG } from '../../project-config';
+import { cleanupPagesDeployments } from '../lib/cloudflare-pages-deployments';
+import { ok, warn } from '../lib/fmt';
 import { infraOutputs } from '../lib/infra-outputs';
 import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
+import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
 import { runAsync } from '../subprocess';
 import { ResourceBase, type InfraContext } from './types';
 
@@ -32,19 +35,14 @@ export class ClientResource extends ResourceBase {
 
     const clientDir = join(REPO_ROOT, 'packages/client');
 
-    await runAsync(
-      platform,
-      'bunx',
-      ['turbo', 'run', 'build', '--filter=@gamezilla/client'],
-      {
-        cwd: REPO_ROOT,
-        env: {
-          ...process.env,
-          EXPO_PUBLIC_API_URL: apiUrl.replace(/\/$/, ''),
-        },
-        label: 'client: expo export (turbo)',
-      }
-    );
+    await runAsync(platform, 'bun', ['run', 'build'], {
+      cwd: clientDir,
+      env: {
+        ...process.env,
+        EXPO_PUBLIC_API_URL: apiUrl.replace(/\/$/, ''),
+      },
+      label: 'client: expo export',
+    });
 
     await runAsync(
       platform,
@@ -76,7 +74,31 @@ export class ClientResource extends ResourceBase {
   }
 
   async destroy(): Promise<void> {
-    ok('Client', 'managed by pages-project — skipping');
+    const accountId = cfAccountId();
+    if (!accountId) {
+      ok(
+        'Client',
+        'missing Cloudflare account id — skipping deployments cleanup'
+      );
+      return;
+    }
+
+    const projectName = PROJECT_CONFIG.cloudflare.pagesProject;
+    try {
+      await cleanupPagesDeployments({
+        accountId,
+        projectName,
+        headers: cfHeaders(),
+        // For teardown we want the fewest leftovers before project delete.
+        deleteAliased: true,
+      });
+      ok('Client', `Pages deployments cleaned for ${projectName}`);
+    } catch (e) {
+      warn(
+        'Client',
+        `Pages deployments cleanup failed: ${e instanceof Error ? e.message : String(e)}`
+      );
+    }
   }
 }
 

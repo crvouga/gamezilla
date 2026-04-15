@@ -45,10 +45,10 @@
         "@gamezilla/peer-store-app": "workspace:*",
         "@gamezilla/shared": "workspace:*",
         "@react-native-async-storage/async-storage": "^2.1.2",
-        "@react-navigation/bottom-tabs": "7.14.0",
-        "@react-navigation/elements": "2.9.14",
-        "@react-navigation/native": "7.2.2",
-        "@react-navigation/native-stack": "7.14.11",
+        "@react-navigation/bottom-tabs": "^7.4.0",
+        "@react-navigation/elements": "^2.6.3",
+        "@react-navigation/native": "^7.1.8",
+        "@react-navigation/native-stack": "^7.3.16",
         "expo": "~54.0.33",
         "expo-auth-session": "~7.0.10",
         "expo-constants": "~18.0.13",
@@ -65,7 +65,7 @@
         "expo-status-bar": "~3.0.9",
         "expo-system-ui": "~6.0.9",
         "expo-web-browser": "~15.0.10",
-        "hono": "4.12.12",
+        "hono": "^4.7.0",
         "react": "19.1.0",
         "react-dom": "19.1.0",
         "react-native": "0.81.5",
@@ -105,6 +105,7 @@
     "packages/infra": {
       "name": "@gamezilla/infra",
       "dependencies": {
+        "@gamezilla/api": "workspace:*",
         "@gamezilla/shared": "workspace:*",
         "@neondatabase/serverless": "^1.0.0",
         "picocolors": "^1.1.1",
@@ -224,13 +225,6 @@
         "typescript": "~5.9.2",
       },
     },
-  },
-  "overrides": {
-    "@react-navigation/bottom-tabs": "7.14.0",
-    "@react-navigation/core": "7.17.2",
-    "@react-navigation/elements": "2.9.14",
-    "@react-navigation/native": "7.2.2",
-    "@react-navigation/native-stack": "7.14.11",
   },
   "packages": {
     "@0no-co/graphql.web": ["@0no-co/graphql.web@1.2.0", "", { "peerDependencies": { "graphql": "^14.0.0 || ^15.0.0 || ^16.0.0" }, "optionalPeers": ["graphql"] }, "sha512-/1iHy9TTr63gE1YcR5idjx8UREz1s0kFhydf3bBLCXyqjhkIc6igAzTOx3zPifCwFR87tsh/4Pa9cNts6d2otw=="],
@@ -1319,7 +1313,7 @@
 
     "hoist-non-react-statics": ["hoist-non-react-statics@3.3.2", "", { "dependencies": { "react-is": "^16.7.0" } }, "sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw=="],
 
-    "hono": ["hono@4.12.12", "", {}, "sha512-p1JfQMKaceuCbpJKAPKVqyqviZdS0eUxH9v82oWo1kb9xjQ5wA6iP3FNVAPDFlz5/p7d45lO+BpSk1tuSZMF4Q=="],
+    "hono": ["hono@4.12.14", "", {}, "sha512-am5zfg3yu6sqn5yjKBNqhnTX7Cv+m00ox+7jbaKkrLMRJ4rAdldd1xPd/JzbBWspqaQv6RSTrgFN95EsfhC+7w=="],
 
     "hosted-git-info": ["hosted-git-info@7.0.2", "", { "dependencies": { "lru-cache": "^10.0.1" } }, "sha512-puUZAUKT5m8Zzvs72XWy3HtvVbTWljRE66cP60bxJzAqf2DgICo7lYTY2IHUmLnNpjYvw5bvmoHvPc0QO2a62w=="],
 
@@ -2136,6 +2130,8 @@
     "@expo/metro-config/minimatch": ["minimatch@9.0.6", "", { "dependencies": { "brace-expansion": "^5.0.2" } }, "sha512-kQAVowdR33euIqeA0+VZTDqU+qo1IeVY+hrKYtZMio3Pg0P0vuh/kwRylLUddJhB6pf3q/botcOvRtx4IN1wqQ=="],
 
     "@expo/xcpretty/@babel/code-frame": ["@babel/code-frame@7.29.0", "", { "dependencies": { "@babel/helper-validator-identifier": "^7.28.5", "js-tokens": "^4.0.0", "picocolors": "^1.1.1" } }, "sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw=="],
+
+    "@gamezilla/db/hono": ["hono@4.12.12", "", {}, "sha512-p1JfQMKaceuCbpJKAPKVqyqviZdS0eUxH9v82oWo1kb9xjQ5wA6iP3FNVAPDFlz5/p7d45lO+BpSk1tuSZMF4Q=="],
 
     "@gamezilla/infra/typescript": ["typescript@5.6.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw=="],
 

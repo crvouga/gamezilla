@@ -1,10 +1,10 @@
-import { createRegistry, printHelp } from './commands/commands';
+import { createCommandRegistry, printHelp } from './commands/commands';
 import { fail } from './lib/fmt';
 import type { CiPlatform } from './platform/platform';
 
 export async function main(platform: CiPlatform): Promise<void> {
   const commandId = process.argv[2];
-  const commands = createRegistry(platform);
+  const commands = createCommandRegistry(platform);
 
   if (!commandId || commandId === '--help' || commandId === '-h') {
     printHelp(commands);

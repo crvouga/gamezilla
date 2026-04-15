@@ -1,4 +1,5 @@
 import { assert } from '@gamezilla/shared/assert';
+import { createApiRpcClient } from '@gamezilla/api/rpc';
 import type { CiPlatform } from '../platform/platform';
 import { fail, fmtMs, info, ok } from './fmt';
 import type { InfraOutputs } from './infra-outputs';
@@ -16,6 +17,7 @@ export async function refreshClientConfig(
   platform: CiPlatform,
   outputs: InfraOutputs
 ): Promise<void> {
+  const client = createApiRpcClient(outputs.api_url);
   const url = clientConfigRefreshUrl(outputs.api_url);
   info('Target', url);
 
@@ -24,12 +26,13 @@ export async function refreshClientConfig(
 
   let res: Response;
   try {
-    res = await fetch(url, {
-      method: 'POST',
-      redirect: 'follow',
-      signal: AbortSignal.timeout(timeoutMs),
-      cache: 'no-store',
-      headers: { Accept: 'application/json' },
+    res = await client['client-config']['refresh'].$post(undefined, {
+      init: {
+        redirect: 'follow',
+        signal: AbortSignal.timeout(timeoutMs),
+        cache: 'no-store',
+        headers: { Accept: 'application/json' },
+      },
     });
   } catch (e) {
     const elapsedStr = fmtMs(performance.now() - t0);

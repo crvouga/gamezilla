@@ -5,14 +5,16 @@ import type { Command } from './types';
 import { DeployCommand } from './deploy';
 import { DestroyCommand } from './destroy';
 import { SetupCommand } from './setup';
+import { SlaughterCattleCommand } from './slaughter-cattle';
 import { StatusCommand } from './status';
 
-export function createRegistry(platform: CiPlatform): Command[] {
+export function createCommandRegistry(platform: CiPlatform): Command[] {
   return [
     new SetupCommand(platform),
     new StatusCommand(platform),
     new DeployCommand(platform),
     new DestroyCommand(platform),
+    new SlaughterCattleCommand(platform),
   ];
 }
 

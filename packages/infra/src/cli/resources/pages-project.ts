@@ -1,5 +1,6 @@
 import { assert } from '@gamezilla/shared/assert';
 import { PROJECT_CONFIG } from '../../project-config';
+import { cleanupPagesDeployments } from '../lib/cloudflare-pages-deployments';
 import { ok, warn } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
@@ -64,9 +65,30 @@ export class PagesProjectResource extends ResourceBase {
 
   async destroy(): Promise<void> {
     const name = PROJECT_CONFIG.cloudflare.pagesProject;
+    const accountId = cfAccountId();
+    const headers = cfHeaders();
+
+    if (accountId) {
+      try {
+        await cleanupPagesDeployments({
+          accountId,
+          projectName: name,
+          headers,
+          deleteAliased: true,
+        });
+      } catch (e) {
+        warn(
+          'Pages deployments cleanup',
+          `best-effort failed: ${e instanceof Error ? e.message : String(e)}`
+        );
+      }
+    } else {
+      warn('Pages deployments cleanup', 'missing account ID — skipping');
+    }
+
     const env: NodeJS.ProcessEnv = {
       ...process.env,
-      CLOUDFLARE_ACCOUNT_ID: cfAccountId(),
+      CLOUDFLARE_ACCOUNT_ID: accountId,
     };
 
     const r = runSafe(

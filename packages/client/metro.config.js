@@ -14,6 +14,7 @@ config.resolver.nodeModulesPaths = [
 config.resolver.disableHierarchicalLookup = true;
 config.resolver.extraNodeModules = {
   ...(config.resolver.extraNodeModules ?? {}),
+  expo: path.resolve(projectRoot, 'node_modules/expo'),
   react: path.resolve(projectRoot, 'node_modules/react'),
   'react-dom': path.resolve(projectRoot, 'node_modules/react-dom'),
   'react-native': path.resolve(projectRoot, 'node_modules/react-native'),

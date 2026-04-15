@@ -12,25 +12,36 @@ type HttpEndpointCheck = {
   readonly url: string;
   readonly probePath?: string;
   readonly gatewayCheck?: boolean;
+  readonly fallbackUrl?: string;
+  readonly fallbackLabel?: string;
 };
 
 function isGatewayError(status: number): boolean {
   return status === 502 || status === 503 || status === 504;
 }
 
-const HTTP_ENDPOINTS: readonly HttpEndpointCheck[] = [
-  { label: 'Client', url: `https://www.${PROJECT_CONFIG.domain}` },
-  {
-    label: 'API /health',
-    url: `https://api.${PROJECT_CONFIG.domain}`,
-    probePath: '/health',
-  },
-  {
-    label: 'Turbo cache /health',
-    url: turboCachePublicUrl(),
-    probePath: '/health',
-  },
-];
+function httpEndpoints(outputs: InfraOutputs): readonly HttpEndpointCheck[] {
+  return [
+    {
+      label: 'Client',
+      url: `https://www.${PROJECT_CONFIG.domain}`,
+      // During initial provisioning, custom-domain DNS can lag behind the
+      // Pages deployment; allow pages.dev to satisfy health checks meanwhile.
+      fallbackUrl: `https://${outputs.pages_subdomain}`,
+      fallbackLabel: 'Client (Pages fallback)',
+    },
+    {
+      label: 'API /health',
+      url: `https://api.${PROJECT_CONFIG.domain}`,
+      probePath: '/health',
+    },
+    {
+      label: 'Turbo cache /health',
+      url: turboCachePublicUrl(),
+      probePath: '/health',
+    },
+  ];
+}
 
 function parsePositiveIntMsEnv(name: string, fallback: number): number {
   const raw = process.env[name];
@@ -211,9 +222,14 @@ async function checkHttpEndpoint(
     rawUrl: string;
     probePath?: string;
     gatewayCheck?: boolean;
+    fallbackRawUrl?: string;
+    fallbackLabel?: string;
   }
 ): Promise<void> {
   const url = probeUrl(opts.rawUrl, opts.probePath);
+  const fallbackUrl = opts.fallbackRawUrl
+    ? probeUrl(opts.fallbackRawUrl, opts.probePath)
+    : undefined;
   const started = Date.now();
   const maxWaitStr = fmtElapsed(POST_DEPLOY_HTTP_MAX_WAIT_MS);
   const maxAttempts = Math.ceil(
@@ -225,6 +241,16 @@ async function checkHttpEndpoint(
     const elapsedStr = fmtElapsed(elapsed);
 
     const result = await httpProbe(url);
+
+    if (fallbackUrl && result.status === 0) {
+      const fallback = await httpProbe(fallbackUrl);
+      if (fallback.ok) {
+        platform.notice(
+          `Smoke ${opts.step}/${opts.total}: ${opts.label} ${url} unreachable, but ${opts.fallbackLabel ?? 'fallback'} ${fallbackUrl} is healthy (HTTP ${fallback.status}, ${elapsedStr}).`
+        );
+        return;
+      }
+    }
 
     if (result.status === 0) {
       if (elapsed >= POST_DEPLOY_HTTP_MAX_WAIT_MS) {
@@ -277,9 +303,10 @@ export async function runHttpSmokeTests(
 ): Promise<void> {
   await runStep(platform, 'DNS diagnostics', () => checkDns(platform, outputs));
 
+  const endpoints = httpEndpoints(outputs);
   let step = 0;
-  const total = HTTP_ENDPOINTS.length;
-  for (const ep of HTTP_ENDPOINTS) {
+  const total = endpoints.length;
+  for (const ep of endpoints) {
     step++;
     await runStep(platform, `HTTP smoke ${step}/${total} — ${ep.label}`, () =>
       checkHttpEndpoint(platform, {
@@ -289,6 +316,8 @@ export async function runHttpSmokeTests(
         rawUrl: ep.url,
         probePath: ep.probePath,
         gatewayCheck: ep.gatewayCheck,
+        fallbackRawUrl: ep.fallbackUrl,
+        fallbackLabel: ep.fallbackLabel,
       })
     );
   }

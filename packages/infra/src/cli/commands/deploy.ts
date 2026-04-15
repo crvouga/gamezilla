@@ -76,9 +76,9 @@ export class DeployCommand implements Command {
     for (const resource of resources) {
       if (!resource.deploy) continue;
       assert.defined(resource.deploy, 'resource.deploy is defined');
-      await runStep(p, `Deploy: ${resource.id}`, () => {
+      await runStep(p, `Deploy: ${resource.id}`, async () => {
         assert.defined(resource.deploy, 'resource.deploy is defined');
-        resource.deploy(p, ctx);
+        await resource.deploy(p, ctx);
       });
     }
 
