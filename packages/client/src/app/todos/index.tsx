@@ -1,14 +1,12 @@
 import { TodoListsOverview } from '@gamezilla/patch-db-app/todo';
 import { useRouter } from 'expo-router';
-import { useNavigation } from '@react-navigation/native';
 
 export default function TodoListsScreen() {
   const router = useRouter();
-  const navigation = useNavigation();
 
   const onBack = () => {
-    if (navigation.canGoBack()) {
-      navigation.goBack();
+    if (router.canGoBack()) {
+      router.back();
       return;
     }
     router.replace('/more/developer');

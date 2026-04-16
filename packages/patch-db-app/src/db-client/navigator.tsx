@@ -7,6 +7,7 @@ import {
   Pressable,
   Text,
 } from '@gamezilla/shared/ui';
+import { NavigationContainer } from '@react-navigation/native';
 import {
   createNativeStackNavigator,
   type NativeStackScreenProps,
@@ -535,15 +536,17 @@ export function PatchDbClientNavigator({
   onExit,
 }: PatchDbClientNavigatorProps) {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="explorer" initialParams={{}}>
-        {(props) => (
-          <ExplorerRoute
-            {...props}
-            {...(onExit !== undefined ? { onExit } : {})}
-          />
-        )}
-      </Stack.Screen>
-    </Stack.Navigator>
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="explorer" initialParams={{}}>
+          {(props) => (
+            <ExplorerRoute
+              {...props}
+              {...(onExit !== undefined ? { onExit } : {})}
+            />
+          )}
+        </Stack.Screen>
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
