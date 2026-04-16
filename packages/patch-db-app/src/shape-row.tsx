@@ -1,7 +1,6 @@
 import type { Entity } from '@gamezilla/patch-db/interface';
 import { SHAPE_ATTR } from '@gamezilla/patch-db/sim/playground-shapes';
-import { useTheme } from '@gamezilla/shared/theme';
-import { Box, IconButton, Stack, Text } from '@gamezilla/shared/ui';
+import { Box, IconButton, Stack, Text, useTheme } from '@gamezilla/shared/ui';
 import Svg, { Polygon } from '@gamezilla/shared/ui/svg';
 import { IconShuffle, IconTrash } from './icons';
 

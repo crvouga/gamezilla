@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import {
   nextShapeOrder,
   playgroundServerCreateShape,
@@ -6,9 +5,23 @@ import {
   playgroundServerRandomizeShape,
   playgroundServerReorderShapes,
 } from '@gamezilla/patch-db/sim/playground-shapes';
-import { Box, Button, Divider, IconButton, Stack, Text } from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/ui';
-import { IconPartition, IconServer, IconSync, IconShuffle, IconClear } from './icons';
+import {
+  Box,
+  Button,
+  Divider,
+  IconButton,
+  Stack,
+  Text,
+} from '@gamezilla/shared/ui';
+import { useTheme } from '@gamezilla/shared/ui/theme';
+import { useCallback } from 'react';
+import {
+  IconClear,
+  IconPartition,
+  IconServer,
+  IconShuffle,
+  IconSync,
+} from './icons';
 import { NodePanelShell } from './node-panel-shell';
 import { ShapeList } from './shape-list';
 import { useSimContext } from './sim-context';

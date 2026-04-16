@@ -1,5 +1,4 @@
 import { usePatchesDb } from '@gamezilla/patch-db/react';
-import { useTheme } from '@gamezilla/shared/theme';
 import {
   Box,
   Button,
@@ -10,6 +9,7 @@ import {
   Stack,
   Text,
   TextInput,
+  useTheme,
 } from '@gamezilla/shared/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 

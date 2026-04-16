@@ -1,6 +1,11 @@
+import {
+  Box,
+  IconSymbol,
+  Pressable,
+  Text,
+  useTheme,
+} from '@gamezilla/shared/ui';
 import { useRouter } from 'expo-router';
-import { useTheme } from '@gamezilla/shared/theme';
-import { Box, IconSymbol, Pressable, Text } from '@gamezilla/shared/ui';
 
 import { ScreenHeader } from '@/ui/screen-header';
 
@@ -62,10 +67,7 @@ export default function DeveloperScreen() {
       />
       <Box sx={{ flex: 1, py: 2 }}>
         {ITEMS.map((item) => (
-          <Pressable
-            key={item.key}
-            onPress={() => router.push(item.href)}
-          >
+          <Pressable key={item.key} onPress={() => router.push(item.href)}>
             <Box
               sx={{
                 flexDirection: 'row',

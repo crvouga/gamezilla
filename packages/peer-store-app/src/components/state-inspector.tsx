@@ -1,7 +1,6 @@
 import type { State } from '@gamezilla/peer-store/types';
+import { Box, Pressable, Stack, Text, useTheme } from '@gamezilla/shared/ui';
 import { useState } from 'react';
-import { Box, Pressable, Stack, Text } from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/theme';
 
 export function StateInspector({
   committedState,
@@ -11,7 +10,8 @@ export function StateInspector({
   displayState: State;
 }) {
   const [expanded, setExpanded] = useState(false);
-  const hasDiff = JSON.stringify(committedState) !== JSON.stringify(displayState);
+  const hasDiff =
+    JSON.stringify(committedState) !== JSON.stringify(displayState);
   const theme = useTheme();
 
   if (!expanded) {
@@ -49,10 +49,7 @@ function DiffView({
   display: State;
 }) {
   const theme = useTheme();
-  const allKeys = new Set([
-    ...Object.keys(committed),
-    ...Object.keys(display),
-  ]);
+  const allKeys = new Set([...Object.keys(committed), ...Object.keys(display)]);
 
   return (
     <Stack spacing={0.5}>

@@ -1,6 +1,13 @@
+import {
+  Box,
+  Card,
+  Divider,
+  Stack,
+  StatusDot,
+  Text,
+} from '@gamezilla/shared/ui';
+import { useTheme } from '@gamezilla/shared/ui/theme';
 import type { ReactNode } from 'react';
-import { Box, Card, Divider, Stack, StatusDot, Text } from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/ui';
 
 export function NodePanelShell({
   icon,

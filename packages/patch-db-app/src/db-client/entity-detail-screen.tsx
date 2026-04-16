@@ -1,6 +1,5 @@
 import type { Patch } from '@gamezilla/patch-db/interface';
 import { useEntity, usePatchesDb } from '@gamezilla/patch-db/react';
-import { useTheme } from '@gamezilla/shared/theme';
 import {
   Box,
   Card,
@@ -12,6 +11,7 @@ import {
   Spinner,
   Stack,
   Text,
+  useTheme,
 } from '@gamezilla/shared/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -105,7 +105,10 @@ export function EntityDetailScreen({
               />
             </Box>
           ) : (
-            <ScrollView sx={{ flex: 1 }} contentContainerStyle={{ padding: 16 }}>
+            <ScrollView
+              sx={{ flex: 1 }}
+              contentContainerStyle={{ padding: 16 }}
+            >
               <Card elevation={1}>
                 <Box sx={{ px: 3, py: 2 }}>
                   <Text variant="caption" label={entity.entityType} />
@@ -126,13 +129,16 @@ export function EntityDetailScreen({
                       >
                         <Text
                           variant="mono"
-                          style={{ fontSize: 11, color: theme.colors.tint, flex: 1 }}
+                          style={{
+                            fontSize: 11,
+                            color: theme.colors.tint,
+                            flex: 1,
+                          }}
                           label={key}
                         />
                         <ValueKindBadge value={value} />
                       </Stack>
-                      {value !== null &&
-                      typeof value === 'object' ? (
+                      {value !== null && typeof value === 'object' ? (
                         <JsonCollapsible title="Value" value={value} />
                       ) : (
                         <Box sx={{ alignSelf: 'stretch' }}>

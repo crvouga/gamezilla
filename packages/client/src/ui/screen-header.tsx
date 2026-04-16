@@ -1,5 +1,4 @@
-import { useBreakpoint } from '@gamezilla/shared/theme';
-import { Box, Pressable, Text } from '@gamezilla/shared/ui';
+import { Box, Pressable, Text, useBreakpoint } from '@gamezilla/shared/ui';
 import type { Href } from 'expo-router';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';

@@ -1,6 +1,11 @@
+import {
+  Box,
+  SafeAreaView,
+  SegmentedControl,
+  Text,
+} from '@gamezilla/shared/ui';
+import { useTheme } from '@gamezilla/shared/ui/theme';
 import { useState } from 'react';
-import { Box, SafeAreaView, SegmentedControl, Text } from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/ui';
 import { PlaygroundPage } from './pages/playground-page';
 
 type Mode = 'playground' | 'docs';

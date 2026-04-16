@@ -1,6 +1,6 @@
 import type { Event } from '@gamezilla/peer-store/types';
 import { Card, Stack, Text } from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/ui';
+import { useTheme } from '@gamezilla/shared/ui/theme';
 
 export function EventLog({ events }: { events: Event[] }) {
   const theme = useTheme();

@@ -1,5 +1,3 @@
-import { useRouter } from 'expo-router';
-import { useTheme } from '@gamezilla/shared/theme';
 import {
   Avatar,
   Box,
@@ -7,7 +5,9 @@ import {
   Pressable,
   StatusDot,
   Text,
+  useTheme,
 } from '@gamezilla/shared/ui';
+import { useRouter } from 'expo-router';
 
 import type { Space } from './types';
 
@@ -58,7 +58,9 @@ export function SpaceCard({ space }: SpaceCardProps) {
         }}
       >
         <Box sx={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2, flex: 1 }}>
+          <Box
+            sx={{ flexDirection: 'row', alignItems: 'center', gap: 2, flex: 1 }}
+          >
             <Avatar
               initials={initialsFromName(space.host.displayName)}
               size={44}

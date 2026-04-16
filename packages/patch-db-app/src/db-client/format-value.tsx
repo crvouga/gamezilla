@@ -1,5 +1,4 @@
-import { useTheme } from '@gamezilla/shared/theme';
-import { Box, Collapsible, Text } from '@gamezilla/shared/ui';
+import { Box, Collapsible, Text, useTheme } from '@gamezilla/shared/ui';
 
 const MAX_INLINE = 200;
 
@@ -16,7 +15,9 @@ export function formatAttrValue(value: unknown): string {
   return String(value);
 }
 
-export function valueKind(value: unknown): 'null' | 'bool' | 'number' | 'string' | 'object' {
+export function valueKind(
+  value: unknown
+): 'null' | 'bool' | 'number' | 'string' | 'object' {
   if (value === null || value === undefined) return 'null';
   if (typeof value === 'boolean') return 'bool';
   if (typeof value === 'number') return 'number';
@@ -97,10 +98,7 @@ export function FormattedInlineValue({
       style={{
         fontSize: 12,
         flex: 1,
-        color:
-          kind === 'null'
-            ? theme.colors.textSecondary
-            : theme.colors.text,
+        color: kind === 'null' ? theme.colors.textSecondary : theme.colors.text,
       }}
       label={truncate(s, maxLen)}
     />
@@ -117,10 +115,7 @@ export function JsonCollapsible({
   const theme = useTheme();
   let pretty: string;
   try {
-    pretty =
-      typeof value === 'string'
-        ? value
-        : JSON.stringify(value, null, 2);
+    pretty = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
   } catch {
     pretty = String(value);
   }

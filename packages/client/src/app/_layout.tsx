@@ -17,8 +17,13 @@ import { BrowserCrashHandler } from '@gamezilla/shared/assert/crash/crash-handle
 import { ExpoCrashHandler } from '@gamezilla/shared/assert/crash/crash-handler/crash-handler-expo';
 import { ConfigContainerProvider } from '@gamezilla/shared/config/config-container';
 import { polyfill } from '@gamezilla/shared/polyfill';
-import { AppThemeRoot, type FontStacks } from '@gamezilla/shared/theme';
-import { hideSplash, preventSplashAutoHide } from '@gamezilla/shared/ui';
+import {
+  AppThemeRoot,
+  hideSplash,
+  preventSplashAutoHide,
+  useStackProps,
+  type FontStacks,
+} from '@gamezilla/shared/ui';
 
 assert.registerCrashHandler(new BrowserCrashHandler());
 assert.registerCrashHandler(new ExpoCrashHandler());
@@ -42,6 +47,25 @@ export const unstable_settings = {
   anchor: '(tabs)',
 };
 
+function AppStack() {
+  const props = useStackProps();
+  return (
+    <Stack {...props}>
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="space" />
+      <Stack.Screen name="more" />
+      <Stack.Screen name="todos" />
+      <Stack.Screen name="ui" />
+      <Stack.Screen
+        name="modal"
+        options={{
+          presentation: 'modal',
+        }}
+      />
+    </Stack>
+  );
+}
+
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
     Nunito_400Regular,
@@ -64,19 +88,7 @@ export default function RootLayout() {
         <PrincipalAuthShell>
           <PatchBootstrap>
             <AuthProvider>
-              <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen name="space" />
-                <Stack.Screen name="more" />
-                <Stack.Screen name="todos" />
-                <Stack.Screen name="ui" />
-                <Stack.Screen
-                  name="modal"
-                  options={{
-                    presentation: 'modal',
-                  }}
-                />
-              </Stack>
+              <AppStack />
             </AuthProvider>
           </PatchBootstrap>
         </PrincipalAuthShell>

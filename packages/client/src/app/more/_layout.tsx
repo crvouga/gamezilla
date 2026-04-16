@@ -1,8 +1,10 @@
+import { useStackProps } from '@gamezilla/shared/ui/theme';
 import { Stack } from 'expo-router';
 
 export default function MoreLayout() {
+  const props = useStackProps();
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack {...props}>
       <Stack.Screen name="index" />
       <Stack.Screen name="theme" />
       <Stack.Screen name="developer" />

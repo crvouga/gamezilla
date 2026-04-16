@@ -1,6 +1,5 @@
 import type { Entity } from '@gamezilla/patch-db/interface';
 import { usePatchesDb } from '@gamezilla/patch-db/react';
-import { useTheme } from '@gamezilla/shared/theme';
 import {
   Box,
   Button,
@@ -11,6 +10,7 @@ import {
   Stack,
   Text,
   TextInput,
+  useTheme,
 } from '@gamezilla/shared/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -45,7 +45,10 @@ export type EntitiesScreenProps = {
   onSelectEntity: (entityId: string) => void;
 };
 
-export function EntitiesScreen({ entityType, onSelectEntity }: EntitiesScreenProps) {
+export function EntitiesScreen({
+  entityType,
+  onSelectEntity,
+}: EntitiesScreenProps) {
   const db = usePatchesDb();
   const theme = useTheme();
   const [loading, setLoading] = useState(true);

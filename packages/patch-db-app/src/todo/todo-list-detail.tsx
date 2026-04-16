@@ -3,14 +3,18 @@ import type {
   PatchesDbQuery,
   PatchesDbQueryWhereClause,
 } from '@gamezilla/patch-db/interface';
-import { useEntities, useEntity, usePatchesDb } from '@gamezilla/patch-db/react';
-import { useTheme } from '@gamezilla/shared/theme';
+import {
+  useEntities,
+  useEntity,
+  usePatchesDb,
+} from '@gamezilla/patch-db/react';
 import {
   Box,
   KeyboardAvoidingView,
   Pressable,
   Text,
   TextInput,
+  useTheme,
 } from '@gamezilla/shared/ui';
 import { useState } from 'react';
 

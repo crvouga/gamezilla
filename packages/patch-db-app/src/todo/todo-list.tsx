@@ -1,13 +1,13 @@
-import { useTheme } from '@gamezilla/shared/theme';
+import { Entity } from '@gamezilla/patch-db/interface';
+import { useEntities, usePatchesDb } from '@gamezilla/patch-db/react';
 import {
   Box,
   KeyboardAvoidingView,
   Pressable,
   Text,
   TextInput,
+  useTheme,
 } from '@gamezilla/shared/ui';
-import { Entity } from '@gamezilla/patch-db/interface';
-import { useEntities, usePatchesDb } from '@gamezilla/patch-db/react';
 import { useState } from 'react';
 
 import { TodoItem } from './todo-item';

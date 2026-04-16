@@ -1,6 +1,3 @@
-import { useCallback, useMemo, useState } from 'react';
-import { DependencyInjectionContainer } from '@gamezilla/shared/dependency-injection/dependency-injection-container';
-import { ContainerProvider } from '@gamezilla/shared/dependency-injection/react';
 import { PatchesDbToken, useEntities } from '@gamezilla/patch-db/react';
 import {
   nextShapeOrder,
@@ -12,9 +9,27 @@ import {
 } from '@gamezilla/patch-db/sim/playground-shapes';
 import type { PlaygroundClientHandle } from '@gamezilla/patch-db/sim/playground-sim';
 import { SubscribablePatchesDbToken } from '@gamezilla/patch-db/subscribable';
-import { Box, Button, Divider, IconButton, Select, Stack, Text } from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/ui';
-import { IconLaptop, IconPartition, IconRemove, IconShuffle, IconSync, IconClear } from './icons';
+import { DependencyInjectionContainer } from '@gamezilla/shared/dependency-injection/dependency-injection-container';
+import { ContainerProvider } from '@gamezilla/shared/dependency-injection/react';
+import {
+  Box,
+  Button,
+  Divider,
+  IconButton,
+  Select,
+  Stack,
+  Text,
+} from '@gamezilla/shared/ui';
+import { useTheme } from '@gamezilla/shared/ui/theme';
+import { useCallback, useMemo, useState } from 'react';
+import {
+  IconClear,
+  IconLaptop,
+  IconPartition,
+  IconRemove,
+  IconShuffle,
+  IconSync,
+} from './icons';
 import { NodePanelShell } from './node-panel-shell';
 import { ShapeList } from './shape-list';
 import { useSimContext } from './sim-context';
@@ -95,10 +110,7 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
       subtitle={`Latency: ${LATENCY_BUCKETS.find((b) => b.value === latencyMs)?.label ?? `${latencyMs} ms`}`}
       partitioned={partitioned}
       headerExtra={
-        <IconButton
-          size={28}
-          onPress={() => removeClient(client.id)}
-        >
+        <IconButton size={28} onPress={() => removeClient(client.id)}>
           <IconRemove size={16} />
         </IconButton>
       }

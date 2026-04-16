@@ -1,6 +1,6 @@
-import type { MessageLogEntry } from '../simulator/playground';
 import { Card, Stack, Text } from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/ui';
+import { useTheme } from '@gamezilla/shared/ui/theme';
+import type { MessageLogEntry } from '../simulator/playground';
 
 const KIND_COLORS: Record<string, string> = {
   command: '#7dd3fc',

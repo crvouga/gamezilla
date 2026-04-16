@@ -7,14 +7,10 @@ import {
   Pressable,
   Text,
 } from '@gamezilla/shared/ui';
-import { NavigationContainer } from '@react-navigation/native';
-import {
-  createNativeStackNavigator,
-  type NativeStackScreenProps,
-} from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo } from 'react';
 import { BackHandler, useWindowDimensions } from 'react-native';
 
+import { NavigationProp, RouteProp } from '@react-navigation/native';
 import {
   ColumnShell,
   type BreadcrumbItem,
@@ -38,8 +34,6 @@ export type PatchDbExplorerParams = {
 type PatchDbClientParamList = {
   explorer: PatchDbExplorerParams | undefined;
 };
-
-const Stack = createNativeStackNavigator<PatchDbClientParamList>();
 
 function compactParams(p: PatchDbExplorerParams): PatchDbExplorerParams {
   const o: PatchDbExplorerParams = {};
@@ -239,11 +233,13 @@ function Header({ title, subtitle, showBack, onBack }: HeaderProps) {
   );
 }
 
-function ExplorerRoute({
+export function ExplorerRoute({
   navigation,
   route,
   onExit,
-}: NativeStackScreenProps<PatchDbClientParamList, 'explorer'> & {
+}: {
+  navigation: NavigationProp<PatchDbClientParamList>;
+  route: RouteProp<PatchDbClientParamList>;
   onExit?: () => void;
 }) {
   const { width } = useWindowDimensions();
@@ -278,9 +274,7 @@ function ExplorerRoute({
     }
     if (params.entityId !== undefined && params.entityId !== '') {
       applyParams(
-        compactParams(
-          carryQuery(params, { entityType: params.entityType! })
-        )
+        compactParams(carryQuery(params, { entityType: params.entityType! }))
       );
       return;
     }
@@ -304,8 +298,7 @@ function ExplorerRoute({
       {
         key: 'types',
         label: 'Types',
-        onPress: () =>
-          applyParams(compactParams(carryQuery(params, {}))),
+        onPress: () => applyParams(compactParams(carryQuery(params, {}))),
       },
     ];
     if (params.entityType !== undefined && params.entityType !== '') {
@@ -314,9 +307,7 @@ function ExplorerRoute({
         key: 'et',
         label: entityType,
         onPress: () =>
-          applyParams(
-            compactParams(carryQuery(params, { entityType }))
-          ),
+          applyParams(compactParams(carryQuery(params, { entityType }))),
       });
     }
     if (params.entityId !== undefined && params.entityId !== '') {
@@ -449,7 +440,9 @@ function ExplorerRoute({
               <EntityDetailScreen
                 entityType={params.entityType}
                 entityId={params.entityId}
-                onSelectPatch={(patch) => applyParams(selectPatch(params, patch))}
+                onSelectPatch={(patch) =>
+                  applyParams(selectPatch(params, patch))
+                }
               />
             ) : (
               <EmptyColumnPlaceholder hint="Choose an entity from the list in the previous column." />
@@ -508,10 +501,7 @@ function ExplorerRoute({
         showBreadcrumbs={showBreadcrumbs}
         breadcrumbs={breadcrumbs}
       />
-      <ModalRoot
-        visible={params.query === '1'}
-        onRequestClose={dismissQuery}
-      >
+      <ModalRoot visible={params.query === '1'} onRequestClose={dismissQuery}>
         <ModalBackdrop onPress={dismissQuery}>
           <ModalContent
             style={{
@@ -525,28 +515,5 @@ function ExplorerRoute({
         </ModalBackdrop>
       </ModalRoot>
     </Box>
-  );
-}
-
-export type PatchDbClientNavigatorProps = {
-  onExit?: () => void;
-};
-
-export function PatchDbClientNavigator({
-  onExit,
-}: PatchDbClientNavigatorProps) {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="explorer" initialParams={{}}>
-          {(props) => (
-            <ExplorerRoute
-              {...props}
-              {...(onExit !== undefined ? { onExit } : {})}
-            />
-          )}
-        </Stack.Screen>
-      </Stack.Navigator>
-    </NavigationContainer>
   );
 }

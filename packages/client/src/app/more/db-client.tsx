@@ -1,15 +1,20 @@
-import { PatchDbClientNavigator } from '@gamezilla/patch-db-app/db-client';
-import { Box } from '@gamezilla/shared/ui';
-import { type Href, useRouter } from 'expo-router';
+import { ExplorerRoute } from '@gamezilla/patch-db-app/db-client/navigator';
+import {
+  type Href,
+  useLocalSearchParams,
+  useNavigation,
+  useRouter,
+} from 'expo-router';
 
-export default function PatchDbClientScreen() {
+export default function PatchDbClientRoute() {
   const router = useRouter();
-
+  const navigation = useNavigation();
+  const params = useLocalSearchParams();
   return (
-    <Box sx={{ flex: 1 }}>
-      <PatchDbClientNavigator
-        onExit={() => router.replace('/more/developer' as Href)}
-      />
-    </Box>
+    <ExplorerRoute
+      navigation={navigation as any}
+      route={{ key: 'db-client', name: 'explorer', params } as any}
+      onExit={() => router.replace('/more/developer' as Href)}
+    />
   );
 }

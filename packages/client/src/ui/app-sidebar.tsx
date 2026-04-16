@@ -1,11 +1,11 @@
-import { Link, usePathname } from 'expo-router';
 import {
   Box,
   IconSymbol,
   Pressable,
   Text,
+  useTheme,
 } from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/theme';
+import { Link, usePathname } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AccountMenu } from '@/ui/account-menu';
@@ -26,12 +26,10 @@ export function AppSidebar() {
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
 
-  const path =
-    pathname.split('?')[0]?.replace(/\/$/, '') ?? '';
+  const path = pathname.split('?')[0]?.replace(/\/$/, '') ?? '';
   const normalized = path === '' ? '/' : path;
 
-  const width =
-    theme.breakpoint === 'desktop' ? 240 : 200;
+  const width = theme.breakpoint === 'desktop' ? 240 : 200;
 
   return (
     <Box

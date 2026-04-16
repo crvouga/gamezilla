@@ -1,6 +1,10 @@
-import { useThemePreference } from '@gamezilla/shared/theme';
 import { ScreenHeader } from '@/ui/screen-header';
-import { Box, SegmentedControl, Text } from '@gamezilla/shared/ui';
+import {
+  Box,
+  SegmentedControl,
+  Text,
+  useThemePreference,
+} from '@gamezilla/shared/ui';
 
 const THEME_SEGMENTS = [
   { key: 'light', label: '☀️ Light' },
@@ -13,11 +17,7 @@ export default function ThemeSettingsScreen() {
 
   return (
     <Box sx={{ flex: 1 }}>
-      <ScreenHeader
-        title="Appearance"
-        subtitle="Theme"
-        fallbackHref="/more"
-      />
+      <ScreenHeader title="Appearance" subtitle="Theme" fallbackHref="/more" />
       <Box sx={{ flex: 1, px: 4, py: 4, gap: 3 }}>
         <Text
           variant="body"

@@ -1,13 +1,12 @@
+import type { PlaygroundSim } from '@gamezilla/patch-db/sim/playground-sim';
+import { Box, Spinner, Stack, Text, useTheme } from '@gamezilla/shared/ui';
 import { useMemo, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import type { PlaygroundSim } from '@gamezilla/patch-db/sim/playground-sim';
-import { useTheme } from '@gamezilla/shared/theme';
-import { Box, Text, Spinner, Stack } from '@gamezilla/shared/ui';
+import { ApiInspector } from './api-inspector';
 import { PatchdbAppNav, readStoredMode, type PatchdbAppMode } from './nav';
 import { PlaygroundHeader } from './playground-header';
 import { PlaygroundLayout } from './playground-layout';
 import { SimProvider, type SimContextValue } from './sim-context';
-import { ApiInspector } from './api-inspector';
 import { usePlaygroundBoot } from './use-playground-boot';
 
 export function PlaygroundApp() {

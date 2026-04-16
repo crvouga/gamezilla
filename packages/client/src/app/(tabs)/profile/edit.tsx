@@ -1,9 +1,9 @@
-import { useTheme } from '@gamezilla/shared/theme';
 import {
   Box,
   IconSymbol,
   Pressable,
   Text,
+  useTheme,
 } from '@gamezilla/shared/ui';
 import { useRouter } from 'expo-router';
 
@@ -35,10 +35,7 @@ export default function ProfileEditScreen() {
             >
               <Box sx={{ flex: 1, gap: 1 }}>
                 <Text variant="bodyBold" label="Username" />
-                <Text
-                  variant="caption"
-                  label="Display name shown in the app"
-                />
+                <Text variant="caption" label="Display name shown in the app" />
               </Box>
               <IconSymbol
                 name="chevron.right"
@@ -59,10 +56,7 @@ export default function ProfileEditScreen() {
             >
               <Box sx={{ flex: 1, gap: 1 }}>
                 <Text variant="bodyBold" label="Avatar" />
-                <Text
-                  variant="caption"
-                  label="DiceBear generated avatar"
-                />
+                <Text variant="caption" label="DiceBear generated avatar" />
               </Box>
               <IconSymbol
                 name="chevron.right"

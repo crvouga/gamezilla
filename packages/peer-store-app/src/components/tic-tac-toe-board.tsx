@@ -1,6 +1,5 @@
 import type { State } from '@gamezilla/peer-store/types';
-import { Pressable, Stack, Text } from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/theme';
+import { Pressable, Stack, Text, useTheme } from '@gamezilla/shared/ui';
 
 export function TicTacToeBoard({
   state,
@@ -16,11 +15,7 @@ export function TicTacToeBoard({
   const status = state['status'] as string;
   const theme = useTheme();
 
-  const rows = [
-    board.slice(0, 3),
-    board.slice(3, 6),
-    board.slice(6, 9),
-  ];
+  const rows = [board.slice(0, 3), board.slice(3, 6), board.slice(6, 9)];
 
   return (
     <Stack spacing={1} align="center">
@@ -28,7 +23,8 @@ export function TicTacToeBoard({
         <Stack key={rowIdx} direction="horizontal" spacing={1}>
           {row.map((mark, colIdx) => {
             const cellIdx = rowIdx * 3 + colIdx;
-            const isDisabled = readonly || !!winner || status === 'completed' || !!mark;
+            const isDisabled =
+              readonly || !!winner || status === 'completed' || !!mark;
 
             const cellBg = mark
               ? mark === 'X'

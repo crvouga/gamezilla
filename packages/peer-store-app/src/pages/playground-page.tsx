@@ -5,8 +5,8 @@ import {
   ScrollView,
   Stack,
   Text,
+  useTheme,
 } from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/theme';
 import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react';
 import { PeerPanel, type PeerAction } from '../components/peer-panel';
 import { SimulatorLog } from '../components/simulator-log';
@@ -214,7 +214,9 @@ export function PlaygroundPage() {
     const spoofAction = (peerId: PeerId): PeerAction => {
       const other = peerId === 'player-x' ? 'O' : 'X';
       return {
-        label: sim.isSpoofing(peerId) ? `Spoofing ${other}` : `Spoof as ${other}`,
+        label: sim.isSpoofing(peerId)
+          ? `Spoofing ${other}`
+          : `Spoof as ${other}`,
         color: 'destructive',
         active: sim.isSpoofing(peerId),
         onPress: () => sim.toggleSpoof(peerId),
@@ -227,7 +229,11 @@ export function PlaygroundPage() {
           label: 'Flood',
           color: 'destructive',
           onPress: () => {
-            try { sim.cheatFlood('player-x'); } catch { /* logged */ }
+            try {
+              sim.cheatFlood('player-x');
+            } catch {
+              /* logged */
+            }
           },
         },
         spoofAction('player-x'),
@@ -237,7 +243,11 @@ export function PlaygroundPage() {
           label: 'Flood',
           color: 'destructive',
           onPress: () => {
-            try { sim.cheatFlood('player-o'); } catch { /* logged */ }
+            try {
+              sim.cheatFlood('player-o');
+            } catch {
+              /* logged */
+            }
           },
         },
         spoofAction('player-o'),
@@ -254,7 +264,7 @@ export function PlaygroundPage() {
       sim
         .getLog()
         .filter((e) => e.kind === 'cheat' && e.peerId)
-        .map((e) => e.peerId),
+        .map((e) => e.peerId)
     );
   }, [tick, sim]);
 
@@ -262,7 +272,12 @@ export function PlaygroundPage() {
   const cheaterIds = useMemo(() => {
     const ids = new Set<string>();
     for (const entry of log) {
-      if (entry.kind === 'cheat' && !entry.detected && entry.peerId && entry.peerId !== 'wire') {
+      if (
+        entry.kind === 'cheat' &&
+        !entry.detected &&
+        entry.peerId &&
+        entry.peerId !== 'wire'
+      ) {
         ids.add(entry.peerId);
       }
     }
@@ -357,7 +372,13 @@ export function PlaygroundPage() {
           </Stack>
         </Stack>
 
-        <Stack direction="horizontal" spacing={3} wrap justify="center" align="stretch">
+        <Stack
+          direction="horizontal"
+          spacing={3}
+          wrap
+          justify="center"
+          align="stretch"
+        >
           {PEERS.map((peerId) => {
             const player = peerPlayer(peerId);
             return (

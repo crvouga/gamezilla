@@ -4,8 +4,6 @@ import {
   ADMIN_METRIC_ENTITY_TYPE,
   PatchDbClientTransportHttpFetch,
 } from '@gamezilla/patch-db/transport';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Box,
   Button,
@@ -18,7 +16,9 @@ import {
   Text,
   TextInput,
 } from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/ui';
+import { useTheme } from '@gamezilla/shared/ui/theme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const URL_STORAGE_KEY = 'patchdb-inspector-sync-url';
 const DEFAULT_URL = 'http://localhost:5001';
@@ -205,10 +205,7 @@ export function ApiInspector() {
                 />
               )}
             </Stack>
-            <ConnectionStatus
-              connected={result !== null}
-              url={connectedUrl}
-            />
+            <ConnectionStatus connected={result !== null} url={connectedUrl} />
           </Stack>
         </Card>
 

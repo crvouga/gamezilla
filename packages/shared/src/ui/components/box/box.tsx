@@ -12,9 +12,9 @@
  * ```
  */
 
+import { useTheme, type SxProps } from '@gamezilla/shared/ui';
 import { forwardRef } from 'react';
 import { View, type ViewProps } from 'react-native';
-import { useTheme, type SxProps } from '@gamezilla/shared/theme';
 
 export type BoxProps = ViewProps & {
   /** Utility-first style shorthand resolved against the current theme. */
@@ -23,7 +23,7 @@ export type BoxProps = ViewProps & {
 
 export const Box = forwardRef<View, BoxProps>(function Box(
   { sx: sxProp, style, ...rest },
-  ref,
+  ref
 ) {
   const theme = useTheme();
   const sxStyle = sxProp ? theme.sx(sxProp) : undefined;

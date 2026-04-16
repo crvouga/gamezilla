@@ -1,17 +1,15 @@
-import { useMemo } from 'react';
 import type { PlaygroundSim } from '@gamezilla/patch-db/sim/playground-sim';
 import { Box, ScrollView, Stack, Text } from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/ui';
+import { useTheme } from '@gamezilla/shared/ui/theme';
+import { useMemo } from 'react';
 import { ClientNodePanel } from './client-node-panel';
+import { IconLaptop, IconServer } from './icons';
 import { ServerNodePanel } from './server-node-panel';
-import { IconServer, IconLaptop } from './icons';
 
 function ConnectionLine({ partitioned }: { partitioned: boolean }) {
   const theme = useTheme();
   return (
-    <Box
-      sx={{ alignItems: 'center', py: 1 }}
-    >
+    <Box sx={{ alignItems: 'center', py: 1 }}>
       <Box
         style={{
           width: 2,

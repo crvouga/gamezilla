@@ -1,5 +1,4 @@
-import { Box } from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/theme';
+import { Box, useTheme } from '@gamezilla/shared/ui';
 import type { ReactNode } from 'react';
 
 /** Max width for main column on tablet/desktop (dp / CSS px). */

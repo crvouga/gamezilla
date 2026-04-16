@@ -1,6 +1,11 @@
+import {
+  Box,
+  IconSymbol,
+  Pressable,
+  Text,
+  useTheme,
+} from '@gamezilla/shared/ui';
 import { useRouter } from 'expo-router';
-import { useTheme } from '@gamezilla/shared/theme';
-import { Box, IconSymbol, Pressable, Text } from '@gamezilla/shared/ui';
 
 import { ScreenHeader } from '@/ui/screen-header';
 
@@ -28,10 +33,7 @@ export default function MoreIndex() {
           >
             <Box sx={{ flex: 1, gap: 1 }}>
               <Text variant="bodyBold" label="Appearance" />
-              <Text
-                variant="caption"
-                label="Light, dark, or system theme"
-              />
+              <Text variant="caption" label="Light, dark, or system theme" />
             </Box>
             <IconSymbol
               name="chevron.right"

@@ -1,7 +1,15 @@
-import { useCallback, useState } from 'react';
 import { SHAPE_ENTITY_TYPE } from '@gamezilla/patch-db/sim/playground-shapes';
-import { Badge, Box, Button, Divider, Select, Stack, Text } from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/ui';
+import {
+  Badge,
+  Box,
+  Button,
+  Divider,
+  Select,
+  Stack,
+  Text,
+} from '@gamezilla/shared/ui';
+import { useTheme } from '@gamezilla/shared/ui/theme';
+import { useCallback, useState } from 'react';
 import { IconPlus } from './icons';
 import { useSimContext } from './sim-context';
 
@@ -38,7 +46,11 @@ export function PlaygroundHeader() {
       <Stack direction="horizontal" spacing={3} align="center">
         <Box style={{ flex: 1 }}>
           <Stack direction="horizontal" spacing={2} align="center" wrap>
-            <Badge label={SHAPE_ENTITY_TYPE} size="sm" color={theme.colors.tintMuted} />
+            <Badge
+              label={SHAPE_ENTITY_TYPE}
+              size="sm"
+              color={theme.colors.tintMuted}
+            />
             <Text
               variant="mono"
               style={{

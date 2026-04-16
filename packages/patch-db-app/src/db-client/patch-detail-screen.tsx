@@ -1,6 +1,5 @@
 import type { Patch } from '@gamezilla/patch-db/interface';
 import { usePatchesDb } from '@gamezilla/patch-db/react';
-import { useTheme } from '@gamezilla/shared/theme';
 import {
   Box,
   Card,
@@ -10,6 +9,7 @@ import {
   Spinner,
   Stack,
   Text,
+  useTheme,
 } from '@gamezilla/shared/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 

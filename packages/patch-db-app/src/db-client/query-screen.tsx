@@ -3,7 +3,6 @@ import type {
   PatchesDbQueryWhereClause,
 } from '@gamezilla/patch-db/interface';
 import { usePatchesDb } from '@gamezilla/patch-db/react';
-import { useTheme } from '@gamezilla/shared/theme';
 import {
   Button,
   Card,
@@ -12,6 +11,7 @@ import {
   Stack,
   Text,
   TextInput,
+  useTheme,
 } from '@gamezilla/shared/ui';
 import { useState } from 'react';
 import { useWindowDimensions } from 'react-native';

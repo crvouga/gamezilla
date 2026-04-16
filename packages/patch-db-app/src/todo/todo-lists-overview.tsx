@@ -1,4 +1,5 @@
-import { useTheme } from '@gamezilla/shared/theme';
+import { clearLocalDatabaseAndReload } from '@gamezilla/patch-db/bootstrap-expo';
+import { useEntities, usePatchesDb } from '@gamezilla/patch-db/react';
 import {
   Box,
   ConfirmationModal,
@@ -6,9 +7,8 @@ import {
   Pressable,
   Text,
   TextInput,
+  useTheme,
 } from '@gamezilla/shared/ui';
-import { clearLocalDatabaseAndReload } from '@gamezilla/patch-db/bootstrap-expo';
-import { useEntities, usePatchesDb } from '@gamezilla/patch-db/react';
 import { useState } from 'react';
 
 import { INBOX_LIST_ID } from './todo-constants';
@@ -49,7 +49,10 @@ export type TodoListsOverviewProps = {
   onBack?: () => void;
 };
 
-export function TodoListsOverview({ onOpenList, onBack }: TodoListsOverviewProps) {
+export function TodoListsOverview({
+  onOpenList,
+  onBack,
+}: TodoListsOverviewProps) {
   const theme = useTheme();
   const db = usePatchesDb();
   const [input, setInput] = useState('');
