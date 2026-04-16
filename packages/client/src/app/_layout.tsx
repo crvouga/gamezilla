@@ -4,34 +4,21 @@ import {
   Nunito_700Bold,
   useFonts,
 } from '@expo-google-fonts/nunito';
-import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Stack } from 'expo-router';
-import { useEffect, type ReactNode } from 'react';
+import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { AuthProvider } from '@/features/auth/auth-context';
 import { PrincipalAuthShell } from '@/features/auth/principal-auth-shell';
-import {
-  ThemePreferenceProvider,
-  useThemePreference,
-} from '@/features/theme/theme-preference-context';
 import { PatchBootstrap } from '@/ui/patch-bootstrap';
 import { assert } from '@gamezilla/shared/assert';
 import { BrowserCrashHandler } from '@gamezilla/shared/assert/crash/crash-handler/crash-handler-browser';
 import { ExpoCrashHandler } from '@gamezilla/shared/assert/crash/crash-handler/crash-handler-expo';
 import { ConfigContainerProvider } from '@gamezilla/shared/config/config-container';
 import { polyfill } from '@gamezilla/shared/polyfill';
-import {
-  ThemeProvider as AppThemeProvider,
-  useTheme,
-  type FontStacks,
-} from '@gamezilla/shared/theme';
-import {
-  AppStatusBar,
-  hideSplash,
-  preventSplashAutoHide,
-  reactNavigationThemeFromTokens,
-} from '@gamezilla/shared/ui';
+import { AppThemeRoot, type FontStacks } from '@gamezilla/shared/theme';
+import { hideSplash, preventSplashAutoHide } from '@gamezilla/shared/ui';
 
 assert.registerCrashHandler(new BrowserCrashHandler());
 assert.registerCrashHandler(new ExpoCrashHandler());
@@ -55,52 +42,6 @@ export const unstable_settings = {
   anchor: '(tabs)',
 };
 
-function AppThemeShell({
-  children,
-  fonts,
-}: {
-  children: ReactNode;
-  fonts?: Partial<FontStacks>;
-}) {
-  const { preference } = useThemePreference();
-  return (
-    <AppThemeProvider
-      colorScheme={preference}
-      systemFallback="light"
-      {...(fonts !== undefined ? { fonts } : {})}
-    >
-      {children}
-    </AppThemeProvider>
-  );
-}
-
-function RootNavigation() {
-  const theme = useTheme();
-  const navigationTheme = reactNavigationThemeFromTokens(
-    theme.colorScheme,
-    theme.colors
-  );
-
-  return (
-    <NavThemeProvider value={navigationTheme}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="space" />
-        <Stack.Screen name="more" />
-        <Stack.Screen name="todos" />
-        <Stack.Screen name="ui" />
-        <Stack.Screen
-          name="modal"
-          options={{
-            presentation: 'modal',
-          }}
-        />
-      </Stack>
-      <AppStatusBar />
-    </NavThemeProvider>
-  );
-}
-
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
     Nunito_400Regular,
@@ -114,25 +55,32 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, fontError]);
 
-  if (!fontsLoaded && fontError === null) {
-    return null;
-  }
-
   return (
-    <ThemePreferenceProvider>
-      <AppThemeShell
-        {...(fontsLoaded ? { fonts: nunitoFontStacks } : {})}
-      >
-        <ConfigContainerProvider>
-          <PrincipalAuthShell>
-            <PatchBootstrap>
-              <AuthProvider>
-                <RootNavigation />
-              </AuthProvider>
-            </PatchBootstrap>
-          </PrincipalAuthShell>
-        </ConfigContainerProvider>
-      </AppThemeShell>
-    </ThemePreferenceProvider>
+    <AppThemeRoot
+      storage={AsyncStorage}
+      {...(fontsLoaded ? { fonts: nunitoFontStacks } : {})}
+    >
+      <ConfigContainerProvider>
+        <PrincipalAuthShell>
+          <PatchBootstrap>
+            <AuthProvider>
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="space" />
+                <Stack.Screen name="more" />
+                <Stack.Screen name="todos" />
+                <Stack.Screen name="ui" />
+                <Stack.Screen
+                  name="modal"
+                  options={{
+                    presentation: 'modal',
+                  }}
+                />
+              </Stack>
+            </AuthProvider>
+          </PatchBootstrap>
+        </PrincipalAuthShell>
+      </ConfigContainerProvider>
+    </AppThemeRoot>
   );
 }

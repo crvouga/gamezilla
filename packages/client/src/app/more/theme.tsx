@@ -1,4 +1,4 @@
-import { useThemePreference } from '@/features/theme/theme-preference-context';
+import { useThemePreference } from '@gamezilla/shared/theme';
 import { ScreenHeader } from '@/ui/screen-header';
 import { Box, SegmentedControl, Text } from '@gamezilla/shared/ui';
 

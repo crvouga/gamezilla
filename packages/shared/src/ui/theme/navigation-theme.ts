@@ -7,7 +7,8 @@ import {
   DefaultTheme,
   type Theme as NavigationTheme,
 } from '@react-navigation/native';
-import type { ColorScheme, ColorTokens } from './theme/colors';
+
+import type { ColorScheme, ColorTokens } from './colors';
 
 /** React Navigation theme plus tab bar tokens from {@link ColorTokens}. */
 export type AppNavigationTheme = NavigationTheme & {
@@ -19,7 +20,7 @@ export type AppNavigationTheme = NavigationTheme & {
 
 export function reactNavigationThemeFromTokens(
   colorScheme: ColorScheme,
-  colors: ColorTokens,
+  colors: ColorTokens
 ): AppNavigationTheme {
   const base = colorScheme === 'dark' ? DarkTheme : DefaultTheme;
   return {
@@ -35,5 +36,6 @@ export function reactNavigationThemeFromTokens(
       tabIconDefault: colors.tabIconDefault,
       tabIconSelected: colors.tabIconSelected,
     },
+    dark: colorScheme === 'dark',
   };
 }

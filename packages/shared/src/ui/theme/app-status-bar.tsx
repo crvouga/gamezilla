@@ -3,7 +3,8 @@
  */
 
 import { StatusBar, type StatusBarStyle } from 'expo-status-bar';
-import { useTheme } from '../theme';
+
+import { useTheme } from './theme-context';
 
 export type AppStatusBarProps = {
   /** When set, overrides theme-based style. */
