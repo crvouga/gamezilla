@@ -21,6 +21,7 @@ export function useTabsProps(props: {
       tabBarActiveTintColor: theme.colors.tabIconSelected,
       tabBarInactiveTintColor: theme.colors.tabIconDefault,
       tabBarStyle: props.hidden ? { display: 'none' } : undefined,
+      sceneStyle: { backgroundColor: theme.colors.paper },
     },
   };
 }
