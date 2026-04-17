@@ -22,6 +22,7 @@ import type { Command } from './types';
 
 export class SetupCommand implements Command {
   readonly id = 'setup';
+  readonly group = 'setup' as const;
   readonly summary =
     'Install CLI dependencies and configure Doppler secrets';
 

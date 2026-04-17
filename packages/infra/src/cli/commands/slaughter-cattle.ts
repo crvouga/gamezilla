@@ -9,6 +9,8 @@ import type { Command } from './types';
 
 export class SlaughterCattleCommand implements Command {
   readonly id = 'slaughter-cattle';
+  readonly group = 'validation' as const;
+  readonly danger = true;
   readonly summary =
     'Cattle validation flow: setup → status → destroy → status → deploy → status';
 

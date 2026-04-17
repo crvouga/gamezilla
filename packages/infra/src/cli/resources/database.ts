@@ -49,6 +49,57 @@ export class DatabaseResource extends ResourceBase {
   }
 }
 
+export interface DatabasePingResult {
+  readonly ok: boolean;
+  readonly host?: string;
+  readonly durationMs: number;
+  readonly error?: string;
+}
+
+/**
+ * Pings the database with `SELECT 1` using the cached DATABASE_URL in Doppler.
+ * Read-only and safe to call from health checks. Does NOT mutate Doppler, does
+ * NOT create roles, and does NOT claim table ownership.
+ */
+export async function pingDatabase(): Promise<DatabasePingResult> {
+  const start = Date.now();
+  try {
+    if (!dopplerSecretExists(DOPPLER_KEY)) {
+      return {
+        ok: false,
+        durationMs: Date.now() - start,
+        error: `${DOPPLER_KEY} not set in Doppler — run \`bun run infra deploy\``,
+      };
+    }
+    const url = fetchDopplerSecret(DOPPLER_KEY);
+    if (!url.startsWith('postgresql://') && !url.startsWith('postgres://')) {
+      return {
+        ok: false,
+        durationMs: Date.now() - start,
+        error: `${DOPPLER_KEY} is malformed (not a postgres URL)`,
+      };
+    }
+    const host = new URL(url).host;
+    const sql = neonSql(url);
+    const rows = await sql`SELECT 1 AS ok`;
+    if (!Array.isArray(rows) || rows.length === 0) {
+      return {
+        ok: false,
+        host,
+        durationMs: Date.now() - start,
+        error: 'SELECT 1 returned no rows',
+      };
+    }
+    return { ok: true, host, durationMs: Date.now() - start };
+  } catch (e) {
+    return {
+      ok: false,
+      durationMs: Date.now() - start,
+      error: e instanceof Error ? e.message : String(e),
+    };
+  }
+}
+
 // ── PlanetScale Roles API ────────────────────────────────────────────
 
 async function listRoles(): Promise<PsRole[]> {

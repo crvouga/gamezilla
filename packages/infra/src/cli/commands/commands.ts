@@ -1,12 +1,25 @@
 import { fmt } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
-import type { Command } from './types';
+import type { Command, CommandGroup } from './types';
 
 import { DeployCommand } from './deploy';
 import { DestroyCommand } from './destroy';
 import { SetupCommand } from './setup';
 import { SlaughterCattleCommand } from './slaughter-cattle';
 import { StatusCommand } from './status';
+
+/** Display order for grouped help and the interactive menu. */
+export const COMMAND_GROUP_ORDER: readonly CommandGroup[] = [
+  'setup',
+  'lifecycle',
+  'validation',
+] as const;
+
+export const COMMAND_GROUP_LABELS: Record<CommandGroup, string> = {
+  setup: 'Setup & health',
+  lifecycle: 'Deploy & destroy',
+  validation: 'Validation',
+};
 
 export function createCommandRegistry(platform: CiPlatform): Command[] {
   return [
@@ -18,32 +31,23 @@ export function createCommandRegistry(platform: CiPlatform): Command[] {
   ];
 }
 
-/** Known prefixes and display order. Commands without a prefix go first. */
-const GROUP_ORDER = [''] as const;
-const GROUP_LABELS: Record<string, string> = {};
-
-function commandPrefix(id: string): string {
-  const dash = id.indexOf('-');
-  if (dash === -1) return '';
-  const prefix = id.slice(0, dash);
-  return prefix in GROUP_LABELS ? prefix : '';
-}
-
 export function printHelp(commands: Command[]): void {
   console.log('');
   console.log(fmt.bold('infra') + fmt.dim(' — gamezilla infrastructure CLI'));
   console.log('');
   console.log(`Usage: ${fmt.cyan('bun run infra <command>')}`);
+  console.log(`       ${fmt.cyan('bun run infra')} ${fmt.dim('(interactive — TTY only)')}`);
 
-  for (const group of GROUP_ORDER) {
-    const cmds = commands.filter((c) => commandPrefix(c.id) === group);
+  for (const group of COMMAND_GROUP_ORDER) {
+    const cmds = commands.filter((c) => c.group === group);
     if (cmds.length === 0) continue;
 
     console.log('');
-    if (group) console.log(fmt.dim(`  ${GROUP_LABELS[group]}`));
+    console.log(fmt.dim(`  ${COMMAND_GROUP_LABELS[group]}`));
     const width = Math.max(...cmds.map((c) => c.id.length));
     for (const c of cmds) {
-      console.log(`  ${fmt.green(c.id.padEnd(width))}  ${c.summary}`);
+      const tag = c.danger ? ` ${fmt.red('(destructive)')}` : '';
+      console.log(`  ${fmt.green(c.id.padEnd(width))}  ${c.summary}${tag}`);
     }
   }
   console.log('');

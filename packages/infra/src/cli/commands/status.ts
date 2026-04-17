@@ -1,24 +1,30 @@
 import { PROJECT_CONFIG, turboCachePublicUrl } from '../../project-config';
 import { ALL_DEPS } from '../deps/registry';
 import { collectDepVersionIssues } from '../deps/version-check';
-import { banner, fail, heading, kv, ok, warn } from '../lib/fmt';
+import { banner, fail, fmtMs, heading, kv, ok, warn } from '../lib/fmt';
 import { httpProbe } from '../lib/http-probe';
 import { infraOutputs, type InfraOutputs } from '../lib/infra-outputs';
 import type { CiPlatform } from '../platform/platform';
+import { pingDatabase } from '../resources/database';
+import { loadSecretsIntoEnv } from '../secrets/secrets';
+import { runCaptureAsync } from '../subprocess';
 import type { Command } from './types';
 
 export class StatusCommand implements Command {
   readonly id = 'status';
-  readonly summary = 'Health dashboard: deps, infra outputs, endpoints';
+  readonly group = 'setup' as const;
+  readonly summary =
+    'Health dashboard: deps, secrets, Cloudflare, database, infra outputs, endpoints';
 
   constructor(private readonly platform: CiPlatform) {}
 
   async execute(): Promise<void> {
     banner('Infrastructure Status');
 
+    let failed = false;
+
     // ── 1. Dependencies ─────────────────────────────────────────────────
     heading('Dependencies');
-    let failed = false;
     const depFailures: string[] = [];
     for (const dep of ALL_DEPS) {
       const r = await collectDepVersionIssues(dep);
@@ -53,14 +59,69 @@ export class StatusCommand implements Command {
       );
     }
 
-    // ── 2. Infra Outputs ────────────────────────────────────────────────
+    // ── 2. Secrets (Doppler) ────────────────────────────────────────────
+    heading('Secrets (Doppler)');
+    const secretResults = loadSecretsIntoEnv();
+    const missingSecrets: string[] = [];
+    for (const s of secretResults) {
+      if (s.set) {
+        ok(s.env);
+      } else {
+        fail(s.env, 'not found in Doppler');
+        missingSecrets.push(s.env);
+        failed = true;
+      }
+    }
+    if (missingSecrets.length > 0) {
+      warn(
+        'Secret issues',
+        `${missingSecrets.join(', ')} — run \`bun run infra setup\` to configure`,
+      );
+    }
+
+    // ── 3. Cloudflare auth ──────────────────────────────────────────────
+    heading('Cloudflare');
+    try {
+      const whoami = await runCaptureAsync('wrangler', ['whoami'], {
+        env: {
+          ...process.env,
+          CLOUDFLARE_ACCOUNT_ID: process.env['TF_VAR_cloudflare_account_id'],
+        },
+      });
+      const identity = parseWranglerIdentity(whoami);
+      ok('wrangler whoami', identity);
+    } catch (e) {
+      fail(
+        'wrangler whoami',
+        e instanceof Error ? e.message.split('\n')[0] : String(e),
+      );
+      failed = true;
+    }
+
+    // ── 4. Database (PlanetScale Postgres) ──────────────────────────────
+    heading('Database');
+    const db = await pingDatabase();
+    if (db.ok) {
+      const detail = db.host
+        ? `SELECT 1 @ ${db.host} — ${fmtMs(db.durationMs)}`
+        : `SELECT 1 — ${fmtMs(db.durationMs)}`;
+      ok('PlanetScale (postgres)', detail);
+    } else {
+      fail(
+        'PlanetScale (postgres)',
+        `${db.error ?? 'unreachable'} (${fmtMs(db.durationMs)})`,
+      );
+      failed = true;
+    }
+
+    // ── 5. Infra Outputs ────────────────────────────────────────────────
     heading('Infra Outputs');
     const outputs: InfraOutputs = infraOutputs({});
     for (const [k, v] of Object.entries(outputs)) {
       if (v) kv(k, v);
     }
 
-    // ── 3. Endpoints ────────────────────────────────────────────────────
+    // ── 6. Endpoints ────────────────────────────────────────────────────
     heading('Endpoints');
     const { domain } = PROJECT_CONFIG;
     const urls = [
@@ -75,7 +136,7 @@ export class StatusCommand implements Command {
         fail(url, result.error ?? 'unreachable');
         failed = true;
       } else if (result.ok) {
-        ok(url, `HTTP ${result.status}`);
+        ok(url, `HTTP ${result.status} — ${fmtMs(result.durationMs)}`);
       } else {
         fail(url, `HTTP ${result.status}`);
         failed = true;
@@ -84,4 +145,17 @@ export class StatusCommand implements Command {
 
     if (failed) process.exit(1);
   }
+}
+
+/**
+ * Extracts a short identity string from `wrangler whoami` output. Wrangler
+ * prints a banner plus either an email, account table, or token scope list.
+ * Fall back to a generic "authenticated" label if no email is present.
+ */
+function parseWranglerIdentity(whoami: string): string {
+  const emailMatch = whoami.match(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/);
+  if (emailMatch) return emailMatch[0];
+  if (/associated with the email/i.test(whoami)) return 'authenticated';
+  if (/You are logged in/i.test(whoami)) return 'authenticated';
+  return 'authenticated';
 }

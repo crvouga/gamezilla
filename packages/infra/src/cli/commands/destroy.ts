@@ -8,6 +8,8 @@ import type { Command } from './types';
 
 export class DestroyCommand implements Command {
   readonly id = 'destroy';
+  readonly group = 'lifecycle' as const;
+  readonly danger = true;
   readonly summary = 'Tear down all managed infrastructure';
 
   constructor(private readonly platform: CiPlatform) {}
