@@ -12,7 +12,8 @@
     "format": "sort-package-json && prettier --write .",
     "format:check": "prettier --check .",
     "infra": "bun run packages/infra/src/bin/cli.ts",
-    "gh": "gh run view --web"
+    "gh": "gh run view --web",
+    "wipe": "git clean -xfd"
   },
   "devDependencies": {
     "@types/bun": "^1.3.9",

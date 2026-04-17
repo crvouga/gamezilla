@@ -1,36 +1,80 @@
 import {
   cancel,
   confirm,
-  intro,
   isCancel,
   log,
   note,
   outro,
-  select,
 } from '@clack/prompts';
 import pc from 'picocolors';
 import { COMMAND_GROUP_ORDER } from './commands/commands';
 import type { Command } from './commands/types';
+import {
+  type SearchableMenuOption,
+  runSearchableCommandMenu,
+} from './searchable-command-menu';
 
 type SelectValue = string;
+
+type MenuOption = SearchableMenuOption;
 
 /** Clear screen + scrollback (where supported) so each prompt feels like a fresh pane. */
 function clearTerminal(): void {
   process.stdout.write('\x1B[3J\x1B[2J\x1B[H');
 }
 
-function buildSelectOptions(commands: Command[]): {
-  value: SelectValue;
-  label?: string;
-  hint?: string;
-  disabled?: boolean;
-}[] {
-  const options: {
-    value: SelectValue;
-    label?: string;
-    hint?: string;
-    disabled?: boolean;
-  }[] = [];
+function matchesSearchQuery(search: string, opt: MenuOption): boolean {
+  const q = search.trim().toLowerCase();
+  if (!q) return true;
+  const id = String(opt.value).toLowerCase();
+  const hint = (opt.hint ?? '').toLowerCase();
+  return id.includes(q) || hint.includes(q);
+}
+
+/**
+ * Relevance sort: prefix on command id first, then substring position on id, then hint.
+ * Typing "de" surfaces deploy and destroy before other matches.
+ */
+function sortMenuOptionsBySearch(search: string, options: MenuOption[]): MenuOption[] {
+  const q = search.trim().toLowerCase();
+  if (!q) {
+    return options;
+  }
+
+  const filtered = options.filter((opt) => matchesSearchQuery(search, opt));
+
+  const rank = (opt: MenuOption): [number, number, string] => {
+    const id = String(opt.value);
+    const idLower = id.toLowerCase();
+    const hint = (opt.hint ?? '').toLowerCase();
+
+    if (idLower.startsWith(q)) {
+      return [0, 0, id];
+    }
+    const idIdx = idLower.indexOf(q);
+    if (idIdx !== -1) {
+      return [1, idIdx, id];
+    }
+    const hintIdx = hint.indexOf(q);
+    if (hintIdx !== -1) {
+      return [2, hintIdx, id];
+    }
+    return [9, 0, id];
+  };
+
+  filtered.sort((a, b) => {
+    const ra = rank(a);
+    const rb = rank(b);
+    if (ra[0] !== rb[0]) return ra[0] - rb[0];
+    if (ra[1] !== rb[1]) return ra[1] - rb[1];
+    return ra[2].localeCompare(rb[2]);
+  });
+
+  return filtered;
+}
+
+function buildSelectOptions(commands: Command[]): MenuOption[] {
+  const options: MenuOption[] = [];
 
   for (const group of COMMAND_GROUP_ORDER) {
     const cmds = commands.filter((c) => c.group === group);
@@ -54,12 +98,9 @@ function buildSelectOptions(commands: Command[]): {
   return options;
 }
 
-export async function runInteractive(commands: Command[]): Promise<void> {
-  clearTerminal();
-  intro(
-    `${pc.bgCyan(pc.black(' infra '))} ${pc.dim('gamezilla · infrastructure')}`,
-  );
+const INTRO_LINE = `${pc.bgCyan(pc.black(' infra '))} ${pc.dim('gamezilla · infrastructure')}`;
 
+export async function runInteractive(commands: Command[]): Promise<void> {
   let firstMainMenu = true;
   for (;;) {
     if (!firstMainMenu) {
@@ -67,12 +108,15 @@ export async function runInteractive(commands: Command[]): Promise<void> {
     }
     firstMainMenu = false;
 
-    const choice = await select({
+    const menuOptions = buildSelectOptions(commands);
+    const choice = await runSearchableCommandMenu({
+      introLine: INTRO_LINE,
       message: 'what would you like to do?',
-      options: buildSelectOptions(commands),
+      baseOptions: menuOptions,
+      filterAndSort: sortMenuOptionsBySearch,
     });
 
-    if (isCancel(choice)) {
+    if (choice === null) {
       clearTerminal();
       cancel('bye');
       process.exit(0);
