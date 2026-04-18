@@ -67,10 +67,7 @@ export function SegmentedControl<K extends string = string>({
                 backgroundColor: isActive ? theme.colors.paper : 'transparent',
               },
               isActive && {
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 1 },
-                shadowOpacity: 0.1,
-                shadowRadius: 2,
+                boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.1)',
                 elevation: 2,
               },
               pressed && !isActive && { opacity: 0.7 },

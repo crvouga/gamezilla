@@ -75,8 +75,8 @@ export function FloatingMenu({
               left: position.left,
               width,
               zIndex: 10,
+              pointerEvents: 'box-none',
             }}
-            pointerEvents="box-none"
           >
             <Box
               sx={{
@@ -85,10 +85,7 @@ export function FloatingMenu({
                 borderWidth: 1,
                 borderColor: 'border',
                 py: 2,
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 8 },
-                shadowOpacity: 0.12,
-                shadowRadius: 16,
+                boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.12)',
                 elevation: 8,
               }}
             >

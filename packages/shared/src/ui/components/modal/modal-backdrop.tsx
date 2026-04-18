@@ -27,14 +27,16 @@ export function ModalBackdrop({ onPress, children }: ModalBackdropProps) {
         })}
       />
       <View
-        style={theme.sx({
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-        })}
-        pointerEvents="box-none"
+        style={[
+          theme.sx({
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }),
+          { pointerEvents: 'box-none' },
+        ]}
       >
-        <View pointerEvents="auto">{children}</View>
+        <View style={{ pointerEvents: 'auto' }}>{children}</View>
       </View>
     </View>
   );

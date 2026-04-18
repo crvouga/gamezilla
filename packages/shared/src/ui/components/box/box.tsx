@@ -12,9 +12,10 @@
  * ```
  */
 
-import { useTheme, type SxProps } from '@gamezilla/shared/ui';
 import { forwardRef } from 'react';
 import { View, type ViewProps } from 'react-native';
+import { useTheme } from '../../theme';
+import type { SxProps } from '../../theme';
 
 export type BoxProps = ViewProps & {
   /** Utility-first style shorthand resolved against the current theme. */

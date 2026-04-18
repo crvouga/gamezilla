@@ -4,8 +4,8 @@ import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
 import { SqlClientImplPgliteHttp } from '@gamezilla/shared/sql-client/impl-pglite-http';
 import { SqlClientImplPlanetScalePostgres } from '@gamezilla/shared/sql-client/impl-planetscale-postgres';
 import { createApiApp } from './create-api-app';
-import { validateEnv } from './env';
 import type { Env } from './env';
+import { validateEnv } from './env';
 
 const log = createLogger({ name: 'api' });
 
@@ -48,6 +48,23 @@ function withTimeout<T>(
   });
 }
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers':
+    'Content-Type, Cache-Control, Pragma, Authorization',
+} as const;
+
+/**
+ * Browsers require CORS preflights to return a 2xx status; if the worker
+ * crashes early (e.g. missing env), returning 500 here makes the browser
+ * surface an opaque CORS error and hide the real cause. Always reply OK
+ * for OPTIONS so the subsequent real request can fail with a readable body.
+ */
+function preflightResponse(): Response {
+  return new Response(null, { status: 204, headers: CORS_HEADERS });
+}
+
 export default {
   async fetch(
     request: Request,
@@ -78,14 +95,15 @@ export default {
       const message = err instanceof Error ? err.message : String(err);
       log.error('top-level handler error', { error: message });
 
+      if (request.method === 'OPTIONS') {
+        return preflightResponse();
+      }
+
       return new Response(JSON.stringify({ error: 'Internal server error' }), {
         status: 500,
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers':
-            'Content-Type, Cache-Control, Pragma, Authorization',
+          ...CORS_HEADERS,
         },
       });
     }

@@ -3,8 +3,6 @@
  * Tailwind-like: 1 = 4px base unit.
  */
 
-import { Platform } from 'react-native';
-
 export const spacingScale = (n: number): number => n * 4;
 
 export const spacing = {
@@ -58,23 +56,11 @@ export const elevation = (level: ElevationLevel) => {
   if (level === 0) return {};
 
   const height = level * 2;
-  const shadowOpacity = 0.08 + level * 0.04;
+  const blur = level * 3;
+  const opacity = 0.08 + level * 0.04;
 
-  return Platform.select({
-    ios: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height },
-      shadowOpacity,
-      shadowRadius: level * 3,
-    },
-    android: {
-      elevation: level * 2,
-    },
-    default: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height },
-      shadowOpacity,
-      shadowRadius: level * 3,
-    },
-  });
+  return {
+    boxShadow: `0px ${height}px ${blur}px rgba(0, 0, 0, ${opacity})`,
+    elevation: level * 2,
+  };
 };
