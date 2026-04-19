@@ -40,8 +40,9 @@ export function AppSidebar() {
         flexBasis: width,
         flexGrow: 0,
         flexShrink: 0,
+        alignSelf: 'stretch',
         flexDirection: 'column',
-        background: 'paper',
+        background: 'surface',
         borderRightWidth: 1,
         borderColor: 'border',
         paddingTop: insets.top,
@@ -70,7 +71,7 @@ export function AppSidebar() {
                   py: 3,
                   px: 3,
                   borderRadius: 12,
-                  background: active ? 'surface' : 'paper',
+                  background: active ? 'paper' : 'transparent',
                 }}
               >
                 <IconSymbol

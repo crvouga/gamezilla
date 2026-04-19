@@ -35,7 +35,6 @@ export function SpaceCard({ space }: SpaceCardProps) {
   const theme = useTheme();
   const spaceCardGradientColors = [
     theme.colors.gradientPrimaryStart,
-    theme.colors.tint,
     theme.colors.gradientPrimaryEnd,
   ] as const;
 

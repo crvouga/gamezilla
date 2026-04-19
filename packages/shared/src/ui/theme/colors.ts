@@ -22,52 +22,56 @@ export type ColorTokens = {
   warning: string;
   info: string;
   disabled: string;
-  /** Primary brand gradient (e.g. space cards). */
+  /** Subtle brand gradient (two close, dark stops for light text on top). */
   gradientPrimaryStart: string;
   gradientPrimaryEnd: string;
 };
 
-/** Warm paper/surfaces; violet accent and candy-like semantic hues; purple gradients. */
+/**
+ * Neutrals are fuchsia-only: pale fuchsia surfaces / near-black fuchsia bases, deep fuchsia
+ * body text or light fuchsia-50 tints on dark. Borders are soft tints of the same hue.
+ * Semantic tokens (success / warning / info / destructive) stay non-fuchsia for clarity.
+ */
 export const defaultColors: Record<ColorScheme, ColorTokens> = {
   light: {
-    paper: '#FFFBF7',
-    surface: '#F5F0FF',
-    text: '#1E1B4B',
-    textSecondary: '#64748B',
-    tint: '#7C3AED',
-    icon: '#64748B',
-    border: '#E9E4F5',
-    outline: '#D4C8F0',
-    tintMuted: 'rgba(124, 58, 237, 0.16)',
-    tabIconDefault: '#A8A3B8',
-    tabIconSelected: '#7C3AED',
-    destructive: '#F43F5E',
-    success: '#22C55E',
-    warning: '#F59E0B',
-    info: '#06B6D4',
-    disabled: '#D1D5DB',
-    gradientPrimaryStart: '#6D28D9',
-    gradientPrimaryEnd: '#A855F7',
+    paper: '#fdf4ff',
+    surface: '#fae8ff',
+    text: '#4a044e',
+    textSecondary: '#86198f',
+    tint: '#c026d3',
+    icon: '#a21caf',
+    border: 'rgba(74, 4, 78, 0.06)',
+    outline: 'rgba(74, 4, 78, 0.12)',
+    tintMuted: 'rgba(192, 38, 211, 0.18)',
+    tabIconDefault: 'rgba(134, 25, 143, 0.35)',
+    tabIconSelected: '#c026d3',
+    destructive: '#E11D48',
+    success: '#84CC16',
+    warning: '#FACC15',
+    info: '#22D3EE',
+    disabled: '#e879f9',
+    gradientPrimaryStart: '#c026d3',
+    gradientPrimaryEnd: '#a21caf',
   },
   dark: {
-    paper: '#0F0D14',
-    surface: '#1A1625',
-    text: '#FAF5FF',
-    textSecondary: '#A8A3B8',
-    tint: '#C084FC',
-    icon: '#A8A3B8',
-    border: '#3B3550',
-    outline: '#4C4468',
-    tintMuted: 'rgba(192, 132, 252, 0.22)',
-    tabIconDefault: '#6B6578',
-    tabIconSelected: '#C084FC',
+    paper: '#0f0610',
+    surface: '#1a0c1c',
+    text: '#fdf4ff',
+    textSecondary: '#f0abfc',
+    tint: '#e879f9',
+    icon: '#f5d0fe',
+    border: 'rgba(253, 244, 255, 0.07)',
+    outline: 'rgba(240, 171, 252, 0.16)',
+    tintMuted: 'rgba(232, 121, 249, 0.26)',
+    tabIconDefault: 'rgba(240, 171, 252, 0.4)',
+    tabIconSelected: '#f5d0fe',
     destructive: '#FB7185',
-    success: '#4ADE80',
-    warning: '#FBBF24',
-    info: '#22D3EE',
-    disabled: '#52525B',
-    gradientPrimaryStart: '#5B21B6',
-    gradientPrimaryEnd: '#7E22CE',
+    success: '#BEF264',
+    warning: '#FDE047',
+    info: '#67E8F9',
+    disabled: '#86198f',
+    gradientPrimaryStart: '#a21caf',
+    gradientPrimaryEnd: '#86198f',
   },
 };
 
