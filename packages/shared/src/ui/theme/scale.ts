@@ -41,10 +41,10 @@ export const lineHeight = {
 
 export const borderRadius = {
   none: 0,
-  sm: 6,
-  md: 12,
-  lg: 18,
-  xl: 22,
+  sm: 10,
+  md: 18,
+  lg: 26,
+  xl: 32,
   full: 9999,
 } as const;
 
@@ -56,8 +56,8 @@ export const elevation = (level: ElevationLevel) => {
   if (level === 0) return {};
 
   const height = level * 2;
-  const blur = level * 3;
-  const opacity = 0.08 + level * 0.04;
+  const blur = level * 4;
+  const opacity = 0.06 + level * 0.035;
 
   return {
     boxShadow: `0px ${height}px ${blur}px rgba(0, 0, 0, ${opacity})`,

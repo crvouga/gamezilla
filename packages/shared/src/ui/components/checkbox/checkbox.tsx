@@ -12,6 +12,7 @@
 
 import { Pressable, View } from 'react-native';
 import { useTheme } from '../../theme';
+import { borderRadius } from '../../theme/scale';
 import { Text } from '../text';
 
 export type CheckboxProps = {
@@ -47,7 +48,7 @@ export function Checkbox({
         style={{
           width: 22,
           height: 22,
-          borderRadius: 4,
+          borderRadius: borderRadius.sm,
           borderWidth: 2,
           borderColor: boxBorder,
           backgroundColor: boxBg,

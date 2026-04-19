@@ -18,6 +18,7 @@
 import { useState } from 'react';
 import { FlatList, Pressable, View } from 'react-native';
 import { useTheme } from '../../theme';
+import { borderRadius } from '../../theme/scale';
 import { Text } from '../text';
 import { ModalRoot } from '../modal/modal-root';
 import { ModalBackdrop } from '../modal/modal-backdrop';
@@ -71,7 +72,7 @@ export function Select<T extends string | number = string>({
             alignItems: 'center',
             paddingHorizontal: 12,
             paddingVertical: 8,
-            borderRadius: 8,
+            borderRadius: borderRadius.sm,
             borderWidth: 1,
             borderColor: theme.colors.border,
             backgroundColor: theme.colors.surface,
@@ -116,7 +117,7 @@ export function Select<T extends string | number = string>({
                       {
                         paddingHorizontal: 16,
                         paddingVertical: 12,
-                        borderRadius: 8,
+                        borderRadius: borderRadius.sm,
                         backgroundColor: isSelected
                           ? theme.colors.tintMuted
                           : 'transparent',

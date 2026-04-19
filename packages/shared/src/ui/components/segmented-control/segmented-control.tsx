@@ -18,6 +18,7 @@
 
 import { Pressable, View } from 'react-native';
 import { useTheme } from '../../theme';
+import { borderRadius } from '../../theme/scale';
 import { Text } from '../text';
 
 export type Segment<K extends string = string> = {
@@ -45,7 +46,7 @@ export function SegmentedControl<K extends string = string>({
       style={{
         flexDirection: 'row',
         backgroundColor: theme.colors.surface,
-        borderRadius: 10,
+        borderRadius: borderRadius.md,
         padding: 3,
         gap: 2,
       }}
@@ -63,7 +64,7 @@ export function SegmentedControl<K extends string = string>({
                 alignItems: 'center' as const,
                 paddingVertical: 8,
                 paddingHorizontal: 14,
-                borderRadius: 8,
+                borderRadius: borderRadius.sm,
                 backgroundColor: isActive ? theme.colors.paper : 'transparent',
               },
               isActive && {

@@ -13,7 +13,11 @@
 import { forwardRef } from 'react';
 import { View, type ViewProps } from 'react-native';
 import { useTheme, type SxProps } from '../../theme';
-import { elevation as elevationFn, type ElevationLevel } from '../../theme/scale';
+import {
+  borderRadius,
+  elevation as elevationFn,
+  type ElevationLevel,
+} from '../../theme/scale';
 
 export type CardProps = ViewProps & {
   /** Shadow depth 0-4. Defaults to 1. */
@@ -36,7 +40,7 @@ export const Card = forwardRef<View, CardProps>(function Card(
       style={[
         {
           backgroundColor: theme.colors.paper,
-          borderRadius: 12,
+          borderRadius: borderRadius.lg,
           borderWidth: level === 0 ? 1 : 0,
           borderColor: theme.colors.border,
         },

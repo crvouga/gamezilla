@@ -14,6 +14,7 @@
 import { type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 import { useTheme } from '../../theme';
+import { borderRadius } from '../../theme/scale';
 import { Text } from '../text';
 
 export type ButtonVariant = 'solid' | 'outlined' | 'ghost' | 'text';
@@ -42,19 +43,19 @@ const sizeMap = {
     py: 1 as number,
     px: 3 as number,
     fontSize: 'sm' as const,
-    borderRadius: 12,
+    borderRadius: borderRadius.md,
   },
   md: {
     py: 2 as number,
     px: 4 as number,
     fontSize: 'base' as const,
-    borderRadius: 16,
+    borderRadius: borderRadius.lg,
   },
   lg: {
     py: 3 as number,
     px: 6 as number,
     fontSize: 'lg' as const,
-    borderRadius: 20,
+    borderRadius: borderRadius.full,
   },
 };
 

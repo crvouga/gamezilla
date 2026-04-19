@@ -3,6 +3,7 @@
  */
 
 import type { PropsWithChildren } from 'react';
+import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';
 
 export type ModalContentProps = PropsWithChildren<{
@@ -15,7 +16,7 @@ export function ModalContent({ children, style }: ModalContentProps) {
       sx={{
         m: 4,
         p: 4,
-        borderRadius: 12,
+        borderRadius: borderRadius.lg,
         maxWidth: 400,
         alignSelf: 'center',
         background: 'paper',

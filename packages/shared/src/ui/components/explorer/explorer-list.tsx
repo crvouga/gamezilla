@@ -6,6 +6,7 @@
 
 import { Pressable, View } from 'react-native';
 import { useTheme } from '../../theme';
+import { borderRadius } from '../../theme/scale';
 import { ScrollView } from '../scroll-view';
 import { Text } from '../text';
 import { categories, componentRegistry } from './component-registry';
@@ -37,7 +38,7 @@ export function ExplorerList({ onSelect }: ExplorerListProps) {
                     py: 3,
                     px: 4,
                     background: 'surface',
-                    borderRadius: 8,
+                    borderRadius: borderRadius.sm,
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                     alignItems: 'center',

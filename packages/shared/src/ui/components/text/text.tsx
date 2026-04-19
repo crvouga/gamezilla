@@ -34,9 +34,9 @@ const variantStyles: Record<TextVariant, SxProps> = {
   bodyBold: { fontSize: 'base', lineHeight: 26, fontWeight: '600', color: 'text' },
   caption: { fontSize: 'xs', lineHeight: 18, color: 'textSecondary' },
   label: { fontSize: 'sm', lineHeight: 22, fontWeight: '500', color: 'text' },
-  title: { fontSize: '4xl', fontWeight: 'bold', lineHeight: 44, color: 'text' },
-  subtitle: { fontSize: 'xl', fontWeight: 'bold', lineHeight: 28, color: 'text' },
-  heading: { fontSize: '2xl', fontWeight: 'bold', lineHeight: 34, color: 'text' },
+  title: { fontSize: '4xl', fontWeight: '800', lineHeight: 44, color: 'text' },
+  subtitle: { fontSize: 'xl', fontWeight: '800', lineHeight: 28, color: 'text' },
+  heading: { fontSize: '2xl', fontWeight: '800', lineHeight: 34, color: 'text' },
   navigationTitle: {
     fontSize: 'lg',
     lineHeight: 24,
@@ -59,7 +59,9 @@ function variantFontFamily(
     variant === 'subtitle' ||
     variant === 'heading' ||
     variant === 'label' ||
-    variant === 'navigationTitle'
+    variant === 'navigationTitle' ||
+    variant === 'link' ||
+    variant === 'caption'
   ) {
     return { fontFamily: theme.fonts.rounded };
   }

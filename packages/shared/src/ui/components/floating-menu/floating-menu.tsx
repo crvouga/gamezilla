@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 
 import { useTheme } from '../../theme';
+import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';
 import { ModalRoot } from '../modal/modal-root';
 import { IconSymbol } from '../symbol-icon';
@@ -81,7 +82,7 @@ export function FloatingMenu({
             <Box
               sx={{
                 background: 'surface',
-                borderRadius: 12,
+                borderRadius: borderRadius.lg,
                 borderWidth: 1,
                 borderColor: 'border',
                 py: 2,

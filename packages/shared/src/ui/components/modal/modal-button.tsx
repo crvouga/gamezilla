@@ -4,6 +4,7 @@
 
 import { Pressable } from 'react-native';
 import { useTheme } from '../../theme';
+import { borderRadius } from '../../theme/scale';
 import { Text } from '../text';
 
 export type ModalButtonProps = {
@@ -30,7 +31,7 @@ export function ModalButton({
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
-        theme.sx({ py: 2, px: 4, borderRadius: 8 }),
+        theme.sx({ py: 2, px: 4, borderRadius: borderRadius.sm }),
         pressed && { opacity: 0.7 },
       ]}
     >

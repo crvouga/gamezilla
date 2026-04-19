@@ -6,7 +6,7 @@ export const SERVERS = [
   },
   {
     name: 'production',
-    url: new URL('https://api.gamezilla.com'),
+    url: new URL('https://api.gamezilla.app'),
   },
 ] as const;
 
@@ -26,7 +26,9 @@ export function getApiBaseUrl(): string {
  * If `apiUrl` matches a known {@link SERVERS} entry (by origin), returns that
  * entry's `name`; otherwise `undefined`.
  */
-export function getKnownServerNameForApiUrl(apiUrl: string): string | undefined {
+export function getKnownServerNameForApiUrl(
+  apiUrl: string
+): string | undefined {
   let origin: string;
   try {
     origin = new URL(apiUrl).origin;

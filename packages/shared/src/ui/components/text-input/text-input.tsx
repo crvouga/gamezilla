@@ -21,6 +21,7 @@ import {
 } from 'react-native';
 import { useTheme } from '../../theme';
 import type { SxProps } from '../../theme';
+import { borderRadius } from '../../theme/scale';
 import { Text } from '../text';
 
 export type TextInputProps = Omit<RNTextInputProps, 'style'> & {
@@ -51,7 +52,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
               py: 2.5,
               px: 3,
               fontSize: 'base',
-              borderRadius: 8,
+              borderRadius: borderRadius.sm,
               borderWidth: 1,
             }),
             {
