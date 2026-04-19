@@ -8,7 +8,10 @@ import {
   createSessionService,
   SessionServiceToken,
 } from '@/features/auth/session-service';
-import { bootstrapPatchDbExpoSync } from '@gamezilla/patch-db/bootstrap-expo';
+import {
+  bootstrapPatchDbExpoSync,
+  clearLocalDatabaseAndReload,
+} from '@gamezilla/patch-db/bootstrap-expo';
 import { PatchesDbToken } from '@gamezilla/patch-db/react';
 import { assert } from '@gamezilla/shared/assert';
 import { ConfigServiceToken } from '@gamezilla/shared/config/config-service';
@@ -28,6 +31,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { Platform } from 'react-native';
 
 export function PatchBootstrap({ children }: { children: ReactNode }) {
   const log = useLogger('patch-bootstrap');
@@ -93,6 +97,21 @@ export function PatchBootstrap({ children }: { children: ReactNode }) {
     }
   }, [container, error]);
 
+  const onClearLocalDataAndReload = useCallback(async () => {
+    try {
+      setError(null);
+      await clearLocalDatabaseAndReload('main');
+      if (Platform.OS !== 'web') {
+        runBootstrap();
+      }
+    } catch (err: unknown) {
+      log.error('clear local database failed', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+      setError(err instanceof Error ? err : new Error(String(err)));
+    }
+  }, [log, runBootstrap]);
+
   if (error !== null) {
     return (
       <Center sx={{ flex: 1, gap: 4, p: 4, background: 'paper' }}>
@@ -107,8 +126,13 @@ export function PatchBootstrap({ children }: { children: ReactNode }) {
           style={{ textAlign: 'center' }}
           label={error.message}
         />
-        <Box sx={{ mt: 4 }}>
+        <Box sx={{ mt: 4, gap: 3, alignItems: 'center' }}>
           <Button title="Retry" onPress={runBootstrap} />
+          <Button
+            title="Clear local data & reload"
+            color="destructive"
+            onPress={() => void onClearLocalDataAndReload()}
+          />
         </Box>
       </Center>
     );

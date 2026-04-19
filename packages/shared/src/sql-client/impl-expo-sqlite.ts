@@ -1,14 +1,44 @@
 import * as SQLite from 'expo-sqlite';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
 
+/**
+ * True when the local DB file is missing, corrupt, or otherwise unusable —
+ * safe to delete and recreate (one retry only).
+ */
+function isRecoverableSqliteOpenError(err: unknown): boolean {
+  const s = (err instanceof Error ? err.message : String(err)).toLowerCase();
+  return (
+    s.includes('sqlite3_open') ||
+    s.includes('sqlite_corrupt') ||
+    s.includes('sqlite_notadb') ||
+    s.includes('database disk image is malformed') ||
+    s.includes('file is not a database') ||
+    s.includes('malformed') ||
+    s.includes('corrupt')
+  );
+}
+
 export class SqlClientImplExpoSqlite implements SqlClient {
   private txQueue: Promise<unknown> = Promise.resolve();
 
   constructor(private db: SQLite.SQLiteDatabase) {}
 
   static async open(databaseName: string): Promise<SqlClientImplExpoSqlite> {
-    const db = await SQLite.openDatabaseAsync(databaseName, {});
-    return new SqlClientImplExpoSqlite(db);
+    try {
+      const db = await SQLite.openDatabaseAsync(databaseName, {});
+      return new SqlClientImplExpoSqlite(db);
+    } catch (first: unknown) {
+      if (!isRecoverableSqliteOpenError(first)) {
+        throw first;
+      }
+      // Stale or corrupt OPFS / file handle from older builds — remove and retry once.
+      await SQLite.deleteDatabaseAsync(databaseName).catch(() => {});
+      console.warn(
+        `[SqlClientImplExpoSqlite] Removed unreadable local database "${databaseName}" and retrying open.`,
+      );
+      const db = await SQLite.openDatabaseAsync(databaseName, {});
+      return new SqlClientImplExpoSqlite(db);
+    }
   }
 
   connect(): Promise<void> {
