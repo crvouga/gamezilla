@@ -37,10 +37,6 @@ export class ClientResource extends ResourceBase {
 
     await runAsync(platform, 'bun', ['run', 'build'], {
       cwd: clientDir,
-      env: {
-        ...process.env,
-        EXPO_PUBLIC_API_URL: apiUrl.replace(/\/$/, ''),
-      },
       label: 'client: expo export',
     });
 

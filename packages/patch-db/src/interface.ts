@@ -349,7 +349,7 @@ export type PatchesDbWrite = {
 };
 
 /** Update side of {@link PatchesDb}; contract varies by implementation (local persist vs sync + invalidation). */
-type PatchesDbUpdate = {
+export type PatchesDbUpdate = {
   update(
     updates: { patchId: string; attributes: Record<string, unknown> }[]
   ): Promise<void>;
@@ -419,10 +419,7 @@ export const topologicalSortPatches = assert.fn(
     fn: topologicalSortPatchesImpl,
 
     pre(patches: PatchInput[]) {
-      assert.array(
-        patches,
-        'topologicalSortPatches: input must be an array'
-      );
+      assert.array(patches, 'topologicalSortPatches: input must be an array');
       assert.ok(
         patches.length > 0,
         'topologicalSortPatches: input must not be empty',
@@ -431,10 +428,7 @@ export const topologicalSortPatches = assert.fn(
     },
 
     post(sorted: PatchInput[]) {
-      assert.array(
-        sorted,
-        'topologicalSortPatches: output must be an array'
-      );
+      assert.array(sorted, 'topologicalSortPatches: output must be an array');
       assert.ok(
         sorted.length > 0,
         'topologicalSortPatches: output must not be empty',
@@ -448,11 +442,9 @@ export const topologicalSortPatches = assert.fn(
       const emitted = new Set<string>();
       for (let i = 0; i < sorted.length; i++) {
         const p = sorted[i];
-        assert.defined(
-          p,
-          'topologicalSortPatches: element must be defined',
-          { i }
-        );
+        assert.defined(p, 'topologicalSortPatches: element must be defined', {
+          i,
+        });
         const pid = patchInputParentId(p);
         assert.ok(
           pid === undefined || !batchIds.has(pid) || emitted.has(pid),

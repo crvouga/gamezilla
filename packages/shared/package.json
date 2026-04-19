@@ -9,6 +9,7 @@
     "./assert/crash/crash-handler/crash-handler-default": "./src/assert/crash/crash-handler/crash-handler-default.ts",
     "./assert/crash/crash-handler/crash-handler-expo": "./src/assert/crash/crash-handler/crash-handler-expo.ts",
     "./assert/crash/crash-handler/crash-handler-node": "./src/assert/crash/crash-handler/crash-handler-node.ts",
+    "./config/api-servers": "./src/config/api-servers.ts",
     "./config/config-container": "./src/config/config-container.tsx",
     "./config/config-service": "./src/config/config-service.ts",
     "./dependency-injection": "./src/dependency-injection/index.ts",
