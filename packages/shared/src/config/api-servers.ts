@@ -1,7 +1,8 @@
 export const SERVERS = [
   {
     name: 'local',
-    url: new URL('http://localhost:8787'),
+    /** Must match `packages/api` `wrangler dev --port` (8787 is used by @gamezilla/turbo-cache). */
+    url: new URL('http://localhost:8788'),
   },
   {
     name: 'production',
