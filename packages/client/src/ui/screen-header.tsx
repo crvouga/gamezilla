@@ -1,4 +1,10 @@
-import { Box, Pressable, Text, useBreakpoint } from '@gamezilla/shared/ui';
+import {
+  Box,
+  CommandPaletteTrigger,
+  Pressable,
+  Text,
+  useBreakpoint,
+} from '@gamezilla/shared/ui';
 import type { Href } from 'expo-router';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
@@ -44,7 +50,12 @@ export function ScreenHeader({
   const isMobile = useBreakpoint() === 'mobile';
 
   const accountEnd =
-    showAccountMenu && isMobile ? <AccountMenu variant="header" /> : undefined;
+    showAccountMenu && isMobile ? (
+      <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
+        <CommandPaletteTrigger />
+        <AccountMenu variant="header" />
+      </Box>
+    ) : undefined;
   const resolvedEnd = end ?? accountEnd;
 
   const showBack = fallbackHref !== undefined;

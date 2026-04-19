@@ -11,6 +11,7 @@ import 'react-native-reanimated';
 
 import { AuthProvider } from '@/features/auth/auth-context';
 import { PrincipalAuthShell } from '@/features/auth/principal-auth-shell';
+import { AppCommands } from '@/ui/app-commands';
 import { PatchBootstrap } from '@/ui/patch-bootstrap';
 import { assert } from '@gamezilla/shared/assert';
 import { BrowserCrashHandler } from '@gamezilla/shared/assert/crash/crash-handler/crash-handler-browser';
@@ -19,6 +20,8 @@ import { ConfigContainerProvider } from '@gamezilla/shared/config/config-contain
 import { polyfill } from '@gamezilla/shared/polyfill';
 import {
   AppThemeRoot,
+  CommandPalette,
+  CommandRegistryProvider,
   hideSplash,
   preventSplashAutoHide,
   useStackProps,
@@ -88,7 +91,11 @@ export default function RootLayout() {
         <PrincipalAuthShell>
           <PatchBootstrap>
             <AuthProvider>
-              <AppStack />
+              <CommandRegistryProvider storage={AsyncStorage}>
+                <AppCommands />
+                <CommandPalette />
+                <AppStack />
+              </CommandRegistryProvider>
             </AuthProvider>
           </PatchBootstrap>
         </PrincipalAuthShell>

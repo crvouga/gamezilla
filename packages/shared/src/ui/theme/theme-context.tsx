@@ -17,6 +17,10 @@ import { defaultColors } from './colors';
 import { fonts, type FontStacks } from './fonts';
 import { getBreakpoint, type BreakpointName } from './breakpoints';
 import { createSx } from './sx';
+import {
+  defaultTextCasing,
+  type TextCasing,
+} from './text-casing';
 
 export type ThemeLayout = {
   width: number;
@@ -30,6 +34,8 @@ export type Theme = {
   colors: ColorTokens;
   colorScheme: ColorScheme;
   fonts: FontStacks;
+  /** Global casing for {@link Text} (overridable per node via `sx` / `style`). */
+  textCasing: TextCasing;
   layout: ThemeLayout;
   /** Derived from `layout.width` via {@link getBreakpoint}. */
   breakpoint: BreakpointName;
@@ -52,6 +58,8 @@ export type ThemeProviderProps = {
   colors?: Partial<Record<ColorScheme, Partial<ColorTokens>>>;
   /** Optional font stack overrides (merged onto defaults) */
   fonts?: Partial<FontStacks>;
+  /** Overrides {@link defaultTextCasing} for all design-system `Text`. */
+  textCasing?: TextCasing;
 };
 
 export function ThemeProvider({
@@ -60,6 +68,7 @@ export function ThemeProvider({
   children,
   colors: colorOverrides,
   fonts: fontsProp,
+  textCasing: textCasingProp,
 }: ThemeProviderProps) {
   const systemScheme = useColorScheme();
   const layout = useWindowDimensions();
@@ -81,12 +90,14 @@ export function ThemeProvider({
     const mergedFonts: FontStacks = fontsProp
       ? { ...fonts, ...fontsProp }
       : fonts;
+    const textCasing = textCasingProp ?? defaultTextCasing;
 
     return {
       sx: createSx(colors),
       colors,
       colorScheme: resolvedScheme,
       fonts: mergedFonts,
+      textCasing,
       layout: {
         width: layout.width,
         height: layout.height,
@@ -95,7 +106,7 @@ export function ThemeProvider({
       },
       breakpoint: getBreakpoint(layout.width),
     };
-  }, [resolvedScheme, colorOverrides, fontsProp, layout]);
+  }, [resolvedScheme, colorOverrides, fontsProp, textCasingProp, layout]);
 
   return (
     <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>

@@ -59,7 +59,7 @@ export function Avatar({
     <View style={containerStyle}>
       <Text
         style={{ color: theme.colors.paper, fontSize, fontWeight: 'bold' }}
-        label={(initials ?? '?').slice(0, 2).toUpperCase()}
+        label={(initials ?? '?').slice(0, 2)}
       />
     </View>
   );

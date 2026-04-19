@@ -36,6 +36,11 @@ export { createSx, type SxProps } from './sx';
 export { ThemeProvider, useTheme } from './theme-context';
 export type { Theme, ThemeLayout, ThemeProviderProps } from './theme-context';
 export {
+  defaultTextCasing,
+  textCasingToStyle,
+  type TextCasing,
+} from './text-casing';
+export {
   ThemePreferenceProvider,
   useThemePreference,
   type ThemePreference,

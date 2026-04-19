@@ -13,8 +13,12 @@
 
 import { forwardRef, type ReactNode } from 'react';
 import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
-import { useTheme } from '../../theme';
-import type { SxProps, Theme } from '../../theme';
+import {
+  textCasingToStyle,
+  useTheme,
+  type SxProps,
+  type Theme,
+} from '../../theme';
 
 export type TextVariant =
   | 'body'
@@ -93,10 +97,15 @@ export const Text = forwardRef<RNText, TextProps>(function Text(
   const theme = useTheme();
   const base = theme.sx(variantStyles[variant]);
   const variantFont = variantFontFamily(variant, theme);
+  const casingStyle = textCasingToStyle(theme.textCasing);
   const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
   const content = label ?? children;
   return (
-    <RNText ref={ref} style={[base, variantFont, sxStyle, style]} {...rest}>
+    <RNText
+      ref={ref}
+      style={[base, variantFont, casingStyle, sxStyle, style]}
+      {...rest}
+    >
       {content}
     </RNText>
   );

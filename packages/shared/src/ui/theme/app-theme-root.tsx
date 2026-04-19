@@ -8,6 +8,7 @@ import { AppStatusBar } from './app-status-bar';
 import type { ColorScheme } from './colors';
 import type { FontStacks } from './fonts';
 import { NavigationThemeProvider } from './navigation-theme-provider';
+import type { TextCasing } from './text-casing';
 import { ThemeProvider, type ThemeProviderProps } from './theme-context';
 import {
   ThemePreferenceProvider,
@@ -27,6 +28,7 @@ export type AppThemeRootProps = {
    */
   colorScheme?: ColorScheme | 'system';
   colors?: ThemeProviderProps['colors'];
+  textCasing?: TextCasing;
 };
 
 function AppThemeShell({
@@ -35,12 +37,14 @@ function AppThemeShell({
   systemFallback,
   colorSchemeProp,
   colors,
+  textCasing,
 }: {
   children: ReactNode;
   fonts?: Partial<FontStacks>;
   systemFallback: ColorScheme;
   colorSchemeProp?: ColorScheme | 'system';
   colors?: ThemeProviderProps['colors'];
+  textCasing?: TextCasing;
 }) {
   const { preference } = useThemePreference();
   const colorScheme = colorSchemeProp ?? preference;
@@ -51,6 +55,7 @@ function AppThemeShell({
       systemFallback={systemFallback}
       {...(fonts !== undefined ? { fonts } : {})}
       {...(colors !== undefined ? { colors } : {})}
+      {...(textCasing !== undefined ? { textCasing } : {})}
     >
       <NavigationThemeProvider>
         {children}
@@ -68,6 +73,7 @@ export function AppThemeRoot({
   systemFallback = 'light',
   colorScheme,
   colors,
+  textCasing,
 }: AppThemeRootProps) {
   return (
     <ThemePreferenceProvider
@@ -79,6 +85,7 @@ export function AppThemeRoot({
         {...(fonts !== undefined ? { fonts } : {})}
         {...(colorScheme !== undefined ? { colorSchemeProp: colorScheme } : {})}
         {...(colors !== undefined ? { colors } : {})}
+        {...(textCasing !== undefined ? { textCasing } : {})}
       >
         {children}
       </AppThemeShell>

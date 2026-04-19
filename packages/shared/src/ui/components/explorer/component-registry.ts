@@ -36,6 +36,7 @@ import { default as SegmentedControlExample } from '../segmented-control/segment
 import { default as StatusDotExample } from '../status-dot/status-dot.example';
 
 import { default as ModalExample } from '../modal/modal.example';
+import { default as CommandPaletteExample } from '../command-palette/command-palette.example';
 
 export type ComponentEntry = {
   name: string;
@@ -89,6 +90,7 @@ export const componentRegistry: ComponentEntry[] = [
 
   // Overlay
   { name: 'Modal', category: 'Overlay', Example: ModalExample },
+  { name: 'CommandPalette', category: 'Overlay', Example: CommandPaletteExample },
 ];
 
 export const categories = [...new Set(componentRegistry.map((c) => c.category))];

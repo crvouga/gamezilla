@@ -142,3 +142,16 @@ export function ArrowRightFromBracketFa(props: FaIconProps) {
     />
   );
 }
+
+/** svgs-full/solid/database.svg (FA Free 6.x solid, viewBox 0 0 448 512) */
+export function DatabaseFa(props: FaIconProps) {
+  const { size, color } = props;
+  return (
+    <Svg width={size} height={size} viewBox="0 0 448 512">
+      <Path
+        fill={color}
+        d="M448 80v48c0 44.2-100.3 80-224 80S0 172.2 0 128V80C0 35.8 100.3 0 224 0S448 35.8 448 80zM393.2 214.7c20.8-7.4 39.9-16.9 54.8-28.6V288c0 44.2-100.3 80-224 80S0 332.2 0 288V186.1c14.9 11.7 33.9 21.2 54.8 28.6C99.5 230.1 160.3 256 224 256s124.5-25.9 169.2-41.3zM448 416v48c0 44.2-100.3 80-224 80S0 508.2 0 464V416c0-44.2 100.3-80 224-80s224 35.8 224 80z"
+      />
+    </Svg>
+  );
+}

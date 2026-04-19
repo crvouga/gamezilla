@@ -10,6 +10,7 @@ import {
   ChecklistFa,
   ChevronRightFa,
   CodeSlashFa,
+  DatabaseFa,
   EllipsisFa,
   GearFillFa,
   HouseFillFa,
@@ -36,6 +37,7 @@ export const ICON_REGISTRY = {
   wifi: WifiFa,
   'right.to.bracket': RightToBracketFa,
   'arrow.right.from.bracket': ArrowRightFromBracketFa,
+  'database.fill': DatabaseFa,
 } as const satisfies Record<string, FaIconComponent>;
 
 export type IconSymbolName = keyof typeof ICON_REGISTRY;

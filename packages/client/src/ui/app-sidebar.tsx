@@ -1,5 +1,6 @@
 import {
   Box,
+  CommandPaletteTrigger,
   IconSymbol,
   Pressable,
   Text,
@@ -103,8 +104,14 @@ export function AppSidebar() {
           paddingHorizontal: 3,
           paddingTop: 3,
           paddingBottom: insets.bottom,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 2,
         }}
       >
+        <CommandPaletteTrigger />
+        <Box sx={{ flex: 1 }} />
         <AccountMenu variant="sidebar" />
       </Box>
     </Box>

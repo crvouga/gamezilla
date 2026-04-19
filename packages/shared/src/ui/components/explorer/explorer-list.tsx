@@ -25,7 +25,7 @@ export function ExplorerList({ onSelect }: ExplorerListProps) {
           <Text
             variant="label"
             sx={{ color: 'textSecondary' }}
-            label={cat.toUpperCase()}
+            label={cat}
           />
           {componentRegistry
             .filter((c) => c.category === cat)

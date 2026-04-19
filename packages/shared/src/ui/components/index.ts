@@ -73,6 +73,27 @@ export { SegmentedControl, type SegmentedControlProps, type Segment } from './se
 // Status
 export { StatusDot, type StatusDotProps, type StatusDotStatus } from './status-dot';
 
+// Command palette
+export {
+  CommandRegistryProvider,
+  CommandPalette,
+  RegisterCommand,
+  CommandPaletteTrigger,
+  useCommandPalette,
+  useCommand,
+  useCommandRegistry,
+  useCommandRegistryOptional,
+  type CommandRegistryProviderProps,
+  type CommandRegistryContextValue,
+  type CommandPaletteProps,
+  type RegisterCommandProps,
+  type CommandPaletteTriggerProps,
+  type Command,
+  type CommandId,
+  type CommandShortcut,
+  type RegisteredCommand,
+} from './command-palette';
+
 // Overlay
 export {
   ModalRoot,
