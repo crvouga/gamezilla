@@ -2,6 +2,7 @@ import { DependencyInjectionContainer } from '@gamezilla/shared/dependency-injec
 import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
 import { SqlClientImplExpoSqlite } from '@gamezilla/shared/sql-client/impl-expo-sqlite';
 import type { SqlClient } from '@gamezilla/shared/sql-client/interface';
+import { assertDatabaseName } from '@gamezilla/shared/sqlite';
 import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
 import { assertUrl } from './assert-url';
@@ -57,6 +58,7 @@ export async function bootstrapPatchDbExpoSync(
     decoratePatchesDb,
   } = options;
 
+  assertDatabaseName(databaseName);
   assertUrl(apiUrl);
 
   const key = `${databaseName}:${apiUrl}`;

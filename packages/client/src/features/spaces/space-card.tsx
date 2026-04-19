@@ -33,10 +33,11 @@ export type SpaceCardProps = {
 export function SpaceCard({ space }: SpaceCardProps) {
   const router = useRouter();
   const theme = useTheme();
-  const spaceCardGradientColors =
-    theme.colorScheme === 'dark'
-      ? (['#1D4ED8', '#2563EB', '#0284C7'] as const)
-      : (['#2563EB', '#3B82F6', '#0EA5E9'] as const);
+  const spaceCardGradientColors = [
+    theme.colors.gradientPrimaryStart,
+    theme.colors.tint,
+    theme.colors.gradientPrimaryEnd,
+  ] as const;
 
   return (
     <Pressable

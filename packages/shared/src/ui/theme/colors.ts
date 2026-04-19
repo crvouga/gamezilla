@@ -27,7 +27,7 @@ export type ColorTokens = {
   gradientPrimaryEnd: string;
 };
 
-/** Warm paper/surfaces; violet accent and candy-like semantic hues; purple→pink gradients. */
+/** Warm paper/surfaces; violet accent and candy-like semantic hues; purple gradients. */
 export const defaultColors: Record<ColorScheme, ColorTokens> = {
   light: {
     paper: '#FFFBF7',
@@ -46,8 +46,8 @@ export const defaultColors: Record<ColorScheme, ColorTokens> = {
     warning: '#F59E0B',
     info: '#06B6D4',
     disabled: '#D1D5DB',
-    gradientPrimaryStart: '#A855F7',
-    gradientPrimaryEnd: '#EC4899',
+    gradientPrimaryStart: '#6D28D9',
+    gradientPrimaryEnd: '#A855F7',
   },
   dark: {
     paper: '#0F0D14',
@@ -66,8 +66,8 @@ export const defaultColors: Record<ColorScheme, ColorTokens> = {
     warning: '#FBBF24',
     info: '#22D3EE',
     disabled: '#52525B',
-    gradientPrimaryStart: '#7E22CE',
-    gradientPrimaryEnd: '#DB2777',
+    gradientPrimaryStart: '#5B21B6',
+    gradientPrimaryEnd: '#7E22CE',
   },
 };
 
