@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import type { IconSymbolName } from '../symbol-icon';
 
 /** Header block above menu rows. */
@@ -11,7 +13,9 @@ export type FloatingMenuItemRow = {
   /** Stable React key and a11y id. */
   id: string;
   label: string;
-  icon?: IconSymbolName;
+  icon: IconSymbolName;
+  /** Right-aligned content (e.g. status + metrics). */
+  trailing?: ReactNode;
   onPress?: () => void;
   disabled?: boolean;
   accessibilityLabel?: string;

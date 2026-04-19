@@ -42,6 +42,30 @@ export default function MoreIndex() {
             />
           </Box>
         </Pressable>
+        <Pressable onPress={() => router.push('/more/server-status')}>
+          <Box
+            sx={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              px: 4,
+              py: 3,
+              gap: 3,
+            }}
+          >
+            <Box sx={{ flex: 1, gap: 1 }}>
+              <Text variant="bodyBold" label="Connection" />
+              <Text
+                variant="caption"
+                label="Network reachability and API server health"
+              />
+            </Box>
+            <IconSymbol
+              name="chevron.right"
+              size={20}
+              color={theme.colors.icon}
+            />
+          </Box>
+        </Pressable>
         <Pressable onPress={() => router.push('/more/developer')}>
           <Box
             sx={{

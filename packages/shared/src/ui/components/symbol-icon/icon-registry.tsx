@@ -6,6 +6,7 @@
 import type { ComponentType } from 'react';
 
 import {
+  ArrowRightFromBracketFa,
   ChecklistFa,
   ChevronRightFa,
   CodeSlashFa,
@@ -15,6 +16,8 @@ import {
   PaintbrushFillFa,
   PaperplaneFillFa,
   PersonFillFa,
+  RightToBracketFa,
+  WifiFa,
   type FaIconProps,
 } from './svg/font-awesome-solid';
 
@@ -30,6 +33,9 @@ export const ICON_REGISTRY = {
   'paintbrush.fill': PaintbrushFillFa,
   ellipsis: EllipsisFa,
   'gearshape.fill': GearFillFa,
+  wifi: WifiFa,
+  'right.to.bracket': RightToBracketFa,
+  'arrow.right.from.bracket': ArrowRightFromBracketFa,
 } as const satisfies Record<string, FaIconComponent>;
 
 export type IconSymbolName = keyof typeof ICON_REGISTRY;

@@ -1,12 +1,22 @@
+import { useServerStatus } from '@/features/connection/use-server-status';
 import { useLogger } from '@gamezilla/shared/logger/react';
 import {
   Box,
   FloatingMenu,
   Pressable,
+  StatusDot,
+  Text,
   type FloatingMenuContent,
 } from '@gamezilla/shared/ui';
 import { useRouter } from 'expo-router';
-import { useCallback, useMemo, useRef, useState, type ElementRef } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ElementRef,
+} from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/features/auth/auth-context';
@@ -32,9 +42,16 @@ export function AccountMenu({ variant }: AccountMenuProps) {
   const profile = useProfile();
   const insets = useSafeAreaInsets();
   const triggerRef = useRef<ElementRef<typeof Box>>(null);
+  const { aggregateStatus, health, refresh } = useServerStatus();
 
   const [open, setOpen] = useState(false);
   const [anchor, setAnchor] = useState<AnchorRect | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      refresh();
+    }
+  }, [open, refresh]);
 
   const close = useCallback(() => {
     setOpen(false);
@@ -58,6 +75,11 @@ export function AccountMenu({ variant }: AccountMenuProps) {
     router.push('/more');
   }, [close, router]);
 
+  const onServerStatus = useCallback(() => {
+    close();
+    router.push('/more/server-status');
+  }, [close, router]);
+
   const onAuth = useCallback(async () => {
     close();
     try {
@@ -74,6 +96,19 @@ export function AccountMenu({ variant }: AccountMenuProps) {
   }, [auth, close, log]);
 
   const menuContent = useMemo((): FloatingMenuContent => {
+    const statusWord =
+      aggregateStatus === 'online'
+        ? 'Online'
+        : aggregateStatus === 'offline'
+          ? 'Offline'
+          : 'Limited or checking';
+    const latencyPhrase =
+      health.phase === 'loading'
+        ? 'latency checking'
+        : health.latencyMs !== null
+          ? `latency ${health.latencyMs} ms`
+          : 'latency unavailable';
+
     return {
       header: {
         title: profile.displayLabel,
@@ -95,9 +130,44 @@ export function AccountMenu({ variant }: AccountMenuProps) {
         },
         {
           type: 'item',
+          id: 'server-status',
+          label: 'Connection',
+          icon: 'wifi',
+          trailing: (
+            <Box
+              sx={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 2,
+                flexShrink: 0,
+              }}
+            >
+              <StatusDot status={aggregateStatus} size={10} />
+              <Text
+                variant="caption"
+                sx={{ color: 'textSecondary' }}
+                label={
+                  health.phase === 'loading'
+                    ? '…'
+                    : health.latencyMs !== null
+                      ? `${health.latencyMs} ms`
+                      : '—'
+                }
+              />
+            </Box>
+          ),
+          onPress: onServerStatus,
+          accessibilityLabel: `Connection and server status. ${statusWord}. ${latencyPhrase}.`,
+        },
+        {
+          type: 'item',
           id: 'sign-in',
           label:
             auth.mode === 'signed-in' ? 'Sign out' : 'Sign in with Google',
+          icon:
+            auth.mode === 'signed-in'
+              ? 'arrow.right.from.bracket'
+              : 'right.to.bracket',
           onPress: onAuth,
           accessibilityLabel:
             auth.mode === 'signed-in' ? 'Sign out' : 'Sign in with Google',
@@ -114,9 +184,13 @@ export function AccountMenu({ variant }: AccountMenuProps) {
       ],
     };
   }, [
+    aggregateStatus,
     auth.mode,
+    health.latencyMs,
+    health.phase,
     onAuth,
     onProfile,
+    onServerStatus,
     onSettings,
     profile.displayLabel,
     profile.hasCustomDisplayName,

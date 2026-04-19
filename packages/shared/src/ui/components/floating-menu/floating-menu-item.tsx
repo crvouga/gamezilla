@@ -5,6 +5,7 @@
 
 import type { ReactNode } from 'react';
 
+import { Box } from '../box';
 import { Pressable, type PressableProps } from '../pressable';
 import { Text } from '../text';
 
@@ -16,11 +17,14 @@ export type FloatingMenuItemProps = Omit<
   label: string;
   /** Icon or node before the label. */
   leading?: ReactNode;
+  /** Trailing control or metrics (aligned end). */
+  trailing?: ReactNode;
 };
 
 export function FloatingMenuItem({
   label,
   leading,
+  trailing,
   sx: sxProp,
   disabled,
   accessibilityLabel,
@@ -43,7 +47,10 @@ export function FloatingMenuItem({
       {...rest}
     >
       {leading}
-      <Text variant="body" label={label} />
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Text variant="body" label={label} numberOfLines={1} ellipsizeMode="tail" />
+      </Box>
+      {trailing}
     </Pressable>
   );
 }

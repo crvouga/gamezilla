@@ -103,14 +103,13 @@ export function FloatingMenu({
                     key={row.id}
                     label={row.label}
                     leading={
-                      row.icon !== undefined ? (
-                        <IconSymbol
-                          name={row.icon}
-                          size={18}
-                          color={theme.colors.icon}
-                        />
-                      ) : undefined
+                      <IconSymbol
+                        name={row.icon}
+                        size={18}
+                        color={theme.colors.icon}
+                      />
                     }
+                    trailing={row.trailing}
                     onPress={row.onPress}
                     disabled={row.disabled}
                     accessibilityLabel={row.accessibilityLabel}

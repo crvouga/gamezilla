@@ -22,6 +22,25 @@ export function getApiBaseUrl(): string {
 }
 
 /**
+ * If `apiUrl` matches a known {@link SERVERS} entry (by origin), returns that
+ * entry's `name`; otherwise `undefined`.
+ */
+export function getKnownServerNameForApiUrl(apiUrl: string): string | undefined {
+  let origin: string;
+  try {
+    origin = new URL(apiUrl).origin;
+  } catch {
+    return undefined;
+  }
+  for (const s of SERVERS) {
+    if (s.url.origin === origin) {
+      return s.name;
+    }
+  }
+  return undefined;
+}
+
+/**
  * Whether to use the bundled local dev API URL (see `SERVERS` local entry).
  * Uses several signals so one mis-set flag does not silently point a dev build at prod.
  */
