@@ -3,6 +3,7 @@ import type { Command } from './commands/types';
 import { fail, fmtMs, info, kv, warn } from './lib/fmt';
 import { buildGlobalLock } from './lib/build-global-lock';
 import type { CiPlatform } from './platform/platform';
+import { DopplerResource } from './resources/doppler';
 
 /**
  * Runs a command; acquires the global lock when {@link Command.requiresLock} is set.
@@ -17,6 +18,11 @@ export async function runInfraCommand(
     await command.execute();
     return;
   }
+
+  // The lock is backed by PlanetScale Postgres, which needs TF_VAR_planetscale_*
+  // and PLANETSCALE_SERVICE_TOKEN* in env. Hydrate from Doppler here so the lock
+  // can be acquired before the resource DAG (which also loads secrets) runs.
+  new DopplerResource().loadSecretsQuick();
 
   let conn;
   try {
