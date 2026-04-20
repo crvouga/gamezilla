@@ -20,7 +20,7 @@ export function App() {
   const theme = useTheme();
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.paper }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <Box sx={{ flex: 1 }}>
         <Box sx={{ px: 3, py: 2 }}>
           <SegmentedControl
