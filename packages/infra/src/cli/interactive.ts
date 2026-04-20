@@ -9,10 +9,12 @@ import {
 import pc from 'picocolors';
 import { COMMAND_GROUP_ORDER } from './commands/commands';
 import type { Command } from './commands/types';
+import type { CiPlatform } from './platform/platform';
 import {
   type SearchableMenuOption,
   runSearchableCommandMenu,
 } from './searchable-command-menu';
+import { runInfraCommand } from './run-infra-command';
 
 type SelectValue = string;
 
@@ -100,7 +102,10 @@ function buildSelectOptions(commands: Command[]): MenuOption[] {
 
 const INTRO_LINE = `${pc.bgCyan(pc.black(' infra '))} ${pc.dim('gamezilla · infrastructure')}`;
 
-export async function runInteractive(commands: Command[]): Promise<void> {
+export async function runInteractive(
+  commands: Command[],
+  platform: CiPlatform
+): Promise<void> {
   let firstMainMenu = true;
   for (;;) {
     if (!firstMainMenu) {
@@ -159,7 +164,7 @@ export async function runInteractive(commands: Command[]): Promise<void> {
     }
 
     try {
-      await Promise.resolve(command.execute());
+      await runInfraCommand(command, platform);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       log.error(msg);

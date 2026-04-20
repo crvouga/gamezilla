@@ -3,6 +3,7 @@ import { runInteractive } from './interactive';
 import { fail } from './lib/fmt';
 import { isHumanInteractiveSession } from './lib/interactive-env';
 import type { CiPlatform } from './platform/platform';
+import { runInfraCommand } from './run-infra-command';
 
 export async function main(platform: CiPlatform): Promise<void> {
   const commandId = process.argv[2];
@@ -22,7 +23,7 @@ export async function main(platform: CiPlatform): Promise<void> {
       );
       process.exit(1);
     }
-    await runInteractive(commands);
+    await runInteractive(commands, platform);
     return;
   }
 
@@ -34,5 +35,5 @@ export async function main(platform: CiPlatform): Promise<void> {
     process.exit(1);
   }
 
-  await Promise.resolve(command.execute());
+  await runInfraCommand(command, platform);
 }

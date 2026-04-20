@@ -5,6 +5,7 @@ import type { Command, CommandGroup } from './types';
 import { DeployCommand } from './deploy';
 import { DestroyCommand } from './destroy';
 import { SetupCommand } from './setup';
+import { UnlockCommand } from './unlock';
 import { SlaughterCattleCommand } from './slaughter-cattle';
 import { StatusCommand } from './status';
 
@@ -27,6 +28,7 @@ export function createCommandRegistry(platform: CiPlatform): Command[] {
     new StatusCommand(platform),
     new DeployCommand(platform),
     new DestroyCommand(platform),
+    new UnlockCommand(platform),
     new SlaughterCattleCommand(platform),
   ];
 }

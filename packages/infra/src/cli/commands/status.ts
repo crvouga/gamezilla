@@ -7,6 +7,7 @@ import { infraOutputs, type InfraOutputs } from '../lib/infra-outputs';
 import type { CiPlatform } from '../platform/platform';
 import { pingDatabase } from '../resources/planetscale-postgres';
 import { loadSecretsIntoEnv } from '../secrets/secrets';
+import { buildGlobalLock } from '../lib/build-global-lock';
 import { runCaptureAsync } from '../subprocess';
 import type { Command } from './types';
 
@@ -114,14 +115,44 @@ export class StatusCommand implements Command {
       failed = true;
     }
 
-    // ── 5. Infra Outputs ────────────────────────────────────────────────
+    // ── 5. Global lock ──────────────────────────────────────────────────
+    heading('Global lock');
+    try {
+      const { lock, disconnect } = await buildGlobalLock();
+      try {
+        const s = await lock.status();
+        if (s === null) {
+          ok('Lock', 'unheld');
+        } else {
+          const started = Date.parse(s.startedAt);
+          const age = Number.isFinite(started)
+            ? fmtMs(Date.now() - started)
+            : 'unknown';
+          kv('holder', s.holder);
+          kv('operation', s.operation);
+          kv('started', `${age} ago`);
+          kv('pid', String(s.pid));
+          kv('ci', String(s.ci));
+        }
+      } finally {
+        await disconnect();
+      }
+    } catch (e) {
+      fail(
+        'Global lock',
+        e instanceof Error ? e.message : String(e)
+      );
+      failed = true;
+    }
+
+    // ── 6. Infra Outputs ────────────────────────────────────────────────
     heading('Infra Outputs');
     const outputs: InfraOutputs = infraOutputs({});
     for (const [k, v] of Object.entries(outputs)) {
       if (v) kv(k, v);
     }
 
-    // ── 6. Endpoints ────────────────────────────────────────────────────
+    // ── 7. Endpoints ────────────────────────────────────────────────────
     heading('Endpoints');
     const { domain } = PROJECT_CONFIG;
     const urls = [

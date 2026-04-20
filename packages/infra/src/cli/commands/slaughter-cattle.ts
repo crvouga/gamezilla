@@ -9,6 +9,8 @@ import type { Command } from './types';
 
 export class SlaughterCattleCommand implements Command {
   readonly id = 'slaughter-cattle';
+  /** One lock for the whole flow; inner commands run via `.execute()` without re-locking. */
+  readonly requiresLock = true;
   readonly group = 'validation' as const;
   readonly danger = true;
   readonly summary =
@@ -30,6 +32,8 @@ export class SlaughterCattleCommand implements Command {
       new StatusCommand(this.platform),
     ];
 
+    // Inner commands keep requiresLock for documentation; only the CLI entry
+    // in runInfraCommand acquires — these instances are not run through main.
     for (const command of flow) {
       await runStep(this.platform, `🐄 ${command.id}`, () => command.execute());
     }

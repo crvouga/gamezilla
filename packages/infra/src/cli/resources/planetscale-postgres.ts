@@ -200,7 +200,8 @@ async function claimTableOwnership(url: string): Promise<void> {
  * the tables owns them, and a different role cannot run DDL (ALTER TABLE,
  * CREATE INDEX) on tables it doesn't own.
  */
-async function resolveDatabaseUrl(): Promise<string> {
+/** Resolves and caches `DATABASE_URL` from PlanetScale (Doppler + Roles API). */
+export async function resolveDatabaseUrl(): Promise<string> {
   if (!psOrg() || !psDatabase()) {
     throw new Error(
       'Cannot resolve DATABASE_URL: TF_VAR_planetscale_org and TF_VAR_planetscale_database must be set'
