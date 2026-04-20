@@ -5,7 +5,7 @@ import { banner, fail, fmtMs, heading, kv, ok, warn } from '../lib/fmt';
 import { httpProbe } from '../lib/http-probe';
 import { infraOutputs, type InfraOutputs } from '../lib/infra-outputs';
 import type { CiPlatform } from '../platform/platform';
-import { pingDatabase } from '../resources/database';
+import { pingDatabase } from '../resources/planetscale-postgres';
 import { loadSecretsIntoEnv } from '../secrets/secrets';
 import { runCaptureAsync } from '../subprocess';
 import type { Command } from './types';
@@ -35,7 +35,7 @@ export class StatusCommand implements Command {
       if (r.ok === 'unknown-latest') {
         warn(
           r.name,
-          `${r.version} — could not resolve latest (offline or network)`,
+          `${r.version} — could not resolve latest (offline or network)`
         );
         continue;
       }
@@ -47,7 +47,7 @@ export class StatusCommand implements Command {
       }
       fail(
         r.issue.name,
-        `outdated ${r.issue.current} — latest is ${r.issue.latest}`,
+        `outdated ${r.issue.current} — latest is ${r.issue.latest}`
       );
       depFailures.push(r.issue.name);
       failed = true;
@@ -55,7 +55,7 @@ export class StatusCommand implements Command {
     if (depFailures.length > 0) {
       warn(
         'Dependency issues',
-        `${depFailures.join(', ')} — run \`bun run infra setup\` to install or upgrade`,
+        `${depFailures.join(', ')} — run \`bun run infra setup\` to install or upgrade`
       );
     }
 
@@ -75,7 +75,7 @@ export class StatusCommand implements Command {
     if (missingSecrets.length > 0) {
       warn(
         'Secret issues',
-        `${missingSecrets.join(', ')} — run \`bun run infra setup\` to configure`,
+        `${missingSecrets.join(', ')} — run \`bun run infra setup\` to configure`
       );
     }
 
@@ -93,7 +93,7 @@ export class StatusCommand implements Command {
     } catch (e) {
       fail(
         'wrangler whoami',
-        e instanceof Error ? e.message.split('\n')[0] : String(e),
+        e instanceof Error ? e.message.split('\n')[0] : String(e)
       );
       failed = true;
     }
@@ -109,7 +109,7 @@ export class StatusCommand implements Command {
     } else {
       fail(
         'PlanetScale (postgres)',
-        `${db.error ?? 'unreachable'} (${fmtMs(db.durationMs)})`,
+        `${db.error ?? 'unreachable'} (${fmtMs(db.durationMs)})`
       );
       failed = true;
     }

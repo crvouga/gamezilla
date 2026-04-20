@@ -1,10 +1,10 @@
 import { ApiWorkerResource } from './api-worker';
 import { ClientResource } from './client';
-import { DatabaseResource } from './database';
 import { DnsRecordsResource } from './dns-records';
 import { DopplerResource } from './doppler';
 import { PagesDomainResource } from './pages-domains';
 import { PagesProjectResource } from './pages-project';
+import { PlanetScalePostgres } from './planetscale-postgres';
 import { R2BucketResource } from './r2-buckets';
 import { R2SubscriptionResource } from './r2-subscription';
 import { RedirectRuleResource } from './redirect-rule';
@@ -17,7 +17,7 @@ export function createRegistry(): readonly Resource[] {
   const r2Subscription = new R2SubscriptionResource();
   const zone = new ZoneResource();
   const pagesProject = new PagesProjectResource();
-  const database = new DatabaseResource();
+  const planetscalePostgres = new PlanetScalePostgres();
   const r2Bucket = new R2BucketResource();
   const dnsRecords = new DnsRecordsResource();
   const pagesDomain = new PagesDomainResource();
@@ -29,13 +29,13 @@ export function createRegistry(): readonly Resource[] {
   r2Subscription.needs(doppler);
   zone.needs(doppler);
   pagesProject.needs(doppler);
-  database.needs(doppler);
+  planetscalePostgres.needs(doppler);
   r2Bucket.needs(r2Subscription);
   dnsRecords.needs(zone, pagesProject);
   pagesDomain.needs(pagesProject);
   redirectRule.needs(zone);
   turboCache.needs(doppler, r2Bucket);
-  apiWorker.needs(database, dnsRecords);
+  apiWorker.needs(planetscalePostgres, dnsRecords);
   client.needs(apiWorker, dnsRecords);
 
   return [
@@ -43,7 +43,7 @@ export function createRegistry(): readonly Resource[] {
     r2Subscription,
     zone,
     pagesProject,
-    database,
+    planetscalePostgres,
     r2Bucket,
     dnsRecords,
     pagesDomain,

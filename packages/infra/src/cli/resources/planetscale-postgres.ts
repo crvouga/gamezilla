@@ -36,8 +36,8 @@ function rolesUrl(): string {
   return `${PS_API}/organizations/${psOrg()}/databases/${psDatabase()}/branches/${BRANCH}/roles`;
 }
 
-export class DatabaseResource extends ResourceBase {
-  readonly id = 'database';
+export class PlanetScalePostgres extends ResourceBase {
+  readonly id = 'planetscale-postgres';
 
   async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const url = await resolveDatabaseUrl();
