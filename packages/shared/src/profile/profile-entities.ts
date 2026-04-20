@@ -6,5 +6,5 @@ export const PROFILE_ENTITY_TYPE = 'profile';
  */
 export const ProfileAttr = {
   displayName: 'profile/displayName',
-  avatarSeed: 'profile/avatarSeed',
+  avatarConfig: 'profile/avatarConfig',
 } as const;

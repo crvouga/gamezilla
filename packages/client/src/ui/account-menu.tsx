@@ -211,7 +211,8 @@ export function AccountMenu({ variant }: AccountMenuProps) {
           }}
         >
           <ProfileDiceBearAvatar
-            seed={profile.avatarSeed}
+            config={profile.avatarConfig}
+            fallbackSeed={profile.principalId}
             size={variant === 'sidebar' ? 40 : 36}
           />
         </Pressable>

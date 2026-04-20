@@ -22,6 +22,11 @@ export type ScreenHeaderProps = {
   /** Trailing control (e.g. destructive action). Sits on the right of the bar. */
   end?: ReactNode;
   /**
+   * When set, invoked instead of the default back navigation (stack back or
+   * `fallbackHref` replace). Use for unsaved-change prompts.
+   */
+  onBackPress?: () => void;
+  /**
    * On mobile, shows the account avatar menu on the right (desktop uses the shell sidebar).
    */
   showAccountMenu?: boolean;
@@ -38,6 +43,7 @@ export function ScreenHeader({
   fallbackHref,
   end,
   showAccountMenu = false,
+  onBackPress: onBackPressOverride,
 }: ScreenHeaderProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -49,10 +55,15 @@ export function ScreenHeader({
     ) : undefined;
   const resolvedEnd = end ?? accountEnd;
 
-  const showBack = fallbackHref !== undefined;
+  const showBack =
+    fallbackHref !== undefined || onBackPressOverride !== undefined;
   const hasSubtitle = subtitle !== undefined && subtitle !== '';
 
   const onBackPress = () => {
+    if (onBackPressOverride !== undefined) {
+      onBackPressOverride();
+      return;
+    }
     if (fallbackHref === undefined) return;
     if (router.canGoBack()) {
       router.back();

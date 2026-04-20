@@ -16,7 +16,11 @@ export default function ProfileScreen() {
       <ConstrainedContent>
         <Box sx={{ flex: 1, px: 4, pt: 4, gap: 4 }}>
           <Box sx={{ alignItems: 'center', gap: 2 }}>
-            <ProfileDiceBearAvatar seed={profile.avatarSeed} size={80} />
+            <ProfileDiceBearAvatar
+              config={profile.avatarConfig}
+              fallbackSeed={profile.principalId}
+              size={80}
+            />
             <Text variant="title" label={profile.displayLabel} />
           </Box>
           <Box sx={{ mt: 2, alignSelf: 'stretch' }}>

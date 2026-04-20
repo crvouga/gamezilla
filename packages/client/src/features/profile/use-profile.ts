@@ -5,6 +5,7 @@ import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
 } from '@gamezilla/shared/profile/profile-entities';
+import { resolveAvatarConfig } from '@gamezilla/shared/profile/avatar-config';
 import { useDependency } from '@gamezilla/shared/dependency-injection/react';
 import { useMemo } from 'react';
 
@@ -31,15 +32,17 @@ export function useProfile() {
           ? 'Signed in'
           : 'Guest';
 
-    const rawSeed = entity?.attributes[ProfileAttr.avatarSeed];
-    const storedSeed = typeof rawSeed === 'string' ? rawSeed.trim() : '';
-    const avatarSeed = storedSeed.length > 0 ? storedSeed : principalId;
+    const avatarConfig = resolveAvatarConfig(
+      entity?.attributes as Record<string, unknown> | undefined,
+      principalId,
+      ProfileAttr.avatarConfig,
+    );
 
     return {
       principalId,
       entity,
       displayLabel,
-      avatarSeed,
+      avatarConfig,
       hasCustomDisplayName: trimmed.length > 0,
     };
   }, [entity, principalId, auth.mode]);

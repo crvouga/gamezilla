@@ -1,11 +1,15 @@
 import { Box } from '@gamezilla/shared/ui';
+import type { AvatarConfig } from '@gamezilla/shared/profile/avatar-config';
+import { resolveAvatarSeed } from '@gamezilla/shared/profile/avatar-config';
 import { useMemo, type ReactNode } from 'react';
 import { SvgXml } from 'react-native-svg';
 
 import { profileAvatarSvg } from './profile-dicebear';
 
 export type ProfileDiceBearAvatarProps = {
-  seed: string;
+  config: AvatarConfig;
+  /** Used when `config.seed` is empty (falls back to principal id). */
+  fallbackSeed: string;
   size: number;
 };
 
@@ -13,10 +17,21 @@ export type ProfileDiceBearAvatarProps = {
  * Rounds a DiceBear SVG for use in headers and profile chrome.
  */
 export function ProfileDiceBearAvatar({
-  seed,
+  config,
+  fallbackSeed,
   size,
 }: ProfileDiceBearAvatarProps): ReactNode {
-  const xml = useMemo(() => profileAvatarSvg(seed, size), [seed, size]);
+  const resolved = useMemo(
+    () => ({
+      ...config,
+      seed: resolveAvatarSeed(config, fallbackSeed),
+    }),
+    [config, fallbackSeed],
+  );
+  const xml = useMemo(
+    () => profileAvatarSvg(resolved, size),
+    [resolved, size],
+  );
 
   return (
     <Box
