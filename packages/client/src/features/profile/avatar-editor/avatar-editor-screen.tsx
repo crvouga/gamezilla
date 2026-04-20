@@ -13,16 +13,16 @@ import {
 import { isStyleKey, type StyleKey } from '@/features/profile/dicebear-styles';
 import { ProfileDiceBearAvatar } from '@/features/profile/profile-dicebear-avatar';
 import { usePatchesDb } from '@gamezilla/patch-db/react';
-import {
-  PROFILE_ENTITY_TYPE,
-  ProfileAttr,
-} from '@gamezilla/shared/profile/profile-entities';
 import type { AvatarConfig } from '@gamezilla/shared/profile/avatar-config';
 import {
   configsEqual,
   resolveAvatarConfig,
   serializeAvatarConfig,
 } from '@gamezilla/shared/profile/avatar-config';
+import {
+  PROFILE_ENTITY_TYPE,
+  ProfileAttr,
+} from '@gamezilla/shared/profile/profile-entities';
 import {
   Box,
   Button,
@@ -32,14 +32,14 @@ import {
   Switch,
   Text,
 } from '@gamezilla/shared/ui';
-import { useRouter } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
+import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { getProbabilityMode, humanizeOptionKey } from './option-helpers';
-import { useProfile } from '../use-profile';
 import { ConstrainedContent } from '@/ui/constrained-content';
 import { ScreenHeader } from '@/ui/screen-header';
+import { useProfile } from '../use-profile';
+import { getProbabilityMode, humanizeOptionKey } from './option-helpers';
 
 const TABS: { key: EditorTab; label: string }[] = [
   { key: 'features', label: 'Features' },
@@ -74,9 +74,9 @@ export function AvatarEditorScreen() {
       resolveAvatarConfig(
         entity?.attributes as Record<string, unknown> | undefined,
         principalId,
-        ProfileAttr.avatarConfig,
+        ProfileAttr.avatarConfig
       ),
-    [entity?.attributes, principalId],
+    [entity?.attributes, principalId]
   );
 
   const [draft, setDraft] = useState<AvatarConfig>(persisted);
@@ -98,14 +98,14 @@ export function AvatarEditorScreen() {
       ...draft,
       seed: draft.seed.trim() || principalId,
     }),
-    [draft, principalId],
+    [draft, principalId]
   );
 
   const updateOptions = useCallback(
     (fn: (o: Record<string, unknown>) => Record<string, unknown>) => {
       setDraft((d) => ({ ...d, options: fn({ ...d.options }) }));
     },
-    [],
+    []
   );
 
   const onBack = useCallback(() => {
@@ -191,16 +191,34 @@ export function AvatarEditorScreen() {
         onCancel={() => setShowDiscard(false)}
       />
       <ConstrainedContent>
-        <ScrollView sx={{ flex: 1 }} contentContainerStyle={{ padding: 16, gap: 16 }}>
+        <ScrollView
+          sx={{ flex: 1 }}
+          contentContainerStyle={{ padding: 16, gap: 16 }}
+        >
           <Box sx={{ alignItems: 'center', gap: 2 }}>
             <ProfileDiceBearAvatar
               config={previewConfig}
               fallbackSeed={principalId}
               size={192}
             />
-            <Box sx={{ flexDirection: 'row', flexWrap: 'wrap', gap: 2, justifyContent: 'center' }}>
-              <Button title="Shuffle seed" variant="outlined" onPress={shuffleSeed} />
-              <Button title="Copy seed" variant="outlined" onPress={() => void copySeed()} />
+            <Box
+              sx={{
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                gap: 2,
+                justifyContent: 'center',
+              }}
+            >
+              <Button
+                title="Shuffle seed"
+                variant="outlined"
+                onPress={shuffleSeed}
+              />
+              <Button
+                title="Copy seed"
+                variant="outlined"
+                onPress={() => void copySeed()}
+              />
             </Box>
             <Text
               variant="caption"
@@ -213,9 +231,7 @@ export function AvatarEditorScreen() {
             selected={styleKey}
             seed={draft.seed.trim() || principalId}
             principalId={principalId}
-            onSelect={(k) =>
-              setDraft((d) => ({ ...d, style: k, options: {} }))
-            }
+            onSelect={(k) => setDraft((d) => ({ ...d, style: k, options: {} }))}
           />
 
           <SegmentedControl
@@ -245,7 +261,7 @@ type TabBodyProps = {
   draft: AvatarConfig;
   principalId: string;
   updateOptions: (
-    fn: (o: Record<string, unknown>) => Record<string, unknown>,
+    fn: (o: Record<string, unknown>) => Record<string, unknown>
   ) => void;
 };
 
@@ -280,7 +296,10 @@ function TabBody({
     <Box sx={{ gap: 2 }}>
       {tab === 'features'
         ? fields
-            .filter((f): f is Extract<SchemaField, { kind: 'enum' }> => f.kind === 'enum')
+            .filter(
+              (f): f is Extract<SchemaField, { kind: 'enum' }> =>
+                f.kind === 'enum'
+            )
             .map((f) => (
               <SectionCard
                 key={f.key}
@@ -309,7 +328,10 @@ function TabBody({
         : null}
       {tab === 'colors'
         ? fields
-            .filter((f): f is Extract<SchemaField, { kind: 'color' }> => f.kind === 'color')
+            .filter(
+              (f): f is Extract<SchemaField, { kind: 'color' }> =>
+                f.kind === 'color'
+            )
             .map((f) => {
               const current = Array.isArray(draft.options[f.key])
                 ? (draft.options[f.key] as string[])
@@ -334,7 +356,7 @@ function TabBody({
         ? fields
             .filter(
               (f): f is Extract<SchemaField, { kind: 'probability' }> =>
-                f.kind === 'probability',
+                f.kind === 'probability'
             )
             .map((f) => (
               <ProbabilityChipGroup
@@ -372,7 +394,9 @@ function BackgroundTab({
 }) {
   const bt = fields.find((f) => f.key === 'backgroundType');
   const bc = fields.find((f) => f.key === 'backgroundColor');
-  const br = fields.find((f) => f.kind === 'integerArray' && f.key === 'backgroundRotation');
+  const br = fields.find(
+    (f) => f.kind === 'integerArray' && f.key === 'backgroundRotation'
+  );
 
   const typeField = bt?.kind === 'enum' ? bt : null;
   const colorField = bc?.kind === 'color' ? bc : null;
@@ -400,7 +424,7 @@ function BackgroundTab({
               updateOptions((o) => ({
                 ...o,
                 backgroundType: modeToBackgroundType(
-                  k as 'solid' | 'gradient' | 'both',
+                  k as 'solid' | 'gradient' | 'both'
                 ),
               }));
             }}

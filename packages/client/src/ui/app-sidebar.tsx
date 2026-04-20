@@ -95,12 +95,8 @@ export function AppSidebar() {
           borderTopWidth: 1,
           borderColor: 'border',
           paddingHorizontal: 3,
-          paddingTop: 3,
-          paddingBottom: insets.bottom,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'flex-end',
-          gap: 2,
+          paddingTop: 2,
+          paddingBottom: insets.bottom > 0 ? insets.bottom : 2,
         }}
       >
         <AccountMenu variant="sidebar" />

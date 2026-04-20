@@ -3,9 +3,11 @@ import { useLogger } from '@gamezilla/shared/logger/react';
 import {
   Box,
   FloatingMenu,
+  IconSymbol,
   Pressable,
   StatusDot,
   Text,
+  useTheme,
   type FloatingMenuContent,
 } from '@gamezilla/shared/ui';
 import { useRouter } from 'expo-router';
@@ -41,6 +43,7 @@ export function AccountMenu({ variant }: AccountMenuProps) {
   const auth = useAuth();
   const profile = useProfile();
   const insets = useSafeAreaInsets();
+  const theme = useTheme();
   const triggerRef = useRef<ElementRef<typeof Box>>(null);
   const { aggregateStatus, health, refresh } = useServerStatus();
 
@@ -196,26 +199,82 @@ export function AccountMenu({ variant }: AccountMenuProps) {
     profile.hasCustomDisplayName,
   ]);
 
+  const subtitle =
+    auth.mode === 'signed-in'
+      ? profile.hasCustomDisplayName
+        ? 'Signed in'
+        : null
+      : 'Guest';
+
   return (
     <>
-      <Box ref={triggerRef} collapsable={false}>
-        <Pressable
-          onPress={openMenu}
-          accessibilityRole="button"
-          accessibilityLabel="Account menu"
-          accessibilityState={{ expanded: open }}
-          hitSlop={6}
-          sx={{
-            borderRadius: 999,
-            p: variant === 'sidebar' ? 1 : 0,
-          }}
-        >
-          <ProfileDiceBearAvatar
-            config={profile.avatarConfig}
-            fallbackSeed={profile.principalId}
-            size={variant === 'sidebar' ? 40 : 36}
-          />
-        </Pressable>
+      <Box
+        ref={triggerRef}
+        collapsable={false}
+        sx={variant === 'sidebar' ? { alignSelf: 'stretch' } : {}}
+      >
+        {variant === 'sidebar' ? (
+          <Pressable
+            onPress={openMenu}
+            accessibilityRole="button"
+            accessibilityLabel="Account menu"
+            accessibilityState={{ expanded: open }}
+            sx={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 3,
+              py: 2,
+              px: 2,
+              borderRadius: 12,
+              background: open ? 'paper' : 'transparent',
+            }}
+          >
+            <ProfileDiceBearAvatar
+              config={profile.avatarConfig}
+              fallbackSeed={profile.principalId}
+              size={32}
+            />
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Text
+                variant="bodyBold"
+                sx={{ color: 'text' }}
+                numberOfLines={1}
+                label={profile.displayLabel}
+              />
+              {subtitle ? (
+                <Text
+                  variant="caption"
+                  sx={{ color: 'textSecondary' }}
+                  numberOfLines={1}
+                  label={subtitle}
+                />
+              ) : null}
+            </Box>
+            <IconSymbol
+              name="ellipsis"
+              size={18}
+              color={theme.colors.icon}
+            />
+          </Pressable>
+        ) : (
+          <Pressable
+            onPress={openMenu}
+            accessibilityRole="button"
+            accessibilityLabel="Account menu"
+            accessibilityState={{ expanded: open }}
+            hitSlop={6}
+            sx={{
+              borderRadius: 999,
+              p: 0,
+            }}
+          >
+            <ProfileDiceBearAvatar
+              config={profile.avatarConfig}
+              fallbackSeed={profile.principalId}
+              size={36}
+            />
+          </Pressable>
+        )}
       </Box>
 
       <FloatingMenu
