@@ -5,10 +5,8 @@ import {
   SqlClientImplExpoSqlite,
 } from '@gamezilla/shared/sql-client/impl-expo-sqlite';
 import type { SqlClient } from '@gamezilla/shared/sql-client/interface';
-import {
-  assertDatabaseName,
-  clearExpoSqliteWebOpfsBestEffort,
-} from '@gamezilla/shared/sqlite';
+import { clearExpoSqliteWebOpfsBestEffort } from '@gamezilla/shared/sqlite/clear-expo-sqlite-web-opfs';
+import { assertDatabaseName } from '@gamezilla/shared/sqlite';
 import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
 import { assertUrl } from './assert-url';

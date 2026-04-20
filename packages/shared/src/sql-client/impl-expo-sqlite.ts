@@ -12,6 +12,14 @@ import type { PreparedStatement, RunResult, SqlClient } from './interface';
  */
 const WEB_RECOVERY_RELOAD_KEY = 'gamezilla.expo-sqlite.web-recovery-reloaded';
 
+/**
+ * URL escape hatch. Appending `?reset-db=1` to any page of the app forces a full reset on
+ * next load: clears the one-shot recovery flag, wipes OPFS, deletes the DB file, and strips
+ * the query param so a subsequent reload behaves normally. Use this when a dev is stuck in
+ * the "already survived one recovery reload" branch and DevTools isn't convenient.
+ */
+const RESET_DB_QUERY_PARAM = 'reset-db';
+
 /** Call before manual clear/reload so the one-time recovery reload can run again if needed. */
 export function clearExpoSqliteWebRecoverySessionFlag(): void {
   if (Platform.OS === 'web' && typeof sessionStorage !== 'undefined') {
@@ -24,6 +32,45 @@ function formatErrorChain(parts: unknown[]): string {
     .map((e) => (e instanceof Error ? e.message : String(e)))
     .filter((s) => s.length > 0)
     .join(' → ');
+}
+
+/** Runs before the first open attempt. Non-fatal: failures here are best-effort. */
+async function maybeHandleResetDbQueryParam(databaseName: string): Promise<void> {
+  if (Platform.OS !== 'web' || typeof window === 'undefined') {
+    return;
+  }
+  const url = new URL(window.location.href);
+  if (url.searchParams.get(RESET_DB_QUERY_PARAM) !== '1') {
+    return;
+  }
+  clearExpoSqliteWebRecoverySessionFlag();
+  await clearExpoSqliteWebOpfsBestEffort();
+  await SQLite.deleteDatabaseAsync(databaseName).catch(() => {});
+  url.searchParams.delete(RESET_DB_QUERY_PARAM);
+  window.history.replaceState(null, '', url.toString());
+  console.warn(
+    `[SqlClientImplExpoSqlite] ?${RESET_DB_QUERY_PARAM}=1 detected — wiped expo-sqlite OPFS and deleted "${databaseName}" before opening.`,
+  );
+}
+
+function buildLockedOpfsError(
+  databaseName: string,
+  clearError: unknown,
+  previous: unknown[],
+): Error {
+  const origin =
+    typeof window !== 'undefined' && window.location !== undefined
+      ? window.location.origin
+      : 'this site';
+  const clearMessage =
+    clearError instanceof Error ? clearError.message : String(clearError);
+  return new Error(
+    `SQLite could not open the local database "${databaseName}" and automatic recovery is blocked: ` +
+      `another tab or worker is holding the OPFS handle (${clearMessage}). ` +
+      `Fix: close every other tab of ${origin}, unregister any Service Worker in DevTools → Application → Service Workers, ` +
+      `then reload with ?${RESET_DB_QUERY_PARAM}=1 appended to the URL (or use DevTools → Application → Clear site data). ` +
+      `Underlying open errors: ${formatErrorChain(previous)}`,
+  );
 }
 
 async function openDatabaseOnce(
@@ -62,6 +109,8 @@ export class SqlClientImplExpoSqlite implements SqlClient {
       );
     }
 
+    await maybeHandleResetDbQueryParam(databaseName);
+
     const finish = async (
       client: SqlClientImplExpoSqlite,
     ): Promise<SqlClientImplExpoSqlite> => {
@@ -96,8 +145,19 @@ export class SqlClientImplExpoSqlite implements SqlClient {
           Boolean(sessionStorage.getItem(WEB_RECOVERY_RELOAD_KEY));
 
         if (!postOpfsReload) {
-          await clearExpoSqliteWebOpfsBestEffort();
+          const clearResult = await clearExpoSqliteWebOpfsBestEffort();
           await SQLite.deleteDatabaseAsync(databaseName).catch(() => {});
+
+          if (!clearResult.ok) {
+            // The wipe silently failing (e.g. `NoModificationAllowedError` because another
+            // tab still holds a `FileSystemSyncAccessHandle`) used to set the session flag
+            // and reload, which permanently poisoned the tab. Fail loudly instead.
+            throw buildLockedOpfsError(databaseName, clearResult.error, [
+              second,
+              first,
+            ]);
+          }
+
           console.warn(
             `[SqlClientImplExpoSqlite] Open failed again; cleared expo-sqlite OPFS and reloading.`,
             second,
@@ -123,10 +183,17 @@ export class SqlClientImplExpoSqlite implements SqlClient {
           try {
             return await finish(await openDatabaseOnce(databaseName, true));
           } catch (fourth: unknown) {
-            const err = new Error(
-              `SQLite could not open the local database: ${formatErrorChain([fourth, third, second, first])}`,
+            const origin =
+              typeof window !== 'undefined' && window.location !== undefined
+                ? window.location.origin
+                : 'this site';
+            throw new Error(
+              `SQLite could not open the local database "${databaseName}" after a recovery reload. ` +
+                `Another tab/worker of ${origin} is likely holding the OPFS handle. ` +
+                `Fix: close every other tab of ${origin}, then reload with ?${RESET_DB_QUERY_PARAM}=1 appended to the URL ` +
+                `(or use DevTools → Application → Clear site data). ` +
+                `Underlying errors: ${formatErrorChain([fourth, third, second, first])}`,
             );
-            throw err;
           }
         }
       }
