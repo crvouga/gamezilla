@@ -15,10 +15,10 @@ export interface Kv {
   zap(key: string): Promise<void>;
 
   /**
-   * Runs `fn` atomically. Implementations must provide isolation equivalent to
-   * serializable transactions: concurrent `transaction` calls must not observe
-   * partial updates from each other, and conflicting read/write pairs must be
-   * serialized (one succeeds, others retry or block).
+   * Runs `fn` with a nested {@link Kv} scoped to a database transaction when
+   * the backing `SqlClient` uses native Postgres over TCP (e.g. Bun `SQL`).
+   * HTTP-only `SqlClient` implementations may not provide real `BEGIN`/`COMMIT`
+   * across statements — check the adapter.
    */
   transaction<T>(fn: (tx: Kv) => Promise<T>): Promise<T>;
 }

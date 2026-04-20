@@ -1,7 +1,7 @@
 /**
  * Postgres-backed {@link Kv}. Table layout and DDL are private to this module.
- * Requires a {@link SqlClient} whose `transaction` provides real serializable
- * isolation (e.g. {@link SqlClientImplPlanetScalePostgresWs}).
+ * For correct `transaction` + advisory locking, use a TCP Postgres `SqlClient`
+ * (e.g. `impl-postgres-tcp`) — not Neon's HTTP or WebSocket drivers.
  */
 import { assert } from '../assert';
 import type { SqlClient } from '../sql-client/interface';

@@ -21,6 +21,7 @@
     "./pub-sub/impl-durable-object": "./src/pub-sub/impl-durable-object.ts",
     "./pub-sub/interface": "./src/pub-sub/interface.ts",
     "./sql-client/impl-bun-postgres": "./src/sql-client/impl-bun-postgres.ts",
+    "./sql-client/impl-postgres-tcp": "./src/sql-client/impl-postgres-tcp.ts",
     "./sql-client/impl-bun-sqlite": "./src/sql-client/impl-bun-sqlite.ts",
     "./sql-client/impl-expo-sqlite": "./src/sql-client/impl-expo-sqlite.ts",
     "./sql-client/impl-sql-js": "./src/sql-client/impl-sql-js.ts",

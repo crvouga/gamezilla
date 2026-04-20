@@ -61,6 +61,7 @@
     "googleusercontent",
     "graphviz",
     "Gsap",
+    "hashtext",
     "healthcheck",
     "Hiragino",
     "horiz",
@@ -137,6 +138,7 @@
     "Unvalidated",
     "WHATWG",
     "worklets",
+    "xact",
     "xyflow"
   ],
   "github-actions.workflows.pinned.workflows": [
