@@ -1,7 +1,7 @@
-import { useCommandPalette } from '@gamezilla/shared/ui';
+import { Box, useCommandPalette } from '@gamezilla/shared/ui';
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 /**
@@ -27,15 +27,13 @@ export function CommandPaletteNativeGesture({
     [open]
   );
 
+  if (Platform.OS === 'web') {
+    return <>{children}</>;
+  }
+
   return (
     <GestureDetector gesture={gesture}>
-      <View style={styles.fill} collapsable={false}>
-        {children}
-      </View>
+      <Box sx={{ flex: 1 }}>{children}</Box>
     </GestureDetector>
   );
 }
-
-const styles = StyleSheet.create({
-  fill: { flex: 1 },
-});
