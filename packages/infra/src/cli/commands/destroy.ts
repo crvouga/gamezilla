@@ -11,7 +11,7 @@ export class DestroyCommand implements Command {
   readonly requiresLock = true;
   readonly group = 'lifecycle' as const;
   readonly danger = true;
-  readonly summary = 'Tear down all managed infrastructure';
+  readonly summary = 'Tear down managed Cloudflare infra';
 
   constructor(private readonly platform: CiPlatform) {}
 

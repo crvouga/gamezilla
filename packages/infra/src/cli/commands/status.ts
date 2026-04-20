@@ -14,8 +14,7 @@ import type { Command } from './types';
 export class StatusCommand implements Command {
   readonly id = 'status';
   readonly group = 'setup' as const;
-  readonly summary =
-    'Health dashboard: deps, secrets, Cloudflare, database, infra outputs, endpoints';
+  readonly summary = 'Health: deps, secrets, CF, DB, lock, URLs';
 
   constructor(private readonly platform: CiPlatform) {}
 

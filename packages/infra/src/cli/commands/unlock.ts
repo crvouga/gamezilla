@@ -7,8 +7,7 @@ export class UnlockCommand implements Command {
   readonly id = 'unlock';
   readonly group = 'lifecycle' as const;
   readonly danger = true;
-  readonly summary =
-    'Force-release the global infra lock (use after a crashed deploy/destroy)';
+  readonly summary = 'Clear stuck global deploy lock';
 
   constructor(private readonly platform: CiPlatform) {}
 

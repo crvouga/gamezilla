@@ -17,8 +17,7 @@ export class DeployCommand implements Command {
   readonly id = 'deploy';
   readonly requiresLock = true;
   readonly group = 'lifecycle' as const;
-  readonly summary =
-    'Full idempotent deploy: ensure infra → deploy apps → smoke tests → refresh client config';
+  readonly summary = 'Provision infra, deploy apps, smoke test, refresh config';
 
   constructor(private readonly platform: CiPlatform) {}
 

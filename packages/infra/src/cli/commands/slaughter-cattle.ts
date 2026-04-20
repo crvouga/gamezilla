@@ -13,8 +13,7 @@ export class SlaughterCattleCommand implements Command {
   readonly requiresLock = true;
   readonly group = 'validation' as const;
   readonly danger = true;
-  readonly summary =
-    'Cattle validation flow: setup → status → destroy → status → deploy → status';
+  readonly summary = 'Full cycle: setup→destroy→deploy (cattle test)';
 
   constructor(private readonly platform: CiPlatform) {}
 
