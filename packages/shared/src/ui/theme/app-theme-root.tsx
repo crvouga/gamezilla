@@ -15,6 +15,7 @@ import {
   useThemePreference,
   type ThemePreferenceStorage,
 } from './theme-preference';
+import { WebScrollbarTheme } from './web-scrollbar-theme';
 
 export type AppThemeRootProps = {
   children: ReactNode;
@@ -60,6 +61,7 @@ function AppThemeShell({
       <NavigationThemeProvider>
         {children}
         <AppStatusBar />
+        <WebScrollbarTheme />
       </NavigationThemeProvider>
     </ThemeProvider>
   );

@@ -1,11 +1,4 @@
-import {
-  Box,
-  CommandPaletteTrigger,
-  IconSymbol,
-  Pressable,
-  Text,
-  useTheme,
-} from '@gamezilla/shared/ui';
+import { Box, IconSymbol, Pressable, Text, useTheme } from '@gamezilla/shared/ui';
 import { Link, usePathname } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -106,12 +99,10 @@ export function AppSidebar() {
           paddingBottom: insets.bottom,
           flexDirection: 'row',
           alignItems: 'center',
-          justifyContent: 'space-between',
+          justifyContent: 'flex-end',
           gap: 2,
         }}
       >
-        <CommandPaletteTrigger />
-        <Box sx={{ flex: 1 }} />
         <AccountMenu variant="sidebar" />
       </Box>
     </Box>

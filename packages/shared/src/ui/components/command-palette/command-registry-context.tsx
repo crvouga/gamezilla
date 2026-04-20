@@ -217,7 +217,6 @@ export function CommandRegistryProvider({
         return;
       }
 
-      // Global palette open / toggle
       for (const spec of openShortcuts) {
         if (matchesWebShortcut(spec, like)) {
           ev.preventDefault();

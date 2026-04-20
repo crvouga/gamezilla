@@ -1,8 +1,14 @@
 import { DependencyInjectionContainer } from '@gamezilla/shared/dependency-injection/dependency-injection-container';
 import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
-import { SqlClientImplExpoSqlite } from '@gamezilla/shared/sql-client/impl-expo-sqlite';
+import {
+  clearExpoSqliteWebRecoverySessionFlag,
+  SqlClientImplExpoSqlite,
+} from '@gamezilla/shared/sql-client/impl-expo-sqlite';
 import type { SqlClient } from '@gamezilla/shared/sql-client/interface';
-import { assertDatabaseName } from '@gamezilla/shared/sqlite';
+import {
+  assertDatabaseName,
+  clearExpoSqliteWebOpfsBestEffort,
+} from '@gamezilla/shared/sqlite';
 import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
 import { assertUrl } from './assert-url';
@@ -95,6 +101,11 @@ export async function bootstrapPatchDbExpoSync(
 
   if (Platform.OS === 'web') {
     cachedBootstrap = { key, promise: bootstrapPromise };
+    void bootstrapPromise.catch(() => {
+      if (cachedBootstrap?.key === key) {
+        cachedBootstrap = null;
+      }
+    });
   }
   return bootstrapPromise;
 }
@@ -106,6 +117,10 @@ export async function clearLocalDatabaseAndReload(
   if (currentSqlClient) {
     await currentSqlClient.disconnect();
     currentSqlClient = null;
+  }
+  if (Platform.OS === 'web') {
+    await clearExpoSqliteWebOpfsBestEffort();
+    clearExpoSqliteWebRecoverySessionFlag();
   }
   await SQLite.deleteDatabaseAsync(databaseName);
   if (Platform.OS === 'web' && typeof window !== 'undefined') {

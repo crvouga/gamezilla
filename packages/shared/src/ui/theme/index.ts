@@ -48,3 +48,4 @@ export {
   type ThemePreferenceStorage,
 } from './theme-preference';
 export { useBreakpoint } from './use-breakpoint';
+export { WebScrollbarTheme } from './web-scrollbar-theme';

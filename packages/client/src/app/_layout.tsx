@@ -12,6 +12,7 @@ import 'react-native-reanimated';
 import { AuthProvider } from '@/features/auth/auth-context';
 import { PrincipalAuthShell } from '@/features/auth/principal-auth-shell';
 import { AppCommands } from '@/ui/app-commands';
+import { CommandPaletteNativeGesture } from '@/ui/command-palette-native-gesture';
 import { PatchBootstrap } from '@/ui/patch-bootstrap';
 import { assert } from '@gamezilla/shared/assert';
 import { BrowserCrashHandler } from '@gamezilla/shared/assert/crash/crash-handler/crash-handler-browser';
@@ -27,6 +28,7 @@ import {
   useStackProps,
   type FontStacks,
 } from '@gamezilla/shared/ui';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 assert.registerCrashHandler(new BrowserCrashHandler());
 assert.registerCrashHandler(new ExpoCrashHandler());
@@ -83,23 +85,27 @@ export default function RootLayout() {
   }, [fontsLoaded, fontError]);
 
   return (
-    <AppThemeRoot
-      storage={AsyncStorage}
-      {...(fontsLoaded ? { fonts: nunitoFontStacks } : {})}
-    >
-      <ConfigContainerProvider>
-        <PrincipalAuthShell>
-          <PatchBootstrap>
-            <AuthProvider>
-              <CommandRegistryProvider storage={AsyncStorage}>
-                <AppCommands />
-                <CommandPalette />
-                <AppStack />
-              </CommandRegistryProvider>
-            </AuthProvider>
-          </PatchBootstrap>
-        </PrincipalAuthShell>
-      </ConfigContainerProvider>
-    </AppThemeRoot>
+    <GestureHandlerRootView>
+      <AppThemeRoot
+        storage={AsyncStorage}
+        {...(fontsLoaded ? { fonts: nunitoFontStacks } : {})}
+      >
+        <ConfigContainerProvider>
+          <PrincipalAuthShell>
+            <PatchBootstrap>
+              <AuthProvider>
+                <CommandRegistryProvider storage={AsyncStorage}>
+                  <AppCommands />
+                  <CommandPalette />
+                  <CommandPaletteNativeGesture>
+                    <AppStack />
+                  </CommandPaletteNativeGesture>
+                </CommandRegistryProvider>
+              </AuthProvider>
+            </PatchBootstrap>
+          </PrincipalAuthShell>
+        </ConfigContainerProvider>
+      </AppThemeRoot>
+    </GestureHandlerRootView>
   );
 }
