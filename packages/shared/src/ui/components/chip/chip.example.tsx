@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Box } from '../box';
-import { Text } from '../text';
 import { Stack } from '../stack';
+import { Text } from '../text';
 import { Chip } from './chip';
 
 const tags = ['React Native', 'TypeScript', 'Expo', 'Design System', 'UI'];
@@ -27,7 +27,7 @@ export default function ChipExample() {
             key={t}
             label={t}
             selected={selected.has(t)}
-            onPress={() => toggle(t)}
+            onPressIn={() => toggle(t)}
           />
         ))}
       </Stack>

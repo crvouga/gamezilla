@@ -4,8 +4,8 @@
  * @example
  * ```tsx
  * <List>
- *   <ListItem title="Profile" subtitle="Edit your info" onPress={goProfile} />
- *   <ListItem title="Settings" trailing={<Text label="›" variant="caption" />} onPress={goSettings} />
+ *   <ListItem title="Profile" subtitle="Edit your info" onPressIn={goProfile} />
+ *   <ListItem title="Settings" trailing={<Text label="›" variant="caption" />} onPressIn={goSettings} />
  * </List>
  * ```
  */
@@ -54,7 +54,7 @@ export type ListItemProps = {
   leading?: ReactNode;
   /** Rendered at the end (right). */
   trailing?: ReactNode;
-  onPress?: () => void;
+  onPressIn?: () => void;
 };
 
 export function ListItem({
@@ -62,7 +62,7 @@ export function ListItem({
   subtitle,
   leading,
   trailing,
-  onPress,
+  onPressIn,
 }: ListItemProps) {
   const theme = useTheme();
 
@@ -85,11 +85,13 @@ export function ListItem({
     </View>
   );
 
-  if (onPress) {
+  if (onPressIn) {
     return (
       <Pressable
-        onPress={onPress}
-        style={({ pressed }) => [pressed && { backgroundColor: theme.colors.surface }]}
+        onPressIn={onPressIn}
+        style={({ pressed }) => [
+          pressed && { backgroundColor: theme.colors.surface },
+        ]}
       >
         {content}
       </Pressable>

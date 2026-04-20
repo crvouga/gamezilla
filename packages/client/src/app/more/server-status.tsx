@@ -43,16 +43,13 @@ function formatNetworkType(type: NetworkStateType | undefined): string {
 }
 
 export default function ServerStatusScreen() {
-  const {
-    apiUrl,
-    healthUrl,
-    networkState,
-    health,
-    aggregateStatus,
-    refresh,
-  } = useServerStatus();
+  const { apiUrl, healthUrl, networkState, health, aggregateStatus, refresh } =
+    useServerStatus();
 
-  const knownName = useMemo(() => getKnownServerNameForApiUrl(apiUrl), [apiUrl]);
+  const knownName = useMemo(
+    () => getKnownServerNameForApiUrl(apiUrl),
+    [apiUrl]
+  );
 
   const stableRefresh = useCallback(() => {
     refresh();
@@ -88,7 +85,10 @@ export default function ServerStatusScreen() {
         subtitle="Network and API status"
         fallbackHref="/more"
       />
-      <ScrollView sx={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }}>
+      <ScrollView
+        sx={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: 24 }}
+      >
         <Box sx={{ px: 4, pt: 4, gap: 4 }}>
           <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
             <StatusDot status={aggregateStatus} size={12} />
@@ -155,7 +155,7 @@ export default function ServerStatusScreen() {
 
           <Button
             title="Check again"
-            onPress={stableRefresh}
+            onPressIn={stableRefresh}
             disabled={health.phase === 'loading'}
           />
         </Box>

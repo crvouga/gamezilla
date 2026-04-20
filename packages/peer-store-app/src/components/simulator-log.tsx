@@ -59,7 +59,7 @@ export function SimulatorLog({
           title={copiedRef.current ? 'Copied' : 'Copy for LLM'}
           variant="outlined"
           size="sm"
-          onPress={handleCopy}
+          onPressIn={handleCopy}
         />
       </Stack>
 
@@ -116,7 +116,8 @@ export function SimulatorLog({
                 style={{
                   width: 64,
                   fontSize: 10,
-                  color: entry.peerId === 'wire' ? '#facc15' : theme.colors.text,
+                  color:
+                    entry.peerId === 'wire' ? '#facc15' : theme.colors.text,
                 }}
                 numberOfLines={1}
                 label={entry.peerId}

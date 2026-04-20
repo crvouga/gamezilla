@@ -41,7 +41,7 @@ export function Stepper({
       <Text variant="label" sx={{ flex: 1 }} label={label} />
       <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
         <Pressable
-          onPress={dec}
+          onPressIn={dec}
           disabled={disabled || value <= min}
           accessibilityRole="button"
           accessibilityLabel={`Decrease ${label}`}
@@ -65,7 +65,7 @@ export function Stepper({
           label={String(value)}
         />
         <Pressable
-          onPress={inc}
+          onPressIn={inc}
           disabled={disabled || value >= max}
           accessibilityRole="button"
           accessibilityLabel={`Increase ${label}`}

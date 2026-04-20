@@ -35,7 +35,7 @@ export function Checkbox({
 
   return (
     <Pressable
-      onPress={() => !disabled && onToggle(!checked)}
+      onPressIn={() => !disabled && onToggle(!checked)}
       disabled={disabled}
       style={{
         flexDirection: 'row',
@@ -59,7 +59,7 @@ export function Checkbox({
         {checked && (
           <Text
             style={{
-              color: theme.colors.paper,
+              color: theme.colors.surface,
               fontSize: 14,
               fontWeight: 'bold',
               lineHeight: 16,

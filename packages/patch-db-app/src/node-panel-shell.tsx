@@ -34,7 +34,7 @@ export function NodePanelShell({
           ? {
               borderWidth: 1,
               borderColor: theme.colors.destructive + '55',
-              backgroundColor: theme.colors.paper,
+              backgroundColor: theme.colors.surface,
               opacity: 0.85,
             }
           : undefined

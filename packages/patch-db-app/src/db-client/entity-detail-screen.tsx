@@ -171,7 +171,7 @@ export function EntityDetailScreen({
             style={theme.sx({ flex: 1 })}
             sx={{ p: 3 }}
             renderItem={({ item }) => (
-              <Pressable onPress={() => onSelectPatch(item)}>
+              <Pressable onPressIn={() => onSelectPatch(item)}>
                 <Card elevation={1} sx={{ mb: 2, p: 3 }}>
                   <Stack spacing={1}>
                     <Text

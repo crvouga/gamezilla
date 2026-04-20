@@ -18,7 +18,7 @@ export function PlaygroundApp() {
     <Box
       style={{
         flex: 1,
-        backgroundColor: theme.colors.paper,
+        backgroundColor: theme.colors.surface,
         paddingBottom: insets.bottom,
       }}
     >

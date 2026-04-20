@@ -5,7 +5,7 @@
  *
  * @example
  * ```tsx
- * <Pressable sx={{ p: 3, background: 'surface', borderRadius: 8 }} onPress={handlePress}>
+ * <Pressable sx={{ p: 3, background: 'surface', borderRadius: 8 }} onPressIn={handlePress}>
  *   <Text>Tap me</Text>
  * </Pressable>
  * ```
@@ -17,8 +17,8 @@ import {
   type PressableProps as RNPressableProps,
   type View,
 } from 'react-native';
-import { useTheme } from '../../theme';
 import type { SxProps } from '../../theme';
+import { useTheme } from '../../theme';
 
 export type PressableProps = RNPressableProps & {
   /** Utility-first style shorthand resolved against the current theme. */
@@ -27,7 +27,7 @@ export type PressableProps = RNPressableProps & {
 
 export const Pressable = forwardRef<View, PressableProps>(function Pressable(
   { sx: sxProp, style, ...rest },
-  ref,
+  ref
 ) {
   const theme = useTheme();
   const sxStyle = sxProp ? theme.sx(sxProp) : undefined;

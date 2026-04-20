@@ -21,7 +21,7 @@ export default function MoreIndex() {
         fallbackHref="/"
       />
       <Box sx={{ flex: 1, py: 2 }}>
-        <Pressable onPress={() => router.push('/more/theme')}>
+        <Pressable onPressIn={() => router.push('/more/theme')}>
           <Box
             sx={{
               flexDirection: 'row',
@@ -42,7 +42,7 @@ export default function MoreIndex() {
             />
           </Box>
         </Pressable>
-        <Pressable onPress={() => router.push('/more/server-status')}>
+        <Pressable onPressIn={() => router.push('/more/server-status')}>
           <Box
             sx={{
               flexDirection: 'row',
@@ -66,7 +66,7 @@ export default function MoreIndex() {
             />
           </Box>
         </Pressable>
-        <Pressable onPress={() => router.push('/more/developer')}>
+        <Pressable onPressIn={() => router.push('/more/developer')}>
           <Box
             sx={{
               flexDirection: 'row',

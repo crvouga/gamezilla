@@ -1,7 +1,7 @@
-import { Box } from '../box';
-import { IconSymbol } from '../symbol-icon';
-import { Pressable } from '../pressable';
 import { useTheme } from '../../theme';
+import { Box } from '../box';
+import { Pressable } from '../pressable';
+import { IconSymbol } from '../symbol-icon';
 import { useCommandPalette } from './use-command-palette';
 
 export type CommandPaletteTriggerProps = {
@@ -25,7 +25,7 @@ export function CommandPaletteTrigger({
 
   return (
     <Pressable
-      onPress={toggle}
+      onPressIn={toggle}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       hitSlop={6}

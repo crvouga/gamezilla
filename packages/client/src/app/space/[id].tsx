@@ -38,7 +38,11 @@ export default function SpaceDetailScreen() {
               label="This space could not be found."
             />
             <Box sx={{ mt: 3 }}>
-              <Button title="Go back" variant="solid" onPress={() => router.back()} />
+              <Button
+                title="Go back"
+                variant="solid"
+                onPressIn={() => router.back()}
+              />
             </Box>
           </Box>
         </ConstrainedContent>
@@ -93,7 +97,10 @@ export default function SpaceDetailScreen() {
             <Box sx={{ flexDirection: 'row', flexWrap: 'wrap', gap: 2 }}>
               {participants.map((p) => (
                 <Box key={p.id} sx={{ alignItems: 'center', gap: 1 }}>
-                  <Avatar initials={initialsFromName(p.displayName)} size={40} />
+                  <Avatar
+                    initials={initialsFromName(p.displayName)}
+                    size={40}
+                  />
                   <Text
                     variant="caption"
                     numberOfLines={1}
@@ -104,7 +111,11 @@ export default function SpaceDetailScreen() {
             </Box>
           </Box>
 
-          <Button title="Leave space" variant="outlined" onPress={() => router.back()} />
+          <Button
+            title="Leave space"
+            variant="outlined"
+            onPressIn={() => router.back()}
+          />
         </Box>
       </ConstrainedContent>
     </Box>

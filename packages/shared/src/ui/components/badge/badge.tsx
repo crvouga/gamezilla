@@ -41,7 +41,7 @@ export function Badge({ label, color = 'tint', size = 'md' }: BadgeProps) {
       }}
     >
       <Text
-        style={{ color: theme.colors.paper, fontSize, fontWeight: 'bold' }}
+        style={{ color: theme.colors.surface, fontSize, fontWeight: 'bold' }}
         label={label}
       />
     </View>

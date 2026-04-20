@@ -19,10 +19,10 @@ import { useState } from 'react';
 import { FlatList, Pressable, View } from 'react-native';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
-import { Text } from '../text';
-import { ModalRoot } from '../modal/modal-root';
 import { ModalBackdrop } from '../modal/modal-backdrop';
 import { ModalContent } from '../modal/modal-content';
+import { ModalRoot } from '../modal/modal-root';
+import { Text } from '../text';
 
 export type SelectOption<T extends string | number = string> = {
   label: string;
@@ -64,7 +64,7 @@ export function Select<T extends string | number = string>({
         />
       )}
       <Pressable
-        onPress={() => setOpen(true)}
+        onPressIn={() => setOpen(true)}
         disabled={disabled}
         style={({ pressed }) => [
           {
@@ -96,7 +96,7 @@ export function Select<T extends string | number = string>({
       </Pressable>
 
       <ModalRoot visible={open} onRequestClose={() => setOpen(false)}>
-        <ModalBackdrop onPress={() => setOpen(false)}>
+        <ModalBackdrop onPressIn={() => setOpen(false)}>
           <ModalContent style={{ width: 280 }}>
             {label !== undefined && (
               <Text variant="subtitle" sx={{ mb: 2 }} label={label} />
@@ -109,7 +109,7 @@ export function Select<T extends string | number = string>({
                 const isSelected = item.value === value;
                 return (
                   <Pressable
-                    onPress={() => {
+                    onPressIn={() => {
                       onValueChange(item.value);
                       setOpen(false);
                     }}
@@ -125,12 +125,16 @@ export function Select<T extends string | number = string>({
                       pressed && { opacity: 0.7 },
                     ]}
                   >
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View
+                      style={{ flexDirection: 'row', alignItems: 'center' }}
+                    >
                       <Text
                         variant="label"
                         style={{
                           flex: 1,
-                          color: isSelected ? theme.colors.tint : theme.colors.text,
+                          color: isSelected
+                            ? theme.colors.tint
+                            : theme.colors.text,
                           fontWeight: isSelected ? '600' : '400',
                         }}
                         label={item.label}

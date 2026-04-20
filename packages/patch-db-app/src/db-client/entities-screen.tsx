@@ -160,7 +160,7 @@ export function EntitiesScreen({
             style={theme.sx({ flex: 1 })}
             sx={{ px: 3, pb: 4 }}
             renderItem={({ item }) => (
-              <Pressable onPress={() => onSelectEntity(item.entityId)}>
+              <Pressable onPressIn={() => onSelectEntity(item.entityId)}>
                 <Card elevation={1} sx={{ mb: 2, p: 3 }}>
                   <Stack spacing={1}>
                     <Text
@@ -196,7 +196,7 @@ export function EntitiesScreen({
                     title={loadingMore ? 'Loading…' : 'Load more'}
                     variant="ghost"
                     size="sm"
-                    onPress={onLoadMore}
+                    onPressIn={onLoadMore}
                   />
                 </Box>
               ) : null

@@ -1,8 +1,8 @@
-import { Box } from '../box';
-import { Text } from '../text';
 import { Avatar } from '../avatar';
 import { Badge } from '../badge';
+import { Box } from '../box';
 import { Card } from '../card';
+import { Text } from '../text';
 import { List, ListItem } from './list';
 
 export default function ListExample() {
@@ -17,20 +17,20 @@ export default function ListExample() {
             subtitle="Edit your personal info"
             leading={<Avatar initials="JD" size={36} />}
             trailing={<Text variant="caption" label="›" />}
-            onPress={() => {}}
+            onPressIn={() => {}}
           />
           <ListItem
             title="Notifications"
             subtitle="Manage alerts"
             leading={<Avatar initials="🔔" size={36} background="warning" />}
             trailing={<Badge label="3" color="destructive" size="sm" />}
-            onPress={() => {}}
+            onPressIn={() => {}}
           />
           <ListItem
             title="Privacy"
             leading={<Avatar initials="🔒" size={36} background="info" />}
             trailing={<Text variant="caption" label="›" />}
-            onPress={() => {}}
+            onPressIn={() => {}}
           />
         </List>
       </Card>

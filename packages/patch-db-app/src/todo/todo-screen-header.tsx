@@ -1,6 +1,6 @@
+import { Box, Pressable, Text } from '@gamezilla/shared/ui';
 import type { ReactNode } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Box, Pressable, Text } from '@gamezilla/shared/ui';
 
 /** Fixed content height below the status inset (with or without subtitle). */
 const BAR_CONTENT_HEIGHT = 58;
@@ -72,7 +72,7 @@ export function TodoScreenHeader({
 
         {showBack ? (
           <Pressable
-            onPress={onBack}
+            onPressIn={onBack}
             accessibilityRole="button"
             accessibilityLabel="Go back"
             hitSlop={8}

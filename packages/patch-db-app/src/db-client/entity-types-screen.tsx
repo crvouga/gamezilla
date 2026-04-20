@@ -86,13 +86,13 @@ export function EntityTypesScreen({
             title="Run query"
             variant="solid"
             size="sm"
-            onPress={onOpenQuery}
+            onPressIn={onOpenQuery}
           />
           <Button
             title="Refresh"
             variant="ghost"
             size="sm"
-            onPress={() => void loadAll()}
+            onPressIn={() => void loadAll()}
           />
         </Stack>
         <TextInput
@@ -153,7 +153,7 @@ export function EntityTypesScreen({
           style={theme.sx({ flex: 1 })}
           sx={{ px: 3, pb: 8 }}
           renderItem={({ item }) => (
-            <Pressable onPress={() => onSelectType(item.entityType)}>
+            <Pressable onPressIn={() => onSelectType(item.entityType)}>
               <Card elevation={1} sx={{ mb: 2, p: 3 }}>
                 <Stack
                   direction="horizontal"

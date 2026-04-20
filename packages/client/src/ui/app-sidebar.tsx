@@ -1,5 +1,11 @@
-import { Box, IconSymbol, Pressable, Text, useTheme } from '@gamezilla/shared/ui';
-import { Link, usePathname } from 'expo-router';
+import {
+  Box,
+  IconSymbol,
+  Pressable,
+  Text,
+  useTheme,
+} from '@gamezilla/shared/ui';
+import { usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AccountMenu } from '@/ui/account-menu';
@@ -18,6 +24,7 @@ const ITEMS: readonly NavItem[] = [
 export function AppSidebar() {
   const theme = useTheme();
   const pathname = usePathname();
+  const router = useRouter();
   const insets = useSafeAreaInsets();
 
   const path = pathname.split('?')[0]?.replace(/\/$/, '') ?? '';
@@ -54,36 +61,38 @@ export function AppSidebar() {
               ? normalized === '/profile'
               : normalized === '/' || normalized === '';
           return (
-            <Link key={item.href} href={item.href} asChild>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityState={{ selected: active }}
+            <Pressable
+              key={item.href}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
+              onPressIn={() => {
+                router.push(item.href);
+              }}
+              sx={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 3,
+                py: 3,
+                px: 3,
+                borderRadius: 12,
+                background: active ? 'paper' : 'transparent',
+              }}
+            >
+              <IconSymbol
+                name={item.icon}
+                size={22}
+                color={
+                  active ? theme.colors.tabIconSelected : theme.colors.icon
+                }
+              />
+              <Text
+                variant="bodyBold"
                 sx={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 3,
-                  py: 3,
-                  px: 3,
-                  borderRadius: 12,
-                  background: active ? 'paper' : 'transparent',
+                  color: active ? 'text' : 'textSecondary',
                 }}
-              >
-                <IconSymbol
-                  name={item.icon}
-                  size={22}
-                  color={
-                    active ? theme.colors.tabIconSelected : theme.colors.icon
-                  }
-                />
-                <Text
-                  variant="bodyBold"
-                  sx={{
-                    color: active ? 'text' : 'textSecondary',
-                  }}
-                  label={item.label}
-                />
-              </Pressable>
-            </Link>
+                label={item.label}
+              />
+            </Pressable>
           );
         })}
       </Box>

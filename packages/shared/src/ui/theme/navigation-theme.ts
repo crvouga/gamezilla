@@ -28,7 +28,7 @@ export function reactNavigationThemeFromTokens(
     colors: {
       ...base.colors,
       primary: colors.tint,
-      background: colors.paper,
+      background: colors.surface,
       card: colors.surface,
       text: colors.text,
       border: colors.border,

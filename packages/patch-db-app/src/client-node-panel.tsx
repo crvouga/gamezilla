@@ -110,7 +110,7 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
       subtitle={`Latency: ${LATENCY_BUCKETS.find((b) => b.value === latencyMs)?.label ?? `${latencyMs} ms`}`}
       partitioned={partitioned}
       headerExtra={
-        <IconButton size={28} onPress={() => removeClient(client.id)}>
+        <IconButton size={28} onPressIn={() => removeClient(client.id)}>
           <IconRemove size={16} />
         </IconButton>
       }
@@ -124,7 +124,7 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
             {...(partitioned ? { color: 'destructive' } : {})}
             disabled={busy}
             startIcon={<IconPartition active={partitioned} size={14} />}
-            onPress={() =>
+            onPressIn={() =>
               run(async () => {
                 if (client.link.isPartitioned()) {
                   client.link.heal();
@@ -140,7 +140,7 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
             size={32}
             background={theme.colors.surface}
             disabled={busy}
-            onPress={() =>
+            onPressIn={() =>
               run(async () => {
                 await sim.syncNow(client.id);
               })
@@ -152,7 +152,7 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
             size={32}
             background={theme.colors.surface}
             disabled={busy || entities.length === 0}
-            onPress={() =>
+            onPressIn={() =>
               run(async () => {
                 for (const e of entities) {
                   await playgroundRandomizeShape(sim, client.id, e.entityId);
@@ -165,7 +165,7 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
           <IconButton
             size={32}
             disabled={busy}
-            onPress={() =>
+            onPressIn={() =>
               run(async () => {
                 await sim.wipeClientDb(client.id);
               })

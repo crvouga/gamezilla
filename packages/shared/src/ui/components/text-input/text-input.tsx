@@ -19,8 +19,8 @@ import {
   type TextInputProps as RNTextInputProps,
   View,
 } from 'react-native';
-import { useTheme } from '../../theme';
 import type { SxProps } from '../../theme';
+import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Text } from '../text';
 
@@ -58,7 +58,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
             {
               color: theme.colors.text,
               borderColor,
-              backgroundColor: theme.colors.paper,
+              backgroundColor: theme.colors.surface,
             },
           ]}
           {...rest}
@@ -70,5 +70,5 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
         ) : null}
       </View>
     );
-  },
+  }
 );

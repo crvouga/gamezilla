@@ -31,7 +31,7 @@ export function ProbabilityChipGroup({
             <Pressable
               key={key}
               disabled={disabled}
-              onPress={() => onChange(key)}
+              onPressIn={() => onChange(key)}
               accessibilityRole="button"
               accessibilityState={{ selected: active }}
               sx={{
@@ -48,7 +48,7 @@ export function ProbabilityChipGroup({
               <Text
                 variant="caption"
                 sx={{
-                  color: active ? theme.colors.paper : theme.colors.text,
+                  color: active ? theme.colors.surface : theme.colors.text,
                   fontWeight: active ? '600' : '400',
                 }}
                 label={title}

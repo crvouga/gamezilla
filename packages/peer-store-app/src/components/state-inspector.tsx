@@ -16,7 +16,7 @@ export function StateInspector({
 
   if (!expanded) {
     return (
-      <Pressable onPress={() => setExpanded(true)}>
+      <Pressable onPressIn={() => setExpanded(true)}>
         <Text
           variant="caption"
           style={{ color: theme.colors.textSecondary }}
@@ -28,7 +28,7 @@ export function StateInspector({
 
   return (
     <Box>
-      <Pressable onPress={() => setExpanded(false)}>
+      <Pressable onPressIn={() => setExpanded(false)}>
         <Text
           variant="caption"
           sx={{ mb: 1 }}

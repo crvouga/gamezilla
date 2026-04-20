@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Box } from '../box';
-import { Text } from '../text';
-import { Stack } from '../stack';
 import { Button } from '../button';
+import { Stack } from '../stack';
+import { Text } from '../text';
 import { ConfirmationModal } from './confirmation-modal';
 
 export default function ModalExample() {
@@ -14,11 +14,14 @@ export default function ModalExample() {
       <Text variant="heading" label="Modal" />
 
       <Stack spacing={2}>
-        <Button title="Open Default Modal" onPress={() => setDefaultOpen(true)} />
+        <Button
+          title="Open Default Modal"
+          onPressIn={() => setDefaultOpen(true)}
+        />
         <Button
           title="Open Destructive Modal"
           color="destructive"
-          onPress={() => setDestructiveOpen(true)}
+          onPressIn={() => setDestructiveOpen(true)}
         />
       </Stack>
 

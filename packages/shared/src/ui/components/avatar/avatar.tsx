@@ -30,7 +30,8 @@ export function Avatar({
   background = 'tint',
 }: AvatarProps) {
   const theme = useTheme();
-  const bg = theme.colors[background as keyof typeof theme.colors] ?? background;
+  const bg =
+    theme.colors[background as keyof typeof theme.colors] ?? background;
 
   const containerStyle = {
     width: size,
@@ -58,7 +59,7 @@ export function Avatar({
   return (
     <View style={containerStyle}>
       <Text
-        style={{ color: theme.colors.paper, fontSize, fontWeight: 'bold' }}
+        style={{ color: theme.colors.surface, fontSize, fontWeight: 'bold' }}
         label={(initials ?? '?').slice(0, 2)}
       />
     </View>

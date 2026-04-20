@@ -1,12 +1,12 @@
-import { fuzzyMatch } from './fuzzy-match';
-import { CommandPaletteKbd } from './command-palette-kbd';
-import { HighlightedText } from './highlighted-text';
+import { useTheme } from '../../theme';
 import { Box } from '../box';
-import { IconSymbol } from '../symbol-icon';
 import { Pressable } from '../pressable';
 import { Spinner } from '../spinner';
+import { IconSymbol } from '../symbol-icon';
 import { Text } from '../text';
-import { useTheme } from '../../theme';
+import { CommandPaletteKbd } from './command-palette-kbd';
+import { fuzzyMatch } from './fuzzy-match';
+import { HighlightedText } from './highlighted-text';
 import type { RegisteredCommand } from './types';
 import { isCommandEnabled, normalizeShortcut } from './types';
 
@@ -38,7 +38,7 @@ export function CommandPaletteItem({
 
   return (
     <Pressable
-      onPress={onSelect}
+      onPressIn={onSelect}
       disabled={!enabled || running}
       accessibilityRole="button"
       accessibilityState={{ selected, disabled: !enabled || running }}
@@ -53,13 +53,11 @@ export function CommandPaletteItem({
         opacity: enabled ? 1 : 0.45,
       }}
     >
-      <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2, minWidth: 0 }}>
+      <Box
+        sx={{ flexDirection: 'row', alignItems: 'center', gap: 2, minWidth: 0 }}
+      >
         {command.icon !== undefined ? (
-          <IconSymbol
-            name={command.icon}
-            size={18}
-            color={theme.colors.icon}
-          />
+          <IconSymbol name={command.icon} size={18} color={theme.colors.icon} />
         ) : (
           <Box sx={{ width: 18 }} />
         )}
@@ -82,7 +80,11 @@ export function CommandPaletteItem({
         ) : null}
       </Box>
       {error !== undefined ? (
-        <Text variant="caption" sx={{ color: 'destructive', pl: 7 }} label={error} />
+        <Text
+          variant="caption"
+          sx={{ color: 'destructive', pl: 7 }}
+          label={error}
+        />
       ) : null}
     </Pressable>
   );

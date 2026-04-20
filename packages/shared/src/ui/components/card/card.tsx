@@ -28,7 +28,7 @@ export type CardProps = ViewProps & {
 
 export const Card = forwardRef<View, CardProps>(function Card(
   { elevation: level = 1, sx: sxProp, style, ...rest },
-  ref,
+  ref
 ) {
   const theme = useTheme();
   const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
@@ -38,15 +38,15 @@ export const Card = forwardRef<View, CardProps>(function Card(
     <View
       ref={ref}
       style={[
+        shadow,
+        sxStyle,
+        style,
         {
-          backgroundColor: theme.colors.paper,
+          backgroundColor: theme.colors.surface,
           borderRadius: borderRadius.lg,
           borderWidth: level === 0 ? 1 : 0,
           borderColor: theme.colors.border,
         },
-        shadow,
-        sxStyle,
-        style,
       ]}
       {...rest}
     />

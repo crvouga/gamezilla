@@ -30,7 +30,7 @@ export function TodoItem({
       }}
     >
       <Pressable
-        onPress={onToggle}
+        onPressIn={onToggle}
         style={theme.sx({
           flex: 1,
           flexDirection: 'row',
@@ -56,7 +56,7 @@ export function TodoItem({
           label={title || '(untitled)'}
         />
       </Pressable>
-      <Pressable onPress={onDelete} style={theme.sx({ p: 1 })} hitSlop={8}>
+      <Pressable onPressIn={onDelete} style={theme.sx({ p: 1 })} hitSlop={8}>
         <Text
           style={[theme.sx({ fontSize: 14 }), { color: theme.colors.tint }]}
           label="Delete"

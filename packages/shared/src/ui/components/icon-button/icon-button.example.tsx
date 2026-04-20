@@ -1,6 +1,6 @@
 import { Box } from '../box';
-import { Text } from '../text';
 import { Stack } from '../stack';
+import { Text } from '../text';
 import { IconButton } from './icon-button';
 
 export default function IconButtonExample() {
@@ -9,19 +9,19 @@ export default function IconButtonExample() {
       <Text variant="heading" label="IconButton" />
 
       <Stack direction="horizontal" spacing={3} align="center">
-        <IconButton onPress={() => {}} background="surface">
+        <IconButton onPressIn={() => {}} background="surface">
           <Text variant="body" label="✕" />
         </IconButton>
 
-        <IconButton onPress={() => {}} size={48} background="tint">
+        <IconButton onPressIn={() => {}} size={48} background="tint">
           <Text variant="bodyBold" sx={{ color: 'paper' }} label="+" />
         </IconButton>
 
-        <IconButton onPress={() => {}} size={32} background="destructive">
+        <IconButton onPressIn={() => {}} size={32} background="destructive">
           <Text sx={{ color: 'paper', fontSize: 'xs' }} label="🗑" />
         </IconButton>
 
-        <IconButton disabled onPress={() => {}} background="surface">
+        <IconButton disabled onPressIn={() => {}} background="surface">
           <Text variant="body" label="⚙" />
         </IconButton>
       </Stack>

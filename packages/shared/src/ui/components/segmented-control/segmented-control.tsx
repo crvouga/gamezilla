@@ -51,7 +51,7 @@ export function SegmentedControl<K extends string = string>({
 
   const selectedIndex = Math.max(
     0,
-    segments.findIndex((s) => s.key === selected),
+    segments.findIndex((s) => s.key === selected)
   );
   const segmentCount = segments.length;
   const totalGap = SEGMENT_GAP * Math.max(0, segmentCount - 1);
@@ -102,7 +102,7 @@ export function SegmentedControl<K extends string = string>({
             left: CONTAINER_PADDING,
             width: segmentWidth,
             borderRadius: borderRadius.sm,
-            backgroundColor: theme.colors.paper,
+            backgroundColor: theme.colors.surface,
             boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.1)',
             elevation: 2,
             transform: [{ translateX }],
@@ -114,7 +114,7 @@ export function SegmentedControl<K extends string = string>({
         return (
           <Pressable
             key={seg.key}
-            onPress={() => onSelect(seg.key)}
+            onPressIn={() => onSelect(seg.key)}
             disabled={disabled || isActive}
             style={({ pressed }) => [
               {
@@ -131,7 +131,9 @@ export function SegmentedControl<K extends string = string>({
             <Text
               variant="label"
               style={{
-                color: isActive ? theme.colors.text : theme.colors.textSecondary,
+                color: isActive
+                  ? theme.colors.text
+                  : theme.colors.textSecondary,
                 fontWeight: isActive ? '600' : '400',
               }}
               label={seg.label}

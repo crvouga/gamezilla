@@ -117,8 +117,7 @@ export function AccountMenu({ variant }: AccountMenuProps) {
         title: profile.displayLabel,
         ...(profile.hasCustomDisplayName
           ? {
-              subtitle:
-                auth.mode === 'guest' ? 'Guest' : 'Signed in',
+              subtitle: auth.mode === 'guest' ? 'Guest' : 'Signed in',
             }
           : {}),
       },
@@ -128,7 +127,7 @@ export function AccountMenu({ variant }: AccountMenuProps) {
           id: 'profile',
           label: 'Profile',
           icon: 'person.fill',
-          onPress: onProfile,
+          onPressIn: onProfile,
           accessibilityLabel: 'View profile',
         },
         {
@@ -159,19 +158,18 @@ export function AccountMenu({ variant }: AccountMenuProps) {
               />
             </Box>
           ),
-          onPress: onServerStatus,
+          onPressIn: onServerStatus,
           accessibilityLabel: `Connection and server status. ${statusWord}. ${latencyPhrase}.`,
         },
         {
           type: 'item',
           id: 'sign-in',
-          label:
-            auth.mode === 'signed-in' ? 'Sign out' : 'Sign in with Google',
+          label: auth.mode === 'signed-in' ? 'Sign out' : 'Sign in with Google',
           icon:
             auth.mode === 'signed-in'
               ? 'arrow.right.from.bracket'
               : 'right.to.bracket',
-          onPress: onAuth,
+          onPressIn: onAuth,
           accessibilityLabel:
             auth.mode === 'signed-in' ? 'Sign out' : 'Sign in with Google',
         },
@@ -181,7 +179,7 @@ export function AccountMenu({ variant }: AccountMenuProps) {
           id: 'settings',
           label: 'Settings',
           icon: 'gearshape.fill',
-          onPress: onSettings,
+          onPressIn: onSettings,
           accessibilityLabel: 'Settings',
         },
       ],
@@ -215,7 +213,7 @@ export function AccountMenu({ variant }: AccountMenuProps) {
       >
         {variant === 'sidebar' ? (
           <Pressable
-            onPress={openMenu}
+            onPressIn={openMenu}
             accessibilityRole="button"
             accessibilityLabel="Account menu"
             accessibilityState={{ expanded: open }}
@@ -250,15 +248,11 @@ export function AccountMenu({ variant }: AccountMenuProps) {
                 />
               ) : null}
             </Box>
-            <IconSymbol
-              name="ellipsis"
-              size={18}
-              color={theme.colors.icon}
-            />
+            <IconSymbol name="ellipsis" size={18} color={theme.colors.icon} />
           </Pressable>
         ) : (
           <Pressable
-            onPress={openMenu}
+            onPressIn={openMenu}
             accessibilityRole="button"
             accessibilityLabel="Account menu"
             accessibilityState={{ expanded: open }}

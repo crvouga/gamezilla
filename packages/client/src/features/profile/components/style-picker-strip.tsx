@@ -1,11 +1,11 @@
-import { ProfileDiceBearAvatar } from '@/features/profile/profile-dicebear-avatar';
 import {
   STYLE_KEYS,
   styleLabel,
   type StyleKey,
 } from '@/features/profile/dicebear-styles';
-import { Box, FlatList, Pressable, Text, useTheme } from '@gamezilla/shared/ui';
+import { ProfileDiceBearAvatar } from '@/features/profile/profile-dicebear-avatar';
 import type { AvatarConfig } from '@gamezilla/shared/profile/avatar-config';
+import { Box, FlatList, Pressable, Text, useTheme } from '@gamezilla/shared/ui';
 
 export type StylePickerStripProps = {
   selected: StyleKey;
@@ -25,51 +25,51 @@ export function StylePickerStrip({
   const theme = useTheme();
 
   const renderItem = ({ item }: { item: StyleKey }) => {
-      const preview: AvatarConfig = {
-        style: item,
-        seed,
-        options: {},
-      };
-      const isSel = item === selected;
-      return (
-        <Pressable
-          onPress={() => onSelect(item)}
+    const preview: AvatarConfig = {
+      style: item,
+      seed,
+      options: {},
+    };
+    const isSel = item === selected;
+    return (
+      <Pressable
+        onPressIn={() => onSelect(item)}
+        sx={{
+          width: PREVIEW + 12,
+          alignItems: 'center',
+          gap: 1,
+          paddingVertical: 2,
+        }}
+      >
+        <Box
           sx={{
-            width: PREVIEW + 12,
-            alignItems: 'center',
-            gap: 1,
-            paddingVertical: 2,
+            width: PREVIEW,
+            height: PREVIEW,
+            borderRadius: PREVIEW / 2,
+            borderWidth: 2,
+            borderColor: isSel ? theme.colors.tint : theme.colors.border,
+            overflow: 'hidden',
           }}
         >
-          <Box
-            sx={{
-              width: PREVIEW,
-              height: PREVIEW,
-              borderRadius: PREVIEW / 2,
-              borderWidth: 2,
-              borderColor: isSel ? theme.colors.tint : theme.colors.border,
-              overflow: 'hidden',
-            }}
-          >
-            <ProfileDiceBearAvatar
-              config={preview}
-              fallbackSeed={principalId}
-              size={PREVIEW}
-            />
-          </Box>
-          <Text
-            variant="caption"
-            sx={{
-              fontSize: 9,
-              textAlign: 'center',
-              opacity: isSel ? 1 : 0.75,
-              fontWeight: isSel ? '600' : '400',
-            }}
-            label={styleLabel(item)}
+          <ProfileDiceBearAvatar
+            config={preview}
+            fallbackSeed={principalId}
+            size={PREVIEW}
           />
-        </Pressable>
-      );
-    };
+        </Box>
+        <Text
+          variant="caption"
+          sx={{
+            fontSize: 9,
+            textAlign: 'center',
+            opacity: isSel ? 1 : 0.75,
+            fontWeight: isSel ? '600' : '400',
+          }}
+          label={styleLabel(item)}
+        />
+      </Pressable>
+    );
+  };
 
   return (
     <FlatList

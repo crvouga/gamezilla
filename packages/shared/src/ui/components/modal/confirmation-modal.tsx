@@ -45,16 +45,20 @@ export function ConfirmationModal({
 }: ConfirmationModalProps) {
   return (
     <ModalRoot visible={visible} onRequestClose={onCancel}>
-      <ModalBackdrop onPress={onCancel}>
+      <ModalBackdrop onPressIn={onCancel}>
         <ModalContent>
           <ModalHeader title={title} />
           <ModalBody message={message} />
           <ModalFooter>
-            <ModalButton label={cancelLabel} variant="cancel" onPress={onCancel} />
+            <ModalButton
+              label={cancelLabel}
+              variant="cancel"
+              onPressIn={onCancel}
+            />
             <ModalButton
               label={confirmLabel}
               variant={variant === 'destructive' ? 'destructive' : 'default'}
-              onPress={onConfirm}
+              onPressIn={onConfirm}
             />
           </ModalFooter>
         </ModalContent>

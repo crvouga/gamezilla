@@ -50,9 +50,7 @@ export function ScreenHeader({
   const isMobile = useBreakpoint() === 'mobile';
 
   const accountEnd =
-    showAccountMenu && isMobile ? (
-      <AccountMenu variant="header" />
-    ) : undefined;
+    showAccountMenu && isMobile ? <AccountMenu variant="header" /> : undefined;
   const resolvedEnd = end ?? accountEnd;
 
   const showBack =
@@ -116,7 +114,7 @@ export function ScreenHeader({
 
         {showBack ? (
           <Pressable
-            onPress={onBackPress}
+            onPressIn={onBackPress}
             accessibilityRole="button"
             accessibilityLabel="Go back"
             hitSlop={8}

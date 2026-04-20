@@ -210,7 +210,7 @@ function Header({ title, subtitle, showBack, onBack }: HeaderProps) {
     >
       <Box sx={{ flexDirection: 'row', alignItems: 'center' }}>
         {showBack ? (
-          <Pressable onPress={onBack} hitSlop={8}>
+          <Pressable onPressIn={onBack} hitSlop={8}>
             <Text variant="label" sx={{ color: 'tint' }} label="Back" />
           </Pressable>
         ) : (
@@ -298,7 +298,7 @@ export function ExplorerRoute({
       {
         key: 'types',
         label: 'Types',
-        onPress: () => applyParams(compactParams(carryQuery(params, {}))),
+        onPressIn: () => applyParams(compactParams(carryQuery(params, {}))),
       },
     ];
     if (params.entityType !== undefined && params.entityType !== '') {
@@ -306,7 +306,7 @@ export function ExplorerRoute({
       items.push({
         key: 'et',
         label: entityType,
-        onPress: () =>
+        onPressIn: () =>
           applyParams(compactParams(carryQuery(params, { entityType }))),
       });
     }
@@ -317,7 +317,7 @@ export function ExplorerRoute({
         items.push({
           key: 'eid',
           label: short(entityId, 20),
-          onPress: () =>
+          onPressIn: () =>
             applyParams(
               compactParams(carryQuery(params, { entityType, entityId }))
             ),
@@ -337,7 +337,7 @@ export function ExplorerRoute({
         items.push({
           key: 'pid',
           label: short(patchId, 18),
-          onPress: () =>
+          onPressIn: () =>
             applyParams(
               compactParams(
                 carryQuery(params, { entityType, entityId, patchId })
@@ -350,7 +350,7 @@ export function ExplorerRoute({
       items.push({
         key: 'q',
         label: 'Query',
-        onPress: () => applyParams(params),
+        onPressIn: () => applyParams(params),
       });
     }
     return items;
@@ -502,7 +502,7 @@ export function ExplorerRoute({
         breadcrumbs={breadcrumbs}
       />
       <ModalRoot visible={params.query === '1'} onRequestClose={dismissQuery}>
-        <ModalBackdrop onPress={dismissQuery}>
+        <ModalBackdrop onPressIn={dismissQuery}>
           <ModalContent
             style={{
               maxWidth: 720,

@@ -1,9 +1,12 @@
-import { buildThumbnailEnumOptions, isEnumRandom } from '@/features/profile/avatar-editor/option-helpers';
-import { ProfileDiceBearAvatar } from '@/features/profile/profile-dicebear-avatar';
+import {
+  buildThumbnailEnumOptions,
+  isEnumRandom,
+} from '@/features/profile/avatar-editor/option-helpers';
 import type { SchemaField } from '@/features/profile/dicebear-schema';
 import type { StyleKey } from '@/features/profile/dicebear-styles';
-import { Box, FlatList, Pressable, Text, useTheme } from '@gamezilla/shared/ui';
+import { ProfileDiceBearAvatar } from '@/features/profile/profile-dicebear-avatar';
 import type { AvatarConfig } from '@gamezilla/shared/profile/avatar-config';
+import { Box, FlatList, Pressable, Text, useTheme } from '@gamezilla/shared/ui';
 import { useCallback, useMemo } from 'react';
 
 export type VariantSwatchStripProps = {
@@ -30,8 +33,11 @@ export function VariantSwatchStrip({
   const randomSelected = isEnumRandom(field, current);
 
   const rows: Row[] = useMemo(
-    () => [{ kind: 'random' }, ...field.values.map((value) => ({ kind: 'variant' as const, value }))],
-    [field.values],
+    () => [
+      { kind: 'random' },
+      ...field.values.map((value) => ({ kind: 'variant' as const, value })),
+    ],
+    [field.values]
   );
 
   const renderItem = useCallback(
@@ -39,7 +45,7 @@ export function VariantSwatchStrip({
       if (item.kind === 'random') {
         return (
           <Pressable
-            onPress={() => onSelect(null)}
+            onPressIn={() => onSelect(null)}
             sx={{
               width: THUMB + 8,
               alignItems: 'center',
@@ -53,7 +59,9 @@ export function VariantSwatchStrip({
                 height: THUMB,
                 borderRadius: THUMB / 2,
                 borderWidth: 2,
-                borderColor: randomSelected ? theme.colors.tint : theme.colors.border,
+                borderColor: randomSelected
+                  ? theme.colors.tint
+                  : theme.colors.border,
                 alignItems: 'center',
                 justifyContent: 'center',
                 backgroundColor: theme.colors.surface,
@@ -69,7 +77,12 @@ export function VariantSwatchStrip({
       const thumbConfig: AvatarConfig = {
         style: styleKey,
         seed: draft.seed,
-        options: buildThumbnailEnumOptions(styleKey, field.key, v, draft.options),
+        options: buildThumbnailEnumOptions(
+          styleKey,
+          field.key,
+          v,
+          draft.options
+        ),
       };
       const isActive =
         !randomSelected &&
@@ -79,7 +92,7 @@ export function VariantSwatchStrip({
 
       return (
         <Pressable
-          onPress={() => onSelect(v)}
+          onPressIn={() => onSelect(v)}
           sx={{
             width: THUMB + 8,
             alignItems: 'center',
@@ -123,7 +136,7 @@ export function VariantSwatchStrip({
       theme.colors.border,
       theme.colors.surface,
       theme.colors.tint,
-    ],
+    ]
   );
 
   return (

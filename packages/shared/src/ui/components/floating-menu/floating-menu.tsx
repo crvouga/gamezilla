@@ -65,7 +65,7 @@ export function FloatingMenu({
       <View style={{ flex: 1 }}>
         <RNPressable
           accessibilityLabel="Dismiss menu"
-          onPress={onClose}
+          onPressIn={onClose}
           style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.25)' }}
         />
         {anchor !== null ? (
@@ -111,7 +111,7 @@ export function FloatingMenu({
                       />
                     }
                     trailing={row.trailing}
-                    onPress={row.onPress}
+                    onPressIn={row.onPressIn}
                     disabled={row.disabled}
                     accessibilityLabel={row.accessibilityLabel}
                   />

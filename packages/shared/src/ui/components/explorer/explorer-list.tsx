@@ -22,17 +22,13 @@ export function ExplorerList({ onSelect }: ExplorerListProps) {
     <ScrollView sx={{ p: 4, gap: 6, pb: 16 }}>
       {categories.map((cat) => (
         <View key={cat} style={{ gap: 4, marginBottom: 16 }}>
-          <Text
-            variant="label"
-            sx={{ color: 'textSecondary' }}
-            label={cat}
-          />
+          <Text variant="label" sx={{ color: 'textSecondary' }} label={cat} />
           {componentRegistry
             .filter((c) => c.category === cat)
             .map((c) => (
               <Pressable
                 key={c.name}
-                onPress={() => onSelect(c.name)}
+                onPressIn={() => onSelect(c.name)}
                 style={({ pressed }) => [
                   theme.sx({
                     py: 3,

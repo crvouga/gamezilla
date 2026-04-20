@@ -190,14 +190,14 @@ export function ApiInspector() {
                 title={connectedUrl ? 'Reconnect' : 'Connect'}
                 variant="solid"
                 size="md"
-                onPress={handleConnect}
+                onPressIn={handleConnect}
               />
               {connectedUrl && (
                 <Button
                   title="Disconnect"
                   variant="ghost"
                   size="md"
-                  onPress={() => {
+                  onPressIn={() => {
                     setConnectedUrl(null);
                     setResult(null);
                     setError(null);

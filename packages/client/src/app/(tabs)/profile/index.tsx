@@ -26,7 +26,7 @@ export default function ProfileScreen() {
           <Box sx={{ mt: 2, alignSelf: 'stretch' }}>
             <Button
               title="Edit profile"
-              onPress={() => router.push('/profile/edit')}
+              onPressIn={() => router.push('/profile/edit')}
             />
           </Box>
         </Box>

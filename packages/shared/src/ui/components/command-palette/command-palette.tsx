@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Platform, Pressable as RNPressable, View } from 'react-native';
+import {
+  Animated,
+  Platform,
+  Pressable as RNPressable,
+  View,
+} from 'react-native';
 
 import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';
@@ -53,12 +58,15 @@ export function CommandPalette({ footerLegend }: CommandPaletteProps) {
 
   const { rows, selectableCount } = useMemo(
     () => buildPaletteRows(commands, query, historyIds),
-    [commands, query, historyIds],
+    [commands, query, historyIds]
   );
 
   const itemRows = useMemo(
-    () => rows.filter((r): r is Extract<PaletteRow, { kind: 'item' }> => r.kind === 'item'),
-    [rows],
+    () =>
+      rows.filter(
+        (r): r is Extract<PaletteRow, { kind: 'item' }> => r.kind === 'item'
+      ),
+    [rows]
   );
 
   useEffect(() => {
@@ -104,7 +112,7 @@ export function CommandPalette({ footerLegend }: CommandPaletteProps) {
       return;
     }
     const idx = rows.findIndex(
-      (r) => r.kind === 'item' && r.key === itemRows[selectedIndex]?.key,
+      (r) => r.kind === 'item' && r.key === itemRows[selectedIndex]?.key
     );
     if (idx >= 0) {
       try {
@@ -169,7 +177,15 @@ export function CommandPalette({ footerLegend }: CommandPaletteProps) {
         return;
       }
     },
-    [close, invoke, isOpen, itemRows, runningId, selectedIndex, setSelectedIndex],
+    [
+      close,
+      invoke,
+      isOpen,
+      itemRows,
+      runningId,
+      selectedIndex,
+      setSelectedIndex,
+    ]
   );
 
   useEffect(() => {
@@ -188,7 +204,7 @@ export function CommandPalette({ footerLegend }: CommandPaletteProps) {
       <View style={{ flex: 1 }}>
         <RNPressable
           accessibilityLabel="Dismiss command palette"
-          onPress={close}
+          onPressIn={close}
           style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }}
         />
         <View
@@ -288,7 +304,11 @@ export function CommandPalette({ footerLegend }: CommandPaletteProps) {
 
               {footerLegend !== undefined ? (
                 <Box sx={{ px: 3, pb: 2, pt: 1 }}>
-                  <Text variant="caption" sx={{ color: 'textSecondary' }} label={footerLegend} />
+                  <Text
+                    variant="caption"
+                    sx={{ color: 'textSecondary' }}
+                    label={footerLegend}
+                  />
                 </Box>
               ) : (
                 <Box sx={{ px: 3, pb: 2, pt: 1 }}>

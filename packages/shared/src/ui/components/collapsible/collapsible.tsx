@@ -51,7 +51,7 @@ export function Collapsible({
   return (
     <View>
       <Pressable
-        onPress={() => setIsOpen((v) => !v)}
+        onPressIn={() => setIsOpen((v) => !v)}
         style={({ pressed }) => [
           theme.sx({
             flexDirection: 'row',

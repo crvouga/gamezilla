@@ -11,7 +11,7 @@ import { ScrollView as RNScrollView } from 'react-native';
 export type BreadcrumbItem = {
   key: string;
   label: string;
-  onPress: () => void;
+  onPressIn: () => void;
 };
 
 export type ColumnPanel = {
@@ -63,7 +63,7 @@ export function ColumnShell({
                       label="/"
                     />
                   ) : null}
-                  <Pressable onPress={b.onPress} hitSlop={4}>
+                  <Pressable onPressIn={b.onPressIn} hitSlop={4}>
                     <Text
                       variant="caption"
                       style={{ color: theme.colors.tint, maxWidth: 200 }}

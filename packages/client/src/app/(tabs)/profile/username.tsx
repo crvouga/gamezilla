@@ -48,10 +48,7 @@ export default function ProfileUsernameScreen() {
 
   return (
     <Box sx={{ flex: 1 }}>
-      <ScreenHeader
-        title="Username"
-        fallbackHref="/profile/edit"
-      />
+      <ScreenHeader title="Username" fallbackHref="/profile/edit" />
       <KeyboardAvoidingView sx={{ flex: 1 }}>
         <ConstrainedContent>
           <Box sx={{ flex: 1, px: 4, pt: 4, gap: 4 }}>
@@ -65,7 +62,7 @@ export default function ProfileUsernameScreen() {
             />
             <Button
               title="Save"
-              onPress={() => void save()}
+              onPressIn={() => void save()}
               loading={saving}
               disabled={saving}
             />

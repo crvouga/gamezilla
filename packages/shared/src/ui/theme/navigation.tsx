@@ -6,7 +6,7 @@ export function useStackProps(): Parameters<typeof Stack>[0] {
   return {
     screenOptions: {
       headerShown: false,
-      contentStyle: { backgroundColor: theme.colors.paper },
+      contentStyle: { backgroundColor: theme.colors.background },
     },
   };
 }
@@ -21,7 +21,7 @@ export function useTabsProps(props: {
       tabBarActiveTintColor: theme.colors.tabIconSelected,
       tabBarInactiveTintColor: theme.colors.tabIconDefault,
       tabBarStyle: props.hidden ? { display: 'none' } : undefined,
-      sceneStyle: { backgroundColor: theme.colors.paper },
+      sceneStyle: { backgroundColor: theme.colors.background },
     },
   };
 }

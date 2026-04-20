@@ -16,7 +16,7 @@ export type PeerAction = {
   label: string;
   color?: 'destructive' | 'warning' | 'success' | 'tint';
   active?: boolean;
-  onPress: () => void;
+  onPressIn: () => void;
 };
 
 export function PeerPanel({
@@ -66,14 +66,12 @@ export function PeerPanel({
             variant="outlined"
             size="sm"
             color={isOnline ? 'destructive' : 'success'}
-            onPress={isOnline ? onDisconnect : onReconnect}
+            onPressIn={isOnline ? onDisconnect : onReconnect}
           />
         </Stack>
         {hasBadges && (
           <Stack direction="horizontal" spacing={2}>
-            {isCheater && (
-              <Badge label="CHEATER" color="warning" size="sm" />
-            )}
+            {isCheater && <Badge label="CHEATER" color="warning" size="sm" />}
             {isBadActor && (
               <Badge label="BAD ACTOR" color="destructive" size="sm" />
             )}
@@ -110,7 +108,7 @@ export function PeerPanel({
                 variant={action.active ? 'solid' : 'outlined'}
                 size="sm"
                 color={action.color ?? 'tint'}
-                onPress={action.onPress}
+                onPressIn={action.onPressIn}
               />
             ))}
           </Stack>
@@ -125,9 +123,7 @@ export function PeerPanel({
       />
 
       <Collapsible title={`Events (${events.length})`}>
-        {events.length === 0 && (
-          <Text variant="caption" label="none" />
-        )}
+        {events.length === 0 && <Text variant="caption" label="none" />}
         {events.slice(-6).map((e, i) => (
           <Text key={i} variant="caption" label={e.type} />
         ))}

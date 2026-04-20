@@ -3,7 +3,7 @@
  *
  * @example
  * ```tsx
- * <IconButton size={40} onPress={handleClose}>
+ * <IconButton size={40} onPressIn={handleClose}>
  *   <Text style={{ fontSize: 18 }}>✕</Text>
  * </IconButton>
  * ```
@@ -15,7 +15,7 @@ import { useTheme } from '../../theme';
 
 export type IconButtonProps = {
   children: ReactNode;
-  onPress?: () => void;
+  onPressIn?: () => void;
   /** Diameter in pixels. Defaults to 40. */
   size?: number;
   /** Color token or raw color for the background. */
@@ -25,7 +25,7 @@ export type IconButtonProps = {
 
 export function IconButton({
   children,
-  onPress,
+  onPressIn,
   size = 40,
   background,
   disabled = false,
@@ -37,7 +37,7 @@ export function IconButton({
 
   return (
     <Pressable
-      onPress={onPress}
+      onPressIn={onPressIn}
       disabled={disabled}
       style={({ pressed }) => [
         {

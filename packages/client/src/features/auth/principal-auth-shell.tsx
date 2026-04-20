@@ -7,7 +7,13 @@ import {
 import { useLogger } from '@gamezilla/shared/logger/react';
 import { SecureStorageToken } from '@gamezilla/shared/secure-storage/interface';
 import { Box, Button, Center, Text } from '@gamezilla/shared/ui';
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import { createSecureStorage } from './create-secure-storage';
 import {
   createPrincipalService,
@@ -73,7 +79,7 @@ export function PrincipalAuthShell({ children }: { children: ReactNode }) {
           label={error.message}
         />
         <Box sx={{ mt: 4 }}>
-          <Button title="Retry" onPress={run} />
+          <Button title="Retry" onPressIn={run} />
         </Box>
       </Center>
     );

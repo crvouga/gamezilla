@@ -22,14 +22,14 @@ function showAssertionAlert(fullText: string): void {
     [
       {
         text: 'Copy error',
-        onPress: () => {
+        onPressIn: () => {
           void Clipboard.setStringAsync(fullText);
           setTimeout(() => showAssertionAlert(fullText), 0);
         },
       },
       {
         text: 'Reload',
-        onPress: () => {
+        onPressIn: () => {
           DevSettings.reload();
         },
       },

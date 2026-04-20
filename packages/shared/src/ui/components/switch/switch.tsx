@@ -32,7 +32,7 @@ export function Switch({ label, ...rest }: SwitchProps) {
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
       <RNSwitch
         trackColor={track}
-        thumbColor={theme.colors.paper}
+        thumbColor={theme.colors.surface}
         {...rest}
       />
       {label && <Text variant="body" label={label} />}

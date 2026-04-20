@@ -7,15 +7,15 @@ import { IconShuffle, IconTrash } from './icons';
 function ReorderButton({
   label,
   disabled,
-  onPress,
+  onPressIn,
 }: {
   label: string;
   disabled: boolean;
-  onPress: () => void;
+  onPressIn: () => void;
 }) {
   const theme = useTheme();
   return (
-    <IconButton size={22} onPress={onPress} disabled={disabled}>
+    <IconButton size={22} onPressIn={onPressIn} disabled={disabled}>
       <Text
         style={{
           fontSize: 10,
@@ -66,12 +66,12 @@ export function ShapeRow({
         <ReorderButton
           label="▲"
           disabled={busy || isFirst}
-          onPress={onMoveUp}
+          onPressIn={onMoveUp}
         />
         <ReorderButton
           label="▼"
           disabled={busy || isLast}
-          onPress={onMoveDown}
+          onPressIn={onMoveDown}
         />
       </Stack>
 
@@ -93,7 +93,7 @@ export function ShapeRow({
           borderRadius: 8,
           borderWidth: 1,
           borderColor: theme.colors.border,
-          backgroundColor: theme.colors.paper,
+          backgroundColor: theme.colors.surface,
           overflow: 'hidden',
           alignItems: 'center',
           justifyContent: 'center',
@@ -130,9 +130,9 @@ export function ShapeRow({
 
       <IconButton
         size={28}
-        background={theme.colors.paper}
+        background={theme.colors.surface}
         disabled={busy}
-        onPress={() => onRandomize(entity.entityId)}
+        onPressIn={() => onRandomize(entity.entityId)}
       >
         <IconShuffle size={14} />
       </IconButton>
@@ -140,7 +140,7 @@ export function ShapeRow({
       <IconButton
         size={28}
         disabled={busy}
-        onPress={() => onDelete(entity.entityId)}
+        onPressIn={() => onDelete(entity.entityId)}
       >
         <IconTrash size={14} />
       </IconButton>

@@ -17,7 +17,7 @@ function sleep(ms: number): Promise<void> {
 
 function OpenPaletteButton() {
   const { open } = useCommandPalette();
-  return <Button title="Open command palette" onPress={open} />;
+  return <Button title="Open command palette" onPressIn={open} />;
 }
 
 /**
