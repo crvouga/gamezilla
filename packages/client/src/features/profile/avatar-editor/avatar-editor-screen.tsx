@@ -34,7 +34,7 @@ import {
 } from '@gamezilla/shared/ui';
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { ConstrainedContent } from '@/ui/constrained-content';
 import { ScreenHeader } from '@/ui/screen-header';
@@ -84,8 +84,27 @@ export function AvatarEditorScreen() {
   const [saving, setSaving] = useState(false);
   const [showDiscard, setShowDiscard] = useState(false);
 
+  // Track the last-seen persisted config so we can tell a PatchDB poll (same
+  // value, new object reference) apart from a real change. Without this the
+  // draft gets clobbered every poll cycle and the user's in-progress edits
+  // disappear.
+  const lastPersistedRef = useRef<AvatarConfig | null>(null);
+
   useEffect(() => {
-    setDraft(persisted);
+    const prev = lastPersistedRef.current;
+    if (prev === null) {
+      setDraft(persisted);
+      lastPersistedRef.current = persisted;
+      return;
+    }
+    if (!configsEqual(prev, persisted)) {
+      // Persisted changed (e.g. another device). Only overwrite the draft if
+      // the user hasn't made local edits yet.
+      setDraft((current) =>
+        configsEqual(current, prev) ? persisted : current
+      );
+      lastPersistedRef.current = persisted;
+    }
   }, [persisted]);
 
   const dirty = !configsEqual(draft, persisted);

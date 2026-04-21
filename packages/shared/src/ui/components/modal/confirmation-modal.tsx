@@ -14,6 +14,7 @@
  * ```
  */
 
+import { useRef } from 'react';
 import { ModalBackdrop } from './modal-backdrop';
 import { ModalBody } from './modal-body';
 import { ModalButton } from './modal-button';
@@ -33,6 +34,14 @@ export type ConfirmationModalProps = {
   onCancel: () => void;
 };
 
+type LatchedContent = {
+  title: string;
+  message: string;
+  confirmLabel: string;
+  cancelLabel: string;
+  variant: 'default' | 'destructive';
+};
+
 export function ConfirmationModal({
   visible,
   title,
@@ -43,21 +52,46 @@ export function ConfirmationModal({
   onConfirm,
   onCancel,
 }: ConfirmationModalProps) {
+  // Keep last-seen content rendered while the modal animates closed so callers
+  // can null out their source state on confirm/cancel without producing a
+  // flash of empty content during the fade-out.
+  const latchedRef = useRef<LatchedContent>({
+    title,
+    message,
+    confirmLabel,
+    cancelLabel,
+    variant,
+  });
+  if (visible) {
+    latchedRef.current = {
+      title,
+      message,
+      confirmLabel,
+      cancelLabel,
+      variant,
+    };
+  }
+  const display = visible
+    ? { title, message, confirmLabel, cancelLabel, variant }
+    : latchedRef.current;
+
   return (
     <ModalRoot visible={visible} onRequestClose={onCancel}>
       <ModalBackdrop onPress={onCancel}>
         <ModalContent>
-          <ModalHeader title={title} />
-          <ModalBody message={message} />
+          <ModalHeader title={display.title} />
+          <ModalBody message={display.message} />
           <ModalFooter>
             <ModalButton
-              label={cancelLabel}
+              label={display.cancelLabel}
               variant="cancel"
               onPress={onCancel}
             />
             <ModalButton
-              label={confirmLabel}
-              variant={variant === 'destructive' ? 'destructive' : 'default'}
+              label={display.confirmLabel}
+              variant={
+                display.variant === 'destructive' ? 'destructive' : 'default'
+              }
               onPress={onConfirm}
             />
           </ModalFooter>

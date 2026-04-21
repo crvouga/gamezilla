@@ -10,7 +10,7 @@ import {
   TextInput,
 } from '@gamezilla/shared/ui';
 import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useProfile } from '@/features/profile/use-profile';
 import { ConstrainedContent } from '@/ui/constrained-content';
@@ -23,9 +23,27 @@ export default function ProfileUsernameScreen() {
   const [value, setValue] = useState('');
   const [saving, setSaving] = useState(false);
 
+  // Track last-seen persisted name so we can distinguish "entity reference
+  // changed because PatchDB polled" from "persisted value actually changed".
+  // Without this, every poll reassigns `value` and wipes the user's edits.
+  const lastPersistedRef = useRef<string | null>(null);
+
   useEffect(() => {
-    const raw = entity?.attributes[ProfileAttr.displayName];
-    setValue(typeof raw === 'string' ? raw : '');
+    if (!entity) return;
+    const raw = entity.attributes[ProfileAttr.displayName];
+    const persisted = typeof raw === 'string' ? raw : '';
+    const prev = lastPersistedRef.current;
+    if (prev === null) {
+      setValue(persisted);
+      lastPersistedRef.current = persisted;
+      return;
+    }
+    if (persisted !== prev) {
+      // Persisted value changed (e.g. another device). Only overwrite the
+      // in-progress draft if the user hasn't edited it yet.
+      setValue((current) => (current === prev ? persisted : current));
+      lastPersistedRef.current = persisted;
+    }
   }, [entity]);
 
   const save = useCallback(async () => {
