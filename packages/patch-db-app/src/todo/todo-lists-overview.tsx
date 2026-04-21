@@ -138,7 +138,7 @@ export function TodoListsOverview({
         {...(onBack !== undefined ? { onBack } : {})}
         end={
           <Pressable
-            onPressIn={() => setDeleteDbModalVisible(true)}
+            onPress={() => setDeleteDbModalVisible(true)}
             style={({ pressed }) => [
               theme.sx({ py: 2, px: 2, borderRadius: 8 }),
               pressed && theme.sx({ opacity: 0.7 }),
@@ -180,7 +180,7 @@ export function TodoListsOverview({
               autoFocus
             />
             <Pressable
-              onPressIn={addList}
+              onPress={addList}
               style={theme.sx({ justifyContent: 'center', px: 4 })}
             >
               <Text variant="bodyBold" label="Add" />
@@ -188,7 +188,7 @@ export function TodoListsOverview({
           </Box>
         ) : (
           <Pressable
-            onPressIn={() => setAdding(true)}
+            onPress={() => setAdding(true)}
             style={[
               theme.sx({
                 py: 3,
@@ -221,7 +221,7 @@ export function TodoListsOverview({
               }}
             >
               <Pressable
-                onPressIn={() => onOpenList(item.id)}
+                onPress={() => onOpenList(item.id)}
                 style={({ pressed }) => [
                   theme.sx({
                     flex: 1,
@@ -243,7 +243,7 @@ export function TodoListsOverview({
               </Pressable>
               {item.id !== INBOX_LIST_ID && (
                 <Pressable
-                  onPressIn={() => confirmDelete(item)}
+                  onPress={() => confirmDelete(item)}
                   style={({ pressed }) => [
                     theme.sx({ p: 2, ml: 2 }),
                     pressed && theme.sx({ opacity: 0.7 }),

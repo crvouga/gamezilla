@@ -72,7 +72,7 @@ export function TodoScreenHeader({
 
         {showBack ? (
           <Pressable
-            onPressIn={onBack}
+            onPress={onBack}
             accessibilityRole="button"
             accessibilityLabel="Go back"
             hitSlop={8}

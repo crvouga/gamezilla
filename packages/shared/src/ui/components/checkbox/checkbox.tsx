@@ -35,7 +35,7 @@ export function Checkbox({
 
   return (
     <Pressable
-      onPressIn={() => !disabled && onToggle(!checked)}
+      onPress={() => !disabled && onToggle(!checked)}
       disabled={disabled}
       style={{
         flexDirection: 'row',

@@ -127,7 +127,7 @@ export function AccountMenu({ variant }: AccountMenuProps) {
           id: 'profile',
           label: 'Profile',
           icon: 'person.fill',
-          onPressIn: onProfile,
+          onPress: onProfile,
           accessibilityLabel: 'View profile',
         },
         {
@@ -158,7 +158,7 @@ export function AccountMenu({ variant }: AccountMenuProps) {
               />
             </Box>
           ),
-          onPressIn: onServerStatus,
+          onPress: onServerStatus,
           accessibilityLabel: `Connection and server status. ${statusWord}. ${latencyPhrase}.`,
         },
         {
@@ -169,7 +169,7 @@ export function AccountMenu({ variant }: AccountMenuProps) {
             auth.mode === 'signed-in'
               ? 'arrow.right.from.bracket'
               : 'right.to.bracket',
-          onPressIn: onAuth,
+          onPress: onAuth,
           accessibilityLabel:
             auth.mode === 'signed-in' ? 'Sign out' : 'Sign in with Google',
         },
@@ -179,7 +179,7 @@ export function AccountMenu({ variant }: AccountMenuProps) {
           id: 'settings',
           label: 'Settings',
           icon: 'gearshape.fill',
-          onPressIn: onSettings,
+          onPress: onSettings,
           accessibilityLabel: 'Settings',
         },
       ],
@@ -213,7 +213,7 @@ export function AccountMenu({ variant }: AccountMenuProps) {
       >
         {variant === 'sidebar' ? (
           <Pressable
-            onPressIn={openMenu}
+            onPress={openMenu}
             accessibilityRole="button"
             accessibilityLabel="Account menu"
             accessibilityState={{ expanded: open }}
@@ -252,7 +252,7 @@ export function AccountMenu({ variant }: AccountMenuProps) {
           </Pressable>
         ) : (
           <Pressable
-            onPressIn={openMenu}
+            onPress={openMenu}
             accessibilityRole="button"
             accessibilityLabel="Account menu"
             accessibilityState={{ expanded: open }}

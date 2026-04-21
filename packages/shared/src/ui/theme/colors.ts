@@ -8,6 +8,8 @@ export type ColorScheme = 'light' | 'dark';
 export type ColorTokens = {
   surface: string;
   background: string;
+  /** Elevated surface used for cards, sheets, modals, and popovers. */
+  paper: string;
   text: string;
   textSecondary: string;
   tint: string;
@@ -37,6 +39,7 @@ export const defaultColors: Record<ColorScheme, ColorTokens> = {
   light: {
     surface: '#f4f4f5',
     background: '#ffffff',
+    paper: '#ffffff',
     text: '#09090b',
     textSecondary: '#52525b',
     tint: '#2563eb',
@@ -57,6 +60,7 @@ export const defaultColors: Record<ColorScheme, ColorTokens> = {
   dark: {
     surface: '#18181b',
     background: '#000000',
+    paper: '#18181b',
     text: '#fafafa',
     textSecondary: '#a1a1aa',
     tint: '#60a5fa',

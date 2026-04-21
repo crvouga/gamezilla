@@ -45,7 +45,7 @@ export function VariantSwatchStrip({
       if (item.kind === 'random') {
         return (
           <Pressable
-            onPressIn={() => onSelect(null)}
+            onPress={() => onSelect(null)}
             sx={{
               width: THUMB + 8,
               alignItems: 'center',
@@ -92,7 +92,7 @@ export function VariantSwatchStrip({
 
       return (
         <Pressable
-          onPressIn={() => onSelect(v)}
+          onPress={() => onSelect(v)}
           sx={{
             width: THUMB + 8,
             alignItems: 'center',

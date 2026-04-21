@@ -204,7 +204,7 @@ export function CommandPalette({ footerLegend }: CommandPaletteProps) {
       <View style={{ flex: 1 }}>
         <RNPressable
           accessibilityLabel="Dismiss command palette"
-          onPressIn={close}
+          onPress={close}
           style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }}
         />
         <View
@@ -228,7 +228,7 @@ export function CommandPalette({ footerLegend }: CommandPaletteProps) {
           >
             <Box
               sx={{
-                background: 'paper',
+                background: 'surface',
                 borderRadius: borderRadius.lg,
                 borderWidth: 1,
                 borderColor: 'border',
@@ -272,7 +272,7 @@ export function CommandPalette({ footerLegend }: CommandPaletteProps) {
                   renderItem={({ item }) => {
                     if (item.kind === 'header') {
                       return (
-                        <Box sx={{ px: 3, py: 2, background: 'surface' }}>
+                        <Box sx={{ px: 3, py: 2, background: 'background' }}>
                           <Text
                             variant="label"
                             sx={{ color: 'textSecondary', letterSpacing: 0.5 }}

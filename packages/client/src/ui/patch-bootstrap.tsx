@@ -127,11 +127,11 @@ export function PatchBootstrap({ children }: { children: ReactNode }) {
           label={error.message}
         />
         <Box sx={{ mt: 4, gap: 3, alignItems: 'center' }}>
-          <Button title="Retry" onPressIn={runBootstrap} />
+          <Button title="Retry" onPress={runBootstrap} />
           <Button
             title="Clear local data & reload"
             color="destructive"
-            onPressIn={() => void onClearLocalDataAndReload()}
+            onPress={() => void onClearLocalDataAndReload()}
           />
         </Box>
       </Center>

@@ -16,7 +16,7 @@ export type FloatingMenuItemRow = {
   icon: IconSymbolName;
   /** Right-aligned content (e.g. status + metrics). */
   trailing?: ReactNode;
-  onPressIn?: () => void;
+  onPress?: () => void;
   disabled?: boolean;
   accessibilityLabel?: string;
 };

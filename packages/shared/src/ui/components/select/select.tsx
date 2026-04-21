@@ -64,7 +64,7 @@ export function Select<T extends string | number = string>({
         />
       )}
       <Pressable
-        onPressIn={() => setOpen(true)}
+        onPress={() => setOpen(true)}
         disabled={disabled}
         style={({ pressed }) => [
           {
@@ -96,7 +96,7 @@ export function Select<T extends string | number = string>({
       </Pressable>
 
       <ModalRoot visible={open} onRequestClose={() => setOpen(false)}>
-        <ModalBackdrop onPressIn={() => setOpen(false)}>
+        <ModalBackdrop onPress={() => setOpen(false)}>
           <ModalContent style={{ width: 280 }}>
             {label !== undefined && (
               <Text variant="subtitle" sx={{ mb: 2 }} label={label} />
@@ -109,7 +109,7 @@ export function Select<T extends string | number = string>({
                 const isSelected = item.value === value;
                 return (
                   <Pressable
-                    onPressIn={() => {
+                    onPress={() => {
                       onValueChange(item.value);
                       setOpen(false);
                     }}

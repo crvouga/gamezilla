@@ -155,7 +155,7 @@ export default function ServerStatusScreen() {
 
           <Button
             title="Check again"
-            onPressIn={stableRefresh}
+            onPress={stableRefresh}
             disabled={health.phase === 'loading'}
           />
         </Box>

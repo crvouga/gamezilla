@@ -219,7 +219,7 @@ export function PlaygroundPage() {
           : `Spoof as ${other}`,
         color: 'destructive',
         active: sim.isSpoofing(peerId),
-        onPressIn: () => sim.toggleSpoof(peerId),
+        onPress: () => sim.toggleSpoof(peerId),
       };
     };
 
@@ -228,7 +228,7 @@ export function PlaygroundPage() {
         {
           label: 'Flood',
           color: 'destructive',
-          onPressIn: () => {
+          onPress: () => {
             try {
               sim.cheatFlood('player-x');
             } catch {
@@ -242,7 +242,7 @@ export function PlaygroundPage() {
         {
           label: 'Flood',
           color: 'destructive',
-          onPressIn: () => {
+          onPress: () => {
             try {
               sim.cheatFlood('player-o');
             } catch {
@@ -306,37 +306,37 @@ export function PlaygroundPage() {
               title={isPaused.current ? 'Resume' : 'Pause'}
               variant="outlined"
               size="sm"
-              onPressIn={isPaused.current ? handleResume : handlePause}
+              onPress={isPaused.current ? handleResume : handlePause}
             />
             <Button
               title="Drop next"
               variant="outlined"
               size="sm"
-              onPressIn={handleDrop}
+              onPress={handleDrop}
             />
             <Button
               title="Advance 5s"
               variant="outlined"
               size="sm"
-              onPressIn={handleAdvance}
+              onPress={handleAdvance}
             />
             <Button
               title="Reset"
               variant="outlined"
               size="sm"
-              onPressIn={handleReset}
+              onPress={handleReset}
             />
             <Button
               title="Partition"
               variant="outlined"
               size="sm"
-              onPressIn={handleScenarioPartition}
+              onPress={handleScenarioPartition}
             />
             <Button
               title="Timeout"
               variant="outlined"
               size="sm"
-              onPressIn={handleScenarioTimeout}
+              onPress={handleScenarioTimeout}
             />
           </Stack>
 
@@ -347,27 +347,27 @@ export function PlaygroundPage() {
               variant="outlined"
               size="sm"
               color="destructive"
-              onPressIn={handleCheatFabricate}
+              onPress={handleCheatFabricate}
             />
             <Button
               title="Replay Events"
               variant="outlined"
               size="sm"
               color="destructive"
-              onPressIn={handleCheatReplay}
+              onPress={handleCheatReplay}
             />
             <Button
               title="Tamper Events"
               variant="outlined"
               size="sm"
               color="destructive"
-              onPressIn={handleCheatTamper}
+              onPress={handleCheatTamper}
             />
             <Button
               title="Clear Tamper"
               variant="outlined"
               size="sm"
-              onPressIn={handleCheatClearTamper}
+              onPress={handleCheatClearTamper}
             />
           </Stack>
         </Stack>

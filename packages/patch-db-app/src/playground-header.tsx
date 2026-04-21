@@ -67,7 +67,7 @@ export function PlaygroundHeader() {
           variant="ghost"
           size="sm"
           color="destructive"
-          onPressIn={reset}
+          onPress={reset}
         />
       </Stack>
 
@@ -88,7 +88,7 @@ export function PlaygroundHeader() {
           variant="solid"
           size="sm"
           startIcon={<IconPlus size={14} />}
-          onPressIn={addClient}
+          onPress={addClient}
         />
       </Stack>
     </Box>

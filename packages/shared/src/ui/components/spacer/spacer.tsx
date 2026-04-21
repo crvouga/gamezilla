@@ -8,7 +8,7 @@
  * <Stack direction="horizontal" align="center">
  *   <Text>Title</Text>
  *   <Spacer />
- *   <Button title="Action" onPressIn={handlePress} />
+ *   <Button title="Action" onPress={handlePress} />
  * </Stack>
  * ```
  */

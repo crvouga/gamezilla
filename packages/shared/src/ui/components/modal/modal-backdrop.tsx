@@ -7,16 +7,16 @@ import { Pressable, View } from 'react-native';
 import { useTheme } from '../../theme';
 
 export type ModalBackdropProps = PropsWithChildren<{
-  onPressIn: () => void;
+  onPress: () => void;
 }>;
 
-export function ModalBackdrop({ onPressIn, children }: ModalBackdropProps) {
+export function ModalBackdrop({ onPress, children }: ModalBackdropProps) {
   const theme = useTheme();
 
   return (
     <View style={theme.sx({ flex: 1 })}>
       <Pressable
-        onPressIn={onPressIn}
+        onPress={onPress}
         style={theme.sx({
           position: 'absolute',
           top: 0,

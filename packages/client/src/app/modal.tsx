@@ -20,7 +20,7 @@ export default function ModalScreen() {
       >
         <Text variant="body" label="This is a modal screen." />
         <Pressable
-          onPressIn={() => router.dismissTo('/more')}
+          onPress={() => router.dismissTo('/more')}
           sx={{ mt: 3.75, py: 3.75 }}
         >
           <Text variant="link" label="Back to Dev" />

@@ -168,7 +168,7 @@ export function TodoListDetail({ listId, onBack }: TodoListDetailProps) {
       <KeyboardAvoidingView sx={{ flex: 1, p: 4 }}>
         <Box sx={{ flexDirection: 'row', gap: 2, mb: 3 }}>
           <Pressable
-            onPressIn={() => setFilter('all')}
+            onPress={() => setFilter('all')}
             style={filterButtonStyle(filter === 'all')}
           >
             <Text
@@ -179,7 +179,7 @@ export function TodoListDetail({ listId, onBack }: TodoListDetailProps) {
             />
           </Pressable>
           <Pressable
-            onPressIn={() => setFilter('active')}
+            onPress={() => setFilter('active')}
             style={filterButtonStyle(filter === 'active')}
           >
             <Text
@@ -192,7 +192,7 @@ export function TodoListDetail({ listId, onBack }: TodoListDetailProps) {
             />
           </Pressable>
           <Pressable
-            onPressIn={() => setFilter('completed')}
+            onPress={() => setFilter('completed')}
             style={filterButtonStyle(filter === 'completed')}
           >
             <Text
@@ -226,7 +226,7 @@ export function TodoListDetail({ listId, onBack }: TodoListDetailProps) {
             returnKeyType="done"
           />
           <Pressable
-            onPressIn={addTodo}
+            onPress={addTodo}
             style={theme.sx({ justifyContent: 'center', px: 4 })}
           >
             <Text variant="bodyBold" label="Add" />

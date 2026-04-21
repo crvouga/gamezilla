@@ -114,7 +114,7 @@ export function ScreenHeader({
 
         {showBack ? (
           <Pressable
-            onPressIn={onBackPress}
+            onPress={onBackPress}
             accessibilityRole="button"
             accessibilityLabel="Go back"
             hitSlop={8}

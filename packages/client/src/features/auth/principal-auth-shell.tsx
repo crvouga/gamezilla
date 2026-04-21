@@ -79,7 +79,7 @@ export function PrincipalAuthShell({ children }: { children: ReactNode }) {
           label={error.message}
         />
         <Box sx={{ mt: 4 }}>
-          <Button title="Retry" onPressIn={run} />
+          <Button title="Retry" onPress={run} />
         </Box>
       </Center>
     );

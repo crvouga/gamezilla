@@ -25,7 +25,7 @@ export function CommandPaletteTrigger({
 
   return (
     <Pressable
-      onPressIn={toggle}
+      onPress={toggle}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       hitSlop={6}

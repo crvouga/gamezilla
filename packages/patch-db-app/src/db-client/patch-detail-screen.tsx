@@ -185,7 +185,7 @@ export function PatchDetailScreen({
               {loadingParent ? (
                 <Spinner />
               ) : (
-                <Pressable onPressIn={() => void loadParent()}>
+                <Pressable onPress={() => void loadParent()}>
                   <Text
                     variant="label"
                     sx={{ color: 'tint' }}

@@ -62,7 +62,7 @@ export default function ProfileUsernameScreen() {
             />
             <Button
               title="Save"
-              onPressIn={() => void save()}
+              onPress={() => void save()}
               loading={saving}
               disabled={saving}
             />

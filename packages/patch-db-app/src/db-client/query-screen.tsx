@@ -73,7 +73,7 @@ export function QueryScreen({ onClose }: QueryScreenProps) {
     >
       <Stack spacing={3}>
         {onClose !== undefined ? (
-          <Button title="Close" variant="ghost" size="sm" onPressIn={onClose} />
+          <Button title="Close" variant="ghost" size="sm" onPress={onClose} />
         ) : null}
 
         <SegmentedControl
@@ -169,7 +169,7 @@ export function QueryScreen({ onClose }: QueryScreenProps) {
             <Button
               title={running ? 'Running…' : 'Run read([query])'}
               variant="solid"
-              onPressIn={() => void run()}
+              onPress={() => void run()}
             />
           </Stack>
         </Card>

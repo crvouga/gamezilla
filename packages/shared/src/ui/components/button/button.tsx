@@ -6,8 +6,8 @@
  *
  * @example
  * ```tsx
- * <Button title="Save" variant="solid" size="md" onPressIn={save} />
- * <Button title="Delete" variant="outlined" color="destructive" onPressIn={del} />
+ * <Button title="Save" variant="solid" size="md" onPress={save} />
+ * <Button title="Delete" variant="outlined" color="destructive" onPress={del} />
  * ```
  */
 
@@ -23,7 +23,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
 export type ButtonProps = {
   /** Button label. */
   title: string;
-  onPressIn?: () => void;
+  onPress?: () => void;
   /** Visual variant. Defaults to `"solid"`. */
   variant?: ButtonVariant;
   /** Size preset. Defaults to `"md"`. */
@@ -61,7 +61,7 @@ const sizeMap = {
 
 export function Button({
   title,
-  onPressIn,
+  onPress,
   variant = 'solid',
   size = 'md',
   color = 'tint',
@@ -96,7 +96,7 @@ export function Button({
 
   return (
     <Pressable
-      onPressIn={onPressIn}
+      onPress={onPress}
       disabled={isDisabled}
       style={({ pressed }) => [
         theme.sx({

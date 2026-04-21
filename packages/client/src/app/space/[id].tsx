@@ -41,7 +41,7 @@ export default function SpaceDetailScreen() {
               <Button
                 title="Go back"
                 variant="solid"
-                onPressIn={() => router.back()}
+                onPress={() => router.back()}
               />
             </Box>
           </Box>
@@ -114,7 +114,7 @@ export default function SpaceDetailScreen() {
           <Button
             title="Leave space"
             variant="outlined"
-            onPressIn={() => router.back()}
+            onPress={() => router.back()}
           />
         </Box>
       </ConstrainedContent>

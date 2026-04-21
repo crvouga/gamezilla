@@ -33,7 +33,7 @@ export function StylePickerStrip({
     const isSel = item === selected;
     return (
       <Pressable
-        onPressIn={() => onSelect(item)}
+        onPress={() => onSelect(item)}
         sx={{
           width: PREVIEW + 12,
           alignItems: 'center',

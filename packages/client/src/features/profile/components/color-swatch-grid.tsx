@@ -78,7 +78,7 @@ export function ColorSwatchGrid({
         }}
       >
         <Pressable
-          onPressIn={() => onChange([...defaultPalette])}
+          onPress={() => onChange([...defaultPalette])}
           sx={{
             paddingHorizontal: 3,
             paddingVertical: 2,
@@ -99,7 +99,7 @@ export function ColorSwatchGrid({
         </Pressable>
         {allowTransparent ? (
           <Pressable
-            onPressIn={() => toggle('transparent')}
+            onPress={() => toggle('transparent')}
             sx={{
               width: 36,
               height: 36,
@@ -129,7 +129,7 @@ export function ColorSwatchGrid({
           return (
             <Pressable
               key={hex}
-              onPressIn={() => toggle(hex)}
+              onPress={() => toggle(hex)}
               accessibilityLabel={`Color ${hex}`}
               sx={{
                 width: 36,
@@ -161,7 +161,7 @@ export function ColorSwatchGrid({
             />
           </Box>
           <Pressable
-            onPressIn={addHex}
+            onPress={addHex}
             sx={{ paddingVertical: 2, paddingHorizontal: 3 }}
           >
             <Text

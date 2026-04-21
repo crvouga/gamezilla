@@ -40,7 +40,7 @@ export function SpaceCard({ space }: SpaceCardProps) {
 
   return (
     <Pressable
-      onPressIn={() =>
+      onPress={() =>
         router.push({ pathname: '/space/[id]', params: { id: space.id } })
       }
       accessibilityRole="button"

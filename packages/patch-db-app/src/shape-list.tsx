@@ -68,7 +68,7 @@ export function ShapeList({
         size="sm"
         disabled={busy}
         startIcon={<IconPlus size={14} />}
-        onPressIn={onCreate}
+        onPress={onCreate}
       />
 
       {note ? (

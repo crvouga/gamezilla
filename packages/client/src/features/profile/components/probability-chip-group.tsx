@@ -31,7 +31,7 @@ export function ProbabilityChipGroup({
             <Pressable
               key={key}
               disabled={disabled}
-              onPressIn={() => onChange(key)}
+              onPress={() => onChange(key)}
               accessibilityRole="button"
               accessibilityState={{ selected: active }}
               sx={{

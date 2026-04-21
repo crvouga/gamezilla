@@ -28,7 +28,7 @@ export function ExplorerList({ onSelect }: ExplorerListProps) {
             .map((c) => (
               <Pressable
                 key={c.name}
-                onPressIn={() => onSelect(c.name)}
+                onPress={() => onSelect(c.name)}
                 style={({ pressed }) => [
                   theme.sx({
                     py: 3,

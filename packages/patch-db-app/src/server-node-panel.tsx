@@ -92,7 +92,7 @@ export function ServerNodePanel() {
             {...(serverPartitioned ? { color: 'destructive' } : {})}
             disabled={busy}
             startIcon={<IconPartition active={serverPartitioned} size={14} />}
-            onPressIn={() =>
+            onPress={() =>
               run(async () => {
                 if (sim.isServerPartitioned()) {
                   sim.healServer();
@@ -108,7 +108,7 @@ export function ServerNodePanel() {
             size={32}
             background={theme.colors.surface}
             disabled={busy}
-            onPressIn={() =>
+            onPress={() =>
               run(async () => {
                 await sim.pollAllClients();
               })
@@ -120,7 +120,7 @@ export function ServerNodePanel() {
             size={32}
             background={theme.colors.surface}
             disabled={busy || entities.length === 0}
-            onPressIn={() =>
+            onPress={() =>
               run(async () => {
                 for (const e of entities) {
                   await playgroundServerRandomizeShape(sim, e.entityId);
@@ -133,7 +133,7 @@ export function ServerNodePanel() {
           <IconButton
             size={32}
             disabled={busy}
-            onPressIn={() =>
+            onPress={() =>
               run(async () => {
                 await sim.wipeServerDb();
               })

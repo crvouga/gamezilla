@@ -65,7 +65,7 @@ export function AppSidebar() {
               key={item.href}
               accessibilityRole="button"
               accessibilityState={{ selected: active }}
-              onPressIn={() => {
+              onPress={() => {
                 router.push(item.href);
               }}
               sx={{

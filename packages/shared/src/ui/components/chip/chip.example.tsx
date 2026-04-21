@@ -27,7 +27,7 @@ export default function ChipExample() {
             key={t}
             label={t}
             selected={selected.has(t)}
-            onPressIn={() => toggle(t)}
+            onPress={() => toggle(t)}
           />
         ))}
       </Stack>

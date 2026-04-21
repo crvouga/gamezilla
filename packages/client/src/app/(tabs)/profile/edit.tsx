@@ -23,7 +23,7 @@ export default function ProfileEditScreen() {
       />
       <ConstrainedContent>
         <Box sx={{ flex: 1, py: 2 }}>
-          <Pressable onPressIn={() => router.push('/profile/username')}>
+          <Pressable onPress={() => router.push('/profile/username')}>
             <Box
               sx={{
                 flexDirection: 'row',
@@ -44,7 +44,7 @@ export default function ProfileEditScreen() {
               />
             </Box>
           </Pressable>
-          <Pressable onPressIn={() => router.push('/profile/avatar')}>
+          <Pressable onPress={() => router.push('/profile/avatar')}>
             <Box
               sx={{
                 flexDirection: 'row',

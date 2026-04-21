@@ -17,20 +17,20 @@ export default function ListExample() {
             subtitle="Edit your personal info"
             leading={<Avatar initials="JD" size={36} />}
             trailing={<Text variant="caption" label="›" />}
-            onPressIn={() => {}}
+            onPress={() => {}}
           />
           <ListItem
             title="Notifications"
             subtitle="Manage alerts"
             leading={<Avatar initials="🔔" size={36} background="warning" />}
             trailing={<Badge label="3" color="destructive" size="sm" />}
-            onPressIn={() => {}}
+            onPress={() => {}}
           />
           <ListItem
             title="Privacy"
             leading={<Avatar initials="🔒" size={36} background="info" />}
             trailing={<Text variant="caption" label="›" />}
-            onPressIn={() => {}}
+            onPress={() => {}}
           />
         </List>
       </Card>

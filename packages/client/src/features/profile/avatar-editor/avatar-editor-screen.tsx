@@ -170,11 +170,11 @@ export function AvatarEditorScreen() {
             <Button
               title="Reset"
               variant="outlined"
-              onPressIn={resetStyleDefaults}
+              onPress={resetStyleDefaults}
             />
             <Button
               title="Save"
-              onPressIn={() => void save()}
+              onPress={() => void save()}
               loading={saving}
               disabled={saving || !dirty}
             />
@@ -212,12 +212,12 @@ export function AvatarEditorScreen() {
               <Button
                 title="Shuffle seed"
                 variant="outlined"
-                onPressIn={shuffleSeed}
+                onPress={shuffleSeed}
               />
               <Button
                 title="Copy seed"
                 variant="outlined"
-                onPressIn={() => void copySeed()}
+                onPress={() => void copySeed()}
               />
             </Box>
             <Text

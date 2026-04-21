@@ -1,11 +1,11 @@
 /**
  * `Chip` -- compact tag / filter element.
  *
- * Supports `selected` state and an optional `onPressIn` for toggle behavior.
+ * Supports `selected` state and an optional `onPress` for toggle behavior.
  *
  * @example
  * ```tsx
- * <Chip label="React Native" selected={sel} onPressIn={() => setSel(!sel)} />
+ * <Chip label="React Native" selected={sel} onPress={() => setSel(!sel)} />
  * ```
  */
 
@@ -16,14 +16,14 @@ import { Text } from '../text';
 export type ChipProps = {
   label: string;
   selected?: boolean;
-  onPressIn?: () => void;
+  onPress?: () => void;
   disabled?: boolean;
 };
 
 export function Chip({
   label,
   selected = false,
-  onPressIn,
+  onPress,
   disabled = false,
 }: ChipProps) {
   const theme = useTheme();
@@ -34,7 +34,7 @@ export function Chip({
 
   return (
     <Pressable
-      onPressIn={onPressIn}
+      onPress={onPress}
       disabled={disabled}
       style={({ pressed }) => [
         {

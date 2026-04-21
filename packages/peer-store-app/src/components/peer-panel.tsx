@@ -16,7 +16,7 @@ export type PeerAction = {
   label: string;
   color?: 'destructive' | 'warning' | 'success' | 'tint';
   active?: boolean;
-  onPressIn: () => void;
+  onPress: () => void;
 };
 
 export function PeerPanel({
@@ -66,7 +66,7 @@ export function PeerPanel({
             variant="outlined"
             size="sm"
             color={isOnline ? 'destructive' : 'success'}
-            onPressIn={isOnline ? onDisconnect : onReconnect}
+            onPress={isOnline ? onDisconnect : onReconnect}
           />
         </Stack>
         {hasBadges && (
@@ -108,7 +108,7 @@ export function PeerPanel({
                 variant={action.active ? 'solid' : 'outlined'}
                 size="sm"
                 color={action.color ?? 'tint'}
-                onPressIn={action.onPressIn}
+                onPress={action.onPress}
               />
             ))}
           </Stack>

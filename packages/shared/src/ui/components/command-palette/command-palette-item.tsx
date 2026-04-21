@@ -38,7 +38,7 @@ export function CommandPaletteItem({
 
   return (
     <Pressable
-      onPressIn={onSelect}
+      onPress={onSelect}
       disabled={!enabled || running}
       accessibilityRole="button"
       accessibilityState={{ selected, disabled: !enabled || running }}
@@ -47,7 +47,7 @@ export function CommandPaletteItem({
         px: 3,
         flexDirection: 'column',
         gap: 1,
-        background: selected ? 'paper' : 'transparent',
+        background: selected ? 'tintMuted' : 'transparent',
         borderLeftWidth: 3,
         borderLeftColor: selected ? 'tint' : 'transparent',
         opacity: enabled ? 1 : 0.45,

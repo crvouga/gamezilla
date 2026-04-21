@@ -16,12 +16,12 @@ export default function ModalExample() {
       <Stack spacing={2}>
         <Button
           title="Open Default Modal"
-          onPressIn={() => setDefaultOpen(true)}
+          onPress={() => setDefaultOpen(true)}
         />
         <Button
           title="Open Destructive Modal"
           color="destructive"
-          onPressIn={() => setDestructiveOpen(true)}
+          onPress={() => setDestructiveOpen(true)}
         />
       </Stack>
 

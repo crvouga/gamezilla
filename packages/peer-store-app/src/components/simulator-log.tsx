@@ -59,7 +59,7 @@ export function SimulatorLog({
           title={copiedRef.current ? 'Copied' : 'Copy for LLM'}
           variant="outlined"
           size="sm"
-          onPressIn={handleCopy}
+          onPress={handleCopy}
         />
       </Stack>
 

@@ -12,7 +12,7 @@ export default function PressableExample() {
 
       <Pressable
         sx={{ p: 4, background: 'surface', borderRadius: 8 }}
-        onPressIn={() => setCount((c) => c + 1)}
+        onPress={() => setCount((c) => c + 1)}
       >
         <Text variant="body" label={`Tap count: ${count}`} />
       </Pressable>
@@ -24,7 +24,7 @@ export default function PressableExample() {
           borderRadius: 8,
           alignItems: 'center',
         }}
-        onPressIn={() => setCount(0)}
+        onPress={() => setCount(0)}
       >
         <Text variant="bodyBold" sx={{ color: 'paper' }} label="Reset" />
       </Pressable>

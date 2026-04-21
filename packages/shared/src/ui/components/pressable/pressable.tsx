@@ -5,7 +5,7 @@
  *
  * @example
  * ```tsx
- * <Pressable sx={{ p: 3, background: 'surface', borderRadius: 8 }} onPressIn={handlePress}>
+ * <Pressable sx={{ p: 3, background: 'surface', borderRadius: 8 }} onPress={handlePress}>
  *   <Text>Tap me</Text>
  * </Pressable>
  * ```

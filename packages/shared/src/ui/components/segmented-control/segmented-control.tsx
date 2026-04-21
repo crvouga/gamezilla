@@ -114,7 +114,7 @@ export function SegmentedControl<K extends string = string>({
         return (
           <Pressable
             key={seg.key}
-            onPressIn={() => onSelect(seg.key)}
+            onPress={() => onSelect(seg.key)}
             disabled={disabled || isActive}
             style={({ pressed }) => [
               {

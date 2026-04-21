@@ -67,7 +67,7 @@ export default function DeveloperScreen() {
       />
       <Box sx={{ flex: 1, py: 2 }}>
         {ITEMS.map((item) => (
-          <Pressable key={item.key} onPressIn={() => router.push(item.href)}>
+          <Pressable key={item.key} onPress={() => router.push(item.href)}>
             <Box
               sx={{
                 flexDirection: 'row',

@@ -10,13 +10,13 @@ import { Text } from '../text';
 export type ModalButtonProps = {
   label: string;
   variant?: 'default' | 'cancel' | 'destructive';
-  onPressIn: () => void;
+  onPress: () => void;
 };
 
 export function ModalButton({
   label,
   variant = 'default',
-  onPressIn,
+  onPress,
 }: ModalButtonProps) {
   const theme = useTheme();
 
@@ -29,7 +29,7 @@ export function ModalButton({
 
   return (
     <Pressable
-      onPressIn={onPressIn}
+      onPress={onPress}
       style={({ pressed }) => [
         theme.sx({ py: 2, px: 4, borderRadius: borderRadius.sm }),
         pressed && { opacity: 0.7 },

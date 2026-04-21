@@ -41,7 +41,7 @@ export function TicTacToeBoard({
               <Pressable
                 key={cellIdx}
                 disabled={isDisabled}
-                onPressIn={() => onCellClick?.(cellIdx)}
+                onPress={() => onCellClick?.(cellIdx)}
                 style={({ pressed }) => [
                   {
                     width: 56,

@@ -9,19 +9,19 @@ export default function IconButtonExample() {
       <Text variant="heading" label="IconButton" />
 
       <Stack direction="horizontal" spacing={3} align="center">
-        <IconButton onPressIn={() => {}} background="surface">
+        <IconButton onPress={() => {}} background="surface">
           <Text variant="body" label="✕" />
         </IconButton>
 
-        <IconButton onPressIn={() => {}} size={48} background="tint">
+        <IconButton onPress={() => {}} size={48} background="tint">
           <Text variant="bodyBold" sx={{ color: 'paper' }} label="+" />
         </IconButton>
 
-        <IconButton onPressIn={() => {}} size={32} background="destructive">
+        <IconButton onPress={() => {}} size={32} background="destructive">
           <Text sx={{ color: 'paper', fontSize: 'xs' }} label="🗑" />
         </IconButton>
 
-        <IconButton disabled onPressIn={() => {}} background="surface">
+        <IconButton disabled onPress={() => {}} background="surface">
           <Text variant="body" label="⚙" />
         </IconButton>
       </Stack>
