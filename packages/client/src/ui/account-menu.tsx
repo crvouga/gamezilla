@@ -231,6 +231,7 @@ export function AccountMenu({ variant }: AccountMenuProps) {
               config={profile.avatarConfig}
               fallbackSeed={profile.principalId}
               size={32}
+              loading={profile.loading}
             />
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Text
@@ -266,6 +267,7 @@ export function AccountMenu({ variant }: AccountMenuProps) {
               config={profile.avatarConfig}
               fallbackSeed={profile.principalId}
               size={36}
+              loading={profile.loading}
             />
           </Pressable>
         )}

@@ -1,4 +1,4 @@
-import { Box } from '@gamezilla/shared/ui';
+import { Box, useTheme } from '@gamezilla/shared/ui';
 import type { AvatarConfig } from '@gamezilla/shared/profile/avatar-config';
 import { resolveAvatarSeed } from '@gamezilla/shared/profile/avatar-config';
 import { useMemo, type ReactNode } from 'react';
@@ -11,6 +11,12 @@ export type ProfileDiceBearAvatarProps = {
   /** Used when `config.seed` is empty (falls back to principal id). */
   fallbackSeed: string;
   size: number;
+  /**
+   * When `true`, render a neutral placeholder circle instead of a
+   * DiceBear SVG. Prevents a random, principal-id-seeded avatar from
+   * flashing on screen before the user's persisted config is loaded.
+   */
+  loading?: boolean;
 };
 
 /**
@@ -20,7 +26,9 @@ export function ProfileDiceBearAvatar({
   config,
   fallbackSeed,
   size,
+  loading = false,
 }: ProfileDiceBearAvatarProps): ReactNode {
+  const theme = useTheme();
   const resolved = useMemo(
     () => ({
       ...config,
@@ -29,8 +37,8 @@ export function ProfileDiceBearAvatar({
     [config, fallbackSeed],
   );
   const xml = useMemo(
-    () => profileAvatarSvg(resolved, size),
-    [resolved, size],
+    () => (loading ? null : profileAvatarSvg(resolved, size)),
+    [loading, resolved, size],
   );
 
   return (
@@ -41,8 +49,9 @@ export function ProfileDiceBearAvatar({
         borderRadius: size / 2,
         overflow: 'hidden',
       }}
+      style={loading ? { backgroundColor: theme.colors.surface } : undefined}
     >
-      <SvgXml xml={xml} width={size} height={size} />
+      {xml !== null ? <SvgXml xml={xml} width={size} height={size} /> : null}
     </Box>
   );
 }

@@ -67,7 +67,7 @@ function modeToBackgroundType(m: 'solid' | 'gradient' | 'both'): string[] {
 export function AvatarEditorScreen() {
   const router = useRouter();
   const db = usePatchesDb();
-  const { principalId, entity } = useProfile();
+  const { principalId, entity, loading: profileLoading } = useProfile();
 
   const persisted = useMemo(
     () =>
@@ -88,9 +88,15 @@ export function AvatarEditorScreen() {
   // value, new object reference) apart from a real change. Without this the
   // draft gets clobbered every poll cycle and the user's in-progress edits
   // disappear.
+  //
+  // We also defer seeding the draft until PatchDB has finished loading —
+  // otherwise we'd lock in the fallback (principal-id-seeded) config as the
+  // baseline and then immediately treat the real persisted config as a
+  // "remote change".
   const lastPersistedRef = useRef<AvatarConfig | null>(null);
 
   useEffect(() => {
+    if (profileLoading) return;
     const prev = lastPersistedRef.current;
     if (prev === null) {
       setDraft(persisted);
@@ -105,7 +111,7 @@ export function AvatarEditorScreen() {
       );
       lastPersistedRef.current = persisted;
     }
-  }, [persisted]);
+  }, [persisted, profileLoading]);
 
   const dirty = !configsEqual(draft, persisted);
   const styleKey: StyleKey = isStyleKey(draft.style) ? draft.style : 'lorelei';
@@ -219,6 +225,7 @@ export function AvatarEditorScreen() {
               config={previewConfig}
               fallbackSeed={principalId}
               size={192}
+              loading={profileLoading}
             />
             <Box
               sx={{

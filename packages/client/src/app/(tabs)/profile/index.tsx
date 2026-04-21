@@ -20,6 +20,7 @@ export default function ProfileScreen() {
               config={profile.avatarConfig}
               fallbackSeed={profile.principalId}
               size={80}
+              loading={profile.loading}
             />
             <Text variant="title" label={profile.displayLabel} />
           </Box>
