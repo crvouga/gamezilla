@@ -75,7 +75,7 @@ export function AppSidebar() {
                 py: 3,
                 px: 3,
                 borderRadius: 12,
-                background: active ? 'paper' : 'transparent',
+                background: active ? 'surface' : 'transparent',
               }}
             >
               <IconSymbol

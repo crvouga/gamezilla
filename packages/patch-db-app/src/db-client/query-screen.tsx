@@ -99,7 +99,7 @@ export function QueryScreen({ onClose }: QueryScreenProps) {
                 px: 3,
                 py: 2,
                 fontSize: 14,
-                background: 'paper',
+                background: 'surface',
                 borderColor: 'border',
               }}
             />
@@ -114,7 +114,7 @@ export function QueryScreen({ onClose }: QueryScreenProps) {
                 px: 3,
                 py: 2,
                 fontSize: 14,
-                background: 'paper',
+                background: 'surface',
                 borderColor: 'border',
               }}
             />
@@ -129,7 +129,7 @@ export function QueryScreen({ onClose }: QueryScreenProps) {
                 px: 3,
                 py: 2,
                 fontSize: 14,
-                background: 'paper',
+                background: 'surface',
                 borderColor: 'border',
               }}
             />
@@ -144,7 +144,7 @@ export function QueryScreen({ onClose }: QueryScreenProps) {
                 px: 3,
                 py: 2,
                 fontSize: 14,
-                background: 'paper',
+                background: 'surface',
                 borderColor: 'border',
               }}
             />
@@ -161,7 +161,7 @@ export function QueryScreen({ onClose }: QueryScreenProps) {
                 py: 2,
                 fontSize: 12,
                 minHeight: 100,
-                background: 'paper',
+                background: 'surface',
                 borderColor: 'border',
                 fontFamily: 'monospace',
               }}

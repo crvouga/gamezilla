@@ -19,7 +19,7 @@ export function ModalContent({ children, style }: ModalContentProps) {
         borderRadius: borderRadius.lg,
         maxWidth: 400,
         alignSelf: 'center',
-        background: 'paper',
+        background: 'surface',
       }}
       style={[
         {

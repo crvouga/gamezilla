@@ -103,7 +103,7 @@ export function ColumnShell({
                     py: 2,
                     borderBottomWidth: 1,
                     borderColor: 'border',
-                    background: 'paper',
+                    background: 'surface',
                   }}
                 >
                   <Text
@@ -136,7 +136,7 @@ export function ColumnShell({
                   py: 2,
                   borderBottomWidth: 1,
                   borderColor: 'border',
-                  background: 'paper',
+                  background: 'surface',
                 }}
               >
                 <Text

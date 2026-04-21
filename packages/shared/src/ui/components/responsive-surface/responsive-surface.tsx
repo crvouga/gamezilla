@@ -83,7 +83,7 @@ export function ResponsiveSurface({
         onDismiss={onClose}
         backdropComponent={renderBackdrop}
         handleIndicatorStyle={{ backgroundColor: theme.colors.border }}
-        backgroundStyle={{ backgroundColor: theme.colors.paper }}
+        backgroundStyle={{ backgroundColor: theme.colors.surface }}
       >
         <BottomSheetView
           style={{

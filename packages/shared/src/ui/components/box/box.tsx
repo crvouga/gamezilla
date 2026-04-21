@@ -6,7 +6,7 @@
  *
  * @example
  * ```tsx
- * <Box sx={{ p: 4, background: 'paper', borderRadius: 8 }}>
+ * <Box sx={{ p: 4, background: 'surface', borderRadius: 8 }}>
  *   <Text>Hello</Text>
  * </Box>
  * ```

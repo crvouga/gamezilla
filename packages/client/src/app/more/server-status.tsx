@@ -91,7 +91,7 @@ export default function ServerStatusScreen() {
       ]}
       scroll
       content={({ sx }) => (
-        <Box style={sx}>
+        <Box style={{ ...sx, gap: 12 }}>
           <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
             <StatusDot status={aggregateStatus} size={12} />
             <Text variant="bodyBold" label="Overall" />

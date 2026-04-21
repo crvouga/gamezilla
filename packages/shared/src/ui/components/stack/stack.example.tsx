@@ -5,7 +5,7 @@ import { Stack } from './stack';
 function ColorBox({ label, color }: { label: string; color: string }) {
   return (
     <Box sx={{ p: 3, background: color, borderRadius: 8, minWidth: 64 }}>
-      <Text variant="caption" sx={{ color: 'paper' }} label={label} />
+      <Text variant="caption" sx={{ color: 'surface' }} label={label} />
     </Box>
   );
 }

@@ -5,7 +5,7 @@
  *
  * @example
  * ```tsx
- * <SafeAreaView sx={{ flex: 1, background: 'paper' }}>
+ * <SafeAreaView sx={{ flex: 1, background: 'surface' }}>
  *   <Text>Safe content</Text>
  * </SafeAreaView>
  * ```

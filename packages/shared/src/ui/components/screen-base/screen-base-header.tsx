@@ -156,7 +156,7 @@ export function ScreenBaseHeader({
   return (
     <Box
       sx={{
-        background: 'paper',
+        background: 'surface',
         borderBottomWidth: 1,
         borderColor: 'border',
         paddingTop: insets.top,

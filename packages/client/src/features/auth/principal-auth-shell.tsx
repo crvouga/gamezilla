@@ -66,7 +66,7 @@ export function PrincipalAuthShell({ children }: { children: ReactNode }) {
 
   if (error !== null) {
     return (
-      <Center sx={{ flex: 1, gap: 4, p: 4, background: 'paper' }}>
+      <Center sx={{ flex: 1, gap: 4, p: 4, background: 'surface' }}>
         <Text
           variant="bodyBold"
           sx={{ fontSize: 'base' }}

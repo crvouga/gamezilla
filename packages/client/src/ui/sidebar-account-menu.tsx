@@ -213,7 +213,7 @@ export function SidebarAccountMenu() {
             py: 2,
             px: 2,
             borderRadius: 12,
-            background: open ? 'paper' : 'transparent',
+            background: open ? 'surface' : 'transparent',
           }}
         >
           <ProfileDiceBearAvatar

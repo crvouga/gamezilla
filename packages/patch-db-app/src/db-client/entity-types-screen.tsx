@@ -107,7 +107,7 @@ export function EntityTypesScreen({
             px: 3,
             py: 2.5,
             fontSize: 15,
-            background: 'paper',
+            background: 'surface',
             color: 'text',
             borderColor: 'border',
           }}

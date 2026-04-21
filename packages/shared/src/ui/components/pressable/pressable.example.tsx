@@ -26,7 +26,7 @@ export default function PressableExample() {
         }}
         onPress={() => setCount(0)}
       >
-        <Text variant="bodyBold" sx={{ color: 'paper' }} label="Reset" />
+        <Text variant="bodyBold" sx={{ color: 'surface' }} label="Reset" />
       </Pressable>
 
       <Pressable

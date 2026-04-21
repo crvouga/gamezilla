@@ -4,7 +4,7 @@
  *
  * Usage:
  *   const theme = useTheme();
- *   <View style={theme.sx({ px: 2, py: 1, background: "paper" })} />
+ *   <View style={theme.sx({ px: 2, py: 1, background: "surface" })} />
  */
 
 export { AppStatusBar, type AppStatusBarProps } from './app-status-bar';

@@ -39,8 +39,8 @@ export type SxProps = {
   gap?: number;
   flexWrap?: ViewStyle['flexWrap'];
   // Background / color
-  background?: ColorTokenName | string;
-  color?: ColorTokenName | string;
+  background?: ColorTokenName | (string & {});
+  color?: ColorTokenName | (string & {});
   backgroundColor?: ColorTokenName | string;
   // Border
   borderWidth?: number;

@@ -18,7 +18,7 @@ export default function CenterExample() {
           borderRadius: 12,
         }}
       >
-        <Text variant="bodyBold" sx={{ color: 'paper' }} label="Centered on tint" />
+        <Text variant="bodyBold" sx={{ color: 'surface' }} label="Centered on tint" />
       </Center>
     </Box>
   );

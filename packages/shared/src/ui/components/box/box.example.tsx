@@ -13,12 +13,6 @@ export default function BoxExample() {
         Box
       </Text>
 
-      <Box sx={{ p: 4, background: 'paper', borderRadius: 8 }}>
-        <Text style={theme.sx({ color: 'text' })}>
-          Default paper background
-        </Text>
-      </Box>
-
       <Box sx={{ p: 4, background: 'surface', borderRadius: 8 }}>
         <Text style={theme.sx({ color: 'text' })}>Surface background</Text>
       </Box>
@@ -26,7 +20,7 @@ export default function BoxExample() {
       <Box
         sx={{
           p: 4,
-          background: 'paper',
+          background: 'surface',
           borderWidth: 1,
           borderColor: 'border',
           borderRadius: 12,
@@ -42,7 +36,7 @@ export default function BoxExample() {
           borderRadius: 8,
         }}
       >
-        <Text style={theme.sx({ color: 'paper', fontWeight: '600' })}>
+        <Text style={theme.sx({ color: 'surface', fontWeight: '600' })}>
           Tint background
         </Text>
       </Box>
