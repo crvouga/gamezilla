@@ -2,33 +2,35 @@ import {
   Box,
   IconSymbol,
   Pressable,
+  ScreenBase,
   Text,
   useTheme,
 } from '@gamezilla/shared/ui';
 import { useRouter } from 'expo-router';
 
-import { ConstrainedContent } from '@/ui/constrained-content';
-import { ScreenHeader } from '@/ui/screen-header';
+import { useBreadcrumbNav } from '@/ui/use-breadcrumb-nav';
 
 export default function ProfileEditScreen() {
   const router = useRouter();
   const theme = useTheme();
+  const nav = useBreadcrumbNav();
 
   return (
-    <Box sx={{ flex: 1 }}>
-      <ScreenHeader
-        title="Edit profile"
-        subtitle="Choose what to update"
-        fallbackHref="/profile"
-      />
-      <ConstrainedContent>
-        <Box sx={{ flex: 1, py: 2 }}>
+    <ScreenBase
+      breadcrumbs={[
+        { name: 'Profile', onPress: nav('/profile') },
+        {
+          name: 'Edit profile',
+          subtitle: 'Choose what to update',
+        },
+      ]}
+      content={({ sx }) => (
+        <Box style={sx}>
           <Pressable onPress={() => router.push('/profile/username')}>
             <Box
               sx={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                px: 4,
                 py: 3,
                 gap: 3,
               }}
@@ -49,7 +51,6 @@ export default function ProfileEditScreen() {
               sx={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                px: 4,
                 py: 3,
                 gap: 3,
               }}
@@ -66,7 +67,7 @@ export default function ProfileEditScreen() {
             </Box>
           </Pressable>
         </Box>
-      </ConstrainedContent>
-    </Box>
+      )}
+    />
   );
 }

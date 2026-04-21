@@ -138,3 +138,15 @@ export {
 } from './multi-select-swatch';
 
 export { SectionCard, type SectionCardProps } from './section-card';
+
+export {
+  ScreenBase,
+  ScreenBaseHeader,
+  partitionScreenActions,
+  type BodyContentProps,
+  type ScreenBaseAction,
+  type ScreenBaseActionType,
+  type ScreenBaseBreadcrumb,
+  type ScreenBaseHeaderProps,
+  type ScreenBaseProps,
+} from './screen-base';

@@ -45,6 +45,7 @@ import { default as ChipGroupExample } from '../chip-group/chip-group.example';
 import { default as NumberStepperExample } from '../number-stepper/number-stepper.example';
 import { default as MultiSelectSwatchGridExample } from '../multi-select-swatch/multi-select-swatch-grid.example';
 import { default as SectionCardExample } from '../section-card/section-card.example';
+import { default as ScreenBaseExample } from '../screen-base/screen-base.example';
 
 export type ComponentEntry = {
   name: string;
@@ -66,6 +67,7 @@ export const componentRegistry: ComponentEntry[] = [
   { name: 'Spacer', category: 'Layout', Example: SpacerExample },
   { name: 'ScrollView', category: 'Layout', Example: ScrollViewExample },
   { name: 'SafeAreaView', category: 'Layout', Example: SafeAreaViewExample },
+  { name: 'ScreenBase', category: 'Layout', Example: ScreenBaseExample },
 
   // Inputs
   { name: 'Button', category: 'Inputs', Example: ButtonExample },

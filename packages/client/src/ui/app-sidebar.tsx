@@ -8,7 +8,7 @@ import {
 import { usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AccountMenu } from '@/ui/account-menu';
+import { SidebarAccountMenu } from '@/ui/sidebar-account-menu';
 
 type NavItem = {
   href: '/' | '/profile';
@@ -108,7 +108,7 @@ export function AppSidebar() {
           paddingBottom: insets.bottom > 0 ? insets.bottom : 2,
         }}
       >
-        <AccountMenu variant="sidebar" />
+        <SidebarAccountMenu />
       </Box>
     </Box>
   );

@@ -1,23 +1,33 @@
 import { useRouter } from 'expo-router';
-import { Box } from '@gamezilla/shared/ui';
+import { Box, ScreenBase } from '@gamezilla/shared/ui';
 import { ExplorerList } from '@gamezilla/shared/ui/explorer';
 
-import { ScreenHeader } from '@/ui/screen-header';
+import { useBreadcrumbNav } from '@/ui/use-breadcrumb-nav';
 
 export default function UIExplorerIndex() {
   const router = useRouter();
+  const nav = useBreadcrumbNav();
 
   return (
-    <Box sx={{ flex: 1 }}>
-      <ScreenHeader title="UI Components" fallbackHref="/more/developer" />
-      <ExplorerList
-        onSelect={(name) =>
-          router.push({
-            pathname: '/ui/[component]',
-            params: { component: name },
-          })
-        }
-      />
-    </Box>
+    <ScreenBase
+      breadcrumbs={[
+        { name: 'Spaces', onPress: nav('/') },
+        { name: 'Settings', onPress: nav('/more') },
+        { name: 'Developer', onPress: nav('/more/developer') },
+        { name: 'UI Components' },
+      ]}
+      content={({ sx }) => (
+        <Box style={sx}>
+          <ExplorerList
+            onSelect={(name) =>
+              router.push({
+                pathname: '/ui/[component]',
+                params: { component: name },
+              })
+            }
+          />
+        </Box>
+      )}
+    />
   );
 }

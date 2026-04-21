@@ -6,4 +6,3 @@ export {
   type TodoListDetailProps,
 } from './todo-list-detail';
 export { TodoListsOverview, type TodoListsOverviewProps } from './todo-lists-overview';
-export { TodoScreenHeader, type TodoScreenHeaderProps } from './todo-screen-header';

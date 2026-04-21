@@ -1,10 +1,12 @@
-import { ScreenHeader } from '@/ui/screen-header';
 import {
   Box,
+  ScreenBase,
   SegmentedControl,
   Text,
   useThemePreference,
 } from '@gamezilla/shared/ui';
+
+import { useBreadcrumbNav } from '@/ui/use-breadcrumb-nav';
 
 const THEME_SEGMENTS = [
   { key: 'light', label: '☀️ Light' },
@@ -14,21 +16,31 @@ const THEME_SEGMENTS = [
 
 export default function ThemeSettingsScreen() {
   const { preference, setPreference } = useThemePreference();
+  const nav = useBreadcrumbNav();
 
   return (
-    <Box sx={{ flex: 1 }}>
-      <ScreenHeader title="Appearance" subtitle="Theme" fallbackHref="/more" />
-      <Box sx={{ flex: 1, px: 4, py: 4, gap: 3 }}>
-        <Text
-          variant="body"
-          label="Choose how the app looks. System matches your device appearance."
-        />
-        <SegmentedControl
-          segments={[...THEME_SEGMENTS]}
-          selected={preference}
-          onSelect={setPreference}
-        />
-      </Box>
-    </Box>
+    <ScreenBase
+      breadcrumbs={[
+        { name: 'Spaces', onPress: nav('/') },
+        { name: 'Settings', onPress: nav('/more') },
+        {
+          name: 'Appearance',
+          subtitle: 'Theme',
+        },
+      ]}
+      content={({ sx }) => (
+        <Box style={sx}>
+          <Text
+            variant="body"
+            label="Choose how the app looks. System matches your device appearance."
+          />
+          <SegmentedControl
+            segments={[...THEME_SEGMENTS]}
+            selected={preference}
+            onSelect={setPreference}
+          />
+        </Box>
+      )}
+    />
   );
 }

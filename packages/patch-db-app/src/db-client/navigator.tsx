@@ -4,7 +4,7 @@ import {
   ModalBackdrop,
   ModalContent,
   ModalRoot,
-  Pressable,
+  ScreenBaseHeader,
   Text,
 } from '@gamezilla/shared/ui';
 import { useCallback, useEffect, useMemo } from 'react';
@@ -188,49 +188,6 @@ function EmptyColumnPlaceholder({ hint }: { hint: string }) {
 function short(value: string, max = 28): string {
   if (value.length <= max) return value;
   return `${value.slice(0, max - 1)}…`;
-}
-
-type HeaderProps = {
-  title: string;
-  subtitle?: string;
-  showBack: boolean;
-  onBack: () => void;
-};
-
-function Header({ title, subtitle, showBack, onBack }: HeaderProps) {
-  return (
-    <Box
-      sx={{
-        background: 'paper',
-        borderBottomWidth: 1,
-        borderColor: 'border',
-        px: 3,
-        py: 2.5,
-      }}
-    >
-      <Box sx={{ flexDirection: 'row', alignItems: 'center' }}>
-        {showBack ? (
-          <Pressable onPress={onBack} hitSlop={8}>
-            <Text variant="label" sx={{ color: 'tint' }} label="Back" />
-          </Pressable>
-        ) : (
-          <Box sx={{ width: 40 }} />
-        )}
-        <Box sx={{ flex: 1, alignItems: 'center', px: 2 }}>
-          <Text
-            variant="bodyBold"
-            numberOfLines={1}
-            ellipsizeMode="tail"
-            label={title}
-          />
-          {subtitle !== undefined && subtitle !== '' ? (
-            <Text variant="caption" numberOfLines={1} label={subtitle} />
-          ) : null}
-        </Box>
-        <Box sx={{ width: 40 }} />
-      </Box>
-    </Box>
-  );
 }
 
 export function ExplorerRoute({
@@ -486,16 +443,29 @@ export function ExplorerRoute({
     applyParams(closeQuery(params));
   }, [applyParams, params]);
 
+  const showHeaderBack = canGoBackInApp || onExit !== undefined;
+  const explorerBreadcrumbs = showHeaderBack
+    ? [
+        { name: 'Back', onPress: goBackOneLevel },
+        {
+          name: headerTitle,
+          ...(headerSubtitle !== undefined && headerSubtitle !== ''
+            ? { subtitle: headerSubtitle }
+            : {}),
+        },
+      ]
+    : [
+        {
+          name: headerTitle,
+          ...(headerSubtitle !== undefined && headerSubtitle !== ''
+            ? { subtitle: headerSubtitle }
+            : {}),
+        },
+      ];
+
   return (
     <Box sx={{ flex: 1 }}>
-      <Header
-        title={headerTitle}
-        {...(headerSubtitle !== undefined && headerSubtitle !== ''
-          ? { subtitle: headerSubtitle }
-          : {})}
-        showBack={canGoBackInApp || onExit !== undefined}
-        onBack={goBackOneLevel}
-      />
+      <ScreenBaseHeader breadcrumbs={explorerBreadcrumbs} />
       <ColumnShell
         panels={panels}
         showBreadcrumbs={showBreadcrumbs}

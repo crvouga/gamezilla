@@ -30,6 +30,7 @@ import {
 } from '@gamezilla/shared/ui';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 assert.registerCrashHandler(new BrowserCrashHandler());
 assert.registerCrashHandler(new ExpoCrashHandler());
@@ -86,29 +87,31 @@ export default function RootLayout() {
   }, [fontsLoaded, fontError]);
 
   return (
-    <GestureHandlerRootView>
-      <AppThemeRoot
-        storage={AsyncStorage}
-        {...(fontsLoaded ? { fonts: nunitoFontStacks } : {})}
-      >
-        <BottomSheetModalProvider>
-        <ConfigContainerProvider>
-          <PrincipalAuthShell>
-            <PatchBootstrap>
-              <AuthProvider>
-                <CommandRegistryProvider storage={AsyncStorage}>
-                  <AppCommands />
-                  <CommandPalette />
-                  <CommandPaletteNativeGesture>
-                    <AppStack />
-                  </CommandPaletteNativeGesture>
-                </CommandRegistryProvider>
-              </AuthProvider>
-            </PatchBootstrap>
-          </PrincipalAuthShell>
-        </ConfigContainerProvider>
-        </BottomSheetModalProvider>
-      </AppThemeRoot>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <AppThemeRoot
+          storage={AsyncStorage}
+          {...(fontsLoaded ? { fonts: nunitoFontStacks } : {})}
+        >
+          <BottomSheetModalProvider>
+            <ConfigContainerProvider>
+              <PrincipalAuthShell>
+                <PatchBootstrap>
+                  <AuthProvider>
+                    <CommandRegistryProvider storage={AsyncStorage}>
+                      <AppCommands />
+                      <CommandPalette />
+                      <CommandPaletteNativeGesture>
+                        <AppStack />
+                      </CommandPaletteNativeGesture>
+                    </CommandRegistryProvider>
+                  </AuthProvider>
+                </PatchBootstrap>
+              </PrincipalAuthShell>
+            </ConfigContainerProvider>
+          </BottomSheetModalProvider>
+        </AppThemeRoot>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

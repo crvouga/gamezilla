@@ -5,6 +5,7 @@ import {
   ConfirmationModal,
   FlatList,
   Pressable,
+  ScreenBaseHeader,
   Text,
   TextInput,
   useTheme,
@@ -12,7 +13,6 @@ import {
 import { useState } from 'react';
 
 import { INBOX_LIST_ID } from './todo-constants';
-import { TodoScreenHeader } from './todo-screen-header';
 
 const TODO_LIST_DELETED_CLAUSE = {
   type: 'or' as const,
@@ -130,29 +130,34 @@ export function TodoListsOverview({
     })),
   ];
 
+  const breadcrumbs =
+    onBack !== undefined
+      ? [
+          { name: 'Developer', onPress: onBack },
+          {
+            name: 'Todo Lists',
+            subtitle: 'Group your todos by list',
+          },
+        ]
+      : [
+          {
+            name: 'Todo Lists',
+            subtitle: 'Group your todos by list',
+          },
+        ];
+
   return (
     <Box sx={{ flex: 1 }}>
-      <TodoScreenHeader
-        title="Todo Lists"
-        subtitle="Group your todos by list"
-        {...(onBack !== undefined ? { onBack } : {})}
-        end={
-          <Pressable
-            onPress={() => setDeleteDbModalVisible(true)}
-            style={({ pressed }) => [
-              theme.sx({ py: 2, px: 2, borderRadius: 8 }),
-              pressed && theme.sx({ opacity: 0.7 }),
-            ]}
-          >
-            <Text
-              style={[
-                theme.sx({ fontSize: 14 }),
-                { color: theme.colors.destructive },
-              ]}
-              label="Clear data"
-            />
-          </Pressable>
-        }
+      <ScreenBaseHeader
+        breadcrumbs={breadcrumbs}
+        actions={[
+          {
+            type: 'destructive',
+            label: 'Clear data',
+            onPress: () => setDeleteDbModalVisible(true),
+            overflow: 'never',
+          },
+        ]}
       />
       <Box sx={{ flex: 1, p: 4 }}>
         {adding ? (

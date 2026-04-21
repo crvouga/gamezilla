@@ -12,6 +12,7 @@ import {
   Box,
   KeyboardAvoidingView,
   Pressable,
+  ScreenBaseHeader,
   Text,
   TextInput,
   useTheme,
@@ -20,7 +21,6 @@ import { useState } from 'react';
 
 import { INBOX_LIST_ID } from './todo-constants';
 import { TodoItem } from './todo-item';
-import { TodoScreenHeader } from './todo-screen-header';
 
 const DELETED_CLAUSE: PatchesDbQueryWhereClause = {
   type: 'or',
@@ -159,12 +159,14 @@ export function TodoListDetail({ listId, onBack }: TodoListDetailProps) {
     ]);
   };
 
+  const breadcrumbs =
+    onBack !== undefined
+      ? [{ name: 'Todo Lists', onPress: onBack }, { name: listName }]
+      : [{ name: listName }];
+
   return (
     <Box sx={{ flex: 1 }}>
-      <TodoScreenHeader
-        title={listName}
-        {...(onBack !== undefined ? { onBack } : {})}
-      />
+      <ScreenBaseHeader breadcrumbs={breadcrumbs} />
       <KeyboardAvoidingView sx={{ flex: 1, p: 4 }}>
         <Box sx={{ flexDirection: 'row', gap: 2, mb: 3 }}>
           <Pressable

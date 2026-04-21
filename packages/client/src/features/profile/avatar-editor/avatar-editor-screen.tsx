@@ -27,7 +27,7 @@ import {
   NumberStepper,
   Pressable,
   ResponsiveSurface,
-  ScrollView,
+  ScreenBase,
   SegmentedControl,
   Switch,
   Text,
@@ -36,8 +36,6 @@ import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { ConstrainedContent } from '@/ui/constrained-content';
-import { ScreenHeader } from '@/ui/screen-header';
 import { useProfile } from '../use-profile';
 import {
   getEnumSelectionMode,
@@ -215,28 +213,7 @@ export function AvatarEditorScreen() {
   const closeSurface = useCallback(() => setSurface(null), []);
 
   return (
-    <Box sx={{ flex: 1 }}>
-      <ScreenHeader
-        title="Avatar"
-        fallbackHref="/profile/edit"
-        onBackPress={onBack}
-        end={
-          <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-            <Button
-              title="Reset"
-              variant="outlined"
-              onPress={resetStyleDefaults}
-              disabled={!initialized}
-            />
-            <Button
-              title="Save"
-              onPress={() => void save()}
-              loading={saving}
-              disabled={saving || !dirty}
-            />
-          </Box>
-        }
-      />
+    <>
       <ConfirmationModal
         visible={showDiscard}
         title="Discard changes?"
@@ -246,11 +223,31 @@ export function AvatarEditorScreen() {
         onConfirm={confirmDiscard}
         onCancel={() => setShowDiscard(false)}
       />
-      <ConstrainedContent>
-        <ScrollView
-          sx={{ flex: 1 }}
-          contentContainerStyle={{ padding: 16, gap: 12 }}
-        >
+      <ScreenBase
+        breadcrumbs={[
+          { name: 'Profile', onPress: onBack },
+          { name: 'Avatar' },
+        ]}
+        actions={[
+          {
+            type: 'secondary',
+            label: 'Reset',
+            onPress: resetStyleDefaults,
+            disabled: !initialized,
+            overflow: 'never',
+          },
+          {
+            type: 'submit',
+            label: 'Save',
+            onPress: () => void save(),
+            loading: saving,
+            disabled: saving || !dirty,
+            overflow: 'never',
+          },
+        ]}
+        scroll
+        content={({ sx }) => (
+          <Box style={sx}>
           <Box sx={{ alignItems: 'center', gap: 2, minHeight: 260 }}>
             <ProfileDiceBearAvatar
               config={previewConfig}
@@ -457,9 +454,10 @@ export function AvatarEditorScreen() {
               />
             </>
           ) : null}
-        </ScrollView>
-      </ConstrainedContent>
-    </Box>
+          </Box>
+        )}
+      />
+    </>
   );
 }
 

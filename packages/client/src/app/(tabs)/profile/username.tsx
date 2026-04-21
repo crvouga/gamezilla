@@ -3,18 +3,12 @@ import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
 } from '@gamezilla/shared/profile/profile-entities';
-import {
-  Box,
-  Button,
-  KeyboardAvoidingView,
-  TextInput,
-} from '@gamezilla/shared/ui';
+import { Box, ScreenBase, TextInput } from '@gamezilla/shared/ui';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useProfile } from '@/features/profile/use-profile';
-import { ConstrainedContent } from '@/ui/constrained-content';
-import { ScreenHeader } from '@/ui/screen-header';
+import { useBreadcrumbNav } from '@/ui/use-breadcrumb-nav';
 
 export default function ProfileUsernameScreen() {
   const router = useRouter();
@@ -22,10 +16,8 @@ export default function ProfileUsernameScreen() {
   const { principalId, entity } = useProfile();
   const [value, setValue] = useState('');
   const [saving, setSaving] = useState(false);
+  const nav = useBreadcrumbNav();
 
-  // Track last-seen persisted name so we can distinguish "entity reference
-  // changed because PatchDB polled" from "persisted value actually changed".
-  // Without this, every poll reassigns `value` and wipes the user's edits.
   const lastPersistedRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -39,8 +31,6 @@ export default function ProfileUsernameScreen() {
       return;
     }
     if (persisted !== prev) {
-      // Persisted value changed (e.g. another device). Only overwrite the
-      // in-progress draft if the user hasn't edited it yet.
       setValue((current) => (current === prev ? persisted : current));
       lastPersistedRef.current = persisted;
     }
@@ -65,28 +55,34 @@ export default function ProfileUsernameScreen() {
   }, [db, principalId, router, value]);
 
   return (
-    <Box sx={{ flex: 1 }}>
-      <ScreenHeader title="Username" fallbackHref="/profile/edit" />
-      <KeyboardAvoidingView sx={{ flex: 1 }}>
-        <ConstrainedContent>
-          <Box sx={{ flex: 1, px: 4, pt: 4, gap: 4 }}>
-            <TextInput
-              label="Display name"
-              value={value}
-              onChangeText={setValue}
-              placeholder="Your name"
-              autoCapitalize="words"
-              autoCorrect
-            />
-            <Button
-              title="Save"
-              onPress={() => void save()}
-              loading={saving}
-              disabled={saving}
-            />
-          </Box>
-        </ConstrainedContent>
-      </KeyboardAvoidingView>
-    </Box>
+    <ScreenBase
+      breadcrumbs={[
+        { name: 'Profile', onPress: nav('/profile') },
+        { name: 'Edit profile', onPress: nav('/profile/edit') },
+        { name: 'Username' },
+      ]}
+      actions={[
+        {
+          type: 'submit',
+          label: 'Save',
+          onPress: () => void save(),
+          loading: saving,
+          disabled: saving,
+        },
+      ]}
+      keyboardAvoiding
+      content={({ sx }) => (
+        <Box style={sx}>
+          <TextInput
+            label="Display name"
+            value={value}
+            onChangeText={setValue}
+            placeholder="Your name"
+            autoCapitalize="words"
+            autoCorrect
+          />
+        </Box>
+      )}
+    />
   );
 }

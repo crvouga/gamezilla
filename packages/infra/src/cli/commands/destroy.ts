@@ -1,7 +1,6 @@
 import { banner, ok } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
-import { DopplerResource } from '../resources/doppler';
 import { createRegistry } from '../resources/registry';
 import { topoSort } from '../resources/topo-sort';
 import type { Command } from './types';
@@ -18,11 +17,6 @@ export class DestroyCommand implements Command {
   async execute(): Promise<void> {
     const t0 = performance.now();
     banner('Destroy');
-
-    await runStep(this.platform, 'Load secrets', () => {
-      new DopplerResource().loadSecretsQuick();
-      ok('Secrets loaded');
-    });
 
     const resources = topoSort(createRegistry()).reverse();
 

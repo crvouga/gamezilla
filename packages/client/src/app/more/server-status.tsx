@@ -1,11 +1,11 @@
 import { useServerStatus } from '@/features/connection/use-server-status';
-import { ScreenHeader } from '@/ui/screen-header';
+import { useBreadcrumbNav } from '@/ui/use-breadcrumb-nav';
 import { getKnownServerNameForApiUrl } from '@gamezilla/shared/config/api-servers';
 import {
   Box,
   Button,
   Card,
-  ScrollView,
+  ScreenBase,
   StatusDot,
   Text,
 } from '@gamezilla/shared/ui';
@@ -43,6 +43,7 @@ function formatNetworkType(type: NetworkStateType | undefined): string {
 }
 
 export default function ServerStatusScreen() {
+  const nav = useBreadcrumbNav();
   const { apiUrl, healthUrl, networkState, health, aggregateStatus, refresh } =
     useServerStatus();
 
@@ -79,17 +80,18 @@ export default function ServerStatusScreen() {
           : '…';
 
   return (
-    <Box sx={{ flex: 1 }}>
-      <ScreenHeader
-        title="Connection"
-        subtitle="Network and API status"
-        fallbackHref="/more"
-      />
-      <ScrollView
-        sx={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: 24 }}
-      >
-        <Box sx={{ px: 4, pt: 4, gap: 4 }}>
+    <ScreenBase
+      breadcrumbs={[
+        { name: 'Spaces', onPress: nav('/') },
+        { name: 'Settings', onPress: nav('/more') },
+        {
+          name: 'Connection',
+          subtitle: 'Network and API status',
+        },
+      ]}
+      scroll
+      content={({ sx }) => (
+        <Box style={sx}>
           <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
             <StatusDot status={aggregateStatus} size={12} />
             <Text variant="bodyBold" label="Overall" />
@@ -159,7 +161,7 @@ export default function ServerStatusScreen() {
             disabled={health.phase === 'loading'}
           />
         </Box>
-      </ScrollView>
-    </Box>
+      )}
+    />
   );
 }

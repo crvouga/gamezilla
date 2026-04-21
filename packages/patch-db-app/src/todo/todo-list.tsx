@@ -4,6 +4,7 @@ import {
   Box,
   KeyboardAvoidingView,
   Pressable,
+  ScreenBaseHeader,
   Text,
   TextInput,
   useTheme,
@@ -11,7 +12,6 @@ import {
 import { useState } from 'react';
 
 import { TodoItem } from './todo-item';
-import { TodoScreenHeader } from './todo-screen-header';
 
 const DELETED_CLAUSE = {
   type: 'or' as const,
@@ -120,7 +120,7 @@ export function TodoList() {
 
   return (
     <Box sx={{ flex: 1 }}>
-      <TodoScreenHeader title="Todos" />
+      <ScreenBaseHeader breadcrumbs={[{ name: 'Todos' }]} />
       <KeyboardAvoidingView sx={{ flex: 1, p: 4 }}>
         <Box sx={{ flexDirection: 'row', gap: 2, mb: 3 }}>
           <Pressable

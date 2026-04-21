@@ -1,3 +1,7 @@
+/**
+ * Wide-layout sidebar account row + {@link FloatingMenu} (same entries as header overflow).
+ */
+
 import { useServerStatus } from '@/features/connection/use-server-status';
 import { useLogger } from '@gamezilla/shared/logger/react';
 import {
@@ -25,20 +29,10 @@ import { useAuth } from '@/features/auth/auth-context';
 import { ProfileDiceBearAvatar } from '@/features/profile/profile-dicebear-avatar';
 import { useProfile } from '@/features/profile/use-profile';
 
-/** Matches `measureInWindow` layout. */
 type AnchorRect = { x: number; y: number; width: number; height: number };
 
-export type AccountMenuVariant = 'header' | 'sidebar';
-
-export type AccountMenuProps = {
-  variant: AccountMenuVariant;
-};
-
-/**
- * App shell: avatar opens a {@link FloatingMenu} with profile and settings routes.
- */
-export function AccountMenu({ variant }: AccountMenuProps) {
-  const log = useLogger('account-menu');
+export function SidebarAccountMenu() {
+  const log = useLogger('sidebar-account-menu');
   const router = useRouter();
   const auth = useAuth();
   const profile = useProfile();
@@ -206,71 +200,46 @@ export function AccountMenu({ variant }: AccountMenuProps) {
 
   return (
     <>
-      <Box
-        ref={triggerRef}
-        collapsable={false}
-        sx={variant === 'sidebar' ? { alignSelf: 'stretch' } : {}}
-      >
-        {variant === 'sidebar' ? (
-          <Pressable
-            onPress={openMenu}
-            accessibilityRole="button"
-            accessibilityLabel="Account menu"
-            accessibilityState={{ expanded: open }}
-            sx={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 3,
-              py: 2,
-              px: 2,
-              borderRadius: 12,
-              background: open ? 'paper' : 'transparent',
-            }}
-          >
-            <ProfileDiceBearAvatar
-              config={profile.avatarConfig}
-              fallbackSeed={profile.principalId}
-              size={32}
-              loading={profile.loading}
+      <Box ref={triggerRef} collapsable={false} sx={{ alignSelf: 'stretch' }}>
+        <Pressable
+          onPress={openMenu}
+          accessibilityRole="button"
+          accessibilityLabel="Account menu"
+          accessibilityState={{ expanded: open }}
+          sx={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 3,
+            py: 2,
+            px: 2,
+            borderRadius: 12,
+            background: open ? 'paper' : 'transparent',
+          }}
+        >
+          <ProfileDiceBearAvatar
+            config={profile.avatarConfig}
+            fallbackSeed={profile.principalId}
+            size={32}
+            loading={profile.loading}
+          />
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Text
+              variant="bodyBold"
+              sx={{ color: 'text' }}
+              numberOfLines={1}
+              label={profile.displayLabel}
             />
-            <Box sx={{ flex: 1, minWidth: 0 }}>
+            {subtitle ? (
               <Text
-                variant="bodyBold"
-                sx={{ color: 'text' }}
+                variant="caption"
+                sx={{ color: 'textSecondary' }}
                 numberOfLines={1}
-                label={profile.displayLabel}
+                label={subtitle}
               />
-              {subtitle ? (
-                <Text
-                  variant="caption"
-                  sx={{ color: 'textSecondary' }}
-                  numberOfLines={1}
-                  label={subtitle}
-                />
-              ) : null}
-            </Box>
-            <IconSymbol name="ellipsis" size={18} color={theme.colors.icon} />
-          </Pressable>
-        ) : (
-          <Pressable
-            onPress={openMenu}
-            accessibilityRole="button"
-            accessibilityLabel="Account menu"
-            accessibilityState={{ expanded: open }}
-            hitSlop={6}
-            sx={{
-              borderRadius: 999,
-              p: 0,
-            }}
-          >
-            <ProfileDiceBearAvatar
-              config={profile.avatarConfig}
-              fallbackSeed={profile.principalId}
-              size={36}
-              loading={profile.loading}
-            />
-          </Pressable>
-        )}
+            ) : null}
+          </Box>
+          <IconSymbol name="ellipsis" size={18} color={theme.colors.icon} />
+        </Pressable>
       </Box>
 
       <FloatingMenu

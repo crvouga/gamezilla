@@ -2,12 +2,13 @@ import {
   Box,
   IconSymbol,
   Pressable,
+  ScreenBase,
   Text,
   useTheme,
 } from '@gamezilla/shared/ui';
 import { useRouter } from 'expo-router';
 
-import { ScreenHeader } from '@/ui/screen-header';
+import { useBreadcrumbNav } from '@/ui/use-breadcrumb-nav';
 
 type DevHref =
   | '/todos'
@@ -57,39 +58,44 @@ const ITEMS: readonly {
 export default function DeveloperScreen() {
   const router = useRouter();
   const theme = useTheme();
+  const nav = useBreadcrumbNav();
 
   return (
-    <Box sx={{ flex: 1 }}>
-      <ScreenHeader
-        title="Developer"
-        subtitle="Demos and internal tools"
-        fallbackHref="/more"
-      />
-      <Box sx={{ flex: 1, py: 2 }}>
-        {ITEMS.map((item) => (
-          <Pressable key={item.key} onPress={() => router.push(item.href)}>
-            <Box
-              sx={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                px: 4,
-                py: 3,
-                gap: 3,
-              }}
-            >
-              <Box sx={{ flex: 1, gap: 1 }}>
-                <Text variant="bodyBold" label={item.label} />
-                <Text variant="caption" label={item.description} />
+    <ScreenBase
+      breadcrumbs={[
+        { name: 'Spaces', onPress: nav('/') },
+        { name: 'Settings', onPress: nav('/more') },
+        {
+          name: 'Developer',
+          subtitle: 'Demos and internal tools',
+        },
+      ]}
+      content={({ sx }) => (
+        <Box style={sx}>
+          {ITEMS.map((item) => (
+            <Pressable key={item.key} onPress={() => router.push(item.href)}>
+              <Box
+                sx={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  py: 3,
+                  gap: 3,
+                }}
+              >
+                <Box sx={{ flex: 1, gap: 1 }}>
+                  <Text variant="bodyBold" label={item.label} />
+                  <Text variant="caption" label={item.description} />
+                </Box>
+                <IconSymbol
+                  name="chevron.right"
+                  size={20}
+                  color={theme.colors.icon}
+                />
               </Box>
-              <IconSymbol
-                name="chevron.right"
-                size={20}
-                color={theme.colors.icon}
-              />
-            </Box>
-          </Pressable>
-        ))}
-      </Box>
-    </Box>
+            </Pressable>
+          ))}
+        </Box>
+      )}
+    />
   );
 }

@@ -1,10 +1,9 @@
-import { Avatar, Box, Button, Text } from '@gamezilla/shared/ui';
+import { Avatar, Box, Button, ScreenBase, Text } from '@gamezilla/shared/ui';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { getSpaceById } from '@/features/spaces/mock-spaces';
 import type { Space } from '@/features/spaces/types';
-import { ConstrainedContent } from '@/ui/constrained-content';
-import { ScreenHeader } from '@/ui/screen-header';
+import { useBreadcrumbNav } from '@/ui/use-breadcrumb-nav';
 
 const GAME_LABEL: Record<Space['gameType'], string> = {
   trivia: 'Trivia',
@@ -23,15 +22,22 @@ function initialsFromName(name: string): string {
 
 export default function SpaceDetailScreen() {
   const router = useRouter();
+  const nav = useBreadcrumbNav();
   const { id } = useLocalSearchParams<{ id: string }>();
   const space = typeof id === 'string' ? getSpaceById(id) : undefined;
 
   if (!space) {
     return (
-      <Box sx={{ flex: 1 }}>
-        <ScreenHeader title="Space" fallbackHref="/" />
-        <ConstrainedContent>
-          <Box sx={{ flex: 1, p: 4, justifyContent: 'center' }}>
+      <ScreenBase
+        breadcrumbs={[
+          { name: 'Spaces', onPress: nav('/') },
+          { name: 'Space' },
+        ]}
+        content={({ sx }) => (
+          <Box
+            style={sx}
+            sx={{ flex: 1, justifyContent: 'center' }}
+          >
             <Text
               variant="body"
               sx={{ color: 'textSecondary' }}
@@ -45,8 +51,8 @@ export default function SpaceDetailScreen() {
               />
             </Box>
           </Box>
-        </ConstrainedContent>
-      </Box>
+        )}
+      />
     );
   }
 
@@ -57,10 +63,13 @@ export default function SpaceDetailScreen() {
   ];
 
   return (
-    <Box sx={{ flex: 1 }}>
-      <ScreenHeader title={space.title} fallbackHref="/" />
-      <ConstrainedContent>
-        <Box sx={{ flex: 1, p: 4, gap: 4 }}>
+    <ScreenBase
+      breadcrumbs={[
+        { name: 'Spaces', onPress: nav('/') },
+        { name: space.title },
+      ]}
+      content={({ sx }) => (
+        <Box style={sx}>
           <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
             <Text variant="label" label={GAME_LABEL[space.gameType]} />
             {space.live ? (
@@ -117,7 +126,7 @@ export default function SpaceDetailScreen() {
             onPress={() => router.back()}
           />
         </Box>
-      </ConstrainedContent>
-    </Box>
+      )}
+    />
   );
 }

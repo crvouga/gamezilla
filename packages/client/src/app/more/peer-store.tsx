@@ -1,13 +1,24 @@
-import { Box } from '@gamezilla/shared/ui';
+import { Box, ScreenBaseHeader } from '@gamezilla/shared/ui';
 import { PlaygroundPage } from '@gamezilla/peer-store-app/pages/playground-page';
 
-import { ScreenHeader } from '@/ui/screen-header';
+import { useBreadcrumbNav } from '@/ui/use-breadcrumb-nav';
 
 export default function PeerStoreScreen() {
+  const nav = useBreadcrumbNav();
+
   return (
     <Box sx={{ flex: 1 }}>
-      <ScreenHeader title="Peer Store Playground" fallbackHref="/more/developer" />
-      <PlaygroundPage />
+      <ScreenBaseHeader
+        breadcrumbs={[
+          { name: 'Spaces', onPress: nav('/') },
+          { name: 'Settings', onPress: nav('/more') },
+          { name: 'Developer', onPress: nav('/more/developer') },
+          { name: 'Peer Store Playground' },
+        ]}
+      />
+      <Box sx={{ flex: 1, minHeight: 0 }}>
+        <PlaygroundPage />
+      </Box>
     </Box>
   );
 }

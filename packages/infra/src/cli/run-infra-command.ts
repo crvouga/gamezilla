@@ -14,15 +14,19 @@ export async function runInfraCommand(
   command: Command,
   _platform: CiPlatform
 ): Promise<void> {
+  // Hydrate Doppler secrets into env for every command except `setup` itself
+  // (setup is what installs Doppler and seeds these secrets in the first place).
+  // This removes the requirement to run `setup` before commands like `unlock`,
+  // `status`, `destroy`, etc., which all need TF_VAR_planetscale_* and
+  // PLANETSCALE_SERVICE_TOKEN* to talk to PlanetScale.
+  if (command.id !== 'setup') {
+    new DopplerResource().loadSecretsQuick();
+  }
+
   if (command.requiresLock !== true) {
     await command.execute();
     return;
   }
-
-  // The lock is backed by PlanetScale Postgres, which needs TF_VAR_planetscale_*
-  // and PLANETSCALE_SERVICE_TOKEN* in env. Hydrate from Doppler here so the lock
-  // can be acquired before the resource DAG (which also loads secrets) runs.
-  new DopplerResource().loadSecretsQuick();
 
   let conn;
   try {

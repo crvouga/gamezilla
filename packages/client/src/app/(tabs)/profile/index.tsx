@@ -1,20 +1,22 @@
 import { ProfileDiceBearAvatar } from '@/features/profile/profile-dicebear-avatar';
 import { useProfile } from '@/features/profile/use-profile';
-import { Box, Button, Text } from '@gamezilla/shared/ui';
+import { Box, Button, ScreenBase, Text, useBreakpoint } from '@gamezilla/shared/ui';
 import { useRouter } from 'expo-router';
 
-import { ConstrainedContent } from '@/ui/constrained-content';
-import { ScreenHeader } from '@/ui/screen-header';
+import { useAccountActions } from '@/ui/use-account-actions';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const profile = useProfile();
+  const accountActions = useAccountActions();
+  const isMobile = useBreakpoint() === 'mobile';
 
   return (
-    <Box sx={{ flex: 1 }}>
-      <ScreenHeader title="Profile" showAccountMenu />
-      <ConstrainedContent>
-        <Box sx={{ flex: 1, px: 4, pt: 4, gap: 4 }}>
+    <ScreenBase
+      breadcrumbs={[{ name: 'Profile' }]}
+      actions={isMobile ? accountActions : []}
+      content={({ sx }) => (
+        <Box style={sx}>
           <Box sx={{ alignItems: 'center', gap: 2 }}>
             <ProfileDiceBearAvatar
               config={profile.avatarConfig}
@@ -22,9 +24,6 @@ export default function ProfileScreen() {
               size={80}
               loading={profile.loading}
             />
-            {/* Use a non-breaking space while loading to reserve the title
-                height so the Edit button below doesn't jump when the real
-                label arrives. */}
             <Text
               variant="title"
               label={profile.loading ? '\u00A0' : profile.displayLabel}
@@ -37,7 +36,7 @@ export default function ProfileScreen() {
             />
           </Box>
         </Box>
-      </ConstrainedContent>
-    </Box>
+      )}
+    />
   );
 }
