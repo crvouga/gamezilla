@@ -80,6 +80,13 @@ export function AvatarEditorScreen() {
   );
 
   const [draft, setDraft] = useState<AvatarConfig>(persisted);
+  // `initialized` flips to true the first time we seed the draft from the
+  // real persisted config (after PatchDB finishes loading). Until then we
+  // suppress `dirty` and render a loading view — otherwise React would
+  // commit one frame where `draft` is still the fallback default while
+  // `persisted` has just become the real user config. That intermediate
+  // frame briefly flashes a different avatar and enables the Save button.
+  const [initialized, setInitialized] = useState(false);
   const [tab, setTab] = useState<EditorTab>('features');
   const [saving, setSaving] = useState(false);
   const [showDiscard, setShowDiscard] = useState(false);
@@ -88,11 +95,6 @@ export function AvatarEditorScreen() {
   // value, new object reference) apart from a real change. Without this the
   // draft gets clobbered every poll cycle and the user's in-progress edits
   // disappear.
-  //
-  // We also defer seeding the draft until PatchDB has finished loading —
-  // otherwise we'd lock in the fallback (principal-id-seeded) config as the
-  // baseline and then immediately treat the real persisted config as a
-  // "remote change".
   const lastPersistedRef = useRef<AvatarConfig | null>(null);
 
   useEffect(() => {
@@ -101,6 +103,7 @@ export function AvatarEditorScreen() {
     if (prev === null) {
       setDraft(persisted);
       lastPersistedRef.current = persisted;
+      setInitialized(true);
       return;
     }
     if (!configsEqual(prev, persisted)) {
@@ -113,7 +116,7 @@ export function AvatarEditorScreen() {
     }
   }, [persisted, profileLoading]);
 
-  const dirty = !configsEqual(draft, persisted);
+  const dirty = initialized && !configsEqual(draft, persisted);
   const styleKey: StyleKey = isStyleKey(draft.style) ? draft.style : 'lorelei';
 
   const byTab = useMemo(() => getFieldsByTab(styleKey), [styleKey]);
@@ -196,6 +199,7 @@ export function AvatarEditorScreen() {
               title="Reset"
               variant="outlined"
               onPress={resetStyleDefaults}
+              disabled={!initialized}
             />
             <Button
               title="Save"
@@ -225,7 +229,7 @@ export function AvatarEditorScreen() {
               config={previewConfig}
               fallbackSeed={principalId}
               size={192}
-              loading={profileLoading}
+              loading={!initialized}
             />
             <Box
               sx={{
@@ -239,11 +243,13 @@ export function AvatarEditorScreen() {
                 title="Shuffle seed"
                 variant="outlined"
                 onPress={shuffleSeed}
+                disabled={!initialized}
               />
               <Button
                 title="Copy seed"
                 variant="outlined"
                 onPress={() => void copySeed()}
+                disabled={!initialized}
               />
             </Box>
             <Text
@@ -253,27 +259,38 @@ export function AvatarEditorScreen() {
             />
           </Box>
 
-          <StylePickerStrip
-            selected={styleKey}
-            seed={draft.seed.trim() || principalId}
-            principalId={principalId}
-            onSelect={(k) => setDraft((d) => ({ ...d, style: k, options: {} }))}
-          />
+          {/* Defer rendering the style picker, tabs and tab body until the
+              real persisted config is in `draft`. Rendering them against the
+              fallback default would briefly show the wrong selected style,
+              wrong dicebear previews in the strip, and the wrong fields in
+              the active tab before snapping to the real values. */}
+          {initialized ? (
+            <>
+              <StylePickerStrip
+                selected={styleKey}
+                seed={draft.seed.trim() || principalId}
+                principalId={principalId}
+                onSelect={(k) =>
+                  setDraft((d) => ({ ...d, style: k, options: {} }))
+                }
+              />
 
-          <SegmentedControl
-            segments={TABS.map((t) => ({ key: t.key, label: t.label }))}
-            selected={tab}
-            onSelect={(k) => setTab(k as EditorTab)}
-          />
+              <SegmentedControl
+                segments={TABS.map((t) => ({ key: t.key, label: t.label }))}
+                selected={tab}
+                onSelect={(k) => setTab(k as EditorTab)}
+              />
 
-          <TabBody
-            tab={tab}
-            styleKey={styleKey}
-            byTab={byTab}
-            draft={draft}
-            principalId={principalId}
-            updateOptions={updateOptions}
-          />
+              <TabBody
+                tab={tab}
+                styleKey={styleKey}
+                byTab={byTab}
+                draft={draft}
+                principalId={principalId}
+                updateOptions={updateOptions}
+              />
+            </>
+          ) : null}
         </ScrollView>
       </ConstrainedContent>
     </Box>

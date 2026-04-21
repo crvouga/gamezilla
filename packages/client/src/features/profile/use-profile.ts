@@ -31,8 +31,14 @@ export function useProfile() {
   return useMemo(() => {
     const rawName = entity?.attributes[ProfileAttr.displayName];
     const trimmed = typeof rawName === 'string' ? rawName.trim() : '';
-    const displayLabel =
-      trimmed.length > 0
+    // While PatchDB is still hydrating we don't yet know whether the user has
+    // a custom display name, so we must not show the session fallback
+    // ("Guest" / "Signed in") — that causes a visible flash that switches to
+    // the real name once the entity arrives. Render an empty label until we
+    // actually know.
+    const displayLabel = loading
+      ? ''
+      : trimmed.length > 0
         ? trimmed
         : auth.mode === 'signed-in'
           ? 'Signed in'
@@ -50,7 +56,7 @@ export function useProfile() {
       loading,
       displayLabel,
       avatarConfig,
-      hasCustomDisplayName: trimmed.length > 0,
+      hasCustomDisplayName: !loading && trimmed.length > 0,
     };
   }, [entity, loading, principalId, auth.mode]);
 }

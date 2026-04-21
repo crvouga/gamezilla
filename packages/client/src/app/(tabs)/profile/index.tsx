@@ -22,7 +22,13 @@ export default function ProfileScreen() {
               size={80}
               loading={profile.loading}
             />
-            <Text variant="title" label={profile.displayLabel} />
+            {/* Use a non-breaking space while loading to reserve the title
+                height so the Edit button below doesn't jump when the real
+                label arrives. */}
+            <Text
+              variant="title"
+              label={profile.loading ? '\u00A0' : profile.displayLabel}
+            />
           </Box>
           <Box sx={{ mt: 2, alignSelf: 'stretch' }}>
             <Button
