@@ -5,6 +5,18 @@ import { defineConfig, devices } from '@playwright/test';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.join(__dirname, '..', '..');
 
+/** Remote cache only (no local .turbo); requires TURBO_* from Doppler. Same as root `bun preview`. */
+const turboPreviewCmd = [
+  'bun',
+  'turbo',
+  'run',
+  '--cache=remote:rw',
+  'preview',
+  '--filter=@gamezilla/db',
+  '--filter=@gamezilla/api',
+  '--filter=@gamezilla/client',
+].join(' ');
+
 export default defineConfig({
   testDir: './tests',
   fullyParallel: false,
@@ -18,8 +30,7 @@ export default defineConfig({
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
-    command:
-      'bun turbo run preview --filter=@gamezilla/db --filter=@gamezilla/api --filter=@gamezilla/client',
+    command: turboPreviewCmd,
     cwd: repoRoot,
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env['CI'],

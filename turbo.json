@@ -6,7 +6,11 @@
     "GITHUB_STEP_SUMMARY",
     "POST_DEPLOY_HTTP_MAX_WAIT_MS",
     "POST_DEPLOY_HTTP_RETRY_MS",
-    "EXPO_PUBLIC_API_URL"
+    "EXPO_PUBLIC_API_URL",
+    "TURBO_API",
+    "TURBO_LOG_ORDER",
+    "TURBO_TEAM",
+    "TURBO_TOKEN"
   ],
   "tasks": {
     "up": {

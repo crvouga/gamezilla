@@ -57,14 +57,6 @@ jobs:
           restore-keys: |
             playwright-${{ runner.os }}-
 
-      - name: Cache Turborepo local cache
-        uses: actions/cache@v4
-        with:
-          path: .turbo
-          key: turbo-e2e-${{ runner.os }}-${{ hashFiles('bun.lock', 'turbo.json') }}
-          restore-keys: |
-            turbo-e2e-${{ runner.os }}-
-
       - name: Install Doppler CLI
         uses: dopplerhq/cli-action@v4
 

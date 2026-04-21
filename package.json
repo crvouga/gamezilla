@@ -7,9 +7,9 @@
     "packages/*"
   ],
   "scripts": {
-    "check": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID doppler run -- turbo check build",
+    "check": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID doppler run -- turbo --cache=remote:rw check build",
     "dev": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID doppler run -- turbo dev",
-    "preview": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID doppler run -- turbo run preview --filter=@gamezilla/db --filter=@gamezilla/api --filter=@gamezilla/client",
+    "preview": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID doppler run -- turbo run --cache=remote:rw preview --filter=@gamezilla/db --filter=@gamezilla/api --filter=@gamezilla/client",
     "format": "sort-package-json && prettier --write .",
     "format:check": "prettier --check .",
     "infra": "bun run packages/infra/src/bin/cli.ts",
