@@ -1,18 +1,11 @@
 # https://minimumcd.org/
 name: Deployment Pipeline
 
-# Remote Turbo cache: GitHub-hosted runners are often blocked from custom domains (Cloudflare Access / WAF).
-# After deploying turbo-cache with workers_dev, set repo var TURBO_CACHE_WORKERS_ORIGIN if your *.workers.dev URL differs.
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
-
-env:
-  TURBO_TELEMETRY_DISABLED: '1'
-  # Default: worker name + account subdomain from packages/infra project-config; override via repo Settings → Variables.
-  TURBO_API_CI: ${{ vars.TURBO_CACHE_WORKERS_ORIGIN || 'https://gamezilla-turbo-cache.crvouga.workers.dev' }}
 
 jobs:
   check:
@@ -32,13 +25,10 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Verify turbo-cache origin (workers.dev)
-        run: curl -fsS "$TURBO_API_CI/health"
-
       - name: Check (tc + lint + test + build)
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
-        run: env -u CURSOR_AGENT -u CURSOR_TRACE_ID doppler run -- env TURBO_API="$TURBO_API_CI" turbo --cache=remote:rw check build
+        run: bun check
 
   e2e:
     runs-on: ubuntu-latest
@@ -76,13 +66,10 @@ jobs:
       - name: Install Playwright browsers
         run: bun run --filter '@gamezilla/e2e' install:browsers
 
-      - name: Verify turbo-cache origin (workers.dev)
-        run: curl -fsS "$TURBO_API_CI/health"
-
       - name: E2E (Playwright + turbo preview)
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
-        run: doppler run -- env TURBO_API="$TURBO_API_CI" bun run --filter '@gamezilla/e2e' e2e
+        run: doppler run -- bun run --filter '@gamezilla/e2e' e2e
 
       - name: Upload Playwright report
         if: failure()
