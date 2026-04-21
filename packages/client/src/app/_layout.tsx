@@ -87,7 +87,7 @@ export default function RootLayout() {
   }, [fontsLoaded, fontError]);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1 }} testID="app-root">
       <SafeAreaProvider>
         <AppThemeRoot
           storage={AsyncStorage}

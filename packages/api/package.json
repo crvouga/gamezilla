@@ -15,11 +15,14 @@
   },
   "devDependencies": {
     "@types/bun": "^1.3.9",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "wrangler": "^4.54.0"
   },
   "scripts": {
+    "build": "bun -e \"process.exit(0)\"",
     "tc": "tsc --noEmit -p ../../tsconfig.json",
     "dev": "wrangler dev --port 8788 --inspector-port 9231",
-    "kill": "lsof -ti :8788 | xargs kill -9 2>/dev/null || true"
+    "kill": "lsof -ti :8788 | xargs kill -9 2>/dev/null || true",
+    "preview": "wrangler dev --port 8788"
   }
 }

@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "build": "bun -e \"process.exit(0)\"",
     "dev": "bun run --watch src/server.ts",
     "kill": "lsof -ti :15432 | xargs kill -9 2>/dev/null || true",
+    "preview": "bun run src/server.ts",
     "up": "bun run src/server.ts"
   },
   "dependencies": {

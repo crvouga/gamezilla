@@ -5,7 +5,8 @@
     "GITHUB_ACTIONS",
     "GITHUB_STEP_SUMMARY",
     "POST_DEPLOY_HTTP_MAX_WAIT_MS",
-    "POST_DEPLOY_HTTP_RETRY_MS"
+    "POST_DEPLOY_HTTP_RETRY_MS",
+    "EXPO_PUBLIC_API_URL"
   ],
   "tasks": {
     "up": {
@@ -56,6 +57,11 @@
       ],
       "outputLogs": "new-only",
       "outputs": ["dist/**"]
+    },
+    "preview": {
+      "dependsOn": ["^build", "build"],
+      "persistent": true,
+      "cache": false
     }
   }
 }

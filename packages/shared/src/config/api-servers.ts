@@ -11,6 +11,10 @@ export const SERVERS = [
 ] as const;
 
 export function getServerFromEnv(): URL {
+  const override = process.env['EXPO_PUBLIC_API_URL'];
+  if (override) {
+    return new URL(override);
+  }
   if (isLocalEnv()) {
     return SERVERS[0].url;
   }
