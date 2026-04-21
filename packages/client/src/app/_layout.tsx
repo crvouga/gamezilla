@@ -28,6 +28,7 @@ import {
   useStackProps,
   type FontStacks,
 } from '@gamezilla/shared/ui';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 assert.registerCrashHandler(new BrowserCrashHandler());
@@ -90,6 +91,7 @@ export default function RootLayout() {
         storage={AsyncStorage}
         {...(fontsLoaded ? { fonts: nunitoFontStacks } : {})}
       >
+        <BottomSheetModalProvider>
         <ConfigContainerProvider>
           <PrincipalAuthShell>
             <PatchBootstrap>
@@ -105,6 +107,7 @@ export default function RootLayout() {
             </PatchBootstrap>
           </PrincipalAuthShell>
         </ConfigContainerProvider>
+        </BottomSheetModalProvider>
       </AppThemeRoot>
     </GestureHandlerRootView>
   );

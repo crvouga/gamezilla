@@ -7,6 +7,7 @@
     "@dicebear/collection": "^9.4.2",
     "@dicebear/core": "^9.4.2",
     "@expo-google-fonts/nunito": "^0.4.2",
+    "@gorhom/bottom-sheet": "^5.1.6",
     "@gamezilla/api": "workspace:*",
     "@gamezilla/patch-db": "workspace:*",
     "@gamezilla/patch-db-app": "workspace:*",

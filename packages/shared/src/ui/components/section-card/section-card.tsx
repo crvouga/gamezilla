@@ -1,5 +1,11 @@
-import { Box, Collapsible, useTheme } from '@gamezilla/shared/ui';
+/**
+ * `SectionCard` — bordered card wrapping a {@link Collapsible} disclosure.
+ */
+
 import type { ReactNode } from 'react';
+import { Box } from '../box';
+import { Collapsible } from '../collapsible';
+import { useTheme } from '../../theme';
 
 export type SectionCardProps = {
   title: string;

@@ -112,3 +112,29 @@ export {
   type ModalButtonProps,
   type ConfirmationModalProps,
 } from './modal';
+
+export {
+  ResponsiveSurface,
+  ResponsiveSurfaceHeader,
+  type ResponsiveSurfaceProps,
+  type ResponsiveSurfaceHeaderProps,
+} from './responsive-surface';
+
+export { Picker, type PickerProps, type PickerOption } from './picker';
+
+export {
+  HorizontalPicker,
+  type HorizontalPickerProps,
+  type HorizontalPickerRandomItem,
+} from './horizontal-picker';
+
+export { ChipGroup, type ChipGroupProps, type ChipGroupOption } from './chip-group';
+
+export { NumberStepper, type NumberStepperProps } from './number-stepper';
+
+export {
+  MultiSelectSwatchGrid,
+  type MultiSelectSwatchGridProps,
+} from './multi-select-swatch';
+
+export { SectionCard, type SectionCardProps } from './section-card';

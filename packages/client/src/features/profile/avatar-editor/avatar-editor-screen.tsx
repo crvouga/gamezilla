@@ -1,16 +1,11 @@
-import { ColorSwatchGrid } from '@/features/profile/components/color-swatch-grid';
-import { ProbabilityChipGroup } from '@/features/profile/components/probability-chip-group';
-import { SectionCard } from '@/features/profile/components/section-card';
-import { Stepper } from '@/features/profile/components/stepper';
 import { StylePickerStrip } from '@/features/profile/components/style-picker-strip';
 import { VariantSwatchStrip } from '@/features/profile/components/variant-swatch-strip';
 import {
   getDefaultOptionsFromSchema,
   getFieldsByTab,
-  type EditorTab,
   type SchemaField,
 } from '@/features/profile/dicebear-schema';
-import { isStyleKey, type StyleKey } from '@/features/profile/dicebear-styles';
+import { isStyleKey, styleLabel, type StyleKey } from '@/features/profile/dicebear-styles';
 import { ProfileDiceBearAvatar } from '@/features/profile/profile-dicebear-avatar';
 import { usePatchesDb } from '@gamezilla/patch-db/react';
 import type { AvatarConfig } from '@gamezilla/shared/profile/avatar-config';
@@ -26,7 +21,12 @@ import {
 import {
   Box,
   Button,
+  ChipGroup,
   ConfirmationModal,
+  MultiSelectSwatchGrid,
+  NumberStepper,
+  Pressable,
+  ResponsiveSurface,
   ScrollView,
   SegmentedControl,
   Switch,
@@ -39,15 +39,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ConstrainedContent } from '@/ui/constrained-content';
 import { ScreenHeader } from '@/ui/screen-header';
 import { useProfile } from '../use-profile';
-import { getProbabilityMode, humanizeOptionKey } from './option-helpers';
-
-const TABS: { key: EditorTab; label: string }[] = [
-  { key: 'features', label: 'Features' },
-  { key: 'colors', label: 'Colors' },
-  { key: 'effects', label: 'Effects' },
-  { key: 'background', label: 'Background' },
-  { key: 'transform', label: 'Transform' },
-];
+import {
+  getEnumSelectionMode,
+  getProbabilityMode,
+  humanizeOptionKey,
+} from './option-helpers';
 
 function backgroundTypeMode(v: unknown): 'solid' | 'gradient' | 'both' {
   const a = Array.isArray(v) ? (v as string[]) : ['solid'];
@@ -62,6 +58,39 @@ function modeToBackgroundType(m: 'solid' | 'gradient' | 'both'): string[] {
   if (m === 'solid') return ['solid'];
   if (m === 'gradient') return ['gradientLinear'];
   return ['solid', 'gradientLinear'];
+}
+
+function TriggerRow({
+  label,
+  value,
+  onPress,
+}: {
+  label: string;
+  value: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      sx={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        py: 3,
+        borderBottomWidth: 1,
+        borderColor: 'border',
+        gap: 2,
+      }}
+    >
+      <Text variant="label" label={label} style={{ flex: 1 }} />
+      <Text
+        variant="body"
+        numberOfLines={1}
+        style={{ flex: 1.5, textAlign: 'right', opacity: 0.85 }}
+        label={value}
+      />
+      <Text variant="caption" label="›" />
+    </Pressable>
+  );
 }
 
 export function AvatarEditorScreen() {
@@ -80,21 +109,11 @@ export function AvatarEditorScreen() {
   );
 
   const [draft, setDraft] = useState<AvatarConfig>(persisted);
-  // `initialized` flips to true the first time we seed the draft from the
-  // real persisted config (after PatchDB finishes loading). Until then we
-  // suppress `dirty` and render a loading view — otherwise React would
-  // commit one frame where `draft` is still the fallback default while
-  // `persisted` has just become the real user config. That intermediate
-  // frame briefly flashes a different avatar and enables the Save button.
   const [initialized, setInitialized] = useState(false);
-  const [tab, setTab] = useState<EditorTab>('features');
   const [saving, setSaving] = useState(false);
   const [showDiscard, setShowDiscard] = useState(false);
+  const [surface, setSurface] = useState<string | null>(null);
 
-  // Track the last-seen persisted config so we can tell a PatchDB poll (same
-  // value, new object reference) apart from a real change. Without this the
-  // draft gets clobbered every poll cycle and the user's in-progress edits
-  // disappear.
   const lastPersistedRef = useRef<AvatarConfig | null>(null);
 
   useEffect(() => {
@@ -107,8 +126,6 @@ export function AvatarEditorScreen() {
       return;
     }
     if (!configsEqual(prev, persisted)) {
-      // Persisted changed (e.g. another device). Only overwrite the draft if
-      // the user hasn't made local edits yet.
       setDraft((current) =>
         configsEqual(current, prev) ? persisted : current
       );
@@ -120,6 +137,14 @@ export function AvatarEditorScreen() {
   const styleKey: StyleKey = isStyleKey(draft.style) ? draft.style : 'lorelei';
 
   const byTab = useMemo(() => getFieldsByTab(styleKey), [styleKey]);
+
+  const featureEnums = useMemo(
+    () =>
+      byTab.features.filter(
+        (f): f is Extract<SchemaField, { kind: 'enum' }> => f.kind === 'enum'
+      ),
+    [byTab.features]
+  );
 
   const previewConfig = useMemo(
     () => ({
@@ -187,6 +212,8 @@ export function AvatarEditorScreen() {
     await Clipboard.setStringAsync(s);
   }, [draft.seed, principalId]);
 
+  const closeSurface = useCallback(() => setSurface(null), []);
+
   return (
     <Box sx={{ flex: 1 }}>
       <ScreenHeader
@@ -222,9 +249,9 @@ export function AvatarEditorScreen() {
       <ConstrainedContent>
         <ScrollView
           sx={{ flex: 1 }}
-          contentContainerStyle={{ padding: 16, gap: 16 }}
+          contentContainerStyle={{ padding: 16, gap: 12 }}
         >
-          <Box sx={{ alignItems: 'center', gap: 2 }}>
+          <Box sx={{ alignItems: 'center', gap: 2, minHeight: 260 }}>
             <ProfileDiceBearAvatar
               config={previewConfig}
               fallbackSeed={principalId}
@@ -255,38 +282,177 @@ export function AvatarEditorScreen() {
             <Text
               variant="caption"
               sx={{ textAlign: 'center', opacity: 0.75 }}
+              numberOfLines={1}
               label="Preview updates as you edit. Save to keep changes."
             />
           </Box>
 
-          {/* Defer rendering the style picker, tabs and tab body until the
-              real persisted config is in `draft`. Rendering them against the
-              fallback default would briefly show the wrong selected style,
-              wrong dicebear previews in the strip, and the wrong fields in
-              the active tab before snapping to the real values. */}
           {initialized ? (
             <>
-              <StylePickerStrip
-                selected={styleKey}
-                seed={draft.seed.trim() || principalId}
-                principalId={principalId}
-                onSelect={(k) =>
-                  setDraft((d) => ({ ...d, style: k, options: {} }))
-                }
+              <Text variant="label" sx={{ mt: 2 }} label="Style" />
+              <TriggerRow
+                label="Avatar style"
+                value={styleLabel(styleKey)}
+                onPress={() => setSurface('style')}
               />
+              <ResponsiveSurface
+                visible={surface === 'style'}
+                onClose={closeSurface}
+                title="Choose style"
+              >
+                <StylePickerStrip
+                  selected={styleKey}
+                  seed={draft.seed.trim() || principalId}
+                  principalId={principalId}
+                  onSelect={(k) => {
+                    setDraft((d) => ({ ...d, style: k, options: {} }));
+                    closeSurface();
+                  }}
+                />
+              </ResponsiveSurface>
 
-              <SegmentedControl
-                segments={TABS.map((t) => ({ key: t.key, label: t.label }))}
-                selected={tab}
-                onSelect={(k) => setTab(k as EditorTab)}
-              />
+              {featureEnums.length > 0 ? (
+                <Box sx={{ mt: 2 }}>
+                  <Text variant="label" label="Features" />
+                  {featureEnums.map((f) => {
+                    const mode = getEnumSelectionMode(f, draft.options[f.key]);
+                    const summary =
+                      mode === 'random' ? 'Random' : String(mode);
+                    return (
+                      <Box key={f.key}>
+                        <TriggerRow
+                          label={humanizeOptionKey(f.key)}
+                          value={summary}
+                          onPress={() => setSurface(`enum:${f.key}`)}
+                        />
+                        <ResponsiveSurface
+                          visible={surface === `enum:${f.key}`}
+                          onClose={closeSurface}
+                          title={humanizeOptionKey(f.key)}
+                        >
+                          <VariantSwatchStrip
+                            field={f}
+                            styleKey={styleKey}
+                            draft={draft}
+                            principalId={principalId}
+                            onSelect={(variant) => {
+                              updateOptions((o) => {
+                                const next = { ...o };
+                                if (variant === null) {
+                                  delete next[f.key];
+                                } else {
+                                  next[f.key] = [variant];
+                                }
+                                return next;
+                              });
+                              closeSurface();
+                            }}
+                          />
+                        </ResponsiveSurface>
+                      </Box>
+                    );
+                  })}
+                </Box>
+              ) : null}
 
-              <TabBody
-                tab={tab}
-                styleKey={styleKey}
-                byTab={byTab}
+              {byTab.colors.some((f) => f.kind === 'color') ? (
+                <Box sx={{ mt: 2 }}>
+                  <Text variant="label" label="Colors" />
+                  {byTab.colors
+                    .filter(
+                      (f): f is Extract<SchemaField, { kind: 'color' }> =>
+                        f.kind === 'color'
+                    )
+                    .map((f) => {
+                      const current = Array.isArray(draft.options[f.key])
+                        ? (draft.options[f.key] as string[])
+                        : f.default;
+                      const summary =
+                        current.length === 0
+                          ? '—'
+                          : `${current.length} selected`;
+                      return (
+                        <Box key={f.key}>
+                          <TriggerRow
+                            label={humanizeOptionKey(f.key)}
+                            value={summary}
+                            onPress={() => setSurface(`color:${f.key}`)}
+                          />
+                          <ResponsiveSurface
+                            visible={surface === `color:${f.key}`}
+                            onClose={closeSurface}
+                            title={humanizeOptionKey(f.key)}
+                          >
+                            <MultiSelectSwatchGrid
+                              label=""
+                              palette={[
+                                ...new Set([...f.default, ...current]),
+                              ]}
+                              defaultPalette={f.default}
+                              value={current}
+                              allowTransparent
+                              onChange={(next) => {
+                                updateOptions((o) => ({
+                                  ...o,
+                                  [f.key]: next,
+                                }));
+                              }}
+                            />
+                          </ResponsiveSurface>
+                        </Box>
+                      );
+                    })}
+                </Box>
+              ) : null}
+
+              {byTab.effects.some((f) => f.kind === 'probability') ? (
+                <Box sx={{ mt: 2, gap: 2 }}>
+                  <Text variant="label" label="Effects" />
+                  {byTab.effects
+                    .filter(
+                      (f): f is Extract<SchemaField, { kind: 'probability' }> =>
+                        f.kind === 'probability'
+                    )
+                    .map((f) => (
+                      <ChipGroup
+                        key={f.key}
+                        label={humanizeOptionKey(f.key)}
+                        options={[
+                          { key: 'off', label: 'Off' },
+                          { key: 'random', label: 'Random' },
+                          { key: 'always', label: 'Always' },
+                        ]}
+                        selected={getProbabilityMode(draft.options[f.key])}
+                        onSelect={(mode) => {
+                          updateOptions((o) => {
+                            const next = { ...o };
+                            if (mode === 'random') {
+                              delete next[f.key];
+                            } else if (mode === 'off') {
+                              next[f.key] = 0;
+                            } else {
+                              next[f.key] = 100;
+                            }
+                            return next;
+                          });
+                        }}
+                      />
+                    ))}
+                </Box>
+              ) : null}
+
+              <BackgroundBlock
+                fields={byTab.background}
                 draft={draft}
-                principalId={principalId}
+                updateOptions={updateOptions}
+                surface={surface}
+                setSurface={setSurface}
+                closeSurface={closeSurface}
+              />
+
+              <TransformBlock
+                fields={byTab.transform}
+                draft={draft}
                 updateOptions={updateOptions}
               />
             </>
@@ -297,143 +463,22 @@ export function AvatarEditorScreen() {
   );
 }
 
-type TabBodyProps = {
-  tab: EditorTab;
-  styleKey: StyleKey;
-  byTab: ReturnType<typeof getFieldsByTab>;
-  draft: AvatarConfig;
-  principalId: string;
-  updateOptions: (
-    fn: (o: Record<string, unknown>) => Record<string, unknown>
-  ) => void;
-};
-
-function TabBody({
-  tab,
-  styleKey,
-  byTab,
-  draft,
-  principalId,
-  updateOptions,
-}: TabBodyProps) {
-  const fields = byTab[tab];
-  if (tab === 'background') {
-    return (
-      <BackgroundTab
-        fields={fields}
-        draft={draft}
-        updateOptions={updateOptions}
-      />
-    );
-  }
-  if (tab === 'transform') {
-    return (
-      <TransformTab
-        fields={fields}
-        draft={draft}
-        updateOptions={updateOptions}
-      />
-    );
-  }
-  return (
-    <Box sx={{ gap: 2 }}>
-      {tab === 'features'
-        ? fields
-            .filter(
-              (f): f is Extract<SchemaField, { kind: 'enum' }> =>
-                f.kind === 'enum'
-            )
-            .map((f) => (
-              <SectionCard
-                key={f.key}
-                title={humanizeOptionKey(f.key)}
-                defaultOpen={false}
-              >
-                <VariantSwatchStrip
-                  field={f}
-                  styleKey={styleKey}
-                  draft={draft}
-                  principalId={principalId}
-                  onSelect={(variant) => {
-                    updateOptions((o) => {
-                      const next = { ...o };
-                      if (variant === null) {
-                        delete next[f.key];
-                      } else {
-                        next[f.key] = [variant];
-                      }
-                      return next;
-                    });
-                  }}
-                />
-              </SectionCard>
-            ))
-        : null}
-      {tab === 'colors'
-        ? fields
-            .filter(
-              (f): f is Extract<SchemaField, { kind: 'color' }> =>
-                f.kind === 'color'
-            )
-            .map((f) => {
-              const current = Array.isArray(draft.options[f.key])
-                ? (draft.options[f.key] as string[])
-                : f.default;
-              const palette = [...new Set([...f.default, ...current])];
-              return (
-                <ColorSwatchGrid
-                  key={f.key}
-                  label={humanizeOptionKey(f.key)}
-                  palette={palette}
-                  defaultPalette={f.default}
-                  value={current}
-                  allowTransparent
-                  onChange={(next) => {
-                    updateOptions((o) => ({ ...o, [f.key]: next }));
-                  }}
-                />
-              );
-            })
-        : null}
-      {tab === 'effects'
-        ? fields
-            .filter(
-              (f): f is Extract<SchemaField, { kind: 'probability' }> =>
-                f.kind === 'probability'
-            )
-            .map((f) => (
-              <ProbabilityChipGroup
-                key={f.key}
-                label={humanizeOptionKey(f.key)}
-                mode={getProbabilityMode(draft.options[f.key])}
-                onChange={(mode) => {
-                  updateOptions((o) => {
-                    const next = { ...o };
-                    if (mode === 'random') {
-                      delete next[f.key];
-                    } else if (mode === 'off') {
-                      next[f.key] = 0;
-                    } else {
-                      next[f.key] = 100;
-                    }
-                    return next;
-                  });
-                }}
-              />
-            ))
-        : null}
-    </Box>
-  );
-}
-
-function BackgroundTab({
+function BackgroundBlock({
   fields,
   draft,
   updateOptions,
+  surface,
+  setSurface,
+  closeSurface,
 }: {
   fields: SchemaField[];
   draft: AvatarConfig;
-  updateOptions: TabBodyProps['updateOptions'];
+  updateOptions: (
+    fn: (o: Record<string, unknown>) => Record<string, unknown>
+  ) => void;
+  surface: string | null;
+  setSurface: (k: string | null) => void;
+  closeSurface: () => void;
 }) {
   const bt = fields.find((f) => f.key === 'backgroundType');
   const bc = fields.find((f) => f.key === 'backgroundColor');
@@ -451,11 +496,16 @@ function BackgroundTab({
   const rotMinDefault = rotField?.default[0] ?? 0;
   const rotMaxDefault = rotField?.default[1] ?? 360;
 
+  const bgColors = Array.isArray(o['backgroundColor'])
+    ? (o['backgroundColor'] as string[])
+    : colorField?.default ?? [];
+
   return (
-    <Box sx={{ gap: 3 }}>
+    <Box sx={{ mt: 2, gap: 3 }}>
+      <Text variant="label" label="Background" />
       {typeField ? (
         <Box sx={{ gap: 2 }}>
-          <Text variant="label" label="Background type" />
+          <Text variant="caption" sx={{ opacity: 0.8 }} label="Type" />
           <SegmentedControl
             segments={[
               { key: 'solid', label: 'Solid' },
@@ -464,8 +514,8 @@ function BackgroundTab({
             ]}
             selected={mode}
             onSelect={(k) => {
-              updateOptions((o) => ({
-                ...o,
+              updateOptions((opts) => ({
+                ...opts,
                 backgroundType: modeToBackgroundType(
                   k as 'solid' | 'gradient' | 'both'
                 ),
@@ -474,36 +524,59 @@ function BackgroundTab({
           />
         </Box>
       ) : null}
+
       {colorField ? (
-        <ColorSwatchGrid
-          label="Background colors"
-          palette={[
-            ...new Set([
-              ...colorField.default,
-              ...(Array.isArray(o['backgroundColor'])
-                ? (o['backgroundColor'] as string[])
-                : []),
-            ]),
-          ]}
-          defaultPalette={colorField.default}
-          value={
-            Array.isArray(o['backgroundColor'])
-              ? (o['backgroundColor'] as string[])
-              : colorField.default
-          }
-          allowTransparent
-          onChange={(next) => {
-            updateOptions((o) => ({ ...o, backgroundColor: next }));
-          }}
-        />
+        <>
+          <TriggerRow
+            label="Background colors"
+            value={
+              bgColors.length === 0 ? '—' : `${bgColors.length} selected`
+            }
+            onPress={() => setSurface('bg-color')}
+          />
+          <ResponsiveSurface
+            visible={surface === 'bg-color'}
+            onClose={closeSurface}
+            title="Background colors"
+          >
+            <MultiSelectSwatchGrid
+              label=""
+              palette={[
+                ...new Set([
+                  ...colorField.default,
+                  ...bgColors,
+                ]),
+              ]}
+              defaultPalette={colorField.default}
+              value={
+                Array.isArray(o['backgroundColor'])
+                  ? (o['backgroundColor'] as string[])
+                  : colorField.default
+              }
+              allowTransparent
+              onChange={(next) => {
+                updateOptions((opts) => ({
+                  ...opts,
+                  backgroundColor: next,
+                }));
+              }}
+            />
+          </ResponsiveSurface>
+        </>
       ) : null}
-      {rotField && mode !== 'solid' ? (
-        <Box sx={{ gap: 2 }}>
-          <Text variant="label" label="Gradient rotation range (°)" />
-          <Stepper
+
+      {rotField ? (
+        <Box sx={{ gap: 2, opacity: mode === 'solid' ? 0.45 : 1 }}>
+          <Text
+            variant="caption"
+            sx={{ opacity: 0.8 }}
+            label="Gradient rotation (°)"
+          />
+          <NumberStepper
             label="Min rotation"
             min={rotField.itemMin}
             max={rotField.itemMax}
+            disabled={mode === 'solid'}
             value={
               Array.isArray(o['backgroundRotation'])
                 ? (() => {
@@ -524,10 +597,11 @@ function BackgroundTab({
               });
             }}
           />
-          <Stepper
+          <NumberStepper
             label="Max rotation"
             min={rotField.itemMin}
             max={rotField.itemMax}
+            disabled={mode === 'solid'}
             value={
               Array.isArray(o['backgroundRotation'])
                 ? (() => {
@@ -554,17 +628,21 @@ function BackgroundTab({
   );
 }
 
-function TransformTab({
+function TransformBlock({
   fields,
   draft,
   updateOptions,
 }: {
   fields: SchemaField[];
   draft: AvatarConfig;
-  updateOptions: TabBodyProps['updateOptions'];
+  updateOptions: (
+    fn: (o: Record<string, unknown>) => Record<string, unknown>
+  ) => void;
 }) {
+  if (fields.length === 0) return null;
   return (
-    <Box sx={{ gap: 1 }}>
+    <Box sx={{ mt: 2, gap: 1 }}>
+      <Text variant="label" label="Transform" />
       {fields.map((f) => {
         if (f.kind === 'boolean') {
           const val =
@@ -597,7 +675,7 @@ function TransformTab({
               ? (draft.options[f.key] as number)
               : f.default;
           return (
-            <Stepper
+            <NumberStepper
               key={f.key}
               label={humanizeOptionKey(f.key)}
               min={f.min}

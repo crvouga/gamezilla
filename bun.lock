@@ -44,6 +44,7 @@
         "@gamezilla/peer-store": "workspace:*",
         "@gamezilla/peer-store-app": "workspace:*",
         "@gamezilla/shared": "workspace:*",
+        "@gorhom/bottom-sheet": "^5.1.6",
         "@jlongster/sql.js": "^1.6.7",
         "@react-native-async-storage/async-storage": "^2.1.2",
         "@react-navigation/bottom-tabs": "^7.4.0",
@@ -144,12 +145,15 @@
       "dependencies": {
         "@gamezilla/patch-db": "workspace:*",
         "@gamezilla/shared": "workspace:*",
+        "@gorhom/bottom-sheet": "^5.1.6",
         "@react-native-async-storage/async-storage": "^2.1.2",
         "expo": "~54.0.33",
         "expo-sqlite": "~16.0.10",
         "react": "19.1.0",
         "react-dom": "19.1.0",
         "react-native": "0.81.5",
+        "react-native-gesture-handler": "~2.28.0",
+        "react-native-reanimated": "~4.1.1",
         "react-native-safe-area-context": "~5.6.0",
         "react-native-web": "~0.21.0",
       },
@@ -197,6 +201,7 @@
       "name": "@gamezilla/shared",
       "version": "0.0.0",
       "dependencies": {
+        "@gorhom/bottom-sheet": "^5.1.6",
         "@neondatabase/serverless": "^1.0.0",
         "@react-navigation/native": "^7.1.8",
         "expo-clipboard": "~8.0.7",
@@ -218,6 +223,10 @@
         "@types/react": "~19.1.0",
         "@types/sql.js": "^1.4.10",
         "typescript": "~5.9.2",
+      },
+      "peerDependencies": {
+        "react-native-gesture-handler": ">=2.0.0",
+        "react-native-reanimated": ">=3.0.0",
       },
     },
     "packages/turbo-cache": {
@@ -594,6 +603,10 @@
     "@gamezilla/shared": ["@gamezilla/shared@workspace:packages/shared"],
 
     "@gamezilla/turbo-cache": ["@gamezilla/turbo-cache@workspace:packages/turbo-cache"],
+
+    "@gorhom/bottom-sheet": ["@gorhom/bottom-sheet@5.2.9", "", { "dependencies": { "@gorhom/portal": "1.0.14", "invariant": "^2.2.4" }, "peerDependencies": { "@types/react": "*", "@types/react-native": "*", "react": "*", "react-native": "*", "react-native-gesture-handler": ">=2.16.1", "react-native-reanimated": ">=3.16.0 || >=4.0.0-" }, "optionalPeers": ["@types/react", "@types/react-native"] }, "sha512-YwieCsEnTQnN2QW4VBKfCGszzxaw2ID7FydusEgqo7qB817fZ45N88kptcuNwZFnnauCjdyzKdrVBWmLmpl9oQ=="],
+
+    "@gorhom/portal": ["@gorhom/portal@1.0.14", "", { "dependencies": { "nanoid": "^3.3.1" }, "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-MXyL4xvCjmgaORr/rtryDNFy3kU4qUbKlwtQqqsygd0xX3mhKjOLn6mQK8wfu0RkoE0pBE0nAasRoHua+/QZ7A=="],
 
     "@hono/zod-validator": ["@hono/zod-validator@0.7.6", "", { "peerDependencies": { "hono": ">=3.9.0", "zod": "^3.25.0 || ^4.0.0" } }, "sha512-Io1B6d011Gj1KknV4rXYz4le5+5EubcWEU/speUjuw9XMMIaP3n78yXLhjd2A3PXaXaUwEAluOiAyLqhBEJgsw=="],
 

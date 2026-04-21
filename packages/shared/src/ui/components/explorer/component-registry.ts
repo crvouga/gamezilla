@@ -38,6 +38,14 @@ import { default as StatusDotExample } from '../status-dot/status-dot.example';
 import { default as ModalExample } from '../modal/modal.example';
 import { default as CommandPaletteExample } from '../command-palette/command-palette.example';
 
+import { default as ResponsiveSurfaceExample } from '../responsive-surface/responsive-surface.example';
+import { default as PickerExample } from '../picker/picker.example';
+import { default as HorizontalPickerExample } from '../horizontal-picker/horizontal-picker.example';
+import { default as ChipGroupExample } from '../chip-group/chip-group.example';
+import { default as NumberStepperExample } from '../number-stepper/number-stepper.example';
+import { default as MultiSelectSwatchGridExample } from '../multi-select-swatch/multi-select-swatch-grid.example';
+import { default as SectionCardExample } from '../section-card/section-card.example';
+
 export type ComponentEntry = {
   name: string;
   category: string;
@@ -91,6 +99,27 @@ export const componentRegistry: ComponentEntry[] = [
   // Overlay
   { name: 'Modal', category: 'Overlay', Example: ModalExample },
   { name: 'CommandPalette', category: 'Overlay', Example: CommandPaletteExample },
+  {
+    name: 'ResponsiveSurface',
+    category: 'Overlay',
+    Example: ResponsiveSurfaceExample,
+  },
+
+  // Compound overlays / pickers
+  { name: 'Picker', category: 'Inputs', Example: PickerExample },
+  {
+    name: 'HorizontalPicker',
+    category: 'Inputs',
+    Example: HorizontalPickerExample,
+  },
+  { name: 'ChipGroup', category: 'Inputs', Example: ChipGroupExample },
+  { name: 'NumberStepper', category: 'Inputs', Example: NumberStepperExample },
+  {
+    name: 'MultiSelectSwatchGrid',
+    category: 'Inputs',
+    Example: MultiSelectSwatchGridExample,
+  },
+  { name: 'SectionCard', category: 'Disclosure', Example: SectionCardExample },
 ];
 
 export const categories = [...new Set(componentRegistry.map((c) => c.category))];

@@ -1,6 +1,9 @@
 /**
  * `ConfirmationModal` -- ready-made confirm/cancel dialog.
  *
+ * Uses {@link ResponsiveSurface}: bottom sheet on mobile, centered modal on
+ * larger breakpoints.
+ *
  * @example
  * ```tsx
  * <ConfirmationModal
@@ -15,13 +18,10 @@
  */
 
 import { useRef } from 'react';
-import { ModalBackdrop } from './modal-backdrop';
+import { ResponsiveSurface } from '../responsive-surface';
 import { ModalBody } from './modal-body';
 import { ModalButton } from './modal-button';
-import { ModalContent } from './modal-content';
 import { ModalFooter } from './modal-footer';
-import { ModalHeader } from './modal-header';
-import { ModalRoot } from './modal-root';
 
 export type ConfirmationModalProps = {
   visible: boolean;
@@ -76,27 +76,26 @@ export function ConfirmationModal({
     : latchedRef.current;
 
   return (
-    <ModalRoot visible={visible} onRequestClose={onCancel}>
-      <ModalBackdrop onPress={onCancel}>
-        <ModalContent>
-          <ModalHeader title={display.title} />
-          <ModalBody message={display.message} />
-          <ModalFooter>
-            <ModalButton
-              label={display.cancelLabel}
-              variant="cancel"
-              onPress={onCancel}
-            />
-            <ModalButton
-              label={display.confirmLabel}
-              variant={
-                display.variant === 'destructive' ? 'destructive' : 'default'
-              }
-              onPress={onConfirm}
-            />
-          </ModalFooter>
-        </ModalContent>
-      </ModalBackdrop>
-    </ModalRoot>
+    <ResponsiveSurface
+      visible={visible}
+      onClose={onCancel}
+      title={display.title}
+    >
+      <ModalBody message={display.message} />
+      <ModalFooter>
+        <ModalButton
+          label={display.cancelLabel}
+          variant="cancel"
+          onPress={onCancel}
+        />
+        <ModalButton
+          label={display.confirmLabel}
+          variant={
+            display.variant === 'destructive' ? 'destructive' : 'default'
+          }
+          onPress={onConfirm}
+        />
+      </ModalFooter>
+    </ResponsiveSurface>
   );
 }

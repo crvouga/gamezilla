@@ -1,0 +1,67 @@
+import { useState } from 'react';
+import { View } from 'react-native';
+import { Box } from '../box';
+import { Text } from '../text';
+import { Picker, type PickerOption } from './picker';
+
+const OPTIONS: PickerOption<string>[] = [
+  {
+    value: 'a',
+    label: 'Alpha',
+    preview: (
+      <View
+        style={{
+          width: 28,
+          height: 28,
+          borderRadius: 14,
+          backgroundColor: '#c084fc',
+        }}
+      />
+    ),
+  },
+  {
+    value: 'b',
+    label: 'Bravo',
+    preview: (
+      <View
+        style={{
+          width: 28,
+          height: 28,
+          borderRadius: 14,
+          backgroundColor: '#38bdf8',
+        }}
+      />
+    ),
+  },
+  {
+    value: 'c',
+    label: 'Charlie',
+    preview: (
+      <View
+        style={{
+          width: 28,
+          height: 28,
+          borderRadius: 14,
+          backgroundColor: '#4ade80',
+        }}
+      />
+    ),
+  },
+];
+
+export default function PickerExample() {
+  const [v, setV] = useState<string>('a');
+
+  return (
+    <Box sx={{ p: 4, gap: 4 }}>
+      <Text variant="heading" label="Picker" />
+      <Picker
+        label="With preview thumbs"
+        options={OPTIONS}
+        value={v}
+        onValueChange={setV}
+      />
+      <Text variant="caption" sx={{ opacity: 0.75 }} label={`Selected: ${v}`} />
+    </Box>
+  );
+}

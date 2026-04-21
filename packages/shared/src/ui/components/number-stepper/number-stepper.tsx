@@ -1,6 +1,13 @@
-import { Box, Pressable, Text, useTheme } from '@gamezilla/shared/ui';
+/**
+ * `NumberStepper` — labeled numeric value with decrement / increment controls.
+ */
 
-export type StepperProps = {
+import { useTheme } from '../../theme';
+import { Box } from '../box';
+import { Pressable } from '../pressable';
+import { Text } from '../text';
+
+export type NumberStepperProps = {
   label: string;
   value: number;
   onChange: (n: number) => void;
@@ -10,7 +17,7 @@ export type StepperProps = {
   disabled?: boolean;
 };
 
-export function Stepper({
+export function NumberStepper({
   label,
   value,
   onChange,
@@ -18,7 +25,7 @@ export function Stepper({
   max,
   step = 1,
   disabled = false,
-}: StepperProps) {
+}: NumberStepperProps) {
   const theme = useTheme();
   const dec = () => {
     const next = Math.max(min, value - step);

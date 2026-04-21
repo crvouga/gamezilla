@@ -46,6 +46,7 @@
     "./*": "./src/*"
   },
   "dependencies": {
+    "@gorhom/bottom-sheet": "^5.1.6",
     "@neondatabase/serverless": "^1.0.0",
     "@react-navigation/native": "^7.1.8",
     "expo-clipboard": "~8.0.7",
@@ -59,6 +60,10 @@
     "react-native": "0.81.5",
     "react-native-svg": "15.12.1",
     "sql.js": "^1.14.0"
+  },
+  "peerDependencies": {
+    "react-native-gesture-handler": ">=2.0.0",
+    "react-native-reanimated": ">=3.0.0"
   },
   "scripts": {
     "lint": "eslint .",
