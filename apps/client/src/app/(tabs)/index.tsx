@@ -1,30 +1,27 @@
-import { useMemo, useState } from 'react';
 import {
   Box,
+  ScreenBase,
   ScrollView,
   SegmentedControl,
   Text,
-  ScreenBase,
   useBreakpoint,
 } from '@gamezilla/shared/ui';
+import { useMemo, useState } from 'react';
 
-import { SpaceCard } from '@/features/spaces/space-card';
 import {
   filterSpaces,
   MOCK_SPACES,
-} from '@/features/spaces/mock-spaces';
-import type { SpaceFilter } from '@/features/spaces/types';
-import { useAccountActions } from '@/ui/use-account-actions';
+} from '@gamezilla/client/features/spaces/mock-spaces';
+import { SpaceCard } from '@gamezilla/client/features/spaces/space-card';
+import type { SpaceFilter } from '@gamezilla/client/features/spaces/types';
+import { useAccountActions } from '@gamezilla/client/ui/use-account-actions';
 
 export default function SpacesScreen() {
   const [filter, setFilter] = useState<SpaceFilter>('all');
   const accountActions = useAccountActions();
   const isMobile = useBreakpoint() === 'mobile';
 
-  const spaces = useMemo(
-    () => filterSpaces(MOCK_SPACES, filter),
-    [filter],
-  );
+  const spaces = useMemo(() => filterSpaces(MOCK_SPACES, filter), [filter]);
 
   return (
     <ScreenBase

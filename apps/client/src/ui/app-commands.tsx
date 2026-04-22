@@ -1,4 +1,4 @@
-import { useAuth } from '@/features/auth/auth-context';
+import { useAuth } from '@gamezilla/client/features/auth/auth-context';
 import { clearLocalDatabaseAndReload } from '@gamezilla/patch-db/bootstrap-expo';
 import {
   ConfirmationModal,

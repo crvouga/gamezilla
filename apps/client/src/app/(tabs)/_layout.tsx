@@ -6,7 +6,7 @@ import {
 } from '@gamezilla/shared/ui';
 import { Tabs } from 'expo-router';
 
-import { AppSidebar } from '@/ui/app-sidebar';
+import { AppSidebar } from '@gamezilla/client/ui/app-sidebar';
 
 export default function TabsLayout() {
   const breakpoint = useBreakpoint();

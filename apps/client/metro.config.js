@@ -33,10 +33,7 @@ const reactNativeSafeAreaContextPath = fs.realpathSync(
   path.resolve(projectRoot, 'node_modules/react-native-safe-area-context')
 );
 const reactNativeSafeAreaContextIndexPath = fs.realpathSync(
-  path.join(
-    reactNativeSafeAreaContextPath,
-    'lib/module/index.js'
-  )
+  path.join(reactNativeSafeAreaContextPath, 'lib/module/index.js')
 );
 
 config.watchFolders = [monorepoRoot, expoVirtualEnvDir];
@@ -57,19 +54,16 @@ config.resolver.extraNodeModules = {
   'react-native-safe-area-context': reactNativeSafeAreaContextPath,
 };
 
-// Resolve @/ and @gamezilla/* workspace imports directly to source files.
+// Resolve @gamezilla/client/ and @gamezilla/* workspace imports directly to source files.
 // This bypasses package.json "exports" maps which break Metro (Metro resolves
 // the catch-all "./*":"./src/*" to a path without a file extension, then fails).
-// Also handles the @/ alias here instead of tsconfig because Bun has a bug
+// Also handles the @gamezilla/client/ alias here instead of tsconfig because Bun has a bug
 // that silently drops child tsconfig paths when `extends` is used.
 const srcDir = path.resolve(projectRoot, 'src');
 const workspacePackages = {
   '@gamezilla/shared': path.resolve(monorepoRoot, 'libs/shared/src'),
   '@gamezilla/patch-db': path.resolve(monorepoRoot, 'libs/patch-db/src'),
-  '@gamezilla/peer-store': path.resolve(
-    monorepoRoot,
-    'libs/peer-store/src'
-  ),
+  '@gamezilla/peer-store': path.resolve(monorepoRoot, 'libs/peer-store/src'),
   '@gamezilla/patch-db-example': path.resolve(
     monorepoRoot,
     'libs/patch-db-example/src'
@@ -106,7 +100,10 @@ function isUnderMonorepoRoot(originModulePath) {
     return false;
   }
   try {
-    return fs.realpathSync(path.resolve(originModulePath)) === fs.realpathSync(monorepoRoot);
+    return (
+      fs.realpathSync(path.resolve(originModulePath)) ===
+      fs.realpathSync(monorepoRoot)
+    );
   } catch {
     return path.resolve(originModulePath) === path.resolve(monorepoRoot);
   }
@@ -118,7 +115,10 @@ function isUnderMonorepoRoot(originModulePath) {
  * `<repo>/profile/avatar` and fails. Rewire to `src/app/(tabs)/…` or `src/app/…`.
  */
 function tryResolveRelativeFromMonorepoRoot(context, moduleName, platform) {
-  if (!moduleName.startsWith('./') || !isUnderMonorepoRoot(context.originModulePath)) {
+  if (
+    !moduleName.startsWith('./') ||
+    !isUnderMonorepoRoot(context.originModulePath)
+  ) {
     return null;
   }
   const rel = moduleName.slice(2);
@@ -179,7 +179,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
       filePath: reactNativeSafeAreaContextIndexPath,
     });
   }
-  if (moduleName.startsWith('@/')) {
+  if (moduleName.startsWith('@gamezilla/client/')) {
     return finish(
       context.resolveRequest(
         context,

@@ -1,8 +1,8 @@
-import { useRouter } from 'expo-router';
 import { Box, ScreenBase } from '@gamezilla/shared/ui';
 import { ExplorerList } from '@gamezilla/shared/ui/explorer';
+import { useRouter } from 'expo-router';
 
-import { useBreadcrumbNav } from '@/ui/use-breadcrumb-nav';
+import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 
 export default function UIExplorerIndex() {
   const router = useRouter();

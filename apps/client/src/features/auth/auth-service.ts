@@ -1,3 +1,6 @@
+import { createGamezillaApiClient } from '@gamezilla/client/features/api/hc';
+import type { PatchesDb } from '@gamezilla/patch-db/interface';
+import { assert } from '@gamezilla/shared/assert';
 import {
   assertPrincipalId,
   PRINCIPAL_ENTITY_TYPE,
@@ -6,11 +9,8 @@ import {
   PrincipalSessionAttr,
 } from '@gamezilla/shared/auth';
 import { assertUuid } from '@gamezilla/shared/auth/principal-id';
-import { assert } from '@gamezilla/shared/assert';
 import type { ConfigService } from '@gamezilla/shared/config/config-service';
 import type { InjectionToken } from '@gamezilla/shared/dependency-injection/dependency-injection-container';
-import type { PatchesDb } from '@gamezilla/patch-db/interface';
-import { createGamezillaApiClient } from '@/features/api/hc';
 import type { PrincipalService } from './principal-service';
 import type { SessionService } from './session-service';
 
@@ -19,7 +19,8 @@ export interface AuthService {
   signOut(): Promise<void>;
 }
 
-export const AuthServiceToken: InjectionToken<AuthService> = Symbol('AuthService');
+export const AuthServiceToken: InjectionToken<AuthService> =
+  Symbol('AuthService');
 
 type ClaimResponse = {
   accountId: string;
@@ -36,7 +37,10 @@ function parseClaimResponse(json: unknown): ClaimResponse {
   assert.string(sessionToken, 'claim response sessionToken must be string');
   assert.string(expiresAt, 'claim response expiresAt must be string');
   assertUuid(accountId, 'claim response accountId must be UUID');
-  assert.ok(sessionToken.length > 0, 'claim response sessionToken must be non-empty');
+  assert.ok(
+    sessionToken.length > 0,
+    'claim response sessionToken must be non-empty'
+  );
   return { accountId, sessionToken, expiresAt };
 }
 
@@ -81,9 +85,7 @@ export function createAuthService(deps: {
       }
 
       if (!response.ok) {
-        throw new Error(
-          `Claim failed (${String(response.status)}): ${text}`
-        );
+        throw new Error(`Claim failed (${String(response.status)}): ${text}`);
       }
 
       assert.ok(json !== null, 'claim success body must not be empty');

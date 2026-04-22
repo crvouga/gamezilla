@@ -1,12 +1,12 @@
-import { useAuth } from '@/features/auth/auth-context';
-import { PrincipalServiceToken } from '@/features/auth/principal-service';
+import { useAuth } from '@gamezilla/client/features/auth/auth-context';
+import { PrincipalServiceToken } from '@gamezilla/client/features/auth/principal-service';
 import { useEntities } from '@gamezilla/patch-db/react';
+import { useDependency } from '@gamezilla/shared/dependency-injection/react';
+import { resolveAvatarConfig } from '@gamezilla/shared/profile/avatar-config';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
 } from '@gamezilla/shared/profile/profile-entities';
-import { resolveAvatarConfig } from '@gamezilla/shared/profile/avatar-config';
-import { useDependency } from '@gamezilla/shared/dependency-injection/react';
 import { useMemo } from 'react';
 
 /**
@@ -47,7 +47,7 @@ export function useProfile() {
     const avatarConfig = resolveAvatarConfig(
       entity?.attributes as Record<string, unknown> | undefined,
       principalId,
-      ProfileAttr.avatarConfig,
+      ProfileAttr.avatarConfig
     );
 
     return {

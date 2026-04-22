@@ -1,12 +1,16 @@
-import { StylePickerStrip } from '@/features/profile/components/style-picker-strip';
-import { VariantSwatchStrip } from '@/features/profile/components/variant-swatch-strip';
+import { StylePickerStrip } from '@gamezilla/client/features/profile/components/style-picker-strip';
+import { VariantSwatchStrip } from '@gamezilla/client/features/profile/components/variant-swatch-strip';
 import {
   getDefaultOptionsFromSchema,
   getFieldsByTab,
   type SchemaField,
-} from '@/features/profile/dicebear-schema';
-import { isStyleKey, styleLabel, type StyleKey } from '@/features/profile/dicebear-styles';
-import { ProfileDiceBearAvatar } from '@/features/profile/profile-dicebear-avatar';
+} from '@gamezilla/client/features/profile/dicebear-schema';
+import {
+  isStyleKey,
+  styleLabel,
+  type StyleKey,
+} from '@gamezilla/client/features/profile/dicebear-styles';
+import { ProfileDiceBearAvatar } from '@gamezilla/client/features/profile/profile-dicebear-avatar';
 import { usePatchesDb } from '@gamezilla/patch-db/react';
 import type { AvatarConfig } from '@gamezilla/shared/profile/avatar-config';
 import {
@@ -224,10 +228,7 @@ export function AvatarEditorScreen() {
         onCancel={() => setShowDiscard(false)}
       />
       <ScreenBase
-        breadcrumbs={[
-          { name: 'Profile', onPress: onBack },
-          { name: 'Avatar' },
-        ]}
+        breadcrumbs={[{ name: 'Profile', onPress: onBack }, { name: 'Avatar' }]}
         actions={[
           {
             type: 'secondary',
@@ -248,212 +249,217 @@ export function AvatarEditorScreen() {
         scroll
         content={({ sx }) => (
           <Box style={sx}>
-          <Box sx={{ alignItems: 'center', gap: 2, minHeight: 260 }}>
-            <ProfileDiceBearAvatar
-              config={previewConfig}
-              fallbackSeed={principalId}
-              size={192}
-              loading={!initialized}
-            />
-            <Box
-              sx={{
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                gap: 2,
-                justifyContent: 'center',
-              }}
-            >
-              <Button
-                title="Shuffle seed"
-                variant="outlined"
-                onPress={shuffleSeed}
-                disabled={!initialized}
+            <Box sx={{ alignItems: 'center', gap: 2, minHeight: 260 }}>
+              <ProfileDiceBearAvatar
+                config={previewConfig}
+                fallbackSeed={principalId}
+                size={192}
+                loading={!initialized}
               />
-              <Button
-                title="Copy seed"
-                variant="outlined"
-                onPress={() => void copySeed()}
-                disabled={!initialized}
+              <Box
+                sx={{
+                  flexDirection: 'row',
+                  flexWrap: 'wrap',
+                  gap: 2,
+                  justifyContent: 'center',
+                }}
+              >
+                <Button
+                  title="Shuffle seed"
+                  variant="outlined"
+                  onPress={shuffleSeed}
+                  disabled={!initialized}
+                />
+                <Button
+                  title="Copy seed"
+                  variant="outlined"
+                  onPress={() => void copySeed()}
+                  disabled={!initialized}
+                />
+              </Box>
+              <Text
+                variant="caption"
+                sx={{ textAlign: 'center', opacity: 0.75 }}
+                numberOfLines={1}
+                label="Preview updates as you edit. Save to keep changes."
               />
             </Box>
-            <Text
-              variant="caption"
-              sx={{ textAlign: 'center', opacity: 0.75 }}
-              numberOfLines={1}
-              label="Preview updates as you edit. Save to keep changes."
-            />
-          </Box>
 
-          {initialized ? (
-            <>
-              <Text variant="label" sx={{ mt: 2 }} label="Style" />
-              <TriggerRow
-                label="Avatar style"
-                value={styleLabel(styleKey)}
-                onPress={() => setSurface('style')}
-              />
-              <ResponsiveSurface
-                visible={surface === 'style'}
-                onClose={closeSurface}
-                title="Choose style"
-              >
-                <StylePickerStrip
-                  selected={styleKey}
-                  seed={draft.seed.trim() || principalId}
-                  principalId={principalId}
-                  onSelect={(k) => {
-                    setDraft((d) => ({ ...d, style: k, options: {} }));
-                    closeSurface();
-                  }}
+            {initialized ? (
+              <>
+                <Text variant="label" sx={{ mt: 2 }} label="Style" />
+                <TriggerRow
+                  label="Avatar style"
+                  value={styleLabel(styleKey)}
+                  onPress={() => setSurface('style')}
                 />
-              </ResponsiveSurface>
+                <ResponsiveSurface
+                  visible={surface === 'style'}
+                  onClose={closeSurface}
+                  title="Choose style"
+                >
+                  <StylePickerStrip
+                    selected={styleKey}
+                    seed={draft.seed.trim() || principalId}
+                    principalId={principalId}
+                    onSelect={(k) => {
+                      setDraft((d) => ({ ...d, style: k, options: {} }));
+                      closeSurface();
+                    }}
+                  />
+                </ResponsiveSurface>
 
-              {featureEnums.length > 0 ? (
-                <Box sx={{ mt: 2 }}>
-                  <Text variant="label" label="Features" />
-                  {featureEnums.map((f) => {
-                    const mode = getEnumSelectionMode(f, draft.options[f.key]);
-                    const summary =
-                      mode === 'random' ? 'Random' : String(mode);
-                    return (
-                      <Box key={f.key}>
-                        <TriggerRow
-                          label={humanizeOptionKey(f.key)}
-                          value={summary}
-                          onPress={() => setSurface(`enum:${f.key}`)}
-                        />
-                        <ResponsiveSurface
-                          visible={surface === `enum:${f.key}`}
-                          onClose={closeSurface}
-                          title={humanizeOptionKey(f.key)}
-                        >
-                          <VariantSwatchStrip
-                            field={f}
-                            styleKey={styleKey}
-                            draft={draft}
-                            principalId={principalId}
-                            onSelect={(variant) => {
-                              updateOptions((o) => {
-                                const next = { ...o };
-                                if (variant === null) {
-                                  delete next[f.key];
-                                } else {
-                                  next[f.key] = [variant];
-                                }
-                                return next;
-                              });
-                              closeSurface();
-                            }}
-                          />
-                        </ResponsiveSurface>
-                      </Box>
-                    );
-                  })}
-                </Box>
-              ) : null}
-
-              {byTab.colors.some((f) => f.kind === 'color') ? (
-                <Box sx={{ mt: 2 }}>
-                  <Text variant="label" label="Colors" />
-                  {byTab.colors
-                    .filter(
-                      (f): f is Extract<SchemaField, { kind: 'color' }> =>
-                        f.kind === 'color'
-                    )
-                    .map((f) => {
-                      const current = Array.isArray(draft.options[f.key])
-                        ? (draft.options[f.key] as string[])
-                        : f.default;
+                {featureEnums.length > 0 ? (
+                  <Box sx={{ mt: 2 }}>
+                    <Text variant="label" label="Features" />
+                    {featureEnums.map((f) => {
+                      const mode = getEnumSelectionMode(
+                        f,
+                        draft.options[f.key]
+                      );
                       const summary =
-                        current.length === 0
-                          ? '—'
-                          : `${current.length} selected`;
+                        mode === 'random' ? 'Random' : String(mode);
                       return (
                         <Box key={f.key}>
                           <TriggerRow
                             label={humanizeOptionKey(f.key)}
                             value={summary}
-                            onPress={() => setSurface(`color:${f.key}`)}
+                            onPress={() => setSurface(`enum:${f.key}`)}
                           />
                           <ResponsiveSurface
-                            visible={surface === `color:${f.key}`}
+                            visible={surface === `enum:${f.key}`}
                             onClose={closeSurface}
                             title={humanizeOptionKey(f.key)}
                           >
-                            <MultiSelectSwatchGrid
-                              label=""
-                              palette={[
-                                ...new Set([...f.default, ...current]),
-                              ]}
-                              defaultPalette={f.default}
-                              value={current}
-                              allowTransparent
-                              onChange={(next) => {
-                                updateOptions((o) => ({
-                                  ...o,
-                                  [f.key]: next,
-                                }));
+                            <VariantSwatchStrip
+                              field={f}
+                              styleKey={styleKey}
+                              draft={draft}
+                              principalId={principalId}
+                              onSelect={(variant) => {
+                                updateOptions((o) => {
+                                  const next = { ...o };
+                                  if (variant === null) {
+                                    delete next[f.key];
+                                  } else {
+                                    next[f.key] = [variant];
+                                  }
+                                  return next;
+                                });
+                                closeSurface();
                               }}
                             />
                           </ResponsiveSurface>
                         </Box>
                       );
                     })}
-                </Box>
-              ) : null}
+                  </Box>
+                ) : null}
 
-              {byTab.effects.some((f) => f.kind === 'probability') ? (
-                <Box sx={{ mt: 2, gap: 2 }}>
-                  <Text variant="label" label="Effects" />
-                  {byTab.effects
-                    .filter(
-                      (f): f is Extract<SchemaField, { kind: 'probability' }> =>
-                        f.kind === 'probability'
-                    )
-                    .map((f) => (
-                      <ChipGroup
-                        key={f.key}
-                        label={humanizeOptionKey(f.key)}
-                        options={[
-                          { key: 'off', label: 'Off' },
-                          { key: 'random', label: 'Random' },
-                          { key: 'always', label: 'Always' },
-                        ]}
-                        selected={getProbabilityMode(draft.options[f.key])}
-                        onSelect={(mode) => {
-                          updateOptions((o) => {
-                            const next = { ...o };
-                            if (mode === 'random') {
-                              delete next[f.key];
-                            } else if (mode === 'off') {
-                              next[f.key] = 0;
-                            } else {
-                              next[f.key] = 100;
-                            }
-                            return next;
-                          });
-                        }}
-                      />
-                    ))}
-                </Box>
-              ) : null}
+                {byTab.colors.some((f) => f.kind === 'color') ? (
+                  <Box sx={{ mt: 2 }}>
+                    <Text variant="label" label="Colors" />
+                    {byTab.colors
+                      .filter(
+                        (f): f is Extract<SchemaField, { kind: 'color' }> =>
+                          f.kind === 'color'
+                      )
+                      .map((f) => {
+                        const current = Array.isArray(draft.options[f.key])
+                          ? (draft.options[f.key] as string[])
+                          : f.default;
+                        const summary =
+                          current.length === 0
+                            ? '—'
+                            : `${current.length} selected`;
+                        return (
+                          <Box key={f.key}>
+                            <TriggerRow
+                              label={humanizeOptionKey(f.key)}
+                              value={summary}
+                              onPress={() => setSurface(`color:${f.key}`)}
+                            />
+                            <ResponsiveSurface
+                              visible={surface === `color:${f.key}`}
+                              onClose={closeSurface}
+                              title={humanizeOptionKey(f.key)}
+                            >
+                              <MultiSelectSwatchGrid
+                                label=""
+                                palette={[
+                                  ...new Set([...f.default, ...current]),
+                                ]}
+                                defaultPalette={f.default}
+                                value={current}
+                                allowTransparent
+                                onChange={(next) => {
+                                  updateOptions((o) => ({
+                                    ...o,
+                                    [f.key]: next,
+                                  }));
+                                }}
+                              />
+                            </ResponsiveSurface>
+                          </Box>
+                        );
+                      })}
+                  </Box>
+                ) : null}
 
-              <BackgroundBlock
-                fields={byTab.background}
-                draft={draft}
-                updateOptions={updateOptions}
-                surface={surface}
-                setSurface={setSurface}
-                closeSurface={closeSurface}
-              />
+                {byTab.effects.some((f) => f.kind === 'probability') ? (
+                  <Box sx={{ mt: 2, gap: 2 }}>
+                    <Text variant="label" label="Effects" />
+                    {byTab.effects
+                      .filter(
+                        (
+                          f
+                        ): f is Extract<SchemaField, { kind: 'probability' }> =>
+                          f.kind === 'probability'
+                      )
+                      .map((f) => (
+                        <ChipGroup
+                          key={f.key}
+                          label={humanizeOptionKey(f.key)}
+                          options={[
+                            { key: 'off', label: 'Off' },
+                            { key: 'random', label: 'Random' },
+                            { key: 'always', label: 'Always' },
+                          ]}
+                          selected={getProbabilityMode(draft.options[f.key])}
+                          onSelect={(mode) => {
+                            updateOptions((o) => {
+                              const next = { ...o };
+                              if (mode === 'random') {
+                                delete next[f.key];
+                              } else if (mode === 'off') {
+                                next[f.key] = 0;
+                              } else {
+                                next[f.key] = 100;
+                              }
+                              return next;
+                            });
+                          }}
+                        />
+                      ))}
+                  </Box>
+                ) : null}
 
-              <TransformBlock
-                fields={byTab.transform}
-                draft={draft}
-                updateOptions={updateOptions}
-              />
-            </>
-          ) : null}
+                <BackgroundBlock
+                  fields={byTab.background}
+                  draft={draft}
+                  updateOptions={updateOptions}
+                  surface={surface}
+                  setSurface={setSurface}
+                  closeSurface={closeSurface}
+                />
+
+                <TransformBlock
+                  fields={byTab.transform}
+                  draft={draft}
+                  updateOptions={updateOptions}
+                />
+              </>
+            ) : null}
           </Box>
         )}
       />
@@ -496,7 +502,7 @@ function BackgroundBlock({
 
   const bgColors = Array.isArray(o['backgroundColor'])
     ? (o['backgroundColor'] as string[])
-    : colorField?.default ?? [];
+    : (colorField?.default ?? []);
 
   return (
     <Box sx={{ mt: 2, gap: 3 }}>
@@ -527,9 +533,7 @@ function BackgroundBlock({
         <>
           <TriggerRow
             label="Background colors"
-            value={
-              bgColors.length === 0 ? '—' : `${bgColors.length} selected`
-            }
+            value={bgColors.length === 0 ? '—' : `${bgColors.length} selected`}
             onPress={() => setSurface('bg-color')}
           />
           <ResponsiveSurface
@@ -539,12 +543,7 @@ function BackgroundBlock({
           >
             <MultiSelectSwatchGrid
               label=""
-              palette={[
-                ...new Set([
-                  ...colorField.default,
-                  ...bgColors,
-                ]),
-              ]}
+              palette={[...new Set([...colorField.default, ...bgColors])]}
               defaultPalette={colorField.default}
               value={
                 Array.isArray(o['backgroundColor'])

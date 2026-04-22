@@ -1,9 +1,15 @@
-import { ProfileDiceBearAvatar } from '@/features/profile/profile-dicebear-avatar';
-import { useProfile } from '@/features/profile/use-profile';
-import { Box, Button, ScreenBase, Text, useBreakpoint } from '@gamezilla/shared/ui';
+import { ProfileDiceBearAvatar } from '@gamezilla/client/features/profile/profile-dicebear-avatar';
+import { useProfile } from '@gamezilla/client/features/profile/use-profile';
+import {
+  Box,
+  Button,
+  ScreenBase,
+  Text,
+  useBreakpoint,
+} from '@gamezilla/shared/ui';
 import { useRouter } from 'expo-router';
 
-import { useAccountActions } from '@/ui/use-account-actions';
+import { useAccountActions } from '@gamezilla/client/ui/use-account-actions';
 
 export default function ProfileScreen() {
   const router = useRouter();

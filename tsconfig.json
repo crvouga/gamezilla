@@ -12,7 +12,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "paths": {
-      "@/*": ["./apps/client/src/*"],
+      "@gamezilla/client/*": ["./apps/client/src/*"],
       "@gamezilla/shared/*": ["./libs/shared/src/*"],
       "@gamezilla/patch-db/*": ["./libs/patch-db/src/*"],
       "@gamezilla/peer-store/*": ["./libs/peer-store/src/*"],

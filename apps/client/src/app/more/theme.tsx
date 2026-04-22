@@ -6,7 +6,7 @@ import {
   useThemePreference,
 } from '@gamezilla/shared/ui';
 
-import { useBreadcrumbNav } from '@/ui/use-breadcrumb-nav';
+import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 
 const THEME_SEGMENTS = [
   { key: 'light', label: '☀️ Light' },

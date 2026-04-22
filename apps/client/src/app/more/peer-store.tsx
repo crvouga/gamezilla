@@ -1,7 +1,7 @@
-import { Box, ScreenBaseHeader } from '@gamezilla/shared/ui';
 import { PlaygroundPage } from '@gamezilla/peer-store-example/pages/playground-page';
+import { Box, ScreenBaseHeader } from '@gamezilla/shared/ui';
 
-import { useBreadcrumbNav } from '@/ui/use-breadcrumb-nav';
+import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 
 export default function PeerStoreScreen() {
   const nav = useBreadcrumbNav();

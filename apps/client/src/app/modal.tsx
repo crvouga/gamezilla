@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 
 import { Box, Pressable, ScreenBase, Text } from '@gamezilla/shared/ui';
 
-import { useBreadcrumbNav } from '@/ui/use-breadcrumb-nav';
+import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 
 export default function ModalScreen() {
   const router = useRouter();

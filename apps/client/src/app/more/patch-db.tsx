@@ -1,7 +1,7 @@
-import { Box, ScreenBaseHeader } from '@gamezilla/shared/ui';
 import { PlaygroundApp } from '@gamezilla/patch-db-example/playground-app';
+import { Box, ScreenBaseHeader } from '@gamezilla/shared/ui';
 
-import { useBreadcrumbNav } from '@/ui/use-breadcrumb-nav';
+import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 
 export default function PatchDbScreen() {
   const nav = useBreadcrumbNav();

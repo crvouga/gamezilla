@@ -9,11 +9,11 @@ import { Stack } from 'expo-router';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
-import { AuthProvider } from '@/features/auth/auth-context';
-import { PrincipalAuthShell } from '@/features/auth/principal-auth-shell';
-import { AppCommands } from '@/ui/app-commands';
-import { CommandPaletteNativeGesture } from '@/ui/command-palette-native-gesture';
-import { PatchBootstrap } from '@/ui/patch-bootstrap';
+import { AuthProvider } from '@gamezilla/client/features/auth/auth-context';
+import { PrincipalAuthShell } from '@gamezilla/client/features/auth/principal-auth-shell';
+import { AppCommands } from '@gamezilla/client/ui/app-commands';
+import { CommandPaletteNativeGesture } from '@gamezilla/client/ui/command-palette-native-gesture';
+import { PatchBootstrap } from '@gamezilla/client/ui/patch-bootstrap';
 import { assert } from '@gamezilla/shared/assert';
 import { BrowserCrashHandler } from '@gamezilla/shared/assert/crash/crash-handler/crash-handler-browser';
 import { ExpoCrashHandler } from '@gamezilla/shared/assert/crash/crash-handler/crash-handler-expo';

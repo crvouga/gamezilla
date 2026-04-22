@@ -1,9 +1,9 @@
 import { Avatar, Box, Button, ScreenBase, Text } from '@gamezilla/shared/ui';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
-import { getSpaceById } from '@/features/spaces/mock-spaces';
-import type { Space } from '@/features/spaces/types';
-import { useBreadcrumbNav } from '@/ui/use-breadcrumb-nav';
+import { getSpaceById } from '@gamezilla/client/features/spaces/mock-spaces';
+import type { Space } from '@gamezilla/client/features/spaces/types';
+import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 
 const GAME_LABEL: Record<Space['gameType'], string> = {
   trivia: 'Trivia',
@@ -29,15 +29,9 @@ export default function SpaceDetailScreen() {
   if (!space) {
     return (
       <ScreenBase
-        breadcrumbs={[
-          { name: 'Spaces', onPress: nav('/') },
-          { name: 'Space' },
-        ]}
+        breadcrumbs={[{ name: 'Spaces', onPress: nav('/') }, { name: 'Space' }]}
         content={({ sx }) => (
-          <Box
-            style={sx}
-            sx={{ flex: 1, justifyContent: 'center' }}
-          >
+          <Box style={sx} sx={{ flex: 1, justifyContent: 'center' }}>
             <Text
               variant="body"
               sx={{ color: 'textSecondary' }}

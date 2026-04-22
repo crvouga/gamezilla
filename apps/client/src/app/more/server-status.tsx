@@ -1,5 +1,5 @@
-import { useServerStatus } from '@/features/connection/use-server-status';
-import { useBreadcrumbNav } from '@/ui/use-breadcrumb-nav';
+import { useServerStatus } from '@gamezilla/client/features/connection/use-server-status';
+import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 import { getKnownServerNameForApiUrl } from '@gamezilla/shared/config/api-servers';
 import {
   Box,

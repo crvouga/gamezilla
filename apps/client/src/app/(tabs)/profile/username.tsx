@@ -7,8 +7,8 @@ import { Box, ScreenBase, TextInput } from '@gamezilla/shared/ui';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useProfile } from '@/features/profile/use-profile';
-import { useBreadcrumbNav } from '@/ui/use-breadcrumb-nav';
+import { useProfile } from '@gamezilla/client/features/profile/use-profile';
+import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 
 export default function ProfileUsernameScreen() {
   const router = useRouter();

@@ -1,13 +1,13 @@
-import { createGamezillaApiClient } from '@/features/api/hc';
-import { createPatchDbHcTransport } from '@/features/api/patch-db-hc-transport';
-import { ensurePrincipalEntity } from '@/features/auth/ensure-principal-entity';
-import { ensureProfileEntity } from '@/features/auth/ensure-profile-entity';
-import { PrincipalPatchesDb } from '@/features/auth/principal-patches-db';
-import { PrincipalServiceToken } from '@/features/auth/principal-service';
+import { createGamezillaApiClient } from '@gamezilla/client/features/api/hc';
+import { createPatchDbHcTransport } from '@gamezilla/client/features/api/patch-db-hc-transport';
+import { ensurePrincipalEntity } from '@gamezilla/client/features/auth/ensure-principal-entity';
+import { ensureProfileEntity } from '@gamezilla/client/features/auth/ensure-profile-entity';
+import { PrincipalPatchesDb } from '@gamezilla/client/features/auth/principal-patches-db';
+import { PrincipalServiceToken } from '@gamezilla/client/features/auth/principal-service';
 import {
   createSessionService,
   SessionServiceToken,
-} from '@/features/auth/session-service';
+} from '@gamezilla/client/features/auth/session-service';
 import {
   bootstrapPatchDbExpoSync,
   clearLocalDatabaseAndReload,

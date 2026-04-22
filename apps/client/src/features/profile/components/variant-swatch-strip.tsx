@@ -1,10 +1,10 @@
 import {
   buildThumbnailEnumOptions,
   isEnumRandom,
-} from '@/features/profile/avatar-editor/option-helpers';
-import type { SchemaField } from '@/features/profile/dicebear-schema';
-import type { StyleKey } from '@/features/profile/dicebear-styles';
-import { ProfileDiceBearAvatar } from '@/features/profile/profile-dicebear-avatar';
+} from '@gamezilla/client/features/profile/avatar-editor/option-helpers';
+import type { SchemaField } from '@gamezilla/client/features/profile/dicebear-schema';
+import type { StyleKey } from '@gamezilla/client/features/profile/dicebear-styles';
+import { ProfileDiceBearAvatar } from '@gamezilla/client/features/profile/profile-dicebear-avatar';
 import type { AvatarConfig } from '@gamezilla/shared/profile/avatar-config';
 import { HorizontalPicker, Text } from '@gamezilla/shared/ui';
 

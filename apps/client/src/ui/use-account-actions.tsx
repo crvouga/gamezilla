@@ -1,6 +1,6 @@
-import { useServerStatus } from '@/features/connection/use-server-status';
+import { useAuth } from '@gamezilla/client/features/auth/auth-context';
+import { useServerStatus } from '@gamezilla/client/features/connection/use-server-status';
 import { useLogger } from '@gamezilla/shared/logger/react';
-import { useAuth } from '@/features/auth/auth-context';
 import {
   Box,
   StatusDot,
@@ -88,8 +88,7 @@ export function useAccountActions(): ScreenBaseAction[] {
       },
       {
         type: 'default',
-        label:
-          auth.mode === 'signed-in' ? 'Sign out' : 'Sign in with Google',
+        label: auth.mode === 'signed-in' ? 'Sign out' : 'Sign in with Google',
         icon:
           auth.mode === 'signed-in'
             ? 'arrow.right.from.bracket'

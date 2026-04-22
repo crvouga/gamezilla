@@ -7,7 +7,7 @@ import {
   useRouter,
 } from 'expo-router';
 
-import { useBreadcrumbNav } from '@/ui/use-breadcrumb-nav';
+import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 
 export default function PatchDbClientRoute() {
   const router = useRouter();
