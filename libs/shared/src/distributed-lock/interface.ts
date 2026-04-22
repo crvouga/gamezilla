@@ -23,7 +23,7 @@ export class LockHeldError extends Error {
   }
 }
 
-export interface GlobalLock {
+export interface DistributedLock {
   acquire(operation: string): Promise<LockHandle>;
   status(): Promise<LockInfo | null>;
   /** Removes the lock regardless of holder. Returns previous holder if any. */

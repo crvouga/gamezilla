@@ -59,7 +59,7 @@
       "outputs": ["dist/**"]
     },
     "preview": {
-      "dependsOn": ["^build", "build"],
+      "dependsOn": ["kill", "^build", "build"],
       "persistent": true,
       "cache": false
     }

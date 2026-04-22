@@ -1,7 +1,7 @@
-import { LockHeldError } from '@gamezilla/shared/global-lock/interface';
+import { LockHeldError } from '@gamezilla/shared/distributed-lock/interface';
 import type { Command } from './commands/types';
+import { buildDistributedLock } from './lib/build-distributed-lock';
 import { fail, fmtMs, info, kv, warn } from './lib/fmt';
-import { buildGlobalLock } from './lib/build-global-lock';
 import type { CiPlatform } from './platform/platform';
 import { DopplerResource } from './resources/doppler';
 
@@ -30,12 +30,9 @@ export async function runInfraCommand(
 
   let conn;
   try {
-    conn = await buildGlobalLock();
+    conn = await buildDistributedLock();
   } catch (e) {
-    fail(
-      'Global lock',
-      e instanceof Error ? e.message : String(e)
-    );
+    fail('Global lock', e instanceof Error ? e.message : String(e));
     process.exit(1);
   }
 
@@ -50,10 +47,7 @@ export async function runInfraCommand(
     try {
       await handle.release();
     } catch (e) {
-      warn(
-        'Global lock',
-        e instanceof Error ? e.message : String(e)
-      );
+      warn('Global lock', e instanceof Error ? e.message : String(e));
     }
   };
 
@@ -92,8 +86,9 @@ export async function runInfraCommand(
 function printLockHeld(e: LockHeldError): void {
   const c = e.current;
   const started = Date.parse(c.startedAt);
-  const age =
-    Number.isFinite(started) ? fmtMs(Date.now() - started) : '(unknown)';
+  const age = Number.isFinite(started)
+    ? fmtMs(Date.now() - started)
+    : '(unknown)';
   fail('Global lock', `held — ${c.holder} (${c.operation})`);
   kv('holder', c.holder);
   kv('operation', c.operation);

@@ -1,10 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 import { KvImplInMemory } from '../kv/impl-in-memory';
-import { GlobalLockImplKv } from './impl-kv';
+import { DistributedLockImplKv } from './impl-kv';
 import { LockHeldError } from './interface';
 
-export function runGlobalLockContractTests(
-  factory: () => InstanceType<typeof GlobalLockImplKv> | Promise<InstanceType<typeof GlobalLockImplKv>>
+export function runDistributedLockContractTests(
+  factory: () =>
+    | InstanceType<typeof DistributedLockImplKv>
+    | Promise<InstanceType<typeof DistributedLockImplKv>>
 ): void {
   test('acquire then status shows holder', async () => {
     const lock = await Promise.resolve(factory());
@@ -34,9 +36,9 @@ export function runGlobalLockContractTests(
   });
 }
 
-describe('GlobalLockImplKv + KvImplInMemory (contract)', () => {
-  runGlobalLockContractTests(async () => {
+describe('DistributedLockImplKv + KvImplInMemory (contract)', () => {
+  runDistributedLockContractTests(async () => {
     const kv = new KvImplInMemory();
-    return new GlobalLockImplKv(kv, { key: 'test-lock' });
+    return new DistributedLockImplKv(kv, { key: 'test-lock' });
   });
 });

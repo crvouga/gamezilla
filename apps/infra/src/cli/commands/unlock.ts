@@ -1,5 +1,5 @@
+import { buildDistributedLock } from '../lib/build-distributed-lock';
 import { banner, fail, kv, ok } from '../lib/fmt';
-import { buildGlobalLock } from '../lib/build-global-lock';
 import type { CiPlatform } from '../platform/platform';
 import type { Command } from './types';
 
@@ -17,12 +17,9 @@ export class UnlockCommand implements Command {
 
     let conn;
     try {
-      conn = await buildGlobalLock();
+      conn = await buildDistributedLock();
     } catch (e) {
-      fail(
-        'Global lock',
-        e instanceof Error ? e.message : String(e)
-      );
+      fail('Global lock', e instanceof Error ? e.message : String(e));
       process.exit(1);
     }
 

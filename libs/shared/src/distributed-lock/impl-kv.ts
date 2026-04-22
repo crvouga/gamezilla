@@ -2,7 +2,7 @@ import * as os from 'node:os';
 import { assert } from '../assert';
 import type { Kv } from '../kv/interface';
 import {
-  type GlobalLock,
+  type DistributedLock,
   type LockHandle,
   type LockInfo,
   LockHeldError,
@@ -12,7 +12,7 @@ export interface LockIdentityProvider {
   build(operation: string): LockInfo;
 }
 
-export interface GlobalLockImplKvOptions {
+export interface DistributedLockImplKvOptions {
   readonly key: string;
   readonly identity?: LockIdentityProvider;
   /** Called when release detects the lock was taken over or force-unlocked. */
@@ -20,19 +20,19 @@ export interface GlobalLockImplKvOptions {
 }
 
 /**
- * {@link GlobalLock} built on any {@link Kv}. All mutating paths use
+ * {@link DistributedLock} built on any {@link Kv}. All mutating paths use
  * `kv.transaction` for compare-and-delete fencing on release.
  */
-export class GlobalLockImplKv implements GlobalLock {
+export class DistributedLockImplKv implements DistributedLock {
   private readonly key: string;
   private readonly kv: Kv;
   private readonly identity: LockIdentityProvider;
   private readonly onFencingFailure?: (message: string) => void;
 
-  constructor(kv: Kv, options: GlobalLockImplKvOptions) {
+  constructor(kv: Kv, options: DistributedLockImplKvOptions) {
     assert.ok(
       typeof options.key === 'string' && options.key.length > 0,
-      'GlobalLockImplKv: key must be non-empty',
+      'DistributedLockImplKv: key must be non-empty',
       { key: options.key }
     );
     this.kv = kv;
@@ -44,7 +44,7 @@ export class GlobalLockImplKv implements GlobalLock {
   async acquire(operation: string): Promise<LockHandle> {
     assert.ok(
       typeof operation === 'string' && operation.length > 0,
-      'GlobalLockImplKv: operation must be non-empty',
+      'DistributedLockImplKv: operation must be non-empty',
       { operation }
     );
     return this.kv.transaction(async (tx) => {
@@ -71,13 +71,13 @@ export class GlobalLockImplKv implements GlobalLock {
         curr = parseLockInfo(raw);
       } catch {
         this.onFencingFailure?.(
-          'GlobalLock: stored value is not valid LockInfo'
+          'DistributedLock: stored value is not valid LockInfo'
         );
         return;
       }
       if (curr.id !== expectedId) {
         this.onFencingFailure?.(
-          'GlobalLock: release fencing failed — lock was force-unlocked or taken over'
+          'DistributedLock: release fencing failed — lock was force-unlocked or taken over'
         );
         return;
       }

@@ -1,13 +1,13 @@
 import { PROJECT_CONFIG, turboCachePublicUrl } from '../../project-config';
 import { ALL_DEPS } from '../deps/registry';
 import { collectDepVersionIssues } from '../deps/version-check';
+import { buildDistributedLock } from '../lib/build-distributed-lock';
 import { banner, fail, fmtMs, heading, kv, ok, warn } from '../lib/fmt';
 import { httpProbe } from '../lib/http-probe';
 import { infraOutputs, type InfraOutputs } from '../lib/infra-outputs';
 import type { CiPlatform } from '../platform/platform';
 import { pingDatabase } from '../resources/planetscale-postgres';
 import { loadSecretsIntoEnv } from '../secrets/secrets';
-import { buildGlobalLock } from '../lib/build-global-lock';
 import { runCaptureAsync } from '../subprocess';
 import type { Command } from './types';
 
@@ -117,7 +117,7 @@ export class StatusCommand implements Command {
     // ── 5. Global lock ──────────────────────────────────────────────────
     heading('Global lock');
     try {
-      const { lock, disconnect } = await buildGlobalLock();
+      const { lock, disconnect } = await buildDistributedLock();
       try {
         const s = await lock.status();
         if (s === null) {
@@ -137,10 +137,7 @@ export class StatusCommand implements Command {
         await disconnect();
       }
     } catch (e) {
-      fail(
-        'Global lock',
-        e instanceof Error ? e.message : String(e)
-      );
+      fail('Global lock', e instanceof Error ? e.message : String(e));
       failed = true;
     }
 

@@ -1,9 +1,22 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "expo/tsconfig.base",
   "include": [
     "./src/**/*.ts",
     "./src/**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-  ]
+  ],
+  "compilerOptions": {
+    "paths": {
+      "@gamezilla/shared/*": ["../../libs/shared/src/*"],
+      "@gamezilla/patch-db/*": ["../../libs/patch-db/src/*"],
+      "@gamezilla/peer-store/*": ["../../libs/peer-store/src/*"],
+      "@gamezilla/api/*": ["../../apps/api/src/*"],
+      "@gamezilla/client/*": ["../../apps/client/src/*"],
+      "@gamezilla/peer-store-example/*": [
+        "../../libs/peer-store-example/src/*"
+      ],
+      "@gamezilla/patch-db-example/*": ["../../libs/patch-db-example/src/*"]
+    }
+  }
 }
