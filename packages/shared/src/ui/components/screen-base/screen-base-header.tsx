@@ -216,6 +216,8 @@ export function ScreenBaseHeader({
           }}
         >
           <Text
+            accessibilityRole="header"
+            aria-level={1}
             numberOfLines={1}
             ellipsizeMode="tail"
             variant="navigationTitle"

@@ -14,7 +14,8 @@
     "format:check": "prettier --check .",
     "infra": "bun run packages/infra/src/bin/cli.ts",
     "gh": "gh run view --web",
-    "wipe": "git clean -xfd"
+    "wipe": "git clean -xfd",
+    "pw:ui": "bun run --filter '@gamezilla/e2e' e2e:ui"
   },
   "devDependencies": {
     "@types/bun": "^1.3.9",
