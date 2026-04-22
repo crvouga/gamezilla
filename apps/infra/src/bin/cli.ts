@@ -8,8 +8,16 @@ const platform = isGitHubActions
   ? new GitHubActionsPlatform()
   : new LocalPlatform();
 
-main(platform).catch((e: unknown) => {
-  const message = e instanceof Error ? e.message : String(e);
-  platform.error(message);
-  assert.fail(`infra: unhandled error — ${message}`);
-});
+main(platform)
+  .then(() => {
+    // Explicit exit: the infra CLI opens native resources (Bun Postgres pool,
+    // wrangler child processes, Doppler spawns) whose handles can linger past
+    // the last `await` and keep the event loop alive on CI, hanging the job.
+    // Once `main` resolves we are done — force a clean exit.
+    process.exit(0);
+  })
+  .catch((e: unknown) => {
+    const message = e instanceof Error ? e.message : String(e);
+    platform.error(message);
+    assert.fail(`infra: unhandled error — ${message}`);
+  });

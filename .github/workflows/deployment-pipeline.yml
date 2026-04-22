@@ -10,6 +10,12 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    # Superseded pushes/PR updates cancel the older `check` run for the same ref.
+    # `head_ref` on PRs collapses on the source branch; `ref` on pushes collapses
+    # on `refs/heads/main`. `run_id` fallback keeps manual/other events unique.
+    concurrency:
+      group: check-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      cancel-in-progress: true
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -32,6 +38,11 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
+    # Same cancel-on-supersede policy as `check`. A separate group prevents
+    # `check` and `e2e` from blocking each other.
+    concurrency:
+      group: e2e-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      cancel-in-progress: true
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -85,6 +96,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    # Global serial queue for production deploys. Every commit to `main` that
+    # reaches this job runs, one at a time, in order. `cancel-in-progress: false`
+    # is mandatory: cancelling a deploy mid-flight can leave Cloudflare / DNS /
+    # PlanetScale in a half-applied state.
     concurrency:
       group: deploy
       cancel-in-progress: false

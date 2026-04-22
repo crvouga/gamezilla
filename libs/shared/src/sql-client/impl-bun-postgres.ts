@@ -51,7 +51,11 @@ export class SqlClientImplBunPostgres implements SqlClient {
 function createClient(sql: BunSql): SqlClient {
   return {
     connect: () => Promise.resolve(),
-    disconnect: () => sql.close(),
+    // Bounded timeout: Bun's `sql.close()` with no argument waits for all
+    // pooled queries to drain, which can keep the event loop alive on CI
+    // and hang the process after work completes. 5s is plenty for an idle
+    // pool; anything longer indicates stuck handles we would kill anyway.
+    disconnect: () => sql.close({ timeout: 5 }),
     prepare: (querySql: string): PreparedStatement => ({
       query: async <T = Record<string, unknown>>(params?: unknown[]) => {
         const [pgSql, pgParams] = questionMarkParamsToDollarParams(
