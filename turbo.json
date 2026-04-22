@@ -1,7 +1,7 @@
 {
   "$schema": "https://v2-9-6.turborepo.dev/schema.json",
   "ui": "tui",
-  "concurrency": "100%",
+  "concurrency": "10",
   "globalPassThroughEnv": [
     "GITHUB_*",
     "POST_DEPLOY_*",
