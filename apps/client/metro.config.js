@@ -64,26 +64,26 @@ config.resolver.extraNodeModules = {
 // that silently drops child tsconfig paths when `extends` is used.
 const srcDir = path.resolve(projectRoot, 'src');
 const workspacePackages = {
-  '@gamezilla/shared': path.resolve(monorepoRoot, 'packages/shared/src'),
-  '@gamezilla/patch-db': path.resolve(monorepoRoot, 'packages/patch-db/src'),
+  '@gamezilla/shared': path.resolve(monorepoRoot, 'libs/shared/src'),
+  '@gamezilla/patch-db': path.resolve(monorepoRoot, 'libs/patch-db/src'),
   '@gamezilla/peer-store': path.resolve(
     monorepoRoot,
-    'packages/peer-store/src'
+    'libs/peer-store/src'
   ),
-  '@gamezilla/patch-db-app': path.resolve(
+  '@gamezilla/patch-db-example': path.resolve(
     monorepoRoot,
-    'packages/patch-db-app/src'
+    'libs/patch-db-example/src'
   ),
-  '@gamezilla/peer-store-app': path.resolve(
+  '@gamezilla/peer-store-example': path.resolve(
     monorepoRoot,
-    'packages/peer-store-app/src'
+    'libs/peer-store-example/src'
   ),
 };
 
 /** Single module id for theme context so Metro never bundles two `createContext` instances. */
 const sharedThemeContextPath = path.resolve(
   monorepoRoot,
-  'packages/shared/src/ui/theme/theme-context.tsx'
+  'libs/shared/src/ui/theme/theme-context.tsx'
 );
 
 function normalizeResolvedThemeContext(result) {
@@ -93,7 +93,7 @@ function normalizeResolvedThemeContext(result) {
     typeof result.filePath === 'string' &&
     result.filePath
       .replace(/\\/g, '/')
-      .endsWith('packages/shared/src/ui/theme/theme-context.tsx')
+      .endsWith('libs/shared/src/ui/theme/theme-context.tsx')
   ) {
     return { ...result, filePath: sharedThemeContextPath };
   }

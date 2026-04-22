@@ -3,7 +3,7 @@
  * exports don't resolve when the importing file lives inside a workspace sub-package.
  *
  * Expands the wildcard into explicit per-file entries derived from the filesystem.
- * Run once at image build time:  `RUN bun packages/api/scripts/resolve-workspace.ts`
+ * Run once at image build time:  `RUN bun apps/api/scripts/resolve-workspace.ts`
  */
 import { readdirSync, readFileSync, writeFileSync, statSync } from 'fs';
 import { join, relative } from 'path';
@@ -22,37 +22,41 @@ function walk(dir: string): string[] {
   return out;
 }
 
-for (const d of readdirSync('packages', { withFileTypes: true })) {
-  if (!d.isDirectory()) continue;
-  const pkgPath = join('packages', d.name, 'package.json');
+const WORKSPACE_ROOTS = ['apps', 'libs'];
 
-  let pkg: Record<string, unknown>;
-  try {
-    pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
-  } catch {
-    continue;
+for (const root of WORKSPACE_ROOTS) {
+  for (const d of readdirSync(root, { withFileTypes: true })) {
+    if (!d.isDirectory()) continue;
+    const pkgPath = join(root, d.name, 'package.json');
+
+    let pkg: Record<string, unknown>;
+    try {
+      pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+    } catch {
+      continue;
+    }
+
+    const exports = pkg.exports as Record<string, string> | undefined;
+    if (!exports?.['./*']) continue;
+
+    const srcDir = join(root, d.name, 'src');
+    try {
+      statSync(srcDir);
+    } catch {
+      continue;
+    }
+
+    const generated: Record<string, string> = {};
+    for (const file of walk(srcDir)) {
+      const rel = relative(srcDir, file);
+      const key = './' + rel.replace(/\.(ts|tsx)$/, '');
+      const val = './src/' + rel;
+      if (key.endsWith('/index')) generated[key.slice(0, -6)] = val;
+      generated[key] = val;
+    }
+
+    pkg.exports = { ...generated, ...exports };
+    writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+    console.log(`exports: patched ${pkgPath} (+${Object.keys(generated).length} entries)`);
   }
-
-  const exports = pkg.exports as Record<string, string> | undefined;
-  if (!exports?.['./*']) continue;
-
-  const srcDir = join('packages', d.name, 'src');
-  try {
-    statSync(srcDir);
-  } catch {
-    continue;
-  }
-
-  const generated: Record<string, string> = {};
-  for (const file of walk(srcDir)) {
-    const rel = relative(srcDir, file);
-    const key = './' + rel.replace(/\.(ts|tsx)$/, '');
-    const val = './src/' + rel;
-    if (key.endsWith('/index')) generated[key.slice(0, -6)] = val;
-    generated[key] = val;
-  }
-
-  pkg.exports = { ...generated, ...exports };
-  writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
-  console.log(`exports: patched ${pkgPath} (+${Object.keys(generated).length} entries)`);
 }

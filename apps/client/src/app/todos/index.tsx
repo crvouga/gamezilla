@@ -1,4 +1,4 @@
-import { TodoListsOverview } from '@gamezilla/patch-db-app/todo';
+import { TodoListsOverview } from '@gamezilla/patch-db-example/todo';
 import { useRouter } from 'expo-router';
 
 export default function TodoListsScreen() {

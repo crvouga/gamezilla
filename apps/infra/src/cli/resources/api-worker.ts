@@ -27,7 +27,7 @@ export class ApiWorkerResource extends ResourceBase {
   async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {}
 
   async deploy(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
-    const apiDir = join(REPO_ROOT, 'packages/api');
+    const apiDir = join(REPO_ROOT, 'apps/api');
     const env = wranglerEnv();
 
     const databaseUrl = process.env['DATABASE_URL'] ?? '';
@@ -53,7 +53,7 @@ export class ApiWorkerResource extends ResourceBase {
   }
 
   destroy(): void {
-    const apiDir = join(REPO_ROOT, 'packages/api');
+    const apiDir = join(REPO_ROOT, 'apps/api');
     const env: NodeJS.ProcessEnv = {
       ...process.env,
       CLOUDFLARE_ACCOUNT_ID: cfAccountId(),

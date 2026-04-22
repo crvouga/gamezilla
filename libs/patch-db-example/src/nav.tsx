@@ -4,7 +4,7 @@ import { SegmentedControl } from '@gamezilla/shared/ui';
 
 export type PatchdbAppMode = 'playground' | 'syncInspector';
 
-const MODE_STORAGE_KEY = 'patch-db-app-mode';
+const MODE_STORAGE_KEY = 'patch-db-example-mode';
 
 let cachedMode: PatchdbAppMode = 'playground';
 

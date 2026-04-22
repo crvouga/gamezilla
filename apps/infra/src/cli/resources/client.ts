@@ -33,7 +33,7 @@ export class ClientResource extends ResourceBase {
       assert.fail('client: API URL must be https://');
     }
 
-    const clientDir = join(REPO_ROOT, 'packages/client');
+    const clientDir = join(REPO_ROOT, 'apps/client');
 
     await runAsync(platform, 'bun', ['run', 'build'], {
       cwd: clientDir,
@@ -61,7 +61,7 @@ export class ClientResource extends ResourceBase {
       }
     );
 
-    rmSync(join(REPO_ROOT, 'packages/client/dist'), {
+    rmSync(join(REPO_ROOT, 'apps/client/dist'), {
       recursive: true,
       force: true,
     });

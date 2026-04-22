@@ -1,5 +1,5 @@
 /**
- * Serves the generated `patch-db-app/` folder over HTTP (default port 8765).
+ * Serves the `libs/patch-db-example` folder over HTTP (default port 8765).
  * Use if `file://` blocks sql.js WASM; open http://127.0.0.1:8765
  */
 import { join } from 'node:path';
@@ -14,8 +14,9 @@ const ROOT = join(
   '..',
   '..',
   '..',
-  'packages',
-  '@gamezilla/patch-db-app'
+  '..',
+  'libs',
+  'patch-db-example'
 );
 
 const port = Number(process.env['PATCHDB_APP_PORT'] ?? '8765');

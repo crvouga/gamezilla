@@ -1,7 +1,7 @@
 /**
- * ESLint plugin: enforce `label` on design-system `Text` outside `packages/shared/src/ui/`.
+ * ESLint plugin: enforce `label` on design-system `Text` outside `libs/shared/src/ui/`.
  */
-const UI_MODULE_SEGMENT = 'packages/shared/src/ui/';
+const UI_MODULE_SEGMENT = 'libs/shared/src/ui/';
 
 function hasLabelAttribute(openingElement) {
   return openingElement.attributes.some(

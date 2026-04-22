@@ -12,31 +12,31 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "paths": {
-      "@/*": ["./packages/client/src/*"],
-      "@gamezilla/shared/*": ["./packages/shared/src/*"],
-      "@gamezilla/patch-db/*": ["./packages/patch-db/src/*"],
-      "@gamezilla/peer-store/*": ["./packages/peer-store/src/*"],
-      "@gamezilla/patch-db-app/*": ["./packages/patch-db-app/src/*"],
-      "@gamezilla/peer-store-app/*": ["./packages/peer-store-app/src/*"]
+      "@/*": ["./apps/client/src/*"],
+      "@gamezilla/shared/*": ["./libs/shared/src/*"],
+      "@gamezilla/patch-db/*": ["./libs/patch-db/src/*"],
+      "@gamezilla/peer-store/*": ["./libs/peer-store/src/*"],
+      "@gamezilla/patch-db-example/*": ["./libs/patch-db-example/src/*"],
+      "@gamezilla/peer-store-example/*": ["./libs/peer-store-example/src/*"]
     }
   },
   "include": [
-    "packages/api/src/**/*.ts",
-    "packages/client/src/**/*.ts",
-    "packages/client/src/**/*.tsx",
-    "packages/shared/src/**/*.ts",
-    "packages/shared/src/**/*.tsx",
-    "packages/patch-db/src/**/*.ts",
-    "packages/patch-db/src/**/*.tsx",
-    "packages/peer-store/src/**/*.ts",
-    "packages/peer-store/src/**/*.tsx",
-    "packages/patch-db-app/src/**/*.ts",
-    "packages/patch-db-app/src/**/*.tsx",
-    "packages/peer-store-app/src/**/*.ts",
-    "packages/peer-store-app/src/**/*.tsx",
-    "packages/turbo-cache/src/**/*.ts",
-    "packages/client/.expo/types/**/*.ts",
-    "packages/client/expo-env.d.ts"
+    "apps/api/src/**/*.ts",
+    "apps/client/src/**/*.ts",
+    "apps/client/src/**/*.tsx",
+    "libs/shared/src/**/*.ts",
+    "libs/shared/src/**/*.tsx",
+    "libs/patch-db/src/**/*.ts",
+    "libs/patch-db/src/**/*.tsx",
+    "libs/peer-store/src/**/*.ts",
+    "libs/peer-store/src/**/*.tsx",
+    "libs/patch-db-example/src/**/*.ts",
+    "libs/patch-db-example/src/**/*.tsx",
+    "libs/peer-store-example/src/**/*.ts",
+    "libs/peer-store-example/src/**/*.tsx",
+    "apps/turbo-cache/src/**/*.ts",
+    "apps/client/.expo/types/**/*.ts",
+    "apps/client/expo-env.d.ts"
   ],
   "exclude": ["node_modules", "dist", "web-build"]
 }

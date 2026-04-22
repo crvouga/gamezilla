@@ -3,7 +3,7 @@
 const { defineConfig } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
 const eslintPluginNaming = require('eslint-plugin-naming');
-const eslintPluginGamezillaText = require('../../eslint-rules/gamezilla-text.cjs');
+const eslintPluginGamezillaText = require('../../libs/eslint-rules/gamezilla-text.cjs');
 
 module.exports = defineConfig([
   expoConfig,

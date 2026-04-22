@@ -1,7 +1,7 @@
 import {
   INBOX_LIST_ID,
   TodoListDetail,
-} from '@gamezilla/patch-db-app/todo';
+} from '@gamezilla/patch-db-example/todo';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 export default function TodoListDetailScreen() {

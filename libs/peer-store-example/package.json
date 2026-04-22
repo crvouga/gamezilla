@@ -1,14 +1,12 @@
 {
-  "name": "@gamezilla/peer-store-app",
+  "name": "@gamezilla/peer-store-example",
   "version": "0.0.1",
   "private": true,
-  "main": "src/main.tsx",
   "exports": {
     "./pages/playground-page": "./src/pages/playground-page.tsx",
     "./*": "./src/*"
   },
   "scripts": {
-    "install:deps": "npx expo install --check || true",
     "lint": "eslint .",
     "tc": "tsc --noEmit"
   },

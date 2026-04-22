@@ -1,8 +1,7 @@
 {
-  "name": "@gamezilla/patch-db-app",
+  "name": "@gamezilla/patch-db-example",
   "version": "0.0.1",
   "private": true,
-  "main": "src/entry.tsx",
   "exports": {
     "./playground-app": "./src/playground-app.tsx",
     "./todo": "./src/todo/index.ts",
@@ -10,7 +9,6 @@
     "./*": "./src/*"
   },
   "scripts": {
-    "install:deps": "npx expo install --check || true",
     "lint": "eslint .",
     "tc": "tsc --noEmit"
   },

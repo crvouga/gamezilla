@@ -1,16 +1,12 @@
 {
   "$schema": "https://v2-9-6.turborepo.dev/schema.json",
   "ui": "tui",
+  "concurrency": "100%",
   "globalPassThroughEnv": [
-    "GITHUB_ACTIONS",
-    "GITHUB_STEP_SUMMARY",
-    "POST_DEPLOY_HTTP_MAX_WAIT_MS",
-    "POST_DEPLOY_HTTP_RETRY_MS",
-    "EXPO_PUBLIC_API_URL",
-    "TURBO_API",
-    "TURBO_LOG_ORDER",
-    "TURBO_TEAM",
-    "TURBO_TOKEN"
+    "GITHUB_*",
+    "POST_DEPLOY_*",
+    "EXPO_PUBLIC_*",
+    "TURBO_*"
   ],
   "tasks": {
     "up": {

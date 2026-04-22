@@ -1,4 +1,4 @@
-import { ExplorerRoute } from '@gamezilla/patch-db-app/db-client/navigator';
+import { ExplorerRoute } from '@gamezilla/patch-db-example/db-client/navigator';
 import { Box, ScreenBaseHeader } from '@gamezilla/shared/ui';
 import {
   type Href,

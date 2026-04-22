@@ -4,7 +4,8 @@
   "private": true,
   "packageManager": "bun@1.3.11",
   "workspaces": [
-    "packages/*"
+    "apps/*",
+    "libs/*"
   ],
   "scripts": {
     "check": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID doppler run -- turbo --cache=remote:rw check build",
@@ -12,7 +13,7 @@
     "preview": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID doppler run -- turbo run --cache=remote:rw preview --filter=@gamezilla/db --filter=@gamezilla/api --filter=@gamezilla/client",
     "format": "sort-package-json && prettier --write .",
     "format:check": "prettier --check .",
-    "infra": "bun run packages/infra/src/bin/cli.ts",
+    "infra": "bun run apps/infra/src/bin/cli.ts",
     "gh": "gh run view --web",
     "wipe": "git clean -xfd",
     "pw:ui": "bun run --filter '@gamezilla/e2e' e2e:ui",

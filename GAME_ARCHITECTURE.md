@@ -663,7 +663,7 @@ PlanetScale         Serverless MySQL
                     Clients never write directly — local first
                     Read replicas for global low-latency reads
 
-Local dev           Bun + PGlite (packages/db)
+Local dev           Bun + PGlite (apps/db)
                     PGlite in-process — no Docker, no external DB
                     HTTP /sql endpoint mimics PlanetScale limits
                     Same createApiHandler as prod Worker
@@ -683,7 +683,7 @@ Chess.com          500k-1M       ~$2,000-5,000
 
 Cloudflare Workers: 10M requests/month free, then $0.50/M. Durable Objects: first 1M requests free, $0.15/M after. PlanetScale: hobby tier free, scaler from $39/month.
 
-### Local infra (`packages/db`)
+### Local infra (`apps/db`)
 
 PGlite runs in-process via Bun — no Docker, no external services.
 
@@ -695,7 +695,7 @@ bun run --filter @gamezilla/db up
 turbo run dev --filter=@gamezilla/db
 ```
 
-Local server (`packages/db/src/server.ts`):
+Local server (`apps/db/src/server.ts`):
 - **Port 15432**: HTTP `/sql` endpoint with PlanetScale-like limits
 - **Port 8787**: Same `createApiHandler` as prod, backed by PGlite
 

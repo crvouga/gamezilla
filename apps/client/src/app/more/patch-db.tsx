@@ -1,5 +1,5 @@
 import { Box, ScreenBaseHeader } from '@gamezilla/shared/ui';
-import { PlaygroundApp } from '@gamezilla/patch-db-app/playground-app';
+import { PlaygroundApp } from '@gamezilla/patch-db-example/playground-app';
 
 import { useBreadcrumbNav } from '@/ui/use-breadcrumb-nav';
 
