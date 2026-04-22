@@ -55,7 +55,9 @@ for (const root of WORKSPACE_ROOTS) {
       generated[key] = val;
     }
 
-    pkg.exports = { ...generated, ...exports };
+    const exportsSansWildcard = { ...exports };
+    delete exportsSansWildcard['./*'];
+    pkg.exports = { ...generated, ...exportsSansWildcard };
     writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
     console.log(`exports: patched ${pkgPath} (+${Object.keys(generated).length} entries)`);
   }

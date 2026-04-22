@@ -3,10 +3,19 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./__fixtures__/tic-tac-toe.module": "./src/__fixtures__/tic-tac-toe.module.ts",
+    "./event-log-postgres": "./src/event-log-postgres.ts",
     "./simulator": "./src/simulator.ts",
+    "./__fixtures__/tic-tac-toe.module": "./src/__fixtures__/tic-tac-toe.module.ts",
+    "./event-log": "./src/event-log.ts",
+    "./utils": "./src/utils.ts",
     "./types": "./src/types.ts",
-    "./*": "./src/*"
+    "./trust-election": "./src/trust-election.ts",
+    "./__tests__/test-crash-handler": "./src/__tests__/test-crash-handler.ts",
+    "./event-log-sqlite": "./src/event-log-sqlite.ts",
+    "./transport": "./src/transport.ts",
+    "./peer-store": "./src/peer-store.ts",
+    ".": "./src/index.ts",
+    "./index": "./src/index.ts"
   },
   "dependencies": {
     "@gamezilla/shared": "workspace:*"
