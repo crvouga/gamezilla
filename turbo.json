@@ -6,7 +6,8 @@
     "GITHUB_*",
     "POST_DEPLOY_*",
     "EXPO_PUBLIC_*",
-    "TURBO_*"
+    "TURBO_*",
+    "TMPDIR"
   ],
   "tasks": {
     "up": {
@@ -53,7 +54,9 @@
         "**/*.json",
         "**/*.html",
         "vite.config.ts",
-        "tsconfig.json"
+        "tsconfig.json",
+        "babel.config.js",
+        "metro.config.js"
       ],
       "outputLogs": "new-only",
       "outputs": ["dist/**"]

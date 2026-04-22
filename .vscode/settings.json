@@ -69,6 +69,7 @@
     "hostnames",
     "Hyperdrive",
     "impls",
+    "inlines",
     "Inspectable",
     "jlongster",
     "killall",
