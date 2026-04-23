@@ -26,14 +26,19 @@ config.resolver.nodeModulesPaths = [
 config.resolver.unstable_enablePackageExports = true;
 
 // 4. Normalize HMR entry-point URLs from the web dev client.
-//    The browser sends its page URL (e.g. `http://localhost:8082/?platform=web`) to
-//    Metro's HmrServer. That URL has an empty path but a query string, which
-//    `jsc-safe-url.toJscSafeUrl` rejects with:
-//      "The given URL ... has an empty path and cannot be converted to a JSC-safe format."
-//    HmrServer runs `config.server.rewriteRequestUrl` before parsing, so rewrite
-//    empty-path URLs to the project entry. Because `unstable_serverRoot` is the
-//    monorepo root in Expo's config, the bundle path must include the client
-//    sub-path (e.g. `/apps/client/index.bundle`).
+//    The browser sends its current page URL (e.g.
+//    `http://localhost:5173/more/server-status?platform=web`) to Metro's
+//    HmrServer when registering an entry point. Two failure modes arise:
+//      a) Empty path (`/?platform=web`) — `jsc-safe-url.toJscSafeUrl` rejects
+//         with "empty path cannot be converted to a JSC-safe format".
+//      b) Non-empty SPA route path (`/more/server-status?platform=web`) —
+//         Metro tries to resolve that path as a module from the server root
+//         (the monorepo root, per Expo's `unstable_serverRoot`), producing
+//         "Unable to resolve module ./more/server-status from /.../.".
+//    Both are variants of the same bug: the HMR client conflates page URL
+//    with bundle URL. Any URL carrying a `platform` query that is not a
+//    `.bundle` path is an HMR entry-point URL for the SPA — rewrite it to
+//    the project's entry bundle.
 config.server = config.server ?? {};
 const serverRoot = config.server.unstable_serverRoot ?? monorepoRoot;
 const entryBundlePath =
@@ -49,8 +54,17 @@ const previousRewrite =
     ? config.server.rewriteRequestUrl.bind(config.server)
     : (/** @type {string} */ url) => url;
 
+/** @param {string} pathname */
+function isBundleLikePathname(pathname) {
+  return (
+    pathname.endsWith('.bundle') ||
+    pathname.endsWith('.map') ||
+    pathname.endsWith('.hmr')
+  );
+}
+
 /** @param {string} url */
-function normalizeEmptyPathUrl(url) {
+function normalizeHmrEntryUrl(url) {
   if (typeof url !== 'string') {
     return url;
   }
@@ -60,22 +74,28 @@ function normalizeEmptyPathUrl(url) {
     const parsed = hasAbsoluteProtocol
       ? new URL(url)
       : new URL(url, 'http://hmr.local');
-    const emptyPath = parsed.pathname === '' || parsed.pathname === '/';
-    if (emptyPath && parsed.search.length > 1) {
-      parsed.pathname = entryBundlePath;
-      if (hasAbsoluteProtocol) {
-        return parsed.toString();
-      }
-      return parsed.pathname + parsed.search + parsed.hash;
+
+    const hasPlatform = parsed.searchParams.has('platform');
+    if (!hasPlatform) {
+      return url;
     }
+    if (isBundleLikePathname(parsed.pathname)) {
+      return url;
+    }
+
+    parsed.pathname = entryBundlePath;
+    if (hasAbsoluteProtocol) {
+      return parsed.toString();
+    }
+    return parsed.pathname + parsed.search + parsed.hash;
   } catch {
     // Malformed URL — let Metro surface the original error.
+    return url;
   }
-  return url;
 }
 
 config.server.rewriteRequestUrl = (/** @type {string} */ url) =>
-  previousRewrite(normalizeEmptyPathUrl(url));
+  previousRewrite(normalizeHmrEntryUrl(url));
 
 // Add wasm asset support
 config.resolver.assetExts.push('wasm');
