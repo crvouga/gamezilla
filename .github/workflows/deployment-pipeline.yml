@@ -32,7 +32,7 @@ jobs:
       - name: Check (tc + lint + test + build)
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
-        run: doppler run -- turbo --cache=remote:rw check build
+        run: doppler run -- bunx turbo --cache=remote:rw check build
 
   e2e:
     runs-on: ubuntu-latest
