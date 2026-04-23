@@ -1,4 +1,4 @@
-export type CommandGroup = 'lifecycle' | 'validation' | 'setup';
+export type CommandGroup = 'lifecycle' | 'setup';
 
 export interface Command {
   readonly id: string;

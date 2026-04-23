@@ -3,8 +3,7 @@
   "private": true,
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.json",
-    "infra": "bun run ./src/bin/cli.ts",
-    "slaughter-cattle": "echo 'Pets🐶 vs Cattle🐄 Testing...' && bun infra setup && bun infra status && bun infra destroy && bun infra status && bun infra deploy && bun infra status && echo '✅ Slaughtering complete. Infra is confirmed to be cattle and not a pets. 🐄🐄🐄🤠'"
+    "infra": "bun run ./src/bin/cli.ts"
   },
   "dependencies": {
     "@clack/prompts": "^1.2.0",

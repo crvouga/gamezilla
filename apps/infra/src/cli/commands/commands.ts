@@ -6,20 +6,17 @@ import { DeployCommand } from './deploy';
 import { DestroyCommand } from './destroy';
 import { SetupCommand } from './setup';
 import { UnlockCommand } from './unlock';
-import { SlaughterCattleCommand } from './slaughter-cattle';
 import { StatusCommand } from './status';
 
 /** Display order for grouped help and the interactive menu. */
 export const COMMAND_GROUP_ORDER: readonly CommandGroup[] = [
   'setup',
   'lifecycle',
-  'validation',
 ] as const;
 
 export const COMMAND_GROUP_LABELS: Record<CommandGroup, string> = {
   setup: 'Setup & health',
   lifecycle: 'Deploy & destroy',
-  validation: 'Validation',
 };
 
 export function createCommandRegistry(platform: CiPlatform): Command[] {
@@ -29,7 +26,6 @@ export function createCommandRegistry(platform: CiPlatform): Command[] {
     new DeployCommand(platform),
     new DestroyCommand(platform),
     new UnlockCommand(platform),
-    new SlaughterCattleCommand(platform),
   ];
 }
 

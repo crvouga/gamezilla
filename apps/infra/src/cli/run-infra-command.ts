@@ -7,8 +7,8 @@ import { DopplerResource } from './resources/doppler';
 
 /**
  * Runs a command; acquires the global lock when {@link Command.requiresLock} is set.
- * Lock acquisition and release happen here so composed commands (e.g. slaughter-cattle)
- * do not re-enter the lock.
+ * Lock acquisition and release happen here so any composed commands invoked
+ * programmatically (bypassing the CLI entry) do not re-enter the lock.
  */
 export async function runInfraCommand(
   command: Command,
