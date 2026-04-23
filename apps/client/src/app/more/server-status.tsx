@@ -1,6 +1,5 @@
 import { useServerStatus } from '@gamezilla/client/features/connection/use-server-status';
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
-import { getKnownServerNameForApiUrl } from '@gamezilla/shared/config/api-servers';
 import {
   Box,
   Button,
@@ -10,7 +9,7 @@ import {
   Text,
 } from '@gamezilla/shared/ui';
 import { NetworkStateType } from 'expo-network';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect } from 'react';
 
 const REFRESH_INTERVAL_MS = 15_000;
 
@@ -46,11 +45,6 @@ export default function ServerStatusScreen() {
   const nav = useBreadcrumbNav();
   const { apiUrl, healthUrl, networkState, health, aggregateStatus, refresh } =
     useServerStatus();
-
-  const knownName = useMemo(
-    () => getKnownServerNameForApiUrl(apiUrl),
-    [apiUrl]
-  );
 
   const stableRefresh = useCallback(() => {
     refresh();
@@ -129,11 +123,6 @@ export default function ServerStatusScreen() {
           <Card elevation={1} sx={{ p: 4, gap: 2 }}>
             <Text variant="bodyBold" label="API endpoint" />
             <Text variant="body" selectable label={apiUrl} />
-            {knownName !== undefined ? (
-              <Text variant="caption" label={`Known as: ${knownName}`} />
-            ) : (
-              <Text variant="caption" label="Known as: custom / not in list" />
-            )}
           </Card>
 
           <Card elevation={1} sx={{ p: 4, gap: 2 }}>

@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "tc": "tsc --noEmit -p ../../tsconfig.json",
+    "setup": "bun -e \"process.exit(0)\"",
     "dev": "wrangler dev --port 8787 --inspector-port 9230"
   },
   "devDependencies": {

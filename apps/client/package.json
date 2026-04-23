@@ -65,10 +65,11 @@
   "scripts": {
     "android": "expo start --android",
     "install:deps": "npx expo install --check || true",
+    "setup": "bun run scripts/setup-env.ts",
     "dev": "expo start --web --port 5173",
     "kill": "lsof -ti :5173 | xargs kill -9 2>/dev/null || true",
     "build": "expo customize tsconfig.json && expo export -p web",
-    "preview": "EXPO_PUBLIC_API_URL=http://localhost:8788 expo export -p web && serve -s dist -l 5173",
+    "preview": "expo export -p web && serve -s dist -l 5173",
     "ios": "expo start --ios",
     "lint": "expo lint",
     "start": "expo start --web",

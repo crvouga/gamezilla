@@ -1,59 +1,23 @@
-export const SERVERS = [
-  {
-    name: 'local',
-    /** Must match `apps/api` `wrangler dev --port` (8787 is used by @gamezilla/turbo-cache). */
-    url: new URL('http://localhost:8788'),
-  },
-  {
-    name: 'production',
-    url: new URL('https://api.gamezilla.app'),
-  },
-] as const;
+import { assert } from '@gamezilla/shared/assert';
 
-export function getServerFromEnv(): URL {
-  const override = process.env['EXPO_PUBLIC_API_URL'];
-  if (override) {
-    return new URL(override);
-  }
-  if (isLocalEnv()) {
-    return SERVERS[0].url;
-  }
-  return SERVERS[1].url;
-}
-
-/** Same origin string as the active {@link getServerFromEnv} entry (no trailing path). */
+/**
+ * Public API origin (scheme + host + port, no path). Invariant: set at build time
+ * via `EXPO_PUBLIC_API_URL` (see `apps/client/scripts/setup-env.ts` and Doppler).
+ * No implicit fallback — misconfiguration fails loudly (Tiger Style).
+ */
 export function getApiBaseUrl(): string {
-  return getServerFromEnv().origin;
-}
-
-/**
- * If `apiUrl` matches a known {@link SERVERS} entry (by origin), returns that
- * entry's `name`; otherwise `undefined`.
- */
-export function getKnownServerNameForApiUrl(
-  apiUrl: string
-): string | undefined {
-  let origin: string;
+  const raw = process.env['EXPO_PUBLIC_API_URL'];
+  assert.nonEmptyString(
+    raw,
+    'EXPO_PUBLIC_API_URL is required; run `bun run dev` (with Doppler) or set apps/client/.env.local'
+  );
   try {
-    origin = new URL(apiUrl).origin;
-  } catch {
-    return undefined;
+    return new URL(raw).origin;
+  } catch (error) {
+    assert.ok(false, 'EXPO_PUBLIC_API_URL must be a valid absolute URL', {
+      raw,
+      error,
+    });
+    throw new Error('unreachable');
   }
-  for (const s of SERVERS) {
-    if (s.url.origin === origin) {
-      return s.name;
-    }
-  }
-  return undefined;
-}
-
-/**
- * Whether to use the bundled local dev API URL (see `SERVERS` local entry).
- * Uses several signals so one mis-set flag does not silently point a dev build at prod.
- */
-function isLocalEnv(): boolean {
-  if (typeof __DEV__ !== 'undefined' && __DEV__) {
-    return true;
-  }
-  return process.env.NODE_ENV === 'development';
 }

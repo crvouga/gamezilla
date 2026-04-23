@@ -6,6 +6,8 @@
     "GITHUB_*",
     "POST_DEPLOY_*",
     "EXPO_PUBLIC_*",
+    "DATABASE_URL",
+    "GOOGLE_CLIENT_ID",
     "TURBO_*",
     "TMPDIR"
   ],
@@ -16,8 +18,13 @@
     "install:deps": {
       "cache": false
     },
+    "setup": {
+      "cache": false,
+      "inputs": ["scripts/setup-*.ts"],
+      "outputs": []
+    },
     "dev": {
-      "dependsOn": ["kill", "install:deps"],
+      "dependsOn": ["kill", "install:deps", "setup"],
       "persistent": true,
       "cache": false
     },
@@ -62,7 +69,7 @@
       "outputs": ["dist/**"]
     },
     "preview": {
-      "dependsOn": ["kill", "^build", "build"],
+      "dependsOn": ["kill", "setup", "^build", "build"],
       "persistent": true,
       "cache": false
     }

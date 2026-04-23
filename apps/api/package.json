@@ -21,6 +21,7 @@
   "scripts": {
     "build": "bun -e \"process.exit(0)\"",
     "tc": "tsc --noEmit -p ../../tsconfig.json",
+    "setup": "bun run scripts/setup-dev-vars.ts",
     "dev": "wrangler dev --port 8788 --inspector-port 9231",
     "kill": "lsof -ti :8788 | xargs kill -9 2>/dev/null || true",
     "preview": "wrangler dev --port 8788"
