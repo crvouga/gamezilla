@@ -4,10 +4,8 @@ export interface Command {
   readonly id: string;
   readonly summary: string;
   readonly group?: CommandGroup;
-  /** If true, interactive mode asks for confirmation before running. */
+  /** Tagged as destructive in help output. */
   readonly danger?: boolean;
-  /** Shown as the select hint; defaults to summary in the interactive menu. */
-  readonly hint?: string;
   /**
    * If true, the CLI acquires the global infra lock (PlanetScale-backed) before
    * `execute` and releases after. Inner commands invoked programmatically do not

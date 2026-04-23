@@ -8,7 +8,7 @@ import { SetupCommand } from './setup';
 import { UnlockCommand } from './unlock';
 import { StatusCommand } from './status';
 
-/** Display order for grouped help and the interactive menu. */
+/** Display order for grouped help output. */
 export const COMMAND_GROUP_ORDER: readonly CommandGroup[] = [
   'setup',
   'lifecycle',
@@ -34,7 +34,6 @@ export function printHelp(commands: Command[]): void {
   console.log(fmt.bold('infra') + fmt.dim(' — gamezilla infrastructure CLI'));
   console.log('');
   console.log(`Usage: ${fmt.cyan('bun run infra <command>')}`);
-  console.log(`       ${fmt.cyan('bun run infra')} ${fmt.dim('(interactive — TTY only)')}`);
 
   for (const group of COMMAND_GROUP_ORDER) {
     const cmds = commands.filter((c) => c.group === group);

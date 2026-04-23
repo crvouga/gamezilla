@@ -6,7 +6,6 @@
     "infra": "bun run ./src/bin/cli.ts"
   },
   "dependencies": {
-    "@clack/prompts": "^1.2.0",
     "@gamezilla/api": "workspace:*",
     "@gamezilla/shared": "workspace:*",
     "@neondatabase/serverless": "^1.0.0",

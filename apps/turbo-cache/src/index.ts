@@ -34,6 +34,8 @@ const app = new Hono<{ Bindings: Env }>()
     }
     return next();
   })
+  .post('/v8/artifacts/events', (c) => c.json({}))
+  .get('/v8/artifacts/status', (c) => c.json({ status: 'enabled' }))
   .all('/v8/artifacts/:hash', async (c) => {
     const hash = c.req.param('hash');
     if (!HEX_HASH.test(hash)) {
@@ -52,8 +54,6 @@ const app = new Hono<{ Bindings: Env }>()
     }
     return c.json({ error: 'Method not allowed' }, 405);
   })
-  .post('/v8/artifacts/events', (c) => c.json({}))
-  .get('/v8/artifacts/status', (c) => c.json({ status: 'enabled' }))
   .get('/v2/user', (c) =>
     c.json({
       user: {
