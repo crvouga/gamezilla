@@ -121,6 +121,16 @@ jobs:
       - name: Install Doppler CLI
         uses: dopplerhq/cli-action@v4
 
+      # Serial `deploy` concurrency means no overlapping deploy job; if the prior
+      # run lost its DB connection before lock release (e.g. PlanetScale idle
+      # timeout), the row can remain and block the next deploy. Unlock is a no-op
+      # when nothing is held.
+      - name: Clear stale global deploy lock
+        working-directory: apps/infra
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
+        run: doppler run -- bun run infra unlock
+
       - name: Deploy
         timeout-minutes: 45
         working-directory: apps/infra

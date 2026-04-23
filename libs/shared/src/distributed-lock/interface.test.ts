@@ -34,6 +34,24 @@ export function runDistributedLockContractTests(
     expect(await lock.status()).toBeNull();
     await h.release().catch(() => {});
   });
+
+  test('releaseIfHeldById clears same token after normal release would no-op', async () => {
+    const lock = await Promise.resolve(factory());
+    const h = await lock.acquire('deploy');
+    await h.release();
+    expect(await lock.status()).toBeNull();
+    await lock.releaseIfHeldById(h.id);
+    expect(await lock.status()).toBeNull();
+  });
+
+  test('releaseIfHeldById removes row when id still matches', async () => {
+    const lock = await Promise.resolve(factory());
+    const h = await lock.acquire('deploy');
+    const id = h.id;
+    await lock.releaseIfHeldById(id);
+    expect(await lock.status()).toBeNull();
+    await h.release().catch(() => {});
+  });
 }
 
 describe('DistributedLockImplKv + KvImplInMemory (contract)', () => {

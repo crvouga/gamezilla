@@ -1,3 +1,4 @@
+import type { LockHandle } from '@gamezilla/shared/distributed-lock/interface';
 import { LockHeldError } from '@gamezilla/shared/distributed-lock/interface';
 import type { Command } from './commands/types';
 import { buildDistributedLock } from './lib/build-distributed-lock';
@@ -38,25 +39,48 @@ export async function runInfraCommand(
 
   const { lock, disconnect } = conn;
 
-  let handle: { release: () => Promise<void> } | null = null;
-  let released = false;
+  let handle: LockHandle | null = null;
 
-  const releaseOnce = async (): Promise<void> => {
-    if (handle === null || released) return;
-    released = true;
-    try {
-      await handle.release();
-    } catch (e) {
-      warn('Global lock', e instanceof Error ? e.message : String(e));
-    }
+  /** Single-flight: primary release, then recovery on a fresh DB connection if needed. */
+  let shutdownPromise: Promise<void> | null = null;
+  const shutdownLockAndDisconnect = (): Promise<void> => {
+    shutdownPromise ??= (async () => {
+      if (handle === null) {
+        await disconnect();
+        return;
+      }
+      const lockId = handle.id;
+      let primaryOk = false;
+      try {
+        await handle.release();
+        primaryOk = true;
+      } catch (e) {
+        warn('Global lock', e instanceof Error ? e.message : String(e));
+      }
+      if (!primaryOk) {
+        try {
+          const conn2 = await buildDistributedLock();
+          try {
+            await conn2.lock.releaseIfHeldById(lockId);
+          } finally {
+            await conn2.disconnect();
+          }
+        } catch (e2) {
+          warn(
+            'Global lock',
+            `lock recovery release failed: ${e2 instanceof Error ? e2.message : String(e2)}`
+          );
+        }
+      }
+      await disconnect();
+    })();
+    return shutdownPromise;
   };
 
   const onSignal = (): void => {
-    void releaseOnce()
-      .then(() => disconnect())
-      .finally(() => {
-        process.exit(130);
-      });
+    void shutdownLockAndDisconnect().finally(() => {
+      process.exit(130);
+    });
   };
 
   process.once('SIGINT', onSignal);
@@ -76,8 +100,7 @@ export async function runInfraCommand(
 
     await command.execute();
   } finally {
-    await releaseOnce();
-    await disconnect();
+    await shutdownLockAndDisconnect();
     process.removeListener('SIGINT', onSignal);
     process.removeListener('SIGTERM', onSignal);
   }

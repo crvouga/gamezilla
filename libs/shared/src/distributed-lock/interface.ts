@@ -28,4 +28,10 @@ export interface DistributedLock {
   status(): Promise<LockInfo | null>;
   /** Removes the lock regardless of holder. Returns previous holder if any. */
   forceUnlock(): Promise<LockInfo | null>;
+  /**
+   * Same fenced delete as {@link LockHandle.release}, for when the original
+   * DB connection died before release could complete (e.g. idle timeout during
+   * a long deploy). Only removes the row if it still matches `expectedId`.
+   */
+  releaseIfHeldById(expectedId: string): Promise<void>;
 }

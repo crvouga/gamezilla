@@ -41,6 +41,15 @@ export class DistributedLockImplKv implements DistributedLock {
     this.onFencingFailure = options.onFencingFailure ?? (() => {});
   }
 
+  async releaseIfHeldById(expectedId: string): Promise<void> {
+    assert.ok(
+      typeof expectedId === 'string' && expectedId.length > 0,
+      'DistributedLockImplKv: expectedId must be non-empty',
+      { expectedId }
+    );
+    return this.releaseFenced(expectedId);
+  }
+
   async acquire(operation: string): Promise<LockHandle> {
     assert.ok(
       typeof operation === 'string' && operation.length > 0,
