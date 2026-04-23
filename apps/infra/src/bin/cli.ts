@@ -1,5 +1,5 @@
-import { assert } from '@gamezilla/shared/assert';
 import { main } from '../cli/main';
+import { fail } from '../cli/lib/fmt';
 import { GitHubActionsPlatform } from '../cli/platform/github-actions';
 import { LocalPlatform } from '../cli/platform/local';
 
@@ -17,7 +17,14 @@ main(platform)
     process.exit(0);
   })
   .catch((e: unknown) => {
+    // IMPORTANT: do not re-throw from here (e.g. via `assert.fail`). Re-throwing
+    // in a `.catch` becomes an unhandledRejection, which races with and can
+    // suppress the lock-release path in `runInfraCommand` — exactly the
+    // "deploy failed and left the lock held" bug we're guarding against.
     const message = e instanceof Error ? e.message : String(e);
-    platform.error(message);
-    assert.fail(`infra: unhandled error — ${message}`);
+    fail('infra', message);
+    if (e instanceof Error && e.stack) {
+      console.error(e.stack);
+    }
+    process.exit(1);
   });

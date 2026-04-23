@@ -8,7 +8,8 @@ export class CfApiToken implements SecretEntry {
   readonly hint = [
     'https://dash.cloudflare.com/profile/api-tokens → Create Token',
     'Start with the "Edit Zone DNS" template, then add:',
-    '  Zone permissions:    DNS Edit, Zone Settings Write, Workers Routes Edit',
+    '  Zone permissions:    DNS Edit, Zone Settings Write, Zone WAF Write,',
+    '                       Workers Routes Edit',
     '  Account permissions: Cloudflare Pages Edit, Workers Scripts Edit,',
     '                       Workers KV Storage Edit, Workers R2 Storage Edit,',
     '                       Account Settings Read',
@@ -107,6 +108,14 @@ export class CfApiToken implements SecretEntry {
               ),
             },
             {
+              label: 'Zone WAF Write         (Zone permission — for WAF custom rules / bot-challenge skip)',
+              probe: probeCfPermission(
+                headers,
+                'GET',
+                `https://api.cloudflare.com/client/v4/zones/${zoneId}/rulesets/phases/http_request_firewall_custom/entrypoint`,
+              ),
+            },
+            {
               label: 'Workers Routes Edit    (Zone permission — for custom domain routing)',
               probe: probeCfPermission(
                 headers,
@@ -134,7 +143,7 @@ export class CfApiToken implements SecretEntry {
           ...missing.map((p) => `  - ${p}`),
           '',
           'Tip: start with the "Edit Zone DNS" template, then add:',
-          '  Zone: Workers Routes Edit',
+          '  Zone: Zone WAF Write, Workers Routes Edit',
           '  Account: Cloudflare Pages Edit, Workers Scripts Edit,',
           '           Workers KV Storage Edit, Workers R2 Storage Edit,',
           '           Account Settings Read',

@@ -32,7 +32,7 @@ jobs:
       - name: Check (tc + lint + test + build)
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
-        run: bun check
+        run: doppler run -- turbo --cache=remote:rw check build
 
   e2e:
     runs-on: ubuntu-latest
@@ -77,7 +77,7 @@ jobs:
       - name: E2E (Playwright + turbo preview)
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
-        run: doppler run -- bun run --filter '@gamezilla/e2e' e2e
+        run: doppler run -- bun run --filter "@gamezilla/e2e" e2e
 
       - name: Upload Playwright report
         if: failure()

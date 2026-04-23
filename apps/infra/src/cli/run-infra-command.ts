@@ -2,14 +2,33 @@ import type { LockHandle } from '@gamezilla/shared/distributed-lock/interface';
 import { LockHeldError } from '@gamezilla/shared/distributed-lock/interface';
 import type { Command } from './commands/types';
 import { buildDistributedLock } from './lib/build-distributed-lock';
-import { fail, fmtMs, info, kv, warn } from './lib/fmt';
+import { fail, fmtMs, info, kv, ok, warn } from './lib/fmt';
 import type { CiPlatform } from './platform/platform';
 import { DopplerResource } from './resources/doppler';
 
+/** Hard upper bound on a single lock-release/disconnect attempt. */
+const RELEASE_TIMEOUT_MS = 20_000;
+
+/**
+ * Signals we translate into a graceful release-and-exit. SIGKILL / SIGSTOP
+ * cannot be trapped — nothing we can do there; `unlock` is the recovery path.
+ */
+const EXIT_SIGNALS = [
+  'SIGINT',
+  'SIGTERM',
+  'SIGHUP',
+  'SIGQUIT',
+  'SIGBREAK',
+] as const;
+
 /**
  * Runs a command; acquires the global lock when {@link Command.requiresLock} is set.
- * Lock acquisition and release happen here so any composed commands invoked
- * programmatically (bypassing the CLI entry) do not re-enter the lock.
+ *
+ * Release correctness matters more than error fidelity: any path that exits
+ * this function — `command.execute()` resolving, throwing, `uncaughtException`,
+ * `unhandledRejection`, or a termination signal — MUST release the lock before
+ * the process goes away. Anything else leaves the next `deploy` wedged until a
+ * human runs `bun run infra unlock`.
  */
 export async function runInfraCommand(
   command: Command,
@@ -41,50 +60,86 @@ export async function runInfraCommand(
 
   let handle: LockHandle | null = null;
 
-  /** Single-flight: primary release, then recovery on a fresh DB connection if needed. */
+  /** Single-flight release + disconnect. Never throws; always resolves. */
   let shutdownPromise: Promise<void> | null = null;
   const shutdownLockAndDisconnect = (): Promise<void> => {
     shutdownPromise ??= (async () => {
-      if (handle === null) {
-        await disconnect();
-        return;
-      }
-      const lockId = handle.id;
-      let primaryOk = false;
-      try {
-        await handle.release();
-        primaryOk = true;
-      } catch (e) {
-        warn('Global lock', e instanceof Error ? e.message : String(e));
-      }
-      if (!primaryOk) {
-        try {
-          const conn2 = await buildDistributedLock();
-          try {
-            await conn2.lock.releaseIfHeldById(lockId);
-          } finally {
-            await conn2.disconnect();
-          }
-        } catch (e2) {
-          warn(
-            'Global lock',
-            `lock recovery release failed: ${e2 instanceof Error ? e2.message : String(e2)}`
-          );
-        }
-      }
-      await disconnect();
+      await withTimeout(
+        releaseLock(),
+        RELEASE_TIMEOUT_MS,
+        'lock release timed out'
+      ).catch((e) => {
+        warn('Global lock', describe(e));
+      });
+      await withTimeout(
+        safeDisconnect(disconnect),
+        RELEASE_TIMEOUT_MS,
+        'lock disconnect timed out'
+      ).catch((e) => {
+        warn('Global lock', describe(e));
+      });
     })();
     return shutdownPromise;
   };
 
-  const onSignal = (): void => {
+  async function releaseLock(): Promise<void> {
+    if (handle === null) return;
+    const lockId = handle.id;
+    try {
+      await handle.release();
+      ok('Global lock', 'released');
+      return;
+    } catch (e) {
+      warn('Global lock', `primary release failed: ${describe(e)}`);
+    }
+    // Fallback: the original DB connection may have died mid-deploy. Open a
+    // fresh connection and fence by id so we only delete the row we own.
+    try {
+      const conn2 = await buildDistributedLock();
+      try {
+        await conn2.lock.releaseIfHeldById(lockId);
+        ok('Global lock', 'released (recovery connection)');
+      } finally {
+        await safeDisconnect(conn2.disconnect);
+      }
+    } catch (e) {
+      fail(
+        'Global lock',
+        `recovery release failed: ${describe(e)} — run \`bun run infra unlock\``
+      );
+    }
+  }
+
+  // Fatal-path handlers. These MUST release the lock before the process dies.
+  // We flag ourselves as handled so we still exit non-zero after cleanup.
+  const onFatal = (reason: unknown, source: string): void => {
+    fail('Global lock', `${source}: ${describe(reason)}`);
     void shutdownLockAndDisconnect().finally(() => {
-      process.exit(130);
+      process.exit(1);
     });
   };
+  const onUncaught = (e: unknown): void => onFatal(e, 'uncaughtException');
+  const onUnhandled = (e: unknown): void => onFatal(e, 'unhandledRejection');
+  const onSignal = (signal: NodeJS.Signals): void => {
+    info('Global lock', `received ${signal}, releasing…`);
+    void shutdownLockAndDisconnect().finally(() => {
+      // Conventional 128 + signal exit code; default to SIGINT's 130 if unknown.
+      process.exit(signalExitCode(signal));
+    });
+  };
+  const signalHandlers: Array<
+    readonly [NodeJS.Signals, (s: NodeJS.Signals) => void]
+  > = EXIT_SIGNALS.map((sig) => [sig, onSignal] as const);
 
-  process.once('SIGINT', onSignal);
-  process.once('SIGTERM', onSignal);
+  process.on('uncaughtException', onUncaught);
+  process.on('unhandledRejection', onUnhandled);
+  for (const [sig, h] of signalHandlers) process.once(sig, h);
+
+  const removeAllHandlers = (): void => {
+    process.removeListener('uncaughtException', onUncaught);
+    process.removeListener('unhandledRejection', onUnhandled);
+    for (const [sig, h] of signalHandlers) process.removeListener(sig, h);
+  };
 
   try {
     try {
@@ -92,7 +147,8 @@ export async function runInfraCommand(
     } catch (e) {
       if (e instanceof LockHeldError) {
         printLockHeld(e);
-        await disconnect();
+        await safeDisconnect(disconnect);
+        removeAllHandlers();
         process.exit(1);
       }
       throw e;
@@ -101,9 +157,53 @@ export async function runInfraCommand(
     await command.execute();
   } finally {
     await shutdownLockAndDisconnect();
-    process.removeListener('SIGINT', onSignal);
-    process.removeListener('SIGTERM', onSignal);
+    removeAllHandlers();
   }
+}
+
+function describe(e: unknown): string {
+  if (e instanceof Error) return e.message;
+  if (typeof e === 'string') return e;
+  try {
+    return JSON.stringify(e);
+  } catch {
+    return String(e);
+  }
+}
+
+function withTimeout<T>(
+  p: Promise<T>,
+  ms: number,
+  label: string
+): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(label)), ms);
+    // Don't keep the event loop alive for this watchdog.
+    if (typeof timer.unref === 'function') timer.unref();
+  });
+  return Promise.race([p, timeout]).finally(() => {
+    if (timer !== null) clearTimeout(timer);
+  });
+}
+
+async function safeDisconnect(disconnect: () => Promise<void>): Promise<void> {
+  try {
+    await disconnect();
+  } catch (e) {
+    warn('Global lock', `disconnect failed: ${describe(e)}`);
+  }
+}
+
+function signalExitCode(signal: NodeJS.Signals): number {
+  const map: Record<string, number> = {
+    SIGHUP: 129,
+    SIGINT: 130,
+    SIGQUIT: 131,
+    SIGTERM: 143,
+    SIGBREAK: 149,
+  };
+  return map[signal] ?? 1;
 }
 
 function printLockHeld(e: LockHeldError): void {

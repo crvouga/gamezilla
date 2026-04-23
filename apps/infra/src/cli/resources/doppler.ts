@@ -21,6 +21,7 @@ const DERIVED_DEFAULTS: Record<string, () => string> = {
   TURBO_API: () => turboCachePublicUrl(),
   TURBO_TEAM: () => `team_${PROJECT_CONFIG.domain.replace(/\.\w+$/, '')}`,
   TURBO_LOG_ORDER: () => 'stream',
+  TURBO_TELEMETRY_DISABLED: () => '1',
 };
 
 export class DopplerResource extends ResourceBase {

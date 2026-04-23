@@ -10,6 +10,7 @@ import { R2SubscriptionResource } from './r2-subscription';
 import { RedirectRuleResource } from './redirect-rule';
 import { TurboCacheResource } from './turbo-cache';
 import type { Resource } from './types';
+import { WafBotSkipRuleResource } from './waf-bot-skip-rule';
 import { ZoneResource } from './zone';
 
 export function createRegistry(): readonly Resource[] {
@@ -22,6 +23,7 @@ export function createRegistry(): readonly Resource[] {
   const dnsRecords = new DnsRecordsResource();
   const pagesDomain = new PagesDomainResource();
   const redirectRule = new RedirectRuleResource();
+  const wafBotSkipRule = new WafBotSkipRuleResource();
   const turboCache = new TurboCacheResource();
   const apiWorker = new ApiWorkerResource();
   const client = new ClientResource();
@@ -34,6 +36,7 @@ export function createRegistry(): readonly Resource[] {
   dnsRecords.needs(zone, pagesProject);
   pagesDomain.needs(pagesProject);
   redirectRule.needs(zone);
+  wafBotSkipRule.needs(zone);
   turboCache.needs(doppler, r2Bucket);
   apiWorker.needs(planetscalePostgres, dnsRecords);
   client.needs(apiWorker, dnsRecords);
@@ -48,6 +51,7 @@ export function createRegistry(): readonly Resource[] {
     dnsRecords,
     pagesDomain,
     redirectRule,
+    wafBotSkipRule,
     turboCache,
     apiWorker,
     client,
