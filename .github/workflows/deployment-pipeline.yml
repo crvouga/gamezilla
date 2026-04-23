@@ -10,12 +10,10 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-    # Superseded pushes/PR updates cancel the older `check` run for the same ref.
-    # `head_ref` on PRs collapses on the source branch; `ref` on pushes collapses
-    # on `refs/heads/main`. `run_id` fallback keeps manual/other events unique.
     concurrency:
       group: check-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
       cancel-in-progress: true
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -38,11 +36,10 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
-    # Same cancel-on-supersede policy as `check`. A separate group prevents
-    # `check` and `e2e` from blocking each other.
     concurrency:
       group: e2e-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
       cancel-in-progress: true
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -96,13 +93,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    # Global serial queue for production deploys. Every commit to `main` that
-    # reaches this job runs, one at a time, in order. `cancel-in-progress: false`
-    # is mandatory: cancelling a deploy mid-flight can leave Cloudflare / DNS /
-    # PlanetScale in a half-applied state.
     concurrency:
       group: deploy
       cancel-in-progress: false
+    timeout-minutes: 60
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -120,16 +114,6 @@ jobs:
 
       - name: Install Doppler CLI
         uses: dopplerhq/cli-action@v4
-
-      # Serial `deploy` concurrency means no overlapping deploy job; if the prior
-      # run lost its DB connection before lock release (e.g. PlanetScale idle
-      # timeout), the row can remain and block the next deploy. Unlock is a no-op
-      # when nothing is held.
-      - name: Clear stale global deploy lock
-        working-directory: apps/infra
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
-        run: doppler run -- bun run infra unlock
 
       - name: Deploy
         timeout-minutes: 45

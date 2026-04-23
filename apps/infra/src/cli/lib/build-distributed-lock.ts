@@ -18,6 +18,15 @@ export async function buildDistributedLock(): Promise<DistributedLockConnection>
   const url = await resolveDatabaseUrl();
   const sql = new SqlClientImplPostgresTcp(url);
   await sql.connect();
+  // Long CI deploys can leave the TCP session idle; a stuck `BEGIN` on release
+  // would otherwise block the process forever (no stdin — not an interactive hang).
+  try {
+    await sql.run("SET statement_timeout = '15s'");
+    await sql.run("SET lock_timeout = '8s'");
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.warn(`[infra lock] session timeouts not applied (${msg})`);
+  }
   const kv = await KvImplPostgres.open(sql);
   const lock = new DistributedLockImplKv(kv, { key: 'infra' });
   return {

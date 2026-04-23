@@ -81,7 +81,7 @@ export function run(
   const r = spawnSync(cmd, args, {
     env: opts?.env ?? process.env,
     cwd: opts?.cwd,
-    stdio: 'inherit',
+    stdio: ['ignore', 'inherit', 'inherit'],
   });
   const elapsed = fmtMs(performance.now() - t0);
 
@@ -239,7 +239,9 @@ export async function runAsync(
       const child = spawn(cmd, args, {
         env: opts?.env ?? process.env,
         cwd: opts?.cwd,
-        stdio: 'inherit',
+        // Never inherit stdin: on CI stdin is not a TTY; tools that read it can
+        // block forever after the parent finishes logging (looks like a "hang").
+        stdio: ['ignore', 'inherit', 'inherit'],
       });
       child.on('error', reject);
       child.on('close', (code, signal) => {
