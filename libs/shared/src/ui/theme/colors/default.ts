@@ -7,4 +7,4 @@ const COLORS = {
   purple: COLORS_PURPLE,
 } as const;
 
-export const defaultColors: Colors = COLORS.blueAndNeutral;
+export const defaultColors: Colors = COLORS.purple;
