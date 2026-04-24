@@ -9,15 +9,18 @@ export type EventLogEntry =
   | { kind: 'rejected'; commandId: string }
 
 /**
- * Pluggable write-ahead log for game event durability.
+ * Pluggable write-ahead log for durable replicated command intent and outcomes.
  *
  * Implementations persist command intents before processing and outcomes
  * (committed/rejected) after. On recovery, unresolved commands (intent
  * without outcome) can be re-processed.
+ *
+ * Rows are scoped by `partitionKey`: a stable non-empty string chosen by the
+ * caller (e.g. document id, session id, room id) that isolates one log stream.
  */
 export interface EventLog {
-  append(gameId: string, entry: EventLogEntry): Promise<void>
-  load(gameId: string): Promise<EventLogEntry[]>
+  append(partitionKey: string, entry: EventLogEntry): Promise<void>
+  load(partitionKey: string): Promise<EventLogEntry[]>
 }
 
 /**
@@ -29,11 +32,11 @@ export interface EventLog {
  */
 export async function recoverFromEventLog(
   eventLog: EventLog,
-  gameId: string,
+  partitionKey: string,
   store: PeerStoreApi,
   onUnresolved?: (command: Command) => void,
 ): Promise<void> {
-  const entries = await eventLog.load(gameId)
+  const entries = await eventLog.load(partitionKey)
 
   const committedLogEntries: LogEntry[] = []
   const resolvedCommandIds = new Set<string>()
@@ -68,15 +71,15 @@ export async function recoverFromEventLog(
 export class InMemoryEventLog implements EventLog {
   private readonly store = new Map<string, EventLogEntry[]>()
 
-  async append(gameId: string, entry: EventLogEntry): Promise<void> {
-    crash.nonEmptyString(gameId, 'gameId must be non-empty')
-    const rows = this.store.get(gameId) ?? []
+  async append(partitionKey: string, entry: EventLogEntry): Promise<void> {
+    crash.nonEmptyString(partitionKey, 'partitionKey must be non-empty')
+    const rows = this.store.get(partitionKey) ?? []
     rows.push(entry)
-    this.store.set(gameId, rows)
+    this.store.set(partitionKey, rows)
   }
 
-  async load(gameId: string): Promise<EventLogEntry[]> {
-    crash.nonEmptyString(gameId, 'gameId must be non-empty')
-    return [...(this.store.get(gameId) ?? [])]
+  async load(partitionKey: string): Promise<EventLogEntry[]> {
+    crash.nonEmptyString(partitionKey, 'partitionKey must be non-empty')
+    return [...(this.store.get(partitionKey) ?? [])]
   }
 }

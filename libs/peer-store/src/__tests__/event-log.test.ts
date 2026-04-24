@@ -41,35 +41,35 @@ describe('InMemoryEventLog', () => {
       { seq: 1, event: { type: 'MOVED', payload: {} } },
     ]
 
-    await log.append('game-1', { kind: 'command', command: cmd })
-    await log.append('game-1', {
+    await log.append('log-part-1', { kind: 'command', command: cmd })
+    await log.append('log-part-1', {
       kind: 'committed',
       commandId: 'cmd-1',
       entries: committedRows,
     })
 
-    const loaded = await log.load('game-1')
+    const loaded = await log.load('log-part-1')
     expect(loaded).toHaveLength(2)
     expect(loaded[0]!.kind).toBe('command')
     expect(loaded[1]!.kind).toBe('committed')
   })
 
-  it('isolates games', async () => {
+  it('isolates partition keys', async () => {
     const log = new InMemoryEventLog()
-    await log.append('game-a', {
+    await log.append('part-a', {
       kind: 'committed',
       commandId: 'c1',
       entries: [{ seq: 1, event: { type: 'A', payload: {} } }],
     })
-    await log.append('game-b', {
+    await log.append('part-b', {
       kind: 'committed',
       commandId: 'c2',
       entries: [{ seq: 1, event: { type: 'B', payload: {} } }],
     })
 
-    expect(await log.load('game-a')).toHaveLength(1)
-    expect(await log.load('game-b')).toHaveLength(1)
-    expect(await log.load('game-c')).toHaveLength(0)
+    expect(await log.load('part-a')).toHaveLength(1)
+    expect(await log.load('part-b')).toHaveLength(1)
+    expect(await log.load('part-c')).toHaveLength(0)
   })
 
   it('load returns copies', async () => {
@@ -104,15 +104,15 @@ describe('recoverFromEventLog', () => {
       message: { type: 'MOVE', payload: {} },
     }
 
-    await log.append('game-1', { kind: 'command', command: resolvedCmd })
-    await log.append('game-1', {
+    await log.append('log-part-1', { kind: 'command', command: resolvedCmd })
+    await log.append('log-part-1', {
       kind: 'committed',
       commandId: 'cmd-resolved',
       entries: [
         { seq: 1, event: { type: 'PIECE_MOVED', payload: { cell: 0 } } },
       ],
     })
-    await log.append('game-1', { kind: 'command', command: unresolvedCmd })
+    await log.append('log-part-1', { kind: 'command', command: unresolvedCmd })
 
     let rehydratedEntries: LogEntry[] = []
     const unresolved: Command[] = []
@@ -154,7 +154,7 @@ describe('recoverFromEventLog', () => {
       destroy() {},
     }
 
-    await recoverFromEventLog(log, 'game-1', mockStore, (cmd) =>
+    await recoverFromEventLog(log, 'log-part-1', mockStore, (cmd) =>
       unresolved.push(cmd),
     )
 
@@ -259,7 +259,7 @@ describe('recoverFromEventLog', () => {
       destroy() {},
     }
 
-    await recoverFromEventLog(log, 'no-game', mockStore)
+    await recoverFromEventLog(log, 'scope-missing', mockStore)
     expect(rehydrated).toBe(true)
   })
 })
@@ -288,20 +288,20 @@ describe('SqliteEventLog', () => {
       peerId: 'p1',
       message: { type: 'MOVE', payload: { cell: 4 } },
     }
-    await eventLog.append('game-1', { kind: 'command', command: cmd })
-    await eventLog.append('game-1', {
+    await eventLog.append('log-part-1', { kind: 'command', command: cmd })
+    await eventLog.append('log-part-1', {
       kind: 'committed',
       commandId: 'cmd-1',
       entries: [
         { seq: 1, event: { type: 'PIECE_MOVED', payload: { cell: 4 } } },
       ],
     })
-    await eventLog.append('game-1', {
+    await eventLog.append('log-part-1', {
       kind: 'rejected',
       commandId: 'cmd-2',
     })
 
-    const entries = await eventLog.load('game-1')
+    const entries = await eventLog.load('log-part-1')
     expect(entries).toHaveLength(3)
     expect(entries[0]!.kind).toBe('command')
     expect(entries[1]!.kind).toBe('committed')
@@ -350,7 +350,7 @@ describe('SqliteEventLog', () => {
     }
   })
 
-  it('isolates games', async () => {
+  it('isolates partition keys', async () => {
     await eventLog.append('a', {
       kind: 'committed',
       commandId: 'c1',
@@ -411,7 +411,7 @@ describe('PeerStore + EventLog integration', () => {
     const peers = { 'player-x': 1, 'player-o': 1, 'authority': 3 }
 
     const log = new InMemoryEventLog()
-    const gameId = 'game-1'
+    const partitionKey = 'log-part-1'
     const committed: Array<{ commandId: string; entries: LogEntry[] }> = []
     const rejected: string[] = []
 
@@ -449,15 +449,15 @@ describe('PeerStore + EventLog integration', () => {
       {
         onCommit(commandId, entries) {
           committed.push({ commandId, entries })
-          void log.append(gameId, { kind: 'committed', commandId, entries })
+          void log.append(partitionKey, { kind: 'committed', commandId, entries })
         },
         onReject(commandId) {
-          void log.append(gameId, { kind: 'rejected', commandId })
+          void log.append(partitionKey, { kind: 'rejected', commandId })
         },
       },
     )
 
-    void log.append(gameId, {
+    void log.append(partitionKey, {
       kind: 'committed',
       commandId: '__seed__',
       entries: store_auth.getCommittedLogEntries(),
@@ -478,7 +478,7 @@ describe('PeerStore + EventLog integration', () => {
       store_o,
       store_auth,
       log,
-      gameId,
+      partitionKey,
       committed,
       rejected,
       destroy,
@@ -524,7 +524,7 @@ describe('PeerStore + EventLog integration', () => {
   })
 
   it('recovery from event log rebuilds state', async () => {
-    const { store_x, store_o, store_auth, log, gameId, destroy } = setup()
+    const { store_x, store_o, store_auth, log, partitionKey, destroy } = setup()
 
     store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 4, player: 'X' } })
     store_o.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'O' } })
@@ -548,7 +548,7 @@ describe('PeerStore + EventLog integration', () => {
       },
     )
 
-    await recoverFromEventLog(log, gameId, recoveredStore)
+    await recoverFromEventLog(log, partitionKey, recoveredStore)
 
     const recoveredState = recoveredStore.getCommittedState()
     expect(ticTacToeBoardCell(recoveredState, 4)).toBe('X')

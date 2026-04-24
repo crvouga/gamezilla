@@ -7,22 +7,22 @@ const crash: Assert = Assert.crash()
 
 const MIGRATIONS = `
 CREATE TABLE IF NOT EXISTS event_log (
-    game_id    TEXT NOT NULL,
+    partition_key TEXT NOT NULL,
     seq        INTEGER NOT NULL,
     kind       TEXT NOT NULL,
     command_id TEXT NOT NULL,
     payload    JSONB NOT NULL DEFAULT '{}',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    PRIMARY KEY (game_id, seq)
+    PRIMARY KEY (partition_key, seq)
 );
-CREATE INDEX IF NOT EXISTS idx_event_log_game ON event_log (game_id);
+CREATE INDEX IF NOT EXISTS idx_event_log_partition ON event_log (partition_key);
 `
 
-const INSERT = `INSERT INTO event_log (game_id, seq, kind, command_id, payload, created_at)
-VALUES (?, (SELECT COALESCE(MAX(seq), 0) + 1 FROM event_log WHERE game_id = ?), ?, ?, CAST(? AS jsonb), NOW())`
+const INSERT = `INSERT INTO event_log (partition_key, seq, kind, command_id, payload, created_at)
+VALUES (?, (SELECT COALESCE(MAX(seq), 0) + 1 FROM event_log WHERE partition_key = ?), ?, ?, CAST(? AS jsonb), NOW())`
 
 const SELECT = `SELECT kind, command_id, payload FROM event_log
-WHERE game_id = ? ORDER BY seq ASC`
+WHERE partition_key = ? ORDER BY seq ASC`
 
 type Row = { kind: string; command_id: string; payload: unknown }
 
@@ -95,15 +95,21 @@ export class PostgresEventLog implements EventLog {
     }
   }
 
-  async append(gameId: string, entry: EventLogEntry): Promise<void> {
-    crash.nonEmptyString(gameId, 'gameId must be non-empty')
+  async append(partitionKey: string, entry: EventLogEntry): Promise<void> {
+    crash.nonEmptyString(partitionKey, 'partitionKey must be non-empty')
     const { kind, commandId, payload } = entryToRow(entry)
-    await this.sqlClient.run(INSERT, [gameId, gameId, kind, commandId, payload])
+    await this.sqlClient.run(INSERT, [
+      partitionKey,
+      partitionKey,
+      kind,
+      commandId,
+      payload,
+    ])
   }
 
-  async load(gameId: string): Promise<EventLogEntry[]> {
-    crash.nonEmptyString(gameId, 'gameId must be non-empty')
-    const rows = await this.sqlClient.query<Row>(SELECT, [gameId])
+  async load(partitionKey: string): Promise<EventLogEntry[]> {
+    crash.nonEmptyString(partitionKey, 'partitionKey must be non-empty')
+    const rows = await this.sqlClient.query<Row>(SELECT, [partitionKey])
     return rows.map(rowToEntry)
   }
 }
