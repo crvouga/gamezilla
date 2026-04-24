@@ -4,7 +4,7 @@ import {
   SegmentedControl,
   Text,
   useThemePreference,
-} from '@gamezilla/shared/ui';
+} from '@gamezilla/lib/ui';
 
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 

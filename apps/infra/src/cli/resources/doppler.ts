@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/shared/assert';
+import { assert } from '@gamezilla/lib/assert';
 import { PROJECT_CONFIG, turboCachePublicUrl } from '../../project-config';
 import { ok, warn } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';

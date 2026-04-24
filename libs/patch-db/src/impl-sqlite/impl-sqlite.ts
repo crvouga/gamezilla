@@ -1,6 +1,6 @@
-import { assert } from '@gamezilla/shared/assert';
-import type { SqlClient } from '@gamezilla/shared/sql-client/interface';
-import { assertSqliteQuery } from '@gamezilla/shared/sqlite';
+import { assert } from '@gamezilla/lib/assert';
+import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { assertSqliteQuery } from '@gamezilla/lib/sqlite';
 import {
   assertAttribute,
   assertEntityKey,

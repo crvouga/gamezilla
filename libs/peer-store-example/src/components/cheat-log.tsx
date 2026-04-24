@@ -1,4 +1,4 @@
-import { Card, Stack, Text, useTheme } from '@gamezilla/shared/ui';
+import { Card, Stack, Text, useTheme } from '@gamezilla/lib/ui';
 import type { CheatLogEntry } from '../simulator/playground';
 
 export function CheatLog({ entries }: { entries: CheatLogEntry[] }) {

@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/shared/assert';
+import { assert } from '@gamezilla/lib/assert';
 
 /**
  * Public API origin (scheme + host + port, no path). Invariant: set at build time

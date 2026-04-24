@@ -12,16 +12,16 @@ import {
 } from '@gamezilla/client/features/profile/dicebear-styles';
 import { ProfileDiceBearAvatar } from '@gamezilla/client/features/profile/profile-dicebear-avatar';
 import { usePatchesDb } from '@gamezilla/patch-db/react';
-import type { AvatarConfig } from '@gamezilla/shared/profile/avatar-config';
+import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import {
   configsEqual,
   resolveAvatarConfig,
   serializeAvatarConfig,
-} from '@gamezilla/shared/profile/avatar-config';
+} from '@gamezilla/domain/profile/avatar-config';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
-} from '@gamezilla/shared/profile/profile-entities';
+} from '@gamezilla/domain/profile/profile-entities';
 import {
   Box,
   Button,
@@ -35,7 +35,7 @@ import {
   SegmentedControl,
   Switch,
   Text,
-} from '@gamezilla/shared/ui';
+} from '@gamezilla/lib/ui';
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';

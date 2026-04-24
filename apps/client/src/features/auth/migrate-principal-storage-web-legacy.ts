@@ -1,4 +1,4 @@
-import type { SecureStorage } from '@gamezilla/shared/secure-storage/interface';
+import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
 import { Platform } from 'react-native';
 
 /** Before SecureStore key contract, web used a colon in the key (invalid on native). */

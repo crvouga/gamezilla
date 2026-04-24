@@ -1,4 +1,4 @@
-import type { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
+import type { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import type {
   Patch,
   PatchesDbQuery,

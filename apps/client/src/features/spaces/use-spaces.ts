@@ -1,18 +1,18 @@
 import { PrincipalServiceToken } from '@gamezilla/client/features/auth/principal-service';
 import type { Entity, PatchesDbQuery } from '@gamezilla/patch-db/interface';
 import { useEntities, useEntity } from '@gamezilla/patch-db/react';
-import { useDependency } from '@gamezilla/shared/dependency-injection/react';
+import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
-} from '@gamezilla/shared/profile/profile-entities';
+} from '@gamezilla/domain/profile/profile-entities';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceAttr,
   SpaceMembershipAttr,
   type SpaceMembershipRole,
-} from '@gamezilla/shared/spaces/space-entities';
+} from '@gamezilla/domain/spaces/space-entities';
 import { useMemo } from 'react';
 
 import type { SpaceFilter, SpaceMemberRow, SpaceView } from './types';

@@ -7,14 +7,14 @@ import {
   useSpaceMembers,
 } from '@gamezilla/client/features/spaces/use-spaces';
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
-import { SpaceMembershipAttr } from '@gamezilla/shared/spaces/space-entities';
+import { SpaceMembershipAttr } from '@gamezilla/domain/spaces/space-entities';
 import {
   Box,
   Button,
   ConfirmationModal,
   ScreenBase,
   Text,
-} from '@gamezilla/shared/ui';
+} from '@gamezilla/lib/ui';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 

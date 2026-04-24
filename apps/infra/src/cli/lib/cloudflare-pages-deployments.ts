@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/shared/assert';
+import { assert } from '@gamezilla/lib/assert';
 import { info, ok, warn } from './fmt';
 
 const CF_API = 'https://api.cloudflare.com/client/v4';

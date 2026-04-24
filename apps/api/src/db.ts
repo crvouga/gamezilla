@@ -1,6 +1,6 @@
-import { SqlClientImplPgliteHttp } from '@gamezilla/shared/sql-client/impl-pglite-http';
-import { SqlClientImplPlanetScalePostgres } from '@gamezilla/shared/sql-client/impl-planetscale-postgres';
-import { SqlClient } from '@gamezilla/shared/sql-client/interface';
+import { SqlClientImplPgliteHttp } from '@gamezilla/lib/sql-client/impl-pglite-http';
+import { SqlClientImplPlanetScalePostgres } from '@gamezilla/lib/sql-client/impl-planetscale-postgres';
+import { SqlClient } from '@gamezilla/lib/sql-client/interface';
 
 let db: SqlClient | null = null;
 

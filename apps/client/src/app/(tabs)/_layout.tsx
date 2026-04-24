@@ -3,7 +3,7 @@ import {
   IconSymbol,
   useBreakpoint,
   useTabsProps,
-} from '@gamezilla/shared/ui';
+} from '@gamezilla/lib/ui';
 import { Tabs } from 'expo-router';
 
 import { AppSidebar } from '@gamezilla/client/ui/app-sidebar';

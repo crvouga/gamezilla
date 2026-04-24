@@ -1,10 +1,10 @@
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
-import { getApiBaseUrl } from '@gamezilla/shared/config/api-servers';
+import { getApiBaseUrl } from '@gamezilla/domain/config/api-servers';
 import {
   getCommitHash,
   getShortCommitHash,
-} from '@gamezilla/shared/config/app-metadata';
-import { Box, Card, CopyToClipboardField, ScreenBase, Text } from '@gamezilla/shared/ui';
+} from '@gamezilla/domain/config/app-metadata';
+import { Box, Card, CopyToClipboardField, ScreenBase, Text } from '@gamezilla/lib/ui';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 

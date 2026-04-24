@@ -1,5 +1,5 @@
-import { Card, Stack, Text } from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/ui/theme';
+import { Card, Stack, Text } from '@gamezilla/lib/ui';
+import { useTheme } from '@gamezilla/lib/ui/theme';
 import type { MessageLogEntry } from '../simulator/playground';
 
 const KIND_COLORS: Record<string, string> = {

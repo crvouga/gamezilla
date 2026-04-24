@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/shared/assert';
+import { assert } from '@gamezilla/lib/assert';
 import type { SimEventRecorder } from './event-recorder';
 import type { SimLinkScheduler } from './sim-link-scheduler';
 

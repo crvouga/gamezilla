@@ -1,9 +1,9 @@
 import {
   PRINCIPAL_SESSION_ENTITY_TYPE,
   PrincipalSessionAttr,
-} from '@gamezilla/shared/auth';
-import { assertPrincipalId } from '@gamezilla/shared/auth/principal-id';
-import { assert } from '@gamezilla/shared/assert';
+} from '@gamezilla/domain/auth';
+import { assertPrincipalId } from '@gamezilla/domain/auth/principal-id';
+import { assert } from '@gamezilla/lib/assert';
 import type { PatchesDb } from '@gamezilla/patch-db/interface';
 import { UnauthorizedError } from './unauthorized-error';
 

@@ -9,8 +9,8 @@
  */
 
 import { PGlite } from '@electric-sql/pglite';
-import { assert } from '@gamezilla/shared/assert';
-import { createLogger } from '@gamezilla/shared/logger';
+import { assert } from '@gamezilla/lib/assert';
+import { createLogger } from '@gamezilla/lib/logger';
 import { Hono } from 'hono';
 import { createSqlApp } from './sql-app';
 

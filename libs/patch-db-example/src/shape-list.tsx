@@ -1,6 +1,6 @@
 import type { Entity } from '@gamezilla/patch-db/interface';
-import { Box, Button, Stack, Text } from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/ui/theme';
+import { Box, Button, Stack, Text } from '@gamezilla/lib/ui';
+import { useTheme } from '@gamezilla/lib/ui/theme';
 import { IconPlus } from './icons';
 import { ShapeRow } from './shape-row';
 import { useReorder } from './use-drag-reorder';

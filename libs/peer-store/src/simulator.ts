@@ -1,4 +1,4 @@
-import { Assert } from '@gamezilla/shared/assert'
+import { Assert } from '@gamezilla/lib/assert'
 import { PeerStore } from './peer-store'
 import { InMemoryBus, InMemoryTransport, type MessageInterceptor } from './transport'
 import type { Command, Event, Message, State, StoreModule } from './types'

@@ -1,4 +1,4 @@
-import { Box, Collapsible, Text, useTheme } from '@gamezilla/shared/ui';
+import { Box, Collapsible, Text, useTheme } from '@gamezilla/lib/ui';
 
 const MAX_INLINE = 200;
 

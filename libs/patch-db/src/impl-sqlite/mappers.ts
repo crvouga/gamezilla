@@ -1,4 +1,4 @@
-import { Assert, assert } from '@gamezilla/shared/assert';
+import { Assert, assert } from '@gamezilla/lib/assert';
 import {
   getPatchTopLevelFromAttributes,
   isValidAttribute,

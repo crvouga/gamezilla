@@ -1,7 +1,7 @@
-import { assertPrincipalId } from '@gamezilla/shared/auth';
-import { assert } from '@gamezilla/shared/assert';
-import type { InjectionToken } from '@gamezilla/shared/dependency-injection/dependency-injection-container';
-import type { SecureStorage } from '@gamezilla/shared/secure-storage/interface';
+import { assertPrincipalId } from '@gamezilla/domain/auth';
+import { assert } from '@gamezilla/lib/assert';
+import type { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
+import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
 
 import { migratePrincipalStorageWebLegacy } from './migrate-principal-storage-web-legacy';
 

@@ -52,7 +52,7 @@
     "./impl-postgres/impl-postgres": "./src/impl-postgres/impl-postgres.ts"
   },
   "dependencies": {
-    "@gamezilla/shared": "workspace:*",
+    "@gamezilla/lib": "workspace:*",
     "@hono/zod-validator": "^0.7.6",
     "expo-sqlite": "~16.0.10",
     "hono": "^4.7.0",

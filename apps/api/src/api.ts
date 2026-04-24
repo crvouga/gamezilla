@@ -1,5 +1,5 @@
-import { createLogger } from '@gamezilla/shared/logger';
-import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
+import { createLogger } from '@gamezilla/lib/logger';
+import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import { createApiApp } from './create-api-app';
 import type { Env, ValidatedEnv } from './env';
 import { ConfigurationError, validateEnv } from './env';

@@ -10,7 +10,7 @@ import {
   Stack,
   Text,
   useTheme,
-} from '@gamezilla/shared/ui';
+} from '@gamezilla/lib/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {

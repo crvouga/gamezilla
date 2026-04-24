@@ -9,8 +9,8 @@ import {
 } from '@gamezilla/patch-db/sim/playground-shapes';
 import type { PlaygroundClientHandle } from '@gamezilla/patch-db/sim/playground-sim';
 import { SubscribablePatchesDbToken } from '@gamezilla/patch-db/subscribable';
-import { DependencyInjectionContainer } from '@gamezilla/shared/dependency-injection/dependency-injection-container';
-import { ContainerProvider } from '@gamezilla/shared/dependency-injection/react';
+import { DependencyInjectionContainer } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
+import { ContainerProvider } from '@gamezilla/lib/dependency-injection/react';
 import {
   Box,
   Button,
@@ -19,8 +19,8 @@ import {
   Select,
   Stack,
   Text,
-} from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/ui/theme';
+} from '@gamezilla/lib/ui';
+import { useTheme } from '@gamezilla/lib/ui/theme';
 import { useCallback, useMemo, useState } from 'react';
 import {
   IconClear,

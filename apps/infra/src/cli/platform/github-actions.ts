@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/shared/assert';
+import { assert } from '@gamezilla/lib/assert';
 import { appendFileSync } from 'node:fs';
 import type { CiPlatform } from './platform';
 

@@ -1,4 +1,4 @@
-import type { CrashHandler } from '@gamezilla/shared/assert/crash/crash-handler/crash-handler'
+import type { CrashHandler } from '@gamezilla/lib/assert/crash/crash-handler/crash-handler'
 
 export class TestCrashHandler implements CrashHandler {
   readonly priority = 0

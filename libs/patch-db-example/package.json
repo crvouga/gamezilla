@@ -45,7 +45,7 @@
   },
   "dependencies": {
     "@gamezilla/patch-db": "workspace:*",
-    "@gamezilla/shared": "workspace:*",
+    "@gamezilla/lib": "workspace:*",
     "@gorhom/bottom-sheet": "^5.1.6",
     "@react-native-async-storage/async-storage": "^2.1.2",
     "expo": "~54.0.33",

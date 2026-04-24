@@ -3,9 +3,9 @@ import {
   CLIENT_CONFIG_ENTITY_ID,
   CLIENT_CONFIG_ENTITY_TYPE,
   ClientConfigAttr,
-} from '@gamezilla/shared/auth';
-import { isEqual } from '@gamezilla/shared/equal/is-equal';
-import { Logger } from '@gamezilla/shared/logger';
+} from '@gamezilla/domain/auth';
+import { isEqual } from '@gamezilla/lib/equal/is-equal';
+import { Logger } from '@gamezilla/lib/logger';
 import { Hono } from 'hono';
 
 /**

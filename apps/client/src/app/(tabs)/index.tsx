@@ -13,7 +13,7 @@ import {
   TextInput,
   useBreakpoint,
   useTheme,
-} from '@gamezilla/shared/ui';
+} from '@gamezilla/lib/ui';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 
@@ -73,12 +73,15 @@ export default function SpacesScreen() {
           {!current.loading && current.activeSpaceId ? (
             <Box sx={{ mb: 3 }}>
               <Pressable
-                onPress={() =>
-                  router.push({
-                    pathname: '/space/[id]',
-                    params: { id: current.activeSpaceId! },
-                  })
-                }
+                onPress={() => {
+                  const id = current.activeSpaceId;
+                  if (id) {
+                    router.push({
+                      pathname: '/space/[id]',
+                      params: { id },
+                    });
+                  }
+                }}
                 accessibilityRole="button"
                 accessibilityLabel="Open your current space"
               >

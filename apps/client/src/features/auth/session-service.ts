@@ -2,10 +2,10 @@ import {
   assertPrincipalId,
   PRINCIPAL_SESSION_ENTITY_TYPE,
   PrincipalSessionAttr,
-} from '@gamezilla/shared/auth';
-import { assertUuid } from '@gamezilla/shared/auth/principal-id';
-import { assert } from '@gamezilla/shared/assert';
-import type { InjectionToken } from '@gamezilla/shared/dependency-injection/dependency-injection-container';
+} from '@gamezilla/domain/auth';
+import { assertUuid } from '@gamezilla/domain/auth/principal-id';
+import { assert } from '@gamezilla/lib/assert';
+import type { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 import type { PatchesDb } from '@gamezilla/patch-db/interface';
 import type { PrincipalService } from './principal-service';
 

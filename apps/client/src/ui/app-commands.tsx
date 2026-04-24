@@ -4,7 +4,7 @@ import {
   ConfirmationModal,
   RegisterCommand,
   useThemePreference,
-} from '@gamezilla/shared/ui';
+} from '@gamezilla/lib/ui';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 

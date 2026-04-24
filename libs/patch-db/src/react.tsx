@@ -1,7 +1,7 @@
-import { assert } from '@gamezilla/shared/assert';
-import { InjectionToken } from '@gamezilla/shared/dependency-injection/dependency-injection-container';
-import { useDependency } from '@gamezilla/shared/dependency-injection/react';
-import type { PubSub } from '@gamezilla/shared/pub-sub/interface';
+import { assert } from '@gamezilla/lib/assert';
+import { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
+import { useDependency } from '@gamezilla/lib/dependency-injection/react';
+import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
 import { useEffect, useState } from 'react';
 import {
   Entity,

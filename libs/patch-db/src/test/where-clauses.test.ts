@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/shared/assert';
+import { assert } from '@gamezilla/lib/assert';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { PatchesDb } from '../interface';
 import { implementations, whereClauseFixtures } from './test-helpers';

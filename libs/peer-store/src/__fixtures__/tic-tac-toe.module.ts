@@ -1,4 +1,4 @@
-import { Assert } from '@gamezilla/shared/assert'
+import { Assert } from '@gamezilla/lib/assert'
 import type { Command, Event, HandleResult, State, StoreModule } from '../types'
 
 const crash: Assert = Assert.crash()

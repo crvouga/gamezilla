@@ -1,5 +1,5 @@
 import { PlaygroundPage } from '@gamezilla/peer-store-example/pages/playground-page';
-import { Box, ScreenBaseHeader } from '@gamezilla/shared/ui';
+import { Box, ScreenBaseHeader } from '@gamezilla/lib/ui';
 
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 

@@ -9,7 +9,7 @@ import {
   Text,
   TextInput,
   useTheme,
-} from '@gamezilla/shared/ui';
+} from '@gamezilla/lib/ui';
 import { useState } from 'react';
 
 import { INBOX_LIST_ID } from './todo-constants';

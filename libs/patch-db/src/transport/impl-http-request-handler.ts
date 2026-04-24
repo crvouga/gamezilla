@@ -1,5 +1,5 @@
 import { zValidator } from '@hono/zod-validator';
-import { Assert } from '@gamezilla/shared/assert';
+import { Assert } from '@gamezilla/lib/assert';
 import { Hono } from 'hono';
 import type { Context } from 'hono';
 import {

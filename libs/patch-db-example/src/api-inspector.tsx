@@ -15,8 +15,8 @@ import {
   StatusDot,
   Text,
   TextInput,
-} from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/ui/theme';
+} from '@gamezilla/lib/ui';
+import { useTheme } from '@gamezilla/lib/ui/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useRef, useState } from 'react';
 

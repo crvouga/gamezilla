@@ -1,5 +1,5 @@
 import { ExplorerRoute } from '@gamezilla/patch-db-example/db-client/navigator';
-import { Box, ScreenBaseHeader } from '@gamezilla/shared/ui';
+import { Box, ScreenBaseHeader } from '@gamezilla/lib/ui';
 import {
   type Href,
   useLocalSearchParams,

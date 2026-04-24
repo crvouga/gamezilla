@@ -1,5 +1,5 @@
 import type { State } from '@gamezilla/peer-store/types';
-import { Pressable, Stack, Text, useTheme } from '@gamezilla/shared/ui';
+import { Pressable, Stack, Text, useTheme } from '@gamezilla/lib/ui';
 
 export function TicTacToeBoard({
   state,

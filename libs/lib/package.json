@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/shared",
+  "name": "@gamezilla/lib",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -263,14 +263,6 @@
     "./logger": "./src/logger/index.ts",
     "./logger/index": "./src/logger/index.ts",
     "./logger/token": "./src/logger/token.ts",
-    "./config/config-service": "./src/config/config-service.ts",
-    "./config/api-servers": "./src/config/api-servers.ts",
-    "./config/app-metadata": "./src/config/app-metadata.ts",
-    "./config/config-container": "./src/config/config-container.tsx",
-    "./auth/principal-id": "./src/auth/principal-id.ts",
-    "./auth": "./src/auth/index.ts",
-    "./auth/index": "./src/auth/index.ts",
-    "./auth/auth-entities": "./src/auth/auth-entities.ts",
     "./async/fetch-with-retry": "./src/async/fetch-with-retry.ts",
     "./async/fire-and-forget": "./src/async/fire-and-forget.ts",
     "./distributed-lock/interface": "./src/distributed-lock/interface.ts",
@@ -300,9 +292,6 @@
     "./postgres/postgres-test-instance": "./src/postgres/postgres-test-instance.ts",
     "./postgres/postgres-container": "./src/postgres/postgres-container.ts",
     "./postgres/pglite-test-instance": "./src/postgres/pglite-test-instance.ts",
-    "./spaces/space-entities": "./src/spaces/space-entities.ts",
-    "./profile/profile-entities": "./src/profile/profile-entities.ts",
-    "./profile/avatar-config": "./src/profile/avatar-config.ts",
     "./task-dag/interface": "./src/task-dag/interface.ts",
     "./task-dag/task-runner": "./src/task-dag/task-runner.ts",
     "./task-dag": "./src/task-dag/index.ts",
@@ -321,8 +310,7 @@
     "./dependency-injection/react": "./src/dependency-injection/react.tsx",
     "./dependency-injection": "./src/dependency-injection/index.ts",
     "./dependency-injection/index": "./src/dependency-injection/index.ts",
-    "./sql-client/impl-planetscale": "./src/sql-client/impl-planetscale-postgres.ts",
-    "./theme": "./src/theme/index.ts"
+    "./sql-client/impl-planetscale": "./src/sql-client/impl-planetscale-postgres.ts"
   },
   "dependencies": {
     "@gorhom/bottom-sheet": "^5.1.6",

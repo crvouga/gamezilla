@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/shared/assert';
+import { assert } from '@gamezilla/lib/assert';
 
 /**
  * Git object id as lowercase hex: short (≥7) or full SHA-1 (40).

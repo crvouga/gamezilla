@@ -7,7 +7,7 @@ import {
   ScreenBase,
   StatusDot,
   Text,
-} from '@gamezilla/shared/ui';
+} from '@gamezilla/lib/ui';
 import { NetworkStateType } from 'expo-network';
 import { useCallback, useEffect } from 'react';
 

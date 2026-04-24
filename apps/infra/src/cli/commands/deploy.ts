@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/shared/assert';
+import { assert } from '@gamezilla/lib/assert';
 import { ALL_DEPS } from '../deps/registry';
 import { collectDepVersionIssues } from '../deps/version-check';
 import { banner, fail, ok, warn } from '../lib/fmt';

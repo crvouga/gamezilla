@@ -11,7 +11,7 @@ import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { COMMIT_HASH_HEX_REGEX } from '@gamezilla/shared/config/app-metadata';
+import { COMMIT_HASH_HEX_REGEX } from '@gamezilla/domain/config/app-metadata';
 
 /** Must stay aligned with `apps/api` `wrangler dev --port`. */
 const DEFAULT_LOCAL_API_URL = 'http://localhost:8788';

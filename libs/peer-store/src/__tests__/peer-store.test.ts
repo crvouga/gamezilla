@@ -8,7 +8,7 @@ import {
   it,
   jest,
 } from 'bun:test'
-import { Assert } from '@gamezilla/shared/assert'
+import { Assert } from '@gamezilla/lib/assert'
 import { PeerStore } from '../peer-store'
 import { InMemoryBus, InMemoryTransport } from '../transport'
 import type { Event, HandleResult, State, StoreModule } from '../types'

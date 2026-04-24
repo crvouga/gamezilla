@@ -1,12 +1,12 @@
 import { useAuth } from '@gamezilla/client/features/auth/auth-context';
 import { PrincipalServiceToken } from '@gamezilla/client/features/auth/principal-service';
 import { useEntities } from '@gamezilla/patch-db/react';
-import { useDependency } from '@gamezilla/shared/dependency-injection/react';
-import { resolveAvatarConfig } from '@gamezilla/shared/profile/avatar-config';
+import { useDependency } from '@gamezilla/lib/dependency-injection/react';
+import { resolveAvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
-} from '@gamezilla/shared/profile/profile-entities';
+} from '@gamezilla/domain/profile/profile-entities';
 import { useMemo } from 'react';
 
 /**

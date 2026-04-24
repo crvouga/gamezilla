@@ -2,8 +2,8 @@ import { usePatchesDb } from '@gamezilla/patch-db/react';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
-} from '@gamezilla/shared/profile/profile-entities';
-import { Box, ScreenBase, TextInput } from '@gamezilla/shared/ui';
+} from '@gamezilla/domain/profile/profile-entities';
+import { Box, ScreenBase, TextInput } from '@gamezilla/lib/ui';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 

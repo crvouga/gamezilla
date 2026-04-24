@@ -1,5 +1,5 @@
 import { createAvatar } from '@dicebear/core';
-import type { AvatarConfig } from '@gamezilla/shared/profile/avatar-config';
+import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { getStyleOrDefault } from './dicebear-styles';
 
 function sanitizeOptions(options: Record<string, unknown>): Record<string, unknown> {

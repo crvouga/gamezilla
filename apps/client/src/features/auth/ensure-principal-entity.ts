@@ -2,7 +2,7 @@ import {
   assertPrincipalId,
   PRINCIPAL_ENTITY_TYPE,
   PrincipalAttr,
-} from '@gamezilla/shared/auth';
+} from '@gamezilla/domain/auth';
 import type { PatchesDb } from '@gamezilla/patch-db/interface';
 
 /**

@@ -1,5 +1,5 @@
-import { assert } from '@gamezilla/shared/assert';
-import type { PubSub } from '@gamezilla/shared/pub-sub/interface';
+import { assert } from '@gamezilla/lib/assert';
+import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
 import {
   assertPatch,
   assertPatchInput,

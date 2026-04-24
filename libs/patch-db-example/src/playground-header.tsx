@@ -7,8 +7,8 @@ import {
   Select,
   Stack,
   Text,
-} from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/ui/theme';
+} from '@gamezilla/lib/ui';
+import { useTheme } from '@gamezilla/lib/ui/theme';
 import { useCallback, useState } from 'react';
 import { IconPlus } from './icons';
 import { useSimContext } from './sim-context';

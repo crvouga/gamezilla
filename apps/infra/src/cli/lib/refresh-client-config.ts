@@ -1,5 +1,5 @@
 import { createApiRpcClient } from '@gamezilla/api/rpc';
-import { assert } from '@gamezilla/shared/assert';
+import { assert } from '@gamezilla/lib/assert';
 import type { CiPlatform } from '../platform/platform';
 import { fail, fmtElapsed, fmtMs, info, ok, warn } from './fmt';
 import type { InfraOutputs } from './infra-outputs';

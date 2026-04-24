@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { buildWhereClause } from './query-builder-pg';
-import { questionMarkParamsToDollarParams } from '@gamezilla/shared/sql-client/positional-params';
+import { questionMarkParamsToDollarParams } from '@gamezilla/lib/sql-client/positional-params';
 
 function toPgSql(clause: Parameters<typeof buildWhereClause>[0]): string {
   const { sql, params } = buildWhereClause(clause);

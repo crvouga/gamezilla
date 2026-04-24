@@ -4,15 +4,15 @@ import {
   ClientConfigAttr,
   PRINCIPAL_SESSION_ENTITY_TYPE,
   PrincipalSessionAttr,
-} from '@gamezilla/shared/auth';
-import { assert } from '@gamezilla/shared/assert';
-import { ConfigServiceToken } from '@gamezilla/shared/config/config-service';
-import { DependencyInjectionContainer } from '@gamezilla/shared/dependency-injection/dependency-injection-container';
+} from '@gamezilla/domain/auth';
+import { assert } from '@gamezilla/lib/assert';
+import { ConfigServiceToken } from '@gamezilla/domain/config/config-service';
+import { DependencyInjectionContainer } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 import {
   ContainerProvider,
   useContainer,
   useDependency,
-} from '@gamezilla/shared/dependency-injection/react';
+} from '@gamezilla/lib/dependency-injection/react';
 import { PatchesDbToken, useEntity } from '@gamezilla/patch-db/react';
 import { SubscribablePatchesDbToken } from '@gamezilla/patch-db/subscribable';
 import {

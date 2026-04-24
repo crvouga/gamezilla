@@ -1,5 +1,5 @@
-import { wrapSecureStorage } from '@gamezilla/shared/secure-storage';
-import type { SecureStorage } from '@gamezilla/shared/secure-storage/interface';
+import { wrapSecureStorage } from '@gamezilla/lib/secure-storage';
+import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
 import * as SecureStore from 'expo-secure-store';
 
 export function createExpoSecureStorage(): SecureStorage {

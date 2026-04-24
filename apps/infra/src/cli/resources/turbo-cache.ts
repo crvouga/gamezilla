@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/shared/assert';
+import { assert } from '@gamezilla/lib/assert';
 import { join } from 'node:path';
 import { ok, warn } from '../lib/fmt';
 import { REPO_ROOT } from '../paths';

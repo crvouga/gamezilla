@@ -1,7 +1,7 @@
-import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
-import { SqlClientImplBunPostgres } from '@gamezilla/shared/sql-client/impl-bun-postgres';
-import { SqlClientImplBunSqlite } from '@gamezilla/shared/sql-client/impl-bun-sqlite';
-import type { SqlClient } from '@gamezilla/shared/sql-client/interface';
+import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
+import { SqlClientImplBunPostgres } from '@gamezilla/lib/sql-client/impl-bun-postgres';
+import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite';
+import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbImplPostgres } from '../impl-postgres/impl-postgres';
 import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
 import {

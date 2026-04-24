@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@gamezilla/peer-store": "workspace:*",
-    "@gamezilla/shared": "workspace:*",
+    "@gamezilla/lib": "workspace:*",
     "expo": "~54.0.33",
     "react": "19.1.0",
     "react-dom": "19.1.0",

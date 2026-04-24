@@ -4,7 +4,7 @@ import {
   ScrollView,
   Text,
   useTheme,
-} from '@gamezilla/shared/ui';
+} from '@gamezilla/lib/ui';
 import type { ReactNode } from 'react';
 import { ScrollView as RNScrollView } from 'react-native';
 

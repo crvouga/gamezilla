@@ -1,7 +1,7 @@
-import { DistributedLockImplKv } from '@gamezilla/shared/distributed-lock/impl-kv';
-import type { DistributedLock } from '@gamezilla/shared/distributed-lock/interface';
-import { KvImplPostgres } from '@gamezilla/shared/kv/impl-postgres';
-import { SqlClientImplPostgresTcp } from '@gamezilla/shared/sql-client/impl-postgres-tcp';
+import { DistributedLockImplKv } from '@gamezilla/lib/distributed-lock/impl-kv';
+import type { DistributedLock } from '@gamezilla/lib/distributed-lock/interface';
+import { KvImplPostgres } from '@gamezilla/lib/kv/impl-postgres';
+import { SqlClientImplPostgresTcp } from '@gamezilla/lib/sql-client/impl-postgres-tcp';
 import { resolveDatabaseUrl } from '../resources/planetscale-postgres';
 
 export interface DistributedLockConnection {

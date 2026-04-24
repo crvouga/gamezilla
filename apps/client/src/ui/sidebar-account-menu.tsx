@@ -3,7 +3,7 @@
  */
 
 import { useServerStatus } from '@gamezilla/client/features/connection/use-server-status';
-import { useLogger } from '@gamezilla/shared/logger/react';
+import { useLogger } from '@gamezilla/lib/logger/react';
 import {
   Box,
   FloatingMenu,
@@ -13,7 +13,7 @@ import {
   Text,
   useTheme,
   type FloatingMenuContent,
-} from '@gamezilla/shared/ui';
+} from '@gamezilla/lib/ui';
 import { useRouter } from 'expo-router';
 import {
   useCallback,

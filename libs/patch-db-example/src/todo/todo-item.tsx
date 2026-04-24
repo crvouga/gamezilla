@@ -1,5 +1,5 @@
 import { useEntity } from '@gamezilla/patch-db/react';
-import { Box, Pressable, Text, useTheme } from '@gamezilla/shared/ui';
+import { Box, Pressable, Text, useTheme } from '@gamezilla/lib/ui';
 
 export function TodoItem({
   entityId,

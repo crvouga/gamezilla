@@ -1,4 +1,4 @@
-import { Box, useCommandPalette } from '@gamezilla/shared/ui';
+import { Box, useCommandPalette } from '@gamezilla/lib/ui';
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import { Platform } from 'react-native';

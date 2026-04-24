@@ -5,7 +5,7 @@ import type {
   PatchInput,
 } from '@gamezilla/patch-db/interface';
 import type { SubscribablePatchesDbLike } from '@gamezilla/patch-db/subscribable';
-import { assertPrincipalId } from '@gamezilla/shared/auth';
+import { assertPrincipalId } from '@gamezilla/domain/auth';
 
 /**
  * Stamps every write with `createdBy: principalId` (→ `patch/createdBy`).

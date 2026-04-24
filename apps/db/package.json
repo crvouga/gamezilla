@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.4.3",
-    "@gamezilla/shared": "workspace:*",
+    "@gamezilla/lib": "workspace:*",
     "@hono/zod-validator": "^0.7.6",
     "hono": "^4.7.0",
     "zod": "^4.3.6"

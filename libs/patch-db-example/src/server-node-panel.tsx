@@ -12,8 +12,8 @@ import {
   IconButton,
   Stack,
   Text,
-} from '@gamezilla/shared/ui';
-import { useTheme } from '@gamezilla/shared/ui/theme';
+} from '@gamezilla/lib/ui';
+import { useTheme } from '@gamezilla/lib/ui/theme';
 import { useCallback } from 'react';
 import {
   IconClear,

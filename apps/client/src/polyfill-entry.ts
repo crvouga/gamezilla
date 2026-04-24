@@ -1,3 +1,3 @@
-import { polyfill } from '@gamezilla/shared/polyfill';
+import { polyfill } from '@gamezilla/lib/polyfill';
 
 polyfill();

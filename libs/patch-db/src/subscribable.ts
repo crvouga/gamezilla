@@ -1,6 +1,6 @@
-import { assert } from '@gamezilla/shared/assert';
-import { InjectionToken } from '@gamezilla/shared/dependency-injection/dependency-injection-container';
-import { PubSub, Unsubscribe } from '@gamezilla/shared/pub-sub/interface';
+import { assert } from '@gamezilla/lib/assert';
+import { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
+import { PubSub, Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
 import {
   Patch,
   PatchesDb,

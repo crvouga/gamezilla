@@ -27,16 +27,16 @@ module.exports = defineConfig([
           paths: [
             {
               name: 'expo-status-bar',
-              message: 'Use AppStatusBar from @gamezilla/shared/ui.',
+              message: 'Use AppStatusBar from @gamezilla/lib/ui.',
             },
             {
               name: 'expo-splash-screen',
               message:
-                'Use preventSplashAutoHide or hideSplash from @gamezilla/shared/ui.',
+                'Use preventSplashAutoHide or hideSplash from @gamezilla/lib/ui.',
             },
             {
               name: 'expo-symbols',
-              message: 'Use IconSymbol from @gamezilla/shared/ui.',
+              message: 'Use IconSymbol from @gamezilla/lib/ui.',
             },
           ],
         },

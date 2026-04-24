@@ -14,17 +14,17 @@ import {
   clearLocalDatabaseAndReload,
 } from '@gamezilla/patch-db/bootstrap-expo';
 import { PatchesDbToken } from '@gamezilla/patch-db/react';
-import { assert } from '@gamezilla/shared/assert';
-import { ConfigServiceToken } from '@gamezilla/shared/config/config-service';
-import type { Container } from '@gamezilla/shared/dependency-injection/dependency-injection-container';
-import { DependencyInjectionContainer } from '@gamezilla/shared/dependency-injection/dependency-injection-container';
+import { assert } from '@gamezilla/lib/assert';
+import { ConfigServiceToken } from '@gamezilla/domain/config/config-service';
+import type { Container } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
+import { DependencyInjectionContainer } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 import {
   ContainerProvider,
   useContainer,
   useDependency,
-} from '@gamezilla/shared/dependency-injection/react';
-import { useLogger } from '@gamezilla/shared/logger/react';
-import { Box, Button, Center, hideSplash, Text } from '@gamezilla/shared/ui';
+} from '@gamezilla/lib/dependency-injection/react';
+import { useLogger } from '@gamezilla/lib/logger/react';
+import { Box, Button, Center, hideSplash, Text } from '@gamezilla/lib/ui';
 import {
   useCallback,
   useEffect,

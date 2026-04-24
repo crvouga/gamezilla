@@ -8,9 +8,9 @@ import {
   PRINCIPAL_SESSION_ENTITY_TYPE,
   PrincipalAttr,
   PrincipalSessionAttr,
-} from '@gamezilla/shared/auth';
-import { assertPrincipalId, assertUuid } from '@gamezilla/shared/auth/principal-id';
-import { assert } from '@gamezilla/shared/assert';
+} from '@gamezilla/domain/auth';
+import { assertPrincipalId, assertUuid } from '@gamezilla/domain/auth/principal-id';
+import { assert } from '@gamezilla/lib/assert';
 import type { PatchInput, PatchesDb } from '@gamezilla/patch-db/interface';
 import type { z } from 'zod';
 import { authClaimRequestSchema } from '../schemas';

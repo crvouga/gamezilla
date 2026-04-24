@@ -14,7 +14,8 @@
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "@gamezilla/shared/*": ["../../libs/shared/src/*"]
+      "@gamezilla/lib/*": ["../../libs/lib/src/*"],
+      "@gamezilla/domain/*": ["../../libs/domain/src/*"]
     }
   },
   "include": ["src/**/*.ts"],

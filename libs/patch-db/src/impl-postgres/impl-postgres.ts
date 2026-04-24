@@ -1,5 +1,5 @@
-import { assert } from '@gamezilla/shared/assert';
-import type { SqlClient } from '@gamezilla/shared/sql-client/interface';
+import { assert } from '@gamezilla/lib/assert';
+import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { parseAttributes, toEntity, toPatch } from '../impl-sqlite/mappers';
 import type { PatchRow, SnapshotRow } from '../impl-sqlite/types';
 import {

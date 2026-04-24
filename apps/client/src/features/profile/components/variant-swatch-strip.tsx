@@ -5,8 +5,8 @@ import {
 import type { SchemaField } from '@gamezilla/client/features/profile/dicebear-schema';
 import type { StyleKey } from '@gamezilla/client/features/profile/dicebear-styles';
 import { ProfileDiceBearAvatar } from '@gamezilla/client/features/profile/profile-dicebear-avatar';
-import type { AvatarConfig } from '@gamezilla/shared/profile/avatar-config';
-import { HorizontalPicker, Text } from '@gamezilla/shared/ui';
+import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
+import { HorizontalPicker, Text } from '@gamezilla/lib/ui';
 
 export type VariantSwatchStripProps = {
   field: Extract<SchemaField, { kind: 'enum' }>;

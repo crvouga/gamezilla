@@ -1,4 +1,4 @@
-import { SqlClientImplExpoSqlite } from '@gamezilla/shared/sql-client/impl-expo-sqlite';
+import { SqlClientImplExpoSqlite } from '@gamezilla/lib/sql-client/impl-expo-sqlite';
 import * as SQLite from 'expo-sqlite';
 import type { PlaygroundDbFactory } from './playground-sim';
 

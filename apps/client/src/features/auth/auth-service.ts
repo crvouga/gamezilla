@@ -1,16 +1,16 @@
 import { createGamezillaApiClient } from '@gamezilla/client/features/api/hc';
 import type { PatchesDb } from '@gamezilla/patch-db/interface';
-import { assert } from '@gamezilla/shared/assert';
+import { assert } from '@gamezilla/lib/assert';
 import {
   assertPrincipalId,
   PRINCIPAL_ENTITY_TYPE,
   PRINCIPAL_SESSION_ENTITY_TYPE,
   PrincipalAttr,
   PrincipalSessionAttr,
-} from '@gamezilla/shared/auth';
-import { assertUuid } from '@gamezilla/shared/auth/principal-id';
-import type { ConfigService } from '@gamezilla/shared/config/config-service';
-import type { InjectionToken } from '@gamezilla/shared/dependency-injection/dependency-injection-container';
+} from '@gamezilla/domain/auth';
+import { assertUuid } from '@gamezilla/domain/auth/principal-id';
+import type { ConfigService } from '@gamezilla/domain/config/config-service';
+import type { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 import type { PrincipalService } from './principal-service';
 import type { SessionService } from './session-service';
 

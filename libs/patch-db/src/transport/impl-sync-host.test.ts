@@ -1,4 +1,4 @@
-import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
+import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import { describe, expect, test } from 'bun:test';
 import type { PatchesDbQuery } from '../interface';
 import { createSqliteFactory } from '../test/test-helpers';

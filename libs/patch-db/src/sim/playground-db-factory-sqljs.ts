@@ -1,4 +1,4 @@
-import { SqlClientImplSqlJs } from '@gamezilla/shared/sql-client/impl-sql-js';
+import { SqlClientImplSqlJs } from '@gamezilla/lib/sql-client/impl-sql-js';
 import type { PlaygroundDbFactory } from './playground-sim';
 
 /**

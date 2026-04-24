@@ -1,6 +1,6 @@
-import { Box, useTheme } from '@gamezilla/shared/ui';
-import type { AvatarConfig } from '@gamezilla/shared/profile/avatar-config';
-import { resolveAvatarSeed } from '@gamezilla/shared/profile/avatar-config';
+import { Box, useTheme } from '@gamezilla/lib/ui';
+import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
+import { resolveAvatarSeed } from '@gamezilla/domain/profile/avatar-config';
 import { useMemo, type ReactNode } from 'react';
 import { SvgXml } from 'react-native-svg';
 

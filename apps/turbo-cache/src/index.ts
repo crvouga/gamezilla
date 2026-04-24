@@ -1,4 +1,4 @@
-import { createLogger } from '@gamezilla/shared/logger';
+import { createLogger } from '@gamezilla/lib/logger';
 import { Hono } from 'hono';
 
 const log = createLogger({ name: 'turbo-cache' });

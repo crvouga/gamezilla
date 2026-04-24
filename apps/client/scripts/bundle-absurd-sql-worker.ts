@@ -13,7 +13,7 @@ const clientRoot = join(__dirname, '..');
 const repoRoot = join(clientRoot, '..', '..');
 const entry = join(
   repoRoot,
-  'libs/shared/src/sql-client/absurd-sql-db.worker.ts'
+  'libs/lib/src/sql-client/absurd-sql-db.worker.ts'
 );
 const outDir = join(clientRoot, 'public', 'absurd-sql-worker');
 

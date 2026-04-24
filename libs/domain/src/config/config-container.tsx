@@ -1,8 +1,8 @@
-import type { Container } from '../dependency-injection/dependency-injection-container';
-import { DependencyInjectionContainer } from '../dependency-injection/dependency-injection-container';
-import { ContainerProvider } from '../dependency-injection/react';
-import { createLogger } from '../logger/logger';
-import { LoggerToken } from '../logger/token';
+import type { Container } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
+import { DependencyInjectionContainer } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
+import { ContainerProvider } from '@gamezilla/lib/dependency-injection/react';
+import { createLogger } from '@gamezilla/lib/logger/logger';
+import { LoggerToken } from '@gamezilla/lib/logger/token';
 import { createConfigService, ConfigServiceToken } from './config-service';
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';

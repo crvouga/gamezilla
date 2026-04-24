@@ -18,7 +18,7 @@
     "./index": "./src/index.ts"
   },
   "dependencies": {
-    "@gamezilla/shared": "workspace:*"
+    "@gamezilla/lib": "workspace:*"
   },
   "scripts": {
     "lint": "eslint .",

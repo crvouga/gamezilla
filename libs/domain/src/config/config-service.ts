@@ -1,4 +1,4 @@
-import type { InjectionToken } from '../dependency-injection/dependency-injection-container';
+import type { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 import { getApiBaseUrl } from './api-servers';
 
 export interface ConfigService {

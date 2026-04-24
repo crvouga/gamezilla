@@ -3,7 +3,7 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "paths": {
-      "@gamezilla/shared/*": ["../shared/src/*"],
+      "@gamezilla/lib/*": ["../lib/src/*"],
       "@gamezilla/patch-db/*": ["../patch-db/src/*"]
     }
   },

@@ -6,7 +6,7 @@ import {
   ModalRoot,
   ScreenBaseHeader,
   Text,
-} from '@gamezilla/shared/ui';
+} from '@gamezilla/lib/ui';
 import { useCallback, useEffect, useMemo } from 'react';
 import { BackHandler, useWindowDimensions } from 'react-native';
 

@@ -1,5 +1,5 @@
-import { Assert } from '@gamezilla/shared/assert'
-import type { SqlClient } from '@gamezilla/shared/sql-client/interface'
+import { Assert } from '@gamezilla/lib/assert'
+import type { SqlClient } from '@gamezilla/lib/sql-client/interface'
 import type { EventLog, LogEntry } from './event-log'
 import type { Command, Event } from './types'
 

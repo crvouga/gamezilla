@@ -1,4 +1,4 @@
-import { assert } from '../assert/singleton';
+import { assert } from '@gamezilla/lib/assert/singleton';
 
 /** RFC 4122 UUID v4 pattern (lowercase hex with hyphens). */
 export const UUID_REGEX =

@@ -1,4 +1,4 @@
-import { Button, Card, Stack, Text, useTheme } from '@gamezilla/shared/ui';
+import { Button, Card, Stack, Text, useTheme } from '@gamezilla/lib/ui';
 import { useCallback, useReducer, useRef } from 'react';
 import type { LogEntry } from '../simulator/playground';
 

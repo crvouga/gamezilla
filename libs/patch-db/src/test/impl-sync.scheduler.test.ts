@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/shared/assert';
+import { assert } from '@gamezilla/lib/assert';
 import { describe, expect, test } from 'bun:test';
 import {
   defaultSyncPatchesDbScheduler,

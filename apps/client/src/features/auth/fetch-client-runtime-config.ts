@@ -2,7 +2,7 @@ import {
   CLIENT_CONFIG_ENTITY_ID,
   CLIENT_CONFIG_ENTITY_TYPE,
   ClientConfigAttr,
-} from '@gamezilla/shared/auth';
+} from '@gamezilla/domain/auth';
 import type { PatchesDb } from '@gamezilla/patch-db/interface';
 
 export type ClientRuntimeConfig = {

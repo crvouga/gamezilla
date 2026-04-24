@@ -1,9 +1,9 @@
-import { DependencyInjectionContainer } from '@gamezilla/shared/dependency-injection/dependency-injection-container';
-import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
-import { SqlClientImplExpoSqlite } from '@gamezilla/shared/sql-client/impl-expo-sqlite';
-import type { SqlClient } from '@gamezilla/shared/sql-client/interface';
-import { clearWebClientPersistentState } from '@gamezilla/shared/browser/clear-web-client-state';
-import { assertDatabaseName } from '@gamezilla/shared/sqlite';
+import { DependencyInjectionContainer } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
+import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
+import { SqlClientImplExpoSqlite } from '@gamezilla/lib/sql-client/impl-expo-sqlite';
+import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { clearWebClientPersistentState } from '@gamezilla/lib/browser/clear-web-client-state';
+import { assertDatabaseName } from '@gamezilla/lib/sqlite';
 import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
 import { assertUrl } from './assert-url';
@@ -55,7 +55,7 @@ let currentSqlClient: SqlClient | null = null;
 async function openLocalSqlClient(databaseName: string): Promise<SqlClient> {
   if (Platform.OS === 'web') {
     const { SqlClientImplAbsurdSql } = await import(
-      '@gamezilla/shared/sql-client/impl-absurd-sql'
+      '@gamezilla/lib/sql-client/impl-absurd-sql'
     );
     return await SqlClientImplAbsurdSql.open(databaseName);
   }

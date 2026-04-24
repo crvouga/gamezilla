@@ -1,8 +1,8 @@
-import { assert } from '@gamezilla/shared/assert';
+import { assert } from '@gamezilla/lib/assert';
 import {
   assertOffsetLimitFragment,
   assertOrderByFragment,
-} from '@gamezilla/shared/sqlite';
+} from '@gamezilla/lib/sqlite';
 import type { PatchesDbQuery, PatchesDbQueryWhereClause } from '../interface';
 import { assertAttribute, assertDirection } from '../interface';
 import { sqliteJsonPathToKey } from './json-path';

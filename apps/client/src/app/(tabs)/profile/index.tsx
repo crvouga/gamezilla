@@ -6,7 +6,7 @@ import {
   ScreenBase,
   Text,
   useBreakpoint,
-} from '@gamezilla/shared/ui';
+} from '@gamezilla/lib/ui';
 import { useRouter } from 'expo-router';
 
 import { useAccountActions } from '@gamezilla/client/ui/use-account-actions';

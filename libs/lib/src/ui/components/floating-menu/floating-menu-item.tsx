@@ -1,6 +1,6 @@
 /**
  * Tappable row inside {@link FloatingMenu}.
- * @internal Used only by {@link FloatingMenu}; not exported from `@gamezilla/shared/ui`.
+ * @internal Used only by {@link FloatingMenu}; not exported from `@gamezilla/lib/ui`.
  */
 
 import type { ReactNode } from 'react';

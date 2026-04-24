@@ -1,5 +1,5 @@
 import { registerServiceWorker, type PwaUpdatePrompt } from './register-service-worker';
-import { Box, Button, Text } from '@gamezilla/shared/ui';
+import { Box, Button, Text } from '@gamezilla/lib/ui';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Platform } from 'react-native';
 

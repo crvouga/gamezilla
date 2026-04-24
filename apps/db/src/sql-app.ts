@@ -4,8 +4,8 @@
  */
 
 import type { PGlite } from '@electric-sql/pglite';
-import { assert } from '@gamezilla/shared/assert';
-import type { Logger } from '@gamezilla/shared/logger';
+import { assert } from '@gamezilla/lib/assert';
+import type { Logger } from '@gamezilla/lib/logger';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { z } from 'zod';

@@ -1,12 +1,12 @@
-import { assert } from '@gamezilla/shared/assert';
-import { DependencyInjectionContainer } from '@gamezilla/shared/dependency-injection/dependency-injection-container';
+import { assert } from '@gamezilla/lib/assert';
+import { DependencyInjectionContainer } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 import {
   ContainerProvider,
   useContainer,
-} from '@gamezilla/shared/dependency-injection/react';
-import { useLogger } from '@gamezilla/shared/logger/react';
-import { SecureStorageToken } from '@gamezilla/shared/secure-storage/interface';
-import { Box, Button, Center, Text } from '@gamezilla/shared/ui';
+} from '@gamezilla/lib/dependency-injection/react';
+import { useLogger } from '@gamezilla/lib/logger/react';
+import { SecureStorageToken } from '@gamezilla/lib/secure-storage/interface';
+import { Box, Button, Center, Text } from '@gamezilla/lib/ui';
 import {
   useCallback,
   useEffect,

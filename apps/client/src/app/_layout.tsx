@@ -15,11 +15,11 @@ import { PrincipalAuthShell } from '@gamezilla/client/features/auth/principal-au
 import { AppCommands } from '@gamezilla/client/ui/app-commands';
 import { CommandPaletteNativeGesture } from '@gamezilla/client/ui/command-palette-native-gesture';
 import { PatchBootstrap } from '@gamezilla/client/ui/patch-bootstrap';
-import { assert } from '@gamezilla/shared/assert';
-import { BrowserCrashHandler } from '@gamezilla/shared/assert/crash/crash-handler/crash-handler-browser';
-import { ExpoCrashHandler } from '@gamezilla/shared/assert/crash/crash-handler/crash-handler-expo';
-import { ConfigContainerProvider } from '@gamezilla/shared/config/config-container';
-import { polyfill } from '@gamezilla/shared/polyfill';
+import { assert } from '@gamezilla/lib/assert';
+import { BrowserCrashHandler } from '@gamezilla/lib/assert/crash/crash-handler/crash-handler-browser';
+import { ExpoCrashHandler } from '@gamezilla/lib/assert/crash/crash-handler/crash-handler-expo';
+import { ConfigContainerProvider } from '@gamezilla/domain/config/config-container';
+import { polyfill } from '@gamezilla/lib/polyfill';
 import {
   AppThemeRoot,
   CommandPalette,
@@ -28,7 +28,7 @@ import {
   preventSplashAutoHide,
   useStackProps,
   type FontStacks,
-} from '@gamezilla/shared/ui';
+} from '@gamezilla/lib/ui';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Platform } from 'react-native';

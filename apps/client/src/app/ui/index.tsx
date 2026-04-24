@@ -1,5 +1,5 @@
-import { Box, ScreenBase } from '@gamezilla/shared/ui';
-import { ExplorerList } from '@gamezilla/shared/ui/explorer';
+import { Box, ScreenBase } from '@gamezilla/lib/ui';
+import { ExplorerList } from '@gamezilla/lib/ui/explorer';
 import { useRouter } from 'expo-router';
 
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';

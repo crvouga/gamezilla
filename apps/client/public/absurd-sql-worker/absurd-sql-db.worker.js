@@ -2973,7 +2973,7 @@
     }
   });
 
-  // libs/shared/src/sql-client/absurd-sql-db.worker.ts
+  // libs/lib/src/sql-client/absurd-sql-db.worker.ts
   var import_worker_sql_wasm = __toESM(require_worker_sql_wasm());
 
   // node_modules/.bun/absurd-sql@0.0.54/node_modules/absurd-sql/dist/index.js
@@ -4121,7 +4121,7 @@
   };
   var indexeddb_backend_default = IndexedDBBackend;
 
-  // libs/shared/src/sql-client/absurd-sql-db.worker.ts
+  // libs/lib/src/sql-client/absurd-sql-db.worker.ts
   var SQL = null;
   var sqlDatabase = null;
   var txDepth = 0;

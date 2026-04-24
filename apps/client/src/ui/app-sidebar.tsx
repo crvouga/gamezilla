@@ -4,7 +4,7 @@ import {
   Pressable,
   Text,
   useTheme,
-} from '@gamezilla/shared/ui';
+} from '@gamezilla/lib/ui';
 import { usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 

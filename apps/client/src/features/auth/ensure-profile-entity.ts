@@ -1,5 +1,5 @@
-import { PROFILE_ENTITY_TYPE } from '@gamezilla/shared/profile/profile-entities';
-import { assertPrincipalId } from '@gamezilla/shared/auth';
+import { PROFILE_ENTITY_TYPE } from '@gamezilla/domain/profile/profile-entities';
+import { assertPrincipalId } from '@gamezilla/domain/auth';
 import type { PatchesDb } from '@gamezilla/patch-db/interface';
 
 /**

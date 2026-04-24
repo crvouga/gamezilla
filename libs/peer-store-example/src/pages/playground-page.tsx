@@ -6,7 +6,7 @@ import {
   Stack,
   Text,
   useTheme,
-} from '@gamezilla/shared/ui';
+} from '@gamezilla/lib/ui';
 import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react';
 import { PeerPanel, type PeerAction } from '../components/peer-panel';
 import { SimulatorLog } from '../components/simulator-log';

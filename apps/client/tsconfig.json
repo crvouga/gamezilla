@@ -8,7 +8,8 @@
   ],
   "compilerOptions": {
     "paths": {
-      "@gamezilla/shared/*": ["../../libs/shared/src/*"],
+      "@gamezilla/lib/*": ["../../libs/lib/src/*"],
+      "@gamezilla/domain/*": ["../../libs/domain/src/*"],
       "@gamezilla/patch-db/*": ["../../libs/patch-db/src/*"],
       "@gamezilla/peer-store/*": ["../../libs/peer-store/src/*"],
       "@gamezilla/api/*": ["../../apps/api/src/*"],

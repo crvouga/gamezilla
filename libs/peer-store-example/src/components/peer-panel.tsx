@@ -8,7 +8,7 @@ import {
   Stack,
   StatusDot,
   Text,
-} from '@gamezilla/shared/ui';
+} from '@gamezilla/lib/ui';
 import { StateInspector } from './state-inspector';
 import { TicTacToeBoard } from './tic-tac-toe-board';
 

@@ -1,4 +1,4 @@
-import type { PubSub } from '@gamezilla/shared/pub-sub/interface';
+import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
 import type {
   Patch,
   PatchesDb,

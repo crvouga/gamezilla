@@ -1,4 +1,4 @@
-import Svg, { Circle, Line, Path, Rect } from '@gamezilla/shared/ui/svg';
+import Svg, { Circle, Line, Path, Rect } from '@gamezilla/lib/ui/svg';
 
 const RED = '#e5484d';
 const GREEN = '#3ddc84';

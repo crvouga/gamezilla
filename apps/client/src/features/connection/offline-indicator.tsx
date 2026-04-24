@@ -1,7 +1,7 @@
 import { SYNC_ERROR_TOPIC } from '@gamezilla/patch-db/impl-sync';
 import { PatchDbSyncPubSubToken } from '@gamezilla/patch-db/react';
-import { useDependency } from '@gamezilla/shared/dependency-injection/react';
-import { Box, Text } from '@gamezilla/shared/ui';
+import { useDependency } from '@gamezilla/lib/dependency-injection/react';
+import { Box, Text } from '@gamezilla/lib/ui';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Platform, Pressable } from 'react-native';
 

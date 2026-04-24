@@ -1,6 +1,6 @@
-import { assert } from '@gamezilla/shared/assert';
-import { createLogger, type Logger } from '@gamezilla/shared/logger';
-import type { PubSub } from '@gamezilla/shared/pub-sub/interface';
+import { assert } from '@gamezilla/lib/assert';
+import { createLogger, type Logger } from '@gamezilla/lib/logger';
+import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
 import type {
   Patch,
   PatchesDb,

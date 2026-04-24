@@ -1,0 +1,31 @@
+{
+  "name": "@gamezilla/domain",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./auth": "./src/auth/index.ts",
+    "./auth/index": "./src/auth/index.ts",
+    "./auth/auth-entities": "./src/auth/auth-entities.ts",
+    "./auth/principal-id": "./src/auth/principal-id.ts",
+    "./spaces/space-entities": "./src/spaces/space-entities.ts",
+    "./profile/profile-entities": "./src/profile/profile-entities.ts",
+    "./profile/avatar-config": "./src/profile/avatar-config.ts",
+    "./config/config-service": "./src/config/config-service.ts",
+    "./config/api-servers": "./src/config/api-servers.ts",
+    "./config/app-metadata": "./src/config/app-metadata.ts",
+    "./config/config-container": "./src/config/config-container.tsx"
+  },
+  "dependencies": {
+    "@gamezilla/lib": "workspace:*",
+    "react": "19.1.0"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "tc": "tsc --noEmit",
+    "test": "bun test --pass-with-no-tests"
+  },
+  "devDependencies": {
+    "@types/react": "~19.1.0",
+    "typescript": "~5.9.2"
+  }
+}

@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 
-import { Box, Pressable, ScreenBase, Text } from '@gamezilla/shared/ui';
+import { Box, Pressable, ScreenBase, Text } from '@gamezilla/lib/ui';
 
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 

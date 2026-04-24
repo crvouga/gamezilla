@@ -1,4 +1,4 @@
-import { useStackProps } from '@gamezilla/shared/ui/theme';
+import { useStackProps } from '@gamezilla/lib/ui/theme';
 import { Stack } from 'expo-router';
 
 export default function MoreLayout() {

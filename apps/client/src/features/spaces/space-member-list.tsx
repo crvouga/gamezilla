@@ -1,4 +1,4 @@
-import { Avatar, Box, Text } from '@gamezilla/shared/ui';
+import { Avatar, Box, Text } from '@gamezilla/lib/ui';
 
 import type { SpaceMemberRow } from './types';
 

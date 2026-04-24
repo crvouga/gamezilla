@@ -1,5 +1,5 @@
 import type { State } from '@gamezilla/peer-store/types';
-import { Box, Pressable, Stack, Text, useTheme } from '@gamezilla/shared/ui';
+import { Box, Pressable, Stack, Text, useTheme } from '@gamezilla/lib/ui';
 import { useState } from 'react';
 
 export function StateInspector({

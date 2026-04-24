@@ -1,5 +1,5 @@
-import { ConfigServiceToken } from '@gamezilla/shared/config/config-service';
-import { useDependency } from '@gamezilla/shared/dependency-injection/react';
+import { ConfigServiceToken } from '@gamezilla/domain/config/config-service';
+import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import { useNetworkState } from 'expo-network';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 

@@ -5,7 +5,7 @@ import {
   ScreenBase,
   Text,
   useTheme,
-} from '@gamezilla/shared/ui';
+} from '@gamezilla/lib/ui';
 import { type Href, useRouter } from 'expo-router';
 
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';

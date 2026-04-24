@@ -1,5 +1,5 @@
-import { Assert } from '@gamezilla/shared/assert'
-import { SqlClientImplBunSqlite } from '@gamezilla/shared/sql-client/impl-bun-sqlite'
+import { Assert } from '@gamezilla/lib/assert'
+import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite'
 import {
   afterAll,
   afterEach,

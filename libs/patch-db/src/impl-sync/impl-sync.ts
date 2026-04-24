@@ -1,7 +1,7 @@
-import { assert } from '@gamezilla/shared/assert';
-import { fireAndForget } from '@gamezilla/shared/async/fire-and-forget';
-import { createLogger, type Logger } from '@gamezilla/shared/logger';
-import type { PubSub, Unsubscribe } from '@gamezilla/shared/pub-sub/interface';
+import { assert } from '@gamezilla/lib/assert';
+import { fireAndForget } from '@gamezilla/lib/async/fire-and-forget';
+import { createLogger, type Logger } from '@gamezilla/lib/logger';
+import type { PubSub, Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
 import type {
   Patch,
   PatchesDb,

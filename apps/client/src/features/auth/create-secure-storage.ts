@@ -1,4 +1,4 @@
-import type { SecureStorage } from '@gamezilla/shared/secure-storage/interface';
+import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
 import { Platform } from 'react-native';
 import { createExpoSecureStorage } from './secure-storage-expo';
 import { createWebSecureStorage } from './secure-storage-web';

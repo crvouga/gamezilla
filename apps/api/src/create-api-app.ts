@@ -1,6 +1,6 @@
 import { createPatchDbApiHandler } from '@gamezilla/patch-db/api';
-import { ValidationError } from '@gamezilla/shared/assert';
-import { createLogger } from '@gamezilla/shared/logger';
+import { ValidationError } from '@gamezilla/lib/assert';
+import { createLogger } from '@gamezilla/lib/logger';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import type { ApiHandlerConfig } from './api-types';
