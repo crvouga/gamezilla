@@ -8,6 +8,7 @@ import {
   createSessionService,
   SessionServiceToken,
 } from '@gamezilla/client/features/auth/session-service';
+import { OfflineIndicator } from '@gamezilla/client/features/connection/offline-indicator';
 import {
   bootstrapPatchDbExpoSync,
   clearLocalDatabaseAndReload,
@@ -24,7 +25,6 @@ import {
 } from '@gamezilla/shared/dependency-injection/react';
 import { useLogger } from '@gamezilla/shared/logger/react';
 import { Box, Button, Center, hideSplash, Text } from '@gamezilla/shared/ui';
-import { OfflineIndicator } from '@gamezilla/client/features/connection/offline-indicator';
 import {
   useCallback,
   useEffect,
@@ -67,9 +67,16 @@ export function PatchBootstrap({ children }: { children: ReactNode }) {
         const db = c.get(PatchesDbToken);
         await ensurePrincipalEntity(db, principalId);
         await ensureProfileEntity(db, principalId);
-        const sessionService = createSessionService(db, principalService);
-        await sessionService.refresh();
-        c.registerValue(SessionServiceToken, sessionService);
+        // `bootstrapPatchDbExpoSync` caches the container on web, so StrictMode
+        // double-invokes can land on the same container. Register once; on
+        // subsequent runs just refresh the already-registered service.
+        if (c.has(SessionServiceToken)) {
+          await c.get(SessionServiceToken).refresh();
+        } else {
+          const sessionService = createSessionService(db, principalService);
+          await sessionService.refresh();
+          c.registerValue(SessionServiceToken, sessionService);
+        }
         if (mountedRef.current) {
           setContainer(c);
         }

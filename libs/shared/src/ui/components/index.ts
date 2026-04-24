@@ -35,6 +35,10 @@ export {
 export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from './button';
 export { IconButton, type IconButtonProps } from './icon-button';
 export { TextInput, type TextInputProps } from './text-input';
+export {
+  CopyToClipboardField,
+  type CopyToClipboardFieldProps,
+} from './copy-to-clipboard-field';
 export { Switch, type SwitchProps } from './switch';
 export { Checkbox, type CheckboxProps } from './checkbox';
 

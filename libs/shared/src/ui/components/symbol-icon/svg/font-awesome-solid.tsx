@@ -155,3 +155,29 @@ export function DatabaseFa(props: FaIconProps) {
     </Svg>
   );
 }
+
+/** @fortawesome/fontawesome-free 6.5.2 solid/copy.svg (viewBox 0 0 448 512) */
+export function CopyFa(props: FaIconProps) {
+  const { size, color } = props;
+  return (
+    <Svg width={size} height={size} viewBox="0 0 448 512">
+      <Path
+        fill={color}
+        d="M208 0H332.1c12.7 0 24.9 5.1 33.9 14.1l67.9 67.9c9 9 14.1 21.2 14.1 33.9V336c0 26.5-21.5 48-48 48H208c-26.5 0-48-21.5-48-48V48c0-26.5 21.5-48 48-48zM48 128h80v64H64V448H256V416h64v48c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V176c0-26.5 21.5-48 48-48z"
+      />
+    </Svg>
+  );
+}
+
+/** @fortawesome/fontawesome-free 6.5.2 solid/circle-check.svg (viewBox 0 0 512 512) */
+export function CircleCheckFa(props: FaIconProps) {
+  const { size, color } = props;
+  return (
+    <Svg width={size} height={size} viewBox="0 0 512 512">
+      <Path
+        fill={color}
+        d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"
+      />
+    </Svg>
+  );
+}

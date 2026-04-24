@@ -20,3 +20,5 @@ Icons in this folder are **vendored SVG path data** from **Font Awesome Free 7.x
 | `ellipsis` | `ellipsis.svg` |
 | `gearshape.fill` | `gear.svg` (path from FA 6 solid gear, viewBox 512) |
 | `database.fill` | `database.svg` (FA Free 6.x solid, viewBox 448×512) |
+| `copy` | `copy.svg` (@fortawesome/fontawesome-free 6.5.2 solid) |
+| `check.circle.fill` | `circle-check.svg` (@fortawesome/fontawesome-free 6.5.2 solid) |

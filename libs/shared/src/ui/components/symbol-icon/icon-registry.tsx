@@ -9,7 +9,9 @@ import {
   ArrowRightFromBracketFa,
   ChecklistFa,
   ChevronRightFa,
+  CircleCheckFa,
   CodeSlashFa,
+  CopyFa,
   DatabaseFa,
   EllipsisFa,
   GearFillFa,
@@ -38,6 +40,8 @@ export const ICON_REGISTRY = {
   'right.to.bracket': RightToBracketFa,
   'arrow.right.from.bracket': ArrowRightFromBracketFa,
   'database.fill': DatabaseFa,
+  copy: CopyFa,
+  'check.circle.fill': CircleCheckFa,
 } as const satisfies Record<string, FaIconComponent>;
 
 export type IconSymbolName = keyof typeof ICON_REGISTRY;

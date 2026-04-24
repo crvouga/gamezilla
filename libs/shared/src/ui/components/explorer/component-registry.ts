@@ -15,6 +15,7 @@ import { default as SafeAreaViewExample } from '../safe-area-view/safe-area-view
 import { default as ButtonExample } from '../button/button.example';
 import { default as IconButtonExample } from '../icon-button/icon-button.example';
 import { default as TextInputExample } from '../text-input/text-input.example';
+import { default as CopyToClipboardFieldExample } from '../copy-to-clipboard-field/copy-to-clipboard-field.example';
 import { default as SwitchExample } from '../switch/switch.example';
 import { default as CheckboxExample } from '../checkbox/checkbox.example';
 
@@ -73,6 +74,11 @@ export const componentRegistry: ComponentEntry[] = [
   { name: 'Button', category: 'Inputs', Example: ButtonExample },
   { name: 'IconButton', category: 'Inputs', Example: IconButtonExample },
   { name: 'TextInput', category: 'Inputs', Example: TextInputExample },
+  {
+    name: 'CopyToClipboardField',
+    category: 'Inputs',
+    Example: CopyToClipboardFieldExample,
+  },
   { name: 'Switch', category: 'Inputs', Example: SwitchExample },
   { name: 'Checkbox', category: 'Inputs', Example: CheckboxExample },
 
