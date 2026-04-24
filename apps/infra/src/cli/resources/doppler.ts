@@ -33,7 +33,7 @@ const DERIVED_DEFAULTS: Record<string, () => string> = {
 /**
  * Doppler keys not populated by `DERIVED_DEFAULTS` but still managed elsewhere
  * in the provision DAG. Declared so {@link DopplerResource.warnOnOrphans}
- * recognises them as managed instead of flagging them stale.
+ * recognizes them as managed instead of flagging them stale.
  */
 const EXTERNALLY_MANAGED_KEYS: ReadonlyArray<string> = [
   // Issued by `PlanetScalePostgres.resolveDatabaseUrl` during provision.
