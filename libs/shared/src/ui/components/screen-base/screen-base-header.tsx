@@ -15,24 +15,27 @@ import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { useBreakpoint, useTheme } from '../../theme';
 import { Box } from '../box';
 import { Button } from '../button';
-import { Pressable } from '../pressable';
 import {
-  FloatingMenu,
   FLOATING_MENU_DEFAULT_WIDTH,
+  FloatingMenu,
   type FloatingMenuContent,
 } from '../floating-menu';
 import { IconButton } from '../icon-button';
+import { Pressable } from '../pressable';
 import { IconSymbol } from '../symbol-icon';
 import { Text } from '../text';
 import { partitionScreenActions } from './partition-screen-actions';
-import type { ScreenBaseAction, ScreenBaseHeaderProps } from './screen-base-types';
+import type {
+  ScreenBaseAction,
+  ScreenBaseHeaderProps,
+} from './screen-base-types';
 
 const BAR_CONTENT_HEIGHT = 58;
 const TITLE_SIDE_GUTTER = 80;
 
 const ZERO_SAFE_AREA = { top: 0, right: 0, bottom: 0, left: 0 };
 
-/** Prefer `useContext` over `useSafeAreaInsets` so monorepo Metro cannot bundle two copies of the library (mismatched context). */
+/** Prefer `useContext` over `useSafeAreaInsets` so monorepo Metro cannot bundle two copies of the library (mismatched context). `useSafeAreaInsets` throws when the context is null, which defeats the fallback. */
 function useSafeAreaInsetsCompat() {
   return useContext(SafeAreaInsetsContext) ?? ZERO_SAFE_AREA;
 }
@@ -186,13 +189,25 @@ export function ScreenBaseHeader({
                   />
                 ) : null}
                 {isLast ? (
-                  <Text variant="caption" sx={{ color: 'textSecondary' }} label={c.name} />
+                  <Text
+                    variant="caption"
+                    sx={{ color: 'textSecondary' }}
+                    label={c.name}
+                  />
                 ) : c.onPress !== undefined ? (
                   <Pressable onPress={c.onPress} hitSlop={4}>
-                    <Text variant="caption" sx={{ color: 'tint' }} label={c.name} />
+                    <Text
+                      variant="caption"
+                      sx={{ color: 'tint' }}
+                      label={c.name}
+                    />
                   </Pressable>
                 ) : (
-                  <Text variant="caption" sx={{ color: 'textSecondary' }} label={c.name} />
+                  <Text
+                    variant="caption"
+                    sx={{ color: 'textSecondary' }}
+                    label={c.name}
+                  />
                 )}
               </Fragment>
             );
