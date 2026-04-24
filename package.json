@@ -16,9 +16,10 @@
     "infra": "bun run apps/infra/src/bin/cli.ts",
     "gh": "gh run view --web",
     "wipe": "git clean -xfd",
-    "pw:ui": "bun run --filter '@gamezilla/e2e' e2e:ui",
-    "pw:headed": "bun run --filter '@gamezilla/e2e' e2e:headed",
-    "pw": "bun run --filter '@gamezilla/e2e' e2e"
+    "qa": "bun run --filter '@gamezilla/qa' qa",
+    "pw:ui": "bun run --filter '@gamezilla/qa' browser:ui",
+    "pw:headed": "bun run --filter '@gamezilla/qa' browser:headed",
+    "pw": "bun run --filter '@gamezilla/qa' browser"
   },
   "devDependencies": {
     "@types/bun": "^1.3.9",

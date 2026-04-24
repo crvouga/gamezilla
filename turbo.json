@@ -8,6 +8,7 @@
     "EXPO_PUBLIC_*",
     "DATABASE_URL",
     "GOOGLE_CLIENT_ID",
+    "SQL_PORT",
     "TURBO_*",
     "TMPDIR"
   ],

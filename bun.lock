@@ -115,15 +115,6 @@
         "@types/bun": "^1.3.9",
       },
     },
-    "apps/e2e": {
-      "name": "@gamezilla/e2e",
-      "version": "1.0.0",
-      "devDependencies": {
-        "@playwright/test": "^1.56.0",
-        "@types/node": "^20.17.0",
-        "typescript": "~5.9.2",
-      },
-    },
     "apps/infra": {
       "name": "@gamezilla/infra",
       "dependencies": {
@@ -136,6 +127,17 @@
       "devDependencies": {
         "@types/node": "^20.17.0",
         "typescript": "~5.6.3",
+      },
+    },
+    "apps/qa": {
+      "name": "@gamezilla/qa",
+      "version": "1.0.0",
+      "devDependencies": {
+        "@playwright/test": "^1.56.0",
+        "@types/bun": "^1.3.9",
+        "@types/node": "^20.17.0",
+        "typescript": "~5.9.2",
+        "wrangler": "^4.54.0",
       },
     },
     "apps/turbo-cache": {
@@ -754,8 +756,6 @@
 
     "@gamezilla/domain": ["@gamezilla/domain@workspace:libs/domain"],
 
-    "@gamezilla/e2e": ["@gamezilla/e2e@workspace:apps/e2e"],
-
     "@gamezilla/infra": ["@gamezilla/infra@workspace:apps/infra"],
 
     "@gamezilla/lib": ["@gamezilla/lib@workspace:libs/lib"],
@@ -767,6 +767,8 @@
     "@gamezilla/peer-store": ["@gamezilla/peer-store@workspace:libs/peer-store"],
 
     "@gamezilla/peer-store-example": ["@gamezilla/peer-store-example@workspace:libs/peer-store-example"],
+
+    "@gamezilla/qa": ["@gamezilla/qa@workspace:apps/qa"],
 
     "@gamezilla/turbo-cache": ["@gamezilla/turbo-cache@workspace:apps/turbo-cache"],
 

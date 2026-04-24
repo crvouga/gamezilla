@@ -34,10 +34,10 @@ jobs:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
         run: doppler run -- bunx turbo check build
 
-  e2e:
+  qa:
     runs-on: ubuntu-latest
     concurrency:
-      group: e2e-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      group: qa-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
       cancel-in-progress: true
     timeout-minutes: 30
     steps:
@@ -72,24 +72,24 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Install Playwright browsers
-        run: bun run --filter '@gamezilla/e2e' install:browsers
+        run: bun run --filter '@gamezilla/qa' install:browsers
 
-      - name: E2E (Playwright + turbo preview)
+      - name: QA (API integration + Playwright + turbo preview)
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
-        run: doppler run -- bun run --filter "@gamezilla/e2e" e2e
+        run: doppler run -- bun run --filter "@gamezilla/qa" qa
 
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
-          path: apps/e2e/playwright-report/
+          path: apps/qa/playwright-report/
           retention-days: 7
 
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [check, e2e]
+    needs: [check, qa]
     runs-on: ubuntu-latest
     permissions:
       contents: read
