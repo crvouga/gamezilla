@@ -5,12 +5,12 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.join(__dirname, '..', '..');
 
-/** Remote cache only (no local .turbo); requires TURBO_* from Doppler. Same as root `bun preview`. */
+/** Remote cache only (no local .turbo); requires TURBO_* from Doppler
+ * (TURBO_CACHE=remote:rw forces remote). Same as root `bun preview`. */
 const turboPreviewCmd = [
   'bun',
   'turbo',
   'run',
-  '--cache=remote:rw',
   'preview',
   '--filter=@gamezilla/db',
   '--filter=@gamezilla/api',

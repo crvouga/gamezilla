@@ -39,6 +39,19 @@ export function setDopplerSecret(name: string, value: string): void {
   runCapture('doppler', ['secrets', 'set', `${name}=${value}`]);
 }
 
+/**
+ * Lists every secret name in the active Doppler project/config.
+ * Uses `--json` to avoid parsing the CLI's human-formatted table output.
+ */
+export function listDopplerSecretNames(): ReadonlyArray<string> {
+  const raw = runCapture('doppler', ['secrets', '--json']);
+  const parsed: unknown = JSON.parse(raw);
+  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return [];
+  }
+  return Object.keys(parsed as Record<string, unknown>);
+}
+
 export function loadSecretsIntoEnv(): Array<{ env: string; set: boolean }> {
   const results: Array<{ env: string; set: boolean }> = [];
 

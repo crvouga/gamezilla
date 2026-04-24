@@ -5,6 +5,7 @@ import type { CiPlatform } from '../platform/platform';
 import {
   fetchDopplerSecret,
   getSecretMap,
+  listDopplerSecretNames,
   loadSecretsIntoEnv,
   setDopplerSecret,
   validateSecret,
@@ -22,7 +23,29 @@ const DERIVED_DEFAULTS: Record<string, () => string> = {
   TURBO_TEAM: () => `team_${PROJECT_CONFIG.domain.replace(/\.\w+$/, '')}`,
   TURBO_LOG_ORDER: () => 'stream',
   TURBO_TELEMETRY_DISABLED: () => '1',
+  // Force every `turbo` invocation to use the self-hosted remote cache
+  // instead of the local filesystem cache. Same syntax as `--cache`.
+  TURBO_CACHE: () => 'remote:rw',
+  // Public API origin baked into the Expo/web client at build time.
+  EXPO_PUBLIC_API_URL: () => `https://api.${PROJECT_CONFIG.domain}`,
 };
+
+/**
+ * Doppler keys not populated by `DERIVED_DEFAULTS` but still managed elsewhere
+ * in the provision DAG. Declared so {@link DopplerResource.warnOnOrphans}
+ * recognises them as managed instead of flagging them stale.
+ */
+const EXTERNALLY_MANAGED_KEYS: ReadonlyArray<string> = [
+  // Issued by `PlanetScalePostgres.resolveDatabaseUrl` during provision.
+  'PLANETSCALE_DATABASE_URL',
+];
+
+/** Doppler's built-in config metadata — always present, never user-managed. */
+const DOPPLER_RESERVED_KEYS: ReadonlyArray<string> = [
+  'DOPPLER_CONFIG',
+  'DOPPLER_ENVIRONMENT',
+  'DOPPLER_PROJECT',
+];
 
 export class DopplerResource extends ResourceBase {
   readonly id = 'doppler';
@@ -31,6 +54,7 @@ export class DopplerResource extends ResourceBase {
     this.loadSecrets(platform);
     await this.validateSecrets(platform);
     this.ensureDefaults();
+    this.warnOnOrphans(platform);
   }
 
   async destroy(): Promise<void> {
@@ -108,5 +132,45 @@ export class DopplerResource extends ResourceBase {
         ok(key, 'set in env (Doppler save skipped)');
       }
     }
+  }
+
+  /**
+   * Invariant: every secret in Doppler is owned by the infra CLI. Flag any
+   * key that isn't in the required set, derived defaults, externally-managed
+   * list, or Doppler's reserved metadata. Warn-only — deletion requires a
+   * human (`infra` doesn't second-guess operator intent).
+   */
+  private warnOnOrphans(platform: CiPlatform): void {
+    let actual: ReadonlyArray<string>;
+    try {
+      actual = listDopplerSecretNames();
+    } catch (e) {
+      warn('Doppler orphan check', e instanceof Error ? e.message : String(e));
+      return;
+    }
+
+    const managed = new Set<string>([
+      ...getSecretMap().map((s) => s.doppler),
+      ...Object.keys(DERIVED_DEFAULTS),
+      ...EXTERNALLY_MANAGED_KEYS,
+      ...DOPPLER_RESERVED_KEYS,
+    ]);
+
+    const orphans = actual.filter((name) => !managed.has(name));
+    if (orphans.length === 0) {
+      ok('Doppler invariant', 'all secrets are CLI-managed');
+      return;
+    }
+
+    warn(
+      'Doppler orphans',
+      `${orphans.length} unmanaged secret(s): ${orphans.join(', ')}`
+    );
+    platform.warning(
+      `Doppler has ${orphans.length} secret(s) not owned by the infra CLI: ${orphans.join(', ')}. ` +
+        'Either register them in `apps/infra/src/cli/resources/doppler.ts` ' +
+        '(DERIVED_DEFAULTS or EXTERNALLY_MANAGED_KEYS) or delete them with ' +
+        '`doppler secrets delete <NAME>`.'
+    );
   }
 }

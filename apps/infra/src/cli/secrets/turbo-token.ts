@@ -60,3 +60,18 @@ export class TurboLogOrder implements SecretEntry {
     return null;
   }
 }
+
+/** Forces turbo to use the self-hosted remote cache for every invocation.
+ * Same syntax as the `--cache` CLI flag. */
+export class TurboCache implements SecretEntry {
+  readonly doppler = 'TURBO_CACHE';
+  readonly env = 'TURBO_CACHE';
+  readonly hint = 'remote:rw';
+
+  async validate(value: string): Promise<string | null> {
+    if (!/^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/.test(value)) {
+      return `Invalid TURBO_CACHE value: ${value} (expected e.g. "remote:rw")`;
+    }
+    return null;
+  }
+}

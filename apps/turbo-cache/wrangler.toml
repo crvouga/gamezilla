@@ -2,11 +2,7 @@ name = "gamezilla-turbo-cache"
 main = "src/index.ts"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat"]
-# workers.dev is enabled so CI (GitHub-hosted runners) can reach the cache
-# directly — requests via the Cloudflare zone (custom_domain) are routinely
-# bot-challenged from GH runner IPs and turbo reports "Could not connect".
-# The endpoint is still gated by TURBO_TOKEN bearer auth.
-workers_dev = true
+workers_dev = false
 preview_urls = false
 
 routes = [{ pattern = "turbo-cache.gamezilla.app", custom_domain = true }]
