@@ -17,7 +17,13 @@ export function EventLog({ events }: { events: Event[] }) {
         <Text variant="caption" label="No committed events yet." />
       )}
       {events.map((event, i) => {
-        const payload = event.payload as Record<string, unknown> | undefined;
+        const raw = event.payload;
+        const payload =
+          raw !== null &&
+          typeof raw === 'object' &&
+          !Array.isArray(raw)
+            ? raw
+            : undefined;
         return (
           <Stack key={i} direction="horizontal" spacing={2} align="center">
             <Text

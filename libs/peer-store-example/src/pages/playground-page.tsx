@@ -18,6 +18,15 @@ import {
 
 const PANEL_MIN_WIDTH = 280;
 
+function isPeerId(value: string): value is PeerId {
+  return (
+    value === 'player-x' ||
+    value === 'player-o' ||
+    value === 'server' ||
+    value === 'observer'
+  );
+}
+
 function peerRole(peerId: PeerId): string {
   switch (peerId) {
     case 'player-x':
@@ -81,8 +90,9 @@ export function PlaygroundPage() {
 
   const handleDisconnect = useCallback(
     (peerId: string) => {
+      if (!isPeerId(peerId)) return;
       try {
-        sim.disconnectPeer(peerId as PeerId);
+        sim.disconnectPeer(peerId);
         disconnectedPeers.current.add(peerId);
       } catch {
         /* already disconnected */
@@ -93,8 +103,9 @@ export function PlaygroundPage() {
 
   const handleReconnect = useCallback(
     (peerId: string) => {
+      if (!isPeerId(peerId)) return;
       try {
-        sim.reconnectPeer(peerId as PeerId);
+        sim.reconnectPeer(peerId);
         disconnectedPeers.current.delete(peerId);
       } catch {
         /* not disconnected */

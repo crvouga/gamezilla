@@ -95,7 +95,11 @@ export class Assert {
     values: T[],
     message: string
   ): asserts value is T {
-    this.ok(values.includes(value as T), message, { value, values });
+    this.string(value, message);
+    for (const v of values) {
+      if (v === value) return;
+    }
+    this.ok(false, message, { value, values });
   }
 
   /**

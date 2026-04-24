@@ -9,7 +9,11 @@ export class TestCrashHandler implements CrashHandler {
 
   crash(message: string, context?: Record<string, unknown>): never {
     const err = new Error(`[CRASH] ${message}`)
-    ;(err as unknown as Record<string, unknown>)['context'] = context
+    Object.defineProperty(err, 'context', {
+      value: context,
+      enumerable: true,
+      writable: true,
+    })
     throw err
   }
 }

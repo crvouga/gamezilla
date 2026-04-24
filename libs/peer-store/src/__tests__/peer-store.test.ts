@@ -14,6 +14,7 @@ import { InMemoryBus, InMemoryTransport } from '../transport'
 import type { HandleResult, State, StoreModule } from '../types'
 import { TicTacToeModule } from '../__fixtures__/tic-tac-toe.module'
 import { TestCrashHandler } from './test-crash-handler'
+import { ticTacToeBoardCell } from './tic-tac-toe-board'
 
 const crash: Assert = Assert.crash()
 
@@ -113,7 +114,7 @@ describe('PeerStore', () => {
     store_auth.dispatch({ type: 'PLACE_MARK', payload: { cell: 4, player: 'X' } })
 
     const committed = store_auth.getCommittedState()
-    expect((committed['board'] as Array<null | string>)[4]).toBe('X')
+    expect(ticTacToeBoardCell(committed, 4)).toBe('X')
   })
 
   it('non-authority dispatch applies optimistic state and commits via authority', () => {
@@ -124,10 +125,10 @@ describe('PeerStore', () => {
     store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 4, player: 'X' } })
 
     const display = store_x.getState()
-    expect((display['board'] as Array<null | string>)[4]).toBe('X')
+    expect(ticTacToeBoardCell(display, 4)).toBe('X')
 
     const committed = store_x.getCommittedState()
-    expect((committed['board'] as Array<null | string>)[4]).toBe('X')
+    expect(ticTacToeBoardCell(committed, 4)).toBe('X')
   })
 
   it('authority broadcasts accepted to all peers', () => {
@@ -138,7 +139,7 @@ describe('PeerStore', () => {
 
     for (const peerId of PEER_IDS) {
       const s = stores.get(peerId)!
-      expect((s.getCommittedState()['board'] as Array<null | string>)[0]).toBe('X')
+      expect(ticTacToeBoardCell(s.getCommittedState(), 0)).toBe('X')
     }
   })
 
@@ -168,12 +169,12 @@ describe('PeerStore', () => {
     store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
 
     const before = store_x.getState()
-    expect((before['board'] as Array<null | string>)[0]).toBe('X')
+    expect(ticTacToeBoardCell(before, 0)).toBe('X')
 
     jest.advanceTimersByTime(5001)
 
     const after = store_x.getState()
-    expect((after['board'] as Array<null | string>)[0]).toBeNull()
+    expect(ticTacToeBoardCell(after, 0)).toBeNull()
     expect(timeouts.length).toBe(1)
   })
 
@@ -224,7 +225,7 @@ describe('PeerStore', () => {
     store_x.rehydrate(entries)
 
     const state = store_x.getCommittedState()
-    expect((state['board'] as Array<null | string>)[4]).toBe('X')
+    expect(ticTacToeBoardCell(state, 4)).toBe('X')
   })
 
   it('rehydrate is deterministic (same events → same state)', () => {
@@ -280,7 +281,7 @@ describe('PeerStore', () => {
     })
 
     const state_x = store_x.getState()
-    expect((state_x['board'] as Array<null | string>)[4]).toBe('X')
+    expect(ticTacToeBoardCell(state_x, 4)).toBe('X')
 
     expect(JSON.stringify(store_o.getState())).toBe(initial_o)
   })
@@ -295,13 +296,17 @@ describe('PeerStore', () => {
     })
 
     const committed = store_x.getCommittedState()
-    expect((committed['board'] as Array<null | string>)[4]).toBeNull()
+    expect(ticTacToeBoardCell(committed, 4)).toBeNull()
   })
 
   it('module.handle returning null → crash', () => {
     const badModule: StoreModule = {
       initialState: () => ({}),
-      handle: () => null as unknown as HandleResult,
+      handle: () => {
+        // Intentionally violates HandleResult so PeerStore must crash (not for production).
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test stub
+        return null as unknown as HandleResult
+      },
       reduce: (s) => s,
     }
     const bus = new InMemoryBus()
@@ -338,7 +343,10 @@ describe('PeerStore', () => {
         ok: true,
         value: { events: [{ type: 'e', payload: {} }] },
       }),
-      reduce: () => [] as unknown as State,
+      reduce: () => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test stub
+        return [] as unknown as State
+      },
     }
     const bus = new InMemoryBus()
     const t1 = new InMemoryTransport(bus, 'a')
@@ -398,13 +406,13 @@ describe('Sync protocol', () => {
     store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 4, player: 'X' } })
 
     expect(
-      (stores.get('player-o')!.getCommittedState()['board'] as Array<null | string>)[4],
+      ticTacToeBoardCell(stores.get('player-o')!.getCommittedState(), 4),
     ).toBeNull()
 
     transports.get('player-o')!.reconnect()
 
     expect(
-      (stores.get('player-o')!.getCommittedState()['board'] as Array<null | string>)[0],
+      ticTacToeBoardCell(stores.get('player-o')!.getCommittedState(), 0),
     ).toBe('X')
 
     expect(syncs).toContain('player-o')
@@ -497,7 +505,7 @@ describe('Sync protocol', () => {
     })
 
     const state = stores.get('player-o')!.getCommittedState()
-    expect((state['board'] as Array<null | string>)[4]).toBe('O')
+    expect(ticTacToeBoardCell(state, 4)).toBe('O')
   })
 })
 

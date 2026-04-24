@@ -1,7 +1,10 @@
+import { Assert } from '@gamezilla/lib/assert';
 import { TicTacToeModule } from '@gamezilla/peer-store/__fixtures__/tic-tac-toe.module';
 import { DeterministicSimulator } from '@gamezilla/peer-store/simulator';
 import type { Event, Message, State } from '@gamezilla/peer-store/types';
 import { isSystemEvent } from '@gamezilla/peer-store/utils';
+
+const crash: Assert = Assert.crash();
 
 export const TRUST_MAP = {
   'player-x': 1,
@@ -10,8 +13,14 @@ export const TRUST_MAP = {
   observer: 1,
 } as const;
 
-export const PEERS = Object.keys(TRUST_MAP) as PeerId[];
 export type PeerId = keyof typeof TRUST_MAP;
+
+export const PEERS: PeerId[] = ['player-x', 'player-o', 'server', 'observer'];
+
+function wireRecord(payload: unknown): Record<string, unknown> {
+  crash.record(payload, 'wire payload must be a plain object');
+  return payload;
+}
 
 export type LogEntry = {
   id: number;
@@ -195,7 +204,7 @@ export class PlaygroundSimulator {
 
   dispatchWithSpoof(peerId: PeerId, message: Message): void {
     if (this.spoofing_peers.has(peerId) && message.type === 'PLACE_MARK') {
-      const payload = message.payload as Record<string, unknown>;
+      const payload = wireRecord(message.payload);
       const spoofedPlayer = payload['player'] === 'X' ? 'O' : 'X';
       const spoofedMessage: Message = {
         ...message,
@@ -329,30 +338,39 @@ export class PlaygroundSimulator {
 
   cheatTamperEvents(): void {
     this.sim.setMessageInterceptor((_topic, payload) => {
-      const msg = payload as Record<string, unknown>;
-      if (msg['kind'] === 'accepted') {
-        const rows = msg['entries'] as Array<{
-          seq: number;
-          event: Record<string, unknown>;
-        }>;
-        return {
-          ...msg,
-          entries: rows.map((row) => {
-            const e = row.event;
-            if (e['type'] === 'MARK_PLACED') {
-              const p = e['payload'] as Record<string, unknown>;
-              const originalCell = p['cell'] as number;
-              const newCell = (originalCell + 4) % 9;
-              return {
-                seq: row.seq,
-                event: { ...e, payload: { ...p, cell: newCell } },
-              };
-            }
-            return row;
-          }),
-        };
+      if (
+        payload === null ||
+        typeof payload !== 'object' ||
+        Array.isArray(payload)
+      ) {
+        return payload;
       }
-      return payload;
+      const msg = wireRecord(payload);
+      if (msg['kind'] !== 'accepted') return payload;
+      const entriesRaw = msg['entries'];
+      crash.array(entriesRaw, 'accepted.entries must be an array');
+      const newEntries = entriesRaw.map((row) => {
+        crash.record(row, 'log entry must be object');
+        const seq = row['seq'];
+        crash.number(seq, 'entry.seq must be number');
+        const event = row['event'];
+        crash.record(event, 'entry.event must be object');
+        const type = event['type'];
+        if (type !== 'MARK_PLACED') return row;
+        const p = event['payload'];
+        crash.record(p, 'MARK_PLACED payload must be object');
+        const cellRaw = p['cell'];
+        crash.number(cellRaw, 'cell must be number');
+        const newCell = (cellRaw + 4) % 9;
+        return {
+          seq,
+          event: {
+            ...event,
+            payload: { ...p, cell: newCell },
+          },
+        };
+      });
+      return { ...msg, entries: newEntries };
     });
     this.pushEntry({
       kind: 'cheat',
@@ -521,7 +539,13 @@ export class PlaygroundSimulator {
     const events = this.sim.getEventLog('server');
     for (let i = countBefore; i < events.length; i++) {
       const ev = events[i]!;
-      const payload = ev.payload as Record<string, unknown> | undefined;
+      const raw = ev.payload;
+      const payload =
+        raw !== null &&
+        typeof raw === 'object' &&
+        !Array.isArray(raw)
+          ? raw
+          : undefined;
       this.pushEntry({
         kind: 'effect',
         tag: 'committed',

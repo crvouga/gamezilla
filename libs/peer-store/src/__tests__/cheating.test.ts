@@ -13,7 +13,10 @@ import { TicTacToeModule } from '../__fixtures__/tic-tac-toe.module'
 import { DeterministicSimulator } from '../simulator'
 import type { State } from '../types'
 import { isSystemEvent } from '../utils'
+import { ticTacToeBoardCell } from './tic-tac-toe-board'
 import { TestCrashHandler } from './test-crash-handler'
+
+const crash: Assert = Assert.crash()
 
 let disposeCrashHandler: () => void
 beforeAll(() => {
@@ -33,8 +36,45 @@ function createSim(opts?: { timeoutMs?: number }) {
   })
 }
 
-function board(state: State): Array<null | string> {
-  return state['board'] as Array<null | string>
+function cell(state: State, index: number): null | string {
+  return ticTacToeBoardCell(state, index)
+}
+
+function requireFiniteSeq(state: State): number {
+  const s = state['seq']
+  crash.number(s, 'state.seq must be a finite number')
+  return s
+}
+
+function wireRecord(payload: unknown): Record<string, unknown> {
+  crash.record(payload, 'wire payload must be a plain object')
+  return payload
+}
+
+function tamperAcceptedMarkPlacedCell8(payload: unknown): unknown {
+  const msg = wireRecord(payload)
+  if (msg['kind'] !== 'accepted') return payload
+  const entriesRaw = msg['entries']
+  crash.array(entriesRaw, 'accepted.entries must be an array')
+  const newEntries = entriesRaw.map((row) => {
+    crash.record(row, 'log entry must be object')
+    const seq = row['seq']
+    crash.number(seq, 'entry.seq must be number')
+    const event = row['event']
+    crash.record(event, 'entry.event must be object')
+    const type = event['type']
+    if (type !== 'MARK_PLACED') return row
+    const p = event['payload']
+    crash.record(p, 'MARK_PLACED payload must be object')
+    return {
+      seq,
+      event: {
+        ...event,
+        payload: { ...p, cell: 8 },
+      },
+    }
+  })
+  return { ...msg, entries: newEntries }
 }
 
 describe('Cheating: Authority', () => {
@@ -56,7 +96,7 @@ describe('Cheating: Authority', () => {
     })
 
     for (const peerId of PEER_IDS) {
-      expect(board(sim.getCommittedState(peerId))[4]).toBe('X')
+      expect(cell(sim.getCommittedState(peerId), 4)).toBe('X')
     }
     sim.destroy()
   })
@@ -70,7 +110,7 @@ describe('Cheating: Authority', () => {
     })
 
     sim.assertConverged()
-    expect(board(sim.getCommittedState('authority'))[0]).toBe('X')
+    expect(cell(sim.getCommittedState('authority'), 0)).toBe('X')
     expect(sim.getCommittedState('authority')['currentTurn']).toBe('O')
     sim.destroy()
   })
@@ -85,48 +125,27 @@ describe('Cheating: Authority', () => {
     )
     sim.injectWireMessage({ kind: 'propose', command: forged })
 
-    expect(board(sim.getCommittedState('authority'))[0]).toBe('X')
+    expect(cell(sim.getCommittedState('authority'), 0)).toBe('X')
     sim.destroy()
   })
 
   it('event tampering (MITM) — interceptor modifies accepted events', () => {
     const sim = createSim()
 
-    sim.setMessageInterceptor((_topic, payload) => {
-      const msg = payload as Record<string, unknown>
-      if (msg['kind'] === 'accepted') {
-        const entries = msg['entries'] as Array<{
-          seq: number
-          event: Record<string, unknown>
-        }>
-        return {
-          ...msg,
-          entries: entries.map((row) => {
-            const e = row.event
-            if (e['type'] === 'MARK_PLACED') {
-              const p = e['payload'] as Record<string, unknown>
-              return {
-                seq: row.seq,
-                event: { ...e, payload: { ...p, cell: 8 } },
-              }
-            }
-            return row
-          }),
-        }
-      }
-      return payload
-    })
+    sim.setMessageInterceptor((_topic, payload) =>
+      tamperAcceptedMarkPlacedCell8(payload),
+    )
 
     sim.dispatch('player-x', {
       type: 'PLACE_MARK',
       payload: { cell: 0, player: 'X' },
     })
 
-    expect(board(sim.getCommittedState('authority'))[0]).toBe('X')
-    expect(board(sim.getCommittedState('authority'))[8]).toBeNull()
+    expect(cell(sim.getCommittedState('authority'), 0)).toBe('X')
+    expect(cell(sim.getCommittedState('authority'), 8)).toBeNull()
 
-    expect(board(sim.getCommittedState('player-x'))[8]).toBe('X')
-    expect(board(sim.getCommittedState('player-x'))[0]).toBeNull()
+    expect(cell(sim.getCommittedState('player-x'), 8)).toBe('X')
+    expect(cell(sim.getCommittedState('player-x'), 0)).toBeNull()
 
     sim.setMessageInterceptor(null)
     sim.destroy()
@@ -137,7 +156,7 @@ describe('Cheating: Authority', () => {
 
     let captured: unknown = null
     sim.setMessageInterceptor((_topic, payload) => {
-      const msg = payload as Record<string, unknown>
+      const msg = wireRecord(payload)
       if (msg['kind'] === 'accepted' && !captured) {
         captured = structuredClone(payload)
       }
@@ -192,7 +211,9 @@ describe('Cheating: Authority', () => {
   it('out-of-turn via injected propose — authority rejects, board unchanged', () => {
     const sim = createSim()
 
-    const boardBefore = JSON.stringify(board(sim.getCommittedState('authority')))
+    const boardBefore = JSON.stringify(
+      sim.getCommittedState('authority')['board'],
+    )
 
     const forged = sim.forgeCommand('player-o', {
       type: 'PLACE_MARK',
@@ -200,7 +221,7 @@ describe('Cheating: Authority', () => {
     })
     sim.injectWireMessage({ kind: 'propose', command: forged })
 
-    const boardAfter = JSON.stringify(board(sim.getCommittedState('authority')))
+    const boardAfter = JSON.stringify(sim.getCommittedState('authority')['board'])
     expect(boardAfter).toBe(boardBefore)
     sim.destroy()
   })
@@ -214,11 +235,11 @@ describe('Cheating: Authority', () => {
     })
 
     sim.injectWireMessage({ kind: 'propose', command: cmd })
-    expect(board(sim.getCommittedState('authority'))[0]).toBe('X')
+    expect(cell(sim.getCommittedState('authority'), 0)).toBe('X')
 
-    const seqBefore = sim.getCommittedState('authority')['seq'] as number
+    const seqBefore = requireFiniteSeq(sim.getCommittedState('authority'))
     sim.injectWireMessage({ kind: 'propose', command: cmd })
-    const seqAfter = sim.getCommittedState('authority')['seq'] as number
+    const seqAfter = requireFiniteSeq(sim.getCommittedState('authority'))
 
     expect(seqAfter).toBe(seqBefore)
     sim.destroy()
@@ -277,12 +298,12 @@ describe('Cheating: Cross-cutting', () => {
       ],
     })
 
-    expect(board(sim.getCommittedState('authority'))[0]).toBe('X')
-    expect(board(sim.getCommittedState('player-o'))[0]).toBeNull()
+    expect(cell(sim.getCommittedState('authority'), 0)).toBe('X')
+    expect(cell(sim.getCommittedState('player-o'), 0)).toBeNull()
 
     sim.reconnectPeer('player-o')
 
-    expect(board(sim.getCommittedState('player-o'))[0]).toBe('X')
+    expect(cell(sim.getCommittedState('player-o'), 0)).toBe('X')
     sim.destroy()
   })
 
@@ -296,12 +317,12 @@ describe('Cheating: Cross-cutting', () => {
       payload: { cell: 4, player: 'X' },
     })
 
-    expect(board(sim.getState('player-x'))[4]).toBe('X')
-    expect(board(sim.getCommittedState('player-x'))[4]).toBeNull()
+    expect(cell(sim.getState('player-x'), 4)).toBe('X')
+    expect(cell(sim.getCommittedState('player-x'), 4)).toBeNull()
 
     sim.advanceTime(3001)
 
-    expect(board(sim.getState('player-x'))[4]).toBeNull()
+    expect(cell(sim.getState('player-x'), 4)).toBeNull()
     expect(sim.getTimeoutLog().length).toBe(1)
 
     sim.setMessageInterceptor(null)
@@ -320,10 +341,10 @@ describe('Cheating: Cross-cutting', () => {
 
     sim.assertConverged()
 
-    const authBoard = board(sim.getCommittedState('authority'))
-    expect(authBoard[0]).toBe('X')
-    expect(authBoard[3]).toBe('O')
-    expect(authBoard[1]).toBe('X')
+    const auth = sim.getCommittedState('authority')
+    expect(cell(auth, 0)).toBe('X')
+    expect(cell(auth, 3)).toBe('O')
+    expect(cell(auth, 1)).toBe('X')
     sim.destroy()
   })
 

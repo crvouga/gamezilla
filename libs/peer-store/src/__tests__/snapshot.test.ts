@@ -12,6 +12,7 @@ import {
 import { TicTacToeModule } from '../__fixtures__/tic-tac-toe.module'
 import { DeterministicSimulator } from '../simulator'
 import { TestCrashHandler } from './test-crash-handler'
+import { ticTacToeBoardCell } from './tic-tac-toe-board'
 
 let disposeCrashHandler: () => void
 beforeAll(() => {
@@ -19,7 +20,7 @@ beforeAll(() => {
 })
 afterAll(() => disposeCrashHandler())
 
-const BASE = { 'player-x': 1, 'player-o': 1, 'authority': 3 } as const
+const BASE = { 'player-x': 1, 'player-o': 1, 'authority': 3 }
 
 describe('Snapshot and incremental sync', () => {
   beforeEach(() => jest.useFakeTimers())
@@ -61,9 +62,7 @@ describe('Snapshot and incremental sync', () => {
     sim.deliverPending()
 
     expect(sim.getStore('late').getMembership()['late']).toBe(1)
-    expect((sim.getCommittedState('late')['board'] as Array<null | string>)[4]).toBe(
-      'X',
-    )
+    expect(ticTacToeBoardCell(sim.getCommittedState('late'), 4)).toBe('X')
 
     sim.destroy()
   })

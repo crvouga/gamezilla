@@ -15,19 +15,16 @@ import { InMemoryEventLog, recoverFromEventLog } from '../event-log'
 import { SqliteEventLog } from '../event-log-sqlite'
 import { PeerStore } from '../peer-store'
 import { InMemoryBus, InMemoryTransport } from '../transport'
-import type { Command, LogEntry, State } from '../types'
+import type { Command, LogEntry } from '../types'
 import { isSystemEvent } from '../utils'
 import { TestCrashHandler } from './test-crash-handler'
+import { ticTacToeBoardCell } from './tic-tac-toe-board'
 
 let disposeCrashHandler: () => void
 beforeAll(() => {
   disposeCrashHandler = Assert.registerCrashHandler(new TestCrashHandler())
 })
 afterAll(() => disposeCrashHandler())
-
-function board(state: State): Array<null | string> {
-  return state['board'] as Array<null | string>
-}
 
 // ─── InMemoryEventLog ────────────────────────────────────────────────
 
@@ -533,8 +530,8 @@ describe('PeerStore + EventLog integration', () => {
     store_o.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'O' } })
 
     const originalState = store_auth.getCommittedState()
-    expect(board(originalState)[4]).toBe('X')
-    expect(board(originalState)[0]).toBe('O')
+    expect(ticTacToeBoardCell(originalState, 4)).toBe('X')
+    expect(ticTacToeBoardCell(originalState, 0)).toBe('O')
 
     destroy()
 
@@ -554,8 +551,8 @@ describe('PeerStore + EventLog integration', () => {
     await recoverFromEventLog(log, gameId, recoveredStore)
 
     const recoveredState = recoveredStore.getCommittedState()
-    expect(board(recoveredState)[4]).toBe('X')
-    expect(board(recoveredState)[0]).toBe('O')
+    expect(ticTacToeBoardCell(recoveredState, 4)).toBe('X')
+    expect(ticTacToeBoardCell(recoveredState, 0)).toBe('O')
     expect(recoveredState['currentTurn']).toBe('X')
 
     recoveredStore.destroy()

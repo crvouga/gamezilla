@@ -12,6 +12,7 @@ import {
 import { TicTacToeModule } from '../__fixtures__/tic-tac-toe.module'
 import { DeterministicSimulator } from '../simulator'
 import { TestCrashHandler } from './test-crash-handler'
+import { ticTacToeBoardCell } from './tic-tac-toe-board'
 
 let disposeCrashHandler: () => void
 beforeAll(() => {
@@ -42,7 +43,7 @@ describe('DeterministicSimulator', () => {
       payload: { cell: 0, player: 'X' },
     })
     const state_o = sim.getCommittedState('player-o')
-    expect((state_o['board'] as Array<null | string>)[0]).toBeNull()
+    expect(ticTacToeBoardCell(state_o, 0)).toBeNull()
     sim.destroy()
   })
 
@@ -55,7 +56,7 @@ describe('DeterministicSimulator', () => {
     })
     sim.resumeDelivery()
     const state = sim.getCommittedState('player-o')
-    expect((state['board'] as Array<null | string>)[0]).toBe('X')
+    expect(ticTacToeBoardCell(state, 0)).toBe('X')
     sim.destroy()
   })
 
@@ -104,7 +105,7 @@ describe('DeterministicSimulator', () => {
       payload: { cell: 0, player: 'X' },
     })
     const state_o = sim.getCommittedState('player-o')
-    expect((state_o['board'] as Array<null | string>)[0]).toBeNull()
+    expect(ticTacToeBoardCell(state_o, 0)).toBeNull()
     sim.destroy()
   })
 
@@ -118,7 +119,7 @@ describe('DeterministicSimulator', () => {
     sim.reconnectPeer('player-o')
 
     const state_o = sim.getCommittedState('player-o')
-    expect((state_o['board'] as Array<null | string>)[0]).toBe('X')
+    expect(ticTacToeBoardCell(state_o, 0)).toBe('X')
     sim.destroy()
   })
 
@@ -156,12 +157,12 @@ describe('DeterministicSimulator', () => {
     })
 
     const before = sim.getState('player-x')
-    expect((before['board'] as Array<null | string>)[0]).toBe('X')
+    expect(ticTacToeBoardCell(before, 0)).toBe('X')
 
     sim.advanceTime(3001)
 
     const after = sim.getState('player-x')
-    expect((after['board'] as Array<null | string>)[0]).toBeNull()
+    expect(ticTacToeBoardCell(after, 0)).toBeNull()
     expect(sim.getTimeoutLog().length).toBe(1)
     sim.destroy()
   })
@@ -191,7 +192,7 @@ describe('DeterministicSimulator', () => {
     })
     sim.reset()
     const state = sim.getCommittedState('player-x')
-    expect((state['board'] as Array<null | string>)[0]).toBeNull()
+    expect(ticTacToeBoardCell(state, 0)).toBeNull()
     sim.destroy()
   })
 
@@ -206,8 +207,8 @@ describe('DeterministicSimulator', () => {
 
     const display = sim.getState('player-x')
     const committed = sim.getCommittedState('player-x')
-    expect((display['board'] as Array<null | string>)[0]).toBe('X')
-    expect((committed['board'] as Array<null | string>)[0]).toBeNull()
+    expect(ticTacToeBoardCell(display, 0)).toBe('X')
+    expect(ticTacToeBoardCell(committed, 0)).toBeNull()
     sim.destroy()
   })
 
@@ -219,7 +220,7 @@ describe('DeterministicSimulator', () => {
       payload: { cell: 0, player: 'X' },
     })
     const state = sim.getState('player-x')
-    expect((state['board'] as Array<null | string>)[0]).toBe('X')
+    expect(ticTacToeBoardCell(state, 0)).toBe('X')
     sim.destroy()
   })
 
@@ -291,9 +292,7 @@ describe('DeterministicSimulator', () => {
       payload: { cell: 4, player: 'O' },
     })
 
-    expect(
-      (sim.getCommittedState('player-o')['board'] as Array<null | string>)[4],
-    ).toBe('O')
+    expect(ticTacToeBoardCell(sim.getCommittedState('player-o'), 4)).toBe('O')
     expect(sim.getCommittedState('player-o')['currentTurn']).toBe('X')
 
     expect(sim.getEventLog('player-x').length).toBe(1)
@@ -301,9 +300,7 @@ describe('DeterministicSimulator', () => {
     sim.reconnectPeer('player-x')
     expect(sim.getEventLog('player-x').length).toBe(2)
     expect(sim.getCommittedState('player-x')['currentTurn']).toBe('X')
-    expect(
-      (sim.getCommittedState('player-x')['board'] as Array<null | string>)[4],
-    ).toBe('O')
+    expect(ticTacToeBoardCell(sim.getCommittedState('player-x'), 4)).toBe('O')
 
     sim.dispatch('player-x', {
       type: 'PLACE_MARK',

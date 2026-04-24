@@ -13,6 +13,11 @@ import type {
   StoreModule,
   Transport,
 } from './types'
+import {
+  assertCommand,
+  assertLogEntryArray,
+  assertSnapshot,
+} from './assert-durable-json'
 import { generateId, isSystemEvent, replayDomainEntries } from './utils'
 
 const crash: Assert = Assert.crash()
@@ -56,25 +61,27 @@ function isSystemMessage(message: Message): boolean {
 }
 
 function applyMembershipEvent(membership: Map<string, number>, event: Event): void {
-  const p = event.payload as Record<string, unknown>
+  const raw = event.payload
+  crash.record(raw, 'system membership event payload must be a plain object')
+  const p = raw
   switch (event.type) {
     case '_peer/joined': {
-      const peerId = p['peerId'] as string
-      const trust = p['trust'] as number
+      const peerId = p['peerId']
       crash.nonEmptyString(peerId, '_peer/joined requires peerId')
+      const trust = p['trust']
       crash.ok(typeof trust === 'number' && trust >= 0, 'trust must be number >= 0')
       membership.set(peerId, trust)
       break
     }
     case '_peer/left': {
-      const peerId = p['peerId'] as string
+      const peerId = p['peerId']
       crash.nonEmptyString(peerId, '_peer/left requires peerId')
       membership.delete(peerId)
       break
     }
     case '_peer/trust_updated': {
-      const peerId = p['peerId'] as string
-      const trust = p['trust'] as number
+      const peerId = p['peerId']
+      const trust = p['trust']
       crash.nonEmptyString(peerId, '_peer/trust_updated requires peerId')
       crash.ok(typeof trust === 'number' && trust >= 0, 'trust must be number >= 0')
       if (membership.has(peerId)) {
@@ -440,9 +447,14 @@ export class PeerStore implements PeerStoreApi {
       ({ ok: false, error: { code, message } })
 
     if (msg.type === '_peer/join') {
-      const p = msg.payload as Record<string, unknown>
-      const peerId = p['peerId'] as string | undefined
-      const trust = p['trust'] as number | undefined
+      const raw: unknown = msg.payload
+      if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
+        return err('INVALID_JOIN', 'join payload must be a plain object')
+      }
+      crash.record(raw, 'join payload must be a plain object')
+      const p = raw
+      const peerId = p['peerId']
+      const trust = p['trust']
       if (!peerId || typeof peerId !== 'string')
         return err('INVALID_JOIN', 'join payload requires peerId string')
       if (typeof trust !== 'number' || trust < 0 || !Number.isFinite(trust))
@@ -460,8 +472,13 @@ export class PeerStore implements PeerStoreApi {
     }
 
     if (msg.type === '_peer/leave') {
-      const p = msg.payload as Record<string, unknown>
-      const peerId = p['peerId'] as string | undefined
+      const raw: unknown = msg.payload
+      if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
+        return err('INVALID_LEAVE', 'leave payload must be a plain object')
+      }
+      crash.record(raw, 'leave payload must be a plain object')
+      const p = raw
+      const peerId = p['peerId']
       if (!peerId || typeof peerId !== 'string')
         return err('INVALID_LEAVE', 'leave payload requires peerId')
       if (peerId !== command.peerId)
@@ -477,9 +494,14 @@ export class PeerStore implements PeerStoreApi {
     }
 
     if (msg.type === '_peer/trust_update') {
-      const p = msg.payload as Record<string, unknown>
-      const peerId = p['peerId'] as string | undefined
-      const trust = p['trust'] as number | undefined
+      const raw: unknown = msg.payload
+      if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
+        return err('INVALID_TRUST', 'trust_update payload must be a plain object')
+      }
+      crash.record(raw, 'trust_update payload must be a plain object')
+      const p = raw
+      const peerId = p['peerId']
+      const trust = p['trust']
       if (!peerId || typeof peerId !== 'string')
         return err('INVALID_TRUST', 'trust_update requires peerId')
       if (typeof trust !== 'number' || trust < 0 || !Number.isFinite(trust))
@@ -716,17 +738,20 @@ export class PeerStore implements PeerStoreApi {
     return Date.now() - lastSeen < this.heartbeatTimeoutMs
   }
 
-  private updateLastSeen(payload: unknown): void {
-    if (typeof payload !== 'object' || payload === null) return
-    const msg = payload as Record<string, unknown>
-    const from = msg['from'] as string | undefined
-    if (from && typeof from === 'string' && from !== this.peerId) {
+  private updateLastSeenFromRecord(msg: Record<string, unknown>): void {
+    const from = msg['from']
+    if (typeof from === 'string' && from !== this.peerId) {
       this.last_seen.set(from, Date.now())
     }
-    const command = msg['command'] as Record<string, unknown> | undefined
-    if (command && typeof command === 'object' && command !== null) {
-      const cmdPeerId = command['peerId'] as string | undefined
-      if (cmdPeerId && typeof cmdPeerId === 'string' && cmdPeerId !== this.peerId) {
+    const commandUnknown = msg['command']
+    if (
+      commandUnknown !== null &&
+      typeof commandUnknown === 'object' &&
+      !Array.isArray(commandUnknown)
+    ) {
+      crash.record(commandUnknown, 'propose command must be a plain object')
+      const cmdPeerId = commandUnknown['peerId']
+      if (typeof cmdPeerId === 'string' && cmdPeerId !== this.peerId) {
         this.last_seen.set(cmdPeerId, Date.now())
       }
     }
@@ -760,28 +785,97 @@ export class PeerStore implements PeerStoreApi {
   private handleWireMessage(payload: unknown): void {
     if (this.is_destroyed) return
     crash.record(payload, 'wire message must be an object')
-    const msg = payload as Record<string, unknown>
-    crash.nonEmptyString(msg['kind'], 'wire message must have a kind')
+    const msg = payload
+    const kindRaw = msg['kind']
+    crash.string(kindRaw, 'wire message must have a kind string')
 
-    this.updateLastSeen(payload)
+    this.updateLastSeenFromRecord(msg)
     this.checkAuthorityChange()
 
-    const kind = msg['kind'] as string
+    switch (kindRaw) {
+      case 'propose':
+        this.handlePropose(this.parseProposeWire(msg))
+        break
+      case 'accepted':
+        this.handleAccepted(this.parseAcceptedWire(msg))
+        break
+      case 'rejected':
+        this.handleRejected(this.parseRejectedWire(msg))
+        break
+      case 'sync-request':
+        this.handleSyncRequest(this.parseSyncRequestWire(msg))
+        break
+      case 'sync-response':
+        this.handleSyncResponse(this.parseSyncResponseWire(msg))
+        break
+      default:
+        break
+    }
+  }
 
-    if (kind === 'propose') {
-      this.handlePropose(msg as unknown as WireMessage & { kind: 'propose' })
-    } else if (kind === 'accepted') {
-      this.handleAccepted(msg as unknown as WireMessage & { kind: 'accepted' })
-    } else if (kind === 'rejected') {
-      this.handleRejected(msg as unknown as WireMessage & { kind: 'rejected' })
-    } else if (kind === 'sync-request') {
-      this.handleSyncRequest(
-        msg as unknown as WireMessage & { kind: 'sync-request' },
-      )
-    } else if (kind === 'sync-response') {
-      this.handleSyncResponse(
-        msg as unknown as WireMessage & { kind: 'sync-response' },
-      )
+  private parseProposeWire(
+    msg: Record<string, unknown>,
+  ): WireMessage & { kind: 'propose' } {
+    return { kind: 'propose', command: assertCommand(msg['command']) }
+  }
+
+  private parseAcceptedWire(
+    msg: Record<string, unknown>,
+  ): WireMessage & { kind: 'accepted' } {
+    const commandId = msg['commandId']
+    crash.string(commandId, 'accepted.commandId must be a string')
+    return {
+      kind: 'accepted',
+      commandId,
+      entries: assertLogEntryArray(msg['entries']),
+    }
+  }
+
+  private parseRejectedWire(
+    msg: Record<string, unknown>,
+  ): WireMessage & { kind: 'rejected' } {
+    const commandId = msg['commandId']
+    crash.string(commandId, 'rejected.commandId must be a string')
+    const errObj = msg['error']
+    crash.record(errObj, 'rejected.error must be a plain object')
+    const code = errObj['code']
+    crash.string(code, 'rejected.error.code must be a string')
+    const message = errObj['message']
+    crash.string(message, 'rejected.error.message must be a string')
+    return { kind: 'rejected', commandId, error: { code, message } }
+  }
+
+  private parseSyncRequestWire(
+    msg: Record<string, unknown>,
+  ): WireMessage & { kind: 'sync-request' } {
+    const from = msg['from']
+    crash.string(from, 'sync-request.from must be a string')
+    const rawSince = msg['sinceSeq']
+    const sinceSeq =
+      typeof rawSince === 'number' && Number.isFinite(rawSince)
+        ? Math.max(0, Math.floor(rawSince))
+        : 0
+    return { kind: 'sync-request', from, sinceSeq }
+  }
+
+  private parseSyncResponseWire(
+    msg: Record<string, unknown>,
+  ): WireMessage & { kind: 'sync-response' } {
+    const to = msg['to']
+    crash.string(to, 'sync-response.to must be a string')
+    const baseSeqRaw = msg['baseSeq']
+    crash.number(baseSeqRaw, 'sync-response.baseSeq must be a finite number')
+    const snapshot = assertSnapshot(msg['snapshot'])
+    const prefixRaw = msg['prefix']
+    const prefix =
+      prefixRaw === undefined ? [] : assertLogEntryArray(prefixRaw)
+    return {
+      kind: 'sync-response',
+      to,
+      snapshot,
+      baseSeq: baseSeqRaw,
+      prefix,
+      entries: assertLogEntryArray(msg['entries']),
     }
   }
 

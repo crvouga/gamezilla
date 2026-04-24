@@ -1,7 +1,7 @@
 import { Assert } from '@gamezilla/lib/assert'
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface'
 import type { EventLog, EventLogEntry } from './event-log'
-import type { Command, LogEntry } from './types'
+import { assertCommand, assertLogEntryArray } from './assert-durable-json'
 
 const crash: Assert = Assert.crash()
 
@@ -61,12 +61,12 @@ function parsePayload(payload: unknown): unknown {
 function rowToEntry(row: Row): EventLogEntry {
   switch (row.kind) {
     case 'command':
-      return { kind: 'command', command: parsePayload(row.payload) as Command }
+      return { kind: 'command', command: assertCommand(parsePayload(row.payload)) }
     case 'committed':
       return {
         kind: 'committed',
         commandId: row.command_id,
-        entries: parsePayload(row.payload) as LogEntry[],
+        entries: assertLogEntryArray(parsePayload(row.payload)),
       }
     case 'rejected':
       return { kind: 'rejected', commandId: row.command_id }

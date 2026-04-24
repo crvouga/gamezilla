@@ -34,13 +34,16 @@ function isBoardFull(board: Array<null | string>): boolean {
   return board.every((cell) => cell !== null);
 }
 
-function assertValidState(state: State): void {
+function readBoard(state: State): unknown[] {
   crash.field(state, 'board', 'state must have board');
   crash.array(state['board'], 'board must be an array');
-  crash.ok(
-    (state['board'] as unknown[]).length === 9,
-    'board must have 9 cells'
-  );
+  const b = state['board'];
+  crash.ok(b.length === 9, 'board must have 9 cells');
+  return b;
+}
+
+function assertValidState(state: State): void {
+  readBoard(state);
   crash.field(state, 'currentTurn', 'state must have currentTurn');
   crash.ok(
     state['currentTurn'] === 'X' || state['currentTurn'] === 'O',
@@ -61,7 +64,15 @@ function err(code: string, message: string): HandleResult {
 function handlePlaceMark(state: State, command: Command): HandleResult {
   assertValidState(state);
 
-  const payload = command.message.payload as Record<string, unknown>;
+  const rawPayload = command.message.payload;
+  if (
+    rawPayload === null ||
+    typeof rawPayload !== 'object' ||
+    Array.isArray(rawPayload)
+  ) {
+    return err('INVALID_PAYLOAD', 'PLACE_MARK payload must be a plain object');
+  }
+  const payload = rawPayload;
   validation.field(payload, 'cell', 'PLACE_MARK payload must have cell');
   validation.field(payload, 'player', 'PLACE_MARK payload must have player');
 
@@ -92,12 +103,24 @@ function handlePlaceMark(state: State, command: Command): HandleResult {
     return err('WRONG_TURN', `not ${String(player)}'s turn`);
   }
 
-  const board = state['board'] as Array<null | string>;
-  if (board[cell] !== null) {
+  const boardUnknown = readBoard(state);
+  const boardCells: Array<null | string> = [];
+  for (let i = 0; i < 9; i++) {
+    const c = boardUnknown[i];
+    if (c !== null && c !== 'X' && c !== 'O') {
+      return err('INVALID_BOARD', 'board cell must be null, X, or O');
+    }
+    boardCells.push(c);
+  }
+  if (boardCells[cell] !== null) {
     return err('CELL_OCCUPIED', `cell ${cell} is already occupied`);
   }
 
-  const next_seq = (state['seq'] as number) + 1;
+  const seqRaw = state['seq'];
+  if (typeof seqRaw !== 'number' || !Number.isFinite(seqRaw)) {
+    return err('INVALID_STATE', 'state.seq must be a finite number');
+  }
+  const next_seq = seqRaw + 1;
   const events: Event[] = [
     {
       type: 'MARK_PLACED',
@@ -105,7 +128,7 @@ function handlePlaceMark(state: State, command: Command): HandleResult {
     },
   ];
 
-  const next_board = [...board];
+  const next_board = [...boardCells];
   next_board[cell] = player;
   const winner = checkWinner(next_board);
 
@@ -127,7 +150,15 @@ function handlePlaceMark(state: State, command: Command): HandleResult {
 function handleResign(state: State, command: Command): HandleResult {
   assertValidState(state);
 
-  const payload = command.message.payload as Record<string, unknown>;
+  const rawPayload = command.message.payload;
+  if (
+    rawPayload === null ||
+    typeof rawPayload !== 'object' ||
+    Array.isArray(rawPayload)
+  ) {
+    return err('INVALID_PAYLOAD', 'RESIGN payload must be a plain object');
+  }
+  const payload = rawPayload;
   validation.field(payload, 'player', 'RESIGN payload must have player');
 
   const player = payload['player'];
@@ -142,7 +173,11 @@ function handleResign(state: State, command: Command): HandleResult {
     return err('GAME_OVER', 'game is already completed');
   }
 
-  const next_seq = (state['seq'] as number) + 1;
+  const seqRaw = state['seq'];
+  if (typeof seqRaw !== 'number' || !Number.isFinite(seqRaw)) {
+    return err('INVALID_STATE', 'state.seq must be a finite number');
+  }
+  const next_seq = seqRaw + 1;
   return {
     ok: true,
     value: {
@@ -160,9 +195,9 @@ export const TicTacToeModule: StoreModule = {
   initialState(): State {
     return {
       board: [null, null, null, null, null, null, null, null, null],
-      currentTurn: 'X' as string,
+      currentTurn: 'X',
       winner: null,
-      status: 'in_progress' as string,
+      status: 'in_progress',
       seq: 0,
     };
   },
@@ -200,17 +235,35 @@ export const TicTacToeModule: StoreModule = {
         crash.field(payload, 'player', 'MARK_PLACED must have player');
         crash.field(payload, 'seq', 'MARK_PLACED must have seq');
 
-        const board = [...(state['board'] as Array<null | string>)];
-        const cell = payload['cell'] as number;
-        const player = payload['player'] as string;
+        const boardSrc = readBoard(state);
+        const board: Array<null | string> = [];
+        for (let i = 0; i < 9; i++) {
+          const c = boardSrc[i];
+          crash.ok(
+            c === null || c === 'X' || c === 'O',
+            'board cell must be null, X, or O',
+          );
+          board.push(c);
+        }
+        const cell = payload['cell'];
+        const player = payload['player'];
+        crash.number(cell, 'MARK_PLACED cell must be a finite number');
+        crash.ok(
+          Number.isInteger(cell) && cell >= 0 && cell <= 8,
+          'MARK_PLACED cell must be integer 0..8',
+        );
+        crash.string(player, 'MARK_PLACED player must be string');
+        crash.ok(player === 'X' || player === 'O', 'MARK_PLACED player must be X or O');
         board[cell] = player;
 
         const next_turn = player === 'X' ? 'O' : 'X';
+        const seqVal = payload['seq'];
+        crash.number(seqVal, 'MARK_PLACED seq must be a finite number');
         const result: State = {
           ...state,
           board,
           currentTurn: next_turn,
-          seq: payload['seq'] as number,
+          seq: seqVal,
         };
 
         crash.ok(
@@ -221,44 +274,54 @@ export const TicTacToeModule: StoreModule = {
       }
 
       case 'GAME_WON': {
-        const payload = event.payload as Record<string, unknown>;
+        const payload = event.payload;
         crash.record(payload, 'GAME_WON payload must be a record');
         crash.field(payload, 'winner', 'GAME_WON must have winner');
         crash.field(payload, 'seq', 'GAME_WON must have seq');
+        const seqVal = payload['seq'];
+        crash.number(seqVal, 'GAME_WON seq must be a finite number');
 
         return {
           ...state,
           winner: payload['winner'],
           status: 'completed',
-          seq: payload['seq'] as number,
+          seq: seqVal,
         };
       }
 
       case 'GAME_DRAWN': {
-        const payload = event.payload as Record<string, unknown>;
+        const payload = event.payload;
+        crash.record(payload, 'GAME_DRAWN payload must be a record');
         crash.field(payload, 'seq', 'GAME_DRAWN must have seq');
+        const seqVal = payload['seq'];
+        crash.number(seqVal, 'GAME_DRAWN seq must be a finite number');
 
         return {
           ...state,
           winner: 'draw',
           status: 'completed',
-          seq: payload['seq'] as number,
+          seq: seqVal,
         };
       }
 
       case 'PLAYER_RESIGNED': {
-        const payload = event.payload as Record<string, unknown>;
+        const payload = event.payload;
+        crash.record(payload, 'PLAYER_RESIGNED payload must be a record');
         crash.field(payload, 'player', 'PLAYER_RESIGNED must have player');
         crash.field(payload, 'seq', 'PLAYER_RESIGNED must have seq');
 
-        const player = payload['player'] as string;
+        const player = payload['player'];
+        crash.string(player, 'PLAYER_RESIGNED player must be string');
+        crash.ok(player === 'X' || player === 'O', 'PLAYER_RESIGNED player must be X or O');
         const winner = player === 'X' ? 'O' : 'X';
+        const seqVal = payload['seq'];
+        crash.number(seqVal, 'PLAYER_RESIGNED seq must be a finite number');
 
         return {
           ...state,
           winner,
           status: 'completed',
-          seq: payload['seq'] as number,
+          seq: seqVal,
         };
       }
 

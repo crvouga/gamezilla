@@ -11,8 +11,8 @@ import {
 } from 'bun:test'
 import { TicTacToeModule } from '../__fixtures__/tic-tac-toe.module'
 import { DeterministicSimulator } from '../simulator'
-import type { State } from '../types'
 import { TestCrashHandler } from './test-crash-handler'
+import { ticTacToeBoardCell } from './tic-tac-toe-board'
 
 let disposeCrashHandler: () => void
 beforeAll(() => {
@@ -32,10 +32,6 @@ function createSim(opts?: { timeoutMs?: number }) {
   })
 }
 
-function board(state: State): Array<null | string> {
-  return state['board'] as Array<null | string>
-}
-
 describe('TicTacToe integration', () => {
   beforeEach(() => jest.useFakeTimers())
   afterEach(() => jest.useRealTimers())
@@ -48,7 +44,7 @@ describe('TicTacToe integration', () => {
     })
     sim.assertConverged()
     const state = sim.getCommittedState('player-x')
-    expect(board(state)[4]).toBe('X')
+    expect(ticTacToeBoardCell(state, 4)).toBe('X')
     expect(state['currentTurn']).toBe('O')
     sim.destroy()
   })
@@ -188,9 +184,9 @@ describe('TicTacToe integration', () => {
       payload: { cell: 0, player: 'X' },
     })
 
-    expect(board(sim.getCommittedState('player-x'))[0]).toBe('X')
-    expect(board(sim.getCommittedState('authority'))[0]).toBe('X')
-    expect(board(sim.getCommittedState('player-o'))[0]).toBeNull()
+    expect(ticTacToeBoardCell(sim.getCommittedState('player-x'), 0)).toBe('X')
+    expect(ticTacToeBoardCell(sim.getCommittedState('authority'), 0)).toBe('X')
+    expect(ticTacToeBoardCell(sim.getCommittedState('player-o'), 0)).toBeNull()
     sim.destroy()
   })
 
@@ -217,10 +213,10 @@ describe('TicTacToe integration', () => {
       type: 'PLACE_MARK',
       payload: { cell: 0, player: 'X' },
     })
-    expect(board(sim.getState('player-x'))[0]).toBe('X')
+    expect(ticTacToeBoardCell(sim.getState('player-x'), 0)).toBe('X')
 
     sim.advanceTime(5001)
-    expect(board(sim.getState('player-x'))[0]).toBeNull()
+    expect(ticTacToeBoardCell(sim.getState('player-x'), 0)).toBeNull()
     expect(sim.getTimeoutLog().length).toBe(1)
     sim.destroy()
   })
@@ -233,9 +229,9 @@ describe('TicTacToe integration', () => {
 
     sim.assertConverged()
     const state = sim.getCommittedState('player-x')
-    expect(board(state)[0]).toBe('X')
-    expect(board(state)[4]).toBe('O')
-    expect(board(state)[8]).toBe('X')
+    expect(ticTacToeBoardCell(state, 0)).toBe('X')
+    expect(ticTacToeBoardCell(state, 4)).toBe('O')
+    expect(ticTacToeBoardCell(state, 8)).toBe('X')
     sim.destroy()
   })
 
@@ -268,19 +264,19 @@ describe('TicTacToe integration', () => {
 
     sim.dispatch('player-x', { type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
     sim.assertConverged()
-    expect(board(sim.getCommittedState('player-x'))[0]).toBe('X')
+    expect(ticTacToeBoardCell(sim.getCommittedState('player-x'), 0)).toBe('X')
 
     sim.disconnectPeer('player-o')
 
     sim.dispatch('player-o', { type: 'PLACE_MARK', payload: { cell: 4, player: 'O' } })
-    expect(board(sim.getState('player-o'))[4]).toBe('O')
+    expect(ticTacToeBoardCell(sim.getState('player-o'), 4)).toBe('O')
 
     sim.reconnectPeer('player-o')
 
     sim.advanceTime(5001)
 
-    expect(board(sim.getState('player-o'))[4]).toBe('O')
-    expect(board(sim.getCommittedState('player-o'))[4]).toBe('O')
+    expect(ticTacToeBoardCell(sim.getState('player-o'), 4)).toBe('O')
+    expect(ticTacToeBoardCell(sim.getCommittedState('player-o'), 4)).toBe('O')
 
     sim.destroy()
   })
