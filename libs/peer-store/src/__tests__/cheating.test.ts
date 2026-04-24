@@ -12,6 +12,7 @@ import {
 import { TicTacToeModule } from '../__fixtures__/tic-tac-toe.module'
 import { DeterministicSimulator } from '../simulator'
 import type { State } from '../types'
+import { isSystemEvent } from '../utils'
 import { TestCrashHandler } from './test-crash-handler'
 
 let disposeCrashHandler: () => void
@@ -25,7 +26,8 @@ const PEER_IDS = Object.keys(TRUST)
 
 function createSim(opts?: { timeoutMs?: number }) {
   return new DeterministicSimulator(TicTacToeModule, {
-    peers: TRUST,
+    topic: 'cheat-test',
+    initialMembership: TRUST,
     timeoutMs: opts?.timeoutMs ?? 5000,
     advanceTime: (ms) => jest.advanceTimersByTime(ms),
   })
@@ -45,8 +47,11 @@ describe('Cheating: Authority', () => {
     sim.injectWireMessage({
       kind: 'accepted',
       commandId: 'fabricated-1',
-      events: [
-        { type: 'MARK_PLACED', payload: { cell: 4, player: 'X', seq: 1 } },
+      entries: [
+        {
+          seq: 4,
+          event: { type: 'MARK_PLACED', payload: { cell: 4, player: 'X', seq: 1 } },
+        },
       ],
     })
 
@@ -90,15 +95,22 @@ describe('Cheating: Authority', () => {
     sim.setMessageInterceptor((_topic, payload) => {
       const msg = payload as Record<string, unknown>
       if (msg['kind'] === 'accepted') {
-        const events = msg['events'] as Array<Record<string, unknown>>
+        const entries = msg['entries'] as Array<{
+          seq: number
+          event: Record<string, unknown>
+        }>
         return {
           ...msg,
-          events: events.map((e) => {
+          entries: entries.map((row) => {
+            const e = row.event
             if (e['type'] === 'MARK_PLACED') {
               const p = e['payload'] as Record<string, unknown>
-              return { ...e, payload: { ...p, cell: 8 } }
+              return {
+                seq: row.seq,
+                event: { ...e, payload: { ...p, cell: 8 } },
+              }
             }
-            return e
+            return row
           }),
         }
       }
@@ -157,12 +169,19 @@ describe('Cheating: Authority', () => {
     sim.assertConverged()
 
     const eventCountBefore = sim.getEventLog('player-o').length
-    const events = sim.getEventLog('authority')
+    const domain = sim
+      .getCommittedLogEntries('authority')
+      .filter((e) => !isSystemEvent(e.event))
+    const start = sim.getLatestSeq('authority') + 1
+    const replayEntries = domain.map((e, i) => ({
+      seq: start + i,
+      event: e.event,
+    }))
 
     sim.injectWireMessage({
       kind: 'accepted',
       commandId: 'replayed-new-id',
-      events: [...events],
+      entries: replayEntries,
     })
 
     const eventCountAfter = sim.getEventLog('player-o').length
@@ -250,8 +269,11 @@ describe('Cheating: Cross-cutting', () => {
     sim.injectWireMessage({
       kind: 'accepted',
       commandId: 'offline-cheat-1',
-      events: [
-        { type: 'MARK_PLACED', payload: { cell: 0, player: 'X', seq: 1 } },
+      entries: [
+        {
+          seq: 4,
+          event: { type: 'MARK_PLACED', payload: { cell: 0, player: 'X', seq: 1 } },
+        },
       ],
     })
 

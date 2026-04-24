@@ -15,7 +15,8 @@ import { InMemoryEventLog, recoverFromEventLog } from '../event-log'
 import { SqliteEventLog } from '../event-log-sqlite'
 import { PeerStore } from '../peer-store'
 import { InMemoryBus, InMemoryTransport } from '../transport'
-import type { Command, Event, State } from '../types'
+import type { Command, LogEntry, State } from '../types'
+import { isSystemEvent } from '../utils'
 import { TestCrashHandler } from './test-crash-handler'
 
 let disposeCrashHandler: () => void
@@ -39,19 +40,21 @@ describe('InMemoryEventLog', () => {
       peerId: 'p1',
       message: { type: 'MOVE', payload: {} },
     }
-    const events: Event[] = [{ type: 'MOVED', payload: {} }]
+    const committedRows: LogEntry[] = [
+      { seq: 1, event: { type: 'MOVED', payload: {} } },
+    ]
 
     await log.append('game-1', { kind: 'command', command: cmd })
     await log.append('game-1', {
       kind: 'committed',
       commandId: 'cmd-1',
-      events,
+      entries: committedRows,
     })
 
-    const entries = await log.load('game-1')
-    expect(entries).toHaveLength(2)
-    expect(entries[0]!.kind).toBe('command')
-    expect(entries[1]!.kind).toBe('committed')
+    const loaded = await log.load('game-1')
+    expect(loaded).toHaveLength(2)
+    expect(loaded[0]!.kind).toBe('command')
+    expect(loaded[1]!.kind).toBe('committed')
   })
 
   it('isolates games', async () => {
@@ -59,12 +62,12 @@ describe('InMemoryEventLog', () => {
     await log.append('game-a', {
       kind: 'committed',
       commandId: 'c1',
-      events: [{ type: 'A', payload: {} }],
+      entries: [{ seq: 1, event: { type: 'A', payload: {} } }],
     })
     await log.append('game-b', {
       kind: 'committed',
       commandId: 'c2',
-      events: [{ type: 'B', payload: {} }],
+      entries: [{ seq: 1, event: { type: 'B', payload: {} } }],
     })
 
     expect(await log.load('game-a')).toHaveLength(1)
@@ -77,7 +80,7 @@ describe('InMemoryEventLog', () => {
     await log.append('g', {
       kind: 'committed',
       commandId: 'c1',
-      events: [],
+      entries: [],
     })
     const a = await log.load('g')
     const b = await log.load('g')
@@ -108,16 +111,18 @@ describe('recoverFromEventLog', () => {
     await log.append('game-1', {
       kind: 'committed',
       commandId: 'cmd-resolved',
-      events: [{ type: 'PIECE_MOVED', payload: { cell: 0 } }],
+      entries: [
+        { seq: 1, event: { type: 'PIECE_MOVED', payload: { cell: 0 } } },
+      ],
     })
     await log.append('game-1', { kind: 'command', command: unresolvedCmd })
 
-    let rehydratedEvents: Event[] = []
+    let rehydratedEntries: LogEntry[] = []
     const unresolved: Command[] = []
 
     const mockStore = {
-      rehydrate(events: Event[]) {
-        rehydratedEvents = events
+      rehydrate(entries: LogEntry[]) {
+        rehydratedEntries = entries
       },
       dispatch() {},
       dispatchOptimistic() {},
@@ -133,6 +138,21 @@ describe('recoverFromEventLog', () => {
       getCommittedEvents() {
         return []
       },
+      getCommittedLogEntries() {
+        return []
+      },
+      getMembership() {
+        return {}
+      },
+      subscribeMembership() {
+        return () => {}
+      },
+      getLatestSeq() {
+        return 0
+      },
+      proposeJoin() {},
+      proposeLeave() {},
+      proposeTrustUpdate() {},
       requestSync() {},
       destroy() {},
     }
@@ -141,8 +161,8 @@ describe('recoverFromEventLog', () => {
       unresolved.push(cmd),
     )
 
-    expect(rehydratedEvents).toHaveLength(1)
-    expect(rehydratedEvents[0]!.type).toBe('PIECE_MOVED')
+    expect(rehydratedEntries).toHaveLength(1)
+    expect(rehydratedEntries[0]!.event.type).toBe('PIECE_MOVED')
     expect(unresolved).toHaveLength(1)
     expect(unresolved[0]!.id).toBe('cmd-unresolved')
   })
@@ -176,6 +196,21 @@ describe('recoverFromEventLog', () => {
       getCommittedEvents() {
         return []
       },
+      getCommittedLogEntries() {
+        return []
+      },
+      getMembership() {
+        return {}
+      },
+      subscribeMembership() {
+        return () => {}
+      },
+      getLatestSeq() {
+        return 0
+      },
+      proposeJoin() {},
+      proposeLeave() {},
+      proposeTrustUpdate() {},
       requestSync() {},
       destroy() {},
     }
@@ -208,6 +243,21 @@ describe('recoverFromEventLog', () => {
       getCommittedEvents() {
         return []
       },
+      getCommittedLogEntries() {
+        return []
+      },
+      getMembership() {
+        return {}
+      },
+      subscribeMembership() {
+        return () => {}
+      },
+      getLatestSeq() {
+        return 0
+      },
+      proposeJoin() {},
+      proposeLeave() {},
+      proposeTrustUpdate() {},
       requestSync() {},
       destroy() {},
     }
@@ -245,7 +295,9 @@ describe('SqliteEventLog', () => {
     await eventLog.append('game-1', {
       kind: 'committed',
       commandId: 'cmd-1',
-      events: [{ type: 'PIECE_MOVED', payload: { cell: 4 } }],
+      entries: [
+        { seq: 1, event: { type: 'PIECE_MOVED', payload: { cell: 4 } } },
+      ],
     })
     await eventLog.append('game-1', {
       kind: 'rejected',
@@ -281,23 +333,23 @@ describe('SqliteEventLog', () => {
   })
 
   it('round-trips committed events through JSON', async () => {
-    const events: Event[] = [
-      { type: 'MARK_PLACED', payload: { cell: 0, player: 'X' } },
-      { type: 'TURN_CHANGED', payload: { next: 'O' } },
+    const logEntries: LogEntry[] = [
+      { seq: 1, event: { type: 'MARK_PLACED', payload: { cell: 0, player: 'X' } } },
+      { seq: 2, event: { type: 'TURN_CHANGED', payload: { next: 'O' } } },
     ]
     await eventLog.append('g', {
       kind: 'committed',
       commandId: 'c1',
-      events,
+      entries: logEntries,
     })
 
-    const entries = await eventLog.load('g')
-    expect(entries).toHaveLength(1)
-    const entry = entries[0]!
+    const rows = await eventLog.load('g')
+    expect(rows).toHaveLength(1)
+    const entry = rows[0]!
     if (entry.kind === 'committed') {
-      expect(entry.events).toHaveLength(2)
-      expect(entry.events[0]!.type).toBe('MARK_PLACED')
-      expect(entry.events[1]!.type).toBe('TURN_CHANGED')
+      expect(entry.entries).toHaveLength(2)
+      expect(entry.entries[0]!.event.type).toBe('MARK_PLACED')
+      expect(entry.entries[1]!.event.type).toBe('TURN_CHANGED')
     }
   })
 
@@ -305,12 +357,12 @@ describe('SqliteEventLog', () => {
     await eventLog.append('a', {
       kind: 'committed',
       commandId: 'c1',
-      events: [],
+      entries: [],
     })
     await eventLog.append('b', {
       kind: 'committed',
       commandId: 'c2',
-      events: [],
+      entries: [],
     })
 
     expect(await eventLog.load('a')).toHaveLength(1)
@@ -325,7 +377,7 @@ describe('SqliteEventLog', () => {
     await eventLog.append('g', {
       kind: 'committed',
       commandId: 'c1',
-      events: [],
+      entries: [],
     })
     expect(await eventLog.load('g')).toHaveLength(1)
   })
@@ -335,7 +387,7 @@ describe('SqliteEventLog', () => {
       await eventLog.append('g', {
         kind: 'committed',
         commandId: `c${i}`,
-        events: [{ type: `E${i}`, payload: {} }],
+        entries: [{ seq: i + 1, event: { type: `E${i}`, payload: {} } }],
       })
     }
     const entries = await eventLog.load('g')
@@ -352,6 +404,8 @@ describe('SqliteEventLog', () => {
 // ─── Integration: PeerStore + EventLog ───────────────────────────────
 
 describe('PeerStore + EventLog integration', () => {
+  const INT_TOPIC = 'event-log-int'
+
   function setup() {
     const bus = new InMemoryBus()
     const t_x = new InMemoryTransport(bus, 'player-x')
@@ -361,16 +415,26 @@ describe('PeerStore + EventLog integration', () => {
 
     const log = new InMemoryEventLog()
     const gameId = 'game-1'
-    const committed: Array<{ commandId: string; events: Event[] }> = []
+    const committed: Array<{ commandId: string; entries: LogEntry[] }> = []
     const rejected: string[] = []
 
     const store_x = new PeerStore(
       TicTacToeModule,
-      { peerId: 'player-x', peers, transport: t_x },
+      {
+        topic: INT_TOPIC,
+        peerId: 'player-x',
+        bootstrap: { kind: 'genesis', initialMembership: peers },
+        transport: t_x,
+      },
     )
     const store_o = new PeerStore(
       TicTacToeModule,
-      { peerId: 'player-o', peers, transport: t_o },
+      {
+        topic: INT_TOPIC,
+        peerId: 'player-o',
+        bootstrap: { kind: 'genesis', initialMembership: peers },
+        transport: t_o,
+      },
       {
         onReject(commandId) {
           rejected.push(commandId)
@@ -379,17 +443,28 @@ describe('PeerStore + EventLog integration', () => {
     )
     const store_auth = new PeerStore(
       TicTacToeModule,
-      { peerId: 'authority', peers, transport: t_auth },
       {
-        onCommit(commandId, events) {
-          committed.push({ commandId, events })
-          void log.append(gameId, { kind: 'committed', commandId, events })
+        topic: INT_TOPIC,
+        peerId: 'authority',
+        bootstrap: { kind: 'genesis', initialMembership: peers },
+        transport: t_auth,
+      },
+      {
+        onCommit(commandId, entries) {
+          committed.push({ commandId, entries })
+          void log.append(gameId, { kind: 'committed', commandId, entries })
         },
         onReject(commandId) {
           void log.append(gameId, { kind: 'rejected', commandId })
         },
       },
     )
+
+    void log.append(gameId, {
+      kind: 'committed',
+      commandId: '__seed__',
+      entries: store_auth.getCommittedLogEntries(),
+    })
 
     function destroy() {
       store_x.destroy()
@@ -426,9 +501,11 @@ describe('PeerStore + EventLog integration', () => {
 
     expect(committed).toHaveLength(3)
 
-    const authEvents = store_auth.getCommittedEvents()
-    const loggedEvents = committed.flatMap((c) => c.events)
-    expect(loggedEvents).toHaveLength(authEvents.length)
+    const authDomain = store_auth
+      .getCommittedLogEntries()
+      .filter((e) => !isSystemEvent(e.event))
+    const loggedDomain = committed.flatMap((c) => c.entries).filter((e) => !isSystemEvent(e.event))
+    expect(loggedDomain).toHaveLength(authDomain.length)
 
     destroy()
   })
@@ -467,8 +544,9 @@ describe('PeerStore + EventLog integration', () => {
     const recoveredStore = new PeerStore(
       TicTacToeModule,
       {
+        topic: INT_TOPIC,
         peerId: 'authority',
-        peers: { 'authority': 3, 'dummy': 1 },
+        bootstrap: { kind: 'join' },
         transport: t_recovery,
       },
     )

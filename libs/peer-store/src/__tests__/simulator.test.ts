@@ -23,7 +23,8 @@ const TRUST = { 'player-x': 1, 'player-o': 1, 'authority': 3 }
 
 function createSim(opts?: { timeoutMs?: number }) {
   return new DeterministicSimulator(TicTacToeModule, {
-    peers: TRUST,
+    topic: 'sim-test',
+    initialMembership: TRUST,
     advanceTime: (ms) => jest.advanceTimersByTime(ms),
     ...(opts?.timeoutMs !== undefined ? { timeoutMs: opts.timeoutMs } : {}),
   })

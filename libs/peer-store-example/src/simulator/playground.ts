@@ -1,6 +1,7 @@
 import { TicTacToeModule } from '@gamezilla/peer-store/__fixtures__/tic-tac-toe.module';
 import { DeterministicSimulator } from '@gamezilla/peer-store/simulator';
 import type { Event, Message, State } from '@gamezilla/peer-store/types';
+import { isSystemEvent } from '@gamezilla/peer-store/utils';
 
 export const TRUST_MAP = {
   'player-x': 1,
@@ -50,7 +51,11 @@ export class PlaygroundSimulator {
 
   private createSim(): DeterministicSimulator {
     return new DeterministicSimulator(TicTacToeModule, {
-      peers: { ...TRUST_MAP },
+      topic: 'peer-store-playground',
+      initialMembership: { ...TRUST_MAP },
+      advanceTime: () => {
+        /* browser playground has no fake timers */
+      },
     });
   }
 
@@ -259,11 +264,15 @@ export class PlaygroundSimulator {
 
   cheatFabricateCommit(): void {
     const errorsBefore = this.sim.getErrorLog().length;
+    const nextSeq = this.sim.getLatestSeq('server') + 1
     const wireMsg = {
-      kind: 'committed',
+      kind: 'accepted',
       commandId: `fabricated-${Date.now()}`,
-      events: [
-        { type: 'MARK_PLACED', payload: { cell: 0, player: 'X', seq: 99 } },
+      entries: [
+        {
+          seq: nextSeq,
+          event: { type: 'MARK_PLACED', payload: { cell: 0, player: 'X', seq: 99 } },
+        },
       ],
     };
     this.sim.injectWireMessage(wireMsg);
@@ -282,8 +291,10 @@ export class PlaygroundSimulator {
   }
 
   cheatReplay(): void {
-    const events = this.sim.getEventLog('server');
-    if (events.length === 0) {
+    const domain = this.sim
+      .getCommittedLogEntries('server')
+      .filter((e) => !isSystemEvent(e.event));
+    if (domain.length === 0) {
       this.pushEntry({
         kind: 'cheat',
         tag: 'cheat',
@@ -294,16 +305,21 @@ export class PlaygroundSimulator {
       this.notify();
       return;
     }
+    const start = this.sim.getLatestSeq('server') + 1;
+    const entries = domain.map((e, i) => ({
+      seq: start + i,
+      event: e.event,
+    }));
     const wireMsg = {
-      kind: 'committed',
+      kind: 'accepted',
       commandId: `replay-${Date.now()}`,
-      events: [...events],
+      entries,
     };
     this.sim.injectWireMessage(wireMsg);
     this.pushEntry({
       kind: 'cheat',
       tag: 'cheat',
-      summary: `replayed ${events.length} event(s) with new commandId`,
+      summary: `replayed ${domain.length} event(s) with new commandId`,
       code: `sim.injectWireMessage(${JSON.stringify(wireMsg)})`,
       peerId: 'wire',
       detected: false,
@@ -314,18 +330,25 @@ export class PlaygroundSimulator {
   cheatTamperEvents(): void {
     this.sim.setMessageInterceptor((_topic, payload) => {
       const msg = payload as Record<string, unknown>;
-      if (msg['kind'] === 'committed') {
-        const events = msg['events'] as Array<Record<string, unknown>>;
+      if (msg['kind'] === 'accepted') {
+        const rows = msg['entries'] as Array<{
+          seq: number;
+          event: Record<string, unknown>;
+        }>;
         return {
           ...msg,
-          events: events.map((e) => {
+          entries: rows.map((row) => {
+            const e = row.event;
             if (e['type'] === 'MARK_PLACED') {
               const p = e['payload'] as Record<string, unknown>;
               const originalCell = p['cell'] as number;
               const newCell = (originalCell + 4) % 9;
-              return { ...e, payload: { ...p, cell: newCell } };
+              return {
+                seq: row.seq,
+                event: { ...e, payload: { ...p, cell: newCell } },
+              };
             }
-            return e;
+            return row;
           }),
         };
       }
@@ -335,18 +358,19 @@ export class PlaygroundSimulator {
       kind: 'cheat',
       tag: 'cheat',
       summary:
-        'MITM interceptor active — committed events will have cells shifted by +4',
+        'MITM interceptor active — accepted entries will have cells shifted by +4',
       code: [
         'sim.setMessageInterceptor((_topic, payload) => {',
         '  const msg = payload as Record<string, unknown>',
-        '  if (msg["kind"] === "committed") {',
-        '    const events = msg["events"] as Array<Record<string, unknown>>',
-        '    return { ...msg, events: events.map((e) => {',
+        '  if (msg["kind"] === "accepted") {',
+        '    const entries = msg["entries"] as Array<{ seq: number; event: Record<string, unknown> }>',
+        '    return { ...msg, entries: entries.map((row) => {',
+        '      const e = row.event',
         '      if (e["type"] === "MARK_PLACED") {',
         '        const p = e["payload"] as Record<string, unknown>',
-        '        return { ...e, payload: { ...p, cell: ((p["cell"] as number) + 4) % 9 } }',
+        '        return { seq: row.seq, event: { ...e, payload: { ...p, cell: ((p["cell"] as number) + 4) % 9 } } }',
         '      }',
-        '      return e',
+        '      return row',
         '    }) }',
         '  }',
         '  return payload',

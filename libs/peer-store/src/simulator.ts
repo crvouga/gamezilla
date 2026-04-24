@@ -1,17 +1,16 @@
 import { Assert } from '@gamezilla/lib/assert'
 import { PeerStore } from './peer-store'
 import { InMemoryBus, InMemoryTransport, type MessageInterceptor } from './transport'
-import type { Command, Event, Message, State, StoreModule } from './types'
+import type { Command, Event, LogEntry, Message, State, StoreModule } from './types'
 import { generateId } from './utils'
 
 const crash: Assert = Assert.crash()
 
-const TOPIC = 'peer-store'
-
 export class DeterministicSimulator {
   private readonly module: StoreModule
-  private readonly peer_ids: string[]
-  private readonly trustMap: Record<string, number>
+  private readonly topic: string
+  private peer_ids: string[]
+  private readonly initialMembership: Record<string, number>
   private readonly timeoutMs: number | undefined
   private readonly heartbeatIntervalMs: number | undefined
   private readonly heartbeatTimeoutMs: number | undefined
@@ -31,19 +30,22 @@ export class DeterministicSimulator {
   constructor(
     module: StoreModule,
     config: {
-      peers: Record<string, number>
+      topic: string
+      initialMembership: Record<string, number>
       timeoutMs?: number
       heartbeatIntervalMs?: number
       heartbeatTimeoutMs?: number
       advanceTime?: (ms: number) => void
     },
   ) {
-    const peerIds = Object.keys(config.peers)
-    crash.ok(peerIds.length >= 2, 'simulator requires at least 2 peers')
+    const peerIds = Object.keys(config.initialMembership)
+    crash.nonEmptyString(config.topic, 'simulator requires topic')
+    crash.ok(peerIds.length >= 2, 'simulator requires at least 2 peers in initialMembership')
 
     this.module = module
+    this.topic = config.topic
     this.peer_ids = peerIds
-    this.trustMap = { ...config.peers }
+    this.initialMembership = { ...config.initialMembership }
     this.timeoutMs = config.timeoutMs
     this.heartbeatIntervalMs = config.heartbeatIntervalMs
     this.heartbeatTimeoutMs = config.heartbeatTimeoutMs
@@ -167,6 +169,7 @@ export class DeterministicSimulator {
     this.advanceTimeFn(ms)
   }
 
+  /** Domain committed events only (excludes `_peer/...`). */
   getEventLog(peerId: string): Event[] {
     crash.ok(
       !this.is_destroyed,
@@ -174,6 +177,12 @@ export class DeterministicSimulator {
     )
     this.assertPeerExists(peerId)
     return this.stores.get(peerId)!.getCommittedEvents()
+  }
+
+  getCommittedLogEntries(peerId: string): LogEntry[] {
+    crash.ok(!this.is_destroyed, 'cannot getCommittedLogEntries on destroyed simulator')
+    this.assertPeerExists(peerId)
+    return this.stores.get(peerId)!.getCommittedLogEntries()
   }
 
   getTimeoutLog(): string[] {
@@ -193,7 +202,7 @@ export class DeterministicSimulator {
 
   injectWireMessage(wireMessage: unknown): void {
     crash.ok(!this.is_destroyed, 'cannot inject on destroyed simulator')
-    this.bus.publish(TOPIC, wireMessage)
+    this.bus.publish(this.topic, wireMessage)
   }
 
   setMessageInterceptor(fn: MessageInterceptor | null): void {
@@ -221,6 +230,76 @@ export class DeterministicSimulator {
     return this.transports.get(peerId)!
   }
 
+  getTopic(): string {
+    return this.topic
+  }
+
+  getLatestSeq(peerId: string): number {
+    crash.ok(!this.is_destroyed, 'cannot getLatestSeq on destroyed simulator')
+    this.assertPeerExists(peerId)
+    return this.stores.get(peerId)!.getLatestSeq()
+  }
+
+  /**
+   * Add a new peer that bootstraps with `join` (syncs from current authority).
+   * Caller should `deliverPending` / `resumeDelivery` so sync completes.
+   */
+  joinPeer(peerId: string, trust: number): void {
+    crash.ok(!this.is_destroyed, 'cannot joinPeer on destroyed simulator')
+    crash.nonEmptyString(peerId, 'peerId must be non-empty')
+    crash.ok(!this.stores.has(peerId), `peer already exists: ${peerId}`)
+    crash.ok(trust >= 0, 'trust must be >= 0')
+
+    const transport = new InMemoryTransport(this.bus, peerId)
+    this.transports.set(peerId, transport)
+
+    const store = new PeerStore(
+      this.module,
+      {
+        topic: this.topic,
+        peerId,
+        bootstrap: { kind: 'join' },
+        transport,
+        ...(this.timeoutMs !== undefined ? { timeoutMs: this.timeoutMs } : {}),
+        ...(this.heartbeatIntervalMs !== undefined
+          ? { heartbeatIntervalMs: this.heartbeatIntervalMs }
+          : {}),
+        ...(this.heartbeatTimeoutMs !== undefined
+          ? { heartbeatTimeoutMs: this.heartbeatTimeoutMs }
+          : {}),
+      },
+      {
+        onTimeout: (commandId) => {
+          this.timeout_log.push(commandId)
+        },
+        onError: (error) => {
+          this.error_log.push(error)
+        },
+        onAuthorityChange: (newAuthority, previousAuthority) => {
+          this.authority_change_log.push({ newAuthority, previousAuthority })
+        },
+      },
+    )
+    this.stores.set(peerId, store)
+    this.peer_ids = [...this.peer_ids, peerId]
+
+    store.proposeJoin(peerId, trust)
+    this.bus.flush()
+  }
+
+  leavePeer(peerId: string): void {
+    crash.ok(!this.is_destroyed, 'cannot leavePeer on destroyed simulator')
+    this.assertPeerExists(peerId)
+    const store = this.stores.get(peerId)!
+    store.proposeLeave(peerId)
+    this.bus.flush()
+    store.destroy()
+    this.transports.get(peerId)?.destroy()
+    this.stores.delete(peerId)
+    this.transports.delete(peerId)
+    this.peer_ids = this.peer_ids.filter((id) => id !== peerId)
+  }
+
   reset(): void {
     crash.ok(!this.is_destroyed, 'cannot reset destroyed simulator')
 
@@ -236,6 +315,7 @@ export class DeterministicSimulator {
 
     const new_bus = new InMemoryBus()
     Object.assign(this, { bus: new_bus })
+    this.peer_ids = Object.keys(this.initialMembership)
     this.buildStores(new_bus)
 
     this.timeout_log.length = 0
@@ -265,8 +345,12 @@ export class DeterministicSimulator {
       const store = new PeerStore(
         this.module,
         {
+          topic: this.topic,
           peerId,
-          peers: this.trustMap,
+          bootstrap: {
+            kind: 'genesis',
+            initialMembership: this.initialMembership,
+          },
           transport,
           ...(this.timeoutMs !== undefined
             ? { timeoutMs: this.timeoutMs }

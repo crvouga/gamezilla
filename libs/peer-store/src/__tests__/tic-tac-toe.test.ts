@@ -25,7 +25,8 @@ const PEER_IDS = Object.keys(TRUST)
 
 function createSim(opts?: { timeoutMs?: number }) {
   return new DeterministicSimulator(TicTacToeModule, {
-    peers: TRUST,
+    topic: 'tic-tac-toe-sim',
+    initialMembership: TRUST,
     timeoutMs: opts?.timeoutMs ?? 5000,
     advanceTime: (ms) => jest.advanceTimersByTime(ms),
   })
@@ -250,8 +251,13 @@ describe('TicTacToe integration', () => {
   it('unknown event type → state unchanged, no crash', () => {
     const sim = createSim()
     const store = sim.getStore('player-x')
+    const base = store.getCommittedLogEntries()
+    const maxSeq = base.reduce((m, e) => Math.max(m, e.seq), 0)
     const before = JSON.stringify(store.getCommittedState())
-    store.rehydrate([{ type: 'UNKNOWN_EVENT', payload: {} }])
+    store.rehydrate([
+      ...base,
+      { seq: maxSeq + 1, event: { type: 'UNKNOWN_EVENT', payload: {} } },
+    ])
     const after = JSON.stringify(store.getCommittedState())
     expect(after).toBe(before)
     sim.destroy()

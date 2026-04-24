@@ -1,7 +1,7 @@
 import { Assert } from '@gamezilla/lib/assert'
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface'
-import type { EventLog, LogEntry } from './event-log'
-import type { Command, Event } from './types'
+import type { EventLog, EventLogEntry } from './event-log'
+import type { Command, LogEntry } from './types'
 
 const crash: Assert = Assert.crash()
 
@@ -26,7 +26,11 @@ WHERE game_id = ? ORDER BY seq ASC`
 
 type Row = { kind: string; command_id: string; payload: string }
 
-function entryToRow(entry: LogEntry): { kind: string; commandId: string; payload: string } {
+function entryToRow(entry: EventLogEntry): {
+  kind: string
+  commandId: string
+  payload: string
+} {
   switch (entry.kind) {
     case 'command':
       return {
@@ -38,7 +42,7 @@ function entryToRow(entry: LogEntry): { kind: string; commandId: string; payload
       return {
         kind: 'committed',
         commandId: entry.commandId,
-        payload: JSON.stringify(entry.events),
+        payload: JSON.stringify(entry.entries),
       }
     case 'rejected':
       return {
@@ -49,7 +53,7 @@ function entryToRow(entry: LogEntry): { kind: string; commandId: string; payload
   }
 }
 
-function rowToEntry(row: Row): LogEntry {
+function rowToEntry(row: Row): EventLogEntry {
   switch (row.kind) {
     case 'command':
       return { kind: 'command', command: JSON.parse(row.payload) as Command }
@@ -57,7 +61,7 @@ function rowToEntry(row: Row): LogEntry {
       return {
         kind: 'committed',
         commandId: row.command_id,
-        events: JSON.parse(row.payload) as Event[],
+        entries: JSON.parse(row.payload) as LogEntry[],
       }
     case 'rejected':
       return { kind: 'rejected', commandId: row.command_id }
@@ -82,14 +86,14 @@ export class SqliteEventLog implements EventLog {
     }
   }
 
-  async append(gameId: string, entry: LogEntry): Promise<void> {
+  async append(gameId: string, entry: EventLogEntry): Promise<void> {
     crash.nonEmptyString(gameId, 'gameId must be non-empty')
     const { kind, commandId, payload } = entryToRow(entry)
     const now = new Date().toISOString()
     await this.sqlClient.run(INSERT, [gameId, gameId, kind, commandId, payload, now])
   }
 
-  async load(gameId: string): Promise<LogEntry[]> {
+  async load(gameId: string): Promise<EventLogEntry[]> {
     crash.nonEmptyString(gameId, 'gameId must be non-empty')
     const rows = await this.sqlClient.query<Row>(SELECT, [gameId])
     return rows.map(rowToEntry)

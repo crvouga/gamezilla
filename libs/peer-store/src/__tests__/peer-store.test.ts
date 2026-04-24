@@ -11,7 +11,7 @@ import {
 import { Assert } from '@gamezilla/lib/assert'
 import { PeerStore } from '../peer-store'
 import { InMemoryBus, InMemoryTransport } from '../transport'
-import type { Event, HandleResult, State, StoreModule } from '../types'
+import type { HandleResult, State, StoreModule } from '../types'
 import { TicTacToeModule } from '../__fixtures__/tic-tac-toe.module'
 import { TestCrashHandler } from './test-crash-handler'
 
@@ -25,6 +25,7 @@ afterAll(() => disposeCrashHandler())
 
 const TRUST = { 'player-x': 1, 'player-o': 1, 'authority': 3 } as const
 const PEER_IDS = Object.keys(TRUST)
+const TEST_TOPIC = 'peer-store-test'
 
 function setup(opts?: {
   peers?: Record<string, number>
@@ -52,8 +53,9 @@ function setup(opts?: {
     const store = new PeerStore(
       TicTacToeModule,
       {
+        topic: TEST_TOPIC,
         peerId,
-        peers,
+        bootstrap: { kind: 'genesis', initialMembership: peers },
         transport,
         ...(opts?.timeoutMs !== undefined
           ? { timeoutMs: opts.timeoutMs }
@@ -215,11 +217,11 @@ describe('PeerStore', () => {
   it('rehydrate replaces committed events and clears optimistic', () => {
     const { stores } = setup()
     const store_x = stores.get('player-x')!
+    const store_auth = stores.get('authority')!
 
-    const events: Event[] = [
-      { type: 'MARK_PLACED', payload: { cell: 4, player: 'X', seq: 1 } },
-    ]
-    store_x.rehydrate(events)
+    store_auth.dispatch({ type: 'PLACE_MARK', payload: { cell: 4, player: 'X' } })
+    const entries = store_auth.getCommittedLogEntries()
+    store_x.rehydrate(entries)
 
     const state = store_x.getCommittedState()
     expect((state['board'] as Array<null | string>)[4]).toBe('X')
@@ -229,14 +231,14 @@ describe('PeerStore', () => {
     const { stores } = setup()
     const store_x = stores.get('player-x')!
     const store_o = stores.get('player-o')!
+    const store_auth = stores.get('authority')!
 
-    const events: Event[] = [
-      { type: 'MARK_PLACED', payload: { cell: 0, player: 'X', seq: 1 } },
-      { type: 'MARK_PLACED', payload: { cell: 4, player: 'O', seq: 2 } },
-    ]
+    store_auth.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
+    store_auth.dispatch({ type: 'PLACE_MARK', payload: { cell: 4, player: 'O' } })
+    const entries = store_auth.getCommittedLogEntries()
 
-    store_x.rehydrate(events)
-    store_o.rehydrate(events)
+    store_x.rehydrate(entries)
+    store_o.rehydrate(entries)
 
     expect(JSON.stringify(store_x.getCommittedState())).toBe(
       JSON.stringify(store_o.getCommittedState()),
@@ -306,13 +308,15 @@ describe('PeerStore', () => {
     const t1 = new InMemoryTransport(bus, 'a')
     const t2 = new InMemoryTransport(bus, 'b')
     const store = new PeerStore(badModule, {
+      topic: TEST_TOPIC,
       peerId: 'a',
-      peers: { a: 1, b: 3 },
+      bootstrap: { kind: 'genesis', initialMembership: { a: 1, b: 3 } },
       transport: t1,
     })
     const _store2 = new PeerStore(badModule, {
+      topic: TEST_TOPIC,
       peerId: 'b',
-      peers: { a: 1, b: 3 },
+      bootstrap: { kind: 'genesis', initialMembership: { a: 1, b: 3 } },
       transport: t2,
     })
 
@@ -340,13 +344,15 @@ describe('PeerStore', () => {
     const t1 = new InMemoryTransport(bus, 'a')
     const t2 = new InMemoryTransport(bus, 'b')
     const store = new PeerStore(badModule, {
+      topic: TEST_TOPIC,
       peerId: 'b',
-      peers: { a: 1, b: 3 },
+      bootstrap: { kind: 'genesis', initialMembership: { a: 1, b: 3 } },
       transport: t2,
     })
     const _store2 = new PeerStore(badModule, {
+      topic: TEST_TOPIC,
       peerId: 'a',
-      peers: { a: 1, b: 3 },
+      bootstrap: { kind: 'genesis', initialMembership: { a: 1, b: 3 } },
       transport: t1,
     })
 
@@ -482,8 +488,8 @@ describe('Sync protocol', () => {
       payload: { cell: 0, player: 'X' },
     })
 
-    const events = stores.get('authority')!.getCommittedEvents()
-    stores.get('player-o')!.rehydrate(events)
+    const entries = stores.get('authority')!.getCommittedLogEntries()
+    stores.get('player-o')!.rehydrate(entries)
 
     stores.get('player-o')!.dispatch({
       type: 'PLACE_MARK',

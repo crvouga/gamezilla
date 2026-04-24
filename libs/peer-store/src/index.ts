@@ -1,5 +1,5 @@
 export { InMemoryEventLog, recoverFromEventLog } from './event-log'
-export type { EventLog, LogEntry } from './event-log'
+export type { EventLog, EventLogEntry } from './event-log'
 export { PostgresEventLog } from './event-log-postgres'
 export { SqliteEventLog } from './event-log-sqlite'
 export { PeerStore } from './peer-store'
@@ -11,11 +11,20 @@ export type {
   Command,
   Event,
   HandleResult,
+  LogEntry,
   Message,
+  PeerBootstrap,
   PeerStoreApi,
+  Snapshot,
   State,
   StoreError,
   StoreModule,
   Transport,
 } from './types'
-export { generateId, replayEvents } from './utils'
+export {
+  generateId,
+  isSystemEvent,
+  replayDomainEntries,
+  replayEvents,
+  SYSTEM_EVENT_PREFIX,
+} from './utils'
