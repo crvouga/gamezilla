@@ -9,14 +9,7 @@ import {
 } from '@gamezilla/shared/ui';
 import { useRouter } from 'expo-router';
 
-import type { Space } from './types';
-
-const GAME_LABEL: Record<Space['gameType'], string> = {
-  trivia: 'Trivia',
-  drawing: 'Drawing',
-  'word-guess': 'Word guess',
-  party: 'Party',
-};
+import type { SpaceView } from './types';
 
 function initialsFromName(name: string): string {
   const parts = name.trim().split(/\s+/);
@@ -27,7 +20,7 @@ function initialsFromName(name: string): string {
 }
 
 export type SpaceCardProps = {
-  space: Space;
+  space: SpaceView;
 };
 
 export function SpaceCard({ space }: SpaceCardProps) {
@@ -62,7 +55,7 @@ export function SpaceCard({ space }: SpaceCardProps) {
             sx={{ flexDirection: 'row', alignItems: 'center', gap: 2, flex: 1 }}
           >
             <Avatar
-              initials={initialsFromName(space.host.displayName)}
+              initials={initialsFromName(space.hostDisplayName)}
               size={44}
               background="rgba(255,255,255,0.22)"
             />
@@ -76,7 +69,7 @@ export function SpaceCard({ space }: SpaceCardProps) {
               <Text
                 variant="caption"
                 sx={{ color: 'rgba(255,255,255,0.85)' }}
-                label={space.host.displayName}
+                label={space.hostDisplayName}
               />
             </Box>
           </Box>
@@ -109,29 +102,17 @@ export function SpaceCard({ space }: SpaceCardProps) {
               <Text
                 variant="caption"
                 sx={{ color: 'rgba(255,255,255,0.9)' }}
-                label="Soon"
+                label="Ended"
               />
             </Box>
           )}
         </Box>
 
-        <Box
-          sx={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            mt: 3,
-          }}
-        >
+        <Box sx={{ mt: 3 }}>
           <Text
             variant="caption"
             sx={{ color: 'rgba(255,255,255,0.95)' }}
-            label={GAME_LABEL[space.gameType]}
-          />
-          <Text
-            variant="caption"
-            sx={{ color: 'rgba(255,255,255,0.9)' }}
-            label={`${space.listenerCount} listening`}
+            label="Space"
           />
         </Box>
       </GradientBox>

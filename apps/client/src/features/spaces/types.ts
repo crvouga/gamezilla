@@ -1,19 +1,16 @@
-export type GameTypeId = 'trivia' | 'drawing' | 'word-guess' | 'party';
+export type SpaceFilter = 'all' | 'live';
 
-export type SpaceHost = {
-  id: string;
-  displayName: string;
-};
-
-export type Space = {
+/** UI row for the spaces list (from patch-db entities + resolved host label). */
+export type SpaceView = {
   id: string;
   title: string;
-  gameType: GameTypeId;
-  listenerCount: number;
+  hostId: string;
+  hostDisplayName: string;
   live: boolean;
-  /** Current (guest) user is hosting this space */
-  isHostedByMe: boolean;
-  host: SpaceHost;
 };
 
-export type SpaceFilter = 'all' | 'live' | 'mine';
+export type SpaceMemberRow = {
+  principalId: string;
+  displayName: string;
+  role: 'host' | 'guest';
+};

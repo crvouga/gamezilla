@@ -300,6 +300,7 @@
     "./postgres/postgres-test-instance": "./src/postgres/postgres-test-instance.ts",
     "./postgres/postgres-container": "./src/postgres/postgres-container.ts",
     "./postgres/pglite-test-instance": "./src/postgres/pglite-test-instance.ts",
+    "./spaces/space-entities": "./src/spaces/space-entities.ts",
     "./profile/profile-entities": "./src/profile/profile-entities.ts",
     "./profile/avatar-config": "./src/profile/avatar-config.ts",
     "./task-dag/interface": "./src/task-dag/interface.ts",

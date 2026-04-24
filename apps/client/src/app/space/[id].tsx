@@ -1,32 +1,81 @@
-import { Avatar, Box, Button, ScreenBase, Text } from '@gamezilla/shared/ui';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-
-import { getSpaceById } from '@gamezilla/client/features/spaces/mock-spaces';
-import type { Space } from '@gamezilla/client/features/spaces/types';
+import { useSpaceActions } from '@gamezilla/client/features/spaces/space-actions';
+import { SpaceMemberList } from '@gamezilla/client/features/spaces/space-member-list';
+import {
+  useCurrentMembership,
+  usePrincipalDisplayName,
+  useSpace,
+  useSpaceMembers,
+} from '@gamezilla/client/features/spaces/use-spaces';
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
-
-const GAME_LABEL: Record<Space['gameType'], string> = {
-  trivia: 'Trivia',
-  drawing: 'Drawing',
-  'word-guess': 'Word guess',
-  party: 'Party',
-};
-
-function initialsFromName(name: string): string {
-  const parts = name.trim().split(/\s+/);
-  if (parts.length >= 2 && parts[0] && parts[1]) {
-    return `${parts[0][0] ?? ''}${parts[1][0] ?? ''}`;
-  }
-  return name.slice(0, 2) || '?';
-}
+import { SpaceMembershipAttr } from '@gamezilla/shared/spaces/space-entities';
+import {
+  Box,
+  Button,
+  ConfirmationModal,
+  ScreenBase,
+  Text,
+} from '@gamezilla/shared/ui';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
 
 export default function SpaceDetailScreen() {
   const router = useRouter();
   const nav = useBreadcrumbNav();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const space = typeof id === 'string' ? getSpaceById(id) : undefined;
+  const spaceId = typeof id === 'string' ? id : undefined;
 
-  if (!space) {
+  const space = useSpace(spaceId);
+  const current = useCurrentMembership();
+  const { members } = useSpaceMembers(spaceId);
+  const { joinSpace, leaveSpace, endSpace } = useSpaceActions();
+  const hostLabel = usePrincipalDisplayName(space.hostId);
+
+  const [confirmEnd, setConfirmEnd] = useState(false);
+  const [confirmLeave, setConfirmLeave] = useState(false);
+
+  const pageLoading = space.loading || current.loading;
+
+  const membershipSpaceId = (() => {
+    const raw = current.membershipEntity?.attributes[SpaceMembershipAttr.spaceId];
+    return typeof raw === 'string' ? raw : null;
+  })();
+  const membershipLeftAt =
+    current.membershipEntity?.attributes[SpaceMembershipAttr.leftAt];
+
+  useEffect(() => {
+    if (!spaceId || !space.space || space.live) return;
+    const left = membershipLeftAt !== undefined && membershipLeftAt !== null;
+    if (
+      membershipSpaceId === spaceId &&
+      !left
+    ) {
+      void leaveSpace();
+    }
+  }, [
+    spaceId,
+    space.space,
+    space.live,
+    membershipSpaceId,
+    membershipLeftAt,
+    leaveSpace,
+  ]);
+
+  const inThisSpace = current.activeSpaceId === spaceId;
+
+  if (pageLoading) {
+    return (
+      <ScreenBase
+        breadcrumbs={[{ name: 'Spaces', onPress: nav('/') }, { name: 'Space' }]}
+        content={({ sx }) => (
+          <Box style={sx} sx={{ flex: 1, justifyContent: 'center' }}>
+            <Text variant="body" sx={{ color: 'textSecondary' }} label="Loading…" />
+          </Box>
+        )}
+      />
+    );
+  }
+
+  if (!space.space) {
     return (
       <ScreenBase
         breadcrumbs={[{ name: 'Spaces', onPress: nav('/') }, { name: 'Space' }]}
@@ -50,11 +99,62 @@ export default function SpaceDetailScreen() {
     );
   }
 
-  const participants = [
-    space.host,
-    { id: 'p2', displayName: 'Jamie' },
-    { id: 'p3', displayName: 'Casey' },
-  ];
+  if (!space.live) {
+    return (
+      <ScreenBase
+        breadcrumbs={[
+          { name: 'Spaces', onPress: nav('/') },
+          { name: space.title },
+        ]}
+        content={({ sx }) => (
+          <Box style={sx} sx={{ flex: 1, justifyContent: 'center', gap: 3 }}>
+            <Text
+              variant="body"
+              sx={{ color: 'textSecondary', textAlign: 'center' }}
+              label="This space has ended."
+            />
+            <Button
+              title="Go back"
+              variant="solid"
+              onPress={() => router.back()}
+            />
+          </Box>
+        )}
+      />
+    );
+  }
+
+  if (!inThisSpace) {
+    return (
+      <ScreenBase
+        breadcrumbs={[
+          { name: 'Spaces', onPress: nav('/') },
+          { name: space.title },
+        ]}
+        content={({ sx }) => (
+          <Box style={sx} sx={{ gap: 3 }}>
+            <Text variant="label" sx={{ color: 'textSecondary' }} label="Host" />
+            <Text variant="bodyBold" label={hostLabel} />
+            <Text
+              variant="body"
+              sx={{ color: 'textSecondary' }}
+              label="Join this space to see who is here and hang out."
+            />
+            <Button
+              title="Join space"
+              variant="solid"
+              onPress={() => {
+                if (spaceId) void joinSpace(spaceId);
+              }}
+            />
+            <Button title="Back" variant="outlined" onPress={() => router.back()} />
+          </Box>
+        )}
+      />
+    );
+  }
+
+  const isHost = current.role === 'host';
 
   return (
     <ScreenBase
@@ -63,61 +163,52 @@ export default function SpaceDetailScreen() {
         { name: space.title },
       ]}
       content={({ sx }) => (
-        <Box style={sx}>
-          <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-            <Text variant="label" label={GAME_LABEL[space.gameType]} />
-            {space.live ? (
-              <Text variant="caption" sx={{ color: 'success' }} label="Live" />
-            ) : null}
-          </Box>
+        <Box style={sx} sx={{ gap: 4 }}>
+          <SpaceMemberList members={members} />
 
-          <Box
-            sx={{
-              flex: 1,
-              minHeight: 200,
-              background: 'surface',
-              borderRadius: 16,
-              borderWidth: 1,
-              borderColor: 'border',
-              alignItems: 'center',
-              justifyContent: 'center',
-              p: 4,
+          {isHost ? (
+            <Button
+              title="End space"
+              variant="solid"
+              onPress={() => setConfirmEnd(true)}
+            />
+          ) : (
+            <Button
+              title="Leave space"
+              variant="outlined"
+              onPress={() => setConfirmLeave(true)}
+            />
+          )}
+
+          <ConfirmationModal
+            visible={confirmEnd}
+            title="End space?"
+            message="Everyone will leave this space. This cannot be undone."
+            confirmLabel="End space"
+            cancelLabel="Cancel"
+            variant="destructive"
+            onConfirm={() => {
+              setConfirmEnd(false);
+              void (async () => {
+                if (spaceId) await endSpace(spaceId);
+                router.back();
+              })();
             }}
-          >
-            <Text
-              variant="body"
-              sx={{ color: 'textSecondary', textAlign: 'center' }}
-              label="Game area (placeholder). Different game types render here."
-            />
-          </Box>
-
-          <Box sx={{ gap: 2 }}>
-            <Text
-              variant="label"
-              sx={{ color: 'textSecondary' }}
-              label="People here"
-            />
-            <Box sx={{ flexDirection: 'row', flexWrap: 'wrap', gap: 2 }}>
-              {participants.map((p) => (
-                <Box key={p.id} sx={{ alignItems: 'center', gap: 1 }}>
-                  <Avatar
-                    initials={initialsFromName(p.displayName)}
-                    size={40}
-                  />
-                  <Text
-                    variant="caption"
-                    numberOfLines={1}
-                    label={p.displayName}
-                  />
-                </Box>
-              ))}
-            </Box>
-          </Box>
-
-          <Button
-            title="Leave space"
-            variant="outlined"
-            onPress={() => router.back()}
+            onCancel={() => setConfirmEnd(false)}
+          />
+          <ConfirmationModal
+            visible={confirmLeave}
+            title="Leave space?"
+            message="You can join again later if the space is still live."
+            confirmLabel="Leave"
+            cancelLabel="Cancel"
+            variant="default"
+            onConfirm={() => {
+              setConfirmLeave(false);
+              void leaveSpace();
+              router.back();
+            }}
+            onCancel={() => setConfirmLeave(false)}
           />
         </Box>
       )}
