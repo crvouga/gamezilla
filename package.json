@@ -17,6 +17,7 @@
     "gh": "gh run view --web",
     "wipe": "git clean -xfd",
     "pw:ui": "bun run --filter '@gamezilla/e2e' e2e:ui",
+    "pw:headed": "bun run --filter '@gamezilla/e2e' e2e:headed",
     "pw": "bun run --filter '@gamezilla/e2e' e2e"
   },
   "devDependencies": {

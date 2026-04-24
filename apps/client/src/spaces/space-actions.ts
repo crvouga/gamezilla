@@ -1,12 +1,12 @@
-import { PrincipalServiceToken } from '@gamezilla/client/features/auth/principal-service';
-import { usePatchesDb } from '@gamezilla/patch-db/react';
-import { useDependency } from '@gamezilla/lib/dependency-injection/react';
+import { PrincipalServiceToken } from '@gamezilla/client/auth/principal-service';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceAttr,
   SpaceMembershipAttr,
 } from '@gamezilla/domain/spaces/space-entities';
+import { useDependency } from '@gamezilla/lib/dependency-injection/react';
+import { usePatchesDb } from '@gamezilla/patch-db/react';
 import { useCallback } from 'react';
 
 function isoNow(): string {

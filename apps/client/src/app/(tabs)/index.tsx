@@ -1,7 +1,10 @@
-import { useSpaceActions } from '@gamezilla/client/features/spaces/space-actions';
-import { SpaceCard } from '@gamezilla/client/features/spaces/space-card';
-import type { SpaceFilter } from '@gamezilla/client/features/spaces/types';
-import { useCurrentMembership, useSpaces } from '@gamezilla/client/features/spaces/use-spaces';
+import { useSpaceActions } from '@gamezilla/client/spaces/space-actions';
+import { SpaceCard } from '@gamezilla/client/spaces/space-card';
+import type { SpaceFilter } from '@gamezilla/client/spaces/types';
+import {
+  useCurrentMembership,
+  useSpaces,
+} from '@gamezilla/client/spaces/use-spaces';
 import { useAccountActions } from '@gamezilla/client/ui/use-account-actions';
 import {
   Box,
@@ -171,7 +174,11 @@ export default function SpacesScreen() {
           >
             {loading ? (
               <Box sx={{ py: 8, alignItems: 'center' }}>
-                <Text variant="body" sx={{ color: 'textSecondary' }} label="Loading…" />
+                <Text
+                  variant="body"
+                  sx={{ color: 'textSecondary' }}
+                  label="Loading…"
+                />
               </Box>
             ) : spaces.length === 0 ? (
               <Box sx={{ py: 8, alignItems: 'center' }}>

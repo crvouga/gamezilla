@@ -1,10 +1,10 @@
-import { useAuth } from '@gamezilla/client/features/auth/auth-context';
-import { clearLocalDatabaseAndReload } from '@gamezilla/patch-db/bootstrap-expo';
+import { useAuth } from '@gamezilla/client/auth/auth-context';
 import {
   ConfirmationModal,
   RegisterCommand,
   useThemePreference,
 } from '@gamezilla/lib/ui';
+import { clearLocalDatabaseAndReload } from '@gamezilla/patch-db/bootstrap-expo';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 

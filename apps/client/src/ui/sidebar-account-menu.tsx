@@ -2,7 +2,7 @@
  * Wide-layout sidebar account row + {@link FloatingMenu} (same entries as header overflow).
  */
 
-import { useServerStatus } from '@gamezilla/client/features/connection/use-server-status';
+import { useServerStatus } from '@gamezilla/client/connection/use-server-status';
 import { useLogger } from '@gamezilla/lib/logger/react';
 import {
   Box,
@@ -25,9 +25,9 @@ import {
 } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useAuth } from '@gamezilla/client/features/auth/auth-context';
-import { ProfileDiceBearAvatar } from '@gamezilla/client/features/profile/profile-dicebear-avatar';
-import { useProfile } from '@gamezilla/client/features/profile/use-profile';
+import { useAuth } from '@gamezilla/client/auth/auth-context';
+import { ProfileDiceBearAvatar } from '@gamezilla/client/profile/profile-dicebear-avatar';
+import { useProfile } from '@gamezilla/client/profile/use-profile';
 
 type AnchorRect = { x: number; y: number; width: number; height: number };
 

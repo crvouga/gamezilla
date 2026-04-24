@@ -1,21 +1,16 @@
-import { createGamezillaApiClient } from '@gamezilla/client/features/api/hc';
-import { createPatchDbHcTransport } from '@gamezilla/client/features/api/patch-db-hc-transport';
-import { ensurePrincipalEntity } from '@gamezilla/client/features/auth/ensure-principal-entity';
-import { ensureProfileEntity } from '@gamezilla/client/features/auth/ensure-profile-entity';
-import { PrincipalPatchesDb } from '@gamezilla/client/features/auth/principal-patches-db';
-import { PrincipalServiceToken } from '@gamezilla/client/features/auth/principal-service';
+import { createGamezillaApiClient } from '@gamezilla/client/api/hc';
+import { createPatchDbHcTransport } from '@gamezilla/client/api/patch-db-hc-transport';
+import { ensurePrincipalEntity } from '@gamezilla/client/auth/ensure-principal-entity';
+import { ensureProfileEntity } from '@gamezilla/client/auth/ensure-profile-entity';
+import { PrincipalPatchesDb } from '@gamezilla/client/auth/principal-patches-db';
+import { PrincipalServiceToken } from '@gamezilla/client/auth/principal-service';
 import {
   createSessionService,
   SessionServiceToken,
-} from '@gamezilla/client/features/auth/session-service';
-import { OfflineIndicator } from '@gamezilla/client/features/connection/offline-indicator';
-import {
-  bootstrapPatchDbExpoSync,
-  clearLocalDatabaseAndReload,
-} from '@gamezilla/patch-db/bootstrap-expo';
-import { PatchesDbToken } from '@gamezilla/patch-db/react';
-import { assert } from '@gamezilla/lib/assert';
+} from '@gamezilla/client/auth/session-service';
+import { OfflineIndicator } from '@gamezilla/client/connection/offline-indicator';
 import { ConfigServiceToken } from '@gamezilla/domain/config/config-service';
+import { assert } from '@gamezilla/lib/assert';
 import type { Container } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 import { DependencyInjectionContainer } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 import {
@@ -25,6 +20,11 @@ import {
 } from '@gamezilla/lib/dependency-injection/react';
 import { useLogger } from '@gamezilla/lib/logger/react';
 import { Box, Button, Center, hideSplash, Text } from '@gamezilla/lib/ui';
+import {
+  bootstrapPatchDbExpoSync,
+  clearLocalDatabaseAndReload,
+} from '@gamezilla/patch-db/bootstrap-expo';
+import { PatchesDbToken } from '@gamezilla/patch-db/react';
 import {
   useCallback,
   useEffect,

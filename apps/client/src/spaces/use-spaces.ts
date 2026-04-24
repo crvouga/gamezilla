@@ -1,7 +1,4 @@
-import { PrincipalServiceToken } from '@gamezilla/client/features/auth/principal-service';
-import type { Entity, PatchesDbQuery } from '@gamezilla/patch-db/interface';
-import { useEntities, useEntity } from '@gamezilla/patch-db/react';
-import { useDependency } from '@gamezilla/lib/dependency-injection/react';
+import { PrincipalServiceToken } from '@gamezilla/client/auth/principal-service';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
@@ -13,6 +10,9 @@ import {
   SpaceMembershipAttr,
   type SpaceMembershipRole,
 } from '@gamezilla/domain/spaces/space-entities';
+import { useDependency } from '@gamezilla/lib/dependency-injection/react';
+import type { Entity, PatchesDbQuery } from '@gamezilla/patch-db/interface';
+import { useEntities, useEntity } from '@gamezilla/patch-db/react';
 import { useMemo } from 'react';
 
 import type { SpaceFilter, SpaceMemberRow, SpaceView } from './types';
@@ -28,7 +28,9 @@ function readStringAttr(
   return typeof v === 'string' && v.length > 0 ? v : null;
 }
 
-function spaceEntityIsLive(attrs: Record<string, unknown> | undefined): boolean {
+function spaceEntityIsLive(
+  attrs: Record<string, unknown> | undefined
+): boolean {
   const ended = attrs?.[SpaceAttr.endedAt];
   return ended === undefined || ended === null;
 }
@@ -76,8 +78,7 @@ export function useSpaces(filter: SpaceFilter) {
     return [...ids];
   }, [spacesResult.entities]);
 
-  const profileIdsForHosts =
-    hostIds.length > 0 ? hostIds : [selfPrincipalId];
+  const profileIdsForHosts = hostIds.length > 0 ? hostIds : [selfPrincipalId];
 
   const profilesResult = useEntities({
     entityType: PROFILE_ENTITY_TYPE,
@@ -140,7 +141,9 @@ export function useSpace(spaceId: string | undefined) {
 }
 
 /** Display label for any principal's profile entity (for host / join UI). */
-export function usePrincipalDisplayName(principalId: string | null | undefined) {
+export function usePrincipalDisplayName(
+  principalId: string | null | undefined
+) {
   const id =
     typeof principalId === 'string' && principalId.length > 0
       ? principalId
@@ -280,8 +283,7 @@ export function useSpaceMembers(spaceId: string | undefined) {
     const rows: SpaceMemberRow[] = [];
     for (const e of membersRes.entities ?? []) {
       const roleRaw = e.attributes[SpaceMembershipAttr.role];
-      const role: 'host' | 'guest' =
-        roleRaw === 'host' ? 'host' : 'guest';
+      const role: 'host' | 'guest' = roleRaw === 'host' ? 'host' : 'guest';
       rows.push({
         principalId: e.entityId,
         displayName: displayNameForPrincipal(

@@ -1,13 +1,13 @@
-import { usePatchesDb } from '@gamezilla/patch-db/react';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
 } from '@gamezilla/domain/profile/profile-entities';
 import { Box, ScreenBase, TextInput } from '@gamezilla/lib/ui';
+import { usePatchesDb } from '@gamezilla/patch-db/react';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useProfile } from '@gamezilla/client/features/profile/use-profile';
+import { useProfile } from '@gamezilla/client/profile/use-profile';
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 
 export default function ProfileUsernameScreen() {

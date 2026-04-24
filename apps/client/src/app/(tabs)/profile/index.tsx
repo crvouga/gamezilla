@@ -1,5 +1,5 @@
-import { ProfileDiceBearAvatar } from '@gamezilla/client/features/profile/profile-dicebear-avatar';
-import { useProfile } from '@gamezilla/client/features/profile/use-profile';
+import { ProfileDiceBearAvatar } from '@gamezilla/client/profile/profile-dicebear-avatar';
+import { useProfile } from '@gamezilla/client/profile/use-profile';
 import {
   Box,
   Button,

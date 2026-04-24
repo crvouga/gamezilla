@@ -9,16 +9,16 @@ import { Stack } from 'expo-router';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
-import { AuthProvider } from '@gamezilla/client/features/auth/auth-context';
-import { PwaUpdatePromptBanner } from '@gamezilla/client/features/pwa/update-prompt';
-import { PrincipalAuthShell } from '@gamezilla/client/features/auth/principal-auth-shell';
+import { AuthProvider } from '@gamezilla/client/auth/auth-context';
+import { PrincipalAuthShell } from '@gamezilla/client/auth/principal-auth-shell';
+import { PwaUpdatePromptBanner } from '@gamezilla/client/pwa/update-prompt';
 import { AppCommands } from '@gamezilla/client/ui/app-commands';
 import { CommandPaletteNativeGesture } from '@gamezilla/client/ui/command-palette-native-gesture';
 import { PatchBootstrap } from '@gamezilla/client/ui/patch-bootstrap';
+import { ConfigContainerProvider } from '@gamezilla/domain/config/config-container';
 import { assert } from '@gamezilla/lib/assert';
 import { BrowserCrashHandler } from '@gamezilla/lib/assert/crash/crash-handler/crash-handler-browser';
 import { ExpoCrashHandler } from '@gamezilla/lib/assert/crash/crash-handler/crash-handler-expo';
-import { ConfigContainerProvider } from '@gamezilla/domain/config/config-container';
 import { polyfill } from '@gamezilla/lib/polyfill';
 import {
   AppThemeRoot,
@@ -30,8 +30,8 @@ import {
   type FontStacks,
 } from '@gamezilla/lib/ui';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Platform } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 assert.registerCrashHandler(new BrowserCrashHandler());
@@ -104,7 +104,9 @@ export default function RootLayout() {
                       <AppCommands />
                       <CommandPalette />
                       <CommandPaletteNativeGesture>
-                        {Platform.OS === 'web' ? <PwaUpdatePromptBanner /> : null}
+                        {Platform.OS === 'web' ? (
+                          <PwaUpdatePromptBanner />
+                        ) : null}
                         <AppStack />
                       </CommandPaletteNativeGesture>
                     </CommandRegistryProvider>

@@ -1,17 +1,16 @@
-import { StylePickerStrip } from '@gamezilla/client/features/profile/components/style-picker-strip';
-import { VariantSwatchStrip } from '@gamezilla/client/features/profile/components/variant-swatch-strip';
+import { StylePickerStrip } from '@gamezilla/client/profile/components/style-picker-strip';
+import { VariantSwatchStrip } from '@gamezilla/client/profile/components/variant-swatch-strip';
 import {
   getDefaultOptionsFromSchema,
   getFieldsByTab,
   type SchemaField,
-} from '@gamezilla/client/features/profile/dicebear-schema';
+} from '@gamezilla/client/profile/dicebear-schema';
 import {
   isStyleKey,
   styleLabel,
   type StyleKey,
-} from '@gamezilla/client/features/profile/dicebear-styles';
-import { ProfileDiceBearAvatar } from '@gamezilla/client/features/profile/profile-dicebear-avatar';
-import { usePatchesDb } from '@gamezilla/patch-db/react';
+} from '@gamezilla/client/profile/dicebear-styles';
+import { ProfileDiceBearAvatar } from '@gamezilla/client/profile/profile-dicebear-avatar';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import {
   configsEqual,
@@ -36,6 +35,7 @@ import {
   Switch,
   Text,
 } from '@gamezilla/lib/ui';
+import { usePatchesDb } from '@gamezilla/patch-db/react';
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';

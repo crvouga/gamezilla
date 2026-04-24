@@ -1,11 +1,11 @@
-import { useSpaceActions } from '@gamezilla/client/features/spaces/space-actions';
-import { SpaceMemberList } from '@gamezilla/client/features/spaces/space-member-list';
+import { useSpaceActions } from '@gamezilla/client/spaces/space-actions';
+import { SpaceMemberList } from '@gamezilla/client/spaces/space-member-list';
 import {
   useCurrentMembership,
   usePrincipalDisplayName,
   useSpace,
   useSpaceMembers,
-} from '@gamezilla/client/features/spaces/use-spaces';
+} from '@gamezilla/client/spaces/use-spaces';
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 import { SpaceMembershipAttr } from '@gamezilla/domain/spaces/space-entities';
 import {
@@ -36,7 +36,8 @@ export default function SpaceDetailScreen() {
   const pageLoading = space.loading || current.loading;
 
   const membershipSpaceId = (() => {
-    const raw = current.membershipEntity?.attributes[SpaceMembershipAttr.spaceId];
+    const raw =
+      current.membershipEntity?.attributes[SpaceMembershipAttr.spaceId];
     return typeof raw === 'string' ? raw : null;
   })();
   const membershipLeftAt =
@@ -45,10 +46,7 @@ export default function SpaceDetailScreen() {
   useEffect(() => {
     if (!spaceId || !space.space || space.live) return;
     const left = membershipLeftAt !== undefined && membershipLeftAt !== null;
-    if (
-      membershipSpaceId === spaceId &&
-      !left
-    ) {
+    if (membershipSpaceId === spaceId && !left) {
       void leaveSpace();
     }
   }, [
@@ -68,7 +66,11 @@ export default function SpaceDetailScreen() {
         breadcrumbs={[{ name: 'Spaces', onPress: nav('/') }, { name: 'Space' }]}
         content={({ sx }) => (
           <Box style={sx} sx={{ flex: 1, justifyContent: 'center' }}>
-            <Text variant="body" sx={{ color: 'textSecondary' }} label="Loading…" />
+            <Text
+              variant="body"
+              sx={{ color: 'textSecondary' }}
+              label="Loading…"
+            />
           </Box>
         )}
       />
@@ -133,7 +135,11 @@ export default function SpaceDetailScreen() {
         ]}
         content={({ sx }) => (
           <Box style={sx} sx={{ gap: 3 }}>
-            <Text variant="label" sx={{ color: 'textSecondary' }} label="Host" />
+            <Text
+              variant="label"
+              sx={{ color: 'textSecondary' }}
+              label="Host"
+            />
             <Text variant="bodyBold" label={hostLabel} />
             <Text
               variant="body"
@@ -147,7 +153,11 @@ export default function SpaceDetailScreen() {
                 if (spaceId) void joinSpace(spaceId);
               }}
             />
-            <Button title="Back" variant="outlined" onPress={() => router.back()} />
+            <Button
+              title="Back"
+              variant="outlined"
+              onPress={() => router.back()}
+            />
           </Box>
         )}
       />
