@@ -281,3 +281,58 @@ describe('TicTacToe integration', () => {
     sim.destroy()
   })
 })
+
+describe('TicTacToe session seats (join / leave)', () => {
+  beforeEach(() => jest.useFakeTimers())
+  afterEach(() => jest.useRealTimers())
+
+  it('JOIN_SESSION then PLACE_MARK enforces command.peerId vs claimed mark', () => {
+    const sim = createSim()
+    sim.dispatch('player-x', { type: 'JOIN_SESSION', payload: { mark: 'X' } })
+    sim.dispatch('player-o', { type: 'JOIN_SESSION', payload: { mark: 'O' } })
+    sim.assertConverged()
+
+    sim.dispatch('player-o', {
+      type: 'PLACE_MARK',
+      payload: { cell: 0, player: 'X' },
+    })
+    expect(sim.getErrorLog().some((e) => e.code === 'NOT_YOUR_MARK')).toBe(true)
+
+    sim.dispatch('player-x', {
+      type: 'PLACE_MARK',
+      payload: { cell: 0, player: 'X' },
+    })
+    sim.assertConverged()
+    expect(ticTacToeBoardCell(sim.getCommittedState('player-x'), 0)).toBe('X')
+    sim.destroy()
+  })
+
+  it('LEAVE_SESSION mid-game forfeits to the remaining seated peer', () => {
+    const sim = createSim()
+    sim.dispatch('player-x', { type: 'JOIN_SESSION', payload: { mark: 'X' } })
+    sim.dispatch('player-o', { type: 'JOIN_SESSION', payload: { mark: 'O' } })
+    sim.dispatch('player-x', {
+      type: 'PLACE_MARK',
+      payload: { cell: 4, player: 'X' },
+    })
+    sim.assertConverged()
+
+    sim.dispatch('player-o', { type: 'LEAVE_SESSION', payload: {} })
+    sim.assertConverged()
+
+    const state = sim.getCommittedState('player-x')
+    expect(state['winner']).toBe('X')
+    expect(state['status']).toBe('completed')
+    expect(
+      sim.getEventLog('player-x').some((e) => e.type === 'FORFEIT_WIN'),
+    ).toBe(true)
+    sim.destroy()
+  })
+
+  it('LEAVE_SESSION without a seat → NOT_SEATED', () => {
+    const sim = createSim()
+    sim.dispatch('player-x', { type: 'LEAVE_SESSION', payload: {} })
+    expect(sim.getErrorLog().some((e) => e.code === 'NOT_SEATED')).toBe(true)
+    sim.destroy()
+  })
+})

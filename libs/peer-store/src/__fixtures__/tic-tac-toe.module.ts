@@ -42,8 +42,31 @@ function readBoard(state: State): unknown[] {
   return b;
 }
 
+function readSeat(
+  state: State,
+  key: 'seatX' | 'seatO',
+  label: string,
+): null | string {
+  crash.field(state, key, `state must have ${label}`);
+  const v = state[key];
+  if (v === null) {
+    return null;
+  }
+  crash.string(v, `${label} must be string or null`);
+  crash.nonEmptyString(v, `${label} must be non-empty when set`);
+  return v;
+}
+
+function seatsFullyClaimed(state: State): boolean {
+  const x = readSeat(state, 'seatX', 'seatX');
+  const o = readSeat(state, 'seatO', 'seatO');
+  return x !== null && o !== null;
+}
+
 function assertValidState(state: State): void {
   readBoard(state);
+  readSeat(state, 'seatX', 'seatX');
+  readSeat(state, 'seatO', 'seatO');
   crash.field(state, 'currentTurn', 'state must have currentTurn');
   crash.ok(
     state['currentTurn'] === 'X' || state['currentTurn'] === 'O',
@@ -55,6 +78,25 @@ function assertValidState(state: State): void {
     'status must be in_progress or completed'
   );
   crash.field(state, 'seq', 'state must have seq');
+}
+
+function assertPeerOwnsMark(
+  state: State,
+  command: Command,
+  player: 'X' | 'O',
+): HandleResult | null {
+  if (!seatsFullyClaimed(state)) {
+    return null;
+  }
+  const seatKey = player === 'X' ? 'seatX' : 'seatO';
+  const expected = readSeat(state, seatKey, seatKey);
+  if (expected !== command.peerId) {
+    return err(
+      'NOT_YOUR_MARK',
+      `peer ${command.peerId} cannot act as ${player}`,
+    );
+  }
+  return null;
 }
 
 function err(code: string, message: string): HandleResult {
@@ -101,6 +143,11 @@ function handlePlaceMark(state: State, command: Command): HandleResult {
   }
   if (state['currentTurn'] !== player) {
     return err('WRONG_TURN', `not ${String(player)}'s turn`);
+  }
+
+  const seatErr = assertPeerOwnsMark(state, command, player);
+  if (seatErr !== null) {
+    return seatErr;
   }
 
   const boardUnknown = readBoard(state);
@@ -173,6 +220,11 @@ function handleResign(state: State, command: Command): HandleResult {
     return err('GAME_OVER', 'game is already completed');
   }
 
+  const seatErr = assertPeerOwnsMark(state, command, player);
+  if (seatErr !== null) {
+    return seatErr;
+  }
+
   const seqRaw = state['seq'];
   if (typeof seqRaw !== 'number' || !Number.isFinite(seqRaw)) {
     return err('INVALID_STATE', 'state.seq must be a finite number');
@@ -191,6 +243,134 @@ function handleResign(state: State, command: Command): HandleResult {
   };
 }
 
+function handleJoinSession(state: State, command: Command): HandleResult {
+  assertValidState(state);
+
+  const rawPayload = command.message.payload;
+  if (
+    rawPayload === null ||
+    typeof rawPayload !== 'object' ||
+    Array.isArray(rawPayload)
+  ) {
+    return err(
+      'INVALID_PAYLOAD',
+      'JOIN_SESSION payload must be a plain object',
+    );
+  }
+  const payload = rawPayload;
+  validation.field(payload, 'mark', 'JOIN_SESSION payload must have mark');
+
+  const markRaw = payload['mark'];
+  if (markRaw !== 'X' && markRaw !== 'O') {
+    return err(
+      'INVALID_MARK',
+      `mark must be X or O, got: ${String(markRaw)}`,
+    );
+  }
+  const mark = markRaw;
+
+  if (state['status'] === 'completed') {
+    return err('GAME_OVER', 'cannot join a completed game');
+  }
+
+  const seatX = readSeat(state, 'seatX', 'seatX');
+  const seatO = readSeat(state, 'seatO', 'seatO');
+  const peerId = command.peerId;
+
+  const otherSeat = mark === 'X' ? seatO : seatX;
+  if (otherSeat === peerId) {
+    return err('ALREADY_SEATED', 'peer already holds the other mark');
+  }
+
+  const mySeat = mark === 'X' ? seatX : seatO;
+  if (mySeat !== null && mySeat !== peerId) {
+    return err('SEAT_TAKEN', `mark ${mark} is already claimed`);
+  }
+
+  const seqRaw = state['seq'];
+  if (typeof seqRaw !== 'number' || !Number.isFinite(seqRaw)) {
+    return err('INVALID_STATE', 'state.seq must be a finite number');
+  }
+  const next_seq = seqRaw + 1;
+
+  return {
+    ok: true,
+    value: {
+      events: [
+        {
+          type: 'SEAT_CLAIMED',
+          payload: { mark, peerId, seq: next_seq },
+        },
+      ],
+    },
+  };
+}
+
+function handleLeaveSession(state: State, command: Command): HandleResult {
+  assertValidState(state);
+
+  const rawPayload = command.message.payload;
+  if (
+    rawPayload === null ||
+    typeof rawPayload !== 'object' ||
+    Array.isArray(rawPayload)
+  ) {
+    return err(
+      'INVALID_PAYLOAD',
+      'LEAVE_SESSION payload must be a plain object',
+    );
+  }
+
+  const seatX = readSeat(state, 'seatX', 'seatX');
+  const seatO = readSeat(state, 'seatO', 'seatO');
+  const peerId = command.peerId;
+
+  const held: Array<'X' | 'O'> = [];
+  if (seatX === peerId) {
+    held.push('X');
+  }
+  if (seatO === peerId) {
+    held.push('O');
+  }
+  if (held.length === 0) {
+    return err('NOT_SEATED', 'peer has no seat to leave');
+  }
+
+  const seqRaw = state['seq'];
+  if (typeof seqRaw !== 'number' || !Number.isFinite(seqRaw)) {
+    return err('INVALID_STATE', 'state.seq must be a finite number');
+  }
+
+  const events: Event[] = [];
+  let seq = seqRaw + 1;
+  for (const mark of held) {
+    events.push({
+      type: 'SEAT_RELEASED',
+      payload: { mark, peerId, seq },
+    });
+    seq += 1;
+  }
+
+  const nextSeatX = held.includes('X') ? null : seatX;
+  const nextSeatO = held.includes('O') ? null : seatO;
+
+  const inProgress = state['status'] === 'in_progress';
+  const oneRemains =
+    (nextSeatX !== null && nextSeatO === null) ||
+    (nextSeatX === null && nextSeatO !== null);
+  if (inProgress && oneRemains && seatsFullyClaimed(state)) {
+    const winner: 'X' | 'O' =
+      nextSeatX !== null && nextSeatO === null ? 'X' : 'O';
+    events.push({
+      type: 'FORFEIT_WIN',
+      payload: { winner, seq },
+    });
+    seq += 1;
+  }
+
+  return { ok: true, value: { events } };
+}
+
 export const TicTacToeModule: StoreModule = {
   initialState(): State {
     return {
@@ -199,6 +379,8 @@ export const TicTacToeModule: StoreModule = {
       winner: null,
       status: 'in_progress',
       seq: 0,
+      seatX: null,
+      seatO: null,
     };
   },
 
@@ -215,6 +397,10 @@ export const TicTacToeModule: StoreModule = {
         return handlePlaceMark(state, command);
       case 'RESIGN':
         return handleResign(state, command);
+      case 'JOIN_SESSION':
+        return handleJoinSession(state, command);
+      case 'LEAVE_SESSION':
+        return handleLeaveSession(state, command);
       default:
         return err(
           'UNKNOWN_COMMAND',
@@ -320,6 +506,67 @@ export const TicTacToeModule: StoreModule = {
         return {
           ...state,
           winner,
+          status: 'completed',
+          seq: seqVal,
+        };
+      }
+
+      case 'SEAT_CLAIMED': {
+        const payload = event.payload;
+        crash.record(payload, 'SEAT_CLAIMED payload must be a record');
+        crash.field(payload, 'mark', 'SEAT_CLAIMED must have mark');
+        crash.field(payload, 'peerId', 'SEAT_CLAIMED must have peerId');
+        crash.field(payload, 'seq', 'SEAT_CLAIMED must have seq');
+        const markRaw = payload['mark'];
+        crash.ok(markRaw === 'X' || markRaw === 'O', 'SEAT_CLAIMED mark must be X or O');
+        const mark = markRaw;
+        crash.string(payload['peerId'], 'SEAT_CLAIMED peerId must be string');
+        const seqVal = payload['seq'];
+        crash.number(seqVal, 'SEAT_CLAIMED seq must be a finite number');
+        const seatKey = mark === 'X' ? 'seatX' : 'seatO';
+        return {
+          ...state,
+          [seatKey]: payload['peerId'],
+          seq: seqVal,
+        };
+      }
+
+      case 'SEAT_RELEASED': {
+        const payload = event.payload;
+        crash.record(payload, 'SEAT_RELEASED payload must be a record');
+        crash.field(payload, 'mark', 'SEAT_RELEASED must have mark');
+        crash.field(payload, 'peerId', 'SEAT_RELEASED must have peerId');
+        crash.field(payload, 'seq', 'SEAT_RELEASED must have seq');
+        const markRaw = payload['mark'];
+        crash.ok(markRaw === 'X' || markRaw === 'O', 'SEAT_RELEASED mark must be X or O');
+        const mark = markRaw;
+        crash.string(payload['peerId'], 'SEAT_RELEASED peerId must be string');
+        const seqVal = payload['seq'];
+        crash.number(seqVal, 'SEAT_RELEASED seq must be a finite number');
+        const seatKey = mark === 'X' ? 'seatX' : 'seatO';
+        const prev = readSeat(state, seatKey, seatKey);
+        const cleared =
+          prev === payload['peerId'] ? null : prev;
+        return {
+          ...state,
+          [seatKey]: cleared,
+          seq: seqVal,
+        };
+      }
+
+      case 'FORFEIT_WIN': {
+        const payload = event.payload;
+        crash.record(payload, 'FORFEIT_WIN payload must be a record');
+        crash.field(payload, 'winner', 'FORFEIT_WIN must have winner');
+        crash.field(payload, 'seq', 'FORFEIT_WIN must have seq');
+        const w = payload['winner'];
+        crash.string(w, 'FORFEIT_WIN winner must be string');
+        crash.ok(w === 'X' || w === 'O', 'FORFEIT_WIN winner must be X or O');
+        const seqVal = payload['seq'];
+        crash.number(seqVal, 'FORFEIT_WIN seq must be a finite number');
+        return {
+          ...state,
+          winner: w,
           status: 'completed',
           seq: seqVal,
         };
