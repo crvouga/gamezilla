@@ -33,6 +33,20 @@ export type TextVariant =
   | 'link'
   | 'mono';
 
+/**
+ * Variants that represent UI chrome (headers, titles, labels) and should
+ * pick up the theme's global `textCasing`. Content variants (`body`,
+ * `bodyBold`, `caption`, `link`, `mono`) opt out so user-supplied copy --
+ * URLs, identifiers, code, proper nouns -- renders verbatim.
+ */
+const CASING_VARIANTS = new Set<TextVariant>([
+  'title',
+  'subtitle',
+  'heading',
+  'navigationTitle',
+  'label',
+]);
+
 const variantStyles: Record<TextVariant, SxProps> = {
   body: { fontSize: 'base', lineHeight: 26, color: 'text' },
   bodyBold: { fontSize: 'base', lineHeight: 26, fontWeight: '600', color: 'text' },
@@ -97,7 +111,9 @@ export const Text = forwardRef<RNText, TextProps>(function Text(
   const theme = useTheme();
   const base = theme.sx(variantStyles[variant]);
   const variantFont = variantFontFamily(variant, theme);
-  const casingStyle = textCasingToStyle(theme.textCasing);
+  const casingStyle = CASING_VARIANTS.has(variant)
+    ? textCasingToStyle(theme.textCasing)
+    : undefined;
   const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
   const content = label ?? children;
   return (

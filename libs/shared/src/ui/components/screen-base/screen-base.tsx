@@ -16,7 +16,13 @@ const BODY_PADDING = 16;
 const BODY_GAP = 12;
 const SCROLL_BOTTOM_PADDING = 24;
 
-function ConstrainedBody({ children }: { children: ReactNode }) {
+/**
+ * Centers content up to {@link MAX_CONTENT_WIDTH} while always letting the
+ * parent (ScrollView / full-bleed container) span the full viewport. This
+ * keeps the desktop scrollbar pinned to the viewport edge instead of the
+ * content edge.
+ */
+function ConstrainedInner({ children }: { children: ReactNode }) {
   const theme = useTheme();
   const wide = theme.breakpoint !== 'mobile';
 
@@ -24,6 +30,8 @@ function ConstrainedBody({ children }: { children: ReactNode }) {
     <Box
       sx={{
         flex: 1,
+        padding: BODY_PADDING,
+        gap: BODY_GAP,
         ...(wide
           ? { alignSelf: 'center' as const, maxWidth: MAX_CONTENT_WIDTH }
           : {}),
@@ -42,22 +50,24 @@ export function ScreenBase({
   scroll = false,
   keyboardAvoiding = false,
 }: ScreenBaseProps) {
+  const inner = (
+    <ConstrainedInner>
+      {content({ sx: { flex: 1 } } satisfies BodyContentProps)}
+    </ConstrainedInner>
+  );
+
   const body = scroll ? (
     <ScrollView
       sx={{ flex: 1 }}
       contentContainerStyle={{
-        padding: BODY_PADDING,
-        gap: BODY_GAP,
-        paddingBottom: BODY_PADDING + SCROLL_BOTTOM_PADDING,
         flexGrow: 1,
+        paddingBottom: SCROLL_BOTTOM_PADDING,
       }}
     >
-      {content({ sx: { flex: 1 } } satisfies BodyContentProps)}
+      {inner}
     </ScrollView>
   ) : (
-    <Box sx={{ flex: 1, padding: BODY_PADDING, gap: BODY_GAP }}>
-      {content({ sx: { flex: 1 } } satisfies BodyContentProps)}
-    </Box>
+    <Box sx={{ flex: 1 }}>{inner}</Box>
   );
 
   const wrapped = keyboardAvoiding ? (
@@ -69,7 +79,7 @@ export function ScreenBase({
   return (
     <Box sx={{ flex: 1 }}>
       <ScreenBaseHeader breadcrumbs={breadcrumbs} actions={actions ?? []} />
-      <ConstrainedBody>{wrapped}</ConstrainedBody>
+      {wrapped}
     </Box>
   );
 }
