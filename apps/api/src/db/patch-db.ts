@@ -1,5 +1,5 @@
 import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
-import { getDb } from './db';
+import { getDb } from './sql-client';
 
 let db: PatchDbImplPostgres | null = null;
 

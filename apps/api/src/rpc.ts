@@ -1,5 +1,5 @@
 import { hc, type ApplyGlobalResponse } from 'hono/client';
-import type { createApiApp } from './create-api-app';
+import type { createApiApp } from './app/create-app';
 
 /** Hono app shape for `hono/client` RPC. Use `import type` from client — no runtime import. */
 export type AppType = ReturnType<typeof createApiApp>;

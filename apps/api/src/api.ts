@@ -1,9 +1,9 @@
 import { createLogger } from '@gamezilla/lib/logger';
 import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
-import { createApiApp } from './create-api-app';
-import type { Env, ValidatedEnv } from './env';
-import { ConfigurationError, validateEnv } from './env';
-import { getPatchDb } from './patch-db';
+import { createApiApp } from './app/create-app';
+import type { Env, ValidatedEnv } from './config/env';
+import { ConfigurationError, validateEnv } from './config/env';
+import { getPatchDb } from './db/patch-db';
 
 const log = createLogger({ name: 'api' });
 

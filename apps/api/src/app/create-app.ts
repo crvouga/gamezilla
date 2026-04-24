@@ -3,16 +3,16 @@ import { ValidationError } from '@gamezilla/lib/assert';
 import { createLogger } from '@gamezilla/lib/logger';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import type { ApiHandlerConfig } from './api-types';
-import { UnauthorizedError } from './auth/unauthorized-error';
-import { apiCors } from './middleware/api-cors';
-import { createAuthClaimApp } from './routes/auth-claim';
-import { createClientConfigApp } from './routes/client-config';
-import { healthApp } from './routes/health';
+import { UnauthorizedError } from '../auth/unauthorized-error';
+import { createAuthClaimApp } from '../auth/route';
+import { createClientConfigApp } from '../client-config/route';
+import { healthApp } from '../health/route';
+import type { ApiHandlerConfig } from './config';
+import { apiCors } from './cors';
 
 const log = createLogger({ name: 'api:app' });
 
-export type { ApiHandlerConfig } from './api-types';
+export type { ApiHandlerConfig } from './config';
 
 function isAssertionCrash(
   value: unknown

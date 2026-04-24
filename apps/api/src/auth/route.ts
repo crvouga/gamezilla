@@ -1,8 +1,8 @@
 import type { PatchesDb } from '@gamezilla/patch-db/interface';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
-import { handleAuthClaimResult } from '../auth/claim-handler';
-import { authClaimRequestSchema } from '../schemas';
+import { handleAuthClaimResult } from './claim-handler';
+import { authClaimRequestSchema } from './schema';
 
 /** POST `/auth/claim` — Google id_token + principal binding. */
 export function createAuthClaimApp(

@@ -13,7 +13,7 @@ import { assertPrincipalId, assertUuid } from '@gamezilla/domain/auth/principal-
 import { assert } from '@gamezilla/lib/assert';
 import type { PatchInput, PatchesDb } from '@gamezilla/patch-db/interface';
 import type { z } from 'zod';
-import { authClaimRequestSchema } from '../schemas';
+import { authClaimRequestSchema } from './schema';
 import { verifyGoogleIdToken } from './google-token';
 
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;

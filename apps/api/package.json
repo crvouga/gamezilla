@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "exports": {
-    "./api-handler": "./src/api-handler.ts",
     "./rpc": "./src/rpc.ts"
   },
   "dependencies": {

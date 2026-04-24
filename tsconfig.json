@@ -23,6 +23,7 @@
   },
   "include": [
     "apps/api/src/**/*.ts",
+    "apps/api/src/**/*.d.ts",
     "apps/client/src/**/*.ts",
     "apps/client/src/**/*.tsx",
     "libs/lib/src/**/*.ts",
