@@ -6,7 +6,7 @@ import {
   Text,
   useTheme,
 } from '@gamezilla/shared/ui';
-import { useRouter } from 'expo-router';
+import { type Href, useRouter } from 'expo-router';
 
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 
@@ -83,6 +83,29 @@ export default function MoreIndex() {
                 <Text
                   variant="caption"
                   label="Todos, UI explorer, Patch DB and Peer Store playgrounds"
+                />
+              </Box>
+              <IconSymbol
+                name="chevron.right"
+                size={20}
+                color={theme.colors.icon}
+              />
+            </Box>
+          </Pressable>
+          <Pressable onPress={() => router.push('/more/about' as Href)}>
+            <Box
+              sx={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                py: 3,
+                gap: 3,
+              }}
+            >
+              <Box sx={{ flex: 1, gap: 1 }}>
+                <Text variant="bodyBold" label="About" />
+                <Text
+                  variant="caption"
+                  label="App version, build, and commit hash"
                 />
               </Box>
               <IconSymbol

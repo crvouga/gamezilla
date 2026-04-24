@@ -38,6 +38,8 @@ const DERIVED_DEFAULTS: Record<string, () => string> = {
 const EXTERNALLY_MANAGED_KEYS: ReadonlyArray<string> = [
   // Issued by `PlanetScalePostgres.resolveDatabaseUrl` during provision.
   'PLANETSCALE_DATABASE_URL',
+  // Per-build value injected by `ClientResource.deploy` (not stored in Doppler).
+  'EXPO_PUBLIC_COMMIT_HASH',
 ];
 
 /** Doppler's built-in config metadata — always present, never user-managed. */

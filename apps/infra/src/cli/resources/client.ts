@@ -1,4 +1,5 @@
 import { assert } from '@gamezilla/shared/assert';
+import { COMMIT_HASH_HEX_REGEX } from '@gamezilla/shared/config/app-metadata';
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { PROJECT_CONFIG } from '../../project-config';
@@ -8,7 +9,7 @@ import { infraOutputs } from '../lib/infra-outputs';
 import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
 import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
-import { runAsync } from '../subprocess';
+import { runAsync, runCapture } from '../subprocess';
 import { ResourceBase, type InfraContext } from './types';
 
 function wranglerEnv(): NodeJS.ProcessEnv {
@@ -35,9 +36,21 @@ export class ClientResource extends ResourceBase {
 
     const clientDir = join(REPO_ROOT, 'apps/client');
 
+    const rawSha = runCapture('git', ['rev-parse', 'HEAD'], { cwd: REPO_ROOT });
+    const commitHash = rawSha.trim().toLowerCase();
+    assert.ok(
+      COMMIT_HASH_HEX_REGEX.test(commitHash),
+      'client: git HEAD must be a valid lowercase hex commit SHA',
+      { rawSha }
+    );
+
     await runAsync(platform, 'bun', ['run', 'build'], {
       cwd: clientDir,
       label: 'client: expo export',
+      env: {
+        ...process.env,
+        EXPO_PUBLIC_COMMIT_HASH: commitHash,
+      },
     });
 
     await runAsync(
