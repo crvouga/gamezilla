@@ -10,6 +10,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { AuthProvider } from '@gamezilla/client/features/auth/auth-context';
+import { PwaUpdatePromptBanner } from '@gamezilla/client/features/pwa/update-prompt';
 import { PrincipalAuthShell } from '@gamezilla/client/features/auth/principal-auth-shell';
 import { AppCommands } from '@gamezilla/client/ui/app-commands';
 import { CommandPaletteNativeGesture } from '@gamezilla/client/ui/command-palette-native-gesture';
@@ -30,6 +31,7 @@ import {
 } from '@gamezilla/shared/ui';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Platform } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 assert.registerCrashHandler(new BrowserCrashHandler());
@@ -102,6 +104,7 @@ export default function RootLayout() {
                       <AppCommands />
                       <CommandPalette />
                       <CommandPaletteNativeGesture>
+                        {Platform.OS === 'web' ? <PwaUpdatePromptBanner /> : null}
                         <AppStack />
                       </CommandPaletteNativeGesture>
                     </CommandRegistryProvider>

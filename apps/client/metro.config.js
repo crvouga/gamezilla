@@ -100,7 +100,11 @@ config.server.rewriteRequestUrl = (/** @type {string} */ url) =>
 // Add wasm asset support
 config.resolver.assetExts.push('wasm');
 
-// Add COEP and COOP headers to support SharedArrayBuffer
+// Cross-origin isolation so `SharedArrayBuffer` exists in the app + workers.
+// absurd-sql needs it; without SAB it uses fragile IndexedDB fallback and can throw
+// "Fallback mode unable to write file changes" on writes.
+// https://github.com/jlongster/absurd-sql#requirements — use `require-corp` (not
+// `credentialless`) so isolation matches what sql.js/absurd-sql expect in practice.
 // @ts-ignore
 config.server.enhanceMiddleware = (
   /** @type {(arg0: any, arg1: any, arg2: any) => void} */ middleware
@@ -110,7 +114,7 @@ config.server.enhanceMiddleware = (
     /** @type {{ setHeader: (arg0: string, arg1: string) => void; }} */ res,
     /** @type {any} */ next
   ) => {
-    res.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
+    res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
     res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
     middleware(req, res, next);
   };

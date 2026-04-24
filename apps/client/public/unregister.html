@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Unregister service worker</title>
+  </head>
+  <body>
+    <p id="status">Clearing service worker and caches…</p>
+    <script>
+      (async function () {
+        const status = document.getElementById('status');
+        try {
+          if ('serviceWorker' in navigator) {
+            const regs = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(regs.map((r) => r.unregister()));
+          }
+          if ('caches' in window) {
+            const keys = await caches.keys();
+            await Promise.all(keys.map((k) => caches.delete(k)));
+          }
+          if (status) status.textContent = 'Done. Close this tab and reopen the app.';
+        } catch (e) {
+          if (status) status.textContent = 'Error: ' + (e && e.message ? e.message : String(e));
+        }
+      })();
+    </script>
+  </body>
+</html>

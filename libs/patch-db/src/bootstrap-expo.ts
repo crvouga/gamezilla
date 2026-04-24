@@ -2,6 +2,7 @@ import { DependencyInjectionContainer } from '@gamezilla/shared/dependency-injec
 import { InMemoryPubSub } from '@gamezilla/shared/pub-sub/impl-in-memory';
 import { SqlClientImplExpoSqlite } from '@gamezilla/shared/sql-client/impl-expo-sqlite';
 import type { SqlClient } from '@gamezilla/shared/sql-client/interface';
+import { clearWebClientPersistentState } from '@gamezilla/shared/browser/clear-web-client-state';
 import { assertDatabaseName } from '@gamezilla/shared/sqlite';
 import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
@@ -9,7 +10,7 @@ import { assertUrl } from './assert-url';
 import { PatchDbImplClientTransport } from './impl-client-transport';
 import { PatchDbImplSqlite } from './impl-sqlite/impl-sqlite';
 import { SyncPatchesDb } from './impl-sync';
-import { PatchesDbToken } from './react';
+import { PatchesDbToken, PatchDbSyncPubSubToken } from './react';
 import {
   SubscribablePatchesDbToken,
   type SubscribablePatchesDbLike,
@@ -40,34 +41,23 @@ export type BootstrapPatchDbExpoSyncOptions = {
 };
 
 /**
- * Web uses an in-memory sql.js DB per tab (server is the source of truth; patch-db
- * sync rebuilds the local cache). Native uses persistent expo-sqlite as before.
+ * Web uses sql.js + absurd-sql (IndexedDB-backed SQLite) in a worker for a
+ * local-first, offline-capable store. Native uses persistent expo-sqlite.
  *
- * We cannot share expo-sqlite across browser tabs: its `AccessHandlePoolVFS` grabs
- * an exclusive `FileSystemSyncAccessHandle` on every file in the shared OPFS pool
- * directory at worker init, so a second tab always fails with
- * `NoModificationAllowedError`. An in-memory per-tab DB sidesteps the whole VFS.
+ * We avoid expo-sqlite on web: its `AccessHandlePoolVFS` grabs an exclusive
+ * `FileSystemSyncAccessHandle` on OPFS pool files at worker init, so a second tab
+ * fails with `NoModificationAllowedError`. absurd-sql uses IndexedDB instead.
  */
 let cachedBootstrap: { key: string; promise: Promise<BootstrapResult> } | null =
   null;
 let currentSqlClient: SqlClient | null = null;
 
-const SQL_JS_VERSION = '1.14.1';
-
 async function openLocalSqlClient(databaseName: string): Promise<SqlClient> {
   if (Platform.OS === 'web') {
-    // Dynamic import so `sql.js` (and its WebAssembly entrypoint) is never pulled
-    // into the native Metro bundle.
-    const { SqlClientImplSqlJs } = await import(
-      '@gamezilla/shared/sql-client/impl-sql-js'
+    const { SqlClientImplAbsurdSql } = await import(
+      '@gamezilla/shared/sql-client/impl-absurd-sql'
     );
-    // Pinned CDN URL so Metro doesn't need to bundle / serve the wasm binary.
-    // `Cross-Origin-Embedder-Policy: credentialless` (see app.json) permits
-    // fetching cross-origin wasm without credentials.
-    return await SqlClientImplSqlJs.openMemory({
-      locateFile: (file: string) =>
-        `https://cdn.jsdelivr.net/npm/sql.js@${SQL_JS_VERSION}/dist/${file}`,
-    });
+    return await SqlClientImplAbsurdSql.open(databaseName);
   }
   return await SqlClientImplExpoSqlite.open(databaseName);
 }
@@ -116,6 +106,7 @@ export async function bootstrapPatchDbExpoSync(
     const container = new DependencyInjectionContainer(parentContainer);
     container.registerValue(PatchesDbToken, dbForDi);
     container.registerValue(SubscribablePatchesDbToken, dbForDi);
+    container.registerValue(PatchDbSyncPubSubToken, pubSub);
 
     return { container };
   })();
@@ -140,8 +131,8 @@ export async function clearLocalDatabaseAndReload(
     currentSqlClient = null;
   }
   if (Platform.OS === 'web') {
-    // Local DB is in-memory per tab; closing + reloading is enough.
     if (typeof window !== 'undefined') {
+      await clearWebClientPersistentState();
       window.location.reload();
     }
     return;

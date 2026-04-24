@@ -1,6 +1,7 @@
 import { assert } from '@gamezilla/shared/assert';
 import { InjectionToken } from '@gamezilla/shared/dependency-injection/dependency-injection-container';
 import { useDependency } from '@gamezilla/shared/dependency-injection/react';
+import type { PubSub } from '@gamezilla/shared/pub-sub/interface';
 import { useEffect, useState } from 'react';
 import {
   Entity,
@@ -11,6 +12,11 @@ import {
 import { SubscribablePatchesDbToken } from './subscribable';
 
 export const PatchesDbToken: InjectionToken<PatchesDb> = Symbol('PatchesDb');
+
+/** In-memory bus used by {@link SyncPatchesDb} (e.g. subscribe to sync-error topic). */
+export const PatchDbSyncPubSubToken: InjectionToken<PubSub> = Symbol(
+  'PatchDbSyncPubSub'
+);
 
 export function usePatchesDb(): PatchesDb {
   const db = useDependency(PatchesDbToken);

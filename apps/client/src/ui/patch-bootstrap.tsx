@@ -24,6 +24,7 @@ import {
 } from '@gamezilla/shared/dependency-injection/react';
 import { useLogger } from '@gamezilla/shared/logger/react';
 import { Box, Button, Center, hideSplash, Text } from '@gamezilla/shared/ui';
+import { OfflineIndicator } from '@gamezilla/client/features/connection/offline-indicator';
 import {
   useCallback,
   useEffect,
@@ -31,7 +32,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { Platform } from 'react-native';
+import { Platform, View } from 'react-native';
 
 export function PatchBootstrap({ children }: { children: ReactNode }) {
   const log = useLogger('patch-bootstrap');
@@ -143,6 +144,21 @@ export function PatchBootstrap({ children }: { children: ReactNode }) {
   }
 
   return (
-    <ContainerProvider container={container}>{children}</ContainerProvider>
+    <ContainerProvider container={container}>
+      {Platform.OS === 'web' ? (
+        <View
+          style={{
+            position: 'absolute',
+            top: 12,
+            right: 12,
+            zIndex: 10000,
+            pointerEvents: 'box-none',
+          }}
+        >
+          <OfflineIndicator />
+        </View>
+      ) : null}
+      {children}
+    </ContainerProvider>
   );
 }
