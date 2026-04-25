@@ -1,3 +1,9 @@
+/**
+ * @gamezilla/peer-store — replicated log + wire sync.
+ *
+ * Smaller public surface: use `@gamezilla/peer-store/types` for UI-only types.
+ * Advanced: `@gamezilla/peer-store/trust-election`, `@gamezilla/peer-store/store-errors`, etc.
+ */
 export {
   InMemoryPeerStorePersistence,
   PostgresPeerStorePersistence,
@@ -22,10 +28,7 @@ export type {
   NormalizedPeerStoreInit,
   PeerBootstrap,
   PeerStoreApi,
-  PeerStoreAuthorityElectionContext,
-  PeerStoreAuthorityStrategy,
   PeerStoreInitConfig,
-  PeerStoreLegacyInitConfig,
   PeerStoreRoomConfig,
   PeerStoreRoomRoleHost,
   PeerStoreRoomRoleJoin,
@@ -36,7 +39,21 @@ export type {
   StoreModule,
 } from './peer-store/peer-store-types';
 export type { Event, Message, StoreError } from './protocol/message-types';
-export * from './protocol/store-errors';
+export {
+  PeerStoreDuplicatePeer,
+  PeerStoreInvalidPublicKey,
+  PeerStoreJoinInvalid,
+  PeerStoreJoinPeerMismatch,
+  PeerStoreLeaveInvalid,
+  PeerStoreLeaveNotSelf,
+  PeerStoreNotAuthority,
+  PeerStoreNotSynced,
+  PeerStoreSyncSessionMismatch,
+  PeerStoreTrustInvalid,
+  PeerStoreUnknownPeer,
+  PeerStoreUnknownSystemCommand,
+  PeerStoreWireAuthFailed,
+} from './protocol/store-errors';
 export {
   generateId,
   isSystemEvent,
@@ -52,5 +69,3 @@ export type {
   Transport,
   TransportMessageContext,
 } from './transport/transport-types';
-export { computeTrustMap, TrustElection } from './trust-election';
-export type { TrustVote } from './trust-election';

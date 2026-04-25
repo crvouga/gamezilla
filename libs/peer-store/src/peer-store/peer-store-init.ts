@@ -6,9 +6,6 @@ import {
 import type {
   NormalizedPeerStoreInit,
   PeerBootstrap,
-  PeerStoreAuthorityStrategy,
-  PeerStoreInitConfig,
-  PeerStoreLegacyInitConfig,
   PeerStoreRoomConfig,
 } from './peer-store-types';
 import {
@@ -30,20 +27,18 @@ function validateRoomHostConfig(room: PeerStoreRoomConfig): void {
   crash.ok(
     derivedPeerId in initialMembership,
     'host role: initialMembership must include peer derived from secretSeed',
-    { derivedPeerId }
+    { derivedPeerId },
   );
   const ids = Object.keys(initialMembership);
   crash.ok(
     ids.length >= 2,
-    'host initialMembership must list at least 2 peers'
+    'host initialMembership must list at least 2 peers',
   );
   for (const id of ids) {
     crash.ok(
       id in initialMemberPublicKeys,
       'host initialMemberPublicKeys must cover initialMembership',
-      {
-        id,
-      }
+      { id },
     );
   }
 }
@@ -54,13 +49,13 @@ function validateRoomJoinConfig(room: PeerStoreRoomConfig): void {
   const ids = Object.keys(initialMembership);
   crash.ok(
     ids.length >= 2,
-    'join roomSnapshot.initialMembership must list at least 2 peers'
+    'join roomSnapshot.initialMembership must list at least 2 peers',
   );
   for (const id of ids) {
     crash.ok(
       id in initialMemberPublicKeys,
       'join roomSnapshot.initialMemberPublicKeys must cover initialMembership',
-      { id }
+      { id },
     );
   }
 }
@@ -70,18 +65,12 @@ function validatePeerStoreRoomConfig(room: PeerStoreRoomConfig): void {
   crash.nonEmptyString(room.roomSecret, 'room.roomSecret must be non-empty');
   crash.ok(
     room.secretSeed instanceof Uint8Array && room.secretSeed.length === 32,
-    'room.secretSeed must be Uint8Array of length 32'
+    'room.secretSeed must be Uint8Array of length 32',
   );
   if (room.role.type === 'host') {
     validateRoomHostConfig(room);
   } else {
     validateRoomJoinConfig(room);
-  }
-  if (room.trustElectionTimeoutMs !== undefined) {
-    crash.ok(
-      room.trustElectionTimeoutMs > 0,
-      'trustElectionTimeoutMs must be > 0'
-    );
   }
 }
 
@@ -101,18 +90,6 @@ function roomToBootstrap(room: PeerStoreRoomConfig): PeerBootstrap {
     },
   };
 }
-
-function isRoomConfig(
-  config: PeerStoreInitConfig
-): config is PeerStoreRoomConfig {
-  return 'role' in config;
-}
-
-type ElectionOpts = {
-  autoTrustElection: boolean;
-  trustElectionTimeoutMs: number;
-  authorityStrategy: PeerStoreAuthorityStrategy | undefined;
-};
 
 function pickDefinedTimingFields(
   timeoutMs: number | undefined,
@@ -138,10 +115,9 @@ function pickDefinedTimingFields(
   return out;
 }
 
-function applyOptionalTimingAndStrategy(
+function applyOptionalTiming(
   normalized: NormalizedPeerStoreInit,
   timing: ReturnType<typeof pickDefinedTimingFields>,
-  authorityStrategy: ElectionOpts['authorityStrategy'],
 ): void {
   if (timing.timeoutMs !== undefined) normalized.timeoutMs = timing.timeoutMs;
   if (timing.heartbeatIntervalMs !== undefined) {
@@ -150,14 +126,13 @@ function applyOptionalTimingAndStrategy(
   if (timing.heartbeatTimeoutMs !== undefined) {
     normalized.heartbeatTimeoutMs = timing.heartbeatTimeoutMs;
   }
-  if (authorityStrategy !== undefined) {
-    normalized.authorityStrategy = authorityStrategy;
-  }
 }
 
-function normalizeRoomBranch(
+/**
+ * Validates {@link PeerStoreRoomConfig} into the normalized init payload for `PeerStore`.
+ */
+export function normalizePeerStoreInit(
   config: PeerStoreRoomConfig,
-  election: ElectionOpts,
 ): NormalizedPeerStoreInit {
   validatePeerStoreRoomConfig(config);
   const peerId = peerIdFromSecretSeed(config.secretSeed);
@@ -184,60 +159,14 @@ function normalizeRoomBranch(
     bootstrap,
     transport: config.transport,
     security,
-    autoTrustElection: election.autoTrustElection,
-    trustElectionTimeoutMs: election.trustElectionTimeoutMs,
   };
-  applyOptionalTimingAndStrategy(
+  applyOptionalTiming(
     normalized,
     pickDefinedTimingFields(
       config.timeoutMs,
       config.heartbeatIntervalMs,
       config.heartbeatTimeoutMs,
     ),
-    election.authorityStrategy,
   );
   return normalized;
-}
-
-function normalizeLegacyBranch(
-  legacy: PeerStoreLegacyInitConfig,
-  election: ElectionOpts,
-): NormalizedPeerStoreInit {
-  validatePeerStoreInitConfig(legacy);
-  const normalized: NormalizedPeerStoreInit = {
-    topic: legacy.topic,
-    peerId: legacy.peerId,
-    bootstrap: legacy.bootstrap,
-    transport: legacy.transport,
-    security: legacy.security,
-    autoTrustElection: election.autoTrustElection,
-    trustElectionTimeoutMs: election.trustElectionTimeoutMs,
-  };
-  applyOptionalTimingAndStrategy(
-    normalized,
-    pickDefinedTimingFields(
-      legacy.timeoutMs,
-      legacy.heartbeatIntervalMs,
-      legacy.heartbeatTimeoutMs,
-    ),
-    election.authorityStrategy,
-  );
-  return normalized;
-}
-
-/**
- * Validates and merges {@link PeerStoreRoomConfig} vs {@link PeerStoreLegacyInitConfig}
- * into a single normalized init payload for `PeerStore`.
- */
-export function normalizePeerStoreInit(
-  config: PeerStoreInitConfig
-): NormalizedPeerStoreInit {
-  const election: ElectionOpts = {
-    autoTrustElection: config.autoTrustElection !== false,
-    trustElectionTimeoutMs: config.trustElectionTimeoutMs ?? 10_000,
-    authorityStrategy: config.authorityStrategy,
-  };
-  return isRoomConfig(config)
-    ? normalizeRoomBranch(config, election)
-    : normalizeLegacyBranch(config, election);
 }

@@ -11,7 +11,7 @@
     "./testing/tic-tac-toe": "./src/testing/fixtures/tic-tac-toe.module.ts",
     "./persistence": "./src/persistence/index.ts",
     "./utils": "./src/protocol/utils.ts",
-    "./types": "./src/index.ts",
+    "./types": "./src/types-public.ts",
     "./trust-election": "./src/trust-election/index.ts",
     "./__tests__/test-crash-handler": "./src/testing/test-crash-handler.ts",
     "./testing/tictactoe-peers": "./src/testing/tictactoe-peers.ts",

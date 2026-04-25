@@ -16,6 +16,7 @@ import type { StoreError } from '../protocol/message-types'
 import type {
   Command,
   HandleResult,
+  PeerStoreRoomConfig,
   State,
   StoreModule,
 } from './peer-store-types'
@@ -96,30 +97,24 @@ type BuildStoreConfigArgs = {
   transport: InMemoryTransport
 }
 
-function buildStoreConfig(
-  args: BuildStoreConfigArgs,
-): ConstructorParameters<typeof PeerStore>[1] {
-  const config: ConstructorParameters<typeof PeerStore>[1] = {
+function buildStoreConfig(args: BuildStoreConfigArgs): PeerStoreRoomConfig {
+  const config: PeerStoreRoomConfig = {
     topic: TEST_TOPIC,
-    peerId: args.peerId,
-    bootstrap: {
-      kind: 'genesis',
+    roomSecret: F.roomSecret,
+    secretSeed: args.peerSecretSeeds[args.peerId]!,
+    transport: args.transport,
+    role: {
+      type: 'host',
       initialMembership: args.peers,
       initialMemberPublicKeys: args.initialMemberPublicKeys,
     },
-    transport: args.transport,
-    security: {
-      roomSecret: F.roomSecret,
-      secretSeed: args.peerSecretSeeds[args.peerId]!,
-    },
-    autoTrustElection: false,
   }
   applyOptionalStoreConfig(config, args.opts)
   return config
 }
 
 function applyOptionalStoreConfig(
-  config: ConstructorParameters<typeof PeerStore>[1],
+  config: PeerStoreRoomConfig,
   opts: SetupOpts | undefined,
 ): void {
   if (!opts) return
@@ -395,27 +390,25 @@ describe('PeerStore', () => {
     const t2 = new InMemoryTransport(bus, bb.peerId)
     const store = new PeerStore(badModule, {
       topic: TEST_TOPIC,
-      peerId: ba.peerId,
-      bootstrap: {
-        kind: 'genesis',
+      roomSecret: F.roomSecret,
+      secretSeed: ba.secretSeed,
+      transport: t1,
+      role: {
+        type: 'host',
         initialMembership: member,
         initialMemberPublicKeys: pubMap,
       },
-      transport: t1,
-      security: { roomSecret: F.roomSecret, secretSeed: ba.secretSeed },
-      autoTrustElection: false,
     })
     const _store2 = new PeerStore(badModule, {
       topic: TEST_TOPIC,
-      peerId: bb.peerId,
-      bootstrap: {
-        kind: 'genesis',
+      roomSecret: F.roomSecret,
+      secretSeed: bb.secretSeed,
+      transport: t2,
+      role: {
+        type: 'host',
         initialMembership: member,
         initialMemberPublicKeys: pubMap,
       },
-      transport: t2,
-      security: { roomSecret: F.roomSecret, secretSeed: bb.secretSeed },
-      autoTrustElection: false,
     })
 
     expect(() =>
@@ -453,27 +446,25 @@ describe('PeerStore', () => {
     const t2 = new InMemoryTransport(bus, bb.peerId)
     const store = new PeerStore(badModule, {
       topic: TEST_TOPIC,
-      peerId: bb.peerId,
-      bootstrap: {
-        kind: 'genesis',
+      roomSecret: F.roomSecret,
+      secretSeed: bb.secretSeed,
+      transport: t2,
+      role: {
+        type: 'host',
         initialMembership: member,
         initialMemberPublicKeys: pubMap,
       },
-      transport: t2,
-      security: { roomSecret: F.roomSecret, secretSeed: bb.secretSeed },
-      autoTrustElection: false,
     })
     const _store2 = new PeerStore(badModule, {
       topic: TEST_TOPIC,
-      peerId: ba.peerId,
-      bootstrap: {
-        kind: 'genesis',
+      roomSecret: F.roomSecret,
+      secretSeed: ba.secretSeed,
+      transport: t1,
+      role: {
+        type: 'host',
         initialMembership: member,
         initialMemberPublicKeys: pubMap,
       },
-      transport: t1,
-      security: { roomSecret: F.roomSecret, secretSeed: ba.secretSeed },
-      autoTrustElection: false,
     })
 
     expect(() =>
@@ -542,18 +533,14 @@ describe('PeerStore', () => {
         EffectModule,
         {
           topic: EFFECT_TOPIC,
-          peerId,
-          bootstrap: {
-            kind: 'genesis',
+          roomSecret: F.roomSecret,
+          secretSeed: F.peerSecretSeeds[peerId]!,
+          transport,
+          role: {
+            type: 'host',
             initialMembership: peers,
             initialMemberPublicKeys: F.initialMemberPublicKeys,
           },
-          transport,
-          security: {
-            roomSecret: F.roomSecret,
-            secretSeed: F.peerSecretSeeds[peerId]!,
-          },
-          autoTrustElection: false,
         },
         {
           onCommit: (commandId, _entries, effects) => {

@@ -4,15 +4,12 @@ import type { LogEntry } from '../persistence/log-entry';
 import type { Event } from '../protocol/message-types';
 import {
   PeerStoreDuplicatePeer,
-  PeerStoreInvalidJoinFields,
-  PeerStoreInvalidJoinShape,
-  PeerStoreInvalidLeaveFields,
-  PeerStoreInvalidLeaveShape,
-  PeerStoreInvalidTrustFields,
-  PeerStoreInvalidTrustShape,
+  PeerStoreJoinInvalid,
   PeerStoreJoinPeerMismatch,
+  PeerStoreLeaveInvalid,
   PeerStoreLeaveNotSelf,
   PeerStoreNotAuthority,
+  PeerStoreTrustInvalid,
   PeerStoreUnknownPeer,
 } from '../protocol/store-errors';
 import {
@@ -63,7 +60,7 @@ function parseJoinPayload(raw: unknown): ParseResult<ParsedJoinPayload> {
       ok: false,
       error: {
         ok: false,
-        error: PeerStoreInvalidJoinShape({
+        error: PeerStoreJoinInvalid({
           detail: 'join payload must be a plain object',
         }),
       },
@@ -78,7 +75,7 @@ function parseJoinPayload(raw: unknown): ParseResult<ParsedJoinPayload> {
       ok: false,
       error: {
         ok: false,
-        error: PeerStoreInvalidJoinFields({
+        error: PeerStoreJoinInvalid({
           detail: 'join payload requires peerId string',
         }),
       },
@@ -89,7 +86,7 @@ function parseJoinPayload(raw: unknown): ParseResult<ParsedJoinPayload> {
       ok: false,
       error: {
         ok: false,
-        error: PeerStoreInvalidJoinFields({
+        error: PeerStoreJoinInvalid({
           detail: 'join payload requires finite trust >= 0',
         }),
       },
@@ -100,7 +97,7 @@ function parseJoinPayload(raw: unknown): ParseResult<ParsedJoinPayload> {
       ok: false,
       error: {
         ok: false,
-        error: PeerStoreInvalidJoinFields({
+        error: PeerStoreJoinInvalid({
           detail: 'join payload requires publicKey string',
         }),
       },
@@ -115,7 +112,7 @@ function parseLeavePayload(raw: unknown): ParseResult<ParsedLeavePayload> {
       ok: false,
       error: {
         ok: false,
-        error: PeerStoreInvalidLeaveShape({
+        error: PeerStoreLeaveInvalid({
           detail: 'leave payload must be a plain object',
         }),
       },
@@ -128,7 +125,7 @@ function parseLeavePayload(raw: unknown): ParseResult<ParsedLeavePayload> {
       ok: false,
       error: {
         ok: false,
-        error: PeerStoreInvalidLeaveFields({
+        error: PeerStoreLeaveInvalid({
           detail: 'leave payload requires peerId',
         }),
       },
@@ -143,7 +140,7 @@ function parseTrustPayload(raw: unknown): ParseResult<ParsedTrustPayload> {
       ok: false,
       error: {
         ok: false,
-        error: PeerStoreInvalidTrustShape({
+        error: PeerStoreTrustInvalid({
           detail: 'trust_update payload must be a plain object',
         }),
       },
@@ -157,7 +154,7 @@ function parseTrustPayload(raw: unknown): ParseResult<ParsedTrustPayload> {
       ok: false,
       error: {
         ok: false,
-        error: PeerStoreInvalidTrustFields({
+        error: PeerStoreTrustInvalid({
           detail: 'trust_update requires peerId',
         }),
       },
@@ -168,7 +165,7 @@ function parseTrustPayload(raw: unknown): ParseResult<ParsedTrustPayload> {
       ok: false,
       error: {
         ok: false,
-        error: PeerStoreInvalidTrustFields({
+        error: PeerStoreTrustInvalid({
           detail: 'trust_update requires finite trust >= 0',
         }),
       },
@@ -199,7 +196,7 @@ function evaluatePeerJoin(
   } catch {
     return {
       ok: false,
-      error: PeerStoreInvalidJoinFields({
+      error: PeerStoreJoinInvalid({
         detail: 'join payload publicKey is not valid base64url 32-byte key',
       }),
     };
@@ -210,7 +207,7 @@ function evaluatePeerJoin(
   } catch {
     return {
       ok: false,
-      error: PeerStoreInvalidJoinFields({
+      error: PeerStoreJoinInvalid({
         detail: 'join payload publicKey could not derive peerId',
       }),
     };
@@ -218,7 +215,7 @@ function evaluatePeerJoin(
   if (derived !== peerId) {
     return {
       ok: false,
-      error: PeerStoreInvalidJoinFields({
+      error: PeerStoreJoinInvalid({
         detail: 'join peerId must equal peerId derived from publicKey',
       }),
     };

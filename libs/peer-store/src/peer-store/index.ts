@@ -1,16 +1,13 @@
-export { PeerStore } from './peer-store'
-export { normalizePeerStoreInit } from './peer-store-init'
-export type { PeerStoreCoreInitConfig } from './peer-store-config-validate'
+export { PeerStore } from './peer-store';
+export { normalizePeerStoreInit } from './peer-store-init';
+export type { PeerStoreCoreInitConfig } from './peer-store-config-validate';
 export type {
   Command,
   HandleResult,
   NormalizedPeerStoreInit,
   PeerBootstrap,
   PeerStoreApi,
-  PeerStoreAuthorityElectionContext,
-  PeerStoreAuthorityStrategy,
   PeerStoreInitConfig,
-  PeerStoreLegacyInitConfig,
   PeerStoreRoomConfig,
   PeerStoreRoomRoleHost,
   PeerStoreRoomRoleJoin,
@@ -19,5 +16,5 @@ export type {
   State,
   StoreEffect,
   StoreModule,
-} from './peer-store-types'
-export { replayDomainEntries, replayEvents } from './replay'
+} from './peer-store-types';
+export { replayDomainEntries, replayEvents } from './replay';

@@ -5,6 +5,7 @@ import { InMemoryBus, InMemoryTransport } from '../transport';
 import { TicTacToeModule } from '../testing/fixtures/tic-tac-toe.module';
 import { TestCrashHandler } from '../testing/test-crash-handler';
 import { testPeerForLabel, ticTacToeThreePeers } from '../testing/tictactoe-peers';
+import { normalizePeerStoreInit } from './peer-store-init';
 
 let disposeCrashHandler: () => void;
 beforeAll(() => {
@@ -28,7 +29,6 @@ describe('PeerStore room config', () => {
         initialMembership: F.initialMembership,
         initialMemberPublicKeys: F.initialMemberPublicKeys,
       },
-      autoTrustElection: false,
     });
     expect(store.peerId).toBe(p.peerId);
     expect(store.bootstrapKind).toBe('genesis');
@@ -58,7 +58,6 @@ describe('PeerStore room config', () => {
           },
         },
       },
-      autoTrustElection: false,
     });
     expect(store.peerId).toBe(joiner.peerId);
     expect(store.bootstrapKind).toBe('join');
@@ -67,47 +66,27 @@ describe('PeerStore room config', () => {
     bus.destroy();
   });
 
-  it('default trust election completes for synced host room', async () => {
+  it('normalizePeerStoreInit maps room config to core fields', () => {
     const F = ticTacToeThreePeers();
+    const p = F.peers.authority;
     const bus = new InMemoryBus();
-    const topic = 'room-election-host';
-    const errors: unknown[] = [];
-    const stores: PeerStore[] = [];
-    const transports: InMemoryTransport[] = [];
-    for (const key of ['authority', 'playerX', 'playerO'] as const) {
-      const p = F.peers[key];
-      const transport = new InMemoryTransport(bus, p.peerId);
-      transports.push(transport);
-      stores.push(
-        new PeerStore(
-          TicTacToeModule,
-          {
-            topic,
-            roomSecret: F.roomSecret,
-            secretSeed: p.secretSeed,
-            transport,
-            role: {
-              type: 'host',
-              initialMembership: F.initialMembership,
-              initialMemberPublicKeys: F.initialMemberPublicKeys,
-            },
-            trustElectionTimeoutMs: 5000,
-          },
-          { onError: (e) => errors.push(e) },
-        ),
-      );
-    }
-    bus.flush();
-    await new Promise<void>((resolve) => {
-      setImmediate(() => resolve());
+    const transport = new InMemoryTransport(bus, p.peerId);
+    const n = normalizePeerStoreInit({
+      topic: 'norm-topic',
+      roomSecret: F.roomSecret,
+      secretSeed: p.secretSeed,
+      transport,
+      role: {
+        type: 'host',
+        initialMembership: F.initialMembership,
+        initialMemberPublicKeys: F.initialMemberPublicKeys,
+      },
+      timeoutMs: 7000,
     });
-    bus.flush();
-    await new Promise<void>((resolve) => {
-      setTimeout(resolve, 150);
-    });
-    expect(errors).toHaveLength(0);
-    for (const s of stores) s.destroy();
-    for (const t of transports) t.destroy();
+    expect(n.peerId).toBe(p.peerId);
+    expect(n.bootstrap.kind).toBe('genesis');
+    expect(n.timeoutMs).toBe(7000);
+    transport.destroy();
     bus.destroy();
   });
 });

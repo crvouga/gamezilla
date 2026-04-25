@@ -49,21 +49,35 @@ If your feature is single-player/local-only with no peer coordination, this laye
 - **Explicit over implicit**: predictable flow beats hidden magic.
 - **Peer, never authority**: coordinators help agreement; they do not become truth.
 
-## Public API (recommended)
+## Public API (v2)
 
-The primary integration surface is **`PeerStore`** plus a single **`PeerStoreRoomConfig`** object:
+### Package entrypoints
+
+| Import | Purpose |
+|--------|---------|
+| `@gamezilla/peer-store` | `PeerStore`, persistence, transport, replay helpers, curated store errors |
+| `@gamezilla/peer-store/types` | UI-only: `Event`, `Message`, `StoreError`, `State` |
+| `@gamezilla/peer-store/utils` | `isSystemEvent`, ids |
+| `@gamezilla/peer-store/simulator` | `DeterministicSimulator` |
+| `@gamezilla/peer-store/trust-election` | Standalone `TrustElection` / `computeTrustMap` (not wired into `PeerStore`) |
+| `@gamezilla/peer-store/store-errors` | Same symbols as root error re-exports |
+
+### Constructor: `PeerStoreRoomConfig` only
 
 - **`peerId` is derived** from `secretSeed` (self-certifying identity). You do not pass `peerId` separately.
-- **`role.type: 'host'`** — first peers in the room: supply `initialMembership` and `initialMemberPublicKeys` for everyone who will appear in the genesis log (≥ 2 peers). The host’s seed must correspond to one of those member ids.
-- **`role.type: 'join'`** — supply `roomSnapshot` with the same genesis membership + keys **before** this peer appears in the log (same shape as the old `bootstrap: { kind: 'join', ... }`).
-- **`autoTrustElection`** — defaults to **`true`**. After initial sync (join) or on **liveness-driven authority change**, every peer participates in a signed `TrustElection` on a side topic; the **current log authority** commits any resulting trust weight changes in **one atomic append** (`PeerTrustUpdated` events). Set `autoTrustElection: false` for tests, simulators, or fully manual trust.
-- **`authorityStrategy`** — optional advanced hook (e.g. override `myVote`). Defaults to voting for the current authority peer.
+- **`role.type: 'host'`** — supply `initialMembership` and `initialMemberPublicKeys` for everyone in the genesis room (≥ 2 peers). The host’s seed must correspond to one of those member ids.
+- **`role.type: 'join'`** — supply `roomSnapshot` with genesis membership + keys **before** this peer appears in the log.
+- **Trust weights** change only via replicated log commands (`PeerTrustUpdate` / authority-driven updates), not via a background election inside `PeerStore`.
 
-Use `normalizePeerStoreInit()` only if you build configs dynamically and want the same normalization `PeerStore` performs internally.
+`PeerStoreInitConfig` is a **deprecated alias** for `PeerStoreRoomConfig` (same type).
 
-## Legacy / explicit bootstrap
+Use `normalizePeerStoreInit()` if you build configs dynamically and want the same normalization `PeerStore` performs internally.
 
-For migrations or unusual flows, pass **`PeerStoreLegacyInitConfig`**: explicit `peerId`, `bootstrap: { kind: 'genesis' | 'join', ... }`, and `security`. You can still set `autoTrustElection`, `trustElectionTimeoutMs`, and `authorityStrategy` on this shape.
+### Migration from pre-v2
+
+- **Removed** `PeerStoreLegacyInitConfig` (explicit `peerId` + `bootstrap` + `security`). Use `PeerStoreRoomConfig`: `roomSecret`, `secretSeed`, `role: { type: 'host' | 'join', ... }`.
+- **Removed** automatic in-process trust elections (`autoTrustElection`, `trustElectionTimeoutMs`, `authorityStrategy`). For custom alignment, import `@gamezilla/peer-store/trust-election` and drive `PeerTrustUpdate` through the log yourself, or extend in app code.
+- **Store errors**: shape vs field failures for join/leave/trust are merged into `PeerStoreJoinInvalid`, `PeerStoreLeaveInvalid`, `PeerStoreTrustInvalid` (check `detail`).
 
 ## Wire security (production posture)
 
@@ -78,14 +92,12 @@ For migrations or unusual flows, pass **`PeerStoreLegacyInitConfig`**: explicit 
 ### Bootstrap & trust (pure P2P)
 
 - **Room secret**: all peers in a match must agree on the same secret out-of-band (QR, voice, lobby server, etc.). Without it, signatures will not verify.
-- **Optional fingerprints**: callers may require peer key fingerprints at session start (UX outside this library). Pass `peerFingerprints` on the room config (or `security` on the legacy shape).
-- **Join**: `role: { type: 'join', roomSnapshot: { initialMembership, initialMemberPublicKeys } }` (legacy: `bootstrap: { kind: 'join', ... }`) pins the room’s genesis trust + keys so wire traffic verifies before the first `sync-response`. New members send `PeerJoin` **after** initial sync (the simulator’s `joinPeer` waits for this). `sync-request` / `heartbeat` accept any self-certifying signer (room secret + replay limits still apply) so a joiner can sync before appearing in the log.
+- **Optional fingerprints**: callers may require peer key fingerprints at session start. Pass `peerFingerprints` on the room config.
+- **Join**: `role: { type: 'join', roomSnapshot: { initialMembership, initialMemberPublicKeys } }` pins the room’s genesis trust + keys so wire traffic verifies before the first `sync-response`. New members send `PeerJoin` **after** initial sync (the simulator’s `joinPeer` waits for this). `sync-request` / `heartbeat` accept any self-certifying signer (room secret + replay limits still apply) so a joiner can sync before appearing in the log.
 
-### Trust election (built-in)
+### Standalone trust election
 
-By default, **`PeerStore` runs trust elections for you** using the same cryptography as the wire protocol. The standalone **`TrustElection`** class remains exported for **tests and advanced tooling**; normal apps should rely on `autoTrustElection` (default on) or set it to `false` and drive trust only via log commands.
-
-`TrustElection` uses **signed ballots** scoped by `electionId`, with the same room binding and per-voter replay protection. **First valid ballot wins** per voter for a given election.
+`TrustElection` (see `@gamezilla/peer-store/trust-election`) is **not** started by `PeerStore`. Use it only if you build your own coordination on top of the same transport.
 
 ### Transport contract
 

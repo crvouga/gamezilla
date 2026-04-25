@@ -402,35 +402,27 @@ describe('PeerStore + persistence journal integration', () => {
 
     const store_x = new PeerStore(TicTacToeModule, {
       topic: INT_TOPIC,
-      peerId: PEER.playerX,
-      bootstrap: {
-        kind: 'genesis',
+      roomSecret: FIX.roomSecret,
+      secretSeed: seeds[PEER.playerX]!,
+      transport: t_x,
+      role: {
+        type: 'host',
         initialMembership: peers,
         initialMemberPublicKeys: pubMap,
       },
-      transport: t_x,
-      security: {
-        roomSecret: FIX.roomSecret,
-        secretSeed: seeds[PEER.playerX]!,
-      },
-      autoTrustElection: false,
     });
     const store_o = new PeerStore(
       TicTacToeModule,
       {
         topic: INT_TOPIC,
-        peerId: PEER.playerO,
-        bootstrap: {
-          kind: 'genesis',
+        roomSecret: FIX.roomSecret,
+        secretSeed: seeds[PEER.playerO]!,
+        transport: t_o,
+        role: {
+          type: 'host',
           initialMembership: peers,
           initialMemberPublicKeys: pubMap,
         },
-        transport: t_o,
-        security: {
-          roomSecret: FIX.roomSecret,
-          secretSeed: seeds[PEER.playerO]!,
-        },
-        autoTrustElection: false,
       },
       {
         onReject(commandId) {
@@ -442,18 +434,14 @@ describe('PeerStore + persistence journal integration', () => {
       TicTacToeModule,
       {
         topic: INT_TOPIC,
-        peerId: PEER.authority,
-        bootstrap: {
-          kind: 'genesis',
+        roomSecret: FIX.roomSecret,
+        secretSeed: seeds[PEER.authority]!,
+        transport: t_auth,
+        role: {
+          type: 'host',
           initialMembership: peers,
           initialMemberPublicKeys: pubMap,
         },
-        transport: t_auth,
-        security: {
-          roomSecret: FIX.roomSecret,
-          secretSeed: seeds[PEER.authority]!,
-        },
-        autoTrustElection: false,
       },
       {
         onCommit(commandId, entries) {
@@ -557,18 +545,16 @@ describe('PeerStore + persistence journal integration', () => {
     const t_dummy = new InMemoryTransport(bus2, dummyId);
     const recoveredStore = new PeerStore(TicTacToeModule, {
       topic: INT_TOPIC,
-      peerId: PEER.authority,
-      bootstrap: {
-        kind: 'join',
-        initialMembership: FIX.initialMembership,
-        initialMemberPublicKeys: FIX.initialMemberPublicKeys,
-      },
+      roomSecret: FIX.roomSecret,
+      secretSeed: FIX.peerSecretSeeds[PEER.authority]!,
       transport: t_recovery,
-      security: {
-        roomSecret: FIX.roomSecret,
-        secretSeed: FIX.peerSecretSeeds[PEER.authority]!,
+      role: {
+        type: 'join',
+        roomSnapshot: {
+          initialMembership: FIX.initialMembership,
+          initialMemberPublicKeys: FIX.initialMemberPublicKeys,
+        },
       },
-      autoTrustElection: false,
     });
 
     await recoverPeerStoreFromPersistence(journal, partitionKey, recoveredStore);

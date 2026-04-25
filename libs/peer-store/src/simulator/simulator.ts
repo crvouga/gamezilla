@@ -344,7 +344,6 @@ export class DeterministicSimulator {
         ...(this.heartbeatTimeoutMs !== undefined
           ? { heartbeatTimeoutMs: this.heartbeatTimeoutMs }
           : {}),
-        autoTrustElection: false,
       },
       {
         onTimeout: (commandId) => {
@@ -453,7 +452,6 @@ export class DeterministicSimulator {
           ...(this.heartbeatTimeoutMs !== undefined
             ? { heartbeatTimeoutMs: this.heartbeatTimeoutMs }
             : {}),
-          autoTrustElection: false,
         },
         {
           onTimeout: (commandId) => {

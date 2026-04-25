@@ -78,21 +78,6 @@ export type PeerStoreSecurityConfig = {
   peerFingerprints?: Record<string, string>
 }
 
-/** Context passed to optional {@link PeerStoreAuthorityStrategy} hooks. */
-export type PeerStoreAuthorityElectionContext = {
-  peerId: string
-  topic: string
-  currentAuthority: string
-  authorityOrder: readonly string[]
-  membershipPeerIds: readonly string[]
-  lastCommittedLogSeq: number
-}
-
-/** Advanced overrides for automatic trust elections (default: vote for current authority). */
-export type PeerStoreAuthorityStrategy = {
-  myVote?: (ctx: PeerStoreAuthorityElectionContext) => string
-}
-
 export type PeerStoreRoomRoleHost = {
   type: 'host'
   initialMembership: Record<string, number>
@@ -109,8 +94,7 @@ export type PeerStoreRoomRoleJoin = {
 }
 
 /**
- * Opinionated constructor config: `peerId` is derived from `secretSeed` (self-certifying).
- * Prefer this over {@link PeerStoreLegacyInitConfig} for new integrations.
+ * Constructor config: `peerId` is derived from `secretSeed` (self-certifying).
  */
 export type PeerStoreRoomConfig = {
   topic: string
@@ -122,34 +106,12 @@ export type PeerStoreRoomConfig = {
   heartbeatIntervalMs?: number
   heartbeatTimeoutMs?: number
   peerFingerprints?: Record<string, string>
-  /**
-   * When true (default), peers run signed trust elections after sync and on liveness-driven
-   * authority changes; the current log authority commits resulting trust weights.
-   */
-  autoTrustElection?: boolean
-  trustElectionTimeoutMs?: number
-  authorityStrategy?: PeerStoreAuthorityStrategy
 }
 
-/** Explicit `peerId` + bootstrap (advanced / migration). */
-export type PeerStoreLegacyInitConfig = {
-  topic: string
-  peerId: string
-  bootstrap: PeerBootstrap
-  transport: Transport
-  security: PeerStoreSecurityConfig
-  timeoutMs?: number
-  heartbeatIntervalMs?: number
-  heartbeatTimeoutMs?: number
-  autoTrustElection?: boolean
-  trustElectionTimeoutMs?: number
-  authorityStrategy?: PeerStoreAuthorityStrategy
-}
+/** @deprecated Use {@link PeerStoreRoomConfig} — alias kept for short-term migration. */
+export type PeerStoreInitConfig = PeerStoreRoomConfig
 
-/** Constructor config: streamlined {@link PeerStoreRoomConfig} or explicit {@link PeerStoreLegacyInitConfig}. */
-export type PeerStoreInitConfig = PeerStoreRoomConfig | PeerStoreLegacyInitConfig
-
-/** Normalized internal shape after resolving room vs legacy config. */
+/** Normalized internal shape after validation. */
 export type NormalizedPeerStoreInit = {
   topic: string
   peerId: string
@@ -159,9 +121,6 @@ export type NormalizedPeerStoreInit = {
   timeoutMs?: number
   heartbeatIntervalMs?: number
   heartbeatTimeoutMs?: number
-  autoTrustElection: boolean
-  trustElectionTimeoutMs: number
-  authorityStrategy?: PeerStoreAuthorityStrategy
 }
 
 export interface PeerStoreApi {

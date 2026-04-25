@@ -1,5 +1,6 @@
 import { Assert } from '@gamezilla/lib/assert';
 import type { LogEntry } from '../persistence/log-entry';
+import type { StoreError } from '../protocol/message-types';
 import { decodeKeyB64 } from './security/peer-crypto';
 import { PeerJoined, PeerLeave, peerNamespace } from '../protocol/system-messages';
 import { isSystemEvent } from '../protocol/utils';
@@ -21,11 +22,37 @@ export function handleWireMessage(self: PeerStore, payload: unknown): void {
   if (!verified) return;
 
   updateLastSeenVerified(self, verified.signerPeerId);
-  checkAuthorityChange(self, (prev, next) =>
-    self.notifyAuthorityElectionLiveness(prev, next),
-  );
+  checkAuthorityChange(self);
 
   dispatchVerifiedBody(self, verified.body);
+}
+
+/** Single path: apply committed entries then broadcast `accepted` (authority). */
+export function authorityAcceptCommit(
+  self: PeerStore,
+  commandId: string,
+  entries: LogEntry[],
+  effects?: StoreEffect[],
+): void {
+  handleCommitEntries(self, commandId, entries, effects);
+  self.publishSignedWire({
+    kind: 'accepted',
+    commandId,
+    entries,
+  } satisfies WireMessage);
+}
+
+export function authorityRejectProposal(
+  self: PeerStore,
+  commandId: string,
+  error: StoreError,
+): void {
+  self.finalized_command_ids.add(commandId);
+  self.publishSignedWire({
+    kind: 'rejected',
+    commandId,
+    error,
+  } satisfies WireMessage);
 }
 
 function dispatchVerifiedBody(self: PeerStore, body: WireMessage): void {
@@ -73,39 +100,23 @@ export function handleProposeWire(
 function handleProposeSystem(self: PeerStore, command: Command): void {
   const sys = self.evaluateSystemCommand(command);
   if (sys.ok) {
-    handleCommitEntries(self, command.id, sys.entries);
-    self.publishSignedWire({
-      kind: 'accepted',
-      commandId: command.id,
-      entries: sys.entries,
-    } satisfies WireMessage);
+    authorityAcceptCommit(self, command.id, sys.entries);
   } else {
-    self.finalized_command_ids.add(command.id);
-    self.publishSignedWire({
-      kind: 'rejected',
-      commandId: command.id,
-      error: sys.error,
-    } satisfies WireMessage);
+    authorityRejectProposal(self, command.id, sys.error);
   }
 }
 
 function handleProposeDomain(self: PeerStore, command: Command): void {
   const evaluated = self.authorityEvaluateDomain(command);
   if (evaluated.ok) {
-    const entries = evaluated.entries;
-    handleCommitEntries(self, command.id, entries, evaluated.effects);
-    self.publishSignedWire({
-      kind: 'accepted',
-      commandId: command.id,
-      entries,
-    } satisfies WireMessage);
+    authorityAcceptCommit(
+      self,
+      command.id,
+      evaluated.entries,
+      evaluated.effects,
+    );
   } else {
-    self.finalized_command_ids.add(command.id);
-    self.publishSignedWire({
-      kind: 'rejected',
-      commandId: command.id,
-      error: evaluated.error,
-    } satisfies WireMessage);
+    authorityRejectProposal(self, command.id, evaluated.error);
   }
 }
 
@@ -265,5 +276,4 @@ export function handleSyncResponseWire(
 
   self.synced = true;
   self.callbacks.onSync?.();
-  self.notifyAuthorityElectionSynced();
 }
