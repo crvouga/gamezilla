@@ -42,6 +42,33 @@ afterAll(() => disposeCrashHandler())
 const TRUST = { 'player-x': 1, 'player-o': 1, 'authority': 3 } as const
 const PEER_IDS = Object.keys(TRUST)
 const TEST_TOPIC = 'peer-store-test'
+const EFFECT_TOPIC = 'peer-store-effects-test'
+
+const EffectModule: StoreModule = {
+  initialState: () => ({ count: 0 }),
+  handle: (state: State): HandleResult => {
+    const count = typeof state['count'] === 'number' ? state['count'] : 0
+    return {
+      ok: true,
+      value: {
+        events: [{ type: 'effectEvent/COUNTED', payload: { count: count + 1 } }],
+        effects: [{ type: 'effectAction/SCHEDULE', payload: { delayMs: 1000 } }],
+      },
+    }
+  },
+  reduce: (state: State, event): State => {
+    if (event.type !== 'effectEvent/COUNTED') return state
+    const payload = event.payload
+    let nextCount = 0
+    if (typeof payload === 'object' && payload !== null && 'count' in payload) {
+      const countValue = Reflect.get(payload, 'count')
+      if (typeof countValue === 'number') {
+        nextCount = countValue
+      }
+    }
+    return { ...state, count: nextCount }
+  },
+}
 
 type SetupOpts = {
   peers?: Record<string, number>
@@ -391,6 +418,54 @@ describe('PeerStore', () => {
     for (const store of stores.values()) {
       expect(store.getAuthorityPeerId()).toBe('alice')
     }
+  })
+
+  it('commit effects are emitted only on producing authority store', () => {
+    const bus = new InMemoryBus()
+    const peers = { 'player-x': 1, 'player-o': 1, authority: 3 }
+    const byPeer = new Map<
+      string,
+      Array<{ commandId: string; effectCount: number }>
+    >()
+
+    const makeStore = (peerId: string) => {
+      const transport = new InMemoryTransport(bus, peerId)
+      const rows: Array<{ commandId: string; effectCount: number }> = []
+      byPeer.set(peerId, rows)
+      const store = new PeerStore(
+        EffectModule,
+        {
+          topic: EFFECT_TOPIC,
+          peerId,
+          bootstrap: { kind: 'genesis', initialMembership: peers },
+          transport,
+        },
+        {
+          onCommit: (commandId, _entries, effects) => {
+            rows.push({ commandId, effectCount: effects?.length ?? 0 })
+          },
+        }
+      )
+      return { store, transport }
+    }
+
+    const x = makeStore('player-x')
+    const o = makeStore('player-o')
+    const authority = makeStore('authority')
+
+    x.store.dispatch({ type: 'effectCommand/DO', payload: {} })
+
+    expect(byPeer.get('authority')![0]!.effectCount).toBe(1)
+    expect(byPeer.get('player-x')![0]!.effectCount).toBe(0)
+    expect(byPeer.get('player-o')![0]!.effectCount).toBe(0)
+
+    x.store.destroy()
+    o.store.destroy()
+    authority.store.destroy()
+    x.transport.destroy()
+    o.transport.destroy()
+    authority.transport.destroy()
+    bus.destroy()
   })
 })
 

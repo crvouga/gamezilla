@@ -11,6 +11,14 @@ export function assertHandleResult(result: HandleResult): void {
   );
   if (result.ok) {
     crash.array(result.value.events, 'handle success must have events array');
+    const effects = result.value.effects;
+    if (effects !== undefined) {
+      crash.array(effects, 'handle success effects must be an array');
+      for (const effect of effects) {
+        crash.record(effect, 'effect must be a plain object');
+        crash.nonEmptyString(effect.type, 'effect.type must be non-empty');
+      }
+    }
   } else {
     crash.record(result.error, 'handle error must be a plain object');
     crash.nonEmptyString(

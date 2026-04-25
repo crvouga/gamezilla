@@ -17,8 +17,11 @@ export type Command = {
  */
 export type State = Record<string, unknown>
 
+/** Host-interpreted intent emitted after a successful committed command. */
+export type StoreEffect = Message
+
 export type HandleResult =
-  | { ok: true; value: { events: Event[] } }
+  | { ok: true; value: { events: Event[]; effects?: StoreEffect[] } }
   | { ok: false; error: StoreError }
 
 export type StoreModule = {

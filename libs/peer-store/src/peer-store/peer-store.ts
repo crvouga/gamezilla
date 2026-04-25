@@ -24,6 +24,7 @@ import type {
   PeerBootstrap,
   PeerStoreApi,
   State,
+  StoreEffect,
   StoreModule,
 } from './peer-store-types';
 import { replayDomainEntries } from './replay';
@@ -55,7 +56,11 @@ type PeerStoreCallbacks = {
   onTimeout?: (commandId: string) => void;
   onError?: (error: StoreError) => void;
   onSync?: () => void;
-  onCommit?: (commandId: string, entries: LogEntry[]) => void;
+  onCommit?: (
+    commandId: string,
+    entries: LogEntry[],
+    effects?: StoreEffect[],
+  ) => void;
   onReject?: (commandId: string) => void;
   onAuthorityChange?: (
     newAuthority: string,
@@ -151,7 +156,9 @@ export class PeerStore implements PeerStoreApi {
 
   authorityEvaluateDomain(
     command: Command,
-  ): { ok: true; entries: LogEntry[] } | { ok: false; error: StoreError } {
+  ):
+    | { ok: true; entries: LogEntry[]; effects: StoreEffect[] }
+    | { ok: false; error: StoreError } {
     const result = this.module.handle(this.committed_state, command);
     assertHandleResult(result);
     if (!result.ok) {
@@ -161,7 +168,11 @@ export class PeerStore implements PeerStoreApi {
       result.value.events.length > 0,
       'handle must produce at least one event on success',
     );
-    return { ok: true, entries: this.wrapDomainEventsWithSeq(result.value.events) };
+    return {
+      ok: true,
+      entries: this.wrapDomainEventsWithSeq(result.value.events),
+      effects: result.value.effects ?? [],
+    };
   }
 
   private applyGenesisBootstrap(initialMembership: Record<string, number>): void {
@@ -266,11 +277,15 @@ export class PeerStore implements PeerStoreApi {
       this.callbacks.onError?.(evaluated.error);
       return;
     }
-    this.publishCommit(command.id, evaluated.entries);
+    this.publishCommit(command.id, evaluated.entries, evaluated.effects);
   }
 
-  private publishCommit(commandId: string, entries: LogEntry[]): void {
-    handleCommitEntries(this, commandId, entries);
+  private publishCommit(
+    commandId: string,
+    entries: LogEntry[],
+    effects?: StoreEffect[],
+  ): void {
+    handleCommitEntries(this, commandId, entries, effects);
     this.transport.publish(this.topic, {
       kind: 'accepted',
       commandId,

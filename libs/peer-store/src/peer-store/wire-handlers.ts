@@ -11,7 +11,7 @@ import {
   materializeAtSeq,
 } from './membership';
 import type { PeerStore } from './peer-store';
-import type { Command } from './peer-store-types';
+import type { Command, StoreEffect } from './peer-store-types';
 import {
   parseAcceptedWire,
   parseProposeWire,
@@ -101,7 +101,7 @@ function handleProposeDomain(self: PeerStore, command: Command): void {
   const evaluated = self.authorityEvaluateDomain(command);
   if (evaluated.ok) {
     const entries = evaluated.entries;
-    handleCommitEntries(self, command.id, entries);
+    handleCommitEntries(self, command.id, entries, evaluated.effects);
     self.transport.publish(self.topic, {
       kind: 'accepted',
       commandId: command.id,
@@ -165,6 +165,7 @@ export function handleCommitEntries(
   self: PeerStore,
   commandId: string,
   entries: LogEntry[],
+  effects?: StoreEffect[],
 ): void {
   if (self.finalized_command_ids.has(commandId)) return;
   self.finalized_command_ids.add(commandId);
@@ -194,7 +195,7 @@ export function handleCommitEntries(
     self.pending_timeouts.delete(commandId);
   }
 
-  self.callbacks.onCommit?.(commandId, entries);
+  self.callbacks.onCommit?.(commandId, entries, effects);
   self.notifySubscribers();
 }
 

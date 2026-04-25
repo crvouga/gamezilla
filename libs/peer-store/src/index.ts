@@ -14,6 +14,7 @@ export type {
   PeerStoreApi,
   Snapshot,
   State,
+  StoreEffect,
   StoreModule,
 } from './peer-store/peer-store-types';
 export type { Event, Message, StoreError } from './protocol/message-types';

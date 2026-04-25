@@ -6,6 +6,7 @@ export type {
   PeerStoreApi,
   Snapshot,
   State,
+  StoreEffect,
   StoreModule,
 } from './peer-store-types'
 export { replayDomainEntries, replayEvents } from './replay'
