@@ -21,7 +21,9 @@ export function handleWireMessage(self: PeerStore, payload: unknown): void {
   if (!verified) return;
 
   updateLastSeenVerified(self, verified.signerPeerId);
-  checkAuthorityChange(self);
+  checkAuthorityChange(self, (prev, next) =>
+    self.notifyAuthorityElectionLiveness(prev, next),
+  );
 
   dispatchVerifiedBody(self, verified.body);
 }
@@ -263,4 +265,5 @@ export function handleSyncResponseWire(
 
   self.synced = true;
   self.callbacks.onSync?.();
+  self.notifyAuthorityElectionSynced();
 }

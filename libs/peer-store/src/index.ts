@@ -9,12 +9,26 @@ export type {
   PeerStorePersistenceEntry,
 } from './persistence';
 export type { LogEntry } from './persistence/log-entry';
-export { PeerStore, replayDomainEntries, replayEvents } from './peer-store';
+export {
+  normalizePeerStoreInit,
+  PeerStore,
+  replayDomainEntries,
+  replayEvents,
+} from './peer-store';
+export type { PeerStoreCoreInitConfig } from './peer-store/peer-store-config-validate';
 export type {
   Command,
   HandleResult,
+  NormalizedPeerStoreInit,
   PeerBootstrap,
   PeerStoreApi,
+  PeerStoreAuthorityElectionContext,
+  PeerStoreAuthorityStrategy,
+  PeerStoreInitConfig,
+  PeerStoreLegacyInitConfig,
+  PeerStoreRoomConfig,
+  PeerStoreRoomRoleHost,
+  PeerStoreRoomRoleJoin,
   PeerStoreSecurityConfig,
   Snapshot,
   State,

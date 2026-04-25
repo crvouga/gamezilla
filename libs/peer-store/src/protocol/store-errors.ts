@@ -82,3 +82,9 @@ export const PeerStoreSyncSessionMismatch = errNs(
   'SYNC_SESSION_MISMATCH',
   validateDetail,
 )
+
+/** Signed trust election round failed or timed out. */
+export const PeerStoreTrustElectionFailed = errNs(
+  'TRUST_ELECTION_FAILED',
+  validateDetail,
+)

@@ -49,6 +49,22 @@ If your feature is single-player/local-only with no peer coordination, this laye
 - **Explicit over implicit**: predictable flow beats hidden magic.
 - **Peer, never authority**: coordinators help agreement; they do not become truth.
 
+## Public API (recommended)
+
+The primary integration surface is **`PeerStore`** plus a single **`PeerStoreRoomConfig`** object:
+
+- **`peerId` is derived** from `secretSeed` (self-certifying identity). You do not pass `peerId` separately.
+- **`role.type: 'host'`** — first peers in the room: supply `initialMembership` and `initialMemberPublicKeys` for everyone who will appear in the genesis log (≥ 2 peers). The host’s seed must correspond to one of those member ids.
+- **`role.type: 'join'`** — supply `roomSnapshot` with the same genesis membership + keys **before** this peer appears in the log (same shape as the old `bootstrap: { kind: 'join', ... }`).
+- **`autoTrustElection`** — defaults to **`true`**. After initial sync (join) or on **liveness-driven authority change**, every peer participates in a signed `TrustElection` on a side topic; the **current log authority** commits any resulting trust weight changes in **one atomic append** (`PeerTrustUpdated` events). Set `autoTrustElection: false` for tests, simulators, or fully manual trust.
+- **`authorityStrategy`** — optional advanced hook (e.g. override `myVote`). Defaults to voting for the current authority peer.
+
+Use `normalizePeerStoreInit()` only if you build configs dynamically and want the same normalization `PeerStore` performs internally.
+
+## Legacy / explicit bootstrap
+
+For migrations or unusual flows, pass **`PeerStoreLegacyInitConfig`**: explicit `peerId`, `bootstrap: { kind: 'genesis' | 'join', ... }`, and `security`. You can still set `autoTrustElection`, `trustElectionTimeoutMs`, and `authorityStrategy` on this shape.
+
 ## Wire security (production posture)
 
 `PeerStore` wire traffic is **signed** (Ed25519) and bound to a **match-scoped room secret** plus the store topic. Each peer’s `peerId` is **self-certifying** (derived from its public key). Join commands must carry the joining peer’s public key and must match the claimed `peerId`.
@@ -62,10 +78,12 @@ If your feature is single-player/local-only with no peer coordination, this laye
 ### Bootstrap & trust (pure P2P)
 
 - **Room secret**: all peers in a match must agree on the same secret out-of-band (QR, voice, lobby server, etc.). Without it, signatures will not verify.
-- **Optional fingerprints**: callers may require peer key fingerprints at session start (UX outside this library).
-- **Join**: `bootstrap: { kind: 'join', initialMembership, initialMemberPublicKeys }` pins the room’s genesis trust + keys so wire traffic verifies before the first `sync-response`. New members send `PeerJoin` **after** initial sync (the simulator’s `joinPeer` waits for this). `sync-request` / `heartbeat` accept any self-certifying signer (room secret + replay limits still apply) so a joiner can sync before appearing in the log.
+- **Optional fingerprints**: callers may require peer key fingerprints at session start (UX outside this library). Pass `peerFingerprints` on the room config (or `security` on the legacy shape).
+- **Join**: `role: { type: 'join', roomSnapshot: { initialMembership, initialMemberPublicKeys } }` (legacy: `bootstrap: { kind: 'join', ... }`) pins the room’s genesis trust + keys so wire traffic verifies before the first `sync-response`. New members send `PeerJoin` **after** initial sync (the simulator’s `joinPeer` waits for this). `sync-request` / `heartbeat` accept any self-certifying signer (room secret + replay limits still apply) so a joiner can sync before appearing in the log.
 
-### Trust election
+### Trust election (built-in)
+
+By default, **`PeerStore` runs trust elections for you** using the same cryptography as the wire protocol. The standalone **`TrustElection`** class remains exported for **tests and advanced tooling**; normal apps should rely on `autoTrustElection` (default on) or set it to `false` and drive trust only via log commands.
 
 `TrustElection` uses **signed ballots** scoped by `electionId`, with the same room binding and per-voter replay protection. **First valid ballot wins** per voter for a given election.
 

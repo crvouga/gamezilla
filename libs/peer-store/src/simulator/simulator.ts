@@ -327,16 +327,15 @@ export class DeterministicSimulator {
       this.module,
       {
         topic: this.topic,
-        peerId,
-        bootstrap: {
-          kind: 'join',
-          initialMembership: this.initialMembership,
-          initialMemberPublicKeys: this.initialMemberPublicKeys,
-        },
+        roomSecret: this.roomSecret,
+        secretSeed: tp.secretSeed,
         transport,
-        security: {
-          roomSecret: this.roomSecret,
-          secretSeed: tp.secretSeed,
+        role: {
+          type: 'join',
+          roomSnapshot: {
+            initialMembership: this.initialMembership,
+            initialMemberPublicKeys: this.initialMemberPublicKeys,
+          },
         },
         ...(this.timeoutMs !== undefined ? { timeoutMs: this.timeoutMs } : {}),
         ...(this.heartbeatIntervalMs !== undefined
@@ -345,6 +344,7 @@ export class DeterministicSimulator {
         ...(this.heartbeatTimeoutMs !== undefined
           ? { heartbeatTimeoutMs: this.heartbeatTimeoutMs }
           : {}),
+        autoTrustElection: false,
       },
       {
         onTimeout: (commandId) => {
@@ -436,16 +436,13 @@ export class DeterministicSimulator {
         this.module,
         {
           topic: this.topic,
-          peerId,
-          bootstrap: {
-            kind: 'genesis',
+          roomSecret: this.roomSecret,
+          secretSeed: this.peerSecretSeeds[peerId]!,
+          transport,
+          role: {
+            type: 'host',
             initialMembership: this.initialMembership,
             initialMemberPublicKeys: this.initialMemberPublicKeys,
-          },
-          transport,
-          security: {
-            roomSecret: this.roomSecret,
-            secretSeed: this.peerSecretSeeds[peerId]!,
           },
           ...(this.timeoutMs !== undefined
             ? { timeoutMs: this.timeoutMs }
@@ -456,6 +453,7 @@ export class DeterministicSimulator {
           ...(this.heartbeatTimeoutMs !== undefined
             ? { heartbeatTimeoutMs: this.heartbeatTimeoutMs }
             : {}),
+          autoTrustElection: false,
         },
         {
           onTimeout: (commandId) => {

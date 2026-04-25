@@ -112,6 +112,7 @@ function buildStoreConfig(
       roomSecret: F.roomSecret,
       secretSeed: args.peerSecretSeeds[args.peerId]!,
     },
+    autoTrustElection: false,
   }
   applyOptionalStoreConfig(config, args.opts)
   return config
@@ -402,6 +403,7 @@ describe('PeerStore', () => {
       },
       transport: t1,
       security: { roomSecret: F.roomSecret, secretSeed: ba.secretSeed },
+      autoTrustElection: false,
     })
     const _store2 = new PeerStore(badModule, {
       topic: TEST_TOPIC,
@@ -413,6 +415,7 @@ describe('PeerStore', () => {
       },
       transport: t2,
       security: { roomSecret: F.roomSecret, secretSeed: bb.secretSeed },
+      autoTrustElection: false,
     })
 
     expect(() =>
@@ -458,6 +461,7 @@ describe('PeerStore', () => {
       },
       transport: t2,
       security: { roomSecret: F.roomSecret, secretSeed: bb.secretSeed },
+      autoTrustElection: false,
     })
     const _store2 = new PeerStore(badModule, {
       topic: TEST_TOPIC,
@@ -469,6 +473,7 @@ describe('PeerStore', () => {
       },
       transport: t1,
       security: { roomSecret: F.roomSecret, secretSeed: ba.secretSeed },
+      autoTrustElection: false,
     })
 
     expect(() =>
@@ -548,6 +553,7 @@ describe('PeerStore', () => {
             roomSecret: F.roomSecret,
             secretSeed: F.peerSecretSeeds[peerId]!,
           },
+          autoTrustElection: false,
         },
         {
           onCommit: (commandId, _entries, effects) => {

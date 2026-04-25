@@ -1,5 +1,6 @@
 import type { LogEntry } from '../persistence/log-entry'
 import type { Event, Message, StoreError } from '../protocol/message-types'
+import type { Transport } from '../transport/transport-types'
 
 export type Command = {
   id: string
@@ -75,6 +76,92 @@ export type PeerStoreSecurityConfig = {
   secretSeed: Uint8Array
   /** Optional: require fingerprintFromPublicKey(pub) to match per peerId. */
   peerFingerprints?: Record<string, string>
+}
+
+/** Context passed to optional {@link PeerStoreAuthorityStrategy} hooks. */
+export type PeerStoreAuthorityElectionContext = {
+  peerId: string
+  topic: string
+  currentAuthority: string
+  authorityOrder: readonly string[]
+  membershipPeerIds: readonly string[]
+  lastCommittedLogSeq: number
+}
+
+/** Advanced overrides for automatic trust elections (default: vote for current authority). */
+export type PeerStoreAuthorityStrategy = {
+  myVote?: (ctx: PeerStoreAuthorityElectionContext) => string
+}
+
+export type PeerStoreRoomRoleHost = {
+  type: 'host'
+  initialMembership: Record<string, number>
+  initialMemberPublicKeys: Record<string, string>
+}
+
+export type PeerStoreRoomRoleJoin = {
+  type: 'join'
+  /** Genesis membership + keys for the room before this peer appears in the log. */
+  roomSnapshot: {
+    initialMembership: Record<string, number>
+    initialMemberPublicKeys: Record<string, string>
+  }
+}
+
+/**
+ * Opinionated constructor config: `peerId` is derived from `secretSeed` (self-certifying).
+ * Prefer this over {@link PeerStoreLegacyInitConfig} for new integrations.
+ */
+export type PeerStoreRoomConfig = {
+  topic: string
+  roomSecret: string
+  secretSeed: Uint8Array
+  transport: Transport
+  role: PeerStoreRoomRoleHost | PeerStoreRoomRoleJoin
+  timeoutMs?: number
+  heartbeatIntervalMs?: number
+  heartbeatTimeoutMs?: number
+  peerFingerprints?: Record<string, string>
+  /**
+   * When true (default), peers run signed trust elections after sync and on liveness-driven
+   * authority changes; the current log authority commits resulting trust weights.
+   */
+  autoTrustElection?: boolean
+  trustElectionTimeoutMs?: number
+  authorityStrategy?: PeerStoreAuthorityStrategy
+}
+
+/** Explicit `peerId` + bootstrap (advanced / migration). */
+export type PeerStoreLegacyInitConfig = {
+  topic: string
+  peerId: string
+  bootstrap: PeerBootstrap
+  transport: Transport
+  security: PeerStoreSecurityConfig
+  timeoutMs?: number
+  heartbeatIntervalMs?: number
+  heartbeatTimeoutMs?: number
+  autoTrustElection?: boolean
+  trustElectionTimeoutMs?: number
+  authorityStrategy?: PeerStoreAuthorityStrategy
+}
+
+/** Constructor config: streamlined {@link PeerStoreRoomConfig} or explicit {@link PeerStoreLegacyInitConfig}. */
+export type PeerStoreInitConfig = PeerStoreRoomConfig | PeerStoreLegacyInitConfig
+
+/** Normalized internal shape after resolving room vs legacy config. */
+export type NormalizedPeerStoreInit = {
+  topic: string
+  peerId: string
+  bootstrap: PeerBootstrap
+  transport: Transport
+  security: PeerStoreSecurityConfig
+  timeoutMs?: number
+  heartbeatIntervalMs?: number
+  heartbeatTimeoutMs?: number
+  autoTrustElection: boolean
+  trustElectionTimeoutMs: number
+  authorityStrategy?: PeerStoreAuthorityStrategy
 }
 
 export interface PeerStoreApi {

@@ -15,12 +15,16 @@ export function broadcastHeartbeat(self: PeerStore): void {
   } satisfies WireMessage);
 }
 
-export function checkAuthorityChange(self: PeerStore): void {
+export function checkAuthorityChange(
+  self: PeerStore,
+  onLivenessAuthorityChange?: (prev: string, next: string) => void,
+): void {
   const newAuthority = deriveAuthority(self);
   if (newAuthority !== self.current_authority) {
     const prev = self.current_authority;
     self.current_authority = newAuthority;
     self.callbacks.onAuthorityChange?.(newAuthority, prev);
+    onLivenessAuthorityChange?.(prev, newAuthority);
   }
 }
 

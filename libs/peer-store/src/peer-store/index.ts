@@ -1,9 +1,19 @@
 export { PeerStore } from './peer-store'
+export { normalizePeerStoreInit } from './peer-store-init'
+export type { PeerStoreCoreInitConfig } from './peer-store-config-validate'
 export type {
   Command,
   HandleResult,
+  NormalizedPeerStoreInit,
   PeerBootstrap,
   PeerStoreApi,
+  PeerStoreAuthorityElectionContext,
+  PeerStoreAuthorityStrategy,
+  PeerStoreInitConfig,
+  PeerStoreLegacyInitConfig,
+  PeerStoreRoomConfig,
+  PeerStoreRoomRoleHost,
+  PeerStoreRoomRoleJoin,
   PeerStoreSecurityConfig,
   Snapshot,
   State,

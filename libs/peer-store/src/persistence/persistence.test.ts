@@ -413,6 +413,7 @@ describe('PeerStore + persistence journal integration', () => {
         roomSecret: FIX.roomSecret,
         secretSeed: seeds[PEER.playerX]!,
       },
+      autoTrustElection: false,
     });
     const store_o = new PeerStore(
       TicTacToeModule,
@@ -429,6 +430,7 @@ describe('PeerStore + persistence journal integration', () => {
           roomSecret: FIX.roomSecret,
           secretSeed: seeds[PEER.playerO]!,
         },
+        autoTrustElection: false,
       },
       {
         onReject(commandId) {
@@ -451,6 +453,7 @@ describe('PeerStore + persistence journal integration', () => {
           roomSecret: FIX.roomSecret,
           secretSeed: seeds[PEER.authority]!,
         },
+        autoTrustElection: false,
       },
       {
         onCommit(commandId, entries) {
@@ -565,6 +568,7 @@ describe('PeerStore + persistence journal integration', () => {
         roomSecret: FIX.roomSecret,
         secretSeed: FIX.peerSecretSeeds[PEER.authority]!,
       },
+      autoTrustElection: false,
     });
 
     await recoverPeerStoreFromPersistence(journal, partitionKey, recoveredStore);

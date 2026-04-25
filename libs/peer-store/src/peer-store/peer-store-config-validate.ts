@@ -4,8 +4,8 @@ import { peerIdFromPublicKey, publicKeyFromSecretSeed } from './security/peer-cr
 
 const crash: Assert = Assert.crash();
 
-/** Fields required to validate `PeerStore` construction (matches `PeerStore` config minus transport). */
-export type PeerStoreInitConfig = {
+/** Core crypto + bootstrap fields validated before transport wiring. */
+export type PeerStoreCoreInitConfig = {
   topic: string;
   peerId: string;
   bootstrap: PeerBootstrap;
@@ -13,7 +13,7 @@ export type PeerStoreInitConfig = {
   timeoutMs?: number;
 };
 
-export function validatePeerStoreInitConfig(config: PeerStoreInitConfig): void {
+export function validatePeerStoreInitConfig(config: PeerStoreCoreInitConfig): void {
   crash.nonEmptyString(config.topic, 'config.topic must be non-empty');
   crash.nonEmptyString(config.peerId, 'config.peerId must be non-empty');
   crash.record(config.security, 'config.security must be an object');

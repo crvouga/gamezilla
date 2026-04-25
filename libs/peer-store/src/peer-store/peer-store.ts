@@ -1,8 +1,10 @@
+/* eslint-disable max-lines -- PeerStore is the orchestration surface (wire + sync + dispatch + authority). */
 import { Assert } from '@gamezilla/lib/assert';
 import type { MessageRouter } from '@gamezilla/lib/message';
 import { randomBytes } from 'node:crypto';
 import type { LogEntry } from '../persistence/log-entry';
 import type { Event, Message, StoreError } from '../protocol/message-types';
+import { PeerTrustUpdated } from '../protocol/system-messages';
 import {
   PeerStoreNotSynced,
   PeerStoreUnknownSystemCommand,
@@ -20,14 +22,15 @@ import {
 } from './security/wire-envelope';
 import type {
   Command,
-  PeerBootstrap,
   PeerStoreApi,
+  PeerStoreInitConfig,
   PeerStoreSecurityConfig,
   State,
   StoreEffect,
   StoreModule,
 } from './peer-store-types';
-import { validatePeerStoreInitConfig } from './peer-store-config-validate';
+import { AuthorityElectionController } from './authority-election-controller';
+import { normalizePeerStoreInit } from './peer-store-init';
 import { runPeerStoreConstructorBootstrap } from './peer-store-constructor-bootstrap';
 import { applyRehydrateCommittedEntries } from './peer-store-rehydrate';
 import {
@@ -46,17 +49,6 @@ import type {
 
 const crash: Assert = Assert.crash();
 const validation: Assert = Assert.validation();
-
-type PeerStoreConfig = {
-  topic: string;
-  peerId: string;
-  bootstrap: PeerBootstrap;
-  transport: Transport;
-  security: PeerStoreSecurityConfig;
-  timeoutMs?: number;
-  heartbeatIntervalMs?: number;
-  heartbeatTimeoutMs?: number;
-};
 
 type PeerStoreCallbacks = {
   onTimeout?: (commandId: string) => void;
@@ -100,6 +92,8 @@ export class PeerStore implements PeerStoreApi {
 
   readonly callbacks: PeerStoreCallbacks;
 
+  private readonly authorityElectionController: AuthorityElectionController | null;
+
   /** Join bootstrap only: genesis view for auth + authority until `synced`. */
   private readonly joinGenesis:
     | {
@@ -141,26 +135,38 @@ export class PeerStore implements PeerStoreApi {
 
   constructor(
     module: StoreModule,
-    config: PeerStoreConfig,
+    config: PeerStoreInitConfig,
     callbacks?: PeerStoreCallbacks,
   ) {
-    validatePeerStoreInitConfig(config);
+    const resolved = normalizePeerStoreInit(config);
 
     this.module = module;
-    this.peerId = config.peerId;
-    this.topic = config.topic;
-    this.transport = config.transport;
-    this.security = config.security;
-    this.timeoutMs = config.timeoutMs ?? 5000;
-    this.heartbeatIntervalMs = config.heartbeatIntervalMs ?? 2000;
-    this.heartbeatTimeoutMs = config.heartbeatTimeoutMs ?? 6000;
+    this.peerId = resolved.peerId;
+    this.topic = resolved.topic;
+    this.transport = resolved.transport;
+    this.security = resolved.security;
+    this.timeoutMs = resolved.timeoutMs ?? 5000;
+    this.heartbeatIntervalMs = resolved.heartbeatIntervalMs ?? 2000;
+    this.heartbeatTimeoutMs = resolved.heartbeatTimeoutMs ?? 6000;
     this.callbacks = callbacks ?? {};
+
+    this.authorityElectionController = resolved.autoTrustElection
+      ? new AuthorityElectionController(
+          this,
+          resolved.authorityStrategy !== undefined
+            ? {
+                trustElectionTimeoutMs: resolved.trustElectionTimeoutMs,
+                strategy: resolved.authorityStrategy,
+              }
+            : { trustElectionTimeoutMs: resolved.trustElectionTimeoutMs },
+        )
+      : null;
 
     const boot = runPeerStoreConstructorBootstrap(
       module,
       {
-        peerId: config.peerId,
-        bootstrap: config.bootstrap,
+        peerId: resolved.peerId,
+        bootstrap: resolved.bootstrap,
         security: this.security,
       },
       this.memberPublicKeys,
@@ -178,6 +184,57 @@ export class PeerStore implements PeerStoreApi {
     this.attachTransport();
 
     this.maybeRequestInitialSync();
+
+    if (this.synced) {
+      this.authorityElectionController?.notifySynced();
+    }
+  }
+
+  /**
+   * Wire + election integration: after first successful sync (join bootstrap).
+   * @internal
+   */
+  notifyAuthorityElectionSynced(): void {
+    this.authorityElectionController?.notifySynced();
+  }
+
+  /**
+   * Wire + election integration: liveness-derived authority handoff.
+   * @internal
+   */
+  notifyAuthorityElectionLiveness(prev: string, next: string): void {
+    this.authorityElectionController?.notifyAuthorityChange(prev, next);
+  }
+
+  /**
+   * Commit trust weights from an election in one atomic log append (authority only).
+   * @internal
+   */
+  applyAuthorityTrustMap(map: Record<string, number>): void {
+    crash.ok(!this.is_destroyed, 'cannot apply trust map on destroyed store');
+    crash.ok(this.isAuthority(), 'applyAuthorityTrustMap requires current authority');
+    const events: Event[] = [];
+    for (const peerId of Object.keys(map).sort((a, b) => a.localeCompare(b))) {
+      const trust = map[peerId]!;
+      if (typeof trust !== 'number' || !Number.isFinite(trust) || trust < 0) {
+        continue;
+      }
+      if ((this.membership.get(peerId) ?? -1) === trust) {
+        continue;
+      }
+      events.push(PeerTrustUpdated({ peerId, trust }));
+    }
+    if (events.length === 0) {
+      return;
+    }
+    const entries = this.allocateEntriesBySeq(events);
+    const commandId = generateId();
+    handleCommitEntries(this, commandId, entries);
+    this.publishSignedWire({
+      kind: 'accepted',
+      commandId,
+      entries,
+    } satisfies WireMessage);
   }
 
   private maybeRequestInitialSync(): void {
@@ -261,7 +318,9 @@ export class PeerStore implements PeerStoreApi {
     });
     this.heartbeat_interval = setInterval(() => {
       broadcastHeartbeat(this);
-      checkAuthorityChange(this);
+      checkAuthorityChange(this, (prev, next) =>
+        this.notifyAuthorityElectionLiveness(prev, next),
+      );
     }, this.heartbeatIntervalMs);
     broadcastHeartbeat(this);
   }
@@ -485,6 +544,8 @@ export class PeerStore implements PeerStoreApi {
   destroy(): void {
     if (this.is_destroyed) return;
     this.is_destroyed = true;
+
+    this.authorityElectionController?.destroy();
 
     for (const timeout of this.pending_timeouts.values()) {
       clearTimeout(timeout);
