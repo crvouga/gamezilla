@@ -6,7 +6,7 @@ import {
   isPlainRecord,
   type Message,
 } from './message'
-import { createMessageRouter } from './router'
+import { createComposedMessageRouter, createMessageRouter } from './router'
 
 describe('createMessageRouter', () => {
   it('dispatches to the handler for the registered tag type', () => {
@@ -127,5 +127,122 @@ describe('createMessageRouter', () => {
 
     expect(r.dispatch(null, null, Move({ to: 0 }), () => 'x')).toBe('moved')
     expect(r.dispatch(null, null, Chat({ text: 'hi' }), () => 'x')).toBe('HI')
+  })
+})
+
+describe('createMessageRouter with namespace', () => {
+  it('rejects .on() when tag is not in the router namespace', () => {
+    const nsA = createNamespace('a')
+    const nsB = createNamespace('b')
+    const TagA = nsA('x', acceptUnknownPayload)
+    const TagB = nsB('x', acceptUnknownPayload)
+    expect(() =>
+      createMessageRouter<void, void, void>(nsA).on(TagB, () => {}),
+    ).toThrow(/not in router namespace/)
+  })
+
+  it('dispatch uses fallback for messages outside namespace without hitting handlers', () => {
+    const nsA = createNamespace('a')
+    const nsB = createNamespace('b')
+    const TagA = nsA('x', acceptUnknownPayload)
+    const TagB = nsB('x', acceptUnknownPayload)
+    const r = createMessageRouter<void, void, string>(nsA).on(
+      TagA,
+      () => 'inner',
+    )
+    expect(r.dispatch(undefined, undefined, TagB({}), () => 'fb')).toBe('fb')
+  })
+
+  it('has returns false when message type is outside namespace', () => {
+    const ns = createNamespace('z')
+    const Z = ns('one', acceptUnknownPayload)
+    const r = createMessageRouter<void, void, void>(ns).on(Z, () => {})
+    expect(r.has(Z({}))).toBe(true)
+    expect(r.has({ type: 'other/one', payload: {} })).toBe(false)
+  })
+})
+
+describe('createComposedMessageRouter', () => {
+  it('routes by wire prefix to the matching namespaced child router', () => {
+    const nsA = createNamespace('alpha')
+    const nsB = createNamespace('beta')
+    const Afoo = nsA('foo', acceptUnknownPayload)
+    const Bbar = nsB('bar', acceptUnknownPayload)
+    const routerA = createMessageRouter<void, void, string>(nsA).on(
+      Afoo,
+      () => 'a',
+    )
+    const routerB = createMessageRouter<void, void, string>(nsB).on(
+      Bbar,
+      () => 'b',
+    )
+    const composed = createComposedMessageRouter([
+      { namespace: nsA, router: routerA },
+      { namespace: nsB, router: routerB },
+    ])
+    expect(composed.dispatch(undefined, undefined, Afoo({}), () => 'miss')).toBe(
+      'a',
+    )
+    expect(composed.dispatch(undefined, undefined, Bbar({}), () => 'miss')).toBe(
+      'b',
+    )
+    expect(
+      composed.dispatch(
+        undefined,
+        undefined,
+        { type: 'gamma/x', payload: {} },
+        () => 'miss',
+      ),
+    ).toBe('miss')
+  })
+
+  it('has delegates to the child for that prefix', () => {
+    const ns = createNamespace('q')
+    const Q = ns('q', acceptUnknownPayload)
+    const inner = createMessageRouter<void, void, void>(ns).on(Q, () => {})
+    const composed = createComposedMessageRouter([{ namespace: ns, router: inner }])
+    expect(composed.has(Q({}))).toBe(true)
+    expect(composed.has({ type: 'q/other', payload: {} })).toBe(false)
+  })
+
+  it('throws when two children share the same namespace prefix', () => {
+    const ns = createNamespace('dup')
+    const r = createMessageRouter<void, void, void>(ns)
+    expect(() =>
+      createComposedMessageRouter([
+        { namespace: ns, router: r },
+        { namespace: ns, router: r },
+      ]),
+    ).toThrow(/duplicate composed router namespace prefix/)
+  })
+})
+
+describe('composing message routers (fallback delegation)', () => {
+  it('outer fallback delegates to an inner router', () => {
+    const nsOuter = createNamespace('outer')
+    const nsInner = createNamespace('inner')
+    const OuterOnly = nsOuter('o', acceptUnknownPayload)
+    const InnerOnly = nsInner('i', acceptUnknownPayload)
+    const inner = createMessageRouter<void, void, string>(nsInner).on(
+      InnerOnly,
+      () => 'inner-hit',
+    )
+    const outer = createMessageRouter<void, void, string>(nsOuter).on(
+      OuterOnly,
+      () => 'outer-hit',
+    )
+    expect(
+      outer.dispatch(undefined, undefined, OuterOnly({}), () => 'miss'),
+    ).toBe('outer-hit')
+    expect(
+      outer.dispatch(undefined, undefined, InnerOnly({}), (s, c, m) =>
+        inner.dispatch(s, c, m, () => 'miss'),
+      ),
+    ).toBe('inner-hit')
+    expect(
+      outer.dispatch(undefined, undefined, { type: 'nope/x', payload: {} }, (s, c, m) =>
+        inner.dispatch(s, c, m, () => 'miss'),
+      ),
+    ).toBe('miss')
   })
 })

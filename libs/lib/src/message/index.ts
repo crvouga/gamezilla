@@ -9,5 +9,8 @@ export {
   createNamespace,
   isPlainRecord,
 } from './message'
-export type { MessageRouter } from './router'
-export { createMessageRouter } from './router'
+export type { ComposedMessageRouter, MessageRouter } from './router'
+export {
+  createComposedMessageRouter,
+  createMessageRouter,
+} from './router'

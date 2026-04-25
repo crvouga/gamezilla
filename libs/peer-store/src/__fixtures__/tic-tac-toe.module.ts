@@ -683,7 +683,7 @@ function reduceForfeitWin(
   }
 }
 
-const commandRouter = createMessageRouter<State, Command, HandleResult>()
+const commandRouter = createMessageRouter<State, Command, HandleResult>(cmdNs)
   .on(PlaceMark, (state, command, msg) => handlePlaceMark(state, command, msg))
   .on(Resign, (state, command, msg) => handleResign(state, command, msg))
   .on(JoinSession, (state, command, msg) =>
@@ -691,7 +691,7 @@ const commandRouter = createMessageRouter<State, Command, HandleResult>()
   )
   .on(LeaveSession, (state, command) => handleLeaveSession(state, command))
 
-const eventRouter = createMessageRouter<State, void, State>()
+const eventRouter = createMessageRouter<State, void, State>(evtNs)
   .on(MarkPlaced, (state, _, msg) => reduceMarkPlaced(state, msg))
   .on(GameWon, (state, _, msg) => reduceGameWon(state, msg))
   .on(GameDrawn, (state, _, msg) => reduceGameDrawn(state, msg))

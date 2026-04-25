@@ -75,7 +75,7 @@ const membershipEventRouter = createMessageRouter<
   Map<string, number>,
   void,
   void
->()
+>(peerNamespace)
   .on(PeerJoined, (membership, _, msg) => {
     const { peerId, trust } = msg.payload
     crash.nonEmptyString(peerId, '_peer/joined requires peerId')
@@ -206,7 +206,7 @@ export class PeerStore implements PeerStoreApi {
     PeerStore,
     Command,
     SystemCommandEvalResult
-  >()
+  >(peerNamespace)
     .on(PeerJoin, (self, command, msg) => {
       const raw: unknown = msg.payload
       if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
