@@ -47,6 +47,7 @@ export function PlaygroundPage() {
         <NetworkControlsSection network={network} cheats={cheats} />
 
         <PeerGrid
+          tick={tick}
           sim={sim}
           handlers={peerHandlers}
           peerActions={peerActions}

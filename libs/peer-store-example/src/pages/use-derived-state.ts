@@ -11,7 +11,7 @@ export function useDerivedState(
   sim: PlaygroundSimulator,
   tick: number,
 ): DerivedState {
-  const log = sim.getLog();
+  const log = useMemo(() => sim.getLog(), [sim, tick]);
 
   const badActorIds = useMemo(
     () =>

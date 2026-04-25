@@ -9,6 +9,31 @@ import { PeerPanelEvents } from './peer-panel-events';
 
 export type { PeerAction } from './peer-panel-actions';
 
+function derivePanelState(
+  displayState: State,
+  committedState: State,
+  player: 'X' | 'O' | null,
+): { isReadonly: boolean; hasOptimistic: boolean; turnHint: string } {
+  const currentTurn = displayState['currentTurn'];
+  const status = displayState['status'];
+  const gameCompleted = status === 'completed';
+  const isPlayerTurn =
+    (player === 'X' || player === 'O') && currentTurn === player;
+
+  return {
+    isReadonly: player === null || !isPlayerTurn || gameCompleted,
+    hasOptimistic: JSON.stringify(displayState) !== JSON.stringify(committedState),
+    turnHint:
+      player === null
+        ? 'Observer'
+        : gameCompleted
+          ? 'Game completed'
+          : isPlayerTurn
+            ? 'Your turn'
+            : `Waiting for ${currentTurn === 'X' || currentTurn === 'O' ? currentTurn : 'opponent'}`,
+  };
+}
+
 export function PeerPanel({
   peerId,
   role,
@@ -38,9 +63,11 @@ export function PeerPanel({
   onDisconnect: () => void;
   onReconnect: () => void;
 }) {
-  const isReadonly = player === null;
-  const hasOptimistic =
-    JSON.stringify(displayState) !== JSON.stringify(committedState);
+  const { isReadonly, hasOptimistic, turnHint } = derivePanelState(
+    displayState,
+    committedState,
+    player,
+  );
 
   return (
     <Card elevation={1} sx={{ p: 4, gap: 3, flex: 1 }}>
@@ -58,6 +85,7 @@ export function PeerPanel({
         onCellClick={onCellClick}
         readonly={isReadonly}
       />
+      <Text variant="caption" label={turnHint} />
 
       <PeerPanelLegend hasOptimistic={hasOptimistic} />
 

@@ -91,7 +91,9 @@ export class PlaygroundSimulator {
 
   dispatch(peerId: PeerId, message: Message): void {
     const eventsBefore = this.sim.getEventLog(this.simPeer('server')).length;
+    const errorsBefore = this.sim.getErrorLog().length;
     this.sim.dispatch(this.simPeer(peerId), message);
+    const errorsAfter = this.sim.getErrorLog().length;
     this.pushEntry({
       kind: 'action',
       tag: 'dispatch',
@@ -99,6 +101,20 @@ export class PlaygroundSimulator {
       code: `sim.dispatch('${peerId}', ${JSON.stringify(message)})`,
       peerId,
     });
+    if (errorsAfter > errorsBefore) {
+      const latestError = this.sim.getErrorLog()[errorsAfter - 1];
+      if (latestError) {
+        this.pushEntry({
+          kind: 'effect',
+          tag: 'rejected',
+          summary: `rejected: ${latestError.type}${
+            latestError.payload !== undefined
+              ? ' ' + JSON.stringify(latestError.payload)
+              : ''
+          }`,
+        });
+      }
+    }
     this.logNewEvents(eventsBefore);
     this.notify();
   }

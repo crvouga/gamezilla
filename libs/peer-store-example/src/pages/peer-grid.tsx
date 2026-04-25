@@ -24,6 +24,7 @@ function peerPlayer(peerId: PeerId): 'X' | 'O' | null {
 }
 
 export function PeerGrid({
+  tick,
   sim,
   handlers,
   peerActions,
@@ -31,6 +32,7 @@ export function PeerGrid({
   cheaterIds,
   panelWidth,
 }: {
+  tick: number;
   sim: PlaygroundSimulator;
   handlers: PeerHandlers;
   peerActions: Record<PeerId, PeerAction[]>;
@@ -48,7 +50,7 @@ export function PeerGrid({
     >
       {PEERS.map((peerId) => (
         <PeerGridItem
-          key={peerId}
+          key={`${peerId}-${tick}`}
           peerId={peerId}
           sim={sim}
           handlers={handlers}
