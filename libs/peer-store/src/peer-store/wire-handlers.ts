@@ -98,9 +98,9 @@ function handleProposeSystem(self: PeerStore, command: Command): void {
 }
 
 function handleProposeDomain(self: PeerStore, command: Command): void {
-  const result = self.module.handle(self.committed_state, command);
-  if (result.ok) {
-    const entries = self.wrapDomainEventsWithSeq(result.value.events);
+  const evaluated = self.authorityEvaluateDomain(command);
+  if (evaluated.ok) {
+    const entries = evaluated.entries;
     handleCommitEntries(self, command.id, entries);
     self.transport.publish(self.topic, {
       kind: 'accepted',
@@ -112,7 +112,7 @@ function handleProposeDomain(self: PeerStore, command: Command): void {
     self.transport.publish(self.topic, {
       kind: 'rejected',
       commandId: command.id,
-      error: result.error,
+      error: evaluated.error,
     } satisfies WireMessage);
   }
 }

@@ -242,6 +242,29 @@ export class DeterministicSimulator {
     return this.stores.get(peerId)!.getLatestSeq()
   }
 
+  getLogicalTimeMs(): number {
+    crash.ok(!this.is_destroyed, 'cannot getLogicalTimeMs on destroyed simulator')
+    return this.logical_time
+  }
+
+  /** Committed chess-style clock fields from a peer's view (TicTacToe fixture). */
+  getClockSnapshot(peerId: string): {
+    clockStatus: unknown
+    remainingMsX: unknown
+    remainingMsO: unknown
+    clockActivePlayer: unknown
+  } {
+    crash.ok(!this.is_destroyed, 'cannot getClockSnapshot on destroyed simulator')
+    this.assertPeerExists(peerId)
+    const s = this.stores.get(peerId)!.getCommittedState()
+    return {
+      clockStatus: s['clockStatus'],
+      remainingMsX: s['remainingMsX'],
+      remainingMsO: s['remainingMsO'],
+      clockActivePlayer: s['clockActivePlayer'],
+    }
+  }
+
   /**
    * Add a new peer that bootstraps with `join` (syncs from current authority).
    * Caller should `deliverPending` / `resumeDelivery` so sync completes.

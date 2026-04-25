@@ -19,8 +19,12 @@ import type {
   StoreModule,
 } from './peer-store-types'
 import {
+  ClockTimeout,
+  JoinSession,
   MarkPlaced,
   PlaceMark,
+  TickClock,
+  TIC_TAC_TOE_CLOCK_MS_PER_PLAYER,
   TicTacToeModule,
   WrongTurnError,
 } from '../testing/fixtures/tic-tac-toe.module'
@@ -39,12 +43,44 @@ const TRUST = { 'player-x': 1, 'player-o': 1, 'authority': 3 } as const
 const PEER_IDS = Object.keys(TRUST)
 const TEST_TOPIC = 'peer-store-test'
 
-function setup(opts?: {
+type SetupOpts = {
   peers?: Record<string, number>
   timeoutMs?: number
   heartbeatIntervalMs?: number
   heartbeatTimeoutMs?: number
-}) {
+}
+
+function buildStoreConfig(
+  opts: SetupOpts | undefined,
+  peers: Record<string, number>,
+  peerId: string,
+  transport: InMemoryTransport,
+): ConstructorParameters<typeof PeerStore>[1] {
+  const config: ConstructorParameters<typeof PeerStore>[1] = {
+    topic: TEST_TOPIC,
+    peerId,
+    bootstrap: { kind: 'genesis', initialMembership: peers },
+    transport,
+  }
+  applyOptionalStoreConfig(config, opts)
+  return config
+}
+
+function applyOptionalStoreConfig(
+  config: ConstructorParameters<typeof PeerStore>[1],
+  opts: SetupOpts | undefined,
+): void {
+  if (!opts) return
+  if (opts.timeoutMs !== undefined) config.timeoutMs = opts.timeoutMs
+  if (opts.heartbeatIntervalMs !== undefined) {
+    config.heartbeatIntervalMs = opts.heartbeatIntervalMs
+  }
+  if (opts.heartbeatTimeoutMs !== undefined) {
+    config.heartbeatTimeoutMs = opts.heartbeatTimeoutMs
+  }
+}
+
+function setup(opts?: SetupOpts) {
   const peers = opts?.peers ?? TRUST
   const peerIds = Object.keys(peers)
   const bus = new InMemoryBus()
@@ -64,21 +100,7 @@ function setup(opts?: {
 
     const store = new PeerStore(
       TicTacToeModule,
-      {
-        topic: TEST_TOPIC,
-        peerId,
-        bootstrap: { kind: 'genesis', initialMembership: peers },
-        transport,
-        ...(opts?.timeoutMs !== undefined
-          ? { timeoutMs: opts.timeoutMs }
-          : {}),
-        ...(opts?.heartbeatIntervalMs !== undefined
-          ? { heartbeatIntervalMs: opts.heartbeatIntervalMs }
-          : {}),
-        ...(opts?.heartbeatTimeoutMs !== undefined
-          ? { heartbeatTimeoutMs: opts.heartbeatTimeoutMs }
-          : {}),
-      },
+      buildStoreConfig(opts, peers, peerId, transport),
       {
         onTimeout: (commandId) => timeouts.push(commandId),
         onError: (error) => errors.push(error),
@@ -527,5 +549,80 @@ describe('Authority failover', () => {
     jest.advanceTimersByTime(200)
 
     expect(store_x.getAuthorityPeerId()).toBe('authority')
+  })
+})
+
+describe('Chess-style clock (PeerStore + TicTacToe)', () => {
+  beforeEach(() => jest.useFakeTimers())
+  afterEach(() => jest.useRealTimers())
+
+  function seedSeatedGame(stores: Map<string, PeerStore>): void {
+    stores.get('player-x')!.dispatch(JoinSession({ mark: 'X' }))
+    stores.get('player-o')!.dispatch(JoinSession({ mark: 'O' }))
+    stores.get('player-x')!.dispatch(PlaceMark({ cell: 0, player: 'X' }))
+  }
+
+  it('authority clock tick debits only active player; inactive unchanged', () => {
+    const { stores } = setup()
+    seedSeatedGame(stores)
+
+    expect(stores.get('authority')!.getCommittedState()['clockStatus']).toBe(
+      'running',
+    )
+    expect(stores.get('authority')!.getCommittedState()['clockActivePlayer']).toBe(
+      'O',
+    )
+    expect(stores.get('authority')!.getCommittedState()['remainingMsX']).toBe(
+      TIC_TAC_TOE_CLOCK_MS_PER_PLAYER,
+    )
+
+    stores.get('authority')!.dispatch(TickClock({ elapsedMs: 1000 }))
+
+    const s = stores.get('authority')!.getCommittedState()
+    expect(s['remainingMsX']).toBe(TIC_TAC_TOE_CLOCK_MS_PER_PLAYER)
+    expect(s['remainingMsO']).toBeLessThan(TIC_TAC_TOE_CLOCK_MS_PER_PLAYER)
+    expect(s['clockActivePlayer']).toBe('O')
+  })
+
+  it('clock switches active player after opponent move', () => {
+    const { stores } = setup()
+    seedSeatedGame(stores)
+
+    stores.get('authority')!.dispatch(TickClock({ elapsedMs: 500 }))
+    stores.get('player-o')!.dispatch(PlaceMark({ cell: 4, player: 'O' }))
+
+    const s = stores.get('authority')!.getCommittedState()
+    expect(s['currentTurn']).toBe('X')
+    expect(s['clockActivePlayer']).toBe('X')
+    expect(s['remainingMsO']).toBeLessThanOrEqual(TIC_TAC_TOE_CLOCK_MS_PER_PLAYER)
+  })
+
+  it('active player clock timeout ends game with ClockTimeout', () => {
+    const { stores } = setup()
+    seedSeatedGame(stores)
+
+    stores.get('authority')!.dispatch(
+      TickClock({ elapsedMs: TIC_TAC_TOE_CLOCK_MS_PER_PLAYER + 500 }),
+    )
+
+    const auth = stores.get('authority')!
+    const events = auth.getCommittedEvents()
+    expect(events.some((e) => ClockTimeout.is(e))).toBe(true)
+    expect(auth.getCommittedState()['status']).toBe('completed')
+    expect(auth.getCommittedState()['winner']).toBe('X')
+  })
+
+  it('rehydrate from authority log restores identical clock fields', () => {
+    const { stores } = setup()
+    seedSeatedGame(stores)
+
+    stores.get('authority')!.dispatch(TickClock({ elapsedMs: 600 }))
+
+    const entries = stores.get('authority')!.getCommittedLogEntries()
+    const authState = stores.get('authority')!.getCommittedState()
+    stores.get('player-x')!.rehydrate(entries)
+    expect(JSON.stringify(stores.get('player-x')!.getCommittedState())).toBe(
+      JSON.stringify(authState),
+    )
   })
 })

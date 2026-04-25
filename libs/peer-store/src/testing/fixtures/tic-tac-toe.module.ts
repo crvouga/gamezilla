@@ -15,6 +15,9 @@ import type { Event, StoreError } from '../../protocol/message-types'
 
 const crash: Assert = Assert.crash()
 
+/** Per-player budget for chess-style clocks (fixture default; tests rely on this). */
+export const TIC_TAC_TOE_CLOCK_MS_PER_PLAYER = 5000
+
 function isMark(v: unknown): v is 'X' | 'O' {
   return v === 'X' || v === 'O'
 }
@@ -57,6 +60,14 @@ function validateLeaveSessionPayload(
   p: unknown,
 ): p is Record<string, never> {
   return isPlainRecord(p) && Object.keys(p).length === 0
+}
+
+function validateTickClockPayload(
+  p: unknown,
+): p is { elapsedMs: number } {
+  if (!isPlainRecord(p)) return false
+  const elapsedMs = p['elapsedMs']
+  return typeof elapsedMs === 'number' && Number.isFinite(elapsedMs) && elapsedMs > 0
 }
 
 function validateMarkPlacedPayload(
@@ -118,11 +129,60 @@ function validateForfeitWinPayload(
   return isMark(p['winner']) && isLogSeq(p['seq'])
 }
 
+function isFiniteNumber(v: unknown): v is number {
+  return typeof v === 'number' && Number.isFinite(v)
+}
+
+function isFiniteNonNegative(v: unknown): v is number {
+  return isFiniteNumber(v) && v >= 0
+}
+
+function validateClockSliceSetPayload(
+  p: unknown,
+): p is {
+  remainingMsX: number
+  remainingMsO: number
+  activePlayer: 'X' | 'O'
+  seq: number
+} {
+  if (!isPlainRecord(p)) return false
+  return (
+    isFiniteNonNegative(p['remainingMsX']) &&
+    isFiniteNonNegative(p['remainingMsO']) &&
+    isMark(p['activePlayer']) &&
+    isLogSeq(p['seq'])
+  )
+}
+
+function validateClockTimeoutPayload(
+  p: unknown,
+): p is {
+  loser: 'X' | 'O'
+  winner: 'X' | 'O'
+  atMs: number
+  seq: number
+} {
+  if (!isPlainRecord(p)) return false
+  const loser = p['loser']
+  const winner = p['winner']
+  const atMs = p['atMs']
+  const sq = p['seq']
+  return (
+    isMark(loser) &&
+    isMark(winner) &&
+    loser !== winner &&
+    typeof atMs === 'number' &&
+    Number.isFinite(atMs) &&
+    isLogSeq(sq)
+  )
+}
+
 const cmdNs = createNamespace('ticTacToe')
 export const PlaceMark = cmdNs('PLACE_MARK', validatePlaceMarkPayload)
 export const Resign = cmdNs('RESIGN', validateResignPayload)
 export const JoinSession = cmdNs('JOIN_SESSION', validateJoinSessionPayload)
 export const LeaveSession = cmdNs('LEAVE_SESSION', validateLeaveSessionPayload)
+export const TickClock = cmdNs('TICK_CLOCK', validateTickClockPayload)
 
 const evtNs = createNamespace('ticTacToeEvent')
 export const MarkPlaced = evtNs('MARK_PLACED', validateMarkPlacedPayload)
@@ -135,6 +195,8 @@ export const PlayerResigned = evtNs(
 export const SeatClaimed = evtNs('SEAT_CLAIMED', validateSeatClaimedPayload)
 export const SeatReleased = evtNs('SEAT_RELEASED', validateSeatReleasedPayload)
 export const ForfeitWin = evtNs('FORFEIT_WIN', validateForfeitWinPayload)
+export const ClockSliceSet = evtNs('CLOCK_SLICE_SET', validateClockSliceSetPayload)
+export const ClockTimeout = evtNs('CLOCK_TIMEOUT', validateClockTimeoutPayload)
 
 const errTagNs = createNamespace('ticTacToeErr')
 
@@ -276,6 +338,30 @@ function assertValidState(state: State): void {
     'status must be in_progress or completed',
   )
   crash.field(state, 'seq', 'state must have seq')
+  crash.field(state, 'clockStatus', 'state must have clockStatus')
+  const cs = state['clockStatus']
+  crash.ok(
+    cs === 'idle' || cs === 'running' || cs === 'finished',
+    'clockStatus must be idle, running, or finished',
+  )
+  crash.field(state, 'remainingMsX', 'state must have remainingMsX')
+  crash.field(state, 'remainingMsO', 'state must have remainingMsO')
+  crash.number(state['remainingMsX'], 'remainingMsX must be a finite number')
+  crash.number(state['remainingMsO'], 'remainingMsO must be a finite number')
+  crash.ok(
+    (state['remainingMsX'] as number) >= 0,
+    'remainingMsX must be >= 0',
+  )
+  crash.ok(
+    (state['remainingMsO'] as number) >= 0,
+    'remainingMsO must be >= 0',
+  )
+  crash.field(state, 'clockActivePlayer', 'state must have clockActivePlayer')
+  const cap = state['clockActivePlayer']
+  crash.ok(
+    cap === null || cap === 'X' || cap === 'O',
+    'clockActivePlayer must be null, X, or O',
+  )
 }
 
 function assertPeerOwnsMark(
@@ -357,6 +443,104 @@ function buildPlaceMarkEvents(
   return events
 }
 
+function isTerminalEvent(event: Event): boolean {
+  return GameWon.is(event) || GameDrawn.is(event) || PlayerResigned.is(event) || ForfeitWin.is(event) || ClockTimeout.is(event)
+}
+
+function maybeBuildClockSwitchEvents(
+  state: State,
+  nextTurn: 'X' | 'O',
+  nextSeq: number,
+): Event[] {
+  const status = state['clockStatus']
+  if (status === 'idle') {
+    return [
+      ClockSliceSet({
+        remainingMsX: TIC_TAC_TOE_CLOCK_MS_PER_PLAYER,
+        remainingMsO: TIC_TAC_TOE_CLOCK_MS_PER_PLAYER,
+        activePlayer: nextTurn,
+        seq: nextSeq,
+      }),
+    ]
+  }
+  if (status === 'running') {
+    const remainingMsX = state['remainingMsX']
+    const remainingMsO = state['remainingMsO']
+    if (!isFiniteNonNegative(remainingMsX) || !isFiniteNonNegative(remainingMsO)) {
+      return []
+    }
+    return [
+      ClockSliceSet({
+        remainingMsX,
+        remainingMsO,
+        activePlayer: nextTurn,
+        seq: nextSeq,
+      }),
+    ]
+  }
+  return []
+}
+
+function canTickClockState(state: State): boolean {
+  if (state['status'] === 'completed') return false
+  if (!seatsFullyClaimed(state)) return false
+  if (state['clockStatus'] !== 'running') return false
+  return true
+}
+
+function readClockTickInputs(
+  state: State,
+  elapsedMs: number,
+): {
+  active: 'X' | 'O'
+  remainingMsX: number
+  remainingMsO: number
+  nextSeq: number
+} | null {
+  if (!canTickClockState(state)) return null
+  if (!isFiniteNonNegative(elapsedMs) || elapsedMs <= 0) return null
+  const active = state['clockActivePlayer']
+  if (active !== 'X' && active !== 'O') return null
+  const remainingMsX = state['remainingMsX']
+  const remainingMsO = state['remainingMsO']
+  if (!isFiniteNonNegative(remainingMsX) || !isFiniteNonNegative(remainingMsO)) {
+    return null
+  }
+  const seqRaw = state['seq']
+  if (!isFiniteNumber(seqRaw)) return null
+  return { active, remainingMsX, remainingMsO, nextSeq: seqRaw + 1 }
+}
+
+type TickClockInputs = NonNullable<ReturnType<typeof readClockTickInputs>>
+
+function buildTickClockEvents(
+  inputs: TickClockInputs,
+  elapsedMs: number,
+): Event[] {
+  const { active, remainingMsX, remainingMsO, nextSeq } = inputs
+  const nextX = active === 'X' ? Math.max(0, remainingMsX - elapsedMs) : remainingMsX
+  const nextO = active === 'O' ? Math.max(0, remainingMsO - elapsedMs) : remainingMsO
+  const activeRemaining = active === 'X' ? nextX : nextO
+  if (activeRemaining <= 0) {
+    return [
+      ClockTimeout({
+        loser: active,
+        winner: active === 'X' ? 'O' : 'X',
+        atMs: nextSeq,
+        seq: nextSeq,
+      }),
+    ]
+  }
+  return [
+    ClockSliceSet({
+      remainingMsX: nextX,
+      remainingMsO: nextO,
+      activePlayer: active,
+      seq: nextSeq,
+    }),
+  ]
+}
+
 function handlePlaceMark(
   state: State,
   command: Command,
@@ -387,8 +571,38 @@ function handlePlaceMark(
   }
   const next_seq = seqRaw + 1
   const events = buildPlaceMarkEvents(boardCells, cell, player, next_seq)
+  const willRemainInProgress = !events.some(isTerminalEvent)
+  if (willRemainInProgress && seatsFullyClaimed(state)) {
+    const nextTurn = player === 'X' ? 'O' : 'X'
+    const clockEvents = maybeBuildClockSwitchEvents(state, nextTurn, next_seq + events.length)
+    events.push(...clockEvents)
+  }
 
   return { ok: true, value: { events } }
+}
+
+function handleTickClock(
+  state: State,
+  msg: Message<{ elapsedMs: number }>,
+): HandleResult {
+  assertValidState(state)
+  const elapsedMs = msg.payload.elapsedMs
+  const inputs = readClockTickInputs(state, elapsedMs)
+  if (!inputs) {
+    if (!isFiniteNonNegative(elapsedMs) || elapsedMs <= 0) {
+      return reject(InvalidPayloadError({}))
+    }
+    if (state['status'] === 'completed') return reject(GameOverError({}))
+    return reject(InvalidStateError({}))
+  }
+  const events = buildTickClockEvents(
+    inputs,
+    elapsedMs,
+  )
+  return {
+    ok: true,
+    value: { events },
+  }
 }
 
 function handleResign(
@@ -621,6 +835,7 @@ function reduceGameWon(
     winner: payload.winner,
     status: 'completed',
     seq: seqVal,
+    clockStatus: 'finished',
   }
 }
 
@@ -636,6 +851,7 @@ function reduceGameDrawn(state: State, msg: Message<{ seq: number }>): State {
     winner: 'draw',
     status: 'completed',
     seq: seqVal,
+    clockStatus: 'finished',
   }
 }
 
@@ -663,6 +879,7 @@ function reducePlayerResigned(
     winner,
     status: 'completed',
     seq: seqVal,
+    clockStatus: 'finished',
   }
 }
 
@@ -732,6 +949,52 @@ function reduceForfeitWin(
     winner: w,
     status: 'completed',
     seq: seqVal,
+    clockStatus: 'finished',
+  }
+}
+
+function reduceClockSliceSet(
+  state: State,
+  msg: Message<{
+    remainingMsX: number
+    remainingMsO: number
+    activePlayer: 'X' | 'O'
+    seq: number
+  }>,
+): State {
+  const payload = msg.payload
+  crash.record(payload, 'CLOCK_SLICE_SET payload must be a record')
+  const seqVal = payload.seq
+  crash.number(seqVal, 'CLOCK_SLICE_SET seq must be a finite number')
+  return {
+    ...state,
+    remainingMsX: payload.remainingMsX,
+    remainingMsO: payload.remainingMsO,
+    clockActivePlayer: payload.activePlayer,
+    clockStatus: 'running',
+    seq: seqVal,
+  }
+}
+
+function reduceClockTimeout(
+  state: State,
+  msg: Message<{
+    loser: 'X' | 'O'
+    winner: 'X' | 'O'
+    atMs: number
+    seq: number
+  }>,
+): State {
+  const payload = msg.payload
+  crash.record(payload, 'CLOCK_TIMEOUT payload must be a record')
+  const seqVal = payload.seq
+  crash.number(seqVal, 'CLOCK_TIMEOUT seq must be a finite number')
+  return {
+    ...state,
+    winner: payload.winner,
+    status: 'completed',
+    seq: seqVal,
+    clockStatus: 'finished',
   }
 }
 
@@ -741,6 +1004,7 @@ const commandRouter = createMessageRouter<State, Command, HandleResult>(cmdNs)
   .on(JoinSession, (state, command, msg) =>
     handleJoinSession(state, command, msg),
   )
+  .on(TickClock, (state, _command, msg) => handleTickClock(state, msg))
   .on(LeaveSession, (state, command) => handleLeaveSession(state, command))
 
 const eventRouter = createMessageRouter<State, void, State>(evtNs)
@@ -751,6 +1015,8 @@ const eventRouter = createMessageRouter<State, void, State>(evtNs)
   .on(SeatClaimed, (state, _, msg) => reduceSeatClaimed(state, msg))
   .on(SeatReleased, (state, _, msg) => reduceSeatReleased(state, msg))
   .on(ForfeitWin, (state, _, msg) => reduceForfeitWin(state, msg))
+  .on(ClockSliceSet, (state, _, msg) => reduceClockSliceSet(state, msg))
+  .on(ClockTimeout, (state, _, msg) => reduceClockTimeout(state, msg))
 
 export const TicTacToeModule: StoreModule = {
   initialState(): State {
@@ -762,6 +1028,10 @@ export const TicTacToeModule: StoreModule = {
       seq: 0,
       seatX: null,
       seatO: null,
+      clockStatus: 'idle',
+      remainingMsX: 0,
+      remainingMsO: 0,
+      clockActivePlayer: null,
     }
   },
 

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- PeerStore coordination flow is intentionally centralized. */
 import { Assert } from '@gamezilla/lib/assert';
 import type { MessageRouter } from '@gamezilla/lib/message';
 import type { LogEntry } from '../event-log/log-entry';
@@ -146,9 +147,28 @@ export class PeerStore implements PeerStoreApi {
     this.rebuildAuthorityFromMembership();
     this.attachTransport();
 
-    if (config.bootstrap.kind === 'join') {
+    this.maybeRequestInitialSync();
+  }
+
+  private maybeRequestInitialSync(): void {
+    if (this.bootstrapKind === 'join') {
       this.requestSync();
     }
+  }
+
+  authorityEvaluateDomain(
+    command: Command,
+  ): { ok: true; entries: LogEntry[] } | { ok: false; error: StoreError } {
+    const result = this.module.handle(this.committed_state, command);
+    assertHandleResult(result);
+    if (!result.ok) {
+      return { ok: false, error: result.error };
+    }
+    crash.ok(
+      result.value.events.length > 0,
+      'handle must produce at least one event on success',
+    );
+    return { ok: true, entries: this.wrapDomainEventsWithSeq(result.value.events) };
   }
 
   private applyGenesisBootstrap(initialMembership: Record<string, number>): void {
@@ -248,18 +268,12 @@ export class PeerStore implements PeerStoreApi {
       return;
     }
 
-    const result = this.module.handle(this.committed_state, command);
-    assertHandleResult(result);
-    if (!result.ok) {
-      this.callbacks.onError?.(result.error);
+    const evaluated = this.authorityEvaluateDomain(command);
+    if (!evaluated.ok) {
+      this.callbacks.onError?.(evaluated.error);
       return;
     }
-    crash.ok(
-      result.value.events.length > 0,
-      'handle must produce at least one event on success',
-    );
-    const entries = this.wrapDomainEventsWithSeq(result.value.events);
-    this.publishCommit(command.id, entries);
+    this.publishCommit(command.id, evaluated.entries);
   }
 
   private publishCommit(commandId: string, entries: LogEntry[]): void {
