@@ -1,8 +1,11 @@
-export { InMemoryEventLog, recoverFromEventLog } from './event-log'
+export {
+  InMemoryEventLog,
+  PostgresEventLog,
+  recoverFromEventLog,
+  SqliteEventLog,
+} from './event-log'
 export type { EventLog, EventLogEntry } from './event-log'
-export { PostgresEventLog } from './event-log-postgres'
-export { SqliteEventLog } from './event-log-sqlite'
-export * from './store-errors'
+export * from './protocol/store-errors'
 export { PeerStore } from './peer-store'
 export { DeterministicSimulator } from './simulator'
 export { TrustElection, computeTrustMap } from './trust-election'
@@ -21,11 +24,11 @@ export type {
   StoreError,
   StoreModule,
   Transport,
-} from './types'
+} from './model/types'
 export {
   generateId,
   isSystemEvent,
   replayDomainEntries,
   replayEvents,
   SYSTEM_EVENT_PREFIX,
-} from './utils'
+} from './protocol/utils'

@@ -1,8 +1,8 @@
 import { Assert } from '@gamezilla/lib/assert'
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test'
-import { TrustElection, computeTrustMap, type TrustVote } from '../trust-election'
+import { TrustElection, computeTrustMap, type TrustVote } from './trust-election'
 import { InMemoryBus, InMemoryTransport } from '../transport'
-import { TestCrashHandler } from './test-crash-handler'
+import { TestCrashHandler } from '../testing/test-crash-handler'
 
 let disposeCrashHandler: () => void
 beforeAll(() => {

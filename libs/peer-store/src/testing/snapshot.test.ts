@@ -9,7 +9,7 @@ import {
   it,
   jest,
 } from 'bun:test'
-import { PlaceMark, TicTacToeModule } from '../__fixtures__/tic-tac-toe.module'
+import { PlaceMark, TicTacToeModule } from './fixtures/tic-tac-toe.module'
 import { DeterministicSimulator } from '../simulator'
 import { TestCrashHandler } from './test-crash-handler'
 import { ticTacToeBoardCell } from './tic-tac-toe-board'

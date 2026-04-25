@@ -13,10 +13,10 @@ import {
   MarkPlaced,
   PlaceMark,
   TicTacToeModule,
-} from '../__fixtures__/tic-tac-toe.module'
+} from './fixtures/tic-tac-toe.module'
 import { DeterministicSimulator } from '../simulator'
-import type { State } from '../types'
-import { isSystemEvent } from '../utils'
+import type { State } from '../model/types'
+import { isSystemEvent } from '../protocol/utils'
 import { ticTacToeBoardCell } from './tic-tac-toe-board'
 import { TestCrashHandler } from './test-crash-handler'
 

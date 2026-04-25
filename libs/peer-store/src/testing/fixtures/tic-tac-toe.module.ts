@@ -12,7 +12,7 @@ import type {
   State,
   StoreError,
   StoreModule,
-} from '../types'
+} from '../../model/types'
 
 const crash: Assert = Assert.crash()
 

@@ -15,15 +15,16 @@ import {
   MarkPlaced,
   PlaceMark,
   TicTacToeModule,
-} from '../__fixtures__/tic-tac-toe.module'
-import { InMemoryEventLog, recoverFromEventLog } from '../event-log'
-import { SqliteEventLog } from '../event-log-sqlite'
+} from '../testing/fixtures/tic-tac-toe.module'
+import { recoverFromEventLog } from './event-log'
+import { InMemoryEventLog } from './in-memory-event-log'
+import { SqliteEventLog } from './event-log-sqlite'
 import { PeerStore } from '../peer-store'
 import { InMemoryBus, InMemoryTransport } from '../transport'
-import type { Command, LogEntry } from '../types'
-import { isSystemEvent } from '../utils'
-import { TestCrashHandler } from './test-crash-handler'
-import { ticTacToeBoardCell } from './tic-tac-toe-board'
+import type { Command, LogEntry } from '../model/types'
+import { isSystemEvent } from '../protocol/utils'
+import { TestCrashHandler } from '../testing/test-crash-handler'
+import { ticTacToeBoardCell } from '../testing/tic-tac-toe-board'
 
 const eventLogTestNs = createNamespace('eventLogTest')
 function validateTurnChangedPayload(p: unknown): p is { next: string } {

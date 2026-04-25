@@ -1,5 +1,5 @@
 import { Assert } from '@gamezilla/lib/assert';
-import type { Transport } from './types';
+import type { Transport } from '../model/types';
 
 const crash: Assert = Assert.crash();
 

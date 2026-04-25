@@ -9,17 +9,23 @@ import {
   jest,
 } from 'bun:test'
 import { Assert } from '@gamezilla/lib/assert'
-import { PeerStore } from '../peer-store'
+import { PeerStore } from './peer-store'
 import { InMemoryBus, InMemoryTransport } from '../transport'
-import type { HandleResult, State, StoreError, StoreModule } from '../types'
+import type {
+  Command,
+  HandleResult,
+  State,
+  StoreError,
+  StoreModule,
+} from '../model/types'
 import {
   MarkPlaced,
   PlaceMark,
   TicTacToeModule,
   WrongTurnError,
-} from '../__fixtures__/tic-tac-toe.module'
-import { TestCrashHandler } from './test-crash-handler'
-import { ticTacToeBoardCell } from './tic-tac-toe-board'
+} from '../testing/fixtures/tic-tac-toe.module'
+import { TestCrashHandler } from '../testing/test-crash-handler'
+import { ticTacToeBoardCell } from '../testing/tic-tac-toe-board'
 
 const crash: Assert = Assert.crash()
 
@@ -303,7 +309,7 @@ describe('PeerStore', () => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test stub
         return null as unknown as HandleResult
       },
-      reduce: (s) => s,
+      reduce: (s: State) => s,
     }
     const bus = new InMemoryBus()
     const t1 = new InMemoryTransport(bus, 'a')
@@ -335,7 +341,7 @@ describe('PeerStore', () => {
   it('module.reduce returning array → crash', () => {
     const badModule: StoreModule = {
       initialState: () => ({}),
-      handle: (_s, _c) => ({
+      handle: (_s: State, _c: Command) => ({
         ok: true,
         value: { events: [{ type: 'e', payload: {} }] },
       }),

@@ -6,7 +6,7 @@ import type {
   Message,
   Snapshot,
   State,
-} from './types';
+} from '../model/types';
 
 const crash: Assert = Assert.crash();
 

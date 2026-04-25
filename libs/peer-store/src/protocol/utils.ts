@@ -1,5 +1,5 @@
 import { Assert } from '@gamezilla/lib/assert'
-import type { Event, LogEntry, State, StoreModule } from './types'
+import type { Event, LogEntry, State, StoreModule } from '../model/types'
 import { peerNamespace } from './system-messages'
 
 const crash: Assert = Assert.crash()

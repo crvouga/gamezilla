@@ -1,6 +1,6 @@
 import { Assert } from '@gamezilla/lib/assert'
-import { PeerStore } from './peer-store'
-import { InMemoryBus, InMemoryTransport, type MessageInterceptor } from './transport'
+import { PeerStore } from '../peer-store'
+import { InMemoryBus, InMemoryTransport, type MessageInterceptor } from '../transport'
 import type {
   Command,
   Event,
@@ -9,8 +9,8 @@ import type {
   State,
   StoreError,
   StoreModule,
-} from './types'
-import { generateId } from './utils'
+} from '../model/types'
+import { generateId } from '../protocol/utils'
 
 const crash: Assert = Assert.crash()
 

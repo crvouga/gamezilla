@@ -14,10 +14,10 @@ import {
   PlaceMark,
   TicTacToeModule,
   WrongTurnError,
-} from '../__fixtures__/tic-tac-toe.module'
-import { DeterministicSimulator } from '../simulator'
-import { TestCrashHandler } from './test-crash-handler'
-import { ticTacToeBoardCell } from './tic-tac-toe-board'
+} from '../testing/fixtures/tic-tac-toe.module'
+import { DeterministicSimulator } from './simulator'
+import { TestCrashHandler } from '../testing/test-crash-handler'
+import { ticTacToeBoardCell } from '../testing/tic-tac-toe-board'
 
 let disposeCrashHandler: () => void
 beforeAll(() => {

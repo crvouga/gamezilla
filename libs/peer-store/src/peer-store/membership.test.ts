@@ -9,10 +9,10 @@ import {
   it,
   jest,
 } from 'bun:test';
-import { TicTacToeModule } from '../__fixtures__/tic-tac-toe.module';
+import { TicTacToeModule } from '../testing/fixtures/tic-tac-toe.module';
 import { DeterministicSimulator } from '../simulator';
-import { PeerLeave, PeerTrustUpdate } from '../system-messages';
-import { TestCrashHandler } from './test-crash-handler';
+import { PeerLeave, PeerTrustUpdate } from '../protocol/system-messages';
+import { TestCrashHandler } from '../testing/test-crash-handler';
 
 let disposeCrashHandler: () => void;
 beforeAll(() => {

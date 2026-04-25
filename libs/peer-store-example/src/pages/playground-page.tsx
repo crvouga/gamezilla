@@ -10,7 +10,7 @@ import {
 import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react';
 import { PeerPanel, type PeerAction } from '../components/peer-panel';
 import { SimulatorLog } from '../components/simulator-log';
-import { PlaceMark } from '@gamezilla/peer-store/__fixtures__/tic-tac-toe.module';
+import { PlaceMark } from '@gamezilla/peer-store/testing/tic-tac-toe';
 import {
   PEERS,
   PlaygroundSimulator,

@@ -4,7 +4,20 @@ import {
   assertCommand,
   assertLogEntryArray,
   assertSnapshot,
-} from './assert-durable-json';
+} from '../event-log/assert-durable-json';
+import type {
+  Command,
+  Event,
+  HandleResult,
+  LogEntry,
+  Message,
+  PeerBootstrap,
+  PeerStoreApi,
+  State,
+  StoreError,
+  StoreModule,
+  Transport,
+} from '../model/types';
 import {
   PeerStoreDuplicatePeer,
   PeerStoreInvalidJoinFields,
@@ -19,7 +32,7 @@ import {
   PeerStoreNotSynced,
   PeerStoreUnknownPeer,
   PeerStoreUnknownSystemCommand,
-} from './store-errors';
+} from '../protocol/store-errors';
 import {
   PeerJoin,
   PeerJoined,
@@ -28,133 +41,23 @@ import {
   peerNamespace,
   PeerTrustUpdate,
   PeerTrustUpdated,
-} from './system-messages';
+} from '../protocol/system-messages';
+import { generateId, isSystemEvent, replayDomainEntries } from '../protocol/utils';
+import {
+  applyMembershipEvent,
+  computeAuthorityOrder,
+  materializeAtSeq,
+  membershipToRecord,
+  rebuildMembershipFromLog,
+} from './membership';
 import type {
-  Command,
-  Event,
-  HandleResult,
-  LogEntry,
-  Message,
-  PeerBootstrap,
-  PeerStoreApi,
-  Snapshot,
-  State,
-  StoreError,
-  StoreModule,
-  Transport,
-} from './types';
-import { generateId, isSystemEvent, replayDomainEntries } from './utils';
+  OptimisticEvent,
+  SystemCommandEvalResult,
+  WireMessage,
+} from './wire-protocol';
 
 const crash: Assert = Assert.crash();
 const validation: Assert = Assert.validation();
-
-type OptimisticEvent = Event & { readonly _commandId: string };
-
-type WireMessage =
-  | { kind: 'propose'; command: Command }
-  | { kind: 'accepted'; commandId: string; entries: LogEntry[] }
-  | { kind: 'rejected'; commandId: string; error: StoreError }
-  | { kind: 'heartbeat'; from: string; latestSeq: number }
-  | { kind: 'sync-request'; from: string; sinceSeq: number }
-  | {
-      kind: 'sync-response';
-      to: string;
-      snapshot: Snapshot;
-      baseSeq: number;
-      /** Log rows with seq <= baseSeq (materialized in `snapshot`). */
-      prefix: LogEntry[];
-      /** Log rows with seq > baseSeq. */
-      entries: LogEntry[];
-    };
-
-type SystemCommandEvalResult =
-  | { ok: true; entries: LogEntry[] }
-  | { ok: false; error: StoreError };
-
-const membershipEventRouter = createMessageRouter<
-  Map<string, number>,
-  void,
-  void
->(peerNamespace)
-  .on(PeerJoined, (membership, _, msg) => {
-    const { peerId, trust } = msg.payload;
-    crash.nonEmptyString(peerId, '_peer/joined requires peerId');
-    crash.ok(
-      typeof trust === 'number' && trust >= 0,
-      'trust must be number >= 0'
-    );
-    membership.set(peerId, trust);
-  })
-  .on(PeerLeft, (membership, _, msg) => {
-    const { peerId } = msg.payload;
-    crash.nonEmptyString(peerId, '_peer/left requires peerId');
-    membership.delete(peerId);
-  })
-  .on(PeerTrustUpdated, (membership, _, msg) => {
-    const { peerId, trust } = msg.payload;
-    crash.nonEmptyString(peerId, '_peer/trust_updated requires peerId');
-    crash.ok(
-      typeof trust === 'number' && trust >= 0,
-      'trust must be number >= 0'
-    );
-    if (membership.has(peerId)) {
-      membership.set(peerId, trust);
-    }
-  });
-
-function computeAuthorityOrder(peers: Record<string, number>): string[] {
-  return Object.entries(peers)
-    .sort((a, b) => {
-      const trustDiff = b[1] - a[1];
-      if (trustDiff !== 0) return trustDiff;
-      return a[0].localeCompare(b[0]);
-    })
-    .map(([id]) => id);
-}
-
-function membershipToRecord(m: Map<string, number>): Record<string, number> {
-  return Object.fromEntries(m);
-}
-
-function applyMembershipEvent(
-  membership: Map<string, number>,
-  event: Event
-): void {
-  membershipEventRouter.dispatch(membership, undefined, event, () => {});
-}
-
-function rebuildMembershipFromLog(entries: LogEntry[]): Map<string, number> {
-  const m = new Map<string, number>();
-  for (const { event } of entries) {
-    if (isSystemEvent(event)) {
-      applyMembershipEvent(m, event);
-    }
-  }
-  return m;
-}
-
-/** Materialize membership + domain state after applying all log rows with seq <= `seq`. */
-function materializeAtSeq(
-  module: StoreModule,
-  committed: LogEntry[],
-  seq: number
-): Snapshot {
-  if (seq <= 0) {
-    return {
-      seq: 0,
-      domainState: module.initialState(),
-      membership: {},
-    };
-  }
-  const slice = committed.filter((e) => e.seq <= seq);
-  const membership = rebuildMembershipFromLog(slice);
-  const domainState = replayDomainEntries(module, slice);
-  return {
-    seq,
-    domainState,
-    membership: membershipToRecord(membership),
-  };
-}
 
 export class PeerStore implements PeerStoreApi {
   private readonly module: StoreModule;
