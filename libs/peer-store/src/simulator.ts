@@ -1,7 +1,15 @@
 import { Assert } from '@gamezilla/lib/assert'
 import { PeerStore } from './peer-store'
 import { InMemoryBus, InMemoryTransport, type MessageInterceptor } from './transport'
-import type { Command, Event, LogEntry, Message, State, StoreModule } from './types'
+import type {
+  Command,
+  Event,
+  LogEntry,
+  Message,
+  State,
+  StoreError,
+  StoreModule,
+} from './types'
 import { generateId } from './utils'
 
 const crash: Assert = Assert.crash()
@@ -18,7 +26,7 @@ export class DeterministicSimulator {
   private readonly transports = new Map<string, InMemoryTransport>()
   private readonly stores = new Map<string, PeerStore>()
   private readonly timeout_log: string[] = []
-  private readonly error_log: Array<{ code: string; message: string }> = []
+  private readonly error_log: StoreError[] = []
   private readonly authority_change_log: Array<{
     newAuthority: string
     previousAuthority: string
@@ -189,7 +197,7 @@ export class DeterministicSimulator {
     return [...this.timeout_log]
   }
 
-  getErrorLog(): Array<{ code: string; message: string }> {
+  getErrorLog(): StoreError[] {
     return [...this.error_log]
   }
 

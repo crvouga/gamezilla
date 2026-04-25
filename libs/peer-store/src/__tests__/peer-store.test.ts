@@ -11,8 +11,13 @@ import {
 import { Assert } from '@gamezilla/lib/assert'
 import { PeerStore } from '../peer-store'
 import { InMemoryBus, InMemoryTransport } from '../transport'
-import type { HandleResult, State, StoreModule } from '../types'
-import { MarkPlaced, PlaceMark, TicTacToeModule } from '../__fixtures__/tic-tac-toe.module'
+import type { HandleResult, State, StoreError, StoreModule } from '../types'
+import {
+  MarkPlaced,
+  PlaceMark,
+  TicTacToeModule,
+  WrongTurnError,
+} from '../__fixtures__/tic-tac-toe.module'
 import { TestCrashHandler } from './test-crash-handler'
 import { ticTacToeBoardCell } from './tic-tac-toe-board'
 
@@ -40,7 +45,7 @@ function setup(opts?: {
   const transports = new Map<string, InMemoryTransport>()
   const stores = new Map<string, PeerStore>()
   const timeouts: string[] = []
-  const errors: Array<{ code: string; message: string }> = []
+  const errors: StoreError[] = []
   const syncs: string[] = []
   const authorityChanges: Array<{
     newAuthority: string
@@ -103,7 +108,7 @@ describe('PeerStore', () => {
     const store = stores.get('player-o')!
     store.dispatch(PlaceMark({ cell: 0, player: 'O' }))
     expect(errors.length).toBe(1)
-    expect(errors[0]!.code).toBe('WRONG_TURN')
+    expect(WrongTurnError.is(errors[0]!)).toBe(true)
   })
 
   it('authority dispatch commits immediately', () => {

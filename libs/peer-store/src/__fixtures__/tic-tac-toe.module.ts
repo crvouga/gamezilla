@@ -10,6 +10,7 @@ import type {
   Event,
   HandleResult,
   State,
+  StoreError,
   StoreModule,
 } from '../types'
 
@@ -136,6 +137,78 @@ export const SeatClaimed = evtNs('SEAT_CLAIMED', validateSeatClaimedPayload)
 export const SeatReleased = evtNs('SEAT_RELEASED', validateSeatReleasedPayload)
 export const ForfeitWin = evtNs('FORFEIT_WIN', validateForfeitWinPayload)
 
+const errTagNs = createNamespace('ticTacToeErr')
+
+function validateErrEmpty(p: unknown): p is Record<string, never> {
+  return isPlainRecord(p) && Object.keys(p).length === 0
+}
+
+function validateErrGotString(p: unknown): p is { got: string } {
+  if (!isPlainRecord(p)) return false
+  return typeof p['got'] === 'string'
+}
+
+function validateErrCellOccupied(p: unknown): p is { cell: number } {
+  if (!isPlainRecord(p)) return false
+  const c = p['cell']
+  return typeof c === 'number' && Number.isInteger(c) && c >= 0 && c <= 8
+}
+
+function validateErrNotYourMark(p: unknown): p is {
+  peerId: string
+  mark: 'X' | 'O'
+} {
+  if (!isPlainRecord(p)) return false
+  const pid = p['peerId']
+  const m = p['mark']
+  return typeof pid === 'string' && pid.length > 0 && isMark(m)
+}
+
+function validateErrSeatTaken(p: unknown): p is { mark: 'X' | 'O' } {
+  if (!isPlainRecord(p)) return false
+  return isMark(p['mark'])
+}
+
+function validateErrUnknownCommand(p: unknown): p is { commandType: string } {
+  if (!isPlainRecord(p)) return false
+  const t = p['commandType']
+  return typeof t === 'string' && t.length > 0
+}
+
+/** Not this mark's turn to act. */
+export const WrongTurnError = errTagNs('WRONG_TURN', validateErrEmpty)
+export const CellOccupiedError = errTagNs(
+  'CELL_OCCUPIED',
+  validateErrCellOccupied,
+)
+export const GameOverError = errTagNs('GAME_OVER', validateErrEmpty)
+export const InvalidCellError = errTagNs('INVALID_CELL', validateErrGotString)
+export const InvalidPlayerError = errTagNs(
+  'INVALID_PLAYER',
+  validateErrGotString,
+)
+export const InvalidBoardError = errTagNs('INVALID_BOARD', validateErrEmpty)
+export const InvalidStateError = errTagNs('INVALID_STATE', validateErrEmpty)
+export const NotYourMarkError = errTagNs(
+  'NOT_YOUR_MARK',
+  validateErrNotYourMark,
+)
+export const InvalidMarkError = errTagNs('INVALID_MARK', validateErrGotString)
+export const AlreadySeatedError = errTagNs(
+  'ALREADY_SEATED',
+  validateErrEmpty,
+)
+export const SeatTakenError = errTagNs('SEAT_TAKEN', validateErrSeatTaken)
+export const InvalidPayloadError = errTagNs(
+  'INVALID_PAYLOAD',
+  validateErrEmpty,
+)
+export const NotSeatedError = errTagNs('NOT_SEATED', validateErrEmpty)
+export const UnknownCommandError = errTagNs(
+  'UNKNOWN_COMMAND',
+  validateErrUnknownCommand,
+)
+
 const WIN_LINES = [
   [0, 1, 2],
   [3, 4, 5],
@@ -217,16 +290,15 @@ function assertPeerOwnsMark(
   const seatKey = player === 'X' ? 'seatX' : 'seatO'
   const expected = readSeat(state, seatKey, seatKey)
   if (expected !== command.peerId) {
-    return err(
-      'NOT_YOUR_MARK',
-      `peer ${command.peerId} cannot act as ${player}`,
+    return reject(
+      NotYourMarkError({ peerId: command.peerId, mark: player }),
     )
   }
   return null
 }
 
-function err(code: string, message: string): HandleResult {
-  return { ok: false, error: { code, message } }
+function reject(error: StoreError): HandleResult {
+  return { ok: false, error }
 }
 
 function handlePlaceMark(
@@ -245,22 +317,16 @@ function handlePlaceMark(
     cell > 8 ||
     !Number.isInteger(cell)
   ) {
-    return err(
-      'INVALID_CELL',
-      `cell must be integer 0-8, got: ${String(cell)}`,
-    )
+    return reject(InvalidCellError({ got: String(cell) }))
   }
   if (player !== 'X' && player !== 'O') {
-    return err(
-      'INVALID_PLAYER',
-      `player must be X or O, got: ${String(player)}`,
-    )
+    return reject(InvalidPlayerError({ got: String(player) }))
   }
   if (state['status'] === 'completed') {
-    return err('GAME_OVER', 'game is already completed')
+    return reject(GameOverError({}))
   }
   if (state['currentTurn'] !== player) {
-    return err('WRONG_TURN', `not ${String(player)}'s turn`)
+    return reject(WrongTurnError({}))
   }
 
   const seatErr = assertPeerOwnsMark(state, command, player)
@@ -273,17 +339,17 @@ function handlePlaceMark(
   for (let i = 0; i < 9; i++) {
     const c = boardUnknown[i]
     if (c !== null && c !== 'X' && c !== 'O') {
-      return err('INVALID_BOARD', 'board cell must be null, X, or O')
+      return reject(InvalidBoardError({}))
     }
     boardCells.push(c)
   }
   if (boardCells[cell] !== null) {
-    return err('CELL_OCCUPIED', `cell ${cell} is already occupied`)
+    return reject(CellOccupiedError({ cell }))
   }
 
   const seqRaw = state['seq']
   if (typeof seqRaw !== 'number' || !Number.isFinite(seqRaw)) {
-    return err('INVALID_STATE', 'state.seq must be a finite number')
+    return reject(InvalidStateError({}))
   }
   const next_seq = seqRaw + 1
   const events: Event[] = [MarkPlaced({ cell, player, seq: next_seq })]
@@ -311,13 +377,10 @@ function handleResign(
   const player = msg.payload.player
 
   if (player !== 'X' && player !== 'O') {
-    return err(
-      'INVALID_PLAYER',
-      `player must be X or O, got: ${String(player)}`,
-    )
+    return reject(InvalidPlayerError({ got: String(player) }))
   }
   if (state['status'] === 'completed') {
-    return err('GAME_OVER', 'game is already completed')
+    return reject(GameOverError({}))
   }
 
   const seatErr = assertPeerOwnsMark(state, command, player)
@@ -327,7 +390,7 @@ function handleResign(
 
   const seqRaw = state['seq']
   if (typeof seqRaw !== 'number' || !Number.isFinite(seqRaw)) {
-    return err('INVALID_STATE', 'state.seq must be a finite number')
+    return reject(InvalidStateError({}))
   }
   const next_seq = seqRaw + 1
   return {
@@ -348,11 +411,11 @@ function handleJoinSession(
   const mark = msg.payload.mark
 
   if (mark !== 'X' && mark !== 'O') {
-    return err('INVALID_MARK', `mark must be X or O, got: ${String(mark)}`)
+    return reject(InvalidMarkError({ got: String(mark) }))
   }
 
   if (state['status'] === 'completed') {
-    return err('GAME_OVER', 'cannot join a completed game')
+    return reject(GameOverError({}))
   }
 
   const seatX = readSeat(state, 'seatX', 'seatX')
@@ -361,17 +424,17 @@ function handleJoinSession(
 
   const otherSeat = mark === 'X' ? seatO : seatX
   if (otherSeat === peerId) {
-    return err('ALREADY_SEATED', 'peer already holds the other mark')
+    return reject(AlreadySeatedError({}))
   }
 
   const mySeat = mark === 'X' ? seatX : seatO
   if (mySeat !== null && mySeat !== peerId) {
-    return err('SEAT_TAKEN', `mark ${mark} is already claimed`)
+    return reject(SeatTakenError({ mark }))
   }
 
   const seqRaw = state['seq']
   if (typeof seqRaw !== 'number' || !Number.isFinite(seqRaw)) {
-    return err('INVALID_STATE', 'state.seq must be a finite number')
+    return reject(InvalidStateError({}))
   }
   const next_seq = seqRaw + 1
 
@@ -392,10 +455,7 @@ function handleLeaveSession(state: State, command: Command): HandleResult {
     typeof rawPayload !== 'object' ||
     Array.isArray(rawPayload)
   ) {
-    return err(
-      'INVALID_PAYLOAD',
-      'LEAVE_SESSION payload must be a plain object',
-    )
+    return reject(InvalidPayloadError({}))
   }
 
   const seatX = readSeat(state, 'seatX', 'seatX')
@@ -410,12 +470,12 @@ function handleLeaveSession(state: State, command: Command): HandleResult {
     held.push('O')
   }
   if (held.length === 0) {
-    return err('NOT_SEATED', 'peer has no seat to leave')
+    return reject(NotSeatedError({}))
   }
 
   const seqRaw = state['seq']
   if (typeof seqRaw !== 'number' || !Number.isFinite(seqRaw)) {
-    return err('INVALID_STATE', 'state.seq must be a finite number')
+    return reject(InvalidStateError({}))
   }
 
   const events: Event[] = []
@@ -662,10 +722,7 @@ export const TicTacToeModule: StoreModule = {
     )
 
     return commandRouter.dispatch(state, command, command.message, (_s, _c, msg) =>
-      err(
-        'UNKNOWN_COMMAND',
-        `unknown command type: ${msg.type}`,
-      ),
+      reject(UnknownCommandError({ commandType: msg.type })),
     )
   },
 

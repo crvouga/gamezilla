@@ -501,7 +501,9 @@ export class PlaygroundSimulator {
       lines.push('  (none)');
     } else {
       for (const err of errors) {
-        lines.push(`  - { code: '${err.code}', message: '${err.message}' }`);
+        lines.push(
+          `  - { type: '${err.type}', payload: ${JSON.stringify(err.payload)} }`,
+        );
       }
     }
 

@@ -1,3 +1,5 @@
+import type { Message as TaggedMessage } from '@gamezilla/lib/message';
+
 /**
  * User-facing message envelope.
  *
@@ -6,10 +8,7 @@
  * the transport/store layer transport-agnostic and avoids misleading TS
  * inference for LLMs/agents — validation lives in application code.
  */
-export type Message = {
-  type: string;
-  payload: unknown;
-};
+export type Message = TaggedMessage;
 
 export type Command = {
   id: string;
@@ -25,10 +24,7 @@ export type Command = {
  * prefixes such as `_peer/...` and are handled inside `PeerStore`, not passed
  * to `StoreModule.reduce`. Domain events must be validated in `reduce`.
  */
-export type Event = {
-  type: string;
-  payload: unknown;
-};
+export type Event = TaggedMessage;
 
 /**
  * Plain serializable object used as reducer state.
@@ -39,10 +35,11 @@ export type Event = {
  */
 export type State = Record<string, unknown>;
 
-export type StoreError = {
-  code: string;
-  message: string;
-};
+/**
+ * Command rejection: tagged `{ type, payload }` from `@gamezilla/lib/message`
+ * creators (same wire shape as commands/events). Narrow with each tag’s `.is()`.
+ */
+export type StoreError = TaggedMessage;
 
 export type HandleResult =
   | { ok: true; value: { events: Event[] } }

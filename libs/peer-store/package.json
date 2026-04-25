@@ -4,6 +4,7 @@
   "private": true,
   "exports": {
     "./event-log-postgres": "./src/event-log-postgres.ts",
+    "./store-errors": "./src/store-errors.ts",
     "./system-messages": "./src/system-messages.ts",
     "./simulator": "./src/simulator.ts",
     "./__fixtures__/tic-tac-toe.module": "./src/__fixtures__/tic-tac-toe.module.ts",

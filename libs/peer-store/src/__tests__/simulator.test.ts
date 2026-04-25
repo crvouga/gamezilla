@@ -13,6 +13,7 @@ import {
   MarkPlaced,
   PlaceMark,
   TicTacToeModule,
+  WrongTurnError,
 } from '../__fixtures__/tic-tac-toe.module'
 import { DeterministicSimulator } from '../simulator'
 import { TestCrashHandler } from './test-crash-handler'
@@ -218,7 +219,7 @@ describe('DeterministicSimulator', () => {
 
     sim.dispatch('player-x', PlaceMark({ cell: 1, player: 'X' }))
     expect(
-      sim.getErrorLog().filter((e) => e.code === 'WRONG_TURN').length,
+      sim.getErrorLog().filter((e) => WrongTurnError.is(e)).length,
     ).toBe(0)
 
     sim.assertConverged()
@@ -248,7 +249,7 @@ describe('DeterministicSimulator', () => {
 
     sim.dispatch('player-x', PlaceMark({ cell: 1, player: 'X' }))
     expect(
-      sim.getErrorLog().filter((e) => e.code === 'WRONG_TURN').length,
+      sim.getErrorLog().filter((e) => WrongTurnError.is(e)).length,
     ).toBe(0)
 
     sim.assertConverged()

@@ -20,6 +20,21 @@ import {
 } from './assert-durable-json'
 import { createMessageRouter } from '@gamezilla/lib/message'
 import {
+  PeerStoreDuplicatePeer,
+  PeerStoreInvalidJoinFields,
+  PeerStoreInvalidJoinShape,
+  PeerStoreInvalidLeaveFields,
+  PeerStoreInvalidLeaveShape,
+  PeerStoreInvalidTrustFields,
+  PeerStoreInvalidTrustShape,
+  PeerStoreJoinPeerMismatch,
+  PeerStoreLeaveNotSelf,
+  PeerStoreNotAuthority,
+  PeerStoreNotSynced,
+  PeerStoreUnknownPeer,
+  PeerStoreUnknownSystemCommand,
+} from './store-errors'
+import {
   peerNamespace,
   PeerJoin,
   PeerJoined,
@@ -55,13 +70,6 @@ type WireMessage =
 type SystemCommandEvalResult =
   | { ok: true; entries: LogEntry[] }
   | { ok: false; error: StoreError }
-
-function systemErr(code: string, message: string): {
-  ok: false
-  error: StoreError
-} {
-  return { ok: false, error: { code, message } }
-}
 
 const membershipEventRouter = createMessageRouter<
   Map<string, number>,
@@ -202,20 +210,40 @@ export class PeerStore implements PeerStoreApi {
     .on(PeerJoin, (self, command, msg) => {
       const raw: unknown = msg.payload
       if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
-        return systemErr('INVALID_JOIN', 'join payload must be a plain object')
+        return {
+          ok: false,
+          error: PeerStoreInvalidJoinShape({
+            detail: 'join payload must be a plain object',
+          }),
+        }
       }
       crash.record(raw, 'join payload must be a plain object')
       const p = raw as Record<string, unknown>
       const peerId = p['peerId']
       const trust = p['trust']
       if (!peerId || typeof peerId !== 'string')
-        return systemErr('INVALID_JOIN', 'join payload requires peerId string')
+        return {
+          ok: false,
+          error: PeerStoreInvalidJoinFields({
+            detail: 'join payload requires peerId string',
+          }),
+        }
       if (typeof trust !== 'number' || trust < 0 || !Number.isFinite(trust))
-        return systemErr('INVALID_JOIN', 'join payload requires finite trust >= 0')
+        return {
+          ok: false,
+          error: PeerStoreInvalidJoinFields({
+            detail: 'join payload requires finite trust >= 0',
+          }),
+        }
       if (peerId !== command.peerId)
-        return systemErr('INVALID_JOIN', 'join peerId must match command.peerId')
+        return {
+          ok: false,
+          error: PeerStoreJoinPeerMismatch({
+            detail: 'join peerId must match command.peerId',
+          }),
+        }
       if (self.membership.has(peerId))
-        return systemErr('DUPLICATE_PEER', `peer already in membership: ${peerId}`)
+        return { ok: false, error: PeerStoreDuplicatePeer({ peerId }) }
       return {
         ok: true,
         entries: self.allocateEntriesFromEvents([PeerJoined({ peerId, trust })]),
@@ -224,17 +252,32 @@ export class PeerStore implements PeerStoreApi {
     .on(PeerLeave, (self, command, msg) => {
       const raw: unknown = msg.payload
       if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
-        return systemErr('INVALID_LEAVE', 'leave payload must be a plain object')
+        return {
+          ok: false,
+          error: PeerStoreInvalidLeaveShape({
+            detail: 'leave payload must be a plain object',
+          }),
+        }
       }
       crash.record(raw, 'leave payload must be a plain object')
       const p = raw as Record<string, unknown>
       const peerId = p['peerId']
       if (!peerId || typeof peerId !== 'string')
-        return systemErr('INVALID_LEAVE', 'leave payload requires peerId')
+        return {
+          ok: false,
+          error: PeerStoreInvalidLeaveFields({
+            detail: 'leave payload requires peerId',
+          }),
+        }
       if (peerId !== command.peerId)
-        return systemErr('INVALID_LEAVE', 'leave only allowed for self')
+        return {
+          ok: false,
+          error: PeerStoreLeaveNotSelf({
+            detail: 'leave only allowed for self',
+          }),
+        }
       if (!self.membership.has(peerId))
-        return systemErr('UNKNOWN_PEER', `peer not in membership: ${peerId}`)
+        return { ok: false, error: PeerStoreUnknownPeer({ peerId }) }
       return {
         ok: true,
         entries: self.allocateEntriesFromEvents([PeerLeft({ peerId })]),
@@ -243,26 +286,38 @@ export class PeerStore implements PeerStoreApi {
     .on(PeerTrustUpdate, (self, command, msg) => {
       const raw: unknown = msg.payload
       if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
-        return systemErr(
-          'INVALID_TRUST',
-          'trust_update payload must be a plain object',
-        )
+        return {
+          ok: false,
+          error: PeerStoreInvalidTrustShape({
+            detail: 'trust_update payload must be a plain object',
+          }),
+        }
       }
       crash.record(raw, 'trust_update payload must be a plain object')
       const p = raw as Record<string, unknown>
       const peerId = p['peerId']
       const trust = p['trust']
       if (!peerId || typeof peerId !== 'string')
-        return systemErr('INVALID_TRUST', 'trust_update requires peerId')
+        return {
+          ok: false,
+          error: PeerStoreInvalidTrustFields({
+            detail: 'trust_update requires peerId',
+          }),
+        }
       if (typeof trust !== 'number' || trust < 0 || !Number.isFinite(trust))
-        return systemErr('INVALID_TRUST', 'trust_update requires finite trust >= 0')
+        return {
+          ok: false,
+          error: PeerStoreInvalidTrustFields({
+            detail: 'trust_update requires finite trust >= 0',
+          }),
+        }
       if (command.peerId !== self.current_authority)
-        return systemErr(
-          'NOT_AUTHORITY',
-          'only authority peer may propose trust_update',
-        )
+        return {
+          ok: false,
+          error: PeerStoreNotAuthority({}),
+        }
       if (!self.membership.has(peerId))
-        return systemErr('UNKNOWN_PEER', `peer not in membership: ${peerId}`)
+        return { ok: false, error: PeerStoreUnknownPeer({ peerId }) }
       return {
         ok: true,
         entries: self.allocateEntriesFromEvents([
@@ -398,10 +453,7 @@ export class PeerStore implements PeerStoreApi {
     )
 
     if (this.bootstrapKind === 'join' && !this.synced) {
-      this.callbacks.onError?.({
-        code: 'NOT_SYNCED',
-        message: 'join bootstrap must complete sync before dispatch',
-      })
+      this.callbacks.onError?.(PeerStoreNotSynced({}))
       return
     }
 
@@ -536,8 +588,10 @@ export class PeerStore implements PeerStoreApi {
       this,
       command,
       command.message,
-      (_self, _cmd, msg) =>
-        systemErr('UNKNOWN_SYSTEM', `unknown system message: ${msg.type}`),
+      (_self, _cmd, msg) => ({
+        ok: false,
+        error: PeerStoreUnknownSystemCommand({ commandType: msg.type }),
+      }),
     )
   }
 
@@ -858,11 +912,20 @@ export class PeerStore implements PeerStoreApi {
     crash.string(commandId, 'rejected.commandId must be a string')
     const errObj = msg['error']
     crash.record(errObj, 'rejected.error must be a plain object')
-    const code = errObj['code']
-    crash.string(code, 'rejected.error.code must be a string')
-    const message = errObj['message']
-    crash.string(message, 'rejected.error.message must be a string')
-    return { kind: 'rejected', commandId, error: { code, message } }
+    const errRec = errObj as Record<string, unknown>
+    const type = errRec['type']
+    crash.string(type, 'rejected.error.type must be a string')
+    validation.nonEmptyString(type, 'rejected.error.type must be non-empty')
+    const rawPayload = errRec['payload']
+    const payload =
+      rawPayload === undefined
+        ? {}
+        : rawPayload === null ||
+            typeof rawPayload !== 'object' ||
+            Array.isArray(rawPayload)
+          ? {}
+          : rawPayload
+    return { kind: 'rejected', commandId, error: { type, payload } }
   }
 
   private parseSyncRequestWire(
@@ -1079,13 +1142,10 @@ export class PeerStore implements PeerStoreApi {
     if (result.ok) {
       crash.array(result.value.events, 'handle success must have events array')
     } else {
+      crash.record(result.error, 'handle error must be a plain object')
       crash.nonEmptyString(
-        result.error.code,
-        'handle error must have non-empty code',
-      )
-      crash.string(
-        result.error.message,
-        'handle error must have message string',
+        result.error.type,
+        'handle error must have non-empty type',
       )
     }
   }

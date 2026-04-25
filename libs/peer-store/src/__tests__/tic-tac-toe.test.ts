@@ -10,13 +10,18 @@ import {
   jest,
 } from 'bun:test'
 import {
+  CellOccupiedError,
   ForfeitWin,
   GameWon,
   JoinSession,
   LeaveSession,
+  NotSeatedError,
+  NotYourMarkError,
   PlaceMark,
   Resign,
   TicTacToeModule,
+  UnknownCommandError,
+  WrongTurnError,
 } from '../__fixtures__/tic-tac-toe.module'
 import { DeterministicSimulator } from '../simulator'
 import { TestCrashHandler } from './test-crash-handler'
@@ -58,7 +63,7 @@ describe('TicTacToe integration', () => {
     const sim = createSim()
     sim.dispatch('player-o', PlaceMark({ cell: 0, player: 'O' }))
     expect(sim.getErrorLog().length).toBe(1)
-    expect(sim.getErrorLog()[0]!.code).toBe('WRONG_TURN')
+    expect(WrongTurnError.is(sim.getErrorLog()[0]!)).toBe(true)
     sim.destroy()
   })
 
@@ -66,9 +71,7 @@ describe('TicTacToe integration', () => {
     const sim = createSim()
     sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }))
     sim.dispatch('player-o', PlaceMark({ cell: 0, player: 'O' }))
-    expect(sim.getErrorLog().some((e) => e.code === 'CELL_OCCUPIED')).toBe(
-      true,
-    )
+    expect(sim.getErrorLog().some((e) => CellOccupiedError.is(e))).toBe(true)
     sim.destroy()
   })
 
@@ -204,12 +207,10 @@ describe('TicTacToe integration', () => {
     sim.destroy()
   })
 
-  it('unknown command type → StoreError, no crash', () => {
+  it('unknown command type → tagged rejection, no crash', () => {
     const sim = createSim()
     sim.dispatch('player-x', { type: 'UNKNOWN', payload: {} })
-    expect(sim.getErrorLog().some((e) => e.code === 'UNKNOWN_COMMAND')).toBe(
-      true,
-    )
+    expect(sim.getErrorLog().some((e) => UnknownCommandError.is(e))).toBe(true)
     sim.destroy()
   })
 
@@ -262,7 +263,7 @@ describe('TicTacToe session seats (join / leave)', () => {
     sim.assertConverged()
 
     sim.dispatch('player-o', PlaceMark({ cell: 0, player: 'X' }))
-    expect(sim.getErrorLog().some((e) => e.code === 'NOT_YOUR_MARK')).toBe(true)
+    expect(sim.getErrorLog().some((e) => NotYourMarkError.is(e))).toBe(true)
 
     sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }))
     sim.assertConverged()
@@ -290,7 +291,7 @@ describe('TicTacToe session seats (join / leave)', () => {
   it('LEAVE_SESSION without a seat → NOT_SEATED', () => {
     const sim = createSim()
     sim.dispatch('player-x', LeaveSession({}))
-    expect(sim.getErrorLog().some((e) => e.code === 'NOT_SEATED')).toBe(true)
+    expect(sim.getErrorLog().some((e) => NotSeatedError.is(e))).toBe(true)
     sim.destroy()
   })
 })
