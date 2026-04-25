@@ -101,10 +101,30 @@
       "sourceType": "github",
       "computedHash": "d39e806942fe880347f161056729b588a3cb0f1796270eebf52633fe11cfdce1"
     },
+    "multiplayer-game": {
+      "source": "rivet-dev/skills",
+      "sourceType": "github",
+      "computedHash": "b21170fc886971d6fd5e129ec6516fb35e592f53159a7176bf68216e4effcef9"
+    },
     "native-data-fetching": {
       "source": "expo/skills",
       "sourceType": "github",
       "computedHash": "3cd0ba91f359f9f84cd40f36f356287994a0e952520fac6e03ef7952d0397879"
+    },
+    "rivetkit": {
+      "source": "rivet-dev/skills",
+      "sourceType": "github",
+      "computedHash": "55e8c0c3e9df38d7d48fdd65c78b2212d27248f03c14310a5821a5fd719683bf"
+    },
+    "rivetkit-client-javascript": {
+      "source": "rivet-dev/skills",
+      "sourceType": "github",
+      "computedHash": "9a92026b211eb932cd9431cc5e932b4ff0dd9f8cc905be24e6fe06b160c72f9a"
+    },
+    "rivetkit-client-react": {
+      "source": "rivet-dev/skills",
+      "sourceType": "github",
+      "computedHash": "022ba489b3a6c22a4c1c789d233623ec1d86ff0030e23996c16038aa361a3928"
     },
     "sandbox-sdk": {
       "source": "cloudflare/skills",

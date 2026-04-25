@@ -1,12 +1,20 @@
 {
   "name": "gamezilla",
   "version": "1.0.0",
-  "private": true,
+  "devDependencies": {
+    "@types/bun": "^1.3.9",
+    "@typescript-eslint/eslint-plugin": "8.58.0",
+    "@typescript-eslint/parser": "^8.58.0",
+    "eslint": "^9.25.0",
+    "eslint-plugin-naming": "^0.1.10",
+    "expo": "~54.0.33",
+    "prettier": "^3.8.1",
+    "sort-package-json": "^3.6.1",
+    "turbo": "^2.9.6",
+    "typescript": "~5.9.2"
+  },
   "packageManager": "bun@1.3.11",
-  "workspaces": [
-    "apps/*",
-    "libs/*"
-  ],
+  "private": true,
   "scripts": {
     "check": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID doppler run -- turbo check build",
     "dev": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID doppler run -- turbo dev",
@@ -21,16 +29,8 @@
     "pw:headed": "bun run --filter '@gamezilla/qa' browser:headed",
     "pw": "bun run --filter '@gamezilla/qa' browser"
   },
-  "devDependencies": {
-    "@types/bun": "^1.3.9",
-    "@typescript-eslint/eslint-plugin": "8.58.0",
-    "@typescript-eslint/parser": "^8.58.0",
-    "eslint": "^9.25.0",
-    "eslint-plugin-naming": "^0.1.10",
-    "expo": "~54.0.33",
-    "prettier": "^3.8.1",
-    "sort-package-json": "^3.6.1",
-    "turbo": "^2.9.6",
-    "typescript": "~5.9.2"
-  }
+  "workspaces": [
+    "apps/*",
+    "libs/*"
+  ]
 }
