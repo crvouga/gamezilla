@@ -9,10 +9,9 @@ export {
   PeerTrustUpdate,
   PeerTrustUpdated,
 } from './system-messages'
+export type { Event, Message, StoreError } from './message-types'
 export {
   generateId,
   isSystemEvent,
-  replayDomainEntries,
-  replayEvents,
   SYSTEM_EVENT_PREFIX,
 } from './utils'

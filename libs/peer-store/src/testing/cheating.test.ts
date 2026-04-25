@@ -15,7 +15,7 @@ import {
   TicTacToeModule,
 } from './fixtures/tic-tac-toe.module'
 import { DeterministicSimulator } from '../simulator'
-import type { State } from '../model/types'
+import type { State } from '../peer-store/peer-store-types'
 import { isSystemEvent } from '../protocol/utils'
 import { ticTacToeBoardCell } from './tic-tac-toe-board'
 import { TestCrashHandler } from './test-crash-handler'

@@ -1,13 +1,16 @@
 import { Assert } from '@gamezilla/lib/assert';
 import { createMessageRouter } from '@gamezilla/lib/message';
-import type { Event, LogEntry, Snapshot, StoreModule } from '../model/types';
+import type { LogEntry } from '../event-log/log-entry'
+import type { Event } from '../protocol/message-types'
+import type { Snapshot, StoreModule } from './peer-store-types'
 import {
   PeerJoined,
   PeerLeft,
   peerNamespace,
   PeerTrustUpdated,
 } from '../protocol/system-messages';
-import { isSystemEvent, replayDomainEntries } from '../protocol/utils';
+import { isSystemEvent } from '../protocol/utils'
+import { replayDomainEntries } from './replay'
 
 const crash: Assert = Assert.crash();
 

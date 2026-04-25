@@ -7,12 +7,11 @@ import {
 } from '@gamezilla/lib/message'
 import type {
   Command,
-  Event,
   HandleResult,
   State,
-  StoreError,
   StoreModule,
-} from '../../model/types'
+} from '../../peer-store/peer-store-types'
+import type { Event, StoreError } from '../../protocol/message-types'
 
 const crash: Assert = Assert.crash()
 

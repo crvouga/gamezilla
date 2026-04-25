@@ -11,7 +11,7 @@
     "./testing/tic-tac-toe": "./src/testing/fixtures/tic-tac-toe.module.ts",
     "./event-log": "./src/event-log/index.ts",
     "./utils": "./src/protocol/utils.ts",
-    "./types": "./src/model/types.ts",
+    "./types": "./src/index.ts",
     "./trust-election": "./src/trust-election/index.ts",
     "./__tests__/test-crash-handler": "./src/testing/test-crash-handler.ts",
     "./event-log-sqlite": "./src/event-log/event-log-sqlite.ts",

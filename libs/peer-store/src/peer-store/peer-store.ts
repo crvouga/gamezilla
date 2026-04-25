@@ -5,19 +5,17 @@ import {
   assertLogEntryArray,
   assertSnapshot,
 } from '../event-log/assert-durable-json';
+import type { LogEntry } from '../event-log/log-entry'
+import type { Event, Message, StoreError } from '../protocol/message-types'
+import type { Transport } from '../transport/transport-types'
 import type {
   Command,
-  Event,
   HandleResult,
-  LogEntry,
-  Message,
   PeerBootstrap,
   PeerStoreApi,
   State,
-  StoreError,
   StoreModule,
-  Transport,
-} from '../model/types';
+} from './peer-store-types';
 import {
   PeerStoreDuplicatePeer,
   PeerStoreInvalidJoinFields,
@@ -42,7 +40,8 @@ import {
   PeerTrustUpdate,
   PeerTrustUpdated,
 } from '../protocol/system-messages';
-import { generateId, isSystemEvent, replayDomainEntries } from '../protocol/utils';
+import { generateId, isSystemEvent } from '../protocol/utils';
+import { replayDomainEntries } from './replay';
 import {
   applyMembershipEvent,
   computeAuthorityOrder,

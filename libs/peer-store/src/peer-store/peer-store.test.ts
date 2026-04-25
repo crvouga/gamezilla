@@ -11,13 +11,13 @@ import {
 import { Assert } from '@gamezilla/lib/assert'
 import { PeerStore } from './peer-store'
 import { InMemoryBus, InMemoryTransport } from '../transport'
+import type { StoreError } from '../protocol/message-types'
 import type {
   Command,
   HandleResult,
   State,
-  StoreError,
   StoreModule,
-} from '../model/types'
+} from './peer-store-types'
 import {
   MarkPlaced,
   PlaceMark,

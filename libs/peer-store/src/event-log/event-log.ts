@@ -1,7 +1,5 @@
-import { Assert } from '@gamezilla/lib/assert'
-import type { Command, LogEntry, PeerStoreApi } from '../model/types'
-
-const crash: Assert = Assert.crash()
+import type { LogEntry } from './log-entry'
+import type { Command, PeerStoreApi } from '../peer-store/peer-store-types'
 
 export type EventLogEntry =
   | { kind: 'command'; command: Command }
