@@ -569,7 +569,7 @@ function handlePlaceMark(
     events.push(...clockEvents);
   }
 
-  return { ok: true, value: { events } };
+  return { ok: true, events };
 }
 
 function handleTickClock(
@@ -589,9 +589,7 @@ function handleTickClock(
   const events = buildTickClockEvents(inputs, elapsedMs);
   return {
     ok: true,
-    value: {
-      events,
-    },
+    events,
   };
 }
 
@@ -623,9 +621,7 @@ function handleResign(
   const next_seq = seqRaw + 1;
   return {
     ok: true,
-    value: {
-      events: [PlayerResigned({ player, seq: next_seq })],
-    },
+    events: [PlayerResigned({ player, seq: next_seq })],
   };
 }
 
@@ -676,9 +672,7 @@ function handleJoinSession(
 
   return {
     ok: true,
-    value: {
-      events: [SeatClaimed({ mark, peerId: command.peerId, seq: next_seq })],
-    },
+    events: [SeatClaimed({ mark, peerId: command.peerId, seq: next_seq })],
   };
 }
 
@@ -752,7 +746,7 @@ function handleLeaveSession(state: State, command: Command): HandleResult {
     seq = forfeit.nextSeq;
   }
 
-  return { ok: true, value: { events } };
+  return { ok: true, events };
 }
 
 function reduceMarkPlaced(

@@ -21,7 +21,7 @@ export type State = Record<string, unknown>
 export type StoreEffect = Message
 
 export type HandleResult =
-  | { ok: true; value: { events: Event[]; effects?: StoreEffect[] } }
+  | { ok: true; events: Event[]; effects?: StoreEffect[] }
   | { ok: false; error: StoreError }
 
 export type StoreModule = {

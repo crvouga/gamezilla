@@ -165,13 +165,13 @@ export class PeerStore implements PeerStoreApi {
       return { ok: false, error: result.error };
     }
     crash.ok(
-      result.value.events.length > 0,
+      result.events.length > 0,
       'handle must produce at least one event on success',
     );
     return {
       ok: true,
-      entries: this.wrapDomainEventsWithSeq(result.value.events),
-      effects: result.value.effects ?? [],
+      entries: this.wrapDomainEventsWithSeq(result.events),
+      effects: result.effects ?? [],
     };
   }
 
@@ -307,10 +307,10 @@ export class PeerStore implements PeerStoreApi {
       return;
     }
     crash.ok(
-      result.value.events.length > 0,
+      result.events.length > 0,
       'handle must produce at least one event on success',
     );
-    for (const event of result.value.events) {
+    for (const event of result.events) {
       this.optimistic_events.push({ ...event, _commandId: command.id });
     }
     this.proposeToAuthority(command);

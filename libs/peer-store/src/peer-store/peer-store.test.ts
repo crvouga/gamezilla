@@ -50,10 +50,8 @@ const EffectModule: StoreModule = {
     const count = typeof state['count'] === 'number' ? state['count'] : 0
     return {
       ok: true,
-      value: {
-        events: [{ type: 'effectEvent/COUNTED', payload: { count: count + 1 } }],
-        effects: [{ type: 'effectAction/SCHEDULE', payload: { delayMs: 1000 } }],
-      },
+      events: [{ type: 'effectEvent/COUNTED', payload: { count: count + 1 } }],
+      effects: [{ type: 'effectAction/SCHEDULE', payload: { delayMs: 1000 } }],
     }
   },
   reduce: (state: State, event): State => {
@@ -370,7 +368,7 @@ describe('PeerStore', () => {
       initialState: () => ({}),
       handle: (_s: State, _c: Command) => ({
         ok: true,
-        value: { events: [{ type: 'e', payload: {} }] },
+        events: [{ type: 'e', payload: {} }],
       }),
       reduce: () => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test stub

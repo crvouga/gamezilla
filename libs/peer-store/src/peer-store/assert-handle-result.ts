@@ -10,8 +10,8 @@ export function assertHandleResult(result: HandleResult): void {
     'handle result must have ok: boolean',
   );
   if (result.ok) {
-    crash.array(result.value.events, 'handle success must have events array');
-    const effects = result.value.effects;
+    crash.array(result.events, 'handle success must have events array');
+    const effects = result.effects;
     if (effects !== undefined) {
       crash.array(effects, 'handle success effects must be an array');
       for (const effect of effects) {
