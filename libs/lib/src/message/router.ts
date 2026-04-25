@@ -14,17 +14,23 @@ type Handler<TState, TCtx, TOutput, P = unknown> = (
   msg: Message<P>,
 ) => TOutput
 
-type RegisteredHandler<TState, TCtx, TOutput> = {
-  validatePayload: MessagePayloadValidator<unknown>
-  handler: Handler<TState, TCtx, TOutput, unknown>
-}
+/**
+ * Validator + handler fused into a single call site at registration time so
+ * `dispatch` is one `Map.get` + one indirect call instead of fetching an entry
+ * object and dereferencing two fields per message.
+ */
+type CompiledHandler<TState, TCtx, TOutput> = (
+  state: TState,
+  ctx: TCtx,
+  msg: Message,
+) => TOutput
 
 /**
  * Dispatches a {@link Message} to a handler registered by {@link MessageTag}.
  * Replaces brittle `switch (msg.type)` with composable registration.
  *
  * When constructed with a {@link MessageNamespace}, {@link dispatch} and {@link has}
- * short-circuit for messages outside that namespace (O(1) via `namespace.owns`).
+ * short-circuit for messages outside that namespace via a single `startsWith`.
  */
 export interface MessageRouter<TState, TCtx, TOutput> {
   on<P>(
@@ -41,8 +47,9 @@ export interface MessageRouter<TState, TCtx, TOutput> {
 }
 
 /**
- * O(1) prefix routing over several namespaced {@link MessageRouter}s.
- * Use {@link createComposedMessageRouter}; this type has no {@link MessageRouter.on}.
+ * O(N) prefix routing over several namespaced {@link MessageRouter}s, where N
+ * is the number of children (typically a handful). Uses {@link createComposedMessageRouter};
+ * this type has no {@link MessageRouter.on}.
  */
 export interface ComposedMessageRouter<TState, TCtx, TOutput> {
   dispatch(
@@ -57,33 +64,64 @@ export interface ComposedMessageRouter<TState, TCtx, TOutput> {
 class MessageRouterImpl<TState, TCtx, TOutput>
   implements MessageRouter<TState, TCtx, TOutput>
 {
-  private readonly handlers = new Map<string, RegisteredHandler<TState, TCtx, TOutput>>()
+  private readonly handlers = new Map<
+    string,
+    CompiledHandler<TState, TCtx, TOutput>
+  >()
+  /** Pre-built `${prefix}/` so the dispatch hot path is a direct `startsWith`. */
+  private readonly prefixSlash: string | undefined
+  private readonly namespacePrefix: string | undefined
 
-  constructor(private readonly namespace: MessageNamespace | undefined) {}
+  constructor(namespace: MessageNamespace | undefined) {
+    if (namespace !== undefined) {
+      this.namespacePrefix = namespace.prefix
+      this.prefixSlash = `${namespace.prefix}/`
+    } else {
+      this.namespacePrefix = undefined
+      this.prefixSlash = undefined
+    }
+  }
 
   on<P>(
     tag: MessageTag<P>,
     handler: Handler<TState, TCtx, TOutput, P>,
   ): MessageRouter<TState, TCtx, TOutput> {
-    if (this.namespace !== undefined) {
+    const ps = this.prefixSlash
+    if (ps !== undefined) {
       validation.ok(
-        this.namespace.owns({ type: tag.type, payload: {} }),
-        `message tag ${tag.type} is not in router namespace ${this.namespace.prefix}`,
+        tag.type.startsWith(ps),
+        `message tag ${tag.type} is not in router namespace ${this.namespacePrefix}`,
       )
     }
     validation.ok(
       !this.handlers.has(tag.type),
       `duplicate message router registration for type: ${tag.type}`,
     )
-    this.handlers.set(tag.type, {
-      validatePayload: tag.validatePayload as MessagePayloadValidator<unknown>,
-      handler: handler as Handler<TState, TCtx, TOutput, unknown>,
-    })
+
+    const fullType = tag.type
+    const validatePayload =
+      tag.validatePayload as MessagePayloadValidator<unknown>
+    const typedHandler = handler as Handler<TState, TCtx, TOutput, unknown>
+    const compiled: CompiledHandler<TState, TCtx, TOutput> = (
+      state,
+      ctx,
+      msg,
+    ) => {
+      if (!validatePayload(msg.payload)) {
+        validation.fail(`invalid payload for routed message type ${fullType}`, {
+          type: fullType,
+          payload: msg.payload,
+        })
+      }
+      return typedHandler(state, ctx, msg as Message<unknown>)
+    }
+    this.handlers.set(fullType, compiled)
     return this
   }
 
   has(msg: Message): boolean {
-    if (this.namespace !== undefined && !this.namespace.owns(msg)) {
+    const ps = this.prefixSlash
+    if (ps !== undefined && !msg.type.startsWith(ps)) {
       return false
     }
     return this.handlers.has(msg.type)
@@ -95,20 +133,15 @@ class MessageRouterImpl<TState, TCtx, TOutput>
     msg: Message,
     fallback: (state: TState, ctx: TCtx, msg: Message) => TOutput,
   ): TOutput {
-    if (this.namespace !== undefined && !this.namespace.owns(msg)) {
+    const ps = this.prefixSlash
+    if (ps !== undefined && !msg.type.startsWith(ps)) {
       return fallback(state, ctx, msg)
     }
-    const entry = this.handlers.get(msg.type)
-    if (entry === undefined) {
+    const compiled = this.handlers.get(msg.type)
+    if (compiled === undefined) {
       return fallback(state, ctx, msg)
     }
-    if (!entry.validatePayload(msg.payload)) {
-      validation.fail(`invalid payload for routed message type ${msg.type}`, {
-        type: msg.type,
-        payload: msg.payload,
-      })
-    }
-    return entry.handler(state, ctx, msg as Message<unknown>)
+    return compiled(state, ctx, msg)
   }
 }
 
@@ -122,19 +155,13 @@ export function createMessageRouter<TState, TCtx, TOutput>(
   return new MessageRouterImpl<TState, TCtx, TOutput>(namespace)
 }
 
-/** First path segment of `type` (before `/`), matching namespace `prefix` in `prefix/name`. */
-function wirePrefixFromMessageType(type: string): string | undefined {
-  const i = type.indexOf('/')
-  if (i <= 0) {
-    return undefined
-  }
-  return type.slice(0, i)
-}
-
 /**
- * Routes `msg` to the child whose {@link MessageNamespace.prefix} matches the wire prefix
- * of `msg.type` (segment before `/`). Each child should usually be a namespaced router from
- * {@link createMessageRouter}(ns).
+ * Routes `msg` to the child whose {@link MessageNamespace.prefix} matches the wire
+ * prefix of `msg.type` (segment before `/`). Each child should usually be a namespaced
+ * router from {@link createMessageRouter}(ns).
+ *
+ * For typical N (a handful of namespaces), a parallel-array `startsWith` scan beats a
+ * `slice` + `Map.get` lookup because it avoids per-dispatch substring allocation.
  */
 export function createComposedMessageRouter<TState, TCtx, TOutput>(
   children: ReadonlyArray<{
@@ -142,34 +169,40 @@ export function createComposedMessageRouter<TState, TCtx, TOutput>(
     router: MessageRouter<TState, TCtx, TOutput>
   }>,
 ): ComposedMessageRouter<TState, TCtx, TOutput> {
-  const byPrefix = new Map<string, MessageRouter<TState, TCtx, TOutput>>()
+  const seen = new Set<string>()
+  const prefixes: string[] = []
+  const routers: MessageRouter<TState, TCtx, TOutput>[] = []
   for (const { namespace, router } of children) {
     validation.ok(
-      !byPrefix.has(namespace.prefix),
+      !seen.has(namespace.prefix),
       `duplicate composed router namespace prefix: ${namespace.prefix}`,
     )
-    byPrefix.set(namespace.prefix, router)
+    seen.add(namespace.prefix)
+    prefixes.push(`${namespace.prefix}/`)
+    routers.push(router)
   }
+  const n = prefixes.length
 
   return {
     dispatch(state, ctx, msg, fallback) {
-      const prefix = wirePrefixFromMessageType(msg.type)
-      if (prefix === undefined) {
-        return fallback(state, ctx, msg)
+      const type = msg.type
+      for (let i = 0; i < n; i++) {
+        if (type.startsWith(prefixes[i]!)) {
+          // Pass `fallback` through directly; its signature matches what the
+          // child router expects, so we avoid allocating a closure per call.
+          return routers[i]!.dispatch(state, ctx, msg, fallback)
+        }
       }
-      const inner = byPrefix.get(prefix)
-      if (inner === undefined) {
-        return fallback(state, ctx, msg)
-      }
-      return inner.dispatch(state, ctx, msg, () => fallback(state, ctx, msg))
+      return fallback(state, ctx, msg)
     },
     has(msg) {
-      const prefix = wirePrefixFromMessageType(msg.type)
-      if (prefix === undefined) {
-        return false
+      const type = msg.type
+      for (let i = 0; i < n; i++) {
+        if (type.startsWith(prefixes[i]!)) {
+          return routers[i]!.has(msg)
+        }
       }
-      const inner = byPrefix.get(prefix)
-      return inner !== undefined && inner.has(msg)
+      return false
     },
   }
 }
