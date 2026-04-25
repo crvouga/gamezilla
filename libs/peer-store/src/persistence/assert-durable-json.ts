@@ -1,7 +1,7 @@
 import { Assert } from '@gamezilla/lib/assert';
 import type { LogEntry } from './log-entry'
-import type { Command, Snapshot, State } from '../peer-store/peer-store-types'
-import type { Event, Message } from '../protocol/message-types'
+import type { Command, Snapshot, State } from '../store/types'
+import type { Event, Message } from '../events/message-types'
 
 const crash: Assert = Assert.crash();
 

@@ -59,7 +59,7 @@ If your feature is single-player/local-only with no peer coordination, this laye
 | `@gamezilla/peer-store/types` | UI-only: `Event`, `Message`, `StoreError`, `State` |
 | `@gamezilla/peer-store/utils` | `isSystemEvent`, ids |
 | `@gamezilla/peer-store/simulator` | `DeterministicSimulator` |
-| `@gamezilla/peer-store/trust-election` | Standalone `TrustElection` / `computeTrustMap` (not wired into `PeerStore`) |
+| `@gamezilla/peer-store/trust` | Standalone `TrustElection` / `computeTrustMap` (not wired into `PeerStore`) |
 | `@gamezilla/peer-store/store-errors` | Same symbols as root error re-exports |
 
 ### Constructor: `PeerStoreRoomConfig` only
@@ -76,7 +76,7 @@ Use `normalizePeerStoreInit()` if you build configs dynamically and want the sam
 ### Migration from pre-v2
 
 - **Removed** `PeerStoreLegacyInitConfig` (explicit `peerId` + `bootstrap` + `security`). Use `PeerStoreRoomConfig`: `roomSecret`, `secretSeed`, `role: { type: 'host' | 'join', ... }`.
-- **Removed** automatic in-process trust elections (`autoTrustElection`, `trustElectionTimeoutMs`, `authorityStrategy`). For custom alignment, import `@gamezilla/peer-store/trust-election` and drive `PeerTrustUpdate` through the log yourself, or extend in app code.
+- **Removed** automatic in-process trust elections (`autoTrustElection`, `trustElectionTimeoutMs`, `authorityStrategy`). For custom alignment, import `@gamezilla/peer-store/trust` and drive `PeerTrustUpdate` through the log yourself, or extend in app code.
 - **Store errors**: shape vs field failures for join/leave/trust are merged into `PeerStoreJoinInvalid`, `PeerStoreLeaveInvalid`, `PeerStoreTrustInvalid` (check `detail`).
 
 ## Wire security (production posture)
@@ -97,7 +97,7 @@ Use `normalizePeerStoreInit()` if you build configs dynamically and want the sam
 
 ### Standalone trust election
 
-`TrustElection` (see `@gamezilla/peer-store/trust-election`) is **not** started by `PeerStore`. Use it only if you build your own coordination on top of the same transport.
+`TrustElection` (see `@gamezilla/peer-store/trust`) is **not** started by `PeerStore`. Use it only if you build your own coordination on top of the same transport.
 
 ### Transport contract
 
@@ -110,4 +110,4 @@ Use `normalizePeerStoreInit()` if you build configs dynamically and want the sam
 - **Colluding quorum**: authority + majority trust can still behave badly at the application layer—crypto does not prove honesty.
 - **MITM on a shared broadcast bus**: if an attacker can mutate bytes *after* a peer publishes but *before* others receive, followers may reject tampered commits while the publisher already applied locally—treat optimistic local application as UX, not cross-peer safety unless you add stricter commit gating.
 
-See tests under `src/testing/cheating.test.ts` and `trust-election.test.ts` for adversarial coverage.
+See tests under `src/testkit/cheating.test.ts` and `src/trust/election.test.ts` for adversarial coverage.

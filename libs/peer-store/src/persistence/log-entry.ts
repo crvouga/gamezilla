@@ -1,4 +1,4 @@
-import type { Event } from '../protocol/message-types'
+import type { Event } from '../events/message-types'
 
 /**
  * One committed row in the replicated log (global `seq`, monotonic per space).

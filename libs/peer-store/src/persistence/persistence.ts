@@ -1,5 +1,5 @@
 import type { LogEntry } from './log-entry'
-import type { Command, PeerStoreApi } from '../peer-store/peer-store-types'
+import type { Command, PeerStoreApi } from '../store/types'
 
 export type PeerStorePersistenceEntry =
   | { kind: 'command'; command: Command }

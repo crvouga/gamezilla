@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react';
-import { PlaceMark } from '@gamezilla/peer-store/testing/tic-tac-toe';
+import { PlaceMark } from '@gamezilla/peer-store/testkit/tic-tac-toe';
 import type { PeerId, PlaygroundSimulator } from '../simulator/playground';
 
 function isPeerId(value: string): value is PeerId {

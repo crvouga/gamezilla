@@ -2,7 +2,7 @@
  * @gamezilla/peer-store — replicated log + wire sync.
  *
  * Smaller public surface: use `@gamezilla/peer-store/types` for UI-only types.
- * Advanced: `@gamezilla/peer-store/trust-election`, `@gamezilla/peer-store/store-errors`, etc.
+ * Advanced: `@gamezilla/peer-store/trust`, `@gamezilla/peer-store/store-errors`, etc.
  */
 export {
   InMemoryPeerStorePersistence,
@@ -20,8 +20,8 @@ export {
   PeerStore,
   replayDomainEntries,
   replayEvents,
-} from './peer-store';
-export type { PeerStoreCoreInitConfig } from './peer-store/peer-store-config-validate';
+} from './store';
+export type { PeerStoreCoreInitConfig } from './store/validate-init-config';
 export type {
   Command,
   HandleResult,
@@ -37,8 +37,8 @@ export type {
   State,
   StoreEffect,
   StoreModule,
-} from './peer-store/peer-store-types';
-export type { Event, Message, StoreError } from './protocol/message-types';
+} from './store/types';
+export type { Event, Message, StoreError } from './events/message-types';
 export {
   PeerStoreDuplicatePeer,
   PeerStoreInvalidPublicKey,
@@ -53,12 +53,12 @@ export {
   PeerStoreUnknownPeer,
   PeerStoreUnknownSystemCommand,
   PeerStoreWireAuthFailed,
-} from './protocol/store-errors';
+} from './events/store-errors';
 export {
   generateId,
   isSystemEvent,
   SYSTEM_EVENT_PREFIX,
-} from './protocol/utils';
+} from './events/utils';
 export { DeterministicSimulator } from './simulator';
 export {
   InMemoryBus,

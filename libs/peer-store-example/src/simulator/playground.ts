@@ -4,11 +4,11 @@ import {
   MarkPlaced,
   PlaceMark,
   TicTacToeModule,
-} from '@gamezilla/peer-store/testing/tic-tac-toe';
+} from '@gamezilla/peer-store/testkit/tic-tac-toe';
 import {
   testPeerForLabel,
   type TicTacToeTestPeer,
-} from '@gamezilla/peer-store/testing/tictactoe-peers';
+} from '@gamezilla/peer-store/testkit/tic-tac-toe-peers';
 import type { Event, Message, State } from '@gamezilla/peer-store/types';
 import { isSystemEvent } from '@gamezilla/peer-store/utils';
 import { formatLogForClipboard } from './playground-format';
@@ -449,7 +449,7 @@ export class PlaygroundSimulator {
       kind: 'cheat',
       tag: 'cheat',
       summary: `flood from ${flooderId}: ${accepted} accepted, ${rejected} rejected`,
-      code: `// flood: 20x dispatch from '${flooderId}' with alternating X/O\nimport { PlaceMark } from '@gamezilla/peer-store/testing/tic-tac-toe'\nfor (let i = 0; i < 20; i++) {\n  try {\n    sim.dispatch('${flooderId}', PlaceMark({ cell: i % 9, player: (i % 2 === 0 ? 'X' : 'O') as 'X' | 'O' }))\n  } catch {}\n}`,
+      code: `// flood: 20x dispatch from '${flooderId}' with alternating X/O\nimport { PlaceMark } from '@gamezilla/peer-store/testkit/tic-tac-toe'\nfor (let i = 0; i < 20; i++) {\n  try {\n    sim.dispatch('${flooderId}', PlaceMark({ cell: i % 9, player: (i % 2 === 0 ? 'X' : 'O') as 'X' | 'O' }))\n  } catch {}\n}`,
       peerId: flooderId,
       detected: rejected > 0,
     });

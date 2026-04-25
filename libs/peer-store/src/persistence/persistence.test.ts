@@ -11,17 +11,17 @@ import {
   expect,
   it,
 } from 'bun:test';
-import { PeerStore } from '../peer-store';
-import type { Command } from '../peer-store/peer-store-types';
-import { isSystemEvent } from '../protocol/utils';
+import { PeerStore } from '../store';
+import type { Command } from '../store/types';
+import { isSystemEvent } from '../events/utils';
 import {
   MarkPlaced,
   PlaceMark,
   TicTacToeModule,
-} from '../testing/fixtures/tic-tac-toe.module';
-import { TestCrashHandler } from '../testing/test-crash-handler';
-import { ticTacToeBoardCell } from '../testing/tic-tac-toe-board';
-import { testPeerForLabel, ticTacToeThreePeers } from '../testing/tictactoe-peers';
+} from '../testkit/fixtures/tic-tac-toe.module';
+import { TestCrashHandler } from '../testkit/test-crash-handler';
+import { ticTacToeBoardCell } from '../testkit/tic-tac-toe-board';
+import { testPeerForLabel, ticTacToeThreePeers } from '../testkit/tic-tac-toe-peers';
 import { InMemoryBus, InMemoryTransport } from '../transport';
 import { recoverPeerStoreFromPersistence } from './persistence';
 import { InMemoryPeerStorePersistence } from './persistence-in-memory';

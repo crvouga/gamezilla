@@ -1,12 +1,12 @@
 import { Assert } from '@gamezilla/lib/assert'
-import { PeerStore } from '../peer-store'
+import { PeerStore } from '../store'
 import { InMemoryBus, InMemoryTransport, type MessageInterceptor } from '../transport'
 import type { LogEntry } from '../persistence/log-entry'
-import type { Event, Message, StoreError } from '../protocol/message-types'
-import type { Command, State, StoreModule } from '../peer-store/peer-store-types'
-import { PeerJoin, PeerLeave } from '../protocol/system-messages'
-import { generateId, isSystemEvent } from '../protocol/utils'
-import { testPeerForLabel } from '../testing/tictactoe-peers'
+import type { Event, Message, StoreError } from '../events/message-types'
+import type { Command, State, StoreModule } from '../store/types'
+import { PeerJoin, PeerLeave } from '../events/system-messages'
+import { generateId, isSystemEvent } from '../events/utils'
+import { testPeerForLabel } from '../testkit/tic-tac-toe-peers'
 
 const crash: Assert = Assert.crash()
 
