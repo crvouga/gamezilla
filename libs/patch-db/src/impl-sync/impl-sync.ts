@@ -317,6 +317,7 @@ export class SyncPatchesDb implements PatchesDb {
       );
       this.pushConsecutiveFailures = 0;
       this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
+      await this.poll();
     } catch (err) {
       this.pushConsecutiveFailures += 1;
       if (this.logPushPollFailures) {
