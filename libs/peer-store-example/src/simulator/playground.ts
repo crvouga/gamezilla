@@ -1,16 +1,16 @@
-import { Assert, assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/lib/assert';
+import { PeerTrustUpdate } from '@gamezilla/peer-store/system-messages';
 import { DeterministicSimulator } from '@gamezilla/peer-store/simulator';
 import {
-  MarkPlaced,
-  PlaceMark,
+  TickClock,
   TicTacToeModule,
 } from '@gamezilla/peer-store/testkit/tic-tac-toe';
 import {
   testPeerForLabel,
   type TicTacToeTestPeer,
 } from '@gamezilla/peer-store/testkit/tic-tac-toe-peers';
+import { computeTrustMap, type TrustVote } from '@gamezilla/peer-store/trust';
 import type { Event, Message, State } from '@gamezilla/peer-store/types';
-import { isSystemEvent } from '@gamezilla/peer-store/utils';
 import { formatLogForClipboard } from './playground-format';
 import {
   PEERS,
@@ -18,6 +18,10 @@ import {
   type LogEntry,
   type PeerId,
 } from './playground-types';
+import {
+  createCheatController,
+  type CheatController,
+} from './playground-cheats';
 
 export {
   PEERS,
@@ -28,7 +32,20 @@ export {
   type PeerId
 } from './playground-types';
 
-const crash: Assert = Assert.crash();
+export type PeerCryptoSummary = {
+  label: PeerId;
+  peerId: string;
+  publicKeyB64: string;
+};
+
+export type SimClockSnapshot = {
+  clockStatus: 'idle' | 'running' | 'finished';
+  remainingMsX: number;
+  remainingMsO: number;
+  clockActivePlayer: 'X' | 'O' | null;
+};
+
+export type ElectionRanking = Record<PeerId, PeerId[]>;
 
 assert.notThrows(
   () => testPeerForLabel('peer-store-playground:import-smoke'),
@@ -39,32 +56,42 @@ function playgroundPeer(id: PeerId): TicTacToeTestPeer {
   return testPeerForLabel(`peer-store-playground:${id}`);
 }
 
-function wireRecord(payload: unknown): Record<string, unknown> {
-  crash.record(payload, 'wire payload must be a plain object');
-  return payload;
-}
-
 export class PlaygroundSimulator {
   private sim: DeterministicSimulator;
   private readonly peerBinding: Record<PeerId, TicTacToeTestPeer>;
+  private trust_map: Record<PeerId, number>;
   private entries: LogEntry[] = [];
   private next_id = 0;
   private listeners = new Set<() => void>();
-  private spoofing_peers = new Set<PeerId>();
+  private readonly cheats: CheatController;
 
   constructor() {
+    this.trust_map = { ...TRUST_MAP };
     this.peerBinding = {
       'player-x': playgroundPeer('player-x'),
       'player-o': playgroundPeer('player-o'),
       server: playgroundPeer('server'),
-      observer: playgroundPeer('observer'),
     };
     this.sim = this.createSim();
+    this.cheats = createCheatController({
+      getSim: () => this.sim,
+      simPeer: (peerId) => this.simPeer(peerId),
+      pushEntry: (fields) => this.pushEntry(fields),
+      logNewEvents: (eventsBefore) => this.logNewEvents(eventsBefore),
+      notify: () => this.notify(),
+    });
   }
 
   /** Map UI peer label → simulator / `PeerStore` peer id (Ed25519-derived). */
   private simPeer(p: PeerId): string {
     return this.peerBinding[p].peerId;
+  }
+
+  private labelForSimPeer(simPeerId: string): PeerId | null {
+    for (const peerId of PEERS) {
+      if (this.simPeer(peerId) === simPeerId) return peerId;
+    }
+    return null;
   }
 
   private createSim(): DeterministicSimulator {
@@ -73,7 +100,7 @@ export class PlaygroundSimulator {
     const peerSecretSeeds: Record<string, Uint8Array> = {};
     for (const p of PEERS) {
       const b = this.peerBinding[p]!;
-      initialMembership[b.peerId] = TRUST_MAP[p];
+      initialMembership[b.peerId] = this.trust_map[p];
       initialMemberPublicKeys[b.peerId] = b.publicKeyB64;
       peerSecretSeeds[b.peerId] = b.secretSeed;
     }
@@ -129,6 +156,103 @@ export class PlaygroundSimulator {
 
   getEventLog(peerId: PeerId): Event[] {
     return this.sim.getEventLog(this.simPeer(peerId));
+  }
+
+  getLogicalTimeMs(): number {
+    return this.sim.getLogicalTimeMs();
+  }
+
+  getClockSnapshot(peerId: PeerId = 'server'): SimClockSnapshot {
+    const snap = this.sim.getClockSnapshot(this.simPeer(peerId));
+    const active = snap.clockActivePlayer;
+    return {
+      clockStatus:
+        snap.clockStatus === 'running' || snap.clockStatus === 'finished'
+          ? snap.clockStatus
+          : 'idle',
+      remainingMsX:
+        typeof snap.remainingMsX === 'number' && Number.isFinite(snap.remainingMsX)
+          ? Math.max(0, snap.remainingMsX)
+          : 0,
+      remainingMsO:
+        typeof snap.remainingMsO === 'number' && Number.isFinite(snap.remainingMsO)
+          ? Math.max(0, snap.remainingMsO)
+          : 0,
+      clockActivePlayer: active === 'X' || active === 'O' ? active : null,
+    };
+  }
+
+  getPeerCryptoSummary(): PeerCryptoSummary[] {
+    return PEERS.map((label) => {
+      const peer = this.peerBinding[label];
+      return {
+        label,
+        peerId: peer.peerId,
+        publicKeyB64: peer.publicKeyB64,
+      };
+    });
+  }
+
+  getTrustMap(): Record<PeerId, number> {
+    return { ...this.trust_map };
+  }
+
+  getCurrentAuthorityLabel(): PeerId {
+    let best: PeerId = PEERS[0]!;
+    for (const peerId of PEERS) {
+      const peerTrust = this.trust_map[peerId];
+      const bestTrust = this.trust_map[best];
+      if (peerTrust > bestTrust) {
+        best = peerId;
+      }
+    }
+    return best;
+  }
+
+  getWireAuthFailures(): string[] {
+    return this.sim.getWireAuthFailures();
+  }
+
+  applyElectionRankings(rankings: ElectionRanking): void {
+    const votes: TrustVote[] = [];
+    for (const voter of PEERS) {
+      const ranked = rankings[voter];
+      const trustedPeer = ranked.find((candidate) => candidate !== voter) ?? voter;
+      votes.push({
+        from: this.simPeer(voter),
+        trustedPeer: this.simPeer(trustedPeer),
+      });
+    }
+    const elected = computeTrustMap(
+      votes,
+      PEERS.map((peerId) => this.simPeer(peerId)),
+    );
+
+    const nextTrustMap: Record<PeerId, number> = { ...this.trust_map };
+    for (const [simPeerId, trust] of Object.entries(elected)) {
+      const label = this.labelForSimPeer(simPeerId);
+      if (!label) continue;
+      nextTrustMap[label] = trust;
+    }
+
+    const previousAuthority = this.getCurrentAuthorityLabel();
+    for (const peerId of PEERS) {
+      this.dispatch(
+        'server',
+        PeerTrustUpdate({
+          peerId: this.simPeer(peerId),
+          trust: nextTrustMap[peerId],
+        }),
+      );
+    }
+    this.trust_map = nextTrustMap;
+    const nextAuthority = this.getCurrentAuthorityLabel();
+    this.pushEntry({
+      kind: 'effect',
+      tag: 'trust',
+      summary: `election applied: authority ${previousAuthority} → ${nextAuthority}`,
+    });
+    this.notify();
   }
 
   pauseDelivery(): void {
@@ -188,13 +312,33 @@ export class PlaygroundSimulator {
     this.notify();
   }
 
-  advanceTime(ms: number): void {
-    this.pushEntry({
-      kind: 'action',
-      tag: 'network',
-      summary: `advance time ${ms}ms (not available in browser)`,
-      code: `sim.advanceTime(${ms})`,
-    });
+  advanceTime(ms: number, opts?: { silent?: boolean }): void {
+    const eventsBefore = this.sim.getEventLog(this.simPeer('server')).length;
+    const errorsBefore = this.sim.getErrorLog().length;
+    this.sim.advanceTime(ms);
+    this.sim.dispatch(this.simPeer('server'), TickClock({ elapsedMs: ms }));
+    if (!opts?.silent) {
+      this.pushEntry({
+        kind: 'action',
+        tag: 'network',
+        summary: `advance time ${ms}ms + tick clock`,
+        code: `sim.advanceTime(${ms}); sim.dispatch('server', TickClock({ elapsedMs: ${ms} }))`,
+      });
+    }
+    const errorsAfter = this.sim.getErrorLog().length;
+    if (errorsAfter > errorsBefore) {
+      const latestError = this.sim.getErrorLog()[errorsAfter - 1];
+      if (latestError) {
+        if (!opts?.silent) {
+          this.pushEntry({
+            kind: 'effect',
+            tag: 'rejected',
+            summary: `rejected: ${latestError.type}`,
+          });
+        }
+      }
+    }
+    this.logNewEvents(eventsBefore);
     this.notify();
   }
 
@@ -215,276 +359,59 @@ export class PlaygroundSimulator {
   }
 
   isSpoofing(peerId: PeerId): boolean {
-    return this.spoofing_peers.has(peerId);
+    return this.cheats.isSpoofing(peerId);
   }
 
   toggleSpoof(peerId: PeerId): void {
-    if (this.spoofing_peers.has(peerId)) {
-      this.spoofing_peers.delete(peerId);
-      this.pushEntry({
-        kind: 'effect',
-        tag: 'cheat',
-        summary: `${peerId} spoof mode OFF`,
-        peerId,
-      });
-    } else {
-      this.spoofing_peers.add(peerId);
-      this.pushEntry({
-        kind: 'effect',
-        tag: 'cheat',
-        summary: `${peerId} spoof mode ON — moves will use wrong identity`,
-        peerId,
-      });
-    }
-    this.notify();
+    this.cheats.toggleSpoof(peerId);
   }
 
   dispatchWithSpoof(peerId: PeerId, message: Message): void {
-    if (this.spoofing_peers.has(peerId) && message.type === PlaceMark.type) {
-      const payload = wireRecord(message.payload);
-      const spoofedPlayer = payload['player'] === 'X' ? 'O' : 'X';
-      const spoofedMessage: Message = {
-        ...message,
-        payload: { ...payload, player: spoofedPlayer },
-      };
-      const eventsBefore = this.sim.getEventLog(this.simPeer('server')).length;
-      try {
-        this.sim.dispatch(this.simPeer(peerId), spoofedMessage);
-      } catch {
-        this.pushEntry({
-          kind: 'cheat',
-          tag: 'cheat',
-          summary: `${peerId} spoofed as ${spoofedPlayer} — rejected`,
-          code: `sim.dispatch('${peerId}', ${JSON.stringify(spoofedMessage)})`,
-          peerId,
-          detected: true,
-        });
-        this.notify();
-        return;
-      }
-      this.pushEntry({
-        kind: 'cheat',
-        tag: 'cheat',
-        summary: `${peerId} spoofed as ${spoofedPlayer} — accepted`,
-        code: `sim.dispatch('${peerId}', ${JSON.stringify(spoofedMessage)})`,
-        peerId,
-        detected: false,
-      });
-      this.logNewEvents(eventsBefore);
-      this.notify();
-      return;
-    }
+    if (this.cheats.dispatchWithSpoof(peerId, message)) return;
     this.dispatch(peerId, message);
   }
 
-  // ─── Cheat scenarios ───────────────────────────────────────────
-
   cheatSpoofIdentity(attackerId: PeerId): void {
-    const spoofedPlayer = attackerId === 'player-x' ? 'O' : 'X';
-    const message: Message = PlaceMark({
-      cell: 4,
-      player: spoofedPlayer as 'X' | 'O',
-    });
-    try {
-      this.sim.dispatch(this.simPeer(attackerId), message);
-      this.pushEntry({
-        kind: 'cheat',
-        tag: 'cheat',
-        summary: `${attackerId} played as ${spoofedPlayer} — authority accepted`,
-        code: `sim.dispatch('${attackerId}', ${JSON.stringify(message)})`,
-        peerId: attackerId,
-        detected: false,
-      });
-    } catch {
-      this.pushEntry({
-        kind: 'cheat',
-        tag: 'cheat',
-        summary: `${attackerId} spoofed as ${spoofedPlayer} — rejected`,
-        code: `sim.dispatch('${attackerId}', ${JSON.stringify(message)})`,
-        peerId: attackerId,
-        detected: true,
-      });
-    }
-    this.notify();
+    this.cheats.cheatSpoofIdentity(attackerId);
+  }
+
+  cheatUnauthorizedTrustUpdate(attackerId: PeerId): void {
+    this.cheats.cheatUnauthorizedTrustUpdate(attackerId);
+  }
+
+  cheatForceClockTick(attackerId: PeerId, elapsedMs: number): void {
+    this.cheats.cheatForceClockTick(attackerId, elapsedMs);
   }
 
   cheatFabricateCommit(): void {
-    const errorsBefore = this.sim.getErrorLog().length;
-    const nextSeq = this.sim.getLatestSeq(this.simPeer('server')) + 1;
-    const wireMsg = {
-      kind: 'accepted',
-      commandId: `fabricated-${Date.now()}`,
-      entries: [
-        {
-          seq: nextSeq,
-          event: MarkPlaced({ cell: 0, player: 'X', seq: 99 }),
-        },
-      ],
-    };
-    this.sim.injectWireMessage(wireMsg);
-    const detected = this.sim.getErrorLog().length > errorsBefore;
-    this.pushEntry({
-      kind: 'cheat',
-      tag: 'cheat',
-      summary: detected
-        ? 'fabricated commit was rejected'
-        : 'fabricated commit was accepted by all peers',
-      code: `sim.injectWireMessage(${JSON.stringify(wireMsg)})`,
-      peerId: 'wire',
-      detected,
-    });
-    this.notify();
+    this.cheats.cheatFabricateCommit();
   }
 
   cheatReplay(): void {
-    const domain = this.sim
-      .getCommittedLogEntries(this.simPeer('server'))
-      .filter((e) => !isSystemEvent(e.event));
-    if (domain.length === 0) {
-      this.pushEntry({
-        kind: 'cheat',
-        tag: 'cheat',
-        summary: 'replay failed — no events to replay',
-        peerId: 'wire',
-        detected: false,
-      });
-      this.notify();
-      return;
-    }
-    const start = this.sim.getLatestSeq(this.simPeer('server')) + 1;
-    const entries = domain.map((e, i) => ({
-      seq: start + i,
-      event: e.event,
-    }));
-    const wireMsg = {
-      kind: 'accepted',
-      commandId: `replay-${Date.now()}`,
-      entries,
-    };
-    this.sim.injectWireMessage(wireMsg);
-    this.pushEntry({
-      kind: 'cheat',
-      tag: 'cheat',
-      summary: `replayed ${domain.length} event(s) with new commandId`,
-      code: `sim.injectWireMessage(${JSON.stringify(wireMsg)})`,
-      peerId: 'wire',
-      detected: false,
-    });
-    this.notify();
+    this.cheats.cheatReplay();
   }
 
   cheatTamperEvents(): void {
-    this.sim.setMessageInterceptor((_topic, payload) => {
-      if (
-        payload === null ||
-        typeof payload !== 'object' ||
-        Array.isArray(payload)
-      ) {
-        return payload;
-      }
-      const msg = wireRecord(payload);
-      if (msg['kind'] !== 'accepted') return payload;
-      const entriesRaw = msg['entries'];
-      crash.array(entriesRaw, 'accepted.entries must be an array');
-      const newEntries = entriesRaw.map((row) => {
-        crash.record(row, 'log entry must be object');
-        const seq = row['seq'];
-        crash.number(seq, 'entry.seq must be number');
-        const event = row['event'];
-        crash.record(event, 'entry.event must be object');
-        const type = event['type'];
-        if (type !== MarkPlaced.type) return row;
-        const p = event['payload'];
-        crash.record(p, 'MARK_PLACED payload must be object');
-        const cellRaw = p['cell'];
-        crash.number(cellRaw, 'cell must be number');
-        const newCell = (cellRaw + 4) % 9;
-        return {
-          seq,
-          event: {
-            ...event,
-            payload: { ...p, cell: newCell },
-          },
-        };
-      });
-      return { ...msg, entries: newEntries };
-    });
-    this.pushEntry({
-      kind: 'cheat',
-      tag: 'cheat',
-      summary:
-        'MITM interceptor active — accepted entries will have cells shifted by +4',
-      code: [
-        'sim.setMessageInterceptor((_topic, payload) => {',
-        '  const msg = payload as Record<string, unknown>',
-        '  if (msg["kind"] === "accepted") {',
-        '    const entries = msg["entries"] as Array<{ seq: number; event: Record<string, unknown> }>',
-        '    return { ...msg, entries: entries.map((row) => {',
-        '      const e = row.event',
-        `      if (e["type"] === "${MarkPlaced.type}") {`,
-        '        const p = e["payload"] as Record<string, unknown>',
-        '        return { seq: row.seq, event: { ...e, payload: { ...p, cell: ((p["cell"] as number) + 4) % 9 } } }',
-        '      }',
-        '      return row',
-        '    }) }',
-        '  }',
-        '  return payload',
-        '})',
-      ].join('\n'),
-      peerId: 'wire',
-      detected: false,
-    });
-    this.notify();
+    this.cheats.cheatTamperEvents();
   }
 
   cheatClearInterceptor(): void {
-    this.sim.setMessageInterceptor(null);
-    this.pushEntry({
-      kind: 'action',
-      tag: 'cheat',
-      summary: 'interceptor cleared',
-      code: 'sim.setMessageInterceptor(null)',
-      peerId: 'wire',
-    });
-    this.notify();
+    this.cheats.cheatClearInterceptor();
   }
 
   cheatFlood(flooderId: PeerId): void {
-    let accepted = 0;
-    let rejected = 0;
-    for (let i = 0; i < 20; i++) {
-      try {
-        this.sim.dispatch(
-          this.simPeer(flooderId),
-          PlaceMark({
-            cell: i % 9,
-            player: (i % 2 === 0 ? 'X' : 'O') as 'X' | 'O',
-          })
-        );
-        accepted++;
-      } catch {
-        rejected++;
-      }
-    }
-    this.pushEntry({
-      kind: 'cheat',
-      tag: 'cheat',
-      summary: `flood from ${flooderId}: ${accepted} accepted, ${rejected} rejected`,
-      code: `// flood: 20x dispatch from '${flooderId}' with alternating X/O\nimport { PlaceMark } from '@gamezilla/peer-store/testkit/tic-tac-toe'\nfor (let i = 0; i < 20; i++) {\n  try {\n    sim.dispatch('${flooderId}', PlaceMark({ cell: i % 9, player: (i % 2 === 0 ? 'X' : 'O') as 'X' | 'O' }))\n  } catch {}\n}`,
-      peerId: flooderId,
-      detected: rejected > 0,
-    });
-    this.notify();
+    this.cheats.cheatFlood(flooderId);
   }
 
   // ─── Lifecycle ─────────────────────────────────────────────────
 
   reset(): void {
     this.sim.destroy();
+    this.trust_map = { ...TRUST_MAP };
     this.sim = this.createSim();
     this.entries = [];
     this.next_id = 0;
-    this.spoofing_peers.clear();
+    this.cheats.reset();
     this.notify();
   }
 
@@ -498,7 +425,6 @@ export class PlaygroundSimulator {
       'player-x': this.sim.getState(this.simPeer('player-x')),
       'player-o': this.sim.getState(this.simPeer('player-o')),
       server: this.sim.getState(this.simPeer('server')),
-      observer: this.sim.getState(this.simPeer('observer')),
     };
     return formatLogForClipboard({
       entries: this.entries,

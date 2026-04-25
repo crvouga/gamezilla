@@ -12,8 +12,6 @@ function peerRole(peerId: PeerId): string {
       return 'Player O';
     case 'server':
       return 'Server';
-    case 'observer':
-      return 'Observer';
   }
 }
 
@@ -24,7 +22,6 @@ function peerPlayer(peerId: PeerId): 'X' | 'O' | null {
 }
 
 export function PeerGrid({
-  tick,
   sim,
   handlers,
   peerActions,
@@ -32,7 +29,6 @@ export function PeerGrid({
   cheaterIds,
   panelWidth,
 }: {
-  tick: number;
   sim: PlaygroundSimulator;
   handlers: PeerHandlers;
   peerActions: Record<PeerId, PeerAction[]>;
@@ -50,7 +46,7 @@ export function PeerGrid({
     >
       {PEERS.map((peerId) => (
         <PeerGridItem
-          key={`${peerId}-${tick}`}
+          key={peerId}
           peerId={peerId}
           sim={sim}
           handlers={handlers}

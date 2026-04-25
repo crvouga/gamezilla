@@ -25,7 +25,7 @@ function derivePanelState(
     hasOptimistic: JSON.stringify(displayState) !== JSON.stringify(committedState),
     turnHint:
       player === null
-        ? 'Observer'
+        ? 'Authority/relay node'
         : gameCompleted
           ? 'Game completed'
           : isPlayerTurn

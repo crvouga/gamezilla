@@ -3,12 +3,7 @@ import { PlaceMark } from '@gamezilla/peer-store/testkit/tic-tac-toe';
 import type { PeerId, PlaygroundSimulator } from '../simulator/playground';
 
 function isPeerId(value: string): value is PeerId {
-  return (
-    value === 'player-x' ||
-    value === 'player-o' ||
-    value === 'server' ||
-    value === 'observer'
-  );
+  return value === 'player-x' || value === 'player-o' || value === 'server';
 }
 
 export type PeerHandlers = {

@@ -2,12 +2,11 @@ export const TRUST_MAP = {
   'player-x': 1,
   'player-o': 1,
   server: 3,
-  observer: 1,
 } as const;
 
 export type PeerId = keyof typeof TRUST_MAP;
 
-export const PEERS: PeerId[] = ['player-x', 'player-o', 'server', 'observer'];
+export const PEERS: PeerId[] = ['player-x', 'player-o', 'server'];
 
 export type LogEntry = {
   id: number;
