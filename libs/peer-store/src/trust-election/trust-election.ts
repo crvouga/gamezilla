@@ -1,32 +1,20 @@
 import { Assert } from '@gamezilla/lib/assert';
 import type { Transport } from '../transport/transport-types';
+import { fingerprintFromPublicKey } from '../peer-store/security/peer-crypto';
+import {
+  signTrustBallotEnvelope,
+  trustElectionTransportTopic,
+  verifyTrustBallotEnvelope,
+  type TrustBallotBody,
+  type VerifiedTrustBallot,
+} from './trust-ballot-envelope';
 
 const crash: Assert = Assert.crash();
-
-const TOPIC = 'trust-election';
 
 export type TrustVote = {
   from: string;
   trustedPeer: string;
 };
-
-type VoteWireMessage = {
-  kind: 'trust-vote';
-  from: string;
-  trustedPeer: string;
-};
-
-function parseTrustVoteMessage(payload: unknown): TrustVote | null {
-  if (typeof payload !== 'object' || payload === null) return null;
-  crash.record(payload, 'trust vote payload must be a plain object');
-  const msg = payload;
-  if (msg['kind'] !== 'trust-vote') return null;
-  const from = msg['from'];
-  const trustedPeer = msg['trustedPeer'];
-  if (typeof from !== 'string' || typeof trustedPeer !== 'string') return null;
-  if (!from || !trustedPeer) return null;
-  return { from, trustedPeer };
-}
 
 /**
  * Computes a deterministic trust map from a set of votes.
@@ -34,10 +22,12 @@ function parseTrustVoteMessage(payload: unknown): TrustVote | null {
  * Every peer in `allPeers` receives a base weight of 1. Each vote for a peer
  * adds 1 to that peer's weight. The resulting map can be passed directly to
  * `PeerStore` — the peer with the highest weight becomes the authority.
+ *
+ * If `votes` contains multiple rows for the same `from`, **first** wins.
  */
 export function computeTrustMap(
   votes: TrustVote[],
-  allPeers: string[]
+  allPeers: string[],
 ): Record<string, number> {
   crash.ok(allPeers.length >= 2, 'computeTrustMap requires at least 2 peers');
 
@@ -46,15 +36,18 @@ export function computeTrustMap(
     crash.nonEmptyString(peer, 'peer id must be non-empty');
     trust[peer] = 1;
   }
+  const seenVoter = new Set<string>();
   for (const vote of votes) {
     crash.nonEmptyString(vote.from, 'vote.from must be non-empty');
     crash.nonEmptyString(
       vote.trustedPeer,
-      'vote.trustedPeer must be non-empty'
+      'vote.trustedPeer must be non-empty',
     );
+    if (seenVoter.has(vote.from)) continue;
+    seenVoter.add(vote.from);
     crash.ok(
       vote.trustedPeer in trust,
-      `vote.trustedPeer "${vote.trustedPeer}" is not in allPeers`
+      `vote.trustedPeer "${vote.trustedPeer}" is not in allPeers`,
     );
     trust[vote.trustedPeer]! += 1;
   }
@@ -62,23 +55,23 @@ export function computeTrustMap(
 }
 
 /**
- * Lightweight trust election protocol.
- *
- * Each peer votes for who they trust as authority. When all expected peers
- * have voted, the election resolves with a deterministic trust map computed
- * by `computeTrustMap`.
- *
- * The election runs over the same `Transport` used by `PeerStore`, on a
- * separate topic (`trust-election`).
+ * Signed trust election over `Transport` on topic `trust-election:<electionId>`.
  */
 export class TrustElection {
   private readonly peerId: string;
+  private readonly electionId: string;
+  private readonly topic: string;
+  private readonly roomSecret: string;
+  private readonly secretSeed: Uint8Array;
   private readonly expectedPeers: Set<string>;
+  private readonly peerFingerprints: Record<string, string> | undefined;
   private readonly transport: Transport;
   private readonly myVote: string;
   private readonly timeoutMs: number;
 
   private readonly received_votes = new Map<string, TrustVote>();
+  private readonly inboundCounters = new Map<string, number>();
+  private outboundCounter = 0;
   private resolved = false;
   private is_destroyed = false;
   private transport_unsubscribe: (() => void) | null = null;
@@ -87,30 +80,46 @@ export class TrustElection {
   private resolve_fn: ((map: Record<string, number>) => void) | null = null;
 
   constructor(config: {
+    electionId: string;
     peerId: string;
     expectedPeers: string[];
     transport: Transport;
     myVote: string;
+    roomSecret: string;
+    secretSeed: Uint8Array;
+    peerFingerprints?: Record<string, string>;
     timeoutMs?: number;
   }) {
+    crash.nonEmptyString(config.electionId, 'electionId must be non-empty');
     crash.nonEmptyString(config.peerId, 'config.peerId must be non-empty');
     crash.ok(
       config.expectedPeers.length >= 2,
-      'expectedPeers must have at least 2 members'
+      'expectedPeers must have at least 2 members',
     );
     crash.ok(
       config.expectedPeers.includes(config.peerId),
-      'expectedPeers must include peerId'
+      'expectedPeers must include peerId',
     );
     crash.ok(
       config.expectedPeers.includes(config.myVote),
-      'myVote must be one of expectedPeers'
+      'myVote must be one of expectedPeers',
+    );
+    crash.nonEmptyString(config.roomSecret, 'roomSecret must be non-empty');
+    crash.ok(
+      config.secretSeed instanceof Uint8Array &&
+        config.secretSeed.length === 32,
+      'secretSeed must be Uint8Array length 32',
     );
 
+    this.electionId = config.electionId;
+    this.topic = trustElectionTransportTopic(config.electionId);
     this.peerId = config.peerId;
     this.expectedPeers = new Set(config.expectedPeers);
     this.transport = config.transport;
     this.myVote = config.myVote;
+    this.roomSecret = config.roomSecret;
+    this.secretSeed = config.secretSeed;
+    this.peerFingerprints = config.peerFingerprints;
     this.timeoutMs = config.timeoutMs ?? 10_000;
 
     this.received_votes.set(this.peerId, {
@@ -118,9 +127,8 @@ export class TrustElection {
       trustedPeer: this.myVote,
     });
 
-    this.transport_unsubscribe = this.transport.subscribe(
-      TOPIC,
-      (payload: unknown) => this.handleMessage(payload)
+    this.transport_unsubscribe = this.transport.subscribe(this.topic, (payload: unknown) =>
+      this.handleMessage(payload),
     );
 
     this.connect_unsubscribe = this.transport.onConnect(() => {
@@ -170,23 +178,71 @@ export class TrustElection {
 
   private broadcastVote(): void {
     if (this.is_destroyed || this.resolved) return;
-    const wire: VoteWireMessage = {
-      kind: 'trust-vote',
-      from: this.peerId,
+    this.outboundCounter += 1;
+    const body: TrustBallotBody = {
+      kind: 'trust-vote-v2',
+      electionId: this.electionId,
+      voterPeerId: this.peerId,
       trustedPeer: this.myVote,
     };
-    this.transport.publish(TOPIC, wire);
+    const env = signTrustBallotEnvelope({
+      electionId: this.electionId,
+      topic: this.topic,
+      roomSecret: this.roomSecret,
+      body,
+      signerPeerId: this.peerId,
+      secretSeed: this.secretSeed,
+      counter: this.outboundCounter,
+    });
+    this.transport.publish(this.topic, env);
   }
 
   private handleMessage(payload: unknown): void {
     if (this.is_destroyed || this.resolved) return;
-    const vote = parseTrustVoteMessage(payload);
-    if (vote === null) return;
-    if (!this.expectedPeers.has(vote.from)) return;
-    if (vote.from === this.peerId) return;
+    const vr = verifyTrustBallotEnvelope({
+      topic: this.topic,
+      roomSecret: this.roomSecret,
+      raw: payload,
+      lastCounters: this.inboundCounters,
+    });
+    if (!('signerPublicKey' in vr)) return;
+    this.applyVerifiedBallot(vr);
+  }
 
-    const isNew = !this.received_votes.has(vote.from);
-    this.received_votes.set(vote.from, vote);
+  private trustBallotFingerprintOk(
+    signerPeerId: string,
+    signerPublicKey: Uint8Array,
+  ): boolean {
+    const expectedFp = this.peerFingerprints?.[signerPeerId];
+    if (expectedFp === undefined) return true;
+    return fingerprintFromPublicKey(signerPublicKey) === expectedFp;
+  }
+
+  private trustBallotContextOk(
+    signerPeerId: string,
+    body: TrustBallotBody,
+  ): boolean {
+    return (
+      body.electionId === this.electionId &&
+      this.expectedPeers.has(signerPeerId) &&
+      this.expectedPeers.has(body.trustedPeer) &&
+      signerPeerId !== this.peerId
+    );
+  }
+
+  private applyVerifiedBallot(vr: VerifiedTrustBallot): void {
+    const { signerPeerId, signerPublicKey, counter, body } = vr;
+
+    if (!this.trustBallotFingerprintOk(signerPeerId, signerPublicKey)) return;
+    if (!this.trustBallotContextOk(signerPeerId, body)) return;
+
+    this.inboundCounters.set(signerPeerId, counter);
+
+    const isNew = !this.received_votes.has(signerPeerId);
+    this.received_votes.set(signerPeerId, {
+      from: signerPeerId,
+      trustedPeer: body.trustedPeer,
+    });
 
     if (isNew) {
       this.broadcastVote();

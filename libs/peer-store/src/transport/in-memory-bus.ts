@@ -2,7 +2,12 @@ import { Assert } from '@gamezilla/lib/assert'
 
 const crash: Assert = Assert.crash()
 
-type Subscriber = (payload: unknown) => void
+import type { TransportMessageContext } from './transport-types'
+
+type Subscriber = (
+  payload: unknown,
+  context?: TransportMessageContext,
+) => void
 type QueuedMessage = { topic: string; payload: unknown }
 
 export type MessageInterceptor = (
@@ -112,7 +117,7 @@ export class InMemoryBus {
     const handlers = this.subscribers.get(topic)
     if (!handlers) return
     for (const handler of [...handlers]) {
-      handler(payload)
+      handler(payload, undefined)
     }
   }
 }

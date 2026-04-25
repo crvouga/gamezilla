@@ -64,7 +64,13 @@ export function parseSyncRequestWire(
     typeof rawSince === 'number' && Number.isFinite(rawSince)
       ? Math.max(0, Math.floor(rawSince))
       : 0;
-  return { kind: 'sync-request', from, sinceSeq };
+  const syncSessionId = msg['syncSessionId'];
+  crash.string(syncSessionId, 'sync-request.syncSessionId must be a string');
+  validation.nonEmptyString(
+    syncSessionId,
+    'sync-request.syncSessionId must be non-empty',
+  );
+  return { kind: 'sync-request', from, sinceSeq, syncSessionId };
 }
 
 export function parseSyncResponseWire(
@@ -78,11 +84,18 @@ export function parseSyncResponseWire(
   const prefixRaw = msg['prefix'];
   const prefix =
     prefixRaw === undefined ? [] : assertLogEntryArray(prefixRaw);
+  const syncSessionId = msg['syncSessionId'];
+  crash.string(syncSessionId, 'sync-response.syncSessionId must be a string');
+  validation.nonEmptyString(
+    syncSessionId,
+    'sync-response.syncSessionId must be non-empty',
+  );
   return {
     kind: 'sync-response',
     to,
     snapshot,
     baseSeq: baseSeqRaw,
+    syncSessionId,
     prefix,
     entries: assertLogEntryArray(msg['entries']),
   };

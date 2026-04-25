@@ -24,6 +24,7 @@ import {
   PeerTrustUpdate,
   PeerTrustUpdated,
 } from '../protocol/system-messages';
+import { decodeKeyB64, peerIdFromPublicKey } from './security/peer-crypto';
 import type { Command } from './peer-store-types';
 import type { SystemCommandEvalResult } from './wire-protocol';
 
@@ -40,7 +41,7 @@ export type SystemRouterContext = {
   allocateEntriesFromEvents(events: Event[]): LogEntry[];
 };
 
-type ParsedJoinPayload = { peerId: string; trust: number };
+type ParsedJoinPayload = { peerId: string; trust: number; publicKey: string };
 type ParsedLeavePayload = { peerId: string };
 type ParsedTrustPayload = { peerId: string; trust: number };
 
@@ -71,6 +72,7 @@ function parseJoinPayload(raw: unknown): ParseResult<ParsedJoinPayload> {
   crash.record(raw, 'join payload must be a plain object');
   const peerId = raw['peerId'];
   const trust = raw['trust'];
+  const publicKey = raw['publicKey'];
   if (!peerId || typeof peerId !== 'string') {
     return {
       ok: false,
@@ -93,7 +95,18 @@ function parseJoinPayload(raw: unknown): ParseResult<ParsedJoinPayload> {
       },
     };
   }
-  return { ok: true, value: { peerId, trust } };
+  if (!publicKey || typeof publicKey !== 'string') {
+    return {
+      ok: false,
+      error: {
+        ok: false,
+        error: PeerStoreInvalidJoinFields({
+          detail: 'join payload requires publicKey string',
+        }),
+      },
+    };
+  }
+  return { ok: true, value: { peerId, trust, publicKey } };
 }
 
 function parseLeavePayload(raw: unknown): ParseResult<ParsedLeavePayload> {
@@ -171,7 +184,7 @@ function evaluatePeerJoin(
 ): SystemCommandEvalResult {
   const parsed = parseJoinPayload(rawPayload);
   if (!parsed.ok) return parsed.error;
-  const { peerId, trust } = parsed.value;
+  const { peerId, trust, publicKey } = parsed.value;
   if (peerId !== command.peerId) {
     return {
       ok: false,
@@ -180,12 +193,44 @@ function evaluatePeerJoin(
       }),
     };
   }
+  let pubBytes: Uint8Array;
+  try {
+    pubBytes = decodeKeyB64(publicKey);
+  } catch {
+    return {
+      ok: false,
+      error: PeerStoreInvalidJoinFields({
+        detail: 'join payload publicKey is not valid base64url 32-byte key',
+      }),
+    };
+  }
+  let derived: string;
+  try {
+    derived = peerIdFromPublicKey(pubBytes);
+  } catch {
+    return {
+      ok: false,
+      error: PeerStoreInvalidJoinFields({
+        detail: 'join payload publicKey could not derive peerId',
+      }),
+    };
+  }
+  if (derived !== peerId) {
+    return {
+      ok: false,
+      error: PeerStoreInvalidJoinFields({
+        detail: 'join peerId must equal peerId derived from publicKey',
+      }),
+    };
+  }
   if (ctx.hasMember(peerId)) {
     return { ok: false, error: PeerStoreDuplicatePeer({ peerId }) };
   }
   return {
     ok: true,
-    entries: ctx.allocateEntriesFromEvents([PeerJoined({ peerId, trust })]),
+    entries: ctx.allocateEntriesFromEvents([
+      PeerJoined({ peerId, trust, publicKey }),
+    ]),
   };
 }
 

@@ -14,6 +14,7 @@
     "./types": "./src/index.ts",
     "./trust-election": "./src/trust-election/index.ts",
     "./__tests__/test-crash-handler": "./src/testing/test-crash-handler.ts",
+    "./testing/tictactoe-peers": "./src/testing/tictactoe-peers.ts",
     "./peer-store-persistence-sqlite": "./src/peer-store-persistence/peer-store-persistence-sqlite.ts",
     "./transport": "./src/transport/index.ts",
     "./peer-store": "./src/peer-store/index.ts",
@@ -21,7 +22,8 @@
     "./index": "./src/index.ts"
   },
   "dependencies": {
-    "@gamezilla/lib": "workspace:*"
+    "@gamezilla/lib": "workspace:*",
+    "@noble/ed25519": "^2.0.0"
   },
   "scripts": {
     "lint": "eslint .",

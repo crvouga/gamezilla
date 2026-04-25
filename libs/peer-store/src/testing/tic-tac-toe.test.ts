@@ -29,6 +29,7 @@ import {
 } from './fixtures/tic-tac-toe.module';
 import { TestCrashHandler } from './test-crash-handler';
 import { ticTacToeBoardCell } from './tic-tac-toe-board';
+import { ticTacToeThreePeers } from './tictactoe-peers';
 
 let disposeCrashHandler: () => void;
 beforeAll(() => {
@@ -36,13 +37,21 @@ beforeAll(() => {
 });
 afterAll(() => disposeCrashHandler());
 
-const TRUST = { 'player-x': 1, 'player-o': 1, authority: 3 };
-const PEER_IDS = Object.keys(TRUST);
+const FIX = ticTacToeThreePeers();
+const PEER = {
+  authority: FIX.peers.authority.peerId,
+  playerX: FIX.peers.playerX.peerId,
+  playerO: FIX.peers.playerO.peerId,
+} as const;
+const PEER_IDS = [PEER.authority, PEER.playerX, PEER.playerO];
 
 function createSim(opts?: { timeoutMs?: number }) {
   return new DeterministicSimulator(TicTacToeModule, {
     topic: 'tic-tac-toe-sim',
-    initialMembership: TRUST,
+    initialMembership: FIX.initialMembership,
+    initialMemberPublicKeys: FIX.initialMemberPublicKeys,
+    roomSecret: FIX.roomSecret,
+    peerSecretSeeds: FIX.peerSecretSeeds,
     timeoutMs: opts?.timeoutMs ?? 5000,
     advanceTime: (ms) => jest.advanceTimersByTime(ms),
   });
@@ -61,9 +70,9 @@ describe('TicTacToe integration', () => {
 
   it('valid PLACE_MARK committed by all peers, state converges', () => {
     const sim = createSim();
-    sim.dispatch('player-x', PlaceMark({ cell: 4, player: 'X' }));
+    sim.dispatch(PEER.playerX, PlaceMark({ cell: 4, player: 'X' }));
     sim.assertConverged();
-    const state = sim.getCommittedState('player-x');
+    const state = sim.getCommittedState(PEER.playerX);
     expect(ticTacToeBoardCell(state, 4)).toBe('X');
     expect(state['currentTurn']).toBe('O');
     sim.destroy();
@@ -71,7 +80,7 @@ describe('TicTacToe integration', () => {
 
   it('PLACE_MARK on wrong turn → rejected', () => {
     const sim = createSim();
-    sim.dispatch('player-o', PlaceMark({ cell: 0, player: 'O' }));
+    sim.dispatch(PEER.playerO, PlaceMark({ cell: 0, player: 'O' }));
     expect(sim.getErrorLog().length).toBe(1);
     expect(WrongTurnError.is(sim.getErrorLog()[0]!)).toBe(true);
     sim.destroy();
@@ -79,8 +88,8 @@ describe('TicTacToe integration', () => {
 
   it('PLACE_MARK on occupied cell → rejected', () => {
     const sim = createSim();
-    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }));
-    sim.dispatch('player-o', PlaceMark({ cell: 0, player: 'O' }));
+    sim.dispatch(PEER.playerX, PlaceMark({ cell: 0, player: 'X' }));
+    sim.dispatch(PEER.playerO, PlaceMark({ cell: 0, player: 'O' }));
     expect(sim.getErrorLog().some((e) => CellOccupiedError.is(e))).toBe(true);
     sim.destroy();
   });
@@ -88,7 +97,7 @@ describe('TicTacToe integration', () => {
   it('PLACE_MARK with cell=9 → ValidationError at tag construction', () => {
     const sim = createSim();
     expect(() =>
-      sim.dispatch('player-x', PlaceMark({ cell: 9, player: 'X' }))
+      sim.dispatch(PEER.playerX, PlaceMark({ cell: 9, player: 'X' }))
     ).toThrow(ValidationError);
     sim.destroy();
   });
@@ -96,7 +105,7 @@ describe('TicTacToe integration', () => {
   it('PLACE_MARK with invalid player → ValidationError in router', () => {
     const sim = createSim();
     expect(() =>
-      sim.dispatch('player-x', {
+      sim.dispatch(PEER.playerX, {
         type: PlaceMark.type,
         payload: { cell: 0, player: 'Z' },
       })
@@ -106,36 +115,36 @@ describe('TicTacToe integration', () => {
 
   it('win condition: GAME_WON event produced, state converges', () => {
     const sim = createSim();
-    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }));
-    sim.dispatch('player-o', PlaceMark({ cell: 3, player: 'O' }));
-    sim.dispatch('player-x', PlaceMark({ cell: 1, player: 'X' }));
-    sim.dispatch('player-o', PlaceMark({ cell: 4, player: 'O' }));
-    sim.dispatch('player-x', PlaceMark({ cell: 2, player: 'X' }));
+    sim.dispatch(PEER.playerX, PlaceMark({ cell: 0, player: 'X' }));
+    sim.dispatch(PEER.playerO, PlaceMark({ cell: 3, player: 'O' }));
+    sim.dispatch(PEER.playerX, PlaceMark({ cell: 1, player: 'X' }));
+    sim.dispatch(PEER.playerO, PlaceMark({ cell: 4, player: 'O' }));
+    sim.dispatch(PEER.playerX, PlaceMark({ cell: 2, player: 'X' }));
 
     sim.assertConverged();
-    const state = sim.getCommittedState('player-x');
+    const state = sim.getCommittedState(PEER.playerX);
     expect(state['winner']).toBe('X');
     expect(state['status']).toBe('completed');
 
-    const events = sim.getEventLog('player-x');
+    const events = sim.getEventLog(PEER.playerX);
     expect(events.some((e) => GameWon.is(e))).toBe(true);
     sim.destroy();
   });
 
   it('draw condition: GAME_DRAWN event produced, state converges', () => {
     const sim = createSim();
-    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }));
-    sim.dispatch('player-o', PlaceMark({ cell: 1, player: 'O' }));
-    sim.dispatch('player-x', PlaceMark({ cell: 2, player: 'X' }));
-    sim.dispatch('player-o', PlaceMark({ cell: 5, player: 'O' }));
-    sim.dispatch('player-x', PlaceMark({ cell: 3, player: 'X' }));
-    sim.dispatch('player-o', PlaceMark({ cell: 6, player: 'O' }));
-    sim.dispatch('player-x', PlaceMark({ cell: 4, player: 'X' }));
-    sim.dispatch('player-o', PlaceMark({ cell: 8, player: 'O' }));
-    sim.dispatch('player-x', PlaceMark({ cell: 7, player: 'X' }));
+    sim.dispatch(PEER.playerX, PlaceMark({ cell: 0, player: 'X' }));
+    sim.dispatch(PEER.playerO, PlaceMark({ cell: 1, player: 'O' }));
+    sim.dispatch(PEER.playerX, PlaceMark({ cell: 2, player: 'X' }));
+    sim.dispatch(PEER.playerO, PlaceMark({ cell: 5, player: 'O' }));
+    sim.dispatch(PEER.playerX, PlaceMark({ cell: 3, player: 'X' }));
+    sim.dispatch(PEER.playerO, PlaceMark({ cell: 6, player: 'O' }));
+    sim.dispatch(PEER.playerX, PlaceMark({ cell: 4, player: 'X' }));
+    sim.dispatch(PEER.playerO, PlaceMark({ cell: 8, player: 'O' }));
+    sim.dispatch(PEER.playerX, PlaceMark({ cell: 7, player: 'X' }));
 
     sim.assertConverged();
-    const state = sim.getCommittedState('player-x');
+    const state = sim.getCommittedState(PEER.playerX);
     expect(state['winner']).toBe('draw');
     expect(state['status']).toBe('completed');
     sim.destroy();
@@ -143,9 +152,9 @@ describe('TicTacToe integration', () => {
 
   it('RESIGN: PLAYER_RESIGNED produced, game ends', () => {
     const sim = createSim();
-    sim.dispatch('player-o', Resign({ player: 'O' }));
+    sim.dispatch(PEER.playerO, Resign({ player: 'O' }));
     sim.assertConverged();
-    const state = sim.getCommittedState('player-x');
+    const state = sim.getCommittedState(PEER.playerX);
     expect(state['winner']).toBe('X');
     expect(state['status']).toBe('completed');
     sim.destroy();
@@ -153,11 +162,11 @@ describe('TicTacToe integration', () => {
 
   it('full game X wins — all moves committed, all peers converge', () => {
     const sim = createSim();
-    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }));
-    sim.dispatch('player-o', PlaceMark({ cell: 3, player: 'O' }));
-    sim.dispatch('player-x', PlaceMark({ cell: 1, player: 'X' }));
-    sim.dispatch('player-o', PlaceMark({ cell: 4, player: 'O' }));
-    sim.dispatch('player-x', PlaceMark({ cell: 2, player: 'X' }));
+    sim.dispatch(PEER.playerX, PlaceMark({ cell: 0, player: 'X' }));
+    sim.dispatch(PEER.playerO, PlaceMark({ cell: 3, player: 'O' }));
+    sim.dispatch(PEER.playerX, PlaceMark({ cell: 1, player: 'X' }));
+    sim.dispatch(PEER.playerO, PlaceMark({ cell: 4, player: 'O' }));
+    sim.dispatch(PEER.playerX, PlaceMark({ cell: 2, player: 'X' }));
 
     sim.assertConverged();
     for (const peerId of PEER_IDS) {
@@ -169,21 +178,21 @@ describe('TicTacToe integration', () => {
 
   it('partition: Player O offline, X move commits via authority', () => {
     const sim = createSim();
-    sim.disconnectPeer('player-o');
-    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }));
+    sim.disconnectPeer(PEER.playerO);
+    sim.dispatch(PEER.playerX, PlaceMark({ cell: 0, player: 'X' }));
 
-    expect(ticTacToeBoardCell(sim.getCommittedState('player-x'), 0)).toBe('X');
-    expect(ticTacToeBoardCell(sim.getCommittedState('authority'), 0)).toBe('X');
-    expect(ticTacToeBoardCell(sim.getCommittedState('player-o'), 0)).toBeNull();
+    expect(ticTacToeBoardCell(sim.getCommittedState(PEER.playerX), 0)).toBe('X');
+    expect(ticTacToeBoardCell(sim.getCommittedState(PEER.authority), 0)).toBe('X');
+    expect(ticTacToeBoardCell(sim.getCommittedState(PEER.playerO), 0)).toBeNull();
     sim.destroy();
   });
 
   it('reconnect after partition: Player O syncs, state converges', () => {
     const sim = createSim();
-    sim.disconnectPeer('player-o');
-    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }));
+    sim.disconnectPeer(PEER.playerO);
+    sim.dispatch(PEER.playerX, PlaceMark({ cell: 0, player: 'X' }));
 
-    sim.reconnectPeer('player-o');
+    sim.reconnectPeer(PEER.playerO);
 
     sim.assertConverged();
     sim.destroy();
@@ -192,25 +201,25 @@ describe('TicTacToe integration', () => {
   it('timeout: authority offline, advance time, optimistic rolled back', () => {
     const sim = createSim({ timeoutMs: 5000 });
 
-    sim.disconnectPeer('authority');
+    sim.disconnectPeer(PEER.authority);
 
-    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }));
-    expect(ticTacToeBoardCell(sim.getState('player-x'), 0)).toBe('X');
+    sim.dispatch(PEER.playerX, PlaceMark({ cell: 0, player: 'X' }));
+    expect(ticTacToeBoardCell(sim.getState(PEER.playerX), 0)).toBe('X');
 
     sim.advanceTime(5001);
-    expect(ticTacToeBoardCell(sim.getState('player-x'), 0)).toBeNull();
+    expect(ticTacToeBoardCell(sim.getState(PEER.playerX), 0)).toBeNull();
     expect(sim.getTimeoutLog().length).toBe(1);
     sim.destroy();
   });
 
   it('simultaneous dispatches from different peers both resolve correctly', () => {
     const sim = createSim();
-    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }));
-    sim.dispatch('player-o', PlaceMark({ cell: 4, player: 'O' }));
-    sim.dispatch('player-x', PlaceMark({ cell: 8, player: 'X' }));
+    sim.dispatch(PEER.playerX, PlaceMark({ cell: 0, player: 'X' }));
+    sim.dispatch(PEER.playerO, PlaceMark({ cell: 4, player: 'O' }));
+    sim.dispatch(PEER.playerX, PlaceMark({ cell: 8, player: 'X' }));
 
     sim.assertConverged();
-    const state = sim.getCommittedState('player-x');
+    const state = sim.getCommittedState(PEER.playerX);
     expect(ticTacToeBoardCell(state, 0)).toBe('X');
     expect(ticTacToeBoardCell(state, 4)).toBe('O');
     expect(ticTacToeBoardCell(state, 8)).toBe('X');
@@ -219,14 +228,14 @@ describe('TicTacToe integration', () => {
 
   it('unknown command type → tagged rejection, no crash', () => {
     const sim = createSim();
-    sim.dispatch('player-x', { type: 'UNKNOWN', payload: {} });
+    sim.dispatch(PEER.playerX, { type: 'UNKNOWN', payload: {} });
     expect(sim.getErrorLog().some((e) => UnknownCommandError.is(e))).toBe(true);
     sim.destroy();
   });
 
   it('unknown event type → state unchanged, no crash', () => {
     const sim = createSim();
-    const store = sim.getStore('player-x');
+    const store = sim.getStore(PEER.playerX);
     const base = store.getCommittedLogEntries();
     const maxSeq = base.reduce((m, e) => Math.max(m, e.seq), 0);
     const before = JSON.stringify(store.getCommittedState());
@@ -242,21 +251,21 @@ describe('TicTacToe integration', () => {
   it('offline dispatch: move made while offline is committed after reconnection', () => {
     const sim = createSim({ timeoutMs: 5000 });
 
-    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }));
+    sim.dispatch(PEER.playerX, PlaceMark({ cell: 0, player: 'X' }));
     sim.assertConverged();
-    expect(ticTacToeBoardCell(sim.getCommittedState('player-x'), 0)).toBe('X');
+    expect(ticTacToeBoardCell(sim.getCommittedState(PEER.playerX), 0)).toBe('X');
 
-    sim.disconnectPeer('player-o');
+    sim.disconnectPeer(PEER.playerO);
 
-    sim.dispatch('player-o', PlaceMark({ cell: 4, player: 'O' }));
-    expect(ticTacToeBoardCell(sim.getState('player-o'), 4)).toBe('O');
+    sim.dispatch(PEER.playerO, PlaceMark({ cell: 4, player: 'O' }));
+    expect(ticTacToeBoardCell(sim.getState(PEER.playerO), 4)).toBe('O');
 
-    sim.reconnectPeer('player-o');
+    sim.reconnectPeer(PEER.playerO);
 
     sim.advanceTime(5001);
 
-    expect(ticTacToeBoardCell(sim.getState('player-o'), 4)).toBe('O');
-    expect(ticTacToeBoardCell(sim.getCommittedState('player-o'), 4)).toBe('O');
+    expect(ticTacToeBoardCell(sim.getState(PEER.playerO), 4)).toBe('O');
+    expect(ticTacToeBoardCell(sim.getCommittedState(PEER.playerO), 4)).toBe('O');
 
     sim.destroy();
   });
@@ -268,33 +277,33 @@ describe('TicTacToe session seats (join / leave)', () => {
 
   it('JOIN_SESSION then PLACE_MARK enforces command.peerId vs claimed mark', () => {
     const sim = createSim();
-    sim.dispatch('player-x', JoinSession({ mark: 'X' }));
-    sim.dispatch('player-o', JoinSession({ mark: 'O' }));
+    sim.dispatch(PEER.playerX, JoinSession({ mark: 'X' }));
+    sim.dispatch(PEER.playerO, JoinSession({ mark: 'O' }));
     sim.assertConverged();
 
-    sim.dispatch('player-o', PlaceMark({ cell: 0, player: 'X' }));
+    sim.dispatch(PEER.playerO, PlaceMark({ cell: 0, player: 'X' }));
     expect(sim.getErrorLog().some((e) => NotYourMarkError.is(e))).toBe(true);
 
-    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }));
+    sim.dispatch(PEER.playerX, PlaceMark({ cell: 0, player: 'X' }));
     sim.assertConverged();
-    expect(ticTacToeBoardCell(sim.getCommittedState('player-x'), 0)).toBe('X');
+    expect(ticTacToeBoardCell(sim.getCommittedState(PEER.playerX), 0)).toBe('X');
     sim.destroy();
   });
 
   it('LEAVE_SESSION mid-game forfeits to the remaining seated peer', () => {
     const sim = createSim();
-    sim.dispatch('player-x', JoinSession({ mark: 'X' }));
-    sim.dispatch('player-o', JoinSession({ mark: 'O' }));
-    sim.dispatch('player-x', PlaceMark({ cell: 4, player: 'X' }));
+    sim.dispatch(PEER.playerX, JoinSession({ mark: 'X' }));
+    sim.dispatch(PEER.playerO, JoinSession({ mark: 'O' }));
+    sim.dispatch(PEER.playerX, PlaceMark({ cell: 4, player: 'X' }));
     sim.assertConverged();
 
-    sim.dispatch('player-o', LeaveSession({}));
+    sim.dispatch(PEER.playerO, LeaveSession({}));
     sim.assertConverged();
 
-    const state = sim.getCommittedState('player-x');
+    const state = sim.getCommittedState(PEER.playerX);
     expect(state['winner']).toBe('X');
     expect(state['status']).toBe('completed');
-    expect(sim.getEventLog('player-x').some((e) => ForfeitWin.is(e))).toBe(
+    expect(sim.getEventLog(PEER.playerX).some((e) => ForfeitWin.is(e))).toBe(
       true
     );
     sim.destroy();
@@ -302,7 +311,7 @@ describe('TicTacToe session seats (join / leave)', () => {
 
   it('LEAVE_SESSION without a seat → NOT_SEATED', () => {
     const sim = createSim();
-    sim.dispatch('player-x', LeaveSession({}));
+    sim.dispatch(PEER.playerX, LeaveSession({}));
     expect(sim.getErrorLog().some((e) => NotSeatedError.is(e))).toBe(true);
     sim.destroy();
   });
@@ -313,9 +322,9 @@ describe('TicTacToe chess-style clock (simulator)', () => {
   afterEach(() => jest.useRealTimers());
 
   function seatAndOpen(sim: DeterministicSimulator): void {
-    sim.dispatch('player-x', JoinSession({ mark: 'X' }));
-    sim.dispatch('player-o', JoinSession({ mark: 'O' }));
-    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }));
+    sim.dispatch(PEER.playerX, JoinSession({ mark: 'X' }));
+    sim.dispatch(PEER.playerO, JoinSession({ mark: 'O' }));
+    sim.dispatch(PEER.playerX, PlaceMark({ cell: 0, player: 'X' }));
     sim.assertConverged();
   }
 
@@ -323,13 +332,13 @@ describe('TicTacToe chess-style clock (simulator)', () => {
     const sim = createSim();
     seatAndOpen(sim);
 
-    const before = sim.getClockSnapshot('player-x');
+    const before = sim.getClockSnapshot(PEER.playerX);
     expect(before.clockActivePlayer).toBe('O');
     expect(before.remainingMsX).toBe(TIC_TAC_TOE_CLOCK_MS_PER_PLAYER);
 
-    sim.dispatch('authority', TickClock({ elapsedMs: 400 }));
+    sim.dispatch(PEER.authority, TickClock({ elapsedMs: 400 }));
 
-    const after = sim.getClockSnapshot('player-x');
+    const after = sim.getClockSnapshot(PEER.playerX);
     expect(after.remainingMsX).toBe(TIC_TAC_TOE_CLOCK_MS_PER_PLAYER);
     const beforeO = requireNumber(before.remainingMsO, 'before.remainingMsO');
     const afterO = requireNumber(after.remainingMsO, 'after.remainingMsO');
@@ -340,14 +349,14 @@ describe('TicTacToe chess-style clock (simulator)', () => {
   it('after committed move, running clock switches to other player', () => {
     const sim = createSim();
     seatAndOpen(sim);
-    sim.dispatch('authority', TickClock({ elapsedMs: 200 }));
+    sim.dispatch(PEER.authority, TickClock({ elapsedMs: 200 }));
 
-    sim.dispatch('player-o', PlaceMark({ cell: 4, player: 'O' }));
+    sim.dispatch(PEER.playerO, PlaceMark({ cell: 4, player: 'O' }));
     sim.assertConverged();
 
-    const snap = sim.getClockSnapshot('authority');
+    const snap = sim.getClockSnapshot(PEER.authority);
     expect(snap.clockActivePlayer).toBe('X');
-    expect(sim.getCommittedState('authority')['currentTurn']).toBe('X');
+    expect(sim.getCommittedState(PEER.authority)['currentTurn']).toBe('X');
     sim.destroy();
   });
 
@@ -356,31 +365,31 @@ describe('TicTacToe chess-style clock (simulator)', () => {
     seatAndOpen(sim);
 
     sim.dispatch(
-      'authority',
-      TickClock({ elapsedMs: TIC_TAC_TOE_CLOCK_MS_PER_PLAYER + 500 })
+      PEER.authority,
+      TickClock({ elapsedMs: TIC_TAC_TOE_CLOCK_MS_PER_PLAYER + 500 }),
     );
 
     sim.assertConverged();
-    expect(sim.getEventLog('player-x').some((e) => ClockTimeout.is(e))).toBe(
+    expect(sim.getEventLog(PEER.playerX).some((e) => ClockTimeout.is(e))).toBe(
       true
     );
-    expect(sim.getCommittedState('player-x')['winner']).toBe('X');
-    expect(sim.getCommittedState('player-x')['status']).toBe('completed');
+    expect(sim.getCommittedState(PEER.playerX)['winner']).toBe('X');
+    expect(sim.getCommittedState(PEER.playerX)['status']).toBe('completed');
     sim.destroy();
   });
 
   it('disconnect / reconnect: clock state converges after sync', () => {
     const sim = createSim();
     seatAndOpen(sim);
-    sim.dispatch('authority', TickClock({ elapsedMs: 300 }));
+    sim.dispatch(PEER.authority, TickClock({ elapsedMs: 300 }));
 
-    sim.disconnectPeer('player-o');
-    sim.dispatch('authority', TickClock({ elapsedMs: 200 }));
-    sim.reconnectPeer('player-o');
+    sim.disconnectPeer(PEER.playerO);
+    sim.dispatch(PEER.authority, TickClock({ elapsedMs: 200 }));
+    sim.reconnectPeer(PEER.playerO);
 
     sim.assertConverged();
-    const a = sim.getClockSnapshot('authority');
-    const o = sim.getClockSnapshot('player-o');
+    const a = sim.getClockSnapshot(PEER.authority);
+    const o = sim.getClockSnapshot(PEER.playerO);
     expect(JSON.stringify(a)).toBe(JSON.stringify(o));
     sim.destroy();
   });

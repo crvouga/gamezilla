@@ -51,8 +51,31 @@ export type PeerBootstrap =
       kind: 'genesis'
       /** At least two members required for quorum-style authority. */
       initialMembership: Record<string, number>
+      /**
+       * Base64url-encoded 32-byte Ed25519 public keys for every peer in
+       * `initialMembership` (must match self-certifying `peerId` keys).
+       */
+      initialMemberPublicKeys: Record<string, string>
     }
-  | { kind: 'join' }
+  | {
+      kind: 'join'
+      /**
+       * Genesis membership + keys for the room **before** this peer's join.
+       * Required to verify signed `accepted` / `sync-response` and to know
+       * `current_authority` until the log is hydrated from sync.
+       */
+      initialMembership: Record<string, number>
+      initialMemberPublicKeys: Record<string, string>
+    }
+
+/** Cryptographic session binding for all wire traffic on this topic. */
+export type PeerStoreSecurityConfig = {
+  roomSecret: string
+  /** 32-byte Ed25519 secret seed (must match `peerId` derived public key). */
+  secretSeed: Uint8Array
+  /** Optional: require fingerprintFromPublicKey(pub) to match per peerId. */
+  peerFingerprints?: Record<string, string>
+}
 
 export interface PeerStoreApi {
   dispatch(message: Message): void
@@ -64,4 +87,6 @@ export interface PeerStoreApi {
   requestSync(): void
   rehydrate(entries: LogEntry[]): void
   destroy(): void
+  /** Join bootstrap: false until first successful `sync-response`. */
+  isSynced(): boolean
 }

@@ -1,64 +1,54 @@
 import { Assert } from '@gamezilla/lib/assert';
 import type { LogEntry } from '../peer-store-persistence/log-entry';
-import { peerNamespace } from '../protocol/system-messages';
+import { decodeKeyB64 } from './security/peer-crypto';
+import { PeerJoined, PeerLeave, peerNamespace } from '../protocol/system-messages';
 import { isSystemEvent } from '../protocol/utils';
 import {
   checkAuthorityChange,
-  updateLastSeenFromRecord,
+  seedDiscoveredPeerLiveness,
+  updateLastSeenVerified,
 } from './authority-monitor';
-import {
-  applyMembershipEvent,
-  materializeAtSeq,
-} from './membership';
+import { applyMembershipEvent, materializeAtSeq } from './membership';
 import type { PeerStore } from './peer-store';
 import type { Command, StoreEffect } from './peer-store-types';
-import {
-  parseAcceptedWire,
-  parseProposeWire,
-  parseRejectedWire,
-  parseSyncRequestWire,
-  parseSyncResponseWire,
-} from './wire-parsers';
 import type { WireMessage } from './wire-protocol';
 
 const crash: Assert = Assert.crash();
 
 export function handleWireMessage(self: PeerStore, payload: unknown): void {
   if (self.is_destroyed) return;
-  crash.record(payload, 'wire message must be an object');
-  const msg = payload;
-  const kindRaw = msg['kind'];
-  crash.string(kindRaw, 'wire message must have a kind string');
+  const verified = self.verifyInboundWire(payload);
+  if (!verified) return;
 
-  updateLastSeenFromRecord(self, msg);
+  updateLastSeenVerified(self, verified.signerPeerId);
   checkAuthorityChange(self);
 
-  dispatchWireKind(self, kindRaw, msg);
+  dispatchVerifiedBody(self, verified.body);
 }
 
-function dispatchWireKind(
-  self: PeerStore,
-  kindRaw: string,
-  msg: Record<string, unknown>,
-): void {
-  switch (kindRaw) {
+function dispatchVerifiedBody(self: PeerStore, body: WireMessage): void {
+  switch (body.kind) {
     case 'propose':
-      handleProposeWire(self, parseProposeWire(msg));
+      handleProposeWire(self, body);
       break;
     case 'accepted':
-      handleAcceptedWire(self, parseAcceptedWire(msg));
+      handleAcceptedWire(self, body);
       break;
     case 'rejected':
-      handleRejectedWire(self, parseRejectedWire(msg));
+      handleRejectedWire(self, body);
       break;
     case 'sync-request':
-      handleSyncRequestWire(self, parseSyncRequestWire(msg));
+      handleSyncRequestWire(self, body);
       break;
     case 'sync-response':
-      handleSyncResponseWire(self, parseSyncResponseWire(msg));
+      handleSyncResponseWire(self, body);
       break;
-    default:
+    case 'heartbeat':
       break;
+    default: {
+      const _exhaustive: never = body;
+      return _exhaustive;
+    }
   }
 }
 
@@ -82,14 +72,14 @@ function handleProposeSystem(self: PeerStore, command: Command): void {
   const sys = self.evaluateSystemCommand(command);
   if (sys.ok) {
     handleCommitEntries(self, command.id, sys.entries);
-    self.transport.publish(self.topic, {
+    self.publishSignedWire({
       kind: 'accepted',
       commandId: command.id,
       entries: sys.entries,
     } satisfies WireMessage);
   } else {
     self.finalized_command_ids.add(command.id);
-    self.transport.publish(self.topic, {
+    self.publishSignedWire({
       kind: 'rejected',
       commandId: command.id,
       error: sys.error,
@@ -102,14 +92,14 @@ function handleProposeDomain(self: PeerStore, command: Command): void {
   if (evaluated.ok) {
     const entries = evaluated.entries;
     handleCommitEntries(self, command.id, entries, evaluated.effects);
-    self.transport.publish(self.topic, {
+    self.publishSignedWire({
       kind: 'accepted',
       commandId: command.id,
       entries,
     } satisfies WireMessage);
   } else {
     self.finalized_command_ids.add(command.id);
-    self.transport.publish(self.topic, {
+    self.publishSignedWire({
       kind: 'rejected',
       commandId: command.id,
       error: evaluated.error,
@@ -151,7 +141,19 @@ export function handleRejectedWire(
 function applyCommitEntry(self: PeerStore, entry: LogEntry): void {
   const { event } = entry;
   if (isSystemEvent(event)) {
+    if (PeerJoined.is(event)) {
+      self.memberPublicKeys.set(
+        event.payload.peerId,
+        decodeKeyB64(event.payload.publicKey),
+      );
+    }
+    if (PeerLeave.is(event)) {
+      self.memberPublicKeys.delete(event.payload.peerId);
+    }
     applyMembershipEvent(self.membership, event);
+    if (PeerJoined.is(event)) {
+      seedDiscoveredPeerLiveness(self, event.payload.peerId);
+    }
     return;
   }
   self.committed_state = self.module.reduce(self.committed_state, event);
@@ -219,11 +221,12 @@ export function handleSyncRequestWire(
   const prefix = self.committed_entries.filter((e) => e.seq <= sinceSeq);
   const tail = self.committed_entries.filter((e) => e.seq > sinceSeq);
 
-  self.transport.publish(self.topic, {
+  self.publishSignedWire({
     kind: 'sync-response',
     to: wire.from,
     snapshot,
     baseSeq: sinceSeq,
+    syncSessionId: wire.syncSessionId,
     prefix,
     entries: tail,
   } satisfies WireMessage);
@@ -235,11 +238,16 @@ export function handleSyncResponseWire(
 ): void {
   if (wire.to !== self.peerId) return;
   if (!self.sync_pending) return;
-  self.sync_pending = false;
+  if (
+    self.pendingSyncSessionId === null ||
+    wire.syncSessionId !== self.pendingSyncSessionId
+  ) {
+    return;
+  }
 
   const baseSeq =
     typeof wire.baseSeq === 'number' && Number.isFinite(wire.baseSeq)
-      ? wire.baseSeq
+      ? Math.floor(wire.baseSeq)
       : 0;
   const snap = wire.snapshot;
   crash.defined(snap, 'sync-response must include snapshot');
@@ -248,6 +256,9 @@ export function handleSyncResponseWire(
   const prefix = Array.isArray(wire.prefix) ? wire.prefix : [];
   const tail = Array.isArray(wire.entries) ? wire.entries : [];
   const full = [...prefix, ...tail].sort((a, b) => a.seq - b.seq);
+
+  self.sync_pending = false;
+  self.pendingSyncSessionId = null;
   self.rehydrate(full);
 
   self.synced = true;

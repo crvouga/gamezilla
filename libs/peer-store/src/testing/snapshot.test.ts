@@ -1,4 +1,4 @@
-import { Assert } from '@gamezilla/lib/assert'
+import { Assert } from '@gamezilla/lib/assert';
 import {
   afterAll,
   afterEach,
@@ -8,60 +8,73 @@ import {
   expect,
   it,
   jest,
-} from 'bun:test'
-import { PlaceMark, TicTacToeModule } from './fixtures/tic-tac-toe.module'
-import { DeterministicSimulator } from '../simulator'
-import { TestCrashHandler } from './test-crash-handler'
-import { ticTacToeBoardCell } from './tic-tac-toe-board'
-import { membershipToRecord, rebuildMembershipFromLog } from '../peer-store/membership'
+} from 'bun:test';
+import { PlaceMark, TicTacToeModule } from './fixtures/tic-tac-toe.module';
+import { DeterministicSimulator } from '../simulator';
+import { TestCrashHandler } from './test-crash-handler';
+import { ticTacToeBoardCell } from './tic-tac-toe-board';
+import { testPeerForLabel, ticTacToeThreePeers } from './tictactoe-peers';
+import { membershipToRecord, rebuildMembershipFromLog } from '../peer-store/membership';
 
-let disposeCrashHandler: () => void
+let disposeCrashHandler: () => void;
 beforeAll(() => {
-  disposeCrashHandler = Assert.registerCrashHandler(new TestCrashHandler())
-})
-afterAll(() => disposeCrashHandler())
+  disposeCrashHandler = Assert.registerCrashHandler(new TestCrashHandler());
+});
+afterAll(() => disposeCrashHandler());
 
-const BASE = { 'player-x': 1, 'player-o': 1, 'authority': 3 }
+const FIX = ticTacToeThreePeers();
+const PEER = {
+  authority: FIX.peers.authority.peerId,
+  playerX: FIX.peers.playerX.peerId,
+  playerO: FIX.peers.playerO.peerId,
+} as const;
 
 describe('Snapshot and incremental sync', () => {
-  beforeEach(() => jest.useFakeTimers())
-  afterEach(() => jest.useRealTimers())
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => jest.useRealTimers());
 
   it('authority retains full committed log for domain moves', () => {
     const sim = new DeterministicSimulator(TicTacToeModule, {
       topic: 'snapshot-test',
-      initialMembership: { ...BASE },
+      initialMembership: { ...FIX.initialMembership },
+      initialMemberPublicKeys: FIX.initialMemberPublicKeys,
+      roomSecret: FIX.roomSecret,
+      peerSecretSeeds: FIX.peerSecretSeeds,
       advanceTime: (ms) => jest.advanceTimersByTime(ms),
-    })
+    });
 
-    sim.dispatch('authority', PlaceMark({ cell: 4, player: 'X' }))
-    sim.deliverPending()
+    sim.dispatch(PEER.authority, PlaceMark({ cell: 4, player: 'X' }));
+    sim.deliverPending();
 
-    expect(sim.getCommittedLogEntries('authority').length).toBe(4)
-    expect(sim.getLatestSeq('authority')).toBe(4)
+    expect(sim.getCommittedLogEntries(PEER.authority).length).toBe(4);
+    expect(sim.getLatestSeq(PEER.authority)).toBe(4);
 
-    sim.destroy()
-  })
+    sim.destroy();
+  });
 
   it('late joiner syncs after authority has moved', () => {
     const sim = new DeterministicSimulator(TicTacToeModule, {
       topic: 'snapshot-join',
-      initialMembership: { ...BASE },
+      initialMembership: { ...FIX.initialMembership },
+      initialMemberPublicKeys: FIX.initialMemberPublicKeys,
+      roomSecret: FIX.roomSecret,
+      peerSecretSeeds: FIX.peerSecretSeeds,
       advanceTime: (ms) => jest.advanceTimersByTime(ms),
-    })
+    });
 
-    sim.dispatch('authority', PlaceMark({ cell: 4, player: 'X' }))
-    sim.deliverPending()
+    sim.dispatch(PEER.authority, PlaceMark({ cell: 4, player: 'X' }));
+    sim.deliverPending();
 
-    sim.joinPeer('late', 1)
-    sim.deliverPending()
+    sim.joinPeer('late', 1);
+    sim.deliverPending();
 
+    const lateId = testPeerForLabel('late').peerId;
     const membership = membershipToRecord(
-      rebuildMembershipFromLog(sim.getStore('late').getCommittedLogEntries()),
-    )
-    expect(membership['late']).toBe(1)
-    expect(ticTacToeBoardCell(sim.getCommittedState('late'), 4)).toBe('X')
+      rebuildMembershipFromLog(sim.getStore(lateId).getCommittedLogEntries()),
+    );
+    expect(membership[PEER.authority]).toBe(3);
+    expect(ticTacToeBoardCell(sim.getCommittedState(lateId), 4)).toBe('X');
 
-    sim.destroy()
-  })
-})
+    sim.destroy();
+  });
+});

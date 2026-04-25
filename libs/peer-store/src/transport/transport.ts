@@ -1,6 +1,6 @@
 import { Assert } from '@gamezilla/lib/assert'
 import { InMemoryBus } from './in-memory-bus'
-import type { Transport } from './transport-types'
+import type { Transport, TransportMessageContext } from './transport-types'
 
 const crash: Assert = Assert.crash()
 
@@ -14,8 +14,9 @@ export class InMemoryTransport implements Transport {
   private readonly outgoing_queue: Array<{ topic: string; payload: unknown }> =
     []
   private readonly incoming_queue: Array<{
-    handler: (payload: unknown) => void
+    handler: (payload: unknown, context?: TransportMessageContext) => void
     payload: unknown
+    context?: TransportMessageContext
   }> = []
 
   constructor(bus: InMemoryBus, peerId: string) {
@@ -42,7 +43,7 @@ export class InMemoryTransport implements Transport {
     }
     const incoming = this.incoming_queue.splice(0, this.incoming_queue.length)
     for (const msg of incoming) {
-      msg.handler(msg.payload)
+      msg.handler(msg.payload, msg.context)
     }
     for (const handler of [...this.connect_handlers]) {
       handler()
@@ -68,17 +69,27 @@ export class InMemoryTransport implements Transport {
     this.bus.publish(topic, payload)
   }
 
-  subscribe(topic: string, handler: (payload: unknown) => void): () => void {
+  subscribe(
+    topic: string,
+    handler: (payload: unknown, context?: TransportMessageContext) => void,
+  ): () => void {
     crash.ok(!this.is_destroyed, 'cannot subscribe on destroyed transport')
     crash.nonEmptyString(topic, 'topic must be non-empty string')
     crash.ok(typeof handler === 'function', 'handler must be a function')
 
-    const wrappedHandler = (payload: unknown) => {
+    const wrappedHandler = (
+      payload: unknown,
+      context?: TransportMessageContext,
+    ) => {
       if (!this.is_connected) {
-        this.incoming_queue.push({ handler, payload })
+        if (context === undefined) {
+          this.incoming_queue.push({ handler, payload })
+        } else {
+          this.incoming_queue.push({ handler, payload, context })
+        }
         return
       }
-      handler(payload)
+      handler(payload, context)
     }
 
     const unsubscribe = this.bus.subscribe(topic, wrappedHandler)

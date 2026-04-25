@@ -21,6 +21,7 @@ import {
 } from '../testing/fixtures/tic-tac-toe.module';
 import { TestCrashHandler } from '../testing/test-crash-handler';
 import { ticTacToeBoardCell } from '../testing/tic-tac-toe-board';
+import { testPeerForLabel, ticTacToeThreePeers } from '../testing/tictactoe-peers';
 import { InMemoryBus, InMemoryTransport } from '../transport';
 import { recoverPeerStoreFromPersistence } from './peer-store-persistence';
 import { InMemoryPeerStorePersistence } from './peer-store-persistence-in-memory';
@@ -150,6 +151,9 @@ describe('recoverPeerStoreFromPersistence', () => {
         return [];
       },
       requestSync() {},
+      isSynced() {
+        return true;
+      },
       destroy() {},
     };
 
@@ -192,6 +196,9 @@ describe('recoverPeerStoreFromPersistence', () => {
         return [];
       },
       requestSync() {},
+      isSynced() {
+        return true;
+      },
       destroy() {},
     };
 
@@ -223,6 +230,9 @@ describe('recoverPeerStoreFromPersistence', () => {
         return [];
       },
       requestSync() {},
+      isSynced() {
+        return true;
+      },
       destroy() {},
     };
 
@@ -369,13 +379,21 @@ describe('SqlitePeerStorePersistence', () => {
 
 describe('PeerStore + persistence journal integration', () => {
   const INT_TOPIC = 'persistence-int';
+  const FIX = ticTacToeThreePeers();
+  const PEER = {
+    authority: FIX.peers.authority.peerId,
+    playerX: FIX.peers.playerX.peerId,
+    playerO: FIX.peers.playerO.peerId,
+  } as const;
 
   function setup() {
     const bus = new InMemoryBus();
-    const t_x = new InMemoryTransport(bus, 'player-x');
-    const t_o = new InMemoryTransport(bus, 'player-o');
-    const t_auth = new InMemoryTransport(bus, 'authority');
-    const peers = { 'player-x': 1, 'player-o': 1, authority: 3 };
+    const t_x = new InMemoryTransport(bus, PEER.playerX);
+    const t_o = new InMemoryTransport(bus, PEER.playerO);
+    const t_auth = new InMemoryTransport(bus, PEER.authority);
+    const peers = FIX.initialMembership;
+    const pubMap = FIX.initialMemberPublicKeys;
+    const seeds = FIX.peerSecretSeeds;
 
     const journal = new InMemoryPeerStorePersistence();
     const partitionKey = 'log-part-1';
@@ -384,17 +402,33 @@ describe('PeerStore + persistence journal integration', () => {
 
     const store_x = new PeerStore(TicTacToeModule, {
       topic: INT_TOPIC,
-      peerId: 'player-x',
-      bootstrap: { kind: 'genesis', initialMembership: peers },
+      peerId: PEER.playerX,
+      bootstrap: {
+        kind: 'genesis',
+        initialMembership: peers,
+        initialMemberPublicKeys: pubMap,
+      },
       transport: t_x,
+      security: {
+        roomSecret: FIX.roomSecret,
+        secretSeed: seeds[PEER.playerX]!,
+      },
     });
     const store_o = new PeerStore(
       TicTacToeModule,
       {
         topic: INT_TOPIC,
-        peerId: 'player-o',
-        bootstrap: { kind: 'genesis', initialMembership: peers },
+        peerId: PEER.playerO,
+        bootstrap: {
+          kind: 'genesis',
+          initialMembership: peers,
+          initialMemberPublicKeys: pubMap,
+        },
         transport: t_o,
+        security: {
+          roomSecret: FIX.roomSecret,
+          secretSeed: seeds[PEER.playerO]!,
+        },
       },
       {
         onReject(commandId) {
@@ -406,9 +440,17 @@ describe('PeerStore + persistence journal integration', () => {
       TicTacToeModule,
       {
         topic: INT_TOPIC,
-        peerId: 'authority',
-        bootstrap: { kind: 'genesis', initialMembership: peers },
+        peerId: PEER.authority,
+        bootstrap: {
+          kind: 'genesis',
+          initialMembership: peers,
+          initialMemberPublicKeys: pubMap,
+        },
         transport: t_auth,
+        security: {
+          roomSecret: FIX.roomSecret,
+          secretSeed: seeds[PEER.authority]!,
+        },
       },
       {
         onCommit(commandId, entries) {
@@ -507,13 +549,22 @@ describe('PeerStore + persistence journal integration', () => {
     destroy();
 
     const bus2 = new InMemoryBus();
-    const t_recovery = new InMemoryTransport(bus2, 'authority');
-    const t_dummy = new InMemoryTransport(bus2, 'dummy');
+    const t_recovery = new InMemoryTransport(bus2, PEER.authority);
+    const dummyId = testPeerForLabel('persistence-dummy').peerId;
+    const t_dummy = new InMemoryTransport(bus2, dummyId);
     const recoveredStore = new PeerStore(TicTacToeModule, {
       topic: INT_TOPIC,
-      peerId: 'authority',
-      bootstrap: { kind: 'join' },
+      peerId: PEER.authority,
+      bootstrap: {
+        kind: 'join',
+        initialMembership: FIX.initialMembership,
+        initialMemberPublicKeys: FIX.initialMemberPublicKeys,
+      },
       transport: t_recovery,
+      security: {
+        roomSecret: FIX.roomSecret,
+        secretSeed: FIX.peerSecretSeeds[PEER.authority]!,
+      },
     });
 
     await recoverPeerStoreFromPersistence(journal, partitionKey, recoveredStore);

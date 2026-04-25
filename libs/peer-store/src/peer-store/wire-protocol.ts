@@ -9,12 +9,19 @@ export type WireMessage =
   | { kind: 'accepted'; commandId: string; entries: LogEntry[] }
   | { kind: 'rejected'; commandId: string; error: StoreError }
   | { kind: 'heartbeat'; from: string; latestSeq: number }
-  | { kind: 'sync-request'; from: string; sinceSeq: number }
+  | {
+      kind: 'sync-request';
+      from: string;
+      sinceSeq: number;
+      /** Pairs with `sync-response` to prevent injection of unsolicited sync payloads. */
+      syncSessionId: string;
+    }
   | {
       kind: 'sync-response';
       to: string;
       snapshot: Snapshot;
       baseSeq: number;
+      syncSessionId: string;
       /** Log rows with seq <= baseSeq (materialized in `snapshot`). */
       prefix: LogEntry[];
       /** Log rows with seq > baseSeq. */

@@ -6,6 +6,7 @@ import type { Event, Message, StoreError } from '../protocol/message-types'
 import type { Command, State, StoreModule } from '../peer-store/peer-store-types'
 import { PeerJoin, PeerLeave } from '../protocol/system-messages'
 import { generateId, isSystemEvent } from '../protocol/utils'
+import { testPeerForLabel } from '../testing/tictactoe-peers'
 
 const crash: Assert = Assert.crash()
 
@@ -14,6 +15,9 @@ export class DeterministicSimulator {
   private readonly topic: string
   private peer_ids: string[]
   private readonly initialMembership: Record<string, number>
+  private readonly initialMemberPublicKeys: Record<string, string>
+  private readonly roomSecret: string
+  private readonly peerSecretSeeds: Record<string, Uint8Array>
   private readonly timeoutMs: number | undefined
   private readonly heartbeatIntervalMs: number | undefined
   private readonly heartbeatTimeoutMs: number | undefined
@@ -27,6 +31,7 @@ export class DeterministicSimulator {
     previousAuthority: string
   }> = []
   private readonly advanceTimeFn: (ms: number) => void
+  private readonly wire_auth_failures: string[] = []
   private is_destroyed = false
   private logical_time = 0
 
@@ -35,6 +40,9 @@ export class DeterministicSimulator {
     config: {
       topic: string
       initialMembership: Record<string, number>
+      initialMemberPublicKeys: Record<string, string>
+      roomSecret: string
+      peerSecretSeeds: Record<string, Uint8Array>
       timeoutMs?: number
       heartbeatIntervalMs?: number
       heartbeatTimeoutMs?: number
@@ -44,11 +52,32 @@ export class DeterministicSimulator {
     const peerIds = Object.keys(config.initialMembership)
     crash.nonEmptyString(config.topic, 'simulator requires topic')
     crash.ok(peerIds.length >= 2, 'simulator requires at least 2 peers in initialMembership')
+    crash.record(
+      config.initialMemberPublicKeys,
+      'simulator requires initialMemberPublicKeys object',
+    )
+    crash.nonEmptyString(config.roomSecret, 'simulator requires roomSecret')
+    crash.record(config.peerSecretSeeds, 'simulator requires peerSecretSeeds object')
+    for (const id of peerIds) {
+      crash.ok(
+        id in config.initialMemberPublicKeys,
+        'initialMemberPublicKeys must contain every peer id',
+        { id },
+      )
+      crash.ok(
+        id in config.peerSecretSeeds,
+        'peerSecretSeeds must contain every peer id',
+        { id },
+      )
+    }
 
     this.module = module
     this.topic = config.topic
     this.peer_ids = peerIds
     this.initialMembership = { ...config.initialMembership }
+    this.initialMemberPublicKeys = { ...config.initialMemberPublicKeys }
+    this.roomSecret = config.roomSecret
+    this.peerSecretSeeds = { ...config.peerSecretSeeds }
     this.timeoutMs = config.timeoutMs
     this.heartbeatIntervalMs = config.heartbeatIntervalMs
     this.heartbeatTimeoutMs = config.heartbeatTimeoutMs
@@ -200,6 +229,10 @@ export class DeterministicSimulator {
     return [...this.error_log]
   }
 
+  getWireAuthFailures(): string[] {
+    return [...this.wire_auth_failures]
+  }
+
   getAuthorityChangeLog(): Array<{
     newAuthority: string
     previousAuthority: string
@@ -275,11 +308,17 @@ export class DeterministicSimulator {
    * Add a new peer that bootstraps with `join` (syncs from current authority).
    * Caller should `deliverPending` / `resumeDelivery` so sync completes.
    */
-  joinPeer(peerId: string, trust: number): void {
+  /**
+   * @param joinLabel Stable label used to derive the joiner's self-certifying `peerId`.
+   */
+  joinPeer(joinLabel: string, trust: number): void {
     crash.ok(!this.is_destroyed, 'cannot joinPeer on destroyed simulator')
-    crash.nonEmptyString(peerId, 'peerId must be non-empty')
-    crash.ok(!this.stores.has(peerId), `peer already exists: ${peerId}`)
+    crash.nonEmptyString(joinLabel, 'joinLabel must be non-empty')
     crash.ok(trust >= 0, 'trust must be >= 0')
+
+    const tp = testPeerForLabel(joinLabel)
+    const peerId = tp.peerId
+    crash.ok(!this.stores.has(peerId), `peer already exists: ${peerId}`)
 
     const transport = new InMemoryTransport(this.bus, peerId)
     this.transports.set(peerId, transport)
@@ -289,8 +328,16 @@ export class DeterministicSimulator {
       {
         topic: this.topic,
         peerId,
-        bootstrap: { kind: 'join' },
+        bootstrap: {
+          kind: 'join',
+          initialMembership: this.initialMembership,
+          initialMemberPublicKeys: this.initialMemberPublicKeys,
+        },
         transport,
+        security: {
+          roomSecret: this.roomSecret,
+          secretSeed: tp.secretSeed,
+        },
         ...(this.timeoutMs !== undefined ? { timeoutMs: this.timeoutMs } : {}),
         ...(this.heartbeatIntervalMs !== undefined
           ? { heartbeatIntervalMs: this.heartbeatIntervalMs }
@@ -309,12 +356,23 @@ export class DeterministicSimulator {
         onAuthorityChange: (newAuthority, previousAuthority) => {
           this.authority_change_log.push({ newAuthority, previousAuthority })
         },
+        onWireAuthFailure: (reason) => {
+          this.wire_auth_failures.push(reason)
+        },
       },
     )
     this.stores.set(peerId, store)
     this.peer_ids = [...this.peer_ids, peerId]
 
-    store.dispatch(PeerJoin({ peerId, trust }))
+    let guard = 0
+    while (!store.isSynced() && guard++ < 500) {
+      this.bus.flush()
+    }
+    crash.ok(store.isSynced(), 'joinPeer: new peer failed to complete initial sync', {
+      peerId,
+    })
+
+    store.dispatch(PeerJoin({ peerId, trust, publicKey: tp.publicKeyB64 }))
     this.bus.flush()
   }
 
@@ -352,6 +410,7 @@ export class DeterministicSimulator {
     this.timeout_log.length = 0
     this.error_log.length = 0
     this.authority_change_log.length = 0
+    this.wire_auth_failures.length = 0
     this.logical_time = 0
   }
 
@@ -381,8 +440,13 @@ export class DeterministicSimulator {
           bootstrap: {
             kind: 'genesis',
             initialMembership: this.initialMembership,
+            initialMemberPublicKeys: this.initialMemberPublicKeys,
           },
           transport,
+          security: {
+            roomSecret: this.roomSecret,
+            secretSeed: this.peerSecretSeeds[peerId]!,
+          },
           ...(this.timeoutMs !== undefined
             ? { timeoutMs: this.timeoutMs }
             : {}),
@@ -402,6 +466,9 @@ export class DeterministicSimulator {
           },
           onAuthorityChange: (newAuthority, previousAuthority) => {
             this.authority_change_log.push({ newAuthority, previousAuthority })
+          },
+          onWireAuthFailure: (reason) => {
+            this.wire_auth_failures.push(reason)
           },
         },
       )

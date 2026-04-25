@@ -1,33 +1,38 @@
 import { Assert } from '@gamezilla/lib/assert';
 import type { MessageRouter } from '@gamezilla/lib/message';
+import { randomBytes } from 'node:crypto';
 import type { LogEntry } from '../peer-store-persistence/log-entry';
 import type { Event, Message, StoreError } from '../protocol/message-types';
 import {
   PeerStoreNotSynced,
   PeerStoreUnknownSystemCommand,
 } from '../protocol/store-errors';
-import {
-  PeerJoined,
-  peerNamespace,
-} from '../protocol/system-messages';
+import { PeerJoin, peerNamespace } from '../protocol/system-messages';
 import { generateId, isSystemEvent } from '../protocol/utils';
 import type { Transport } from '../transport/transport-types';
 import { assertHandleResult } from './assert-handle-result';
 import { broadcastHeartbeat, checkAuthorityChange } from './authority-monitor';
+import { computeAuthorityOrder, membershipToRecord } from './membership';
 import {
-  computeAuthorityOrder,
-  membershipToRecord,
-  rebuildMembershipFromLog,
-} from './membership';
+  signWireEnvelope,
+  verifyWireEnvelope,
+  type VerifiedWireEnvelope,
+} from './security/wire-envelope';
 import type {
   Command,
   PeerBootstrap,
   PeerStoreApi,
+  PeerStoreSecurityConfig,
   State,
   StoreEffect,
   StoreModule,
 } from './peer-store-types';
-import { replayDomainEntries } from './replay';
+import { validatePeerStoreInitConfig } from './peer-store-config-validate';
+import { runPeerStoreConstructorBootstrap } from './peer-store-constructor-bootstrap';
+import { applyRehydrateCommittedEntries } from './peer-store-rehydrate';
+import {
+  finalizeInboundWireVerification,
+} from './peer-store-wire-auth';
 import {
   createSystemCommandRouter,
   type SystemRouterContext,
@@ -47,6 +52,7 @@ type PeerStoreConfig = {
   peerId: string;
   bootstrap: PeerBootstrap;
   transport: Transport;
+  security: PeerStoreSecurityConfig;
   timeoutMs?: number;
   heartbeatIntervalMs?: number;
   heartbeatTimeoutMs?: number;
@@ -66,6 +72,8 @@ type PeerStoreCallbacks = {
     newAuthority: string,
     previousAuthority: string,
   ) => void;
+  /** Cryptographic verification failed for an inbound wire envelope. */
+  onWireAuthFailure?: (reason: string) => void;
 };
 
 const sharedSystemRouter: MessageRouter<
@@ -79,10 +87,11 @@ export class PeerStore implements PeerStoreApi {
   readonly peerId: string;
   readonly topic: string;
   readonly transport: Transport;
+  readonly security: PeerStoreSecurityConfig;
   private readonly timeoutMs: number;
   private readonly heartbeatIntervalMs: number;
   readonly heartbeatTimeoutMs: number;
-  private readonly bootstrapKind: 'genesis' | 'join';
+  readonly bootstrapKind: 'genesis' | 'join';
 
   membership = new Map<string, number>();
   authority_order: string[] = [];
@@ -90,6 +99,14 @@ export class PeerStore implements PeerStoreApi {
   current_authority = '';
 
   readonly callbacks: PeerStoreCallbacks;
+
+  /** Join bootstrap only: genesis view for auth + authority until `synced`. */
+  private readonly joinGenesis:
+    | {
+        initialMembership: Record<string, number>
+        initialMemberPublicKeys: Record<string, string>
+      }
+    | null = null;
 
   committed_state: State;
   committed_entries: LogEntry[] = [];
@@ -102,6 +119,14 @@ export class PeerStore implements PeerStoreApi {
   sync_pending = false;
   /** Join bootstrap: false until first successful sync-response. */
   synced: boolean;
+
+  /** Known Ed25519 public keys for members (from genesis or replicated log). */
+  readonly memberPublicKeys = new Map<string, Uint8Array>();
+  /** Last accepted inbound wire counter per remote signer. */
+  readonly inboundWireCounters = new Map<string, number>();
+  outboundWireCounter = 0;
+  /** Active sync session id (requester only). */
+  pendingSyncSessionId: string | null = null;
 
   private readonly subscribers = new Set<(state: State) => void>();
   readonly pending_timeouts = new Map<
@@ -119,28 +144,35 @@ export class PeerStore implements PeerStoreApi {
     config: PeerStoreConfig,
     callbacks?: PeerStoreCallbacks,
   ) {
-    validatePeerStoreConfig(config);
+    validatePeerStoreInitConfig(config);
 
     this.module = module;
     this.peerId = config.peerId;
     this.topic = config.topic;
     this.transport = config.transport;
+    this.security = config.security;
     this.timeoutMs = config.timeoutMs ?? 5000;
     this.heartbeatIntervalMs = config.heartbeatIntervalMs ?? 2000;
     this.heartbeatTimeoutMs = config.heartbeatTimeoutMs ?? 6000;
     this.callbacks = callbacks ?? {};
 
-    this.committed_state = module.initialState();
-    crash.record(
-      this.committed_state,
-      'initialState must return a plain object',
+    const boot = runPeerStoreConstructorBootstrap(
+      module,
+      {
+        peerId: config.peerId,
+        bootstrap: config.bootstrap,
+        security: this.security,
+      },
+      this.memberPublicKeys,
+      this.last_seen,
     );
-
-    this.bootstrapKind = config.bootstrap.kind;
-    this.synced = config.bootstrap.kind === 'genesis';
-    if (config.bootstrap.kind === 'genesis') {
-      this.applyGenesisBootstrap(config.bootstrap.initialMembership);
-    }
+    this.bootstrapKind = boot.bootstrapKind;
+    this.synced = boot.synced;
+    this.joinGenesis = boot.joinGenesis;
+    this.membership = boot.membership;
+    this.committed_entries = boot.committed_entries;
+    this.committed_state = boot.committed_state;
+    this.last_committed_log_seq = boot.last_committed_log_seq;
 
     this.rebuildAuthorityFromMembership();
     this.attachTransport();
@@ -152,6 +184,50 @@ export class PeerStore implements PeerStoreApi {
     if (this.bootstrapKind === 'join') {
       this.requestSync();
     }
+  }
+
+  /** Publish a signed wire envelope (all outbound store traffic must use this). */
+  publishSignedWire(body: WireMessage): void {
+    crash.ok(!this.is_destroyed, 'cannot publish on destroyed store');
+    this.outboundWireCounter += 1;
+    const env = signWireEnvelope({
+      topic: this.topic,
+      roomSecret: this.security.roomSecret,
+      body,
+      signerPeerId: this.peerId,
+      secretSeed: this.security.secretSeed,
+      counter: this.outboundWireCounter,
+    });
+    this.transport.publish(this.topic, env);
+  }
+
+  /**
+   * Verify inbound signed envelope; updates `inboundWireCounters` on success.
+   * Returns null on failure (invokes `onWireAuthFailure`).
+   */
+  verifyInboundWire(raw: unknown): VerifiedWireEnvelope | null {
+    const vr = verifyWireEnvelope({
+      topic: this.topic,
+      roomSecret: this.security.roomSecret,
+      raw,
+      lastCounters: this.inboundWireCounters,
+    });
+    if (!('signerPublicKey' in vr)) {
+      this.callbacks.onWireAuthFailure?.(vr.reason);
+      return null;
+    }
+    return finalizeInboundWireVerification(
+      {
+        security: this.security,
+        memberPublicKeys: this.memberPublicKeys,
+        current_authority: this.current_authority,
+        inboundWireCounters: this.inboundWireCounters,
+        ...(this.callbacks.onWireAuthFailure !== undefined
+          ? { onWireAuthFailure: this.callbacks.onWireAuthFailure }
+          : {}),
+      },
+      vr,
+    );
   }
 
   authorityEvaluateDomain(
@@ -175,21 +251,6 @@ export class PeerStore implements PeerStoreApi {
     };
   }
 
-  private applyGenesisBootstrap(initialMembership: Record<string, number>): void {
-    const initial = { ...initialMembership };
-    const peerIds = Object.keys(initial);
-    crash.ok(
-      peerIds.length >= 2,
-      'genesis initialMembership must have >= 2 peers',
-    );
-    crash.ok(this.peerId in initial, 'initialMembership must contain peerId');
-    for (const [id, weight] of Object.entries(initial)) {
-      crash.nonEmptyString(id, 'peer id must be non-empty');
-      crash.ok(weight >= 0, `trust weight for peer ${id} must be >= 0`);
-    }
-    this.seedGenesisLog(initial);
-  }
-
   private attachTransport(): void {
     this.transport_unsubscribe = this.transport.subscribe(
       this.topic,
@@ -205,20 +266,11 @@ export class PeerStore implements PeerStoreApi {
     broadcastHeartbeat(this);
   }
 
-  private seedGenesisLog(initial: Record<string, number>): void {
-    const sortedIds = Object.keys(initial).sort((a, b) => a.localeCompare(b));
-    const entries: LogEntry[] = sortedIds.map((id, idx) => ({
-      seq: idx + 1,
-      event: PeerJoined({ peerId: id, trust: initial[id]! }),
-    }));
-    this.membership = rebuildMembershipFromLog(entries);
-    this.committed_entries = entries;
-    this.committed_state = replayDomainEntries(this.module, entries);
-    this.last_committed_log_seq = entries[entries.length - 1]!.seq;
-  }
-
   rebuildAuthorityFromMembership(): void {
-    const record = membershipToRecord(this.membership);
+    const record =
+      this.joinGenesis !== null && this.bootstrapKind === 'join' && !this.synced
+        ? this.joinGenesis.initialMembership
+        : membershipToRecord(this.membership);
     this.authority_order = computeAuthorityOrder(record);
     this.current_authority = this.authority_order[0] ?? this.peerId;
   }
@@ -234,7 +286,12 @@ export class PeerStore implements PeerStoreApi {
       'message.type must be non-empty string',
     );
 
-    if (this.bootstrapKind === 'join' && !this.synced) {
+    const allowJoinBeforeSync =
+      this.bootstrapKind === 'join' &&
+      !this.synced &&
+      PeerJoin.is(message);
+
+    if (this.bootstrapKind === 'join' && !this.synced && !allowJoinBeforeSync) {
       this.callbacks.onError?.(PeerStoreNotSynced({}));
       return;
     }
@@ -286,7 +343,7 @@ export class PeerStore implements PeerStoreApi {
     effects?: StoreEffect[],
   ): void {
     handleCommitEntries(this, commandId, entries, effects);
-    this.transport.publish(this.topic, {
+    this.publishSignedWire({
       kind: 'accepted',
       commandId,
       entries,
@@ -318,7 +375,7 @@ export class PeerStore implements PeerStoreApi {
   }
 
   private proposeToAuthority(command: Command): void {
-    this.transport.publish(this.topic, {
+    this.publishSignedWire({
       kind: 'propose',
       command,
     } satisfies WireMessage);
@@ -405,47 +462,24 @@ export class PeerStore implements PeerStoreApi {
   requestSync(): void {
     crash.ok(!this.is_destroyed, 'cannot requestSync on destroyed store');
     this.sync_pending = true;
-    this.transport.publish(this.topic, {
+    const syncSessionId = randomBytes(16).toString('hex');
+    this.pendingSyncSessionId = syncSessionId;
+    this.publishSignedWire({
       kind: 'sync-request',
       from: this.peerId,
       sinceSeq: this.latestLogSeq,
+      syncSessionId,
     } satisfies WireMessage);
   }
 
   rehydrate(entries: LogEntry[]): void {
     crash.ok(!this.is_destroyed, 'cannot rehydrate on destroyed store');
-    crash.array(entries, 'entries must be an array');
-    const sorted = [...entries].sort((a, b) => a.seq - b.seq);
-    let prev = 0;
-    for (const e of sorted) {
-      validation.nonEmptyString(
-        e.event.type,
-        'rehydrated event must have non-empty type',
-      );
-      crash.ok(
-        e.seq > prev,
-        'rehydrate entries must have strictly increasing seq',
-      );
-      prev = e.seq;
-    }
+    applyRehydrateCommittedEntries(this, entries);
+  }
 
-    this.membership = rebuildMembershipFromLog(sorted);
-    this.committed_entries = [...sorted];
-    this.committed_state = replayDomainEntries(this.module, sorted);
-    this.optimistic_events = [];
-
-    for (const timeout of this.pending_timeouts.values()) {
-      clearTimeout(timeout);
-    }
-    this.pending_timeouts.clear();
-    this.finalized_command_ids.clear();
-
-    this.last_committed_log_seq =
-      sorted.length > 0 ? sorted[sorted.length - 1]!.seq : 0;
-
-    this.rebuildAuthorityFromMembership();
-    this.synced = true;
-    this.notifySubscribers();
+  isSynced(): boolean {
+    crash.ok(!this.is_destroyed, 'cannot query sync state on destroyed store');
+    return this.synced;
   }
 
   destroy(): void {
@@ -500,14 +534,5 @@ export class PeerStore implements PeerStoreApi {
     for (const callback of [...this.subscribers]) {
       callback(state);
     }
-  }
-
-}
-
-function validatePeerStoreConfig(config: PeerStoreConfig): void {
-  crash.nonEmptyString(config.topic, 'config.topic must be non-empty');
-  crash.nonEmptyString(config.peerId, 'config.peerId must be non-empty');
-  if (config.timeoutMs !== undefined) {
-    crash.ok(config.timeoutMs > 0, 'timeoutMs must be > 0');
   }
 }

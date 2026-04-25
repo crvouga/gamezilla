@@ -70,3 +70,15 @@ export const PeerStoreUnknownSystemCommand = errNs(
 )
 
 export const PeerStoreNotSynced = errNs('NOT_SYNCED', validateEmpty)
+
+export const PeerStoreInvalidPublicKey = errNs(
+  'INVALID_PUBLIC_KEY',
+  validateDetail,
+)
+
+export const PeerStoreWireAuthFailed = errNs('WIRE_AUTH_FAILED', validateDetail)
+
+export const PeerStoreSyncSessionMismatch = errNs(
+  'SYNC_SESSION_MISMATCH',
+  validateDetail,
+)

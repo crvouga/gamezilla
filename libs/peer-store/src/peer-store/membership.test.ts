@@ -13,6 +13,10 @@ import { TicTacToeModule } from '../testing/fixtures/tic-tac-toe.module';
 import { DeterministicSimulator } from '../simulator';
 import { PeerLeave, PeerTrustUpdate } from '../protocol/system-messages';
 import { TestCrashHandler } from '../testing/test-crash-handler';
+import {
+  testPeerForLabel,
+  ticTacToeThreePeers,
+} from '../testing/tictactoe-peers';
 import { membershipToRecord, rebuildMembershipFromLog } from './membership';
 
 let disposeCrashHandler: () => void;
@@ -21,19 +25,29 @@ beforeAll(() => {
 });
 afterAll(() => disposeCrashHandler());
 
-const BASE = { 'player-x': 1, 'player-o': 1, authority: 3 } as const;
+const FIX = ticTacToeThreePeers();
+const BASE = FIX.initialMembership;
+const PEER = {
+  authority: FIX.peers.authority.peerId,
+  playerX: FIX.peers.playerX.peerId,
+  playerO: FIX.peers.playerO.peerId,
+} as const;
 
 function createSim() {
-  const sim = new DeterministicSimulator(TicTacToeModule, {
+  return new DeterministicSimulator(TicTacToeModule, {
     topic: 'membership-test',
     initialMembership: { ...BASE },
+    initialMemberPublicKeys: FIX.initialMemberPublicKeys,
+    roomSecret: FIX.roomSecret,
+    peerSecretSeeds: FIX.peerSecretSeeds,
     advanceTime: (ms) => jest.advanceTimersByTime(ms),
   });
-
-  return sim;
 }
 
-function readMembership(sim: DeterministicSimulator, peerId: string): Record<string, number> {
+function readMembership(
+  sim: DeterministicSimulator,
+  peerId: string,
+): Record<string, number> {
   const entries = sim.getStore(peerId).getCommittedLogEntries();
   return membershipToRecord(rebuildMembershipFromLog(entries));
 }
@@ -54,10 +68,11 @@ describe('Dynamic membership', () => {
     const sim = createSim();
     sim.joinPeer('newbie', 2);
     sim.deliverPending();
-    for (const id of [...Object.keys(BASE), 'newbie']) {
+    const newbieId = testPeerForLabel('newbie').peerId;
+    for (const id of [...Object.keys(BASE), newbieId]) {
       expect(readMembership(sim, id)).toEqual({
         ...BASE,
-        newbie: 2,
+        [newbieId]: 2,
       });
     }
     sim.destroy();
@@ -66,31 +81,31 @@ describe('Dynamic membership', () => {
   it('authority can trust_update', () => {
     const sim = createSim();
     sim.dispatch(
-      'authority',
-      PeerTrustUpdate({ peerId: 'player-x', trust: 99 })
+      PEER.authority,
+      PeerTrustUpdate({ peerId: PEER.playerX, trust: 99 }),
     );
     sim.deliverPending();
-    expect(readMembership(sim, 'authority')['player-x']).toBe(99);
+    expect(readMembership(sim, PEER.authority)[PEER.playerX]).toBe(99);
     sim.destroy();
   });
 
   it('non-authority trust_update is rejected', () => {
     const sim = createSim();
-    const before = readMembership(sim, 'authority')['player-o'];
+    const before = readMembership(sim, PEER.authority)[PEER.playerO];
     sim.dispatch(
-      'player-x',
-      PeerTrustUpdate({ peerId: 'player-o', trust: 99 })
+      PEER.playerX,
+      PeerTrustUpdate({ peerId: PEER.playerO, trust: 99 }),
     );
     sim.deliverPending();
-    expect(readMembership(sim, 'authority')['player-o']).toBe(before);
+    expect(readMembership(sim, PEER.authority)[PEER.playerO]).toBe(before);
     sim.destroy();
   });
 
   it('self leave removes peer', () => {
     const sim = createSim();
-    sim.dispatch('player-x', PeerLeave({ peerId: 'player-x' }));
+    sim.dispatch(PEER.playerX, PeerLeave({ peerId: PEER.playerX }));
     sim.deliverPending();
-    expect(readMembership(sim, 'authority')['player-x']).toBeUndefined();
+    expect(readMembership(sim, PEER.authority)[PEER.playerX]).toBeUndefined();
     sim.destroy();
   });
 });

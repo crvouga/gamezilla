@@ -1,18 +1,23 @@
 import { Assert } from '@gamezilla/lib/assert';
+import { DeterministicSimulator } from '@gamezilla/peer-store/simulator';
 import {
   MarkPlaced,
   PlaceMark,
   TicTacToeModule,
 } from '@gamezilla/peer-store/testing/tic-tac-toe';
-import { DeterministicSimulator } from '@gamezilla/peer-store/simulator';
+import {
+  testPeerForLabel,
+  type TicTacToeTestPeer,
+} from '@gamezilla/peer-store/testing/tictactoe-peers';
 import type { Event, Message, State } from '@gamezilla/peer-store/types';
 import { isSystemEvent } from '@gamezilla/peer-store/utils';
+import { formatLogForClipboard } from './playground-format';
 import {
+  PEERS,
   TRUST_MAP,
   type LogEntry,
   type PeerId,
 } from './playground-types';
-import { formatLogForClipboard } from './playground-format';
 
 export {
   PEERS,
@@ -20,10 +25,14 @@ export {
   type CheatLogEntry,
   type LogEntry,
   type MessageLogEntry,
-  type PeerId,
+  type PeerId
 } from './playground-types';
 
 const crash: Assert = Assert.crash();
+
+function playgroundPeer(id: PeerId): TicTacToeTestPeer {
+  return testPeerForLabel(`peer-store-playground:${id}`);
+}
 
 function wireRecord(payload: unknown): Record<string, unknown> {
   crash.record(payload, 'wire payload must be a plain object');
@@ -32,19 +41,43 @@ function wireRecord(payload: unknown): Record<string, unknown> {
 
 export class PlaygroundSimulator {
   private sim: DeterministicSimulator;
+  private readonly peerBinding: Record<PeerId, TicTacToeTestPeer>;
   private entries: LogEntry[] = [];
   private next_id = 0;
   private listeners = new Set<() => void>();
   private spoofing_peers = new Set<PeerId>();
 
   constructor() {
+    this.peerBinding = {
+      'player-x': playgroundPeer('player-x'),
+      'player-o': playgroundPeer('player-o'),
+      server: playgroundPeer('server'),
+      observer: playgroundPeer('observer'),
+    };
     this.sim = this.createSim();
   }
 
+  /** Map UI peer label → simulator / `PeerStore` peer id (Ed25519-derived). */
+  private simPeer(p: PeerId): string {
+    return this.peerBinding[p].peerId;
+  }
+
   private createSim(): DeterministicSimulator {
+    const initialMembership: Record<string, number> = {};
+    const initialMemberPublicKeys: Record<string, string> = {};
+    const peerSecretSeeds: Record<string, Uint8Array> = {};
+    for (const p of PEERS) {
+      const b = this.peerBinding[p]!;
+      initialMembership[b.peerId] = TRUST_MAP[p];
+      initialMemberPublicKeys[b.peerId] = b.publicKeyB64;
+      peerSecretSeeds[b.peerId] = b.secretSeed;
+    }
     return new DeterministicSimulator(TicTacToeModule, {
       topic: 'peer-store-playground',
-      initialMembership: { ...TRUST_MAP },
+      initialMembership,
+      initialMemberPublicKeys,
+      roomSecret: 'peer-store-playground-room',
+      peerSecretSeeds,
       advanceTime: () => {
         /* browser playground has no fake timers */
       },
@@ -52,8 +85,8 @@ export class PlaygroundSimulator {
   }
 
   dispatch(peerId: PeerId, message: Message): void {
-    const eventsBefore = this.sim.getEventLog('server').length;
-    this.sim.dispatch(peerId, message);
+    const eventsBefore = this.sim.getEventLog(this.simPeer('server')).length;
+    this.sim.dispatch(this.simPeer(peerId), message);
     this.pushEntry({
       kind: 'action',
       tag: 'dispatch',
@@ -66,15 +99,15 @@ export class PlaygroundSimulator {
   }
 
   getState(peerId: PeerId): State {
-    return this.sim.getState(peerId);
+    return this.sim.getState(this.simPeer(peerId));
   }
 
   getCommittedState(peerId: PeerId): State {
-    return this.sim.getCommittedState(peerId);
+    return this.sim.getCommittedState(this.simPeer(peerId));
   }
 
   getEventLog(peerId: PeerId): Event[] {
-    return this.sim.getEventLog(peerId);
+    return this.sim.getEventLog(this.simPeer(peerId));
   }
 
   pauseDelivery(): void {
@@ -111,7 +144,7 @@ export class PlaygroundSimulator {
   }
 
   disconnectPeer(peerId: PeerId): void {
-    this.sim.disconnectPeer(peerId);
+    this.sim.disconnectPeer(this.simPeer(peerId));
     this.pushEntry({
       kind: 'action',
       tag: 'disconnect',
@@ -123,7 +156,7 @@ export class PlaygroundSimulator {
   }
 
   reconnectPeer(peerId: PeerId): void {
-    this.sim.reconnectPeer(peerId);
+    this.sim.reconnectPeer(this.simPeer(peerId));
     this.pushEntry({
       kind: 'action',
       tag: 'reconnect',
@@ -193,9 +226,9 @@ export class PlaygroundSimulator {
         ...message,
         payload: { ...payload, player: spoofedPlayer },
       };
-      const eventsBefore = this.sim.getEventLog('server').length;
+      const eventsBefore = this.sim.getEventLog(this.simPeer('server')).length;
       try {
-        this.sim.dispatch(peerId, spoofedMessage);
+        this.sim.dispatch(this.simPeer(peerId), spoofedMessage);
       } catch {
         this.pushEntry({
           kind: 'cheat',
@@ -232,7 +265,7 @@ export class PlaygroundSimulator {
       player: spoofedPlayer as 'X' | 'O',
     });
     try {
-      this.sim.dispatch(attackerId, message);
+      this.sim.dispatch(this.simPeer(attackerId), message);
       this.pushEntry({
         kind: 'cheat',
         tag: 'cheat',
@@ -256,7 +289,7 @@ export class PlaygroundSimulator {
 
   cheatFabricateCommit(): void {
     const errorsBefore = this.sim.getErrorLog().length;
-    const nextSeq = this.sim.getLatestSeq('server') + 1;
+    const nextSeq = this.sim.getLatestSeq(this.simPeer('server')) + 1;
     const wireMsg = {
       kind: 'accepted',
       commandId: `fabricated-${Date.now()}`,
@@ -284,7 +317,7 @@ export class PlaygroundSimulator {
 
   cheatReplay(): void {
     const domain = this.sim
-      .getCommittedLogEntries('server')
+      .getCommittedLogEntries(this.simPeer('server'))
       .filter((e) => !isSystemEvent(e.event));
     if (domain.length === 0) {
       this.pushEntry({
@@ -297,7 +330,7 @@ export class PlaygroundSimulator {
       this.notify();
       return;
     }
-    const start = this.sim.getLatestSeq('server') + 1;
+    const start = this.sim.getLatestSeq(this.simPeer('server')) + 1;
     const entries = domain.map((e, i) => ({
       seq: start + i,
       event: e.event,
@@ -401,11 +434,11 @@ export class PlaygroundSimulator {
     for (let i = 0; i < 20; i++) {
       try {
         this.sim.dispatch(
-          flooderId,
+          this.simPeer(flooderId),
           PlaceMark({
             cell: i % 9,
             player: (i % 2 === 0 ? 'X' : 'O') as 'X' | 'O',
-          }),
+          })
         );
         accepted++;
       } catch {
@@ -441,17 +474,17 @@ export class PlaygroundSimulator {
 
   formatLogForClipboard(): string {
     const finalStates: Record<PeerId, State> = {
-      'player-x': this.sim.getState('player-x'),
-      'player-o': this.sim.getState('player-o'),
-      server: this.sim.getState('server'),
-      observer: this.sim.getState('observer'),
+      'player-x': this.sim.getState(this.simPeer('player-x')),
+      'player-o': this.sim.getState(this.simPeer('player-o')),
+      server: this.sim.getState(this.simPeer('server')),
+      observer: this.sim.getState(this.simPeer('observer')),
     };
     return formatLogForClipboard({
       entries: this.entries,
       errors: this.sim.getErrorLog(),
       authorityChanges: this.sim.getAuthorityChangeLog(),
       finalStates,
-      serverEvents: this.sim.getEventLog('server'),
+      serverEvents: this.sim.getEventLog(this.simPeer('server')),
     });
   }
 
@@ -462,7 +495,7 @@ export class PlaygroundSimulator {
   }
 
   private logNewEvents(countBefore: number) {
-    const events = this.sim.getEventLog('server');
+    const events = this.sim.getEventLog(this.simPeer('server'));
     for (let i = countBefore; i < events.length; i++) {
       const ev = events[i]!;
       const raw = ev.payload;

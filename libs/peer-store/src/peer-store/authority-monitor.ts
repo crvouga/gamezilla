@@ -1,12 +1,14 @@
-import { Assert } from '@gamezilla/lib/assert';
-import type { PeerStore } from './peer-store';
 import type { WireMessage } from './wire-protocol';
+import type { PeerStore } from './peer-store';
 
-const crash: Assert = Assert.crash();
+export type LivenessSink = {
+  peerId: string;
+  last_seen: Map<string, number>;
+};
 
 export function broadcastHeartbeat(self: PeerStore): void {
   if (self.is_destroyed) return;
-  self.transport.publish(self.topic, {
+  self.publishSignedWire({
     kind: 'heartbeat',
     from: self.peerId,
     latestSeq: self.latestLogSeq,
@@ -32,28 +34,28 @@ function deriveAuthority(self: PeerStore): string {
 function isAlive(self: PeerStore, peerId: string): boolean {
   if (peerId === self.peerId) return true;
   const lastSeen = self.last_seen.get(peerId);
-  if (lastSeen === undefined) return true;
+  if (lastSeen === undefined) return false;
   return Date.now() - lastSeen < self.heartbeatTimeoutMs;
 }
 
-export function updateLastSeenFromRecord(
-  self: PeerStore,
-  msg: Record<string, unknown>,
-): void {
-  const from = msg['from'];
-  if (typeof from === 'string' && from !== self.peerId) {
-    self.last_seen.set(from, Date.now());
+/** Call when membership learns a remote peer so failover can run before first heartbeat. */
+export function seedDiscoveredPeerLiveness(self: LivenessSink, peerId: string): void {
+  if (peerId === self.peerId) return;
+  self.last_seen.set(peerId, Date.now());
+}
+
+export function seedAllRemotePeersLiveness(self: LivenessSink & { membership: Map<string, number> }): void {
+  for (const id of self.membership.keys()) {
+    seedDiscoveredPeerLiveness(self, id);
   }
-  const commandUnknown = msg['command'];
-  if (
-    commandUnknown !== null &&
-    typeof commandUnknown === 'object' &&
-    !Array.isArray(commandUnknown)
-  ) {
-    crash.record(commandUnknown, 'propose command must be a plain object');
-    const cmdPeerId = commandUnknown['peerId'];
-    if (typeof cmdPeerId === 'string' && cmdPeerId !== self.peerId) {
-      self.last_seen.set(cmdPeerId, Date.now());
-    }
+}
+
+/** After cryptographic verification, record liveness for the authenticated signer. */
+export function updateLastSeenVerified(
+  self: PeerStore,
+  signerPeerId: string,
+): void {
+  if (signerPeerId !== self.peerId) {
+    self.last_seen.set(signerPeerId, Date.now());
   }
 }

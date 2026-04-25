@@ -15,6 +15,7 @@ export type {
   HandleResult,
   PeerBootstrap,
   PeerStoreApi,
+  PeerStoreSecurityConfig,
   Snapshot,
   State,
   StoreEffect,
@@ -33,6 +34,9 @@ export {
   InMemoryTransport,
   type MessageInterceptor,
 } from './transport';
-export type { Transport } from './transport/transport-types';
+export type {
+  Transport,
+  TransportMessageContext,
+} from './transport/transport-types';
 export { computeTrustMap, TrustElection } from './trust-election';
 export type { TrustVote } from './trust-election';

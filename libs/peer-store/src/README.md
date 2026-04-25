@@ -48,3 +48,36 @@ If your feature is single-player/local-only with no peer coordination, this laye
 - **Fail loud**: broken invariants should surface immediately.
 - **Explicit over implicit**: predictable flow beats hidden magic.
 - **Peer, never authority**: coordinators help agreement; they do not become truth.
+
+## Wire security (production posture)
+
+`PeerStore` wire traffic is **signed** (Ed25519) and bound to a **match-scoped room secret** plus the store topic. Each peer’s `peerId` is **self-certifying** (derived from its public key). Join commands must carry the joining peer’s public key and must match the claimed `peerId`.
+
+### What this defends against
+
+- **Spoofed sender / forged `peerId`**: unsigned or wrongly signed messages are dropped before any state transition.
+- **Replay**: a per-signer monotonic counter is enforced for inbound wire messages; counters are persisted with durable state.
+- **Non-authority commits**: `accepted`, `rejected`, and `sync-response` must verify as the **current authority** signer and (for sync) match a **pending sync session** opened by this replica.
+
+### Bootstrap & trust (pure P2P)
+
+- **Room secret**: all peers in a match must agree on the same secret out-of-band (QR, voice, lobby server, etc.). Without it, signatures will not verify.
+- **Optional fingerprints**: callers may require peer key fingerprints at session start (UX outside this library).
+- **Join**: `bootstrap: { kind: 'join', initialMembership, initialMemberPublicKeys }` pins the room’s genesis trust + keys so wire traffic verifies before the first `sync-response`. New members send `PeerJoin` **after** initial sync (the simulator’s `joinPeer` waits for this). `sync-request` / `heartbeat` accept any self-certifying signer (room secret + replay limits still apply) so a joiner can sync before appearing in the log.
+
+### Trust election
+
+`TrustElection` uses **signed ballots** scoped by `electionId`, with the same room binding and per-voter replay protection. **First valid ballot wins** per voter for a given election.
+
+### Transport contract
+
+`Transport.subscribe` may pass an optional **`TransportMessageContext`** (e.g. `senderMeta` from a non-broadcast link). The in-memory bus passes `undefined`; **verification still happens in `PeerStore`** so broadcast transports remain safe when envelopes are used.
+
+### Residual risks (money matches / high stakes)
+
+- **Endpoint compromise**: malware on a device can sign arbitrary valid messages as that peer.
+- **Room secret leak**: anyone with the secret can produce valid wire traffic for that match.
+- **Colluding quorum**: authority + majority trust can still behave badly at the application layer—crypto does not prove honesty.
+- **MITM on a shared broadcast bus**: if an attacker can mutate bytes *after* a peer publishes but *before* others receive, followers may reject tampered commits while the publisher already applied locally—treat optimistic local application as UX, not cross-peer safety unless you add stricter commit gating.
+
+See tests under `src/testing/cheating.test.ts` and `trust-election.test.ts` for adversarial coverage.

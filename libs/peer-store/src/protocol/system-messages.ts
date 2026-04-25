@@ -15,6 +15,19 @@ function validatePeerIdTrust(
   return true
 }
 
+function validatePeerIdTrustPublicKey(
+  p: unknown,
+): p is { peerId: string; trust: number; publicKey: string } {
+  if (!isPlainRecord(p)) return false
+  const peerId = p['peerId']
+  const trust = p['trust']
+  const publicKey = p['publicKey']
+  if (typeof peerId !== 'string' || peerId.length === 0) return false
+  if (typeof trust !== 'number' || !Number.isFinite(trust) || trust < 0)
+    return false
+  return typeof publicKey === 'string' && publicKey.length > 0
+}
+
 function validatePeerIdOnly(p: unknown): p is { peerId: string } {
   if (!isPlainRecord(p)) return false
   const peerId = p['peerId']
@@ -24,10 +37,12 @@ function validatePeerIdOnly(p: unknown): p is { peerId: string } {
 /** Wire namespace for membership / system commands and events (`_peer/...`). */
 export const peerNamespace = createNamespace('_peer')
 
-export const PeerJoin = peerNamespace<{ peerId: string; trust: number }>(
-  'join',
-  validatePeerIdTrust,
-)
+export const PeerJoin = peerNamespace<{
+  peerId: string
+  trust: number
+  /** Base64url-encoded 32-byte Ed25519 public key (must match self-certifying peerId). */
+  publicKey: string
+}>('join', validatePeerIdTrustPublicKey)
 export const PeerLeave = peerNamespace<{ peerId: string }>(
   'leave',
   validatePeerIdOnly,
@@ -37,10 +52,11 @@ export const PeerTrustUpdate = peerNamespace<{
   trust: number
 }>('trust_update', validatePeerIdTrust)
 
-export const PeerJoined = peerNamespace<{ peerId: string; trust: number }>(
-  'joined',
-  validatePeerIdTrust,
-)
+export const PeerJoined = peerNamespace<{
+  peerId: string
+  trust: number
+  publicKey: string
+}>('joined', validatePeerIdTrustPublicKey)
 export const PeerLeft = peerNamespace<{ peerId: string }>(
   'left',
   validatePeerIdOnly,

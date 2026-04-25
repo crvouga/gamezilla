@@ -4,6 +4,7 @@ export type {
   HandleResult,
   PeerBootstrap,
   PeerStoreApi,
+  PeerStoreSecurityConfig,
   Snapshot,
   State,
   StoreEffect,
