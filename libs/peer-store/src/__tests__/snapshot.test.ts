@@ -9,7 +9,7 @@ import {
   it,
   jest,
 } from 'bun:test'
-import { TicTacToeModule } from '../__fixtures__/tic-tac-toe.module'
+import { PlaceMark, TicTacToeModule } from '../__fixtures__/tic-tac-toe.module'
 import { DeterministicSimulator } from '../simulator'
 import { TestCrashHandler } from './test-crash-handler'
 import { ticTacToeBoardCell } from './tic-tac-toe-board'
@@ -33,10 +33,7 @@ describe('Snapshot and incremental sync', () => {
       advanceTime: (ms) => jest.advanceTimersByTime(ms),
     })
 
-    sim.dispatch('authority', {
-      type: 'PLACE_MARK',
-      payload: { cell: 4, player: 'X' },
-    })
+    sim.dispatch('authority', PlaceMark({ cell: 4, player: 'X' }))
     sim.deliverPending()
 
     expect(sim.getCommittedLogEntries('authority').length).toBe(4)
@@ -52,10 +49,7 @@ describe('Snapshot and incremental sync', () => {
       advanceTime: (ms) => jest.advanceTimersByTime(ms),
     })
 
-    sim.dispatch('authority', {
-      type: 'PLACE_MARK',
-      payload: { cell: 4, player: 'X' },
-    })
+    sim.dispatch('authority', PlaceMark({ cell: 4, player: 'X' }))
     sim.deliverPending()
 
     sim.joinPeer('late', 1)

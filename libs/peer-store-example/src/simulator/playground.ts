@@ -1,5 +1,9 @@
 import { Assert } from '@gamezilla/lib/assert';
-import { TicTacToeModule } from '@gamezilla/peer-store/__fixtures__/tic-tac-toe.module';
+import {
+  MarkPlaced,
+  PlaceMark,
+  TicTacToeModule,
+} from '@gamezilla/peer-store/__fixtures__/tic-tac-toe.module';
 import { DeterministicSimulator } from '@gamezilla/peer-store/simulator';
 import type { Event, Message, State } from '@gamezilla/peer-store/types';
 import { isSystemEvent } from '@gamezilla/peer-store/utils';
@@ -203,7 +207,7 @@ export class PlaygroundSimulator {
   }
 
   dispatchWithSpoof(peerId: PeerId, message: Message): void {
-    if (this.spoofing_peers.has(peerId) && message.type === 'PLACE_MARK') {
+    if (this.spoofing_peers.has(peerId) && message.type === PlaceMark.type) {
       const payload = wireRecord(message.payload);
       const spoofedPlayer = payload['player'] === 'X' ? 'O' : 'X';
       const spoofedMessage: Message = {
@@ -244,10 +248,10 @@ export class PlaygroundSimulator {
 
   cheatSpoofIdentity(attackerId: PeerId): void {
     const spoofedPlayer = attackerId === 'player-x' ? 'O' : 'X';
-    const message: Message = {
-      type: 'PLACE_MARK',
-      payload: { cell: 4, player: spoofedPlayer },
-    };
+    const message: Message = PlaceMark({
+      cell: 4,
+      player: spoofedPlayer as 'X' | 'O',
+    });
     try {
       this.sim.dispatch(attackerId, message);
       this.pushEntry({
@@ -280,7 +284,7 @@ export class PlaygroundSimulator {
       entries: [
         {
           seq: nextSeq,
-          event: { type: 'MARK_PLACED', payload: { cell: 0, player: 'X', seq: 99 } },
+          event: MarkPlaced({ cell: 0, player: 'X', seq: 99 }),
         },
       ],
     };
@@ -356,7 +360,7 @@ export class PlaygroundSimulator {
         const event = row['event'];
         crash.record(event, 'entry.event must be object');
         const type = event['type'];
-        if (type !== 'MARK_PLACED') return row;
+        if (type !== MarkPlaced.type) return row;
         const p = event['payload'];
         crash.record(p, 'MARK_PLACED payload must be object');
         const cellRaw = p['cell'];
@@ -384,7 +388,7 @@ export class PlaygroundSimulator {
         '    const entries = msg["entries"] as Array<{ seq: number; event: Record<string, unknown> }>',
         '    return { ...msg, entries: entries.map((row) => {',
         '      const e = row.event',
-        '      if (e["type"] === "MARK_PLACED") {',
+        `      if (e["type"] === "${MarkPlaced.type}") {`,
         '        const p = e["payload"] as Record<string, unknown>',
         '        return { seq: row.seq, event: { ...e, payload: { ...p, cell: ((p["cell"] as number) + 4) % 9 } } }',
         '      }',
@@ -417,10 +421,13 @@ export class PlaygroundSimulator {
     let rejected = 0;
     for (let i = 0; i < 20; i++) {
       try {
-        this.sim.dispatch(flooderId, {
-          type: 'PLACE_MARK',
-          payload: { cell: i % 9, player: i % 2 === 0 ? 'X' : 'O' },
-        });
+        this.sim.dispatch(
+          flooderId,
+          PlaceMark({
+            cell: i % 9,
+            player: (i % 2 === 0 ? 'X' : 'O') as 'X' | 'O',
+          }),
+        );
         accepted++;
       } catch {
         rejected++;
@@ -430,7 +437,7 @@ export class PlaygroundSimulator {
       kind: 'cheat',
       tag: 'cheat',
       summary: `flood from ${flooderId}: ${accepted} accepted, ${rejected} rejected`,
-      code: `// flood: 20x dispatch from '${flooderId}' with alternating X/O\nfor (let i = 0; i < 20; i++) {\n  try {\n    sim.dispatch('${flooderId}', { type: 'PLACE_MARK', payload: { cell: i % 9, player: i % 2 === 0 ? 'X' : 'O' } })\n  } catch {}\n}`,
+      code: `// flood: 20x dispatch from '${flooderId}' with alternating X/O\nimport { PlaceMark } from '@gamezilla/peer-store/__fixtures__/tic-tac-toe.module'\nfor (let i = 0; i < 20; i++) {\n  try {\n    sim.dispatch('${flooderId}', PlaceMark({ cell: i % 9, player: (i % 2 === 0 ? 'X' : 'O') as 'X' | 'O' }))\n  } catch {}\n}`,
       peerId: flooderId,
       detected: rejected > 0,
     });

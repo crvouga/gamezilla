@@ -1,4 +1,5 @@
 import { Assert } from '@gamezilla/lib/assert'
+import { createNamespace, isPlainRecord } from '@gamezilla/lib/message'
 import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite'
 import {
   afterAll,
@@ -10,7 +11,11 @@ import {
   it,
 } from 'bun:test'
 import { Database } from 'bun:sqlite'
-import { TicTacToeModule } from '../__fixtures__/tic-tac-toe.module'
+import {
+  MarkPlaced,
+  PlaceMark,
+  TicTacToeModule,
+} from '../__fixtures__/tic-tac-toe.module'
 import { InMemoryEventLog, recoverFromEventLog } from '../event-log'
 import { SqliteEventLog } from '../event-log-sqlite'
 import { PeerStore } from '../peer-store'
@@ -19,6 +24,14 @@ import type { Command, LogEntry } from '../types'
 import { isSystemEvent } from '../utils'
 import { TestCrashHandler } from './test-crash-handler'
 import { ticTacToeBoardCell } from './tic-tac-toe-board'
+
+const eventLogTestNs = createNamespace('eventLogTest')
+function validateTurnChangedPayload(p: unknown): p is { next: string } {
+  if (!isPlainRecord(p)) return false
+  const next = p['next']
+  return typeof next === 'string' && next.length > 0
+}
+const TurnChanged = eventLogTestNs('TURN_CHANGED', validateTurnChangedPayload)
 
 let disposeCrashHandler: () => void
 beforeAll(() => {
@@ -313,7 +326,7 @@ describe('SqliteEventLog', () => {
       id: 'cmd-rt',
       seq: 7,
       peerId: 'player-x',
-      message: { type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } },
+      message: PlaceMark({ cell: 0, player: 'X' }),
     }
     await eventLog.append('g', { kind: 'command', command: cmd })
 
@@ -325,14 +338,14 @@ describe('SqliteEventLog', () => {
       expect(entry.command.id).toBe('cmd-rt')
       expect(entry.command.seq).toBe(7)
       expect(entry.command.peerId).toBe('player-x')
-      expect(entry.command.message.type).toBe('PLACE_MARK')
+      expect(PlaceMark.is(entry.command.message)).toBe(true)
     }
   })
 
   it('round-trips committed events through JSON', async () => {
     const logEntries: LogEntry[] = [
-      { seq: 1, event: { type: 'MARK_PLACED', payload: { cell: 0, player: 'X' } } },
-      { seq: 2, event: { type: 'TURN_CHANGED', payload: { next: 'O' } } },
+      { seq: 1, event: MarkPlaced({ cell: 0, player: 'X', seq: 1 }) },
+      { seq: 2, event: TurnChanged({ next: 'O' }) },
     ]
     await eventLog.append('g', {
       kind: 'committed',
@@ -345,8 +358,8 @@ describe('SqliteEventLog', () => {
     const entry = rows[0]!
     if (entry.kind === 'committed') {
       expect(entry.entries).toHaveLength(2)
-      expect(entry.entries[0]!.event.type).toBe('MARK_PLACED')
-      expect(entry.entries[1]!.event.type).toBe('TURN_CHANGED')
+      expect(MarkPlaced.is(entry.entries[0]!.event)).toBe(true)
+      expect(TurnChanged.is(entry.entries[1]!.event)).toBe(true)
     }
   })
 
@@ -492,9 +505,9 @@ describe('PeerStore + EventLog integration', () => {
   it('onCommit callback captures all committed events', () => {
     const { store_x, store_o, store_auth, committed, destroy } = setup()
 
-    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
-    store_o.dispatch({ type: 'PLACE_MARK', payload: { cell: 3, player: 'O' } })
-    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 1, player: 'X' } })
+    store_x.dispatch(PlaceMark({ cell: 0, player: 'X' }))
+    store_o.dispatch(PlaceMark({ cell: 3, player: 'O' }))
+    store_x.dispatch(PlaceMark({ cell: 1, player: 'X' }))
 
     expect(committed).toHaveLength(3)
 
@@ -512,9 +525,9 @@ describe('PeerStore + EventLog integration', () => {
 
     t_o.disconnect()
 
-    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
+    store_x.dispatch(PlaceMark({ cell: 0, player: 'X' }))
 
-    store_o.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
+    store_o.dispatch(PlaceMark({ cell: 0, player: 'X' }))
 
     t_o.reconnect()
 
@@ -526,8 +539,8 @@ describe('PeerStore + EventLog integration', () => {
   it('recovery from event log rebuilds state', async () => {
     const { store_x, store_o, store_auth, log, partitionKey, destroy } = setup()
 
-    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 4, player: 'X' } })
-    store_o.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'O' } })
+    store_x.dispatch(PlaceMark({ cell: 4, player: 'X' }))
+    store_o.dispatch(PlaceMark({ cell: 0, player: 'O' }))
 
     const originalState = store_auth.getCommittedState()
     expect(ticTacToeBoardCell(originalState, 4)).toBe('X')

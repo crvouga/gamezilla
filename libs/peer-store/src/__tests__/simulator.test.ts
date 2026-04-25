@@ -9,7 +9,11 @@ import {
   it,
   jest,
 } from 'bun:test'
-import { TicTacToeModule } from '../__fixtures__/tic-tac-toe.module'
+import {
+  MarkPlaced,
+  PlaceMark,
+  TicTacToeModule,
+} from '../__fixtures__/tic-tac-toe.module'
 import { DeterministicSimulator } from '../simulator'
 import { TestCrashHandler } from './test-crash-handler'
 import { ticTacToeBoardCell } from './tic-tac-toe-board'
@@ -38,10 +42,7 @@ describe('DeterministicSimulator', () => {
   it('pauseDelivery holds messages in queue', () => {
     const sim = createSim()
     sim.pauseDelivery()
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }))
     const state_o = sim.getCommittedState('player-o')
     expect(ticTacToeBoardCell(state_o, 0)).toBeNull()
     sim.destroy()
@@ -50,10 +51,7 @@ describe('DeterministicSimulator', () => {
   it('resumeDelivery delivers queued messages in order', () => {
     const sim = createSim()
     sim.pauseDelivery()
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }))
     sim.resumeDelivery()
     const state = sim.getCommittedState('player-o')
     expect(ticTacToeBoardCell(state, 0)).toBe('X')
@@ -76,10 +74,7 @@ describe('DeterministicSimulator', () => {
   it('dropNextMessage loses exactly one message', () => {
     const sim = createSim()
     sim.pauseDelivery()
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }))
     sim.dropNextMessage()
     sim.resumeDelivery()
     sim.destroy()
@@ -88,10 +83,7 @@ describe('DeterministicSimulator', () => {
   it('deliverPending flushes queue synchronously', () => {
     const sim = createSim()
     sim.pauseDelivery()
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }))
     sim.deliverPending()
     sim.resumeDelivery()
     sim.destroy()
@@ -100,10 +92,7 @@ describe('DeterministicSimulator', () => {
   it('disconnectPeer stops delivery to that peer', () => {
     const sim = createSim()
     sim.disconnectPeer('player-o')
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }))
     const state_o = sim.getCommittedState('player-o')
     expect(ticTacToeBoardCell(state_o, 0)).toBeNull()
     sim.destroy()
@@ -112,10 +101,7 @@ describe('DeterministicSimulator', () => {
   it('reconnectPeer resumes delivery', () => {
     const sim = createSim()
     sim.disconnectPeer('player-o')
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }))
     sim.reconnectPeer('player-o')
 
     const state_o = sim.getCommittedState('player-o')
@@ -125,10 +111,7 @@ describe('DeterministicSimulator', () => {
 
   it('assertConverged passes when all peers agree', () => {
     const sim = createSim()
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }))
     sim.assertConverged()
     sim.destroy()
   })
@@ -137,10 +120,7 @@ describe('DeterministicSimulator', () => {
     const sim = createSim()
 
     sim.disconnectPeer('player-o')
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }))
 
     expect(() => sim.assertConverged()).toThrow('diverged')
     sim.destroy()
@@ -151,10 +131,7 @@ describe('DeterministicSimulator', () => {
 
     sim.disconnectPeer('authority')
 
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }))
 
     const before = sim.getState('player-x')
     expect(ticTacToeBoardCell(before, 0)).toBe('X')
@@ -169,27 +146,18 @@ describe('DeterministicSimulator', () => {
 
   it('getEventLog returns committed events in seq order', () => {
     const sim = createSim()
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
-    sim.dispatch('player-o', {
-      type: 'PLACE_MARK',
-      payload: { cell: 4, player: 'O' },
-    })
+    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }))
+    sim.dispatch('player-o', PlaceMark({ cell: 4, player: 'O' }))
 
     const events = sim.getEventLog('player-x')
     expect(events.length).toBeGreaterThanOrEqual(2)
-    expect(events[0]!.type).toBe('MARK_PLACED')
+    expect(MarkPlaced.is(events[0]!)).toBe(true)
     sim.destroy()
   })
 
   it('reset returns all stores to initial state', () => {
     const sim = createSim()
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }))
     sim.reset()
     const state = sim.getCommittedState('player-x')
     expect(ticTacToeBoardCell(state, 0)).toBeNull()
@@ -200,10 +168,7 @@ describe('DeterministicSimulator', () => {
     const sim = createSim()
 
     sim.disconnectPeer('authority')
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }))
 
     const display = sim.getState('player-x')
     const committed = sim.getCommittedState('player-x')
@@ -215,10 +180,7 @@ describe('DeterministicSimulator', () => {
   it('getState includes optimistic events', () => {
     const sim = createSim()
     sim.disconnectPeer('authority')
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }))
     const state = sim.getState('player-x')
     expect(ticTacToeBoardCell(state, 0)).toBe('X')
     sim.destroy()
@@ -226,10 +188,7 @@ describe('DeterministicSimulator', () => {
 
   it('dispatch as specific peer sets correct peerId on command', () => {
     const sim = createSim()
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }))
     const events = sim.getEventLog('player-x')
     expect(events.length).toBeGreaterThanOrEqual(1)
     sim.destroy()
@@ -240,10 +199,7 @@ describe('DeterministicSimulator', () => {
 
     sim.disconnectPeer('player-o')
 
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }))
     expect(sim.getCommittedState('player-x')['currentTurn']).toBe('O')
     expect(sim.getCommittedState('authority')['currentTurn']).toBe('O')
 
@@ -252,10 +208,7 @@ describe('DeterministicSimulator', () => {
 
     sim.disconnectPeer('player-x')
 
-    sim.dispatch('player-o', {
-      type: 'PLACE_MARK',
-      payload: { cell: 4, player: 'O' },
-    })
+    sim.dispatch('player-o', PlaceMark({ cell: 4, player: 'O' }))
     expect(sim.getCommittedState('player-o')['currentTurn']).toBe('X')
     expect(sim.getCommittedState('authority')['currentTurn']).toBe('X')
 
@@ -263,10 +216,7 @@ describe('DeterministicSimulator', () => {
     expect(sim.getEventLog('player-x').length).toBe(2)
     expect(sim.getCommittedState('player-x')['currentTurn']).toBe('X')
 
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 1, player: 'X' },
-    })
+    sim.dispatch('player-x', PlaceMark({ cell: 1, player: 'X' }))
     expect(
       sim.getErrorLog().filter((e) => e.code === 'WRONG_TURN').length,
     ).toBe(0)
@@ -279,18 +229,12 @@ describe('DeterministicSimulator', () => {
   it('player disconnects after move, misses opponent move, syncs on reconnect via transport replay', () => {
     const sim = createSim()
 
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }))
     sim.assertConverged()
 
     sim.disconnectPeer('player-x')
 
-    sim.dispatch('player-o', {
-      type: 'PLACE_MARK',
-      payload: { cell: 4, player: 'O' },
-    })
+    sim.dispatch('player-o', PlaceMark({ cell: 4, player: 'O' }))
 
     expect(ticTacToeBoardCell(sim.getCommittedState('player-o'), 4)).toBe('O')
     expect(sim.getCommittedState('player-o')['currentTurn']).toBe('X')
@@ -302,10 +246,7 @@ describe('DeterministicSimulator', () => {
     expect(sim.getCommittedState('player-x')['currentTurn']).toBe('X')
     expect(ticTacToeBoardCell(sim.getCommittedState('player-x'), 4)).toBe('O')
 
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 1, player: 'X' },
-    })
+    sim.dispatch('player-x', PlaceMark({ cell: 1, player: 'X' }))
     expect(
       sim.getErrorLog().filter((e) => e.code === 'WRONG_TURN').length,
     ).toBe(0)

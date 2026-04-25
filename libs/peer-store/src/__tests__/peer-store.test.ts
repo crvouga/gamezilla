@@ -12,7 +12,7 @@ import { Assert } from '@gamezilla/lib/assert'
 import { PeerStore } from '../peer-store'
 import { InMemoryBus, InMemoryTransport } from '../transport'
 import type { HandleResult, State, StoreModule } from '../types'
-import { TicTacToeModule } from '../__fixtures__/tic-tac-toe.module'
+import { MarkPlaced, PlaceMark, TicTacToeModule } from '../__fixtures__/tic-tac-toe.module'
 import { TestCrashHandler } from './test-crash-handler'
 import { ticTacToeBoardCell } from './tic-tac-toe-board'
 
@@ -94,14 +94,14 @@ describe('PeerStore', () => {
     const store = stores.get('player-x')!
     store.destroy()
     expect(() =>
-      store.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } }),
+      store.dispatch(PlaceMark({ cell: 0, player: 'X' })),
     ).toThrow('destroyed')
   })
 
   it('dispatch calls onError when handle returns error', () => {
     const { stores, errors } = setup()
     const store = stores.get('player-o')!
-    store.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'O' } })
+    store.dispatch(PlaceMark({ cell: 0, player: 'O' }))
     expect(errors.length).toBe(1)
     expect(errors[0]!.code).toBe('WRONG_TURN')
   })
@@ -111,7 +111,7 @@ describe('PeerStore', () => {
     const store_auth = stores.get('authority')!
     expect(store_auth.isAuthority()).toBe(true)
 
-    store_auth.dispatch({ type: 'PLACE_MARK', payload: { cell: 4, player: 'X' } })
+    store_auth.dispatch(PlaceMark({ cell: 4, player: 'X' }))
 
     const committed = store_auth.getCommittedState()
     expect(ticTacToeBoardCell(committed, 4)).toBe('X')
@@ -122,7 +122,7 @@ describe('PeerStore', () => {
     const store_x = stores.get('player-x')!
     expect(store_x.isAuthority()).toBe(false)
 
-    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 4, player: 'X' } })
+    store_x.dispatch(PlaceMark({ cell: 4, player: 'X' }))
 
     const display = store_x.getState()
     expect(ticTacToeBoardCell(display, 4)).toBe('X')
@@ -135,7 +135,7 @@ describe('PeerStore', () => {
     const { stores } = setup()
     const store_x = stores.get('player-x')!
 
-    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
+    store_x.dispatch(PlaceMark({ cell: 0, player: 'X' }))
 
     for (const peerId of PEER_IDS) {
       const s = stores.get(peerId)!
@@ -147,12 +147,12 @@ describe('PeerStore', () => {
     const { stores } = setup()
     const store_x = stores.get('player-x')!
 
-    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
+    store_x.dispatch(PlaceMark({ cell: 0, player: 'X' }))
 
     const store_o = stores.get('player-o')!
-    store_o.dispatch({ type: 'PLACE_MARK', payload: { cell: 1, player: 'O' } })
+    store_o.dispatch(PlaceMark({ cell: 1, player: 'O' }))
 
-    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 2, player: 'X' } })
+    store_x.dispatch(PlaceMark({ cell: 2, player: 'X' }))
 
     const events = store_x.getCommittedEvents()
     crash.ok(events.length >= 1, 'expected at least 1 committed event')
@@ -166,7 +166,7 @@ describe('PeerStore', () => {
     transports.get('authority')!.disconnect()
 
     const store_x = stores.get('player-x')!
-    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
+    store_x.dispatch(PlaceMark({ cell: 0, player: 'X' }))
 
     const before = store_x.getState()
     expect(ticTacToeBoardCell(before, 0)).toBe('X')
@@ -185,7 +185,7 @@ describe('PeerStore', () => {
     const states_seen: State[] = []
     store_x.subscribe((s) => states_seen.push(s))
 
-    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
+    store_x.dispatch(PlaceMark({ cell: 0, player: 'X' }))
     expect(states_seen.length).toBeGreaterThanOrEqual(1)
   })
 
@@ -196,15 +196,12 @@ describe('PeerStore', () => {
     const states_seen: State[] = []
     const unsub = store_x.subscribe((s) => states_seen.push(s))
 
-    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
+    store_x.dispatch(PlaceMark({ cell: 0, player: 'X' }))
     const count_after_first = states_seen.length
 
     unsub()
 
-    stores.get('player-o')!.dispatch({
-      type: 'PLACE_MARK',
-      payload: { cell: 1, player: 'O' },
-    })
+    stores.get('player-o')!.dispatch(PlaceMark({ cell: 1, player: 'O' }))
     expect(states_seen.length).toBe(count_after_first)
   })
 
@@ -220,7 +217,7 @@ describe('PeerStore', () => {
     const store_x = stores.get('player-x')!
     const store_auth = stores.get('authority')!
 
-    store_auth.dispatch({ type: 'PLACE_MARK', payload: { cell: 4, player: 'X' } })
+    store_auth.dispatch(PlaceMark({ cell: 4, player: 'X' }))
     const entries = store_auth.getCommittedLogEntries()
     store_x.rehydrate(entries)
 
@@ -234,8 +231,8 @@ describe('PeerStore', () => {
     const store_o = stores.get('player-o')!
     const store_auth = stores.get('authority')!
 
-    store_auth.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
-    store_auth.dispatch({ type: 'PLACE_MARK', payload: { cell: 4, player: 'O' } })
+    store_auth.dispatch(PlaceMark({ cell: 0, player: 'X' }))
+    store_auth.dispatch(PlaceMark({ cell: 4, player: 'O' }))
     const entries = store_auth.getCommittedLogEntries()
 
     store_x.rehydrate(entries)
@@ -253,7 +250,7 @@ describe('PeerStore', () => {
     let call_count = 0
     store_x.subscribe(() => call_count++)
 
-    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
+    store_x.dispatch(PlaceMark({ cell: 0, player: 'X' }))
     const count_before = call_count
 
     store_x.destroy()
@@ -275,10 +272,7 @@ describe('PeerStore', () => {
 
     const initial_o = JSON.stringify(store_o.getState())
 
-    store_x.dispatchOptimistic({
-      type: 'MARK_PLACED',
-      payload: { cell: 4, player: 'X', seq: 99 },
-    })
+    store_x.dispatchOptimistic(MarkPlaced({ cell: 4, player: 'X', seq: 99 }))
 
     const state_x = store_x.getState()
     expect(ticTacToeBoardCell(state_x, 4)).toBe('X')
@@ -290,10 +284,7 @@ describe('PeerStore', () => {
     const { stores } = setup()
     const store_x = stores.get('player-x')!
 
-    store_x.dispatchOptimistic({
-      type: 'MARK_PLACED',
-      payload: { cell: 4, player: 'X', seq: 1 },
-    })
+    store_x.dispatchOptimistic(MarkPlaced({ cell: 4, player: 'X', seq: 1 }))
 
     const committed = store_x.getCommittedState()
     expect(ticTacToeBoardCell(committed, 4)).toBeNull()
@@ -400,10 +391,10 @@ describe('Sync protocol', () => {
     const { stores, transports, syncs } = setup()
     const store_x = stores.get('player-x')!
 
-    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
+    store_x.dispatch(PlaceMark({ cell: 0, player: 'X' }))
 
     transports.get('player-o')!.disconnect()
-    store_x.dispatch({ type: 'PLACE_MARK', payload: { cell: 4, player: 'X' } })
+    store_x.dispatch(PlaceMark({ cell: 4, player: 'X' }))
 
     expect(
       ticTacToeBoardCell(stores.get('player-o')!.getCommittedState(), 4),
@@ -421,17 +412,11 @@ describe('Sync protocol', () => {
   it('non-authority peer ignores sync-request', () => {
     const { stores, transports } = setup()
 
-    stores.get('player-x')!.dispatch({
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    stores.get('player-x')!.dispatch(PlaceMark({ cell: 0, player: 'X' }))
 
     transports.get('authority')!.disconnect()
 
-    stores.get('player-o')!.dispatch({
-      type: 'PLACE_MARK',
-      payload: { cell: 4, player: 'O' },
-    })
+    stores.get('player-o')!.dispatch(PlaceMark({ cell: 4, player: 'O' }))
 
     transports.get('authority')!.reconnect()
 
@@ -442,17 +427,11 @@ describe('Sync protocol', () => {
   it('auto-sync on transport reconnect converges state', () => {
     const { stores, transports } = setup()
 
-    stores.get('player-x')!.dispatch({
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    stores.get('player-x')!.dispatch(PlaceMark({ cell: 0, player: 'X' }))
 
     transports.get('player-o')!.disconnect()
 
-    stores.get('player-o')!.dispatch({
-      type: 'PLACE_MARK',
-      payload: { cell: 4, player: 'O' },
-    })
+    stores.get('player-o')!.dispatch(PlaceMark({ cell: 4, player: 'O' }))
 
     transports.get('player-o')!.reconnect()
 
@@ -464,17 +443,11 @@ describe('Sync protocol', () => {
   it('onSync callback fires after successful sync', () => {
     const { stores, transports, syncs } = setup()
 
-    stores.get('player-x')!.dispatch({
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    stores.get('player-x')!.dispatch(PlaceMark({ cell: 0, player: 'X' }))
 
     transports.get('player-o')!.disconnect()
 
-    stores.get('player-x')!.dispatch({
-      type: 'PLACE_MARK',
-      payload: { cell: 4, player: 'X' },
-    })
+    stores.get('player-x')!.dispatch(PlaceMark({ cell: 4, player: 'X' }))
 
     expect(syncs.length).toBe(0)
     transports.get('player-o')!.reconnect()
@@ -491,18 +464,12 @@ describe('Sync protocol', () => {
   it('rehydrate clears finalized_command_ids — subsequent commands process normally', () => {
     const { stores } = setup()
 
-    stores.get('player-x')!.dispatch({
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    stores.get('player-x')!.dispatch(PlaceMark({ cell: 0, player: 'X' }))
 
     const entries = stores.get('authority')!.getCommittedLogEntries()
     stores.get('player-o')!.rehydrate(entries)
 
-    stores.get('player-o')!.dispatch({
-      type: 'PLACE_MARK',
-      payload: { cell: 4, player: 'O' },
-    })
+    stores.get('player-o')!.dispatch(PlaceMark({ cell: 4, player: 'O' }))
 
     const state = stores.get('player-o')!.getCommittedState()
     expect(ticTacToeBoardCell(state, 4)).toBe('O')

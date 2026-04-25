@@ -10,6 +10,7 @@ import {
   jest,
 } from 'bun:test'
 import { TicTacToeModule } from '../__fixtures__/tic-tac-toe.module'
+import { PeerLeave, PeerTrustUpdate } from '../system-messages'
 import { DeterministicSimulator } from '../simulator'
 import { TestCrashHandler } from './test-crash-handler'
 
@@ -56,10 +57,7 @@ describe('Dynamic membership', () => {
 
   it('authority can trust_update', () => {
     const sim = createSim()
-    sim.dispatch('authority', {
-      type: '_peer/trust_update',
-      payload: { peerId: 'player-x', trust: 99 },
-    })
+    sim.dispatch('authority', PeerTrustUpdate({ peerId: 'player-x', trust: 99 }))
     sim.deliverPending()
     expect(sim.getStore('authority').getMembership()['player-x']).toBe(99)
     sim.destroy()
@@ -68,10 +66,7 @@ describe('Dynamic membership', () => {
   it('non-authority trust_update is rejected', () => {
     const sim = createSim()
     const before = sim.getStore('authority').getMembership()['player-o']
-    sim.dispatch('player-x', {
-      type: '_peer/trust_update',
-      payload: { peerId: 'player-o', trust: 99 },
-    })
+    sim.dispatch('player-x', PeerTrustUpdate({ peerId: 'player-o', trust: 99 }))
     sim.deliverPending()
     expect(sim.getStore('authority').getMembership()['player-o']).toBe(before)
     sim.destroy()
@@ -79,10 +74,7 @@ describe('Dynamic membership', () => {
 
   it('self leave removes peer', () => {
     const sim = createSim()
-    sim.dispatch('player-x', {
-      type: '_peer/leave',
-      payload: { peerId: 'player-x' },
-    })
+    sim.dispatch('player-x', PeerLeave({ peerId: 'player-x' }))
     sim.deliverPending()
     expect(sim.getStore('authority').getMembership()['player-x']).toBeUndefined()
     sim.destroy()

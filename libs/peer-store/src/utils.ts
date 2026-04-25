@@ -1,13 +1,14 @@
 import { Assert } from '@gamezilla/lib/assert'
 import type { Event, LogEntry, State, StoreModule } from './types'
+import { peerNamespace } from './system-messages'
 
 const crash: Assert = Assert.crash()
 
 /** System / membership events use this prefix; they never reach `StoreModule.reduce`. */
-export const SYSTEM_EVENT_PREFIX = '_peer/'
+export const SYSTEM_EVENT_PREFIX = `${peerNamespace.prefix}/`
 
 export function isSystemEvent(event: Event): boolean {
-  return event.type.startsWith(SYSTEM_EVENT_PREFIX)
+  return peerNamespace.owns(event)
 }
 
 export function generateId(): string {

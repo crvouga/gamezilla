@@ -9,7 +9,11 @@ import {
   it,
   jest,
 } from 'bun:test'
-import { TicTacToeModule } from '../__fixtures__/tic-tac-toe.module'
+import {
+  MarkPlaced,
+  PlaceMark,
+  TicTacToeModule,
+} from '../__fixtures__/tic-tac-toe.module'
 import { DeterministicSimulator } from '../simulator'
 import type { State } from '../types'
 import { isSystemEvent } from '../utils'
@@ -63,7 +67,7 @@ function tamperAcceptedMarkPlacedCell8(payload: unknown): unknown {
     const event = row['event']
     crash.record(event, 'entry.event must be object')
     const type = event['type']
-    if (type !== 'MARK_PLACED') return row
+    if (type !== MarkPlaced.type) return row
     const p = event['payload']
     crash.record(p, 'MARK_PLACED payload must be object')
     return {
@@ -90,7 +94,7 @@ describe('Cheating: Authority', () => {
       entries: [
         {
           seq: 4,
-          event: { type: 'MARK_PLACED', payload: { cell: 4, player: 'X', seq: 1 } },
+          event: MarkPlaced({ cell: 4, player: 'X', seq: 1 }),
         },
       ],
     })
@@ -104,10 +108,7 @@ describe('Cheating: Authority', () => {
   it('identity spoofing — player-o plays as X via payload mismatch', () => {
     const sim = createSim()
 
-    sim.dispatch('player-o', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    sim.dispatch('player-o', PlaceMark({ cell: 0, player: 'X' }))
 
     sim.assertConverged()
     expect(cell(sim.getCommittedState('authority'), 0)).toBe('X')
@@ -120,7 +121,7 @@ describe('Cheating: Authority', () => {
 
     const forged = sim.forgeCommand(
       'player-o',
-      { type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } },
+      PlaceMark({ cell: 0, player: 'X' }),
       { fakePeerId: 'player-x' },
     )
     sim.injectWireMessage({ kind: 'propose', command: forged })
@@ -136,10 +137,7 @@ describe('Cheating: Authority', () => {
       tamperAcceptedMarkPlacedCell8(payload),
     )
 
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }))
 
     expect(cell(sim.getCommittedState('authority'), 0)).toBe('X')
     expect(cell(sim.getCommittedState('authority'), 8)).toBeNull()
@@ -163,10 +161,7 @@ describe('Cheating: Authority', () => {
       return payload
     })
 
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }))
     sim.assertConverged()
     sim.setMessageInterceptor(null)
 
@@ -181,10 +176,7 @@ describe('Cheating: Authority', () => {
   it('replay with new commandId — duplicate events are applied', () => {
     const sim = createSim()
 
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }))
     sim.assertConverged()
 
     const eventCountBefore = sim.getEventLog('player-o').length
@@ -215,10 +207,7 @@ describe('Cheating: Authority', () => {
       sim.getCommittedState('authority')['board'],
     )
 
-    const forged = sim.forgeCommand('player-o', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'O' },
-    })
+    const forged = sim.forgeCommand('player-o', PlaceMark({ cell: 0, player: 'O' }))
     sim.injectWireMessage({ kind: 'propose', command: forged })
 
     const boardAfter = JSON.stringify(sim.getCommittedState('authority')['board'])
@@ -229,10 +218,7 @@ describe('Cheating: Authority', () => {
   it('double propose — authority ignores the duplicate', () => {
     const sim = createSim()
 
-    const cmd = sim.forgeCommand('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 0, player: 'X' },
-    })
+    const cmd = sim.forgeCommand('player-x', PlaceMark({ cell: 0, player: 'X' }))
 
     sim.injectWireMessage({ kind: 'propose', command: cmd })
     expect(cell(sim.getCommittedState('authority'), 0)).toBe('X')
@@ -267,10 +253,13 @@ describe('Cheating: Cross-cutting', () => {
 
     for (let i = 0; i < 50; i++) {
       try {
-        sim.dispatch('player-x', {
-          type: 'PLACE_MARK',
-          payload: { cell: i % 9, player: i % 2 === 0 ? 'X' : 'O' },
-        })
+        sim.dispatch(
+          'player-x',
+          PlaceMark({
+            cell: i % 9,
+            player: (i % 2 === 0 ? 'X' : 'O') as 'X' | 'O',
+          }),
+        )
       } catch {
         // dispatch may throw for invalid moves — that's fine
       }
@@ -293,7 +282,7 @@ describe('Cheating: Cross-cutting', () => {
       entries: [
         {
           seq: 4,
-          event: { type: 'MARK_PLACED', payload: { cell: 0, player: 'X', seq: 1 } },
+          event: MarkPlaced({ cell: 0, player: 'X', seq: 1 }),
         },
       ],
     })
@@ -312,10 +301,7 @@ describe('Cheating: Cross-cutting', () => {
 
     sim.setMessageInterceptor(() => null)
 
-    sim.dispatch('player-x', {
-      type: 'PLACE_MARK',
-      payload: { cell: 4, player: 'X' },
-    })
+    sim.dispatch('player-x', PlaceMark({ cell: 4, player: 'X' }))
 
     expect(cell(sim.getState('player-x'), 4)).toBe('X')
     expect(cell(sim.getCommittedState('player-x'), 4)).toBeNull()
@@ -335,9 +321,9 @@ describe('Cheating: Cross-cutting', () => {
     sim.injectWireMessage({ kind: 'totally_bogus', data: [1, 2, 3] })
     sim.injectWireMessage({ kind: 'unknown', commandId: 'fake' })
 
-    sim.dispatch('player-x', { type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } })
-    sim.dispatch('player-o', { type: 'PLACE_MARK', payload: { cell: 3, player: 'O' } })
-    sim.dispatch('player-x', { type: 'PLACE_MARK', payload: { cell: 1, player: 'X' } })
+    sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }))
+    sim.dispatch('player-o', PlaceMark({ cell: 3, player: 'O' }))
+    sim.dispatch('player-x', PlaceMark({ cell: 1, player: 'X' }))
 
     sim.assertConverged()
 
@@ -353,14 +339,14 @@ describe('Cheating: Cross-cutting', () => {
 
     const cmd = sim.forgeCommand(
       'player-x',
-      { type: 'PLACE_MARK', payload: { cell: 0, player: 'X' } },
+      PlaceMark({ cell: 0, player: 'X' }),
       { id: 'custom-id', seq: 42, fakePeerId: 'hacker' },
     )
 
     expect(cmd.id).toBe('custom-id')
     expect(cmd.seq).toBe(42)
     expect(cmd.peerId).toBe('hacker')
-    expect(cmd.message.type).toBe('PLACE_MARK')
+    expect(PlaceMark.is(cmd.message)).toBe(true)
     sim.destroy()
   })
 })

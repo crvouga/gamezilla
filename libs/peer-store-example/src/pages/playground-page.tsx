@@ -10,6 +10,7 @@ import {
 import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react';
 import { PeerPanel, type PeerAction } from '../components/peer-panel';
 import { SimulatorLog } from '../components/simulator-log';
+import { PlaceMark } from '@gamezilla/peer-store/__fixtures__/tic-tac-toe.module';
 import {
   PEERS,
   PlaygroundSimulator,
@@ -77,10 +78,10 @@ export function PlaygroundPage() {
     (peerId: PeerId, cell: number) => {
       const player = peerId === 'player-x' ? 'X' : 'O';
       try {
-        sim.dispatchWithSpoof(peerId, {
-          type: 'PLACE_MARK',
-          payload: { cell, player },
-        });
+        sim.dispatchWithSpoof(
+          peerId,
+          PlaceMark({ cell, player: player as 'X' | 'O' }),
+        );
       } catch {
         /* error logged via onError callback */
       }
@@ -161,10 +162,7 @@ export function PlaygroundPage() {
     setTimeout(() => {
       sim.disconnectPeer('player-o');
       disconnectedPeers.current.add('player-o');
-      sim.dispatch('player-x', {
-        type: 'PLACE_MARK',
-        payload: { cell: 4, player: 'X' },
-      });
+      sim.dispatch('player-x', PlaceMark({ cell: 4, player: 'X' }));
     }, 50);
   }, [sim, handleReset]);
 
@@ -173,10 +171,7 @@ export function PlaygroundPage() {
     setTimeout(() => {
       sim.disconnectPeer('server');
       disconnectedPeers.current.add('server');
-      sim.dispatch('player-x', {
-        type: 'PLACE_MARK',
-        payload: { cell: 0, player: 'X' },
-      });
+      sim.dispatch('player-x', PlaceMark({ cell: 0, player: 'X' }));
       try {
         sim.advanceTime(5001);
       } catch {

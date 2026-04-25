@@ -18,6 +18,16 @@ import {
   assertLogEntryArray,
   assertSnapshot,
 } from './assert-durable-json'
+import { createMessageRouter } from '@gamezilla/lib/message'
+import {
+  peerNamespace,
+  PeerJoin,
+  PeerJoined,
+  PeerLeave,
+  PeerLeft,
+  PeerTrustUpdate,
+  PeerTrustUpdated,
+} from './system-messages'
 import { generateId, isSystemEvent, replayDomainEntries } from './utils'
 
 const crash: Assert = Assert.crash()
@@ -42,6 +52,48 @@ type WireMessage =
       entries: LogEntry[]
     }
 
+type SystemCommandEvalResult =
+  | { ok: true; entries: LogEntry[] }
+  | { ok: false; error: StoreError }
+
+function systemErr(code: string, message: string): {
+  ok: false
+  error: StoreError
+} {
+  return { ok: false, error: { code, message } }
+}
+
+const membershipEventRouter = createMessageRouter<
+  Map<string, number>,
+  void,
+  void
+>()
+  .on(PeerJoined, (membership, _, msg) => {
+    const { peerId, trust } = msg.payload
+    crash.nonEmptyString(peerId, '_peer/joined requires peerId')
+    crash.ok(
+      typeof trust === 'number' && trust >= 0,
+      'trust must be number >= 0',
+    )
+    membership.set(peerId, trust)
+  })
+  .on(PeerLeft, (membership, _, msg) => {
+    const { peerId } = msg.payload
+    crash.nonEmptyString(peerId, '_peer/left requires peerId')
+    membership.delete(peerId)
+  })
+  .on(PeerTrustUpdated, (membership, _, msg) => {
+    const { peerId, trust } = msg.payload
+    crash.nonEmptyString(peerId, '_peer/trust_updated requires peerId')
+    crash.ok(
+      typeof trust === 'number' && trust >= 0,
+      'trust must be number >= 0',
+    )
+    if (membership.has(peerId)) {
+      membership.set(peerId, trust)
+    }
+  })
+
 function computeAuthorityOrder(peers: Record<string, number>): string[] {
   return Object.entries(peers)
     .sort((a, b) => {
@@ -56,42 +108,8 @@ function membershipToRecord(m: Map<string, number>): Record<string, number> {
   return Object.fromEntries(m)
 }
 
-function isSystemMessage(message: Message): boolean {
-  return message.type.startsWith('_peer/')
-}
-
 function applyMembershipEvent(membership: Map<string, number>, event: Event): void {
-  const raw = event.payload
-  crash.record(raw, 'system membership event payload must be a plain object')
-  const p = raw
-  switch (event.type) {
-    case '_peer/joined': {
-      const peerId = p['peerId']
-      crash.nonEmptyString(peerId, '_peer/joined requires peerId')
-      const trust = p['trust']
-      crash.ok(typeof trust === 'number' && trust >= 0, 'trust must be number >= 0')
-      membership.set(peerId, trust)
-      break
-    }
-    case '_peer/left': {
-      const peerId = p['peerId']
-      crash.nonEmptyString(peerId, '_peer/left requires peerId')
-      membership.delete(peerId)
-      break
-    }
-    case '_peer/trust_updated': {
-      const peerId = p['peerId']
-      const trust = p['trust']
-      crash.nonEmptyString(peerId, '_peer/trust_updated requires peerId')
-      crash.ok(typeof trust === 'number' && trust >= 0, 'trust must be number >= 0')
-      if (membership.has(peerId)) {
-        membership.set(peerId, trust)
-      }
-      break
-    }
-    default:
-      break
-  }
+  membershipEventRouter.dispatch(membership, undefined, event, () => {})
 }
 
 function rebuildMembershipFromLog(entries: LogEntry[]): Map<string, number> {
@@ -175,6 +193,83 @@ export class PeerStore implements PeerStoreApi {
     ReturnType<typeof setTimeout>
   >()
   private readonly finalized_command_ids = new Set<string>()
+
+  private readonly systemCommandRouter = createMessageRouter<
+    PeerStore,
+    Command,
+    SystemCommandEvalResult
+  >()
+    .on(PeerJoin, (self, command, msg) => {
+      const raw: unknown = msg.payload
+      if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
+        return systemErr('INVALID_JOIN', 'join payload must be a plain object')
+      }
+      crash.record(raw, 'join payload must be a plain object')
+      const p = raw as Record<string, unknown>
+      const peerId = p['peerId']
+      const trust = p['trust']
+      if (!peerId || typeof peerId !== 'string')
+        return systemErr('INVALID_JOIN', 'join payload requires peerId string')
+      if (typeof trust !== 'number' || trust < 0 || !Number.isFinite(trust))
+        return systemErr('INVALID_JOIN', 'join payload requires finite trust >= 0')
+      if (peerId !== command.peerId)
+        return systemErr('INVALID_JOIN', 'join peerId must match command.peerId')
+      if (self.membership.has(peerId))
+        return systemErr('DUPLICATE_PEER', `peer already in membership: ${peerId}`)
+      return {
+        ok: true,
+        entries: self.allocateEntriesFromEvents([PeerJoined({ peerId, trust })]),
+      }
+    })
+    .on(PeerLeave, (self, command, msg) => {
+      const raw: unknown = msg.payload
+      if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
+        return systemErr('INVALID_LEAVE', 'leave payload must be a plain object')
+      }
+      crash.record(raw, 'leave payload must be a plain object')
+      const p = raw as Record<string, unknown>
+      const peerId = p['peerId']
+      if (!peerId || typeof peerId !== 'string')
+        return systemErr('INVALID_LEAVE', 'leave payload requires peerId')
+      if (peerId !== command.peerId)
+        return systemErr('INVALID_LEAVE', 'leave only allowed for self')
+      if (!self.membership.has(peerId))
+        return systemErr('UNKNOWN_PEER', `peer not in membership: ${peerId}`)
+      return {
+        ok: true,
+        entries: self.allocateEntriesFromEvents([PeerLeft({ peerId })]),
+      }
+    })
+    .on(PeerTrustUpdate, (self, command, msg) => {
+      const raw: unknown = msg.payload
+      if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
+        return systemErr(
+          'INVALID_TRUST',
+          'trust_update payload must be a plain object',
+        )
+      }
+      crash.record(raw, 'trust_update payload must be a plain object')
+      const p = raw as Record<string, unknown>
+      const peerId = p['peerId']
+      const trust = p['trust']
+      if (!peerId || typeof peerId !== 'string')
+        return systemErr('INVALID_TRUST', 'trust_update requires peerId')
+      if (typeof trust !== 'number' || trust < 0 || !Number.isFinite(trust))
+        return systemErr('INVALID_TRUST', 'trust_update requires finite trust >= 0')
+      if (command.peerId !== self.current_authority)
+        return systemErr(
+          'NOT_AUTHORITY',
+          'only authority peer may propose trust_update',
+        )
+      if (!self.membership.has(peerId))
+        return systemErr('UNKNOWN_PEER', `peer not in membership: ${peerId}`)
+      return {
+        ok: true,
+        entries: self.allocateEntriesFromEvents([
+          PeerTrustUpdated({ peerId, trust }),
+        ]),
+      }
+    })
 
   private transport_unsubscribe: (() => void) | null = null
   private connect_unsubscribe: (() => void) | null = null
@@ -275,10 +370,7 @@ export class PeerStore implements PeerStoreApi {
       seq++
       entries.push({
         seq,
-        event: {
-          type: '_peer/joined',
-          payload: { peerId: id, trust: initial[id]! },
-        },
+        event: PeerJoined({ peerId: id, trust: initial[id]! }),
       })
     }
     this.membership = rebuildMembershipFromLog(entries)
@@ -327,7 +419,7 @@ export class PeerStore implements PeerStoreApi {
       message,
     }
 
-    if (isSystemMessage(message)) {
+    if (peerNamespace.owns(message)) {
       this.dispatchSystemOrDomain(command, true)
       return
     }
@@ -439,86 +531,14 @@ export class PeerStore implements PeerStoreApi {
     return out
   }
 
-  private evaluateSystemCommand(
-    command: Command,
-  ): { ok: true; entries: LogEntry[] } | { ok: false; error: StoreError } {
-    const msg = command.message
-    const err = (code: string, message: string): { ok: false; error: StoreError } =>
-      ({ ok: false, error: { code, message } })
-
-    if (msg.type === '_peer/join') {
-      const raw: unknown = msg.payload
-      if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
-        return err('INVALID_JOIN', 'join payload must be a plain object')
-      }
-      crash.record(raw, 'join payload must be a plain object')
-      const p = raw
-      const peerId = p['peerId']
-      const trust = p['trust']
-      if (!peerId || typeof peerId !== 'string')
-        return err('INVALID_JOIN', 'join payload requires peerId string')
-      if (typeof trust !== 'number' || trust < 0 || !Number.isFinite(trust))
-        return err('INVALID_JOIN', 'join payload requires finite trust >= 0')
-      if (peerId !== command.peerId)
-        return err('INVALID_JOIN', 'join peerId must match command.peerId')
-      if (this.membership.has(peerId))
-        return err('DUPLICATE_PEER', `peer already in membership: ${peerId}`)
-      return {
-        ok: true,
-        entries: this.allocateEntriesFromEvents([
-          { type: '_peer/joined', payload: { peerId, trust } },
-        ]),
-      }
-    }
-
-    if (msg.type === '_peer/leave') {
-      const raw: unknown = msg.payload
-      if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
-        return err('INVALID_LEAVE', 'leave payload must be a plain object')
-      }
-      crash.record(raw, 'leave payload must be a plain object')
-      const p = raw
-      const peerId = p['peerId']
-      if (!peerId || typeof peerId !== 'string')
-        return err('INVALID_LEAVE', 'leave payload requires peerId')
-      if (peerId !== command.peerId)
-        return err('INVALID_LEAVE', 'leave only allowed for self')
-      if (!this.membership.has(peerId))
-        return err('UNKNOWN_PEER', `peer not in membership: ${peerId}`)
-      return {
-        ok: true,
-        entries: this.allocateEntriesFromEvents([
-          { type: '_peer/left', payload: { peerId } },
-        ]),
-      }
-    }
-
-    if (msg.type === '_peer/trust_update') {
-      const raw: unknown = msg.payload
-      if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
-        return err('INVALID_TRUST', 'trust_update payload must be a plain object')
-      }
-      crash.record(raw, 'trust_update payload must be a plain object')
-      const p = raw
-      const peerId = p['peerId']
-      const trust = p['trust']
-      if (!peerId || typeof peerId !== 'string')
-        return err('INVALID_TRUST', 'trust_update requires peerId')
-      if (typeof trust !== 'number' || trust < 0 || !Number.isFinite(trust))
-        return err('INVALID_TRUST', 'trust_update requires finite trust >= 0')
-      if (command.peerId !== this.current_authority)
-        return err('NOT_AUTHORITY', 'only authority peer may propose trust_update')
-      if (!this.membership.has(peerId))
-        return err('UNKNOWN_PEER', `peer not in membership: ${peerId}`)
-      return {
-        ok: true,
-        entries: this.allocateEntriesFromEvents([
-          { type: '_peer/trust_updated', payload: { peerId, trust } },
-        ]),
-      }
-    }
-
-    return err('UNKNOWN_SYSTEM', `unknown system message: ${msg.type}`)
+  private evaluateSystemCommand(command: Command): SystemCommandEvalResult {
+    return this.systemCommandRouter.dispatch(
+      this,
+      command,
+      command.message,
+      (_self, _cmd, msg) =>
+        systemErr('UNKNOWN_SYSTEM', `unknown system message: ${msg.type}`),
+    )
   }
 
   private allocateEntriesFromEvents(events: Event[]): LogEntry[] {
@@ -532,15 +552,15 @@ export class PeerStore implements PeerStoreApi {
   }
 
   proposeJoin(peerId: string, trust: number): void {
-    this.dispatch({ type: '_peer/join', payload: { peerId, trust } })
+    this.dispatch(PeerJoin({ peerId, trust }))
   }
 
   proposeLeave(peerId: string): void {
-    this.dispatch({ type: '_peer/leave', payload: { peerId } })
+    this.dispatch(PeerLeave({ peerId }))
   }
 
   proposeTrustUpdate(peerId: string, trust: number): void {
-    this.dispatch({ type: '_peer/trust_update', payload: { peerId, trust } })
+    this.dispatch(PeerTrustUpdate({ peerId, trust }))
   }
 
   dispatchOptimistic(event: Event): void {
@@ -885,7 +905,7 @@ export class PeerStore implements PeerStoreApi {
     if (command.peerId === this.peerId) return
     if (this.finalized_command_ids.has(command.id)) return
 
-    if (isSystemMessage(command.message)) {
+    if (peerNamespace.owns(command.message)) {
       const sys = this.evaluateSystemCommand(command)
       if (sys.ok) {
         this.handleCommit(command.id, sys.entries)
