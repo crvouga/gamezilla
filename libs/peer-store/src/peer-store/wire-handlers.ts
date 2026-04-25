@@ -1,5 +1,5 @@
 import { Assert } from '@gamezilla/lib/assert';
-import type { LogEntry } from '../event-log/log-entry';
+import type { LogEntry } from '../peer-store-persistence/log-entry';
 import { peerNamespace } from '../protocol/system-messages';
 import { isSystemEvent } from '../protocol/utils';
 import {

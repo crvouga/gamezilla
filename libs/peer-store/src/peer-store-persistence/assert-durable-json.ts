@@ -12,7 +12,7 @@ function assertMessage(value: unknown): Message {
   return { type, payload: value['payload'] };
 }
 
-/** Validates JSON-shaped command rows from durable logs or wire. */
+/** Validates JSON-shaped command rows from persistence journals or wire. */
 export function assertCommand(value: unknown): Command {
   crash.record(value, 'command must be a plain object');
   const id = value['id'];

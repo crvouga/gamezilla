@@ -1,11 +1,14 @@
 export {
-  InMemoryEventLog,
-  PostgresEventLog,
-  recoverFromEventLog,
-  SqliteEventLog,
-} from './event-log';
-export type { EventLog, EventLogEntry } from './event-log';
-export type { LogEntry } from './event-log/log-entry';
+  InMemoryPeerStorePersistence,
+  PostgresPeerStorePersistence,
+  recoverPeerStoreFromPersistence,
+  SqlitePeerStorePersistence,
+} from './peer-store-persistence';
+export type {
+  PeerStorePersistence,
+  PeerStorePersistenceEntry,
+} from './peer-store-persistence';
+export type { LogEntry } from './peer-store-persistence/log-entry';
 export { PeerStore, replayDomainEntries, replayEvents } from './peer-store';
 export type {
   Command,

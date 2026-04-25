@@ -1,12 +1,15 @@
 import { Assert } from '@gamezilla/lib/assert'
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface'
-import type { EventLog, EventLogEntry } from './event-log'
+import type {
+  PeerStorePersistence,
+  PeerStorePersistenceEntry,
+} from './peer-store-persistence'
 import { assertCommand, assertLogEntryArray } from './assert-durable-json'
 
 const crash: Assert = Assert.crash()
 
 const MIGRATIONS = `
-CREATE TABLE IF NOT EXISTS event_log (
+CREATE TABLE IF NOT EXISTS peer_store_persistence (
     partition_key TEXT NOT NULL,
     seq        INTEGER NOT NULL,
     kind       TEXT NOT NULL,
@@ -15,18 +18,18 @@ CREATE TABLE IF NOT EXISTS event_log (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     PRIMARY KEY (partition_key, seq)
 );
-CREATE INDEX IF NOT EXISTS idx_event_log_partition ON event_log (partition_key);
+CREATE INDEX IF NOT EXISTS idx_peer_store_persistence_partition ON peer_store_persistence (partition_key);
 `
 
-const INSERT = `INSERT INTO event_log (partition_key, seq, kind, command_id, payload, created_at)
-VALUES (?, (SELECT COALESCE(MAX(seq), 0) + 1 FROM event_log WHERE partition_key = ?), ?, ?, CAST(? AS jsonb), NOW())`
+const INSERT = `INSERT INTO peer_store_persistence (partition_key, seq, kind, command_id, payload, created_at)
+VALUES (?, (SELECT COALESCE(MAX(seq), 0) + 1 FROM peer_store_persistence WHERE partition_key = ?), ?, ?, CAST(? AS jsonb), NOW())`
 
-const SELECT = `SELECT kind, command_id, payload FROM event_log
+const SELECT = `SELECT kind, command_id, payload FROM peer_store_persistence
 WHERE partition_key = ? ORDER BY seq ASC`
 
 type Row = { kind: string; command_id: string; payload: unknown }
 
-function entryToRow(entry: EventLogEntry): {
+function entryToRow(entry: PeerStorePersistenceEntry): {
   kind: string
   commandId: string
   payload: string
@@ -58,7 +61,7 @@ function parsePayload(payload: unknown): unknown {
   return payload
 }
 
-function rowToEntry(row: Row): EventLogEntry {
+function rowToEntry(row: Row): PeerStorePersistenceEntry {
   switch (row.kind) {
     case 'command':
       return { kind: 'command', command: assertCommand(parsePayload(row.payload)) }
@@ -71,19 +74,19 @@ function rowToEntry(row: Row): EventLogEntry {
     case 'rejected':
       return { kind: 'rejected', commandId: row.command_id }
     default:
-      crash.fail('unknown event_log kind', { kind: row.kind })
+      crash.fail('unknown peer_store_persistence kind', { kind: row.kind })
   }
 }
 
 /**
- * PostgreSQL-backed EventLog using JSONB for structured payload storage
+ * PostgreSQL-backed persistence journal using JSONB for structured payload storage
  * and TIMESTAMPTZ for timestamps. Uses `SqlClient` with `?` placeholders
  * (converted to `$N` by the Postgres SqlClient implementation).
  *
  * The `node-postgres` driver returns JSONB columns as already-parsed JS
  * objects, so `rowToEntry` handles both string and object payloads.
  */
-export class PostgresEventLog implements EventLog {
+export class PostgresPeerStorePersistence implements PeerStorePersistence {
   constructor(private readonly sqlClient: SqlClient) {}
 
   async migrate(): Promise<void> {
@@ -95,7 +98,7 @@ export class PostgresEventLog implements EventLog {
     }
   }
 
-  async append(partitionKey: string, entry: EventLogEntry): Promise<void> {
+  async append(partitionKey: string, entry: PeerStorePersistenceEntry): Promise<void> {
     crash.nonEmptyString(partitionKey, 'partitionKey must be non-empty')
     const { kind, commandId, payload } = entryToRow(entry)
     await this.sqlClient.run(INSERT, [
@@ -107,7 +110,7 @@ export class PostgresEventLog implements EventLog {
     ])
   }
 
-  async load(partitionKey: string): Promise<EventLogEntry[]> {
+  async load(partitionKey: string): Promise<PeerStorePersistenceEntry[]> {
     crash.nonEmptyString(partitionKey, 'partitionKey must be non-empty')
     const rows = await this.sqlClient.query<Row>(SELECT, [partitionKey])
     return rows.map(rowToEntry)

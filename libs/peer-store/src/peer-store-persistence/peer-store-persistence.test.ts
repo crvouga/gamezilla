@@ -22,18 +22,18 @@ import {
 import { TestCrashHandler } from '../testing/test-crash-handler';
 import { ticTacToeBoardCell } from '../testing/tic-tac-toe-board';
 import { InMemoryBus, InMemoryTransport } from '../transport';
-import { recoverFromEventLog } from './event-log';
-import { InMemoryEventLog } from './event-log-in-memory';
-import { SqliteEventLog } from './event-log-sqlite';
+import { recoverPeerStoreFromPersistence } from './peer-store-persistence';
+import { InMemoryPeerStorePersistence } from './peer-store-persistence-in-memory';
+import { SqlitePeerStorePersistence } from './peer-store-persistence-sqlite';
 import type { LogEntry } from './log-entry';
 
-const eventLogTestNs = createNamespace('eventLogTest');
+const persistenceTestNs = createNamespace('peerStorePersistenceTest');
 function validateTurnChangedPayload(p: unknown): p is { next: string } {
   if (!isPlainRecord(p)) return false;
   const next = p['next'];
   return typeof next === 'string' && next.length > 0;
 }
-const TurnChanged = eventLogTestNs('TURN_CHANGED', validateTurnChangedPayload);
+const TurnChanged = persistenceTestNs('TURN_CHANGED', validateTurnChangedPayload);
 
 let disposeCrashHandler: () => void;
 beforeAll(() => {
@@ -41,11 +41,11 @@ beforeAll(() => {
 });
 afterAll(() => disposeCrashHandler());
 
-// ─── InMemoryEventLog ────────────────────────────────────────────────
+// ─── InMemoryPeerStorePersistence ────────────────────────────────────
 
-describe('InMemoryEventLog', () => {
+describe('InMemoryPeerStorePersistence', () => {
   it('append and load in order', async () => {
-    const log = new InMemoryEventLog();
+    const journal = new InMemoryPeerStorePersistence();
     const cmd: Command = {
       id: 'cmd-1',
       seq: 1,
@@ -56,55 +56,55 @@ describe('InMemoryEventLog', () => {
       { seq: 1, event: { type: 'MOVED', payload: {} } },
     ];
 
-    await log.append('log-part-1', { kind: 'command', command: cmd });
-    await log.append('log-part-1', {
+    await journal.append('log-part-1', { kind: 'command', command: cmd });
+    await journal.append('log-part-1', {
       kind: 'committed',
       commandId: 'cmd-1',
       entries: committedRows,
     });
 
-    const loaded = await log.load('log-part-1');
+    const loaded = await journal.load('log-part-1');
     expect(loaded).toHaveLength(2);
     expect(loaded[0]!.kind).toBe('command');
     expect(loaded[1]!.kind).toBe('committed');
   });
 
   it('isolates partition keys', async () => {
-    const log = new InMemoryEventLog();
-    await log.append('part-a', {
+    const journal = new InMemoryPeerStorePersistence();
+    await journal.append('part-a', {
       kind: 'committed',
       commandId: 'c1',
       entries: [{ seq: 1, event: { type: 'A', payload: {} } }],
     });
-    await log.append('part-b', {
+    await journal.append('part-b', {
       kind: 'committed',
       commandId: 'c2',
       entries: [{ seq: 1, event: { type: 'B', payload: {} } }],
     });
 
-    expect(await log.load('part-a')).toHaveLength(1);
-    expect(await log.load('part-b')).toHaveLength(1);
-    expect(await log.load('part-c')).toHaveLength(0);
+    expect(await journal.load('part-a')).toHaveLength(1);
+    expect(await journal.load('part-b')).toHaveLength(1);
+    expect(await journal.load('part-c')).toHaveLength(0);
   });
 
   it('load returns copies', async () => {
-    const log = new InMemoryEventLog();
-    await log.append('g', {
+    const journal = new InMemoryPeerStorePersistence();
+    await journal.append('g', {
       kind: 'committed',
       commandId: 'c1',
       entries: [],
     });
-    const a = await log.load('g');
-    const b = await log.load('g');
+    const a = await journal.load('g');
+    const b = await journal.load('g');
     expect(a).not.toBe(b);
   });
 });
 
-// ─── recoverFromEventLog ─────────────────────────────────────────────
+// ─── recoverPeerStoreFromPersistence ─────────────────────────────────
 
-describe('recoverFromEventLog', () => {
+describe('recoverPeerStoreFromPersistence', () => {
   it('replays committed events and identifies unresolved commands', async () => {
-    const log = new InMemoryEventLog();
+    const journal = new InMemoryPeerStorePersistence();
 
     const resolvedCmd: Command = {
       id: 'cmd-resolved',
@@ -119,15 +119,15 @@ describe('recoverFromEventLog', () => {
       message: { type: 'MOVE', payload: {} },
     };
 
-    await log.append('log-part-1', { kind: 'command', command: resolvedCmd });
-    await log.append('log-part-1', {
+    await journal.append('log-part-1', { kind: 'command', command: resolvedCmd });
+    await journal.append('log-part-1', {
       kind: 'committed',
       commandId: 'cmd-resolved',
       entries: [
         { seq: 1, event: { type: 'PIECE_MOVED', payload: { cell: 0 } } },
       ],
     });
-    await log.append('log-part-1', { kind: 'command', command: unresolvedCmd });
+    await journal.append('log-part-1', { kind: 'command', command: unresolvedCmd });
 
     let rehydratedEntries: LogEntry[] = [];
     const unresolved: Command[] = [];
@@ -153,7 +153,7 @@ describe('recoverFromEventLog', () => {
       destroy() {},
     };
 
-    await recoverFromEventLog(log, 'log-part-1', mockStore, (cmd) =>
+    await recoverPeerStoreFromPersistence(journal, 'log-part-1', mockStore, (cmd) =>
       unresolved.push(cmd)
     );
 
@@ -164,7 +164,7 @@ describe('recoverFromEventLog', () => {
   });
 
   it('handles rejected commands as resolved', async () => {
-    const log = new InMemoryEventLog();
+    const journal = new InMemoryPeerStorePersistence();
 
     const cmd: Command = {
       id: 'cmd-rej',
@@ -172,8 +172,8 @@ describe('recoverFromEventLog', () => {
       peerId: 'p1',
       message: { type: 'BAD', payload: {} },
     };
-    await log.append('g', { kind: 'command', command: cmd });
-    await log.append('g', { kind: 'rejected', commandId: 'cmd-rej' });
+    await journal.append('g', { kind: 'command', command: cmd });
+    await journal.append('g', { kind: 'rejected', commandId: 'cmd-rej' });
 
     const unresolved: Command[] = [];
     const mockStore = {
@@ -195,7 +195,7 @@ describe('recoverFromEventLog', () => {
       destroy() {},
     };
 
-    await recoverFromEventLog(log, 'g', mockStore, (cmd) =>
+    await recoverPeerStoreFromPersistence(journal, 'g', mockStore, (cmd) =>
       unresolved.push(cmd)
     );
 
@@ -203,7 +203,7 @@ describe('recoverFromEventLog', () => {
   });
 
   it('works with empty log', async () => {
-    const log = new InMemoryEventLog();
+    const journal = new InMemoryPeerStorePersistence();
     let rehydrated = false;
     const mockStore = {
       rehydrate() {
@@ -226,22 +226,22 @@ describe('recoverFromEventLog', () => {
       destroy() {},
     };
 
-    await recoverFromEventLog(log, 'scope-missing', mockStore);
+    await recoverPeerStoreFromPersistence(journal, 'scope-missing', mockStore);
     expect(rehydrated).toBe(true);
   });
 });
 
-// ─── SqliteEventLog ──────────────────────────────────────────────────
+// ─── SqlitePeerStorePersistence ──────────────────────────────────────
 
-describe('SqliteEventLog', () => {
+describe('SqlitePeerStorePersistence', () => {
   let sqlClient: SqlClientImplBunSqlite;
-  let eventLog: SqliteEventLog;
+  let persistence: SqlitePeerStorePersistence;
 
   beforeEach(async () => {
     sqlClient = new SqlClientImplBunSqlite(new Database(':memory:'));
     await sqlClient.connect();
-    eventLog = new SqliteEventLog(sqlClient);
-    await eventLog.migrate();
+    persistence = new SqlitePeerStorePersistence(sqlClient);
+    await persistence.migrate();
   });
 
   afterEach(async () => {
@@ -255,20 +255,20 @@ describe('SqliteEventLog', () => {
       peerId: 'p1',
       message: { type: 'MOVE', payload: { cell: 4 } },
     };
-    await eventLog.append('log-part-1', { kind: 'command', command: cmd });
-    await eventLog.append('log-part-1', {
+    await persistence.append('log-part-1', { kind: 'command', command: cmd });
+    await persistence.append('log-part-1', {
       kind: 'committed',
       commandId: 'cmd-1',
       entries: [
         { seq: 1, event: { type: 'PIECE_MOVED', payload: { cell: 4 } } },
       ],
     });
-    await eventLog.append('log-part-1', {
+    await persistence.append('log-part-1', {
       kind: 'rejected',
       commandId: 'cmd-2',
     });
 
-    const entries = await eventLog.load('log-part-1');
+    const entries = await persistence.load('log-part-1');
     expect(entries).toHaveLength(3);
     expect(entries[0]!.kind).toBe('command');
     expect(entries[1]!.kind).toBe('committed');
@@ -282,9 +282,9 @@ describe('SqliteEventLog', () => {
       peerId: 'player-x',
       message: PlaceMark({ cell: 0, player: 'X' }),
     };
-    await eventLog.append('g', { kind: 'command', command: cmd });
+    await persistence.append('g', { kind: 'command', command: cmd });
 
-    const entries = await eventLog.load('g');
+    const entries = await persistence.load('g');
     expect(entries).toHaveLength(1);
     const entry = entries[0]!;
     expect(entry.kind).toBe('command');
@@ -301,13 +301,13 @@ describe('SqliteEventLog', () => {
       { seq: 1, event: MarkPlaced({ cell: 0, player: 'X', seq: 1 }) },
       { seq: 2, event: TurnChanged({ next: 'O' }) },
     ];
-    await eventLog.append('g', {
+    await persistence.append('g', {
       kind: 'committed',
       commandId: 'c1',
       entries: logEntries,
     });
 
-    const rows = await eventLog.load('g');
+    const rows = await persistence.load('g');
     expect(rows).toHaveLength(1);
     const entry = rows[0]!;
     if (entry.kind === 'committed') {
@@ -318,43 +318,43 @@ describe('SqliteEventLog', () => {
   });
 
   it('isolates partition keys', async () => {
-    await eventLog.append('a', {
+    await persistence.append('a', {
       kind: 'committed',
       commandId: 'c1',
       entries: [],
     });
-    await eventLog.append('b', {
+    await persistence.append('b', {
       kind: 'committed',
       commandId: 'c2',
       entries: [],
     });
 
-    expect(await eventLog.load('a')).toHaveLength(1);
-    expect(await eventLog.load('b')).toHaveLength(1);
-    expect(await eventLog.load('c')).toHaveLength(0);
+    expect(await persistence.load('a')).toHaveLength(1);
+    expect(await persistence.load('b')).toHaveLength(1);
+    expect(await persistence.load('c')).toHaveLength(0);
   });
 
   it('migrate is idempotent', async () => {
-    await eventLog.migrate();
-    await eventLog.migrate();
+    await persistence.migrate();
+    await persistence.migrate();
 
-    await eventLog.append('g', {
+    await persistence.append('g', {
       kind: 'committed',
       commandId: 'c1',
       entries: [],
     });
-    expect(await eventLog.load('g')).toHaveLength(1);
+    expect(await persistence.load('g')).toHaveLength(1);
   });
 
   it('seq increments correctly across appends', async () => {
     for (let i = 0; i < 5; i++) {
-      await eventLog.append('g', {
+      await persistence.append('g', {
         kind: 'committed',
         commandId: `c${i}`,
         entries: [{ seq: i + 1, event: { type: `E${i}`, payload: {} } }],
       });
     }
-    const entries = await eventLog.load('g');
+    const entries = await persistence.load('g');
     expect(entries).toHaveLength(5);
     for (let i = 0; i < 5; i++) {
       const entry = entries[i]!;
@@ -365,10 +365,10 @@ describe('SqliteEventLog', () => {
   });
 });
 
-// ─── Integration: PeerStore + EventLog ───────────────────────────────
+// ─── Integration: PeerStore + persistence journal ────────────────────
 
-describe('PeerStore + EventLog integration', () => {
-  const INT_TOPIC = 'event-log-int';
+describe('PeerStore + persistence journal integration', () => {
+  const INT_TOPIC = 'persistence-int';
 
   function setup() {
     const bus = new InMemoryBus();
@@ -377,7 +377,7 @@ describe('PeerStore + EventLog integration', () => {
     const t_auth = new InMemoryTransport(bus, 'authority');
     const peers = { 'player-x': 1, 'player-o': 1, authority: 3 };
 
-    const log = new InMemoryEventLog();
+    const journal = new InMemoryPeerStorePersistence();
     const partitionKey = 'log-part-1';
     const committed: Array<{ commandId: string; entries: LogEntry[] }> = [];
     const rejected: string[] = [];
@@ -413,19 +413,19 @@ describe('PeerStore + EventLog integration', () => {
       {
         onCommit(commandId, entries) {
           committed.push({ commandId, entries });
-          void log.append(partitionKey, {
+          void journal.append(partitionKey, {
             kind: 'committed',
             commandId,
             entries,
           });
         },
         onReject(commandId) {
-          void log.append(partitionKey, { kind: 'rejected', commandId });
+          void journal.append(partitionKey, { kind: 'rejected', commandId });
         },
       }
     );
 
-    void log.append(partitionKey, {
+    void journal.append(partitionKey, {
       kind: 'committed',
       commandId: '__seed__',
       entries: store_auth.getCommittedLogEntries(),
@@ -445,7 +445,7 @@ describe('PeerStore + EventLog integration', () => {
       store_x,
       store_o,
       store_auth,
-      log,
+      journal,
       partitionKey,
       committed,
       rejected,
@@ -493,8 +493,8 @@ describe('PeerStore + EventLog integration', () => {
     destroy();
   });
 
-  it('recovery from event log rebuilds state', async () => {
-    const { store_x, store_o, store_auth, log, partitionKey, destroy } =
+  it('recovery from persistence journal rebuilds state', async () => {
+    const { store_x, store_o, store_auth, journal, partitionKey, destroy } =
       setup();
 
     store_x.dispatch(PlaceMark({ cell: 4, player: 'X' }));
@@ -516,7 +516,7 @@ describe('PeerStore + EventLog integration', () => {
       transport: t_recovery,
     });
 
-    await recoverFromEventLog(log, partitionKey, recoveredStore);
+    await recoverPeerStoreFromPersistence(journal, partitionKey, recoveredStore);
 
     const recoveredState = recoveredStore.getCommittedState();
     expect(ticTacToeBoardCell(recoveredState, 4)).toBe('X');

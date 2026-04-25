@@ -1,12 +1,15 @@
 import { Assert } from '@gamezilla/lib/assert'
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface'
-import type { EventLog, EventLogEntry } from './event-log'
+import type {
+  PeerStorePersistence,
+  PeerStorePersistenceEntry,
+} from './peer-store-persistence'
 import { assertCommand, assertLogEntryArray } from './assert-durable-json'
 
 const crash: Assert = Assert.crash()
 
 const MIGRATIONS = `
-CREATE TABLE IF NOT EXISTS event_log (
+CREATE TABLE IF NOT EXISTS peer_store_persistence (
     partition_key TEXT NOT NULL,
     seq        INTEGER NOT NULL,
     kind       TEXT NOT NULL,
@@ -15,18 +18,18 @@ CREATE TABLE IF NOT EXISTS event_log (
     created_at TEXT NOT NULL,
     PRIMARY KEY (partition_key, seq)
 );
-CREATE INDEX IF NOT EXISTS idx_event_log_partition ON event_log (partition_key);
+CREATE INDEX IF NOT EXISTS idx_peer_store_persistence_partition ON peer_store_persistence (partition_key);
 `
 
-const INSERT = `INSERT INTO event_log (partition_key, seq, kind, command_id, payload, created_at)
-VALUES (?, (SELECT COALESCE(MAX(seq), 0) + 1 FROM event_log WHERE partition_key = ?), ?, ?, ?, ?)`
+const INSERT = `INSERT INTO peer_store_persistence (partition_key, seq, kind, command_id, payload, created_at)
+VALUES (?, (SELECT COALESCE(MAX(seq), 0) + 1 FROM peer_store_persistence WHERE partition_key = ?), ?, ?, ?, ?)`
 
-const SELECT = `SELECT kind, command_id, payload FROM event_log
+const SELECT = `SELECT kind, command_id, payload FROM peer_store_persistence
 WHERE partition_key = ? ORDER BY seq ASC`
 
 type Row = { kind: string; command_id: string; payload: string }
 
-function entryToRow(entry: EventLogEntry): {
+function entryToRow(entry: PeerStorePersistenceEntry): {
   kind: string
   commandId: string
   payload: string
@@ -53,7 +56,7 @@ function entryToRow(entry: EventLogEntry): {
   }
 }
 
-function rowToEntry(row: Row): EventLogEntry {
+function rowToEntry(row: Row): PeerStorePersistenceEntry {
   switch (row.kind) {
     case 'command':
       return { kind: 'command', command: assertCommand(JSON.parse(row.payload)) }
@@ -66,15 +69,15 @@ function rowToEntry(row: Row): EventLogEntry {
     case 'rejected':
       return { kind: 'rejected', commandId: row.command_id }
     default:
-      crash.fail('unknown event_log kind', { kind: row.kind })
+      crash.fail('unknown peer_store_persistence kind', { kind: row.kind })
   }
 }
 
 /**
- * SQLite-backed EventLog using TEXT columns and JSON stored as strings.
+ * SQLite-backed persistence journal using TEXT columns and JSON stored as strings.
  * Uses `SqlClient` with `?` placeholders (native to SQLite).
  */
-export class SqliteEventLog implements EventLog {
+export class SqlitePeerStorePersistence implements PeerStorePersistence {
   constructor(private readonly sqlClient: SqlClient) {}
 
   async migrate(): Promise<void> {
@@ -86,7 +89,7 @@ export class SqliteEventLog implements EventLog {
     }
   }
 
-  async append(partitionKey: string, entry: EventLogEntry): Promise<void> {
+  async append(partitionKey: string, entry: PeerStorePersistenceEntry): Promise<void> {
     crash.nonEmptyString(partitionKey, 'partitionKey must be non-empty')
     const { kind, commandId, payload } = entryToRow(entry)
     const now = new Date().toISOString()
@@ -100,7 +103,7 @@ export class SqliteEventLog implements EventLog {
     ])
   }
 
-  async load(partitionKey: string): Promise<EventLogEntry[]> {
+  async load(partitionKey: string): Promise<PeerStorePersistenceEntry[]> {
     crash.nonEmptyString(partitionKey, 'partitionKey must be non-empty')
     const rows = await this.sqlClient.query<Row>(SELECT, [partitionKey])
     return rows.map(rowToEntry)

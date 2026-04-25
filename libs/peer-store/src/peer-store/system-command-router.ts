@@ -1,6 +1,6 @@
 import { Assert } from '@gamezilla/lib/assert';
 import { createMessageRouter, type MessageRouter } from '@gamezilla/lib/message';
-import type { LogEntry } from '../event-log/log-entry';
+import type { LogEntry } from '../peer-store-persistence/log-entry';
 import type { Event } from '../protocol/message-types';
 import {
   PeerStoreDuplicatePeer,
