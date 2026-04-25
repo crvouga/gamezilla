@@ -3,12 +3,12 @@ export {
   PostgresPeerStorePersistence,
   recoverPeerStoreFromPersistence,
   SqlitePeerStorePersistence,
-} from './peer-store-persistence';
+} from './persistence';
 export type {
   PeerStorePersistence,
   PeerStorePersistenceEntry,
-} from './peer-store-persistence';
-export type { LogEntry } from './peer-store-persistence/log-entry';
+} from './persistence';
+export type { LogEntry } from './persistence/log-entry';
 export { PeerStore, replayDomainEntries, replayEvents } from './peer-store';
 export type {
   Command,

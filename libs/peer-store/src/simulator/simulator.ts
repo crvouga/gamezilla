@@ -1,7 +1,7 @@
 import { Assert } from '@gamezilla/lib/assert'
 import { PeerStore } from '../peer-store'
 import { InMemoryBus, InMemoryTransport, type MessageInterceptor } from '../transport'
-import type { LogEntry } from '../peer-store-persistence/log-entry'
+import type { LogEntry } from '../persistence/log-entry'
 import type { Event, Message, StoreError } from '../protocol/message-types'
 import type { Command, State, StoreModule } from '../peer-store/peer-store-types'
 import { PeerJoin, PeerLeave } from '../protocol/system-messages'

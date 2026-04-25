@@ -2,7 +2,7 @@ import { Assert } from '@gamezilla/lib/assert';
 import type {
   PeerStorePersistence,
   PeerStorePersistenceEntry,
-} from './peer-store-persistence';
+} from './persistence';
 
 const crash: Assert = Assert.crash();
 

@@ -1,7 +1,7 @@
 import { Assert } from '@gamezilla/lib/assert';
 import type { MessageRouter } from '@gamezilla/lib/message';
 import { randomBytes } from 'node:crypto';
-import type { LogEntry } from '../peer-store-persistence/log-entry';
+import type { LogEntry } from '../persistence/log-entry';
 import type { Event, Message, StoreError } from '../protocol/message-types';
 import {
   PeerStoreNotSynced,

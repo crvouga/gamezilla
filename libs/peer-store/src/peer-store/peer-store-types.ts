@@ -1,4 +1,4 @@
-import type { LogEntry } from '../peer-store-persistence/log-entry'
+import type { LogEntry } from '../persistence/log-entry'
 import type { Event, Message, StoreError } from '../protocol/message-types'
 
 export type Command = {

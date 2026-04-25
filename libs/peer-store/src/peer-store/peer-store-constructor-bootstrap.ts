@@ -1,5 +1,5 @@
 import { Assert } from '@gamezilla/lib/assert';
-import type { LogEntry } from '../peer-store-persistence/log-entry';
+import type { LogEntry } from '../persistence/log-entry';
 import { seedAllRemotePeersLiveness } from './authority-monitor';
 import { bootstrapGenesisCommittedState } from './peer-store-genesis';
 import { installJoinGenesisKeys } from './peer-store-join-keys';

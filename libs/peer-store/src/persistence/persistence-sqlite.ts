@@ -3,7 +3,7 @@ import type { SqlClient } from '@gamezilla/lib/sql-client/interface'
 import type {
   PeerStorePersistence,
   PeerStorePersistenceEntry,
-} from './peer-store-persistence'
+} from './persistence'
 import { assertCommand, assertLogEntryArray } from './assert-durable-json'
 
 const crash: Assert = Assert.crash()
@@ -14,20 +14,20 @@ CREATE TABLE IF NOT EXISTS peer_store_persistence (
     seq        INTEGER NOT NULL,
     kind       TEXT NOT NULL,
     command_id TEXT NOT NULL,
-    payload    JSONB NOT NULL DEFAULT '{}',
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    payload    TEXT NOT NULL DEFAULT '{}',
+    created_at TEXT NOT NULL,
     PRIMARY KEY (partition_key, seq)
 );
 CREATE INDEX IF NOT EXISTS idx_peer_store_persistence_partition ON peer_store_persistence (partition_key);
 `
 
 const INSERT = `INSERT INTO peer_store_persistence (partition_key, seq, kind, command_id, payload, created_at)
-VALUES (?, (SELECT COALESCE(MAX(seq), 0) + 1 FROM peer_store_persistence WHERE partition_key = ?), ?, ?, CAST(? AS jsonb), NOW())`
+VALUES (?, (SELECT COALESCE(MAX(seq), 0) + 1 FROM peer_store_persistence WHERE partition_key = ?), ?, ?, ?, ?)`
 
 const SELECT = `SELECT kind, command_id, payload FROM peer_store_persistence
 WHERE partition_key = ? ORDER BY seq ASC`
 
-type Row = { kind: string; command_id: string; payload: unknown }
+type Row = { kind: string; command_id: string; payload: string }
 
 function entryToRow(entry: PeerStorePersistenceEntry): {
   kind: string
@@ -56,20 +56,15 @@ function entryToRow(entry: PeerStorePersistenceEntry): {
   }
 }
 
-function parsePayload(payload: unknown): unknown {
-  if (typeof payload === 'string') return JSON.parse(payload)
-  return payload
-}
-
 function rowToEntry(row: Row): PeerStorePersistenceEntry {
   switch (row.kind) {
     case 'command':
-      return { kind: 'command', command: assertCommand(parsePayload(row.payload)) }
+      return { kind: 'command', command: assertCommand(JSON.parse(row.payload)) }
     case 'committed':
       return {
         kind: 'committed',
         commandId: row.command_id,
-        entries: assertLogEntryArray(parsePayload(row.payload)),
+        entries: assertLogEntryArray(JSON.parse(row.payload)),
       }
     case 'rejected':
       return { kind: 'rejected', commandId: row.command_id }
@@ -79,14 +74,10 @@ function rowToEntry(row: Row): PeerStorePersistenceEntry {
 }
 
 /**
- * PostgreSQL-backed persistence journal using JSONB for structured payload storage
- * and TIMESTAMPTZ for timestamps. Uses `SqlClient` with `?` placeholders
- * (converted to `$N` by the Postgres SqlClient implementation).
- *
- * The `node-postgres` driver returns JSONB columns as already-parsed JS
- * objects, so `rowToEntry` handles both string and object payloads.
+ * SQLite-backed persistence journal using TEXT columns and JSON stored as strings.
+ * Uses `SqlClient` with `?` placeholders (native to SQLite).
  */
-export class PostgresPeerStorePersistence implements PeerStorePersistence {
+export class SqlitePeerStorePersistence implements PeerStorePersistence {
   constructor(private readonly sqlClient: SqlClient) {}
 
   async migrate(): Promise<void> {
@@ -101,12 +92,14 @@ export class PostgresPeerStorePersistence implements PeerStorePersistence {
   async append(partitionKey: string, entry: PeerStorePersistenceEntry): Promise<void> {
     crash.nonEmptyString(partitionKey, 'partitionKey must be non-empty')
     const { kind, commandId, payload } = entryToRow(entry)
+    const now = new Date().toISOString()
     await this.sqlClient.run(INSERT, [
       partitionKey,
       partitionKey,
       kind,
       commandId,
       payload,
+      now,
     ])
   }
 

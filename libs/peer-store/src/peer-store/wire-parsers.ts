@@ -3,7 +3,7 @@ import {
   assertCommand,
   assertLogEntryArray,
   assertSnapshot,
-} from '../peer-store-persistence/assert-durable-json';
+} from '../persistence/assert-durable-json';
 import type { WireMessage } from './wire-protocol';
 
 const crash: Assert = Assert.crash();

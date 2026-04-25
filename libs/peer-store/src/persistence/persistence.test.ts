@@ -23,9 +23,9 @@ import { TestCrashHandler } from '../testing/test-crash-handler';
 import { ticTacToeBoardCell } from '../testing/tic-tac-toe-board';
 import { testPeerForLabel, ticTacToeThreePeers } from '../testing/tictactoe-peers';
 import { InMemoryBus, InMemoryTransport } from '../transport';
-import { recoverPeerStoreFromPersistence } from './peer-store-persistence';
-import { InMemoryPeerStorePersistence } from './peer-store-persistence-in-memory';
-import { SqlitePeerStorePersistence } from './peer-store-persistence-sqlite';
+import { recoverPeerStoreFromPersistence } from './persistence';
+import { InMemoryPeerStorePersistence } from './persistence-in-memory';
+import { SqlitePeerStorePersistence } from './persistence-sqlite';
 import type { LogEntry } from './log-entry';
 
 const persistenceTestNs = createNamespace('peerStorePersistenceTest');
