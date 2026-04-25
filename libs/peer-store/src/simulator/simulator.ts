@@ -4,7 +4,8 @@ import { InMemoryBus, InMemoryTransport, type MessageInterceptor } from '../tran
 import type { LogEntry } from '../event-log/log-entry'
 import type { Event, Message, StoreError } from '../protocol/message-types'
 import type { Command, State, StoreModule } from '../peer-store/peer-store-types'
-import { generateId } from '../protocol/utils'
+import { PeerJoin, PeerLeave } from '../protocol/system-messages'
+import { generateId, isSystemEvent } from '../protocol/utils'
 
 const crash: Assert = Assert.crash()
 
@@ -178,7 +179,11 @@ export class DeterministicSimulator {
       'cannot getEventLog on destroyed simulator',
     )
     this.assertPeerExists(peerId)
-    return this.stores.get(peerId)!.getCommittedEvents()
+    return this.stores
+      .get(peerId)!
+      .getCommittedLogEntries()
+      .filter((entry) => !isSystemEvent(entry.event))
+      .map((entry) => entry.event)
   }
 
   getCommittedLogEntries(peerId: string): LogEntry[] {
@@ -239,7 +244,8 @@ export class DeterministicSimulator {
   getLatestSeq(peerId: string): number {
     crash.ok(!this.is_destroyed, 'cannot getLatestSeq on destroyed simulator')
     this.assertPeerExists(peerId)
-    return this.stores.get(peerId)!.getLatestSeq()
+    const entries = this.stores.get(peerId)!.getCommittedLogEntries()
+    return entries.length === 0 ? 0 : entries[entries.length - 1]!.seq
   }
 
   getLogicalTimeMs(): number {
@@ -308,7 +314,7 @@ export class DeterministicSimulator {
     this.stores.set(peerId, store)
     this.peer_ids = [...this.peer_ids, peerId]
 
-    store.proposeJoin(peerId, trust)
+    store.dispatch(PeerJoin({ peerId, trust }))
     this.bus.flush()
   }
 
@@ -316,7 +322,7 @@ export class DeterministicSimulator {
     crash.ok(!this.is_destroyed, 'cannot leavePeer on destroyed simulator')
     this.assertPeerExists(peerId)
     const store = this.stores.get(peerId)!
-    store.proposeLeave(peerId)
+    store.dispatch(PeerLeave({ peerId }))
     this.bus.flush()
     store.destroy()
     this.transports.get(peerId)?.destroy()

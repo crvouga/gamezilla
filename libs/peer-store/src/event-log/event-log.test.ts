@@ -137,7 +137,6 @@ describe('recoverFromEventLog', () => {
         rehydratedEntries = entries;
       },
       dispatch() {},
-      dispatchOptimistic() {},
       subscribe() {
         return () => {};
       },
@@ -147,24 +146,9 @@ describe('recoverFromEventLog', () => {
       getCommittedState() {
         return {};
       },
-      getCommittedEvents() {
-        return [];
-      },
       getCommittedLogEntries() {
         return [];
       },
-      getMembership() {
-        return {};
-      },
-      subscribeMembership() {
-        return () => {};
-      },
-      getLatestSeq() {
-        return 0;
-      },
-      proposeJoin() {},
-      proposeLeave() {},
-      proposeTrustUpdate() {},
       requestSync() {},
       destroy() {},
     };
@@ -195,7 +179,6 @@ describe('recoverFromEventLog', () => {
     const mockStore = {
       rehydrate() {},
       dispatch() {},
-      dispatchOptimistic() {},
       subscribe() {
         return () => {};
       },
@@ -205,24 +188,9 @@ describe('recoverFromEventLog', () => {
       getCommittedState() {
         return {};
       },
-      getCommittedEvents() {
-        return [];
-      },
       getCommittedLogEntries() {
         return [];
       },
-      getMembership() {
-        return {};
-      },
-      subscribeMembership() {
-        return () => {};
-      },
-      getLatestSeq() {
-        return 0;
-      },
-      proposeJoin() {},
-      proposeLeave() {},
-      proposeTrustUpdate() {},
       requestSync() {},
       destroy() {},
     };
@@ -242,7 +210,6 @@ describe('recoverFromEventLog', () => {
         rehydrated = true;
       },
       dispatch() {},
-      dispatchOptimistic() {},
       subscribe() {
         return () => {};
       },
@@ -252,24 +219,9 @@ describe('recoverFromEventLog', () => {
       getCommittedState() {
         return {};
       },
-      getCommittedEvents() {
-        return [];
-      },
       getCommittedLogEntries() {
         return [];
       },
-      getMembership() {
-        return {};
-      },
-      subscribeMembership() {
-        return () => {};
-      },
-      getLatestSeq() {
-        return 0;
-      },
-      proposeJoin() {},
-      proposeLeave() {},
-      proposeTrustUpdate() {},
       requestSync() {},
       destroy() {},
     };

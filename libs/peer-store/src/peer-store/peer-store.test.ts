@@ -11,6 +11,7 @@ import {
 import { Assert } from '@gamezilla/lib/assert'
 import { PeerStore } from './peer-store'
 import { InMemoryBus, InMemoryTransport } from '../transport'
+import { isSystemEvent } from '../protocol/utils'
 import type { StoreError } from '../protocol/message-types'
 import type {
   Command,
@@ -21,7 +22,6 @@ import type {
 import {
   ClockTimeout,
   JoinSession,
-  MarkPlaced,
   PlaceMark,
   TickClock,
   TIC_TAC_TOE_CLOCK_MS_PER_PLAYER,
@@ -187,7 +187,10 @@ describe('PeerStore', () => {
 
     store_x.dispatch(PlaceMark({ cell: 2, player: 'X' }))
 
-    const events = store_x.getCommittedEvents()
+    const events = store_x
+      .getCommittedLogEntries()
+      .filter((entry) => !isSystemEvent(entry.event))
+      .map((entry) => entry.event)
     crash.ok(events.length >= 1, 'expected at least 1 committed event')
   })
 
@@ -296,31 +299,6 @@ describe('PeerStore', () => {
     const store = stores.get('player-x')!
     store.destroy()
     store.destroy()
-  })
-
-  it('dispatchOptimistic applies immediately, no peers notified', () => {
-    const { stores } = setup()
-    const store_x = stores.get('player-x')!
-    const store_o = stores.get('player-o')!
-
-    const initial_o = JSON.stringify(store_o.getState())
-
-    store_x.dispatchOptimistic(MarkPlaced({ cell: 4, player: 'X', seq: 99 }))
-
-    const state_x = store_x.getState()
-    expect(ticTacToeBoardCell(state_x, 4)).toBe('X')
-
-    expect(JSON.stringify(store_o.getState())).toBe(initial_o)
-  })
-
-  it('dispatchOptimistic does not trigger commit', () => {
-    const { stores } = setup()
-    const store_x = stores.get('player-x')!
-
-    store_x.dispatchOptimistic(MarkPlaced({ cell: 4, player: 'X', seq: 1 }))
-
-    const committed = store_x.getCommittedState()
-    expect(ticTacToeBoardCell(committed, 4)).toBeNull()
   })
 
   it('module.handle returning null → crash', () => {
@@ -453,7 +431,11 @@ describe('Sync protocol', () => {
 
     transports.get('authority')!.reconnect()
 
-    const auth_events = stores.get('authority')!.getCommittedEvents()
+    const auth_events = stores
+      .get('authority')!
+      .getCommittedLogEntries()
+      .filter((entry) => !isSystemEvent(entry.event))
+      .map((entry) => entry.event)
     expect(auth_events.length).toBeGreaterThanOrEqual(1)
   })
 
@@ -606,7 +588,10 @@ describe('Chess-style clock (PeerStore + TicTacToe)', () => {
     )
 
     const auth = stores.get('authority')!
-    const events = auth.getCommittedEvents()
+    const events = auth
+      .getCommittedLogEntries()
+      .filter((entry) => !isSystemEvent(entry.event))
+      .map((entry) => entry.event)
     expect(events.some((e) => ClockTimeout.is(e))).toBe(true)
     expect(auth.getCommittedState()['status']).toBe('completed')
     expect(auth.getCommittedState()['winner']).toBe('X')

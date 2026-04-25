@@ -1,4 +1,3 @@
-/* eslint-disable max-lines -- PeerStore coordination flow is intentionally centralized. */
 import { Assert } from '@gamezilla/lib/assert';
 import type { MessageRouter } from '@gamezilla/lib/message';
 import type { LogEntry } from '../event-log/log-entry';
@@ -8,11 +7,8 @@ import {
   PeerStoreUnknownSystemCommand,
 } from '../protocol/store-errors';
 import {
-  PeerJoin,
   PeerJoined,
-  PeerLeave,
   peerNamespace,
-  PeerTrustUpdate,
 } from '../protocol/system-messages';
 import { generateId, isSystemEvent } from '../protocol/utils';
 import type { Transport } from '../transport/transport-types';
@@ -103,9 +99,6 @@ export class PeerStore implements PeerStoreApi {
   synced: boolean;
 
   private readonly subscribers = new Set<(state: State) => void>();
-  private readonly membership_subscribers = new Set<
-    (membership: Record<string, number>) => void
-  >();
   readonly pending_timeouts = new Map<
     string,
     ReturnType<typeof setTimeout>
@@ -367,36 +360,6 @@ export class PeerStore implements PeerStoreApi {
     return entries;
   }
 
-  proposeJoin(peerId: string, trust: number): void {
-    this.dispatch(PeerJoin({ peerId, trust }));
-  }
-
-  proposeLeave(peerId: string): void {
-    this.dispatch(PeerLeave({ peerId }));
-  }
-
-  proposeTrustUpdate(peerId: string, trust: number): void {
-    this.dispatch(PeerTrustUpdate({ peerId, trust }));
-  }
-
-  dispatchOptimistic(event: Event): void {
-    crash.ok(
-      !this.is_destroyed,
-      'cannot dispatchOptimistic on destroyed store',
-    );
-    crash.nonEmptyString(event.type, 'event.type must be non-empty string');
-    crash.ok(
-      !isSystemEvent(event),
-      'dispatchOptimistic is for domain events only',
-    );
-
-    const new_state = this.module.reduce(this.computeDisplayState(), event);
-    crash.record(new_state, 'reduce must return a plain object');
-
-    this.optimistic_events.push({ ...event, _commandId: '__optimistic__' });
-    this.notifySubscribers();
-  }
-
   subscribe(callback: (state: State) => void): () => void {
     crash.ok(!this.is_destroyed, 'cannot subscribe on destroyed store');
     crash.ok(typeof callback === 'function', 'callback must be a function');
@@ -416,46 +379,12 @@ export class PeerStore implements PeerStoreApi {
     return this.committed_state;
   }
 
-  getCommittedEvents(): Event[] {
-    crash.ok(
-      !this.is_destroyed,
-      'cannot getCommittedEvents on destroyed store',
-    );
-    return this.committed_entries
-      .filter((e) => !isSystemEvent(e.event))
-      .map((e) => e.event);
-  }
-
   getCommittedLogEntries(): LogEntry[] {
     crash.ok(
       !this.is_destroyed,
       'cannot getCommittedLogEntries on destroyed store',
     );
     return [...this.committed_entries];
-  }
-
-  getMembership(): Record<string, number> {
-    crash.ok(!this.is_destroyed, 'cannot getMembership on destroyed store');
-    return membershipToRecord(this.membership);
-  }
-
-  subscribeMembership(
-    callback: (membership: Record<string, number>) => void,
-  ): () => void {
-    crash.ok(
-      !this.is_destroyed,
-      'cannot subscribeMembership on destroyed store',
-    );
-    crash.ok(typeof callback === 'function', 'callback must be a function');
-    this.membership_subscribers.add(callback);
-    return () => {
-      this.membership_subscribers.delete(callback);
-    };
-  }
-
-  getLatestSeq(): number {
-    crash.ok(!this.is_destroyed, 'cannot getLatestSeq on destroyed store');
-    return this.latestLogSeq;
   }
 
   requestSync(): void {
@@ -501,7 +430,6 @@ export class PeerStore implements PeerStoreApi {
 
     this.rebuildAuthorityFromMembership();
     this.synced = true;
-    this.notifyMembershipSubscribers();
     this.notifySubscribers();
   }
 
@@ -514,7 +442,6 @@ export class PeerStore implements PeerStoreApi {
     }
     this.pending_timeouts.clear();
     this.subscribers.clear();
-    this.membership_subscribers.clear();
 
     if (this.heartbeat_interval !== null) {
       clearInterval(this.heartbeat_interval);
@@ -557,13 +484,6 @@ export class PeerStore implements PeerStoreApi {
     const state = this.computeDisplayState();
     for (const callback of [...this.subscribers]) {
       callback(state);
-    }
-  }
-
-  notifyMembershipSubscribers(): void {
-    const m = membershipToRecord(this.membership);
-    for (const cb of [...this.membership_subscribers]) {
-      cb(m);
     }
   }
 

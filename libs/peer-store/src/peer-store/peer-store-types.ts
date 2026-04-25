@@ -53,24 +53,12 @@ export type PeerBootstrap =
 
 export interface PeerStoreApi {
   dispatch(message: Message): void
-  dispatchOptimistic(event: Event): void
   subscribe(callback: (state: State) => void): () => void
   getState(): State
   getCommittedState(): State
-  /** Domain events only (excludes `_peer/...` system events). */
-  getCommittedEvents(): Event[]
   /** Full replicated log rows (system + domain). */
   getCommittedLogEntries(): LogEntry[]
-  getMembership(): Record<string, number>
-  subscribeMembership(
-    callback: (membership: Record<string, number>) => void,
-  ): () => void
-  /** Latest global log sequence committed locally (0 if none). */
-  getLatestSeq(): number
-  proposeJoin(peerId: string, trust: number): void
-  proposeLeave(peerId: string): void
-  proposeTrustUpdate(peerId: string, trust: number): void
-  rehydrate(entries: LogEntry[]): void
   requestSync(): void
+  rehydrate(entries: LogEntry[]): void
   destroy(): void
 }

@@ -195,7 +195,6 @@ export function handleCommitEntries(
   }
 
   self.callbacks.onCommit?.(commandId, entries);
-  self.notifyMembershipSubscribers();
   self.notifySubscribers();
 }
 

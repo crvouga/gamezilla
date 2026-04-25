@@ -13,6 +13,7 @@ import { PlaceMark, TicTacToeModule } from './fixtures/tic-tac-toe.module'
 import { DeterministicSimulator } from '../simulator'
 import { TestCrashHandler } from './test-crash-handler'
 import { ticTacToeBoardCell } from './tic-tac-toe-board'
+import { membershipToRecord, rebuildMembershipFromLog } from '../peer-store/membership'
 
 let disposeCrashHandler: () => void
 beforeAll(() => {
@@ -55,7 +56,10 @@ describe('Snapshot and incremental sync', () => {
     sim.joinPeer('late', 1)
     sim.deliverPending()
 
-    expect(sim.getStore('late').getMembership()['late']).toBe(1)
+    const membership = membershipToRecord(
+      rebuildMembershipFromLog(sim.getStore('late').getCommittedLogEntries()),
+    )
+    expect(membership['late']).toBe(1)
     expect(ticTacToeBoardCell(sim.getCommittedState('late'), 4)).toBe('X')
 
     sim.destroy()
