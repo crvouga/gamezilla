@@ -21,10 +21,69 @@ const ITEMS: readonly NavItem[] = [
   { href: '/profile', label: 'Profile', icon: 'person.fill' },
 ];
 
+function isItemActive(item: NavItem, normalized: string): boolean {
+  if (item.href === '/profile') return normalized === '/profile';
+  return normalized === '/' || normalized === '';
+}
+
+function NavRow({ item, active }: { item: NavItem; active: boolean }) {
+  const theme = useTheme();
+  const router = useRouter();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected: active }}
+      onPress={() => {
+        router.push(item.href);
+      }}
+      sx={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 3,
+        py: 3,
+        px: 3,
+        borderRadius: 12,
+        background: active ? 'surface' : 'transparent',
+      }}
+    >
+      <IconSymbol
+        name={item.icon}
+        size={22}
+        color={active ? theme.colors.tabIconSelected : theme.colors.icon}
+      />
+      <Text
+        variant="bodyBold"
+        sx={{
+          color: active ? 'text' : 'textSecondary',
+        }}
+        label={item.label}
+      />
+    </Pressable>
+  );
+}
+
+function NavSection({ normalized }: { normalized: string }) {
+  return (
+    <Box sx={{ py: 4, px: 3, gap: 1 }}>
+      <Text
+        variant="label"
+        sx={{ color: 'textSecondary', mb: 2, letterSpacing: 0.5 }}
+        label="Gamezilla"
+      />
+      {ITEMS.map((item) => (
+        <NavRow
+          key={item.href}
+          item={item}
+          active={isItemActive(item, normalized)}
+        />
+      ))}
+    </Box>
+  );
+}
+
 export function AppSidebar() {
   const theme = useTheme();
   const pathname = usePathname();
-  const router = useRouter();
   const insets = useSafeAreaInsets();
 
   const path = pathname.split('?')[0]?.replace(/\/$/, '') ?? '';
@@ -49,56 +108,8 @@ export function AppSidebar() {
         paddingTop: insets.top,
       }}
     >
-      <Box sx={{ py: 4, px: 3, gap: 1 }}>
-        <Text
-          variant="label"
-          sx={{ color: 'textSecondary', mb: 2, letterSpacing: 0.5 }}
-          label="Gamezilla"
-        />
-        {ITEMS.map((item) => {
-          const active =
-            item.href === '/profile'
-              ? normalized === '/profile'
-              : normalized === '/' || normalized === '';
-          return (
-            <Pressable
-              key={item.href}
-              accessibilityRole="button"
-              accessibilityState={{ selected: active }}
-              onPress={() => {
-                router.push(item.href);
-              }}
-              sx={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 3,
-                py: 3,
-                px: 3,
-                borderRadius: 12,
-                background: active ? 'surface' : 'transparent',
-              }}
-            >
-              <IconSymbol
-                name={item.icon}
-                size={22}
-                color={
-                  active ? theme.colors.tabIconSelected : theme.colors.icon
-                }
-              />
-              <Text
-                variant="bodyBold"
-                sx={{
-                  color: active ? 'text' : 'textSecondary',
-                }}
-                label={item.label}
-              />
-            </Pressable>
-          );
-        })}
-      </Box>
-
+      <NavSection normalized={normalized} />
       <Box sx={{ flex: 1 }} />
-
       <Box
         sx={{
           borderTopWidth: 1,

@@ -1,12 +1,10 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
-import { assertSqliteQuery } from '@gamezilla/lib/sqlite';
 import {
   assertAttribute,
   assertEntityKey,
   assertPatchId,
   Attribute,
-  Entity,
   getPatchTopLevelFromAttributes,
   isValidAttribute,
   normalizePatchAttributesForStorage,
@@ -19,98 +17,24 @@ import {
   PatchInput,
   topologicalSortPatches,
 } from '../interface';
-import { parseAttributes, toEntity, toPatch } from './mappers';
+import { parseAttributes } from './mappers';
+import { readPatches } from './read-ops';
 import {
-  buildLimitSQL,
-  buildOrderSQL,
-  buildPatchConditions,
-  buildSnapshotConditions,
-} from './query-builder';
-import type { PatchRow, SnapshotRow } from './types';
+  DELETE_SNAPSHOT,
+  INSERT_PATCH,
+  MIGRATIONS,
+  RESOLVE_PARENT_ID,
+  SELECT_PATCHES_FOR_SNAPSHOT,
+  UPSERT_SNAPSHOT,
+} from './sql-constants';
+import type { PatchRow } from './types';
 
-const DELETE_SNAPSHOT = `DELETE FROM snapshots
-WHERE entity_id = ? AND entity_type = ?`;
-assertSqliteQuery(DELETE_SNAPSHOT);
-
-const INSERT_PATCH = `INSERT OR IGNORE INTO
-    patches (
-        patch_id,
-        entity_id,
-        entity_type,
-        attributes,
-        created_at,
-        recorded_at,
-        parent_id
-    )
-VALUES (?, ?, ?, ?, ?, ?, ?)`;
-assertSqliteQuery(INSERT_PATCH);
-
-const MIGRATIONS = `CREATE TABLE IF NOT EXISTS patches (
-    patch_id TEXT PRIMARY KEY,
-    entity_id TEXT NOT NULL,
-    entity_type TEXT NOT NULL,
-    attributes TEXT NOT NULL DEFAULT('{}'),
-    created_at TEXT NOT NULL,
-    recorded_at TEXT DEFAULT(datetime('now')) NOT NULL,
-    parent_id TEXT REFERENCES patches (patch_id)
-);
-
-CREATE INDEX IF NOT EXISTS idx_patches_entity_id ON patches (entity_id);
-
-CREATE INDEX IF NOT EXISTS idx_patches_parent_id ON patches (parent_id);
-
-CREATE TABLE IF NOT EXISTS snapshots (
-    entity_id TEXT NOT NULL,
-    entity_type TEXT NOT NULL,
-    attributes TEXT NOT NULL DEFAULT '{}',
-    PRIMARY KEY (entity_id, entity_type)
-);
-
-CREATE INDEX IF NOT EXISTS idx_snapshots_entity_type ON snapshots (entity_type);`;
-assertSqliteQuery(MIGRATIONS);
-
-const RESOLVE_PARENT_ID = `WITH RECURSIVE lineage AS (
-    SELECT patch_id, 0 AS depth
-    FROM patches
-    WHERE entity_id = ? AND entity_type = ? AND parent_id IS NULL
-    UNION ALL
-    SELECT p.patch_id, l.depth + 1
-    FROM patches p
-    JOIN lineage l ON p.parent_id = l.patch_id
-    WHERE p.entity_id = ? AND p.entity_type = ?
-)
-SELECT p.patch_id FROM patches p
-JOIN lineage l ON p.patch_id = l.patch_id
-WHERE p.entity_id = ? AND p.entity_type = ?
-  AND NOT EXISTS (
-    SELECT 1 FROM patches c
-    WHERE c.parent_id = p.patch_id
-      AND c.entity_id = p.entity_id AND c.entity_type = p.entity_type
-  )
-ORDER BY l.depth DESC, p.patch_id ASC
-LIMIT 1`;
-assertSqliteQuery(RESOLVE_PARENT_ID);
-
-const SELECT_PATCHES_FOR_SNAPSHOT = `WITH RECURSIVE lineage AS (
-    SELECT patch_id, 0 AS depth
-    FROM patches
-    WHERE entity_id = ? AND entity_type = ? AND parent_id IS NULL
-    UNION ALL
-    SELECT p.patch_id, l.depth + 1
-    FROM patches p
-    JOIN lineage l ON p.parent_id = l.patch_id
-    WHERE p.entity_id = ? AND p.entity_type = ?
-)
-SELECT p.* FROM patches p
-JOIN lineage l ON p.patch_id = l.patch_id
-WHERE p.entity_id = ? AND p.entity_type = ?
-ORDER BY l.depth ASC, p.patch_id ASC`;
-assertSqliteQuery(SELECT_PATCHES_FOR_SNAPSHOT);
-
-const UPSERT_SNAPSHOT = `INSERT INTO snapshots (entity_id, entity_type, attributes)
-VALUES (?, ?, ?)
-ON CONFLICT (entity_id, entity_type) DO UPDATE SET attributes = excluded.attributes`;
-assertSqliteQuery(MIGRATIONS);
+type InsertPatchOptions = {
+  patch: PatchInput;
+  parentId: string | null;
+  now: string;
+  recordedAt: string;
+};
 
 export class PatchDbImplSqlite implements PatchesDb {
   constructor(private sqlClient: SqlClient) {}
@@ -122,11 +46,20 @@ export class PatchDbImplSqlite implements PatchesDb {
     for (const stmt of statements) {
       await this.sqlClient.run(stmt);
     }
+    await this.dropLegacyLineageDepth();
+    await this.dropLegacyLineageIndex();
+    await this.migrateLegacyMetadataColumn();
+  }
+
+  private async dropLegacyLineageDepth(): Promise<void> {
     try {
       await this.sqlClient.run('ALTER TABLE patches DROP COLUMN lineage_depth');
     } catch {
       // Forward-compatible: old schema may not have lineage_depth; new DBs skip.
     }
+  }
+
+  private async dropLegacyLineageIndex(): Promise<void> {
     try {
       await this.sqlClient.run(
         'DROP INDEX IF EXISTS idx_patches_entity_type_lineage'
@@ -134,27 +67,29 @@ export class PatchDbImplSqlite implements PatchesDb {
     } catch {
       // Forward-compatible: index may be absent on fresh DB or already removed.
     }
+  }
+
+  private async migrateLegacyMetadataColumn(): Promise<void> {
     try {
       const tableInfo = await this.sqlClient.query<{ name: string }>(
         "SELECT name FROM pragma_table_info('patches') WHERE name = 'metadata'"
       );
-      if (tableInfo.length > 0) {
-        const jsonSetArgs = (PATCH_META_KEYS as readonly string[])
-          .flatMap((attrKey) => {
-            const legacyKey = PATCH_META_LEGACY_KEY_MAP[attrKey];
-            const path = `'$.${attrKey.replace(/"/g, '""')}'`;
-            const expr =
-              attrKey === 'patch/syncedAt'
-                ? `json_extract(metadata, '$.${legacyKey}')`
-                : `coalesce(json_extract(metadata, '$.${legacyKey}'), '')`;
-            return [path, expr];
-          })
-          .join(', ');
-        await this.sqlClient.run(
-          `UPDATE patches SET attributes = json_set(attributes, ${jsonSetArgs})`
-        );
-        await this.sqlClient.run('ALTER TABLE patches DROP COLUMN metadata');
-      }
+      if (tableInfo.length === 0) return;
+      const jsonSetArgs = (PATCH_META_KEYS as readonly string[])
+        .flatMap((attrKey) => {
+          const legacyKey = PATCH_META_LEGACY_KEY_MAP[attrKey];
+          const path = `'$.${attrKey.replace(/"/g, '""')}'`;
+          const expr =
+            attrKey === 'patch/syncedAt'
+              ? `json_extract(metadata, '$.${legacyKey}')`
+              : `coalesce(json_extract(metadata, '$.${legacyKey}'), '')`;
+          return [path, expr];
+        })
+        .join(', ');
+      await this.sqlClient.run(
+        `UPDATE patches SET attributes = json_set(attributes, ${jsonSetArgs})`
+      );
+      await this.sqlClient.run('ALTER TABLE patches DROP COLUMN metadata');
     } catch {
       // Forward-compatible: metadata column exists only in pre-migration DBs.
     }
@@ -241,11 +176,9 @@ export class PatchDbImplSqlite implements PatchesDb {
 
   private async insertPatchRow(
     tx: SqlClient,
-    patch: PatchInput,
-    parentId: string | null,
-    now: string,
-    recordedAt: string
+    options: InsertPatchOptions
   ): Promise<Patch> {
+    const { patch, parentId, now, recordedAt } = options;
     const storedAttributes = normalizePatchAttributesForStorage(patch);
     const { createdBy, sessionId } =
       getPatchTopLevelFromAttributes(storedAttributes);
@@ -324,13 +257,12 @@ export class PatchDbImplSqlite implements PatchesDb {
           'recordedAt' in patch && typeof patch.recordedAt === 'string'
             ? patch.recordedAt
             : now;
-        const written = await this.insertPatchRow(
-          tx,
+        const written = await this.insertPatchRow(tx, {
           patch,
           parentId,
           now,
-          recordedAt
-        );
+          recordedAt,
+        });
         writtenPatches.push(written);
         touchedEntities.add(`${patch.entityId}\0${patch.entityType}`);
       }
@@ -339,303 +271,8 @@ export class PatchDbImplSqlite implements PatchesDb {
     return writtenPatches;
   }
 
-  private async batchFetchSnapshots(
-    entityKeys: string[]
-  ): Promise<Entity[]> {
-    if (entityKeys.length === 0) return [];
-    const pairs: [string, string][] = entityKeys.map((key) => {
-      const parts = key.split('\0');
-      assert.ok(
-        parts.length === 2,
-        'Entity key must contain exactly one null separator',
-        { key }
-      );
-      const entityId = parts[0];
-      const entityType = parts[1];
-      assert.defined(entityId, 'entityId must be defined');
-      assert.defined(entityType, 'entityType must be defined');
-      return [entityId, entityType] as [string, string];
-    });
-    const placeholders = pairs.map(() => '(?, ?)').join(', ');
-    const params = pairs.flatMap(([id, type]) => [id, type]);
-    const rows = await this.sqlClient.query<SnapshotRow>(
-      `SELECT * FROM snapshots WHERE (entity_id, entity_type) IN (VALUES ${placeholders})`,
-      params
-    );
-    const map = new Map<string, SnapshotRow>();
-    for (const row of rows) {
-      map.set(`${row.entity_id}\0${row.entity_type}`, row);
-    }
-    const entities: Entity[] = [];
-    for (const key of entityKeys) {
-      const row = map.get(key);
-      if (row) {
-        entities.push(toEntity(row));
-      }
-    }
-    return entities;
-  }
-
-  private async batchFetchPatchesForEntities(
-    entities: readonly { entity_id: string; entity_type: string }[]
-  ): Promise<Patch[]> {
-    if (entities.length === 0) return [];
-    const placeholders = entities.map(() => '(?, ?)').join(', ');
-    const params = entities.flatMap((r) => [r.entity_id, r.entity_type]);
-    const patchRows = await this.sqlClient.query<PatchRow>(
-      `WITH RECURSIVE lineage AS (
-          SELECT patch_id, entity_id, entity_type, 0 AS depth
-          FROM patches
-          WHERE (entity_id, entity_type) IN (VALUES ${placeholders})
-            AND parent_id IS NULL
-          UNION ALL
-          SELECT p.patch_id, p.entity_id, p.entity_type, l.depth + 1
-          FROM patches p
-          JOIN lineage l ON p.parent_id = l.patch_id
-            AND p.entity_id = l.entity_id
-            AND p.entity_type = l.entity_type
-      )
-      SELECT p.*
-      FROM patches p
-      JOIN lineage l ON p.patch_id = l.patch_id
-      ORDER BY p.entity_id, p.entity_type, l.depth ASC, p.patch_id ASC`,
-      params
-    );
-    return patchRows.map(toPatch);
-  }
-
   async read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
-    if (queries.length === 0) return [];
-    return Promise.all(queries.map((q) => this.readOne(q)));
-  }
-
-  private async readOne(query: PatchesDbQuery): Promise<PatchesDbResult> {
-    const isSingleEntityQuery = typeof query.entityId === 'string';
-    if (query.on === 'patches') {
-      return this.readOnePatchesMode(query);
-    }
-    const usePatchBasedLogic =
-      (query.after !== null && query.after !== undefined) ||
-      isSingleEntityQuery;
-    if (usePatchBasedLogic) {
-      return this.readOnePatchBased(query);
-    }
-    return this.readOneSnapshotBased(query);
-  }
-
-  private async readOnePatchesMode(
-    query: PatchesDbQuery
-  ): Promise<PatchesDbResult> {
-    const { conditions, params } = buildPatchConditions(query, 'p');
-    const whereSQL = conditions.join(' AND ');
-
-    const orderSQL = buildOrderSQL(query, 'ORDER BY p.patch_id ASC', 'p.');
-    const limit = buildLimitSQL(query);
-
-    const rows = await this.sqlClient.query<PatchRow & { total_count: number }>(
-      `SELECT p.*, COUNT(*) OVER() AS total_count FROM patches p WHERE ${whereSQL} ${orderSQL}${limit.sql}`,
-      [...params, ...limit.params]
-    );
-
-    const total = rows.length > 0 ? Number(rows[0]!.total_count) : 0;
-    const patches = rows.map(toPatch);
-    const hasMore =
-      query.limit !== null && query.limit !== undefined
-        ? (query.offset ?? 0) + patches.length < total
-        : false;
-    const lastPatch = patches[patches.length - 1];
-    const nextCursor =
-      lastPatch !== null && lastPatch !== undefined ? lastPatch.patchId : null;
-
-    const entityKeysOrdered: string[] = [];
-    const entityKeysSeen = new Set<string>();
-    for (const p of patches) {
-      const key = `${p.entityId}\0${p.entityType}`;
-      if (!entityKeysSeen.has(key)) {
-        entityKeysSeen.add(key);
-        entityKeysOrdered.push(key);
-      }
-    }
-    const entities = await this.batchFetchSnapshots(entityKeysOrdered);
-
-    return {
-      query,
-      entities,
-      patches,
-      total,
-      hasMore,
-      nextCursor,
-    };
-  }
-
-  private async readOnePatchBased(
-    query: PatchesDbQuery
-  ): Promise<PatchesDbResult> {
-    const { conditions: snapConditions, params: snapParams } =
-      buildSnapshotConditions(query);
-    const snapWhereSQL = snapConditions.join(' AND ');
-
-    const hasSnapshotFilter = query.where !== null && query.where !== undefined;
-
-    let patchConditions: string[] = [];
-    let patchParams: unknown[] = [];
-
-    if (hasSnapshotFilter) {
-      if (query.entityType !== null && query.entityType !== undefined) {
-        patchConditions = [
-          `p.entity_id IN (SELECT s.entity_id FROM snapshots s WHERE ${snapWhereSQL})`,
-          'p.entity_type = ?',
-        ];
-        patchParams = [...snapParams, query.entityType];
-      } else {
-        patchConditions = [
-          `(p.entity_id, p.entity_type) IN (SELECT s.entity_id, s.entity_type FROM snapshots s WHERE ${snapWhereSQL})`,
-        ];
-        patchParams = [...snapParams];
-      }
-    } else {
-      if (query.entityType !== null && query.entityType !== undefined) {
-        patchConditions.push('p.entity_type = ?');
-        patchParams.push(query.entityType);
-      }
-      if (query.entityId !== null && query.entityId !== undefined) {
-        if (Array.isArray(query.entityId)) {
-          const placeholders = query.entityId.map(() => '?').join(', ');
-          patchConditions.push(`p.entity_id IN (${placeholders})`);
-          patchParams.push(...query.entityId);
-        } else {
-          patchConditions.push('p.entity_id = ?');
-          patchParams.push(query.entityId);
-        }
-      }
-    }
-
-    if (patchConditions.length === 0) {
-      patchConditions.push('1=1');
-    }
-
-    let cursorCondition = '';
-    const cursorParams: unknown[] = [];
-    if (query.after) {
-      const cursorRows = await this.sqlClient.query<{
-        entity_id: string;
-        entity_type: string;
-        patch_id: string;
-      }>(
-        'SELECT entity_id, entity_type, patch_id FROM patches WHERE patch_id = ?',
-        [query.after]
-      );
-      assert.ok(cursorRows.length > 0, 'Cursor patch not found', {
-        after: query.after,
-      });
-      const c = cursorRows[0];
-      assert.ok(c !== null && c !== undefined, 'cursorRows[0] must exist', {
-        after: query.after,
-      });
-      const depthRows = await this.sqlClient.query<{ depth: number }>(
-        `WITH RECURSIVE path AS (
-                        SELECT patch_id, parent_id, 1 AS len FROM patches WHERE patch_id = ?
-                        UNION ALL
-                        SELECT p.patch_id, p.parent_id, ptr.len + 1 FROM patches p JOIN path ptr ON p.patch_id = ptr.parent_id
-                    )
-                    SELECT max(len) - 1 AS depth FROM path`,
-        [query.after]
-      );
-      const cursorDepth = depthRows[0]?.depth ?? 0;
-      cursorCondition =
-        ' AND (p.entity_id, p.entity_type, l.depth, p.patch_id) > (?, ?, ?, ?)';
-      cursorParams.push(c.entity_id, c.entity_type, cursorDepth, c.patch_id);
-    }
-
-    const patchWhereSQL = patchConditions.join(' AND ');
-
-    const lineageCte = `WITH RECURSIVE lineage AS (
-            SELECT patch_id, entity_id, entity_type, 0 AS depth
-            FROM patches
-            WHERE parent_id IS NULL
-            UNION ALL
-            SELECT p.patch_id, p.entity_id, p.entity_type, l.depth + 1
-            FROM patches p
-            JOIN lineage l ON p.parent_id = l.patch_id AND p.entity_id = l.entity_id AND p.entity_type = l.entity_type
-        )`;
-
-    const countRows = await this.sqlClient.query<{ cnt: number }>(
-      `SELECT COUNT(*) as cnt FROM patches p WHERE ${patchWhereSQL}`,
-      patchParams
-    );
-    const total = countRows[0]?.cnt ?? 0;
-
-    const defaultOrder =
-      'ORDER BY p.entity_id ASC, p.entity_type ASC, l.depth ASC, p.patch_id ASC';
-    const orderSQL = buildOrderSQL(query, defaultOrder, 'p.');
-    const limit = buildLimitSQL(query);
-
-    const selectSql = `${lineageCte} SELECT p.* FROM patches p JOIN lineage l ON p.patch_id = l.patch_id AND p.entity_id = l.entity_id AND p.entity_type = l.entity_type WHERE ${patchWhereSQL}${cursorCondition} ${orderSQL}${limit.sql}`;
-
-    const rows = await this.sqlClient.query<PatchRow>(selectSql, [
-      ...patchParams,
-      ...cursorParams,
-      ...limit.params,
-    ]);
-
-    const patches = rows.map(toPatch);
-    const hasMore =
-      query.after !== null && query.after !== undefined
-        ? query.limit !== null &&
-          query.limit !== undefined &&
-          patches.length >= query.limit
-        : query.limit !== null && query.limit !== undefined
-          ? (query.offset ?? 0) + patches.length < total
-          : false;
-    const lastPatch = patches[patches.length - 1];
-    const nextCursor =
-      lastPatch !== null && lastPatch !== undefined ? lastPatch.patchId : null;
-
-    const entityKeysOrdered: string[] = [];
-    const entityKeysSeen = new Set<string>();
-    for (const p of patches) {
-      const key = `${p.entityId}\0${p.entityType}`;
-      if (!entityKeysSeen.has(key)) {
-        entityKeysSeen.add(key);
-        entityKeysOrdered.push(key);
-      }
-    }
-    const entities = await this.batchFetchSnapshots(entityKeysOrdered);
-
-    return { query, entities, patches, total, hasMore, nextCursor };
-  }
-
-  private async readOneSnapshotBased(
-    query: PatchesDbQuery
-  ): Promise<PatchesDbResult> {
-    const { conditions, params } = buildSnapshotConditions(query);
-    const whereSQL = conditions.join(' AND ');
-
-    const orderSQL = buildOrderSQL(query, 'ORDER BY entity_id ASC');
-    const limit = buildLimitSQL(query);
-
-    const rows = await this.sqlClient.query<SnapshotRow & { total_count: number }>(
-      `SELECT *, COUNT(*) OVER() AS total_count FROM snapshots WHERE ${whereSQL} ${orderSQL}${limit.sql}`,
-      [...params, ...limit.params]
-    );
-
-    const total = rows.length > 0 ? Number(rows[0]!.total_count) : 0;
-    const entities = rows.map(toEntity);
-    const hasMore =
-      query.limit !== null && query.limit !== undefined
-        ? (query.offset ?? 0) + entities.length < total
-        : false;
-
-    const patches = await this.batchFetchPatchesForEntities(rows);
-
-    return {
-      query,
-      entities,
-      patches,
-      total,
-      hasMore,
-      nextCursor: null,
-    };
+    return readPatches(this.sqlClient, queries);
   }
 
   async update(

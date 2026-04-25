@@ -17,6 +17,20 @@ export const SYNC_ERROR_TOPIC = 'sync-error';
 
 const MAX_CONSECUTIVE_FAILURES = 5;
 
+function collectMissingSyncedIds(
+  knownPatches: readonly Patch[],
+  serverPatchIds: ReadonlySet<string>,
+  patchIdsToUnsync: Set<string>
+): void {
+  for (const localPatch of knownPatches) {
+    const syncedAt = localPatch.attributes['patch/syncedAt'];
+    const isSynced = syncedAt !== null && syncedAt !== undefined;
+    if (isSynced && !serverPatchIds.has(localPatch.patchId)) {
+      patchIdsToUnsync.add(localPatch.patchId);
+    }
+  }
+}
+
 export type SyncErrorEvent = {
   source: 'push' | 'poll';
   error: unknown;
@@ -403,15 +417,11 @@ export class SyncPatchesDb implements PatchesDb {
       if (query.where) continue;
 
       const serverPatchIds = new Set(result.patches.map((p) => p.patchId));
-
-      for (const localPatch of query.knownPatches) {
-        const isSynced =
-          localPatch.attributes['patch/syncedAt'] !== null &&
-          localPatch.attributes['patch/syncedAt'] !== undefined;
-        if (isSynced && !serverPatchIds.has(localPatch.patchId)) {
-          patchIdsToUnsync.add(localPatch.patchId);
-        }
-      }
+      collectMissingSyncedIds(
+        query.knownPatches,
+        serverPatchIds,
+        patchIdsToUnsync
+      );
     }
 
     if (patchIdsToUnsync.size === 0) return false;

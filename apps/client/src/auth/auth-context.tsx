@@ -29,6 +29,7 @@ import { PrincipalServiceToken } from './principal-service';
 import {
   SessionServiceToken,
   type PrincipalSessionRecord,
+  type SessionService,
 } from './session-service';
 import { useGoogleIdTokenPrompt } from './use-google-id-token-prompt';
 
@@ -63,48 +64,50 @@ const defaultState: AuthState = {
 
 const AuthContext = createContext<AuthState>(defaultState);
 
-function AuthStateProvider({ children }: { children: ReactNode }) {
-  const authService = useDependency(AuthServiceToken);
-  const principalService = useDependency(PrincipalServiceToken);
-  const sessionService = useDependency(SessionServiceToken);
-  const subDb = useDependency(SubscribablePatchesDbToken);
+function deriveStateFromSession(args: {
+  principalId: string;
+  sessionService: SessionService;
+}): Omit<AuthState, 'signInWithGoogle' | 'signOut' | 'refreshSession'> {
+  const { principalId, sessionService } = args;
+  const session = sessionService.getSession();
+  return {
+    principalId,
+    session,
+    mode:
+      session !== null && sessionService.isAuthenticated()
+        ? 'signed-in'
+        : 'guest',
+    accountId: session?.accountId ?? null,
+    displayName: session !== null ? 'Signed in' : 'Guest',
+  };
+}
 
-  const principalId = principalService.getPrincipalId();
-
-  const [state, setState] = useState<Omit<AuthState, 'signInWithGoogle' | 'signOut' | 'refreshSession'>>(() => {
-    const session = sessionService.getSession();
-    return {
-      principalId,
-      session,
-      mode:
-        session !== null && sessionService.isAuthenticated()
-          ? 'signed-in'
-          : 'guest',
-      accountId: session?.accountId ?? null,
-      displayName: session !== null ? 'Signed in' : 'Guest',
-    };
-  });
+function useAuthSessionState(
+  principalId: string,
+  sessionService: SessionService
+) {
+  const [state, setState] = useState(() =>
+    deriveStateFromSession({ principalId, sessionService })
+  );
 
   const refreshSession = useCallback(async () => {
     await sessionService.refresh();
-    const session = sessionService.getSession();
-    const mode =
-      session !== null && sessionService.isAuthenticated()
-        ? 'signed-in'
-        : 'guest';
-    setState({
-      principalId,
-      session,
-      mode,
-      accountId: session?.accountId ?? null,
-      displayName: session !== null ? 'Signed in' : 'Guest',
-    });
+    setState(deriveStateFromSession({ principalId, sessionService }));
   }, [principalId, sessionService]);
 
   useEffect(() => {
     void refreshSession();
   }, [refreshSession]);
 
+  return { state, refreshSession };
+}
+
+function useSubscribeToSessionChanges(args: {
+  principalId: string;
+  refreshSession: () => Promise<void>;
+}) {
+  const { principalId, refreshSession } = args;
+  const subDb = useDependency(SubscribablePatchesDbToken);
   useEffect(() => {
     const unsub = subDb.subscribe.entities(
       {
@@ -121,6 +124,19 @@ function AuthStateProvider({ children }: { children: ReactNode }) {
     );
     return unsub;
   }, [subDb, principalId, refreshSession]);
+}
+
+function AuthStateProvider({ children }: { children: ReactNode }) {
+  const authService = useDependency(AuthServiceToken);
+  const principalService = useDependency(PrincipalServiceToken);
+  const sessionService = useDependency(SessionServiceToken);
+  const principalId = principalService.getPrincipalId();
+
+  const { state, refreshSession } = useAuthSessionState(
+    principalId,
+    sessionService
+  );
+  useSubscribeToSessionChanges({ principalId, refreshSession });
 
   const signInWithGoogle = useCallback(async () => {
     await authService.signInWithGoogle();

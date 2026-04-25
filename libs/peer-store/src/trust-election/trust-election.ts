@@ -16,6 +16,18 @@ type VoteWireMessage = {
   trustedPeer: string;
 };
 
+function parseTrustVoteMessage(payload: unknown): TrustVote | null {
+  if (typeof payload !== 'object' || payload === null) return null;
+  crash.record(payload, 'trust vote payload must be a plain object');
+  const msg = payload;
+  if (msg['kind'] !== 'trust-vote') return null;
+  const from = msg['from'];
+  const trustedPeer = msg['trustedPeer'];
+  if (typeof from !== 'string' || typeof trustedPeer !== 'string') return null;
+  if (!from || !trustedPeer) return null;
+  return { from, trustedPeer };
+}
+
 /**
  * Computes a deterministic trust map from a set of votes.
  *
@@ -168,22 +180,13 @@ export class TrustElection {
 
   private handleMessage(payload: unknown): void {
     if (this.is_destroyed || this.resolved) return;
-    if (typeof payload !== 'object' || payload === null) return;
+    const vote = parseTrustVoteMessage(payload);
+    if (vote === null) return;
+    if (!this.expectedPeers.has(vote.from)) return;
+    if (vote.from === this.peerId) return;
 
-    const raw: unknown = payload;
-    crash.record(raw, 'trust vote payload must be a plain object');
-    const msg = raw;
-    if (msg['kind'] !== 'trust-vote') return;
-
-    const from = msg['from'];
-    const trustedPeer = msg['trustedPeer'];
-    if (typeof from !== 'string' || typeof trustedPeer !== 'string') return;
-    if (!from || !trustedPeer) return;
-    if (!this.expectedPeers.has(from)) return;
-    if (from === this.peerId) return;
-
-    const isNew = !this.received_votes.has(from);
-    this.received_votes.set(from, { from, trustedPeer });
+    const isNew = !this.received_votes.has(vote.from);
+    this.received_votes.set(vote.from, vote);
 
     if (isNew) {
       this.broadcastVote();

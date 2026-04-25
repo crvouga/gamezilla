@@ -20,24 +20,16 @@ function OpenPaletteButton() {
   return <Button title="Open command palette" onPress={open} />;
 }
 
-/**
- * Self-contained showcase: in-memory registry, no global shortcuts (avoids
- * conflicting with the app-level palette when nested under another provider).
- */
-export default function CommandPaletteExample() {
-  const [count, setCount] = useState(0);
-
+function DemoCommands({ onIncrement }: { onIncrement: () => void }) {
   return (
-    <CommandRegistryProvider enableDefaultShortcuts={false}>
+    <>
       <RegisterCommand
         id="demo-increment"
         title="Increment counter"
         category="Demo"
         icon="checklist"
         keywords={['add', 'plus', 'count']}
-        run={() => {
-          setCount((c) => c + 1);
-        }}
+        run={onIncrement}
       />
       <RegisterCommand
         id="demo-async"
@@ -91,7 +83,19 @@ export default function CommandPaletteExample() {
           await sleep(100);
         }}
       />
+    </>
+  );
+}
 
+/**
+ * Self-contained showcase: in-memory registry, no global shortcuts (avoids
+ * conflicting with the app-level palette when nested under another provider).
+ */
+export default function CommandPaletteExample() {
+  const [count, setCount] = useState(0);
+  return (
+    <CommandRegistryProvider enableDefaultShortcuts={false}>
+      <DemoCommands onIncrement={() => setCount((c) => c + 1)} />
       <Box sx={{ p: 4, gap: 4 }}>
         <Text variant="heading" label="Command palette" />
         <Text
@@ -99,19 +103,16 @@ export default function CommandPaletteExample() {
           sx={{ color: 'textSecondary' }}
           label="Open via the button below. In the app shell use ⌘K / ⌘⇧P (global shortcuts are disabled in this isolated example)."
         />
-
         <Stack spacing={2}>
           <Text variant="bodyBold" label={`Counter: ${count}`} />
           <OpenPaletteButton />
         </Stack>
-
         <Text
           variant="caption"
           sx={{ color: 'textSecondary' }}
           label="↑ ↓ navigate · Enter run · Esc close · Tab next"
         />
       </Box>
-
       <CommandPalette />
     </CommandRegistryProvider>
   );

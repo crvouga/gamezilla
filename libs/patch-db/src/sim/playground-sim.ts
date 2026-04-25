@@ -16,8 +16,6 @@ import { SimulatedPatchDbClientTransport } from './simulated-client-transport';
 
 const MARK_ALL_UNSYNCED = `UPDATE patches SET attributes = json_remove(attributes, '$."patch/syncedAt"')`;
 
-// ─── Database factory ─────────────────────────────────────────────────
-
 export type PlaygroundDbFactory = {
   /** Create a fresh, empty database for the given playground node. */
   create(label: string): Promise<SqlClient>;
@@ -28,8 +26,6 @@ export type PlaygroundDbFactory = {
   /** Remove all playground databases (full reset). */
   removeAll(labels: string[]): Promise<void>;
 };
-
-// ─── Snapshot types ───────────────────────────────────────────────────
 
 export type PlaygroundSimSnapshot = {
   serverId: string;
@@ -146,191 +142,285 @@ export type CreatePlaygroundSimOptions = {
   serverId?: string;
 };
 
-export async function createPlaygroundSim(
-  options: CreatePlaygroundSimOptions
-): Promise<PlaygroundSim> {
-  const { dbFactory } = options;
-  const clientCount = options.clientCount ?? 2;
-  const serverId = options.serverId ?? 'srv';
+type SimState = {
+  globalLatencyMs: number;
+  nextClientNum: number;
+};
 
-  const scheduler = new BrowserWallClockScheduler();
+type SimContext = {
+  scheduler: BrowserWallClockScheduler;
+  port: PartitionableServerPort;
+  serverSql: SqlClient;
+  serverBacking: PatchDbImplSqlite;
+  serverId: string;
+  dbFactory: PlaygroundDbFactory;
+  clientRuntimes: ClientRuntime[];
+  clients: PlaygroundClientHandle[];
+  clientById: Map<string, ClientRuntime>;
+  state: SimState;
+};
 
-  const serverSql = await dbFactory.create(`playground_${serverId}`);
-  await serverSql.connect();
+type ClientRuntimeAndHandle = {
+  runtime: ClientRuntime;
+  handle: PlaygroundClientHandle;
+};
+
+async function buildServerStack(
+  serverId: string,
+  serverSql: SqlClient
+): Promise<{
+  serverBacking: PatchDbImplSqlite;
+  port: PartitionableServerPort;
+}> {
   const serverBacking = new PatchDbImplSqlite(serverSql);
-  await serverBacking.migrate();
   const serverPubSub = new InMemoryPubSub();
-
   const notifying = new NotifyingPatchesDb(serverBacking, serverPubSub);
   const innerPort: SimServerPort = simServerPortFromPubSub(
     (q) => notifying.read(q),
     (p) => notifying.write(p),
     serverPubSub
   );
-  const port = new PartitionableServerPort(innerPort);
+  void serverId;
+  return {
+    serverBacking,
+    port: new PartitionableServerPort(innerPort),
+  };
+}
 
-  const clientRuntimes: ClientRuntime[] = [];
-  const clients: PlaygroundClientHandle[] = [];
-  const clientById = new Map<string, ClientRuntime>();
-  let nextClientNum = 1;
-  let globalLatencyMs = 0;
-
-  async function createClientRuntime(
-    id: string
-  ): Promise<{ runtime: ClientRuntime; handle: PlaygroundClientHandle }> {
-    const sqlClient = await dbFactory.create(`playground_${id}`);
-    await sqlClient.connect();
-    const localDb = new PatchDbImplSqlite(sqlClient);
-    await localDb.migrate();
-
-    const link = new NetworkLink(scheduler);
-    if (globalLatencyMs > 0) link.setReadWriteLatencyMs(globalLatencyMs);
-    const transport = new SimulatedPatchDbClientTransport(port, link);
-    const remotePatchesDb = new PatchDbImplClientTransport(transport);
-    const clientPubSub = new InMemoryPubSub();
-
-    const syncDb = new SyncPatchesDb(localDb, remotePatchesDb, clientPubSub, {
-      pushDriver: 'manual',
-      pollDriver: 'manual',
-
-      pushIntervalMs: 10,
-      logPushPollFailures: false,
-    });
-
-    const runtime: ClientRuntime = {
-      id,
-      sqlClient,
-      localDb,
-      transport,
-      syncDb,
-      link,
-    };
-    const handle: PlaygroundClientHandle = {
-      id,
-      syncDb,
-      link: createSimLink(link),
-      sqlClient,
-      localDb,
-      transport,
-    };
-    return { runtime, handle };
+function buildClientFromSql(
+  ctx: SimContext,
+  id: string,
+  sqlClient: SqlClient
+): ClientRuntimeAndHandle {
+  const localDb = new PatchDbImplSqlite(sqlClient);
+  const link = new NetworkLink(ctx.scheduler);
+  if (ctx.state.globalLatencyMs > 0) {
+    link.setReadWriteLatencyMs(ctx.state.globalLatencyMs);
   }
+  const transport = new SimulatedPatchDbClientTransport(ctx.port, link);
+  const remotePatchesDb = new PatchDbImplClientTransport(transport);
+  const clientPubSub = new InMemoryPubSub();
+  const syncDb = new SyncPatchesDb(localDb, remotePatchesDb, clientPubSub, {
+    pushDriver: 'manual',
+    pollDriver: 'manual',
+    pushIntervalMs: 10,
+    logPushPollFailures: false,
+  });
+  const runtime: ClientRuntime = {
+    id,
+    sqlClient,
+    localDb,
+    transport,
+    syncDb,
+    link,
+  };
+  const handle: PlaygroundClientHandle = {
+    id,
+    syncDb,
+    link: createSimLink(link),
+    sqlClient,
+    localDb,
+    transport,
+  };
+  return { runtime, handle };
+}
 
-  for (let i = 0; i < clientCount; i++) {
-    const id = `c${nextClientNum++}`;
-    const { runtime, handle } = await createClientRuntime(id);
-    clientRuntimes.push(runtime);
-    clients.push(handle);
-    clientById.set(id, runtime);
+async function createClientRuntime(
+  ctx: SimContext,
+  id: string
+): Promise<ClientRuntimeAndHandle> {
+  const sqlClient = await ctx.dbFactory.create(`playground_${id}`);
+  await sqlClient.connect();
+  const result = buildClientFromSql(ctx, id, sqlClient);
+  await result.runtime.localDb.migrate();
+  return result;
+}
+
+function registerClient(
+  ctx: SimContext,
+  runtime: ClientRuntime,
+  handle: PlaygroundClientHandle
+): void {
+  ctx.clientRuntimes.push(runtime);
+  ctx.clients.push(handle);
+  ctx.clientById.set(runtime.id, runtime);
+}
+
+async function ctxSyncNow(
+  ctx: SimContext,
+  actorClientId: string
+): Promise<void> {
+  const actor = ctx.clientById.get(actorClientId);
+  if (!actor) {
+    throw new Error(`syncNow: unknown client ${actorClientId}`);
   }
-
-  async function syncNow(actorClientId: string): Promise<void> {
-    const actor = clientById.get(actorClientId);
-    if (!actor) {
-      throw new Error(`syncNow: unknown client ${actorClientId}`);
-    }
-    await actor.syncDb.runPushNow();
-    for (const c of clientRuntimes) {
-      await c.syncDb.runPollNow();
-    }
-    await flushSyncSubscriptionMicrotasks();
+  await actor.syncDb.runPushNow();
+  for (const c of ctx.clientRuntimes) {
+    await c.syncDb.runPollNow();
   }
+  await flushSyncSubscriptionMicrotasks();
+}
 
-  async function addClient(): Promise<PlaygroundClientHandle> {
-    const id = `c${nextClientNum++}`;
-    const { runtime, handle } = await createClientRuntime(id);
-    clientRuntimes.push(runtime);
-    clients.push(handle);
-    clientById.set(id, runtime);
-    await runtime.syncDb.runPollNow();
-    await flushSyncSubscriptionMicrotasks();
-    return handle;
+async function ctxAddClient(
+  ctx: SimContext
+): Promise<PlaygroundClientHandle> {
+  const id = `c${ctx.state.nextClientNum++}`;
+  const { runtime, handle } = await createClientRuntime(ctx, id);
+  registerClient(ctx, runtime, handle);
+  await runtime.syncDb.runPollNow();
+  await flushSyncSubscriptionMicrotasks();
+  return handle;
+}
+
+async function ctxRemoveClient(ctx: SimContext, id: string): Promise<void> {
+  const runtime = ctx.clientById.get(id);
+  if (!runtime) throw new Error(`removeClient: unknown client ${id}`);
+  runtime.syncDb.destroy();
+  await runtime.sqlClient.disconnect();
+  await ctx.dbFactory.remove(`playground_${id}`);
+  ctx.clientById.delete(id);
+  const ri = ctx.clientRuntimes.indexOf(runtime);
+  if (ri >= 0) ctx.clientRuntimes.splice(ri, 1);
+  const ci = ctx.clients.findIndex((c) => c.id === id);
+  if (ci >= 0) ctx.clients.splice(ci, 1);
+}
+
+async function ctxDestroy(ctx: SimContext): Promise<void> {
+  for (const c of ctx.clientRuntimes) {
+    c.syncDb.destroy();
+    await c.sqlClient.disconnect();
   }
+  await ctx.serverSql.disconnect();
+  ctx.clientRuntimes.length = 0;
+}
 
-  async function removeClient(id: string): Promise<void> {
-    const runtime = clientById.get(id);
-    if (!runtime) throw new Error(`removeClient: unknown client ${id}`);
-    runtime.syncDb.destroy();
-    await runtime.sqlClient.disconnect();
-    await dbFactory.remove(`playground_${id}`);
-    clientById.delete(id);
-    const ri = clientRuntimes.indexOf(runtime);
-    if (ri >= 0) clientRuntimes.splice(ri, 1);
-    const ci = clients.findIndex((c) => c.id === id);
-    if (ci >= 0) clients.splice(ci, 1);
+function ctxTakeSnapshot(ctx: SimContext): PlaygroundSimSnapshot {
+  return {
+    serverId: ctx.serverId,
+    serverPartitioned: ctx.port.isPartitioned(),
+    clients: ctx.clients.map((c) => ({
+      id: c.id,
+      latencyMs: c.link.getLatency(),
+      partitioned: c.link.isPartitioned(),
+    })),
+  };
+}
+
+async function ctxPollAllClients(ctx: SimContext): Promise<void> {
+  for (const c of ctx.clientRuntimes) {
+    await c.syncDb.runPollNow();
   }
+  await flushSyncSubscriptionMicrotasks();
+}
 
-  async function destroy(): Promise<void> {
-    for (const c of clientRuntimes) {
-      c.syncDb.destroy();
-      await c.sqlClient.disconnect();
-    }
-    await serverSql.disconnect();
-    clientRuntimes.length = 0;
-  }
-
-  function takeSnapshot(): PlaygroundSimSnapshot {
-    return {
-      serverId,
-      serverPartitioned: port.isPartitioned(),
-      clients: clients.map((c) => ({
-        id: c.id,
-        latencyMs: c.link.getLatency(),
-        partitioned: c.link.isPartitioned(),
-      })),
-    };
-  }
-
-  async function pollAllClients(): Promise<void> {
-    for (const c of clientRuntimes) {
-      await c.syncDb.runPollNow();
-    }
-    await flushSyncSubscriptionMicrotasks();
-  }
-
-  async function wipeServerDb(): Promise<void> {
-    await serverSql.run('DELETE FROM patches');
-    await serverSql.run('DELETE FROM snapshots');
-    for (const c of clientRuntimes) {
-      await c.sqlClient.run(MARK_ALL_UNSYNCED);
-      c.syncDb.notifyInvalidated();
-    }
-  }
-
-  async function wipeClientDb(clientId: string): Promise<void> {
-    const c = clientRuntimes.find((r) => r.id === clientId);
-    if (!c) return;
-    await c.sqlClient.run('DELETE FROM patches');
-    await c.sqlClient.run('DELETE FROM snapshots');
+async function ctxWipeServerDb(ctx: SimContext): Promise<void> {
+  await ctx.serverSql.run('DELETE FROM patches');
+  await ctx.serverSql.run('DELETE FROM snapshots');
+  for (const c of ctx.clientRuntimes) {
+    await c.sqlClient.run(MARK_ALL_UNSYNCED);
     c.syncDb.notifyInvalidated();
   }
+}
 
+async function ctxWipeClientDb(
+  ctx: SimContext,
+  clientId: string
+): Promise<void> {
+  const c = ctx.clientRuntimes.find((r) => r.id === clientId);
+  if (!c) return;
+  await c.sqlClient.run('DELETE FROM patches');
+  await c.sqlClient.run('DELETE FROM snapshots');
+  c.syncDb.notifyInvalidated();
+}
+
+function buildSimApi(ctx: SimContext): PlaygroundSim {
   return {
-    serverId,
-    scheduler,
-    serverBacking,
-    serverSql,
-    serverDb: serverBacking,
-    clients,
-    syncNow,
-    addClient,
-    removeClient,
-    destroy,
-    takeSnapshot,
-    pollAllClients,
-    wipeServerDb,
-    wipeClientDb,
-    isServerPartitioned: () => port.isPartitioned(),
-    partitionServer: () => port.setPartitioned(true),
-    healServer: () => port.setPartitioned(false),
+    serverId: ctx.serverId,
+    scheduler: ctx.scheduler,
+    serverBacking: ctx.serverBacking,
+    serverSql: ctx.serverSql,
+    serverDb: ctx.serverBacking,
+    clients: ctx.clients,
+    syncNow: (actorClientId) => ctxSyncNow(ctx, actorClientId),
+    addClient: () => ctxAddClient(ctx),
+    removeClient: (id) => ctxRemoveClient(ctx, id),
+    destroy: () => ctxDestroy(ctx),
+    takeSnapshot: () => ctxTakeSnapshot(ctx),
+    pollAllClients: () => ctxPollAllClients(ctx),
+    wipeServerDb: () => ctxWipeServerDb(ctx),
+    wipeClientDb: (clientId) => ctxWipeClientDb(ctx, clientId),
+    isServerPartitioned: () => ctx.port.isPartitioned(),
+    partitionServer: () => ctx.port.setPartitioned(true),
+    healServer: () => ctx.port.setPartitioned(false),
     setGlobalLatency(ms: number) {
-      globalLatencyMs = ms;
-      for (const c of clientRuntimes) {
+      ctx.state.globalLatencyMs = ms;
+      for (const c of ctx.clientRuntimes) {
         c.link.setReadWriteLatencyMs(ms);
       }
     },
-    getGlobalLatency: () => globalLatencyMs,
+    getGlobalLatency: () => ctx.state.globalLatencyMs,
   };
+}
+
+async function buildContext(
+  options: CreatePlaygroundSimOptions | { dbFactory: PlaygroundDbFactory },
+  serverId: string,
+  reopen: boolean
+): Promise<SimContext> {
+  const dbFactory = options.dbFactory;
+  const scheduler = new BrowserWallClockScheduler();
+  const serverSql = await (reopen
+    ? dbFactory.reopen(`playground_${serverId}`)
+    : dbFactory.create(`playground_${serverId}`));
+  await serverSql.connect();
+  const { serverBacking, port } = await buildServerStack(serverId, serverSql);
+  return {
+    scheduler,
+    port,
+    serverSql,
+    serverBacking,
+    serverId,
+    dbFactory,
+    clientRuntimes: [],
+    clients: [],
+    clientById: new Map(),
+    state: { globalLatencyMs: 0, nextClientNum: 1 },
+  };
+}
+
+export async function createPlaygroundSim(
+  options: CreatePlaygroundSimOptions
+): Promise<PlaygroundSim> {
+  const clientCount = options.clientCount ?? 2;
+  const serverId = options.serverId ?? 'srv';
+  const ctx = await buildContext(options, serverId, false);
+  await ctx.serverBacking.migrate();
+  for (let i = 0; i < clientCount; i++) {
+    const id = `c${ctx.state.nextClientNum++}`;
+    const { runtime, handle } = await createClientRuntime(ctx, id);
+    registerClient(ctx, runtime, handle);
+  }
+  return buildSimApi(ctx);
+}
+
+async function restoreClient(
+  ctx: SimContext,
+  cs: PlaygroundClientSnapshot
+): Promise<void> {
+  const sqlClient = await ctx.dbFactory.reopen(`playground_${cs.id}`);
+  await sqlClient.connect();
+  const { runtime, handle } = buildClientFromSql(ctx, cs.id, sqlClient);
+  if (cs.latencyMs > 0) runtime.link.setReadWriteLatencyMs(cs.latencyMs);
+  if (cs.partitioned) runtime.link.setPartitioned(true);
+  registerClient(ctx, runtime, handle);
+}
+
+function computeNextClientNum(snapshot: PlaygroundSimSnapshot): number {
+  const max = snapshot.clients.reduce((acc, c) => {
+    const n = parseInt(c.id.replace(/\D/g, ''), 10);
+    return Number.isFinite(n) ? Math.max(acc, n) : acc;
+  }, 0);
+  return max + 1;
 }
 
 /**
@@ -341,224 +431,13 @@ export async function restorePlaygroundSim(
   snapshot: PlaygroundSimSnapshot,
   options: { dbFactory: PlaygroundDbFactory }
 ): Promise<PlaygroundSim> {
-  const { dbFactory } = options;
-  const scheduler = new BrowserWallClockScheduler();
-
-  const serverSql = await dbFactory.reopen(
-    `playground_${snapshot.serverId}`
-  );
-  await serverSql.connect();
-  const serverBacking = new PatchDbImplSqlite(serverSql);
-  const serverPubSub = new InMemoryPubSub();
-  const notifying = new NotifyingPatchesDb(serverBacking, serverPubSub);
-  const innerPort: SimServerPort = simServerPortFromPubSub(
-    (q) => notifying.read(q),
-    (p) => notifying.write(p),
-    serverPubSub
-  );
-  const port = new PartitionableServerPort(innerPort);
-  if (snapshot.serverPartitioned) port.setPartitioned(true);
-
-  const clientRuntimes: ClientRuntime[] = [];
-  const clients: PlaygroundClientHandle[] = [];
-  const clientById = new Map<string, ClientRuntime>();
-  let globalLatencyMs = 0;
-  let nextClientNum =
-    snapshot.clients.reduce((max, c) => {
-      const n = parseInt(c.id.replace(/\D/g, ''), 10);
-      return Number.isFinite(n) ? Math.max(max, n) : max;
-    }, 0) + 1;
-
+  const ctx = await buildContext(options, snapshot.serverId, true);
+  if (snapshot.serverPartitioned) ctx.port.setPartitioned(true);
+  ctx.state.nextClientNum = computeNextClientNum(snapshot);
   for (const cs of snapshot.clients) {
-    const sqlClient = await dbFactory.reopen(`playground_${cs.id}`);
-    await sqlClient.connect();
-    const localDb = new PatchDbImplSqlite(sqlClient);
-
-    const link = new NetworkLink(scheduler);
-    if (cs.latencyMs > 0) link.setReadWriteLatencyMs(cs.latencyMs);
-    if (cs.partitioned) link.setPartitioned(true);
-
-    const transport = new SimulatedPatchDbClientTransport(port, link);
-    const remotePatchesDb = new PatchDbImplClientTransport(transport);
-    const clientPubSub = new InMemoryPubSub();
-
-    const syncDb = new SyncPatchesDb(localDb, remotePatchesDb, clientPubSub, {
-      pushDriver: 'manual',
-      pollDriver: 'manual',
-
-      pushIntervalMs: 10,
-      logPushPollFailures: false,
-    });
-
-    const runtime: ClientRuntime = {
-      id: cs.id,
-      sqlClient,
-      localDb,
-      transport,
-      syncDb,
-      link,
-    };
-    const handle: PlaygroundClientHandle = {
-      id: cs.id,
-      syncDb,
-      link: createSimLink(link),
-      sqlClient,
-      localDb,
-      transport,
-    };
-    clientRuntimes.push(runtime);
-    clients.push(handle);
-    clientById.set(cs.id, runtime);
+    await restoreClient(ctx, cs);
   }
-
-  async function createClientRuntime(
-    id: string
-  ): Promise<{ runtime: ClientRuntime; handle: PlaygroundClientHandle }> {
-    const sqlClient = await dbFactory.create(`playground_${id}`);
-    await sqlClient.connect();
-    const localDb = new PatchDbImplSqlite(sqlClient);
-    await localDb.migrate();
-
-    const link = new NetworkLink(scheduler);
-    if (globalLatencyMs > 0) link.setReadWriteLatencyMs(globalLatencyMs);
-    const transport = new SimulatedPatchDbClientTransport(port, link);
-    const remotePatchesDb = new PatchDbImplClientTransport(transport);
-    const clientPubSub = new InMemoryPubSub();
-
-    const syncDb = new SyncPatchesDb(localDb, remotePatchesDb, clientPubSub, {
-      pushDriver: 'manual',
-      pollDriver: 'manual',
-
-      pushIntervalMs: 10,
-      logPushPollFailures: false,
-    });
-
-    const runtime: ClientRuntime = {
-      id,
-      sqlClient,
-      localDb,
-      transport,
-      syncDb,
-      link,
-    };
-    const handle: PlaygroundClientHandle = {
-      id,
-      syncDb,
-      link: createSimLink(link),
-      sqlClient,
-      localDb,
-      transport,
-    };
-    return { runtime, handle };
-  }
-
-  async function syncNow(actorClientId: string): Promise<void> {
-    const actor = clientById.get(actorClientId);
-    if (!actor) {
-      throw new Error(`syncNow: unknown client ${actorClientId}`);
-    }
-    await actor.syncDb.runPushNow();
-    for (const c of clientRuntimes) {
-      await c.syncDb.runPollNow();
-    }
-    await flushSyncSubscriptionMicrotasks();
-  }
-
-  async function addClient(): Promise<PlaygroundClientHandle> {
-    const id = `c${nextClientNum++}`;
-    const { runtime, handle } = await createClientRuntime(id);
-    clientRuntimes.push(runtime);
-    clients.push(handle);
-    clientById.set(id, runtime);
-    await runtime.syncDb.runPollNow();
-    await flushSyncSubscriptionMicrotasks();
-    return handle;
-  }
-
-  async function removeClient(id: string): Promise<void> {
-    const runtime = clientById.get(id);
-    if (!runtime) throw new Error(`removeClient: unknown client ${id}`);
-    runtime.syncDb.destroy();
-    await runtime.sqlClient.disconnect();
-    await dbFactory.remove(`playground_${id}`);
-    clientById.delete(id);
-    const ri = clientRuntimes.indexOf(runtime);
-    if (ri >= 0) clientRuntimes.splice(ri, 1);
-    const ci = clients.findIndex((c) => c.id === id);
-    if (ci >= 0) clients.splice(ci, 1);
-  }
-
-  async function destroy(): Promise<void> {
-    for (const c of clientRuntimes) {
-      c.syncDb.destroy();
-      await c.sqlClient.disconnect();
-    }
-    await serverSql.disconnect();
-    clientRuntimes.length = 0;
-  }
-
-  function takeSnapshot(): PlaygroundSimSnapshot {
-    return {
-      serverId: snapshot.serverId,
-      serverPartitioned: port.isPartitioned(),
-      clients: clients.map((c) => ({
-        id: c.id,
-        latencyMs: c.link.getLatency(),
-        partitioned: c.link.isPartitioned(),
-      })),
-    };
-  }
-
-  async function pollAllClients(): Promise<void> {
-    for (const c of clientRuntimes) {
-      await c.syncDb.runPollNow();
-    }
-    await flushSyncSubscriptionMicrotasks();
-  }
-
-  async function wipeServerDb(): Promise<void> {
-    await serverSql.run('DELETE FROM patches');
-    await serverSql.run('DELETE FROM snapshots');
-    for (const c of clientRuntimes) {
-      await c.sqlClient.run(MARK_ALL_UNSYNCED);
-      c.syncDb.notifyInvalidated();
-    }
-  }
-
-  async function wipeClientDb(clientId: string): Promise<void> {
-    const c = clientRuntimes.find((r) => r.id === clientId);
-    if (!c) return;
-    await c.sqlClient.run('DELETE FROM patches');
-    await c.sqlClient.run('DELETE FROM snapshots');
-    c.syncDb.notifyInvalidated();
-  }
-
-  return {
-    serverId: snapshot.serverId,
-    scheduler,
-    serverBacking,
-    serverSql,
-    serverDb: serverBacking,
-    clients,
-    syncNow,
-    addClient,
-    removeClient,
-    destroy,
-    takeSnapshot,
-    pollAllClients,
-    wipeServerDb,
-    wipeClientDb,
-    isServerPartitioned: () => port.isPartitioned(),
-    partitionServer: () => port.setPartitioned(true),
-    healServer: () => port.setPartitioned(false),
-    setGlobalLatency(ms: number) {
-      globalLatencyMs = ms;
-      for (const c of clientRuntimes) {
-        c.link.setReadWriteLatencyMs(ms);
-      }
-    },
-    getGlobalLatency: () => globalLatencyMs,
-  };
+  return buildSimApi(ctx);
 }
 
 /** Run {@link SyncPatchesDb.runPollNow} on every client (e.g. after a direct {@link PlaygroundSim.serverBacking} write). */

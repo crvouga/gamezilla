@@ -35,32 +35,28 @@ type PatchDbClientParamList = {
   explorer: PatchDbExplorerParams | undefined;
 };
 
+function isFilled(v: string | undefined): v is string {
+  return v !== undefined && v !== '';
+}
+
 function compactParams(p: PatchDbExplorerParams): PatchDbExplorerParams {
   const o: PatchDbExplorerParams = {};
-  if (p.entityType !== undefined && p.entityType !== '') {
-    o.entityType = p.entityType;
-  }
-  if (p.entityId !== undefined && p.entityId !== '') {
-    o.entityId = p.entityId;
-  }
-  if (p.patchId !== undefined && p.patchId !== '') {
-    o.patchId = p.patchId;
-  }
-  if (p.query === '1') {
-    o.query = '1';
-  }
+  if (isFilled(p.entityType)) o.entityType = p.entityType;
+  if (isFilled(p.entityId)) o.entityId = p.entityId;
+  if (isFilled(p.patchId)) o.patchId = p.patchId;
+  if (p.query === '1') o.query = '1';
   return o;
 }
 
 function normalizeParams(
-  raw: PatchDbExplorerParams | undefined
+  raw: PatchDbExplorerParams | undefined,
 ): PatchDbExplorerParams {
   return compactParams(raw ?? {});
 }
 
 function carryQuery(
   prev: PatchDbExplorerParams,
-  next: PatchDbExplorerParams
+  next: PatchDbExplorerParams,
 ): PatchDbExplorerParams {
   if (prev.query === '1') {
     return { ...next, query: '1' };
@@ -70,17 +66,17 @@ function carryQuery(
 
 function selectEntityType(
   prev: PatchDbExplorerParams,
-  entityType: string
+  entityType: string,
 ): PatchDbExplorerParams {
   return compactParams(carryQuery(prev, { entityType }));
 }
 
 function selectEntityId(
   prev: PatchDbExplorerParams,
-  entityId: string
+  entityId: string,
 ): PatchDbExplorerParams {
   const et = prev.entityType;
-  if (et === undefined || et === '') {
+  if (!isFilled(et)) {
     return compactParams(prev);
   }
   return compactParams(carryQuery(prev, { entityType: et, entityId }));
@@ -88,14 +84,14 @@ function selectEntityId(
 
 function selectPatch(
   prev: PatchDbExplorerParams,
-  patch: Patch
+  patch: Patch,
 ): PatchDbExplorerParams {
   return compactParams(
     carryQuery(prev, {
       entityType: patch.entityType,
       entityId: patch.entityId,
       patchId: patch.patchId,
-    })
+    }),
   );
 }
 
@@ -122,27 +118,12 @@ const EXPLORER_COLUMN_SLOTS: ColumnKind[] = [
 
 function buildFilledKinds(p: PatchDbExplorerParams): ColumnKind[] {
   const cols: ColumnKind[] = ['types'];
-  if (p.entityType !== undefined && p.entityType !== '') {
-    cols.push('entities');
-  }
-  if (
-    p.entityType !== undefined &&
-    p.entityType !== '' &&
-    p.entityId !== undefined &&
-    p.entityId !== ''
-  ) {
-    cols.push('entityDetail');
-  }
-  if (
-    p.entityType !== undefined &&
-    p.entityType !== '' &&
-    p.entityId !== undefined &&
-    p.entityId !== '' &&
-    p.patchId !== undefined &&
-    p.patchId !== ''
-  ) {
-    cols.push('patch');
-  }
+  const hasType = isFilled(p.entityType);
+  const hasEntity = hasType && isFilled(p.entityId);
+  const hasPatch = hasEntity && isFilled(p.patchId);
+  if (hasType) cols.push('entities');
+  if (hasEntity) cols.push('entityDetail');
+  if (hasPatch) cols.push('patch');
   return cols;
 }
 
@@ -157,7 +138,7 @@ function maxSlotCountForWidth(width: number): number {
  */
 function visibleKindsForLayout(
   filled: ColumnKind[],
-  slotCount: number
+  slotCount: number,
 ): ColumnKind[] {
   if (filled.length <= slotCount) {
     return EXPLORER_COLUMN_SLOTS.slice(0, slotCount);
@@ -190,135 +171,78 @@ function short(value: string, max = 28): string {
   return `${value.slice(0, max - 1)}…`;
 }
 
-export function ExplorerRoute({
-  navigation,
-  route,
-  onExit,
-}: {
-  navigation: NavigationProp<PatchDbClientParamList>;
-  route: RouteProp<PatchDbClientParamList>;
-  onExit?: () => void;
-}) {
-  const { width } = useWindowDimensions();
-  const params = useMemo(() => normalizeParams(route.params), [route.params]);
+type ApplyParams = (next: PatchDbExplorerParams) => void;
 
-  /** Full replace — avoids stale keys from `setParams` merge. */
-  const applyParams = useCallback(
-    (next: PatchDbExplorerParams) => {
+function useApplyParams(
+  navigation: NavigationProp<PatchDbClientParamList>,
+): ApplyParams {
+  return useCallback(
+    (next) => {
       navigation.reset({
         index: 0,
         routes: [{ name: 'explorer', params: compactParams(next) }],
       });
     },
-    [navigation]
+    [navigation],
   );
+}
 
-  const goBackOneLevel = useCallback(() => {
+function useGoBackOneLevel(
+  params: PatchDbExplorerParams,
+  applyParams: ApplyParams,
+  onExit?: () => void,
+) {
+  return useCallback(() => {
     if (params.query === '1') {
       applyParams(closeQuery(params));
       return;
     }
-    if (params.patchId !== undefined && params.patchId !== '') {
+    if (isFilled(params.patchId)) {
       applyParams(
         compactParams(
           carryQuery(params, {
-            entityType: params.entityType!,
-            entityId: params.entityId!,
-          })
-        )
+            ...(isFilled(params.entityType) && {
+              entityType: params.entityType,
+            }),
+            ...(isFilled(params.entityId) && {
+              entityId: params.entityId,
+            }),
+          }),
+        ),
       );
       return;
     }
-    if (params.entityId !== undefined && params.entityId !== '') {
+    if (isFilled(params.entityId)) {
       applyParams(
-        compactParams(carryQuery(params, { entityType: params.entityType! }))
+        compactParams(
+          carryQuery(params, {
+            ...(isFilled(params.entityType) && {
+              entityType: params.entityType,
+            }),
+          }),
+        ),
       );
       return;
     }
-    if (params.entityType !== undefined && params.entityType !== '') {
+    if (isFilled(params.entityType)) {
       applyParams(compactParams(carryQuery(params, {})));
       return;
     }
     onExit?.();
   }, [applyParams, onExit, params]);
+}
 
-  const filledKinds = useMemo(() => buildFilledKinds(params), [params]);
-  const slotCount = maxSlotCountForWidth(width);
-  const visibleKinds = useMemo(
-    () => visibleKindsForLayout(filledKinds, slotCount),
-    [filledKinds, slotCount]
-  );
-  const showBreadcrumbs = slotCount === 1 && filledKinds.length > 1;
-
-  const breadcrumbs: BreadcrumbItem[] = useMemo(() => {
-    const items: BreadcrumbItem[] = [
-      {
-        key: 'types',
-        label: 'Types',
-        onPress: () => applyParams(compactParams(carryQuery(params, {}))),
-      },
-    ];
-    if (params.entityType !== undefined && params.entityType !== '') {
-      const entityType = params.entityType;
-      items.push({
-        key: 'et',
-        label: entityType,
-        onPress: () =>
-          applyParams(compactParams(carryQuery(params, { entityType }))),
-      });
-    }
-    if (params.entityId !== undefined && params.entityId !== '') {
-      const entityType = params.entityType;
-      const entityId = params.entityId;
-      if (entityType !== undefined && entityType !== '') {
-        items.push({
-          key: 'eid',
-          label: short(entityId, 20),
-          onPress: () =>
-            applyParams(
-              compactParams(carryQuery(params, { entityType, entityId }))
-            ),
-        });
-      }
-    }
-    if (params.patchId !== undefined && params.patchId !== '') {
-      const entityType = params.entityType;
-      const entityId = params.entityId;
-      const patchId = params.patchId;
-      if (
-        entityType !== undefined &&
-        entityType !== '' &&
-        entityId !== undefined &&
-        entityId !== ''
-      ) {
-        items.push({
-          key: 'pid',
-          label: short(patchId, 18),
-          onPress: () =>
-            applyParams(
-              compactParams(
-                carryQuery(params, { entityType, entityId, patchId })
-              )
-            ),
-        });
-      }
-    }
-    if (params.query === '1') {
-      items.push({
-        key: 'q',
-        label: 'Query',
-        onPress: () => applyParams(params),
-      });
-    }
-    return items;
-  }, [applyParams, params]);
-
+function useBackHandler(
+  params: PatchDbExplorerParams,
+  goBackOneLevel: () => void,
+  onExit?: () => void,
+) {
   useEffect(() => {
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
       const hasInApp =
-        (params.entityType !== undefined && params.entityType !== '') ||
-        (params.entityId !== undefined && params.entityId !== '') ||
-        (params.patchId !== undefined && params.patchId !== '') ||
+        isFilled(params.entityType) ||
+        isFilled(params.entityId) ||
+        isFilled(params.patchId) ||
         params.query === '1';
       if (hasInApp) {
         goBackOneLevel();
@@ -332,136 +256,265 @@ export function ExplorerRoute({
     });
     return () => sub.remove();
   }, [goBackOneLevel, onExit, params]);
+}
+
+function buildBreadcrumbs(
+  params: PatchDbExplorerParams,
+  applyParams: ApplyParams,
+): BreadcrumbItem[] {
+  const items: BreadcrumbItem[] = [
+    {
+      key: 'types',
+      label: 'Types',
+      onPress: () => applyParams(compactParams(carryQuery(params, {}))),
+    },
+  ];
+  const { entityType, entityId, patchId } = params;
+  if (isFilled(entityType)) {
+    items.push({
+      key: 'et',
+      label: entityType,
+      onPress: () =>
+        applyParams(compactParams(carryQuery(params, { entityType }))),
+    });
+  }
+  if (isFilled(entityType) && isFilled(entityId)) {
+    items.push({
+      key: 'eid',
+      label: short(entityId, 20),
+      onPress: () =>
+        applyParams(
+          compactParams(carryQuery(params, { entityType, entityId })),
+        ),
+    });
+  }
+  if (isFilled(entityType) && isFilled(entityId) && isFilled(patchId)) {
+    items.push({
+      key: 'pid',
+      label: short(patchId, 18),
+      onPress: () =>
+        applyParams(
+          compactParams(
+            carryQuery(params, { entityType, entityId, patchId }),
+          ),
+        ),
+    });
+  }
+  if (params.query === '1') {
+    items.push({
+      key: 'q',
+      label: 'Query',
+      onPress: () => applyParams(params),
+    });
+  }
+  return items;
+}
+
+function buildTypesPanel(
+  params: PatchDbExplorerParams,
+  applyParams: ApplyParams,
+): ColumnPanel {
+  return {
+    key: 'types',
+    title: 'Entity types',
+    children: (
+      <EntityTypesScreen
+        onSelectType={(entityType) =>
+          applyParams(selectEntityType(params, entityType))
+        }
+        onOpenQuery={() => applyParams(openQuery(params))}
+      />
+    ),
+  };
+}
+
+function buildEntitiesPanel(
+  params: PatchDbExplorerParams,
+  applyParams: ApplyParams,
+): ColumnPanel {
+  return {
+    key: 'entities',
+    title: 'Entities',
+    children: isFilled(params.entityType) ? (
+      <EntitiesScreen
+        entityType={params.entityType}
+        onSelectEntity={(entityId) =>
+          applyParams(selectEntityId(params, entityId))
+        }
+      />
+    ) : (
+      <EmptyColumnPlaceholder hint="Select an entity type in the first column." />
+    ),
+  };
+}
+
+function buildEntityDetailPanel(
+  params: PatchDbExplorerParams,
+  applyParams: ApplyParams,
+): ColumnPanel {
+  return {
+    key: 'detail',
+    title: 'Entity',
+    children:
+      isFilled(params.entityType) && isFilled(params.entityId) ? (
+        <EntityDetailScreen
+          entityType={params.entityType}
+          entityId={params.entityId}
+          onSelectPatch={(patch) =>
+            applyParams(selectPatch(params, patch))
+          }
+        />
+      ) : (
+        <EmptyColumnPlaceholder hint="Choose an entity from the list in the previous column." />
+      ),
+  };
+}
+
+function buildPatchPanel(
+  params: PatchDbExplorerParams,
+  applyParams: ApplyParams,
+): ColumnPanel {
+  return {
+    key: 'patch',
+    title: 'Patch',
+    children:
+      isFilled(params.entityType) &&
+      isFilled(params.entityId) &&
+      isFilled(params.patchId) ? (
+        <PatchDetailScreen
+          entityType={params.entityType}
+          entityId={params.entityId}
+          patchId={params.patchId}
+          onNavigateToPatch={(patch) =>
+            applyParams(selectPatch(params, patch))
+          }
+        />
+      ) : (
+        <EmptyColumnPlaceholder hint="Open a patch from the entity detail column." />
+      ),
+  };
+}
+
+function buildPanelForKind(
+  kind: ColumnKind,
+  params: PatchDbExplorerParams,
+  applyParams: ApplyParams,
+): ColumnPanel {
+  if (kind === 'types') return buildTypesPanel(params, applyParams);
+  if (kind === 'entities') return buildEntitiesPanel(params, applyParams);
+  if (kind === 'entityDetail') {
+    return buildEntityDetailPanel(params, applyParams);
+  }
+  return buildPatchPanel(params, applyParams);
+}
+
+function getHeaderTitle(
+  topVisibleKind: ColumnKind | undefined,
+  params: PatchDbExplorerParams,
+): string {
+  if (params.query === '1') return 'Query';
+  if (topVisibleKind === 'patch') return short(params.patchId ?? 'Patch', 24);
+  if (topVisibleKind === 'entityDetail') {
+    return short(params.entityId ?? 'Entity', 28);
+  }
+  if (topVisibleKind === 'entities') return params.entityType ?? 'Entities';
+  return 'Patch DB Client';
+}
+
+function getHeaderSubtitle(
+  topVisibleKind: ColumnKind | undefined,
+  params: PatchDbExplorerParams,
+): string | undefined {
+  if (topVisibleKind === 'entityDetail') return params.entityType;
+  if (topVisibleKind === 'patch') return 'Patch';
+  return undefined;
+}
+
+type HeaderBreadcrumb = {
+  name: string;
+  subtitle?: string;
+  onPress?: () => void;
+};
+
+function buildHeaderBreadcrumbs(
+  showHeaderBack: boolean,
+  goBackOneLevel: () => void,
+  headerTitle: string,
+  headerSubtitle: string | undefined,
+): HeaderBreadcrumb[] {
+  const titleEntry: HeaderBreadcrumb = {
+    name: headerTitle,
+    ...(isFilled(headerSubtitle) ? { subtitle: headerSubtitle } : {}),
+  };
+  if (showHeaderBack) {
+    return [{ name: 'Back', onPress: goBackOneLevel }, titleEntry];
+  }
+  return [titleEntry];
+}
+
+function useExplorerLayout(params: PatchDbExplorerParams, width: number) {
+  const filledKinds = useMemo(() => buildFilledKinds(params), [params]);
+  const slotCount = maxSlotCountForWidth(width);
+  const visibleKinds = useMemo(
+    () => visibleKindsForLayout(filledKinds, slotCount),
+    [filledKinds, slotCount],
+  );
+  const showBreadcrumbs = slotCount === 1 && filledKinds.length > 1;
+  return { visibleKinds, showBreadcrumbs };
+}
+
+function canGoBackInApp(params: PatchDbExplorerParams): boolean {
+  return (
+    isFilled(params.entityType) ||
+    isFilled(params.entityId) ||
+    isFilled(params.patchId) ||
+    params.query === '1'
+  );
+}
+
+export function ExplorerRoute({
+  navigation,
+  route,
+  onExit,
+}: {
+  navigation: NavigationProp<PatchDbClientParamList>;
+  route: RouteProp<PatchDbClientParamList>;
+  onExit?: () => void;
+}) {
+  const { width } = useWindowDimensions();
+  const params = useMemo(() => normalizeParams(route.params), [route.params]);
+  const applyParams = useApplyParams(navigation);
+  const goBackOneLevel = useGoBackOneLevel(params, applyParams, onExit);
+
+  const { visibleKinds, showBreadcrumbs } = useExplorerLayout(params, width);
+
+  const breadcrumbs = useMemo(
+    () => buildBreadcrumbs(params, applyParams),
+    [applyParams, params],
+  );
+
+  useBackHandler(params, goBackOneLevel, onExit);
 
   const topVisibleKind = visibleKinds[visibleKinds.length - 1];
+  const headerTitle = getHeaderTitle(topVisibleKind, params);
+  const headerSubtitle = getHeaderSubtitle(topVisibleKind, params);
 
-  const headerTitle =
-    params.query === '1'
-      ? 'Query'
-      : topVisibleKind === 'patch'
-        ? short(params.patchId ?? 'Patch', 24)
-        : topVisibleKind === 'entityDetail'
-          ? short(params.entityId ?? 'Entity', 28)
-          : topVisibleKind === 'entities'
-            ? (params.entityType ?? 'Entities')
-            : 'Patch DB Client';
-
-  const headerSubtitle =
-    topVisibleKind === 'entityDetail'
-      ? params.entityType
-      : topVisibleKind === 'patch'
-        ? 'Patch'
-        : undefined;
-
-  const panels: ColumnPanel[] = useMemo(() => {
-    const out: ColumnPanel[] = [];
-    for (const k of visibleKinds) {
-      if (k === 'types') {
-        out.push({
-          key: 'types',
-          title: 'Entity types',
-          children: (
-            <EntityTypesScreen
-              onSelectType={(entityType) =>
-                applyParams(selectEntityType(params, entityType))
-              }
-              onOpenQuery={() => applyParams(openQuery(params))}
-            />
-          ),
-        });
-      } else if (k === 'entities') {
-        out.push({
-          key: 'entities',
-          title: 'Entities',
-          children:
-            params.entityType !== undefined && params.entityType !== '' ? (
-              <EntitiesScreen
-                entityType={params.entityType}
-                onSelectEntity={(entityId) =>
-                  applyParams(selectEntityId(params, entityId))
-                }
-              />
-            ) : (
-              <EmptyColumnPlaceholder hint="Select an entity type in the first column." />
-            ),
-        });
-      } else if (k === 'entityDetail') {
-        out.push({
-          key: 'detail',
-          title: 'Entity',
-          children:
-            params.entityType !== undefined &&
-            params.entityType !== '' &&
-            params.entityId !== undefined &&
-            params.entityId !== '' ? (
-              <EntityDetailScreen
-                entityType={params.entityType}
-                entityId={params.entityId}
-                onSelectPatch={(patch) =>
-                  applyParams(selectPatch(params, patch))
-                }
-              />
-            ) : (
-              <EmptyColumnPlaceholder hint="Choose an entity from the list in the previous column." />
-            ),
-        });
-      } else if (k === 'patch') {
-        out.push({
-          key: 'patch',
-          title: 'Patch',
-          children:
-            params.entityType !== undefined &&
-            params.entityType !== '' &&
-            params.entityId !== undefined &&
-            params.entityId !== '' &&
-            params.patchId !== undefined &&
-            params.patchId !== '' ? (
-              <PatchDetailScreen
-                entityType={params.entityType}
-                entityId={params.entityId}
-                patchId={params.patchId}
-                onNavigateToPatch={(patch) =>
-                  applyParams(selectPatch(params, patch))
-                }
-              />
-            ) : (
-              <EmptyColumnPlaceholder hint="Open a patch from the entity detail column." />
-            ),
-        });
-      }
-    }
-    return out;
-  }, [applyParams, params, visibleKinds]);
-
-  const canGoBackInApp =
-    (params.entityType !== undefined && params.entityType !== '') ||
-    (params.entityId !== undefined && params.entityId !== '') ||
-    (params.patchId !== undefined && params.patchId !== '') ||
-    params.query === '1';
+  const panels = useMemo(
+    () => visibleKinds.map((k) => buildPanelForKind(k, params, applyParams)),
+    [applyParams, params, visibleKinds],
+  );
 
   const dismissQuery = useCallback(() => {
     applyParams(closeQuery(params));
   }, [applyParams, params]);
 
-  const showHeaderBack = canGoBackInApp || onExit !== undefined;
-  const explorerBreadcrumbs = showHeaderBack
-    ? [
-        { name: 'Back', onPress: goBackOneLevel },
-        {
-          name: headerTitle,
-          ...(headerSubtitle !== undefined && headerSubtitle !== ''
-            ? { subtitle: headerSubtitle }
-            : {}),
-        },
-      ]
-    : [
-        {
-          name: headerTitle,
-          ...(headerSubtitle !== undefined && headerSubtitle !== ''
-            ? { subtitle: headerSubtitle }
-            : {}),
-        },
-      ];
+  const showHeaderBack = canGoBackInApp(params) || onExit !== undefined;
+  const explorerBreadcrumbs = buildHeaderBreadcrumbs(
+    showHeaderBack,
+    goBackOneLevel,
+    headerTitle,
+    headerSubtitle,
+  );
 
   return (
     <Box sx={{ flex: 1 }}>

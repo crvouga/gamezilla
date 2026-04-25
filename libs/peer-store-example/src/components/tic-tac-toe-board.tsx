@@ -1,6 +1,7 @@
 import { Assert } from '@gamezilla/lib/assert';
 import type { State } from '@gamezilla/peer-store/types';
-import { Pressable, Stack, Text, useTheme } from '@gamezilla/lib/ui';
+import { Stack, Text } from '@gamezilla/lib/ui';
+import { TicTacToeCell } from './tic-tac-toe-cell';
 
 const crash: Assert = Assert.crash();
 
@@ -48,7 +49,7 @@ export function TicTacToeBoard({
   const board = readBoard(state);
   const winner = readWinner(state);
   const status = readStatus(state);
-  const theme = useTheme();
+  const isLocked = readonly || !!winner || status === 'completed';
 
   const rows = [board.slice(0, 3), board.slice(3, 6), board.slice(6, 9)];
 
@@ -58,46 +59,14 @@ export function TicTacToeBoard({
         <Stack key={rowIdx} direction="horizontal" spacing={1}>
           {row.map((mark, colIdx) => {
             const cellIdx = rowIdx * 3 + colIdx;
-            const isDisabled =
-              readonly || !!winner || status === 'completed' || !!mark;
-
-            const cellBg = mark
-              ? mark === 'X'
-                ? theme.colors.info + '40'
-                : theme.colors.warning + '40'
-              : theme.colors.surface;
-            const textColor = mark
-              ? mark === 'X'
-                ? theme.colors.info
-                : theme.colors.warning
-              : theme.colors.textSecondary;
-
             return (
-              <Pressable
+              <TicTacToeCell
                 key={cellIdx}
-                disabled={isDisabled}
-                onPress={() => onCellClick?.(cellIdx)}
-                style={({ pressed }) => [
-                  {
-                    width: 56,
-                    height: 56,
-                    borderRadius: 8,
-                    backgroundColor: cellBg,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  },
-                  pressed && !isDisabled && { opacity: 0.7 },
-                ]}
-              >
-                <Text
-                  style={{
-                    fontSize: 18,
-                    fontWeight: 'bold',
-                    color: textColor,
-                  }}
-                  label={mark ?? ''}
-                />
-              </Pressable>
+                cellIdx={cellIdx}
+                mark={mark}
+                disabled={isLocked || !!mark}
+                onPress={onCellClick}
+              />
             );
           })}
         </Stack>

@@ -2,18 +2,31 @@ import { Box } from '../box';
 import { Text } from '../text';
 import { isMacPlatform } from './keyboard-shortcut';
 
+const STATIC_TOKEN_MAP: Readonly<Record<string, string>> = {
+  shift: '⇧',
+  ctrl: 'Ctrl',
+  control: 'Ctrl',
+  meta: '⌘',
+  command: '⌘',
+  cmd: '⌘',
+  escape: 'Esc',
+  esc: 'Esc',
+};
+
 function formatToken(t: string): string {
   const k = t.trim().toLowerCase();
-  if (k === 'mod') {
-    return isMacPlatform() ? '⌘' : 'Ctrl';
-  }
-  if (k === 'shift') return '⇧';
-  if (k === 'alt' || k === 'option') return isMacPlatform() ? '⌥' : 'Alt';
-  if (k === 'ctrl' || k === 'control') return 'Ctrl';
-  if (k === 'meta' || k === 'command' || k === 'cmd') return '⌘';
-  if (k === 'escape' || k === 'esc') return 'Esc';
+  const platformToken = formatPlatformToken(k);
+  if (platformToken !== undefined) return platformToken;
+  const staticToken = STATIC_TOKEN_MAP[k];
+  if (staticToken !== undefined) return staticToken;
   if (k.length === 1) return k.toUpperCase();
   return t;
+}
+
+function formatPlatformToken(k: string): string | undefined {
+  if (k === 'mod') return isMacPlatform() ? '⌘' : 'Ctrl';
+  if (k === 'alt' || k === 'option') return isMacPlatform() ? '⌥' : 'Alt';
+  return undefined;
 }
 
 export type CommandPaletteKbdProps = {

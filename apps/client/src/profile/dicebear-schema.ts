@@ -86,99 +86,134 @@ export function getMergedSchemaProperties(
   return { ...coreProps, ...styleProps };
 }
 
-export function parseFieldFromDef(
+function parseBooleanField(
+  key: string,
+  def: JsonSchemaProp
+): SchemaField | null {
+  if (typeof def.default !== 'boolean') return null;
+  return { kind: 'boolean', key, default: def.default };
+}
+
+function parseIntegerField(
+  key: string,
+  def: JsonSchemaProp
+): SchemaField {
+  const min = typeof def.minimum === 'number' ? def.minimum : 0;
+  const max = typeof def.maximum === 'number' ? def.maximum : 100;
+  const defaultVal = typeof def.default === 'number' ? def.default : min;
+  if (key.endsWith('Probability')) {
+    return { kind: 'probability', key, min, max, default: defaultVal };
+  }
+  return { kind: 'integer', key, min, max, default: defaultVal };
+}
+
+function getItemSchema(def: JsonSchemaProp): JsonSchemaProp | null {
+  const items = def.items;
+  const itemSchema = Array.isArray(items) ? items[0] : items;
+  if (
+    itemSchema &&
+    typeof itemSchema === 'object' &&
+    !Array.isArray(itemSchema)
+  ) {
+    return itemSchema;
+  }
+  return null;
+}
+
+function parseIntegerArrayField(
   key: string,
   def: JsonSchemaProp,
+  is: JsonSchemaProp
+): SchemaField {
+  const itemMin = typeof is.minimum === 'number' ? is.minimum : -360;
+  const itemMax = typeof is.maximum === 'number' ? is.maximum : 360;
+  const defaultVal = Array.isArray(def.default)
+    ? (def.default as number[])
+    : [itemMin, itemMax];
+  return {
+    kind: 'integerArray',
+    key,
+    itemMin,
+    itemMax,
+    default: defaultVal.length >= 2 ? defaultVal : [itemMin, itemMax],
+  };
+}
+
+function isHexPattern(is: JsonSchemaProp): boolean {
+  return is.pattern?.includes('a-fA-F0-9') ?? false;
+}
+
+function parseEnumOrColorField(
+  key: string,
+  def: JsonSchemaProp,
+  is: JsonSchemaProp
 ): SchemaField | null {
-  if (SKIP_KEYS.has(key)) return null;
-
-  if (def.type === 'boolean' && typeof def.default === 'boolean') {
-    return { kind: 'boolean', key, default: def.default };
+  if (
+    !Array.isArray(is.enum) ||
+    !is.enum.every((x: unknown) => typeof x === 'string')
+  ) {
+    return null;
   }
-
-  if (def.type === 'integer') {
-    const min = typeof def.minimum === 'number' ? def.minimum : 0;
-    const max = typeof def.maximum === 'number' ? def.maximum : 100;
-    const defaultVal =
-      typeof def.default === 'number' ? def.default : min;
-    if (key.endsWith('Probability')) {
-      return {
-        kind: 'probability',
-        key,
-        min,
-        max,
-        default: defaultVal,
-      };
-    }
+  const values = is.enum as string[];
+  const defaultVal = Array.isArray(def.default)
+    ? (def.default as string[])
+    : values;
+  if (isHexPattern(is)) {
     return {
-      kind: 'integer',
+      kind: 'color',
       key,
-      min,
-      max,
-      default: defaultVal,
+      default: defaultVal.length > 0 ? defaultVal : ['000000'],
     };
   }
+  return {
+    kind: 'enum',
+    key,
+    values,
+    default: defaultVal.length > 0 ? defaultVal : values,
+  };
+}
 
-  if (def.type === 'array') {
-    const items = def.items;
-    const itemSchema = Array.isArray(items) ? items[0] : items;
-    if (
-      itemSchema &&
-      typeof itemSchema === 'object' &&
-      !Array.isArray(itemSchema)
-    ) {
-      const is = itemSchema as JsonSchemaProp;
-      if (is.type === 'integer') {
-        const itemMin =
-          typeof is.minimum === 'number' ? is.minimum : -360;
-        const itemMax =
-          typeof is.maximum === 'number' ? is.maximum : 360;
-        const defaultVal = Array.isArray(def.default)
-          ? (def.default as number[])
-          : [itemMin, itemMax];
-        return {
-          kind: 'integerArray',
-          key,
-          itemMin,
-          itemMax,
-          default:
-            defaultVal.length >= 2
-              ? defaultVal
-              : [itemMin, itemMax],
-        };
-      }
-      if (
-        Array.isArray(is.enum) &&
-        is.enum.every((x: unknown) => typeof x === 'string')
-      ) {
-        const values = is.enum as string[];
-        const defaultVal = Array.isArray(def.default)
-          ? (def.default as string[])
-          : values;
-        if (is.pattern?.includes('a-fA-F0-9')) {
-          return {
-            kind: 'color',
-            key,
-            default: defaultVal.length > 0 ? defaultVal : ['000000'],
-          };
-        }
-        return {
-          kind: 'enum',
-          key,
-          values,
-          default: defaultVal.length > 0 ? defaultVal : values,
-        };
-      }
-      if (is.type === 'string' && is.pattern?.includes('a-fA-F0-9')) {
-        const defaultVal = Array.isArray(def.default)
-          ? (def.default as string[])
-          : ['000000'];
-        return { kind: 'color', key, default: defaultVal };
-      }
-    }
-  }
+function parseColorStringArray(
+  key: string,
+  def: JsonSchemaProp,
+  is: JsonSchemaProp
+): SchemaField | null {
+  if (is.type !== 'string' || !isHexPattern(is)) return null;
+  const defaultVal = Array.isArray(def.default)
+    ? (def.default as string[])
+    : ['000000'];
+  return { kind: 'color', key, default: defaultVal };
+}
 
-  return null;
+function parseArrayField(
+  key: string,
+  def: JsonSchemaProp
+): SchemaField | null {
+  const is = getItemSchema(def);
+  if (is === null) return null;
+  if (is.type === 'integer') return parseIntegerArrayField(key, def, is);
+  return (
+    parseEnumOrColorField(key, def, is) ?? parseColorStringArray(key, def, is)
+  );
+}
+
+const FIELD_PARSERS: Record<
+  string,
+  (key: string, def: JsonSchemaProp) => SchemaField | null
+> = {
+  boolean: parseBooleanField,
+  integer: parseIntegerField,
+  array: parseArrayField,
+};
+
+export function parseFieldFromDef(
+  key: string,
+  def: JsonSchemaProp
+): SchemaField | null {
+  if (SKIP_KEYS.has(key)) return null;
+  const parser = def.type ? FIELD_PARSERS[def.type] : undefined;
+  if (!parser) return null;
+  return parser(key, def);
 }
 
 export function getFieldsForStyle(styleKey: StyleKey): SchemaField[] {

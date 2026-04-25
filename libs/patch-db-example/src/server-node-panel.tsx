@@ -1,3 +1,4 @@
+import type { Entity } from '@gamezilla/patch-db/interface';
 import {
   nextShapeOrder,
   playgroundServerCreateShape,
@@ -5,6 +6,7 @@ import {
   playgroundServerRandomizeShape,
   playgroundServerReorderShapes,
 } from '@gamezilla/patch-db/sim/playground-shapes';
+import type { PlaygroundSim } from '@gamezilla/patch-db/sim/playground-sim';
 import {
   Box,
   Button,
@@ -28,53 +30,168 @@ import { useSimContext } from './sim-context';
 import { useAsyncAction } from './use-async-action';
 import { useServerShapes } from './use-server-shapes';
 
-export function ServerNodePanel() {
-  const { sim, bumpGraph, bumpLink } = useSimContext();
-  const { entities, readError, refresh } = useServerShapes(sim);
-  const serverPartitioned = sim.isServerPartitioned();
-  const theme = useTheme();
-
-  const onSuccess = useCallback(() => {
-    refresh();
-    bumpGraph();
-  }, [refresh, bumpGraph]);
-
-  const { busy, note, run } = useAsyncAction(onSuccess);
-
+function useServerShapeActions(
+  sim: PlaygroundSim,
+  entities: Entity[],
+  run: ReturnType<typeof useAsyncAction>['run'],
+) {
   const handleRandomize = useCallback(
     (entityId: string) =>
       run(async () => {
         await playgroundServerRandomizeShape(sim, entityId);
       }),
-    [run, sim]
+    [run, sim],
   );
-
   const handleDelete = useCallback(
     (entityId: string) =>
       run(async () => {
         await playgroundServerDeleteShape(sim, entityId);
       }),
-    [run, sim]
+    [run, sim],
   );
-
   const handleCreate = useCallback(
     () =>
       run(async () => {
         await playgroundServerCreateShape(sim, nextShapeOrder(entities));
       }),
-    [run, sim, entities]
+    [run, sim, entities],
   );
-
   const handleReorder = useCallback(
     (entityIds: string[]) => {
       void run(async () => {
         await playgroundServerReorderShapes(sim, entityIds);
       });
     },
-    [run, sim]
+    [run, sim],
   );
+  const randomizeAll = useCallback(
+    () =>
+      run(async () => {
+        for (const e of entities) {
+          await playgroundServerRandomizeShape(sim, e.entityId);
+        }
+      }),
+    [run, sim, entities],
+  );
+  return {
+    handleRandomize,
+    handleDelete,
+    handleCreate,
+    handleReorder,
+    randomizeAll,
+  };
+}
 
-  const displayNote = readError ?? note;
+function useServerLinkActions(
+  sim: PlaygroundSim,
+  run: ReturnType<typeof useAsyncAction>['run'],
+) {
+  const { bumpLink } = useSimContext();
+  const togglePartition = useCallback(
+    () =>
+      run(async () => {
+        if (sim.isServerPartitioned()) {
+          sim.healServer();
+        } else {
+          sim.partitionServer();
+        }
+        bumpLink();
+      }),
+    [run, sim, bumpLink],
+  );
+  const pollAll = useCallback(
+    () =>
+      run(async () => {
+        await sim.pollAllClients();
+      }),
+    [run, sim],
+  );
+  const wipeServer = useCallback(
+    () =>
+      run(async () => {
+        await sim.wipeServerDb();
+      }),
+    [run, sim],
+  );
+  return { togglePartition, pollAll, wipeServer };
+}
+
+function useServerActions(
+  sim: PlaygroundSim,
+  entities: Entity[],
+  refresh: () => void,
+) {
+  const { bumpGraph } = useSimContext();
+  const onSuccess = useCallback(() => {
+    refresh();
+    bumpGraph();
+  }, [refresh, bumpGraph]);
+  const action = useAsyncAction(onSuccess);
+  const shapeActions = useServerShapeActions(sim, entities, action.run);
+  const linkActions = useServerLinkActions(sim, action.run);
+  return { ...action, ...shapeActions, ...linkActions };
+}
+
+function ServerControlBar({
+  busy,
+  partitioned,
+  hasEntities,
+  togglePartition,
+  pollAll,
+  randomizeAll,
+  wipeServer,
+}: {
+  busy: boolean;
+  partitioned: boolean;
+  hasEntities: boolean;
+  togglePartition: () => void;
+  pollAll: () => void;
+  randomizeAll: () => void;
+  wipeServer: () => void;
+}) {
+  const theme = useTheme();
+  return (
+    <Stack direction="horizontal" spacing={2} align="center">
+      <Button
+        title={partitioned ? 'Reconnect' : 'Partition'}
+        variant={partitioned ? 'solid' : 'ghost'}
+        size="sm"
+        {...(partitioned ? { color: 'destructive' } : {})}
+        disabled={busy}
+        startIcon={<IconPartition active={partitioned} size={14} />}
+        onPress={togglePartition}
+      />
+      <Box style={{ flex: 1 }} />
+      <IconButton
+        size={32}
+        background={theme.colors.surface}
+        disabled={busy}
+        onPress={pollAll}
+      >
+        <IconSync size={16} />
+      </IconButton>
+      <IconButton
+        size={32}
+        background={theme.colors.surface}
+        disabled={busy || !hasEntities}
+        onPress={randomizeAll}
+      >
+        <IconShuffle size={16} />
+      </IconButton>
+      <IconButton size={32} disabled={busy} onPress={wipeServer}>
+        <IconClear size={16} />
+      </IconButton>
+    </Stack>
+  );
+}
+
+export function ServerNodePanel() {
+  const { sim } = useSimContext();
+  const { entities, readError, refresh } = useServerShapes(sim);
+  const serverPartitioned = sim.isServerPartitioned();
+  const theme = useTheme();
+  const actions = useServerActions(sim, entities, refresh);
+  const displayNote = readError ?? actions.note;
 
   return (
     <NodePanelShell
@@ -84,64 +201,15 @@ export function ServerNodePanel() {
       partitioned={serverPartitioned}
     >
       <Stack spacing={3}>
-        <Stack direction="horizontal" spacing={2} align="center">
-          <Button
-            title={serverPartitioned ? 'Reconnect' : 'Partition'}
-            variant={serverPartitioned ? 'solid' : 'ghost'}
-            size="sm"
-            {...(serverPartitioned ? { color: 'destructive' } : {})}
-            disabled={busy}
-            startIcon={<IconPartition active={serverPartitioned} size={14} />}
-            onPress={() =>
-              run(async () => {
-                if (sim.isServerPartitioned()) {
-                  sim.healServer();
-                } else {
-                  sim.partitionServer();
-                }
-                bumpLink();
-              })
-            }
-          />
-          <Box style={{ flex: 1 }} />
-          <IconButton
-            size={32}
-            background={theme.colors.surface}
-            disabled={busy}
-            onPress={() =>
-              run(async () => {
-                await sim.pollAllClients();
-              })
-            }
-          >
-            <IconSync size={16} />
-          </IconButton>
-          <IconButton
-            size={32}
-            background={theme.colors.surface}
-            disabled={busy || entities.length === 0}
-            onPress={() =>
-              run(async () => {
-                for (const e of entities) {
-                  await playgroundServerRandomizeShape(sim, e.entityId);
-                }
-              })
-            }
-          >
-            <IconShuffle size={16} />
-          </IconButton>
-          <IconButton
-            size={32}
-            disabled={busy}
-            onPress={() =>
-              run(async () => {
-                await sim.wipeServerDb();
-              })
-            }
-          >
-            <IconClear size={16} />
-          </IconButton>
-        </Stack>
+        <ServerControlBar
+          busy={actions.busy}
+          partitioned={serverPartitioned}
+          hasEntities={entities.length > 0}
+          togglePartition={actions.togglePartition}
+          pollAll={actions.pollAll}
+          randomizeAll={actions.randomizeAll}
+          wipeServer={actions.wipeServer}
+        />
 
         <Divider />
 
@@ -153,12 +221,12 @@ export function ServerNodePanel() {
           />
           <ShapeList
             entities={entities}
-            busy={busy}
+            busy={actions.busy}
             note={displayNote}
-            onRandomize={handleRandomize}
-            onDelete={handleDelete}
-            onCreate={handleCreate}
-            onReorder={handleReorder}
+            onRandomize={actions.handleRandomize}
+            onDelete={actions.handleDelete}
+            onCreate={actions.handleCreate}
+            onReorder={actions.handleReorder}
           />
         </Box>
       </Stack>

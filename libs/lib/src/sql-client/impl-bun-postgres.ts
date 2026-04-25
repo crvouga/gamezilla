@@ -138,17 +138,25 @@ function getChanges(result: unknown, rows: unknown[]): number {
 }
 
 function getLastInsertRowid(result: unknown, rows: unknown[]): number {
-  if (isObjectWithKey(result, 'lastInsertRowid')) {
-    const n = result.lastInsertRowid;
-    if (typeof n === 'number' && Number.isInteger(n)) return n;
-    if (typeof n === 'bigint') return Number(n);
-  }
-  const first = rows[0];
-  if (first !== null && first !== undefined && isObjectWithKey(first, 'id')) {
-    const id = first.id;
-    if (typeof id === 'number') return id;
-    if (typeof id === 'bigint') return Number(id);
-    if (typeof id === 'string') return parseInt(id, 10) || 0;
-  }
-  return 0;
+  const fromResult = readLastInsertRowid(result);
+  if (fromResult !== undefined) return fromResult;
+  return readIdFromFirstRow(rows[0]);
+}
+
+function readLastInsertRowid(result: unknown): number | undefined {
+  if (!isObjectWithKey(result, 'lastInsertRowid')) return undefined;
+  return coerceToNumber(result.lastInsertRowid);
+}
+
+function readIdFromFirstRow(first: unknown): number {
+  if (first === null || first === undefined) return 0;
+  if (!isObjectWithKey(first, 'id')) return 0;
+  return coerceToNumber(first.id) ?? 0;
+}
+
+function coerceToNumber(value: unknown): number | undefined {
+  if (typeof value === 'number' && Number.isInteger(value)) return value;
+  if (typeof value === 'bigint') return Number(value);
+  if (typeof value === 'string') return parseInt(value, 10) || 0;
+  return undefined;
 }

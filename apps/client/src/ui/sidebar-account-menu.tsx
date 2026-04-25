@@ -31,36 +31,17 @@ import { useProfile } from '@gamezilla/client/profile/use-profile';
 
 type AnchorRect = { x: number; y: number; width: number; height: number };
 
-export function SidebarAccountMenu() {
-  const log = useLogger('sidebar-account-menu');
+type Auth = ReturnType<typeof useAuth>;
+type Profile = ReturnType<typeof useProfile>;
+type ServerStatus = ReturnType<typeof useServerStatus>;
+
+function useAccountMenuActions(args: {
+  auth: Auth;
+  close: () => void;
+}) {
+  const { auth, close } = args;
   const router = useRouter();
-  const auth = useAuth();
-  const profile = useProfile();
-  const insets = useSafeAreaInsets();
-  const theme = useTheme();
-  const triggerRef = useRef<ElementRef<typeof Box>>(null);
-  const { aggregateStatus, health, refresh } = useServerStatus();
-
-  const [open, setOpen] = useState(false);
-  const [anchor, setAnchor] = useState<AnchorRect | null>(null);
-
-  useEffect(() => {
-    if (open) {
-      refresh();
-    }
-  }, [open, refresh]);
-
-  const close = useCallback(() => {
-    setOpen(false);
-    setAnchor(null);
-  }, []);
-
-  const openMenu = useCallback(() => {
-    triggerRef.current?.measureInWindow((x, y, width, height) => {
-      setAnchor({ x, y, width, height });
-      setOpen(true);
-    });
-  }, []);
+  const log = useLogger('sidebar-account-menu');
 
   const onProfile = useCallback(() => {
     close();
@@ -92,156 +73,265 @@ export function SidebarAccountMenu() {
     }
   }, [auth, close, log]);
 
-  const menuContent = useMemo((): FloatingMenuContent => {
-    const statusWord =
-      aggregateStatus === 'online'
-        ? 'Online'
-        : aggregateStatus === 'offline'
-          ? 'Offline'
-          : 'Limited or checking';
-    const latencyPhrase =
-      health.phase === 'loading'
-        ? 'latency checking'
-        : health.latencyMs !== null
-          ? `latency ${health.latencyMs} ms`
-          : 'latency unavailable';
+  return { onProfile, onSettings, onServerStatus, onAuth };
+}
 
-    return {
-      header: {
-        title: profile.displayLabel,
-        ...(profile.hasCustomDisplayName
-          ? {
-              subtitle: auth.mode === 'guest' ? 'Guest' : 'Signed in',
-            }
-          : {}),
+function ConnectionTrailing({
+  aggregateStatus,
+  health,
+}: {
+  aggregateStatus: ServerStatus['aggregateStatus'];
+  health: ServerStatus['health'];
+}) {
+  const label =
+    health.phase === 'loading'
+      ? '…'
+      : health.latencyMs !== null
+        ? `${health.latencyMs} ms`
+        : '—';
+  return (
+    <Box
+      sx={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 2,
+        flexShrink: 0,
+      }}
+    >
+      <StatusDot status={aggregateStatus} size={10} />
+      <Text
+        variant="caption"
+        sx={{ color: 'textSecondary' }}
+        label={label}
+      />
+    </Box>
+  );
+}
+
+function aggregateStatusWord(s: ServerStatus['aggregateStatus']): string {
+  if (s === 'online') return 'Online';
+  if (s === 'offline') return 'Offline';
+  return 'Limited or checking';
+}
+
+function latencyPhrase(health: ServerStatus['health']): string {
+  if (health.phase === 'loading') return 'latency checking';
+  if (health.latencyMs !== null) return `latency ${health.latencyMs} ms`;
+  return 'latency unavailable';
+}
+
+type MenuRow = FloatingMenuContent['rows'][number];
+
+function buildHeader(profile: Profile, auth: Auth): FloatingMenuContent['header'] {
+  return {
+    title: profile.displayLabel,
+    ...(profile.hasCustomDisplayName
+      ? { subtitle: auth.mode === 'guest' ? 'Guest' : 'Signed in' }
+      : {}),
+  };
+}
+
+function buildConnectionRow(args: {
+  serverStatus: ServerStatus;
+  onServerStatus: () => void;
+}): MenuRow {
+  const { serverStatus, onServerStatus } = args;
+  const { aggregateStatus, health } = serverStatus;
+  const accLabel = `Connection and server status. ${aggregateStatusWord(aggregateStatus)}. ${latencyPhrase(health)}.`;
+  return {
+    type: 'item',
+    id: 'server-status',
+    label: 'Connection',
+    icon: 'wifi',
+    trailing: (
+      <ConnectionTrailing aggregateStatus={aggregateStatus} health={health} />
+    ),
+    onPress: onServerStatus,
+    accessibilityLabel: accLabel,
+  };
+}
+
+function buildAuthRow(auth: Auth, onAuth: () => void): MenuRow {
+  const label =
+    auth.mode === 'signed-in' ? 'Sign out' : 'Sign in with Google';
+  return {
+    type: 'item',
+    id: 'sign-in',
+    label,
+    icon:
+      auth.mode === 'signed-in'
+        ? 'arrow.right.from.bracket'
+        : 'right.to.bracket',
+    onPress: onAuth,
+    accessibilityLabel: label,
+  };
+}
+
+function buildMenuContent(args: {
+  profile: Profile;
+  auth: Auth;
+  serverStatus: ServerStatus;
+  onProfile: () => void;
+  onServerStatus: () => void;
+  onAuth: () => void;
+  onSettings: () => void;
+}): FloatingMenuContent {
+  const { profile, auth, serverStatus, onProfile, onServerStatus, onAuth, onSettings } = args;
+  return {
+    header: buildHeader(profile, auth),
+    rows: [
+      {
+        type: 'item',
+        id: 'profile',
+        label: 'Profile',
+        icon: 'person.fill',
+        onPress: onProfile,
+        accessibilityLabel: 'View profile',
       },
-      rows: [
-        {
-          type: 'item',
-          id: 'profile',
-          label: 'Profile',
-          icon: 'person.fill',
-          onPress: onProfile,
-          accessibilityLabel: 'View profile',
-        },
-        {
-          type: 'item',
-          id: 'server-status',
-          label: 'Connection',
-          icon: 'wifi',
-          trailing: (
-            <Box
-              sx={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 2,
-                flexShrink: 0,
-              }}
-            >
-              <StatusDot status={aggregateStatus} size={10} />
-              <Text
-                variant="caption"
-                sx={{ color: 'textSecondary' }}
-                label={
-                  health.phase === 'loading'
-                    ? '…'
-                    : health.latencyMs !== null
-                      ? `${health.latencyMs} ms`
-                      : '—'
-                }
-              />
-            </Box>
-          ),
-          onPress: onServerStatus,
-          accessibilityLabel: `Connection and server status. ${statusWord}. ${latencyPhrase}.`,
-        },
-        {
-          type: 'item',
-          id: 'sign-in',
-          label: auth.mode === 'signed-in' ? 'Sign out' : 'Sign in with Google',
-          icon:
-            auth.mode === 'signed-in'
-              ? 'arrow.right.from.bracket'
-              : 'right.to.bracket',
-          onPress: onAuth,
-          accessibilityLabel:
-            auth.mode === 'signed-in' ? 'Sign out' : 'Sign in with Google',
-        },
-        { type: 'divider', id: 'after-auth' },
-        {
-          type: 'item',
-          id: 'settings',
-          label: 'Settings',
-          icon: 'gearshape.fill',
-          onPress: onSettings,
-          accessibilityLabel: 'Settings',
-        },
-      ],
-    };
-  }, [
-    aggregateStatus,
-    auth.mode,
-    health.latencyMs,
-    health.phase,
-    onAuth,
-    onProfile,
-    onServerStatus,
-    onSettings,
-    profile.displayLabel,
-    profile.hasCustomDisplayName,
-  ]);
+      buildConnectionRow({ serverStatus, onServerStatus }),
+      buildAuthRow(auth, onAuth),
+      { type: 'divider', id: 'after-auth' },
+      {
+        type: 'item',
+        id: 'settings',
+        label: 'Settings',
+        icon: 'gearshape.fill',
+        onPress: onSettings,
+        accessibilityLabel: 'Settings',
+      },
+    ],
+  };
+}
 
-  const subtitle =
-    auth.mode === 'signed-in'
-      ? profile.hasCustomDisplayName
-        ? 'Signed in'
-        : null
-      : 'Guest';
+function getSubtitle(auth: Auth, profile: Profile): string | null {
+  if (auth.mode === 'signed-in') {
+    return profile.hasCustomDisplayName ? 'Signed in' : null;
+  }
+  return 'Guest';
+}
+
+function AccountTrigger({
+  triggerRef,
+  open,
+  openMenu,
+  profile,
+  subtitle,
+}: {
+  triggerRef: React.RefObject<ElementRef<typeof Box> | null>;
+  open: boolean;
+  openMenu: () => void;
+  profile: Profile;
+  subtitle: string | null;
+}) {
+  const theme = useTheme();
+  return (
+    <Box ref={triggerRef} collapsable={false} sx={{ alignSelf: 'stretch' }}>
+      <Pressable
+        onPress={openMenu}
+        accessibilityRole="button"
+        accessibilityLabel="Account menu"
+        accessibilityState={{ expanded: open }}
+        sx={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 3,
+          py: 2,
+          px: 2,
+          borderRadius: 12,
+          background: open ? 'surface' : 'transparent',
+        }}
+      >
+        <ProfileDiceBearAvatar
+          config={profile.avatarConfig}
+          fallbackSeed={profile.principalId}
+          size={32}
+          loading={profile.loading}
+        />
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Text
+            variant="bodyBold"
+            sx={{ color: 'text' }}
+            numberOfLines={1}
+            label={profile.displayLabel}
+          />
+          {subtitle ? (
+            <Text
+              variant="caption"
+              sx={{ color: 'textSecondary' }}
+              numberOfLines={1}
+              label={subtitle}
+            />
+          ) : null}
+        </Box>
+        <IconSymbol name="ellipsis" size={18} color={theme.colors.icon} />
+      </Pressable>
+    </Box>
+  );
+}
+
+export function SidebarAccountMenu() {
+  const auth = useAuth();
+  const profile = useProfile();
+  const insets = useSafeAreaInsets();
+  const triggerRef = useRef<ElementRef<typeof Box>>(null);
+  const serverStatus = useServerStatus();
+  const { refresh } = serverStatus;
+
+  const [open, setOpen] = useState(false);
+  const [anchor, setAnchor] = useState<AnchorRect | null>(null);
+
+  useEffect(() => {
+    if (open) refresh();
+  }, [open, refresh]);
+
+  const close = useCallback(() => {
+    setOpen(false);
+    setAnchor(null);
+  }, []);
+
+  const openMenu = useCallback(() => {
+    triggerRef.current?.measureInWindow((x, y, width, height) => {
+      setAnchor({ x, y, width, height });
+      setOpen(true);
+    });
+  }, []);
+
+  const { onProfile, onSettings, onServerStatus, onAuth } =
+    useAccountMenuActions({ auth, close });
+
+  const menuContent = useMemo(
+    () =>
+      buildMenuContent({
+        profile,
+        auth,
+        serverStatus,
+        onProfile,
+        onServerStatus,
+        onAuth,
+        onSettings,
+      }),
+    [
+      profile,
+      auth,
+      serverStatus,
+      onProfile,
+      onServerStatus,
+      onAuth,
+      onSettings,
+    ]
+  );
+
+  const subtitle = getSubtitle(auth, profile);
 
   return (
     <>
-      <Box ref={triggerRef} collapsable={false} sx={{ alignSelf: 'stretch' }}>
-        <Pressable
-          onPress={openMenu}
-          accessibilityRole="button"
-          accessibilityLabel="Account menu"
-          accessibilityState={{ expanded: open }}
-          sx={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 3,
-            py: 2,
-            px: 2,
-            borderRadius: 12,
-            background: open ? 'surface' : 'transparent',
-          }}
-        >
-          <ProfileDiceBearAvatar
-            config={profile.avatarConfig}
-            fallbackSeed={profile.principalId}
-            size={32}
-            loading={profile.loading}
-          />
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Text
-              variant="bodyBold"
-              sx={{ color: 'text' }}
-              numberOfLines={1}
-              label={profile.displayLabel}
-            />
-            {subtitle ? (
-              <Text
-                variant="caption"
-                sx={{ color: 'textSecondary' }}
-                numberOfLines={1}
-                label={subtitle}
-              />
-            ) : null}
-          </Box>
-          <IconSymbol name="ellipsis" size={18} color={theme.colors.icon} />
-        </Pressable>
-      </Box>
-
+      <AccountTrigger
+        triggerRef={triggerRef}
+        open={open}
+        openMenu={openMenu}
+        profile={profile}
+        subtitle={subtitle}
+      />
       <FloatingMenu
         open={open}
         onClose={close}

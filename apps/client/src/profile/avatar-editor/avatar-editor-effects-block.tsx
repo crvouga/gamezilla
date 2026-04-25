@@ -1,0 +1,56 @@
+import type { SchemaField } from '@gamezilla/client/profile/dicebear-schema';
+import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
+import { Box, ChipGroup, Text } from '@gamezilla/lib/ui';
+
+import { getProbabilityMode, humanizeOptionKey } from './option-helpers';
+
+type ProbabilityField = Extract<SchemaField, { kind: 'probability' }>;
+
+type UpdateOptionsFn = (
+  fn: (o: Record<string, unknown>) => Record<string, unknown>
+) => void;
+
+export function EffectsBlock({
+  effectFields,
+  draft,
+  updateOptions,
+}: {
+  effectFields: SchemaField[];
+  draft: AvatarConfig;
+  updateOptions: UpdateOptionsFn;
+}) {
+  const fields = effectFields.filter(
+    (f): f is ProbabilityField => f.kind === 'probability'
+  );
+  if (fields.length === 0) return null;
+  return (
+    <Box sx={{ mt: 2, gap: 2 }}>
+      <Text variant="label" label="Effects" />
+      {fields.map((f) => (
+        <ChipGroup
+          key={f.key}
+          label={humanizeOptionKey(f.key)}
+          options={[
+            { key: 'off', label: 'Off' },
+            { key: 'random', label: 'Random' },
+            { key: 'always', label: 'Always' },
+          ]}
+          selected={getProbabilityMode(draft.options[f.key])}
+          onSelect={(mode) => {
+            updateOptions((o) => {
+              const next = { ...o };
+              if (mode === 'random') {
+                delete next[f.key];
+              } else if (mode === 'off') {
+                next[f.key] = 0;
+              } else {
+                next[f.key] = 100;
+              }
+              return next;
+            });
+          }}
+        />
+      ))}
+    </Box>
+  );
+}

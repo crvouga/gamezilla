@@ -65,29 +65,24 @@ const variantStyles: Record<TextVariant, SxProps> = {
   mono: { fontSize: 'sm', lineHeight: 22, color: 'text' },
 };
 
+const ROUNDED_VARIANTS = new Set<TextVariant>([
+  'title',
+  'subtitle',
+  'heading',
+  'label',
+  'navigationTitle',
+  'link',
+  'caption',
+]);
+
 function variantFontFamily(
   variant: TextVariant,
   theme: Theme
 ): { fontFamily?: string } {
-  if (variant === 'mono') {
-    return { fontFamily: theme.fonts.mono };
-  }
-  if (
-    variant === 'title' ||
-    variant === 'subtitle' ||
-    variant === 'heading' ||
-    variant === 'label' ||
-    variant === 'navigationTitle' ||
-    variant === 'link' ||
-    variant === 'caption'
-  ) {
-    return { fontFamily: theme.fonts.rounded };
-  }
+  if (variant === 'mono') return { fontFamily: theme.fonts.mono };
+  if (ROUNDED_VARIANTS.has(variant)) return { fontFamily: theme.fonts.rounded };
   if (variant === 'bodyBold') {
-    const semi = theme.fonts.sansSemibold;
-    return semi !== undefined
-      ? { fontFamily: semi }
-      : { fontFamily: theme.fonts.sans };
+    return { fontFamily: theme.fonts.sansSemibold ?? theme.fonts.sans };
   }
   return { fontFamily: theme.fonts.sans };
 }

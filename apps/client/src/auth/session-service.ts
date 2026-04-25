@@ -73,103 +73,91 @@ function isExpired(iso: string): boolean {
   return t <= Date.now();
 }
 
+async function readLatestSessionEntity(
+  db: PatchesDb,
+  principalId: string,
+  limit: number
+) {
+  const [result] = await db.read([
+    {
+      entityType: PRINCIPAL_SESSION_ENTITY_TYPE,
+      where: {
+        type: '=',
+        attribute: PrincipalSessionAttr.principalId,
+        value: principalId,
+      },
+      orderBy: [
+        { attribute: PrincipalSessionAttr.createdAt, direction: 'desc' },
+      ],
+      limit,
+    },
+  ]);
+  return result?.entities ?? [];
+}
+
+async function loadActiveSession(
+  db: PatchesDb,
+  principalId: string
+): Promise<PrincipalSessionRecord | null> {
+  const entities = await readLatestSessionEntity(db, principalId, 50);
+  for (const entity of entities) {
+    const parsed = parseSessionEntity(entity, principalId);
+    if (parsed === null) continue;
+    if (isExpired(parsed.expiresAt)) continue;
+    return parsed;
+  }
+  return null;
+}
+
+async function clearLatestSession(
+  db: PatchesDb,
+  principalId: string
+): Promise<void> {
+  const entities = await readLatestSessionEntity(db, principalId, 1);
+  const entity = entities[0];
+  if (entity === undefined) return;
+  await db.write([
+    {
+      entityId: entity.entityId,
+      entityType: PRINCIPAL_SESSION_ENTITY_TYPE,
+      attributes: {
+        [PrincipalSessionAttr.token]: null,
+        [PrincipalSessionAttr.expiresAt]: new Date(0).toISOString(),
+      },
+    },
+  ]);
+}
+
 export function createSessionService(
   db: PatchesDb,
   principalService: PrincipalService
 ): SessionService {
   let cached: PrincipalSessionRecord | null = null;
 
-  async function refresh(): Promise<void> {
-    const principalId = principalService.getPrincipalId();
-    assertPrincipalId(principalId);
-
-    const [result] = await db.read([
-      {
-        entityType: PRINCIPAL_SESSION_ENTITY_TYPE,
-        where: {
-          type: '=',
-          attribute: PrincipalSessionAttr.principalId,
-          value: principalId,
-        },
-        orderBy: [
-          { attribute: PrincipalSessionAttr.createdAt, direction: 'desc' },
-        ],
-        limit: 50,
-      },
-    ]);
-
-    let best: PrincipalSessionRecord | null = null;
-    for (const entity of result?.entities ?? []) {
-      const parsed = parseSessionEntity(entity, principalId);
-      if (parsed === null) {
-        continue;
-      }
-      if (isExpired(parsed.expiresAt)) {
-        continue;
-      }
-      best = parsed;
-      break;
-    }
-    cached = best;
-  }
-
   return {
     getSession(): PrincipalSessionRecord | null {
       const s = cached;
-      if (s === null) {
-        return null;
-      }
-      if (isExpired(s.expiresAt)) {
-        return null;
-      }
+      if (s === null) return null;
+      if (isExpired(s.expiresAt)) return null;
       return s;
     },
 
     isAuthenticated(): boolean {
       const s = cached;
-      if (s === null) {
-        return false;
-      }
+      if (s === null) return false;
       return !isExpired(s.expiresAt);
     },
 
-    refresh,
+    async refresh(): Promise<void> {
+      const principalId = principalService.getPrincipalId();
+      assertPrincipalId(principalId);
+      cached = await loadActiveSession(db, principalId);
+    },
 
     async clearSession(): Promise<void> {
       const principalId = principalService.getPrincipalId();
       assertPrincipalId(principalId);
-
-      const [result] = await db.read([
-        {
-          entityType: PRINCIPAL_SESSION_ENTITY_TYPE,
-          where: {
-            type: '=',
-            attribute: PrincipalSessionAttr.principalId,
-            value: principalId,
-          },
-          orderBy: [
-            { attribute: PrincipalSessionAttr.createdAt, direction: 'desc' },
-          ],
-          limit: 1,
-        },
-      ]);
-
-      const entity = result?.entities[0];
-      if (entity === undefined) {
-        cached = null;
-        return;
-      }
-
-      await db.write([
-        {
-          entityId: entity.entityId,
-          entityType: PRINCIPAL_SESSION_ENTITY_TYPE,
-          attributes: {
-            [PrincipalSessionAttr.token]: null,
-            [PrincipalSessionAttr.expiresAt]: new Date(0).toISOString(),
-          },
-        },
-      ]);
+      await clearLatestSession(db, principalId);
       cached = null;
     },
   };

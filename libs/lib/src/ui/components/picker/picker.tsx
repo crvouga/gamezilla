@@ -36,6 +36,15 @@ export type PickerProps<T extends string | number = string> = {
   ) => ReactElement | null;
 };
 
+function pickerSurfaceTitle(
+  surfaceTitle: string | undefined,
+  label: string | undefined
+): string {
+  if (surfaceTitle !== undefined) return surfaceTitle;
+  if (label !== undefined) return label;
+  return 'Choose';
+}
+
 export function Picker<T extends string | number = string>({
   options,
   value,
@@ -46,24 +55,123 @@ export function Picker<T extends string | number = string>({
   placeholder = 'Select…',
   renderOption,
 }: PickerProps<T>) {
-  const theme = useTheme();
   const [open, setOpen] = useState(false);
-
   const selected = options.find((o) => o.value === value);
+  const title = pickerSurfaceTitle(surfaceTitle, label);
+  const handlePick = (next: T) => {
+    onValueChange(next);
+    setOpen(false);
+  };
 
-  const title =
-    surfaceTitle !== undefined
-      ? surfaceTitle
-      : label !== undefined
-        ? label
-        : 'Choose';
+  return (
+    <>
+      {label !== undefined ? <PickerLabel label={label} /> : null}
+      <PickerTrigger
+        selected={selected}
+        placeholder={placeholder}
+        disabled={disabled}
+        onPress={() => setOpen(true)}
+      />
+      <ResponsiveSurface
+        visible={open}
+        onClose={() => setOpen(false)}
+        title={title}
+      >
+        <PickerOptions
+          options={options}
+          value={value}
+          onPick={handlePick}
+          renderOption={renderOption}
+        />
+      </ResponsiveSurface>
+    </>
+  );
+}
 
+function PickerLabel({ label }: { label: string }) {
+  const theme = useTheme();
+  return (
+    <Text
+      variant="caption"
+      sx={{ mb: 0.5 }}
+      style={{ color: theme.colors.textSecondary }}
+      label={label}
+    />
+  );
+}
+
+function PickerTrigger<T extends string | number>({
+  selected,
+  placeholder,
+  disabled,
+  onPress,
+}: {
+  selected: PickerOption<T> | undefined;
+  placeholder: string;
+  disabled: boolean;
+  onPress: () => void;
+}) {
+  const theme = useTheme();
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      style={({ pressed }) => [
+        {
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: 12,
+          paddingVertical: 8,
+          borderRadius: borderRadius.sm,
+          borderWidth: 1,
+          borderColor: theme.colors.border,
+          backgroundColor: theme.colors.surface,
+          gap: 10,
+        },
+        pressed && { opacity: 0.7 },
+        disabled && { opacity: 0.4 },
+      ]}
+    >
+      {selected?.preview !== undefined ? (
+        <View style={{ flexShrink: 0 }}>{selected.preview}</View>
+      ) : null}
+      <Text
+        variant="label"
+        style={{
+          flex: 1,
+          color:
+            selected !== undefined
+              ? theme.colors.text
+              : theme.colors.textSecondary,
+        }}
+        label={selected?.label ?? placeholder}
+      />
+      <Text
+        style={{ color: theme.colors.textSecondary, fontSize: 10 }}
+        label="▼"
+      />
+    </Pressable>
+  );
+}
+
+function PickerOptions<T extends string | number>({
+  options,
+  value,
+  onPick,
+  renderOption,
+}: {
+  options: PickerOption<T>[];
+  value: T;
+  onPick: (next: T) => void;
+  renderOption: PickerProps<T>['renderOption'];
+}) {
+  const theme = useTheme();
   const defaultRender = useMemo(
     () =>
       function DefaultRender(
         item: PickerOption<T>,
         isSelected: boolean,
-        onPick: () => void
+        onPickItem: () => void
       ) {
         return (
           <ListItem
@@ -77,94 +185,35 @@ export function Picker<T extends string | number = string>({
                 />
               ) : undefined
             }
-            onPress={onPick}
+            onPress={onPickItem}
           />
         );
       },
     [theme.colors.tint]
   );
 
+  if (renderOption !== undefined) {
+    return (
+      <FlatList
+        data={options}
+        keyExtractor={(_item, index) => String(index)}
+        style={{ maxHeight: 360 }}
+        renderItem={({ item }) => {
+          const row = renderOption(item, item.value === value, () =>
+            onPick(item.value)
+          );
+          return row ?? <View />;
+        }}
+      />
+    );
+  }
   return (
-    <>
-      {label !== undefined && (
-        <Text
-          variant="caption"
-          sx={{ mb: 0.5 }}
-          style={{ color: theme.colors.textSecondary }}
-          label={label}
-        />
-      )}
-      <Pressable
-        onPress={() => setOpen(true)}
-        disabled={disabled}
-        style={({ pressed }) => [
-          {
-            flexDirection: 'row',
-            alignItems: 'center',
-            paddingHorizontal: 12,
-            paddingVertical: 8,
-            borderRadius: borderRadius.sm,
-            borderWidth: 1,
-            borderColor: theme.colors.border,
-            backgroundColor: theme.colors.surface,
-            gap: 10,
-          },
-          pressed && { opacity: 0.7 },
-          disabled && { opacity: 0.4 },
-        ]}
-      >
-        {selected?.preview !== undefined ? (
-          <View style={{ flexShrink: 0 }}>{selected.preview}</View>
-        ) : null}
-        <Text
-          variant="label"
-          style={{
-            flex: 1,
-            color: selected ? theme.colors.text : theme.colors.textSecondary,
-          }}
-          label={selected?.label ?? placeholder}
-        />
-        <Text
-          style={{ color: theme.colors.textSecondary, fontSize: 10 }}
-          label="▼"
-        />
-      </Pressable>
-
-      <ResponsiveSurface
-        visible={open}
-        onClose={() => setOpen(false)}
-        title={title}
-      >
-        {renderOption !== undefined ? (
-          <FlatList
-            data={options}
-            keyExtractor={(_item, index) => String(index)}
-            style={{ maxHeight: 360 }}
-            renderItem={({ item }) => {
-              const row = renderOption(item, item.value === value, () => {
-                onValueChange(item.value);
-                setOpen(false);
-              });
-              return row ?? <View />;
-            }}
-          />
-        ) : (
-          <List separator>
-            {options.map((item, index) => {
-              const isSelected = item.value === value;
-              const onPick = () => {
-                onValueChange(item.value);
-                setOpen(false);
-              };
-              return (
-                <View key={String(item.value) + String(index)}>
-                  {defaultRender(item, isSelected, onPick)}
-                </View>
-              );
-            })}
-          </List>
-        )}
-      </ResponsiveSurface>
-    </>
+    <List separator>
+      {options.map((item, index) => (
+        <View key={String(item.value) + String(index)}>
+          {defaultRender(item, item.value === value, () => onPick(item.value))}
+        </View>
+      ))}
+    </List>
   );
 }

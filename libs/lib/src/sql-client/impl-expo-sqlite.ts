@@ -99,105 +99,9 @@ export class SqlClientImplExpoSqlite implements SqlClient {
   constructor(private db: SQLite.SQLiteDatabase) {}
 
   static async open(databaseName: string): Promise<SqlClientImplExpoSqlite> {
-    if (
-      Platform.OS === 'web' &&
-      typeof globalThis.isSecureContext === 'boolean' &&
-      !globalThis.isSecureContext
-    ) {
-      throw new Error(
-        'SQLite on web needs a secure context (HTTPS or localhost). Open the app over HTTPS or http://localhost.',
-      );
-    }
-
+    assertSecureContext();
     await maybeHandleResetDbQueryParam(databaseName);
-
-    const finish = async (
-      client: SqlClientImplExpoSqlite,
-    ): Promise<SqlClientImplExpoSqlite> => {
-      if (
-        Platform.OS === 'web' &&
-        typeof sessionStorage !== 'undefined'
-      ) {
-        sessionStorage.removeItem(WEB_RECOVERY_RELOAD_KEY);
-      }
-      return client;
-    };
-
-    try {
-      return await finish(await openDatabaseOnce(databaseName, false));
-    } catch (first: unknown) {
-      await SQLite.deleteDatabaseAsync(databaseName).catch(() => {});
-      console.warn(
-        `[SqlClientImplExpoSqlite] Open failed for "${databaseName}"; removed DB file and retrying once.`,
-        first,
-      );
-      try {
-        return await finish(await openDatabaseOnce(databaseName, true));
-      } catch (second: unknown) {
-        if (Platform.OS !== 'web') {
-          throw second;
-        }
-
-        await SQLite.deleteDatabaseAsync(databaseName).catch(() => {});
-
-        const postOpfsReload =
-          typeof sessionStorage !== 'undefined' &&
-          Boolean(sessionStorage.getItem(WEB_RECOVERY_RELOAD_KEY));
-
-        if (!postOpfsReload) {
-          const clearResult = await clearExpoSqliteWebOpfsBestEffort();
-          await SQLite.deleteDatabaseAsync(databaseName).catch(() => {});
-
-          if (!clearResult.ok) {
-            // The wipe silently failing (e.g. `NoModificationAllowedError` because another
-            // tab still holds a `FileSystemSyncAccessHandle`) used to set the session flag
-            // and reload, which permanently poisoned the tab. Fail loudly instead.
-            throw buildLockedOpfsError(databaseName, clearResult.error, [
-              second,
-              first,
-            ]);
-          }
-
-          console.warn(
-            `[SqlClientImplExpoSqlite] Open failed again; cleared expo-sqlite OPFS and reloading.`,
-            second,
-          );
-          if (typeof window !== 'undefined' && typeof sessionStorage !== 'undefined') {
-            sessionStorage.setItem(WEB_RECOVERY_RELOAD_KEY, '1');
-            window.location.reload();
-            return await new Promise<SqlClientImplExpoSqlite>(() => {});
-          }
-          throw second;
-        }
-
-        // Already survived one OPFS wipe + reload; never wipe OPFS again in this tab — it
-        // breaks the worker VFS. Retry with fresh connections only.
-        console.warn(
-          `[SqlClientImplExpoSqlite] Open failed after OPFS recovery reload; retrying without main-thread OPFS wipe.`,
-          second,
-        );
-        try {
-          return await finish(await openDatabaseOnce(databaseName, true));
-        } catch (third: unknown) {
-          await SQLite.deleteDatabaseAsync(databaseName).catch(() => {});
-          try {
-            return await finish(await openDatabaseOnce(databaseName, true));
-          } catch (fourth: unknown) {
-            const origin =
-              typeof window !== 'undefined' && window.location !== undefined
-                ? window.location.origin
-                : 'this site';
-            throw new Error(
-              `SQLite could not open the local database "${databaseName}" after a recovery reload. ` +
-                `Another tab/worker of ${origin} is likely holding the OPFS handle. ` +
-                `Fix: close every other tab of ${origin}, then reload with ?${RESET_DB_QUERY_PARAM}=1 appended to the URL ` +
-                `(or use DevTools → Application → Clear site data). ` +
-                `Underlying errors: ${formatErrorChain([fourth, third, second, first])}`,
-            );
-          }
-        }
-      }
-    }
+    return openWithRecovery(databaseName);
   }
 
   connect(): Promise<void> {
@@ -269,4 +173,135 @@ export class SqlClientImplExpoSqlite implements SqlClient {
       resolve(undefined);
     }
   }
+}
+
+function assertSecureContext(): void {
+  if (Platform.OS !== 'web') return;
+  if (typeof globalThis.isSecureContext !== 'boolean') return;
+  if (globalThis.isSecureContext) return;
+  throw new Error(
+    'SQLite on web needs a secure context (HTTPS or localhost). Open the app over HTTPS or http://localhost.'
+  );
+}
+
+async function finishOpen(
+  client: SqlClientImplExpoSqlite
+): Promise<SqlClientImplExpoSqlite> {
+  if (Platform.OS === 'web' && typeof sessionStorage !== 'undefined') {
+    sessionStorage.removeItem(WEB_RECOVERY_RELOAD_KEY);
+  }
+  return client;
+}
+
+async function openWithRecovery(
+  databaseName: string
+): Promise<SqlClientImplExpoSqlite> {
+  try {
+    return await finishOpen(await openDatabaseOnce(databaseName, false));
+  } catch (first: unknown) {
+    return openAfterFirstFailure(databaseName, first);
+  }
+}
+
+async function openAfterFirstFailure(
+  databaseName: string,
+  first: unknown
+): Promise<SqlClientImplExpoSqlite> {
+  await SQLite.deleteDatabaseAsync(databaseName).catch(() => {});
+  console.warn(
+    `[SqlClientImplExpoSqlite] Open failed for "${databaseName}"; removed DB file and retrying once.`,
+    first
+  );
+  try {
+    return await finishOpen(await openDatabaseOnce(databaseName, true));
+  } catch (second: unknown) {
+    if (Platform.OS !== 'web') throw second;
+    return openAfterSecondFailure(databaseName, first, second);
+  }
+}
+
+async function openAfterSecondFailure(
+  databaseName: string,
+  first: unknown,
+  second: unknown
+): Promise<SqlClientImplExpoSqlite> {
+  await SQLite.deleteDatabaseAsync(databaseName).catch(() => {});
+  const postOpfsReload =
+    typeof sessionStorage !== 'undefined' &&
+    Boolean(sessionStorage.getItem(WEB_RECOVERY_RELOAD_KEY));
+  if (!postOpfsReload) {
+    return openWithOpfsRecovery(databaseName, first, second);
+  }
+  return openAfterOpfsRecovery(databaseName, first, second);
+}
+
+async function openWithOpfsRecovery(
+  databaseName: string,
+  first: unknown,
+  second: unknown
+): Promise<SqlClientImplExpoSqlite> {
+  const clearResult = await clearExpoSqliteWebOpfsBestEffort();
+  await SQLite.deleteDatabaseAsync(databaseName).catch(() => {});
+  if (!clearResult.ok) {
+    // The wipe silently failing (e.g. `NoModificationAllowedError` because another
+    // tab still holds a `FileSystemSyncAccessHandle`) used to set the session flag
+    // and reload, which permanently poisoned the tab. Fail loudly instead.
+    throw buildLockedOpfsError(databaseName, clearResult.error, [
+      second,
+      first,
+    ]);
+  }
+  console.warn(
+    `[SqlClientImplExpoSqlite] Open failed again; cleared expo-sqlite OPFS and reloading.`,
+    second
+  );
+  if (
+    typeof window !== 'undefined' &&
+    typeof sessionStorage !== 'undefined'
+  ) {
+    sessionStorage.setItem(WEB_RECOVERY_RELOAD_KEY, '1');
+    window.location.reload();
+    return await new Promise<SqlClientImplExpoSqlite>(() => {});
+  }
+  throw second;
+}
+
+async function openAfterOpfsRecovery(
+  databaseName: string,
+  first: unknown,
+  second: unknown
+): Promise<SqlClientImplExpoSqlite> {
+  // Already survived one OPFS wipe + reload; never wipe OPFS again in this tab — it
+  // breaks the worker VFS. Retry with fresh connections only.
+  console.warn(
+    `[SqlClientImplExpoSqlite] Open failed after OPFS recovery reload; retrying without main-thread OPFS wipe.`,
+    second
+  );
+  try {
+    return await finishOpen(await openDatabaseOnce(databaseName, true));
+  } catch (third: unknown) {
+    await SQLite.deleteDatabaseAsync(databaseName).catch(() => {});
+    try {
+      return await finishOpen(await openDatabaseOnce(databaseName, true));
+    } catch (fourth: unknown) {
+      throw buildPostRecoveryError(databaseName, [fourth, third, second, first]);
+    }
+  }
+}
+
+function buildPostRecoveryError(
+  databaseName: string,
+  errors: unknown[]
+): Error {
+  const origin =
+    typeof window !== 'undefined' && window.location !== undefined
+      ? window.location.origin
+      : 'this site';
+  return new Error(
+    `SQLite could not open the local database "${databaseName}" after a recovery reload. ` +
+      `Another tab/worker of ${origin} is likely holding the OPFS handle. ` +
+      `Fix: close every other tab of ${origin}, then reload with ?${RESET_DB_QUERY_PARAM}=1 appended to the URL ` +
+      `(or use DevTools → Application → Clear site data). ` +
+      `Underlying errors: ${formatErrorChain(errors)}`
+  );
 }

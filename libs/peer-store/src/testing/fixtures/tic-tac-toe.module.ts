@@ -300,16 +300,11 @@ function reject(error: StoreError): HandleResult {
   return { ok: false, error }
 }
 
-function handlePlaceMark(
+function validatePlaceMarkInputs(
   state: State,
-  command: Command,
-  msg: Message<{ cell: number; player: 'X' | 'O' }>,
-): HandleResult {
-  assertValidState(state)
-
-  const cell = msg.payload.cell
-  const player = msg.payload.player
-
+  cell: number,
+  player: 'X' | 'O',
+): HandleResult | null {
   if (
     typeof cell !== 'number' ||
     cell < 0 ||
@@ -327,12 +322,10 @@ function handlePlaceMark(
   if (state['currentTurn'] !== player) {
     return reject(WrongTurnError({}))
   }
+  return null
+}
 
-  const seatErr = assertPeerOwnsMark(state, command, player)
-  if (seatErr !== null) {
-    return seatErr
-  }
-
+function readBoardCells(state: State): Array<null | string> | HandleResult {
   const boardUnknown = readBoard(state)
   const boardCells: Array<null | string> = []
   for (let i = 0; i < 9; i++) {
@@ -342,17 +335,16 @@ function handlePlaceMark(
     }
     boardCells.push(c)
   }
-  if (boardCells[cell] !== null) {
-    return reject(CellOccupiedError({ cell }))
-  }
+  return boardCells
+}
 
-  const seqRaw = state['seq']
-  if (typeof seqRaw !== 'number' || !Number.isFinite(seqRaw)) {
-    return reject(InvalidStateError({}))
-  }
-  const next_seq = seqRaw + 1
+function buildPlaceMarkEvents(
+  boardCells: Array<null | string>,
+  cell: number,
+  player: 'X' | 'O',
+  next_seq: number,
+): Event[] {
   const events: Event[] = [MarkPlaced({ cell, player, seq: next_seq })]
-
   const next_board = [...boardCells]
   next_board[cell] = player
   const winner = checkWinner(next_board)
@@ -362,6 +354,39 @@ function handlePlaceMark(
   } else if (isBoardFull(next_board)) {
     events.push(GameDrawn({ seq: next_seq + 1 }))
   }
+  return events
+}
+
+function handlePlaceMark(
+  state: State,
+  command: Command,
+  msg: Message<{ cell: number; player: 'X' | 'O' }>,
+): HandleResult {
+  assertValidState(state)
+
+  const cell = msg.payload.cell
+  const player = msg.payload.player
+
+  const inputErr = validatePlaceMarkInputs(state, cell, player)
+  if (inputErr !== null) return inputErr
+
+  const seatErr = assertPeerOwnsMark(state, command, player)
+  if (seatErr !== null) return seatErr
+
+  const boardOrErr = readBoardCells(state)
+  if (!Array.isArray(boardOrErr)) return boardOrErr
+  const boardCells = boardOrErr
+
+  if (boardCells[cell] !== null) {
+    return reject(CellOccupiedError({ cell }))
+  }
+
+  const seqRaw = state['seq']
+  if (typeof seqRaw !== 'number' || !Number.isFinite(seqRaw)) {
+    return reject(InvalidStateError({}))
+  }
+  const next_seq = seqRaw + 1
+  const events = buildPlaceMarkEvents(boardCells, cell, player, next_seq)
 
   return { ok: true, value: { events } }
 }
@@ -400,6 +425,26 @@ function handleResign(
   }
 }
 
+function validateSeatAvailability(
+  state: State,
+  peerId: string,
+  mark: 'X' | 'O',
+): HandleResult | null {
+  const seatX = readSeat(state, 'seatX', 'seatX')
+  const seatO = readSeat(state, 'seatO', 'seatO')
+
+  const otherSeat = mark === 'X' ? seatO : seatX
+  if (otherSeat === peerId) {
+    return reject(AlreadySeatedError({}))
+  }
+
+  const mySeat = mark === 'X' ? seatX : seatO
+  if (mySeat !== null && mySeat !== peerId) {
+    return reject(SeatTakenError({ mark }))
+  }
+  return null
+}
+
 function handleJoinSession(
   state: State,
   command: Command,
@@ -412,24 +457,12 @@ function handleJoinSession(
   if (mark !== 'X' && mark !== 'O') {
     return reject(InvalidMarkError({ got: String(mark) }))
   }
-
   if (state['status'] === 'completed') {
     return reject(GameOverError({}))
   }
 
-  const seatX = readSeat(state, 'seatX', 'seatX')
-  const seatO = readSeat(state, 'seatO', 'seatO')
-  const peerId = command.peerId
-
-  const otherSeat = mark === 'X' ? seatO : seatX
-  if (otherSeat === peerId) {
-    return reject(AlreadySeatedError({}))
-  }
-
-  const mySeat = mark === 'X' ? seatX : seatO
-  if (mySeat !== null && mySeat !== peerId) {
-    return reject(SeatTakenError({ mark }))
-  }
+  const seatErr = validateSeatAvailability(state, command.peerId, mark)
+  if (seatErr !== null) return seatErr
 
   const seqRaw = state['seq']
   if (typeof seqRaw !== 'number' || !Number.isFinite(seqRaw)) {
@@ -440,34 +473,62 @@ function handleJoinSession(
   return {
     ok: true,
     value: {
-      events: [SeatClaimed({ mark, peerId, seq: next_seq })],
+      events: [SeatClaimed({ mark, peerId: command.peerId, seq: next_seq })],
     },
   }
+}
+
+function isPlainObjectPayload(rawPayload: unknown): boolean {
+  return (
+    rawPayload !== null &&
+    typeof rawPayload === 'object' &&
+    !Array.isArray(rawPayload)
+  )
+}
+
+function collectHeldSeats(
+  state: State,
+  peerId: string,
+): Array<'X' | 'O'> {
+  const seatX = readSeat(state, 'seatX', 'seatX')
+  const seatO = readSeat(state, 'seatO', 'seatO')
+  const held: Array<'X' | 'O'> = []
+  if (seatX === peerId) held.push('X')
+  if (seatO === peerId) held.push('O')
+  return held
+}
+
+function maybeAddForfeitWin(
+  state: State,
+  held: Array<'X' | 'O'>,
+  seq: number,
+): { event: Event; nextSeq: number } | null {
+  if (state['status'] !== 'in_progress') return null
+  if (!seatsFullyClaimed(state)) return null
+
+  const seatX = readSeat(state, 'seatX', 'seatX')
+  const seatO = readSeat(state, 'seatO', 'seatO')
+  const nextSeatX = held.includes('X') ? null : seatX
+  const nextSeatO = held.includes('O') ? null : seatO
+
+  const oneRemains =
+    (nextSeatX !== null && nextSeatO === null) ||
+    (nextSeatX === null && nextSeatO !== null)
+  if (!oneRemains) return null
+
+  const winner: 'X' | 'O' = nextSeatX !== null ? 'X' : 'O'
+  return { event: ForfeitWin({ winner, seq }), nextSeq: seq + 1 }
 }
 
 function handleLeaveSession(state: State, command: Command): HandleResult {
   assertValidState(state)
 
-  const rawPayload = command.message.payload
-  if (
-    rawPayload === null ||
-    typeof rawPayload !== 'object' ||
-    Array.isArray(rawPayload)
-  ) {
+  if (!isPlainObjectPayload(command.message.payload)) {
     return reject(InvalidPayloadError({}))
   }
 
-  const seatX = readSeat(state, 'seatX', 'seatX')
-  const seatO = readSeat(state, 'seatO', 'seatO')
   const peerId = command.peerId
-
-  const held: Array<'X' | 'O'> = []
-  if (seatX === peerId) {
-    held.push('X')
-  }
-  if (seatO === peerId) {
-    held.push('O')
-  }
+  const held = collectHeldSeats(state, peerId)
   if (held.length === 0) {
     return reject(NotSeatedError({}))
   }
@@ -484,18 +545,10 @@ function handleLeaveSession(state: State, command: Command): HandleResult {
     seq += 1
   }
 
-  const nextSeatX = held.includes('X') ? null : seatX
-  const nextSeatO = held.includes('O') ? null : seatO
-
-  const inProgress = state['status'] === 'in_progress'
-  const oneRemains =
-    (nextSeatX !== null && nextSeatO === null) ||
-    (nextSeatX === null && nextSeatO !== null)
-  if (inProgress && oneRemains && seatsFullyClaimed(state)) {
-    const winner: 'X' | 'O' =
-      nextSeatX !== null && nextSeatO === null ? 'X' : 'O'
-    events.push(ForfeitWin({ winner, seq }))
-    seq += 1
+  const forfeit = maybeAddForfeitWin(state, held, seq)
+  if (forfeit !== null) {
+    events.push(forfeit.event)
+    seq = forfeit.nextSeq
   }
 
   return { ok: true, value: { events } }

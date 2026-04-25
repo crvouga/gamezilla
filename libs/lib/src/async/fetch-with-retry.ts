@@ -26,25 +26,47 @@ export async function fetchWithRetry(
   const shouldRetry = options?.shouldRetry ?? defaultShouldRetry;
 
   let lastError: unknown;
-
   for (let attempt = 1; attempt <= attempts; attempt++) {
-    let res: Response;
-    try {
-      res = await fetch(input, init);
-    } catch (err) {
-      lastError = err;
-      if (attempt < attempts) {
-        await sleep(delayMs * attempt);
-        continue;
-      }
-      throw err;
-    }
-
-    if (!shouldRetry(res) || attempt >= attempts) return res;
+    const outcome = await attemptFetch(input, init, shouldRetry);
+    if (outcome.kind === 'response') return outcome.response;
+    lastError = outcome.error;
+    const isFinalAttempt = attempt >= attempts;
+    if (isFinalAttempt) return finalizeOutcome(outcome);
     await sleep(delayMs * attempt);
   }
 
   throw lastError;
+}
+
+function finalizeOutcome(
+  outcome: Exclude<AttemptOutcome, { kind: 'response' }>
+): Response {
+  if (outcome.kind === 'thrown') throw outcome.error;
+  return outcome.response;
+}
+
+type AttemptOutcome =
+  | { kind: 'response'; response: Response }
+  | { kind: 'retryable'; response: Response; error: unknown }
+  | { kind: 'thrown'; error: unknown };
+
+async function attemptFetch(
+  input: string | URL | Request,
+  init: RequestInit | undefined,
+  shouldRetry: (res: Response) => boolean
+): Promise<AttemptOutcome> {
+  let response: Response;
+  try {
+    response = await fetch(input, init);
+  } catch (err) {
+    return { kind: 'thrown', error: err };
+  }
+  if (!shouldRetry(response)) return { kind: 'response', response };
+  return {
+    kind: 'retryable',
+    response,
+    error: new Error(`fetchWithRetry: retryable status ${response.status}`),
+  };
 }
 
 function sleep(ms: number): Promise<void> {

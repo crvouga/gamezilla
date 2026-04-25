@@ -47,20 +47,12 @@ export function NumberStepper({
     >
       <Text variant="label" sx={{ flex: 1 }} label={label} />
       <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-        <Pressable
+        <StepperButton
           onPress={dec}
           disabled={disabled || value <= min}
-          accessibilityRole="button"
           accessibilityLabel={`Decrease ${label}`}
-          sx={{
-            minWidth: 40,
-            alignItems: 'center',
-            py: 2,
-            opacity: disabled || value <= min ? 0.4 : 1,
-          }}
-        >
-          <Text variant="title" label="−" />
-        </Pressable>
+          glyph="−"
+        />
         <Text
           variant="body"
           style={{
@@ -71,21 +63,42 @@ export function NumberStepper({
           }}
           label={String(value)}
         />
-        <Pressable
+        <StepperButton
           onPress={inc}
           disabled={disabled || value >= max}
-          accessibilityRole="button"
           accessibilityLabel={`Increase ${label}`}
-          sx={{
-            minWidth: 40,
-            alignItems: 'center',
-            py: 2,
-            opacity: disabled || value >= max ? 0.4 : 1,
-          }}
-        >
-          <Text variant="title" label="+" />
-        </Pressable>
+          glyph="+"
+        />
       </Box>
     </Box>
+  );
+}
+
+function StepperButton({
+  onPress,
+  disabled,
+  accessibilityLabel,
+  glyph,
+}: {
+  onPress: () => void;
+  disabled: boolean;
+  accessibilityLabel: string;
+  glyph: string;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      sx={{
+        minWidth: 40,
+        alignItems: 'center',
+        py: 2,
+        opacity: disabled ? 0.4 : 1,
+      }}
+    >
+      <Text variant="title" label={glyph} />
+    </Pressable>
   );
 }

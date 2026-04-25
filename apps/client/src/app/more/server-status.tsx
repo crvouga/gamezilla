@@ -13,32 +13,96 @@ import { useCallback, useEffect } from 'react';
 
 const REFRESH_INTERVAL_MS = 15_000;
 
+const NETWORK_TYPE_LABELS: Record<NetworkStateType, string> = {
+  [NetworkStateType.NONE]: 'None',
+  [NetworkStateType.UNKNOWN]: 'Unknown',
+  [NetworkStateType.WIFI]: 'Wi‑Fi',
+  [NetworkStateType.CELLULAR]: 'Cellular',
+  [NetworkStateType.ETHERNET]: 'Ethernet',
+  [NetworkStateType.BLUETOOTH]: 'Bluetooth',
+  [NetworkStateType.VPN]: 'VPN',
+  [NetworkStateType.WIMAX]: 'WiMAX',
+  [NetworkStateType.OTHER]: 'Other',
+};
+
 function formatNetworkType(type: NetworkStateType | undefined): string {
-  if (type === undefined) {
-    return 'Unknown';
-  }
-  switch (type) {
-    case NetworkStateType.NONE:
-      return 'None';
-    case NetworkStateType.UNKNOWN:
-      return 'Unknown';
-    case NetworkStateType.WIFI:
-      return 'Wi‑Fi';
-    case NetworkStateType.CELLULAR:
-      return 'Cellular';
-    case NetworkStateType.ETHERNET:
-      return 'Ethernet';
-    case NetworkStateType.BLUETOOTH:
-      return 'Bluetooth';
-    case NetworkStateType.VPN:
-      return 'VPN';
-    case NetworkStateType.WIMAX:
-      return 'WiMAX';
-    case NetworkStateType.OTHER:
-      return 'Other';
-    default:
-      return String(type);
-  }
+  if (type === undefined) return 'Unknown';
+  return NETWORK_TYPE_LABELS[type] ?? String(type);
+}
+
+type ServerStatus = ReturnType<typeof useServerStatus>;
+
+function OverallRow({ aggregateStatus }: { aggregateStatus: ServerStatus['aggregateStatus'] }) {
+  const label =
+    aggregateStatus === 'online'
+      ? 'Online'
+      : aggregateStatus === 'offline'
+        ? 'Offline'
+        : 'Limited or checking';
+  return (
+    <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+      <StatusDot status={aggregateStatus} size={12} />
+      <Text variant="bodyBold" label="Overall" />
+      <Text variant="body" label={label} />
+    </Box>
+  );
+}
+
+function DeviceNetworkCard({ networkState }: { networkState: ServerStatus['networkState'] }) {
+  const networkLine =
+    networkState.isConnected === false
+      ? 'Disconnected'
+      : networkState.isConnected === true
+        ? 'Connected'
+        : 'Checking…';
+  const reachable =
+    networkState.isInternetReachable === undefined
+      ? '—'
+      : networkState.isInternetReachable
+        ? 'Yes'
+        : 'No';
+  return (
+    <Card elevation={1} sx={{ p: 4, gap: 2 }}>
+      <Text variant="bodyBold" label="Device network" />
+      <Text variant="body" label={`Status: ${networkLine}`} />
+      <Text variant="caption" label={`Type: ${formatNetworkType(networkState.type)}`} />
+      <Text variant="caption" label={`Internet reachable: ${reachable}`} />
+    </Card>
+  );
+}
+
+function ServerHealthCard({
+  healthUrl,
+  health,
+}: {
+  healthUrl: string;
+  health: ServerStatus['health'];
+}) {
+  const serverLine =
+    health.phase === 'loading'
+      ? 'Checking…'
+      : health.phase === 'success'
+        ? 'Reachable'
+        : health.phase === 'error'
+          ? 'Unreachable'
+          : '…';
+  return (
+    <Card elevation={1} sx={{ p: 4, gap: 2 }}>
+      <Text variant="bodyBold" label="Server health" />
+      <Text variant="caption" selectable label={healthUrl} />
+      <Text variant="body" label={`Status: ${serverLine}`} />
+      {health.latencyMs !== null ? (
+        <Text variant="caption" label={`Latency: ${health.latencyMs} ms`} />
+      ) : null}
+      {health.errorMessage !== null ? (
+        <Text
+          variant="caption"
+          sx={{ color: 'destructive' }}
+          label={health.errorMessage}
+        />
+      ) : null}
+    </Card>
+  );
 }
 
 export default function ServerStatusScreen() {
@@ -57,22 +121,6 @@ export default function ServerStatusScreen() {
     return () => clearInterval(id);
   }, [stableRefresh]);
 
-  const networkLine =
-    networkState.isConnected === false
-      ? 'Disconnected'
-      : networkState.isConnected === true
-        ? 'Connected'
-        : 'Checking…';
-
-  const serverLine =
-    health.phase === 'loading'
-      ? 'Checking…'
-      : health.phase === 'success'
-        ? 'Reachable'
-        : health.phase === 'error'
-          ? 'Unreachable'
-          : '…';
-
   return (
     <ScreenBase
       breadcrumbs={[
@@ -86,64 +134,13 @@ export default function ServerStatusScreen() {
       scroll
       content={({ sx }) => (
         <Box style={{ ...sx, gap: 12 }}>
-          <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-            <StatusDot status={aggregateStatus} size={12} />
-            <Text variant="bodyBold" label="Overall" />
-            <Text
-              variant="body"
-              label={
-                aggregateStatus === 'online'
-                  ? 'Online'
-                  : aggregateStatus === 'offline'
-                    ? 'Offline'
-                    : 'Limited or checking'
-              }
-            />
-          </Box>
-
-          <Card elevation={1} sx={{ p: 4, gap: 2 }}>
-            <Text variant="bodyBold" label="Device network" />
-            <Text variant="body" label={`Status: ${networkLine}`} />
-            <Text
-              variant="caption"
-              label={`Type: ${formatNetworkType(networkState.type)}`}
-            />
-            <Text
-              variant="caption"
-              label={`Internet reachable: ${
-                networkState.isInternetReachable === undefined
-                  ? '—'
-                  : networkState.isInternetReachable
-                    ? 'Yes'
-                    : 'No'
-              }`}
-            />
-          </Card>
-
+          <OverallRow aggregateStatus={aggregateStatus} />
+          <DeviceNetworkCard networkState={networkState} />
           <Card elevation={1} sx={{ p: 4, gap: 2 }}>
             <Text variant="bodyBold" label="API endpoint" />
             <Text variant="body" selectable label={apiUrl} />
           </Card>
-
-          <Card elevation={1} sx={{ p: 4, gap: 2 }}>
-            <Text variant="bodyBold" label="Server health" />
-            <Text variant="caption" selectable label={healthUrl} />
-            <Text variant="body" label={`Status: ${serverLine}`} />
-            {health.latencyMs !== null ? (
-              <Text
-                variant="caption"
-                label={`Latency: ${health.latencyMs} ms`}
-              />
-            ) : null}
-            {health.errorMessage !== null ? (
-              <Text
-                variant="caption"
-                sx={{ color: 'destructive' }}
-                label={health.errorMessage}
-              />
-            ) : null}
-          </Card>
-
+          <ServerHealthCard healthUrl={healthUrl} health={health} />
           <Button
             title="Check again"
             onPress={stableRefresh}

@@ -1,0 +1,55 @@
+import { ProfileDiceBearAvatar } from '@gamezilla/client/profile/profile-dicebear-avatar';
+import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
+import { Box, Button, Text } from '@gamezilla/lib/ui';
+
+export function AvatarPreview({
+  previewConfig,
+  principalId,
+  initialized,
+  shuffleSeed,
+  copySeed,
+}: {
+  previewConfig: AvatarConfig;
+  principalId: string;
+  initialized: boolean;
+  shuffleSeed: () => void;
+  copySeed: () => Promise<void>;
+}) {
+  return (
+    <Box sx={{ alignItems: 'center', gap: 2, minHeight: 260 }}>
+      <ProfileDiceBearAvatar
+        config={previewConfig}
+        fallbackSeed={principalId}
+        size={192}
+        loading={!initialized}
+      />
+      <Box
+        sx={{
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          gap: 2,
+          justifyContent: 'center',
+        }}
+      >
+        <Button
+          title="Shuffle seed"
+          variant="outlined"
+          onPress={shuffleSeed}
+          disabled={!initialized}
+        />
+        <Button
+          title="Copy seed"
+          variant="outlined"
+          onPress={() => void copySeed()}
+          disabled={!initialized}
+        />
+      </Box>
+      <Text
+        variant="caption"
+        sx={{ textAlign: 'center', opacity: 0.75 }}
+        numberOfLines={1}
+        label="Preview updates as you edit. Save to keep changes."
+      />
+    </Box>
+  );
+}

@@ -30,55 +30,110 @@ export type ColumnShellProps = {
 
 const MIN_COL_WIDTH = 260;
 
+function BreadcrumbRow({ breadcrumbs }: { breadcrumbs: BreadcrumbItem[] }) {
+  const theme = useTheme();
+  return (
+    <Box
+      sx={{
+        px: 3,
+        py: 2,
+        borderBottomWidth: 1,
+        borderColor: 'border',
+        background: 'surface',
+      }}
+    >
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
+          {breadcrumbs.map((b, i) => (
+            <Box
+              key={b.key}
+              sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}
+            >
+              {i > 0 ? (
+                <Text
+                  variant="caption"
+                  style={{ color: theme.colors.textSecondary }}
+                  label="/"
+                />
+              ) : null}
+              <Pressable onPress={b.onPress} hitSlop={4}>
+                <Text
+                  variant="caption"
+                  style={{ color: theme.colors.tint, maxWidth: 200 }}
+                  numberOfLines={1}
+                  ellipsizeMode="middle"
+                  label={b.label}
+                />
+              </Pressable>
+            </Box>
+          ))}
+        </Box>
+      </ScrollView>
+    </Box>
+  );
+}
+
+function ColumnPanelView({
+  panel,
+  isLast,
+}: {
+  panel: ColumnPanel;
+  isLast: boolean;
+}) {
+  return (
+    <Box
+      sx={{
+        flex: 1,
+        minWidth: MIN_COL_WIDTH,
+        borderRightWidth: isLast ? 0 : 1,
+        borderColor: 'border',
+      }}
+    >
+      <Box
+        sx={{
+          px: 2,
+          py: 2,
+          borderBottomWidth: 1,
+          borderColor: 'border',
+          background: 'surface',
+        }}
+      >
+        <Text
+          variant="label"
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          label={panel.title}
+        />
+      </Box>
+      <Box sx={{ flex: 1, minHeight: 0 }}>{panel.children}</Box>
+    </Box>
+  );
+}
+
+function ColumnList({ panels }: { panels: ColumnPanel[] }) {
+  return (
+    <>
+      {panels.map((panel, index) => (
+        <ColumnPanelView
+          key={panel.key}
+          panel={panel}
+          isLast={index === panels.length - 1}
+        />
+      ))}
+    </>
+  );
+}
+
 export function ColumnShell({
   panels,
   showBreadcrumbs,
   breadcrumbs,
 }: ColumnShellProps) {
-  const theme = useTheme();
-
   return (
     <Box sx={{ flex: 1 }}>
       {showBreadcrumbs && breadcrumbs.length > 0 ? (
-        <Box
-          sx={{
-            px: 3,
-            py: 2,
-            borderBottomWidth: 1,
-            borderColor: 'border',
-            background: 'surface',
-          }}
-        >
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
-              {breadcrumbs.map((b, i) => (
-                <Box
-                  key={b.key}
-                  sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}
-                >
-                  {i > 0 ? (
-                    <Text
-                      variant="caption"
-                      style={{ color: theme.colors.textSecondary }}
-                      label="/"
-                    />
-                  ) : null}
-                  <Pressable onPress={b.onPress} hitSlop={4}>
-                    <Text
-                      variant="caption"
-                      style={{ color: theme.colors.tint, maxWidth: 200 }}
-                      numberOfLines={1}
-                      ellipsizeMode="middle"
-                      label={b.label}
-                    />
-                  </Pressable>
-                </Box>
-              ))}
-            </Box>
-          </ScrollView>
-        </Box>
+        <BreadcrumbRow breadcrumbs={breadcrumbs} />
       ) : null}
-
       {panels.length > 1 ? (
         <RNScrollView
           horizontal
@@ -87,68 +142,12 @@ export function ColumnShell({
           showsHorizontalScrollIndicator
         >
           <Box sx={{ flex: 1, flexDirection: 'row', minHeight: 0 }}>
-            {panels.map((panel, index) => (
-              <Box
-                key={panel.key}
-                sx={{
-                  flex: 1,
-                  minWidth: MIN_COL_WIDTH,
-                  borderRightWidth: index < panels.length - 1 ? 1 : 0,
-                  borderColor: 'border',
-                }}
-              >
-                <Box
-                  sx={{
-                    px: 2,
-                    py: 2,
-                    borderBottomWidth: 1,
-                    borderColor: 'border',
-                    background: 'surface',
-                  }}
-                >
-                  <Text
-                    variant="label"
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                    label={panel.title}
-                  />
-                </Box>
-                <Box sx={{ flex: 1, minHeight: 0 }}>{panel.children}</Box>
-              </Box>
-            ))}
+            <ColumnList panels={panels} />
           </Box>
         </RNScrollView>
       ) : (
         <Box sx={{ flex: 1, flexDirection: 'row' }}>
-          {panels.map((panel, index) => (
-            <Box
-              key={panel.key}
-              sx={{
-                flex: 1,
-                minWidth: MIN_COL_WIDTH,
-                borderRightWidth: index < panels.length - 1 ? 1 : 0,
-                borderColor: 'border',
-              }}
-            >
-              <Box
-                sx={{
-                  px: 2,
-                  py: 2,
-                  borderBottomWidth: 1,
-                  borderColor: 'border',
-                  background: 'surface',
-                }}
-              >
-                <Text
-                  variant="label"
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                  label={panel.title}
-                />
-              </Box>
-              <Box sx={{ flex: 1, minHeight: 0 }}>{panel.children}</Box>
-            </Box>
-          ))}
+          <ColumnList panels={panels} />
         </Box>
       )}
     </Box>

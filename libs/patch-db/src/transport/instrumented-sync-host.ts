@@ -28,7 +28,19 @@ type Counters = {
  */
 const defaultLog = createLogger({ name: 'patch-db:metrics' });
 
+export type PatchDbImplInstrumentedSyncHostOptions = {
+  inner: PatchDbSyncHost;
+  db: PatchesDb;
+  pubSub: PubSub;
+  flushIntervalMs?: number;
+  logger?: Logger;
+};
+
 export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
+  private readonly inner: PatchDbSyncHost;
+  private readonly db: PatchesDb;
+  private readonly pubSub: PubSub;
+  private readonly flushIntervalMs: number;
   private readonly log: Logger;
   private readonly startedAt = new Date().toISOString();
   private readonly counters: Counters = {
@@ -38,14 +50,8 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
   private lastActivityAt = this.startedAt;
   private flushTimer: ReturnType<typeof setInterval> | null = null;
 
-  constructor(
-    private readonly inner: PatchDbSyncHost,
-    private readonly db: PatchesDb,
-    private readonly pubSub: PubSub,
-    private readonly flushIntervalMs = 5000,
-    logger?: Logger
-  ) {
-    this.log = logger ?? defaultLog;
+  constructor(options: PatchDbImplInstrumentedSyncHostOptions) {
+    const { inner, db, pubSub, flushIntervalMs = 5000, logger } = options;
     assert.nonNegativeInteger(
       flushIntervalMs,
       'flushIntervalMs must be a non-negative integer'
@@ -53,6 +59,11 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
     assert.defined(inner, 'instrumented host: inner required');
     assert.defined(db, 'instrumented host: db required');
     assert.defined(pubSub, 'instrumented host: pubSub required');
+    this.inner = inner;
+    this.db = db;
+    this.pubSub = pubSub;
+    this.flushIntervalMs = flushIntervalMs;
+    this.log = logger ?? defaultLog;
     this.flushTimer = setInterval(() => {
       void this.flushMetricsSnapshot();
     }, this.flushIntervalMs);

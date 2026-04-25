@@ -1,6 +1,7 @@
-const tsParser = require('@typescript-eslint/parser')
-const eslintPluginNaming = require('eslint-plugin-naming')
-const banUnsafeAssertion = require('../eslint-rules/ban-unsafe-type-assertion.cjs')
+const tsParser = require('@typescript-eslint/parser');
+const eslintPluginNaming = require('eslint-plugin-naming');
+const banUnsafeAssertion = require('../eslint-rules/ban-unsafe-type-assertion.cjs');
+const sizeLimits = require('../eslint-rules/size-limits.cjs');
 
 module.exports = [
   {
@@ -18,6 +19,7 @@ module.exports = [
     },
     rules: {
       ...banUnsafeAssertion.rules(),
+      ...sizeLimits.rules(),
       'naming/case': [
         'error',
         {
@@ -28,4 +30,5 @@ module.exports = [
       ],
     },
   },
-]
+  sizeLimits.testOverrides(),
+];

@@ -1,9 +1,20 @@
 import { describe, expect, test } from 'bun:test';
+import type { PatchesDbResult } from '../interface';
 import { sqlJsPlaygroundDbFactory } from './playground-db-factory-sqljs';
 import { shapeListQuery } from './playground-shapes';
 import { createPlaygroundSim } from './playground-sim';
 
 const dbFactory = sqlJsPlaygroundDbFactory();
+
+function entityCount(results: PatchesDbResult[]): number {
+  const first = results[0];
+  return first ? first.entities.length : 0;
+}
+
+function entityIds(results: PatchesDbResult[]): Set<string> {
+  const first = results[0];
+  return new Set((first?.entities ?? []).map((e) => e.entityId));
+}
 
 describe('playground sim (sql.js)', () => {
   test('two clients sync a shape through manual push/poll', async () => {
@@ -73,7 +84,7 @@ describe('playground sim (sql.js)', () => {
       await sim.syncNow(a.id);
 
       const srBefore = await sim.serverBacking.read([q]);
-      expect(srBefore[0]?.entities.length).toBe(1);
+      expect(entityCount(srBefore)).toBe(1);
 
       // --- Server goes down ---
       sim.partitionServer();
@@ -99,16 +110,16 @@ describe('playground sim (sql.js)', () => {
 
       // Local write is still readable on client A
       const localA = await a.syncDb.read([q]);
-      expect(localA[0]?.entities.length).toBe(2);
+      expect(entityCount(localA)).toBe(2);
 
       // Server DB should NOT have the new shape
       const srDuring = await sim.serverBacking.read([q]);
-      expect(srDuring[0]?.entities.length).toBe(1);
+      expect(entityCount(srDuring)).toBe(1);
 
       // Client B cannot poll new data either
       await b.syncDb.runPollNow().catch(() => {});
       const localB = await b.syncDb.read([q]);
-      expect(localB[0]?.entities.length).toBe(1);
+      expect(entityCount(localB)).toBe(1);
 
       // --- Server comes back ---
       sim.healServer();
@@ -125,13 +136,11 @@ describe('playground sim (sql.js)', () => {
       const finalA = await a.syncDb.read([q]);
       const finalB = await b.syncDb.read([q]);
 
-      expect(finalServer[0]?.entities.length).toBe(2);
-      expect(finalA[0]?.entities.length).toBe(2);
-      expect(finalB[0]?.entities.length).toBe(2);
+      expect(entityCount(finalServer)).toBe(2);
+      expect(entityCount(finalA)).toBe(2);
+      expect(entityCount(finalB)).toBe(2);
 
-      const serverIds = new Set(
-        finalServer[0]?.entities.map((e) => e.entityId)
-      );
+      const serverIds = entityIds(finalServer);
       expect(serverIds.has(shapeId)).toBe(true);
       expect(serverIds.has(offlineShapeId)).toBe(true);
     } finally {

@@ -18,23 +18,16 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 
-export default function SpaceDetailScreen() {
-  const router = useRouter();
-  const nav = useBreadcrumbNav();
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const spaceId = typeof id === 'string' ? id : undefined;
+type Space = ReturnType<typeof useSpace>;
+type CurrentMembership = ReturnType<typeof useCurrentMembership>;
 
-  const space = useSpace(spaceId);
-  const current = useCurrentMembership();
-  const { members } = useSpaceMembers(spaceId);
-  const { joinSpace, leaveSpace, endSpace } = useSpaceActions();
-  const hostLabel = usePrincipalDisplayName(space.hostId);
-
-  const [confirmEnd, setConfirmEnd] = useState(false);
-  const [confirmLeave, setConfirmLeave] = useState(false);
-
-  const pageLoading = space.loading || current.loading;
-
+function useAutoLeaveIfEnded(args: {
+  spaceId: string | undefined;
+  space: Space;
+  current: CurrentMembership;
+  leaveSpace: () => Promise<void> | void;
+}) {
+  const { spaceId, space, current, leaveSpace } = args;
   const membershipSpaceId = (() => {
     const raw =
       current.membershipEntity?.attributes[SpaceMembershipAttr.spaceId];
@@ -57,114 +50,204 @@ export default function SpaceDetailScreen() {
     membershipLeftAt,
     leaveSpace,
   ]);
+}
 
-  const inThisSpace = current.activeSpaceId === spaceId;
+function LoadingState() {
+  const nav = useBreadcrumbNav();
+  return (
+    <ScreenBase
+      breadcrumbs={[{ name: 'Spaces', onPress: nav('/') }, { name: 'Space' }]}
+      content={({ sx }) => (
+        <Box style={sx} sx={{ flex: 1, justifyContent: 'center' }}>
+          <Text
+            variant="body"
+            sx={{ color: 'textSecondary' }}
+            label="Loading…"
+          />
+        </Box>
+      )}
+    />
+  );
+}
 
-  if (pageLoading) {
-    return (
-      <ScreenBase
-        breadcrumbs={[{ name: 'Spaces', onPress: nav('/') }, { name: 'Space' }]}
-        content={({ sx }) => (
-          <Box style={sx} sx={{ flex: 1, justifyContent: 'center' }}>
-            <Text
-              variant="body"
-              sx={{ color: 'textSecondary' }}
-              label="Loading…"
-            />
-          </Box>
-        )}
-      />
-    );
-  }
-
-  if (!space.space) {
-    return (
-      <ScreenBase
-        breadcrumbs={[{ name: 'Spaces', onPress: nav('/') }, { name: 'Space' }]}
-        content={({ sx }) => (
-          <Box style={sx} sx={{ flex: 1, justifyContent: 'center' }}>
-            <Text
-              variant="body"
-              sx={{ color: 'textSecondary' }}
-              label="This space could not be found."
-            />
-            <Box sx={{ mt: 3 }}>
-              <Button
-                title="Go back"
-                variant="solid"
-                onPress={() => router.back()}
-              />
-            </Box>
-          </Box>
-        )}
-      />
-    );
-  }
-
-  if (!space.live) {
-    return (
-      <ScreenBase
-        breadcrumbs={[
-          { name: 'Spaces', onPress: nav('/') },
-          { name: space.title },
-        ]}
-        content={({ sx }) => (
-          <Box style={sx} sx={{ flex: 1, justifyContent: 'center', gap: 3 }}>
-            <Text
-              variant="body"
-              sx={{ color: 'textSecondary', textAlign: 'center' }}
-              label="This space has ended."
-            />
+function NotFoundState() {
+  const router = useRouter();
+  const nav = useBreadcrumbNav();
+  return (
+    <ScreenBase
+      breadcrumbs={[{ name: 'Spaces', onPress: nav('/') }, { name: 'Space' }]}
+      content={({ sx }) => (
+        <Box style={sx} sx={{ flex: 1, justifyContent: 'center' }}>
+          <Text
+            variant="body"
+            sx={{ color: 'textSecondary' }}
+            label="This space could not be found."
+          />
+          <Box sx={{ mt: 3 }}>
             <Button
               title="Go back"
               variant="solid"
               onPress={() => router.back()}
             />
           </Box>
-        )}
-      />
-    );
-  }
+        </Box>
+      )}
+    />
+  );
+}
 
-  if (!inThisSpace) {
-    return (
-      <ScreenBase
-        breadcrumbs={[
-          { name: 'Spaces', onPress: nav('/') },
-          { name: space.title },
-        ]}
-        content={({ sx }) => (
-          <Box style={sx} sx={{ gap: 3 }}>
-            <Text
-              variant="label"
-              sx={{ color: 'textSecondary' }}
-              label="Host"
-            />
-            <Text variant="bodyBold" label={hostLabel} />
-            <Text
-              variant="body"
-              sx={{ color: 'textSecondary' }}
-              label="Join this space to see who is here and hang out."
-            />
-            <Button
-              title="Join space"
-              variant="solid"
-              onPress={() => {
-                if (spaceId) void joinSpace(spaceId);
-              }}
-            />
-            <Button
-              title="Back"
-              variant="outlined"
-              onPress={() => router.back()}
-            />
-          </Box>
-        )}
-      />
-    );
-  }
+function EndedState({ title }: { title: string }) {
+  const router = useRouter();
+  const nav = useBreadcrumbNav();
+  return (
+    <ScreenBase
+      breadcrumbs={[
+        { name: 'Spaces', onPress: nav('/') },
+        { name: title },
+      ]}
+      content={({ sx }) => (
+        <Box style={sx} sx={{ flex: 1, justifyContent: 'center', gap: 3 }}>
+          <Text
+            variant="body"
+            sx={{ color: 'textSecondary', textAlign: 'center' }}
+            label="This space has ended."
+          />
+          <Button
+            title="Go back"
+            variant="solid"
+            onPress={() => router.back()}
+          />
+        </Box>
+      )}
+    />
+  );
+}
 
+function JoinPrompt({
+  spaceId,
+  title,
+  hostLabel,
+  onJoin,
+}: {
+  spaceId: string | undefined;
+  title: string;
+  hostLabel: string;
+  onJoin: (id: string) => Promise<void> | void;
+}) {
+  const router = useRouter();
+  const nav = useBreadcrumbNav();
+  return (
+    <ScreenBase
+      breadcrumbs={[
+        { name: 'Spaces', onPress: nav('/') },
+        { name: title },
+      ]}
+      content={({ sx }) => (
+        <Box style={sx} sx={{ gap: 3 }}>
+          <Text variant="label" sx={{ color: 'textSecondary' }} label="Host" />
+          <Text variant="bodyBold" label={hostLabel} />
+          <Text
+            variant="body"
+            sx={{ color: 'textSecondary' }}
+            label="Join this space to see who is here and hang out."
+          />
+          <Button
+            title="Join space"
+            variant="solid"
+            onPress={() => {
+              if (spaceId) void onJoin(spaceId);
+            }}
+          />
+          <Button
+            title="Back"
+            variant="outlined"
+            onPress={() => router.back()}
+          />
+        </Box>
+      )}
+    />
+  );
+}
+
+function EndSpaceModal({
+  visible,
+  onClose,
+  onEnd,
+}: {
+  visible: boolean;
+  onClose: () => void;
+  onEnd: () => void;
+}) {
+  return (
+    <ConfirmationModal
+      visible={visible}
+      title="End space?"
+      message="Everyone will leave this space. This cannot be undone."
+      confirmLabel="End space"
+      cancelLabel="Cancel"
+      variant="destructive"
+      onConfirm={onEnd}
+      onCancel={onClose}
+    />
+  );
+}
+
+function LeaveSpaceModal({
+  visible,
+  onClose,
+  onLeave,
+}: {
+  visible: boolean;
+  onClose: () => void;
+  onLeave: () => void;
+}) {
+  return (
+    <ConfirmationModal
+      visible={visible}
+      title="Leave space?"
+      message="You can join again later if the space is still live."
+      confirmLabel="Leave"
+      cancelLabel="Cancel"
+      variant="default"
+      onConfirm={onLeave}
+      onCancel={onClose}
+    />
+  );
+}
+
+function ActiveSpace({
+  spaceId,
+  space,
+  current,
+  members,
+  endSpace,
+  leaveSpace,
+}: {
+  spaceId: string | undefined;
+  space: Space;
+  current: CurrentMembership;
+  members: ReturnType<typeof useSpaceMembers>['members'];
+  endSpace: (id: string) => Promise<void> | void;
+  leaveSpace: () => Promise<void> | void;
+}) {
+  const router = useRouter();
+  const nav = useBreadcrumbNav();
+  const [confirmEnd, setConfirmEnd] = useState(false);
+  const [confirmLeave, setConfirmLeave] = useState(false);
   const isHost = current.role === 'host';
+
+  const handleEnd = () => {
+    setConfirmEnd(false);
+    void (async () => {
+      if (spaceId) await endSpace(spaceId);
+      router.back();
+    })();
+  };
+  const handleLeave = () => {
+    setConfirmLeave(false);
+    void leaveSpace();
+    router.back();
+  };
 
   return (
     <ScreenBase
@@ -175,7 +258,6 @@ export default function SpaceDetailScreen() {
       content={({ sx }) => (
         <Box style={sx} sx={{ gap: 4 }}>
           <SpaceMemberList members={members} />
-
           {isHost ? (
             <Button
               title="End space"
@@ -189,39 +271,59 @@ export default function SpaceDetailScreen() {
               onPress={() => setConfirmLeave(true)}
             />
           )}
-
-          <ConfirmationModal
+          <EndSpaceModal
             visible={confirmEnd}
-            title="End space?"
-            message="Everyone will leave this space. This cannot be undone."
-            confirmLabel="End space"
-            cancelLabel="Cancel"
-            variant="destructive"
-            onConfirm={() => {
-              setConfirmEnd(false);
-              void (async () => {
-                if (spaceId) await endSpace(spaceId);
-                router.back();
-              })();
-            }}
-            onCancel={() => setConfirmEnd(false)}
+            onClose={() => setConfirmEnd(false)}
+            onEnd={handleEnd}
           />
-          <ConfirmationModal
+          <LeaveSpaceModal
             visible={confirmLeave}
-            title="Leave space?"
-            message="You can join again later if the space is still live."
-            confirmLabel="Leave"
-            cancelLabel="Cancel"
-            variant="default"
-            onConfirm={() => {
-              setConfirmLeave(false);
-              void leaveSpace();
-              router.back();
-            }}
-            onCancel={() => setConfirmLeave(false)}
+            onClose={() => setConfirmLeave(false)}
+            onLeave={handleLeave}
           />
         </Box>
       )}
+    />
+  );
+}
+
+export default function SpaceDetailScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const spaceId = typeof id === 'string' ? id : undefined;
+
+  const space = useSpace(spaceId);
+  const current = useCurrentMembership();
+  const { members } = useSpaceMembers(spaceId);
+  const { joinSpace, leaveSpace, endSpace } = useSpaceActions();
+  const hostLabel = usePrincipalDisplayName(space.hostId);
+
+  useAutoLeaveIfEnded({ spaceId, space, current, leaveSpace });
+
+  const pageLoading = space.loading || current.loading;
+  if (pageLoading) return <LoadingState />;
+  if (!space.space) return <NotFoundState />;
+  if (!space.live) return <EndedState title={space.title} />;
+
+  const inThisSpace = current.activeSpaceId === spaceId;
+  if (!inThisSpace) {
+    return (
+      <JoinPrompt
+        spaceId={spaceId}
+        title={space.title}
+        hostLabel={hostLabel}
+        onJoin={joinSpace}
+      />
+    );
+  }
+
+  return (
+    <ActiveSpace
+      spaceId={spaceId}
+      space={space}
+      current={current}
+      members={members}
+      endSpace={endSpace}
+      leaveSpace={leaveSpace}
     />
   );
 }

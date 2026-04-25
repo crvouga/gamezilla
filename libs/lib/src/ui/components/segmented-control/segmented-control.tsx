@@ -39,32 +39,23 @@ export type SegmentedControlProps<K extends string = string> = {
 const CONTAINER_PADDING = 3;
 const SEGMENT_GAP = 2;
 
-export function SegmentedControl<K extends string = string>({
-  segments,
-  selected,
-  onSelect,
-  disabled = false,
-}: SegmentedControlProps<K>) {
-  const theme = useTheme();
-  const [containerWidth, setContainerWidth] = useState(0);
-  const translateX = useRef(new Animated.Value(0)).current;
-
-  const selectedIndex = Math.max(
-    0,
-    segments.findIndex((s) => s.key === selected)
-  );
-  const segmentCount = segments.length;
+function useSegmentLayout(containerWidth: number, segmentCount: number) {
   const totalGap = SEGMENT_GAP * Math.max(0, segmentCount - 1);
   const innerWidth = Math.max(0, containerWidth - CONTAINER_PADDING * 2);
   const segmentWidth =
     segmentCount > 0 ? (innerWidth - totalGap) / segmentCount : 0;
-  const targetX = selectedIndex * (segmentWidth + SEGMENT_GAP);
+  return segmentWidth;
+}
 
+function useSegmentIndicator(
+  translateX: Animated.Value,
+  targetX: number,
+  segmentWidth: number
+) {
   const hasMeasuredRef = useRef(false);
   useEffect(() => {
     if (segmentWidth <= 0) return;
     if (!hasMeasuredRef.current) {
-      // On first measurement, snap without animating to avoid a jump-in.
       translateX.setValue(targetX);
       hasMeasuredRef.current = true;
       return;
@@ -79,6 +70,25 @@ export function SegmentedControl<K extends string = string>({
     animation.start();
     return () => animation.stop();
   }, [targetX, segmentWidth, translateX]);
+}
+
+export function SegmentedControl<K extends string = string>({
+  segments,
+  selected,
+  onSelect,
+  disabled = false,
+}: SegmentedControlProps<K>) {
+  const theme = useTheme();
+  const [containerWidth, setContainerWidth] = useState(0);
+  const translateX = useRef(new Animated.Value(0)).current;
+
+  const selectedIndex = Math.max(
+    0,
+    segments.findIndex((s) => s.key === selected)
+  );
+  const segmentWidth = useSegmentLayout(containerWidth, segments.length);
+  const targetX = selectedIndex * (segmentWidth + SEGMENT_GAP);
+  useSegmentIndicator(translateX, targetX, segmentWidth);
 
   return (
     <View
@@ -92,55 +102,90 @@ export function SegmentedControl<K extends string = string>({
         position: 'relative',
       }}
     >
-      {segmentWidth > 0 && (
-        <Animated.View
-          pointerEvents="none"
-          style={{
-            position: 'absolute',
-            top: CONTAINER_PADDING,
-            bottom: CONTAINER_PADDING,
-            left: CONTAINER_PADDING,
-            width: segmentWidth,
-            borderRadius: borderRadius.sm,
-            backgroundColor: theme.colors.surface,
-            boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.1)',
-            elevation: 2,
-            transform: [{ translateX }],
-          }}
+      {segmentWidth > 0 ? (
+        <SegmentIndicator
+          width={segmentWidth}
+          translateX={translateX}
+          color={theme.colors.surface}
         />
-      )}
-      {segments.map((seg) => {
-        const isActive = seg.key === selected;
-        return (
-          <Pressable
-            key={seg.key}
-            onPress={() => onSelect(seg.key)}
-            disabled={disabled || isActive}
-            style={({ pressed }) => [
-              {
-                flex: 1,
-                alignItems: 'center' as const,
-                paddingVertical: 8,
-                paddingHorizontal: 14,
-                borderRadius: borderRadius.sm,
-                backgroundColor: 'transparent',
-              },
-              pressed && !isActive && { opacity: 0.7 },
-            ]}
-          >
-            <Text
-              variant="label"
-              style={{
-                color: isActive
-                  ? theme.colors.text
-                  : theme.colors.textSecondary,
-                fontWeight: isActive ? '600' : '400',
-              }}
-              label={seg.label}
-            />
-          </Pressable>
-        );
-      })}
+      ) : null}
+      {segments.map((seg) => (
+        <SegmentButton
+          key={seg.key}
+          segment={seg}
+          isActive={seg.key === selected}
+          disabled={disabled}
+          onSelect={onSelect}
+        />
+      ))}
     </View>
+  );
+}
+
+function SegmentIndicator({
+  width,
+  translateX,
+  color,
+}: {
+  width: number;
+  translateX: Animated.Value;
+  color: string;
+}) {
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={{
+        position: 'absolute',
+        top: CONTAINER_PADDING,
+        bottom: CONTAINER_PADDING,
+        left: CONTAINER_PADDING,
+        width,
+        borderRadius: borderRadius.sm,
+        backgroundColor: color,
+        boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.1)',
+        elevation: 2,
+        transform: [{ translateX }],
+      }}
+    />
+  );
+}
+
+function SegmentButton<K extends string>({
+  segment,
+  isActive,
+  disabled,
+  onSelect,
+}: {
+  segment: Segment<K>;
+  isActive: boolean;
+  disabled: boolean;
+  onSelect: (key: K) => void;
+}) {
+  const theme = useTheme();
+  return (
+    <Pressable
+      onPress={() => onSelect(segment.key)}
+      disabled={disabled || isActive}
+      style={({ pressed }) => [
+        {
+          flex: 1,
+          alignItems: 'center' as const,
+          paddingVertical: 8,
+          paddingHorizontal: 14,
+          borderRadius: borderRadius.sm,
+          backgroundColor: 'transparent',
+        },
+        pressed && !isActive && { opacity: 0.7 },
+      ]}
+    >
+      <Text
+        variant="label"
+        style={{
+          color: isActive ? theme.colors.text : theme.colors.textSecondary,
+          fontWeight: isActive ? '600' : '400',
+        }}
+        label={segment.label}
+      />
+    </Pressable>
   );
 }

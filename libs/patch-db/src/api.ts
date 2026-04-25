@@ -60,12 +60,12 @@ export function createPatchDbApiHandler(
       flushIntervalMs,
       'flushIntervalMs must be a non-negative integer'
     );
-    const instrumented = new PatchDbImplInstrumentedSyncHost(
-      host,
-      config.db,
-      config.pubSub,
-      flushIntervalMs
-    );
+    const instrumented = new PatchDbImplInstrumentedSyncHost({
+      inner: host,
+      db: config.db,
+      pubSub: config.pubSub,
+      flushIntervalMs,
+    });
     host = instrumented;
     disposeInstrumentation = () => instrumented.dispose();
   }

@@ -88,14 +88,20 @@ function ConnectionStatus({
   );
 }
 
-export function ApiInspector() {
-  const [urlInput, setUrlInput] = useState(DEFAULT_URL);
-  const [connectedUrl, setConnectedUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<PatchesDbResult | null>(null);
-  const knownPatchesRef = useRef<Patch[]>([]);
-  const theme = useTheme();
+type InspectorState = {
+  urlInput: string;
+  setUrlInput: (v: string) => void;
+  connectedUrl: string | null;
+  error: string | null;
+  result: PatchesDbResult | null;
+  handleConnect: () => void;
+  handleDisconnect: () => void;
+};
 
+function useStoredUrl(
+  setUrlInput: (v: string) => void,
+  setConnectedUrl: (v: string | null) => void,
+) {
   useEffect(() => {
     void AsyncStorage.getItem(URL_STORAGE_KEY).then((stored) => {
       if (typeof stored === 'string' && stored.length > 0) {
@@ -108,27 +114,17 @@ export function ApiInspector() {
         }
       }
     });
-  }, []);
+  }, [setUrlInput, setConnectedUrl]);
+}
 
-  const handleConnect = useCallback(() => {
-    const trimmed = urlInput.trim();
-    setError(null);
-    try {
-      assertUrl(trimmed);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-      setConnectedUrl(null);
-      return;
-    }
-    knownPatchesRef.current = [];
-    setResult(null);
-    setConnectedUrl(trimmed);
-    void AsyncStorage.setItem(URL_STORAGE_KEY, trimmed);
-  }, [urlInput]);
-
+function useInspectorPolling(
+  connectedUrl: string | null,
+  knownPatchesRef: React.MutableRefObject<Patch[]>,
+  setResult: (r: PatchesDbResult | null) => void,
+  setError: (e: string | null) => void,
+) {
   useEffect(() => {
     if (connectedUrl === null) return;
-
     const transport = new PatchDbClientTransportHttpFetch(connectedUrl);
     let cancelled = false;
 
@@ -156,111 +152,190 @@ export function ApiInspector() {
 
     void refresh();
     const pollTimer = setInterval(() => void refresh(), 5000);
-
     return () => {
       cancelled = true;
       clearInterval(pollTimer);
     };
-  }, [connectedUrl]);
+  }, [connectedUrl, knownPatchesRef, setResult, setError]);
+}
 
-  const entity = result?.entities[0];
-  const adminAttrs = entity
-    ? Object.entries(entity.attributes)
-        .filter(([k]) => k.startsWith('admin/'))
-        .sort(([a], [b]) => a.localeCompare(b))
-    : [];
+function useApiInspectorState(): InspectorState {
+  const [urlInput, setUrlInput] = useState(DEFAULT_URL);
+  const [connectedUrl, setConnectedUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<PatchesDbResult | null>(null);
+  const knownPatchesRef = useRef<Patch[]>([]);
 
+  useStoredUrl(setUrlInput, setConnectedUrl);
+
+  const handleConnect = useCallback(() => {
+    const trimmed = urlInput.trim();
+    setError(null);
+    try {
+      assertUrl(trimmed);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+      setConnectedUrl(null);
+      return;
+    }
+    knownPatchesRef.current = [];
+    setResult(null);
+    setConnectedUrl(trimmed);
+    void AsyncStorage.setItem(URL_STORAGE_KEY, trimmed);
+  }, [urlInput]);
+
+  const handleDisconnect = useCallback(() => {
+    setConnectedUrl(null);
+    setResult(null);
+    setError(null);
+  }, []);
+
+  useInspectorPolling(connectedUrl, knownPatchesRef, setResult, setError);
+
+  return {
+    urlInput,
+    setUrlInput,
+    connectedUrl,
+    error,
+    result,
+    handleConnect,
+    handleDisconnect,
+  };
+}
+
+function ConnectionCard({
+  state,
+}: {
+  state: InspectorState;
+}) {
+  const {
+    urlInput,
+    setUrlInput,
+    connectedUrl,
+    result,
+    handleConnect,
+    handleDisconnect,
+  } = state;
+  return (
+    <Card elevation={1} sx={{ p: 4 }}>
+      <Stack spacing={3}>
+        <Text variant="bodyBold" label="Server Connection" />
+        <TextInput
+          value={urlInput}
+          onChangeText={setUrlInput}
+          placeholder="https://..."
+          onSubmitEditing={handleConnect}
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="url"
+        />
+        <Stack direction="horizontal" spacing={2} align="center">
+          <Button
+            title={connectedUrl ? 'Reconnect' : 'Connect'}
+            variant="solid"
+            size="md"
+            onPress={handleConnect}
+          />
+          {connectedUrl && (
+            <Button
+              title="Disconnect"
+              variant="ghost"
+              size="md"
+              onPress={handleDisconnect}
+            />
+          )}
+        </Stack>
+        <ConnectionStatus connected={result !== null} url={connectedUrl} />
+      </Stack>
+    </Card>
+  );
+}
+
+function ErrorCard({ message }: { message: string }) {
+  const theme = useTheme();
+  return (
+    <Card
+      elevation={0}
+      sx={{ p: 4 }}
+      style={{
+        borderColor: theme.colors.destructive + '44',
+        backgroundColor: theme.colors.destructive + '0a',
+      }}
+    >
+      <Text
+        variant="body"
+        style={{ color: theme.colors.destructive }}
+        label={message}
+      />
+    </Card>
+  );
+}
+
+function MetricsCard({ result }: { result: PatchesDbResult }) {
+  const theme = useTheme();
+  const entity = result.entities[0];
+  if (!entity) return null;
+  const adminAttrs = Object.entries(entity.attributes)
+    .filter(([k]) => k.startsWith('admin/'))
+    .sort(([a], [b]) => a.localeCompare(b));
+  return (
+    <Card elevation={1}>
+      <Box sx={{ px: 4, py: 3 }}>
+        <Text variant="bodyBold" label="Admin Metrics" />
+        <Text
+          variant="caption"
+          style={{
+            color: theme.colors.textSecondary,
+            marginTop: 2,
+          }}
+          label={`${entity.entityType} / ${entity.entityId.slice(0, 16)} · ${result.patches.length} patches`}
+        />
+      </Box>
+      <Divider />
+      {adminAttrs.map(([key, value], i) => (
+        <AttributeRow
+          key={key}
+          attrKey={key}
+          value={value}
+          isLast={i === adminAttrs.length - 1}
+        />
+      ))}
+    </Card>
+  );
+}
+
+function WaitingCard() {
+  const theme = useTheme();
+  return (
+    <Card elevation={1} sx={{ p: 6 }}>
+      <Stack spacing={3} align="center">
+        <Spinner size="large" />
+        <Text
+          variant="caption"
+          style={{ color: theme.colors.textSecondary }}
+          label="Waiting for metrics from server..."
+        />
+      </Stack>
+    </Card>
+  );
+}
+
+function InspectorContent({ state }: { state: InspectorState }) {
+  const { connectedUrl, error, result } = state;
+  const hasEntity = result?.entities[0] !== undefined;
+  if (hasEntity && result) return <MetricsCard result={result} />;
+  if (connectedUrl !== null && error === null) return <WaitingCard />;
+  return null;
+}
+
+export function ApiInspector() {
+  const state = useApiInspectorState();
   return (
     <ScrollView sx={{ flex: 1, p: 4 }}>
       <Stack spacing={4}>
-        <Card elevation={1} sx={{ p: 4 }}>
-          <Stack spacing={3}>
-            <Text variant="bodyBold" label="Server Connection" />
-            <TextInput
-              value={urlInput}
-              onChangeText={setUrlInput}
-              placeholder="https://..."
-              onSubmitEditing={handleConnect}
-              autoCapitalize="none"
-              autoCorrect={false}
-              keyboardType="url"
-            />
-            <Stack direction="horizontal" spacing={2} align="center">
-              <Button
-                title={connectedUrl ? 'Reconnect' : 'Connect'}
-                variant="solid"
-                size="md"
-                onPress={handleConnect}
-              />
-              {connectedUrl && (
-                <Button
-                  title="Disconnect"
-                  variant="ghost"
-                  size="md"
-                  onPress={() => {
-                    setConnectedUrl(null);
-                    setResult(null);
-                    setError(null);
-                  }}
-                />
-              )}
-            </Stack>
-            <ConnectionStatus connected={result !== null} url={connectedUrl} />
-          </Stack>
-        </Card>
-
-        {error !== null && (
-          <Card
-            elevation={0}
-            sx={{ p: 4 }}
-            style={{
-              borderColor: theme.colors.destructive + '44',
-              backgroundColor: theme.colors.destructive + '0a',
-            }}
-          >
-            <Text
-              variant="body"
-              style={{ color: theme.colors.destructive }}
-              label={error}
-            />
-          </Card>
-        )}
-
-        {entity !== null && entity !== undefined ? (
-          <Card elevation={1}>
-            <Box sx={{ px: 4, py: 3 }}>
-              <Text variant="bodyBold" label="Admin Metrics" />
-              <Text
-                variant="caption"
-                style={{
-                  color: theme.colors.textSecondary,
-                  marginTop: 2,
-                }}
-                label={`${entity.entityType} / ${entity.entityId.slice(0, 16)} · ${result?.patches.length ?? 0} patches`}
-              />
-            </Box>
-            <Divider />
-            {adminAttrs.map(([key, value], i) => (
-              <AttributeRow
-                key={key}
-                attrKey={key}
-                value={value}
-                isLast={i === adminAttrs.length - 1}
-              />
-            ))}
-          </Card>
-        ) : connectedUrl !== null && error === null ? (
-          <Card elevation={1} sx={{ p: 6 }}>
-            <Stack spacing={3} align="center">
-              <Spinner size="large" />
-              <Text
-                variant="caption"
-                style={{ color: theme.colors.textSecondary }}
-                label="Waiting for metrics from server..."
-              />
-            </Stack>
-          </Card>
-        ) : null}
+        <ConnectionCard state={state} />
+        {state.error !== null && <ErrorCard message={state.error} />}
+        <InspectorContent state={state} />
       </Stack>
     </ScrollView>
   );

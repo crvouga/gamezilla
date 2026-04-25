@@ -151,92 +151,120 @@ function resolveFontSize(
   return fontSize[value];
 }
 
+/** Pairs of (input shorthand key) → (output style key) for theme spacing. */
+const SPACING_MAP: ReadonlyArray<readonly [keyof SxProps, keyof ResolvedStyle]> = [
+  ['p', 'padding'],
+  ['px', 'paddingHorizontal'],
+  ['py', 'paddingVertical'],
+  ['pt', 'paddingTop'],
+  ['pb', 'paddingBottom'],
+  ['pl', 'paddingLeft'],
+  ['pr', 'paddingRight'],
+  ['m', 'margin'],
+  ['mx', 'marginHorizontal'],
+  ['my', 'marginVertical'],
+  ['mt', 'marginTop'],
+  ['mb', 'marginBottom'],
+  ['ml', 'marginLeft'],
+  ['mr', 'marginRight'],
+  ['gap', 'gap'],
+];
+
+/** Direct passthrough keys that share the same name on input and style. */
+const PASSTHROUGH_KEYS: ReadonlyArray<keyof SxProps> = [
+  'flex',
+  'flexDirection',
+  'alignItems',
+  'alignSelf',
+  'justifyContent',
+  'flexWrap',
+  'borderWidth',
+  'borderRadius',
+  'fontWeight',
+  'fontFamily',
+  'lineHeight',
+  'textDecorationLine',
+  'fontStyle',
+  'opacity',
+  'position',
+  'overflow',
+  'bottom',
+  'left',
+  'right',
+  'top',
+  'width',
+  'height',
+  'minWidth',
+  'maxWidth',
+  'transform',
+];
+
+function applySpacing(props: SxProps, result: ResolvedStyle): void {
+  for (const [from, to] of SPACING_MAP) {
+    const v = props[from];
+    if (typeof v === 'number') {
+      (result as Record<string, unknown>)[to] = resolveSpacing(v);
+    }
+  }
+}
+
+function applyPassthrough(props: SxProps, result: ResolvedStyle): void {
+  for (const key of PASSTHROUGH_KEYS) {
+    const v = props[key];
+    if (v !== undefined) {
+      (result as Record<string, unknown>)[key] = v;
+    }
+  }
+}
+
+function applyColors(
+  props: SxProps,
+  result: ResolvedStyle,
+  colors: ColorTokens
+): void {
+  const bg = props.background ?? props.backgroundColor;
+  if (bg !== undefined) result.backgroundColor = resolveColor(bg, colors);
+  if (props.color !== undefined) {
+    result.color = resolveColor(props.color, colors);
+  }
+  if (props.borderColor !== undefined) {
+    result.borderColor = resolveColor(props.borderColor, colors);
+  }
+}
+
+function applyBorderBottom(props: SxProps, result: ResolvedStyle): void {
+  if (props.borderBottomWidth === undefined) return;
+  result.borderBottomWidth =
+    props.borderBottomWidth === 'hairline'
+      ? HAIRLINE
+      : props.borderBottomWidth;
+}
+
+function applyTypography(props: SxProps, result: ResolvedStyle): void {
+  if (props.fontSize !== undefined) {
+    result.fontSize = resolveFontSize(props.fontSize);
+  }
+}
+
+function applyOverflow(props: SxProps, result: ResolvedStyle): void {
+  for (const key of Object.keys(props)) {
+    if (SHORTHAND_KEYS.has(key)) continue;
+    const val = (props as Record<string, unknown>)[key];
+    if (val !== undefined) {
+      (result as Record<string, unknown>)[key] = val;
+    }
+  }
+}
+
 export function createSx(colors: ColorTokens) {
   return function sx(props: SxProps): ResolvedStyle {
     const result: ResolvedStyle = {};
-
-    if (props.p !== undefined) result.padding = resolveSpacing(props.p);
-    if (props.px !== undefined)
-      result.paddingHorizontal = resolveSpacing(props.px);
-    if (props.py !== undefined)
-      result.paddingVertical = resolveSpacing(props.py);
-    if (props.pt !== undefined) result.paddingTop = resolveSpacing(props.pt);
-    if (props.pb !== undefined) result.paddingBottom = resolveSpacing(props.pb);
-    if (props.pl !== undefined) result.paddingLeft = resolveSpacing(props.pl);
-    if (props.pr !== undefined) result.paddingRight = resolveSpacing(props.pr);
-
-    if (props.m !== undefined) result.margin = resolveSpacing(props.m);
-    if (props.mx !== undefined)
-      result.marginHorizontal = resolveSpacing(props.mx);
-    if (props.my !== undefined)
-      result.marginVertical = resolveSpacing(props.my);
-    if (props.mt !== undefined) result.marginTop = resolveSpacing(props.mt);
-    if (props.mb !== undefined) result.marginBottom = resolveSpacing(props.mb);
-    if (props.ml !== undefined) result.marginLeft = resolveSpacing(props.ml);
-    if (props.mr !== undefined) result.marginRight = resolveSpacing(props.mr);
-
-    // Layout
-    if (props.flex !== undefined) result.flex = props.flex;
-    if (props.flexDirection !== undefined)
-      result.flexDirection = props.flexDirection;
-    if (props.alignItems !== undefined) result.alignItems = props.alignItems;
-    if (props.alignSelf !== undefined) result.alignSelf = props.alignSelf;
-    if (props.justifyContent !== undefined)
-      result.justifyContent = props.justifyContent;
-    if (props.gap !== undefined) result.gap = resolveSpacing(props.gap);
-    if (props.flexWrap !== undefined) result.flexWrap = props.flexWrap;
-
-    const bg = props.background ?? props.backgroundColor;
-    if (bg !== undefined) {
-      result.backgroundColor = resolveColor(bg, colors);
-    }
-    if (props.color !== undefined) {
-      result.color = resolveColor(props.color, colors);
-    }
-
-    if (props.borderWidth !== undefined) result.borderWidth = props.borderWidth;
-    if (props.borderBottomWidth !== undefined) {
-      result.borderBottomWidth =
-        props.borderBottomWidth === 'hairline'
-          ? HAIRLINE
-          : props.borderBottomWidth;
-    }
-    if (props.borderColor !== undefined) {
-      result.borderColor = resolveColor(props.borderColor, colors);
-    }
-    if (props.borderRadius !== undefined)
-      result.borderRadius = props.borderRadius;
-
-    if (props.fontSize !== undefined)
-      result.fontSize = resolveFontSize(props.fontSize);
-    if (props.fontWeight !== undefined) result.fontWeight = props.fontWeight;
-    if (props.fontFamily !== undefined) result.fontFamily = props.fontFamily;
-    if (props.lineHeight !== undefined) result.lineHeight = props.lineHeight;
-    if (props.textDecorationLine !== undefined)
-      result.textDecorationLine = props.textDecorationLine;
-    if (props.fontStyle !== undefined) result.fontStyle = props.fontStyle;
-
-    if (props.opacity !== undefined) result.opacity = props.opacity;
-    if (props.position !== undefined) result.position = props.position;
-    if (props.overflow !== undefined) result.overflow = props.overflow;
-    if (props.bottom !== undefined) result.bottom = props.bottom;
-    if (props.left !== undefined) result.left = props.left;
-    if (props.right !== undefined) result.right = props.right;
-    if (props.top !== undefined) result.top = props.top;
-    if (props.width !== undefined) result.width = props.width;
-    if (props.height !== undefined) result.height = props.height;
-    if (props.minWidth !== undefined) result.minWidth = props.minWidth;
-    if (props.maxWidth !== undefined) result.maxWidth = props.maxWidth;
-    if (props.transform !== undefined) result.transform = props.transform;
-
-    for (const key of Object.keys(props)) {
-      if (SHORTHAND_KEYS.has(key)) continue;
-      const val = (props as Record<string, unknown>)[key];
-      if (val !== undefined) {
-        (result as Record<string, unknown>)[key] = val;
-      }
-    }
-
+    applySpacing(props, result);
+    applyPassthrough(props, result);
+    applyColors(props, result, colors);
+    applyBorderBottom(props, result);
+    applyTypography(props, result);
+    applyOverflow(props, result);
     return result;
   };
 }

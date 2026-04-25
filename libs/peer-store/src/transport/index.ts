@@ -1,2 +1,3 @@
-export { InMemoryBus, InMemoryTransport, type MessageInterceptor } from './transport'
+export { InMemoryBus, type MessageInterceptor } from './in-memory-bus'
+export { InMemoryTransport } from './transport'
 export type { Transport } from './transport-types'

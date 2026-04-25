@@ -8,15 +8,8 @@ import { clearLocalDatabaseAndReload } from '@gamezilla/patch-db/bootstrap-expo'
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
-/**
- * App-wide commands for the command palette (routes, theme, auth).
- */
-export function AppCommands() {
+function NavigationCommands() {
   const router = useRouter();
-  const auth = useAuth();
-  const { setPreference } = useThemePreference();
-  const [wipeLocalDbModalVisible, setWipeLocalDbModalVisible] = useState(false);
-
   return (
     <>
       <RegisterCommand
@@ -51,6 +44,14 @@ export function AppCommands() {
           router.push('/more');
         }}
       />
+    </>
+  );
+}
+
+function AppearanceCommands() {
+  const { setPreference } = useThemePreference();
+  return (
+    <>
       <RegisterCommand
         id="theme-light"
         title="Use light theme"
@@ -81,6 +82,37 @@ export function AppCommands() {
           setPreference('system');
         }}
       />
+    </>
+  );
+}
+
+function AccountCommand() {
+  const auth = useAuth();
+  return (
+    <RegisterCommand
+      id="auth-toggle"
+      title={auth.mode === 'signed-in' ? 'Sign out' : 'Sign in with Google'}
+      category="Account"
+      icon={
+        auth.mode === 'signed-in'
+          ? 'arrow.right.from.bracket'
+          : 'right.to.bracket'
+      }
+      run={async () => {
+        if (auth.mode === 'signed-in') {
+          await auth.signOut();
+        } else {
+          await auth.signInWithGoogle();
+        }
+      }}
+    />
+  );
+}
+
+function WipeLocalDatabaseCommand() {
+  const [visible, setVisible] = useState(false);
+  return (
+    <>
       <RegisterCommand
         id="data-wipe-local-database"
         title="Wipe local database"
@@ -97,39 +129,35 @@ export function AppCommands() {
           'local',
         ]}
         run={async () => {
-          setWipeLocalDbModalVisible(true);
+          setVisible(true);
         }}
       />
-      <RegisterCommand
-        id="auth-toggle"
-        title={auth.mode === 'signed-in' ? 'Sign out' : 'Sign in with Google'}
-        category="Account"
-        icon={
-          auth.mode === 'signed-in'
-            ? 'arrow.right.from.bracket'
-            : 'right.to.bracket'
-        }
-        run={async () => {
-          if (auth.mode === 'signed-in') {
-            await auth.signOut();
-          } else {
-            await auth.signInWithGoogle();
-          }
-        }}
-      />
-
       <ConfirmationModal
-        visible={wipeLocalDbModalVisible}
+        visible={visible}
         title="Wipe local database?"
         message="This deletes all local SQLite data and reloads the app. You cannot undo this."
         variant="destructive"
         confirmLabel="Wipe and reload"
         onConfirm={async () => {
-          setWipeLocalDbModalVisible(false);
+          setVisible(false);
           await clearLocalDatabaseAndReload('main');
         }}
-        onCancel={() => setWipeLocalDbModalVisible(false)}
+        onCancel={() => setVisible(false)}
       />
+    </>
+  );
+}
+
+/**
+ * App-wide commands for the command palette (routes, theme, auth).
+ */
+export function AppCommands() {
+  return (
+    <>
+      <NavigationCommands />
+      <AppearanceCommands />
+      <WipeLocalDatabaseCommand />
+      <AccountCommand />
     </>
   );
 }

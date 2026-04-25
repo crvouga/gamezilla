@@ -4,6 +4,7 @@ const { defineConfig } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
 const eslintPluginNaming = require('eslint-plugin-naming');
 const eslintPluginGamezillaText = require('../../libs/eslint-rules/gamezilla-text.cjs');
+const sizeLimits = require('../../libs/eslint-rules/size-limits.cjs');
 
 module.exports = defineConfig([
   expoConfig,
@@ -21,6 +22,7 @@ module.exports = defineConfig([
       gamezillaText: eslintPluginGamezillaText,
     },
     rules: {
+      ...sizeLimits.rules(),
       'no-restricted-imports': [
         'error',
         {
@@ -68,4 +70,5 @@ module.exports = defineConfig([
       'gamezillaText/text-use-label': 'error',
     },
   },
+  sizeLimits.testOverrides(),
 ]);

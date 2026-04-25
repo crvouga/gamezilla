@@ -2,7 +2,7 @@ import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Pressable } from '../pressable';
 import { Spinner } from '../spinner';
-import { IconSymbol } from '../symbol-icon';
+import { IconSymbol, type IconSymbolName } from '../symbol-icon';
 import { Text } from '../text';
 import { CommandPaletteKbd } from './command-palette-kbd';
 import { fuzzyMatch } from './fuzzy-match';
@@ -28,13 +28,10 @@ export function CommandPaletteItem({
   error,
   onSelect,
 }: CommandPaletteItemProps) {
-  const theme = useTheme();
   const enabled = isCommandEnabled(command);
   const titleMatch = fuzzyMatch(query.trim(), command.title);
   const ranges = titleMatch?.ranges ?? [];
-
-  const sc = normalizeShortcut(command.shortcut);
-  const shortcutStr = sc?.keys;
+  const shortcutStr = normalizeShortcut(command.shortcut)?.keys;
 
   return (
     <Pressable
@@ -56,36 +53,56 @@ export function CommandPaletteItem({
       <Box
         sx={{ flexDirection: 'row', alignItems: 'center', gap: 2, minWidth: 0 }}
       >
-        {command.icon !== undefined ? (
-          <IconSymbol name={command.icon} size={18} color={theme.colors.icon} />
-        ) : (
-          <Box sx={{ width: 18 }} />
-        )}
+        <ItemIcon icon={command.icon} />
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <HighlightedText text={command.title} ranges={ranges} />
-          {command.subtitle !== undefined ? (
-            <Text
-              variant="caption"
-              numberOfLines={1}
-              ellipsizeMode="tail"
-              sx={{ color: 'textSecondary' }}
-              label={command.subtitle}
-            />
-          ) : null}
+          <ItemSubtitle subtitle={command.subtitle} />
         </Box>
-        {running ? (
-          <Spinner size="small" />
-        ) : shortcutStr !== undefined ? (
-          <CommandPaletteKbd shortcut={shortcutStr} />
-        ) : null}
+        <ItemTrailing running={running} shortcut={shortcutStr} />
       </Box>
-      {error !== undefined ? (
-        <Text
-          variant="caption"
-          sx={{ color: 'destructive', pl: 7 }}
-          label={error}
-        />
-      ) : null}
+      <ItemError error={error} />
     </Pressable>
+  );
+}
+
+function ItemIcon({ icon }: { icon: IconSymbolName | undefined }) {
+  const theme = useTheme();
+  if (icon === undefined) return <Box sx={{ width: 18 }} />;
+  return <IconSymbol name={icon} size={18} color={theme.colors.icon} />;
+}
+
+function ItemSubtitle({ subtitle }: { subtitle: string | undefined }) {
+  if (subtitle === undefined) return null;
+  return (
+    <Text
+      variant="caption"
+      numberOfLines={1}
+      ellipsizeMode="tail"
+      sx={{ color: 'textSecondary' }}
+      label={subtitle}
+    />
+  );
+}
+
+function ItemTrailing({
+  running,
+  shortcut,
+}: {
+  running: boolean;
+  shortcut: string | undefined;
+}) {
+  if (running) return <Spinner size="small" />;
+  if (shortcut === undefined) return null;
+  return <CommandPaletteKbd shortcut={shortcut} />;
+}
+
+function ItemError({ error }: { error: string | undefined }) {
+  if (error === undefined) return null;
+  return (
+    <Text
+      variant="caption"
+      sx={{ color: 'destructive', pl: 7 }}
+      label={error}
+    />
   );
 }

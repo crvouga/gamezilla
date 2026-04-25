@@ -33,38 +33,37 @@ export type ResponsiveSurfaceProps = PropsWithChildren<{
   snapPoints?: (string | number)[];
 }>;
 
-export function ResponsiveSurface({
+export function ResponsiveSurface(props: ResponsiveSurfaceProps) {
+  const theme = useTheme();
+  if (theme.breakpoint === 'mobile') return <MobileSheet {...props} />;
+  return <DesktopModal {...props} />;
+}
+
+function MobileSheet({
   visible,
   onClose,
   title,
-  maxWidth = 400,
   snapPoints: snapPointsProp,
   children,
 }: ResponsiveSurfaceProps) {
   const theme = useTheme();
-  const isMobile = theme.breakpoint === 'mobile';
   const sheetRef = useRef<React.ElementRef<typeof BottomSheetModal>>(null);
-
   const snapPoints = useMemo(
     () => snapPointsProp ?? ['80%'],
     [snapPointsProp]
   );
 
   useEffect(() => {
-    if (!isMobile) return;
     const sheet = sheetRef.current;
     if (sheet === null) return;
-    if (visible) {
-      sheet.present();
-    } else {
-      sheet.dismiss();
-    }
-  }, [visible, isMobile]);
+    if (visible) sheet.present();
+    else sheet.dismiss();
+  }, [visible]);
 
   const renderBackdrop = useCallback(
-    (props: BottomSheetBackdropProps) => (
+    (backdropProps: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop
-        {...props}
+        {...backdropProps}
         disappearsOnIndex={-1}
         appearsOnIndex={0}
         opacity={0.5}
@@ -74,36 +73,38 @@ export function ResponsiveSurface({
     []
   );
 
-  if (isMobile) {
-    return (
-      <BottomSheetModal
-        ref={sheetRef}
-        snapPoints={snapPoints}
-        enablePanDownToClose
-        onDismiss={onClose}
-        backdropComponent={renderBackdrop}
-        handleIndicatorStyle={{ backgroundColor: theme.colors.border }}
-        backgroundStyle={{ backgroundColor: theme.colors.surface }}
+  return (
+    <BottomSheetModal
+      ref={sheetRef}
+      snapPoints={snapPoints}
+      enablePanDownToClose
+      onDismiss={onClose}
+      backdropComponent={renderBackdrop}
+      handleIndicatorStyle={{ backgroundColor: theme.colors.border }}
+      backgroundStyle={{ backgroundColor: theme.colors.surface }}
+    >
+      <BottomSheetView
+        style={{ paddingHorizontal: 16, paddingBottom: 24, flexGrow: 1 }}
       >
-        <BottomSheetView
-          style={{
-            paddingHorizontal: 16,
-            paddingBottom: 24,
-            flexGrow: 1,
-          }}
-        >
-          {title !== undefined ? (
-            <ResponsiveSurfaceHeader
-              title={title}
-              onClose={() => sheetRef.current?.dismiss()}
-            />
-          ) : null}
-          {children}
-        </BottomSheetView>
-      </BottomSheetModal>
-    );
-  }
+        {title !== undefined ? (
+          <ResponsiveSurfaceHeader
+            title={title}
+            onClose={() => sheetRef.current?.dismiss()}
+          />
+        ) : null}
+        {children}
+      </BottomSheetView>
+    </BottomSheetModal>
+  );
+}
 
+function DesktopModal({
+  visible,
+  onClose,
+  title,
+  maxWidth = 400,
+  children,
+}: ResponsiveSurfaceProps) {
   return (
     <ModalRoot visible={visible} onRequestClose={onClose}>
       <ModalBackdrop onPress={onClose}>

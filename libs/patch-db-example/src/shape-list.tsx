@@ -5,6 +5,46 @@ import { IconPlus } from './icons';
 import { ShapeRow } from './shape-row';
 import { useReorder } from './use-drag-reorder';
 
+function EmptyShapesPlaceholder() {
+  const theme = useTheme();
+  return (
+    <Box
+      sx={{ py: 4, alignItems: 'center' }}
+      style={{
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        borderStyle: 'dashed',
+      }}
+    >
+      <Text
+        variant="caption"
+        style={{ color: theme.colors.textSecondary }}
+        label="No shapes yet"
+      />
+    </Box>
+  );
+}
+
+function ShapeNote({ note }: { note: string }) {
+  const theme = useTheme();
+  return (
+    <Box
+      sx={{ px: 3, py: 2 }}
+      style={{
+        borderRadius: 8,
+        backgroundColor: theme.colors.warning + '18',
+      }}
+    >
+      <Text
+        variant="caption"
+        style={{ color: theme.colors.warning }}
+        label={note}
+      />
+    </Box>
+  );
+}
+
 export function ShapeList({
   entities,
   busy,
@@ -23,26 +63,11 @@ export function ShapeList({
   onReorder: (entityIds: string[]) => void;
 }) {
   const { moveUp, moveDown } = useReorder(entities, onReorder);
-  const theme = useTheme();
 
   return (
     <Stack spacing={2}>
       {entities.length === 0 ? (
-        <Box
-          sx={{ py: 4, alignItems: 'center' }}
-          style={{
-            borderRadius: 8,
-            borderWidth: 1,
-            borderColor: theme.colors.border,
-            borderStyle: 'dashed',
-          }}
-        >
-          <Text
-            variant="caption"
-            style={{ color: theme.colors.textSecondary }}
-            label="No shapes yet"
-          />
-        </Box>
+        <EmptyShapesPlaceholder />
       ) : (
         <Stack spacing={1}>
           {entities.map((e, i) => (
@@ -71,21 +96,7 @@ export function ShapeList({
         onPress={onCreate}
       />
 
-      {note ? (
-        <Box
-          sx={{ px: 3, py: 2 }}
-          style={{
-            borderRadius: 8,
-            backgroundColor: theme.colors.warning + '18',
-          }}
-        >
-          <Text
-            variant="caption"
-            style={{ color: theme.colors.warning }}
-            label={note}
-          />
-        </Box>
-      ) : null}
+      {note ? <ShapeNote note={note} /> : null}
     </Stack>
   );
 }

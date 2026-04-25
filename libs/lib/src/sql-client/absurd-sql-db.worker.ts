@@ -99,113 +99,134 @@ async function ensureDb(databaseName: string): Promise<void> {
   sqlDatabase.exec('PRAGMA journal_mode=MEMORY;');
 }
 
-async function handleMessage(msg: WorkerInboundMessage): Promise<void> {
-  const { id, op, payload } = msg;
-
-  if (op === 'connect') {
-    const databaseName = payload?.databaseName;
-    if (typeof databaseName !== 'string' || databaseName.length === 0) {
-      postReply({ id, ok: false, error: 'connect: missing databaseName' });
-      return;
-    }
-    await ensureDb(databaseName);
-    postReply({ id, ok: true });
+async function handleConnect(
+  id: number,
+  payload: WorkerInboundMessage['payload']
+): Promise<void> {
+  const databaseName = payload?.databaseName;
+  if (typeof databaseName !== 'string' || databaseName.length === 0) {
+    postReply({ id, ok: false, error: 'connect: missing databaseName' });
     return;
   }
+  await ensureDb(databaseName);
+  postReply({ id, ok: true });
+}
 
-  if (op === 'disconnect') {
-    if (sqlDatabase !== null) {
-      try {
-        sqlDatabase.close();
-      } catch {
-        // ignore
-      }
-      sqlDatabase = null;
+function handleDisconnect(id: number): void {
+  if (sqlDatabase !== null) {
+    try {
+      sqlDatabase.close();
+    } catch {
+      // ignore
     }
-    SQL = null;
+    sqlDatabase = null;
+  }
+  SQL = null;
+  txDepth = 0;
+  postReply({ id, ok: true });
+}
+
+function handleTxBegin(id: number, db: any): void {
+  if (txDepth > 0) {
+    postReply({
+      id,
+      ok: false,
+      error: 'Nested transactions are not supported for absurd-sql worker',
+    });
+    return;
+  }
+  db.run('BEGIN');
+  txDepth = 1;
+  postReply({ id, ok: true });
+}
+
+function handleTxCommit(id: number, db: any): void {
+  if (txDepth !== 1) {
+    postReply({ id, ok: false, error: 'txCommit: not in transaction' });
+    return;
+  }
+  db.run('COMMIT');
+  txDepth = 0;
+  postReply({ id, ok: true });
+}
+
+function handleTxRollback(id: number, db: any): void {
+  if (txDepth !== 1) {
     txDepth = 0;
     postReply({ id, ok: true });
     return;
   }
+  db.run('ROLLBACK');
+  txDepth = 0;
+  postReply({ id, ok: true });
+}
 
-  if (sqlDatabase === null) {
-    postReply({ id, ok: false, error: 'Database not connected' });
-    return;
+function handleQuery(id: number, db: any, sql: string, params: unknown[]): void {
+  const stmt = db.prepare(sql);
+  try {
+    stmt.bind(params as SqlJsBindParams);
+    const rows = rowsFromStatement(stmt);
+    postReply({ id, ok: true, result: rows });
+  } finally {
+    stmt.free();
   }
+}
 
-  const db = sqlDatabase;
-
-  if (op === 'txBegin') {
-    if (txDepth > 0) {
-      postReply({
-        id,
-        ok: false,
-        error: 'Nested transactions are not supported for absurd-sql worker',
-      });
-      return;
-    }
-    db.run('BEGIN');
-    txDepth = 1;
-    postReply({ id, ok: true });
-    return;
+function handleRun(id: number, db: any, sql: string, params: unknown[]): void {
+  const stmt = db.prepare(sql);
+  try {
+    if (params.length > 0) stmt.bind(params as SqlJsBindParams);
+    stmt.step();
+  } finally {
+    stmt.free();
   }
+  postReply({ id, ok: true, result: readRunMeta(db) });
+}
 
-  if (op === 'txCommit') {
-    if (txDepth !== 1) {
-      postReply({ id, ok: false, error: 'txCommit: not in transaction' });
-      return;
-    }
-    db.run('COMMIT');
-    txDepth = 0;
-    postReply({ id, ok: true });
-    return;
-  }
+function handleTxOp(
+  id: number,
+  op: 'txBegin' | 'txCommit' | 'txRollback',
+  db: any
+): void {
+  if (op === 'txBegin') return handleTxBegin(id, db);
+  if (op === 'txCommit') return handleTxCommit(id, db);
+  return handleTxRollback(id, db);
+}
 
-  if (op === 'txRollback') {
-    if (txDepth !== 1) {
-      txDepth = 0;
-      postReply({ id, ok: true });
-      return;
-    }
-    db.run('ROLLBACK');
-    txDepth = 0;
-    postReply({ id, ok: true });
-    return;
-  }
-
+function handleSqlOp(
+  id: number,
+  op: 'query' | 'run',
+  db: any,
+  payload: WorkerInboundMessage['payload']
+): void {
   const sql = payload?.sql;
   if (typeof sql !== 'string') {
     postReply({ id, ok: false, error: 'Missing sql' });
     return;
   }
   const params = payload?.params ?? [];
+  if (op === 'query') return handleQuery(id, db, sql, params);
+  return handleRun(id, db, sql, params);
+}
 
-  if (op === 'query') {
-    const stmt = db.prepare(sql);
-    try {
-      stmt.bind(params as SqlJsBindParams);
-      const rows = rowsFromStatement(stmt);
-      postReply({ id, ok: true, result: rows });
-    } finally {
-      stmt.free();
-    }
+async function handleMessage(msg: WorkerInboundMessage): Promise<void> {
+  const { id, op, payload } = msg;
+
+  if (op === 'connect') return handleConnect(id, payload);
+  if (op === 'disconnect') return handleDisconnect(id);
+
+  if (sqlDatabase === null) {
+    postReply({ id, ok: false, error: 'Database not connected' });
     return;
   }
+  const db = sqlDatabase;
 
-  if (op === 'run') {
-    const stmt = db.prepare(sql);
-    try {
-      if (params.length > 0) {
-        stmt.bind(params as SqlJsBindParams);
-      }
-      stmt.step();
-    } finally {
-      stmt.free();
-    }
-    postReply({ id, ok: true, result: readRunMeta(db) });
-    return;
+  if (op === 'txBegin' || op === 'txCommit' || op === 'txRollback') {
+    return handleTxOp(id, op, db);
   }
-
+  if (op === 'query' || op === 'run') {
+    return handleSqlOp(id, op, db, payload);
+  }
   postReply({ id, ok: false, error: `Unknown op: ${String(op)}` });
 }
 

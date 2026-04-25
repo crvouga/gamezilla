@@ -56,16 +56,14 @@ async function fetchHealth(
   }
 }
 
-export function useServerStatus() {
-  const config = useDependency(ConfigServiceToken);
-  const networkState = useNetworkState();
-
-  const apiUrl = config.getApiUrl();
-  const healthUrl = useMemo(() => {
+function useHealthUrl(apiUrl: string): string {
+  return useMemo(() => {
     const base = apiUrl.replace(/\/+$/, '');
     return `${base}/health`;
   }, [apiUrl]);
+}
 
+function useHealthState(healthUrl: string) {
   const [health, setHealth] = useState<ServerHealthState>({
     phase: 'loading',
     latencyMs: null,
@@ -111,29 +109,40 @@ export function useServerStatus() {
     return ac;
   }, [healthUrl]);
 
-  const refresh = useCallback(() => {
-    runCheck();
-  }, [runCheck]);
-
   useEffect(() => {
     const ac = runCheck();
     return () => ac.abort();
   }, [runCheck]);
 
-  const explicitlyOffline = networkState.isConnected === false;
+  return { health, runCheck };
+}
 
-  const aggregateStatus = useMemo((): 'online' | 'offline' | 'warning' => {
-    if (explicitlyOffline) {
-      return 'offline';
-    }
-    if (health.phase === 'loading') {
-      return 'warning';
-    }
-    if (health.phase === 'success') {
-      return 'online';
-    }
-    return 'warning';
-  }, [explicitlyOffline, health.phase]);
+function computeAggregateStatus(
+  isConnected: boolean | null | undefined,
+  phase: HealthCheckPhase
+): 'online' | 'offline' | 'warning' {
+  if (isConnected === false) return 'offline';
+  if (phase === 'loading') return 'warning';
+  if (phase === 'success') return 'online';
+  return 'warning';
+}
+
+export function useServerStatus() {
+  const config = useDependency(ConfigServiceToken);
+  const networkState = useNetworkState();
+
+  const apiUrl = config.getApiUrl();
+  const healthUrl = useHealthUrl(apiUrl);
+  const { health, runCheck } = useHealthState(healthUrl);
+
+  const refresh = useCallback(() => {
+    runCheck();
+  }, [runCheck]);
+
+  const aggregateStatus = useMemo(
+    () => computeAggregateStatus(networkState.isConnected, health.phase),
+    [networkState.isConnected, health.phase]
+  );
 
   return {
     apiUrl,

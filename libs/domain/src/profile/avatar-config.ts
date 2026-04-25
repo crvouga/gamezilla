@@ -18,31 +18,42 @@ export type AvatarConfig = {
   options: Record<string, unknown>;
 };
 
-export function parseAvatarConfig(raw: unknown): AvatarConfig | null {
-  if (typeof raw !== 'string') return null;
+function tryParseJsonObject(raw: string): Record<string, unknown> | null {
   try {
     const parsed: unknown = JSON.parse(raw);
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
       return null;
     }
-    const o = parsed as Record<string, unknown>;
-    const style =
-      typeof o['style'] === 'string' && o['style'].length > 0
-        ? o['style']
-        : DEFAULT_AVATAR_STYLE;
-    const seed = typeof o['seed'] === 'string' ? o['seed'] : '';
-    const opt = o['options'];
-    const options =
-      opt !== null &&
-      opt !== undefined &&
-      typeof opt === 'object' &&
-      !Array.isArray(opt)
-        ? (opt as Record<string, unknown>)
-        : {};
-    return { style, seed, options };
+    return parsed as Record<string, unknown>;
   } catch {
     return null;
   }
+}
+
+function pickStyle(o: Record<string, unknown>): string {
+  const v = o['style'];
+  return typeof v === 'string' && v.length > 0 ? v : DEFAULT_AVATAR_STYLE;
+}
+
+function pickOptions(o: Record<string, unknown>): Record<string, unknown> {
+  const opt = o['options'];
+  if (
+    opt !== null &&
+    opt !== undefined &&
+    typeof opt === 'object' &&
+    !Array.isArray(opt)
+  ) {
+    return opt as Record<string, unknown>;
+  }
+  return {};
+}
+
+export function parseAvatarConfig(raw: unknown): AvatarConfig | null {
+  if (typeof raw !== 'string') return null;
+  const o = tryParseJsonObject(raw);
+  if (o === null) return null;
+  const seed = typeof o['seed'] === 'string' ? o['seed'] : '';
+  return { style: pickStyle(o), seed, options: pickOptions(o) };
 }
 
 export function serializeAvatarConfig(config: AvatarConfig): string {

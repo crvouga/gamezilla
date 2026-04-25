@@ -164,16 +164,49 @@ export type CurrentMembership = {
   loading: boolean;
 };
 
-export function useCurrentMembership(): CurrentMembership {
-  const principalService = useDependency(PrincipalServiceToken);
-  const principalId = principalService.getPrincipalId();
+function resolveCurrentMembership(args: {
+  membership: Entity | null;
+  hasLeft: boolean;
+  spaceIdRaw: string | null;
+  spaceEntity: Entity | null;
+  spaceEnded: boolean;
+  role: SpaceMembershipRole | null;
+  memLoading: boolean;
+  spaceLoading: boolean;
+}): CurrentMembership {
+  const {
+    membership,
+    hasLeft,
+    spaceIdRaw,
+    spaceEntity,
+    spaceEnded,
+    role,
+    memLoading,
+    spaceLoading,
+  } = args;
+  const loading = memLoading || spaceLoading;
+  const inactive: CurrentMembership = {
+    activeSpaceId: null,
+    role: null,
+    membershipEntity: membership,
+    loading,
+  };
+  if (!membership || hasLeft || !spaceIdRaw) return inactive;
+  if (spaceLoading) return { ...inactive, loading: true };
+  if (!spaceEntity || spaceEnded) return { ...inactive, loading: false };
+  return {
+    activeSpaceId: spaceIdRaw,
+    role,
+    membershipEntity: membership,
+    loading: false,
+  };
+}
 
-  const memRes = useEntities({
-    entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
-    entityId: principalId,
-  });
-  const membership = memRes.entities[0] ?? null;
-
+function extractMembershipState(membership: Entity | null): {
+  spaceIdRaw: string | null;
+  hasLeft: boolean;
+  role: SpaceMembershipRole | null;
+} {
   const spaceIdRaw = readStringAttr(
     membership?.attributes,
     SpaceMembershipAttr.spaceId
@@ -183,6 +216,19 @@ export function useCurrentMembership(): CurrentMembership {
   const roleRaw = membership?.attributes[SpaceMembershipAttr.role];
   const role: SpaceMembershipRole | null =
     roleRaw === 'host' || roleRaw === 'guest' ? roleRaw : null;
+  return { spaceIdRaw, hasLeft, role };
+}
+
+export function useCurrentMembership(): CurrentMembership {
+  const principalService = useDependency(PrincipalServiceToken);
+  const principalId = principalService.getPrincipalId();
+
+  const memRes = useEntities({
+    entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
+    entityId: principalId,
+  });
+  const membership = memRes.entities[0] ?? null;
+  const { spaceIdRaw, hasLeft, role } = extractMembershipState(membership);
 
   const spaceIdForQuery =
     spaceIdRaw && !hasLeft ? spaceIdRaw : NO_ENTITY_PLACEHOLDER;
@@ -196,48 +242,29 @@ export function useCurrentMembership(): CurrentMembership {
     ? !spaceEntityIsLive(spaceEntity.attributes)
     : false;
 
-  return useMemo(() => {
-    const loading = memRes.loading || spaceRes.loading;
-    if (!membership || hasLeft || !spaceIdRaw) {
-      return {
-        activeSpaceId: null,
-        role: null,
-        membershipEntity: membership,
-        loading,
-      };
-    }
-    if (spaceRes.loading) {
-      return {
-        activeSpaceId: null,
-        role: null,
-        membershipEntity: membership,
-        loading: true,
-      };
-    }
-    if (!spaceEntity || spaceEnded) {
-      return {
-        activeSpaceId: null,
-        role: null,
-        membershipEntity: membership,
-        loading: false,
-      };
-    }
-    return {
-      activeSpaceId: spaceIdRaw,
+  return useMemo(
+    () =>
+      resolveCurrentMembership({
+        membership,
+        hasLeft,
+        spaceIdRaw,
+        spaceEntity,
+        spaceEnded,
+        role,
+        memLoading: memRes.loading,
+        spaceLoading: spaceRes.loading,
+      }),
+    [
+      membership,
+      hasLeft,
+      spaceIdRaw,
+      spaceEnded,
+      spaceEntity,
       role,
-      membershipEntity: membership,
-      loading: false,
-    };
-  }, [
-    membership,
-    hasLeft,
-    spaceIdRaw,
-    spaceEnded,
-    spaceEntity,
-    role,
-    memRes.loading,
-    spaceRes.loading,
-  ]);
+      memRes.loading,
+      spaceRes.loading,
+    ]
+  );
 }
 
 export function useSpaceMembers(spaceId: string | undefined) {

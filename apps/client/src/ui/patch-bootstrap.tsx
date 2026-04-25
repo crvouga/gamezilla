@@ -3,7 +3,10 @@ import { createPatchDbHcTransport } from '@gamezilla/client/api/patch-db-hc-tran
 import { ensurePrincipalEntity } from '@gamezilla/client/auth/ensure-principal-entity';
 import { ensureProfileEntity } from '@gamezilla/client/auth/ensure-profile-entity';
 import { PrincipalPatchesDb } from '@gamezilla/client/auth/principal-patches-db';
-import { PrincipalServiceToken } from '@gamezilla/client/auth/principal-service';
+import {
+  PrincipalServiceToken,
+  type PrincipalService,
+} from '@gamezilla/client/auth/principal-service';
 import {
   createSessionService,
   SessionServiceToken,
@@ -34,7 +37,85 @@ import {
 } from 'react';
 import { Platform, View } from 'react-native';
 
-export function PatchBootstrap({ children }: { children: ReactNode }) {
+async function registerSessionService(
+  c: DependencyInjectionContainer,
+  principalService: PrincipalService
+) {
+  const db = c.get(PatchesDbToken);
+  const principalId = principalService.getPrincipalId();
+  await ensurePrincipalEntity(db, principalId);
+  await ensureProfileEntity(db, principalId);
+  if (c.has(SessionServiceToken)) {
+    await c.get(SessionServiceToken).refresh();
+    return;
+  }
+  const sessionService = createSessionService(db, principalService);
+  await sessionService.refresh();
+  c.registerValue(SessionServiceToken, sessionService);
+}
+
+function ErrorView({
+  error,
+  onRetry,
+  onClear,
+}: {
+  error: Error;
+  onRetry: () => void;
+  onClear: () => Promise<void>;
+}) {
+  return (
+    <Center sx={{ flex: 1, gap: 4, p: 4, background: 'surface' }}>
+      <Text
+        variant="bodyBold"
+        sx={{ fontSize: 'base' }}
+        style={{ textAlign: 'center' }}
+        label="Failed to initialize"
+      />
+      <Text
+        sx={{ fontSize: 'sm', opacity: 0.8 }}
+        style={{ textAlign: 'center' }}
+        label={error.message}
+      />
+      <Box sx={{ mt: 4, gap: 3, alignItems: 'center' }}>
+        <Button title="Retry" onPress={onRetry} />
+        <Button
+          title="Clear local data & reload"
+          color="destructive"
+          onPress={() => void onClear()}
+        />
+      </Box>
+    </Center>
+  );
+}
+
+function BootstrappedShell({
+  container,
+  children,
+}: {
+  container: Container;
+  children: ReactNode;
+}) {
+  return (
+    <ContainerProvider container={container}>
+      {Platform.OS === 'web' ? (
+        <View
+          style={{
+            position: 'absolute',
+            top: 12,
+            right: 12,
+            zIndex: 10000,
+            pointerEvents: 'box-none',
+          }}
+        >
+          <OfflineIndicator />
+        </View>
+      ) : null}
+      {children}
+    </ContainerProvider>
+  );
+}
+
+function usePatchBootstrap() {
   const log = useLogger('patch-bootstrap');
   const [container, setContainer] = useState<Container | null>(null);
   const [error, setError] = useState<Error | null>(null);
@@ -64,22 +145,8 @@ export function PatchBootstrap({ children }: { children: ReactNode }) {
           c instanceof DependencyInjectionContainer,
           'bootstrap must return DependencyInjectionContainer'
         );
-        const db = c.get(PatchesDbToken);
-        await ensurePrincipalEntity(db, principalId);
-        await ensureProfileEntity(db, principalId);
-        // `bootstrapPatchDbExpoSync` caches the container on web, so StrictMode
-        // double-invokes can land on the same container. Register once; on
-        // subsequent runs just refresh the already-registered service.
-        if (c.has(SessionServiceToken)) {
-          await c.get(SessionServiceToken).refresh();
-        } else {
-          const sessionService = createSessionService(db, principalService);
-          await sessionService.refresh();
-          c.registerValue(SessionServiceToken, sessionService);
-        }
-        if (mountedRef.current) {
-          setContainer(c);
-        }
+        await registerSessionService(c, principalService);
+        if (mountedRef.current) setContainer(c);
       })
       .catch((err: unknown) => {
         log.error('bootstrap failed', {
@@ -100,18 +167,14 @@ export function PatchBootstrap({ children }: { children: ReactNode }) {
   }, [runBootstrap]);
 
   useEffect(() => {
-    if (container !== null || error !== null) {
-      void hideSplash();
-    }
+    if (container !== null || error !== null) void hideSplash();
   }, [container, error]);
 
   const onClearLocalDataAndReload = useCallback(async () => {
     try {
       setError(null);
       await clearLocalDatabaseAndReload('main');
-      if (Platform.OS !== 'web') {
-        runBootstrap();
-      }
+      if (Platform.OS !== 'web') runBootstrap();
     } catch (err: unknown) {
       log.error('clear local database failed', {
         error: err instanceof Error ? err.message : String(err),
@@ -120,52 +183,22 @@ export function PatchBootstrap({ children }: { children: ReactNode }) {
     }
   }, [log, runBootstrap]);
 
+  return { container, error, runBootstrap, onClearLocalDataAndReload };
+}
+
+export function PatchBootstrap({ children }: { children: ReactNode }) {
+  const { container, error, runBootstrap, onClearLocalDataAndReload } =
+    usePatchBootstrap();
+
   if (error !== null) {
     return (
-      <Center sx={{ flex: 1, gap: 4, p: 4, background: 'surface' }}>
-        <Text
-          variant="bodyBold"
-          sx={{ fontSize: 'base' }}
-          style={{ textAlign: 'center' }}
-          label="Failed to initialize"
-        />
-        <Text
-          sx={{ fontSize: 'sm', opacity: 0.8 }}
-          style={{ textAlign: 'center' }}
-          label={error.message}
-        />
-        <Box sx={{ mt: 4, gap: 3, alignItems: 'center' }}>
-          <Button title="Retry" onPress={runBootstrap} />
-          <Button
-            title="Clear local data & reload"
-            color="destructive"
-            onPress={() => void onClearLocalDataAndReload()}
-          />
-        </Box>
-      </Center>
+      <ErrorView
+        error={error}
+        onRetry={runBootstrap}
+        onClear={onClearLocalDataAndReload}
+      />
     );
   }
-
-  if (container === null) {
-    return null;
-  }
-
-  return (
-    <ContainerProvider container={container}>
-      {Platform.OS === 'web' ? (
-        <View
-          style={{
-            position: 'absolute',
-            top: 12,
-            right: 12,
-            zIndex: 10000,
-            pointerEvents: 'box-none',
-          }}
-        >
-          <OfflineIndicator />
-        </View>
-      ) : null}
-      {children}
-    </ContainerProvider>
-  );
+  if (container === null) return null;
+  return <BootstrappedShell container={container}>{children}</BootstrappedShell>;
 }

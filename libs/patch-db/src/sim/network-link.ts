@@ -1,5 +1,5 @@
 import { assert } from '@gamezilla/lib/assert';
-import type { SimEventRecorder } from './event-recorder';
+import type { SimEventInput, SimEventRecorder } from './event-recorder';
 import type { SimLinkScheduler } from './sim-link-scheduler';
 
 export type NetworkOp = 'read' | 'write';
@@ -95,10 +95,31 @@ export class NetworkLink {
     return this.partitioned;
   }
 
+  private getClientId(): string {
+    return this.recording?.clientId ?? 'unknown';
+  }
+
+  private emitEvent(event: SimEventInput): void {
+    this.recording?.recorder.emit(event);
+  }
+
+  private throwInjectedFailure(op: NetworkOp): void {
+    if (op === 'read' && this.failNextRead) {
+      this.failNextRead = false;
+      const err = this._readError;
+      throw err instanceof Error ? err : new Error(String(err));
+    }
+    if (op === 'write' && this.failNextWrite) {
+      this.failNextWrite = false;
+      const err = this._writeError;
+      throw err instanceof Error ? err : new Error(String(err));
+    }
+  }
+
   async invoke<T>(op: NetworkOp, fn: () => Promise<T>): Promise<T> {
-    const clientId = this.recording?.clientId ?? 'unknown';
+    const clientId = this.getClientId();
     const t0 = this.scheduler.now();
-    this.recording?.recorder.emit({
+    this.emitEvent({
       type: 'network_op',
       phase: 'begin',
       clientId,
@@ -112,19 +133,10 @@ export class NetworkLink {
       if (this.readWriteLatencyMs > 0) {
         await this.scheduler.delay(this.readWriteLatencyMs);
       }
-      if (op === 'read' && this.failNextRead) {
-        this.failNextRead = false;
-        const err = this._readError;
-        throw err instanceof Error ? err : new Error(String(err));
-      }
-      if (op === 'write' && this.failNextWrite) {
-        this.failNextWrite = false;
-        const err = this._writeError;
-        throw err instanceof Error ? err : new Error(String(err));
-      }
+      this.throwInjectedFailure(op);
       const result = await fn();
       const t1 = this.scheduler.now();
-      this.recording?.recorder.emit({
+      this.emitEvent({
         type: 'network_op',
         phase: 'end',
         clientId,
@@ -137,7 +149,7 @@ export class NetworkLink {
     } catch (err) {
       const t1 = this.scheduler.now();
       const msg = err instanceof Error ? err.message : String(err);
-      this.recording?.recorder.emit({
+      this.emitEvent({
         type: 'network_op',
         phase: 'end',
         clientId,

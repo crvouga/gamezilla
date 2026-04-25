@@ -7,18 +7,26 @@ export type FloatingMenuInsets = {
   bottom: number;
 };
 
+export type ComputeFloatingMenuPositionOptions = {
+  anchor: LayoutRectangle;
+  menuHeight: number;
+  menuWidth: number;
+  insets: FloatingMenuInsets;
+  gap?: number;
+};
+
 /**
  * Computes absolute top/left for a menu panel anchored to a trigger
  * (`measureInWindow`), flipping above the anchor when there is not enough
  * space below.
  */
-export function computeFloatingMenuPosition(
-  anchor: LayoutRectangle,
-  menuHeight: number,
-  insets: FloatingMenuInsets,
-  menuWidth: number,
-  gap: number = DEFAULT_GAP,
-): { top: number; left: number } {
+export function computeFloatingMenuPosition({
+  anchor,
+  menuHeight,
+  menuWidth,
+  insets,
+  gap = DEFAULT_GAP,
+}: ComputeFloatingMenuPositionOptions): { top: number; left: number } {
   const { width: screenW, height: screenH } = Dimensions.get('window');
 
   let top = anchor.y + anchor.height + gap;

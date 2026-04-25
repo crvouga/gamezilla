@@ -7,49 +7,28 @@ import {
 import { DeterministicSimulator } from '@gamezilla/peer-store/simulator';
 import type { Event, Message, State } from '@gamezilla/peer-store/types';
 import { isSystemEvent } from '@gamezilla/peer-store/utils';
+import {
+  TRUST_MAP,
+  type LogEntry,
+  type PeerId,
+} from './playground-types';
+import { formatLogForClipboard } from './playground-format';
+
+export {
+  PEERS,
+  TRUST_MAP,
+  type CheatLogEntry,
+  type LogEntry,
+  type MessageLogEntry,
+  type PeerId,
+} from './playground-types';
 
 const crash: Assert = Assert.crash();
-
-export const TRUST_MAP = {
-  'player-x': 1,
-  'player-o': 1,
-  server: 3,
-  observer: 1,
-} as const;
-
-export type PeerId = keyof typeof TRUST_MAP;
-
-export const PEERS: PeerId[] = ['player-x', 'player-o', 'server', 'observer'];
 
 function wireRecord(payload: unknown): Record<string, unknown> {
   crash.record(payload, 'wire payload must be a plain object');
   return payload;
 }
-
-export type LogEntry = {
-  id: number;
-  kind: 'action' | 'effect' | 'cheat';
-  tag: string;
-  summary: string;
-  code?: string | undefined;
-  peerId?: string | undefined;
-  detected?: boolean | undefined;
-};
-
-export type CheatLogEntry = {
-  id: number;
-  detected: boolean;
-  peerId?: string | undefined;
-  scenario: string;
-  detail: string;
-};
-
-export type MessageLogEntry = {
-  id: number;
-  from: string;
-  kind: string;
-  summary: string;
-};
 
 export class PlaygroundSimulator {
   private sim: DeterministicSimulator;
@@ -277,7 +256,7 @@ export class PlaygroundSimulator {
 
   cheatFabricateCommit(): void {
     const errorsBefore = this.sim.getErrorLog().length;
-    const nextSeq = this.sim.getLatestSeq('server') + 1
+    const nextSeq = this.sim.getLatestSeq('server') + 1;
     const wireMsg = {
       kind: 'accepted',
       commandId: `fabricated-${Date.now()}`,
@@ -461,81 +440,19 @@ export class PlaygroundSimulator {
   }
 
   formatLogForClipboard(): string {
-    const lines: string[] = [];
-
-    lines.push('## Peer-Store Playground Session');
-    lines.push('');
-    lines.push('Setup:');
-    lines.push(`  peers: ${JSON.stringify(TRUST_MAP)}`);
-    lines.push('  module: TicTacToeModule');
-    lines.push('');
-    lines.push('Steps:');
-
-    let step = 0;
-    for (const entry of this.entries) {
-      step++;
-      const prefix = `  ${step}.`;
-      if (entry.code) {
-        const codeLines = entry.code.split('\n');
-        if (codeLines.length === 1) {
-          lines.push(`${prefix} ${entry.code}`);
-        } else {
-          lines.push(`${prefix} ${codeLines[0]}`);
-          for (let i = 1; i < codeLines.length; i++) {
-            lines.push(`     ${codeLines[i]}`);
-          }
-        }
-      } else {
-        lines.push(`${prefix} // ${entry.summary}`);
-      }
-      if (entry.kind === 'cheat') {
-        const status = entry.detected ? 'CAUGHT' : 'UNDETECTED';
-        lines.push(`     // → [${status}] ${entry.summary}`);
-      }
-    }
-
-    lines.push('');
-    lines.push('Errors:');
-    const errors = this.sim.getErrorLog();
-    if (errors.length === 0) {
-      lines.push('  (none)');
-    } else {
-      for (const err of errors) {
-        lines.push(
-          `  - { type: '${err.type}', payload: ${JSON.stringify(err.payload)} }`,
-        );
-      }
-    }
-
-    const authorityChanges = this.sim.getAuthorityChangeLog();
-    if (authorityChanges.length > 0) {
-      lines.push('');
-      lines.push('Authority changes:');
-      for (const change of authorityChanges) {
-        lines.push(
-          `  - ${change.previousAuthority} → ${change.newAuthority}`,
-        );
-      }
-    }
-
-    lines.push('');
-    lines.push('Final states:');
-    for (const peerId of PEERS) {
-      lines.push(`  ${peerId}: ${JSON.stringify(this.sim.getState(peerId))}`);
-    }
-
-    lines.push('');
-    lines.push('Committed events (server):');
-    const serverEvents = this.sim.getEventLog('server');
-    if (serverEvents.length === 0) {
-      lines.push('  (none)');
-    } else {
-      for (const ev of serverEvents) {
-        lines.push(`  - ${ev.type} ${JSON.stringify(ev.payload)}`);
-      }
-    }
-
-    return lines.join('\n');
+    const finalStates: Record<PeerId, State> = {
+      'player-x': this.sim.getState('player-x'),
+      'player-o': this.sim.getState('player-o'),
+      server: this.sim.getState('server'),
+      observer: this.sim.getState('observer'),
+    };
+    return formatLogForClipboard({
+      entries: this.entries,
+      errors: this.sim.getErrorLog(),
+      authorityChanges: this.sim.getAuthorityChangeLog(),
+      finalStates,
+      serverEvents: this.sim.getEventLog('server'),
+    });
   }
 
   // ─── Private ──────────────────────────────────────────────────
@@ -550,9 +467,7 @@ export class PlaygroundSimulator {
       const ev = events[i]!;
       const raw = ev.payload;
       const payload =
-        raw !== null &&
-        typeof raw === 'object' &&
-        !Array.isArray(raw)
+        raw !== null && typeof raw === 'object' && !Array.isArray(raw)
           ? raw
           : undefined;
       this.pushEntry({

@@ -28,6 +28,87 @@ function ReorderButton({
   );
 }
 
+function ShapePreview({ entity }: { entity: Entity }) {
+  const theme = useTheme();
+  return (
+    <Box
+      style={{
+        width: 40,
+        height: 40,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        backgroundColor: theme.colors.surface,
+        overflow: 'hidden',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Svg viewBox="0 0 100 100" width={36} height={36}>
+        <Polygon
+          points={String(entity.attributes[SHAPE_ATTR.points] ?? '')}
+          fill={String(entity.attributes[SHAPE_ATTR.fill] ?? '#666')}
+          stroke="rgba(255,255,255,0.15)"
+          strokeWidth={1}
+        />
+      </Svg>
+    </Box>
+  );
+}
+
+function ShapeMeta({ entity }: { entity: Entity }) {
+  const theme = useTheme();
+  return (
+    <Box style={{ flex: 1 }}>
+      <Text
+        variant="mono"
+        numberOfLines={1}
+        style={{ fontSize: 12, color: theme.colors.text }}
+        label={String(entity.attributes[SHAPE_ATTR.kind] ?? '')}
+      />
+      <Text
+        variant="mono"
+        numberOfLines={1}
+        style={{
+          fontSize: 9,
+          color: theme.colors.textSecondary,
+          marginTop: 1,
+        }}
+        label={entity.entityId.slice(0, 12)}
+      />
+    </Box>
+  );
+}
+
+function ReorderControls({
+  busy,
+  isFirst,
+  isLast,
+  onMoveUp,
+  onMoveDown,
+}: {
+  busy: boolean;
+  isFirst: boolean;
+  isLast: boolean;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+}) {
+  return (
+    <Stack spacing={0} align="center">
+      <ReorderButton
+        label="▲"
+        disabled={busy || isFirst}
+        onPress={onMoveUp}
+      />
+      <ReorderButton
+        label="▼"
+        disabled={busy || isLast}
+        onPress={onMoveDown}
+      />
+    </Stack>
+  );
+}
+
 export function ShapeRow({
   entity,
   index,
@@ -50,7 +131,6 @@ export function ShapeRow({
   onMoveDown: () => void;
 }) {
   const theme = useTheme();
-
   return (
     <Stack
       direction="horizontal"
@@ -62,18 +142,13 @@ export function ShapeRow({
         backgroundColor: theme.colors.surface,
       }}
     >
-      <Stack spacing={0} align="center">
-        <ReorderButton
-          label="▲"
-          disabled={busy || isFirst}
-          onPress={onMoveUp}
-        />
-        <ReorderButton
-          label="▼"
-          disabled={busy || isLast}
-          onPress={onMoveDown}
-        />
-      </Stack>
+      <ReorderControls
+        busy={busy}
+        isFirst={isFirst}
+        isLast={isLast}
+        onMoveUp={onMoveUp}
+        onMoveDown={onMoveDown}
+      />
 
       <Text
         variant="mono"
@@ -86,47 +161,8 @@ export function ShapeRow({
         label={String(entity.attributes[SHAPE_ATTR.order] ?? index)}
       />
 
-      <Box
-        style={{
-          width: 40,
-          height: 40,
-          borderRadius: 8,
-          borderWidth: 1,
-          borderColor: theme.colors.border,
-          backgroundColor: theme.colors.surface,
-          overflow: 'hidden',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Svg viewBox="0 0 100 100" width={36} height={36}>
-          <Polygon
-            points={String(entity.attributes[SHAPE_ATTR.points] ?? '')}
-            fill={String(entity.attributes[SHAPE_ATTR.fill] ?? '#666')}
-            stroke="rgba(255,255,255,0.15)"
-            strokeWidth={1}
-          />
-        </Svg>
-      </Box>
-
-      <Box style={{ flex: 1 }}>
-        <Text
-          variant="mono"
-          numberOfLines={1}
-          style={{ fontSize: 12, color: theme.colors.text }}
-          label={String(entity.attributes[SHAPE_ATTR.kind] ?? '')}
-        />
-        <Text
-          variant="mono"
-          numberOfLines={1}
-          style={{
-            fontSize: 9,
-            color: theme.colors.textSecondary,
-            marginTop: 1,
-          }}
-          label={entity.entityId.slice(0, 12)}
-        />
-      </Box>
+      <ShapePreview entity={entity} />
+      <ShapeMeta entity={entity} />
 
       <IconButton
         size={28}

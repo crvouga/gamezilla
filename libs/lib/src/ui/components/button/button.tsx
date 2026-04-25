@@ -59,6 +59,26 @@ const sizeMap = {
   },
 };
 
+type ButtonColors = {
+  bgColor: string;
+  borderColor: string;
+  textColor: string;
+};
+
+function resolveButtonColors(
+  theme: ReturnType<typeof useTheme>,
+  variant: ButtonVariant,
+  color: string,
+  isDisabled: boolean
+): ButtonColors {
+  const accent = theme.colors[color as keyof typeof theme.colors] ?? color;
+  const accentOrDisabled = isDisabled ? theme.colors.disabled : accent;
+  const bgColor = variant === 'solid' ? accentOrDisabled : 'transparent';
+  const borderColor = variant === 'outlined' ? accentOrDisabled : 'transparent';
+  const textColor = variant === 'solid' ? theme.colors.surface : accentOrDisabled;
+  return { bgColor, borderColor, textColor };
+}
+
 export function Button({
   title,
   onPress,
@@ -72,27 +92,13 @@ export function Button({
 }: ButtonProps) {
   const theme = useTheme();
   const s = sizeMap[size];
-  const accent = theme.colors[color as keyof typeof theme.colors] ?? color;
   const isDisabled = disabled || loading;
-
-  const bgColor =
-    variant === 'solid'
-      ? isDisabled
-        ? theme.colors.disabled
-        : accent
-      : 'transparent';
-  const borderColor =
-    variant === 'outlined'
-      ? isDisabled
-        ? theme.colors.disabled
-        : accent
-      : 'transparent';
-  const textColor =
-    variant === 'solid'
-      ? theme.colors.surface
-      : isDisabled
-        ? theme.colors.disabled
-        : accent;
+  const { bgColor, borderColor, textColor } = resolveButtonColors(
+    theme,
+    variant,
+    color,
+    isDisabled
+  );
 
   return (
     <Pressable
@@ -114,21 +120,45 @@ export function Button({
         pressed && !isDisabled && { opacity: 0.7 },
       ]}
     >
-      {loading ? (
-        <ActivityIndicator size="small" color={textColor} />
-      ) : (
-        <>
-          {startIcon && <View>{startIcon}</View>}
-          <Text
-            variant="bodyBold"
-            sx={{ fontSize: s.fontSize }}
-            style={{ color: textColor }}
-          >
-            {title}
-          </Text>
-          {endIcon && <View>{endIcon}</View>}
-        </>
-      )}
+      <ButtonContent
+        title={title}
+        loading={loading}
+        textColor={textColor}
+        fontSize={s.fontSize}
+        startIcon={startIcon}
+        endIcon={endIcon}
+      />
     </Pressable>
+  );
+}
+
+function ButtonContent({
+  title,
+  loading,
+  textColor,
+  fontSize,
+  startIcon,
+  endIcon,
+}: {
+  title: string;
+  loading: boolean;
+  textColor: string;
+  fontSize: 'sm' | 'base' | 'lg';
+  startIcon: ReactNode;
+  endIcon: ReactNode;
+}) {
+  if (loading) return <ActivityIndicator size="small" color={textColor} />;
+  return (
+    <>
+      {startIcon !== undefined ? <View>{startIcon}</View> : null}
+      <Text
+        variant="bodyBold"
+        sx={{ fontSize }}
+        style={{ color: textColor }}
+      >
+        {title}
+      </Text>
+      {endIcon !== undefined ? <View>{endIcon}</View> : null}
+    </>
   );
 }

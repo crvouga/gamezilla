@@ -20,15 +20,18 @@ export type EntityTypesScreenProps = {
   onOpenQuery: () => void;
 };
 
-export function EntityTypesScreen({
-  onSelectType,
-  onOpenQuery,
-}: EntityTypesScreenProps) {
+type LoadState = {
+  loading: boolean;
+  error: string | null;
+  counts: Map<string, number>;
+  totalRows: number;
+  loadAll: () => Promise<void>;
+};
+
+function useEntityTypeCounts(): LoadState {
   const db = usePatchesDb();
-  const theme = useTheme();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState('');
   const [counts, setCounts] = useState<Map<string, number>>(new Map());
   const [totalRows, setTotalRows] = useState(0);
 
@@ -40,12 +43,7 @@ export function EntityTypesScreen({
     let total = 0;
     try {
       while (true) {
-        const results = await db.read([
-          {
-            limit: PAGE_SIZE,
-            offset,
-          },
-        ]);
+        const results = await db.read([{ limit: PAGE_SIZE, offset }]);
         const result = results[0];
         if (result === undefined) break;
         total = result.total;
@@ -69,6 +67,151 @@ export function EntityTypesScreen({
     void loadAll();
   }, [loadAll]);
 
+  return { loading, error, counts, totalRows, loadAll };
+}
+
+function HeaderControls({
+  filter,
+  setFilter,
+  onOpenQuery,
+  onRefresh,
+}: {
+  filter: string;
+  setFilter: (v: string) => void;
+  onOpenQuery: () => void;
+  onRefresh: () => void;
+}) {
+  return (
+    <>
+      <Stack direction="horizontal" spacing={2} align="center">
+        <Button
+          title="Run query"
+          variant="solid"
+          size="sm"
+          onPress={onOpenQuery}
+        />
+        <Button
+          title="Refresh"
+          variant="ghost"
+          size="sm"
+          onPress={onRefresh}
+        />
+      </Stack>
+      <TextInput
+        value={filter}
+        onChangeText={setFilter}
+        placeholder="Filter types…"
+        autoCapitalize="none"
+        autoCorrect={false}
+        sx={{
+          borderWidth: 1,
+          borderRadius: 8,
+          px: 3,
+          py: 2.5,
+          fontSize: 15,
+          background: 'surface',
+          color: 'text',
+          borderColor: 'border',
+        }}
+      />
+    </>
+  );
+}
+
+function StatusLine({
+  loading,
+  error,
+  totalRows,
+  typeCount,
+}: {
+  loading: boolean;
+  error: string | null;
+  totalRows: number;
+  typeCount: number;
+}) {
+  const theme = useTheme();
+  if (loading) {
+    return (
+      <Box sx={{ py: 8, alignItems: 'center' }}>
+        <Spinner size="large" />
+        <Text
+          variant="caption"
+          style={{ marginTop: 12, color: theme.colors.textSecondary }}
+          label="Scanning snapshots…"
+        />
+      </Box>
+    );
+  }
+  if (error !== null) {
+    return (
+      <Card
+        elevation={0}
+        sx={{ p: 4 }}
+        style={{
+          borderWidth: 1,
+          borderColor: theme.colors.destructive + '44',
+          backgroundColor: theme.colors.destructive + '0a',
+        }}
+      >
+        <Text
+          variant="body"
+          style={{ color: theme.colors.destructive }}
+          label={error}
+        />
+      </Card>
+    );
+  }
+  return (
+    <Text
+      variant="caption"
+      style={{ color: theme.colors.textSecondary }}
+      label={`${totalRows} snapshot row(s) · ${typeCount} type(s)`}
+    />
+  );
+}
+
+function TypeRowCard({
+  entityType,
+  count,
+  onPress,
+}: {
+  entityType: string;
+  count: number;
+  onPress: () => void;
+}) {
+  const theme = useTheme();
+  return (
+    <Pressable onPress={onPress}>
+      <Card elevation={1} sx={{ mb: 2, p: 3 }}>
+        <Stack
+          direction="horizontal"
+          align="center"
+          justify="space-between"
+        >
+          <Text
+            variant="mono"
+            style={{ fontSize: 13, flex: 1 }}
+            label={entityType}
+          />
+          <Text
+            variant="caption"
+            style={{ color: theme.colors.textSecondary }}
+            label={String(count)}
+          />
+        </Stack>
+      </Card>
+    </Pressable>
+  );
+}
+
+export function EntityTypesScreen({
+  onSelectType,
+  onOpenQuery,
+}: EntityTypesScreenProps) {
+  const theme = useTheme();
+  const { loading, error, counts, totalRows, loadAll } = useEntityTypeCounts();
+  const [filter, setFilter] = useState('');
+
   const rows = useMemo(() => {
     const q = filter.trim().toLowerCase();
     const list = [...counts.entries()]
@@ -81,69 +224,18 @@ export function EntityTypesScreen({
   return (
     <Box sx={{ flex: 1 }}>
       <Stack spacing={3} sx={{ p: 3 }}>
-        <Stack direction="horizontal" spacing={2} align="center">
-          <Button
-            title="Run query"
-            variant="solid"
-            size="sm"
-            onPress={onOpenQuery}
-          />
-          <Button
-            title="Refresh"
-            variant="ghost"
-            size="sm"
-            onPress={() => void loadAll()}
-          />
-        </Stack>
-        <TextInput
-          value={filter}
-          onChangeText={setFilter}
-          placeholder="Filter types…"
-          autoCapitalize="none"
-          autoCorrect={false}
-          sx={{
-            borderWidth: 1,
-            borderRadius: 8,
-            px: 3,
-            py: 2.5,
-            fontSize: 15,
-            background: 'surface',
-            color: 'text',
-            borderColor: 'border',
-          }}
+        <HeaderControls
+          filter={filter}
+          setFilter={setFilter}
+          onOpenQuery={onOpenQuery}
+          onRefresh={() => void loadAll()}
         />
-        {loading ? (
-          <Box sx={{ py: 8, alignItems: 'center' }}>
-            <Spinner size="large" />
-            <Text
-              variant="caption"
-              style={{ marginTop: 12, color: theme.colors.textSecondary }}
-              label="Scanning snapshots…"
-            />
-          </Box>
-        ) : error !== null ? (
-          <Card
-            elevation={0}
-            sx={{ p: 4 }}
-            style={{
-              borderWidth: 1,
-              borderColor: theme.colors.destructive + '44',
-              backgroundColor: theme.colors.destructive + '0a',
-            }}
-          >
-            <Text
-              variant="body"
-              style={{ color: theme.colors.destructive }}
-              label={error}
-            />
-          </Card>
-        ) : (
-          <Text
-            variant="caption"
-            style={{ color: theme.colors.textSecondary }}
-            label={`${totalRows} snapshot row(s) · ${counts.size} type(s)`}
-          />
-        )}
+        <StatusLine
+          loading={loading}
+          error={error}
+          totalRows={totalRows}
+          typeCount={counts.size}
+        />
       </Stack>
 
       {!loading && error === null ? (
@@ -153,26 +245,11 @@ export function EntityTypesScreen({
           style={theme.sx({ flex: 1 })}
           sx={{ px: 3, pb: 8 }}
           renderItem={({ item }) => (
-            <Pressable onPress={() => onSelectType(item.entityType)}>
-              <Card elevation={1} sx={{ mb: 2, p: 3 }}>
-                <Stack
-                  direction="horizontal"
-                  align="center"
-                  justify="space-between"
-                >
-                  <Text
-                    variant="mono"
-                    style={{ fontSize: 13, flex: 1 }}
-                    label={item.entityType}
-                  />
-                  <Text
-                    variant="caption"
-                    style={{ color: theme.colors.textSecondary }}
-                    label={String(item.count)}
-                  />
-                </Stack>
-              </Card>
-            </Pressable>
+            <TypeRowCard
+              entityType={item.entityType}
+              count={item.count}
+              onPress={() => onSelectType(item.entityType)}
+            />
           )}
           ListEmptyComponent={
             <Text

@@ -2,6 +2,7 @@ import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
 } from '@gamezilla/domain/profile/profile-entities';
+import type { Entity } from '@gamezilla/patch-db/interface';
 import { Box, ScreenBase, TextInput } from '@gamezilla/lib/ui';
 import { usePatchesDb } from '@gamezilla/patch-db/react';
 import { useRouter } from 'expo-router';
@@ -10,14 +11,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useProfile } from '@gamezilla/client/profile/use-profile';
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 
-export default function ProfileUsernameScreen() {
-  const router = useRouter();
-  const db = usePatchesDb();
-  const { principalId, entity } = useProfile();
+function useSyncedDisplayName(entity: Entity | null | undefined) {
   const [value, setValue] = useState('');
-  const [saving, setSaving] = useState(false);
-  const nav = useBreadcrumbNav();
-
   const lastPersistedRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -35,6 +30,17 @@ export default function ProfileUsernameScreen() {
       lastPersistedRef.current = persisted;
     }
   }, [entity]);
+
+  return [value, setValue] as const;
+}
+
+export default function ProfileUsernameScreen() {
+  const router = useRouter();
+  const db = usePatchesDb();
+  const { principalId, entity } = useProfile();
+  const [saving, setSaving] = useState(false);
+  const [value, setValue] = useSyncedDisplayName(entity);
+  const nav = useBreadcrumbNav();
 
   const save = useCallback(async () => {
     setSaving(true);

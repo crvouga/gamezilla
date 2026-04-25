@@ -1,3 +1,4 @@
+import type { Entity } from '@gamezilla/patch-db/interface';
 import { PatchesDbToken, useEntities } from '@gamezilla/patch-db/react';
 import {
   nextShapeOrder,
@@ -45,69 +46,189 @@ const LATENCY_BUCKETS = [
   { value: 5000, label: '5 s' },
 ];
 
-function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
-  const { sim, bumpGraph, bumpLink, removeClient } = useSimContext();
-  const theme = useTheme();
+function closestLatency(raw: number) {
+  return LATENCY_BUCKETS.reduce((prev, cur) =>
+    Math.abs(cur.value - raw) < Math.abs(prev.value - raw) ? cur : prev
+  ).value;
+}
 
-  const shapeQuery = useMemo(() => shapeListQuery(), []);
-  const { entities } = useEntities(shapeQuery);
-  const [latencyMs, setLatencyMs] = useState(() => {
-    const raw = client.link.getLatency();
-    const closest = LATENCY_BUCKETS.reduce((prev, cur) =>
-      Math.abs(cur.value - raw) < Math.abs(prev.value - raw) ? cur : prev
-    );
-    return closest.value;
-  });
-  const partitioned = client.link.isPartitioned();
-
-  const { busy, note, run } = useAsyncAction(bumpGraph);
-
-  const handleLatencyChange = useCallback(
-    (ms: number) => {
-      setLatencyMs(ms);
-      client.link.setLatency(ms);
-    },
-    [client.link]
-  );
-
+function useClientShapeActions(
+  client: PlaygroundClientHandle,
+  entities: Entity[],
+  run: ReturnType<typeof useAsyncAction>['run'],
+) {
+  const { sim } = useSimContext();
   const handleRandomize = useCallback(
     (entityId: string) =>
       run(async () => {
         await playgroundRandomizeShape(sim, client.id, entityId);
       }),
-    [run, sim, client.id]
+    [run, sim, client.id],
   );
-
   const handleDelete = useCallback(
     (entityId: string) =>
       run(async () => {
         await playgroundDeleteShape(sim, client.id, entityId);
       }),
-    [run, sim, client.id]
+    [run, sim, client.id],
   );
-
   const handleCreate = useCallback(
     () =>
       run(async () => {
         await playgroundCreateShape(sim, client.id, nextShapeOrder(entities));
       }),
-    [run, sim, client.id, entities]
+    [run, sim, client.id, entities],
   );
-
   const handleReorder = useCallback(
     (entityIds: string[]) => {
       void run(async () => {
         await playgroundReorderShapes(sim, client.id, entityIds);
       });
     },
-    [run, sim, client.id]
+    [run, sim, client.id],
   );
+  const randomizeAll = useCallback(
+    () =>
+      run(async () => {
+        for (const e of entities) {
+          await playgroundRandomizeShape(sim, client.id, e.entityId);
+        }
+      }),
+    [run, sim, client.id, entities],
+  );
+  return {
+    handleRandomize,
+    handleDelete,
+    handleCreate,
+    handleReorder,
+    randomizeAll,
+  };
+}
+
+function useClientLinkActions(
+  client: PlaygroundClientHandle,
+  run: ReturnType<typeof useAsyncAction>['run'],
+) {
+  const { sim, bumpLink } = useSimContext();
+  const togglePartition = useCallback(
+    () =>
+      run(async () => {
+        if (client.link.isPartitioned()) {
+          client.link.heal();
+        } else {
+          client.link.partition();
+        }
+        bumpLink();
+      }),
+    [run, client.link, bumpLink],
+  );
+  const syncNow = useCallback(
+    () =>
+      run(async () => {
+        await sim.syncNow(client.id);
+      }),
+    [run, sim, client.id],
+  );
+  const wipeClientDb = useCallback(
+    () =>
+      run(async () => {
+        await sim.wipeClientDb(client.id);
+      }),
+    [run, sim, client.id],
+  );
+  return { togglePartition, syncNow, wipeClientDb };
+}
+
+function useClientActions(
+  client: PlaygroundClientHandle,
+  entities: Entity[],
+) {
+  const { bumpGraph } = useSimContext();
+  const action = useAsyncAction(bumpGraph);
+  const shapeActions = useClientShapeActions(client, entities, action.run);
+  const linkActions = useClientLinkActions(client, action.run);
+  return { ...action, ...shapeActions, ...linkActions };
+}
+
+function ClientControlBar({
+  busy,
+  partitioned,
+  hasEntities,
+  togglePartition,
+  syncNow,
+  randomizeAll,
+  wipeClientDb,
+}: {
+  busy: boolean;
+  partitioned: boolean;
+  hasEntities: boolean;
+  togglePartition: () => void;
+  syncNow: () => void;
+  randomizeAll: () => void;
+  wipeClientDb: () => void;
+}) {
+  const theme = useTheme();
+  return (
+    <Stack direction="horizontal" spacing={2} align="center">
+      <Button
+        title={partitioned ? 'Reconnect' : 'Partition'}
+        variant={partitioned ? 'solid' : 'ghost'}
+        size="sm"
+        {...(partitioned ? { color: 'destructive' } : {})}
+        disabled={busy}
+        startIcon={<IconPartition active={partitioned} size={14} />}
+        onPress={togglePartition}
+      />
+      <Box style={{ flex: 1 }} />
+      <IconButton
+        size={32}
+        background={theme.colors.surface}
+        disabled={busy}
+        onPress={syncNow}
+      >
+        <IconSync size={16} />
+      </IconButton>
+      <IconButton
+        size={32}
+        background={theme.colors.surface}
+        disabled={busy || !hasEntities}
+        onPress={randomizeAll}
+      >
+        <IconShuffle size={16} />
+      </IconButton>
+      <IconButton size={32} disabled={busy} onPress={wipeClientDb}>
+        <IconClear size={16} />
+      </IconButton>
+    </Stack>
+  );
+}
+
+function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
+  const theme = useTheme();
+  const { removeClient } = useSimContext();
+  const shapeQuery = useMemo(() => shapeListQuery(), []);
+  const { entities } = useEntities(shapeQuery);
+  const [latencyMs, setLatencyMs] = useState(() =>
+    closestLatency(client.link.getLatency()),
+  );
+  const partitioned = client.link.isPartitioned();
+  const actions = useClientActions(client, entities);
+
+  const handleLatencyChange = useCallback(
+    (ms: number) => {
+      setLatencyMs(ms);
+      client.link.setLatency(ms);
+    },
+    [client.link],
+  );
+
+  const subtitle = `Latency: ${LATENCY_BUCKETS.find((b) => b.value === latencyMs)?.label ?? `${latencyMs} ms`}`;
 
   return (
     <NodePanelShell
       icon={<IconLaptop />}
       title={client.id}
-      subtitle={`Latency: ${LATENCY_BUCKETS.find((b) => b.value === latencyMs)?.label ?? `${latencyMs} ms`}`}
+      subtitle={subtitle}
       partitioned={partitioned}
       headerExtra={
         <IconButton size={28} onPress={() => removeClient(client.id)}>
@@ -116,64 +237,15 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
       }
     >
       <Stack spacing={3}>
-        <Stack direction="horizontal" spacing={2} align="center">
-          <Button
-            title={partitioned ? 'Reconnect' : 'Partition'}
-            variant={partitioned ? 'solid' : 'ghost'}
-            size="sm"
-            {...(partitioned ? { color: 'destructive' } : {})}
-            disabled={busy}
-            startIcon={<IconPartition active={partitioned} size={14} />}
-            onPress={() =>
-              run(async () => {
-                if (client.link.isPartitioned()) {
-                  client.link.heal();
-                } else {
-                  client.link.partition();
-                }
-                bumpLink();
-              })
-            }
-          />
-          <Box style={{ flex: 1 }} />
-          <IconButton
-            size={32}
-            background={theme.colors.surface}
-            disabled={busy}
-            onPress={() =>
-              run(async () => {
-                await sim.syncNow(client.id);
-              })
-            }
-          >
-            <IconSync size={16} />
-          </IconButton>
-          <IconButton
-            size={32}
-            background={theme.colors.surface}
-            disabled={busy || entities.length === 0}
-            onPress={() =>
-              run(async () => {
-                for (const e of entities) {
-                  await playgroundRandomizeShape(sim, client.id, e.entityId);
-                }
-              })
-            }
-          >
-            <IconShuffle size={16} />
-          </IconButton>
-          <IconButton
-            size={32}
-            disabled={busy}
-            onPress={() =>
-              run(async () => {
-                await sim.wipeClientDb(client.id);
-              })
-            }
-          >
-            <IconClear size={16} />
-          </IconButton>
-        </Stack>
+        <ClientControlBar
+          busy={actions.busy}
+          partitioned={partitioned}
+          hasEntities={entities.length > 0}
+          togglePartition={actions.togglePartition}
+          syncNow={actions.syncNow}
+          randomizeAll={actions.randomizeAll}
+          wipeClientDb={actions.wipeClientDb}
+        />
 
         <Box style={{ maxWidth: 160 }}>
           <Select
@@ -194,12 +266,12 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
           />
           <ShapeList
             entities={entities}
-            busy={busy}
-            note={note}
-            onRandomize={handleRandomize}
-            onDelete={handleDelete}
-            onCreate={handleCreate}
-            onReorder={handleReorder}
+            busy={actions.busy}
+            note={actions.note}
+            onRandomize={actions.handleRandomize}
+            onDelete={actions.handleDelete}
+            onCreate={actions.handleCreate}
+            onReorder={actions.handleReorder}
           />
         </Box>
       </Stack>

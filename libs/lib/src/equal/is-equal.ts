@@ -70,24 +70,55 @@ function compareObjectPair(x: object, y: object, work: unknown[]): boolean {
   if (xIsArray !== yIsArray) return false;
   if (xIsArray) return compareArrays(x as unknown[], y as unknown[], work);
 
-  if (x instanceof Date || y instanceof Date) {
-    return x instanceof Date && y instanceof Date && compareDates(x, y);
-  }
-
-  if (x instanceof RegExp || y instanceof RegExp) {
-    return x instanceof RegExp && y instanceof RegExp && compareRegExps(x, y);
-  }
-
-  if (x instanceof Map || y instanceof Map) {
-    return x instanceof Map && y instanceof Map && compareMaps(x, y, work);
-  }
-
-  if (x instanceof Set || y instanceof Set) {
-    return x instanceof Set && y instanceof Set && compareSets(x, y);
-  }
+  const builtin = compareBuiltinPair(x, y, work);
+  if (builtin !== null) return builtin;
 
   if (!isPlainObject(x) || !isPlainObject(y)) return false;
   return comparePlainObjects(x, y, work);
+}
+
+type BuiltinComparator = {
+  matches: (v: object) => boolean;
+  compare: (x: object, y: object, work: unknown[]) => boolean;
+};
+
+const BUILTIN_COMPARATORS: readonly BuiltinComparator[] = [
+  {
+    matches: (v) => v instanceof Date,
+    compare: (x, y) =>
+      x instanceof Date && y instanceof Date && compareDates(x, y),
+  },
+  {
+    matches: (v) => v instanceof RegExp,
+    compare: (x, y) =>
+      x instanceof RegExp && y instanceof RegExp && compareRegExps(x, y),
+  },
+  {
+    matches: (v) => v instanceof Map,
+    compare: (x, y, work) =>
+      x instanceof Map && y instanceof Map && compareMaps(x, y, work),
+  },
+  {
+    matches: (v) => v instanceof Set,
+    compare: (x, y) =>
+      x instanceof Set && y instanceof Set && compareSets(x, y),
+  },
+];
+
+/**
+ * Returns `null` when neither operand is a recognized built-in (Date, RegExp,
+ * Map, Set), so the caller can fall through to plain-object comparison.
+ * Otherwise returns whether the pair is equal. Asymmetric type means unequal.
+ */
+function compareBuiltinPair(
+  x: object,
+  y: object,
+  work: unknown[]
+): boolean | null {
+  for (const c of BUILTIN_COMPARATORS) {
+    if (c.matches(x) || c.matches(y)) return c.compare(x, y, work);
+  }
+  return null;
 }
 
 function compareArrays(x: unknown[], y: unknown[], work: unknown[]): boolean {

@@ -217,6 +217,16 @@ export type SimRecording = {
   viz?: SimRecordingVizMeta;
 };
 
+function buildSourceSnapshot(
+  source: SimRecordingMetaSource
+): SimRecordingMetaSource | undefined {
+  const s: SimRecordingMetaSource = {};
+  if (source.testFile !== undefined) s.testFile = source.testFile;
+  if (source.suite !== undefined) s.suite = source.suite;
+  if (source.testName !== undefined) s.testName = source.testName;
+  return Object.keys(s).length > 0 ? s : undefined;
+}
+
 function buildMetaSnapshot(
   acc: SimRecordingMeta
 ): SimRecordingMeta | undefined {
@@ -226,11 +236,8 @@ function buildMetaSnapshot(
   if (acc.intent !== undefined) out.intent = acc.intent;
   if (acc.tags !== undefined && acc.tags.length > 0) out.tags = acc.tags;
   if (acc.source !== undefined) {
-    const s: SimRecordingMetaSource = {};
-    if (acc.source.testFile !== undefined) s.testFile = acc.source.testFile;
-    if (acc.source.suite !== undefined) s.suite = acc.source.suite;
-    if (acc.source.testName !== undefined) s.testName = acc.source.testName;
-    if (Object.keys(s).length > 0) out.source = s;
+    const s = buildSourceSnapshot(acc.source);
+    if (s !== undefined) out.source = s;
   }
   return Object.keys(out).length > 0 ? out : undefined;
 }

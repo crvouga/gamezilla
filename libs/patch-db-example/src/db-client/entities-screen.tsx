@@ -40,17 +40,19 @@ function previewAttributes(entity: Entity): string {
     .join(' · ');
 }
 
-export type EntitiesScreenProps = {
-  entityType: string;
-  onSelectEntity: (entityId: string) => void;
+type PageState = {
+  loading: boolean;
+  loadingMore: boolean;
+  error: string | null;
+  entities: Entity[];
+  offset: number;
+  hasMore: boolean;
+  total: number;
+  fetchPage: (start: number, append: boolean) => Promise<void>;
 };
 
-export function EntitiesScreen({
-  entityType,
-  onSelectEntity,
-}: EntitiesScreenProps) {
+function useEntityPager(entityType: string): PageState {
   const db = usePatchesDb();
-  const theme = useTheme();
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,23 +60,15 @@ export function EntitiesScreen({
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [total, setTotal] = useState(0);
-  const [search, setSearch] = useState('');
 
   const fetchPage = useCallback(
     async (startOffset: number, append: boolean) => {
-      if (append) {
-        setLoadingMore(true);
-      } else {
-        setLoading(true);
-      }
+      if (append) setLoadingMore(true);
+      else setLoading(true);
       setError(null);
       try {
         const results = await db.read([
-          {
-            entityType,
-            limit: PAGE_SIZE,
-            offset: startOffset,
-          },
+          { entityType, limit: PAGE_SIZE, offset: startOffset },
         ]);
         const result = results[0];
         if (result === undefined) {
@@ -85,7 +79,7 @@ export function EntitiesScreen({
         setHasMore(result.hasMore);
         setOffset(startOffset + result.entities.length);
         setEntities((prev) =>
-          append ? [...prev, ...result.entities] : result.entities
+          append ? [...prev, ...result.entities] : result.entities,
         );
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
@@ -94,7 +88,7 @@ export function EntitiesScreen({
         setLoadingMore(false);
       }
     },
-    [db, entityType]
+    [db, entityType],
   );
 
   useEffect(() => {
@@ -103,106 +97,196 @@ export function EntitiesScreen({
     void fetchPage(0, false);
   }, [entityType, fetchPage]);
 
+  return {
+    loading,
+    loadingMore,
+    error,
+    entities,
+    offset,
+    hasMore,
+    total,
+    fetchPage,
+  };
+}
+
+function FilterBar({
+  search,
+  setSearch,
+  total,
+  loaded,
+  shown,
+}: {
+  search: string;
+  setSearch: (v: string) => void;
+  total: number;
+  loaded: number;
+  shown: number;
+}) {
+  const theme = useTheme();
+  return (
+    <Stack spacing={2} sx={{ px: 3, pt: 2, pb: 2 }}>
+      <TextInput
+        value={search}
+        onChangeText={setSearch}
+        placeholder="Filter loaded rows (id or attributes)…"
+        autoCapitalize="none"
+        autoCorrect={false}
+        sx={{
+          borderWidth: 1,
+          borderRadius: 8,
+          px: 3,
+          py: 2.5,
+          fontSize: 15,
+          background: 'surface',
+          color: 'text',
+          borderColor: 'border',
+        }}
+      />
+      <Text
+        variant="caption"
+        style={{ color: theme.colors.textSecondary }}
+        label={`${total} total · ${loaded} loaded · ${shown} shown`}
+      />
+    </Stack>
+  );
+}
+
+function EntityCard({
+  entity,
+  onPress,
+}: {
+  entity: Entity;
+  onPress: () => void;
+}) {
+  const theme = useTheme();
+  return (
+    <Pressable onPress={onPress}>
+      <Card elevation={1} sx={{ mb: 2, p: 3 }}>
+        <Stack spacing={1}>
+          <Text
+            variant="mono"
+            style={{ fontSize: 12 }}
+            label={entity.entityId}
+          />
+          <Text
+            variant="caption"
+            style={{ color: theme.colors.textSecondary }}
+            numberOfLines={3}
+            label={previewAttributes(entity)}
+          />
+        </Stack>
+      </Card>
+    </Pressable>
+  );
+}
+
+function EntityList({
+  filtered,
+  total,
+  hasMore,
+  loadingMore,
+  onLoadMore,
+  onSelectEntity,
+}: {
+  filtered: Entity[];
+  total: number;
+  hasMore: boolean;
+  loadingMore: boolean;
+  onLoadMore: () => void;
+  onSelectEntity: (id: string) => void;
+}) {
+  const theme = useTheme();
+  return (
+    <FlatList
+      data={filtered}
+      keyExtractor={(item) => item.entityId}
+      style={theme.sx({ flex: 1 })}
+      sx={{ px: 3, pb: 4 }}
+      renderItem={({ item }) => (
+        <EntityCard
+          entity={item}
+          onPress={() => onSelectEntity(item.entityId)}
+        />
+      )}
+      ListEmptyComponent={
+        <Text
+          variant="body"
+          style={{ opacity: 0.7, textAlign: 'center', padding: 24 }}
+          label={
+            total === 0 ? 'No entities for this type.' : 'No rows match filter.'
+          }
+        />
+      }
+      ListFooterComponent={
+        hasMore ? (
+          <Box sx={{ py: 3, alignItems: 'center' }}>
+            <Button
+              title={loadingMore ? 'Loading…' : 'Load more'}
+              variant="ghost"
+              size="sm"
+              onPress={onLoadMore}
+            />
+          </Box>
+        ) : null
+      }
+    />
+  );
+}
+
+export type EntitiesScreenProps = {
+  entityType: string;
+  onSelectEntity: (entityId: string) => void;
+};
+
+export function EntitiesScreen({
+  entityType,
+  onSelectEntity,
+}: EntitiesScreenProps) {
+  const theme = useTheme();
+  const pager = useEntityPager(entityType);
+  const [search, setSearch] = useState('');
+
   const filtered = useMemo(() => {
     const q = search.trim();
-    return entities.filter((e) => entityMatchesSearch(e, q));
-  }, [entities, search]);
+    return pager.entities.filter((e) => entityMatchesSearch(e, q));
+  }, [pager.entities, search]);
 
   const onLoadMore = () => {
-    if (!hasMore || loadingMore) return;
-    void fetchPage(offset, true);
+    if (!pager.hasMore || pager.loadingMore) return;
+    void pager.fetchPage(pager.offset, true);
   };
 
   return (
     <Box sx={{ flex: 1 }}>
-      <Stack spacing={2} sx={{ px: 3, pt: 2, pb: 2 }}>
-        <TextInput
-          value={search}
-          onChangeText={setSearch}
-          placeholder="Filter loaded rows (id or attributes)…"
-          autoCapitalize="none"
-          autoCorrect={false}
-          sx={{
-            borderWidth: 1,
-            borderRadius: 8,
-            px: 3,
-            py: 2.5,
-            fontSize: 15,
-            background: 'surface',
-            color: 'text',
-            borderColor: 'border',
-          }}
-        />
-        <Text
-          variant="caption"
-          style={{ color: theme.colors.textSecondary }}
-          label={`${total} total · ${entities.length} loaded · ${filtered.length} shown`}
-        />
-      </Stack>
+      <FilterBar
+        search={search}
+        setSearch={setSearch}
+        total={pager.total}
+        loaded={pager.entities.length}
+        shown={filtered.length}
+      />
 
-      {loading ? (
+      {pager.loading ? (
         <Box sx={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <Spinner size="large" />
         </Box>
-      ) : error !== null ? (
+      ) : pager.error !== null ? (
         <Box sx={{ p: 4 }}>
           <Text
             variant="body"
             style={{ color: theme.colors.destructive }}
-            label={error}
+            label={pager.error}
           />
         </Box>
       ) : (
-        <>
-          <FlatList
-            data={filtered}
-            keyExtractor={(item) => item.entityId}
-            style={theme.sx({ flex: 1 })}
-            sx={{ px: 3, pb: 4 }}
-            renderItem={({ item }) => (
-              <Pressable onPress={() => onSelectEntity(item.entityId)}>
-                <Card elevation={1} sx={{ mb: 2, p: 3 }}>
-                  <Stack spacing={1}>
-                    <Text
-                      variant="mono"
-                      style={{ fontSize: 12 }}
-                      label={item.entityId}
-                    />
-                    <Text
-                      variant="caption"
-                      style={{ color: theme.colors.textSecondary }}
-                      numberOfLines={3}
-                      label={previewAttributes(item)}
-                    />
-                  </Stack>
-                </Card>
-              </Pressable>
-            )}
-            ListEmptyComponent={
-              <Text
-                variant="body"
-                style={{ opacity: 0.7, textAlign: 'center', padding: 24 }}
-                label={
-                  entities.length === 0
-                    ? 'No entities for this type.'
-                    : 'No rows match filter.'
-                }
-              />
-            }
-            ListFooterComponent={
-              hasMore ? (
-                <Box sx={{ py: 3, alignItems: 'center' }}>
-                  <Button
-                    title={loadingMore ? 'Loading…' : 'Load more'}
-                    variant="ghost"
-                    size="sm"
-                    onPress={onLoadMore}
-                  />
-                </Box>
-              ) : null
-            }
-          />
-        </>
+        <EntityList
+          filtered={filtered}
+          total={pager.entities.length}
+          hasMore={pager.hasMore}
+          loadingMore={pager.loadingMore}
+          onLoadMore={onLoadMore}
+          onSelectEntity={onSelectEntity}
+        />
       )}
     </Box>
   );

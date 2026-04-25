@@ -28,139 +28,142 @@ function jsonPathForAttribute(attribute: string): string {
     : `$.${attribute}`;
 }
 
+type BinaryClause = Extract<
+  PatchesDbQueryWhereClause,
+  { type: '=' | '!=' | 'gt' | 'gte' | 'lt' | 'lte' }
+>;
+type SetClause = Extract<PatchesDbQueryWhereClause, { type: 'in' | 'not_in' }>;
+type ExistenceClause = Extract<
+  PatchesDbQueryWhereClause,
+  { type: 'exists' | 'not_exists' }
+>;
+type AndOrClause = Extract<PatchesDbQueryWhereClause, { type: 'and' | 'or' }>;
+type ContainsClause = Extract<PatchesDbQueryWhereClause, { type: 'contains' }>;
+type NotClause = Extract<PatchesDbQueryWhereClause, { type: 'not' }>;
+
+const BINARY_OPS_SQL: Record<BinaryClause['type'], string> = {
+  '=': '= ?::text',
+  '!=': 'IS DISTINCT FROM ?::text',
+  gt: '> ?::text',
+  gte: '>= ?::text',
+  lt: '< ?::text',
+  lte: '<= ?::text',
+};
+
+function attributeKey(attribute: string): string {
+  assertAttribute(attribute);
+  return sqliteJsonPathToKey(jsonPathForAttribute(attribute));
+}
+
+function buildBinaryClause(
+  clause: BinaryClause,
+  jsonColumn: string
+): WhereFragment {
+  const col = `${jsonColumn}::jsonb`;
+  const key = attributeKey(clause.attribute);
+  const opTail = BINARY_OPS_SQL[clause.type];
+  return {
+    sql: `(${col} ->> ?) ${opTail}`,
+    params: [key, toTextParam(clause.value)],
+  };
+}
+
+function buildContainsClause(
+  clause: ContainsClause,
+  jsonColumn: string
+): WhereFragment {
+  const col = `${jsonColumn}::jsonb`;
+  const key = attributeKey(clause.attribute);
+  return {
+    sql: `(${col} ->> ?) LIKE '%' || ?::text || '%'`,
+    params: [key, toTextParam(clause.value)],
+  };
+}
+
+function buildSetClause(
+  clause: SetClause,
+  jsonColumn: string
+): WhereFragment {
+  const col = `${jsonColumn}::jsonb`;
+  const key = attributeKey(clause.attribute);
+  const placeholders = clause.values.map(() => '?::text').join(', ');
+  if (clause.type === 'in') {
+    return {
+      sql: `(${col} ->> ?) IN (${placeholders})`,
+      params: [key, ...clause.values.map(toTextParam)],
+    };
+  }
+  return {
+    sql: `((${col} ->> ?) IS NULL OR (${col} ->> ?) NOT IN (${placeholders}))`,
+    params: [key, key, ...clause.values.map(toTextParam)],
+  };
+}
+
+function buildExistenceClause(
+  clause: ExistenceClause,
+  jsonColumn: string
+): WhereFragment {
+  const col = `${jsonColumn}::jsonb`;
+  const key = attributeKey(clause.attribute);
+  const op = clause.type === 'exists' ? 'IS NOT NULL' : 'IS NULL';
+  return {
+    sql: `(${col} -> ?) ${op}`,
+    params: [key],
+  };
+}
+
+function buildAndOrClause(
+  clause: AndOrClause,
+  jsonColumn: string
+): WhereFragment {
+  const parts = clause.clauses.map((c) =>
+    buildWhereClauseForColumn(c, jsonColumn)
+  );
+  const sep = clause.type === 'and' ? ' AND ' : ' OR ';
+  return {
+    sql: `(${parts.map((p) => p.sql).join(sep)})`,
+    params: parts.flatMap((p) => p.params),
+  };
+}
+
+function buildNotClause(
+  clause: NotClause,
+  jsonColumn: string
+): WhereFragment {
+  const inner = buildWhereClauseForColumn(clause.clause, jsonColumn);
+  return { sql: `NOT (${inner.sql})`, params: inner.params };
+}
+
+type ClauseBuilder = (
+  clause: PatchesDbQueryWhereClause,
+  jsonColumn: string
+) => WhereFragment;
+
+const CLAUSE_BUILDERS: Record<PatchesDbQueryWhereClause['type'], ClauseBuilder> =
+  {
+    '=': (c, j) => buildBinaryClause(c as BinaryClause, j),
+    '!=': (c, j) => buildBinaryClause(c as BinaryClause, j),
+    gt: (c, j) => buildBinaryClause(c as BinaryClause, j),
+    gte: (c, j) => buildBinaryClause(c as BinaryClause, j),
+    lt: (c, j) => buildBinaryClause(c as BinaryClause, j),
+    lte: (c, j) => buildBinaryClause(c as BinaryClause, j),
+    contains: (c, j) => buildContainsClause(c as ContainsClause, j),
+    in: (c, j) => buildSetClause(c as SetClause, j),
+    not_in: (c, j) => buildSetClause(c as SetClause, j),
+    exists: (c, j) => buildExistenceClause(c as ExistenceClause, j),
+    not_exists: (c, j) => buildExistenceClause(c as ExistenceClause, j),
+    and: (c, j) => buildAndOrClause(c as AndOrClause, j),
+    or: (c, j) => buildAndOrClause(c as AndOrClause, j),
+    not: (c, j) => buildNotClause(c as NotClause, j),
+  };
+
 function buildWhereClauseForColumn(
   clause: PatchesDbQueryWhereClause,
   jsonColumn: string
 ): WhereFragment {
-  const col = `${jsonColumn}::jsonb`;
-  switch (clause.type) {
-    case '=': {
-      assertAttribute(clause.attribute);
-      const path = jsonPathForAttribute(clause.attribute);
-      const key = sqliteJsonPathToKey(path);
-      return {
-        sql: `(${col} ->> ?) = ?::text`,
-        params: [key, toTextParam(clause.value)],
-      };
-    }
-    case '!=': {
-      assertAttribute(clause.attribute);
-      const path = jsonPathForAttribute(clause.attribute);
-      const key = sqliteJsonPathToKey(path);
-      return {
-        sql: `(${col} ->> ?) IS DISTINCT FROM ?::text`,
-        params: [key, toTextParam(clause.value)],
-      };
-    }
-    case 'gt': {
-      assertAttribute(clause.attribute);
-      const path = jsonPathForAttribute(clause.attribute);
-      const key = sqliteJsonPathToKey(path);
-      return {
-        sql: `(${col} ->> ?) > ?::text`,
-        params: [key, toTextParam(clause.value)],
-      };
-    }
-    case 'gte': {
-      assertAttribute(clause.attribute);
-      const path = jsonPathForAttribute(clause.attribute);
-      const key = sqliteJsonPathToKey(path);
-      return {
-        sql: `(${col} ->> ?) >= ?::text`,
-        params: [key, toTextParam(clause.value)],
-      };
-    }
-    case 'lt': {
-      assertAttribute(clause.attribute);
-      const path = jsonPathForAttribute(clause.attribute);
-      const key = sqliteJsonPathToKey(path);
-      return {
-        sql: `(${col} ->> ?) < ?::text`,
-        params: [key, toTextParam(clause.value)],
-      };
-    }
-    case 'lte': {
-      assertAttribute(clause.attribute);
-      const path = jsonPathForAttribute(clause.attribute);
-      const key = sqliteJsonPathToKey(path);
-      return {
-        sql: `(${col} ->> ?) <= ?::text`,
-        params: [key, toTextParam(clause.value)],
-      };
-    }
-    case 'contains': {
-      assertAttribute(clause.attribute);
-      const path = jsonPathForAttribute(clause.attribute);
-      const key = sqliteJsonPathToKey(path);
-      return {
-        sql: `(${col} ->> ?) LIKE '%' || ?::text || '%'`,
-        params: [key, toTextParam(clause.value)],
-      };
-    }
-    case 'in': {
-      assertAttribute(clause.attribute);
-      const path = jsonPathForAttribute(clause.attribute);
-      const key = sqliteJsonPathToKey(path);
-      const placeholders = clause.values.map(() => '?::text').join(', ');
-      return {
-        sql: `(${col} ->> ?) IN (${placeholders})`,
-        params: [key, ...clause.values.map(toTextParam)],
-      };
-    }
-    case 'not_in': {
-      assertAttribute(clause.attribute);
-      const path = jsonPathForAttribute(clause.attribute);
-      const key = sqliteJsonPathToKey(path);
-      const placeholders = clause.values.map(() => '?::text').join(', ');
-      return {
-        sql: `((${col} ->> ?) IS NULL OR (${col} ->> ?) NOT IN (${placeholders}))`,
-        params: [key, key, ...clause.values.map(toTextParam)],
-      };
-    }
-    case 'exists': {
-      assertAttribute(clause.attribute);
-      const path = jsonPathForAttribute(clause.attribute);
-      const key = sqliteJsonPathToKey(path);
-      return {
-        sql: `(${col} -> ?) IS NOT NULL`,
-        params: [key],
-      };
-    }
-    case 'not_exists': {
-      assertAttribute(clause.attribute);
-      const path = jsonPathForAttribute(clause.attribute);
-      const key = sqliteJsonPathToKey(path);
-      return {
-        sql: `(${col} -> ?) IS NULL`,
-        params: [key],
-      };
-    }
-    case 'and': {
-      const parts = clause.clauses.map((c) =>
-        buildWhereClauseForColumn(c, jsonColumn)
-      );
-      return {
-        sql: `(${parts.map((p) => p.sql).join(' AND ')})`,
-        params: parts.flatMap((p) => p.params),
-      };
-    }
-    case 'or': {
-      const parts = clause.clauses.map((c) =>
-        buildWhereClauseForColumn(c, jsonColumn)
-      );
-      return {
-        sql: `(${parts.map((p) => p.sql).join(' OR ')})`,
-        params: parts.flatMap((p) => p.params),
-      };
-    }
-    case 'not': {
-      const inner = buildWhereClauseForColumn(clause.clause, jsonColumn);
-      return { sql: `NOT (${inner.sql})`, params: inner.params };
-    }
-    default: {
-      assert.fail('Invalid where clause type', { clause });
-    }
-  }
+  const builder = CLAUSE_BUILDERS[clause.type];
+  assert.defined(builder, 'Invalid where clause type');
+  return builder(clause, jsonColumn);
 }
 
 export function buildWhereClause(

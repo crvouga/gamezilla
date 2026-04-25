@@ -1,5 +1,6 @@
 import { Client, neonConfig } from '@neondatabase/serverless';
 import { assert } from '../assert';
+import { WsTransactionSqlClient } from './impl-planetscale-postgres-ws-tx';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
 import { questionMarkParamsToDollarParams } from './positional-params';
 
@@ -112,53 +113,6 @@ export class SqlClientImplPlanetScalePostgresWs implements SqlClient {
 function assertConnected(c: Client | null): Client {
   assert.ok(c !== null, 'SqlClientImplPlanetScalePostgresWs: not connected');
   return c;
-}
-
-/**
- * Transaction-scoped client: same underlying connection, no nested transactions.
- */
-class WsTransactionSqlClient implements SqlClient {
-  constructor(private readonly c: Client) {}
-
-  async connect(): Promise<void> {
-    assert.fail('WsTransactionSqlClient: connect inside transaction');
-  }
-
-  async disconnect(): Promise<void> {
-    assert.fail('WsTransactionSqlClient: disconnect inside transaction');
-  }
-
-  async query<T = Record<string, unknown>>(
-    sql: string,
-    params?: unknown[]
-  ): Promise<T[]> {
-    const [pgSql, pgParams] = questionMarkParamsToDollarParams(sql, params);
-    const result = await this.c.query(pgSql, pgParams);
-    return result.rows as T[];
-  }
-
-  async run(sql: string, params?: unknown[]): Promise<RunResult> {
-    const [pgSql, pgParams] = questionMarkParamsToDollarParams(sql, params);
-    const result = await this.c.query(pgSql, pgParams);
-    return {
-      changes: result.rowCount ?? 0,
-      lastInsertRowid: getLastInsertRowid(
-        result.rows as Record<string, unknown>[]
-      ),
-    };
-  }
-
-  prepare(sql: string): PreparedStatement {
-    return {
-      query: <T = Record<string, unknown>>(params?: unknown[]) =>
-        this.query<T>(sql, params),
-      run: (params?: unknown[]) => this.run(sql, params),
-    };
-  }
-
-  async transaction<T>(_fn: (tx: SqlClient) => Promise<T>): Promise<T> {
-    assert.fail('nested transaction not supported on SqlClient');
-  }
 }
 
 function getLastInsertRowid(rows: Record<string, unknown>[]): number {
