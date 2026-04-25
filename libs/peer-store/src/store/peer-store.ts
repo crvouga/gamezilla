@@ -1,6 +1,5 @@
 import { Assert } from '@gamezilla/lib/assert';
 import type { MessageRouter } from '@gamezilla/lib/message';
-import { randomBytes } from 'node:crypto';
 import type { LogEntry } from '../persistence/log-entry';
 import type { Event, Message, StoreError } from '../events/message-types';
 import {
@@ -13,6 +12,7 @@ import type { Transport } from '../transport/transport-types';
 import { assertHandleResult } from './assert-handle-result';
 import { broadcastHeartbeat, checkAuthorityChange } from './authority-monitor';
 import { computeAuthorityOrder, membershipToRecord } from './membership';
+import { randomBytes } from './security/peer-crypto';
 import {
   signWireEnvelope,
   verifyWireEnvelope,
@@ -49,13 +49,6 @@ import type {
 
 const crash: Assert = Assert.crash();
 const validation: Assert = Assert.validation();
-
-crash.notThrows(
-  () => {
-    randomBytes(1);
-  },
-  'node:crypto.randomBytes smoke test failed (PeerStore)'
-);
 
 type PeerStoreCallbacks = {
   onTimeout?: (commandId: string) => void;

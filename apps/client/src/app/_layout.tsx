@@ -30,7 +30,6 @@ import {
   type FontStacks,
 } from '@gamezilla/lib/ui';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
-import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -58,35 +57,16 @@ assert.notThrows(
 );
 assert.ok(typeof Buffer !== 'undefined', 'Buffer must exist for peer-store');
 assert.notThrows(
-  () => Buffer.from([0xab]).toString('base64url'),
-  'Buffer base64url must work for peer-store wire encoding'
-);
-assert.ok(
-  typeof createHash === 'function',
-  'node:crypto.createHash must be a function (peer-store / testkit)'
-);
-assert.ok(
-  typeof randomBytes === 'function',
-  'node:crypto.randomBytes must be a function (peer-store)'
-);
-assert.ok(
-  typeof timingSafeEqual === 'function',
-  'node:crypto.timingSafeEqual must be a function (peer-store wire auth)'
-);
-assert.notThrows(
-  () =>
-    createHash('sha256')
-      .update('client:peer-store-runtime-smoke')
-      .digest(),
-  'node:crypto.createHash must run (peer-store test peers / crypto)'
-);
-assert.notThrows(
-  () => randomBytes(8),
-  'node:crypto.randomBytes must run (peer-store)'
-);
-assert.notThrows(
-  () => timingSafeEqual(Buffer.from([1]), Buffer.from([1])),
-  'node:crypto.timingSafeEqual must run (peer-store key compare)'
+  () => {
+    const u = new Uint8Array([0xab, 0xcd, 0x3c, 0x3e]);
+    const b64 = Buffer.from(u).toString('base64');
+    const back = Buffer.from(b64, 'base64');
+    assert.ok(
+      back.length === u.length && back.every((b, i) => b === u[i]),
+      'Buffer base64 round-trip'
+    );
+  },
+  'Buffer base64 must work for peer-store (polyfill has no base64url encoding)'
 );
 assert.ok(
   typeof TextEncoder === 'function',

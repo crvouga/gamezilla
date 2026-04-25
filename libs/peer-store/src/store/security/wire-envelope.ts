@@ -21,6 +21,7 @@ import {
   utf8,
   verifyDetached,
 } from './peer-crypto';
+import { bufferFromBase64Url, bufferToBase64Url } from './buffer-base64url';
 import { isPlainRecord } from './plain-record';
 import { stableStringify } from './stable-stringify';
 
@@ -178,7 +179,7 @@ export function signWireEnvelope(
     roomProof,
     bodyDigest,
     body: input.body,
-    signatureB64: Buffer.from(sig).toString('base64url'),
+    signatureB64: bufferToBase64Url(sig),
   };
 }
 
@@ -320,7 +321,7 @@ function wireSignatureOk(ctx: WireSigInput): WireVerifyFail | void {
   }
   let sig: Uint8Array;
   try {
-    sig = Buffer.from(signatureB64, 'base64url');
+    sig = bufferFromBase64Url(signatureB64);
   } catch {
     return { ok: false, reason: 'sig_decode' };
   }

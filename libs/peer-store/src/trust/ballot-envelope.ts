@@ -10,6 +10,10 @@ import {
   utf8,
   verifyDetached,
 } from '../store/security/peer-crypto';
+import {
+  bufferFromBase64Url,
+  bufferToBase64Url,
+} from '../store/security/buffer-base64url';
 import { isPlainRecord } from '../store/security/plain-record';
 import { stableStringify } from '../store/security/stable-stringify';
 
@@ -111,7 +115,7 @@ export function signTrustBallotEnvelope(
     roomProof,
     bodyDigest,
     body: input.body,
-    signatureB64: Buffer.from(sig).toString('base64url'),
+    signatureB64: bufferToBase64Url(sig),
   };
 }
 
@@ -228,7 +232,7 @@ function trustBallotSignature(ctx: TrustBallotSigCtx): BallotVerifyFail | void {
   if (typeof signatureB64 !== 'string') return { ok: false, reason: 'bad_signature_field' };
   let sig: Uint8Array;
   try {
-    sig = Buffer.from(signatureB64, 'base64url');
+    sig = bufferFromBase64Url(signatureB64);
   } catch {
     return { ok: false, reason: 'sig_decode' };
   }

@@ -1,22 +1,11 @@
-import { assert } from '@gamezilla/lib/assert';
-import { createHash } from 'node:crypto';
+import { sha256 } from '@noble/hashes/sha2';
 import {
   encodeKeyB64,
   peerIdFromPublicKey,
   publicKeyFromSecretSeed,
 } from '../store/security/peer-crypto';
 
-assert.ok(
-  typeof createHash === 'function',
-  'node:crypto.createHash must be a function (testPeerForLabel / Metro)'
-);
-assert.notThrows(
-  () =>
-    createHash('sha256')
-      .update('peer-store:testkit:tic-tac-toe-peers:smoke')
-      .digest(),
-  'node:crypto.createHash chain must run (tic-tac-toe-peers)'
-);
+const labelSeedEncoder = new TextEncoder();
 
 export type TicTacToeTestPeer = {
   label: string;
@@ -29,10 +18,9 @@ export type TicTacToeTestPeer = {
  * Deterministic Ed25519 identity for tests and simulators (label → key material).
  */
 export function testPeerForLabel(label: string): TicTacToeTestPeer {
-  const secretSeed = createHash('sha256')
-    .update(`peer-store-test-peer:${label}`)
-    .digest()
-    .subarray(0, 32);
+  const secretSeed = sha256(
+    labelSeedEncoder.encode(`peer-store-test-peer:${label}`)
+  ).subarray(0, 32);
   const publicKey = publicKeyFromSecretSeed(secretSeed);
   const peerId = peerIdFromPublicKey(publicKey);
   return {
