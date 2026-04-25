@@ -50,6 +50,13 @@ import type {
 const crash: Assert = Assert.crash();
 const validation: Assert = Assert.validation();
 
+crash.notThrows(
+  () => {
+    randomBytes(1);
+  },
+  'node:crypto.randomBytes smoke test failed (PeerStore)'
+);
+
 type PeerStoreCallbacks = {
   onTimeout?: (commandId: string) => void;
   onError?: (error: StoreError) => void;

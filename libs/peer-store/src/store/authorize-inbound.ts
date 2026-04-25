@@ -1,3 +1,4 @@
+import { assert } from '@gamezilla/lib/assert';
 import { timingSafeEqual } from 'node:crypto';
 import { PeerJoin, peerNamespace } from '../events/system-messages';
 import {
@@ -8,6 +9,15 @@ import {
 import type { PeerStoreSecurityConfig } from './types';
 import type { VerifiedWireEnvelope } from './security/wire-envelope';
 import type { WireMessage } from './wire-protocol';
+
+assert.ok(
+  typeof timingSafeEqual === 'function',
+  'node:crypto.timingSafeEqual must be a function (peer-store authorize-inbound)'
+);
+assert.notThrows(
+  () => timingSafeEqual(Buffer.from([7]), Buffer.from([7])),
+  'node:crypto.timingSafeEqual smoke test failed (peer-store authorize-inbound)'
+);
 
 export function keysEqual(a: Uint8Array, b: Uint8Array): boolean {
   if (a.length !== b.length) return false;

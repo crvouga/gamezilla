@@ -1,4 +1,4 @@
-import { Assert } from '@gamezilla/lib/assert';
+import { Assert, assert } from '@gamezilla/lib/assert';
 import { DeterministicSimulator } from '@gamezilla/peer-store/simulator';
 import {
   MarkPlaced,
@@ -29,6 +29,11 @@ export {
 } from './playground-types';
 
 const crash: Assert = Assert.crash();
+
+assert.notThrows(
+  () => testPeerForLabel('peer-store-playground:import-smoke'),
+  'peer-store playground must derive test peers (node:crypto + ed25519)'
+);
 
 function playgroundPeer(id: PeerId): TicTacToeTestPeer {
   return testPeerForLabel(`peer-store-playground:${id}`);

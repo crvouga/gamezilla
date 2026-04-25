@@ -127,6 +127,7 @@
     "svgs",
     "tablename",
     "tableowner",
+    "testkit",
     "tfstate",
     "TIMEDOUT",
     "TIMESTAMPTZ",

@@ -1,9 +1,22 @@
+import { assert } from '@gamezilla/lib/assert';
 import { createHash } from 'node:crypto';
 import {
   encodeKeyB64,
   peerIdFromPublicKey,
   publicKeyFromSecretSeed,
 } from '../store/security/peer-crypto';
+
+assert.ok(
+  typeof createHash === 'function',
+  'node:crypto.createHash must be a function (testPeerForLabel / Metro)'
+);
+assert.notThrows(
+  () =>
+    createHash('sha256')
+      .update('peer-store:testkit:tic-tac-toe-peers:smoke')
+      .digest(),
+  'node:crypto.createHash chain must run (tic-tac-toe-peers)'
+);
 
 export type TicTacToeTestPeer = {
   label: string;

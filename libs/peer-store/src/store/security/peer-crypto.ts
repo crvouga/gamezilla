@@ -1,6 +1,24 @@
+import { assert } from '@gamezilla/lib/assert';
 import { createHash, randomBytes } from 'node:crypto';
 import { etc, getPublicKey, sign, verify } from '@noble/ed25519';
 import { stableStringify } from './stable-stringify';
+
+assert.ok(
+  typeof createHash === 'function',
+  'node:crypto.createHash must be a function (peer-store peer-crypto)'
+);
+assert.ok(
+  typeof randomBytes === 'function',
+  'node:crypto.randomBytes must be a function (peer-store peer-crypto)'
+);
+assert.ok(typeof Buffer !== 'undefined', 'Buffer must exist (peer-store peer-crypto)');
+assert.notThrows(
+  () => {
+    createHash('sha256').update('peer-store:peer-crypto:smoke').digest();
+    randomBytes(1);
+  },
+  'node:crypto createHash/randomBytes smoke test failed (peer-store peer-crypto)'
+);
 
 const enc = new TextEncoder();
 

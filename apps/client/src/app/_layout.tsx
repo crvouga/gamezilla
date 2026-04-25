@@ -30,6 +30,7 @@ import {
   type FontStacks,
 } from '@gamezilla/lib/ui';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -39,9 +40,57 @@ assert.registerCrashHandler(new ExpoCrashHandler());
 
 polyfill();
 
+assert.ok(
+  typeof globalThis.crypto !== 'undefined',
+  'globalThis.crypto must exist after polyfill'
+);
+assert.ok(
+  typeof globalThis.crypto.getRandomValues === 'function',
+  'crypto.getRandomValues must be a function'
+);
+assert.notThrows(
+  () => globalThis.crypto.getRandomValues(new Uint8Array(16)),
+  'crypto.getRandomValues must accept Uint8Array'
+);
 assert.notThrows(
   () => globalThis.crypto.randomUUID(),
   'crypto.randomUUID must be available'
+);
+assert.ok(typeof Buffer !== 'undefined', 'Buffer must exist for peer-store');
+assert.notThrows(
+  () => Buffer.from([0xab]).toString('base64url'),
+  'Buffer base64url must work for peer-store wire encoding'
+);
+assert.ok(
+  typeof createHash === 'function',
+  'node:crypto.createHash must be a function (peer-store / testkit)'
+);
+assert.ok(
+  typeof randomBytes === 'function',
+  'node:crypto.randomBytes must be a function (peer-store)'
+);
+assert.ok(
+  typeof timingSafeEqual === 'function',
+  'node:crypto.timingSafeEqual must be a function (peer-store wire auth)'
+);
+assert.notThrows(
+  () =>
+    createHash('sha256')
+      .update('client:peer-store-runtime-smoke')
+      .digest(),
+  'node:crypto.createHash must run (peer-store test peers / crypto)'
+);
+assert.notThrows(
+  () => randomBytes(8),
+  'node:crypto.randomBytes must run (peer-store)'
+);
+assert.notThrows(
+  () => timingSafeEqual(Buffer.from([1]), Buffer.from([1])),
+  'node:crypto.timingSafeEqual must run (peer-store key compare)'
+);
+assert.ok(
+  typeof TextEncoder === 'function',
+  'TextEncoder must exist for peer-store crypto'
 );
 
 void preventSplashAutoHide();
