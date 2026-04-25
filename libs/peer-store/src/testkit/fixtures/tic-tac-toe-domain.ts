@@ -2,7 +2,6 @@ import { Assert } from '@gamezilla/lib/assert';
 import type { Command, HandleResult, State } from '../../store/types';
 import type { Event } from '../../events/message-types';
 import {
-  CellOccupiedError,
   ClockSliceSet,
   ClockTimeout,
   GameDrawn,
@@ -11,7 +10,6 @@ import {
   InvalidBoardError,
   InvalidCellError,
   InvalidPlayerError,
-  InvalidStateError,
   GameOverError,
   MarkPlaced,
   NotYourMarkError,
