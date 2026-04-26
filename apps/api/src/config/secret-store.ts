@@ -6,7 +6,7 @@ import {
   DopplerSecretStore,
 } from '@gamezilla/lib/secret-store';
 
-type RuntimeDopplerConfigName = 'local' | 'prod';
+export type RuntimeDopplerConfigName = 'local' | 'prod';
 
 function selectRuntimeConfigName(request: Request): RuntimeDopplerConfigName {
   const host = new URL(request.url).hostname.toLowerCase();
@@ -18,6 +18,16 @@ export type ApiSecretStoreFactory = {
   createFor(configName: RuntimeDopplerConfigName): SecretStore;
 };
 
+export function createApiSecretStoreForConfig(
+  token: string,
+  configName: RuntimeDopplerConfigName
+): SecretStore {
+  const envStore = new DopplerSecretStore({ token, configName });
+  const sharedStore = new DopplerSecretStore({ token, configName: 'shared' });
+  const combinedStore = createCombinedSecretStore(envStore, sharedStore);
+  return createCachingSecretStore(combinedStore, { ttlMs: 60_000 });
+}
+
 /**
  * Builds app-level SecretStore instances backed by Doppler env+shared configs.
  */
@@ -26,7 +36,6 @@ export function createApiSecretStoreFactory(
   request: Request
 ): ApiSecretStoreFactory {
   const configName = selectRuntimeConfigName(request);
-  const sharedStore = new DopplerSecretStore({ token, configName: 'shared' });
 
   return {
     configName,
@@ -35,12 +44,7 @@ export function createApiSecretStoreFactory(
         requestedConfigName === configName,
         `SecretStore config mismatch: selected ${configName}, requested ${requestedConfigName}`
       );
-      const envStore = new DopplerSecretStore({
-        token,
-        configName: requestedConfigName,
-      });
-      const combinedStore = createCombinedSecretStore(envStore, sharedStore);
-      return createCachingSecretStore(combinedStore, { ttlMs: 60_000 });
+      return createApiSecretStoreForConfig(token, requestedConfigName);
     },
   };
 }

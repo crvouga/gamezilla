@@ -120,4 +120,4 @@ jobs:
         working-directory: apps/infra
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
-        run: doppler run -- bun run infra deploy
+        run: doppler run -- sh -c 'bun --cwd ../db run migrate:prod && bun run infra deploy'

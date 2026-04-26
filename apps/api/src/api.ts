@@ -10,8 +10,6 @@ import { getPatchDb } from './db/patch-db';
 
 const log = createLogger({ name: 'api' });
 
-const MIGRATE_TIMEOUT_MS = 15_000;
-
 const pubSub = new InMemoryPubSub();
 
 type App = ReturnType<typeof createApiApp>;
@@ -41,29 +39,6 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Headers':
     'Content-Type, Cache-Control, Pragma, Authorization',
 } as const;
-
-function withTimeout<T>(
-  promise: Promise<T>,
-  ms: number,
-  label: string
-): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    const timer = setTimeout(
-      () => reject(new Error(`${label}: timed out after ${ms}ms`)),
-      ms
-    );
-    promise.then(
-      (value) => {
-        clearTimeout(timer);
-        resolve(value);
-      },
-      (error) => {
-        clearTimeout(timer);
-        reject(error);
-      }
-    );
-  });
-}
 
 /**
  * Browsers require CORS preflights to return a 2xx status; if the worker
@@ -103,7 +78,9 @@ async function bootApp(env: ApiWorkerEnv, request: Request): Promise<App> {
   const storeFactory = createApiSecretStoreFactory(token, request);
   const secretStore = storeFactory.createFor(storeFactory.configName);
 
-  const secrets = await secretStore.getRequiredMany([ApiSecretName.databaseUrl]);
+  const secrets = await secretStore.getRequiredMany([
+    ApiSecretName.databaseUrl,
+  ]);
   const databaseUrl = secrets[ApiSecretName.databaseUrl];
   if (typeof databaseUrl !== 'string' || databaseUrl.length === 0) {
     throw new ConfigurationError(
@@ -111,7 +88,6 @@ async function bootApp(env: ApiWorkerEnv, request: Request): Promise<App> {
     );
   }
   const patchDb = getPatchDb(databaseUrl);
-  await withTimeout(patchDb.migrate(), MIGRATE_TIMEOUT_MS, 'db.migrate');
   return createApiApp({
     db: patchDb,
     pubSub,
@@ -121,8 +97,8 @@ async function bootApp(env: ApiWorkerEnv, request: Request): Promise<App> {
 
 /**
  * Returns the booted app, or `null` if the isolate has permanently latched
- * into a fatal config state. Transient errors (DB unreachable, migrate
- * timeout) are re-thrown so the caller can fail this one request without
+ * into a fatal config state. Transient errors (for example DB connectivity)
+ * are re-thrown so the caller can fail this one request without
  * poisoning the isolate.
  */
 async function ensureApp(

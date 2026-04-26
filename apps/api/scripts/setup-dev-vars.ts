@@ -4,7 +4,7 @@
  * (including `DATABASE_URL`) is resolved at runtime via SecretStore.
  */
 
-import { execSync } from 'node:child_process';
+import { DopplerCli } from '@gamezilla/lib/doppler';
 import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -21,22 +21,14 @@ function encodeDevVarValue(value: string): string {
 }
 
 function resolveDopplerToken(): string {
-  const fromEnv = process.env['DOPPLER_TOKEN'];
-  if (typeof fromEnv === 'string' && fromEnv.trim().length > 0) {
-    return fromEnv.trim();
-  }
-
   try {
-    const fromCli = execSync('doppler configure get token --plain', {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
-    }).trim();
-    if (fromCli.length > 0) {
+    const resolved = new DopplerCli().resolveToken();
+    if (resolved.source === 'cli') {
       process.stdout.write(
         '[setup-dev-vars] DOPPLER_TOKEN not set in env; using `doppler configure get token --plain`.\n'
       );
-      return fromCli;
     }
+    return resolved.token;
   } catch {
     // handled by fatal message below
   }

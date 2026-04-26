@@ -4,7 +4,10 @@
   "private": true,
   "scripts": {
     "build": "bun -e \"process.exit(0)\"",
-    "setup": "bun -e \"process.exit(0)\"",
+    "setup": "bun run scripts/setup-local-db.ts",
+    "migrate": "bun run scripts/migrate-db.ts",
+    "migrate:local": "bun run scripts/migrate-db.ts local",
+    "migrate:prod": "bun run scripts/migrate-db.ts prod",
     "dev": "bun run --watch src/server.ts",
     "kill": "lsof -ti :15432 | xargs kill -9 2>/dev/null || true",
     "preview": "bun run src/server.ts",
@@ -12,6 +15,7 @@
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.4.3",
+    "@gamezilla/patch-db": "workspace:*",
     "@gamezilla/lib": "workspace:*",
     "@hono/zod-validator": "^0.7.6",
     "hono": "^4.7.0",
