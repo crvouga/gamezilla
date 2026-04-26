@@ -11,8 +11,8 @@ const DOPPLER_DOWNLOAD =
 
 export type DopplerSecretStoreOptions = {
   token: string;
-  /** Optional Doppler config name, e.g. 'shared', 'local', 'prod'. */
-  configName?: 'shared' | 'local' | 'prod';
+  /** Optional Doppler config name, e.g. 'shared'. */
+  configName?: 'shared';
   /** @default globalThis.fetch */
   fetchFn?: DopplerFetch;
 };

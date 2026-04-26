@@ -26,13 +26,13 @@ test(
     });
 
     await runTurboOnce(['setup', '--filter=@gamezilla/api'], {
-      DATABASE_URL: databaseUrl,
+      LOCAL_DATABASE_URL: databaseUrl,
     });
 
     await using api = startTurboBackground(
       ['preview', '--filter=@gamezilla/api'],
       {
-        DATABASE_URL: databaseUrl,
+        LOCAL_DATABASE_URL: databaseUrl,
       }
     );
     await waitForHttpOk(`${LOCAL_API_ORIGIN}/health`, {

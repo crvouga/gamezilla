@@ -2,49 +2,48 @@ import { assert } from '@gamezilla/lib/assert';
 import type { SecretStore } from '@gamezilla/lib/secret-store';
 import {
   createCachingSecretStore,
-  createCombinedSecretStore,
   DopplerSecretStore,
 } from '@gamezilla/lib/secret-store';
+import type { RuntimeEnvName } from './secret-names';
 
-export type RuntimeDopplerConfigName = 'local' | 'prod';
+export type { RuntimeEnvName } from './secret-names';
 
-function selectRuntimeConfigName(request: Request): RuntimeDopplerConfigName {
+export function selectRuntimeEnvName(request: Request): RuntimeEnvName {
   const host = new URL(request.url).hostname.toLowerCase();
   return host === 'api.gamezilla.app' ? 'prod' : 'local';
 }
 
 export type ApiSecretStoreFactory = {
-  readonly configName: RuntimeDopplerConfigName;
-  createFor(configName: RuntimeDopplerConfigName): SecretStore;
+  readonly runtimeEnv: RuntimeEnvName;
+  createFor(runtimeEnv: RuntimeEnvName): SecretStore;
 };
 
-export function createApiSecretStoreForConfig(
-  token: string,
-  configName: RuntimeDopplerConfigName
-): SecretStore {
-  const envStore = new DopplerSecretStore({ token, configName });
-  const sharedStore = new DopplerSecretStore({ token, configName: 'shared' });
-  const combinedStore = createCombinedSecretStore(envStore, sharedStore);
-  return createCachingSecretStore(combinedStore, { ttlMs: 60_000 });
+/**
+ * Single Doppler config `shared`; env-specific values use prefixed secret names.
+ */
+export function createApiSecretStore(token: string): SecretStore {
+  const store = new DopplerSecretStore({ token, configName: 'shared' });
+  return createCachingSecretStore(store, { ttlMs: 60_000 });
 }
 
 /**
- * Builds app-level SecretStore instances backed by Doppler env+shared configs.
+ * Builds app-level SecretStore backed by the shared Doppler config.
+ * {@link ApiSecretStoreFactory.runtimeEnv} selects which prefixed URL keys callers use.
  */
 export function createApiSecretStoreFactory(
   token: string,
   request: Request
 ): ApiSecretStoreFactory {
-  const configName = selectRuntimeConfigName(request);
+  const runtimeEnv = selectRuntimeEnvName(request);
 
   return {
-    configName,
-    createFor(requestedConfigName) {
+    runtimeEnv,
+    createFor(requestedRuntimeEnv) {
       assert.ok(
-        requestedConfigName === configName,
-        `SecretStore config mismatch: selected ${configName}, requested ${requestedConfigName}`
+        requestedRuntimeEnv === runtimeEnv,
+        `SecretStore runtime mismatch: selected ${runtimeEnv}, requested ${requestedRuntimeEnv}`
       );
-      return createApiSecretStoreForConfig(token, requestedConfigName);
+      return createApiSecretStore(token);
     },
   };
 }

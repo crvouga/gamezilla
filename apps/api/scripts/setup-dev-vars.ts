@@ -1,9 +1,3 @@
-/**
- * Trust boundary: `process.env` (e.g. from `doppler run --`) → `apps/api/.dev.vars`
- * for `wrangler dev`. Writes **only** `DOPPLER_TOKEN`; all other API config
- * (including `DATABASE_URL`) is resolved at runtime via SecretStore.
- */
-
 import { DopplerCli } from '@gamezilla/lib/doppler';
 import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';

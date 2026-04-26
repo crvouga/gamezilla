@@ -12,7 +12,8 @@ import { ResourceBase, type InfraContext } from './types';
 const PS_API = 'https://api.planetscale.com/v1';
 const ROLE_NAME = 'infra-deploy';
 const BRANCH = 'main';
-const DOPPLER_KEY = 'PLANETSCALE_DATABASE_URL';
+/** Canonical prod DB URL in the single `shared` Doppler config. */
+const DOPPLER_KEY = 'PROD_DATABASE_URL';
 
 interface PsRole {
   id: string;
@@ -41,7 +42,7 @@ export class PlanetScalePostgres extends ResourceBase {
 
   async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const url = await resolveDatabaseUrl();
-    ok('DATABASE_URL', url.replace(/\/\/[^@]+@/, '//***:***@'));
+    ok('PROD_DATABASE_URL', url.replace(/\/\/[^@]+@/, '//***:***@'));
   }
 
   async destroy(): Promise<void> {
@@ -57,7 +58,7 @@ export interface DatabasePingResult {
 }
 
 /**
- * Pings the database with `SELECT 1` using the cached DATABASE_URL in Doppler.
+ * Pings the database with `SELECT 1` using the cached `PROD_DATABASE_URL` in Doppler.
  * Read-only and safe to call from health checks. Does NOT mutate Doppler, does
  * NOT create roles, and does NOT claim table ownership.
  */
@@ -190,7 +191,7 @@ async function claimTableOwnership(url: string): Promise<void> {
 }
 
 /**
- * Derives DATABASE_URL from PlanetScale credentials via the Roles API
+ * Derives `PROD_DATABASE_URL` from PlanetScale credentials via the Roles API
  * and caches the result in Doppler.
  *
  * 1. Check Doppler for a cached URL — if it works, reuse it.
@@ -200,11 +201,11 @@ async function claimTableOwnership(url: string): Promise<void> {
  * the tables owns them, and a different role cannot run DDL (ALTER TABLE,
  * CREATE INDEX) on tables it doesn't own.
  */
-/** Resolves and caches `DATABASE_URL` from PlanetScale (Doppler + Roles API). */
+/** Resolves and caches `PROD_DATABASE_URL` from PlanetScale (Doppler + Roles API). */
 export async function resolveDatabaseUrl(): Promise<string> {
   if (!psOrg() || !psDatabase()) {
     throw new Error(
-      'Cannot resolve DATABASE_URL: TF_VAR_planetscale_org and TF_VAR_planetscale_database must be set'
+      'Cannot resolve PROD_DATABASE_URL: TF_VAR_planetscale_org and TF_VAR_planetscale_database must be set'
     );
   }
 
@@ -213,7 +214,7 @@ export async function resolveDatabaseUrl(): Promise<string> {
     const valid = await validateConnectivity(cached);
     if (valid) {
       await claimTableOwnership(cached);
-      process.env['DATABASE_URL'] = cached;
+      process.env['PROD_DATABASE_URL'] = cached;
       return cached;
     }
   }
@@ -230,13 +231,13 @@ export async function resolveDatabaseUrl(): Promise<string> {
   const valid = await validateConnectivity(url);
   if (!valid) {
     throw new Error(
-      'DATABASE_URL connectivity check failed after role creation'
+      'PROD_DATABASE_URL connectivity check failed after role creation'
     );
   }
 
   await claimTableOwnership(url);
   setDopplerSecret(DOPPLER_KEY, url);
-  process.env['DATABASE_URL'] = url;
+  process.env['PROD_DATABASE_URL'] = url;
   return url;
 }
 

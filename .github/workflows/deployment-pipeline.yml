@@ -32,7 +32,7 @@ jobs:
       - name: Check (tc + lint + test + build)
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
-        run: doppler run -- bunx turbo check build
+        run: bunx turbo check build
 
   qa:
     runs-on: ubuntu-latest
@@ -77,7 +77,7 @@ jobs:
       - name: QA (API integration + Playwright + turbo preview)
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
-        run: doppler run --config local -- bun run --filter "@gamezilla/qa" qa
+        run: bun run --filter "@gamezilla/qa" qa
 
       - name: Upload Playwright report
         if: failure()
@@ -120,4 +120,4 @@ jobs:
         working-directory: apps/infra
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
-        run: doppler run -- sh -c 'bun --cwd ../db run migrate:prod && bun run infra deploy'
+        run: sh -c 'bun --cwd ../db run migrate:prod && bun run infra deploy'

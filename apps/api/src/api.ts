@@ -4,7 +4,7 @@ import { isSecretStoreError } from '@gamezilla/lib/secret-store';
 import { createApiApp } from './app/create-app';
 import type { ApiWorkerEnv } from './config/env';
 import { assertDopplerTokenBinding, ConfigurationError } from './config/env';
-import { ApiSecretName } from './config/secret-names';
+import { databaseUrlSecretName } from './config/secret-names';
 import { createApiSecretStoreFactory } from './config/secret-store';
 import { getPatchDb } from './db/patch-db';
 
@@ -76,15 +76,14 @@ function latchFatal(reason: string): void {
 async function bootApp(env: ApiWorkerEnv, request: Request): Promise<App> {
   const token = assertDopplerTokenBinding(env);
   const storeFactory = createApiSecretStoreFactory(token, request);
-  const secretStore = storeFactory.createFor(storeFactory.configName);
+  const secretStore = storeFactory.createFor(storeFactory.runtimeEnv);
 
-  const secrets = await secretStore.getRequiredMany([
-    ApiSecretName.databaseUrl,
-  ]);
-  const databaseUrl = secrets[ApiSecretName.databaseUrl];
+  const databaseUrlKey = databaseUrlSecretName(storeFactory.runtimeEnv);
+  const secrets = await secretStore.getRequiredMany([databaseUrlKey]);
+  const databaseUrl = secrets[databaseUrlKey];
   if (typeof databaseUrl !== 'string' || databaseUrl.length === 0) {
     throw new ConfigurationError(
-      'DATABASE_URL was not returned from Doppler after getRequiredMany'
+      `${databaseUrlKey} was not returned from Doppler after getRequiredMany`
     );
   }
   const patchDb = getPatchDb(databaseUrl);

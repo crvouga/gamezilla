@@ -32,9 +32,14 @@ export async function createPostgresFactory(): Promise<{
   db: PatchesDb;
   teardown: () => Promise<void>;
 }> {
-  const url = process.env['DATABASE_URL'];
+  const url =
+    process.env['LOCAL_DATABASE_URL'] ??
+    process.env['PROD_DATABASE_URL'] ??
+    process.env['DATABASE_URL'];
   if (url === undefined || url === '') {
-    throw new Error('createPostgresFactory: DATABASE_URL must be set');
+    throw new Error(
+      'createPostgresFactory: set LOCAL_DATABASE_URL, PROD_DATABASE_URL, or DATABASE_URL'
+    );
   }
   const client: SqlClient = SqlClientImplBunPostgres.connect(url);
   await client.connect();

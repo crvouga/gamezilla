@@ -1,20 +1,23 @@
-import {
-  createCachingSecretStore,
-  createCombinedSecretStore,
-  DopplerSecretStore,
-} from '@gamezilla/lib/secret-store';
 import { assert } from '@gamezilla/lib/assert';
 import { DopplerCli } from '@gamezilla/lib/doppler';
+import {
+  createCachingSecretStore,
+  DopplerSecretStore,
+} from '@gamezilla/lib/secret-store';
 import { SqlClientImplPgliteHttp } from '@gamezilla/lib/sql-client/impl-pglite-http';
 import { SqlClientImplPlanetScalePostgres } from '@gamezilla/lib/sql-client/impl-planetscale-postgres';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
 
-type RuntimeConfigName = 'local' | 'prod';
-const DATABASE_URL_SECRET = 'DATABASE_URL';
+type MigrateTarget = 'local' | 'prod';
+
 const MIGRATE_USAGE = 'usage: bun run scripts/migrate-db.ts <local|prod>';
 
-function parseTargetConfigName(): RuntimeConfigName {
+function databaseUrlSecretForTarget(target: MigrateTarget): string {
+  return target === 'prod' ? 'PROD_DATABASE_URL' : 'LOCAL_DATABASE_URL';
+}
+
+function parseMigrateTarget(): MigrateTarget {
   const rawArg = process.argv[2];
   assert.nonEmptyString(rawArg, MIGRATE_USAGE);
   const raw = rawArg.trim().toLowerCase();
@@ -38,29 +41,28 @@ function createSqlClient(databaseUrl: string): SqlClient {
 
 async function resolveDatabaseUrl(
   token: string,
-  configName: RuntimeConfigName
+  target: MigrateTarget
 ): Promise<string> {
-  const envStore = new DopplerSecretStore({ token, configName });
-  const sharedStore = new DopplerSecretStore({ token, configName: 'shared' });
+  const secretName = databaseUrlSecretForTarget(target);
   const secretStore = createCachingSecretStore(
-    createCombinedSecretStore(envStore, sharedStore),
+    new DopplerSecretStore({ token, configName: 'shared' }),
     { ttlMs: 60_000 }
   );
-  const databaseUrl = await secretStore.getRequired(DATABASE_URL_SECRET);
+  const databaseUrl = await secretStore.getRequired(secretName);
   assert.ok(
     databaseUrl.trim().length > 0,
-    `${DATABASE_URL_SECRET} resolved blank for config ${configName}`
+    `${secretName} resolved blank for migrate target ${target}`
   );
   return databaseUrl;
 }
 
 async function main(): Promise<void> {
-  const configName = parseTargetConfigName();
+  const target = parseMigrateTarget();
   const token = resolveDopplerToken();
-  const databaseUrl = await resolveDatabaseUrl(token, configName);
+  const databaseUrl = await resolveDatabaseUrl(token, target);
   const patchDb = new PatchDbImplPostgres(createSqlClient(databaseUrl));
   await patchDb.migrate();
-  process.stdout.write(`[db:migrate] completed for ${configName}\n`);
+  process.stdout.write(`[db:migrate] completed for ${target}\n`);
 }
 
 await main().catch((error: unknown) => {
