@@ -11,11 +11,13 @@
 import { PGlite } from '@electric-sql/pglite';
 import { assert } from '@gamezilla/lib/assert';
 import { createLogger } from '@gamezilla/lib/logger';
+import { mkdirSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { Hono } from 'hono';
 import { createSqlApp } from './sql-app';
 
 const HOST = '127.0.0.1';
-const DATA_DIR = process.env['GAMEZILLA_DATA_DIR'];
 
 const log = createLogger({ name: 'db' });
 
@@ -36,7 +38,23 @@ function parseListenPortFromEnv(): number {
 
 const SQL_PORT = parseListenPortFromEnv();
 
-const db = await PGlite.create(DATA_DIR);
+const dbPackageRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
+
+function resolveDataDir(): { path: string; source: 'env' | 'default' } {
+  const raw = process.env['GAMEZILLA_DATA_DIR'];
+  if (typeof raw === 'string' && raw.trim().length > 0) {
+    return { path: raw.trim(), source: 'env' };
+  }
+  return {
+    path: join(dbPackageRoot, '.pglite', `port-${SQL_PORT}`),
+    source: 'default',
+  };
+}
+
+const { path: dataDir, source: dataDirSource } = resolveDataDir();
+mkdirSync(dataDir, { recursive: true });
+
+const db = await PGlite.create(dataDir);
 
 const app = new Hono()
   .get('/health', (c) => c.json({ ok: true }))
@@ -48,7 +66,8 @@ Bun.serve({ port: SQL_PORT, hostname: HOST, fetch: app.fetch });
 log.info('server started', {
   host: HOST,
   port: SQL_PORT,
-  dataDir: DATA_DIR ?? 'in-memory',
+  dataDir,
+  dataDirSource,
 });
 
 const shutdown = async (signal: string) => {

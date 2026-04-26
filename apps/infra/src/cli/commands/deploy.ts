@@ -1,8 +1,10 @@
 import { assert } from '@gamezilla/lib/assert';
+import { join } from 'node:path';
 import { ALL_DEPS } from '../deps/registry';
 import { collectDepVersionIssues } from '../deps/version-check';
 import { banner, fail, ok, warn } from '../lib/fmt';
 import { infraOutputs } from '../lib/infra-outputs';
+import { REPO_ROOT } from '../paths';
 import { refreshClientConfig } from '../lib/refresh-client-config';
 import { runHttpSmokeTests } from '../lib/smoke-tests';
 import type { CiPlatform } from '../platform/platform';
@@ -10,7 +12,7 @@ import { runStep } from '../platform/platform';
 import { createRegistry } from '../resources/registry';
 import { topoSort } from '../resources/topo-sort';
 import type { InfraContext } from '../resources/types';
-import { runCaptureAsync } from '../subprocess';
+import { runAsync, runCaptureAsync } from '../subprocess';
 import type { Command } from './types';
 
 export class DeployCommand implements Command {
@@ -72,6 +74,19 @@ export class DeployCommand implements Command {
         resource.provision(p, ctx)
       );
     }
+
+    // ── 2b. DB migrations (requires DB_URL from PlanetScale provision) ───
+    await runStep(p, 'Database migrate', async () => {
+      const dbUrl = (process.env['DB_URL'] ?? '').trim();
+      assert.nonEmptyString(
+        dbUrl,
+        'DB_URL must be set after PlanetScale provision — check TF_VAR_planetscale_* and PlanetScale credentials'
+      );
+      await runAsync(p, 'bun', ['--cwd', join(REPO_ROOT, 'apps/db'), 'run', 'migrate'], {
+        env: process.env,
+        label: 'db: migrate',
+      });
+    });
 
     // ── 3. Deploy resources that have a deploy method (topological order)
     for (const resource of resources) {

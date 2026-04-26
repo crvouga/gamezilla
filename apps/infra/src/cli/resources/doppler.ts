@@ -36,12 +36,6 @@ const DERIVED_DEFAULTS: Record<string, () => string> = {
  * recognizes them as managed instead of flagging them stale.
  */
 const EXTERNALLY_MANAGED_KEYS: ReadonlyArray<string> = [
-  // Issued by `PlanetScalePostgres.resolveDatabaseUrl` during provision.
-  'PROD_DATABASE_URL',
-  // URL secrets in the single `shared` Doppler config (local vs prod by name).
-  'LOCAL_DATABASE_URL',
-  'LOCAL_API_URL',
-  'PROD_API_URL',
   // Per-build value injected by `ClientResource.deploy` (not stored in Doppler).
   'EXPO_PUBLIC_COMMIT_HASH',
 ];

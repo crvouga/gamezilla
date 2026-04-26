@@ -17,9 +17,12 @@ PlanetScale (DB)          → event log, reconnect recovery, player data
 ```typescript
 type GameModule<TState, TCommand, TEvent> = {
   initialState(): TState;
-  handleCommand(input: { state: TState; command: Command<TCommand> }): Result<{ events: TEvent[] }, GameError>;
+  handleCommand(input: {
+    state: TState;
+    command: Command<TCommand>;
+  }): Result<{ events: TEvent[] }, GameError>;
   handleEvent(input: { state: TState; event: TEvent }): TState;
-}
+};
 ```
 
 Three methods. All pure functions. No side effects. Runs identically on client, Durable Object, and optional server.
@@ -36,11 +39,11 @@ Three methods. All pure functions. No side effects. Runs identically on client, 
 ```typescript
 function reduce<TState, TEvent>(
   module: GameModule<TState, any, TEvent>,
-  events: TEvent[],
+  events: TEvent[]
 ): TState {
   return events.reduce(
     (state, event) => module.handleEvent({ state, event }),
-    module.initialState(),
+    module.initialState()
   );
 }
 ```
@@ -49,11 +52,11 @@ function reduce<TState, TEvent>(
 
 ```typescript
 type Command<TCommand> = {
-  id: string;       // for consensus dedup (ulid)
-  seq: number;      // for ordering
+  id: string; // for consensus dedup (ulid)
+  seq: number; // for ordering
   playerId: string; // for turn validation
   payload: TCommand;
-}
+};
 ```
 
 ### One command produces multiple events
@@ -65,7 +68,7 @@ type Command<TCommand> = {
   { type: 'PAWN_PROMOTED', piece: 'QUEEN' },
   { type: 'CHECK_DECLARED', kingSquare: 'e8' },
   { type: 'GAME_ENDED', result: 'WHITE_WINS' },
-]
+];
 ```
 
 ---
@@ -129,8 +132,8 @@ Any single participant can be dishonest. The other two always outvote them. This
 
 ```typescript
 type GameMode =
-  | { type: 'casual' }      // peer only, works offline, no referee required
-  | { type: 'competitive' } // referee required, online only
+  | { type: 'casual' } // peer only, works offline, no referee required
+  | { type: 'competitive' }; // referee required, online only
 ```
 
 Competitive refuses to start without Durable Object connection. Casual works fully offline.
@@ -224,7 +227,11 @@ export class GamePeerStore extends DurableObject {
 
     // referee votes immediately
     const refereeVote = result.ok ? 'ACK' : 'REJECT';
-    this.consensus.record({ commandId: cmd.id, from: 'referee', vote: refereeVote });
+    this.consensus.record({
+      commandId: cmd.id,
+      from: 'referee',
+      vote: refereeVote,
+    });
 
     // forward command to other player
     this.broadcast({ type: 'peer-command', command: cmd }, senderId);
@@ -234,8 +241,12 @@ export class GamePeerStore extends DurableObject {
     const result = this.consensus.record(vote);
 
     if (result.status === 'COMMITTED') {
-      this.broadcast({ type: 'committed', commandId: vote.commandId, events: result.events });
-      result.events.forEach(e => this.committedEvents.push(e));
+      this.broadcast({
+        type: 'committed',
+        commandId: vote.commandId,
+        events: result.events,
+      });
+      result.events.forEach((e) => this.committedEvents.push(e));
 
       // persist to PlanetScale — async, does not block commit
       this.ctx.waitUntil(this.persistEvents(result.events));
@@ -392,32 +403,47 @@ export class GameEngine<TState, TCommand, TEvent> {
     private playerId: string,
     private transport: GameTransportPort,
     private onStateChange: (state: TState) => void,
-    private onError: (error: GameError) => void,
+    private onError: (error: GameError) => void
   ) {
-    transport.onMessage(msg => this.handleMessage(msg));
+    transport.onMessage((msg) => this.handleMessage(msg));
   }
 
   dispatch(command: TCommand) {
     const cmd = buildCommand(command, this.playerId, this.committedState.seq);
 
-    const result = this.module.handleCommand({ state: this.committedState, command: cmd });
-    if (!result.ok) { this.onError(result.error); return; }
+    const result = this.module.handleCommand({
+      state: this.committedState,
+      command: cmd,
+    });
+    if (!result.ok) {
+      this.onError(result.error);
+      return;
+    }
 
     this.applyOptimistic(cmd.id, result.value.events);
     this.transport.send({ type: 'command', command: cmd });
   }
 
   private handlePeerCommand(cmd: Command<TCommand>) {
-    const result = this.module.handleCommand({ state: this.committedState, command: cmd });
+    const result = this.module.handleCommand({
+      state: this.committedState,
+      command: cmd,
+    });
     this.transport.send({
       type: 'vote',
-      vote: { commandId: cmd.id, from: this.playerId, vote: result.ok ? 'ACK' : 'REJECT' },
+      vote: {
+        commandId: cmd.id,
+        from: this.playerId,
+        vote: result.ok ? 'ACK' : 'REJECT',
+      },
     });
   }
 
   private handleCommitted(payload: { commandId: string; events: TEvent[] }) {
-    this.optimisticEvents = this.optimisticEvents.filter(e => e.commandId !== payload.commandId);
-    payload.events.forEach(event => this.committedEvents.push(event));
+    this.optimisticEvents = this.optimisticEvents.filter(
+      (e) => e.commandId !== payload.commandId
+    );
+    payload.events.forEach((event) => this.committedEvents.push(event));
     this.emitState();
   }
 
@@ -426,9 +452,18 @@ export class GameEngine<TState, TCommand, TEvent> {
     this.emitState();
   }
 
-  private get committedState() { return reduce(this.module, this.committedEvents); }
-  private get optimisticState() { return reduce(this.module, [...this.committedEvents, ...this.optimisticEvents]); }
-  private emitState() { this.onStateChange(this.optimisticState); }
+  private get committedState() {
+    return reduce(this.module, this.committedEvents);
+  }
+  private get optimisticState() {
+    return reduce(this.module, [
+      ...this.committedEvents,
+      ...this.optimisticEvents,
+    ]);
+  }
+  private emitState() {
+    this.onStateChange(this.optimisticState);
+  }
 }
 ```
 
@@ -447,15 +482,16 @@ export class ConsensusProtocol {
   }
 
   record(vote: Vote): ConsensusResult {
-    if (!this.votes.has(vote.commandId)) this.votes.set(vote.commandId, new Map());
+    if (!this.votes.has(vote.commandId))
+      this.votes.set(vote.commandId, new Map());
     this.votes.get(vote.commandId)!.set(vote.from, vote.vote);
     return this.evaluate(vote.commandId);
   }
 
   private evaluate(commandId: string): ConsensusResult {
     const votes = this.votes.get(commandId)!;
-    const acks = [...votes.values()].filter(v => v === 'ACK').length;
-    const rejects = [...votes.values()].filter(v => v === 'REJECT').length;
+    const acks = [...votes.values()].filter((v) => v === 'ACK').length;
+    const rejects = [...votes.values()].filter((v) => v === 'REJECT').length;
     if (acks >= this.quorum) return { status: 'COMMITTED' };
     if (rejects >= this.quorum) return { status: 'REJECTED' };
     return { status: 'PENDING' };
@@ -498,7 +534,7 @@ export class DurableObjectTransport implements GameTransportPort {
     );
     this.ws.onmessage = (e) => {
       const msg = JSON.parse(e.data);
-      this.handlers.forEach(h => h(msg));
+      this.handlers.forEach((h) => h(msg));
     };
   }
 
@@ -513,7 +549,9 @@ export class DurableObjectTransport implements GameTransportPort {
 
   onDisconnect(handler: () => void) {
     this.ws.onclose = handler;
-    return () => { this.ws.onclose = null; };
+    return () => {
+      this.ws.onclose = null;
+    };
   }
 }
 ```
@@ -635,8 +673,6 @@ new_classes = ["GamePeerStore"]
 
 [vars]
 ENVIRONMENT = "production"
-
-# DATABASE_URL set via `wrangler secret put`
 ```
 
 ---
@@ -696,6 +732,7 @@ turbo run dev --filter=@gamezilla/db
 ```
 
 Local server (`apps/db/src/server.ts`):
+
 - **Port 15432**: HTTP `/sql` endpoint with PlanetScale-like limits
 - **Port 8787**: Same `createApiHandler` as prod, backed by PGlite
 
@@ -704,7 +741,7 @@ Local server (`apps/db/src/server.ts`):
 ## Dependencies
 
 ```typescript
-import { ulid } from 'ulid';                 // command IDs
+import { ulid } from 'ulid'; // command IDs
 import { Result, ok, err } from 'neverthrow'; // Result type
 ```
 

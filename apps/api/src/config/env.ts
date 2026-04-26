@@ -1,8 +1,10 @@
 /**
- * Cloudflare Worker bindings for the API: exactly one secret used to reach
- * Doppler; all other configuration is Doppler secrets (Tiger Style).
+ * Cloudflare Worker bindings: `DB_URL` is the Postgres (or pglite HTTP) URL
+ * for this deployment; `DOPPLER_TOKEN` reaches Doppler for non-env-specific
+ * secrets only.
  */
 export type ApiWorkerEnv = {
+  DB_URL: string;
   DOPPLER_TOKEN: string;
 };
 
@@ -22,14 +24,28 @@ export class ConfigurationError extends Error {
 }
 
 /**
- * Validates the sole Worker binding at boot. Throws {@link ConfigurationError}
- * when `DOPPLER_TOKEN` is missing, wrong type, or whitespace-only.
+ * Validates `DOPPLER_TOKEN` at boot. Throws {@link ConfigurationError}
+ * when missing, wrong type, or whitespace-only.
  */
 export function assertDopplerTokenBinding(env: ApiWorkerEnv): string {
   const raw = env.DOPPLER_TOKEN;
   if (typeof raw !== 'string' || raw.trim().length === 0) {
     throw new ConfigurationError(
-      'DOPPLER_TOKEN is required (non-empty string). Set this Worker secret or add it to .dev.vars; all other API config is loaded from Doppler.'
+      'DOPPLER_TOKEN is required (non-empty string). Set this Worker secret or add it to .dev.vars; remaining API config uses Doppler for non-URL secrets only.'
+    );
+  }
+  return raw.trim();
+}
+
+/**
+ * Validates `DB_URL` at boot. Throws {@link ConfigurationError}
+ * when missing, wrong type, or whitespace-only.
+ */
+export function assertDbUrlBinding(env: ApiWorkerEnv): string {
+  const raw = env.DB_URL;
+  if (typeof raw !== 'string' || raw.trim().length === 0) {
+    throw new ConfigurationError(
+      'DB_URL is required (non-empty string). Set this Worker secret or add it to .dev.vars; it is not loaded from Doppler.'
     );
   }
   return raw.trim();

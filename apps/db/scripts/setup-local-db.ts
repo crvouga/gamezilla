@@ -3,7 +3,9 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const DB_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const LOCAL_DB_HEALTH_URL = 'http://127.0.0.1:15432/health';
+const SQL_PORT = process.env['SQL_PORT'] ?? '15432';
+const LOCAL_DB_HEALTH_URL = `http://127.0.0.1:${SQL_PORT}/health`;
+const LOCAL_DB_URL = `http://127.0.0.1:${SQL_PORT}`;
 
 async function waitForHttpOk(url: string, timeoutMs: number): Promise<void> {
   const deadline = Date.now() + timeoutMs;
@@ -35,9 +37,10 @@ async function main(): Promise<void> {
   try {
     await waitForHttpOk(LOCAL_DB_HEALTH_URL, 30_000);
 
-    const result = spawnSync('bun', ['run', 'scripts/migrate-db.ts', 'local'], {
+    const result = spawnSync('bun', ['run', 'scripts/migrate-db.ts'], {
       cwd: DB_ROOT,
       stdio: 'inherit',
+      env: { ...process.env, DB_URL: LOCAL_DB_URL },
     });
 
     if (result.error) {

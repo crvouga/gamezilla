@@ -16,23 +16,17 @@ function resolveExpoPublicApiUrl(): string {
     return explicit.trim();
   }
 
-  const local = process.env.LOCAL_API_URL;
-  if (typeof local === 'string' && local.trim().length > 0) {
+  const apiUrl = process.env.API_URL;
+  if (typeof apiUrl === 'string' && apiUrl.trim().length > 0) {
     process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_API_URL unset; using LOCAL_API_URL from env.\n'
+      '[setup-env] EXPO_PUBLIC_API_URL unset; using API_URL from env.\n'
     );
-    return local.trim();
+    return apiUrl.trim();
   }
 
-  const prod = process.env.PROD_API_URL;
-  if (typeof prod === 'string' && prod.trim().length > 0) {
-    process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_API_URL unset; using PROD_API_URL from env.\n'
-    );
-    return prod.trim();
-  }
-
-  assert.fail('EXPO_PUBLIC_API_URL is required');
+  assert.fail(
+    'EXPO_PUBLIC_API_URL or API_URL is required (set API_URL for env-only API origin)'
+  );
 }
 
 function resolveExpoPublicCommitHash(): string {

@@ -31,10 +31,15 @@ export class ApiWorkerResource extends ResourceBase {
     const env = wranglerEnv();
 
     const dopplerToken = (process.env['DOPPLER_TOKEN'] ?? '').trim();
+    const dbUrl = (process.env['DB_URL'] ?? '').trim();
 
     assert.nonEmptyString(
       dopplerToken,
       'DOPPLER_TOKEN must be set so the API Worker can resolve runtime secrets from Doppler'
+    );
+    assert.nonEmptyString(
+      dbUrl,
+      'DB_URL must be set (e.g. after PlanetScale provision) before deploying the API Worker'
     );
 
     await runCaptureAsync('wrangler', ['secret', 'put', 'DOPPLER_TOKEN'], {
@@ -43,6 +48,13 @@ export class ApiWorkerResource extends ResourceBase {
       input: dopplerToken,
     });
     platform.notice('DOPPLER_TOKEN secret pushed to Workers.');
+
+    await runCaptureAsync('wrangler', ['secret', 'put', 'DB_URL'], {
+      cwd: apiDir,
+      env,
+      input: dbUrl,
+    });
+    platform.notice('DB_URL secret pushed to Workers.');
 
     await runAsync(platform, 'wrangler', ['deploy'], {
       cwd: apiDir,

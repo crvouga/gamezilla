@@ -2,18 +2,11 @@ import { neon, neonConfig } from '@neondatabase/serverless';
 import { ok } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import { psHeaders } from '../secrets/planetscale';
-import {
-  dopplerSecretExists,
-  fetchDopplerSecret,
-  setDopplerSecret,
-} from '../secrets/secrets';
 import { ResourceBase, type InfraContext } from './types';
 
 const PS_API = 'https://api.planetscale.com/v1';
 const ROLE_NAME = 'infra-deploy';
 const BRANCH = 'main';
-/** Canonical prod DB URL in the single `shared` Doppler config. */
-const DOPPLER_KEY = 'PROD_DATABASE_URL';
 
 interface PsRole {
   id: string;
@@ -42,7 +35,7 @@ export class PlanetScalePostgres extends ResourceBase {
 
   async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const url = await resolveDatabaseUrl();
-    ok('PROD_DATABASE_URL', url.replace(/\/\/[^@]+@/, '//***:***@'));
+    ok('DB_URL', url.replace(/\/\/[^@]+@/, '//***:***@'));
   }
 
   async destroy(): Promise<void> {
@@ -58,26 +51,26 @@ export interface DatabasePingResult {
 }
 
 /**
- * Pings the database with `SELECT 1` using the cached `PROD_DATABASE_URL` in Doppler.
- * Read-only and safe to call from health checks. Does NOT mutate Doppler, does
- * NOT create roles, and does NOT claim table ownership.
+ * Pings the database with `SELECT 1` using `DB_URL` from the environment.
+ * Read-only and safe to call from health checks.
  */
 export async function pingDatabase(): Promise<DatabasePingResult> {
   const start = Date.now();
   try {
-    if (!dopplerSecretExists(DOPPLER_KEY)) {
+    const url = (process.env['DB_URL'] ?? '').trim();
+    if (!url) {
       return {
         ok: false,
         durationMs: Date.now() - start,
-        error: `${DOPPLER_KEY} not set in Doppler — run \`bun run infra deploy\``,
+        error:
+          'DB_URL not set — run `bun run infra deploy` or export DB_URL for this shell',
       };
     }
-    const url = fetchDopplerSecret(DOPPLER_KEY);
     if (!url.startsWith('postgresql://') && !url.startsWith('postgres://')) {
       return {
         ok: false,
         durationMs: Date.now() - start,
-        error: `${DOPPLER_KEY} is malformed (not a postgres URL)`,
+        error: 'DB_URL is malformed (expected postgres:// or postgresql://)',
       };
     }
     const host = new URL(url).host;
@@ -190,31 +183,33 @@ async function claimTableOwnership(url: string): Promise<void> {
   }
 }
 
+function tryFetchCachedUrlFromEnv(): string | null {
+  const url = (process.env['DB_URL'] ?? '').trim();
+  if (!url) return null;
+  return url.startsWith('postgresql://') || url.startsWith('postgres://')
+    ? url
+    : null;
+}
+
 /**
- * Derives `PROD_DATABASE_URL` from PlanetScale credentials via the Roles API
- * and caches the result in Doppler.
+ * Resolves `DB_URL` from PlanetScale credentials via the Roles API.
  *
- * 1. Check Doppler for a cached URL — if it works, reuse it.
- * 2. Otherwise, clean up stale roles, create a fresh one, cache the URL.
- *
- * Keeping the same role across deploys is critical: the role that creates
- * the tables owns them, and a different role cannot run DDL (ALTER TABLE,
- * CREATE INDEX) on tables it doesn't own.
+ * 1. If `DB_URL` is already set and connectivity succeeds, reuse it.
+ * 2. Otherwise, clean up stale roles, create a fresh one, set `process.env.DB_URL`.
  */
-/** Resolves and caches `PROD_DATABASE_URL` from PlanetScale (Doppler + Roles API). */
 export async function resolveDatabaseUrl(): Promise<string> {
   if (!psOrg() || !psDatabase()) {
     throw new Error(
-      'Cannot resolve PROD_DATABASE_URL: TF_VAR_planetscale_org and TF_VAR_planetscale_database must be set'
+      'Cannot resolve DB_URL: TF_VAR_planetscale_org and TF_VAR_planetscale_database must be set'
     );
   }
 
-  const cached = tryFetchCachedUrl();
+  const cached = tryFetchCachedUrlFromEnv();
   if (cached) {
     const valid = await validateConnectivity(cached);
     if (valid) {
       await claimTableOwnership(cached);
-      process.env['PROD_DATABASE_URL'] = cached;
+      process.env['DB_URL'] = cached;
       return cached;
     }
   }
@@ -230,25 +225,10 @@ export async function resolveDatabaseUrl(): Promise<string> {
 
   const valid = await validateConnectivity(url);
   if (!valid) {
-    throw new Error(
-      'PROD_DATABASE_URL connectivity check failed after role creation'
-    );
+    throw new Error('DB_URL connectivity check failed after role creation');
   }
 
   await claimTableOwnership(url);
-  setDopplerSecret(DOPPLER_KEY, url);
-  process.env['PROD_DATABASE_URL'] = url;
+  process.env['DB_URL'] = url;
   return url;
-}
-
-function tryFetchCachedUrl(): string | null {
-  try {
-    if (!dopplerSecretExists(DOPPLER_KEY)) return null;
-    const url = fetchDopplerSecret(DOPPLER_KEY);
-    return url.startsWith('postgresql://') || url.startsWith('postgres://')
-      ? url
-      : null;
-  } catch {
-    return null;
-  }
 }

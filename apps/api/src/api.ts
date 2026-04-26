@@ -3,9 +3,12 @@ import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import { isSecretStoreError } from '@gamezilla/lib/secret-store';
 import { createApiApp } from './app/create-app';
 import type { ApiWorkerEnv } from './config/env';
-import { assertDopplerTokenBinding, ConfigurationError } from './config/env';
-import { databaseUrlSecretName } from './config/secret-names';
-import { createApiSecretStoreFactory } from './config/secret-store';
+import {
+  assertDbUrlBinding,
+  assertDopplerTokenBinding,
+  ConfigurationError,
+} from './config/env';
+import { createApiSecretStore } from './config/secret-store';
 import { getPatchDb } from './db/patch-db';
 
 const log = createLogger({ name: 'api' });
@@ -73,19 +76,10 @@ function latchFatal(reason: string): void {
   }
 }
 
-async function bootApp(env: ApiWorkerEnv, request: Request): Promise<App> {
+async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const token = assertDopplerTokenBinding(env);
-  const storeFactory = createApiSecretStoreFactory(token, request);
-  const secretStore = storeFactory.createFor(storeFactory.runtimeEnv);
-
-  const databaseUrlKey = databaseUrlSecretName(storeFactory.runtimeEnv);
-  const secrets = await secretStore.getRequiredMany([databaseUrlKey]);
-  const databaseUrl = secrets[databaseUrlKey];
-  if (typeof databaseUrl !== 'string' || databaseUrl.length === 0) {
-    throw new ConfigurationError(
-      `${databaseUrlKey} was not returned from Doppler after getRequiredMany`
-    );
-  }
+  const databaseUrl = assertDbUrlBinding(env);
+  const secretStore = createApiSecretStore(token);
   const patchDb = getPatchDb(databaseUrl);
   return createApiApp({
     db: patchDb,
@@ -100,15 +94,12 @@ async function bootApp(env: ApiWorkerEnv, request: Request): Promise<App> {
  * are re-thrown so the caller can fail this one request without
  * poisoning the isolate.
  */
-async function ensureApp(
-  env: ApiWorkerEnv,
-  request: Request
-): Promise<App | null> {
+async function ensureApp(env: ApiWorkerEnv): Promise<App | null> {
   if (bootState.kind === 'ready') return bootState.app;
   if (bootState.kind === 'fatal') return null;
 
   try {
-    const app = await bootApp(env, request);
+    const app = await bootApp(env);
     bootState = { kind: 'ready', app };
     return app;
   } catch (err: unknown) {
@@ -127,7 +118,7 @@ export default {
     _ctx: ExecutionContext
   ): Promise<Response> {
     try {
-      const app = await ensureApp(env, request);
+      const app = await ensureApp(env);
       if (app === null) {
         if (request.method === 'OPTIONS') {
           return preflightResponse();

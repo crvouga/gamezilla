@@ -2,6 +2,12 @@ import { defineConfig, devices } from '@playwright/test';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { LOCAL_API_PREVIEW_ORIGIN } from '../constants/local-api-preview.mjs';
+
+if (!process.env['API_URL']?.trim()) {
+  process.env['API_URL'] = LOCAL_API_PREVIEW_ORIGIN;
+}
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.join(__dirname, '..', '..', '..', '..');
 

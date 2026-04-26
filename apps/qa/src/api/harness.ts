@@ -3,8 +3,10 @@ import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-/** Matches {@link apps/client/scripts/setup-env.ts} default for local API. */
-export const LOCAL_API_ORIGIN = 'http://127.0.0.1:8788';
+import { LOCAL_API_PREVIEW_ORIGIN } from '../constants/local-api-preview.mjs';
+
+/** Same origin as {@link LOCAL_API_PREVIEW_ORIGIN} — used by API integration tests. */
+export const LOCAL_API_ORIGIN = LOCAL_API_PREVIEW_ORIGIN;
 
 function resolveWorkspaceRoot(): string {
   let dir = dirname(fileURLToPath(import.meta.url));

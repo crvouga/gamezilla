@@ -36,6 +36,9 @@ yarn-error.*
 .turbo/
 /out
 
+# Local PGlite data (apps/db HTTP server)
+apps/db/.pglite/
+
 # typescript
 *.tsbuildinfo
 
