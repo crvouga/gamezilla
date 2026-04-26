@@ -13,6 +13,7 @@ module.exports = defineConfig([
   },
   {
     settings: {
+      'import/core-modules': ['bun:test'],
       'import/resolver': {
         typescript: true,
       },

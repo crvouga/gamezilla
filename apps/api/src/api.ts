@@ -94,9 +94,11 @@ function fatalConfigResponse(reason: string): Response {
   });
 }
 
-function selectDopplerEnvConfigName(request: Request): 'local' | 'prod' {
+function selectDopplerEnvConfigNames(
+  request: Request
+): readonly ['local', 'prod'] | readonly ['prod', 'local'] {
   const host = new URL(request.url).hostname.toLowerCase();
-  return host === 'api.gamezilla.app' ? 'prod' : 'local';
+  return host === 'api.gamezilla.app' ? ['prod', 'local'] : ['local', 'prod'];
 }
 
 function latchFatal(reason: string): void {
@@ -109,33 +111,47 @@ function latchFatal(reason: string): void {
 
 async function bootApp(env: ApiWorkerEnv, request: Request): Promise<App> {
   const token = assertDopplerTokenBinding(env);
-  const runtimeConfigName = selectDopplerEnvConfigName(request);
+  const configNames = selectDopplerEnvConfigNames(request);
   const sharedStore = new DopplerSecretStore({ token, configName: 'shared' });
-  const envStore = new DopplerSecretStore({
-    token,
-    configName: runtimeConfigName,
-  });
-  const combinedStore = createCombinedSecretStore(envStore, sharedStore);
-  const secretStore = createCachingSecretStore(combinedStore, {
-    ttlMs: 60_000,
-  });
 
-  const secrets = await secretStore.getRequiredMany([
-    ApiSecretName.databaseUrl,
-  ]);
-  const databaseUrl = secrets[ApiSecretName.databaseUrl];
-  if (typeof databaseUrl !== 'string' || databaseUrl.length === 0) {
-    throw new ConfigurationError(
-      'DATABASE_URL was not returned from Doppler after getRequiredMany'
-    );
+  let lastSecretStoreError: unknown;
+  for (const runtimeConfigName of configNames) {
+    try {
+      const envStore = new DopplerSecretStore({
+        token,
+        configName: runtimeConfigName,
+      });
+      const combinedStore = createCombinedSecretStore(envStore, sharedStore);
+      const secretStore = createCachingSecretStore(combinedStore, {
+        ttlMs: 60_000,
+      });
+
+      const secrets = await secretStore.getRequiredMany([
+        ApiSecretName.databaseUrl,
+      ]);
+      const databaseUrl = secrets[ApiSecretName.databaseUrl];
+      if (typeof databaseUrl !== 'string' || databaseUrl.length === 0) {
+        throw new ConfigurationError(
+          'DATABASE_URL was not returned from Doppler after getRequiredMany'
+        );
+      }
+      const patchDb = getPatchDb(databaseUrl);
+      await withTimeout(patchDb.migrate(), MIGRATE_TIMEOUT_MS, 'db.migrate');
+      return createApiApp({
+        db: patchDb,
+        pubSub,
+        secretStore,
+      });
+    } catch (err: unknown) {
+      if (!isSecretStoreError(err) || runtimeConfigName === configNames.at(-1)) {
+        throw err;
+      }
+      lastSecretStoreError = err;
+    }
   }
-  const patchDb = getPatchDb(databaseUrl);
-  await withTimeout(patchDb.migrate(), MIGRATE_TIMEOUT_MS, 'db.migrate');
-  return createApiApp({
-    db: patchDb,
-    pubSub,
-    secretStore,
-  });
+
+  throw (lastSecretStoreError ??
+    new ConfigurationError('Failed to resolve Doppler config'));
 }
 
 /**
