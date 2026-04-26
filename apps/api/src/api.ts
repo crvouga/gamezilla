@@ -1,15 +1,11 @@
 import { createLogger } from '@gamezilla/lib/logger';
 import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
-import {
-  createCachingSecretStore,
-  createCombinedSecretStore,
-  DopplerSecretStore,
-  isSecretStoreError,
-} from '@gamezilla/lib/secret-store';
+import { isSecretStoreError } from '@gamezilla/lib/secret-store';
 import { createApiApp } from './app/create-app';
 import type { ApiWorkerEnv } from './config/env';
 import { assertDopplerTokenBinding, ConfigurationError } from './config/env';
 import { ApiSecretName } from './config/secret-names';
+import { createApiSecretStoreFactory } from './config/secret-store';
 import { getPatchDb } from './db/patch-db';
 
 const log = createLogger({ name: 'api' });
@@ -94,13 +90,6 @@ function fatalConfigResponse(reason: string): Response {
   });
 }
 
-function selectDopplerEnvConfigNames(
-  request: Request
-): readonly ['local', 'prod'] | readonly ['prod', 'local'] {
-  const host = new URL(request.url).hostname.toLowerCase();
-  return host === 'api.gamezilla.app' ? ['prod', 'local'] : ['local', 'prod'];
-}
-
 function latchFatal(reason: string): void {
   bootState = { kind: 'fatal', reason };
   if (!fatalLogged) {
@@ -111,47 +100,23 @@ function latchFatal(reason: string): void {
 
 async function bootApp(env: ApiWorkerEnv, request: Request): Promise<App> {
   const token = assertDopplerTokenBinding(env);
-  const configNames = selectDopplerEnvConfigNames(request);
-  const sharedStore = new DopplerSecretStore({ token, configName: 'shared' });
+  const storeFactory = createApiSecretStoreFactory(token, request);
+  const secretStore = storeFactory.createFor(storeFactory.configName);
 
-  let lastSecretStoreError: unknown;
-  for (const runtimeConfigName of configNames) {
-    try {
-      const envStore = new DopplerSecretStore({
-        token,
-        configName: runtimeConfigName,
-      });
-      const combinedStore = createCombinedSecretStore(envStore, sharedStore);
-      const secretStore = createCachingSecretStore(combinedStore, {
-        ttlMs: 60_000,
-      });
-
-      const secrets = await secretStore.getRequiredMany([
-        ApiSecretName.databaseUrl,
-      ]);
-      const databaseUrl = secrets[ApiSecretName.databaseUrl];
-      if (typeof databaseUrl !== 'string' || databaseUrl.length === 0) {
-        throw new ConfigurationError(
-          'DATABASE_URL was not returned from Doppler after getRequiredMany'
-        );
-      }
-      const patchDb = getPatchDb(databaseUrl);
-      await withTimeout(patchDb.migrate(), MIGRATE_TIMEOUT_MS, 'db.migrate');
-      return createApiApp({
-        db: patchDb,
-        pubSub,
-        secretStore,
-      });
-    } catch (err: unknown) {
-      if (!isSecretStoreError(err) || runtimeConfigName === configNames.at(-1)) {
-        throw err;
-      }
-      lastSecretStoreError = err;
-    }
+  const secrets = await secretStore.getRequiredMany([ApiSecretName.databaseUrl]);
+  const databaseUrl = secrets[ApiSecretName.databaseUrl];
+  if (typeof databaseUrl !== 'string' || databaseUrl.length === 0) {
+    throw new ConfigurationError(
+      'DATABASE_URL was not returned from Doppler after getRequiredMany'
+    );
   }
-
-  throw (lastSecretStoreError ??
-    new ConfigurationError('Failed to resolve Doppler config'));
+  const patchDb = getPatchDb(databaseUrl);
+  await withTimeout(patchDb.migrate(), MIGRATE_TIMEOUT_MS, 'db.migrate');
+  return createApiApp({
+    db: patchDb,
+    pubSub,
+    secretStore,
+  });
 }
 
 /**

@@ -12,7 +12,7 @@ const DOPPLER_DOWNLOAD =
 export type DopplerSecretStoreOptions = {
   token: string;
   /** Optional Doppler config name, e.g. 'shared', 'local', 'prod'. */
-  configName?: string;
+  configName?: 'shared' | 'local' | 'prod';
   /** @default globalThis.fetch */
   fetchFn?: DopplerFetch;
 };
@@ -101,10 +101,7 @@ export class DopplerSecretStore implements SecretStore {
     this.configName = c !== undefined && c.length > 0 ? c : null;
   }
 
-  async getRequired(
-    name: string,
-    init?: SecretStoreGetInit
-  ): Promise<string> {
+  async getRequired(name: string, init?: SecretStoreGetInit): Promise<string> {
     assertNonBlankName(name);
     const row = await this.downloadSecretRow([name], init);
     return this.requiredFromRow(row, name);

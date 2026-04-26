@@ -1,7 +1,7 @@
 /**
  * Trust boundary: `process.env` (e.g. from `doppler run --`) → `apps/api/.dev.vars`
- * for `wrangler dev`. Writes **only** `DOPPLER_TOKEN`; all other API config is
- * loaded from Doppler at runtime.
+ * for `wrangler dev`. Writes **only** `DOPPLER_TOKEN`; all other API config
+ * (including `DATABASE_URL`) is resolved at runtime via SecretStore.
  */
 
 import { execSync } from 'node:child_process';
@@ -47,15 +47,19 @@ function resolveDopplerToken(): string {
   process.exit(1);
 }
 
-const dopplerToken = resolveDopplerToken();
-const lines: string[] = [`DOPPLER_TOKEN=${encodeDevVarValue(dopplerToken)}`];
+async function main(): Promise<void> {
+  const dopplerToken = resolveDopplerToken();
+  const lines: string[] = [`DOPPLER_TOKEN=${encodeDevVarValue(dopplerToken)}`];
 
-const body = `${lines.join('\n')}\n`;
-writeFileSync(tmpPath, body, { encoding: 'utf8' });
-renameSync(tmpPath, outPath);
+  const body = `${lines.join('\n')}\n`;
+  writeFileSync(tmpPath, body, { encoding: 'utf8' });
+  renameSync(tmpPath, outPath);
 
-process.stdout.write(
-  `[setup-dev-vars] wrote .dev.vars with keys: ${lines
-    .map((l) => l.split('=')[0])
-    .join(', ')}\n`
-);
+  process.stdout.write(
+    `[setup-dev-vars] wrote .dev.vars with keys: ${lines
+      .map((l) => l.split('=')[0])
+      .join(', ')}\n`
+  );
+}
+
+await main();
