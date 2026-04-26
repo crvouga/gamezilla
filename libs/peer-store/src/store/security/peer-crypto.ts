@@ -1,6 +1,6 @@
 import { assert } from '@gamezilla/lib/assert';
-import { sha256, sha512 } from '@noble/hashes/sha2';
-import { bytesToHex } from '@noble/hashes/utils';
+import { sha256, sha512 } from '@noble/hashes/sha2.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
 import { etc, getPublicKey, sign, verify } from '@noble/ed25519';
 import { bufferFromBase64Url, bufferToBase64Url } from './buffer-base64url';
 import { stableStringify } from './stable-stringify';
