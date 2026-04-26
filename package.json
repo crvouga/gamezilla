@@ -19,12 +19,12 @@
     "check": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=shared doppler run -- turbo check build",
     "dev": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=shared doppler run -- turbo dev",
     "preview": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=shared doppler run -- turbo run preview --filter=@gamezilla/db --filter=@gamezilla/api --filter=@gamezilla/client",
+    "qa": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=shared doppler run -- turbo run qa --filter=@gamezilla/qa",
     "format": "sort-package-json && prettier --write .",
     "format:check": "prettier --check .",
     "infra": "bun run apps/infra/src/bin/cli.ts",
     "gh": "gh run view --web",
     "wipe": "git clean -xfd",
-    "qa": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID turbo run qa --filter=@gamezilla/qa",
     "pw:ui": "bun run --filter '@gamezilla/qa' browser:ui",
     "pw:headed": "bun run --filter '@gamezilla/qa' browser:headed",
     "pw": "bun run --filter '@gamezilla/qa' browser"
