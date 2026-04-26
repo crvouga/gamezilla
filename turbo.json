@@ -9,6 +9,7 @@
     "DB_URL",
     "API_URL",
     "DOPPLER_TOKEN",
+    "DOPPLER_CONFIG",
     "WEB_CLIENT_GOOGLE_CLIENT_ID",
     "SQL_PORT",
     "GAMEZILLA_DATA_DIR",
