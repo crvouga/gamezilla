@@ -1,34 +1,8 @@
 import { neon, neonConfig } from '@neondatabase/serverless';
 import { ok } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
-import { psHeaders } from '../secrets/planetscale';
+import { fetchDopplerSecret } from '../secrets/secrets';
 import { ResourceBase, type InfraContext } from './types';
-
-const PS_API = 'https://api.planetscale.com/v1';
-const ROLE_NAME = 'infra-deploy';
-const BRANCH = 'main';
-
-interface PsRole {
-  id: string;
-  name: string;
-  access_host_url: string;
-  username: string;
-  password: string;
-  database_name: string;
-  expired: boolean;
-}
-
-function psOrg(): string {
-  return process.env['TF_VAR_planetscale_org'] ?? '';
-}
-
-function psDatabase(): string {
-  return process.env['TF_VAR_planetscale_database'] ?? '';
-}
-
-function rolesUrl(): string {
-  return `${PS_API}/organizations/${psOrg()}/databases/${psDatabase()}/branches/${BRANCH}/roles`;
-}
 
 export class PlanetScalePostgres extends ResourceBase {
   readonly id = 'planetscale-postgres';
@@ -94,54 +68,6 @@ export async function pingDatabase(): Promise<DatabasePingResult> {
   }
 }
 
-// ── PlanetScale Roles API ────────────────────────────────────────────
-
-async function listRoles(): Promise<PsRole[]> {
-  const res = await fetch(rolesUrl(), { headers: psHeaders() });
-  if (!res.ok) {
-    throw new Error(
-      `PlanetScale list roles: HTTP ${res.status} — ${await res.text()}`
-    );
-  }
-  const body = (await res.json()) as { data: PsRole[] };
-  return body.data;
-}
-
-async function deleteRole(id: string): Promise<void> {
-  const res = await fetch(`${rolesUrl()}/${id}`, {
-    method: 'DELETE',
-    headers: psHeaders(),
-  });
-  if (!res.ok && res.status !== 404) {
-    throw new Error(`PlanetScale delete role ${id}: HTTP ${res.status}`);
-  }
-}
-
-async function createRole(): Promise<PsRole> {
-  const res = await fetch(rolesUrl(), {
-    method: 'POST',
-    headers: { ...psHeaders(), 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      name: ROLE_NAME,
-      inherited_roles: ['postgres'],
-    }),
-  });
-  if (!res.ok) {
-    throw new Error(
-      `PlanetScale create role: HTTP ${res.status} — ${await res.text()}`
-    );
-  }
-  return (await res.json()) as PsRole;
-}
-
-function buildDatabaseUrl(role: PsRole): string {
-  const user = encodeURIComponent(role.username);
-  const pass = encodeURIComponent(role.password);
-  const host = role.access_host_url;
-  const db = role.database_name;
-  return `postgresql://${user}:${pass}@${host}:5432/${db}?sslmode=verify-full`;
-}
-
 function neonSql(url: string) {
   neonConfig.fetchEndpoint = (host) => `https://${host}/sql`;
   return neon(url);
@@ -183,7 +109,7 @@ async function claimTableOwnership(url: string): Promise<void> {
   }
 }
 
-function tryFetchCachedUrlFromEnv(): string | null {
+function tryFetchCachedDbUrlFromEnv(): string | null {
   const url = (process.env['DB_URL'] ?? '').trim();
   if (!url) return null;
   return url.startsWith('postgresql://') || url.startsWith('postgres://')
@@ -191,20 +117,40 @@ function tryFetchCachedUrlFromEnv(): string | null {
     : null;
 }
 
-/**
- * Resolves `DB_URL` from PlanetScale credentials via the Roles API.
- *
- * 1. If `DB_URL` is already set and connectivity succeeds, reuse it.
- * 2. Otherwise, clean up stale roles, create a fresh one, set `process.env.DB_URL`.
- */
-export async function resolveDatabaseUrl(): Promise<string> {
-  if (!psOrg() || !psDatabase()) {
+function readPlanetscaleDatabaseUrl(): string {
+  let raw = process.env['PLANETSCALE_DATABASE_URL'];
+  if (typeof raw !== 'string' || raw.trim().length === 0) {
+    try {
+      const fromDoppler = fetchDopplerSecret('PLANETSCALE_DATABASE_URL').trim();
+      if (fromDoppler.length > 0) {
+        process.env['PLANETSCALE_DATABASE_URL'] = fromDoppler;
+        raw = fromDoppler;
+      }
+    } catch {
+      // handled below
+    }
+  }
+  if (typeof raw !== 'string' || raw.trim().length === 0) {
     throw new Error(
-      'Cannot resolve DB_URL: TF_VAR_planetscale_org and TF_VAR_planetscale_database must be set'
+      'PLANETSCALE_DATABASE_URL is not set and could not be read from Doppler. Add secret PLANETSCALE_DATABASE_URL in your Doppler config, ensure `doppler setup` / `DOPPLER_TOKEN` targets that project, or export PLANETSCALE_DATABASE_URL in the shell.'
     );
   }
+  const url = raw.trim();
+  if (!url.startsWith('postgresql://') && !url.startsWith('postgres://')) {
+    throw new Error(
+      'PLANETSCALE_DATABASE_URL must start with postgres:// or postgresql://'
+    );
+  }
+  return url;
+}
 
-  const cached = tryFetchCachedUrlFromEnv();
+/**
+ * Sets `process.env.DB_URL` from `DB_URL` (if already valid) or
+ * `PLANETSCALE_DATABASE_URL`, after a connectivity check and best-effort
+ * ownership claim.
+ */
+export async function resolveDatabaseUrl(): Promise<string> {
+  const cached = tryFetchCachedDbUrlFromEnv();
   if (cached) {
     const valid = await validateConnectivity(cached);
     if (valid) {
@@ -214,18 +160,12 @@ export async function resolveDatabaseUrl(): Promise<string> {
     }
   }
 
-  const existing = await listRoles();
-  const stale = existing.filter((r) => r.name === ROLE_NAME);
-  for (const r of stale) {
-    await deleteRole(r.id);
-  }
-
-  const role = await createRole();
-  const url = buildDatabaseUrl(role);
-
+  const url = readPlanetscaleDatabaseUrl();
   const valid = await validateConnectivity(url);
   if (!valid) {
-    throw new Error('DB_URL connectivity check failed after role creation');
+    throw new Error(
+      'PLANETSCALE_DATABASE_URL connectivity check failed (SELECT 1)'
+    );
   }
 
   await claimTableOwnership(url);

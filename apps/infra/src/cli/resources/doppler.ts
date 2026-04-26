@@ -36,8 +36,11 @@ const DERIVED_DEFAULTS: Record<string, () => string> = {
  * recognizes them as managed instead of flagging them stale.
  */
 const EXTERNALLY_MANAGED_KEYS: ReadonlyArray<string> = [
-  // Per-build value injected by `ClientResource.deploy` (not stored in Doppler).
   'EXPO_PUBLIC_COMMIT_HASH',
+  'PLANETSCALE_DATABASE',
+  'PLANETSCALE_ORG',
+  'WEB_CLIENT_GOOGLE_CLIENT_ID',
+  'WEB_CLIENT_GOOGLE_CLIENT_SECRET',
 ];
 
 /** Doppler's built-in config metadata — always present, never user-managed. */
@@ -67,11 +70,15 @@ export class DopplerResource extends ResourceBase {
    */
   loadSecretsQuick(): void {
     for (const { doppler, env } of getSecretMap()) {
-      if (process.env[env]) continue;
+      const existing = process.env[env];
+      if (typeof existing === 'string' && existing.trim().length > 0) continue;
       try {
         process.env[env] = fetchDopplerSecret(doppler);
-      } catch {
-        /* best-effort */
+      } catch (e) {
+        warn(
+          env,
+          `Doppler get ${doppler} failed: ${e instanceof Error ? e.message : String(e)}`
+        );
       }
     }
   }

@@ -3,6 +3,16 @@ import { fail } from '../cli/lib/fmt';
 import { GitHubActionsPlatform } from '../cli/platform/github-actions';
 import { LocalPlatform } from '../cli/platform/local';
 
+/**
+ * This repo’s secrets live in Doppler config `shared`. Local `~/.doppler` may
+ * still reference a removed `prd` config; unset/empty `DOPPLER_CONFIG` would
+ * follow that and break `doppler secrets get`. Default before any CLI spawns.
+ */
+const dopplerConfigRaw = process.env['DOPPLER_CONFIG'];
+if (typeof dopplerConfigRaw !== 'string' || dopplerConfigRaw.trim() === '') {
+  process.env['DOPPLER_CONFIG'] = 'shared';
+}
+
 const isGitHubActions = process.env['GITHUB_ACTIONS'] === 'true';
 const platform = isGitHubActions
   ? new GitHubActionsPlatform()

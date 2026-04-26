@@ -22,7 +22,7 @@
     "qa": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=shared doppler run -- turbo run qa --filter=@gamezilla/qa",
     "format": "sort-package-json && prettier --write .",
     "format:check": "prettier --check .",
-    "infra": "bun run apps/infra/src/bin/cli.ts",
+    "infra": "DOPPLER_CONFIG=shared bun run apps/infra/src/bin/cli.ts",
     "gh": "gh run view --web",
     "wipe": "git clean -xfd",
     "pw:ui": "bun run --filter '@gamezilla/qa' browser:ui",

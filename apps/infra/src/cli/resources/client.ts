@@ -15,7 +15,7 @@ import { ResourceBase, type InfraContext } from './types';
 function wranglerEnv(): NodeJS.ProcessEnv {
   return {
     ...process.env,
-    CLOUDFLARE_ACCOUNT_ID: process.env['TF_VAR_cloudflare_account_id'],
+    CLOUDFLARE_ACCOUNT_ID: cfAccountId(),
   };
 }
 

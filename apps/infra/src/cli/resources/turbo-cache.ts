@@ -12,7 +12,7 @@ const NOT_FOUND_CODES = [10000, 10007, 10090];
 function wranglerEnv(): NodeJS.ProcessEnv {
   return {
     ...process.env,
-    CLOUDFLARE_ACCOUNT_ID: process.env['TF_VAR_cloudflare_account_id'],
+    CLOUDFLARE_ACCOUNT_ID: cfAccountId(),
   };
 }
 

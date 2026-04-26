@@ -8,11 +8,7 @@ export function cfHeaders(token?: string): Record<string, string> {
 }
 
 export function cfAccountId(): string {
-  return (
-    process.env['TF_VAR_cloudflare_account_id'] ??
-    process.env['CLOUDFLARE_ACCOUNT_ID'] ??
-    ''
-  );
+  return (process.env['CLOUDFLARE_ACCOUNT_ID'] ?? '').trim();
 }
 
 /**

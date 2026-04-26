@@ -80,7 +80,7 @@ export class DeployCommand implements Command {
       const dbUrl = (process.env['DB_URL'] ?? '').trim();
       assert.nonEmptyString(
         dbUrl,
-        'DB_URL must be set after PlanetScale provision — check TF_VAR_planetscale_* and PlanetScale credentials'
+        'DB_URL must be set after PlanetScale provision — ensure PLANETSCALE_DATABASE_URL is in Doppler (or export DB_URL)'
       );
       await runAsync(p, 'bun', ['--cwd', join(REPO_ROOT, 'apps/db'), 'run', 'migrate'], {
         env: process.env,

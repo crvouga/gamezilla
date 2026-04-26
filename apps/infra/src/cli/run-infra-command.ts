@@ -37,8 +37,8 @@ export async function runInfraCommand(
   // Hydrate Doppler secrets into env for every command except `setup` itself
   // (setup is what installs Doppler and seeds these secrets in the first place).
   // This removes the requirement to run `setup` before commands like `unlock`,
-  // `status`, `destroy`, etc., which all need TF_VAR_planetscale_* and
-  // PLANETSCALE_SERVICE_TOKEN* to talk to PlanetScale.
+  // `status`, `destroy`, etc., which need Doppler-backed env (e.g.
+  // PLANETSCALE_SERVICE_TOKEN*, PLANETSCALE_DATABASE_URL) where applicable.
   if (command.id !== 'setup') {
     new DopplerResource().loadSecretsQuick();
   }

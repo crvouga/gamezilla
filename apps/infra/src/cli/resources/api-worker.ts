@@ -1,4 +1,5 @@
 import { assert } from '@gamezilla/lib/assert';
+import { DopplerCli } from '@gamezilla/lib/doppler';
 import { join } from 'node:path';
 import { ok, warn } from '../lib/fmt';
 import { REPO_ROOT } from '../paths';
@@ -14,10 +15,27 @@ import { ResourceBase, type InfraContext } from './types';
 
 const NOT_FOUND_CODES = [10000, 10007, 10090];
 
+/**
+ * Token pushed to the Worker as `DOPPLER_TOKEN`: env override, else same
+ * resolution as `apps/api/scripts/setup-dev-vars.ts` (CLI token).
+ * Not stored as a Doppler secret named `DOPPLER_TOKEN` (meta / chicken-egg).
+ */
+function resolveDopplerTokenForDeploy(): string {
+  const fromEnv = (process.env['DOPPLER_TOKEN'] ?? '').trim();
+  if (fromEnv.length > 0) return fromEnv;
+  try {
+    return new DopplerCli().resolveToken().token;
+  } catch {
+    assert.fail(
+      'DOPPLER_TOKEN is required for API Worker deploy. Set DOPPLER_TOKEN in env (e.g. CI), or run `doppler login` / `doppler configure` so `doppler configure get token --plain` works.'
+    );
+  }
+}
+
 function wranglerEnv(): NodeJS.ProcessEnv {
   return {
     ...process.env,
-    CLOUDFLARE_ACCOUNT_ID: process.env['TF_VAR_cloudflare_account_id'],
+    CLOUDFLARE_ACCOUNT_ID: cfAccountId(),
   };
 }
 
@@ -30,13 +48,8 @@ export class ApiWorkerResource extends ResourceBase {
     const apiDir = join(REPO_ROOT, 'apps/api');
     const env = wranglerEnv();
 
-    const dopplerToken = (process.env['DOPPLER_TOKEN'] ?? '').trim();
+    const dopplerToken = resolveDopplerTokenForDeploy();
     const dbUrl = (process.env['DB_URL'] ?? '').trim();
-
-    assert.nonEmptyString(
-      dopplerToken,
-      'DOPPLER_TOKEN must be set so the API Worker can resolve runtime secrets from Doppler'
-    );
     assert.nonEmptyString(
       dbUrl,
       'DB_URL must be set (e.g. after PlanetScale provision) before deploying the API Worker'

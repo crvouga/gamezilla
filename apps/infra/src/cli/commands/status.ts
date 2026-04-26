@@ -7,6 +7,7 @@ import { httpProbe } from '../lib/http-probe';
 import { infraOutputs, type InfraOutputs } from '../lib/infra-outputs';
 import type { CiPlatform } from '../platform/platform';
 import { pingDatabase } from '../resources/planetscale-postgres';
+import { cfAccountId } from '../secrets/cloudflare';
 import { loadSecretsIntoEnv } from '../secrets/secrets';
 import { runCaptureAsync } from '../subprocess';
 import type { Command } from './types';
@@ -85,7 +86,7 @@ export class StatusCommand implements Command {
       const whoami = await runCaptureAsync('wrangler', ['whoami'], {
         env: {
           ...process.env,
-          CLOUDFLARE_ACCOUNT_ID: process.env['TF_VAR_cloudflare_account_id'],
+          CLOUDFLARE_ACCOUNT_ID: cfAccountId(),
         },
       });
       const identity = parseWranglerIdentity(whoami);

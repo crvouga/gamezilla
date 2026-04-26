@@ -3,7 +3,7 @@ import { HEX32_RE, cfHeaders } from './cloudflare';
 
 export class CfAccountId implements SecretEntry {
   readonly doppler = 'CLOUDFLARE_ACCOUNT_ID';
-  readonly env = 'TF_VAR_cloudflare_account_id';
+  readonly env = 'CLOUDFLARE_ACCOUNT_ID';
   readonly hint = 'https://dash.cloudflare.com/ → pick any zone → Overview sidebar → Account ID';
 
   async validate(accountId: string): Promise<string | null> {
