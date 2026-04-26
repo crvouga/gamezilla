@@ -11,6 +11,7 @@ import type { ConfigService } from '@gamezilla/domain/config/config-service';
 import { assert } from '@gamezilla/lib/assert';
 import type { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 import type { PatchesDb } from '@gamezilla/patch-db/interface';
+import { AuthConfigurationError } from './auth-errors';
 import type { PrincipalService } from './principal-service';
 import type { SessionService } from './session-service';
 
@@ -49,6 +50,8 @@ export function createAuthService(deps: {
   principalService: PrincipalService;
   db: PatchesDb;
   sessionService: SessionService;
+  /** When false, sign-in is refused before opening the Google prompt. */
+  googleSignInAvailable: boolean;
   promptGoogleIdToken: () => Promise<string>;
 }): AuthService {
   const {
@@ -56,11 +59,15 @@ export function createAuthService(deps: {
     principalService,
     db,
     sessionService,
+    googleSignInAvailable,
     promptGoogleIdToken,
   } = deps;
 
   return {
     async signInWithGoogle(): Promise<void> {
+      if (!googleSignInAvailable) {
+        throw new AuthConfigurationError();
+      }
       const googleIdToken = await promptGoogleIdToken();
       assert.string(googleIdToken, 'Google id_token must be string');
       assert.ok(googleIdToken.length > 0, 'Google id_token must be non-empty');

@@ -16,9 +16,9 @@
   "packageManager": "bun@1.3.11",
   "private": true,
   "scripts": {
-    "check": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID doppler run -- turbo check build",
-    "dev": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID doppler run -- turbo dev",
-    "preview": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID doppler run -- turbo run preview --filter=@gamezilla/db --filter=@gamezilla/api --filter=@gamezilla/client",
+    "check": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID doppler run --config local -- turbo check build",
+    "dev": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID doppler run --config local -- turbo dev",
+    "preview": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID doppler run --config local -- turbo run preview --filter=@gamezilla/db --filter=@gamezilla/api --filter=@gamezilla/client",
     "format": "sort-package-json && prettier --write .",
     "format:check": "prettier --check .",
     "infra": "bun run apps/infra/src/bin/cli.ts",

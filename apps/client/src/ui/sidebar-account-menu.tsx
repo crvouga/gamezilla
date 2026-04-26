@@ -28,6 +28,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@gamezilla/client/auth/auth-context';
 import { ProfileDiceBearAvatar } from '@gamezilla/client/profile/profile-dicebear-avatar';
 import { useProfile } from '@gamezilla/client/profile/use-profile';
+import { useAsync } from '@gamezilla/lib/async/use-async';
 
 type AnchorRect = { x: number; y: number; width: number; height: number };
 
@@ -58,20 +59,29 @@ function useAccountMenuActions(args: {
     router.push('/more/server-status');
   }, [close, router]);
 
-  const onAuth = useCallback(async () => {
-    close();
-    try {
+  const { run: runAuth } = useAsync({
+    operation: async () => {
       if (auth.mode === 'signed-in') {
         await auth.signOut();
       } else {
-        await auth.signInWithGoogle();
+        auth.openSignInModal();
       }
-    } catch (err: unknown) {
-      log.error('auth action failed', {
-        error: err instanceof Error ? err.message : String(err),
-      });
+    },
+    options: {
+      onError: (err) => {
+        log.error('auth action failed', { error: err.message });
+      },
     }
-  }, [auth, close, log]);
+  });
+
+  const onAuth = useCallback(async () => {
+    close();
+    try {
+      await runAuth();
+    } catch {
+      // onError already logged via hook.
+    }
+  }, [close, runAuth]);
 
   return { onProfile, onSettings, onServerStatus, onAuth };
 }
@@ -152,8 +162,7 @@ function buildConnectionRow(args: {
 }
 
 function buildAuthRow(auth: Auth, onAuth: () => void): MenuRow {
-  const label =
-    auth.mode === 'signed-in' ? 'Sign out' : 'Sign in with Google';
+  const label = auth.mode === 'signed-in' ? 'Sign out' : 'Sign in';
   return {
     type: 'item',
     id: 'sign-in',

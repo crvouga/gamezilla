@@ -4,6 +4,7 @@ import { useLogger } from '@gamezilla/lib/logger/react';
 import { Box, StatusDot, Text, type ScreenBaseAction } from '@gamezilla/lib/ui';
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
+import { useAsync } from '@gamezilla/lib/async/use-async';
 
 type Auth = ReturnType<typeof useAuth>;
 type ServerStatus = ReturnType<typeof useServerStatus>;
@@ -24,19 +25,27 @@ function useAccountNav() {
 
 function useAuthAction(auth: Auth) {
   const log = useLogger('use-account-actions');
-  return useCallback(async () => {
-    try {
+  const { run } = useAsync({
+    operation: async () => {
       if (auth.mode === 'signed-in') {
         await auth.signOut();
       } else {
-        await auth.signInWithGoogle();
+        auth.openSignInModal();
       }
-    } catch (err: unknown) {
-      log.error('auth action failed', {
-        error: err instanceof Error ? err.message : String(err),
-      });
+    },
+    options: {
+      onError: (err) => {
+        log.error('auth action failed', { error: err.message });
+      },
+    },
+  });
+  return useCallback(async () => {
+    try {
+      await run();
+    } catch {
+      // onError already logged via hook.
     }
-  }, [auth, log]);
+  }, [run]);
 }
 
 function ConnectionTrailing({
@@ -96,7 +105,7 @@ function buildAuthAction(
 ): ScreenBaseAction {
   return {
     type: 'default',
-    label: auth.mode === 'signed-in' ? 'Sign out' : 'Sign in with Google',
+    label: auth.mode === 'signed-in' ? 'Sign out' : 'Sign in',
     icon:
       auth.mode === 'signed-in'
         ? 'arrow.right.from.bracket'

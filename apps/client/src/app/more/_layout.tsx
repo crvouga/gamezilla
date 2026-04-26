@@ -13,6 +13,7 @@ export default function MoreLayout() {
       <Stack.Screen name="patch-db" />
       <Stack.Screen name="db-client" />
       <Stack.Screen name="peer-store" />
+      <Stack.Screen name="client-config" />
     </Stack>
   );
 }

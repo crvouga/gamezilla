@@ -15,7 +15,8 @@ type DevHref =
   | '/ui'
   | '/more/patch-db'
   | '/more/db-client'
-  | '/more/peer-store';
+  | '/more/peer-store'
+  | '/more/client-config';
 
 const ITEMS: readonly {
   key: string;
@@ -52,6 +53,12 @@ const ITEMS: readonly {
     href: '/more/peer-store',
     label: 'Peer Store Playground',
     description: 'Multi-peer tic-tac-toe simulator',
+  },
+  {
+    key: 'client-config',
+    href: '/more/client-config',
+    label: 'Client config',
+    description: 'Singleton clientConfig entity and server refresh',
   },
 ] as const;
 

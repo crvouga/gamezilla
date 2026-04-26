@@ -1,14 +1,10 @@
-export interface Env {
-  DATABASE_URL: string;
-  /** Optional: Google Web client ID for verifying id_token `aud`. */
-  GOOGLE_CLIENT_ID?: string;
-}
-
-/** Env after validation: every field is proved present and well-typed. */
-export interface ValidatedEnv {
-  readonly databaseUrl: string;
-  readonly googleClientId: string | null;
-}
+/**
+ * Cloudflare Worker bindings for the API: exactly one secret used to reach
+ * Doppler; all other configuration is Doppler secrets (Tiger Style).
+ */
+export type ApiWorkerEnv = {
+  DOPPLER_TOKEN: string;
+};
 
 /**
  * Non-recoverable misconfiguration at the env trust boundary. Signals to the
@@ -26,31 +22,15 @@ export class ConfigurationError extends Error {
 }
 
 /**
- * Validates Worker env bindings at the trust boundary. On any violation,
- * throws {@link ConfigurationError}; the caller must treat this as fatal.
- *
- * Empty-string values for optional vars are coerced to `null` (Cloudflare
- * surfaces unset vars as empty strings in some paths).
+ * Validates the sole Worker binding at boot. Throws {@link ConfigurationError}
+ * when `DOPPLER_TOKEN` is missing, wrong type, or whitespace-only.
  */
-export function validateEnv(env: Env): ValidatedEnv {
-  const databaseUrl = env.DATABASE_URL;
-  if (typeof databaseUrl !== 'string' || databaseUrl.length === 0) {
+export function assertDopplerTokenBinding(env: ApiWorkerEnv): string {
+  const raw = env.DOPPLER_TOKEN;
+  if (typeof raw !== 'string' || raw.trim().length === 0) {
     throw new ConfigurationError(
-      'DATABASE_URL env var is required and must be a non-empty string'
+      'DOPPLER_TOKEN is required (non-empty string). Set this Worker secret or add it to .dev.vars; all other API config is loaded from Doppler.'
     );
   }
-
-  const rawGoogle = env.GOOGLE_CLIENT_ID;
-  if (rawGoogle !== undefined && typeof rawGoogle !== 'string') {
-    throw new ConfigurationError(
-      'GOOGLE_CLIENT_ID env var, if present, must be a string'
-    );
-  }
-  const googleClientId =
-    typeof rawGoogle === 'string' && rawGoogle.length > 0 ? rawGoogle : null;
-
-  return {
-    databaseUrl,
-    googleClientId,
-  };
+  return raw.trim();
 }

@@ -68,6 +68,7 @@
     "workbox-build": "^7.4.0"
   },
   "scripts": {
+    "test": "bun test src/auth",
     "android": "expo start --android",
     "install:deps": "npx expo install --check || true",
     "setup": "bun run scripts/setup-env.ts",

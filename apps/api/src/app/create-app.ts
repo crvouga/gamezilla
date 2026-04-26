@@ -1,8 +1,10 @@
 import { createPatchDbApiHandler } from '@gamezilla/patch-db/api';
+import type { PatchDbApiConfig } from '@gamezilla/patch-db/api';
 import { ValidationError } from '@gamezilla/lib/assert';
 import { createLogger } from '@gamezilla/lib/logger';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
+import type { ApiWorkerEnv } from '../config/env';
 import { UnauthorizedError } from '../auth/unauthorized-error';
 import { createAuthClaimApp } from '../auth/route';
 import { createClientConfigApp } from '../client-config/route';
@@ -25,26 +27,34 @@ function isAssertionCrash(
   );
 }
 
+function toPatchDbApiConfig(config: ApiHandlerConfig): PatchDbApiConfig {
+  const { db, pubSub, basePath, instrumentation } = config;
+  const patchDbConfig: PatchDbApiConfig = { db, pubSub };
+  if (basePath !== undefined) {
+    patchDbConfig.basePath = basePath;
+  }
+  if (instrumentation !== undefined) {
+    patchDbConfig.instrumentation = instrumentation;
+  }
+  return patchDbConfig;
+}
+
 /**
  * Composes the API Worker app from mounted sub-apps (`app.route()`), per
  * [Hono best practices](https://hono.dev/docs/guides/best-practices).
  */
 export function createApiApp(config: ApiHandlerConfig) {
-  const { honoApp: patchDbApp, basePath } = createPatchDbApiHandler(config);
+  const { secretStore, db } = config;
+  const { honoApp: patchDbApp, basePath: resolvedBase } =
+    createPatchDbApiHandler(toPatchDbApiConfig(config));
   /** RPC client keys use the literal mount path; wire URL stays `basePath`-driven. */
-  const patchMount = basePath as '/patch-db';
-  const db = config.db;
-  const googleClientId = config.googleClientId;
-  const authOpts =
-    googleClientId !== undefined && googleClientId !== ''
-      ? { googleClientId }
-      : {};
+  const patchMount = resolvedBase as '/patch-db';
 
-  return new Hono()
+  return new Hono<{ Bindings: ApiWorkerEnv }>()
     .use('*', apiCors)
     .route('/', healthApp)
-    .route('/', createClientConfigApp(db, log, config.googleClientId))
-    .route('/', createAuthClaimApp(db, authOpts))
+    .route('/', createClientConfigApp(db, log, secretStore))
+    .route('/', createAuthClaimApp(db, secretStore))
     .route(patchMount, patchDbApp)
     .onError((err, c) => {
       if (err instanceof UnauthorizedError) {

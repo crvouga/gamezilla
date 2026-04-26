@@ -7,7 +7,8 @@
     "POST_DEPLOY_*",
     "EXPO_PUBLIC_*",
     "DATABASE_URL",
-    "GOOGLE_CLIENT_ID",
+    "DOPPLER_TOKEN",
+    "WEB_CLIENT_GOOGLE_CLIENT_ID",
     "SQL_PORT",
     "TURBO_*",
     "TMPDIR"

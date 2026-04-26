@@ -7,6 +7,7 @@ import {
 import { clearLocalDatabaseAndReload } from '@gamezilla/patch-db/bootstrap-expo';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import { useAsync } from '@gamezilla/lib/async/use-async';
 
 function NavigationCommands() {
   const router = useRouter();
@@ -88,21 +89,31 @@ function AppearanceCommands() {
 
 function AccountCommand() {
   const auth = useAuth();
+  const { run } = useAsync({
+    operation: async () => {
+      if (auth.mode === 'signed-in') {
+        await auth.signOut();
+      } else {
+        auth.openSignInModal();
+      }
+    },
+  });
   return (
     <RegisterCommand
       id="auth-toggle"
-      title={auth.mode === 'signed-in' ? 'Sign out' : 'Sign in with Google'}
+      title={auth.mode === 'signed-in' ? 'Sign out' : 'Sign in'}
       category="Account"
       icon={
         auth.mode === 'signed-in'
           ? 'arrow.right.from.bracket'
           : 'right.to.bracket'
       }
+      keywords={['sign in', 'login', 'google', 'auth']}
       run={async () => {
-        if (auth.mode === 'signed-in') {
-          await auth.signOut();
-        } else {
-          await auth.signInWithGoogle();
+        try {
+          await run();
+        } catch {
+          // Hook state already tracks async errors.
         }
       }}
     />

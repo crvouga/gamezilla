@@ -11,12 +11,17 @@ import {
 } from '@gamezilla/domain/auth';
 import { assertPrincipalId, assertUuid } from '@gamezilla/domain/auth/principal-id';
 import { assert } from '@gamezilla/lib/assert';
-import type { PatchInput, PatchesDb } from '@gamezilla/patch-db/interface';
+import type { Entity, PatchInput, PatchesDb } from '@gamezilla/patch-db/interface';
 import type { z } from 'zod';
 import { authClaimRequestSchema } from './schema';
+import type { GoogleIdTokenClaims } from './google-token';
 import { verifyGoogleIdToken } from './google-token';
 
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+
+/** Returned when the Google Web client ID cannot be resolved from Doppler. */
+export const GOOGLE_OAUTH_NOT_CONFIGURED_MESSAGE =
+  'Google OAuth is not configured on this server';
 
 export type ClaimRequestBody = z.infer<typeof authClaimRequestSchema>;
 
@@ -32,34 +37,16 @@ export type AuthClaimResult =
   | { status: 200; json: ClaimSuccessBody }
   | { status: 400; json: AuthClaimErrorBody }
   | { status: 401; json: AuthClaimErrorBody }
-  | { status: 409; json: AuthClaimErrorBody };
+  | { status: 409; json: AuthClaimErrorBody }
+  | { status: 503; json: AuthClaimErrorBody };
 
 /**
- * Google OAuth claim: validates token, links account + session. Typed for Hono RPC (`c.json`).
+ * Looks up an existing account linked to this Google `sub`.
  */
-export async function handleAuthClaimResult(
+async function findGoogleAccountProvider(
   db: PatchesDb,
-  body: ClaimRequestBody,
-  options: { googleClientId?: string }
-): Promise<AuthClaimResult> {
-  const { googleIdToken, principalId } = body;
-  assertPrincipalId(principalId);
-
-  let claims;
-  try {
-    const verifyOpts =
-      options.googleClientId !== undefined && options.googleClientId.length > 0
-        ? { expectedAudience: options.googleClientId }
-        : {};
-    claims = await verifyGoogleIdToken(googleIdToken, verifyOpts);
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err);
-    return { status: 401, json: { error: message } };
-  }
-
-  const providerAccountId = claims.sub;
-  const email = claims.email;
-
+  providerAccountId: string
+): Promise<Entity | undefined> {
   const [providerResult] = await db.read([
     {
       entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
@@ -81,44 +68,75 @@ export async function handleAuthClaimResult(
       limit: 1,
     },
   ]);
+  return providerResult?.entities[0];
+}
 
-  let accountId: string;
-  const existingProvider = providerResult?.entities[0];
-  const patchesToWrite: PatchInput[] = [];
+/**
+ * Ensures an `account` + `accountProvider` exist for a first-time Google identity.
+ * Returns `accountId` and patches to append (empty if provider already existed).
+ */
+function patchesForNewGoogleAccount(args: {
+  claims: GoogleIdTokenClaims;
+  principalId: string;
+}): { accountId: string; patches: PatchInput[] } {
+  const { claims, principalId } = args;
+  const accountId = crypto.randomUUID();
+  const now = new Date().toISOString();
+  const patches: PatchInput[] = [
+    {
+      entityId: accountId,
+      entityType: ACCOUNT_ENTITY_TYPE,
+      attributes: {
+        [AccountAttr.id]: accountId,
+        [AccountAttr.createdAt]: now,
+        'patch/createdBy': principalId,
+      },
+    },
+    {
+      entityId: crypto.randomUUID(),
+      entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
+      attributes: {
+        [AccountProviderAttr.accountId]: accountId,
+        [AccountProviderAttr.provider]: GOOGLE_PROVIDER,
+        [AccountProviderAttr.providerAccountId]: claims.sub,
+        [AccountProviderAttr.email]: claims.email,
+        [AccountProviderAttr.linkedAt]: now,
+        'patch/createdBy': principalId,
+      },
+    },
+  ];
+  return { accountId, patches };
+}
 
-  if (existingProvider !== undefined) {
-    const aid = existingProvider.attributes[AccountProviderAttr.accountId];
+/**
+ * Resolves `accountId` from an existing provider row or creates account + provider patches.
+ */
+async function resolveOrCreateAccountForGoogle(args: {
+  db: PatchesDb;
+  claims: GoogleIdTokenClaims;
+  principalId: string;
+  patchesToWrite: PatchInput[];
+}): Promise<string> {
+  const { db, claims, principalId, patchesToWrite } = args;
+  const existing = await findGoogleAccountProvider(db, claims.sub);
+  if (existing !== undefined) {
+    const aid = existing.attributes[AccountProviderAttr.accountId];
     assert.string(aid, 'accountProvider must have accountId');
     assertUuid(aid, 'accountId must be UUID');
-    accountId = aid;
-  } else {
-    accountId = crypto.randomUUID();
-    const now = new Date().toISOString();
-    patchesToWrite.push(
-      {
-        entityId: accountId,
-        entityType: ACCOUNT_ENTITY_TYPE,
-        attributes: {
-          [AccountAttr.id]: accountId,
-          [AccountAttr.createdAt]: now,
-          'patch/createdBy': principalId,
-        },
-      },
-      {
-        entityId: crypto.randomUUID(),
-        entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
-        attributes: {
-          [AccountProviderAttr.accountId]: accountId,
-          [AccountProviderAttr.provider]: GOOGLE_PROVIDER,
-          [AccountProviderAttr.providerAccountId]: providerAccountId,
-          [AccountProviderAttr.email]: email,
-          [AccountProviderAttr.linkedAt]: now,
-          'patch/createdBy': principalId,
-        },
-      }
-    );
+    return aid;
   }
+  const { accountId, patches } = patchesForNewGoogleAccount({
+    claims,
+    principalId,
+  });
+  patchesToWrite.push(...patches);
+  return accountId;
+}
 
+async function readPrincipal(
+  db: PatchesDb,
+  principalId: string
+): Promise<Entity | undefined> {
   const [principalResult] = await db.read([
     {
       entityType: PRINCIPAL_ENTITY_TYPE,
@@ -126,8 +144,19 @@ export async function handleAuthClaimResult(
       limit: 1,
     },
   ]);
+  return principalResult?.entities[0];
+}
 
-  const principalEntity = principalResult?.entities[0];
+/**
+ * Appends a patch binding `principalId` to `accountId` if not already the same account.
+ */
+function appendPrincipalBindingIfNeeded(args: {
+  principalId: string;
+  accountId: string;
+  principalEntity: Entity | undefined;
+  patchesToWrite: PatchInput[];
+}): { conflict: AuthClaimResult | null } {
+  const { principalId, accountId, principalEntity, patchesToWrite } = args;
   const existingAccountId = principalEntity?.attributes[PrincipalAttr.accountId];
 
   if (
@@ -137,16 +166,17 @@ export async function handleAuthClaimResult(
     existingAccountId !== accountId
   ) {
     return {
-      status: 409,
-      json: {
-        error: 'principal already claimed by a different account',
+      conflict: {
+        status: 409,
+        json: {
+          error: 'principal already claimed by a different account',
+        },
       },
     };
   }
 
   const idempotentSameAccount =
-    typeof existingAccountId === 'string' &&
-    existingAccountId === accountId;
+    typeof existingAccountId === 'string' && existingAccountId === accountId;
 
   if (!idempotentSameAccount) {
     patchesToWrite.push({
@@ -158,7 +188,15 @@ export async function handleAuthClaimResult(
       },
     });
   }
+  return { conflict: null };
+}
 
+function appendSessionPatch(args: {
+  principalId: string;
+  accountId: string;
+  patchesToWrite: PatchInput[];
+}): { sessionToken: string; expiresAt: string } {
+  const { principalId, accountId, patchesToWrite } = args;
   const sessionToken = crypto.randomUUID();
   const expiresAt = new Date(Date.now() + SESSION_TTL_MS).toISOString();
   const sessionEntityId = crypto.randomUUID();
@@ -175,6 +213,63 @@ export async function handleAuthClaimResult(
       [PrincipalSessionAttr.createdAt]: sessionCreatedAt,
       'patch/createdBy': principalId,
     },
+  });
+  return { sessionToken, expiresAt };
+}
+
+/**
+ * Google OAuth claim: validates token, links account + session. Typed for Hono RPC (`c.json`).
+ */
+export async function handleAuthClaimResult(
+  db: PatchesDb,
+  body: ClaimRequestBody,
+  options: { googleClientId?: string }
+): Promise<AuthClaimResult> {
+  const googleClientId = options.googleClientId?.trim() ?? '';
+  if (googleClientId.length === 0) {
+    return {
+      status: 503,
+      json: { error: GOOGLE_OAUTH_NOT_CONFIGURED_MESSAGE },
+    };
+  }
+
+  const { googleIdToken, principalId } = body;
+  assertPrincipalId(principalId);
+
+  let claims: GoogleIdTokenClaims;
+  try {
+    claims = await verifyGoogleIdToken(googleIdToken, {
+      expectedAudience: googleClientId,
+    });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    return { status: 401, json: { error: message } };
+  }
+
+  const patchesToWrite: PatchInput[] = [];
+
+  const accountId = await resolveOrCreateAccountForGoogle({
+    db,
+    claims,
+    principalId,
+    patchesToWrite,
+  });
+
+  const principalEntity = await readPrincipal(db, principalId);
+  const bindResult = appendPrincipalBindingIfNeeded({
+    principalId,
+    accountId,
+    principalEntity,
+    patchesToWrite,
+  });
+  if (bindResult.conflict !== null) {
+    return bindResult.conflict;
+  }
+
+  const { sessionToken, expiresAt } = appendSessionPatch({
+    principalId,
+    accountId,
+    patchesToWrite,
   });
 
   await db.write(patchesToWrite);

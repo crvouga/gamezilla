@@ -1,8 +1,15 @@
 import { createLogger } from '@gamezilla/lib/logger';
 import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
+import {
+  createCachingSecretStore,
+  createCombinedSecretStore,
+  DopplerSecretStore,
+  isSecretStoreError,
+} from '@gamezilla/lib/secret-store';
 import { createApiApp } from './app/create-app';
-import type { Env, ValidatedEnv } from './config/env';
-import { ConfigurationError, validateEnv } from './config/env';
+import type { ApiWorkerEnv } from './config/env';
+import { assertDopplerTokenBinding, ConfigurationError } from './config/env';
+import { ApiSecretName } from './config/secret-names';
 import { getPatchDb } from './db/patch-db';
 
 const log = createLogger({ name: 'api' });
@@ -21,7 +28,7 @@ type App = ReturnType<typeof createApiApp>;
  *
  * State transitions:
  *   pending -> ready   (happy path, once)
- *   pending -> fatal   (ConfigurationError, once, permanent for this isolate)
+ *   pending -> fatal   (ConfigurationError / secret-store failure, once, permanent for this isolate)
  *   pending -> pending (transient error — retried on next request)
  */
 type BootState =
@@ -87,6 +94,11 @@ function fatalConfigResponse(reason: string): Response {
   });
 }
 
+function selectDopplerEnvConfigName(request: Request): 'local' | 'prod' {
+  const host = new URL(request.url).hostname.toLowerCase();
+  return host === 'api.gamezilla.app' ? 'prod' : 'local';
+}
+
 function latchFatal(reason: string): void {
   bootState = { kind: 'fatal', reason };
   if (!fatalLogged) {
@@ -95,16 +107,34 @@ function latchFatal(reason: string): void {
   }
 }
 
-async function bootApp(env: Env): Promise<App> {
-  const validated: ValidatedEnv = validateEnv(env);
-  const patchDb = getPatchDb(validated.databaseUrl);
+async function bootApp(env: ApiWorkerEnv, request: Request): Promise<App> {
+  const token = assertDopplerTokenBinding(env);
+  const runtimeConfigName = selectDopplerEnvConfigName(request);
+  const sharedStore = new DopplerSecretStore({ token, configName: 'shared' });
+  const envStore = new DopplerSecretStore({
+    token,
+    configName: runtimeConfigName,
+  });
+  const combinedStore = createCombinedSecretStore(envStore, sharedStore);
+  const secretStore = createCachingSecretStore(combinedStore, {
+    ttlMs: 60_000,
+  });
+
+  const secrets = await secretStore.getRequiredMany([
+    ApiSecretName.databaseUrl,
+  ]);
+  const databaseUrl = secrets[ApiSecretName.databaseUrl];
+  if (typeof databaseUrl !== 'string' || databaseUrl.length === 0) {
+    throw new ConfigurationError(
+      'DATABASE_URL was not returned from Doppler after getRequiredMany'
+    );
+  }
+  const patchDb = getPatchDb(databaseUrl);
   await withTimeout(patchDb.migrate(), MIGRATE_TIMEOUT_MS, 'db.migrate');
   return createApiApp({
     db: patchDb,
     pubSub,
-    ...(validated.googleClientId !== null
-      ? { googleClientId: validated.googleClientId }
-      : {}),
+    secretStore,
   });
 }
 
@@ -114,17 +144,20 @@ async function bootApp(env: Env): Promise<App> {
  * timeout) are re-thrown so the caller can fail this one request without
  * poisoning the isolate.
  */
-async function ensureApp(env: Env): Promise<App | null> {
+async function ensureApp(
+  env: ApiWorkerEnv,
+  request: Request
+): Promise<App | null> {
   if (bootState.kind === 'ready') return bootState.app;
   if (bootState.kind === 'fatal') return null;
 
   try {
-    const app = await bootApp(env);
+    const app = await bootApp(env, request);
     bootState = { kind: 'ready', app };
     return app;
   } catch (err: unknown) {
-    if (err instanceof ConfigurationError) {
-      latchFatal(err.message);
+    if (err instanceof ConfigurationError || isSecretStoreError(err)) {
+      latchFatal(err instanceof Error ? err.message : String(err));
       return null;
     }
     throw err;
@@ -134,11 +167,11 @@ async function ensureApp(env: Env): Promise<App | null> {
 export default {
   async fetch(
     request: Request,
-    env: Env,
+    env: ApiWorkerEnv,
     _ctx: ExecutionContext
   ): Promise<Response> {
     try {
-      const app = await ensureApp(env);
+      const app = await ensureApp(env, request);
       if (app === null) {
         if (request.method === 'OPTIONS') {
           return preflightResponse();
@@ -160,9 +193,10 @@ export default {
         status: 500,
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-store',
           ...CORS_HEADERS,
         },
       });
     }
   },
-} satisfies ExportedHandler<Env>;
+} satisfies ExportedHandler<ApiWorkerEnv>;
