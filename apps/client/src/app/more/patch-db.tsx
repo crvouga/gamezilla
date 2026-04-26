@@ -1,24 +1,3 @@
-import { PlaygroundApp } from '@gamezilla/patch-db-example/playground-app';
-import { Box, ScreenBaseHeader } from '@gamezilla/lib/ui';
+import { PatchDbScreen } from '@gamezilla/client/more/patch-db-screen';
 
-import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
-
-export default function PatchDbScreen() {
-  const nav = useBreadcrumbNav();
-
-  return (
-    <Box sx={{ flex: 1 }}>
-      <ScreenBaseHeader
-        breadcrumbs={[
-          { name: 'Spaces', onPress: nav('/') },
-          { name: 'Settings', onPress: nav('/more') },
-          { name: 'Developer', onPress: nav('/more/developer') },
-          { name: 'Patch DB Playground' },
-        ]}
-      />
-      <Box sx={{ flex: 1, minHeight: 0 }}>
-        <PlaygroundApp />
-      </Box>
-    </Box>
-  );
-}
+export default PatchDbScreen;
