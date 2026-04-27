@@ -1,4 +1,4 @@
-import type { State } from '@gamezilla/peer-store/types';
+import type { State } from '@gamezilla/room/types';
 import { Box, Pressable, Stack, Text, useTheme } from '@gamezilla/lib/ui';
 import { useState } from 'react';
 

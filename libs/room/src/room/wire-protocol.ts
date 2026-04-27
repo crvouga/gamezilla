@@ -1,5 +1,5 @@
 import type { LogEntry } from '../persistence/log-entry'
-import type { Event, StoreError } from '../events/message-types'
+import type { Event, RoomError } from '../events/message-types'
 import type { Command, Snapshot } from './types'
 
 export type OptimisticEvent = Event & { readonly _commandId: string };
@@ -7,7 +7,7 @@ export type OptimisticEvent = Event & { readonly _commandId: string };
 export type WireMessage =
   | { kind: 'propose'; command: Command }
   | { kind: 'accepted'; commandId: string; entries: LogEntry[] }
-  | { kind: 'rejected'; commandId: string; error: StoreError }
+  | { kind: 'rejected'; commandId: string; error: RoomError }
   | { kind: 'heartbeat'; from: string; latestSeq: number }
   | {
       kind: 'sync-request';
@@ -30,4 +30,4 @@ export type WireMessage =
 
 export type SystemCommandEvalResult =
   | { ok: true; entries: LogEntry[] }
-  | { ok: false; error: StoreError };
+  | { ok: false; error: RoomError };

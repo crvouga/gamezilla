@@ -1,16 +1,16 @@
 import { assert } from '@gamezilla/lib/assert';
-import { PeerTrustUpdate } from '@gamezilla/peer-store/system-messages';
-import { DeterministicSimulator } from '@gamezilla/peer-store/simulator';
+import { PeerTrustUpdate } from '@gamezilla/room/system-messages';
+import { DeterministicSimulator } from '@gamezilla/room/simulator';
 import {
   TickClock,
   TicTacToeModule,
-} from '@gamezilla/peer-store/testkit/tic-tac-toe';
+} from '@gamezilla/room/testkit/tic-tac-toe';
 import {
   testPeerForLabel,
   type TicTacToeTestPeer,
-} from '@gamezilla/peer-store/testkit/tic-tac-toe-peers';
-import { computeTrustMap, type TrustVote } from '@gamezilla/peer-store/trust';
-import type { Event, Message, State } from '@gamezilla/peer-store/types';
+} from '@gamezilla/room/testkit/tic-tac-toe-peers';
+import { computeTrustMap, type TrustVote } from '@gamezilla/room/trust';
+import type { Event, Message, State } from '@gamezilla/room/types';
 import { formatLogForClipboard } from './playground-format';
 import {
   PEERS,
@@ -48,12 +48,12 @@ export type SimClockSnapshot = {
 export type ElectionRanking = Record<PeerId, PeerId[]>;
 
 assert.notThrows(
-  () => testPeerForLabel('peer-store-playground:import-smoke'),
-  'peer-store playground must derive test peers (node:crypto + ed25519)'
+  () => testPeerForLabel('room-playground:import-smoke'),
+  'room playground must derive test peers (node:crypto + ed25519)'
 );
 
 function playgroundPeer(id: PeerId): TicTacToeTestPeer {
-  return testPeerForLabel(`peer-store-playground:${id}`);
+  return testPeerForLabel(`room-playground:${id}`);
 }
 
 export class PlaygroundSimulator {
@@ -82,7 +82,7 @@ export class PlaygroundSimulator {
     });
   }
 
-  /** Map UI peer label → simulator / `PeerStore` peer id (Ed25519-derived). */
+  /** Map UI peer label → simulator / `Room` peer id (Ed25519-derived). */
   private simPeer(p: PeerId): string {
     return this.peerBinding[p].peerId;
   }
@@ -105,10 +105,10 @@ export class PlaygroundSimulator {
       peerSecretSeeds[b.peerId] = b.secretSeed;
     }
     return new DeterministicSimulator(TicTacToeModule, {
-      topic: 'peer-store-playground',
+      topic: 'room-playground',
       initialMembership,
       initialMemberPublicKeys,
-      roomSecret: 'peer-store-playground-room',
+      roomSecret: 'room-playground-room',
       peerSecretSeeds,
       advanceTime: () => {
         /* browser playground has no fake timers */

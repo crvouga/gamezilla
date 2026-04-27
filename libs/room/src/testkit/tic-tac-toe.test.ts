@@ -235,7 +235,7 @@ describe('TicTacToe integration', () => {
 
   it('unknown event type → state unchanged, no crash', () => {
     const sim = createSim();
-    const store = sim.getStore(PEER.playerX);
+    const store = sim.getRoom(PEER.playerX);
     const base = store.getCommittedLogEntries();
     const maxSeq = base.reduce((m, e) => Math.max(m, e.seq), 0);
     const before = JSON.stringify(store.getCommittedState());

@@ -1,6 +1,6 @@
 import { createNamespace, isPlainRecord } from '@gamezilla/lib/message';
 
-const errNs = createNamespace('peerStore');
+const errNs = createNamespace('room');
 
 function validateDetail(p: unknown): p is { detail: string } {
   if (!isPlainRecord(p)) return false;
@@ -25,47 +25,47 @@ function validateUnknownSystem(p: unknown): p is { commandType: string } {
 }
 
 /** Join payload invalid (shape or fields); see `detail`. */
-export const PeerStoreJoinInvalid = errNs('JOIN_INVALID', validateDetail);
+export const RoomJoinInvalid = errNs('JOIN_INVALID', validateDetail);
 
 /** Leave payload invalid (shape or fields); see `detail`. */
-export const PeerStoreLeaveInvalid = errNs('LEAVE_INVALID', validateDetail);
+export const RoomLeaveInvalid = errNs('LEAVE_INVALID', validateDetail);
 
 /** Trust update payload invalid (shape or fields); see `detail`. */
-export const PeerStoreTrustInvalid = errNs('TRUST_INVALID', validateDetail);
+export const RoomTrustInvalid = errNs('TRUST_INVALID', validateDetail);
 
 /** Join peerId did not match command author. */
-export const PeerStoreJoinPeerMismatch = errNs(
+export const RoomJoinPeerMismatch = errNs(
   'JOIN_PEER_MISMATCH',
   validateDetail,
 );
 
-export const PeerStoreDuplicatePeer = errNs(
+export const RoomDuplicatePeer = errNs(
   'DUPLICATE_PEER',
   validatePeerIdOnly,
 );
 
-export const PeerStoreLeaveNotSelf = errNs('LEAVE_NOT_SELF', validateDetail);
-export const PeerStoreUnknownPeer = errNs('UNKNOWN_PEER', validatePeerIdOnly);
+export const RoomLeaveNotSelf = errNs('LEAVE_NOT_SELF', validateDetail);
+export const RoomUnknownPeer = errNs('UNKNOWN_PEER', validatePeerIdOnly);
 
-export const PeerStoreNotAuthority = errNs('NOT_AUTHORITY', validateEmpty);
-export const PeerStoreUnknownSystemCommand = errNs(
+export const RoomNotAuthority = errNs('NOT_AUTHORITY', validateEmpty);
+export const RoomUnknownSystemCommand = errNs(
   'UNKNOWN_SYSTEM_COMMAND',
   validateUnknownSystem,
 );
 
-export const PeerStoreNotSynced = errNs('NOT_SYNCED', validateEmpty);
+export const RoomNotSynced = errNs('NOT_SYNCED', validateEmpty);
 
-export const PeerStoreInvalidPublicKey = errNs(
+export const RoomInvalidPublicKey = errNs(
   'INVALID_PUBLIC_KEY',
   validateDetail,
 );
 
-export const PeerStoreWireAuthFailed = errNs(
+export const RoomWireAuthFailed = errNs(
   'WIRE_AUTH_FAILED',
   validateDetail,
 );
 
-export const PeerStoreSyncSessionMismatch = errNs(
+export const RoomSyncSessionMismatch = errNs(
   'SYNC_SESSION_MISMATCH',
   validateDetail,
 );

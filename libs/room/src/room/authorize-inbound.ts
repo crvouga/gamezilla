@@ -4,7 +4,7 @@ import {
   fingerprintFromPublicKey,
   peerIdFromPublicKey,
 } from './security/peer-crypto';
-import type { PeerStoreSecurityConfig } from './types';
+import type { RoomSecurityConfig } from './types';
 import type { VerifiedWireEnvelope } from './security/wire-envelope';
 import type { WireMessage } from './wire-protocol';
 
@@ -66,7 +66,7 @@ export function isSignerKeyAllowedForWire(
 }
 
 export type InboundWireAuthContext = {
-  security: PeerStoreSecurityConfig;
+  security: RoomSecurityConfig;
   memberPublicKeys: MemberKeys;
   current_authority: string;
   inboundWireCounters: Map<string, number>;

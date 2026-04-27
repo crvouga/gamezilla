@@ -2,7 +2,7 @@ import { Assert } from '@gamezilla/lib/assert';
 import { createMessageRouter } from '@gamezilla/lib/message';
 import type { LogEntry } from '../persistence/log-entry'
 import type { Event } from '../events/message-types'
-import type { Snapshot, StoreModule } from './types'
+import type { Snapshot, RoomModule } from './types'
 import {
   PeerJoined,
   PeerLeft,
@@ -78,7 +78,7 @@ export function rebuildMembershipFromLog(entries: LogEntry[]): Map<string, numbe
 
 /** Materialize membership + domain state after applying all log rows with seq <= `seq`. */
 export function materializeAtSeq(
-  module: StoreModule,
+  module: RoomModule,
   committed: LogEntry[],
   seq: number
 ): Snapshot {

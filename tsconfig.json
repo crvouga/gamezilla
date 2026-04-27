@@ -16,9 +16,9 @@
       "@gamezilla/lib/*": ["./libs/lib/src/*"],
       "@gamezilla/domain/*": ["./libs/domain/src/*"],
       "@gamezilla/patch-db/*": ["./libs/patch-db/src/*"],
-      "@gamezilla/peer-store/*": ["./libs/peer-store/src/*"],
+      "@gamezilla/room/*": ["./libs/room/src/*"],
       "@gamezilla/patch-db-example/*": ["./libs/patch-db-example/src/*"],
-      "@gamezilla/peer-store-example/*": ["./libs/peer-store-example/src/*"]
+      "@gamezilla/room-example/*": ["./libs/room-example/src/*"]
     }
   },
   "include": [
@@ -32,12 +32,12 @@
     "libs/domain/src/**/*.tsx",
     "libs/patch-db/src/**/*.ts",
     "libs/patch-db/src/**/*.tsx",
-    "libs/peer-store/src/**/*.ts",
-    "libs/peer-store/src/**/*.tsx",
+    "libs/room/src/**/*.ts",
+    "libs/room/src/**/*.tsx",
     "libs/patch-db-example/src/**/*.ts",
     "libs/patch-db-example/src/**/*.tsx",
-    "libs/peer-store-example/src/**/*.ts",
-    "libs/peer-store-example/src/**/*.tsx",
+    "libs/room-example/src/**/*.ts",
+    "libs/room-example/src/**/*.tsx",
     "apps/turbo-cache/src/**/*.ts",
     "apps/client/.expo/types/**/*.ts",
     "apps/client/expo-env.d.ts"

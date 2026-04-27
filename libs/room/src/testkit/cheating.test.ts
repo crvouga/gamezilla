@@ -15,12 +15,12 @@ import {
   TicTacToeModule,
 } from './fixtures/tic-tac-toe.module';
 import { DeterministicSimulator } from '../simulator';
-import type { State } from '../store/types';
+import type { State } from '../room/types';
 import { isSystemEvent } from '../events/utils';
 import { ticTacToeBoardCell } from './tic-tac-toe-board';
 import { TestCrashHandler } from './test-crash-handler';
 import { ticTacToeThreePeers } from './tic-tac-toe-peers';
-import { isPlainRecord } from '../store/security/plain-record';
+import { isPlainRecord } from '../room/security/plain-record';
 
 const crash: Assert = Assert.crash();
 
@@ -95,7 +95,7 @@ function tamperAcceptedEntriesInBody(
 /** MITM: tamper signed envelope inner body (invalidates signature + bodyDigest). */
 function tamperSignedAcceptedPayload(payload: unknown): unknown {
   const msg = wireRecord(payload);
-  if (msg['scheme'] !== 'peer-store-wire-v1') return payload;
+  if (msg['scheme'] !== 'room-wire-v1') return payload;
   const body = msg['body'];
   if (!isPlainRecord(body)) return payload;
   return { ...msg, body: tamperAcceptedEntriesInBody(body) };
@@ -178,7 +178,7 @@ describe('Cheating: Authority', () => {
     let captured: unknown = null;
     sim.setMessageInterceptor((_topic, payload) => {
       const msg = wireRecord(payload);
-      if (msg['scheme'] === 'peer-store-wire-v1') {
+      if (msg['scheme'] === 'room-wire-v1') {
         const body = msg['body'];
         if (isPlainRecord(body) && body['kind'] === 'accepted' && !captured) {
           captured = structuredClone(payload);

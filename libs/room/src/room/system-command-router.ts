@@ -3,15 +3,15 @@ import { createMessageRouter, type MessageRouter } from '@gamezilla/lib/message'
 import type { LogEntry } from '../persistence/log-entry';
 import type { Event } from '../events/message-types';
 import {
-  PeerStoreDuplicatePeer,
-  PeerStoreJoinInvalid,
-  PeerStoreJoinPeerMismatch,
-  PeerStoreLeaveInvalid,
-  PeerStoreLeaveNotSelf,
-  PeerStoreNotAuthority,
-  PeerStoreTrustInvalid,
-  PeerStoreUnknownPeer,
-} from '../events/store-errors';
+  RoomDuplicatePeer,
+  RoomJoinInvalid,
+  RoomJoinPeerMismatch,
+  RoomLeaveInvalid,
+  RoomLeaveNotSelf,
+  RoomNotAuthority,
+  RoomTrustInvalid,
+  RoomUnknownPeer,
+} from '../events/room-errors';
 import {
   PeerJoin,
   PeerJoined,
@@ -28,7 +28,7 @@ import type { SystemCommandEvalResult } from './wire-protocol';
 const crash: Assert = Assert.crash();
 
 /**
- * Minimal context required by the system-command router. PeerStore provides
+ * Minimal context required by the system-command router. Room provides
  * an adapter implementing this interface so the router stays free of the
  * larger class surface.
  */
@@ -60,7 +60,7 @@ function parseJoinPayload(raw: unknown): ParseResult<ParsedJoinPayload> {
       ok: false,
       error: {
         ok: false,
-        error: PeerStoreJoinInvalid({
+        error: RoomJoinInvalid({
           detail: 'join payload must be a plain object',
         }),
       },
@@ -75,7 +75,7 @@ function parseJoinPayload(raw: unknown): ParseResult<ParsedJoinPayload> {
       ok: false,
       error: {
         ok: false,
-        error: PeerStoreJoinInvalid({
+        error: RoomJoinInvalid({
           detail: 'join payload requires peerId string',
         }),
       },
@@ -86,7 +86,7 @@ function parseJoinPayload(raw: unknown): ParseResult<ParsedJoinPayload> {
       ok: false,
       error: {
         ok: false,
-        error: PeerStoreJoinInvalid({
+        error: RoomJoinInvalid({
           detail: 'join payload requires finite trust >= 0',
         }),
       },
@@ -97,7 +97,7 @@ function parseJoinPayload(raw: unknown): ParseResult<ParsedJoinPayload> {
       ok: false,
       error: {
         ok: false,
-        error: PeerStoreJoinInvalid({
+        error: RoomJoinInvalid({
           detail: 'join payload requires publicKey string',
         }),
       },
@@ -112,7 +112,7 @@ function parseLeavePayload(raw: unknown): ParseResult<ParsedLeavePayload> {
       ok: false,
       error: {
         ok: false,
-        error: PeerStoreLeaveInvalid({
+        error: RoomLeaveInvalid({
           detail: 'leave payload must be a plain object',
         }),
       },
@@ -125,7 +125,7 @@ function parseLeavePayload(raw: unknown): ParseResult<ParsedLeavePayload> {
       ok: false,
       error: {
         ok: false,
-        error: PeerStoreLeaveInvalid({
+        error: RoomLeaveInvalid({
           detail: 'leave payload requires peerId',
         }),
       },
@@ -140,7 +140,7 @@ function parseTrustPayload(raw: unknown): ParseResult<ParsedTrustPayload> {
       ok: false,
       error: {
         ok: false,
-        error: PeerStoreTrustInvalid({
+        error: RoomTrustInvalid({
           detail: 'trust_update payload must be a plain object',
         }),
       },
@@ -154,7 +154,7 @@ function parseTrustPayload(raw: unknown): ParseResult<ParsedTrustPayload> {
       ok: false,
       error: {
         ok: false,
-        error: PeerStoreTrustInvalid({
+        error: RoomTrustInvalid({
           detail: 'trust_update requires peerId',
         }),
       },
@@ -165,7 +165,7 @@ function parseTrustPayload(raw: unknown): ParseResult<ParsedTrustPayload> {
       ok: false,
       error: {
         ok: false,
-        error: PeerStoreTrustInvalid({
+        error: RoomTrustInvalid({
           detail: 'trust_update requires finite trust >= 0',
         }),
       },
@@ -185,7 +185,7 @@ function evaluatePeerJoin(
   if (peerId !== command.peerId) {
     return {
       ok: false,
-      error: PeerStoreJoinPeerMismatch({
+      error: RoomJoinPeerMismatch({
         detail: 'join peerId must match command.peerId',
       }),
     };
@@ -196,7 +196,7 @@ function evaluatePeerJoin(
   } catch {
     return {
       ok: false,
-      error: PeerStoreJoinInvalid({
+      error: RoomJoinInvalid({
         detail: 'join payload publicKey is not valid base64url 32-byte key',
       }),
     };
@@ -207,7 +207,7 @@ function evaluatePeerJoin(
   } catch {
     return {
       ok: false,
-      error: PeerStoreJoinInvalid({
+      error: RoomJoinInvalid({
         detail: 'join payload publicKey could not derive peerId',
       }),
     };
@@ -215,13 +215,13 @@ function evaluatePeerJoin(
   if (derived !== peerId) {
     return {
       ok: false,
-      error: PeerStoreJoinInvalid({
+      error: RoomJoinInvalid({
         detail: 'join peerId must equal peerId derived from publicKey',
       }),
     };
   }
   if (ctx.hasMember(peerId)) {
-    return { ok: false, error: PeerStoreDuplicatePeer({ peerId }) };
+    return { ok: false, error: RoomDuplicatePeer({ peerId }) };
   }
   return {
     ok: true,
@@ -242,11 +242,11 @@ function evaluatePeerLeave(
   if (peerId !== command.peerId) {
     return {
       ok: false,
-      error: PeerStoreLeaveNotSelf({ detail: 'leave only allowed for self' }),
+      error: RoomLeaveNotSelf({ detail: 'leave only allowed for self' }),
     };
   }
   if (!ctx.hasMember(peerId)) {
-    return { ok: false, error: PeerStoreUnknownPeer({ peerId }) };
+    return { ok: false, error: RoomUnknownPeer({ peerId }) };
   }
   return {
     ok: true,
@@ -263,10 +263,10 @@ function evaluatePeerTrustUpdate(
   if (!parsed.ok) return parsed.error;
   const { peerId, trust } = parsed.value;
   if (!ctx.isAuthority(command.peerId)) {
-    return { ok: false, error: PeerStoreNotAuthority({}) };
+    return { ok: false, error: RoomNotAuthority({}) };
   }
   if (!ctx.hasMember(peerId)) {
-    return { ok: false, error: PeerStoreUnknownPeer({ peerId }) };
+    return { ok: false, error: RoomUnknownPeer({ peerId }) };
   }
   return {
     ok: true,

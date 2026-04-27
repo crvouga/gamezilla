@@ -1,6 +1,6 @@
 import { createNamespace, isPlainRecord } from '@gamezilla/lib/message';
-import type { HandleResult } from '../../store/types';
-import type { StoreError } from '../../events/message-types';
+import type { HandleResult } from '../../room/types';
+import type { RoomError } from '../../events/message-types';
 
 /** Per-player budget for chess-style clocks (fixture default; tests rely on this). */
 export const TIC_TAC_TOE_CLOCK_MS_PER_PLAYER = 5000;
@@ -238,6 +238,6 @@ export const UnknownCommandError = errTagNs(
   validateErrUnknownCommand
 );
 
-export function reject(error: StoreError): HandleResult {
+export function reject(error: RoomError): HandleResult {
   return { ok: false, error };
 }

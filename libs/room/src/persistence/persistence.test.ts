@@ -11,8 +11,8 @@ import {
   expect,
   it,
 } from 'bun:test';
-import { PeerStore } from '../store';
-import type { Command } from '../store/types';
+import { Room } from '../room';
+import type { Command } from '../room/types';
 import { isSystemEvent } from '../events/utils';
 import {
   MarkPlaced,
@@ -23,12 +23,12 @@ import { TestCrashHandler } from '../testkit/test-crash-handler';
 import { ticTacToeBoardCell } from '../testkit/tic-tac-toe-board';
 import { testPeerForLabel, ticTacToeThreePeers } from '../testkit/tic-tac-toe-peers';
 import { InMemoryBus, InMemoryTransport } from '../transport';
-import { recoverPeerStoreFromPersistence } from './persistence';
-import { InMemoryPeerStorePersistence } from './persistence-in-memory';
-import { SqlitePeerStorePersistence } from './persistence-sqlite';
+import { recoverRoomFromPersistence } from './persistence';
+import { InMemoryRoomPersistence } from './persistence-in-memory';
+import { SqliteRoomPersistence } from './persistence-sqlite';
 import type { LogEntry } from './log-entry';
 
-const persistenceTestNs = createNamespace('peerStorePersistenceTest');
+const persistenceTestNs = createNamespace('roomPersistenceTest');
 function validateTurnChangedPayload(p: unknown): p is { next: string } {
   if (!isPlainRecord(p)) return false;
   const next = p['next'];
@@ -42,11 +42,11 @@ beforeAll(() => {
 });
 afterAll(() => disposeCrashHandler());
 
-// ─── InMemoryPeerStorePersistence ────────────────────────────────────
+// ─── InMemoryRoomPersistence ────────────────────────────────────
 
-describe('InMemoryPeerStorePersistence', () => {
+describe('InMemoryRoomPersistence', () => {
   it('append and load in order', async () => {
-    const journal = new InMemoryPeerStorePersistence();
+    const journal = new InMemoryRoomPersistence();
     const cmd: Command = {
       id: 'cmd-1',
       seq: 1,
@@ -71,7 +71,7 @@ describe('InMemoryPeerStorePersistence', () => {
   });
 
   it('isolates partition keys', async () => {
-    const journal = new InMemoryPeerStorePersistence();
+    const journal = new InMemoryRoomPersistence();
     await journal.append('part-a', {
       kind: 'committed',
       commandId: 'c1',
@@ -89,7 +89,7 @@ describe('InMemoryPeerStorePersistence', () => {
   });
 
   it('load returns copies', async () => {
-    const journal = new InMemoryPeerStorePersistence();
+    const journal = new InMemoryRoomPersistence();
     await journal.append('g', {
       kind: 'committed',
       commandId: 'c1',
@@ -101,11 +101,11 @@ describe('InMemoryPeerStorePersistence', () => {
   });
 });
 
-// ─── recoverPeerStoreFromPersistence ─────────────────────────────────
+// ─── recoverRoomFromPersistence ─────────────────────────────────
 
-describe('recoverPeerStoreFromPersistence', () => {
+describe('recoverRoomFromPersistence', () => {
   it('replays committed events and identifies unresolved commands', async () => {
-    const journal = new InMemoryPeerStorePersistence();
+    const journal = new InMemoryRoomPersistence();
 
     const resolvedCmd: Command = {
       id: 'cmd-resolved',
@@ -133,7 +133,7 @@ describe('recoverPeerStoreFromPersistence', () => {
     let rehydratedEntries: LogEntry[] = [];
     const unresolved: Command[] = [];
 
-    const mockStore = {
+    const mockRoom = {
       rehydrate(entries: LogEntry[]) {
         rehydratedEntries = entries;
       },
@@ -157,7 +157,7 @@ describe('recoverPeerStoreFromPersistence', () => {
       destroy() {},
     };
 
-    await recoverPeerStoreFromPersistence(journal, 'log-part-1', mockStore, (cmd) =>
+    await recoverRoomFromPersistence(journal, 'log-part-1', mockRoom, (cmd) =>
       unresolved.push(cmd)
     );
 
@@ -168,7 +168,7 @@ describe('recoverPeerStoreFromPersistence', () => {
   });
 
   it('handles rejected commands as resolved', async () => {
-    const journal = new InMemoryPeerStorePersistence();
+    const journal = new InMemoryRoomPersistence();
 
     const cmd: Command = {
       id: 'cmd-rej',
@@ -180,7 +180,7 @@ describe('recoverPeerStoreFromPersistence', () => {
     await journal.append('g', { kind: 'rejected', commandId: 'cmd-rej' });
 
     const unresolved: Command[] = [];
-    const mockStore = {
+    const mockRoom = {
       rehydrate() {},
       dispatch() {},
       subscribe() {
@@ -202,7 +202,7 @@ describe('recoverPeerStoreFromPersistence', () => {
       destroy() {},
     };
 
-    await recoverPeerStoreFromPersistence(journal, 'g', mockStore, (cmd) =>
+    await recoverRoomFromPersistence(journal, 'g', mockRoom, (cmd) =>
       unresolved.push(cmd)
     );
 
@@ -210,9 +210,9 @@ describe('recoverPeerStoreFromPersistence', () => {
   });
 
   it('works with empty log', async () => {
-    const journal = new InMemoryPeerStorePersistence();
+    const journal = new InMemoryRoomPersistence();
     let rehydrated = false;
-    const mockStore = {
+    const mockRoom = {
       rehydrate() {
         rehydrated = true;
       },
@@ -236,21 +236,21 @@ describe('recoverPeerStoreFromPersistence', () => {
       destroy() {},
     };
 
-    await recoverPeerStoreFromPersistence(journal, 'scope-missing', mockStore);
+    await recoverRoomFromPersistence(journal, 'scope-missing', mockRoom);
     expect(rehydrated).toBe(true);
   });
 });
 
-// ─── SqlitePeerStorePersistence ──────────────────────────────────────
+// ─── SqliteRoomPersistence ──────────────────────────────────────
 
-describe('SqlitePeerStorePersistence', () => {
+describe('SqliteRoomPersistence', () => {
   let sqlClient: SqlClientImplBunSqlite;
-  let persistence: SqlitePeerStorePersistence;
+  let persistence: SqliteRoomPersistence;
 
   beforeEach(async () => {
     sqlClient = new SqlClientImplBunSqlite(new Database(':memory:'));
     await sqlClient.connect();
-    persistence = new SqlitePeerStorePersistence(sqlClient);
+    persistence = new SqliteRoomPersistence(sqlClient);
     await persistence.migrate();
   });
 
@@ -375,9 +375,9 @@ describe('SqlitePeerStorePersistence', () => {
   });
 });
 
-// ─── Integration: PeerStore + persistence journal ────────────────────
+// ─── Integration: Room + persistence journal ────────────────────
 
-describe('PeerStore + persistence journal integration', () => {
+describe('Room + persistence journal integration', () => {
   const INT_TOPIC = 'persistence-int';
   const FIX = ticTacToeThreePeers();
   const PEER = {
@@ -395,31 +395,31 @@ describe('PeerStore + persistence journal integration', () => {
     const pubMap = FIX.initialMemberPublicKeys;
     const seeds = FIX.peerSecretSeeds;
 
-    const journal = new InMemoryPeerStorePersistence();
+    const journal = new InMemoryRoomPersistence();
     const partitionKey = INT_TOPIC;
     const committed: Array<{ commandId: string; entries: LogEntry[] }> = [];
     const rejected: string[] = [];
 
-    const store_x = PeerStore.open({
+    const store_x = Room.open({
       module: TicTacToeModule,
       topic: INT_TOPIC,
       roomSecret: FIX.roomSecret,
       secretSeed: seeds[PEER.playerX]!,
       transport: t_x,
-      persistence: new InMemoryPeerStorePersistence(),
+      persistence: new InMemoryRoomPersistence(),
       role: {
         type: 'host',
         initialMembership: peers,
         initialMemberPublicKeys: pubMap,
       },
     });
-    const store_o = PeerStore.open({
+    const store_o = Room.open({
       module: TicTacToeModule,
       topic: INT_TOPIC,
       roomSecret: FIX.roomSecret,
       secretSeed: seeds[PEER.playerO]!,
       transport: t_o,
-      persistence: new InMemoryPeerStorePersistence(),
+      persistence: new InMemoryRoomPersistence(),
       role: {
         type: 'host',
         initialMembership: peers,
@@ -429,7 +429,7 @@ describe('PeerStore + persistence journal integration', () => {
         rejected.push(commandId);
       },
     });
-    const store_auth = PeerStore.open({
+    const store_auth = Room.open({
       module: TicTacToeModule,
       topic: INT_TOPIC,
       roomSecret: FIX.roomSecret,
@@ -515,8 +515,7 @@ describe('PeerStore + persistence journal integration', () => {
   });
 
   it('recovery from persistence journal rebuilds state', async () => {
-    const { store_x, store_o, store_auth, journal, partitionKey, destroy } =
-      setup();
+    const { store_x, store_o, store_auth, journal, destroy } = setup();
 
     store_x.dispatch(PlaceMark({ cell: 4, player: 'X' }));
     store_o.dispatch(PlaceMark({ cell: 0, player: 'O' }));
@@ -531,7 +530,7 @@ describe('PeerStore + persistence journal integration', () => {
     const t_recovery = new InMemoryTransport(bus2, PEER.authority);
     const dummyId = testPeerForLabel('persistence-dummy').peerId;
     const t_dummy = new InMemoryTransport(bus2, dummyId);
-    const recoveredStore = await PeerStore.create({
+    const recoveredStore = await Room.create({
       module: TicTacToeModule,
       topic: INT_TOPIC,
       roomSecret: FIX.roomSecret,
@@ -561,8 +560,8 @@ describe('PeerStore + persistence journal integration', () => {
   it('dispatch appends command intent to persistence (topic partition)', async () => {
     const bus = new InMemoryBus();
     const transport = new InMemoryTransport(bus, PEER.playerX);
-    const persistence = new InMemoryPeerStorePersistence();
-    const store = PeerStore.open({
+    const persistence = new InMemoryRoomPersistence();
+    const store = Room.open({
       module: TicTacToeModule,
       topic: INT_TOPIC,
       roomSecret: FIX.roomSecret,

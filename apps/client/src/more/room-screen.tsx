@@ -1,8 +1,8 @@
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
-import { PlaygroundPage } from '@gamezilla/peer-store-example/pages/playground-page';
+import { PlaygroundPage } from '@gamezilla/room-example/pages/playground-page';
 import { Box, ScreenBaseHeader } from '@gamezilla/lib/ui';
 
-export function PeerStoreScreen() {
+export function RoomScreen() {
   const nav = useBreadcrumbNav();
 
   return (
@@ -12,7 +12,7 @@ export function PeerStoreScreen() {
           { name: 'Spaces', onPress: nav('/') },
           { name: 'Settings', onPress: nav('/more') },
           { name: 'Developer', onPress: nav('/more/developer') },
-          { name: 'Peer Store Playground' },
+          { name: 'Room Playground' },
         ]}
       />
       <Box sx={{ flex: 1, minHeight: 0 }}>

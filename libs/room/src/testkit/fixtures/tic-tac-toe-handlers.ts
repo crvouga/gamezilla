@@ -1,6 +1,6 @@
 import type { Message } from '@gamezilla/lib/message';
 import type { Event } from '../../events/message-types';
-import type { Command, HandleResult, State } from '../../store/types';
+import type { Command, HandleResult, State } from '../../room/types';
 import {
   assertPeerOwnsMark,
   assertValidState,

@@ -1,6 +1,6 @@
 import { Assert } from '@gamezilla/lib/assert';
 import type { LogEntry } from '../../persistence/log-entry';
-import type { StoreError } from '../../events/message-types';
+import type { RoomError } from '../../events/message-types';
 import type { Command } from '../types';
 import {
   parseAcceptedWire,
@@ -28,10 +28,10 @@ import { stableStringify } from './stable-stringify';
 const crash: Assert = Assert.crash();
 const validation: Assert = Assert.validation();
 
-export const PEER_STORE_WIRE_SCHEME = 'peer-store-wire-v1' as const;
+export const ROOM_WIRE_SCHEME = 'room-wire-v1' as const;
 
 export type SignedWireEnvelopeV1 = {
-  scheme: typeof PEER_STORE_WIRE_SCHEME;
+  scheme: typeof ROOM_WIRE_SCHEME;
   v: 1;
   topic: string;
   signerPeerId: string;
@@ -109,7 +109,7 @@ function logEntryToSignable(e: LogEntry): unknown {
   };
 }
 
-function storeErrorToSignable(err: StoreError): unknown {
+function storeErrorToSignable(err: RoomError): unknown {
   return { type: err.type, payload: err.payload };
 }
 
@@ -159,7 +159,7 @@ export function signWireEnvelope(
     stableStringify(wireMessageToSignable(input.body))
   );
   const signInput = stableStringify({
-    scheme: PEER_STORE_WIRE_SCHEME,
+    scheme: ROOM_WIRE_SCHEME,
     v: 1,
     topic: input.topic,
     signerPeerId: input.signerPeerId,
@@ -170,7 +170,7 @@ export function signWireEnvelope(
   });
   const sig = signDetached(utf8(signInput), input.secretSeed);
   return {
-    scheme: PEER_STORE_WIRE_SCHEME,
+    scheme: ROOM_WIRE_SCHEME,
     v: 1,
     topic: input.topic,
     signerPeerId: input.signerPeerId,
@@ -207,7 +207,7 @@ function wireHeaderChecks(
   rec: Record<string, unknown>,
   expectedTopic: string,
 ): WireVerifyFail | void {
-  if (rec['scheme'] !== PEER_STORE_WIRE_SCHEME) {
+  if (rec['scheme'] !== ROOM_WIRE_SCHEME) {
     return { ok: false, reason: 'bad_scheme' };
   }
   if (rec['v'] !== 1) return { ok: false, reason: 'bad_version' };
@@ -326,7 +326,7 @@ function wireSignatureOk(ctx: WireSigInput): WireVerifyFail | void {
     return { ok: false, reason: 'sig_decode' };
   }
   const signInput = stableStringify({
-    scheme: PEER_STORE_WIRE_SCHEME,
+    scheme: ROOM_WIRE_SCHEME,
     v: 1,
     topic: ctx.topic,
     signerPeerId: ctx.signerPeerId,

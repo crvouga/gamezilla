@@ -1,6 +1,6 @@
 import { Assert } from '@gamezilla/lib/assert';
 import { createMessageRouter } from '@gamezilla/lib/message';
-import type { Command, HandleResult, State, StoreModule } from '../../store/types';
+import type { Command, HandleResult, State, RoomModule } from '../../room/types';
 import type { Event } from '../../events/message-types';
 import {
   ClockSliceSet,
@@ -63,7 +63,7 @@ const eventRouter = createMessageRouter<State, void, State>(evtNs)
   .on(ClockSliceSet, (state, _, msg) => reduceClockSliceSet(state, msg))
   .on(ClockTimeout, (state, _, msg) => reduceClockTimeout(state, msg));
 
-export const TicTacToeModule: StoreModule = {
+export const TicTacToeModule: RoomModule = {
   initialState(): State {
     return {
       board: [null, null, null, null, null, null, null, null, null],

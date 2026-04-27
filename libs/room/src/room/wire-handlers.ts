@@ -1,6 +1,6 @@
 import { Assert } from '@gamezilla/lib/assert';
 import type { LogEntry } from '../persistence/log-entry';
-import type { StoreError } from '../events/message-types';
+import type { RoomError } from '../events/message-types';
 import { decodeKeyB64 } from './security/peer-crypto';
 import { PeerJoined, PeerLeave, peerNamespace } from '../events/system-messages';
 import { isSystemEvent } from '../events/utils';
@@ -10,13 +10,13 @@ import {
   updateLastSeenVerified,
 } from './authority-monitor';
 import { applyMembershipEvent, materializeAtSeq } from './membership';
-import type { PeerStore } from './peer-store';
-import type { Command, StoreEffect } from './types';
+import type { Room } from './room';
+import type { Command, RoomEffect } from './types';
 import type { WireMessage } from './wire-protocol';
 
 const crash: Assert = Assert.crash();
 
-export function handleWireMessage(self: PeerStore, payload: unknown): void {
+export function handleWireMessage(self: Room, payload: unknown): void {
   if (self.is_destroyed) return;
   const verified = self.verifyInboundWire(payload);
   if (!verified) return;
@@ -29,10 +29,10 @@ export function handleWireMessage(self: PeerStore, payload: unknown): void {
 
 /** Single path: apply committed entries then broadcast `accepted` (authority). */
 export function authorityAcceptCommit(
-  self: PeerStore,
+  self: Room,
   commandId: string,
   entries: LogEntry[],
-  effects?: StoreEffect[],
+  effects?: RoomEffect[],
 ): void {
   handleCommitEntries(self, commandId, entries, effects);
   self.publishSignedWire({
@@ -43,9 +43,9 @@ export function authorityAcceptCommit(
 }
 
 export function authorityRejectProposal(
-  self: PeerStore,
+  self: Room,
   commandId: string,
-  error: StoreError,
+  error: RoomError,
 ): void {
   self.finalized_command_ids.add(commandId);
   self.appendPersistenceEntry({ kind: 'rejected', commandId });
@@ -56,7 +56,7 @@ export function authorityRejectProposal(
   } satisfies WireMessage);
 }
 
-function dispatchVerifiedBody(self: PeerStore, body: WireMessage): void {
+function dispatchVerifiedBody(self: Room, body: WireMessage): void {
   switch (body.kind) {
     case 'propose':
       handleProposeWire(self, body);
@@ -83,7 +83,7 @@ function dispatchVerifiedBody(self: PeerStore, body: WireMessage): void {
 }
 
 export function handleProposeWire(
-  self: PeerStore,
+  self: Room,
   wire: WireMessage & { kind: 'propose' },
 ): void {
   if (!self.isAuthority()) return;
@@ -98,7 +98,7 @@ export function handleProposeWire(
   handleProposeDomain(self, command);
 }
 
-function handleProposeSystem(self: PeerStore, command: Command): void {
+function handleProposeSystem(self: Room, command: Command): void {
   const sys = self.evaluateSystemCommand(command);
   if (sys.ok) {
     authorityAcceptCommit(self, command.id, sys.entries);
@@ -107,7 +107,7 @@ function handleProposeSystem(self: PeerStore, command: Command): void {
   }
 }
 
-function handleProposeDomain(self: PeerStore, command: Command): void {
+function handleProposeDomain(self: Room, command: Command): void {
   const evaluated = self.authorityEvaluateDomain(command);
   if (evaluated.ok) {
     authorityAcceptCommit(
@@ -122,7 +122,7 @@ function handleProposeDomain(self: PeerStore, command: Command): void {
 }
 
 export function handleAcceptedWire(
-  self: PeerStore,
+  self: Room,
   wire: WireMessage & { kind: 'accepted' },
 ): void {
   const { commandId, entries } = wire;
@@ -131,7 +131,7 @@ export function handleAcceptedWire(
 }
 
 export function handleRejectedWire(
-  self: PeerStore,
+  self: Room,
   wire: WireMessage & { kind: 'rejected' },
 ): void {
   const { commandId } = wire;
@@ -153,7 +153,7 @@ export function handleRejectedWire(
   self.notifySubscribers();
 }
 
-function applyCommitEntry(self: PeerStore, entry: LogEntry): void {
+function applyCommitEntry(self: Room, entry: LogEntry): void {
   const { event } = entry;
   if (isSystemEvent(event)) {
     if (PeerJoined.is(event)) {
@@ -179,10 +179,10 @@ function applyCommitEntry(self: PeerStore, entry: LogEntry): void {
 }
 
 export function handleCommitEntries(
-  self: PeerStore,
+  self: Room,
   commandId: string,
   entries: LogEntry[],
-  effects?: StoreEffect[],
+  effects?: RoomEffect[],
 ): void {
   if (self.finalized_command_ids.has(commandId)) return;
   self.finalized_command_ids.add(commandId);
@@ -218,7 +218,7 @@ export function handleCommitEntries(
 }
 
 export function handleSyncRequestWire(
-  self: PeerStore,
+  self: Room,
   wire: WireMessage & { kind: 'sync-request' },
 ): void {
   if (wire.from === self.peerId) return;
@@ -249,7 +249,7 @@ export function handleSyncRequestWire(
 }
 
 export function handleSyncResponseWire(
-  self: PeerStore,
+  self: Room,
   wire: WireMessage & { kind: 'sync-response' },
 ): void {
   if (wire.to !== self.peerId) return;

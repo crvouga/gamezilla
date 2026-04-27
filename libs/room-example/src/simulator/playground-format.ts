@@ -1,4 +1,4 @@
-import type { Event, State } from '@gamezilla/peer-store/types';
+import type { Event, State } from '@gamezilla/room/types';
 import type { LogEntry, PeerId } from './playground-types';
 import { TRUST_MAP, PEERS } from './playground-types';
 
@@ -16,7 +16,7 @@ export type FormatLogInput = {
 };
 
 function writeHeader(lines: string[]): void {
-  lines.push('## Peer-Store Playground Session');
+  lines.push('## Room Playground Session');
   lines.push('');
   lines.push('Setup:');
   lines.push(`  peers: ${JSON.stringify(TRUST_MAP)}`);

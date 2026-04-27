@@ -1,6 +1,6 @@
 import type { LogEntry } from '../persistence/log-entry'
-import type { PeerStorePersistence } from '../persistence/persistence'
-import type { Event, Message, StoreError } from '../events/message-types'
+import type { RoomPersistence } from '../persistence/persistence'
+import type { Event, Message, RoomError } from '../events/message-types'
 import type { Transport } from '../transport/transport-types'
 
 export type Command = {
@@ -15,18 +15,18 @@ export type Command = {
  *
  * INTENTIONAL: `Record<string, unknown>` — not a generic app state type.
  * Modules parse/validate fields at runtime. Optional `snapshotState` /
- * `restoreState` on `StoreModule` can serialize a custom blob for sync.
+ * `restoreState` on `RoomModule` can serialize a custom blob for sync.
  */
 export type State = Record<string, unknown>
 
 /** Host-interpreted intent emitted after a successful committed command. */
-export type StoreEffect = Message
+export type RoomEffect = Message
 
 export type HandleResult =
-  | { ok: true; events: Event[]; effects?: StoreEffect[] }
-  | { ok: false; error: StoreError }
+  | { ok: true; events: Event[]; effects?: RoomEffect[] }
+  | { ok: false; error: RoomError }
 
-export type StoreModule = {
+export type RoomModule = {
   initialState(): State
   handle(state: State, command: Command): HandleResult
   reduce(state: State, event: Event): State
@@ -71,7 +71,7 @@ export type PeerBootstrap =
     }
 
 /** Cryptographic session binding for all wire traffic on this topic. */
-export type PeerStoreSecurityConfig = {
+export type RoomSecurityConfig = {
   roomSecret: string
   /** 32-byte Ed25519 secret seed (must match `peerId` derived public key). */
   secretSeed: Uint8Array
@@ -79,13 +79,13 @@ export type PeerStoreSecurityConfig = {
   peerFingerprints?: Record<string, string>
 }
 
-export type PeerStoreRoomRoleHost = {
+export type RoomRoleHost = {
   type: 'host'
   initialMembership: Record<string, number>
   initialMemberPublicKeys: Record<string, string>
 }
 
-export type PeerStoreRoomRoleJoin = {
+export type RoomRoleJoin = {
   type: 'join'
   /** Genesis membership + keys for the room before this peer appears in the log. */
   roomSnapshot: {
@@ -98,27 +98,27 @@ export type PeerStoreRoomRoleJoin = {
  * Room + transport + persistence only (no `module` / lifecycle callbacks).
  * `peerId` is derived from `secretSeed` (self-certifying).
  */
-export type PeerStoreRoomConfigCore = {
+export type RoomConfigCore = {
   topic: string
   roomSecret: string
   secretSeed: Uint8Array
   transport: Transport
-  persistence: PeerStorePersistence
-  role: PeerStoreRoomRoleHost | PeerStoreRoomRoleJoin
+  persistence: RoomPersistence
+  role: RoomRoleHost | RoomRoleJoin
   timeoutMs?: number
   heartbeatIntervalMs?: number
   heartbeatTimeoutMs?: number
   peerFingerprints?: Record<string, string>
 }
 
-export type PeerStoreCallbacks = {
+export type RoomCallbacks = {
   onTimeout?: (commandId: string) => void
-  onError?: (error: StoreError) => void
+  onError?: (error: RoomError) => void
   onSync?: () => void
   onCommit?: (
     commandId: string,
     entries: LogEntry[],
-    effects?: StoreEffect[],
+    effects?: RoomEffect[],
   ) => void
   onReject?: (commandId: string) => void
   onAuthorityChange?: (
@@ -132,30 +132,30 @@ export type PeerStoreCallbacks = {
 }
 
 /**
- * Full {@link PeerStore} instantiation: {@link PeerStoreRoomConfigCore} plus `module`,
- * optional callbacks, and optional persistence recovery hook for {@link PeerStore.create}.
+ * Full {@link Room} instantiation: {@link RoomConfigCore} plus `module`,
+ * optional callbacks, and optional persistence recovery hook for {@link Room.create}.
  */
-export type PeerStoreRoomConfig = PeerStoreRoomConfigCore &
-  PeerStoreCallbacks & {
-    module: StoreModule
-    /** Used only by {@link PeerStore.create}: journal command rows with no outcome. */
+export type RoomConfig = RoomConfigCore &
+  RoomCallbacks & {
+    module: RoomModule
+    /** Used only by {@link Room.create}: journal command rows with no outcome. */
     onUnresolvedPersistenceCommand?: (command: Command) => void
   }
 
 /** Normalized internal shape after validation. */
-export type NormalizedPeerStoreInit = {
+export type NormalizedRoomInit = {
   topic: string
   peerId: string
   bootstrap: PeerBootstrap
   transport: Transport
-  persistence: PeerStorePersistence
-  security: PeerStoreSecurityConfig
+  persistence: RoomPersistence
+  security: RoomSecurityConfig
   timeoutMs?: number
   heartbeatIntervalMs?: number
   heartbeatTimeoutMs?: number
 }
 
-export interface PeerStoreApi {
+export interface RoomApi {
   dispatch(message: Message): void
   subscribe(callback: (state: State) => void): () => void
   getState(): State

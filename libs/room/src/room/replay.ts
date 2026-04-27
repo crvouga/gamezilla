@@ -2,7 +2,7 @@ import { Assert } from '@gamezilla/lib/assert'
 import type { LogEntry } from '../persistence/log-entry'
 import type { Event } from '../events/message-types'
 import { isSystemEvent } from '../events/utils'
-import type { State, StoreModule } from './types'
+import type { State, RoomModule } from './types'
 
 const crash: Assert = Assert.crash()
 
@@ -10,7 +10,7 @@ const crash: Assert = Assert.crash()
  * Replays only domain events (skips `_peer/...`) in order.
  */
 export function replayDomainEntries(
-  module: StoreModule,
+  module: RoomModule,
   entries: LogEntry[],
 ): State {
   let state = module.initialState()
@@ -24,7 +24,7 @@ export function replayDomainEntries(
 }
 
 /** Replays a flat list of domain events (no seq). Skips system events if present. */
-export function replayEvents(module: StoreModule, events: Event[]): State {
+export function replayEvents(module: RoomModule, events: Event[]): State {
   let state = module.initialState()
   for (const event of events) {
     if (isSystemEvent(event)) continue

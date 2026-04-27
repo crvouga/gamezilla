@@ -1,3 +1,3 @@
-import { PeerStoreScreen } from '@gamezilla/client/more/peer-store-screen';
+import { RoomScreen } from '@gamezilla/client/more/room-screen';
 
-export default PeerStoreScreen;
+export default RoomScreen;

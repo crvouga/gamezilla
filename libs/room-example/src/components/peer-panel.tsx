@@ -1,4 +1,4 @@
-import type { Event, State } from '@gamezilla/peer-store/types';
+import type { Event, State } from '@gamezilla/room/types';
 import { Card, Text } from '@gamezilla/lib/ui';
 import { StateInspector } from './state-inspector';
 import { TicTacToeBoard } from './tic-tac-toe-board';

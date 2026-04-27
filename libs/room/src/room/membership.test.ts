@@ -48,7 +48,7 @@ function readMembership(
   sim: DeterministicSimulator,
   peerId: string,
 ): Record<string, number> {
-  const entries = sim.getStore(peerId).getCommittedLogEntries();
+  const entries = sim.getRoom(peerId).getCommittedLogEntries();
   return membershipToRecord(rebuildMembershipFromLog(entries));
 }
 

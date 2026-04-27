@@ -1,6 +1,6 @@
 import { Assert } from '@gamezilla/lib/assert';
 import type { Transport } from '../transport/transport-types';
-import { fingerprintFromPublicKey } from '../store/security/peer-crypto';
+import { fingerprintFromPublicKey } from '../room/security/peer-crypto';
 import {
   signTrustBallotEnvelope,
   trustElectionTransportTopic,
@@ -21,7 +21,7 @@ export type TrustVote = {
  *
  * Every peer in `allPeers` receives a base weight of 1. Each vote for a peer
  * adds 1 to that peer's weight. The resulting map can be passed directly to
- * `PeerStore` — the peer with the highest weight becomes the authority.
+ * `Room` — the peer with the highest weight becomes the authority.
  *
  * If `votes` contains multiple rows for the same `from`, **first** wins.
  */

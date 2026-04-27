@@ -7,15 +7,15 @@ import { stableStringify } from './stable-stringify';
 
 assert.ok(
   typeof globalThis.crypto?.getRandomValues === 'function',
-  'crypto.getRandomValues must exist for peer-store (polyfill + WebCrypto)'
+  'crypto.getRandomValues must exist for room (polyfill + WebCrypto)'
 );
-assert.ok(typeof Buffer !== 'undefined', 'Buffer must exist (peer-store peer-crypto)');
+assert.ok(typeof Buffer !== 'undefined', 'Buffer must exist (room peer-crypto)');
 assert.notThrows(
   () => {
     sha256(new Uint8Array([1, 2, 3]));
     randomBytes(1);
   },
-  'peer-store crypto smoke (sha256 + randomBytes)'
+  'room crypto smoke (sha256 + randomBytes)'
 );
 assert.notThrows(
   () => {
@@ -26,7 +26,7 @@ assert.notThrows(
       'base64url codec round-trip'
     );
   },
-  'peer-store base64url (Buffer+base64) codec must work'
+  'room base64url (Buffer+base64) codec must work'
 );
 
 const enc = new TextEncoder();
@@ -122,7 +122,7 @@ export function sha256Hex(data: string | Uint8Array): string {
 export function computeRoomProof(roomSecret: string, topic: string): string {
   return sha256Hex(
     stableStringify({
-      scheme: 'peer-store-room-v1',
+      scheme: 'room-session-v1',
       roomSecret,
       topic,
     }),

@@ -1,5 +1,5 @@
 import { Assert } from '@gamezilla/lib/assert';
-import type { State } from '@gamezilla/peer-store/types';
+import type { State } from '@gamezilla/room/types';
 import { Stack, Text } from '@gamezilla/lib/ui';
 import { TicTacToeCell } from './tic-tac-toe-cell';
 

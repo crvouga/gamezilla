@@ -165,7 +165,7 @@ describe('DeterministicSimulator', () => {
     sim.destroy()
   })
 
-  it('reset returns all stores to initial state', () => {
+  it('reset returns all rooms to initial state', () => {
     const sim = createSim()
     sim.dispatch(PEER.playerX, PlaceMark({ cell: 0, player: 'X' }))
     sim.reset()

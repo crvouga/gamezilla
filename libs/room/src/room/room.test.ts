@@ -9,17 +9,17 @@ import {
   jest,
 } from 'bun:test'
 import { Assert } from '@gamezilla/lib/assert'
-import { InMemoryPeerStorePersistence } from '../persistence/persistence-in-memory'
-import { PeerStore } from './peer-store'
+import { InMemoryRoomPersistence } from '../persistence/persistence-in-memory'
+import { Room } from './room'
 import { InMemoryBus, InMemoryTransport } from '../transport'
 import { isSystemEvent } from '../events/utils'
-import type { StoreError } from '../events/message-types'
+import type { RoomError } from '../events/message-types'
 import type {
   Command,
   HandleResult,
-  PeerStoreRoomConfig,
+  RoomConfig,
   State,
-  StoreModule,
+  RoomModule,
 } from './types'
 import {
   ClockTimeout,
@@ -45,8 +45,8 @@ beforeAll(() => {
 })
 afterAll(() => disposeCrashHandler())
 
-const TEST_TOPIC = 'peer-store-test'
-const EFFECT_TOPIC = 'peer-store-effects-test'
+const TEST_TOPIC = 'room-test'
+const EFFECT_TOPIC = 'room-effects-test'
 
 const F = ticTacToeThreePeers()
 const PEER = {
@@ -56,7 +56,7 @@ const PEER = {
 } as const
 const PEER_IDS = [PEER.authority, PEER.playerX, PEER.playerO]
 
-const EffectModule: StoreModule = {
+const EffectModule: RoomModule = {
   initialState: () => ({ count: 0 }),
   handle: (state: State): HandleResult => {
     const count = typeof state['count'] === 'number' ? state['count'] : 0
@@ -98,14 +98,14 @@ type BuildStoreConfigArgs = {
   transport: InMemoryTransport
 }
 
-function buildStoreConfig(args: BuildStoreConfigArgs): PeerStoreRoomConfig {
-  const config: PeerStoreRoomConfig = {
+function buildStoreConfig(args: BuildStoreConfigArgs): RoomConfig {
+  const config: RoomConfig = {
     module: TicTacToeModule,
     topic: TEST_TOPIC,
     roomSecret: F.roomSecret,
     secretSeed: args.peerSecretSeeds[args.peerId]!,
     transport: args.transport,
-    persistence: new InMemoryPeerStorePersistence(),
+    persistence: new InMemoryRoomPersistence(),
     role: {
       type: 'host',
       initialMembership: args.peers,
@@ -117,7 +117,7 @@ function buildStoreConfig(args: BuildStoreConfigArgs): PeerStoreRoomConfig {
 }
 
 function applyOptionalStoreConfig(
-  config: PeerStoreRoomConfig,
+  config: RoomConfig,
   opts: SetupOpts | undefined,
 ): void {
   if (!opts) return
@@ -148,9 +148,9 @@ function setup(opts?: SetupOpts) {
   }
   const bus = new InMemoryBus()
   const transports = new Map<string, InMemoryTransport>()
-  const stores = new Map<string, PeerStore>()
+  const stores = new Map<string, Room>()
   const timeouts: string[] = []
-  const errors: StoreError[] = []
+  const errors: RoomError[] = []
   const syncs: string[] = []
   const authorityChanges: Array<{
     newAuthority: string
@@ -161,7 +161,7 @@ function setup(opts?: SetupOpts) {
     const transport = new InMemoryTransport(bus, peerId)
     transports.set(peerId, transport)
 
-    const store = PeerStore.open({
+    const store = Room.open({
       ...buildStoreConfig({
         opts,
         peers,
@@ -185,11 +185,11 @@ function setup(opts?: SetupOpts) {
   return { bus, transports, stores, timeouts, errors, syncs, authorityChanges }
 }
 
-describe('PeerStore', () => {
+describe('Room', () => {
   beforeEach(() => jest.useFakeTimers())
   afterEach(() => jest.useRealTimers())
 
-  it('dispatch on destroyed store → crash', () => {
+  it('dispatch on destroyed room → crash', () => {
     const { stores } = setup()
     const store = stores.get(PEER.playerX)!
     store.destroy()
@@ -308,7 +308,7 @@ describe('PeerStore', () => {
     expect(states_seen.length).toBe(count_after_first)
   })
 
-  it('subscribe on destroyed store → crash', () => {
+  it('subscribe on destroyed room → crash', () => {
     const { stores } = setup()
     const store = stores.get(PEER.playerX)!
     store.destroy()
@@ -369,10 +369,10 @@ describe('PeerStore', () => {
   })
 
   it('module.handle returning null → crash', () => {
-    const badModule: StoreModule = {
+    const badModule: RoomModule = {
       initialState: () => ({}),
       handle: () => {
-        // Intentionally violates HandleResult so PeerStore must crash (not for production).
+        // Intentionally violates HandleResult so Room must crash (not for production).
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test stub
         return null as unknown as HandleResult
       },
@@ -388,26 +388,26 @@ describe('PeerStore', () => {
     const bus = new InMemoryBus()
     const t1 = new InMemoryTransport(bus, ba.peerId)
     const t2 = new InMemoryTransport(bus, bb.peerId)
-    const store = PeerStore.open({
+    const store = Room.open({
       module: badModule,
       topic: TEST_TOPIC,
       roomSecret: F.roomSecret,
       secretSeed: ba.secretSeed,
       transport: t1,
-      persistence: new InMemoryPeerStorePersistence(),
+      persistence: new InMemoryRoomPersistence(),
       role: {
         type: 'host',
         initialMembership: member,
         initialMemberPublicKeys: pubMap,
       },
     })
-    const _store2 = PeerStore.open({
+    const _store2 = Room.open({
       module: badModule,
       topic: TEST_TOPIC,
       roomSecret: F.roomSecret,
       secretSeed: bb.secretSeed,
       transport: t2,
-      persistence: new InMemoryPeerStorePersistence(),
+      persistence: new InMemoryRoomPersistence(),
       role: {
         type: 'host',
         initialMembership: member,
@@ -427,7 +427,7 @@ describe('PeerStore', () => {
   })
 
   it('module.reduce returning array → crash', () => {
-    const badModule: StoreModule = {
+    const badModule: RoomModule = {
       initialState: () => ({}),
       handle: (_s: State, _c: Command) => ({
         ok: true,
@@ -448,26 +448,26 @@ describe('PeerStore', () => {
     const bus = new InMemoryBus()
     const t1 = new InMemoryTransport(bus, ba.peerId)
     const t2 = new InMemoryTransport(bus, bb.peerId)
-    const store = PeerStore.open({
+    const store = Room.open({
       module: badModule,
       topic: TEST_TOPIC,
       roomSecret: F.roomSecret,
       secretSeed: bb.secretSeed,
       transport: t2,
-      persistence: new InMemoryPeerStorePersistence(),
+      persistence: new InMemoryRoomPersistence(),
       role: {
         type: 'host',
         initialMembership: member,
         initialMemberPublicKeys: pubMap,
       },
     })
-    const _store2 = PeerStore.open({
+    const _store2 = Room.open({
       module: badModule,
       topic: TEST_TOPIC,
       roomSecret: F.roomSecret,
       secretSeed: ba.secretSeed,
       transport: t1,
-      persistence: new InMemoryPeerStorePersistence(),
+      persistence: new InMemoryRoomPersistence(),
       role: {
         type: 'host',
         initialMembership: member,
@@ -525,7 +525,7 @@ describe('PeerStore', () => {
     }
   })
 
-  it('commit effects are emitted only on producing authority store', () => {
+  it('commit effects are emitted only on producing authority room', () => {
     const bus = new InMemoryBus()
     const peers = F.initialMembership
     const byPeer = new Map<
@@ -537,13 +537,13 @@ describe('PeerStore', () => {
       const transport = new InMemoryTransport(bus, peerId)
       const rows: Array<{ commandId: string; effectCount: number }> = []
       byPeer.set(peerId, rows)
-      const store = PeerStore.open({
+      const store = Room.open({
         module: EffectModule,
         topic: EFFECT_TOPIC,
         roomSecret: F.roomSecret,
         secretSeed: F.peerSecretSeeds[peerId]!,
         transport,
-        persistence: new InMemoryPeerStorePersistence(),
+        persistence: new InMemoryRoomPersistence(),
         role: {
           type: 'host',
           initialMembership: peers,
@@ -651,7 +651,7 @@ describe('Sync protocol', () => {
     expect(syncs).toContain(PEER.playerO)
   })
 
-  it('requestSync on destroyed store → crash', () => {
+  it('requestSync on destroyed room → crash', () => {
     const { stores } = setup()
     const store = stores.get(PEER.playerX)!
     store.destroy()
@@ -716,11 +716,11 @@ describe('Authority failover', () => {
   })
 })
 
-describe('Chess-style clock (PeerStore + TicTacToe)', () => {
+describe('Chess-style clock (Room + TicTacToe)', () => {
   beforeEach(() => jest.useFakeTimers())
   afterEach(() => jest.useRealTimers())
 
-  function seedSeatedGame(stores: Map<string, PeerStore>): void {
+  function seedSeatedGame(stores: Map<string, Room>): void {
     stores.get(PEER.playerX)!.dispatch(JoinSession({ mark: 'X' }))
     stores.get(PEER.playerO)!.dispatch(JoinSession({ mark: 'O' }))
     stores.get(PEER.playerX)!.dispatch(PlaceMark({ cell: 0, player: 'X' }))

@@ -1,15 +1,15 @@
 import { Assert } from '@gamezilla/lib/assert'
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface'
 import type {
-  PeerStorePersistence,
-  PeerStorePersistenceEntry,
+  RoomPersistence,
+  RoomPersistenceEntry,
 } from './persistence'
 import { assertCommand, assertLogEntryArray } from './assert-durable-json'
 
 const crash: Assert = Assert.crash()
 
 const MIGRATIONS = `
-CREATE TABLE IF NOT EXISTS peer_store_persistence (
+CREATE TABLE IF NOT EXISTS room_persistence (
     partition_key TEXT NOT NULL,
     seq        INTEGER NOT NULL,
     kind       TEXT NOT NULL,
@@ -18,18 +18,18 @@ CREATE TABLE IF NOT EXISTS peer_store_persistence (
     created_at TEXT NOT NULL,
     PRIMARY KEY (partition_key, seq)
 );
-CREATE INDEX IF NOT EXISTS idx_peer_store_persistence_partition ON peer_store_persistence (partition_key);
+CREATE INDEX IF NOT EXISTS idx_room_persistence_partition ON room_persistence (partition_key);
 `
 
-const INSERT = `INSERT INTO peer_store_persistence (partition_key, seq, kind, command_id, payload, created_at)
-VALUES (?, (SELECT COALESCE(MAX(seq), 0) + 1 FROM peer_store_persistence WHERE partition_key = ?), ?, ?, ?, ?)`
+const INSERT = `INSERT INTO room_persistence (partition_key, seq, kind, command_id, payload, created_at)
+VALUES (?, (SELECT COALESCE(MAX(seq), 0) + 1 FROM room_persistence WHERE partition_key = ?), ?, ?, ?, ?)`
 
-const SELECT = `SELECT kind, command_id, payload FROM peer_store_persistence
+const SELECT = `SELECT kind, command_id, payload FROM room_persistence
 WHERE partition_key = ? ORDER BY seq ASC`
 
 type Row = { kind: string; command_id: string; payload: string }
 
-function entryToRow(entry: PeerStorePersistenceEntry): {
+function entryToRow(entry: RoomPersistenceEntry): {
   kind: string
   commandId: string
   payload: string
@@ -56,7 +56,7 @@ function entryToRow(entry: PeerStorePersistenceEntry): {
   }
 }
 
-function rowToEntry(row: Row): PeerStorePersistenceEntry {
+function rowToEntry(row: Row): RoomPersistenceEntry {
   switch (row.kind) {
     case 'command':
       return { kind: 'command', command: assertCommand(JSON.parse(row.payload)) }
@@ -69,7 +69,7 @@ function rowToEntry(row: Row): PeerStorePersistenceEntry {
     case 'rejected':
       return { kind: 'rejected', commandId: row.command_id }
     default:
-      crash.fail('unknown peer_store_persistence kind', { kind: row.kind })
+      crash.fail('unknown room_persistence kind', { kind: row.kind })
   }
 }
 
@@ -77,7 +77,7 @@ function rowToEntry(row: Row): PeerStorePersistenceEntry {
  * SQLite-backed persistence journal using TEXT columns and JSON stored as strings.
  * Uses `SqlClient` with `?` placeholders (native to SQLite).
  */
-export class SqlitePeerStorePersistence implements PeerStorePersistence {
+export class SqliteRoomPersistence implements RoomPersistence {
   constructor(private readonly sqlClient: SqlClient) {}
 
   async migrate(): Promise<void> {
@@ -89,7 +89,7 @@ export class SqlitePeerStorePersistence implements PeerStorePersistence {
     }
   }
 
-  async append(partitionKey: string, entry: PeerStorePersistenceEntry): Promise<void> {
+  async append(partitionKey: string, entry: RoomPersistenceEntry): Promise<void> {
     crash.nonEmptyString(partitionKey, 'partitionKey must be non-empty')
     const { kind, commandId, payload } = entryToRow(entry)
     const now = new Date().toISOString()
@@ -103,7 +103,7 @@ export class SqlitePeerStorePersistence implements PeerStorePersistence {
     ])
   }
 
-  async load(partitionKey: string): Promise<PeerStorePersistenceEntry[]> {
+  async load(partitionKey: string): Promise<RoomPersistenceEntry[]> {
     crash.nonEmptyString(partitionKey, 'partitionKey must be non-empty')
     const rows = await this.sqlClient.query<Row>(SELECT, [partitionKey])
     return rows.map(rowToEntry)

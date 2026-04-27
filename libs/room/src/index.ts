@@ -1,61 +1,61 @@
 /**
- * @gamezilla/peer-store — replicated log + wire sync.
+ * @gamezilla/room — replicated log + wire sync.
  *
- * Smaller public surface: use `@gamezilla/peer-store/types` for UI-only types.
- * Advanced: `@gamezilla/peer-store/trust`, `@gamezilla/peer-store/store-errors`, etc.
+ * Smaller public surface: use `@gamezilla/room/types` for UI-only types.
+ * Advanced: `@gamezilla/room/trust`, `@gamezilla/room/room-errors`, etc.
  */
 export {
-  InMemoryPeerStorePersistence,
-  PostgresPeerStorePersistence,
-  recoverPeerStoreFromPersistence,
-  SqlitePeerStorePersistence,
+  InMemoryRoomPersistence,
+  PostgresRoomPersistence,
+  recoverRoomFromPersistence,
+  SqliteRoomPersistence,
 } from './persistence';
 export type {
-  PeerStorePersistence,
-  PeerStorePersistenceEntry,
+  RoomPersistence,
+  RoomPersistenceEntry,
 } from './persistence';
 export type { LogEntry } from './persistence/log-entry';
 export {
-  normalizePeerStoreInit,
-  peelPeerStoreRoomConfigCore,
-  PeerStore,
+  normalizeRoomInit,
+  peelRoomConfigCore,
+  Room,
   replayDomainEntries,
   replayEvents,
-} from './store';
-export type { PeerStoreCoreInitConfig } from './store/validate-init-config';
+} from './room';
+export type { RoomCoreInitConfig } from './room/validate-init-config';
 export type {
   Command,
   HandleResult,
-  NormalizedPeerStoreInit,
+  NormalizedRoomInit,
   PeerBootstrap,
-  PeerStoreApi,
-  PeerStoreCallbacks,
-  PeerStoreRoomConfig,
-  PeerStoreRoomConfigCore,
-  PeerStoreRoomRoleHost,
-  PeerStoreRoomRoleJoin,
-  PeerStoreSecurityConfig,
+  RoomApi,
+  RoomCallbacks,
+  RoomConfig,
+  RoomConfigCore,
+  RoomRoleHost,
+  RoomRoleJoin,
+  RoomSecurityConfig,
   Snapshot,
   State,
-  StoreEffect,
-  StoreModule,
-} from './store/types';
-export type { Event, Message, StoreError } from './events/message-types';
+  RoomEffect,
+  RoomModule,
+} from './room/types';
+export type { Event, Message, RoomError } from './events/message-types';
 export {
-  PeerStoreDuplicatePeer,
-  PeerStoreInvalidPublicKey,
-  PeerStoreJoinInvalid,
-  PeerStoreJoinPeerMismatch,
-  PeerStoreLeaveInvalid,
-  PeerStoreLeaveNotSelf,
-  PeerStoreNotAuthority,
-  PeerStoreNotSynced,
-  PeerStoreSyncSessionMismatch,
-  PeerStoreTrustInvalid,
-  PeerStoreUnknownPeer,
-  PeerStoreUnknownSystemCommand,
-  PeerStoreWireAuthFailed,
-} from './events/store-errors';
+  RoomDuplicatePeer,
+  RoomInvalidPublicKey,
+  RoomJoinInvalid,
+  RoomJoinPeerMismatch,
+  RoomLeaveInvalid,
+  RoomLeaveNotSelf,
+  RoomNotAuthority,
+  RoomNotSynced,
+  RoomSyncSessionMismatch,
+  RoomTrustInvalid,
+  RoomUnknownPeer,
+  RoomUnknownSystemCommand,
+  RoomWireAuthFailed,
+} from './events/room-errors';
 export {
   generateId,
   isSystemEvent,

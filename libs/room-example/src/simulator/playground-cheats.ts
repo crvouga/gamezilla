@@ -1,13 +1,13 @@
 import { Assert } from '@gamezilla/lib/assert';
-import { PeerTrustUpdate } from '@gamezilla/peer-store/system-messages';
+import { PeerTrustUpdate } from '@gamezilla/room/system-messages';
 import {
   MarkPlaced,
   PlaceMark,
   TickClock,
-} from '@gamezilla/peer-store/testkit/tic-tac-toe';
-import type { DeterministicSimulator } from '@gamezilla/peer-store/simulator';
-import type { Message } from '@gamezilla/peer-store/types';
-import { isSystemEvent } from '@gamezilla/peer-store/utils';
+} from '@gamezilla/room/testkit/tic-tac-toe';
+import type { DeterministicSimulator } from '@gamezilla/room/simulator';
+import type { Message } from '@gamezilla/room/types';
+import { isSystemEvent } from '@gamezilla/room/utils';
 import type { LogEntry, PeerId } from './playground-types';
 
 const crash: Assert = Assert.crash();

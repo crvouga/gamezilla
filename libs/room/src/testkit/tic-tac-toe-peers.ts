@@ -3,7 +3,7 @@ import {
   encodeKeyB64,
   peerIdFromPublicKey,
   publicKeyFromSecretSeed,
-} from '../store/security/peer-crypto';
+} from '../room/security/peer-crypto';
 
 const labelSeedEncoder = new TextEncoder();
 
@@ -19,7 +19,7 @@ export type TicTacToeTestPeer = {
  */
 export function testPeerForLabel(label: string): TicTacToeTestPeer {
   const secretSeed = sha256(
-    labelSeedEncoder.encode(`peer-store-test-peer:${label}`)
+    labelSeedEncoder.encode(`room-test-peer:${label}`)
   ).subarray(0, 32);
   const publicKey = publicKeyFromSecretSeed(secretSeed);
   const peerId = peerIdFromPublicKey(publicKey);

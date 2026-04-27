@@ -4,7 +4,7 @@
     "jsx": "react-jsx",
     "paths": {
       "@gamezilla/lib/*": ["../lib/src/*"],
-      "@gamezilla/peer-store/*": ["../peer-store/src/*"]
+      "@gamezilla/room/*": ["../room/src/*"]
     }
   },
   "include": ["./src/**/*.ts", "./src/**/*.tsx"]

@@ -1,4 +1,4 @@
-import type { Event } from '@gamezilla/peer-store/types';
+import type { Event } from '@gamezilla/room/types';
 import { Collapsible, Text } from '@gamezilla/lib/ui';
 
 export function PeerPanelEvents({ events }: { events: Event[] }) {

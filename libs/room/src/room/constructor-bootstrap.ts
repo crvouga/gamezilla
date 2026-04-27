@@ -5,17 +5,17 @@ import { bootstrapGenesisCommittedState } from './genesis-bootstrap';
 import { installJoinGenesisKeys } from './join-keys';
 import type {
   PeerBootstrap,
-  PeerStoreSecurityConfig,
+  RoomSecurityConfig,
   State,
-  StoreModule,
+  RoomModule,
 } from './types';
 
 const crash: Assert = Assert.crash();
 
-export type PeerStoreBootstrapConfig = {
+export type RoomBootstrapConfig = {
   peerId: string;
   bootstrap: PeerBootstrap;
-  security: PeerStoreSecurityConfig;
+  security: RoomSecurityConfig;
 };
 
 export type JoinGenesisSnapshot = {
@@ -33,9 +33,9 @@ export type ConstructorBootstrapResult = {
   synced: boolean;
 };
 
-export function runPeerStoreConstructorBootstrap(
-  module: StoreModule,
-  config: PeerStoreBootstrapConfig,
+export function runRoomConstructorBootstrap(
+  module: RoomModule,
+  config: RoomBootstrapConfig,
   memberPublicKeys: Map<string, Uint8Array>,
   last_seen: Map<string, number>,
 ): ConstructorBootstrapResult {

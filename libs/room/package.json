@@ -1,10 +1,10 @@
 {
-  "name": "@gamezilla/peer-store",
+  "name": "@gamezilla/room",
   "version": "0.0.0",
   "private": true,
   "exports": {
     "./persistence-postgres": "./src/persistence/persistence-postgres.ts",
-    "./store-errors": "./src/events/store-errors.ts",
+    "./room-errors": "./src/events/room-errors.ts",
     "./system-messages": "./src/events/system-messages.ts",
     "./simulator": "./src/simulator/index.ts",
     "./testkit/tic-tac-toe": "./src/testkit/fixtures/tic-tac-toe.module.ts",
@@ -16,7 +16,7 @@
     "./testkit/tic-tac-toe-peers": "./src/testkit/tic-tac-toe-peers.ts",
     "./persistence-sqlite": "./src/persistence/persistence-sqlite.ts",
     "./transport": "./src/transport/index.ts",
-    "./store": "./src/store/index.ts",
+    "./room": "./src/room/index.ts",
     ".": "./src/index.ts"
   },
   "dependencies": {

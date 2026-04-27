@@ -9,13 +9,13 @@ import {
   signDetached,
   utf8,
   verifyDetached,
-} from '../store/security/peer-crypto';
+} from '../room/security/peer-crypto';
 import {
   bufferFromBase64Url,
   bufferToBase64Url,
-} from '../store/security/buffer-base64url';
-import { isPlainRecord } from '../store/security/plain-record';
-import { stableStringify } from '../store/security/stable-stringify';
+} from '../room/security/buffer-base64url';
+import { isPlainRecord } from '../room/security/plain-record';
+import { stableStringify } from '../room/security/stable-stringify';
 
 const crash: Assert = Assert.crash();
 const validation: Assert = Assert.validation();

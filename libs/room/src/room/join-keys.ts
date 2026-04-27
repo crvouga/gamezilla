@@ -1,5 +1,5 @@
 import { Assert } from '@gamezilla/lib/assert';
-import type { PeerBootstrap, PeerStoreSecurityConfig } from './types';
+import type { PeerBootstrap, RoomSecurityConfig } from './types';
 import { seedDiscoveredPeerLiveness } from './authority-monitor';
 import { decodeKeyB64, peerIdFromPublicKey, publicKeyFromSecretSeed } from './security/peer-crypto';
 
@@ -7,7 +7,7 @@ const crash: Assert = Assert.crash();
 
 export type JoinGenesisKeyTarget = {
   peerId: string;
-  security: PeerStoreSecurityConfig;
+  security: RoomSecurityConfig;
   memberPublicKeys: Map<string, Uint8Array>;
   last_seen: Map<string, number>;
 };

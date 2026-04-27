@@ -1,6 +1,6 @@
 /**
- * Minimal public surface for UI / examples (`@gamezilla/peer-store/types`).
- * Full module types live under `./store/types`.
+ * Minimal public surface for UI / examples (`@gamezilla/room/types`).
+ * Full module types live under `./room/types`.
  */
-export type { Event, Message, StoreError } from './events/message-types';
-export type { State } from './store/types';
+export type { Event, Message, RoomError } from './events/message-types';
+export type { State } from './room/types';

@@ -1,7 +1,7 @@
 import type { LogEntry } from './log-entry'
-import type { Command, PeerStoreApi } from '../store/types'
+import type { Command, RoomApi } from '../room/types'
 
-export type PeerStorePersistenceEntry =
+export type RoomPersistenceEntry =
   | { kind: 'command'; command: Command }
   | { kind: 'committed'; commandId: string; entries: LogEntry[] }
   | { kind: 'rejected'; commandId: string }
@@ -17,22 +17,22 @@ export type PeerStorePersistenceEntry =
  * Rows are scoped by `partitionKey`: a stable non-empty string chosen by the
  * caller (e.g. document id, session id, room id) that isolates one journal stream.
  */
-export interface PeerStorePersistence {
-  append(partitionKey: string, entry: PeerStorePersistenceEntry): Promise<void>
-  load(partitionKey: string): Promise<PeerStorePersistenceEntry[]>
+export interface RoomPersistence {
+  append(partitionKey: string, entry: RoomPersistenceEntry): Promise<void>
+  load(partitionKey: string): Promise<RoomPersistenceEntry[]>
 }
 
 /**
- * Recovers a PeerStore from a persisted journal.
+ * Recovers a Room from a persisted journal.
  *
- * Replays committed log rows via `store.rehydrate`, then invokes
+ * Replays committed log rows via `room.rehydrate`, then invokes
  * `onUnresolved` for each command that has no matching committed/rejected
  * entry so the caller can re-validate and vote.
  */
-export async function recoverPeerStoreFromPersistence(
-  persistence: PeerStorePersistence,
+export async function recoverRoomFromPersistence(
+  persistence: RoomPersistence,
   partitionKey: string,
-  store: PeerStoreApi,
+  room: RoomApi,
   onUnresolved?: (command: Command) => void,
 ): Promise<void> {
   const entries = await persistence.load(partitionKey)
@@ -50,7 +50,7 @@ export async function recoverPeerStoreFromPersistence(
   }
 
   committedLogEntries.sort((a, b) => a.seq - b.seq)
-  store.rehydrate(committedLogEntries)
+  room.rehydrate(committedLogEntries)
 
   if (onUnresolved) {
     for (const entry of entries) {

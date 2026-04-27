@@ -1,6 +1,6 @@
 import { Assert } from '@gamezilla/lib/assert';
 import type { Message } from '@gamezilla/lib/message';
-import type { State } from '../../store/types';
+import type { State } from '../../room/types';
 import { readBoard, readSeat } from './tic-tac-toe-domain';
 
 const crash: Assert = Assert.crash();

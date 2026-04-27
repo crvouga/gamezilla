@@ -1,10 +1,10 @@
 import { Assert } from '@gamezilla/lib/assert'
-import { InMemoryPeerStorePersistence } from '../persistence/persistence-in-memory'
-import { PeerStore } from '../store'
+import { InMemoryRoomPersistence } from '../persistence/persistence-in-memory'
+import { Room } from '../room'
 import { InMemoryBus, InMemoryTransport, type MessageInterceptor } from '../transport'
 import type { LogEntry } from '../persistence/log-entry'
-import type { Event, Message, StoreError } from '../events/message-types'
-import type { Command, State, StoreModule } from '../store/types'
+import type { Event, Message, RoomError } from '../events/message-types'
+import type { Command, State, RoomModule } from '../room/types'
 import { PeerJoin, PeerLeave } from '../events/system-messages'
 import { generateId, isSystemEvent } from '../events/utils'
 import { testPeerForLabel } from '../testkit/tic-tac-toe-peers'
@@ -12,7 +12,7 @@ import { testPeerForLabel } from '../testkit/tic-tac-toe-peers'
 const crash: Assert = Assert.crash()
 
 export class DeterministicSimulator {
-  private readonly module: StoreModule
+  private readonly module: RoomModule
   private readonly topic: string
   private peer_ids: string[]
   private readonly initialMembership: Record<string, number>
@@ -24,9 +24,9 @@ export class DeterministicSimulator {
   private readonly heartbeatTimeoutMs: number | undefined
   private readonly bus: InMemoryBus
   private readonly transports = new Map<string, InMemoryTransport>()
-  private readonly stores = new Map<string, PeerStore>()
+  private readonly rooms = new Map<string, Room>()
   private readonly timeout_log: string[] = []
-  private readonly error_log: StoreError[] = []
+  private readonly error_log: RoomError[] = []
   private readonly authority_change_log: Array<{
     newAuthority: string
     previousAuthority: string
@@ -37,7 +37,7 @@ export class DeterministicSimulator {
   private logical_time = 0
 
   constructor(
-    module: StoreModule,
+    module: RoomModule,
     config: {
       topic: string
       initialMembership: Record<string, number>
@@ -89,26 +89,26 @@ export class DeterministicSimulator {
       })
 
     this.bus = new InMemoryBus()
-    this.buildStores(this.bus)
+    this.buildRooms(this.bus)
   }
 
-  getStore(peerId: string): PeerStore {
+  getRoom(peerId: string): Room {
     crash.ok(!this.is_destroyed, 'cannot access destroyed simulator')
     this.assertPeerExists(peerId)
-    return this.stores.get(peerId)!
+    return this.rooms.get(peerId)!
   }
 
   dispatch(peerId: string, message: Message): void {
     crash.ok(!this.is_destroyed, 'cannot dispatch on destroyed simulator')
     this.assertPeerExists(peerId)
-    const store = this.stores.get(peerId)!
-    store.dispatch(message)
+    const room = this.rooms.get(peerId)!
+    room.dispatch(message)
   }
 
   getState(peerId: string): State {
     crash.ok(!this.is_destroyed, 'cannot getState on destroyed simulator')
     this.assertPeerExists(peerId)
-    return this.stores.get(peerId)!.getState()
+    return this.rooms.get(peerId)!.getState()
   }
 
   getCommittedState(peerId: string): State {
@@ -117,7 +117,7 @@ export class DeterministicSimulator {
       'cannot getCommittedState on destroyed simulator',
     )
     this.assertPeerExists(peerId)
-    return this.stores.get(peerId)!.getCommittedState()
+    return this.rooms.get(peerId)!.getCommittedState()
   }
 
   pauseDelivery(): void {
@@ -168,7 +168,7 @@ export class DeterministicSimulator {
 
     const states = new Map<string, State>()
     for (const peerId of this.peer_ids) {
-      states.set(peerId, this.stores.get(peerId)!.getCommittedState())
+      states.set(peerId, this.rooms.get(peerId)!.getCommittedState())
     }
 
     const reference_id = this.peer_ids[0]!
@@ -209,7 +209,7 @@ export class DeterministicSimulator {
       'cannot getEventLog on destroyed simulator',
     )
     this.assertPeerExists(peerId)
-    return this.stores
+    return this.rooms
       .get(peerId)!
       .getCommittedLogEntries()
       .filter((entry) => !isSystemEvent(entry.event))
@@ -219,14 +219,14 @@ export class DeterministicSimulator {
   getCommittedLogEntries(peerId: string): LogEntry[] {
     crash.ok(!this.is_destroyed, 'cannot getCommittedLogEntries on destroyed simulator')
     this.assertPeerExists(peerId)
-    return this.stores.get(peerId)!.getCommittedLogEntries()
+    return this.rooms.get(peerId)!.getCommittedLogEntries()
   }
 
   getTimeoutLog(): string[] {
     return [...this.timeout_log]
   }
 
-  getErrorLog(): StoreError[] {
+  getErrorLog(): RoomError[] {
     return [...this.error_log]
   }
 
@@ -278,7 +278,7 @@ export class DeterministicSimulator {
   getLatestSeq(peerId: string): number {
     crash.ok(!this.is_destroyed, 'cannot getLatestSeq on destroyed simulator')
     this.assertPeerExists(peerId)
-    const entries = this.stores.get(peerId)!.getCommittedLogEntries()
+    const entries = this.rooms.get(peerId)!.getCommittedLogEntries()
     return entries.length === 0 ? 0 : entries[entries.length - 1]!.seq
   }
 
@@ -296,7 +296,7 @@ export class DeterministicSimulator {
   } {
     crash.ok(!this.is_destroyed, 'cannot getClockSnapshot on destroyed simulator')
     this.assertPeerExists(peerId)
-    const s = this.stores.get(peerId)!.getCommittedState()
+    const s = this.rooms.get(peerId)!.getCommittedState()
     return {
       clockStatus: s['clockStatus'],
       remainingMsX: s['remainingMsX'],
@@ -319,18 +319,18 @@ export class DeterministicSimulator {
 
     const tp = testPeerForLabel(joinLabel)
     const peerId = tp.peerId
-    crash.ok(!this.stores.has(peerId), `peer already exists: ${peerId}`)
+    crash.ok(!this.rooms.has(peerId), `peer already exists: ${peerId}`)
 
     const transport = new InMemoryTransport(this.bus, peerId)
     this.transports.set(peerId, transport)
 
-    const store = PeerStore.open({
+    const room = Room.open({
         module: this.module,
         topic: this.topic,
         roomSecret: this.roomSecret,
         secretSeed: tp.secretSeed,
         transport,
-        persistence: new InMemoryPeerStorePersistence(),
+        persistence: new InMemoryRoomPersistence(),
         role: {
           type: 'join',
           roomSnapshot: {
@@ -358,30 +358,30 @@ export class DeterministicSimulator {
           this.wire_auth_failures.push(reason)
         },
       })
-    this.stores.set(peerId, store)
+    this.rooms.set(peerId, room)
     this.peer_ids = [...this.peer_ids, peerId]
 
     let guard = 0
-    while (!store.isSynced() && guard++ < 500) {
+    while (!room.isSynced() && guard++ < 500) {
       this.bus.flush()
     }
-    crash.ok(store.isSynced(), 'joinPeer: new peer failed to complete initial sync', {
+    crash.ok(room.isSynced(), 'joinPeer: new peer failed to complete initial sync', {
       peerId,
     })
 
-    store.dispatch(PeerJoin({ peerId, trust, publicKey: tp.publicKeyB64 }))
+    room.dispatch(PeerJoin({ peerId, trust, publicKey: tp.publicKeyB64 }))
     this.bus.flush()
   }
 
   leavePeer(peerId: string): void {
     crash.ok(!this.is_destroyed, 'cannot leavePeer on destroyed simulator')
     this.assertPeerExists(peerId)
-    const store = this.stores.get(peerId)!
-    store.dispatch(PeerLeave({ peerId }))
+    const room = this.rooms.get(peerId)!
+    room.dispatch(PeerLeave({ peerId }))
     this.bus.flush()
-    store.destroy()
+    room.destroy()
     this.transports.get(peerId)?.destroy()
-    this.stores.delete(peerId)
+    this.rooms.delete(peerId)
     this.transports.delete(peerId)
     this.peer_ids = this.peer_ids.filter((id) => id !== peerId)
   }
@@ -389,20 +389,20 @@ export class DeterministicSimulator {
   reset(): void {
     crash.ok(!this.is_destroyed, 'cannot reset destroyed simulator')
 
-    for (const store of this.stores.values()) {
-      store.destroy()
+    for (const room of this.rooms.values()) {
+      room.destroy()
     }
     for (const transport of this.transports.values()) {
       transport.destroy()
     }
-    this.stores.clear()
+    this.rooms.clear()
     this.transports.clear()
     this.bus.destroy()
 
     const new_bus = new InMemoryBus()
     Object.assign(this, { bus: new_bus })
     this.peer_ids = Object.keys(this.initialMembership)
-    this.buildStores(new_bus)
+    this.buildRooms(new_bus)
 
     this.timeout_log.length = 0
     this.error_log.length = 0
@@ -415,8 +415,8 @@ export class DeterministicSimulator {
     if (this.is_destroyed) return
     this.is_destroyed = true
 
-    for (const store of this.stores.values()) {
-      store.destroy()
+    for (const room of this.rooms.values()) {
+      room.destroy()
     }
     for (const transport of this.transports.values()) {
       transport.destroy()
@@ -424,18 +424,18 @@ export class DeterministicSimulator {
     this.bus.destroy()
   }
 
-  private buildStores(bus: InMemoryBus): void {
+  private buildRooms(bus: InMemoryBus): void {
     for (const peerId of this.peer_ids) {
       const transport = new InMemoryTransport(bus, peerId)
       this.transports.set(peerId, transport)
 
-      const store = PeerStore.open({
+      const room = Room.open({
           module: this.module,
           topic: this.topic,
           roomSecret: this.roomSecret,
           secretSeed: this.peerSecretSeeds[peerId]!,
           transport,
-          persistence: new InMemoryPeerStorePersistence(),
+          persistence: new InMemoryRoomPersistence(),
           role: {
             type: 'host',
             initialMembership: this.initialMembership,
@@ -463,7 +463,7 @@ export class DeterministicSimulator {
             this.wire_auth_failures.push(reason)
           },
         })
-      this.stores.set(peerId, store)
+      this.rooms.set(peerId, room)
     }
   }
 

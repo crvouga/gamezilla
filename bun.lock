@@ -46,8 +46,8 @@
         "@gamezilla/lib": "workspace:*",
         "@gamezilla/patch-db": "workspace:*",
         "@gamezilla/patch-db-example": "workspace:*",
-        "@gamezilla/peer-store": "workspace:*",
-        "@gamezilla/peer-store-example": "workspace:*",
+        "@gamezilla/room": "workspace:*",
+        "@gamezilla/room-example": "workspace:*",
         "@gorhom/bottom-sheet": "^5.1.6",
         "@jlongster/sql.js": "^1.6.7",
         "@react-native-async-storage/async-storage": "^2.1.2",
@@ -249,8 +249,8 @@
         "react-native-screens": ">=4.0.0",
       },
     },
-    "libs/peer-store": {
-      "name": "@gamezilla/peer-store",
+    "libs/room": {
+      "name": "@gamezilla/room",
       "version": "0.0.0",
       "dependencies": {
         "@gamezilla/lib": "workspace:*",
@@ -262,12 +262,12 @@
         "typescript": "~5.9.2",
       },
     },
-    "libs/peer-store-example": {
-      "name": "@gamezilla/peer-store-example",
+    "libs/room-example": {
+      "name": "@gamezilla/room-example",
       "version": "0.0.1",
       "dependencies": {
         "@gamezilla/lib": "workspace:*",
-        "@gamezilla/peer-store": "workspace:*",
+        "@gamezilla/room": "workspace:*",
         "expo": "~54.0.33",
         "react": "19.1.0",
         "react-dom": "19.1.0",
@@ -772,11 +772,11 @@
 
     "@gamezilla/patch-db-example": ["@gamezilla/patch-db-example@workspace:libs/patch-db-example"],
 
-    "@gamezilla/peer-store": ["@gamezilla/peer-store@workspace:libs/peer-store"],
-
-    "@gamezilla/peer-store-example": ["@gamezilla/peer-store-example@workspace:libs/peer-store-example"],
-
     "@gamezilla/qa": ["@gamezilla/qa@workspace:apps/qa"],
+
+    "@gamezilla/room": ["@gamezilla/room@workspace:libs/room"],
+
+    "@gamezilla/room-example": ["@gamezilla/room-example@workspace:libs/room-example"],
 
     "@gamezilla/turbo-cache": ["@gamezilla/turbo-cache@workspace:apps/turbo-cache"],
 

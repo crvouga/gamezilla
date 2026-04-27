@@ -55,7 +55,7 @@ const MORE_ROWS: MoreRowProps[] = [
   },
   {
     title: 'Developer',
-    caption: 'Todos, UI explorer, Patch DB and Peer Store playgrounds',
+    caption: 'Todos, UI explorer, Patch DB and Room playgrounds',
     href: '/more/developer',
   },
   {

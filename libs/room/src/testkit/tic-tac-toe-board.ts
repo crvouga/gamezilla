@@ -1,5 +1,5 @@
 import { Assert } from '@gamezilla/lib/assert'
-import type { State } from '../store/types'
+import type { State } from '../room/types'
 
 const crash: Assert = Assert.crash()
 

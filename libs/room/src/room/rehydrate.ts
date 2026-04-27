@@ -3,9 +3,9 @@ import type { LogEntry } from '../persistence/log-entry';
 import { seedAllRemotePeersLiveness } from './authority-monitor';
 import { rebuildMembershipFromLog } from './membership';
 import type {
-  PeerStoreSecurityConfig,
+  RoomSecurityConfig,
   State,
-  StoreModule,
+  RoomModule,
 } from './types';
 import { rebuildMemberPublicKeysFromCommittedLog } from './member-public-keys';
 import { replayDomainEntries } from './replay';
@@ -14,11 +14,11 @@ import type { OptimisticEvent } from './wire-protocol';
 const crash: Assert = Assert.crash();
 const validation: Assert = Assert.validation();
 
-export type PeerStoreRehydrateTarget = {
-  module: StoreModule;
+export type RoomRehydrateTarget = {
+  module: RoomModule;
   peerId: string;
   bootstrapKind: 'genesis' | 'join';
-  security: PeerStoreSecurityConfig;
+  security: RoomSecurityConfig;
   membership: Map<string, number>;
   memberPublicKeys: Map<string, Uint8Array>;
   committed_entries: LogEntry[];
@@ -35,7 +35,7 @@ export type PeerStoreRehydrateTarget = {
 };
 
 export function applyRehydrateCommittedEntries(
-  target: PeerStoreRehydrateTarget,
+  target: RoomRehydrateTarget,
   entries: LogEntry[],
 ): void {
   crash.array(entries, 'entries must be an array');

@@ -2,15 +2,15 @@ import { Assert } from '@gamezilla/lib/assert';
 import type { MessageRouter } from '@gamezilla/lib/message';
 import type { LogEntry } from '../persistence/log-entry';
 import {
-  recoverPeerStoreFromPersistence,
-  type PeerStorePersistence,
-  type PeerStorePersistenceEntry,
+  recoverRoomFromPersistence,
+  type RoomPersistence,
+  type RoomPersistenceEntry,
 } from '../persistence/persistence';
-import type { Event, Message, StoreError } from '../events/message-types';
+import type { Event, Message, RoomError } from '../events/message-types';
 import {
-  PeerStoreNotSynced,
-  PeerStoreUnknownSystemCommand,
-} from '../events/store-errors';
+  RoomNotSynced,
+  RoomUnknownSystemCommand,
+} from '../events/room-errors';
 import { PeerJoin, peerNamespace } from '../events/system-messages';
 import { generateId, isSystemEvent } from '../events/utils';
 import type { Transport } from '../transport/transport-types';
@@ -25,19 +25,19 @@ import {
 } from './security/wire-envelope';
 import type {
   Command,
-  PeerStoreApi,
-  PeerStoreCallbacks,
-  PeerStoreRoomConfig,
-  PeerStoreSecurityConfig,
+  RoomApi,
+  RoomCallbacks,
+  RoomConfig,
+  RoomSecurityConfig,
   State,
-  StoreEffect,
-  StoreModule,
+  RoomEffect,
+  RoomModule,
 } from './types';
 import {
-  normalizePeerStoreInit,
-  peelPeerStoreRoomConfigCore,
+  normalizeRoomInit,
+  peelRoomConfigCore,
 } from './normalize-init';
-import { runPeerStoreConstructorBootstrap } from './constructor-bootstrap';
+import { runRoomConstructorBootstrap } from './constructor-bootstrap';
 import { applyRehydrateCommittedEntries } from './rehydrate';
 import {
   finalizeInboundWireVerification,
@@ -65,18 +65,18 @@ const sharedSystemRouter: MessageRouter<
   SystemCommandEvalResult
 > = createSystemCommandRouter();
 
-export class PeerStore implements PeerStoreApi {
-  readonly module: StoreModule;
+export class Room implements RoomApi {
+  readonly module: RoomModule;
   readonly peerId: string;
   readonly topic: string;
   readonly transport: Transport;
-  readonly security: PeerStoreSecurityConfig;
+  readonly security: RoomSecurityConfig;
   private readonly timeoutMs: number;
   private readonly heartbeatIntervalMs: number;
   readonly heartbeatTimeoutMs: number;
   readonly bootstrapKind: 'genesis' | 'join';
 
-  private readonly persistence: PeerStorePersistence;
+  private readonly persistence: RoomPersistence;
   private readonly partitionKey: string;
 
   membership = new Map<string, number>();
@@ -84,7 +84,7 @@ export class PeerStore implements PeerStoreApi {
   readonly last_seen = new Map<string, number>();
   current_authority = '';
 
-  readonly callbacks: PeerStoreCallbacks;
+  readonly callbacks: RoomCallbacks;
 
   /** Join bootstrap only: genesis view for auth + authority until `synced`. */
   private readonly joinGenesis:
@@ -126,28 +126,28 @@ export class PeerStore implements PeerStoreApi {
   private heartbeat_interval: ReturnType<typeof setInterval> | null = null;
 
   /** Construct and replay the persistence journal (async). */
-  static async create(config: PeerStoreRoomConfig): Promise<PeerStore> {
-    const store = new PeerStore(config);
-    await recoverPeerStoreFromPersistence(
+  static async create(config: RoomConfig): Promise<Room> {
+    const room = new Room(config);
+    await recoverRoomFromPersistence(
       config.persistence,
       config.topic,
-      store,
+      room,
       config.onUnresolvedPersistenceCommand,
     );
-    return store;
+    return room;
   }
 
   /**
    * Construct without loading the journal (sync). Use in tests / simulators, or when
    * recovery is not needed.
    */
-  static open(config: PeerStoreRoomConfig): PeerStore {
-    return new PeerStore(config);
+  static open(config: RoomConfig): Room {
+    return new Room(config);
   }
 
   /** Satisfies `exactOptionalPropertyTypes`: omit keys when callback is absent. */
-  private static pickCallbacks(config: PeerStoreRoomConfig): PeerStoreCallbacks {
-    const out: PeerStoreCallbacks = {};
+  private static pickCallbacks(config: RoomConfig): RoomCallbacks {
+    const out: RoomCallbacks = {};
     if (config.onTimeout !== undefined) out.onTimeout = config.onTimeout;
     if (config.onError !== undefined) out.onError = config.onError;
     if (config.onSync !== undefined) out.onSync = config.onSync;
@@ -165,8 +165,8 @@ export class PeerStore implements PeerStoreApi {
     return out;
   }
 
-  private constructor(config: PeerStoreRoomConfig) {
-    const resolved = normalizePeerStoreInit(peelPeerStoreRoomConfigCore(config));
+  private constructor(config: RoomConfig) {
+    const resolved = normalizeRoomInit(peelRoomConfigCore(config));
 
     this.module = config.module;
     this.peerId = resolved.peerId;
@@ -178,9 +178,9 @@ export class PeerStore implements PeerStoreApi {
     this.timeoutMs = resolved.timeoutMs ?? 5000;
     this.heartbeatIntervalMs = resolved.heartbeatIntervalMs ?? 2000;
     this.heartbeatTimeoutMs = resolved.heartbeatTimeoutMs ?? 6000;
-    this.callbacks = PeerStore.pickCallbacks(config);
+    this.callbacks = Room.pickCallbacks(config);
 
-    const boot = runPeerStoreConstructorBootstrap(
+    const boot = runRoomConstructorBootstrap(
       config.module,
       {
         peerId: resolved.peerId,
@@ -205,7 +205,7 @@ export class PeerStore implements PeerStoreApi {
   }
 
   /** Append one WAL row (fire-and-forget); used by wire handlers and {@link dispatch}. */
-  appendPersistenceEntry(entry: PeerStorePersistenceEntry): void {
+  appendPersistenceEntry(entry: RoomPersistenceEntry): void {
     void this.persistence
       .append(this.partitionKey, entry)
       .catch((err: unknown) => {
@@ -221,7 +221,7 @@ export class PeerStore implements PeerStoreApi {
 
   /** Publish a signed wire envelope (all outbound store traffic must use this). */
   publishSignedWire(body: WireMessage): void {
-    crash.ok(!this.is_destroyed, 'cannot publish on destroyed store');
+    crash.ok(!this.is_destroyed, 'cannot publish on destroyed room');
     this.outboundWireCounter += 1;
     const env = signWireEnvelope({
       topic: this.topic,
@@ -266,8 +266,8 @@ export class PeerStore implements PeerStoreApi {
   authorityEvaluateDomain(
     command: Command,
   ):
-    | { ok: true; entries: LogEntry[]; effects: StoreEffect[] }
-    | { ok: false; error: StoreError } {
+    | { ok: true; entries: LogEntry[]; effects: RoomEffect[] }
+    | { ok: false; error: RoomError } {
     const result = this.module.handle(this.committed_state, command);
     assertHandleResult(result);
     if (!result.ok) {
@@ -313,7 +313,7 @@ export class PeerStore implements PeerStoreApi {
   }
 
   dispatch(message: Message): void {
-    crash.ok(!this.is_destroyed, 'cannot dispatch on destroyed store');
+    crash.ok(!this.is_destroyed, 'cannot dispatch on destroyed room');
     validation.nonEmptyString(
       message.type,
       'message.type must be non-empty string',
@@ -325,7 +325,7 @@ export class PeerStore implements PeerStoreApi {
       PeerJoin.is(message);
 
     if (this.bootstrapKind === 'join' && !this.synced && !allowJoinBeforeSync) {
-      this.callbacks.onError?.(PeerStoreNotSynced({}));
+      this.callbacks.onError?.(RoomNotSynced({}));
       return;
     }
 
@@ -375,7 +375,7 @@ export class PeerStore implements PeerStoreApi {
   private publishCommit(
     commandId: string,
     entries: LogEntry[],
-    effects?: StoreEffect[],
+    effects?: RoomEffect[],
   ): void {
     authorityAcceptCommit(this, commandId, entries, effects);
   }
@@ -448,7 +448,7 @@ export class PeerStore implements PeerStoreApi {
     };
     return sharedSystemRouter.dispatch(ctx, command, command.message, (_c, _cmd, m) => ({
       ok: false,
-      error: PeerStoreUnknownSystemCommand({ commandType: m.type }),
+      error: RoomUnknownSystemCommand({ commandType: m.type }),
     }));
   }
 
@@ -463,7 +463,7 @@ export class PeerStore implements PeerStoreApi {
   }
 
   subscribe(callback: (state: State) => void): () => void {
-    crash.ok(!this.is_destroyed, 'cannot subscribe on destroyed store');
+    crash.ok(!this.is_destroyed, 'cannot subscribe on destroyed room');
     crash.ok(typeof callback === 'function', 'callback must be a function');
     this.subscribers.add(callback);
     return () => {
@@ -472,25 +472,25 @@ export class PeerStore implements PeerStoreApi {
   }
 
   getState(): State {
-    crash.ok(!this.is_destroyed, 'cannot getState on destroyed store');
+    crash.ok(!this.is_destroyed, 'cannot getState on destroyed room');
     return this.computeDisplayState();
   }
 
   getCommittedState(): State {
-    crash.ok(!this.is_destroyed, 'cannot getCommittedState on destroyed store');
+    crash.ok(!this.is_destroyed, 'cannot getCommittedState on destroyed room');
     return this.committed_state;
   }
 
   getCommittedLogEntries(): LogEntry[] {
     crash.ok(
       !this.is_destroyed,
-      'cannot getCommittedLogEntries on destroyed store',
+      'cannot getCommittedLogEntries on destroyed room',
     );
     return [...this.committed_entries];
   }
 
   requestSync(): void {
-    crash.ok(!this.is_destroyed, 'cannot requestSync on destroyed store');
+    crash.ok(!this.is_destroyed, 'cannot requestSync on destroyed room');
     this.sync_pending = true;
     const syncSessionId = randomBytes(16).toString('hex');
     this.pendingSyncSessionId = syncSessionId;
@@ -503,12 +503,12 @@ export class PeerStore implements PeerStoreApi {
   }
 
   rehydrate(entries: LogEntry[]): void {
-    crash.ok(!this.is_destroyed, 'cannot rehydrate on destroyed store');
+    crash.ok(!this.is_destroyed, 'cannot rehydrate on destroyed room');
     applyRehydrateCommittedEntries(this, entries);
   }
 
   isSynced(): boolean {
-    crash.ok(!this.is_destroyed, 'cannot query sync state on destroyed store');
+    crash.ok(!this.is_destroyed, 'cannot query sync state on destroyed room');
     return this.synced;
   }
 
@@ -539,7 +539,7 @@ export class PeerStore implements PeerStoreApi {
   getAuthorityPeerId(): string {
     crash.ok(
       !this.is_destroyed,
-      'cannot getAuthorityPeerId on destroyed store',
+      'cannot getAuthorityPeerId on destroyed room',
     );
     return this.current_authority;
   }

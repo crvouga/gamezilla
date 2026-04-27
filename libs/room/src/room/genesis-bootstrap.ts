@@ -4,7 +4,7 @@ import type { PeerBootstrap } from './types';
 import { PeerJoined } from '../events/system-messages';
 import { decodeKeyB64, peerIdFromPublicKey } from './security/peer-crypto';
 import { rebuildMembershipFromLog } from './membership';
-import type { StoreModule } from './types';
+import type { RoomModule } from './types';
 import { replayDomainEntries } from './replay';
 
 const crash: Assert = Assert.crash();
@@ -12,13 +12,13 @@ const crash: Assert = Assert.crash();
 export type GenesisCommittedSnapshot = {
   membership: Map<string, number>;
   committed_entries: LogEntry[];
-  committed_state: ReturnType<StoreModule['initialState']>;
+  committed_state: ReturnType<RoomModule['initialState']>;
   last_committed_log_seq: number;
 };
 
 /** Validates genesis keys, fills `memberPublicKeys`, and builds initial committed snapshot. */
 export function bootstrapGenesisCommittedState(
-  module: StoreModule,
+  module: RoomModule,
   memberPublicKeys: Map<string, Uint8Array>,
   peerId: string,
   b: Extract<PeerBootstrap, { kind: 'genesis' }>,

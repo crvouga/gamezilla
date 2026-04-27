@@ -1,12 +1,12 @@
 import type { WireMessage } from './wire-protocol';
-import type { PeerStore } from './peer-store';
+import type { Room } from './room';
 
 export type LivenessSink = {
   peerId: string;
   last_seen: Map<string, number>;
 };
 
-export function broadcastHeartbeat(self: PeerStore): void {
+export function broadcastHeartbeat(self: Room): void {
   if (self.is_destroyed) return;
   self.publishSignedWire({
     kind: 'heartbeat',
@@ -16,7 +16,7 @@ export function broadcastHeartbeat(self: PeerStore): void {
 }
 
 export function checkAuthorityChange(
-  self: PeerStore,
+  self: Room,
   onLivenessAuthorityChange?: (prev: string, next: string) => void,
 ): void {
   const newAuthority = deriveAuthority(self);
@@ -28,14 +28,14 @@ export function checkAuthorityChange(
   }
 }
 
-function deriveAuthority(self: PeerStore): string {
+function deriveAuthority(self: Room): string {
   const alive = self.authority_order.filter(
     (id) => id === self.peerId || isAlive(self, id),
   );
   return alive[0] ?? self.peerId;
 }
 
-function isAlive(self: PeerStore, peerId: string): boolean {
+function isAlive(self: Room, peerId: string): boolean {
   if (peerId === self.peerId) return true;
   const lastSeen = self.last_seen.get(peerId);
   if (lastSeen === undefined) return false;
@@ -56,7 +56,7 @@ export function seedAllRemotePeersLiveness(self: LivenessSink & { membership: Ma
 
 /** After cryptographic verification, record liveness for the authenticated signer. */
 export function updateLastSeenVerified(
-  self: PeerStore,
+  self: Room,
   signerPeerId: string,
 ): void {
   if (signerPeerId !== self.peerId) {

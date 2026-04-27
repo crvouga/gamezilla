@@ -1,24 +1,24 @@
-export { PeerStore } from './peer-store';
+export { Room } from './room';
 export {
-  normalizePeerStoreInit,
-  peelPeerStoreRoomConfigCore,
+  normalizeRoomInit,
+  peelRoomConfigCore,
 } from './normalize-init';
-export type { PeerStoreCoreInitConfig } from './validate-init-config';
+export type { RoomCoreInitConfig } from './validate-init-config';
 export type {
   Command,
   HandleResult,
-  NormalizedPeerStoreInit,
+  NormalizedRoomInit,
   PeerBootstrap,
-  PeerStoreApi,
-  PeerStoreCallbacks,
-  PeerStoreRoomConfig,
-  PeerStoreRoomConfigCore,
-  PeerStoreRoomRoleHost,
-  PeerStoreRoomRoleJoin,
-  PeerStoreSecurityConfig,
+  RoomApi,
+  RoomCallbacks,
+  RoomConfig,
+  RoomConfigCore,
+  RoomRoleHost,
+  RoomRoleJoin,
+  RoomSecurityConfig,
   Snapshot,
   State,
-  StoreEffect,
-  StoreModule,
+  RoomEffect,
+  RoomModule,
 } from './types';
 export { replayDomainEntries, replayEvents } from './replay';

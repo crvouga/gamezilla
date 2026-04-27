@@ -1,4 +1,4 @@
-import type { State } from '@gamezilla/peer-store/types';
+import type { State } from '@gamezilla/room/types';
 import type { MutableRefObject } from 'react';
 import { useMemo } from 'react';
 import type { PeerAction } from '../components/peer-panel-actions';

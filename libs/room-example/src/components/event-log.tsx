@@ -1,4 +1,4 @@
-import type { Event } from '@gamezilla/peer-store/types';
+import type { Event } from '@gamezilla/room/types';
 import { Card, Stack, Text } from '@gamezilla/lib/ui';
 import { useTheme } from '@gamezilla/lib/ui/theme';
 

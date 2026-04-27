@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/peer-store-example",
+  "name": "@gamezilla/room-example",
   "version": "0.0.1",
   "private": true,
   "exports": {
@@ -18,7 +18,7 @@
     "tc": "tsc --noEmit"
   },
   "dependencies": {
-    "@gamezilla/peer-store": "workspace:*",
+    "@gamezilla/room": "workspace:*",
     "@gamezilla/lib": "workspace:*",
     "expo": "~54.0.33",
     "react": "19.1.0",

@@ -6,7 +6,7 @@
 
 ```
 Worker (HTTP)             → stateless API, game creation, auth, sync
-Durable Object (WS)      → per-game peer store, WebSocket relay, referee
+Durable Object (WS)      → per-game room, WebSocket relay, referee
 PlanetScale (DB)          → event log, reconnect recovery, player data
 ```
 
@@ -185,10 +185,10 @@ Each game session is a Durable Object instance. Players connect via WebSockets. 
 - **Global single-instance** — exactly one DO per game, no split-brain possible
 - **Auto-scales to zero** — no cost when no games are active
 
-### Durable Object — Game Peer Store
+### Durable Object — Game Room
 
 ```typescript
-export class GamePeerStore extends DurableObject {
+export class GameRoom extends DurableObject {
   private connections = new Map<string, WebSocket>();
   private committedEvents: GameEvent[] = [];
   private consensus = new ConsensusProtocol(['playerA', 'playerB', 'referee']);
@@ -297,8 +297,8 @@ export default {
     const match = url.pathname.match(/^\/game\/([^/]+)\/ws$/);
     if (match) {
       const gameId = match[1];
-      const id = env.GAME_PEER_STORE.idFromName(gameId);
-      const stub = env.GAME_PEER_STORE.get(id);
+      const id = env.GAME_ROOM.idFromName(gameId);
+      const stub = env.GAME_ROOM.get(id);
       return stub.fetch(request);
     }
     return handleApiRequest(request, env);
@@ -327,7 +327,7 @@ const engine = new GameEngine(ChessModule, playerId, transport, ...);
 
 ```
 Worker (stateless)      HTTP request/response           Cloudflare Workers
-Durable Object          per-game peer store + referee   Cloudflare Durable Objects
+Durable Object          per-game room + referee   Cloudflare Durable Objects
 PlanetScale             event log + game registry       PlanetScale (serverless MySQL)
 ```
 
@@ -341,7 +341,7 @@ Worker (stateless):
   DO:   routes game traffic to Durable Objects
   Logic: API handlers, auth, game creation, sync
 
-Durable Object (GamePeerStore):
+Durable Object (GameRoom):
   IN:   WebSocket messages from players
   OUT:  WebSocket messages to players
   DB:   async write to PlanetScale (event log persistence)
@@ -514,9 +514,9 @@ export interface GameTransportPort {
 ### Adapters matrix
 
 ```
-Environment         GameTransport              Peer Store
+Environment         GameTransport              Room
 ──────────────────────────────────────────────────────────────
-Online              DurableObjectTransport     Durable Object (GamePeerStore)
+Online              DurableObjectTransport     Durable Object (GameRoom)
 Offline P2P         WebRtcTransport            Local (in-memory)
 Local dev           WebSocketTransport         Bun WebSocket server (same logic)
 ```
@@ -624,7 +624,7 @@ ws.onclose = async () => {
 The DO also rehydrates from PlanetScale on cold start (after hibernation or migration):
 
 ```typescript
-export class GamePeerStore extends DurableObject {
+export class GameRoom extends DurableObject {
   private async rehydrate(gameId: string) {
     if (this.committedEvents.length > 0) return; // already warm
     const events = await this.env.DB.query(
@@ -664,12 +664,12 @@ compatibility_flags = ["nodejs_compat"]
 enabled = true
 
 [[durable_objects.bindings]]
-name = "GAME_PEER_STORE"
-class_name = "GamePeerStore"
+name = "GAME_ROOM"
+class_name = "GameRoom"
 
 [[migrations]]
 tag = "v1"
-new_classes = ["GamePeerStore"]
+new_classes = ["GameRoom"]
 
 [vars]
 ENVIRONMENT = "production"
@@ -687,7 +687,7 @@ Worker (stateless)  Cloudflare Workers
                     Scales: automatic, zero config
 
 Durable Object      Cloudflare Durable Objects
-                    Per-game peer store — WebSocket relay + referee
+                    Per-game room — WebSocket relay + referee
                     In-memory game state for fast validation
                     Hibernatable WebSockets — zero cost when idle
                     Async persistence to PlanetScale

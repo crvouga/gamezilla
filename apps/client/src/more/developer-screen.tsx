@@ -7,14 +7,14 @@ import {
   Text,
   useTheme,
 } from '@gamezilla/lib/ui';
-import { useRouter } from 'expo-router';
+import { type Href, useRouter } from 'expo-router';
 
 type DevHref =
   | '/todos'
   | '/ui'
   | '/more/patch-db'
   | '/more/db-client'
-  | '/more/peer-store'
+  | '/more/room'
   | '/more/client-config';
 
 const ITEMS: readonly {
@@ -48,9 +48,9 @@ const ITEMS: readonly {
     description: 'Browse entities, attributes, and patch history',
   },
   {
-    key: 'peer-store',
-    href: '/more/peer-store',
-    label: 'Peer Store Playground',
+    key: 'room',
+    href: '/more/room',
+    label: 'Room Playground',
     description: 'Multi-peer tic-tac-toe simulator',
   },
   {
@@ -79,7 +79,10 @@ export function DeveloperScreen() {
       content={({ sx }) => (
         <Box style={sx}>
           {ITEMS.map((item) => (
-            <Pressable key={item.key} onPress={() => router.push(item.href)}>
+            <Pressable
+              key={item.key}
+              onPress={() => router.push(item.href as Href)}
+            >
               <Box
                 sx={{
                   flexDirection: 'row',

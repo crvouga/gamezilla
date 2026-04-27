@@ -1,13 +1,13 @@
 import { Assert } from '@gamezilla/lib/assert';
 import {
-  validatePeerStoreInitConfig,
-  type PeerStoreCoreInitConfig,
+  validateRoomInitConfig,
+  type RoomCoreInitConfig,
 } from './validate-init-config';
 import type {
-  NormalizedPeerStoreInit,
+  NormalizedRoomInit,
   PeerBootstrap,
-  PeerStoreRoomConfig,
-  PeerStoreRoomConfigCore,
+  RoomConfig,
+  RoomConfigCore,
 } from './types';
 import {
   peerIdFromPublicKey,
@@ -21,7 +21,7 @@ function peerIdFromSecretSeed(secretSeed: Uint8Array): string {
   return peerIdFromPublicKey(pub);
 }
 
-function validateRoomHostConfig(room: PeerStoreRoomConfigCore): void {
+function validateRoomHostConfig(room: RoomConfigCore): void {
   crash.ok(room.role.type === 'host', 'expected host role');
   const { initialMembership, initialMemberPublicKeys } = room.role;
   const derivedPeerId = peerIdFromSecretSeed(room.secretSeed);
@@ -44,7 +44,7 @@ function validateRoomHostConfig(room: PeerStoreRoomConfigCore): void {
   }
 }
 
-function validateRoomJoinConfig(room: PeerStoreRoomConfigCore): void {
+function validateRoomJoinConfig(room: RoomConfigCore): void {
   crash.ok(room.role.type === 'join', 'expected join role');
   const { initialMembership, initialMemberPublicKeys } = room.role.roomSnapshot;
   const ids = Object.keys(initialMembership);
@@ -61,7 +61,7 @@ function validateRoomJoinConfig(room: PeerStoreRoomConfigCore): void {
   }
 }
 
-function validatePeerStoreRoomConfig(room: PeerStoreRoomConfigCore): void {
+function validateRoomConfig(room: RoomConfigCore): void {
   crash.nonEmptyString(room.topic, 'room.topic must be non-empty');
   crash.nonEmptyString(room.roomSecret, 'room.roomSecret must be non-empty');
   crash.defined(room.persistence, 'room.persistence is required');
@@ -76,7 +76,7 @@ function validatePeerStoreRoomConfig(room: PeerStoreRoomConfigCore): void {
   }
 }
 
-function roomToBootstrap(room: PeerStoreRoomConfigCore): PeerBootstrap {
+function roomToBootstrap(room: RoomConfigCore): PeerBootstrap {
   if (room.role.type === 'host') {
     return {
       kind: 'genesis',
@@ -118,7 +118,7 @@ function pickDefinedTimingFields(
 }
 
 function applyOptionalTiming(
-  normalized: NormalizedPeerStoreInit,
+  normalized: NormalizedRoomInit,
   timing: ReturnType<typeof pickDefinedTimingFields>,
 ): void {
   if (timing.timeoutMs !== undefined) normalized.timeoutMs = timing.timeoutMs;
@@ -130,10 +130,10 @@ function applyOptionalTiming(
   }
 }
 
-/** Strip `module`, callbacks, and recovery hook; use with {@link normalizePeerStoreInit}. */
-export function peelPeerStoreRoomConfigCore(
-  config: PeerStoreRoomConfig,
-): PeerStoreRoomConfigCore {
+/** Strip `module`, callbacks, and recovery hook; use with {@link normalizeRoomInit}. */
+export function peelRoomConfigCore(
+  config: RoomConfig,
+): RoomConfigCore {
   const {
     module: _m,
     onUnresolvedPersistenceCommand: _u,
@@ -151,12 +151,12 @@ export function peelPeerStoreRoomConfigCore(
 }
 
 /**
- * Validates {@link PeerStoreRoomConfigCore} into the normalized init payload for `PeerStore`.
+ * Validates {@link RoomConfigCore} into the normalized init payload for `Room`.
  */
-export function normalizePeerStoreInit(
-  config: PeerStoreRoomConfigCore,
-): NormalizedPeerStoreInit {
-  validatePeerStoreRoomConfig(config);
+export function normalizeRoomInit(
+  config: RoomConfigCore,
+): NormalizedRoomInit {
+  validateRoomConfig(config);
   const peerId = peerIdFromSecretSeed(config.secretSeed);
   const bootstrap = roomToBootstrap(config);
   const security = {
@@ -166,16 +166,16 @@ export function normalizePeerStoreInit(
       ? { peerFingerprints: config.peerFingerprints }
       : {}),
   };
-  const coreInit: PeerStoreCoreInitConfig = {
+  const coreInit: RoomCoreInitConfig = {
     topic: config.topic,
     peerId,
     bootstrap,
     security,
   };
   if (config.timeoutMs !== undefined) coreInit.timeoutMs = config.timeoutMs;
-  validatePeerStoreInitConfig(coreInit);
+  validateRoomInitConfig(coreInit);
 
-  const normalized: NormalizedPeerStoreInit = {
+  const normalized: NormalizedRoomInit = {
     topic: config.topic,
     peerId,
     bootstrap,

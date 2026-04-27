@@ -1,7 +1,7 @@
 import { Buffer as BufferImpl } from 'buffer';
 
 /**
- * Hermes / RN omit Node's `Buffer`. Peer-store wire helpers and `timingSafeEqual`
+ * Hermes / RN omit Node's `Buffer`. Room wire helpers and `timingSafeEqual`
  * use `Buffer.from` on globalThis.
  */
 export function polyfillBuffer(): void {

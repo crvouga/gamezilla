@@ -5,12 +5,12 @@ export {
   assertSnapshot,
   assertState,
 } from './assert-durable-json';
-export { recoverPeerStoreFromPersistence } from './persistence';
+export { recoverRoomFromPersistence } from './persistence';
 export type {
-  PeerStorePersistence,
-  PeerStorePersistenceEntry,
+  RoomPersistence,
+  RoomPersistenceEntry,
 } from './persistence';
-export { InMemoryPeerStorePersistence } from './persistence-in-memory';
-export { PostgresPeerStorePersistence } from './persistence-postgres';
-export { SqlitePeerStorePersistence } from './persistence-sqlite';
+export { InMemoryRoomPersistence } from './persistence-in-memory';
+export { PostgresRoomPersistence } from './persistence-postgres';
+export { SqliteRoomPersistence } from './persistence-sqlite';
 export type { LogEntry } from './log-entry';

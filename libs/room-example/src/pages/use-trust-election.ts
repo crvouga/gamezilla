@@ -1,4 +1,4 @@
-import { computeTrustMap, type TrustVote } from '@gamezilla/peer-store/trust';
+import { computeTrustMap, type TrustVote } from '@gamezilla/room/trust';
 import { useCallback, useMemo, useState } from 'react';
 import {
   PEERS,

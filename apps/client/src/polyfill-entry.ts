@@ -28,7 +28,7 @@ assert.notThrows(
   () => globalThis.crypto.randomUUID(),
   'crypto.randomUUID must be available'
 );
-assert.ok(typeof Buffer !== 'undefined', 'Buffer must exist for peer-store');
+assert.ok(typeof Buffer !== 'undefined', 'Buffer must exist for room');
 assert.notThrows(
   () => {
     const u = new Uint8Array([0xab, 0xcd, 0x3c, 0x3e]);
@@ -39,9 +39,9 @@ assert.notThrows(
       'Buffer base64 round-trip'
     );
   },
-  'Buffer base64 must work for peer-store (polyfill has no base64url encoding)'
+  'Buffer base64 must work for room (polyfill has no base64url encoding)'
 );
 assert.ok(
   typeof TextEncoder === 'function',
-  'TextEncoder must exist for peer-store crypto'
+  'TextEncoder must exist for room crypto'
 );

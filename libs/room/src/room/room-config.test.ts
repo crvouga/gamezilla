@@ -1,12 +1,12 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { Assert } from '@gamezilla/lib/assert';
-import { InMemoryPeerStorePersistence } from '../persistence/persistence-in-memory';
-import { PeerStore } from './peer-store';
+import { InMemoryRoomPersistence } from '../persistence/persistence-in-memory';
+import { Room } from './room';
 import { InMemoryBus, InMemoryTransport } from '../transport';
 import { TicTacToeModule } from '../testkit/fixtures/tic-tac-toe.module';
 import { TestCrashHandler } from '../testkit/test-crash-handler';
 import { testPeerForLabel, ticTacToeThreePeers } from '../testkit/tic-tac-toe-peers';
-import { normalizePeerStoreInit } from './normalize-init';
+import { normalizeRoomInit } from './normalize-init';
 
 let disposeCrashHandler: () => void;
 beforeAll(() => {
@@ -14,19 +14,19 @@ beforeAll(() => {
 });
 afterAll(() => disposeCrashHandler());
 
-describe('PeerStore room config', () => {
+describe('Room config', () => {
   it('host role derives peerId from secretSeed', () => {
     const F = ticTacToeThreePeers();
     const bus = new InMemoryBus();
     const p = F.peers.playerX;
     const transport = new InMemoryTransport(bus, p.peerId);
-    const store = PeerStore.open({
+    const store = Room.open({
       module: TicTacToeModule,
       topic: 'room-host-peerid',
       roomSecret: F.roomSecret,
       secretSeed: p.secretSeed,
       transport,
-      persistence: new InMemoryPeerStorePersistence(),
+      persistence: new InMemoryRoomPersistence(),
       role: {
         type: 'host',
         initialMembership: F.initialMembership,
@@ -46,13 +46,13 @@ describe('PeerStore room config', () => {
     const joiner = testPeerForLabel('join-room-new');
     const bus = new InMemoryBus();
     const transport = new InMemoryTransport(bus, joiner.peerId);
-    const store = PeerStore.open({
+    const store = Room.open({
       module: TicTacToeModule,
       topic: 'room-join-bootstrap',
       roomSecret: 'join-room-secret',
       secretSeed: joiner.secretSeed,
       transport,
-      persistence: new InMemoryPeerStorePersistence(),
+      persistence: new InMemoryRoomPersistence(),
       role: {
         type: 'join',
         roomSnapshot: {
@@ -71,13 +71,13 @@ describe('PeerStore room config', () => {
     bus.destroy();
   });
 
-  it('normalizePeerStoreInit maps room config to core fields', () => {
+  it('normalizeRoomInit maps room config to core fields', () => {
     const F = ticTacToeThreePeers();
     const p = F.peers.authority;
     const bus = new InMemoryBus();
     const transport = new InMemoryTransport(bus, p.peerId);
-    const persistence = new InMemoryPeerStorePersistence();
-    const n = normalizePeerStoreInit({
+    const persistence = new InMemoryRoomPersistence();
+    const n = normalizeRoomInit({
       topic: 'norm-topic',
       roomSecret: F.roomSecret,
       secretSeed: p.secretSeed,

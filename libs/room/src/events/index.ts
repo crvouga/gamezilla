@@ -1,4 +1,4 @@
-export * from './store-errors'
+export * from './room-errors'
 export {
   PEER_MESSAGE_PREFIX,
   peerNamespace,
@@ -9,7 +9,7 @@ export {
   PeerTrustUpdate,
   PeerTrustUpdated,
 } from './system-messages'
-export type { Event, Message, StoreError } from './message-types'
+export type { Event, Message, RoomError } from './message-types'
 export {
   generateId,
   isSystemEvent,
