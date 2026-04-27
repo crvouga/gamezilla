@@ -53,6 +53,13 @@ export { List, ListItem, type ListProps, type ListItemProps } from './list';
 export { Spinner, type SpinnerProps } from './spinner';
 export { Skeleton, type SkeletonProps } from './skeleton';
 export { ProgressBar, type ProgressBarProps } from './progress-bar';
+export {
+  DismissibleBanner,
+  DismissibleBannerPortalProvider,
+  type DismissibleBannerPortalProviderProps,
+  type DismissibleBannerPosition,
+  type DismissibleBannerProps,
+} from './dismissible-top-banner';
 
 // Disclosure
 export { Collapsible, type CollapsibleProps } from './collapsible';

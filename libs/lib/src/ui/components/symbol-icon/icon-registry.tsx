@@ -21,6 +21,7 @@ import {
   PersonFillFa,
   RightToBracketFa,
   WifiFa,
+  XmarkFa,
   type FaIconProps,
 } from './svg/font-awesome-solid';
 
@@ -42,6 +43,7 @@ export const ICON_REGISTRY = {
   'database.fill': DatabaseFa,
   copy: CopyFa,
   'check.circle.fill': CircleCheckFa,
+  xmark: XmarkFa,
 } as const satisfies Record<string, FaIconComponent>;
 
 export type IconSymbolName = keyof typeof ICON_REGISTRY;

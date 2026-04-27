@@ -28,6 +28,7 @@ import { default as ListExample } from '../list/list.example';
 import { default as SpinnerExample } from '../spinner/spinner.example';
 import { default as SkeletonExample } from '../skeleton/skeleton.example';
 import { default as ProgressBarExample } from '../progress-bar/progress-bar.example';
+import { default as DismissibleBannerExample } from '../dismissible-top-banner/dismissible-top-banner.example';
 
 import { default as CollapsibleExample } from '../collapsible/collapsible.example';
 
@@ -93,6 +94,11 @@ export const componentRegistry: ComponentEntry[] = [
   { name: 'Spinner', category: 'Feedback', Example: SpinnerExample },
   { name: 'Skeleton', category: 'Feedback', Example: SkeletonExample },
   { name: 'ProgressBar', category: 'Feedback', Example: ProgressBarExample },
+  {
+    name: 'DismissibleBanner',
+    category: 'Feedback',
+    Example: DismissibleBannerExample,
+  },
 
   // Disclosure
   { name: 'Collapsible', category: 'Disclosure', Example: CollapsibleExample },

@@ -50,6 +50,7 @@
     "esac",
     "flushcache",
     "flyctl",
+    "fontawesome",
     "fontname",
     "fontobject",
     "forwardslash",
@@ -146,6 +147,7 @@
     "WHATWG",
     "worklets",
     "xact",
+    "xmark",
     "xyflow"
   ],
   "github-actions.workflows.pinned.workflows": [

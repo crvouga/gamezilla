@@ -10,7 +10,7 @@
  */
 
 import { type ReactNode } from 'react';
-import { Pressable } from 'react-native';
+import { Pressable, type PressableProps } from 'react-native';
 import { useTheme } from '../../theme';
 
 export type IconButtonProps = {
@@ -21,6 +21,9 @@ export type IconButtonProps = {
   /** Color token or raw color for the background. */
   background?: string;
   disabled?: boolean;
+  testID?: string;
+  accessibilityLabel?: string;
+  accessibilityRole?: PressableProps['accessibilityRole'];
 };
 
 export function IconButton({
@@ -29,6 +32,9 @@ export function IconButton({
   size = 40,
   background,
   disabled = false,
+  testID,
+  accessibilityLabel,
+  accessibilityRole = 'button',
 }: IconButtonProps) {
   const theme = useTheme();
   const bg = background
@@ -39,6 +45,9 @@ export function IconButton({
     <Pressable
       onPress={onPress}
       disabled={disabled}
+      testID={testID}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityRole={accessibilityRole}
       style={({ pressed }) => [
         {
           width: size,

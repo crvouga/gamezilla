@@ -4,7 +4,6 @@ import {
   Nunito_700Bold,
   useFonts,
 } from '@expo-google-fonts/nunito';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthProvider } from '@gamezilla/client/auth/auth-context';
 import { PrincipalAuthShell } from '@gamezilla/client/auth/principal-auth-shell';
 import { PwaUpdatePromptBanner } from '@gamezilla/client/pwa/update-prompt';
@@ -16,13 +15,14 @@ import {
   AppThemeRoot,
   CommandPalette,
   CommandRegistryProvider,
+  DismissibleBannerPortalProvider,
   hideSplash,
   preventSplashAutoHide,
   type FontStacks,
 } from '@gamezilla/lib/ui';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, type ReactNode } from 'react';
-import { Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -54,26 +54,26 @@ export function AppProviders({ children }: { children: ReactNode }) {
           storage={AsyncStorage}
           {...(fontsLoaded ? { fonts: nunitoFontStacks } : {})}
         >
-          <BottomSheetModalProvider>
-            <ConfigContainerProvider>
-              <PrincipalAuthShell>
-                <PatchBootstrap>
-                  <AuthProvider>
-                    <CommandRegistryProvider storage={AsyncStorage}>
-                      <AppCommands />
-                      <CommandPalette />
-                      <CommandPaletteNativeGesture>
-                        {Platform.OS === 'web' ? (
+          <DismissibleBannerPortalProvider>
+            <BottomSheetModalProvider>
+              <ConfigContainerProvider>
+                <PrincipalAuthShell>
+                  <PatchBootstrap>
+                    <AuthProvider>
+                      <CommandRegistryProvider storage={AsyncStorage}>
+                        <AppCommands />
+                        <CommandPalette />
+                        <CommandPaletteNativeGesture>
+                          {children}
                           <PwaUpdatePromptBanner />
-                        ) : null}
-                        {children}
-                      </CommandPaletteNativeGesture>
-                    </CommandRegistryProvider>
-                  </AuthProvider>
-                </PatchBootstrap>
-              </PrincipalAuthShell>
-            </ConfigContainerProvider>
-          </BottomSheetModalProvider>
+                        </CommandPaletteNativeGesture>
+                      </CommandRegistryProvider>
+                    </AuthProvider>
+                  </PatchBootstrap>
+                </PrincipalAuthShell>
+              </ConfigContainerProvider>
+            </BottomSheetModalProvider>
+          </DismissibleBannerPortalProvider>
         </AppThemeRoot>
       </SafeAreaProvider>
     </GestureHandlerRootView>
