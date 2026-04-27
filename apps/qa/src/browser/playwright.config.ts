@@ -158,6 +158,12 @@ export default defineConfig({
   use: {
     baseURL,
     trace: 'on-first-retry',
+    // Always record video for every test (pass or fail) and embed it in
+    // the HTML report. The `playwright-report/` artifact uploaded by the
+    // QA workflow is self-contained -- Playwright's HTML reporter bundles
+    // attached videos under `playwright-report/data/` so they replay
+    // inline in the report viewer.
+    video: 'on',
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
