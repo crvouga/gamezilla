@@ -71,18 +71,21 @@ assert.equals(
 
 // `apps/qa` is launched via `bun --bun x playwright test` so the Playwright
 // runner can natively load this TypeScript config. That `--bun` flag works
-// by prepending a temp-dir `node` shim (e.g. `/private/tmp/bun-node-XXXX/`)
-// to PATH so that any descendant `#!/usr/bin/env node` shebang resolves to
-// Bun. wrangler does not support the Bun runtime (it crashes the inspector
-// WebSocket upgrade with `Unexpected server response: 101`), so the
-// webServer chain (turbo run preview -> apps/api -> wrangler dev) must not
-// inherit that shim. Strip it from PATH here, before Playwright spawns the
-// webServer subprocess.
+// by prepending a temp-dir `node` shim to PATH so that any descendant
+// `#!/usr/bin/env node` shebang resolves to Bun. The shim path is platform-
+// dependent: macOS uses `/private/tmp/bun-node-XXXX`, Linux (incl. GitHub
+// Actions ubuntu-latest) uses `/tmp/bun-node-XXXX`. wrangler does not
+// support the Bun runtime (it crashes the inspector WebSocket upgrade with
+// `Unexpected server response: 101`), so the webServer chain
+// (turbo run preview -> apps/api -> wrangler dev) must not inherit that
+// shim. Strip it from PATH here, before Playwright spawns the webServer
+// subprocess.
+const BUN_NODE_SHIM_PATTERN = /(?:^|\/)bun-node-[^/]+$/;
 const rawPath = process.env['PATH'];
 assert.nonEmptyString(rawPath, 'PATH must be defined for webServer spawn');
 const cleanedPath = rawPath
   .split(':')
-  .filter((segment) => !/^\/private\/tmp\/bun-node-[^/]+$/.test(segment))
+  .filter((segment) => !BUN_NODE_SHIM_PATTERN.test(segment))
   .join(':');
 process.env['PATH'] = cleanedPath;
 assert.nonEmptyString(
