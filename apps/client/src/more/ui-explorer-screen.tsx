@@ -19,10 +19,7 @@ export function UiExplorerScreen() {
         <Box style={sx}>
           <ExplorerList
             onSelect={(name) =>
-              router.push({
-                pathname: '/ui/[component]',
-                params: { component: name },
-              })
+              router.push(`/ui/${encodeURIComponent(name)}`)
             }
           />
         </Box>

@@ -12,10 +12,7 @@ export function UiComponentsCommands() {
           title={`Open ${c.name} example`}
           category="UI Components"
           run={async () => {
-            router.push({
-              pathname: '/ui/[component]',
-              params: { component: c.name },
-            });
+            router.push(`/ui/${encodeURIComponent(c.name)}`);
           }}
         />
       ))}

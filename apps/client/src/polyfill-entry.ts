@@ -3,6 +3,10 @@ import { BrowserCrashHandler } from '@gamezilla/lib/assert/crash/crash-handler/c
 import { ExpoCrashHandler } from '@gamezilla/lib/assert/crash/crash-handler/crash-handler-expo';
 import { polyfill } from '@gamezilla/lib/polyfill';
 
+import { suppressThirdPartyWarnings } from './suppress-third-party-warnings';
+
+suppressThirdPartyWarnings();
+
 assert.registerCrashHandler(new BrowserCrashHandler());
 assert.registerCrashHandler(new ExpoCrashHandler());
 
