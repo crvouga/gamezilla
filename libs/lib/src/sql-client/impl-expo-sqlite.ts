@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 
 import { clearExpoSqliteWebOpfsBestEffort } from '../sqlite/clear-expo-sqlite-web-opfs';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
+import { applySqliteConnectionPragmas } from './sqlite-connection-pragmas';
 
 /**
  * Set after we clear OPFS + reload once. While set, we must not clear OPFS again from the
@@ -105,7 +106,7 @@ export class SqlClientImplExpoSqlite implements SqlClient {
   }
 
   connect(): Promise<void> {
-    return Promise.resolve();
+    return applySqliteConnectionPragmas(this);
   }
 
   disconnect(): Promise<void> {

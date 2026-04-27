@@ -1,3 +1,4 @@
+import { assertTigerPolicyForResolvedApiOrigin } from '@gamezilla/domain/config/api-servers';
 import { hc } from 'hono/client';
 import type { AppTypeWithGlobalErrors } from '@gamezilla/api/rpc';
 
@@ -18,6 +19,10 @@ export function createGamezillaApiClient(apiUrl: string) {
   if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
     throw new Error(`apiUrl must use http or https, got: ${parsed.protocol}`);
   }
+  assertTigerPolicyForResolvedApiOrigin(
+    parsed.origin,
+    'forbid-prod-in-expo-dev-bundle'
+  );
   const base = apiUrl.replace(/\/$/, '');
   return hc<AppTypeWithGlobalErrors>(`${base}/`);
 }

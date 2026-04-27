@@ -6,6 +6,8 @@ import initSqlJs from '@jlongster/sql.js/dist/worker.sql-wasm.js';
 import { SQLiteFS } from 'absurd-sql';
 import IndexedDBBackend from 'absurd-sql/dist/indexeddb-backend';
 
+import { SQLITE_JS_BOOTSTRAP_AFTER_OPEN } from './sqlite-connection-pragmas';
+
 type SqlJsBindParams = unknown[] | Record<string, unknown> | null | undefined;
 
 type WorkerInboundMessage = {
@@ -96,7 +98,7 @@ async function ensureDb(databaseName: string): Promise<void> {
   }
 
   sqlDatabase = new SQL.Database(path, { filename: true });
-  sqlDatabase.exec('PRAGMA journal_mode=MEMORY;');
+  sqlDatabase.exec(SQLITE_JS_BOOTSTRAP_AFTER_OPEN);
 }
 
 async function handleConnect(

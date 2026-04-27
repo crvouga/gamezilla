@@ -17,6 +17,19 @@ export const SYNC_ERROR_TOPIC = 'sync-error';
 
 const MAX_CONSECUTIVE_FAILURES = 5;
 
+/** Postgres constraint name; also see {@link isPatchParentFkViolation}. */
+const PATCHES_PARENT_FK_MARKER = 'patches_parent_id_fkey';
+/** SQLite (Bun) message when `PRAGMA foreign_keys = ON` and parent row is missing. */
+const SQLITE_FK_FAILED_MARKER = 'FOREIGN KEY constraint failed';
+
+function isPatchParentFkViolation(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err);
+  return (
+    msg.includes(PATCHES_PARENT_FK_MARKER) ||
+    msg.includes(SQLITE_FK_FAILED_MARKER)
+  );
+}
+
 function collectMissingSyncedIds(
   knownPatches: readonly Patch[],
   serverPatchIds: ReadonlySet<string>,
@@ -115,6 +128,12 @@ export class SyncPatchesDb implements PatchesDb {
   private pollInProgress = false;
   private pushConsecutiveFailures = 0;
   private pollConsecutiveFailures = 0;
+  /**
+   * After we run parent-chain recovery (unsync all locally-synced patches), stay
+   * true until the next successful push batch clears it — avoids hammering
+   * `unsyncAllLocallySyncedPatches` on every failed tick while still unsynced.
+   */
+  private parentFkRecoveryInFlight = false;
 
   constructor(
     private local: PatchesDb,
@@ -287,6 +306,78 @@ export class SyncPatchesDb implements PatchesDb {
     });
   }
 
+  private async unsyncAllLocallySyncedPatches(): Promise<void> {
+    const [result] = await this.local.read([
+      {
+        on: 'patches',
+        where: { type: 'exists', attribute: 'patch/syncedAt' },
+      },
+    ]);
+    assert.ok(
+      result !== null && result !== undefined,
+      'read([query]) must return one result'
+    );
+    const synced = result.patches;
+    if (synced.length === 0) return;
+
+    await this.local.update(
+      synced.map((p) => ({
+        patchId: p.patchId,
+        attributes: { 'patch/syncedAt': null },
+      }))
+    );
+    this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
+  }
+
+  private async markRemotePushSucceeded(patches: readonly Patch[]): Promise<void> {
+    await this.local.update(
+      patches.map((p) => ({
+        patchId: p.patchId,
+        attributes: { 'patch/syncedAt': '1' },
+      }))
+    );
+    this.pushConsecutiveFailures = 0;
+    this.parentFkRecoveryInFlight = false;
+    this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
+    await this.poll();
+  }
+
+  private logPushFailure(err: unknown): void {
+    this.pushConsecutiveFailures += 1;
+    if (!this.logPushPollFailures) return;
+    this.log.error('push failed', {
+      error: err instanceof Error ? err.message : String(err),
+      consecutiveFailures: this.pushConsecutiveFailures,
+    });
+  }
+
+  private publishPushFatalIfNeeded(err: unknown): void {
+    if (this.pushConsecutiveFailures < MAX_CONSECUTIVE_FAILURES) return;
+    this.pubSub.publish(SYNC_ERROR_TOPIC, {
+      source: 'push',
+      error: err,
+    } satisfies SyncErrorEvent);
+  }
+
+  private async tryRecoverFromParentFkPushError(err: unknown): Promise<void> {
+    if (!isPatchParentFkViolation(err) || this.parentFkRecoveryInFlight) return;
+    this.parentFkRecoveryInFlight = true;
+    try {
+      this.log.info('recovering from patch chain divergence');
+      await this.unsyncAllLocallySyncedPatches();
+      this.pushConsecutiveFailures = 0;
+    } catch (recoveryErr) {
+      this.parentFkRecoveryInFlight = false;
+      if (!this.logPushPollFailures) return;
+      this.log.error('patch chain recovery failed', {
+        error:
+          recoveryErr instanceof Error
+            ? recoveryErr.message
+            : String(recoveryErr),
+      });
+    }
+  }
+
   private async pushUnsynced(): Promise<void> {
     if (this.destroyed) return;
     try {
@@ -306,32 +397,15 @@ export class SyncPatchesDb implements PatchesDb {
       const patches = result.patches;
       if (patches.length === 0) {
         this.pushConsecutiveFailures = 0;
+        this.parentFkRecoveryInFlight = false;
         return;
       }
       await this.remote.write(patches);
-      await this.local.update(
-        patches.map((p) => ({
-          patchId: p.patchId,
-          attributes: { 'patch/syncedAt': '1' },
-        }))
-      );
-      this.pushConsecutiveFailures = 0;
-      this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
-      await this.poll();
+      await this.markRemotePushSucceeded(patches);
     } catch (err) {
-      this.pushConsecutiveFailures += 1;
-      if (this.logPushPollFailures) {
-        this.log.error('push failed', {
-          error: err instanceof Error ? err.message : String(err),
-          consecutiveFailures: this.pushConsecutiveFailures,
-        });
-      }
-      if (this.pushConsecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
-        this.pubSub.publish(SYNC_ERROR_TOPIC, {
-          source: 'push',
-          error: err,
-        } satisfies SyncErrorEvent);
-      }
+      this.logPushFailure(err);
+      this.publishPushFatalIfNeeded(err);
+      await this.tryRecoverFromParentFkPushError(err);
     }
   }
 

@@ -21,7 +21,12 @@ export async function readPatches(
   queries: PatchesDbQuery[]
 ): Promise<PatchesDbResult[]> {
   if (queries.length === 0) return [];
-  return Promise.all(queries.map((q) => readOne(sqlClient, q)));
+  /** Sequential: each PGlite-HTTP / Neon query is a Worker subrequest when used from the API. */
+  const results: PatchesDbResult[] = [];
+  for (const q of queries) {
+    results.push(await readOne(sqlClient, q));
+  }
+  return results;
 }
 
 async function readOne(
@@ -168,24 +173,39 @@ async function readOnePatchBased(
 
   const patchWhereSQL = patchConditions.join(' AND ');
 
-  const countRows = await sqlClient.query<{ cnt: number }>(
-    `SELECT COUNT(*) as cnt FROM patches p WHERE ${patchWhereSQL}`,
-    patchParams
-  );
-  const total = countRows[0]?.cnt ?? 0;
-
   const defaultOrder =
-    'ORDER BY p.entity_id ASC, p.entity_type ASC, l.depth ASC, p.patch_id ASC';
+    'ORDER BY p.entity_id ASC, p.entity_type ASC, p.lineage_depth ASC, p.patch_id ASC';
   const orderSQL = buildOrderSQL(query, defaultOrder, 'p.');
   const limit = buildLimitSQL(query);
 
-  const selectSql = `${LINEAGE_CTE} SELECT p.* FROM patches p JOIN lineage l ON p.patch_id = l.patch_id AND p.entity_id = l.entity_id AND p.entity_type = l.entity_type WHERE ${patchWhereSQL}${cursor.condition} ${orderSQL}${limit.sql}`;
+  const selectSql = `${LINEAGE_CTE},
+cand AS (
+  SELECT p.patch_id, p.entity_id, p.entity_type, p.attributes, p.created_at, p.recorded_at, p.parent_id,
+         l.depth AS lineage_depth
+  FROM patches p
+  JOIN lineage l ON p.patch_id = l.patch_id AND p.entity_id = l.entity_id AND p.entity_type = l.entity_type
+  WHERE ${patchWhereSQL}${cursor.condition}
+)
+SELECT p.patch_id, p.entity_id, p.entity_type, p.attributes, p.created_at, p.recorded_at, p.parent_id,
+       (SELECT COUNT(*) FROM cand) AS total_count
+FROM cand p
+${orderSQL}${limit.sql}`;
 
-  const rows = await sqlClient.query<PatchRow>(selectSql, [
-    ...patchParams,
-    ...cursor.params,
-    ...limit.params,
-  ]);
+  const rows = await sqlClient.query<PatchRow & { total_count: number }>(
+    selectSql,
+    [...patchParams, ...cursor.params, ...limit.params]
+  );
+
+  let total: number;
+  if (rows.length > 0) {
+    total = Number(rows[0]!.total_count);
+  } else {
+    const countRows = await sqlClient.query<{ cnt: number }>(
+      `SELECT COUNT(*) as cnt FROM patches p WHERE ${patchWhereSQL}`,
+      patchParams
+    );
+    total = countRows[0]?.cnt ?? 0;
+  }
 
   const patches = rows.map(toPatch);
   const hasMore = computeHasMore(query, patches.length, total);

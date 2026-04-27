@@ -31,7 +31,12 @@ export async function readPatches(
   queries: PatchesDbQuery[]
 ): Promise<PatchesDbResult[]> {
   if (queries.length === 0) return [];
-  return Promise.all(queries.map((q) => readOne(sqlClient, q)));
+  /** Sequential: each Neon/PGlite-HTTP query is a Worker subrequest; parallel bursts hit CF limits fast. */
+  const results: PatchesDbResult[] = [];
+  for (const q of queries) {
+    results.push(await readOne(sqlClient, q));
+  }
+  return results;
 }
 
 async function readOne(
@@ -135,6 +140,47 @@ function buildPlainPatchFilter(query: PatchesDbQuery): PatchBasedFilter {
 
 type Cursor = { condition: string; params: unknown[] };
 
+function buildPatchBasedCandSelectSql(
+  patchWhereSQL: string,
+  cursorCondition: string,
+  orderSQL: string,
+  limitSql: string
+): string {
+  return `${LINEAGE_CTE},
+cand AS (
+  SELECT p.patch_id, p.entity_id, p.entity_type, p.attributes::text AS attributes,
+         p.created_at, p.recorded_at, p.parent_id, l.depth AS lineage_depth
+  FROM patches p
+  JOIN lineage l ON p.patch_id = l.patch_id AND p.entity_id = l.entity_id AND p.entity_type = l.entity_type
+  WHERE ${patchWhereSQL}${cursorCondition}
+)
+SELECT p.patch_id, p.entity_id, p.entity_type, p.attributes, p.created_at, p.recorded_at, p.parent_id,
+       (SELECT COUNT(*)::bigint FROM cand) AS total_count
+FROM cand p
+${orderSQL}${limitSql}`;
+}
+
+function totalFromPatchBasedRows(
+  rows: ReadonlyArray<PatchRow & { total_count: string | number }>
+): number | null {
+  if (rows.length === 0) return null;
+  const raw = rows[0]!.total_count;
+  return typeof raw === 'bigint' ? Number(raw) : Number(raw);
+}
+
+async function countPatchesForPatchWhere(
+  sqlClient: SqlClient,
+  patchWhereSQL: string,
+  patchParams: unknown[]
+): Promise<number> {
+  const countRows = await sqlClient.query<{ cnt: string | number }>(
+    `SELECT COUNT(*)::bigint AS cnt FROM patches p WHERE ${patchWhereSQL}`,
+    patchParams
+  );
+  const rawTotal = countRows[0]?.cnt ?? 0;
+  return typeof rawTotal === 'bigint' ? Number(rawTotal) : Number(rawTotal);
+}
+
 async function resolveCursor(
   sqlClient: SqlClient,
   after: string
@@ -182,27 +228,26 @@ async function readOnePatchBased(
 
   const patchWhereSQL = patchConditions.join(' AND ');
 
-  const countRows = await sqlClient.query<{ cnt: string | number }>(
-    `SELECT COUNT(*)::bigint AS cnt FROM patches p WHERE ${patchWhereSQL}`,
-    patchParams
-  );
-  const rawTotal = countRows[0]?.cnt ?? 0;
-  const total =
-    typeof rawTotal === 'bigint' ? Number(rawTotal) : Number(rawTotal);
-
   const defaultOrder =
-    'ORDER BY p.entity_id ASC, p.entity_type ASC, l.depth ASC, p.patch_id ASC';
+    'ORDER BY p.entity_id ASC, p.entity_type ASC, p.lineage_depth ASC, p.patch_id ASC';
   const orderSQL = buildOrderSQL(query, defaultOrder, 'p.');
   const limit = buildLimitSQL(query);
 
-  const selectSql = `${LINEAGE_CTE} SELECT p.patch_id, p.entity_id, p.entity_type, p.attributes::text AS attributes,
-            p.created_at, p.recorded_at, p.parent_id FROM patches p JOIN lineage l ON p.patch_id = l.patch_id AND p.entity_id = l.entity_id AND p.entity_type = l.entity_type WHERE ${patchWhereSQL}${cursor.condition} ${orderSQL}${limit.sql}`;
+  const selectSql = buildPatchBasedCandSelectSql(
+    patchWhereSQL,
+    cursor.condition,
+    orderSQL,
+    limit.sql
+  );
 
-  const rows = await sqlClient.query<PatchRow>(selectSql, [
-    ...patchParams,
-    ...cursor.params,
-    ...limit.params,
-  ]);
+  const rows = await sqlClient.query<
+    PatchRow & { total_count: string | number }
+  >(selectSql, [...patchParams, ...cursor.params, ...limit.params]);
+
+  const totalFromRows = totalFromPatchBasedRows(rows);
+  const total =
+    totalFromRows ??
+    (await countPatchesForPatchWhere(sqlClient, patchWhereSQL, patchParams));
 
   const patches = rows.map((r) => toPatch(toPatchRow(r)));
   const hasMore = computeHasMore(query, patches.length, total);

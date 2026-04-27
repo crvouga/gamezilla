@@ -3,6 +3,7 @@ import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { assertTigerPolicyForResolvedApiOrigin } from '@gamezilla/domain/config/api-servers';
 import { COMMIT_HASH_HEX_REGEX } from '@gamezilla/domain/config/app-metadata';
 import { assert } from '@gamezilla/lib/assert';
 
@@ -69,6 +70,8 @@ assert.notThrows(
   'EXPO_PUBLIC_API_URL must be a valid URL',
   { value: raw }
 );
+
+assertTigerPolicyForResolvedApiOrigin(origin, 'forbid-prod-on-this-machine');
 
 const commitHash = resolveExpoPublicCommitHash();
 

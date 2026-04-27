@@ -15,7 +15,11 @@ export {
   getBreakpoint,
   type BreakpointName,
 } from './breakpoints';
-export { defaultColors, type ColorScheme, type ColorTokens } from './colors';
+export {
+  COLOR_PALETTE as defaultColors,
+  type ColorScheme,
+  type ColorTokens,
+} from './colors';
 export { fonts, type FontStacks } from './fonts';
 export * from './navigation';
 export {
@@ -33,13 +37,13 @@ export {
   type ElevationLevel,
 } from './scale';
 export { createSx, type SxProps } from './sx';
-export { ThemeProvider, useTheme } from './theme-context';
-export type { Theme, ThemeLayout, ThemeProviderProps } from './theme-context';
 export {
   defaultTextCasing,
   textCasingToStyle,
   type TextCasing,
 } from './text-casing';
+export { ThemeProvider, useTheme } from './theme-context';
+export type { Theme, ThemeLayout, ThemeProviderProps } from './theme-context';
 export {
   ThemePreferenceProvider,
   useThemePreference,

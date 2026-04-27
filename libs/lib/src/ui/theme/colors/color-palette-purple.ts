@@ -1,6 +1,6 @@
-import { Colors } from './types';
+import { ColorPalette } from './types';
 
-export const COLORS_PURPLE: Colors = {
+export const PURPLE: ColorPalette = {
   light: {
     surface: '#f7f5fb',
     background: '#ffffff',

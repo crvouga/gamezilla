@@ -1,6 +1,7 @@
 import { Database, type SQLQueryBindings } from 'bun:sqlite';
 import { assert } from '../assert';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
+import { applySqliteConnectionPragmas } from './sqlite-connection-pragmas';
 
 export class SqlClientImplBunSqlite implements SqlClient {
   constructor(private db: Database) {}
@@ -13,7 +14,7 @@ export class SqlClientImplBunSqlite implements SqlClient {
   async connect(): Promise<void> {
     try {
       this.db.query('SELECT 1').get();
-      return Promise.resolve();
+      await applySqliteConnectionPragmas(this);
     } catch (err) {
       assert.ok(false, 'Database connection failed', { error: err });
     }

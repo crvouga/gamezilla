@@ -12,6 +12,58 @@ describe('SyncPatchesDb (data loss recovery)', () => {
     await sim.destroy();
   });
 
+  test('push recovers from missing parent on server after wipe (no subscriptions)', async () => {
+    sim = await new PatchDbScenarioBuilder()
+      .server('s')
+      .client('a', { server: 's' })
+      .build();
+
+    const client = sim.client('a');
+    const srv = sim.server('s');
+    const entityId = crypto.randomUUID();
+    const created = new Date(0).toISOString();
+
+    await client.write([
+      {
+        entityId,
+        entityType: 'todoList',
+        attributes: {
+          'todoList/name': 'Root',
+          'todoList/order': 0,
+          'todoList/createdAt': created,
+        },
+      },
+    ]);
+    await client.push();
+
+    let [allServer] = await srv.db.read([{ on: 'patches' }]);
+    expect(allServer?.patches.length).toBe(1);
+
+    await srv.wipeStorage();
+    [allServer] = await srv.db.read([{ on: 'patches' }]);
+    expect(allServer?.patches.length).toBe(0);
+
+    await client.write([
+      {
+        entityId,
+        entityType: 'todoList',
+        attributes: {
+          'todoList/name': 'After wipe',
+          'todoList/order': 1,
+          'todoList/createdAt': created,
+        },
+      },
+    ]);
+
+    await client.push();
+    [allServer] = await srv.db.read([{ on: 'patches' }]);
+    expect(allServer?.patches.length).toBe(0);
+
+    await client.push();
+    [allServer] = await srv.db.read([{ on: 'patches' }]);
+    expect(allServer?.patches.length).toBe(2);
+  });
+
   test('server wipe + concurrent offline writes converge to same order', async () => {
     sim = await new PatchDbScenarioBuilder()
       .server('s')

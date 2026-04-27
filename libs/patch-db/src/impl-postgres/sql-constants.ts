@@ -13,6 +13,35 @@ export const INSERT_PATCH = `INSERT INTO patches (
 VALUES (?, ?, ?, CAST(? AS jsonb), ?, ?, ?)
 ON CONFLICT (patch_id) DO NOTHING`;
 
+/** Single round-trip for many rows (Neon HTTP = one subrequest per `run`). */
+export const INSERT_PATCHES_BATCH = `INSERT INTO patches (
+        patch_id,
+        entity_id,
+        entity_type,
+        attributes,
+        created_at,
+        recorded_at,
+        parent_id
+    )
+    SELECT
+        patch_id,
+        entity_id,
+        entity_type,
+        attributes,
+        created_at,
+        recorded_at,
+        parent_id
+    FROM jsonb_to_recordset(CAST(? AS jsonb)) AS batch_rows (
+        patch_id text,
+        entity_id text,
+        entity_type text,
+        attributes jsonb,
+        created_at text,
+        recorded_at text,
+        parent_id text
+    )
+    ON CONFLICT (patch_id) DO NOTHING`;
+
 export const MIGRATIONS = `
 CREATE TABLE IF NOT EXISTS patches (
     patch_id TEXT PRIMARY KEY,
@@ -79,6 +108,16 @@ ORDER BY l.depth ASC, p.patch_id ASC`;
 export const UPSERT_SNAPSHOT = `INSERT INTO snapshots (entity_id, entity_type, attributes)
 VALUES (?, ?, CAST(? AS jsonb))
 ON CONFLICT (entity_id, entity_type) DO UPDATE SET attributes = EXCLUDED.attributes`;
+
+/** One round-trip to upsert many snapshot rows (Neon HTTP = one subrequest per `run`). */
+export const UPSERT_SNAPSHOTS_BATCH = `INSERT INTO snapshots (entity_id, entity_type, attributes)
+    SELECT entity_id, entity_type, attributes
+    FROM jsonb_to_recordset(CAST(? AS jsonb)) AS batch_rows (
+        entity_id text,
+        entity_type text,
+        attributes jsonb
+    )
+    ON CONFLICT (entity_id, entity_type) DO UPDATE SET attributes = EXCLUDED.attributes`;
 
 export const LINEAGE_CTE = `WITH RECURSIVE lineage AS (
             SELECT patch_id, entity_id, entity_type, 0 AS depth

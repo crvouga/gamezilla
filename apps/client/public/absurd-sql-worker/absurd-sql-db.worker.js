@@ -4121,6 +4121,9 @@
   };
   var indexeddb_backend_default = IndexedDBBackend;
 
+  // libs/lib/src/sql-client/sqlite-connection-pragmas.ts
+  var SQLITE_JS_BOOTSTRAP_AFTER_OPEN = "PRAGMA foreign_keys = ON; PRAGMA journal_mode = MEMORY;";
+
   // libs/lib/src/sql-client/absurd-sql-db.worker.ts
   var SQL = null;
   var sqlDatabase = null;
@@ -4177,7 +4180,7 @@
       SQL.FS.close(stream);
     }
     sqlDatabase = new SQL.Database(path, { filename: true });
-    sqlDatabase.exec("PRAGMA journal_mode=MEMORY;");
+    sqlDatabase.exec(SQLITE_JS_BOOTSTRAP_AFTER_OPEN);
   }
   async function handleConnect(id, payload) {
     const databaseName = payload?.databaseName;

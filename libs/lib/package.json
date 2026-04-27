@@ -252,6 +252,7 @@
     "./sql-client/impl-planetscale-postgres": "./src/sql-client/impl-planetscale-postgres.ts",
     "./sql-client/impl-planetscale-postgres-ws": "./src/sql-client/impl-planetscale-postgres-ws.ts",
     "./sql-client/impl-bun-sqlite": "./src/sql-client/impl-bun-sqlite.ts",
+    "./sql-client/sqlite-connection-pragmas": "./src/sql-client/sqlite-connection-pragmas.ts",
     "./sql-client/impl-sql-js": "./src/sql-client/impl-sql-js.ts",
     "./sql-client/impl-absurd-sql": "./src/sql-client/impl-absurd-sql.ts",
     "./sql-client/impl-bun-postgres": "./src/sql-client/impl-bun-postgres.ts",

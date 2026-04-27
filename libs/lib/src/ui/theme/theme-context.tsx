@@ -4,23 +4,15 @@
  * metrics on the theme so apps avoid importing RN dimension hooks.
  */
 
-import {
-  createContext,
-  useContext,
-  useMemo,
-  type ReactNode,
-} from 'react';
+import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import { useColorScheme, useWindowDimensions } from 'react-native';
 import { assert } from '../../assert';
-import type { ColorScheme, ColorTokens } from './colors';
-import { defaultColors } from './colors';
-import { fonts, type FontStacks } from './fonts';
 import { getBreakpoint, type BreakpointName } from './breakpoints';
+import type { ColorScheme, ColorTokens } from './colors';
+import { COLOR_PALETTE } from './colors';
+import { fonts, type FontStacks } from './fonts';
 import { createSx } from './sx';
-import {
-  defaultTextCasing,
-  type TextCasing,
-} from './text-casing';
+import { defaultTextCasing, type TextCasing } from './text-casing';
 
 export type ThemeLayout = {
   width: number;
@@ -84,7 +76,7 @@ export function ThemeProvider({
   }, [colorSchemeProp, systemScheme, systemFallback]);
 
   const theme = useMemo(() => {
-    const base = defaultColors[resolvedScheme];
+    const base = COLOR_PALETTE[resolvedScheme];
     const overrides = colorOverrides?.[resolvedScheme];
     const colors: ColorTokens = overrides ? { ...base, ...overrides } : base;
     const mergedFonts: FontStacks = fontsProp

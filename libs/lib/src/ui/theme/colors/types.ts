@@ -29,4 +29,4 @@ export type ColorTokens = {
 
 export type ColorTokenName = keyof ColorTokens;
 
-export type Colors = Record<ColorScheme, ColorTokens>;
+export type ColorPalette = Record<ColorScheme, ColorTokens>;

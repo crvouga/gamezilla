@@ -6,6 +6,10 @@
  *
  * Designed for local dev — mirrors PlanetScale HTTP API limits so issues
  * surface before hitting production.
+ *
+ * `transaction()` does not emit synthetic `BEGIN`/`COMMIT` HTTP calls: each
+ * `POST /sql` is already a separate round-trip (and Cloudflare counts each
+ * outbound fetch as a subrequest). Matching {@link SqlClientImplPlanetScalePostgres}.
  */
 
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
@@ -19,7 +23,6 @@ interface SqlResponse {
 
 export class SqlClientImplPgliteHttp implements SqlClient {
   private readonly baseUrl: string;
-  private inTransaction = false;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl.replace(/\/$/, '');
@@ -59,25 +62,7 @@ export class SqlClientImplPgliteHttp implements SqlClient {
   }
 
   async transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
-    if (this.inTransaction) {
-      throw new Error('Nested transactions are not supported');
-    }
-    this.inTransaction = true;
-    try {
-      await this.post('BEGIN');
-      const result = await fn(this);
-      await this.post('COMMIT');
-      return result;
-    } catch (e) {
-      try {
-        await this.post('ROLLBACK');
-      } catch {
-        /* best-effort rollback */
-      }
-      throw e;
-    } finally {
-      this.inTransaction = false;
-    }
+    return fn(this);
   }
 
   private async post(sql: string, params?: unknown[]): Promise<SqlResponse> {

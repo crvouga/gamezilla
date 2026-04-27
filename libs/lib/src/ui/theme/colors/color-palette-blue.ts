@@ -1,6 +1,6 @@
-import { Colors } from './types';
+import { ColorPalette } from './types';
 
-export const COLORS_BLUE_AND_NEUTRAL: Colors = {
+export const BLUE: ColorPalette = {
   light: {
     surface: '#f4f4f5',
     background: '#ffffff',

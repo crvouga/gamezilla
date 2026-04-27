@@ -1,6 +1,7 @@
 import initSqlJs from 'sql.js';
 import { assert } from '../assert';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
+import { SQLITE_JS_FOREIGN_KEYS_EXEC } from './sqlite-connection-pragmas';
 
 export type SqlJsInitConfig = Parameters<typeof initSqlJs>[0];
 
@@ -103,6 +104,7 @@ export class SqlClientImplSqlJs implements SqlClient {
   connect(): Promise<void> {
     try {
       this.db.exec('SELECT 1');
+      this.db.exec(SQLITE_JS_FOREIGN_KEYS_EXEC);
       return Promise.resolve();
     } catch (err) {
       assert.ok(false, 'Database connection failed', { error: err });
