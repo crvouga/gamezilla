@@ -1,8 +1,8 @@
+import { clearWebClientPersistentState } from '@gamezilla/lib/browser/clear-web-client-state';
 import { DependencyInjectionContainer } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import { SqlClientImplExpoSqlite } from '@gamezilla/lib/sql-client/impl-expo-sqlite';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
-import { clearWebClientPersistentState } from '@gamezilla/lib/browser/clear-web-client-state';
 import { assertDatabaseName } from '@gamezilla/lib/sqlite';
 import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
@@ -10,7 +10,7 @@ import { assertUrl } from './assert-url';
 import { PatchDbImplClientTransport } from './impl-client-transport';
 import { PatchDbImplSqlite } from './impl-sqlite/impl-sqlite';
 import { SyncPatchesDb } from './impl-sync';
-import { PatchesDbToken, PatchDbSyncPubSubToken } from './react';
+import { PatchDbSyncPubSubToken, PatchesDbToken } from './react';
 import {
   SubscribablePatchesDbToken,
   type SubscribablePatchesDbLike,
@@ -52,11 +52,12 @@ let cachedBootstrap: { key: string; promise: Promise<BootstrapResult> } | null =
   null;
 let currentSqlClient: SqlClient | null = null;
 
+const USE_ABSURD_SQL_ON_WEB = false;
+
 async function openLocalSqlClient(databaseName: string): Promise<SqlClient> {
-  if (Platform.OS === 'web') {
-    const { SqlClientImplAbsurdSql } = await import(
-      '@gamezilla/lib/sql-client/impl-absurd-sql'
-    );
+  if (Platform.OS === 'web' && USE_ABSURD_SQL_ON_WEB) {
+    const { SqlClientImplAbsurdSql } =
+      await import('@gamezilla/lib/sql-client/impl-absurd-sql');
     return await SqlClientImplAbsurdSql.open(databaseName);
   }
   return await SqlClientImplExpoSqlite.open(databaseName);

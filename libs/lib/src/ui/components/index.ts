@@ -30,9 +30,22 @@ export {
   type IconSymbolProps,
   type IconSymbolName,
 } from './symbol-icon';
+export {
+  BrandIcon,
+  type BrandIconProps,
+  type BrandIconName,
+} from './brand-icon';
 
 // Inputs / Actions
 export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from './button';
+export {
+  SocialSignInButton,
+  type SocialSignInButtonProps,
+  type SocialSignInProvider,
+  type SocialSignInButtonTheme,
+  type SocialSignInButtonShape,
+  type SocialSignInButtonAction,
+} from './social-sign-in-button';
 export { IconButton, type IconButtonProps } from './icon-button';
 export { TextInput, type TextInputProps } from './text-input';
 export {

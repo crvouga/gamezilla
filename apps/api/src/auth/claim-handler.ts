@@ -37,7 +37,6 @@ export type AuthClaimResult =
   | { status: 200; json: ClaimSuccessBody }
   | { status: 400; json: AuthClaimErrorBody }
   | { status: 401; json: AuthClaimErrorBody }
-  | { status: 409; json: AuthClaimErrorBody }
   | { status: 503; json: AuthClaimErrorBody };
 
 /**
@@ -148,47 +147,41 @@ async function readPrincipal(
 }
 
 /**
- * Appends a patch binding `principalId` to `accountId` if not already the same account.
+ * Appends a patch binding `principalId` to `accountId`, rebinding if the principal
+ * is already pointing at a different account.
+ *
+ * Local-first rationale: the principal is the durable per-device identity that owns
+ * its authored patches (`patch/createdBy`). An account is server-side metadata that
+ * opts the principal into cross-device sync. A fresh, verified Google id_token
+ * expresses the user's *current* intent for which account this device should sync
+ * under, so the latest sign-in wins. Refusing the rebind would force users to
+ * reinstall to switch Google accounts on the same device (and would also surface
+ * spuriously after dev DB resets, when the principal's stale accountId no longer
+ * resolves to a real account on the server).
  */
 function appendPrincipalBindingIfNeeded(args: {
   principalId: string;
   accountId: string;
   principalEntity: Entity | undefined;
   patchesToWrite: PatchInput[];
-}): { conflict: AuthClaimResult | null } {
+}): void {
   const { principalId, accountId, principalEntity, patchesToWrite } = args;
   const existingAccountId = principalEntity?.attributes[PrincipalAttr.accountId];
 
-  if (
-    existingAccountId !== undefined &&
-    existingAccountId !== null &&
-    typeof existingAccountId === 'string' &&
-    existingAccountId !== accountId
-  ) {
-    return {
-      conflict: {
-        status: 409,
-        json: {
-          error: 'principal already claimed by a different account',
-        },
-      },
-    };
-  }
-
-  const idempotentSameAccount =
+  const alreadyBoundToSameAccount =
     typeof existingAccountId === 'string' && existingAccountId === accountId;
-
-  if (!idempotentSameAccount) {
-    patchesToWrite.push({
-      entityId: principalId,
-      entityType: PRINCIPAL_ENTITY_TYPE,
-      attributes: {
-        [PrincipalAttr.accountId]: accountId,
-        'patch/createdBy': principalId,
-      },
-    });
+  if (alreadyBoundToSameAccount) {
+    return;
   }
-  return { conflict: null };
+
+  patchesToWrite.push({
+    entityId: principalId,
+    entityType: PRINCIPAL_ENTITY_TYPE,
+    attributes: {
+      [PrincipalAttr.accountId]: accountId,
+      'patch/createdBy': principalId,
+    },
+  });
 }
 
 function appendSessionPatch(args: {
@@ -256,15 +249,12 @@ export async function handleAuthClaimResult(
   });
 
   const principalEntity = await readPrincipal(db, principalId);
-  const bindResult = appendPrincipalBindingIfNeeded({
+  appendPrincipalBindingIfNeeded({
     principalId,
     accountId,
     principalEntity,
     patchesToWrite,
   });
-  if (bindResult.conflict !== null) {
-    return bindResult.conflict;
-  }
 
   const { sessionToken, expiresAt } = appendSessionPatch({
     principalId,

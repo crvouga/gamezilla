@@ -10,6 +10,11 @@ type MoreRow = {
 
 const MORE_ROWS: MoreRow[] = [
   {
+    title: 'Account',
+    caption: 'Identifiers, linked accounts, and session',
+    href: '/more/account',
+  },
+  {
     title: 'Appearance',
     caption: 'Light, dark, or system theme',
     href: '/more/theme',

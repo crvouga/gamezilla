@@ -12,8 +12,10 @@ import { default as SpacerExample } from '../spacer/spacer.example';
 import { default as ScrollViewExample } from '../scroll-view/scroll-view.example';
 import { default as SafeAreaViewExample } from '../safe-area-view/safe-area-view.example';
 
+import { default as BrandIconExample } from '../brand-icon/brand-icon.example';
 import { default as ButtonExample } from '../button/button.example';
 import { default as IconButtonExample } from '../icon-button/icon-button.example';
+import { default as SocialSignInButtonExample } from '../social-sign-in-button/social-sign-in-button.example';
 import { default as TextInputExample } from '../text-input/text-input.example';
 import { default as CopyToClipboardFieldExample } from '../copy-to-clipboard-field/copy-to-clipboard-field.example';
 import { default as SwitchExample } from '../switch/switch.example';
@@ -72,9 +74,17 @@ export const componentRegistry: ComponentEntry[] = [
   { name: 'SafeAreaView', category: 'Layout', Example: SafeAreaViewExample },
   { name: 'ScreenBase', category: 'Layout', Example: ScreenBaseExample },
 
+  // Icons
+  { name: 'BrandIcon', category: 'Icons', Example: BrandIconExample },
+
   // Inputs
   { name: 'Button', category: 'Inputs', Example: ButtonExample },
   { name: 'IconButton', category: 'Inputs', Example: IconButtonExample },
+  {
+    name: 'SocialSignInButton',
+    category: 'Inputs',
+    Example: SocialSignInButtonExample,
+  },
   { name: 'TextInput', category: 'Inputs', Example: TextInputExample },
   {
     name: 'CopyToClipboardField',

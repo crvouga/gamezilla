@@ -207,16 +207,16 @@ describe('handleAuthClaimResult', () => {
     expect(ent.attributes['principal/accountId']).toBe(accountId1);
   });
 
-  it('returns 409 when principal is already bound to a different account', async () => {
+  it('rebinds the principal to the new account when previously bound to a different account', async () => {
     const db = new MemoryPatchesDb();
     const principalId = '00000000-0000-4000-8000-00000000c001';
-    const otherAccount = '00000000-0000-4000-8000-00000000d001';
+    const staleAccount = '00000000-0000-4000-8000-00000000d001';
     await db.write([
       {
         entityId: principalId,
         entityType: PRINCIPAL_ENTITY_TYPE,
         attributes: {
-          [PrincipalAttr.accountId]: otherAccount,
+          [PrincipalAttr.accountId]: staleAccount,
         },
       },
     ]);
@@ -226,6 +226,19 @@ describe('handleAuthClaimResult', () => {
       { googleIdToken: 't', principalId },
       { googleClientId: 'web-client-id.apps.googleusercontent.com' }
     );
-    expect(r.status).toBe(409);
+    expect(r.status).toBe(200);
+    if (r.status !== 200) return;
+    expect(r.json.accountId).not.toBe(staleAccount);
+
+    const readPrincipal = await db.read([
+      { entityType: PRINCIPAL_ENTITY_TYPE, entityId: principalId, limit: 1 },
+    ]);
+    const p = readPrincipal[0];
+    expect(p).toBeDefined();
+    if (p === undefined) return;
+    const ent = p.entities[0];
+    expect(ent).toBeDefined();
+    if (ent === undefined) return;
+    expect(ent.attributes['principal/accountId']).toBe(r.json.accountId);
   });
 });

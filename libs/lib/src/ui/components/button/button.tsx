@@ -4,6 +4,11 @@
  * Supports `solid`, `outlined`, `ghost`, and `text` variants,
  * three sizes, loading/disabled states, and optional icon slots.
  *
+ * Vendor-branded buttons (e.g. "Sign in with Google", "Sign in with Apple")
+ * have their own component because their colors, padding, label, and logo
+ * are dictated by external branding guidelines and cannot be expressed via
+ * this generic API.
+ *
  * @example
  * ```tsx
  * <Button title="Save" variant="solid" size="md" onPress={save} />
@@ -12,9 +17,10 @@
  */
 
 import { type ReactNode } from 'react';
-import { ActivityIndicator, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
+import { Spinner } from '../spinner';
 import { Text } from '../text';
 
 export type ButtonVariant = 'solid' | 'outlined' | 'ghost' | 'text';
@@ -147,7 +153,7 @@ function ButtonContent({
   startIcon: ReactNode;
   endIcon: ReactNode;
 }) {
-  if (loading) return <ActivityIndicator size="small" color={textColor} />;
+  if (loading) return <Spinner size="small" color={textColor} />;
   return (
     <>
       {startIcon !== undefined ? <View>{startIcon}</View> : null}

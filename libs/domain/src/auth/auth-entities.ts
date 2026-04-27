@@ -14,6 +14,19 @@ export const PrincipalAttr = {
   id: 'principal/id',
   createdAt: 'principal/createdAt',
   accountId: 'principal/accountId',
+  /** 'ios' | 'android' | 'web' — from React Native Platform.OS */
+  platform: 'principal/platform',
+  osName: 'principal/osName',
+  osVersion: 'principal/osVersion',
+  deviceModelName: 'principal/deviceModelName',
+  deviceBrand: 'principal/deviceBrand',
+  deviceName: 'principal/deviceName',
+  appVersion: 'principal/appVersion',
+  appBuildNumber: 'principal/appBuildNumber',
+  /** Web only — from navigator.userAgent */
+  userAgent: 'principal/userAgent',
+  firstSeenAt: 'principal/firstSeenAt',
+  lastSeenAt: 'principal/lastSeenAt',
 } as const;
 
 export const AccountAttr = {

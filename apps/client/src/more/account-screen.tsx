@@ -1,4 +1,16 @@
 import { useAuth } from '@gamezilla/client/auth/auth-context';
+import {
+  useAccountPrincipals,
+  type AccountPrincipal,
+} from '@gamezilla/client/auth/use-account-principals';
+import {
+  useProfilesForPrincipals,
+  type PrincipalProfileSummary,
+} from '@gamezilla/client/auth/use-principals-profiles';
+import {
+  useSessionsForPrincipals,
+  type PrincipalSessionAggregate,
+} from '@gamezilla/client/auth/use-principals-sessions';
 import { ProfileDiceBearAvatar } from '@gamezilla/client/profile/profile-dicebear-avatar';
 import { useProfile } from '@gamezilla/client/profile/use-profile';
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
@@ -12,13 +24,14 @@ import {
   Box,
   Button,
   Card,
-  CopyToClipboardField,
   ScreenBase,
   Text,
 } from '@gamezilla/lib/ui';
 import { useEntities } from '@gamezilla/patch-db/react';
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
+import { AccountDevicesCard } from './account-devices-card';
+import { formatTimestamp } from './account-format';
 
 type LinkedProvider = {
   entityId: string;
@@ -34,13 +47,6 @@ const PROVIDER_LABELS: Record<string, string> = {
 
 function providerLabel(provider: string): string {
   return PROVIDER_LABELS[provider] ?? provider;
-}
-
-function formatTimestamp(value: string | null): string {
-  if (value === null) return '—';
-  const ms = Date.parse(value);
-  if (Number.isNaN(ms)) return value;
-  return new Date(ms).toLocaleString();
 }
 
 function asString(value: unknown): string | null {
@@ -122,34 +128,6 @@ function IdentityCard({
           </Box>
         </Box>
       </Box>
-    </Card>
-  );
-}
-
-function IdentifiersCard({
-  principalId,
-  accountId,
-}: {
-  principalId: string;
-  accountId: string | null;
-}) {
-  return (
-    <Card elevation={1} sx={{ p: 4, gap: 3 }}>
-      <Text variant="bodyBold" label="Identifiers" />
-      <CopyToClipboardField
-        label="Principal ID"
-        helperText="Stable per-device identifier; tap to copy"
-        value={principalId}
-      />
-      <CopyToClipboardField
-        label="Account ID"
-        helperText={
-          accountId === null
-            ? 'Sign in to create an account'
-            : 'Server-side account; tap to copy'
-        }
-        value={accountId ?? '—'}
-      />
     </Card>
   );
 }
@@ -263,29 +241,6 @@ function LinkedAccountsCard({
   );
 }
 
-function SessionCard({ auth }: { auth: ReturnType<typeof useAuth> }) {
-  const { session } = auth;
-  return (
-    <Card elevation={1} sx={{ p: 4, gap: 2 }}>
-      <Text variant="bodyBold" label="Session" />
-      {session === null ? (
-        <CaptionLine label="No active session." />
-      ) : (
-        <>
-          <Text
-            variant="caption"
-            label={`Created: ${formatTimestamp(session.createdAt)}`}
-          />
-          <Text
-            variant="caption"
-            label={`Expires: ${formatTimestamp(session.expiresAt)}`}
-          />
-        </>
-      )}
-    </Card>
-  );
-}
-
 function AccountActionsRow({
   auth,
   onEditProfile,
@@ -322,6 +277,12 @@ function AccountScreenBody({
   profile,
   providers,
   loading,
+  principals,
+  principalsLoading,
+  profilesByPrincipal,
+  profilesLoading,
+  sessionsByPrincipal,
+  sessionsLoading,
   onSignIn,
   onEditProfile,
   onRequestSignOut,
@@ -331,6 +292,12 @@ function AccountScreenBody({
   profile: ReturnType<typeof useProfile>;
   providers: LinkedProvider[];
   loading: boolean;
+  principals: AccountPrincipal[];
+  principalsLoading: boolean;
+  profilesByPrincipal: Map<string, PrincipalProfileSummary>;
+  profilesLoading: boolean;
+  sessionsByPrincipal: Map<string, PrincipalSessionAggregate>;
+  sessionsLoading: boolean;
   onSignIn: () => void;
   onEditProfile: () => void;
   onRequestSignOut: () => void;
@@ -339,9 +306,14 @@ function AccountScreenBody({
   return (
     <Box style={{ ...sx, gap: 12 }}>
       <IdentityCard profile={profile} auth={auth} />
-      <IdentifiersCard
-        principalId={auth.principalId || profile.principalId}
+      <AccountDevicesCard
         accountId={auth.accountId}
+        principals={principals}
+        principalsLoading={principalsLoading}
+        profilesByPrincipal={profilesByPrincipal}
+        profilesLoading={profilesLoading}
+        sessionsByPrincipal={sessionsByPrincipal}
+        sessionsLoading={sessionsLoading}
       />
       <LinkedAccountsCard
         accountId={auth.accountId}
@@ -350,7 +322,6 @@ function AccountScreenBody({
         auth={auth}
         onSignIn={onSignIn}
       />
-      <SessionCard auth={auth} />
       <AccountActionsRow
         auth={auth}
         onEditProfile={onEditProfile}
@@ -367,6 +338,20 @@ export function AccountScreen() {
   const auth = useAuth();
   const profile = useProfile();
   const { providers, loading } = useLinkedProviders(auth.accountId);
+
+  const currentPrincipalId = auth.principalId || profile.principalId;
+  const { principals, loading: principalsLoading } = useAccountPrincipals(
+    auth.accountId,
+    currentPrincipalId
+  );
+  const principalIds = useMemo(
+    () => principals.map((p) => p.entityId),
+    [principals]
+  );
+  const { profilesByPrincipal, loading: profilesLoading } =
+    useProfilesForPrincipals(principalIds);
+  const { sessionsByPrincipal, loading: sessionsLoading } =
+    useSessionsForPrincipals(principalIds);
 
   const onEditProfile = useCallback(() => {
     router.push('/profile/edit');
@@ -397,6 +382,12 @@ export function AccountScreen() {
           profile={profile}
           providers={providers}
           loading={loading}
+          principals={principals}
+          principalsLoading={principalsLoading}
+          profilesByPrincipal={profilesByPrincipal}
+          profilesLoading={profilesLoading}
+          sessionsByPrincipal={sessionsByPrincipal}
+          sessionsLoading={sessionsLoading}
           onSignIn={onSignIn}
           onEditProfile={onEditProfile}
           onRequestSignOut={onRequestSignOut}
