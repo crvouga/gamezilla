@@ -48,6 +48,7 @@ export function authorityRejectProposal(
   error: StoreError,
 ): void {
   self.finalized_command_ids.add(commandId);
+  self.appendPersistenceEntry({ kind: 'rejected', commandId });
   self.publishSignedWire({
     kind: 'rejected',
     commandId,
@@ -136,6 +137,7 @@ export function handleRejectedWire(
   const { commandId } = wire;
   if (self.finalized_command_ids.has(commandId)) return;
   self.finalized_command_ids.add(commandId);
+  self.appendPersistenceEntry({ kind: 'rejected', commandId });
 
   self.optimistic_events = self.optimistic_events.filter(
     (e) => e._commandId !== commandId,
@@ -184,6 +186,7 @@ export function handleCommitEntries(
 ): void {
   if (self.finalized_command_ids.has(commandId)) return;
   self.finalized_command_ids.add(commandId);
+  self.appendPersistenceEntry({ kind: 'committed', commandId, entries });
 
   let expectNext = self.last_committed_log_seq + 1;
   for (const entry of entries) {

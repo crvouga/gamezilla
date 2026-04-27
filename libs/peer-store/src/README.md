@@ -62,16 +62,22 @@ If your feature is single-player/local-only with no peer coordination, this laye
 | `@gamezilla/peer-store/trust` | Standalone `TrustElection` / `computeTrustMap` (not wired into `PeerStore`) |
 | `@gamezilla/peer-store/store-errors` | Same symbols as root error re-exports |
 
-### Constructor: `PeerStoreRoomConfig` only
+### Config: `PeerStoreRoomConfig` (single object)
 
+- **`module`** — the `StoreModule` (reducer + command handler).
 - **`peerId` is derived** from `secretSeed` (self-certifying identity). You do not pass `peerId` separately.
 - **`role.type: 'host'`** — supply `initialMembership` and `initialMemberPublicKeys` for everyone in the genesis room (≥ 2 peers). The host’s seed must correspond to one of those member ids.
 - **`role.type: 'join'`** — supply `roomSnapshot` with genesis membership + keys **before** this peer appears in the log.
+- **`persistence`** — required `PeerStorePersistence` port; the store appends a write-ahead log partitioned by **`topic`**. Use `InMemoryPeerStorePersistence` in tests; use SQLite/Postgres implementations in production.
+- **Lifecycle callbacks** — optional fields on the same object (`onCommit`, `onReject`, `onTimeout`, …).
+- **`onUnresolvedPersistenceCommand`** — optional; used only by **`PeerStore.create`** when replaying the journal (command rows with no outcome).
+- **`PeerStore.open(config)`** — sync construction without loading the journal (typical for tests / in-memory simulators).
+- **`PeerStore.create(config)`** — async: `open` + `recoverPeerStoreFromPersistence`.
 - **Trust weights** change only via replicated log commands (`PeerTrustUpdate` / authority-driven updates), not via a background election inside `PeerStore`.
 
-`PeerStoreInitConfig` is a **deprecated alias** for `PeerStoreRoomConfig` (same type).
+`PeerStoreRoomConfigCore` is the room/transport/persistence slice (no `module` or callbacks).
 
-Use `normalizePeerStoreInit()` if you build configs dynamically and want the same normalization `PeerStore` performs internally.
+Use `normalizePeerStoreInit()` on a **`PeerStoreRoomConfigCore`** if you validate room fields before attaching `module` / callbacks.
 
 ### Migration from pre-v2
 

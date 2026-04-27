@@ -17,6 +17,7 @@ export type {
 export type { LogEntry } from './persistence/log-entry';
 export {
   normalizePeerStoreInit,
+  peelPeerStoreRoomConfigCore,
   PeerStore,
   replayDomainEntries,
   replayEvents,
@@ -28,8 +29,9 @@ export type {
   NormalizedPeerStoreInit,
   PeerBootstrap,
   PeerStoreApi,
-  PeerStoreInitConfig,
+  PeerStoreCallbacks,
   PeerStoreRoomConfig,
+  PeerStoreRoomConfigCore,
   PeerStoreRoomRoleHost,
   PeerStoreRoomRoleJoin,
   PeerStoreSecurityConfig,

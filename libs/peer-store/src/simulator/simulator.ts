@@ -1,4 +1,5 @@
 import { Assert } from '@gamezilla/lib/assert'
+import { InMemoryPeerStorePersistence } from '../persistence/persistence-in-memory'
 import { PeerStore } from '../store'
 import { InMemoryBus, InMemoryTransport, type MessageInterceptor } from '../transport'
 import type { LogEntry } from '../persistence/log-entry'
@@ -323,13 +324,13 @@ export class DeterministicSimulator {
     const transport = new InMemoryTransport(this.bus, peerId)
     this.transports.set(peerId, transport)
 
-    const store = new PeerStore(
-      this.module,
-      {
+    const store = PeerStore.open({
+        module: this.module,
         topic: this.topic,
         roomSecret: this.roomSecret,
         secretSeed: tp.secretSeed,
         transport,
+        persistence: new InMemoryPeerStorePersistence(),
         role: {
           type: 'join',
           roomSnapshot: {
@@ -344,8 +345,6 @@ export class DeterministicSimulator {
         ...(this.heartbeatTimeoutMs !== undefined
           ? { heartbeatTimeoutMs: this.heartbeatTimeoutMs }
           : {}),
-      },
-      {
         onTimeout: (commandId) => {
           this.timeout_log.push(commandId)
         },
@@ -358,8 +357,7 @@ export class DeterministicSimulator {
         onWireAuthFailure: (reason) => {
           this.wire_auth_failures.push(reason)
         },
-      },
-    )
+      })
     this.stores.set(peerId, store)
     this.peer_ids = [...this.peer_ids, peerId]
 
@@ -431,13 +429,13 @@ export class DeterministicSimulator {
       const transport = new InMemoryTransport(bus, peerId)
       this.transports.set(peerId, transport)
 
-      const store = new PeerStore(
-        this.module,
-        {
+      const store = PeerStore.open({
+          module: this.module,
           topic: this.topic,
           roomSecret: this.roomSecret,
           secretSeed: this.peerSecretSeeds[peerId]!,
           transport,
+          persistence: new InMemoryPeerStorePersistence(),
           role: {
             type: 'host',
             initialMembership: this.initialMembership,
@@ -452,8 +450,6 @@ export class DeterministicSimulator {
           ...(this.heartbeatTimeoutMs !== undefined
             ? { heartbeatTimeoutMs: this.heartbeatTimeoutMs }
             : {}),
-        },
-        {
           onTimeout: (commandId) => {
             this.timeout_log.push(commandId)
           },
@@ -466,8 +462,7 @@ export class DeterministicSimulator {
           onWireAuthFailure: (reason) => {
             this.wire_auth_failures.push(reason)
           },
-        },
-      )
+        })
       this.stores.set(peerId, store)
     }
   }

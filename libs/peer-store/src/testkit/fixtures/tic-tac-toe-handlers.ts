@@ -1,23 +1,6 @@
 import type { Message } from '@gamezilla/lib/message';
-import type { Command, HandleResult, State } from '../../store/types';
 import type { Event } from '../../events/message-types';
-import {
-  AlreadySeatedError,
-  CellOccupiedError,
-  GameOverError,
-  InvalidMarkError,
-  InvalidPayloadError,
-  InvalidPlayerError,
-  InvalidStateError,
-  NotSeatedError,
-  PlayerResigned,
-  SeatClaimed,
-  SeatReleased,
-  SeatTakenError,
-  ForfeitWin,
-  isFiniteNonNegative,
-  reject,
-} from './tic-tac-toe-messages';
+import type { Command, HandleResult, State } from '../../store/types';
 import {
   assertPeerOwnsMark,
   assertValidState,
@@ -31,6 +14,23 @@ import {
   seatsFullyClaimed,
   validatePlaceMarkInputs,
 } from './tic-tac-toe-domain';
+import {
+  AlreadySeatedError,
+  CellOccupiedError,
+  ForfeitWin,
+  GameOverError,
+  InvalidMarkError,
+  InvalidPayloadError,
+  InvalidPlayerError,
+  InvalidStateError,
+  isFiniteNonNegative,
+  NotSeatedError,
+  PlayerResigned,
+  reject,
+  SeatClaimed,
+  SeatReleased,
+  SeatTakenError,
+} from './tic-tac-toe-messages';
 
 export function handlePlaceMark(
   state: State,
@@ -219,7 +219,10 @@ function maybeAddForfeitWin(
   return { event: ForfeitWin({ winner, seq }), nextSeq: seq + 1 };
 }
 
-export function handleLeaveSession(state: State, command: Command): HandleResult {
+export function handleLeaveSession(
+  state: State,
+  command: Command
+): HandleResult {
   assertValidState(state);
 
   if (!isPlainObjectPayload(command.message.payload)) {

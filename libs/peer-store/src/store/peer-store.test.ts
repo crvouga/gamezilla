@@ -9,6 +9,7 @@ import {
   jest,
 } from 'bun:test'
 import { Assert } from '@gamezilla/lib/assert'
+import { InMemoryPeerStorePersistence } from '../persistence/persistence-in-memory'
 import { PeerStore } from './peer-store'
 import { InMemoryBus, InMemoryTransport } from '../transport'
 import { isSystemEvent } from '../events/utils'
@@ -99,10 +100,12 @@ type BuildStoreConfigArgs = {
 
 function buildStoreConfig(args: BuildStoreConfigArgs): PeerStoreRoomConfig {
   const config: PeerStoreRoomConfig = {
+    module: TicTacToeModule,
     topic: TEST_TOPIC,
     roomSecret: F.roomSecret,
     secretSeed: args.peerSecretSeeds[args.peerId]!,
     transport: args.transport,
+    persistence: new InMemoryPeerStorePersistence(),
     role: {
       type: 'host',
       initialMembership: args.peers,
@@ -158,9 +161,8 @@ function setup(opts?: SetupOpts) {
     const transport = new InMemoryTransport(bus, peerId)
     transports.set(peerId, transport)
 
-    const store = new PeerStore(
-      TicTacToeModule,
-      buildStoreConfig({
+    const store = PeerStore.open({
+      ...buildStoreConfig({
         opts,
         peers,
         initialMemberPublicKeys,
@@ -168,17 +170,15 @@ function setup(opts?: SetupOpts) {
         peerId,
         transport,
       }),
-      {
-        onTimeout: (commandId) => timeouts.push(commandId),
-        onError: (error) => errors.push(error),
-        onSync: () => syncs.push(peerId),
-        onAuthorityChange: (newAuth, prevAuth) =>
-          authorityChanges.push({
-            newAuthority: newAuth,
-            previousAuthority: prevAuth,
-          }),
-      },
-    )
+      onTimeout: (commandId) => timeouts.push(commandId),
+      onError: (error) => errors.push(error),
+      onSync: () => syncs.push(peerId),
+      onAuthorityChange: (newAuth, prevAuth) =>
+        authorityChanges.push({
+          newAuthority: newAuth,
+          previousAuthority: prevAuth,
+        }),
+    })
     stores.set(peerId, store)
   }
 
@@ -388,22 +388,26 @@ describe('PeerStore', () => {
     const bus = new InMemoryBus()
     const t1 = new InMemoryTransport(bus, ba.peerId)
     const t2 = new InMemoryTransport(bus, bb.peerId)
-    const store = new PeerStore(badModule, {
+    const store = PeerStore.open({
+      module: badModule,
       topic: TEST_TOPIC,
       roomSecret: F.roomSecret,
       secretSeed: ba.secretSeed,
       transport: t1,
+      persistence: new InMemoryPeerStorePersistence(),
       role: {
         type: 'host',
         initialMembership: member,
         initialMemberPublicKeys: pubMap,
       },
     })
-    const _store2 = new PeerStore(badModule, {
+    const _store2 = PeerStore.open({
+      module: badModule,
       topic: TEST_TOPIC,
       roomSecret: F.roomSecret,
       secretSeed: bb.secretSeed,
       transport: t2,
+      persistence: new InMemoryPeerStorePersistence(),
       role: {
         type: 'host',
         initialMembership: member,
@@ -444,22 +448,26 @@ describe('PeerStore', () => {
     const bus = new InMemoryBus()
     const t1 = new InMemoryTransport(bus, ba.peerId)
     const t2 = new InMemoryTransport(bus, bb.peerId)
-    const store = new PeerStore(badModule, {
+    const store = PeerStore.open({
+      module: badModule,
       topic: TEST_TOPIC,
       roomSecret: F.roomSecret,
       secretSeed: bb.secretSeed,
       transport: t2,
+      persistence: new InMemoryPeerStorePersistence(),
       role: {
         type: 'host',
         initialMembership: member,
         initialMemberPublicKeys: pubMap,
       },
     })
-    const _store2 = new PeerStore(badModule, {
+    const _store2 = PeerStore.open({
+      module: badModule,
       topic: TEST_TOPIC,
       roomSecret: F.roomSecret,
       secretSeed: ba.secretSeed,
       transport: t1,
+      persistence: new InMemoryPeerStorePersistence(),
       role: {
         type: 'host',
         initialMembership: member,
@@ -529,25 +537,22 @@ describe('PeerStore', () => {
       const transport = new InMemoryTransport(bus, peerId)
       const rows: Array<{ commandId: string; effectCount: number }> = []
       byPeer.set(peerId, rows)
-      const store = new PeerStore(
-        EffectModule,
-        {
-          topic: EFFECT_TOPIC,
-          roomSecret: F.roomSecret,
-          secretSeed: F.peerSecretSeeds[peerId]!,
-          transport,
-          role: {
-            type: 'host',
-            initialMembership: peers,
-            initialMemberPublicKeys: F.initialMemberPublicKeys,
-          },
+      const store = PeerStore.open({
+        module: EffectModule,
+        topic: EFFECT_TOPIC,
+        roomSecret: F.roomSecret,
+        secretSeed: F.peerSecretSeeds[peerId]!,
+        transport,
+        persistence: new InMemoryPeerStorePersistence(),
+        role: {
+          type: 'host',
+          initialMembership: peers,
+          initialMemberPublicKeys: F.initialMemberPublicKeys,
         },
-        {
-          onCommit: (commandId, _entries, effects) => {
-            rows.push({ commandId, effectCount: effects?.length ?? 0 })
-          },
+        onCommit: (commandId, _entries, effects) => {
+          rows.push({ commandId, effectCount: effects?.length ?? 0 })
         },
-      )
+      })
       return { store, transport }
     }
 

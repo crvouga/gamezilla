@@ -1,4 +1,5 @@
 import type { LogEntry } from '../persistence/log-entry'
+import type { PeerStorePersistence } from '../persistence/persistence'
 import type { Event, Message, StoreError } from '../events/message-types'
 import type { Transport } from '../transport/transport-types'
 
@@ -94,13 +95,15 @@ export type PeerStoreRoomRoleJoin = {
 }
 
 /**
- * Constructor config: `peerId` is derived from `secretSeed` (self-certifying).
+ * Room + transport + persistence only (no `module` / lifecycle callbacks).
+ * `peerId` is derived from `secretSeed` (self-certifying).
  */
-export type PeerStoreRoomConfig = {
+export type PeerStoreRoomConfigCore = {
   topic: string
   roomSecret: string
   secretSeed: Uint8Array
   transport: Transport
+  persistence: PeerStorePersistence
   role: PeerStoreRoomRoleHost | PeerStoreRoomRoleJoin
   timeoutMs?: number
   heartbeatIntervalMs?: number
@@ -108,8 +111,36 @@ export type PeerStoreRoomConfig = {
   peerFingerprints?: Record<string, string>
 }
 
-/** @deprecated Use {@link PeerStoreRoomConfig} — alias kept for short-term migration. */
-export type PeerStoreInitConfig = PeerStoreRoomConfig
+export type PeerStoreCallbacks = {
+  onTimeout?: (commandId: string) => void
+  onError?: (error: StoreError) => void
+  onSync?: () => void
+  onCommit?: (
+    commandId: string,
+    entries: LogEntry[],
+    effects?: StoreEffect[],
+  ) => void
+  onReject?: (commandId: string) => void
+  onAuthorityChange?: (
+    newAuthority: string,
+    previousAuthority: string,
+  ) => void
+  /** Cryptographic verification failed for an inbound wire envelope. */
+  onWireAuthFailure?: (reason: string) => void
+  /** Async persistence append failed (hot path uses fire-and-forget). */
+  onPersistenceError?: (err: unknown) => void
+}
+
+/**
+ * Full {@link PeerStore} instantiation: {@link PeerStoreRoomConfigCore} plus `module`,
+ * optional callbacks, and optional persistence recovery hook for {@link PeerStore.create}.
+ */
+export type PeerStoreRoomConfig = PeerStoreRoomConfigCore &
+  PeerStoreCallbacks & {
+    module: StoreModule
+    /** Used only by {@link PeerStore.create}: journal command rows with no outcome. */
+    onUnresolvedPersistenceCommand?: (command: Command) => void
+  }
 
 /** Normalized internal shape after validation. */
 export type NormalizedPeerStoreInit = {
@@ -117,6 +148,7 @@ export type NormalizedPeerStoreInit = {
   peerId: string
   bootstrap: PeerBootstrap
   transport: Transport
+  persistence: PeerStorePersistence
   security: PeerStoreSecurityConfig
   timeoutMs?: number
   heartbeatIntervalMs?: number

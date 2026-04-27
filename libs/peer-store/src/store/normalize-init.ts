@@ -7,6 +7,7 @@ import type {
   NormalizedPeerStoreInit,
   PeerBootstrap,
   PeerStoreRoomConfig,
+  PeerStoreRoomConfigCore,
 } from './types';
 import {
   peerIdFromPublicKey,
@@ -20,7 +21,7 @@ function peerIdFromSecretSeed(secretSeed: Uint8Array): string {
   return peerIdFromPublicKey(pub);
 }
 
-function validateRoomHostConfig(room: PeerStoreRoomConfig): void {
+function validateRoomHostConfig(room: PeerStoreRoomConfigCore): void {
   crash.ok(room.role.type === 'host', 'expected host role');
   const { initialMembership, initialMemberPublicKeys } = room.role;
   const derivedPeerId = peerIdFromSecretSeed(room.secretSeed);
@@ -43,7 +44,7 @@ function validateRoomHostConfig(room: PeerStoreRoomConfig): void {
   }
 }
 
-function validateRoomJoinConfig(room: PeerStoreRoomConfig): void {
+function validateRoomJoinConfig(room: PeerStoreRoomConfigCore): void {
   crash.ok(room.role.type === 'join', 'expected join role');
   const { initialMembership, initialMemberPublicKeys } = room.role.roomSnapshot;
   const ids = Object.keys(initialMembership);
@@ -60,9 +61,10 @@ function validateRoomJoinConfig(room: PeerStoreRoomConfig): void {
   }
 }
 
-function validatePeerStoreRoomConfig(room: PeerStoreRoomConfig): void {
+function validatePeerStoreRoomConfig(room: PeerStoreRoomConfigCore): void {
   crash.nonEmptyString(room.topic, 'room.topic must be non-empty');
   crash.nonEmptyString(room.roomSecret, 'room.roomSecret must be non-empty');
+  crash.defined(room.persistence, 'room.persistence is required');
   crash.ok(
     room.secretSeed instanceof Uint8Array && room.secretSeed.length === 32,
     'room.secretSeed must be Uint8Array of length 32',
@@ -74,7 +76,7 @@ function validatePeerStoreRoomConfig(room: PeerStoreRoomConfig): void {
   }
 }
 
-function roomToBootstrap(room: PeerStoreRoomConfig): PeerBootstrap {
+function roomToBootstrap(room: PeerStoreRoomConfigCore): PeerBootstrap {
   if (room.role.type === 'host') {
     return {
       kind: 'genesis',
@@ -128,11 +130,31 @@ function applyOptionalTiming(
   }
 }
 
+/** Strip `module`, callbacks, and recovery hook; use with {@link normalizePeerStoreInit}. */
+export function peelPeerStoreRoomConfigCore(
+  config: PeerStoreRoomConfig,
+): PeerStoreRoomConfigCore {
+  const {
+    module: _m,
+    onUnresolvedPersistenceCommand: _u,
+    onTimeout: _1,
+    onError: _2,
+    onSync: _3,
+    onCommit: _4,
+    onReject: _5,
+    onAuthorityChange: _6,
+    onWireAuthFailure: _7,
+    onPersistenceError: _8,
+    ...core
+  } = config;
+  return core;
+}
+
 /**
- * Validates {@link PeerStoreRoomConfig} into the normalized init payload for `PeerStore`.
+ * Validates {@link PeerStoreRoomConfigCore} into the normalized init payload for `PeerStore`.
  */
 export function normalizePeerStoreInit(
-  config: PeerStoreRoomConfig,
+  config: PeerStoreRoomConfigCore,
 ): NormalizedPeerStoreInit {
   validatePeerStoreRoomConfig(config);
   const peerId = peerIdFromSecretSeed(config.secretSeed);
@@ -158,6 +180,7 @@ export function normalizePeerStoreInit(
     peerId,
     bootstrap,
     transport: config.transport,
+    persistence: config.persistence,
     security,
   };
   applyOptionalTiming(

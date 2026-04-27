@@ -1,5 +1,8 @@
 export { PeerStore } from './peer-store';
-export { normalizePeerStoreInit } from './normalize-init';
+export {
+  normalizePeerStoreInit,
+  peelPeerStoreRoomConfigCore,
+} from './normalize-init';
 export type { PeerStoreCoreInitConfig } from './validate-init-config';
 export type {
   Command,
@@ -7,8 +10,9 @@ export type {
   NormalizedPeerStoreInit,
   PeerBootstrap,
   PeerStoreApi,
-  PeerStoreInitConfig,
+  PeerStoreCallbacks,
   PeerStoreRoomConfig,
+  PeerStoreRoomConfigCore,
   PeerStoreRoomRoleHost,
   PeerStoreRoomRoleJoin,
   PeerStoreSecurityConfig,

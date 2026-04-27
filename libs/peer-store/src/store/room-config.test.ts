@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { Assert } from '@gamezilla/lib/assert';
+import { InMemoryPeerStorePersistence } from '../persistence/persistence-in-memory';
 import { PeerStore } from './peer-store';
 import { InMemoryBus, InMemoryTransport } from '../transport';
 import { TicTacToeModule } from '../testkit/fixtures/tic-tac-toe.module';
@@ -19,11 +20,13 @@ describe('PeerStore room config', () => {
     const bus = new InMemoryBus();
     const p = F.peers.playerX;
     const transport = new InMemoryTransport(bus, p.peerId);
-    const store = new PeerStore(TicTacToeModule, {
+    const store = PeerStore.open({
+      module: TicTacToeModule,
       topic: 'room-host-peerid',
       roomSecret: F.roomSecret,
       secretSeed: p.secretSeed,
       transport,
+      persistence: new InMemoryPeerStorePersistence(),
       role: {
         type: 'host',
         initialMembership: F.initialMembership,
@@ -43,11 +46,13 @@ describe('PeerStore room config', () => {
     const joiner = testPeerForLabel('join-room-new');
     const bus = new InMemoryBus();
     const transport = new InMemoryTransport(bus, joiner.peerId);
-    const store = new PeerStore(TicTacToeModule, {
+    const store = PeerStore.open({
+      module: TicTacToeModule,
       topic: 'room-join-bootstrap',
       roomSecret: 'join-room-secret',
       secretSeed: joiner.secretSeed,
       transport,
+      persistence: new InMemoryPeerStorePersistence(),
       role: {
         type: 'join',
         roomSnapshot: {
@@ -71,11 +76,13 @@ describe('PeerStore room config', () => {
     const p = F.peers.authority;
     const bus = new InMemoryBus();
     const transport = new InMemoryTransport(bus, p.peerId);
+    const persistence = new InMemoryPeerStorePersistence();
     const n = normalizePeerStoreInit({
       topic: 'norm-topic',
       roomSecret: F.roomSecret,
       secretSeed: p.secretSeed,
       transport,
+      persistence,
       role: {
         type: 'host',
         initialMembership: F.initialMembership,
@@ -86,6 +93,7 @@ describe('PeerStore room config', () => {
     expect(n.peerId).toBe(p.peerId);
     expect(n.bootstrap.kind).toBe('genesis');
     expect(n.timeoutMs).toBe(7000);
+    expect(n.persistence).toBe(persistence);
     transport.destroy();
     bus.destroy();
   });

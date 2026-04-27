@@ -1,6 +1,11 @@
 import { Assert } from '@gamezilla/lib/assert';
 import type { MessageRouter } from '@gamezilla/lib/message';
 import type { LogEntry } from '../persistence/log-entry';
+import {
+  recoverPeerStoreFromPersistence,
+  type PeerStorePersistence,
+  type PeerStorePersistenceEntry,
+} from '../persistence/persistence';
 import type { Event, Message, StoreError } from '../events/message-types';
 import {
   PeerStoreNotSynced,
@@ -21,13 +26,17 @@ import {
 import type {
   Command,
   PeerStoreApi,
+  PeerStoreCallbacks,
   PeerStoreRoomConfig,
   PeerStoreSecurityConfig,
   State,
   StoreEffect,
   StoreModule,
 } from './types';
-import { normalizePeerStoreInit } from './normalize-init';
+import {
+  normalizePeerStoreInit,
+  peelPeerStoreRoomConfigCore,
+} from './normalize-init';
 import { runPeerStoreConstructorBootstrap } from './constructor-bootstrap';
 import { applyRehydrateCommittedEntries } from './rehydrate';
 import {
@@ -50,24 +59,6 @@ import type {
 const crash: Assert = Assert.crash();
 const validation: Assert = Assert.validation();
 
-type PeerStoreCallbacks = {
-  onTimeout?: (commandId: string) => void;
-  onError?: (error: StoreError) => void;
-  onSync?: () => void;
-  onCommit?: (
-    commandId: string,
-    entries: LogEntry[],
-    effects?: StoreEffect[],
-  ) => void;
-  onReject?: (commandId: string) => void;
-  onAuthorityChange?: (
-    newAuthority: string,
-    previousAuthority: string,
-  ) => void;
-  /** Cryptographic verification failed for an inbound wire envelope. */
-  onWireAuthFailure?: (reason: string) => void;
-};
-
 const sharedSystemRouter: MessageRouter<
   SystemRouterContext,
   Command,
@@ -84,6 +75,9 @@ export class PeerStore implements PeerStoreApi {
   private readonly heartbeatIntervalMs: number;
   readonly heartbeatTimeoutMs: number;
   readonly bootstrapKind: 'genesis' | 'join';
+
+  private readonly persistence: PeerStorePersistence;
+  private readonly partitionKey: string;
 
   membership = new Map<string, number>();
   authority_order: string[] = [];
@@ -131,25 +125,63 @@ export class PeerStore implements PeerStoreApi {
   private connect_unsubscribe: (() => void) | null = null;
   private heartbeat_interval: ReturnType<typeof setInterval> | null = null;
 
-  constructor(
-    module: StoreModule,
-    config: PeerStoreRoomConfig,
-    callbacks?: PeerStoreCallbacks,
-  ) {
-    const resolved = normalizePeerStoreInit(config);
+  /** Construct and replay the persistence journal (async). */
+  static async create(config: PeerStoreRoomConfig): Promise<PeerStore> {
+    const store = new PeerStore(config);
+    await recoverPeerStoreFromPersistence(
+      config.persistence,
+      config.topic,
+      store,
+      config.onUnresolvedPersistenceCommand,
+    );
+    return store;
+  }
 
-    this.module = module;
+  /**
+   * Construct without loading the journal (sync). Use in tests / simulators, or when
+   * recovery is not needed.
+   */
+  static open(config: PeerStoreRoomConfig): PeerStore {
+    return new PeerStore(config);
+  }
+
+  /** Satisfies `exactOptionalPropertyTypes`: omit keys when callback is absent. */
+  private static pickCallbacks(config: PeerStoreRoomConfig): PeerStoreCallbacks {
+    const out: PeerStoreCallbacks = {};
+    if (config.onTimeout !== undefined) out.onTimeout = config.onTimeout;
+    if (config.onError !== undefined) out.onError = config.onError;
+    if (config.onSync !== undefined) out.onSync = config.onSync;
+    if (config.onCommit !== undefined) out.onCommit = config.onCommit;
+    if (config.onReject !== undefined) out.onReject = config.onReject;
+    if (config.onAuthorityChange !== undefined) {
+      out.onAuthorityChange = config.onAuthorityChange;
+    }
+    if (config.onWireAuthFailure !== undefined) {
+      out.onWireAuthFailure = config.onWireAuthFailure;
+    }
+    if (config.onPersistenceError !== undefined) {
+      out.onPersistenceError = config.onPersistenceError;
+    }
+    return out;
+  }
+
+  private constructor(config: PeerStoreRoomConfig) {
+    const resolved = normalizePeerStoreInit(peelPeerStoreRoomConfigCore(config));
+
+    this.module = config.module;
     this.peerId = resolved.peerId;
     this.topic = resolved.topic;
     this.transport = resolved.transport;
+    this.persistence = resolved.persistence;
+    this.partitionKey = resolved.topic;
     this.security = resolved.security;
     this.timeoutMs = resolved.timeoutMs ?? 5000;
     this.heartbeatIntervalMs = resolved.heartbeatIntervalMs ?? 2000;
     this.heartbeatTimeoutMs = resolved.heartbeatTimeoutMs ?? 6000;
-    this.callbacks = callbacks ?? {};
+    this.callbacks = PeerStore.pickCallbacks(config);
 
     const boot = runPeerStoreConstructorBootstrap(
-      module,
+      config.module,
       {
         peerId: resolved.peerId,
         bootstrap: resolved.bootstrap,
@@ -170,6 +202,15 @@ export class PeerStore implements PeerStoreApi {
     this.attachTransport();
 
     this.maybeRequestInitialSync();
+  }
+
+  /** Append one WAL row (fire-and-forget); used by wire handlers and {@link dispatch}. */
+  appendPersistenceEntry(entry: PeerStorePersistenceEntry): void {
+    void this.persistence
+      .append(this.partitionKey, entry)
+      .catch((err: unknown) => {
+        this.callbacks.onPersistenceError?.(err);
+      });
   }
 
   private maybeRequestInitialSync(): void {
@@ -301,6 +342,8 @@ export class PeerStore implements PeerStoreApi {
       peerId: this.peerId,
       message,
     };
+
+    this.appendPersistenceEntry({ kind: 'command', command });
 
     const isSystem = peerNamespace.owns(message);
     if (this.isAuthority()) {

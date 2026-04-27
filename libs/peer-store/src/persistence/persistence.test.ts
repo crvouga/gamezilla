@@ -396,67 +396,55 @@ describe('PeerStore + persistence journal integration', () => {
     const seeds = FIX.peerSecretSeeds;
 
     const journal = new InMemoryPeerStorePersistence();
-    const partitionKey = 'log-part-1';
+    const partitionKey = INT_TOPIC;
     const committed: Array<{ commandId: string; entries: LogEntry[] }> = [];
     const rejected: string[] = [];
 
-    const store_x = new PeerStore(TicTacToeModule, {
+    const store_x = PeerStore.open({
+      module: TicTacToeModule,
       topic: INT_TOPIC,
       roomSecret: FIX.roomSecret,
       secretSeed: seeds[PEER.playerX]!,
       transport: t_x,
+      persistence: new InMemoryPeerStorePersistence(),
       role: {
         type: 'host',
         initialMembership: peers,
         initialMemberPublicKeys: pubMap,
       },
     });
-    const store_o = new PeerStore(
-      TicTacToeModule,
-      {
-        topic: INT_TOPIC,
-        roomSecret: FIX.roomSecret,
-        secretSeed: seeds[PEER.playerO]!,
-        transport: t_o,
-        role: {
-          type: 'host',
-          initialMembership: peers,
-          initialMemberPublicKeys: pubMap,
-        },
+    const store_o = PeerStore.open({
+      module: TicTacToeModule,
+      topic: INT_TOPIC,
+      roomSecret: FIX.roomSecret,
+      secretSeed: seeds[PEER.playerO]!,
+      transport: t_o,
+      persistence: new InMemoryPeerStorePersistence(),
+      role: {
+        type: 'host',
+        initialMembership: peers,
+        initialMemberPublicKeys: pubMap,
       },
-      {
-        onReject(commandId) {
-          rejected.push(commandId);
-        },
-      }
-    );
-    const store_auth = new PeerStore(
-      TicTacToeModule,
-      {
-        topic: INT_TOPIC,
-        roomSecret: FIX.roomSecret,
-        secretSeed: seeds[PEER.authority]!,
-        transport: t_auth,
-        role: {
-          type: 'host',
-          initialMembership: peers,
-          initialMemberPublicKeys: pubMap,
-        },
+      onReject(commandId) {
+        rejected.push(commandId);
       },
-      {
-        onCommit(commandId, entries) {
-          committed.push({ commandId, entries });
-          void journal.append(partitionKey, {
-            kind: 'committed',
-            commandId,
-            entries,
-          });
-        },
-        onReject(commandId) {
-          void journal.append(partitionKey, { kind: 'rejected', commandId });
-        },
-      }
-    );
+    });
+    const store_auth = PeerStore.open({
+      module: TicTacToeModule,
+      topic: INT_TOPIC,
+      roomSecret: FIX.roomSecret,
+      secretSeed: seeds[PEER.authority]!,
+      transport: t_auth,
+      persistence: journal,
+      role: {
+        type: 'host',
+        initialMembership: peers,
+        initialMemberPublicKeys: pubMap,
+      },
+      onCommit(commandId, entries) {
+        committed.push({ commandId, entries });
+      },
+    });
 
     void journal.append(partitionKey, {
       kind: 'committed',
@@ -543,11 +531,13 @@ describe('PeerStore + persistence journal integration', () => {
     const t_recovery = new InMemoryTransport(bus2, PEER.authority);
     const dummyId = testPeerForLabel('persistence-dummy').peerId;
     const t_dummy = new InMemoryTransport(bus2, dummyId);
-    const recoveredStore = new PeerStore(TicTacToeModule, {
+    const recoveredStore = await PeerStore.create({
+      module: TicTacToeModule,
       topic: INT_TOPIC,
       roomSecret: FIX.roomSecret,
       secretSeed: FIX.peerSecretSeeds[PEER.authority]!,
       transport: t_recovery,
+      persistence: journal,
       role: {
         type: 'join',
         roomSnapshot: {
@@ -556,8 +546,6 @@ describe('PeerStore + persistence journal integration', () => {
         },
       },
     });
-
-    await recoverPeerStoreFromPersistence(journal, partitionKey, recoveredStore);
 
     const recoveredState = recoveredStore.getCommittedState();
     expect(ticTacToeBoardCell(recoveredState, 4)).toBe('X');
@@ -568,5 +556,39 @@ describe('PeerStore + persistence journal integration', () => {
     t_recovery.destroy();
     t_dummy.destroy();
     bus2.destroy();
+  });
+
+  it('dispatch appends command intent to persistence (topic partition)', async () => {
+    const bus = new InMemoryBus();
+    const transport = new InMemoryTransport(bus, PEER.playerX);
+    const persistence = new InMemoryPeerStorePersistence();
+    const store = PeerStore.open({
+      module: TicTacToeModule,
+      topic: INT_TOPIC,
+      roomSecret: FIX.roomSecret,
+      secretSeed: FIX.peerSecretSeeds[PEER.playerX]!,
+      transport,
+      persistence,
+      role: {
+        type: 'host',
+        initialMembership: FIX.initialMembership,
+        initialMemberPublicKeys: FIX.initialMemberPublicKeys,
+      },
+    });
+
+    store.dispatch(PlaceMark({ cell: 0, player: 'X' }));
+
+    const rows = await persistence.load(INT_TOPIC);
+    const intents = rows.filter((r) => r.kind === 'command');
+    expect(intents.length).toBeGreaterThanOrEqual(1);
+    const lastIntent = intents[intents.length - 1]!;
+    expect(lastIntent.kind).toBe('command');
+    if (lastIntent.kind === 'command') {
+      expect(PlaceMark.is(lastIntent.command.message)).toBe(true);
+    }
+
+    store.destroy();
+    transport.destroy();
+    bus.destroy();
   });
 });
