@@ -2,14 +2,17 @@
   "name": "@gamezilla/qa",
   "version": "1.0.0",
   "private": true,
+  "dependencies": {
+    "@gamezilla/lib": "workspace:*"
+  },
   "scripts": {
     "api": "bun test ./src/api/",
-    "browser": "playwright test --config src/browser/playwright.config.mjs",
+    "browser": "bun --bun x playwright test --config src/browser/playwright.config.ts",
     "qa": "bun run api && bun run browser",
-    "browser:ui": "playwright test --config src/browser/playwright.config.mjs --ui",
-    "browser:headed": "playwright test --config src/browser/playwright.config.mjs --headed",
+    "browser:ui": "bun --bun x playwright test --config src/browser/playwright.config.ts --ui",
+    "browser:headed": "bun --bun x playwright test --config src/browser/playwright.config.ts --headed",
     "tc": "tsc --noEmit -p ./tsconfig.json",
-    "install:browsers": "playwright install --with-deps chromium"
+    "install:browsers": "bun --bun x playwright install --with-deps chromium"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.0",

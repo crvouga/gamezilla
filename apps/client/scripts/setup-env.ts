@@ -3,7 +3,11 @@ import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { assertTigerPolicyForResolvedApiOrigin } from '@gamezilla/domain/config/api-servers';
+import {
+  PRODUCTION_API_HTTP_HOSTNAMES,
+  assertTigerPolicyForResolvedApiOrigin,
+  productionApiUrlTigerExceptionEnabled,
+} from '@gamezilla/domain/config/api-servers';
 import { COMMIT_HASH_HEX_REGEX } from '@gamezilla/domain/config/app-metadata';
 import { assert } from '@gamezilla/lib/assert';
 
@@ -11,23 +15,63 @@ const clientRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outPath = join(clientRoot, '.env.local');
 const tmpPath = `${outPath}.${process.pid}.tmp`;
 
+// `setup-env.ts` is wired only into the `setup` turbo task, which is a
+// dependency of `dev` and `preview` (see turbo.json). Both of those run a
+// local Worker on this loopback origin (see `apps/api/package.json` scripts:
+// `dev` and `preview` both use `--port 8788`). Production builds (`build`)
+// do not invoke this script -- they read EXPO_PUBLIC_API_URL straight from
+// the env at bundle time.
+const LOCAL_API_DEV_ORIGIN = 'http://127.0.0.1:8788';
+
+function isProductionHostname(rawUrl: string): boolean {
+  try {
+    const { hostname } = new URL(rawUrl);
+    return (PRODUCTION_API_HTTP_HOSTNAMES as readonly string[]).includes(
+      hostname
+    );
+  } catch {
+    return false;
+  }
+}
+
 function resolveExpoPublicApiUrl(): string {
   const explicit = process.env.EXPO_PUBLIC_API_URL;
   if (typeof explicit === 'string' && explicit.trim().length > 0) {
-    return explicit.trim();
+    const trimmed = explicit.trim();
+    if (
+      isProductionHostname(trimmed) &&
+      !productionApiUrlTigerExceptionEnabled()
+    ) {
+      process.stdout.write(
+        `[setup-env] EXPO_PUBLIC_API_URL=${trimmed} resolves to a production hostname; ignoring for local setup and using ${LOCAL_API_DEV_ORIGIN}. Set EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL=1 to opt in.\n`
+      );
+      return LOCAL_API_DEV_ORIGIN;
+    }
+    return trimmed;
   }
 
   const apiUrl = process.env.API_URL;
   if (typeof apiUrl === 'string' && apiUrl.trim().length > 0) {
+    const trimmed = apiUrl.trim();
+    if (
+      isProductionHostname(trimmed) &&
+      !productionApiUrlTigerExceptionEnabled()
+    ) {
+      process.stdout.write(
+        `[setup-env] API_URL=${trimmed} resolves to a production hostname; ignoring for local setup and using ${LOCAL_API_DEV_ORIGIN}. Set EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL=1 to opt in.\n`
+      );
+      return LOCAL_API_DEV_ORIGIN;
+    }
     process.stdout.write(
       '[setup-env] EXPO_PUBLIC_API_URL unset; using API_URL from env.\n'
     );
-    return apiUrl.trim();
+    return trimmed;
   }
 
-  assert.fail(
-    'EXPO_PUBLIC_API_URL or API_URL is required (set API_URL for env-only API origin)'
+  process.stdout.write(
+    `[setup-env] EXPO_PUBLIC_API_URL and API_URL unset; defaulting to local Worker ${LOCAL_API_DEV_ORIGIN}.\n`
   );
+  return LOCAL_API_DEV_ORIGIN;
 }
 
 function resolveExpoPublicCommitHash(): string {

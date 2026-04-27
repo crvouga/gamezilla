@@ -7,12 +7,6 @@ preview_urls = false
 
 routes = [{ pattern = "api.gamezilla.app", custom_domain = true }]
 
-# Patch-db uses Neon (HTTP) / PGlite-HTTP: each SQL round-trip is a subrequest.
-# Paid Workers default to 10k; raise headroom so heavy poll/read batches stay under the cap.
-# https://developers.cloudflare.com/workers/wrangler/configuration/#limits
-[limits]
-subrequests = 100000
-
 [observability]
 [observability.logs]
 enabled = true
