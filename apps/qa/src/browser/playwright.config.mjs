@@ -4,9 +4,16 @@ import { fileURLToPath } from 'node:url';
 
 import { LOCAL_API_PREVIEW_ORIGIN } from '../constants/local-api-preview.mjs';
 
-if (!process.env['API_URL']?.trim()) {
-  process.env['API_URL'] = LOCAL_API_PREVIEW_ORIGIN;
-}
+// The Playwright webServer below boots a local API Worker on 8788, so the
+// client `setup-env.ts` step must resolve to that origin -- not whatever
+// EXPO_PUBLIC_API_URL Doppler may have injected (which is prod on shared
+// configs and would trip the Tiger invariant in
+// assertTigerPolicyForResolvedApiOrigin('forbid-prod-on-this-machine')).
+//
+// Force both vars unconditionally; an inherited prod URL is never correct
+// here because the webServer is local-only.
+process.env['API_URL'] = LOCAL_API_PREVIEW_ORIGIN;
+process.env['EXPO_PUBLIC_API_URL'] = LOCAL_API_PREVIEW_ORIGIN;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.join(__dirname, '..', '..', '..', '..');
