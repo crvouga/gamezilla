@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 import { assert } from '@gamezilla/lib/assert';
 
-import { LOCAL_API_PREVIEW_ORIGIN } from '../constants/local-api-preview.mjs';
+import { LOCAL_API_PREVIEW_ORIGIN } from '../constants/local-api-preview';
 
 // ---------------------------------------------------------------------------
 // Tiger style: validate every assumption up front so failures surface here,
@@ -67,6 +67,27 @@ assert.equals(
   process.env['EXPO_PUBLIC_API_URL'],
   LOCAL_API_PREVIEW_ORIGIN,
   'EXPO_PUBLIC_API_URL must be set after override'
+);
+
+// `apps/qa` is launched via `bun --bun x playwright test` so the Playwright
+// runner can natively load this TypeScript config. That `--bun` flag works
+// by prepending a temp-dir `node` shim (e.g. `/private/tmp/bun-node-XXXX/`)
+// to PATH so that any descendant `#!/usr/bin/env node` shebang resolves to
+// Bun. wrangler does not support the Bun runtime (it crashes the inspector
+// WebSocket upgrade with `Unexpected server response: 101`), so the
+// webServer chain (turbo run preview -> apps/api -> wrangler dev) must not
+// inherit that shim. Strip it from PATH here, before Playwright spawns the
+// webServer subprocess.
+const rawPath = process.env['PATH'];
+assert.nonEmptyString(rawPath, 'PATH must be defined for webServer spawn');
+const cleanedPath = rawPath
+  .split(':')
+  .filter((segment) => !/^\/private\/tmp\/bun-node-[^/]+$/.test(segment))
+  .join(':');
+process.env['PATH'] = cleanedPath;
+assert.nonEmptyString(
+  process.env['PATH'],
+  'PATH must remain non-empty after stripping bun-node shim'
 );
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -142,5 +163,10 @@ export default defineConfig({
     url: baseURL,
     reuseExistingServer: !isCi,
     timeout: 180_000,
+    // Forward webServer stdout/stderr so failures (e.g. wrangler boot errors)
+    // surface in QA logs instead of being hidden behind a generic
+    // "Process from config.webServer was not able to start" message.
+    stdout: 'pipe',
+    stderr: 'pipe',
   },
 });

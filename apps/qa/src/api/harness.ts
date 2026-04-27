@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { LOCAL_API_PREVIEW_ORIGIN } from '../constants/local-api-preview.mjs';
+import { LOCAL_API_PREVIEW_ORIGIN } from '../constants/local-api-preview';
 
 /** Same origin as {@link LOCAL_API_PREVIEW_ORIGIN} — used by API integration tests. */
 export const LOCAL_API_ORIGIN = LOCAL_API_PREVIEW_ORIGIN;
