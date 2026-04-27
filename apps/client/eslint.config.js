@@ -5,6 +5,7 @@ const expoConfig = require('eslint-config-expo/flat');
 const eslintPluginNaming = require('eslint-plugin-naming');
 const eslintPluginGamezillaText = require('../../libs/eslint-rules/gamezilla-text.cjs');
 const sizeLimits = require('../../libs/eslint-rules/size-limits.cjs');
+const a11yRestrictions = require('../../libs/eslint-rules/a11y-restrictions.cjs');
 
 module.exports = defineConfig([
   expoConfig,
@@ -48,6 +49,7 @@ module.exports = defineConfig([
       eqeqeq: ['error', 'always'],
       'no-restricted-syntax': [
         'error',
+        ...a11yRestrictions.restrictedSyntax(),
         {
           selector:
             'CallExpression > MemberExpression[object.type="AwaitExpression"]',

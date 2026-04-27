@@ -2,6 +2,7 @@ const tsParser = require('@typescript-eslint/parser');
 const eslintPluginNaming = require('eslint-plugin-naming');
 const banUnsafeAssertion = require('../eslint-rules/ban-unsafe-type-assertion.cjs');
 const sizeLimits = require('../eslint-rules/size-limits.cjs');
+const a11yRestrictions = require('../eslint-rules/a11y-restrictions.cjs');
 
 module.exports = [
   {
@@ -28,6 +29,7 @@ module.exports = [
           ignore: ['^index\\.(ts|tsx|js|jsx)$'],
         },
       ],
+      'no-restricted-syntax': ['error', ...a11yRestrictions.restrictedSyntax()],
     },
   },
   sizeLimits.testOverrides(),
