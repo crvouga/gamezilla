@@ -48,6 +48,7 @@ import { default as NumberStepperExample } from '../number-stepper/number-steppe
 import { default as MultiSelectSwatchGridExample } from '../multi-select-swatch/multi-select-swatch-grid.example';
 import { default as SectionCardExample } from '../section-card/section-card.example';
 import { default as ScreenBaseExample } from '../screen-base/screen-base.example';
+import { default as MenuRowExample } from '../menu-row/menu-row.example';
 
 export type ComponentEntry = {
   name: string;
@@ -89,6 +90,7 @@ export const componentRegistry: ComponentEntry[] = [
   { name: 'Badge', category: 'Data Display', Example: BadgeExample },
   { name: 'Chip', category: 'Data Display', Example: ChipExample },
   { name: 'List', category: 'Data Display', Example: ListExample },
+  { name: 'MenuRow', category: 'Data Display', Example: MenuRowExample },
 
   // Feedback
   { name: 'Spinner', category: 'Feedback', Example: SpinnerExample },

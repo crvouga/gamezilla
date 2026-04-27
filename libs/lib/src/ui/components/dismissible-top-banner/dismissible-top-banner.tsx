@@ -95,21 +95,25 @@ function useBannerSlide(
   return { translateY, dismiss };
 }
 
+type PortalEntry = readonly [string, ReactNode];
+type PortalSnapshot = ReadonlyArray<PortalEntry>;
+
 type PortalStore = {
   subscribe: (onStoreChange: () => void) => () => void;
-  getSnapshot: () => number;
+  getSnapshot: () => PortalSnapshot;
   register: (id: string, node: ReactNode) => void;
   unregister: (id: string) => void;
-  getMap: () => Map<string, ReactNode>;
 };
 
+const EMPTY_SNAPSHOT: PortalSnapshot = Object.freeze([]);
+
 function createDismissibleBannerPortalStore(): PortalStore {
-  let version = 0;
+  let snapshot: PortalSnapshot = EMPTY_SNAPSHOT;
   const map = new Map<string, ReactNode>();
   const listeners = new Set<() => void>();
 
-  const emit = (): void => {
-    version += 1;
+  const recompute = (): void => {
+    snapshot = Object.freeze([...map.entries()]);
     listeners.forEach((l) => {
       l();
     });
@@ -122,17 +126,18 @@ function createDismissibleBannerPortalStore(): PortalStore {
         listeners.delete(onStoreChange);
       };
     },
-    getSnapshot: () => version,
+    getSnapshot: () => snapshot,
     register: (id, node) => {
+      const existing = map.get(id);
+      if (existing === node) return;
       map.set(id, node);
-      emit();
+      recompute();
     },
     unregister: (id) => {
       if (map.delete(id)) {
-        emit();
+        recompute();
       }
     },
-    getMap: () => map,
   };
 }
 
@@ -163,15 +168,18 @@ const DISMISSIBLE_BANNER_PORTAL_HOST_STYLE: StyleProp<ViewStyle> =
     : [StyleSheet.absoluteFill, { zIndex: 999_999 }];
 
 function DismissibleBannerPortalHost({ store }: { store: PortalStore }) {
-  useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
-  const map = store.getMap();
+  const entries = useSyncExternalStore(
+    store.subscribe,
+    store.getSnapshot,
+    store.getSnapshot
+  );
   return (
     <View
       pointerEvents="box-none"
       style={DISMISSIBLE_BANNER_PORTAL_HOST_STYLE}
       collapsable={false}
     >
-      {[...map.entries()].map(([key, value]) => (
+      {entries.map(([key, value]) => (
         <Fragment key={key}>{value}</Fragment>
       ))}
     </View>

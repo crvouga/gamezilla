@@ -1,0 +1,151 @@
+import { useState } from 'react';
+import { useTheme } from '../../theme';
+import { Avatar } from '../avatar';
+import { Badge } from '../badge';
+import { Box } from '../box';
+import { Card } from '../card';
+import { IconSymbol } from '../symbol-icon';
+import { Text } from '../text';
+import { MenuRow } from './menu-row';
+
+function CardGroup({ children }: { children: React.ReactNode }) {
+  return (
+    <Card elevation={0} sx={{ overflow: 'hidden', px: 3 }}>
+      {children}
+    </Card>
+  );
+}
+
+function DefaultRowsSection() {
+  const [tapped, setTapped] = useState<string | null>(null);
+  return (
+    <>
+      <Text variant="label" label="Default — title + caption + chevron" />
+      <CardGroup>
+        <MenuRow
+          title="Appearance"
+          caption="Light, dark, or system theme"
+          onPress={() => setTapped('Appearance')}
+        />
+        <MenuRow
+          title="Connection"
+          caption="Network reachability and API server health"
+          onPress={() => setTapped('Connection')}
+        />
+        <MenuRow
+          title="About"
+          caption="App version, build, and commit hash"
+          onPress={() => setTapped('About')}
+        />
+      </CardGroup>
+      {tapped ? (
+        <Text variant="caption" label={`Last tapped: ${tapped}`} />
+      ) : null}
+    </>
+  );
+}
+
+function TitleOnlySection() {
+  return (
+    <>
+      <Text variant="label" label="Title only (no caption)" />
+      <CardGroup>
+        <MenuRow title="Profile" onPress={() => {}} />
+        <MenuRow title="Privacy" onPress={() => {}} />
+        <MenuRow title="Notifications" onPress={() => {}} />
+      </CardGroup>
+    </>
+  );
+}
+
+function LeadingIconSection() {
+  const theme = useTheme();
+  return (
+    <>
+      <Text variant="label" label="With leading icon" />
+      <CardGroup>
+        <MenuRow
+          title="Account"
+          caption="Manage your profile"
+          leading={
+            <IconSymbol
+              name="person.fill"
+              size={20}
+              color={theme.colors.icon}
+            />
+          }
+          onPress={() => {}}
+        />
+        <MenuRow
+          title="Settings"
+          caption="App preferences and tools"
+          leading={
+            <IconSymbol
+              name="gearshape.fill"
+              size={20}
+              color={theme.colors.icon}
+            />
+          }
+          onPress={() => {}}
+        />
+      </CardGroup>
+    </>
+  );
+}
+
+function VariantsSection() {
+  return (
+    <>
+      <Text variant="label" label="With leading avatar" />
+      <CardGroup>
+        <MenuRow
+          title="Jane Doe"
+          caption="jane@example.com"
+          leading={<Avatar initials="JD" size={36} />}
+          onPress={() => {}}
+        />
+      </CardGroup>
+
+      <Text variant="label" label="Custom trailing (badge)" />
+      <CardGroup>
+        <MenuRow
+          title="Inbox"
+          caption="Direct messages and mentions"
+          trailing={<Badge label="3" color="destructive" size="sm" />}
+          onPress={() => {}}
+        />
+      </CardGroup>
+
+      <Text variant="label" label="No chevron" />
+      <CardGroup>
+        <MenuRow
+          title="Static info"
+          caption="Not a destination — chevron suppressed"
+          hideChevron
+        />
+      </CardGroup>
+
+      <Text variant="label" label="Disabled" />
+      <CardGroup>
+        <MenuRow
+          title="Coming soon"
+          caption="This feature is not yet available"
+          disabled
+          onPress={() => {}}
+        />
+      </CardGroup>
+    </>
+  );
+}
+
+export default function MenuRowExample() {
+  return (
+    <Box sx={{ p: 4, gap: 4 }}>
+      <Text variant="heading" label="MenuRow" />
+      <DefaultRowsSection />
+      <TitleOnlySection />
+      <LeadingIconSection />
+      <VariantsSection />
+    </Box>
+  );
+}

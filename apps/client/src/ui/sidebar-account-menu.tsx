@@ -62,7 +62,7 @@ function useAccountMenuActions(args: {
   const { run: runAuth } = useAsync({
     operation: async () => {
       if (auth.mode === 'signed-in') {
-        await auth.signOut();
+        auth.openSignOutConfirm();
       } else {
         auth.openSignInModal();
       }

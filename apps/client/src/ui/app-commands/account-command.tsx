@@ -7,7 +7,7 @@ export function AccountCommand() {
   const { run } = useAsync({
     operation: async () => {
       if (auth.mode === 'signed-in') {
-        await auth.signOut();
+        auth.openSignOutConfirm();
       } else {
         auth.openSignInModal();
       }

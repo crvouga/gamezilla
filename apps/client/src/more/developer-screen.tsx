@@ -1,12 +1,5 @@
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
-import {
-  Box,
-  IconSymbol,
-  Pressable,
-  ScreenBase,
-  Text,
-  useTheme,
-} from '@gamezilla/lib/ui';
+import { Box, MenuRow, ScreenBase } from '@gamezilla/lib/ui';
 import { type Href, useRouter } from 'expo-router';
 
 type DevHref =
@@ -63,7 +56,6 @@ const ITEMS: readonly {
 
 export function DeveloperScreen() {
   const router = useRouter();
-  const theme = useTheme();
   const nav = useBreadcrumbNav();
 
   return (
@@ -79,29 +71,12 @@ export function DeveloperScreen() {
       content={({ sx }) => (
         <Box style={sx}>
           {ITEMS.map((item) => (
-            <Pressable
+            <MenuRow
               key={item.key}
+              title={item.label}
+              caption={item.description}
               onPress={() => router.push(item.href as Href)}
-            >
-              <Box
-                sx={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  py: 3,
-                  gap: 3,
-                }}
-              >
-                <Box sx={{ flex: 1, gap: 1 }}>
-                  <Text variant="bodyBold" label={item.label} />
-                  <Text variant="caption" label={item.description} />
-                </Box>
-                <IconSymbol
-                  name="chevron.right"
-                  size={20}
-                  color={theme.colors.icon}
-                />
-              </Box>
-            </Pressable>
+            />
           ))}
         </Box>
       )}

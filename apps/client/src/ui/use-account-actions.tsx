@@ -28,7 +28,7 @@ function useAuthAction(auth: Auth) {
   const { run } = useAsync({
     operation: async () => {
       if (auth.mode === 'signed-in') {
-        await auth.signOut();
+        auth.openSignOutConfirm();
       } else {
         auth.openSignInModal();
       }

@@ -13,6 +13,8 @@ import {
   useContainer,
   useDependency,
 } from '@gamezilla/lib/dependency-injection/react';
+import { useLogger } from '@gamezilla/lib/logger/react';
+import { ConfirmationModal } from '@gamezilla/lib/ui';
 import { PatchesDbToken, useEntity } from '@gamezilla/patch-db/react';
 import { SubscribablePatchesDbToken } from '@gamezilla/patch-db/subscribable';
 import {
@@ -26,7 +28,11 @@ import {
 } from 'react';
 import type { AuthGoogleProviderState } from './auth-capabilities';
 import { deriveGoogleProviderState } from './auth-capabilities';
-import { AuthServiceToken, createAuthService } from './auth-service';
+import {
+  AuthServiceToken,
+  createAuthService,
+  type AuthService,
+} from './auth-service';
 import { PrincipalServiceToken } from './principal-service';
 import {
   SessionServiceToken,
@@ -47,6 +53,10 @@ export type AuthState = {
   signInModalOpen: boolean;
   openSignInModal: () => void;
   closeSignInModal: () => void;
+  signOutConfirmOpen: boolean;
+  /** Opens the sign-out confirmation modal; prefer this over calling {@link signOut} directly from UI. */
+  openSignOutConfirm: () => void;
+  closeSignOutConfirm: () => void;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   refreshSession: () => Promise<void>;
@@ -69,6 +79,9 @@ const defaultState: AuthState = {
   signInModalOpen: false,
   openSignInModal: () => {},
   closeSignInModal: () => {},
+  signOutConfirmOpen: false,
+  openSignOutConfirm: () => {},
+  closeSignOutConfirm: () => {},
   signInWithGoogle: defaultSignIn,
   signOut: defaultSignOut,
   refreshSession: async () => {},
@@ -147,6 +160,104 @@ function useSubscribeToSessionChanges(args: {
   }, [subDb, principalId, refreshSession]);
 }
 
+type AuthModals = {
+  signInModalOpen: boolean;
+  openSignInModal: () => void;
+  closeSignInModal: () => void;
+  signOutConfirmOpen: boolean;
+  openSignOutConfirm: () => void;
+  closeSignOutConfirm: () => void;
+};
+
+function useAuthModals(): AuthModals {
+  const [signInModalOpen, setSignInModalOpen] = useState(false);
+  const openSignInModal = useCallback(() => setSignInModalOpen(true), []);
+  const closeSignInModal = useCallback(() => setSignInModalOpen(false), []);
+
+  const [signOutConfirmOpen, setSignOutConfirmOpen] = useState(false);
+  const openSignOutConfirm = useCallback(
+    () => setSignOutConfirmOpen(true),
+    []
+  );
+  const closeSignOutConfirm = useCallback(
+    () => setSignOutConfirmOpen(false),
+    []
+  );
+
+  return {
+    signInModalOpen,
+    openSignInModal,
+    closeSignInModal,
+    signOutConfirmOpen,
+    openSignOutConfirm,
+    closeSignOutConfirm,
+  };
+}
+
+function useAuthActions(args: {
+  authService: AuthService;
+  refreshSession: () => Promise<void>;
+}) {
+  const { authService, refreshSession } = args;
+  const signInWithGoogle = useCallback(async () => {
+    await authService.signInWithGoogle();
+    await refreshSession();
+  }, [authService, refreshSession]);
+  const signOut = useCallback(async () => {
+    await authService.signOut();
+    await refreshSession();
+  }, [authService, refreshSession]);
+  return { signInWithGoogle, signOut };
+}
+
+function useConfirmSignOut(args: {
+  signOut: () => Promise<void>;
+  closeConfirm: () => void;
+  log: ReturnType<typeof useLogger>;
+}) {
+  const { signOut, closeConfirm, log } = args;
+  return useCallback(() => {
+    closeConfirm();
+    void (async () => {
+      try {
+        await signOut();
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        log.error('sign out failed', { error: message });
+      }
+    })();
+  }, [signOut, closeConfirm, log]);
+}
+
+function useAuthStateValue(args: {
+  state: SessionDerivedState;
+  googleProvider: AuthGoogleProviderState;
+  modals: AuthModals;
+  signInWithGoogle: () => Promise<void>;
+  signOut: () => Promise<void>;
+  refreshSession: () => Promise<void>;
+}): AuthState {
+  const {
+    state,
+    googleProvider,
+    modals,
+    signInWithGoogle,
+    signOut,
+    refreshSession,
+  } = args;
+  return useMemo<AuthState>(
+    () => ({
+      ...state,
+      providers: { google: googleProvider },
+      ...modals,
+      signInWithGoogle,
+      signOut,
+      refreshSession,
+    }),
+    [state, googleProvider, modals, signInWithGoogle, signOut, refreshSession]
+  );
+}
+
 function AuthStateProvider({
   children,
   googleProvider,
@@ -158,6 +269,7 @@ function AuthStateProvider({
   const principalService = useDependency(PrincipalServiceToken);
   const sessionService = useDependency(SessionServiceToken);
   const principalId = principalService.getPrincipalId();
+  const log = useLogger('auth-context');
 
   const { state, refreshSession } = useAuthSessionState(
     principalId,
@@ -165,60 +277,43 @@ function AuthStateProvider({
   );
   useSubscribeToSessionChanges({ principalId, refreshSession });
 
-  const [signInModalOpen, setSignInModalOpen] = useState(false);
-  const openSignInModal = useCallback(() => {
-    setSignInModalOpen(true);
-  }, []);
-  const closeSignInModal = useCallback(() => {
-    setSignInModalOpen(false);
-  }, []);
-
-  const signInWithGoogle = useCallback(async () => {
-    await authService.signInWithGoogle();
-    await refreshSession();
-  }, [authService, refreshSession]);
-
-  const signOut = useCallback(async () => {
-    await authService.signOut();
-    await refreshSession();
-  }, [authService, refreshSession]);
-
-  const handleModalGoogleSignIn = useCallback(async () => {
-    await authService.signInWithGoogle();
-    await refreshSession();
-  }, [authService, refreshSession]);
-
-  const value = useMemo<AuthState>(
-    () => ({
-      ...state,
-      providers: { google: googleProvider },
-      signInModalOpen,
-      openSignInModal,
-      closeSignInModal,
-      signInWithGoogle,
-      signOut,
-      refreshSession,
-    }),
-    [
-      state,
-      googleProvider,
-      signInModalOpen,
-      openSignInModal,
-      closeSignInModal,
-      signInWithGoogle,
-      signOut,
-      refreshSession,
-    ]
-  );
+  const modals = useAuthModals();
+  const { signInWithGoogle, signOut } = useAuthActions({
+    authService,
+    refreshSession,
+  });
+  const handleConfirmSignOut = useConfirmSignOut({
+    signOut,
+    closeConfirm: modals.closeSignOutConfirm,
+    log,
+  });
+  const value = useAuthStateValue({
+    state,
+    googleProvider,
+    modals,
+    signInWithGoogle,
+    signOut,
+    refreshSession,
+  });
 
   return (
     <>
       <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
       <SignInModal
-        visible={signInModalOpen}
-        onClose={closeSignInModal}
+        visible={modals.signInModalOpen}
+        onClose={modals.closeSignInModal}
         google={googleProvider}
-        onSignInWithGoogle={handleModalGoogleSignIn}
+        onSignInWithGoogle={signInWithGoogle}
+      />
+      <ConfirmationModal
+        visible={modals.signOutConfirmOpen}
+        title="Sign out?"
+        message="You will need to sign in again to sync with your account."
+        confirmLabel="Sign out"
+        cancelLabel="Cancel"
+        variant="destructive"
+        onConfirm={handleConfirmSignOut}
+        onCancel={modals.closeSignOutConfirm}
       />
     </>
   );

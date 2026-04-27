@@ -7,6 +7,7 @@ export default function MoreLayout() {
     <Stack {...props}>
       <Stack.Screen name="index" />
       <Stack.Screen name="about" />
+      <Stack.Screen name="account" />
       <Stack.Screen name="server-status" />
       <Stack.Screen name="theme" />
       <Stack.Screen name="developer" />

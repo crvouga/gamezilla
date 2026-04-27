@@ -150,6 +150,8 @@ export {
 
 export { SectionCard, type SectionCardProps } from './section-card';
 
+export { MenuRow, type MenuRowProps } from './menu-row';
+
 export {
   ScreenBase,
   ScreenBaseHeader,

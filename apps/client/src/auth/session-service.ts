@@ -109,23 +109,29 @@ async function loadActiveSession(
   return null;
 }
 
-async function clearLatestSession(
+async function clearAllActiveSessions(
   db: PatchesDb,
   principalId: string
 ): Promise<void> {
-  const entities = await readLatestSessionEntity(db, principalId, 1);
-  const entity = entities[0];
-  if (entity === undefined) return;
-  await db.write([
-    {
-      entityId: entity.entityId,
+  // Must clear every non-expired entity for the principal: clearing only the
+  // latest leaves older active sessions which `loadActiveSession` would
+  // resurrect on the next refresh, leaving the user signed in.
+  const entities = await readLatestSessionEntity(db, principalId, 50);
+  const epoch = new Date(0).toISOString();
+  const writes = entities
+    .map((entity) => parseSessionEntity(entity, principalId))
+    .filter((parsed): parsed is PrincipalSessionRecord => parsed !== null)
+    .filter((parsed) => !isExpired(parsed.expiresAt))
+    .map((parsed) => ({
+      entityId: parsed.entityId,
       entityType: PRINCIPAL_SESSION_ENTITY_TYPE,
       attributes: {
         [PrincipalSessionAttr.token]: null,
-        [PrincipalSessionAttr.expiresAt]: new Date(0).toISOString(),
+        [PrincipalSessionAttr.expiresAt]: epoch,
       },
-    },
-  ]);
+    }));
+  if (writes.length === 0) return;
+  await db.write(writes);
 }
 
 export function createSessionService(
@@ -157,7 +163,7 @@ export function createSessionService(
     async clearSession(): Promise<void> {
       const principalId = principalService.getPrincipalId();
       assertPrincipalId(principalId);
-      await clearLatestSession(db, principalId);
+      await clearAllActiveSessions(db, principalId);
       cached = null;
     },
   };

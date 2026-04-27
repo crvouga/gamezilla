@@ -1,48 +1,14 @@
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
-import {
-  Box,
-  IconSymbol,
-  Pressable,
-  ScreenBase,
-  Text,
-  useTheme,
-} from '@gamezilla/lib/ui';
+import { Box, MenuRow, ScreenBase } from '@gamezilla/lib/ui';
 import { type Href, useRouter } from 'expo-router';
 
-type MoreRowProps = {
+type MoreRow = {
   title: string;
   caption: string;
   href: Href;
 };
 
-function MoreRow({ title, caption, href }: MoreRowProps) {
-  const router = useRouter();
-  const theme = useTheme();
-  return (
-    <Pressable onPress={() => router.push(href)}>
-      <Box
-        sx={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          py: 3,
-          gap: 3,
-        }}
-      >
-        <Box sx={{ flex: 1, gap: 1 }}>
-          <Text variant="bodyBold" label={title} />
-          <Text variant="caption" label={caption} />
-        </Box>
-        <IconSymbol
-          name="chevron.right"
-          size={20}
-          color={theme.colors.icon}
-        />
-      </Box>
-    </Pressable>
-  );
-}
-
-const MORE_ROWS: MoreRowProps[] = [
+const MORE_ROWS: MoreRow[] = [
   {
     title: 'Appearance',
     caption: 'Light, dark, or system theme',
@@ -66,6 +32,7 @@ const MORE_ROWS: MoreRowProps[] = [
 ];
 
 export function MoreScreen() {
+  const router = useRouter();
   const nav = useBreadcrumbNav();
 
   return (
@@ -80,7 +47,12 @@ export function MoreScreen() {
       content={({ sx }) => (
         <Box style={sx}>
           {MORE_ROWS.map((row) => (
-            <MoreRow key={row.title} {...row} />
+            <MenuRow
+              key={row.title}
+              title={row.title}
+              caption={row.caption}
+              onPress={() => router.push(row.href)}
+            />
           ))}
         </Box>
       )}
