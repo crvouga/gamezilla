@@ -39,7 +39,7 @@ export async function runInfraCommand(
   // This removes the requirement to run `setup` before commands like `unlock`,
   // `status`, `destroy`, etc., which need Doppler-backed env (e.g.
   // PLANETSCALE_SERVICE_TOKEN*, PLANETSCALE_DATABASE_URL) where applicable.
-  if (command.id !== 'setup') {
+  if (command.id !== 'setup' && command.id !== 'pipeline-report') {
     new DopplerResource().loadSecretsQuick();
   }
 

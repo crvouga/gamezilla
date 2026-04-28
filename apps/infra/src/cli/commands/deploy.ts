@@ -113,35 +113,11 @@ export class DeployCommand implements Command {
     ok('api_url', outputs.api_url);
     ok('turbo_cache_url', outputs.turbo_cache_url);
 
-    this.writeSummary(outputs);
-  }
-
-  private writeSummary(outputs: ReturnType<typeof infraOutputs>): void {
-    const services = [
-      { label: 'Client', url: outputs.client_url },
-      { label: 'API (Workers)', url: outputs.api_url },
-    ] as const;
-
-    const rows = services
-      .map((s) => `| **${s.label}** | ${s.url} |`)
-      .join('\n');
-
-    const ns = outputs.cloudflare_nameservers || '_(unavailable)_';
-
-    this.platform.appendJobSummary(`## Deployment Complete
-
-| Service | URL |
-|---------|-----|
-${rows}
-
-### Squarespace Nameserver Setup (one-time)
-
-Point your domain to Cloudflare in [Squarespace Domains](https://domains.squarespace.com):
-
-**Nameservers:** \`${ns}\`
-
-> DNS records and the apex-to-www redirect are managed by the infra CLI.
-> Once nameservers are delegated, no further Squarespace configuration is needed.
-`);
+    p.setOutput('client_url', outputs.client_url);
+    p.setOutput('api_url', outputs.api_url);
+    p.setOutput('turbo_cache_url', outputs.turbo_cache_url);
+    p.setOutput('pages_project_name', outputs.pages_project_name);
+    p.setOutput('pages_subdomain', outputs.pages_subdomain);
+    p.setOutput('cloudflare_nameservers', outputs.cloudflare_nameservers);
   }
 }

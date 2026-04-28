@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.json",
-    "infra": "bun run ./src/bin/cli.ts"
+    "infra": "bun run ./src/bin/cli.ts",
+    "pipeline-report": "bun run ./src/bin/pipeline-report.ts"
   },
   "dependencies": {
     "@gamezilla/api": "workspace:*",

@@ -32,8 +32,5 @@
   "workspaces": [
     "apps/*",
     "libs/*"
-  ],
-  "patchedDependencies": {
-    "@react-navigation/elements@2.9.14": "patches/@react-navigation%2Felements@2.9.14.patch"
-  }
+  ]
 }

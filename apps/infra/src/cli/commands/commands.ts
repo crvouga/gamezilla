@@ -4,6 +4,7 @@ import type { Command, CommandGroup } from './types';
 
 import { DeployCommand } from './deploy';
 import { DestroyCommand } from './destroy';
+import { PipelineReportCommand } from './pipeline-report';
 import { SetupCommand } from './setup';
 import { UnlockCommand } from './unlock';
 import { StatusCommand } from './status';
@@ -12,11 +13,13 @@ import { StatusCommand } from './status';
 export const COMMAND_GROUP_ORDER: readonly CommandGroup[] = [
   'setup',
   'lifecycle',
+  'ci',
 ] as const;
 
 export const COMMAND_GROUP_LABELS: Record<CommandGroup, string> = {
   setup: 'Setup & health',
   lifecycle: 'Deploy & destroy',
+  ci: 'CI & reporting',
 };
 
 export function createCommandRegistry(platform: CiPlatform): Command[] {
@@ -26,6 +29,7 @@ export function createCommandRegistry(platform: CiPlatform): Command[] {
     new DeployCommand(platform),
     new DestroyCommand(platform),
     new UnlockCommand(platform),
+    new PipelineReportCommand(platform),
   ];
 }
 

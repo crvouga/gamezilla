@@ -42,11 +42,12 @@ export class LocalPlatform implements CiPlatform {
 
   endGroup(): void {}
 
-  appendJobSummary(markdown: string): void {
+  setOutput(name: string, value: string): void {
     assert.ok(
-      typeof markdown === 'string' && markdown.length > 0,
-      'appendJobSummary: markdown must be non-empty'
+      typeof name === 'string' && name.length > 0,
+      'setOutput: name must be non-empty'
     );
-    console.log(markdown);
+    assert.ok(typeof value === 'string', 'setOutput: value must be a string');
+    console.log(`  ${fmt.dim(`output ${name}=${value}`)}`);
   }
 }

@@ -7,7 +7,7 @@ export interface CiPlatform {
   startGroup(title: string): void;
   endGroup(): void;
   readonly enforceDeployRole: boolean;
-  appendJobSummary(markdown: string): void;
+  setOutput(name: string, value: string): void;
 }
 
 export async function runStep<T>(

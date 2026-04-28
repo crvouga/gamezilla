@@ -6,8 +6,8 @@ import {
   SpaceMembershipAttr,
 } from '@gamezilla/domain/spaces/space-entities';
 import { useDependency } from '@gamezilla/lib/dependency-injection/react';
-import { usePatchesDb } from '@gamezilla/patch-db/react';
 import type { PatchesDb } from '@gamezilla/patch-db/interface';
+import { usePatchesDb } from '@gamezilla/patch-db/react';
 import { useCallback } from 'react';
 
 type WritePatches = Parameters<PatchesDb['write']>[0];

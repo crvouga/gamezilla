@@ -121,10 +121,12 @@ jobs:
         with:
           path: apps/qa/playwright-report/
 
-  publish-report:
+  publish-playwright-report:
     if: ${{ always() && needs.qa.result != 'skipped' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     needs: [qa]
     runs-on: ubuntu-latest
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     permissions:
       pages: write
       id-token: write
@@ -147,6 +149,13 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [check, qa]
     runs-on: ubuntu-latest
+    outputs:
+      client_url: ${{ steps.deploy.outputs.client_url }}
+      api_url: ${{ steps.deploy.outputs.api_url }}
+      turbo_cache_url: ${{ steps.deploy.outputs.turbo_cache_url }}
+      pages_project_name: ${{ steps.deploy.outputs.pages_project_name }}
+      pages_subdomain: ${{ steps.deploy.outputs.pages_subdomain }}
+      cloudflare_nameservers: ${{ steps.deploy.outputs.cloudflare_nameservers }}
     permissions:
       contents: read
     concurrency:
@@ -172,8 +181,28 @@ jobs:
         uses: dopplerhq/cli-action@v4
 
       - name: Deploy
+        id: deploy
         timeout-minutes: 45
         working-directory: apps/infra
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
         run: bun run infra deploy
+
+  report:
+    if: always()
+    needs: [check, qa, publish-playwright-report, deploy]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Write pipeline report
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: bun run apps/infra/src/bin/pipeline-report.ts

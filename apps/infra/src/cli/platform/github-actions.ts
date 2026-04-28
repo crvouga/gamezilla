@@ -1,4 +1,5 @@
 import { assert } from '@gamezilla/lib/assert';
+import { randomBytes } from 'node:crypto';
 import { appendFileSync } from 'node:fs';
 import type { CiPlatform } from './platform';
 
@@ -41,22 +42,27 @@ export class GitHubActionsPlatform implements CiPlatform {
     console.log('::endgroup::');
   }
 
-  appendJobSummary(markdown: string): void {
+  setOutput(name: string, value: string): void {
     assert.ok(
-      typeof markdown === 'string' && markdown.length > 0,
-      'appendJobSummary: markdown must be non-empty'
+      typeof name === 'string' && name.length > 0,
+      'setOutput: name must be non-empty'
     );
-    const summaryPath = process.env['GITHUB_STEP_SUMMARY'] ?? '';
-    if (summaryPath === '') {
-      this.notice('GITHUB_STEP_SUMMARY not set — skipping summary.');
+    assert.ok(typeof value === 'string', 'setOutput: value must be a string');
+    const outputPath = process.env['GITHUB_OUTPUT'] ?? '';
+    if (outputPath === '') {
+      this.notice(`GITHUB_OUTPUT not set — skipping output ${name}.`);
       return;
     }
+    const delim = `ghout_${randomBytes(16).toString('hex')}`;
     try {
-      appendFileSync(summaryPath, markdown, 'utf8');
-      this.notice('Job summary appended.');
+      appendFileSync(
+        outputPath,
+        `${name}<<${delim}\n${value}\n${delim}\n`,
+        'utf8'
+      );
     } catch (e) {
       this.warning(
-        `Could not write job summary to ${summaryPath}: ${e instanceof Error ? e.message : String(e)}`
+        `Could not write GITHUB_OUTPUT (${name}): ${e instanceof Error ? e.message : String(e)}`
       );
     }
   }
