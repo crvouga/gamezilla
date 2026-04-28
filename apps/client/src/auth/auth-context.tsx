@@ -2,6 +2,8 @@ import {
   CLIENT_CONFIG_ENTITY_ID,
   CLIENT_CONFIG_ENTITY_TYPE,
   ClientConfigAttr,
+} from '@gamezilla/domain/client-config/client-config-entities';
+import {
   PRINCIPAL_SESSION_ENTITY_TYPE,
   PrincipalSessionAttr,
 } from '@gamezilla/domain/auth';

@@ -1,5 +1,13 @@
 import { PrincipalServiceToken } from '@gamezilla/client/auth/principal-service';
 import {
+  isProfileEntityDeleted,
+  usePrincipalProfileEntities,
+} from '@gamezilla/client/auth/use-principal-profile-entities';
+import {
+  PRINCIPAL_ENTITY_TYPE,
+  PrincipalAttr,
+} from '@gamezilla/domain/auth';
+import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
 } from '@gamezilla/domain/profile/profile-entities';
@@ -12,7 +20,7 @@ import {
 } from '@gamezilla/domain/spaces/space-entities';
 import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import type { Entity, PatchesDbQuery } from '@gamezilla/patch-db/interface';
-import { useEntities, useEntity } from '@gamezilla/patch-db/react';
+import { useEntities } from '@gamezilla/patch-db/react';
 import { useMemo } from 'react';
 
 import type { SpaceFilter, SpaceMemberRow, SpaceView } from './types';
@@ -39,10 +47,28 @@ function displayNameForPrincipal(
   profile: Entity | undefined,
   principalId: string
 ): string {
+  if (profile !== undefined && isProfileEntityDeleted(profile)) {
+    return `User ${principalId.slice(0, 8)}`;
+  }
   const raw = profile?.attributes[ProfileAttr.displayName];
   const trimmed = typeof raw === 'string' ? raw.trim() : '';
   if (trimmed.length > 0) return trimmed;
   return `User ${principalId.slice(0, 8)}`;
+}
+
+function displayNameFromPrincipalMaps(
+  principalId: string,
+  principalById: Map<string, Entity>,
+  profileById: Map<string, Entity>
+): string {
+  const principalRow = principalById.get(principalId);
+  const profileId = readStringAttr(
+    principalRow?.attributes as Record<string, unknown> | undefined,
+    PrincipalAttr.currentProfileId
+  );
+  const profileEntity =
+    profileId !== null ? profileById.get(profileId) : undefined;
+  return displayNameForPrincipal(profileEntity, principalId);
 }
 
 export function useSpaces(filter: SpaceFilter) {
@@ -75,23 +101,12 @@ export function useSpaces(filter: SpaceFilter) {
       const hid = readStringAttr(e.attributes, SpaceAttr.hostId);
       if (hid) ids.add(hid);
     }
+    ids.add(selfPrincipalId);
     return [...ids];
-  }, [spacesResult.entities]);
+  }, [spacesResult.entities, selfPrincipalId]);
 
-  const profileIdsForHosts = hostIds.length > 0 ? hostIds : [selfPrincipalId];
-
-  const profilesResult = useEntities({
-    entityType: PROFILE_ENTITY_TYPE,
-    entityId: profileIdsForHosts,
-  });
-
-  const profileByPrincipalId = useMemo(() => {
-    const m = new Map<string, Entity>();
-    for (const p of profilesResult.entities ?? []) {
-      m.set(p.entityId, p);
-    }
-    return m;
-  }, [profilesResult.entities]);
+  const { principalById, profileById, loading: hostProfilesLoading } =
+    usePrincipalProfileEntities(hostIds);
 
   const spaces: SpaceView[] = useMemo(() => {
     const list = spacesResult.entities ?? [];
@@ -99,9 +114,10 @@ export function useSpaces(filter: SpaceFilter) {
       const title = readStringAttr(e.attributes, SpaceAttr.title) ?? 'Untitled';
       const hostId = readStringAttr(e.attributes, SpaceAttr.hostId) ?? '';
       const live = spaceEntityIsLive(e.attributes);
-      const hostDisplayName = displayNameForPrincipal(
-        profileByPrincipalId.get(hostId),
-        hostId
+      const hostDisplayName = displayNameFromPrincipalMaps(
+        hostId,
+        principalById,
+        profileById
       );
       return {
         id: e.entityId,
@@ -111,9 +127,9 @@ export function useSpaces(filter: SpaceFilter) {
         live,
       };
     });
-  }, [spacesResult.entities, profileByPrincipalId]);
+  }, [spacesResult.entities, principalById, profileById]);
 
-  const loading = spacesResult.loading || profilesResult.loading;
+  const loading = spacesResult.loading || hostProfilesLoading;
 
   return { spaces, loading };
 }
@@ -140,7 +156,7 @@ export function useSpace(spaceId: string | undefined) {
   };
 }
 
-/** Display label for any principal's profile entity (for host / join UI). */
+/** Display label for a principal's current profile (for host / join UI). */
 export function usePrincipalDisplayName(
   principalId: string | null | undefined
 ) {
@@ -148,12 +164,46 @@ export function usePrincipalDisplayName(
     typeof principalId === 'string' && principalId.length > 0
       ? principalId
       : NO_ENTITY_PLACEHOLDER;
-  const entity = useEntity({
+
+  const principalRes = useEntities(
+    id === NO_ENTITY_PLACEHOLDER
+      ? { entityType: PRINCIPAL_ENTITY_TYPE, limit: 0 }
+      : { entityType: PRINCIPAL_ENTITY_TYPE, entityId: id }
+  );
+  const principalRow = principalRes.entities[0] ?? null;
+  const profileId =
+    id === NO_ENTITY_PLACEHOLDER
+      ? null
+      : readStringAttr(
+          principalRow?.attributes as Record<string, unknown> | undefined,
+          PrincipalAttr.currentProfileId
+        );
+
+  const profileRes = useEntities({
     entityType: PROFILE_ENTITY_TYPE,
-    entityId: id,
+    entityId: profileId ?? NO_ENTITY_PLACEHOLDER,
   });
-  if (id === NO_ENTITY_PLACEHOLDER) return 'Unknown';
-  return displayNameForPrincipal(entity ?? undefined, id);
+  const profileEntity = profileRes.entities[0] ?? null;
+
+  return useMemo(() => {
+    if (id === NO_ENTITY_PLACEHOLDER) return 'Unknown';
+    if (principalRes.loading) return `User ${id.slice(0, 8)}`;
+    if (profileId === null) return displayNameForPrincipal(undefined, id);
+    if (profileRes.loading) return `User ${id.slice(0, 8)}`;
+    if (
+      profileEntity === null ||
+      isProfileEntityDeleted(profileEntity)
+    ) {
+      return displayNameForPrincipal(undefined, id);
+    }
+    return displayNameForPrincipal(profileEntity, id);
+  }, [
+    id,
+    principalRes.loading,
+    profileId,
+    profileRes.loading,
+    profileEntity,
+  ]);
 }
 
 export type CurrentMembership = {
@@ -291,20 +341,11 @@ export function useSpaceMembers(spaceId: string | undefined) {
     return (membersRes.entities ?? []).map((e) => e.entityId);
   }, [membersRes.entities]);
 
-  const profileIds = memberIds.length > 0 ? memberIds : [selfId];
+  const memberPrincipalIds =
+    memberIds.length > 0 ? memberIds : [selfId];
 
-  const profilesRes = useEntities({
-    entityType: PROFILE_ENTITY_TYPE,
-    entityId: profileIds,
-  });
-
-  const profileById = useMemo(() => {
-    const m = new Map<string, Entity>();
-    for (const p of profilesRes.entities ?? []) {
-      m.set(p.entityId, p);
-    }
-    return m;
-  }, [profilesRes.entities]);
+  const { principalById, profileById, loading: memberProfilesLoading } =
+    usePrincipalProfileEntities(memberPrincipalIds);
 
   const members: SpaceMemberRow[] = useMemo(() => {
     const rows: SpaceMemberRow[] = [];
@@ -313,9 +354,10 @@ export function useSpaceMembers(spaceId: string | undefined) {
       const role: 'host' | 'guest' = roleRaw === 'host' ? 'host' : 'guest';
       rows.push({
         principalId: e.entityId,
-        displayName: displayNameForPrincipal(
-          profileById.get(e.entityId),
-          e.entityId
+        displayName: displayNameFromPrincipalMaps(
+          e.entityId,
+          principalById,
+          profileById
         ),
         role,
       });
@@ -326,9 +368,9 @@ export function useSpaceMembers(spaceId: string | undefined) {
       return a.displayName.localeCompare(b.displayName);
     });
     return rows;
-  }, [membersRes.entities, profileById]);
+  }, [membersRes.entities, principalById, profileById]);
 
-  const loading = membersRes.loading || profilesRes.loading;
+  const loading = membersRes.loading || memberProfilesLoading;
 
   return { members, loading };
 }

@@ -3,7 +3,7 @@ import {
   CLIENT_CONFIG_ENTITY_ID,
   CLIENT_CONFIG_ENTITY_TYPE,
   ClientConfigAttr,
-} from '@gamezilla/domain/auth';
+} from '@gamezilla/domain/client-config/client-config-entities';
 import { Box, Card, ScreenBase, Text } from '@gamezilla/lib/ui';
 import { useEntities } from '@gamezilla/patch-db/react';
 

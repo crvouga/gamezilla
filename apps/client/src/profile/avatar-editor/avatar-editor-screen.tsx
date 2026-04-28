@@ -98,6 +98,7 @@ function EditorBody({ editor }: { editor: UseAvatarEditor }) {
 export function AvatarEditorScreen() {
   const editor = useAvatarEditor();
   const {
+    profileId,
     showDiscard,
     setShowDiscard,
     confirmDiscard,
@@ -135,7 +136,7 @@ export function AvatarEditorScreen() {
             label: 'Save',
             onPress: () => void save(),
             loading: saving,
-            disabled: saving || !dirty,
+            disabled: saving || !dirty || profileId === null,
             overflow: 'never',
           },
         ]}

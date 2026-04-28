@@ -25,7 +25,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useProfile } from '../use-profile';
 
 function usePersistedConfig() {
-  const { principalId, entity, loading: profileLoading } = useProfile();
+  const { principalId, profileId, entity, loading: profileLoading } =
+    useProfile();
   const persisted = useMemo(
     () =>
       resolveAvatarConfig(
@@ -35,7 +36,7 @@ function usePersistedConfig() {
       ),
     [entity?.attributes, principalId]
   );
-  return { principalId, persisted, profileLoading };
+  return { principalId, profileId, persisted, profileLoading };
 }
 
 function useDraftSync(args: {
@@ -69,6 +70,7 @@ function useDraftSync(args: {
 
 export type UseAvatarEditor = {
   principalId: string;
+  profileId: string | null;
   draft: AvatarConfig;
   setDraft: React.Dispatch<React.SetStateAction<AvatarConfig>>;
   initialized: boolean;
@@ -118,25 +120,12 @@ function useDerivedFields(args: {
   return { byTab, featureEnums, previewConfig };
 }
 
-function useEditorActions(args: {
-  draft: AvatarConfig;
-  setDraft: React.Dispatch<React.SetStateAction<AvatarConfig>>;
+function useDiscardActions(args: {
   dirty: boolean;
-  styleKey: StyleKey;
-  principalId: string;
   setShowDiscard: (v: boolean) => void;
-  setSaving: (v: boolean) => void;
 }) {
-  const { draft, setDraft, dirty, styleKey, principalId, setShowDiscard, setSaving } = args;
+  const { dirty, setShowDiscard } = args;
   const router = useRouter();
-  const db = usePatchesDb();
-
-  const updateOptions = useCallback(
-    (fn: (o: Record<string, unknown>) => Record<string, unknown>) => {
-      setDraft((d) => ({ ...d, options: fn({ ...d.options }) }));
-    },
-    [setDraft]
-  );
   const onBack = useCallback(() => {
     if (dirty) {
       setShowDiscard(true);
@@ -148,12 +137,45 @@ function useEditorActions(args: {
     setShowDiscard(false);
     router.back();
   }, [router, setShowDiscard]);
-  const save = useCallback(async () => {
+  return { onBack, confirmDiscard };
+}
+
+function useDraftMutators(args: {
+  setDraft: React.Dispatch<React.SetStateAction<AvatarConfig>>;
+  styleKey: StyleKey;
+}) {
+  const { setDraft, styleKey } = args;
+  const updateOptions = useCallback(
+    (fn: (o: Record<string, unknown>) => Record<string, unknown>) => {
+      setDraft((d) => ({ ...d, options: fn({ ...d.options }) }));
+    },
+    [setDraft]
+  );
+  const resetStyleDefaults = useCallback(() => {
+    const defaults = getDefaultOptionsFromSchema(styleKey);
+    setDraft((d) => ({ ...d, options: { ...defaults } }));
+  }, [styleKey, setDraft]);
+  const shuffleSeed = useCallback(() => {
+    setDraft((d) => ({ ...d, seed: globalThis.crypto.randomUUID() }));
+  }, [setDraft]);
+  return { updateOptions, resetStyleDefaults, shuffleSeed };
+}
+
+function useSaveAction(args: {
+  draft: AvatarConfig;
+  profileId: string | null;
+  setSaving: (v: boolean) => void;
+}) {
+  const { draft, profileId, setSaving } = args;
+  const router = useRouter();
+  const db = usePatchesDb();
+  return useCallback(async () => {
+    if (profileId === null) return;
     setSaving(true);
     try {
       await db.write([
         {
-          entityId: principalId,
+          entityId: profileId,
           entityType: PROFILE_ENTITY_TYPE,
           attributes: {
             [ProfileAttr.avatarConfig]: serializeAvatarConfig(draft),
@@ -164,14 +186,31 @@ function useEditorActions(args: {
     } finally {
       setSaving(false);
     }
-  }, [db, draft, principalId, router, setSaving]);
-  const resetStyleDefaults = useCallback(() => {
-    const defaults = getDefaultOptionsFromSchema(styleKey);
-    setDraft((d) => ({ ...d, options: { ...defaults } }));
-  }, [styleKey, setDraft]);
-  const shuffleSeed = useCallback(() => {
-    setDraft((d) => ({ ...d, seed: globalThis.crypto.randomUUID() }));
-  }, [setDraft]);
+  }, [db, draft, profileId, router, setSaving]);
+}
+
+function useEditorActions(args: {
+  draft: AvatarConfig;
+  setDraft: React.Dispatch<React.SetStateAction<AvatarConfig>>;
+  dirty: boolean;
+  styleKey: StyleKey;
+  principalId: string;
+  profileId: string | null;
+  setShowDiscard: (v: boolean) => void;
+  setSaving: (v: boolean) => void;
+}) {
+  const { draft, setDraft, dirty, styleKey, principalId, profileId } = args;
+  const { setShowDiscard, setSaving } = args;
+
+  const { onBack, confirmDiscard } = useDiscardActions({
+    dirty,
+    setShowDiscard,
+  });
+  const { updateOptions, resetStyleDefaults, shuffleSeed } = useDraftMutators({
+    setDraft,
+    styleKey,
+  });
+  const save = useSaveAction({ draft, profileId, setSaving });
   const copySeed = useCallback(async () => {
     const s = draft.seed.trim() || principalId;
     await Clipboard.setStringAsync(s);
@@ -189,7 +228,8 @@ function useEditorActions(args: {
 }
 
 export function useAvatarEditor(): UseAvatarEditor {
-  const { principalId, persisted, profileLoading } = usePersistedConfig();
+  const { principalId, profileId, persisted, profileLoading } =
+    usePersistedConfig();
   const { draft, setDraft, initialized } = useDraftSync({
     persisted,
     profileLoading,
@@ -214,6 +254,7 @@ export function useAvatarEditor(): UseAvatarEditor {
     dirty,
     styleKey,
     principalId,
+    profileId,
     setShowDiscard,
     setSaving,
   });
@@ -222,6 +263,7 @@ export function useAvatarEditor(): UseAvatarEditor {
 
   return {
     principalId,
+    profileId,
     draft,
     setDraft,
     initialized,

@@ -1,0 +1,93 @@
+import {
+  PRINCIPAL_ENTITY_TYPE,
+  PrincipalAttr,
+} from '@gamezilla/domain/auth';
+import {
+  PROFILE_ENTITY_TYPE,
+  ProfileAttr,
+} from '@gamezilla/domain/profile/profile-entities';
+import type { Entity } from '@gamezilla/patch-db/interface';
+import { useEntities } from '@gamezilla/patch-db/react';
+import { useMemo } from 'react';
+
+function readStringAttr(
+  attrs: Record<string, unknown> | undefined,
+  key: string
+): string | null {
+  if (!attrs) return null;
+  const v = attrs[key];
+  return typeof v === 'string' && v.length > 0 ? v : null;
+}
+
+export type PrincipalProfileEntityMaps = {
+  principalById: Map<string, Entity>;
+  profileById: Map<string, Entity>;
+  loading: boolean;
+};
+
+/**
+ * Loads `principal` rows and their `principal/currentProfileId` profile rows.
+ */
+export function usePrincipalProfileEntities(
+  principalIds: string[]
+): PrincipalProfileEntityMaps {
+  const sortedUniqueIds = useMemo(
+    () => [...new Set(principalIds)].sort(),
+    [principalIds]
+  );
+
+  const principalsQuery = useMemo(
+    () =>
+      sortedUniqueIds.length === 0
+        ? { entityType: PRINCIPAL_ENTITY_TYPE, limit: 0 }
+        : { entityType: PRINCIPAL_ENTITY_TYPE, entityId: sortedUniqueIds },
+    [sortedUniqueIds]
+  );
+
+  const principalsResult = useEntities(principalsQuery);
+
+  const profileIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const p of principalsResult.entities) {
+      const pid = readStringAttr(
+        p.attributes as Record<string, unknown>,
+        PrincipalAttr.currentProfileId
+      );
+      if (pid !== null) ids.add(pid);
+    }
+    return [...ids].sort();
+  }, [principalsResult.entities]);
+
+  const profilesResult = useEntities(
+    profileIds.length === 0
+      ? { entityType: PROFILE_ENTITY_TYPE, limit: 0 }
+      : { entityType: PROFILE_ENTITY_TYPE, entityId: profileIds }
+  );
+
+  const principalById = useMemo(() => {
+    const m = new Map<string, Entity>();
+    for (const p of principalsResult.entities) {
+      m.set(p.entityId, p);
+    }
+    return m;
+  }, [principalsResult.entities]);
+
+  const profileById = useMemo(() => {
+    const m = new Map<string, Entity>();
+    for (const p of profilesResult.entities) {
+      m.set(p.entityId, p);
+    }
+    return m;
+  }, [profilesResult.entities]);
+
+  const loading =
+    principalsResult.loading ||
+    (profileIds.length > 0 && profilesResult.loading);
+
+  return { principalById, profileById, loading };
+}
+
+export function isProfileEntityDeleted(entity: Entity | undefined): boolean {
+  if (entity === undefined) return true;
+  return entity.attributes[ProfileAttr.deleted] === true;
+}

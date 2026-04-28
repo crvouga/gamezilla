@@ -27,11 +27,15 @@ export const PrincipalAttr = {
   userAgent: 'principal/userAgent',
   firstSeenAt: 'principal/firstSeenAt',
   lastSeenAt: 'principal/lastSeenAt',
+  /** UUID of the `profile` entity used when signed out (or as account fallback). */
+  currentProfileId: 'principal/currentProfileId',
 } as const;
 
 export const AccountAttr = {
   id: 'account/id',
   createdAt: 'account/createdAt',
+  /** UUID of the profile row used when this account is signed in (takes precedence over principal pointer). */
+  currentProfileId: 'account/currentProfileId',
 } as const;
 
 export const AccountProviderAttr = {
@@ -48,16 +52,6 @@ export const PrincipalSessionAttr = {
   token: 'principalSession/token',
   expiresAt: 'principalSession/expiresAt',
   createdAt: 'principalSession/createdAt',
-} as const;
-
-/** PatchDB entity type for public client runtime configuration (singleton). */
-export const CLIENT_CONFIG_ENTITY_TYPE = 'clientConfig';
-
-/** Stable singleton entity ID for client config — shared by server and all clients. */
-export const CLIENT_CONFIG_ENTITY_ID = 'clientConfig__singleton';
-
-export const ClientConfigAttr = {
-  googleWebClientId: 'clientConfig/googleWebClientId',
 } as const;
 
 export const GOOGLE_PROVIDER = 'google' as const;

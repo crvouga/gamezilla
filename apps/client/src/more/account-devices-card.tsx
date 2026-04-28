@@ -174,7 +174,7 @@ export function AccountDevicesCard({
   return (
     <Card elevation={1} sx={{ p: 4, gap: 3 }}>
       <Text variant="bodyBold" label="Devices & identities" />
-      <CaptionLine label="Each row is one install (principal). Profiles are per device." />
+      <CaptionLine label="Each row is one install (principal). Avatar and name reflect that device’s current profile." />
       {accountId !== null ? (
         <CopyToClipboardField
           label="Account ID"
