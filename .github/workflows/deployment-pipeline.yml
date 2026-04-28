@@ -190,7 +190,7 @@ jobs:
 
   report:
     if: always()
-    needs: [check, qa, publish-playwright-report, deploy]
+    needs: [deploy]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
