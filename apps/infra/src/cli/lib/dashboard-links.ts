@@ -1,11 +1,5 @@
 import { PROJECT_CONFIG } from '../../project-config';
 
-/** Must match `apps/api/wrangler.toml` and `apps/turbo-cache/wrangler.toml` `name`. */
-const CLOUDFLARE_WORKER_NAMES = {
-  api: 'gamezilla-api',
-  turboCache: 'gamezilla-turbo-cache',
-} as const;
-
 /**
  * Markdown bullets linking to vendor consoles. Uses {@link PROJECT_CONFIG} for
  * stable public slugs. `CLOUDFLARE_ACCOUNT_ID` is read from the environment (e.g.
@@ -14,12 +8,12 @@ const CLOUDFLARE_WORKER_NAMES = {
  */
 export function buildVendorDashboardMarkdown(): string[] {
   const lines: string[] = [];
-  const { domain, github, cloudflare } = PROJECT_CONFIG;
+  const { domain, github, cloudflare, planetscale } = PROJECT_CONFIG;
   const owner = github.owner;
   const repo = github.repo;
   const accountId = (process.env['CLOUDFLARE_ACCOUNT_ID'] ?? '').trim();
-  const psOrg = owner;
-  const psDb = repo;
+  const psOrg = planetscale.org;
+  const psDb = planetscale.database;
 
   lines.push('### Cloud & vendor dashboards');
   lines.push('');
@@ -27,7 +21,7 @@ export function buildVendorDashboardMarkdown(): string[] {
     `- **GitHub:** [${owner}/${repo}](https://github.com/${owner}/${repo}) · [Actions](https://github.com/${owner}/${repo}/actions)`
   );
   lines.push(
-    `- **PlanetScale:** [Organization](https://app.planetscale.com/${psOrg}) · [Database \`${psDb}\`](https://app.planetscale.com/${psOrg}/${psDb})`
+    `- **PlanetScale:** [Organization \`${psOrg}\`](https://app.planetscale.com/${psOrg}) · [Database \`${psDb}\`](https://app.planetscale.com/${psOrg}/${psDb})`
   );
   lines.push(`- **Doppler:** [Dashboard](https://dashboard.doppler.com)`);
   lines.push(
@@ -48,10 +42,10 @@ export function buildVendorDashboardMarkdown(): string[] {
       `- **Cloudflare R2:** [\`${cloudflare.turboCacheBucket}\`](https://dash.cloudflare.com/${accountId}/r2/default/buckets/${cloudflare.turboCacheBucket})`
     );
     lines.push(
-      `- **Cloudflare Worker (API):** [\`${CLOUDFLARE_WORKER_NAMES.api}\`](https://dash.cloudflare.com/${accountId}/workers/services/view/${CLOUDFLARE_WORKER_NAMES.api}/production)`
+      `- **Cloudflare Worker (API):** [\`${cloudflare.apiWorker}\`](https://dash.cloudflare.com/${accountId}/workers/services/view/${cloudflare.apiWorker}/production)`
     );
     lines.push(
-      `- **Cloudflare Worker (Turbo cache):** [\`${CLOUDFLARE_WORKER_NAMES.turboCache}\`](https://dash.cloudflare.com/${accountId}/workers/services/view/${CLOUDFLARE_WORKER_NAMES.turboCache}/production)`
+      `- **Cloudflare Worker (Turbo cache):** [\`${cloudflare.turboCacheWorker}\`](https://dash.cloudflare.com/${accountId}/workers/services/view/${cloudflare.turboCacheWorker}/production)`
     );
   } else {
     lines.push(

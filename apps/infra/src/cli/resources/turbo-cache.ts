@@ -1,5 +1,6 @@
 import { assert } from '@gamezilla/lib/assert';
 import { join } from 'node:path';
+import { PROJECT_CONFIG } from '../../project-config';
 import { ok, warn } from '../lib/fmt';
 import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
@@ -48,7 +49,7 @@ export class TurboCacheResource extends ResourceBase {
     });
 
     if (r.exitCode === 0 || isNotFound(r)) {
-      ok('Worker deleted', 'gamezilla-turbo-cache');
+      ok('Worker deleted', PROJECT_CONFIG.cloudflare.turboCacheWorker);
     } else {
       warn('Worker delete', r.stderr.trim() || 'unexpected failure');
     }

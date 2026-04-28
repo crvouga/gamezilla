@@ -7,6 +7,15 @@ export const PROJECT_CONFIG = {
   cloudflare: {
     pagesProject: 'gamezilla-client',
     turboCacheBucket: 'turborepo-cache',
+    /** Worker name — must match `apps/api/wrangler.toml` `name`. */
+    apiWorker: 'gamezilla-api',
+    /** Worker name — must match `apps/turbo-cache/wrangler.toml` `name`. */
+    turboCacheWorker: 'gamezilla-turbo-cache',
+  },
+  /** PlanetScale org + database slugs (independent of GitHub `owner`/`repo`). */
+  planetscale: {
+    org: 'gamezilla',
+    database: 'production',
   },
 } as const;
 

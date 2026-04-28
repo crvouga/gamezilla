@@ -1,6 +1,7 @@
 import { assert } from '@gamezilla/lib/assert';
 import { DopplerCli } from '@gamezilla/lib/doppler';
 import { join } from 'node:path';
+import { PROJECT_CONFIG } from '../../project-config';
 import { ok, warn } from '../lib/fmt';
 import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
@@ -91,7 +92,7 @@ export class ApiWorkerResource extends ResourceBase {
     });
 
     if (r.exitCode === 0 || isNotFound(r)) {
-      ok('Worker deleted', 'gamezilla-api');
+      ok('Worker deleted', PROJECT_CONFIG.cloudflare.apiWorker);
     } else {
       warn('Worker delete', r.stderr.trim() || 'unexpected failure');
     }
