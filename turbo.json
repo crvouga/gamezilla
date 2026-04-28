@@ -13,7 +13,6 @@
     "DOPPLER_CONFIG",
     "WEB_CLIENT_GOOGLE_CLIENT_ID",
     "SQL_PORT",
-    "GAMEZILLA_DATA_DIR",
     "TURBO_*",
     "TMPDIR"
   ],

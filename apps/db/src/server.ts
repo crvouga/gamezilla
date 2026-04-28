@@ -1,8 +1,10 @@
 /**
  * Dev DB server: PGlite exposed over a tiny HTTP SQL API.
  *
- * PGlite runs in-process (no socket server, no WS proxy). SQL execution is
- * implemented in {@link createSqlApp} and mounted here with `app.route()`.
+ * PGlite runs in-process and in-memory (no socket server, no WS proxy, no
+ * persistent data directory). Schema migrations run on startup before the
+ * server begins accepting requests. SQL execution is implemented in
+ * {@link createSqlApp} and mounted here with `app.route()`.
  *
  * Invariants (Tiger Style): configuration is asserted at startup; the SQL
  * sub-app asserts request/result shape at its trust boundaries.
@@ -11,10 +13,8 @@
 import { PGlite } from '@electric-sql/pglite';
 import { assert } from '@gamezilla/lib/assert';
 import { createLogger } from '@gamezilla/lib/logger';
-import { mkdirSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { Hono } from 'hono';
+import { migrateInProcessPglite } from './migrate';
 import { createSqlApp } from './sql-app';
 
 const HOST = '127.0.0.1';
@@ -38,23 +38,13 @@ function parseListenPortFromEnv(): number {
 
 const SQL_PORT = parseListenPortFromEnv();
 
-const dbPackageRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
+const db = await PGlite.create();
 
-function resolveDataDir(): { path: string; source: 'env' | 'default' } {
-  const raw = process.env['GAMEZILLA_DATA_DIR'];
-  if (typeof raw === 'string' && raw.trim().length > 0) {
-    return { path: raw.trim(), source: 'env' };
-  }
-  return {
-    path: join(dbPackageRoot, '.pglite', `port-${SQL_PORT}`),
-    source: 'default',
-  };
-}
-
-const { path: dataDir, source: dataDirSource } = resolveDataDir();
-mkdirSync(dataDir, { recursive: true });
-
-const db = await PGlite.create(dataDir);
+const migrateStart = performance.now();
+await migrateInProcessPglite(db);
+log.info('migrations applied', {
+  durationMs: Math.round((performance.now() - migrateStart) * 100) / 100,
+});
 
 const app = new Hono()
   .get('/health', (c) => c.json({ ok: true }))
@@ -63,12 +53,7 @@ const app = new Hono()
 
 Bun.serve({ port: SQL_PORT, hostname: HOST, fetch: app.fetch });
 
-log.info('server started', {
-  host: HOST,
-  port: SQL_PORT,
-  dataDir,
-  dataDirSource,
-});
+log.info('server started', { host: HOST, port: SQL_PORT, storage: 'memory' });
 
 const shutdown = async (signal: string) => {
   log.info('shutting down', { signal });
