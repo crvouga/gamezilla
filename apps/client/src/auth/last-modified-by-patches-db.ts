@@ -1,3 +1,4 @@
+import { assertPrincipalId } from '@gamezilla/domain/auth';
 import type {
   Patch,
   PatchesDbQuery,
@@ -5,30 +6,36 @@ import type {
   PatchInput,
 } from '@gamezilla/patch-db/interface';
 import type { SubscribablePatchesDbLike } from '@gamezilla/patch-db/subscribable';
-import { assertPrincipalId } from '@gamezilla/domain/auth';
+
+const LAST_MODIFIED_BY_ACCOUNT_ID_KEY = 'patch/lastModifiedByAccountId';
+const LAST_MODIFIED_BY_PRINCIPAL_ID_KEY = 'patch/lastModifiedByPrincipalId';
 
 /**
  * Stamps every write with `createdBy: principalId` (→ `patch/createdBy`).
  * Delegates read, update, and subscribe to the inner sync DB.
  */
-export class PrincipalPatchesDb implements SubscribablePatchesDbLike {
+export class LastModifiedByPatchesDb implements SubscribablePatchesDbLike {
   readonly subscribe: SubscribablePatchesDbLike['subscribe'];
 
   constructor(
     private readonly inner: SubscribablePatchesDbLike,
-    private readonly principalId: string
+    private readonly config: {
+      getPrincipalId: () => string;
+      getAccountId: () => string | null;
+    }
   ) {
-    assertPrincipalId(principalId);
+    assertPrincipalId(config.getPrincipalId());
     this.subscribe = inner.subscribe;
   }
 
   async write(patches: PatchInput[]): Promise<Patch[]> {
-    assertPrincipalId(this.principalId);
+    assertPrincipalId(this.config.getPrincipalId());
     const stamped: PatchInput[] = patches.map((p) => ({
       ...p,
       attributes: {
         ...p.attributes,
-        'patch/createdBy': this.principalId,
+        [LAST_MODIFIED_BY_PRINCIPAL_ID_KEY]: this.config.getPrincipalId(),
+        [LAST_MODIFIED_BY_ACCOUNT_ID_KEY]: this.config.getAccountId(),
       },
     }));
     return this.inner.write(stamped);

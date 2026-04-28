@@ -190,12 +190,13 @@ export class Assert {
    */
   record(
     value: unknown,
-    message: string
+    message: string,
+    context?: Record<string, unknown>
   ): asserts value is Record<string, unknown> {
     this.ok(
       value !== null && typeof value === 'object' && !Array.isArray(value),
       message,
-      { value }
+      { ...context, value }
     );
   }
 

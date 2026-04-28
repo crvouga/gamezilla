@@ -1,3 +1,4 @@
+import { clearLocalDatabaseAndReload } from '@gamezilla/client/ui/patch-bootstrap';
 import { TodoListsOverview } from '@gamezilla/patch-db-example/todo';
 import { useRouter } from 'expo-router';
 
@@ -16,6 +17,7 @@ export function TodoListsScreen() {
     <TodoListsOverview
       onOpenList={(id) => router.push(`/todos/${id}`)}
       onBack={onBack}
+      onClearLocalDatabase={() => clearLocalDatabaseAndReload('main')}
     />
   );
 }

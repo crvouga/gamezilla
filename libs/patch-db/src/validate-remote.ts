@@ -58,7 +58,7 @@ function assertEntity(value: unknown): asserts value is Entity {
 
 function assertPatch(value: unknown): asserts value is Patch {
   assertObject(value, 'Patch must be an object');
-  const v = value as Record<string, unknown>;
+  const v = value;
   assert.ok(typeof v['patchId'] === 'string', 'Patch.patchId must be string');
   assert.ok(typeof v['entityId'] === 'string', 'Patch.entityId must be string');
   assert.ok(
@@ -97,7 +97,7 @@ export function assertPatchesDbResults(
   value: unknown
 ): asserts value is PatchesDbResult[] {
   assert.array(value, 'PatchesDbResults must be an array');
-  const arr = value as PatchesDbResult[];
+  const arr = value;
   for (const result of arr) {
     assertPatchesDbResult(result);
     for (const entity of result.entities) {
@@ -114,7 +114,7 @@ export function assertPatchesDbResults(
  */
 export function assertPatches(value: unknown): asserts value is Patch[] {
   assert.array(value, 'Patches must be an array');
-  const arr = value as Patch[];
+  const arr = value;
   for (const patch of arr) {
     assertPatch(patch);
   }

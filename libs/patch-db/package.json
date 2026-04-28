@@ -29,7 +29,6 @@
     "./impl-sqlite/impl-sqlite": "./src/impl-sqlite/impl-sqlite.ts",
     "./impl-sqlite/query-builder": "./src/impl-sqlite/query-builder.ts",
     "./interface": "./src/interface.ts",
-    "./bootstrap-expo": "./src/bootstrap-expo.ts",
     "./sim/playground-sim": "./src/sim/playground-sim.ts",
     "./sim/event-recorder": "./src/sim/event-recorder.ts",
     "./sim/server-port": "./src/sim/server-port.ts",

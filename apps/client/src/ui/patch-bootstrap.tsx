@@ -2,7 +2,7 @@ import { createGamezillaApiClient } from '@gamezilla/client/api/hc';
 import { createPatchDbHcTransport } from '@gamezilla/client/api/patch-db-hc-transport';
 import { ensurePrincipalEntity } from '@gamezilla/client/auth/ensure-principal-entity';
 import { ensureProfileEntity } from '@gamezilla/client/auth/ensure-profile-entity';
-import { PrincipalPatchesDb } from '@gamezilla/client/auth/principal-patches-db';
+import { LastModifiedByPatchesDb } from '@gamezilla/client/auth/last-modified-by-patches-db';
 import {
   PrincipalServiceToken,
   type PrincipalService,
@@ -14,6 +14,7 @@ import {
 import { OfflineIndicator } from '@gamezilla/client/connection/offline-indicator';
 import { ConfigServiceToken } from '@gamezilla/domain/config/config-service';
 import { assert } from '@gamezilla/lib/assert';
+import { clearWebClientPersistentState } from '@gamezilla/lib/browser/clear-web-client-state';
 import type { Container } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 import { DependencyInjectionContainer } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 import {
@@ -22,12 +23,28 @@ import {
   useDependency,
 } from '@gamezilla/lib/dependency-injection/react';
 import { useLogger } from '@gamezilla/lib/logger/react';
+import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
+import { SqlClientImplExpoSqlite } from '@gamezilla/lib/sql-client/impl-expo-sqlite';
+import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { assertDatabaseName } from '@gamezilla/lib/sqlite';
 import { Box, Button, Center, hideSplash, Text } from '@gamezilla/lib/ui';
+import { assertUrl } from '@gamezilla/patch-db/assert-url';
+import { PatchDbImplClientTransport } from '@gamezilla/patch-db/impl-client-transport';
+import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
+import { SyncPatchesDb } from '@gamezilla/patch-db/impl-sync';
 import {
-  bootstrapPatchDbExpoSync,
-  clearLocalDatabaseAndReload,
-} from '@gamezilla/patch-db/bootstrap-expo';
-import { PatchesDbToken } from '@gamezilla/patch-db/react';
+  PatchDbSyncPubSubToken,
+  PatchesDbToken,
+} from '@gamezilla/patch-db/react';
+import {
+  SubscribablePatchesDbToken,
+  type SubscribablePatchesDbLike,
+} from '@gamezilla/patch-db/subscribable';
+import {
+  PatchDbClientTransportHttpFetch,
+  type PatchDbClientTransport,
+} from '@gamezilla/patch-db/transport';
+import * as SQLite from 'expo-sqlite';
 import {
   useCallback,
   useEffect,
@@ -36,6 +53,131 @@ import {
   type ReactNode,
 } from 'react';
 import { Platform, View } from 'react-native';
+
+/**
+ * Web uses sql.js + absurd-sql (IndexedDB-backed SQLite) in a worker for a
+ * local-first, offline-capable store. Native uses persistent expo-sqlite.
+ *
+ * We avoid expo-sqlite on web: its `AccessHandlePoolVFS` grabs an exclusive
+ * `FileSystemSyncAccessHandle` on OPFS pool files at worker init, so a second
+ * tab fails with `NoModificationAllowedError`. absurd-sql uses IndexedDB
+ * instead.
+ */
+type BootstrapResult = {
+  container: DependencyInjectionContainer;
+};
+
+type BootstrapPatchDbExpoSyncOptions = {
+  databaseName?: string;
+  /** Absolute URL including patch-db base path, e.g. `https://host/patch-db`. */
+  apiUrl: string;
+  /** If set, used instead of {@link PatchDbClientTransportHttpFetch}(apiUrl). */
+  transport?: PatchDbClientTransport;
+  pushIntervalMs?: number;
+  pollIntervalMs?: number;
+  parentContainer?: DependencyInjectionContainer;
+  /**
+   * Wrap the sync DB (e.g. stamp every patch with principalId via `createdBy`).
+   * Must preserve {@link SubscribablePatchesDbLike.subscribe}.
+   */
+  decoratePatchesDb?: (
+    db: SubscribablePatchesDbLike
+  ) => SubscribablePatchesDbLike;
+};
+
+let cachedBootstrap: { key: string; promise: Promise<BootstrapResult> } | null =
+  null;
+let currentSqlClient: SqlClient | null = null;
+
+const USE_ABSURD_SQL_ON_WEB = false;
+
+async function openLocalSqlClient(databaseName: string): Promise<SqlClient> {
+  if (Platform.OS === 'web' && USE_ABSURD_SQL_ON_WEB) {
+    const { SqlClientImplAbsurdSql } = await import(
+      '@gamezilla/lib/sql-client/impl-absurd-sql'
+    );
+    return await SqlClientImplAbsurdSql.open(databaseName);
+  }
+  return await SqlClientImplExpoSqlite.open(databaseName);
+}
+
+async function bootstrapPatchDbExpoSync(
+  options: BootstrapPatchDbExpoSyncOptions
+): Promise<BootstrapResult> {
+  const {
+    databaseName = 'main',
+    apiUrl,
+    transport: transportOption,
+    pushIntervalMs = 2000,
+    pollIntervalMs = 5000,
+    parentContainer,
+    decoratePatchesDb,
+  } = options;
+
+  assertDatabaseName(databaseName);
+  assertUrl(apiUrl);
+
+  const key = `${databaseName}:${apiUrl}`;
+  if (Platform.OS === 'web' && cachedBootstrap?.key === key) {
+    return cachedBootstrap.promise;
+  }
+
+  const bootstrapPromise = (async (): Promise<BootstrapResult> => {
+    const sqlClient = await openLocalSqlClient(databaseName);
+    currentSqlClient = sqlClient;
+    await sqlClient.connect();
+
+    const localDb = new PatchDbImplSqlite(sqlClient);
+    await localDb.migrate();
+
+    const transport =
+      transportOption ?? new PatchDbClientTransportHttpFetch(apiUrl);
+    const remoteDb = new PatchDbImplClientTransport(transport);
+    const pubSub = new InMemoryPubSub();
+    const syncDb = new SyncPatchesDb(localDb, remoteDb, pubSub, {
+      pushIntervalMs,
+      pollIntervalMs,
+    });
+
+    const dbForDi: SubscribablePatchesDbLike =
+      decoratePatchesDb !== undefined ? decoratePatchesDb(syncDb) : syncDb;
+
+    const container = new DependencyInjectionContainer(parentContainer);
+    container.registerValue(PatchesDbToken, dbForDi);
+    container.registerValue(SubscribablePatchesDbToken, dbForDi);
+    container.registerValue(PatchDbSyncPubSubToken, pubSub);
+
+    return { container };
+  })();
+
+  if (Platform.OS === 'web') {
+    cachedBootstrap = { key, promise: bootstrapPromise };
+    void bootstrapPromise.catch(() => {
+      if (cachedBootstrap?.key === key) {
+        cachedBootstrap = null;
+      }
+    });
+  }
+  return bootstrapPromise;
+}
+
+export async function clearLocalDatabaseAndReload(
+  databaseName = 'main'
+): Promise<void> {
+  cachedBootstrap = null;
+  if (currentSqlClient) {
+    await currentSqlClient.disconnect();
+    currentSqlClient = null;
+  }
+  if (Platform.OS === 'web') {
+    if (typeof window !== 'undefined') {
+      await clearWebClientPersistentState();
+      window.location.reload();
+    }
+    return;
+  }
+  await SQLite.deleteDatabaseAsync(databaseName);
+}
 
 async function registerSessionService(
   c: DependencyInjectionContainer,
@@ -132,13 +274,16 @@ function usePatchBootstrap() {
 
   const runBootstrap = useCallback(() => {
     setError(null);
-    const principalId = principalService.getPrincipalId();
     const apiBase = configService.getApiUrl();
     void bootstrapPatchDbExpoSync({
       apiUrl: `${apiBase}/patch-db`,
       transport: createPatchDbHcTransport(createGamezillaApiClient(apiBase)),
       parentContainer,
-      decoratePatchesDb: (db) => new PrincipalPatchesDb(db, principalId),
+      decoratePatchesDb: (db) =>
+        new LastModifiedByPatchesDb(db, {
+          getPrincipalId: () => principalService.getPrincipalId(),
+          getAccountId: () => null,
+        }),
     })
       .then(async ({ container: c }) => {
         assert.ok(
@@ -200,5 +345,7 @@ export function PatchBootstrap({ children }: { children: ReactNode }) {
     );
   }
   if (container === null) return null;
-  return <BootstrappedShell container={container}>{children}</BootstrappedShell>;
+  return (
+    <BootstrappedShell container={container}>{children}</BootstrappedShell>
+  );
 }

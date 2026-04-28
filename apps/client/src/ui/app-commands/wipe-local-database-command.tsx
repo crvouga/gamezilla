@@ -1,5 +1,5 @@
+import { clearLocalDatabaseAndReload } from '@gamezilla/client/ui/patch-bootstrap';
 import { ConfirmationModal, RegisterCommand } from '@gamezilla/lib/ui';
-import { clearLocalDatabaseAndReload } from '@gamezilla/patch-db/bootstrap-expo';
 import { useState } from 'react';
 
 export function WipeLocalDatabaseCommand() {

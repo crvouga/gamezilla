@@ -1,4 +1,3 @@
-import { clearLocalDatabaseAndReload } from '@gamezilla/patch-db/bootstrap-expo';
 import { useEntities, usePatchesDb } from '@gamezilla/patch-db/react';
 import {
   Box,
@@ -299,6 +298,8 @@ export type TodoListsOverviewProps = {
   onOpenList: (listId: string) => void;
   /** When set, shows Back in the header (e.g. stack navigation + fallback replace). */
   onBack?: () => void;
+  /** Wipe local SQLite (and reload on web). When omitted, the "Clear data" action is hidden. */
+  onClearLocalDatabase?: () => Promise<void> | void;
 };
 
 function buildBreadcrumbs(onBack?: () => void) {
@@ -326,7 +327,9 @@ function buildListRows(
   ];
 }
 
-function useTodoListsState() {
+function useTodoListsState(
+  onClearLocalDatabase?: () => Promise<void> | void,
+) {
   const db = usePatchesDb();
   const [input, setInput] = useState('');
   const [adding, setAdding] = useState(false);
@@ -361,7 +364,7 @@ function useTodoListsState() {
 
   const deleteLocalDatabase = async () => {
     setDeleteDbModalVisible(false);
-    await clearLocalDatabaseAndReload('main');
+    await onClearLocalDatabase?.();
   };
 
   return {
@@ -384,22 +387,27 @@ function useTodoListsState() {
 export function TodoListsOverview({
   onOpenList,
   onBack,
+  onClearLocalDatabase,
 }: TodoListsOverviewProps) {
-  const s = useTodoListsState();
+  const s = useTodoListsState(onClearLocalDatabase);
   const listRows = buildListRows(s.lists, s.todoCounts);
 
   return (
     <Box sx={{ flex: 1 }}>
       <ScreenBaseHeader
         breadcrumbs={buildBreadcrumbs(onBack)}
-        actions={[
-          {
-            type: 'destructive',
-            label: 'Clear data',
-            onPress: () => s.setDeleteDbModalVisible(true),
-            overflow: 'never',
-          },
-        ]}
+        actions={
+          onClearLocalDatabase !== undefined
+            ? [
+                {
+                  type: 'destructive',
+                  label: 'Clear data',
+                  onPress: () => s.setDeleteDbModalVisible(true),
+                  overflow: 'never',
+                },
+              ]
+            : []
+        }
       />
       <Box sx={{ flex: 1, p: 4 }}>
         {s.adding ? (

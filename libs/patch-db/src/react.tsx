@@ -14,9 +14,8 @@ import { SubscribablePatchesDbToken } from './subscribable';
 export const PatchesDbToken: InjectionToken<PatchesDb> = Symbol('PatchesDb');
 
 /** In-memory bus used by {@link SyncPatchesDb} (e.g. subscribe to sync-error topic). */
-export const PatchDbSyncPubSubToken: InjectionToken<PubSub> = Symbol(
-  'PatchDbSyncPubSub'
-);
+export const PatchDbSyncPubSubToken: InjectionToken<PubSub> =
+  Symbol('PatchDbSyncPubSub');
 
 export function usePatchesDb(): PatchesDb {
   const db = useDependency(PatchesDbToken);
@@ -33,32 +32,31 @@ export type UseEntitiesResult = PatchesDbResult & { loading: boolean };
 
 export function useEntities(query: PatchesDbQuery): UseEntitiesResult {
   const db = useDependency(SubscribablePatchesDbToken);
-  const [result, setResult] = useState<PatchesDbResult>(() => ({
+  const [result, setResult] = useState<UseEntitiesResult>(() => ({
     query,
     entities: [],
     patches: [],
     total: 0,
     hasMore: false,
     nextCursor: null,
+    loading: true,
   }));
-  const [loading, setLoading] = useState(true);
   const queryKey = JSON.stringify(query);
   useEffect(() => {
-    setLoading(true);
+    setResult((prev) => ({ ...prev, loading: true }));
     const parsed: unknown = JSON.parse(queryKey);
-    assert.ok(
-      parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed),
+    assert.record(
+      parsed,
       'queryKey must roundtrip to object (from JSON.stringify of PatchesDbQuery)',
       { queryKey }
     );
     const parsedQuery = parsed as PatchesDbQuery;
     const unsubscribe = db.subscribe.entities(parsedQuery, (r) => {
-      setResult(r);
-      setLoading(false);
+      setResult((prev) => ({ ...prev, ...r, loading: false }));
     });
     return unsubscribe;
   }, [db, queryKey]);
-  return { ...result, loading };
+  return result;
 }
 
 export function useEntity(query: PatchesDbQuery): Entity | null {
