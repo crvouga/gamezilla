@@ -4,7 +4,6 @@ import {
 } from '@gamezilla/domain/auth';
 import {
   PROFILE_ENTITY_TYPE,
-  ProfileAttr,
 } from '@gamezilla/domain/profile/profile-entities';
 import type { Entity } from '@gamezilla/patch-db/interface';
 import { useEntities } from '@gamezilla/patch-db/react';
@@ -26,7 +25,21 @@ export type PrincipalProfileEntityMaps = {
 };
 
 /**
- * Loads `principal` rows and their `principal/currentProfileId` profile rows.
+ * Resolves profile id per principal: `principal/accountId` profile when bound,
+ * otherwise the principal-local profile (`entityId === principalId`).
+ */
+function profileEntityIdForPrincipal(principalRow: Entity | undefined): string {
+  const accountId = readStringAttr(
+    principalRow?.attributes as Record<string, unknown> | undefined,
+    PrincipalAttr.accountId
+  );
+  if (accountId !== null) return accountId;
+  return principalRow?.entityId ?? '';
+}
+
+/**
+ * Loads `principal` rows and their corresponding `profile` rows
+ * (account-scoped or principal-scoped).
  */
 export function usePrincipalProfileEntities(
   principalIds: string[]
@@ -49,11 +62,8 @@ export function usePrincipalProfileEntities(
   const profileIds = useMemo(() => {
     const ids = new Set<string>();
     for (const p of principalsResult.entities) {
-      const pid = readStringAttr(
-        p.attributes as Record<string, unknown>,
-        PrincipalAttr.currentProfileId
-      );
-      if (pid !== null) ids.add(pid);
+      const pid = profileEntityIdForPrincipal(p);
+      if (pid.length > 0) ids.add(pid);
     }
     return [...ids].sort();
   }, [principalsResult.entities]);
@@ -85,9 +95,4 @@ export function usePrincipalProfileEntities(
     (profileIds.length > 0 && profilesResult.loading);
 
   return { principalById, profileById, loading };
-}
-
-export function isProfileEntityDeleted(entity: Entity | undefined): boolean {
-  if (entity === undefined) return true;
-  return entity.attributes[ProfileAttr.deleted] === true;
 }

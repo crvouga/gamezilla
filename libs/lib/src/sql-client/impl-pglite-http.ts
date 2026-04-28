@@ -76,10 +76,15 @@ export class SqlClientImplPgliteHttp implements SqlClient {
       }),
     });
     if (!res.ok) {
-      const body: { error?: string } = await res
+      const body: { error?: string; detail?: string } = await res
         .json()
         .catch(() => ({ error: `HTTP ${res.status}` }));
-      throw new Error(body.error ?? `HTTP ${res.status}`);
+      const detail =
+        typeof body.detail === 'string' && body.detail.length > 0
+          ? body.detail
+          : undefined;
+      const summary = body.error ?? `HTTP ${res.status}`;
+      throw new Error(detail !== undefined ? `${summary}: ${detail}` : summary);
     }
     return (await res.json()) as SqlResponse;
   }

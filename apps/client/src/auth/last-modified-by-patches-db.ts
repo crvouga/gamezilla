@@ -1,4 +1,5 @@
 import { assertPrincipalId } from '@gamezilla/domain/auth';
+import { assert } from '@gamezilla/lib/assert';
 import type {
   Patch,
   PatchesDbQuery,
@@ -7,8 +8,10 @@ import type {
 } from '@gamezilla/patch-db/interface';
 import type { SubscribablePatchesDbLike } from '@gamezilla/patch-db/subscribable';
 
-const LAST_MODIFIED_BY_ACCOUNT_ID_KEY = 'patch/lastModifiedByAccountId';
-const LAST_MODIFIED_BY_PRINCIPAL_ID_KEY = 'patch/lastModifiedByPrincipalId';
+export const LAST_MODIFIED_BY_ACCOUNT_ID_KEY = 'patch/lastModifiedByAccountId';
+export const LAST_MODIFIED_BY_PRINCIPAL_ID_KEY =
+  'patch/lastModifiedByPrincipalId';
+export const LAST_MODIFIED_AT_KEY = 'patch/lastModifiedAt';
 
 /**
  * Stamps every write with `createdBy: principalId` (→ `patch/createdBy`).
@@ -30,14 +33,19 @@ export class LastModifiedByPatchesDb implements SubscribablePatchesDbLike {
 
   async write(patches: PatchInput[]): Promise<Patch[]> {
     assertPrincipalId(this.config.getPrincipalId());
-    const stamped: PatchInput[] = patches.map((p) => ({
-      ...p,
-      attributes: {
+    const accountId = this.config.getAccountId();
+    const stamped: PatchInput[] = patches.map((p) => {
+      const attrs: Record<string, unknown> = {
         ...p.attributes,
         [LAST_MODIFIED_BY_PRINCIPAL_ID_KEY]: this.config.getPrincipalId(),
-        [LAST_MODIFIED_BY_ACCOUNT_ID_KEY]: this.config.getAccountId(),
-      },
-    }));
+        [LAST_MODIFIED_AT_KEY]: Date.now(),
+      };
+      if (accountId !== null && accountId !== undefined && accountId !== '') {
+        assert.ok(accountId.length > 0, 'accountId must be a non-empty string');
+        attrs[LAST_MODIFIED_BY_ACCOUNT_ID_KEY] = accountId;
+      }
+      return { ...p, attributes: attrs as PatchInput['attributes'] };
+    });
     return this.inner.write(stamped);
   }
 

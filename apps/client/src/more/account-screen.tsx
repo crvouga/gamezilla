@@ -244,23 +244,16 @@ function LinkedAccountsCard({
 function AccountActionsRow({
   auth,
   onEditProfile,
-  onManageProfiles,
   onRequestSignOut,
   onSignIn,
 }: {
   auth: ReturnType<typeof useAuth>;
   onEditProfile: () => void;
-  onManageProfiles: () => void;
   onRequestSignOut: () => void;
   onSignIn: () => void;
 }) {
   return (
     <Box sx={{ gap: 2 }}>
-      <Button
-        title="Profiles"
-        variant="outlined"
-        onPress={onManageProfiles}
-      />
       <Button
         title="Edit profile"
         variant="outlined"
@@ -292,7 +285,6 @@ function AccountScreenBody({
   sessionsLoading,
   onSignIn,
   onEditProfile,
-  onManageProfiles,
   onRequestSignOut,
   sx,
 }: {
@@ -308,7 +300,6 @@ function AccountScreenBody({
   sessionsLoading: boolean;
   onSignIn: () => void;
   onEditProfile: () => void;
-  onManageProfiles: () => void;
   onRequestSignOut: () => void;
   sx: object;
 }) {
@@ -334,7 +325,6 @@ function AccountScreenBody({
       <AccountActionsRow
         auth={auth}
         onEditProfile={onEditProfile}
-        onManageProfiles={onManageProfiles}
         onRequestSignOut={onRequestSignOut}
         onSignIn={onSignIn}
       />
@@ -365,10 +355,6 @@ export function AccountScreen() {
 
   const onEditProfile = useCallback(() => {
     router.push('/profile/edit');
-  }, [router]);
-
-  const onManageProfiles = useCallback(() => {
-    router.push('/profile/profiles');
   }, [router]);
 
   const onSignIn = useCallback(() => {
@@ -404,7 +390,6 @@ export function AccountScreen() {
           sessionsLoading={sessionsLoading}
           onSignIn={onSignIn}
           onEditProfile={onEditProfile}
-          onManageProfiles={onManageProfiles}
           onRequestSignOut={onRequestSignOut}
           sx={sx}
         />

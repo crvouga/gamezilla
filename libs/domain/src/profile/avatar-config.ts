@@ -1,11 +1,8 @@
 /**
- * DiceBear avatar persisted on the device-local profile entity.
+ * DiceBear avatar persisted on the profile entity.
  *
  * `options` holds partial DiceBear style + core options (arrays for enums/colors, etc.).
  */
-
-/** Legacy PatchDB attribute — migrated on read until user saves `avatarConfig`. */
-export const LEGACY_PROFILE_AVATAR_SEED = 'profile/avatarSeed' as const;
 
 export const DEFAULT_AVATAR_STYLE = 'lorelei';
 
@@ -79,14 +76,6 @@ export function resolveAvatarConfig(
   const parsed = parseAvatarConfig(rawConfig);
   if (parsed) {
     return parsed;
-  }
-  const legacy = attributes?.[LEGACY_PROFILE_AVATAR_SEED];
-  if (typeof legacy === 'string' && legacy.trim().length > 0) {
-    return {
-      style: DEFAULT_AVATAR_STYLE,
-      seed: legacy.trim(),
-      options: {},
-    };
   }
   return {
     style: DEFAULT_AVATAR_STYLE,

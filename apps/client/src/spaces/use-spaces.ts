@@ -1,8 +1,10 @@
-import { PrincipalServiceToken } from '@gamezilla/client/auth/principal-service';
+import { useAuth } from '@gamezilla/client/auth/auth-context';
 import {
-  isProfileEntityDeleted,
-  usePrincipalProfileEntities,
-} from '@gamezilla/client/auth/use-principal-profile-entities';
+  LAST_MODIFIED_BY_ACCOUNT_ID_KEY,
+  LAST_MODIFIED_BY_PRINCIPAL_ID_KEY,
+} from '@gamezilla/client/auth/last-modified-by-patches-db';
+import { PrincipalServiceToken } from '@gamezilla/client/auth/principal-service';
+import { usePrincipalProfileEntities } from '@gamezilla/client/auth/use-principal-profile-entities';
 import {
   PRINCIPAL_ENTITY_TYPE,
   PrincipalAttr,
@@ -19,7 +21,11 @@ import {
   type SpaceMembershipRole,
 } from '@gamezilla/domain/spaces/space-entities';
 import { useDependency } from '@gamezilla/lib/dependency-injection/react';
-import type { Entity, PatchesDbQuery } from '@gamezilla/patch-db/interface';
+import type {
+  Entity,
+  PatchesDbQuery,
+  PatchesDbQueryWhereClause,
+} from '@gamezilla/patch-db/interface';
 import { useEntities } from '@gamezilla/patch-db/react';
 import { useMemo } from 'react';
 
@@ -47,9 +53,6 @@ function displayNameForPrincipal(
   profile: Entity | undefined,
   principalId: string
 ): string {
-  if (profile !== undefined && isProfileEntityDeleted(profile)) {
-    return `User ${principalId.slice(0, 8)}`;
-  }
   const raw = profile?.attributes[ProfileAttr.displayName];
   const trimmed = typeof raw === 'string' ? raw.trim() : '';
   if (trimmed.length > 0) return trimmed;
@@ -62,12 +65,12 @@ function displayNameFromPrincipalMaps(
   profileById: Map<string, Entity>
 ): string {
   const principalRow = principalById.get(principalId);
-  const profileId = readStringAttr(
+  const accountId = readStringAttr(
     principalRow?.attributes as Record<string, unknown> | undefined,
-    PrincipalAttr.currentProfileId
+    PrincipalAttr.accountId
   );
-  const profileEntity =
-    profileId !== null ? profileById.get(profileId) : undefined;
+  const profileKey = accountId ?? principalId;
+  const profileEntity = profileById.get(profileKey);
   return displayNameForPrincipal(profileEntity, principalId);
 }
 
@@ -171,39 +174,35 @@ export function usePrincipalDisplayName(
       : { entityType: PRINCIPAL_ENTITY_TYPE, entityId: id }
   );
   const principalRow = principalRes.entities[0] ?? null;
-  const profileId =
+  const accountId =
     id === NO_ENTITY_PLACEHOLDER
       ? null
       : readStringAttr(
           principalRow?.attributes as Record<string, unknown> | undefined,
-          PrincipalAttr.currentProfileId
+          PrincipalAttr.accountId
         );
+  const profileEntityId =
+    id === NO_ENTITY_PLACEHOLDER
+      ? NO_ENTITY_PLACEHOLDER
+      : accountId !== null
+        ? accountId
+        : id;
 
   const profileRes = useEntities({
     entityType: PROFILE_ENTITY_TYPE,
-    entityId: profileId ?? NO_ENTITY_PLACEHOLDER,
+    entityId: profileEntityId,
   });
   const profileEntity = profileRes.entities[0] ?? null;
 
   return useMemo(() => {
     if (id === NO_ENTITY_PLACEHOLDER) return 'Unknown';
     if (principalRes.loading) return `User ${id.slice(0, 8)}`;
-    if (profileId === null) return displayNameForPrincipal(undefined, id);
     if (profileRes.loading) return `User ${id.slice(0, 8)}`;
-    if (
-      profileEntity === null ||
-      isProfileEntityDeleted(profileEntity)
-    ) {
+    if (profileEntity === null) {
       return displayNameForPrincipal(undefined, id);
     }
     return displayNameForPrincipal(profileEntity, id);
-  }, [
-    id,
-    principalRes.loading,
-    profileId,
-    profileRes.loading,
-    profileEntity,
-  ]);
+  }, [id, principalRes.loading, profileRes.loading, profileEntity]);
 }
 
 export type CurrentMembership = {
@@ -269,15 +268,78 @@ function extractMembershipState(membership: Entity | null): {
   return { spaceIdRaw, hasLeft, role };
 }
 
+function membershipStampWhere(args: {
+  signedIn: boolean;
+  accountId: string | null;
+  principalId: string;
+}): PatchesDbQueryWhereClause {
+  const { signedIn, accountId, principalId } = args;
+  const leftClause = {
+    type: 'not_exists' as const,
+    attribute: SpaceMembershipAttr.leftAt,
+  };
+  if (signedIn && accountId !== null) {
+    return {
+      type: 'and',
+      clauses: [
+        {
+          type: '=',
+          attribute: LAST_MODIFIED_BY_ACCOUNT_ID_KEY,
+          value: accountId,
+        },
+        leftClause,
+      ],
+    };
+  }
+  return {
+    type: 'and',
+    clauses: [
+      {
+        type: '=',
+        attribute: LAST_MODIFIED_BY_PRINCIPAL_ID_KEY,
+        value: principalId,
+      },
+      {
+        type: 'not_exists',
+        attribute: LAST_MODIFIED_BY_ACCOUNT_ID_KEY,
+      },
+      leftClause,
+    ],
+  };
+}
+
 export function useCurrentMembership(): CurrentMembership {
   const principalService = useDependency(PrincipalServiceToken);
   const principalId = principalService.getPrincipalId();
+  const auth = useAuth();
+  const signedIn = auth.mode === 'signed-in';
+  const accountId = auth.accountId;
+
+  const stampWhere = useMemo(
+    () =>
+      membershipStampWhere({
+        signedIn,
+        accountId,
+        principalId,
+      }),
+    [signedIn, accountId, principalId]
+  );
 
   const memRes = useEntities({
     entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
-    entityId: principalId,
+    where: stampWhere,
+    limit: 50,
+    orderBy: [
+      { attribute: SpaceMembershipAttr.joinedAt, direction: 'desc' },
+    ],
   });
-  const membership = memRes.entities[0] ?? null;
+
+  const membership = useMemo(() => {
+    const list = memRes.entities ?? [];
+    const preferred = list.find((e) => e.entityId === principalId);
+    return (preferred ?? list[0] ?? null) as Entity | null;
+  }, [memRes.entities, principalId]);
+
   const { spaceIdRaw, hasLeft, role } = extractMembershipState(membership);
 
   const spaceIdForQuery =

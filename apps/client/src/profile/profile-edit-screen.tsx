@@ -18,11 +18,6 @@ export function ProfileEditScreen() {
       content={({ sx }) => (
         <Box style={sx}>
           <MenuRow
-            title="Switch profile"
-            caption="Create, delete, or choose which profile is active"
-            onPress={() => router.push('/profile/profiles')}
-          />
-          <MenuRow
             title="Username"
             caption="Display name shown in the app"
             onPress={() => router.push('/profile/username')}

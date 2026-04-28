@@ -12,7 +12,7 @@ describe('SyncPatchesDb (data loss recovery)', () => {
     await sim.destroy();
   });
 
-  test('push recovers from missing parent on server after wipe (no subscriptions)', async () => {
+  test('push after server wipe re-anchors unsynced patch when synced parent is absent (no subscriptions)', async () => {
     sim = await new PatchDbScenarioBuilder()
       .server('s')
       .client('a', { server: 's' })
@@ -57,11 +57,12 @@ describe('SyncPatchesDb (data loss recovery)', () => {
 
     await client.push();
     [allServer] = await srv.db.read([{ on: 'patches' }]);
-    expect(allServer?.patches.length).toBe(0);
+    // Server write attaches the new patch to the current chain head (null when DB was wiped).
+    expect(allServer?.patches.length).toBe(1);
 
     await client.push();
     [allServer] = await srv.db.read([{ on: 'patches' }]);
-    expect(allServer?.patches.length).toBe(2);
+    expect(allServer?.patches.length).toBe(1);
   });
 
   test('server wipe + concurrent offline writes converge to same order', async () => {

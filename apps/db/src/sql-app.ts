@@ -122,7 +122,10 @@ export function createSqlApp(deps: SqlAppDeps): Hono {
         error: message,
         durationMs,
       });
-      return c.json({ error: 'Query execution failed' }, 400);
+      return c.json(
+        { error: 'Query execution failed', detail: message },
+        400
+      );
     }
 
     assertQueryResultShape(rawResult);

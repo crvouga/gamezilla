@@ -35,6 +35,7 @@ import {
   createAuthService,
   type AuthService,
 } from './auth-service';
+import { AuthAccountIdHolderToken } from './auth-account-id-holder';
 import { PrincipalServiceToken } from './principal-service';
 import {
   SessionServiceToken,
@@ -120,7 +121,8 @@ function deriveStateFromSession(args: {
 
 function useAuthSessionState(
   principalId: string,
-  sessionService: SessionService
+  sessionService: SessionService,
+  accountIdHolder: { set: (id: string | null) => void }
 ) {
   const [state, setState] = useState(() =>
     deriveStateFromSession({ principalId, sessionService })
@@ -128,8 +130,10 @@ function useAuthSessionState(
 
   const refreshSession = useCallback(async () => {
     await sessionService.refresh();
+    const session = sessionService.getSession();
+    accountIdHolder.set(session?.accountId ?? null);
     setState(deriveStateFromSession({ principalId, sessionService }));
-  }, [principalId, sessionService]);
+  }, [accountIdHolder, principalId, sessionService]);
 
   useEffect(() => {
     void refreshSession();
@@ -270,12 +274,14 @@ function AuthStateProvider({
   const authService = useDependency(AuthServiceToken);
   const principalService = useDependency(PrincipalServiceToken);
   const sessionService = useDependency(SessionServiceToken);
+  const accountIdHolder = useDependency(AuthAccountIdHolderToken);
   const principalId = principalService.getPrincipalId();
   const log = useLogger('auth-context');
 
   const { state, refreshSession } = useAuthSessionState(
     principalId,
-    sessionService
+    sessionService,
+    accountIdHolder
   );
   useSubscribeToSessionChanges({ principalId, refreshSession });
 
@@ -339,6 +345,7 @@ function AuthContainerBridgeInner({
   const principalService = useDependency(PrincipalServiceToken);
   const db = useDependency(PatchesDbToken);
   const sessionService = useDependency(SessionServiceToken);
+  const accountIdHolder = useDependency(AuthAccountIdHolderToken);
 
   const authContainer = useMemo(() => {
     const child = new DependencyInjectionContainer(parentContainer);
@@ -349,6 +356,7 @@ function AuthContainerBridgeInner({
         principalService,
         db,
         sessionService,
+        accountIdHolder,
         googleSignInAvailable: googleProvider.available,
         promptGoogleIdToken,
       })
@@ -360,6 +368,7 @@ function AuthContainerBridgeInner({
     principalService,
     db,
     sessionService,
+    accountIdHolder,
     googleProvider.available,
     promptGoogleIdToken,
   ]);

@@ -198,6 +198,44 @@ describe.each(implementations)('$name', ({ factory }) => {
     expect(last.attributes['todo/done']).toBe(true);
   });
 
+  test('synced patch whose parentId is absent on server re-anchors to chain leaf', async () => {
+    const chain = await db.write([
+      { entityId: 'e7', entityType: 'todo', attributes: { 'todo/n': 0 } },
+      { entityId: 'e7', entityType: 'todo', attributes: { 'todo/n': 1 } },
+    ]);
+    const leaf = chain[1];
+    assert.defined(leaf, 'leaf patch must be defined');
+    const phantomParent = crypto.randomUUID();
+    const childId = crypto.randomUUID();
+    const now = new Date().toISOString();
+    await db.write([
+      {
+        entityId: 'e7',
+        entityType: 'todo',
+        attributes: {
+          'todo/n': 2,
+          'patch/syncedAt': null,
+          'patch/createdBy': '',
+          'patch/sessionId': '',
+        },
+        patchId: childId,
+        parentId: phantomParent,
+        createdAt: now,
+        recordedAt: now,
+        createdBy: '',
+        sessionId: '',
+      },
+    ]);
+
+    const [readResult] = await db.read([
+      { entityType: 'todo', entityId: 'e7' },
+    ]);
+    assert.defined(readResult, 'readResult must be defined');
+    const child = readResult.patches.find((p) => p.patchId === childId);
+    assert.defined(child, 'child patch must be defined');
+    expect(child.parentId).toBe(leaf.patchId);
+  });
+
   test('read with on:patches returns patches without patch/syncedAt (unsynced)', async () => {
     const listId = crypto.randomUUID();
     const createWritten = await db.write([

@@ -11,6 +11,8 @@ import type { ConfigService } from '@gamezilla/domain/config/config-service';
 import { assert } from '@gamezilla/lib/assert';
 import type { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 import type { PatchesDb } from '@gamezilla/patch-db/interface';
+import type { AuthAccountIdHolder } from './auth-account-id-holder';
+import { ensureAccountProfile } from './ensure-profile-entity';
 import { AuthConfigurationError } from './auth-errors';
 import type { PrincipalService } from './principal-service';
 import type { SessionService } from './session-service';
@@ -34,6 +36,7 @@ type CreateAuthServiceDeps = {
   principalService: PrincipalService;
   db: PatchesDb;
   sessionService: SessionService;
+  accountIdHolder: AuthAccountIdHolder;
   /** When false, sign-in is refused before opening the Google prompt. */
   googleSignInAvailable: boolean;
   promptGoogleIdToken: () => Promise<string>;
@@ -62,6 +65,7 @@ function createGoogleSignInHandler(
     configService,
     principalService,
     db,
+    accountIdHolder,
     googleSignInAvailable,
     promptGoogleIdToken,
   } = deps;
@@ -123,6 +127,8 @@ function createGoogleSignInHandler(
       },
     ]);
 
+    accountIdHolder.set(accountId);
+    await ensureAccountProfile(db, accountId);
     await deps.sessionService.refresh();
   };
 }
@@ -131,6 +137,7 @@ export function createAuthService(deps: CreateAuthServiceDeps): AuthService {
   return {
     signInWithGoogle: createGoogleSignInHandler(deps),
     async signOut(): Promise<void> {
+      deps.accountIdHolder.set(null);
       await deps.sessionService.clearSession();
     },
   };

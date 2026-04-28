@@ -14,6 +14,10 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import {
+  AuthAccountIdHolder,
+  AuthAccountIdHolderToken,
+} from './auth-account-id-holder';
 import { createSecureStorage } from './create-secure-storage';
 import {
   createPrincipalService,
@@ -42,6 +46,7 @@ export function PrincipalAuthShell({ children }: { children: ReactNode }) {
         const child = new DependencyInjectionContainer(parentContainer);
         child.registerValue(SecureStorageToken, storage);
         child.registerValue(PrincipalServiceToken, principalService);
+        child.registerValue(AuthAccountIdHolderToken, new AuthAccountIdHolder());
         if (mountedRef.current) {
           setChildContainer(child);
         }

@@ -2,16 +2,13 @@
 export const PROFILE_ENTITY_TYPE = 'profile';
 
 /**
- * Profile rows use stable UUID `entityId`s. Legacy rows used `entityId === principalId`
- * and are migrated on first bootstrap.
+ * One profile per identity:
+ * - Guest / device-local: `entityId === principalId`
+ * - Signed-in account: `entityId === accountId`
  */
 export const ProfileAttr = {
   id: 'profile/id',
   createdAt: 'profile/createdAt',
   displayName: 'profile/displayName',
   avatarConfig: 'profile/avatarConfig',
-  /** Soft-delete marker — when true, profile is hidden from lists and selection. */
-  deleted: 'profile/deleted',
-  /** Principal id of the device/install that first wrote this profile row (PatchDB `patch/createdBy` semantics). */
-  createdByPrincipalId: 'profile/createdByPrincipalId',
 } as const;

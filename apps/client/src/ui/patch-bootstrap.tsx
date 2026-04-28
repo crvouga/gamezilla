@@ -1,7 +1,11 @@
 import { createGamezillaApiClient } from '@gamezilla/client/api/hc';
 import { createPatchDbHcTransport } from '@gamezilla/client/api/patch-db-hc-transport';
 import { ensurePrincipalEntity } from '@gamezilla/client/auth/ensure-principal-entity';
-import { ensureProfileEntity } from '@gamezilla/client/auth/ensure-profile-entity';
+import { AuthAccountIdHolderToken } from '@gamezilla/client/auth/auth-account-id-holder';
+import {
+  ensureAccountProfile,
+  ensurePrincipalProfile,
+} from '@gamezilla/client/auth/ensure-profile-entity';
 import { LastModifiedByPatchesDb } from '@gamezilla/client/auth/last-modified-by-patches-db';
 import {
   PrincipalServiceToken,
@@ -181,18 +185,29 @@ export async function clearLocalDatabaseAndReload(
 
 async function registerSessionService(
   c: DependencyInjectionContainer,
-  principalService: PrincipalService
+  principalService: PrincipalService,
+  accountIdHolder: { get: () => string | null; set: (id: string | null) => void }
 ) {
   const db = c.get(PatchesDbToken);
   const principalId = principalService.getPrincipalId();
   await ensurePrincipalEntity(db, principalId);
-  await ensureProfileEntity(db, principalId);
+  await ensurePrincipalProfile(db, principalId);
   if (c.has(SessionServiceToken)) {
     await c.get(SessionServiceToken).refresh();
+    const session = c.get(SessionServiceToken).getSession();
+    accountIdHolder.set(session?.accountId ?? null);
+    if (session !== null) {
+      await ensureAccountProfile(db, session.accountId);
+    }
     return;
   }
   const sessionService = createSessionService(db, principalService);
   await sessionService.refresh();
+  const session = sessionService.getSession();
+  accountIdHolder.set(session?.accountId ?? null);
+  if (session !== null) {
+    await ensureAccountProfile(db, session.accountId);
+  }
   c.registerValue(SessionServiceToken, sessionService);
 }
 
@@ -269,6 +284,7 @@ function usePatchBootstrap() {
   const parentContainer = rawContainer;
   const configService = useDependency(ConfigServiceToken);
   const principalService = useDependency(PrincipalServiceToken);
+  const accountIdHolder = useDependency(AuthAccountIdHolderToken);
 
   const mountedRef = useRef(true);
 
@@ -282,7 +298,7 @@ function usePatchBootstrap() {
       decoratePatchesDb: (db) =>
         new LastModifiedByPatchesDb(db, {
           getPrincipalId: () => principalService.getPrincipalId(),
-          getAccountId: () => null,
+          getAccountId: () => accountIdHolder.get(),
         }),
     })
       .then(async ({ container: c }) => {
@@ -290,7 +306,7 @@ function usePatchBootstrap() {
           c instanceof DependencyInjectionContainer,
           'bootstrap must return DependencyInjectionContainer'
         );
-        await registerSessionService(c, principalService);
+        await registerSessionService(c, principalService, accountIdHolder);
         if (mountedRef.current) setContainer(c);
       })
       .catch((err: unknown) => {
@@ -301,7 +317,7 @@ function usePatchBootstrap() {
           setError(err instanceof Error ? err : new Error(String(err)));
         }
       });
-  }, [configService, log, parentContainer, principalService]);
+  }, [accountIdHolder, configService, log, parentContainer, principalService]);
 
   useEffect(() => {
     mountedRef.current = true;

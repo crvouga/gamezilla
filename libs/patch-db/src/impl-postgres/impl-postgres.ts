@@ -194,23 +194,39 @@ export class PatchDbImplPostgres implements PatchesDb {
   private async resolveWriteParentId(
     tx: SqlClient,
     patch: PatchInput,
-    parentCache: Map<string, string | null>
+    parentCache: Map<string, string | null>,
+    patchIdsInBatch: ReadonlySet<string>
   ): Promise<string | null> {
     const isSyncedPatch =
       'patchId' in patch &&
       'parentId' in patch &&
       typeof patch.patchId === 'string';
     if (isSyncedPatch) {
-      return typeof patch.parentId === 'string' ? patch.parentId : null;
-    }
-    const key = `${patch.entityId}\0${patch.entityType}`;
-    if (!parentCache.has(key)) {
-      parentCache.set(
-        key,
-        await this.resolveParentId(tx, patch.entityId, patch.entityType)
+      const clientParent =
+        typeof patch.parentId === 'string' ? patch.parentId : null;
+      if (clientParent === null) {
+        return null;
+      }
+      if (patchIdsInBatch.has(clientParent)) {
+        return clientParent;
+      }
+      const parentRow = await tx.query<{ one: number }>(
+        `SELECT 1 AS one FROM patches WHERE patch_id = ? LIMIT 1`,
+        [clientParent]
       );
+      if (parentRow.length > 0) {
+        return clientParent;
+      }
+      const key = `${patch.entityId}\0${patch.entityType}`;
+      if (!parentCache.has(key)) {
+        parentCache.set(
+          key,
+          await this.resolveParentId(tx, patch.entityId, patch.entityType)
+        );
+      }
+      return parentCache.get(key)!;
     }
-    return parentCache.get(key)!;
+    return await this.resolveParentId(tx, patch.entityId, patch.entityType);
   }
 
   private bumpWriteTimestamps(
@@ -241,10 +257,21 @@ export class PatchDbImplPostgres implements PatchesDb {
     const batchRows: PatchInsertBatchRow[] = [];
     const touchedEntities = new Set<string>();
     const parentCache = new Map<string, string | null>();
+    const patchIdsInBatch = new Set<string>();
+    for (const p of sorted) {
+      if ('patchId' in p && typeof p.patchId === 'string') {
+        patchIdsInBatch.add(p.patchId);
+      }
+    }
     let lastTimestamp = Date.now() - 1;
     for (const patch of sorted) {
       const entityKey = `${patch.entityId}\0${patch.entityType}`;
-      const parentId = await this.resolveWriteParentId(tx, patch, parentCache);
+      const parentId = await this.resolveWriteParentId(
+        tx,
+        patch,
+        parentCache,
+        patchIdsInBatch
+      );
       const ts = this.bumpWriteTimestamps(patch, lastTimestamp);
       lastTimestamp = ts.lastTimestamp;
       const storedAttributes = normalizePatchAttributesForStorage(patch);

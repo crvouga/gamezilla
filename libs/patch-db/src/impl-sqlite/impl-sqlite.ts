@@ -155,6 +155,44 @@ export class PatchDbImplSqlite implements PatchesDb {
     return first !== null && first !== undefined ? first.patch_id : null;
   }
 
+  private async resolveWriteParentId(
+    tx: SqlClient,
+    patch: PatchInput,
+    parentCache: Map<string, string | null>,
+    patchIdsInBatch: ReadonlySet<string>
+  ): Promise<string | null> {
+    const isSyncedPatch =
+      'patchId' in patch &&
+      'parentId' in patch &&
+      typeof patch.patchId === 'string';
+    if (isSyncedPatch) {
+      const clientParent =
+        typeof patch.parentId === 'string' ? patch.parentId : null;
+      if (clientParent === null) {
+        return null;
+      }
+      if (patchIdsInBatch.has(clientParent)) {
+        return clientParent;
+      }
+      const parentRow = await tx.query<{ one: number }>(
+        `SELECT 1 AS one FROM patches WHERE patch_id = ? LIMIT 1`,
+        [clientParent]
+      );
+      if (parentRow.length > 0) {
+        return clientParent;
+      }
+      const key = `${patch.entityId}\0${patch.entityType}`;
+      if (!parentCache.has(key)) {
+        parentCache.set(
+          key,
+          await this.resolveParentId(tx, patch.entityId, patch.entityType)
+        );
+      }
+      return parentCache.get(key)!;
+    }
+    return await this.resolveParentId(tx, patch.entityId, patch.entityType);
+  }
+
   private assertPatchInputs(patches: PatchInput[]): void {
     assert.ok(patches.length > 0, 'patches must not be empty');
     assert.all(patches, (patch): asserts patch is PatchInput => {
@@ -238,16 +276,20 @@ export class PatchDbImplSqlite implements PatchesDb {
       const touchedEntities = new Set<string>();
       let lastTimestamp = Date.now() - 1;
       const sorted = topologicalSortPatches(patches);
+      const parentCache = new Map<string, string | null>();
+      const patchIdsInBatch = new Set<string>();
+      for (const p of sorted) {
+        if ('patchId' in p && typeof p.patchId === 'string') {
+          patchIdsInBatch.add(p.patchId);
+        }
+      }
       for (const patch of sorted) {
-        const isSyncedPatch =
-          'patchId' in patch &&
-          'parentId' in patch &&
-          typeof patch.patchId === 'string';
-        const parentId: string | null = isSyncedPatch
-          ? typeof patch.parentId === 'string'
-            ? patch.parentId
-            : null
-          : await this.resolveParentId(tx, patch.entityId, patch.entityType);
+        const parentId = await this.resolveWriteParentId(
+          tx,
+          patch,
+          parentCache,
+          patchIdsInBatch
+        );
         lastTimestamp += 1;
         const now =
           'createdAt' in patch && typeof patch.createdAt === 'string'

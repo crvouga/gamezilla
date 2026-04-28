@@ -27,15 +27,11 @@ export const PrincipalAttr = {
   userAgent: 'principal/userAgent',
   firstSeenAt: 'principal/firstSeenAt',
   lastSeenAt: 'principal/lastSeenAt',
-  /** UUID of the `profile` entity used when signed out (or as account fallback). */
-  currentProfileId: 'principal/currentProfileId',
 } as const;
 
 export const AccountAttr = {
   id: 'account/id',
   createdAt: 'account/createdAt',
-  /** UUID of the profile row used when this account is signed in (takes precedence over principal pointer). */
-  currentProfileId: 'account/currentProfileId',
 } as const;
 
 export const AccountProviderAttr = {

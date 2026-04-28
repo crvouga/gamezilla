@@ -7,10 +7,7 @@ import { ProfileAttr } from '@gamezilla/domain/profile/profile-entities';
 import type { Entity } from '@gamezilla/patch-db/interface';
 import { useMemo } from 'react';
 
-import {
-  isProfileEntityDeleted,
-  usePrincipalProfileEntities,
-} from './use-principal-profile-entities';
+import { usePrincipalProfileEntities } from './use-principal-profile-entities';
 
 export type PrincipalProfileSummary = {
   displayName: string | null;
@@ -47,28 +44,26 @@ function entityToSummary(
   };
 }
 
+function profileIdForPrincipal(
+  principalRow: Entity | undefined,
+  principalId: string
+): string {
+  const accountId = readStringAttr(
+    principalRow?.attributes as Record<string, unknown> | undefined,
+    PrincipalAttr.accountId
+  );
+  return accountId ?? principalId;
+}
+
 function summaryForPrincipal(
   principalId: string,
   principalById: Map<string, Entity>,
   profileById: Map<string, Entity>
 ): PrincipalProfileSummary {
   const principalRow = principalById.get(principalId);
-  const profileId = readStringAttr(
-    principalRow?.attributes as Record<string, unknown> | undefined,
-    PrincipalAttr.currentProfileId
-  );
-  if (profileId === null) {
-    return {
-      displayName: null,
-      avatarConfig: resolveAvatarConfig(
-        undefined,
-        principalId,
-        ProfileAttr.avatarConfig
-      ),
-    };
-  }
+  const profileId = profileIdForPrincipal(principalRow, principalId);
   const prof = profileById.get(profileId);
-  if (prof === undefined || isProfileEntityDeleted(prof)) {
+  if (prof === undefined) {
     return {
       displayName: null,
       avatarConfig: resolveAvatarConfig(
@@ -82,7 +77,8 @@ function summaryForPrincipal(
 }
 
 /**
- * Batch-load current profiles for principals via `principal/currentProfileId` → `profile` row.
+ * Batch-load profiles for principals: account profile when `principal/accountId`
+ * is set, else principal-local profile.
  */
 export function useProfilesForPrincipals(principalIds: string[]): {
   profilesByPrincipal: Map<string, PrincipalProfileSummary>;
