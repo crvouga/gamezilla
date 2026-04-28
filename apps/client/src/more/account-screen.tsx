@@ -1,34 +1,21 @@
 import { useAuth } from '@gamezilla/client/auth/auth-context';
 import {
-  useAccountPrincipals,
   type AccountPrincipal,
+  useAccountPrincipals,
 } from '@gamezilla/client/auth/use-account-principals';
 import {
-  useProfilesForPrincipals,
-  type PrincipalProfileSummary,
-} from '@gamezilla/client/auth/use-principals-profiles';
-import {
-  useSessionsForPrincipals,
   type PrincipalSessionAggregate,
+  useSessionsForPrincipals,
 } from '@gamezilla/client/auth/use-principals-sessions';
-import { ProfileDiceBearAvatar } from '@gamezilla/client/profile/profile-dicebear-avatar';
-import { useProfile } from '@gamezilla/client/profile/use-profile';
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 import {
   ACCOUNT_PROVIDER_ENTITY_TYPE,
   AccountProviderAttr,
   GOOGLE_PROVIDER,
 } from '@gamezilla/domain/auth';
-import {
-  Badge,
-  Box,
-  Button,
-  Card,
-  ScreenBase,
-  Text,
-} from '@gamezilla/lib/ui';
+import { Box, Button, Card, ScreenBase, Text } from '@gamezilla/lib/ui';
 import { useEntities } from '@gamezilla/patch-db/react';
-import { useRouter } from 'expo-router';
+import { type Href, useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
 import { AccountDevicesCard } from './account-devices-card';
 import { formatTimestamp } from './account-format';
@@ -99,55 +86,19 @@ function CaptionLine({ label }: { label: string }) {
   );
 }
 
-function IdentityCard({
-  profile,
-  auth,
-}: {
-  profile: ReturnType<typeof useProfile>;
-  auth: ReturnType<typeof useAuth>;
-}) {
-  const statusLabel = auth.mode === 'signed-in' ? 'Signed in' : 'Guest';
-  const statusColor = auth.mode === 'signed-in' ? 'success' : 'warning';
-  return (
-    <Card elevation={1} sx={{ p: 4, gap: 3 }}>
-      <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
-        <ProfileDiceBearAvatar
-          config={profile.avatarConfig}
-          fallbackSeed={profile.principalId}
-          size={56}
-          loading={profile.loading}
-        />
-        <Box sx={{ flex: 1, minWidth: 0, gap: 1 }}>
-          <Text
-            variant="bodyBold"
-            numberOfLines={1}
-            label={profile.loading ? '\u00A0' : profile.displayLabel}
-          />
-          <Box sx={{ flexDirection: 'row' }}>
-            <Badge label={statusLabel} color={statusColor} size="sm" />
-          </Box>
-        </Box>
-      </Box>
-    </Card>
-  );
-}
-
 function LinkedProviderRow({ provider }: { provider: LinkedProvider }) {
   return (
     <Box sx={{ gap: 1 }}>
-      <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-        <Text variant="bodyBold" label={providerLabel(provider.provider)} />
-        <Badge label="Linked" color="success" size="sm" />
-      </Box>
+      <Text variant="bodyBold" label={providerLabel(provider.provider)} />
       {provider.email !== null ? (
         <Text variant="caption" selectable label={provider.email} />
       ) : null}
-      <CaptionLine label={`Linked: ${formatTimestamp(provider.linkedAt)}`} />
+      <CaptionLine label={`Connected: ${formatTimestamp(provider.linkedAt)}`} />
       <Text
         variant="caption"
         sx={{ color: 'textSecondary' }}
         selectable
-        label={`Provider account: ${provider.providerAccountId}`}
+        label={`Provider account id: ${provider.providerAccountId}`}
       />
     </Box>
   );
@@ -163,13 +114,15 @@ function LinkedProvidersBody({
   loading: boolean;
 }) {
   if (accountId === null) {
-    return <CaptionLine label="Sign in with a provider to link an account." />;
+    return (
+      <CaptionLine label="OAuth provider details are listed here once you are signed in." />
+    );
   }
   if (loading) {
-    return <CaptionLine label="Loading linked accounts…" />;
+    return <CaptionLine label="Loading provider records…" />;
   }
   if (providers.length === 0) {
-    return <CaptionLine label="No providers linked." />;
+    return <CaptionLine label="No OAuth provider records on file for this account." />;
   }
   return (
     <Box sx={{ gap: 3 }}>
@@ -180,62 +133,23 @@ function LinkedProvidersBody({
   );
 }
 
-function LinkedAccountsActions({
-  auth,
-  hasGoogleLinked,
-  onSignIn,
-}: {
-  auth: ReturnType<typeof useAuth>;
-  hasGoogleLinked: boolean;
-  onSignIn: () => void;
-}) {
-  const googleAvailable = auth.providers.google.available;
-  if (!googleAvailable) {
-    return auth.providers.google.unavailableReason !== null ? (
-      <CaptionLine label={auth.providers.google.unavailableReason} />
-    ) : null;
-  }
-  if (auth.mode !== 'signed-in') {
-    return (
-      <Button
-        title="Sign in with Google"
-        variant="outlined"
-        onPress={onSignIn}
-      />
-    );
-  }
-  if (!hasGoogleLinked) {
-    return <Button title="Link Google" variant="outlined" onPress={onSignIn} />;
-  }
-  return null;
-}
-
-function LinkedAccountsCard({
+function LinkedProvidersCard({
   accountId,
   providers,
   loading,
-  auth,
-  onSignIn,
 }: {
   accountId: string | null;
   providers: LinkedProvider[];
   loading: boolean;
-  auth: ReturnType<typeof useAuth>;
-  onSignIn: () => void;
 }) {
-  const hasGoogleLinked = providers.some((p) => p.provider === GOOGLE_PROVIDER);
   return (
     <Card elevation={1} sx={{ p: 4, gap: 3 }}>
-      <Text variant="bodyBold" label="Linked accounts" />
+      <Text variant="bodyBold" label="Sign-in providers" />
+      <CaptionLine label="Read-only: OAuth identities stored for your account." />
       <LinkedProvidersBody
         accountId={accountId}
         providers={providers}
         loading={loading}
-      />
-      <LinkedAccountsActions
-        auth={auth}
-        hasGoogleLinked={hasGoogleLinked}
-        onSignIn={onSignIn}
       />
     </Card>
   );
@@ -243,22 +157,15 @@ function LinkedAccountsCard({
 
 function AccountActionsRow({
   auth,
-  onEditProfile,
   onRequestSignOut,
   onSignIn,
 }: {
   auth: ReturnType<typeof useAuth>;
-  onEditProfile: () => void;
   onRequestSignOut: () => void;
   onSignIn: () => void;
 }) {
   return (
     <Box sx={{ gap: 2 }}>
-      <Button
-        title="Edit profile"
-        variant="outlined"
-        onPress={onEditProfile}
-      />
       {auth.mode === 'signed-in' ? (
         <Button
           title="Sign out"
@@ -274,57 +181,46 @@ function AccountActionsRow({
 
 function AccountScreenBody({
   auth,
-  profile,
   providers,
   loading,
   principals,
   principalsLoading,
-  profilesByPrincipal,
-  profilesLoading,
   sessionsByPrincipal,
   sessionsLoading,
   onSignIn,
-  onEditProfile,
   onRequestSignOut,
+  onOpenDevice,
   sx,
 }: {
   auth: ReturnType<typeof useAuth>;
-  profile: ReturnType<typeof useProfile>;
   providers: LinkedProvider[];
   loading: boolean;
   principals: AccountPrincipal[];
   principalsLoading: boolean;
-  profilesByPrincipal: Map<string, PrincipalProfileSummary>;
-  profilesLoading: boolean;
   sessionsByPrincipal: Map<string, PrincipalSessionAggregate>;
   sessionsLoading: boolean;
   onSignIn: () => void;
-  onEditProfile: () => void;
   onRequestSignOut: () => void;
+  onOpenDevice: (principalId: string) => void;
   sx: object;
 }) {
   return (
     <Box style={{ ...sx, gap: 12 }}>
-      <IdentityCard profile={profile} auth={auth} />
       <AccountDevicesCard
         accountId={auth.accountId}
         principals={principals}
         principalsLoading={principalsLoading}
-        profilesByPrincipal={profilesByPrincipal}
-        profilesLoading={profilesLoading}
         sessionsByPrincipal={sessionsByPrincipal}
         sessionsLoading={sessionsLoading}
+        onOpenDevice={onOpenDevice}
       />
-      <LinkedAccountsCard
+      <LinkedProvidersCard
         accountId={auth.accountId}
         providers={providers}
         loading={loading}
-        auth={auth}
-        onSignIn={onSignIn}
       />
       <AccountActionsRow
         auth={auth}
-        onEditProfile={onEditProfile}
         onRequestSignOut={onRequestSignOut}
         onSignIn={onSignIn}
       />
@@ -336,10 +232,9 @@ export function AccountScreen() {
   const nav = useBreadcrumbNav();
   const router = useRouter();
   const auth = useAuth();
-  const profile = useProfile();
   const { providers, loading } = useLinkedProviders(auth.accountId);
 
-  const currentPrincipalId = auth.principalId || profile.principalId;
+  const currentPrincipalId = auth.principalId;
   const { principals, loading: principalsLoading } = useAccountPrincipals(
     auth.accountId,
     currentPrincipalId
@@ -348,14 +243,15 @@ export function AccountScreen() {
     () => principals.map((p) => p.entityId),
     [principals]
   );
-  const { profilesByPrincipal, loading: profilesLoading } =
-    useProfilesForPrincipals(principalIds);
   const { sessionsByPrincipal, loading: sessionsLoading } =
     useSessionsForPrincipals(principalIds);
 
-  const onEditProfile = useCallback(() => {
-    router.push('/profile/edit');
-  }, [router]);
+  const onOpenDevice = useCallback(
+    (principalId: string) => {
+      router.push(`/more/account/device/${principalId}` as Href);
+    },
+    [router]
+  );
 
   const onSignIn = useCallback(() => {
     auth.openSignInModal();
@@ -372,25 +268,22 @@ export function AccountScreen() {
         { name: 'Settings', onPress: nav('/more') },
         {
           name: 'Account',
-          subtitle: 'Identifiers, linked accounts, and session',
+          subtitle: 'Devices and sign-in provider records',
         },
       ]}
       scroll
       content={({ sx }) => (
         <AccountScreenBody
           auth={auth}
-          profile={profile}
           providers={providers}
           loading={loading}
           principals={principals}
           principalsLoading={principalsLoading}
-          profilesByPrincipal={profilesByPrincipal}
-          profilesLoading={profilesLoading}
           sessionsByPrincipal={sessionsByPrincipal}
           sessionsLoading={sessionsLoading}
           onSignIn={onSignIn}
-          onEditProfile={onEditProfile}
           onRequestSignOut={onRequestSignOut}
+          onOpenDevice={onOpenDevice}
           sx={sx}
         />
       )}

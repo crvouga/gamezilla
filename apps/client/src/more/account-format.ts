@@ -34,3 +34,20 @@ export function formatAppLine(p: AccountPrincipal): string {
   if (b !== null) return `Build ${b}`;
   return EM_DASH;
 }
+
+/** Primary label for a device row (no profile display name). */
+export function formatDeviceListTitle(p: AccountPrincipal): string {
+  if (p.deviceName !== null && p.deviceName.trim().length > 0) {
+    return p.deviceName.trim();
+  }
+  const model = formatModelLine(p);
+  if (model !== EM_DASH) return model;
+  return `Device ${p.entityId.slice(0, 8)}\u2026`;
+}
+
+/** Secondary line for device list rows (OS + last seen). */
+export function formatDeviceListCaption(p: AccountPrincipal): string {
+  const os = formatOsLine(p);
+  const last = formatTimestamp(p.lastSeenAt ?? p.createdAt);
+  return `${os} · Last seen ${last}`;
+}

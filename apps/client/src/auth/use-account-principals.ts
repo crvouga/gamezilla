@@ -35,7 +35,8 @@ function normString(v: unknown): string | null {
   return t.length > 0 ? t : null;
 }
 
-function entityToAccountPrincipal(
+/** Map a `principal` entity row to {@link AccountPrincipal} (e.g. detail screen fallback). */
+export function accountPrincipalFromEntity(
   e: Entity,
   currentPrincipalId: string
 ): AccountPrincipal {
@@ -79,7 +80,7 @@ function mergePrincipalsForAccount(args: {
     byId.set(self.entityId, self);
   }
   const list = [...byId.values()].map((e) =>
-    entityToAccountPrincipal(e, currentPrincipalId)
+    accountPrincipalFromEntity(e, currentPrincipalId)
   );
   return [...list].sort((a, b) => {
     if (a.isCurrentDevice !== b.isCurrentDevice) {
@@ -141,7 +142,7 @@ export function useAccountPrincipals(
   const principals = useMemo(() => {
     if (accountId === null) {
       return localResult.entities.map((e) =>
-        entityToAccountPrincipal(e, currentPrincipalId)
+        accountPrincipalFromEntity(e, currentPrincipalId)
       );
     }
     return mergePrincipalsForAccount({
