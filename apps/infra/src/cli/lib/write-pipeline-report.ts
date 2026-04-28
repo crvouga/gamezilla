@@ -1,10 +1,12 @@
 import { appendFileSync, readFileSync } from 'node:fs';
+import { buildVendorDashboardMarkdown } from './dashboard-links';
 
 /** Stable display order for known jobs; unknown ids sort after, alphabetically. */
 const KNOWN_JOB_ORDER: readonly string[] = [
   'check',
   'qa',
   'publish-report',
+  'publish-playwright-report',
   'deploy',
 ];
 
@@ -113,6 +115,18 @@ function hasNonEmptyDeployOutputs(outputs: Readonly<Record<string, string>>): bo
   return Object.values(outputs).some((v) => (v ?? '').trim() !== '');
 }
 
+/** Any job that published `page_url` (Playwright report on Pages); job id is not hardcoded. */
+function findPlaywrightPageUrl(
+  needs: Readonly<Record<string, NeedState>>
+): string {
+  for (const state of Object.values(needs)) {
+    if (state.result !== 'success') continue;
+    const url = state.outputs?.['page_url']?.trim() ?? '';
+    if (url !== '') return url;
+  }
+  return '';
+}
+
 /** Builds markdown for the GitHub Actions pipeline summary. */
 export function buildPipelineReportMarkdown(
   needs: Readonly<Record<string, NeedState>>
@@ -174,14 +188,15 @@ export function buildPipelineReportMarkdown(
     lines.push('');
   }
 
-  const publishReport = needs['publish-report'];
-  const pageUrl = publishReport?.outputs?.['page_url']?.trim() ?? '';
-  if (publishReport?.result === 'success' && pageUrl !== '') {
+  const pageUrl = findPlaywrightPageUrl(needs);
+  if (pageUrl !== '') {
     lines.push('### Playwright report (GitHub Pages)');
     lines.push('');
     lines.push(`[Open report](${pageUrl})`);
     lines.push('');
   }
+
+  lines.push(...buildVendorDashboardMarkdown());
 
   const repo = process.env['GITHUB_REPOSITORY'] ?? '';
   const server = process.env['GITHUB_SERVER_URL'] ?? 'https://github.com';

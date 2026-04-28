@@ -190,7 +190,7 @@ jobs:
 
   report:
     if: always()
-    needs: [deploy]
+    needs: [check, qa, publish-playwright-report, deploy]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -202,7 +202,11 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Install Doppler CLI
+        uses: dopplerhq/cli-action@v4
+
       - name: Write pipeline report
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
-        run: bun run apps/infra/src/bin/pipeline-report.ts
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+        run: env DOPPLER_CONFIG=shared doppler run -- bun run apps/infra/src/bin/pipeline-report.ts
