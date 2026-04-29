@@ -5,13 +5,11 @@ import {
 } from '@gamezilla/client/auth/use-account-principals';
 import { useSessionsForPrincipals } from '@gamezilla/client/auth/use-principals-sessions';
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
-import {
-  PRINCIPAL_ENTITY_TYPE,
-} from '@gamezilla/domain/auth';
+import { PRINCIPAL_ENTITY_TYPE } from '@gamezilla/domain/auth';
+import { Trans } from '@gamezilla/lib/i18n';
 import { Badge, Box, Card, ScreenBase, Text } from '@gamezilla/lib/ui';
-import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/react/macro';
 import { useEntity } from '@gamezilla/patch-db/react';
+import { t } from '@lingui/core/macro';
 import { useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
 import { AccountDeviceDetailBody } from './account-device-detail-body';

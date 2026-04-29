@@ -9,6 +9,9 @@ export {
 export { CachingSecretStore, createCachingSecretStore } from './caching-secret-store';
 export { CombinedSecretStore, createCombinedSecretStore } from './combined-secret-store';
 export type { CachingSecretStoreOptions } from './caching-secret-store';
-export { DopplerSecretStore } from './doppler-secret-store';
+export {
+  createDopplerSecretStoreForScripts,
+  DopplerSecretStore,
+} from './doppler-secret-store';
 export type { DopplerSecretStoreOptions } from './doppler-secret-store';
 export type { SecretStore, SecretStoreGetInit } from './interface';

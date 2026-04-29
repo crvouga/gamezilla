@@ -2,7 +2,7 @@ import { PROJECT_CONFIG, turboCachePublicUrl } from '../../project-config';
 import type { SecretEntry } from './types';
 
 export class TurboToken implements SecretEntry {
-  readonly doppler = 'TURBO_TOKEN';
+  readonly secretKey = 'TURBO_TOKEN';
   readonly env = 'TURBO_TOKEN';
   readonly hint = 'Any random string, e.g.: openssl rand -hex 32';
 
@@ -23,7 +23,7 @@ export class TurboToken implements SecretEntry {
 }
 
 export class TurboApi implements SecretEntry {
-  readonly doppler = 'TURBO_API';
+  readonly secretKey = 'TURBO_API';
   readonly env = 'TURBO_API';
   readonly hint = turboCachePublicUrl();
 
@@ -42,7 +42,7 @@ export class TurboApi implements SecretEntry {
 }
 
 export class TurboTeam implements SecretEntry {
-  readonly doppler = 'TURBO_TEAM';
+  readonly secretKey = 'TURBO_TEAM';
   readonly env = 'TURBO_TEAM';
   readonly hint = `team_${PROJECT_CONFIG.domain.replace(/\.\w+$/, '')}`;
 
@@ -52,7 +52,7 @@ export class TurboTeam implements SecretEntry {
 }
 
 export class TurboLogOrder implements SecretEntry {
-  readonly doppler = 'TURBO_LOG_ORDER';
+  readonly secretKey = 'TURBO_LOG_ORDER';
   readonly env = 'TURBO_LOG_ORDER';
   readonly hint = 'stream';
 
@@ -64,7 +64,7 @@ export class TurboLogOrder implements SecretEntry {
 /** Forces turbo to use the self-hosted remote cache for every invocation.
  * Same syntax as the `--cache` CLI flag. */
 export class TurboCache implements SecretEntry {
-  readonly doppler = 'TURBO_CACHE';
+  readonly secretKey = 'TURBO_CACHE';
   readonly env = 'TURBO_CACHE';
   readonly hint = 'remote:rw';
 

@@ -13,7 +13,7 @@ import {
 } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { t } from '@lingui/core/macro';
-import { useLingui } from '@lingui/react/macro';
+import { useLingui } from '@gamezilla/lib/i18n';
 
 import { useBreakpoint, useTheme } from '../../theme';
 import { Box } from '../box';
@@ -114,7 +114,11 @@ function BreadcrumbCell({
 }) {
   if (isLast) {
     return (
-      <Text variant="caption" sx={{ color: 'textSecondary' }} label={crumb.name} />
+      <Text
+        variant="caption"
+        sx={{ color: 'textSecondary' }}
+        label={crumb.name}
+      />
     );
   }
   if (crumb.onPress !== undefined) {
@@ -125,7 +129,11 @@ function BreadcrumbCell({
     );
   }
   return (
-    <Text variant="caption" sx={{ color: 'textSecondary' }} label={crumb.name} />
+    <Text
+      variant="caption"
+      sx={{ color: 'textSecondary' }}
+      label={crumb.name}
+    />
   );
 }
 

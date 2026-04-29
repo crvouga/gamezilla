@@ -21,6 +21,17 @@ config.resolver.nodeModulesPaths = [
   path.resolve(monorepoRoot, 'node_modules'),
 ];
 
+// Bun isolates `@lingui/babel-plugin-lingui-macro` under `.bun/`; its `macro.cjs`
+// does `require('babel-plugin-macros')` from that tree, so Metro must map the
+// bare name to this app’s install (see devDependency `babel-plugin-macros`).
+config.resolver.extraNodeModules = {
+  ...(config.resolver.extraNodeModules ?? {}),
+  'babel-plugin-macros': path.resolve(
+    projectRoot,
+    'node_modules/babel-plugin-macros'
+  ),
+};
+
 // 3. Follow pnpm symlinks (always-on in Metro 0.81+) and enable package exports
 // @ts-ignore
 config.resolver.unstable_enablePackageExports = true;

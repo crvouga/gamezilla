@@ -9,8 +9,10 @@
     "@gamezilla/patch-db": "workspace:*",
     "@gamezilla/domain": "workspace:*",
     "@gamezilla/lib": "workspace:*",
+    "@gamezilla/stripe": "workspace:*",
     "@hono/zod-validator": "^0.7.6",
     "hono": "^4.7.0",
+    "stripe": "^18.0.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -23,6 +25,9 @@
     "build": "bun -e \"process.exit(0)\"",
     "tc": "tsc --noEmit -p ../../tsconfig.json",
     "setup": "bun run scripts/setup-dev-vars.ts",
+    "stripe:sync": "bun run --filter @gamezilla/stripe sync",
+    "stripe:check": "bun run --filter @gamezilla/stripe check",
+    "stripe:webhooks:sync": "bun run --filter @gamezilla/stripe webhooks:sync",
     "dev": "wrangler dev --port 8788 --inspector-port 9231",
     "kill": "lsof -ti :8788 | xargs kill -9 2>/dev/null || true",
     "preview": "wrangler dev --port 8788"

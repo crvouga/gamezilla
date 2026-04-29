@@ -1,7 +1,7 @@
 import type { SecretEntry } from './types';
 
 export class PsServiceTokenId implements SecretEntry {
-  readonly doppler = 'PLANETSCALE_SERVICE_TOKEN_ID';
+  readonly secretKey = 'PLANETSCALE_SERVICE_TOKEN_ID';
   readonly env = 'PLANETSCALE_SERVICE_TOKEN_ID';
   readonly hint =
     'https://app.planetscale.com/ → Org Settings → Service tokens → Token ID';
@@ -12,7 +12,7 @@ export class PsServiceTokenId implements SecretEntry {
 }
 
 export class PsServiceToken implements SecretEntry {
-  readonly doppler = 'PLANETSCALE_SERVICE_TOKEN';
+  readonly secretKey = 'PLANETSCALE_SERVICE_TOKEN';
   readonly env = 'PLANETSCALE_SERVICE_TOKEN';
   readonly hint =
     'https://app.planetscale.com/ → Org Settings → Service tokens → Token value';

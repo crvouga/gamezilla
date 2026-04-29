@@ -1,7 +1,7 @@
 import type { SchemaField } from '@gamezilla/client/profile/dicebear-schema';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { Box, NumberStepper, Switch, Text } from '@gamezilla/lib/ui';
-import { Trans } from '@lingui/react/macro';
+import { Trans } from '@gamezilla/lib/i18n';
 
 import { humanizeOptionKey } from './option-helpers';
 

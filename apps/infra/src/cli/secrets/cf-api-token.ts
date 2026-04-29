@@ -1,9 +1,9 @@
 import { fetchWithRetry } from '@gamezilla/lib/async/fetch-with-retry';
-import type { SecretEntry } from './types';
 import { cfHeaders, probeCfPermission } from './cloudflare';
+import type { SecretEntry } from './types';
 
 export class CfApiToken implements SecretEntry {
-  readonly doppler = 'CLOUDFLARE_API_TOKEN';
+  readonly secretKey = 'CLOUDFLARE_API_TOKEN';
   readonly env = 'CLOUDFLARE_API_TOKEN';
   readonly hint = [
     'https://dash.cloudflare.com/profile/api-tokens → Create Token',
@@ -22,7 +22,7 @@ export class CfApiToken implements SecretEntry {
 
       const res = await fetchWithRetry(
         'https://api.cloudflare.com/client/v4/user/tokens/verify',
-        { headers },
+        { headers }
       );
       if (!res.ok) return `Cloudflare API returned HTTP ${res.status}`;
       const body = (await res.json()) as { result?: { status?: string } };
@@ -32,7 +32,7 @@ export class CfApiToken implements SecretEntry {
 
       const acctRes = await fetchWithRetry(
         'https://api.cloudflare.com/client/v4/accounts',
-        { headers },
+        { headers }
       );
       if (!acctRes.ok)
         return `Token cannot list accounts (HTTP ${acctRes.status}) — check permissions`;
@@ -46,11 +46,12 @@ export class CfApiToken implements SecretEntry {
 
       const checks: Array<{ label: string; probe: Promise<boolean> }> = [
         {
-          label: 'Account Settings Read  (Account permission — wrangler account discovery)',
+          label:
+            'Account Settings Read  (Account permission — wrangler account discovery)',
           probe: probeCfPermission(
             headers,
             'GET',
-            `https://api.cloudflare.com/client/v4/accounts/${accountId}`,
+            `https://api.cloudflare.com/client/v4/accounts/${accountId}`
           ),
         },
         {
@@ -58,7 +59,7 @@ export class CfApiToken implements SecretEntry {
           probe: probeCfPermission(
             headers,
             'GET',
-            `https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects`,
+            `https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects`
           ),
         },
         {
@@ -66,22 +67,23 @@ export class CfApiToken implements SecretEntry {
           probe: probeCfPermission(
             headers,
             'GET',
-            `https://api.cloudflare.com/client/v4/accounts/${accountId}/workers/scripts`,
+            `https://api.cloudflare.com/client/v4/accounts/${accountId}/workers/scripts`
           ),
         },
         {
-          label: 'Workers KV Storage Edit (Account permission — wrangler deploy/delete)',
+          label:
+            'Workers KV Storage Edit (Account permission — wrangler deploy/delete)',
           probe: probeCfPermission(
             headers,
             'GET',
-            `https://api.cloudflare.com/client/v4/accounts/${accountId}/storage/kv/namespaces`,
+            `https://api.cloudflare.com/client/v4/accounts/${accountId}/storage/kv/namespaces`
           ),
         },
       ];
 
       const zonesRes = await fetchWithRetry(
         `https://api.cloudflare.com/client/v4/zones?account.id=${accountId}&per_page=1`,
-        { headers },
+        { headers }
       );
       if (zonesRes.ok) {
         const zonesBody = (await zonesRes.json()) as {
@@ -91,38 +93,42 @@ export class CfApiToken implements SecretEntry {
         if (zoneId) {
           checks.push(
             {
-              label: 'DNS Write              (Zone permission — for CNAME records)',
+              label:
+                'DNS Write              (Zone permission — for CNAME records)',
               probe: probeCfPermission(
                 headers,
                 'POST',
                 `https://api.cloudflare.com/client/v4/zones/${zoneId}/dns_records`,
-                { type: 'TXT', name: '_cf-probe', content: 'probe', ttl: 1 },
+                { type: 'TXT', name: '_cf-probe', content: 'probe', ttl: 1 }
               ),
             },
             {
-              label: 'Zone Settings Write    (Zone permission — for redirect rulesets)',
+              label:
+                'Zone Settings Write    (Zone permission — for redirect rulesets)',
               probe: probeCfPermission(
                 headers,
                 'GET',
-                `https://api.cloudflare.com/client/v4/zones/${zoneId}/rulesets`,
+                `https://api.cloudflare.com/client/v4/zones/${zoneId}/rulesets`
               ),
             },
             {
-              label: 'Zone WAF Write         (Zone permission — for WAF custom rules / bot-challenge skip)',
+              label:
+                'Zone WAF Write         (Zone permission — for WAF custom rules / bot-challenge skip)',
               probe: probeCfPermission(
                 headers,
                 'GET',
-                `https://api.cloudflare.com/client/v4/zones/${zoneId}/rulesets/phases/http_request_firewall_custom/entrypoint`,
+                `https://api.cloudflare.com/client/v4/zones/${zoneId}/rulesets/phases/http_request_firewall_custom/entrypoint`
               ),
             },
             {
-              label: 'Workers Routes Edit    (Zone permission — for custom domain routing)',
+              label:
+                'Workers Routes Edit    (Zone permission — for custom domain routing)',
               probe: probeCfPermission(
                 headers,
                 'GET',
-                `https://api.cloudflare.com/client/v4/zones/${zoneId}/workers/routes`,
+                `https://api.cloudflare.com/client/v4/zones/${zoneId}/workers/routes`
               ),
-            },
+            }
           );
         }
       } else {

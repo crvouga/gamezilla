@@ -68,4 +68,36 @@ export class DopplerCli {
 
     return { token: fromCli, source: 'cli' };
   }
+
+  /**
+   * Project slug from `doppler configure` (current directory scope). Returns
+   * `null` when the CLI is unavailable or no project is configured.
+   */
+  tryConfigureGetProjectPlain(): string | null {
+    try {
+      const out = this.execSyncFn('doppler configure get project --plain', {
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      }).trim();
+      return out.length > 0 ? out : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Config name from `doppler configure` (current directory scope). Returns
+   * `null` when the CLI is unavailable or no config is configured.
+   */
+  tryConfigureGetConfigPlain(): string | null {
+    try {
+      const out = this.execSyncFn('doppler configure get config --plain', {
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      }).trim();
+      return out.length > 0 ? out : null;
+    } catch {
+      return null;
+    }
+  }
 }

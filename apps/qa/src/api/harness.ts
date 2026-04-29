@@ -3,10 +3,12 @@ import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { LOCAL_API_PREVIEW_ORIGIN } from '../constants/local-api-preview';
+import { resolveLocalPreviewApiOrigin } from '../constants/local-api-preview';
 
-/** Same origin as {@link LOCAL_API_PREVIEW_ORIGIN} — used by API integration tests. */
-export const LOCAL_API_ORIGIN = LOCAL_API_PREVIEW_ORIGIN;
+/** Loopback API Worker origin from Doppler — used by API integration tests. */
+export async function resolveLocalApiOrigin(): Promise<string> {
+  return resolveLocalPreviewApiOrigin();
+}
 
 function resolveWorkspaceRoot(): string {
   let dir = dirname(fileURLToPath(import.meta.url));
@@ -22,8 +24,9 @@ function resolveWorkspaceRoot(): string {
 
 const repoRoot = resolveWorkspaceRoot();
 
+/** Port for `@gamezilla/db` PGlite HTTP server (fixed in apps/db; Doppler `local` `DB_URL` must match). */
 export function defaultSqlPort(): string {
-  return process.env['API_HEALTH_TEST_SQL_PORT'] ?? '18765';
+  return '15432';
 }
 
 export function databaseHttpOrigin(port: string): string {

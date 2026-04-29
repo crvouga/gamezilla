@@ -1,6 +1,6 @@
 import { PrincipalAvatar } from '@gamezilla/client/profile/principal-avatar';
 import { Box, Text } from '@gamezilla/lib/ui';
-import { Trans } from '@lingui/react/macro';
+import { Trans } from '@gamezilla/lib/i18n';
 
 import type { SpaceMemberRow } from './types';
 

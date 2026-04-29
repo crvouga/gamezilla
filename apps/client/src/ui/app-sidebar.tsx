@@ -5,7 +5,7 @@ import {
   Text,
   useTheme,
 } from '@gamezilla/lib/ui';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Trans, useLingui } from '@gamezilla/lib/i18n';
 import { usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 

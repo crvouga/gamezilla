@@ -142,6 +142,26 @@ describe('DopplerSecretStore', () => {
     expect(url).toContain('config=shared');
   });
 
+  it('includes project query when project is set', async () => {
+    let url = '';
+    const store = new DopplerSecretStore({
+      token: 'tok',
+      project: 'my-app',
+      fetchFn: mockFetch((input) => {
+        url = typeof input === 'string' ? input : input.toString();
+        return Promise.resolve(
+          new Response(JSON.stringify({ A: '1' }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        );
+      }),
+    });
+
+    await expect(store.getRequired('A')).resolves.toBe('1');
+    expect(url).toContain('project=my-app');
+  });
+
   it('throws SecretStoreParseError on invalid JSON', async () => {
     const store = new DopplerSecretStore({
       token: 't',

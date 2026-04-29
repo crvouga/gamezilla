@@ -1,5 +1,5 @@
 export interface SecretEntry {
-  readonly doppler: string;
+  readonly secretKey: string;
   readonly env: string;
   readonly hint: string;
   validate(value: string): Promise<string | null>;
@@ -7,7 +7,7 @@ export interface SecretEntry {
 
 export async function validateSecret(
   entry: SecretEntry,
-  value: string,
+  value: string
 ): Promise<string | null> {
   return entry.validate(value);
 }

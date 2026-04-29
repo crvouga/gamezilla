@@ -5,10 +5,10 @@ import {
 } from '@gamezilla/lib/secret-store';
 
 /**
- * Single Doppler config `shared`; used only for secrets that are not
- * deployment-scoped URLs (e.g. OAuth client id).
+ * Doppler secrets for this Worker. Config (`local` vs `prod`) is implied by the
+ * config-scoped `DOPPLER_TOKEN` — no `config` query param.
  */
 export function createApiSecretStore(token: string): SecretStore {
-  const store = new DopplerSecretStore({ token, configName: 'shared' });
-  return createCachingSecretStore(store, { ttlMs: 60_000 });
+  const store = new DopplerSecretStore({ token });
+  return createCachingSecretStore(store, { ttlMs: 300_000 });
 }

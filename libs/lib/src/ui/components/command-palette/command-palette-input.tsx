@@ -1,4 +1,4 @@
-import { useLingui } from '@lingui/react/macro';
+import { useLingui } from '@gamezilla/lib/i18n';
 import { useEffect, useRef } from 'react';
 import type { TextInput as RNTextInput } from 'react-native';
 

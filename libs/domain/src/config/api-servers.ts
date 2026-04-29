@@ -6,6 +6,13 @@ import { assert } from '@gamezilla/lib/assert';
  */
 export const PRODUCTION_API_HTTP_HOSTNAMES = ['api.gamezilla.app'] as const;
 
+/**
+ * Loopback origin for `wrangler dev` in this repo (`apps/api` uses port 8788).
+ * Used when `LOCAL_PREVIEW_API_ORIGIN` is unset in env and absent or blank in Doppler.
+ */
+export const DEFAULT_LOCAL_PREVIEW_API_ORIGIN =
+  'http://127.0.0.1:8788' as const;
+
 function isProductionApiHttpHostname(hostname: string): boolean {
   return (PRODUCTION_API_HTTP_HOSTNAMES as readonly string[]).includes(hostname);
 }
@@ -54,7 +61,9 @@ export function assertTigerPolicyForResolvedApiOrigin(
 
   assert.fail(
     'Tiger invariant: local / development client must not use production API. ' +
-      'Point EXPO_PUBLIC_API_URL at the local Worker (e.g. http://127.0.0.1:8788). ' +
+      'Set `EXPO_PUBLIC_API_URL` / `API_URL` to a non-production origin, ' +
+      'or set env / Doppler `LOCAL_PREVIEW_API_ORIGIN`, or rely on the default ' +
+      `local preview (${DEFAULT_LOCAL_PREVIEW_API_ORIGIN}). ` +
       'If you intentionally need prod from a dev shell or bundle, set EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL=1.',
     { origin, hostname, policy }
   );

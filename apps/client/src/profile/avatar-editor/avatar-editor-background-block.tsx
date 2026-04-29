@@ -8,7 +8,7 @@ import {
   SegmentedControl,
   Text,
 } from '@gamezilla/lib/ui';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Trans, useLingui } from '@gamezilla/lib/i18n';
 
 import { TriggerRow } from './avatar-editor-trigger-row';
 

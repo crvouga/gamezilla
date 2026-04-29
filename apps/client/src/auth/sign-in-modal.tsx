@@ -10,7 +10,7 @@ import {
   Text,
 } from '@gamezilla/lib/ui';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/react/macro';
+import { Trans } from '@gamezilla/lib/i18n';
 import { useCallback, useEffect } from 'react';
 import { useAsync } from '@gamezilla/lib/async/use-async';
 import type { AuthGoogleProviderState } from './auth-capabilities';

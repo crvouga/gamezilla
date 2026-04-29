@@ -2,7 +2,7 @@ import { useAuth } from '@gamezilla/client/auth/auth-context';
 import { useServerStatus } from '@gamezilla/client/connection/use-server-status';
 import { useLogger } from '@gamezilla/lib/logger/react';
 import { Box, StatusDot, Text, type ScreenBaseAction } from '@gamezilla/lib/ui';
-import { useLingui } from '@lingui/react/macro';
+import { useLingui } from '@gamezilla/lib/i18n';
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
 import { useAsync } from '@gamezilla/lib/async/use-async';

@@ -1,4 +1,3 @@
-import { assert } from '@gamezilla/lib/assert';
 import { join } from 'node:path';
 import { ALL_DEPS } from '../deps/registry';
 import { collectDepVersionIssues } from '../deps/version-check';
@@ -75,13 +74,8 @@ export class DeployCommand implements Command {
       );
     }
 
-    // ── 2b. DB migrations (requires DB_URL from PlanetScale provision) ───
+    // ── 2b. DB migrations (`migrate` loads DB_URL from Doppler via SecretStore) ───
     await runStep(p, 'Database migrate', async () => {
-      const dbUrl = (process.env['DB_URL'] ?? '').trim();
-      assert.nonEmptyString(
-        dbUrl,
-        'DB_URL must be set after PlanetScale provision — ensure PLANETSCALE_DATABASE_URL is in Doppler (or export DB_URL)'
-      );
       await runAsync(p, 'bun', ['run', 'migrate'], {
         cwd: join(REPO_ROOT, 'apps/db'),
         env: process.env,
@@ -92,12 +86,36 @@ export class DeployCommand implements Command {
     // ── 3. Deploy resources that have a deploy method (topological order)
     for (const resource of resources) {
       if (!resource.deploy) continue;
-      assert.defined(resource.deploy, 'resource.deploy is defined');
       await runStep(p, `Deploy: ${resource.id}`, async () => {
-        assert.defined(resource.deploy, 'resource.deploy is defined');
-        await resource.deploy(p, ctx);
+        await resource.deploy!(p, ctx);
       });
     }
+
+    await runStep(p, 'Stripe products sync', async () => {
+      await runAsync(
+        p,
+        'bun',
+        ['run', '--filter', '@gamezilla/stripe', 'sync'],
+        {
+          cwd: REPO_ROOT,
+          env: process.env,
+          label: 'stripe: catalog sync (+ entity-db API dump when DB_URL set)',
+        }
+      );
+    });
+
+    await runStep(p, 'Stripe webhooks sync', async () => {
+      await runAsync(
+        p,
+        'bun',
+        ['run', '--filter', '@gamezilla/stripe', 'webhooks:sync'],
+        {
+          cwd: REPO_ROOT,
+          env: process.env,
+          label: 'stripe: webhook endpoints + Doppler STRIPE_WEBHOOK_SECRET',
+        }
+      );
+    });
 
     // ── 4. Smoke tests ──────────────────────────────────────────────────
     const outputs = infraOutputs(ctx);

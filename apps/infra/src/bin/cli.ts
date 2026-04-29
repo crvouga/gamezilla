@@ -4,13 +4,12 @@ import { GitHubActionsPlatform } from '../cli/platform/github-actions';
 import { LocalPlatform } from '../cli/platform/local';
 
 /**
- * This repo’s secrets live in Doppler config `shared`. Local `~/.doppler` may
- * still reference a removed `prd` config; unset/empty `DOPPLER_CONFIG` would
- * follow that and break `doppler secrets get`. Default before any CLI spawns.
+ * Infra CLI targets Doppler config `prod` unless `DOPPLER_CONFIG` is set.
+ * Unset/empty would follow `~/.doppler` defaults and can break `doppler secrets get`.
  */
 const dopplerConfigRaw = process.env['DOPPLER_CONFIG'];
 if (typeof dopplerConfigRaw !== 'string' || dopplerConfigRaw.trim() === '') {
-  process.env['DOPPLER_CONFIG'] = 'shared';
+  process.env['DOPPLER_CONFIG'] = 'prod';
 }
 
 const isGitHubActions = process.env['GITHUB_ACTIONS'] === 'true';

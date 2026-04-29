@@ -50,25 +50,15 @@ export class ApiWorkerResource extends ResourceBase {
     const env = wranglerEnv();
 
     const dopplerToken = resolveDopplerTokenForDeploy();
-    const dbUrl = (process.env['DB_URL'] ?? '').trim();
-    assert.nonEmptyString(
-      dbUrl,
-      'DB_URL must be set (e.g. after PlanetScale provision) before deploying the API Worker'
-    );
 
     await runCaptureAsync('wrangler', ['secret', 'put', 'DOPPLER_TOKEN'], {
       cwd: apiDir,
       env,
       input: dopplerToken,
     });
-    platform.notice('DOPPLER_TOKEN secret pushed to Workers.');
-
-    await runCaptureAsync('wrangler', ['secret', 'put', 'DB_URL'], {
-      cwd: apiDir,
-      env,
-      input: dbUrl,
-    });
-    platform.notice('DB_URL secret pushed to Workers.');
+    platform.notice(
+      'DOPPLER_TOKEN secret pushed to Workers (DB_URL and other config load from Doppler at boot).'
+    );
 
     await runAsync(platform, 'wrangler', ['deploy'], {
       cwd: apiDir,

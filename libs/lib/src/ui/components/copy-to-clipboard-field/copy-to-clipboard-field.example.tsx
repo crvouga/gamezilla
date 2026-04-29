@@ -1,5 +1,5 @@
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/react/macro';
+import { Trans } from '@gamezilla/lib/i18n';
 import { Box } from '../box';
 import { Text } from '../text';
 import { CopyToClipboardField } from './copy-to-clipboard-field';

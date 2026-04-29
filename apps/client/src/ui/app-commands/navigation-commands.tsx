@@ -1,5 +1,5 @@
 import { RegisterCommand } from '@gamezilla/lib/ui';
-import { useLingui } from '@lingui/react/macro';
+import { useLingui } from '@gamezilla/lib/i18n';
 import { useMemo } from 'react';
 import { useRouter, useSitemap, type Href, type SitemapType } from 'expo-router';
 

@@ -1,8 +1,11 @@
 import { runCapture } from '../subprocess';
+import { ApiUrl } from './api-url';
 import { CfAccountId } from './cf-account-id';
 import { CfApiToken } from './cf-api-token';
-import { PsServiceTokenId, PsServiceToken } from './ps-credentials';
-import { PsDatabaseUrl } from './ps-database-url';
+import { DbUrl } from './db-url';
+import { PsServiceToken, PsServiceTokenId } from './ps-credentials';
+import { StripeSecretKey } from './stripe-secret-key';
+import { StripeWebhookSecret } from './stripe-webhook-secret';
 import type { SecretEntry } from './types';
 
 export { validateSecret } from './types';
@@ -13,7 +16,10 @@ const SECRET_MAP: ReadonlyArray<SecretEntry> = [
   new CfAccountId(),
   new PsServiceTokenId(),
   new PsServiceToken(),
-  new PsDatabaseUrl(),
+  new DbUrl(),
+  new ApiUrl(),
+  new StripeSecretKey(),
+  new StripeWebhookSecret(),
 ];
 
 export function getSecretMap(): ReadonlyArray<SecretEntry> {
@@ -53,7 +59,7 @@ export function listDopplerSecretNames(): ReadonlyArray<string> {
 export function loadSecretsIntoEnv(): Array<{ env: string; set: boolean }> {
   const results: Array<{ env: string; set: boolean }> = [];
 
-  for (const { doppler, env } of SECRET_MAP) {
+  for (const { secretKey: doppler, env } of SECRET_MAP) {
     try {
       const value = fetchDopplerSecret(doppler);
       process.env[env] = value;

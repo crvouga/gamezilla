@@ -6,7 +6,7 @@ import {
   Text,
   useThemePreference,
 } from '@gamezilla/lib/ui';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Trans, useLingui } from '@gamezilla/lib/i18n';
 
 export function ThemeSettingsScreen() {
   const { t } = useLingui();

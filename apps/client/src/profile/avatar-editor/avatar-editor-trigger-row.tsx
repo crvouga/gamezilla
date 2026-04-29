@@ -1,5 +1,5 @@
 import { Pressable, Text } from '@gamezilla/lib/ui';
-import { Trans } from '@lingui/react/macro';
+import { Trans } from '@gamezilla/lib/i18n';
 import type { ReactNode } from 'react';
 
 export function TriggerRow({

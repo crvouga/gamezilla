@@ -4,7 +4,7 @@ import {
   useBreakpoint,
   useTabsProps,
 } from '@gamezilla/lib/ui';
-import { useLingui } from '@lingui/react/macro';
+import { useLingui } from '@gamezilla/lib/i18n';
 import { Tabs } from 'expo-router';
 
 import { AppSidebar } from '@gamezilla/client/ui/app-sidebar';

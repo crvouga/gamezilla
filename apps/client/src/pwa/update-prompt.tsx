@@ -1,6 +1,6 @@
 import { registerServiceWorker, type PwaUpdatePrompt } from './register-service-worker';
 import { DismissibleBanner } from '@gamezilla/lib/ui';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Trans, useLingui } from '@gamezilla/lib/i18n';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Platform } from 'react-native';
 

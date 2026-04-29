@@ -2,14 +2,7 @@ import { assert } from '@gamezilla/lib/assert';
 import { createInterface } from 'node:readline/promises';
 import { ALL_DEPS } from '../deps/registry';
 import { isAtLeastLatest } from '../deps/semver';
-import {
-  banner,
-  fmt,
-  fail as fmtFail,
-  info,
-  ok,
-  warn,
-} from '../lib/fmt';
+import { banner, fmt, fail as fmtFail, info, ok, warn } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
 import {
@@ -54,7 +47,7 @@ export class SetupCommand implements Command {
   // ── Helpers ──────────────────────────────────────────────────────────
 
   private async promptForMissingSecrets(
-    missingEnvs: Set<string>,
+    missingEnvs: Set<string>
   ): Promise<void> {
     const secretMap = getSecretMap();
     const missing = secretMap.filter((s) => missingEnvs.has(s.env));
@@ -62,7 +55,7 @@ export class SetupCommand implements Command {
 
     if (process.env['CI']) {
       this.platform.warning(
-        `${missing.length} secret(s) missing — cannot prompt in CI`,
+        `${missing.length} secret(s) missing — cannot prompt in CI`
       );
       return;
     }
@@ -77,25 +70,25 @@ export class SetupCommand implements Command {
       let set = 0;
       for (const s of missing) {
         console.log('');
-        console.log(`  ${fmt.bold(s.doppler)}`);
+        console.log(`  ${fmt.bold(s.secretKey)}`);
         console.log(`  ${fmt.dim(s.hint)}`);
         const value = await rl.question(`  ${fmt.cyan('value:')} `);
         const trimmed = value.trim();
 
         if (trimmed === '') {
-          info(s.doppler, 'skipped');
+          info(s.secretKey, 'skipped');
           continue;
         }
 
         const error = await validateSecret(s, trimmed);
         if (error !== null) {
-          fmtFail(s.doppler, error);
+          fmtFail(s.secretKey, error);
           continue;
         }
 
-        setDopplerSecret(s.doppler, trimmed);
+        setDopplerSecret(s.secretKey, trimmed);
         process.env[s.env] = trimmed;
-        ok(s.doppler, 'saved to Doppler');
+        ok(s.secretKey, 'saved to Doppler');
         set++;
       }
 
@@ -145,13 +138,13 @@ export class SetupCommand implements Command {
         latest = await dep.fetchLatestVersion();
         if (latest && !isAtLeastLatest(st.version, latest)) {
           assert.fail(
-            `setup: ${dep.name} is still behind latest (${latest}), have ${st.version}`,
+            `setup: ${dep.name} is still behind latest (${latest}), have ${st.version}`
           );
         }
       } else if (!latest) {
         warn(
           dep.name,
-          'could not resolve latest version — skipped strict upgrade check',
+          'could not resolve latest version — skipped strict upgrade check'
         );
       }
 

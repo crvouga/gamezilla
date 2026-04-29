@@ -8,8 +8,8 @@
  * @see https://developers.google.com/identity/branding-guidelines (Google)
  */
 
-import { msg } from '@lingui/core/macro';
 import type { MessageDescriptor } from '@lingui/core';
+import { msg } from '@lingui/core/macro';
 
 import type { BrandIconName } from '../brand-icon';
 

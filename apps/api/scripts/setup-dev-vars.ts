@@ -33,31 +33,10 @@ function resolveDopplerToken(): string {
   process.exit(1);
 }
 
-function defaultLocalDbHttpUrl(): string {
-  const raw = process.env['SQL_PORT'];
-  const port =
-    typeof raw === 'string' && raw.trim().length > 0 ? raw.trim() : '15432';
-  return `http://127.0.0.1:${port}`;
-}
-
-function resolveDbUrlFromEnv(): string {
-  const raw = process.env['DB_URL'];
-  if (typeof raw === 'string' && raw.trim().length > 0) {
-    return raw.trim();
-  }
-  const url = defaultLocalDbHttpUrl();
-  process.stdout.write(
-    `[setup-dev-vars] DB_URL unset; using local @gamezilla/db HTTP URL ${url} (same default as apps/db server; set DB_URL or SQL_PORT to override).\n`
-  );
-  return url;
-}
-
 async function main(): Promise<void> {
   const dopplerToken = resolveDopplerToken();
-  const dbUrl = resolveDbUrlFromEnv();
   const lines: string[] = [
     `DOPPLER_TOKEN=${encodeDevVarValue(dopplerToken)}`,
-    `DB_URL=${encodeDevVarValue(dbUrl)}`,
   ];
 
   const body = `${lines.join('\n')}\n`;
@@ -67,7 +46,7 @@ async function main(): Promise<void> {
   process.stdout.write(
     `[setup-dev-vars] wrote .dev.vars with keys: ${lines
       .map((l) => l.split('=')[0])
-      .join(', ')}\n`
+      .join(', ')} (DB_URL and other config load from Doppler at Worker boot)\n`
   );
 }
 

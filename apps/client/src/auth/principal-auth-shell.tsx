@@ -8,7 +8,7 @@ import { useLogger } from '@gamezilla/lib/logger/react';
 import { SecureStorageToken } from '@gamezilla/lib/secure-storage/interface';
 import { Box, Button, Center, Text } from '@gamezilla/lib/ui';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/react/macro';
+import { Trans } from '@gamezilla/lib/i18n';
 import {
   useCallback,
   useEffect,

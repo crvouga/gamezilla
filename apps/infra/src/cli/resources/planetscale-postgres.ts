@@ -37,7 +37,7 @@ export async function pingDatabase(): Promise<DatabasePingResult> {
         ok: false,
         durationMs: Date.now() - start,
         error:
-          'DB_URL not set — run `bun run infra deploy` or export DB_URL for this shell',
+          'DB_URL not set — run `bun run infra deploy` or ensure Doppler exposes DB_URL',
       };
     }
     if (!url.startsWith('postgresql://') && !url.startsWith('postgres://')) {
@@ -117,13 +117,13 @@ function tryFetchCachedDbUrlFromEnv(): string | null {
     : null;
 }
 
-function readPlanetscaleDatabaseUrl(): string {
-  let raw = process.env['PLANETSCALE_DATABASE_URL'];
+function readDbUrlFromDoppler(): string {
+  let raw = process.env['DB_URL'];
   if (typeof raw !== 'string' || raw.trim().length === 0) {
     try {
-      const fromDoppler = fetchDopplerSecret('PLANETSCALE_DATABASE_URL').trim();
+      const fromDoppler = fetchDopplerSecret('DB_URL').trim();
       if (fromDoppler.length > 0) {
-        process.env['PLANETSCALE_DATABASE_URL'] = fromDoppler;
+        process.env['DB_URL'] = fromDoppler;
         raw = fromDoppler;
       }
     } catch {
@@ -132,22 +132,21 @@ function readPlanetscaleDatabaseUrl(): string {
   }
   if (typeof raw !== 'string' || raw.trim().length === 0) {
     throw new Error(
-      'PLANETSCALE_DATABASE_URL is not set and could not be read from Doppler. Add secret PLANETSCALE_DATABASE_URL in your Doppler config, ensure `doppler setup` / `DOPPLER_TOKEN` targets that project, or export PLANETSCALE_DATABASE_URL in the shell.'
+      'DB_URL is not set and could not be read from Doppler. Add secret DB_URL in your Doppler config, ensure `doppler setup` / `DOPPLER_TOKEN` targets that project, or export DB_URL in the shell.'
     );
   }
   const url = raw.trim();
   if (!url.startsWith('postgresql://') && !url.startsWith('postgres://')) {
     throw new Error(
-      'PLANETSCALE_DATABASE_URL must start with postgres:// or postgresql://'
+      'DB_URL for PlanetScale must start with postgres:// or postgresql://'
     );
   }
   return url;
 }
 
 /**
- * Sets `process.env.DB_URL` from `DB_URL` (if already valid) or
- * `PLANETSCALE_DATABASE_URL`, after a connectivity check and best-effort
- * ownership claim.
+ * Sets `process.env.DB_URL` from a valid cached Postgres URL, or loads `DB_URL`
+ * from Doppler, after a connectivity check and best-effort ownership claim.
  */
 export async function resolveDatabaseUrl(): Promise<string> {
   const cached = tryFetchCachedDbUrlFromEnv();
@@ -160,12 +159,10 @@ export async function resolveDatabaseUrl(): Promise<string> {
     }
   }
 
-  const url = readPlanetscaleDatabaseUrl();
+  const url = readDbUrlFromDoppler();
   const valid = await validateConnectivity(url);
   if (!valid) {
-    throw new Error(
-      'PLANETSCALE_DATABASE_URL connectivity check failed (SELECT 1)'
-    );
+    throw new Error('DB_URL connectivity check failed (SELECT 1)');
   }
 
   await claimTableOwnership(url);

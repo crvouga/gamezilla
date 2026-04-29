@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import {
   databaseHttpOrigin,
   defaultSqlPort,
-  LOCAL_API_ORIGIN,
+  resolveLocalApiOrigin,
   runTurboOnce,
   startTurboBackground,
   waitForHttpOk,
@@ -11,29 +11,24 @@ import {
 test(
   'api server starts and GET /health returns ok',
   async () => {
+    const LOCAL_API_ORIGIN = await resolveLocalApiOrigin();
     const sqlPort = defaultSqlPort();
     const databaseUrl = databaseHttpOrigin(sqlPort);
 
     await using db = startTurboBackground(
       ['preview', '--filter=@gamezilla/db'],
-      {
-        SQL_PORT: sqlPort,
-      }
+      {}
     );
     await waitForHttpOk(`${databaseUrl}/health`, {
       timeoutMs: 60_000,
       label: 'local db /health',
     });
 
-    await runTurboOnce(['setup', '--filter=@gamezilla/api'], {
-      DB_URL: databaseUrl,
-    });
+    await runTurboOnce(['setup', '--filter=@gamezilla/api'], {});
 
     await using api = startTurboBackground(
       ['preview', '--filter=@gamezilla/api'],
-      {
-        DB_URL: databaseUrl,
-      }
+      {}
     );
     await waitForHttpOk(`${LOCAL_API_ORIGIN}/health`, {
       timeoutMs: 120_000,

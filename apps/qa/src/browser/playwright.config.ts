@@ -5,7 +5,9 @@ import { fileURLToPath } from 'node:url';
 
 import { assert } from '@gamezilla/lib/assert';
 
-import { LOCAL_API_PREVIEW_ORIGIN } from '../constants/local-api-preview';
+import { resolveLocalPreviewApiOrigin } from '../constants/local-api-preview';
+
+const LOCAL_API_PREVIEW_ORIGIN = await resolveLocalPreviewApiOrigin();
 
 // ---------------------------------------------------------------------------
 // Tiger style: validate every assumption up front so failures surface here,
@@ -16,7 +18,7 @@ import { LOCAL_API_PREVIEW_ORIGIN } from '../constants/local-api-preview';
 
 assert.nonEmptyString(
   LOCAL_API_PREVIEW_ORIGIN,
-  'LOCAL_API_PREVIEW_ORIGIN must be a non-empty string'
+  'resolved local API preview origin must be a non-empty string'
 );
 
 let localApiPreviewUrl: URL | undefined;
@@ -24,7 +26,7 @@ assert.notThrows(
   () => {
     localApiPreviewUrl = new URL(LOCAL_API_PREVIEW_ORIGIN);
   },
-  'LOCAL_API_PREVIEW_ORIGIN must parse as a URL',
+  'resolved local API preview origin must parse as a URL',
   { value: LOCAL_API_PREVIEW_ORIGIN }
 );
 assert.defined(
@@ -34,27 +36,19 @@ assert.defined(
 assert.enum(
   localApiPreviewUrl.protocol,
   ['http:', 'https:'],
-  'LOCAL_API_PREVIEW_ORIGIN must use http(s)'
+  'resolved local API preview origin must use http(s)'
 );
 assert.enum(
   localApiPreviewUrl.hostname,
   ['127.0.0.1', 'localhost', '0.0.0.0'],
-  'LOCAL_API_PREVIEW_ORIGIN must point at loopback (the webServer below is local-only)'
+  'resolved local API preview origin must point at loopback (the webServer below is local-only)'
 );
 assert.equals(
   localApiPreviewUrl.origin,
   LOCAL_API_PREVIEW_ORIGIN,
-  'LOCAL_API_PREVIEW_ORIGIN must already be in canonical-origin form (no path/query/hash)'
+  'resolved local API preview origin must already be in canonical-origin form (no path/query/hash)'
 );
 
-// The Playwright webServer below boots a local API Worker via `turbo run
-// preview`, so the client `setup-env.ts` step must resolve to that origin --
-// not whatever EXPO_PUBLIC_API_URL Doppler may have injected (which is prod
-// on shared configs and would trip the Tiger invariant in
-// `assertTigerPolicyForResolvedApiOrigin('forbid-prod-on-this-machine')`).
-//
-// Force both vars unconditionally; an inherited prod URL is never correct
-// here because the webServer is local-only.
 process.env['API_URL'] = LOCAL_API_PREVIEW_ORIGIN;
 process.env['EXPO_PUBLIC_API_URL'] = LOCAL_API_PREVIEW_ORIGIN;
 
@@ -69,17 +63,6 @@ assert.equals(
   'EXPO_PUBLIC_API_URL must be set after override'
 );
 
-// `apps/qa` is launched via `bun --bun x playwright test` so the Playwright
-// runner can natively load this TypeScript config. That `--bun` flag works
-// by prepending a temp-dir `node` shim to PATH so that any descendant
-// `#!/usr/bin/env node` shebang resolves to Bun. The shim path is platform-
-// dependent: macOS uses `/private/tmp/bun-node-XXXX`, Linux (incl. GitHub
-// Actions ubuntu-latest) uses `/tmp/bun-node-XXXX`. wrangler does not
-// support the Bun runtime (it crashes the inspector WebSocket upgrade with
-// `Unexpected server response: 101`), so the webServer chain
-// (turbo run preview -> apps/api -> wrangler dev) must not inherit that
-// shim. Strip it from PATH here, before Playwright spawns the webServer
-// subprocess.
 const BUN_NODE_SHIM_PATTERN = /(?:^|\/)bun-node-[^/]+$/;
 const rawPath = process.env['PATH'];
 assert.nonEmptyString(rawPath, 'PATH must be defined for webServer spawn');
@@ -109,8 +92,6 @@ assert.ok(
   { repoRoot }
 );
 
-// Remote cache only (no local .turbo); requires TURBO_* from Doppler
-// (TURBO_CACHE=remote:rw forces remote). Same as root `bun preview`.
 const turboPreviewCmd: string[] = [
   'bun',
   'turbo',
@@ -124,10 +105,8 @@ assert.ok(
   turboPreviewCmd.length > 0,
   'turbo preview command must have at least one segment'
 );
-assert.all(
-  turboPreviewCmd,
-  (segment): asserts segment is string =>
-    assert.nonEmptyString(segment, 'turbo command segment must be non-empty')
+assert.all(turboPreviewCmd, (segment): asserts segment is string =>
+  assert.nonEmptyString(segment, 'turbo command segment must be non-empty')
 );
 
 const baseURL = 'http://localhost:5173';
@@ -136,7 +115,7 @@ assert.notThrows(
   () => {
     baseURLParsed = new URL(baseURL);
   },
-  'baseURL must parse as URL',
+  'baseURL must parse as a URL',
   { baseURL }
 );
 assert.defined(baseURLParsed, 'baseURLParsed must be defined after URL parse');
@@ -158,11 +137,6 @@ export default defineConfig({
   use: {
     baseURL,
     trace: 'on-first-retry',
-    // Always record video for every test (pass or fail) and embed it in
-    // the HTML report. The `playwright-report/` artifact uploaded by the
-    // QA workflow is self-contained -- Playwright's HTML reporter bundles
-    // attached videos under `playwright-report/data/` so they replay
-    // inline in the report viewer.
     video: 'on',
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
@@ -172,9 +146,6 @@ export default defineConfig({
     url: baseURL,
     reuseExistingServer: !isCi,
     timeout: 180_000,
-    // Forward webServer stdout/stderr so failures (e.g. wrangler boot errors)
-    // surface in QA logs instead of being hidden behind a generic
-    // "Process from config.webServer was not able to start" message.
     stdout: 'pipe',
     stderr: 'pipe',
   },

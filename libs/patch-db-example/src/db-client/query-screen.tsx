@@ -13,8 +13,8 @@ import {
   TextInput,
   useTheme,
 } from '@gamezilla/lib/ui';
-import { useLingui } from '@lingui/react/macro';
-import { Trans } from '@lingui/react/macro';
+import { useLingui } from '@gamezilla/lib/i18n';
+import { Trans } from '@gamezilla/lib/i18n';
 import { useState } from 'react';
 import { useWindowDimensions } from 'react-native';
 

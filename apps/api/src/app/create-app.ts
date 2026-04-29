@@ -1,13 +1,14 @@
-import { createPatchDbApiHandler } from '@gamezilla/patch-db/api';
-import type { PatchDbApiConfig } from '@gamezilla/patch-db/api';
 import { ValidationError } from '@gamezilla/lib/assert';
 import { createLogger } from '@gamezilla/lib/logger';
+import type { PatchDbApiConfig } from '@gamezilla/patch-db/api';
+import { createPatchDbApiHandler } from '@gamezilla/patch-db/api';
+import { createStripeApp } from '@gamezilla/stripe/stripe-app';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import type { ApiWorkerEnv } from '../config/env';
-import { UnauthorizedError } from '../auth/unauthorized-error';
 import { createAuthClaimApp } from '../auth/route';
+import { UnauthorizedError } from '../auth/unauthorized-error';
 import { createClientConfigApp } from '../client-config/route';
+import type { ApiWorkerEnv } from '../config/env';
 import { healthApp } from '../health/route';
 import type { ApiHandlerConfig } from './config';
 import { apiCors } from './cors';
@@ -44,7 +45,14 @@ function toPatchDbApiConfig(config: ApiHandlerConfig): PatchDbApiConfig {
  * [Hono best practices](https://hono.dev/docs/guides/best-practices).
  */
 export function createApiApp(config: ApiHandlerConfig) {
-  const { secretStore, db } = config;
+  const {
+    secretStore,
+    db,
+    stripe,
+    entityDb,
+    requireAuth,
+    webhookSecretDopplerKey,
+  } = config;
   const { honoApp: patchDbApp, basePath: resolvedBase } =
     createPatchDbApiHandler(toPatchDbApiConfig(config));
   /** RPC client keys use the literal mount path; wire URL stays `basePath`-driven. */
@@ -55,6 +63,17 @@ export function createApiApp(config: ApiHandlerConfig) {
     .route('/', healthApp)
     .route('/', createClientConfigApp(db, log, secretStore))
     .route('/', createAuthClaimApp(db, secretStore))
+    .route(
+      '/',
+      createStripeApp({
+        db,
+        secretStore,
+        stripe,
+        entityDb,
+        requireAuth,
+        webhookSecretDopplerKey,
+      })
+    )
     .route(patchMount, patchDbApp)
     .onError((err, c) => {
       if (err instanceof UnauthorizedError) {

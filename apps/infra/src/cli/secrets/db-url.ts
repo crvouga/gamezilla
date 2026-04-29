@@ -2,17 +2,17 @@ import type { SecretEntry } from './types';
 
 const POSTGRES_URL_PREFIX = /^(postgres|postgresql):\/\//i;
 
-export class PsDatabaseUrl implements SecretEntry {
-  readonly doppler = 'PLANETSCALE_DATABASE_URL';
-  readonly env = 'PLANETSCALE_DATABASE_URL';
+export class DbUrl implements SecretEntry {
+  readonly secretKey = 'DB_URL';
+  readonly env = 'DB_URL';
   readonly hint =
-    'PlanetScale Postgres connection URL (postgresql://…), from PlanetScale dashboard or branch credentials';
+    'Postgres connection URL (postgresql://…) or local PGlite HTTP (http://127.0.0.1:15432)';
 
   async validate(value: string): Promise<string | null> {
     const v = value.trim();
     if (v.length === 0) return 'Must be non-empty';
-    if (!POSTGRES_URL_PREFIX.test(v)) {
-      return 'Must start with postgres:// or postgresql://';
+    if (!POSTGRES_URL_PREFIX.test(v) && !v.startsWith('http://')) {
+      return 'Must start with postgres://, postgresql://, or http://';
     }
     try {
       new URL(v);

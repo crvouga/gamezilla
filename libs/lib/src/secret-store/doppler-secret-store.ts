@@ -1,3 +1,4 @@
+import { DopplerCli } from '../doppler/doppler-cli';
 import {
   SecretBlankError,
   SecretMissingError,
@@ -11,8 +12,19 @@ const DOPPLER_DOWNLOAD =
 
 export type DopplerSecretStoreOptions = {
   token: string;
-  /** Optional Doppler config name, e.g. 'shared'. */
-  configName?: 'shared';
+  /**
+   * Doppler project slug for the download API. Required for many personal/CLI
+   * tokens; optional for config-scoped service tokens. Defaults to
+   * `process.env.DOPPLER_PROJECT` when unset.
+   */
+  project?: string;
+  /**
+   * Doppler config name (e.g. `local`, `prod`). Sent as the `config` query param
+   * when set. Defaults to `options.configName`, then `process.env.DOPPLER_CONFIG`.
+   */
+  config?: string;
+  /** @deprecated Prefer {@link DopplerSecretStoreOptions.config}. */
+  configName?: string;
   /** @default globalThis.fetch */
   fetchFn?: DopplerFetch;
 };
@@ -83,10 +95,17 @@ async function readDopplerJsonObjectBody(
  * Doppler [Secrets Download](https://docs.doppler.com/reference/secrets-download)
  * using a config-scoped token (no `project` / `config` query params).
  */
+function trimOpt(value: string | undefined): string | null {
+  if (value === undefined) return null;
+  const t = value.trim();
+  return t.length > 0 ? t : null;
+}
+
 export class DopplerSecretStore implements SecretStore {
   private readonly token: string;
   private readonly fetchFn: DopplerFetch;
-  private readonly configName: string | null;
+  private readonly projectSlug: string | null;
+  private readonly configSlug: string | null;
 
   constructor(options: DopplerSecretStoreOptions) {
     const t = options.token.trim();
@@ -97,8 +116,9 @@ export class DopplerSecretStore implements SecretStore {
     }
     this.token = t;
     this.fetchFn = options.fetchFn ?? defaultFetch;
-    const c = options.configName?.trim();
-    this.configName = c !== undefined && c.length > 0 ? c : null;
+    this.projectSlug = trimOpt(options.project);
+    this.configSlug =
+      trimOpt(options.config) ?? trimOpt(options.configName);
   }
 
   async getRequired(name: string, init?: SecretStoreGetInit): Promise<string> {
@@ -172,8 +192,11 @@ export class DopplerSecretStore implements SecretStore {
     const params = new URLSearchParams();
     params.set('format', 'json');
     params.set('secrets', names.join(','));
-    if (this.configName !== null) {
-      params.set('config', this.configName);
+    if (this.projectSlug !== null) {
+      params.set('project', this.projectSlug);
+    }
+    if (this.configSlug !== null) {
+      params.set('config', this.configSlug);
     }
 
     const requestInit: RequestInit = {
@@ -207,4 +230,31 @@ export class DopplerSecretStore implements SecretStore {
     }
     return out;
   }
+}
+
+/**
+ * {@link DopplerSecretStore} for Node/Bun scripts (setup, migrations, QA).
+ * Fills `project` / `config` from `DOPPLER_PROJECT` / `DOPPLER_CONFIG` or from
+ * `doppler configure get … --plain` so personal CLI tokens work with the
+ * secrets download API. Workers should use `new DopplerSecretStore({ token })`
+ * with a config-scoped service token (no project/config query params).
+ */
+export function createDopplerSecretStoreForScripts(): DopplerSecretStore {
+  const cli = new DopplerCli();
+  const { token } = cli.resolveToken();
+  const envProject =
+    typeof process !== 'undefined'
+      ? trimOpt(process.env['DOPPLER_PROJECT'])
+      : null;
+  const envConfig =
+    typeof process !== 'undefined'
+      ? trimOpt(process.env['DOPPLER_CONFIG'])
+      : null;
+  const project = envProject ?? cli.tryConfigureGetProjectPlain();
+  const config = envConfig ?? cli.tryConfigureGetConfigPlain();
+  return new DopplerSecretStore({
+    token,
+    ...(project !== null ? { project } : {}),
+    ...(config !== null ? { config } : {}),
+  });
 }

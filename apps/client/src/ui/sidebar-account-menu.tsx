@@ -38,10 +38,7 @@ type Auth = ReturnType<typeof useAuth>;
 type Profile = ReturnType<typeof useProfile>;
 type ServerStatus = ReturnType<typeof useServerStatus>;
 
-function useAccountMenuActions(args: {
-  auth: Auth;
-  close: () => void;
-}) {
+function useAccountMenuActions(args: { auth: Auth; close: () => void }) {
   const { auth, close } = args;
   const router = useRouter();
   const log = useLogger('sidebar-account-menu');
@@ -73,7 +70,7 @@ function useAccountMenuActions(args: {
       onError: (err) => {
         log.error('auth action failed', { error: err.message });
       },
-    }
+    },
   });
 
   const onAuth = useCallback(async () => {
@@ -97,11 +94,7 @@ function ConnectionTrailing({
 }) {
   const ms = health.latencyMs;
   const label =
-    health.phase === 'loading'
-      ? '…'
-      : ms !== null
-        ? t`${ms} ms`
-        : '—';
+    health.phase === 'loading' ? '…' : ms !== null ? t`${ms} ms` : '—';
   return (
     <Box
       sx={{
@@ -112,11 +105,7 @@ function ConnectionTrailing({
       }}
     >
       <StatusDot status={aggregateStatus} size={10} />
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label={label}
-      />
+      <Text variant="caption" sx={{ color: 'textSecondary' }} label={label} />
     </Box>
   );
 }
@@ -188,7 +177,15 @@ function buildMenuContent(args: {
   onAuth: () => void;
   onSettings: () => void;
 }): FloatingMenuContent {
-  const { profile, auth, serverStatus, onProfile, onServerStatus, onAuth, onSettings } = args;
+  const {
+    profile,
+    auth,
+    serverStatus,
+    onProfile,
+    onServerStatus,
+    onAuth,
+    onSettings,
+  } = args;
   return {
     header: buildHeader(profile),
     rows: [
@@ -305,15 +302,7 @@ export function SidebarAccountMenu() {
         onAuth,
         onSettings,
       }),
-    [
-      profile,
-      auth,
-      serverStatus,
-      onProfile,
-      onServerStatus,
-      onAuth,
-      onSettings,
-    ]
+    [profile, auth, serverStatus, onProfile, onServerStatus, onAuth, onSettings]
   );
 
   return (

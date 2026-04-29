@@ -32,6 +32,8 @@ export const PrincipalAttr = {
 export const AccountAttr = {
   id: 'account/id',
   createdAt: 'account/createdAt',
+  /** Stripe customer id (`cus_…`) for this account — set by checkout in the API. */
+  stripeCustomerId: 'account/stripeCustomerId',
 } as const;
 
 export const AccountProviderAttr = {

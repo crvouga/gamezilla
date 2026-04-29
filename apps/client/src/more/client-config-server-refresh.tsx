@@ -9,7 +9,7 @@ import {
 } from '@gamezilla/domain/config/config-service';
 import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import { Button, Card, Text } from '@gamezilla/lib/ui';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Trans, useLingui } from '@gamezilla/lib/i18n';
 import { useCallback } from 'react';
 
 async function postClientConfigRefresh(

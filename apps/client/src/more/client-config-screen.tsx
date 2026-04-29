@@ -5,7 +5,7 @@ import {
   ClientConfigAttr,
 } from '@gamezilla/domain/client-config/client-config-entities';
 import { Box, Card, ScreenBase, Text } from '@gamezilla/lib/ui';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Trans, useLingui } from '@gamezilla/lib/i18n';
 import { useEntities } from '@gamezilla/patch-db/react';
 
 import { ClientConfigServerRefreshCard } from '@gamezilla/client/more/client-config-server-refresh';

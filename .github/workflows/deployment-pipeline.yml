@@ -209,4 +209,4 @@ jobs:
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
-        run: env DOPPLER_CONFIG=shared doppler run -- bun run apps/infra/src/bin/pipeline-report.ts
+        run: env DOPPLER_CONFIG=prod doppler run -- bun run apps/infra/src/bin/pipeline-report.ts

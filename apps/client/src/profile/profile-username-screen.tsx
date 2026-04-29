@@ -13,7 +13,7 @@ import {
   TextInput,
 } from '@gamezilla/lib/ui';
 import { usePatchesDb } from '@gamezilla/patch-db/react';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Trans, useLingui } from '@gamezilla/lib/i18n';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 

@@ -2,6 +2,7 @@ import { assert } from '../assert';
 import type { Logger } from '../logger/logger';
 import type { SqlClient } from '../sql-client/interface';
 import { DEFAULT_POSTGRES_ENTITY_TABLE, ENTITY_DB_COLUMNS } from './constants';
+import { qualifiedTable } from './identifier';
 import type {
   CompareVersions,
   Entity,
@@ -15,7 +16,6 @@ import {
   assertUpsertArgs,
   ENTITY_DB_LIMITS,
 } from './interface';
-import { qualifiedTable } from './identifier';
 
 const C = ENTITY_DB_COLUMNS;
 
@@ -159,7 +159,10 @@ async function assertEntityDbSchema(
      WHERE n.nspname = ? AND p.relname = ?`,
     [schemaName, tableBaseName]
   );
-  assert.array(parts, 'entity-db migrate: partition list query must return array');
+  assert.array(
+    parts,
+    'entity-db migrate: partition list query must return array'
+  );
   assert.ok(
     parts.length >= 1,
     'entity-db migrate: expected at least one LIST partition (e.g. DEFAULT)',
@@ -230,15 +233,15 @@ export class EntityDbImplPostgres<T> implements EntityDb<T> {
   static migrate(args: {
     sqlClient: SqlClient;
     logger: Logger;
-    tableName?: string;
-    schema?: string;
   }): Promise<void> {
     return migrateEntityDbPostgres(args);
   }
 
   async upsert(args: UpsertArgs<T>): Promise<{ applied: boolean }> {
     assertUpsertArgs(args);
-    return this.sqlClient.transaction((tx) => this.runUpsertTransaction(tx, args));
+    return this.sqlClient.transaction((tx) =>
+      this.runUpsertTransaction(tx, args)
+    );
   }
 
   private async runUpsertTransaction(
@@ -372,9 +375,13 @@ WHERE ${C.namespace} = ? AND ${C.type} = ? AND ${C.id} = ?`;
   }
 
   private mapRowToEntity(key: EntityKey, row: JsonbRow): Entity<T> {
-    assert.ok(row[C.data] !== undefined, 'entity-db: row.data must be defined', {
-      key,
-    });
+    assert.ok(
+      row[C.data] !== undefined,
+      'entity-db: row.data must be defined',
+      {
+        key,
+      }
+    );
     const lastMod = row[C.lastModifiedAt];
     const lastModifiedAt = coerceToDate(lastMod, key);
     return {
@@ -407,7 +414,9 @@ async function assertExactlyOneRow(
     `SELECT 1 AS one FROM ${qTable} WHERE ${C.namespace} = ? AND ${C.type} = ? AND ${C.id} = ?`,
     [key.namespace, key.type, key.id]
   );
-  assert.array(verify, 'entity-db: post-write verify must return array', { key });
+  assert.array(verify, 'entity-db: post-write verify must return array', {
+    key,
+  });
   assert.equals(
     verify.length,
     1,
@@ -444,19 +453,14 @@ function parseJsonbMetadata(
     );
     return parsed;
   }
-  assert.record(
-    raw,
-    'entity-db: row.metadata must be a plain object',
-    { key, value: raw }
-  );
+  assert.record(raw, 'entity-db: row.metadata must be a plain object', {
+    key,
+    value: raw,
+  });
   return raw;
 }
 
-function parseJsonbAsT<T>(
-  raw: unknown,
-  label: string,
-  key: EntityKey
-): T {
+function parseJsonbAsT<T>(raw: unknown, label: string, key: EntityKey): T {
   if (typeof raw === 'string') {
     let parsed: unknown;
     assert.notThrows(

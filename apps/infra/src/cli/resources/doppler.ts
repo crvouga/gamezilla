@@ -17,6 +17,9 @@ assert.notThrows(
   'crypto.randomUUID must be available'
 );
 
+const apiWorkerPublicOrigin = (): string =>
+  `https://api.${PROJECT_CONFIG.domain}`;
+
 const DERIVED_DEFAULTS: Record<string, () => string> = {
   TURBO_TOKEN: () => crypto.randomUUID(),
   TURBO_API: () => turboCachePublicUrl(),
@@ -26,8 +29,10 @@ const DERIVED_DEFAULTS: Record<string, () => string> = {
   // Force every `turbo` invocation to use the self-hosted remote cache
   // instead of the local filesystem cache. Same syntax as `--cache`.
   TURBO_CACHE: () => 'remote:rw',
+  /** Public API Worker origin (same value as EXPO_PUBLIC_API_URL) — required e.g. by `webhooks:sync`. */
+  API_URL: apiWorkerPublicOrigin,
   // Public API origin baked into the Expo/web client at build time.
-  EXPO_PUBLIC_API_URL: () => `https://api.${PROJECT_CONFIG.domain}`,
+  EXPO_PUBLIC_API_URL: apiWorkerPublicOrigin,
 };
 
 /**
@@ -37,6 +42,7 @@ const DERIVED_DEFAULTS: Record<string, () => string> = {
  */
 const EXTERNALLY_MANAGED_KEYS: ReadonlyArray<string> = [
   'EXPO_PUBLIC_COMMIT_HASH',
+  'LOCAL_PREVIEW_API_ORIGIN',
   'PLANETSCALE_DATABASE',
   'PLANETSCALE_ORG',
   'WEB_CLIENT_GOOGLE_CLIENT_ID',
@@ -69,7 +75,7 @@ export class DopplerResource extends ResourceBase {
    * full resource DAG runs (e.g. destroy).
    */
   loadSecretsQuick(): void {
-    for (const { doppler, env } of getSecretMap()) {
+    for (const { secretKey: doppler, env } of getSecretMap()) {
       const existing = process.env[env];
       if (typeof existing === 'string' && existing.trim().length > 0) continue;
       try {
@@ -112,10 +118,10 @@ export class DopplerResource extends ResourceBase {
       if (!value) continue;
       const err = await validateSecret(entry, value);
       if (err) {
-        platform.error(`${entry.doppler}: ${err}`);
+        platform.error(`${entry.secretKey}: ${err}`);
         validationFailed = true;
       } else {
-        ok(entry.doppler);
+        ok(entry.secretKey);
       }
     }
 
@@ -157,7 +163,7 @@ export class DopplerResource extends ResourceBase {
     }
 
     const managed = new Set<string>([
-      ...getSecretMap().map((s) => s.doppler),
+      ...getSecretMap().map((s) => s.secretKey),
       ...Object.keys(DERIVED_DEFAULTS),
       ...EXTERNALLY_MANAGED_KEYS,
       ...DOPPLER_RESERVED_KEYS,

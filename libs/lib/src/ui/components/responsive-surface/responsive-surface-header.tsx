@@ -4,10 +4,10 @@
 
 import { t } from '@lingui/core/macro';
 import type { ReactNode } from 'react';
+import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { IconButton } from '../icon-button';
 import { Text } from '../text';
-import { useTheme } from '../../theme';
 
 export type ResponsiveSurfaceHeaderProps = {
   title: ReactNode;
@@ -37,10 +37,7 @@ export function ResponsiveSurfaceHeader({
         style={{ flex: 1, marginRight: 8 }}
       />
       <IconButton size={36} onPress={onClose} accessibilityLabel={t`Close`}>
-        <Text
-          style={{ fontSize: 18, color: theme.colors.text }}
-          label="✕"
-        />
+        <Text style={{ fontSize: 18, color: theme.colors.text }} label="✕" />
       </IconButton>
     </Box>
   );

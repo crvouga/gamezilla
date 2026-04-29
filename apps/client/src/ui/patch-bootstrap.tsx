@@ -33,7 +33,7 @@ import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { assertDatabaseName } from '@gamezilla/lib/sqlite';
 import { Box, Button, Center, hideSplash, Text } from '@gamezilla/lib/ui';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/react/macro';
+import { Trans } from '@gamezilla/lib/i18n';
 import { assertUrl } from '@gamezilla/patch-db/assert-url';
 import { PatchDbImplClientTransport } from '@gamezilla/patch-db/impl-client-transport';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
@@ -99,9 +99,8 @@ const USE_ABSURD_SQL_ON_WEB = false;
 
 async function openLocalSqlClient(databaseName: string): Promise<SqlClient> {
   if (Platform.OS === 'web' && USE_ABSURD_SQL_ON_WEB) {
-    const { SqlClientImplAbsurdSql } = await import(
-      '@gamezilla/lib/sql-client/impl-absurd-sql'
-    );
+    const { SqlClientImplAbsurdSql } =
+      await import('@gamezilla/lib/sql-client/impl-absurd-sql');
     return await SqlClientImplAbsurdSql.open(databaseName);
   }
   return await SqlClientImplExpoSqlite.open(databaseName);
@@ -190,7 +189,10 @@ export async function clearLocalDatabaseAndReload(
 async function registerSessionService(
   c: DependencyInjectionContainer,
   principalService: PrincipalService,
-  accountIdHolder: { get: () => string | null; set: (id: string | null) => void }
+  accountIdHolder: {
+    get: () => string | null;
+    set: (id: string | null) => void;
+  }
 ) {
   const db = c.get(PatchesDbToken);
   const principalId = principalService.getPrincipalId();

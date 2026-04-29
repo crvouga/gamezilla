@@ -10,7 +10,7 @@ import {
   Text,
 } from '@gamezilla/lib/ui';
 import { useTheme } from '@gamezilla/lib/ui/theme';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Trans, useLingui } from '@gamezilla/lib/i18n';
 import type { ReactNode } from 'react';
 import {
   formatDeviceListCaption,

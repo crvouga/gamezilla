@@ -3,7 +3,7 @@
  * preset, transparent swatch, and custom hex entry.
  */
 
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Trans, useLingui } from '@gamezilla/lib/i18n';
 import type { ReactNode } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable } from 'react-native';

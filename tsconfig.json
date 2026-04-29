@@ -18,7 +18,8 @@
       "@gamezilla/patch-db/*": ["./libs/patch-db/src/*"],
       "@gamezilla/room/*": ["./libs/room/src/*"],
       "@gamezilla/patch-db-example/*": ["./libs/patch-db-example/src/*"],
-      "@gamezilla/room-example/*": ["./libs/room-example/src/*"]
+      "@gamezilla/room-example/*": ["./libs/room-example/src/*"],
+      "@gamezilla/stripe/*": ["./libs/stripe/src/*"]
     }
   },
   "include": [
@@ -38,6 +39,7 @@
     "libs/patch-db-example/src/**/*.tsx",
     "libs/room-example/src/**/*.ts",
     "libs/room-example/src/**/*.tsx",
+    "libs/stripe/src/**/*.ts",
     "apps/turbo-cache/src/**/*.ts",
     "apps/client/.expo/types/**/*.ts",
     "apps/client/expo-env.d.ts"

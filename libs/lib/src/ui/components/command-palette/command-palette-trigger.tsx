@@ -1,5 +1,5 @@
 import type { LocalizedString } from '@gamezilla/lib/i18n';
-import { useLingui } from '@lingui/react/macro';
+import { useLingui } from '@gamezilla/lib/i18n';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Pressable } from '../pressable';

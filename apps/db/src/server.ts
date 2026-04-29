@@ -11,7 +11,6 @@
  */
 
 import { PGlite } from '@electric-sql/pglite';
-import { assert } from '@gamezilla/lib/assert';
 import { createLogger } from '@gamezilla/lib/logger';
 import { Hono } from 'hono';
 import { migrateInProcessPglite } from './migrate';
@@ -21,22 +20,8 @@ const HOST = '127.0.0.1';
 
 const log = createLogger({ name: 'db' });
 
-/**
- * Precondition: `SQL_PORT` env (if set) must be a decimal string in 1…65535.
- * Misconfiguration crashes the process — fail loudly at startup, not mid-request.
- */
-function parseListenPortFromEnv(): number {
-  const raw = process.env['SQL_PORT'] ?? '15432';
-  const port = Number.parseInt(raw, 10);
-  assert.ok(
-    Number.isFinite(port) && port >= 1 && port <= 65_535,
-    'SQL_PORT must be a valid TCP port (1–65535)',
-    { raw, port }
-  );
-  return port;
-}
-
-const SQL_PORT = parseListenPortFromEnv();
+/** Local PGlite HTTP dev server — fixed port (matches default `DB_URL` in Doppler `local`). */
+const SQL_PORT = 15_432;
 
 const db = await PGlite.create();
 
