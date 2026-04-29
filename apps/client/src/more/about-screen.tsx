@@ -5,10 +5,13 @@ import {
   getShortCommitHash,
 } from '@gamezilla/domain/config/app-metadata';
 import { Box, Card, CopyToClipboardField, ScreenBase, Text } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
+import { Trans } from '@lingui/react/macro';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
 export function AboutScreen() {
+  const { t } = useLingui();
   const nav = useBreadcrumbNav();
   const fullCommitHash = getCommitHash();
   const shortCommitHash = getShortCommitHash();
@@ -22,40 +25,37 @@ export function AboutScreen() {
   return (
     <ScreenBase
       breadcrumbs={[
-        { name: 'Spaces', onPress: nav('/') },
-        { name: 'Settings', onPress: nav('/more') },
+        { name: <Trans>Spaces</Trans>, onPress: nav('/') },
+        { name: <Trans>Settings</Trans>, onPress: nav('/more') },
         {
-          name: 'About',
-          subtitle: 'App version and build metadata',
+          name: <Trans>About</Trans>,
+          subtitle: <Trans>App version and build metadata</Trans>,
         },
       ]}
       scroll
       content={({ sx }) => (
         <Box style={{ ...sx, gap: 12 }}>
           <Card elevation={1} sx={{ p: 4, gap: 2 }}>
-            <Text variant="bodyBold" label="App" />
-            <Text variant="body" label={`Name: ${appName}`} />
-            <Text variant="body" label={`Version: ${appVersion}`} />
+            <Text variant="bodyBold" label={<Trans>App</Trans>} />
+            <Text variant="body" label={t`Name: ${appName}`} />
+            <Text variant="body" label={t`Version: ${appVersion}`} />
           </Card>
 
           <Card elevation={1} sx={{ p: 4, gap: 2 }}>
-            <Text variant="bodyBold" label="Build" />
-            <Text
-              variant="caption"
-              label={`Commit (short): ${shortCommitHash}`}
-            />
+            <Text variant="bodyBold" label={<Trans>Build</Trans>} />
+            <Text variant="caption" label={t`Commit (short): ${shortCommitHash}`} />
             <CopyToClipboardField
-              label="Full commit"
-              helperText="Tap to copy"
+              label={<Trans>Full commit</Trans>}
+              helperText={t`Tap to copy`}
               value={fullCommitHash}
               selectable
             />
-            <Text variant="caption" label={`Build mode: ${buildMode}`} />
-            <Text variant="caption" label={`Platform: ${Platform.OS}`} />
+            <Text variant="caption" label={t`Build mode: ${buildMode}`} />
+            <Text variant="caption" label={t`Platform: ${Platform.OS}`} />
           </Card>
 
           <Card elevation={1} sx={{ p: 4, gap: 2 }}>
-            <Text variant="bodyBold" label="API" />
+            <Text variant="bodyBold" label={<Trans>API</Trans>} />
             <Text variant="body" selectable label={apiOrigin} />
           </Card>
         </Box>

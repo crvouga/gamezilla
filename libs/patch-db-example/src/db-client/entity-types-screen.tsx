@@ -11,6 +11,8 @@ import {
   TextInput,
   useTheme,
 } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
+import { Trans } from '@lingui/react/macro';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const PAGE_SIZE = 500;
@@ -81,17 +83,18 @@ function HeaderControls({
   onOpenQuery: () => void;
   onRefresh: () => void;
 }) {
+  const { t } = useLingui();
   return (
     <>
       <Stack direction="horizontal" spacing={2} align="center">
         <Button
-          title="Run query"
+          title={<Trans>Run query</Trans>}
           variant="solid"
           size="sm"
           onPress={onOpenQuery}
         />
         <Button
-          title="Refresh"
+          title={<Trans>Refresh</Trans>}
           variant="ghost"
           size="sm"
           onPress={onRefresh}
@@ -100,7 +103,7 @@ function HeaderControls({
       <TextInput
         value={filter}
         onChangeText={setFilter}
-        placeholder="Filter types…"
+        placeholder={t`Filter types…`}
         autoCapitalize="none"
         autoCorrect={false}
         sx={{

@@ -9,6 +9,8 @@ import {
   PRINCIPAL_ENTITY_TYPE,
 } from '@gamezilla/domain/auth';
 import { Badge, Box, Card, ScreenBase, Text } from '@gamezilla/lib/ui';
+import { t } from '@lingui/core/macro';
+import { Trans } from '@lingui/react/macro';
 import { useEntity } from '@gamezilla/patch-db/react';
 import { useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
@@ -101,13 +103,22 @@ export function AccountDeviceDetailScreen() {
       content={({ sx }) => (
         <Box style={{ ...sx, gap: 12 }}>
           {principalId === null ? (
-            <Text variant="body" label="Missing device id." />
+            <Text variant="body" label={<Trans>Missing device id.</Trans>} />
           ) : loading ? (
-            <Text variant="caption" sx={{ color: 'textSecondary' }} label="Loading…" />
+            <Text
+              variant="caption"
+              sx={{ color: 'textSecondary' }}
+              label={<Trans>Loading…</Trans>}
+            />
           ) : principal === null ? (
             <Text
               variant="body"
-              label="This device was not found. It may have been removed or is not visible for the current account."
+              label={
+                <Trans>
+                  This device was not found. It may have been removed or is not
+                  visible for the current account.
+                </Trans>
+              }
             />
           ) : (
             <Card elevation={1} sx={{ p: 4, gap: 3 }}>
@@ -125,7 +136,7 @@ export function AccountDeviceDetailScreen() {
                   label={formatDeviceListTitle(principal)}
                 />
                 {principal.isCurrentDevice ? (
-                  <Badge label="This device" color="info" size="sm" />
+                  <Badge label={t`This device`} color="info" size="sm" />
                 ) : null}
               </Box>
               <AccountDeviceDetailBody

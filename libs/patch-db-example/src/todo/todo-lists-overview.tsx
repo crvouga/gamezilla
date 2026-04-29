@@ -9,6 +9,8 @@ import {
   TextInput,
   useTheme,
 } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
+import { Trans } from '@lingui/react/macro';
 import { useState } from 'react';
 
 import { INBOX_LIST_ID } from './todo-constants';
@@ -55,6 +57,7 @@ function AddListInput({
   onSubmit: () => void;
   onBlurEmpty: () => void;
 }) {
+  const { t } = useLingui();
   const theme = useTheme();
   return (
     <Box sx={{ flexDirection: 'row', gap: 2, mb: 3 }}>
@@ -70,7 +73,7 @@ function AddListInput({
           color: 'text',
           borderColor: 'border',
         }}
-        placeholder="List name..."
+        placeholder={t`List name...`}
         placeholderTextColor={theme.colors.icon}
         value={input}
         onChangeText={setInput}
@@ -84,7 +87,7 @@ function AddListInput({
         onPress={onSubmit}
         style={theme.sx({ justifyContent: 'center', px: 4 })}
       >
-        <Text variant="bodyBold" label="Add" />
+        <Text variant="bodyBold" label={<Trans>Add</Trans>} />
       </Pressable>
     </Box>
   );

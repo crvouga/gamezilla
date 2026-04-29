@@ -17,6 +17,8 @@ import {
   useBreakpoint,
   useTheme,
 } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
+import { Trans } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 
@@ -79,7 +81,7 @@ function CurrentSpaceShortcut({
             background: 'surface',
           }}
         >
-          <Text variant="label" label="Your space" />
+          <Text variant="label" label={<Trans>Your space</Trans>} />
           <Text
             variant="bodyBold"
             sx={{ mt: 1 }}
@@ -88,7 +90,7 @@ function CurrentSpaceShortcut({
           <Text
             variant="caption"
             sx={{ color: 'textSecondary', mt: 0.5 }}
-            label="Tap to open"
+            label={<Trans>Tap to open</Trans>}
           />
         </Box>
       </Pressable>
@@ -111,6 +113,7 @@ function AddSpaceRow({
   setTitleInput,
   addSpace,
 }: AddSpaceRowProps) {
+  const { t } = useLingui();
   const theme = useTheme();
   if (!adding) {
     return (
@@ -127,7 +130,7 @@ function AddSpaceRow({
           { backgroundColor: theme.colors.tintMuted },
         ]}
       >
-        <Text variant="bodyBold" label="+ New space" />
+        <Text variant="bodyBold" label={<Trans>+ New space</Trans>} />
       </Pressable>
     );
   }
@@ -145,7 +148,7 @@ function AddSpaceRow({
           color: 'text',
           borderColor: 'border',
         }}
-        placeholder="Space title…"
+        placeholder={t`Space title…`}
         placeholderTextColor={theme.colors.icon}
         value={titleInput}
         onChangeText={setTitleInput}
@@ -159,7 +162,7 @@ function AddSpaceRow({
         onPress={addSpace}
         style={theme.sx({ justifyContent: 'center', px: 4 })}
       >
-        <Text variant="bodyBold" label="Create" />
+        <Text variant="bodyBold" label={<Trans>Create</Trans>} />
       </Pressable>
     </Box>
   );
@@ -184,7 +187,7 @@ function SpacesList({ loading, spaces }: SpacesListProps) {
           <Text
             variant="body"
             sx={{ color: 'textSecondary' }}
-            label="Loading…"
+            label={<Trans>Loading…</Trans>}
           />
         </Box>
       ) : spaces.length === 0 ? (
@@ -192,7 +195,7 @@ function SpacesList({ loading, spaces }: SpacesListProps) {
           <Text
             variant="body"
             sx={{ color: 'textSecondary' }}
-            label="No spaces match this filter."
+            label={<Trans>No spaces match this filter.</Trans>}
           />
         </Box>
       ) : (

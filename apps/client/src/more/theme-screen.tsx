@@ -6,6 +6,7 @@ import {
   Text,
   useThemePreference,
 } from '@gamezilla/lib/ui';
+import { Trans } from '@lingui/react/macro';
 
 const THEME_SEGMENTS = [
   { key: 'light', label: '☀️ Light' },
@@ -31,7 +32,11 @@ export function ThemeSettingsScreen() {
         <Box style={sx}>
           <Text
             variant="body"
-            label="Choose how the app looks. System matches your device appearance."
+            label={
+              <Trans>
+                Choose how the app looks. System matches your device appearance.
+              </Trans>
+            }
           />
           <SegmentedControl
             segments={[...THEME_SEGMENTS]}

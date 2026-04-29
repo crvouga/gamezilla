@@ -9,8 +9,11 @@ import {
   useMemo,
   useRef,
   useState,
+  type ReactNode,
 } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
+import { t } from '@lingui/core/macro';
+import { useLingui } from '@lingui/react/macro';
 
 import { useBreakpoint, useTheme } from '../../theme';
 import { Box } from '../box';
@@ -43,7 +46,7 @@ function useSafeAreaInsetsCompat() {
 const DEFAULT_MENU_ICON = 'ellipsis' as const;
 
 function actionToButtonProps(action: ScreenBaseAction): {
-  title: string;
+  title: ReactNode;
   onPress: () => void;
   variant: 'solid' | 'outlined' | 'ghost' | 'text';
   color: string;
@@ -72,13 +75,14 @@ function actionToButtonProps(action: ScreenBaseAction): {
 
 function buildOverflowMenuContent(
   overflow: ScreenBaseAction[],
-  onClose: () => void
+  onClose: () => void,
+  moreTitle: ReactNode
 ): FloatingMenuContent {
   const rows: FloatingMenuContent['rows'] = [];
   overflow.forEach((a, idx) => {
     rows.push({
       type: 'item',
-      id: `overflow-${idx}-${a.label}`,
+      id: `overflow-${String(idx)}`,
       label: a.label,
       icon: a.icon ?? DEFAULT_MENU_ICON,
       trailing: a.trailing,
@@ -87,7 +91,6 @@ function buildOverflowMenuContent(
         a.onPress();
       },
       disabled: a.disabled ?? false,
-      accessibilityLabel: a.label,
     });
     if (a.endsGroup === true) {
       rows.push({ type: 'divider', id: `overflow-div-${idx}` });
@@ -95,7 +98,7 @@ function buildOverflowMenuContent(
   });
 
   return {
-    header: { title: 'More' },
+    header: { title: moreTitle },
     rows,
   };
 }
@@ -140,7 +143,7 @@ function BreadcrumbsBar({ breadcrumbs }: { breadcrumbs: BreadcrumbItem[] }) {
       }}
     >
       {breadcrumbs.map((c, i) => (
-        <Fragment key={`${c.name}-${i}`}>
+        <Fragment key={`breadcrumb-${String(i)}`}>
           {i > 0 ? (
             <Text variant="caption" sx={{ color: 'textSecondary' }} label="/" />
           ) : null}
@@ -151,7 +154,13 @@ function BreadcrumbsBar({ breadcrumbs }: { breadcrumbs: BreadcrumbItem[] }) {
   );
 }
 
-function TitleArea({ title, subtitle }: { title: string; subtitle?: string }) {
+function TitleArea({
+  title,
+  subtitle,
+}: {
+  title: ReactNode | undefined;
+  subtitle?: ReactNode;
+}) {
   return (
     <Box
       sx={{
@@ -161,15 +170,17 @@ function TitleArea({ title, subtitle }: { title: string; subtitle?: string }) {
         gap: 0.5,
       }}
     >
-      <Text
-        accessibilityRole="header"
-        aria-level={1}
-        numberOfLines={1}
-        ellipsizeMode="tail"
-        variant="navigationTitle"
-        sx={{ textAlign: 'center' }}
-        label={title}
-      />
+      {title !== undefined && title !== null ? (
+        <Text
+          accessibilityRole="header"
+          aria-level={1}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          variant="navigationTitle"
+          sx={{ textAlign: 'center' }}
+          label={title}
+        />
+      ) : null}
       {subtitle !== undefined ? (
         <Text
           variant="caption"
@@ -187,14 +198,14 @@ function BackButton({
   label,
   onPress,
 }: {
-  label: string;
+  label: ReactNode;
   onPress: () => void;
 }) {
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel="Go back"
+      accessibilityLabel={t`Go back`}
       hitSlop={8}
       sx={{
         position: 'absolute',
@@ -240,7 +251,7 @@ function ActionsBar({
         const bp = actionToButtonProps(a);
         return (
           <Button
-            key={`inline-${i}-${a.label}`}
+            key={`inline-${String(i)}`}
             title={bp.title}
             onPress={bp.onPress}
             variant={bp.variant}
@@ -263,6 +274,7 @@ function ActionsBar({
 }
 
 function useOverflowMenu(overflow: ScreenBaseAction[]) {
+  const { t } = useLingui();
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<React.ElementRef<typeof Box>>(null);
   const [anchor, setAnchor] = useState<{
@@ -285,8 +297,8 @@ function useOverflowMenu(overflow: ScreenBaseAction[]) {
   }, []);
 
   const content = useMemo(
-    () => buildOverflowMenuContent(overflow, close),
-    [overflow, close]
+    () => buildOverflowMenuContent(overflow, close, t`More`),
+    [overflow, close, t]
   );
 
   return { open, anchor, triggerRef, close, openOverflow, content };
@@ -295,12 +307,12 @@ function useOverflowMenu(overflow: ScreenBaseAction[]) {
 function deriveTitleData(breadcrumbs: BreadcrumbItem[]) {
   const current = breadcrumbs[breadcrumbs.length - 1];
   const subtitle =
-    current?.subtitle !== undefined && current?.subtitle !== ''
+    current?.subtitle !== undefined && current?.subtitle !== null
       ? current.subtitle
       : undefined;
   const backCrumb =
     breadcrumbs.length >= 2 ? breadcrumbs[breadcrumbs.length - 2] : undefined;
-  return { title: current?.name ?? '', subtitle, backCrumb };
+  return { title: current?.name, subtitle, backCrumb };
 }
 
 export function ScreenBaseHeader({
@@ -315,8 +327,15 @@ export function ScreenBaseHeader({
   const { title, subtitle, backCrumb } = deriveTitleData(breadcrumbs);
   const showBack =
     isMobile && backCrumb !== undefined && backCrumb.onPress !== undefined;
-  const backLabel =
-    backCrumb !== undefined ? `\u2190 ${backCrumb.name}` : 'Back';
+  const backLabel: ReactNode =
+    backCrumb !== undefined ? (
+      <>
+        {'\u2190 '}
+        {backCrumb.name}
+      </>
+    ) : (
+      t`Back`
+    );
 
   return (
     <Box

@@ -8,13 +8,14 @@
  * ```
  */
 
+import type { ReactNode } from 'react';
 import { View } from 'react-native';
 import { useTheme } from '../../theme';
 import { Text } from '../text';
 
 export type BadgeProps = {
   /** Text displayed inside the badge. */
-  label: string;
+  label: ReactNode;
   /** Color token or raw color for the background. Defaults to `"tint"`. */
   color?: string;
   /** Size preset. Defaults to `"md"`. */

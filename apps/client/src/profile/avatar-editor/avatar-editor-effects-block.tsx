@@ -1,6 +1,7 @@
 import type { SchemaField } from '@gamezilla/client/profile/dicebear-schema';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { Box, ChipGroup, Text } from '@gamezilla/lib/ui';
+import { Trans } from '@lingui/react/macro';
 
 import { getProbabilityMode, humanizeOptionKey } from './option-helpers';
 
@@ -25,7 +26,7 @@ export function EffectsBlock({
   if (fields.length === 0) return null;
   return (
     <Box sx={{ mt: 2, gap: 2 }}>
-      <Text variant="label" label="Effects" />
+      <Text variant="label" label={<Trans>Effects</Trans>} />
       {fields.map((f) => (
         <ChipGroup
           key={f.key}

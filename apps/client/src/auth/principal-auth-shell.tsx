@@ -7,6 +7,8 @@ import {
 import { useLogger } from '@gamezilla/lib/logger/react';
 import { SecureStorageToken } from '@gamezilla/lib/secure-storage/interface';
 import { Box, Button, Center, Text } from '@gamezilla/lib/ui';
+import { t } from '@lingui/core/macro';
+import { Trans } from '@lingui/react/macro';
 import {
   useCallback,
   useEffect,
@@ -76,7 +78,7 @@ export function PrincipalAuthShell({ children }: { children: ReactNode }) {
           variant="bodyBold"
           sx={{ fontSize: 'base' }}
           style={{ textAlign: 'center' }}
-          label="Failed to initialize identity"
+          label={<Trans>Failed to initialize identity</Trans>}
         />
         <Text
           sx={{ fontSize: 'sm', opacity: 0.8 }}
@@ -84,7 +86,7 @@ export function PrincipalAuthShell({ children }: { children: ReactNode }) {
           label={error.message}
         />
         <Box sx={{ mt: 4 }}>
-          <Button title="Retry" onPress={run} />
+          <Button title={t`Retry`} onPress={run} />
         </Box>
       </Center>
     );

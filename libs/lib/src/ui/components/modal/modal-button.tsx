@@ -2,13 +2,14 @@
  * `ModalButton` -- action button used inside `ModalFooter`.
  */
 
+import type { ReactNode } from 'react';
 import { Pressable } from 'react-native';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Text } from '../text';
 
 export type ModalButtonProps = {
-  label: string;
+  label: ReactNode;
   variant?: 'default' | 'cancel' | 'destructive';
   onPress: () => void;
 };

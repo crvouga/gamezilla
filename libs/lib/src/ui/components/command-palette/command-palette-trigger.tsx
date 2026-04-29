@@ -1,3 +1,5 @@
+import type { LocalizedString } from '@gamezilla/lib/i18n';
+import { useLingui } from '@lingui/react/macro';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Pressable } from '../pressable';
@@ -9,7 +11,7 @@ export type CommandPaletteTriggerProps = {
   icon?: 'checklist' | 'ellipsis' | 'gearshape.fill';
   /** Pixel size of the tappable area. Defaults to 40. */
   size?: number;
-  accessibilityLabel?: string;
+  accessibilityLabel?: LocalizedString;
 };
 
 /**
@@ -18,16 +20,18 @@ export type CommandPaletteTriggerProps = {
 export function CommandPaletteTrigger({
   icon = 'checklist',
   size = 40,
-  accessibilityLabel = 'Open command palette',
+  accessibilityLabel,
 }: CommandPaletteTriggerProps) {
+  const { t } = useLingui();
   const theme = useTheme();
   const { toggle } = useCommandPalette();
+  const a11y = accessibilityLabel ?? t`Open command palette`;
 
   return (
     <Pressable
       onPress={toggle}
       accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
+      accessibilityLabel={a11y}
       hitSlop={6}
       sx={{
         width: size,

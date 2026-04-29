@@ -7,6 +7,7 @@
  * ```
  */
 
+import type { ReactNode } from 'react';
 import {
   Switch as RNSwitch,
   type SwitchProps as RNSwitchProps,
@@ -17,7 +18,7 @@ import { Text } from '../text';
 
 export type SwitchProps = Omit<RNSwitchProps, 'trackColor' | 'thumbColor'> & {
   /** Optional label displayed next to the switch. */
-  label?: string;
+  label?: ReactNode;
 };
 
 export function Switch({ label, ...rest }: SwitchProps) {

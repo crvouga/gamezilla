@@ -8,6 +8,7 @@ import {
   StatusDot,
   Text,
 } from '@gamezilla/lib/ui';
+import { Trans } from '@lingui/react/macro';
 import { NetworkStateType } from 'expo-network';
 import { useCallback, useEffect } from 'react';
 
@@ -42,7 +43,7 @@ function OverallRow({ aggregateStatus }: { aggregateStatus: ServerStatus['aggreg
   return (
     <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
       <StatusDot status={aggregateStatus} size={12} />
-      <Text variant="bodyBold" label="Overall" />
+      <Text variant="bodyBold" label={<Trans>Overall</Trans>} />
       <Text variant="body" label={label} />
     </Box>
   );
@@ -63,7 +64,7 @@ function DeviceNetworkCard({ networkState }: { networkState: ServerStatus['netwo
         : 'No';
   return (
     <Card elevation={1} sx={{ p: 4, gap: 2 }}>
-      <Text variant="bodyBold" label="Device network" />
+      <Text variant="bodyBold" label={<Trans>Device network</Trans>} />
       <Text variant="body" label={`Status: ${networkLine}`} />
       <Text variant="caption" label={`Type: ${formatNetworkType(networkState.type)}`} />
       <Text variant="caption" label={`Internet reachable: ${reachable}`} />
@@ -88,7 +89,7 @@ function ServerHealthCard({
           : '…';
   return (
     <Card elevation={1} sx={{ p: 4, gap: 2 }}>
-      <Text variant="bodyBold" label="Server health" />
+      <Text variant="bodyBold" label={<Trans>Server health</Trans>} />
       <Text variant="caption" selectable label={healthUrl} />
       <Text variant="body" label={`Status: ${serverLine}`} />
       {health.latencyMs !== null ? (
@@ -137,7 +138,7 @@ export function ServerStatusScreen() {
           <OverallRow aggregateStatus={aggregateStatus} />
           <DeviceNetworkCard networkState={networkState} />
           <Card elevation={1} sx={{ p: 4, gap: 2 }}>
-            <Text variant="bodyBold" label="API endpoint" />
+            <Text variant="bodyBold" label={<Trans>API endpoint</Trans>} />
             <Text variant="body" selectable label={apiUrl} />
           </Card>
           <ServerHealthCard healthUrl={healthUrl} health={health} />

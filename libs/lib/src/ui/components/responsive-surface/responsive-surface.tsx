@@ -3,7 +3,7 @@
  * centered modal on tablet/desktop, based on `theme.breakpoint`.
  */
 
-import type { PropsWithChildren } from 'react';
+import type { PropsWithChildren, ReactNode } from 'react';
 import {
   useCallback,
   useEffect,
@@ -26,7 +26,7 @@ export type ResponsiveSurfaceProps = PropsWithChildren<{
   visible: boolean;
   onClose: () => void;
   /** Optional title row above `children`. */
-  title?: string;
+  title?: ReactNode;
   /** Max width of the centered modal content (px). */
   maxWidth?: number;
   /** Bottom sheet snap points when `breakpoint === 'mobile'`. */

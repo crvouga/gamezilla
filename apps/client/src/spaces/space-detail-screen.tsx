@@ -15,6 +15,7 @@ import {
   ScreenBase,
   Text,
 } from '@gamezilla/lib/ui';
+import { Trans } from '@lingui/react/macro';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 
@@ -62,7 +63,7 @@ function LoadingState() {
           <Text
             variant="body"
             sx={{ color: 'textSecondary' }}
-            label="Loading…"
+            label={<Trans>Loading…</Trans>}
           />
         </Box>
       )}
@@ -81,7 +82,7 @@ function NotFoundState() {
           <Text
             variant="body"
             sx={{ color: 'textSecondary' }}
-            label="This space could not be found."
+            label={<Trans>This space could not be found.</Trans>}
           />
           <Box sx={{ mt: 3 }}>
             <Button
@@ -110,7 +111,7 @@ function EndedState({ title }: { title: string }) {
           <Text
             variant="body"
             sx={{ color: 'textSecondary', textAlign: 'center' }}
-            label="This space has ended."
+            label={<Trans>This space has ended.</Trans>}
           />
           <Button
             title="Go back"
@@ -144,12 +145,14 @@ function JoinPrompt({
       ]}
       content={({ sx }) => (
         <Box style={sx} sx={{ gap: 3 }}>
-          <Text variant="label" sx={{ color: 'textSecondary' }} label="Host" />
+          <Text variant="label" sx={{ color: 'textSecondary' }} label={<Trans>Host</Trans>} />
           <Text variant="bodyBold" label={hostLabel} />
           <Text
             variant="body"
             sx={{ color: 'textSecondary' }}
-            label="Join this space to see who is here and hang out."
+            label={
+              <Trans>Join this space to see who is here and hang out.</Trans>
+            }
           />
           <Button
             title="Join space"

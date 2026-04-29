@@ -1,5 +1,6 @@
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 import { Box, Pressable, ScreenBase, Text } from '@gamezilla/lib/ui';
+import { Trans } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 
 export function ModalScreen() {
@@ -22,12 +23,12 @@ export function ModalScreen() {
             minHeight: 200,
           }}
         >
-          <Text variant="body" label="This is a modal screen." />
+          <Text variant="body" label={<Trans>This is a modal screen.</Trans>} />
           <Pressable
             onPress={() => router.dismissTo('/more')}
             sx={{ mt: 3.75, py: 3.75 }}
           >
-            <Text variant="link" label="Back to Dev" />
+            <Text variant="link" label={<Trans>Back to Dev</Trans>} />
           </Pressable>
         </Box>
       )}

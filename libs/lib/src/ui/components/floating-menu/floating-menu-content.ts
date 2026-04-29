@@ -1,24 +1,25 @@
+import type { LocalizedString } from '@gamezilla/lib/i18n';
 import type { ReactNode } from 'react';
 
 import type { IconSymbolName } from '../symbol-icon';
 
 /** Header block above menu rows. */
 export type FloatingMenuHeaderSpec = {
-  title: string;
-  subtitle?: string;
+  title: ReactNode;
+  subtitle?: ReactNode;
 };
 
 export type FloatingMenuItemRow = {
   type: 'item';
   /** Stable React key and a11y id. */
   id: string;
-  label: string;
+  label: ReactNode;
   icon: IconSymbolName;
   /** Right-aligned content (e.g. status + metrics). */
   trailing?: ReactNode;
   onPress?: () => void;
   disabled?: boolean;
-  accessibilityLabel?: string;
+  accessibilityLabel?: LocalizedString;
 };
 
 export type FloatingMenuDividerRow = {

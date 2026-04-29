@@ -150,7 +150,9 @@ function FloatingMenuRowItem({
       trailing={row.trailing}
       onPress={row.onPress}
       disabled={row.disabled}
-      accessibilityLabel={row.accessibilityLabel}
+      {...(row.accessibilityLabel !== undefined
+        ? { accessibilityLabel: row.accessibilityLabel }
+        : {})}
     />
   );
 }

@@ -6,6 +6,7 @@ import {
 import { ConfigServiceToken } from '@gamezilla/domain/config/config-service';
 import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import { Button, Card, Text } from '@gamezilla/lib/ui';
+import { Trans } from '@lingui/react/macro';
 import { useCallback } from 'react';
 
 const SERVER_REFRESH_SUCCESS =
@@ -49,11 +50,16 @@ export function ClientConfigServerRefreshCard() {
 
   return (
     <Card elevation={1} sx={{ p: 4, gap: 3 }}>
-      <Text variant="bodyBold" label="Server" />
+      <Text variant="bodyBold" label={<Trans>Server</Trans>} />
       <Text
         variant="caption"
         sx={{ color: 'textSecondary' }}
-        label="POST /client-config/refresh writes the Worker secret into PatchDB on the server (deploy pipeline uses this too)."
+        label={
+          <Trans>
+            POST /client-config/refresh writes the Worker secret into PatchDB on
+            the server (deploy pipeline uses this too).
+          </Trans>
+        }
       />
       <Button
         title={refreshServer.loading ? 'Refreshing…' : 'Refresh on server'}

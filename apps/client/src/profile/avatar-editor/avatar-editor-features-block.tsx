@@ -3,6 +3,7 @@ import type { SchemaField } from '@gamezilla/client/profile/dicebear-schema';
 import type { StyleKey } from '@gamezilla/client/profile/dicebear-styles';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { Box, ResponsiveSurface, Text } from '@gamezilla/lib/ui';
+import { Trans } from '@lingui/react/macro';
 
 import { TriggerRow } from './avatar-editor-trigger-row';
 import { getEnumSelectionMode, humanizeOptionKey } from './option-helpers';
@@ -91,7 +92,7 @@ export function FeaturesBlock({
   if (featureEnums.length === 0) return null;
   return (
     <Box sx={{ mt: 2 }}>
-      <Text variant="label" label="Features" />
+      <Text variant="label" label={<Trans>Features</Trans>} />
       {featureEnums.map((f) => (
         <FeatureRow
           key={f.key}

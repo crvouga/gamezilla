@@ -1,6 +1,7 @@
 import type { SchemaField } from '@gamezilla/client/profile/dicebear-schema';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { Box, NumberStepper, Switch, Text } from '@gamezilla/lib/ui';
+import { Trans } from '@lingui/react/macro';
 
 import { humanizeOptionKey } from './option-helpers';
 
@@ -79,7 +80,7 @@ export function TransformBlock({
   if (fields.length === 0) return null;
   return (
     <Box sx={{ mt: 2, gap: 1 }}>
-      <Text variant="label" label="Transform" />
+      <Text variant="label" label={<Trans>Transform</Trans>} />
       {fields.map((f) => {
         if (f.kind === 'boolean') {
           return (

@@ -9,8 +9,8 @@ import { Box } from '../box';
 import { Text } from '../text';
 
 export type FloatingMenuHeaderProps = {
-  title: string;
-  subtitle?: string;
+  title: ReactNode;
+  subtitle?: ReactNode;
   /** Extra rows below title (e.g. metadata). */
   children?: ReactNode;
 };
@@ -20,7 +20,7 @@ export function FloatingMenuHeader({
   subtitle,
   children,
 }: FloatingMenuHeaderProps) {
-  const hasSubtitle = subtitle !== undefined && subtitle !== '';
+  const hasSubtitle = subtitle !== undefined;
 
   return (
     <Box

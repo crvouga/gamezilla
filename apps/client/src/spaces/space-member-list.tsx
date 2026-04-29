@@ -1,5 +1,6 @@
 import { PrincipalAvatar } from '@gamezilla/client/profile/principal-avatar';
 import { Box, Text } from '@gamezilla/lib/ui';
+import { Trans } from '@lingui/react/macro';
 
 import type { SpaceMemberRow } from './types';
 
@@ -13,7 +14,7 @@ export function SpaceMemberList({ members }: SpaceMemberListProps) {
       <Text
         variant="label"
         sx={{ color: 'textSecondary' }}
-        label="People here"
+        label={<Trans>People here</Trans>}
       />
       <Box sx={{ flexDirection: 'row', flexWrap: 'wrap', gap: 2 }}>
         {members.map((m) => (
@@ -28,7 +29,7 @@ export function SpaceMemberList({ members }: SpaceMemberListProps) {
               <Text
                 variant="caption"
                 sx={{ color: 'textSecondary' }}
-                label="Host"
+                label={<Trans>Host</Trans>}
               />
             ) : null}
           </Box>

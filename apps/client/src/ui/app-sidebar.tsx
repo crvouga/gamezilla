@@ -5,6 +5,7 @@ import {
   Text,
   useTheme,
 } from '@gamezilla/lib/ui';
+import { Trans } from '@lingui/react/macro';
 import { usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -68,7 +69,7 @@ function NavSection({ normalized }: { normalized: string }) {
       <Text
         variant="label"
         sx={{ color: 'textSecondary', mb: 2, letterSpacing: 0.5 }}
-        label="Gamezilla"
+        label={<Trans>Gamezilla</Trans>}
       />
       {ITEMS.map((item) => (
         <NavRow

@@ -2,10 +2,13 @@
   "name": "gamezilla",
   "version": "1.0.0",
   "devDependencies": {
+    "@lingui/cli": "5.9.5",
+    "@lingui/conf": "5.9.5",
     "@types/bun": "^1.3.9",
     "@typescript-eslint/eslint-plugin": "8.58.0",
     "@typescript-eslint/parser": "^8.58.0",
     "eslint": "^9.25.0",
+    "eslint-plugin-lingui": "^0.13.1",
     "eslint-plugin-naming": "^0.1.10",
     "expo": "~54.0.33",
     "prettier": "^3.8.1",
@@ -16,7 +19,7 @@
   "packageManager": "bun@1.3.11",
   "private": true,
   "scripts": {
-    "check": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=shared doppler run -- turbo check build",
+    "check": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=shared doppler run -- turbo check build && bun run i18n:check",
     "dev": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=shared doppler run -- turbo dev",
     "preview": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=shared doppler run -- turbo run preview --filter=@gamezilla/db --filter=@gamezilla/api --filter=@gamezilla/client",
     "qa": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=shared doppler run -- turbo run qa --filter=@gamezilla/qa",
@@ -27,7 +30,10 @@
     "wipe": "git clean -xfd",
     "pw:ui": "bun run --filter '@gamezilla/qa' browser:ui",
     "pw:headed": "bun run --filter '@gamezilla/qa' browser:headed",
-    "pw": "bun run --filter '@gamezilla/qa' browser"
+    "pw": "bun run --filter '@gamezilla/qa' browser",
+    "i18n:extract": "lingui extract",
+    "i18n:compile": "lingui compile --typescript",
+    "i18n:check": "lingui extract && lingui compile --typescript && git diff --exit-code -- apps/client/src/i18n libs/lib/src/i18n libs/patch-db-example/src/i18n libs/room-example/src/i18n"
   },
   "workspaces": [
     "apps/*",

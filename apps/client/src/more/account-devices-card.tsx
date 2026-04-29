@@ -10,25 +10,29 @@ import {
   Text,
 } from '@gamezilla/lib/ui';
 import { useTheme } from '@gamezilla/lib/ui/theme';
+import { useLingui } from '@lingui/react/macro';
+import { Trans } from '@lingui/react/macro';
+import type { ReactNode } from 'react';
 import {
   formatDeviceListCaption,
   formatDeviceListTitle,
   formatTimestamp,
 } from './account-format';
 
-function CaptionLine({ label }: { label: string }) {
+function CaptionLine({ label }: { label: ReactNode }) {
   return (
     <Text variant="caption" sx={{ color: 'textSecondary' }} label={label} />
   );
 }
 
 function formatSessionCaption(
-  sessionInfo: PrincipalSessionAggregate | undefined
+  sessionInfo: PrincipalSessionAggregate | undefined,
+  t: ReturnType<typeof useLingui>['t']
 ): string {
   if (sessionInfo === undefined || sessionInfo.active === 0) {
-    return 'No active session';
+    return t`No active session`;
   }
-  return `${String(sessionInfo.active)} active — expires ${formatTimestamp(sessionInfo.latestExpiresAt)}`;
+  return t`${sessionInfo.active} active — expires ${formatTimestamp(sessionInfo.latestExpiresAt)}`;
 }
 
 function DevicePrincipalMenuRow({
@@ -40,10 +44,11 @@ function DevicePrincipalMenuRow({
   sessionInfo: PrincipalSessionAggregate | undefined;
   onOpenDevice: (principalId: string) => void;
 }) {
+  const { t } = useLingui();
   const theme = useTheme();
   const caption = [
     formatDeviceListCaption(p),
-    formatSessionCaption(sessionInfo),
+    formatSessionCaption(sessionInfo, t),
   ].join(' · ');
   return (
     <MenuRow
@@ -52,7 +57,7 @@ function DevicePrincipalMenuRow({
       trailing={
         <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
           {p.isCurrentDevice ? (
-            <Badge label="This device" color="info" size="sm" />
+            <Badge label={<Trans>This device</Trans>} color="info" size="sm" />
           ) : null}
           <IconSymbol
             name="chevron.right"
@@ -64,7 +69,7 @@ function DevicePrincipalMenuRow({
       onPress={() => {
         onOpenDevice(p.entityId);
       }}
-      accessibilityLabel={`Device ${formatDeviceListTitle(p)}`}
+      accessibilityLabel={t`Device ${formatDeviceListTitle(p)}`}
     />
   );
 }
@@ -84,25 +89,37 @@ export function AccountDevicesCard({
   sessionsLoading: boolean;
   onOpenDevice: (principalId: string) => void;
 }) {
+  const { t } = useLingui();
   const devicesLoading = principalsLoading || sessionsLoading;
 
   return (
     <Card elevation={1} sx={{ p: 4, gap: 3 }}>
-      <Text variant="bodyBold" label="Devices" />
-      <CaptionLine label="Each install has its own principal id. Tap a row for full details." />
+      <Text variant="bodyBold" label={<Trans>Devices</Trans>} />
+      <CaptionLine
+        label={
+          <Trans>Each install has its own principal id. Tap a row for full details.</Trans>
+        }
+      />
       {accountId !== null ? (
         <CopyToClipboardField
-          label="Account ID"
-          helperText="Server-side account; tap to copy"
+          label={<Trans>Account ID</Trans>}
+          helperText={t`Server-side account; tap to copy`}
           value={accountId}
         />
       ) : (
-        <CaptionLine label="Sign in to link this device to a server account and see all principals for that account." />
+        <CaptionLine
+          label={
+            <Trans>
+              Sign in to link this device to a server account and see all principals for that
+              account.
+            </Trans>
+          }
+        />
       )}
       {devicesLoading ? (
-        <CaptionLine label="Loading devices…" />
+        <CaptionLine label={<Trans>Loading devices…</Trans>} />
       ) : principals.length === 0 ? (
-        <CaptionLine label="No principal data yet." />
+        <CaptionLine label={<Trans>No principal data yet.</Trans>} />
       ) : (
         <Box sx={{ gap: 0, pt: 2 }}>
           {principals.map((p) => (

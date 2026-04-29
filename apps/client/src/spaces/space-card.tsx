@@ -7,6 +7,7 @@ import {
   Text,
   useTheme,
 } from '@gamezilla/lib/ui';
+import { Trans } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 
 import type { SpaceView } from './types';
@@ -53,7 +54,7 @@ function StatusBadge({ live }: { live: boolean }) {
         }}
       >
         <StatusDot status="online" size={8} />
-        <Text variant="caption" sx={{ color: '#FFFFFF' }} label="Live" />
+        <Text variant="caption" sx={{ color: '#FFFFFF' }} label={<Trans>Live</Trans>} />
       </Box>
     );
   }
@@ -70,7 +71,7 @@ function StatusBadge({ live }: { live: boolean }) {
       <Text
         variant="caption"
         sx={{ color: 'rgba(255,255,255,0.9)' }}
-        label="Ended"
+        label={<Trans>Ended</Trans>}
       />
     </Box>
   );
@@ -115,7 +116,7 @@ export function SpaceCard({ space }: SpaceCardProps) {
           <Text
             variant="caption"
             sx={{ color: 'rgba(255,255,255,0.95)' }}
-            label="Space"
+            label={<Trans>Space</Trans>}
           />
         </Box>
       </GradientBox>

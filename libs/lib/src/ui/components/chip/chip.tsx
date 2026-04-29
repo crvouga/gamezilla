@@ -9,12 +9,13 @@
  * ```
  */
 
+import type { ReactNode } from 'react';
 import { Pressable } from 'react-native';
 import { useTheme } from '../../theme';
 import { Text } from '../text';
 
 export type ChipProps = {
-  label: string;
+  label: ReactNode;
   selected?: boolean;
   onPress?: () => void;
   disabled?: boolean;

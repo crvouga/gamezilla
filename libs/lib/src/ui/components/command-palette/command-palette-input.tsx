@@ -1,3 +1,4 @@
+import { useLingui } from '@lingui/react/macro';
 import { useEffect, useRef } from 'react';
 import type { TextInput as RNTextInput } from 'react-native';
 
@@ -16,13 +17,14 @@ export function CommandPaletteInput({
   editable,
   autoFocus = true,
 }: CommandPaletteInputProps) {
+  const { t } = useLingui();
   const inputRef = useRef<RNTextInput>(null);
 
   useEffect(() => {
     if (autoFocus && editable) {
-      const t = setTimeout(() => inputRef.current?.focus(), 50);
+      const timerId = setTimeout(() => inputRef.current?.focus(), 50);
       return () => {
-        clearTimeout(t);
+        clearTimeout(timerId);
       };
     }
     return undefined;
@@ -34,7 +36,7 @@ export function CommandPaletteInput({
       value={value}
       onChangeText={onChangeText}
       editable={editable}
-      placeholder="Type a command or search…"
+      placeholder={t`Type a command or search…`}
       autoCorrect={false}
       autoCapitalize="none"
       clearButtonMode="while-editing"

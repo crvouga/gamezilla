@@ -13,6 +13,8 @@ import {
   TextInput,
   useTheme,
 } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
+import { Trans } from '@lingui/react/macro';
 import { useState } from 'react';
 import { useWindowDimensions } from 'react-native';
 
@@ -95,43 +97,44 @@ function QueryFormCard({
   running: boolean;
   onRun: () => void;
 }) {
+  const { t } = useLingui();
   return (
     <Card elevation={1} sx={{ p: 3 }}>
       <Stack spacing={2}>
-        <Text variant="bodyBold" label="Query" />
+        <Text variant="bodyBold" label={<Trans>Query</Trans>} />
         <TextInput
           value={form.entityType}
           onChangeText={form.setEntityType}
-          placeholder="entityType (optional)"
+          placeholder={t`entityType (optional)`}
           autoCapitalize="none"
           sx={INPUT_SX}
         />
         <TextInput
           value={form.entityId}
           onChangeText={form.setEntityId}
-          placeholder="entityId (optional)"
+          placeholder={t`entityId (optional)`}
           autoCapitalize="none"
           sx={INPUT_SX}
         />
         <TextInput
           value={form.limitStr}
           onChangeText={form.setLimitStr}
-          placeholder="limit"
+          placeholder={t`limit`}
           keyboardType="number-pad"
           sx={INPUT_SX}
         />
         <TextInput
           value={form.offsetStr}
           onChangeText={form.setOffsetStr}
-          placeholder="offset"
+          placeholder={t`offset`}
           keyboardType="number-pad"
           sx={INPUT_SX}
         />
-        <Text variant="caption" label="where (JSON, optional)" />
+        <Text variant="caption" label={<Trans>where (JSON, optional)</Trans>} />
         <TextInput
           value={form.whereJson}
           onChangeText={form.setWhereJson}
-          placeholder='e.g. {"type":"=","attribute":"todo/title","value":"x"}'
+          placeholder={t`e.g. {"type":"=","attribute":"todo/title","value":"x"}`}
           multiline
           sx={{
             borderWidth: 1,
@@ -146,7 +149,7 @@ function QueryFormCard({
           }}
         />
         <Button
-          title={running ? 'Running…' : 'Run read([query])'}
+          title={running ? t`Running…` : t`Run read([query])`}
           variant="solid"
           onPress={onRun}
         />

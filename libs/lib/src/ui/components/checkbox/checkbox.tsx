@@ -10,6 +10,7 @@
  * ```
  */
 
+import type { ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
@@ -18,7 +19,7 @@ import { Text } from '../text';
 export type CheckboxProps = {
   checked: boolean;
   onToggle: (next: boolean) => void;
-  label?: string;
+  label?: ReactNode;
   disabled?: boolean;
 };
 

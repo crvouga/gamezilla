@@ -14,6 +14,7 @@ import {
   GOOGLE_PROVIDER,
 } from '@gamezilla/domain/auth';
 import { Box, Button, Card, ScreenBase, Text } from '@gamezilla/lib/ui';
+import { Trans } from '@lingui/react/macro';
 import { useEntities } from '@gamezilla/patch-db/react';
 import { type Href, useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
@@ -144,7 +145,7 @@ function LinkedProvidersCard({
 }) {
   return (
     <Card elevation={1} sx={{ p: 4, gap: 3 }}>
-      <Text variant="bodyBold" label="Sign-in providers" />
+      <Text variant="bodyBold" label={<Trans>Sign-in providers</Trans>} />
       <CaptionLine label="Read-only: OAuth identities stored for your account." />
       <LinkedProvidersBody
         accountId={accountId}

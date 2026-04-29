@@ -1,6 +1,7 @@
 import { ProfileDiceBearAvatar } from '@gamezilla/client/profile/profile-dicebear-avatar';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { Box, Button, Text } from '@gamezilla/lib/ui';
+import { Trans } from '@lingui/react/macro';
 
 export function AvatarPreview({
   previewConfig,
@@ -48,7 +49,9 @@ export function AvatarPreview({
         variant="caption"
         sx={{ textAlign: 'center', opacity: 0.75 }}
         numberOfLines={1}
-        label="Preview updates as you edit. Save to keep changes."
+        label={
+          <Trans>Preview updates as you edit. Save to keep changes.</Trans>
+        }
       />
     </Box>
   );

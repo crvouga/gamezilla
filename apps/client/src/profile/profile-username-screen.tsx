@@ -5,10 +5,18 @@ import {
   ProfileAttr,
 } from '@gamezilla/domain/profile/profile-entities';
 import type { Entity } from '@gamezilla/patch-db/interface';
-import { Box, ScreenBase, Text, TextInput } from '@gamezilla/lib/ui';
+import {
+  Box,
+  type BodyContentProps,
+  ScreenBase,
+  Text,
+  TextInput,
+} from '@gamezilla/lib/ui';
 import { usePatchesDb } from '@gamezilla/patch-db/react';
+import { useLingui } from '@lingui/react/macro';
+import { Trans } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 
 function useSyncedDisplayName(entity: Entity | null | undefined) {
   const [value, setValue] = useState('');
@@ -31,6 +39,47 @@ function useSyncedDisplayName(entity: Entity | null | undefined) {
   }, [entity]);
 
   return [value, setValue] as const;
+}
+
+function ProfileUsernameScreenBody({
+  sx,
+  loading,
+  profileId,
+  value,
+  setValue,
+}: {
+  sx: BodyContentProps['sx'];
+  loading: boolean;
+  profileId: string | null;
+  value: string;
+  setValue: (v: string) => void;
+}): ReactNode {
+  const { t } = useLingui();
+  return (
+    <Box style={sx}>
+      {!loading && profileId === null ? (
+        <Box sx={{ gap: 2 }}>
+          <Text
+            variant="body"
+            label={
+              <Trans>
+                No active profile. Open Profiles and create or select one first.
+              </Trans>
+            }
+          />
+        </Box>
+      ) : (
+        <TextInput
+          label={<Trans>Display name</Trans>}
+          value={value}
+          onChangeText={setValue}
+          placeholder={t`Your name`}
+          autoCapitalize="words"
+          autoCorrect
+        />
+      )}
+    </Box>
+  );
 }
 
 export function ProfileUsernameScreen() {
@@ -63,14 +112,14 @@ export function ProfileUsernameScreen() {
   return (
     <ScreenBase
       breadcrumbs={[
-        { name: 'Profile', onPress: nav('/profile') },
-        { name: 'Edit profile', onPress: nav('/profile/edit') },
-        { name: 'Username' },
+        { name: <Trans>Profile</Trans>, onPress: nav('/profile') },
+        { name: <Trans>Edit profile</Trans>, onPress: nav('/profile/edit') },
+        { name: <Trans>Username</Trans> },
       ]}
       actions={[
         {
           type: 'submit',
-          label: 'Save',
+          label: <Trans>Save</Trans>,
           onPress: () => void save(),
           loading: saving,
           disabled: saving || loading || profileId === null,
@@ -78,25 +127,13 @@ export function ProfileUsernameScreen() {
       ]}
       keyboardAvoiding
       content={({ sx }) => (
-        <Box style={sx}>
-          {!loading && profileId === null ? (
-            <Box sx={{ gap: 2 }}>
-              <Text
-                variant="body"
-                label="No active profile. Open Profiles and create or select one first."
-              />
-            </Box>
-          ) : (
-            <TextInput
-              label="Display name"
-              value={value}
-              onChangeText={setValue}
-              placeholder="Your name"
-              autoCapitalize="words"
-              autoCorrect
-            />
-          )}
-        </Box>
+        <ProfileUsernameScreenBody
+          sx={sx}
+          loading={loading}
+          profileId={profileId}
+          value={value}
+          setValue={setValue}
+        />
       )}
     />
   );

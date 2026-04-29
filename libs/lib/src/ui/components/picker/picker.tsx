@@ -3,6 +3,8 @@
  * scrollable option list (single select).
  */
 
+import type { LocalizedString } from '@gamezilla/lib/i18n';
+import { useLingui } from '@lingui/react/macro';
 import type { ReactElement, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { FlatList, Pressable, View } from 'react-native';
@@ -13,7 +15,7 @@ import { Text } from '../text';
 import { ResponsiveSurface } from '../responsive-surface';
 
 export type PickerOption<T extends string | number = string> = {
-  label: string;
+  label: ReactNode;
   value: T;
   preview?: ReactNode;
 };
@@ -23,11 +25,11 @@ export type PickerProps<T extends string | number = string> = {
   value: T;
   onValueChange: (value: T) => void;
   /** Optional label above the trigger. */
-  label?: string;
+  label?: ReactNode;
   /** Title in the surface; defaults to `label` when set, else `"Choose"`. */
-  surfaceTitle?: string;
+  surfaceTitle?: ReactNode;
   disabled?: boolean;
-  placeholder?: string;
+  placeholder?: LocalizedString;
   /** Custom row renderer; default uses {@link ListItem}. */
   renderOption?: (
     option: PickerOption<T>,
@@ -36,15 +38,6 @@ export type PickerProps<T extends string | number = string> = {
   ) => ReactElement | null;
 };
 
-function pickerSurfaceTitle(
-  surfaceTitle: string | undefined,
-  label: string | undefined
-): string {
-  if (surfaceTitle !== undefined) return surfaceTitle;
-  if (label !== undefined) return label;
-  return 'Choose';
-}
-
 export function Picker<T extends string | number = string>({
   options,
   value,
@@ -52,12 +45,19 @@ export function Picker<T extends string | number = string>({
   label,
   surfaceTitle,
   disabled = false,
-  placeholder = 'Select…',
+  placeholder,
   renderOption,
 }: PickerProps<T>) {
+  const { t } = useLingui();
   const [open, setOpen] = useState(false);
   const selected = options.find((o) => o.value === value);
-  const title = pickerSurfaceTitle(surfaceTitle, label);
+  const placeholderResolved = placeholder ?? t`Select…`;
+  const title: ReactNode =
+    surfaceTitle !== undefined
+      ? surfaceTitle
+      : label !== undefined
+        ? label
+        : t`Choose`;
   const handlePick = (next: T) => {
     onValueChange(next);
     setOpen(false);
@@ -68,7 +68,7 @@ export function Picker<T extends string | number = string>({
       {label !== undefined ? <PickerLabel label={label} /> : null}
       <PickerTrigger
         selected={selected}
-        placeholder={placeholder}
+        placeholder={placeholderResolved}
         disabled={disabled}
         onPress={() => setOpen(true)}
       />
@@ -88,7 +88,7 @@ export function Picker<T extends string | number = string>({
   );
 }
 
-function PickerLabel({ label }: { label: string }) {
+function PickerLabel({ label }: { label: ReactNode }) {
   const theme = useTheme();
   return (
     <Text
@@ -107,7 +107,7 @@ function PickerTrigger<T extends string | number>({
   onPress,
 }: {
   selected: PickerOption<T> | undefined;
-  placeholder: string;
+  placeholder: LocalizedString;
   disabled: boolean;
   onPress: () => void;
 }) {

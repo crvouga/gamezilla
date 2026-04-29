@@ -13,7 +13,8 @@
  * ```
  */
 
-import { forwardRef } from 'react';
+import type { LocalizedString } from '@gamezilla/lib/i18n';
+import { forwardRef, type ReactNode } from 'react';
 import {
   TextInput as RNTextInput,
   type TextInputProps as RNTextInputProps,
@@ -24,13 +25,18 @@ import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Text } from '../text';
 
-export type TextInputProps = Omit<RNTextInputProps, 'style'> & {
+export type TextInputProps = Omit<
+  RNTextInputProps,
+  'style' | 'placeholder' | 'accessibilityLabel'
+> & {
   /** Label shown above the input. */
-  label?: string;
+  label?: ReactNode;
   /** Error message shown below the input. */
-  error?: string;
+  error?: LocalizedString;
   /** Helper text shown below the input (hidden when error is present). */
-  helperText?: string;
+  helperText?: LocalizedString;
+  placeholder?: LocalizedString;
+  accessibilityLabel?: LocalizedString;
   /** Utility-first style shorthand for the outer wrapper. */
   sx?: SxProps;
 };

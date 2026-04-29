@@ -15,6 +15,7 @@
  * ```
  */
 
+import type { LocalizedString } from '@gamezilla/lib/i18n';
 import type { ReactNode } from 'react';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
@@ -23,8 +24,8 @@ import { Pressable } from '../pressable';
 import { Text } from '../text';
 
 export type MenuRowProps = {
-  title: string;
-  caption?: string;
+  title: ReactNode;
+  caption?: ReactNode;
   /** Rendered before the title (e.g. an icon or avatar). */
   leading?: ReactNode;
   /** Replace the default trailing chevron with custom content. */
@@ -34,7 +35,7 @@ export type MenuRowProps = {
   onPress?: () => void;
   disabled?: boolean;
   testID?: string;
-  accessibilityLabel?: string;
+  accessibilityLabel?: LocalizedString;
 };
 
 export function MenuRow({
@@ -56,7 +57,7 @@ export function MenuRow({
       disabled={disabled}
       testID={testID}
       accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel ?? title}
+      accessibilityLabel={accessibilityLabel}
     >
       <Box
         sx={{

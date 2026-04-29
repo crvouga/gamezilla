@@ -18,6 +18,10 @@
  * ```
  */
 
+import type { LocalizedString } from '@gamezilla/lib/i18n';
+import { asLocalized } from '@gamezilla/lib/i18n';
+import { useLingui } from '@lingui/react/macro';
+import type { ReactNode } from 'react';
 import {
   Platform,
   Pressable,
@@ -56,12 +60,12 @@ export type SocialSignInButtonProps = {
   /** Call-to-action variant. Drives the default label. Defaults to `"continue"`. */
   action?: SocialSignInButtonAction;
   /** Override the rendered label (for localization). */
-  label?: string;
+  label?: ReactNode;
   /** Override the rendered loading label. */
-  loadingLabel?: string;
+  loadingLabel?: ReactNode;
   loading?: boolean;
   disabled?: boolean;
-  accessibilityHint?: string;
+  accessibilityHint?: LocalizedString;
   testID?: string;
 };
 
@@ -109,24 +113,6 @@ const RECTANGULAR_RADIUS = 4;
 
 function shapeRadius(shape: SocialSignInButtonShape): number {
   return shape === 'pill' ? PILL_RADIUS : RECTANGULAR_RADIUS;
-}
-
-function pickLabel({
-  spec,
-  action,
-  loading,
-  label,
-  loadingLabel,
-}: {
-  spec: SocialProviderSpec;
-  action: SocialSignInButtonAction;
-  loading: boolean;
-  label: string | undefined;
-  loadingLabel: string | undefined;
-}): { resting: string; visible: string } {
-  const resting = label ?? spec.defaultLabels[action];
-  const loadingResolved = loadingLabel ?? spec.loadingLabel;
-  return { resting, visible: loading ? loadingResolved : resting };
 }
 
 function buildPressableStyle({
@@ -196,17 +182,21 @@ export function SocialSignInButton({
   accessibilityHint,
   testID,
 }: SocialSignInButtonProps) {
+  const { i18n } = useLingui();
   const spec = SOCIAL_PROVIDER_SPECS[provider];
   const palette = spec.themes[theme];
   const isDisabled = loading || disabled;
-  const labels = pickLabel({ spec, action, loading, label, loadingLabel });
+  const defaultLabel = i18n._(spec.defaultLabels[action]);
+  const visibleLabel: ReactNode = loading
+    ? (loadingLabel ?? i18n._(spec.loadingLabel))
+    : (label ?? defaultLabel);
 
   return (
     <Pressable
       onPress={onPress}
       disabled={isDisabled}
       accessibilityRole="button"
-      accessibilityLabel={labels.resting}
+      accessibilityLabel={asLocalized(defaultLabel)}
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       testID={testID}
@@ -223,7 +213,7 @@ export function SocialSignInButton({
           fontWeight: FONT_WEIGHT,
           color: palette.font,
         }}
-        label={labels.visible}
+        label={visibleLabel}
       />
     </Pressable>
   );

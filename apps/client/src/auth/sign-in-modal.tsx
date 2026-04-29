@@ -9,6 +9,8 @@ import {
   ResponsiveSurface,
   Text,
 } from '@gamezilla/lib/ui';
+import { t } from '@lingui/core/macro';
+import { Trans } from '@lingui/react/macro';
 import { useCallback, useEffect } from 'react';
 import { useAsync } from '@gamezilla/lib/async/use-async';
 import type { AuthGoogleProviderState } from './auth-capabilities';
@@ -53,11 +55,20 @@ export function SignInModal({
   }, [google.available, loading, run]);
 
   return (
-    <ResponsiveSurface visible={visible} onClose={onClose} title="Sign in">
+    <ResponsiveSurface
+      visible={visible}
+      onClose={onClose}
+      title={t`Sign in`}
+    >
       <ModalBody>
         <Text
           variant="body"
-          label="Sign in to link this device to your server account. Your data stays local first."
+          label={
+            <Trans>
+              Sign in to link this device to your server account. Your data stays
+              local first.
+            </Trans>
+          }
         />
         <SignInGooglePanel
           google={google}
@@ -69,7 +80,7 @@ export function SignInModal({
         />
       </ModalBody>
       <ModalFooter>
-        <ModalButton label="Close" variant="cancel" onPress={onClose} />
+        <ModalButton label={<Trans>Close</Trans>} variant="cancel" onPress={onClose} />
       </ModalFooter>
     </ResponsiveSurface>
   );

@@ -9,6 +9,7 @@
  * ```
  */
 
+import type { LocalizedString } from '@gamezilla/lib/i18n';
 import { type ReactNode } from 'react';
 import { Pressable, type PressableProps } from 'react-native';
 import { useTheme } from '../../theme';
@@ -22,7 +23,7 @@ export type IconButtonProps = {
   background?: string;
   disabled?: boolean;
   testID?: string;
-  accessibilityLabel?: string;
+  accessibilityLabel?: LocalizedString;
   accessibilityRole?: PressableProps['accessibilityRole'];
 };
 

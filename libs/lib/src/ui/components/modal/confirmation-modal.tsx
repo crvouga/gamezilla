@@ -17,7 +17,9 @@
  * ```
  */
 
+import { useLingui } from '@lingui/react/macro';
 import { useRef } from 'react';
+import type { ReactNode } from 'react';
 import { ResponsiveSurface } from '../responsive-surface';
 import { ModalBody } from './modal-body';
 import { ModalButton } from './modal-button';
@@ -25,20 +27,20 @@ import { ModalFooter } from './modal-footer';
 
 export type ConfirmationModalProps = {
   visible: boolean;
-  title: string;
-  message: string;
-  confirmLabel?: string;
-  cancelLabel?: string;
+  title: ReactNode;
+  message: ReactNode;
+  confirmLabel?: ReactNode;
+  cancelLabel?: ReactNode;
   variant?: 'default' | 'destructive';
   onConfirm: () => void;
   onCancel: () => void;
 };
 
 type LatchedContent = {
-  title: string;
-  message: string;
-  confirmLabel: string;
-  cancelLabel: string;
+  title: ReactNode;
+  message: ReactNode;
+  confirmLabel: ReactNode;
+  cancelLabel: ReactNode;
   variant: 'default' | 'destructive';
 };
 
@@ -46,33 +48,42 @@ export function ConfirmationModal({
   visible,
   title,
   message,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  confirmLabel,
+  cancelLabel,
   variant = 'default',
   onConfirm,
   onCancel,
 }: ConfirmationModalProps) {
+  const { t } = useLingui();
+  const resolvedConfirmLabel = confirmLabel ?? t`Confirm`;
+  const resolvedCancelLabel = cancelLabel ?? t`Cancel`;
   // Keep last-seen content rendered while the modal animates closed so callers
   // can null out their source state on confirm/cancel without producing a
   // flash of empty content during the fade-out.
   const latchedRef = useRef<LatchedContent>({
     title,
     message,
-    confirmLabel,
-    cancelLabel,
+    confirmLabel: resolvedConfirmLabel,
+    cancelLabel: resolvedCancelLabel,
     variant,
   });
   if (visible) {
     latchedRef.current = {
       title,
       message,
-      confirmLabel,
-      cancelLabel,
+      confirmLabel: resolvedConfirmLabel,
+      cancelLabel: resolvedCancelLabel,
       variant,
     };
   }
   const display = visible
-    ? { title, message, confirmLabel, cancelLabel, variant }
+    ? {
+        title,
+        message,
+        confirmLabel: resolvedConfirmLabel,
+        cancelLabel: resolvedCancelLabel,
+        variant,
+      }
     : latchedRef.current;
 
   return (

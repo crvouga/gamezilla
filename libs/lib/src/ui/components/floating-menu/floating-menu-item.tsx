@@ -3,6 +3,7 @@
  * @internal Used only by {@link FloatingMenu}; not exported from `@gamezilla/lib/ui`.
  */
 
+import type { LocalizedString } from '@gamezilla/lib/i18n';
 import type { ReactNode } from 'react';
 
 import { Box } from '../box';
@@ -11,10 +12,11 @@ import { Text } from '../text';
 
 export type FloatingMenuItemProps = Omit<
   PressableProps,
-  'children'
+  'children' | 'accessibilityLabel'
 > & {
   /** Primary label. */
-  label: string;
+  label: ReactNode;
+  accessibilityLabel?: LocalizedString;
   /** Icon or node before the label. */
   leading?: ReactNode;
   /** Trailing control or metrics (aligned end). */
@@ -33,7 +35,7 @@ export function FloatingMenuItem({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel ?? label}
+      accessibilityLabel={accessibilityLabel}
       disabled={disabled}
       sx={{
         py: 3,

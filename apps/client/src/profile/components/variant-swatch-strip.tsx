@@ -7,6 +7,7 @@ import type { StyleKey } from '@gamezilla/client/profile/dicebear-styles';
 import { ProfileDiceBearAvatar } from '@gamezilla/client/profile/profile-dicebear-avatar';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { HorizontalPicker, Text } from '@gamezilla/lib/ui';
+import { Trans } from '@lingui/react/macro';
 
 export type VariantSwatchStripProps = {
   field: Extract<SchemaField, { kind: 'enum' }>;
@@ -47,7 +48,7 @@ export function VariantSwatchStrip({
       randomItem={{
         selected: randomSelected,
         onSelect: () => onSelect(null),
-        render: () => <Text variant="caption" label="?" />,
+        render: () => <Text variant="caption" label={<Trans>?</Trans>} />,
       }}
       renderPreview={(v) => {
         const thumbConfig: AvatarConfig = {

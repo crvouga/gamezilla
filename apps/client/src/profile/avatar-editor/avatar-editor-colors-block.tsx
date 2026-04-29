@@ -6,6 +6,7 @@ import {
   ResponsiveSurface,
   Text,
 } from '@gamezilla/lib/ui';
+import { Trans } from '@lingui/react/macro';
 
 import { TriggerRow } from './avatar-editor-trigger-row';
 import { humanizeOptionKey } from './option-helpers';
@@ -49,7 +50,7 @@ function ColorRow({
         title={humanizeOptionKey(field.key)}
       >
         <MultiSelectSwatchGrid
-          label=""
+          label={null}
           palette={[...new Set([...field.default, ...current])]}
           defaultPalette={field.default}
           value={current}
@@ -87,7 +88,7 @@ export function ColorsBlock({
   if (fields.length === 0) return null;
   return (
     <Box sx={{ mt: 2 }}>
-      <Text variant="label" label="Colors" />
+      <Text variant="label" label={<Trans>Colors</Trans>} />
       {fields.map((f) => (
         <ColorRow
           key={f.key}

@@ -5,6 +5,7 @@ import {
 } from '@gamezilla/client/profile/dicebear-styles';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { ResponsiveSurface, Text } from '@gamezilla/lib/ui';
+import { Trans } from '@lingui/react/macro';
 
 import { TriggerRow } from './avatar-editor-trigger-row';
 
@@ -29,9 +30,9 @@ export function StyleBlock({
 }) {
   return (
     <>
-      <Text variant="label" sx={{ mt: 2 }} label="Style" />
+      <Text variant="label" sx={{ mt: 2 }} label={<Trans>Style</Trans>} />
       <TriggerRow
-        label="Avatar style"
+        label={<Trans>Avatar style</Trans>}
         value={styleLabel(styleKey)}
         onPress={() => setSurface('style')}
       />

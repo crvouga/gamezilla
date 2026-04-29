@@ -3,6 +3,7 @@
  */
 
 import { useServerStatus } from '@gamezilla/client/connection/use-server-status';
+import { asLocalized } from '@gamezilla/lib/i18n';
 import { useLogger } from '@gamezilla/lib/logger/react';
 import {
   Box,
@@ -14,6 +15,7 @@ import {
   useTheme,
   type FloatingMenuContent,
 } from '@gamezilla/lib/ui';
+import { t } from '@lingui/core/macro';
 import { useRouter } from 'expo-router';
 import {
   useCallback,
@@ -134,7 +136,7 @@ type MenuRow = FloatingMenuContent['rows'][number];
 
 function buildHeader(profile: Profile): FloatingMenuContent['header'] {
   return {
-    title: profile.displayLabel,
+    title: asLocalized(profile.displayLabel),
   };
 }
 
@@ -144,11 +146,11 @@ function buildConnectionRow(args: {
 }): MenuRow {
   const { serverStatus, onServerStatus } = args;
   const { aggregateStatus, health } = serverStatus;
-  const accLabel = `Connection and server status. ${aggregateStatusWord(aggregateStatus)}. ${latencyPhrase(health)}.`;
+  const accLabel = t`Connection and server status. ${aggregateStatusWord(aggregateStatus)}. ${latencyPhrase(health)}.`;
   return {
     type: 'item',
     id: 'server-status',
-    label: 'Connection',
+    label: t`Connection`,
     icon: 'wifi',
     trailing: (
       <ConnectionTrailing aggregateStatus={aggregateStatus} health={health} />
@@ -159,7 +161,7 @@ function buildConnectionRow(args: {
 }
 
 function buildAuthRow(auth: Auth, onAuth: () => void): MenuRow {
-  const label = auth.mode === 'signed-in' ? 'Sign out' : 'Sign in';
+  const label = auth.mode === 'signed-in' ? t`Sign out` : t`Sign in`;
   return {
     type: 'item',
     id: 'sign-in',
@@ -189,10 +191,10 @@ function buildMenuContent(args: {
       {
         type: 'item',
         id: 'profile',
-        label: 'Profile',
+        label: t`Profile`,
         icon: 'person.fill',
         onPress: onProfile,
-        accessibilityLabel: 'View profile',
+        accessibilityLabel: t`View profile`,
       },
       buildConnectionRow({ serverStatus, onServerStatus }),
       buildAuthRow(auth, onAuth),
@@ -200,10 +202,10 @@ function buildMenuContent(args: {
       {
         type: 'item',
         id: 'settings',
-        label: 'Settings',
+        label: t`Settings`,
         icon: 'gearshape.fill',
         onPress: onSettings,
-        accessibilityLabel: 'Settings',
+        accessibilityLabel: t`Settings`,
       },
     ],
   };

@@ -2,13 +2,15 @@
  * Shared header row for {@link ResponsiveSurface} (title + close affordance).
  */
 
+import { t } from '@lingui/core/macro';
+import type { ReactNode } from 'react';
 import { Box } from '../box';
 import { IconButton } from '../icon-button';
 import { Text } from '../text';
 import { useTheme } from '../../theme';
 
 export type ResponsiveSurfaceHeaderProps = {
-  title: string;
+  title: ReactNode;
   onClose: () => void;
 };
 
@@ -34,7 +36,7 @@ export function ResponsiveSurfaceHeader({
         numberOfLines={1}
         style={{ flex: 1, marginRight: 8 }}
       />
-      <IconButton size={36} onPress={onClose}>
+      <IconButton size={36} onPress={onClose} accessibilityLabel={t`Close`}>
         <Text
           style={{ fontSize: 18, color: theme.colors.text }}
           label="✕"

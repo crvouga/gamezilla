@@ -4,8 +4,10 @@
  * helper line shows “Copied” feedback then resets.
  */
 
+import type { LocalizedString } from '@gamezilla/lib/i18n';
+import { useLingui } from '@lingui/react/macro';
 import * as Clipboard from 'expo-clipboard';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Animated, Pressable, View, type ViewStyle } from 'react-native';
 
 import type { SxProps } from '../../theme';
@@ -21,11 +23,11 @@ export type CopyToClipboardFieldProps = {
   /** String written to the clipboard on press. */
   value: string;
   /** Optional label above the field (same role as TextInput `label`). */
-  label?: string;
+  label?: ReactNode;
   /** Shown below the field when idle (hidden while `copiedLabel` is showing). */
-  helperText?: string;
+  helperText?: LocalizedString;
   /** Shown briefly after a successful copy. */
-  copiedLabel?: string;
+  copiedLabel?: LocalizedString;
   /** How long to show `copiedLabel` before returning to helper/idle. */
   copiedResetMs?: number;
   /** When true, the value is user-selectable as well as copy-on-press. */
@@ -98,12 +100,14 @@ export function CopyToClipboardField({
   value,
   label,
   helperText,
-  copiedLabel = 'Copied to clipboard',
+  copiedLabel,
   copiedResetMs = DEFAULT_COPIED_RESET_MS,
   selectable = true,
   sx: sxProp,
   testID,
 }: CopyToClipboardFieldProps) {
+  const { t } = useLingui();
+  const copiedLabelResolved = copiedLabel ?? t`Copied to clipboard`;
   const theme = useTheme();
   const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
   const [copied, setCopied] = useState(false);
@@ -127,8 +131,7 @@ export function CopyToClipboardField({
       {label !== undefined ? <Text variant="label" label={label} /> : null}
       <CopyRow
         copied={copied}
-        copiedLabel={copiedLabel}
-        label={label}
+        copiedLabel={copiedLabelResolved}
         onPress={onPress}
         rowScale={rowScale}
         iconScale={iconScale}
@@ -137,7 +140,7 @@ export function CopyToClipboardField({
       />
       <FeedbackLine
         copied={copied}
-        copiedLabel={copiedLabel}
+        copiedLabel={copiedLabelResolved}
         helperText={helperText}
         opacity={feedbackOpacity}
       />
@@ -148,7 +151,6 @@ export function CopyToClipboardField({
 function CopyRow({
   copied,
   copiedLabel,
-  label,
   onPress,
   rowScale,
   iconScale,
@@ -156,14 +158,14 @@ function CopyRow({
   selectable,
 }: {
   copied: boolean;
-  copiedLabel: string;
-  label: string | undefined;
+  copiedLabel: LocalizedString;
   onPress: () => void;
   rowScale: Animated.Value;
   iconScale: Animated.Value;
   value: string;
   selectable: boolean;
 }) {
+  const { t } = useLingui();
   const theme = useTheme();
   const fieldStyle: ViewStyle = {
     flexDirection: 'row',
@@ -181,9 +183,7 @@ function CopyRow({
     <Animated.View style={{ transform: [{ scale: rowScale }] }}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={
-          copied ? copiedLabel : `${label ?? 'Value'}: copy to clipboard`
-        }
+        accessibilityLabel={copied ? copiedLabel : t`Copy to clipboard`}
         onPress={onPress}
         style={({ pressed }) => [fieldStyle, pressed && { opacity: 0.92 }]}
       >
@@ -215,8 +215,8 @@ function FeedbackLine({
   opacity,
 }: {
   copied: boolean;
-  copiedLabel: string;
-  helperText: string | undefined;
+  copiedLabel: LocalizedString;
+  helperText: LocalizedString | undefined;
   opacity: Animated.Value;
 }) {
   return (

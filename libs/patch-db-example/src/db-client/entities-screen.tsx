@@ -12,6 +12,7 @@ import {
   TextInput,
   useTheme,
 } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { formatAttrValue } from './format-value';
@@ -122,13 +123,14 @@ function FilterBar({
   loaded: number;
   shown: number;
 }) {
+  const { t } = useLingui();
   const theme = useTheme();
   return (
     <Stack spacing={2} sx={{ px: 3, pt: 2, pb: 2 }}>
       <TextInput
         value={search}
         onChangeText={setSearch}
-        placeholder="Filter loaded rows (id or attributes)…"
+        placeholder={t`Filter loaded rows (id or attributes)…`}
         autoCapitalize="none"
         autoCorrect={false}
         sx={{

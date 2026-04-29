@@ -8,6 +8,7 @@ import {
   SegmentedControl,
   Text,
 } from '@gamezilla/lib/ui';
+import { Trans } from '@lingui/react/macro';
 
 import { TriggerRow } from './avatar-editor-trigger-row';
 
@@ -58,7 +59,7 @@ function TypeSegment({
 }) {
   return (
     <Box sx={{ gap: 2 }}>
-      <Text variant="caption" sx={{ opacity: 0.8 }} label="Type" />
+      <Text variant="caption" sx={{ opacity: 0.8 }} label={<Trans>Type</Trans>} />
       <SegmentedControl
         segments={[
           { key: 'solid', label: 'Solid' },
@@ -108,7 +109,7 @@ function ColorPickerRow({
         title="Background colors"
       >
         <MultiSelectSwatchGrid
-          label=""
+          label={null}
           palette={[...new Set([...colorField.default, ...bgColors])]}
           defaultPalette={colorField.default}
           value={bgColors}
@@ -153,7 +154,7 @@ function RotationControls({
       <Text
         variant="caption"
         sx={{ opacity: 0.8 }}
-        label="Gradient rotation (°)"
+        label={<Trans>Gradient rotation (°)</Trans>}
       />
       <NumberStepper
         label="Min rotation"
@@ -214,7 +215,7 @@ export function BackgroundBlock({
 
   return (
     <Box sx={{ mt: 2, gap: 3 }}>
-      <Text variant="label" label="Background" />
+      <Text variant="label" label={<Trans>Background</Trans>} />
       {typeField ? (
         <TypeSegment mode={mode} updateOptions={updateOptions} />
       ) : null}

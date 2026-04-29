@@ -9,6 +9,8 @@ import {
   TextInput,
   useTheme,
 } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
+import { Trans } from '@lingui/react/macro';
 import { useState } from 'react';
 
 import { TodoItem } from './todo-item';
@@ -102,6 +104,7 @@ function AddTodoBar({
   setInput: (v: string) => void;
   onAdd: () => void;
 }) {
+  const { t } = useLingui();
   const theme = useTheme();
   return (
     <Box sx={{ flexDirection: 'row', gap: 2, mb: 4 }}>
@@ -117,7 +120,7 @@ function AddTodoBar({
           color: 'text',
           borderColor: 'border',
         }}
-        placeholder="Add a todo..."
+        placeholder={t`Add a todo...`}
         placeholderTextColor={theme.colors.icon}
         value={input}
         onChangeText={setInput}
@@ -128,7 +131,7 @@ function AddTodoBar({
         onPress={onAdd}
         style={theme.sx({ justifyContent: 'center', px: 4 })}
       >
-        <Text variant="bodyBold" label="Add" />
+        <Text variant="bodyBold" label={<Trans>Add</Trans>} />
       </Pressable>
     </Box>
   );

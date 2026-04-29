@@ -1,6 +1,9 @@
 import type { AccountPrincipal } from '@gamezilla/client/auth/use-account-principals';
 import type { PrincipalSessionAggregate } from '@gamezilla/client/auth/use-principals-sessions';
 import { Box, CopyToClipboardField, Text } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
+import { Trans } from '@lingui/react/macro';
+import type { ReactNode } from 'react';
 import {
   EM_DASH,
   formatAppLine,
@@ -9,13 +12,13 @@ import {
   formatTimestamp,
 } from './account-format';
 
-function CaptionLine({ label }: { label: string }) {
+function CaptionLine({ label }: { label: ReactNode }) {
   return (
     <Text variant="caption" sx={{ color: 'textSecondary' }} label={label} />
   );
 }
 
-function MetaPair({ label, value }: { label: string; value: string }) {
+function MetaPair({ label, value }: { label: ReactNode; value: string }) {
   return (
     <Box sx={{ flex: 1, minWidth: 140, gap: 1 }}>
       <Text variant="caption" sx={{ color: 'textSecondary' }} label={label} />
@@ -27,20 +30,20 @@ function MetaPair({ label, value }: { label: string; value: string }) {
 function DeviceRowMetaGrid({ principal }: { principal: AccountPrincipal }) {
   return (
     <Box sx={{ flexDirection: 'row', flexWrap: 'wrap', gap: 3 }}>
-      <MetaPair label="Platform" value={principal.platform ?? EM_DASH} />
-      <MetaPair label="OS" value={formatOsLine(principal)} />
+      <MetaPair label={<Trans>Platform</Trans>} value={principal.platform ?? EM_DASH} />
+      <MetaPair label={<Trans>OS</Trans>} value={formatOsLine(principal)} />
       <MetaPair
-        label="Device name"
+        label={<Trans>Device name</Trans>}
         value={principal.deviceName ?? EM_DASH}
       />
-      <MetaPair label="Model" value={formatModelLine(principal)} />
-      <MetaPair label="App" value={formatAppLine(principal)} />
+      <MetaPair label={<Trans>Model</Trans>} value={formatModelLine(principal)} />
+      <MetaPair label={<Trans>App</Trans>} value={formatAppLine(principal)} />
       <MetaPair
-        label="First seen"
+        label={<Trans>First seen</Trans>}
         value={formatTimestamp(principal.firstSeenAt ?? principal.createdAt)}
       />
-      <MetaPair label="Last seen" value={formatTimestamp(principal.lastSeenAt)} />
-      <MetaPair label="Created" value={formatTimestamp(principal.createdAt)} />
+      <MetaPair label={<Trans>Last seen</Trans>} value={formatTimestamp(principal.lastSeenAt)} />
+      <MetaPair label={<Trans>Created</Trans>} value={formatTimestamp(principal.createdAt)} />
     </Box>
   );
 }
@@ -48,7 +51,7 @@ function DeviceRowMetaGrid({ principal }: { principal: AccountPrincipal }) {
 function DeviceRowUserAgent({ userAgent }: { userAgent: string }) {
   return (
     <Box sx={{ gap: 1 }}>
-      <Text variant="caption" sx={{ color: 'textSecondary' }} label="User agent" />
+      <Text variant="caption" sx={{ color: 'textSecondary' }} label={<Trans>User agent</Trans>} />
       <Text variant="caption" selectable label={userAgent} />
     </Box>
   );
@@ -61,16 +64,17 @@ export function AccountDeviceDetailBody({
   principal: AccountPrincipal;
   sessionInfo: PrincipalSessionAggregate | undefined;
 }) {
+  const { t } = useLingui();
   const sessionLabel =
     sessionInfo === undefined || sessionInfo.active === 0
-      ? 'No active session'
-      : `${String(sessionInfo.active)} active session(s) — latest expires ${formatTimestamp(sessionInfo.latestExpiresAt)}`;
+      ? t`No active session`
+      : t`${sessionInfo.active} active session(s) — latest expires ${formatTimestamp(sessionInfo.latestExpiresAt)}`;
 
   return (
     <Box sx={{ gap: 4 }}>
       <CopyToClipboardField
-        label="Principal ID"
-        helperText="Stable per-device identifier; tap to copy"
+        label={<Trans>Principal ID</Trans>}
+        helperText={t`Stable per-device identifier; tap to copy`}
         value={principal.entityId}
       />
       <DeviceRowMetaGrid principal={principal} />

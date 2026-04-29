@@ -5,6 +5,7 @@ import {
   ClientConfigAttr,
 } from '@gamezilla/domain/client-config/client-config-entities';
 import { Box, Card, ScreenBase, Text } from '@gamezilla/lib/ui';
+import { Trans } from '@lingui/react/macro';
 import { useEntities } from '@gamezilla/patch-db/react';
 
 import { ClientConfigServerRefreshCard } from '@gamezilla/client/more/client-config-server-refresh';
@@ -45,17 +46,19 @@ export function ClientConfigScreen() {
       content={({ sx }) => (
         <Box style={{ ...sx, gap: 12 }}>
           <Card elevation={1} sx={{ p: 4, gap: 3 }}>
-            <Text variant="bodyBold" label="Local PatchDB (synced)" />
+            <Text variant="bodyBold" label={<Trans>Local PatchDB (synced)</Trans>} />
             <Text
               variant="caption"
               sx={{ color: 'textSecondary' }}
-              label="Entity type clientConfig, id clientConfig__singleton"
+              label={
+                <Trans>Entity type clientConfig, id clientConfig__singleton</Trans>
+              }
             />
             <Box sx={{ gap: 1 }}>
-              <Text variant="label" label="Google web client ID" />
+              <Text variant="label" label={<Trans>Google web client ID</Trans>} />
               <Text variant="mono" selectable label={googleLine} />
             </Box>
-            <Text variant="label" label="All attributes (JSON)" />
+            <Text variant="label" label={<Trans>All attributes (JSON)</Trans>} />
             <Text variant="mono" selectable label={jsonPreview} />
           </Card>
 

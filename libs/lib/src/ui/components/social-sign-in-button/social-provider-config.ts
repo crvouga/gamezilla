@@ -8,6 +8,9 @@
  * @see https://developers.google.com/identity/branding-guidelines (Google)
  */
 
+import { msg } from '@lingui/core/macro';
+import type { MessageDescriptor } from '@lingui/core';
+
 import type { BrandIconName } from '../brand-icon';
 
 export type SocialSignInProvider = 'google';
@@ -32,9 +35,9 @@ export type SocialThemePalette = {
 export type SocialProviderSpec = {
   brandIcon: BrandIconName;
   themes: Record<SocialSignInButtonTheme, SocialThemePalette>;
-  defaultLabels: Record<SocialSignInButtonAction, string>;
+  defaultLabels: Record<SocialSignInButtonAction, MessageDescriptor>;
   /** Label rendered while `loading` is true. */
-  loadingLabel: string;
+  loadingLabel: MessageDescriptor;
 };
 
 /**
@@ -51,11 +54,11 @@ const GOOGLE_SPEC: SocialProviderSpec = {
     neutral: { fill: '#F2F2F2', stroke: null, font: '#1F1F1F' },
   },
   defaultLabels: {
-    signIn: 'Sign in with Google',
-    signUp: 'Sign up with Google',
-    continue: 'Continue with Google',
+    signIn: msg`Sign in with Google`,
+    signUp: msg`Sign up with Google`,
+    continue: msg`Continue with Google`,
   },
-  loadingLabel: 'Signing in…',
+  loadingLabel: msg`Signing in…`,
 };
 
 export const SOCIAL_PROVIDER_SPECS = {

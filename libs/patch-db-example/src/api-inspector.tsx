@@ -17,6 +17,8 @@ import {
   TextInput,
 } from '@gamezilla/lib/ui';
 import { useTheme } from '@gamezilla/lib/ui/theme';
+import { useLingui } from '@lingui/react/macro';
+import { Trans } from '@lingui/react/macro';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -208,6 +210,7 @@ function ConnectionCard({
 }: {
   state: InspectorState;
 }) {
+  const { t } = useLingui();
   const {
     urlInput,
     setUrlInput,
@@ -219,11 +222,11 @@ function ConnectionCard({
   return (
     <Card elevation={1} sx={{ p: 4 }}>
       <Stack spacing={3}>
-        <Text variant="bodyBold" label="Server Connection" />
+        <Text variant="bodyBold" label={<Trans>Server Connection</Trans>} />
         <TextInput
           value={urlInput}
           onChangeText={setUrlInput}
-          placeholder="https://..."
+          placeholder={t`https://...`}
           onSubmitEditing={handleConnect}
           autoCapitalize="none"
           autoCorrect={false}
@@ -231,7 +234,7 @@ function ConnectionCard({
         />
         <Stack direction="horizontal" spacing={2} align="center">
           <Button
-            title={connectedUrl ? 'Reconnect' : 'Connect'}
+            title={connectedUrl ? <Trans>Reconnect</Trans> : <Trans>Connect</Trans>}
             variant="solid"
             size="md"
             onPress={handleConnect}

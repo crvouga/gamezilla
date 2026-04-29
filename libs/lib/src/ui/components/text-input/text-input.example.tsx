@@ -1,3 +1,5 @@
+import { t } from '@lingui/core/macro';
+import { Trans } from '@lingui/react/macro';
 import { useState } from 'react';
 import { Box } from '../box';
 import { Text } from '../text';
@@ -9,19 +11,19 @@ export default function TextInputExample() {
 
   return (
     <Box sx={{ p: 4, gap: 4 }}>
-      <Text variant="heading" label="TextInput" />
+      <Text variant="heading" label={<Trans>TextInput</Trans>} />
 
       <TextInput
-        label="Name"
-        placeholder="John Doe"
+        label={<Trans>Name</Trans>}
+        placeholder={t`John Doe`}
         value={name}
         onChangeText={setName}
-        helperText="Your full name"
+        helperText={t`Your full name`}
       />
 
       <TextInput
-        label="Email"
-        placeholder="you@example.com"
+        label={<Trans>Email</Trans>}
+        placeholder={t`you@example.com`}
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
@@ -29,15 +31,15 @@ export default function TextInputExample() {
       />
 
       <TextInput
-        label="Error state"
-        placeholder="Type something..."
+        label={<Trans>Error state</Trans>}
+        placeholder={t`Type something...`}
         value=""
-        error="This field is required"
+        error={t`This field is required`}
       />
 
       <TextInput
-        label="Disabled"
-        placeholder="Cannot edit"
+        label={<Trans>Disabled</Trans>}
+        placeholder={t`Cannot edit`}
         value="Read-only value"
         editable={false}
       />

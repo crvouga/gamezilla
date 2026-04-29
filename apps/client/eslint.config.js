@@ -3,7 +3,9 @@
 const { defineConfig } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
 const eslintPluginNaming = require('eslint-plugin-naming');
-const eslintPluginGamezillaText = require('../../libs/eslint-rules/gamezilla-text.cjs');
+const eslintPluginGamezillaI18n = require('../../libs/eslint-rules/gamezilla-i18n.cjs');
+const eslintPluginLingui = require('eslint-plugin-lingui');
+const { linguiRules } = require('../../libs/eslint-rules/lingui-rules.cjs');
 const sizeLimits = require('../../libs/eslint-rules/size-limits.cjs');
 const a11yRestrictions = require('../../libs/eslint-rules/a11y-restrictions.cjs');
 
@@ -21,7 +23,6 @@ module.exports = defineConfig([
     },
     plugins: {
       naming: eslintPluginNaming,
-      gamezillaText: eslintPluginGamezillaText,
     },
     rules: {
       ...sizeLimits.rules(),
@@ -70,7 +71,29 @@ module.exports = defineConfig([
           ],
         },
       ],
-      'gamezillaText/text-use-label': 'error',
+    },
+  },
+  {
+    files: ['src/**/*.tsx'],
+    plugins: {
+      gamezillaI18n: eslintPluginGamezillaI18n,
+      lingui: eslintPluginLingui,
+    },
+    rules: {
+      'gamezillaI18n/text-must-be-trans': 'error',
+      ...linguiRules(),
+    },
+  },
+  {
+    files: ['**/*.test.{ts,tsx}', 'src/**/*.test.*'],
+    rules: {
+      'lingui/no-unlocalized-strings': 'off',
+      'lingui/t-call-in-function': 'off',
+      'lingui/no-trans-inside-trans': 'off',
+      'lingui/no-expression-in-message': 'off',
+      'lingui/no-single-tag-to-translate': 'off',
+      'lingui/no-single-variables-to-translate': 'off',
+      'gamezillaI18n/text-must-be-trans': 'off',
     },
   },
   sizeLimits.testOverrides(),

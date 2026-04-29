@@ -3,6 +3,7 @@
  * preset, transparent swatch, and custom hex entry.
  */
 
+import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable } from 'react-native';
@@ -15,7 +16,7 @@ import { arraysEqualAsSets } from './arrays-equal-as-sets';
 const DEFAULT_HEX = /^[0-9a-fA-F]{6}$/;
 
 export type MultiSelectSwatchGridProps = {
-  label: string;
+  label: ReactNode;
   palette: string[];
   value: string[];
   onChange: (next: string[]) => void;
@@ -275,6 +276,7 @@ function CustomHexInput({
   onChange: (next: string[]) => void;
   validateCustom: (token: string) => boolean;
 }) {
+  const { t } = useLingui();
   const theme = useTheme();
   const [hexDraft, setHexDraft] = useState('');
   const addHex = useCallback(() => {
@@ -290,17 +292,13 @@ function CustomHexInput({
 
   return (
     <Box sx={{ gap: 1 }}>
-      <Text
-        variant="caption"
-        sx={{ opacity: 0.8 }}
-        label="Add hex (6 chars, no #)"
-      />
+      <Text variant="caption" sx={{ opacity: 0.8 }} label={<Trans>Add hex (6 chars, no #)</Trans>} />
       <Box sx={{ flexDirection: 'row', gap: 2, alignItems: 'flex-end' }}>
         <Box sx={{ flex: 1 }}>
           <TextInput
             value={hexDraft}
             onChangeText={setHexDraft}
-            placeholder="e.g. ff5733"
+            placeholder={t`e.g. ff5733`}
             autoCapitalize="none"
             autoCorrect={false}
             maxLength={6}
@@ -310,11 +308,7 @@ function CustomHexInput({
           onPress={addHex}
           style={{ paddingVertical: 8, paddingHorizontal: 12 }}
         >
-          <Text
-            variant="label"
-            style={{ color: theme.colors.tint }}
-            label="Add"
-          />
+          <Text variant="label" style={{ color: theme.colors.tint }} label={<Trans>Add</Trans>} />
         </Pressable>
       </Box>
     </Box>

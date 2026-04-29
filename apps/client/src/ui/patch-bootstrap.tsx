@@ -32,6 +32,8 @@ import { SqlClientImplExpoSqlite } from '@gamezilla/lib/sql-client/impl-expo-sql
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { assertDatabaseName } from '@gamezilla/lib/sqlite';
 import { Box, Button, Center, hideSplash, Text } from '@gamezilla/lib/ui';
+import { t } from '@lingui/core/macro';
+import { Trans } from '@lingui/react/macro';
 import { assertUrl } from '@gamezilla/patch-db/assert-url';
 import { PatchDbImplClientTransport } from '@gamezilla/patch-db/impl-client-transport';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
@@ -226,7 +228,7 @@ function ErrorView({
         variant="bodyBold"
         sx={{ fontSize: 'base' }}
         style={{ textAlign: 'center' }}
-        label="Failed to initialize"
+        label={<Trans>Failed to initialize</Trans>}
       />
       <Text
         sx={{ fontSize: 'sm', opacity: 0.8 }}
@@ -234,9 +236,9 @@ function ErrorView({
         label={error.message}
       />
       <Box sx={{ mt: 4, gap: 3, alignItems: 'center' }}>
-        <Button title="Retry" onPress={onRetry} />
+        <Button title={t`Retry`} onPress={onRetry} />
         <Button
-          title="Clear local data & reload"
+          title={t`Clear local data & reload`}
           color="destructive"
           onPress={() => void onClear()}
         />

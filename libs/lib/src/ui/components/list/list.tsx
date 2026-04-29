@@ -48,8 +48,8 @@ export function List({ children, separator = true }: ListProps) {
 }
 
 export type ListItemProps = {
-  title: string;
-  subtitle?: string;
+  title: ReactNode;
+  subtitle?: ReactNode;
   /** Rendered at the start (left). */
   leading?: ReactNode;
   /** Rendered at the end (right). */

@@ -28,7 +28,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export type ButtonProps = {
   /** Button label. */
-  title: string;
+  title: ReactNode;
   onPress?: () => void;
   /** Visual variant. Defaults to `"solid"`. */
   variant?: ButtonVariant;
@@ -146,7 +146,7 @@ function ButtonContent({
   startIcon,
   endIcon,
 }: {
-  title: string;
+  title: ReactNode;
   loading: boolean;
   textColor: string;
   fontSize: 'sm' | 'base' | 'lg';
@@ -157,13 +157,7 @@ function ButtonContent({
   return (
     <>
       {startIcon !== undefined ? <View>{startIcon}</View> : null}
-      <Text
-        variant="bodyBold"
-        sx={{ fontSize }}
-        style={{ color: textColor }}
-      >
-        {title}
-      </Text>
+      <Text variant="bodyBold" sx={{ fontSize }} style={{ color: textColor }} label={title} />
       {endIcon !== undefined ? <View>{endIcon}</View> : null}
     </>
   );

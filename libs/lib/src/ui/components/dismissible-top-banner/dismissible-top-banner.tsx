@@ -30,6 +30,7 @@ import {
 } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
+import { t } from '@lingui/core/macro';
 import { assert } from '../../../assert';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
@@ -221,9 +222,9 @@ function DismissibleBannerPromptBody({
   actionLabel,
   onActionPress,
 }: {
-  title: string;
-  subtitle: string | undefined;
-  actionLabel: string | undefined;
+  title: ReactNode;
+  subtitle: ReactNode | undefined;
+  actionLabel: ReactNode | undefined;
   onActionPress: (() => void) | undefined;
 }) {
   return (
@@ -239,12 +240,12 @@ function DismissibleBannerPromptBody({
     >
       <Box sx={{ flex: 1, minWidth: 120, gap: 1 }}>
         <Text variant="bodyBold" label={title} />
-        {subtitle !== undefined && subtitle !== '' ? (
+        {subtitle !== undefined && subtitle !== null ? (
           <Text variant="caption" label={subtitle} />
         ) : null}
       </Box>
       {actionLabel !== undefined &&
-      actionLabel !== '' &&
+      actionLabel !== null &&
       onActionPress !== undefined ? (
         <Button
           title={actionLabel}
@@ -261,11 +262,11 @@ export type DismissibleBannerProps = {
   /** Called after the dismiss control’s exit animation finishes. */
   onDismiss: () => void;
   /** Primary prompt line. */
-  title: string;
+  title: ReactNode;
   /** Optional secondary line under the title. */
-  subtitle?: string;
+  subtitle?: ReactNode;
   /** Label for a single optional action control (requires {@link onActionPress}). */
-  actionLabel?: string;
+  actionLabel?: ReactNode;
   /** Handler for {@link actionLabel}. */
   onActionPress?: () => void;
   /** Edge the banner attaches to; also controls slide direction and safe-area padding. */
@@ -278,9 +279,9 @@ type DismissibleBannerFrameProps = {
   position: DismissibleBannerPosition;
   insets: { top: number; bottom: number };
   setLayoutHeight: Dispatch<SetStateAction<number>>;
-  title: string;
-  subtitle: string | undefined;
-  actionLabel: string | undefined;
+  title: ReactNode;
+  subtitle: ReactNode | undefined;
+  actionLabel: ReactNode | undefined;
   onActionPress: (() => void) | undefined;
   dismiss: () => void;
   theme: ReturnType<typeof useTheme>;
@@ -338,7 +339,7 @@ function DismissibleBannerFrame({
       <IconButton
         size={40}
         onPress={dismiss}
-        accessibilityLabel="Dismiss"
+        accessibilityLabel={t`Dismiss`}
         {...(dismissButtonTestID !== undefined
           ? { testID: dismissButtonTestID }
           : {})}
@@ -371,9 +372,9 @@ function dismissibleBannerPortalNode({
   dismiss: () => void;
   theme: ReturnType<typeof useTheme>;
   dismissButtonTestID: string | undefined;
-  title: string;
-  subtitle: string | undefined;
-  actionLabel: string | undefined;
+  title: ReactNode;
+  subtitle: ReactNode | undefined;
+  actionLabel: ReactNode | undefined;
   onActionPress: (() => void) | undefined;
 }) {
   return (

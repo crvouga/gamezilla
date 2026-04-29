@@ -9,7 +9,7 @@ import { Text } from '../text';
 
 export type ChipGroupOption<K extends string = string> = {
   key: K;
-  label: string;
+  label: ReactNode;
   /** Optional leading icon node inside the chip area (caller-sized). */
   icon?: ReactNode;
 };
@@ -19,7 +19,7 @@ export type ChipGroupProps<K extends string = string> = {
   selected: K;
   onSelect: (key: K) => void;
   /** Optional section label above the chips. */
-  label?: string;
+  label?: ReactNode;
   disabled?: boolean;
 };
 

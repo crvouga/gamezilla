@@ -1,0 +1,636 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-04-28 17:51-0700\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: apps/client/src/profile/components/variant-swatch-strip.tsx:51
+msgid "?"
+msgstr "?"
+
+#: apps/client/src/profile/avatar-editor/avatar-editor-trigger-row.tsx:33
+msgid "›"
+msgstr "›"
+
+#. placeholder {0}: sessionInfo.active
+#. placeholder {1}: formatTimestamp(sessionInfo.latestExpiresAt)
+#: apps/client/src/more/account-device-detail-body.tsx:71
+msgid "{0} active session(s) — latest expires {1}"
+msgstr "{0} active session(s) — latest expires {1}"
+
+#: apps/client/src/spaces/spaces-screen.tsx:133
+msgid "+ New space"
+msgstr "+ New space"
+
+#: apps/client/src/more/about-screen.tsx:31
+msgid "About"
+msgstr "About"
+
+#: apps/client/src/more/account-devices-card.tsx:105
+msgid "Account ID"
+msgstr "Account ID"
+
+#: libs/lib/src/ui/components/multi-select-swatch/multi-select-swatch-grid.tsx:311
+#: libs/patch-db-example/src/todo/todo-list-detail.tsx:178
+#: libs/patch-db-example/src/todo/todo-list.tsx:134
+#: libs/patch-db-example/src/todo/todo-lists-overview.tsx:90
+msgid "Add"
+msgstr "Add"
+
+#: libs/patch-db-example/src/todo/todo-list-detail.tsx:167
+#: libs/patch-db-example/src/todo/todo-list.tsx:123
+msgid "Add a todo..."
+msgstr "Add a todo..."
+
+#: libs/lib/src/ui/components/multi-select-swatch/multi-select-swatch-grid.tsx:295
+msgid "Add hex (6 chars, no #)"
+msgstr "Add hex (6 chars, no #)"
+
+#: apps/client/src/more/client-config-screen.tsx:61
+msgid "All attributes (JSON)"
+msgstr "All attributes (JSON)"
+
+#: apps/client/src/more/about-screen.tsx:58
+msgid "API"
+msgstr "API"
+
+#: apps/client/src/more/server-status-screen.tsx:141
+msgid "API endpoint"
+msgstr "API endpoint"
+
+#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx:20
+msgid "API origin (no helper)"
+msgstr "API origin (no helper)"
+
+#: apps/client/src/more/about-screen.tsx:39
+#: apps/client/src/more/account-device-detail-body.tsx:40
+msgid "App"
+msgstr "App"
+
+#: apps/client/src/more/about-screen.tsx:32
+msgid "App version and build metadata"
+msgstr "App version and build metadata"
+
+#: apps/client/src/profile/avatar-editor/avatar-editor-style-block.tsx:35
+msgid "Avatar style"
+msgstr "Avatar style"
+
+#: libs/lib/src/ui/components/screen-base/screen-base-header.tsx:337
+msgid "Back"
+msgstr "Back"
+
+#: apps/client/src/more/modal-screen.tsx:31
+msgid "Back to Dev"
+msgstr "Back to Dev"
+
+#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx:218
+msgid "Background"
+msgstr "Background"
+
+#: apps/client/src/more/about-screen.tsx:45
+msgid "Build"
+msgstr "Build"
+
+#: apps/client/src/more/about-screen.tsx:53
+msgid "Build mode: {buildMode}"
+msgstr "Build mode: {buildMode}"
+
+#: libs/lib/src/ui/components/modal/confirmation-modal.tsx:59
+msgid "Cancel"
+msgstr "Cancel"
+
+#: libs/lib/src/ui/components/text-input/text-input.example.tsx:42
+msgid "Cannot edit"
+msgstr "Cannot edit"
+
+#: libs/lib/src/ui/components/picker/picker.tsx:60
+msgid "Choose"
+msgstr "Choose"
+
+#: apps/client/src/more/theme-screen.tsx:36
+msgid "Choose how the app looks. System matches your device appearance."
+msgstr "Choose how the app looks. System matches your device appearance."
+
+#: apps/client/src/ui/patch-bootstrap.tsx:241
+msgid "Clear local data & reload"
+msgstr "Clear local data & reload"
+
+#: apps/client/src/auth/sign-in-modal.tsx:83
+#: libs/lib/src/ui/components/responsive-surface/responsive-surface-header.tsx:39
+msgid "Close"
+msgstr "Close"
+
+#: apps/client/src/profile/avatar-editor/avatar-editor-colors-block.tsx:91
+msgid "Colors"
+msgstr "Colors"
+
+#: apps/client/src/more/about-screen.tsx:46
+msgid "Commit (short): {shortCommitHash}"
+msgstr "Commit (short): {shortCommitHash}"
+
+#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx:13
+msgid "Commit hash"
+msgstr "Commit hash"
+
+#: libs/lib/src/ui/components/modal/confirmation-modal.tsx:58
+msgid "Confirm"
+msgstr "Confirm"
+
+#: libs/patch-db-example/src/api-inspector.tsx:237
+msgid "Connect"
+msgstr "Connect"
+
+#: apps/client/src/ui/sidebar-account-menu.tsx:153
+msgid "Connection"
+msgstr "Connection"
+
+#. placeholder {0}: aggregateStatusWord(aggregateStatus)
+#. placeholder {1}: latencyPhrase(health)
+#: apps/client/src/ui/sidebar-account-menu.tsx:149
+msgid "Connection and server status. {0}. {1}."
+msgstr "Connection and server status. {0}. {1}."
+
+#: libs/lib/src/ui/components/social-sign-in-button/social-provider-config.ts:59
+msgid "Continue with Google"
+msgstr "Continue with Google"
+
+#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.tsx:110
+msgid "Copied to clipboard"
+msgstr "Copied to clipboard"
+
+#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.tsx:186
+msgid "Copy to clipboard"
+msgstr "Copy to clipboard"
+
+#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx:10
+msgid "CopyToClipboardField"
+msgstr "CopyToClipboardField"
+
+#: apps/client/src/spaces/spaces-screen.tsx:165
+msgid "Create"
+msgstr "Create"
+
+#: apps/client/src/more/account-device-detail-body.tsx:46
+msgid "Created"
+msgstr "Created"
+
+#. placeholder {0}: formatDeviceListTitle(p)
+#: apps/client/src/more/account-devices-card.tsx:72
+msgid "Device {0}"
+msgstr "Device {0}"
+
+#: apps/client/src/more/account-device-detail-body.tsx:36
+msgid "Device name"
+msgstr "Device name"
+
+#: apps/client/src/more/server-status-screen.tsx:67
+msgid "Device network"
+msgstr "Device network"
+
+#: apps/client/src/more/account-devices-card.tsx:97
+msgid "Devices"
+msgstr "Devices"
+
+#: libs/lib/src/ui/components/text-input/text-input.example.tsx:41
+msgid "Disabled"
+msgstr "Disabled"
+
+#: libs/lib/src/ui/components/dismissible-top-banner/dismissible-top-banner.tsx:342
+msgid "Dismiss"
+msgstr "Dismiss"
+
+#: apps/client/src/profile/profile-username-screen.tsx:73
+msgid "Display name"
+msgstr "Display name"
+
+#: libs/patch-db-example/src/db-client/query-screen.tsx:137
+msgid "e.g. {\"type\":\"=\",\"attribute\":\"todo/title\",\"value\":\"x\"}"
+msgstr "e.g. {\"type\":\"=\",\"attribute\":\"todo/title\",\"value\":\"x\"}"
+
+#: libs/lib/src/ui/components/multi-select-swatch/multi-select-swatch-grid.tsx:301
+msgid "e.g. ff5733"
+msgstr "e.g. ff5733"
+
+#: apps/client/src/more/account-devices-card.tsx:100
+msgid "Each install has its own principal id. Tap a row for full details."
+msgstr "Each install has its own principal id. Tap a row for full details."
+
+#: apps/client/src/profile/profile-username-screen.tsx:116
+msgid "Edit profile"
+msgstr "Edit profile"
+
+#: apps/client/src/profile/avatar-editor/avatar-editor-effects-block.tsx:29
+msgid "Effects"
+msgstr "Effects"
+
+#: libs/lib/src/ui/components/text-input/text-input.example.tsx:25
+msgid "Email"
+msgstr "Email"
+
+#: apps/client/src/spaces/space-card.tsx:74
+msgid "Ended"
+msgstr "Ended"
+
+#: apps/client/src/more/client-config-screen.tsx:54
+msgid "Entity type clientConfig, id clientConfig__singleton"
+msgstr "Entity type clientConfig, id clientConfig__singleton"
+
+#: libs/patch-db-example/src/db-client/query-screen.tsx:115
+msgid "entityId (optional)"
+msgstr "entityId (optional)"
+
+#: libs/patch-db-example/src/db-client/query-screen.tsx:108
+msgid "entityType (optional)"
+msgstr "entityType (optional)"
+
+#: libs/lib/src/ui/components/text-input/text-input.example.tsx:34
+msgid "Error state"
+msgstr "Error state"
+
+#: apps/client/src/ui/patch-bootstrap.tsx:231
+msgid "Failed to initialize"
+msgstr "Failed to initialize"
+
+#: apps/client/src/auth/principal-auth-shell.tsx:81
+msgid "Failed to initialize identity"
+msgstr "Failed to initialize identity"
+
+#: apps/client/src/profile/avatar-editor/avatar-editor-features-block.tsx:95
+msgid "Features"
+msgstr "Features"
+
+#: libs/patch-db-example/src/db-client/entities-screen.tsx:133
+msgid "Filter loaded rows (id or attributes)…"
+msgstr "Filter loaded rows (id or attributes)…"
+
+#: libs/patch-db-example/src/db-client/entity-types-screen.tsx:106
+msgid "Filter types…"
+msgstr "Filter types…"
+
+#: apps/client/src/more/account-device-detail-body.tsx:42
+msgid "First seen"
+msgstr "First seen"
+
+#: apps/client/src/more/about-screen.tsx:48
+msgid "Full commit"
+msgstr "Full commit"
+
+#: apps/client/src/i18n/bootstrap-catalog.ts:4
+#: apps/client/src/ui/app-sidebar.tsx:72
+msgid "Gamezilla"
+msgstr "Gamezilla"
+
+#: libs/lib/src/ui/components/screen-base/screen-base-header.tsx:208
+msgid "Go back"
+msgstr "Go back"
+
+#: apps/client/src/more/client-config-screen.tsx:58
+msgid "Google web client ID"
+msgstr "Google web client ID"
+
+#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx:157
+msgid "Gradient rotation (°)"
+msgstr "Gradient rotation (°)"
+
+#: apps/client/src/spaces/space-detail-screen.tsx:148
+#: apps/client/src/spaces/space-member-list.tsx:32
+msgid "Host"
+msgstr "Host"
+
+#: libs/patch-db-example/src/api-inspector.tsx:229
+msgid "https://..."
+msgstr "https://..."
+
+#: libs/lib/src/ui/components/text-input/text-input.example.tsx:18
+msgid "John Doe"
+msgstr "John Doe"
+
+#: apps/client/src/spaces/space-detail-screen.tsx:154
+msgid "Join this space to see who is here and hang out."
+msgstr "Join this space to see who is here and hang out."
+
+#: apps/client/src/more/account-device-detail-body.tsx:45
+msgid "Last seen"
+msgstr "Last seen"
+
+#: libs/patch-db-example/src/db-client/query-screen.tsx:122
+msgid "limit"
+msgstr "limit"
+
+#: libs/patch-db-example/src/todo/todo-lists-overview.tsx:76
+msgid "List name..."
+msgstr "List name..."
+
+#: apps/client/src/spaces/space-card.tsx:57
+msgid "Live"
+msgstr "Live"
+
+#: apps/client/src/more/account-devices-card.tsx:120
+msgid "Loading devices…"
+msgstr "Loading devices…"
+
+#: apps/client/src/more/account-device-detail-screen.tsx:111
+#: apps/client/src/spaces/space-detail-screen.tsx:66
+#: apps/client/src/spaces/spaces-screen.tsx:190
+msgid "Loading…"
+msgstr "Loading…"
+
+#: apps/client/src/more/client-config-screen.tsx:49
+msgid "Local PatchDB (synced)"
+msgstr "Local PatchDB (synced)"
+
+#: apps/client/src/more/account-device-detail-screen.tsx:106
+msgid "Missing device id."
+msgstr "Missing device id."
+
+#: apps/client/src/more/account-device-detail-body.tsx:39
+msgid "Model"
+msgstr "Model"
+
+#: libs/lib/src/ui/components/screen-base/screen-base-header.tsx:300
+msgid "More"
+msgstr "More"
+
+#: libs/lib/src/ui/components/text-input/text-input.example.tsx:17
+msgid "Name"
+msgstr "Name"
+
+#: apps/client/src/more/about-screen.tsx:40
+msgid "Name: {appName}"
+msgstr "Name: {appName}"
+
+#: apps/client/src/profile/profile-username-screen.tsx:65
+msgid "No active profile. Open Profiles and create or select one first."
+msgstr "No active profile. Open Profiles and create or select one first."
+
+#: apps/client/src/more/account-device-detail-body.tsx:70
+msgid "No active session"
+msgstr "No active session"
+
+#: apps/client/src/more/account-devices-card.tsx:122
+msgid "No principal data yet."
+msgstr "No principal data yet."
+
+#: apps/client/src/spaces/spaces-screen.tsx:198
+msgid "No spaces match this filter."
+msgstr "No spaces match this filter."
+
+#: libs/patch-db-example/src/db-client/query-screen.tsx:129
+msgid "offset"
+msgstr "offset"
+
+#: libs/lib/src/ui/components/command-palette/command-palette-trigger.tsx:28
+msgid "Open command palette"
+msgstr "Open command palette"
+
+#: apps/client/src/more/account-device-detail-body.tsx:34
+msgid "OS"
+msgstr "OS"
+
+#: apps/client/src/more/server-status-screen.tsx:46
+msgid "Overall"
+msgstr "Overall"
+
+#: apps/client/src/spaces/space-member-list.tsx:17
+msgid "People here"
+msgstr "People here"
+
+#: apps/client/src/more/account-device-detail-body.tsx:33
+msgid "Platform"
+msgstr "Platform"
+
+#. placeholder {0}: Platform.OS
+#: apps/client/src/more/about-screen.tsx:54
+msgid "Platform: {0}"
+msgstr "Platform: {0}"
+
+#: apps/client/src/more/client-config-server-refresh.tsx:58
+msgid "POST /client-config/refresh writes the Worker secret into PatchDB on the server (deploy pipeline uses this too)."
+msgstr "POST /client-config/refresh writes the Worker secret into PatchDB on the server (deploy pipeline uses this too)."
+
+#: apps/client/src/profile/avatar-editor/avatar-editor-preview.tsx:53
+msgid "Preview updates as you edit. Save to keep changes."
+msgstr "Preview updates as you edit. Save to keep changes."
+
+#: apps/client/src/more/account-device-detail-body.tsx:76
+msgid "Principal ID"
+msgstr "Principal ID"
+
+#: apps/client/src/profile/profile-username-screen.tsx:115
+#: apps/client/src/ui/sidebar-account-menu.tsx:194
+msgid "Profile"
+msgstr "Profile"
+
+#: libs/patch-db-example/src/db-client/query-screen.tsx:104
+msgid "Query"
+msgstr "Query"
+
+#: libs/patch-db-example/src/api-inspector.tsx:237
+msgid "Reconnect"
+msgstr "Reconnect"
+
+#: libs/patch-db-example/src/db-client/entity-types-screen.tsx:97
+msgid "Refresh"
+msgstr "Refresh"
+
+#: apps/client/src/auth/principal-auth-shell.tsx:89
+#: apps/client/src/ui/patch-bootstrap.tsx:239
+msgid "Retry"
+msgstr "Retry"
+
+#: libs/patch-db-example/src/db-client/entity-types-screen.tsx:91
+msgid "Run query"
+msgstr "Run query"
+
+#: libs/patch-db-example/src/db-client/query-screen.tsx:152
+msgid "Run read([query])"
+msgstr "Run read([query])"
+
+#: libs/patch-db-example/src/db-client/query-screen.tsx:152
+msgid "Running…"
+msgstr "Running…"
+
+#: apps/client/src/profile/profile-username-screen.tsx:122
+msgid "Save"
+msgstr "Save"
+
+#: libs/lib/src/ui/components/picker/picker.tsx:54
+msgid "Select…"
+msgstr "Select…"
+
+#: apps/client/src/more/client-config-server-refresh.tsx:53
+msgid "Server"
+msgstr "Server"
+
+#: libs/patch-db-example/src/api-inspector.tsx:225
+msgid "Server Connection"
+msgstr "Server Connection"
+
+#: apps/client/src/more/server-status-screen.tsx:92
+msgid "Server health"
+msgstr "Server health"
+
+#: apps/client/src/more/account-devices-card.tsx:106
+msgid "Server-side account; tap to copy"
+msgstr "Server-side account; tap to copy"
+
+#: apps/client/src/more/about-screen.tsx:29
+#: apps/client/src/ui/sidebar-account-menu.tsx:205
+#: apps/client/src/ui/sidebar-account-menu.tsx:208
+msgid "Settings"
+msgstr "Settings"
+
+#: apps/client/src/auth/sign-in-modal.tsx:61
+#: apps/client/src/ui/sidebar-account-menu.tsx:164
+msgid "Sign in"
+msgstr "Sign in"
+
+#: apps/client/src/more/account-devices-card.tsx:112
+msgid "Sign in to link this device to a server account and see all principals for that account."
+msgstr "Sign in to link this device to a server account and see all principals for that account."
+
+#: apps/client/src/auth/sign-in-modal.tsx:67
+msgid "Sign in to link this device to your server account. Your data stays local first."
+msgstr "Sign in to link this device to your server account. Your data stays local first."
+
+#: libs/lib/src/ui/components/social-sign-in-button/social-provider-config.ts:57
+msgid "Sign in with Google"
+msgstr "Sign in with Google"
+
+#: apps/client/src/ui/sidebar-account-menu.tsx:164
+msgid "Sign out"
+msgstr "Sign out"
+
+#: libs/lib/src/ui/components/social-sign-in-button/social-provider-config.ts:58
+msgid "Sign up with Google"
+msgstr "Sign up with Google"
+
+#: apps/client/src/more/account-screen.tsx:148
+msgid "Sign-in providers"
+msgstr "Sign-in providers"
+
+#: libs/lib/src/ui/components/social-sign-in-button/social-provider-config.ts:61
+msgid "Signing in…"
+msgstr "Signing in…"
+
+#: apps/client/src/spaces/space-card.tsx:119
+msgid "Space"
+msgstr "Space"
+
+#: apps/client/src/spaces/spaces-screen.tsx:151
+msgid "Space title…"
+msgstr "Space title…"
+
+#: apps/client/src/more/about-screen.tsx:28
+msgid "Spaces"
+msgstr "Spaces"
+
+#: apps/client/src/more/account-device-detail-body.tsx:77
+msgid "Stable per-device identifier; tap to copy"
+msgstr "Stable per-device identifier; tap to copy"
+
+#: apps/client/src/profile/avatar-editor/avatar-editor-style-block.tsx:33
+msgid "Style"
+msgstr "Style"
+
+#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx:14
+msgid "Tap the field or icon to copy"
+msgstr "Tap the field or icon to copy"
+
+#: apps/client/src/more/about-screen.tsx:49
+msgid "Tap to copy"
+msgstr "Tap to copy"
+
+#: apps/client/src/spaces/spaces-screen.tsx:93
+msgid "Tap to open"
+msgstr "Tap to open"
+
+#: libs/lib/src/ui/components/text-input/text-input.example.tsx:14
+msgid "TextInput"
+msgstr "TextInput"
+
+#: apps/client/src/more/account-device-detail-screen.tsx:139
+#: apps/client/src/more/account-devices-card.tsx:60
+msgid "This device"
+msgstr "This device"
+
+#: apps/client/src/more/account-device-detail-screen.tsx:117
+msgid "This device was not found. It may have been removed or is not visible for the current account."
+msgstr "This device was not found. It may have been removed or is not visible for the current account."
+
+#: libs/lib/src/ui/components/text-input/text-input.example.tsx:37
+msgid "This field is required"
+msgstr "This field is required"
+
+#: apps/client/src/more/modal-screen.tsx:26
+msgid "This is a modal screen."
+msgstr "This is a modal screen."
+
+#: apps/client/src/spaces/space-detail-screen.tsx:85
+msgid "This space could not be found."
+msgstr "This space could not be found."
+
+#: apps/client/src/spaces/space-detail-screen.tsx:114
+msgid "This space has ended."
+msgstr "This space has ended."
+
+#: apps/client/src/profile/avatar-editor/avatar-editor-transform-block.tsx:83
+msgid "Transform"
+msgstr "Transform"
+
+#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx:62
+msgid "Type"
+msgstr "Type"
+
+#: libs/lib/src/ui/components/command-palette/command-palette-input.tsx:39
+msgid "Type a command or search…"
+msgstr "Type a command or search…"
+
+#: libs/lib/src/ui/components/text-input/text-input.example.tsx:35
+msgid "Type something..."
+msgstr "Type something..."
+
+#: apps/client/src/more/account-device-detail-body.tsx:54
+msgid "User agent"
+msgstr "User agent"
+
+#: apps/client/src/profile/profile-username-screen.tsx:117
+msgid "Username"
+msgstr "Username"
+
+#: apps/client/src/more/about-screen.tsx:41
+msgid "Version: {appVersion}"
+msgstr "Version: {appVersion}"
+
+#: apps/client/src/ui/sidebar-account-menu.tsx:197
+msgid "View profile"
+msgstr "View profile"
+
+#: libs/patch-db-example/src/db-client/query-screen.tsx:133
+msgid "where (JSON, optional)"
+msgstr "where (JSON, optional)"
+
+#: libs/lib/src/ui/components/text-input/text-input.example.tsx:26
+msgid "you@example.com"
+msgstr "you@example.com"
+
+#: libs/lib/src/ui/components/text-input/text-input.example.tsx:21
+msgid "Your full name"
+msgstr "Your full name"
+
+#: apps/client/src/profile/profile-username-screen.tsx:76
+msgid "Your name"
+msgstr "Your name"
+
+#: apps/client/src/spaces/spaces-screen.tsx:84
+msgid "Your space"
+msgstr "Your space"
