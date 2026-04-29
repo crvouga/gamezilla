@@ -1,37 +1,71 @@
 /**
- * `Avatar` -- circular avatar with image or initials fallback.
+ * `Avatar` -- circular avatar primitive.
+ *
+ * Renders the first content source provided, in priority order:
+ *   `svg` > `uri` > `initials` > `icon` > (empty plate).
+ *
+ * Color props (`background`, `foreground`) accept either a theme color
+ * token name (e.g. `'tint'`, `'surface'`, `'outline'`) or a raw color
+ * string (e.g. `'#fff'`, `'rgba(255,255,255,0.2)'`).
  *
  * @example
  * ```tsx
  * <Avatar uri="https://example.com/photo.jpg" size={48} />
  * <Avatar initials="JD" size={48} />
+ * <Avatar svg={dicebearSvgString} size={64} />
+ * <Avatar icon="person.fill" size={48} background="outline" foreground="tabIconDefault" />
+ * <Avatar size={48} background="surface" /> // empty placeholder plate
  * ```
  */
 
 import { Image, View } from 'react-native';
+import { SvgXml } from 'react-native-svg';
+
 import { useTheme } from '../../theme';
+import { IconSymbol, type IconSymbolName } from '../symbol-icon';
 import { Text } from '../text';
 
 export type AvatarProps = {
-  /** Image URI. When absent, falls back to `initials`. */
-  uri?: string;
-  /** 1-2 character fallback when no image. */
-  initials?: string;
-  /** Diameter in pixels. Defaults to 40. */
+  /** Diameter in pixels. Defaults to `40`. */
   size?: number;
-  /** Background color token or raw color for the initials circle. */
+  /** Background color token or raw color. Defaults to `'tint'`. */
   background?: string;
+  /**
+   * Foreground (icon / initials) color token or raw color.
+   * Defaults to `'surface'`.
+   */
+  foreground?: string;
+  /**
+   * Raw SVG XML string (e.g. from a generative avatar library such as
+   * DiceBear). Highest-priority content source.
+   */
+  svg?: string | null;
+  /** Image URI to render inside the circle. */
+  uri?: string;
+  /** 1–2 character text fallback (truncated to 2 chars). */
+  initials?: string;
+  /** Icon glyph fallback (e.g. `'person.fill'`). */
+  icon?: IconSymbolName;
 };
 
+function isNonEmpty(value: string | null | undefined): value is string {
+  return typeof value === 'string' && value.length > 0;
+}
+
 export function Avatar({
-  uri,
-  initials,
   size = 40,
   background = 'tint',
+  foreground = 'surface',
+  svg,
+  uri,
+  initials,
+  icon,
 }: AvatarProps) {
   const theme = useTheme();
   const bg =
     theme.colors[background as keyof typeof theme.colors] ?? background;
+  const fg =
+    theme.colors[foreground as keyof typeof theme.colors] ?? foreground;
 
   const containerStyle = {
     width: size,
@@ -43,7 +77,15 @@ export function Avatar({
     justifyContent: 'center' as const,
   };
 
-  if (uri) {
+  if (isNonEmpty(svg)) {
+    return (
+      <View style={containerStyle}>
+        <SvgXml xml={svg} width={size} height={size} />
+      </View>
+    );
+  }
+
+  if (isNonEmpty(uri)) {
     return (
       <View style={containerStyle}>
         <Image
@@ -55,13 +97,26 @@ export function Avatar({
     );
   }
 
-  const fontSize = Math.round(size * 0.4);
-  return (
-    <View style={containerStyle}>
-      <Text
-        style={{ color: theme.colors.surface, fontSize, fontWeight: 'bold' }}
-        label={(initials ?? '?').slice(0, 2)}
-      />
-    </View>
-  );
+  if (isNonEmpty(initials)) {
+    const fontSize = Math.round(size * 0.4);
+    return (
+      <View style={containerStyle}>
+        <Text
+          style={{ color: fg, fontSize, fontWeight: 'bold' }}
+          label={initials.slice(0, 2)}
+        />
+      </View>
+    );
+  }
+
+  if (icon !== undefined) {
+    const iconSize = Math.max(12, Math.round(size * 0.48));
+    return (
+      <View style={containerStyle}>
+        <IconSymbol name={icon} size={iconSize} color={fg} />
+      </View>
+    );
+  }
+
+  return <View style={containerStyle} />;
 }

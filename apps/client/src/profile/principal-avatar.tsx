@@ -1,5 +1,5 @@
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
-import { Box, IconSymbol, useTheme } from '@gamezilla/lib/ui';
+import { Avatar } from '@gamezilla/lib/ui';
 import type { ReactNode } from 'react';
 
 import { ProfileDiceBearAvatar } from './profile-dicebear-avatar';
@@ -17,13 +17,14 @@ export type PrincipalAvatarProps = {
   vividBackdrop?: boolean;
 };
 
+/** Frosted plate / glyph for use over vivid (gradient) backgrounds. */
+const VIVID_PLATE = String('rgba(255,255,255,0.22)');
+const VIVID_GLYPH = String('rgba(255,255,255,0.92)');
+
 /**
  * Renders a principal’s avatar: generic user silhouette on a muted disk when
  * loading or no persisted config; otherwise the persisted DiceBear avatar.
  */
-const VIVID_PLATE = String('rgba(255,255,255,0.22)');
-const VIVID_GLYPH = String('rgba(255,255,255,0.92)');
-
 export function PrincipalAvatar({
   avatarConfig,
   principalId,
@@ -31,26 +32,14 @@ export function PrincipalAvatar({
   loading = false,
   vividBackdrop = false,
 }: PrincipalAvatarProps): ReactNode {
-  const theme = useTheme();
   if (loading || avatarConfig === null) {
-    const iconSize = Math.max(12, Math.round(size * 0.48));
     return (
-      <Box
-        sx={{
-          width: size,
-          height: size,
-          borderRadius: size / 2,
-          backgroundColor: vividBackdrop ? VIVID_PLATE : theme.colors.outline,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <IconSymbol
-          name="person.fill"
-          size={iconSize}
-          color={vividBackdrop ? VIVID_GLYPH : theme.colors.tabIconDefault}
-        />
-      </Box>
+      <Avatar
+        size={size}
+        icon="person.fill"
+        background={vividBackdrop ? VIVID_PLATE : 'outline'}
+        foreground={vividBackdrop ? VIVID_GLYPH : 'tabIconDefault'}
+      />
     );
   }
   return (

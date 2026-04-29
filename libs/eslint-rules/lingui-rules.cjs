@@ -33,6 +33,7 @@ function linguiRules() {
           'presentation',
           'anchor',
           'background',
+          'foreground',
           'backgroundColor',
           'borderColor',
           'borderTopColor',
