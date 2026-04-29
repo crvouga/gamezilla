@@ -31,6 +31,44 @@ function formatSessionCaption(
   return `${String(sessionInfo.active)} active — expires ${formatTimestamp(sessionInfo.latestExpiresAt)}`;
 }
 
+function DevicePrincipalMenuRow({
+  principal: p,
+  sessionInfo,
+  onOpenDevice,
+}: {
+  principal: AccountPrincipal;
+  sessionInfo: PrincipalSessionAggregate | undefined;
+  onOpenDevice: (principalId: string) => void;
+}) {
+  const theme = useTheme();
+  const caption = [
+    formatDeviceListCaption(p),
+    formatSessionCaption(sessionInfo),
+  ].join(' · ');
+  return (
+    <MenuRow
+      title={formatDeviceListTitle(p)}
+      caption={caption}
+      trailing={
+        <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+          {p.isCurrentDevice ? (
+            <Badge label="This device" color="info" size="sm" />
+          ) : null}
+          <IconSymbol
+            name="chevron.right"
+            size={20}
+            color={theme.colors.icon}
+          />
+        </Box>
+      }
+      onPress={() => {
+        onOpenDevice(p.entityId);
+      }}
+      accessibilityLabel={`Device ${formatDeviceListTitle(p)}`}
+    />
+  );
+}
+
 export function AccountDevicesCard({
   accountId,
   principals,
@@ -46,7 +84,6 @@ export function AccountDevicesCard({
   sessionsLoading: boolean;
   onOpenDevice: (principalId: string) => void;
 }) {
-  const theme = useTheme();
   const devicesLoading = principalsLoading || sessionsLoading;
 
   return (
@@ -68,36 +105,14 @@ export function AccountDevicesCard({
         <CaptionLine label="No principal data yet." />
       ) : (
         <Box sx={{ gap: 0, pt: 2 }}>
-          {principals.map((p) => {
-            const sessionInfo = sessionsByPrincipal.get(p.entityId);
-            const caption = [
-              formatDeviceListCaption(p),
-              formatSessionCaption(sessionInfo),
-            ].join(' · ');
-            return (
-              <MenuRow
-                key={p.entityId}
-                title={formatDeviceListTitle(p)}
-                caption={caption}
-                trailing={
-                  <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-                    {p.isCurrentDevice ? (
-                      <Badge label="This device" color="info" size="sm" />
-                    ) : null}
-                    <IconSymbol
-                      name="chevron.right"
-                      size={20}
-                      color={theme.colors.icon}
-                    />
-                  </Box>
-                }
-                onPress={() => {
-                  onOpenDevice(p.entityId);
-                }}
-                accessibilityLabel={`Device ${formatDeviceListTitle(p)}`}
-              />
-            );
-          })}
+          {principals.map((p) => (
+            <DevicePrincipalMenuRow
+              key={p.entityId}
+              principal={p}
+              sessionInfo={sessionsByPrincipal.get(p.entityId)}
+              onOpenDevice={onOpenDevice}
+            />
+          ))}
         </Box>
       )}
     </Card>

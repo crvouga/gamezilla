@@ -24,7 +24,7 @@ function normalizePrincipalId(
   return s.trim();
 }
 
-export function AccountDeviceDetailScreen() {
+function useAccountDeviceDetailScreenState() {
   const nav = useBreadcrumbNav();
   const auth = useAuth();
   const params = useLocalSearchParams<{ principalId?: string | string[] }>();
@@ -74,6 +74,20 @@ export function AccountDeviceDetailScreen() {
 
   const title =
     principal !== null ? formatDeviceListTitle(principal) : 'Device';
+
+  return {
+    nav,
+    principalId,
+    principal,
+    loading,
+    sessionInfo,
+    title,
+  };
+}
+
+export function AccountDeviceDetailScreen() {
+  const { nav, principalId, principal, loading, sessionInfo, title } =
+    useAccountDeviceDetailScreenState();
 
   return (
     <ScreenBase
