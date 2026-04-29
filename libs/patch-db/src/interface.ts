@@ -6,6 +6,17 @@ export type PatchInput = {
   entityId: string;
   entityType: string;
   attributes: Record<AttributeKey, unknown>;
+  /** When set, storage uses this id instead of generating one (e.g. synced patches). */
+  patchId?: string;
+  /**
+   * With `patchId`: client parent for synced patches; impl re-anchors to chain
+   * leaf when that parent is missing on server (see `resolveWriteParentId`).
+   */
+  parentId?: string | null;
+  createdAt?: string;
+  recordedAt?: string;
+  createdBy?: string;
+  sessionId?: string;
 };
 
 export function assertPatchInput(
@@ -18,6 +29,15 @@ export function assertPatchInput(
   assertEntityKey(p['entityId'], p['entityType'], a);
   if (p['patchId'] !== undefined) {
     assertPatchId(p['patchId'], a);
+  }
+  if (p['parentId'] !== undefined && p['parentId'] !== null) {
+    assertPatchId(p['parentId'], a);
+  }
+  if (p['createdAt'] !== undefined) {
+    a.string(p['createdAt'], 'patch.createdAt must be string');
+  }
+  if (p['recordedAt'] !== undefined) {
+    a.string(p['recordedAt'], 'patch.recordedAt must be string');
   }
   a.record(p['attributes'], 'patch.attributes must be object');
   for (const key of Object.keys(p['attributes'] as Record<string, unknown>)) {
