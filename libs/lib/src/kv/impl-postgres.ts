@@ -10,17 +10,38 @@ import { KvImplPostgresTx } from './impl-postgres-tx';
 import type { Kv } from './interface';
 
 const TABLE = 'kv';
+const LAST_MODIFIED_AT = 'last_modified_at';
 
 const MIGRATIONS = `
 CREATE TABLE IF NOT EXISTS kv (
   key        TEXT        PRIMARY KEY,
   value      TEXT        NOT NULL,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  ${LAST_MODIFIED_AT} TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 `;
 
 const ADVISORY_LOCK_SQL =
   'SELECT pg_advisory_xact_lock(hashtext(CAST(? AS TEXT))::bigint)';
+
+/** Renames legacy `updated_at` → `last_modified_at` when present (idempotent). */
+async function migrateKvLegacyUpdatedAtColumn(
+  sqlClient: SqlClient,
+  log: Logger
+): Promise<void> {
+  const legacy = await sqlClient.query<{ column_name: string }>(
+    `SELECT column_name FROM information_schema.columns
+     WHERE table_schema = 'public' AND table_name = ? AND column_name = 'updated_at'`,
+    [TABLE]
+  );
+  assert.array(legacy, 'kv migrate: legacy column query must return array');
+  if (legacy.length === 0) return;
+  log.info('kv postgres migrate: renaming updated_at → last_modified_at', {
+    table: TABLE,
+  });
+  await sqlClient.run(
+    `ALTER TABLE ${TABLE} RENAME COLUMN updated_at TO ${LAST_MODIFIED_AT}`
+  );
+}
 
 /** Idempotent Postgres DDL for the `kv` table (same as `KvImplPostgres.migrate`). */
 async function runKvPostgresMigrations(
@@ -31,22 +52,22 @@ async function runKvPostgresMigrations(
     `SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename = ?`,
     [TABLE]
   );
-  if (existing.length >= 1) {
-    log.info('kv postgres migrate: skipped (table already exists)', { table: TABLE });
-    return;
+  if (existing.length === 0) {
+    const statements = MIGRATIONS.split(';')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    log.info('kv postgres migrate: applying ddl', {
+      table: TABLE,
+      statementCount: statements.length,
+    });
+    for (const stmt of statements) {
+      await sqlClient.run(stmt);
+    }
+    log.info('kv postgres migrate: ddl applied', { table: TABLE });
+  } else {
+    log.info('kv postgres migrate: table exists (skipping create)', { table: TABLE });
   }
-
-  const statements = MIGRATIONS.split(';')
-    .map((s) => s.trim())
-    .filter(Boolean);
-  log.info('kv postgres migrate: applying ddl', {
-    table: TABLE,
-    statementCount: statements.length,
-  });
-  for (const stmt of statements) {
-    await sqlClient.run(stmt);
-  }
-  log.info('kv postgres migrate: ddl applied', { table: TABLE });
+  await migrateKvLegacyUpdatedAtColumn(sqlClient, log);
 }
 
 /**
@@ -99,7 +120,7 @@ export class KvImplPostgres implements Kv {
     assertNonEmptyKey(key);
     await this.sqlClient.run(
       `INSERT INTO ${TABLE} (key, value) VALUES (?, ?)
-       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,
+       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, ${LAST_MODIFIED_AT} = now()`,
       [key, value]
     );
   }

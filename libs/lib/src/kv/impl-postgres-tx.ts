@@ -29,7 +29,7 @@ export class KvImplPostgresTx implements Kv {
     assertNonEmptyKey(key);
     await this.sql.run(
       `INSERT INTO ${TABLE} (key, value) VALUES (?, ?)
-       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,
+       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, last_modified_at = now()`,
       [key, value]
     );
   }

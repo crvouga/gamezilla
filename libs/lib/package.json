@@ -286,7 +286,7 @@
     "./entity-db/identifier": "./src/entity-db/identifier.ts",
     "./entity-db/factory": "./src/entity-db/factory.ts",
     "./entity-db/impl-postgres": "./src/entity-db/impl-postgres.ts",
-    "./entity-db/migrate-postgres": "./src/entity-db/migrate-postgres.ts",
+    "./entity-db/migrate-postgres": "./src/entity-db/impl-postgres.ts",
     "./entity-db/impl-in-memory": "./src/entity-db/impl-in-memory.ts",
     "./logger/react": "./src/logger/react.tsx",
     "./logger/logger": "./src/logger/logger.ts",
