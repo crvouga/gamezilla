@@ -206,8 +206,12 @@ export class Assert {
    * @param value - Value to check.
    * @param message - Message when the assertion fails.
    */
-  string(value: unknown, message: string): asserts value is string {
-    this.ok(typeof value === 'string', message, { value });
+  string(
+    value: unknown,
+    message: string,
+    context?: Record<string, unknown>
+  ): asserts value is string {
+    this.ok(typeof value === 'string', message, { ...context, value });
   }
 
   /**
@@ -216,9 +220,13 @@ export class Assert {
    * @param value - Value to check.
    * @param message - Message when the assertion fails.
    */
-  nonEmptyString(value: unknown, message: string): asserts value is string {
-    this.string(value, message);
-    this.ok(value.length > 0, message, { value });
+  nonEmptyString(
+    value: unknown,
+    message: string,
+    context?: Record<string, unknown>
+  ): asserts value is string {
+    this.string(value, message, context);
+    this.ok(value.length > 0, message, { ...context, value });
   }
 
   /**

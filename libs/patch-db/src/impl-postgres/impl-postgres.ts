@@ -1,4 +1,5 @@
 import { assert } from '@gamezilla/lib/assert';
+import type { Logger } from '@gamezilla/lib/logger';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import type { PatchRow } from '../impl-sqlite/types';
 import {
@@ -24,6 +25,34 @@ import {
   RESOLVE_PARENT_ID,
   UPSERT_SNAPSHOTS_BATCH,
 } from './sql-constants';
+
+/** Idempotent Postgres DDL for patches + snapshots (see `PatchDbImplPostgres.migrate`). */
+async function runPatchDbPostgresMigrations(
+  sqlClient: SqlClient,
+  log: Logger
+): Promise<void> {
+  const existing = await sqlClient.query<{ tablename: string }>(
+    `SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename IN ('patches', 'snapshots')`
+  );
+  if (existing.length >= 2) {
+    log.info('patch-db postgres migrate: skipped (tables already exist)', {
+      existingTables: existing.map((r) => r.tablename),
+    });
+    return;
+  }
+
+  const statements = MIGRATIONS.split(';')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  log.info('patch-db postgres migrate: applying ddl', {
+    statementCount: statements.length,
+    existingTableCount: existing.length,
+  });
+  for (const stmt of statements) {
+    await sqlClient.run(stmt);
+  }
+  log.info('patch-db postgres migrate: ddl applied');
+}
 
 function toPatchRow(row: PatchRow): PatchRow {
   return { ...row, attributes: rowAttributesText(row) };
@@ -110,17 +139,21 @@ type PatchInsertBatchRow = {
 export class PatchDbImplPostgres implements PatchesDb {
   constructor(private sqlClient: SqlClient) {}
 
-  async migrate(): Promise<void> {
-    const existing = await this.sqlClient.query<{ tablename: string }>(
-      `SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename IN ('patches', 'snapshots')`
-    );
-    if (existing.length >= 2) return;
-
-    const statements = MIGRATIONS.split(';')
-      .map((s) => s.trim())
-      .filter(Boolean);
-    for (const stmt of statements) {
-      await this.sqlClient.run(stmt);
+  /** Idempotent Postgres DDL for patches + snapshots (no instance required). */
+  static async migrate(args: {
+    sqlClient: SqlClient;
+    logger: Logger;
+  }): Promise<void> {
+    const log = args.logger.child({ migration: 'patch-db-postgres' });
+    log.info('patch-db postgres migrate: start');
+    try {
+      await runPatchDbPostgresMigrations(args.sqlClient, log);
+      log.info('patch-db postgres migrate: complete');
+    } catch (error) {
+      log.error('patch-db postgres migrate: failed', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
     }
   }
 

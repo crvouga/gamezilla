@@ -41,7 +41,7 @@ const SQL_PORT = parseListenPortFromEnv();
 const db = await PGlite.create();
 
 const migrateStart = performance.now();
-await migrateInProcessPglite(db);
+await migrateInProcessPglite(db, log);
 log.info('migrations applied', {
   durationMs: Math.round((performance.now() - migrateStart) * 100) / 100,
 });

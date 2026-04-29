@@ -1,8 +1,9 @@
 import { assert } from '@gamezilla/lib/assert';
+import { createLogger } from '@gamezilla/lib/logger';
 import { SqlClientImplPgliteHttp } from '@gamezilla/lib/sql-client/impl-pglite-http';
 import { SqlClientImplPlanetScalePostgres } from '@gamezilla/lib/sql-client/impl-planetscale-postgres';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
-import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
+import { runPostgresMigrations } from '../src/postgres-migrations';
 
 function resolveDatabaseUrlFromEnv(): string {
   const raw = process.env['DB_URL'];
@@ -22,9 +23,13 @@ function createSqlClient(databaseUrl: string): SqlClient {
 
 async function main(): Promise<void> {
   const databaseUrl = resolveDatabaseUrlFromEnv();
-  const patchDb = new PatchDbImplPostgres(createSqlClient(databaseUrl));
-  await patchDb.migrate();
-  process.stdout.write('[db:migrate] completed\n');
+  const sqlClient = createSqlClient(databaseUrl);
+  const log = createLogger({ name: 'db:migrate' });
+  await sqlClient.transaction(async (tx) => {
+    await runPostgresMigrations({ sqlClient: tx, logger: log });
+  });
+  log.info('transaction committed (patch-db + kv + entity-db)');
+  process.stdout.write('[db:migrate] completed (patch-db + kv + entity-db)\n');
 }
 
 await main().catch((error: unknown) => {

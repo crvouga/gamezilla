@@ -4,6 +4,7 @@
  * (e.g. `impl-postgres-tcp`) — not Neon's HTTP or WebSocket drivers.
  */
 import { assert } from '../assert';
+import type { Logger } from '../logger/logger';
 import type { SqlClient } from '../sql-client/interface';
 import { KvImplPostgresTx } from './impl-postgres-tx';
 import type { Kv } from './interface';
@@ -21,30 +22,66 @@ CREATE TABLE IF NOT EXISTS kv (
 const ADVISORY_LOCK_SQL =
   'SELECT pg_advisory_xact_lock(hashtext(CAST(? AS TEXT))::bigint)';
 
+/** Idempotent Postgres DDL for the `kv` table (same as `KvImplPostgres.migrate`). */
+async function runKvPostgresMigrations(
+  sqlClient: SqlClient,
+  log: Logger
+): Promise<void> {
+  const existing = await sqlClient.query<{ tablename: string }>(
+    `SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename = ?`,
+    [TABLE]
+  );
+  if (existing.length >= 1) {
+    log.info('kv postgres migrate: skipped (table already exists)', { table: TABLE });
+    return;
+  }
+
+  const statements = MIGRATIONS.split(';')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  log.info('kv postgres migrate: applying ddl', {
+    table: TABLE,
+    statementCount: statements.length,
+  });
+  for (const stmt of statements) {
+    await sqlClient.run(stmt);
+  }
+  log.info('kv postgres migrate: ddl applied', { table: TABLE });
+}
+
+/**
+ * Postgres-backed {@link Kv}.
+ * Migration: `KvImplPostgres.migrate({ sqlClient, logger })` (static), same as patch-db / entity-db.
+ */
 export class KvImplPostgres implements Kv {
-  private constructor(private readonly sqlClient: SqlClient) {}
+  constructor(private readonly sqlClient: SqlClient) {}
 
   /**
    * Ensures the `kv` table exists (idempotent DDL), then returns a ready store.
    */
-  static async open(sqlClient: SqlClient): Promise<KvImplPostgres> {
-    const kv = new KvImplPostgres(sqlClient);
-    await kv.migrate();
-    return kv;
+  static async open(args: {
+    sqlClient: SqlClient;
+    logger: Logger;
+  }): Promise<KvImplPostgres> {
+    await KvImplPostgres.migrate(args);
+    return new KvImplPostgres(args.sqlClient);
   }
 
-  private async migrate(): Promise<void> {
-    const existing = await this.sqlClient.query<{ tablename: string }>(
-      `SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename = ?`,
-      [TABLE]
-    );
-    if (existing.length >= 1) return;
-
-    const statements = MIGRATIONS.split(';')
-      .map((s) => s.trim())
-      .filter(Boolean);
-    for (const stmt of statements) {
-      await this.sqlClient.run(stmt);
+  /** Idempotent Postgres DDL for the `kv` table (no instance required). */
+  static async migrate(args: {
+    sqlClient: SqlClient;
+    logger: Logger;
+  }): Promise<void> {
+    const log = args.logger.child({ migration: 'kv-postgres' });
+    log.info('kv postgres migrate: start');
+    try {
+      await runKvPostgresMigrations(args.sqlClient, log);
+      log.info('kv postgres migrate: complete');
+    } catch (error) {
+      log.error('kv postgres migrate: failed', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
     }
   }
 

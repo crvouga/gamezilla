@@ -1,6 +1,7 @@
 import { DistributedLockImplKv } from '@gamezilla/lib/distributed-lock/impl-kv';
 import type { DistributedLock } from '@gamezilla/lib/distributed-lock/interface';
 import { KvImplPostgres } from '@gamezilla/lib/kv/impl-postgres';
+import { createLogger } from '@gamezilla/lib/logger';
 import { SqlClientImplPostgresTcp } from '@gamezilla/lib/sql-client/impl-postgres-tcp';
 import { resolveDatabaseUrl } from '../resources/planetscale-postgres';
 
@@ -27,7 +28,8 @@ export async function buildDistributedLock(): Promise<DistributedLockConnection>
     const msg = e instanceof Error ? e.message : String(e);
     console.warn(`[infra lock] session timeouts not applied (${msg})`);
   }
-  const kv = await KvImplPostgres.open(sql);
+  const kvLogger = createLogger({ name: 'infra-distributed-lock-kv' });
+  const kv = await KvImplPostgres.open({ sqlClient: sql, logger: kvLogger });
   const lock = new DistributedLockImplKv(kv, { key: 'infra' });
   return {
     lock,
