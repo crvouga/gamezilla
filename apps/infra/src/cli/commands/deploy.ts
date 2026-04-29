@@ -4,9 +4,9 @@ import { ALL_DEPS } from '../deps/registry';
 import { collectDepVersionIssues } from '../deps/version-check';
 import { banner, fail, ok, warn } from '../lib/fmt';
 import { infraOutputs } from '../lib/infra-outputs';
-import { REPO_ROOT } from '../paths';
 import { refreshClientConfig } from '../lib/refresh-client-config';
 import { runHttpSmokeTests } from '../lib/smoke-tests';
+import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
 import { createRegistry } from '../resources/registry';
@@ -82,7 +82,8 @@ export class DeployCommand implements Command {
         dbUrl,
         'DB_URL must be set after PlanetScale provision — ensure PLANETSCALE_DATABASE_URL is in Doppler (or export DB_URL)'
       );
-      await runAsync(p, 'bun', ['--cwd', join(REPO_ROOT, 'apps/db'), 'run', 'migrate'], {
+      await runAsync(p, 'bun', ['run', 'migrate'], {
+        cwd: join(REPO_ROOT, 'apps/db'),
         env: process.env,
         label: 'db: migrate',
       });
