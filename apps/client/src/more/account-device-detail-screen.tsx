@@ -75,7 +75,7 @@ function useAccountDeviceDetailScreenState() {
   const loading = principalsLoading || sessionsLoading;
 
   const title =
-    principal !== null ? formatDeviceListTitle(principal) : 'Device';
+    principal !== null ? formatDeviceListTitle(principal) : t`Device`;
 
   return {
     nav,

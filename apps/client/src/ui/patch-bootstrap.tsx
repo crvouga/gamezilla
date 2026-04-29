@@ -107,11 +107,13 @@ async function openLocalSqlClient(databaseName: string): Promise<SqlClient> {
   return await SqlClientImplExpoSqlite.open(databaseName);
 }
 
+const DEFAULT_DATABASE_NAME = String('main');
+
 async function bootstrapPatchDbExpoSync(
   options: BootstrapPatchDbExpoSyncOptions
 ): Promise<BootstrapResult> {
   const {
-    databaseName = 'main',
+    databaseName = DEFAULT_DATABASE_NAME,
     apiUrl,
     transport: transportOption,
     pushIntervalMs = 2000,
@@ -168,7 +170,7 @@ async function bootstrapPatchDbExpoSync(
 }
 
 export async function clearLocalDatabaseAndReload(
-  databaseName = 'main'
+  databaseName = DEFAULT_DATABASE_NAME
 ): Promise<void> {
   cachedBootstrap = null;
   if (currentSqlClient) {
@@ -293,8 +295,9 @@ function usePatchBootstrap() {
   const runBootstrap = useCallback(() => {
     setError(null);
     const apiBase = configService.getApiUrl();
+    const patchDbUrl = String(`${apiBase}/patch-db`);
     void bootstrapPatchDbExpoSync({
-      apiUrl: `${apiBase}/patch-db`,
+      apiUrl: patchDbUrl,
       transport: createPatchDbHcTransport(createGamezillaApiClient(apiBase)),
       parentContainer,
       decoratePatchesDb: (db) =>

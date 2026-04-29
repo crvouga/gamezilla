@@ -5,8 +5,7 @@ import {
   getShortCommitHash,
 } from '@gamezilla/domain/config/app-metadata';
 import { Box, Card, CopyToClipboardField, ScreenBase, Text } from '@gamezilla/lib/ui';
-import { useLingui } from '@lingui/react/macro';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
@@ -17,10 +16,13 @@ export function AboutScreen() {
   const shortCommitHash = getShortCommitHash();
   const apiOrigin = getApiBaseUrl();
   const appName =
-    Constants.expoConfig?.name ?? Constants.expoConfig?.slug ?? 'gamezilla';
+    Constants.expoConfig?.name ??
+    Constants.expoConfig?.slug ??
+    String('gamezilla');
   const appVersion = Constants.expoConfig?.version ?? '—';
 
-  const buildMode = __DEV__ ? 'development' : 'production';
+  const buildMode = __DEV__ ? t`development` : t`production`;
+  const platformOs = Platform.OS;
 
   return (
     <ScreenBase
@@ -51,7 +53,7 @@ export function AboutScreen() {
               selectable
             />
             <Text variant="caption" label={t`Build mode: ${buildMode}`} />
-            <Text variant="caption" label={t`Platform: ${Platform.OS}`} />
+            <Text variant="caption" label={t`Platform: ${platformOs}`} />
           </Card>
 
           <Card elevation={1} sx={{ p: 4, gap: 2 }}>

@@ -3,47 +3,52 @@ import {
   type AsyncRunContext,
   useAsync,
 } from '@gamezilla/lib/async/use-async';
-import { ConfigServiceToken } from '@gamezilla/domain/config/config-service';
+import {
+  ConfigServiceToken,
+  type ConfigService,
+} from '@gamezilla/domain/config/config-service';
 import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import { Button, Card, Text } from '@gamezilla/lib/ui';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback } from 'react';
 
-const SERVER_REFRESH_SUCCESS =
-  'Server client config updated. Local view updates after the next PatchDB sync.';
+async function postClientConfigRefresh(
+  configService: ConfigService,
+  ctx: AsyncRunContext
+): Promise<void> {
+  const apiUrl = configService.getApiUrl();
+  const client = createGamezillaApiClient(apiUrl);
+  const res = await client['client-config']['refresh'].$post(undefined, {
+    init: { signal: ctx.signal },
+  });
+  const text = await res.text();
+  if (!res.ok) {
+    const status = String(res.status);
+    throw new Error(
+      text.length > 0 ? `HTTP ${status}: ${text}` : `HTTP ${status}`
+    );
+  }
+  let parsed: unknown;
+  try {
+    parsed = text.length > 0 ? (JSON.parse(text) as unknown) : null;
+  } catch {
+    throw new Error('Response was not JSON');
+  }
+  if (
+    typeof parsed !== 'object' ||
+    parsed === null ||
+    (parsed as { ok?: unknown }).ok !== true
+  ) {
+    throw new Error('Expected { ok: true }');
+  }
+}
 
 export function ClientConfigServerRefreshCard() {
+  const { t } = useLingui();
   const configService = useDependency(ConfigServiceToken);
   const refreshServer = useAsync<void, []>({
     operation: useCallback(
-      async ({ signal }: AsyncRunContext) => {
-        const apiUrl = configService.getApiUrl();
-        const client = createGamezillaApiClient(apiUrl);
-        const res = await client['client-config']['refresh'].$post(undefined, {
-          init: { signal },
-        });
-        const text = await res.text();
-        if (!res.ok) {
-          throw new Error(
-            text.length > 0
-              ? `HTTP ${String(res.status)}: ${text}`
-              : `HTTP ${String(res.status)}`
-          );
-        }
-        let parsed: unknown;
-        try {
-          parsed = text.length > 0 ? (JSON.parse(text) as unknown) : null;
-        } catch {
-          throw new Error('Response was not JSON');
-        }
-        if (
-          typeof parsed !== 'object' ||
-          parsed === null ||
-          (parsed as { ok?: unknown }).ok !== true
-        ) {
-          throw new Error('Expected { ok: true }');
-        }
-      },
+      (ctx: AsyncRunContext) => postClientConfigRefresh(configService, ctx),
       [configService]
     ),
   });
@@ -62,14 +67,17 @@ export function ClientConfigServerRefreshCard() {
         }
       />
       <Button
-        title={refreshServer.loading ? 'Refreshing…' : 'Refresh on server'}
+        title={refreshServer.loading ? t`Refreshing…` : t`Refresh on server`}
         onPress={() => {
           void refreshServer.run();
         }}
         disabled={refreshServer.loading}
       />
       {refreshServer.state.status === 'success' ? (
-        <Text variant="caption" label={SERVER_REFRESH_SUCCESS} />
+        <Text
+          variant="caption"
+          label={t`Server client config updated. Local view updates after the next PatchDB sync.`}
+        />
       ) : null}
       {refreshServer.error !== null ? (
         <Text

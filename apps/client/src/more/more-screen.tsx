@@ -1,5 +1,6 @@
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 import { Box, MenuRow, ScreenBase } from '@gamezilla/lib/ui';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { type Href, useRouter } from 'expo-router';
 
 type MoreRow = {
@@ -8,50 +9,54 @@ type MoreRow = {
   href: Href;
 };
 
-const MORE_ROWS: MoreRow[] = [
-  {
-    title: 'Account',
-    caption: 'Devices and read-only sign-in provider info',
-    href: '/more/account',
-  },
-  {
-    title: 'Appearance',
-    caption: 'Light, dark, or system theme',
-    href: '/more/theme',
-  },
-  {
-    title: 'Connection',
-    caption: 'Network reachability and API server health',
-    href: '/more/server-status',
-  },
-  {
-    title: 'Developer',
-    caption: 'Todos, UI explorer, Patch DB and Room playgrounds',
-    href: '/more/developer',
-  },
-  {
-    title: 'About',
-    caption: 'App version, build, and commit hash',
-    href: '/more/about' as Href,
-  },
-];
+function useMoreRows(): readonly MoreRow[] {
+  const { t } = useLingui();
+  return [
+    {
+      title: t`Account`,
+      caption: t`Devices and read-only sign-in provider info`,
+      href: '/more/account',
+    },
+    {
+      title: t`Appearance`,
+      caption: t`Light, dark, or system theme`,
+      href: '/more/theme',
+    },
+    {
+      title: t`Connection`,
+      caption: t`Network reachability and API server health`,
+      href: '/more/server-status',
+    },
+    {
+      title: t`Developer`,
+      caption: t`Todos, UI explorer, Patch DB and Room playgrounds`,
+      href: '/more/developer',
+    },
+    {
+      title: t`About`,
+      caption: t`App version, build, and commit hash`,
+      href: '/more/about' as Href,
+    },
+  ];
+}
 
 export function MoreScreen() {
   const router = useRouter();
   const nav = useBreadcrumbNav();
+  const rows = useMoreRows();
 
   return (
     <ScreenBase
       breadcrumbs={[
-        { name: 'Spaces', onPress: nav('/') },
+        { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         {
-          name: 'Settings',
-          subtitle: 'App preferences and tools',
+          name: <Trans>Settings</Trans>,
+          subtitle: <Trans>App preferences and tools</Trans>,
         },
       ]}
       content={({ sx }) => (
         <Box style={sx}>
-          {MORE_ROWS.map((row) => (
+          {rows.map((row) => (
             <MenuRow
               key={row.title}
               title={row.title}

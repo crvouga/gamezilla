@@ -8,38 +8,45 @@ import {
   StatusDot,
   Text,
 } from '@gamezilla/lib/ui';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { NetworkStateType } from 'expo-network';
 import { useCallback, useEffect } from 'react';
 
 const REFRESH_INTERVAL_MS = 15_000;
 
-const NETWORK_TYPE_LABELS: Record<NetworkStateType, string> = {
-  [NetworkStateType.NONE]: 'None',
-  [NetworkStateType.UNKNOWN]: 'Unknown',
-  [NetworkStateType.WIFI]: 'Wi‑Fi',
-  [NetworkStateType.CELLULAR]: 'Cellular',
-  [NetworkStateType.ETHERNET]: 'Ethernet',
-  [NetworkStateType.BLUETOOTH]: 'Bluetooth',
-  [NetworkStateType.VPN]: 'VPN',
-  [NetworkStateType.WIMAX]: 'WiMAX',
-  [NetworkStateType.OTHER]: 'Other',
-};
-
-function formatNetworkType(type: NetworkStateType | undefined): string {
-  if (type === undefined) return 'Unknown';
-  return NETWORK_TYPE_LABELS[type] ?? String(type);
+function useNetworkTypeLabel(): (type: NetworkStateType | undefined) => string {
+  const { t } = useLingui();
+  const labels: Record<NetworkStateType, string> = {
+    [NetworkStateType.NONE]: t`None`,
+    [NetworkStateType.UNKNOWN]: t`Unknown`,
+    [NetworkStateType.WIFI]: String('Wi‑Fi'),
+    [NetworkStateType.CELLULAR]: t`Cellular`,
+    [NetworkStateType.ETHERNET]: t`Ethernet`,
+    [NetworkStateType.BLUETOOTH]: t`Bluetooth`,
+    [NetworkStateType.VPN]: String('VPN'),
+    [NetworkStateType.WIMAX]: String('WiMAX'),
+    [NetworkStateType.OTHER]: t`Other`,
+  };
+  return (type: NetworkStateType | undefined): string => {
+    if (type === undefined) return t`Unknown`;
+    return labels[type] ?? String(type);
+  };
 }
 
 type ServerStatus = ReturnType<typeof useServerStatus>;
 
-function OverallRow({ aggregateStatus }: { aggregateStatus: ServerStatus['aggregateStatus'] }) {
+function OverallRow({
+  aggregateStatus,
+}: {
+  aggregateStatus: ServerStatus['aggregateStatus'];
+}) {
+  const { t } = useLingui();
   const label =
     aggregateStatus === 'online'
-      ? 'Online'
+      ? t`Online`
       : aggregateStatus === 'offline'
-        ? 'Offline'
-        : 'Limited or checking';
+        ? t`Offline`
+        : t`Limited or checking`;
   return (
     <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
       <StatusDot status={aggregateStatus} size={12} />
@@ -49,25 +56,32 @@ function OverallRow({ aggregateStatus }: { aggregateStatus: ServerStatus['aggreg
   );
 }
 
-function DeviceNetworkCard({ networkState }: { networkState: ServerStatus['networkState'] }) {
+function DeviceNetworkCard({
+  networkState,
+}: {
+  networkState: ServerStatus['networkState'];
+}) {
+  const { t } = useLingui();
+  const formatNetworkType = useNetworkTypeLabel();
   const networkLine =
     networkState.isConnected === false
-      ? 'Disconnected'
+      ? t`Disconnected`
       : networkState.isConnected === true
-        ? 'Connected'
-        : 'Checking…';
+        ? t`Connected`
+        : t`Checking…`;
   const reachable =
     networkState.isInternetReachable === undefined
       ? '—'
       : networkState.isInternetReachable
-        ? 'Yes'
-        : 'No';
+        ? t`Yes`
+        : t`No`;
+  const networkTypeLabel = formatNetworkType(networkState.type);
   return (
     <Card elevation={1} sx={{ p: 4, gap: 2 }}>
       <Text variant="bodyBold" label={<Trans>Device network</Trans>} />
-      <Text variant="body" label={`Status: ${networkLine}`} />
-      <Text variant="caption" label={`Type: ${formatNetworkType(networkState.type)}`} />
-      <Text variant="caption" label={`Internet reachable: ${reachable}`} />
+      <Text variant="body" label={t`Status: ${networkLine}`} />
+      <Text variant="caption" label={t`Type: ${networkTypeLabel}`} />
+      <Text variant="caption" label={t`Internet reachable: ${reachable}`} />
     </Card>
   );
 }
@@ -79,21 +93,23 @@ function ServerHealthCard({
   healthUrl: string;
   health: ServerStatus['health'];
 }) {
+  const { t } = useLingui();
   const serverLine =
     health.phase === 'loading'
-      ? 'Checking…'
+      ? t`Checking…`
       : health.phase === 'success'
-        ? 'Reachable'
+        ? t`Reachable`
         : health.phase === 'error'
-          ? 'Unreachable'
+          ? t`Unreachable`
           : '…';
+  const latencyMs = health.latencyMs;
   return (
     <Card elevation={1} sx={{ p: 4, gap: 2 }}>
       <Text variant="bodyBold" label={<Trans>Server health</Trans>} />
       <Text variant="caption" selectable label={healthUrl} />
-      <Text variant="body" label={`Status: ${serverLine}`} />
-      {health.latencyMs !== null ? (
-        <Text variant="caption" label={`Latency: ${health.latencyMs} ms`} />
+      <Text variant="body" label={t`Status: ${serverLine}`} />
+      {latencyMs !== null ? (
+        <Text variant="caption" label={t`Latency: ${latencyMs} ms`} />
       ) : null}
       {health.errorMessage !== null ? (
         <Text
@@ -107,6 +123,7 @@ function ServerHealthCard({
 }
 
 export function ServerStatusScreen() {
+  const { t } = useLingui();
   const nav = useBreadcrumbNav();
   const { apiUrl, healthUrl, networkState, health, aggregateStatus, refresh } =
     useServerStatus();
@@ -125,11 +142,11 @@ export function ServerStatusScreen() {
   return (
     <ScreenBase
       breadcrumbs={[
-        { name: 'Spaces', onPress: nav('/') },
-        { name: 'Settings', onPress: nav('/more') },
+        { name: <Trans>Spaces</Trans>, onPress: nav('/') },
+        { name: <Trans>Settings</Trans>, onPress: nav('/more') },
         {
-          name: 'Connection',
-          subtitle: 'Network and API status',
+          name: <Trans>Connection</Trans>,
+          subtitle: <Trans>Network and API status</Trans>,
         },
       ]}
       scroll
@@ -143,7 +160,7 @@ export function ServerStatusScreen() {
           </Card>
           <ServerHealthCard healthUrl={healthUrl} health={health} />
           <Button
-            title="Check again"
+            title={t`Check again`}
             onPress={stableRefresh}
             disabled={health.phase === 'loading'}
           />

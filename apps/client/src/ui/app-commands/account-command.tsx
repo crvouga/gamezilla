@@ -1,8 +1,10 @@
 import { useAuth } from '@gamezilla/client/auth/auth-context';
 import { RegisterCommand } from '@gamezilla/lib/ui';
 import { useAsync } from '@gamezilla/lib/async/use-async';
+import { useLingui } from '@lingui/react/macro';
 
 export function AccountCommand() {
+  const { t } = useLingui();
   const auth = useAuth();
   const { run } = useAsync({
     operation: async () => {
@@ -16,14 +18,14 @@ export function AccountCommand() {
   return (
     <RegisterCommand
       id="auth-toggle"
-      title={auth.mode === 'signed-in' ? 'Sign out' : 'Sign in'}
-      category="Account"
+      title={auth.mode === 'signed-in' ? t`Sign out` : t`Sign in`}
+      category={t`Account`}
       icon={
         auth.mode === 'signed-in'
           ? 'arrow.right.from.bracket'
           : 'right.to.bracket'
       }
-      keywords={['sign in', 'login', 'google', 'auth']}
+      keywords={[t`sign in`, t`login`, t`google`, t`auth`]}
       run={async () => {
         try {
           await run();

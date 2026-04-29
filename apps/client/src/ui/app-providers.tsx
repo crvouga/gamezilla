@@ -30,9 +30,9 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 void preventSplashAutoHide();
 
 const nunitoFontStacks: Partial<FontStacks> = {
-  sans: 'Nunito_400Regular',
-  sansSemibold: 'Nunito_600SemiBold',
-  rounded: 'Nunito_700Bold',
+  sans: String('Nunito_400Regular'),
+  sansSemibold: String('Nunito_600SemiBold'),
+  rounded: String('Nunito_700Bold'),
 };
 
 export function AppProviders({ children }: { children: ReactNode }) {

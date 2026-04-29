@@ -8,9 +8,11 @@ import {
   Text,
   useBreakpoint,
 } from '@gamezilla/lib/ui';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 
 export function ProfileScreen() {
+  const { t } = useLingui();
   const router = useRouter();
   const profile = useProfile();
   const accountActions = useAccountActions();
@@ -18,7 +20,7 @@ export function ProfileScreen() {
 
   return (
     <ScreenBase
-      breadcrumbs={[{ name: 'Profile' }]}
+      breadcrumbs={[{ name: <Trans>Profile</Trans> }]}
       actions={isMobile ? accountActions : []}
       content={({ sx }) => (
         <Box style={sx}>
@@ -33,7 +35,7 @@ export function ProfileScreen() {
           </Box>
           <Box sx={{ mt: 2, alignSelf: 'stretch' }}>
             <Button
-              title="Edit profile"
+              title={t`Edit profile`}
               onPress={() => router.push('/profile/edit')}
             />
           </Box>

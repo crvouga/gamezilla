@@ -5,7 +5,7 @@ import {
 } from '@gamezilla/client/profile/dicebear-styles';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { ResponsiveSurface, Text } from '@gamezilla/lib/ui';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 
 import { TriggerRow } from './avatar-editor-trigger-row';
 
@@ -28,6 +28,7 @@ export function StyleBlock({
   setSurface: (k: string | null) => void;
   closeSurface: () => void;
 }) {
+  const { t } = useLingui();
   return (
     <>
       <Text variant="label" sx={{ mt: 2 }} label={<Trans>Style</Trans>} />
@@ -39,7 +40,7 @@ export function StyleBlock({
       <ResponsiveSurface
         visible={surface === 'style'}
         onClose={closeSurface}
-        title="Choose style"
+        title={t`Choose style`}
       >
         <StylePickerStrip
           selected={styleKey}

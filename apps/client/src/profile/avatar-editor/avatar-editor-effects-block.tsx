@@ -1,7 +1,7 @@
 import type { SchemaField } from '@gamezilla/client/profile/dicebear-schema';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { Box, ChipGroup, Text } from '@gamezilla/lib/ui';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 
 import { getProbabilityMode, humanizeOptionKey } from './option-helpers';
 
@@ -20,6 +20,7 @@ export function EffectsBlock({
   draft: AvatarConfig;
   updateOptions: UpdateOptionsFn;
 }) {
+  const { t } = useLingui();
   const fields = effectFields.filter(
     (f): f is ProbabilityField => f.kind === 'probability'
   );
@@ -32,9 +33,9 @@ export function EffectsBlock({
           key={f.key}
           label={humanizeOptionKey(f.key)}
           options={[
-            { key: 'off', label: 'Off' },
-            { key: 'random', label: 'Random' },
-            { key: 'always', label: 'Always' },
+            { key: 'off', label: t`Off` },
+            { key: 'random', label: t`Random` },
+            { key: 'always', label: t`Always` },
           ]}
           selected={getProbabilityMode(draft.options[f.key])}
           onSelect={(mode) => {

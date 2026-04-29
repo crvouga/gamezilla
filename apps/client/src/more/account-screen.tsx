@@ -14,7 +14,7 @@ import {
   GOOGLE_PROVIDER,
 } from '@gamezilla/domain/auth';
 import { Box, Button, Card, ScreenBase, Text } from '@gamezilla/lib/ui';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useEntities } from '@gamezilla/patch-db/react';
 import { type Href, useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
@@ -30,7 +30,7 @@ type LinkedProvider = {
 };
 
 const PROVIDER_LABELS: Record<string, string> = {
-  [GOOGLE_PROVIDER]: 'Google',
+  [GOOGLE_PROVIDER]: String('Google'),
 };
 
 function providerLabel(provider: string): string {
@@ -88,18 +88,21 @@ function CaptionLine({ label }: { label: string }) {
 }
 
 function LinkedProviderRow({ provider }: { provider: LinkedProvider }) {
+  const { t } = useLingui();
+  const connectedAt = formatTimestamp(provider.linkedAt);
+  const providerAccountId = provider.providerAccountId;
   return (
     <Box sx={{ gap: 1 }}>
       <Text variant="bodyBold" label={providerLabel(provider.provider)} />
       {provider.email !== null ? (
         <Text variant="caption" selectable label={provider.email} />
       ) : null}
-      <CaptionLine label={`Connected: ${formatTimestamp(provider.linkedAt)}`} />
+      <CaptionLine label={t`Connected: ${connectedAt}`} />
       <Text
         variant="caption"
         sx={{ color: 'textSecondary' }}
         selectable
-        label={`Provider account id: ${provider.providerAccountId}`}
+        label={t`Provider account id: ${providerAccountId}`}
       />
     </Box>
   );
@@ -114,16 +117,23 @@ function LinkedProvidersBody({
   providers: LinkedProvider[];
   loading: boolean;
 }) {
+  const { t } = useLingui();
   if (accountId === null) {
     return (
-      <CaptionLine label="OAuth provider details are listed here once you are signed in." />
+      <CaptionLine
+        label={t`OAuth provider details are listed here once you are signed in.`}
+      />
     );
   }
   if (loading) {
-    return <CaptionLine label="Loading provider records…" />;
+    return <CaptionLine label={t`Loading provider records…`} />;
   }
   if (providers.length === 0) {
-    return <CaptionLine label="No OAuth provider records on file for this account." />;
+    return (
+      <CaptionLine
+        label={t`No OAuth provider records on file for this account.`}
+      />
+    );
   }
   return (
     <Box sx={{ gap: 3 }}>
@@ -143,10 +153,13 @@ function LinkedProvidersCard({
   providers: LinkedProvider[];
   loading: boolean;
 }) {
+  const { t } = useLingui();
   return (
     <Card elevation={1} sx={{ p: 4, gap: 3 }}>
       <Text variant="bodyBold" label={<Trans>Sign-in providers</Trans>} />
-      <CaptionLine label="Read-only: OAuth identities stored for your account." />
+      <CaptionLine
+        label={t`Read-only: OAuth identities stored for your account.`}
+      />
       <LinkedProvidersBody
         accountId={accountId}
         providers={providers}
@@ -165,16 +178,17 @@ function AccountActionsRow({
   onRequestSignOut: () => void;
   onSignIn: () => void;
 }) {
+  const { t } = useLingui();
   return (
     <Box sx={{ gap: 2 }}>
       {auth.mode === 'signed-in' ? (
         <Button
-          title="Sign out"
+          title={t`Sign out`}
           color="destructive"
           onPress={onRequestSignOut}
         />
       ) : (
-        <Button title="Sign in" onPress={onSignIn} />
+        <Button title={t`Sign in`} onPress={onSignIn} />
       )}
     </Box>
   );
@@ -265,11 +279,11 @@ export function AccountScreen() {
   return (
     <ScreenBase
       breadcrumbs={[
-        { name: 'Spaces', onPress: nav('/') },
-        { name: 'Settings', onPress: nav('/more') },
+        { name: <Trans>Spaces</Trans>, onPress: nav('/') },
+        { name: <Trans>Settings</Trans>, onPress: nav('/more') },
         {
-          name: 'Account',
-          subtitle: 'Devices and sign-in provider records',
+          name: <Trans>Account</Trans>,
+          subtitle: <Trans>Devices and sign-in provider records</Trans>,
         },
       ]}
       scroll

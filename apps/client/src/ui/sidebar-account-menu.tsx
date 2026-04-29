@@ -95,11 +95,12 @@ function ConnectionTrailing({
   aggregateStatus: ServerStatus['aggregateStatus'];
   health: ServerStatus['health'];
 }) {
+  const ms = health.latencyMs;
   const label =
     health.phase === 'loading'
       ? '…'
-      : health.latencyMs !== null
-        ? `${health.latencyMs} ms`
+      : ms !== null
+        ? t`${ms} ms`
         : '—';
   return (
     <Box
@@ -121,15 +122,16 @@ function ConnectionTrailing({
 }
 
 function aggregateStatusWord(s: ServerStatus['aggregateStatus']): string {
-  if (s === 'online') return 'Online';
-  if (s === 'offline') return 'Offline';
-  return 'Limited or checking';
+  if (s === 'online') return t`Online`;
+  if (s === 'offline') return t`Offline`;
+  return t`Limited or checking`;
 }
 
 function latencyPhrase(health: ServerStatus['health']): string {
-  if (health.phase === 'loading') return 'latency checking';
-  if (health.latencyMs !== null) return `latency ${health.latencyMs} ms`;
-  return 'latency unavailable';
+  if (health.phase === 'loading') return t`latency checking`;
+  const ms = health.latencyMs;
+  if (ms !== null) return t`latency ${ms} ms`;
+  return t`latency unavailable`;
 }
 
 type MenuRow = FloatingMenuContent['rows'][number];
@@ -146,7 +148,9 @@ function buildConnectionRow(args: {
 }): MenuRow {
   const { serverStatus, onServerStatus } = args;
   const { aggregateStatus, health } = serverStatus;
-  const accLabel = t`Connection and server status. ${aggregateStatusWord(aggregateStatus)}. ${latencyPhrase(health)}.`;
+  const statusWord = aggregateStatusWord(aggregateStatus);
+  const latency = latencyPhrase(health);
+  const accLabel = t`Connection and server status. ${statusWord}. ${latency}.`;
   return {
     type: 'item',
     id: 'server-status',
@@ -228,7 +232,7 @@ function AccountTrigger({
       <Pressable
         onPress={openMenu}
         accessibilityRole="button"
-        accessibilityLabel="Account menu"
+        accessibilityLabel={t`Account menu`}
         accessibilityState={{ expanded: open }}
         sx={{
           flexDirection: 'row',

@@ -1,4 +1,5 @@
 import { Box, ConfirmationModal, ScreenBase } from '@gamezilla/lib/ui';
+import { Trans } from '@lingui/react/macro';
 
 import { BackgroundBlock } from './avatar-editor-background-block';
 import { ColorsBlock } from './avatar-editor-colors-block';
@@ -114,26 +115,29 @@ export function AvatarEditorScreen() {
     <>
       <ConfirmationModal
         visible={showDiscard}
-        title="Discard changes?"
-        message="You have unsaved avatar changes."
-        confirmLabel="Discard"
+        title={<Trans>Discard changes?</Trans>}
+        message={<Trans>You have unsaved avatar changes.</Trans>}
+        confirmLabel={<Trans>Discard</Trans>}
         variant="destructive"
         onConfirm={confirmDiscard}
         onCancel={() => setShowDiscard(false)}
       />
       <ScreenBase
-        breadcrumbs={[{ name: 'Profile', onPress: onBack }, { name: 'Avatar' }]}
+        breadcrumbs={[
+          { name: <Trans>Profile</Trans>, onPress: onBack },
+          { name: <Trans>Avatar</Trans> },
+        ]}
         actions={[
           {
             type: 'secondary',
-            label: 'Reset',
+            label: <Trans>Reset</Trans>,
             onPress: resetStyleDefaults,
             disabled: !initialized,
             overflow: 'never',
           },
           {
             type: 'submit',
-            label: 'Save',
+            label: <Trans>Save</Trans>,
             onPress: () => void save(),
             loading: saving,
             disabled: saving || !dirty || profileId === null,

@@ -5,12 +5,13 @@ import {
   ClientConfigAttr,
 } from '@gamezilla/domain/client-config/client-config-entities';
 import { Box, Card, ScreenBase, Text } from '@gamezilla/lib/ui';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useEntities } from '@gamezilla/patch-db/react';
 
 import { ClientConfigServerRefreshCard } from '@gamezilla/client/more/client-config-server-refresh';
 
 export function ClientConfigScreen() {
+  const { t } = useLingui();
   const nav = useBreadcrumbNav();
   const { entities, loading } = useEntities({
     entityType: CLIENT_CONFIG_ENTITY_TYPE,
@@ -24,7 +25,7 @@ export function ClientConfigScreen() {
     typeof googleRaw === 'string' && googleRaw.length > 0
       ? googleRaw
       : googleRaw === null
-        ? 'null'
+        ? t`null`
         : loading
           ? '…'
           : '—';
@@ -34,12 +35,12 @@ export function ClientConfigScreen() {
   return (
     <ScreenBase
       breadcrumbs={[
-        { name: 'Spaces', onPress: nav('/') },
-        { name: 'Settings', onPress: nav('/more') },
-        { name: 'Developer', onPress: nav('/more/developer') },
+        { name: <Trans>Spaces</Trans>, onPress: nav('/') },
+        { name: <Trans>Settings</Trans>, onPress: nav('/more') },
+        { name: <Trans>Developer</Trans>, onPress: nav('/more/developer') },
         {
-          name: 'Client config',
-          subtitle: 'Singleton entity + server refresh',
+          name: <Trans>Client config</Trans>,
+          subtitle: <Trans>Singleton entity + server refresh</Trans>,
         },
       ]}
       scroll

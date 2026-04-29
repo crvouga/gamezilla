@@ -15,7 +15,7 @@ import {
   ScreenBase,
   Text,
 } from '@gamezilla/lib/ui';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 
@@ -57,7 +57,10 @@ function LoadingState() {
   const nav = useBreadcrumbNav();
   return (
     <ScreenBase
-      breadcrumbs={[{ name: 'Spaces', onPress: nav('/') }, { name: 'Space' }]}
+      breadcrumbs={[
+        { name: <Trans>Spaces</Trans>, onPress: nav('/') },
+        { name: <Trans>Space</Trans> },
+      ]}
       content={({ sx }) => (
         <Box style={sx} sx={{ flex: 1, justifyContent: 'center' }}>
           <Text
@@ -72,11 +75,15 @@ function LoadingState() {
 }
 
 function NotFoundState() {
+  const { t } = useLingui();
   const router = useRouter();
   const nav = useBreadcrumbNav();
   return (
     <ScreenBase
-      breadcrumbs={[{ name: 'Spaces', onPress: nav('/') }, { name: 'Space' }]}
+      breadcrumbs={[
+        { name: <Trans>Spaces</Trans>, onPress: nav('/') },
+        { name: <Trans>Space</Trans> },
+      ]}
       content={({ sx }) => (
         <Box style={sx} sx={{ flex: 1, justifyContent: 'center' }}>
           <Text
@@ -86,7 +93,7 @@ function NotFoundState() {
           />
           <Box sx={{ mt: 3 }}>
             <Button
-              title="Go back"
+              title={t`Go back`}
               variant="solid"
               onPress={() => router.back()}
             />
@@ -98,12 +105,13 @@ function NotFoundState() {
 }
 
 function EndedState({ title }: { title: string }) {
+  const { t } = useLingui();
   const router = useRouter();
   const nav = useBreadcrumbNav();
   return (
     <ScreenBase
       breadcrumbs={[
-        { name: 'Spaces', onPress: nav('/') },
+        { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         { name: title },
       ]}
       content={({ sx }) => (
@@ -114,7 +122,7 @@ function EndedState({ title }: { title: string }) {
             label={<Trans>This space has ended.</Trans>}
           />
           <Button
-            title="Go back"
+            title={t`Go back`}
             variant="solid"
             onPress={() => router.back()}
           />
@@ -135,12 +143,13 @@ function JoinPrompt({
   hostLabel: string;
   onJoin: (id: string) => Promise<void> | void;
 }) {
+  const { t } = useLingui();
   const router = useRouter();
   const nav = useBreadcrumbNav();
   return (
     <ScreenBase
       breadcrumbs={[
-        { name: 'Spaces', onPress: nav('/') },
+        { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         { name: title },
       ]}
       content={({ sx }) => (
@@ -155,14 +164,14 @@ function JoinPrompt({
             }
           />
           <Button
-            title="Join space"
+            title={t`Join space`}
             variant="solid"
             onPress={() => {
               if (spaceId) void onJoin(spaceId);
             }}
           />
           <Button
-            title="Back"
+            title={t`Back`}
             variant="outlined"
             onPress={() => router.back()}
           />
@@ -184,10 +193,12 @@ function EndSpaceModal({
   return (
     <ConfirmationModal
       visible={visible}
-      title="End space?"
-      message="Everyone will leave this space. This cannot be undone."
-      confirmLabel="End space"
-      cancelLabel="Cancel"
+      title={<Trans>End space?</Trans>}
+      message={
+        <Trans>Everyone will leave this space. This cannot be undone.</Trans>
+      }
+      confirmLabel={<Trans>End space</Trans>}
+      cancelLabel={<Trans>Cancel</Trans>}
       variant="destructive"
       onConfirm={onEnd}
       onCancel={onClose}
@@ -207,10 +218,12 @@ function LeaveSpaceModal({
   return (
     <ConfirmationModal
       visible={visible}
-      title="Leave space?"
-      message="You can join again later if the space is still live."
-      confirmLabel="Leave"
-      cancelLabel="Cancel"
+      title={<Trans>Leave space?</Trans>}
+      message={
+        <Trans>You can join again later if the space is still live.</Trans>
+      }
+      confirmLabel={<Trans>Leave</Trans>}
+      cancelLabel={<Trans>Cancel</Trans>}
       variant="default"
       onConfirm={onLeave}
       onCancel={onClose}
@@ -233,6 +246,7 @@ function ActiveSpace({
   endSpace: (id: string) => Promise<void> | void;
   leaveSpace: () => Promise<void> | void;
 }) {
+  const { t } = useLingui();
   const router = useRouter();
   const nav = useBreadcrumbNav();
   const [confirmEnd, setConfirmEnd] = useState(false);
@@ -255,7 +269,7 @@ function ActiveSpace({
   return (
     <ScreenBase
       breadcrumbs={[
-        { name: 'Spaces', onPress: nav('/') },
+        { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         { name: space.title },
       ]}
       content={({ sx }) => (
@@ -263,13 +277,13 @@ function ActiveSpace({
           <SpaceMemberList members={members} />
           {isHost ? (
             <Button
-              title="End space"
+              title={t`End space`}
               variant="solid"
               onPress={() => setConfirmEnd(true)}
             />
           ) : (
             <Button
-              title="Leave space"
+              title={t`Leave space`}
               variant="outlined"
               onPress={() => setConfirmLeave(true)}
             />

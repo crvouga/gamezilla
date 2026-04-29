@@ -8,7 +8,7 @@ import {
   SegmentedControl,
   Text,
 } from '@gamezilla/lib/ui';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 
 import { TriggerRow } from './avatar-editor-trigger-row';
 
@@ -16,21 +16,26 @@ type UpdateOptionsFn = (
   fn: (o: Record<string, unknown>) => Record<string, unknown>
 ) => void;
 
-type BackgroundMode = 'solid' | 'gradient' | 'both';
+const SOLID = 'solid' as const;
+const GRADIENT = 'gradient' as const;
+const BOTH = 'both' as const;
+const GRADIENT_LINEAR = 'gradientLinear' as const;
+
+type BackgroundMode = typeof SOLID | typeof GRADIENT | typeof BOTH;
 
 function backgroundTypeMode(v: unknown): BackgroundMode {
-  const a = Array.isArray(v) ? (v as string[]) : ['solid'];
-  const hasS = a.includes('solid');
-  const hasG = a.includes('gradientLinear');
-  if (hasS && hasG) return 'both';
-  if (hasG) return 'gradient';
-  return 'solid';
+  const a = Array.isArray(v) ? (v as string[]) : [SOLID];
+  const hasS = a.includes(SOLID);
+  const hasG = a.includes(GRADIENT_LINEAR);
+  if (hasS && hasG) return BOTH;
+  if (hasG) return GRADIENT;
+  return SOLID;
 }
 
 function modeToBackgroundType(m: BackgroundMode): string[] {
-  if (m === 'solid') return ['solid'];
-  if (m === 'gradient') return ['gradientLinear'];
-  return ['solid', 'gradientLinear'];
+  if (m === SOLID) return [SOLID];
+  if (m === GRADIENT) return [GRADIENT_LINEAR];
+  return [SOLID, GRADIENT_LINEAR];
 }
 
 type EnumField = Extract<SchemaField, { kind: 'enum' }>;
@@ -57,14 +62,15 @@ function TypeSegment({
   mode: BackgroundMode;
   updateOptions: UpdateOptionsFn;
 }) {
+  const { t } = useLingui();
   return (
     <Box sx={{ gap: 2 }}>
       <Text variant="caption" sx={{ opacity: 0.8 }} label={<Trans>Type</Trans>} />
       <SegmentedControl
         segments={[
-          { key: 'solid', label: 'Solid' },
-          { key: 'gradient', label: 'Gradient' },
-          { key: 'both', label: 'Both' },
+          { key: SOLID, label: t`Solid` },
+          { key: GRADIENT, label: t`Gradient` },
+          { key: BOTH, label: t`Both` },
         ]}
         selected={mode}
         onSelect={(k) => {
@@ -93,20 +99,22 @@ function ColorPickerRow({
   setSurface: (k: string | null) => void;
   closeSurface: () => void;
 }) {
+  const { t } = useLingui();
   const bgColors = Array.isArray(options['backgroundColor'])
     ? (options['backgroundColor'] as string[])
     : colorField.default;
+  const count = bgColors.length;
   return (
     <>
       <TriggerRow
-        label="Background colors"
-        value={bgColors.length === 0 ? '—' : `${bgColors.length} selected`}
+        label={t`Background colors`}
+        value={count === 0 ? '—' : t`${count} selected`}
         onPress={() => setSurface('bg-color')}
       />
       <ResponsiveSurface
         visible={surface === 'bg-color'}
         onClose={closeSurface}
-        title="Background colors"
+        title={t`Background colors`}
       >
         <MultiSelectSwatchGrid
           label={null}
@@ -147,20 +155,21 @@ function RotationControls({
   updateOptions: UpdateOptionsFn;
   mode: BackgroundMode;
 }) {
+  const { t } = useLingui();
   const rotMinDefault = rotField.default[0] ?? 0;
   const rotMaxDefault = rotField.default[1] ?? 360;
   return (
-    <Box sx={{ gap: 2, opacity: mode === 'solid' ? 0.45 : 1 }}>
+    <Box sx={{ gap: 2, opacity: mode === SOLID ? 0.45 : 1 }}>
       <Text
         variant="caption"
         sx={{ opacity: 0.8 }}
         label={<Trans>Gradient rotation (°)</Trans>}
       />
       <NumberStepper
-        label="Min rotation"
+        label={t`Min rotation`}
         min={rotField.itemMin}
         max={rotField.itemMax}
-        disabled={mode === 'solid'}
+        disabled={mode === SOLID}
         value={readRotationAt(options, 0, rotMinDefault)}
         onChange={(n) => {
           updateOptions((opts) => {
@@ -174,10 +183,10 @@ function RotationControls({
         }}
       />
       <NumberStepper
-        label="Max rotation"
+        label={t`Max rotation`}
         min={rotField.itemMin}
         max={rotField.itemMax}
-        disabled={mode === 'solid'}
+        disabled={mode === SOLID}
         value={readRotationAt(options, 1, rotMaxDefault)}
         onChange={(n) => {
           updateOptions((opts) => {

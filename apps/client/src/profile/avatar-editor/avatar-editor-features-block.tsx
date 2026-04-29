@@ -3,7 +3,7 @@ import type { SchemaField } from '@gamezilla/client/profile/dicebear-schema';
 import type { StyleKey } from '@gamezilla/client/profile/dicebear-styles';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { Box, ResponsiveSurface, Text } from '@gamezilla/lib/ui';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 
 import { TriggerRow } from './avatar-editor-trigger-row';
 import { getEnumSelectionMode, humanizeOptionKey } from './option-helpers';
@@ -33,8 +33,9 @@ function FeatureRow({
   setSurface: (k: string | null) => void;
   closeSurface: () => void;
 }) {
+  const { t } = useLingui();
   const mode = getEnumSelectionMode(field, draft.options[field.key]);
-  const summary = mode === 'random' ? 'Random' : String(mode);
+  const summary = mode === 'random' ? t`Random` : String(mode);
   return (
     <Box>
       <TriggerRow

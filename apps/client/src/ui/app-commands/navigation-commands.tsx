@@ -1,4 +1,5 @@
 import { RegisterCommand } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
 import { useMemo } from 'react';
 import { useRouter, useSitemap, type Href, type SitemapType } from 'expo-router';
 
@@ -8,9 +9,8 @@ import {
   navCommandTitle,
 } from './sitemap-nav-entries';
 
-const NAV_CATEGORY = 'Navigation';
-
 export function NavigationCommands() {
+  const { t } = useLingui();
   const router = useRouter();
   const sitemap = useSitemap();
 
@@ -25,17 +25,20 @@ export function NavigationCommands() {
 
   return (
     <>
-      {entries.map((node) => (
-        <RegisterCommand
-          key={node.contextKey}
-          id={`nav:${node.contextKey}`}
-          title={`Go to ${navCommandTitle(node)}`}
-          category={NAV_CATEGORY}
-          run={async () => {
-            router.push(node.href as Href);
-          }}
-        />
-      ))}
+      {entries.map((node) => {
+        const target = navCommandTitle(node);
+        return (
+          <RegisterCommand
+            key={node.contextKey}
+            id={`nav:${node.contextKey}`}
+            title={t`Go to ${target}`}
+            category={t`Navigation`}
+            run={async () => {
+              router.push(node.href as Href);
+            }}
+          />
+        );
+      })}
     </>
   );
 }

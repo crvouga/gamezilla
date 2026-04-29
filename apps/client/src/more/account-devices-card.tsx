@@ -10,8 +10,7 @@ import {
   Text,
 } from '@gamezilla/lib/ui';
 import { useTheme } from '@gamezilla/lib/ui/theme';
-import { useLingui } from '@lingui/react/macro';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import {
   formatDeviceListCaption,
@@ -32,7 +31,9 @@ function formatSessionCaption(
   if (sessionInfo === undefined || sessionInfo.active === 0) {
     return t`No active session`;
   }
-  return t`${sessionInfo.active} active — expires ${formatTimestamp(sessionInfo.latestExpiresAt)}`;
+  const active = sessionInfo.active;
+  const expires = formatTimestamp(sessionInfo.latestExpiresAt);
+  return t`${active} active — expires ${expires}`;
 }
 
 function DevicePrincipalMenuRow({
@@ -69,7 +70,10 @@ function DevicePrincipalMenuRow({
       onPress={() => {
         onOpenDevice(p.entityId);
       }}
-      accessibilityLabel={t`Device ${formatDeviceListTitle(p)}`}
+      accessibilityLabel={(() => {
+        const deviceTitle = formatDeviceListTitle(p);
+        return t`Device ${deviceTitle}`;
+      })()}
     />
   );
 }

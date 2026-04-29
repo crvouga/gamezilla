@@ -1,7 +1,7 @@
 import { ProfileDiceBearAvatar } from '@gamezilla/client/profile/profile-dicebear-avatar';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { Box, Button, Text } from '@gamezilla/lib/ui';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 
 export function AvatarPreview({
   previewConfig,
@@ -16,6 +16,7 @@ export function AvatarPreview({
   shuffleSeed: () => void;
   copySeed: () => Promise<void>;
 }) {
+  const { t } = useLingui();
   return (
     <Box sx={{ alignItems: 'center', gap: 2, minHeight: 260 }}>
       <ProfileDiceBearAvatar
@@ -33,13 +34,13 @@ export function AvatarPreview({
         }}
       >
         <Button
-          title="Shuffle seed"
+          title={t`Shuffle seed`}
           variant="outlined"
           onPress={shuffleSeed}
           disabled={!initialized}
         />
         <Button
-          title="Copy seed"
+          title={t`Copy seed`}
           variant="outlined"
           onPress={() => void copySeed()}
           disabled={!initialized}

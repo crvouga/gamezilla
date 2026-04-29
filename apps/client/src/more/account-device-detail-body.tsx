@@ -1,8 +1,7 @@
 import type { AccountPrincipal } from '@gamezilla/client/auth/use-account-principals';
 import type { PrincipalSessionAggregate } from '@gamezilla/client/auth/use-principals-sessions';
 import { Box, CopyToClipboardField, Text } from '@gamezilla/lib/ui';
-import { useLingui } from '@lingui/react/macro';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import {
   EM_DASH,
@@ -65,10 +64,15 @@ export function AccountDeviceDetailBody({
   sessionInfo: PrincipalSessionAggregate | undefined;
 }) {
   const { t } = useLingui();
+  const activeCount = sessionInfo?.active ?? 0;
+  const latestExpires =
+    sessionInfo !== undefined
+      ? formatTimestamp(sessionInfo.latestExpiresAt)
+      : '';
   const sessionLabel =
     sessionInfo === undefined || sessionInfo.active === 0
       ? t`No active session`
-      : t`${sessionInfo.active} active session(s) — latest expires ${formatTimestamp(sessionInfo.latestExpiresAt)}`;
+      : t`${activeCount} active session(s) — latest expires ${latestExpires}`;
 
   return (
     <Box sx={{ gap: 4 }}>

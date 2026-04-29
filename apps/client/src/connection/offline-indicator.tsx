@@ -2,6 +2,7 @@ import { SYNC_ERROR_TOPIC } from '@gamezilla/patch-db/impl-sync';
 import { PatchDbSyncPubSubToken } from '@gamezilla/patch-db/react';
 import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import { Box, Text } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Platform, Pressable } from 'react-native';
 
@@ -9,6 +10,7 @@ import { Platform, Pressable } from 'react-native';
  * Shows when the browser is offline or patch-db sync has failed repeatedly.
  */
 export function OfflineIndicator(): ReactNode {
+  const { t } = useLingui();
   const pubSub = useDependency(PatchDbSyncPubSubToken);
   const [offline, setOffline] = useState(
     () => typeof navigator !== 'undefined' && navigator.onLine === false
@@ -45,7 +47,7 @@ export function OfflineIndicator(): ReactNode {
     return null;
   }
 
-  const label = offline ? 'Offline' : 'Sync issue';
+  const label = offline ? t`Offline` : t`Sync issue`;
 
   return (
     <Pressable
@@ -53,7 +55,7 @@ export function OfflineIndicator(): ReactNode {
       onPress={() => {
         if (Platform.OS === 'web' && typeof window !== 'undefined') {
           window.alert(
-            'Your changes are saved locally and will sync when you are back online.'
+            t`Your changes are saved locally and will sync when you are back online.`
           );
         }
       }}

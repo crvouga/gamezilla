@@ -2,6 +2,7 @@ import { useAuth } from '@gamezilla/client/auth/auth-context';
 import { useServerStatus } from '@gamezilla/client/connection/use-server-status';
 import { useLogger } from '@gamezilla/lib/logger/react';
 import { Box, StatusDot, Text, type ScreenBaseAction } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
 import { useAsync } from '@gamezilla/lib/async/use-async';
@@ -55,11 +56,13 @@ function ConnectionTrailing({
   aggregateStatus: ServerStatus['aggregateStatus'];
   health: ServerStatus['health'];
 }) {
+  const { t } = useLingui();
+  const ms = health.latencyMs;
   const latencyLabel =
     health.phase === 'loading'
       ? '…'
-      : health.latencyMs !== null
-        ? `${health.latencyMs} ms`
+      : ms !== null
+        ? t`${ms} ms`
         : '—';
   return (
     <Box
@@ -80,13 +83,22 @@ function ConnectionTrailing({
   );
 }
 
+type Labels = {
+  profile: string;
+  connection: string;
+  settings: string;
+  signIn: string;
+  signOut: string;
+};
+
 function buildConnectionAction(
+  labels: Labels,
   serverStatus: ServerStatus,
   onServerStatus: () => void
 ): ScreenBaseAction {
   return {
     type: 'default',
-    label: 'Connection',
+    label: labels.connection,
     icon: 'wifi',
     overflow: 'always',
     onPress: onServerStatus,
@@ -100,12 +112,13 @@ function buildConnectionAction(
 }
 
 function buildAuthAction(
+  labels: Labels,
   auth: Auth,
   onAuth: () => Promise<void>
 ): ScreenBaseAction {
   return {
     type: 'default',
-    label: auth.mode === 'signed-in' ? 'Sign out' : 'Sign in',
+    label: auth.mode === 'signed-in' ? labels.signOut : labels.signIn,
     icon:
       auth.mode === 'signed-in'
         ? 'arrow.right.from.bracket'
@@ -119,6 +132,7 @@ function buildAuthAction(
 }
 
 function buildActions(args: {
+  labels: Labels;
   auth: Auth;
   serverStatus: ServerStatus;
   onProfile: () => void;
@@ -126,21 +140,28 @@ function buildActions(args: {
   onServerStatus: () => void;
   onAuth: () => Promise<void>;
 }): ScreenBaseAction[] {
-  const { auth, serverStatus, onProfile, onSettings, onServerStatus, onAuth } =
-    args;
+  const {
+    labels,
+    auth,
+    serverStatus,
+    onProfile,
+    onSettings,
+    onServerStatus,
+    onAuth,
+  } = args;
   return [
     {
       type: 'default',
-      label: 'Profile',
+      label: labels.profile,
       onPress: onProfile,
       icon: 'person.fill',
       overflow: 'always',
     },
-    buildConnectionAction(serverStatus, onServerStatus),
-    buildAuthAction(auth, onAuth),
+    buildConnectionAction(labels, serverStatus, onServerStatus),
+    buildAuthAction(labels, auth, onAuth),
     {
       type: 'default',
-      label: 'Settings',
+      label: labels.settings,
       onPress: onSettings,
       icon: 'gearshape.fill',
       overflow: 'always',
@@ -153,14 +174,27 @@ function buildActions(args: {
  * Tab roots should pass these only on mobile (`useBreakpoint() === 'mobile'`).
  */
 export function useAccountActions(): ScreenBaseAction[] {
+  const { t } = useLingui();
   const auth = useAuth();
   const serverStatus = useServerStatus();
   const { onProfile, onSettings, onServerStatus } = useAccountNav();
   const onAuth = useAuthAction(auth);
 
+  const labels = useMemo<Labels>(
+    () => ({
+      profile: t`Profile`,
+      connection: t`Connection`,
+      settings: t`Settings`,
+      signIn: t`Sign in`,
+      signOut: t`Sign out`,
+    }),
+    [t]
+  );
+
   return useMemo(
     () =>
       buildActions({
+        labels,
         auth,
         serverStatus,
         onProfile,
@@ -168,6 +202,6 @@ export function useAccountActions(): ScreenBaseAction[] {
         onServerStatus,
         onAuth,
       }),
-    [auth, serverStatus, onProfile, onSettings, onServerStatus, onAuth]
+    [labels, auth, serverStatus, onProfile, onSettings, onServerStatus, onAuth]
   );
 }

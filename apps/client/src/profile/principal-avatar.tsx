@@ -21,8 +21,8 @@ export type PrincipalAvatarProps = {
  * Renders a principal’s avatar: generic user silhouette on a muted disk when
  * loading or no persisted config; otherwise the persisted DiceBear avatar.
  */
-const VIVID_PLATE = 'rgba(255,255,255,0.22)';
-const VIVID_GLYPH = 'rgba(255,255,255,0.92)';
+const VIVID_PLATE = String('rgba(255,255,255,0.22)');
+const VIVID_GLYPH = String('rgba(255,255,255,0.92)');
 
 export function PrincipalAvatar({
   avatarConfig,

@@ -17,10 +17,11 @@ import {
   useBreakpoint,
   useTheme,
 } from '@gamezilla/lib/ui';
-import { useLingui } from '@lingui/react/macro';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
+
+const DEFAULT_FILTER = String('all') as SpaceFilter;
 
 type Space = ReturnType<typeof useSpaces>['spaces'][number];
 
@@ -32,12 +33,13 @@ type FilterBarProps = {
 };
 
 function FilterBar({ filter, setFilter }: FilterBarProps) {
+  const { t } = useLingui();
   return (
     <Box sx={{ pt: 2, pb: 2 }}>
       <SegmentedControl<SpaceFilter>
         segments={[
-          { key: 'all', label: 'All' },
-          { key: 'live', label: 'Live' },
+          { key: 'all', label: t`All` },
+          { key: 'live', label: t`Live` },
         ]}
         selected={filter}
         onSelect={setFilter}
@@ -57,6 +59,7 @@ function CurrentSpaceShortcut({
   shortcutSpace,
   loading,
 }: CurrentSpaceShortcutProps) {
+  const { t } = useLingui();
   const router = useRouter();
   if (current.loading || !current.activeSpaceId) return null;
   const goToCurrent = () => {
@@ -70,7 +73,7 @@ function CurrentSpaceShortcut({
       <Pressable
         onPress={goToCurrent}
         accessibilityRole="button"
-        accessibilityLabel="Open your current space"
+        accessibilityLabel={t`Open your current space`}
       >
         <Box
           sx={{
@@ -85,7 +88,9 @@ function CurrentSpaceShortcut({
           <Text
             variant="bodyBold"
             sx={{ mt: 1 }}
-            label={shortcutSpace?.title ?? (loading ? 'Loading…' : 'Continue')}
+            label={
+              shortcutSpace?.title ?? (loading ? t`Loading…` : t`Continue`)
+            }
           />
           <Text
             variant="caption"
@@ -210,7 +215,7 @@ function SpacesList({ loading, spaces }: SpacesListProps) {
 }
 
 export function SpacesScreen() {
-  const [filter, setFilter] = useState<SpaceFilter>('all');
+  const [filter, setFilter] = useState<SpaceFilter>(DEFAULT_FILTER);
   const [adding, setAdding] = useState(false);
   const [titleInput, setTitleInput] = useState('');
   const accountActions = useAccountActions();
@@ -243,8 +248,8 @@ export function SpacesScreen() {
     <ScreenBase
       breadcrumbs={[
         {
-          name: 'Spaces',
-          subtitle: 'Rooms to play with friends',
+          name: <Trans>Spaces</Trans>,
+          subtitle: <Trans>Rooms to play with friends</Trans>,
         },
       ]}
       actions={isMobile ? accountActions : []}

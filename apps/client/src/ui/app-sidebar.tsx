@@ -5,7 +5,7 @@ import {
   Text,
   useTheme,
 } from '@gamezilla/lib/ui';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -17,10 +17,13 @@ type NavItem = {
   icon: 'house.fill' | 'person.fill';
 };
 
-const ITEMS: readonly NavItem[] = [
-  { href: '/', label: 'Spaces', icon: 'house.fill' },
-  { href: '/profile', label: 'Profile', icon: 'person.fill' },
-];
+function useNavItems(): readonly NavItem[] {
+  const { t } = useLingui();
+  return [
+    { href: '/', label: t`Spaces`, icon: 'house.fill' },
+    { href: '/profile', label: t`Profile`, icon: 'person.fill' },
+  ];
+}
 
 function isItemActive(item: NavItem, normalized: string): boolean {
   if (item.href === '/profile') return normalized === '/profile';
@@ -64,6 +67,7 @@ function NavRow({ item, active }: { item: NavItem; active: boolean }) {
 }
 
 function NavSection({ normalized }: { normalized: string }) {
+  const items = useNavItems();
   return (
     <Box sx={{ py: 4, px: 3, gap: 1 }}>
       <Text
@@ -71,7 +75,7 @@ function NavSection({ normalized }: { normalized: string }) {
         sx={{ color: 'textSecondary', mb: 2, letterSpacing: 0.5 }}
         label={<Trans>Gamezilla</Trans>}
       />
-      {ITEMS.map((item) => (
+      {items.map((item) => (
         <NavRow
           key={item.href}
           item={item}

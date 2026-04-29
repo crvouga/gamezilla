@@ -6,7 +6,7 @@ import {
   ResponsiveSurface,
   Text,
 } from '@gamezilla/lib/ui';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 
 import { TriggerRow } from './avatar-editor-trigger-row';
 import { humanizeOptionKey } from './option-helpers';
@@ -32,11 +32,12 @@ function ColorRow({
   setSurface: (k: string | null) => void;
   closeSurface: () => void;
 }) {
+  const { t } = useLingui();
   const current = Array.isArray(draft.options[field.key])
     ? (draft.options[field.key] as string[])
     : field.default;
-  const summary =
-    current.length === 0 ? '—' : `${current.length} selected`;
+  const count = current.length;
+  const summary = count === 0 ? '—' : t`${count} selected`;
   return (
     <Box>
       <TriggerRow

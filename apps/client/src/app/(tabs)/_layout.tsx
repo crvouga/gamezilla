@@ -4,11 +4,13 @@ import {
   useBreakpoint,
   useTabsProps,
 } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
 import { Tabs } from 'expo-router';
 
 import { AppSidebar } from '@gamezilla/client/ui/app-sidebar';
 
 export default function TabsLayout() {
+  const { t } = useLingui();
   const breakpoint = useBreakpoint();
   const isMobile = breakpoint === 'mobile';
   const props = useTabsProps({ hidden: !isMobile });
@@ -20,7 +22,7 @@ export default function TabsLayout() {
           <Tabs.Screen
             name="index"
             options={{
-              title: 'Spaces',
+              title: t`Spaces`,
               tabBarIcon: ({ color, size }) => (
                 <IconSymbol name="house.fill" color={color} size={size ?? 24} />
               ),
@@ -29,7 +31,7 @@ export default function TabsLayout() {
           <Tabs.Screen
             name="profile"
             options={{
-              title: 'Profile',
+              title: t`Profile`,
               tabBarIcon: ({ color, size }) => (
                 <IconSymbol
                   name="person.fill"

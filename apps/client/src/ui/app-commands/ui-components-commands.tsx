@@ -1,21 +1,26 @@
 import { RegisterCommand, componentRegistry } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 
 export function UiComponentsCommands() {
+  const { t } = useLingui();
   const router = useRouter();
   return (
     <>
-      {componentRegistry.map((c) => (
-        <RegisterCommand
-          key={`ui:${c.name}`}
-          id={`ui:${c.name}`}
-          title={`Open ${c.name} example`}
-          category="UI Components"
-          run={async () => {
-            router.push(`/ui/${encodeURIComponent(c.name)}`);
-          }}
-        />
-      ))}
+      {componentRegistry.map((c) => {
+        const componentName = c.name;
+        return (
+          <RegisterCommand
+            key={`ui:${componentName}`}
+            id={`ui:${componentName}`}
+            title={t`Open ${componentName} example`}
+            category={t`UI Components`}
+            run={async () => {
+              router.push(`/ui/${encodeURIComponent(componentName)}`);
+            }}
+          />
+        );
+      })}
     </>
   );
 }

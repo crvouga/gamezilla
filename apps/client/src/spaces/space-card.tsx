@@ -7,7 +7,7 @@ import {
   Text,
   useTheme,
 } from '@gamezilla/lib/ui';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 
 import type { SpaceView } from './types';
@@ -82,12 +82,14 @@ export type SpaceCardProps = {
 };
 
 export function SpaceCard({ space }: SpaceCardProps) {
+  const { t } = useLingui();
   const router = useRouter();
   const theme = useTheme();
   const spaceCardGradientColors = [
     theme.colors.gradientPrimaryStart,
     theme.colors.gradientPrimaryEnd,
   ] as const;
+  const spaceTitle = space.title;
 
   return (
     <Pressable
@@ -95,7 +97,7 @@ export function SpaceCard({ space }: SpaceCardProps) {
         router.push({ pathname: '/space/[id]', params: { id: space.id } })
       }
       accessibilityRole="button"
-      accessibilityLabel={`Open space ${space.title}`}
+      accessibilityLabel={t`Open space ${spaceTitle}`}
     >
       <GradientBox
         colors={spaceCardGradientColors}

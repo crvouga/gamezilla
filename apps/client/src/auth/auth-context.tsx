@@ -17,6 +17,7 @@ import {
 } from '@gamezilla/lib/dependency-injection/react';
 import { useLogger } from '@gamezilla/lib/logger/react';
 import { ConfirmationModal } from '@gamezilla/lib/ui';
+import { Trans } from '@lingui/react/macro';
 import { PatchesDbToken, useEntity } from '@gamezilla/patch-db/react';
 import { SubscribablePatchesDbToken } from '@gamezilla/patch-db/subscribable';
 import {
@@ -315,10 +316,14 @@ function AuthStateProvider({
       />
       <ConfirmationModal
         visible={modals.signOutConfirmOpen}
-        title="Sign out?"
-        message="You will need to sign in again to sync with your account."
-        confirmLabel="Sign out"
-        cancelLabel="Cancel"
+        title={<Trans>Sign out?</Trans>}
+        message={
+          <Trans>
+            You will need to sign in again to sync with your account.
+          </Trans>
+        }
+        confirmLabel={<Trans>Sign out</Trans>}
+        cancelLabel={<Trans>Cancel</Trans>}
         variant="destructive"
         onConfirm={handleConfirmSignOut}
         onCancel={modals.closeSignOutConfirm}
