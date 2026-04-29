@@ -91,28 +91,22 @@ export class DeployCommand implements Command {
       });
     }
 
-    await runStep(p, 'Stripe products sync', async () => {
+    await runStep(p, 'Stripe sync', async () => {
       await runAsync(
         p,
         'bun',
-        ['run', '--filter', '@gamezilla/stripe', 'sync'],
+        [
+          'run',
+          '--filter',
+          '@gamezilla/stripe',
+          '--elide-lines=0',
+          'sync',
+        ],
         {
           cwd: REPO_ROOT,
           env: process.env,
-          label: 'stripe: catalog sync (+ entity-db API dump when DB_URL set)',
-        }
-      );
-    });
-
-    await runStep(p, 'Stripe webhooks sync', async () => {
-      await runAsync(
-        p,
-        'bun',
-        ['run', '--filter', '@gamezilla/stripe', 'webhooks:sync'],
-        {
-          cwd: REPO_ROOT,
-          env: process.env,
-          label: 'stripe: webhook endpoints + Doppler STRIPE_WEBHOOK_SECRET',
+          label:
+            'stripe: catalog + entity-db backfill + webhook endpoints (+ Doppler STRIPE_WEBHOOK_SECRET)',
         }
       );
     });

@@ -5,9 +5,12 @@ import { fileURLToPath } from 'node:url';
 
 import { assert } from '@gamezilla/lib/assert';
 
-import { resolveLocalPreviewApiOrigin } from '../constants/local-api-preview';
+import { resolveLocalPreviewApiOriginSync } from '../constants/local-api-preview';
 
-const LOCAL_API_PREVIEW_ORIGIN = await resolveLocalPreviewApiOrigin();
+// Top-level `await` would turn this file into an async ES module, which
+// Playwright's config loader (CommonJS `require()` via pirates) refuses to
+// load. Use the sync resolver instead.
+const LOCAL_API_PREVIEW_ORIGIN = resolveLocalPreviewApiOriginSync();
 
 // ---------------------------------------------------------------------------
 // Tiger style: validate every assumption up front so failures surface here,

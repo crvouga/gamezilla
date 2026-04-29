@@ -8,6 +8,7 @@ import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import Stripe from 'stripe';
 import { z } from 'zod';
+import { STRIPE_CATALOG_PRICE_KEYS } from './catalog-spec';
 import { getStripeCatalogPriceStripeId } from './stripe-catalog-mirror';
 
 const log = createLogger({ name: 'stripe:checkout' });
@@ -24,10 +25,7 @@ export type StripeRequireAuth = (
 ) => Promise<StripeAuthContext>;
 
 const checkoutBodySchema = z.object({
-  priceKey: z.union([
-    z.literal('subscription_monthly'),
-    z.literal('subscription_yearly'),
-  ]),
+  priceKey: z.enum(STRIPE_CATALOG_PRICE_KEYS),
   successUrl: z.url(),
   cancelUrl: z.url(),
 });
@@ -45,17 +43,14 @@ async function handleStripeCheckout(
   args: {
     readonly db: PatchesDb;
     readonly stripe: Stripe;
-    readonly stripeCache: EntityDb;
+    readonly entityDb: EntityDb;
     readonly requireAuth: StripeRequireAuth;
   }
 ): Promise<Response> {
-  const { db, stripe, stripeCache, requireAuth } = args;
+  const { db, stripe, entityDb: entityDb, requireAuth } = args;
   const { accountId, principalId } = await requireAuth(db, c.req.raw);
 
-  const priceId = await getStripeCatalogPriceStripeId(
-    stripeCache,
-    body.priceKey
-  );
+  const priceId = await getStripeCatalogPriceStripeId(entityDb, body.priceKey);
   if (priceId === null || priceId.length === 0) {
     log.error(
       'checkout: no catalog_price row for priceKey — run stripe catalog sync with DB_URL so API payloads are dumped to entity db'
@@ -162,10 +157,10 @@ async function handleStripePortal(
 export function createStripeCheckoutRoutes(args: {
   readonly db: PatchesDb;
   readonly stripe: Stripe | null;
-  readonly stripeCache: EntityDb;
+  readonly entityDb: EntityDb;
   readonly requireAuth: StripeRequireAuth;
 }) {
-  const { db, stripe, stripeCache, requireAuth } = args;
+  const { db, stripe, entityDb, requireAuth } = args;
 
   return new Hono()
     .post(
@@ -179,7 +174,7 @@ export function createStripeCheckoutRoutes(args: {
         return handleStripeCheckout(c, body, {
           db,
           stripe,
-          stripeCache,
+          entityDb,
           requireAuth,
         });
       }

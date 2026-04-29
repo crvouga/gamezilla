@@ -25,13 +25,13 @@ export function createStripeApp(args: {
   const webhook = createStripeWebhookRoutes({
     secretStore: args.secretStore,
     stripe: args.stripe,
-    stripeCache: args.entityDb,
-    webhookSecretDopplerKey: args.webhookSecretDopplerKey,
+    entityDb: args.entityDb,
+    webhookSecretKey: args.webhookSecretDopplerKey,
   });
   const checkout = createStripeCheckoutRoutes({
     db: args.db,
     stripe: args.stripe,
-    stripeCache: args.entityDb,
+    entityDb: args.entityDb,
     requireAuth: args.requireAuth,
   });
 

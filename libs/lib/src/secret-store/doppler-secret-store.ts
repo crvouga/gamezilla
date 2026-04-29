@@ -1,11 +1,16 @@
 import { DopplerCli } from '../doppler/doppler-cli';
+import { DopplerScriptSecretStore } from './doppler-script-secret-store';
 import {
   SecretBlankError,
   SecretMissingError,
   SecretStoreParseError,
   SecretStoreRequestError,
 } from './errors';
-import type { SecretStore, SecretStoreGetInit } from './interface';
+import type {
+  SecretStore,
+  SecretStoreGetInit,
+  SecretStoreSetInit,
+} from './interface';
 
 const DOPPLER_DOWNLOAD =
   'https://api.doppler.com/v3/configs/config/secrets/download';
@@ -117,8 +122,7 @@ export class DopplerSecretStore implements SecretStore {
     this.token = t;
     this.fetchFn = options.fetchFn ?? defaultFetch;
     this.projectSlug = trimOpt(options.project);
-    this.configSlug =
-      trimOpt(options.config) ?? trimOpt(options.configName);
+    this.configSlug = trimOpt(options.config) ?? trimOpt(options.configName);
   }
 
   async getRequired(name: string, init?: SecretStoreGetInit): Promise<string> {
@@ -153,6 +157,24 @@ export class DopplerSecretStore implements SecretStore {
       out[name] = this.requiredFromRow(row, name);
     }
     return out;
+  }
+
+  /**
+   * Doppler's `secrets/download` is read-only — there is no symmetric write
+   * endpoint we can call with the same auth flow. Use a CLI-backed factory
+   * such as {@link createDopplerSecretStoreForScripts} (which composes this
+   * class with {@link DopplerScriptSecretStore}) when you need writes.
+   */
+  async setSecret(
+    name: string,
+    _value: string,
+    _init?: SecretStoreSetInit
+  ): Promise<void> {
+    throw new SecretStoreRequestError(
+      `DopplerSecretStore is HTTP-read-only; cannot setSecret("${name}"). ` +
+        'For Bun/Node scripts use createDopplerSecretStoreForScripts() ' +
+        'which routes writes through the Doppler CLI.'
+    );
   }
 
   private requiredFromRow(
@@ -233,13 +255,17 @@ export class DopplerSecretStore implements SecretStore {
 }
 
 /**
- * {@link DopplerSecretStore} for Node/Bun scripts (setup, migrations, QA).
+ * {@link SecretStore} for Node/Bun scripts (setup, migrations, deploy).
+ * Reads via Doppler's HTTP `secrets/download` endpoint and writes via the local
+ * Doppler CLI (`doppler secrets set`) — both transports converge on the same
+ * project/config.
+ *
  * Fills `project` / `config` from `DOPPLER_PROJECT` / `DOPPLER_CONFIG` or from
  * `doppler configure get … --plain` so personal CLI tokens work with the
  * secrets download API. Workers should use `new DopplerSecretStore({ token })`
- * with a config-scoped service token (no project/config query params).
+ * with a config-scoped service token (no project/config query params, no CLI).
  */
-export function createDopplerSecretStoreForScripts(): DopplerSecretStore {
+export function createDopplerSecretStoreForScripts(): SecretStore {
   const cli = new DopplerCli();
   const { token } = cli.resolveToken();
   const envProject =
@@ -252,9 +278,10 @@ export function createDopplerSecretStoreForScripts(): DopplerSecretStore {
       : null;
   const project = envProject ?? cli.tryConfigureGetProjectPlain();
   const config = envConfig ?? cli.tryConfigureGetConfigPlain();
-  return new DopplerSecretStore({
+  const reader = new DopplerSecretStore({
     token,
     ...(project !== null ? { project } : {}),
     ...(config !== null ? { config } : {}),
   });
+  return new DopplerScriptSecretStore(reader, cli);
 }

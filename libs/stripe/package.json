@@ -10,7 +10,9 @@
     "./stripe-checkout-route": "./src/stripe-checkout-route.ts",
     "./stripe-app": "./src/stripe-app.ts",
     "./stripe-catalog-mirror": "./src/stripe-catalog-mirror.ts",
-    "./backfill-entities": "./src/backfill-entities.ts"
+    "./catalog-spec": "./src/catalog-spec.ts",
+    "./backfill-entities": "./src/backfill-entities.ts",
+    "./sync": "./src/sync/index.ts"
   },
   "dependencies": {
     "@gamezilla/domain": "workspace:*",
@@ -22,19 +24,8 @@
     "zod": "^4.3.6"
   },
   "scripts": {
-    "sync": "bun run scripts/sync-catalog.ts",
+    "sync": "bun run scripts/sync.ts",
     "check": "bun run scripts/check-catalog.ts",
-    "webhooks:sync": "bun run scripts/sync-webhooks.ts",
-    "entities:sync": "bun run scripts/sync-entities.ts",
-    "entities:sync:customers": "bun run scripts/sync-customers.ts",
-    "entities:sync:subscriptions": "bun run scripts/sync-subscriptions.ts",
-    "entities:sync:invoices": "bun run scripts/sync-invoices.ts",
-    "entities:sync:charges": "bun run scripts/sync-charges.ts",
-    "entities:sync:payment-intents": "bun run scripts/sync-payment-intents.ts",
-    "entities:sync:setup-intents": "bun run scripts/sync-setup-intents.ts",
-    "entities:sync:refunds": "bun run scripts/sync-refunds.ts",
-    "entities:sync:disputes": "bun run scripts/sync-disputes.ts",
-    "entities:sync:checkout-sessions": "bun run scripts/sync-checkout-sessions.ts",
     "lint": "eslint .",
     "tc": "tsc --noEmit -p ./tsconfig.json",
     "test": "bun test"

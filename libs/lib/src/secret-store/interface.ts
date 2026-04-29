@@ -2,9 +2,25 @@ export type SecretStoreGetInit = {
   signal?: AbortSignal;
 };
 
+export type SecretStoreSetInit = {
+  signal?: AbortSignal;
+};
+
 /**
- * Async key/value secrets. Implementations may call remote stores (e.g. Doppler).
- * Optional keys: absent or blank after trim → `null`. Transport / HTTP / parse errors throw.
+ * Async key/value secrets — both read and write surfaces in one abstraction.
+ * Implementations may call remote stores (e.g. Doppler) over HTTP, shell out
+ * to a CLI, or compose other implementations.
+ *
+ * Read semantics:
+ *   - Optional keys: absent or blank after trim → `null`. Transport / HTTP /
+ *     parse errors throw.
+ *
+ * Write semantics:
+ *   - {@link setSecret} MUST be idempotent: writing the same value twice MUST
+ *     succeed; writing a different value MUST overwrite without error.
+ *   - Implementations whose underlying transport cannot write (e.g. the
+ *     Worker-side HTTP read endpoint) MUST throw a clearly-typed error from
+ *     {@link setSecret} rather than silently no-op.
  */
 export interface SecretStore {
   getRequired(name: string, init?: SecretStoreGetInit): Promise<string>;
@@ -20,4 +36,10 @@ export interface SecretStore {
     names: readonly string[],
     init?: SecretStoreGetInit
   ): Promise<Record<string, string>>;
+
+  setSecret(
+    name: string,
+    value: string,
+    init?: SecretStoreSetInit
+  ): Promise<void>;
 }

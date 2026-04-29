@@ -14,4 +14,9 @@ export {
   DopplerSecretStore,
 } from './doppler-secret-store';
 export type { DopplerSecretStoreOptions } from './doppler-secret-store';
-export type { SecretStore, SecretStoreGetInit } from './interface';
+export { DopplerScriptSecretStore } from './doppler-script-secret-store';
+export type {
+  SecretStore,
+  SecretStoreGetInit,
+  SecretStoreSetInit,
+} from './interface';

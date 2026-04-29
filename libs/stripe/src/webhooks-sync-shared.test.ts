@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 import {
   decideWebhookSyncPlan,
+  isLocalApiUrl,
   webhookEndpointsInSync,
   type WebhookEndpointSummary,
 } from './webhooks-sync-shared';
@@ -57,5 +58,35 @@ describe('decideWebhookSyncPlan', () => {
 
   it('returns rebuild when drifted', () => {
     expect(decideWebhookSyncPlan([], desired)).toBe('rebuild');
+  });
+});
+
+describe('isLocalApiUrl', () => {
+  it('detects loopback IPv4 / IPv6 / localhost', () => {
+    expect(isLocalApiUrl('http://127.0.0.1:8788')).toBe(true);
+    expect(isLocalApiUrl('http://localhost:8788')).toBe(true);
+    expect(isLocalApiUrl('http://[::1]:8788')).toBe(true);
+    expect(isLocalApiUrl('http://api.localhost')).toBe(true);
+    expect(isLocalApiUrl('http://api.local')).toBe(true);
+  });
+
+  it('detects RFC1918 / link-local private ranges', () => {
+    expect(isLocalApiUrl('http://10.0.0.1')).toBe(true);
+    expect(isLocalApiUrl('http://192.168.1.20')).toBe(true);
+    expect(isLocalApiUrl('http://172.16.5.4')).toBe(true);
+    expect(isLocalApiUrl('http://172.31.255.255')).toBe(true);
+    expect(isLocalApiUrl('http://169.254.1.1')).toBe(true);
+  });
+
+  it('treats public origins as non-local', () => {
+    expect(isLocalApiUrl('https://api.gamezilla.app')).toBe(false);
+    expect(isLocalApiUrl('https://example.com')).toBe(false);
+    expect(isLocalApiUrl('http://172.32.0.1')).toBe(false);
+    expect(isLocalApiUrl('http://8.8.8.8')).toBe(false);
+  });
+
+  it('returns false for unparseable input', () => {
+    expect(isLocalApiUrl('not a url')).toBe(false);
+    expect(isLocalApiUrl('')).toBe(false);
   });
 });

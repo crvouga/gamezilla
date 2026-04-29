@@ -10,12 +10,12 @@ describe('createStripeCheckoutRoutes', () => {
       write: async () => {},
     } as unknown as import('@gamezilla/patch-db/interface').PatchesDb;
 
-    const stripeCache = createEntityDbInMemory(stripeWebhookCompareVersions);
+    const entityDb = createEntityDbInMemory(stripeWebhookCompareVersions);
 
     const app = createStripeCheckoutRoutes({
       db,
       stripe: null,
-      stripeCache,
+      entityDb: entityDb,
       requireAuth: async () => {
         throw new Error('should not be called');
       },

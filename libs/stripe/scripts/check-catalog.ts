@@ -1,15 +1,20 @@
 /**
- * CI: require Doppler-resolvable `STRIPE_SECRET_KEY`, run catalog sync.
+ * CI gate: run catalog reconcile only — no entity-db dump, no webhook mutation.
  *
- * Local: if Doppler token cannot be resolved or key is unset, skip catalog sync.
+ * - CI (`CI=true` / `GITHUB_ACTIONS=true`): require Doppler-resolvable
+ *   `STRIPE_SECRET_KEY`; fail loudly if missing.
+ * - Local: silently skip when Doppler / `STRIPE_SECRET_KEY` is unavailable so
+ *   the dev workflow doesn't block on a dashboard-only secret.
+ *
+ * Catalog dump to entity-db is intentionally skipped here — the gate's job is
+ * to verify the SPEC reconciles cleanly, not to mutate any local DB.
  */
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { StripeSecretKeys } from '../src/secret-keys';
+import { createStripeClientFromSecret } from '../src/script-runtime';
 import { createStripeScriptSecretStore } from '../src/script-secret-store';
+import { runStripeCatalogSync } from '../src/sync';
 
-const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
+const SCRIPT_TAG = 'stripe check';
 
 function isCi(): boolean {
   const ci = process.env['CI'];
@@ -18,69 +23,70 @@ function isCi(): boolean {
   );
 }
 
-function runCatalogSync(): number {
-  const syncScript = join(pkgRoot, 'scripts', 'sync-catalog.ts');
-  const proc = Bun.spawnSync(['bun', syncScript], {
-    cwd: pkgRoot,
-    env: process.env,
-    stdio: ['inherit', 'inherit', 'inherit'],
-  });
-  return proc.exitCode ?? 1;
-}
-
-async function main(): Promise<void> {
+async function resolveStripeSecretOrSkip(): Promise<string | null> {
   let store;
   try {
     store = createStripeScriptSecretStore();
   } catch {
     if (isCi()) {
       console.error(
-        '[stripe check] CI needs DOPPLER_TOKEN (or Doppler CLI login) so catalog sync can load secrets'
+        `[${SCRIPT_TAG}] CI needs DOPPLER_TOKEN (or Doppler CLI login) so catalog sync can load secrets`
       );
       process.exit(1);
     }
     console.log(
-      '[stripe check] skip catalog sync — could not resolve Doppler token (set DOPPLER_TOKEN or run `doppler login`)'
+      `[${SCRIPT_TAG}] skip catalog sync — could not resolve Doppler token (set DOPPLER_TOKEN or run \`doppler login\`)`
     );
-    return;
+    return null;
   }
 
   let trimmed = '';
   try {
-    const key = await store.getOptional(StripeSecretKeys.secretKey);
-    trimmed = typeof key === 'string' ? key.trim() : '';
+    const raw = await store.getOptional(StripeSecretKeys.secretKey);
+    trimmed = typeof raw === 'string' ? raw.trim() : '';
   } catch (e: unknown) {
     if (isCi()) {
       console.error(
-        '[stripe check] CI: failed to read STRIPE_SECRET_KEY from Doppler',
+        `[${SCRIPT_TAG}] CI: failed to read STRIPE_SECRET_KEY from Doppler`,
         e instanceof Error ? e.message : String(e)
       );
       process.exit(1);
     }
     console.log(
-      '[stripe check] skip catalog sync — Doppler request failed (set DOPPLER_CONFIG=local and ensure secrets exist):',
+      `[${SCRIPT_TAG}] skip catalog sync — Doppler request failed (set DOPPLER_CONFIG=local and ensure secrets exist):`,
       e instanceof Error ? e.message : String(e)
     );
-    return;
+    return null;
   }
 
   if (trimmed.length === 0) {
     if (isCi()) {
       console.error(
-        '[stripe check] CI needs STRIPE_SECRET_KEY in Doppler for catalog sync'
+        `[${SCRIPT_TAG}] CI needs STRIPE_SECRET_KEY in Doppler for catalog sync`
       );
       process.exit(1);
     }
     console.log(
-      '[stripe check] skip catalog sync — STRIPE_SECRET_KEY missing in Doppler'
+      `[${SCRIPT_TAG}] skip catalog sync — STRIPE_SECRET_KEY missing in Doppler`
     );
-    return;
+    return null;
   }
 
-  const syncExit = runCatalogSync();
-  if (syncExit !== 0) {
-    process.exit(syncExit);
-  }
+  return trimmed;
 }
 
-await main();
+async function main(): Promise<void> {
+  const secret = await resolveStripeSecretOrSkip();
+  if (secret === null) return;
+  const stripe = createStripeClientFromSecret(secret);
+  await runStripeCatalogSync({ stripe });
+  console.log(`[${SCRIPT_TAG}] catalog sync ok`);
+}
+
+await main().catch((e: unknown) => {
+  console.error(
+    `[${SCRIPT_TAG}] failed`,
+    e instanceof Error ? e.message : String(e)
+  );
+  process.exit(1);
+});

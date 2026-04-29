@@ -1,3 +1,11 @@
+[run]
+# Always show every line of script output when running with `bun run --filter`.
+# Default is 10 lines per package; 0 disables eliding entirely. Works around the
+# "[N lines elided]" workspace-runner UI that hides errors in long scripts
+# (e.g. `stripe:sync`, `pw`, `infra deploy`'s Stripe step).
+# Source: `bun run --help` (--elide-lines), and BUN_CONFIG_ELIDE_LINES env var.
+elide-lines = 0
+
 [test]
 pathIgnorePatterns = [
   "dist/**",

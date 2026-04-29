@@ -95,13 +95,13 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
       ? stripeRaw.trim()
       : null;
   const stripe = stripeKey !== null ? makeStripeClient(stripeKey) : null;
-  const stripeCache = createStripeWebhookCacheEntityDb(getDb(databaseUrl));
+  const entityDb = createStripeWebhookCacheEntityDb(getDb(databaseUrl));
   return createApiApp({
     db: patchDb,
     pubSub,
     secretStore,
     stripe,
-    entityDb: stripeCache,
+    entityDb,
     requireAuth: requireAuthContext,
     webhookSecretDopplerKey: ApiSecretName.stripeWebhookSecret,
   });

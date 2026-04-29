@@ -8,7 +8,7 @@ import { stripeWebhookCompareVersions } from './webhook-cache-entity-db';
 
 describe('createStripeWebhookRoutes', () => {
   it('returns 503 when Stripe client is not configured', async () => {
-    const stripeCache = createEntityDbInMemory(stripeWebhookCompareVersions);
+    const entityDb = createEntityDbInMemory(stripeWebhookCompareVersions);
     const secretStore = {
       getRequired: async () => '',
       getOptional: async () => 'whsec_test',
@@ -18,8 +18,8 @@ describe('createStripeWebhookRoutes', () => {
     const app = createStripeWebhookRoutes({
       secretStore,
       stripe: null,
-      stripeCache,
-      webhookSecretDopplerKey: StripeSecretKeys.webhookSecret,
+      entityDb,
+      webhookSecretKey: StripeSecretKeys.webhookSecret,
     });
 
     const res = await app.request('/stripe/webhook', {
@@ -31,7 +31,7 @@ describe('createStripeWebhookRoutes', () => {
   });
 
   it('returns 503 when webhook secret is missing', async () => {
-    const stripeCache = createEntityDbInMemory(stripeWebhookCompareVersions);
+    const entityDb = createEntityDbInMemory(stripeWebhookCompareVersions);
     const secretStore = {
       getRequired: async () => '',
       getOptional: async () => null,
@@ -45,8 +45,8 @@ describe('createStripeWebhookRoutes', () => {
     const app = createStripeWebhookRoutes({
       secretStore,
       stripe,
-      stripeCache,
-      webhookSecretDopplerKey: StripeSecretKeys.webhookSecret,
+      entityDb,
+      webhookSecretKey: StripeSecretKeys.webhookSecret,
     });
 
     const res = await app.request('/stripe/webhook', {
@@ -58,7 +58,7 @@ describe('createStripeWebhookRoutes', () => {
   });
 
   it('upserts stripe cache on verified event', async () => {
-    const stripeCache = createEntityDbInMemory(stripeWebhookCompareVersions);
+    const entityDb = createEntityDbInMemory(stripeWebhookCompareVersions);
     const secretStore = {
       getRequired: async () => '',
       getOptional: async () => 'whsec_test',
@@ -88,8 +88,8 @@ describe('createStripeWebhookRoutes', () => {
     const app = createStripeWebhookRoutes({
       secretStore,
       stripe,
-      stripeCache,
-      webhookSecretDopplerKey: StripeSecretKeys.webhookSecret,
+      entityDb,
+      webhookSecretKey: StripeSecretKeys.webhookSecret,
     });
 
     const res = await app.request('/stripe/webhook', {
@@ -101,7 +101,7 @@ describe('createStripeWebhookRoutes', () => {
     expect(res.status).toBe(200);
     expect(construct.mock.calls.length).toBeGreaterThan(0);
 
-    const row = await stripeCache.get({
+    const row = await entityDb.get({
       namespace: 'stripe',
       type: 'customer.created',
       id: 'cus_test_1',

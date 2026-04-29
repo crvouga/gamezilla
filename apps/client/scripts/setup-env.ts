@@ -13,7 +13,7 @@ import { COMMIT_HASH_HEX_REGEX } from '@gamezilla/domain/config/app-metadata';
 import { assert } from '@gamezilla/lib/assert';
 import {
   createDopplerSecretStoreForScripts,
-  DopplerSecretStore,
+  type SecretStore,
 } from '@gamezilla/lib/secret-store';
 
 const clientRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -51,12 +51,12 @@ function readLocalPreviewApiOriginFromProcessEnv(): string | null {
   return trimStringOrNull(process.env.LOCAL_PREVIEW_API_ORIGIN);
 }
 
-function createDopplerStore(): DopplerSecretStore {
+function createDopplerStore(): SecretStore {
   return createDopplerSecretStoreForScripts();
 }
 
 async function resolveApiOriginFromDoppler(
-  store: DopplerSecretStore
+  store: SecretStore
 ): Promise<string | null> {
   const expo = await store.getOptional('EXPO_PUBLIC_API_URL');
   if (typeof expo === 'string' && expo.trim().length > 0) {
@@ -70,7 +70,7 @@ async function resolveApiOriginFromDoppler(
 }
 
 async function resolveLoopbackPreviewOrigin(
-  store: DopplerSecretStore | null
+  store: SecretStore | null
 ): Promise<string> {
   const fromEnv = readLocalPreviewApiOriginFromProcessEnv();
   if (fromEnv !== null) return fromEnv;
@@ -89,7 +89,7 @@ async function resolveLoopbackPreviewOrigin(
 }
 
 async function applyProductionHostnameGuard(
-  store: DopplerSecretStore | null,
+  store: SecretStore | null,
   trimmed: string,
   sourceLabel: string
 ): Promise<string> {
@@ -121,7 +121,7 @@ async function resolveExpoPublicApiUrl(): Promise<string> {
     );
   }
 
-  let store: DopplerSecretStore;
+  let store: SecretStore;
   try {
     store = createDopplerStore();
   } catch {

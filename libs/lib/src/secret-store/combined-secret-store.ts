@@ -1,8 +1,16 @@
 import { SecretMissingError } from './errors';
-import type { SecretStore, SecretStoreGetInit } from './interface';
+import type {
+  SecretStore,
+  SecretStoreGetInit,
+  SecretStoreSetInit,
+} from './interface';
 
 /**
  * Composes two stores with precedence: `primary` first, then `fallback`.
+ *
+ * Writes always go to `primary` — the fallback is intentionally read-only from
+ * this class's perspective (e.g. a process-env source that you don't want to
+ * mutate). If the primary cannot write, the error from primary propagates.
  */
 export class CombinedSecretStore implements SecretStore {
   constructor(
@@ -38,6 +46,14 @@ export class CombinedSecretStore implements SecretStore {
       out[name] = await this.getRequired(name, init);
     }
     return out;
+  }
+
+  setSecret(
+    name: string,
+    value: string,
+    init?: SecretStoreSetInit
+  ): Promise<void> {
+    return this.primary.setSecret(name, value, init);
   }
 }
 

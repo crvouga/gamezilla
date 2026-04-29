@@ -29,7 +29,7 @@ const DERIVED_DEFAULTS: Record<string, () => string> = {
   // Force every `turbo` invocation to use the self-hosted remote cache
   // instead of the local filesystem cache. Same syntax as `--cache`.
   TURBO_CACHE: () => 'remote:rw',
-  /** Public API Worker origin (same value as EXPO_PUBLIC_API_URL) — required e.g. by `webhooks:sync`. */
+  /** Public API Worker origin (same value as EXPO_PUBLIC_API_URL) — required by `stripe:sync` to register the webhook endpoint. */
   API_URL: apiWorkerPublicOrigin,
   // Public API origin baked into the Expo/web client at build time.
   EXPO_PUBLIC_API_URL: apiWorkerPublicOrigin,

@@ -178,4 +178,11 @@ describe('DopplerSecretStore', () => {
       SecretStoreParseError
     );
   });
+
+  it('setSecret rejects with SecretStoreRequestError (HTTP transport is read-only)', async () => {
+    const store = new DopplerSecretStore({ token: 'dp.st.x' });
+    await expect(store.setSecret('FOO', 'bar')).rejects.toBeInstanceOf(
+      SecretStoreRequestError
+    );
+  });
 });

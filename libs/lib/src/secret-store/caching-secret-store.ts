@@ -1,4 +1,8 @@
-import type { SecretStore, SecretStoreGetInit } from './interface';
+import type {
+  SecretStore,
+  SecretStoreGetInit,
+  SecretStoreSetInit,
+} from './interface';
 
 export type CachingSecretStoreOptions = {
   /** Time-to-live for successfully resolved values, in ms. */
@@ -102,6 +106,19 @@ export class CachingSecretStore implements SecretStore {
       out[k] = v;
     }
     return out;
+  }
+
+  /**
+   * Forwards to the inner store, then invalidates the cached read for `name`
+   * on success so the next read observes the just-written value.
+   */
+  async setSecret(
+    name: string,
+    value: string,
+    init?: SecretStoreSetInit
+  ): Promise<void> {
+    await this.inner.setSecret(name, value, init);
+    this.cache.delete(name);
   }
 }
 

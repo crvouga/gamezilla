@@ -10,7 +10,7 @@ export const STRIPE_CATALOG_PRICE_TYPE = 'catalog_price' as const;
 /** Row `id` is `catalog_product_id` metadata value on the Product (e.g. `subscription`). */
 export const STRIPE_CATALOG_PRODUCT_TYPE = 'catalog_product' as const;
 
-/** Stripe Product metadata — must match sync-catalog. */
+/** Stripe Product metadata — must match `src/sync/catalog.ts`. */
 export const STRIPE_CATALOG_PRODUCT_METADATA_KEY =
   'catalog_product_id' as const;
 
