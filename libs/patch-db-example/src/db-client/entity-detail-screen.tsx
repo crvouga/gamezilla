@@ -13,6 +13,7 @@ import {
   Text,
   useTheme,
 } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
@@ -38,6 +39,7 @@ function useEntityPatches(entityType: string, entityId: string) {
     setPatchError(null);
     try {
       const results = await db.read([
+        // eslint-disable-next-line lingui/no-unlocalized-strings
         { entityType, entityId, on: 'patches', limit: 500 },
       ]);
       const result = results[0];
@@ -68,6 +70,7 @@ function AttrRow({
   value: unknown;
   isLast: boolean;
 }) {
+  const { t } = useLingui();
   const theme = useTheme();
   return (
     <Box>
@@ -89,7 +92,7 @@ function AttrRow({
           <ValueKindBadge value={value} />
         </Stack>
         {value !== null && typeof value === 'object' ? (
-          <JsonCollapsible title="Value" value={value} />
+          <JsonCollapsible title={t`Value`} value={value} />
         ) : (
           <Box sx={{ alignSelf: 'stretch' }}>
             <FormattedInlineValue value={value} maxLen={400} />
@@ -142,7 +145,10 @@ function PatchRowCard({
   patch: Patch;
   onPress: () => void;
 }) {
+  const { t } = useLingui();
   const theme = useTheme();
+  const createdAt = patch.createdAt;
+  const createdBy = patch.createdBy || '—';
   return (
     <Pressable onPress={onPress}>
       <Card elevation={1} sx={{ mb: 2, p: 3 }}>
@@ -156,7 +162,7 @@ function PatchRowCard({
           <Text
             variant="caption"
             style={{ color: theme.colors.textSecondary }}
-            label={`${patch.createdAt} · ${patch.createdBy || '—'}`}
+            label={t`${createdAt} · ${createdBy}`}
           />
         </Stack>
       </Card>
@@ -175,6 +181,7 @@ function PatchesPane({
   patchError: string | null;
   onSelectPatch: (p: Patch) => void;
 }) {
+  const { t } = useLingui();
   const theme = useTheme();
   if (loadingPatches) {
     return (
@@ -207,7 +214,7 @@ function PatchesPane({
         <Text
           variant="body"
           style={{ opacity: 0.7 }}
-          label="No patches for this entity."
+          label={t`No patches for this entity.`}
         />
       }
     />
@@ -215,6 +222,7 @@ function PatchesPane({
 }
 
 function LoadingEntity() {
+  const { t } = useLingui();
   const theme = useTheme();
   return (
     <Box sx={{ p: 6, alignItems: 'center' }}>
@@ -222,7 +230,7 @@ function LoadingEntity() {
       <Text
         variant="caption"
         style={{ marginTop: 12, color: theme.colors.textSecondary }}
-        label="Loading entity…"
+        label={t`Loading entity…`}
       />
     </Box>
   );
@@ -233,6 +241,7 @@ export function EntityDetailScreen({
   entityId,
   onSelectPatch,
 }: EntityDetailScreenProps) {
+  const { t } = useLingui();
   const entity = useEntity({ entityType, entityId });
   const [tab, setTab] = useState<'attrs' | 'patches'>('attrs');
   const { patches, loadingPatches, patchError, loadPatches } =
@@ -247,8 +256,8 @@ export function EntityDetailScreen({
       <Box sx={{ px: 3, py: 2 }}>
         <SegmentedControl
           segments={[
-            { key: 'attrs', label: 'Attributes' },
-            { key: 'patches', label: 'Patches' },
+            { key: 'attrs', label: t`Attributes` },
+            { key: 'patches', label: t`Patches` },
           ]}
           selected={tab}
           onSelect={(k) => setTab(k as 'attrs' | 'patches')}

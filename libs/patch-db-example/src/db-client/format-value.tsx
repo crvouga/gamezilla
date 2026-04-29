@@ -1,9 +1,12 @@
 import { Box, Collapsible, Text, useTheme } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
 
 const MAX_INLINE = 200;
 
 export function formatAttrValue(value: unknown): string {
+  // eslint-disable-next-line lingui/no-unlocalized-strings
   if (value === null) return 'null';
+  // eslint-disable-next-line lingui/no-unlocalized-strings
   if (value === undefined) return 'undefined';
   if (typeof value === 'object') {
     try {
@@ -15,29 +18,32 @@ export function formatAttrValue(value: unknown): string {
   return String(value);
 }
 
-export function valueKind(
-  value: unknown
-): 'null' | 'bool' | 'number' | 'string' | 'object' {
+export type ValueKind = 'null' | 'bool' | 'number' | 'string' | 'object';
+
+/* eslint-disable lingui/no-unlocalized-strings */
+export function valueKind(value: unknown): ValueKind {
   if (value === null || value === undefined) return 'null';
   if (typeof value === 'boolean') return 'bool';
   if (typeof value === 'number') return 'number';
   if (typeof value === 'string') return 'string';
   return 'object';
 }
+/* eslint-enable lingui/no-unlocalized-strings */
 
 export function ValueKindBadge({ value }: { value: unknown }) {
+  const { t } = useLingui();
   const theme = useTheme();
   const kind = valueKind(value);
   const label =
     kind === 'null'
-      ? 'null'
+      ? t`null`
       : kind === 'bool'
-        ? 'bool'
+        ? t`bool`
         : kind === 'number'
-          ? 'num'
+          ? t`num`
           : kind === 'string'
-            ? 'str'
-            : 'obj';
+            ? t`str`
+            : t`obj`;
   const tone =
     kind === 'null'
       ? theme.colors.textSecondary

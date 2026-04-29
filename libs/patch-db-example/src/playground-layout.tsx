@@ -1,6 +1,7 @@
 import type { PlaygroundSim } from '@gamezilla/patch-db/sim/playground-sim';
 import { Box, ScrollView, Stack, Text } from '@gamezilla/lib/ui';
 import { useTheme } from '@gamezilla/lib/ui/theme';
+import { useLingui } from '@lingui/react/macro';
 import { useMemo } from 'react';
 import { ClientNodePanel } from './client-node-panel';
 import { IconLaptop, IconServer } from './icons';
@@ -51,6 +52,7 @@ function SectionLabel({
   label: string;
   count?: number;
 }) {
+  const { t } = useLingui();
   const theme = useTheme();
   return (
     <Stack direction="horizontal" spacing={2} align="center" sx={{ pb: 2 }}>
@@ -64,7 +66,7 @@ function SectionLabel({
         <Text
           variant="caption"
           style={{ color: theme.colors.textSecondary, opacity: 0.6 }}
-          label={`(${count})`}
+          label={t`(${count})`}
         />
       )}
     </Stack>
@@ -80,6 +82,7 @@ export function PlaygroundLayout({
   pulseKey: number;
   linkEpoch: number;
 }) {
+  const { t } = useLingui();
   void linkEpoch;
   const clients = useMemo(() => [...sim.clients], [sim, pulseKey]);
 
@@ -87,7 +90,7 @@ export function PlaygroundLayout({
     <ScrollView sx={{ flex: 1 }}>
       <Box sx={{ p: 4, pb: 8, gap: 6 }}>
         <Box>
-          <SectionLabel icon={<IconServer size={14} />} label="Server" />
+          <SectionLabel icon={<IconServer size={14} />} label={t`Server`} />
           <Box style={{ maxWidth: 480 }}>
             <ServerNodePanel />
           </Box>
@@ -97,7 +100,7 @@ export function PlaygroundLayout({
           <Box>
             <SectionLabel
               icon={<IconLaptop size={14} />}
-              label="Clients"
+              label={t`Clients`}
               count={clients.length}
             />
             <Stack spacing={3}>

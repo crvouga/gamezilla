@@ -1,5 +1,8 @@
 import { useEntity } from '@gamezilla/patch-db/react';
 import { Box, Pressable, Text, useTheme } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
+
+import { TODO_ENTITY_TYPE } from './todo-constants';
 
 export function TodoItem({
   entityId,
@@ -10,8 +13,9 @@ export function TodoItem({
   onToggle: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useLingui();
   const theme = useTheme();
-  const entity = useEntity({ entityId, entityType: 'todo' });
+  const entity = useEntity({ entityId, entityType: TODO_ENTITY_TYPE });
   const completed = entity?.attributes['todo/completed'] === true;
   const titleRaw = entity?.attributes['todo/title'];
   const title = typeof titleRaw === 'string' ? titleRaw : '';
@@ -24,6 +28,7 @@ export function TodoItem({
         py: 3,
         px: 0,
         gap: 3,
+        // eslint-disable-next-line lingui/no-unlocalized-strings
         borderBottomWidth: 'hairline',
         borderColor: 'border',
         userSelect: 'none',
@@ -53,13 +58,13 @@ export function TodoItem({
               theme.sx({ textDecorationLine: 'line-through', opacity: 0.6 }),
           ]}
           numberOfLines={1}
-          label={title || '(untitled)'}
+          label={title || t`(untitled)`}
         />
       </Pressable>
       <Pressable onPress={onDelete} style={theme.sx({ p: 1 })} hitSlop={8}>
         <Text
           style={[theme.sx({ fontSize: 14 }), { color: theme.colors.tint }]}
-          label="Delete"
+          label={t`Delete`}
         />
       </Pressable>
     </Box>

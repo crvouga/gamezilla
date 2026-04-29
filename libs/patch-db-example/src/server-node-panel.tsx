@@ -16,6 +16,7 @@ import {
   Text,
 } from '@gamezilla/lib/ui';
 import { useTheme } from '@gamezilla/lib/ui/theme';
+import { useLingui } from '@lingui/react/macro';
 import { useCallback } from 'react';
 import {
   IconClear,
@@ -149,11 +150,12 @@ function ServerControlBar({
   randomizeAll: () => void;
   wipeServer: () => void;
 }) {
+  const { t } = useLingui();
   const theme = useTheme();
   return (
     <Stack direction="horizontal" spacing={2} align="center">
       <Button
-        title={partitioned ? 'Reconnect' : 'Partition'}
+        title={partitioned ? t`Reconnect` : t`Partition`}
         variant={partitioned ? 'solid' : 'ghost'}
         size="sm"
         {...(partitioned ? { color: 'destructive' } : {})}
@@ -186,18 +188,20 @@ function ServerControlBar({
 }
 
 export function ServerNodePanel() {
+  const { t } = useLingui();
   const { sim } = useSimContext();
   const { entities, readError, refresh } = useServerShapes(sim);
   const serverPartitioned = sim.isServerPartitioned();
   const theme = useTheme();
   const actions = useServerActions(sim, entities, refresh);
   const displayNote = readError ?? actions.note;
+  const entityCount = entities.length;
 
   return (
     <NodePanelShell
       icon={<IconServer />}
       title={sim.serverId}
-      subtitle="Authority"
+      subtitle={t`Authority`}
       partitioned={serverPartitioned}
     >
       <Stack spacing={3}>
@@ -217,7 +221,7 @@ export function ServerNodePanel() {
           <Text
             variant="caption"
             style={{ color: theme.colors.textSecondary, marginBottom: 8 }}
-            label={`Shapes (${entities.length})`}
+            label={t`Shapes (${entityCount})`}
           />
           <ShapeList
             entities={entities}

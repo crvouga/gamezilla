@@ -25,7 +25,6 @@ export function PeerPanelHeader({
   const { t } = useLingui();
   const hasBadges = isCheater || isBadActor;
   const buttonTitle = isOnline ? t`Disconnect` : t`Reconnect`;
-  const buttonColor = isOnline ? 'destructive' : 'success';
   const buttonPress = isOnline ? onDisconnect : onReconnect;
 
   return (
@@ -39,7 +38,7 @@ export function PeerPanelHeader({
           title={buttonTitle}
           variant="outlined"
           size="sm"
-          color={buttonColor}
+          color={isOnline ? 'destructive' : 'success'}
           onPress={buttonPress}
         />
       </Stack>

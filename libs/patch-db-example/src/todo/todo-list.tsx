@@ -15,6 +15,7 @@ import { useState } from 'react';
 
 import { TodoItem } from './todo-item';
 
+/* eslint-disable lingui/no-unlocalized-strings */
 const DELETED_CLAUSE = {
   type: 'or' as const,
   clauses: [
@@ -59,6 +60,7 @@ function buildTodoQuery(filter: Filter) {
     ],
   };
 }
+/* eslint-enable lingui/no-unlocalized-strings */
 
 function FilterTabs({
   filter,
@@ -67,6 +69,7 @@ function FilterTabs({
   filter: Filter;
   setFilter: (f: Filter) => void;
 }) {
+  const { t } = useLingui();
   const theme = useTheme();
   const filterButtonStyle = (active: boolean) =>
     theme.sx({
@@ -88,9 +91,11 @@ function FilterTabs({
   );
   return (
     <Box sx={{ flexDirection: 'row', gap: 2, mb: 3 }}>
-      {renderTab('all', 'All')}
-      {renderTab('active', 'Active')}
-      {renderTab('completed', 'Completed')}
+      {/* eslint-disable lingui/no-unlocalized-strings */}
+      {renderTab('all', t`All`)}
+      {renderTab('active', t`Active`)}
+      {renderTab('completed', t`Completed`)}
+      {/* eslint-enable lingui/no-unlocalized-strings */}
     </Box>
   );
 }
@@ -148,6 +153,7 @@ function TodoItems({
   onToggle: (e: Entity) => void;
   onDelete: (e: Entity) => void;
 }) {
+  const { t } = useLingui();
   const theme = useTheme();
   if (todos.length === 0) {
     return (
@@ -155,8 +161,10 @@ function TodoItems({
         style={theme.sx({ opacity: 0.7, fontStyle: 'italic' })}
         label={
           filter === 'all'
-            ? 'No todos yet. Add one above!'
-            : `No ${filter} todos.`
+            ? t`No todos yet. Add one above!`
+            : filter === 'active'
+              ? t`No active todos.`
+              : t`No completed todos.`
         }
       />
     );
@@ -175,10 +183,44 @@ function TodoItems({
   );
 }
 
+/* eslint-disable lingui/no-unlocalized-strings */
+function buildTodoCreatePayload(title: string, totalCount: number) {
+  return {
+    entityId: globalThis.crypto.randomUUID(),
+    entityType: 'todo',
+    attributes: {
+      'todo/title': title,
+      'todo/completed': false,
+      'todo/order': totalCount,
+      'todo/createdAt': new Date().toISOString(),
+    },
+  };
+}
+
+function buildTodoTogglePayload(entity: Entity) {
+  const completed = entity.attributes['todo/completed'] === true;
+  return {
+    entityId: entity.entityId,
+    entityType: 'todo',
+    attributes: { 'todo/completed': !completed },
+  };
+}
+
+function buildTodoDeletePayload(entity: Entity) {
+  return {
+    entityId: entity.entityId,
+    entityType: 'todo',
+    attributes: { 'todo/deleted': true },
+  };
+}
+/* eslint-enable lingui/no-unlocalized-strings */
+
 export function TodoList() {
+  const { t } = useLingui();
   const db = usePatchesDb();
   const [input, setInput] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
+  // eslint-disable-next-line lingui/no-unlocalized-strings
   const allResult = useEntities(buildTodoQuery('all'));
   const filterResult = useEntities(buildTodoQuery(filter));
   const todos = filterResult.entities;
@@ -187,46 +229,21 @@ export function TodoList() {
   const addTodo = async () => {
     const title = input.trim();
     if (!title) return;
-    const entityId = globalThis.crypto.randomUUID();
-    await db.write([
-      {
-        entityId,
-        entityType: 'todo',
-        attributes: {
-          'todo/title': title,
-          'todo/completed': false,
-          'todo/order': totalCount,
-          'todo/createdAt': new Date().toISOString(),
-        },
-      },
-    ]);
+    await db.write([buildTodoCreatePayload(title, totalCount)]);
     setInput('');
   };
 
   const toggleTodo = async (entity: Entity) => {
-    const completed = entity.attributes['todo/completed'] === true;
-    await db.write([
-      {
-        entityId: entity.entityId,
-        entityType: 'todo',
-        attributes: { 'todo/completed': !completed },
-      },
-    ]);
+    await db.write([buildTodoTogglePayload(entity)]);
   };
 
   const deleteTodo = async (entity: Entity) => {
-    await db.write([
-      {
-        entityId: entity.entityId,
-        entityType: 'todo',
-        attributes: { 'todo/deleted': true },
-      },
-    ]);
+    await db.write([buildTodoDeletePayload(entity)]);
   };
 
   return (
     <Box sx={{ flex: 1 }}>
-      <ScreenBaseHeader breadcrumbs={[{ name: 'Todos' }]} />
+      <ScreenBaseHeader breadcrumbs={[{ name: t`Todos` }]} />
       <KeyboardAvoidingView sx={{ flex: 1, p: 4 }}>
         <FilterTabs filter={filter} setFilter={setFilter} />
         <AddTodoBar input={input} setInput={setInput} onAdd={addTodo} />

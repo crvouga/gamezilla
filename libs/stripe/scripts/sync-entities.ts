@@ -4,7 +4,9 @@
  * Order: customer → subscription → invoice → charge → payment_intent →
  * setup_intent → refund → dispute → checkout.session.
  *
- * Requires Doppler-resolvable `STRIPE_SECRET_KEY` and postgres `DB_URL`.
+ * Requires Doppler-resolvable `STRIPE_SECRET_KEY` and `DB_URL` (either a
+ * `postgres://…` connection string or `http://…` for the local PGlite dev
+ * server in `apps/db`).
  *
  * Note: this does NOT cover catalog products/prices — those have their own
  * declarative SPEC reconciliation in `sync-catalog.ts`.

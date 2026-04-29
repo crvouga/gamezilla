@@ -180,10 +180,11 @@ function ErrorCard({ message }: { message: string }) {
 }
 
 function ResultCard({ json }: { json: string }) {
+  const { t } = useLingui();
   const theme = useTheme();
   return (
     <Card elevation={1} sx={{ p: 3 }}>
-      <Text variant="bodyBold" label="Result" />
+      <Text variant="bodyBold" label={t`Result`} />
       <Text
         variant="mono"
         style={{
@@ -199,6 +200,7 @@ function ResultCard({ json }: { json: string }) {
 }
 
 export function QueryScreen({ onClose }: QueryScreenProps) {
+  const { t } = useLingui();
   const db = usePatchesDb();
   const { height: windowHeight } = useWindowDimensions();
   const scrollMaxHeight = Math.min(560, windowHeight * 0.72);
@@ -230,13 +232,18 @@ export function QueryScreen({ onClose }: QueryScreenProps) {
     >
       <Stack spacing={3}>
         {onClose !== undefined ? (
-          <Button title="Close" variant="ghost" size="sm" onPress={onClose} />
+          <Button
+            title={<Trans>Close</Trans>}
+            variant="ghost"
+            size="sm"
+            onPress={onClose}
+          />
         ) : null}
 
         <SegmentedControl
           segments={[
-            { key: 'entities', label: 'entities' },
-            { key: 'patches', label: 'patches' },
+            { key: 'entities', label: t`entities` },
+            { key: 'patches', label: t`patches` },
           ]}
           selected={form.mode}
           onSelect={(k) => form.setMode(k as 'entities' | 'patches')}

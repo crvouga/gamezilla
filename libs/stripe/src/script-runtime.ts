@@ -1,17 +1,39 @@
 /**
  * Shared runtime for Stripe CLI sync scripts.
  *
- * Centralizes secret resolution (Stripe key, Postgres `DB_URL`), Stripe client
- * construction, and Postgres-backed `EntityDb` setup so per-entity scripts stay
- * thin and consistent (Tiger Style: small surface, fail fast).
+ * Centralizes secret resolution (Stripe key, `DB_URL`), Stripe client
+ * construction, and EntityDb setup so per-entity scripts stay thin and
+ * consistent (Tiger Style: small surface, fail fast).
+ *
+ * `DB_URL` accepts either:
+ *   - `postgres://` / `postgresql://` — direct Postgres over Bun's TCP driver
+ *     (production, deploys, any reachable Postgres).
+ *   - `http://` / `https://` — local PGlite HTTP dev server (`apps/db`),
+ *     selected automatically when running against Doppler `local`.
+ *
+ * Mirrors the URL-prefix dispatch already used by `apps/db/scripts/migrate-db.ts`
+ * and `apps/api/src/db/sql-client.ts` so the dev/prod boundary stays uniform.
  */
-import type { EntityDb } from '@gamezilla/lib/entity-db/interface';
+import { SqlClientImplPgliteHttp } from '@gamezilla/lib/sql-client/impl-pglite-http';
 import { SqlClientImplPostgresTcp } from '@gamezilla/lib/sql-client/impl-postgres-tcp';
+import type { EntityDb } from '@gamezilla/lib/entity-db/interface';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import Stripe from 'stripe';
 import { createStripeScriptSecretStore } from './script-secret-store';
 import { StripeSecretKeys } from './secret-keys';
 import { createStripeWebhookCacheEntityDb } from './webhook-cache-entity-db';
+
+function isPostgresDbUrl(u: string): boolean {
+  return u.startsWith('postgres://') || u.startsWith('postgresql://');
+}
+
+function isHttpDbUrl(u: string): boolean {
+  return u.startsWith('http://') || u.startsWith('https://');
+}
+
+function isSupportedDbUrl(u: string): boolean {
+  return isPostgresDbUrl(u) || isHttpDbUrl(u);
+}
 
 /**
  * Read `STRIPE_SECRET_KEY` from Doppler. Exits process on missing/blank — these
@@ -33,22 +55,22 @@ export async function assertStripeSecretKey(
 }
 
 /**
- * Read `DB_URL` from Doppler. Exits when missing or non-Postgres URL — backfill
+ * Read `DB_URL` from Doppler. Exits when missing or unsupported — backfill
  * scripts only do persistence, so absent DB makes them a no-op (footgun).
  */
-export async function assertPostgresUrl(scriptTag: string): Promise<string> {
+export async function assertDbUrl(scriptTag: string): Promise<string> {
   const store = createStripeScriptSecretStore();
   const raw = (await store.getOptional('DB_URL')) ?? '';
   const u = raw.trim();
   if (u.length === 0) {
     console.error(
-      `[${scriptTag}] DB_URL is missing in Doppler — set a postgres://… connection string for entity-db persistence`
+      `[${scriptTag}] DB_URL is missing in Doppler — set a postgres://… connection string, or http://127.0.0.1:15432 for the local PGlite dev server`
     );
     process.exit(1);
   }
-  if (!u.startsWith('postgres://') && !u.startsWith('postgresql://')) {
+  if (!isSupportedDbUrl(u)) {
     console.error(
-      `[${scriptTag}] DB_URL must be a postgres:// or postgresql:// connection string`
+      `[${scriptTag}] DB_URL must be a postgres://, postgresql://, or http(s):// URL`
     );
     process.exit(1);
   }
@@ -59,15 +81,24 @@ export async function assertPostgresUrl(scriptTag: string): Promise<string> {
  * Optional `DB_URL` resolver — preserves the soft-skip semantics expected by
  * `sync-catalog.ts` (catalog reconcile is useful with or without persistence).
  */
-export async function resolveOptionalPostgresUrl(): Promise<
-  string | undefined
-> {
+export async function resolveOptionalDbUrl(): Promise<string | undefined> {
   const store = createStripeScriptSecretStore();
   const raw = (await store.getOptional('DB_URL')) ?? '';
   const u = raw.trim();
   if (u.length === 0) return undefined;
-  if (u.startsWith('postgres://') || u.startsWith('postgresql://')) return u;
+  if (isSupportedDbUrl(u)) return u;
   return undefined;
+}
+
+/**
+ * Build a {@link SqlClient} for the given `DB_URL`. HTTP URLs route to the
+ * PGlite HTTP dev server; postgres URLs route to Bun's TCP driver.
+ */
+export function createSqlClientFromDbUrl(dbUrl: string): SqlClient {
+  if (isHttpDbUrl(dbUrl)) {
+    return new SqlClientImplPgliteHttp(dbUrl);
+  }
+  return SqlClientImplPostgresTcp.connect(dbUrl);
 }
 
 export function createStripeClientFromSecret(secretKey: string): Stripe {
@@ -82,18 +113,20 @@ export type StripeScriptContext = {
 };
 
 /**
- * Build a fully-wired script context: Stripe client + Postgres-backed EntityDb.
+ * Build a fully-wired script context: Stripe client + EntityDb backed by
+ * whichever SQL impl matches `DB_URL` (Postgres TCP or PGlite HTTP).
  * Caller MUST `await ctx.disconnect()` in a `finally` block.
  */
 export async function createStripeScriptContext(
   scriptTag: string
 ): Promise<StripeScriptContext> {
-  const [secret, pgUrl] = await Promise.all([
+  const [secret, dbUrl] = await Promise.all([
     assertStripeSecretKey(scriptTag),
-    assertPostgresUrl(scriptTag),
+    assertDbUrl(scriptTag),
   ]);
   const stripe = createStripeClientFromSecret(secret);
-  const sql = SqlClientImplPostgresTcp.connect(pgUrl);
+  const sql = createSqlClientFromDbUrl(dbUrl);
+  await sql.connect();
   const entityDb = createStripeWebhookCacheEntityDb(sql);
   return {
     stripe,

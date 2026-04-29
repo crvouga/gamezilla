@@ -1,4 +1,5 @@
 import { Button, Card, Stack, Text } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
 import { PEERS, type PeerId } from '../simulator/playground';
 import type { TrustElectionControls } from '../pages/use-trust-election';
 
@@ -11,9 +12,10 @@ function VoterRow({
   selected: PeerId;
   onSelect: (candidate: PeerId) => void;
 }) {
+  const { t } = useLingui();
   return (
     <Stack spacing={1}>
-      <Text variant="caption" label={`${voter} trusts:`} />
+      <Text variant="caption" label={t`${voter} trusts:`} />
       <Stack direction="horizontal" spacing={2} wrap>
         {PEERS.map((candidate) => (
           <Button
@@ -34,9 +36,13 @@ export function TrustElectionSection({
 }: {
   election: TrustElectionControls;
 }) {
+  const { t } = useLingui();
+  const projectedX = election.projectedTrustMap['player-x'];
+  const projectedO = election.projectedTrustMap['player-o'];
+  const projectedS = election.projectedTrustMap.server;
   return (
     <Card elevation={1} sx={{ p: 4, gap: 3 }}>
-      <Text variant="label" label="Trust Election" />
+      <Text variant="label" label={t`Trust Election`} />
       {PEERS.map((voter) => (
         <VoterRow
           key={voter}
@@ -46,9 +52,9 @@ export function TrustElectionSection({
         />
       ))}
       <Stack direction="horizontal" spacing={2} wrap>
-        <Button title="Apply Election" size="sm" onPress={election.applyElection} />
+        <Button title={t`Apply Election`} size="sm" onPress={election.applyElection} />
         <Button
-          title="Reset Preferences"
+          title={t`Reset Preferences`}
           variant="outlined"
           size="sm"
           onPress={election.resetRankings}
@@ -56,15 +62,25 @@ export function TrustElectionSection({
       </Stack>
       <Text
         variant="caption"
-        label={`Projected trust — X:${election.projectedTrustMap['player-x']} O:${election.projectedTrustMap['player-o']} S:${election.projectedTrustMap.server}`}
+        label={t`Projected trust — X:${projectedX} O:${projectedO} S:${projectedS}`}
       />
-      {election.history.slice(-5).map((entry, idx) => (
-        <Text
-          key={`${entry.authority}-${idx}`}
-          variant="caption"
-          label={`Run ${election.history.length - (election.history.slice(-5).length - idx) + 1}: authority=${entry.authority} trust(X:${entry.trustMap['player-x']} O:${entry.trustMap['player-o']} S:${entry.trustMap.server})`}
-        />
-      ))}
+      {election.history.slice(-5).map((entry, idx) => {
+        const runNumber =
+          election.history.length -
+          (election.history.slice(-5).length - idx) +
+          1;
+        const authority = entry.authority;
+        const trustX = entry.trustMap['player-x'];
+        const trustO = entry.trustMap['player-o'];
+        const trustS = entry.trustMap.server;
+        return (
+          <Text
+            key={`${entry.authority}-${idx}`}
+            variant="caption"
+            label={t`Run ${runNumber}: authority=${authority} trust(X:${trustX} O:${trustO} S:${trustS})`}
+          />
+        );
+      })}
     </Card>
   );
 }

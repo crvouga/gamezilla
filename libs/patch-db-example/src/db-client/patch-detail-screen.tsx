@@ -11,6 +11,7 @@ import {
   Text,
   useTheme,
 } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
@@ -35,6 +36,7 @@ function useLoadPatch(
   entityId: string,
   patchId: string,
 ) {
+  const { t } = useLingui();
   const [patch, setPatch] = useState<Patch | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -46,11 +48,12 @@ function useLoadPatch(
       setLoadError(null);
       try {
         const results = await db.read([
+          // eslint-disable-next-line lingui/no-unlocalized-strings
           { entityType, entityId, on: 'patches', limit: 500 },
         ]);
         const result = results[0];
         if (result === undefined) {
-          if (!cancelled) setLoadError('Empty read result');
+          if (!cancelled) setLoadError(t`Empty read result`);
           return;
         }
         const found = result.patches.find((p) => p.patchId === patchId);
@@ -59,7 +62,7 @@ function useLoadPatch(
           setPatch(found);
         } else {
           setPatch(null);
-          setLoadError('Patch not found');
+          setLoadError(t`Patch not found`);
         }
       } catch (e) {
         if (!cancelled) {
@@ -73,7 +76,7 @@ function useLoadPatch(
     return () => {
       cancelled = true;
     };
-  }, [db, entityType, entityId, patchId]);
+  }, [db, entityType, entityId, patchId, t]);
 
   return { patch, loading, loadError };
 }
@@ -94,6 +97,7 @@ function useLoadParent(
         {
           entityType: patch.entityType,
           entityId: patch.entityId,
+          // eslint-disable-next-line lingui/no-unlocalized-strings
           on: 'patches',
           limit: 500,
         },
@@ -155,15 +159,24 @@ function MetaCard({
   loadingParent: boolean;
   loadParent: () => Promise<void>;
 }) {
+  const { t } = useLingui();
   const metaRows: Array<readonly [string, string]> = useMemo(
     () => [
+      // eslint-disable-next-line lingui/no-unlocalized-strings
       ['patchId', patch.patchId],
+      // eslint-disable-next-line lingui/no-unlocalized-strings
       ['parentId', patch.parentId ?? 'null'],
+      // eslint-disable-next-line lingui/no-unlocalized-strings
       ['entityId', patch.entityId],
+      // eslint-disable-next-line lingui/no-unlocalized-strings
       ['entityType', patch.entityType],
+      // eslint-disable-next-line lingui/no-unlocalized-strings
       ['createdAt', patch.createdAt],
+      // eslint-disable-next-line lingui/no-unlocalized-strings
       ['recordedAt', patch.recordedAt],
+      // eslint-disable-next-line lingui/no-unlocalized-strings
       ['createdBy', patch.createdBy],
+      // eslint-disable-next-line lingui/no-unlocalized-strings
       ['sessionId', patch.sessionId],
     ],
     [patch],
@@ -171,7 +184,7 @@ function MetaCard({
   return (
     <Card elevation={1} sx={{ mb: 3 }}>
       <Box sx={{ px: 3, py: 2 }}>
-        <Text variant="bodyBold" label="Patch metadata" />
+        <Text variant="bodyBold" label={t`Patch metadata`} />
       </Box>
       <Divider />
       {metaRows.map(([key, value], i) => (
@@ -193,7 +206,7 @@ function MetaCard({
                 <Text
                   variant="label"
                   sx={{ color: 'tint' }}
-                  label="View parent patch"
+                  label={t`View parent patch`}
                 />
               </Pressable>
             )}
@@ -213,6 +226,7 @@ function AttrRow({
   value: unknown;
   isLast: boolean;
 }) {
+  const { t } = useLingui();
   const theme = useTheme();
   return (
     <Box>
@@ -230,7 +244,7 @@ function AttrRow({
           <ValueKindBadge value={value} />
         </Stack>
         {value !== null && typeof value === 'object' ? (
-          <JsonCollapsible title="Value" value={value} />
+          <JsonCollapsible title={t`Value`} value={value} />
         ) : (
           <FormattedInlineValue value={value} maxLen={500} />
         )}
@@ -241,6 +255,7 @@ function AttrRow({
 }
 
 function AttrsCard({ patch }: { patch: Patch }) {
+  const { t } = useLingui();
   const attrEntries = useMemo(
     () =>
       Object.entries(patch.attributes).sort(([a], [b]) => a.localeCompare(b)),
@@ -249,7 +264,7 @@ function AttrsCard({ patch }: { patch: Patch }) {
   return (
     <Card elevation={1}>
       <Box sx={{ px: 3, py: 2 }}>
-        <Text variant="bodyBold" label="Patch attributes" />
+        <Text variant="bodyBold" label={t`Patch attributes`} />
       </Box>
       <Divider />
       {attrEntries.map(([key, value], i) => (
@@ -270,6 +285,7 @@ export function PatchDetailScreen({
   patchId,
   onNavigateToPatch,
 }: PatchDetailScreenProps) {
+  const { t } = useLingui();
   const theme = useTheme();
   const db = usePatchesDb();
   const { patch, loading, loadError } = useLoadPatch(
@@ -298,7 +314,7 @@ export function PatchDetailScreen({
         <Text
           variant="body"
           style={{ color: theme.colors.destructive }}
-          label={loadError ?? 'Patch not found'}
+          label={loadError ?? t`Patch not found`}
         />
       </Box>
     );

@@ -132,6 +132,7 @@ function StatusLine({
   totalRows: number;
   typeCount: number;
 }) {
+  const { t } = useLingui();
   const theme = useTheme();
   if (loading) {
     return (
@@ -140,7 +141,7 @@ function StatusLine({
         <Text
           variant="caption"
           style={{ marginTop: 12, color: theme.colors.textSecondary }}
-          label="Scanning snapshots…"
+          label={t`Scanning snapshots…`}
         />
       </Box>
     );
@@ -168,7 +169,7 @@ function StatusLine({
     <Text
       variant="caption"
       style={{ color: theme.colors.textSecondary }}
-      label={`${totalRows} snapshot row(s) · ${typeCount} type(s)`}
+      label={t`${totalRows} snapshot row(s) · ${typeCount} type(s)`}
     />
   );
 }
@@ -211,6 +212,7 @@ export function EntityTypesScreen({
   onSelectType,
   onOpenQuery,
 }: EntityTypesScreenProps) {
+  const { t } = useLingui();
   const theme = useTheme();
   const { loading, error, counts, totalRows, loadAll } = useEntityTypeCounts();
   const [filter, setFilter] = useState('');
@@ -260,8 +262,8 @@ export function EntityTypesScreen({
               style={{ opacity: 0.7, textAlign: 'center', padding: 24 }}
               label={
                 filter.trim()
-                  ? 'No types match filter.'
-                  : 'No entities in this database.'
+                  ? t`No types match filter.`
+                  : t`No entities in this database.`
               }
             />
           }

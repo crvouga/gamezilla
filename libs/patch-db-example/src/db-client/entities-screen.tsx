@@ -53,6 +53,7 @@ type PageState = {
 };
 
 function useEntityPager(entityType: string): PageState {
+  const { t } = useLingui();
   const db = usePatchesDb();
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -73,7 +74,7 @@ function useEntityPager(entityType: string): PageState {
         ]);
         const result = results[0];
         if (result === undefined) {
-          setError('Empty read result');
+          setError(t`Empty read result`);
           return;
         }
         setTotal(result.total);
@@ -89,7 +90,7 @@ function useEntityPager(entityType: string): PageState {
         setLoadingMore(false);
       }
     },
-    [db, entityType],
+    [db, entityType, t],
   );
 
   useEffect(() => {
@@ -147,7 +148,7 @@ function FilterBar({
       <Text
         variant="caption"
         style={{ color: theme.colors.textSecondary }}
-        label={`${total} total · ${loaded} loaded · ${shown} shown`}
+        label={t`${total} total · ${loaded} loaded · ${shown} shown`}
       />
     </Stack>
   );
@@ -197,6 +198,7 @@ function EntityList({
   onLoadMore: () => void;
   onSelectEntity: (id: string) => void;
 }) {
+  const { t } = useLingui();
   const theme = useTheme();
   return (
     <FlatList
@@ -215,7 +217,9 @@ function EntityList({
           variant="body"
           style={{ opacity: 0.7, textAlign: 'center', padding: 24 }}
           label={
-            total === 0 ? 'No entities for this type.' : 'No rows match filter.'
+            total === 0
+              ? t`No entities for this type.`
+              : t`No rows match filter.`
           }
         />
       }
@@ -223,7 +227,7 @@ function EntityList({
         hasMore ? (
           <Box sx={{ py: 3, alignItems: 'center' }}>
             <Button
-              title={loadingMore ? 'Loading…' : 'Load more'}
+              title={loadingMore ? t`Loading…` : t`Load more`}
               variant="ghost"
               size="sm"
               onPress={onLoadMore}

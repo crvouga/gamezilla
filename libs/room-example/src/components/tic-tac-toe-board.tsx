@@ -1,6 +1,7 @@
 import { Assert } from '@gamezilla/lib/assert';
 import type { State } from '@gamezilla/room/types';
 import { Stack, Text } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
 import { TicTacToeCell } from './tic-tac-toe-cell';
 
 const crash: Assert = Assert.crash();
@@ -46,6 +47,7 @@ export function TicTacToeBoard({
   onCellClick?: ((cell: number) => void) | undefined;
   readonly?: boolean | undefined;
 }) {
+  const { t } = useLingui();
   const board = readBoard(state);
   const winner = readWinner(state);
   const status = readStatus(state);
@@ -75,7 +77,7 @@ export function TicTacToeBoard({
         <Text
           variant="label"
           sx={{ mt: 1 }}
-          label={winner === 'draw' ? 'Draw' : `${winner} wins`}
+          label={winner === 'draw' ? t`Draw` : t`${winner} wins`}
         />
       )}
     </Stack>

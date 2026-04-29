@@ -4,6 +4,7 @@ import {
   Stack,
   useTheme,
 } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
 import { useCallback } from 'react';
 import { CryptoDiagnosticsSection } from '../components/crypto-diagnostics-section';
 import { GameClockSection } from '../components/game-clock-section';
@@ -29,6 +30,7 @@ function computePanelWidth(width: number): number | undefined {
 }
 
 export function PlaygroundPage() {
+  const { t } = useLingui();
   const { layout } = useTheme();
   const { sim, tick } = usePlaygroundSim();
   const peerHandlers = usePeerHandlers(sim);
@@ -47,6 +49,7 @@ export function PlaygroundPage() {
   }, [sim, tick]);
 
   const panelWidth = computePanelWidth(layout.width);
+  const logCount = log.length;
 
   return (
     <ScrollView sx={{ flex: 1, px: 4, py: 3 }}>
@@ -71,7 +74,7 @@ export function PlaygroundPage() {
           wireAuthFailures={sim.getWireAuthFailures()}
         />
 
-        <Collapsible title={`Log (${log.length})`} defaultOpen>
+        <Collapsible title={t`Log (${logCount})`} defaultOpen>
           <SimulatorLog entries={log} onCopy={handleCopyLog} />
         </Collapsible>
       </Stack>

@@ -22,6 +22,7 @@ import {
   Text,
 } from '@gamezilla/lib/ui';
 import { useTheme } from '@gamezilla/lib/ui/theme';
+import { useLingui } from '@lingui/react/macro';
 import { useCallback, useMemo, useState } from 'react';
 import {
   IconClear,
@@ -36,20 +37,27 @@ import { ShapeList } from './shape-list';
 import { useSimContext } from './sim-context';
 import { useAsyncAction } from './use-async-action';
 
-const LATENCY_BUCKETS = [
-  { value: 0, label: '0 ms' },
-  { value: 50, label: '50 ms' },
-  { value: 150, label: '150 ms' },
-  { value: 500, label: '500 ms' },
-  { value: 1000, label: '1 s' },
-  { value: 2000, label: '2 s' },
-  { value: 5000, label: '5 s' },
-];
+type LinguiT = ReturnType<typeof useLingui>['t'];
 
-function closestLatency(raw: number) {
-  return LATENCY_BUCKETS.reduce((prev, cur) =>
-    Math.abs(cur.value - raw) < Math.abs(prev.value - raw) ? cur : prev
-  ).value;
+function buildLatencyBuckets(t: LinguiT) {
+  return [
+    { value: 0, label: t`0 ms` },
+    { value: 50, label: t`50 ms` },
+    { value: 150, label: t`150 ms` },
+    { value: 500, label: t`500 ms` },
+    { value: 1000, label: t`1 s` },
+    { value: 2000, label: t`2 s` },
+    { value: 5000, label: t`5 s` },
+  ];
+}
+
+const LATENCY_BUCKET_VALUES: number[] = [0, 50, 150, 500, 1000, 2000, 5000];
+
+function closestLatency(raw: number): number {
+  return LATENCY_BUCKET_VALUES.reduce<number>(
+    (prev, cur) => (Math.abs(cur - raw) < Math.abs(prev - raw) ? cur : prev),
+    LATENCY_BUCKET_VALUES[0] ?? 0,
+  );
 }
 
 function useClientShapeActions(
@@ -167,11 +175,12 @@ function ClientControlBar({
   randomizeAll: () => void;
   wipeClientDb: () => void;
 }) {
+  const { t } = useLingui();
   const theme = useTheme();
   return (
     <Stack direction="horizontal" spacing={2} align="center">
       <Button
-        title={partitioned ? 'Reconnect' : 'Partition'}
+        title={partitioned ? t`Reconnect` : t`Partition`}
         variant={partitioned ? 'solid' : 'ghost'}
         size="sm"
         {...(partitioned ? { color: 'destructive' } : {})}
@@ -203,8 +212,38 @@ function ClientControlBar({
   );
 }
 
-function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
+function ShapesSection({
+  entities,
+  actions,
+}: {
+  entities: Entity[];
+  actions: ReturnType<typeof useClientActions>;
+}) {
+  const { t } = useLingui();
   const theme = useTheme();
+  const entityCount = entities.length;
+  return (
+    <Box>
+      <Text
+        variant="caption"
+        style={{ color: theme.colors.textSecondary, marginBottom: 8 }}
+        label={t`Shapes (${entityCount})`}
+      />
+      <ShapeList
+        entities={entities}
+        busy={actions.busy}
+        note={actions.note}
+        onRandomize={actions.handleRandomize}
+        onDelete={actions.handleDelete}
+        onCreate={actions.handleCreate}
+        onReorder={actions.handleReorder}
+      />
+    </Box>
+  );
+}
+
+function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
+  const { t } = useLingui();
   const { removeClient } = useSimContext();
   const shapeQuery = useMemo(() => shapeListQuery(), []);
   const { entities } = useEntities(shapeQuery);
@@ -213,6 +252,7 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
   );
   const partitioned = client.link.isPartitioned();
   const actions = useClientActions(client, entities);
+  const latencyBuckets = useMemo(() => buildLatencyBuckets(t), [t]);
 
   const handleLatencyChange = useCallback(
     (ms: number) => {
@@ -222,7 +262,9 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
     [client.link],
   );
 
-  const subtitle = `Latency: ${LATENCY_BUCKETS.find((b) => b.value === latencyMs)?.label ?? `${latencyMs} ms`}`;
+  const latencyLabel =
+    latencyBuckets.find((b) => b.value === latencyMs)?.label ?? t`${latencyMs} ms`;
+  const subtitle = t`Latency: ${latencyLabel}`;
 
   return (
     <NodePanelShell
@@ -249,8 +291,8 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
 
         <Box style={{ maxWidth: 160 }}>
           <Select
-            label="Latency"
-            options={LATENCY_BUCKETS}
+            label={t`Latency`}
+            options={latencyBuckets}
             value={latencyMs}
             onValueChange={handleLatencyChange}
           />
@@ -258,22 +300,7 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
 
         <Divider />
 
-        <Box>
-          <Text
-            variant="caption"
-            style={{ color: theme.colors.textSecondary, marginBottom: 8 }}
-            label={`Shapes (${entities.length})`}
-          />
-          <ShapeList
-            entities={entities}
-            busy={actions.busy}
-            note={actions.note}
-            onRandomize={actions.handleRandomize}
-            onDelete={actions.handleDelete}
-            onCreate={actions.handleCreate}
-            onReorder={actions.handleReorder}
-          />
-        </Box>
+        <ShapesSection entities={entities} actions={actions} />
       </Stack>
     </NodePanelShell>
   );

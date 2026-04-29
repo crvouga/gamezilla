@@ -12,6 +12,7 @@ export function SimulatorLog({
   onCopy: () => void;
 }) {
   const { t } = useLingui();
+  const entryCount = entries.length;
   const copiedRef = useRef(false);
   const [, setTick] = useReducer((x: number) => x + 1, 0);
 
@@ -31,7 +32,7 @@ export function SimulatorLog({
         <Text
           variant="label"
           style={{ textTransform: 'uppercase', fontWeight: 'bold' }}
-          label={t`Log (${entries.length})`}
+          label={t`Log (${entryCount})`}
         />
         <Button
           title={copiedRef.current ? t`Copied` : t`Copy for LLM`}

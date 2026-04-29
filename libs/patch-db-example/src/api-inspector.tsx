@@ -22,7 +22,9 @@ import { Trans } from '@lingui/react/macro';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+// eslint-disable-next-line lingui/no-unlocalized-strings
 const URL_STORAGE_KEY = 'patchdb-inspector-sync-url';
+// eslint-disable-next-line lingui/no-unlocalized-strings
 const DEFAULT_URL = 'http://localhost:5001';
 
 function formatAttrValue(value: unknown): string {
@@ -76,6 +78,7 @@ function ConnectionStatus({
   connected: boolean;
   url: string | null;
 }) {
+  const { t } = useLingui();
   const theme = useTheme();
   if (!url) return null;
   return (
@@ -84,7 +87,7 @@ function ConnectionStatus({
       <Text
         variant="caption"
         style={{ color: theme.colors.textSecondary }}
-        label={`${connected ? 'Connected' : 'Connecting'} to ${url}`}
+        label={connected ? t`Connected to ${url}` : t`Connecting to ${url}`}
       />
     </Stack>
   );
@@ -241,7 +244,7 @@ function ConnectionCard({
           />
           {connectedUrl && (
             <Button
-              title="Disconnect"
+              title={<Trans>Disconnect</Trans>}
               variant="ghost"
               size="md"
               onPress={handleDisconnect}
@@ -275,23 +278,27 @@ function ErrorCard({ message }: { message: string }) {
 }
 
 function MetricsCard({ result }: { result: PatchesDbResult }) {
+  const { t } = useLingui();
   const theme = useTheme();
   const entity = result.entities[0];
   if (!entity) return null;
   const adminAttrs = Object.entries(entity.attributes)
     .filter(([k]) => k.startsWith('admin/'))
     .sort(([a], [b]) => a.localeCompare(b));
+  const entityType = entity.entityType;
+  const entityIdShort = entity.entityId.slice(0, 16);
+  const patchCount = result.patches.length;
   return (
     <Card elevation={1}>
       <Box sx={{ px: 4, py: 3 }}>
-        <Text variant="bodyBold" label="Admin Metrics" />
+        <Text variant="bodyBold" label={t`Admin Metrics`} />
         <Text
           variant="caption"
           style={{
             color: theme.colors.textSecondary,
             marginTop: 2,
           }}
-          label={`${entity.entityType} / ${entity.entityId.slice(0, 16)} · ${result.patches.length} patches`}
+          label={t`${entityType} / ${entityIdShort} · ${patchCount} patches`}
         />
       </Box>
       <Divider />
@@ -308,6 +315,7 @@ function MetricsCard({ result }: { result: PatchesDbResult }) {
 }
 
 function WaitingCard() {
+  const { t } = useLingui();
   const theme = useTheme();
   return (
     <Card elevation={1} sx={{ p: 6 }}>
@@ -316,7 +324,7 @@ function WaitingCard() {
         <Text
           variant="caption"
           style={{ color: theme.colors.textSecondary }}
-          label="Waiting for metrics from server..."
+          label={t`Waiting for metrics from server...`}
         />
       </Stack>
     </Card>

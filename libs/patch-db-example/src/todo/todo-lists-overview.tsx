@@ -15,6 +15,7 @@ import { useState } from 'react';
 
 import { INBOX_LIST_ID } from './todo-constants';
 
+/* eslint-disable lingui/no-unlocalized-strings */
 const TODO_LIST_DELETED_CLAUSE = {
   type: 'or' as const,
   clauses: [
@@ -30,11 +31,13 @@ const TODO_DELETED_CLAUSE = {
     { type: '=' as const, attribute: 'todo/deleted', value: false },
   ],
 };
+/* eslint-enable lingui/no-unlocalized-strings */
 
 type ListRow = { id: string; name: string; count: number };
 
 function useTodoCountByList() {
   const todosResult = useEntities({
+    // eslint-disable-next-line lingui/no-unlocalized-strings
     entityType: 'todo',
     where: TODO_DELETED_CLAUSE,
   });
@@ -94,6 +97,7 @@ function AddListInput({
 }
 
 function NewListButton({ onPress }: { onPress: () => void }) {
+  const { t } = useLingui();
   const theme = useTheme();
   return (
     <Pressable
@@ -109,7 +113,7 @@ function NewListButton({ onPress }: { onPress: () => void }) {
         { backgroundColor: theme.colors.tintMuted },
       ]}
     >
-      <Text variant="bodyBold" label="+ New List" />
+      <Text variant="bodyBold" label={t`+ New List`} />
     </Pressable>
   );
 }
@@ -123,6 +127,7 @@ function ListRowItem({
   onOpen: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useLingui();
   const theme = useTheme();
   return (
     <Box
@@ -167,7 +172,7 @@ function ListRowItem({
         >
           <Text
             style={[theme.sx({ fontSize: 14 }), { color: theme.colors.tint }]}
-            label="Delete"
+            label={t`Delete`}
           />
         </Pressable>
       )}
@@ -175,9 +180,10 @@ function ListRowItem({
   );
 }
 
-function getListName(attrs: Record<string, unknown>): string {
+/* eslint-disable lingui/no-unlocalized-strings */
+function getListName(attrs: Record<string, unknown>, fallback: string): string {
   const nameRaw = attrs['todoList/name'];
-  return typeof nameRaw === 'string' ? nameRaw : 'Untitled';
+  return typeof nameRaw === 'string' ? nameRaw : fallback;
 }
 
 type Db = ReturnType<typeof usePatchesDb>;
@@ -213,6 +219,7 @@ function useTodoListMutations(db: Db) {
 
   return { addList, deleteList };
 }
+/* eslint-enable lingui/no-unlocalized-strings */
 
 function ListRowsList({
   rows,
@@ -223,6 +230,7 @@ function ListRowsList({
   onOpenList: (id: string) => void;
   onDeleteRequest: (item: ListRow) => void;
 }) {
+  const { t } = useLingui();
   const theme = useTheme();
   return (
     <FlatList
@@ -240,7 +248,7 @@ function ListRowsList({
       ListEmptyComponent={
         <Text
           style={theme.sx({ opacity: 0.7, fontStyle: 'italic', mt: 6 })}
-          label="No lists yet. Create one above or add todos to Inbox."
+          label={t`No lists yet. Create one above or add todos to Inbox.`}
         />
       }
     />
@@ -256,17 +264,19 @@ function DeleteListModal({
   onConfirm: () => void;
   onCancel: () => void;
 }) {
+  const { t } = useLingui();
+  const targetName = target?.name ?? '';
   return (
     <ConfirmationModal
       visible={!!target}
-      title="Delete List"
+      title={t`Delete List`}
       message={
         target
-          ? `Are you sure you want to delete "${target.name}"? This cannot be undone.`
+          ? t`Are you sure you want to delete "${targetName}"? This cannot be undone.`
           : ''
       }
-      confirmLabel="Delete"
-      cancelLabel="Cancel"
+      confirmLabel={t`Delete`}
+      cancelLabel={t`Cancel`}
       variant="destructive"
       onConfirm={onConfirm}
       onCancel={onCancel}
@@ -283,13 +293,14 @@ function ClearDbModal({
   onConfirm: () => void;
   onCancel: () => void;
 }) {
+  const { t } = useLingui();
   return (
     <ConfirmationModal
       visible={visible}
-      title="Clear All Data"
-      message="Are you sure you want to delete the local database? All todos and lists will be permanently removed. The app will reload."
-      confirmLabel="Clear"
-      cancelLabel="Cancel"
+      title={t`Clear All Data`}
+      message={t`Are you sure you want to delete the local database? All todos and lists will be permanently removed. The app will reload.`}
+      confirmLabel={t`Clear`}
+      cancelLabel={t`Cancel`}
       variant="destructive"
       onConfirm={onConfirm}
       onCancel={onCancel}
@@ -305,26 +316,31 @@ export type TodoListsOverviewProps = {
   onClearLocalDatabase?: () => Promise<void> | void;
 };
 
-function buildBreadcrumbs(onBack?: () => void) {
+type LinguiT = ReturnType<typeof useLingui>['t'];
+
+function buildBreadcrumbs(t: LinguiT, onBack?: () => void) {
+  const subtitle = t`Group your todos by list`;
   if (onBack !== undefined) {
     return [
-      { name: 'Developer', onPress: onBack },
-      { name: 'Todo Lists', subtitle: 'Group your todos by list' },
+      { name: t`Developer`, onPress: onBack },
+      { name: t`Todo Lists`, subtitle },
     ];
   }
-  return [{ name: 'Todo Lists', subtitle: 'Group your todos by list' }];
+  return [{ name: t`Todo Lists`, subtitle }];
 }
 
 function buildListRows(
   lists: ReturnType<typeof useEntities>['entities'],
   todoCounts: Map<unknown, number>,
+  inboxName: string,
+  untitledName: string,
 ): ListRow[] {
   const inboxCount = todoCounts.get(INBOX_LIST_ID) ?? 0;
   return [
-    { id: INBOX_LIST_ID, name: 'Inbox', count: inboxCount },
+    { id: INBOX_LIST_ID, name: inboxName, count: inboxCount },
     ...lists.map((l) => ({
       id: l.entityId,
-      name: getListName(l.attributes),
+      name: getListName(l.attributes, untitledName),
       count: todoCounts.get(l.entityId) ?? 0,
     })),
   ];
@@ -343,11 +359,15 @@ function useTodoListsState(
   const [deleteDbModalVisible, setDeleteDbModalVisible] = useState(false);
 
   const listsResult = useEntities({
+    // eslint-disable-next-line lingui/no-unlocalized-strings
     entityType: 'todoList',
     where: TODO_LIST_DELETED_CLAUSE,
     orderBy: [
+      // eslint-disable-next-line lingui/no-unlocalized-strings
       { attribute: 'todoList/order', direction: 'asc' },
+      // eslint-disable-next-line lingui/no-unlocalized-strings
       { attribute: 'todoList/createdAt', direction: 'asc' },
+      // eslint-disable-next-line lingui/no-unlocalized-strings
       { attribute: 'todoList/id', direction: 'asc' },
     ],
   });
@@ -392,19 +412,20 @@ export function TodoListsOverview({
   onBack,
   onClearLocalDatabase,
 }: TodoListsOverviewProps) {
+  const { t } = useLingui();
   const s = useTodoListsState(onClearLocalDatabase);
-  const listRows = buildListRows(s.lists, s.todoCounts);
+  const listRows = buildListRows(s.lists, s.todoCounts, t`Inbox`, t`Untitled`);
 
   return (
     <Box sx={{ flex: 1 }}>
       <ScreenBaseHeader
-        breadcrumbs={buildBreadcrumbs(onBack)}
+        breadcrumbs={buildBreadcrumbs(t, onBack)}
         actions={
           onClearLocalDatabase !== undefined
             ? [
                 {
                   type: 'destructive',
-                  label: 'Clear data',
+                  label: t`Clear data`,
                   onPress: () => s.setDeleteDbModalVisible(true),
                   overflow: 'never',
                 },

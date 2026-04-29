@@ -2,11 +2,11 @@
  * Idempotent Stripe catalog sync: declarative SPEC → Stripe Products/Prices.
  * Optionally dumps raw Stripe API `products.retrieve` / `prices.retrieve` JSON into
  * EntityDb (`namespace: stripe`, types `catalog_price` / `catalog_product`) when
- * `DB_URL` from Doppler is a `postgres://` connection string (e.g. deploy).
+ * `DB_URL` from Doppler is set — `postgres://` for production, `http://` for
+ * the local PGlite dev server (`apps/db`).
  *
  * Secrets load via {@link createStripeScriptSecretStore} (`DOPPLER_TOKEN` or Doppler CLI login).
  */
-import { SqlClientImplPostgresTcp } from '@gamezilla/lib/sql-client/impl-postgres-tcp';
 import Stripe from 'stripe';
 import {
   decidePriceReconcile,
@@ -17,7 +17,8 @@ import {
 } from '../src/catalog-sync-shared';
 import {
   assertStripeSecretKey,
-  resolveOptionalPostgresUrl,
+  createSqlClientFromDbUrl,
+  resolveOptionalDbUrl,
 } from '../src/script-runtime';
 import {
   STRIPE_CATALOG_PRODUCT_METADATA_KEY,
@@ -265,15 +266,16 @@ async function main(): Promise<void> {
     );
   }
 
-  const pgUrl = await resolveOptionalPostgresUrl();
-  if (pgUrl === undefined) {
+  const dbUrl = await resolveOptionalDbUrl();
+  if (dbUrl === undefined) {
     console.log(
-      '[stripe sync] skip entity-db catalog dump — set DB_URL in Doppler (postgres://…) to persist Stripe API payloads'
+      '[stripe sync] skip entity-db catalog dump — set DB_URL in Doppler (postgres://… or http://… for local PGlite) to persist Stripe API payloads'
     );
     return;
   }
 
-  const sql = SqlClientImplPostgresTcp.connect(pgUrl);
+  const sql = createSqlClientFromDbUrl(dbUrl);
+  await sql.connect();
   try {
     const entityDb = createStripeWebhookCacheEntityDb(sql);
 

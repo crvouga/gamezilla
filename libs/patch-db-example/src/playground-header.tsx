@@ -9,24 +9,95 @@ import {
   Text,
 } from '@gamezilla/lib/ui';
 import { useTheme } from '@gamezilla/lib/ui/theme';
-import { useCallback, useState } from 'react';
+import { useLingui } from '@lingui/react/macro';
+import { useCallback, useMemo, useState } from 'react';
 import { IconPlus } from './icons';
 import { useSimContext } from './sim-context';
 
-const LATENCY_BUCKETS = [
-  { value: 0, label: '0 ms' },
-  { value: 50, label: '50 ms' },
-  { value: 150, label: '150 ms' },
-  { value: 500, label: '500 ms' },
-  { value: 1000, label: '1 s' },
-  { value: 2000, label: '2 s' },
-  { value: 5000, label: '5 s' },
-];
+function HeaderTopRow({
+  serverId,
+  reset,
+}: {
+  serverId: string;
+  reset: () => void;
+}) {
+  const { t } = useLingui();
+  const theme = useTheme();
+  return (
+    <Stack direction="horizontal" spacing={3} align="center">
+      <Box style={{ flex: 1 }}>
+        <Stack direction="horizontal" spacing={2} align="center" wrap>
+          <Badge
+            label={SHAPE_ENTITY_TYPE}
+            size="sm"
+            color={theme.colors.tintMuted}
+          />
+          <Text
+            variant="mono"
+            style={{ fontSize: 11, color: theme.colors.textSecondary }}
+            label={serverId}
+          />
+        </Stack>
+      </Box>
+      <Button
+        title={t`Reset`}
+        variant="ghost"
+        size="sm"
+        color="destructive"
+        onPress={reset}
+      />
+    </Stack>
+  );
+}
+
+function HeaderControls({
+  globalLatency,
+  onLatencyChange,
+  onAddClient,
+}: {
+  globalLatency: number;
+  onLatencyChange: (ms: number) => void;
+  onAddClient: () => void;
+}) {
+  const { t } = useLingui();
+  const latencyBuckets = useMemo(
+    () => [
+      { value: 0, label: t`0 ms` },
+      { value: 50, label: t`50 ms` },
+      { value: 150, label: t`150 ms` },
+      { value: 500, label: t`500 ms` },
+      { value: 1000, label: t`1 s` },
+      { value: 2000, label: t`2 s` },
+      { value: 5000, label: t`5 s` },
+    ],
+    [t],
+  );
+  return (
+    <Stack direction="horizontal" spacing={3} align="center" wrap>
+      <Box style={{ minWidth: 120 }}>
+        <Select
+          label={t`Global latency`}
+          options={latencyBuckets}
+          value={globalLatency}
+          onValueChange={onLatencyChange}
+        />
+      </Box>
+      <Box style={{ flex: 1 }} />
+      <Button
+        title={t`Add Client`}
+        variant="solid"
+        size="sm"
+        startIcon={<IconPlus size={14} />}
+        onPress={onAddClient}
+      />
+    </Stack>
+  );
+}
 
 export function PlaygroundHeader() {
   const { sim, addClient, reset } = useSimContext();
   const [globalLatency, setGlobalLatency] = useState(() =>
-    sim.getGlobalLatency()
+    sim.getGlobalLatency(),
   );
   const theme = useTheme();
 
@@ -35,7 +106,7 @@ export function PlaygroundHeader() {
       setGlobalLatency(ms);
       sim.setGlobalLatency(ms);
     },
-    [sim]
+    [sim],
   );
 
   return (
@@ -43,54 +114,13 @@ export function PlaygroundHeader() {
       sx={{ px: 4, py: 3, gap: 3 }}
       style={{ borderBottomWidth: 1, borderBottomColor: theme.colors.border }}
     >
-      <Stack direction="horizontal" spacing={3} align="center">
-        <Box style={{ flex: 1 }}>
-          <Stack direction="horizontal" spacing={2} align="center" wrap>
-            <Badge
-              label={SHAPE_ENTITY_TYPE}
-              size="sm"
-              color={theme.colors.tintMuted}
-            />
-            <Text
-              variant="mono"
-              style={{
-                fontSize: 11,
-                color: theme.colors.textSecondary,
-              }}
-              label={sim.serverId}
-            />
-          </Stack>
-        </Box>
-
-        <Button
-          title="Reset"
-          variant="ghost"
-          size="sm"
-          color="destructive"
-          onPress={reset}
-        />
-      </Stack>
-
+      <HeaderTopRow serverId={sim.serverId} reset={reset} />
       <Divider />
-
-      <Stack direction="horizontal" spacing={3} align="center" wrap>
-        <Box style={{ minWidth: 120 }}>
-          <Select
-            label="Global latency"
-            options={LATENCY_BUCKETS}
-            value={globalLatency}
-            onValueChange={handleGlobalLatencyChange}
-          />
-        </Box>
-        <Box style={{ flex: 1 }} />
-        <Button
-          title="Add Client"
-          variant="solid"
-          size="sm"
-          startIcon={<IconPlus size={14} />}
-          onPress={addClient}
-        />
-      </Stack>
+      <HeaderControls
+        globalLatency={globalLatency}
+        onLatencyChange={handleGlobalLatencyChange}
+        onAddClient={addClient}
+      />
     </Box>
   );
 }

@@ -16,25 +16,31 @@ export function CryptoDiagnosticsSection({
   wireAuthFailures: string[];
 }) {
   const { t } = useLingui();
+  const failureCount = wireAuthFailures.length;
   return (
     <Card elevation={1} sx={{ p: 4, gap: 2 }}>
       <Text variant="label" label={t`Crypto Diagnostics`} />
       <Text variant="caption" label={t`Authority: ${authority}`} />
       <Stack spacing={1}>
-        {peers.map((peer) => (
-          <Text
-            key={peer.label}
-            variant="caption"
-            label={t`${peer.label}: id=${short(peer.peerId)} pub=${short(peer.publicKeyB64)}`}
-          />
-        ))}
+        {peers.map((peer) => {
+          const peerLabel = peer.label;
+          const peerIdShort = short(peer.peerId);
+          const publicKeyShort = short(peer.publicKeyB64);
+          return (
+            <Text
+              key={peer.label}
+              variant="caption"
+              label={t`${peerLabel}: id=${peerIdShort} pub=${publicKeyShort}`}
+            />
+          );
+        })}
       </Stack>
       <Text
         variant="caption"
         label={
-          wireAuthFailures.length === 0
+          failureCount === 0
             ? t`Wire auth failures: none`
-            : t`Wire auth failures: ${wireAuthFailures.length}`
+            : t`Wire auth failures: ${failureCount}`
         }
       />
     </Card>

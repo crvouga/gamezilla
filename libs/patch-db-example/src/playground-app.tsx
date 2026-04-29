@@ -1,5 +1,6 @@
 import type { PlaygroundSim } from '@gamezilla/patch-db/sim/playground-sim';
 import { Box, Spinner, Stack, Text, useTheme } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
 import { useMemo, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ApiInspector } from './api-inspector';
@@ -33,6 +34,7 @@ export function PlaygroundApp() {
 }
 
 function PlaygroundRoute() {
+  const { t } = useLingui();
   const boot = usePlaygroundBoot();
   const theme = useTheme();
 
@@ -50,7 +52,7 @@ function PlaygroundRoute() {
         <Text
           variant="subtitle"
           style={{ color: theme.colors.destructive }}
-          label="Playground failed to start"
+          label={t`Playground failed to start`}
         />
         <Text
           variant="caption"

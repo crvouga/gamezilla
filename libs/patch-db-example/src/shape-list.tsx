@@ -1,11 +1,13 @@
 import type { Entity } from '@gamezilla/patch-db/interface';
 import { Box, Button, Stack, Text } from '@gamezilla/lib/ui';
 import { useTheme } from '@gamezilla/lib/ui/theme';
+import { useLingui } from '@lingui/react/macro';
 import { IconPlus } from './icons';
 import { ShapeRow } from './shape-row';
 import { useReorder } from './use-drag-reorder';
 
 function EmptyShapesPlaceholder() {
+  const { t } = useLingui();
   const theme = useTheme();
   return (
     <Box
@@ -20,7 +22,7 @@ function EmptyShapesPlaceholder() {
       <Text
         variant="caption"
         style={{ color: theme.colors.textSecondary }}
-        label="No shapes yet"
+        label={t`No shapes yet`}
       />
     </Box>
   );
@@ -62,6 +64,7 @@ export function ShapeList({
   onCreate: () => void;
   onReorder: (entityIds: string[]) => void;
 }) {
+  const { t } = useLingui();
   const { moveUp, moveDown } = useReorder(entities, onReorder);
 
   return (
@@ -88,7 +91,7 @@ export function ShapeList({
       )}
 
       <Button
-        title="Add Shape"
+        title={t`Add Shape`}
         variant="ghost"
         size="sm"
         disabled={busy}

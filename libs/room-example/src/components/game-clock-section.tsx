@@ -23,19 +23,21 @@ export function GameClockSection({
   const realtimePress = clock.realtimeEnabled
     ? clock.stopRealtime
     : clock.startRealtime;
+  const status = clock.snapshot.clockStatus;
+  const turn = clock.snapshot.clockActivePlayer ?? '-';
+  const remainingX = formatMs(clock.snapshot.remainingMsX);
+  const remainingO = formatMs(clock.snapshot.remainingMsO);
+  const logicalTime = clock.logicalTimeMs;
 
   return (
     <Card elevation={1} sx={{ p: 4, gap: 2 }}>
       <Text variant="label" label={t`Game Clock`} />
       <Stack direction="horizontal" spacing={3} wrap align="center">
-        <Text variant="caption" label={t`Status: ${clock.snapshot.clockStatus}`} />
-        <Text
-          variant="caption"
-          label={t`Turn: ${clock.snapshot.clockActivePlayer ?? '-'}`}
-        />
-        <Text variant="caption" label={t`X ${formatMs(clock.snapshot.remainingMsX)}`} />
-        <Text variant="caption" label={t`O ${formatMs(clock.snapshot.remainingMsO)}`} />
-        <Text variant="caption" label={t`Logical t=${clock.logicalTimeMs}ms`} />
+        <Text variant="caption" label={t`Status: ${status}`} />
+        <Text variant="caption" label={t`Turn: ${turn}`} />
+        <Text variant="caption" label={t`X ${remainingX}`} />
+        <Text variant="caption" label={t`O ${remainingO}`} />
+        <Text variant="caption" label={t`Logical t=${logicalTime}ms`} />
       </Stack>
       <Stack direction="horizontal" spacing={2} wrap>
         <Button

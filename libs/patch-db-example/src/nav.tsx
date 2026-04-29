@@ -1,11 +1,14 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SegmentedControl } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
 
 export type PatchdbAppMode = 'playground' | 'syncInspector';
 
+// eslint-disable-next-line lingui/no-unlocalized-strings
 const MODE_STORAGE_KEY = 'patch-db-example-mode';
 
+// eslint-disable-next-line lingui/no-unlocalized-strings
 let cachedMode: PatchdbAppMode = 'playground';
 
 export function readStoredMode(): PatchdbAppMode {
@@ -27,11 +30,6 @@ export function persistMode(mode: PatchdbAppMode): void {
 
 loadStoredMode();
 
-const SEGMENTS = [
-  { key: 'playground' as const, label: 'Playground' },
-  { key: 'syncInspector' as const, label: 'Req Res' },
-];
-
 export function PatchdbAppNav({
   mode,
   onModeChange,
@@ -39,6 +37,15 @@ export function PatchdbAppNav({
   mode: PatchdbAppMode;
   onModeChange: (mode: PatchdbAppMode) => void;
 }) {
+  const { t } = useLingui();
+  const segments = useMemo(
+    () => [
+      { key: 'playground' as const, label: t`Playground` },
+      { key: 'syncInspector' as const, label: t`Req Res` },
+    ],
+    [t],
+  );
+
   useEffect(() => {
     void AsyncStorage.getItem(MODE_STORAGE_KEY).then((raw) => {
       if (raw === 'syncInspector' || raw === 'playground') {
@@ -49,7 +56,7 @@ export function PatchdbAppNav({
 
   return (
     <SegmentedControl
-      segments={SEGMENTS}
+      segments={segments}
       selected={mode}
       onSelect={(key) => {
         persistMode(key);

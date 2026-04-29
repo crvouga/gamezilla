@@ -1,17 +1,21 @@
+import type { LocalizedString } from '@gamezilla/lib/i18n';
 import { Box, Stack } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
 import { PeerPanel } from '../components/peer-panel';
 import type { PeerAction } from '../components/peer-panel-actions';
 import { PEERS, type PeerId, type PlaygroundSimulator } from '../simulator/playground';
 import type { PeerHandlers } from './use-peer-handlers';
 
-function peerRole(peerId: PeerId): string {
+type LinguiT = ReturnType<typeof useLingui>['t'];
+
+function peerRole(peerId: PeerId, t: LinguiT): LocalizedString {
   switch (peerId) {
     case 'player-x':
-      return 'Player X';
+      return t`Player X`;
     case 'player-o':
-      return 'Player O';
+      return t`Player O`;
     case 'server':
-      return 'Server';
+      return t`Server`;
   }
 }
 
@@ -77,13 +81,14 @@ function PeerGridItem({
   isCheater: boolean;
   panelWidth?: number | undefined;
 }) {
+  const { t } = useLingui();
   const player = peerPlayer(peerId);
   const isOnline = !handlers.disconnectedPeers.current.has(peerId);
   return (
     <Box style={panelWidth ? { width: panelWidth } : undefined}>
       <PeerPanel
         peerId={peerId}
-        role={peerRole(peerId)}
+        role={peerRole(peerId, t)}
         displayState={sim.getState(peerId)}
         committedState={sim.getCommittedState(peerId)}
         events={sim.getEventLog(peerId)}
