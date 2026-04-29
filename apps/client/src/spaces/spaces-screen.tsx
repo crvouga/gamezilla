@@ -17,7 +17,7 @@ import {
   useBreakpoint,
   useTheme,
 } from '@gamezilla/lib/ui';
-import { Trans, useLingui } from '@gamezilla/lib/i18n';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 

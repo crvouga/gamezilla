@@ -12,22 +12,25 @@ export const ENTITY_DB_LIMITS = {
 
 export type EntityKey = { namespace: string; type: string; id: string };
 
-export type Entity<T> = EntityKey & {
-  data: T;
+export type Entity = EntityKey & {
+  data: unknown;
   metadata: Record<string, unknown>;
   lastModifiedAt: Date;
 };
 
-export type CompareVersions<T> = (incoming: T, existing: T) => -1 | 0 | 1;
+export type CompareVersions = (
+  incoming: unknown,
+  existing: unknown
+) => -1 | 0 | 1;
 
-export type UpsertArgs<T> = EntityKey & {
-  data: T;
+export type UpsertArgs = EntityKey & {
+  data: unknown;
   metadata?: Record<string, unknown>;
 };
 
-export interface EntityDb<T> {
-  upsert(args: UpsertArgs<T>): Promise<{ applied: boolean }>;
-  get(key: EntityKey): Promise<Entity<T> | null>;
+export interface EntityDb {
+  upsert(args: UpsertArgs): Promise<{ applied: boolean }>;
+  get(key: EntityKey): Promise<Entity | null>;
   delete(key: EntityKey): Promise<void>;
 }
 
@@ -74,7 +77,7 @@ function jsonUtf8ByteLength(value: unknown): number {
   return new TextEncoder().encode(s).length;
 }
 
-export function assertUpsertArgs<T>(args: UpsertArgs<T>): void {
+export function assertUpsertArgs(args: UpsertArgs): void {
   assertEntityKey(args);
   assert.ok(
     args.data !== undefined,

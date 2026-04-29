@@ -13,7 +13,7 @@ import {
 } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { t } from '@lingui/core/macro';
-import { useLingui } from '@gamezilla/lib/i18n';
+import { useLingui } from '@lingui/react/macro';
 
 import { useBreakpoint, useTheme } from '../../theme';
 import { Box } from '../box';

@@ -21,20 +21,40 @@ config.resolver.nodeModulesPaths = [
   path.resolve(monorepoRoot, 'node_modules'),
 ];
 
-// Bun isolates `@lingui/babel-plugin-lingui-macro` under `.bun/`; its `macro.cjs`
-// does `require('babel-plugin-macros')` from that tree, so Metro must map the
-// bare name to this app’s install (see devDependency `babel-plugin-macros`).
-config.resolver.extraNodeModules = {
-  ...(config.resolver.extraNodeModules ?? {}),
-  'babel-plugin-macros': path.resolve(
-    projectRoot,
-    'node_modules/babel-plugin-macros'
-  ),
-};
-
 // 3. Follow pnpm symlinks (always-on in Metro 0.81+) and enable package exports
 // @ts-ignore
 config.resolver.unstable_enablePackageExports = true;
+
+// 3a. Dedupe `@lingui/core` and `@lingui/react` to a single instance.
+//     Bun's content-addressed deduper produces distinct physical paths for the
+//     same lingui version across workspaces (e.g. `apps/client` vs `libs/*`),
+//     which Metro treats as separate modules. That yields multiple `i18n`
+//     singletons: `apps/client/src/i18n/i18n.ts` activates one, but the
+//     `@lingui/core/macro` `t` template (auto-injected `import { i18n } from
+//     '@lingui/core'`) inside `libs/*` resolves to a different copy — whose
+//     singleton is never activated, causing
+//     "Lingui: Attempted to call a translation function without setting a locale."
+//     Pin all lingui imports to the client's resolution.
+const linguiAliasOrigin = path.join(projectRoot, 'package.json');
+const linguiAliasPrefixes = ['@lingui/core', '@lingui/react'];
+const previousResolveRequest = config.resolver.resolveRequest;
+// @ts-ignore
+config.resolver.resolveRequest = (context, moduleName, platform) => {
+  const matchesLinguiAlias = linguiAliasPrefixes.some(
+    (prefix) => moduleName === prefix || moduleName.startsWith(prefix + '/')
+  );
+  if (matchesLinguiAlias) {
+    const aliasContext = { ...context, originModulePath: linguiAliasOrigin };
+    if (typeof previousResolveRequest === 'function') {
+      return previousResolveRequest(aliasContext, moduleName, platform);
+    }
+    return aliasContext.resolveRequest(aliasContext, moduleName, platform);
+  }
+  if (typeof previousResolveRequest === 'function') {
+    return previousResolveRequest(context, moduleName, platform);
+  }
+  return context.resolveRequest(context, moduleName, platform);
+};
 
 // 4. Normalize HMR entry-point URLs from the web dev client.
 //    The browser sends its current page URL (e.g.

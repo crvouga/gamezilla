@@ -12,7 +12,7 @@ import {
   TextInput,
   useTheme,
 } from '@gamezilla/lib/ui';
-import { useLingui } from '@gamezilla/lib/i18n';
+import { useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { formatAttrValue } from './format-value';

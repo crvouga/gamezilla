@@ -1,6 +1,6 @@
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 import { Box, Pressable, ScreenBase, Text } from '@gamezilla/lib/ui';
-import { Trans } from '@gamezilla/lib/i18n';
+import { Trans } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 
 export function ModalScreen() {

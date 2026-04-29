@@ -17,17 +17,17 @@ import {
 import { DEFAULT_POSTGRES_ENTITY_TABLE } from './constants';
 import { assertSafeIdentifier } from './identifier';
 
-type CreateEntityDbConfig<T> = {
+type CreateEntityDbConfig = {
   sqlClient: SqlClient;
   /** Defaults to {@link DEFAULT_POSTGRES_ENTITY_TABLE}. */
   tableName?: string;
   schema?: string;
-  compareVersions: CompareVersions<T>;
+  compareVersions: CompareVersions;
 };
 
-function wrapCompareVersions<T>(
-  compareVersions: CompareVersions<T>
-): CompareVersions<T> {
+function wrapCompareVersions(
+  compareVersions: CompareVersions
+): CompareVersions {
   assert.ok(
     typeof compareVersions === 'function',
     'entity-db: compareVersions must be a function'
@@ -35,7 +35,7 @@ function wrapCompareVersions<T>(
   return assert.fn(
     {
       fn: compareVersions,
-      pre: (incoming: T, existing: T) => {
+      pre: (incoming: unknown, existing: unknown) => {
         assert.ok(
           incoming !== undefined,
           'entity-db: compareVersions incoming must not be undefined'
@@ -51,7 +51,7 @@ function wrapCompareVersions<T>(
     },
     'entity-db: compareVersions',
     {}
-  ) as CompareVersions<T>;
+  ) as CompareVersions;
 }
 
 /**
@@ -59,9 +59,7 @@ function wrapCompareVersions<T>(
  * {@link SqlClient#transaction} maps to a real DB transaction when correctness
  * depends on `SELECT ... FOR UPDATE` (e.g. Bun TCP Postgres, not necessarily HTTP SQL).
  */
-export function createEntityDb<T>(
-  config: CreateEntityDbConfig<T>
-): EntityDb<T> {
+export function createEntityDb(config: CreateEntityDbConfig): EntityDb {
   assert.defined(config.sqlClient, 'entity-db: sqlClient is required');
   const tableName = config.tableName ?? DEFAULT_POSTGRES_ENTITY_TABLE;
   assertSafeIdentifier(tableName, 'tableName');
@@ -69,7 +67,7 @@ export function createEntityDb<T>(
     assertSafeIdentifier(config.schema, 'schema');
   }
   const wrapped = wrapCompareVersions(config.compareVersions);
-  const inner = new EntityDbImplPostgres<T>(
+  const inner = new EntityDbImplPostgres(
     config.sqlClient,
     tableName,
     config.schema,
@@ -79,23 +77,23 @@ export function createEntityDb<T>(
 }
 
 /** In-memory store for tests (same API + assert surface as {@link createEntityDb}). */
-export function createEntityDbInMemory<T>(
-  compareVersions: CompareVersions<T>
-): EntityDb<T> {
+export function createEntityDbInMemory(
+  compareVersions: CompareVersions
+): EntityDb {
   const wrapped = wrapCompareVersions(compareVersions);
-  return new EntityDbAsserts(new EntityDbImplInMemory<T>(wrapped));
+  return new EntityDbAsserts(new EntityDbImplInMemory(wrapped));
 }
 
 /** Tiger Style: re-validate all inputs at the public boundary before delegating. */
-class EntityDbAsserts<T> implements EntityDb<T> {
-  constructor(private readonly inner: EntityDb<T>) {}
+class EntityDbAsserts implements EntityDb {
+  constructor(private readonly inner: EntityDb) {}
 
-  upsert(args: UpsertArgs<T>): Promise<{ applied: boolean }> {
+  upsert(args: UpsertArgs): Promise<{ applied: boolean }> {
     assertUpsertArgs(args);
     return this.inner.upsert(args);
   }
 
-  get(key: EntityKey): Promise<Entity<T> | null> {
+  get(key: EntityKey): Promise<Entity | null> {
     assertEntityKey(key);
     return this.inner.get(key);
   }

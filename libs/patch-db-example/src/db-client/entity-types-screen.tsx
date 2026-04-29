@@ -11,8 +11,8 @@ import {
   TextInput,
   useTheme,
 } from '@gamezilla/lib/ui';
-import { useLingui } from '@gamezilla/lib/i18n';
-import { Trans } from '@gamezilla/lib/i18n';
+import { useLingui } from '@lingui/react/macro';
+import { Trans } from '@lingui/react/macro';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const PAGE_SIZE = 500;

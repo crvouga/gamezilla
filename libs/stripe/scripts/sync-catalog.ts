@@ -29,7 +29,7 @@ const SPEC = {
     subscription: {
       /** Value stored in Product metadata — durable identity in Stripe. */
       catalogProductId: 'subscription',
-      name: 'Plus',
+      name: 'Unlimited',
       description: 'Full access to Gamezilla.',
     },
   },
@@ -41,25 +41,41 @@ const SPEC = {
       currency: 'usd',
       recurring: { interval: 'month' as const },
       currency_options: {
-        inr: { unit_amount: 29_900 },
-        brl: { unit_amount: 1990 },
-        ngn: { unit_amount: 599_000 },
-        zar: { unit_amount: 12_900 },
-        kes: { unit_amount: 90_000 },
+        inr: { unit_amount: 4900 }, // India ~USD PPP $7.00
+        brl: { unit_amount: 2090 }, // Brazil ~USD PPP $7.00
+        ngn: { unit_amount: 6600 }, // Nigeria ~USD PPP $7.00
+        zar: { unit_amount: 12900 }, // South Africa ~USD PPP $7.00
+        kes: { unit_amount: 950 }, // Kenya ~USD PPP $7.00
+        eur: { unit_amount: 650 }, // Europe ~USD PPP $7.00
+        gbp: { unit_amount: 570 }, // UK ~USD PPP $7.00
+        aud: { unit_amount: 1050 }, // Australia ~USD PPP $7.00
+        cad: { unit_amount: 950 }, // Canada ~USD PPP $7.00
+        mxn: { unit_amount: 119 }, // Mexico ~USD PPP $7.00
+        jpy: { unit_amount: 1050 }, // Japan ~USD PPP $7.00
+        sgd: { unit_amount: 930 }, // Singapore ~USD PPP $7.00
+        php: { unit_amount: 390 }, // Philippines ~USD PPP $7.00
       },
     },
     subscription_yearly: {
       product: 'subscription',
       lookup_key: 'subscription_yearly',
-      unit_amount: 4999,
+      unit_amount: 6000,
       currency: 'usd',
       recurring: { interval: 'year' as const },
       currency_options: {
-        inr: { unit_amount: 299_900 },
-        brl: { unit_amount: 19_900 },
-        ngn: { unit_amount: 5_990_000 },
-        zar: { unit_amount: 129_000 },
-        kes: { unit_amount: 900_000 },
+        inr: { unit_amount: 49900 }, // India ~USD PPP $60.00
+        brl: { unit_amount: 20900 }, // Brazil ~USD PPP $60.00
+        ngn: { unit_amount: 66000 }, // Nigeria ~USD PPP $60.00
+        zar: { unit_amount: 129000 }, // South Africa ~USD PPP $60.00
+        kes: { unit_amount: 9500 }, // Kenya ~USD PPP $60.00
+        eur: { unit_amount: 5590 }, // Europe ~USD PPP $60.00
+        gbp: { unit_amount: 4890 }, // UK ~USD PPP $60.00
+        aud: { unit_amount: 8890 }, // Australia ~USD PPP $60.00
+        cad: { unit_amount: 7990 }, // Canada ~USD PPP $60.00
+        mxn: { unit_amount: 10190 }, // Mexico ~USD PPP $60.00
+        jpy: { unit_amount: 8990 }, // Japan ~USD PPP $60.00
+        sgd: { unit_amount: 7990 }, // Singapore ~USD PPP $60.00
+        php: { unit_amount: 33500 }, // Philippines ~USD PPP $60.00
       },
     },
   },

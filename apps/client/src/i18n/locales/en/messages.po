@@ -34,7 +34,7 @@ msgstr "{activeCount} active session(s) — latest expires {latestExpires}"
 msgid "{count} selected"
 msgstr "{count} selected"
 
-#: apps/client/src/ui/sidebar-account-menu.tsx:103
+#: apps/client/src/ui/sidebar-account-menu.tsx:97
 #: apps/client/src/ui/use-account-actions.tsx:65
 msgid "{ms} ms"
 msgstr "{ms} ms"
@@ -70,7 +70,7 @@ msgstr "Account"
 msgid "Account ID"
 msgstr "Account ID"
 
-#: apps/client/src/ui/sidebar-account-menu.tsx:235
+#: apps/client/src/ui/sidebar-account-menu.tsx:232
 msgid "Account menu"
 msgstr "Account menu"
 
@@ -157,7 +157,7 @@ msgid "Avatar style"
 msgstr "Avatar style"
 
 #: apps/client/src/spaces/space-detail-screen.tsx:174
-#: libs/lib/src/ui/components/screen-base/screen-base-header.tsx:337
+#: libs/lib/src/ui/components/screen-base/screen-base-header.tsx:345
 msgid "Back"
 msgstr "Back"
 
@@ -242,7 +242,7 @@ msgstr "Choose what to update"
 msgid "clear"
 msgstr "clear"
 
-#: apps/client/src/ui/patch-bootstrap.tsx:243
+#: apps/client/src/ui/patch-bootstrap.tsx:245
 msgid "Clear local data & reload"
 msgstr "Clear local data & reload"
 
@@ -290,7 +290,7 @@ msgstr "Connected: {connectedAt}"
 
 #: apps/client/src/more/more-screen.tsx:26
 #: apps/client/src/more/server-status-screen.tsx:148
-#: apps/client/src/ui/sidebar-account-menu.tsx:157
+#: apps/client/src/ui/sidebar-account-menu.tsx:146
 #: apps/client/src/ui/use-account-actions.tsx:186
 msgid "Connection"
 msgstr "Connection"
@@ -299,7 +299,7 @@ msgstr "Connection"
 #~ msgid "Connection and server status. {0}. {1}."
 #~ msgstr "Connection and server status. {0}. {1}."
 
-#: apps/client/src/ui/sidebar-account-menu.tsx:153
+#: apps/client/src/ui/sidebar-account-menu.tsx:142
 msgid "Connection and server status. {statusWord}. {latency}."
 msgstr "Connection and server status. {statusWord}. {latency}."
 
@@ -365,7 +365,7 @@ msgstr "Developer"
 msgid "development"
 msgstr "development"
 
-#: apps/client/src/more/account-device-detail-screen.tsx:78
+#: apps/client/src/more/account-device-detail-screen.tsx:76
 msgid "Device"
 msgstr "Device"
 
@@ -417,7 +417,7 @@ msgstr "Discard changes?"
 msgid "Disconnected"
 msgstr "Disconnected"
 
-#: libs/lib/src/ui/components/dismissible-top-banner/dismissible-top-banner.tsx:342
+#: libs/lib/src/ui/components/dismissible-top-banner/dismissible-top-banner.tsx:338
 msgid "Dismiss"
 msgstr "Dismiss"
 
@@ -492,7 +492,7 @@ msgstr "Ethernet"
 msgid "Everyone will leave this space. This cannot be undone."
 msgstr "Everyone will leave this space. This cannot be undone."
 
-#: apps/client/src/ui/patch-bootstrap.tsx:233
+#: apps/client/src/ui/patch-bootstrap.tsx:235
 msgid "Failed to initialize"
 msgstr "Failed to initialize"
 
@@ -527,7 +527,7 @@ msgstr "Gamezilla"
 
 #: apps/client/src/spaces/space-detail-screen.tsx:96
 #: apps/client/src/spaces/space-detail-screen.tsx:125
-#: libs/lib/src/ui/components/screen-base/screen-base-header.tsx:208
+#: libs/lib/src/ui/components/screen-base/screen-base-header.tsx:216
 msgid "Go back"
 msgstr "Go back"
 
@@ -580,15 +580,15 @@ msgstr "Join this space to see who is here and hang out."
 msgid "Last seen"
 msgstr "Last seen"
 
-#: apps/client/src/ui/sidebar-account-menu.tsx:133
+#: apps/client/src/ui/sidebar-account-menu.tsx:122
 msgid "latency {ms} ms"
 msgstr "latency {ms} ms"
 
-#: apps/client/src/ui/sidebar-account-menu.tsx:131
+#: apps/client/src/ui/sidebar-account-menu.tsx:120
 msgid "latency checking"
 msgstr "latency checking"
 
-#: apps/client/src/ui/sidebar-account-menu.tsx:134
+#: apps/client/src/ui/sidebar-account-menu.tsx:123
 msgid "latency unavailable"
 msgstr "latency unavailable"
 
@@ -621,7 +621,7 @@ msgid "limit"
 msgstr "limit"
 
 #: apps/client/src/more/server-status-screen.tsx:49
-#: apps/client/src/ui/sidebar-account-menu.tsx:127
+#: apps/client/src/ui/sidebar-account-menu.tsx:116
 msgid "Limited or checking"
 msgstr "Limited or checking"
 
@@ -642,7 +642,7 @@ msgstr "Loading devices…"
 msgid "Loading provider records…"
 msgstr "Loading provider records…"
 
-#: apps/client/src/more/account-device-detail-screen.tsx:111
+#: apps/client/src/more/account-device-detail-screen.tsx:109
 #: apps/client/src/spaces/space-detail-screen.tsx:69
 #: apps/client/src/spaces/spaces-screen.tsx:92
 #: apps/client/src/spaces/spaces-screen.tsx:195
@@ -669,7 +669,7 @@ msgstr "Max rotation"
 msgid "Min rotation"
 msgstr "Min rotation"
 
-#: apps/client/src/more/account-device-detail-screen.tsx:106
+#: apps/client/src/more/account-device-detail-screen.tsx:104
 msgid "Missing device id."
 msgstr "Missing device id."
 
@@ -677,7 +677,7 @@ msgstr "Missing device id."
 msgid "Model"
 msgstr "Model"
 
-#: libs/lib/src/ui/components/screen-base/screen-base-header.tsx:300
+#: libs/lib/src/ui/components/screen-base/screen-base-header.tsx:308
 msgid "More"
 msgstr "More"
 
@@ -755,7 +755,7 @@ msgstr "Off"
 
 #: apps/client/src/connection/offline-indicator.tsx:50
 #: apps/client/src/more/server-status-screen.tsx:48
-#: apps/client/src/ui/sidebar-account-menu.tsx:126
+#: apps/client/src/ui/sidebar-account-menu.tsx:115
 msgid "Offline"
 msgstr "Offline"
 
@@ -764,7 +764,7 @@ msgid "offset"
 msgstr "offset"
 
 #: apps/client/src/more/server-status-screen.tsx:46
-#: apps/client/src/ui/sidebar-account-menu.tsx:125
+#: apps/client/src/ui/sidebar-account-menu.tsx:114
 msgid "Online"
 msgstr "Online"
 
@@ -850,7 +850,7 @@ msgstr "production"
 #: apps/client/src/profile/profile-screen.tsx:23
 #: apps/client/src/profile/profile-username-screen.tsx:114
 #: apps/client/src/ui/app-sidebar.tsx:24
-#: apps/client/src/ui/sidebar-account-menu.tsx:198
+#: apps/client/src/ui/sidebar-account-menu.tsx:195
 #: apps/client/src/ui/use-account-actions.tsx:185
 msgid "Profile"
 msgstr "Profile"
@@ -909,7 +909,7 @@ msgid "Reset"
 msgstr "Reset"
 
 #: apps/client/src/auth/principal-auth-shell.tsx:89
-#: apps/client/src/ui/patch-bootstrap.tsx:241
+#: apps/client/src/ui/patch-bootstrap.tsx:243
 msgid "Retry"
 msgstr "Retry"
 
@@ -969,8 +969,8 @@ msgstr "Server-side account; tap to copy"
 #: apps/client/src/more/more-screen.tsx:53
 #: apps/client/src/more/server-status-screen.tsx:146
 #: apps/client/src/more/theme-screen.tsx:26
+#: apps/client/src/ui/sidebar-account-menu.tsx:206
 #: apps/client/src/ui/sidebar-account-menu.tsx:209
-#: apps/client/src/ui/sidebar-account-menu.tsx:212
 #: apps/client/src/ui/use-account-actions.tsx:187
 msgid "Settings"
 msgstr "Settings"
@@ -990,7 +990,7 @@ msgstr "sign in"
 #: apps/client/src/auth/sign-in-modal.tsx:61
 #: apps/client/src/more/account-screen.tsx:191
 #: apps/client/src/ui/app-commands/account-command.tsx:21
-#: apps/client/src/ui/sidebar-account-menu.tsx:168
+#: apps/client/src/ui/sidebar-account-menu.tsx:157
 #: apps/client/src/ui/use-account-actions.tsx:188
 msgid "Sign in"
 msgstr "Sign in"
@@ -1010,7 +1010,7 @@ msgstr "Sign in with Google"
 #: apps/client/src/auth/auth-context.tsx:325
 #: apps/client/src/more/account-screen.tsx:186
 #: apps/client/src/ui/app-commands/account-command.tsx:21
-#: apps/client/src/ui/sidebar-account-menu.tsx:168
+#: apps/client/src/ui/sidebar-account-menu.tsx:157
 #: apps/client/src/ui/use-account-actions.tsx:189
 msgid "Sign out"
 msgstr "Sign out"
@@ -1127,12 +1127,12 @@ msgstr "Theme"
 msgid "This deletes all local SQLite data and reloads the app. You cannot undo this."
 msgstr "This deletes all local SQLite data and reloads the app. You cannot undo this."
 
-#: apps/client/src/more/account-device-detail-screen.tsx:139
+#: apps/client/src/more/account-device-detail-screen.tsx:137
 #: apps/client/src/more/account-devices-card.tsx:61
 msgid "This device"
 msgstr "This device"
 
-#: apps/client/src/more/account-device-detail-screen.tsx:117
+#: apps/client/src/more/account-device-detail-screen.tsx:115
 msgid "This device was not found. It may have been removed or is not visible for the current account."
 msgstr "This device was not found. It may have been removed or is not visible for the current account."
 
@@ -1219,7 +1219,7 @@ msgstr "Username"
 msgid "Version: {appVersion}"
 msgstr "Version: {appVersion}"
 
-#: apps/client/src/ui/sidebar-account-menu.tsx:201
+#: apps/client/src/ui/sidebar-account-menu.tsx:198
 msgid "View profile"
 msgstr "View profile"
 

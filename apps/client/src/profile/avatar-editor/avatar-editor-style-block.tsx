@@ -5,7 +5,7 @@ import {
 } from '@gamezilla/client/profile/dicebear-styles';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { ResponsiveSurface, Text } from '@gamezilla/lib/ui';
-import { Trans, useLingui } from '@gamezilla/lib/i18n';
+import { Trans, useLingui } from '@lingui/react/macro';
 
 import { TriggerRow } from './avatar-editor-trigger-row';
 

@@ -7,7 +7,7 @@ import {
   Text,
   useTheme,
 } from '@gamezilla/lib/ui';
-import { Trans, useLingui } from '@gamezilla/lib/i18n';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 
 import type { SpaceView } from './types';

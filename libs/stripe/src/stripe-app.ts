@@ -17,7 +17,7 @@ export function createStripeApp(args: {
   readonly db: PatchesDb;
   readonly secretStore: SecretStore;
   readonly stripe: Stripe | null;
-  readonly entityDb: EntityDb<unknown>;
+  readonly entityDb: EntityDb;
   readonly requireAuth: StripeRequireAuth;
   /** Doppler secret name for the webhook signing secret. */
   readonly webhookSecretDopplerKey: string;

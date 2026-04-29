@@ -6,8 +6,8 @@ import {
   assertUpsertArgs,
 } from './interface';
 
-type StoredRow<T> = {
-  data: T;
+type StoredRow = {
+  data: unknown;
   metadata: Record<string, unknown>;
   lastModifiedAt: Date;
 };
@@ -31,11 +31,11 @@ function cloneJson<T>(value: T): T {
 /**
  * In-process {@link EntityDb} for tests. Serializes all operations through an internal async queue.
  */
-export class EntityDbImplInMemory<T> implements EntityDb<T> {
-  private readonly map = new Map<string, StoredRow<T>>();
+export class EntityDbImplInMemory implements EntityDb {
+  private readonly map = new Map<string, StoredRow>();
   private chain: Promise<void> = Promise.resolve();
 
-  constructor(private readonly compareVersions: CompareVersions<T>) {}
+  constructor(private readonly compareVersions: CompareVersions) {}
 
   private enqueue<R>(fn: () => Promise<R>): Promise<R> {
     const run = this.chain.then(fn);
@@ -46,12 +46,12 @@ export class EntityDbImplInMemory<T> implements EntityDb<T> {
     return run;
   }
 
-  async upsert(args: UpsertArgs<T>): Promise<{ applied: boolean }> {
+  async upsert(args: UpsertArgs): Promise<{ applied: boolean }> {
     assertUpsertArgs(args);
     return this.enqueue(async () => this.upsertUnlocked(args));
   }
 
-  private upsertUnlocked(args: UpsertArgs<T>): { applied: boolean } {
+  private upsertUnlocked(args: UpsertArgs): { applied: boolean } {
     const key = compositeKey(args);
     const meta = args.metadata ?? {};
     const existing = this.map.get(key);
@@ -80,7 +80,7 @@ export class EntityDbImplInMemory<T> implements EntityDb<T> {
     return { applied: true };
   }
 
-  async get(key: EntityKey): Promise<Entity<T> | null> {
+  async get(key: EntityKey): Promise<Entity | null> {
     assertEntityKey(key);
     return this.enqueue(async () => {
       const row = this.map.get(compositeKey(key));

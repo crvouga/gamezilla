@@ -7,7 +7,7 @@ import type Stripe from 'stripe';
 export type ApiHandlerConfig = PatchDbApiConfig & {
   readonly secretStore: SecretStore;
   readonly stripe: Stripe | null;
-  readonly entityDb: EntityDb<unknown>;
+  readonly entityDb: EntityDb;
   readonly requireAuth: StripeRequireAuth;
   /** Doppler secret name for Stripe webhook signing secret. */
   readonly webhookSecretDopplerKey: string;

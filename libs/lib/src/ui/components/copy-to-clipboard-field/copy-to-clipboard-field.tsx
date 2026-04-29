@@ -5,7 +5,7 @@
  */
 
 import type { LocalizedString } from '@gamezilla/lib/i18n';
-import { useLingui } from '@gamezilla/lib/i18n';
+import { useLingui } from '@lingui/react/macro';
 import * as Clipboard from 'expo-clipboard';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Animated, Pressable, View, type ViewStyle } from 'react-native';

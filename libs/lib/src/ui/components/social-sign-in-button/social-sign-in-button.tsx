@@ -20,7 +20,7 @@
 
 import type { LocalizedString } from '@gamezilla/lib/i18n';
 import { asLocalized } from '@gamezilla/lib/i18n';
-import { useLingui } from '@gamezilla/lib/i18n';
+import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import {
   Platform,

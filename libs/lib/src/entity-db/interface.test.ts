@@ -21,14 +21,25 @@ function registerThrowingCrashHandlerForTests(): () => void {
 
 type V = { v: number };
 
-function compareByVersion(incoming: V, existing: V): -1 | 0 | 1 {
-  if (incoming.v > existing.v) return 1;
-  if (incoming.v < existing.v) return -1;
+function asV(value: unknown): V {
+  assert.record(value, 'test: expected V row');
+  assert.ok(
+    typeof value['v'] === 'number',
+    'test: expected V.v to be a number'
+  );
+  return value as V;
+}
+
+function compareByVersion(incoming: unknown, existing: unknown): -1 | 0 | 1 {
+  const i = asV(incoming);
+  const e = asV(existing);
+  if (i.v > e.v) return 1;
+  if (i.v < e.v) return -1;
   return 0;
 }
 
 export function runEntityDbContractTests(
-  factory: () => EntityDb<V> | Promise<EntityDb<V>>
+  factory: () => EntityDb | Promise<EntityDb>
 ): void {
   test('get returns null for missing key', async () => {
     const db = await Promise.resolve(factory());
@@ -169,21 +180,19 @@ describe('entity-db interface', () => {
   });
 
 describe('EntityDbImplInMemory (contract)', () => {
-  runEntityDbContractTests(() =>
-    createEntityDbInMemory<V>(compareByVersion)
-  );
+  runEntityDbContractTests(() => createEntityDbInMemory(compareByVersion));
 });
 
 describe('entity-db tiger violations (in-memory)', () => {
   test('empty namespace throws', () => {
-    const db = createEntityDbInMemory<V>(compareByVersion);
+    const db = createEntityDbInMemory(compareByVersion);
     expect(() =>
       db.get({ namespace: '', type: 't', id: 'i' })
     ).toThrow();
   });
 
   test('key length overflow throws', () => {
-    const db = createEntityDbInMemory<V>(compareByVersion);
+    const db = createEntityDbInMemory(compareByVersion);
     const long = 'x'.repeat(ENTITY_DB_LIMITS.MAX_NAMESPACE_LEN + 1);
     expect(() =>
       db.get({ namespace: long, type: 't', id: 'i' })
@@ -191,46 +200,51 @@ describe('entity-db tiger violations (in-memory)', () => {
   });
 
   test('NUL in key throws', () => {
-    const db = createEntityDbInMemory<V>(compareByVersion);
+    const db = createEntityDbInMemory(compareByVersion);
     expect(() =>
       db.get({ namespace: 'a\0b', type: 't', id: 'i' })
     ).toThrow();
   });
 
   test('data undefined on upsert throws', () => {
-    const db = createEntityDbInMemory<V>(compareByVersion);
+    const db = createEntityDbInMemory(compareByVersion);
     expect(() =>
       db.upsert({
         namespace: 'n',
         type: 't',
         id: 'i',
-        data: undefined as unknown as V,
+        data: undefined,
       })
     ).toThrow();
   });
 
   test('compareVersions invalid return throws', async () => {
-    const raw = new EntityDbImplInMemory<V>((_a, _b) => 2 as unknown as -1);
+    const raw = new EntityDbImplInMemory((_a, _b) => 2 as unknown as -1);
     await raw.upsert({
       namespace: 'n',
       type: 't',
       id: 'x',
-      data: { v: 1 },
+      data: { v: 1 } satisfies V,
     });
     await expect(
-      raw.upsert({ namespace: 'n', type: 't', id: 'x', data: { v: 2 } })
+      raw.upsert({
+        namespace: 'n',
+        type: 't',
+        id: 'x',
+        data: { v: 2 } satisfies V,
+      })
     ).rejects.toThrow();
   });
 
   test('payload over MAX_JSON_BYTES throws', () => {
-    const db = createEntityDbInMemory<V>(compareByVersion);
+    const db = createEntityDbInMemory(compareByVersion);
     const big = 'z'.repeat(ENTITY_DB_LIMITS.MAX_JSON_BYTES);
     expect(() =>
       db.upsert({
         namespace: 'n',
         type: 't',
         id: 'big',
-        data: { v: 1, big } as unknown as V,
+        data: { v: 1, big },
       })
     ).toThrow();
   });
@@ -249,7 +263,7 @@ describe('entity-db tiger violations (in-memory)', () => {
       }),
     } as SqlClient;
     expect(() =>
-      createEntityDb<V>({
+      createEntityDb({
         sqlClient: noopSql,
         tableName: 'bad;',
         compareVersions: compareByVersion,

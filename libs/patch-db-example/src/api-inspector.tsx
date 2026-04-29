@@ -17,8 +17,8 @@ import {
   TextInput,
 } from '@gamezilla/lib/ui';
 import { useTheme } from '@gamezilla/lib/ui/theme';
-import { useLingui } from '@gamezilla/lib/i18n';
-import { Trans } from '@gamezilla/lib/i18n';
+import { useLingui } from '@lingui/react/macro';
+import { Trans } from '@lingui/react/macro';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useRef, useState } from 'react';
 

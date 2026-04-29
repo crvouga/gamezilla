@@ -33,7 +33,7 @@ import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { assertDatabaseName } from '@gamezilla/lib/sqlite';
 import { Box, Button, Center, hideSplash, Text } from '@gamezilla/lib/ui';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@gamezilla/lib/i18n';
+import { Trans } from '@lingui/react/macro';
 import { assertUrl } from '@gamezilla/patch-db/assert-url';
 import { PatchDbImplClientTransport } from '@gamezilla/patch-db/impl-client-transport';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';

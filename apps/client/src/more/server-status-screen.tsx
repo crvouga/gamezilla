@@ -8,7 +8,7 @@ import {
   StatusDot,
   Text,
 } from '@gamezilla/lib/ui';
-import { Trans, useLingui } from '@gamezilla/lib/i18n';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { NetworkStateType } from 'expo-network';
 import { useCallback, useEffect } from 'react';
 

@@ -1,5 +1,5 @@
 import { Box, ConfirmationModal, ScreenBase } from '@gamezilla/lib/ui';
-import { Trans } from '@gamezilla/lib/i18n';
+import { Trans } from '@lingui/react/macro';
 
 import { BackgroundBlock } from './avatar-editor-background-block';
 import { ColorsBlock } from './avatar-editor-colors-block';

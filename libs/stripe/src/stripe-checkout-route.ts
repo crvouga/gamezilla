@@ -45,7 +45,7 @@ async function handleStripeCheckout(
   args: {
     readonly db: PatchesDb;
     readonly stripe: Stripe;
-    readonly stripeCache: EntityDb<unknown>;
+    readonly stripeCache: EntityDb;
     readonly requireAuth: StripeRequireAuth;
   }
 ): Promise<Response> {
@@ -162,7 +162,7 @@ async function handleStripePortal(
 export function createStripeCheckoutRoutes(args: {
   readonly db: PatchesDb;
   readonly stripe: Stripe | null;
-  readonly stripeCache: EntityDb<unknown>;
+  readonly stripeCache: EntityDb;
   readonly requireAuth: StripeRequireAuth;
 }) {
   const { db, stripe, stripeCache, requireAuth } = args;

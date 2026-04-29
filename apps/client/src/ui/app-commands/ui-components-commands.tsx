@@ -1,5 +1,5 @@
 import { RegisterCommand, componentRegistry } from '@gamezilla/lib/ui';
-import { useLingui } from '@gamezilla/lib/i18n';
+import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 
 export function UiComponentsCommands() {

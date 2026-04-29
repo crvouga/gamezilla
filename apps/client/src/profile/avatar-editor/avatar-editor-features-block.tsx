@@ -3,7 +3,7 @@ import type { SchemaField } from '@gamezilla/client/profile/dicebear-schema';
 import type { StyleKey } from '@gamezilla/client/profile/dicebear-styles';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { Box, ResponsiveSurface, Text } from '@gamezilla/lib/ui';
-import { Trans, useLingui } from '@gamezilla/lib/i18n';
+import { Trans, useLingui } from '@lingui/react/macro';
 
 import { TriggerRow } from './avatar-editor-trigger-row';
 import { getEnumSelectionMode, humanizeOptionKey } from './option-helpers';

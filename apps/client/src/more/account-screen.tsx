@@ -14,7 +14,7 @@ import {
   GOOGLE_PROVIDER,
 } from '@gamezilla/domain/auth';
 import { Box, Button, Card, ScreenBase, Text } from '@gamezilla/lib/ui';
-import { Trans, useLingui } from '@gamezilla/lib/i18n';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useEntities } from '@gamezilla/patch-db/react';
 import { type Href, useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';

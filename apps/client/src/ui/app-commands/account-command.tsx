@@ -1,7 +1,7 @@
 import { useAuth } from '@gamezilla/client/auth/auth-context';
 import { RegisterCommand } from '@gamezilla/lib/ui';
 import { useAsync } from '@gamezilla/lib/async/use-async';
-import { useLingui } from '@gamezilla/lib/i18n';
+import { useLingui } from '@lingui/react/macro';
 
 export function AccountCommand() {
   const { t } = useLingui();

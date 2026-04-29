@@ -213,14 +213,14 @@ type JsonbRow = {
   [K in typeof C.data | typeof C.metadata]: unknown;
 } & { [K in typeof C.lastModifiedAt]: unknown };
 
-export class EntityDbImplPostgres<T> implements EntityDb<T> {
+export class EntityDbImplPostgres implements EntityDb {
   private readonly qTable: string;
 
   constructor(
     private readonly sqlClient: SqlClient,
     tableName: string,
     schema: string | undefined,
-    private readonly compareVersions: CompareVersions<T>
+    private readonly compareVersions: CompareVersions
   ) {
     this.qTable = qualifiedTable(tableName, schema);
   }
@@ -237,7 +237,7 @@ export class EntityDbImplPostgres<T> implements EntityDb<T> {
     return migrateEntityDbPostgres(args);
   }
 
-  async upsert(args: UpsertArgs<T>): Promise<{ applied: boolean }> {
+  async upsert(args: UpsertArgs): Promise<{ applied: boolean }> {
     assertUpsertArgs(args);
     return this.sqlClient.transaction((tx) =>
       this.runUpsertTransaction(tx, args)
@@ -246,7 +246,7 @@ export class EntityDbImplPostgres<T> implements EntityDb<T> {
 
   private async runUpsertTransaction(
     tx: SqlClient,
-    args: UpsertArgs<T>
+    args: UpsertArgs
   ): Promise<{ applied: boolean }> {
     const rows = await this.queryExistingForUpdate(tx, args);
     const meta = args.metadata ?? {};
@@ -266,7 +266,7 @@ export class EntityDbImplPostgres<T> implements EntityDb<T> {
 
   private async queryExistingForUpdate(
     tx: SqlClient,
-    args: UpsertArgs<T>
+    args: UpsertArgs
   ): Promise<JsonbRow[]> {
     const selectSql = `SELECT ${C.data}, ${C.metadata}, ${C.lastModifiedAt}
 FROM ${this.qTable}
@@ -292,7 +292,7 @@ FOR UPDATE`;
 
   private async insertNewRow(
     tx: SqlClient,
-    args: UpsertArgs<T>,
+    args: UpsertArgs,
     meta: Record<string, unknown>
   ): Promise<'insert'> {
     const insertSql = `INSERT INTO ${this.qTable}
@@ -311,11 +311,11 @@ VALUES (?, ?, ?, ?::jsonb, ?::jsonb, now())`;
 
   private async updateOrSkipExisting(
     tx: SqlClient,
-    args: UpsertArgs<T>,
+    args: UpsertArgs,
     meta: Record<string, unknown>,
     row: JsonbRow
   ): Promise<'update' | 'skip'> {
-    const existingData = parseJsonbAsT<T>(row[C.data], 'existing data', args);
+    const existingData = parseJsonbValue(row[C.data], 'existing data', args);
     const cmp = this.compareVersions(args.data, existingData);
     assertCompareVersionsResult(cmp, {
       namespace: args.namespace,
@@ -337,7 +337,7 @@ WHERE ${C.namespace} = ? AND ${C.type} = ? AND ${C.id} = ?`;
     return 'update';
   }
 
-  async get(key: EntityKey): Promise<Entity<T> | null> {
+  async get(key: EntityKey): Promise<Entity | null> {
     assertEntityKey(key);
     const sql = `SELECT ${C.data}, ${C.metadata}, ${C.lastModifiedAt}
 FROM ${this.qTable}
@@ -374,7 +374,7 @@ WHERE ${C.namespace} = ? AND ${C.type} = ? AND ${C.id} = ?`;
     );
   }
 
-  private mapRowToEntity(key: EntityKey, row: JsonbRow): Entity<T> {
+  private mapRowToEntity(key: EntityKey, row: JsonbRow): Entity {
     assert.ok(
       row[C.data] !== undefined,
       'entity-db: row.data must be defined',
@@ -388,7 +388,7 @@ WHERE ${C.namespace} = ? AND ${C.type} = ? AND ${C.id} = ?`;
       namespace: key.namespace,
       type: key.type,
       id: key.id,
-      data: parseJsonbAsT<T>(row[C.data], 'row data', key),
+      data: parseJsonbValue(row[C.data], 'row data', key),
       metadata: parseJsonbMetadata(row[C.metadata], key),
       lastModifiedAt,
     };
@@ -460,19 +460,23 @@ function parseJsonbMetadata(
   return raw;
 }
 
-function parseJsonbAsT<T>(raw: unknown, label: string, key: EntityKey): T {
+function parseJsonbValue(
+  raw: unknown,
+  label: string,
+  key: EntityKey
+): unknown {
   if (typeof raw === 'string') {
     let parsed: unknown;
     assert.notThrows(
       () => {
-        parsed = JSON.parse(raw) as T;
+        parsed = JSON.parse(raw);
       },
       `entity-db: ${label} JSON.parse failed`,
       { key, raw }
     );
-    return parsed as T;
+    return parsed;
   }
-  return raw as T;
+  return raw;
 }
 
 function coerceToDate(value: unknown, key: EntityKey): Date {

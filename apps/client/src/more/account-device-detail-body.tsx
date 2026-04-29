@@ -1,7 +1,7 @@
 import type { AccountPrincipal } from '@gamezilla/client/auth/use-account-principals';
 import type { PrincipalSessionAggregate } from '@gamezilla/client/auth/use-principals-sessions';
 import { Box, CopyToClipboardField, Text } from '@gamezilla/lib/ui';
-import { Trans, useLingui } from '@gamezilla/lib/i18n';
+import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import {
   EM_DASH,

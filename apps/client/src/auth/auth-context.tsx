@@ -17,7 +17,7 @@ import {
 } from '@gamezilla/lib/dependency-injection/react';
 import { useLogger } from '@gamezilla/lib/logger/react';
 import { ConfirmationModal } from '@gamezilla/lib/ui';
-import { Trans } from '@gamezilla/lib/i18n';
+import { Trans } from '@lingui/react/macro';
 import { PatchesDbToken, useEntity } from '@gamezilla/patch-db/react';
 import { SubscribablePatchesDbToken } from '@gamezilla/patch-db/subscribable';
 import {

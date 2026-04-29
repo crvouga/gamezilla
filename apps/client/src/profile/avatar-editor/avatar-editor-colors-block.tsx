@@ -6,7 +6,7 @@ import {
   ResponsiveSurface,
   Text,
 } from '@gamezilla/lib/ui';
-import { Trans, useLingui } from '@gamezilla/lib/i18n';
+import { Trans, useLingui } from '@lingui/react/macro';
 
 import { TriggerRow } from './avatar-editor-trigger-row';
 import { humanizeOptionKey } from './option-helpers';

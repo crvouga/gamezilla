@@ -7,8 +7,8 @@ export const stripeWebhookCompareVersions = (): 1 => 1;
 
 export function createStripeWebhookCacheEntityDb(
   sqlClient: SqlClient
-): EntityDb<unknown> {
-  return createEntityDb<unknown>({
+): EntityDb {
+  return createEntityDb({
     sqlClient,
     compareVersions: stripeWebhookCompareVersions,
   });

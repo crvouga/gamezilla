@@ -6,7 +6,7 @@ import {
 import { useSessionsForPrincipals } from '@gamezilla/client/auth/use-principals-sessions';
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 import { PRINCIPAL_ENTITY_TYPE } from '@gamezilla/domain/auth';
-import { Trans } from '@gamezilla/lib/i18n';
+import { Trans } from '@lingui/react/macro';
 import { Badge, Box, Card, ScreenBase, Text } from '@gamezilla/lib/ui';
 import { useEntity } from '@gamezilla/patch-db/react';
 import { t } from '@lingui/core/macro';

@@ -4,7 +4,7 @@
  */
 
 import type { LocalizedString } from '@gamezilla/lib/i18n';
-import { useLingui } from '@gamezilla/lib/i18n';
+import { useLingui } from '@lingui/react/macro';
 import type { ReactElement, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { FlatList, Pressable, View } from 'react-native';

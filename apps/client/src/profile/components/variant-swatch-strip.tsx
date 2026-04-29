@@ -7,7 +7,7 @@ import type { StyleKey } from '@gamezilla/client/profile/dicebear-styles';
 import { ProfileDiceBearAvatar } from '@gamezilla/client/profile/profile-dicebear-avatar';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { HorizontalPicker, Text } from '@gamezilla/lib/ui';
-import { Trans } from '@gamezilla/lib/i18n';
+import { Trans } from '@lingui/react/macro';
 
 export type VariantSwatchStripProps = {
   field: Extract<SchemaField, { kind: 'enum' }>;

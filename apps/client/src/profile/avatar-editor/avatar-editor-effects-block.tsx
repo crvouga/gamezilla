@@ -1,7 +1,7 @@
 import type { SchemaField } from '@gamezilla/client/profile/dicebear-schema';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { Box, ChipGroup, Text } from '@gamezilla/lib/ui';
-import { Trans, useLingui } from '@gamezilla/lib/i18n';
+import { Trans, useLingui } from '@lingui/react/macro';
 
 import { getProbabilityMode, humanizeOptionKey } from './option-helpers';
 

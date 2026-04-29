@@ -5,7 +5,7 @@ import {
   getShortCommitHash,
 } from '@gamezilla/domain/config/app-metadata';
 import { Box, Card, CopyToClipboardField, ScreenBase, Text } from '@gamezilla/lib/ui';
-import { Trans, useLingui } from '@gamezilla/lib/i18n';
+import { Trans, useLingui } from '@lingui/react/macro';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 

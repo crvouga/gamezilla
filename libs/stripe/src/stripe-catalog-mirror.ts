@@ -28,7 +28,7 @@ export function stripePriceIdFromCatalogRowData(data: unknown): string | null {
 }
 
 export async function getStripeCatalogPriceStripeId(
-  entityDb: EntityDb<unknown>,
+  entityDb: EntityDb,
   priceLookupKey: string
 ): Promise<string | null> {
   const row = await entityDb.get({
@@ -44,7 +44,7 @@ export async function getStripeCatalogPriceStripeId(
  * `rowId` is the stable catalog key (SPEC / checkout `priceKey`).
  */
 export async function upsertCatalogPriceFromStripeApi(
-  entityDb: EntityDb<unknown>,
+  entityDb: EntityDb,
   rowId: string,
   price: Stripe.Price
 ): Promise<void> {
@@ -62,7 +62,7 @@ export async function upsertCatalogPriceFromStripeApi(
  * `rowId` is `metadata.catalog_product_id` for that product.
  */
 export async function upsertCatalogProductFromStripeApi(
-  entityDb: EntityDb<unknown>,
+  entityDb: EntityDb,
   rowId: string,
   product: Stripe.Product
 ): Promise<void> {

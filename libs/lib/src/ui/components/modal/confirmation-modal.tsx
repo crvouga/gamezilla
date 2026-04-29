@@ -17,7 +17,7 @@
  * ```
  */
 
-import { useLingui } from '@gamezilla/lib/i18n';
+import { useLingui } from '@lingui/react/macro';
 import { useRef } from 'react';
 import type { ReactNode } from 'react';
 import { ResponsiveSurface } from '../responsive-surface';

@@ -1,5 +1,5 @@
 import { RegisterCommand, useThemePreference } from '@gamezilla/lib/ui';
-import { useLingui } from '@gamezilla/lib/i18n';
+import { useLingui } from '@lingui/react/macro';
 
 export function AppearanceCommands() {
   const { t } = useLingui();

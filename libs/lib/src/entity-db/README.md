@@ -20,7 +20,7 @@ const logger = createLogger({ name: 'my-app' });
 await EntityDbImplPostgres.migrate({ sqlClient, logger });
 // Or a custom physical table (tests, multi-tenant): migrate({ sqlClient, logger, tableName: 'my_entities' });
 
-const client = createEntityDb<MyPayload>({
+const client = createEntityDb({
   sqlClient,
   // tableName defaults to DEFAULT_POSTGRES_ENTITY_TABLE (`entities`)
   schema: 'public', // optional
