@@ -26,7 +26,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@gamezilla/client/auth/auth-context';
-import { ProfileDiceBearAvatar } from '@gamezilla/client/profile/profile-dicebear-avatar';
+import { PrincipalAvatar } from '@gamezilla/client/profile/principal-avatar';
 import { useProfile } from '@gamezilla/client/profile/use-profile';
 import { useAsync } from '@gamezilla/lib/async/use-async';
 
@@ -132,12 +132,9 @@ function latencyPhrase(health: ServerStatus['health']): string {
 
 type MenuRow = FloatingMenuContent['rows'][number];
 
-function buildHeader(profile: Profile, auth: Auth): FloatingMenuContent['header'] {
+function buildHeader(profile: Profile): FloatingMenuContent['header'] {
   return {
     title: profile.displayLabel,
-    ...(profile.hasCustomDisplayName
-      ? { subtitle: auth.mode === 'guest' ? 'Guest' : 'Signed in' }
-      : {}),
   };
 }
 
@@ -187,7 +184,7 @@ function buildMenuContent(args: {
 }): FloatingMenuContent {
   const { profile, auth, serverStatus, onProfile, onServerStatus, onAuth, onSettings } = args;
   return {
-    header: buildHeader(profile, auth),
+    header: buildHeader(profile),
     rows: [
       {
         type: 'item',
@@ -212,25 +209,16 @@ function buildMenuContent(args: {
   };
 }
 
-function getSubtitle(auth: Auth, profile: Profile): string | null {
-  if (auth.mode === 'signed-in') {
-    return profile.hasCustomDisplayName ? 'Signed in' : null;
-  }
-  return 'Guest';
-}
-
 function AccountTrigger({
   triggerRef,
   open,
   openMenu,
   profile,
-  subtitle,
 }: {
   triggerRef: React.RefObject<ElementRef<typeof Box> | null>;
   open: boolean;
   openMenu: () => void;
   profile: Profile;
-  subtitle: string | null;
 }) {
   const theme = useTheme();
   return (
@@ -250,9 +238,9 @@ function AccountTrigger({
           background: open ? 'surface' : 'transparent',
         }}
       >
-        <ProfileDiceBearAvatar
-          config={profile.avatarConfig}
-          fallbackSeed={profile.principalId}
+        <PrincipalAvatar
+          avatarConfig={profile.avatarConfig}
+          principalId={profile.principalId}
           size={32}
           loading={profile.loading}
         />
@@ -263,14 +251,6 @@ function AccountTrigger({
             numberOfLines={1}
             label={profile.displayLabel}
           />
-          {subtitle ? (
-            <Text
-              variant="caption"
-              sx={{ color: 'textSecondary' }}
-              numberOfLines={1}
-              label={subtitle}
-            />
-          ) : null}
         </Box>
         <IconSymbol name="ellipsis" size={18} color={theme.colors.icon} />
       </Pressable>
@@ -330,8 +310,6 @@ export function SidebarAccountMenu() {
     ]
   );
 
-  const subtitle = getSubtitle(auth, profile);
-
   return (
     <>
       <AccountTrigger
@@ -339,7 +317,6 @@ export function SidebarAccountMenu() {
         open={open}
         openMenu={openMenu}
         profile={profile}
-        subtitle={subtitle}
       />
       <FloatingMenu
         open={open}

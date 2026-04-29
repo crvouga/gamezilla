@@ -1,4 +1,4 @@
-import { ProfileDiceBearAvatar } from '@gamezilla/client/profile/profile-dicebear-avatar';
+import { PrincipalAvatar } from '@gamezilla/client/profile/principal-avatar';
 import { useProfile } from '@gamezilla/client/profile/use-profile';
 import { useAccountActions } from '@gamezilla/client/ui/use-account-actions';
 import {
@@ -23,16 +23,13 @@ export function ProfileScreen() {
       content={({ sx }) => (
         <Box style={sx}>
           <Box sx={{ alignItems: 'center', gap: 2 }}>
-            <ProfileDiceBearAvatar
-              config={profile.avatarConfig}
-              fallbackSeed={profile.principalId}
+            <PrincipalAvatar
+              avatarConfig={profile.avatarConfig}
+              principalId={profile.principalId}
               size={80}
               loading={profile.loading}
             />
-            <Text
-              variant="title"
-              label={profile.loading ? '\u00A0' : profile.displayLabel}
-            />
+            <Text variant="title" label={profile.displayLabel} />
           </Box>
           <Box sx={{ mt: 2, alignSelf: 'stretch' }}>
             <Button

@@ -1,5 +1,5 @@
+import { PrincipalAvatar } from '@gamezilla/client/profile/principal-avatar';
 import {
-  Avatar,
   Box,
   GradientBox,
   Pressable,
@@ -11,21 +11,14 @@ import { useRouter } from 'expo-router';
 
 import type { SpaceView } from './types';
 
-function initialsFromName(name: string): string {
-  const parts = name.trim().split(/\s+/);
-  if (parts.length >= 2 && parts[0] && parts[1]) {
-    return `${parts[0][0] ?? ''}${parts[1][0] ?? ''}`;
-  }
-  return name.slice(0, 2) || '?';
-}
-
 function HostHeader({ space }: { space: SpaceView }) {
   return (
     <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2, flex: 1 }}>
-      <Avatar
-        initials={initialsFromName(space.hostDisplayName)}
+      <PrincipalAvatar
+        avatarConfig={space.hostAvatarConfig}
+        principalId={space.hostId}
         size={44}
-        background="rgba(255,255,255,0.22)"
+        vividBackdrop
       />
       <Box sx={{ flex: 1, gap: 0.5 }}>
         <Text

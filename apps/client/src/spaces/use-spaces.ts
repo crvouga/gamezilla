@@ -5,10 +5,13 @@ import {
 } from '@gamezilla/client/auth/last-modified-by-patches-db';
 import { PrincipalServiceToken } from '@gamezilla/client/auth/principal-service';
 import { usePrincipalProfileEntities } from '@gamezilla/client/auth/use-principal-profile-entities';
+import { displayNameForPrincipal } from '@gamezilla/client/profile/principal-display';
 import {
   PRINCIPAL_ENTITY_TYPE,
   PrincipalAttr,
 } from '@gamezilla/domain/auth';
+import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
+import { parseAvatarConfigAttr } from '@gamezilla/domain/profile/avatar-config';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
@@ -49,21 +52,11 @@ function spaceEntityIsLive(
   return ended === undefined || ended === null;
 }
 
-function displayNameForPrincipal(
-  profile: Entity | undefined,
-  principalId: string
-): string {
-  const raw = profile?.attributes[ProfileAttr.displayName];
-  const trimmed = typeof raw === 'string' ? raw.trim() : '';
-  if (trimmed.length > 0) return trimmed;
-  return `User ${principalId.slice(0, 8)}`;
-}
-
-function displayNameFromPrincipalMaps(
+function principalPresentation(
   principalId: string,
   principalById: Map<string, Entity>,
   profileById: Map<string, Entity>
-): string {
+): { displayName: string; avatarConfig: AvatarConfig | null } {
   const principalRow = principalById.get(principalId);
   const accountId = readStringAttr(
     principalRow?.attributes as Record<string, unknown> | undefined,
@@ -71,7 +64,14 @@ function displayNameFromPrincipalMaps(
   );
   const profileKey = accountId ?? principalId;
   const profileEntity = profileById.get(profileKey);
-  return displayNameForPrincipal(profileEntity, principalId);
+  const attrs = profileEntity?.attributes as Record<string, unknown> | undefined;
+  return {
+    displayName: displayNameForPrincipal(
+      attrs?.[ProfileAttr.displayName],
+      principalId
+    ),
+    avatarConfig: parseAvatarConfigAttr(attrs, ProfileAttr.avatarConfig),
+  };
 }
 
 export function useSpaces(filter: SpaceFilter) {
@@ -117,16 +117,14 @@ export function useSpaces(filter: SpaceFilter) {
       const title = readStringAttr(e.attributes, SpaceAttr.title) ?? 'Untitled';
       const hostId = readStringAttr(e.attributes, SpaceAttr.hostId) ?? '';
       const live = spaceEntityIsLive(e.attributes);
-      const hostDisplayName = displayNameFromPrincipalMaps(
-        hostId,
-        principalById,
-        profileById
-      );
+      const { displayName: hostDisplayName, avatarConfig: hostAvatarConfig } =
+        principalPresentation(hostId, principalById, profileById);
       return {
         id: e.entityId,
         title,
         hostId,
         hostDisplayName,
+        hostAvatarConfig,
         live,
       };
     });
@@ -195,14 +193,10 @@ export function usePrincipalDisplayName(
   const profileEntity = profileRes.entities[0] ?? null;
 
   return useMemo(() => {
-    if (id === NO_ENTITY_PLACEHOLDER) return 'Unknown';
-    if (principalRes.loading) return `User ${id.slice(0, 8)}`;
-    if (profileRes.loading) return `User ${id.slice(0, 8)}`;
-    if (profileEntity === null) {
-      return displayNameForPrincipal(undefined, id);
-    }
-    return displayNameForPrincipal(profileEntity, id);
-  }, [id, principalRes.loading, profileRes.loading, profileEntity]);
+    const effectiveId = id === NO_ENTITY_PLACEHOLDER ? 'unknown' : id;
+    const raw = profileEntity?.attributes[ProfileAttr.displayName];
+    return displayNameForPrincipal(raw, effectiveId);
+  }, [id, profileEntity]);
 }
 
 export type CurrentMembership = {
@@ -416,11 +410,7 @@ export function useSpaceMembers(spaceId: string | undefined) {
       const role: 'host' | 'guest' = roleRaw === 'host' ? 'host' : 'guest';
       rows.push({
         principalId: e.entityId,
-        displayName: displayNameFromPrincipalMaps(
-          e.entityId,
-          principalById,
-          profileById
-        ),
+        ...principalPresentation(e.entityId, principalById, profileById),
         role,
       });
     }

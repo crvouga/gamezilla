@@ -67,6 +67,22 @@ export function resolveAvatarSeed(config: AvatarConfig, principalId: string): st
   return t.length > 0 ? t : principalId;
 }
 
+/**
+ * Returns a parsed avatar config only when `profile/avatarConfig` (or other attr)
+ * is present and valid JSON. Use for UI: `null` means “no persisted config”
+ * (show empty avatar), distinct from `resolveAvatarConfig` which always returns
+ * a default for editors.
+ */
+export function parseAvatarConfigAttr(
+  attributes: Record<string, unknown> | undefined,
+  attr: string,
+): AvatarConfig | null {
+  if (!attributes) return null;
+  const raw = attributes[attr];
+  if (raw === undefined || raw === null) return null;
+  return parseAvatarConfig(raw);
+}
+
 export function resolveAvatarConfig(
   attributes: Record<string, unknown> | undefined,
   _principalId: string,

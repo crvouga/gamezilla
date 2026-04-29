@@ -1,8 +1,9 @@
+import { displayNameForPrincipal } from '@gamezilla/client/profile/principal-display';
 import {
   PrincipalAttr,
 } from '@gamezilla/domain/auth';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
-import { resolveAvatarConfig } from '@gamezilla/domain/profile/avatar-config';
+import { parseAvatarConfigAttr } from '@gamezilla/domain/profile/avatar-config';
 import { ProfileAttr } from '@gamezilla/domain/profile/profile-entities';
 import type { Entity } from '@gamezilla/patch-db/interface';
 import { useMemo } from 'react';
@@ -10,15 +11,9 @@ import { useMemo } from 'react';
 import { usePrincipalProfileEntities } from './use-principal-profile-entities';
 
 export type PrincipalProfileSummary = {
-  displayName: string | null;
-  avatarConfig: AvatarConfig;
+  displayName: string;
+  avatarConfig: AvatarConfig | null;
 };
-
-function normDisplayName(raw: unknown): string | null {
-  if (typeof raw !== 'string') return null;
-  const t = raw.trim();
-  return t.length > 0 ? t : null;
-}
 
 function readStringAttr(
   attrs: Record<string, unknown> | undefined,
@@ -27,21 +22,6 @@ function readStringAttr(
   if (!attrs) return null;
   const v = attrs[key];
   return typeof v === 'string' && v.length > 0 ? v : null;
-}
-
-function entityToSummary(
-  entity: Entity,
-  fallbackSeed: string
-): PrincipalProfileSummary {
-  const attrs = entity.attributes as Record<string, unknown>;
-  return {
-    displayName: normDisplayName(attrs[ProfileAttr.displayName]),
-    avatarConfig: resolveAvatarConfig(
-      attrs,
-      fallbackSeed,
-      ProfileAttr.avatarConfig
-    ),
-  };
 }
 
 function profileIdForPrincipal(
@@ -65,15 +45,15 @@ function summaryForPrincipal(
   const prof = profileById.get(profileId);
   if (prof === undefined) {
     return {
-      displayName: null,
-      avatarConfig: resolveAvatarConfig(
-        undefined,
-        principalId,
-        ProfileAttr.avatarConfig
-      ),
+      displayName: displayNameForPrincipal(undefined, principalId),
+      avatarConfig: null,
     };
   }
-  return entityToSummary(prof, principalId);
+  const attrs = prof.attributes as Record<string, unknown>;
+  return {
+    displayName: displayNameForPrincipal(attrs[ProfileAttr.displayName], principalId),
+    avatarConfig: parseAvatarConfigAttr(attrs, ProfileAttr.avatarConfig),
+  };
 }
 
 /**

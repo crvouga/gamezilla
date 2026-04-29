@@ -4,7 +4,8 @@ import {
   LAST_MODIFIED_BY_PRINCIPAL_ID_KEY,
 } from '@gamezilla/client/auth/last-modified-by-patches-db';
 import { PrincipalServiceToken } from '@gamezilla/client/auth/principal-service';
-import { resolveAvatarConfig } from '@gamezilla/domain/profile/avatar-config';
+import { parseAvatarConfigAttr } from '@gamezilla/domain/profile/avatar-config';
+import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
@@ -13,6 +14,8 @@ import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import type { Entity, PatchesDbQueryWhereClause } from '@gamezilla/patch-db/interface';
 import { useEntities } from '@gamezilla/patch-db/react';
 import { useMemo } from 'react';
+
+import { displayNameForPrincipal } from './principal-display';
 
 const NO_ENTITY_PLACEHOLDER = '__patch_db_no_entity__';
 
@@ -45,20 +48,6 @@ function profileStampWhere(args: {
   };
 }
 
-function deriveDisplayLabel(args: {
-  loading: boolean;
-  usable: boolean;
-  trimmedName: string;
-  signedIn: boolean;
-}): string {
-  const { loading, usable, trimmedName, signedIn } = args;
-  if (loading) return '';
-  if (!usable || trimmedName.length === 0) {
-    return signedIn ? 'Signed in' : 'Guest';
-  }
-  return trimmedName;
-}
-
 type ProfileResult = {
   principalId: string;
   /** Profile row id (`accountId` when signed in, else `principalId`), or null when missing. */
@@ -66,51 +55,31 @@ type ProfileResult = {
   entity: Entity | null;
   loading: boolean;
   displayLabel: string;
-  avatarConfig: ReturnType<typeof resolveAvatarConfig>;
-  hasCustomDisplayName: boolean;
+  /** `null` when no persisted `profile/avatarConfig` on the profile row. */
+  avatarConfig: AvatarConfig | null;
 };
-
-function trimDisplayName(
-  attrs: Record<string, unknown> | undefined,
-  usable: boolean
-): string {
-  const rawName = usable ? attrs?.[ProfileAttr.displayName] : undefined;
-  return typeof rawName === 'string' ? rawName.trim() : '';
-}
 
 function buildProfileResult(args: {
   principalId: string;
-  signedIn: boolean;
   effectiveProfileId: string;
   profileEntity: Entity | null;
   profileQueryId: string;
   loading: boolean;
 }): ProfileResult {
-  const {
-    principalId,
-    signedIn,
-    effectiveProfileId,
-    profileEntity,
-    profileQueryId,
-    loading,
-  } = args;
+  const { principalId, effectiveProfileId, profileEntity, profileQueryId, loading } =
+    args;
   const attrs = profileEntity?.attributes as
     | Record<string, unknown>
     | undefined;
   const usable =
     profileEntity !== null && profileQueryId !== NO_ENTITY_PLACEHOLDER;
-  const trimmedName = trimDisplayName(attrs, usable);
-  const displayLabel = deriveDisplayLabel({
-    loading,
-    usable,
-    trimmedName,
-    signedIn,
-  });
-  const avatarConfig = resolveAvatarConfig(
-    usable ? attrs : undefined,
-    principalId,
-    ProfileAttr.avatarConfig
+  const displayLabel = displayNameForPrincipal(
+    usable ? attrs?.[ProfileAttr.displayName] : undefined,
+    principalId
   );
+  const avatarConfig = usable
+    ? parseAvatarConfigAttr(attrs, ProfileAttr.avatarConfig)
+    : null;
   return {
     principalId,
     profileId: usable ? effectiveProfileId : null,
@@ -118,7 +87,6 @@ function buildProfileResult(args: {
     loading,
     displayLabel,
     avatarConfig,
-    hasCustomDisplayName: !loading && usable && trimmedName.length > 0,
   };
 }
 
@@ -163,19 +131,11 @@ export function useProfile() {
     () =>
       buildProfileResult({
         principalId,
-        signedIn,
         effectiveProfileId,
         profileEntity,
         profileQueryId,
         loading,
       }),
-    [
-      principalId,
-      signedIn,
-      effectiveProfileId,
-      profileEntity,
-      profileQueryId,
-      loading,
-    ]
+    [principalId, effectiveProfileId, profileEntity, profileQueryId, loading]
   );
 }
