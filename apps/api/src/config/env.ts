@@ -1,9 +1,18 @@
 /**
- * Cloudflare Worker bindings: `DOPPLER_TOKEN` is a config-scoped Doppler service
- * token; all other config is fetched from Doppler at boot via SecretStore.
+ * Cloudflare Worker bindings.
+ *
+ * - `DOPPLER_TOKEN` (required): a Doppler token used to download secrets at boot.
+ *   In production this is a config-scoped service token (`dp.st.…`), which does
+ *   not require `project`/`config` query params.
+ * - `DOPPLER_PROJECT` / `DOPPLER_CONFIG` (optional): only needed when the token
+ *   is *not* a config-scoped service token (e.g. CLI tokens `dp.ct.…` written
+ *   into `.dev.vars` by `setup-dev-vars`). The Doppler secrets-download API
+ *   returns HTTP 400 for non-service tokens unless these are supplied.
  */
 export type ApiWorkerEnv = {
   DOPPLER_TOKEN: string;
+  DOPPLER_PROJECT?: string;
+  DOPPLER_CONFIG?: string;
 };
 
 /**
@@ -33,4 +42,26 @@ export function assertDopplerTokenBinding(env: ApiWorkerEnv): string {
     );
   }
   return raw.trim();
+}
+
+function readOptionalBinding(value: string | undefined): string | null {
+  if (typeof value !== 'string') return null;
+  const t = value.trim();
+  return t.length > 0 ? t : null;
+}
+
+/**
+ * Reads optional `DOPPLER_PROJECT` and `DOPPLER_CONFIG` bindings. Required by
+ * the Doppler secrets-download API for non-service tokens (CLI / personal /
+ * service-account). Production with a config-scoped service token returns both
+ * `null` and the API works without them.
+ */
+export function readDopplerScopeBindings(env: ApiWorkerEnv): {
+  project: string | null;
+  config: string | null;
+} {
+  return {
+    project: readOptionalBinding(env.DOPPLER_PROJECT),
+    config: readOptionalBinding(env.DOPPLER_CONFIG),
+  };
 }

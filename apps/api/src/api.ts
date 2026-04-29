@@ -6,7 +6,11 @@ import { createStripeWebhookCacheEntityDb } from '@gamezilla/stripe/webhook-cach
 import { createApiApp } from './app/create-app';
 import { requireAuthContext } from './auth/session-middleware';
 import type { ApiWorkerEnv } from './config/env';
-import { assertDopplerTokenBinding, ConfigurationError } from './config/env';
+import {
+  assertDopplerTokenBinding,
+  ConfigurationError,
+  readDopplerScopeBindings,
+} from './config/env';
 import { ApiSecretName } from './config/secret-names';
 import { createApiSecretStore } from './config/secret-store';
 import { getPatchDb } from './db/patch-db';
@@ -79,7 +83,8 @@ function latchFatal(reason: string): void {
 
 async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const token = assertDopplerTokenBinding(env);
-  const secretStore = createApiSecretStore(token);
+  const { project, config } = readDopplerScopeBindings(env);
+  const secretStore = createApiSecretStore(token, { project, config });
   const databaseUrl = await secretStore.getRequired(ApiSecretName.dbUrl);
   const patchDb = getPatchDb(databaseUrl);
   const stripeRaw = await secretStore.getOptional(
