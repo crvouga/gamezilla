@@ -15,8 +15,10 @@ import {
   specCurrencyOptionsToStripe,
   stripePriceProductId,
 } from '../src/catalog-sync-shared';
-import { createStripeScriptSecretStore } from '../src/script-secret-store';
-import { StripeSecretKeys } from '../src/secret-keys';
+import {
+  assertStripeSecretKey,
+  resolveOptionalPostgresUrl,
+} from '../src/script-runtime';
 import {
   STRIPE_CATALOG_PRODUCT_METADATA_KEY,
   upsertCatalogPriceFromStripeApi,
@@ -90,30 +92,6 @@ const SPEC = {
   >;
   readonly prices: Record<string, PriceSpecEntry>;
 };
-
-async function assertStripeKey(): Promise<string> {
-  const store = createStripeScriptSecretStore();
-  const key = await store.getOptional(StripeSecretKeys.secretKey);
-  const trimmed = typeof key === 'string' ? key.trim() : '';
-  if (trimmed.length === 0) {
-    console.error(
-      '[stripe sync] STRIPE_SECRET_KEY is missing or blank in Doppler (set DOPPLER_TOKEN or `doppler login`)'
-    );
-    process.exit(1);
-  }
-  return trimmed;
-}
-
-async function resolvePostgresUrl(): Promise<string | undefined> {
-  const store = createStripeScriptSecretStore();
-  const raw = (await store.getOptional('DB_URL')) ?? '';
-  const u = raw.trim();
-  if (u.length === 0) return undefined;
-  if (u.startsWith('postgres://') || u.startsWith('postgresql://')) {
-    return u;
-  }
-  return undefined;
-}
 
 /**
  * List active products and match `catalog_product_id` metadata (Search API is
@@ -202,7 +180,7 @@ async function ensureProduct(
 }
 
 async function main(): Promise<void> {
-  const secret = await assertStripeKey();
+  const secret = await assertStripeSecretKey('stripe sync');
   const stripe = new Stripe(secret);
 
   const productIds: Record<string, string> = {};
@@ -287,7 +265,7 @@ async function main(): Promise<void> {
     );
   }
 
-  const pgUrl = await resolvePostgresUrl();
+  const pgUrl = await resolveOptionalPostgresUrl();
   if (pgUrl === undefined) {
     console.log(
       '[stripe sync] skip entity-db catalog dump — set DB_URL in Doppler (postgres://…) to persist Stripe API payloads'

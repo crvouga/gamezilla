@@ -69,6 +69,13 @@ export class DopplerCli {
     return { token: fromCli, source: 'cli' };
   }
 
+  setSecret(name: string, value: string): void {
+    this.execSyncFn(`doppler secrets set ${name}=${value}`, {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  }
+
   /**
    * Project slug from `doppler configure` (current directory scope). Returns
    * `null` when the CLI is unavailable or no project is configured.

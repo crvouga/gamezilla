@@ -9,7 +9,11 @@ function linguiRules() {
     'lingui/no-unlocalized-strings': [
       'warn',
       {
-        ignore: ['^[A-Z0-9_-]+$', '^[a-z]+(\\.[a-z0-9-]+)+$'],
+        ignore: [
+          '^[A-Z0-9_-]+$',
+          '^[a-z]+(\\.[a-z0-9-]+)+$',
+          '^#[0-9a-fA-F]{3,8}$',
+        ],
         ignoreNames: [
           'testID',
           'nativeID',
@@ -43,9 +47,11 @@ function linguiRules() {
           'tintColor',
           'flexDirection',
           'flexWrap',
+          'align',
           'alignItems',
           'alignSelf',
           'alignContent',
+          'justify',
           'justifyContent',
           'justifyItems',
           'justifySelf',

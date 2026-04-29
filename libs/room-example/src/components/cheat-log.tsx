@@ -1,8 +1,10 @@
 import { Card, Stack, Text, useTheme } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
 import type { CheatLogEntry } from '../simulator/playground';
 
 export function CheatLog({ entries }: { entries: CheatLogEntry[] }) {
   const theme = useTheme();
+  const { t } = useLingui();
 
   return (
     <Card elevation={1} sx={{ p: 4, gap: 1 }}>
@@ -10,10 +12,10 @@ export function CheatLog({ entries }: { entries: CheatLogEntry[] }) {
         variant="label"
         sx={{ mb: 1 }}
         style={{ textTransform: 'uppercase', fontWeight: 'bold' }}
-        label="Cheat Log"
+        label={t`Cheat Log`}
       />
       {entries.length === 0 && (
-        <Text variant="caption" label="No cheat attempts yet." />
+        <Text variant="caption" label={t`No cheat attempts yet.`} />
       )}
       {entries.map((entry) => (
         <Stack key={entry.id} direction="horizontal" spacing={2} align="center">

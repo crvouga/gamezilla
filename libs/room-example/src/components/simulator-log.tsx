@@ -1,4 +1,5 @@
 import { Button, Card, Stack, Text } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
 import { useCallback, useReducer, useRef } from 'react';
 import type { LogEntry } from '../simulator/playground';
 import { SimulatorLogRow } from './simulator-log-row';
@@ -10,6 +11,7 @@ export function SimulatorLog({
   entries: LogEntry[];
   onCopy: () => void;
 }) {
+  const { t } = useLingui();
   const copiedRef = useRef(false);
   const [, setTick] = useReducer((x: number) => x + 1, 0);
 
@@ -29,10 +31,10 @@ export function SimulatorLog({
         <Text
           variant="label"
           style={{ textTransform: 'uppercase', fontWeight: 'bold' }}
-          label={`Log (${entries.length})`}
+          label={t`Log (${entries.length})`}
         />
         <Button
-          title={copiedRef.current ? 'Copied' : 'Copy for LLM'}
+          title={copiedRef.current ? t`Copied` : t`Copy for LLM`}
           variant="outlined"
           size="sm"
           onPress={handleCopy}
@@ -40,7 +42,7 @@ export function SimulatorLog({
       </Stack>
 
       {entries.length === 0 && (
-        <Text variant="caption" label="No activity yet." />
+        <Text variant="caption" label={t`No activity yet.`} />
       )}
 
       <Stack spacing={0}>

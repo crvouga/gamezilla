@@ -5,6 +5,7 @@ import {
   StatusDot,
   Text,
 } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
 
 export function PeerPanelHeader({
   role,
@@ -21,8 +22,9 @@ export function PeerPanelHeader({
   onDisconnect: () => void;
   onReconnect: () => void;
 }) {
+  const { t } = useLingui();
   const hasBadges = isCheater || isBadActor;
-  const buttonTitle = isOnline ? 'Disconnect' : 'Reconnect';
+  const buttonTitle = isOnline ? t`Disconnect` : t`Reconnect`;
   const buttonColor = isOnline ? 'destructive' : 'success';
   const buttonPress = isOnline ? onDisconnect : onReconnect;
 
@@ -45,7 +47,7 @@ export function PeerPanelHeader({
         <Stack direction="horizontal" spacing={2}>
           {isCheater && <Badge label="CHEATER" color="warning" size="sm" />}
           {isBadActor && (
-            <Badge label="BAD ACTOR" color="destructive" size="sm" />
+            <Badge label={t`BAD ACTOR`} color="destructive" size="sm" />
           )}
         </Stack>
       )}

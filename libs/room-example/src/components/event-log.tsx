@@ -1,9 +1,11 @@
 import type { Event } from '@gamezilla/room/types';
 import { Card, Stack, Text } from '@gamezilla/lib/ui';
 import { useTheme } from '@gamezilla/lib/ui/theme';
+import { useLingui } from '@lingui/react/macro';
 
 export function EventLog({ events }: { events: Event[] }) {
   const theme = useTheme();
+  const { t } = useLingui();
 
   return (
     <Card elevation={1} sx={{ p: 4, gap: 1 }}>
@@ -11,10 +13,10 @@ export function EventLog({ events }: { events: Event[] }) {
         variant="label"
         sx={{ mb: 1 }}
         style={{ textTransform: 'uppercase', fontWeight: 'bold' }}
-        label="Committed Events"
+        label={t`Committed Events`}
       />
       {events.length === 0 && (
-        <Text variant="caption" label="No committed events yet." />
+        <Text variant="caption" label={t`No committed events yet.`} />
       )}
       {events.map((event, i) => {
         const raw = event.payload;

@@ -1,5 +1,6 @@
 import { Card, Stack, Text } from '@gamezilla/lib/ui';
 import { useTheme } from '@gamezilla/lib/ui/theme';
+import { useLingui } from '@lingui/react/macro';
 import type { MessageLogEntry } from '../simulator/playground';
 
 const KIND_COLORS: Record<string, string> = {
@@ -13,6 +14,7 @@ const KIND_COLORS: Record<string, string> = {
 
 export function MessageLog({ entries }: { entries: MessageLogEntry[] }) {
   const theme = useTheme();
+  const { t } = useLingui();
 
   return (
     <Card elevation={1} sx={{ p: 4, gap: 1 }}>
@@ -20,10 +22,10 @@ export function MessageLog({ entries }: { entries: MessageLogEntry[] }) {
         variant="label"
         sx={{ mb: 1 }}
         style={{ textTransform: 'uppercase', fontWeight: 'bold' }}
-        label="Message Log"
+        label={t`Message Log`}
       />
       {entries.length === 0 && (
-        <Text variant="caption" label="No messages yet." />
+        <Text variant="caption" label={t`No messages yet.`} />
       )}
       {entries.map((entry) => (
         <Stack key={entry.id} direction="horizontal" spacing={2} align="center">

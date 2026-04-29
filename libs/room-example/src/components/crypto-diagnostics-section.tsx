@@ -1,4 +1,5 @@
 import { Card, Stack, Text } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
 import type { PeerCryptoSummary, PeerId } from '../simulator/playground';
 
 function short(value: string): string {
@@ -14,16 +15,17 @@ export function CryptoDiagnosticsSection({
   authority: PeerId;
   wireAuthFailures: string[];
 }) {
+  const { t } = useLingui();
   return (
     <Card elevation={1} sx={{ p: 4, gap: 2 }}>
-      <Text variant="label" label="Crypto Diagnostics" />
-      <Text variant="caption" label={`Authority: ${authority}`} />
+      <Text variant="label" label={t`Crypto Diagnostics`} />
+      <Text variant="caption" label={t`Authority: ${authority}`} />
       <Stack spacing={1}>
         {peers.map((peer) => (
           <Text
             key={peer.label}
             variant="caption"
-            label={`${peer.label}: id=${short(peer.peerId)} pub=${short(peer.publicKeyB64)}`}
+            label={t`${peer.label}: id=${short(peer.peerId)} pub=${short(peer.publicKeyB64)}`}
           />
         ))}
       </Stack>
@@ -31,8 +33,8 @@ export function CryptoDiagnosticsSection({
         variant="caption"
         label={
           wireAuthFailures.length === 0
-            ? 'Wire auth failures: none'
-            : `Wire auth failures: ${wireAuthFailures.length}`
+            ? t`Wire auth failures: none`
+            : t`Wire auth failures: ${wireAuthFailures.length}`
         }
       />
     </Card>

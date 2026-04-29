@@ -1,5 +1,7 @@
 import type { Event, State } from '@gamezilla/room/types';
+import type { LocalizedString } from '@gamezilla/lib/i18n';
 import { Card, Text } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
 import { StateInspector } from './state-inspector';
 import { TicTacToeBoard } from './tic-tac-toe-board';
 import { PeerPanelHeader } from './peer-panel-header';
@@ -9,28 +11,33 @@ import { PeerPanelEvents } from './peer-panel-events';
 
 export type { PeerAction } from './peer-panel-actions';
 
+type LinguiT = ReturnType<typeof useLingui>['t'];
+
 function derivePanelState(
   displayState: State,
   committedState: State,
   player: 'X' | 'O' | null,
-): { isReadonly: boolean; hasOptimistic: boolean; turnHint: string } {
+  t: LinguiT,
+): { isReadonly: boolean; hasOptimistic: boolean; turnHint: LocalizedString } {
   const currentTurn = displayState['currentTurn'];
   const status = displayState['status'];
   const gameCompleted = status === 'completed';
   const isPlayerTurn =
     (player === 'X' || player === 'O') && currentTurn === player;
+  const opponentLabel =
+    currentTurn === 'X' || currentTurn === 'O' ? currentTurn : t`opponent`;
 
   return {
     isReadonly: player === null || !isPlayerTurn || gameCompleted,
     hasOptimistic: JSON.stringify(displayState) !== JSON.stringify(committedState),
     turnHint:
       player === null
-        ? 'Authority/relay node'
+        ? t`Authority/relay node`
         : gameCompleted
-          ? 'Game completed'
+          ? t`Game completed`
           : isPlayerTurn
-            ? 'Your turn'
-            : `Waiting for ${currentTurn === 'X' || currentTurn === 'O' ? currentTurn : 'opponent'}`,
+            ? t`Your turn`
+            : t`Waiting for ${opponentLabel}`,
   };
 }
 
@@ -63,10 +70,12 @@ export function PeerPanel({
   onDisconnect: () => void;
   onReconnect: () => void;
 }) {
+  const { t } = useLingui();
   const { isReadonly, hasOptimistic, turnHint } = derivePanelState(
     displayState,
     committedState,
     player,
+    t,
   );
 
   return (

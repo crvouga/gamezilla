@@ -1,4 +1,5 @@
 import { Button, Card, Stack, Text } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
 import type { GameClockControls } from '../pages/use-game-clock';
 
 function formatMs(ms: number): string {
@@ -15,20 +16,26 @@ export function GameClockSection({
 }: {
   clock: GameClockControls;
 }) {
-  const realtimeTitle = clock.realtimeEnabled ? 'Stop realtime' : 'Start realtime';
+  const { t } = useLingui();
+  const realtimeTitle = clock.realtimeEnabled
+    ? t`Stop realtime`
+    : t`Start realtime`;
   const realtimePress = clock.realtimeEnabled
     ? clock.stopRealtime
     : clock.startRealtime;
 
   return (
     <Card elevation={1} sx={{ p: 4, gap: 2 }}>
-      <Text variant="label" label="Game Clock" />
+      <Text variant="label" label={t`Game Clock`} />
       <Stack direction="horizontal" spacing={3} wrap align="center">
-        <Text variant="caption" label={`Status: ${clock.snapshot.clockStatus}`} />
-        <Text variant="caption" label={`Turn: ${clock.snapshot.clockActivePlayer ?? '-'}`} />
-        <Text variant="caption" label={`X ${formatMs(clock.snapshot.remainingMsX)}`} />
-        <Text variant="caption" label={`O ${formatMs(clock.snapshot.remainingMsO)}`} />
-        <Text variant="caption" label={`Logical t=${clock.logicalTimeMs}ms`} />
+        <Text variant="caption" label={t`Status: ${clock.snapshot.clockStatus}`} />
+        <Text
+          variant="caption"
+          label={t`Turn: ${clock.snapshot.clockActivePlayer ?? '-'}`}
+        />
+        <Text variant="caption" label={t`X ${formatMs(clock.snapshot.remainingMsX)}`} />
+        <Text variant="caption" label={t`O ${formatMs(clock.snapshot.remainingMsO)}`} />
+        <Text variant="caption" label={t`Logical t=${clock.logicalTimeMs}ms`} />
       </Stack>
       <Stack direction="horizontal" spacing={2} wrap>
         <Button
@@ -39,14 +46,14 @@ export function GameClockSection({
           disabled={!clock.realtimeEnabled && !clock.canEnableRealtime}
         />
         <Button
-          title="+1s"
+          title={t`+1s`}
           variant="outlined"
           size="sm"
           onPress={clock.addOneSecond}
           disabled={!clock.canEnableRealtime}
         />
         <Button
-          title="+5s"
+          title={t`+5s`}
           variant="outlined"
           size="sm"
           onPress={clock.addFiveSeconds}

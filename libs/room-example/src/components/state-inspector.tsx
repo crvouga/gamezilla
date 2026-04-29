@@ -1,5 +1,6 @@
 import type { State } from '@gamezilla/room/types';
 import { Box, Pressable, Stack, Text, useTheme } from '@gamezilla/lib/ui';
+import { useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 
 export function StateInspector({
@@ -9,6 +10,7 @@ export function StateInspector({
   committedState: State;
   displayState: State;
 }) {
+  const { t } = useLingui();
   const [expanded, setExpanded] = useState(false);
   const hasDiff =
     JSON.stringify(committedState) !== JSON.stringify(displayState);
@@ -20,7 +22,7 @@ export function StateInspector({
         <Text
           variant="caption"
           style={{ color: theme.colors.textSecondary }}
-          label={hasDiff ? '▸ state (differs)' : '▸ state'}
+          label={hasDiff ? t`▸ state (differs)` : t`▸ state`}
         />
       </Pressable>
     );
@@ -33,7 +35,7 @@ export function StateInspector({
           variant="caption"
           sx={{ mb: 1 }}
           style={{ color: theme.colors.textSecondary }}
-          label="▾ state"
+          label={t`▾ state`}
         />
       </Pressable>
       <DiffView committed={committedState} display={displayState} />

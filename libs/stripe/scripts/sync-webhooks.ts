@@ -7,7 +7,7 @@
  *
  * Flags: `--dry-run` — log plan only; no Stripe or Doppler mutations.
  */
-import { TextDecoder } from 'node:util';
+import { DopplerCli } from '@gamezilla/lib/doppler';
 import Stripe from 'stripe';
 import { createStripeScriptSecretStore } from '../src/script-secret-store';
 import { StripeSecretKeys } from '../src/secret-keys';
@@ -47,22 +47,6 @@ async function assertStripeKey(): Promise<string> {
 
 function parseDryRun(argv: string[]): boolean {
   return argv.includes('--dry-run');
-}
-
-function setDopplerSecret(name: string, value: string): void {
-  const proc = Bun.spawnSync(
-    ['doppler', 'secrets', 'set', `${name}=${value}`],
-    {
-      stdout: 'pipe',
-      stderr: 'pipe',
-    }
-  );
-  if (proc.exitCode !== 0) {
-    const err = new TextDecoder().decode(proc.stderr);
-    throw new Error(
-      `doppler secrets set ${name} failed (exit ${proc.exitCode}): ${err}`
-    );
-  }
 }
 
 async function listAllWebhookEndpoints(
@@ -135,7 +119,8 @@ async function main(): Promise<void> {
     );
   }
 
-  setDopplerSecret(StripeSecretKeys.webhookSecret, created.secret);
+  const dopplerCli = new DopplerCli();
+  dopplerCli.setSecret(StripeSecretKeys.webhookSecret, created.secret);
   console.log(
     `[stripe webhooks sync] wrote ${StripeSecretKeys.webhookSecret} to Doppler`
   );
