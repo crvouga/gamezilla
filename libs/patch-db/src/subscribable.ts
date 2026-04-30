@@ -4,9 +4,11 @@ import { PubSub, Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
 import {
   Patch,
   PatchesDb,
+  PatchesDbContext,
   PatchesDbQuery,
   PatchesDbResult,
   PatchInput,
+  OPEN_PATCHES_DB_CONTEXT,
 } from './interface';
 
 const PATCHES_DB_TOPIC = 'patches-db';
@@ -29,25 +31,40 @@ export const SubscribablePatchesDbToken: InjectionToken<SubscribablePatchesDbLik
   Symbol('SubscribablePatchesDb');
 
 export class SubscribablePatchesDb implements PatchesDb {
+  get hooks() {
+    return this.db.hooks;
+  }
+
+  get compaction() {
+    return this.db.compaction;
+  }
+
   constructor(
     private db: PatchesDb,
     private pubSub: PubSub
   ) {}
 
-  async write(patches: PatchInput[]): Promise<Patch[]> {
-    const result = await this.db.write(patches);
+  async write(
+    patches: PatchInput[],
+    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+  ): Promise<Patch[]> {
+    const result = await this.db.write(patches, ctx);
     this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
     return result;
   }
 
-  read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
-    return this.db.read(queries);
+  read(
+    queries: PatchesDbQuery[],
+    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+  ): Promise<PatchesDbResult[]> {
+    return this.db.read(queries, ctx);
   }
 
   async update(
-    updates: { patchId: string; attributes: Record<string, unknown> }[]
+    updates: { patchId: string; attributes: Record<string, unknown> }[],
+    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<void> {
-    return this.db.update(updates);
+    return this.db.update(updates, ctx);
   }
 
   subscribe = {
@@ -56,7 +73,7 @@ export class SubscribablePatchesDb implements PatchesDb {
       listener: (result: PatchesDbResult) => void
     ): Unsubscribe => {
       const notify = async () => {
-        const [result] = await this.db.read([query]);
+        const [result] = await this.db.read([query], OPEN_PATCHES_DB_CONTEXT);
         assert.ok(
           result !== null && result !== undefined,
           'read([query]) must return one result'
@@ -71,7 +88,7 @@ export class SubscribablePatchesDb implements PatchesDb {
       listener: (result: PatchesDbResult) => void
     ): Unsubscribe => {
       const notify = async () => {
-        const [result] = await this.db.read([query]);
+        const [result] = await this.db.read([query], OPEN_PATCHES_DB_CONTEXT);
         assert.ok(
           result !== null && result !== undefined,
           'read([query]) must return one result'

@@ -10,19 +10,29 @@ import {
   getPatchTopLevelFromAttributes,
   isValidAttribute,
   normalizePatchAttributesForStorage,
+  OPEN_PATCHES_DB_CONTEXT,
   Patch,
   PATCH_META_KEYS,
+  PatchDbEngineOptions,
   PatchesDb,
+  PatchesDbCompaction,
+  PatchesDbContext,
   PatchesDbQuery,
   PatchesDbResult,
   PatchInput,
   topologicalSortPatches,
 } from '../interface';
+import { PatchDbHookRegistry } from '../hook-registry';
+import { resolvePatchDbCompactionPolicy } from '../policy/compaction-policy';
+import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '../policy/system-principal';
 import { parseAttributes, readPatches, rowAttributesText } from './read-ops';
 import {
+  DELETE_PATCH_BY_ID,
+  INSERT_PATCH,
   INSERT_PATCHES_BATCH,
   MIGRATIONS,
   RESOLVE_PARENT_ID,
+  SELECT_PATCHES_FOR_SNAPSHOT,
   UPSERT_SNAPSHOTS_BATCH,
 } from './sql-constants';
 
@@ -137,7 +147,18 @@ type PatchInsertBatchRow = {
 };
 
 export class PatchDbImplPostgres implements PatchesDb {
-  constructor(private sqlClient: SqlClient) {}
+  readonly hooks = new PatchDbHookRegistry();
+
+  readonly compaction: PatchesDbCompaction = {
+    compactEntity: (key, options, ctx) =>
+      this.compactEntity(key, options, ctx),
+    compactAll: (options, ctx) => this.compactAll(options, ctx),
+  };
+
+  constructor(
+    private readonly sqlClient: SqlClient,
+    private readonly opts: PatchDbEngineOptions = {}
+  ) {}
 
   /** Idempotent Postgres DDL for patches + snapshots (no instance required). */
   static async migrate(args: {
@@ -419,26 +440,139 @@ export class PatchDbImplPostgres implements PatchesDb {
     await this.runSnapshotUpsertsBatch(tx, upsertPayload);
   }
 
-  async write(patches: PatchInput[]): Promise<Patch[]> {
+  private async recomputeSnapshotSingle(
+    tx: SqlClient,
+    entityId: string,
+    entityType: string
+  ): Promise<void> {
+    await this.recomputeTouchedSnapshots(
+      tx,
+      new Set([`${entityId}\0${entityType}`])
+    );
+  }
+
+  private async compactEntityInTx(
+    tx: SqlClient,
+    entityId: string,
+    entityType: string,
+    keepLatest: number
+  ): Promise<{ removedPatchIds: string[]; compactionPatchId: string | null }> {
+    assertEntityKey(entityId, entityType);
+    const rows = await tx.query<PatchRow>(SELECT_PATCHES_FOR_SNAPSHOT, [
+      entityId,
+      entityType,
+      entityId,
+      entityType,
+      entityId,
+      entityType,
+    ]);
+    if (rows.length <= keepLatest + 1) {
+      return { removedPatchIds: [], compactionPatchId: null };
+    }
+
+    const mergeSet = rows.slice(0, rows.length - keepLatest);
+    const firstKept = rows[mergeSet.length];
+    assert.defined(firstKept, 'compactEntityInTx: firstKept must exist');
+
+    const merged = this.mergePatchRowsIntoSnapshotAttrs(
+      mergeSet.map((r) => toPatchRow(r))
+    );
+    for (const k of PATCH_META_KEYS) {
+      delete merged[k];
+    }
+    merged['patch/compacted'] = '1';
+    merged['patch/createdBy'] = PATCH_DB_SYSTEM_PRINCIPAL_ID;
+    merged['patch/sessionId'] = '';
+
+    const now = new Date().toISOString();
+    const patchId = crypto.randomUUID();
+    await tx.run(INSERT_PATCH, [
+      patchId,
+      entityId,
+      entityType,
+      JSON.stringify(merged),
+      now,
+      now,
+      null,
+    ]);
+
+    await tx.run(`UPDATE patches SET parent_id = ? WHERE patch_id = ?`, [
+      patchId,
+      firstKept.patch_id,
+    ]);
+
+    const removedPatchIds: string[] = [];
+    for (let i = mergeSet.length - 1; i >= 0; i--) {
+      const row = mergeSet[i];
+      assert.defined(row, 'mergeSet row');
+      await tx.run(DELETE_PATCH_BY_ID, [row.patch_id]);
+      removedPatchIds.push(row.patch_id);
+    }
+
+    await this.recomputeSnapshotSingle(tx, entityId, entityType);
+    return { removedPatchIds, compactionPatchId: patchId };
+  }
+
+  private async maybeAutoCompactAfterWrite(
+    tx: SqlClient,
+    entityId: string,
+    entityType: string
+  ): Promise<void> {
+    if (this.opts.autoCompactOnWrite !== true) return;
+    const policy = resolvePatchDbCompactionPolicy(entityType);
+    if (policy === 'never') return;
+    const slack = this.opts.compactionSlack ?? 2;
+    const rows = await tx.query<PatchRow>(SELECT_PATCHES_FOR_SNAPSHOT, [
+      entityId,
+      entityType,
+      entityId,
+      entityType,
+      entityId,
+      entityType,
+    ]);
+    if (rows.length <= policy.keepLatest + slack) return;
+    await this.compactEntityInTx(tx, entityId, entityType, policy.keepLatest);
+  }
+
+  async write(
+    patches: PatchInput[],
+    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+  ): Promise<Patch[]> {
     this.assertPatchInputs(patches);
-    const sorted = topologicalSortPatches(patches);
     let writtenPatches: Patch[] = [];
     await this.sqlClient.transaction(async (tx) => {
-      const acc = await this.accumulateWritePatches(tx, sorted);
+      const sortedInput = topologicalSortPatches(
+        await this.hooks.runBeforeWrite(patches, ctx, tx)
+      );
+      const acc = await this.accumulateWritePatches(tx, sortedInput);
       writtenPatches = acc.writtenPatches;
       await this.insertPatchRowsBatch(tx, acc.batchRows);
       await this.recomputeTouchedSnapshots(tx, acc.touchedEntities);
+      await this.hooks.runAfterWrite(writtenPatches, ctx, tx);
+      for (const key of acc.touchedEntities) {
+        const [entityId, entityType] = key.split('\0') as [string, string];
+        await this.maybeAutoCompactAfterWrite(tx, entityId, entityType);
+      }
     });
     return writtenPatches;
   }
 
-  async read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
-    return readPatches(this.sqlClient, queries);
+  async read(
+    queries: PatchesDbQuery[],
+    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+  ): Promise<PatchesDbResult[]> {
+    const rewritten: PatchesDbQuery[] = [];
+    for (const q of queries) {
+      rewritten.push(await this.hooks.runBeforeRead(q, ctx));
+    }
+    return readPatches(this.sqlClient, rewritten);
   }
 
   async update(
-    updates: { patchId: string; attributes: Record<string, unknown> }[]
+    updates: { patchId: string; attributes: Record<string, unknown> }[],
+    _ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<void> {
+    void _ctx;
     if (updates.length === 0) return;
     for (const { patchId, attributes } of updates) {
       if (Object.keys(attributes).length === 0) continue;
@@ -456,5 +590,54 @@ export class PatchDbImplPostgres implements PatchesDb {
       const sql = `UPDATE patches SET attributes = ${expr} WHERE patch_id = ?`;
       await this.sqlClient.run(sql, [...bind, patchId]);
     }
+  }
+
+  async compactEntity(
+    key: { entityId: string; entityType: string },
+    options: { keepLatest: number },
+    _ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+  ): Promise<{ removedPatchIds: string[]; compactionPatchId: string | null }> {
+    void _ctx;
+    let result: {
+      removedPatchIds: string[];
+      compactionPatchId: string | null;
+    } = { removedPatchIds: [], compactionPatchId: null };
+    await this.sqlClient.transaction(async (tx) => {
+      result = await this.compactEntityInTx(
+        tx,
+        key.entityId,
+        key.entityType,
+        options.keepLatest
+      );
+    });
+    return result;
+  }
+
+  async compactAll(
+    options: { keepLatest?: number; entityType?: string },
+    _ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+  ): Promise<{ entitiesCompacted: number }> {
+    void _ctx;
+    const keepLatest = options.keepLatest ?? 2;
+    const entityType = options.entityType;
+    const rows = await this.sqlClient.query<{
+      entity_id: string;
+      entity_type: string;
+    }>(
+      entityType !== undefined && entityType !== ''
+        ? 'SELECT DISTINCT entity_id, entity_type FROM patches WHERE entity_type = ?'
+        : 'SELECT DISTINCT entity_id, entity_type FROM patches',
+      entityType !== undefined && entityType !== '' ? [entityType] : []
+    );
+    let entitiesCompacted = 0;
+    for (const r of rows) {
+      const res = await this.compactEntity(
+        { entityId: r.entity_id, entityType: r.entity_type },
+        { keepLatest },
+        OPEN_PATCHES_DB_CONTEXT
+      );
+      if (res.removedPatchIds.length > 0) entitiesCompacted += 1;
+    }
+    return { entitiesCompacted };
   }
 }

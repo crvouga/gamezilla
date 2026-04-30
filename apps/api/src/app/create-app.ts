@@ -2,9 +2,11 @@ import { ValidationError } from '@gamezilla/lib/assert';
 import { createLogger } from '@gamezilla/lib/logger';
 import type { PatchDbApiConfig } from '@gamezilla/patch-db/api';
 import { createPatchDbApiHandler } from '@gamezilla/patch-db/api';
+import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
 import { createStripeApp } from '@gamezilla/stripe/stripe-app';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
+import { resolveAuthContext } from '../auth/session-middleware';
 import { createAuthClaimApp } from '../auth/route';
 import { UnauthorizedError } from '../auth/unauthorized-error';
 import { createClientConfigApp } from '../client-config/route';
@@ -30,7 +32,14 @@ function isAssertionCrash(
 
 function toPatchDbApiConfig(config: ApiHandlerConfig): PatchDbApiConfig {
   const { db, pubSub, basePath, instrumentation } = config;
-  const patchDbConfig: PatchDbApiConfig = { db, pubSub };
+  const patchDbConfig: PatchDbApiConfig = {
+    db,
+    pubSub,
+    patchDbHttpAuth: {
+      resolvePatchesDbContext: (req) => resolveAuthContext(db, req),
+      requirePatchesDbAuth: true,
+    },
+  };
   if (basePath !== undefined) {
     patchDbConfig.basePath = basePath;
   }
@@ -67,6 +76,7 @@ export function createApiApp(config: ApiHandlerConfig) {
       '/',
       createStripeApp({
         db,
+        patchDb: db,
         secretStore,
         stripe,
         entityDb,
@@ -76,6 +86,9 @@ export function createApiApp(config: ApiHandlerConfig) {
     )
     .route(patchMount, patchDbApp)
     .onError((err, c) => {
+      if (err instanceof ForbiddenError) {
+        return c.json({ error: err.message }, 403);
+      }
       if (err instanceof UnauthorizedError) {
         return c.json({ error: err.message }, 401);
       }

@@ -1,5 +1,6 @@
 import type {
   Patch,
+  PatchesDbContext,
   PatchesDbQuery,
   PatchesDbResult,
   PatchInput,
@@ -31,9 +32,12 @@ export class SimulatedPatchDbClientTransport implements PatchDbClientTransport {
     private readonly recording?: SimulatedTransportRecordingContext
   ) {}
 
-  read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
+  read(
+    queries: PatchesDbQuery[],
+    ctx?: PatchesDbContext
+  ): Promise<PatchesDbResult[]> {
     return this.link.invoke('read', async () => {
-      const results = await this.server.read(queries);
+      const results = await this.server.read(queries, ctx);
       if (this.recording) {
         const { recorder, clientId, getTime } = this.recording;
         recorder.emit({
@@ -49,9 +53,12 @@ export class SimulatedPatchDbClientTransport implements PatchDbClientTransport {
     });
   }
 
-  write(patches: PatchInput[]): Promise<Patch[]> {
+  write(
+    patches: PatchInput[],
+    ctx?: PatchesDbContext
+  ): Promise<Patch[]> {
     return this.link.invoke('write', async () => {
-      const out = await this.server.write(patches);
+      const out = await this.server.write(patches, ctx);
       if (this.recording) {
         const { recorder, clientId, getTime } = this.recording;
         recorder.emit({

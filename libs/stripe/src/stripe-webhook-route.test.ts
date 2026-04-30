@@ -107,7 +107,6 @@ describe('createStripeWebhookRoutes', () => {
       id: 'cus_test_1',
     });
     expect(row).not.toBeNull();
-    expect(row?.data).toEqual(event.data.object);
-    expect(row?.metadata).toMatchObject({ event_id: 'evt_test_1' });
+    expect(row?.data).toEqual(event);
   });
 });

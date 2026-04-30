@@ -4,10 +4,13 @@ import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
 import type {
   Patch,
   PatchesDb,
+  PatchesDbContext,
   PatchesDbQuery,
   PatchesDbResult,
   PatchInput,
 } from '../interface';
+import { OPEN_PATCHES_DB_CONTEXT, PATCHES_DB_SYSTEM_CONTEXT } from '../interface';
+import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '../policy/system-principal';
 import type { PatchDbSyncHost } from './interface';
 
 const PATCHES_DB_TOPIC = 'patches-db';
@@ -78,18 +81,24 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
     }
   }
 
-  async read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
+  async read(
+    queries: PatchesDbQuery[],
+    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+  ): Promise<PatchesDbResult[]> {
     this.touchActivity();
     if (queries.length > 0) {
       this.counters.totalReadsServed += queries.length;
     }
-    return this.inner.read(queries);
+    return this.inner.read(queries, ctx);
   }
 
-  async write(patches: PatchInput[]): Promise<Patch[]> {
+  async write(
+    patches: PatchInput[],
+    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+  ): Promise<Patch[]> {
     this.touchActivity();
     this.counters.totalPatchesWritten += patches.length;
-    return this.inner.write(patches);
+    return this.inner.write(patches, ctx);
   }
 
   private touchActivity(): void {
@@ -110,19 +119,23 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
     );
 
     try {
-      await this.db.write([
-        {
-          entityId: ADMIN_METRIC_ENTITY_ID,
-          entityType: ADMIN_METRIC_ENTITY_TYPE,
-          attributes: {
-            'admin/startedAt': this.startedAt,
-            'admin/uptimeSeconds': uptimeSeconds,
-            'admin/totalPatchesWritten': this.counters.totalPatchesWritten,
-            'admin/totalReadsServed': this.counters.totalReadsServed,
-            'admin/lastActivityAt': this.lastActivityAt,
+      await this.db.write(
+        [
+          {
+            entityId: ADMIN_METRIC_ENTITY_ID,
+            entityType: ADMIN_METRIC_ENTITY_TYPE,
+            attributes: {
+              'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+              'admin/startedAt': this.startedAt,
+              'admin/uptimeSeconds': uptimeSeconds,
+              'admin/totalPatchesWritten': this.counters.totalPatchesWritten,
+              'admin/totalReadsServed': this.counters.totalReadsServed,
+              'admin/lastActivityAt': this.lastActivityAt,
+            },
           },
-        },
-      ]);
+        ],
+        PATCHES_DB_SYSTEM_CONTEXT
+      );
       this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
     } catch (err) {
       this.log.error('flushMetricsSnapshot failed', {

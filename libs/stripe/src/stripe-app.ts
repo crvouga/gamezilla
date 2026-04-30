@@ -15,6 +15,8 @@ import { createStripeWebhookRoutes } from './stripe-webhook-route';
  */
 export function createStripeApp(args: {
   readonly db: PatchesDb;
+  /** When set, verified webhook events also append a `stripe.webhook_event` patch (system ctx). */
+  readonly patchDb?: PatchesDb;
   readonly secretStore: SecretStore;
   readonly stripe: Stripe | null;
   readonly entityDb: EntityDb;
@@ -27,6 +29,7 @@ export function createStripeApp(args: {
     stripe: args.stripe,
     entityDb: args.entityDb,
     webhookSecretKey: args.webhookSecretDopplerKey,
+    ...(args.patchDb !== undefined ? { patchDb: args.patchDb } : {}),
   });
   const checkout = createStripeCheckoutRoutes({
     db: args.db,

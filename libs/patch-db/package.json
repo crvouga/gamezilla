@@ -28,6 +28,13 @@
     "./impl-sqlite/types": "./src/impl-sqlite/types.ts",
     "./impl-sqlite/impl-sqlite": "./src/impl-sqlite/impl-sqlite.ts",
     "./impl-sqlite/query-builder": "./src/impl-sqlite/query-builder.ts",
+    "./policy": "./src/policy/install-default-patch-db-policies.ts",
+    "./policy/install-default-patch-db-policies": "./src/policy/install-default-patch-db-policies.ts",
+    "./policy/visibility-policy-registry": "./src/policy/visibility-policy-registry.ts",
+    "./policy/default-policies": "./src/policy/default-policies.ts",
+    "./policy/system-principal": "./src/policy/system-principal.ts",
+    "./hook-registry": "./src/hook-registry.ts",
+    "./forbidden-error": "./src/forbidden-error.ts",
     "./interface": "./src/interface.ts",
     "./sim/playground-sim": "./src/sim/playground-sim.ts",
     "./sim/event-recorder": "./src/sim/event-recorder.ts",
@@ -51,6 +58,7 @@
     "./impl-postgres/impl-postgres": "./src/impl-postgres/impl-postgres.ts"
   },
   "dependencies": {
+    "@gamezilla/domain": "workspace:*",
     "@gamezilla/lib": "workspace:*",
     "@hono/zod-validator": "^0.7.6",
     "@lingui/core": "5.9.5",

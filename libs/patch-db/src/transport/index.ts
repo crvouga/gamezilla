@@ -1,7 +1,11 @@
-export { PatchDbClientTransportHttpFetch } from './impl-http-fetch';
+export {
+  PatchDbClientTransportHttpFetch,
+  type PatchDbClientTransportHttpFetchOptions,
+} from './impl-http-fetch';
 export {
   createPatchDbHttpHono,
   PatchDbHttpRequestHandler,
+  type PatchDbHttpAuthOptions,
 } from './impl-http-request-handler';
 export { PatchDbTransportInProcess } from './impl-in-process';
 export { PatchDbImplSyncHost } from './impl-sync-host';

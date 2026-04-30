@@ -2,9 +2,12 @@ import { zValidator } from '@hono/zod-validator';
 import { Assert } from '@gamezilla/lib/assert';
 import { Hono } from 'hono';
 import type { Context } from 'hono';
+import { ForbiddenError } from '../forbidden-error';
 import {
   type PatchInput,
   type PatchesDbQuery,
+  OPEN_PATCHES_DB_CONTEXT,
+  type PatchesDbContext,
   assertPatchInput,
   assertQuery,
   stripKnownPatchesFromQuery,
@@ -27,16 +30,62 @@ function applyNoCacheHeaders(c: Context): void {
   }
 }
 
+export type PatchDbHttpAuthOptions = {
+  resolvePatchesDbContext?: (
+    req: Request
+  ) => Promise<PatchesDbContext | null | undefined>;
+  /** When true, missing / null context from resolver yields 401. */
+  requirePatchesDbAuth?: boolean;
+};
+
+async function resolveRequestContext(
+  c: Context,
+  auth: PatchDbHttpAuthOptions | undefined
+): Promise<
+  | { ok: true; ctx: PatchesDbContext }
+  | { ok: false; status: 401 | 403; message: string }
+> {
+  const resolve = auth?.resolvePatchesDbContext;
+  if (resolve === undefined) {
+    return { ok: true, ctx: OPEN_PATCHES_DB_CONTEXT };
+  }
+  try {
+    const resolved = await resolve(c.req.raw);
+    if (
+      resolved === null ||
+      resolved === undefined
+    ) {
+      if (auth?.requirePatchesDbAuth === true) {
+        return { ok: false, status: 401, message: 'Unauthorized' };
+      }
+      return { ok: true, ctx: OPEN_PATCHES_DB_CONTEXT };
+    }
+    return { ok: true, ctx: resolved };
+  } catch (e: unknown) {
+    if (e instanceof ForbiddenError) {
+      return { ok: false, status: 403, message: e.message };
+    }
+    throw e;
+  }
+}
+
 /**
  * Hono sub-app routes (paths relative to {@link patchDbPaths} `basePath` mount).
  * Matches wire URLs `{base}/patches/read` and `{base}/patches/write`.
  */
-export function createPatchDbHttpHono(host: PatchDbSyncHost) {
+export function createPatchDbHttpHono(
+  host: PatchDbSyncHost,
+  auth?: PatchDbHttpAuthOptions
+) {
   return new Hono()
     .post(
       PATCH_SUFFIX_READ,
       zValidator('json', patchDbReadBodySchema),
       async (c) => {
+        const authResult = await resolveRequestContext(c, auth);
+        if (!authResult.ok) {
+          return c.json({ error: authResult.message }, authResult.status);
+        }
         const body = c.req.valid('json');
         const a: Assert = Assert.validation();
         a.record(body, 'Request body must be object');
@@ -47,19 +96,30 @@ export function createPatchDbHttpHono(host: PatchDbSyncHost) {
           assertQuery(a, q)
         );
         const queries = body.queries;
-        const results = await host.read(queries);
-        const stripped = results.map((r) => ({
-          ...r,
-          query: stripKnownPatchesFromQuery(r.query),
-        }));
-        applyNoCacheHeaders(c);
-        return c.json(stripped, 200);
+        try {
+          const results = await host.read(queries, authResult.ctx);
+          const stripped = results.map((r) => ({
+            ...r,
+            query: stripKnownPatchesFromQuery(r.query),
+          }));
+          applyNoCacheHeaders(c);
+          return c.json(stripped, 200);
+        } catch (e: unknown) {
+          if (e instanceof ForbiddenError) {
+            return c.json({ error: e.message }, 403);
+          }
+          throw e;
+        }
       }
     )
     .post(
       PATCH_SUFFIX_WRITE,
       zValidator('json', patchDbWriteBodySchema),
       async (c) => {
+        const authResult = await resolveRequestContext(c, auth);
+        if (!authResult.ok) {
+          return c.json({ error: authResult.message }, authResult.status);
+        }
         const body = c.req.valid('json');
         const a: Assert = Assert.validation();
         a.record(body, 'Request body must be object');
@@ -69,9 +129,16 @@ export function createPatchDbHttpHono(host: PatchDbSyncHost) {
         a.all(body.patches, (p): asserts p is PatchInput =>
           assertPatchInput(a, p)
         );
-        const patches = await host.write(body.patches);
-        applyNoCacheHeaders(c);
-        return c.json(patches, 200);
+        try {
+          const patches = await host.write(body.patches, authResult.ctx);
+          applyNoCacheHeaders(c);
+          return c.json(patches, 200);
+        } catch (e: unknown) {
+          if (e instanceof ForbiddenError) {
+            return c.json({ error: e.message }, 403);
+          }
+          throw e;
+        }
       }
     );
 }
@@ -86,10 +153,11 @@ export class PatchDbHttpRequestHandler {
 
   constructor(
     host: PatchDbSyncHost,
-    basePath: string = DEFAULT_BASE_PATH
+    basePath: string = DEFAULT_BASE_PATH,
+    auth?: PatchDbHttpAuthOptions
   ) {
     this.paths = patchDbPaths(basePath);
-    this.honoApp = createPatchDbHttpHono(host);
+    this.honoApp = createPatchDbHttpHono(host, auth);
   }
 
   /**

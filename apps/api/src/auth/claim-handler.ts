@@ -12,6 +12,7 @@ import {
 import { assertPrincipalId, assertUuid } from '@gamezilla/domain/auth/principal-id';
 import { assert } from '@gamezilla/lib/assert';
 import type { Entity, PatchInput, PatchesDb } from '@gamezilla/patch-db/interface';
+import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import type { z } from 'zod';
 import { authClaimRequestSchema } from './schema';
 import type { GoogleIdTokenClaims } from './google-token';
@@ -46,27 +47,30 @@ async function findGoogleAccountProvider(
   db: PatchesDb,
   providerAccountId: string
 ): Promise<Entity | undefined> {
-  const [providerResult] = await db.read([
-    {
-      entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
-      where: {
-        type: 'and',
-        clauses: [
-          {
-            type: '=',
-            attribute: AccountProviderAttr.provider,
-            value: GOOGLE_PROVIDER,
-          },
-          {
-            type: '=',
-            attribute: AccountProviderAttr.providerAccountId,
-            value: providerAccountId,
-          },
-        ],
+  const [providerResult] = await db.read(
+    [
+      {
+        entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
+        where: {
+          type: 'and',
+          clauses: [
+            {
+              type: '=',
+              attribute: AccountProviderAttr.provider,
+              value: GOOGLE_PROVIDER,
+            },
+            {
+              type: '=',
+              attribute: AccountProviderAttr.providerAccountId,
+              value: providerAccountId,
+            },
+          ],
+        },
+        limit: 1,
       },
-      limit: 1,
-    },
-  ]);
+    ],
+    PATCHES_DB_SYSTEM_CONTEXT
+  );
   return providerResult?.entities[0];
 }
 
@@ -136,13 +140,16 @@ async function readPrincipal(
   db: PatchesDb,
   principalId: string
 ): Promise<Entity | undefined> {
-  const [principalResult] = await db.read([
-    {
-      entityType: PRINCIPAL_ENTITY_TYPE,
-      entityId: principalId,
-      limit: 1,
-    },
-  ]);
+  const [principalResult] = await db.read(
+    [
+      {
+        entityType: PRINCIPAL_ENTITY_TYPE,
+        entityId: principalId,
+        limit: 1,
+      },
+    ],
+    PATCHES_DB_SYSTEM_CONTEXT
+  );
   return principalResult?.entities[0];
 }
 
@@ -262,7 +269,7 @@ export async function handleAuthClaimResult(
     patchesToWrite,
   });
 
-  await db.write(patchesToWrite);
+  await db.write(patchesToWrite, PATCHES_DB_SYSTEM_CONTEXT);
 
   const success: ClaimSuccessBody = { accountId, sessionToken, expiresAt };
   return { status: 200, json: success };

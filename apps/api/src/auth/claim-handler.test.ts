@@ -8,10 +8,13 @@ import {
 } from '@gamezilla/domain/auth';
 import type { AuthClaimResult } from './claim-handler';
 import { beforeAll, describe, expect, it, mock } from 'bun:test';
+import { PatchDbHookRegistry } from '@gamezilla/patch-db/hook-registry';
 import type {
   Entity,
+  Patch,
   PatchInput,
   PatchesDb,
+  PatchesDbContext,
   PatchesDbQuery,
   PatchesDbQueryWhereClause,
   PatchesDbResult,
@@ -65,9 +68,22 @@ function executeQuery(entities: Entity[], q: PatchesDbQuery): Entity[] {
 }
 
 class MemoryPatchesDb implements PatchesDb {
+  readonly hooks = new PatchDbHookRegistry();
+  readonly compaction = {
+    compactEntity: async () => ({
+      removedPatchIds: [] as string[],
+      compactionPatchId: null as string | null,
+    }),
+    compactAll: async () => ({ entitiesCompacted: 0 }),
+  };
+
   private entities: Entity[] = [];
 
-  async read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
+  async read(
+    queries: PatchesDbQuery[],
+    _ctx?: PatchesDbContext
+  ): Promise<PatchesDbResult[]> {
+    void _ctx;
     return queries.map((query) => {
       const entities = executeQuery(this.entities, query);
       return {
@@ -81,7 +97,11 @@ class MemoryPatchesDb implements PatchesDb {
     });
   }
 
-  async write(patches: PatchInput[]): Promise<never[]> {
+  async write(
+    patches: PatchInput[],
+    _ctx?: PatchesDbContext
+  ): Promise<Patch[]> {
+    void _ctx;
     for (const p of patches) {
       const idx = this.entities.findIndex(
         (e) => e.entityId === p.entityId && e.entityType === p.entityType
@@ -103,10 +123,16 @@ class MemoryPatchesDb implements PatchesDb {
         };
       }
     }
-    return [];
+    return [] as Patch[];
   }
 
-  async update(): Promise<void> {}
+  async update(
+    _updates: { patchId: string; attributes: Record<string, unknown> }[],
+    _ctx?: PatchesDbContext
+  ): Promise<void> {
+    void _updates;
+    void _ctx;
+  }
 }
 
 describe('handleAuthClaimResult', () => {

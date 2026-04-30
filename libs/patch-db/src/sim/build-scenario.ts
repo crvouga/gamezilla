@@ -7,11 +7,7 @@ import {
   type SyncErrorEvent,
   SyncPatchesDb,
 } from '../impl-sync';
-import type {
-  PatchInput,
-  PatchesDb,
-  PatchesDbQuery,
-} from '../interface';
+import type { PatchesDb } from '../interface';
 import { DeterministicScheduler } from './deterministic-scheduler';
 import {
   SimEventRecorder,
@@ -69,8 +65,14 @@ function wrapServerDbForViz(
   getTime: () => number
 ): PatchesDb {
   return {
-    read: (queries: PatchesDbQuery[]) => inner.read(queries),
-    write: async (patches: PatchInput[]) => {
+    get hooks() {
+      return inner.hooks;
+    },
+    get compaction() {
+      return inner.compaction;
+    },
+    read: (queries, ctx) => inner.read(queries, ctx),
+    write: async (patches, ctx) => {
       recorder.emit({
         type: 'server_write',
         serverId,
@@ -78,9 +80,9 @@ function wrapServerDbForViz(
         patchCount: patches.length,
         time: getTime(),
       });
-      return inner.write(patches);
+      return inner.write(patches, ctx);
     },
-    update: (updates) => inner.update(updates),
+    update: (updates, ctx) => inner.update(updates, ctx),
   };
 }
 
@@ -95,8 +97,8 @@ async function createServerRuntime(
 
   const notifying = new NotifyingPatchesDb(backing, pubSub);
   const port: SimServerPort = simServerPortFromPubSub(
-    (q) => notifying.read(q),
-    (p) => notifying.write(p),
+    (q, ctx) => notifying.read(q, ctx),
+    (p, ctx) => notifying.write(p, ctx),
     pubSub
   );
 

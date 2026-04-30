@@ -5,10 +5,12 @@ import type { PubSub, Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
 import type {
   Patch,
   PatchesDb,
+  PatchesDbContext,
   PatchesDbQuery,
   PatchesDbResult,
   PatchInput,
 } from '../interface';
+import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
 
 const PATCHES_DB_TOPIC = 'patches-db';
 
@@ -106,6 +108,14 @@ type ActiveQuery = {
 const defaultLog = createLogger({ name: 'patch-db:sync' });
 
 export class SyncPatchesDb implements PatchesDb {
+  get hooks() {
+    return this.local.hooks;
+  }
+
+  get compaction() {
+    return this.local.compaction;
+  }
+
   private readonly log: Logger;
   private readonly logPushPollFailures: boolean;
   /** Stops subscription callbacks after {@link destroy} (e.g. HMR / teardown races). */
@@ -183,24 +193,31 @@ export class SyncPatchesDb implements PatchesDb {
     }
   }
 
-  async write(patches: PatchInput[]): Promise<Patch[]> {
+  async write(
+    patches: PatchInput[],
+    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+  ): Promise<Patch[]> {
     const withUnsynced = patches.map((p) => ({
       ...p,
       attributes: { ...p.attributes, 'patch/syncedAt': null },
     }));
-    const result = await this.local.write(withUnsynced);
+    const result = await this.local.write(withUnsynced, ctx);
     this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
     return result;
   }
 
-  read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
-    return this.local.read(queries);
+  read(
+    queries: PatchesDbQuery[],
+    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+  ): Promise<PatchesDbResult[]> {
+    return this.local.read(queries, ctx);
   }
 
   async update(
-    updates: { patchId: string; attributes: Record<string, unknown> }[]
+    updates: { patchId: string; attributes: Record<string, unknown> }[],
+    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<void> {
-    return this.local.update(updates);
+    return this.local.update(updates, ctx);
   }
 
   private queryKey(query: PatchesDbQuery): string {
@@ -223,7 +240,7 @@ export class SyncPatchesDb implements PatchesDb {
 
     const notify = async () => {
       if (this.destroyed) return;
-      const [result] = await this.local.read([query]);
+      const [result] = await this.local.read([query], OPEN_PATCHES_DB_CONTEXT);
       if (this.destroyed) return;
       assert.ok(
         result !== null && result !== undefined,
@@ -307,12 +324,15 @@ export class SyncPatchesDb implements PatchesDb {
   }
 
   private async unsyncAllLocallySyncedPatches(): Promise<void> {
-    const [result] = await this.local.read([
-      {
-        on: 'patches',
-        where: { type: 'exists', attribute: 'patch/syncedAt' },
-      },
-    ]);
+    const [result] = await this.local.read(
+      [
+        {
+          on: 'patches',
+          where: { type: 'exists', attribute: 'patch/syncedAt' },
+        },
+      ],
+      OPEN_PATCHES_DB_CONTEXT
+    );
     assert.ok(
       result !== null && result !== undefined,
       'read([query]) must return one result'
@@ -324,7 +344,8 @@ export class SyncPatchesDb implements PatchesDb {
       synced.map((p) => ({
         patchId: p.patchId,
         attributes: { 'patch/syncedAt': null },
-      }))
+      })),
+      OPEN_PATCHES_DB_CONTEXT
     );
     this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
   }
@@ -334,7 +355,8 @@ export class SyncPatchesDb implements PatchesDb {
       patches.map((p) => ({
         patchId: p.patchId,
         attributes: { 'patch/syncedAt': '1' },
-      }))
+      })),
+      OPEN_PATCHES_DB_CONTEXT
     );
     this.pushConsecutiveFailures = 0;
     this.parentFkRecoveryInFlight = false;
@@ -381,15 +403,18 @@ export class SyncPatchesDb implements PatchesDb {
   private async pushUnsynced(): Promise<void> {
     if (this.destroyed) return;
     try {
-      const [result] = await this.local.read([
-        {
-          on: 'patches',
-          where: {
-            type: 'not_exists',
-            attribute: 'patch/syncedAt',
+      const [result] = await this.local.read(
+        [
+          {
+            on: 'patches',
+            where: {
+              type: 'not_exists',
+              attribute: 'patch/syncedAt',
+            },
           },
-        },
-      ]);
+        ],
+        OPEN_PATCHES_DB_CONTEXT
+      );
       assert.ok(
         result !== null && result !== undefined,
         'read([query]) must return one result'
@@ -400,7 +425,7 @@ export class SyncPatchesDb implements PatchesDb {
         this.parentFkRecoveryInFlight = false;
         return;
       }
-      await this.remote.write(patches);
+      await this.remote.write(patches, OPEN_PATCHES_DB_CONTEXT);
       await this.markRemotePushSucceeded(patches);
     } catch (err) {
       this.logPushFailure(err);
@@ -415,7 +440,10 @@ export class SyncPatchesDb implements PatchesDb {
     const syncQueries: PatchesDbQuery[] = [];
     for (const { query } of entries) {
       const { limit, offset, ...queryWithoutPagination } = query;
-      const [localResult] = await this.local.read([queryWithoutPagination]);
+      const [localResult] = await this.local.read(
+        [queryWithoutPagination],
+        OPEN_PATCHES_DB_CONTEXT
+      );
       assert.ok(
         localResult !== null && localResult !== undefined,
         'read([query]) must return one result'
@@ -435,9 +463,10 @@ export class SyncPatchesDb implements PatchesDb {
           ...new Set(localResult.patches.map((p) => p.entityId)),
         ];
         if (entityIds.length > 0) {
-          const [trackedResult] = await this.local.read([
-            { entityType: query.entityType, entityId: entityIds },
-          ]);
+          const [trackedResult] = await this.local.read(
+            [{ entityType: query.entityType, entityId: entityIds }],
+            OPEN_PATCHES_DB_CONTEXT
+          );
           assert.ok(
             trackedResult !== null && trackedResult !== undefined,
             'read([query]) must return one result'
@@ -463,7 +492,7 @@ export class SyncPatchesDb implements PatchesDb {
           ...p,
           attributes: { ...p.attributes, 'patch/syncedAt': '1' },
         }));
-        await this.local.write(withSynced);
+        await this.local.write(withSynced, OPEN_PATCHES_DB_CONTEXT);
         hasNewPatches = true;
       }
     }
@@ -505,7 +534,8 @@ export class SyncPatchesDb implements PatchesDb {
       [...patchIdsToUnsync].map((patchId) => ({
         patchId,
         attributes: { 'patch/syncedAt': null },
-      }))
+      })),
+      OPEN_PATCHES_DB_CONTEXT
     );
     return true;
   }
@@ -532,7 +562,10 @@ export class SyncPatchesDb implements PatchesDb {
     try {
       const syncQueries = await this.buildSyncQueries(entries);
       const wireQueries = SyncPatchesDb.toWireQueries(syncQueries);
-      const results = await this.remote.read(wireQueries);
+      const results = await this.remote.read(
+        wireQueries,
+        OPEN_PATCHES_DB_CONTEXT
+      );
       const recoveredPatches = await this.markMissingSyncedPatches(
         syncQueries,
         results

@@ -3,8 +3,10 @@ import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
 import {
   assertPatch,
   assertPatchInput,
+  OPEN_PATCHES_DB_CONTEXT,
   type Patch,
   type PatchesDb,
+  type PatchesDbContext,
   type PatchesDbQuery,
   type PatchesDbResult,
   type PatchInput,
@@ -51,13 +53,16 @@ export class PatchDbImplSyncHost implements PatchDbSyncHost {
     assert.defined(pubSub, 'PatchDbImplSyncHost: PubSub must be defined');
   }
 
-  async read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
+  async read(
+    queries: PatchesDbQuery[],
+    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+  ): Promise<PatchesDbResult[]> {
     assert.array(queries, 'PatchDbImplSyncHost.read: queries must be an array');
     if (queries.length === 0) {
       return [];
     }
 
-    const results = await this.db.read(queries);
+    const results = await this.db.read(queries, ctx);
     assert.array(
       results,
       'PatchDbImplSyncHost.read: db.read must return an array'
@@ -84,7 +89,10 @@ export class PatchDbImplSyncHost implements PatchDbSyncHost {
     return results;
   }
 
-  async write(patches: PatchInput[]): Promise<Patch[]> {
+  async write(
+    patches: PatchInput[],
+    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+  ): Promise<Patch[]> {
     assert.array(
       patches,
       'PatchDbImplSyncHost.write: patches must be an array'
@@ -99,7 +107,7 @@ export class PatchDbImplSyncHost implements PatchDbSyncHost {
       assertPatchInput(assert, p)
     );
 
-    const out = await this.db.write(patches);
+    const out = await this.db.write(patches, ctx);
     assert.array(
       out,
       'PatchDbImplSyncHost.write: db.write must return an array'

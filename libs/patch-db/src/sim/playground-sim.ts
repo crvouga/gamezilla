@@ -77,18 +77,24 @@ class PartitionableServerPort {
     return this.partitioned;
   }
 
-  read(queries: Parameters<SimServerPort['read']>[0]) {
+  read(
+    queries: Parameters<SimServerPort['read']>[0],
+    ctx?: Parameters<SimServerPort['read']>[1]
+  ) {
     if (this.partitioned) {
       return Promise.reject(new Error('server is partitioned'));
     }
-    return this.inner.read(queries);
+    return this.inner.read(queries, ctx);
   }
 
-  write(patches: Parameters<SimServerPort['write']>[0]) {
+  write(
+    patches: Parameters<SimServerPort['write']>[0],
+    ctx?: Parameters<SimServerPort['write']>[1]
+  ) {
     if (this.partitioned) {
       return Promise.reject(new Error('server is partitioned'));
     }
-    return this.inner.write(patches);
+    return this.inner.write(patches, ctx);
   }
 }
 
@@ -176,8 +182,8 @@ async function buildServerStack(
   const serverPubSub = new InMemoryPubSub();
   const notifying = new NotifyingPatchesDb(serverBacking, serverPubSub);
   const innerPort: SimServerPort = simServerPortFromPubSub(
-    (q) => notifying.read(q),
-    (p) => notifying.write(p),
+    (q, ctx) => notifying.read(q, ctx),
+    (p, ctx) => notifying.write(p, ctx),
     serverPubSub
   );
   void serverId;

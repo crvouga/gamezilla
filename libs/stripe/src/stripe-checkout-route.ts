@@ -1,7 +1,7 @@
 import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '@gamezilla/domain/auth';
 import type { EntityDb } from '@gamezilla/lib/entity-db/interface';
 import { createLogger } from '@gamezilla/lib/logger';
-import type { PatchesDb } from '@gamezilla/patch-db/interface';
+import type { PatchesDb, PatchesDbAuthContext } from '@gamezilla/patch-db/interface';
 import { zValidator } from '@hono/zod-validator';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
@@ -37,6 +37,16 @@ const portalBodySchema = z.object({
 type CheckoutValidated = z.infer<typeof checkoutBodySchema>;
 type PortalValidated = z.infer<typeof portalBodySchema>;
 
+function stripePatchesDbContext(auth: StripeAuthContext): PatchesDbAuthContext {
+  return {
+    principalId: auth.principalId,
+    accountId: auth.accountId,
+    memberOfSpaceIds: [],
+    friendAccountIds: [],
+    blockedAccountIds: [],
+  };
+}
+
 async function handleStripeCheckout(
   c: Context,
   body: CheckoutValidated,
@@ -48,7 +58,9 @@ async function handleStripeCheckout(
   }
 ): Promise<Response> {
   const { db, stripe, entityDb: entityDb, requireAuth } = args;
-  const { accountId, principalId } = await requireAuth(db, c.req.raw);
+  const auth = await requireAuth(db, c.req.raw);
+  const { accountId, principalId } = auth;
+  const patchCtx = stripePatchesDbContext(auth);
 
   const priceId = await getStripeCatalogPriceStripeId(entityDb, body.priceKey);
   if (priceId === null || priceId.length === 0) {
@@ -64,9 +76,10 @@ async function handleStripeCheckout(
     );
   }
 
-  const [accRes] = await db.read([
-    { entityType: ACCOUNT_ENTITY_TYPE, entityId: accountId, limit: 1 },
-  ]);
+  const [accRes] = await db.read(
+    [{ entityType: ACCOUNT_ENTITY_TYPE, entityId: accountId, limit: 1 }],
+    patchCtx
+  );
   const account = accRes?.entities[0];
   const existingRaw = account?.attributes[AccountAttr.stripeCustomerId];
   let stripeCustomerId =
@@ -79,16 +92,19 @@ async function handleStripeCheckout(
       metadata: { account_id: accountId, principal_id: principalId },
     });
     stripeCustomerId = customer.id;
-    await db.write([
-      {
-        entityId: accountId,
-        entityType: ACCOUNT_ENTITY_TYPE,
-        attributes: {
-          [AccountAttr.stripeCustomerId]: customer.id,
-          'patch/createdBy': principalId,
+    await db.write(
+      [
+        {
+          entityId: accountId,
+          entityType: ACCOUNT_ENTITY_TYPE,
+          attributes: {
+            [AccountAttr.stripeCustomerId]: customer.id,
+            'patch/createdBy': principalId,
+          },
         },
-      },
-    ]);
+      ],
+      patchCtx
+    );
   }
 
   const session = await stripe.checkout.sessions.create({
@@ -121,11 +137,14 @@ async function handleStripePortal(
   }
 ): Promise<Response> {
   const { db, stripe, requireAuth } = args;
-  const { accountId } = await requireAuth(db, c.req.raw);
+  const auth = await requireAuth(db, c.req.raw);
+  const { accountId } = auth;
+  const patchCtx = stripePatchesDbContext(auth);
 
-  const [accRes] = await db.read([
-    { entityType: ACCOUNT_ENTITY_TYPE, entityId: accountId, limit: 1 },
-  ]);
+  const [accRes] = await db.read(
+    [{ entityType: ACCOUNT_ENTITY_TYPE, entityId: accountId, limit: 1 }],
+    patchCtx
+  );
   const account = accRes?.entities[0];
   const stripeCustomerIdRaw = account?.attributes[AccountAttr.stripeCustomerId];
   const stripeCustomerId =

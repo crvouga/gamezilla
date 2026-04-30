@@ -3,7 +3,9 @@ import {
   assertPatch,
   assertPatchInput,
   assertQuery,
+  OPEN_PATCHES_DB_CONTEXT,
   type Patch,
+  type PatchesDbContext,
   type PatchesDbQuery,
   type PatchesDbResult,
   type PatchInput,
@@ -57,7 +59,10 @@ export class PatchDbTransportInProcess implements PatchDbClientTransport {
     );
   }
 
-  async read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
+  async read(
+    queries: PatchesDbQuery[],
+    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+  ): Promise<PatchesDbResult[]> {
     assert.array(
       queries,
       'PatchDbTransportInProcess.read: queries must be an array'
@@ -79,7 +84,7 @@ export class PatchDbTransportInProcess implements PatchDbClientTransport {
       }
     }
 
-    const results = await this.host.read(queries);
+    const results = await this.host.read(queries, ctx);
     assert.array(
       results,
       'PatchDbTransportInProcess.read: host.read must return an array'
@@ -113,7 +118,10 @@ export class PatchDbTransportInProcess implements PatchDbClientTransport {
     return results;
   }
 
-  async write(patches: PatchInput[]): Promise<Patch[]> {
+  async write(
+    patches: PatchInput[],
+    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+  ): Promise<Patch[]> {
     assert.array(
       patches,
       'PatchDbTransportInProcess.write: patches must be an array'
@@ -132,7 +140,7 @@ export class PatchDbTransportInProcess implements PatchDbClientTransport {
       assertPatchInput(assert, p)
     );
 
-    const out = await this.host.write(patches);
+    const out = await this.host.write(patches, ctx);
     assert.array(
       out,
       'PatchDbTransportInProcess.write: host.write must return an array'

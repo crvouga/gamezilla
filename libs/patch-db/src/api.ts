@@ -1,6 +1,7 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
 import type { PatchesDb } from './interface';
+import type { PatchDbHttpAuthOptions } from './transport/impl-http-request-handler';
 import {
   createPatchDbHttpHono,
   PatchDbHttpRequestHandler,
@@ -15,6 +16,8 @@ export type PatchDbApiConfig = {
   pubSub: PubSub;
   /** Default: `/patch-db`. */
   basePath?: string;
+  /** When set, patch-db HTTP routes resolve {@link import('./interface').PatchesDbContext} per request. */
+  patchDbHttpAuth?: PatchDbHttpAuthOptions;
   instrumentation?:
     | boolean
     | {
@@ -70,7 +73,11 @@ export function createPatchDbApiHandler(
     disposeInstrumentation = () => instrumented.dispose();
   }
 
-  const http = new PatchDbHttpRequestHandler(host, normalizedBase);
+  const http = new PatchDbHttpRequestHandler(
+    host,
+    normalizedBase,
+    config.patchDbHttpAuth
+  );
 
   return {
     basePath: normalizedBase,

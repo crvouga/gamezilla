@@ -1,6 +1,11 @@
+import { PROFILE_ENTITY_TYPE, ProfileAttr } from '@gamezilla/domain/profile/profile-entities';
 import { assert } from '@gamezilla/lib/assert';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { ForbiddenError } from '../forbidden-error';
 import type { PatchesDb } from '../interface';
+import { PATCHES_DB_SYSTEM_CONTEXT } from '../interface';
+import { installDefaultPatchDbPolicies } from '../policy/install-default-patch-db-policies';
+import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '../policy/system-principal';
 import { implementations } from './test-helpers';
 
 describe.each(implementations)('$name', ({ factory }) => {
@@ -298,5 +303,65 @@ describe.each(implementations)('$name', ({ factory }) => {
     const afterSync = afterSyncResults[0];
     assert.defined(afterSync, 'afterSync must be defined');
     expect(afterSync.patches).toHaveLength(0);
+  });
+
+  test('system context write succeeds for system-only entity types', async () => {
+    installDefaultPatchDbPolicies(db);
+    const owner = '00000000-0000-4000-8000-000000000099';
+    await db.write(
+      [
+        {
+          entityId: 'evt_sys_test',
+          entityType: 'stripe.webhook_event',
+          attributes: {
+            'entity/owner': owner,
+            'stripe/webhookEventType': 'customer.created',
+            'stripe/stripeObjectId': 'evt_sys_test',
+            'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+          },
+        },
+      ],
+      PATCHES_DB_SYSTEM_CONTEXT
+    );
+    const [r] = await db.read(
+      [
+        {
+          entityType: 'stripe.webhook_event',
+          entityId: 'evt_sys_test',
+          limit: 1,
+        },
+      ],
+      PATCHES_DB_SYSTEM_CONTEXT
+    );
+    assert.defined(r, 'read result');
+    expect(r.entities.length).toBe(1);
+  });
+
+  test('authenticated write rejects patch/createdBy mismatch', async () => {
+    installDefaultPatchDbPolicies(db);
+    const principalId = '00000000-0000-4000-8000-000000000011';
+    const accountId = '00000000-0000-4000-8000-000000000022';
+    const ctx = {
+      principalId,
+      accountId,
+      memberOfSpaceIds: [] as const,
+      friendAccountIds: [] as const,
+      blockedAccountIds: [] as const,
+    };
+    await expect(
+      db.write(
+        [
+          {
+            entityId: principalId,
+            entityType: PROFILE_ENTITY_TYPE,
+            attributes: {
+              [ProfileAttr.id]: principalId,
+              'patch/createdBy': '00000000-0000-4000-8000-00000000dead',
+            },
+          },
+        ],
+        ctx
+      )
+    ).rejects.toBeInstanceOf(ForbiddenError);
   });
 });

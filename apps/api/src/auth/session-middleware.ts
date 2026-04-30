@@ -5,12 +5,11 @@ import {
 import { assertPrincipalId } from '@gamezilla/domain/auth/principal-id';
 import { assert } from '@gamezilla/lib/assert';
 import type { PatchesDb } from '@gamezilla/patch-db/interface';
+import type { PatchesDbAuthContext } from '@gamezilla/patch-db/interface';
+import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import { UnauthorizedError } from './unauthorized-error';
 
-export type AuthContext = {
-  principalId: string;
-  accountId: string;
-};
+export type AuthContext = PatchesDbAuthContext;
 
 /**
  * Resolves Bearer session token to principal + account via PatchDB.
@@ -28,17 +27,20 @@ export async function resolveAuthContext(
   const token = header.slice('Bearer '.length).trim();
   assert.ok(token.length > 0, 'Bearer token must be non-empty');
 
-  const [result] = await db.read([
-    {
-      entityType: PRINCIPAL_SESSION_ENTITY_TYPE,
-      where: {
-        type: '=',
-        attribute: PrincipalSessionAttr.token,
-        value: token,
+  const [result] = await db.read(
+    [
+      {
+        entityType: PRINCIPAL_SESSION_ENTITY_TYPE,
+        where: {
+          type: '=',
+          attribute: PrincipalSessionAttr.token,
+          value: token,
+        },
+        limit: 5,
       },
-      limit: 5,
-    },
-  ]);
+    ],
+    PATCHES_DB_SYSTEM_CONTEXT
+  );
 
   const entities = result?.entities ?? [];
   const now = Date.now();
@@ -64,7 +66,13 @@ export async function resolveAuthContext(
       continue;
     }
 
-    return { principalId, accountId };
+    return {
+      principalId,
+      accountId,
+      memberOfSpaceIds: [],
+      friendAccountIds: [],
+      blockedAccountIds: [],
+    };
   }
 
   return null;

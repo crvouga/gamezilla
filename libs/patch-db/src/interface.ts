@@ -1,4 +1,5 @@
 import { Assert, assert } from '@gamezilla/lib/assert';
+import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 
 export type AttributeKey = `${string}/${string}`;
 
@@ -358,24 +359,162 @@ export type PatchesDbResult = {
   nextCursor: string | null;
 };
 
+/** Unsubscribe from a hook registration. */
+export type Unsubscribe = () => void;
+
+/** Authenticated caller resolved from session (Bearer) + optional relationship prefetch. */
+export type PatchesDbAuthContext = {
+  principalId: string;
+  accountId: string;
+  memberOfSpaceIds: readonly string[];
+  friendAccountIds: readonly string[];
+  blockedAccountIds: readonly string[];
+};
+
+/** System / simulation / migration — bypasses ABAC read+write policy checks. */
+export type PatchesDbSystemContext = {
+  principalId: null;
+  reason: 'system' | 'sim' | 'migration' | 'stripe-webhook';
+};
+
+export type PatchesDbContext = PatchesDbAuthContext | PatchesDbSystemContext;
+
+/** Default for local-first client DB, tests, and in-process sim — no ABAC filtering. */
+export const OPEN_PATCHES_DB_CONTEXT: PatchesDbSystemContext = {
+  principalId: null,
+  reason: 'sim',
+};
+
+/** Server-side privileged operations (auth claim, session resolution bootstrap). */
+export const PATCHES_DB_SYSTEM_CONTEXT: PatchesDbSystemContext = {
+  principalId: null,
+  reason: 'system',
+};
+
+/** Stripe webhook handler — bypasses ABAC like other system contexts. */
+export const PATCHES_DB_STRIPE_WEBHOOK_CONTEXT: PatchesDbSystemContext = {
+  principalId: null,
+  reason: 'stripe-webhook',
+};
+
+export function isPatchesDbSystemContext(
+  ctx: PatchesDbContext
+): ctx is PatchesDbSystemContext {
+  return ctx.principalId === null;
+}
+
+export function isPatchesDbAuthContext(
+  ctx: PatchesDbContext
+): ctx is PatchesDbAuthContext {
+  return ctx.principalId !== null;
+}
+
+/** AND-combines an optional existing where-clause with an additional clause. */
+export function andWhereClause(
+  existing: PatchesDbQueryWhereClause | undefined,
+  clause: PatchesDbQueryWhereClause
+): PatchesDbQueryWhereClause {
+  if (existing === undefined) return clause;
+  return { type: 'and', clauses: [existing, clause] };
+}
+
+/**
+ * Read predicate that is always true for snapshot/patch JSON attribute queries.
+ * (Every stored patch has `patch/createdBy` after normalization.)
+ */
+export const READ_WHERE_ALWAYS_TRUE: PatchesDbQueryWhereClause = {
+  type: 'or',
+  clauses: [
+    { type: 'exists', attribute: 'patch/createdBy' },
+    { type: 'not_exists', attribute: 'patch/createdBy' },
+  ],
+};
+
+/** Deny all rows for this query without breaking SQL (limit 0). */
+export function denyAllReadsQuery(query: PatchesDbQuery): PatchesDbQuery {
+  const out: PatchesDbQuery = { ...query, limit: 0 };
+  delete (out as { offset?: number }).offset;
+  return out;
+}
+
+export type PatchesDbCompactionResult = {
+  removedPatchIds: string[];
+  compactionPatchId: string | null;
+};
+
+export type PatchesDbCompaction = {
+  compactEntity(
+    key: { entityId: string; entityType: string },
+    options: { keepLatest: number },
+    ctx: PatchesDbContext
+  ): Promise<PatchesDbCompactionResult>;
+
+  compactAll(
+    options: { keepLatest?: number; entityType?: string },
+    ctx: PatchesDbContext
+  ): Promise<{ entitiesCompacted: number }>;
+};
+
+export type PatchesDbHooks = {
+  beforeRead(
+    fn: (
+      query: PatchesDbQuery,
+      ctx: PatchesDbContext
+    ) => PatchesDbQuery | Promise<PatchesDbQuery>
+  ): Unsubscribe;
+
+  beforeWrite(
+    fn: (
+      patches: PatchInput[],
+      ctx: PatchesDbContext,
+      tx: SqlClient
+    ) => PatchInput[] | Promise<PatchInput[]>
+  ): Unsubscribe;
+
+  afterWrite(
+    fn: (
+      written: Patch[],
+      ctx: PatchesDbContext,
+      tx: SqlClient
+    ) => void | Promise<void>
+  ): Unsubscribe;
+};
+
 /** Query side of {@link PatchesDb}; contract varies by implementation (local read vs sync merge-then-read). */
 export type PatchesDbRead = {
-  read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]>;
+  read(
+    queries: PatchesDbQuery[],
+    ctx?: PatchesDbContext
+  ): Promise<PatchesDbResult[]>;
 };
 
 /** Write side of {@link PatchesDb}; contract varies by implementation (local persist vs sync + invalidation). */
 export type PatchesDbWrite = {
-  write(patches: PatchInput[]): Promise<Patch[]>;
+  write(patches: PatchInput[], ctx?: PatchesDbContext): Promise<Patch[]>;
 };
 
 /** Update side of {@link PatchesDb}; contract varies by implementation (local persist vs sync + invalidation). */
 export type PatchesDbUpdate = {
   update(
-    updates: { patchId: string; attributes: Record<string, unknown> }[]
+    updates: { patchId: string; attributes: Record<string, unknown> }[],
+    ctx?: PatchesDbContext
   ): Promise<void>;
 };
 
-export type PatchesDb = PatchesDbRead & PatchesDbWrite & PatchesDbUpdate;
+export type PatchesDb = PatchesDbRead &
+  PatchesDbWrite &
+  PatchesDbUpdate & {
+    readonly hooks: PatchesDbHooks;
+    readonly compaction: PatchesDbCompaction;
+  };
+
+/** Shared options for SQLite / Postgres patch-db implementations. */
+export type PatchDbEngineOptions = {
+  /** When true, compacts chains after writes when length exceeds keepLatest + slack. */
+  autoCompactOnWrite?: boolean;
+  /** Extra headroom before auto-compaction runs. Default 2. */
+  compactionSlack?: number;
+};
 
 function patchInputId(p: PatchInput): string | undefined {
   const r = p as Record<string, unknown>;
