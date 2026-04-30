@@ -164,7 +164,5 @@
     "xmark",
     "xyflow"
   ],
-  "github-actions.workflows.pinned.workflows": [
-    ".github/workflows/deployment-pipeline.yml"
-  ]
+  "github-actions.workflows.pinned.workflows": []
 }
