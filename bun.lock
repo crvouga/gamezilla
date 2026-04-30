@@ -158,6 +158,19 @@
         "wrangler": "^4.54.0",
       },
     },
+    "apps/stripe-cli": {
+      "name": "@gamezilla/stripe-cli",
+      "version": "1.0.0",
+      "dependencies": {
+        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/stripe": "workspace:*",
+        "stripe": "^18.0.0",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.3.9",
+        "typescript": "~5.9.2",
+      },
+    },
     "apps/turbo-cache": {
       "name": "@gamezilla/turbo-cache",
       "version": "1.0.0",
@@ -824,6 +837,8 @@
     "@gamezilla/room-example": ["@gamezilla/room-example@workspace:libs/room-example"],
 
     "@gamezilla/stripe": ["@gamezilla/stripe@workspace:libs/stripe"],
+
+    "@gamezilla/stripe-cli": ["@gamezilla/stripe-cli@workspace:apps/stripe-cli"],
 
     "@gamezilla/turbo-cache": ["@gamezilla/turbo-cache@workspace:apps/turbo-cache"],
 

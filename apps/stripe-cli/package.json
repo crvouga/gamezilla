@@ -1,0 +1,22 @@
+{
+  "name": "@gamezilla/stripe-cli",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "bun -e \"process.exit(0)\"",
+    "dev": "bun run --watch src/dev.ts",
+    "kill": "pkill -f '[s]tripe listen' 2>/dev/null || true",
+    "tc": "tsc --noEmit -p ../../tsconfig.json",
+    "setup": "bun -e \"process.exit(0)\"",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@gamezilla/lib": "workspace:*",
+    "@gamezilla/stripe": "workspace:*",
+    "stripe": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.9",
+    "typescript": "~5.9.2"
+  }
+}

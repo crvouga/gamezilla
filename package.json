@@ -20,7 +20,7 @@
   "private": true,
   "scripts": {
     "check": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo check build && bun run i18n:check",
-    "dev": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo dev",
+    "dev": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo dev --ui=tui",
     "preview": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run preview --filter=@gamezilla/db --filter=@gamezilla/api --filter=@gamezilla/client",
     "qa": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run qa --filter=@gamezilla/qa",
     "format": "sort-package-json && prettier --write .",
@@ -33,6 +33,7 @@
     "pw": "bun run --filter '@gamezilla/qa' browser",
     "stripe:sync": "bun run --filter '@gamezilla/stripe' sync",
     "stripe:check": "bun run --filter '@gamezilla/stripe' check",
+    "stripe:listen": "bun run --filter '@gamezilla/stripe-cli' dev",
     "i18n:extract": "lingui extract",
     "i18n:compile": "lingui compile --typescript",
     "i18n:check": "lingui extract && lingui compile --typescript && git diff --exit-code -- apps/client/src/i18n libs/lib/src/i18n libs/patch-db-example/src/i18n libs/room-example/src/i18n"

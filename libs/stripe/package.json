@@ -12,7 +12,9 @@
     "./stripe-catalog-mirror": "./src/stripe-catalog-mirror.ts",
     "./catalog-spec": "./src/catalog-spec.ts",
     "./backfill-entities": "./src/backfill-entities.ts",
-    "./sync": "./src/sync/index.ts"
+    "./sync": "./src/sync/index.ts",
+    "./secret-keys": "./src/secret-keys.ts",
+    "./webhooks-sync-shared": "./src/webhooks-sync-shared.ts"
   },
   "dependencies": {
     "@gamezilla/domain": "workspace:*",
