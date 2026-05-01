@@ -33,35 +33,82 @@ export function databaseHttpOrigin(port: string): string {
   return `http://127.0.0.1:${port}`;
 }
 
+type SpawnedProcess = {
+  readonly subprocess: Subprocess;
+  /** Captured combined stdout/stderr — drained continuously so the OS pipe buffers never fill. */
+  getOutput(): string;
+};
+
+async function drainStreamToBuffer(
+  stream: ReadableStream<Uint8Array> | undefined | null,
+  label: string,
+  buffer: { current: string },
+  echo: boolean
+): Promise<void> {
+  if (!stream) return;
+  const decoder = new TextDecoder();
+  const reader = stream.getReader();
+  try {
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value, { stream: true });
+      buffer.current += chunk;
+      if (echo) {
+        process.stderr.write(`[${label}] ${chunk}`);
+      }
+    }
+  } catch {
+    // ignore — process likely exited
+  }
+}
+
 /**
- * Runs a workspace package script via `bun run --filter`.
+ * Spawn a workspace package script via `bun run --filter`, capturing
+ * stdout/stderr so failures can be surfaced in CI.
  *
- * We deliberately avoid recursing into `turbo run` here: this harness is itself
- * invoked by `turbo run qa`, and Bun's `bun:test` runner gets killed with
- * SIGKILL when the inner `turbo` (with `ui: tui`) tries to attach to the
- * terminal already owned by the outer turbo. `bun run --filter` runs the
- * script directly in the package without the daemon/UI coordination.
+ * We deliberately avoid recursing into `turbo run` here: this harness is
+ * itself invoked by `turbo run qa`, and the inner turbo (with `ui: tui`)
+ * fights the outer turbo for the terminal, causing SIGKILL of the test
+ * runner. `bun run --filter` runs the script directly in the package
+ * without daemon/UI coordination.
  */
 function spawnPackageScript(
   packageName: string,
   scriptName: string,
-  env: Record<string, string>
-): Subprocess {
-  return Bun.spawn(
+  env: Record<string, string>,
+  opts: { echo: boolean }
+): SpawnedProcess {
+  const subprocess = Bun.spawn(
     ['bun', 'run', '--filter', packageName, scriptName],
     {
       cwd: repoRoot,
       env: { ...process.env, ...env },
-      stdout: 'ignore',
-      stderr: 'ignore',
+      stdout: 'pipe',
+      stderr: 'pipe',
       stdin: 'ignore',
     }
   );
+
+  const buffer = { current: '' };
+  const label = `${packageName}#${scriptName}`;
+  void drainStreamToBuffer(subprocess.stdout, label, buffer, opts.echo);
+  void drainStreamToBuffer(subprocess.stderr, label, buffer, opts.echo);
+
+  return {
+    subprocess,
+    getOutput: () => buffer.current,
+  };
 }
 
 export async function waitForHttpOk(
   url: string,
-  opts: { timeoutMs: number; label: string }
+  opts: {
+    timeoutMs: number;
+    label: string;
+    /** Optional process whose output is included in the timeout error. */
+    process?: SpawnedProcess;
+  }
 ): Promise<void> {
   const deadline = Date.now() + opts.timeoutMs;
   let lastErr: string | undefined;
@@ -73,9 +120,19 @@ export async function waitForHttpOk(
     } catch (e) {
       lastErr = e instanceof Error ? e.message : String(e);
     }
+    if (opts.process && opts.process.subprocess.exitCode !== null) {
+      throw new Error(
+        `${opts.label}: subprocess exited (${String(
+          opts.process.subprocess.exitCode
+        )}) before becoming healthy. Output:\n${opts.process.getOutput()}`
+      );
+    }
     await Bun.sleep(250);
   }
-  throw new Error(`${opts.label}: timed out (${opts.timeoutMs}ms). Last: ${lastErr ?? 'unknown'}`);
+  const procOutput = opts.process ? `\nProcess output:\n${opts.process.getOutput()}` : '';
+  throw new Error(
+    `${opts.label}: timed out (${opts.timeoutMs}ms). Last: ${lastErr ?? 'unknown'}${procOutput}`
+  );
 }
 
 export function killSubprocess(proc: Subprocess | null): void {
@@ -93,36 +150,38 @@ export function killSubprocess(proc: Subprocess | null): void {
 }
 
 /** Long-running workspace script (e.g. `preview`); use with `await using` for teardown. */
-export type PackageScriptHandle = AsyncDisposable & {
-  readonly subprocess: Subprocess;
-};
+export type PackageScriptHandle = AsyncDisposable &
+  SpawnedProcess;
 
 export function startPackageScriptBackground(
   packageName: string,
   scriptName: string,
   env: Record<string, string>
 ): PackageScriptHandle {
-  const subprocess = spawnPackageScript(packageName, scriptName, env);
+  const handle = spawnPackageScript(packageName, scriptName, env, { echo: false });
   return {
-    subprocess,
+    subprocess: handle.subprocess,
+    getOutput: handle.getOutput,
     async [Symbol.asyncDispose]() {
-      killSubprocess(subprocess);
+      killSubprocess(handle.subprocess);
     },
   };
 }
 
-/** One-shot workspace script (e.g. `setup`, `kill`); throws on non-zero exit. */
+/** One-shot workspace script (e.g. `setup`, `kill`); throws (with captured output) on non-zero exit. */
 export async function runPackageScriptOnce(
   packageName: string,
   scriptName: string,
   env: Record<string, string>
 ): Promise<void> {
-  const proc = spawnPackageScript(packageName, scriptName, env);
-  const code = await proc.exited;
-  killSubprocess(proc);
+  const handle = spawnPackageScript(packageName, scriptName, env, { echo: false });
+  const code = await handle.subprocess.exited;
+  killSubprocess(handle.subprocess);
   if (code !== 0) {
     throw new Error(
-      `bun run --filter ${packageName} ${scriptName} exited ${String(code)}`
+      `bun run --filter ${packageName} ${scriptName} exited ${String(
+        code
+      )}. Output:\n${handle.getOutput()}`
     );
   }
 }

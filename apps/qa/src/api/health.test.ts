@@ -20,6 +20,7 @@ test(
     await waitForHttpOk(`${databaseUrl}/health`, {
       timeoutMs: 60_000,
       label: 'local db /health',
+      process: db,
     });
 
     await runPackageScriptOnce('@gamezilla/api', 'kill', {});
@@ -29,6 +30,7 @@ test(
     await waitForHttpOk(`${LOCAL_API_ORIGIN}/health`, {
       timeoutMs: 120_000,
       label: 'api /health',
+      process: api,
     });
 
     const res = await fetch(`${LOCAL_API_ORIGIN}/health`);
