@@ -173,8 +173,13 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      # `bun add -g wrangler` produces a wrapper that, in non-TTY CI shells,
+      # writes its `--version` output to stderr and leaves stdout empty,
+      # tripping `apps/infra` dep version detection. `npm install -g`
+      # produces a plain Node shebang script that prints to stdout, which
+      # `captureVersion` reads cleanly.
       - name: Install wrangler
-        run: bun add -g wrangler
+        run: npm install -g wrangler@latest
 
       - name: Install Doppler CLI
         uses: dopplerhq/cli-action@v4

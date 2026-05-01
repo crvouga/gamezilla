@@ -1,23 +1,37 @@
-import { captureVersion, spawnInstall, verifyRun, whichSync } from './spawn';
+import { captureVersionDiagnostic, spawnInstall, verifyRun, whichSync } from './spawn';
 import type { Dep, DepStatus } from './types';
 
 const UA = 'gamezilla-infra-cli';
 const FETCH_TIMEOUT_MS = 15_000;
+
+function summarize(stream: string): string {
+  const trimmed = stream.trim();
+  if (trimmed.length === 0) return '<empty>';
+  const lines = trimmed.split('\n');
+  const head = lines.slice(0, 3).join(' / ');
+  return lines.length > 3 ? `${head} … (+${String(lines.length - 3)} more lines)` : head;
+}
 
 export class WranglerDep implements Dep {
   readonly name = 'wrangler';
   readonly bin = 'wrangler';
 
   version(): string | null {
-    return captureVersion('wrangler', ['--version']);
+    return captureVersionDiagnostic('wrangler', ['--version']).version;
   }
 
   check(): DepStatus {
     if (!whichSync('wrangler'))
       return { ok: false, reason: 'not found on PATH' };
-    const v = this.version();
-    if (!v) return { ok: false, reason: 'could not determine version' };
-    return { ok: true, version: v };
+    const d = captureVersionDiagnostic('wrangler', ['--version']);
+    if (d.version !== null) return { ok: true, version: d.version };
+    return {
+      ok: false,
+      reason:
+        `could not determine version (\`wrangler --version\` exited ${String(d.status)}; ` +
+        `stdout: ${summarize(d.stdout)}; stderr: ${summarize(d.stderr)}). ` +
+        `If running in CI, ensure wrangler installed cleanly (try \`npm install -g wrangler@latest\` instead of \`bun add -g\`).`,
+    };
   }
 
   async fetchLatestVersion(): Promise<string | null> {
@@ -35,11 +49,11 @@ export class WranglerDep implements Dep {
   }
 
   install(): void {
-    spawnInstall('bun', ['add', '-g', 'wrangler@latest']);
+    spawnInstall('npm', ['install', '-g', 'wrangler@latest']);
   }
 
   upgrade(): void {
-    spawnInstall('bun', ['add', '-g', 'wrangler@latest']);
+    spawnInstall('npm', ['install', '-g', 'wrangler@latest']);
   }
 
   verify(): void {

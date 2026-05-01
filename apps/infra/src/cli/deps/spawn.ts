@@ -12,6 +12,20 @@ export function whichSync(bin: string): boolean {
   return r.status === 0 && !r.error;
 }
 
+const SEMVER_REGEX = /[\d]+\.[\d]+[\w.+-]*/;
+
+function parseSemverFromString(s: string): string | null {
+  const trimmed = s.trim();
+  if (trimmed.length === 0) return null;
+  const match = SEMVER_REGEX.exec(trimmed);
+  return match ? match[0] : null;
+}
+
+/**
+ * Resolve a binary's version via `<bin> <args>`. Reads stdout first; falls
+ * back to stderr because some CLIs (notably wrangler) print `--version` to
+ * stderr in non-TTY contexts.
+ */
 export function captureVersion(bin: string, args: string[]): string | null {
   try {
     const r = spawnSync(bin, args, {
@@ -19,12 +33,46 @@ export function captureVersion(bin: string, args: string[]): string | null {
       stdio: ['ignore', 'pipe', 'pipe'],
       env: process.env,
     });
-    if (r.status !== 0 || r.error) return null;
-    const out = (r.stdout ?? '').toString().trim();
-    const match = out.match(/[\d]+\.[\d]+[\w.+-]*/);
-    return match ? match[0] : out.split('\n')[0]!.trim();
+    if (r.error) return null;
+    const stdout = (r.stdout ?? '').toString();
+    const stderr = (r.stderr ?? '').toString();
+    return (
+      parseSemverFromString(stdout) ??
+      parseSemverFromString(stderr) ??
+      null
+    );
   } catch {
     return null;
+  }
+}
+
+/**
+ * Like {@link captureVersion} but returns rich diagnostics on failure so
+ * the caller can include stdout/stderr/status in error messages — useful
+ * when CI shows an opaque "could not determine version".
+ */
+export function captureVersionDiagnostic(
+  bin: string,
+  args: string[]
+): { version: string | null; stdout: string; stderr: string; status: number | null } {
+  try {
+    const r = spawnSync(bin, args, {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: process.env,
+    });
+    const stdout = (r.stdout ?? '').toString();
+    const stderr = (r.stderr ?? '').toString();
+    const version =
+      parseSemverFromString(stdout) ?? parseSemverFromString(stderr) ?? null;
+    return { version, stdout, stderr, status: r.status };
+  } catch (e) {
+    return {
+      version: null,
+      stdout: '',
+      stderr: e instanceof Error ? e.message : String(e),
+      status: null,
+    };
   }
 }
 
