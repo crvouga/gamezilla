@@ -12,6 +12,7 @@ import { assert } from '@gamezilla/lib/assert';
 import type { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 import type { PatchesDb } from '@gamezilla/patch-db/interface';
 import type { AuthAccountIdHolder } from './auth-account-id-holder';
+import type { AuthSessionTokenHolder } from './auth-session-token-holder';
 import { ensureAccountProfile } from './ensure-profile-entity';
 import { AuthConfigurationError } from './auth-errors';
 import type { PrincipalService } from './principal-service';
@@ -37,6 +38,7 @@ type CreateAuthServiceDeps = {
   db: PatchesDb;
   sessionService: SessionService;
   accountIdHolder: AuthAccountIdHolder;
+  sessionTokenHolder: AuthSessionTokenHolder;
   /** When false, sign-in is refused before opening the Google prompt. */
   googleSignInAvailable: boolean;
   promptGoogleIdToken: () => Promise<string>;
@@ -66,6 +68,7 @@ function createGoogleSignInHandler(
     principalService,
     db,
     accountIdHolder,
+    sessionTokenHolder,
     googleSignInAvailable,
     promptGoogleIdToken,
   } = deps;
@@ -104,6 +107,10 @@ function createGoogleSignInHandler(
     assert.ok(json !== null, 'claim success body must not be empty');
     const { accountId, sessionToken, expiresAt } = parseClaimResponse(json);
 
+    // Stamp the bearer token before any patch-db sync push fires; otherwise
+    // the unsynced session/principal patches would 401 against the server.
+    sessionTokenHolder.set(sessionToken);
+
     const sessionEntityId = globalThis.crypto.randomUUID();
 
     await db.write([
@@ -138,6 +145,7 @@ export function createAuthService(deps: CreateAuthServiceDeps): AuthService {
     signInWithGoogle: createGoogleSignInHandler(deps),
     async signOut(): Promise<void> {
       deps.accountIdHolder.set(null);
+      deps.sessionTokenHolder.set(null);
       await deps.sessionService.clearSession();
     },
   };

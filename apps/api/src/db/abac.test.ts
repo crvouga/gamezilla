@@ -1,11 +1,24 @@
 import { assert } from '@gamezilla/lib/assert';
+import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite';
+import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
+import type { PatchesDb } from '@gamezilla/patch-db/interface';
+import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
+import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
+import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { ForbiddenError } from '../forbidden-error';
-import type { PatchesDb } from '../interface';
-import { PATCHES_DB_SYSTEM_CONTEXT } from '../interface';
-import { installDefaultPatchDbPolicies } from '../policy/install-default-patch-db-policies';
-import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '../policy/system-principal';
-import { createSqliteFactory } from './test-helpers';
+import { installDefaultPatchDbPolicies } from './install-default-patch-db-policies';
+
+async function createSqliteFactory(): Promise<{
+  db: PatchesDb;
+  teardown: () => Promise<void>;
+}> {
+  const client: SqlClient = SqlClientImplBunSqlite.open(':memory:');
+  await client.connect();
+  const db = new PatchDbImplSqlite(client);
+  await db.migrate();
+  return { db, teardown: () => client.disconnect() };
+}
 
 describe('default ABAC policies (sqlite)', () => {
   let db: PatchesDb;
@@ -56,10 +69,7 @@ describe('default ABAC policies (sqlite)', () => {
       friendAccountIds: [] as const,
       blockedAccountIds: [] as const,
     };
-    const [forA] = await db.read(
-      [{ entityType: 'profile.private' }],
-      ctxA
-    );
+    const [forA] = await db.read([{ entityType: 'profile.private' }], ctxA);
     assert.defined(forA, 'forA');
     expect(forA.entities.map((e) => e.entityId)).toEqual(['priv-a']);
 
@@ -70,10 +80,7 @@ describe('default ABAC policies (sqlite)', () => {
       friendAccountIds: [] as const,
       blockedAccountIds: [] as const,
     };
-    const [forB] = await db.read(
-      [{ entityType: 'profile.private' }],
-      ctxB
-    );
+    const [forB] = await db.read([{ entityType: 'profile.private' }], ctxB);
     assert.defined(forB, 'forB');
     expect(forB.entities.map((e) => e.entityId)).toEqual(['priv-b']);
   });

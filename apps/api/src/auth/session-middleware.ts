@@ -5,11 +5,11 @@ import {
 import { assertPrincipalId } from '@gamezilla/domain/auth/principal-id';
 import { assert } from '@gamezilla/lib/assert';
 import type { PatchesDb } from '@gamezilla/patch-db/interface';
-import type { PatchesDbAuthContext } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
+import type { GamezillaAuthContext } from '../db/default-patch-db-policies';
 import { UnauthorizedError } from './unauthorized-error';
 
-export type AuthContext = PatchesDbAuthContext;
+export type AuthContext = GamezillaAuthContext;
 
 /**
  * Resolves Bearer session token to principal + account via PatchDB.

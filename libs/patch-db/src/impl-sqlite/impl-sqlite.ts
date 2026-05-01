@@ -12,7 +12,6 @@ import {
   Patch,
   PatchDbEngineOptions,
   PATCH_META_KEYS,
-  PATCH_META_LEGACY_KEY_MAP,
   PatchesDb,
   PatchesDbCompaction,
   PatchesDbContext,
@@ -22,20 +21,21 @@ import {
   topologicalSortPatches,
 } from '../interface';
 import { PatchDbHookRegistry } from '../hook-registry';
-import { resolvePatchDbCompactionPolicy } from '../policy/compaction-policy';
+import { DEFAULT_PATCH_DB_COMPACTION_POLICY } from '../policy/compaction-policy';
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '../policy/system-principal';
 import { parseAttributes } from './mappers';
+import { migratePatchDbSqlite } from './migrate';
 import { readPatches } from './read-ops';
 import {
   DELETE_PATCH_BY_ID,
   DELETE_SNAPSHOT,
   INSERT_PATCH,
-  MIGRATIONS,
   RESOLVE_PARENT_ID,
   SELECT_PATCHES_FOR_SNAPSHOT,
   UPSERT_SNAPSHOT,
 } from './sql-constants';
 import type { PatchRow } from './types';
+import { buildSqliteUpdateJsonSet } from './update-ops';
 
 type InsertPatchOptions = {
   patch: PatchInput;
@@ -59,59 +59,7 @@ export class PatchDbImplSqlite implements PatchesDb {
   ) {}
 
   async migrate(): Promise<void> {
-    const statements = MIGRATIONS.split(';')
-      .map((s) => s.trim())
-      .filter(Boolean);
-    for (const stmt of statements) {
-      await this.sqlClient.run(stmt);
-    }
-    await this.dropLegacyLineageDepth();
-    await this.dropLegacyLineageIndex();
-    await this.migrateLegacyMetadataColumn();
-  }
-
-  private async dropLegacyLineageDepth(): Promise<void> {
-    try {
-      await this.sqlClient.run('ALTER TABLE patches DROP COLUMN lineage_depth');
-    } catch {
-      // Forward-compatible: old schema may not have lineage_depth; new DBs skip.
-    }
-  }
-
-  private async dropLegacyLineageIndex(): Promise<void> {
-    try {
-      await this.sqlClient.run(
-        'DROP INDEX IF EXISTS idx_patches_entity_type_lineage'
-      );
-    } catch {
-      // Forward-compatible: index may be absent on fresh DB or already removed.
-    }
-  }
-
-  private async migrateLegacyMetadataColumn(): Promise<void> {
-    try {
-      const tableInfo = await this.sqlClient.query<{ name: string }>(
-        "SELECT name FROM pragma_table_info('patches') WHERE name = 'metadata'"
-      );
-      if (tableInfo.length === 0) return;
-      const jsonSetArgs = (PATCH_META_KEYS as readonly string[])
-        .flatMap((attrKey) => {
-          const legacyKey = PATCH_META_LEGACY_KEY_MAP[attrKey];
-          const path = `'$.${attrKey.replace(/"/g, '""')}'`;
-          const expr =
-            attrKey === 'patch/syncedAt'
-              ? `json_extract(metadata, '$.${legacyKey}')`
-              : `coalesce(json_extract(metadata, '$.${legacyKey}'), '')`;
-          return [path, expr];
-        })
-        .join(', ');
-      await this.sqlClient.run(
-        `UPDATE patches SET attributes = json_set(attributes, ${jsonSetArgs})`
-      );
-      await this.sqlClient.run('ALTER TABLE patches DROP COLUMN metadata');
-    } catch {
-      // Forward-compatible: metadata column exists only in pre-migration DBs.
-    }
+    await migratePatchDbSqlite(this.sqlClient);
   }
 
   private mergePatchRowsIntoMergedRecord(rows: readonly PatchRow[]): Record<
@@ -366,7 +314,9 @@ export class PatchDbImplSqlite implements PatchesDb {
     entityType: string
   ): Promise<void> {
     if (this.opts.autoCompactOnWrite !== true) return;
-    const policy = resolvePatchDbCompactionPolicy(entityType);
+    const resolve =
+      this.opts.compactionPolicy ?? (() => DEFAULT_PATCH_DB_COMPACTION_POLICY);
+    const policy = resolve(entityType);
     if (policy === 'never') return;
     const slack = this.opts.compactionSlack ?? 2;
     const rows = await tx.query<PatchRow>(SELECT_PATCHES_FOR_SNAPSHOT, [
@@ -458,25 +408,10 @@ export class PatchDbImplSqlite implements PatchesDb {
       for (const key of Object.keys(attributes)) {
         assertAttribute(key);
       }
-      const jsonSetParts: string[] = [];
-      const jsonSetParams: unknown[] = [];
-      for (const [key, value] of Object.entries(attributes)) {
-        const path = /[./[\]]/.test(key)
-          ? `$."${key.replace(/"/g, '""')}"`
-          : `$.${key}`;
-        jsonSetParts.push(`'${path.replace(/'/g, "''")}', ?`);
-        const sqlValue =
-          value === undefined
-            ? null
-            : typeof value === 'object' && value !== null
-              ? JSON.stringify(value)
-              : value;
-        jsonSetParams.push(sqlValue);
-      }
-      const jsonSetExpr = `json_set(attributes, ${jsonSetParts.join(', ')})`;
+      const { expr, params } = buildSqliteUpdateJsonSet(attributes);
       await this.sqlClient.run(
-        `UPDATE patches SET attributes = ${jsonSetExpr} WHERE patch_id = ?`,
-        [...jsonSetParams, patchId]
+        `UPDATE patches SET attributes = ${expr} WHERE patch_id = ?`,
+        [...params, patchId]
       );
     }
   }

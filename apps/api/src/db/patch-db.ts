@@ -1,12 +1,17 @@
 import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
-import { installDefaultPatchDbPolicies } from '@gamezilla/patch-db/policy/install-default-patch-db-policies';
+import { createGamezillaCompactionPolicyRegistry } from './default-compaction-policies';
+import { installDefaultPatchDbPolicies } from './install-default-patch-db-policies';
 import { getDb } from './sql-client';
 
 let db: PatchDbImplPostgres | null = null;
 
 export function getPatchDb(databaseUrl: string): PatchDbImplPostgres {
   if (db === null) {
-    db = new PatchDbImplPostgres(getDb(databaseUrl));
+    const compaction = createGamezillaCompactionPolicyRegistry();
+    db = new PatchDbImplPostgres(getDb(databaseUrl), {
+      autoCompactOnWrite: true,
+      compactionPolicy: compaction.resolve,
+    });
     installDefaultPatchDbPolicies(db);
   }
   return db;

@@ -14,12 +14,27 @@ const JSON_HEADERS = {
   Accept: 'application/json',
 } as const;
 
+export type CreatePatchDbHcTransportOptions = {
+  /** Returns the current session bearer token, or null when unauthenticated. */
+  getAuthToken?: () => string | null;
+};
+
+function authHeaders(
+  getAuthToken?: () => string | null
+): Record<string, string> {
+  const token = getAuthToken?.() ?? null;
+  if (token === null || token.length === 0) return {};
+  return { Authorization: `Bearer ${token}` };
+}
+
 /**
  * Patch-db sync transport using the Hono RPC client (`/patch-db/patches/read|write`).
  */
 export function createPatchDbHcTransport(
-  client: GamezillaApiClient
+  client: GamezillaApiClient,
+  options?: CreatePatchDbHcTransportOptions
 ): PatchDbClientTransport {
+  const getAuthToken = options?.getAuthToken;
   return {
     async read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]> {
       if (queries.length === 0) return [];
@@ -29,6 +44,7 @@ export function createPatchDbHcTransport(
           headers: {
             ...JSON_HEADERS,
             ...NO_CACHE_REQUEST_HEADERS,
+            ...authHeaders(getAuthToken),
           },
         }
       );
@@ -55,6 +71,7 @@ export function createPatchDbHcTransport(
           headers: {
             'Content-Type': 'application/json',
             ...NO_CACHE_REQUEST_HEADERS,
+            ...authHeaders(getAuthToken),
           },
         }
       );

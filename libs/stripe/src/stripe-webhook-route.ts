@@ -1,38 +1,77 @@
 import type { EntityDb } from '@gamezilla/lib/entity-db/interface';
 import { createLogger } from '@gamezilla/lib/logger';
 import type { SecretStore } from '@gamezilla/lib/secret-store';
-import type { PatchesDb } from '@gamezilla/patch-db/interface';
-import { PATCHES_DB_STRIPE_WEBHOOK_CONTEXT } from '@gamezilla/patch-db/interface';
+import type {
+  PatchesDb,
+  PatchesDbSystemContext,
+} from '@gamezilla/patch-db/interface';
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
 import { Hono } from 'hono';
 import Stripe from 'stripe';
 import { stripeEventObjectId } from './event-object-id';
 import { resolveAccountIdByStripeCustomerId } from './resolve-account-by-stripe-customer';
 
+/** Stripe webhook handler — bypasses ABAC like other system contexts. */
+const PATCHES_DB_STRIPE_WEBHOOK_CONTEXT: PatchesDbSystemContext = {
+  principalId: null,
+  reason: 'stripe-webhook',
+};
+
 const log = createLogger({ name: 'stripe:webhook' });
+
+function customerIdFromString(c: unknown): string | null {
+  return typeof c === 'string' && c.startsWith('cus_') ? c : null;
+}
+
+function customerIdFromObject(c: unknown): string | null {
+  if (typeof c !== 'object' || c === null || !('id' in c)) {
+    return null;
+  }
+  const id = (c as { id: unknown }).id;
+  return typeof id === 'string' && id.startsWith('cus_') ? id : null;
+}
 
 function extractStripeCustomerId(event: Stripe.Event): string | null {
   const obj = event.data?.object as unknown;
   if (obj === null || typeof obj !== 'object') {
     return null;
   }
-  const data = obj as Record<string, unknown>;
-  const c = data['customer'];
-  if (typeof c === 'string' && c.startsWith('cus_')) {
-    return c;
+  const c = (obj as Record<string, unknown>)['customer'];
+  return customerIdFromString(c) ?? customerIdFromObject(c);
+}
+
+async function recordWebhookEventInPatchDb(
+  patchDb: PatchesDb,
+  event: Stripe.Event,
+  objectId: string
+): Promise<void> {
+  const customerId = extractStripeCustomerId(event);
+  if (customerId === null) {
+    return;
   }
-  if (
-    typeof c === 'object' &&
-    c !== null &&
-    'id' in c &&
-    typeof (c as { id: unknown }).id === 'string'
-  ) {
-    const id = (c as { id: string }).id;
-    if (id.startsWith('cus_')) {
-      return id;
-    }
+  const accountId = await resolveAccountIdByStripeCustomerId(
+    patchDb,
+    customerId,
+    PATCHES_DB_STRIPE_WEBHOOK_CONTEXT
+  );
+  if (accountId === null) {
+    return;
   }
-  return null;
+  await patchDb.write(
+    [
+      {
+        entityId: objectId,
+        entityType: 'stripe.webhook_event',
+        attributes: {
+          'entity/owner': accountId,
+          'stripe/webhookEventType': event.type,
+          'stripe/stripeObjectId': objectId,
+          'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+        },
+      },
+    ],
+    PATCHES_DB_STRIPE_WEBHOOK_CONTEXT
+  );
 }
 
 export function createStripeWebhookRoutes(args: {
@@ -79,31 +118,7 @@ export function createStripeWebhookRoutes(args: {
       });
 
       if (patchDb !== undefined) {
-        const customerId = extractStripeCustomerId(event);
-        if (customerId !== null) {
-          const accountId = await resolveAccountIdByStripeCustomerId(
-            patchDb,
-            customerId,
-            PATCHES_DB_STRIPE_WEBHOOK_CONTEXT
-          );
-          if (accountId !== null) {
-            await patchDb.write(
-              [
-                {
-                  entityId: objectId,
-                  entityType: 'stripe.webhook_event',
-                  attributes: {
-                    'entity/owner': accountId,
-                    'stripe/webhookEventType': event.type,
-                    'stripe/stripeObjectId': objectId,
-                    'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
-                  },
-                },
-              ],
-              PATCHES_DB_STRIPE_WEBHOOK_CONTEXT
-            );
-          }
-        }
+        await recordWebhookEventInPatchDb(patchDb, event, objectId);
       }
 
       return c.json({ received: true as const }, 200);

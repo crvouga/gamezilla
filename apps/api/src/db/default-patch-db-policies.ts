@@ -7,31 +7,48 @@ import {
   PrincipalAttr,
   PrincipalSessionAttr,
 } from '@gamezilla/domain/auth';
-import { ProfileAttr, PROFILE_ENTITY_TYPE } from '@gamezilla/domain/profile/profile-entities';
+import {
+  ProfileAttr,
+  PROFILE_ENTITY_TYPE,
+} from '@gamezilla/domain/profile/profile-entities';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceAttr,
   SpaceMembershipAttr,
 } from '@gamezilla/domain/spaces/space-entities';
-import { ForbiddenError } from '../forbidden-error';
+import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
 import type {
   PatchInput,
   PatchesDbAuthContext,
   PatchesDbContext,
   PatchesDbQueryWhereClause,
-} from '../interface';
+} from '@gamezilla/patch-db/interface';
 import {
   isPatchesDbAuthContext,
   isPatchesDbSystemContext,
   READ_WHERE_ALWAYS_TRUE,
-} from '../interface';
-import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from './system-principal';
-import type { VisibilityPolicy } from './visibility-policy-registry';
+} from '@gamezilla/patch-db/interface';
+import type { VisibilityPolicy } from '@gamezilla/patch-db/policy/visibility-policy-registry';
+import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
+
+/**
+ * Gamezilla-specific auth context: extends the generic patch-db auth context
+ * with the claims needed by our visibility policies. The session middleware is
+ * responsible for producing contexts of this shape.
+ */
+export type GamezillaAuthContext = PatchesDbAuthContext & {
+  readonly accountId: string;
+  readonly memberOfSpaceIds: readonly string[];
+  readonly friendAccountIds: readonly string[];
+  readonly blockedAccountIds: readonly string[];
+};
+
+type GamezillaVisibilityPolicy = VisibilityPolicy<GamezillaAuthContext>;
 
 function requireAuth(
   ctx: PatchesDbContext
-): asserts ctx is PatchesDbAuthContext {
+): asserts ctx is GamezillaAuthContext {
   if (!isPatchesDbAuthContext(ctx)) {
     throw new ForbiddenError('authentication required', { ctx });
   }
@@ -47,7 +64,7 @@ function createdBy(patch: PatchInput): string {
 }
 
 function assertCreatedByMatchesPrincipal(
-  ctx: PatchesDbAuthContext,
+  ctx: GamezillaAuthContext,
   patch: PatchInput
 ): void {
   const cb = createdBy(patch);
@@ -59,7 +76,7 @@ function assertCreatedByMatchesPrincipal(
   }
 }
 
-const principalPolicy: VisibilityPolicy = {
+const principalPolicy: GamezillaVisibilityPolicy = {
   read: (ctx) => ({
     type: '=',
     attribute: PrincipalAttr.id,
@@ -76,7 +93,7 @@ const principalPolicy: VisibilityPolicy = {
   },
 };
 
-const accountPolicy: VisibilityPolicy = {
+const accountPolicy: GamezillaVisibilityPolicy = {
   read: (ctx) => ({
     type: '=',
     attribute: AccountAttr.id,
@@ -93,7 +110,7 @@ const accountPolicy: VisibilityPolicy = {
   },
 };
 
-const principalSessionPolicy: VisibilityPolicy = {
+const principalSessionPolicy: GamezillaVisibilityPolicy = {
   read: (ctx) => ({
     type: '=',
     attribute: PrincipalSessionAttr.principalId,
@@ -105,7 +122,7 @@ const principalSessionPolicy: VisibilityPolicy = {
   },
 };
 
-const accountProviderPolicy: VisibilityPolicy = {
+const accountProviderPolicy: GamezillaVisibilityPolicy = {
   read: (ctx) => ({
     type: '=',
     attribute: AccountProviderAttr.accountId,
@@ -122,7 +139,7 @@ const accountProviderPolicy: VisibilityPolicy = {
   },
 };
 
-const adminMetricPolicy: VisibilityPolicy = {
+const adminMetricPolicy: GamezillaVisibilityPolicy = {
   read: () => READ_WHERE_ALWAYS_TRUE,
   write: async (ctx) => {
     if (isPatchesDbSystemContext(ctx)) return;
@@ -130,7 +147,7 @@ const adminMetricPolicy: VisibilityPolicy = {
   },
 };
 
-const profilePolicy: VisibilityPolicy = {
+const profilePolicy: GamezillaVisibilityPolicy = {
   read: () => READ_WHERE_ALWAYS_TRUE,
   write: async (ctx, patch, _tx) => {
     if (isPatchesDbSystemContext(ctx)) return;
@@ -149,7 +166,7 @@ const profilePolicy: VisibilityPolicy = {
   },
 };
 
-const profilePrivatePolicy: VisibilityPolicy = {
+const profilePrivatePolicy: GamezillaVisibilityPolicy = {
   read: (ctx) => ({
     type: '=',
     attribute: 'entity/owner',
@@ -166,7 +183,7 @@ const profilePrivatePolicy: VisibilityPolicy = {
   },
 };
 
-const spacePolicy: VisibilityPolicy = {
+const spacePolicy: GamezillaVisibilityPolicy = {
   read: (ctx): PatchesDbQueryWhereClause => ({
     type: 'or',
     clauses: [
@@ -186,10 +203,8 @@ const spacePolicy: VisibilityPolicy = {
     const hostId = patch.attributes[SpaceAttr.hostId];
     const owner = patch.attributes['entity/owner'];
     const members = patch.attributes['space/memberAccountIds'];
-    const isHost =
-      typeof hostId === 'string' && hostId === ctx.principalId;
-    const isOwner =
-      typeof owner === 'string' && owner === ctx.accountId;
+    const isHost = typeof hostId === 'string' && hostId === ctx.principalId;
+    const isOwner = typeof owner === 'string' && owner === ctx.accountId;
     const isMember =
       Array.isArray(members) && members.includes(ctx.accountId);
     if (!isHost && !isOwner && !isMember) {
@@ -198,7 +213,7 @@ const spacePolicy: VisibilityPolicy = {
   },
 };
 
-const spaceMembershipPolicy: VisibilityPolicy = {
+const spaceMembershipPolicy: GamezillaVisibilityPolicy = {
   read: (ctx): PatchesDbQueryWhereClause => {
     if (ctx.memberOfSpaceIds.length === 0) {
       return {
@@ -220,7 +235,7 @@ const spaceMembershipPolicy: VisibilityPolicy = {
   },
 };
 
-const chatMessagePolicy: VisibilityPolicy = {
+const chatMessagePolicy: GamezillaVisibilityPolicy = {
   read: (ctx): PatchesDbQueryWhereClause => {
     if (ctx.memberOfSpaceIds.length === 0) {
       return {
@@ -240,21 +255,26 @@ const chatMessagePolicy: VisibilityPolicy = {
     requireAuth(ctx);
     assertCreatedByMatchesPrincipal(ctx, patch);
     const sid = patch.attributes['chat.message/spaceId'];
-    if (
-      typeof sid !== 'string' ||
-      !ctx.memberOfSpaceIds.includes(sid)
-    ) {
+    if (typeof sid !== 'string' || !ctx.memberOfSpaceIds.includes(sid)) {
       throw new ForbiddenError('chat.message space membership required');
     }
   },
 };
 
-const friendshipPolicy: VisibilityPolicy = {
+const friendshipPolicy: GamezillaVisibilityPolicy = {
   read: (ctx): PatchesDbQueryWhereClause => ({
     type: 'or',
     clauses: [
-      { type: '=', attribute: 'friendship/fromAccountId', value: ctx.accountId },
-      { type: '=', attribute: 'friendship/toAccountId', value: ctx.accountId },
+      {
+        type: '=',
+        attribute: 'friendship/fromAccountId',
+        value: ctx.accountId,
+      },
+      {
+        type: '=',
+        attribute: 'friendship/toAccountId',
+        value: ctx.accountId,
+      },
     ],
   }),
   write: async (ctx, patch, _tx) => {
@@ -273,12 +293,20 @@ const friendshipPolicy: VisibilityPolicy = {
   },
 };
 
-const friendRequestPolicy: VisibilityPolicy = {
+const friendRequestPolicy: GamezillaVisibilityPolicy = {
   read: (ctx): PatchesDbQueryWhereClause => ({
     type: 'or',
     clauses: [
-      { type: '=', attribute: 'friend.request/fromAccountId', value: ctx.accountId },
-      { type: '=', attribute: 'friend.request/toAccountId', value: ctx.accountId },
+      {
+        type: '=',
+        attribute: 'friend.request/fromAccountId',
+        value: ctx.accountId,
+      },
+      {
+        type: '=',
+        attribute: 'friend.request/toAccountId',
+        value: ctx.accountId,
+      },
     ],
   }),
   write: async (ctx, patch, _tx) => {
@@ -288,11 +316,15 @@ const friendRequestPolicy: VisibilityPolicy = {
   },
 };
 
-const matchPolicy: VisibilityPolicy = {
+const matchPolicy: GamezillaVisibilityPolicy = {
   read: (ctx): PatchesDbQueryWhereClause => ({
     type: 'or',
     clauses: [
-      { type: 'contains', attribute: 'match/participantAccountIds', value: ctx.accountId },
+      {
+        type: 'contains',
+        attribute: 'match/participantAccountIds',
+        value: ctx.accountId,
+      },
       { type: '=', attribute: 'entity/owner', value: ctx.accountId },
     ],
   }),
@@ -303,7 +335,7 @@ const matchPolicy: VisibilityPolicy = {
   },
 };
 
-const matchScorePolicy: VisibilityPolicy = {
+const matchScorePolicy: GamezillaVisibilityPolicy = {
   read: () => READ_WHERE_ALWAYS_TRUE,
   write: async (ctx) => {
     if (isPatchesDbSystemContext(ctx)) return;
@@ -311,7 +343,7 @@ const matchScorePolicy: VisibilityPolicy = {
   },
 };
 
-const inventoryItemPolicy: VisibilityPolicy = {
+const inventoryItemPolicy: GamezillaVisibilityPolicy = {
   read: (ctx) => ({
     type: '=',
     attribute: 'entity/owner',
@@ -324,7 +356,7 @@ const inventoryItemPolicy: VisibilityPolicy = {
   },
 };
 
-function stripeRead(ctx: PatchesDbAuthContext): PatchesDbQueryWhereClause {
+function stripeRead(ctx: GamezillaAuthContext): PatchesDbQueryWhereClause {
   return {
     type: '=',
     attribute: 'entity/owner',
@@ -332,7 +364,7 @@ function stripeRead(ctx: PatchesDbAuthContext): PatchesDbQueryWhereClause {
   };
 }
 
-const stripeSubscriptionPolicy: VisibilityPolicy = {
+const stripeSubscriptionPolicy: GamezillaVisibilityPolicy = {
   read: stripeRead,
   write: async (ctx) => {
     if (isPatchesDbSystemContext(ctx)) return;
@@ -340,7 +372,7 @@ const stripeSubscriptionPolicy: VisibilityPolicy = {
   },
 };
 
-const stripePaymentMethodPolicy: VisibilityPolicy = {
+const stripePaymentMethodPolicy: GamezillaVisibilityPolicy = {
   read: stripeRead,
   write: async (ctx) => {
     if (isPatchesDbSystemContext(ctx)) return;
@@ -348,7 +380,7 @@ const stripePaymentMethodPolicy: VisibilityPolicy = {
   },
 };
 
-const stripeInvoicePolicy: VisibilityPolicy = {
+const stripeInvoicePolicy: GamezillaVisibilityPolicy = {
   read: stripeRead,
   write: async (ctx) => {
     if (isPatchesDbSystemContext(ctx)) return;
@@ -356,7 +388,7 @@ const stripeInvoicePolicy: VisibilityPolicy = {
   },
 };
 
-const stripeWebhookEventPolicy: VisibilityPolicy = {
+const stripeWebhookEventPolicy: GamezillaVisibilityPolicy = {
   read: stripeRead,
   write: async (ctx) => {
     if (isPatchesDbSystemContext(ctx)) return;
@@ -366,7 +398,7 @@ const stripeWebhookEventPolicy: VisibilityPolicy = {
 
 /** Domain + auth entity visibility (ABAC predicates). */
 export const DEFAULT_PATCH_DB_VISIBILITY_POLICIES: Readonly<
-  Record<string, VisibilityPolicy>
+  Record<string, GamezillaVisibilityPolicy>
 > = {
   [PRINCIPAL_ENTITY_TYPE]: principalPolicy,
   account: accountPolicy,

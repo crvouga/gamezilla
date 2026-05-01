@@ -1,30 +1,51 @@
-/** Per-entity-type chain compaction: tail-N merge or never (append-only). */
+/**
+ * Per-entity-type chain compaction policy:
+ * - `{ keepLatest: N }` — tail-N merge once the chain exceeds N + `compactionSlack`.
+ * - `'never'` — append-only; never merged.
+ *
+ * This library ships with no application-specific map. Consumers wire their
+ * own resolver via {@link PatchDbEngineOptions.compactionPolicy}.
+ */
 export type PatchDbCompactionPolicy = { keepLatest: number } | 'never';
 
-export const DEFAULT_PATCH_DB_COMPACTION_POLICIES: Readonly<
-  Record<string, PatchDbCompactionPolicy>
-> = {
-  profile: { keepLatest: 2 },
-  'profile.private': { keepLatest: 2 },
-  space: { keepLatest: 2 },
-  spaceMembership: { keepLatest: 2 },
-  friendship: { keepLatest: 2 },
-  'friend.request': { keepLatest: 2 },
-  match: { keepLatest: 2 },
-  'match.score': { keepLatest: 2 },
-  'inventory.item': { keepLatest: 2 },
-  'stripe.subscription': { keepLatest: 2 },
-  'stripe.paymentMethod': { keepLatest: 2 },
-  'stripe.invoice': { keepLatest: 2 },
-  'stripe.webhook_event': { keepLatest: 2 },
-  'chat.message': 'never',
-  'audit.event': 'never',
+/** Default used by engines when no resolver is configured. */
+export const DEFAULT_PATCH_DB_COMPACTION_POLICY: PatchDbCompactionPolicy = {
+  keepLatest: 2,
 };
 
-export function resolvePatchDbCompactionPolicy(
+export type PatchDbCompactionPolicyResolver = (
   entityType: string
-): PatchDbCompactionPolicy {
-  return DEFAULT_PATCH_DB_COMPACTION_POLICIES[entityType] ?? {
-    keepLatest: 2,
-  };
+) => PatchDbCompactionPolicy;
+
+/**
+ * Registry-backed resolver. Apps register per-entity-type policies once at
+ * startup and pass {@link resolve} to `PatchDbEngineOptions.compactionPolicy`.
+ */
+export class PatchDbCompactionPolicyRegistry {
+  private readonly byEntityType = new Map<string, PatchDbCompactionPolicy>();
+  private defaultPolicy: PatchDbCompactionPolicy =
+    DEFAULT_PATCH_DB_COMPACTION_POLICY;
+
+  register(entityType: string, policy: PatchDbCompactionPolicy): this {
+    this.byEntityType.set(entityType, policy);
+    return this;
+  }
+
+  registerAll(
+    entries: Readonly<Record<string, PatchDbCompactionPolicy>>
+  ): this {
+    for (const [k, v] of Object.entries(entries)) {
+      this.byEntityType.set(k, v);
+    }
+    return this;
+  }
+
+  /** Overrides the fallback policy used when an entity type is not registered. */
+  setDefault(policy: PatchDbCompactionPolicy): this {
+    this.defaultPolicy = policy;
+    return this;
+  }
+
+  resolve: PatchDbCompactionPolicyResolver = (entityType) =>
+    this.byEntityType.get(entityType) ?? this.defaultPolicy;
 }

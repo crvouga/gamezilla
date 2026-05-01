@@ -38,13 +38,54 @@ type CheckoutValidated = z.infer<typeof checkoutBodySchema>;
 type PortalValidated = z.infer<typeof portalBodySchema>;
 
 function stripePatchesDbContext(auth: StripeAuthContext): PatchesDbAuthContext {
+  // `accountId` / `memberOfSpaceIds` / etc. are app-level claims consumed by
+  // visibility policies. They're plain extra keys on the auth context — the
+  // patch-db library itself only needs `principalId`.
   return {
     principalId: auth.principalId,
     accountId: auth.accountId,
-    memberOfSpaceIds: [],
-    friendAccountIds: [],
-    blockedAccountIds: [],
+    memberOfSpaceIds: [] as readonly string[],
+    friendAccountIds: [] as readonly string[],
+    blockedAccountIds: [] as readonly string[],
   };
+}
+
+async function ensureStripeCustomerId(args: {
+  readonly db: PatchesDb;
+  readonly stripe: Stripe;
+  readonly auth: StripeAuthContext;
+  readonly patchCtx: PatchesDbAuthContext;
+}): Promise<string> {
+  const { db, stripe, auth, patchCtx } = args;
+  const { accountId, principalId } = auth;
+
+  const [accRes] = await db.read(
+    [{ entityType: ACCOUNT_ENTITY_TYPE, entityId: accountId, limit: 1 }],
+    patchCtx
+  );
+  const account = accRes?.entities[0];
+  const existingRaw = account?.attributes[AccountAttr.stripeCustomerId];
+  if (typeof existingRaw === 'string' && existingRaw.length > 0) {
+    return existingRaw;
+  }
+
+  const customer = await stripe.customers.create({
+    metadata: { account_id: accountId, principal_id: principalId },
+  });
+  await db.write(
+    [
+      {
+        entityId: accountId,
+        entityType: ACCOUNT_ENTITY_TYPE,
+        attributes: {
+          [AccountAttr.stripeCustomerId]: customer.id,
+          'patch/createdBy': principalId,
+        },
+      },
+    ],
+    patchCtx
+  );
+  return customer.id;
 }
 
 async function handleStripeCheckout(
@@ -57,9 +98,8 @@ async function handleStripeCheckout(
     readonly requireAuth: StripeRequireAuth;
   }
 ): Promise<Response> {
-  const { db, stripe, entityDb: entityDb, requireAuth } = args;
+  const { db, stripe, entityDb, requireAuth } = args;
   const auth = await requireAuth(db, c.req.raw);
-  const { accountId, principalId } = auth;
   const patchCtx = stripePatchesDbContext(auth);
 
   const priceId = await getStripeCatalogPriceStripeId(entityDb, body.priceKey);
@@ -76,36 +116,12 @@ async function handleStripeCheckout(
     );
   }
 
-  const [accRes] = await db.read(
-    [{ entityType: ACCOUNT_ENTITY_TYPE, entityId: accountId, limit: 1 }],
-    patchCtx
-  );
-  const account = accRes?.entities[0];
-  const existingRaw = account?.attributes[AccountAttr.stripeCustomerId];
-  let stripeCustomerId =
-    typeof existingRaw === 'string' && existingRaw.length > 0
-      ? existingRaw
-      : null;
-
-  if (stripeCustomerId === null) {
-    const customer = await stripe.customers.create({
-      metadata: { account_id: accountId, principal_id: principalId },
-    });
-    stripeCustomerId = customer.id;
-    await db.write(
-      [
-        {
-          entityId: accountId,
-          entityType: ACCOUNT_ENTITY_TYPE,
-          attributes: {
-            [AccountAttr.stripeCustomerId]: customer.id,
-            'patch/createdBy': principalId,
-          },
-        },
-      ],
-      patchCtx
-    );
-  }
+  const stripeCustomerId = await ensureStripeCustomerId({
+    db,
+    stripe,
+    auth,
+    patchCtx,
+  });
 
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',

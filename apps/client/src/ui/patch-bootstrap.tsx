@@ -1,7 +1,14 @@
 import { createGamezillaApiClient } from '@gamezilla/client/api/hc';
 import { createPatchDbHcTransport } from '@gamezilla/client/api/patch-db-hc-transport';
+import {
+  AuthAccountIdHolderToken,
+  type AuthAccountIdHolder,
+} from '@gamezilla/client/auth/auth-account-id-holder';
+import {
+  AuthSessionTokenHolderToken,
+  type AuthSessionTokenHolder,
+} from '@gamezilla/client/auth/auth-session-token-holder';
 import { ensurePrincipalEntity } from '@gamezilla/client/auth/ensure-principal-entity';
-import { AuthAccountIdHolderToken } from '@gamezilla/client/auth/auth-account-id-holder';
 import {
   ensureAccountProfile,
   ensurePrincipalProfile,
@@ -14,6 +21,7 @@ import {
 import {
   createSessionService,
   SessionServiceToken,
+  type PrincipalSessionRecord,
 } from '@gamezilla/client/auth/session-service';
 import { OfflineIndicator } from '@gamezilla/client/connection/offline-indicator';
 import { ConfigServiceToken } from '@gamezilla/domain/config/config-service';
@@ -32,12 +40,11 @@ import { SqlClientImplExpoSqlite } from '@gamezilla/lib/sql-client/impl-expo-sql
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { assertDatabaseName } from '@gamezilla/lib/sqlite';
 import { Box, Button, Center, hideSplash, Text } from '@gamezilla/lib/ui';
-import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/react/macro';
 import { assertUrl } from '@gamezilla/patch-db/assert-url';
 import { PatchDbImplClientTransport } from '@gamezilla/patch-db/impl-client-transport';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
 import { SyncPatchesDb } from '@gamezilla/patch-db/impl-sync';
+import type { PatchesDb } from '@gamezilla/patch-db/interface';
 import {
   PatchDbSyncPubSubToken,
   PatchesDbToken,
@@ -50,6 +57,8 @@ import {
   PatchDbClientTransportHttpFetch,
   type PatchDbClientTransport,
 } from '@gamezilla/patch-db/transport';
+import { t } from '@lingui/core/macro';
+import { Trans } from '@lingui/react/macro';
 import * as SQLite from 'expo-sqlite';
 import {
   useCallback,
@@ -186,35 +195,49 @@ export async function clearLocalDatabaseAndReload(
   await SQLite.deleteDatabaseAsync(databaseName);
 }
 
+async function applySessionToHolders(args: {
+  readonly db: PatchesDb;
+  readonly session: PrincipalSessionRecord | null;
+  readonly accountIdHolder: { set: (id: string | null) => void };
+  readonly sessionTokenHolder: { set: (token: string | null) => void };
+}): Promise<void> {
+  const { db, session, accountIdHolder, sessionTokenHolder } = args;
+  accountIdHolder.set(session?.accountId ?? null);
+  sessionTokenHolder.set(session?.token ?? null);
+  if (session !== null) {
+    await ensureAccountProfile(db, session.accountId);
+  }
+}
+
 async function registerSessionService(
   c: DependencyInjectionContainer,
   principalService: PrincipalService,
   accountIdHolder: {
     get: () => string | null;
     set: (id: string | null) => void;
+  },
+  sessionTokenHolder: {
+    get: () => string | null;
+    set: (token: string | null) => void;
   }
 ) {
   const db = c.get(PatchesDbToken);
   const principalId = principalService.getPrincipalId();
   await ensurePrincipalEntity(db, principalId);
   await ensurePrincipalProfile(db, principalId);
-  if (c.has(SessionServiceToken)) {
-    await c.get(SessionServiceToken).refresh();
-    const session = c.get(SessionServiceToken).getSession();
-    accountIdHolder.set(session?.accountId ?? null);
-    if (session !== null) {
-      await ensureAccountProfile(db, session.accountId);
-    }
-    return;
-  }
-  const sessionService = createSessionService(db, principalService);
+  const sessionService = c.has(SessionServiceToken)
+    ? c.get(SessionServiceToken)
+    : createSessionService(db, principalService);
   await sessionService.refresh();
-  const session = sessionService.getSession();
-  accountIdHolder.set(session?.accountId ?? null);
-  if (session !== null) {
-    await ensureAccountProfile(db, session.accountId);
+  await applySessionToHolders({
+    db,
+    session: sessionService.getSession(),
+    accountIdHolder,
+    sessionTokenHolder,
+  });
+  if (!c.has(SessionServiceToken)) {
+    c.registerValue(SessionServiceToken, sessionService);
   }
-  c.registerValue(SessionServiceToken, sessionService);
 }
 
 function ErrorView({
@@ -278,6 +301,49 @@ function BootstrappedShell({
   );
 }
 
+type PatchBootstrapDeps = {
+  readonly apiBase: string;
+  readonly parentContainer: DependencyInjectionContainer;
+  readonly principalService: PrincipalService;
+  readonly accountIdHolder: AuthAccountIdHolder;
+  readonly sessionTokenHolder: AuthSessionTokenHolder;
+};
+
+async function performPatchBootstrap(
+  deps: PatchBootstrapDeps
+): Promise<DependencyInjectionContainer> {
+  const {
+    apiBase,
+    parentContainer,
+    principalService,
+    accountIdHolder,
+    sessionTokenHolder,
+  } = deps;
+  const { container: c } = await bootstrapPatchDbExpoSync({
+    apiUrl: String(`${apiBase}/patch-db`),
+    transport: createPatchDbHcTransport(createGamezillaApiClient(apiBase), {
+      getAuthToken: () => sessionTokenHolder.get(),
+    }),
+    parentContainer,
+    decoratePatchesDb: (db) =>
+      new LastModifiedByPatchesDb(db, {
+        getPrincipalId: () => principalService.getPrincipalId(),
+        getAccountId: () => accountIdHolder.get(),
+      }),
+  });
+  assert.ok(
+    c instanceof DependencyInjectionContainer,
+    'bootstrap must return DependencyInjectionContainer'
+  );
+  await registerSessionService(
+    c,
+    principalService,
+    accountIdHolder,
+    sessionTokenHolder
+  );
+  return c;
+}
+
 function usePatchBootstrap() {
   const log = useLogger('patch-bootstrap');
   const [container, setContainer] = useState<Container | null>(null);
@@ -291,29 +357,19 @@ function usePatchBootstrap() {
   const configService = useDependency(ConfigServiceToken);
   const principalService = useDependency(PrincipalServiceToken);
   const accountIdHolder = useDependency(AuthAccountIdHolderToken);
-
+  const sessionTokenHolder = useDependency(AuthSessionTokenHolderToken);
   const mountedRef = useRef(true);
 
   const runBootstrap = useCallback(() => {
     setError(null);
-    const apiBase = configService.getApiUrl();
-    const patchDbUrl = String(`${apiBase}/patch-db`);
-    void bootstrapPatchDbExpoSync({
-      apiUrl: patchDbUrl,
-      transport: createPatchDbHcTransport(createGamezillaApiClient(apiBase)),
+    performPatchBootstrap({
+      apiBase: configService.getApiUrl(),
       parentContainer,
-      decoratePatchesDb: (db) =>
-        new LastModifiedByPatchesDb(db, {
-          getPrincipalId: () => principalService.getPrincipalId(),
-          getAccountId: () => accountIdHolder.get(),
-        }),
+      principalService,
+      accountIdHolder,
+      sessionTokenHolder,
     })
-      .then(async ({ container: c }) => {
-        assert.ok(
-          c instanceof DependencyInjectionContainer,
-          'bootstrap must return DependencyInjectionContainer'
-        );
-        await registerSessionService(c, principalService, accountIdHolder);
+      .then((c) => {
         if (mountedRef.current) setContainer(c);
       })
       .catch((err: unknown) => {
@@ -324,7 +380,14 @@ function usePatchBootstrap() {
           setError(err instanceof Error ? err : new Error(String(err)));
         }
       });
-  }, [accountIdHolder, configService, log, parentContainer, principalService]);
+  }, [
+    accountIdHolder,
+    configService,
+    log,
+    parentContainer,
+    principalService,
+    sessionTokenHolder,
+  ]);
 
   useEffect(() => {
     mountedRef.current = true;

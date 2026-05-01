@@ -3,6 +3,7 @@ import { ForbiddenError } from '../forbidden-error';
 import type {
   PatchInput,
   PatchesDb,
+  PatchesDbAuthContext,
   PatchesDbContext,
   PatchesDbQueryWhereClause,
 } from '../interface';
@@ -13,10 +14,18 @@ import {
   isPatchesDbSystemContext,
 } from '../interface';
 
-import type { PatchesDbAuthContext } from '../interface';
-
-export type VisibilityPolicy = {
-  read: (ctx: PatchesDbAuthContext) => PatchesDbQueryWhereClause;
+/**
+ * Per-entity-type ABAC policy.
+ *
+ * `TCtx` lets apps narrow `read` to a richer context (e.g. a base
+ * {@link PatchesDbAuthContext} intersected with `accountId`, `memberOfSpaceIds`,
+ * etc). The library never inspects the extra claims; `install` passes whatever
+ * context arrives from the hook through to the policy.
+ */
+export type VisibilityPolicy<
+  TCtx extends PatchesDbAuthContext = PatchesDbAuthContext,
+> = {
+  read: (ctx: TCtx) => PatchesDbQueryWhereClause;
   write: (
     ctx: PatchesDbContext,
     patch: PatchInput,
@@ -24,20 +33,26 @@ export type VisibilityPolicy = {
   ) => void | Promise<void>;
 };
 
-export class VisibilityPolicyRegistry {
-  private readonly policies = new Map<string, VisibilityPolicy>();
+export class VisibilityPolicyRegistry<
+  TCtx extends PatchesDbAuthContext = PatchesDbAuthContext,
+> {
+  private readonly policies = new Map<string, VisibilityPolicy<TCtx>>();
 
-  register(entityType: string, policy: VisibilityPolicy): void {
+  register(entityType: string, policy: VisibilityPolicy<TCtx>): this {
     this.policies.set(entityType, policy);
+    return this;
   }
 
-  registerAll(entries: Readonly<Record<string, VisibilityPolicy>>): void {
+  registerAll(
+    entries: Readonly<Record<string, VisibilityPolicy<TCtx>>>
+  ): this {
     for (const [k, v] of Object.entries(entries)) {
       this.policies.set(k, v);
     }
+    return this;
   }
 
-  get(entityType: string): VisibilityPolicy | undefined {
+  get(entityType: string): VisibilityPolicy<TCtx> | undefined {
     return this.policies.get(entityType);
   }
 
@@ -60,7 +75,7 @@ export class VisibilityPolicyRegistry {
       }
       return {
         ...query,
-        where: andWhereClause(query.where, policy.read(ctx)),
+        where: andWhereClause(query.where, policy.read(ctx as TCtx)),
       };
     });
 

@@ -20,11 +20,58 @@ import {
   AuthAccountIdHolder,
   AuthAccountIdHolderToken,
 } from './auth-account-id-holder';
+import {
+  AuthSessionTokenHolder,
+  AuthSessionTokenHolderToken,
+} from './auth-session-token-holder';
 import { createSecureStorage } from './create-secure-storage';
 import {
   createPrincipalService,
   PrincipalServiceToken,
 } from './principal-service';
+
+async function createPrincipalChildContainer(
+  parentContainer: DependencyInjectionContainer
+): Promise<DependencyInjectionContainer> {
+  const storage = createSecureStorage();
+  const principalService = await createPrincipalService(storage);
+  const child = new DependencyInjectionContainer(parentContainer);
+  child.registerValue(SecureStorageToken, storage);
+  child.registerValue(PrincipalServiceToken, principalService);
+  child.registerValue(AuthAccountIdHolderToken, new AuthAccountIdHolder());
+  child.registerValue(
+    AuthSessionTokenHolderToken,
+    new AuthSessionTokenHolder()
+  );
+  return child;
+}
+
+function PrincipalErrorView({
+  error,
+  onRetry,
+}: {
+  error: Error;
+  onRetry: () => void;
+}) {
+  return (
+    <Center sx={{ flex: 1, gap: 4, p: 4, background: 'surface' }}>
+      <Text
+        variant="bodyBold"
+        sx={{ fontSize: 'base' }}
+        style={{ textAlign: 'center' }}
+        label={<Trans>Failed to initialize identity</Trans>}
+      />
+      <Text
+        sx={{ fontSize: 'sm', opacity: 0.8 }}
+        style={{ textAlign: 'center' }}
+        label={error.message}
+      />
+      <Box sx={{ mt: 4 }}>
+        <Button title={t`Retry`} onPress={onRetry} />
+      </Box>
+    </Center>
+  );
+}
 
 export function PrincipalAuthShell({ children }: { children: ReactNode }) {
   const log = useLogger('auth');
@@ -41,26 +88,18 @@ export function PrincipalAuthShell({ children }: { children: ReactNode }) {
 
   const run = useCallback(() => {
     setError(null);
-    void (async () => {
-      try {
-        const storage = createSecureStorage();
-        const principalService = await createPrincipalService(storage);
-        const child = new DependencyInjectionContainer(parentContainer);
-        child.registerValue(SecureStorageToken, storage);
-        child.registerValue(PrincipalServiceToken, principalService);
-        child.registerValue(AuthAccountIdHolderToken, new AuthAccountIdHolder());
-        if (mountedRef.current) {
-          setChildContainer(child);
-        }
-      } catch (err: unknown) {
+    createPrincipalChildContainer(parentContainer)
+      .then((child) => {
+        if (mountedRef.current) setChildContainer(child);
+      })
+      .catch((err: unknown) => {
         log.error('principal init failed', {
           error: err instanceof Error ? err.message : String(err),
         });
         if (mountedRef.current) {
           setError(err instanceof Error ? err : new Error(String(err)));
         }
-      }
-    })();
+      });
   }, [log, parentContainer]);
 
   useEffect(() => {
@@ -72,30 +111,11 @@ export function PrincipalAuthShell({ children }: { children: ReactNode }) {
   }, [run]);
 
   if (error !== null) {
-    return (
-      <Center sx={{ flex: 1, gap: 4, p: 4, background: 'surface' }}>
-        <Text
-          variant="bodyBold"
-          sx={{ fontSize: 'base' }}
-          style={{ textAlign: 'center' }}
-          label={<Trans>Failed to initialize identity</Trans>}
-        />
-        <Text
-          sx={{ fontSize: 'sm', opacity: 0.8 }}
-          style={{ textAlign: 'center' }}
-          label={error.message}
-        />
-        <Box sx={{ mt: 4 }}>
-          <Button title={t`Retry`} onPress={run} />
-        </Box>
-      </Center>
-    );
+    return <PrincipalErrorView error={error} onRetry={run} />;
   }
-
   if (childContainer === null) {
     return null;
   }
-
   return (
     <ContainerProvider container={childContainer}>{children}</ContainerProvider>
   );

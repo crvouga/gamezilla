@@ -1,10 +1,13 @@
-import { PROFILE_ENTITY_TYPE, ProfileAttr } from '@gamezilla/domain/profile/profile-entities';
 import { assert } from '@gamezilla/lib/assert';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { PatchesDb } from '../interface';
 import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '../policy/system-principal';
 import { createSqliteFactory } from './test-helpers';
+
+const WIDGET_ENTITY_TYPE = 'widget';
+const WIDGET_ID_ATTR = 'widget/id';
+const WIDGET_NAME_ATTR = 'widget/displayName';
 
 describe('compaction (sqlite)', () => {
   let db: PatchesDb;
@@ -26,23 +29,23 @@ describe('compaction (sqlite)', () => {
       await db.write([
         {
           entityId,
-          entityType: PROFILE_ENTITY_TYPE,
+          entityType: WIDGET_ENTITY_TYPE,
           attributes: {
-            [ProfileAttr.id]: entityId,
-            [ProfileAttr.displayName]: `v${i}`,
+            [WIDGET_ID_ATTR]: entityId,
+            [WIDGET_NAME_ATTR]: `v${i}`,
             'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
           },
         },
       ]);
     }
     const [before] = await db.read([
-      { entityType: PROFILE_ENTITY_TYPE, entityId },
+      { entityType: WIDGET_ENTITY_TYPE, entityId },
     ]);
     assert.defined(before, 'before');
     expect(before.patches.length).toBe(5);
 
     const compacted = await db.compaction.compactEntity(
-      { entityId, entityType: PROFILE_ENTITY_TYPE },
+      { entityId, entityType: WIDGET_ENTITY_TYPE },
       { keepLatest: 2 },
       OPEN_PATCHES_DB_CONTEXT
     );
@@ -50,7 +53,7 @@ describe('compaction (sqlite)', () => {
     expect(compacted.compactionPatchId).not.toBeNull();
 
     const [after] = await db.read([
-      { entityType: PROFILE_ENTITY_TYPE, entityId },
+      { entityType: WIDGET_ENTITY_TYPE, entityId },
     ]);
     assert.defined(after, 'after');
     expect(after.patches.length).toBe(3);
@@ -59,7 +62,7 @@ describe('compaction (sqlite)', () => {
     );
     assert.defined(compactPatch, 'compact patch');
     expect(compactPatch.attributes['patch/compacted']).toBe('1');
-    expect(after.entities[0]?.attributes[ProfileAttr.displayName]).toBe('v4');
+    expect(after.entities[0]?.attributes[WIDGET_NAME_ATTR]).toBe('v4');
   });
 
   test('compactEntity noop when chain within keepLatest + 1', async () => {
@@ -68,17 +71,17 @@ describe('compaction (sqlite)', () => {
       await db.write([
         {
           entityId,
-          entityType: PROFILE_ENTITY_TYPE,
+          entityType: WIDGET_ENTITY_TYPE,
           attributes: {
-            [ProfileAttr.id]: entityId,
-            [ProfileAttr.displayName]: `x${i}`,
+            [WIDGET_ID_ATTR]: entityId,
+            [WIDGET_NAME_ATTR]: `x${i}`,
             'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
           },
         },
       ]);
     }
     const r = await db.compaction.compactEntity(
-      { entityId, entityType: PROFILE_ENTITY_TYPE },
+      { entityId, entityType: WIDGET_ENTITY_TYPE },
       { keepLatest: 2 },
       OPEN_PATCHES_DB_CONTEXT
     );

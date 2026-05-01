@@ -36,7 +36,7 @@ export async function verifyWebhookWithSignedProbe(args: {
   const stripe = new Stripe(args.stripeSecretKey, {
     httpClient: Stripe.createFetchHttpClient(),
   });
-  const signature = stripe.webhooks.generateTestHeaderString({
+  const signature = await stripe.webhooks.generateTestHeaderStringAsync({
     payload,
     secret: args.whsec,
   });

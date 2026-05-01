@@ -362,19 +362,24 @@ export type PatchesDbResult = {
 /** Unsubscribe from a hook registration. */
 export type Unsubscribe = () => void;
 
-/** Authenticated caller resolved from session (Bearer) + optional relationship prefetch. */
+/**
+ * Authenticated caller identifier. Only `principalId` is required by the
+ * library; consuming apps extend via intersection to carry their own claims
+ * (e.g. `accountId`, group memberships) into their visibility policies.
+ */
 export type PatchesDbAuthContext = {
-  principalId: string;
-  accountId: string;
-  memberOfSpaceIds: readonly string[];
-  friendAccountIds: readonly string[];
-  blockedAccountIds: readonly string[];
+  readonly principalId: string;
+  readonly [claim: string]: unknown;
 };
 
-/** System / simulation / migration — bypasses ABAC read+write policy checks. */
+/**
+ * System / simulation / migration — bypasses any hook-based ABAC checks.
+ * `reason` is a free-form string so apps can tag privileged contexts
+ * (e.g. `'stripe-webhook'`) without modifying the library.
+ */
 export type PatchesDbSystemContext = {
   principalId: null;
-  reason: 'system' | 'sim' | 'migration' | 'stripe-webhook';
+  reason: string;
 };
 
 export type PatchesDbContext = PatchesDbAuthContext | PatchesDbSystemContext;
@@ -389,12 +394,6 @@ export const OPEN_PATCHES_DB_CONTEXT: PatchesDbSystemContext = {
 export const PATCHES_DB_SYSTEM_CONTEXT: PatchesDbSystemContext = {
   principalId: null,
   reason: 'system',
-};
-
-/** Stripe webhook handler — bypasses ABAC like other system contexts. */
-export const PATCHES_DB_STRIPE_WEBHOOK_CONTEXT: PatchesDbSystemContext = {
-  principalId: null,
-  reason: 'stripe-webhook',
 };
 
 export function isPatchesDbSystemContext(
@@ -514,6 +513,12 @@ export type PatchDbEngineOptions = {
   autoCompactOnWrite?: boolean;
   /** Extra headroom before auto-compaction runs. Default 2. */
   compactionSlack?: number;
+  /**
+   * Resolves the compaction policy for a given entity type. When omitted,
+   * every entity uses {@link DEFAULT_PATCH_DB_COMPACTION_POLICY} (`keepLatest: 2`).
+   * Apps typically pass {@link PatchDbCompactionPolicyRegistry.resolve}.
+   */
+  compactionPolicy?: import('./policy/compaction-policy').PatchDbCompactionPolicyResolver;
 };
 
 function patchInputId(p: PatchInput): string | undefined {
