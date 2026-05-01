@@ -14,1833 +14,1833 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
-#: libs/patch-db-example/src/db-client/navigator.tsx:507
+#: libs/patch-db-example/src/db-client/navigator.tsx
 msgid "/+Z5u4"
 msgstr "/+Z5u4"
 
-#: apps/client/src/profile/components/variant-swatch-strip.tsx:51
+#: apps/client/src/profile/components/variant-swatch-strip.tsx
 msgid "?"
 msgstr "?"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-trigger-row.tsx:33
+#: apps/client/src/profile/avatar-editor/avatar-editor-trigger-row.tsx
 msgid "›"
 msgstr "›"
 
-#: libs/patch-db-example/src/playground-layout.tsx:69
+#: libs/patch-db-example/src/playground-layout.tsx
 msgid "({count})"
 msgstr "({count})"
 
-#: libs/patch-db-example/src/todo/todo-item.tsx:61
+#: libs/patch-db-example/src/todo/todo-item.tsx
 msgid "(untitled)"
 msgstr "(untitled)"
 
-#: apps/client/src/more/account-device-detail-body.tsx:71
+#: apps/client/src/more/account-device-detail-body.tsx
 #~ msgid "{0} active session(s) — latest expires {1}"
 #~ msgstr "{0} active session(s) — latest expires {1}"
 
-#: apps/client/src/more/account-device-detail-body.tsx:75
+#: apps/client/src/more/account-device-detail-body.tsx
 msgid "{activeCount} active session(s) — latest expires {latestExpires}"
 msgstr "{activeCount} active session(s) — latest expires {latestExpires}"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx:111
-#: apps/client/src/profile/avatar-editor/avatar-editor-colors-block.tsx:40
+#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx
+#: apps/client/src/profile/avatar-editor/avatar-editor-colors-block.tsx
 msgid "{count} selected"
 msgstr "{count} selected"
 
-#: libs/patch-db-example/src/db-client/entity-detail-screen.tsx:165
+#: libs/patch-db-example/src/db-client/entity-detail-screen.tsx
 msgid "{createdAt} · {createdBy}"
 msgstr "{createdAt} · {createdBy}"
 
-#: libs/patch-db-example/src/api-inspector.tsx:301
+#: libs/patch-db-example/src/api-inspector.tsx
 msgid "{entityType} / {entityIdShort} · {patchCount} patches"
 msgstr "{entityType} / {entityIdShort} · {patchCount} patches"
 
-#: libs/patch-db-example/src/client-node-panel.tsx:266
+#: libs/patch-db-example/src/client-node-panel.tsx
 msgid "{latencyMs} ms"
 msgstr "{latencyMs} ms"
 
-#: apps/client/src/ui/sidebar-account-menu.tsx:97
-#: apps/client/src/ui/use-account-actions.tsx:65
+#: apps/client/src/ui/sidebar-account-menu.tsx
+#: apps/client/src/ui/use-account-actions.tsx
 msgid "{ms} ms"
 msgstr "{ms} ms"
 
-#: libs/room-example/src/components/crypto-diagnostics-section.tsx:33
+#: libs/room-example/src/components/crypto-diagnostics-section.tsx
 msgid "{peerLabel}: id={peerIdShort} pub={publicKeyShort}"
 msgstr "{peerLabel}: id={peerIdShort} pub={publicKeyShort}"
 
-#: libs/patch-db-example/src/db-client/entities-screen.tsx:151
+#: libs/patch-db-example/src/db-client/entities-screen.tsx
 msgid "{total} total · {loaded} loaded · {shown} shown"
 msgstr "{total} total · {loaded} loaded · {shown} shown"
 
-#: libs/patch-db-example/src/db-client/entity-types-screen.tsx:172
+#: libs/patch-db-example/src/db-client/entity-types-screen.tsx
 msgid "{totalRows} snapshot row(s) · {typeCount} type(s)"
 msgstr "{totalRows} snapshot row(s) · {typeCount} type(s)"
 
-#: libs/room-example/src/components/trust-election-section.tsx:18
+#: libs/room-example/src/components/trust-election-section.tsx
 msgid "{voter} trusts:"
 msgstr "{voter} trusts:"
 
-#: libs/room-example/src/components/tic-tac-toe-board.tsx:80
+#: libs/room-example/src/components/tic-tac-toe-board.tsx
 msgid "{winner} wins"
 msgstr "{winner} wins"
 
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx:116
+#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
 msgid "+ New List"
 msgstr "+ New List"
 
-#: apps/client/src/spaces/spaces-screen.tsx:138
+#: apps/client/src/spaces/spaces-screen.tsx
 msgid "+ New space"
 msgstr "+ New space"
 
-#: libs/room-example/src/components/game-clock-section.tsx:51
+#: libs/room-example/src/components/game-clock-section.tsx
 msgid "+1s"
 msgstr "+1s"
 
-#: libs/room-example/src/components/game-clock-section.tsx:58
+#: libs/room-example/src/components/game-clock-section.tsx
 msgid "+5s"
 msgstr "+5s"
 
-#: libs/room-example/src/components/state-inspector.tsx:25
+#: libs/room-example/src/components/state-inspector.tsx
 msgid "▸ state"
 msgstr "▸ state"
 
-#: libs/room-example/src/components/state-inspector.tsx:25
+#: libs/room-example/src/components/state-inspector.tsx
 msgid "▸ state (differs)"
 msgstr "▸ state (differs)"
 
-#: libs/room-example/src/components/state-inspector.tsx:38
+#: libs/room-example/src/components/state-inspector.tsx
 msgid "▾ state"
 msgstr "▾ state"
 
-#: apps/client/src/more/theme-screen.tsx:17
+#: apps/client/src/more/theme-screen.tsx
 msgid "☀️ Light"
 msgstr "☀️ Light"
 
-#: apps/client/src/more/theme-screen.tsx:18
+#: apps/client/src/more/theme-screen.tsx
 msgid "🌙 Dark"
 msgstr "🌙 Dark"
 
-#: apps/client/src/more/theme-screen.tsx:19
+#: apps/client/src/more/theme-screen.tsx
 msgid "💻 System"
 msgstr "💻 System"
 
-#: libs/patch-db-example/src/playground-header.tsx:65
+#: libs/patch-db-example/src/playground-header.tsx
 msgid "0 ms"
 msgstr "0 ms"
 
-#: libs/patch-db-example/src/playground-header.tsx:69
+#: libs/patch-db-example/src/playground-header.tsx
 msgid "1 s"
 msgstr "1 s"
 
-#: libs/patch-db-example/src/playground-header.tsx:67
+#: libs/patch-db-example/src/playground-header.tsx
 msgid "150 ms"
 msgstr "150 ms"
 
-#: libs/patch-db-example/src/playground-header.tsx:70
+#: libs/patch-db-example/src/playground-header.tsx
 msgid "2 s"
 msgstr "2 s"
 
-#: libs/patch-db-example/src/playground-header.tsx:71
+#: libs/patch-db-example/src/playground-header.tsx
 msgid "5 s"
 msgstr "5 s"
 
-#: libs/patch-db-example/src/playground-header.tsx:66
+#: libs/patch-db-example/src/playground-header.tsx
 msgid "50 ms"
 msgstr "50 ms"
 
-#: libs/patch-db-example/src/playground-header.tsx:68
+#: libs/patch-db-example/src/playground-header.tsx
 msgid "500 ms"
 msgstr "500 ms"
 
-#: apps/client/src/more/about-screen.tsx:33
-#: apps/client/src/more/more-screen.tsx:36
+#: apps/client/src/more/about-screen.tsx
+#: apps/client/src/more/more-screen.tsx
 msgid "About"
 msgstr "About"
 
-#: apps/client/src/more/account-screen.tsx:285
-#: apps/client/src/more/more-screen.tsx:16
-#: apps/client/src/ui/app-commands/account-command.tsx:22
+#: apps/client/src/more/account-screen.tsx
+#: apps/client/src/more/more-screen.tsx
+#: apps/client/src/ui/app-commands/account-command.tsx
 msgid "Account"
 msgstr "Account"
 
-#: apps/client/src/more/account-devices-card.tsx:109
+#: apps/client/src/more/account-devices-card.tsx
 msgid "Account ID"
 msgstr "Account ID"
 
-#: apps/client/src/ui/sidebar-account-menu.tsx:232
+#: apps/client/src/ui/sidebar-account-menu.tsx
 msgid "Account menu"
 msgstr "Account menu"
 
-#: libs/patch-db-example/src/todo/todo-list-detail.tsx:143
-#: libs/patch-db-example/src/todo/todo-list.tsx:96
+#: libs/patch-db-example/src/todo/todo-list-detail.tsx
+#: libs/patch-db-example/src/todo/todo-list.tsx
 msgid "Active"
 msgstr "Active"
 
-#: libs/lib/src/ui/components/multi-select-swatch/multi-select-swatch-grid.tsx:311
-#: libs/patch-db-example/src/todo/todo-list-detail.tsx:186
-#: libs/patch-db-example/src/todo/todo-list.tsx:139
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx:93
+#: libs/lib/src/ui/components/multi-select-swatch/multi-select-swatch-grid.tsx
+#: libs/patch-db-example/src/todo/todo-list-detail.tsx
+#: libs/patch-db-example/src/todo/todo-list.tsx
+#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
 msgid "Add"
 msgstr "Add"
 
-#: libs/patch-db-example/src/todo/todo-list-detail.tsx:175
-#: libs/patch-db-example/src/todo/todo-list.tsx:128
+#: libs/patch-db-example/src/todo/todo-list-detail.tsx
+#: libs/patch-db-example/src/todo/todo-list.tsx
 msgid "Add a todo..."
 msgstr "Add a todo..."
 
-#: libs/patch-db-example/src/playground-header.tsx:87
+#: libs/patch-db-example/src/playground-header.tsx
 msgid "Add Client"
 msgstr "Add Client"
 
-#: libs/lib/src/ui/components/multi-select-swatch/multi-select-swatch-grid.tsx:295
+#: libs/lib/src/ui/components/multi-select-swatch/multi-select-swatch-grid.tsx
 msgid "Add hex (6 chars, no #)"
 msgstr "Add hex (6 chars, no #)"
 
-#: libs/patch-db-example/src/shape-list.tsx:94
+#: libs/patch-db-example/src/shape-list.tsx
 msgid "Add Shape"
 msgstr "Add Shape"
 
-#: libs/patch-db-example/src/api-inspector.tsx:294
+#: libs/patch-db-example/src/api-inspector.tsx
 msgid "Admin Metrics"
 msgstr "Admin Metrics"
 
-#: apps/client/src/spaces/spaces-screen.tsx:41
-#: libs/patch-db-example/src/todo/todo-list-detail.tsx:142
-#: libs/patch-db-example/src/todo/todo-list.tsx:95
+#: apps/client/src/spaces/spaces-screen.tsx
+#: libs/patch-db-example/src/todo/todo-list-detail.tsx
+#: libs/patch-db-example/src/todo/todo-list.tsx
 msgid "All"
 msgstr "All"
 
-#: apps/client/src/more/client-config-screen.tsx:62
+#: apps/client/src/more/client-config-screen.tsx
 msgid "All attributes (JSON)"
 msgstr "All attributes (JSON)"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-effects-block.tsx:38
+#: apps/client/src/profile/avatar-editor/avatar-editor-effects-block.tsx
 msgid "Always"
 msgstr "Always"
 
-#: apps/client/src/more/about-screen.tsx:60
+#: apps/client/src/more/about-screen.tsx
 msgid "API"
 msgstr "API"
 
-#: apps/client/src/more/server-status-screen.tsx:158
+#: apps/client/src/more/server-status-screen.tsx
 msgid "API endpoint"
 msgstr "API endpoint"
 
-#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx:20
+#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx
 msgid "API origin (no helper)"
 msgstr "API origin (no helper)"
 
-#: apps/client/src/more/about-screen.tsx:41
-#: apps/client/src/more/account-device-detail-body.tsx:39
+#: apps/client/src/more/about-screen.tsx
+#: apps/client/src/more/account-device-detail-body.tsx
 msgid "App"
 msgstr "App"
 
-#: apps/client/src/more/more-screen.tsx:54
+#: apps/client/src/more/more-screen.tsx
 msgid "App preferences and tools"
 msgstr "App preferences and tools"
 
-#: apps/client/src/more/about-screen.tsx:34
+#: apps/client/src/more/about-screen.tsx
 msgid "App version and build metadata"
 msgstr "App version and build metadata"
 
-#: apps/client/src/more/more-screen.tsx:37
+#: apps/client/src/more/more-screen.tsx
 msgid "App version, build, and commit hash"
 msgstr "App version, build, and commit hash"
 
-#: apps/client/src/more/more-screen.tsx:21
-#: apps/client/src/more/theme-screen.tsx:28
-#: apps/client/src/ui/app-commands/appearance-commands.tsx:12
-#: apps/client/src/ui/app-commands/appearance-commands.tsx:22
-#: apps/client/src/ui/app-commands/appearance-commands.tsx:32
+#: apps/client/src/more/more-screen.tsx
+#: apps/client/src/more/theme-screen.tsx
+#: apps/client/src/ui/app-commands/appearance-commands.tsx
+#: apps/client/src/ui/app-commands/appearance-commands.tsx
+#: apps/client/src/ui/app-commands/appearance-commands.tsx
 msgid "Appearance"
 msgstr "Appearance"
 
-#: libs/room-example/src/components/trust-election-section.tsx:55
+#: libs/room-example/src/components/trust-election-section.tsx
 msgid "Apply Election"
 msgstr "Apply Election"
 
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx:275
+#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
 msgid "Are you sure you want to delete \"{targetName}\"? This cannot be undone."
 msgstr "Are you sure you want to delete \"{targetName}\"? This cannot be undone."
 
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx:301
+#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
 msgid "Are you sure you want to delete the local database? All todos and lists will be permanently removed. The app will reload."
 msgstr "Are you sure you want to delete the local database? All todos and lists will be permanently removed. The app will reload."
 
-#: libs/patch-db-example/src/db-client/entity-detail-screen.tsx:259
+#: libs/patch-db-example/src/db-client/entity-detail-screen.tsx
 msgid "Attributes"
 msgstr "Attributes"
 
-#: apps/client/src/ui/app-commands/account-command.tsx:28
+#: apps/client/src/ui/app-commands/account-command.tsx
 msgid "auth"
 msgstr "auth"
 
-#: libs/patch-db-example/src/server-node-panel.tsx:204
+#: libs/patch-db-example/src/server-node-panel.tsx
 msgid "Authority"
 msgstr "Authority"
 
-#: libs/room-example/src/components/crypto-diagnostics-section.tsx:23
+#: libs/room-example/src/components/crypto-diagnostics-section.tsx
 msgid "Authority: {authority}"
 msgstr "Authority: {authority}"
 
-#: apps/client/src/ui/app-commands/appearance-commands.tsx:34
+#: apps/client/src/ui/app-commands/appearance-commands.tsx
 msgid "auto"
 msgstr "auto"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-screen.tsx:128
-#: apps/client/src/profile/profile-edit-screen.tsx:28
+#: apps/client/src/profile/avatar-editor/avatar-editor-screen.tsx
+#: apps/client/src/profile/profile-edit-screen.tsx
 msgid "Avatar"
 msgstr "Avatar"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-style-block.tsx:36
+#: apps/client/src/profile/avatar-editor/avatar-editor-style-block.tsx
 msgid "Avatar style"
 msgstr "Avatar style"
 
-#: apps/client/src/spaces/space-detail-screen.tsx:174
-#: libs/lib/src/ui/components/screen-base/screen-base-header.tsx:345
+#: apps/client/src/spaces/space-detail-screen.tsx
+#: libs/lib/src/ui/components/screen-base/screen-base-header.tsx
 msgid "Back"
 msgstr "Back"
 
-#: apps/client/src/more/modal-screen.tsx:31
+#: apps/client/src/more/modal-screen.tsx
 msgid "Back to Dev"
 msgstr "Back to Dev"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx:227
+#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx
 msgid "Background"
 msgstr "Background"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx:110
-#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx:117
+#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx
+#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx
 msgid "Background colors"
 msgstr "Background colors"
 
-#: libs/room-example/src/components/peer-panel-header.tsx:49
+#: libs/room-example/src/components/peer-panel-header.tsx
 msgid "BAD ACTOR"
 msgstr "BAD ACTOR"
 
-#: apps/client/src/more/server-status-screen.tsx:25
+#: apps/client/src/more/server-status-screen.tsx
 msgid "Bluetooth"
 msgstr "Bluetooth"
 
-#: libs/patch-db-example/src/db-client/format-value.tsx:41
+#: libs/patch-db-example/src/db-client/format-value.tsx
 msgid "bool"
 msgstr "bool"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx:73
+#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx
 msgid "Both"
 msgstr "Both"
 
-#: apps/client/src/ui/app-commands/appearance-commands.tsx:14
+#: apps/client/src/ui/app-commands/appearance-commands.tsx
 msgid "bright"
 msgstr "bright"
 
-#: apps/client/src/more/developer-screen.tsx:46
+#: apps/client/src/more/developer-screen.tsx
 msgid "Browse entities, attributes, and patch history"
 msgstr "Browse entities, attributes, and patch history"
 
-#: apps/client/src/more/about-screen.tsx:47
+#: apps/client/src/more/about-screen.tsx
 msgid "Build"
 msgstr "Build"
 
-#: apps/client/src/more/about-screen.tsx:55
+#: apps/client/src/more/about-screen.tsx
 msgid "Build mode: {buildMode}"
 msgstr "Build mode: {buildMode}"
 
-#: apps/client/src/auth/auth-context.tsx:326
-#: apps/client/src/spaces/space-detail-screen.tsx:201
-#: apps/client/src/spaces/space-detail-screen.tsx:226
-#: libs/lib/src/ui/components/modal/confirmation-modal.tsx:59
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx:279
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx:303
+#: apps/client/src/auth/auth-context.tsx
+#: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-detail-screen.tsx
+#: libs/lib/src/ui/components/modal/confirmation-modal.tsx
+#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
+#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
 msgid "Cancel"
 msgstr "Cancel"
 
-#: libs/lib/src/ui/components/text-input/text-input.example.tsx:42
+#: libs/lib/src/ui/components/text-input/text-input.example.tsx
 msgid "Cannot edit"
 msgstr "Cannot edit"
 
-#: apps/client/src/more/server-status-screen.tsx:23
+#: apps/client/src/more/server-status-screen.tsx
 msgid "Cellular"
 msgstr "Cellular"
 
-#: libs/room-example/src/components/cheat-log.tsx:15
+#: libs/room-example/src/components/cheat-log.tsx
 msgid "Cheat Log"
 msgstr "Cheat Log"
 
-#: apps/client/src/more/server-status-screen.tsx:163
+#: apps/client/src/more/server-status-screen.tsx
 msgid "Check again"
 msgstr "Check again"
 
-#: apps/client/src/more/server-status-screen.tsx:71
-#: apps/client/src/more/server-status-screen.tsx:99
+#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/more/server-status-screen.tsx
 msgid "Checking…"
 msgstr "Checking…"
 
-#: libs/lib/src/ui/components/picker/picker.tsx:60
+#: libs/lib/src/ui/components/picker/picker.tsx
 msgid "Choose"
 msgstr "Choose"
 
-#: apps/client/src/more/theme-screen.tsx:37
+#: apps/client/src/more/theme-screen.tsx
 msgid "Choose how the app looks. System matches your device appearance."
 msgstr "Choose how the app looks. System matches your device appearance."
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-style-block.tsx:43
+#: apps/client/src/profile/avatar-editor/avatar-editor-style-block.tsx
 msgid "Choose style"
 msgstr "Choose style"
 
-#: apps/client/src/profile/profile-edit-screen.tsx:17
+#: apps/client/src/profile/profile-edit-screen.tsx
 msgid "Choose what to update"
 msgstr "Choose what to update"
 
-#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx:19
+#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "clear"
 msgstr "clear"
 
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx:302
+#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
 msgid "Clear"
 msgstr "Clear"
 
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx:300
+#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
 msgid "Clear All Data"
 msgstr "Clear All Data"
 
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx:428
+#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
 msgid "Clear data"
 msgstr "Clear data"
 
-#: apps/client/src/ui/patch-bootstrap.tsx:245
+#: apps/client/src/ui/patch-bootstrap.tsx
 msgid "Clear local data & reload"
 msgstr "Clear local data & reload"
 
-#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx:14
+#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "Clear SQLite and reload (same as Clear data in Todos)"
 msgstr "Clear SQLite and reload (same as Clear data in Todos)"
 
-#: libs/room-example/src/pages/network-controls-section.tsx:105
+#: libs/room-example/src/pages/network-controls-section.tsx
 msgid "Clear Tamper"
 msgstr "Clear Tamper"
 
-#: apps/client/src/more/client-config-screen.tsx:42
-#: apps/client/src/more/developer-screen.tsx:57
+#: apps/client/src/more/client-config-screen.tsx
+#: apps/client/src/more/developer-screen.tsx
 msgid "Client config"
 msgstr "Client config"
 
-#: libs/patch-db-example/src/playground-layout.tsx:103
+#: libs/patch-db-example/src/playground-layout.tsx
 msgid "Clients"
 msgstr "Clients"
 
-#: libs/room-example/src/pages/network-controls-section.tsx:86
+#: libs/room-example/src/pages/network-controls-section.tsx
 msgid "Clock Tampering"
 msgstr "Clock Tampering"
 
-#: apps/client/src/auth/sign-in-modal.tsx:83
-#: libs/lib/src/ui/components/responsive-surface/responsive-surface-header.tsx:39
-#: libs/patch-db-example/src/db-client/query-screen.tsx:236
+#: apps/client/src/auth/sign-in-modal.tsx
+#: libs/lib/src/ui/components/responsive-surface/responsive-surface-header.tsx
+#: libs/patch-db-example/src/db-client/query-screen.tsx
 msgid "Close"
 msgstr "Close"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-colors-block.tsx:92
+#: apps/client/src/profile/avatar-editor/avatar-editor-colors-block.tsx
 msgid "Colors"
 msgstr "Colors"
 
-#: apps/client/src/more/about-screen.tsx:48
+#: apps/client/src/more/about-screen.tsx
 msgid "Commit (short): {shortCommitHash}"
 msgstr "Commit (short): {shortCommitHash}"
 
-#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx:13
+#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx
 msgid "Commit hash"
 msgstr "Commit hash"
 
-#: libs/room-example/src/components/peer-panel-legend.tsx:14
+#: libs/room-example/src/components/peer-panel-legend.tsx
 msgid "committed"
 msgstr "committed"
 
-#: libs/room-example/src/components/event-log.tsx:16
+#: libs/room-example/src/components/event-log.tsx
 msgid "Committed Events"
 msgstr "Committed Events"
 
-#: libs/patch-db-example/src/todo/todo-list-detail.tsx:144
-#: libs/patch-db-example/src/todo/todo-list.tsx:97
+#: libs/patch-db-example/src/todo/todo-list-detail.tsx
+#: libs/patch-db-example/src/todo/todo-list.tsx
 msgid "Completed"
 msgstr "Completed"
 
-#: libs/lib/src/ui/components/modal/confirmation-modal.tsx:58
+#: libs/lib/src/ui/components/modal/confirmation-modal.tsx
 msgid "Confirm"
 msgstr "Confirm"
 
-#: libs/patch-db-example/src/api-inspector.tsx:240
+#: libs/patch-db-example/src/api-inspector.tsx
 msgid "Connect"
 msgstr "Connect"
 
-#: apps/client/src/more/server-status-screen.tsx:70
+#: apps/client/src/more/server-status-screen.tsx
 msgid "Connected"
 msgstr "Connected"
 
-#: libs/patch-db-example/src/api-inspector.tsx:90
+#: libs/patch-db-example/src/api-inspector.tsx
 msgid "Connected to {url}"
 msgstr "Connected to {url}"
 
-#: apps/client/src/more/account-screen.tsx:100
+#: apps/client/src/more/account-screen.tsx
 msgid "Connected: {connectedAt}"
 msgstr "Connected: {connectedAt}"
 
-#: libs/patch-db-example/src/api-inspector.tsx:90
+#: libs/patch-db-example/src/api-inspector.tsx
 msgid "Connecting to {url}"
 msgstr "Connecting to {url}"
 
-#: apps/client/src/more/more-screen.tsx:26
-#: apps/client/src/more/server-status-screen.tsx:148
-#: apps/client/src/ui/sidebar-account-menu.tsx:146
-#: apps/client/src/ui/use-account-actions.tsx:186
+#: apps/client/src/more/more-screen.tsx
+#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/ui/sidebar-account-menu.tsx
+#: apps/client/src/ui/use-account-actions.tsx
 msgid "Connection"
 msgstr "Connection"
 
-#: apps/client/src/ui/sidebar-account-menu.tsx:149
+#: apps/client/src/ui/sidebar-account-menu.tsx
 #~ msgid "Connection and server status. {0}. {1}."
 #~ msgstr "Connection and server status. {0}. {1}."
 
-#: apps/client/src/ui/sidebar-account-menu.tsx:142
+#: apps/client/src/ui/sidebar-account-menu.tsx
 msgid "Connection and server status. {statusWord}. {latency}."
 msgstr "Connection and server status. {statusWord}. {latency}."
 
-#: apps/client/src/spaces/spaces-screen.tsx:92
+#: apps/client/src/spaces/spaces-screen.tsx
 msgid "Continue"
 msgstr "Continue"
 
-#: libs/lib/src/ui/components/social-sign-in-button/social-provider-config.ts:59
+#: libs/lib/src/ui/components/social-sign-in-button/social-provider-config.ts
 msgid "Continue with Google"
 msgstr "Continue with Google"
 
-#: libs/room-example/src/components/simulator-log.tsx:38
+#: libs/room-example/src/components/simulator-log.tsx
 msgid "Copied"
 msgstr "Copied"
 
-#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.tsx:110
+#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.tsx
 msgid "Copied to clipboard"
 msgstr "Copied to clipboard"
 
-#: libs/room-example/src/components/simulator-log.tsx:38
+#: libs/room-example/src/components/simulator-log.tsx
 msgid "Copy for LLM"
 msgstr "Copy for LLM"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-preview.tsx:43
+#: apps/client/src/profile/avatar-editor/avatar-editor-preview.tsx
 msgid "Copy seed"
 msgstr "Copy seed"
 
-#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.tsx:186
+#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.tsx
 msgid "Copy to clipboard"
 msgstr "Copy to clipboard"
 
-#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx:10
+#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx
 msgid "CopyToClipboardField"
 msgstr "CopyToClipboardField"
 
-#: apps/client/src/spaces/spaces-screen.tsx:170
+#: apps/client/src/spaces/spaces-screen.tsx
 msgid "Create"
 msgstr "Create"
 
-#: apps/client/src/more/account-device-detail-body.tsx:45
+#: apps/client/src/more/account-device-detail-body.tsx
 msgid "Created"
 msgstr "Created"
 
-#: libs/room-example/src/components/crypto-diagnostics-section.tsx:22
+#: libs/room-example/src/components/crypto-diagnostics-section.tsx
 msgid "Crypto Diagnostics"
 msgstr "Crypto Diagnostics"
 
-#: apps/client/src/ui/app-commands/appearance-commands.tsx:24
+#: apps/client/src/ui/app-commands/appearance-commands.tsx
 msgid "dark"
 msgstr "dark"
 
-#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx:15
+#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "Data"
 msgstr "Data"
 
-#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx:22
+#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "database"
 msgstr "database"
 
-#: apps/client/src/ui/app-commands/appearance-commands.tsx:14
+#: apps/client/src/ui/app-commands/appearance-commands.tsx
 msgid "day"
 msgstr "day"
 
-#: libs/patch-db-example/src/todo/todo-item.tsx:67
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx:175
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx:278
+#: libs/patch-db-example/src/todo/todo-item.tsx
+#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
+#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
 msgid "Delete"
 msgstr "Delete"
 
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx:272
+#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
 msgid "Delete List"
 msgstr "Delete List"
 
-#: apps/client/src/more/developer-screen.tsx:75
+#: apps/client/src/more/developer-screen.tsx
 msgid "Demos and internal tools"
 msgstr "Demos and internal tools"
 
-#: apps/client/src/more/client-config-screen.tsx:40
-#: apps/client/src/more/developer-screen.tsx:74
-#: apps/client/src/more/more-screen.tsx:31
+#: apps/client/src/more/client-config-screen.tsx
+#: apps/client/src/more/developer-screen.tsx
+#: apps/client/src/more/more-screen.tsx
 msgid "Developer"
 msgstr "Developer"
 
-#: apps/client/src/more/about-screen.tsx:24
+#: apps/client/src/more/about-screen.tsx
 msgid "development"
 msgstr "development"
 
-#: apps/client/src/more/account-device-detail-screen.tsx:76
+#: apps/client/src/more/account-device-detail-screen.tsx
 msgid "Device"
 msgstr "Device"
 
-#: apps/client/src/more/account-devices-card.tsx:72
+#: apps/client/src/more/account-devices-card.tsx
 #~ msgid "Device {0}"
 #~ msgstr "Device {0}"
 
-#: apps/client/src/more/account-devices-card.tsx:75
+#: apps/client/src/more/account-devices-card.tsx
 msgid "Device {deviceTitle}"
 msgstr "Device {deviceTitle}"
 
-#: apps/client/src/more/account-device-detail-body.tsx:35
+#: apps/client/src/more/account-device-detail-body.tsx
 msgid "Device name"
 msgstr "Device name"
 
-#: apps/client/src/more/server-status-screen.tsx:81
+#: apps/client/src/more/server-status-screen.tsx
 msgid "Device network"
 msgstr "Device network"
 
-#: apps/client/src/more/account-devices-card.tsx:101
+#: apps/client/src/more/account-devices-card.tsx
 msgid "Devices"
 msgstr "Devices"
 
-#: apps/client/src/more/more-screen.tsx:17
+#: apps/client/src/more/more-screen.tsx
 msgid "Devices and read-only sign-in provider info"
 msgstr "Devices and read-only sign-in provider info"
 
-#: apps/client/src/more/account-screen.tsx:286
+#: apps/client/src/more/account-screen.tsx
 msgid "Devices and sign-in provider records"
 msgstr "Devices and sign-in provider records"
 
-#: apps/client/src/profile/profile-edit-screen.tsx:29
+#: apps/client/src/profile/profile-edit-screen.tsx
 msgid "DiceBear generated avatar"
 msgstr "DiceBear generated avatar"
 
-#: libs/lib/src/ui/components/text-input/text-input.example.tsx:41
+#: libs/lib/src/ui/components/text-input/text-input.example.tsx
 msgid "Disabled"
 msgstr "Disabled"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-screen.tsx:120
+#: apps/client/src/profile/avatar-editor/avatar-editor-screen.tsx
 msgid "Discard"
 msgstr "Discard"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-screen.tsx:118
+#: apps/client/src/profile/avatar-editor/avatar-editor-screen.tsx
 msgid "Discard changes?"
 msgstr "Discard changes?"
 
-#: libs/patch-db-example/src/api-inspector.tsx:247
-#: libs/room-example/src/components/peer-panel-header.tsx:27
+#: libs/patch-db-example/src/api-inspector.tsx
+#: libs/room-example/src/components/peer-panel-header.tsx
 msgid "Disconnect"
 msgstr "Disconnect"
 
-#: apps/client/src/more/server-status-screen.tsx:68
+#: apps/client/src/more/server-status-screen.tsx
 msgid "Disconnected"
 msgstr "Disconnected"
 
-#: libs/lib/src/ui/components/dismissible-top-banner/dismissible-top-banner.tsx:338
+#: libs/lib/src/ui/components/dismissible-top-banner/dismissible-top-banner.tsx
 msgid "Dismiss"
 msgstr "Dismiss"
 
-#: apps/client/src/profile/profile-username-screen.tsx:72
+#: apps/client/src/profile/profile-username-screen.tsx
 msgid "Display name"
 msgstr "Display name"
 
-#: apps/client/src/profile/profile-edit-screen.tsx:24
+#: apps/client/src/profile/profile-edit-screen.tsx
 msgid "Display name shown in the app"
 msgstr "Display name shown in the app"
 
-#: libs/room-example/src/components/tic-tac-toe-board.tsx:80
+#: libs/room-example/src/components/tic-tac-toe-board.tsx
 msgid "Draw"
 msgstr "Draw"
 
-#: libs/room-example/src/pages/network-controls-section.tsx:18
+#: libs/room-example/src/pages/network-controls-section.tsx
 msgid "Drop next"
 msgstr "Drop next"
 
-#: libs/patch-db-example/src/db-client/query-screen.tsx:137
+#: libs/patch-db-example/src/db-client/query-screen.tsx
 msgid "e.g. {\"type\":\"=\",\"attribute\":\"todo/title\",\"value\":\"x\"}"
 msgstr "e.g. {\"type\":\"=\",\"attribute\":\"todo/title\",\"value\":\"x\"}"
 
-#: libs/lib/src/ui/components/multi-select-swatch/multi-select-swatch-grid.tsx:301
+#: libs/lib/src/ui/components/multi-select-swatch/multi-select-swatch-grid.tsx
 msgid "e.g. ff5733"
 msgstr "e.g. ff5733"
 
-#: apps/client/src/more/account-devices-card.tsx:104
+#: apps/client/src/more/account-devices-card.tsx
 msgid "Each install has its own principal id. Tap a row for full details."
 msgstr "Each install has its own principal id. Tap a row for full details."
 
-#: apps/client/src/profile/profile-edit-screen.tsx:16
-#: apps/client/src/profile/profile-screen.tsx:38
-#: apps/client/src/profile/profile-username-screen.tsx:115
+#: apps/client/src/profile/profile-edit-screen.tsx
+#: apps/client/src/profile/profile-screen.tsx
+#: apps/client/src/profile/profile-username-screen.tsx
 msgid "Edit profile"
 msgstr "Edit profile"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-effects-block.tsx:30
+#: apps/client/src/profile/avatar-editor/avatar-editor-effects-block.tsx
 msgid "Effects"
 msgstr "Effects"
 
-#: libs/lib/src/ui/components/text-input/text-input.example.tsx:25
+#: libs/lib/src/ui/components/text-input/text-input.example.tsx
 msgid "Email"
 msgstr "Email"
 
-#: libs/patch-db-example/src/db-client/entities-screen.tsx:77
-#: libs/patch-db-example/src/db-client/patch-detail-screen.tsx:56
+#: libs/patch-db-example/src/db-client/entities-screen.tsx
+#: libs/patch-db-example/src/db-client/patch-detail-screen.tsx
 msgid "Empty read result"
 msgstr "Empty read result"
 
-#: apps/client/src/spaces/space-detail-screen.tsx:200
-#: apps/client/src/spaces/space-detail-screen.tsx:280
+#: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-detail-screen.tsx
 msgid "End space"
 msgstr "End space"
 
-#: apps/client/src/spaces/space-detail-screen.tsx:196
+#: apps/client/src/spaces/space-detail-screen.tsx
 msgid "End space?"
 msgstr "End space?"
 
-#: apps/client/src/spaces/space-card.tsx:74
+#: apps/client/src/spaces/space-card.tsx
 msgid "Ended"
 msgstr "Ended"
 
-#: libs/patch-db-example/src/db-client/query-screen.tsx:245
+#: libs/patch-db-example/src/db-client/query-screen.tsx
 msgid "entities"
 msgstr "entities"
 
-#: apps/client/src/more/client-config-screen.tsx:55
+#: apps/client/src/more/client-config-screen.tsx
 msgid "Entity type clientConfig, id clientConfig__singleton"
 msgstr "Entity type clientConfig, id clientConfig__singleton"
 
-#: libs/patch-db-example/src/db-client/query-screen.tsx:115
+#: libs/patch-db-example/src/db-client/query-screen.tsx
 msgid "entityId (optional)"
 msgstr "entityId (optional)"
 
-#: libs/patch-db-example/src/db-client/query-screen.tsx:108
+#: libs/patch-db-example/src/db-client/query-screen.tsx
 msgid "entityType (optional)"
 msgstr "entityType (optional)"
 
-#: libs/lib/src/ui/components/text-input/text-input.example.tsx:34
+#: libs/lib/src/ui/components/text-input/text-input.example.tsx
 msgid "Error state"
 msgstr "Error state"
 
-#: apps/client/src/more/server-status-screen.tsx:24
+#: apps/client/src/more/server-status-screen.tsx
 msgid "Ethernet"
 msgstr "Ethernet"
 
-#: libs/room-example/src/components/peer-panel-events.tsx:9
+#: libs/room-example/src/components/peer-panel-events.tsx
 msgid "Events ({eventCount})"
 msgstr "Events ({eventCount})"
 
-#: apps/client/src/spaces/space-detail-screen.tsx:198
+#: apps/client/src/spaces/space-detail-screen.tsx
 msgid "Everyone will leave this space. This cannot be undone."
 msgstr "Everyone will leave this space. This cannot be undone."
 
-#: libs/room-example/src/pages/network-controls-section.tsx:62
+#: libs/room-example/src/pages/network-controls-section.tsx
 msgid "Fabricate Commit"
 msgstr "Fabricate Commit"
 
-#: apps/client/src/ui/patch-bootstrap.tsx:235
+#: apps/client/src/ui/patch-bootstrap.tsx
 msgid "Failed to initialize"
 msgstr "Failed to initialize"
 
-#: apps/client/src/auth/principal-auth-shell.tsx:81
+#: apps/client/src/auth/principal-auth-shell.tsx
 msgid "Failed to initialize identity"
 msgstr "Failed to initialize identity"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-features-block.tsx:96
+#: apps/client/src/profile/avatar-editor/avatar-editor-features-block.tsx
 msgid "Features"
 msgstr "Features"
 
-#: libs/patch-db-example/src/db-client/entities-screen.tsx:134
+#: libs/patch-db-example/src/db-client/entities-screen.tsx
 msgid "Filter loaded rows (id or attributes)…"
 msgstr "Filter loaded rows (id or attributes)…"
 
-#: libs/patch-db-example/src/db-client/entity-types-screen.tsx:106
+#: libs/patch-db-example/src/db-client/entity-types-screen.tsx
 msgid "Filter types…"
 msgstr "Filter types…"
 
-#: apps/client/src/more/account-device-detail-body.tsx:41
+#: apps/client/src/more/account-device-detail-body.tsx
 msgid "First seen"
 msgstr "First seen"
 
-#: apps/client/src/more/about-screen.tsx:50
+#: apps/client/src/more/about-screen.tsx
 msgid "Full commit"
 msgstr "Full commit"
 
-#: libs/room-example/src/components/game-clock-section.tsx:34
+#: libs/room-example/src/components/game-clock-section.tsx
 msgid "Game Clock"
 msgstr "Game Clock"
 
-#: apps/client/src/i18n/bootstrap-catalog.ts:4
-#: apps/client/src/ui/app-sidebar.tsx:76
+#: apps/client/src/i18n/bootstrap-catalog.ts
+#: apps/client/src/ui/app-sidebar.tsx
 msgid "Gamezilla"
 msgstr "Gamezilla"
 
-#: libs/patch-db-example/src/playground-header.tsx:79
+#: libs/patch-db-example/src/playground-header.tsx
 msgid "Global latency"
 msgstr "Global latency"
 
-#: apps/client/src/spaces/space-detail-screen.tsx:96
-#: apps/client/src/spaces/space-detail-screen.tsx:125
-#: libs/lib/src/ui/components/screen-base/screen-base-header.tsx:216
+#: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-detail-screen.tsx
+#: libs/lib/src/ui/components/screen-base/screen-base-header.tsx
 msgid "Go back"
 msgstr "Go back"
 
-#: apps/client/src/ui/app-commands/navigation-commands.tsx:34
+#: apps/client/src/ui/app-commands/navigation-commands.tsx
 msgid "Go to {target}"
 msgstr "Go to {target}"
 
-#: apps/client/src/ui/app-commands/account-command.tsx:28
+#: apps/client/src/ui/app-commands/account-command.tsx
 msgid "google"
 msgstr "google"
 
-#: apps/client/src/more/client-config-screen.tsx:59
+#: apps/client/src/more/client-config-screen.tsx
 msgid "Google web client ID"
 msgstr "Google web client ID"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx:72
+#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx
 msgid "Gradient"
 msgstr "Gradient"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx:166
+#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx
 msgid "Gradient rotation (°)"
 msgstr "Gradient rotation (°)"
 
-#: apps/client/src/spaces/space-detail-screen.tsx:157
-#: apps/client/src/spaces/space-member-list.tsx:32
+#: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-member-list.tsx
 msgid "Host"
 msgstr "Host"
 
-#: libs/patch-db-example/src/api-inspector.tsx:232
+#: libs/patch-db-example/src/api-inspector.tsx
 msgid "https://..."
 msgstr "https://..."
 
-#: libs/room-example/src/pages/network-controls-section.tsx:73
+#: libs/room-example/src/pages/network-controls-section.tsx
 msgid "Identity / Authority Bypass"
 msgstr "Identity / Authority Bypass"
 
-#: libs/patch-db-example/src/todo/todo-list-detail.tsx:105
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx:417
+#: libs/patch-db-example/src/todo/todo-list-detail.tsx
+#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
 msgid "Inbox"
 msgstr "Inbox"
 
-#: apps/client/src/more/server-status-screen.tsx:84
+#: apps/client/src/more/server-status-screen.tsx
 msgid "Internet reachable: {reachable}"
 msgstr "Internet reachable: {reachable}"
 
-#: libs/lib/src/ui/components/text-input/text-input.example.tsx:18
+#: libs/lib/src/ui/components/text-input/text-input.example.tsx
 msgid "John Doe"
 msgstr "John Doe"
 
-#: apps/client/src/spaces/space-detail-screen.tsx:167
+#: apps/client/src/spaces/space-detail-screen.tsx
 msgid "Join space"
 msgstr "Join space"
 
-#: apps/client/src/spaces/space-detail-screen.tsx:163
+#: apps/client/src/spaces/space-detail-screen.tsx
 msgid "Join this space to see who is here and hang out."
 msgstr "Join this space to see who is here and hang out."
 
-#: apps/client/src/more/account-device-detail-body.tsx:44
+#: apps/client/src/more/account-device-detail-body.tsx
 msgid "Last seen"
 msgstr "Last seen"
 
-#: libs/patch-db-example/src/client-node-panel.tsx:294
+#: libs/patch-db-example/src/client-node-panel.tsx
 msgid "Latency"
 msgstr "Latency"
 
-#: apps/client/src/ui/sidebar-account-menu.tsx:122
+#: apps/client/src/ui/sidebar-account-menu.tsx
 msgid "latency {ms} ms"
 msgstr "latency {ms} ms"
 
-#: apps/client/src/ui/sidebar-account-menu.tsx:120
+#: apps/client/src/ui/sidebar-account-menu.tsx
 msgid "latency checking"
 msgstr "latency checking"
 
-#: apps/client/src/ui/sidebar-account-menu.tsx:123
+#: apps/client/src/ui/sidebar-account-menu.tsx
 msgid "latency unavailable"
 msgstr "latency unavailable"
 
-#: libs/patch-db-example/src/client-node-panel.tsx:267
+#: libs/patch-db-example/src/client-node-panel.tsx
 msgid "Latency: {latencyLabel}"
 msgstr "Latency: {latencyLabel}"
 
-#: apps/client/src/more/server-status-screen.tsx:112
+#: apps/client/src/more/server-status-screen.tsx
 msgid "Latency: {latencyMs} ms"
 msgstr "Latency: {latencyMs} ms"
 
-#: apps/client/src/spaces/space-detail-screen.tsx:225
+#: apps/client/src/spaces/space-detail-screen.tsx
 msgid "Leave"
 msgstr "Leave"
 
-#: apps/client/src/spaces/space-detail-screen.tsx:286
+#: apps/client/src/spaces/space-detail-screen.tsx
 msgid "Leave space"
 msgstr "Leave space"
 
-#: apps/client/src/spaces/space-detail-screen.tsx:221
+#: apps/client/src/spaces/space-detail-screen.tsx
 msgid "Leave space?"
 msgstr "Leave space?"
 
-#: apps/client/src/ui/app-commands/appearance-commands.tsx:14
+#: apps/client/src/ui/app-commands/appearance-commands.tsx
 msgid "light"
 msgstr "light"
 
-#: apps/client/src/more/more-screen.tsx:22
+#: apps/client/src/more/more-screen.tsx
 msgid "Light, dark, or system theme"
 msgstr "Light, dark, or system theme"
 
-#: libs/patch-db-example/src/db-client/query-screen.tsx:122
+#: libs/patch-db-example/src/db-client/query-screen.tsx
 msgid "limit"
 msgstr "limit"
 
-#: apps/client/src/more/server-status-screen.tsx:49
-#: apps/client/src/ui/sidebar-account-menu.tsx:116
+#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/ui/sidebar-account-menu.tsx
 msgid "Limited or checking"
 msgstr "Limited or checking"
 
-#: libs/patch-db-example/src/todo/todo-list-detail.tsx:107
+#: libs/patch-db-example/src/todo/todo-list-detail.tsx
 msgid "List"
 msgstr "List"
 
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx:79
+#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
 msgid "List name..."
 msgstr "List name..."
 
-#: apps/client/src/spaces/space-card.tsx:57
-#: apps/client/src/spaces/spaces-screen.tsx:42
+#: apps/client/src/spaces/space-card.tsx
+#: apps/client/src/spaces/spaces-screen.tsx
 msgid "Live"
 msgstr "Live"
 
-#: libs/patch-db-example/src/db-client/entities-screen.tsx:230
+#: libs/patch-db-example/src/db-client/entities-screen.tsx
 msgid "Load more"
 msgstr "Load more"
 
-#: apps/client/src/more/account-devices-card.tsx:124
+#: apps/client/src/more/account-devices-card.tsx
 msgid "Loading devices…"
 msgstr "Loading devices…"
 
-#: libs/patch-db-example/src/db-client/entity-detail-screen.tsx:233
+#: libs/patch-db-example/src/db-client/entity-detail-screen.tsx
 msgid "Loading entity…"
 msgstr "Loading entity…"
 
-#: apps/client/src/more/account-screen.tsx:129
+#: apps/client/src/more/account-screen.tsx
 msgid "Loading provider records…"
 msgstr "Loading provider records…"
 
-#: apps/client/src/more/account-device-detail-screen.tsx:109
-#: apps/client/src/spaces/space-detail-screen.tsx:69
-#: apps/client/src/spaces/spaces-screen.tsx:92
-#: apps/client/src/spaces/spaces-screen.tsx:195
-#: libs/patch-db-example/src/db-client/entities-screen.tsx:230
+#: apps/client/src/more/account-device-detail-screen.tsx
+#: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/spaces-screen.tsx
+#: apps/client/src/spaces/spaces-screen.tsx
+#: libs/patch-db-example/src/db-client/entities-screen.tsx
 msgid "Loading…"
 msgstr "Loading…"
 
-#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx:24
+#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "local"
 msgstr "local"
 
-#: apps/client/src/more/client-config-screen.tsx:50
+#: apps/client/src/more/client-config-screen.tsx
 msgid "Local PatchDB (synced)"
 msgstr "Local PatchDB (synced)"
 
-#: libs/room-example/src/components/simulator-log.tsx:35
+#: libs/room-example/src/components/simulator-log.tsx
 msgid "Log ({entryCount})"
 msgstr "Log ({entryCount})"
 
-#: libs/room-example/src/pages/playground-page.tsx:77
+#: libs/room-example/src/pages/playground-page.tsx
 msgid "Log ({logCount})"
 msgstr "Log ({logCount})"
 
-#: libs/room-example/src/components/game-clock-section.tsx:40
+#: libs/room-example/src/components/game-clock-section.tsx
 msgid "Logical t={logicalTime}ms"
 msgstr "Logical t={logicalTime}ms"
 
-#: apps/client/src/ui/app-commands/account-command.tsx:28
+#: apps/client/src/ui/app-commands/account-command.tsx
 msgid "login"
 msgstr "login"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx:186
+#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx
 msgid "Max rotation"
 msgstr "Max rotation"
 
-#: libs/room-example/src/components/message-log.tsx:25
+#: libs/room-example/src/components/message-log.tsx
 msgid "Message Log"
 msgstr "Message Log"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx:169
+#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx
 msgid "Min rotation"
 msgstr "Min rotation"
 
-#: apps/client/src/more/account-device-detail-screen.tsx:104
+#: apps/client/src/more/account-device-detail-screen.tsx
 msgid "Missing device id."
 msgstr "Missing device id."
 
-#: libs/room-example/src/pages/network-controls-section.tsx:99
+#: libs/room-example/src/pages/network-controls-section.tsx
 msgid "MITM Integrity"
 msgstr "MITM Integrity"
 
-#: apps/client/src/more/account-device-detail-body.tsx:38
+#: apps/client/src/more/account-device-detail-body.tsx
 msgid "Model"
 msgstr "Model"
 
-#: libs/lib/src/ui/components/screen-base/screen-base-header.tsx:308
+#: libs/lib/src/ui/components/screen-base/screen-base-header.tsx
 msgid "More"
 msgstr "More"
 
-#: apps/client/src/more/developer-screen.tsx:52
+#: apps/client/src/more/developer-screen.tsx
 msgid "Multi-peer tic-tac-toe simulator"
 msgstr "Multi-peer tic-tac-toe simulator"
 
-#: libs/lib/src/ui/components/text-input/text-input.example.tsx:17
+#: libs/lib/src/ui/components/text-input/text-input.example.tsx
 msgid "Name"
 msgstr "Name"
 
-#: apps/client/src/more/about-screen.tsx:42
+#: apps/client/src/more/about-screen.tsx
 msgid "Name: {appName}"
 msgstr "Name: {appName}"
 
-#: apps/client/src/ui/app-commands/navigation-commands.tsx:35
+#: apps/client/src/ui/app-commands/navigation-commands.tsx
 msgid "Navigation"
 msgstr "Navigation"
 
-#: apps/client/src/more/server-status-screen.tsx:149
+#: apps/client/src/more/server-status-screen.tsx
 msgid "Network and API status"
 msgstr "Network and API status"
 
-#: libs/room-example/src/pages/network-controls-section.tsx:122
+#: libs/room-example/src/pages/network-controls-section.tsx
 msgid "Network Controls"
 msgstr "Network Controls"
 
-#: apps/client/src/more/more-screen.tsx:27
+#: apps/client/src/more/more-screen.tsx
 msgid "Network reachability and API server health"
 msgstr "Network reachability and API server health"
 
-#: apps/client/src/pwa/update-prompt.tsx:30
+#: apps/client/src/pwa/update-prompt.tsx
 msgid "New version available — reload to update"
 msgstr "New version available — reload to update"
 
-#: apps/client/src/ui/app-commands/appearance-commands.tsx:24
+#: apps/client/src/ui/app-commands/appearance-commands.tsx
 msgid "night"
 msgstr "night"
 
-#: apps/client/src/more/server-status-screen.tsx:77
+#: apps/client/src/more/server-status-screen.tsx
 msgid "No"
 msgstr "No"
 
-#: apps/client/src/profile/profile-username-screen.tsx:64
+#: apps/client/src/profile/profile-username-screen.tsx
 msgid "No active profile. Open Profiles and create or select one first."
 msgstr "No active profile. Open Profiles and create or select one first."
 
-#: apps/client/src/more/account-device-detail-body.tsx:74
+#: apps/client/src/more/account-device-detail-body.tsx
 msgid "No active session"
 msgstr "No active session"
 
-#: libs/patch-db-example/src/todo/todo-list-detail.tsx:213
-#: libs/patch-db-example/src/todo/todo-list.tsx:166
+#: libs/patch-db-example/src/todo/todo-list-detail.tsx
+#: libs/patch-db-example/src/todo/todo-list.tsx
 msgid "No active todos."
 msgstr "No active todos."
 
-#: libs/room-example/src/components/simulator-log.tsx:46
+#: libs/room-example/src/components/simulator-log.tsx
 msgid "No activity yet."
 msgstr "No activity yet."
 
-#: libs/room-example/src/components/cheat-log.tsx:18
+#: libs/room-example/src/components/cheat-log.tsx
 msgid "No cheat attempts yet."
 msgstr "No cheat attempts yet."
 
-#: libs/room-example/src/components/event-log.tsx:19
+#: libs/room-example/src/components/event-log.tsx
 msgid "No committed events yet."
 msgstr "No committed events yet."
 
-#: libs/patch-db-example/src/todo/todo-list-detail.tsx:214
-#: libs/patch-db-example/src/todo/todo-list.tsx:167
+#: libs/patch-db-example/src/todo/todo-list-detail.tsx
+#: libs/patch-db-example/src/todo/todo-list.tsx
 msgid "No completed todos."
 msgstr "No completed todos."
 
-#: libs/patch-db-example/src/db-client/entities-screen.tsx:221
+#: libs/patch-db-example/src/db-client/entities-screen.tsx
 msgid "No entities for this type."
 msgstr "No entities for this type."
 
-#: libs/patch-db-example/src/db-client/entity-types-screen.tsx:266
+#: libs/patch-db-example/src/db-client/entity-types-screen.tsx
 msgid "No entities in this database."
 msgstr "No entities in this database."
 
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx:251
+#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
 msgid "No lists yet. Create one above or add todos to Inbox."
 msgstr "No lists yet. Create one above or add todos to Inbox."
 
-#: libs/room-example/src/components/message-log.tsx:28
+#: libs/room-example/src/components/message-log.tsx
 msgid "No messages yet."
 msgstr "No messages yet."
 
-#: apps/client/src/more/account-screen.tsx:134
+#: apps/client/src/more/account-screen.tsx
 msgid "No OAuth provider records on file for this account."
 msgstr "No OAuth provider records on file for this account."
 
-#: libs/patch-db-example/src/db-client/entity-detail-screen.tsx:217
+#: libs/patch-db-example/src/db-client/entity-detail-screen.tsx
 msgid "No patches for this entity."
 msgstr "No patches for this entity."
 
-#: apps/client/src/more/account-devices-card.tsx:126
+#: apps/client/src/more/account-devices-card.tsx
 msgid "No principal data yet."
 msgstr "No principal data yet."
 
-#: libs/patch-db-example/src/db-client/entities-screen.tsx:222
+#: libs/patch-db-example/src/db-client/entities-screen.tsx
 msgid "No rows match filter."
 msgstr "No rows match filter."
 
-#: libs/patch-db-example/src/shape-list.tsx:25
+#: libs/patch-db-example/src/shape-list.tsx
 msgid "No shapes yet"
 msgstr "No shapes yet"
 
-#: apps/client/src/spaces/spaces-screen.tsx:203
+#: apps/client/src/spaces/spaces-screen.tsx
 msgid "No spaces match this filter."
 msgstr "No spaces match this filter."
 
-#: libs/patch-db-example/src/todo/todo-list-detail.tsx:211
-#: libs/patch-db-example/src/todo/todo-list.tsx:164
+#: libs/patch-db-example/src/todo/todo-list-detail.tsx
+#: libs/patch-db-example/src/todo/todo-list.tsx
 msgid "No todos yet. Add one above!"
 msgstr "No todos yet. Add one above!"
 
-#: libs/patch-db-example/src/db-client/entity-types-screen.tsx:265
+#: libs/patch-db-example/src/db-client/entity-types-screen.tsx
 msgid "No types match filter."
 msgstr "No types match filter."
 
-#: libs/room-example/src/components/peer-panel-events.tsx:10
+#: libs/room-example/src/components/peer-panel-events.tsx
 msgid "none"
 msgstr "none"
 
-#: apps/client/src/more/server-status-screen.tsx:20
+#: apps/client/src/more/server-status-screen.tsx
 msgid "None"
 msgstr "None"
 
-#: apps/client/src/more/client-config-screen.tsx:28
-#: libs/patch-db-example/src/db-client/format-value.tsx:39
+#: apps/client/src/more/client-config-screen.tsx
+#: libs/patch-db-example/src/db-client/format-value.tsx
 msgid "null"
 msgstr "null"
 
-#: libs/patch-db-example/src/db-client/format-value.tsx:43
+#: libs/patch-db-example/src/db-client/format-value.tsx
 msgid "num"
 msgstr "num"
 
-#: libs/room-example/src/components/game-clock-section.tsx:39
+#: libs/room-example/src/components/game-clock-section.tsx
 msgid "O {remainingO}"
 msgstr "O {remainingO}"
 
-#: libs/room-example/src/pages/network-controls-section.tsx:89
+#: libs/room-example/src/pages/network-controls-section.tsx
 msgid "O: force TickClock"
 msgstr "O: force TickClock"
 
-#: libs/room-example/src/pages/network-controls-section.tsx:76
+#: libs/room-example/src/pages/network-controls-section.tsx
 msgid "O: non-authority trust_update"
 msgstr "O: non-authority trust_update"
 
-#: apps/client/src/more/account-screen.tsx:124
+#: apps/client/src/more/account-screen.tsx
 msgid "OAuth provider details are listed here once you are signed in."
 msgstr "OAuth provider details are listed here once you are signed in."
 
-#: libs/patch-db-example/src/db-client/format-value.tsx:46
+#: libs/patch-db-example/src/db-client/format-value.tsx
 msgid "obj"
 msgstr "obj"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-effects-block.tsx:36
+#: apps/client/src/profile/avatar-editor/avatar-editor-effects-block.tsx
 msgid "Off"
 msgstr "Off"
 
-#: apps/client/src/connection/offline-indicator.tsx:50
-#: apps/client/src/more/server-status-screen.tsx:48
-#: apps/client/src/ui/sidebar-account-menu.tsx:115
+#: apps/client/src/connection/offline-indicator.tsx
+#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/ui/sidebar-account-menu.tsx
 msgid "Offline"
 msgstr "Offline"
 
-#: libs/patch-db-example/src/db-client/query-screen.tsx:129
+#: libs/patch-db-example/src/db-client/query-screen.tsx
 msgid "offset"
 msgstr "offset"
 
-#: apps/client/src/more/server-status-screen.tsx:46
-#: apps/client/src/ui/sidebar-account-menu.tsx:114
+#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/ui/sidebar-account-menu.tsx
 msgid "Online"
 msgstr "Online"
 
-#: apps/client/src/ui/app-commands/ui-components-commands.tsx:16
+#: apps/client/src/ui/app-commands/ui-components-commands.tsx
 msgid "Open {componentName} example"
 msgstr "Open {componentName} example"
 
-#: libs/lib/src/ui/components/command-palette/command-palette-trigger.tsx:28
+#: libs/lib/src/ui/components/command-palette/command-palette-trigger.tsx
 msgid "Open command palette"
 msgstr "Open command palette"
 
-#: apps/client/src/spaces/space-card.tsx:100
+#: apps/client/src/spaces/space-card.tsx
 msgid "Open space {spaceTitle}"
 msgstr "Open space {spaceTitle}"
 
-#: apps/client/src/spaces/spaces-screen.tsx:76
+#: apps/client/src/spaces/spaces-screen.tsx
 msgid "Open your current space"
 msgstr "Open your current space"
 
-#: libs/room-example/src/components/peer-panel-legend.tsx:19
+#: libs/room-example/src/components/peer-panel-legend.tsx
 msgid "optimistic"
 msgstr "optimistic"
 
-#: apps/client/src/ui/app-commands/appearance-commands.tsx:34
+#: apps/client/src/ui/app-commands/appearance-commands.tsx
 msgid "os"
 msgstr "os"
 
-#: apps/client/src/more/account-device-detail-body.tsx:33
+#: apps/client/src/more/account-device-detail-body.tsx
 msgid "OS"
 msgstr "OS"
 
-#: apps/client/src/more/server-status-screen.tsx:28
+#: apps/client/src/more/server-status-screen.tsx
 msgid "Other"
 msgstr "Other"
 
-#: apps/client/src/more/server-status-screen.tsx:53
+#: apps/client/src/more/server-status-screen.tsx
 msgid "Overall"
 msgstr "Overall"
 
-#: libs/patch-db-example/src/client-node-panel.tsx:183
-#: libs/patch-db-example/src/server-node-panel.tsx:158
-#: libs/room-example/src/pages/network-controls-section.tsx:30
+#: libs/patch-db-example/src/client-node-panel.tsx
+#: libs/patch-db-example/src/server-node-panel.tsx
+#: libs/room-example/src/pages/network-controls-section.tsx
 msgid "Partition"
 msgstr "Partition"
 
-#: libs/patch-db-example/src/db-client/patch-detail-screen.tsx:267
+#: libs/patch-db-example/src/db-client/patch-detail-screen.tsx
 msgid "Patch attributes"
 msgstr "Patch attributes"
 
-#: apps/client/src/more/developer-screen.tsx:45
+#: apps/client/src/more/developer-screen.tsx
 msgid "Patch DB Client"
 msgstr "Patch DB Client"
 
-#: apps/client/src/more/developer-screen.tsx:39
+#: apps/client/src/more/developer-screen.tsx
 msgid "Patch DB Playground"
 msgstr "Patch DB Playground"
 
-#: apps/client/src/more/developer-screen.tsx:28
+#: apps/client/src/more/developer-screen.tsx
 msgid "Patch DB todo lists (demo)"
 msgstr "Patch DB todo lists (demo)"
 
-#: libs/patch-db-example/src/db-client/patch-detail-screen.tsx:187
+#: libs/patch-db-example/src/db-client/patch-detail-screen.tsx
 msgid "Patch metadata"
 msgstr "Patch metadata"
 
-#: libs/patch-db-example/src/db-client/patch-detail-screen.tsx:65
-#: libs/patch-db-example/src/db-client/patch-detail-screen.tsx:317
+#: libs/patch-db-example/src/db-client/patch-detail-screen.tsx
+#: libs/patch-db-example/src/db-client/patch-detail-screen.tsx
 msgid "Patch not found"
 msgstr "Patch not found"
 
-#: libs/patch-db-example/src/db-client/query-screen.tsx:246
+#: libs/patch-db-example/src/db-client/query-screen.tsx
 msgid "patches"
 msgstr "patches"
 
-#: libs/patch-db-example/src/db-client/entity-detail-screen.tsx:260
+#: libs/patch-db-example/src/db-client/entity-detail-screen.tsx
 msgid "Patches"
 msgstr "Patches"
 
-#: libs/room-example/src/pages/network-controls-section.tsx:12
+#: libs/room-example/src/pages/network-controls-section.tsx
 msgid "Pause"
 msgstr "Pause"
 
-#: apps/client/src/spaces/space-member-list.tsx:17
+#: apps/client/src/spaces/space-member-list.tsx
 msgid "People here"
 msgstr "People here"
 
-#: apps/client/src/more/account-device-detail-body.tsx:32
+#: apps/client/src/more/account-device-detail-body.tsx
 msgid "Platform"
 msgstr "Platform"
 
-#: apps/client/src/more/about-screen.tsx:54
+#: apps/client/src/more/about-screen.tsx
 #~ msgid "Platform: {0}"
 #~ msgstr "Platform: {0}"
 
-#: apps/client/src/more/about-screen.tsx:56
+#: apps/client/src/more/about-screen.tsx
 msgid "Platform: {platformOs}"
 msgstr "Platform: {platformOs}"
 
-#: libs/patch-db-example/src/nav.tsx:43
+#: libs/patch-db-example/src/nav.tsx
 msgid "Playground"
 msgstr "Playground"
 
-#: libs/patch-db-example/src/playground-app.tsx:55
+#: libs/patch-db-example/src/playground-app.tsx
 msgid "Playground failed to start"
 msgstr "Playground failed to start"
 
-#: apps/client/src/more/client-config-server-refresh.tsx:63
+#: apps/client/src/more/client-config-server-refresh.tsx
 msgid "POST /client-config/refresh writes the Worker secret into PatchDB on the server (deploy pipeline uses this too)."
 msgstr "POST /client-config/refresh writes the Worker secret into PatchDB on the server (deploy pipeline uses this too)."
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-preview.tsx:54
+#: apps/client/src/profile/avatar-editor/avatar-editor-preview.tsx
 msgid "Preview updates as you edit. Save to keep changes."
 msgstr "Preview updates as you edit. Save to keep changes."
 
-#: apps/client/src/more/account-device-detail-body.tsx:80
+#: apps/client/src/more/account-device-detail-body.tsx
 msgid "Principal ID"
 msgstr "Principal ID"
 
-#: apps/client/src/more/about-screen.tsx:24
+#: apps/client/src/more/about-screen.tsx
 msgid "production"
 msgstr "production"
 
-#: apps/client/src/app/(tabs)/_layout.tsx:34
-#: apps/client/src/profile/avatar-editor/avatar-editor-screen.tsx:127
-#: apps/client/src/profile/profile-edit-screen.tsx:14
-#: apps/client/src/profile/profile-screen.tsx:23
-#: apps/client/src/profile/profile-username-screen.tsx:114
-#: apps/client/src/ui/app-sidebar.tsx:24
-#: apps/client/src/ui/sidebar-account-menu.tsx:195
-#: apps/client/src/ui/use-account-actions.tsx:185
+#: apps/client/src/app/(tabs)/_layout.tsx
+#: apps/client/src/profile/avatar-editor/avatar-editor-screen.tsx
+#: apps/client/src/profile/profile-edit-screen.tsx
+#: apps/client/src/profile/profile-screen.tsx
+#: apps/client/src/profile/profile-username-screen.tsx
+#: apps/client/src/ui/app-sidebar.tsx
+#: apps/client/src/ui/sidebar-account-menu.tsx
+#: apps/client/src/ui/use-account-actions.tsx
 msgid "Profile"
 msgstr "Profile"
 
-#: libs/room-example/src/components/trust-election-section.tsx:65
+#: libs/room-example/src/components/trust-election-section.tsx
 msgid "Projected trust — X:{projectedX} O:{projectedO} S:{projectedS}"
 msgstr "Projected trust — X:{projectedX} O:{projectedO} S:{projectedS}"
 
-#: apps/client/src/more/account-screen.tsx:105
+#: apps/client/src/more/account-screen.tsx
 msgid "Provider account id: {providerAccountId}"
 msgstr "Provider account id: {providerAccountId}"
 
-#: libs/patch-db-example/src/db-client/query-screen.tsx:104
+#: libs/patch-db-example/src/db-client/query-screen.tsx
 msgid "Query"
 msgstr "Query"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-effects-block.tsx:37
-#: apps/client/src/profile/avatar-editor/avatar-editor-features-block.tsx:38
+#: apps/client/src/profile/avatar-editor/avatar-editor-effects-block.tsx
+#: apps/client/src/profile/avatar-editor/avatar-editor-features-block.tsx
 msgid "Random"
 msgstr "Random"
 
-#: apps/client/src/more/server-status-screen.tsx:101
+#: apps/client/src/more/server-status-screen.tsx
 msgid "Reachable"
 msgstr "Reachable"
 
-#: apps/client/src/more/account-screen.tsx:161
+#: apps/client/src/more/account-screen.tsx
 msgid "Read-only: OAuth identities stored for your account."
 msgstr "Read-only: OAuth identities stored for your account."
 
-#: libs/patch-db-example/src/api-inspector.tsx:240
-#: libs/patch-db-example/src/client-node-panel.tsx:183
-#: libs/patch-db-example/src/server-node-panel.tsx:158
-#: libs/room-example/src/components/peer-panel-header.tsx:27
+#: libs/patch-db-example/src/api-inspector.tsx
+#: libs/patch-db-example/src/client-node-panel.tsx
+#: libs/patch-db-example/src/server-node-panel.tsx
+#: libs/room-example/src/components/peer-panel-header.tsx
 msgid "Reconnect"
 msgstr "Reconnect"
 
-#: libs/patch-db-example/src/db-client/entity-types-screen.tsx:97
+#: libs/patch-db-example/src/db-client/entity-types-screen.tsx
 msgid "Refresh"
 msgstr "Refresh"
 
-#: apps/client/src/more/client-config-server-refresh.tsx:70
+#: apps/client/src/more/client-config-server-refresh.tsx
 msgid "Refresh on server"
 msgstr "Refresh on server"
 
-#: apps/client/src/more/client-config-server-refresh.tsx:70
+#: apps/client/src/more/client-config-server-refresh.tsx
 msgid "Refreshing…"
 msgstr "Refreshing…"
 
-#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx:23
+#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "reload"
 msgstr "reload"
 
-#: apps/client/src/pwa/update-prompt.tsx:31
+#: apps/client/src/pwa/update-prompt.tsx
 msgid "Reload"
 msgstr "Reload"
 
-#: libs/room-example/src/pages/network-controls-section.tsx:60
+#: libs/room-example/src/pages/network-controls-section.tsx
 msgid "Replay / Fabrication"
 msgstr "Replay / Fabrication"
 
-#: libs/room-example/src/pages/network-controls-section.tsx:63
+#: libs/room-example/src/pages/network-controls-section.tsx
 msgid "Replay Events"
 msgstr "Replay Events"
 
-#: libs/patch-db-example/src/nav.tsx:44
+#: libs/patch-db-example/src/nav.tsx
 msgid "Req Res"
 msgstr "Req Res"
 
-#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx:20
+#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "reset"
 msgstr "reset"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-screen.tsx:133
-#: libs/patch-db-example/src/playground-header.tsx:43
-#: libs/room-example/src/pages/network-controls-section.tsx:24
+#: apps/client/src/profile/avatar-editor/avatar-editor-screen.tsx
+#: libs/patch-db-example/src/playground-header.tsx
+#: libs/room-example/src/pages/network-controls-section.tsx
 msgid "Reset"
 msgstr "Reset"
 
-#: libs/room-example/src/components/trust-election-section.tsx:57
+#: libs/room-example/src/components/trust-election-section.tsx
 msgid "Reset Preferences"
 msgstr "Reset Preferences"
 
-#: libs/patch-db-example/src/db-client/query-screen.tsx:187
+#: libs/patch-db-example/src/db-client/query-screen.tsx
 msgid "Result"
 msgstr "Result"
 
-#: libs/room-example/src/pages/network-controls-section.tsx:15
+#: libs/room-example/src/pages/network-controls-section.tsx
 msgid "Resume"
 msgstr "Resume"
 
-#: apps/client/src/auth/principal-auth-shell.tsx:89
-#: apps/client/src/ui/patch-bootstrap.tsx:243
+#: apps/client/src/auth/principal-auth-shell.tsx
+#: apps/client/src/ui/patch-bootstrap.tsx
 msgid "Retry"
 msgstr "Retry"
 
-#: apps/client/src/more/developer-screen.tsx:51
+#: apps/client/src/more/developer-screen.tsx
 msgid "Room Playground"
 msgstr "Room Playground"
 
-#: apps/client/src/spaces/spaces-screen.tsx:252
+#: apps/client/src/spaces/spaces-screen.tsx
 msgid "Rooms to play with friends"
 msgstr "Rooms to play with friends"
 
-#: libs/room-example/src/components/trust-election-section.tsx:80
+#: libs/room-example/src/components/trust-election-section.tsx
 msgid "Run {runNumber}: authority={authority} trust(X:{trustX} O:{trustO} S:{trustS})"
 msgstr "Run {runNumber}: authority={authority} trust(X:{trustX} O:{trustO} S:{trustS})"
 
-#: libs/patch-db-example/src/db-client/entity-types-screen.tsx:91
+#: libs/patch-db-example/src/db-client/entity-types-screen.tsx
 msgid "Run query"
 msgstr "Run query"
 
-#: libs/patch-db-example/src/db-client/query-screen.tsx:152
+#: libs/patch-db-example/src/db-client/query-screen.tsx
 msgid "Run read([query])"
 msgstr "Run read([query])"
 
-#: libs/patch-db-example/src/db-client/query-screen.tsx:152
+#: libs/patch-db-example/src/db-client/query-screen.tsx
 msgid "Running…"
 msgstr "Running…"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-screen.tsx:140
-#: apps/client/src/profile/profile-username-screen.tsx:121
+#: apps/client/src/profile/avatar-editor/avatar-editor-screen.tsx
+#: apps/client/src/profile/profile-username-screen.tsx
 msgid "Save"
 msgstr "Save"
 
-#: libs/patch-db-example/src/db-client/entity-types-screen.tsx:144
+#: libs/patch-db-example/src/db-client/entity-types-screen.tsx
 msgid "Scanning snapshots…"
 msgstr "Scanning snapshots…"
 
-#: libs/lib/src/ui/components/picker/picker.tsx:54
+#: libs/lib/src/ui/components/picker/picker.tsx
 msgid "Select…"
 msgstr "Select…"
 
-#: apps/client/src/more/client-config-server-refresh.tsx:58
-#: libs/patch-db-example/src/playground-layout.tsx:93
+#: apps/client/src/more/client-config-server-refresh.tsx
+#: libs/patch-db-example/src/playground-layout.tsx
 msgid "Server"
 msgstr "Server"
 
-#: apps/client/src/more/client-config-server-refresh.tsx:79
+#: apps/client/src/more/client-config-server-refresh.tsx
 msgid "Server client config updated. Local view updates after the next PatchDB sync."
 msgstr "Server client config updated. Local view updates after the next PatchDB sync."
 
-#: libs/patch-db-example/src/api-inspector.tsx:228
+#: libs/patch-db-example/src/api-inspector.tsx
 msgid "Server Connection"
 msgstr "Server Connection"
 
-#: apps/client/src/more/server-status-screen.tsx:108
+#: apps/client/src/more/server-status-screen.tsx
 msgid "Server health"
 msgstr "Server health"
 
-#: apps/client/src/more/account-devices-card.tsx:110
+#: apps/client/src/more/account-devices-card.tsx
 msgid "Server-side account; tap to copy"
 msgstr "Server-side account; tap to copy"
 
-#: apps/client/src/more/about-screen.tsx:31
-#: apps/client/src/more/account-screen.tsx:283
-#: apps/client/src/more/client-config-screen.tsx:39
-#: apps/client/src/more/developer-screen.tsx:72
-#: apps/client/src/more/more-screen.tsx:53
-#: apps/client/src/more/server-status-screen.tsx:146
-#: apps/client/src/more/theme-screen.tsx:26
-#: apps/client/src/ui/sidebar-account-menu.tsx:206
-#: apps/client/src/ui/sidebar-account-menu.tsx:209
-#: apps/client/src/ui/use-account-actions.tsx:187
+#: apps/client/src/more/about-screen.tsx
+#: apps/client/src/more/account-screen.tsx
+#: apps/client/src/more/client-config-screen.tsx
+#: apps/client/src/more/developer-screen.tsx
+#: apps/client/src/more/more-screen.tsx
+#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/more/theme-screen.tsx
+#: apps/client/src/ui/sidebar-account-menu.tsx
+#: apps/client/src/ui/sidebar-account-menu.tsx
+#: apps/client/src/ui/use-account-actions.tsx
 msgid "Settings"
 msgstr "Settings"
 
-#: libs/patch-db-example/src/client-node-panel.tsx:230
-#: libs/patch-db-example/src/server-node-panel.tsx:224
+#: libs/patch-db-example/src/client-node-panel.tsx
+#: libs/patch-db-example/src/server-node-panel.tsx
 msgid "Shapes ({entityCount})"
 msgstr "Shapes ({entityCount})"
 
-#: apps/client/src/more/developer-screen.tsx:34
+#: apps/client/src/more/developer-screen.tsx
 msgid "Shared UI explorer"
 msgstr "Shared UI explorer"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-preview.tsx:37
+#: apps/client/src/profile/avatar-editor/avatar-editor-preview.tsx
 msgid "Shuffle seed"
 msgstr "Shuffle seed"
 
-#: apps/client/src/ui/app-commands/account-command.tsx:28
+#: apps/client/src/ui/app-commands/account-command.tsx
 msgid "sign in"
 msgstr "sign in"
 
-#: apps/client/src/auth/sign-in-modal.tsx:61
-#: apps/client/src/more/account-screen.tsx:191
-#: apps/client/src/ui/app-commands/account-command.tsx:21
-#: apps/client/src/ui/sidebar-account-menu.tsx:157
-#: apps/client/src/ui/use-account-actions.tsx:188
+#: apps/client/src/auth/sign-in-modal.tsx
+#: apps/client/src/more/account-screen.tsx
+#: apps/client/src/ui/app-commands/account-command.tsx
+#: apps/client/src/ui/sidebar-account-menu.tsx
+#: apps/client/src/ui/use-account-actions.tsx
 msgid "Sign in"
 msgstr "Sign in"
 
-#: apps/client/src/more/account-devices-card.tsx:116
+#: apps/client/src/more/account-devices-card.tsx
 msgid "Sign in to link this device to a server account and see all principals for that account."
 msgstr "Sign in to link this device to a server account and see all principals for that account."
 
-#: apps/client/src/auth/sign-in-modal.tsx:67
+#: apps/client/src/auth/sign-in-modal.tsx
 msgid "Sign in to link this device to your server account. Your data stays local first."
 msgstr "Sign in to link this device to your server account. Your data stays local first."
 
-#: libs/lib/src/ui/components/social-sign-in-button/social-provider-config.ts:57
+#: libs/lib/src/ui/components/social-sign-in-button/social-provider-config.ts
 msgid "Sign in with Google"
 msgstr "Sign in with Google"
 
-#: apps/client/src/auth/auth-context.tsx:325
-#: apps/client/src/more/account-screen.tsx:186
-#: apps/client/src/ui/app-commands/account-command.tsx:21
-#: apps/client/src/ui/sidebar-account-menu.tsx:157
-#: apps/client/src/ui/use-account-actions.tsx:189
+#: apps/client/src/auth/auth-context.tsx
+#: apps/client/src/more/account-screen.tsx
+#: apps/client/src/ui/app-commands/account-command.tsx
+#: apps/client/src/ui/sidebar-account-menu.tsx
+#: apps/client/src/ui/use-account-actions.tsx
 msgid "Sign out"
 msgstr "Sign out"
 
-#: apps/client/src/auth/auth-context.tsx:319
+#: apps/client/src/auth/auth-context.tsx
 msgid "Sign out?"
 msgstr "Sign out?"
 
-#: libs/lib/src/ui/components/social-sign-in-button/social-provider-config.ts:58
+#: libs/lib/src/ui/components/social-sign-in-button/social-provider-config.ts
 msgid "Sign up with Google"
 msgstr "Sign up with Google"
 
-#: apps/client/src/more/account-screen.tsx:159
+#: apps/client/src/more/account-screen.tsx
 msgid "Sign-in providers"
 msgstr "Sign-in providers"
 
-#: libs/lib/src/ui/components/social-sign-in-button/social-provider-config.ts:61
+#: libs/lib/src/ui/components/social-sign-in-button/social-provider-config.ts
 msgid "Signing in…"
 msgstr "Signing in…"
 
-#: apps/client/src/more/developer-screen.tsx:58
+#: apps/client/src/more/developer-screen.tsx
 msgid "Singleton clientConfig entity and server refresh"
 msgstr "Singleton clientConfig entity and server refresh"
 
-#: apps/client/src/more/client-config-screen.tsx:43
+#: apps/client/src/more/client-config-screen.tsx
 msgid "Singleton entity + server refresh"
 msgstr "Singleton entity + server refresh"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx:71
+#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx
 msgid "Solid"
 msgstr "Solid"
 
-#: apps/client/src/spaces/space-card.tsx:121
-#: apps/client/src/spaces/space-detail-screen.tsx:62
-#: apps/client/src/spaces/space-detail-screen.tsx:85
+#: apps/client/src/spaces/space-card.tsx
+#: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-detail-screen.tsx
 msgid "Space"
 msgstr "Space"
 
-#: apps/client/src/spaces/spaces-screen.tsx:156
+#: apps/client/src/spaces/spaces-screen.tsx
 msgid "Space title…"
 msgstr "Space title…"
 
-#: apps/client/src/app/(tabs)/_layout.tsx:25
-#: apps/client/src/more/about-screen.tsx:30
-#: apps/client/src/more/account-screen.tsx:282
-#: apps/client/src/more/client-config-screen.tsx:38
-#: apps/client/src/more/developer-screen.tsx:71
-#: apps/client/src/more/more-screen.tsx:51
-#: apps/client/src/more/server-status-screen.tsx:145
-#: apps/client/src/more/theme-screen.tsx:25
-#: apps/client/src/spaces/space-detail-screen.tsx:61
-#: apps/client/src/spaces/space-detail-screen.tsx:84
-#: apps/client/src/spaces/space-detail-screen.tsx:114
-#: apps/client/src/spaces/space-detail-screen.tsx:152
-#: apps/client/src/spaces/space-detail-screen.tsx:272
-#: apps/client/src/spaces/spaces-screen.tsx:251
-#: apps/client/src/ui/app-sidebar.tsx:23
+#: apps/client/src/app/(tabs)/_layout.tsx
+#: apps/client/src/more/about-screen.tsx
+#: apps/client/src/more/account-screen.tsx
+#: apps/client/src/more/client-config-screen.tsx
+#: apps/client/src/more/developer-screen.tsx
+#: apps/client/src/more/more-screen.tsx
+#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/more/theme-screen.tsx
+#: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/spaces-screen.tsx
+#: apps/client/src/ui/app-sidebar.tsx
 msgid "Spaces"
 msgstr "Spaces"
 
-#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx:21
+#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "sqlite"
 msgstr "sqlite"
 
-#: apps/client/src/more/account-device-detail-body.tsx:81
+#: apps/client/src/more/account-device-detail-body.tsx
 msgid "Stable per-device identifier; tap to copy"
 msgstr "Stable per-device identifier; tap to copy"
 
-#: libs/room-example/src/components/game-clock-section.tsx:22
+#: libs/room-example/src/components/game-clock-section.tsx
 msgid "Start realtime"
 msgstr "Start realtime"
 
-#: apps/client/src/more/server-status-screen.tsx:82
+#: apps/client/src/more/server-status-screen.tsx
 msgid "Status: {networkLine}"
 msgstr "Status: {networkLine}"
 
-#: apps/client/src/more/server-status-screen.tsx:110
+#: apps/client/src/more/server-status-screen.tsx
 msgid "Status: {serverLine}"
 msgstr "Status: {serverLine}"
 
-#: libs/room-example/src/components/game-clock-section.tsx:36
+#: libs/room-example/src/components/game-clock-section.tsx
 msgid "Status: {status}"
 msgstr "Status: {status}"
 
-#: libs/room-example/src/components/game-clock-section.tsx:21
+#: libs/room-example/src/components/game-clock-section.tsx
 msgid "Stop realtime"
 msgstr "Stop realtime"
 
-#: libs/patch-db-example/src/db-client/format-value.tsx:45
+#: libs/patch-db-example/src/db-client/format-value.tsx
 msgid "str"
 msgstr "str"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-style-block.tsx:34
+#: apps/client/src/profile/avatar-editor/avatar-editor-style-block.tsx
 msgid "Style"
 msgstr "Style"
 
-#: apps/client/src/connection/offline-indicator.tsx:50
+#: apps/client/src/connection/offline-indicator.tsx
 msgid "Sync issue"
 msgstr "Sync issue"
 
-#: apps/client/src/more/developer-screen.tsx:40
+#: apps/client/src/more/developer-screen.tsx
 msgid "Sync simulation with server and clients"
 msgstr "Sync simulation with server and clients"
 
-#: apps/client/src/ui/app-commands/appearance-commands.tsx:34
+#: apps/client/src/ui/app-commands/appearance-commands.tsx
 msgid "system"
 msgstr "system"
 
-#: libs/room-example/src/pages/network-controls-section.tsx:102
+#: libs/room-example/src/pages/network-controls-section.tsx
 msgid "Tamper Events"
 msgstr "Tamper Events"
 
-#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx:14
+#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx
 msgid "Tap the field or icon to copy"
 msgstr "Tap the field or icon to copy"
 
-#: apps/client/src/more/about-screen.tsx:51
+#: apps/client/src/more/about-screen.tsx
 msgid "Tap to copy"
 msgstr "Tap to copy"
 
-#: apps/client/src/spaces/spaces-screen.tsx:98
+#: apps/client/src/spaces/spaces-screen.tsx
 msgid "Tap to open"
 msgstr "Tap to open"
 
-#: libs/lib/src/ui/components/text-input/text-input.example.tsx:14
+#: libs/lib/src/ui/components/text-input/text-input.example.tsx
 msgid "TextInput"
 msgstr "TextInput"
 
-#: apps/client/src/more/theme-screen.tsx:29
+#: apps/client/src/more/theme-screen.tsx
 msgid "Theme"
 msgstr "Theme"
 
-#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx:34
+#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "This deletes all local SQLite data and reloads the app. You cannot undo this."
 msgstr "This deletes all local SQLite data and reloads the app. You cannot undo this."
 
-#: apps/client/src/more/account-device-detail-screen.tsx:137
-#: apps/client/src/more/account-devices-card.tsx:61
+#: apps/client/src/more/account-device-detail-screen.tsx
+#: apps/client/src/more/account-devices-card.tsx
 msgid "This device"
 msgstr "This device"
 
-#: apps/client/src/more/account-device-detail-screen.tsx:115
+#: apps/client/src/more/account-device-detail-screen.tsx
 msgid "This device was not found. It may have been removed or is not visible for the current account."
 msgstr "This device was not found. It may have been removed or is not visible for the current account."
 
-#: libs/lib/src/ui/components/text-input/text-input.example.tsx:37
+#: libs/lib/src/ui/components/text-input/text-input.example.tsx
 msgid "This field is required"
 msgstr "This field is required"
 
-#: apps/client/src/more/modal-screen.tsx:26
+#: apps/client/src/more/modal-screen.tsx
 msgid "This is a modal screen."
 msgstr "This is a modal screen."
 
-#: apps/client/src/spaces/space-detail-screen.tsx:92
+#: apps/client/src/spaces/space-detail-screen.tsx
 msgid "This space could not be found."
 msgstr "This space could not be found."
 
-#: apps/client/src/spaces/space-detail-screen.tsx:122
+#: apps/client/src/spaces/space-detail-screen.tsx
 msgid "This space has ended."
 msgstr "This space has ended."
 
-#: libs/room-example/src/pages/network-controls-section.tsx:36
+#: libs/room-example/src/pages/network-controls-section.tsx
 msgid "Timeout"
 msgstr "Timeout"
 
-#: libs/patch-db-example/src/todo/todo-list-detail.tsx:307
+#: libs/patch-db-example/src/todo/todo-list-detail.tsx
 msgid "Todo Lists"
 msgstr "Todo Lists"
 
-#: apps/client/src/more/developer-screen.tsx:27
-#: libs/patch-db-example/src/todo/todo-list.tsx:246
+#: apps/client/src/more/developer-screen.tsx
+#: libs/patch-db-example/src/todo/todo-list.tsx
 msgid "Todos"
 msgstr "Todos"
 
-#: apps/client/src/more/more-screen.tsx:32
+#: apps/client/src/more/more-screen.tsx
 msgid "Todos, UI explorer, Patch DB and Room playgrounds"
 msgstr "Todos, UI explorer, Patch DB and Room playgrounds"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-transform-block.tsx:83
+#: apps/client/src/profile/avatar-editor/avatar-editor-transform-block.tsx
 msgid "Transform"
 msgstr "Transform"
 
-#: libs/room-example/src/components/trust-election-section.tsx:45
+#: libs/room-example/src/components/trust-election-section.tsx
 msgid "Trust Election"
 msgstr "Trust Election"
 
-#: libs/room-example/src/components/game-clock-section.tsx:37
+#: libs/room-example/src/components/game-clock-section.tsx
 msgid "Turn: {turn}"
 msgstr "Turn: {turn}"
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx:68
+#: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx
 msgid "Type"
 msgstr "Type"
 
-#: libs/lib/src/ui/components/command-palette/command-palette-input.tsx:39
+#: libs/lib/src/ui/components/command-palette/command-palette-input.tsx
 msgid "Type a command or search…"
 msgstr "Type a command or search…"
 
-#: libs/lib/src/ui/components/text-input/text-input.example.tsx:35
+#: libs/lib/src/ui/components/text-input/text-input.example.tsx
 msgid "Type something..."
 msgstr "Type something..."
 
-#: apps/client/src/more/server-status-screen.tsx:83
+#: apps/client/src/more/server-status-screen.tsx
 msgid "Type: {networkTypeLabel}"
 msgstr "Type: {networkTypeLabel}"
 
-#: apps/client/src/more/developer-screen.tsx:33
-#: apps/client/src/ui/app-commands/ui-components-commands.tsx:17
+#: apps/client/src/more/developer-screen.tsx
+#: apps/client/src/ui/app-commands/ui-components-commands.tsx
 msgid "UI Components"
 msgstr "UI Components"
 
-#: apps/client/src/more/server-status-screen.tsx:21
-#: apps/client/src/more/server-status-screen.tsx:31
+#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/more/server-status-screen.tsx
 msgid "Unknown"
 msgstr "Unknown"
 
-#: apps/client/src/more/server-status-screen.tsx:103
+#: apps/client/src/more/server-status-screen.tsx
 msgid "Unreachable"
 msgstr "Unreachable"
 
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx:417
+#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
 msgid "Untitled"
 msgstr "Untitled"
 
-#: apps/client/src/ui/app-commands/appearance-commands.tsx:21
+#: apps/client/src/ui/app-commands/appearance-commands.tsx
 msgid "Use dark theme"
 msgstr "Use dark theme"
 
-#: apps/client/src/ui/app-commands/appearance-commands.tsx:11
+#: apps/client/src/ui/app-commands/appearance-commands.tsx
 msgid "Use light theme"
 msgstr "Use light theme"
 
-#: apps/client/src/ui/app-commands/appearance-commands.tsx:31
+#: apps/client/src/ui/app-commands/appearance-commands.tsx
 msgid "Use system theme"
 msgstr "Use system theme"
 
-#: apps/client/src/more/account-device-detail-body.tsx:53
+#: apps/client/src/more/account-device-detail-body.tsx
 msgid "User agent"
 msgstr "User agent"
 
-#: apps/client/src/profile/profile-edit-screen.tsx:23
-#: apps/client/src/profile/profile-username-screen.tsx:116
+#: apps/client/src/profile/profile-edit-screen.tsx
+#: apps/client/src/profile/profile-username-screen.tsx
 msgid "Username"
 msgstr "Username"
 
-#: libs/patch-db-example/src/db-client/entity-detail-screen.tsx:95
-#: libs/patch-db-example/src/db-client/patch-detail-screen.tsx:247
+#: libs/patch-db-example/src/db-client/entity-detail-screen.tsx
+#: libs/patch-db-example/src/db-client/patch-detail-screen.tsx
 msgid "Value"
 msgstr "Value"
 
-#: apps/client/src/more/about-screen.tsx:43
+#: apps/client/src/more/about-screen.tsx
 msgid "Version: {appVersion}"
 msgstr "Version: {appVersion}"
 
-#: libs/patch-db-example/src/db-client/patch-detail-screen.tsx:209
+#: libs/patch-db-example/src/db-client/patch-detail-screen.tsx
 msgid "View parent patch"
 msgstr "View parent patch"
 
-#: apps/client/src/ui/sidebar-account-menu.tsx:198
+#: apps/client/src/ui/sidebar-account-menu.tsx
 msgid "View profile"
 msgstr "View profile"
 
-#: libs/patch-db-example/src/api-inspector.tsx:327
+#: libs/patch-db-example/src/api-inspector.tsx
 msgid "Waiting for metrics from server..."
 msgstr "Waiting for metrics from server..."
 
-#: libs/patch-db-example/src/db-client/query-screen.tsx:133
+#: libs/patch-db-example/src/db-client/query-screen.tsx
 msgid "where (JSON, optional)"
 msgstr "where (JSON, optional)"
 
-#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx:18
+#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "wipe"
 msgstr "wipe"
 
-#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx:40
+#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "Wipe and reload"
 msgstr "Wipe and reload"
 
-#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx:13
+#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "Wipe local database"
 msgstr "Wipe local database"
 
-#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx:32
+#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "Wipe local database?"
 msgstr "Wipe local database?"
 
-#: libs/room-example/src/pages/network-controls-section.tsx:124
+#: libs/room-example/src/pages/network-controls-section.tsx
 msgid "Wire Attacks (MITM)"
 msgstr "Wire Attacks (MITM)"
 
-#: libs/room-example/src/components/crypto-diagnostics-section.tsx:43
+#: libs/room-example/src/components/crypto-diagnostics-section.tsx
 msgid "Wire auth failures: {failureCount}"
 msgstr "Wire auth failures: {failureCount}"
 
-#: libs/room-example/src/components/crypto-diagnostics-section.tsx:42
+#: libs/room-example/src/components/crypto-diagnostics-section.tsx
 msgid "Wire auth failures: none"
 msgstr "Wire auth failures: none"
 
-#: libs/room-example/src/components/game-clock-section.tsx:38
+#: libs/room-example/src/components/game-clock-section.tsx
 msgid "X {remainingX}"
 msgstr "X {remainingX}"
 
-#: libs/room-example/src/pages/network-controls-section.tsx:88
+#: libs/room-example/src/pages/network-controls-section.tsx
 msgid "X: force TickClock"
 msgstr "X: force TickClock"
 
-#: libs/room-example/src/pages/network-controls-section.tsx:75
+#: libs/room-example/src/pages/network-controls-section.tsx
 msgid "X: non-authority trust_update"
 msgstr "X: non-authority trust_update"
 
-#: apps/client/src/more/server-status-screen.tsx:76
+#: apps/client/src/more/server-status-screen.tsx
 msgid "Yes"
 msgstr "Yes"
 
-#: apps/client/src/spaces/space-detail-screen.tsx:223
+#: apps/client/src/spaces/space-detail-screen.tsx
 msgid "You can join again later if the space is still live."
 msgstr "You can join again later if the space is still live."
 
-#: apps/client/src/profile/avatar-editor/avatar-editor-screen.tsx:119
+#: apps/client/src/profile/avatar-editor/avatar-editor-screen.tsx
 msgid "You have unsaved avatar changes."
 msgstr "You have unsaved avatar changes."
 
-#: apps/client/src/auth/auth-context.tsx:321
+#: apps/client/src/auth/auth-context.tsx
 msgid "You will need to sign in again to sync with your account."
 msgstr "You will need to sign in again to sync with your account."
 
-#: libs/lib/src/ui/components/text-input/text-input.example.tsx:26
+#: libs/lib/src/ui/components/text-input/text-input.example.tsx
 msgid "you@example.com"
 msgstr "you@example.com"
 
-#: apps/client/src/connection/offline-indicator.tsx:58
+#: apps/client/src/connection/offline-indicator.tsx
 msgid "Your changes are saved locally and will sync when you are back online."
 msgstr "Your changes are saved locally and will sync when you are back online."
 
-#: libs/lib/src/ui/components/text-input/text-input.example.tsx:21
+#: libs/lib/src/ui/components/text-input/text-input.example.tsx
 msgid "Your full name"
 msgstr "Your full name"
 
-#: apps/client/src/profile/profile-username-screen.tsx:75
+#: apps/client/src/profile/profile-username-screen.tsx
 msgid "Your name"
 msgstr "Your name"
 
-#: apps/client/src/spaces/spaces-screen.tsx:87
+#: apps/client/src/spaces/spaces-screen.tsx
 msgid "Your space"
 msgstr "Your space"
