@@ -8,6 +8,8 @@
     "EXPO_PUBLIC_*",
     "DOPPLER_TOKEN",
     "DOPPLER_CONFIG",
+    "DOPPLER_PROJECT",
+    "DOPPLER_ENVIRONMENT",
     "TURBO_*",
     "TMPDIR"
   ],
