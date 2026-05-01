@@ -3,8 +3,8 @@ import {
   databaseHttpOrigin,
   defaultSqlPort,
   resolveLocalApiOrigin,
-  runTurboOnce,
-  startTurboBackground,
+  runPackageScriptOnce,
+  startPackageScriptBackground,
   waitForHttpOk,
 } from './harness';
 
@@ -15,21 +15,17 @@ test(
     const sqlPort = defaultSqlPort();
     const databaseUrl = databaseHttpOrigin(sqlPort);
 
-    await using db = startTurboBackground(
-      ['preview', '--filter=@gamezilla/db'],
-      {}
-    );
+    await runPackageScriptOnce('@gamezilla/db', 'kill', {});
+    await using db = startPackageScriptBackground('@gamezilla/db', 'preview', {});
     await waitForHttpOk(`${databaseUrl}/health`, {
       timeoutMs: 60_000,
       label: 'local db /health',
     });
 
-    await runTurboOnce(['setup', '--filter=@gamezilla/api'], {});
+    await runPackageScriptOnce('@gamezilla/api', 'kill', {});
+    await runPackageScriptOnce('@gamezilla/api', 'setup', {});
 
-    await using api = startTurboBackground(
-      ['preview', '--filter=@gamezilla/api'],
-      {}
-    );
+    await using api = startPackageScriptBackground('@gamezilla/api', 'preview', {});
     await waitForHttpOk(`${LOCAL_API_ORIGIN}/health`, {
       timeoutMs: 120_000,
       label: 'api /health',
