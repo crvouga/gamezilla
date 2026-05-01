@@ -173,11 +173,20 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      # `bun add -g wrangler` produces a wrapper that, in non-TTY CI shells,
-      # writes its `--version` output to stderr and leaves stdout empty,
-      # tripping `apps/infra` dep version detection. `npm install -g`
-      # produces a plain Node shebang script that prints to stdout, which
-      # `captureVersion` reads cleanly.
+      # Wrangler 4.x requires Node.js v22+. The `setup-bun` action sets up
+      # Bun but not Node, and the runner's default Node is v20. Without
+      # this step, `wrangler whoami` (and any other `wrangler …`
+      # invocation) aborts with "Wrangler requires at least Node.js v22.0.0".
+      - name: Setup Node.js (required by wrangler)
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      # Use `npm install -g` rather than `bun add -g`: the latter produces
+      # a Bun-runtime wrapper that, in non-TTY CI shells, writes
+      # `--version` output to stderr with empty stdout, tripping the dep
+      # version probe in `apps/infra/src/cli/deps/spawn.ts`. `npm` writes
+      # a plain Node shebang script that prints to stdout cleanly.
       - name: Install wrangler
         run: npm install -g wrangler@latest
 

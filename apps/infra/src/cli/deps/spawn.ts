@@ -14,42 +14,35 @@ export function whichSync(bin: string): boolean {
 
 const SEMVER_REGEX = /[\d]+\.[\d]+[\w.+-]*/;
 
-function parseSemverFromString(s: string): string | null {
-  const trimmed = s.trim();
-  if (trimmed.length === 0) return null;
-  const match = SEMVER_REGEX.exec(trimmed);
+/**
+ * Extracts a version from `--version` stdout. Stricter than a free regex
+ * scan: requires the FIRST non-empty line to contain a semver, which avoids
+ * false positives from error messages embedding version numbers (e.g.
+ * "Wrangler requires at least Node.js v22.0.0").
+ */
+function parseVersionFromStdout(s: string): string | null {
+  const lines = s.split('\n').map((l) => l.trim()).filter((l) => l.length > 0);
+  if (lines.length === 0) return null;
+  const match = SEMVER_REGEX.exec(lines[0]!);
   return match ? match[0] : null;
 }
 
-/**
- * Resolve a binary's version via `<bin> <args>`. Reads stdout first; falls
- * back to stderr because some CLIs (notably wrangler) print `--version` to
- * stderr in non-TTY contexts.
- */
+/** Resolve a binary's version via `<bin> <args>`. Returns null on non-zero exit or unparseable output. */
 export function captureVersion(bin: string, args: string[]): string | null {
-  try {
-    const r = spawnSync(bin, args, {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
-      env: process.env,
-    });
-    if (r.error) return null;
-    const stdout = (r.stdout ?? '').toString();
-    const stderr = (r.stderr ?? '').toString();
-    return (
-      parseSemverFromString(stdout) ??
-      parseSemverFromString(stderr) ??
-      null
-    );
-  } catch {
-    return null;
-  }
+  const d = captureVersionDiagnostic(bin, args);
+  return d.version;
 }
 
 /**
- * Like {@link captureVersion} but returns rich diagnostics on failure so
- * the caller can include stdout/stderr/status in error messages — useful
- * when CI shows an opaque "could not determine version".
+ * Like {@link captureVersion} but returns rich diagnostics so callers can
+ * surface stdout/stderr/status in error messages — useful when CI shows an
+ * opaque "could not determine version".
+ *
+ * Version detection is intentionally strict: we ONLY accept a semver from
+ * stdout's first line and ONLY when the process exited 0. Treating stderr
+ * as a fallback misidentifies error-message version numbers as the binary's
+ * version (e.g. wrangler 4.x on Node 20 prints "Wrangler requires at least
+ * Node.js v22.0.0" to stderr).
  */
 export function captureVersionDiagnostic(
   bin: string,
@@ -64,7 +57,7 @@ export function captureVersionDiagnostic(
     const stdout = (r.stdout ?? '').toString();
     const stderr = (r.stderr ?? '').toString();
     const version =
-      parseSemverFromString(stdout) ?? parseSemverFromString(stderr) ?? null;
+      r.status === 0 && !r.error ? parseVersionFromStdout(stdout) : null;
     return { version, stdout, stderr, status: r.status };
   } catch (e) {
     return {
