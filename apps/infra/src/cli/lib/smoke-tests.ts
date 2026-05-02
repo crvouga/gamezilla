@@ -73,6 +73,33 @@ function isTransientHttpStatus(status: number): boolean {
   return false;
 }
 
+/**
+ * The API Worker returns a structured 503 when it latches into a permanent
+ * fatal state (e.g. Doppler misconfiguration). This will never self-heal, so
+ * retrying only wastes the full timeout budget. Detect it early and fail fast.
+ */
+function isFatalApiMisconfiguration(result: {
+  status?: number;
+  body?: string;
+}): boolean {
+  if (result.status !== 503) return false;
+  if (!result.body) return false;
+  try {
+    const parsed: unknown = JSON.parse(result.body);
+    if (
+      parsed !== null &&
+      typeof parsed === 'object' &&
+      !Array.isArray(parsed) &&
+      (parsed as Record<string, unknown>)['error'] === 'api misconfigured'
+    ) {
+      return true;
+    }
+  } catch {
+    /* not JSON or wrong shape — not the fatal response */
+  }
+  return false;
+}
+
 function normalizeUrl(raw: string): string {
   const t = raw.trim();
   return /^https?:\/\//.test(t) ? t : `https://${t}`;
@@ -275,6 +302,27 @@ async function checkHttpEndpoint(
         `Smoke ${opts.step}/${opts.total}: ${opts.label} ${url} — HTTP ${result.status} OK (${elapsedStr}).`
       );
       return;
+    }
+
+    if (isFatalApiMisconfiguration(result)) {
+      let reason = '(unknown)';
+      try {
+        const parsed = JSON.parse(result.body ?? '{}') as Record<
+          string,
+          unknown
+        >;
+        if (typeof parsed['reason'] === 'string') reason = parsed['reason'];
+      } catch {
+        /* best-effort */
+      }
+      platform.error(
+        `${opts.label} ${url} — FATAL: API misconfigured (${reason}). ` +
+          `This is a permanent config error that will not self-heal. ` +
+          `Fix the Worker's Doppler secrets and re-deploy.`
+      );
+      assert.fail(
+        `smoke-test: ${opts.label} returned fatal "api misconfigured" — reason: ${reason}`
+      );
     }
 
     if (elapsed >= POST_DEPLOY_HTTP_MAX_WAIT_MS) {
