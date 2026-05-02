@@ -1,5 +1,5 @@
 import { i18n } from '@lingui/core';
-import { clientCatalogBootstrap } from './bootstrap-catalog';
+import { clientCatalogBootstrap } from './catalog-bootstrap';
 import { messages } from './locales/en/messages';
 
 void clientCatalogBootstrap;
