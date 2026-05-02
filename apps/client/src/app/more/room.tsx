@@ -1,3 +1,3 @@
-import { RoomScreen } from '@gamezilla/client/more/room-screen';
+import { RoomScreen } from '@gamezilla/client/developer/room-screen';
 
 export default RoomScreen;

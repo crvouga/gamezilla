@@ -114,6 +114,17 @@
         "workbox-build": "^7.4.0",
       },
     },
+    "apps/config-refresh": {
+      "name": "@gamezilla/config-refresh",
+      "version": "1.0.0",
+      "dependencies": {
+        "@gamezilla/api": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.3.9",
+        "typescript": "~5.9.2",
+      },
+    },
     "apps/db": {
       "name": "@gamezilla/db",
       "version": "1.0.0",
@@ -817,6 +828,8 @@
     "@gamezilla/api": ["@gamezilla/api@workspace:apps/api"],
 
     "@gamezilla/client": ["@gamezilla/client@workspace:apps/client"],
+
+    "@gamezilla/config-refresh": ["@gamezilla/config-refresh@workspace:apps/config-refresh"],
 
     "@gamezilla/db": ["@gamezilla/db@workspace:apps/db"],
 

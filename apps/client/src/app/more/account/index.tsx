@@ -1,3 +1,3 @@
-import { AccountScreen } from '@gamezilla/client/more/account-screen';
+import { AccountScreen } from '@gamezilla/client/account/account-screen';
 
 export default AccountScreen;

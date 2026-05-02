@@ -1,3 +1,3 @@
-import { MoreScreen } from '@gamezilla/client/more/more-screen';
+import { SettingsScreen } from '@gamezilla/client/settings/settings-screen';
 
-export default MoreScreen;
+export default SettingsScreen;

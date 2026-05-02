@@ -1,3 +1,3 @@
-import { ThemeSettingsScreen } from '@gamezilla/client/more/theme-screen';
+import { ThemeSettingsScreen } from '@gamezilla/client/settings/theme-screen';
 
 export default ThemeSettingsScreen;

@@ -1,3 +1,3 @@
-import { DeveloperScreen } from '@gamezilla/client/more/developer-screen';
+import { DeveloperScreen } from '@gamezilla/client/developer/developer-screen';
 
 export default DeveloperScreen;

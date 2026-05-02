@@ -1,3 +1,3 @@
-import { TodoListsScreen } from '@gamezilla/client/more/todo-lists-screen';
+import { TodoListsScreen } from '@gamezilla/client/todos/todo-lists-screen';
 
 export default TodoListsScreen;
