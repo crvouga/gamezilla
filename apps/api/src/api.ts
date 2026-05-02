@@ -13,8 +13,8 @@ import {
 } from './config/env';
 import { ApiSecretName } from './config/secret-names';
 import { createApiSecretStore } from './config/secret-store';
-import { getPatchDb } from './db/patch-db';
-import { getDb } from './db/sql-client';
+import { getPatchDb } from './patch-db/patch-db';
+import { getDb } from './patch-db/sql-client';
 
 const log = createLogger({ name: 'api' });
 

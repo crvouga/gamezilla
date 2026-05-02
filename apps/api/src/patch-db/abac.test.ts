@@ -2,13 +2,13 @@ import { assert } from '@gamezilla/lib/assert';
 import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
+import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
 import type { PatchesDb, PatchesDbVisitorContext } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
-import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import type { AppAuthContext } from './default-patch-db-policies';
 import { installDefaultPatchDbPolicies } from './install-default-patch-db-policies';
-import type { GamezillaAuthContext } from './default-patch-db-policies';
 
 async function createSqliteFactory(): Promise<{
   db: PatchesDb;
@@ -63,7 +63,7 @@ describe('default ABAC policies (sqlite)', () => {
       PATCHES_DB_SYSTEM_CONTEXT
     );
 
-    const ctxA: GamezillaAuthContext = {
+    const ctxA: AppAuthContext = {
       visitorId: crypto.randomUUID(),
       principalId: '00000000-0000-4000-8000-00000000a001',
       accountId: accountA,
@@ -75,7 +75,7 @@ describe('default ABAC policies (sqlite)', () => {
     assert.defined(forA, 'forA');
     expect(forA.entities.map((e) => e.entityId)).toEqual(['priv-a']);
 
-    const ctxB: GamezillaAuthContext = {
+    const ctxB: AppAuthContext = {
       visitorId: crypto.randomUUID(),
       principalId: '00000000-0000-4000-8000-00000000b002',
       accountId: accountB,
@@ -106,7 +106,7 @@ describe('default ABAC policies (sqlite)', () => {
       PATCHES_DB_SYSTEM_CONTEXT
     );
 
-    const ctxB: GamezillaAuthContext = {
+    const ctxB: AppAuthContext = {
       visitorId: crypto.randomUUID(),
       principalId: '00000000-0000-4000-8000-00000000c003',
       accountId: accountB,
@@ -123,7 +123,7 @@ describe('default ABAC policies (sqlite)', () => {
   });
 
   test('query without entityType is denied for auth context', async () => {
-    const ctx: GamezillaAuthContext = {
+    const ctx: AppAuthContext = {
       visitorId: crypto.randomUUID(),
       principalId: '00000000-0000-4000-8000-00000000e004',
       accountId: '00000000-0000-4000-8000-0000000000ee',
@@ -138,7 +138,7 @@ describe('default ABAC policies (sqlite)', () => {
   });
 
   test('non-system write to stripe.webhook_event is forbidden', async () => {
-    const ctx: GamezillaAuthContext = {
+    const ctx: AppAuthContext = {
       visitorId: crypto.randomUUID(),
       principalId: '00000000-0000-4000-8000-00000000f005',
       accountId: '00000000-0000-4000-8000-0000000000ff',

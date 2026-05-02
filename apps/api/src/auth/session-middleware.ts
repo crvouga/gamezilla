@@ -7,12 +7,12 @@ import { assert } from '@gamezilla/lib/assert';
 import type { PatchesDb, PatchesDbContext } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import type {
-  GamezillaAuthContext,
-  GamezillaVisitorContext,
-} from '../db/default-patch-db-policies';
+  AppAuthContext,
+  AppVisitorContext,
+} from '../patch-db/default-patch-db-policies';
 import { UnauthorizedError } from './unauthorized-error';
 
-export type AuthContext = GamezillaAuthContext;
+export type AuthContext = AppAuthContext;
 
 /**
  * Resolves a request to either a full auth context (when Bearer is valid)
@@ -27,7 +27,7 @@ export async function resolvePatchesDbContext(
 ): Promise<PatchesDbContext> {
   const header = request.headers.get('Authorization');
   if (header === null || !header.startsWith('Bearer ')) {
-    return { visitorId } satisfies GamezillaVisitorContext;
+    return { visitorId } satisfies AppVisitorContext;
   }
   const token = header.slice('Bearer '.length).trim();
   assert.ok(token.length > 0, 'Bearer token must be non-empty');
@@ -78,10 +78,10 @@ export async function resolvePatchesDbContext(
       memberOfSpaceIds: [],
       friendAccountIds: [],
       blockedAccountIds: [],
-    } satisfies GamezillaAuthContext;
+    } satisfies AppAuthContext;
   }
 
-  return { visitorId } satisfies GamezillaVisitorContext;
+  return { visitorId } satisfies AppVisitorContext;
 }
 
 /**
