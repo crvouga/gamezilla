@@ -12,6 +12,18 @@ function dopplerInstallBinDir(): string {
   return join(homedir(), '.bun', 'bin');
 }
 
+function isMacOS(): boolean {
+  return process.platform === 'darwin';
+}
+
+function hasHomebrew(): boolean {
+  return whichSync('brew');
+}
+
+function hasGpg(): boolean {
+  return whichSync('gpg');
+}
+
 export class DopplerDep implements Dep {
   readonly name = 'doppler';
   readonly bin = 'doppler';
@@ -51,9 +63,23 @@ export class DopplerDep implements Dep {
   }
 
   install(): void {
+    if (isMacOS() && hasHomebrew()) {
+      spawnInstall('brew', ['install', 'dopplerhq/cli/doppler']);
+      return;
+    }
+
     const binDir = dopplerInstallBinDir();
     mkdirSync(binDir, { recursive: true });
     const escaped = binDir.replace(/'/g, `'\\''`);
+
+    if (!hasGpg()) {
+      spawnInstall('bash', [
+        '-c',
+        `curl -fsSL https://cli.doppler.com/install.sh | sh -s -- --install-path '${escaped}' --no-verify`,
+      ]);
+      return;
+    }
+
     spawnInstall('bash', [
       '-c',
       `curl -fsSL https://cli.doppler.com/install.sh | sh -s -- --install-path '${escaped}'`,
@@ -61,6 +87,10 @@ export class DopplerDep implements Dep {
   }
 
   upgrade(): void {
+    if (isMacOS() && hasHomebrew() && !whichSync(join(dopplerInstallBinDir(), 'doppler'))) {
+      spawnInstall('brew', ['upgrade', 'dopplerhq/cli/doppler']);
+      return;
+    }
     spawnInstall('doppler', ['update']);
   }
 
