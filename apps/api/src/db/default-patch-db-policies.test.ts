@@ -74,11 +74,12 @@ describe('gamezilla default policies (system + auth writes)', () => {
     const principalId = '00000000-0000-4000-8000-000000000011';
     const accountId = '00000000-0000-4000-8000-000000000022';
     const ctx = {
+      visitorId: crypto.randomUUID(),
       principalId,
       accountId,
-      memberOfSpaceIds: [] as const,
-      friendAccountIds: [] as const,
-      blockedAccountIds: [] as const,
+      memberOfSpaceIds: [] as readonly string[],
+      friendAccountIds: [] as readonly string[],
+      blockedAccountIds: [] as readonly string[],
     };
     await expect(
       db.write(

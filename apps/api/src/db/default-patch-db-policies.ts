@@ -7,6 +7,7 @@ import {
   PrincipalAttr,
   PrincipalSessionAttr,
 } from '@gamezilla/domain/auth';
+import { CLIENT_CONFIG_ENTITY_TYPE } from '@gamezilla/domain/client-config/client-config-entities';
 import {
   ProfileAttr,
   PROFILE_ENTITY_TYPE,
@@ -42,6 +43,11 @@ export type GamezillaAuthContext = PatchesDbAuthContext & {
   readonly memberOfSpaceIds: readonly string[];
   readonly friendAccountIds: readonly string[];
   readonly blockedAccountIds: readonly string[];
+};
+
+export type GamezillaVisitorContext = {
+  readonly visitorId: string;
+  readonly principalId?: undefined;
 };
 
 type GamezillaVisibilityPolicy = VisibilityPolicy<GamezillaAuthContext>;
@@ -139,8 +145,18 @@ const accountProviderPolicy: GamezillaVisibilityPolicy = {
   },
 };
 
+const clientConfigPolicy: GamezillaVisibilityPolicy = {
+  read: () => READ_WHERE_ALWAYS_TRUE,
+  visitorRead: () => READ_WHERE_ALWAYS_TRUE,
+  write: async (ctx) => {
+    if (isPatchesDbSystemContext(ctx)) return;
+    throw new ForbiddenError('clientConfig is system-only');
+  },
+};
+
 const adminMetricPolicy: GamezillaVisibilityPolicy = {
   read: () => READ_WHERE_ALWAYS_TRUE,
+  visitorRead: () => READ_WHERE_ALWAYS_TRUE,
   write: async (ctx) => {
     if (isPatchesDbSystemContext(ctx)) return;
     throw new ForbiddenError('admin/metric is system-only');
@@ -149,6 +165,7 @@ const adminMetricPolicy: GamezillaVisibilityPolicy = {
 
 const profilePolicy: GamezillaVisibilityPolicy = {
   read: () => READ_WHERE_ALWAYS_TRUE,
+  visitorRead: () => READ_WHERE_ALWAYS_TRUE,
   write: async (ctx, patch, _tx) => {
     if (isPatchesDbSystemContext(ctx)) return;
     requireAuth(ctx);
@@ -337,6 +354,7 @@ const matchPolicy: GamezillaVisibilityPolicy = {
 
 const matchScorePolicy: GamezillaVisibilityPolicy = {
   read: () => READ_WHERE_ALWAYS_TRUE,
+  visitorRead: () => READ_WHERE_ALWAYS_TRUE,
   write: async (ctx) => {
     if (isPatchesDbSystemContext(ctx)) return;
     throw new ForbiddenError('match.score is system-only');
@@ -404,6 +422,7 @@ export const DEFAULT_PATCH_DB_VISIBILITY_POLICIES: Readonly<
   account: accountPolicy,
   [PRINCIPAL_SESSION_ENTITY_TYPE]: principalSessionPolicy,
   [ACCOUNT_PROVIDER_ENTITY_TYPE]: accountProviderPolicy,
+  [CLIENT_CONFIG_ENTITY_TYPE]: clientConfigPolicy,
   'admin/metric': adminMetricPolicy,
   [PROFILE_ENTITY_TYPE]: profilePolicy,
   'profile.private': profilePrivatePolicy,

@@ -62,12 +62,15 @@ export function assertPatch(a: Assert, p: unknown): asserts p is Patch {
   a.field(p, 'createdAt', 'patch.createdAt must be string');
 }
 
-/** Attribute keys for patch metadata. Excluded from entity snapshots by implementations. */
-export const PATCH_META_KEYS: readonly string[] = [
-  'patch/createdBy',
-  'patch/sessionId',
-  'patch/syncedAt',
-] as const;
+export {
+  PATCH_META_KEYS,
+  PATCH_CREATED_BY,
+  PATCH_SESSION_ID,
+  PATCH_SYNCED_AT,
+  PATCH_LAST_MODIFIED_BY_PRINCIPAL,
+  PATCH_LAST_MODIFIED_BY_ACCOUNT,
+  PATCH_LAST_MODIFIED_AT,
+} from './metadata/patch-metadata';
 
 /**
  * For legacy migration only: maps current metadata attr keys to old metadata column keys.
@@ -363,11 +366,23 @@ export type PatchesDbResult = {
 export type Unsubscribe = () => void;
 
 /**
- * Authenticated caller identifier. Only `principalId` is required by the
- * library; consuming apps extend via intersection to carry their own claims
+ * Anonymous visitor identified by a server-set cookie. Has no principalId
+ * or accountId — ABAC policies decide what visitors can read (typically
+ * only public entity types like client config).
+ */
+export type PatchesDbVisitorContext = {
+  readonly visitorId: string;
+  readonly principalId?: undefined;
+};
+
+/**
+ * Authenticated caller identifier. `principalId` is the client-generated
+ * device identity; `visitorId` is the server-assigned cookie identity.
+ * Consuming apps extend via intersection to carry their own claims
  * (e.g. `accountId`, group memberships) into their visibility policies.
  */
 export type PatchesDbAuthContext = {
+  readonly visitorId: string;
   readonly principalId: string;
   readonly [claim: string]: unknown;
 };
@@ -382,7 +397,10 @@ export type PatchesDbSystemContext = {
   reason: string;
 };
 
-export type PatchesDbContext = PatchesDbAuthContext | PatchesDbSystemContext;
+export type PatchesDbContext =
+  | PatchesDbVisitorContext
+  | PatchesDbAuthContext
+  | PatchesDbSystemContext;
 
 /** Default for local-first client DB, tests, and in-process sim — no ABAC filtering. */
 export const OPEN_PATCHES_DB_CONTEXT: PatchesDbSystemContext = {
@@ -405,7 +423,18 @@ export function isPatchesDbSystemContext(
 export function isPatchesDbAuthContext(
   ctx: PatchesDbContext
 ): ctx is PatchesDbAuthContext {
-  return ctx.principalId !== null;
+  return typeof ctx.principalId === 'string';
+}
+
+export function isPatchesDbVisitorContext(
+  ctx: PatchesDbContext
+): ctx is PatchesDbVisitorContext {
+  return (
+    'visitorId' in ctx &&
+    typeof (ctx as Record<string, unknown>)['visitorId'] === 'string' &&
+    ctx.principalId !== null &&
+    typeof ctx.principalId !== 'string'
+  );
 }
 
 /** AND-combines an optional existing where-clause with an additional clause. */

@@ -13,7 +13,7 @@ import {
   ensureAccountProfile,
   ensurePrincipalProfile,
 } from '@gamezilla/client/auth/ensure-profile-entity';
-import { LastModifiedByPatchesDb } from '@gamezilla/client/auth/last-modified-by-patches-db';
+import { PatchMetadataStamper } from '@gamezilla/patch-db/metadata/patch-metadata-stamper';
 import {
   PrincipalServiceToken,
   type PrincipalService,
@@ -23,6 +23,7 @@ import {
   SessionServiceToken,
   type PrincipalSessionRecord,
 } from '@gamezilla/client/auth/session-service';
+import { assertPrincipalId } from '@gamezilla/domain/auth/principal-id';
 import { ConfigServiceToken } from '@gamezilla/domain/config/config-service';
 import { assert } from '@gamezilla/lib/assert';
 import { clearWebClientPersistentState } from '@gamezilla/lib/browser/clear-web-client-state';
@@ -305,22 +306,29 @@ async function performPatchBootstrap(
     accountIdHolder,
     sessionTokenHolder,
   } = deps;
+  let stamper: PatchMetadataStamper | null = null;
   const { container: c } = await bootstrapPatchDbExpoSync({
     apiUrl: String(`${apiBase}/patch-db`),
     transport: createPatchDbHcTransport(createGamezillaApiClient(apiBase), {
       getAuthToken: () => sessionTokenHolder.get(),
     }),
     parentContainer,
-    decoratePatchesDb: (db) =>
-      new LastModifiedByPatchesDb(db, {
+    decoratePatchesDb: (db) => {
+      stamper = new PatchMetadataStamper(db, {
         getPrincipalId: () => principalService.getPrincipalId(),
         getAccountId: () => accountIdHolder.get(),
-      }),
+        assertPrincipalId: (id) => assertPrincipalId(id),
+      });
+      return stamper;
+    },
   });
   assert.ok(
     c instanceof DependencyInjectionContainer,
     'bootstrap must return DependencyInjectionContainer'
   );
+  if (stamper !== null) {
+    await (stamper as PatchMetadataStamper).backfillCreatedBy();
+  }
   await registerSessionService(
     c,
     principalService,

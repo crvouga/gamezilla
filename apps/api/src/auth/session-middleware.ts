@@ -4,25 +4,30 @@ import {
 } from '@gamezilla/domain/auth';
 import { assertPrincipalId } from '@gamezilla/domain/auth/principal-id';
 import { assert } from '@gamezilla/lib/assert';
-import type { PatchesDb } from '@gamezilla/patch-db/interface';
+import type { PatchesDb, PatchesDbContext } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
-import type { GamezillaAuthContext } from '../db/default-patch-db-policies';
+import type {
+  GamezillaAuthContext,
+  GamezillaVisitorContext,
+} from '../db/default-patch-db-policies';
 import { UnauthorizedError } from './unauthorized-error';
 
 export type AuthContext = GamezillaAuthContext;
 
 /**
- * Resolves Bearer session token to principal + account via PatchDB.
- * Returns null if no/malformed Authorization header.
- * Never logs the raw token.
+ * Resolves a request to either a full auth context (when Bearer is valid)
+ * or a visitor context (when only a visitorId cookie is available).
+ * Returns a visitor context instead of null so the ABAC layer can filter
+ * reads for anonymous visitors.
  */
-export async function resolveAuthContext(
+export async function resolvePatchesDbContext(
   db: PatchesDb,
-  request: Request
-): Promise<AuthContext | null> {
+  request: Request,
+  visitorId: string
+): Promise<PatchesDbContext> {
   const header = request.headers.get('Authorization');
   if (header === null || !header.startsWith('Bearer ')) {
-    return null;
+    return { visitorId } satisfies GamezillaVisitorContext;
   }
   const token = header.slice('Bearer '.length).trim();
   assert.ok(token.length > 0, 'Bearer token must be non-empty');
@@ -67,32 +72,34 @@ export async function resolveAuthContext(
     }
 
     return {
+      visitorId,
       principalId,
       accountId,
       memberOfSpaceIds: [],
       friendAccountIds: [],
       blockedAccountIds: [],
-    };
+    } satisfies GamezillaAuthContext;
   }
 
-  return null;
+  return { visitorId } satisfies GamezillaVisitorContext;
 }
 
 /**
- * Same as {@link resolveAuthContext} but returns 401-style failure by throwing
- * if Authorization is present but session is missing or expired.
+ * Same as {@link resolvePatchesDbContext} but throws 401 when there is no
+ * valid Bearer session. Use for endpoints that require authentication.
  */
 export async function requireAuthContext(
   db: PatchesDb,
-  request: Request
+  request: Request,
+  visitorId: string
 ): Promise<AuthContext> {
   const header = request.headers.get('Authorization');
   if (header === null || !header.startsWith('Bearer ')) {
     throw new UnauthorizedError('Missing bearer token');
   }
-  const ctx = await resolveAuthContext(db, request);
-  if (ctx === null) {
+  const ctx = await resolvePatchesDbContext(db, request, visitorId);
+  if (typeof ctx.principalId !== 'string') {
     throw new UnauthorizedError('Invalid or expired session');
   }
-  return ctx;
+  return ctx as AuthContext;
 }

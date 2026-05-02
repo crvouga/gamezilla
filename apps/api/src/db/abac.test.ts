@@ -2,12 +2,13 @@ import { assert } from '@gamezilla/lib/assert';
 import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
-import type { PatchesDb } from '@gamezilla/patch-db/interface';
+import type { PatchesDb, PatchesDbVisitorContext } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { installDefaultPatchDbPolicies } from './install-default-patch-db-policies';
+import type { GamezillaAuthContext } from './default-patch-db-policies';
 
 async function createSqliteFactory(): Promise<{
   db: PatchesDb;
@@ -62,23 +63,25 @@ describe('default ABAC policies (sqlite)', () => {
       PATCHES_DB_SYSTEM_CONTEXT
     );
 
-    const ctxA = {
+    const ctxA: GamezillaAuthContext = {
+      visitorId: crypto.randomUUID(),
       principalId: '00000000-0000-4000-8000-00000000a001',
       accountId: accountA,
-      memberOfSpaceIds: [] as const,
-      friendAccountIds: [] as const,
-      blockedAccountIds: [] as const,
+      memberOfSpaceIds: [],
+      friendAccountIds: [],
+      blockedAccountIds: [],
     };
     const [forA] = await db.read([{ entityType: 'profile.private' }], ctxA);
     assert.defined(forA, 'forA');
     expect(forA.entities.map((e) => e.entityId)).toEqual(['priv-a']);
 
-    const ctxB = {
+    const ctxB: GamezillaAuthContext = {
+      visitorId: crypto.randomUUID(),
       principalId: '00000000-0000-4000-8000-00000000b002',
       accountId: accountB,
-      memberOfSpaceIds: [] as const,
-      friendAccountIds: [] as const,
-      blockedAccountIds: [] as const,
+      memberOfSpaceIds: [],
+      friendAccountIds: [],
+      blockedAccountIds: [],
     };
     const [forB] = await db.read([{ entityType: 'profile.private' }], ctxB);
     assert.defined(forB, 'forB');
@@ -103,12 +106,13 @@ describe('default ABAC policies (sqlite)', () => {
       PATCHES_DB_SYSTEM_CONTEXT
     );
 
-    const ctxB = {
+    const ctxB: GamezillaAuthContext = {
+      visitorId: crypto.randomUUID(),
       principalId: '00000000-0000-4000-8000-00000000c003',
       accountId: accountB,
-      memberOfSpaceIds: [] as const,
-      friendAccountIds: [] as const,
-      blockedAccountIds: [] as const,
+      memberOfSpaceIds: [],
+      friendAccountIds: [],
+      blockedAccountIds: [],
     };
     const [forB] = await db.read(
       [{ entityType: 'profile.private', entityId: 'priv-x' }],
@@ -119,12 +123,13 @@ describe('default ABAC policies (sqlite)', () => {
   });
 
   test('query without entityType is denied for auth context', async () => {
-    const ctx = {
+    const ctx: GamezillaAuthContext = {
+      visitorId: crypto.randomUUID(),
       principalId: '00000000-0000-4000-8000-00000000e004',
       accountId: '00000000-0000-4000-8000-0000000000ee',
-      memberOfSpaceIds: [] as const,
-      friendAccountIds: [] as const,
-      blockedAccountIds: [] as const,
+      memberOfSpaceIds: [],
+      friendAccountIds: [],
+      blockedAccountIds: [],
     };
     const [r] = await db.read([{ on: 'patches', limit: 5 }], ctx);
     assert.defined(r, 'r');
@@ -133,12 +138,13 @@ describe('default ABAC policies (sqlite)', () => {
   });
 
   test('non-system write to stripe.webhook_event is forbidden', async () => {
-    const ctx = {
+    const ctx: GamezillaAuthContext = {
+      visitorId: crypto.randomUUID(),
       principalId: '00000000-0000-4000-8000-00000000f005',
       accountId: '00000000-0000-4000-8000-0000000000ff',
-      memberOfSpaceIds: [] as const,
-      friendAccountIds: [] as const,
-      blockedAccountIds: [] as const,
+      memberOfSpaceIds: [],
+      friendAccountIds: [],
+      blockedAccountIds: [],
     };
     await expect(
       db.write(
@@ -153,6 +159,78 @@ describe('default ABAC policies (sqlite)', () => {
           },
         ],
         ctx
+      )
+    ).rejects.toBeInstanceOf(ForbiddenError);
+  });
+
+  test('visitor context can read clientConfig (public)', async () => {
+    await db.write(
+      [
+        {
+          entityId: 'clientConfig__singleton',
+          entityType: 'clientConfig',
+          attributes: {
+            'clientConfig/googleWebClientId': 'test-id',
+            'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+          },
+        },
+      ],
+      PATCHES_DB_SYSTEM_CONTEXT
+    );
+
+    const visitor: PatchesDbVisitorContext = {
+      visitorId: crypto.randomUUID(),
+    };
+    const [r] = await db.read([{ entityType: 'clientConfig' }], visitor);
+    assert.defined(r, 'r');
+    expect(r.entities).toHaveLength(1);
+    expect(r.entities[0]?.entityId).toBe('clientConfig__singleton');
+  });
+
+  test('visitor context cannot read private entities', async () => {
+    await db.write(
+      [
+        {
+          entityId: 'priv-visitor-test',
+          entityType: 'profile.private',
+          attributes: {
+            'entity/owner': '00000000-0000-4000-8000-0000000000aa',
+            'profile/displayName': 'Private',
+            'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+          },
+        },
+      ],
+      PATCHES_DB_SYSTEM_CONTEXT
+    );
+
+    const visitor: PatchesDbVisitorContext = {
+      visitorId: crypto.randomUUID(),
+    };
+    const [r] = await db.read(
+      [{ entityType: 'profile.private' }],
+      visitor
+    );
+    assert.defined(r, 'r');
+    expect(r.entities).toHaveLength(0);
+  });
+
+  test('visitor context cannot write patches', async () => {
+    const visitor: PatchesDbVisitorContext = {
+      visitorId: crypto.randomUUID(),
+    };
+    await expect(
+      db.write(
+        [
+          {
+            entityId: 'test-entity',
+            entityType: 'clientConfig',
+            attributes: {
+              'clientConfig/googleWebClientId': 'hacked',
+              'patch/createdBy': '__hacker__',
+            },
+          },
+        ],
+        visitor
       )
     ).rejects.toBeInstanceOf(ForbiddenError);
   });
