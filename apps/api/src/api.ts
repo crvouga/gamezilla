@@ -5,6 +5,7 @@ import { makeStripeClient } from '@gamezilla/stripe/make-stripe-client';
 import { createStripeWebhookCacheEntityDb } from '@gamezilla/stripe/webhook-cache-entity-db';
 import { createApiApp } from './app/create-app';
 import { requireAuthContext } from './auth/session-middleware';
+import { parseVisitorIdFromCookies } from './auth/visitor-cookie';
 import type { ApiWorkerEnv } from './config/env';
 import {
   assertDopplerTokenBinding,
@@ -102,7 +103,8 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     secretStore,
     stripe,
     entityDb,
-    requireAuth: requireAuthContext,
+    requireAuth: (db, req) =>
+      requireAuthContext(db, req, parseVisitorIdFromCookies(req)),
     webhookSecretDopplerKey: ApiSecretName.stripeWebhookSecret,
   });
 }
