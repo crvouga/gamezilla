@@ -1,10 +1,10 @@
 import { assert } from '@gamezilla/lib/assert';
 import type {
-  Patch,
   PatchDbContext,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
+  WritePatchesResult,
 } from '../interface';
 import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
 import type { SubscribablePatchDbLike } from '../subscribable';
@@ -51,7 +51,7 @@ export class PatchMetadataStamper implements SubscribablePatchDbLike {
   async write(
     patches: PatchInput[],
     ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
-  ): Promise<Patch[]> {
+  ): Promise<WritePatchesResult> {
     const principalId = this.config.getPrincipalId();
     this.config.assertPrincipalId?.(principalId);
     const accountId = this.config.getAccountId?.() ?? null;

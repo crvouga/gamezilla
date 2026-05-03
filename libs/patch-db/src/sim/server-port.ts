@@ -1,10 +1,10 @@
 import type { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import type {
-  Patch,
   PatchDbContext,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
+  WritePatchesResult,
 } from '../interface';
 
 /**
@@ -12,7 +12,10 @@ import type {
  */
 export type SimServerPort = {
   read(queries: PatchDbQuery[], ctx?: PatchDbContext): Promise<PatchDbResult[]>;
-  write(patches: PatchInput[], ctx?: PatchDbContext): Promise<Patch[]>;
+  write(
+    patches: PatchInput[],
+    ctx?: PatchDbContext
+  ): Promise<WritePatchesResult>;
 };
 
 export function simServerPortFromPubSub(

@@ -6,6 +6,7 @@ import {
   isValidAttribute,
   PATCH_META_KEYS,
 } from '../interface';
+import { patchRowIsSyncRejected } from '../patch-row-sync-rejected';
 import { parseAttributes, rowAttributesText } from './read-ops';
 import { UPSERT_SNAPSHOTS_BATCH } from './sql-constants';
 
@@ -91,6 +92,7 @@ export function mergePatchRowsIntoSnapshotAttrs(
 ): Record<string, unknown> {
   const merged: Record<string, unknown> = {};
   for (const row of rows) {
+    if (patchRowIsSyncRejected(row)) continue;
     const r = toPatchRow(row);
     const attrs = parseAttributes(r.attributes, {
       entity_id: r.entity_id,

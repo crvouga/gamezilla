@@ -131,6 +131,7 @@
     "relname",
     "relnamespace",
     "Replayable",
+    "repoint",
     "resolvectl",
     "retint",
     "SAVEPOINT",

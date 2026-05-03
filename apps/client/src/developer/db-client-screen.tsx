@@ -10,7 +10,9 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { type Href, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
 
-type RawParams = Partial<Record<keyof PatchDbExplorerParams, string | string[]>>;
+type RawParams = Partial<
+  Record<keyof PatchDbExplorerParams, string | string[]>
+>;
 
 function pickString(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) return value[0];

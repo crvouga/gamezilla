@@ -9,7 +9,6 @@ import {
 import { PatchDbHookRegistry } from '@gamezilla/patch-db/hook-registry';
 import type {
   Entity,
-  Patch,
   PatchDb,
   PatchDbCompactionResult,
   PatchDbContext,
@@ -17,6 +16,7 @@ import type {
   PatchDbQueryWhereClause,
   PatchDbResult,
   PatchInput,
+  WritePatchesResult,
 } from '@gamezilla/patch-db/interface';
 import { describe, expect, it } from 'bun:test';
 import {
@@ -112,7 +112,10 @@ class MemoryPatchDb implements PatchDb {
     );
   }
 
-  write(patches: PatchInput[], _ctx?: PatchDbContext): Promise<Patch[]> {
+  write(
+    patches: PatchInput[],
+    _ctx?: PatchDbContext
+  ): Promise<WritePatchesResult> {
     void _ctx;
     for (const p of patches) {
       const idx = this.entities.findIndex(
@@ -135,7 +138,7 @@ class MemoryPatchDb implements PatchDb {
         };
       }
     }
-    return Promise.resolve([] as Patch[]);
+    return Promise.resolve({ accepted: [], rejected: [] });
   }
 
   update(

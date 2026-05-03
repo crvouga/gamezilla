@@ -170,9 +170,7 @@ function short(value: string, max = 28): string {
   return `${value.slice(0, max - 1)}…`;
 }
 
-export type PatchDbExplorerApplyParams = (
-  next: PatchDbExplorerParams
-) => void;
+export type PatchDbExplorerApplyParams = (next: PatchDbExplorerParams) => void;
 
 type ApplyParams = PatchDbExplorerApplyParams;
 
@@ -435,11 +433,7 @@ export function buildExplorerScreenBreadcrumbs(
       onPress: () => applyParams(carryQuery(p, { entityType, entityId })),
     });
   }
-  if (
-    isFilled(p.entityType) &&
-    isFilled(p.entityId) &&
-    isFilled(p.patchId)
-  ) {
+  if (isFilled(p.entityType) && isFilled(p.entityId) && isFilled(p.patchId)) {
     const entityType = p.entityType;
     const entityId = p.entityId;
     const patchId = p.patchId;

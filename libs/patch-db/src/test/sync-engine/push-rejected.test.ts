@@ -5,7 +5,7 @@ import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { afterEach, describe, expect, test } from 'bun:test';
 import { PatchDbImplSqlite } from '../../impl-sqlite/impl-sqlite';
 import { SyncPatchDb } from '../../impl-sync';
-import type { PatchDb, PatchInput } from '../../interface';
+import type { Patch, PatchDb, PatchInput } from '../../interface';
 import {
   OPEN_PATCHES_DB_CONTEXT,
   PATCH_SYNC_REJECTED_AT,
@@ -39,6 +39,39 @@ function createRejectingRemote(
   };
 }
 
+/** Simulates HTTP 200 with partial policy rejection (subset of chunk rejected). */
+function createPartialPolicyRejectRemote(inner: PatchDb): PatchDb {
+  return {
+    get hooks() {
+      return inner.hooks;
+    },
+    get compaction() {
+      return inner.compaction;
+    },
+    read: (queries, ctx) => inner.read(queries, ctx),
+    write: async (patches, ctx) => {
+      if (patches.length !== 2) {
+        return inner.write(patches, ctx);
+      }
+      const [a, b] = patches;
+      assert.defined(a, 'patch a');
+      assert.defined(b, 'patch b');
+      const first = await inner.write([a], ctx);
+      return {
+        accepted: first.accepted,
+        rejected: [
+          {
+            patchId: b.patchId!,
+            code: 'forbidden',
+            reason: 'simulated partial reject',
+          },
+        ],
+      };
+    },
+    update: (updates, ctx) => inner.update(updates, ctx),
+  };
+}
+
 describe('SyncPatchDb push rejection (401/403)', () => {
   let localClient: SqlClient;
   let remoteClient: SqlClient;
@@ -63,6 +96,7 @@ describe('SyncPatchDb push rejection (401/403)', () => {
       pushDriver: 'manual',
       pollDriver: 'manual',
       logPushPollFailures: false,
+      detectServerPatchLossOnPoll: true,
     });
     teardown = async () => {
       syncDb.destroy();
@@ -114,6 +148,7 @@ describe('SyncPatchDb push rejection (401/403)', () => {
       pollDriver: 'manual',
       maxPushBatchSize: 1,
       logPushPollFailures: false,
+      detectServerPatchLossOnPoll: true,
     });
     teardown = async () => {
       syncDb.destroy();
@@ -176,6 +211,7 @@ describe('SyncPatchDb push rejection (401/403)', () => {
       pushDriver: 'manual',
       pollDriver: 'manual',
       logPushPollFailures: false,
+      detectServerPatchLossOnPoll: true,
     });
     teardown = async () => {
       syncDb.destroy();
@@ -196,6 +232,71 @@ describe('SyncPatchDb push rejection (401/403)', () => {
 
     const [remotePatches] = await remoteInner.read(
       [{ on: 'patches', limit: 10 }],
+      OPEN_PATCHES_DB_CONTEXT
+    );
+    assert.defined(remotePatches, 'remotePatches');
+    expect(remotePatches.patches).toHaveLength(1);
+  });
+
+  test('200 partial reject: syncs accepted patches and marks rejected locally', async () => {
+    localClient = SqlClientImplBunSqlite.open(':memory:');
+    remoteClient = SqlClientImplBunSqlite.open(':memory:');
+    await localClient.connect();
+    await remoteClient.connect();
+    const local = new PatchDbImplSqlite(localClient);
+    const remoteInner = new PatchDbImplSqlite(remoteClient);
+    await local.migrate();
+    await remoteInner.migrate();
+    const remote = createPartialPolicyRejectRemote(remoteInner);
+    const pubSub = new InMemoryPubSub();
+    const syncDb = new SyncPatchDb(local, remote, pubSub, {
+      pushDriver: 'manual',
+      pollDriver: 'manual',
+      maxPushBatchSize: 10,
+      logPushPollFailures: false,
+      detectServerPatchLossOnPoll: true,
+    });
+    teardown = async () => {
+      syncDb.destroy();
+      await localClient.disconnect();
+      await remoteClient.disconnect();
+    };
+
+    await syncDb.write([
+      {
+        entityId: 'p1',
+        entityType: 'item',
+        attributes: { 'item/name': 'a' },
+      },
+      {
+        entityId: 'p2',
+        entityType: 'item',
+        attributes: { 'item/name': 'b' },
+      },
+    ]);
+    await syncDb.runPushNow();
+
+    const [localPatches] = await local.read(
+      [{ on: 'patches', limit: 20 }],
+      OPEN_PATCHES_DB_CONTEXT
+    );
+    assert.defined(localPatches, 'localPatches');
+    expect(localPatches.patches).toHaveLength(2);
+    const synced = localPatches.patches.filter(
+      (x: Patch) =>
+        x.attributes['patch/syncedAt'] !== undefined &&
+        x.attributes['patch/syncedAt'] !== null
+    );
+    const rejected = localPatches.patches.filter(
+      (x: Patch) =>
+        x.attributes[PATCH_SYNC_REJECTED_AT] !== undefined &&
+        x.attributes[PATCH_SYNC_REJECTED_AT] !== null
+    );
+    expect(synced).toHaveLength(1);
+    expect(rejected).toHaveLength(1);
+
+    const [remotePatches] = await remoteInner.read(
+      [{ on: 'patches', limit: 20 }],
       OPEN_PATCHES_DB_CONTEXT
     );
     assert.defined(remotePatches, 'remotePatches');

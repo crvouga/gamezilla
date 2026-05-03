@@ -29,3 +29,13 @@ export const PATCH_META_KEYS: readonly string[] = [
   PATCH_LAST_MODIFIED_BY_ACCOUNT,
   PATCH_LAST_MODIFIED_AT,
 ] as const;
+
+/** True when patch attributes carry a server/local sync-rejection marker. */
+export function isSyncRejectedPatchAttributes(
+  attrs: Record<string, unknown>
+): boolean {
+  const v = attrs[PATCH_SYNC_REJECTED_AT];
+  if (v === null || v === undefined || v === false) return false;
+  if (typeof v === 'string') return v.length > 0;
+  return true;
+}

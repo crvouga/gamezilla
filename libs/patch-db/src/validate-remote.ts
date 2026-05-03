@@ -5,6 +5,7 @@ import {
   type Entity,
   type Patch,
   type PatchDbResult,
+  type WritePatchesResult,
 } from './interface';
 
 function assertObject(
@@ -115,5 +116,34 @@ export function assertPatches(value: unknown): asserts value is Patch[] {
   const arr = value;
   for (const patch of arr) {
     assertPatch(patch);
+  }
+}
+
+function assertPatchRejectionReason(value: unknown): void {
+  assertObject(value, 'PatchRejectionReason must be an object');
+  const v = value;
+  assert.ok(
+    typeof v['patchId'] === 'string',
+    'rejection.patchId must be string'
+  );
+  assertPatchId(v['patchId']);
+  assert.ok(typeof v['code'] === 'string', 'rejection.code must be string');
+  assert.ok(typeof v['reason'] === 'string', 'rejection.reason must be string');
+}
+
+/**
+ * Validates remote response for write() after partial-reject wire change.
+ */
+export function assertWriteResponse(
+  value: unknown
+): asserts value is WritePatchesResult {
+  assertObject(value, 'WritePatchesResult must be an object');
+  assert.ok(Array.isArray(value['accepted']), 'accepted must be an array');
+  assert.ok(Array.isArray(value['rejected']), 'rejected must be an array');
+  for (const p of value['accepted'] as unknown[]) {
+    assertPatch(p);
+  }
+  for (const r of value['rejected'] as unknown[]) {
+    assertPatchRejectionReason(r);
   }
 }

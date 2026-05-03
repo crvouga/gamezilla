@@ -4,11 +4,11 @@ import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import type { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
 import type { SyncPatchDb } from '../impl-sync';
 import type {
-  Patch,
   PatchDb,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
+  WritePatchesResult,
 } from '../interface';
 import type { NetworkLink } from './network-link';
 import type { SimServerPort } from './server-port';
@@ -58,7 +58,7 @@ export type SimLink = {
 export type SimClient = {
   id: string;
   /** Write patches to local (unsynced). */
-  write(patches: PatchInput[]): Promise<Patch[]>;
+  write(patches: PatchInput[]): Promise<WritePatchesResult>;
   /** Read from local db. */
   read(queries: PatchDbQuery[]): Promise<PatchDbResult[]>;
   /** Run one push cycle + flush microtasks. */

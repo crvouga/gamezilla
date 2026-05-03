@@ -1,10 +1,12 @@
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import type {
   Patch,
+  PatchDbBeforeWriteHookResult,
   PatchDbContext,
   PatchDbHooks,
   PatchDbQuery,
   PatchInput,
+  PatchRejectionReason,
   Unsubscribe,
 } from './interface';
 
@@ -17,13 +19,22 @@ type BeforeWriteFn = (
   patches: PatchInput[],
   ctx: PatchDbContext,
   tx: SqlClient
-) => PatchInput[] | Promise<PatchInput[]>;
+) => PatchDbBeforeWriteHookResult | Promise<PatchDbBeforeWriteHookResult>;
 
 type AfterWriteFn = (
   written: Patch[],
   ctx: PatchDbContext,
   tx: SqlClient
 ) => void | Promise<void>;
+
+export function normalizeBeforeWriteHookResult(
+  result: PatchDbBeforeWriteHookResult
+): { accepted: PatchInput[]; rejected: PatchRejectionReason[] } {
+  if (Array.isArray(result)) {
+    return { accepted: result, rejected: [] };
+  }
+  return result;
+}
 
 /**
  * Composable hook lists; {@link PatchDbImplSqlite} / {@link PatchDbImplPostgres}
@@ -73,12 +84,15 @@ export class PatchDbHookRegistry implements PatchDbHooks {
     patches: PatchInput[],
     ctx: PatchDbContext,
     tx: SqlClient
-  ): Promise<PatchInput[]> {
-    let p = patches;
+  ): Promise<{ accepted: PatchInput[]; rejected: PatchRejectionReason[] }> {
+    let acc = patches;
+    const mergedRejected: PatchRejectionReason[] = [];
     for (const fn of this.beforeWriteFns) {
-      p = await fn(p, ctx, tx);
+      const out = normalizeBeforeWriteHookResult(await fn(acc, ctx, tx));
+      mergedRejected.push(...out.rejected);
+      acc = out.accepted;
     }
-    return p;
+    return { accepted: acc, rejected: mergedRejected };
   }
 
   async runAfterWrite(

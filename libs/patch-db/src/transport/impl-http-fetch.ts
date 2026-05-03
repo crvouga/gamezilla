@@ -1,13 +1,13 @@
 import { assert } from '@gamezilla/lib/assert';
 import { assertUrl } from '../assert-url';
 import type {
-  Patch,
   PatchDbContext,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
+  WritePatchesResult,
 } from '../interface';
-import { assertPatchDbResults, assertPatches } from '../validate-remote';
+import { assertPatchDbResults, assertWriteResponse } from '../validate-remote';
 import type { PatchDbClientTransport } from './interface';
 import {
   NO_CACHE_REQUEST_HEADERS,
@@ -99,7 +99,10 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
     return raw;
   }
 
-  async write(patches: PatchInput[], _ctx?: PatchDbContext): Promise<Patch[]> {
+  async write(
+    patches: PatchInput[],
+    _ctx?: PatchDbContext
+  ): Promise<WritePatchesResult> {
     void _ctx;
     assert.ok(
       patches.length > 0,
@@ -129,7 +132,7 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
       throwHttpFailure(res, text);
     }
     const raw: unknown = await res.json();
-    assertPatches(raw);
+    assertWriteResponse(raw);
     return raw;
   }
 }

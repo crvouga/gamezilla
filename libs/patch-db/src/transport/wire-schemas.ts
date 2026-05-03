@@ -27,3 +27,15 @@ export const patchDbWriteBodySchema = z.object({
     .min(1)
     .max(MAX_PATCHES_PER_REQUEST),
 });
+
+const patchRejectionReasonSchema = z.object({
+  patchId: z.string(),
+  code: z.string(),
+  reason: z.string(),
+});
+
+/** Wire JSON body for successful `/patches/write` responses. */
+export const patchDbWriteResponseSchema = z.object({
+  accepted: z.array(z.record(z.string(), z.unknown())),
+  rejected: z.array(patchRejectionReasonSchema),
+});

@@ -151,6 +151,8 @@ async function bootstrapPatchDbExpoSync(
     const syncDb = new SyncPatchDb(localDb, remoteDb, pubSub, {
       pushIntervalMs,
       pollIntervalMs,
+      // Server read is ABAC-filtered; omitting patch ids must not clear patch/syncedAt.
+      detectServerPatchLossOnPoll: false,
     });
 
     const dbForDi: SubscribablePatchDbLike =

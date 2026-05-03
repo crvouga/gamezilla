@@ -1,9 +1,9 @@
 import type {
-  Patch,
   PatchDbContext,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
+  WritePatchesResult,
 } from '../interface';
 import type { PatchDbClientTransport } from '../transport/interface';
 import type { SimEventRecorder } from './event-recorder';
@@ -53,7 +53,10 @@ export class SimulatedPatchDbClientTransport implements PatchDbClientTransport {
     });
   }
 
-  write(patches: PatchInput[], ctx?: PatchDbContext): Promise<Patch[]> {
+  write(
+    patches: PatchInput[],
+    ctx?: PatchDbContext
+  ): Promise<WritePatchesResult> {
     return this.link.invoke('write', async () => {
       const out = await this.server.write(patches, ctx);
       if (this.recording) {
@@ -62,7 +65,7 @@ export class SimulatedPatchDbClientTransport implements PatchDbClientTransport {
           type: 'remote_write',
           clientId,
           summaries: summarizePatchInputs(patches),
-          returnedPatchCount: out.length,
+          returnedPatchCount: out.accepted.length + out.rejected.length,
           time: getTime(),
         });
       }

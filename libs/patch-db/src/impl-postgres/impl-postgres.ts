@@ -13,6 +13,8 @@ import type {
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
+  PatchRejectionReason,
+  WritePatchesResult,
 } from '../interface';
 import {
   assertAttribute,
@@ -23,8 +25,10 @@ import {
   OPEN_PATCHES_DB_CONTEXT,
   PATCH_META_KEYS,
 } from '../interface';
+import { patchRowIsSyncRejected } from '../patch-row-sync-rejected';
 import { DEFAULT_PATCH_DB_COMPACTION_POLICY } from '../policy/compaction-policy';
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '../policy/system-principal';
+import { finishCompactionAfterInsert } from '../compact-entity-tx-helpers';
 import { topologicalSortPatches } from '../topological-sort';
 import { migratePatchDbPostgres } from './migrate';
 import { readPatches } from './read-ops';
@@ -35,7 +39,6 @@ import {
   toPatchRow,
 } from './snapshot-ops';
 import {
-  DELETE_PATCH_BY_ID,
   INSERT_PATCH,
   INSERT_PATCHES_BATCH,
   RESOLVE_PARENT_ID,
@@ -88,6 +91,16 @@ export class PatchDbImplPostgres implements PatchDb {
     ]);
     const first = rows[0];
     return first !== null && first !== undefined ? first.patch_id : null;
+  }
+
+  private assignPatchIdsIfMissing(
+    patches: readonly PatchInput[]
+  ): PatchInput[] {
+    return patches.map((p) =>
+      typeof p.patchId === 'string' && p.patchId.length >= 8
+        ? p
+        : { ...p, patchId: crypto.randomUUID() }
+    );
   }
 
   private assertPatchInputs(patches: PatchInput[]): void {
@@ -245,12 +258,13 @@ export class PatchDbImplPostgres implements PatchDb {
       entityId,
       entityType,
     ]);
-    if (rows.length <= keepLatest + 1) {
+    const activeRows = rows.filter((r) => !patchRowIsSyncRejected(r));
+    if (activeRows.length <= keepLatest + 1) {
       return { removedPatchIds: [], compactionPatchId: null };
     }
 
-    const mergeSet = rows.slice(0, rows.length - keepLatest);
-    const firstKept = rows[mergeSet.length];
+    const mergeSet = activeRows.slice(0, activeRows.length - keepLatest);
+    const firstKept = activeRows[mergeSet.length];
     assert.defined(firstKept, 'compactEntityInTx: firstKept must exist');
 
     const merged = mergePatchRowsIntoSnapshotAttrs(
@@ -275,21 +289,26 @@ export class PatchDbImplPostgres implements PatchDb {
       null,
     ]);
 
-    await tx.run(`UPDATE patches SET parent_id = ? WHERE patch_id = ?`, [
-      patchId,
-      firstKept.patch_id,
-    ]);
-
-    const removedPatchIds: string[] = [];
-    for (let i = mergeSet.length - 1; i >= 0; i--) {
-      const row = mergeSet[i];
-      assert.defined(row, 'mergeSet row');
-      await tx.run(DELETE_PATCH_BY_ID, [row.patch_id]);
-      removedPatchIds.push(row.patch_id);
-    }
+    const removedPatchIds = await finishCompactionAfterInsert(tx, {
+      compactionPatchId: patchId,
+      entityId,
+      entityType,
+      mergeSet,
+      firstKeptPatchId: firstKept.patch_id,
+    });
 
     await recomputeSnapshotSingle(tx, entityId, entityType);
     return { removedPatchIds, compactionPatchId: patchId };
+  }
+
+  private async runAfterWriteCompactionPass(
+    tx: SqlClient,
+    touchedEntities: Set<string>
+  ): Promise<void> {
+    for (const key of touchedEntities) {
+      const [entityId, entityType] = key.split('\0') as [string, string];
+      await this.maybeAutoCompactAfterWrite(tx, entityId, entityType);
+    }
   }
 
   private async maybeAutoCompactAfterWrite(
@@ -311,31 +330,45 @@ export class PatchDbImplPostgres implements PatchDb {
       entityId,
       entityType,
     ]);
-    if (rows.length <= policy.keepLatest + slack) return;
+    const activeCount = rows.filter((r) => !patchRowIsSyncRejected(r)).length;
+    if (activeCount <= policy.keepLatest + slack) return;
     await this.compactEntityInTx(tx, entityId, entityType, policy.keepLatest);
   }
 
   async write(
     patches: PatchInput[],
     ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
-  ): Promise<Patch[]> {
+  ): Promise<WritePatchesResult> {
     this.assertPatchInputs(patches);
+    const withIds = this.assignPatchIdsIfMissing(patches);
     let writtenPatches: Patch[] = [];
+    let hookRejected: PatchRejectionReason[] = [];
     await this.sqlClient.transaction(async (tx) => {
-      const sortedInput = topologicalSortPatches(
-        await this.hooks.runBeforeWrite(patches, ctx, tx)
+      const { accepted, rejected } = await this.hooks.runBeforeWrite(
+        withIds,
+        ctx,
+        tx
       );
-      const acc = await this.accumulateWritePatches(tx, sortedInput);
+      hookRejected = rejected;
+      const sortedInput =
+        accepted.length === 0 ? [] : topologicalSortPatches(accepted);
+      const acc =
+        sortedInput.length > 0
+          ? await this.accumulateWritePatches(tx, sortedInput)
+          : {
+              writtenPatches: [] as Patch[],
+              batchRows: [] as PatchInsertBatchRow[],
+              touchedEntities: new Set<string>(),
+            };
       writtenPatches = acc.writtenPatches;
-      await this.insertPatchRowsBatch(tx, acc.batchRows);
+      if (acc.batchRows.length > 0) {
+        await this.insertPatchRowsBatch(tx, acc.batchRows);
+      }
       await recomputeTouchedSnapshots(tx, acc.touchedEntities);
       await this.hooks.runAfterWrite(writtenPatches, ctx, tx);
-      for (const key of acc.touchedEntities) {
-        const [entityId, entityType] = key.split('\0') as [string, string];
-        await this.maybeAutoCompactAfterWrite(tx, entityId, entityType);
-      }
+      await this.runAfterWriteCompactionPass(tx, acc.touchedEntities);
     });
-    return writtenPatches;
+    return { accepted: writtenPatches, rejected: hookRejected };
   }
 
   async read(
@@ -349,12 +382,32 @@ export class PatchDbImplPostgres implements PatchDb {
     return readPatches(this.sqlClient, rewritten);
   }
 
+  private async distinctEntityKeysForPatchIds(
+    patchIds: readonly string[]
+  ): Promise<Set<string>> {
+    if (patchIds.length === 0) return new Set();
+    const ph = patchIds.map(() => '?').join(', ');
+    const rows = await this.sqlClient.query<{
+      entity_id: string;
+      entity_type: string;
+    }>(
+      `SELECT DISTINCT entity_id, entity_type FROM patches WHERE patch_id IN (${ph})`,
+      [...patchIds]
+    );
+    const keys = new Set<string>();
+    for (const r of rows) {
+      keys.add(`${r.entity_id}\0${r.entity_type}`);
+    }
+    return keys;
+  }
+
   async update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
     _ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<void> {
     void _ctx;
     if (updates.length === 0) return;
+    const touchedPatchIds: string[] = [];
     for (const { patchId, attributes } of updates) {
       if (Object.keys(attributes).length === 0) continue;
       for (const key of Object.keys(attributes)) {
@@ -370,7 +423,15 @@ export class PatchDbImplPostgres implements PatchDb {
       }
       const sql = `UPDATE patches SET attributes = ${expr} WHERE patch_id = ?`;
       await this.sqlClient.run(sql, [...bind, patchId]);
+      touchedPatchIds.push(patchId);
     }
+    if (touchedPatchIds.length === 0) return;
+    const touchedEntities =
+      await this.distinctEntityKeysForPatchIds(touchedPatchIds);
+    if (touchedEntities.size === 0) return;
+    await this.sqlClient.transaction(async (tx) => {
+      await recomputeTouchedSnapshots(tx, touchedEntities);
+    });
   }
 
   async compactEntity(

@@ -63,6 +63,8 @@ export type CreateSyncDbFactoryOptions = {
   pollDriver?: 'interval' | 'manual';
   scheduler?: SyncPatchDbScheduler;
   maxPushBatchSize?: number;
+  /** Default true for in-memory sim tests (server-loss recovery). */
+  detectServerPatchLossOnPoll?: boolean;
 };
 
 function buildSyncOptions(
@@ -80,6 +82,8 @@ function buildSyncOptions(
   if (opts.maxPushBatchSize !== undefined) {
     syncOptions.maxPushBatchSize = opts.maxPushBatchSize;
   }
+  syncOptions.detectServerPatchLossOnPoll =
+    opts.detectServerPatchLossOnPoll ?? true;
   return syncOptions;
 }
 

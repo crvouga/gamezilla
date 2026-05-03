@@ -141,6 +141,7 @@ async function createClientRuntime(
     pollDriver: 'manual',
     pushIntervalMs: 10,
     logPushPollFailures: false,
+    detectServerPatchLossOnPoll: true,
   });
 
   const cr: ClientRuntime = {

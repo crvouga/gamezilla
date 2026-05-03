@@ -1,11 +1,11 @@
 import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
 import type {
-  Patch,
   PatchDb,
   PatchDbContext,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
+  WritePatchesResult,
 } from '../interface';
 import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
 
@@ -39,7 +39,7 @@ export class NotifyingPatchDb implements PatchDb {
   async write(
     patches: PatchInput[],
     ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
-  ): Promise<Patch[]> {
+  ): Promise<WritePatchesResult> {
     const out = await this.inner.write(patches, ctx);
     this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
     return out;

@@ -1,7 +1,7 @@
 import { assert } from '@gamezilla/lib/assert';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { PatchDb } from '../interface';
-import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
+import { OPEN_PATCHES_DB_CONTEXT, PATCH_SYNC_REJECTED_AT } from '../interface';
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '../policy/system-principal';
 import { createSqliteFactory } from './test-helpers';
 
@@ -87,5 +87,42 @@ describe('compaction (sqlite)', () => {
     );
     expect(r.removedPatchIds).toHaveLength(0);
     expect(r.compactionPatchId).toBeNull();
+  });
+
+  test('compactEntity succeeds when a middle patch is sync-rejected (FK orphans)', async () => {
+    const entityId = '00000000-0000-4000-8000-00000000deed';
+    for (let i = 0; i < 5; i++) {
+      const w = await db.write([
+        {
+          entityId,
+          entityType: WIDGET_ENTITY_TYPE,
+          attributes: {
+            [WIDGET_ID_ATTR]: entityId,
+            [WIDGET_NAME_ATTR]: `r${i}`,
+            'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+          },
+        },
+      ]);
+      expect(w.rejected).toHaveLength(0);
+      if (i === 1) {
+        const p = w.accepted[0];
+        assert.defined(p, 'patch 1');
+        await db.update([
+          {
+            patchId: p.patchId,
+            attributes: {
+              [PATCH_SYNC_REJECTED_AT]: new Date().toISOString(),
+            },
+          },
+        ]);
+      }
+    }
+    const compacted = await db.compaction.compactEntity(
+      { entityId, entityType: WIDGET_ENTITY_TYPE },
+      { keepLatest: 2 },
+      OPEN_PATCHES_DB_CONTEXT
+    );
+    expect(compacted.removedPatchIds.length).toBeGreaterThan(0);
+    expect(compacted.compactionPatchId).not.toBeNull();
   });
 });

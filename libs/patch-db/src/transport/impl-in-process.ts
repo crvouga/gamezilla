@@ -4,12 +4,13 @@ import {
   assertPatchInput,
   assertQuery,
   OPEN_PATCHES_DB_CONTEXT,
-  type Patch,
   type PatchDbContext,
   type PatchDbQuery,
   type PatchDbResult,
   type PatchInput,
+  type WritePatchesResult,
 } from '../interface';
+import { assertWriteResponse } from '../validate-remote';
 import type { PatchDbClientTransport, PatchDbSyncHost } from './interface';
 
 function assertPatchDbResultShape(r: PatchDbResult, index: number): void {
@@ -121,7 +122,7 @@ export class PatchDbTransportInProcess implements PatchDbClientTransport {
   async write(
     patches: PatchInput[],
     ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
-  ): Promise<Patch[]> {
+  ): Promise<WritePatchesResult> {
     assert.array(
       patches,
       'PatchDbTransportInProcess.write: patches must be an array'
@@ -141,17 +142,18 @@ export class PatchDbTransportInProcess implements PatchDbClientTransport {
     );
 
     const out = await this.host.write(patches, ctx);
-    assert.array(
-      out,
-      'PatchDbTransportInProcess.write: host.write must return an array'
-    );
+    assertWriteResponse(out);
     assert.ok(
-      out.length === patches.length,
-      'PatchDbTransportInProcess.write: one Patch per input patch',
-      { expected: patches.length, actual: out.length }
+      out.accepted.length + out.rejected.length === patches.length,
+      'PatchDbTransportInProcess.write: host.write must account for every input patch',
+      {
+        expected: patches.length,
+        accepted: out.accepted.length,
+        rejected: out.rejected.length,
+      }
     );
-    for (let i = 0; i < out.length; i++) {
-      assertPatch(assert, out[i]);
+    for (const p of out.accepted) {
+      assertPatch(assert, p);
     }
 
     return out;

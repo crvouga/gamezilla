@@ -2,12 +2,12 @@ import { assert } from '@gamezilla/lib/assert';
 import { createLogger, type Logger } from '@gamezilla/lib/logger';
 import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
 import type {
-  Patch,
   PatchDb,
   PatchDbContext,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
+  WritePatchesResult,
 } from '../interface';
 import {
   OPEN_PATCHES_DB_CONTEXT,
@@ -98,7 +98,7 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
   async write(
     patches: PatchInput[],
     ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
-  ): Promise<Patch[]> {
+  ): Promise<WritePatchesResult> {
     this.touchActivity();
     this.counters.totalPatchesWritten += patches.length;
     return this.inner.write(patches, ctx);

@@ -40,7 +40,9 @@ describe.each(implementations)('$name', ({ factory }) => {
       attributes: { 'task/priority': null },
     };
 
-    const written = await db.write([p1, p2, p3]);
+    const w = await db.write([p1, p2, p3]);
+    expect(w.rejected).toHaveLength(0);
+    const written = w.accepted;
     expect(written).toHaveLength(3);
 
     const results = await db.read([{ entityType: 'task', entityId: 'e1' }]);
@@ -122,7 +124,8 @@ describe.each(implementations)('$name', ({ factory }) => {
       { entityId: 'e3', entityType: 'task', attributes: { 'task/a': 1 } },
       { entityId: 'e3', entityType: 'task', attributes: { 'task/a': 2 } },
     ]);
-    const p1 = p1Written[0];
+    expect(p1Written.rejected).toHaveLength(0);
+    const p1 = p1Written.accepted[0];
     assert.defined(p1, 'p1 must be defined');
     const syncedP3 = {
       entityId: 'e3',
@@ -152,7 +155,8 @@ describe.each(implementations)('$name', ({ factory }) => {
         attributes: { 'todo/done': false },
       },
     ]);
-    const rootPatch = root[0];
+    expect(root.rejected).toHaveLength(0);
+    const rootPatch = root.accepted[0];
     assert.defined(rootPatch, 'rootPatch must be defined');
 
     const idA = crypto.randomUUID();
@@ -189,7 +193,9 @@ describe.each(implementations)('$name', ({ factory }) => {
       makeSynced(idC, idB, true), // C before B
     ];
 
-    const written = await db.write(patches);
+    const writtenOut = await db.write(patches);
+    expect(writtenOut.rejected).toHaveLength(0);
+    const written = writtenOut.accepted;
     expect(written).toHaveLength(5);
 
     const results = await db.read([{ entityType: 'todo', entityId: 'e4' }]);
@@ -208,7 +214,8 @@ describe.each(implementations)('$name', ({ factory }) => {
       { entityId: 'e7', entityType: 'todo', attributes: { 'todo/n': 0 } },
       { entityId: 'e7', entityType: 'todo', attributes: { 'todo/n': 1 } },
     ]);
-    const leaf = chain[1];
+    expect(chain.rejected).toHaveLength(0);
+    const leaf = chain.accepted[1];
     assert.defined(leaf, 'leaf patch must be defined');
     const phantomParent = crypto.randomUUID();
     const childId = crypto.randomUUID();
@@ -254,7 +261,8 @@ describe.each(implementations)('$name', ({ factory }) => {
         },
       },
     ]);
-    const createPatch = createWritten[0];
+    expect(createWritten.rejected).toHaveLength(0);
+    const createPatch = createWritten.accepted[0];
     assert.defined(createPatch, 'createPatch must be defined');
     const deleteWritten = await db.write([
       {
@@ -263,7 +271,8 @@ describe.each(implementations)('$name', ({ factory }) => {
         attributes: { 'todoList/deleted': true },
       },
     ]);
-    const deletePatch = deleteWritten[0];
+    expect(deleteWritten.rejected).toHaveLength(0);
+    const deletePatch = deleteWritten.accepted[0];
     assert.defined(deletePatch, 'deletePatch must be defined');
 
     const unsyncedResults = await db.read([
@@ -303,5 +312,40 @@ describe.each(implementations)('$name', ({ factory }) => {
     const afterSync = afterSyncResults[0];
     assert.defined(afterSync, 'afterSync must be defined');
     expect(afterSync.patches).toHaveLength(0);
+  });
+
+  test('entity snapshot ignores patches marked sync-rejected', async () => {
+    const entityId = 'e-rej';
+    const w = await db.write([
+      {
+        entityId,
+        entityType: 'task',
+        attributes: { 'task/title': 'Before reject' },
+      },
+      {
+        entityId,
+        entityType: 'task',
+        attributes: { 'task/priority': 'high' },
+      },
+    ]);
+    expect(w.rejected).toHaveLength(0);
+    const [, second] = w.accepted;
+    assert.defined(second, 'second patch');
+    await db.update([
+      {
+        patchId: second.patchId,
+        attributes: {
+          'patch/syncRejectedAt': new Date().toISOString(),
+          'patch/syncRejectedReason': 'forbidden: test',
+        },
+      },
+    ]);
+    const [r] = await db.read([{ entityType: 'task', entityId }]);
+    assert.defined(r, 'result');
+    expect(r.entities).toHaveLength(1);
+    const ent = r.entities[0];
+    assert.defined(ent, 'entity');
+    expect(ent.attributes['task/title']).toBe('Before reject');
+    expect(ent.attributes).not.toHaveProperty('task/priority');
   });
 });

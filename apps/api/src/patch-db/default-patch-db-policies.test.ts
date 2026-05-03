@@ -5,7 +5,6 @@ import {
 import { assert } from '@gamezilla/lib/assert';
 import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
-import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
@@ -81,20 +80,21 @@ describe('gamezilla default policies (system + auth writes)', () => {
       friendAccountIds: [] as readonly string[],
       blockedAccountIds: [] as readonly string[],
     };
-    await expect(
-      db.write(
-        [
-          {
-            entityId: principalId,
-            entityType: PROFILE_ENTITY_TYPE,
-            attributes: {
-              [ProfileAttr.id]: principalId,
-              'patch/createdBy': '00000000-0000-4000-8000-00000000dead',
-            },
+    const out = await db.write(
+      [
+        {
+          entityId: principalId,
+          entityType: PROFILE_ENTITY_TYPE,
+          attributes: {
+            [ProfileAttr.id]: principalId,
+            'patch/createdBy': '00000000-0000-4000-8000-00000000dead',
           },
-        ],
-        ctx
-      )
-    ).rejects.toBeInstanceOf(ForbiddenError);
+        },
+      ],
+      ctx
+    );
+    expect(out.accepted).toHaveLength(0);
+    expect(out.rejected).toHaveLength(1);
+    expect(out.rejected[0]?.code).toBe('forbidden');
   });
 });

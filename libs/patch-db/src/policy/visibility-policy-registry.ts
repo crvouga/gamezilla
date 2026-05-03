@@ -1,3 +1,4 @@
+import { assert } from '@gamezilla/lib/assert';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { ForbiddenError } from '../forbidden-error';
 import type {
@@ -7,6 +8,7 @@ import type {
   PatchDbQueryWhereClause,
   PatchDbVisitorContext,
   PatchInput,
+  PatchRejectionReason,
 } from '../interface';
 import {
   andWhereClause,
@@ -101,17 +103,45 @@ export class VisibilityPolicyRegistry<
     });
 
     const offWrite = db.hooks.beforeWrite(async (patches, ctx, tx) => {
-      if (isPatchDbSystemContext(ctx)) return patches;
+      if (isPatchDbSystemContext(ctx)) {
+        return { accepted: patches, rejected: [] };
+      }
+      const accepted: PatchInput[] = [];
+      const rejected: PatchRejectionReason[] = [];
+      const truncate = (s: string): string => s.slice(0, 256);
       for (const p of patches) {
+        assert.ok(
+          typeof p.patchId === 'string' && p.patchId.length > 0,
+          'visibility beforeWrite expects patchId (assign before hooks in impl)'
+        );
+        const patchId = p.patchId;
         const policy = this.policies.get(p.entityType);
         if (policy === undefined) {
-          throw new ForbiddenError('no visibility policy for entity type', {
-            entityType: p.entityType,
+          rejected.push({
+            patchId,
+            code: 'unknown_entity_type',
+            reason: truncate(
+              `no visibility policy for entity type ${p.entityType}`
+            ),
           });
+          continue;
         }
-        await policy.write(ctx, p, tx);
+        try {
+          await policy.write(ctx, p, tx);
+          accepted.push(p);
+        } catch (e: unknown) {
+          if (e instanceof ForbiddenError) {
+            rejected.push({
+              patchId,
+              code: 'forbidden',
+              reason: truncate(e.message),
+            });
+            continue;
+          }
+          throw e;
+        }
       }
-      return patches;
+      return { accepted, rejected };
     });
 
     return () => {

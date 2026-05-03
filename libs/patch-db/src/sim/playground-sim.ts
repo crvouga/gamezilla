@@ -208,6 +208,7 @@ function buildClientFromSql(
     pollDriver: 'manual',
     pushIntervalMs: 10,
     logPushPollFailures: false,
+    detectServerPatchLossOnPoll: true,
   });
   const runtime: ClientRuntime = {
     id,

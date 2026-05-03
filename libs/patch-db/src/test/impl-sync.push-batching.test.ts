@@ -1,12 +1,12 @@
 import { assert } from '@gamezilla/lib/assert';
 import { describe, expect, test } from 'bun:test';
 import type {
-  Patch,
   PatchDb,
   PatchDbContext,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
+  WritePatchesResult,
 } from '../interface';
 import { MAX_PATCHES_PER_REQUEST } from '../transport/wire-schemas';
 import { createSyncDbFactory } from './test-helpers';
@@ -34,7 +34,10 @@ class WireContractRecordingRemote implements PatchDb {
     return this.inner.read(queries, ctx);
   }
 
-  async write(patches: PatchInput[], ctx?: PatchDbContext): Promise<Patch[]> {
+  async write(
+    patches: PatchInput[],
+    ctx?: PatchDbContext
+  ): Promise<WritePatchesResult> {
     assert.ok(
       patches.length > 0,
       'remote.write must never receive an empty batch',

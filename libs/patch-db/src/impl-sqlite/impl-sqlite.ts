@@ -11,30 +11,34 @@ import type {
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
+  PatchRejectionReason,
+  WritePatchesResult,
 } from '../interface';
 import {
   assertAttribute,
   assertEntityKey,
   assertPatchId,
   getPatchTopLevelFromAttributes,
-  isValidAttribute,
   normalizePatchAttributesForStorage,
   OPEN_PATCHES_DB_CONTEXT,
   PATCH_META_KEYS,
 } from '../interface';
+import { patchRowIsSyncRejected } from '../patch-row-sync-rejected';
 import { DEFAULT_PATCH_DB_COMPACTION_POLICY } from '../policy/compaction-policy';
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '../policy/system-principal';
+import { finishCompactionAfterInsert } from '../compact-entity-tx-helpers';
 import { topologicalSortPatches } from '../topological-sort';
-import { parseAttributes } from './mappers';
 import { migratePatchDbSqlite } from './migrate';
 import { readPatches } from './read-ops';
 import {
-  DELETE_PATCH_BY_ID,
-  DELETE_SNAPSHOT,
+  mergePatchRowsIntoMergedRecord,
+  recomputeSnapshot,
+  recomputeTouchedSnapshots,
+} from './sqlite-snapshot-recompute';
+import {
   INSERT_PATCH,
   RESOLVE_PARENT_ID,
   SELECT_PATCHES_FOR_SNAPSHOT,
-  UPSERT_SNAPSHOT,
 } from './sql-constants';
 import type { PatchRow } from './types';
 import { buildSqliteUpdateJsonSet } from './update-ops';
@@ -61,56 +65,6 @@ export class PatchDbImplSqlite implements PatchDb {
 
   async migrate(): Promise<void> {
     await migratePatchDbSqlite(this.sqlClient);
-  }
-
-  private mergePatchRowsIntoMergedRecord(
-    rows: readonly PatchRow[]
-  ): Record<string, unknown> {
-    const merged: Record<string, unknown> = {};
-    for (const row of rows) {
-      const attrs = parseAttributes(row.attributes, {
-        entity_id: row.entity_id,
-        entity_type: row.entity_type,
-        patch_id: row.patch_id,
-      });
-      for (const [key, value] of Object.entries(attrs)) {
-        if (!isValidAttribute(key) || PATCH_META_KEYS.includes(key)) continue;
-        if (value === null) {
-          delete merged[key];
-        } else {
-          merged[key] = value;
-        }
-      }
-    }
-    return merged;
-  }
-
-  private async recomputeSnapshot(
-    tx: SqlClient,
-    entityId: string,
-    entityType: string
-  ): Promise<void> {
-    assertEntityKey(entityId, entityType);
-    const rows = await tx.query<PatchRow>(SELECT_PATCHES_FOR_SNAPSHOT, [
-      entityId,
-      entityType,
-      entityId,
-      entityType,
-      entityId,
-      entityType,
-    ]);
-
-    const merged = this.mergePatchRowsIntoMergedRecord(rows);
-
-    if (Object.keys(merged).length === 0) {
-      await tx.run(DELETE_SNAPSHOT, [entityId, entityType]);
-    } else {
-      await tx.run(UPSERT_SNAPSHOT, [
-        entityId,
-        entityType,
-        JSON.stringify(merged),
-      ]);
-    }
   }
 
   private async resolveParentId(
@@ -168,6 +122,16 @@ export class PatchDbImplSqlite implements PatchDb {
     return await this.resolveParentId(tx, patch.entityId, patch.entityType);
   }
 
+  private assignPatchIdsIfMissing(
+    patches: readonly PatchInput[]
+  ): PatchInput[] {
+    return patches.map((p) =>
+      typeof p.patchId === 'string' && p.patchId.length >= 8
+        ? p
+        : { ...p, patchId: globalThis.crypto.randomUUID() }
+    );
+  }
+
   private assertPatchInputs(patches: PatchInput[]): void {
     assert.ok(patches.length > 0, 'patches must not be empty');
     assert.all(patches, (patch): asserts patch is PatchInput => {
@@ -219,31 +183,6 @@ export class PatchDbImplSqlite implements PatchDb {
     };
   }
 
-  private async recomputeTouchedSnapshots(
-    tx: SqlClient,
-    touchedEntities: Set<string>
-  ): Promise<void> {
-    for (const key of touchedEntities) {
-      const parts = key.split('\0');
-      assert.ok(
-        parts.length === 2,
-        'Entity key must contain exactly one null separator',
-        { key }
-      );
-      const entityId = parts[0];
-      assert.defined(
-        entityId,
-        'Entity key must contain exactly one null separator'
-      );
-      const entityType = parts[1];
-      assert.defined(
-        entityType,
-        'Entity key must contain exactly one null separator'
-      );
-      await this.recomputeSnapshot(tx, entityId, entityType);
-    }
-  }
-
   private async compactEntityInTx(
     tx: SqlClient,
     entityId: string,
@@ -259,15 +198,16 @@ export class PatchDbImplSqlite implements PatchDb {
       entityId,
       entityType,
     ]);
-    if (rows.length <= keepLatest + 1) {
+    const activeRows = rows.filter((r) => !patchRowIsSyncRejected(r));
+    if (activeRows.length <= keepLatest + 1) {
       return { removedPatchIds: [], compactionPatchId: null };
     }
 
-    const mergeSet = rows.slice(0, rows.length - keepLatest);
-    const firstKept = rows[mergeSet.length];
+    const mergeSet = activeRows.slice(0, activeRows.length - keepLatest);
+    const firstKept = activeRows[mergeSet.length];
     assert.defined(firstKept, 'compactEntityInTx: firstKept must exist');
 
-    const merged = this.mergePatchRowsIntoMergedRecord(mergeSet);
+    const merged = mergePatchRowsIntoMergedRecord(mergeSet);
     for (const k of PATCH_META_KEYS) {
       delete merged[k];
     }
@@ -288,24 +228,29 @@ export class PatchDbImplSqlite implements PatchDb {
       recordedAt: now,
     });
 
-    await tx.run(`UPDATE patches SET parent_id = ? WHERE patch_id = ?`, [
-      writtenCompaction.patchId,
-      firstKept.patch_id,
-    ]);
+    const removedPatchIds = await finishCompactionAfterInsert(tx, {
+      compactionPatchId: writtenCompaction.patchId,
+      entityId,
+      entityType,
+      mergeSet,
+      firstKeptPatchId: firstKept.patch_id,
+    });
 
-    const removedPatchIds: string[] = [];
-    for (let i = mergeSet.length - 1; i >= 0; i--) {
-      const row = mergeSet[i];
-      assert.defined(row, 'mergeSet row');
-      await tx.run(DELETE_PATCH_BY_ID, [row.patch_id]);
-      removedPatchIds.push(row.patch_id);
-    }
-
-    await this.recomputeSnapshot(tx, entityId, entityType);
+    await recomputeSnapshot(tx, entityId, entityType);
     return {
       removedPatchIds,
       compactionPatchId: writtenCompaction.patchId,
     };
+  }
+
+  private async runAfterWriteCompactionPass(
+    tx: SqlClient,
+    touchedEntities: Set<string>
+  ): Promise<void> {
+    for (const key of touchedEntities) {
+      const [entityId, entityType] = key.split('\0') as [string, string];
+      await this.maybeAutoCompactAfterWrite(tx, entityId, entityType);
+    }
   }
 
   private async maybeAutoCompactAfterWrite(
@@ -327,20 +272,28 @@ export class PatchDbImplSqlite implements PatchDb {
       entityId,
       entityType,
     ]);
-    if (rows.length <= policy.keepLatest + slack) return;
+    const activeCount = rows.filter((r) => !patchRowIsSyncRejected(r)).length;
+    if (activeCount <= policy.keepLatest + slack) return;
     await this.compactEntityInTx(tx, entityId, entityType, policy.keepLatest);
   }
 
   async write(
     patches: PatchInput[],
     ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
-  ): Promise<Patch[]> {
+  ): Promise<WritePatchesResult> {
     this.assertPatchInputs(patches);
+    const withIds = this.assignPatchIdsIfMissing(patches);
     const writtenPatches: Patch[] = [];
+    let hookRejected: PatchRejectionReason[] = [];
     await this.sqlClient.transaction(async (tx) => {
-      const sortedInput = topologicalSortPatches(
-        await this.hooks.runBeforeWrite(patches, ctx, tx)
+      const { accepted, rejected } = await this.hooks.runBeforeWrite(
+        withIds,
+        ctx,
+        tx
       );
+      hookRejected = rejected;
+      const sortedInput =
+        accepted.length === 0 ? [] : topologicalSortPatches(accepted);
       const touchedEntities = new Set<string>();
       let lastTimestamp = Date.now() - 1;
       const sorted = sortedInput;
@@ -376,14 +329,11 @@ export class PatchDbImplSqlite implements PatchDb {
         writtenPatches.push(written);
         touchedEntities.add(`${patch.entityId}\0${patch.entityType}`);
       }
-      await this.recomputeTouchedSnapshots(tx, touchedEntities);
+      await recomputeTouchedSnapshots(tx, touchedEntities);
       await this.hooks.runAfterWrite(writtenPatches, ctx, tx);
-      for (const key of touchedEntities) {
-        const [entityId, entityType] = key.split('\0') as [string, string];
-        await this.maybeAutoCompactAfterWrite(tx, entityId, entityType);
-      }
+      await this.runAfterWriteCompactionPass(tx, touchedEntities);
     });
-    return writtenPatches;
+    return { accepted: writtenPatches, rejected: hookRejected };
   }
 
   async read(
@@ -397,12 +347,32 @@ export class PatchDbImplSqlite implements PatchDb {
     return readPatches(this.sqlClient, rewritten);
   }
 
+  private async distinctEntityKeysForPatchIds(
+    patchIds: readonly string[]
+  ): Promise<Set<string>> {
+    if (patchIds.length === 0) return new Set();
+    const ph = patchIds.map(() => '?').join(', ');
+    const rows = await this.sqlClient.query<{
+      entity_id: string;
+      entity_type: string;
+    }>(
+      `SELECT DISTINCT entity_id, entity_type FROM patches WHERE patch_id IN (${ph})`,
+      [...patchIds]
+    );
+    const keys = new Set<string>();
+    for (const r of rows) {
+      keys.add(`${r.entity_id}\0${r.entity_type}`);
+    }
+    return keys;
+  }
+
   async update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
     _ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<void> {
     void _ctx;
     if (updates.length === 0) return;
+    const touchedPatchIds: string[] = [];
     for (const { patchId, attributes } of updates) {
       if (Object.keys(attributes).length === 0) continue;
       for (const key of Object.keys(attributes)) {
@@ -413,7 +383,15 @@ export class PatchDbImplSqlite implements PatchDb {
         `UPDATE patches SET attributes = ${expr} WHERE patch_id = ?`,
         [...params, patchId]
       );
+      touchedPatchIds.push(patchId);
     }
+    if (touchedPatchIds.length === 0) return;
+    const touchedEntities =
+      await this.distinctEntityKeysForPatchIds(touchedPatchIds);
+    if (touchedEntities.size === 0) return;
+    await this.sqlClient.transaction(async (tx) => {
+      await recomputeTouchedSnapshots(tx, touchedEntities);
+    });
   }
 
   async compactEntity(

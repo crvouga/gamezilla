@@ -1,8 +1,8 @@
 import type {
-  Patch,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
+  WritePatchesResult,
 } from '@gamezilla/patch-db/interface';
 import type { PatchDbClientTransport } from '@gamezilla/patch-db/transport';
 import {
@@ -11,7 +11,7 @@ import {
 } from '@gamezilla/patch-db/transport';
 import {
   assertPatchDbResults,
-  assertPatches,
+  assertWriteResponse,
 } from '@gamezilla/patch-db/validate-remote';
 import type { GamezillaApiClient } from './hc';
 
@@ -78,7 +78,7 @@ export function createPatchDbHcTransport(
       return raw;
     },
 
-    async write(patches: PatchInput[]): Promise<Patch[]> {
+    async write(patches: PatchInput[]): Promise<WritePatchesResult> {
       const res = await client['patch-db']['patches']['write'].$post(
         { json: { patches } },
         {
@@ -102,7 +102,7 @@ export function createPatchDbHcTransport(
           `Response body is not valid JSON (status ${String(res.status)})`
         );
       }
-      assertPatches(raw);
+      assertWriteResponse(raw);
       return raw;
     },
   };

@@ -8,8 +8,8 @@ import {
   type PatchDbContext,
   type PatchDbQuery,
   type PatchInput,
-  assertPatchInput,
   assertQuery,
+  assertWirePatchInput,
   stripKnownPatchesFromQuery,
 } from '../interface';
 import type { PatchDbSyncHost } from './interface';
@@ -124,18 +124,11 @@ export function createPatchDbHttpHono(
         a.array(body.patches, 'patches required');
         a.ok(body.patches.length > 0, 'patches must not be empty');
         a.all(body.patches, (p): asserts p is PatchInput =>
-          assertPatchInput(a, p)
+          assertWirePatchInput(a, p)
         );
-        try {
-          const patches = await host.write(body.patches, authResult.ctx);
-          applyNoCacheHeaders(c);
-          return c.json(patches, 200);
-        } catch (e: unknown) {
-          if (e instanceof ForbiddenError) {
-            return c.json({ error: e.message }, 403);
-          }
-          throw e;
-        }
+        const out = await host.write(body.patches, authResult.ctx);
+        applyNoCacheHeaders(c);
+        return c.json(out, 200);
       }
     );
 }

@@ -4,13 +4,14 @@ import {
   assertPatch,
   assertPatchInput,
   OPEN_PATCHES_DB_CONTEXT,
-  type Patch,
   type PatchDb,
   type PatchDbContext,
   type PatchDbQuery,
   type PatchDbResult,
   type PatchInput,
+  type WritePatchesResult,
 } from '../interface';
+import { assertWriteResponse } from '../validate-remote';
 import type { PatchDbSyncHost } from './interface';
 
 const PATCHES_DB_TOPIC = 'patch-db';
@@ -92,7 +93,7 @@ export class PatchDbImplSyncHost implements PatchDbSyncHost {
   async write(
     patches: PatchInput[],
     ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
-  ): Promise<Patch[]> {
+  ): Promise<WritePatchesResult> {
     assert.array(
       patches,
       'PatchDbImplSyncHost.write: patches must be an array'
@@ -108,18 +109,23 @@ export class PatchDbImplSyncHost implements PatchDbSyncHost {
     );
 
     const out = await this.db.write(patches, ctx);
-    assert.array(
+    assert.record(
       out,
-      'PatchDbImplSyncHost.write: db.write must return an array'
+      'PatchDbImplSyncHost.write: db.write must return object'
     );
+    assertWriteResponse(out);
     assert.ok(
-      out.length === patches.length,
-      'PatchDbImplSyncHost.write: db.write must return one Patch per input patch',
-      { expected: patches.length, actual: out.length }
+      out.accepted.length + out.rejected.length === patches.length,
+      'PatchDbImplSyncHost.write: db.write must account for every input patch',
+      {
+        expected: patches.length,
+        accepted: out.accepted.length,
+        rejected: out.rejected.length,
+      }
     );
 
-    for (let i = 0; i < out.length; i++) {
-      assertPatch(assert, out[i]);
+    for (const p of out.accepted) {
+      assertPatch(assert, p);
     }
 
     this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });

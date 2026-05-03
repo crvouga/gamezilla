@@ -6,7 +6,6 @@ import {
 import { assert } from '@gamezilla/lib/assert';
 import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
-import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
 import type {
   PatchDb,
@@ -154,21 +153,22 @@ describe('default ABAC policies (sqlite)', () => {
       friendAccountIds: [],
       blockedAccountIds: [],
     };
-    await expect(
-      db.write(
-        [
-          {
-            entityId: 'evt_bad',
-            entityType: 'stripe.webhook_event',
-            attributes: {
-              'entity/owner': ctx.accountId,
-              'patch/createdBy': ctx.principalId,
-            },
+    const out = await db.write(
+      [
+        {
+          entityId: 'evt_bad',
+          entityType: 'stripe.webhook_event',
+          attributes: {
+            'entity/owner': ctx.accountId,
+            'patch/createdBy': ctx.principalId,
           },
-        ],
-        ctx
-      )
-    ).rejects.toBeInstanceOf(ForbiddenError);
+        },
+      ],
+      ctx
+    );
+    expect(out.accepted).toHaveLength(0);
+    expect(out.rejected).toHaveLength(1);
+    expect(out.rejected[0]?.code).toBe('forbidden');
   });
 
   test('visitor context can read clientConfig (public)', async () => {
@@ -237,29 +237,32 @@ describe('default ABAC policies (sqlite)', () => {
       ],
       visitor
     );
-    expect(written).toHaveLength(1);
-    expect(written[0]?.entityId).toBe(principalId);
+    expect(written.rejected).toHaveLength(0);
+    expect(written.accepted).toHaveLength(1);
+    expect(written.accepted[0]?.entityId).toBe(principalId);
   });
 
   test('visitor write to system-only entity (clientConfig) is rejected by policy', async () => {
     const visitor: PatchDbVisitorContext = {
       visitorId: crypto.randomUUID(),
     };
-    await expect(
-      db.write(
-        [
-          {
-            entityId: 'test-entity',
-            entityType: 'clientConfig',
-            attributes: {
-              'clientConfig/googleWebClientId': 'hacked',
-              'patch/createdBy': '__hacker__',
-            },
+    const out = await db.write(
+      [
+        {
+          entityId: 'test-entity',
+          entityType: 'clientConfig',
+          attributes: {
+            'clientConfig/googleWebClientId': 'hacked',
+            'patch/createdBy': '__hacker__',
           },
-        ],
-        visitor
-      )
-    ).rejects.toBeInstanceOf(ForbiddenError);
+        },
+      ],
+      visitor
+    );
+    expect(out.accepted).toHaveLength(0);
+    expect(out.rejected).toHaveLength(1);
+    expect(out.rejected[0]?.code).toBe('forbidden');
+    expect(out.rejected[0]?.reason).toContain('system-only');
   });
 
   test('authenticated write still enforces patch/createdBy match', async () => {
@@ -273,20 +276,21 @@ describe('default ABAC policies (sqlite)', () => {
       friendAccountIds: [],
       blockedAccountIds: [],
     };
-    await expect(
-      db.write(
-        [
-          {
-            entityId: principalId,
-            entityType: PROFILE_ENTITY_TYPE,
-            attributes: {
-              [ProfileAttr.id]: principalId,
-              'patch/createdBy': '00000000-0000-4000-8000-00000000dead',
-            },
+    const out = await db.write(
+      [
+        {
+          entityId: principalId,
+          entityType: PROFILE_ENTITY_TYPE,
+          attributes: {
+            [ProfileAttr.id]: principalId,
+            'patch/createdBy': '00000000-0000-4000-8000-00000000dead',
           },
-        ],
-        ctx
-      )
-    ).rejects.toBeInstanceOf(ForbiddenError);
+        },
+      ],
+      ctx
+    );
+    expect(out.accepted).toHaveLength(0);
+    expect(out.rejected).toHaveLength(1);
+    expect(out.rejected[0]?.code).toBe('forbidden');
   });
 });

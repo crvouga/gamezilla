@@ -23,6 +23,29 @@ export type PatchInput = {
   sessionId?: string;
 };
 
+export type Patch = PatchInput & {
+  patchId: string;
+  parentId: string | null;
+  createdAt: string;
+  recordedAt: string;
+  createdBy: string;
+  sessionId: string;
+};
+
+/** Per-patch rejection from {@link PatchDb.write} (e.g. ABAC). */
+export type PatchRejectionReason = {
+  patchId: string;
+  /** Machine-readable, e.g. `forbidden`, `unknown_entity_type`. */
+  code: string;
+  /** Human-readable; keep short for `patch/syncRejectedReason` storage. */
+  reason: string;
+};
+
+export type WritePatchesResult = {
+  accepted: Patch[];
+  rejected: PatchRejectionReason[];
+};
+
 export function assertPatchInput(
   a: Assert,
   p: unknown
@@ -49,14 +72,15 @@ export function assertPatchInput(
   }
 }
 
-export type Patch = PatchInput & {
-  patchId: string;
-  parentId: string | null;
-  createdAt: string;
-  recordedAt: string;
-  createdBy: string;
-  sessionId: string;
-};
+/** Wire `/patches/write` requires stable `patchId` on every patch for partial reject. */
+export function assertWirePatchInput(
+  a: Assert,
+  p: unknown
+): asserts p is PatchInput & { patchId: string } {
+  assertPatchInput(a, p);
+  a.field(p, 'patchId', 'wire patch.patchId is required');
+  assertPatchId(p['patchId'], a);
+}
 
 export function assertPatch(a: Assert, p: unknown): asserts p is Patch {
   assertPatchInput(a, p);
@@ -67,6 +91,7 @@ export function assertPatch(a: Assert, p: unknown): asserts p is Patch {
 
 export {
   PATCH_CREATED_BY,
+  isSyncRejectedPatchAttributes,
   PATCH_LAST_MODIFIED_AT,
   PATCH_LAST_MODIFIED_BY_ACCOUNT,
   PATCH_LAST_MODIFIED_BY_PRINCIPAL,
@@ -442,6 +467,11 @@ export type PatchDbCompaction = {
   ): Promise<{ entitiesCompacted: number }>;
 };
 
+/** Return value for {@link PatchDbHooks.beforeWrite} — partition or pass-through array. */
+export type PatchDbBeforeWriteHookResult =
+  | PatchInput[]
+  | { accepted: PatchInput[]; rejected: PatchRejectionReason[] };
+
 export type PatchDbHooks = {
   beforeRead(
     fn: (
@@ -455,7 +485,7 @@ export type PatchDbHooks = {
       patches: PatchInput[],
       ctx: PatchDbContext,
       tx: SqlClient
-    ) => PatchInput[] | Promise<PatchInput[]>
+    ) => PatchDbBeforeWriteHookResult | Promise<PatchDbBeforeWriteHookResult>
   ): Unsubscribe;
 
   afterWrite(
@@ -474,7 +504,10 @@ export type PatchDbRead = {
 
 /** Write side of {@link PatchDb}; contract varies by implementation (local persist vs sync + invalidation). */
 export type PatchDbWrite = {
-  write(patches: PatchInput[], ctx?: PatchDbContext): Promise<Patch[]>;
+  write(
+    patches: PatchInput[],
+    ctx?: PatchDbContext
+  ): Promise<WritePatchesResult>;
 };
 
 /** Update side of {@link PatchDb}; contract varies by implementation (local persist vs sync + invalidation). */

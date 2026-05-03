@@ -9,14 +9,21 @@ import type {
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
+  WritePatchesResult,
 } from '../interface';
-import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
+import {
+  OPEN_PATCHES_DB_CONTEXT,
+  PATCH_SYNC_REJECTED_AT,
+  PATCH_SYNC_REJECTED_REASON,
+  PATCH_SYNCED_AT,
+} from '../interface';
 import { PatchDbTransportRejectedError } from '../transport/transport-rejected-error';
 import { MAX_PATCHES_PER_REQUEST } from '../transport/wire-schemas';
 import {
   ActiveQueryRegistry,
   PATCHES_DB_TOPIC,
   singleResultReader,
+  type ActiveQuery,
 } from './active-query-registry';
 import {
   buildSyncQueriesForPoll,
@@ -107,6 +114,18 @@ export type SyncPatchDbOptions = {
    * client transport will crash if a single request exceeds it.
    */
   maxPushBatchSize?: number;
+  /**
+   * When true, each poll clears `patch/syncedAt` on local rows the server read omits
+   * (per tracked query) so the next push can re-send them after catastrophic server loss.
+   *
+   * Leave **false** (default) when `remote.read` uses ABAC / visibility filtering: a
+   * filtered read can omit legitimately-synced patch ids and would otherwise cause
+   * infinite re-push loops.
+   *
+   * In-memory sims and unit tests should set **true** so server-wipe recovery tests
+   * keep working.
+   */
+  detectServerPatchLossOnPoll?: boolean;
 };
 
 const defaultLog = createLogger({ name: 'patch-db:sync' });
@@ -123,6 +142,7 @@ export class SyncPatchDb implements PatchDb {
   private readonly log: Logger;
   private readonly logPushPollFailures: boolean;
   private readonly maxPushBatchSize: number;
+  private readonly detectServerPatchLossOnPoll: boolean;
   /** Stops subscription callbacks after {@link destroy} (e.g. HMR / teardown races). */
   private destroyed = false;
 
@@ -159,6 +179,8 @@ export class SyncPatchDb implements PatchDb {
     this.log = options.logger ?? defaultLog;
     this.logPushPollFailures = options.logPushPollFailures !== false;
     this.maxPushBatchSize = options.maxPushBatchSize ?? MAX_PATCHES_PER_REQUEST;
+    this.detectServerPatchLossOnPoll =
+      options.detectServerPatchLossOnPoll === true;
     assert.ok(
       Number.isSafeInteger(this.maxPushBatchSize) &&
         this.maxPushBatchSize > 0 &&
@@ -225,7 +247,7 @@ export class SyncPatchDb implements PatchDb {
   async write(
     patches: PatchInput[],
     ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
-  ): Promise<Patch[]> {
+  ): Promise<WritePatchesResult> {
     const withUnsynced = patches.map((p) => ({
       ...p,
       attributes: { ...p.attributes, 'patch/syncedAt': null },
@@ -327,16 +349,47 @@ export class SyncPatchDb implements PatchDb {
     this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
   }
 
-  private async markChunkPushSucceeded(
-    patches: readonly Patch[]
-  ): Promise<void> {
-    await this.local.update(
-      patches.map((p) => ({
-        patchId: p.patchId,
-        attributes: { 'patch/syncedAt': '1' },
-      })),
-      OPEN_PATCHES_DB_CONTEXT
+  private assertChunkMatchesWriteResult(
+    chunk: readonly Patch[],
+    result: WritePatchesResult
+  ): void {
+    assert.ok(
+      result.accepted.length + result.rejected.length === chunk.length,
+      'remote.write must account for every patch in chunk',
+      {
+        chunk: chunk.length,
+        accepted: result.accepted.length,
+        rejected: result.rejected.length,
+      }
     );
+    const ids = new Set(chunk.map((p) => p.patchId));
+    for (const p of result.accepted) {
+      assert.ok(ids.has(p.patchId), 'accepted patchId must be from chunk');
+    }
+    for (const r of result.rejected) {
+      assert.ok(ids.has(r.patchId), 'rejected patchId must be from chunk');
+    }
+  }
+
+  private async applyChunkPushWriteResult(
+    result: WritePatchesResult
+  ): Promise<void> {
+    const now = new Date().toISOString();
+    const updates = [
+      ...result.accepted.map((p) => ({
+        patchId: p.patchId,
+        attributes: { [PATCH_SYNCED_AT]: '1' },
+      })),
+      ...result.rejected.map((r) => ({
+        patchId: r.patchId,
+        attributes: {
+          [PATCH_SYNC_REJECTED_AT]: now,
+          [PATCH_SYNC_REJECTED_REASON]:
+            `${String(r.code)}: ${String(r.reason)}`.slice(0, 256),
+        },
+      })),
+    ];
+    await this.local.update(updates, OPEN_PATCHES_DB_CONTEXT);
     this.pushConsecutiveFailures = 0;
     this.parentFkRecoveryInFlight = false;
     this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
@@ -398,8 +451,12 @@ export class SyncPatchDb implements PatchDb {
       if (this.destroyed) return;
       const chunk = patches.slice(i, i + batchSize);
       try {
-        await this.remote.write(chunk, OPEN_PATCHES_DB_CONTEXT);
-        await this.markChunkPushSucceeded(chunk);
+        const writeResult = await this.remote.write(
+          chunk,
+          OPEN_PATCHES_DB_CONTEXT
+        );
+        this.assertChunkMatchesWriteResult(chunk, writeResult);
+        await this.applyChunkPushWriteResult(writeResult);
       } catch (chunkErr) {
         if (chunkErr instanceof PatchDbTransportRejectedError) {
           await markPatchesRejectedByServer({
@@ -445,6 +502,41 @@ export class SyncPatchDb implements PatchDb {
     }
   }
 
+  private async runPollMergeOnce(
+    entries: ActiveQuery[]
+  ): Promise<{ recoveredPatches: boolean; hasNewPatches: boolean }> {
+    const syncQueries = await buildSyncQueriesForPoll(this.local, entries);
+    const wireQueries = toWireQueriesFromSyncQueries(syncQueries);
+    const results = await this.remote.read(
+      wireQueries,
+      OPEN_PATCHES_DB_CONTEXT
+    );
+    const recoveredPatches = this.detectServerPatchLossOnPoll
+      ? await markMissingSyncedPatchesOnLocal(this.local, syncQueries, results)
+      : false;
+    const hasNewPatches = await mergeRemotePatchesIntoLocal(
+      this.local,
+      results
+    );
+    return { recoveredPatches, hasNewPatches };
+  }
+
+  private onPollFailure(err: unknown): void {
+    this.pollConsecutiveFailures += 1;
+    if (this.logPushPollFailures) {
+      this.log.error('poll failed', {
+        error: err instanceof Error ? err.message : String(err),
+        consecutiveFailures: this.pollConsecutiveFailures,
+      });
+    }
+    if (this.pollConsecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+      this.pubSub.publish(SYNC_ERROR_TOPIC, {
+        source: 'poll',
+        error: err,
+      } satisfies SyncErrorEvent);
+    }
+  }
+
   private async poll(): Promise<void> {
     if (this.destroyed) return;
     const entries = this.activeQueries.values();
@@ -453,39 +545,14 @@ export class SyncPatchDb implements PatchDb {
 
     this.pollInProgress = true;
     try {
-      const syncQueries = await buildSyncQueriesForPoll(this.local, entries);
-      const wireQueries = toWireQueriesFromSyncQueries(syncQueries);
-      const results = await this.remote.read(
-        wireQueries,
-        OPEN_PATCHES_DB_CONTEXT
-      );
-      const recoveredPatches = await markMissingSyncedPatchesOnLocal(
-        this.local,
-        syncQueries,
-        results
-      );
-      const hasNewPatches = await mergeRemotePatchesIntoLocal(
-        this.local,
-        results
-      );
+      const { recoveredPatches, hasNewPatches } =
+        await this.runPollMergeOnce(entries);
       this.pollConsecutiveFailures = 0;
       if (hasNewPatches || recoveredPatches) {
         this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
       }
     } catch (err) {
-      this.pollConsecutiveFailures += 1;
-      if (this.logPushPollFailures) {
-        this.log.error('poll failed', {
-          error: err instanceof Error ? err.message : String(err),
-          consecutiveFailures: this.pollConsecutiveFailures,
-        });
-      }
-      if (this.pollConsecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
-        this.pubSub.publish(SYNC_ERROR_TOPIC, {
-          source: 'poll',
-          error: err,
-        } satisfies SyncErrorEvent);
-      }
+      this.onPollFailure(err);
     } finally {
       this.pollInProgress = false;
     }

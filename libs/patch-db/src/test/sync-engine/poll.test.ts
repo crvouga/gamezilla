@@ -161,7 +161,7 @@ describe('SyncPatchDb (deterministic sim)', () => {
     const rootWritten = await srv.db.write([
       { entityId, entityType, attributes: { 'task/title': 'Root' } },
     ]);
-    const rootPatch = rootWritten[0];
+    const rootPatch = rootWritten.accepted[0];
     assert.defined(rootPatch, 'rootPatch must be defined');
 
     const unsub = c.subscribe.entities({ entityType, entityId }, () => {});
@@ -175,7 +175,7 @@ describe('SyncPatchDb (deterministic sim)', () => {
     const clientAWritten = await c.write([
       { entityId, entityType, attributes: { 'task/status': 'in-progress' } },
     ]);
-    const clientAPatch = clientAWritten[0];
+    const clientAPatch = clientAWritten.accepted[0];
     assert.defined(clientAPatch, 'clientAPatch must be defined');
 
     await c.push();
