@@ -10,8 +10,6 @@ import {
   PRINCIPAL_ENTITY_TYPE,
   PrincipalAttr,
 } from '@gamezilla/domain/auth';
-import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
-import { parseAvatarConfigAttr } from '@gamezilla/domain/profile/avatar-config';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
@@ -33,6 +31,12 @@ import { useEntities } from '@gamezilla/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
 import { useMemo } from 'react';
 
+import {
+  principalPresentation,
+  useSelfAccountProfile,
+  useSelfAuthIdentity,
+  withSelfAccountProfile,
+} from './principal-display-resolution';
 import type { SpaceMemberRow, SpaceView } from './types';
 
 const NO_ENTITY_PLACEHOLDER = '__patch_db_no_entity__';
@@ -51,89 +55,6 @@ function spaceEntityIsLive(
 ): boolean {
   const ended = attrs?.[SpaceAttr.endedAt];
   return ended === undefined || ended === null;
-}
-
-/**
- * Resolves the profile entity id to look up for a principal:
- * - When `principalId` is the current viewer and they're signed in, use the
- *   auth-supplied accountId directly (matches `useProfile()`).
- * - Otherwise read `principal/accountId` from the principal entity, falling
- *   back to the principal-local profile id.
- */
-function resolveProfileKey(args: {
-  principalId: string;
-  principalById: Map<string, Entity>;
-  selfPrincipalId: string;
-  selfAccountId: string | null;
-}): string {
-  const { principalId, principalById, selfPrincipalId, selfAccountId } = args;
-  if (principalId === selfPrincipalId && selfAccountId !== null) {
-    return selfAccountId;
-  }
-  const principalRow = principalById.get(principalId);
-  const accountIdAttr = readStringAttr(
-    principalRow?.attributes as Record<string, unknown> | undefined,
-    PrincipalAttr.accountId
-  );
-  return accountIdAttr ?? principalId;
-}
-
-function principalPresentation(args: {
-  principalId: string;
-  principalById: Map<string, Entity>;
-  profileById: Map<string, Entity>;
-  selfPrincipalId: string;
-  selfAccountId: string | null;
-}): { displayName: string; avatarConfig: AvatarConfig | null } {
-  const profileKey = resolveProfileKey(args);
-  const profileEntity = args.profileById.get(profileKey);
-  const attrs = profileEntity?.attributes as Record<string, unknown> | undefined;
-  return {
-    displayName: displayNameForPrincipal(
-      attrs?.[ProfileAttr.displayName],
-      args.principalId
-    ),
-    avatarConfig: parseAvatarConfigAttr(attrs, ProfileAttr.avatarConfig),
-  };
-}
-
-/**
- * Loads the current viewer's account-scoped profile (when signed in) so
- * callers can layer it onto bulk-fetched profile maps. This makes the dynamic
- * space title fall back to the live account display name without waiting for
- * the principal entity's `accountId` attribute to sync.
- */
-function useSelfAccountProfile(selfAccountId: string | null): {
-  entity: Entity | null;
-  loading: boolean;
-} {
-  const res = useEntities(
-    selfAccountId !== null
-      ? { entityType: PROFILE_ENTITY_TYPE, entityId: selfAccountId }
-      : { entityType: PROFILE_ENTITY_TYPE, limit: 0 }
-  );
-  return { entity: res.entities[0] ?? null, loading: res.loading };
-}
-
-function withSelfAccountProfile(
-  profileById: Map<string, Entity>,
-  selfAccountId: string | null,
-  selfAccountProfile: Entity | null
-): Map<string, Entity> {
-  if (selfAccountId === null || selfAccountProfile === null) return profileById;
-  return new Map(profileById).set(selfAccountId, selfAccountProfile);
-}
-
-function useSelfAuthIdentity(): {
-  selfPrincipalId: string;
-  selfAccountId: string | null;
-} {
-  const principalService = useDependency(PrincipalServiceToken);
-  const auth = useAuth();
-  return {
-    selfPrincipalId: principalService.getPrincipalId(),
-    selfAccountId: auth.mode === 'signed-in' ? auth.accountId : null,
-  };
 }
 
 const LIVE_SPACES_QUERY: PatchesDbQuery = {
@@ -261,6 +182,30 @@ export function useSpace(spaceId: string | undefined) {
   };
 }
 
+function normalizePrincipalId(
+  principalId: string | null | undefined
+): string {
+  return typeof principalId === 'string' && principalId.length > 0
+    ? principalId
+    : NO_ENTITY_PLACEHOLDER;
+}
+
+function pickProfileEntityId(args: {
+  id: string;
+  isSelf: boolean;
+  selfAccountId: string | null;
+  principalRow: Entity | null;
+}): string {
+  const { id, isSelf, selfAccountId, principalRow } = args;
+  if (id === NO_ENTITY_PLACEHOLDER) return NO_ENTITY_PLACEHOLDER;
+  if (isSelf && selfAccountId !== null) return selfAccountId;
+  const accountIdAttr = readStringAttr(
+    principalRow?.attributes as Record<string, unknown> | undefined,
+    PrincipalAttr.accountId
+  );
+  return accountIdAttr ?? id;
+}
+
 /**
  * Display label for a principal's current profile (for host / join UI).
  *
@@ -276,39 +221,26 @@ export function useSpace(spaceId: string | undefined) {
 export function usePrincipalDisplayName(
   principalId: string | null | undefined
 ) {
-  const principalService = useDependency(PrincipalServiceToken);
-  const selfPrincipalId = principalService.getPrincipalId();
-  const auth = useAuth();
-  const selfAccountId =
-    auth.mode === 'signed-in' ? auth.accountId : null;
+  const { selfPrincipalId, selfAccountId } = useSelfAuthIdentity();
 
-  const id =
-    typeof principalId === 'string' && principalId.length > 0
-      ? principalId
-      : NO_ENTITY_PLACEHOLDER;
+  const id = normalizePrincipalId(principalId);
   const isSelf = id !== NO_ENTITY_PLACEHOLDER && id === selfPrincipalId;
-  const skipPrincipalLookup = isSelf && selfAccountId !== null;
+  const skipPrincipalLookup =
+    id === NO_ENTITY_PLACEHOLDER || (isSelf && selfAccountId !== null);
 
   const principalRes = useEntities(
-    id === NO_ENTITY_PLACEHOLDER || skipPrincipalLookup
+    skipPrincipalLookup
       ? { entityType: PRINCIPAL_ENTITY_TYPE, limit: 0 }
       : { entityType: PRINCIPAL_ENTITY_TYPE, entityId: id }
   );
   const principalRow = principalRes.entities[0] ?? null;
-  const accountIdFromEntity =
-    id === NO_ENTITY_PLACEHOLDER
-      ? null
-      : readStringAttr(
-          principalRow?.attributes as Record<string, unknown> | undefined,
-          PrincipalAttr.accountId
-        );
-  const accountId = isSelf ? selfAccountId : accountIdFromEntity;
-  const profileEntityId =
-    id === NO_ENTITY_PLACEHOLDER
-      ? NO_ENTITY_PLACEHOLDER
-      : accountId !== null
-        ? accountId
-        : id;
+
+  const profileEntityId = pickProfileEntityId({
+    id,
+    isSelf,
+    selfAccountId,
+    principalRow,
+  });
 
   const profileRes = useEntities({
     entityType: PROFILE_ENTITY_TYPE,
