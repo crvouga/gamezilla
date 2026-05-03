@@ -2,3 +2,8 @@ node_modules
 dist
 .expo
 *.lock
+
+# Generated files
+apps/client/public/absurd-sql-worker/
+apps/client/src/i18n/locales/*/messages.ts
+apps/client/expo-env.d.ts
