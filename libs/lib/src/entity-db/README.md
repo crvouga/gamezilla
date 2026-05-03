@@ -2,7 +2,7 @@
 
 Thin Postgres data-plane for rows keyed by `(namespace, type, id)` with JSON payloads and a conditional upsert driven by a consumer-supplied `compareVersions` callback.
 
-**Consumers choose whether to run bundled DDL.** This package exports column name constants (`ENTITY_DB_COLUMNS`, `DEFAULT_POSTGRES_ENTITY_TABLE`), a typed client, and Postgres migration aligned with **patch-db** and **kv**: `EntityDbImplPostgres.migrate({ sqlClient, logger, tableName?, schema? })` (static only; `tableName` defaults to `entities`). The app `apps/db` runs those three via `runPostgresMigrations` in `apps/db/src/postgres-migrations.ts` (CLI `scripts/migrate-db.ts` and in-process `migrate.ts`).
+**Consumers choose whether to run bundled DDL.** This package exports column name constants (`ENTITY_DB_COLUMNS`, `DEFAULT_POSTGRES_ENTITY_TABLE`), a typed client, and Postgres migration aligned with **patch-db** and **kv**: `EntityDbImplPostgres.migrate({ sqlClient, logger, tableName?, schema? })` (static only; `tableName` defaults to `entities`). For prod cleanup after moving off entity-db, use `EntityDbImplPostgres.migrateDown({ sqlClient, logger, tableName?, schema? })` — idempotent `DROP TABLE … CASCADE`. The app `apps/db` wires migrations in `apps/db/src/postgres-migrations.ts` (CLI `scripts/migrate-db.ts` and in-process `migrate.ts`).
 
 ## API
 
@@ -79,6 +79,18 @@ CREATE INDEX IF NOT EXISTS entities_metadata_gin_idx
 ```
 
 Column names should match `ENTITY_DB_COLUMNS` in `./constants.ts`.
+
+## Down migration (prod cleanup)
+
+When the app no longer uses entity-db rows, drop the physical table idempotently:
+
+```ts
+await EntityDbImplPostgres.migrateDown({ sqlClient, logger });
+// Optional: custom physical table (same rules as migrate)
+// await EntityDbImplPostgres.migrateDown({ sqlClient, logger, tableName: 'my_entities', schema: 'public' });
+```
+
+This runs `DROP TABLE IF EXISTS … CASCADE` on the parent partitioned table, which removes the default LIST partition and all indexes. **Destructive** — all entity-db rows are deleted. The free function `migrateDownEntityDbPostgres` is the implementation (same args shape as `migrateEntityDbPostgres`).
 
 ## Tests
 

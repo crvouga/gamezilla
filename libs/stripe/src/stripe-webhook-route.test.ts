@@ -1,14 +1,15 @@
-import { createEntityDbInMemory } from '@gamezilla/lib/entity-db/factory';
 import type { SecretStore } from '@gamezilla/lib/secret-store';
+import type { PatchInput, PatchesDb } from '@gamezilla/patch-db/interface';
 import { describe, expect, it, mock } from 'bun:test';
 import Stripe from 'stripe';
 import { StripeSecretKeys } from './secret-keys';
 import { createStripeWebhookRoutes } from './stripe-webhook-route';
-import { stripeWebhookCompareVersions } from './webhook-cache-entity-db';
 
 describe('createStripeWebhookRoutes', () => {
   it('returns 503 when Stripe client is not configured', async () => {
-    const entityDb = createEntityDbInMemory(stripeWebhookCompareVersions);
+    const patchDb = {
+      write: async () => [],
+    } as unknown as PatchesDb;
     const secretStore = {
       getRequired: async () => '',
       getOptional: async () => 'whsec_test',
@@ -18,7 +19,7 @@ describe('createStripeWebhookRoutes', () => {
     const app = createStripeWebhookRoutes({
       secretStore,
       stripe: null,
-      entityDb,
+      patchDb,
       webhookSecretKey: StripeSecretKeys.webhookSecret,
     });
 
@@ -31,7 +32,9 @@ describe('createStripeWebhookRoutes', () => {
   });
 
   it('returns 503 when webhook secret is missing', async () => {
-    const entityDb = createEntityDbInMemory(stripeWebhookCompareVersions);
+    const patchDb = {
+      write: async () => [],
+    } as unknown as PatchesDb;
     const secretStore = {
       getRequired: async () => '',
       getOptional: async () => null,
@@ -45,7 +48,7 @@ describe('createStripeWebhookRoutes', () => {
     const app = createStripeWebhookRoutes({
       secretStore,
       stripe,
-      entityDb,
+      patchDb,
       webhookSecretKey: StripeSecretKeys.webhookSecret,
     });
 
@@ -57,8 +60,15 @@ describe('createStripeWebhookRoutes', () => {
     expect(res.status).toBe(503);
   });
 
-  it('upserts stripe cache on verified event', async () => {
-    const entityDb = createEntityDbInMemory(stripeWebhookCompareVersions);
+  it('writes verified event to patch-db (event cache + no webhook_event without account)', async () => {
+    const writeCalls: { patches: PatchInput[] }[] = [];
+    const patchDb = {
+      write: async (patches: PatchInput[]) => {
+        writeCalls.push({ patches });
+        return [];
+      },
+    } as unknown as PatchesDb;
+
     const secretStore = {
       getRequired: async () => '',
       getOptional: async () => 'whsec_test',
@@ -88,7 +98,7 @@ describe('createStripeWebhookRoutes', () => {
     const app = createStripeWebhookRoutes({
       secretStore,
       stripe,
-      entityDb,
+      patchDb,
       webhookSecretKey: StripeSecretKeys.webhookSecret,
     });
 
@@ -100,13 +110,13 @@ describe('createStripeWebhookRoutes', () => {
 
     expect(res.status).toBe(200);
     expect(construct.mock.calls.length).toBeGreaterThan(0);
-
-    const row = await entityDb.get({
-      namespace: 'stripe',
-      type: 'customer.created',
-      id: 'cus_test_1',
-    });
-    expect(row).not.toBeNull();
-    expect(row?.data).toEqual(event);
+    expect(writeCalls.length).toBe(1);
+    const patches = writeCalls[0]!.patches;
+    expect(patches.length).toBe(1);
+    const p = patches[0]!;
+    expect(p.entityType).toBe('stripe.customer.created');
+    expect(p.entityId).toBe('cus_test_1');
+    expect(p.attributes['stripe/payload']).toEqual(event);
+    expect(p.attributes['stripe/objectType']).toBe('event');
   });
 });

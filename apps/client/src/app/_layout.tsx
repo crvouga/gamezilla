@@ -1,5 +1,6 @@
+import { SpaceMiniplayer } from '@gamezilla/client/spaces/space-miniplayer';
 import { AppProviders } from '@gamezilla/client/ui/app-providers';
-import { useStackProps } from '@gamezilla/lib/ui';
+import { Box, useStackProps } from '@gamezilla/lib/ui';
 import { Stack } from 'expo-router';
 import 'react-native-reanimated';
 
@@ -31,7 +32,12 @@ function AppStack() {
 export default function RootLayout() {
   return (
     <AppProviders>
-      <AppStack />
+      <Box sx={{ flex: 1, flexDirection: 'column' }}>
+        <Box sx={{ flex: 1, minHeight: 0 }}>
+          <AppStack />
+        </Box>
+        <SpaceMiniplayer />
+      </Box>
     </AppProviders>
   );
 }

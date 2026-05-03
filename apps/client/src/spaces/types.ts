@@ -1,15 +1,15 @@
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 
-export type SpaceFilter = 'all' | 'live';
-
-/** UI row for the spaces list (from patch-db entities + resolved host label). */
+/** UI row for the spaces list (from patch-db entities + resolved host label). Live only. */
 export type SpaceView = {
   id: string;
+  /** Display title: user-set name, or `${hostDisplayName}'s space` when unset. */
   title: string;
+  /** User-set name, or null when the host has not chosen one. */
+  customTitle: string | null;
   hostId: string;
   hostDisplayName: string;
   hostAvatarConfig: AvatarConfig | null;
-  live: boolean;
 };
 
 export type SpaceMemberRow = {

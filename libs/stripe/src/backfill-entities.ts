@@ -1,16 +1,18 @@
 /**
- * Generic Stripe-list → EntityDb backfill.
+ * Generic Stripe-list → patch-db backfill.
  *
  * Each Stripe object has a stable `id` and `object` discriminator (e.g.
  * `customer`, `subscription`). We persist raw Stripe API payloads under
- * `namespace='stripe'`, `type=<object>`, `id=<object.id>`. This sits alongside
- * webhook-event rows (which use `type=event.type` like `customer.created`) so
- * the two sources never collide.
+ * `entityType=stripe.<object>` (with `checkout.session` → `stripe.checkout_session`),
+ * `entityId=<object.id>`, attribute `stripe/payload`. This sits alongside
+ * webhook-event rows (`stripe.<event.type>`) so the two sources never collide.
  */
-import type { EntityDb } from '@gamezilla/lib/entity-db/interface';
+import type {
+  PatchesDb,
+  PatchesDbContext,
+} from '@gamezilla/patch-db/interface';
+import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
 import type Stripe from 'stripe';
-
-export const STRIPE_ENTITY_NAMESPACE = 'stripe' as const;
 
 /** Marker on backfill rows so consumers can tell snapshots from webhook events. */
 export const BACKFILL_METADATA_SOURCE_PREFIX = 'stripe_backfill_' as const;
@@ -34,16 +36,97 @@ export type BackfillProgress = {
   readonly written: number;
 };
 
+export function stripeObjectTypeToPatchEntityType(
+  objectType: StripeEntityObjectType
+): string {
+  if (objectType === 'checkout.session') {
+    return 'stripe.checkout_session';
+  }
+  return `stripe.${objectType}`;
+}
+
+function extractAccountIdFromCustomerMetadata(
+  rec: Record<string, unknown>
+): string | null {
+  const meta = rec['metadata'];
+  if (meta === null || typeof meta !== 'object' || !('account_id' in meta)) {
+    return null;
+  }
+  const accountId = (meta as { account_id: unknown }).account_id;
+  if (typeof accountId !== 'string') {
+    return null;
+  }
+  const trimmed = accountId.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function extractCustomerIdFromRef(customerRef: unknown): string | null {
+  if (typeof customerRef === 'string') {
+    return customerRef.startsWith('cus_') ? customerRef : null;
+  }
+  if (customerRef === null || typeof customerRef !== 'object') {
+    return null;
+  }
+  if (!('id' in customerRef)) {
+    return null;
+  }
+  const id = (customerRef as { id: unknown }).id;
+  if (typeof id !== 'string' || !id.startsWith('cus_')) {
+    return null;
+  }
+  return id;
+}
+
+async function lookupOwnerByCustomerId(
+  db: PatchesDb,
+  ctx: PatchesDbContext,
+  customerId: string
+): Promise<string | null> {
+  const [r] = await db.read(
+    [
+      {
+        entityType: 'stripe.customer',
+        entityId: customerId,
+        limit: 1,
+      },
+    ],
+    ctx
+  );
+  const owner = r?.entities[0]?.attributes['entity/owner'];
+  return typeof owner === 'string' && owner.length > 0 ? owner : null;
+}
+
+async function resolveEntityOwner(args: {
+  readonly db: PatchesDb;
+  readonly ctx: PatchesDbContext;
+  readonly obj: StripeIdentifiable;
+  readonly expectedObjectType: StripeEntityObjectType;
+}): Promise<string | null> {
+  const { db, ctx, obj, expectedObjectType } = args;
+  const rec = obj as unknown as Record<string, unknown>;
+
+  if (expectedObjectType === 'customer') {
+    return extractAccountIdFromCustomerMetadata(rec);
+  }
+
+  const customerId = extractCustomerIdFromRef(rec['customer']);
+  if (customerId === null) {
+    return null;
+  }
+  return lookupOwnerByCustomerId(db, ctx, customerId);
+}
+
 /**
- * Stream a Stripe auto-paginating list into `EntityDb`. Uses the row's `object`
+ * Stream a Stripe auto-paginating list into patch-db. Uses the row's `object`
  * field to detect drift from `expectedObjectType` and aborts loudly — Stripe
  * occasionally returns related types (e.g. polymorphic refunds) and silent
  * mis-typing would break consumers downstream.
  */
-export async function backfillStripeListIntoEntityDb<
+export async function backfillStripeListIntoPatchDb<
   T extends StripeIdentifiable,
 >(args: {
-  readonly entityDb: EntityDb;
+  readonly db: PatchesDb;
+  readonly ctx: PatchesDbContext;
   readonly iterator: AsyncIterable<T>;
   readonly expectedObjectType: StripeEntityObjectType;
   /** Called every `progressEvery` rows; default 100. */
@@ -51,13 +134,15 @@ export async function backfillStripeListIntoEntityDb<
   readonly progressEvery?: number;
 }): Promise<{ readonly written: number }> {
   const {
-    entityDb,
+    db,
+    ctx,
     iterator,
     expectedObjectType,
     onProgress,
     progressEvery = 100,
   } = args;
   const source = `${BACKFILL_METADATA_SOURCE_PREFIX}${expectedObjectType}`;
+  const entityType = stripeObjectTypeToPatchEntityType(expectedObjectType);
   let written = 0;
   for await (const obj of iterator) {
     if (obj.object !== expectedObjectType) {
@@ -70,13 +155,31 @@ export async function backfillStripeListIntoEntityDb<
         `[stripe backfill] missing id on ${expectedObjectType} row`
       );
     }
-    await entityDb.upsert({
-      namespace: STRIPE_ENTITY_NAMESPACE,
-      type: expectedObjectType,
-      id: obj.id,
-      data: obj as unknown,
-      metadata: { source },
+    const owner = await resolveEntityOwner({
+      db,
+      ctx,
+      obj,
+      expectedObjectType,
     });
+    const attrs: Record<string, unknown> = {
+      'stripe/payload': obj as unknown,
+      'stripe/objectType': expectedObjectType,
+      'stripe/source': source,
+      'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+    };
+    if (owner !== null) {
+      attrs['entity/owner'] = owner;
+    }
+    await db.write(
+      [
+        {
+          entityId: obj.id,
+          entityType,
+          attributes: attrs,
+        },
+      ],
+      ctx
+    );
     written += 1;
     if (onProgress !== undefined && written % progressEvery === 0) {
       onProgress({ type: expectedObjectType, written });
@@ -88,7 +191,7 @@ export async function backfillStripeListIntoEntityDb<
 /**
  * Bind list-API params for one entity type. Each per-entity script provides a
  * `runner` that returns the auto-paginating iterator; the shared runner here
- * handles entity-db wiring + logging + summary.
+ * handles patch-db wiring + logging + summary.
  */
 export type EntityBackfillRunner = (args: {
   readonly stripe: Stripe;

@@ -1,177 +1,20 @@
 import { useSpaceActions } from '@gamezilla/client/spaces/space-actions';
 import { SpaceCard } from '@gamezilla/client/spaces/space-card';
-import type { SpaceFilter } from '@gamezilla/client/spaces/types';
-import {
-  useCurrentMembership,
-  useSpaces,
-} from '@gamezilla/client/spaces/use-spaces';
+import { useSpaces } from '@gamezilla/client/spaces/use-spaces';
 import { useAccountActions } from '@gamezilla/client/ui/use-account-actions';
 import {
   Box,
   Pressable,
   ScreenBase,
   ScrollView,
-  SegmentedControl,
   Text,
-  TextInput,
   useBreakpoint,
   useTheme,
 } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
-import { useMemo, useState } from 'react';
-
-const DEFAULT_FILTER = String('all') as SpaceFilter;
 
 type Space = ReturnType<typeof useSpaces>['spaces'][number];
-
-type CurrentMembership = ReturnType<typeof useCurrentMembership>;
-
-type FilterBarProps = {
-  filter: SpaceFilter;
-  setFilter: (f: SpaceFilter) => void;
-};
-
-function FilterBar({ filter, setFilter }: FilterBarProps) {
-  const { t } = useLingui();
-  return (
-    <Box sx={{ pt: 2, pb: 2 }}>
-      <SegmentedControl<SpaceFilter>
-        segments={[
-          { key: 'all', label: t`All` },
-          { key: 'live', label: t`Live` },
-        ]}
-        selected={filter}
-        onSelect={setFilter}
-      />
-    </Box>
-  );
-}
-
-type CurrentSpaceShortcutProps = {
-  current: CurrentMembership;
-  shortcutSpace: Space | null;
-  loading: boolean;
-};
-
-function CurrentSpaceShortcut({
-  current,
-  shortcutSpace,
-  loading,
-}: CurrentSpaceShortcutProps) {
-  const { t } = useLingui();
-  const router = useRouter();
-  if (current.loading || !current.activeSpaceId) return null;
-  const goToCurrent = () => {
-    const id = current.activeSpaceId;
-    if (id) {
-      router.push({ pathname: '/space/[id]', params: { id } });
-    }
-  };
-  return (
-    <Box sx={{ mb: 3 }}>
-      <Pressable
-        onPress={goToCurrent}
-        accessibilityRole="button"
-        accessibilityLabel={t`Open your current space`}
-      >
-        <Box
-          sx={{
-            borderRadius: 12,
-            borderWidth: 1,
-            borderColor: 'border',
-            p: 3,
-            background: 'surface',
-          }}
-        >
-          <Text variant="label" label={<Trans>Your space</Trans>} />
-          <Text
-            variant="bodyBold"
-            sx={{ mt: 1 }}
-            label={
-              shortcutSpace?.title ?? (loading ? t`Loading…` : t`Continue`)
-            }
-          />
-          <Text
-            variant="caption"
-            sx={{ color: 'textSecondary', mt: 0.5 }}
-            label={<Trans>Tap to open</Trans>}
-          />
-        </Box>
-      </Pressable>
-    </Box>
-  );
-}
-
-type AddSpaceRowProps = {
-  adding: boolean;
-  setAdding: (v: boolean) => void;
-  titleInput: string;
-  setTitleInput: (s: string) => void;
-  addSpace: () => void;
-};
-
-function AddSpaceRow({
-  adding,
-  setAdding,
-  titleInput,
-  setTitleInput,
-  addSpace,
-}: AddSpaceRowProps) {
-  const { t } = useLingui();
-  const theme = useTheme();
-  if (!adding) {
-    return (
-      <Pressable
-        onPress={() => setAdding(true)}
-        style={[
-          theme.sx({
-            py: 3,
-            px: 4,
-            borderRadius: 8,
-            mb: 4,
-            alignItems: 'center',
-          }),
-          { backgroundColor: theme.colors.tintMuted },
-        ]}
-      >
-        <Text variant="bodyBold" label={<Trans>+ New space</Trans>} />
-      </Pressable>
-    );
-  }
-  return (
-    <Box sx={{ flexDirection: 'row', gap: 2, mb: 3 }}>
-      <TextInput
-        sx={{
-          flex: 1,
-          borderWidth: 1,
-          borderRadius: 8,
-          px: 3,
-          py: 2.5,
-          fontSize: 16,
-          background: 'surface',
-          color: 'text',
-          borderColor: 'border',
-        }}
-        placeholder={t`Space title…`}
-        placeholderTextColor={theme.colors.icon}
-        value={titleInput}
-        onChangeText={setTitleInput}
-        onSubmitEditing={addSpace}
-        onBlur={() => {
-          if (!titleInput.trim()) setAdding(false);
-        }}
-        autoFocus
-      />
-      <Pressable
-        onPress={addSpace}
-        style={theme.sx({ justifyContent: 'center', px: 4 })}
-      >
-        <Text variant="bodyBold" label={<Trans>Create</Trans>} />
-      </Pressable>
-    </Box>
-  );
-}
 
 type SpacesListProps = {
   loading: boolean;
@@ -200,7 +43,9 @@ function SpacesList({ loading, spaces }: SpacesListProps) {
           <Text
             variant="body"
             sx={{ color: 'textSecondary' }}
-            label={<Trans>No spaces match this filter.</Trans>}
+            label={
+              <Trans>No live spaces. Tap + New space to start one.</Trans>
+            }
           />
         </Box>
       ) : (
@@ -215,30 +60,16 @@ function SpacesList({ loading, spaces }: SpacesListProps) {
 }
 
 export function SpacesScreen() {
-  const [filter, setFilter] = useState<SpaceFilter>(DEFAULT_FILTER);
-  const [adding, setAdding] = useState(false);
-  const [titleInput, setTitleInput] = useState('');
   const accountActions = useAccountActions();
   const isMobile = useBreakpoint() === 'mobile';
   const router = useRouter();
-  const { spaces, loading } = useSpaces(filter);
-  const current = useCurrentMembership();
+  const { spaces, loading } = useSpaces();
   const { createSpace } = useSpaceActions();
+  const { t } = useLingui();
+  const theme = useTheme();
 
-  const shortcutSpace = useMemo(() => {
-    if (!current.activeSpaceId) return null;
-    return spaces.find((s) => s.id === current.activeSpaceId) ?? null;
-  }, [spaces, current.activeSpaceId]);
-
-  const addSpace = async () => {
-    const name = titleInput.trim();
-    if (!name) {
-      setAdding(false);
-      return;
-    }
-    const newId = await createSpace(name);
-    setTitleInput('');
-    setAdding(false);
+  const onNewSpace = async () => {
+    const newId = await createSpace();
     if (newId) {
       router.push({ pathname: '/space/[id]', params: { id: newId } });
     }
@@ -255,19 +86,23 @@ export function SpacesScreen() {
       actions={isMobile ? accountActions : []}
       content={({ sx }) => (
         <Box style={sx}>
-          <FilterBar filter={filter} setFilter={setFilter} />
-          <CurrentSpaceShortcut
-            current={current}
-            shortcutSpace={shortcutSpace}
-            loading={loading}
-          />
-          <AddSpaceRow
-            adding={adding}
-            setAdding={setAdding}
-            titleInput={titleInput}
-            setTitleInput={setTitleInput}
-            addSpace={addSpace}
-          />
+          <Pressable
+            onPress={() => void onNewSpace()}
+            accessibilityRole="button"
+            accessibilityLabel={t`Create new space`}
+            style={[
+              theme.sx({
+                py: 3,
+                px: 4,
+                borderRadius: 8,
+                mb: 4,
+                alignItems: 'center',
+              }),
+              { backgroundColor: theme.colors.tintMuted },
+            ]}
+          >
+            <Text variant="bodyBold" label={<Trans>+ New space</Trans>} />
+          </Pressable>
           <SpacesList loading={loading} spaces={spaces} />
         </Box>
       )}

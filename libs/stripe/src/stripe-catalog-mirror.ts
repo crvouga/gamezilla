@@ -1,20 +1,22 @@
-import type { EntityDb } from '@gamezilla/lib/entity-db/interface';
 import type Stripe from 'stripe';
+import type {
+  PatchesDb,
+  PatchesDbContext,
+} from '@gamezilla/patch-db/interface';
+import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
 
-/** Namespace shared with Stripe webhook cache rows. */
-export const STRIPE_CATALOG_NAMESPACE = 'stripe' as const;
+/** Patch-db entity type for catalog prices (SPEC / checkout `priceKey` = entityId). */
+export const STRIPE_PATCH_ENTITY_CATALOG_PRICE = 'stripe.catalog_price' as const;
 
-/** Row `id` matches checkout `priceKey` / SPEC price key (same as Stripe `lookup_key`). */
-export const STRIPE_CATALOG_PRICE_TYPE = 'catalog_price' as const;
-
-/** Row `id` is `catalog_product_id` metadata value on the Product (e.g. `subscription`). */
-export const STRIPE_CATALOG_PRODUCT_TYPE = 'catalog_product' as const;
+/** Patch-db entity type for catalog products (`catalog_product_id` metadata = entityId). */
+export const STRIPE_PATCH_ENTITY_CATALOG_PRODUCT =
+  'stripe.catalog_product' as const;
 
 /** Stripe Product metadata — must match `src/sync/catalog.ts`. */
 export const STRIPE_CATALOG_PRODUCT_METADATA_KEY =
   'catalog_product_id' as const;
 
-/** Read Stripe Price `id` from a row produced by {@link upsertCatalogPriceFromStripeApi}. */
+/** Read Stripe Price `id` from `stripe/payload` on a catalog_price entity. */
 export function stripePriceIdFromCatalogRowData(data: unknown): string | null {
   if (
     data !== null &&
@@ -28,15 +30,24 @@ export function stripePriceIdFromCatalogRowData(data: unknown): string | null {
 }
 
 export async function getStripeCatalogPriceStripeId(
-  entityDb: EntityDb,
+  db: PatchesDb,
+  ctx: PatchesDbContext,
   priceLookupKey: string
 ): Promise<string | null> {
-  const row = await entityDb.get({
-    namespace: STRIPE_CATALOG_NAMESPACE,
-    type: STRIPE_CATALOG_PRICE_TYPE,
-    id: priceLookupKey,
-  });
-  return row === null ? null : stripePriceIdFromCatalogRowData(row.data);
+  const [res] = await db.read(
+    [
+      {
+        entityType: STRIPE_PATCH_ENTITY_CATALOG_PRICE,
+        entityId: priceLookupKey,
+        limit: 1,
+      },
+    ],
+    ctx
+  );
+  const ent = res?.entities[0];
+  if (ent === undefined) return null;
+  const payload = ent.attributes['stripe/payload'];
+  return stripePriceIdFromCatalogRowData(payload);
 }
 
 /**
@@ -44,17 +55,26 @@ export async function getStripeCatalogPriceStripeId(
  * `rowId` is the stable catalog key (SPEC / checkout `priceKey`).
  */
 export async function upsertCatalogPriceFromStripeApi(
-  entityDb: EntityDb,
+  db: PatchesDb,
+  ctx: PatchesDbContext,
   rowId: string,
   price: Stripe.Price
 ): Promise<void> {
-  await entityDb.upsert({
-    namespace: STRIPE_CATALOG_NAMESPACE,
-    type: STRIPE_CATALOG_PRICE_TYPE,
-    id: rowId,
-    data: price as unknown,
-    metadata: { source: 'stripe_catalog_sync' },
-  });
+  await db.write(
+    [
+      {
+        entityId: rowId,
+        entityType: STRIPE_PATCH_ENTITY_CATALOG_PRICE,
+        attributes: {
+          'stripe/payload': price as unknown,
+          'stripe/objectType': 'price',
+          'stripe/source': 'stripe_catalog_sync',
+          'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+        },
+      },
+    ],
+    ctx
+  );
 }
 
 /**
@@ -62,15 +82,24 @@ export async function upsertCatalogPriceFromStripeApi(
  * `rowId` is `metadata.catalog_product_id` for that product.
  */
 export async function upsertCatalogProductFromStripeApi(
-  entityDb: EntityDb,
+  db: PatchesDb,
+  ctx: PatchesDbContext,
   rowId: string,
   product: Stripe.Product
 ): Promise<void> {
-  await entityDb.upsert({
-    namespace: STRIPE_CATALOG_NAMESPACE,
-    type: STRIPE_CATALOG_PRODUCT_TYPE,
-    id: rowId,
-    data: product as unknown,
-    metadata: { source: 'stripe_catalog_sync' },
-  });
+  await db.write(
+    [
+      {
+        entityId: rowId,
+        entityType: STRIPE_PATCH_ENTITY_CATALOG_PRODUCT,
+        attributes: {
+          'stripe/payload': product as unknown,
+          'stripe/objectType': 'product',
+          'stripe/source': 'stripe_catalog_sync',
+          'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+        },
+      },
+    ],
+    ctx
+  );
 }

@@ -1,4 +1,3 @@
-import type { EntityDb } from '@gamezilla/lib/entity-db/interface';
 import type { SecretStore } from '@gamezilla/lib/secret-store';
 import type { PatchesDb } from '@gamezilla/patch-db/interface';
 import { Hono } from 'hono';
@@ -15,11 +14,8 @@ import { createStripeWebhookRoutes } from './stripe-webhook-route';
  */
 export function createStripeApp(args: {
   readonly db: PatchesDb;
-  /** When set, verified webhook events also append a `stripe.webhook_event` patch (system ctx). */
-  readonly patchDb?: PatchesDb;
   readonly secretStore: SecretStore;
   readonly stripe: Stripe | null;
-  readonly entityDb: EntityDb;
   readonly requireAuth: StripeRequireAuth;
   /** Doppler secret name for the webhook signing secret. */
   readonly webhookSecretDopplerKey: string;
@@ -27,14 +23,12 @@ export function createStripeApp(args: {
   const webhook = createStripeWebhookRoutes({
     secretStore: args.secretStore,
     stripe: args.stripe,
-    entityDb: args.entityDb,
+    patchDb: args.db,
     webhookSecretKey: args.webhookSecretDopplerKey,
-    ...(args.patchDb !== undefined ? { patchDb: args.patchDb } : {}),
   });
   const checkout = createStripeCheckoutRoutes({
     db: args.db,
     stripe: args.stripe,
-    entityDb: args.entityDb,
     requireAuth: args.requireAuth,
   });
 

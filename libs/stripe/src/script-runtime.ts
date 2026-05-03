@@ -2,7 +2,7 @@
  * Shared runtime for Stripe CLI sync scripts.
  *
  * Centralizes secret resolution (Stripe key, `DB_URL`), Stripe client
- * construction, and EntityDb setup so per-entity scripts stay thin and
+ * construction, and PatchesDb setup so per-entity scripts stay thin and
  * consistent (Tiger Style: small surface, fail fast).
  *
  * `DB_URL` accepts either:
@@ -16,12 +16,12 @@
  */
 import { SqlClientImplPgliteHttp } from '@gamezilla/lib/sql-client/impl-pglite-http';
 import { SqlClientImplPostgresTcp } from '@gamezilla/lib/sql-client/impl-postgres-tcp';
-import type { EntityDb } from '@gamezilla/lib/entity-db/interface';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import type { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
 import Stripe from 'stripe';
 import { createStripeScriptSecretStore } from './script-secret-store';
+import { createStripeScriptPatchDb } from './stripe-script-patch-db';
 import { StripeSecretKeys } from './secret-keys';
-import { createStripeWebhookCacheEntityDb } from './webhook-cache-entity-db';
 
 function isPostgresDbUrl(u: string): boolean {
   return u.startsWith('postgres://') || u.startsWith('postgresql://');
@@ -79,7 +79,7 @@ export async function assertDbUrl(scriptTag: string): Promise<string> {
 
 /**
  * Optional `DB_URL` resolver — preserves soft-skip semantics for callers that
- * want catalog reconcile without entity-db persistence (e.g. CI gate scripts
+ * want catalog reconcile without patch-db persistence (e.g. CI gate scripts
  * running where no Postgres / PGlite is reachable).
  */
 export async function resolveOptionalDbUrl(): Promise<string | undefined> {
@@ -109,12 +109,12 @@ export function createStripeClientFromSecret(secretKey: string): Stripe {
 export type StripeScriptContext = {
   readonly stripe: Stripe;
   readonly sql: SqlClient;
-  readonly entityDb: EntityDb;
+  readonly patchDb: PatchDbImplPostgres;
   readonly disconnect: () => Promise<void>;
 };
 
 /**
- * Build a fully-wired script context: Stripe client + EntityDb backed by
+ * Build a fully-wired script context: Stripe client + PatchesDb backed by
  * whichever SQL impl matches `DB_URL` (Postgres TCP or PGlite HTTP).
  * Caller MUST `await ctx.disconnect()` in a `finally` block.
  */
@@ -128,11 +128,11 @@ export async function createStripeScriptContext(
   const stripe = createStripeClientFromSecret(secret);
   const sql = createSqlClientFromDbUrl(dbUrl);
   await sql.connect();
-  const entityDb = createStripeWebhookCacheEntityDb(sql);
+  const patchDb = createStripeScriptPatchDb(sql);
   return {
     stripe,
     sql,
-    entityDb,
+    patchDb,
     disconnect: () => sql.disconnect(),
   };
 }

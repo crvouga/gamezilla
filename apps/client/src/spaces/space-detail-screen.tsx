@@ -2,7 +2,6 @@ import { useSpaceActions } from '@gamezilla/client/spaces/space-actions';
 import { SpaceMemberList } from '@gamezilla/client/spaces/space-member-list';
 import {
   useCurrentMembership,
-  usePrincipalDisplayName,
   useSpace,
   useSpaceMembers,
 } from '@gamezilla/client/spaces/use-spaces';
@@ -67,64 +66,6 @@ function LoadingState() {
             variant="body"
             sx={{ color: 'textSecondary' }}
             label={<Trans>Loading…</Trans>}
-          />
-        </Box>
-      )}
-    />
-  );
-}
-
-function NotFoundState() {
-  const { t } = useLingui();
-  const router = useRouter();
-  const nav = useBreadcrumbNav();
-  return (
-    <ScreenBase
-      breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, onPress: nav('/') },
-        { name: <Trans>Space</Trans> },
-      ]}
-      content={({ sx }) => (
-        <Box style={sx} sx={{ flex: 1, justifyContent: 'center' }}>
-          <Text
-            variant="body"
-            sx={{ color: 'textSecondary' }}
-            label={<Trans>This space could not be found.</Trans>}
-          />
-          <Box sx={{ mt: 3 }}>
-            <Button
-              title={t`Go back`}
-              variant="solid"
-              onPress={() => router.back()}
-            />
-          </Box>
-        </Box>
-      )}
-    />
-  );
-}
-
-function EndedState({ title }: { title: string }) {
-  const { t } = useLingui();
-  const router = useRouter();
-  const nav = useBreadcrumbNav();
-  return (
-    <ScreenBase
-      breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, onPress: nav('/') },
-        { name: title },
-      ]}
-      content={({ sx }) => (
-        <Box style={sx} sx={{ flex: 1, justifyContent: 'center', gap: 3 }}>
-          <Text
-            variant="body"
-            sx={{ color: 'textSecondary', textAlign: 'center' }}
-            label={<Trans>This space has ended.</Trans>}
-          />
-          <Button
-            title={t`Go back`}
-            variant="solid"
-            onPress={() => router.back()}
           />
         </Box>
       )}
@@ -312,14 +253,22 @@ export function SpaceDetailScreen() {
   const current = useCurrentMembership();
   const { members } = useSpaceMembers(spaceId);
   const { joinSpace, leaveSpace, endSpace } = useSpaceActions();
-  const hostLabel = usePrincipalDisplayName(space.hostId);
 
   useAutoLeaveIfEnded({ spaceId, space, current, leaveSpace });
 
+  const router = useRouter();
   const pageLoading = space.loading || current.loading;
+  const shouldRedirectHome =
+    !pageLoading && (!space.space || !space.live);
+
+  useEffect(() => {
+    if (shouldRedirectHome) {
+      router.replace('/');
+    }
+  }, [shouldRedirectHome, router]);
+
   if (pageLoading) return <LoadingState />;
-  if (!space.space) return <NotFoundState />;
-  if (!space.live) return <EndedState title={space.title} />;
+  if (shouldRedirectHome) return <LoadingState />;
 
   const inThisSpace = current.activeSpaceId === spaceId;
   if (!inThisSpace) {
@@ -327,7 +276,7 @@ export function SpaceDetailScreen() {
       <JoinPrompt
         spaceId={spaceId}
         title={space.title}
-        hostLabel={hostLabel}
+        hostLabel={space.hostDisplayName}
         onJoin={joinSpace}
       />
     );

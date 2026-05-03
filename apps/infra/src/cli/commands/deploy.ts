@@ -106,7 +106,7 @@ export class DeployCommand implements Command {
           cwd: REPO_ROOT,
           env: process.env,
           label:
-            'stripe: catalog + entity-db backfill + webhook endpoints (+ Doppler STRIPE_WEBHOOK_SECRET)',
+            'stripe: catalog + patch-db backfill + webhook endpoints (+ Doppler STRIPE_WEBHOOK_SECRET)',
         }
       );
     });

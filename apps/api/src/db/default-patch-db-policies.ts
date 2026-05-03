@@ -396,6 +396,32 @@ const stripeWebhookEventPolicy: GamezillaVisibilityPolicy = {
   },
 };
 
+/** Catalog rows are global; any authenticated caller may read for checkout. */
+const stripeCatalogPricePolicy: GamezillaVisibilityPolicy = {
+  read: () => READ_WHERE_ALWAYS_TRUE,
+  write: async (ctx) => {
+    if (isPatchesDbSystemContext(ctx)) return;
+    throw new ForbiddenError('stripe.catalog_price is system-only');
+  },
+};
+
+const stripeCatalogProductPolicy: GamezillaVisibilityPolicy = {
+  read: () => READ_WHERE_ALWAYS_TRUE,
+  write: async (ctx) => {
+    if (isPatchesDbSystemContext(ctx)) return;
+    throw new ForbiddenError('stripe.catalog_product is system-only');
+  },
+};
+
+/** Stripe API snapshots keyed by Stripe object id; owner-scoped reads. */
+const stripeOwnedSnapshotPolicy: GamezillaVisibilityPolicy = {
+  read: stripeRead,
+  write: async (ctx) => {
+    if (isPatchesDbSystemContext(ctx)) return;
+    throw new ForbiddenError('stripe snapshot entity is system-only');
+  },
+};
+
 /** Domain + auth entity visibility (ABAC predicates). */
 export const DEFAULT_PATCH_DB_VISIBILITY_POLICIES: Readonly<
   Record<string, GamezillaVisibilityPolicy>
@@ -415,8 +441,17 @@ export const DEFAULT_PATCH_DB_VISIBILITY_POLICIES: Readonly<
   match: matchPolicy,
   'match.score': matchScorePolicy,
   'inventory.item': inventoryItemPolicy,
+  'stripe.catalog_price': stripeCatalogPricePolicy,
+  'stripe.catalog_product': stripeCatalogProductPolicy,
+  'stripe.customer': stripeOwnedSnapshotPolicy,
   'stripe.subscription': stripeSubscriptionPolicy,
   'stripe.paymentMethod': stripePaymentMethodPolicy,
   'stripe.invoice': stripeInvoicePolicy,
+  'stripe.charge': stripeOwnedSnapshotPolicy,
+  'stripe.payment_intent': stripeOwnedSnapshotPolicy,
+  'stripe.setup_intent': stripeOwnedSnapshotPolicy,
+  'stripe.refund': stripeOwnedSnapshotPolicy,
+  'stripe.dispute': stripeOwnedSnapshotPolicy,
+  'stripe.checkout_session': stripeOwnedSnapshotPolicy,
   'stripe.webhook_event': stripeWebhookEventPolicy,
 };

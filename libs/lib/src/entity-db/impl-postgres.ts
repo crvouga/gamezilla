@@ -209,6 +209,40 @@ export async function migrateEntityDbPostgres(
   }
 }
 
+/**
+ * Idempotent destructive DDL: drops the partitioned entity-db parent table.
+ * `CASCADE` removes LIST partitions (e.g. `{table}_default`) and all indexes.
+ * Prefer `EntityDbImplPostgres.migrateDown` at call sites.
+ */
+export async function migrateDownEntityDbPostgres(
+  args: MigrateEntityDbPostgresArgs
+): Promise<void> {
+  const { sqlClient, schema, logger } = args;
+  const tableName = args.tableName ?? DEFAULT_POSTGRES_ENTITY_TABLE;
+  assert.defined(sqlClient, 'entity-db migrateDown: sqlClient is required');
+  assert.defined(logger, 'entity-db migrateDown: logger is required');
+  const log = logger.child({
+    migration: 'entity-db-postgres-down',
+    tableName,
+    schema: catalogSchemaName(schema),
+  });
+  log.info('entity-db postgres migrateDown: start');
+  try {
+    await sqlClient.transaction(async (tx) => {
+      const qualified = qualifiedTable(tableName, schema);
+      const dropSql = `DROP TABLE IF EXISTS ${qualified} CASCADE`;
+      log.info('entity-db postgres migrateDown: executing drop', { qualified });
+      await tx.run(dropSql);
+    });
+    log.info('entity-db postgres migrateDown: complete');
+  } catch (error) {
+    log.error('entity-db postgres migrateDown: failed', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    throw error;
+  }
+}
+
 type JsonbRow = {
   [K in typeof C.data | typeof C.metadata]: unknown;
 } & { [K in typeof C.lastModifiedAt]: unknown };
@@ -235,6 +269,19 @@ export class EntityDbImplPostgres implements EntityDb {
     logger: Logger;
   }): Promise<void> {
     return migrateEntityDbPostgres(args);
+  }
+
+  /**
+   * Idempotent drop of the entity-db table (default `entities` in `public`).
+   * Destructive — removes all rows. Use after data has moved to patch-db.
+   */
+  static migrateDown(args: {
+    sqlClient: SqlClient;
+    logger: Logger;
+    tableName?: string;
+    schema?: string;
+  }): Promise<void> {
+    return migrateDownEntityDbPostgres(args);
   }
 
   async upsert(args: UpsertArgs): Promise<{ applied: boolean }> {

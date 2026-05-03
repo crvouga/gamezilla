@@ -1,6 +1,6 @@
 /**
  * Single place that defines Postgres DDL migration order for this app:
- * patch-db → kv → entity-db.
+ * patch-db → kv → entity-db down (drop legacy `entities` table).
  *
  * Callers supply the {@link SqlClient} (optionally a transaction-scoped client)
  * and a {@link Logger}; see `scripts/migrate-db.ts` and `src/migrate.ts` (`migrateInProcessPglite`).
@@ -24,6 +24,6 @@ export async function runPostgresMigrations(
   await sqlClient.transaction(async (tx) => {
     await PatchDbImplPostgres.migrate({ sqlClient: tx, logger });
     await KvImplPostgres.migrate({ sqlClient: tx, logger });
-    await EntityDbImplPostgres.migrate({ sqlClient: tx, logger });
+    await EntityDbImplPostgres.migrateDown({ sqlClient: tx, logger });
   });
 }

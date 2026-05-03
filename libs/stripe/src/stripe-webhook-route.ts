@@ -1,4 +1,3 @@
-import type { EntityDb } from '@gamezilla/lib/entity-db/interface';
 import { createLogger } from '@gamezilla/lib/logger';
 import type { SecretStore } from '@gamezilla/lib/secret-store';
 import type {
@@ -40,48 +39,66 @@ function extractStripeCustomerId(event: Stripe.Event): string | null {
   return customerIdFromString(c) ?? customerIdFromObject(c);
 }
 
-async function recordWebhookEventInPatchDb(
+function webhookEventEntityType(eventType: string): string {
+  return `stripe.${eventType}`;
+}
+
+async function recordVerifiedStripeWebhookInPatchDb(
   patchDb: PatchesDb,
   event: Stripe.Event,
   objectId: string
 ): Promise<void> {
   const customerId = extractStripeCustomerId(event);
-  if (customerId === null) {
-    return;
+  let accountId: string | null = null;
+  if (customerId !== null) {
+    accountId = await resolveAccountIdByStripeCustomerId(
+      patchDb,
+      customerId,
+      PATCHES_DB_STRIPE_WEBHOOK_CONTEXT
+    );
   }
-  const accountId = await resolveAccountIdByStripeCustomerId(
-    patchDb,
-    customerId,
-    PATCHES_DB_STRIPE_WEBHOOK_CONTEXT
-  );
-  if (accountId === null) {
-    return;
+
+  const eventCacheAttrs: Record<string, unknown> = {
+    'stripe/payload': event as unknown,
+    'stripe/objectType': 'event',
+    'stripe/source': 'stripe_webhook',
+    'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+  };
+  if (accountId !== null) {
+    eventCacheAttrs['entity/owner'] = accountId;
   }
-  await patchDb.write(
-    [
-      {
-        entityId: objectId,
-        entityType: 'stripe.webhook_event',
-        attributes: {
-          'entity/owner': accountId,
-          'stripe/webhookEventType': event.type,
-          'stripe/stripeObjectId': objectId,
-          'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
-        },
+
+  const patches: Parameters<PatchesDb['write']>[0] = [
+    {
+      entityId: objectId,
+      entityType: webhookEventEntityType(event.type),
+      attributes: eventCacheAttrs,
+    },
+  ];
+
+  if (accountId !== null) {
+    patches.push({
+      entityId: objectId,
+      entityType: 'stripe.webhook_event',
+      attributes: {
+        'entity/owner': accountId,
+        'stripe/webhookEventType': event.type,
+        'stripe/stripeObjectId': objectId,
+        'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
       },
-    ],
-    PATCHES_DB_STRIPE_WEBHOOK_CONTEXT
-  );
+    });
+  }
+
+  await patchDb.write(patches, PATCHES_DB_STRIPE_WEBHOOK_CONTEXT);
 }
 
 export function createStripeWebhookRoutes(args: {
   readonly secretStore: SecretStore;
   readonly stripe: Stripe | null;
-  readonly entityDb: EntityDb;
-  readonly patchDb?: PatchesDb;
+  readonly patchDb: PatchesDb;
   readonly webhookSecretKey: string;
 }) {
-  const { secretStore, stripe, entityDb, patchDb, webhookSecretKey } = args;
+  const { secretStore, stripe, patchDb, webhookSecretKey } = args;
 
   return new Hono().post('/stripe/webhook', async (c) => {
     try {
@@ -110,16 +127,7 @@ export function createStripeWebhookRoutes(args: {
       );
       const objectId = stripeEventObjectId(event);
 
-      await entityDb.upsert({
-        namespace: 'stripe',
-        type: event.type,
-        id: objectId,
-        data: event,
-      });
-
-      if (patchDb !== undefined) {
-        await recordWebhookEventInPatchDb(patchDb, event, objectId);
-      }
+      await recordVerifiedStripeWebhookInPatchDb(patchDb, event, objectId);
 
       return c.json({ received: true as const }, 200);
     } catch (e: unknown) {

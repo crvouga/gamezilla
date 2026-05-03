@@ -30,9 +30,10 @@ import type {
   PatchesDbQueryWhereClause,
 } from '@gamezilla/patch-db/interface';
 import { useEntities } from '@gamezilla/patch-db/react';
+import { useLingui } from '@lingui/react/macro';
 import { useMemo } from 'react';
 
-import type { SpaceFilter, SpaceMemberRow, SpaceView } from './types';
+import type { SpaceMemberRow, SpaceView } from './types';
 
 const NO_ENTITY_PLACEHOLDER = '__patch_db_no_entity__';
 
@@ -52,50 +53,133 @@ function spaceEntityIsLive(
   return ended === undefined || ended === null;
 }
 
-function principalPresentation(
-  principalId: string,
-  principalById: Map<string, Entity>,
-  profileById: Map<string, Entity>
-): { displayName: string; avatarConfig: AvatarConfig | null } {
+/**
+ * Resolves the profile entity id to look up for a principal:
+ * - When `principalId` is the current viewer and they're signed in, use the
+ *   auth-supplied accountId directly (matches `useProfile()`).
+ * - Otherwise read `principal/accountId` from the principal entity, falling
+ *   back to the principal-local profile id.
+ */
+function resolveProfileKey(args: {
+  principalId: string;
+  principalById: Map<string, Entity>;
+  selfPrincipalId: string;
+  selfAccountId: string | null;
+}): string {
+  const { principalId, principalById, selfPrincipalId, selfAccountId } = args;
+  if (principalId === selfPrincipalId && selfAccountId !== null) {
+    return selfAccountId;
+  }
   const principalRow = principalById.get(principalId);
-  const accountId = readStringAttr(
+  const accountIdAttr = readStringAttr(
     principalRow?.attributes as Record<string, unknown> | undefined,
     PrincipalAttr.accountId
   );
-  const profileKey = accountId ?? principalId;
-  const profileEntity = profileById.get(profileKey);
+  return accountIdAttr ?? principalId;
+}
+
+function principalPresentation(args: {
+  principalId: string;
+  principalById: Map<string, Entity>;
+  profileById: Map<string, Entity>;
+  selfPrincipalId: string;
+  selfAccountId: string | null;
+}): { displayName: string; avatarConfig: AvatarConfig | null } {
+  const profileKey = resolveProfileKey(args);
+  const profileEntity = args.profileById.get(profileKey);
   const attrs = profileEntity?.attributes as Record<string, unknown> | undefined;
   return {
     displayName: displayNameForPrincipal(
       attrs?.[ProfileAttr.displayName],
-      principalId
+      args.principalId
     ),
     avatarConfig: parseAvatarConfigAttr(attrs, ProfileAttr.avatarConfig),
   };
 }
 
-export function useSpaces(filter: SpaceFilter) {
-  const principalService = useDependency(PrincipalServiceToken);
-  const selfPrincipalId = principalService.getPrincipalId();
+/**
+ * Loads the current viewer's account-scoped profile (when signed in) so
+ * callers can layer it onto bulk-fetched profile maps. This makes the dynamic
+ * space title fall back to the live account display name without waiting for
+ * the principal entity's `accountId` attribute to sync.
+ */
+function useSelfAccountProfile(selfAccountId: string | null): {
+  entity: Entity | null;
+  loading: boolean;
+} {
+  const res = useEntities(
+    selfAccountId !== null
+      ? { entityType: PROFILE_ENTITY_TYPE, entityId: selfAccountId }
+      : { entityType: PROFILE_ENTITY_TYPE, limit: 0 }
+  );
+  return { entity: res.entities[0] ?? null, loading: res.loading };
+}
 
-  const liveWhere = {
+function withSelfAccountProfile(
+  profileById: Map<string, Entity>,
+  selfAccountId: string | null,
+  selfAccountProfile: Entity | null
+): Map<string, Entity> {
+  if (selfAccountId === null || selfAccountProfile === null) return profileById;
+  return new Map(profileById).set(selfAccountId, selfAccountProfile);
+}
+
+function useSelfAuthIdentity(): {
+  selfPrincipalId: string;
+  selfAccountId: string | null;
+} {
+  const principalService = useDependency(PrincipalServiceToken);
+  const auth = useAuth();
+  return {
+    selfPrincipalId: principalService.getPrincipalId(),
+    selfAccountId: auth.mode === 'signed-in' ? auth.accountId : null,
+  };
+}
+
+const LIVE_SPACES_QUERY: PatchesDbQuery = {
+  entityType: SPACE_ENTITY_TYPE,
+  where: {
     type: 'not_exists' as const,
     attribute: SpaceAttr.endedAt,
+  },
+  orderBy: [{ attribute: SpaceAttr.createdAt, direction: 'desc' }],
+};
+
+function buildSpaceView(args: {
+  entity: Entity;
+  principalById: Map<string, Entity>;
+  profileById: Map<string, Entity>;
+  selfPrincipalId: string;
+  selfAccountId: string | null;
+  t: ReturnType<typeof useLingui>['t'];
+}): SpaceView {
+  const { entity, t } = args;
+  const customTitle = readStringAttr(entity.attributes, SpaceAttr.title);
+  const hostId = readStringAttr(entity.attributes, SpaceAttr.hostId) ?? '';
+  const { displayName: hostDisplayName, avatarConfig: hostAvatarConfig } =
+    principalPresentation({
+      principalId: hostId,
+      principalById: args.principalById,
+      profileById: args.profileById,
+      selfPrincipalId: args.selfPrincipalId,
+      selfAccountId: args.selfAccountId,
+    });
+  const title = customTitle ?? t`${hostDisplayName}'s space`;
+  return {
+    id: entity.entityId,
+    title,
+    customTitle,
+    hostId,
+    hostDisplayName,
+    hostAvatarConfig,
   };
+}
 
-  const spacesQuery: PatchesDbQuery =
-    filter === 'live'
-      ? {
-          entityType: SPACE_ENTITY_TYPE,
-          where: liveWhere,
-          orderBy: [{ attribute: SpaceAttr.createdAt, direction: 'desc' }],
-        }
-      : {
-          entityType: SPACE_ENTITY_TYPE,
-          orderBy: [{ attribute: SpaceAttr.createdAt, direction: 'desc' }],
-        };
+export function useSpaces() {
+  const { selfPrincipalId, selfAccountId } = useSelfAuthIdentity();
+  const { t } = useLingui();
 
-  const spacesResult = useEntities(spacesQuery);
+  const spacesResult = useEntities(LIVE_SPACES_QUERY);
 
   const hostIds = useMemo(() => {
     const list = spacesResult.entities ?? [];
@@ -111,26 +195,38 @@ export function useSpaces(filter: SpaceFilter) {
   const { principalById, profileById, loading: hostProfilesLoading } =
     usePrincipalProfileEntities(hostIds);
 
+  const { entity: selfAccountProfile, loading: selfProfileLoading } =
+    useSelfAccountProfile(selfAccountId);
+
   const spaces: SpaceView[] = useMemo(() => {
     const list = spacesResult.entities ?? [];
-    return list.map((e) => {
-      const title = readStringAttr(e.attributes, SpaceAttr.title) ?? 'Untitled';
-      const hostId = readStringAttr(e.attributes, SpaceAttr.hostId) ?? '';
-      const live = spaceEntityIsLive(e.attributes);
-      const { displayName: hostDisplayName, avatarConfig: hostAvatarConfig } =
-        principalPresentation(hostId, principalById, profileById);
-      return {
-        id: e.entityId,
-        title,
-        hostId,
-        hostDisplayName,
-        hostAvatarConfig,
-        live,
-      };
-    });
-  }, [spacesResult.entities, principalById, profileById]);
+    const augmented = withSelfAccountProfile(
+      profileById,
+      selfAccountId,
+      selfAccountProfile
+    );
+    return list.map((entity) =>
+      buildSpaceView({
+        entity,
+        principalById,
+        profileById: augmented,
+        selfPrincipalId,
+        selfAccountId,
+        t,
+      })
+    );
+  }, [
+    spacesResult.entities,
+    principalById,
+    profileById,
+    selfAccountProfile,
+    selfPrincipalId,
+    selfAccountId,
+    t,
+  ]);
 
-  const loading = spacesResult.loading || hostProfilesLoading;
+  const loading =
+    spacesResult.loading || hostProfilesLoading || selfProfileLoading;
 
   return { spaces, loading };
 }
@@ -146,39 +242,67 @@ export function useSpace(spaceId: string | undefined) {
   });
   const entity = spaceRes.entities[0] ?? null;
 
+  const customTitle = readStringAttr(entity?.attributes, SpaceAttr.title);
+  const hostId = readStringAttr(entity?.attributes, SpaceAttr.hostId);
+  const hostDisplayName = usePrincipalDisplayName(hostId);
+  const { t } = useLingui();
+  const title = customTitle ?? t`${hostDisplayName}'s space`;
+
   return {
     space: entity,
     loading: spaceRes.loading,
-    title: readStringAttr(entity?.attributes, SpaceAttr.title) ?? 'Untitled',
-    hostId: readStringAttr(entity?.attributes, SpaceAttr.hostId),
+    title,
+    customTitle,
+    hostId,
+    hostDisplayName,
     createdAt: readStringAttr(entity?.attributes, SpaceAttr.createdAt),
     live: entity ? spaceEntityIsLive(entity.attributes) : false,
     endedAt: readStringAttr(entity?.attributes, SpaceAttr.endedAt),
   };
 }
 
-/** Display label for a principal's current profile (for host / join UI). */
+/**
+ * Display label for a principal's current profile (for host / join UI).
+ *
+ * Selection rules:
+ * - When the principal is the current viewer, the auth context drives the lookup:
+ *   signed-in → account profile (`entityId === accountId`),
+ *   guest → principal-local profile (`entityId === principalId`).
+ *   This matches `useProfile()` and avoids waiting on the principal entity to
+ *   reflect a freshly bound `accountId`.
+ * - For other principals we still derive the profile id from their principal entity
+ *   when visible.
+ */
 export function usePrincipalDisplayName(
   principalId: string | null | undefined
 ) {
+  const principalService = useDependency(PrincipalServiceToken);
+  const selfPrincipalId = principalService.getPrincipalId();
+  const auth = useAuth();
+  const selfAccountId =
+    auth.mode === 'signed-in' ? auth.accountId : null;
+
   const id =
     typeof principalId === 'string' && principalId.length > 0
       ? principalId
       : NO_ENTITY_PLACEHOLDER;
+  const isSelf = id !== NO_ENTITY_PLACEHOLDER && id === selfPrincipalId;
+  const skipPrincipalLookup = isSelf && selfAccountId !== null;
 
   const principalRes = useEntities(
-    id === NO_ENTITY_PLACEHOLDER
+    id === NO_ENTITY_PLACEHOLDER || skipPrincipalLookup
       ? { entityType: PRINCIPAL_ENTITY_TYPE, limit: 0 }
       : { entityType: PRINCIPAL_ENTITY_TYPE, entityId: id }
   );
   const principalRow = principalRes.entities[0] ?? null;
-  const accountId =
+  const accountIdFromEntity =
     id === NO_ENTITY_PLACEHOLDER
       ? null
       : readStringAttr(
           principalRow?.attributes as Record<string, unknown> | undefined,
           PrincipalAttr.accountId
         );
+  const accountId = isSelf ? selfAccountId : accountIdFromEntity;
   const profileEntityId =
     id === NO_ENTITY_PLACEHOLDER
       ? NO_ENTITY_PLACEHOLDER
@@ -373,9 +497,37 @@ export function useCurrentMembership(): CurrentMembership {
   );
 }
 
+function compareMembers(a: SpaceMemberRow, b: SpaceMemberRow): number {
+  if (a.role === 'host' && b.role !== 'host') return -1;
+  if (a.role !== 'host' && b.role === 'host') return 1;
+  return a.displayName.localeCompare(b.displayName);
+}
+
+function buildMemberRow(args: {
+  membership: Entity;
+  principalById: Map<string, Entity>;
+  profileById: Map<string, Entity>;
+  selfPrincipalId: string;
+  selfAccountId: string | null;
+}): SpaceMemberRow {
+  const { membership } = args;
+  const roleRaw = membership.attributes[SpaceMembershipAttr.role];
+  const role: 'host' | 'guest' = roleRaw === 'host' ? 'host' : 'guest';
+  return {
+    principalId: membership.entityId,
+    ...principalPresentation({
+      principalId: membership.entityId,
+      principalById: args.principalById,
+      profileById: args.profileById,
+      selfPrincipalId: args.selfPrincipalId,
+      selfAccountId: args.selfAccountId,
+    }),
+    role,
+  };
+}
+
 export function useSpaceMembers(spaceId: string | undefined) {
-  const principalService = useDependency(PrincipalServiceToken);
-  const selfId = principalService.getPrincipalId();
+  const { selfPrincipalId, selfAccountId } = useSelfAuthIdentity();
 
   const sid =
     typeof spaceId === 'string' && spaceId.length > 0
@@ -393,36 +545,46 @@ export function useSpaceMembers(spaceId: string | undefined) {
     },
   });
 
-  const memberIds = useMemo(() => {
-    return (membersRes.entities ?? []).map((e) => e.entityId);
-  }, [membersRes.entities]);
-
-  const memberPrincipalIds =
-    memberIds.length > 0 ? memberIds : [selfId];
+  const memberPrincipalIds = useMemo(() => {
+    const ids = (membersRes.entities ?? []).map((e) => e.entityId);
+    return ids.length > 0 ? ids : [selfPrincipalId];
+  }, [membersRes.entities, selfPrincipalId]);
 
   const { principalById, profileById, loading: memberProfilesLoading } =
     usePrincipalProfileEntities(memberPrincipalIds);
 
-  const members: SpaceMemberRow[] = useMemo(() => {
-    const rows: SpaceMemberRow[] = [];
-    for (const e of membersRes.entities ?? []) {
-      const roleRaw = e.attributes[SpaceMembershipAttr.role];
-      const role: 'host' | 'guest' = roleRaw === 'host' ? 'host' : 'guest';
-      rows.push({
-        principalId: e.entityId,
-        ...principalPresentation(e.entityId, principalById, profileById),
-        role,
-      });
-    }
-    rows.sort((a, b) => {
-      if (a.role === 'host' && b.role !== 'host') return -1;
-      if (a.role !== 'host' && b.role === 'host') return 1;
-      return a.displayName.localeCompare(b.displayName);
-    });
-    return rows;
-  }, [membersRes.entities, principalById, profileById]);
+  const { entity: selfAccountProfile, loading: selfProfileLoading } =
+    useSelfAccountProfile(selfAccountId);
 
-  const loading = membersRes.loading || memberProfilesLoading;
+  const members: SpaceMemberRow[] = useMemo(() => {
+    const augmented = withSelfAccountProfile(
+      profileById,
+      selfAccountId,
+      selfAccountProfile
+    );
+    const rows: SpaceMemberRow[] = (membersRes.entities ?? []).map(
+      (membership) =>
+        buildMemberRow({
+          membership,
+          principalById,
+          profileById: augmented,
+          selfPrincipalId,
+          selfAccountId,
+        })
+    );
+    rows.sort(compareMembers);
+    return rows;
+  }, [
+    membersRes.entities,
+    principalById,
+    profileById,
+    selfAccountProfile,
+    selfPrincipalId,
+    selfAccountId,
+  ]);
+
+  const loading =
+    membersRes.loading || memberProfilesLoading || selfProfileLoading;
 
   return { members, loading };
 }

@@ -72,7 +72,7 @@ async function runKvPostgresMigrations(
 
 /**
  * Postgres-backed {@link Kv}.
- * Migration: `KvImplPostgres.migrate({ sqlClient, logger })` (static), same as patch-db / entity-db.
+ * Migration: `KvImplPostgres.migrate({ sqlClient, logger })` (static), same as patch-db.
  */
 export class KvImplPostgres implements Kv {
   constructor(private readonly sqlClient: SqlClient) {}

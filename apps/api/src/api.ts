@@ -2,7 +2,6 @@ import { createLogger } from '@gamezilla/lib/logger';
 import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import { isSecretStoreError } from '@gamezilla/lib/secret-store';
 import { makeStripeClient } from '@gamezilla/stripe/make-stripe-client';
-import { createStripeWebhookCacheEntityDb } from '@gamezilla/stripe/webhook-cache-entity-db';
 import { createApiApp } from './app/create-app';
 import { requireAuthContext } from './auth/session-middleware';
 import type { ApiWorkerEnv } from './config/env';
@@ -14,7 +13,6 @@ import {
 import { ApiSecretName } from './config/secret-names';
 import { createApiSecretStore } from './config/secret-store';
 import { getPatchDb } from './db/patch-db';
-import { getDb } from './db/sql-client';
 
 const log = createLogger({ name: 'api' });
 
@@ -95,13 +93,11 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
       ? stripeRaw.trim()
       : null;
   const stripe = stripeKey !== null ? makeStripeClient(stripeKey) : null;
-  const entityDb = createStripeWebhookCacheEntityDb(getDb(databaseUrl));
   return createApiApp({
     db: patchDb,
     pubSub,
     secretStore,
     stripe,
-    entityDb,
     requireAuth: requireAuthContext,
     webhookSecretDopplerKey: ApiSecretName.stripeWebhookSecret,
   });

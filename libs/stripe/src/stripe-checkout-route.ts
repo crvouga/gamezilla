@@ -1,5 +1,4 @@
 import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '@gamezilla/domain/auth';
-import type { EntityDb } from '@gamezilla/lib/entity-db/interface';
 import { createLogger } from '@gamezilla/lib/logger';
 import type { PatchesDb, PatchesDbAuthContext } from '@gamezilla/patch-db/interface';
 import { zValidator } from '@hono/zod-validator';
@@ -94,23 +93,26 @@ async function handleStripeCheckout(
   args: {
     readonly db: PatchesDb;
     readonly stripe: Stripe;
-    readonly entityDb: EntityDb;
     readonly requireAuth: StripeRequireAuth;
   }
 ): Promise<Response> {
-  const { db, stripe, entityDb, requireAuth } = args;
+  const { db, stripe, requireAuth } = args;
   const auth = await requireAuth(db, c.req.raw);
   const patchCtx = stripePatchesDbContext(auth);
 
-  const priceId = await getStripeCatalogPriceStripeId(entityDb, body.priceKey);
+  const priceId = await getStripeCatalogPriceStripeId(
+    db,
+    patchCtx,
+    body.priceKey
+  );
   if (priceId === null || priceId.length === 0) {
     log.error(
-      'checkout: no catalog_price row for priceKey — run stripe catalog sync with DB_URL so API payloads are dumped to entity db'
+      'checkout: no catalog_price row for priceKey — run stripe catalog sync with DB_URL so API payloads are dumped to patch-db'
     );
     return c.json(
       {
         error:
-          'Stripe price is not available yet (missing catalog row in entity db)',
+          'Stripe price is not available yet (missing catalog row in patch-db)',
       },
       503
     );
@@ -192,10 +194,9 @@ async function handleStripePortal(
 export function createStripeCheckoutRoutes(args: {
   readonly db: PatchesDb;
   readonly stripe: Stripe | null;
-  readonly entityDb: EntityDb;
   readonly requireAuth: StripeRequireAuth;
 }) {
-  const { db, stripe, entityDb, requireAuth } = args;
+  const { db, stripe, requireAuth } = args;
 
   return new Hono()
     .post(
@@ -209,7 +210,6 @@ export function createStripeCheckoutRoutes(args: {
         return handleStripeCheckout(c, body, {
           db,
           stripe,
-          entityDb,
           requireAuth,
         });
       }

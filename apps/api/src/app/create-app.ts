@@ -58,7 +58,6 @@ export function createApiApp(config: ApiHandlerConfig) {
     secretStore,
     db,
     stripe,
-    entityDb,
     requireAuth,
     webhookSecretDopplerKey,
   } = config;
@@ -76,10 +75,8 @@ export function createApiApp(config: ApiHandlerConfig) {
       '/',
       createStripeApp({
         db,
-        patchDb: db,
         secretStore,
         stripe,
-        entityDb,
         requireAuth,
         webhookSecretDopplerKey,
       })

@@ -6,7 +6,7 @@
     "./doppler-keys": "./src/doppler-keys.ts",
     "./script-secret-store": "./src/script-secret-store.ts",
     "./make-stripe-client": "./src/make-stripe-client.ts",
-    "./webhook-cache-entity-db": "./src/webhook-cache-entity-db.ts",
+    "./stripe-script-patch-db": "./src/stripe-script-patch-db.ts",
     "./stripe-checkout-route": "./src/stripe-checkout-route.ts",
     "./stripe-app": "./src/stripe-app.ts",
     "./stripe-catalog-mirror": "./src/stripe-catalog-mirror.ts",

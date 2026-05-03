@@ -1,5 +1,5 @@
 /**
- * Single Stripe sync entry point — catalog + entity-db backfills + webhook endpoints.
+ * Single Stripe sync entry point — catalog + patch-db backfills + webhook endpoints.
  *
  * Reads via Doppler (`DOPPLER_TOKEN` or `doppler login`):
  *   - `STRIPE_SECRET_KEY` (required)
@@ -11,7 +11,7 @@
  *
  * Flags:
  *   --dry-run   Webhook step logs plan without mutating Stripe / Doppler.
- *               (Catalog + entity-db steps are idempotent and always run.)
+ *               (Catalog + patch-db steps are idempotent and always run.)
  *
  * All real work lives in `../src/sync/*` so other entry points (CI gate, future
  * Worker cron, tests) can compose the same orchestration without spawning bun.
@@ -23,8 +23,8 @@ import {
   createStripeClientFromSecret,
 } from '../src/script-runtime';
 import { createStripeScriptSecretStore } from '../src/script-secret-store';
+import { createStripeScriptPatchDb } from '../src/stripe-script-patch-db';
 import { runStripeFullSync } from '../src/sync';
-import { createStripeWebhookCacheEntityDb } from '../src/webhook-cache-entity-db';
 
 const SCRIPT_TAG = 'stripe sync';
 
@@ -53,12 +53,12 @@ async function main(): Promise<void> {
   const sql = createSqlClientFromDbUrl(dbUrl);
   await sql.connect();
   try {
-    const entityDb = createStripeWebhookCacheEntityDb(sql);
+    const patchDb = createStripeScriptPatchDb(sql);
     const secretStore = createStripeScriptSecretStore();
 
     const result = await runStripeFullSync({
       stripe,
-      entityDb,
+      patchDb,
       secretStore,
       apiUrlBase,
       dryRun,
@@ -70,7 +70,7 @@ async function main(): Promise<void> {
         catalog: {
           products: result.catalog.products.length,
           prices: result.catalog.prices.length,
-          dumpedToEntityDb: result.catalog.catalogDumped,
+          dumpedToPatchDb: result.catalog.catalogDumped,
         },
         entities: {
           totalWritten: result.entities.totalWritten,

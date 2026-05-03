@@ -38,9 +38,17 @@ msgstr "(untitled)"
 #~ msgid "{0} active session(s) — latest expires {1}"
 #~ msgstr "{0} active session(s) — latest expires {1}"
 
+#: apps/client/src/spaces/space-miniplayer.tsx
+#~ msgid "{0} here"
+#~ msgstr "{0} here"
+
 #: apps/client/src/more/account-device-detail-body.tsx
 msgid "{activeCount} active session(s) — latest expires {latestExpires}"
 msgstr "{activeCount} active session(s) — latest expires {latestExpires}"
+
+#: apps/client/src/spaces/space-miniplayer.tsx
+msgid "{count} people here"
+msgstr "{count} people here"
 
 #: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx
 #: apps/client/src/profile/avatar-editor/avatar-editor-colors-block.tsx
@@ -54,6 +62,11 @@ msgstr "{createdAt} · {createdBy}"
 #: libs/patch-db-example/src/api-inspector.tsx
 msgid "{entityType} / {entityIdShort} · {patchCount} patches"
 msgstr "{entityType} / {entityIdShort} · {patchCount} patches"
+
+#: apps/client/src/spaces/use-spaces.ts
+#: apps/client/src/spaces/use-spaces.ts
+msgid "{hostDisplayName}'s space"
+msgstr "{hostDisplayName}'s space"
 
 #: libs/patch-db-example/src/client-node-panel.tsx
 msgid "{latencyMs} ms"
@@ -91,6 +104,10 @@ msgstr "+ New List"
 #: apps/client/src/spaces/spaces-screen.tsx
 msgid "+ New space"
 msgstr "+ New space"
+
+#: apps/client/src/spaces/space-miniplayer.tsx
+#~ msgid "+{overflow}"
+#~ msgstr "+{overflow}"
 
 #: libs/room-example/src/components/game-clock-section.tsx
 msgid "+1s"
@@ -204,7 +221,6 @@ msgstr "Add Shape"
 msgid "Admin Metrics"
 msgstr "Admin Metrics"
 
-#: apps/client/src/spaces/spaces-screen.tsx
 #: libs/patch-db-example/src/todo/todo-list-detail.tsx
 #: libs/patch-db-example/src/todo/todo-list.tsx
 msgid "All"
@@ -349,6 +365,8 @@ msgstr "Build mode: {buildMode}"
 #: apps/client/src/auth/auth-context.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-miniplayer.tsx
+#: apps/client/src/spaces/space-miniplayer.tsx
 #: libs/lib/src/ui/components/modal/confirmation-modal.tsx
 #: libs/patch-db-example/src/todo/todo-lists-overview.tsx
 #: libs/patch-db-example/src/todo/todo-lists-overview.tsx
@@ -504,8 +522,8 @@ msgid "Connection and server status. {statusWord}. {latency}."
 msgstr "Connection and server status. {statusWord}. {latency}."
 
 #: apps/client/src/spaces/spaces-screen.tsx
-msgid "Continue"
-msgstr "Continue"
+#~ msgid "Continue"
+#~ msgstr "Continue"
 
 #: libs/lib/src/ui/components/social-sign-in-button/social-provider-config.ts
 msgid "Continue with Google"
@@ -536,8 +554,12 @@ msgid "CopyToClipboardField"
 msgstr "CopyToClipboardField"
 
 #: apps/client/src/spaces/spaces-screen.tsx
-msgid "Create"
-msgstr "Create"
+#~ msgid "Create"
+#~ msgstr "Create"
+
+#: apps/client/src/spaces/spaces-screen.tsx
+msgid "Create new space"
+msgstr "Create new space"
 
 #: apps/client/src/more/account-device-detail-body.tsx
 msgid "Created"
@@ -695,18 +717,25 @@ msgstr "Email"
 msgid "Empty read result"
 msgstr "Empty read result"
 
+#: apps/client/src/spaces/space-miniplayer.tsx
+msgid "End"
+msgstr "End"
+
 #: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-miniplayer.tsx
+#: apps/client/src/spaces/space-miniplayer.tsx
 msgid "End space"
 msgstr "End space"
 
 #: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-miniplayer.tsx
 msgid "End space?"
 msgstr "End space?"
 
 #: apps/client/src/spaces/space-card.tsx
-msgid "Ended"
-msgstr "Ended"
+#~ msgid "Ended"
+#~ msgstr "Ended"
 
 #: libs/patch-db-example/src/db-client/query-screen.tsx
 msgid "entities"
@@ -737,6 +766,7 @@ msgid "Events ({eventCount})"
 msgstr "Events ({eventCount})"
 
 #: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-miniplayer.tsx
 msgid "Everyone will leave this space. This cannot be undone."
 msgstr "Everyone will leave this space. This cannot be undone."
 
@@ -785,8 +815,6 @@ msgstr "Gamezilla"
 msgid "Global latency"
 msgstr "Global latency"
 
-#: apps/client/src/spaces/space-detail-screen.tsx
-#: apps/client/src/spaces/space-detail-screen.tsx
 #: libs/lib/src/ui/components/screen-base/screen-base-header.tsx
 msgid "Go back"
 msgstr "Go back"
@@ -874,14 +902,18 @@ msgid "Latency: {latencyMs} ms"
 msgstr "Latency: {latencyMs} ms"
 
 #: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-miniplayer.tsx
+#: apps/client/src/spaces/space-miniplayer.tsx
 msgid "Leave"
 msgstr "Leave"
 
 #: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-miniplayer.tsx
 msgid "Leave space"
 msgstr "Leave space"
 
 #: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-miniplayer.tsx
 msgid "Leave space?"
 msgstr "Leave space?"
 
@@ -911,7 +943,6 @@ msgid "List name..."
 msgstr "List name..."
 
 #: apps/client/src/spaces/space-card.tsx
-#: apps/client/src/spaces/spaces-screen.tsx
 msgid "Live"
 msgstr "Live"
 
@@ -933,7 +964,6 @@ msgstr "Loading provider records…"
 
 #: apps/client/src/more/account-device-detail-screen.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
-#: apps/client/src/spaces/spaces-screen.tsx
 #: apps/client/src/spaces/spaces-screen.tsx
 #: libs/patch-db-example/src/db-client/entities-screen.tsx
 msgid "Loading…"
@@ -1073,6 +1103,10 @@ msgstr "No entities in this database."
 msgid "No lists yet. Create one above or add todos to Inbox."
 msgstr "No lists yet. Create one above or add todos to Inbox."
 
+#: apps/client/src/spaces/spaces-screen.tsx
+msgid "No live spaces. Tap + New space to start one."
+msgstr "No live spaces. Tap + New space to start one."
+
 #: libs/room-example/src/components/message-log.tsx
 msgid "No messages yet."
 msgstr "No messages yet."
@@ -1098,8 +1132,8 @@ msgid "No shapes yet"
 msgstr "No shapes yet"
 
 #: apps/client/src/spaces/spaces-screen.tsx
-msgid "No spaces match this filter."
-msgstr "No spaces match this filter."
+#~ msgid "No spaces match this filter."
+#~ msgstr "No spaces match this filter."
 
 #: libs/patch-db-example/src/todo/todo-list-detail.tsx
 #: libs/patch-db-example/src/todo/todo-list.tsx
@@ -1179,8 +1213,8 @@ msgid "Open space {spaceTitle}"
 msgstr "Open space {spaceTitle}"
 
 #: apps/client/src/spaces/spaces-screen.tsx
-msgid "Open your current space"
-msgstr "Open your current space"
+#~ msgid "Open your current space"
+#~ msgstr "Open your current space"
 
 #: libs/room-example/src/components/peer-panel-legend.tsx
 msgid "optimistic"
@@ -1533,13 +1567,12 @@ msgstr "Solid"
 
 #: apps/client/src/spaces/space-card.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
-#: apps/client/src/spaces/space-detail-screen.tsx
 msgid "Space"
 msgstr "Space"
 
 #: apps/client/src/spaces/spaces-screen.tsx
-msgid "Space title…"
-msgstr "Space title…"
+#~ msgid "Space title…"
+#~ msgstr "Space title…"
 
 #: apps/client/src/app/(tabs)/_layout.tsx
 #: apps/client/src/more/about-screen.tsx
@@ -1549,8 +1582,6 @@ msgstr "Space title…"
 #: apps/client/src/more/more-screen.tsx
 #: apps/client/src/more/server-status-screen.tsx
 #: apps/client/src/more/theme-screen.tsx
-#: apps/client/src/spaces/space-detail-screen.tsx
-#: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
@@ -1620,8 +1651,12 @@ msgid "Tap to copy"
 msgstr "Tap to copy"
 
 #: apps/client/src/spaces/spaces-screen.tsx
-msgid "Tap to open"
-msgstr "Tap to open"
+#~ msgid "Tap to open"
+#~ msgstr "Tap to open"
+
+#: apps/client/src/spaces/space-miniplayer.tsx
+msgid "Tap to return to your space"
+msgstr "Tap to return to your space"
 
 #: libs/lib/src/ui/components/text-input/text-input.example.tsx
 msgid "TextInput"
@@ -1653,12 +1688,12 @@ msgid "This is a modal screen."
 msgstr "This is a modal screen."
 
 #: apps/client/src/spaces/space-detail-screen.tsx
-msgid "This space could not be found."
-msgstr "This space could not be found."
+#~ msgid "This space could not be found."
+#~ msgstr "This space could not be found."
 
 #: apps/client/src/spaces/space-detail-screen.tsx
-msgid "This space has ended."
-msgstr "This space has ended."
+#~ msgid "This space has ended."
+#~ msgstr "This space has ended."
 
 #: libs/room-example/src/pages/network-controls-section.tsx
 msgid "Timeout"
@@ -1814,6 +1849,7 @@ msgid "Yes"
 msgstr "Yes"
 
 #: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-miniplayer.tsx
 msgid "You can join again later if the space is still live."
 msgstr "You can join again later if the space is still live."
 
@@ -1842,5 +1878,5 @@ msgid "Your name"
 msgstr "Your name"
 
 #: apps/client/src/spaces/spaces-screen.tsx
-msgid "Your space"
-msgstr "Your space"
+#~ msgid "Your space"
+#~ msgstr "Your space"

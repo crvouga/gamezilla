@@ -38,41 +38,22 @@ function HostHeader({ space }: { space: SpaceView }) {
   );
 }
 
-function StatusBadge({ live }: { live: boolean }) {
-  if (live) {
-    return (
-      <Box
-        sx={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 1,
-          backgroundColor: 'rgba(255,255,255,0.22)',
-          borderRadius: 999,
-          px: 2,
-          py: 1,
-          alignSelf: 'flex-start',
-        }}
-      >
-        <StatusDot status="online" size={8} />
-        <Text variant="caption" sx={{ color: '#FFFFFF' }} label={<Trans>Live</Trans>} />
-      </Box>
-    );
-  }
+function LiveBadge() {
   return (
     <Box
       sx={{
-        alignSelf: 'flex-start',
-        backgroundColor: 'rgba(0,0,0,0.22)',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 1,
+        backgroundColor: 'rgba(255,255,255,0.22)',
         borderRadius: 999,
         px: 2,
         py: 1,
+        alignSelf: 'flex-start',
       }}
     >
-      <Text
-        variant="caption"
-        sx={{ color: 'rgba(255,255,255,0.9)' }}
-        label={<Trans>Ended</Trans>}
-      />
+      <StatusDot status="online" size={8} />
+      <Text variant="caption" sx={{ color: '#FFFFFF' }} label={<Trans>Live</Trans>} />
     </Box>
   );
 }
@@ -112,7 +93,7 @@ export function SpaceCard({ space }: SpaceCardProps) {
       >
         <Box sx={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <HostHeader space={space} />
-          <StatusBadge live={space.live} />
+          <LiveBadge />
         </Box>
         <Box sx={{ mt: 3 }}>
           <Text

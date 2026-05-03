@@ -58,11 +58,8 @@ function endHostedSpacePatches(
 
 async function createSpaceAction(
   db: PatchesDb,
-  principalId: string,
-  title: string
+  principalId: string
 ): Promise<string | undefined> {
-  const trimmed = title.trim();
-  if (!trimmed) return undefined;
   const now = isoNow();
   const patches: WritePatches = [];
 
@@ -77,7 +74,6 @@ async function createSpaceAction(
       entityId: spaceId,
       entityType: SPACE_ENTITY_TYPE,
       attributes: {
-        [SpaceAttr.title]: trimmed,
         [SpaceAttr.hostId]: principalId,
         [SpaceAttr.createdAt]: now,
       },
@@ -150,7 +146,7 @@ export function useSpaceActions() {
   const principalId = principalService.getPrincipalId();
 
   const createSpace = useCallback(
-    (title: string) => createSpaceAction(db, principalId, title),
+    () => createSpaceAction(db, principalId),
     [db, principalId]
   );
   const joinSpace = useCallback(
