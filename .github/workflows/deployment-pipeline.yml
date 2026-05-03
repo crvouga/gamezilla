@@ -1,91 +1,209 @@
 # https://minimumcd.org/
+# Remote Turbo cache: set TURBO_API, TURBO_TOKEN, TURBO_TEAM, TURBO_CACHE=remote:rw
+# in Doppler `local` (used by DOPPLER_CONFIG=local in check/qa scripts).
 name: Deployment Pipeline
+
+permissions:
+  contents: read
+  actions: write
 
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - LICENSE
+      - .gitignore
   pull_request:
+    paths-ignore:
+      - '**.md'
+      - LICENSE
+      - .gitignore
   workflow_dispatch:
 
 jobs:
-  check:
+  format:
     runs-on: ubuntu-latest
     concurrency:
-      group: check-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      group: format-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
       cancel-in-progress: true
-    timeout-minutes: 25
+    timeout-minutes: 10
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - uses: ./.github/actions/setup
         with:
-          bun-version: latest
+          doppler: 'false'
+      - name: Format
+        run: bun run format:check
 
-      - name: Install Doppler CLI
-        uses: dopplerhq/cli-action@v4
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Check (format + tc + lint + test + build)
+  tc:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: tc-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      cancel-in-progress: true
+    timeout-minutes: 15
+    steps:
+      - uses: ./.github/actions/setup
+      - name: Typecheck
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
-        run: bun run check
+        run: bun run check:tc
 
-      - name: Syncpack (prod + dev)
+  lint:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: lint-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      cancel-in-progress: true
+    timeout-minutes: 15
+    steps:
+      - uses: ./.github/actions/setup
+      - name: Lint
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+        run: bun run check:lint
+
+  test:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: test-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      cancel-in-progress: true
+    timeout-minutes: 20
+    steps:
+      - uses: ./.github/actions/setup
+      - name: Test
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+        run: bun run check:test
+
+  build:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: build-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      cancel-in-progress: true
+    timeout-minutes: 20
+    steps:
+      - uses: ./.github/actions/setup
+      - name: Build
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+        run: bun run check:build
+
+  i18n:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: i18n-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      cancel-in-progress: true
+    timeout-minutes: 15
+    steps:
+      - uses: ./.github/actions/setup
+        with:
+          doppler: 'false'
+      - name: i18n
+        run: bun run i18n:check
+
+  syncpack:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: syncpack-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      cancel-in-progress: true
+    timeout-minutes: 10
+    steps:
+      - uses: ./.github/actions/setup
+        with:
+          doppler: 'false'
+      - name: Syncpack
         run: bun run syncpack:lint
 
+  knip:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: knip-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      cancel-in-progress: true
+    timeout-minutes: 15
+    steps:
+      - uses: ./.github/actions/setup
+        with:
+          doppler: 'false'
       - name: Knip
         run: bun run knip:ci
 
+  depcruise:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: depcruise-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      cancel-in-progress: true
+    timeout-minutes: 15
+    steps:
+      - uses: ./.github/actions/setup
+        with:
+          doppler: 'false'
       - name: Dependency cruiser
         run: bun run depcruise:ci
 
+  actionlint:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: actionlint-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      cancel-in-progress: true
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
       - name: Install actionlint
         run: bash <(curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.7/scripts/download-actionlint.bash)
         shell: bash
-
       - name: Actionlint
         run: ./actionlint -color
 
+  gitleaks:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: gitleaks-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      cancel-in-progress: true
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
       - name: Gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  audit:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: audit-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      cancel-in-progress: true
+    timeout-minutes: 10
+    steps:
+      - uses: ./.github/actions/setup
+        with:
+          doppler: 'false'
       - name: Bun audit
         run: bun audit --audit-level high
 
-  qa:
+  qa-api:
     runs-on: ubuntu-latest
     concurrency:
-      group: qa-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      group: qa-api-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
       cancel-in-progress: true
     timeout-minutes: 30
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+      - name: QA API integration
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+        run: bun run qa:api
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Cache Bun install store
-        uses: actions/cache@v5
-        with:
-          path: ~/.bun/install/cache
-          key: bun-install-${{ runner.os }}-${{ hashFiles('bun.lock') }}
-          restore-keys: |
-            bun-install-${{ runner.os }}-
-
-      - name: Install Doppler CLI
-        uses: dopplerhq/cli-action@v4
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+  qa-browser:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: qa-browser-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      cancel-in-progress: true
+    timeout-minutes: 30
+    steps:
+      - uses: ./.github/actions/setup
 
       # Resolve the actually-installed @playwright/test version (not the
       # caret range from package.json) so the browser cache key only
@@ -121,10 +239,10 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: bun --bun x playwright install-deps chromium
 
-      - name: QA (API integration + Playwright + turbo preview)
+      - name: QA Playwright + turbo preview
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
-        run: bun run qa
+        run: bun run qa:browser
 
       # Always upload the report (not just on failure) so the embedded
       # videos -- recorded for every test via `video: 'on'` in
@@ -146,14 +264,16 @@ jobs:
           path: apps/qa/playwright-report/
 
   publish-playwright-report:
-    if: ${{ always() && needs.qa.result != 'skipped' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-    needs: [qa]
+    if: ${{ always() && needs.qa-browser.result != 'skipped' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    needs: [qa-browser]
     runs-on: ubuntu-latest
     outputs:
       page_url: ${{ steps.deployment.outputs.page_url }}
     permissions:
+      contents: read
       pages: write
       id-token: write
+      actions: read
     concurrency:
       group: pages
       cancel-in-progress: false
@@ -171,7 +291,23 @@ jobs:
 
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [check, qa]
+    needs:
+      [
+        format,
+        tc,
+        lint,
+        test,
+        build,
+        i18n,
+        syncpack,
+        knip,
+        depcruise,
+        actionlint,
+        gitleaks,
+        audit,
+        qa-api,
+        qa-browser,
+      ]
     runs-on: ubuntu-latest
     outputs:
       client_url: ${{ steps.deploy.outputs.client_url }}
@@ -187,16 +323,7 @@ jobs:
       cancel-in-progress: false
     timeout-minutes: 60
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+      - uses: ./.github/actions/setup
 
       # Wrangler 4.x requires Node.js v22+. The `setup-bun` action sets up
       # Bun but not Node, and the runner's default Node is v20. Without
@@ -215,9 +342,6 @@ jobs:
       - name: Install wrangler
         run: npm install -g wrangler@latest
 
-      - name: Install Doppler CLI
-        uses: dopplerhq/cli-action@v4
-
       - name: Install Stripe CLI
         run: |
           STRIPE_VERSION=$(curl -fsSL https://api.github.com/repos/stripe/stripe-cli/releases/latest | jq -r '.tag_name' | sed 's/^v//')
@@ -235,20 +359,29 @@ jobs:
 
   report:
     if: always()
-    needs: [check, qa, publish-playwright-report, deploy]
+    needs:
+      [
+        format,
+        tc,
+        lint,
+        test,
+        build,
+        i18n,
+        syncpack,
+        knip,
+        depcruise,
+        actionlint,
+        gitleaks,
+        audit,
+        qa-api,
+        qa-browser,
+        publish-playwright-report,
+        deploy,
+      ]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Install Doppler CLI
-        uses: dopplerhq/cli-action@v4
+      - uses: ./.github/actions/setup
 
       - name: Write pipeline report
         env:

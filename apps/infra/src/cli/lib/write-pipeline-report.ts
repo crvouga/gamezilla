@@ -3,9 +3,20 @@ import { buildVendorDashboardMarkdown } from './dashboard-links';
 
 /** Stable display order for known jobs; unknown ids sort after, alphabetically. */
 const KNOWN_JOB_ORDER: readonly string[] = [
-  'check',
-  'qa',
-  'publish-report',
+  'format',
+  'tc',
+  'lint',
+  'test',
+  'build',
+  'i18n',
+  'syncpack',
+  'knip',
+  'depcruise',
+  'actionlint',
+  'gitleaks',
+  'audit',
+  'qa-api',
+  'qa-browser',
   'publish-playwright-report',
   'deploy',
 ];

@@ -1,0 +1,35 @@
+name: Setup repo (Bun + deps)
+description: Checkout, Bun, cache install store, bun install, optional Doppler CLI
+
+inputs:
+  doppler:
+    description: Whether to install the Doppler CLI
+    required: false
+    default: 'true'
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+
+    - name: Setup Bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: latest
+
+    - name: Cache Bun install store
+      uses: actions/cache@v5
+      with:
+        path: ~/.bun/install/cache
+        key: bun-install-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+        restore-keys: |
+          bun-install-${{ runner.os }}-
+
+    - name: Install dependencies
+      shell: bash
+      run: bun install --frozen-lockfile
+
+    - name: Install Doppler CLI
+      if: inputs.doppler == 'true'
+      uses: dopplerhq/cli-action@v4

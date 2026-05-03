@@ -7,7 +7,12 @@
     "libs/*"
   ],
   "scripts": {
-    "check": "bun run format:check && env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo check build --force && bun run i18n:check",
+    "check": "bun run check:format && bun run check:tc && bun run check:lint && bun run check:test && bun run check:build && bun run i18n:check",
+    "check:build": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run build",
+    "check:format": "prettier --check .",
+    "check:lint": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run lint",
+    "check:tc": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run tc",
+    "check:test": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run test",
     "depcruise:ci": "dependency-cruise apps libs --validate .dependency-cruiser.cjs --output-type err",
     "dev": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo dev --ui=tui",
     "format": "sort-package-json && prettier --write .",
@@ -23,6 +28,8 @@
     "pw:headed": "bun run --filter '@gamezilla/qa' browser:headed",
     "pw:ui": "bun run --filter '@gamezilla/qa' browser:ui",
     "qa": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run qa --filter=@gamezilla/qa",
+    "qa:api": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- bun run --filter '@gamezilla/qa' api",
+    "qa:browser": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- bun run --filter '@gamezilla/qa' browser",
     "stripe:check": "bun run --filter '@gamezilla/stripe' check",
     "stripe:listen": "bun run --filter '@gamezilla/stripe-cli' dev",
     "stripe:sync": "bun run --filter '@gamezilla/stripe' sync",
