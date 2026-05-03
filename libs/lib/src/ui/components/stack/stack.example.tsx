@@ -35,7 +35,12 @@ export default function StackExample() {
 
       <Box sx={{ gap: 1 }}>
         <Text variant="label" label="Horizontal, centered, space-between" />
-        <Stack direction="horizontal" spacing={2} align="center" justify="space-between">
+        <Stack
+          direction="horizontal"
+          spacing={2}
+          align="center"
+          justify="space-between"
+        >
           <ColorBox label="Left" color="warning" />
           <ColorBox label="Right" color="destructive" />
         </Stack>

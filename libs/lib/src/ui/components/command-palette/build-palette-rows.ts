@@ -148,7 +148,9 @@ export function buildPaletteRows(
 ): { rows: PaletteRow[]; selectableCount: number } {
   const q = query.trim().toLowerCase();
   const rows =
-    q !== '' ? buildSearchRows(commands, q) : buildRecentRows(commands, historyIds);
+    q !== ''
+      ? buildSearchRows(commands, q)
+      : buildRecentRows(commands, historyIds);
   return {
     rows,
     selectableCount: rows.filter((r) => r.kind === 'item').length,

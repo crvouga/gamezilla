@@ -1,14 +1,8 @@
 import { useCommandRegistry } from './command-registry-context';
 
 export function useCommandPalette() {
-  const {
-    open,
-    close,
-    toggle,
-    isOpen,
-    invoke,
-    runningId,
-  } = useCommandRegistry();
+  const { open, close, toggle, isOpen, invoke, runningId } =
+    useCommandRegistry();
 
   return {
     open,

@@ -1,7 +1,11 @@
 import { Assert } from '@gamezilla/lib/assert';
 import type { PeerBootstrap, RoomSecurityConfig } from './types';
 import { seedDiscoveredPeerLiveness } from './authority-monitor';
-import { decodeKeyB64, peerIdFromPublicKey, publicKeyFromSecretSeed } from './security/peer-crypto';
+import {
+  decodeKeyB64,
+  peerIdFromPublicKey,
+  publicKeyFromSecretSeed,
+} from './security/peer-crypto';
 
 const crash: Assert = Assert.crash();
 
@@ -14,7 +18,7 @@ export type JoinGenesisKeyTarget = {
 
 export function installJoinGenesisKeys(
   target: JoinGenesisKeyTarget,
-  jg: Extract<PeerBootstrap, { kind: 'join' }>,
+  jg: Extract<PeerBootstrap, { kind: 'join' }>
 ): void {
   const myPub = publicKeyFromSecretSeed(target.security.secretSeed);
   target.memberPublicKeys.set(target.peerId, myPub);
@@ -23,20 +27,26 @@ export function installJoinGenesisKeys(
     try {
       pub = decodeKeyB64(b64);
     } catch {
-      crash.ok(false, 'join initialMemberPublicKeys must be valid base64url keys', {
-        id,
-      });
+      crash.ok(
+        false,
+        'join initialMemberPublicKeys must be valid base64url keys',
+        {
+          id,
+        }
+      );
     }
     let derived: string;
     try {
       derived = peerIdFromPublicKey(pub);
     } catch {
-      crash.ok(false, 'join initialMemberPublicKeys could not derive peerId', { id });
+      crash.ok(false, 'join initialMemberPublicKeys could not derive peerId', {
+        id,
+      });
     }
     crash.ok(
       derived === id,
       'join initialMemberPublicKeys entry must match self-certifying peerId',
-      { id, derived },
+      { id, derived }
     );
     target.memberPublicKeys.set(id, pub);
   }

@@ -60,7 +60,12 @@ class CheatControllerImpl implements CheatController {
   toggleSpoof(peerId: PeerId): void {
     if (this.spoofingPeers.has(peerId)) {
       this.spoofingPeers.delete(peerId);
-      this.ctx.pushEntry({ kind: 'effect', tag: 'cheat', summary: `${peerId} spoof mode OFF`, peerId });
+      this.ctx.pushEntry({
+        kind: 'effect',
+        tag: 'cheat',
+        summary: `${peerId} spoof mode OFF`,
+        peerId,
+      });
     } else {
       this.spoofingPeers.add(peerId);
       this.ctx.pushEntry({
@@ -74,15 +79,28 @@ class CheatControllerImpl implements CheatController {
   }
 
   dispatchWithSpoof(peerId: PeerId, message: Message): boolean {
-    if (!this.spoofingPeers.has(peerId) || message.type !== PlaceMark.type) return false;
+    if (!this.spoofingPeers.has(peerId) || message.type !== PlaceMark.type)
+      return false;
     const spoofedMessage = this.buildSpoofedMessage(message);
-    const eventsBefore = this.sim().getEventLog(this.ctx.simPeer('server')).length;
+    const eventsBefore = this.sim().getEventLog(
+      this.ctx.simPeer('server')
+    ).length;
     try {
       this.sim().dispatch(this.ctx.simPeer(peerId), spoofedMessage.message);
-      this.logSpoofResult(peerId, spoofedMessage.player, spoofedMessage.message, false);
+      this.logSpoofResult(
+        peerId,
+        spoofedMessage.player,
+        spoofedMessage.message,
+        false
+      );
       this.ctx.logNewEvents(eventsBefore);
     } catch {
-      this.logSpoofResult(peerId, spoofedMessage.player, spoofedMessage.message, true);
+      this.logSpoofResult(
+        peerId,
+        spoofedMessage.player,
+        spoofedMessage.message,
+        true
+      );
     }
     this.ctx.notify();
     return true;
@@ -90,7 +108,10 @@ class CheatControllerImpl implements CheatController {
 
   cheatSpoofIdentity(attackerId: PeerId): void {
     const spoofedPlayer = attackerId === 'player-x' ? 'O' : 'X';
-    const message: Message = PlaceMark({ cell: 4, player: spoofedPlayer as 'X' | 'O' });
+    const message: Message = PlaceMark({
+      cell: 4,
+      player: spoofedPlayer as 'X' | 'O',
+    });
     try {
       this.sim().dispatch(this.ctx.simPeer(attackerId), message);
       this.logOutcome({
@@ -114,7 +135,10 @@ class CheatControllerImpl implements CheatController {
 
   cheatUnauthorizedTrustUpdate(attackerId: PeerId): void {
     const target = attackerId === 'player-x' ? 'player-o' : 'player-x';
-    const message = PeerTrustUpdate({ peerId: this.ctx.simPeer(target), trust: 9 });
+    const message = PeerTrustUpdate({
+      peerId: this.ctx.simPeer(target),
+      trust: 9,
+    });
     const detected = this.dispatchAndDetect(attackerId, message);
     this.ctx.pushEntry({
       kind: 'cheat',
@@ -148,38 +172,90 @@ class CheatControllerImpl implements CheatController {
   cheatFabricateCommit(): void {
     const errorsBefore = this.sim().getErrorLog().length;
     const nextSeq = this.sim().getLatestSeq(this.ctx.simPeer('server')) + 1;
-    const wireMsg = { kind: 'accepted', commandId: `fabricated-${Date.now()}`, entries: [{ seq: nextSeq, event: MarkPlaced({ cell: 0, player: 'X', seq: 99 }) }] };
+    const wireMsg = {
+      kind: 'accepted',
+      commandId: `fabricated-${Date.now()}`,
+      entries: [
+        { seq: nextSeq, event: MarkPlaced({ cell: 0, player: 'X', seq: 99 }) },
+      ],
+    };
     this.sim().injectWireMessage(wireMsg);
     const detected = this.sim().getErrorLog().length > errorsBefore;
-    this.ctx.pushEntry({ kind: 'cheat', tag: 'cheat', summary: detected ? 'fabricated commit was blocked by crypto/integrity checks' : 'fabricated commit bypassed integrity checks', code: `sim.injectWireMessage(${JSON.stringify(wireMsg)})`, peerId: 'wire', detected });
+    this.ctx.pushEntry({
+      kind: 'cheat',
+      tag: 'cheat',
+      summary: detected
+        ? 'fabricated commit was blocked by crypto/integrity checks'
+        : 'fabricated commit bypassed integrity checks',
+      code: `sim.injectWireMessage(${JSON.stringify(wireMsg)})`,
+      peerId: 'wire',
+      detected,
+    });
     this.ctx.notify();
   }
 
   cheatReplay(): void {
-    const domain = this.sim().getCommittedLogEntries(this.ctx.simPeer('server')).filter((e) => !isSystemEvent(e.event));
+    const domain = this.sim()
+      .getCommittedLogEntries(this.ctx.simPeer('server'))
+      .filter((e) => !isSystemEvent(e.event));
     if (domain.length === 0) {
-      this.ctx.pushEntry({ kind: 'cheat', tag: 'cheat', summary: 'replay failed — no events to replay', peerId: 'wire', detected: false });
+      this.ctx.pushEntry({
+        kind: 'cheat',
+        tag: 'cheat',
+        summary: 'replay failed — no events to replay',
+        peerId: 'wire',
+        detected: false,
+      });
       this.ctx.notify();
       return;
     }
     const start = this.sim().getLatestSeq(this.ctx.simPeer('server')) + 1;
-    const wireMsg = { kind: 'accepted', commandId: `replay-${Date.now()}`, entries: domain.map((e, i) => ({ seq: start + i, event: e.event })) };
+    const wireMsg = {
+      kind: 'accepted',
+      commandId: `replay-${Date.now()}`,
+      entries: domain.map((e, i) => ({ seq: start + i, event: e.event })),
+    };
     const errorsBefore = this.sim().getErrorLog().length;
     this.sim().injectWireMessage(wireMsg);
     const detected = this.sim().getErrorLog().length > errorsBefore;
-    this.ctx.pushEntry({ kind: 'cheat', tag: 'replay', summary: detected ? `replay ${domain.length} event(s) — blocked by crypto/integrity checks` : `replay ${domain.length} event(s) — accepted`, code: `sim.injectWireMessage(${JSON.stringify(wireMsg)})`, peerId: 'wire', detected });
+    this.ctx.pushEntry({
+      kind: 'cheat',
+      tag: 'replay',
+      summary: detected
+        ? `replay ${domain.length} event(s) — blocked by crypto/integrity checks`
+        : `replay ${domain.length} event(s) — accepted`,
+      code: `sim.injectWireMessage(${JSON.stringify(wireMsg)})`,
+      peerId: 'wire',
+      detected,
+    });
     this.ctx.notify();
   }
 
   cheatTamperEvents(): void {
-    this.sim().setMessageInterceptor((_topic, payload) => this.tamperPayload(payload));
-    this.ctx.pushEntry({ kind: 'cheat', tag: 'cheat', summary: 'MITM interceptor active — accepted entries will have cells shifted by +4', code: 'sim.setMessageInterceptor(...)', peerId: 'wire', detected: false });
+    this.sim().setMessageInterceptor((_topic, payload) =>
+      this.tamperPayload(payload)
+    );
+    this.ctx.pushEntry({
+      kind: 'cheat',
+      tag: 'cheat',
+      summary:
+        'MITM interceptor active — accepted entries will have cells shifted by +4',
+      code: 'sim.setMessageInterceptor(...)',
+      peerId: 'wire',
+      detected: false,
+    });
     this.ctx.notify();
   }
 
   cheatClearInterceptor(): void {
     this.sim().setMessageInterceptor(null);
-    this.ctx.pushEntry({ kind: 'action', tag: 'cheat', summary: 'interceptor cleared', code: 'sim.setMessageInterceptor(null)', peerId: 'wire' });
+    this.ctx.pushEntry({
+      kind: 'action',
+      tag: 'cheat',
+      summary: 'interceptor cleared',
+      code: 'sim.setMessageInterceptor(null)',
+      peerId: 'wire',
+    });
     this.ctx.notify();
   }
 
@@ -188,13 +264,26 @@ class CheatControllerImpl implements CheatController {
     let rejected = 0;
     for (let i = 0; i < 20; i++) {
       try {
-        this.sim().dispatch(this.ctx.simPeer(flooderId), PlaceMark({ cell: i % 9, player: (i % 2 === 0 ? 'X' : 'O') as 'X' | 'O' }));
+        this.sim().dispatch(
+          this.ctx.simPeer(flooderId),
+          PlaceMark({
+            cell: i % 9,
+            player: (i % 2 === 0 ? 'X' : 'O') as 'X' | 'O',
+          })
+        );
         accepted++;
       } catch {
         rejected++;
       }
     }
-    this.ctx.pushEntry({ kind: 'cheat', tag: 'cheat', summary: `flood from ${flooderId}: ${accepted} accepted, ${rejected} rejected`, code: `sim.cheatFlood('${flooderId}')`, peerId: flooderId, detected: rejected > 0 });
+    this.ctx.pushEntry({
+      kind: 'cheat',
+      tag: 'cheat',
+      summary: `flood from ${flooderId}: ${accepted} accepted, ${rejected} rejected`,
+      code: `sim.cheatFlood('${flooderId}')`,
+      peerId: flooderId,
+      detected: rejected > 0,
+    });
     this.ctx.notify();
   }
 
@@ -202,7 +291,10 @@ class CheatControllerImpl implements CheatController {
     this.spoofingPeers.clear();
   }
 
-  private buildSpoofedMessage(message: Message): { player: 'X' | 'O'; message: Message } {
+  private buildSpoofedMessage(message: Message): {
+    player: 'X' | 'O';
+    message: Message;
+  } {
     const payload = wireRecord(message.payload);
     const spoofedPlayer = payload['player'] === 'X' ? 'O' : 'X';
     return {
@@ -211,7 +303,12 @@ class CheatControllerImpl implements CheatController {
     };
   }
 
-  private logSpoofResult(peerId: PeerId, spoofedPlayer: string, spoofedMessage: Message, detected: boolean): void {
+  private logSpoofResult(
+    peerId: PeerId,
+    spoofedPlayer: string,
+    spoofedMessage: Message,
+    detected: boolean
+  ): void {
     this.ctx.pushEntry({
       kind: 'cheat',
       tag: 'cheat',
@@ -226,7 +323,9 @@ class CheatControllerImpl implements CheatController {
     const errorsBefore = this.sim().getErrorLog().length;
     try {
       this.sim().dispatch(this.ctx.simPeer(peerId), message);
-    } catch {}
+    } catch {
+      /* dispatch may throw when cheat path is rejected */
+    }
     return this.sim().getErrorLog().length > errorsBefore;
   }
 
@@ -248,7 +347,11 @@ class CheatControllerImpl implements CheatController {
   }
 
   private tamperPayload(payload: unknown): unknown {
-    if (payload === null || typeof payload !== 'object' || Array.isArray(payload)) {
+    if (
+      payload === null ||
+      typeof payload !== 'object' ||
+      Array.isArray(payload)
+    ) {
       return payload;
     }
     const msg = wireRecord(payload);
@@ -269,6 +372,9 @@ class CheatControllerImpl implements CheatController {
     crash.record(p, 'MARK_PLACED payload must be object');
     const cellRaw = p['cell'];
     crash.number(cellRaw, 'cell must be number');
-    return { seq, event: { ...event, payload: { ...p, cell: (cellRaw + 4) % 9 } } };
+    return {
+      seq,
+      event: { ...event, payload: { ...p, cell: (cellRaw + 4) % 9 } },
+    };
   }
 }

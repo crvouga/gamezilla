@@ -95,13 +95,7 @@ export class DeployCommand implements Command {
       await runAsync(
         p,
         'bun',
-        [
-          'run',
-          '--filter',
-          '@gamezilla/stripe',
-          '--elide-lines=0',
-          'sync',
-        ],
+        ['run', '--filter', '@gamezilla/stripe', '--elide-lines=0', 'sync'],
         {
           cwd: REPO_ROOT,
           env: process.env,

@@ -44,7 +44,7 @@ function bodyToSignable(b: TrustBallotBody): unknown {
 }
 
 export function parseTrustBallotBody(
-  raw: Record<string, unknown>,
+  raw: Record<string, unknown>
 ): TrustBallotBody | null {
   const kind = raw['kind'];
   if (kind !== 'trust-vote-v2') return null;
@@ -86,11 +86,14 @@ export type SignedTrustBallotEnvelopeV1 = {
 };
 
 export function signTrustBallotEnvelope(
-  input: SignTrustBallotInput,
+  input: SignTrustBallotInput
 ): SignedTrustBallotEnvelopeV1 {
   const publicKey = publicKeyFromSecretSeed(input.secretSeed);
   const derived = peerIdFromPublicKey(publicKey);
-  crash.ok(derived === input.signerPeerId, 'signerPeerId must match secret key');
+  crash.ok(
+    derived === input.signerPeerId,
+    'signerPeerId must match secret key'
+  );
   const signerPubKeyB64 = encodeKeyB64(publicKey);
   const roomProof = computeRoomProof(input.roomSecret, input.topic);
   const bodyDigest = sha256Hex(stableStringify(bodyToSignable(input.body)));
@@ -134,18 +137,23 @@ function trustBallotAsRecord(raw: unknown): Record<string, unknown> | null {
 
 function trustBallotHeader(
   rec: Record<string, unknown>,
-  expectedTopic: string,
+  expectedTopic: string
 ): BallotVerifyFail | void {
-  if (rec['scheme'] !== TRUST_BALLOT_SCHEME) return { ok: false, reason: 'bad_scheme' };
+  if (rec['scheme'] !== TRUST_BALLOT_SCHEME)
+    return { ok: false, reason: 'bad_scheme' };
   if (rec['v'] !== 1) return { ok: false, reason: 'bad_version' };
-  if (rec['topic'] !== expectedTopic) return { ok: false, reason: 'topic_mismatch' };
+  if (rec['topic'] !== expectedTopic)
+    return { ok: false, reason: 'topic_mismatch' };
 }
 
-function trustBallotSigner(
-  rec: Record<string, unknown>,
-):
+function trustBallotSigner(rec: Record<string, unknown>):
   | BallotVerifyFail
-  | { ok: true; signerPeerId: string; signerPubKeyB64: string; publicKey: Uint8Array } {
+  | {
+      ok: true;
+      signerPeerId: string;
+      signerPubKeyB64: string;
+      publicKey: Uint8Array;
+    } {
   const signerPeerId = rec['signerPeerId'];
   if (typeof signerPeerId !== 'string' || !signerPeerId) {
     return { ok: false, reason: 'bad_signer_peer_id' };
@@ -166,29 +174,36 @@ function trustBallotSigner(
   } catch {
     return { ok: false, reason: 'peer_id_derive' };
   }
-  if (derived !== signerPeerId) return { ok: false, reason: 'peer_id_pubkey_mismatch' };
+  if (derived !== signerPeerId)
+    return { ok: false, reason: 'peer_id_pubkey_mismatch' };
   return { ok: true, signerPeerId, signerPubKeyB64, publicKey };
 }
 
 function trustBallotRoom(
   rec: Record<string, unknown>,
   roomSecret: string,
-  topic: string,
+  topic: string
 ): BallotVerifyFail | { ok: true; roomProof: string } {
   const roomProof = rec['roomProof'];
-  if (typeof roomProof !== 'string') return { ok: false, reason: 'bad_room_proof' };
+  if (typeof roomProof !== 'string')
+    return { ok: false, reason: 'bad_room_proof' };
   const expectedProof = computeRoomProof(roomSecret, topic);
-  if (roomProof !== expectedProof) return { ok: false, reason: 'room_proof_mismatch' };
+  if (roomProof !== expectedProof)
+    return { ok: false, reason: 'room_proof_mismatch' };
   return { ok: true, roomProof };
 }
 
 function trustBallotCounter(
   rec: Record<string, unknown>,
   signerPeerId: string,
-  lastCounters: Map<string, number>,
+  lastCounters: Map<string, number>
 ): BallotVerifyFail | { ok: true; counter: number } {
   const counterRaw = rec['counter'];
-  if (typeof counterRaw !== 'number' || !Number.isFinite(counterRaw) || counterRaw < 0) {
+  if (
+    typeof counterRaw !== 'number' ||
+    !Number.isFinite(counterRaw) ||
+    counterRaw < 0
+  ) {
     return { ok: false, reason: 'bad_counter' };
   }
   const counter = Math.floor(counterRaw);
@@ -198,10 +213,11 @@ function trustBallotCounter(
 }
 
 function trustBallotBodyDigest(
-  rec: Record<string, unknown>,
+  rec: Record<string, unknown>
 ): BallotVerifyFail | { ok: true; bodyDigest: string; body: TrustBallotBody } {
   const bodyDigest = rec['bodyDigest'];
-  if (typeof bodyDigest !== 'string') return { ok: false, reason: 'bad_body_digest_field' };
+  if (typeof bodyDigest !== 'string')
+    return { ok: false, reason: 'bad_body_digest_field' };
   const bodyUnknown = rec['body'];
   if (!isPlainRecord(bodyUnknown)) return { ok: false, reason: 'bad_body' };
   const body = parseTrustBallotBody(bodyUnknown);
@@ -212,7 +228,8 @@ function trustBallotBodyDigest(
   } catch {
     return { ok: false, reason: 'body_digest_compute' };
   }
-  if (recomputed !== bodyDigest) return { ok: false, reason: 'body_digest_mismatch' };
+  if (recomputed !== bodyDigest)
+    return { ok: false, reason: 'body_digest_mismatch' };
   return { ok: true, bodyDigest, body };
 }
 
@@ -229,7 +246,8 @@ type TrustBallotSigCtx = {
 
 function trustBallotSignature(ctx: TrustBallotSigCtx): BallotVerifyFail | void {
   const signatureB64 = ctx.rec['signatureB64'];
-  if (typeof signatureB64 !== 'string') return { ok: false, reason: 'bad_signature_field' };
+  if (typeof signatureB64 !== 'string')
+    return { ok: false, reason: 'bad_signature_field' };
   let sig: Uint8Array;
   try {
     sig = bufferFromBase64Url(signatureB64);
@@ -263,8 +281,12 @@ type TrustBallotMidOk = {
 };
 
 function trustBallotAuthzAndBody(
-  input: { topic: string; roomSecret: string; lastCounters: Map<string, number> },
-  rec: Record<string, unknown>,
+  input: {
+    topic: string;
+    roomSecret: string;
+    lastCounters: Map<string, number>;
+  },
+  rec: Record<string, unknown>
 ): BallotVerifyFail | TrustBallotMidOk {
   const head = trustBallotHeader(rec, input.topic);
   if (head) return head;

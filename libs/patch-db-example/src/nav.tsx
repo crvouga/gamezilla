@@ -5,10 +5,8 @@ import { useLingui } from '@lingui/react/macro';
 
 export type PatchdbAppMode = 'playground' | 'syncInspector';
 
-// eslint-disable-next-line lingui/no-unlocalized-strings
 const MODE_STORAGE_KEY = 'patch-db-example-mode';
 
-// eslint-disable-next-line lingui/no-unlocalized-strings
 let cachedMode: PatchdbAppMode = 'playground';
 
 export function readStoredMode(): PatchdbAppMode {
@@ -43,7 +41,7 @@ export function PatchdbAppNav({
       { key: 'playground' as const, label: t`Playground` },
       { key: 'syncInspector' as const, label: t`Req Res` },
     ],
-    [t],
+    [t]
   );
 
   useEffect(() => {
@@ -52,7 +50,7 @@ export function PatchdbAppNav({
         if (raw !== mode) onModeChange(raw);
       }
     });
-  }, []);
+  }, [mode, onModeChange]);
 
   return (
     <SegmentedControl

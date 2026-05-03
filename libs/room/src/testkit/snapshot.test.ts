@@ -14,7 +14,10 @@ import { DeterministicSimulator } from '../simulator';
 import { TestCrashHandler } from './test-crash-handler';
 import { ticTacToeBoardCell } from './tic-tac-toe-board';
 import { testPeerForLabel, ticTacToeThreePeers } from './tic-tac-toe-peers';
-import { membershipToRecord, rebuildMembershipFromLog } from '../room/membership';
+import {
+  membershipToRecord,
+  rebuildMembershipFromLog,
+} from '../room/membership';
 
 let disposeCrashHandler: () => void;
 beforeAll(() => {
@@ -70,7 +73,7 @@ describe('Snapshot and incremental sync', () => {
 
     const lateId = testPeerForLabel('late').peerId;
     const membership = membershipToRecord(
-      rebuildMembershipFromLog(sim.getRoom(lateId).getCommittedLogEntries()),
+      rebuildMembershipFromLog(sim.getRoom(lateId).getCommittedLogEntries())
     );
     expect(membership[PEER.authority]).toBe(3);
     expect(ticTacToeBoardCell(sim.getCommittedState(lateId), 4)).toBe('X');

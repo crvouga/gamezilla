@@ -21,7 +21,10 @@ const SEMVER_REGEX = /[\d]+\.[\d]+[\w.+-]*/;
  * "Wrangler requires at least Node.js v22.0.0").
  */
 function parseVersionFromStdout(s: string): string | null {
-  const lines = s.split('\n').map((l) => l.trim()).filter((l) => l.length > 0);
+  const lines = s
+    .split('\n')
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
   if (lines.length === 0) return null;
   const match = SEMVER_REGEX.exec(lines[0]!);
   return match ? match[0] : null;
@@ -47,7 +50,12 @@ export function captureVersion(bin: string, args: string[]): string | null {
 export function captureVersionDiagnostic(
   bin: string,
   args: string[]
-): { version: string | null; stdout: string; stderr: string; status: number | null } {
+): {
+  version: string | null;
+  stdout: string;
+  stderr: string;
+  status: number | null;
+} {
   try {
     const r = spawnSync(bin, args, {
       encoding: 'utf8',

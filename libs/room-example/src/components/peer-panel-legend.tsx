@@ -1,11 +1,7 @@
 import { Stack, StatusDot, Text } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';
 
-export function PeerPanelLegend({
-  hasOptimistic,
-}: {
-  hasOptimistic: boolean;
-}) {
+export function PeerPanelLegend({ hasOptimistic }: { hasOptimistic: boolean }) {
   const { t } = useLingui();
   return (
     <Stack direction="horizontal" spacing={3} align="center">

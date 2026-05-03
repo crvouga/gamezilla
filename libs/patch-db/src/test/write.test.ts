@@ -146,7 +146,11 @@ describe.each(implementations)('$name', ({ factory }) => {
 
   test('synced patch batch with out-of-order parent references does not violate FK', async () => {
     const root = await db.write([
-      { entityId: 'e4', entityType: 'todo', attributes: { 'todo/done': false } },
+      {
+        entityId: 'e4',
+        entityType: 'todo',
+        attributes: { 'todo/done': false },
+      },
     ]);
     const rootPatch = root[0];
     assert.defined(rootPatch, 'rootPatch must be defined');
@@ -158,14 +162,15 @@ describe.each(implementations)('$name', ({ factory }) => {
     const idE = crypto.randomUUID();
     const now = new Date().toISOString();
 
-    const makeSynced = (
-      patchId: string,
-      parentId: string,
-      value: unknown
-    ) => ({
+    const makeSynced = (patchId: string, parentId: string, value: unknown) => ({
       entityId: 'e4',
       entityType: 'todo',
-      attributes: { 'todo/done': value, 'patch/syncedAt': null, 'patch/createdBy': '', 'patch/sessionId': '' },
+      attributes: {
+        'todo/done': value,
+        'patch/syncedAt': null,
+        'patch/createdBy': '',
+        'patch/sessionId': '',
+      },
       patchId,
       parentId,
       createdAt: now,
@@ -177,11 +182,11 @@ describe.each(implementations)('$name', ({ factory }) => {
     // Chain: root -> A -> B -> C -> D -> E
     // Intentionally scrambled so children precede parents in the array.
     const patches = [
-      makeSynced(idD, idC, false),  // D before C
-      makeSynced(idB, idA, false),  // B before A
-      makeSynced(idE, idD, true),   // E before D
+      makeSynced(idD, idC, false), // D before C
+      makeSynced(idB, idA, false), // B before A
+      makeSynced(idE, idD, true), // E before D
       makeSynced(idA, rootPatch.patchId, true), // A (first in chain)
-      makeSynced(idC, idB, true),   // C before B
+      makeSynced(idC, idB, true), // C before B
     ];
 
     const written = await db.write(patches);
@@ -299,5 +304,4 @@ describe.each(implementations)('$name', ({ factory }) => {
     assert.defined(afterSync, 'afterSync must be defined');
     expect(afterSync.patches).toHaveLength(0);
   });
-
 });

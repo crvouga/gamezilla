@@ -187,11 +187,7 @@ function TypeRowCard({
   return (
     <Pressable onPress={onPress}>
       <Card elevation={1} sx={{ mb: 2, p: 3 }}>
-        <Stack
-          direction="horizontal"
-          align="center"
-          justify="space-between"
-        >
+        <Stack direction="horizontal" align="center" justify="space-between">
           <Text
             variant="mono"
             style={{ fontSize: 13, flex: 1 }}

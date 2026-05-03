@@ -37,7 +37,12 @@ export {
 } from './brand-icon';
 
 // Inputs / Actions
-export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from './button';
+export {
+  Button,
+  type ButtonProps,
+  type ButtonVariant,
+  type ButtonSize,
+} from './button';
 export {
   SocialSignInButton,
   type SocialSignInButtonProps,
@@ -92,10 +97,18 @@ export {
 
 // Compound Inputs
 export { Select, type SelectProps, type SelectOption } from './select';
-export { SegmentedControl, type SegmentedControlProps, type Segment } from './segmented-control';
+export {
+  SegmentedControl,
+  type SegmentedControlProps,
+  type Segment,
+} from './segmented-control';
 
 // Status
-export { StatusDot, type StatusDotProps, type StatusDotStatus } from './status-dot';
+export {
+  StatusDot,
+  type StatusDotProps,
+  type StatusDotStatus,
+} from './status-dot';
 
 // Command palette
 export {
@@ -152,7 +165,11 @@ export {
   type HorizontalPickerRandomItem,
 } from './horizontal-picker';
 
-export { ChipGroup, type ChipGroupProps, type ChipGroupOption } from './chip-group';
+export {
+  ChipGroup,
+  type ChipGroupProps,
+  type ChipGroupOption,
+} from './chip-group';
 
 export { NumberStepper, type NumberStepperProps } from './number-stepper';
 

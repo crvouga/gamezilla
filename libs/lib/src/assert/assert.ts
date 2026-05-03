@@ -334,6 +334,7 @@ export class Assert {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- generic higher-order wrapper; parameters/return tied via Parameters<> / ReturnType<>
   fn<TFunc extends (...args: any) => any>(
     checks: {
       fn: TFunc;

@@ -7,7 +7,14 @@ export default function ScrollViewExample() {
     <Box sx={{ p: 4, gap: 4 }}>
       <Text variant="heading" label="ScrollView" />
 
-      <Box sx={{ height: 200, borderWidth: 1, borderColor: 'border', borderRadius: 8 }}>
+      <Box
+        sx={{
+          height: 200,
+          borderWidth: 1,
+          borderColor: 'border',
+          borderRadius: 8,
+        }}
+      >
         <ScrollView sx={{ p: 3, gap: 2 }}>
           {Array.from({ length: 20 }, (_, i) => (
             <Box key={i} sx={{ p: 3, background: 'surface', borderRadius: 6 }}>

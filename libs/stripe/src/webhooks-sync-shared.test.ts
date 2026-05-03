@@ -20,7 +20,11 @@ describe('webhookEndpointsInSync', () => {
     expect(webhookEndpointsInSync([], desired)).toBe(false);
     const two: WebhookEndpointSummary[] = [
       { url: desired, enabled_events: ['*'], status: 'enabled' },
-      { url: 'https://other.example/hook', enabled_events: ['*'], status: 'enabled' },
+      {
+        url: 'https://other.example/hook',
+        enabled_events: ['*'],
+        status: 'enabled',
+      },
     ];
     expect(webhookEndpointsInSync(two, desired)).toBe(false);
   });

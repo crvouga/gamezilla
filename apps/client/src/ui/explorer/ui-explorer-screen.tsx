@@ -18,9 +18,7 @@ export function UiExplorerScreen() {
       content={({ sx }) => (
         <Box style={sx}>
           <ExplorerList
-            onSelect={(name) =>
-              router.push(`/ui/${encodeURIComponent(name)}`)
-            }
+            onSelect={(name) => router.push(`/ui/${encodeURIComponent(name)}`)}
           />
         </Box>
       )}

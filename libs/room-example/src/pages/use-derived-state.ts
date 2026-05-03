@@ -9,20 +9,22 @@ export type DerivedState = {
 
 export function useDerivedState(
   sim: PlaygroundSimulator,
-  tick: number,
+  tick: number
 ): DerivedState {
-  const log = useMemo(() => sim.getLog(), [sim, tick]);
+  const log = useMemo(() => {
+    void tick;
+    return sim.getLog();
+  }, [sim, tick]);
 
-  const badActorIds = useMemo(
-    () =>
-      new Set(
-        sim
-          .getLog()
-          .filter((e) => e.kind === 'cheat' && e.peerId)
-          .map((e) => e.peerId),
-      ),
-    [tick, sim],
-  );
+  const badActorIds = useMemo(() => {
+    void tick;
+    return new Set(
+      sim
+        .getLog()
+        .filter((e) => e.kind === 'cheat' && e.peerId)
+        .map((e) => e.peerId)
+    );
+  }, [tick, sim]);
 
   const cheaterIds = useMemo(() => {
     const ids = new Set<string>();

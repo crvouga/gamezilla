@@ -8,22 +8,7 @@ export type GoogleIdTokenClaims = {
 
 const GOOGLE_TOKENINFO_TIMEOUT_MS = 10_000;
 
-/**
- * Verifies a Google OIDC id_token via Google's tokeninfo endpoint.
- * Rejects invalid tokens — never continues on failure.
- */
-export async function verifyGoogleIdToken(
-  idToken: string,
-  options?: { expectedAudience?: string }
-): Promise<GoogleIdTokenClaims> {
-  assert.string(idToken, 'google id_token must be string');
-  assert.ok(idToken.length > 0, 'google id_token must be non-empty');
-  assert.ok(
-    idToken.length <= 8192,
-    'google id_token exceeds maximum length',
-    { length: idToken.length }
-  );
-
+async function fetchGoogleTokeninfoRecord(idToken: string): Promise<unknown> {
   const url = `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`;
   const controller = new AbortController();
   const timeout = setTimeout(
@@ -47,13 +32,28 @@ export async function verifyGoogleIdToken(
   if (!res.ok) {
     throw new Error(`Google token verification failed (${String(res.status)})`);
   }
-  let json: unknown;
   try {
-    json = text.length > 0 ? (JSON.parse(text) as unknown) : null;
+    return text.length > 0 ? (JSON.parse(text) as unknown) : null;
   } catch {
     throw new Error('Google tokeninfo response was not JSON');
   }
+}
 
+/**
+ * Verifies a Google OIDC id_token via Google's tokeninfo endpoint.
+ * Rejects invalid tokens — never continues on failure.
+ */
+export async function verifyGoogleIdToken(
+  idToken: string,
+  options?: { expectedAudience?: string }
+): Promise<GoogleIdTokenClaims> {
+  assert.string(idToken, 'google id_token must be string');
+  assert.ok(idToken.length > 0, 'google id_token must be non-empty');
+  assert.ok(idToken.length <= 8192, 'google id_token exceeds maximum length', {
+    length: idToken.length,
+  });
+
+  const json = await fetchGoogleTokeninfoRecord(idToken);
   assert.record(json, 'Google tokeninfo must be an object');
 
   const sub = json['sub'];

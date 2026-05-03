@@ -81,7 +81,7 @@ function useEntityPager(entityType: string): PageState {
         setHasMore(result.hasMore);
         setOffset(startOffset + result.entities.length);
         setEntities((prev) =>
-          append ? [...prev, ...result.entities] : result.entities,
+          append ? [...prev, ...result.entities] : result.entities
         );
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
@@ -90,7 +90,7 @@ function useEntityPager(entityType: string): PageState {
         setLoadingMore(false);
       }
     },
-    [db, entityType, t],
+    [db, entityType, t]
   );
 
   useEffect(() => {

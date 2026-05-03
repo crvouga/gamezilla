@@ -50,7 +50,12 @@ export function FloatingMenuItem({
     >
       {leading}
       <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Text variant="body" label={label} numberOfLines={1} ellipsizeMode="tail" />
+        <Text
+          variant="body"
+          label={label}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        />
       </Box>
       {trailing}
     </Pressable>

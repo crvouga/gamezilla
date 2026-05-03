@@ -1,8 +1,5 @@
 import { Assert } from '@gamezilla/lib/assert';
-import type {
-  RoomPersistence,
-  RoomPersistenceEntry,
-} from './persistence';
+import type { RoomPersistence, RoomPersistenceEntry } from './persistence';
 
 const crash: Assert = Assert.crash();
 
@@ -12,7 +9,10 @@ const crash: Assert = Assert.crash();
 export class InMemoryRoomPersistence implements RoomPersistence {
   private readonly store = new Map<string, RoomPersistenceEntry[]>();
 
-  async append(partitionKey: string, entry: RoomPersistenceEntry): Promise<void> {
+  async append(
+    partitionKey: string,
+    entry: RoomPersistenceEntry
+  ): Promise<void> {
     crash.nonEmptyString(partitionKey, 'partitionKey must be non-empty');
     const rows = this.store.get(partitionKey) ?? [];
     rows.push(entry);

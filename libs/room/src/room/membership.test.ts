@@ -46,7 +46,7 @@ function createSim() {
 
 function readMembership(
   sim: DeterministicSimulator,
-  peerId: string,
+  peerId: string
 ): Record<string, number> {
   const entries = sim.getRoom(peerId).getCommittedLogEntries();
   return membershipToRecord(rebuildMembershipFromLog(entries));
@@ -82,7 +82,7 @@ describe('Dynamic membership', () => {
     const sim = createSim();
     sim.dispatch(
       PEER.authority,
-      PeerTrustUpdate({ peerId: PEER.playerX, trust: 99 }),
+      PeerTrustUpdate({ peerId: PEER.playerX, trust: 99 })
     );
     sim.deliverPending();
     expect(readMembership(sim, PEER.authority)[PEER.playerX]).toBe(99);
@@ -94,7 +94,7 @@ describe('Dynamic membership', () => {
     const before = readMembership(sim, PEER.authority)[PEER.playerO];
     sim.dispatch(
       PEER.playerX,
-      PeerTrustUpdate({ peerId: PEER.playerO, trust: 99 }),
+      PeerTrustUpdate({ peerId: PEER.playerO, trust: 99 })
     );
     sim.deliverPending();
     expect(readMembership(sim, PEER.authority)[PEER.playerO]).toBe(before);

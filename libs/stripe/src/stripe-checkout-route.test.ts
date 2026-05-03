@@ -1,3 +1,4 @@
+import type { PatchesDb } from '@gamezilla/patch-db/interface';
 import { describe, expect, it } from 'bun:test';
 import { createStripeCheckoutRoutes } from './stripe-checkout-route';
 
@@ -6,7 +7,7 @@ describe('createStripeCheckoutRoutes', () => {
     const db = {
       read: async () => [],
       write: async () => [],
-    } as unknown as import('@gamezilla/patch-db/interface').PatchesDb;
+    } as unknown as PatchesDb;
 
     const app = createStripeCheckoutRoutes({
       db,

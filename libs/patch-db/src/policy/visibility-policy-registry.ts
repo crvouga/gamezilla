@@ -49,9 +49,7 @@ export class VisibilityPolicyRegistry<
     return this;
   }
 
-  registerAll(
-    entries: Readonly<Record<string, VisibilityPolicy<TCtx>>>
-  ): this {
+  registerAll(entries: Readonly<Record<string, VisibilityPolicy<TCtx>>>): this {
     for (const [k, v] of Object.entries(entries)) {
       this.policies.set(k, v);
     }

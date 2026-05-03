@@ -12,7 +12,7 @@ export function rebuildMemberPublicKeysFromCommittedLog(
     peerId: string;
     secretSeed: Uint8Array;
   },
-  entries: LogEntry[],
+  entries: LogEntry[]
 ): void {
   memberPublicKeys.clear();
   if (ctx.bootstrapKind === 'join') {
@@ -23,7 +23,7 @@ export function rebuildMemberPublicKeysFromCommittedLog(
       try {
         memberPublicKeys.set(
           event.payload.peerId,
-          decodeKeyB64(event.payload.publicKey),
+          decodeKeyB64(event.payload.publicKey)
         );
       } catch {
         crash.ok(false, 'log contains PeerJoined with invalid publicKey');

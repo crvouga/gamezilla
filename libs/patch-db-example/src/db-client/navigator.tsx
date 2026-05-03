@@ -15,7 +15,7 @@ import { BackHandler, useWindowDimensions } from 'react-native';
 
 type LinguiT = ReturnType<typeof useLingui>['t'];
 
-import { NavigationProp, RouteProp } from '@react-navigation/native';
+import type { NavigationProp, RouteProp } from '@react-navigation/native';
 import {
   ColumnShell,
   type BreadcrumbItem,
@@ -54,14 +54,14 @@ function compactParams(p: PatchDbExplorerParams): PatchDbExplorerParams {
 }
 
 function normalizeParams(
-  raw: PatchDbExplorerParams | undefined,
+  raw: PatchDbExplorerParams | undefined
 ): PatchDbExplorerParams {
   return compactParams(raw ?? {});
 }
 
 function carryQuery(
   prev: PatchDbExplorerParams,
-  next: PatchDbExplorerParams,
+  next: PatchDbExplorerParams
 ): PatchDbExplorerParams {
   if (prev.query === '1') {
     return { ...next, query: '1' };
@@ -71,14 +71,14 @@ function carryQuery(
 
 function selectEntityType(
   prev: PatchDbExplorerParams,
-  entityType: string,
+  entityType: string
 ): PatchDbExplorerParams {
   return compactParams(carryQuery(prev, { entityType }));
 }
 
 function selectEntityId(
   prev: PatchDbExplorerParams,
-  entityId: string,
+  entityId: string
 ): PatchDbExplorerParams {
   const et = prev.entityType;
   if (!isFilled(et)) {
@@ -89,14 +89,14 @@ function selectEntityId(
 
 function selectPatch(
   prev: PatchDbExplorerParams,
-  patch: Patch,
+  patch: Patch
 ): PatchDbExplorerParams {
   return compactParams(
     carryQuery(prev, {
       entityType: patch.entityType,
       entityId: patch.entityId,
       patchId: patch.patchId,
-    }),
+    })
   );
 }
 
@@ -113,9 +113,13 @@ function closeQuery(prev: PatchDbExplorerParams): PatchDbExplorerParams {
 
 type ColumnKind = 'types' | 'entities' | 'entityDetail' | 'patch';
 
-/* eslint-disable lingui/no-unlocalized-strings */
 /** Left-to-right column roles (query is a modal, not a column). */
-const EXPLORER_COLUMN_SLOTS: ColumnKind[] = ['types', 'entities', 'entityDetail', 'patch'];
+const EXPLORER_COLUMN_SLOTS: ColumnKind[] = [
+  'types',
+  'entities',
+  'entityDetail',
+  'patch',
+];
 
 function buildFilledKinds(p: PatchDbExplorerParams): ColumnKind[] {
   const cols: ColumnKind[] = ['types'];
@@ -127,7 +131,6 @@ function buildFilledKinds(p: PatchDbExplorerParams): ColumnKind[] {
   if (hasPatch) cols.push('patch');
   return cols;
 }
-/* eslint-enable lingui/no-unlocalized-strings */
 
 /** How many column frames to show for this width (always filled or empty). */
 function maxSlotCountForWidth(width: number): number {
@@ -140,7 +143,7 @@ function maxSlotCountForWidth(width: number): number {
  */
 function visibleKindsForLayout(
   filled: ColumnKind[],
-  slotCount: number,
+  slotCount: number
 ): ColumnKind[] {
   if (filled.length <= slotCount) {
     return EXPLORER_COLUMN_SLOTS.slice(0, slotCount);
@@ -176,7 +179,7 @@ function short(value: string, max = 28): string {
 type ApplyParams = (next: PatchDbExplorerParams) => void;
 
 function useApplyParams(
-  navigation: NavigationProp<PatchDbClientParamList>,
+  navigation: NavigationProp<PatchDbClientParamList>
 ): ApplyParams {
   return useCallback(
     (next) => {
@@ -185,14 +188,14 @@ function useApplyParams(
         routes: [{ name: 'explorer', params: compactParams(next) }],
       });
     },
-    [navigation],
+    [navigation]
   );
 }
 
 function useGoBackOneLevel(
   params: PatchDbExplorerParams,
   applyParams: ApplyParams,
-  onExit?: () => void,
+  onExit?: () => void
 ) {
   return useCallback(() => {
     if (params.query === '1') {
@@ -209,8 +212,8 @@ function useGoBackOneLevel(
             ...(isFilled(params.entityId) && {
               entityId: params.entityId,
             }),
-          }),
-        ),
+          })
+        )
       );
       return;
     }
@@ -221,8 +224,8 @@ function useGoBackOneLevel(
             ...(isFilled(params.entityType) && {
               entityType: params.entityType,
             }),
-          }),
-        ),
+          })
+        )
       );
       return;
     }
@@ -237,10 +240,9 @@ function useGoBackOneLevel(
 function useBackHandler(
   params: PatchDbExplorerParams,
   goBackOneLevel: () => void,
-  onExit?: () => void,
+  onExit?: () => void
 ) {
   useEffect(() => {
-    // eslint-disable-next-line lingui/no-unlocalized-strings
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
       const hasInApp =
         isFilled(params.entityType) ||
@@ -264,7 +266,7 @@ function useBackHandler(
 function buildBreadcrumbs(
   params: PatchDbExplorerParams,
   applyParams: ApplyParams,
-  t: LinguiT,
+  t: LinguiT
 ): BreadcrumbItem[] {
   const items: BreadcrumbItem[] = [
     {
@@ -288,7 +290,7 @@ function buildBreadcrumbs(
       label: short(entityId, 20),
       onPress: () =>
         applyParams(
-          compactParams(carryQuery(params, { entityType, entityId })),
+          compactParams(carryQuery(params, { entityType, entityId }))
         ),
     });
   }
@@ -298,9 +300,7 @@ function buildBreadcrumbs(
       label: short(patchId, 18),
       onPress: () =>
         applyParams(
-          compactParams(
-            carryQuery(params, { entityType, entityId, patchId }),
-          ),
+          compactParams(carryQuery(params, { entityType, entityId, patchId }))
         ),
     });
   }
@@ -335,7 +335,11 @@ function buildTypesPanel({ params, applyParams, t }: PanelArgs): ColumnPanel {
   };
 }
 
-function buildEntitiesPanel({ params, applyParams, t }: PanelArgs): ColumnPanel {
+function buildEntitiesPanel({
+  params,
+  applyParams,
+  t,
+}: PanelArgs): ColumnPanel {
   return {
     key: 'entities',
     title: t`Entities`,
@@ -354,7 +358,11 @@ function buildEntitiesPanel({ params, applyParams, t }: PanelArgs): ColumnPanel 
   };
 }
 
-function buildEntityDetailPanel({ params, applyParams, t }: PanelArgs): ColumnPanel {
+function buildEntityDetailPanel({
+  params,
+  applyParams,
+  t,
+}: PanelArgs): ColumnPanel {
   return {
     key: 'detail',
     title: t`Entity`,
@@ -402,16 +410,32 @@ function buildPanelForKind(kind: ColumnKind, args: PanelArgs): ColumnPanel {
   return buildPatchPanel(args);
 }
 
-function getHeaderTitle(topVisibleKind: ColumnKind | undefined, params: PatchDbExplorerParams, t: LinguiT): LocalizedString {
+function getHeaderTitle(
+  topVisibleKind: ColumnKind | undefined,
+  params: PatchDbExplorerParams,
+  t: LinguiT
+): LocalizedString {
   if (params.query === '1') return t`Query`;
-  if (topVisibleKind === 'patch') return asLocalized(short(params.patchId ?? t`Patch`, 24));
-  if (topVisibleKind === 'entityDetail') return asLocalized(short(params.entityId ?? t`Entity`, 28));
-  if (topVisibleKind === 'entities') return params.entityType !== undefined ? asLocalized(params.entityType) : t`Entities`;
+  if (topVisibleKind === 'patch')
+    return asLocalized(short(params.patchId ?? t`Patch`, 24));
+  if (topVisibleKind === 'entityDetail')
+    return asLocalized(short(params.entityId ?? t`Entity`, 28));
+  if (topVisibleKind === 'entities')
+    return params.entityType !== undefined
+      ? asLocalized(params.entityType)
+      : t`Entities`;
   return t`Patch DB Client`;
 }
 
-function getHeaderSubtitle(topVisibleKind: ColumnKind | undefined, params: PatchDbExplorerParams, t: LinguiT): LocalizedString | undefined {
-  if (topVisibleKind === 'entityDetail') return params.entityType !== undefined ? asLocalized(params.entityType) : undefined;
+function getHeaderSubtitle(
+  topVisibleKind: ColumnKind | undefined,
+  params: PatchDbExplorerParams,
+  t: LinguiT
+): LocalizedString | undefined {
+  if (topVisibleKind === 'entityDetail')
+    return params.entityType !== undefined
+      ? asLocalized(params.entityType)
+      : undefined;
   if (topVisibleKind === 'patch') return t`Patch`;
   return undefined;
 }
@@ -429,7 +453,7 @@ function buildHeaderBreadcrumbs(
     headerTitle: LocalizedString;
     headerSubtitle: LocalizedString | undefined;
   },
-  t: LinguiT,
+  t: LinguiT
 ): HeaderBreadcrumb[] {
   const { showHeaderBack, goBackOneLevel, headerTitle, headerSubtitle } = args;
   const titleEntry: HeaderBreadcrumb = {
@@ -447,7 +471,7 @@ function useExplorerLayout(params: PatchDbExplorerParams, width: number) {
   const slotCount = maxSlotCountForWidth(width);
   const visibleKinds = useMemo(
     () => visibleKindsForLayout(filledKinds, slotCount),
-    [filledKinds, slotCount],
+    [filledKinds, slotCount]
   );
   const showBreadcrumbs = slotCount === 1 && filledKinds.length > 1;
   return { visibleKinds, showBreadcrumbs };
@@ -481,7 +505,7 @@ export function ExplorerRoute({
 
   const breadcrumbs = useMemo(
     () => buildBreadcrumbs(params, applyParams, t),
-    [applyParams, params, t],
+    [applyParams, params, t]
   );
 
   useBackHandler(params, goBackOneLevel, onExit);
@@ -492,10 +516,8 @@ export function ExplorerRoute({
 
   const panels = useMemo(
     () =>
-      visibleKinds.map((k) =>
-        buildPanelForKind(k, { params, applyParams, t }),
-      ),
-    [applyParams, params, visibleKinds, t],
+      visibleKinds.map((k) => buildPanelForKind(k, { params, applyParams, t })),
+    [applyParams, params, visibleKinds, t]
   );
 
   const dismissQuery = useCallback(() => {
@@ -505,7 +527,7 @@ export function ExplorerRoute({
   const showHeaderBack = canGoBackInApp(params) || onExit !== undefined;
   const explorerBreadcrumbs = buildHeaderBreadcrumbs(
     { showHeaderBack, goBackOneLevel, headerTitle, headerSubtitle },
-    t,
+    t
   );
 
   return (

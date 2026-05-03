@@ -53,7 +53,11 @@ function LiveBadge() {
       }}
     >
       <StatusDot status="online" size={8} />
-      <Text variant="caption" sx={{ color: '#FFFFFF' }} label={<Trans>Live</Trans>} />
+      <Text
+        variant="caption"
+        sx={{ color: '#FFFFFF' }}
+        label={<Trans>Live</Trans>}
+      />
     </Box>
   );
 }

@@ -14,7 +14,7 @@ function readBoard(state: State): Array<null | string> {
   for (const c of b) {
     crash.ok(
       c === null || c === 'X' || c === 'O',
-      'board cell must be null, X, or O',
+      'board cell must be null, X, or O'
     );
     out.push(c);
   }
@@ -27,7 +27,7 @@ function readWinner(state: State): null | string {
   crash.string(w, 'winner must be string when set');
   crash.ok(
     w === 'X' || w === 'O' || w === 'draw',
-    'winner must be X, O, or draw',
+    'winner must be X, O, or draw'
   );
   return w;
 }

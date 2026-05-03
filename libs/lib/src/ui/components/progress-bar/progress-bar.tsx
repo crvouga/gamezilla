@@ -40,7 +40,7 @@ export function ProgressBar({
         toValue: 1,
         duration: 1200,
         useNativeDriver: true,
-      }),
+      })
     );
     loop.start();
     return () => loop.stop();

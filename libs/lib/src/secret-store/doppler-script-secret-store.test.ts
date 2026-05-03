@@ -1,3 +1,4 @@
+import type { execSync } from 'node:child_process';
 import { describe, expect, it } from 'bun:test';
 import { DopplerCli } from '../doppler/doppler-cli';
 import { DopplerSecretStore } from './doppler-secret-store';
@@ -18,11 +19,13 @@ function makeReader(): DopplerSecretStore {
 
 function makeCli(execCalls: string[]): DopplerCli {
   return new DopplerCli({
-    processEnv: { DOPPLER_TOKEN: 'dp.st.dummy' } as unknown as NodeJS.ProcessEnv,
+    processEnv: {
+      DOPPLER_TOKEN: 'dp.st.dummy',
+    } as unknown as NodeJS.ProcessEnv,
     execSyncFn: ((cmd: string) => {
       execCalls.push(cmd);
       return Buffer.from('');
-    }) as unknown as typeof import('node:child_process').execSync,
+    }) as unknown as typeof execSync,
   });
 }
 

@@ -39,7 +39,7 @@ export class CommandRegistryStore {
     if (prev !== undefined && prev.registrationId !== registrationId) {
       // Another component still holds this id — last writer wins.
       console.warn(
-        `[CommandRegistry] Duplicate command id "${command.id}" — last registration wins.`,
+        `[CommandRegistry] Duplicate command id "${command.id}" — last registration wins.`
       );
     }
     this.commands.set(command.id, { command, registrationId });

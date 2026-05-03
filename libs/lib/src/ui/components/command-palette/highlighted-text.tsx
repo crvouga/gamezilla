@@ -41,7 +41,11 @@ export function HighlightedText({
   for (const [start, end] of merged) {
     if (start > cursor) {
       nodes.push(
-        <Text key={`p-${cursor}`} variant={variant} label={text.slice(cursor, start)} />,
+        <Text
+          key={`p-${cursor}`}
+          variant={variant}
+          label={text.slice(cursor, start)}
+        />
       );
     }
     nodes.push(
@@ -49,19 +53,15 @@ export function HighlightedText({
         key={`b-${start}`}
         variant={boldVariant}
         label={text.slice(start, end + 1)}
-      />,
+      />
     );
     cursor = end + 1;
   }
   if (cursor < text.length) {
     nodes.push(
-      <Text key={`t-${cursor}`} variant={variant} label={text.slice(cursor)} />,
+      <Text key={`t-${cursor}`} variant={variant} label={text.slice(cursor)} />
     );
   }
 
-  return (
-    <RNText style={{ flexShrink: 1 }}>
-      {nodes}
-    </RNText>
-  );
+  return <RNText style={{ flexShrink: 1 }}>{nodes}</RNText>;
 }

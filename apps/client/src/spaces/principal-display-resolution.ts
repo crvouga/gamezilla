@@ -72,7 +72,9 @@ export function principalPresentation(args: {
 }): { displayName: string; avatarConfig: AvatarConfig | null } {
   const profileKey = resolveProfileKey(args);
   const profileEntity = args.profileById.get(profileKey);
-  const attrs = profileEntity?.attributes as Record<string, unknown> | undefined;
+  const attrs = profileEntity?.attributes as
+    | Record<string, unknown>
+    | undefined;
   return {
     displayName: displayNameForPrincipal(
       attrs?.[ProfileAttr.displayName],

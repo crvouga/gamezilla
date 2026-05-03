@@ -76,7 +76,10 @@ export function reduceGameWon(
   };
 }
 
-export function reduceGameDrawn(state: State, msg: Message<{ seq: number }>): State {
+export function reduceGameDrawn(
+  state: State,
+  msg: Message<{ seq: number }>
+): State {
   const payload = msg.payload;
   crash.record(payload, 'GAME_DRAWN payload must be a record');
   crash.field(payload, 'seq', 'GAME_DRAWN must have seq');

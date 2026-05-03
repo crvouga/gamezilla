@@ -25,8 +25,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useProfile } from '../use-profile';
 
 function usePersistedConfig() {
-  const { principalId, profileId, entity, loading: profileLoading } =
-    useProfile();
+  const {
+    principalId,
+    profileId,
+    entity,
+    loading: profileLoading,
+  } = useProfile();
   const persisted = useMemo(
     () =>
       resolveAvatarConfig(

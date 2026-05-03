@@ -22,10 +22,7 @@ export default function CardExample() {
       <Card elevation={0} sx={{ p: 4 }}>
         <Stack spacing={2}>
           <Text variant="subtitle" label="Flat card (border, no shadow)" />
-          <Text
-            variant="caption"
-            label="elevation=0 uses a border instead"
-          />
+          <Text variant="caption" label="elevation=0 uses a border instead" />
         </Stack>
       </Card>
     </Box>

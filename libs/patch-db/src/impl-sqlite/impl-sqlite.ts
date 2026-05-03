@@ -1,23 +1,25 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
-import {
-  assertAttribute,
-  assertEntityKey,
-  assertPatchId,
+import type {
   Attribute,
-  getPatchTopLevelFromAttributes,
-  isValidAttribute,
-  normalizePatchAttributesForStorage,
-  OPEN_PATCHES_DB_CONTEXT,
   Patch,
   PatchDbEngineOptions,
-  PATCH_META_KEYS,
   PatchesDb,
   PatchesDbCompaction,
   PatchesDbContext,
   PatchesDbQuery,
   PatchesDbResult,
   PatchInput,
+} from '../interface';
+import {
+  assertAttribute,
+  assertEntityKey,
+  assertPatchId,
+  getPatchTopLevelFromAttributes,
+  isValidAttribute,
+  normalizePatchAttributesForStorage,
+  OPEN_PATCHES_DB_CONTEXT,
+  PATCH_META_KEYS,
   topologicalSortPatches,
 } from '../interface';
 import { PatchDbHookRegistry } from '../hook-registry';
@@ -48,8 +50,7 @@ export class PatchDbImplSqlite implements PatchesDb {
   readonly hooks = new PatchDbHookRegistry();
 
   readonly compaction: PatchesDbCompaction = {
-    compactEntity: (key, options, ctx) =>
-      this.compactEntity(key, options, ctx),
+    compactEntity: (key, options, ctx) => this.compactEntity(key, options, ctx),
     compactAll: (options, ctx) => this.compactAll(options, ctx),
   };
 
@@ -62,10 +63,9 @@ export class PatchDbImplSqlite implements PatchesDb {
     await migratePatchDbSqlite(this.sqlClient);
   }
 
-  private mergePatchRowsIntoMergedRecord(rows: readonly PatchRow[]): Record<
-    string,
-    unknown
-  > {
+  private mergePatchRowsIntoMergedRecord(
+    rows: readonly PatchRow[]
+  ): Record<string, unknown> {
     const merged: Record<string, unknown> = {};
     for (const row of rows) {
       const attrs = parseAttributes(row.attributes, {

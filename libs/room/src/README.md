@@ -53,14 +53,14 @@ If your feature is single-player/local-only with no peer coordination, this laye
 
 ### Package entrypoints
 
-| Import | Purpose |
-|--------|---------|
-| `@gamezilla/room` | `Room`, persistence, transport, replay helpers, curated room errors |
-| `@gamezilla/room/types` | UI-only: `Event`, `Message`, `RoomError`, `State` |
-| `@gamezilla/room/utils` | `isSystemEvent`, ids |
-| `@gamezilla/room/simulator` | `DeterministicSimulator` |
-| `@gamezilla/room/trust` | Standalone `TrustElection` / `computeTrustMap` (not wired into `Room`) |
-| `@gamezilla/room/room-errors` | Same symbols as root error re-exports |
+| Import                        | Purpose                                                                |
+| ----------------------------- | ---------------------------------------------------------------------- |
+| `@gamezilla/room`             | `Room`, persistence, transport, replay helpers, curated room errors    |
+| `@gamezilla/room/types`       | UI-only: `Event`, `Message`, `RoomError`, `State`                      |
+| `@gamezilla/room/utils`       | `isSystemEvent`, ids                                                   |
+| `@gamezilla/room/simulator`   | `DeterministicSimulator`                                               |
+| `@gamezilla/room/trust`       | Standalone `TrustElection` / `computeTrustMap` (not wired into `Room`) |
+| `@gamezilla/room/room-errors` | Same symbols as root error re-exports                                  |
 
 ### Config: `RoomConfig` (single object)
 
@@ -114,6 +114,6 @@ Use `normalizeRoomInit()` on a **`RoomConfigCore`** if you validate room fields 
 - **Endpoint compromise**: malware on a device can sign arbitrary valid messages as that peer.
 - **Room secret leak**: anyone with the secret can produce valid wire traffic for that match.
 - **Colluding quorum**: authority + majority trust can still behave badly at the application layer—crypto does not prove honesty.
-- **MITM on a shared broadcast bus**: if an attacker can mutate bytes *after* a peer publishes but *before* others receive, followers may reject tampered commits while the publisher already applied locally—treat optimistic local application as UX, not cross-peer safety unless you add stricter commit gating.
+- **MITM on a shared broadcast bus**: if an attacker can mutate bytes _after_ a peer publishes but _before_ others receive, followers may reject tampered commits while the publisher already applied locally—treat optimistic local application as UX, not cross-peer safety unless you add stricter commit gating.
 
 See tests under `src/testkit/cheating.test.ts` and `src/trust/election.test.ts` for adversarial coverage.

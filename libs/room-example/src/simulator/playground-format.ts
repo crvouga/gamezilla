@@ -60,7 +60,7 @@ function writeSteps(lines: string[], entries: LogEntry[]): void {
 
 function writeErrors(
   lines: string[],
-  errors: Array<{ type: string; payload: unknown }>,
+  errors: Array<{ type: string; payload: unknown }>
 ): void {
   lines.push('');
   lines.push('Errors:');
@@ -70,14 +70,14 @@ function writeErrors(
   }
   for (const err of errors) {
     lines.push(
-      `  - { type: '${err.type}', payload: ${JSON.stringify(err.payload)} }`,
+      `  - { type: '${err.type}', payload: ${JSON.stringify(err.payload)} }`
     );
   }
 }
 
 function writeAuthorityChanges(
   lines: string[],
-  changes: AuthorityChange[],
+  changes: AuthorityChange[]
 ): void {
   if (changes.length === 0) return;
   lines.push('');
@@ -89,7 +89,7 @@ function writeAuthorityChanges(
 
 function writeFinalStates(
   lines: string[],
-  states: Record<PeerId, State>,
+  states: Record<PeerId, State>
 ): void {
   lines.push('');
   lines.push('Final states:');

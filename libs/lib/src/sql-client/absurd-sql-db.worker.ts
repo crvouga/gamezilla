@@ -1,5 +1,6 @@
 /// <reference lib="webworker" />
 /// <reference path="./absurd-sql-modules.d.ts" />
+/* eslint-disable @typescript-eslint/no-explicit-any -- sql.js worker API is untyped */
 
 /** Browser/worker build — avoids Node `fs`/`path` branches in `sql-wasm.js`. */
 import initSqlJs from '@jlongster/sql.js/dist/worker.sql-wasm.js';
@@ -163,7 +164,12 @@ function handleTxRollback(id: number, db: any): void {
   postReply({ id, ok: true });
 }
 
-function handleQuery(id: number, db: any, sql: string, params: unknown[]): void {
+function handleQuery(
+  id: number,
+  db: any,
+  sql: string,
+  params: unknown[]
+): void {
   const stmt = db.prepare(sql);
   try {
     stmt.bind(params as SqlJsBindParams);

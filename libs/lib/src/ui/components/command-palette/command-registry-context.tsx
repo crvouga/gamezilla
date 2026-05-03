@@ -15,7 +15,10 @@ import { Platform } from 'react-native';
 import type { ThemePreferenceStorage } from '../../theme';
 import { CommandRegistryStore } from './command-registry-store';
 import { HistoryStore } from './history-store';
-import { matchesWebShortcut, type WebKeyboardEventLike } from './keyboard-shortcut';
+import {
+  matchesWebShortcut,
+  type WebKeyboardEventLike,
+} from './keyboard-shortcut';
 import type { CommandId } from './types';
 import { isCommandEnabled, isCommandVisible, normalizeShortcut } from './types';
 
@@ -159,11 +162,7 @@ function useInvoke(
     async (id: CommandId) => {
       if (invokingRef.current) return;
       const cmd = store.get(id);
-      if (
-        cmd === undefined ||
-        !isCommandEnabled(cmd) ||
-        !isCommandVisible(cmd)
-      )
+      if (cmd === undefined || !isCommandEnabled(cmd) || !isCommandVisible(cmd))
         return;
       invokingRef.current = true;
       setErrors((prev) => {
@@ -178,7 +177,11 @@ function useInvoke(
         close();
       } catch (err: unknown) {
         const message =
-          err instanceof Error ? err.message : String(err ?? 'Unknown error');
+          err instanceof Error
+            ? err.message
+            : typeof err === 'string'
+              ? err
+              : 'Unknown error';
         setErrors((prev) => {
           const next = new Map(prev);
           next.set(id, message);
@@ -190,7 +193,15 @@ function useInvoke(
         invokingRef.current = false;
       }
     },
-    [close, historyStore, invokingRef, setErrors, setIsOpen, setRunningId, store]
+    [
+      close,
+      historyStore,
+      invokingRef,
+      setErrors,
+      setIsOpen,
+      setRunningId,
+      store,
+    ]
   );
 }
 
@@ -340,7 +351,7 @@ export function useCommandRegistry(): CommandRegistryContextValue {
   const ctx = useContext(CommandRegistryContext);
   if (ctx === null) {
     throw new Error(
-      'useCommandRegistry must be used within CommandRegistryProvider',
+      'useCommandRegistry must be used within CommandRegistryProvider'
     );
   }
   return ctx;

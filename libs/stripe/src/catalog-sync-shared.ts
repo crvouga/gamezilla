@@ -89,7 +89,8 @@ export function priceMatchesSpec(
   const pid = stripePriceProductId(live.product ?? null);
   if (pid !== expectedProductStripeId) return false;
   if (live.unit_amount !== spec.unit_amount) return false;
-  if (live.currency?.toLowerCase() !== spec.currency.toLowerCase()) return false;
+  if (live.currency?.toLowerCase() !== spec.currency.toLowerCase())
+    return false;
   if (live.recurring?.interval !== spec.recurring.interval) return false;
   const liveCo = normalizeCurrencyOptions(live.currency_options ?? undefined);
   const specCo = specCurrencyAmountMap(spec);
@@ -107,16 +108,25 @@ export function decidePriceReconcile(
         recurring: { interval: string } | null;
         active: boolean;
         product?: string | { id: string } | null;
-        currency_options?: Record<string, { unit_amount?: number | null }> | null;
+        currency_options?: Record<
+          string,
+          { unit_amount?: number | null }
+        > | null;
       }
     | null
     | undefined,
   spec: PriceSpecEntry,
   expectedProductStripeId: string
 ): PriceReconcileAction {
-  if (live === undefined || live === null || liveDetail === undefined || liveDetail === null) {
+  if (
+    live === undefined ||
+    live === null ||
+    liveDetail === undefined ||
+    liveDetail === null
+  ) {
     return 'replace';
   }
-  if (priceMatchesSpec(liveDetail, spec, expectedProductStripeId)) return 'noop';
+  if (priceMatchesSpec(liveDetail, spec, expectedProductStripeId))
+    return 'noop';
   return 'replace';
 }

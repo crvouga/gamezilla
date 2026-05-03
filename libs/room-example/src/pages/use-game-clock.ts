@@ -17,11 +17,17 @@ export type GameClockControls = {
 
 export function useGameClock(
   sim: PlaygroundSimulator,
-  tick: number,
+  tick: number
 ): GameClockControls {
   const [realtimeEnabled, setRealtimeEnabled] = useState(false);
-  const snapshot = useMemo(() => sim.getClockSnapshot('server'), [sim, tick]);
-  const logicalTimeMs = useMemo(() => sim.getLogicalTimeMs(), [sim, tick]);
+  const snapshot = useMemo(() => {
+    void tick;
+    return sim.getClockSnapshot('server');
+  }, [sim, tick]);
+  const logicalTimeMs = useMemo(() => {
+    void tick;
+    return sim.getLogicalTimeMs();
+  }, [sim, tick]);
   const canEnableRealtime = snapshot.clockStatus === 'running';
 
   useEffect(() => {

@@ -51,7 +51,7 @@ export function styleLabel(key: StyleKey): string {
     .replace(/^[a-z]/, (c) => c.toUpperCase())
     .split(' ')
     .map((word) =>
-      ACRONYMS.has(word.toLowerCase()) ? word.toUpperCase() : word,
+      ACRONYMS.has(word.toLowerCase()) ? word.toUpperCase() : word
     )
     .join(' ');
 }

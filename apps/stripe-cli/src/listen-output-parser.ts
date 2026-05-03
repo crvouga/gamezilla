@@ -2,8 +2,7 @@
  * Parse Stripe CLI `listen` stdout for the webhook signing secret.
  * CLI may wrap output in ANSI SGR sequences.
  */
-const WHSEC_PATTERN =
-  /Your webhook signing secret is (whsec_[A-Za-z0-9_]+)/i;
+const WHSEC_PATTERN = /Your webhook signing secret is (whsec_[A-Za-z0-9_]+)/i;
 
 function stripAnsi(line: string): string {
   return line.replace(/\u001b\[[0-9;]*m/g, '');

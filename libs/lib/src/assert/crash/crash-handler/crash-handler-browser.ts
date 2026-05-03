@@ -1,5 +1,5 @@
 /// <reference lib="dom" />
-import { CrashHandler } from './crash-handler';
+import type { CrashHandler } from './crash-handler';
 import { CRASH_OVERLAY_STYLES } from './crash-handler-browser-styles';
 
 function isBrowser() {

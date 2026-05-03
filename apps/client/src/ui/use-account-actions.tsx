@@ -59,11 +59,7 @@ function ConnectionTrailing({
   const { t } = useLingui();
   const ms = health.latencyMs;
   const latencyLabel =
-    health.phase === 'loading'
-      ? '…'
-      : ms !== null
-        ? t`${ms} ms`
-        : '—';
+    health.phase === 'loading' ? '…' : ms !== null ? t`${ms} ms` : '—';
   return (
     <Box
       sx={{

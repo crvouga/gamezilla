@@ -66,7 +66,7 @@ function wireRecord(payload: unknown): Record<string, unknown> {
 }
 
 function tamperAcceptedEntriesInBody(
-  body: Record<string, unknown>,
+  body: Record<string, unknown>
 ): Record<string, unknown> {
   if (body['kind'] !== 'accepted') return body;
   const entriesRaw = body['entries'];
@@ -143,7 +143,7 @@ describe('Cheating: Authority', () => {
     const forged = sim.forgeCommand(
       PEER.playerO,
       PlaceMark({ cell: 0, player: 'X' }),
-      { fakePeerId: PEER.playerX },
+      { fakePeerId: PEER.playerX }
     );
     sim.injectWireMessage({ kind: 'propose', command: forged });
 
@@ -156,7 +156,7 @@ describe('Cheating: Authority', () => {
     const sim = createSim();
 
     sim.setMessageInterceptor((_topic, payload) =>
-      tamperSignedAcceptedPayload(payload),
+      tamperSignedAcceptedPayload(payload)
     );
 
     sim.dispatch(PEER.playerX, PlaceMark({ cell: 0, player: 'X' }));
@@ -230,16 +230,18 @@ describe('Cheating: Authority', () => {
     const sim = createSim();
 
     const boardBefore = JSON.stringify(
-      sim.getCommittedState(PEER.authority)['board'],
+      sim.getCommittedState(PEER.authority)['board']
     );
 
     const forged = sim.forgeCommand(
       PEER.playerO,
-      PlaceMark({ cell: 0, player: 'O' }),
+      PlaceMark({ cell: 0, player: 'O' })
     );
     sim.injectWireMessage({ kind: 'propose', command: forged });
 
-    const boardAfter = JSON.stringify(sim.getCommittedState(PEER.authority)['board']);
+    const boardAfter = JSON.stringify(
+      sim.getCommittedState(PEER.authority)['board']
+    );
     expect(boardAfter).toBe(boardBefore);
     sim.destroy();
   });
@@ -247,7 +249,10 @@ describe('Cheating: Authority', () => {
   it('double propose — unsigned duplicate inject does not advance seq', () => {
     const sim = createSim();
 
-    const cmd = sim.forgeCommand(PEER.playerX, PlaceMark({ cell: 0, player: 'X' }));
+    const cmd = sim.forgeCommand(
+      PEER.playerX,
+      PlaceMark({ cell: 0, player: 'X' })
+    );
 
     sim.dispatch(PEER.playerX, PlaceMark({ cell: 0, player: 'X' }));
     expect(cell(sim.getCommittedState(PEER.authority), 0)).toBe('X');
@@ -287,7 +292,7 @@ describe('Cheating: Cross-cutting', () => {
           PlaceMark({
             cell: i % 9,
             player: (i % 2 === 0 ? 'X' : 'O') as 'X' | 'O',
-          }),
+          })
         );
       } catch {
         // dispatch may throw for invalid moves — that's fine
@@ -369,7 +374,7 @@ describe('Cheating: Cross-cutting', () => {
     const cmd = sim.forgeCommand(
       PEER.playerX,
       PlaceMark({ cell: 0, player: 'X' }),
-      { id: 'custom-id', seq: 42, fakePeerId: 'hacker' },
+      { id: 'custom-id', seq: 42, fakePeerId: 'hacker' }
     );
 
     expect(cmd.id).toBe('custom-id');

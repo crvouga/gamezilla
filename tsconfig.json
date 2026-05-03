@@ -8,6 +8,10 @@
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "useUnknownInCatchVariables": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
     "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -23,6 +27,7 @@
     }
   },
   "include": [
+    "libs/lib/src/ts-reset.ts",
     "apps/api/src/**/*.ts",
     "apps/api/src/**/*.d.ts",
     "apps/client/src/**/*.ts",

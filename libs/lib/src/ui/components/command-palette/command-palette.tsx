@@ -42,10 +42,7 @@ function useStoreSubscriptions(
 ) {
   const [, setStoreTick] = useState(0);
   const [, setHistoryTick] = useState(0);
-  useEffect(
-    () => store.subscribe(() => setStoreTick((n) => n + 1)),
-    [store]
-  );
+  useEffect(() => store.subscribe(() => setStoreTick((n) => n + 1)), [store]);
   useEffect(
     () => historyStore.subscribe(() => setHistoryTick((n) => n + 1)),
     [historyStore]
@@ -178,8 +175,15 @@ function handleEdgeKey(
 }
 
 function useKeyNavigation(deps: KeyHandlerDeps) {
-  const { isOpen, runningId, itemRows, selectedIndex, setSelectedIndex, close, invoke } =
-    deps;
+  const {
+    isOpen,
+    runningId,
+    itemRows,
+    selectedIndex,
+    setSelectedIndex,
+    close,
+    invoke,
+  } = deps;
   return useCallback(
     (e: KeyboardEvent) => {
       if (!isOpen || runningId !== null) return;
@@ -199,7 +203,15 @@ function useKeyNavigation(deps: KeyHandlerDeps) {
       if (handleArrowKey(e, n, setSelectedIndex)) return;
       handleEdgeKey(e, n, setSelectedIndex);
     },
-    [close, invoke, isOpen, itemRows, runningId, selectedIndex, setSelectedIndex]
+    [
+      close,
+      invoke,
+      isOpen,
+      itemRows,
+      runningId,
+      selectedIndex,
+      setSelectedIndex,
+    ]
   );
 }
 
@@ -215,7 +227,11 @@ function useWebKeydown(
   }, [isOpen, onKeyNavigation]);
 }
 
-function PaletteHeader({ row }: { row: Extract<PaletteRow, { kind: 'header' }> }) {
+function PaletteHeader({
+  row,
+}: {
+  row: Extract<PaletteRow, { kind: 'header' }>;
+}) {
   return (
     <Box sx={{ px: 3, py: 2, background: 'background' }}>
       <Text

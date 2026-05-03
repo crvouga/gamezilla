@@ -6,7 +6,8 @@ import type {
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
 
 /** Patch-db entity type for catalog prices (SPEC / checkout `priceKey` = entityId). */
-export const STRIPE_PATCH_ENTITY_CATALOG_PRICE = 'stripe.catalog_price' as const;
+export const STRIPE_PATCH_ENTITY_CATALOG_PRICE =
+  'stripe.catalog_price' as const;
 
 /** Patch-db entity type for catalog products (`catalog_product_id` metadata = entityId). */
 export const STRIPE_PATCH_ENTITY_CATALOG_PRODUCT =

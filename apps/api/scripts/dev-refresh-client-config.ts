@@ -32,7 +32,9 @@ async function main(): Promise<void> {
         continue;
       }
 
-      process.stderr.write(`[dev-refresh] gave up after ${Math.round(elapsed / 1000)}s: ${msg}\n`);
+      process.stderr.write(
+        `[dev-refresh] gave up after ${Math.round(elapsed / 1000)}s: ${msg}\n`
+      );
       process.exit(1);
     }
 
@@ -56,7 +58,9 @@ async function main(): Promise<void> {
       process.exit(1);
     }
 
-    const json = (await res.json().catch(() => null)) as { ok?: boolean } | null;
+    const json = (await res.json().catch(() => null)) as {
+      ok?: boolean;
+    } | null;
     if (json?.ok !== true) {
       process.stderr.write(
         `[dev-refresh] unexpected response: ${JSON.stringify(json).slice(0, 200)}\n`

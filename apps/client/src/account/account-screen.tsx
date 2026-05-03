@@ -62,7 +62,9 @@ function useLinkedProviders(accountId: string | null): {
     if (accountId === null) return [];
     return result.entities
       .map((entity): LinkedProvider | null => {
-        const provider = asString(entity.attributes[AccountProviderAttr.provider]);
+        const provider = asString(
+          entity.attributes[AccountProviderAttr.provider]
+        );
         const providerAccountId = asString(
           entity.attributes[AccountProviderAttr.providerAccountId]
         );

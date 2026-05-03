@@ -17,13 +17,13 @@ function stringsFromSpawn(
     stdout:
       typeof stdout === 'string'
         ? stdout
-        : stdout != null
+        : stdout !== undefined && stdout !== null
           ? stdout.toString()
           : '',
     stderr:
       typeof stderr === 'string'
         ? stderr
-        : stderr != null
+        : stderr !== undefined && stderr !== null
           ? stderr.toString()
           : '',
   };
@@ -43,7 +43,10 @@ function spawnSyncCaptured(
     cwd: opts?.cwd,
     encoding: 'utf8',
     input: opts?.input,
-    stdio: opts?.input !== undefined ? ['pipe', 'pipe', 'pipe'] : ['ignore', 'pipe', 'pipe'],
+    stdio:
+      opts?.input !== undefined
+        ? ['pipe', 'pipe', 'pipe']
+        : ['ignore', 'pipe', 'pipe'],
   });
 
   if (r.error) {
@@ -114,15 +117,11 @@ export function run(
         .filter(Boolean)
         .join('\n')
     );
-    assert.fail(
-      `run: "${label}" exited ${r.status} — crash, do not continue`
-    );
+    assert.fail(`run: "${label}" exited ${r.status} — crash, do not continue`);
   }
 
   if (r.signal) {
-    platform.error(
-      `=== KILLED: ${label} === (signal ${r.signal}, ${elapsed})`
-    );
+    platform.error(`=== KILLED: ${label} === (signal ${r.signal}, ${elapsed})`);
     assert.fail(
       `run: "${label}" was killed by a signal — crash, do not continue`
     );
@@ -133,11 +132,7 @@ export function run(
  * Run a command, capturing all output. On success the output is discarded;
  * on failure it is printed to stderr before throwing.
  */
-export function runQuiet(
-  cmd: string,
-  args: string[],
-  opts?: RunOpts
-): void {
+export function runQuiet(cmd: string, args: string[], opts?: RunOpts): void {
   assert.ok(
     typeof cmd === 'string' && cmd.length > 0,
     'runQuiet: cmd must be non-empty'

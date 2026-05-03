@@ -17,8 +17,7 @@ export function createAuthClaimApp(db: PatchesDb, secretStore: SecretStore) {
       const googleClientId = await secretStore.getOptional(
         ApiSecretName.googleWebClientId
       );
-      const authOpts =
-        googleClientId !== null ? { googleClientId } : {};
+      const authOpts = googleClientId !== null ? { googleClientId } : {};
       const result = await handleAuthClaimResult(db, body, authOpts);
       return c.json(result.json, result.status);
     }

@@ -81,7 +81,8 @@ function resolveButtonColors(
   const accentOrDisabled = isDisabled ? theme.colors.disabled : accent;
   const bgColor = variant === 'solid' ? accentOrDisabled : 'transparent';
   const borderColor = variant === 'outlined' ? accentOrDisabled : 'transparent';
-  const textColor = variant === 'solid' ? theme.colors.surface : accentOrDisabled;
+  const textColor =
+    variant === 'solid' ? theme.colors.surface : accentOrDisabled;
   return { bgColor, borderColor, textColor };
 }
 
@@ -157,7 +158,12 @@ function ButtonContent({
   return (
     <>
       {startIcon !== undefined ? <View>{startIcon}</View> : null}
-      <Text variant="bodyBold" sx={{ fontSize }} style={{ color: textColor }} label={title} />
+      <Text
+        variant="bodyBold"
+        sx={{ fontSize }}
+        style={{ color: textColor }}
+        label={title}
+      />
       {endIcon !== undefined ? <View>{endIcon}</View> : null}
     </>
   );

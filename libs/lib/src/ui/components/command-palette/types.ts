@@ -26,7 +26,7 @@ export type RegisteredCommand = Command & {
 };
 
 export function normalizeShortcut(
-  shortcut: string | CommandShortcut | undefined,
+  shortcut: string | CommandShortcut | undefined
 ): CommandShortcut | undefined {
   if (shortcut === undefined) return undefined;
   if (typeof shortcut === 'string') {

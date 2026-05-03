@@ -171,18 +171,18 @@ export class ApiWorkerResource extends ResourceBase {
     });
 
     if (doppler.project !== null) {
-      await runCaptureAsync(
-        'wrangler',
-        ['secret', 'put', 'DOPPLER_PROJECT'],
-        { cwd: apiDir, env, input: doppler.project }
-      );
+      await runCaptureAsync('wrangler', ['secret', 'put', 'DOPPLER_PROJECT'], {
+        cwd: apiDir,
+        env,
+        input: doppler.project,
+      });
     }
     if (doppler.config !== null) {
-      await runCaptureAsync(
-        'wrangler',
-        ['secret', 'put', 'DOPPLER_CONFIG'],
-        { cwd: apiDir, env, input: doppler.config }
-      );
+      await runCaptureAsync('wrangler', ['secret', 'put', 'DOPPLER_CONFIG'], {
+        cwd: apiDir,
+        env,
+        input: doppler.config,
+      });
     }
 
     platform.notice(

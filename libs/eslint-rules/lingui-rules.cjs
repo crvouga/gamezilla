@@ -7,7 +7,7 @@
 function linguiRules() {
   return {
     'lingui/no-unlocalized-strings': [
-      'warn',
+      'error',
       {
         ignore: [
           '^[A-Z0-9_-]+$',
@@ -209,9 +209,9 @@ function linguiRules() {
     ],
     'lingui/t-call-in-function': 'error',
     'lingui/no-trans-inside-trans': 'error',
-    'lingui/no-expression-in-message': 'warn',
-    'lingui/no-single-tag-to-translate': 'warn',
-    'lingui/no-single-variables-to-translate': 'warn',
+    'lingui/no-expression-in-message': 'error',
+    'lingui/no-single-tag-to-translate': 'error',
+    'lingui/no-single-variables-to-translate': 'error',
   };
 }
 

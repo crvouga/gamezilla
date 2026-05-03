@@ -23,11 +23,11 @@ describe('deriveGoogleProviderState', () => {
   });
 
   it('marks Google available when a non-empty client id is present', () => {
-    expect(
-      deriveGoogleProviderState('abc.apps.googleusercontent.com')
-    ).toEqual({
-      available: true,
-      unavailableReason: null,
-    });
+    expect(deriveGoogleProviderState('abc.apps.googleusercontent.com')).toEqual(
+      {
+        available: true,
+        unavailableReason: null,
+      }
+    );
   });
 });

@@ -20,7 +20,7 @@ export async function probeCfPermission(
   headers: Record<string, string>,
   method: string,
   url: string,
-  jsonBody?: unknown,
+  jsonBody?: unknown
 ): Promise<boolean> {
   try {
     const opts: RequestInit = { method, headers };

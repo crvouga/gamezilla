@@ -29,7 +29,7 @@ export {
   type CheatLogEntry,
   type LogEntry,
   type MessageLogEntry,
-  type PeerId
+  type PeerId,
 } from './playground-types';
 
 export type PeerCryptoSummary = {
@@ -171,11 +171,13 @@ export class PlaygroundSimulator {
           ? snap.clockStatus
           : 'idle',
       remainingMsX:
-        typeof snap.remainingMsX === 'number' && Number.isFinite(snap.remainingMsX)
+        typeof snap.remainingMsX === 'number' &&
+        Number.isFinite(snap.remainingMsX)
           ? Math.max(0, snap.remainingMsX)
           : 0,
       remainingMsO:
-        typeof snap.remainingMsO === 'number' && Number.isFinite(snap.remainingMsO)
+        typeof snap.remainingMsO === 'number' &&
+        Number.isFinite(snap.remainingMsO)
           ? Math.max(0, snap.remainingMsO)
           : 0,
       clockActivePlayer: active === 'X' || active === 'O' ? active : null,
@@ -217,7 +219,8 @@ export class PlaygroundSimulator {
     const votes: TrustVote[] = [];
     for (const voter of PEERS) {
       const ranked = rankings[voter];
-      const trustedPeer = ranked.find((candidate) => candidate !== voter) ?? voter;
+      const trustedPeer =
+        ranked.find((candidate) => candidate !== voter) ?? voter;
       votes.push({
         from: this.simPeer(voter),
         trustedPeer: this.simPeer(trustedPeer),
@@ -225,7 +228,7 @@ export class PlaygroundSimulator {
     }
     const elected = computeTrustMap(
       votes,
-      PEERS.map((peerId) => this.simPeer(peerId)),
+      PEERS.map((peerId) => this.simPeer(peerId))
     );
 
     const nextTrustMap: Record<PeerId, number> = { ...this.trust_map };
@@ -242,7 +245,7 @@ export class PlaygroundSimulator {
         PeerTrustUpdate({
           peerId: this.simPeer(peerId),
           trust: nextTrustMap[peerId],
-        }),
+        })
       );
     }
     this.trust_map = nextTrustMap;

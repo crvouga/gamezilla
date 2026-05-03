@@ -9,14 +9,21 @@ import {
   PrincipalAttr,
   PrincipalSessionAttr,
 } from '@gamezilla/domain/auth';
-import { assertPrincipalId, assertUuid } from '@gamezilla/domain/auth/principal-id';
+import {
+  assertPrincipalId,
+  assertUuid,
+} from '@gamezilla/domain/auth/principal-id';
 import { assert } from '@gamezilla/lib/assert';
-import type { Entity, PatchInput, PatchesDb } from '@gamezilla/patch-db/interface';
+import type {
+  Entity,
+  PatchInput,
+  PatchesDb,
+} from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import type { z } from 'zod';
-import { authClaimRequestSchema } from './schema';
+import type { authClaimRequestSchema } from './schema';
 import type { GoogleIdTokenClaims } from './google-token';
-import { verifyGoogleIdToken } from './google-token';
+import { verifyGoogleIdToken as verifyGoogleIdTokenLive } from './google-token';
 
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -39,6 +46,17 @@ export type AuthClaimResult =
   | { status: 400; json: AuthClaimErrorBody }
   | { status: 401; json: AuthClaimErrorBody }
   | { status: 503; json: AuthClaimErrorBody };
+
+/** Production uses {@link verifyGoogleIdTokenLive}; tests pass a deterministic implementation. */
+export type VerifyGoogleIdTokenFn = (
+  idToken: string,
+  options?: { expectedAudience?: string }
+) => Promise<GoogleIdTokenClaims>;
+
+export type HandleAuthClaimOptions = {
+  googleClientId?: string;
+  verifyGoogleIdToken?: VerifyGoogleIdTokenFn;
+};
 
 /**
  * Looks up an existing account linked to this Google `sub`.
@@ -173,7 +191,8 @@ function appendPrincipalBindingIfNeeded(args: {
   patchesToWrite: PatchInput[];
 }): void {
   const { principalId, accountId, principalEntity, patchesToWrite } = args;
-  const existingAccountId = principalEntity?.attributes[PrincipalAttr.accountId];
+  const existingAccountId =
+    principalEntity?.attributes[PrincipalAttr.accountId];
 
   const alreadyBoundToSameAccount =
     typeof existingAccountId === 'string' && existingAccountId === accountId;
@@ -223,7 +242,7 @@ function appendSessionPatch(args: {
 export async function handleAuthClaimResult(
   db: PatchesDb,
   body: ClaimRequestBody,
-  options: { googleClientId?: string }
+  options: HandleAuthClaimOptions = {}
 ): Promise<AuthClaimResult> {
   const googleClientId = options.googleClientId?.trim() ?? '';
   if (googleClientId.length === 0) {
@@ -235,6 +254,9 @@ export async function handleAuthClaimResult(
 
   const { googleIdToken, principalId } = body;
   assertPrincipalId(principalId);
+
+  const verifyGoogleIdToken =
+    options.verifyGoogleIdToken ?? verifyGoogleIdTokenLive;
 
   let claims: GoogleIdTokenClaims;
   try {

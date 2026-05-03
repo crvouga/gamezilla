@@ -65,12 +65,12 @@ export function ThemePreferenceProvider({
         void storage.setItem(storageKey, p);
       }
     },
-    [storage, storageKey],
+    [storage, storageKey]
   );
 
   const value = useMemo(
     (): ThemePreferenceContextValue => ({ preference, setPreference }),
-    [preference, setPreference],
+    [preference, setPreference]
   );
 
   return (
@@ -84,7 +84,7 @@ export function useThemePreference(): ThemePreferenceContextValue {
   const ctx = useContext(ThemePreferenceContext);
   if (ctx === null) {
     throw new Error(
-      'useThemePreference must be used within ThemePreferenceProvider',
+      'useThemePreference must be used within ThemePreferenceProvider'
     );
   }
   return ctx;

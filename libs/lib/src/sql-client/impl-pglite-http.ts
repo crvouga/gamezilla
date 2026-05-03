@@ -21,6 +21,22 @@ interface SqlResponse {
   truncated: boolean;
 }
 
+async function throwSqlHttpError(res: Response): Promise<never> {
+  const raw: unknown = await res
+    .json()
+    .catch(() => ({ error: `HTTP ${res.status}` }));
+  const o =
+    raw !== null && typeof raw === 'object' && !Array.isArray(raw)
+      ? (raw as Record<string, unknown>)
+      : {};
+  const errorStr = typeof o['error'] === 'string' ? o['error'] : undefined;
+  const detailRaw = typeof o['detail'] === 'string' ? o['detail'] : undefined;
+  const detail =
+    detailRaw !== undefined && detailRaw.length > 0 ? detailRaw : undefined;
+  const summary = errorStr ?? `HTTP ${res.status}`;
+  throw new Error(detail !== undefined ? `${summary}: ${detail}` : summary);
+}
+
 export class SqlClientImplPgliteHttp implements SqlClient {
   private readonly baseUrl: string;
 
@@ -39,7 +55,7 @@ export class SqlClientImplPgliteHttp implements SqlClient {
 
   async query<T = Record<string, unknown>>(
     sql: string,
-    params?: unknown[],
+    params?: unknown[]
   ): Promise<T[]> {
     const data = await this.post(sql, params);
     return data.rows as T[];
@@ -76,15 +92,7 @@ export class SqlClientImplPgliteHttp implements SqlClient {
       }),
     });
     if (!res.ok) {
-      const body: { error?: string; detail?: string } = await res
-        .json()
-        .catch(() => ({ error: `HTTP ${res.status}` }));
-      const detail =
-        typeof body.detail === 'string' && body.detail.length > 0
-          ? body.detail
-          : undefined;
-      const summary = body.error ?? `HTTP ${res.status}`;
-      throw new Error(detail !== undefined ? `${summary}: ${detail}` : summary);
+      await throwSqlHttpError(res);
     }
     return (await res.json()) as SqlResponse;
   }
@@ -92,7 +100,7 @@ export class SqlClientImplPgliteHttp implements SqlClient {
 
 function getLastInsertRowid(rows: Record<string, unknown>[]): number {
   const first = rows[0];
-  if (first != null && 'id' in first) {
+  if (first !== undefined && first !== null && 'id' in first) {
     const id = first['id'];
     if (typeof id === 'number') return id;
     if (typeof id === 'bigint') return Number(id);

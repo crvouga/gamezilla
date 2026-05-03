@@ -101,7 +101,9 @@ export function AccountDevicesCard({
       <Text variant="bodyBold" label={<Trans>Devices</Trans>} />
       <CaptionLine
         label={
-          <Trans>Each install has its own principal id. Tap a row for full details.</Trans>
+          <Trans>
+            Each install has its own principal id. Tap a row for full details.
+          </Trans>
         }
       />
       {accountId !== null ? (
@@ -114,8 +116,8 @@ export function AccountDevicesCard({
         <CaptionLine
           label={
             <Trans>
-              Sign in to link this device to a server account and see all principals for that
-              account.
+              Sign in to link this device to a server account and see all
+              principals for that account.
             </Trans>
           }
         />

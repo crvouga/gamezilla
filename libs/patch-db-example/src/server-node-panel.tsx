@@ -34,28 +34,28 @@ import { useServerShapes } from './use-server-shapes';
 function useServerShapeActions(
   sim: PlaygroundSim,
   entities: Entity[],
-  run: ReturnType<typeof useAsyncAction>['run'],
+  run: ReturnType<typeof useAsyncAction>['run']
 ) {
   const handleRandomize = useCallback(
     (entityId: string) =>
       run(async () => {
         await playgroundServerRandomizeShape(sim, entityId);
       }),
-    [run, sim],
+    [run, sim]
   );
   const handleDelete = useCallback(
     (entityId: string) =>
       run(async () => {
         await playgroundServerDeleteShape(sim, entityId);
       }),
-    [run, sim],
+    [run, sim]
   );
   const handleCreate = useCallback(
     () =>
       run(async () => {
         await playgroundServerCreateShape(sim, nextShapeOrder(entities));
       }),
-    [run, sim, entities],
+    [run, sim, entities]
   );
   const handleReorder = useCallback(
     (entityIds: string[]) => {
@@ -63,7 +63,7 @@ function useServerShapeActions(
         await playgroundServerReorderShapes(sim, entityIds);
       });
     },
-    [run, sim],
+    [run, sim]
   );
   const randomizeAll = useCallback(
     () =>
@@ -72,7 +72,7 @@ function useServerShapeActions(
           await playgroundServerRandomizeShape(sim, e.entityId);
         }
       }),
-    [run, sim, entities],
+    [run, sim, entities]
   );
   return {
     handleRandomize,
@@ -85,7 +85,7 @@ function useServerShapeActions(
 
 function useServerLinkActions(
   sim: PlaygroundSim,
-  run: ReturnType<typeof useAsyncAction>['run'],
+  run: ReturnType<typeof useAsyncAction>['run']
 ) {
   const { bumpLink } = useSimContext();
   const togglePartition = useCallback(
@@ -98,21 +98,21 @@ function useServerLinkActions(
         }
         bumpLink();
       }),
-    [run, sim, bumpLink],
+    [run, sim, bumpLink]
   );
   const pollAll = useCallback(
     () =>
       run(async () => {
         await sim.pollAllClients();
       }),
-    [run, sim],
+    [run, sim]
   );
   const wipeServer = useCallback(
     () =>
       run(async () => {
         await sim.wipeServerDb();
       }),
-    [run, sim],
+    [run, sim]
   );
   return { togglePartition, pollAll, wipeServer };
 }
@@ -120,7 +120,7 @@ function useServerLinkActions(
 function useServerActions(
   sim: PlaygroundSim,
   entities: Entity[],
-  refresh: () => void,
+  refresh: () => void
 ) {
   const { bumpGraph } = useSimContext();
   const onSuccess = useCallback(() => {

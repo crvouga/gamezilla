@@ -39,7 +39,6 @@ function useEntityPatches(entityType: string, entityId: string) {
     setPatchError(null);
     try {
       const results = await db.read([
-        // eslint-disable-next-line lingui/no-unlocalized-strings
         { entityType, entityId, on: 'patches', limit: 500 },
       ]);
       const result = results[0];
@@ -48,7 +47,7 @@ function useEntityPatches(entityType: string, entityId: string) {
         return;
       }
       const sorted = [...result.patches].sort((a, b) =>
-        b.createdAt.localeCompare(a.createdAt),
+        b.createdAt.localeCompare(a.createdAt)
       );
       setPatches(sorted);
     } catch (e) {
@@ -75,11 +74,7 @@ function AttrRow({
   return (
     <Box>
       <Stack spacing={2} sx={{ px: 3, py: 2.5 }}>
-        <Stack
-          direction="horizontal"
-          align="center"
-          justify="space-between"
-        >
+        <Stack direction="horizontal" align="center" justify="space-between">
           <Text
             variant="mono"
             style={{
@@ -107,10 +102,8 @@ function AttrRow({
 function AttributesPane({ entity }: { entity: Entity }) {
   const attrEntries = useMemo(
     () =>
-      Object.entries(entity.attributes).sort(([a], [b]) =>
-        a.localeCompare(b),
-      ),
-    [entity],
+      Object.entries(entity.attributes).sort(([a], [b]) => a.localeCompare(b)),
+    [entity]
   );
 
   return (
@@ -244,8 +237,10 @@ export function EntityDetailScreen({
   const { t } = useLingui();
   const entity = useEntity({ entityType, entityId });
   const [tab, setTab] = useState<'attrs' | 'patches'>('attrs');
-  const { patches, loadingPatches, patchError, loadPatches } =
-    useEntityPatches(entityType, entityId);
+  const { patches, loadingPatches, patchError, loadPatches } = useEntityPatches(
+    entityType,
+    entityId
+  );
 
   useEffect(() => {
     if (tab === 'patches') void loadPatches();

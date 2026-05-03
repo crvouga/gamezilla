@@ -57,7 +57,9 @@ export class HistoryStore {
       } else {
         const parsed = JSON.parse(raw) as unknown;
         if (Array.isArray(parsed)) {
-          this.ids = parsed.filter((x) => typeof x === 'string').slice(0, this.limit);
+          this.ids = parsed
+            .filter((x) => typeof x === 'string')
+            .slice(0, this.limit);
         } else {
           this.ids = [];
         }

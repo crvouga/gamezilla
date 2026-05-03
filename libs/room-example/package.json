@@ -14,7 +14,7 @@
     "./pages/playground-page": "./src/pages/playground-page.tsx"
   },
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
     "tc": "tsc --noEmit"
   },
   "dependencies": {
@@ -22,7 +22,7 @@
     "@gamezilla/room": "workspace:*",
     "@lingui/core": "5.9.5",
     "@lingui/react": "5.9.5",
-    "expo": "~54.0.33",
+    "expo": "~54.0.34",
     "make-plural": "^8.1.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",

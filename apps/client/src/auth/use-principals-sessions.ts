@@ -84,12 +84,10 @@ export function useSessionsForPrincipals(principalIds: string[]): {
 
     const out = new Map<string, PrincipalSessionAggregate>();
     for (const [pid, { active, expiries }] of byPrincipal) {
-      const maxMs =
-        expiries.length === 0 ? null : Math.max(...expiries);
+      const maxMs = expiries.length === 0 ? null : Math.max(...expiries);
       out.set(pid, {
         active,
-        latestExpiresAt:
-          maxMs === null ? null : new Date(maxMs).toISOString(),
+        latestExpiresAt: maxMs === null ? null : new Date(maxMs).toISOString(),
       });
     }
     return out;

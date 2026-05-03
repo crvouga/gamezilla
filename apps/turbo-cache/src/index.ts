@@ -26,7 +26,10 @@ const app = new Hono<{ Bindings: Env }>()
     if (c.req.method === 'GET' && path === '/health') {
       return c.json({ status: 'ok' });
     }
-    if (typeof c.env.TURBO_TOKEN !== 'string' || c.env.TURBO_TOKEN.length === 0) {
+    if (
+      typeof c.env.TURBO_TOKEN !== 'string' ||
+      c.env.TURBO_TOKEN.length === 0
+    ) {
       return c.json({ error: 'Server misconfigured' }, 500);
     }
     if (!authorize(c.req.raw, c.env.TURBO_TOKEN)) {
@@ -73,7 +76,11 @@ const app = new Hono<{ Bindings: Env }>()
   });
 
 export default {
-  async fetch(request: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
+  async fetch(
+    request: Request,
+    env: Env,
+    _ctx: ExecutionContext
+  ): Promise<Response> {
     const start = Date.now();
     const { method } = request;
     const url = new URL(request.url);

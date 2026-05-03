@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 (() => {
   var __create = Object.create;
   var __defProp = Object.defineProperty;
@@ -6,91 +6,122 @@
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
-  var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
-    get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
-  }) : x)(function(x) {
-    if (typeof require !== "undefined") return require.apply(this, arguments);
+  var __require = /* @__PURE__ */ ((x) =>
+    typeof require !== 'undefined'
+      ? require
+      : typeof Proxy !== 'undefined'
+        ? new Proxy(x, {
+            get: (a, b) => (typeof require !== 'undefined' ? require : a)[b],
+          })
+        : x)(function (x) {
+    if (typeof require !== 'undefined') return require.apply(this, arguments);
     throw Error('Dynamic require of "' + x + '" is not supported');
   });
-  var __commonJS = (cb, mod) => function __require2() {
-    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
-  };
+  var __commonJS = (cb, mod) =>
+    function __require2() {
+      return (
+        mod ||
+          (0, cb[__getOwnPropNames(cb)[0]])(
+            (mod = { exports: {} }).exports,
+            mod
+          ),
+        mod.exports
+      );
+    };
   var __copyProps = (to, from, except, desc) => {
-    if (from && typeof from === "object" || typeof from === "function") {
+    if ((from && typeof from === 'object') || typeof from === 'function') {
       for (let key of __getOwnPropNames(from))
         if (!__hasOwnProp.call(to, key) && key !== except)
-          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+          __defProp(to, key, {
+            get: () => from[key],
+            enumerable:
+              !(desc = __getOwnPropDesc(from, key)) || desc.enumerable,
+          });
     }
     return to;
   };
-  var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-    // If the importer is in node compatibility mode or this is not an ESM
-    // file that has been converted to a CommonJS file using a Babel-
-    // compatible transform (i.e. "__esModule" has not been set), then set
-    // "default" to the CommonJS "module.exports" for node compatibility.
-    isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-    mod
-  ));
+  var __toESM = (mod, isNodeMode, target) => (
+    (target = mod != null ? __create(__getProtoOf(mod)) : {}),
+    __copyProps(
+      // If the importer is in node compatibility mode or this is not an ESM
+      // file that has been converted to a CommonJS file using a Babel-
+      // compatible transform (i.e. "__esModule" has not been set), then set
+      // "default" to the CommonJS "module.exports" for node compatibility.
+      isNodeMode || !mod || !mod.__esModule
+        ? __defProp(target, 'default', { value: mod, enumerable: true })
+        : target,
+      mod
+    )
+  );
 
   // apps/client/scripts/shims/path-shim.js
   var require_path_shim = __commonJS({
-    "apps/client/scripts/shims/path-shim.js"(exports, module) {
+    'apps/client/scripts/shims/path-shim.js'(exports, module) {
+      'use strict';
       module.exports = {
         dirname() {
-          return "/";
+          return '/';
         },
         normalize(p) {
           return p;
         },
         join(...parts) {
-          return parts.join("/");
-        }
+          return parts.join('/');
+        },
       };
-    }
+    },
   });
 
   // apps/client/scripts/shims/fs-shim.js
   var require_fs_shim = __commonJS({
-    "apps/client/scripts/shims/fs-shim.js"(exports, module) {
+    'apps/client/scripts/shims/fs-shim.js'(exports, module) {
+      'use strict';
       module.exports = {
         readFileSync() {
-          throw new Error("fs.readFileSync is not available in browser worker bundle");
+          throw new Error(
+            'fs.readFileSync is not available in browser worker bundle'
+          );
         },
         readFile(_path, _opts, cb) {
-          if (typeof cb === "function") {
-            cb(new Error("fs.readFile is not available in browser worker bundle"));
+          if (typeof cb === 'function') {
+            cb(
+              new Error('fs.readFile is not available in browser worker bundle')
+            );
           }
-        }
+        },
       };
-    }
+    },
   });
 
   // node_modules/.bun/@jlongster+sql.js@1.6.7/node_modules/@jlongster/sql.js/dist/worker.sql-wasm.js
   var require_worker_sql_wasm = __commonJS({
-    "node_modules/.bun/@jlongster+sql.js@1.6.7/node_modules/@jlongster/sql.js/dist/worker.sql-wasm.js"(exports, module) {
+    'node_modules/.bun/@jlongster+sql.js@1.6.7/node_modules/@jlongster/sql.js/dist/worker.sql-wasm.js'(
+      exports,
+      module
+    ) {
       var initSqlJsPromise = void 0;
-      var initSqlJs2 = function(moduleConfig) {
+      var initSqlJs2 = function (moduleConfig) {
         if (initSqlJsPromise) {
           return initSqlJsPromise;
         }
-        initSqlJsPromise = new Promise(function(resolveModule, reject) {
-          var Module = typeof moduleConfig !== "undefined" ? moduleConfig : {};
-          var originalOnAbortFunction = Module["onAbort"];
-          Module["onAbort"] = function(errorThatCausedAbort) {
+        initSqlJsPromise = new Promise(function (resolveModule, reject) {
+          var Module = typeof moduleConfig !== 'undefined' ? moduleConfig : {};
+          var originalOnAbortFunction = Module['onAbort'];
+          Module['onAbort'] = function (errorThatCausedAbort) {
             reject(new Error(errorThatCausedAbort));
             if (originalOnAbortFunction) {
               originalOnAbortFunction(errorThatCausedAbort);
             }
           };
-          Module["postRun"] = Module["postRun"] || [];
-          Module["postRun"].push(function() {
+          Module['postRun'] = Module['postRun'] || [];
+          Module['postRun'].push(function () {
             resolveModule(Module);
           });
           module = void 0;
           var Module;
-          Module || (Module = typeof Module !== "undefined" ? Module : {});
+          Module || (Module = typeof Module !== 'undefined' ? Module : {});
           null;
-          Module.onRuntimeInitialized = function() {
+          Module.onRuntimeInitialized = function () {
             function a(h, n) {
               this.Qa = h;
               this.db = n;
@@ -101,42 +132,138 @@
               this.db = n;
               n = d(h) + 1;
               this.hb = aa(n);
-              if (null === this.hb) throw Error("Unable to allocate memory for the SQL string");
+              if (null === this.hb)
+                throw Error('Unable to allocate memory for the SQL string');
               p(h, u, this.hb, n);
               this.sb = this.hb;
               this.eb = this.Mb = null;
             }
             function c(h, { filename: n = false } = {}) {
-              false === n ? (this.filename = "dbfile_" + (4294967295 * Math.random() >>> 0), this.Xc = true, null != h && w.zb("/", this.filename, h, true, true)) : this.filename = h;
+              false === n
+                ? ((this.filename =
+                    'dbfile_' + ((4294967295 * Math.random()) >>> 0)),
+                  (this.Xc = true),
+                  null != h && w.zb('/', this.filename, h, true, true))
+                : (this.filename = h);
               this.handleError(g(this.filename, e));
-              this.db = z(e, "i32");
+              this.db = z(e, 'i32');
               Cb(this.db);
               this.nb = {};
               this.Xa = {};
             }
-            var e = C(4), f = Module.cwrap, g = f("sqlite3_open", "number", ["string", "number"]), k = f("sqlite3_close_v2", "number", ["number"]), l = f("sqlite3_exec", "number", ["number", "string", "number", "number", "number"]), q = f("sqlite3_changes", "number", ["number"]), m = f("sqlite3_prepare_v2", "number", ["number", "string", "number", "number", "number"]), r = f("sqlite3_sql", "string", ["number"]), x = f("sqlite3_normalized_sql", "string", ["number"]), B = f("sqlite3_prepare_v2", "number", [
-              "number",
-              "number",
-              "number",
-              "number",
-              "number"
-            ]), E = f("sqlite3_bind_text", "number", ["number", "number", "number", "number", "number"]), A = f("sqlite3_bind_blob", "number", ["number", "number", "number", "number", "number"]), J = f("sqlite3_bind_double", "number", ["number", "number", "number"]), Z = f("sqlite3_bind_int", "number", ["number", "number", "number"]), U = f("sqlite3_bind_parameter_index", "number", ["number", "string"]), Ka = f("sqlite3_step", "number", ["number"]), G = f("sqlite3_errmsg", "string", ["number"]), Db = f("sqlite3_column_count", "number", ["number"]), Eb = f(
-              "sqlite3_data_count",
-              "number",
-              ["number"]
-            ), Fb = f("sqlite3_column_double", "number", ["number", "number"]), Gb = f("sqlite3_column_text", "string", ["number", "number"]), Hb = f("sqlite3_column_blob", "number", ["number", "number"]), Ib = f("sqlite3_column_bytes", "number", ["number", "number"]), Jb = f("sqlite3_column_type", "number", ["number", "number"]), Kb = f("sqlite3_column_name", "string", ["number", "number"]), Lb = f("sqlite3_reset", "number", ["number"]), Mb = f("sqlite3_clear_bindings", "number", ["number"]), Nb = f("sqlite3_finalize", "number", ["number"]), Ob = f("sqlite3_create_function_v2", "number", "number string number number number number number number number".split(" ")), Pb = f("sqlite3_value_type", "number", ["number"]), Qb = f("sqlite3_value_bytes", "number", ["number"]), Rb = f("sqlite3_value_text", "string", ["number"]), Sb = f("sqlite3_value_blob", "number", ["number"]), Tb = f("sqlite3_value_double", "number", ["number"]), Ub = f("sqlite3_result_double", "", ["number", "number"]), db2 = f("sqlite3_result_null", "", ["number"]), Vb = f("sqlite3_result_text", "", [
-              "number",
-              "string",
-              "number",
-              "number"
-            ]), Wb = f("sqlite3_result_blob", "", ["number", "number", "number", "number"]), Xb = f("sqlite3_result_int", "", ["number", "number"]), eb = f("sqlite3_result_error", "", ["number", "string", "number"]), Cb = f("RegisterExtensionFunctions", "number", ["number"]);
-            a.prototype.bind = function(h) {
-              if (!this.Qa) throw "Statement closed";
+            var e = C(4),
+              f = Module.cwrap,
+              g = f('sqlite3_open', 'number', ['string', 'number']),
+              k = f('sqlite3_close_v2', 'number', ['number']),
+              l = f('sqlite3_exec', 'number', [
+                'number',
+                'string',
+                'number',
+                'number',
+                'number',
+              ]),
+              q = f('sqlite3_changes', 'number', ['number']),
+              m = f('sqlite3_prepare_v2', 'number', [
+                'number',
+                'string',
+                'number',
+                'number',
+                'number',
+              ]),
+              r = f('sqlite3_sql', 'string', ['number']),
+              x = f('sqlite3_normalized_sql', 'string', ['number']),
+              B = f('sqlite3_prepare_v2', 'number', [
+                'number',
+                'number',
+                'number',
+                'number',
+                'number',
+              ]),
+              E = f('sqlite3_bind_text', 'number', [
+                'number',
+                'number',
+                'number',
+                'number',
+                'number',
+              ]),
+              A = f('sqlite3_bind_blob', 'number', [
+                'number',
+                'number',
+                'number',
+                'number',
+                'number',
+              ]),
+              J = f('sqlite3_bind_double', 'number', [
+                'number',
+                'number',
+                'number',
+              ]),
+              Z = f('sqlite3_bind_int', 'number', [
+                'number',
+                'number',
+                'number',
+              ]),
+              U = f('sqlite3_bind_parameter_index', 'number', [
+                'number',
+                'string',
+              ]),
+              Ka = f('sqlite3_step', 'number', ['number']),
+              G = f('sqlite3_errmsg', 'string', ['number']),
+              Db = f('sqlite3_column_count', 'number', ['number']),
+              Eb = f('sqlite3_data_count', 'number', ['number']),
+              Fb = f('sqlite3_column_double', 'number', ['number', 'number']),
+              Gb = f('sqlite3_column_text', 'string', ['number', 'number']),
+              Hb = f('sqlite3_column_blob', 'number', ['number', 'number']),
+              Ib = f('sqlite3_column_bytes', 'number', ['number', 'number']),
+              Jb = f('sqlite3_column_type', 'number', ['number', 'number']),
+              Kb = f('sqlite3_column_name', 'string', ['number', 'number']),
+              Lb = f('sqlite3_reset', 'number', ['number']),
+              Mb = f('sqlite3_clear_bindings', 'number', ['number']),
+              Nb = f('sqlite3_finalize', 'number', ['number']),
+              Ob = f(
+                'sqlite3_create_function_v2',
+                'number',
+                'number string number number number number number number number'.split(
+                  ' '
+                )
+              ),
+              Pb = f('sqlite3_value_type', 'number', ['number']),
+              Qb = f('sqlite3_value_bytes', 'number', ['number']),
+              Rb = f('sqlite3_value_text', 'string', ['number']),
+              Sb = f('sqlite3_value_blob', 'number', ['number']),
+              Tb = f('sqlite3_value_double', 'number', ['number']),
+              Ub = f('sqlite3_result_double', '', ['number', 'number']),
+              db2 = f('sqlite3_result_null', '', ['number']),
+              Vb = f('sqlite3_result_text', '', [
+                'number',
+                'string',
+                'number',
+                'number',
+              ]),
+              Wb = f('sqlite3_result_blob', '', [
+                'number',
+                'number',
+                'number',
+                'number',
+              ]),
+              Xb = f('sqlite3_result_int', '', ['number', 'number']),
+              eb = f('sqlite3_result_error', '', [
+                'number',
+                'string',
+                'number',
+              ]),
+              Cb = f('RegisterExtensionFunctions', 'number', ['number']);
+            a.prototype.bind = function (h) {
+              if (!this.Qa) throw 'Statement closed';
               this.reset();
-              return Array.isArray(h) ? this.vc(h) : null != h && "object" === typeof h ? this.wc(h) : true;
+              return Array.isArray(h)
+                ? this.vc(h)
+                : null != h && 'object' === typeof h
+                  ? this.wc(h)
+                  : true;
             };
-            a.prototype.step = function() {
-              if (!this.Qa) throw "Statement closed";
+            a.prototype.step = function () {
+              if (!this.Qa) throw 'Statement closed';
               this.Pa = 1;
               var h = Ka(this.Qa);
               switch (h) {
@@ -148,92 +275,100 @@
                   throw this.db.handleError(h);
               }
             };
-            a.prototype.Pc = function(h) {
-              null == h && (h = this.Pa, this.Pa += 1);
+            a.prototype.Pc = function (h) {
+              null == h && ((h = this.Pa), (this.Pa += 1));
               return Fb(this.Qa, h);
             };
-            a.prototype.Qc = function(h) {
-              null == h && (h = this.Pa, this.Pa += 1);
+            a.prototype.Qc = function (h) {
+              null == h && ((h = this.Pa), (this.Pa += 1));
               return Gb(this.Qa, h);
             };
-            a.prototype.getBlob = function(h) {
-              null == h && (h = this.Pa, this.Pa += 1);
+            a.prototype.getBlob = function (h) {
+              null == h && ((h = this.Pa), (this.Pa += 1));
               var n = Ib(this.Qa, h);
               h = Hb(this.Qa, h);
-              for (var t = new Uint8Array(n), v = 0; v < n; v += 1) t[v] = D[h + v];
+              for (var t = new Uint8Array(n), v = 0; v < n; v += 1)
+                t[v] = D[h + v];
               return t;
             };
-            a.prototype.get = function(h) {
+            a.prototype.get = function (h) {
               null != h && this.bind(h) && this.step();
               h = [];
-              for (var n = Eb(this.Qa), t = 0; t < n; t += 1) switch (Jb(this.Qa, t)) {
-                case 1:
-                case 2:
-                  h.push(this.Pc(t));
-                  break;
-                case 3:
-                  h.push(this.Qc(t));
-                  break;
-                case 4:
-                  h.push(this.getBlob(t));
-                  break;
-                default:
-                  h.push(null);
-              }
+              for (var n = Eb(this.Qa), t = 0; t < n; t += 1)
+                switch (Jb(this.Qa, t)) {
+                  case 1:
+                  case 2:
+                    h.push(this.Pc(t));
+                    break;
+                  case 3:
+                    h.push(this.Qc(t));
+                    break;
+                  case 4:
+                    h.push(this.getBlob(t));
+                    break;
+                  default:
+                    h.push(null);
+                }
               return h;
             };
-            a.prototype.getColumnNames = function() {
-              for (var h = [], n = Db(this.Qa), t = 0; t < n; t += 1) h.push(Kb(this.Qa, t));
+            a.prototype.getColumnNames = function () {
+              for (var h = [], n = Db(this.Qa), t = 0; t < n; t += 1)
+                h.push(Kb(this.Qa, t));
               return h;
             };
-            a.prototype.getAsObject = function(h) {
+            a.prototype.getAsObject = function (h) {
               h = this.get(h);
-              for (var n = this.getColumnNames(), t = {}, v = 0; v < n.length; v += 1) t[n[v]] = h[v];
+              for (
+                var n = this.getColumnNames(), t = {}, v = 0;
+                v < n.length;
+                v += 1
+              )
+                t[n[v]] = h[v];
               return t;
             };
-            a.prototype.getSQL = function() {
+            a.prototype.getSQL = function () {
               return r(this.Qa);
             };
-            a.prototype.getNormalizedSQL = function() {
+            a.prototype.getNormalizedSQL = function () {
               return x(this.Qa);
             };
-            a.prototype.run = function(h) {
+            a.prototype.run = function (h) {
               null != h && this.bind(h);
               this.step();
               return this.reset();
             };
-            a.prototype.zc = function(h, n) {
-              null == n && (n = this.Pa, this.Pa += 1);
+            a.prototype.zc = function (h, n) {
+              null == n && ((n = this.Pa), (this.Pa += 1));
               h = ba(h);
               var t = ca(h);
               this.wb.push(t);
               this.db.handleError(E(this.Qa, n, t, h.length - 1, 0));
             };
-            a.prototype.uc = function(h, n) {
-              null == n && (n = this.Pa, this.Pa += 1);
+            a.prototype.uc = function (h, n) {
+              null == n && ((n = this.Pa), (this.Pa += 1));
               var t = ca(h);
               this.wb.push(t);
               this.db.handleError(A(this.Qa, n, t, h.length, 0));
             };
-            a.prototype.yc = function(h, n) {
-              null == n && (n = this.Pa, this.Pa += 1);
+            a.prototype.yc = function (h, n) {
+              null == n && ((n = this.Pa), (this.Pa += 1));
               this.db.handleError((h === (h | 0) ? Z : J)(this.Qa, n, h));
             };
-            a.prototype.xc = function(h) {
-              null == h && (h = this.Pa, this.Pa += 1);
+            a.prototype.xc = function (h) {
+              null == h && ((h = this.Pa), (this.Pa += 1));
               A(this.Qa, h, 0, 0, 0);
             };
-            a.prototype.Tb = function(h, n) {
-              null == n && (n = this.Pa, this.Pa += 1);
+            a.prototype.Tb = function (h, n) {
+              null == n && ((n = this.Pa), (this.Pa += 1));
               switch (typeof h) {
-                case "string":
+                case 'string':
                   this.zc(h, n);
                   return;
-                case "number":
-                case "boolean":
+                case 'number':
+                case 'boolean':
                   this.yc(h + 0, n);
                   return;
-                case "object":
+                case 'object':
                   if (null === h) {
                     this.xc(n);
                     return;
@@ -243,65 +378,72 @@
                     return;
                   }
               }
-              throw "Wrong API use : tried to bind a value of an unknown type (" + h + ").";
+              throw (
+                'Wrong API use : tried to bind a value of an unknown type (' +
+                h +
+                ').'
+              );
             };
-            a.prototype.wc = function(h) {
+            a.prototype.wc = function (h) {
               var n = this;
-              Object.keys(h).forEach(function(t) {
+              Object.keys(h).forEach(function (t) {
                 var v = U(n.Qa, t);
                 0 !== v && n.Tb(h[t], v);
               });
               return true;
             };
-            a.prototype.vc = function(h) {
+            a.prototype.vc = function (h) {
               for (var n = 0; n < h.length; n += 1) this.Tb(h[n], n + 1);
               return true;
             };
-            a.prototype.reset = function() {
+            a.prototype.reset = function () {
               return 0 === Mb(this.Qa) && 0 === Lb(this.Qa);
             };
-            a.prototype.freemem = function() {
+            a.prototype.freemem = function () {
               for (var h; void 0 !== (h = this.wb.pop()); ) da(h);
             };
-            a.prototype.free = function() {
+            a.prototype.free = function () {
               var h = 0 === Nb(this.Qa);
               delete this.db.nb[this.Qa];
               this.Qa = 0;
               return h;
             };
-            b.prototype.next = function() {
+            b.prototype.next = function () {
               if (null === this.hb) return { done: true };
-              null !== this.eb && (this.eb.free(), this.eb = null);
-              if (!this.db.db) throw this.Bb(), Error("Database closed");
-              var h = ha(), n = C(4);
+              null !== this.eb && (this.eb.free(), (this.eb = null));
+              if (!this.db.db) throw (this.Bb(), Error('Database closed'));
+              var h = ha(),
+                n = C(4);
               ia(e);
               ia(n);
               try {
                 this.db.handleError(B(this.db.db, this.sb, -1, e, n));
-                this.sb = z(n, "i32");
-                var t = z(e, "i32");
-                if (0 === t) return this.Bb(), { done: true };
+                this.sb = z(n, 'i32');
+                var t = z(e, 'i32');
+                if (0 === t) return (this.Bb(), { done: true });
                 this.eb = new a(t, this.db);
                 this.db.nb[t] = this.eb;
                 return { value: this.eb, done: false };
               } catch (v) {
-                throw this.Mb = F(this.sb), this.Bb(), v;
+                throw ((this.Mb = F(this.sb)), this.Bb(), v);
               } finally {
                 ja(h);
               }
             };
-            b.prototype.Bb = function() {
+            b.prototype.Bb = function () {
               da(this.hb);
               this.hb = null;
             };
-            b.prototype.getRemainingSQL = function() {
+            b.prototype.getRemainingSQL = function () {
               return null !== this.Mb ? this.Mb : F(this.sb);
             };
-            "function" === typeof Symbol && "symbol" === typeof Symbol.iterator && (b.prototype[Symbol.iterator] = function() {
-              return this;
-            });
-            c.prototype.run = function(h, n) {
-              if (!this.db) throw "Database closed";
+            'function' === typeof Symbol &&
+              'symbol' === typeof Symbol.iterator &&
+              (b.prototype[Symbol.iterator] = function () {
+                return this;
+              });
+            c.prototype.run = function (h, n) {
+              if (!this.db) throw 'Database closed';
               if (n) {
                 h = this.prepare(h, n);
                 try {
@@ -312,93 +454,108 @@
               } else this.handleError(l(this.db, h, 0, 0, e));
               return this;
             };
-            c.prototype.exec = function(h, n) {
-              if (!this.db) throw "Database closed";
-              var t = ha(), v = null;
+            c.prototype.exec = function (h, n) {
+              if (!this.db) throw 'Database closed';
+              var t = ha(),
+                v = null;
               try {
-                var y = d(h) + 1, N = C(y);
+                var y = d(h) + 1,
+                  N = C(y);
                 p(h, D, N, y);
                 var H = N;
                 var ea = C(4);
-                for (h = []; 0 !== z(H, "i8"); ) {
+                for (h = []; 0 !== z(H, 'i8'); ) {
                   ia(e);
                   ia(ea);
                   this.handleError(B(this.db, H, -1, e, ea));
-                  var fa = z(e, "i32");
-                  H = z(ea, "i32");
+                  var fa = z(e, 'i32');
+                  H = z(ea, 'i32');
                   if (0 !== fa) {
                     y = null;
                     v = new a(fa, this);
-                    for (null != n && v.bind(n); v.step(); ) null === y && (y = { columns: v.getColumnNames(), values: [] }, h.push(y)), y.values.push(v.get());
+                    for (null != n && v.bind(n); v.step(); )
+                      (null === y &&
+                        ((y = { columns: v.getColumnNames(), values: [] }),
+                        h.push(y)),
+                        y.values.push(v.get()));
                     v.free();
                   }
                 }
                 return h;
               } catch (I) {
-                throw v && v.free(), I;
+                throw (v && v.free(), I);
               } finally {
                 ja(t);
               }
             };
-            c.prototype.each = function(h, n, t, v) {
-              "function" === typeof n && (v = t, t = n, n = void 0);
+            c.prototype.each = function (h, n, t, v) {
+              'function' === typeof n && ((v = t), (t = n), (n = void 0));
               h = this.prepare(h, n);
               try {
                 for (; h.step(); ) t(h.getAsObject());
               } finally {
                 h.free();
               }
-              if ("function" === typeof v) return v();
+              if ('function' === typeof v) return v();
             };
-            c.prototype.prepare = function(h, n) {
+            c.prototype.prepare = function (h, n) {
               ia(e);
               this.handleError(m(this.db, h, -1, e, 0));
-              h = z(e, "i32");
-              if (0 === h) throw "Nothing to prepare";
+              h = z(e, 'i32');
+              if (0 === h) throw 'Nothing to prepare';
               var t = new a(h, this);
               null != n && t.bind(n);
-              return this.nb[h] = t;
+              return (this.nb[h] = t);
             };
-            c.prototype.iterateStatements = function(h) {
+            c.prototype.iterateStatements = function (h) {
               return new b(h, this);
             };
-            c.prototype["export"] = function() {
-              Object.values(this.nb).forEach(function(n) {
+            c.prototype['export'] = function () {
+              Object.values(this.nb).forEach(function (n) {
                 n.free();
               });
               Object.values(this.Xa).forEach(ka);
               this.Xa = {};
               this.handleError(k(this.db));
-              var h = w.readFile(this.filename, { encoding: "binary" });
+              var h = w.readFile(this.filename, { encoding: 'binary' });
               this.handleError(g(this.filename, e));
-              this.db = z(e, "i32");
+              this.db = z(e, 'i32');
               return h;
             };
-            c.prototype.close = function() {
-              null !== this.db && (Object.values(this.nb).forEach(function(h) {
-                h.free();
-              }), Object.values(this.Xa).forEach(ka), this.Xa = {}, this.handleError(k(this.db)), this.Xc && w.unlink("/" + this.filename), this.db = null);
+            c.prototype.close = function () {
+              null !== this.db &&
+                (Object.values(this.nb).forEach(function (h) {
+                  h.free();
+                }),
+                Object.values(this.Xa).forEach(ka),
+                (this.Xa = {}),
+                this.handleError(k(this.db)),
+                this.Xc && w.unlink('/' + this.filename),
+                (this.db = null));
             };
-            c.prototype.handleError = function(h) {
+            c.prototype.handleError = function (h) {
               if (0 === h) return null;
               h = G(this.db);
               throw Error(h);
             };
-            c.prototype.getRowsModified = function() {
+            c.prototype.getRowsModified = function () {
               return q(this.db);
             };
-            c.prototype.create_function = function(h, n) {
-              Object.prototype.hasOwnProperty.call(this.Xa, h) && (ka(this.Xa[h]), delete this.Xa[h]);
-              var t = la(function(v, y, N) {
+            c.prototype.create_function = function (h, n) {
+              Object.prototype.hasOwnProperty.call(this.Xa, h) &&
+                (ka(this.Xa[h]), delete this.Xa[h]);
+              var t = la(function (v, y, N) {
                 for (var H, ea = [], fa = 0; fa < y; fa += 1) {
-                  var I = z(N + 4 * fa, "i32"), S = Pb(I);
+                  var I = z(N + 4 * fa, 'i32'),
+                    S = Pb(I);
                   if (1 === S || 2 === S) I = Tb(I);
                   else if (3 === S) I = Rb(I);
                   else if (4 === S) {
                     S = I;
                     I = Qb(S);
                     S = Sb(S);
-                    for (var fb = new Uint8Array(I), Aa = 0; Aa < I; Aa += 1) fb[Aa] = D[S + Aa];
+                    for (var fb = new Uint8Array(I), Aa = 0; Aa < I; Aa += 1)
+                      fb[Aa] = D[S + Aa];
                     I = fb;
                   } else I = null;
                   ea.push(I);
@@ -410,22 +567,32 @@
                   return;
                 }
                 switch (typeof H) {
-                  case "boolean":
+                  case 'boolean':
                     Xb(v, H ? 1 : 0);
                     break;
-                  case "number":
+                  case 'number':
                     Ub(v, H);
                     break;
-                  case "string":
+                  case 'string':
                     Vb(v, H, -1, -1);
                     break;
-                  case "object":
-                    null === H ? db2(v) : null != H.length ? (y = ca(H), Wb(v, y, H.length, -1), da(y)) : eb(v, "Wrong API use : tried to return a value of an unknown type (" + H + ").", -1);
+                  case 'object':
+                    null === H
+                      ? db2(v)
+                      : null != H.length
+                        ? ((y = ca(H)), Wb(v, y, H.length, -1), da(y))
+                        : eb(
+                            v,
+                            'Wrong API use : tried to return a value of an unknown type (' +
+                              H +
+                              ').',
+                            -1
+                          );
                     break;
                   default:
                     db2(v);
                 }
-              }, "viii");
+              }, 'viii');
               this.Xa[h] = t;
               this.handleError(Ob(this.db, h, n.length, 1, 0, t, 0, 0, 0));
               return this;
@@ -433,17 +600,19 @@
             Module.Database = c;
             var ra = /* @__PURE__ */ new Map();
             Module.register_for_idb = (h) => {
-              let n = la(function(y, N) {
-                y = ra.get(y);
-                return h.lock(y, N) ? 0 : 5;
-              }, "iii"), t = la(function(y, N) {
-                y = ra.get(y);
-                h.unlock(y, N);
-                return 0;
-              }, "iii"), v = la(function(y, N) {
-                y = F(y);
-                ra.set(N, y);
-              }, "vii");
+              let n = la(function (y, N) {
+                  y = ra.get(y);
+                  return h.lock(y, N) ? 0 : 5;
+                }, 'iii'),
+                t = la(function (y, N) {
+                  y = ra.get(y);
+                  h.unlock(y, N);
+                  return 0;
+                }, 'iii'),
+                v = la(function (y, N) {
+                  y = F(y);
+                  ra.set(N, y);
+                }, 'vii');
               Module._register_for_idb(n, t, v);
             };
             Module.cleanup_file = (h) => {
@@ -455,55 +624,94 @@
               w.lc();
             };
           };
-          var ma = {}, K;
+          var ma = {},
+            K;
           for (K in Module) Module.hasOwnProperty(K) && (ma[K] = Module[K]);
-          var na = "./this.program", oa = "object" === typeof window, pa = "function" === typeof importScripts, qa = "object" === typeof process && "object" === typeof process.versions && "string" === typeof process.versions.node, L = "", sa, ta, ua, va, wa;
-          if (qa) L = pa ? require_path_shim().dirname(L) + "/" : __dirname + "/", sa = function(a, b) {
-            va || (va = require_fs_shim());
-            wa || (wa = require_path_shim());
-            a = wa.normalize(a);
-            return va.readFileSync(a, b ? null : "utf8");
-          }, ua = function(a) {
-            a = sa(a, true);
-            a.buffer || (a = new Uint8Array(a));
-            assert(a.buffer);
-            return a;
-          }, ta = function(a, b, c) {
-            va || (va = require_fs_shim());
-            wa || (wa = require_path_shim());
-            a = wa.normalize(a);
-            va.readFile(a, function(e, f) {
-              e ? c(e) : b(f.buffer);
-            });
-          }, 1 < process.argv.length && (na = process.argv[1].replace(/\\/g, "/")), process.argv.slice(2), "undefined" !== typeof module && (module.exports = Module), Module.inspect = function() {
-            return "[Emscripten Module object]";
-          };
-          else if (oa || pa) pa ? L = self.location.href : "undefined" !== typeof document && document.currentScript && (L = document.currentScript.src), L = 0 !== L.indexOf("blob:") ? L.substr(0, L.lastIndexOf("/") + 1) : "", sa = function(a) {
-            var b = new XMLHttpRequest();
-            b.open("GET", a, false);
-            b.send(null);
-            return b.responseText;
-          }, pa && (ua = function(a) {
-            var b = new XMLHttpRequest();
-            b.open("GET", a, false);
-            b.responseType = "arraybuffer";
-            b.send(null);
-            return new Uint8Array(b.response);
-          }), ta = function(a, b, c) {
-            var e = new XMLHttpRequest();
-            e.open("GET", a, true);
-            e.responseType = "arraybuffer";
-            e.onload = function() {
-              200 == e.status || 0 == e.status && e.response ? b(e.response) : c();
-            };
-            e.onerror = c;
-            e.send(null);
-          };
-          var xa = Module.print || console.log.bind(console), M = Module.printErr || console.warn.bind(console);
+          var na = './this.program',
+            oa = 'object' === typeof window,
+            pa = 'function' === typeof importScripts,
+            qa =
+              'object' === typeof process &&
+              'object' === typeof process.versions &&
+              'string' === typeof process.versions.node,
+            L = '',
+            sa,
+            ta,
+            ua,
+            va,
+            wa;
+          if (qa)
+            ((L = pa ? require_path_shim().dirname(L) + '/' : __dirname + '/'),
+              (sa = function (a, b) {
+                va || (va = require_fs_shim());
+                wa || (wa = require_path_shim());
+                a = wa.normalize(a);
+                return va.readFileSync(a, b ? null : 'utf8');
+              }),
+              (ua = function (a) {
+                a = sa(a, true);
+                a.buffer || (a = new Uint8Array(a));
+                assert(a.buffer);
+                return a;
+              }),
+              (ta = function (a, b, c) {
+                va || (va = require_fs_shim());
+                wa || (wa = require_path_shim());
+                a = wa.normalize(a);
+                va.readFile(a, function (e, f) {
+                  e ? c(e) : b(f.buffer);
+                });
+              }),
+              1 < process.argv.length &&
+                (na = process.argv[1].replace(/\\/g, '/')),
+              process.argv.slice(2),
+              'undefined' !== typeof module && (module.exports = Module),
+              (Module.inspect = function () {
+                return '[Emscripten Module object]';
+              }));
+          else if (oa || pa)
+            (pa
+              ? (L = self.location.href)
+              : 'undefined' !== typeof document &&
+                document.currentScript &&
+                (L = document.currentScript.src),
+              (L =
+                0 !== L.indexOf('blob:')
+                  ? L.substr(0, L.lastIndexOf('/') + 1)
+                  : ''),
+              (sa = function (a) {
+                var b = new XMLHttpRequest();
+                b.open('GET', a, false);
+                b.send(null);
+                return b.responseText;
+              }),
+              pa &&
+                (ua = function (a) {
+                  var b = new XMLHttpRequest();
+                  b.open('GET', a, false);
+                  b.responseType = 'arraybuffer';
+                  b.send(null);
+                  return new Uint8Array(b.response);
+                }),
+              (ta = function (a, b, c) {
+                var e = new XMLHttpRequest();
+                e.open('GET', a, true);
+                e.responseType = 'arraybuffer';
+                e.onload = function () {
+                  200 == e.status || (0 == e.status && e.response)
+                    ? b(e.response)
+                    : c();
+                };
+                e.onerror = c;
+                e.send(null);
+              }));
+          var xa = Module.print || console.log.bind(console),
+            M = Module.printErr || console.warn.bind(console);
           for (K in ma) ma.hasOwnProperty(K) && (Module[K] = ma[K]);
           ma = null;
           Module.thisProgram && (na = Module.thisProgram);
-          var ya = [], za;
+          var ya = [],
+            za;
           function ka(a) {
             za.delete(O.get(a));
             ya.push(a);
@@ -524,7 +732,7 @@
                   O.grow(1);
                 } catch (l) {
                   if (!(l instanceof RangeError)) throw l;
-                  throw "Unable to grow wasm table. Set ALLOW_TABLE_GROWTH.";
+                  throw 'Unable to grow wasm table. Set ALLOW_TABLE_GROWTH.';
                 }
                 c = O.length - 1;
               }
@@ -532,8 +740,12 @@
                 O.set(c, a);
               } catch (l) {
                 if (!(l instanceof TypeError)) throw l;
-                if ("function" === typeof WebAssembly.Function) {
-                  var f = { i: "i32", j: "i64", f: "f32", d: "f64" }, g = { parameters: [], results: "v" == b[0] ? [] : [f[b[0]]] };
+                if ('function' === typeof WebAssembly.Function) {
+                  var f = { i: 'i32', j: 'i64', f: 'f32', d: 'f64' },
+                    g = {
+                      parameters: [],
+                      results: 'v' == b[0] ? [] : [f[b[0]]],
+                    };
                   for (e = 1; e < b.length; ++e) g.parameters.push(f[b[e]]);
                   b = new WebAssembly.Function(g, a);
                 } else {
@@ -543,9 +755,14 @@
                   var k = { i: 127, j: 126, f: 125, d: 124 };
                   f.push(b.length);
                   for (e = 0; e < b.length; ++e) f.push(k[b[e]]);
-                  "v" == g ? f.push(0) : f = f.concat([1, k[g]]);
+                  'v' == g ? f.push(0) : (f = f.concat([1, k[g]]));
                   f[1] = f.length - 2;
-                  b = new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0].concat(f, [2, 7, 1, 1, 101, 1, 102, 0, 0, 7, 5, 1, 1, 102, 0, 0]));
+                  b = new Uint8Array(
+                    [0, 97, 115, 109, 1, 0, 0, 0].concat(
+                      f,
+                      [2, 7, 1, 1, 101, 1, 102, 0, 0, 7, 5, 1, 1, 102, 0, 0]
+                    )
+                  );
                   b = new WebAssembly.Module(b);
                   b = new WebAssembly.Instance(b, { e: { f: a } }).exports.f;
                 }
@@ -559,123 +776,159 @@
           var Ba;
           Module.wasmBinary && (Ba = Module.wasmBinary);
           var noExitRuntime = Module.noExitRuntime || true;
-          "object" !== typeof WebAssembly && P("no native wasm support detected");
+          'object' !== typeof WebAssembly &&
+            P('no native wasm support detected');
           function ia(a) {
-            var b = "i32";
-            "*" === b.charAt(b.length - 1) && (b = "i32");
+            var b = 'i32';
+            '*' === b.charAt(b.length - 1) && (b = 'i32');
             switch (b) {
-              case "i1":
+              case 'i1':
                 D[a >> 0] = 0;
                 break;
-              case "i8":
+              case 'i8':
                 D[a >> 0] = 0;
                 break;
-              case "i16":
+              case 'i16':
                 Ca[a >> 1] = 0;
                 break;
-              case "i32":
+              case 'i32':
                 Q[a >> 2] = 0;
                 break;
-              case "i64":
-                R = [0, (T = 0, 1 <= +Math.abs(T) ? 0 < T ? (Math.min(+Math.floor(T / 4294967296), 4294967295) | 0) >>> 0 : ~~+Math.ceil((T - +(~~T >>> 0)) / 4294967296) >>> 0 : 0)];
+              case 'i64':
+                R = [
+                  0,
+                  ((T = 0),
+                  1 <= +Math.abs(T)
+                    ? 0 < T
+                      ? (Math.min(+Math.floor(T / 4294967296), 4294967295) |
+                          0) >>>
+                        0
+                      : ~~+Math.ceil((T - +(~~T >>> 0)) / 4294967296) >>> 0
+                    : 0),
+                ];
                 Q[a >> 2] = R[0];
-                Q[a + 4 >> 2] = R[1];
+                Q[(a + 4) >> 2] = R[1];
                 break;
-              case "float":
+              case 'float':
                 Da[a >> 2] = 0;
                 break;
-              case "double":
+              case 'double':
                 Ea[a >> 3] = 0;
                 break;
               default:
-                P("invalid type for setValue: " + b);
+                P('invalid type for setValue: ' + b);
             }
           }
           function z(a, b) {
-            b = b || "i8";
-            "*" === b.charAt(b.length - 1) && (b = "i32");
+            b = b || 'i8';
+            '*' === b.charAt(b.length - 1) && (b = 'i32');
             switch (b) {
-              case "i1":
+              case 'i1':
                 return D[a >> 0];
-              case "i8":
+              case 'i8':
                 return D[a >> 0];
-              case "i16":
+              case 'i16':
                 return Ca[a >> 1];
-              case "i32":
+              case 'i32':
                 return Q[a >> 2];
-              case "i64":
+              case 'i64':
                 return Q[a >> 2];
-              case "float":
+              case 'float':
                 return Da[a >> 2];
-              case "double":
+              case 'double':
                 return Ea[a >> 3];
               default:
-                P("invalid type for getValue: " + b);
+                P('invalid type for getValue: ' + b);
             }
             return null;
           }
-          var Fa, Ga = false;
+          var Fa,
+            Ga = false;
           function assert(a, b) {
-            a || P("Assertion failed: " + b);
+            a || P('Assertion failed: ' + b);
           }
           function Ha(a) {
-            var b = Module["_" + a];
-            assert(b, "Cannot call unknown function " + a + ", make sure it is exported");
+            var b = Module['_' + a];
+            assert(
+              b,
+              'Cannot call unknown function ' + a + ', make sure it is exported'
+            );
             return b;
           }
           function Ia(a, b, c, e) {
-            var f = { string: function(m) {
-              var r = 0;
-              if (null !== m && void 0 !== m && 0 !== m) {
-                var x = (m.length << 2) + 1;
-                r = C(x);
-                p(m, u, r, x);
-              }
-              return r;
-            }, array: function(m) {
-              var r = C(m.length);
-              D.set(m, r);
-              return r;
-            } }, g = Ha(a), k = [];
+            var f = {
+                string: function (m) {
+                  var r = 0;
+                  if (null !== m && void 0 !== m && 0 !== m) {
+                    var x = (m.length << 2) + 1;
+                    r = C(x);
+                    p(m, u, r, x);
+                  }
+                  return r;
+                },
+                array: function (m) {
+                  var r = C(m.length);
+                  D.set(m, r);
+                  return r;
+                },
+              },
+              g = Ha(a),
+              k = [];
             a = 0;
-            if (e) for (var l = 0; l < e.length; l++) {
-              var q = f[c[l]];
-              q ? (0 === a && (a = ha()), k[l] = q(e[l])) : k[l] = e[l];
-            }
+            if (e)
+              for (var l = 0; l < e.length; l++) {
+                var q = f[c[l]];
+                q ? (0 === a && (a = ha()), (k[l] = q(e[l]))) : (k[l] = e[l]);
+              }
             c = g.apply(null, k);
-            c = (function(m) {
-              return "string" === b ? F(m) : "boolean" === b ? !!m : m;
+            c = (function (m) {
+              return 'string' === b ? F(m) : 'boolean' === b ? !!m : m;
             })(c);
             0 !== a && ja(a);
             return c;
           }
-          var Ja = 0, La = 1;
+          var Ja = 0,
+            La = 1;
           function ca(a) {
             var b = Ja == La ? C(a.length) : aa(a.length);
             a.subarray || a.slice ? u.set(a, b) : u.set(new Uint8Array(a), b);
             return b;
           }
-          var Ma = "undefined" !== typeof TextDecoder ? new TextDecoder("utf8") : void 0;
+          var Ma =
+            'undefined' !== typeof TextDecoder
+              ? new TextDecoder('utf8')
+              : void 0;
           function Na(a, b, c) {
             var e = b + c;
             for (c = b; a[c] && !(c >= e); ) ++c;
-            if (16 < c - b && a.subarray && Ma) return Ma.decode(a.subarray(b, c));
-            for (e = ""; b < c; ) {
+            if (16 < c - b && a.subarray && Ma)
+              return Ma.decode(a.subarray(b, c));
+            for (e = ''; b < c; ) {
               var f = a[b++];
               if (f & 128) {
                 var g = a[b++] & 63;
-                if (192 == (f & 224)) e += String.fromCharCode((f & 31) << 6 | g);
+                if (192 == (f & 224))
+                  e += String.fromCharCode(((f & 31) << 6) | g);
                 else {
                   var k = a[b++] & 63;
-                  f = 224 == (f & 240) ? (f & 15) << 12 | g << 6 | k : (f & 7) << 18 | g << 12 | k << 6 | a[b++] & 63;
-                  65536 > f ? e += String.fromCharCode(f) : (f -= 65536, e += String.fromCharCode(55296 | f >> 10, 56320 | f & 1023));
+                  f =
+                    224 == (f & 240)
+                      ? ((f & 15) << 12) | (g << 6) | k
+                      : ((f & 7) << 18) | (g << 12) | (k << 6) | (a[b++] & 63);
+                  65536 > f
+                    ? (e += String.fromCharCode(f))
+                    : ((f -= 65536),
+                      (e += String.fromCharCode(
+                        55296 | (f >> 10),
+                        56320 | (f & 1023)
+                      )));
                 }
               } else e += String.fromCharCode(f);
             }
             return e;
           }
           function F(a, b) {
-            return a ? Na(u, a, b) : "";
+            return a ? Na(u, a, b) : '';
           }
           function p(a, b, c, e) {
             if (!(0 < e)) return 0;
@@ -685,7 +938,7 @@
               var k = a.charCodeAt(g);
               if (55296 <= k && 57343 >= k) {
                 var l = a.charCodeAt(++g);
-                k = 65536 + ((k & 1023) << 10) | l & 1023;
+                k = (65536 + ((k & 1023) << 10)) | (l & 1023);
               }
               if (127 >= k) {
                 if (c >= e) break;
@@ -693,19 +946,19 @@
               } else {
                 if (2047 >= k) {
                   if (c + 1 >= e) break;
-                  b[c++] = 192 | k >> 6;
+                  b[c++] = 192 | (k >> 6);
                 } else {
                   if (65535 >= k) {
                     if (c + 2 >= e) break;
-                    b[c++] = 224 | k >> 12;
+                    b[c++] = 224 | (k >> 12);
                   } else {
                     if (c + 3 >= e) break;
-                    b[c++] = 240 | k >> 18;
-                    b[c++] = 128 | k >> 12 & 63;
+                    b[c++] = 240 | (k >> 18);
+                    b[c++] = 128 | ((k >> 12) & 63);
                   }
-                  b[c++] = 128 | k >> 6 & 63;
+                  b[c++] = 128 | ((k >> 6) & 63);
                 }
-                b[c++] = 128 | k & 63;
+                b[c++] = 128 | (k & 63);
               }
             }
             b[c] = 0;
@@ -714,13 +967,18 @@
           function d(a) {
             for (var b = 0, c = 0; c < a.length; ++c) {
               var e = a.charCodeAt(c);
-              55296 <= e && 57343 >= e && (e = 65536 + ((e & 1023) << 10) | a.charCodeAt(++c) & 1023);
-              127 >= e ? ++b : b = 2047 >= e ? b + 2 : 65535 >= e ? b + 3 : b + 4;
+              55296 <= e &&
+                57343 >= e &&
+                (e = (65536 + ((e & 1023) << 10)) | (a.charCodeAt(++c) & 1023));
+              127 >= e
+                ? ++b
+                : (b = 2047 >= e ? b + 2 : 65535 >= e ? b + 3 : b + 4);
             }
             return b;
           }
           function Oa(a) {
-            var b = d(a) + 1, c = aa(b);
+            var b = d(a) + 1,
+              c = aa(b);
             c && p(a, D, c, b);
             return c;
           }
@@ -737,12 +995,17 @@
             Module.HEAPF32 = Da = new Float32Array(a);
             Module.HEAPF64 = Ea = new Float64Array(a);
           }
-          var O, Ra = [], Sa = [], Ta = [];
+          var O,
+            Ra = [],
+            Sa = [],
+            Ta = [];
           function Ua() {
             var a = Module.preRun.shift();
             Ra.unshift(a);
           }
-          var Va = 0, Wa = null, Xa = null;
+          var Va = 0,
+            Wa = null,
+            Xa = null;
           function Ya() {
             Va++;
             Module.monitorRunDependencies && Module.monitorRunDependencies(Va);
@@ -750,7 +1013,10 @@
           function Za() {
             Va--;
             Module.monitorRunDependencies && Module.monitorRunDependencies(Va);
-            if (0 == Va && (null !== Wa && (clearInterval(Wa), Wa = null), Xa)) {
+            if (
+              0 == Va &&
+              (null !== Wa && (clearInterval(Wa), (Wa = null)), Xa)
+            ) {
               var a = Xa;
               Xa = null;
               a();
@@ -762,13 +1028,15 @@
             if (Module.onAbort) Module.onAbort(a);
             M(a);
             Ga = true;
-            throw new WebAssembly.RuntimeError("abort(" + a + "). Build with -s ASSERTIONS=1 for more info.");
+            throw new WebAssembly.RuntimeError(
+              'abort(' + a + '). Build with -s ASSERTIONS=1 for more info.'
+            );
           }
           function $a() {
-            return V.startsWith("data:application/octet-stream;base64,");
+            return V.startsWith('data:application/octet-stream;base64,');
           }
           var V;
-          V = "sql-wasm.wasm";
+          V = 'sql-wasm.wasm';
           if (!$a()) {
             var ab = V;
             V = Module.locateFile ? Module.locateFile(ab, L) : L + ab;
@@ -778,26 +1046,35 @@
             try {
               if (a == V && Ba) return new Uint8Array(Ba);
               if (ua) return ua(a);
-              throw "both async and sync fetching of the wasm failed";
+              throw 'both async and sync fetching of the wasm failed';
             } catch (b) {
               P(b);
             }
           }
           function cb() {
             if (!Ba && (oa || pa)) {
-              if ("function" === typeof fetch && !V.startsWith("file://")) return fetch(V, { credentials: "same-origin" }).then(function(a) {
-                if (!a.ok) throw "failed to load wasm binary file at '" + V + "'";
-                return a.arrayBuffer();
-              }).catch(function() {
-                return bb();
-              });
-              if (ta) return new Promise(function(a, b) {
-                ta(V, function(c) {
-                  a(new Uint8Array(c));
-                }, b);
-              });
+              if ('function' === typeof fetch && !V.startsWith('file://'))
+                return fetch(V, { credentials: 'same-origin' })
+                  .then(function (a) {
+                    if (!a.ok)
+                      throw "failed to load wasm binary file at '" + V + "'";
+                    return a.arrayBuffer();
+                  })
+                  .catch(function () {
+                    return bb();
+                  });
+              if (ta)
+                return new Promise(function (a, b) {
+                  ta(
+                    V,
+                    function (c) {
+                      a(new Uint8Array(c));
+                    },
+                    b
+                  );
+                });
             }
-            return Promise.resolve().then(function() {
+            return Promise.resolve().then(function () {
               return bb();
             });
           }
@@ -805,186 +1082,254 @@
           function gb(a) {
             for (; 0 < a.length; ) {
               var b = a.shift();
-              if ("function" == typeof b) b(Module);
+              if ('function' == typeof b) b(Module);
               else {
                 var c = b.pd;
-                "number" === typeof c ? void 0 === b.yb ? O.get(c)() : O.get(c)(b.yb) : c(void 0 === b.yb ? null : b.yb);
+                'number' === typeof c
+                  ? void 0 === b.yb
+                    ? O.get(c)()
+                    : O.get(c)(b.yb)
+                  : c(void 0 === b.yb ? null : b.yb);
               }
             }
           }
           function hb(a) {
-            return a.replace(/\b_Z[\w\d_]+/g, function(b) {
-              return b === b ? b : b + " [" + b + "]";
+            return a.replace(/\b_Z[\w\d_]+/g, function (b) {
+              return b === b ? b : b + ' [' + b + ']';
             });
           }
           function ib() {
             function a(k) {
-              return (k = k.toTimeString().match(/\(([A-Za-z ]+)\)$/)) ? k[1] : "GMT";
+              return (k = k.toTimeString().match(/\(([A-Za-z ]+)\)$/))
+                ? k[1]
+                : 'GMT';
             }
             if (!jb) {
               jb = true;
-              var b = (/* @__PURE__ */ new Date()).getFullYear(), c = new Date(b, 0, 1), e = new Date(b, 6, 1);
+              var b = /* @__PURE__ */ new Date().getFullYear(),
+                c = new Date(b, 0, 1),
+                e = new Date(b, 6, 1);
               b = c.getTimezoneOffset();
-              var f = e.getTimezoneOffset(), g = Math.max(b, f);
+              var f = e.getTimezoneOffset(),
+                g = Math.max(b, f);
               Q[kb() >> 2] = 60 * g;
               Q[lb() >> 2] = Number(b != f);
               c = a(c);
               e = a(e);
               c = Oa(c);
               e = Oa(e);
-              f < b ? (Q[mb() >> 2] = c, Q[mb() + 4 >> 2] = e) : (Q[mb() >> 2] = e, Q[mb() + 4 >> 2] = c);
+              f < b
+                ? ((Q[mb() >> 2] = c), (Q[(mb() + 4) >> 2] = e))
+                : ((Q[mb() >> 2] = e), (Q[(mb() + 4) >> 2] = c));
             }
           }
           var jb;
           function nb(a, b) {
             for (var c = 0, e = a.length - 1; 0 <= e; e--) {
               var f = a[e];
-              "." === f ? a.splice(e, 1) : ".." === f ? (a.splice(e, 1), c++) : c && (a.splice(e, 1), c--);
+              '.' === f
+                ? a.splice(e, 1)
+                : '..' === f
+                  ? (a.splice(e, 1), c++)
+                  : c && (a.splice(e, 1), c--);
             }
-            if (b) for (; c; c--) a.unshift("..");
+            if (b) for (; c; c--) a.unshift('..');
             return a;
           }
           function ob(a) {
-            var b = "/" === a.charAt(0), c = "/" === a.substr(-1);
-            (a = nb(a.split("/").filter(function(e) {
-              return !!e;
-            }), !b).join("/")) || b || (a = ".");
-            a && c && (a += "/");
-            return (b ? "/" : "") + a;
+            var b = '/' === a.charAt(0),
+              c = '/' === a.substr(-1);
+            (a = nb(
+              a.split('/').filter(function (e) {
+                return !!e;
+              }),
+              !b
+            ).join('/')) ||
+              b ||
+              (a = '.');
+            a && c && (a += '/');
+            return (b ? '/' : '') + a;
           }
           function pb(a) {
-            var b = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/.exec(a).slice(1);
+            var b =
+              /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/
+                .exec(a)
+                .slice(1);
             a = b[0];
             b = b[1];
-            if (!a && !b) return ".";
+            if (!a && !b) return '.';
             b && (b = b.substr(0, b.length - 1));
             return a + b;
           }
           function W(a) {
-            if ("/" === a) return "/";
+            if ('/' === a) return '/';
             a = ob(a);
-            a = a.replace(/\/$/, "");
-            var b = a.lastIndexOf("/");
+            a = a.replace(/\/$/, '');
+            var b = a.lastIndexOf('/');
             return -1 === b ? a : a.substr(b + 1);
           }
           function qb(a, b) {
-            return ob(a + "/" + b);
+            return ob(a + '/' + b);
           }
           function rb() {
-            if ("object" === typeof crypto && "function" === typeof crypto.getRandomValues) {
+            if (
+              'object' === typeof crypto &&
+              'function' === typeof crypto.getRandomValues
+            ) {
               var a = new Uint8Array(1);
-              return function() {
+              return function () {
                 crypto.getRandomValues(a);
                 return a[0];
               };
             }
-            if (qa) try {
-              var b = __require("crypto");
-              return function() {
-                return b.randomBytes(1)[0];
-              };
-            } catch (c) {
-            }
-            return function() {
-              P("randomDevice");
+            if (qa)
+              try {
+                var b = __require('crypto');
+                return function () {
+                  return b.randomBytes(1)[0];
+                };
+              } catch (c) {}
+            return function () {
+              P('randomDevice');
             };
           }
           function sb() {
-            for (var a = "", b = false, c = arguments.length - 1; -1 <= c && !b; c--) {
+            for (
+              var a = '', b = false, c = arguments.length - 1;
+              -1 <= c && !b;
+              c--
+            ) {
               b = 0 <= c ? arguments[c] : w.cwd();
-              if ("string" !== typeof b) throw new TypeError("Arguments to path.resolve must be strings");
-              if (!b) return "";
-              a = b + "/" + a;
-              b = "/" === b.charAt(0);
+              if ('string' !== typeof b)
+                throw new TypeError(
+                  'Arguments to path.resolve must be strings'
+                );
+              if (!b) return '';
+              a = b + '/' + a;
+              b = '/' === b.charAt(0);
             }
-            a = nb(a.split("/").filter(function(e) {
-              return !!e;
-            }), !b).join("/");
-            return (b ? "/" : "") + a || ".";
+            a = nb(
+              a.split('/').filter(function (e) {
+                return !!e;
+              }),
+              !b
+            ).join('/');
+            return (b ? '/' : '') + a || '.';
           }
           function tb(a, b) {
             function c(k) {
-              for (var l = 0; l < k.length && "" === k[l]; l++) ;
-              for (var q = k.length - 1; 0 <= q && "" === k[q]; q--) ;
+              for (var l = 0; l < k.length && '' === k[l]; l++);
+              for (var q = k.length - 1; 0 <= q && '' === k[q]; q--);
               return l > q ? [] : k.slice(l, q - l + 1);
             }
             a = sb(a).substr(1);
             b = sb(b).substr(1);
-            a = c(a.split("/"));
-            b = c(b.split("/"));
-            for (var e = Math.min(a.length, b.length), f = e, g = 0; g < e; g++) if (a[g] !== b[g]) {
-              f = g;
-              break;
-            }
+            a = c(a.split('/'));
+            b = c(b.split('/'));
+            for (var e = Math.min(a.length, b.length), f = e, g = 0; g < e; g++)
+              if (a[g] !== b[g]) {
+                f = g;
+                break;
+              }
             e = [];
-            for (g = f; g < a.length; g++) e.push("..");
+            for (g = f; g < a.length; g++) e.push('..');
             e = e.concat(b.slice(f));
-            return e.join("/");
+            return e.join('/');
           }
           var ub = [];
           function vb(a, b) {
             ub[a] = { input: [], output: [], gb: b };
             w.Qb(a, wb);
           }
-          var wb = { open: function(a) {
-            var b = ub[a.node.rdev];
-            if (!b) throw new w.ErrnoError(43);
-            a.tty = b;
-            a.seekable = false;
-          }, close: function(a) {
-            a.tty.gb.flush(a.tty);
-          }, flush: function(a) {
-            a.tty.gb.flush(a.tty);
-          }, read: function(a, b, c, e) {
-            if (!a.tty || !a.tty.gb.cc) throw new w.ErrnoError(60);
-            for (var f = 0, g = 0; g < e; g++) {
-              try {
-                var k = a.tty.gb.cc(a.tty);
-              } catch (l) {
-                throw new w.ErrnoError(29);
-              }
-              if (void 0 === k && 0 === f) throw new w.ErrnoError(6);
-              if (null === k || void 0 === k) break;
-              f++;
-              b[c + g] = k;
-            }
-            f && (a.node.timestamp = Date.now());
-            return f;
-          }, write: function(a, b, c, e) {
-            if (!a.tty || !a.tty.gb.Nb) throw new w.ErrnoError(60);
-            try {
-              for (var f = 0; f < e; f++) a.tty.gb.Nb(a.tty, b[c + f]);
-            } catch (g) {
-              throw new w.ErrnoError(29);
-            }
-            e && (a.node.timestamp = Date.now());
-            return f;
-          } }, xb = { cc: function(a) {
-            if (!a.input.length) {
-              var b = null;
-              if (qa) {
-                var c = Buffer.alloc(256), e = 0;
-                try {
-                  e = va.readSync(process.stdin.fd, c, 0, 256, null);
-                } catch (f) {
-                  if (f.toString().includes("EOF")) e = 0;
-                  else throw f;
+          var wb = {
+              open: function (a) {
+                var b = ub[a.node.rdev];
+                if (!b) throw new w.ErrnoError(43);
+                a.tty = b;
+                a.seekable = false;
+              },
+              close: function (a) {
+                a.tty.gb.flush(a.tty);
+              },
+              flush: function (a) {
+                a.tty.gb.flush(a.tty);
+              },
+              read: function (a, b, c, e) {
+                if (!a.tty || !a.tty.gb.cc) throw new w.ErrnoError(60);
+                for (var f = 0, g = 0; g < e; g++) {
+                  try {
+                    var k = a.tty.gb.cc(a.tty);
+                  } catch (l) {
+                    throw new w.ErrnoError(29);
+                  }
+                  if (void 0 === k && 0 === f) throw new w.ErrnoError(6);
+                  if (null === k || void 0 === k) break;
+                  f++;
+                  b[c + g] = k;
                 }
-                0 < e ? b = c.slice(0, e).toString("utf-8") : b = null;
-              } else "undefined" != typeof window && "function" == typeof window.prompt ? (b = window.prompt("Input: "), null !== b && (b += "\n")) : "function" == typeof readline && (b = readline(), null !== b && (b += "\n"));
-              if (!b) return null;
-              a.input = ba(b, true);
-            }
-            return a.input.shift();
-          }, Nb: function(a, b) {
-            null === b || 10 === b ? (xa(Na(a.output, 0)), a.output = []) : 0 != b && a.output.push(b);
-          }, flush: function(a) {
-            a.output && 0 < a.output.length && (xa(Na(a.output, 0)), a.output = []);
-          } }, yb = { Nb: function(a, b) {
-            null === b || 10 === b ? (M(Na(a.output, 0)), a.output = []) : 0 != b && a.output.push(b);
-          }, flush: function(a) {
-            a.output && 0 < a.output.length && (M(Na(a.output, 0)), a.output = []);
-          } };
+                f && (a.node.timestamp = Date.now());
+                return f;
+              },
+              write: function (a, b, c, e) {
+                if (!a.tty || !a.tty.gb.Nb) throw new w.ErrnoError(60);
+                try {
+                  for (var f = 0; f < e; f++) a.tty.gb.Nb(a.tty, b[c + f]);
+                } catch (g) {
+                  throw new w.ErrnoError(29);
+                }
+                e && (a.node.timestamp = Date.now());
+                return f;
+              },
+            },
+            xb = {
+              cc: function (a) {
+                if (!a.input.length) {
+                  var b = null;
+                  if (qa) {
+                    var c = Buffer.alloc(256),
+                      e = 0;
+                    try {
+                      e = va.readSync(process.stdin.fd, c, 0, 256, null);
+                    } catch (f) {
+                      if (f.toString().includes('EOF')) e = 0;
+                      else throw f;
+                    }
+                    0 < e ? (b = c.slice(0, e).toString('utf-8')) : (b = null);
+                  } else
+                    'undefined' != typeof window &&
+                    'function' == typeof window.prompt
+                      ? ((b = window.prompt('Input: ')),
+                        null !== b && (b += '\n'))
+                      : 'function' == typeof readline &&
+                        ((b = readline()), null !== b && (b += '\n'));
+                  if (!b) return null;
+                  a.input = ba(b, true);
+                }
+                return a.input.shift();
+              },
+              Nb: function (a, b) {
+                null === b || 10 === b
+                  ? (xa(Na(a.output, 0)), (a.output = []))
+                  : 0 != b && a.output.push(b);
+              },
+              flush: function (a) {
+                a.output &&
+                  0 < a.output.length &&
+                  (xa(Na(a.output, 0)), (a.output = []));
+              },
+            },
+            yb = {
+              Nb: function (a, b) {
+                null === b || 10 === b
+                  ? (M(Na(a.output, 0)), (a.output = []))
+                  : 0 != b && a.output.push(b);
+              },
+              flush: function (a) {
+                a.output &&
+                  0 < a.output.length &&
+                  (M(Na(a.output, 0)), (a.output = []));
+              },
+            };
           function zb(a) {
             a = 65536 * Math.ceil(a / 65536);
             var b = Ab(65536, a);
@@ -992,1148 +1337,1518 @@
             u.fill(0, b, b + a);
             return b;
           }
-          var X = { Va: null, mount: function() {
-            return X.createNode(null, "/", 16895, 0);
-          }, createNode: function(a, b, c, e) {
-            if (w.Rc(c) || w.isFIFO(c)) throw new w.ErrnoError(63);
-            X.Va || (X.Va = { dir: { node: { getattr: X.node_ops.getattr, setattr: X.node_ops.setattr, lookup: X.node_ops.lookup, mknod: X.node_ops.mknod, rename: X.node_ops.rename, unlink: X.node_ops.unlink, rmdir: X.node_ops.rmdir, readdir: X.node_ops.readdir, symlink: X.node_ops.symlink }, stream: { llseek: X.stream_ops.llseek } }, file: {
-              node: { getattr: X.node_ops.getattr, setattr: X.node_ops.setattr },
-              stream: { llseek: X.stream_ops.llseek, read: X.stream_ops.read, write: X.stream_ops.write, allocate: X.stream_ops.allocate, mmap: X.stream_ops.mmap, msync: X.stream_ops.msync }
-            }, link: { node: { getattr: X.node_ops.getattr, setattr: X.node_ops.setattr, readlink: X.node_ops.readlink }, stream: {} }, Vb: { node: { getattr: X.node_ops.getattr, setattr: X.node_ops.setattr }, stream: w.Cc } });
-            c = w.createNode(a, b, c, e);
-            w.isDir(c.mode) ? (c.node_ops = X.Va.dir.node, c.stream_ops = X.Va.dir.stream, c.Na = {}) : w.isFile(c.mode) ? (c.node_ops = X.Va.file.node, c.stream_ops = X.Va.file.stream, c.Ra = 0, c.Na = null) : w.fb(c.mode) ? (c.node_ops = X.Va.link.node, c.stream_ops = X.Va.link.stream) : w.pb(c.mode) && (c.node_ops = X.Va.Vb.node, c.stream_ops = X.Va.Vb.stream);
-            c.timestamp = Date.now();
-            a && (a.Na[b] = c, a.timestamp = c.timestamp);
-            return c;
-          }, qd: function(a) {
-            return a.Na ? a.Na.subarray ? a.Na.subarray(0, a.Ra) : new Uint8Array(a.Na) : new Uint8Array(0);
-          }, Zb: function(a, b) {
-            var c = a.Na ? a.Na.length : 0;
-            c >= b || (b = Math.max(b, c * (1048576 > c ? 2 : 1.125) >>> 0), 0 != c && (b = Math.max(b, 256)), c = a.Na, a.Na = new Uint8Array(b), 0 < a.Ra && a.Na.set(c.subarray(0, a.Ra), 0));
-          }, gd: function(a, b) {
-            if (a.Ra != b) if (0 == b) a.Na = null, a.Ra = 0;
-            else {
-              var c = a.Na;
-              a.Na = new Uint8Array(b);
-              c && a.Na.set(c.subarray(0, Math.min(b, a.Ra)));
-              a.Ra = b;
-            }
-          }, node_ops: { getattr: function(a) {
-            var b = {};
-            b.dev = w.pb(a.mode) ? a.id : 1;
-            b.ino = a.id;
-            b.mode = a.mode;
-            b.nlink = 1;
-            b.uid = 0;
-            b.gid = 0;
-            b.rdev = a.rdev;
-            w.isDir(a.mode) ? b.size = 4096 : w.isFile(a.mode) ? b.size = a.Ra : w.fb(a.mode) ? b.size = a.link.length : b.size = 0;
-            b.atime = new Date(a.timestamp);
-            b.mtime = new Date(a.timestamp);
-            b.ctime = new Date(a.timestamp);
-            b.Ac = 4096;
-            b.blocks = Math.ceil(b.size / b.Ac);
-            return b;
-          }, setattr: function(a, b) {
-            void 0 !== b.mode && (a.mode = b.mode);
-            void 0 !== b.timestamp && (a.timestamp = b.timestamp);
-            void 0 !== b.size && X.gd(a, b.size);
-          }, lookup: function() {
-            throw w.Db[44];
-          }, mknod: function(a, b, c, e) {
-            return X.createNode(a, b, c, e);
-          }, rename: function(a, b, c) {
-            if (w.isDir(a.mode)) {
-              try {
-                var e = w.lookupNode(b, c);
-              } catch (g) {
-              }
-              if (e) for (var f in e.Na) throw new w.ErrnoError(55);
-            }
-            delete a.parent.Na[a.name];
-            a.parent.timestamp = Date.now();
-            a.name = c;
-            b.Na[c] = a;
-            b.timestamp = a.parent.timestamp;
-            a.parent = b;
-          }, unlink: function(a, b) {
-            delete a.Na[b];
-            a.timestamp = Date.now();
-          }, rmdir: function(a, b) {
-            var c = w.lookupNode(a, b), e;
-            for (e in c.Na) throw new w.ErrnoError(55);
-            delete a.Na[b];
-            a.timestamp = Date.now();
-          }, readdir: function(a) {
-            var b = [".", ".."], c;
-            for (c in a.Na) a.Na.hasOwnProperty(c) && b.push(c);
-            return b;
-          }, symlink: function(a, b, c) {
-            a = X.createNode(a, b, 41471, 0);
-            a.link = c;
-            return a;
-          }, readlink: function(a) {
-            if (!w.fb(a.mode)) throw new w.ErrnoError(28);
-            return a.link;
-          } }, stream_ops: { read: function(a, b, c, e, f) {
-            var g = a.node.Na;
-            if (f >= a.node.Ra) return 0;
-            a = Math.min(a.node.Ra - f, e);
-            if (8 < a && g.subarray) b.set(g.subarray(f, f + a), c);
-            else for (e = 0; e < a; e++) b[c + e] = g[f + e];
-            return a;
-          }, write: function(a, b, c, e, f, g) {
-            b.buffer === D.buffer && (g = false);
-            if (!e) return 0;
-            a = a.node;
-            a.timestamp = Date.now();
-            if (b.subarray && (!a.Na || a.Na.subarray)) {
-              if (g) return a.Na = b.subarray(c, c + e), a.Ra = e;
-              if (0 === a.Ra && 0 === f) return a.Na = b.slice(c, c + e), a.Ra = e;
-              if (f + e <= a.Ra) return a.Na.set(b.subarray(c, c + e), f), e;
-            }
-            X.Zb(a, f + e);
-            if (a.Na.subarray && b.subarray) a.Na.set(b.subarray(c, c + e), f);
-            else for (g = 0; g < e; g++) a.Na[f + g] = b[c + g];
-            a.Ra = Math.max(a.Ra, f + e);
-            return e;
-          }, llseek: function(a, b, c) {
-            1 === c ? b += a.position : 2 === c && w.isFile(a.node.mode) && (b += a.node.Ra);
-            if (0 > b) throw new w.ErrnoError(28);
-            return b;
-          }, allocate: function(a, b, c) {
-            X.Zb(a.node, b + c);
-            a.node.Ra = Math.max(a.node.Ra, b + c);
-          }, mmap: function(a, b, c, e, f, g) {
-            if (0 !== b) throw new w.ErrnoError(28);
-            if (!w.isFile(a.node.mode)) throw new w.ErrnoError(43);
-            a = a.node.Na;
-            if (g & 2 || a.buffer !== Pa) {
-              if (0 < e || e + c < a.length) a.subarray ? a = a.subarray(e, e + c) : a = Array.prototype.slice.call(
-                a,
-                e,
-                e + c
-              );
-              e = true;
-              c = zb(c);
-              if (!c) throw new w.ErrnoError(48);
-              D.set(a, c);
-            } else e = false, c = a.byteOffset;
-            return { ed: c, vb: e };
-          }, msync: function(a, b, c, e, f) {
-            if (!w.isFile(a.node.mode)) throw new w.ErrnoError(43);
-            if (f & 2) return 0;
-            X.stream_ops.write(a, b, 0, e, c, false);
-            return 0;
-          } } };
+          var X = {
+            Va: null,
+            mount: function () {
+              return X.createNode(null, '/', 16895, 0);
+            },
+            createNode: function (a, b, c, e) {
+              if (w.Rc(c) || w.isFIFO(c)) throw new w.ErrnoError(63);
+              X.Va ||
+                (X.Va = {
+                  dir: {
+                    node: {
+                      getattr: X.node_ops.getattr,
+                      setattr: X.node_ops.setattr,
+                      lookup: X.node_ops.lookup,
+                      mknod: X.node_ops.mknod,
+                      rename: X.node_ops.rename,
+                      unlink: X.node_ops.unlink,
+                      rmdir: X.node_ops.rmdir,
+                      readdir: X.node_ops.readdir,
+                      symlink: X.node_ops.symlink,
+                    },
+                    stream: { llseek: X.stream_ops.llseek },
+                  },
+                  file: {
+                    node: {
+                      getattr: X.node_ops.getattr,
+                      setattr: X.node_ops.setattr,
+                    },
+                    stream: {
+                      llseek: X.stream_ops.llseek,
+                      read: X.stream_ops.read,
+                      write: X.stream_ops.write,
+                      allocate: X.stream_ops.allocate,
+                      mmap: X.stream_ops.mmap,
+                      msync: X.stream_ops.msync,
+                    },
+                  },
+                  link: {
+                    node: {
+                      getattr: X.node_ops.getattr,
+                      setattr: X.node_ops.setattr,
+                      readlink: X.node_ops.readlink,
+                    },
+                    stream: {},
+                  },
+                  Vb: {
+                    node: {
+                      getattr: X.node_ops.getattr,
+                      setattr: X.node_ops.setattr,
+                    },
+                    stream: w.Cc,
+                  },
+                });
+              c = w.createNode(a, b, c, e);
+              w.isDir(c.mode)
+                ? ((c.node_ops = X.Va.dir.node),
+                  (c.stream_ops = X.Va.dir.stream),
+                  (c.Na = {}))
+                : w.isFile(c.mode)
+                  ? ((c.node_ops = X.Va.file.node),
+                    (c.stream_ops = X.Va.file.stream),
+                    (c.Ra = 0),
+                    (c.Na = null))
+                  : w.fb(c.mode)
+                    ? ((c.node_ops = X.Va.link.node),
+                      (c.stream_ops = X.Va.link.stream))
+                    : w.pb(c.mode) &&
+                      ((c.node_ops = X.Va.Vb.node),
+                      (c.stream_ops = X.Va.Vb.stream));
+              c.timestamp = Date.now();
+              a && ((a.Na[b] = c), (a.timestamp = c.timestamp));
+              return c;
+            },
+            qd: function (a) {
+              return a.Na
+                ? a.Na.subarray
+                  ? a.Na.subarray(0, a.Ra)
+                  : new Uint8Array(a.Na)
+                : new Uint8Array(0);
+            },
+            Zb: function (a, b) {
+              var c = a.Na ? a.Na.length : 0;
+              c >= b ||
+                ((b = Math.max(b, (c * (1048576 > c ? 2 : 1.125)) >>> 0)),
+                0 != c && (b = Math.max(b, 256)),
+                (c = a.Na),
+                (a.Na = new Uint8Array(b)),
+                0 < a.Ra && a.Na.set(c.subarray(0, a.Ra), 0));
+            },
+            gd: function (a, b) {
+              if (a.Ra != b)
+                if (0 == b) ((a.Na = null), (a.Ra = 0));
+                else {
+                  var c = a.Na;
+                  a.Na = new Uint8Array(b);
+                  c && a.Na.set(c.subarray(0, Math.min(b, a.Ra)));
+                  a.Ra = b;
+                }
+            },
+            node_ops: {
+              getattr: function (a) {
+                var b = {};
+                b.dev = w.pb(a.mode) ? a.id : 1;
+                b.ino = a.id;
+                b.mode = a.mode;
+                b.nlink = 1;
+                b.uid = 0;
+                b.gid = 0;
+                b.rdev = a.rdev;
+                w.isDir(a.mode)
+                  ? (b.size = 4096)
+                  : w.isFile(a.mode)
+                    ? (b.size = a.Ra)
+                    : w.fb(a.mode)
+                      ? (b.size = a.link.length)
+                      : (b.size = 0);
+                b.atime = new Date(a.timestamp);
+                b.mtime = new Date(a.timestamp);
+                b.ctime = new Date(a.timestamp);
+                b.Ac = 4096;
+                b.blocks = Math.ceil(b.size / b.Ac);
+                return b;
+              },
+              setattr: function (a, b) {
+                void 0 !== b.mode && (a.mode = b.mode);
+                void 0 !== b.timestamp && (a.timestamp = b.timestamp);
+                void 0 !== b.size && X.gd(a, b.size);
+              },
+              lookup: function () {
+                throw w.Db[44];
+              },
+              mknod: function (a, b, c, e) {
+                return X.createNode(a, b, c, e);
+              },
+              rename: function (a, b, c) {
+                if (w.isDir(a.mode)) {
+                  try {
+                    var e = w.lookupNode(b, c);
+                  } catch (g) {}
+                  if (e) for (var f in e.Na) throw new w.ErrnoError(55);
+                }
+                delete a.parent.Na[a.name];
+                a.parent.timestamp = Date.now();
+                a.name = c;
+                b.Na[c] = a;
+                b.timestamp = a.parent.timestamp;
+                a.parent = b;
+              },
+              unlink: function (a, b) {
+                delete a.Na[b];
+                a.timestamp = Date.now();
+              },
+              rmdir: function (a, b) {
+                var c = w.lookupNode(a, b),
+                  e;
+                for (e in c.Na) throw new w.ErrnoError(55);
+                delete a.Na[b];
+                a.timestamp = Date.now();
+              },
+              readdir: function (a) {
+                var b = ['.', '..'],
+                  c;
+                for (c in a.Na) a.Na.hasOwnProperty(c) && b.push(c);
+                return b;
+              },
+              symlink: function (a, b, c) {
+                a = X.createNode(a, b, 41471, 0);
+                a.link = c;
+                return a;
+              },
+              readlink: function (a) {
+                if (!w.fb(a.mode)) throw new w.ErrnoError(28);
+                return a.link;
+              },
+            },
+            stream_ops: {
+              read: function (a, b, c, e, f) {
+                var g = a.node.Na;
+                if (f >= a.node.Ra) return 0;
+                a = Math.min(a.node.Ra - f, e);
+                if (8 < a && g.subarray) b.set(g.subarray(f, f + a), c);
+                else for (e = 0; e < a; e++) b[c + e] = g[f + e];
+                return a;
+              },
+              write: function (a, b, c, e, f, g) {
+                b.buffer === D.buffer && (g = false);
+                if (!e) return 0;
+                a = a.node;
+                a.timestamp = Date.now();
+                if (b.subarray && (!a.Na || a.Na.subarray)) {
+                  if (g) return ((a.Na = b.subarray(c, c + e)), (a.Ra = e));
+                  if (0 === a.Ra && 0 === f)
+                    return ((a.Na = b.slice(c, c + e)), (a.Ra = e));
+                  if (f + e <= a.Ra)
+                    return (a.Na.set(b.subarray(c, c + e), f), e);
+                }
+                X.Zb(a, f + e);
+                if (a.Na.subarray && b.subarray)
+                  a.Na.set(b.subarray(c, c + e), f);
+                else for (g = 0; g < e; g++) a.Na[f + g] = b[c + g];
+                a.Ra = Math.max(a.Ra, f + e);
+                return e;
+              },
+              llseek: function (a, b, c) {
+                1 === c
+                  ? (b += a.position)
+                  : 2 === c && w.isFile(a.node.mode) && (b += a.node.Ra);
+                if (0 > b) throw new w.ErrnoError(28);
+                return b;
+              },
+              allocate: function (a, b, c) {
+                X.Zb(a.node, b + c);
+                a.node.Ra = Math.max(a.node.Ra, b + c);
+              },
+              mmap: function (a, b, c, e, f, g) {
+                if (0 !== b) throw new w.ErrnoError(28);
+                if (!w.isFile(a.node.mode)) throw new w.ErrnoError(43);
+                a = a.node.Na;
+                if (g & 2 || a.buffer !== Pa) {
+                  if (0 < e || e + c < a.length)
+                    a.subarray
+                      ? (a = a.subarray(e, e + c))
+                      : (a = Array.prototype.slice.call(a, e, e + c));
+                  e = true;
+                  c = zb(c);
+                  if (!c) throw new w.ErrnoError(48);
+                  D.set(a, c);
+                } else ((e = false), (c = a.byteOffset));
+                return { ed: c, vb: e };
+              },
+              msync: function (a, b, c, e, f) {
+                if (!w.isFile(a.node.mode)) throw new w.ErrnoError(43);
+                if (f & 2) return 0;
+                X.stream_ops.write(a, b, 0, e, c, false);
+                return 0;
+              },
+            },
+          };
           function Bb(a, b, c) {
-            var e = "al " + a;
-            ta(a, function(f) {
-              assert(f, 'Loading data file "' + a + '" failed (no arrayBuffer).');
-              b(new Uint8Array(f));
-              e && Za();
-            }, function() {
-              if (c) c();
-              else throw 'Loading data file "' + a + '" failed.';
-            });
+            var e = 'al ' + a;
+            ta(
+              a,
+              function (f) {
+                assert(
+                  f,
+                  'Loading data file "' + a + '" failed (no arrayBuffer).'
+                );
+                b(new Uint8Array(f));
+                e && Za();
+              },
+              function () {
+                if (c) c();
+                else throw 'Loading data file "' + a + '" failed.';
+              }
+            );
             e && Ya();
           }
           var w = {
-            root: null,
-            mb: [],
-            Xb: {},
-            streams: [],
-            Zc: 1,
-            Ua: null,
-            Wb: "/",
-            Hb: false,
-            hc: true,
-            Sa: {},
-            nc: { kc: { qc: 1, rc: 2 } },
-            ErrnoError: null,
-            Db: {},
-            Lc: null,
-            tb: 0,
-            lookupPath: function(a, b) {
-              a = sb(w.cwd(), a);
-              b = b || {};
-              if (!a) return { path: "", node: null };
-              var c = { Cb: true, Pb: 0 }, e;
-              for (e in c) void 0 === b[e] && (b[e] = c[e]);
-              if (8 < b.Pb) throw new w.ErrnoError(32);
-              a = nb(a.split("/").filter(function(k) {
-                return !!k;
-              }), false);
-              var f = w.root;
-              c = "/";
-              for (e = 0; e < a.length; e++) {
-                var g = e === a.length - 1;
-                if (g && b.parent) break;
-                f = w.lookupNode(f, a[e]);
-                c = qb(c, a[e]);
-                w.ab(f) && (!g || g && b.Cb) && (f = f.lb.root);
-                if (!g || b.Ta) {
-                  for (g = 0; w.fb(f.mode); ) if (f = w.readlink(c), c = sb(pb(c), f), f = w.lookupPath(c, { Pb: b.Pb }).node, 40 < g++) throw new w.ErrnoError(32);
-                }
-              }
-              return { path: c, node: f };
-            },
-            Ya: function(a) {
-              for (var b; ; ) {
-                if (w.isRoot(a)) return a = a.mount.jc, b ? "/" !== a[a.length - 1] ? a + "/" + b : a + b : a;
-                b = b ? a.name + "/" + b : a.name;
-                a = a.parent;
-              }
-            },
-            Gb: function(a, b) {
-              for (var c = 0, e = 0; e < b.length; e++) c = (c << 5) - c + b.charCodeAt(e) | 0;
-              return (a + c >>> 0) % w.Ua.length;
-            },
-            ec: function(a) {
-              var b = w.Gb(a.parent.id, a.name);
-              a.cb = w.Ua[b];
-              w.Ua[b] = a;
-            },
-            fc: function(a) {
-              var b = w.Gb(a.parent.id, a.name);
-              if (w.Ua[b] === a) w.Ua[b] = a.cb;
-              else for (b = w.Ua[b]; b; ) {
-                if (b.cb === a) {
-                  b.cb = a.cb;
-                  break;
-                }
-                b = b.cb;
-              }
-            },
-            lookupNode: function(a, b) {
-              var c = w.Vc(a);
-              if (c) throw new w.ErrnoError(c, a);
-              for (c = w.Ua[w.Gb(a.id, b)]; c; c = c.cb) {
-                var e = c.name;
-                if (c.parent.id === a.id && e === b) return c;
-              }
-              return w.lookup(a, b);
-            },
-            createNode: function(a, b, c, e) {
-              a = new w.FSNode(a, b, c, e);
-              w.ec(a);
-              return a;
-            },
-            Ab: function(a) {
-              w.fc(a);
-            },
-            isRoot: function(a) {
-              return a === a.parent;
-            },
-            ab: function(a) {
-              return !!a.lb;
-            },
-            isFile: function(a) {
-              return 32768 === (a & 61440);
-            },
-            isDir: function(a) {
-              return 16384 === (a & 61440);
-            },
-            fb: function(a) {
-              return 40960 === (a & 61440);
-            },
-            pb: function(a) {
-              return 8192 === (a & 61440);
-            },
-            Rc: function(a) {
-              return 24576 === (a & 61440);
-            },
-            isFIFO: function(a) {
-              return 4096 === (a & 61440);
-            },
-            isSocket: function(a) {
-              return 49152 === (a & 49152);
-            },
-            Mc: { r: 0, "r+": 2, w: 577, "w+": 578, a: 1089, "a+": 1090 },
-            Yc: function(a) {
-              var b = w.Mc[a];
-              if ("undefined" === typeof b) throw Error("Unknown file open mode: " + a);
-              return b;
-            },
-            $b: function(a) {
-              var b = ["r", "w", "rw"][a & 3];
-              a & 512 && (b += "w");
-              return b;
-            },
-            Za: function(a, b) {
-              if (w.hc) return 0;
-              if (!b.includes("r") || a.mode & 292) {
-                if (b.includes("w") && !(a.mode & 146) || b.includes("x") && !(a.mode & 73)) return 2;
-              } else return 2;
-              return 0;
-            },
-            Vc: function(a) {
-              var b = w.Za(a, "x");
-              return b ? b : a.node_ops.lookup ? 0 : 2;
-            },
-            Lb: function(a, b) {
-              try {
-                return w.lookupNode(a, b), 20;
-              } catch (c) {
-              }
-              return w.Za(a, "wx");
-            },
-            qb: function(a, b, c) {
-              try {
-                var e = w.lookupNode(a, b);
-              } catch (f) {
-                return f.Oa;
-              }
-              if (a = w.Za(a, "wx")) return a;
-              if (c) {
-                if (!w.isDir(e.mode)) return 54;
-                if (w.isRoot(e) || w.Ya(e) === w.cwd()) return 10;
-              } else if (w.isDir(e.mode)) return 31;
-              return 0;
-            },
-            Wc: function(a, b) {
-              return a ? w.fb(a.mode) ? 32 : w.isDir(a.mode) && ("r" !== w.$b(b) || b & 512) ? 31 : w.Za(a, w.$b(b)) : 44;
-            },
-            oc: 4096,
-            $c: function(a, b) {
-              b = b || w.oc;
-              for (a = a || 0; a <= b; a++) if (!w.streams[a]) return a;
-              throw new w.ErrnoError(33);
-            },
-            $a: function(a) {
-              return w.streams[a];
-            },
-            Jc: function(a, b, c) {
-              w.ub || (w.ub = function() {
-              }, w.ub.prototype = { object: { get: function() {
-                return this.node;
-              }, set: function(g) {
-                this.node = g;
-              } } });
-              var e = new w.ub(), f;
-              for (f in a) e[f] = a[f];
-              a = e;
-              b = w.$c(b, c);
-              a.fd = b;
-              return w.streams[b] = a;
-            },
-            Dc: function(a) {
-              w.streams[a] = null;
-            },
-            Cc: { open: function(a) {
-              a.stream_ops = w.Oc(a.node.rdev).stream_ops;
-              a.stream_ops.open && a.stream_ops.open(a);
-            }, llseek: function() {
-              throw new w.ErrnoError(70);
-            } },
-            Kb: function(a) {
-              return a >> 8;
-            },
-            sd: function(a) {
-              return a & 255;
-            },
-            bb: function(a, b) {
-              return a << 8 | b;
-            },
-            Qb: function(a, b) {
-              w.Xb[a] = { stream_ops: b };
-            },
-            Oc: function(a) {
-              return w.Xb[a];
-            },
-            bc: function(a) {
-              var b = [];
-              for (a = [a]; a.length; ) {
-                var c = a.pop();
-                b.push(c);
-                a.push.apply(a, c.mb);
-              }
-              return b;
-            },
-            mc: function(a, b) {
-              function c(k) {
-                w.tb--;
-                return b(k);
-              }
-              function e(k) {
-                if (k) {
-                  if (!e.Kc) return e.Kc = true, c(k);
-                } else ++g >= f.length && c(null);
-              }
-              "function" === typeof a && (b = a, a = false);
-              w.tb++;
-              1 < w.tb && M("warning: " + w.tb + " FS.syncfs operations in flight at once, probably just doing extra work");
-              var f = w.bc(w.root.mount), g = 0;
-              f.forEach(function(k) {
-                if (!k.type.mc) return e(null);
-                k.type.mc(k, a, e);
-              });
-            },
-            mount: function(a, b, c) {
-              var e = "/" === c, f = !c;
-              if (e && w.root) throw new w.ErrnoError(10);
-              if (!e && !f) {
-                var g = w.lookupPath(c, { Cb: false });
-                c = g.path;
-                g = g.node;
-                if (w.ab(g)) throw new w.ErrnoError(10);
-                if (!w.isDir(g.mode)) throw new w.ErrnoError(54);
-              }
-              b = { type: a, vd: b, jc: c, mb: [] };
-              a = a.mount(b);
-              a.mount = b;
-              b.root = a;
-              e ? w.root = a : g && (g.lb = b, g.mount && g.mount.mb.push(b));
-              return a;
-            },
-            yd: function(a) {
-              a = w.lookupPath(a, { Cb: false });
-              if (!w.ab(a.node)) throw new w.ErrnoError(28);
-              a = a.node;
-              var b = a.lb, c = w.bc(b);
-              Object.keys(w.Ua).forEach(function(e) {
-                for (e = w.Ua[e]; e; ) {
-                  var f = e.cb;
-                  c.includes(e.mount) && w.Ab(e);
-                  e = f;
-                }
-              });
-              a.lb = null;
-              a.mount.mb.splice(a.mount.mb.indexOf(b), 1);
-            },
-            lookup: function(a, b) {
-              return a.node_ops.lookup(a, b);
-            },
-            mknod: function(a, b, c) {
-              var e = w.lookupPath(a, { parent: true }).node;
-              a = W(a);
-              if (!a || "." === a || ".." === a) throw new w.ErrnoError(28);
-              var f = w.Lb(e, a);
-              if (f) throw new w.ErrnoError(f);
-              if (!e.node_ops.mknod) throw new w.ErrnoError(63);
-              return e.node_ops.mknod(e, a, b, c);
-            },
-            create: function(a, b) {
-              return w.mknod(a, (void 0 !== b ? b : 438) & 4095 | 32768, 0);
-            },
-            mkdir: function(a, b) {
-              return w.mknod(a, (void 0 !== b ? b : 511) & 1023 | 16384, 0);
-            },
-            td: function(a, b) {
-              a = a.split("/");
-              for (var c = "", e = 0; e < a.length; ++e) if (a[e]) {
-                c += "/" + a[e];
-                try {
-                  w.mkdir(c, b);
-                } catch (f) {
-                  if (20 != f.Oa) throw f;
-                }
-              }
-            },
-            rb: function(a, b, c) {
-              "undefined" === typeof c && (c = b, b = 438);
-              return w.mknod(a, b | 8192, c);
-            },
-            symlink: function(a, b) {
-              if (!sb(a)) throw new w.ErrnoError(44);
-              var c = w.lookupPath(b, { parent: true }).node;
-              if (!c) throw new w.ErrnoError(44);
-              b = W(b);
-              var e = w.Lb(c, b);
-              if (e) throw new w.ErrnoError(e);
-              if (!c.node_ops.symlink) throw new w.ErrnoError(63);
-              return c.node_ops.symlink(c, b, a);
-            },
-            rename: function(a, b) {
-              var c = pb(a), e = pb(b), f = W(a), g = W(b);
-              var k = w.lookupPath(a, { parent: true });
-              var l = k.node;
-              k = w.lookupPath(b, { parent: true });
-              k = k.node;
-              if (!l || !k) throw new w.ErrnoError(44);
-              if (l.mount !== k.mount) throw new w.ErrnoError(75);
-              var q = w.lookupNode(l, f);
-              e = tb(a, e);
-              if ("." !== e.charAt(0)) throw new w.ErrnoError(28);
-              e = tb(b, c);
-              if ("." !== e.charAt(0)) throw new w.ErrnoError(55);
-              try {
-                var m = w.lookupNode(k, g);
-              } catch (r) {
-              }
-              if (q !== m) {
-                c = w.isDir(q.mode);
-                if (f = w.qb(l, f, c)) throw new w.ErrnoError(f);
-                if (f = m ? w.qb(k, g, c) : w.Lb(k, g)) throw new w.ErrnoError(f);
-                if (!l.node_ops.rename) throw new w.ErrnoError(63);
-                if (w.ab(q) || m && w.ab(m)) throw new w.ErrnoError(10);
-                if (k !== l && (f = w.Za(l, "w"))) throw new w.ErrnoError(f);
-                try {
-                  w.Sa.willMovePath && w.Sa.willMovePath(a, b);
-                } catch (r) {
-                  M("FS.trackingDelegate['willMovePath']('" + a + "', '" + b + "') threw an exception: " + r.message);
-                }
-                w.fc(q);
-                try {
-                  l.node_ops.rename(q, k, g);
-                } catch (r) {
-                  throw r;
-                } finally {
-                  w.ec(q);
-                }
-                try {
-                  if (w.Sa.onMovePath) w.Sa.onMovePath(a, b);
-                } catch (r) {
-                  M("FS.trackingDelegate['onMovePath']('" + a + "', '" + b + "') threw an exception: " + r.message);
-                }
-              }
-            },
-            rmdir: function(a) {
-              var b = w.lookupPath(a, { parent: true }).node, c = W(a), e = w.lookupNode(b, c), f = w.qb(b, c, true);
-              if (f) throw new w.ErrnoError(f);
-              if (!b.node_ops.rmdir) throw new w.ErrnoError(63);
-              if (w.ab(e)) throw new w.ErrnoError(10);
-              try {
-                w.Sa.willDeletePath && w.Sa.willDeletePath(a);
-              } catch (g) {
-                M("FS.trackingDelegate['willDeletePath']('" + a + "') threw an exception: " + g.message);
-              }
-              b.node_ops.rmdir(b, c);
-              w.Ab(e);
-              try {
-                if (w.Sa.onDeletePath) w.Sa.onDeletePath(a);
-              } catch (g) {
-                M("FS.trackingDelegate['onDeletePath']('" + a + "') threw an exception: " + g.message);
-              }
-            },
-            readdir: function(a) {
-              a = w.lookupPath(a, { Ta: true }).node;
-              if (!a.node_ops.readdir) throw new w.ErrnoError(54);
-              return a.node_ops.readdir(a);
-            },
-            unlink: function(a) {
-              var b = w.lookupPath(a, { parent: true }).node, c = W(a), e = w.lookupNode(b, c), f = w.qb(b, c, false);
-              if (f) throw new w.ErrnoError(f);
-              if (!b.node_ops.unlink) throw new w.ErrnoError(63);
-              if (w.ab(e)) throw new w.ErrnoError(10);
-              try {
-                w.Sa.willDeletePath && w.Sa.willDeletePath(a);
-              } catch (g) {
-                M("FS.trackingDelegate['willDeletePath']('" + a + "') threw an exception: " + g.message);
-              }
-              b.node_ops.unlink(b, c);
-              w.Ab(e);
-              try {
-                if (w.Sa.onDeletePath) w.Sa.onDeletePath(a);
-              } catch (g) {
-                M("FS.trackingDelegate['onDeletePath']('" + a + "') threw an exception: " + g.message);
-              }
-            },
-            readlink: function(a) {
-              a = w.lookupPath(a).node;
-              if (!a) throw new w.ErrnoError(44);
-              if (!a.node_ops.readlink) throw new w.ErrnoError(28);
-              return sb(w.Ya(a.parent), a.node_ops.readlink(a));
-            },
-            stat: function(a, b) {
-              a = w.lookupPath(a, { Ta: !b }).node;
-              if (!a) throw new w.ErrnoError(44);
-              if (!a.node_ops.getattr) throw new w.ErrnoError(63);
-              return a.node_ops.getattr(a);
-            },
-            lstat: function(a) {
-              return w.stat(a, true);
-            },
-            chmod: function(a, b, c) {
-              a = "string" === typeof a ? w.lookupPath(a, { Ta: !c }).node : a;
-              if (!a.node_ops.setattr) throw new w.ErrnoError(63);
-              a.node_ops.setattr(a, { mode: b & 4095 | a.mode & -4096, timestamp: Date.now() });
-            },
-            lchmod: function(a, b) {
-              w.chmod(a, b, true);
-            },
-            fchmod: function(a, b) {
-              a = w.$a(a);
-              if (!a) throw new w.ErrnoError(8);
-              w.chmod(a.node, b);
-            },
-            chown: function(a, b, c, e) {
-              a = "string" === typeof a ? w.lookupPath(a, { Ta: !e }).node : a;
-              if (!a.node_ops.setattr) throw new w.ErrnoError(63);
-              a.node_ops.setattr(a, { timestamp: Date.now() });
-            },
-            lchown: function(a, b, c) {
-              w.chown(a, b, c, true);
-            },
-            fchown: function(a, b, c) {
-              a = w.$a(a);
-              if (!a) throw new w.ErrnoError(8);
-              w.chown(a.node, b, c);
-            },
-            truncate: function(a, b) {
-              if (0 > b) throw new w.ErrnoError(28);
-              a = "string" === typeof a ? w.lookupPath(a, { Ta: true }).node : a;
-              if (!a.node_ops.setattr) throw new w.ErrnoError(63);
-              if (w.isDir(a.mode)) throw new w.ErrnoError(31);
-              if (!w.isFile(a.mode)) throw new w.ErrnoError(28);
-              var c = w.Za(a, "w");
-              if (c) throw new w.ErrnoError(c);
-              a.node_ops.setattr(a, { size: b, timestamp: Date.now() });
-            },
-            Nc: function(a, b) {
-              a = w.$a(a);
-              if (!a) throw new w.ErrnoError(8);
-              if (0 === (a.flags & 2097155)) throw new w.ErrnoError(28);
-              w.truncate(a.node, b);
-            },
-            kd: function(a, b, c) {
-              a = w.lookupPath(a, { Ta: true }).node;
-              a.node_ops.setattr(a, { timestamp: Math.max(b, c) });
-            },
-            open: function(a, b, c, e, f) {
-              if ("" === a) throw new w.ErrnoError(44);
-              b = "string" === typeof b ? w.Yc(b) : b;
-              c = b & 64 ? ("undefined" === typeof c ? 438 : c) & 4095 | 32768 : 0;
-              if ("object" === typeof a) var g = a;
-              else {
-                a = ob(a);
-                try {
-                  g = w.lookupPath(a, { Ta: !(b & 131072) }).node;
-                } catch (l) {
-                }
-              }
-              var k = false;
-              if (b & 64) if (g) {
-                if (b & 128) throw new w.ErrnoError(20);
-              } else g = w.mknod(a, c, 0), k = true;
-              if (!g) throw new w.ErrnoError(44);
-              w.pb(g.mode) && (b &= -513);
-              if (b & 65536 && !w.isDir(g.mode)) throw new w.ErrnoError(54);
-              if (!k && (c = w.Wc(g, b))) throw new w.ErrnoError(c);
-              b & 512 && w.truncate(g, 0);
-              b &= -131713;
-              e = w.Jc({ node: g, path: w.Ya(g), flags: b, seekable: true, position: 0, stream_ops: g.stream_ops, jd: [], error: false }, e, f);
-              e.stream_ops.open && e.stream_ops.open(e);
-              !Module.logReadFiles || b & 1 || (w.Ob || (w.Ob = {}), a in w.Ob || (w.Ob[a] = 1, M("FS.trackingDelegate error on read file: " + a)));
-              try {
-                w.Sa.onOpenFile && (f = 0, 1 !== (b & 2097155) && (f |= w.nc.kc.qc), 0 !== (b & 2097155) && (f |= w.nc.kc.rc), w.Sa.onOpenFile(a, f));
-              } catch (l) {
-                M("FS.trackingDelegate['onOpenFile']('" + a + "', flags) threw an exception: " + l.message);
-              }
-              return e;
-            },
-            close: function(a) {
-              if (w.kb(a)) throw new w.ErrnoError(8);
-              a.Fb && (a.Fb = null);
-              try {
-                a.stream_ops.close && a.stream_ops.close(a);
-              } catch (b) {
-                throw b;
-              } finally {
-                w.Dc(a.fd);
-              }
-              a.fd = null;
-            },
-            kb: function(a) {
-              return null === a.fd;
-            },
-            llseek: function(a, b, c) {
-              if (w.kb(a)) throw new w.ErrnoError(8);
-              if (!a.seekable || !a.stream_ops.llseek) throw new w.ErrnoError(70);
-              if (0 != c && 1 != c && 2 != c) throw new w.ErrnoError(28);
-              a.position = a.stream_ops.llseek(a, b, c);
-              a.jd = [];
-              return a.position;
-            },
-            read: function(a, b, c, e, f) {
-              if (0 > e || 0 > f) throw new w.ErrnoError(28);
-              if (w.kb(a)) throw new w.ErrnoError(8);
-              if (1 === (a.flags & 2097155)) throw new w.ErrnoError(8);
-              if (w.isDir(a.node.mode)) throw new w.ErrnoError(31);
-              if (!a.stream_ops.read) throw new w.ErrnoError(28);
-              var g = "undefined" !== typeof f;
-              if (!g) f = a.position;
-              else if (!a.seekable) throw new w.ErrnoError(70);
-              b = a.stream_ops.read(a, b, c, e, f);
-              g || (a.position += b);
-              return b;
-            },
-            write: function(a, b, c, e, f, g) {
-              if (0 > e || 0 > f) throw new w.ErrnoError(28);
-              if (w.kb(a)) throw new w.ErrnoError(8);
-              if (0 === (a.flags & 2097155)) throw new w.ErrnoError(8);
-              if (w.isDir(a.node.mode)) throw new w.ErrnoError(31);
-              if (!a.stream_ops.write) throw new w.ErrnoError(28);
-              a.seekable && a.flags & 1024 && w.llseek(a, 0, 2);
-              var k = "undefined" !== typeof f;
-              if (!k) f = a.position;
-              else if (!a.seekable) throw new w.ErrnoError(70);
-              b = a.stream_ops.write(a, b, c, e, f, g);
-              k || (a.position += b);
-              try {
-                if (a.path && w.Sa.onWriteToFile) w.Sa.onWriteToFile(a.path);
-              } catch (l) {
-                M("FS.trackingDelegate['onWriteToFile']('" + a.path + "') threw an exception: " + l.message);
-              }
-              return b;
-            },
-            allocate: function(a, b, c) {
-              if (w.kb(a)) throw new w.ErrnoError(8);
-              if (0 > b || 0 >= c) throw new w.ErrnoError(28);
-              if (0 === (a.flags & 2097155)) throw new w.ErrnoError(8);
-              if (!w.isFile(a.node.mode) && !w.isDir(a.node.mode)) throw new w.ErrnoError(43);
-              if (!a.stream_ops.allocate) throw new w.ErrnoError(138);
-              a.stream_ops.allocate(a, b, c);
-            },
-            mmap: function(a, b, c, e, f, g) {
-              if (0 !== (f & 2) && 0 === (g & 2) && 2 !== (a.flags & 2097155)) throw new w.ErrnoError(2);
-              if (1 === (a.flags & 2097155)) throw new w.ErrnoError(2);
-              if (!a.stream_ops.mmap) throw new w.ErrnoError(43);
-              return a.stream_ops.mmap(a, b, c, e, f, g);
-            },
-            msync: function(a, b, c, e, f) {
-              return a && a.stream_ops.msync ? a.stream_ops.msync(a, b, c, e, f) : 0;
-            },
-            ud: function() {
-              return 0;
-            },
-            ic: function(a, b, c) {
-              if (!a.stream_ops.ic) throw new w.ErrnoError(59);
-              return a.stream_ops.ic(a, b, c);
-            },
-            readFile: function(a, b) {
-              b = b || {};
-              b.flags = b.flags || 0;
-              b.encoding = b.encoding || "binary";
-              if ("utf8" !== b.encoding && "binary" !== b.encoding) throw Error('Invalid encoding type "' + b.encoding + '"');
-              var c, e = w.open(a, b.flags);
-              a = w.stat(a).size;
-              var f = new Uint8Array(a);
-              w.read(e, f, 0, a, 0);
-              "utf8" === b.encoding ? c = Na(f, 0) : "binary" === b.encoding && (c = f);
-              w.close(e);
-              return c;
-            },
-            writeFile: function(a, b, c) {
-              c = c || {};
-              c.flags = c.flags || 577;
-              a = w.open(a, c.flags, c.mode);
-              if ("string" === typeof b) {
-                var e = new Uint8Array(d(b) + 1);
-                b = p(b, e, 0, e.length);
-                w.write(a, e, 0, b, void 0, c.Bc);
-              } else if (ArrayBuffer.isView(b)) w.write(a, b, 0, b.byteLength, void 0, c.Bc);
-              else throw Error("Unsupported data type");
-              w.close(a);
-            },
-            cwd: function() {
-              return w.Wb;
-            },
-            chdir: function(a) {
-              a = w.lookupPath(a, { Ta: true });
-              if (null === a.node) throw new w.ErrnoError(44);
-              if (!w.isDir(a.node.mode)) throw new w.ErrnoError(54);
-              var b = w.Za(a.node, "x");
-              if (b) throw new w.ErrnoError(b);
-              w.Wb = a.path;
-            },
-            Fc: function() {
-              w.mkdir("/tmp");
-              w.mkdir("/home");
-              w.mkdir("/home/web_user");
-            },
-            Ec: function() {
-              w.mkdir("/dev");
-              w.Qb(w.bb(1, 3), { read: function() {
-                return 0;
-              }, write: function(b, c, e, f) {
-                return f;
-              } });
-              w.rb("/dev/null", w.bb(1, 3));
-              vb(w.bb(5, 0), xb);
-              vb(w.bb(6, 0), yb);
-              w.rb("/dev/tty", w.bb(5, 0));
-              w.rb("/dev/tty1", w.bb(6, 0));
-              var a = rb();
-              w.Wa("/dev", "random", a);
-              w.Wa("/dev", "urandom", a);
-              w.mkdir("/dev/shm");
-              w.mkdir("/dev/shm/tmp");
-            },
-            Hc: function() {
-              w.mkdir("/proc");
-              var a = w.mkdir("/proc/self");
-              w.mkdir("/proc/self/fd");
-              w.mount({ mount: function() {
-                var b = w.createNode(
-                  a,
-                  "fd",
-                  16895,
-                  73
+              root: null,
+              mb: [],
+              Xb: {},
+              streams: [],
+              Zc: 1,
+              Ua: null,
+              Wb: '/',
+              Hb: false,
+              hc: true,
+              Sa: {},
+              nc: { kc: { qc: 1, rc: 2 } },
+              ErrnoError: null,
+              Db: {},
+              Lc: null,
+              tb: 0,
+              lookupPath: function (a, b) {
+                a = sb(w.cwd(), a);
+                b = b || {};
+                if (!a) return { path: '', node: null };
+                var c = { Cb: true, Pb: 0 },
+                  e;
+                for (e in c) void 0 === b[e] && (b[e] = c[e]);
+                if (8 < b.Pb) throw new w.ErrnoError(32);
+                a = nb(
+                  a.split('/').filter(function (k) {
+                    return !!k;
+                  }),
+                  false
                 );
-                b.node_ops = { lookup: function(c, e) {
-                  var f = w.$a(+e);
-                  if (!f) throw new w.ErrnoError(8);
-                  c = { parent: null, mount: { jc: "fake" }, node_ops: { readlink: function() {
-                    return f.path;
-                  } } };
-                  return c.parent = c;
-                } };
-                return b;
-              } }, {}, "/proc/self/fd");
-            },
-            Ic: function() {
-              Module.stdin ? w.Wa("/dev", "stdin", Module.stdin) : w.symlink("/dev/tty", "/dev/stdin");
-              Module.stdout ? w.Wa("/dev", "stdout", null, Module.stdout) : w.symlink("/dev/tty", "/dev/stdout");
-              Module.stderr ? w.Wa("/dev", "stderr", null, Module.stderr) : w.symlink("/dev/tty1", "/dev/stderr");
-              w.open("/dev/stdin", 0);
-              w.open("/dev/stdout", 1);
-              w.open("/dev/stderr", 1);
-            },
-            Yb: function() {
-              w.ErrnoError || (w.ErrnoError = function(a, b) {
-                this.node = b;
-                this.hd = function(c) {
-                  this.Oa = c;
-                };
-                this.hd(a);
-                this.message = "FS error";
-              }, w.ErrnoError.prototype = Error(), w.ErrnoError.prototype.constructor = w.ErrnoError, [44].forEach(function(a) {
-                w.Db[a] = new w.ErrnoError(a);
-                w.Db[a].stack = "<generic error, no stack>";
-              }));
-            },
-            lc: function() {
-              w.Yb();
-              w.Ua = Array(4096);
-              w.mount(X, {}, "/");
-              w.Fc();
-              w.Ec();
-              w.Hc();
-              w.Lc = { MEMFS: X };
-            },
-            jb: function(a, b, c) {
-              w.jb.Hb = true;
-              w.Yb();
-              Module.stdin = a || Module.stdin;
-              Module.stdout = b || Module.stdout;
-              Module.stderr = c || Module.stderr;
-              w.Ic();
-            },
-            wd: function() {
-              w.jb.Hb = false;
-              var a = Module._fflush;
-              a && a(0);
-              for (a = 0; a < w.streams.length; a++) {
-                var b = w.streams[a];
-                b && w.close(b);
-              }
-            },
-            Eb: function(a, b) {
-              var c = 0;
-              a && (c |= 365);
-              b && (c |= 146);
-              return c;
-            },
-            od: function(a, b) {
-              a = w.xb(a, b);
-              return a.exists ? a.object : null;
-            },
-            xb: function(a, b) {
-              try {
-                var c = w.lookupPath(a, { Ta: !b });
-                a = c.path;
-              } catch (f) {
-              }
-              var e = { isRoot: false, exists: false, error: 0, name: null, path: null, object: null, ad: false, cd: null, bd: null };
-              try {
-                c = w.lookupPath(a, { parent: true }), e.ad = true, e.cd = c.path, e.bd = c.node, e.name = W(a), c = w.lookupPath(a, { Ta: !b }), e.exists = true, e.path = c.path, e.object = c.node, e.name = c.node.name, e.isRoot = "/" === c.path;
-              } catch (f) {
-                e.error = f.Oa;
-              }
-              return e;
-            },
-            md: function(a, b) {
-              a = "string" === typeof a ? a : w.Ya(a);
-              for (b = b.split("/").reverse(); b.length; ) {
-                var c = b.pop();
-                if (c) {
-                  var e = qb(a, c);
-                  try {
-                    w.mkdir(e);
-                  } catch (f) {
+                var f = w.root;
+                c = '/';
+                for (e = 0; e < a.length; e++) {
+                  var g = e === a.length - 1;
+                  if (g && b.parent) break;
+                  f = w.lookupNode(f, a[e]);
+                  c = qb(c, a[e]);
+                  w.ab(f) && (!g || (g && b.Cb)) && (f = f.lb.root);
+                  if (!g || b.Ta) {
+                    for (g = 0; w.fb(f.mode); )
+                      if (
+                        ((f = w.readlink(c)),
+                        (c = sb(pb(c), f)),
+                        (f = w.lookupPath(c, { Pb: b.Pb }).node),
+                        40 < g++)
+                      )
+                        throw new w.ErrnoError(32);
                   }
-                  a = e;
                 }
-              }
-              return e;
-            },
-            Gc: function(a, b, c, e, f) {
-              a = qb("string" === typeof a ? a : w.Ya(a), b);
-              return w.create(a, w.Eb(e, f));
-            },
-            zb: function(a, b, c, e, f, g) {
-              a = b ? qb("string" === typeof a ? a : w.Ya(a), b) : a;
-              e = w.Eb(e, f);
-              f = w.create(a, e);
-              if (c) {
-                if ("string" === typeof c) {
-                  a = Array(c.length);
-                  b = 0;
-                  for (var k = c.length; b < k; ++b) a[b] = c.charCodeAt(b);
-                  c = a;
+                return { path: c, node: f };
+              },
+              Ya: function (a) {
+                for (var b; ; ) {
+                  if (w.isRoot(a))
+                    return (
+                      (a = a.mount.jc),
+                      b ? ('/' !== a[a.length - 1] ? a + '/' + b : a + b) : a
+                    );
+                  b = b ? a.name + '/' + b : a.name;
+                  a = a.parent;
                 }
-                w.chmod(f, e | 146);
-                a = w.open(f, 577);
-                w.write(a, c, 0, c.length, 0, g);
-                w.close(a);
-                w.chmod(f, e);
-              }
-              return f;
-            },
-            Wa: function(a, b, c, e) {
-              a = qb("string" === typeof a ? a : w.Ya(a), b);
-              b = w.Eb(!!c, !!e);
-              w.Wa.Kb || (w.Wa.Kb = 64);
-              var f = w.bb(w.Wa.Kb++, 0);
-              w.Qb(f, { open: function(g) {
-                g.seekable = false;
-              }, close: function() {
-                e && e.buffer && e.buffer.length && e(10);
-              }, read: function(g, k, l, q) {
-                for (var m = 0, r = 0; r < q; r++) {
+              },
+              Gb: function (a, b) {
+                for (var c = 0, e = 0; e < b.length; e++)
+                  c = ((c << 5) - c + b.charCodeAt(e)) | 0;
+                return ((a + c) >>> 0) % w.Ua.length;
+              },
+              ec: function (a) {
+                var b = w.Gb(a.parent.id, a.name);
+                a.cb = w.Ua[b];
+                w.Ua[b] = a;
+              },
+              fc: function (a) {
+                var b = w.Gb(a.parent.id, a.name);
+                if (w.Ua[b] === a) w.Ua[b] = a.cb;
+                else
+                  for (b = w.Ua[b]; b; ) {
+                    if (b.cb === a) {
+                      b.cb = a.cb;
+                      break;
+                    }
+                    b = b.cb;
+                  }
+              },
+              lookupNode: function (a, b) {
+                var c = w.Vc(a);
+                if (c) throw new w.ErrnoError(c, a);
+                for (c = w.Ua[w.Gb(a.id, b)]; c; c = c.cb) {
+                  var e = c.name;
+                  if (c.parent.id === a.id && e === b) return c;
+                }
+                return w.lookup(a, b);
+              },
+              createNode: function (a, b, c, e) {
+                a = new w.FSNode(a, b, c, e);
+                w.ec(a);
+                return a;
+              },
+              Ab: function (a) {
+                w.fc(a);
+              },
+              isRoot: function (a) {
+                return a === a.parent;
+              },
+              ab: function (a) {
+                return !!a.lb;
+              },
+              isFile: function (a) {
+                return 32768 === (a & 61440);
+              },
+              isDir: function (a) {
+                return 16384 === (a & 61440);
+              },
+              fb: function (a) {
+                return 40960 === (a & 61440);
+              },
+              pb: function (a) {
+                return 8192 === (a & 61440);
+              },
+              Rc: function (a) {
+                return 24576 === (a & 61440);
+              },
+              isFIFO: function (a) {
+                return 4096 === (a & 61440);
+              },
+              isSocket: function (a) {
+                return 49152 === (a & 49152);
+              },
+              Mc: { r: 0, 'r+': 2, w: 577, 'w+': 578, a: 1089, 'a+': 1090 },
+              Yc: function (a) {
+                var b = w.Mc[a];
+                if ('undefined' === typeof b)
+                  throw Error('Unknown file open mode: ' + a);
+                return b;
+              },
+              $b: function (a) {
+                var b = ['r', 'w', 'rw'][a & 3];
+                a & 512 && (b += 'w');
+                return b;
+              },
+              Za: function (a, b) {
+                if (w.hc) return 0;
+                if (!b.includes('r') || a.mode & 292) {
+                  if (
+                    (b.includes('w') && !(a.mode & 146)) ||
+                    (b.includes('x') && !(a.mode & 73))
+                  )
+                    return 2;
+                } else return 2;
+                return 0;
+              },
+              Vc: function (a) {
+                var b = w.Za(a, 'x');
+                return b ? b : a.node_ops.lookup ? 0 : 2;
+              },
+              Lb: function (a, b) {
+                try {
+                  return (w.lookupNode(a, b), 20);
+                } catch (c) {}
+                return w.Za(a, 'wx');
+              },
+              qb: function (a, b, c) {
+                try {
+                  var e = w.lookupNode(a, b);
+                } catch (f) {
+                  return f.Oa;
+                }
+                if ((a = w.Za(a, 'wx'))) return a;
+                if (c) {
+                  if (!w.isDir(e.mode)) return 54;
+                  if (w.isRoot(e) || w.Ya(e) === w.cwd()) return 10;
+                } else if (w.isDir(e.mode)) return 31;
+                return 0;
+              },
+              Wc: function (a, b) {
+                return a
+                  ? w.fb(a.mode)
+                    ? 32
+                    : w.isDir(a.mode) && ('r' !== w.$b(b) || b & 512)
+                      ? 31
+                      : w.Za(a, w.$b(b))
+                  : 44;
+              },
+              oc: 4096,
+              $c: function (a, b) {
+                b = b || w.oc;
+                for (a = a || 0; a <= b; a++) if (!w.streams[a]) return a;
+                throw new w.ErrnoError(33);
+              },
+              $a: function (a) {
+                return w.streams[a];
+              },
+              Jc: function (a, b, c) {
+                w.ub ||
+                  ((w.ub = function () {}),
+                  (w.ub.prototype = {
+                    object: {
+                      get: function () {
+                        return this.node;
+                      },
+                      set: function (g) {
+                        this.node = g;
+                      },
+                    },
+                  }));
+                var e = new w.ub(),
+                  f;
+                for (f in a) e[f] = a[f];
+                a = e;
+                b = w.$c(b, c);
+                a.fd = b;
+                return (w.streams[b] = a);
+              },
+              Dc: function (a) {
+                w.streams[a] = null;
+              },
+              Cc: {
+                open: function (a) {
+                  a.stream_ops = w.Oc(a.node.rdev).stream_ops;
+                  a.stream_ops.open && a.stream_ops.open(a);
+                },
+                llseek: function () {
+                  throw new w.ErrnoError(70);
+                },
+              },
+              Kb: function (a) {
+                return a >> 8;
+              },
+              sd: function (a) {
+                return a & 255;
+              },
+              bb: function (a, b) {
+                return (a << 8) | b;
+              },
+              Qb: function (a, b) {
+                w.Xb[a] = { stream_ops: b };
+              },
+              Oc: function (a) {
+                return w.Xb[a];
+              },
+              bc: function (a) {
+                var b = [];
+                for (a = [a]; a.length; ) {
+                  var c = a.pop();
+                  b.push(c);
+                  a.push.apply(a, c.mb);
+                }
+                return b;
+              },
+              mc: function (a, b) {
+                function c(k) {
+                  w.tb--;
+                  return b(k);
+                }
+                function e(k) {
+                  if (k) {
+                    if (!e.Kc) return ((e.Kc = true), c(k));
+                  } else ++g >= f.length && c(null);
+                }
+                'function' === typeof a && ((b = a), (a = false));
+                w.tb++;
+                1 < w.tb &&
+                  M(
+                    'warning: ' +
+                      w.tb +
+                      ' FS.syncfs operations in flight at once, probably just doing extra work'
+                  );
+                var f = w.bc(w.root.mount),
+                  g = 0;
+                f.forEach(function (k) {
+                  if (!k.type.mc) return e(null);
+                  k.type.mc(k, a, e);
+                });
+              },
+              mount: function (a, b, c) {
+                var e = '/' === c,
+                  f = !c;
+                if (e && w.root) throw new w.ErrnoError(10);
+                if (!e && !f) {
+                  var g = w.lookupPath(c, { Cb: false });
+                  c = g.path;
+                  g = g.node;
+                  if (w.ab(g)) throw new w.ErrnoError(10);
+                  if (!w.isDir(g.mode)) throw new w.ErrnoError(54);
+                }
+                b = { type: a, vd: b, jc: c, mb: [] };
+                a = a.mount(b);
+                a.mount = b;
+                b.root = a;
+                e
+                  ? (w.root = a)
+                  : g && ((g.lb = b), g.mount && g.mount.mb.push(b));
+                return a;
+              },
+              yd: function (a) {
+                a = w.lookupPath(a, { Cb: false });
+                if (!w.ab(a.node)) throw new w.ErrnoError(28);
+                a = a.node;
+                var b = a.lb,
+                  c = w.bc(b);
+                Object.keys(w.Ua).forEach(function (e) {
+                  for (e = w.Ua[e]; e; ) {
+                    var f = e.cb;
+                    c.includes(e.mount) && w.Ab(e);
+                    e = f;
+                  }
+                });
+                a.lb = null;
+                a.mount.mb.splice(a.mount.mb.indexOf(b), 1);
+              },
+              lookup: function (a, b) {
+                return a.node_ops.lookup(a, b);
+              },
+              mknod: function (a, b, c) {
+                var e = w.lookupPath(a, { parent: true }).node;
+                a = W(a);
+                if (!a || '.' === a || '..' === a) throw new w.ErrnoError(28);
+                var f = w.Lb(e, a);
+                if (f) throw new w.ErrnoError(f);
+                if (!e.node_ops.mknod) throw new w.ErrnoError(63);
+                return e.node_ops.mknod(e, a, b, c);
+              },
+              create: function (a, b) {
+                return w.mknod(a, ((void 0 !== b ? b : 438) & 4095) | 32768, 0);
+              },
+              mkdir: function (a, b) {
+                return w.mknod(a, ((void 0 !== b ? b : 511) & 1023) | 16384, 0);
+              },
+              td: function (a, b) {
+                a = a.split('/');
+                for (var c = '', e = 0; e < a.length; ++e)
+                  if (a[e]) {
+                    c += '/' + a[e];
+                    try {
+                      w.mkdir(c, b);
+                    } catch (f) {
+                      if (20 != f.Oa) throw f;
+                    }
+                  }
+              },
+              rb: function (a, b, c) {
+                'undefined' === typeof c && ((c = b), (b = 438));
+                return w.mknod(a, b | 8192, c);
+              },
+              symlink: function (a, b) {
+                if (!sb(a)) throw new w.ErrnoError(44);
+                var c = w.lookupPath(b, { parent: true }).node;
+                if (!c) throw new w.ErrnoError(44);
+                b = W(b);
+                var e = w.Lb(c, b);
+                if (e) throw new w.ErrnoError(e);
+                if (!c.node_ops.symlink) throw new w.ErrnoError(63);
+                return c.node_ops.symlink(c, b, a);
+              },
+              rename: function (a, b) {
+                var c = pb(a),
+                  e = pb(b),
+                  f = W(a),
+                  g = W(b);
+                var k = w.lookupPath(a, { parent: true });
+                var l = k.node;
+                k = w.lookupPath(b, { parent: true });
+                k = k.node;
+                if (!l || !k) throw new w.ErrnoError(44);
+                if (l.mount !== k.mount) throw new w.ErrnoError(75);
+                var q = w.lookupNode(l, f);
+                e = tb(a, e);
+                if ('.' !== e.charAt(0)) throw new w.ErrnoError(28);
+                e = tb(b, c);
+                if ('.' !== e.charAt(0)) throw new w.ErrnoError(55);
+                try {
+                  var m = w.lookupNode(k, g);
+                } catch (r) {}
+                if (q !== m) {
+                  c = w.isDir(q.mode);
+                  if ((f = w.qb(l, f, c))) throw new w.ErrnoError(f);
+                  if ((f = m ? w.qb(k, g, c) : w.Lb(k, g)))
+                    throw new w.ErrnoError(f);
+                  if (!l.node_ops.rename) throw new w.ErrnoError(63);
+                  if (w.ab(q) || (m && w.ab(m))) throw new w.ErrnoError(10);
+                  if (k !== l && (f = w.Za(l, 'w'))) throw new w.ErrnoError(f);
                   try {
-                    var x = c();
-                  } catch (B) {
+                    w.Sa.willMovePath && w.Sa.willMovePath(a, b);
+                  } catch (r) {
+                    M(
+                      "FS.trackingDelegate['willMovePath']('" +
+                        a +
+                        "', '" +
+                        b +
+                        "') threw an exception: " +
+                        r.message
+                    );
+                  }
+                  w.fc(q);
+                  try {
+                    l.node_ops.rename(q, k, g);
+                  } catch (r) {
+                    throw r;
+                  } finally {
+                    w.ec(q);
+                  }
+                  try {
+                    if (w.Sa.onMovePath) w.Sa.onMovePath(a, b);
+                  } catch (r) {
+                    M(
+                      "FS.trackingDelegate['onMovePath']('" +
+                        a +
+                        "', '" +
+                        b +
+                        "') threw an exception: " +
+                        r.message
+                    );
+                  }
+                }
+              },
+              rmdir: function (a) {
+                var b = w.lookupPath(a, { parent: true }).node,
+                  c = W(a),
+                  e = w.lookupNode(b, c),
+                  f = w.qb(b, c, true);
+                if (f) throw new w.ErrnoError(f);
+                if (!b.node_ops.rmdir) throw new w.ErrnoError(63);
+                if (w.ab(e)) throw new w.ErrnoError(10);
+                try {
+                  w.Sa.willDeletePath && w.Sa.willDeletePath(a);
+                } catch (g) {
+                  M(
+                    "FS.trackingDelegate['willDeletePath']('" +
+                      a +
+                      "') threw an exception: " +
+                      g.message
+                  );
+                }
+                b.node_ops.rmdir(b, c);
+                w.Ab(e);
+                try {
+                  if (w.Sa.onDeletePath) w.Sa.onDeletePath(a);
+                } catch (g) {
+                  M(
+                    "FS.trackingDelegate['onDeletePath']('" +
+                      a +
+                      "') threw an exception: " +
+                      g.message
+                  );
+                }
+              },
+              readdir: function (a) {
+                a = w.lookupPath(a, { Ta: true }).node;
+                if (!a.node_ops.readdir) throw new w.ErrnoError(54);
+                return a.node_ops.readdir(a);
+              },
+              unlink: function (a) {
+                var b = w.lookupPath(a, { parent: true }).node,
+                  c = W(a),
+                  e = w.lookupNode(b, c),
+                  f = w.qb(b, c, false);
+                if (f) throw new w.ErrnoError(f);
+                if (!b.node_ops.unlink) throw new w.ErrnoError(63);
+                if (w.ab(e)) throw new w.ErrnoError(10);
+                try {
+                  w.Sa.willDeletePath && w.Sa.willDeletePath(a);
+                } catch (g) {
+                  M(
+                    "FS.trackingDelegate['willDeletePath']('" +
+                      a +
+                      "') threw an exception: " +
+                      g.message
+                  );
+                }
+                b.node_ops.unlink(b, c);
+                w.Ab(e);
+                try {
+                  if (w.Sa.onDeletePath) w.Sa.onDeletePath(a);
+                } catch (g) {
+                  M(
+                    "FS.trackingDelegate['onDeletePath']('" +
+                      a +
+                      "') threw an exception: " +
+                      g.message
+                  );
+                }
+              },
+              readlink: function (a) {
+                a = w.lookupPath(a).node;
+                if (!a) throw new w.ErrnoError(44);
+                if (!a.node_ops.readlink) throw new w.ErrnoError(28);
+                return sb(w.Ya(a.parent), a.node_ops.readlink(a));
+              },
+              stat: function (a, b) {
+                a = w.lookupPath(a, { Ta: !b }).node;
+                if (!a) throw new w.ErrnoError(44);
+                if (!a.node_ops.getattr) throw new w.ErrnoError(63);
+                return a.node_ops.getattr(a);
+              },
+              lstat: function (a) {
+                return w.stat(a, true);
+              },
+              chmod: function (a, b, c) {
+                a =
+                  'string' === typeof a ? w.lookupPath(a, { Ta: !c }).node : a;
+                if (!a.node_ops.setattr) throw new w.ErrnoError(63);
+                a.node_ops.setattr(a, {
+                  mode: (b & 4095) | (a.mode & -4096),
+                  timestamp: Date.now(),
+                });
+              },
+              lchmod: function (a, b) {
+                w.chmod(a, b, true);
+              },
+              fchmod: function (a, b) {
+                a = w.$a(a);
+                if (!a) throw new w.ErrnoError(8);
+                w.chmod(a.node, b);
+              },
+              chown: function (a, b, c, e) {
+                a =
+                  'string' === typeof a ? w.lookupPath(a, { Ta: !e }).node : a;
+                if (!a.node_ops.setattr) throw new w.ErrnoError(63);
+                a.node_ops.setattr(a, { timestamp: Date.now() });
+              },
+              lchown: function (a, b, c) {
+                w.chown(a, b, c, true);
+              },
+              fchown: function (a, b, c) {
+                a = w.$a(a);
+                if (!a) throw new w.ErrnoError(8);
+                w.chown(a.node, b, c);
+              },
+              truncate: function (a, b) {
+                if (0 > b) throw new w.ErrnoError(28);
+                a =
+                  'string' === typeof a
+                    ? w.lookupPath(a, { Ta: true }).node
+                    : a;
+                if (!a.node_ops.setattr) throw new w.ErrnoError(63);
+                if (w.isDir(a.mode)) throw new w.ErrnoError(31);
+                if (!w.isFile(a.mode)) throw new w.ErrnoError(28);
+                var c = w.Za(a, 'w');
+                if (c) throw new w.ErrnoError(c);
+                a.node_ops.setattr(a, { size: b, timestamp: Date.now() });
+              },
+              Nc: function (a, b) {
+                a = w.$a(a);
+                if (!a) throw new w.ErrnoError(8);
+                if (0 === (a.flags & 2097155)) throw new w.ErrnoError(28);
+                w.truncate(a.node, b);
+              },
+              kd: function (a, b, c) {
+                a = w.lookupPath(a, { Ta: true }).node;
+                a.node_ops.setattr(a, { timestamp: Math.max(b, c) });
+              },
+              open: function (a, b, c, e, f) {
+                if ('' === a) throw new w.ErrnoError(44);
+                b = 'string' === typeof b ? w.Yc(b) : b;
+                c =
+                  b & 64
+                    ? (('undefined' === typeof c ? 438 : c) & 4095) | 32768
+                    : 0;
+                if ('object' === typeof a) var g = a;
+                else {
+                  a = ob(a);
+                  try {
+                    g = w.lookupPath(a, { Ta: !(b & 131072) }).node;
+                  } catch (l) {}
+                }
+                var k = false;
+                if (b & 64)
+                  if (g) {
+                    if (b & 128) throw new w.ErrnoError(20);
+                  } else ((g = w.mknod(a, c, 0)), (k = true));
+                if (!g) throw new w.ErrnoError(44);
+                w.pb(g.mode) && (b &= -513);
+                if (b & 65536 && !w.isDir(g.mode)) throw new w.ErrnoError(54);
+                if (!k && (c = w.Wc(g, b))) throw new w.ErrnoError(c);
+                b & 512 && w.truncate(g, 0);
+                b &= -131713;
+                e = w.Jc(
+                  {
+                    node: g,
+                    path: w.Ya(g),
+                    flags: b,
+                    seekable: true,
+                    position: 0,
+                    stream_ops: g.stream_ops,
+                    jd: [],
+                    error: false,
+                  },
+                  e,
+                  f
+                );
+                e.stream_ops.open && e.stream_ops.open(e);
+                !Module.logReadFiles ||
+                  b & 1 ||
+                  (w.Ob || (w.Ob = {}),
+                  a in w.Ob ||
+                    ((w.Ob[a] = 1),
+                    M('FS.trackingDelegate error on read file: ' + a)));
+                try {
+                  w.Sa.onOpenFile &&
+                    ((f = 0),
+                    1 !== (b & 2097155) && (f |= w.nc.kc.qc),
+                    0 !== (b & 2097155) && (f |= w.nc.kc.rc),
+                    w.Sa.onOpenFile(a, f));
+                } catch (l) {
+                  M(
+                    "FS.trackingDelegate['onOpenFile']('" +
+                      a +
+                      "', flags) threw an exception: " +
+                      l.message
+                  );
+                }
+                return e;
+              },
+              close: function (a) {
+                if (w.kb(a)) throw new w.ErrnoError(8);
+                a.Fb && (a.Fb = null);
+                try {
+                  a.stream_ops.close && a.stream_ops.close(a);
+                } catch (b) {
+                  throw b;
+                } finally {
+                  w.Dc(a.fd);
+                }
+                a.fd = null;
+              },
+              kb: function (a) {
+                return null === a.fd;
+              },
+              llseek: function (a, b, c) {
+                if (w.kb(a)) throw new w.ErrnoError(8);
+                if (!a.seekable || !a.stream_ops.llseek)
+                  throw new w.ErrnoError(70);
+                if (0 != c && 1 != c && 2 != c) throw new w.ErrnoError(28);
+                a.position = a.stream_ops.llseek(a, b, c);
+                a.jd = [];
+                return a.position;
+              },
+              read: function (a, b, c, e, f) {
+                if (0 > e || 0 > f) throw new w.ErrnoError(28);
+                if (w.kb(a)) throw new w.ErrnoError(8);
+                if (1 === (a.flags & 2097155)) throw new w.ErrnoError(8);
+                if (w.isDir(a.node.mode)) throw new w.ErrnoError(31);
+                if (!a.stream_ops.read) throw new w.ErrnoError(28);
+                var g = 'undefined' !== typeof f;
+                if (!g) f = a.position;
+                else if (!a.seekable) throw new w.ErrnoError(70);
+                b = a.stream_ops.read(a, b, c, e, f);
+                g || (a.position += b);
+                return b;
+              },
+              write: function (a, b, c, e, f, g) {
+                if (0 > e || 0 > f) throw new w.ErrnoError(28);
+                if (w.kb(a)) throw new w.ErrnoError(8);
+                if (0 === (a.flags & 2097155)) throw new w.ErrnoError(8);
+                if (w.isDir(a.node.mode)) throw new w.ErrnoError(31);
+                if (!a.stream_ops.write) throw new w.ErrnoError(28);
+                a.seekable && a.flags & 1024 && w.llseek(a, 0, 2);
+                var k = 'undefined' !== typeof f;
+                if (!k) f = a.position;
+                else if (!a.seekable) throw new w.ErrnoError(70);
+                b = a.stream_ops.write(a, b, c, e, f, g);
+                k || (a.position += b);
+                try {
+                  if (a.path && w.Sa.onWriteToFile) w.Sa.onWriteToFile(a.path);
+                } catch (l) {
+                  M(
+                    "FS.trackingDelegate['onWriteToFile']('" +
+                      a.path +
+                      "') threw an exception: " +
+                      l.message
+                  );
+                }
+                return b;
+              },
+              allocate: function (a, b, c) {
+                if (w.kb(a)) throw new w.ErrnoError(8);
+                if (0 > b || 0 >= c) throw new w.ErrnoError(28);
+                if (0 === (a.flags & 2097155)) throw new w.ErrnoError(8);
+                if (!w.isFile(a.node.mode) && !w.isDir(a.node.mode))
+                  throw new w.ErrnoError(43);
+                if (!a.stream_ops.allocate) throw new w.ErrnoError(138);
+                a.stream_ops.allocate(a, b, c);
+              },
+              mmap: function (a, b, c, e, f, g) {
+                if (0 !== (f & 2) && 0 === (g & 2) && 2 !== (a.flags & 2097155))
+                  throw new w.ErrnoError(2);
+                if (1 === (a.flags & 2097155)) throw new w.ErrnoError(2);
+                if (!a.stream_ops.mmap) throw new w.ErrnoError(43);
+                return a.stream_ops.mmap(a, b, c, e, f, g);
+              },
+              msync: function (a, b, c, e, f) {
+                return a && a.stream_ops.msync
+                  ? a.stream_ops.msync(a, b, c, e, f)
+                  : 0;
+              },
+              ud: function () {
+                return 0;
+              },
+              ic: function (a, b, c) {
+                if (!a.stream_ops.ic) throw new w.ErrnoError(59);
+                return a.stream_ops.ic(a, b, c);
+              },
+              readFile: function (a, b) {
+                b = b || {};
+                b.flags = b.flags || 0;
+                b.encoding = b.encoding || 'binary';
+                if ('utf8' !== b.encoding && 'binary' !== b.encoding)
+                  throw Error('Invalid encoding type "' + b.encoding + '"');
+                var c,
+                  e = w.open(a, b.flags);
+                a = w.stat(a).size;
+                var f = new Uint8Array(a);
+                w.read(e, f, 0, a, 0);
+                'utf8' === b.encoding
+                  ? (c = Na(f, 0))
+                  : 'binary' === b.encoding && (c = f);
+                w.close(e);
+                return c;
+              },
+              writeFile: function (a, b, c) {
+                c = c || {};
+                c.flags = c.flags || 577;
+                a = w.open(a, c.flags, c.mode);
+                if ('string' === typeof b) {
+                  var e = new Uint8Array(d(b) + 1);
+                  b = p(b, e, 0, e.length);
+                  w.write(a, e, 0, b, void 0, c.Bc);
+                } else if (ArrayBuffer.isView(b))
+                  w.write(a, b, 0, b.byteLength, void 0, c.Bc);
+                else throw Error('Unsupported data type');
+                w.close(a);
+              },
+              cwd: function () {
+                return w.Wb;
+              },
+              chdir: function (a) {
+                a = w.lookupPath(a, { Ta: true });
+                if (null === a.node) throw new w.ErrnoError(44);
+                if (!w.isDir(a.node.mode)) throw new w.ErrnoError(54);
+                var b = w.Za(a.node, 'x');
+                if (b) throw new w.ErrnoError(b);
+                w.Wb = a.path;
+              },
+              Fc: function () {
+                w.mkdir('/tmp');
+                w.mkdir('/home');
+                w.mkdir('/home/web_user');
+              },
+              Ec: function () {
+                w.mkdir('/dev');
+                w.Qb(w.bb(1, 3), {
+                  read: function () {
+                    return 0;
+                  },
+                  write: function (b, c, e, f) {
+                    return f;
+                  },
+                });
+                w.rb('/dev/null', w.bb(1, 3));
+                vb(w.bb(5, 0), xb);
+                vb(w.bb(6, 0), yb);
+                w.rb('/dev/tty', w.bb(5, 0));
+                w.rb('/dev/tty1', w.bb(6, 0));
+                var a = rb();
+                w.Wa('/dev', 'random', a);
+                w.Wa('/dev', 'urandom', a);
+                w.mkdir('/dev/shm');
+                w.mkdir('/dev/shm/tmp');
+              },
+              Hc: function () {
+                w.mkdir('/proc');
+                var a = w.mkdir('/proc/self');
+                w.mkdir('/proc/self/fd');
+                w.mount(
+                  {
+                    mount: function () {
+                      var b = w.createNode(a, 'fd', 16895, 73);
+                      b.node_ops = {
+                        lookup: function (c, e) {
+                          var f = w.$a(+e);
+                          if (!f) throw new w.ErrnoError(8);
+                          c = {
+                            parent: null,
+                            mount: { jc: 'fake' },
+                            node_ops: {
+                              readlink: function () {
+                                return f.path;
+                              },
+                            },
+                          };
+                          return (c.parent = c);
+                        },
+                      };
+                      return b;
+                    },
+                  },
+                  {},
+                  '/proc/self/fd'
+                );
+              },
+              Ic: function () {
+                Module.stdin
+                  ? w.Wa('/dev', 'stdin', Module.stdin)
+                  : w.symlink('/dev/tty', '/dev/stdin');
+                Module.stdout
+                  ? w.Wa('/dev', 'stdout', null, Module.stdout)
+                  : w.symlink('/dev/tty', '/dev/stdout');
+                Module.stderr
+                  ? w.Wa('/dev', 'stderr', null, Module.stderr)
+                  : w.symlink('/dev/tty1', '/dev/stderr');
+                w.open('/dev/stdin', 0);
+                w.open('/dev/stdout', 1);
+                w.open('/dev/stderr', 1);
+              },
+              Yb: function () {
+                w.ErrnoError ||
+                  ((w.ErrnoError = function (a, b) {
+                    this.node = b;
+                    this.hd = function (c) {
+                      this.Oa = c;
+                    };
+                    this.hd(a);
+                    this.message = 'FS error';
+                  }),
+                  (w.ErrnoError.prototype = Error()),
+                  (w.ErrnoError.prototype.constructor = w.ErrnoError),
+                  [44].forEach(function (a) {
+                    w.Db[a] = new w.ErrnoError(a);
+                    w.Db[a].stack = '<generic error, no stack>';
+                  }));
+              },
+              lc: function () {
+                w.Yb();
+                w.Ua = Array(4096);
+                w.mount(X, {}, '/');
+                w.Fc();
+                w.Ec();
+                w.Hc();
+                w.Lc = { MEMFS: X };
+              },
+              jb: function (a, b, c) {
+                w.jb.Hb = true;
+                w.Yb();
+                Module.stdin = a || Module.stdin;
+                Module.stdout = b || Module.stdout;
+                Module.stderr = c || Module.stderr;
+                w.Ic();
+              },
+              wd: function () {
+                w.jb.Hb = false;
+                var a = Module._fflush;
+                a && a(0);
+                for (a = 0; a < w.streams.length; a++) {
+                  var b = w.streams[a];
+                  b && w.close(b);
+                }
+              },
+              Eb: function (a, b) {
+                var c = 0;
+                a && (c |= 365);
+                b && (c |= 146);
+                return c;
+              },
+              od: function (a, b) {
+                a = w.xb(a, b);
+                return a.exists ? a.object : null;
+              },
+              xb: function (a, b) {
+                try {
+                  var c = w.lookupPath(a, { Ta: !b });
+                  a = c.path;
+                } catch (f) {}
+                var e = {
+                  isRoot: false,
+                  exists: false,
+                  error: 0,
+                  name: null,
+                  path: null,
+                  object: null,
+                  ad: false,
+                  cd: null,
+                  bd: null,
+                };
+                try {
+                  ((c = w.lookupPath(a, { parent: true })),
+                    (e.ad = true),
+                    (e.cd = c.path),
+                    (e.bd = c.node),
+                    (e.name = W(a)),
+                    (c = w.lookupPath(a, { Ta: !b })),
+                    (e.exists = true),
+                    (e.path = c.path),
+                    (e.object = c.node),
+                    (e.name = c.node.name),
+                    (e.isRoot = '/' === c.path));
+                } catch (f) {
+                  e.error = f.Oa;
+                }
+                return e;
+              },
+              md: function (a, b) {
+                a = 'string' === typeof a ? a : w.Ya(a);
+                for (b = b.split('/').reverse(); b.length; ) {
+                  var c = b.pop();
+                  if (c) {
+                    var e = qb(a, c);
+                    try {
+                      w.mkdir(e);
+                    } catch (f) {}
+                    a = e;
+                  }
+                }
+                return e;
+              },
+              Gc: function (a, b, c, e, f) {
+                a = qb('string' === typeof a ? a : w.Ya(a), b);
+                return w.create(a, w.Eb(e, f));
+              },
+              zb: function (a, b, c, e, f, g) {
+                a = b ? qb('string' === typeof a ? a : w.Ya(a), b) : a;
+                e = w.Eb(e, f);
+                f = w.create(a, e);
+                if (c) {
+                  if ('string' === typeof c) {
+                    a = Array(c.length);
+                    b = 0;
+                    for (var k = c.length; b < k; ++b) a[b] = c.charCodeAt(b);
+                    c = a;
+                  }
+                  w.chmod(f, e | 146);
+                  a = w.open(f, 577);
+                  w.write(a, c, 0, c.length, 0, g);
+                  w.close(a);
+                  w.chmod(f, e);
+                }
+                return f;
+              },
+              Wa: function (a, b, c, e) {
+                a = qb('string' === typeof a ? a : w.Ya(a), b);
+                b = w.Eb(!!c, !!e);
+                w.Wa.Kb || (w.Wa.Kb = 64);
+                var f = w.bb(w.Wa.Kb++, 0);
+                w.Qb(f, {
+                  open: function (g) {
+                    g.seekable = false;
+                  },
+                  close: function () {
+                    e && e.buffer && e.buffer.length && e(10);
+                  },
+                  read: function (g, k, l, q) {
+                    for (var m = 0, r = 0; r < q; r++) {
+                      try {
+                        var x = c();
+                      } catch (B) {
+                        throw new w.ErrnoError(29);
+                      }
+                      if (void 0 === x && 0 === m) throw new w.ErrnoError(6);
+                      if (null === x || void 0 === x) break;
+                      m++;
+                      k[l + r] = x;
+                    }
+                    m && (g.node.timestamp = Date.now());
+                    return m;
+                  },
+                  write: function (g, k, l, q) {
+                    for (var m = 0; m < q; m++)
+                      try {
+                        e(k[l + m]);
+                      } catch (r) {
+                        throw new w.ErrnoError(29);
+                      }
+                    q && (g.node.timestamp = Date.now());
+                    return m;
+                  },
+                });
+                return w.rb(a, b, f);
+              },
+              ac: function (a) {
+                if (a.Ib || a.Sc || a.link || a.Na) return true;
+                if ('undefined' !== typeof XMLHttpRequest)
+                  throw Error(
+                    'Lazy loading should have been performed (contents set) in createLazyFile, but it was not. Lazy loading only works in web workers. Use --embed-file or --preload-file in emcc on the main thread.'
+                  );
+                if (sa)
+                  try {
+                    ((a.Na = ba(sa(a.url), true)), (a.Ra = a.Na.length));
+                  } catch (b) {
                     throw new w.ErrnoError(29);
                   }
-                  if (void 0 === x && 0 === m) throw new w.ErrnoError(6);
-                  if (null === x || void 0 === x) break;
-                  m++;
-                  k[l + r] = x;
+                else
+                  throw Error('Cannot load without read() or XMLHttpRequest.');
+              },
+              ld: function (a, b, c, e, f) {
+                function g() {
+                  this.Jb = false;
+                  this.ob = [];
                 }
-                m && (g.node.timestamp = Date.now());
-                return m;
-              }, write: function(g, k, l, q) {
-                for (var m = 0; m < q; m++) try {
-                  e(k[l + m]);
-                } catch (r) {
-                  throw new w.ErrnoError(29);
-                }
-                q && (g.node.timestamp = Date.now());
-                return m;
-              } });
-              return w.rb(a, b, f);
-            },
-            ac: function(a) {
-              if (a.Ib || a.Sc || a.link || a.Na) return true;
-              if ("undefined" !== typeof XMLHttpRequest) throw Error("Lazy loading should have been performed (contents set) in createLazyFile, but it was not. Lazy loading only works in web workers. Use --embed-file or --preload-file in emcc on the main thread.");
-              if (sa) try {
-                a.Na = ba(sa(a.url), true), a.Ra = a.Na.length;
-              } catch (b) {
-                throw new w.ErrnoError(29);
-              }
-              else throw Error("Cannot load without read() or XMLHttpRequest.");
-            },
-            ld: function(a, b, c, e, f) {
-              function g() {
-                this.Jb = false;
-                this.ob = [];
-              }
-              g.prototype.get = function(m) {
-                if (!(m > this.length - 1 || 0 > m)) {
-                  var r = m % this.chunkSize;
-                  return this.dc(m / this.chunkSize | 0)[r];
-                }
-              };
-              g.prototype.pc = function(m) {
-                this.dc = m;
-              };
-              g.prototype.Ub = function() {
-                var m = new XMLHttpRequest();
-                m.open("HEAD", c, false);
-                m.send(null);
-                if (!(200 <= m.status && 300 > m.status || 304 === m.status)) throw Error("Couldn't load " + c + ". Status: " + m.status);
-                var r = Number(m.getResponseHeader("Content-length")), x, B = (x = m.getResponseHeader("Accept-Ranges")) && "bytes" === x;
-                m = (x = m.getResponseHeader("Content-Encoding")) && "gzip" === x;
-                var E = 1048576;
-                B || (E = r);
-                var A = this;
-                A.pc(function(J) {
-                  var Z = J * E, U = (J + 1) * E - 1;
-                  U = Math.min(U, r - 1);
-                  if ("undefined" === typeof A.ob[J]) {
-                    var Ka = A.ob;
-                    if (Z > U) throw Error("invalid range (" + Z + ", " + U + ") or no bytes requested!");
-                    if (U > r - 1) throw Error("only " + r + " bytes available! programmer error!");
-                    var G = new XMLHttpRequest();
-                    G.open(
-                      "GET",
-                      c,
-                      false
-                    );
-                    r !== E && G.setRequestHeader("Range", "bytes=" + Z + "-" + U);
-                    "undefined" != typeof Uint8Array && (G.responseType = "arraybuffer");
-                    G.overrideMimeType && G.overrideMimeType("text/plain; charset=x-user-defined");
-                    G.send(null);
-                    if (!(200 <= G.status && 300 > G.status || 304 === G.status)) throw Error("Couldn't load " + c + ". Status: " + G.status);
-                    Z = void 0 !== G.response ? new Uint8Array(G.response || []) : ba(G.responseText || "", true);
-                    Ka[J] = Z;
+                g.prototype.get = function (m) {
+                  if (!(m > this.length - 1 || 0 > m)) {
+                    var r = m % this.chunkSize;
+                    return this.dc((m / this.chunkSize) | 0)[r];
                   }
-                  if ("undefined" === typeof A.ob[J]) throw Error("doXHR failed!");
-                  return A.ob[J];
-                });
-                if (m || !r) E = r = 1, E = r = this.dc(0).length, xa("LazyFiles on gzip forces download of the whole file when length is accessed");
-                this.tc = r;
-                this.sc = E;
-                this.Jb = true;
-              };
-              if ("undefined" !== typeof XMLHttpRequest) {
-                if (!pa) throw "Cannot do synchronous binary XHRs outside webworkers in modern browsers. Use --embed-file or --preload-file in emcc";
-                var k = new g();
-                Object.defineProperties(k, { length: { get: function() {
-                  this.Jb || this.Ub();
-                  return this.tc;
-                } }, chunkSize: { get: function() {
-                  this.Jb || this.Ub();
-                  return this.sc;
-                } } });
-                k = { Ib: false, Na: k };
-              } else k = { Ib: false, url: c };
-              var l = w.Gc(
-                a,
-                b,
-                k,
-                e,
-                f
-              );
-              k.Na ? l.Na = k.Na : k.url && (l.Na = null, l.url = k.url);
-              Object.defineProperties(l, { Ra: { get: function() {
-                return this.Na.length;
-              } } });
-              var q = {};
-              Object.keys(l.stream_ops).forEach(function(m) {
-                var r = l.stream_ops[m];
-                q[m] = function() {
-                  w.ac(l);
-                  return r.apply(null, arguments);
                 };
-              });
-              q.read = function(m, r, x, B, E) {
-                w.ac(l);
-                m = m.node.Na;
-                if (E >= m.length) return 0;
-                B = Math.min(m.length - E, B);
-                if (m.slice) for (var A = 0; A < B; A++) r[x + A] = m[E + A];
-                else for (A = 0; A < B; A++) r[x + A] = m.get(E + A);
-                return B;
-              };
-              l.stream_ops = q;
-              return l;
-            },
-            nd: function(a, b, c, e, f, g, k, l, q, m) {
-              function r(B) {
-                function E(J) {
-                  m && m();
-                  l || w.zb(a, b, J, e, f, q);
-                  g && g();
-                  Za();
-                }
-                var A = false;
-                Module.preloadPlugins.forEach(function(J) {
-                  !A && J.canHandle(x) && (J.handle(B, x, E, function() {
-                    k && k();
+                g.prototype.pc = function (m) {
+                  this.dc = m;
+                };
+                g.prototype.Ub = function () {
+                  var m = new XMLHttpRequest();
+                  m.open('HEAD', c, false);
+                  m.send(null);
+                  if (
+                    !((200 <= m.status && 300 > m.status) || 304 === m.status)
+                  )
+                    throw Error("Couldn't load " + c + '. Status: ' + m.status);
+                  var r = Number(m.getResponseHeader('Content-length')),
+                    x,
+                    B =
+                      (x = m.getResponseHeader('Accept-Ranges')) &&
+                      'bytes' === x;
+                  m =
+                    (x = m.getResponseHeader('Content-Encoding')) &&
+                    'gzip' === x;
+                  var E = 1048576;
+                  B || (E = r);
+                  var A = this;
+                  A.pc(function (J) {
+                    var Z = J * E,
+                      U = (J + 1) * E - 1;
+                    U = Math.min(U, r - 1);
+                    if ('undefined' === typeof A.ob[J]) {
+                      var Ka = A.ob;
+                      if (Z > U)
+                        throw Error(
+                          'invalid range (' +
+                            Z +
+                            ', ' +
+                            U +
+                            ') or no bytes requested!'
+                        );
+                      if (U > r - 1)
+                        throw Error(
+                          'only ' + r + ' bytes available! programmer error!'
+                        );
+                      var G = new XMLHttpRequest();
+                      G.open('GET', c, false);
+                      r !== E &&
+                        G.setRequestHeader('Range', 'bytes=' + Z + '-' + U);
+                      'undefined' != typeof Uint8Array &&
+                        (G.responseType = 'arraybuffer');
+                      G.overrideMimeType &&
+                        G.overrideMimeType(
+                          'text/plain; charset=x-user-defined'
+                        );
+                      G.send(null);
+                      if (
+                        !(
+                          (200 <= G.status && 300 > G.status) ||
+                          304 === G.status
+                        )
+                      )
+                        throw Error(
+                          "Couldn't load " + c + '. Status: ' + G.status
+                        );
+                      Z =
+                        void 0 !== G.response
+                          ? new Uint8Array(G.response || [])
+                          : ba(G.responseText || '', true);
+                      Ka[J] = Z;
+                    }
+                    if ('undefined' === typeof A.ob[J])
+                      throw Error('doXHR failed!');
+                    return A.ob[J];
+                  });
+                  if (m || !r)
+                    ((E = r = 1),
+                      (E = r = this.dc(0).length),
+                      xa(
+                        'LazyFiles on gzip forces download of the whole file when length is accessed'
+                      ));
+                  this.tc = r;
+                  this.sc = E;
+                  this.Jb = true;
+                };
+                if ('undefined' !== typeof XMLHttpRequest) {
+                  if (!pa)
+                    throw 'Cannot do synchronous binary XHRs outside webworkers in modern browsers. Use --embed-file or --preload-file in emcc';
+                  var k = new g();
+                  Object.defineProperties(k, {
+                    length: {
+                      get: function () {
+                        this.Jb || this.Ub();
+                        return this.tc;
+                      },
+                    },
+                    chunkSize: {
+                      get: function () {
+                        this.Jb || this.Ub();
+                        return this.sc;
+                      },
+                    },
+                  });
+                  k = { Ib: false, Na: k };
+                } else k = { Ib: false, url: c };
+                var l = w.Gc(a, b, k, e, f);
+                k.Na
+                  ? (l.Na = k.Na)
+                  : k.url && ((l.Na = null), (l.url = k.url));
+                Object.defineProperties(l, {
+                  Ra: {
+                    get: function () {
+                      return this.Na.length;
+                    },
+                  },
+                });
+                var q = {};
+                Object.keys(l.stream_ops).forEach(function (m) {
+                  var r = l.stream_ops[m];
+                  q[m] = function () {
+                    w.ac(l);
+                    return r.apply(null, arguments);
+                  };
+                });
+                q.read = function (m, r, x, B, E) {
+                  w.ac(l);
+                  m = m.node.Na;
+                  if (E >= m.length) return 0;
+                  B = Math.min(m.length - E, B);
+                  if (m.slice) for (var A = 0; A < B; A++) r[x + A] = m[E + A];
+                  else for (A = 0; A < B; A++) r[x + A] = m.get(E + A);
+                  return B;
+                };
+                l.stream_ops = q;
+                return l;
+              },
+              nd: function (a, b, c, e, f, g, k, l, q, m) {
+                function r(B) {
+                  function E(J) {
+                    m && m();
+                    l || w.zb(a, b, J, e, f, q);
+                    g && g();
                     Za();
-                  }), A = true);
-                });
-                A || E(B);
-              }
-              Zb.jb();
-              var x = b ? sb(qb(a, b)) : a;
-              Ya();
-              "string" == typeof c ? Bb(c, function(B) {
-                r(B);
-              }, k) : r(c);
-            },
-            indexedDB: function() {
-              return window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
-            },
-            Rb: function() {
-              return "EM_FS_" + window.location.pathname;
-            },
-            Sb: 20,
-            ib: "FILE_DATA",
-            xd: function(a, b, c) {
-              b = b || function() {
-              };
-              c = c || function() {
-              };
-              var e = w.indexedDB();
-              try {
-                var f = e.open(w.Rb(), w.Sb);
-              } catch (g) {
-                return c(g);
-              }
-              f.onupgradeneeded = function() {
-                xa("creating db");
-                f.result.createObjectStore(w.ib);
-              };
-              f.onsuccess = function() {
-                var g = f.result.transaction([w.ib], "readwrite"), k = g.objectStore(w.ib), l = 0, q = 0, m = a.length;
-                a.forEach(function(r) {
-                  r = k.put(w.xb(r).object.Na, r);
-                  r.onsuccess = function() {
-                    l++;
-                    l + q == m && (0 == q ? b() : c());
-                  };
-                  r.onerror = function() {
-                    q++;
-                    l + q == m && (0 == q ? b() : c());
-                  };
-                });
-                g.onerror = c;
-              };
-              f.onerror = c;
-            },
-            rd: function(a, b, c) {
-              b = b || function() {
-              };
-              c = c || function() {
-              };
-              var e = w.indexedDB();
-              try {
-                var f = e.open(w.Rb(), w.Sb);
-              } catch (g) {
-                return c(g);
-              }
-              f.onupgradeneeded = c;
-              f.onsuccess = function() {
-                var g = f.result;
-                try {
-                  var k = g.transaction([w.ib], "readonly");
-                } catch (x) {
-                  c(x);
-                  return;
+                  }
+                  var A = false;
+                  Module.preloadPlugins.forEach(function (J) {
+                    !A &&
+                      J.canHandle(x) &&
+                      (J.handle(B, x, E, function () {
+                        k && k();
+                        Za();
+                      }),
+                      (A = true));
+                  });
+                  A || E(B);
                 }
-                var l = k.objectStore(w.ib), q = 0, m = 0, r = a.length;
-                a.forEach(function(x) {
-                  var B = l.get(x);
-                  B.onsuccess = function() {
-                    w.xb(x).exists && w.unlink(x);
-                    w.zb(pb(x), W(x), B.result, true, true, true);
-                    q++;
-                    q + m == r && (0 == m ? b() : c());
-                  };
-                  B.onerror = function() {
-                    m++;
-                    q + m == r && (0 == m ? b() : c());
-                  };
-                });
-                k.onerror = c;
-              };
-              f.onerror = c;
-            }
-          }, $b = {};
+                Zb.jb();
+                var x = b ? sb(qb(a, b)) : a;
+                Ya();
+                'string' == typeof c
+                  ? Bb(
+                      c,
+                      function (B) {
+                        r(B);
+                      },
+                      k
+                    )
+                  : r(c);
+              },
+              indexedDB: function () {
+                return (
+                  window.indexedDB ||
+                  window.mozIndexedDB ||
+                  window.webkitIndexedDB ||
+                  window.msIndexedDB
+                );
+              },
+              Rb: function () {
+                return 'EM_FS_' + window.location.pathname;
+              },
+              Sb: 20,
+              ib: 'FILE_DATA',
+              xd: function (a, b, c) {
+                b = b || function () {};
+                c = c || function () {};
+                var e = w.indexedDB();
+                try {
+                  var f = e.open(w.Rb(), w.Sb);
+                } catch (g) {
+                  return c(g);
+                }
+                f.onupgradeneeded = function () {
+                  xa('creating db');
+                  f.result.createObjectStore(w.ib);
+                };
+                f.onsuccess = function () {
+                  var g = f.result.transaction([w.ib], 'readwrite'),
+                    k = g.objectStore(w.ib),
+                    l = 0,
+                    q = 0,
+                    m = a.length;
+                  a.forEach(function (r) {
+                    r = k.put(w.xb(r).object.Na, r);
+                    r.onsuccess = function () {
+                      l++;
+                      l + q == m && (0 == q ? b() : c());
+                    };
+                    r.onerror = function () {
+                      q++;
+                      l + q == m && (0 == q ? b() : c());
+                    };
+                  });
+                  g.onerror = c;
+                };
+                f.onerror = c;
+              },
+              rd: function (a, b, c) {
+                b = b || function () {};
+                c = c || function () {};
+                var e = w.indexedDB();
+                try {
+                  var f = e.open(w.Rb(), w.Sb);
+                } catch (g) {
+                  return c(g);
+                }
+                f.onupgradeneeded = c;
+                f.onsuccess = function () {
+                  var g = f.result;
+                  try {
+                    var k = g.transaction([w.ib], 'readonly');
+                  } catch (x) {
+                    c(x);
+                    return;
+                  }
+                  var l = k.objectStore(w.ib),
+                    q = 0,
+                    m = 0,
+                    r = a.length;
+                  a.forEach(function (x) {
+                    var B = l.get(x);
+                    B.onsuccess = function () {
+                      w.xb(x).exists && w.unlink(x);
+                      w.zb(pb(x), W(x), B.result, true, true, true);
+                      q++;
+                      q + m == r && (0 == m ? b() : c());
+                    };
+                    B.onerror = function () {
+                      m++;
+                      q + m == r && (0 == m ? b() : c());
+                    };
+                  });
+                  k.onerror = c;
+                };
+                f.onerror = c;
+              },
+            },
+            $b = {};
           function ac(a, b, c) {
             try {
               var e = a(b);
@@ -2142,34 +2857,52 @@
               throw f;
             }
             Q[c >> 2] = e.dev;
-            Q[c + 4 >> 2] = 0;
-            Q[c + 8 >> 2] = e.ino;
-            Q[c + 12 >> 2] = e.mode;
-            Q[c + 16 >> 2] = e.nlink;
-            Q[c + 20 >> 2] = e.uid;
-            Q[c + 24 >> 2] = e.gid;
-            Q[c + 28 >> 2] = e.rdev;
-            Q[c + 32 >> 2] = 0;
-            R = [e.size >>> 0, (T = e.size, 1 <= +Math.abs(T) ? 0 < T ? (Math.min(+Math.floor(T / 4294967296), 4294967295) | 0) >>> 0 : ~~+Math.ceil((T - +(~~T >>> 0)) / 4294967296) >>> 0 : 0)];
-            Q[c + 40 >> 2] = R[0];
-            Q[c + 44 >> 2] = R[1];
-            Q[c + 48 >> 2] = 4096;
-            Q[c + 52 >> 2] = e.blocks;
-            Q[c + 56 >> 2] = e.atime.getTime() / 1e3 | 0;
-            Q[c + 60 >> 2] = 0;
-            Q[c + 64 >> 2] = e.mtime.getTime() / 1e3 | 0;
-            Q[c + 68 >> 2] = 0;
-            Q[c + 72 >> 2] = e.ctime.getTime() / 1e3 | 0;
-            Q[c + 76 >> 2] = 0;
-            R = [e.ino >>> 0, (T = e.ino, 1 <= +Math.abs(T) ? 0 < T ? (Math.min(+Math.floor(T / 4294967296), 4294967295) | 0) >>> 0 : ~~+Math.ceil((T - +(~~T >>> 0)) / 4294967296) >>> 0 : 0)];
-            Q[c + 80 >> 2] = R[0];
-            Q[c + 84 >> 2] = R[1];
+            Q[(c + 4) >> 2] = 0;
+            Q[(c + 8) >> 2] = e.ino;
+            Q[(c + 12) >> 2] = e.mode;
+            Q[(c + 16) >> 2] = e.nlink;
+            Q[(c + 20) >> 2] = e.uid;
+            Q[(c + 24) >> 2] = e.gid;
+            Q[(c + 28) >> 2] = e.rdev;
+            Q[(c + 32) >> 2] = 0;
+            R = [
+              e.size >>> 0,
+              ((T = e.size),
+              1 <= +Math.abs(T)
+                ? 0 < T
+                  ? (Math.min(+Math.floor(T / 4294967296), 4294967295) | 0) >>>
+                    0
+                  : ~~+Math.ceil((T - +(~~T >>> 0)) / 4294967296) >>> 0
+                : 0),
+            ];
+            Q[(c + 40) >> 2] = R[0];
+            Q[(c + 44) >> 2] = R[1];
+            Q[(c + 48) >> 2] = 4096;
+            Q[(c + 52) >> 2] = e.blocks;
+            Q[(c + 56) >> 2] = (e.atime.getTime() / 1e3) | 0;
+            Q[(c + 60) >> 2] = 0;
+            Q[(c + 64) >> 2] = (e.mtime.getTime() / 1e3) | 0;
+            Q[(c + 68) >> 2] = 0;
+            Q[(c + 72) >> 2] = (e.ctime.getTime() / 1e3) | 0;
+            Q[(c + 76) >> 2] = 0;
+            R = [
+              e.ino >>> 0,
+              ((T = e.ino),
+              1 <= +Math.abs(T)
+                ? 0 < T
+                  ? (Math.min(+Math.floor(T / 4294967296), 4294967295) | 0) >>>
+                    0
+                  : ~~+Math.ceil((T - +(~~T >>> 0)) / 4294967296) >>> 0
+                : 0),
+            ];
+            Q[(c + 80) >> 2] = R[0];
+            Q[(c + 84) >> 2] = R[1];
             return 0;
           }
           var bc = void 0;
           function cc() {
             bc += 4;
-            return Q[bc - 4 >> 2];
+            return Q[(bc - 4) >> 2];
           }
           function Y(a) {
             a = w.$a(a);
@@ -2177,19 +2910,36 @@
             return a;
           }
           var dc;
-          dc = qa ? function() {
-            var a = process.hrtime();
-            return 1e3 * a[0] + a[1] / 1e6;
-          } : function() {
-            return performance.now();
-          };
+          dc = qa
+            ? function () {
+                var a = process.hrtime();
+                return 1e3 * a[0] + a[1] / 1e6;
+              }
+            : function () {
+                return performance.now();
+              };
           var ec = {};
           function fc() {
             if (!gc) {
-              var a = { USER: "web_user", LOGNAME: "web_user", PATH: "/", PWD: "/", HOME: "/home/web_user", LANG: ("object" === typeof navigator && navigator.languages && navigator.languages[0] || "C").replace("-", "_") + ".UTF-8", _: na || "./this.program" }, b;
-              for (b in ec) void 0 === ec[b] ? delete a[b] : a[b] = ec[b];
+              var a = {
+                  USER: 'web_user',
+                  LOGNAME: 'web_user',
+                  PATH: '/',
+                  PWD: '/',
+                  HOME: '/home/web_user',
+                  LANG:
+                    (
+                      ('object' === typeof navigator &&
+                        navigator.languages &&
+                        navigator.languages[0]) ||
+                      'C'
+                    ).replace('-', '_') + '.UTF-8',
+                  _: na || './this.program',
+                },
+                b;
+              for (b in ec) void 0 === ec[b] ? delete a[b] : (a[b] = ec[b]);
               var c = [];
-              for (b in a) c.push(b + "=" + a[b]);
+              for (b in a) c.push(b + '=' + a[b]);
               gc = c;
             }
             return gc;
@@ -2207,19 +2957,34 @@
             this.stream_ops = {};
             this.rdev = e;
           }
-          Object.defineProperties(hc.prototype, { read: { get: function() {
-            return 365 === (this.mode & 365);
-          }, set: function(a) {
-            a ? this.mode |= 365 : this.mode &= -366;
-          } }, write: { get: function() {
-            return 146 === (this.mode & 146);
-          }, set: function(a) {
-            a ? this.mode |= 146 : this.mode &= -147;
-          } }, Sc: { get: function() {
-            return w.isDir(this.mode);
-          } }, Ib: { get: function() {
-            return w.pb(this.mode);
-          } } });
+          Object.defineProperties(hc.prototype, {
+            read: {
+              get: function () {
+                return 365 === (this.mode & 365);
+              },
+              set: function (a) {
+                a ? (this.mode |= 365) : (this.mode &= -366);
+              },
+            },
+            write: {
+              get: function () {
+                return 146 === (this.mode & 146);
+              },
+              set: function (a) {
+                a ? (this.mode |= 146) : (this.mode &= -147);
+              },
+            },
+            Sc: {
+              get: function () {
+                return w.isDir(this.mode);
+              },
+            },
+            Ib: {
+              get: function () {
+                return w.pb(this.mode);
+              },
+            },
+          });
           w.FSNode = hc;
           w.lc();
           var Zb;
@@ -2229,407 +2994,599 @@
             b && (c.length = a);
             return c;
           }
-          var jc = { a: function(a, b, c, e) {
-            P("Assertion failed: " + F(a) + ", at: " + [b ? F(b) : "unknown filename", c, e ? F(e) : "unknown function"]);
-          }, u: function(a, b) {
-            ib();
-            a = new Date(1e3 * Q[a >> 2]);
-            Q[b >> 2] = a.getSeconds();
-            Q[b + 4 >> 2] = a.getMinutes();
-            Q[b + 8 >> 2] = a.getHours();
-            Q[b + 12 >> 2] = a.getDate();
-            Q[b + 16 >> 2] = a.getMonth();
-            Q[b + 20 >> 2] = a.getFullYear() - 1900;
-            Q[b + 24 >> 2] = a.getDay();
-            var c = new Date(a.getFullYear(), 0, 1);
-            Q[b + 28 >> 2] = (a.getTime() - c.getTime()) / 864e5 | 0;
-            Q[b + 36 >> 2] = -(60 * a.getTimezoneOffset());
-            var e = new Date(a.getFullYear(), 6, 1).getTimezoneOffset();
-            c = c.getTimezoneOffset();
-            a = (e != c && a.getTimezoneOffset() == Math.min(c, e)) | 0;
-            Q[b + 32 >> 2] = a;
-            a = Q[mb() + (a ? 4 : 0) >> 2];
-            Q[b + 40 >> 2] = a;
-            return b;
-          }, m: function(a, b) {
-            try {
-              a = F(a);
-              if (b & -8) var c = -28;
-              else {
-                var e;
-                (e = w.lookupPath(a, { Ta: true }).node) ? (a = "", b & 4 && (a += "r"), b & 2 && (a += "w"), b & 1 && (a += "x"), c = a && w.Za(e, a) ? -2 : 0) : c = -44;
-              }
-              return c;
-            } catch (f) {
-              return "undefined" !== typeof w && f instanceof w.ErrnoError || P(f), -f.Oa;
-            }
-          }, A: function(a, b) {
-            try {
-              return a = F(a), w.chmod(a, b), 0;
-            } catch (c) {
-              return "undefined" !== typeof w && c instanceof w.ErrnoError || P(c), -c.Oa;
-            }
-          }, H: function(a, b, c) {
-            try {
-              return a = F(a), w.chown(a, b, c), 0;
-            } catch (e) {
-              return "undefined" !== typeof w && e instanceof w.ErrnoError || P(e), -e.Oa;
-            }
-          }, B: function(a, b) {
-            try {
-              return w.fchmod(a, b), 0;
-            } catch (c) {
-              return "undefined" !== typeof w && c instanceof w.ErrnoError || P(c), -c.Oa;
-            }
-          }, I: function(a, b, c) {
-            try {
-              return w.fchown(a, b, c), 0;
-            } catch (e) {
-              return "undefined" !== typeof w && e instanceof w.ErrnoError || P(e), -e.Oa;
-            }
-          }, b: function(a, b, c) {
-            bc = c;
-            try {
-              var e = Y(a);
-              switch (b) {
-                case 0:
-                  var f = cc();
-                  return 0 > f ? -28 : w.open(e.path, e.flags, 0, f).fd;
-                case 1:
-                case 2:
-                  return 0;
-                case 3:
-                  return e.flags;
-                case 4:
-                  return f = cc(), e.flags |= f, 0;
-                case 12:
-                  return f = cc(), Ca[f + 0 >> 1] = 2, 0;
-                case 13:
-                case 14:
-                  return 0;
-                case 16:
-                case 8:
-                  return -28;
-                case 9:
-                  return Q[ic() >> 2] = 28, -1;
-                default:
-                  return -28;
-              }
-            } catch (g) {
-              return "undefined" !== typeof w && g instanceof w.ErrnoError || P(g), -g.Oa;
-            }
-          }, E: function(a, b) {
-            try {
-              var c = Y(a);
-              return ac(w.stat, c.path, b);
-            } catch (e) {
-              return "undefined" !== typeof w && e instanceof w.ErrnoError || P(e), -e.Oa;
-            }
-          }, n: function(a, b, c) {
-            try {
-              return w.Nc(a, c), 0;
-            } catch (e) {
-              return "undefined" !== typeof w && e instanceof w.ErrnoError || P(e), -e.Oa;
-            }
-          }, l: function(a, b) {
-            try {
-              if (0 === b) return -28;
-              var c = w.cwd();
-              if (b < d(c) + 1) return -68;
-              p(c, u, a, b);
-              return a;
-            } catch (e) {
-              return "undefined" !== typeof w && e instanceof w.ErrnoError || P(e), -e.Oa;
-            }
-          }, G: function() {
-            return 0;
-          }, d: function() {
-            return 42;
-          }, z: function(a, b) {
-            try {
-              return a = F(a), ac(w.lstat, a, b);
-            } catch (c) {
-              return "undefined" !== typeof w && c instanceof w.ErrnoError || P(c), -c.Oa;
-            }
-          }, C: function(a, b) {
-            try {
-              return a = F(a), a = ob(a), "/" === a[a.length - 1] && (a = a.substr(0, a.length - 1)), w.mkdir(a, b, 0), 0;
-            } catch (c) {
-              return "undefined" !== typeof w && c instanceof w.ErrnoError || P(c), -c.Oa;
-            }
-          }, y: function(a, b, c, e, f, g) {
-            try {
-              a: {
-                g <<= 12;
-                var k = false;
-                if (0 !== (e & 16) && 0 !== a % 65536) var l = -28;
+          var jc = {
+            a: function (a, b, c, e) {
+              P(
+                'Assertion failed: ' +
+                  F(a) +
+                  ', at: ' +
+                  [
+                    b ? F(b) : 'unknown filename',
+                    c,
+                    e ? F(e) : 'unknown function',
+                  ]
+              );
+            },
+            u: function (a, b) {
+              ib();
+              a = new Date(1e3 * Q[a >> 2]);
+              Q[b >> 2] = a.getSeconds();
+              Q[(b + 4) >> 2] = a.getMinutes();
+              Q[(b + 8) >> 2] = a.getHours();
+              Q[(b + 12) >> 2] = a.getDate();
+              Q[(b + 16) >> 2] = a.getMonth();
+              Q[(b + 20) >> 2] = a.getFullYear() - 1900;
+              Q[(b + 24) >> 2] = a.getDay();
+              var c = new Date(a.getFullYear(), 0, 1);
+              Q[(b + 28) >> 2] = ((a.getTime() - c.getTime()) / 864e5) | 0;
+              Q[(b + 36) >> 2] = -(60 * a.getTimezoneOffset());
+              var e = new Date(a.getFullYear(), 6, 1).getTimezoneOffset();
+              c = c.getTimezoneOffset();
+              a = (e != c && a.getTimezoneOffset() == Math.min(c, e)) | 0;
+              Q[(b + 32) >> 2] = a;
+              a = Q[(mb() + (a ? 4 : 0)) >> 2];
+              Q[(b + 40) >> 2] = a;
+              return b;
+            },
+            m: function (a, b) {
+              try {
+                a = F(a);
+                if (b & -8) var c = -28;
                 else {
-                  if (0 !== (e & 32)) {
-                    var q = zb(b);
-                    if (!q) {
-                      l = -48;
-                      break a;
-                    }
-                    k = true;
-                  } else {
-                    var m = w.$a(f);
-                    if (!m) {
-                      l = -8;
-                      break a;
-                    }
-                    var r = w.mmap(m, a, b, g, c, e);
-                    q = r.ed;
-                    k = r.vb;
-                  }
-                  $b[q] = { Uc: q, Tc: b, vb: k, fd: f, dd: c, flags: e, offset: g };
-                  l = q;
+                  var e;
+                  (e = w.lookupPath(a, { Ta: true }).node)
+                    ? ((a = ''),
+                      b & 4 && (a += 'r'),
+                      b & 2 && (a += 'w'),
+                      b & 1 && (a += 'x'),
+                      (c = a && w.Za(e, a) ? -2 : 0))
+                    : (c = -44);
                 }
+                return c;
+              } catch (f) {
+                return (
+                  ('undefined' !== typeof w && f instanceof w.ErrnoError) ||
+                    P(f),
+                  -f.Oa
+                );
               }
-              return l;
-            } catch (x) {
-              return "undefined" !== typeof w && x instanceof w.ErrnoError || P(x), -x.Oa;
-            }
-          }, x: function(a, b) {
-            try {
-              var c = $b[a];
-              if (0 !== b && c) {
-                if (b === c.Tc) {
-                  var e = w.$a(c.fd);
-                  if (e && c.dd & 2) {
-                    var f = c.flags, g = c.offset, k = u.slice(a, a + b);
-                    w.msync(e, k, g, b, f);
-                  }
-                  $b[a] = null;
-                  c.vb && da(c.Uc);
+            },
+            A: function (a, b) {
+              try {
+                return ((a = F(a)), w.chmod(a, b), 0);
+              } catch (c) {
+                return (
+                  ('undefined' !== typeof w && c instanceof w.ErrnoError) ||
+                    P(c),
+                  -c.Oa
+                );
+              }
+            },
+            H: function (a, b, c) {
+              try {
+                return ((a = F(a)), w.chown(a, b, c), 0);
+              } catch (e) {
+                return (
+                  ('undefined' !== typeof w && e instanceof w.ErrnoError) ||
+                    P(e),
+                  -e.Oa
+                );
+              }
+            },
+            B: function (a, b) {
+              try {
+                return (w.fchmod(a, b), 0);
+              } catch (c) {
+                return (
+                  ('undefined' !== typeof w && c instanceof w.ErrnoError) ||
+                    P(c),
+                  -c.Oa
+                );
+              }
+            },
+            I: function (a, b, c) {
+              try {
+                return (w.fchown(a, b, c), 0);
+              } catch (e) {
+                return (
+                  ('undefined' !== typeof w && e instanceof w.ErrnoError) ||
+                    P(e),
+                  -e.Oa
+                );
+              }
+            },
+            b: function (a, b, c) {
+              bc = c;
+              try {
+                var e = Y(a);
+                switch (b) {
+                  case 0:
+                    var f = cc();
+                    return 0 > f ? -28 : w.open(e.path, e.flags, 0, f).fd;
+                  case 1:
+                  case 2:
+                    return 0;
+                  case 3:
+                    return e.flags;
+                  case 4:
+                    return ((f = cc()), (e.flags |= f), 0);
+                  case 12:
+                    return ((f = cc()), (Ca[(f + 0) >> 1] = 2), 0);
+                  case 13:
+                  case 14:
+                    return 0;
+                  case 16:
+                  case 8:
+                    return -28;
+                  case 9:
+                    return ((Q[ic() >> 2] = 28), -1);
+                  default:
+                    return -28;
                 }
-                var l = 0;
-              } else l = -28;
-              return l;
-            } catch (q) {
-              return "undefined" !== typeof w && q instanceof w.ErrnoError || P(q), -q.Oa;
-            }
-          }, w: function(a, b, c) {
-            bc = c;
-            try {
-              var e = F(a), f = c ? cc() : 0;
-              return w.open(e, b, f).fd;
-            } catch (g) {
-              return "undefined" !== typeof w && g instanceof w.ErrnoError || P(g), -g.Oa;
-            }
-          }, J: function(a, b, c) {
-            try {
+              } catch (g) {
+                return (
+                  ('undefined' !== typeof w && g instanceof w.ErrnoError) ||
+                    P(g),
+                  -g.Oa
+                );
+              }
+            },
+            E: function (a, b) {
+              try {
+                var c = Y(a);
+                return ac(w.stat, c.path, b);
+              } catch (e) {
+                return (
+                  ('undefined' !== typeof w && e instanceof w.ErrnoError) ||
+                    P(e),
+                  -e.Oa
+                );
+              }
+            },
+            n: function (a, b, c) {
+              try {
+                return (w.Nc(a, c), 0);
+              } catch (e) {
+                return (
+                  ('undefined' !== typeof w && e instanceof w.ErrnoError) ||
+                    P(e),
+                  -e.Oa
+                );
+              }
+            },
+            l: function (a, b) {
+              try {
+                if (0 === b) return -28;
+                var c = w.cwd();
+                if (b < d(c) + 1) return -68;
+                p(c, u, a, b);
+                return a;
+              } catch (e) {
+                return (
+                  ('undefined' !== typeof w && e instanceof w.ErrnoError) ||
+                    P(e),
+                  -e.Oa
+                );
+              }
+            },
+            G: function () {
+              return 0;
+            },
+            d: function () {
+              return 42;
+            },
+            z: function (a, b) {
+              try {
+                return ((a = F(a)), ac(w.lstat, a, b));
+              } catch (c) {
+                return (
+                  ('undefined' !== typeof w && c instanceof w.ErrnoError) ||
+                    P(c),
+                  -c.Oa
+                );
+              }
+            },
+            C: function (a, b) {
+              try {
+                return (
+                  (a = F(a)),
+                  (a = ob(a)),
+                  '/' === a[a.length - 1] && (a = a.substr(0, a.length - 1)),
+                  w.mkdir(a, b, 0),
+                  0
+                );
+              } catch (c) {
+                return (
+                  ('undefined' !== typeof w && c instanceof w.ErrnoError) ||
+                    P(c),
+                  -c.Oa
+                );
+              }
+            },
+            y: function (a, b, c, e, f, g) {
+              try {
+                a: {
+                  g <<= 12;
+                  var k = false;
+                  if (0 !== (e & 16) && 0 !== a % 65536) var l = -28;
+                  else {
+                    if (0 !== (e & 32)) {
+                      var q = zb(b);
+                      if (!q) {
+                        l = -48;
+                        break a;
+                      }
+                      k = true;
+                    } else {
+                      var m = w.$a(f);
+                      if (!m) {
+                        l = -8;
+                        break a;
+                      }
+                      var r = w.mmap(m, a, b, g, c, e);
+                      q = r.ed;
+                      k = r.vb;
+                    }
+                    $b[q] = {
+                      Uc: q,
+                      Tc: b,
+                      vb: k,
+                      fd: f,
+                      dd: c,
+                      flags: e,
+                      offset: g,
+                    };
+                    l = q;
+                  }
+                }
+                return l;
+              } catch (x) {
+                return (
+                  ('undefined' !== typeof w && x instanceof w.ErrnoError) ||
+                    P(x),
+                  -x.Oa
+                );
+              }
+            },
+            x: function (a, b) {
+              try {
+                var c = $b[a];
+                if (0 !== b && c) {
+                  if (b === c.Tc) {
+                    var e = w.$a(c.fd);
+                    if (e && c.dd & 2) {
+                      var f = c.flags,
+                        g = c.offset,
+                        k = u.slice(a, a + b);
+                      w.msync(e, k, g, b, f);
+                    }
+                    $b[a] = null;
+                    c.vb && da(c.Uc);
+                  }
+                  var l = 0;
+                } else l = -28;
+                return l;
+              } catch (q) {
+                return (
+                  ('undefined' !== typeof w && q instanceof w.ErrnoError) ||
+                    P(q),
+                  -q.Oa
+                );
+              }
+            },
+            w: function (a, b, c) {
+              bc = c;
+              try {
+                var e = F(a),
+                  f = c ? cc() : 0;
+                return w.open(e, b, f).fd;
+              } catch (g) {
+                return (
+                  ('undefined' !== typeof w && g instanceof w.ErrnoError) ||
+                    P(g),
+                  -g.Oa
+                );
+              }
+            },
+            J: function (a, b, c) {
+              try {
+                a = F(a);
+                if (0 >= c) var e = -28;
+                else {
+                  var f = w.readlink(a),
+                    g = Math.min(c, d(f)),
+                    k = D[b + g];
+                  p(f, u, b, c + 1);
+                  D[b + g] = k;
+                  e = g;
+                }
+                return e;
+              } catch (l) {
+                return (
+                  ('undefined' !== typeof w && l instanceof w.ErrnoError) ||
+                    P(l),
+                  -l.Oa
+                );
+              }
+            },
+            F: function (a) {
+              try {
+                return ((a = F(a)), w.rmdir(a), 0);
+              } catch (b) {
+                return (
+                  ('undefined' !== typeof w && b instanceof w.ErrnoError) ||
+                    P(b),
+                  -b.Oa
+                );
+              }
+            },
+            e: function (a, b) {
+              try {
+                return ((a = F(a)), ac(w.stat, a, b));
+              } catch (c) {
+                return (
+                  ('undefined' !== typeof w && c instanceof w.ErrnoError) ||
+                    P(c),
+                  -c.Oa
+                );
+              }
+            },
+            i: function (a) {
+              try {
+                return ((a = F(a)), w.unlink(a), 0);
+              } catch (b) {
+                return (
+                  ('undefined' !== typeof w && b instanceof w.ErrnoError) ||
+                    P(b),
+                  -b.Oa
+                );
+              }
+            },
+            v: function () {
+              return 2147483648;
+            },
+            p: function (a, b, c) {
+              u.copyWithin(a, b, b + c);
+            },
+            c: function (a) {
+              var b = u.length;
+              a >>>= 0;
+              if (2147483648 < a) return false;
+              for (var c = 1; 4 >= c; c *= 2) {
+                var e = b * (1 + 0.2 / c);
+                e = Math.min(e, a + 100663296);
+                e = Math.max(a, e);
+                0 < e % 65536 && (e += 65536 - (e % 65536));
+                a: {
+                  try {
+                    Fa.grow(
+                      (Math.min(2147483648, e) - Pa.byteLength + 65535) >>> 16
+                    );
+                    Qa();
+                    var f = 1;
+                    break a;
+                  } catch (g) {}
+                  f = void 0;
+                }
+                if (f) return true;
+              }
+              return false;
+            },
+            t: function (a) {
+              for (var b = dc(); dc() - b < a; );
+            },
+            r: function (a, b) {
+              try {
+                var c = 0;
+                fc().forEach(function (e, f) {
+                  var g = b + c;
+                  f = Q[(a + 4 * f) >> 2] = g;
+                  for (g = 0; g < e.length; ++g) D[f++ >> 0] = e.charCodeAt(g);
+                  D[f >> 0] = 0;
+                  c += e.length + 1;
+                });
+                return 0;
+              } catch (e) {
+                return (
+                  ('undefined' !== typeof w && e instanceof w.ErrnoError) ||
+                    P(e),
+                  e.Oa
+                );
+              }
+            },
+            s: function (a, b) {
+              try {
+                var c = fc();
+                Q[a >> 2] = c.length;
+                var e = 0;
+                c.forEach(function (f) {
+                  e += f.length + 1;
+                });
+                Q[b >> 2] = e;
+                return 0;
+              } catch (f) {
+                return (
+                  ('undefined' !== typeof w && f instanceof w.ErrnoError) ||
+                    P(f),
+                  f.Oa
+                );
+              }
+            },
+            f: function (a) {
+              try {
+                var b = Y(a);
+                w.close(b);
+                return 0;
+              } catch (c) {
+                return (
+                  ('undefined' !== typeof w && c instanceof w.ErrnoError) ||
+                    P(c),
+                  c.Oa
+                );
+              }
+            },
+            q: function (a, b) {
+              try {
+                var c = Y(a),
+                  e = c.tty ? 2 : w.isDir(c.mode) ? 3 : w.fb(c.mode) ? 7 : 4;
+                D[b >> 0] = e;
+                return 0;
+              } catch (f) {
+                return (
+                  ('undefined' !== typeof w && f instanceof w.ErrnoError) ||
+                    P(f),
+                  f.Oa
+                );
+              }
+            },
+            j: function (a, b, c, e) {
+              try {
+                a: {
+                  for (var f = Y(a), g = (a = 0); g < c; g++) {
+                    var k = Q[(b + (8 * g + 4)) >> 2],
+                      l = w.read(f, D, Q[(b + 8 * g) >> 2], k, void 0);
+                    if (0 > l) {
+                      var q = -1;
+                      break a;
+                    }
+                    a += l;
+                    if (l < k) break;
+                  }
+                  q = a;
+                }
+                Q[e >> 2] = q;
+                return 0;
+              } catch (m) {
+                return (
+                  ('undefined' !== typeof w && m instanceof w.ErrnoError) ||
+                    P(m),
+                  m.Oa
+                );
+              }
+            },
+            o: function (a, b, c, e, f) {
+              try {
+                var g = Y(a);
+                a = 4294967296 * c + (b >>> 0);
+                if (-9007199254740992 >= a || 9007199254740992 <= a) return -61;
+                w.llseek(g, a, e);
+                R = [
+                  g.position >>> 0,
+                  ((T = g.position),
+                  1 <= +Math.abs(T)
+                    ? 0 < T
+                      ? (Math.min(+Math.floor(T / 4294967296), 4294967295) |
+                          0) >>>
+                        0
+                      : ~~+Math.ceil((T - +(~~T >>> 0)) / 4294967296) >>> 0
+                    : 0),
+                ];
+                Q[f >> 2] = R[0];
+                Q[(f + 4) >> 2] = R[1];
+                g.Fb && 0 === a && 0 === e && (g.Fb = null);
+                return 0;
+              } catch (k) {
+                return (
+                  ('undefined' !== typeof w && k instanceof w.ErrnoError) ||
+                    P(k),
+                  k.Oa
+                );
+              }
+            },
+            k: function (a) {
+              try {
+                var b = Y(a);
+                return b.stream_ops && b.stream_ops.fsync
+                  ? -b.stream_ops.fsync(b)
+                  : 0;
+              } catch (c) {
+                return (
+                  ('undefined' !== typeof w && c instanceof w.ErrnoError) ||
+                    P(c),
+                  c.Oa
+                );
+              }
+            },
+            g: function (a, b, c, e) {
+              try {
+                a: {
+                  for (var f = Y(a), g = (a = 0); g < c; g++) {
+                    var k = w.write(
+                      f,
+                      D,
+                      Q[(b + 8 * g) >> 2],
+                      Q[(b + (8 * g + 4)) >> 2],
+                      void 0
+                    );
+                    if (0 > k) {
+                      var l = -1;
+                      break a;
+                    }
+                    a += k;
+                  }
+                  l = a;
+                }
+                Q[e >> 2] = l;
+                return 0;
+              } catch (q) {
+                return (
+                  ('undefined' !== typeof w && q instanceof w.ErrnoError) ||
+                    P(q),
+                  q.Oa
+                );
+              }
+            },
+            h: function (a) {
+              var b = Date.now();
+              Q[a >> 2] = (b / 1e3) | 0;
+              Q[(a + 4) >> 2] = ((b % 1e3) * 1e3) | 0;
+              return 0;
+            },
+            K: function (a) {
+              var b = (Date.now() / 1e3) | 0;
+              a && (Q[a >> 2] = b);
+              return b;
+            },
+            D: function (a, b) {
+              if (b) {
+                var c = b + 8;
+                b = 1e3 * Q[c >> 2];
+                b += Q[(c + 4) >> 2] / 1e3;
+              } else b = Date.now();
               a = F(a);
-              if (0 >= c) var e = -28;
-              else {
-                var f = w.readlink(a), g = Math.min(c, d(f)), k = D[b + g];
-                p(f, u, b, c + 1);
-                D[b + g] = k;
-                e = g;
+              try {
+                w.kd(a, b, b);
+                var e = 0;
+              } catch (f) {
+                if (!(f instanceof w.ErrnoError)) {
+                  b: {
+                    e = Error();
+                    if (!e.stack) {
+                      try {
+                        throw Error();
+                      } catch (g) {
+                        e = g;
+                      }
+                      if (!e.stack) {
+                        e = '(no stack trace available)';
+                        break b;
+                      }
+                    }
+                    e = e.stack.toString();
+                  }
+                  Module.extraStackTrace &&
+                    (e += '\n' + Module.extraStackTrace());
+                  e = hb(e);
+                  throw f + ' : ' + e;
+                }
+                e = f.Oa;
+                Q[ic() >> 2] = e;
+                e = -1;
               }
               return e;
-            } catch (l) {
-              return "undefined" !== typeof w && l instanceof w.ErrnoError || P(l), -l.Oa;
-            }
-          }, F: function(a) {
-            try {
-              return a = F(a), w.rmdir(a), 0;
-            } catch (b) {
-              return "undefined" !== typeof w && b instanceof w.ErrnoError || P(b), -b.Oa;
-            }
-          }, e: function(a, b) {
-            try {
-              return a = F(a), ac(w.stat, a, b);
-            } catch (c) {
-              return "undefined" !== typeof w && c instanceof w.ErrnoError || P(c), -c.Oa;
-            }
-          }, i: function(a) {
-            try {
-              return a = F(a), w.unlink(a), 0;
-            } catch (b) {
-              return "undefined" !== typeof w && b instanceof w.ErrnoError || P(b), -b.Oa;
-            }
-          }, v: function() {
-            return 2147483648;
-          }, p: function(a, b, c) {
-            u.copyWithin(a, b, b + c);
-          }, c: function(a) {
-            var b = u.length;
-            a >>>= 0;
-            if (2147483648 < a) return false;
-            for (var c = 1; 4 >= c; c *= 2) {
-              var e = b * (1 + 0.2 / c);
-              e = Math.min(e, a + 100663296);
-              e = Math.max(a, e);
-              0 < e % 65536 && (e += 65536 - e % 65536);
-              a: {
-                try {
-                  Fa.grow(Math.min(2147483648, e) - Pa.byteLength + 65535 >>> 16);
-                  Qa();
-                  var f = 1;
-                  break a;
-                } catch (g) {
-                }
-                f = void 0;
-              }
-              if (f) return true;
-            }
-            return false;
-          }, t: function(a) {
-            for (var b = dc(); dc() - b < a; ) ;
-          }, r: function(a, b) {
-            try {
-              var c = 0;
-              fc().forEach(function(e, f) {
-                var g = b + c;
-                f = Q[a + 4 * f >> 2] = g;
-                for (g = 0; g < e.length; ++g) D[f++ >> 0] = e.charCodeAt(g);
-                D[f >> 0] = 0;
-                c += e.length + 1;
-              });
-              return 0;
-            } catch (e) {
-              return "undefined" !== typeof w && e instanceof w.ErrnoError || P(e), e.Oa;
-            }
-          }, s: function(a, b) {
-            try {
-              var c = fc();
-              Q[a >> 2] = c.length;
-              var e = 0;
-              c.forEach(function(f) {
-                e += f.length + 1;
-              });
-              Q[b >> 2] = e;
-              return 0;
-            } catch (f) {
-              return "undefined" !== typeof w && f instanceof w.ErrnoError || P(f), f.Oa;
-            }
-          }, f: function(a) {
-            try {
-              var b = Y(a);
-              w.close(b);
-              return 0;
-            } catch (c) {
-              return "undefined" !== typeof w && c instanceof w.ErrnoError || P(c), c.Oa;
-            }
-          }, q: function(a, b) {
-            try {
-              var c = Y(a), e = c.tty ? 2 : w.isDir(c.mode) ? 3 : w.fb(c.mode) ? 7 : 4;
-              D[b >> 0] = e;
-              return 0;
-            } catch (f) {
-              return "undefined" !== typeof w && f instanceof w.ErrnoError || P(f), f.Oa;
-            }
-          }, j: function(a, b, c, e) {
-            try {
-              a: {
-                for (var f = Y(a), g = a = 0; g < c; g++) {
-                  var k = Q[b + (8 * g + 4) >> 2], l = w.read(f, D, Q[b + 8 * g >> 2], k, void 0);
-                  if (0 > l) {
-                    var q = -1;
-                    break a;
-                  }
-                  a += l;
-                  if (l < k) break;
-                }
-                q = a;
-              }
-              Q[e >> 2] = q;
-              return 0;
-            } catch (m) {
-              return "undefined" !== typeof w && m instanceof w.ErrnoError || P(m), m.Oa;
-            }
-          }, o: function(a, b, c, e, f) {
-            try {
-              var g = Y(a);
-              a = 4294967296 * c + (b >>> 0);
-              if (-9007199254740992 >= a || 9007199254740992 <= a) return -61;
-              w.llseek(g, a, e);
-              R = [g.position >>> 0, (T = g.position, 1 <= +Math.abs(T) ? 0 < T ? (Math.min(+Math.floor(T / 4294967296), 4294967295) | 0) >>> 0 : ~~+Math.ceil((T - +(~~T >>> 0)) / 4294967296) >>> 0 : 0)];
-              Q[f >> 2] = R[0];
-              Q[f + 4 >> 2] = R[1];
-              g.Fb && 0 === a && 0 === e && (g.Fb = null);
-              return 0;
-            } catch (k) {
-              return "undefined" !== typeof w && k instanceof w.ErrnoError || P(k), k.Oa;
-            }
-          }, k: function(a) {
-            try {
-              var b = Y(a);
-              return b.stream_ops && b.stream_ops.fsync ? -b.stream_ops.fsync(b) : 0;
-            } catch (c) {
-              return "undefined" !== typeof w && c instanceof w.ErrnoError || P(c), c.Oa;
-            }
-          }, g: function(a, b, c, e) {
-            try {
-              a: {
-                for (var f = Y(a), g = a = 0; g < c; g++) {
-                  var k = w.write(
-                    f,
-                    D,
-                    Q[b + 8 * g >> 2],
-                    Q[b + (8 * g + 4) >> 2],
-                    void 0
-                  );
-                  if (0 > k) {
-                    var l = -1;
-                    break a;
-                  }
-                  a += k;
-                }
-                l = a;
-              }
-              Q[e >> 2] = l;
-              return 0;
-            } catch (q) {
-              return "undefined" !== typeof w && q instanceof w.ErrnoError || P(q), q.Oa;
-            }
-          }, h: function(a) {
-            var b = Date.now();
-            Q[a >> 2] = b / 1e3 | 0;
-            Q[a + 4 >> 2] = b % 1e3 * 1e3 | 0;
-            return 0;
-          }, K: function(a) {
-            var b = Date.now() / 1e3 | 0;
-            a && (Q[a >> 2] = b);
-            return b;
-          }, D: function(a, b) {
-            if (b) {
-              var c = b + 8;
-              b = 1e3 * Q[c >> 2];
-              b += Q[c + 4 >> 2] / 1e3;
-            } else b = Date.now();
-            a = F(a);
-            try {
-              w.kd(a, b, b);
-              var e = 0;
-            } catch (f) {
-              if (!(f instanceof w.ErrnoError)) {
-                b: {
-                  e = Error();
-                  if (!e.stack) {
-                    try {
-                      throw Error();
-                    } catch (g) {
-                      e = g;
-                    }
-                    if (!e.stack) {
-                      e = "(no stack trace available)";
-                      break b;
-                    }
-                  }
-                  e = e.stack.toString();
-                }
-                Module.extraStackTrace && (e += "\n" + Module.extraStackTrace());
-                e = hb(e);
-                throw f + " : " + e;
-              }
-              e = f.Oa;
-              Q[ic() >> 2] = e;
-              e = -1;
-            }
-            return e;
-          } };
-          (function() {
+            },
+          };
+          (function () {
             function a(f) {
               Module.asm = f.exports;
               Fa = Module.asm.L;
@@ -2642,197 +3599,371 @@
               a(f.instance);
             }
             function c(f) {
-              return cb().then(function(g) {
-                return WebAssembly.instantiate(g, e);
-              }).then(f, function(g) {
-                M("failed to asynchronously prepare wasm: " + g);
-                P(g);
-              });
+              return cb()
+                .then(function (g) {
+                  return WebAssembly.instantiate(g, e);
+                })
+                .then(f, function (g) {
+                  M('failed to asynchronously prepare wasm: ' + g);
+                  P(g);
+                });
             }
             var e = { a: jc };
             Ya();
-            if (Module.instantiateWasm) try {
-              return Module.instantiateWasm(e, a);
-            } catch (f) {
-              return M("Module.instantiateWasm callback failed with error: " + f), false;
-            }
-            (function() {
-              return Ba || "function" !== typeof WebAssembly.instantiateStreaming || $a() || V.startsWith("file://") || "function" !== typeof fetch ? c(b) : fetch(V, { credentials: "same-origin" }).then(function(f) {
-                return WebAssembly.instantiateStreaming(f, e).then(b, function(g) {
-                  M("wasm streaming compile failed: " + g);
-                  M("falling back to ArrayBuffer instantiation");
-                  return c(b);
-                });
-              });
+            if (Module.instantiateWasm)
+              try {
+                return Module.instantiateWasm(e, a);
+              } catch (f) {
+                return (
+                  M('Module.instantiateWasm callback failed with error: ' + f),
+                  false
+                );
+              }
+            (function () {
+              return Ba ||
+                'function' !== typeof WebAssembly.instantiateStreaming ||
+                $a() ||
+                V.startsWith('file://') ||
+                'function' !== typeof fetch
+                ? c(b)
+                : fetch(V, { credentials: 'same-origin' }).then(function (f) {
+                    return WebAssembly.instantiateStreaming(f, e).then(
+                      b,
+                      function (g) {
+                        M('wasm streaming compile failed: ' + g);
+                        M('falling back to ArrayBuffer instantiation');
+                        return c(b);
+                      }
+                    );
+                  });
             })();
             return {};
           })();
-          Module.___wasm_call_ctors = function() {
-            return (Module.___wasm_call_ctors = Module.asm.M).apply(null, arguments);
-          };
-          Module._sqlite3_vfs_find = function() {
-            return (Module._sqlite3_vfs_find = Module.asm.N).apply(null, arguments);
-          };
-          Module._sqlite3_free = function() {
-            return (Module._sqlite3_free = Module.asm.O).apply(null, arguments);
-          };
-          var ic = Module.___errno_location = function() {
-            return (ic = Module.___errno_location = Module.asm.P).apply(null, arguments);
-          };
-          Module._sqlite3_finalize = function() {
-            return (Module._sqlite3_finalize = Module.asm.Q).apply(null, arguments);
-          };
-          Module._sqlite3_reset = function() {
-            return (Module._sqlite3_reset = Module.asm.R).apply(null, arguments);
-          };
-          Module._sqlite3_clear_bindings = function() {
-            return (Module._sqlite3_clear_bindings = Module.asm.S).apply(null, arguments);
-          };
-          Module._sqlite3_value_blob = function() {
-            return (Module._sqlite3_value_blob = Module.asm.T).apply(null, arguments);
-          };
-          Module._sqlite3_value_text = function() {
-            return (Module._sqlite3_value_text = Module.asm.U).apply(null, arguments);
-          };
-          Module._sqlite3_value_bytes = function() {
-            return (Module._sqlite3_value_bytes = Module.asm.V).apply(null, arguments);
-          };
-          Module._sqlite3_value_double = function() {
-            return (Module._sqlite3_value_double = Module.asm.W).apply(null, arguments);
-          };
-          Module._sqlite3_value_int = function() {
-            return (Module._sqlite3_value_int = Module.asm.X).apply(null, arguments);
-          };
-          Module._sqlite3_value_type = function() {
-            return (Module._sqlite3_value_type = Module.asm.Y).apply(null, arguments);
-          };
-          Module._sqlite3_result_blob = function() {
-            return (Module._sqlite3_result_blob = Module.asm.Z).apply(null, arguments);
-          };
-          Module._sqlite3_result_double = function() {
-            return (Module._sqlite3_result_double = Module.asm._).apply(null, arguments);
-          };
-          Module._sqlite3_result_error = function() {
-            return (Module._sqlite3_result_error = Module.asm.$).apply(null, arguments);
-          };
-          Module._sqlite3_result_int = function() {
-            return (Module._sqlite3_result_int = Module.asm.aa).apply(null, arguments);
-          };
-          Module._sqlite3_result_int64 = function() {
-            return (Module._sqlite3_result_int64 = Module.asm.ba).apply(null, arguments);
-          };
-          Module._sqlite3_result_null = function() {
-            return (Module._sqlite3_result_null = Module.asm.ca).apply(null, arguments);
-          };
-          Module._sqlite3_result_text = function() {
-            return (Module._sqlite3_result_text = Module.asm.da).apply(null, arguments);
-          };
-          Module._sqlite3_step = function() {
-            return (Module._sqlite3_step = Module.asm.ea).apply(null, arguments);
-          };
-          Module._sqlite3_column_count = function() {
-            return (Module._sqlite3_column_count = Module.asm.fa).apply(null, arguments);
-          };
-          Module._sqlite3_data_count = function() {
-            return (Module._sqlite3_data_count = Module.asm.ga).apply(null, arguments);
-          };
-          Module._sqlite3_column_blob = function() {
-            return (Module._sqlite3_column_blob = Module.asm.ha).apply(null, arguments);
-          };
-          Module._sqlite3_column_bytes = function() {
-            return (Module._sqlite3_column_bytes = Module.asm.ia).apply(null, arguments);
-          };
-          Module._sqlite3_column_double = function() {
-            return (Module._sqlite3_column_double = Module.asm.ja).apply(null, arguments);
-          };
-          Module._sqlite3_column_text = function() {
-            return (Module._sqlite3_column_text = Module.asm.ka).apply(null, arguments);
-          };
-          Module._sqlite3_column_type = function() {
-            return (Module._sqlite3_column_type = Module.asm.la).apply(null, arguments);
-          };
-          Module._sqlite3_column_name = function() {
-            return (Module._sqlite3_column_name = Module.asm.ma).apply(null, arguments);
-          };
-          Module._sqlite3_bind_blob = function() {
-            return (Module._sqlite3_bind_blob = Module.asm.na).apply(null, arguments);
-          };
-          Module._sqlite3_bind_double = function() {
-            return (Module._sqlite3_bind_double = Module.asm.oa).apply(null, arguments);
-          };
-          Module._sqlite3_bind_int = function() {
-            return (Module._sqlite3_bind_int = Module.asm.pa).apply(null, arguments);
-          };
-          Module._sqlite3_bind_text = function() {
-            return (Module._sqlite3_bind_text = Module.asm.qa).apply(null, arguments);
-          };
-          Module._sqlite3_bind_parameter_index = function() {
-            return (Module._sqlite3_bind_parameter_index = Module.asm.ra).apply(null, arguments);
-          };
-          Module._sqlite3_sql = function() {
-            return (Module._sqlite3_sql = Module.asm.sa).apply(null, arguments);
-          };
-          Module._sqlite3_normalized_sql = function() {
-            return (Module._sqlite3_normalized_sql = Module.asm.ta).apply(null, arguments);
-          };
-          Module._sqlite3_errmsg = function() {
-            return (Module._sqlite3_errmsg = Module.asm.ua).apply(null, arguments);
-          };
-          Module._sqlite3_exec = function() {
-            return (Module._sqlite3_exec = Module.asm.va).apply(null, arguments);
-          };
-          Module._sqlite3_prepare_v2 = function() {
-            return (Module._sqlite3_prepare_v2 = Module.asm.wa).apply(null, arguments);
-          };
-          Module._sqlite3_changes = function() {
-            return (Module._sqlite3_changes = Module.asm.xa).apply(null, arguments);
-          };
-          Module._sqlite3_close_v2 = function() {
-            return (Module._sqlite3_close_v2 = Module.asm.ya).apply(null, arguments);
-          };
-          Module._sqlite3_create_function_v2 = function() {
-            return (Module._sqlite3_create_function_v2 = Module.asm.za).apply(null, arguments);
-          };
-          Module._sqlite3_open = function() {
-            return (Module._sqlite3_open = Module.asm.Aa).apply(null, arguments);
-          };
-          var aa = Module._malloc = function() {
-            return (aa = Module._malloc = Module.asm.Ba).apply(null, arguments);
-          }, da = Module._free = function() {
-            return (da = Module._free = Module.asm.Ca).apply(null, arguments);
-          };
-          Module._RegisterExtensionFunctions = function() {
-            return (Module._RegisterExtensionFunctions = Module.asm.Ea).apply(null, arguments);
-          };
-          Module._register_for_idb = function() {
-            return (Module._register_for_idb = Module.asm.Fa).apply(null, arguments);
-          };
-          var mb = Module.__get_tzname = function() {
-            return (mb = Module.__get_tzname = Module.asm.Ga).apply(null, arguments);
-          }, lb = Module.__get_daylight = function() {
-            return (lb = Module.__get_daylight = Module.asm.Ha).apply(null, arguments);
-          }, kb = Module.__get_timezone = function() {
-            return (kb = Module.__get_timezone = Module.asm.Ia).apply(null, arguments);
-          }, ha = Module.stackSave = function() {
-            return (ha = Module.stackSave = Module.asm.Ja).apply(null, arguments);
-          }, ja = Module.stackRestore = function() {
-            return (ja = Module.stackRestore = Module.asm.Ka).apply(
+          Module.___wasm_call_ctors = function () {
+            return (Module.___wasm_call_ctors = Module.asm.M).apply(
               null,
               arguments
             );
-          }, C = Module.stackAlloc = function() {
-            return (C = Module.stackAlloc = Module.asm.La).apply(null, arguments);
-          }, Ab = Module._memalign = function() {
-            return (Ab = Module._memalign = Module.asm.Ma).apply(null, arguments);
           };
-          Module.cwrap = function(a, b, c, e) {
-            c = c || [];
-            var f = c.every(function(g) {
-              return "number" === g;
+          Module._sqlite3_vfs_find = function () {
+            return (Module._sqlite3_vfs_find = Module.asm.N).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_free = function () {
+            return (Module._sqlite3_free = Module.asm.O).apply(null, arguments);
+          };
+          var ic = (Module.___errno_location = function () {
+            return (ic = Module.___errno_location = Module.asm.P).apply(
+              null,
+              arguments
+            );
+          });
+          Module._sqlite3_finalize = function () {
+            return (Module._sqlite3_finalize = Module.asm.Q).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_reset = function () {
+            return (Module._sqlite3_reset = Module.asm.R).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_clear_bindings = function () {
+            return (Module._sqlite3_clear_bindings = Module.asm.S).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_value_blob = function () {
+            return (Module._sqlite3_value_blob = Module.asm.T).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_value_text = function () {
+            return (Module._sqlite3_value_text = Module.asm.U).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_value_bytes = function () {
+            return (Module._sqlite3_value_bytes = Module.asm.V).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_value_double = function () {
+            return (Module._sqlite3_value_double = Module.asm.W).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_value_int = function () {
+            return (Module._sqlite3_value_int = Module.asm.X).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_value_type = function () {
+            return (Module._sqlite3_value_type = Module.asm.Y).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_result_blob = function () {
+            return (Module._sqlite3_result_blob = Module.asm.Z).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_result_double = function () {
+            return (Module._sqlite3_result_double = Module.asm._).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_result_error = function () {
+            return (Module._sqlite3_result_error = Module.asm.$).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_result_int = function () {
+            return (Module._sqlite3_result_int = Module.asm.aa).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_result_int64 = function () {
+            return (Module._sqlite3_result_int64 = Module.asm.ba).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_result_null = function () {
+            return (Module._sqlite3_result_null = Module.asm.ca).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_result_text = function () {
+            return (Module._sqlite3_result_text = Module.asm.da).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_step = function () {
+            return (Module._sqlite3_step = Module.asm.ea).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_column_count = function () {
+            return (Module._sqlite3_column_count = Module.asm.fa).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_data_count = function () {
+            return (Module._sqlite3_data_count = Module.asm.ga).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_column_blob = function () {
+            return (Module._sqlite3_column_blob = Module.asm.ha).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_column_bytes = function () {
+            return (Module._sqlite3_column_bytes = Module.asm.ia).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_column_double = function () {
+            return (Module._sqlite3_column_double = Module.asm.ja).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_column_text = function () {
+            return (Module._sqlite3_column_text = Module.asm.ka).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_column_type = function () {
+            return (Module._sqlite3_column_type = Module.asm.la).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_column_name = function () {
+            return (Module._sqlite3_column_name = Module.asm.ma).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_bind_blob = function () {
+            return (Module._sqlite3_bind_blob = Module.asm.na).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_bind_double = function () {
+            return (Module._sqlite3_bind_double = Module.asm.oa).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_bind_int = function () {
+            return (Module._sqlite3_bind_int = Module.asm.pa).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_bind_text = function () {
+            return (Module._sqlite3_bind_text = Module.asm.qa).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_bind_parameter_index = function () {
+            return (Module._sqlite3_bind_parameter_index = Module.asm.ra).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_sql = function () {
+            return (Module._sqlite3_sql = Module.asm.sa).apply(null, arguments);
+          };
+          Module._sqlite3_normalized_sql = function () {
+            return (Module._sqlite3_normalized_sql = Module.asm.ta).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_errmsg = function () {
+            return (Module._sqlite3_errmsg = Module.asm.ua).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_exec = function () {
+            return (Module._sqlite3_exec = Module.asm.va).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_prepare_v2 = function () {
+            return (Module._sqlite3_prepare_v2 = Module.asm.wa).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_changes = function () {
+            return (Module._sqlite3_changes = Module.asm.xa).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_close_v2 = function () {
+            return (Module._sqlite3_close_v2 = Module.asm.ya).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_create_function_v2 = function () {
+            return (Module._sqlite3_create_function_v2 = Module.asm.za).apply(
+              null,
+              arguments
+            );
+          };
+          Module._sqlite3_open = function () {
+            return (Module._sqlite3_open = Module.asm.Aa).apply(
+              null,
+              arguments
+            );
+          };
+          var aa = (Module._malloc = function () {
+              return (aa = Module._malloc = Module.asm.Ba).apply(
+                null,
+                arguments
+              );
+            }),
+            da = (Module._free = function () {
+              return (da = Module._free = Module.asm.Ca).apply(null, arguments);
             });
-            return "string" !== b && f && !e ? Ha(a) : function() {
-              return Ia(a, b, c, arguments);
-            };
+          Module._RegisterExtensionFunctions = function () {
+            return (Module._RegisterExtensionFunctions = Module.asm.Ea).apply(
+              null,
+              arguments
+            );
+          };
+          Module._register_for_idb = function () {
+            return (Module._register_for_idb = Module.asm.Fa).apply(
+              null,
+              arguments
+            );
+          };
+          var mb = (Module.__get_tzname = function () {
+              return (mb = Module.__get_tzname = Module.asm.Ga).apply(
+                null,
+                arguments
+              );
+            }),
+            lb = (Module.__get_daylight = function () {
+              return (lb = Module.__get_daylight = Module.asm.Ha).apply(
+                null,
+                arguments
+              );
+            }),
+            kb = (Module.__get_timezone = function () {
+              return (kb = Module.__get_timezone = Module.asm.Ia).apply(
+                null,
+                arguments
+              );
+            }),
+            ha = (Module.stackSave = function () {
+              return (ha = Module.stackSave = Module.asm.Ja).apply(
+                null,
+                arguments
+              );
+            }),
+            ja = (Module.stackRestore = function () {
+              return (ja = Module.stackRestore = Module.asm.Ka).apply(
+                null,
+                arguments
+              );
+            }),
+            C = (Module.stackAlloc = function () {
+              return (C = Module.stackAlloc = Module.asm.La).apply(
+                null,
+                arguments
+              );
+            }),
+            Ab = (Module._memalign = function () {
+              return (Ab = Module._memalign = Module.asm.Ma).apply(
+                null,
+                arguments
+              );
+            });
+          Module.cwrap = function (a, b, c, e) {
+            c = c || [];
+            var f = c.every(function (g) {
+              return 'number' === g;
+            });
+            return 'string' !== b && f && !e
+              ? Ha(a)
+              : function () {
+                  return Ia(a, b, c, arguments);
+                };
           };
           Module.UTF8ToString = F;
           Module.FS = w;
@@ -2846,45 +3977,66 @@
           };
           function mc() {
             function a() {
-              if (!kc && (kc = true, Module.calledRun = true, !Ga)) {
+              if (!kc && ((kc = true), (Module.calledRun = true), !Ga)) {
                 Module.noFSInit || w.jb.Hb || w.jb();
                 w.hc = false;
                 gb(Sa);
                 if (Module.onRuntimeInitialized) Module.onRuntimeInitialized();
-                if (Module.postRun) for ("function" == typeof Module.postRun && (Module.postRun = [Module.postRun]); Module.postRun.length; ) {
-                  var b = Module.postRun.shift();
-                  Ta.unshift(b);
-                }
+                if (Module.postRun)
+                  for (
+                    'function' == typeof Module.postRun &&
+                    (Module.postRun = [Module.postRun]);
+                    Module.postRun.length;
+                  ) {
+                    var b = Module.postRun.shift();
+                    Ta.unshift(b);
+                  }
                 gb(Ta);
               }
             }
             if (!(0 < Va)) {
-              if (Module.preRun) for ("function" == typeof Module.preRun && (Module.preRun = [Module.preRun]); Module.preRun.length; ) Ua();
+              if (Module.preRun)
+                for (
+                  'function' == typeof Module.preRun &&
+                  (Module.preRun = [Module.preRun]);
+                  Module.preRun.length;
+                )
+                  Ua();
               gb(Ra);
-              0 < Va || (Module.setStatus ? (Module.setStatus("Running..."), setTimeout(function() {
-                setTimeout(function() {
-                  Module.setStatus("");
-                }, 1);
-                a();
-              }, 1)) : a());
+              0 < Va ||
+                (Module.setStatus
+                  ? (Module.setStatus('Running...'),
+                    setTimeout(function () {
+                      setTimeout(function () {
+                        Module.setStatus('');
+                      }, 1);
+                      a();
+                    }, 1))
+                  : a());
             }
           }
           Module.run = mc;
-          if (Module.preInit) for ("function" == typeof Module.preInit && (Module.preInit = [Module.preInit]); 0 < Module.preInit.length; ) Module.preInit.pop()();
+          if (Module.preInit)
+            for (
+              'function' == typeof Module.preInit &&
+              (Module.preInit = [Module.preInit]);
+              0 < Module.preInit.length;
+            )
+              Module.preInit.pop()();
           mc();
           return Module;
         });
         return initSqlJsPromise;
       };
-      if (typeof exports === "object" && typeof module === "object") {
+      if (typeof exports === 'object' && typeof module === 'object') {
         module.exports = initSqlJs2;
         module.exports.default = initSqlJs2;
-      } else if (typeof define === "function" && define["amd"]) {
-        define([], function() {
+      } else if (typeof define === 'function' && define['amd']) {
+        define([], function () {
           return initSqlJs2;
         });
-      } else if (typeof exports === "object") {
-        exports["Module"] = initSqlJs2;
+      } else if (typeof exports === 'object') {
+        exports['Module'] = initSqlJs2;
       }
       var db;
       function onModuleReady(SQL2) {
@@ -2896,81 +4048,83 @@
         var buff;
         var data;
         var result;
-        data = this["data"];
-        switch (data && data["action"]) {
-          case "open":
-            buff = data["buffer"];
+        data = this['data'];
+        switch (data && data['action']) {
+          case 'open':
+            buff = data['buffer'];
             createDb(buff && new Uint8Array(buff));
             return postMessage({
-              id: data["id"],
-              ready: true
+              id: data['id'],
+              ready: true,
             });
-          case "exec":
+          case 'exec':
             if (db === null) {
               createDb();
             }
-            if (!data["sql"]) {
-              throw "exec: Missing query string";
+            if (!data['sql']) {
+              throw 'exec: Missing query string';
             }
             return postMessage({
-              id: data["id"],
-              results: db.exec(data["sql"], data["params"])
+              id: data['id'],
+              results: db.exec(data['sql'], data['params']),
             });
-          case "each":
+          case 'each':
             if (db === null) {
               createDb();
             }
             var callback = function callback2(row) {
               return postMessage({
-                id: data["id"],
+                id: data['id'],
                 row,
-                finished: false
+                finished: false,
               });
             };
             var done = function done2() {
               return postMessage({
-                id: data["id"],
-                finished: true
+                id: data['id'],
+                finished: true,
               });
             };
-            return db.each(data["sql"], data["params"], callback, done);
-          case "export":
-            buff = db["export"]();
+            return db.each(data['sql'], data['params'], callback, done);
+          case 'export':
+            buff = db['export']();
             result = {
-              id: data["id"],
-              buffer: buff
+              id: data['id'],
+              buffer: buff,
             };
             try {
               return postMessage(result, [result]);
             } catch (error) {
               return postMessage(result);
             }
-          case "close":
+          case 'close':
             if (db) {
               db.close();
             }
             return postMessage({
-              id: data["id"]
+              id: data['id'],
             });
           default:
-            throw new Error("Invalid action : " + (data && data["action"]));
+            throw new Error('Invalid action : ' + (data && data['action']));
         }
       }
       function onError(err) {
         return postMessage({
-          id: this["data"]["id"],
-          error: err["message"]
+          id: this['data']['id'],
+          error: err['message'],
         });
       }
-      if (typeof importScripts === "function") {
+      if (typeof importScripts === 'function') {
         db = null;
         sqlModuleReady = initSqlJs2();
         self.onmessage = function onmessage(event) {
-          return sqlModuleReady.then(onModuleReady.bind(event)).catch(onError.bind(event));
+          return sqlModuleReady
+            .then(onModuleReady.bind(event))
+            .catch(onError.bind(event));
         };
       }
       var sqlModuleReady;
-    }
+    },
   });
 
   // libs/lib/src/sql-client/absurd-sql-db.worker.ts
@@ -2979,7 +4133,7 @@
   // node_modules/.bun/absurd-sql@0.0.54/node_modules/absurd-sql/dist/index.js
   var ERRNO_CODES = {
     EPERM: 63,
-    ENOENT: 44
+    ENOENT: 44,
   };
   var SQLiteFS$1 = class {
     constructor(FS, backend) {
@@ -3020,27 +4174,27 @@
           throw new this.FS.ErrnoError(ERRNO_CODES.ENOENT);
         },
         mknod: (parent, name, mode, dev) => {
-          if (name.endsWith(".lock")) {
-            throw new Error("Locking via lockfiles is not supported");
+          if (name.endsWith('.lock')) {
+            throw new Error('Locking via lockfiles is not supported');
           }
           return this.createNode(parent, name, mode, dev);
         },
         rename: (old_node, new_dir, new_name) => {
-          throw new Error("rename not implemented");
+          throw new Error('rename not implemented');
         },
         unlink: (parent, name) => {
           let node = this.FS.lookupNode(parent, name);
           node.contents.delete(name);
         },
         readdir: (node) => {
-          throw new Error("readdir not implemented");
+          throw new Error('readdir not implemented');
         },
         symlink: (parent, newname, oldpath) => {
-          throw new Error("symlink not implemented");
+          throw new Error('symlink not implemented');
         },
         readlink: (node) => {
-          throw new Error("symlink not implemented");
-        }
+          throw new Error('symlink not implemented');
+        },
       };
       this.stream_ops = {
         open: (stream) => {
@@ -3077,18 +4231,18 @@
           stream.node.contents.setattr({ size: offset + length });
         },
         mmap: (stream, address, length, position, prot, flags) => {
-          throw new Error("mmap not implemented");
+          throw new Error('mmap not implemented');
         },
         msync: (stream, buffer, offset, length, mmapFlags) => {
-          throw new Error("msync not implemented");
+          throw new Error('msync not implemented');
         },
         fsync: (stream, buffer, offset, length, mmapFlags) => {
           stream.node.contents.fsync();
-        }
+        },
       };
     }
     mount() {
-      return this.createNode(null, "/", 16384 | 511, 0);
+      return this.createNode(null, '/', 16384 | 511, 0);
     }
     lock(path, lockType) {
       let { node } = this.FS.lookupPath(path);
@@ -3114,7 +4268,7 @@
           mknod: this.node_ops.mknod,
           lookup: this.node_ops.lookup,
           unlink: this.node_ops.unlink,
-          setattr: this.node_ops.setattr
+          setattr: this.node_ops.setattr,
         };
         node.stream_ops = {};
         node.contents = {};
@@ -3138,7 +4292,7 @@
     SHARED: 1,
     RESERVED: 2,
     PENDING: 3,
-    EXCLUSIVE: 4
+    EXCLUSIVE: 4,
   };
   function getPageSize(bufferView) {
     let int1 = bufferView[16];
@@ -3166,8 +4320,8 @@
     return r;
   }
   function getBoundaryIndexes(blockSize, start, end) {
-    let startC = start - start % blockSize;
-    let endC = end - 1 - (end - 1) % blockSize;
+    let startC = start - (start % blockSize);
+    let endC = end - 1 - ((end - 1) % blockSize);
     return range(startC, endC, blockSize);
   }
   function readChunks(chunks, start, end) {
@@ -3175,8 +4329,8 @@
     let bufferView = new Uint8Array(buffer);
     for (let i = 0; i < chunks.length; i++) {
       let chunk = chunks[i];
-      if (chunk.data.constructor.name !== "ArrayBuffer") {
-        throw new Error("Chunk data is not an ArrayBuffer");
+      if (chunk.data.constructor.name !== 'ArrayBuffer') {
+        throw new Error('Chunk data is not an ArrayBuffer');
       }
       let cstart = 0;
       let cend = chunk.data.byteLength;
@@ -3200,38 +4354,40 @@
   function writeChunks(bufferView, blockSize, start, end) {
     let indexes = getBoundaryIndexes(blockSize, start, end);
     let cursor = 0;
-    return indexes.map((index) => {
-      let cstart = 0;
-      let cend = blockSize;
-      if (start > index && start < index + blockSize) {
-        cstart = start - index;
-      }
-      if (end > index && end < index + blockSize) {
-        cend = end - index;
-      }
-      let len = cend - cstart;
-      let chunkBuffer = new ArrayBuffer(blockSize);
-      if (start > index + blockSize || end <= index) {
-        return null;
-      }
-      let off = bufferView.byteOffset + cursor;
-      let available = bufferView.buffer.byteLength - off;
-      if (available <= 0) {
-        return null;
-      }
-      let readLength = Math.min(len, available);
-      new Uint8Array(chunkBuffer).set(
-        new Uint8Array(bufferView.buffer, off, readLength),
-        cstart
-      );
-      cursor += readLength;
-      return {
-        pos: index,
-        data: chunkBuffer,
-        offset: cstart,
-        length: readLength
-      };
-    }).filter(Boolean);
+    return indexes
+      .map((index) => {
+        let cstart = 0;
+        let cend = blockSize;
+        if (start > index && start < index + blockSize) {
+          cstart = start - index;
+        }
+        if (end > index && end < index + blockSize) {
+          cend = end - index;
+        }
+        let len = cend - cstart;
+        let chunkBuffer = new ArrayBuffer(blockSize);
+        if (start > index + blockSize || end <= index) {
+          return null;
+        }
+        let off = bufferView.byteOffset + cursor;
+        let available = bufferView.buffer.byteLength - off;
+        if (available <= 0) {
+          return null;
+        }
+        let readLength = Math.min(len, available);
+        new Uint8Array(chunkBuffer).set(
+          new Uint8Array(bufferView.buffer, off, readLength),
+          cstart
+        );
+        cursor += readLength;
+        return {
+          pos: index,
+          data: chunkBuffer,
+          offset: cstart,
+          length: readLength,
+        };
+      })
+      .filter(Boolean);
   }
   var File = class {
     constructor(filename, ops, meta = null) {
@@ -3288,7 +4444,10 @@
       );
       let missingChunks = [];
       if (status.missing.length > 0) {
-        missingChunks = this.ops.readBlocks(status.missing, this.meta.blockSize);
+        missingChunks = this.ops.readBlocks(
+          status.missing,
+          this.meta.blockSize
+        );
       }
       return status.chunks.concat(missingChunks);
     }
@@ -3315,7 +4474,7 @@
       let chunks = this.load(indexes);
       let readBuffer = readChunks(chunks, start, end);
       if (buffer.byteLength - offset < readBuffer.byteLength) {
-        throw new Error("Buffer given to `read` is too small");
+        throw new Error('Buffer given to `read` is too small');
       }
       let view = new Uint8Array(buffer);
       view.set(new Uint8Array(readBuffer), offset);
@@ -3329,9 +4488,11 @@
         let pageSize = getPageSize(
           new Uint8Array(bufferView.buffer, bufferView.byteOffset + offset)
         );
-        if (![512, 1024, 2048, 4096, 8192, 16384, 32768, 65536].includes(pageSize)) {
+        if (
+          ![512, 1024, 2048, 4096, 8192, 16384, 32768, 65536].includes(pageSize)
+        ) {
           throw new Error(
-            "File has invalid page size. (the first block of a new file must be written first)"
+            'File has invalid page size. (the first block of a new file must be written first)'
           );
         }
         this.setattr({ blockSize: pageSize });
@@ -3360,7 +4521,7 @@
           } else {
             state.fullWrites.push({
               pos: write.pos,
-              data: write.data
+              data: write.data,
             });
           }
           return state;
@@ -3466,7 +4627,10 @@
   var WRITEABLE = 0;
   var READABLE = 1;
   var Reader = class {
-    constructor(buffer, { initialOffset = 4, useAtomics = true, stream = true, debug, name } = {}) {
+    constructor(
+      buffer,
+      { initialOffset = 4, useAtomics = true, stream = true, debug, name } = {}
+    ) {
       this.buffer = buffer;
       this.atomicView = new Int32Array(buffer);
       this.offset = initialOffset;
@@ -3485,8 +4649,11 @@
         this.log(`waiting for ${name}`);
         while (Atomics.load(this.atomicView, 0) === WRITEABLE) {
           if (timeout != null) {
-            if (Atomics.wait(this.atomicView, 0, WRITEABLE, timeout) === "timed-out") {
-              throw new Error("timeout");
+            if (
+              Atomics.wait(this.atomicView, 0, WRITEABLE, timeout) ===
+              'timed-out'
+            ) {
+              throw new Error('timeout');
             }
           }
           Atomics.wait(this.atomicView, 0, WRITEABLE, 500);
@@ -3494,12 +4661,12 @@
         this.log(`resumed for ${name}`);
       } else {
         if (this.atomicView[0] !== READABLE) {
-          throw new Error("`waitWrite` expected array to be readable");
+          throw new Error('`waitWrite` expected array to be readable');
         }
       }
     }
     flip() {
-      this.log("flip");
+      this.log('flip');
       if (this.useAtomics) {
         let prev = Atomics.compareExchange(
           this.atomicView,
@@ -3508,7 +4675,7 @@
           WRITEABLE
         );
         if (prev !== READABLE) {
-          throw new Error("Read data out of sync! This is disastrous");
+          throw new Error('Read data out of sync! This is disastrous');
         }
         Atomics.notify(this.atomicView, 0);
       } else {
@@ -3517,11 +4684,11 @@
       this.offset = 4;
     }
     done() {
-      this.waitWrite("done");
+      this.waitWrite('done');
       let dataView = new DataView(this.buffer, this.offset);
       let done = dataView.getUint32(0) === FINALIZED;
       if (done) {
-        this.log("done");
+        this.log('done');
         this.flip();
       }
       return done;
@@ -3534,7 +4701,7 @@
       return res;
     }
     string(timeout) {
-      this.waitWrite("string", timeout);
+      this.waitWrite('string', timeout);
       let byteLength = this._int32();
       let length = byteLength / 2;
       let dataView = new DataView(this.buffer, this.offset, byteLength);
@@ -3543,7 +4710,7 @@
         chars.push(dataView.getUint16(i * 2));
       }
       let str = String.fromCharCode.apply(null, chars);
-      this.log("string", str);
+      this.log('string', str);
       this.offset += byteLength;
       if (this.peekOffset == null) {
         this.flip();
@@ -3554,27 +4721,27 @@
       let byteLength = 4;
       let dataView = new DataView(this.buffer, this.offset);
       let num = dataView.getInt32();
-      this.log("_int32", num);
+      this.log('_int32', num);
       this.offset += byteLength;
       return num;
     }
     int32() {
-      this.waitWrite("int32");
+      this.waitWrite('int32');
       let num = this._int32();
-      this.log("int32", num);
+      this.log('int32', num);
       if (this.peekOffset == null) {
         this.flip();
       }
       return num;
     }
     bytes() {
-      this.waitWrite("bytes");
+      this.waitWrite('bytes');
       let byteLength = this._int32();
       let bytes = new ArrayBuffer(byteLength);
       new Uint8Array(bytes).set(
         new Uint8Array(this.buffer, this.offset, byteLength)
       );
-      this.log("bytes", bytes);
+      this.log('bytes', bytes);
       this.offset += byteLength;
       if (this.peekOffset == null) {
         this.flip();
@@ -3583,7 +4750,10 @@
     }
   };
   var Writer = class {
-    constructor(buffer, { initialOffset = 4, useAtomics = true, stream = true, debug, name } = {}) {
+    constructor(
+      buffer,
+      { initialOffset = 4, useAtomics = true, stream = true, debug, name } = {}
+    ) {
       this.buffer = buffer;
       this.atomicView = new Int32Array(buffer);
       this.offset = initialOffset;
@@ -3613,7 +4783,7 @@
         );
         if (prev !== WRITEABLE) {
           throw new Error(
-            "Wrote something into unwritable buffer! This is disastrous"
+            'Wrote something into unwritable buffer! This is disastrous'
           );
         }
         Atomics.notify(this.atomicView, 0);
@@ -3627,13 +4797,13 @@
       this.offset = 4;
     }
     finalize() {
-      this.log("finalizing");
+      this.log('finalizing');
       let dataView = new DataView(this.buffer, this.offset);
       dataView.setUint32(0, FINALIZED);
-      this.waitRead("finalize");
+      this.waitRead('finalize');
     }
     string(str) {
-      this.log("string", str);
+      this.log('string', str);
       let byteLength = str.length * 2;
       this._int32(byteLength);
       let dataView = new DataView(this.buffer, this.offset, byteLength);
@@ -3641,7 +4811,7 @@
         dataView.setUint16(i * 2, str.charCodeAt(i));
       }
       this.offset += byteLength;
-      this.waitRead("string");
+      this.waitRead('string');
     }
     _int32(num) {
       let byteLength = 4;
@@ -3650,17 +4820,17 @@
       this.offset += byteLength;
     }
     int32(num) {
-      this.log("int32", num);
+      this.log('int32', num);
       this._int32(num);
-      this.waitRead("int32");
+      this.waitRead('int32');
     }
     bytes(buffer) {
-      this.log("bytes", buffer);
+      this.log('bytes', buffer);
       let byteLength = buffer.byteLength;
       this._int32(byteLength);
       new Uint8Array(this.buffer, this.offset).set(new Uint8Array(buffer));
       this.offset += byteLength;
-      this.waitRead("bytes");
+      this.waitRead('bytes');
     }
   };
   function positionToKey$1(pos, blockSize) {
@@ -3668,11 +4838,11 @@
   }
   function startWorker(reader, writer) {
     self.postMessage({
-      type: "__absurd:spawn-idb-worker",
+      type: '__absurd:spawn-idb-worker',
       argBuffer: writer.buffer,
-      resultBuffer: reader.buffer
+      resultBuffer: reader.buffer,
     });
-    self.addEventListener("message", (e) => {
+    self.addEventListener('message', (e) => {
       switch (e.data.type) {
         // Normally you would use `postMessage` control the profiler in
         // a worker (just like this worker go those events), and the
@@ -3681,14 +4851,14 @@
         // always blocked when it's not processing. Instead we forward
         // these events by going through the atomics layer to unblock it
         // to make sure it starts immediately
-        case "__perf-deets:start-profile":
-          writer.string("profile-start");
+        case '__perf-deets:start-profile':
+          writer.string('profile-start');
           writer.finalize();
           reader.int32();
           reader.done();
           break;
-        case "__perf-deets:stop-profile":
-          writer.string("profile-stop");
+        case '__perf-deets:stop-profile':
+          writer.string('profile-stop');
           writer.finalize();
           reader.int32();
           reader.done();
@@ -3702,7 +4872,7 @@
     }
     // TODO: This should be renamed to `getDatabaseName`
     getStoreName() {
-      return this.filename.replace(/\//g, "-");
+      return this.filename.replace(/\//g, '-');
     }
     invokeWorker(method, args) {
       if (this.reader == null || this.writer == null) {
@@ -3713,11 +4883,11 @@
       let reader = this.reader;
       let writer = this.writer;
       switch (method) {
-        case "readBlocks": {
+        case 'readBlocks': {
           let { name, positions, blockSize } = args;
           let res = [];
           for (let pos of positions) {
-            writer.string("readBlock");
+            writer.string('readBlock');
             writer.string(name);
             writer.int32(positionToKey$1(pos, blockSize));
             writer.finalize();
@@ -3727,14 +4897,14 @@
               pos,
               // If th length is 0, the block didn't exist. We return a
               // blank block in that case
-              data: data.byteLength === 0 ? new ArrayBuffer(blockSize) : data
+              data: data.byteLength === 0 ? new ArrayBuffer(blockSize) : data,
             });
           }
           return res;
         }
-        case "writeBlocks": {
+        case 'writeBlocks': {
           let { name, writes, blockSize } = args;
-          writer.string("writeBlocks");
+          writer.string('writeBlocks');
           writer.string(name);
           for (let write of writes) {
             writer.int32(positionToKey$1(write.pos, blockSize));
@@ -3745,8 +4915,8 @@
           reader.done();
           return res;
         }
-        case "readMeta": {
-          writer.string("readMeta");
+        case 'readMeta': {
+          writer.string('readMeta');
           writer.string(args.name);
           writer.finalize();
           let size = reader.int32();
@@ -3754,9 +4924,9 @@
           reader.done();
           return size === -1 ? null : { size, blockSize };
         }
-        case "writeMeta": {
+        case 'writeMeta': {
           let { name, meta } = args;
-          writer.string("writeMeta");
+          writer.string('writeMeta');
           writer.string(name);
           writer.int32(meta.size);
           writer.finalize();
@@ -3764,16 +4934,16 @@
           reader.done();
           return res;
         }
-        case "closeFile": {
-          writer.string("closeFile");
+        case 'closeFile': {
+          writer.string('closeFile');
           writer.string(args.name);
           writer.finalize();
           let res = reader.int32();
           reader.done();
           return res;
         }
-        case "lockFile": {
-          writer.string("lockFile");
+        case 'lockFile': {
+          writer.string('lockFile');
           writer.string(args.name);
           writer.int32(args.lockType);
           writer.finalize();
@@ -3781,8 +4951,8 @@
           reader.done();
           return res === 0;
         }
-        case "unlockFile": {
-          writer.string("unlockFile");
+        case 'unlockFile': {
+          writer.string('unlockFile');
           writer.string(args.name);
           writer.int32(args.lockType);
           writer.finalize();
@@ -3793,15 +4963,15 @@
       }
     }
     lock(lockType) {
-      return this.invokeWorker("lockFile", {
+      return this.invokeWorker('lockFile', {
         name: this.getStoreName(),
-        lockType
+        lockType,
       });
     }
     unlock(lockType) {
-      return this.invokeWorker("unlockFile", {
+      return this.invokeWorker('unlockFile', {
         name: this.getStoreName(),
-        lockType
+        lockType,
       });
     }
     delete() {
@@ -3812,59 +4982,63 @@
       req.onerror = () => {
         console.warn(`Deleting ${this.filename} database failed`);
       };
-      req.onsuccess = () => {
-      };
+      req.onsuccess = () => {};
     }
     open() {
       let argBuffer = new SharedArrayBuffer(4096 * 9);
       this.writer = new Writer(argBuffer, {
-        name: "args (backend)",
-        debug: false
+        name: 'args (backend)',
+        debug: false,
       });
       let resultBuffer = new SharedArrayBuffer(4096 * 9);
       this.reader = new Reader(resultBuffer, {
-        name: "results",
-        debug: false
+        name: 'results',
+        debug: false,
       });
       startWorker(this.reader, this.writer);
     }
     close() {
-      this.invokeWorker("closeFile", { name: this.getStoreName() });
+      this.invokeWorker('closeFile', { name: this.getStoreName() });
       this.reader = null;
       this.writer = null;
       this.worker = null;
     }
     readMeta() {
-      return this.invokeWorker("readMeta", { name: this.getStoreName() });
+      return this.invokeWorker('readMeta', { name: this.getStoreName() });
     }
     writeMeta(meta) {
-      return this.invokeWorker("writeMeta", { name: this.getStoreName(), meta });
+      return this.invokeWorker('writeMeta', {
+        name: this.getStoreName(),
+        meta,
+      });
     }
     readBlocks(positions, blockSize) {
       if (this.stats) {
         this.stats.read += positions.length;
       }
-      return this.invokeWorker("readBlocks", {
+      return this.invokeWorker('readBlocks', {
         name: this.getStoreName(),
         positions,
-        blockSize
+        blockSize,
       });
     }
     writeBlocks(writes, blockSize) {
       if (this.stats) {
         this.stats.writes += writes.length;
       }
-      return this.invokeWorker("writeBlocks", {
+      return this.invokeWorker('writeBlocks', {
         name: this.getStoreName(),
         writes,
-        blockSize
+        blockSize,
       });
     }
   };
   function idbReady() {
-    const isSafari = !navigator.userAgentData && /Safari\//.test(navigator.userAgent) && !/Chrom(e|ium)\//.test(navigator.userAgent);
-    if (!isSafari || !indexedDB.databases)
-      return Promise.resolve();
+    const isSafari =
+      !navigator.userAgentData &&
+      /Safari\//.test(navigator.userAgent) &&
+      !/Chrom(e|ium)\//.test(navigator.userAgent);
+    if (!isSafari || !indexedDB.databases) return Promise.resolve();
     let intervalId;
     return new Promise((resolve) => {
       const tryIdb = () => indexedDB.databases().finally(resolve);
@@ -3882,20 +5056,19 @@
       req.onsuccess = (event) => {
         let db = event.target.result;
         db.onversionchange = () => {
-          console.log("closing because version changed");
+          console.log('closing because version changed');
           db.close();
         };
-        db.onclose = () => {
-        };
+        db.onclose = () => {};
         resolve(db);
       };
       req.onupgradeneeded = (event) => {
         let db = event.target.result;
-        if (!db.objectStoreNames.contains("data")) {
-          db.createObjectStore("data");
+        if (!db.objectStoreNames.contains('data')) {
+          db.createObjectStore('data');
         }
       };
-      req.onblocked = (e) => console.log("blocked", e);
+      req.onblocked = (e) => console.log('blocked', e);
       req.onerror = req.onabort = (e) => reject(e.target.error);
     });
   }
@@ -3929,8 +5102,8 @@
     async readAll() {
       let db = await this.getDb(this.dbName);
       let blocks = /* @__PURE__ */ new Map();
-      let trans = db.transaction(["data"], "readonly");
-      let store = trans.objectStore("data");
+      let trans = db.transaction(['data'], 'readonly');
+      let store = trans.objectStore('data');
       return new Promise((resolve, reject) => {
         let req = store.openCursor(IDBKeyRange.lowerBound(-1));
         req.onerror = reject;
@@ -3947,8 +5120,8 @@
     }
     async write(writes, cachedFirstBlock, hasLocked) {
       let db = await this.getDb(this.dbName);
-      let trans = db.transaction(["data"], "readwrite");
-      let store = trans.objectStore("data");
+      let trans = db.transaction(['data'], 'readwrite');
+      let store = trans.objectStore('data');
       await new Promise((resolve, reject) => {
         let req = store.get(0);
         req.onsuccess = (e) => {
@@ -3958,7 +5131,7 @@
                 this.hasAlertedFailure = true;
                 this.onFallbackFailure();
               }
-              reject(new Error("Fallback mode unable to write file changes"));
+              reject(new Error('Fallback mode unable to write file changes'));
               return;
             }
           }
@@ -3975,7 +5148,7 @@
   var FileOpsFallback = class {
     constructor(filename, onFallbackFailure) {
       this.filename = filename;
-      this.dbName = this.filename.replace(/\//g, "-");
+      this.dbName = this.filename.replace(/\//g, '-');
       this.cachedFirstBlock = null;
       this.writeQueue = null;
       this.blocks = /* @__PURE__ */ new Map();
@@ -4005,8 +5178,7 @@
       req.onerror = () => {
         console.warn(`Deleting ${this.filename} database failed`);
       };
-      req.onsuccess = () => {
-      };
+      req.onsuccess = () => {};
     }
     open() {
       this.writeQueue = [];
@@ -4027,7 +5199,7 @@
         let block = this.blocks.get(0);
         return {
           size: metaBlock.size,
-          blockSize: getPageSize(new Uint8Array(block))
+          blockSize: getPageSize(new Uint8Array(block)),
         };
       }
       return null;
@@ -4041,7 +5213,7 @@
       for (let pos of positions) {
         res.push({
           pos,
-          data: this.blocks.get(positionToKey(pos, blockSize))
+          data: this.blocks.get(positionToKey(pos, blockSize)),
         });
       }
       return res;
@@ -4077,7 +5249,7 @@
     }
     createFile(filename) {
       let ops;
-      if (typeof SharedArrayBuffer !== "undefined") {
+      if (typeof SharedArrayBuffer !== 'undefined') {
         ops = new FileOps(filename);
       } else {
         ops = new FileOpsFallback(filename, this.onFallbackFailure);
@@ -4099,7 +5271,7 @@
         if (file.ops.writer) {
           let writer = file.ops.writer;
           let reader = file.ops.reader;
-          writer.string("profile-start");
+          writer.string('profile-start');
           writer.finalize();
           reader.int32();
           reader.done();
@@ -4111,7 +5283,7 @@
         if (file.ops.writer) {
           let writer = file.ops.writer;
           let reader = file.ops.reader;
-          writer.string("profile-stop");
+          writer.string('profile-stop');
           writer.finalize();
           reader.int32();
           reader.done();
@@ -4122,7 +5294,8 @@
   var indexeddb_backend_default = IndexedDBBackend;
 
   // libs/lib/src/sql-client/sqlite-connection-pragmas.ts
-  var SQLITE_JS_BOOTSTRAP_AFTER_OPEN = "PRAGMA foreign_keys = ON; PRAGMA journal_mode = MEMORY;";
+  var SQLITE_JS_BOOTSTRAP_AFTER_OPEN =
+    'PRAGMA foreign_keys = ON; PRAGMA journal_mode = MEMORY;';
 
   // libs/lib/src/sql-client/absurd-sql-db.worker.ts
   var SQL = null;
@@ -4132,13 +5305,13 @@
     self.postMessage(msg);
   }
   function readRunMeta(db) {
-    const stmt = db.prepare("SELECT changes() AS c, last_insert_rowid() AS r");
+    const stmt = db.prepare('SELECT changes() AS c, last_insert_rowid() AS r');
     try {
       stmt.step();
       const row = stmt.getAsObject();
       return {
         changes: Number(row.c ?? 0),
-        lastInsertRowid: Number(row.r ?? 0)
+        lastInsertRowid: Number(row.r ?? 0),
       };
     } finally {
       stmt.free();
@@ -4153,7 +5326,7 @@
       for (let i = 0; i < columns.length; i++) {
         const col = columns[i];
         if (col === void 0) {
-          throw new Error("sql.js: column name missing for result row");
+          throw new Error('sql.js: column name missing for result row');
         }
         row[col] = values[i];
       }
@@ -4166,16 +5339,16 @@
       return;
     }
     SQL = await (0, import_worker_sql_wasm.default)({
-      locateFile: (file) => new URL(file, self.location.href).href
+      locateFile: (file) => new URL(file, self.location.href).href,
     });
     const sqlFS = new SQLiteFS(SQL.FS, new indexeddb_backend_default());
     const sqlWithIdb = SQL;
     sqlWithIdb.register_for_idb(sqlFS);
-    SQL.FS.mkdir("/sql");
-    SQL.FS.mount(sqlFS, {}, "/sql");
+    SQL.FS.mkdir('/sql');
+    SQL.FS.mount(sqlFS, {}, '/sql');
     const path = `/sql/${databaseName}.sqlite`;
-    if (typeof SharedArrayBuffer === "undefined") {
-      const stream = SQL.FS.open(path, "a+");
+    if (typeof SharedArrayBuffer === 'undefined') {
+      const stream = SQL.FS.open(path, 'a+');
       await stream.node.contents.readIfFallback();
       SQL.FS.close(stream);
     }
@@ -4184,8 +5357,8 @@
   }
   async function handleConnect(id, payload) {
     const databaseName = payload?.databaseName;
-    if (typeof databaseName !== "string" || databaseName.length === 0) {
-      postReply({ id, ok: false, error: "connect: missing databaseName" });
+    if (typeof databaseName !== 'string' || databaseName.length === 0) {
+      postReply({ id, ok: false, error: 'connect: missing databaseName' });
       return;
     }
     await ensureDb(databaseName);
@@ -4195,8 +5368,7 @@
     if (sqlDatabase !== null) {
       try {
         sqlDatabase.close();
-      } catch {
-      }
+      } catch {}
       sqlDatabase = null;
     }
     SQL = null;
@@ -4208,20 +5380,20 @@
       postReply({
         id,
         ok: false,
-        error: "Nested transactions are not supported for absurd-sql worker"
+        error: 'Nested transactions are not supported for absurd-sql worker',
       });
       return;
     }
-    db.run("BEGIN");
+    db.run('BEGIN');
     txDepth = 1;
     postReply({ id, ok: true });
   }
   function handleTxCommit(id, db) {
     if (txDepth !== 1) {
-      postReply({ id, ok: false, error: "txCommit: not in transaction" });
+      postReply({ id, ok: false, error: 'txCommit: not in transaction' });
       return;
     }
-    db.run("COMMIT");
+    db.run('COMMIT');
     txDepth = 0;
     postReply({ id, ok: true });
   }
@@ -4231,7 +5403,7 @@
       postReply({ id, ok: true });
       return;
     }
-    db.run("ROLLBACK");
+    db.run('ROLLBACK');
     txDepth = 0;
     postReply({ id, ok: true });
   }
@@ -4256,33 +5428,33 @@
     postReply({ id, ok: true, result: readRunMeta(db) });
   }
   function handleTxOp(id, op, db) {
-    if (op === "txBegin") return handleTxBegin(id, db);
-    if (op === "txCommit") return handleTxCommit(id, db);
+    if (op === 'txBegin') return handleTxBegin(id, db);
+    if (op === 'txCommit') return handleTxCommit(id, db);
     return handleTxRollback(id, db);
   }
   function handleSqlOp(id, op, db, payload) {
     const sql = payload?.sql;
-    if (typeof sql !== "string") {
-      postReply({ id, ok: false, error: "Missing sql" });
+    if (typeof sql !== 'string') {
+      postReply({ id, ok: false, error: 'Missing sql' });
       return;
     }
     const params = payload?.params ?? [];
-    if (op === "query") return handleQuery(id, db, sql, params);
+    if (op === 'query') return handleQuery(id, db, sql, params);
     return handleRun(id, db, sql, params);
   }
   async function handleMessage(msg) {
     const { id, op, payload } = msg;
-    if (op === "connect") return handleConnect(id, payload);
-    if (op === "disconnect") return handleDisconnect(id);
+    if (op === 'connect') return handleConnect(id, payload);
+    if (op === 'disconnect') return handleDisconnect(id);
     if (sqlDatabase === null) {
-      postReply({ id, ok: false, error: "Database not connected" });
+      postReply({ id, ok: false, error: 'Database not connected' });
       return;
     }
     const db = sqlDatabase;
-    if (op === "txBegin" || op === "txCommit" || op === "txRollback") {
+    if (op === 'txBegin' || op === 'txCommit' || op === 'txRollback') {
       return handleTxOp(id, op, db);
     }
-    if (op === "query" || op === "run") {
+    if (op === 'query' || op === 'run') {
       return handleSqlOp(id, op, db, payload);
     }
     postReply({ id, ok: false, error: `Unknown op: ${String(op)}` });

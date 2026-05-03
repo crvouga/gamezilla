@@ -13,7 +13,9 @@ const DIVIDER_ROW_HEIGHT = 10;
  * Approximate menu height for flip-above / flip-below positioning.
  * @internal
  */
-export function estimateFloatingMenuHeight(content: FloatingMenuContent): number {
+export function estimateFloatingMenuHeight(
+  content: FloatingMenuContent
+): number {
   let h = PANEL_VERTICAL_INSET + HEADER_BLOCK_HEIGHT;
   for (const row of content.rows) {
     h += row.type === 'divider' ? DIVIDER_ROW_HEIGHT : ITEM_ROW_HEIGHT;

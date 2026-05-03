@@ -1,5 +1,8 @@
 import { Assert } from '@gamezilla/lib/assert';
-import { createMessageRouter, type MessageRouter } from '@gamezilla/lib/message';
+import {
+  createMessageRouter,
+  type MessageRouter,
+} from '@gamezilla/lib/message';
 import type { LogEntry } from '../persistence/log-entry';
 import type { Event } from '../events/message-types';
 import {
@@ -177,7 +180,7 @@ function parseTrustPayload(raw: unknown): ParseResult<ParsedTrustPayload> {
 function evaluatePeerJoin(
   ctx: SystemRouterContext,
   command: Command,
-  rawPayload: unknown,
+  rawPayload: unknown
 ): SystemCommandEvalResult {
   const parsed = parseJoinPayload(rawPayload);
   if (!parsed.ok) return parsed.error;
@@ -234,7 +237,7 @@ function evaluatePeerJoin(
 function evaluatePeerLeave(
   ctx: SystemRouterContext,
   command: Command,
-  rawPayload: unknown,
+  rawPayload: unknown
 ): SystemCommandEvalResult {
   const parsed = parseLeavePayload(rawPayload);
   if (!parsed.ok) return parsed.error;
@@ -257,7 +260,7 @@ function evaluatePeerLeave(
 function evaluatePeerTrustUpdate(
   ctx: SystemRouterContext,
   command: Command,
-  rawPayload: unknown,
+  rawPayload: unknown
 ): SystemCommandEvalResult {
   const parsed = parseTrustPayload(rawPayload);
   if (!parsed.ok) return parsed.error;
@@ -281,16 +284,18 @@ export function createSystemCommandRouter(): MessageRouter<
   Command,
   SystemCommandEvalResult
 > {
-  return createMessageRouter<SystemRouterContext, Command, SystemCommandEvalResult>(
-    peerNamespace,
-  )
+  return createMessageRouter<
+    SystemRouterContext,
+    Command,
+    SystemCommandEvalResult
+  >(peerNamespace)
     .on(PeerJoin, (ctx, command, msg) =>
-      evaluatePeerJoin(ctx, command, msg.payload),
+      evaluatePeerJoin(ctx, command, msg.payload)
     )
     .on(PeerLeave, (ctx, command, msg) =>
-      evaluatePeerLeave(ctx, command, msg.payload),
+      evaluatePeerLeave(ctx, command, msg.payload)
     )
     .on(PeerTrustUpdate, (ctx, command, msg) =>
-      evaluatePeerTrustUpdate(ctx, command, msg.payload),
+      evaluatePeerTrustUpdate(ctx, command, msg.payload)
     );
 }

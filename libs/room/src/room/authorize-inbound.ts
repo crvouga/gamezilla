@@ -20,7 +20,10 @@ export function keysEqual(a: Uint8Array, b: Uint8Array): boolean {
 
 type MemberKeys = Map<string, Uint8Array>;
 
-function signerDerivedMatches(signerPublicKey: Uint8Array, signerPeerId: string): boolean {
+function signerDerivedMatches(
+  signerPublicKey: Uint8Array,
+  signerPeerId: string
+): boolean {
   let derived: string;
   try {
     derived = peerIdFromPublicKey(signerPublicKey);
@@ -34,7 +37,7 @@ export function isSignerKeyAllowedForWire(
   memberPublicKeys: MemberKeys,
   signerPeerId: string,
   signerPublicKey: Uint8Array,
-  body: WireMessage,
+  body: WireMessage
 ): boolean {
   if (!signerDerivedMatches(signerPublicKey, signerPeerId)) return false;
 
@@ -76,7 +79,7 @@ export type InboundWireAuthContext = {
 function checkFingerprintOrFail(
   ctx: InboundWireAuthContext,
   signerPeerId: string,
-  signerPublicKey: Uint8Array,
+  signerPublicKey: Uint8Array
 ): boolean {
   const expectedFp = ctx.security.peerFingerprints?.[signerPeerId];
   if (expectedFp === undefined) return true;
@@ -89,7 +92,7 @@ function checkFingerprintOrFail(
 function checkAuthorityKinds(
   ctx: InboundWireAuthContext,
   signerPeerId: string,
-  body: WireMessage,
+  body: WireMessage
 ): boolean {
   const needsAuthority =
     body.kind === 'accepted' ||
@@ -104,7 +107,7 @@ function checkAuthorityKinds(
 function checkSignerBodyBinding(
   ctx: InboundWireAuthContext,
   signerPeerId: string,
-  body: WireMessage,
+  body: WireMessage
 ): boolean {
   if (body.kind === 'propose' && body.command.peerId !== signerPeerId) {
     ctx.onWireAuthFailure?.('propose_peer_mismatch');
@@ -123,11 +126,18 @@ function checkSignerBodyBinding(
 
 export function finalizeInboundWireVerification(
   ctx: InboundWireAuthContext,
-  vr: VerifiedWireEnvelope,
+  vr: VerifiedWireEnvelope
 ): VerifiedWireEnvelope | null {
   const { signerPeerId, signerPublicKey, counter, body } = vr;
   if (!checkFingerprintOrFail(ctx, signerPeerId, signerPublicKey)) return null;
-  if (!isSignerKeyAllowedForWire(ctx.memberPublicKeys, signerPeerId, signerPublicKey, body)) {
+  if (
+    !isSignerKeyAllowedForWire(
+      ctx.memberPublicKeys,
+      signerPeerId,
+      signerPublicKey,
+      body
+    )
+  ) {
     ctx.onWireAuthFailure?.('unknown_member_key');
     return null;
   }

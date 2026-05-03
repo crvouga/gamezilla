@@ -1,1 +1,1 @@
-export { DeterministicSimulator } from './simulator'
+export { DeterministicSimulator } from './simulator';

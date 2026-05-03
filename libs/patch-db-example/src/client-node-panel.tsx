@@ -56,14 +56,14 @@ const LATENCY_BUCKET_VALUES: number[] = [0, 50, 150, 500, 1000, 2000, 5000];
 function closestLatency(raw: number): number {
   return LATENCY_BUCKET_VALUES.reduce<number>(
     (prev, cur) => (Math.abs(cur - raw) < Math.abs(prev - raw) ? cur : prev),
-    LATENCY_BUCKET_VALUES[0] ?? 0,
+    LATENCY_BUCKET_VALUES[0] ?? 0
   );
 }
 
 function useClientShapeActions(
   client: PlaygroundClientHandle,
   entities: Entity[],
-  run: ReturnType<typeof useAsyncAction>['run'],
+  run: ReturnType<typeof useAsyncAction>['run']
 ) {
   const { sim } = useSimContext();
   const handleRandomize = useCallback(
@@ -71,21 +71,21 @@ function useClientShapeActions(
       run(async () => {
         await playgroundRandomizeShape(sim, client.id, entityId);
       }),
-    [run, sim, client.id],
+    [run, sim, client.id]
   );
   const handleDelete = useCallback(
     (entityId: string) =>
       run(async () => {
         await playgroundDeleteShape(sim, client.id, entityId);
       }),
-    [run, sim, client.id],
+    [run, sim, client.id]
   );
   const handleCreate = useCallback(
     () =>
       run(async () => {
         await playgroundCreateShape(sim, client.id, nextShapeOrder(entities));
       }),
-    [run, sim, client.id, entities],
+    [run, sim, client.id, entities]
   );
   const handleReorder = useCallback(
     (entityIds: string[]) => {
@@ -93,7 +93,7 @@ function useClientShapeActions(
         await playgroundReorderShapes(sim, client.id, entityIds);
       });
     },
-    [run, sim, client.id],
+    [run, sim, client.id]
   );
   const randomizeAll = useCallback(
     () =>
@@ -102,7 +102,7 @@ function useClientShapeActions(
           await playgroundRandomizeShape(sim, client.id, e.entityId);
         }
       }),
-    [run, sim, client.id, entities],
+    [run, sim, client.id, entities]
   );
   return {
     handleRandomize,
@@ -115,7 +115,7 @@ function useClientShapeActions(
 
 function useClientLinkActions(
   client: PlaygroundClientHandle,
-  run: ReturnType<typeof useAsyncAction>['run'],
+  run: ReturnType<typeof useAsyncAction>['run']
 ) {
   const { sim, bumpLink } = useSimContext();
   const togglePartition = useCallback(
@@ -128,29 +128,26 @@ function useClientLinkActions(
         }
         bumpLink();
       }),
-    [run, client.link, bumpLink],
+    [run, client.link, bumpLink]
   );
   const syncNow = useCallback(
     () =>
       run(async () => {
         await sim.syncNow(client.id);
       }),
-    [run, sim, client.id],
+    [run, sim, client.id]
   );
   const wipeClientDb = useCallback(
     () =>
       run(async () => {
         await sim.wipeClientDb(client.id);
       }),
-    [run, sim, client.id],
+    [run, sim, client.id]
   );
   return { togglePartition, syncNow, wipeClientDb };
 }
 
-function useClientActions(
-  client: PlaygroundClientHandle,
-  entities: Entity[],
-) {
+function useClientActions(client: PlaygroundClientHandle, entities: Entity[]) {
   const { bumpGraph } = useSimContext();
   const action = useAsyncAction(bumpGraph);
   const shapeActions = useClientShapeActions(client, entities, action.run);
@@ -248,7 +245,7 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
   const shapeQuery = useMemo(() => shapeListQuery(), []);
   const { entities } = useEntities(shapeQuery);
   const [latencyMs, setLatencyMs] = useState(() =>
-    closestLatency(client.link.getLatency()),
+    closestLatency(client.link.getLatency())
   );
   const partitioned = client.link.isPartitioned();
   const actions = useClientActions(client, entities);
@@ -259,11 +256,12 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
       setLatencyMs(ms);
       client.link.setLatency(ms);
     },
-    [client.link],
+    [client.link]
   );
 
   const latencyLabel =
-    latencyBuckets.find((b) => b.value === latencyMs)?.label ?? t`${latencyMs} ms`;
+    latencyBuckets.find((b) => b.value === latencyMs)?.label ??
+    t`${latencyMs} ms`;
   const subtitle = t`Latency: ${latencyLabel}`;
 
   return (

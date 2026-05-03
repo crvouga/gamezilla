@@ -1,18 +1,16 @@
 import { assert } from '@gamezilla/lib/assert';
-import { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
+import type { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
 import { useCallback, useMemo, useSyncExternalStore } from 'react';
-import {
+import type {
   Entity,
   PatchesDb,
   PatchesDbQuery,
   PatchesDbResult,
 } from './interface';
-import {
-  CachedQueryResult,
-  getCacheForDb,
-} from './react-query-cache';
+import type { CachedQueryResult } from './react-query-cache';
+import { getCacheForDb } from './react-query-cache';
 import { SubscribablePatchesDbToken } from './subscribable';
 
 export const PatchesDbToken: InjectionToken<PatchesDb> = Symbol('PatchesDb');

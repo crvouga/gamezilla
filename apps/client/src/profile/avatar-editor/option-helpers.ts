@@ -9,7 +9,7 @@ export function buildThumbnailEnumOptions(
   styleKey: StyleKey,
   fieldKey: string,
   variant: string | null,
-  baseOptions: Record<string, unknown>,
+  baseOptions: Record<string, unknown>
 ): Record<string, unknown> {
   const fields = getFieldsForStyle(styleKey);
   const field = fields.find((f) => f.kind === 'enum' && f.key === fieldKey);
@@ -33,7 +33,7 @@ export function humanizeOptionKey(key: string): string {
   return spaced
     .split(' ')
     .map((w) =>
-      w.length === 0 ? w : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(),
+      w.length === 0 ? w : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
     )
     .join(' ');
 }
@@ -47,7 +47,7 @@ export function arraysEqualAsSets(a: string[], b: string[]): boolean {
 
 export function getEnumSelectionMode(
   field: Extract<SchemaField, { kind: 'enum' }>,
-  value: unknown,
+  value: unknown
 ): 'random' | string {
   if (value === undefined) return 'random';
   if (!Array.isArray(value)) return 'random';
@@ -61,7 +61,7 @@ export function getEnumSelectionMode(
 /** True if value matches schema default (full random pool). */
 export function isEnumRandom(
   field: Extract<SchemaField, { kind: 'enum' }>,
-  value: unknown,
+  value: unknown
 ): boolean {
   if (value === undefined) return true;
   if (!Array.isArray(value)) return true;
@@ -69,7 +69,7 @@ export function isEnumRandom(
 }
 
 export function getProbabilityMode(
-  value: unknown,
+  value: unknown
 ): 'off' | 'random' | 'always' {
   if (value === undefined) return 'random';
   if (typeof value !== 'number') return 'random';

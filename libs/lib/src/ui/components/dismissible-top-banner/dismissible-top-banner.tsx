@@ -410,7 +410,7 @@ function useDismissibleBannerPortalRegistration(
   node: ReactNode
 ): void {
   useLayoutEffect(() => {
-    if (portal == null) return;
+    if (portal === null) return;
     portal.register(portalId, node);
     return () => {
       portal.unregister(portalId);
@@ -478,7 +478,7 @@ function DismissibleBannerPortaled({
 
   useDismissibleBannerPortalRegistration(portal, portalId, node);
 
-  if (portal == null) {
+  if (portal === null) {
     assert.ok(!visible, MISSING_PORTAL_MSG, { visible });
     return null;
   }

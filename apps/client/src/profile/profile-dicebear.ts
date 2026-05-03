@@ -2,7 +2,9 @@ import { createAvatar } from '@dicebear/core';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { getStyleOrDefault } from './dicebear-styles';
 
-function sanitizeOptions(options: Record<string, unknown>): Record<string, unknown> {
+function sanitizeOptions(
+  options: Record<string, unknown>
+): Record<string, unknown> {
   const out = { ...options };
   delete out['seed'];
   delete out['size'];

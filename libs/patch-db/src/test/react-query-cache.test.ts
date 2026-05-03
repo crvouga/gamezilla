@@ -201,7 +201,11 @@ describe('PatchesDbQueryCache', () => {
     expect(before?.entities.length).toBe(1);
 
     await db.write([
-      { entityId: 'd2', entityType: 'unrelated', attributes: { 'unrelated/n': 1 } },
+      {
+        entityId: 'd2',
+        entityType: 'unrelated',
+        attributes: { 'unrelated/n': 1 },
+      },
     ]);
     await flushMicrotasks();
 

@@ -16,5 +16,5 @@ export interface ITaskRunner {
  */
 export type TaskWrapper = <T>(
   task: ITask<T>,
-  fn: () => Promise<T>,
+  fn: () => Promise<T>
 ) => Promise<T>;

@@ -1,34 +1,20 @@
-const tsParser = require('@typescript-eslint/parser')
-const eslintPluginNaming = require('eslint-plugin-naming')
-const eslintPluginGamezillaI18n = require('../eslint-rules/gamezilla-i18n.cjs')
-const eslintPluginLingui = require('eslint-plugin-lingui')
-const { linguiRules } = require('../eslint-rules/lingui-rules.cjs')
-const sizeLimits = require('../eslint-rules/size-limits.cjs')
-const a11yRestrictions = require('../eslint-rules/a11y-restrictions.cjs')
+const eslintPluginGamezillaI18n = require('../eslint-rules/gamezilla-i18n.cjs');
+const eslintPluginLingui = require('eslint-plugin-lingui');
+const { createSharedBlocks } = require('../eslint-rules/base-config.cjs');
+const { linguiRules } = require('../eslint-rules/lingui-rules.cjs');
 
 module.exports = [
+  ...createSharedBlocks(__dirname),
   {
-    ignores: ['dist/**'],
+    files: ['src/logger/logger.ts', '**/*.bench.ts'],
+    rules: {
+      'no-console': 'off',
+    },
   },
   {
-    files: ['**/*.ts', '**/*.tsx'],
-    languageOptions: {
-      parser: tsParser,
-    },
-    plugins: {
-      naming: eslintPluginNaming,
-    },
+    files: ['src/async/use-async.ts'],
     rules: {
-      ...sizeLimits.rules(),
-      'naming/case': [
-        'error',
-        {
-          match: ['kebab'],
-          validateFolders: false,
-          ignore: ['^index\\.(ts|tsx|js|jsx)$'],
-        },
-      ],
-      'no-restricted-syntax': ['error', ...a11yRestrictions.restrictedSyntax()],
+      'max-lines-per-function': 'off',
     },
   },
   {
@@ -38,10 +24,10 @@ module.exports = [
       lingui: eslintPluginLingui,
     },
     rules: {
-      // `Text` is defined here; examples and internals use string labels by design.
-      // Product copy is enforced in `apps/client` + `LocalizedString` on primitives.
       'gamezillaI18n/text-must-be-trans': 'off',
       ...linguiRules(),
+      // Design-system internals: product copy is enforced in apps/client.
+      'lingui/no-unlocalized-strings': 'off',
     },
   },
   {
@@ -56,5 +42,4 @@ module.exports = [
       'gamezillaI18n/text-must-be-trans': 'off',
     },
   },
-  sizeLimits.testOverrides(),
-]
+];

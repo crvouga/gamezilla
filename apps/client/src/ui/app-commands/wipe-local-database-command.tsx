@@ -38,9 +38,9 @@ export function WipeLocalDatabaseCommand() {
         }
         variant="destructive"
         confirmLabel={<Trans>Wipe and reload</Trans>}
-        onConfirm={async () => {
+        onConfirm={() => {
           setVisible(false);
-          await clearLocalDatabaseAndReload('main');
+          void clearLocalDatabaseAndReload('main');
         }}
         onCancel={() => setVisible(false)}
       />

@@ -28,7 +28,7 @@
   "scripts": {
     "sync": "bun run scripts/sync.ts",
     "check": "bun run scripts/check-catalog.ts",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
     "tc": "tsc --noEmit -p ./tsconfig.json",
     "test": "bun test"
   },

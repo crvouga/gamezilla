@@ -22,13 +22,13 @@ export function usePeerHandlers(sim: PlaygroundSimulator): PeerHandlers {
       try {
         sim.dispatchWithSpoof(
           peerId,
-          PlaceMark({ cell, player: player as 'X' | 'O' }),
+          PlaceMark({ cell, player: player as 'X' | 'O' })
         );
       } catch {
         /* error logged via onError callback */
       }
     },
-    [sim],
+    [sim]
   );
 
   const disconnect = useCallback(
@@ -41,7 +41,7 @@ export function usePeerHandlers(sim: PlaygroundSimulator): PeerHandlers {
         /* already disconnected */
       }
     },
-    [sim],
+    [sim]
   );
 
   const reconnect = useCallback(
@@ -54,7 +54,7 @@ export function usePeerHandlers(sim: PlaygroundSimulator): PeerHandlers {
         /* not disconnected */
       }
     },
-    [sim],
+    [sim]
   );
 
   return { disconnectedPeers, dispatch, disconnect, reconnect };

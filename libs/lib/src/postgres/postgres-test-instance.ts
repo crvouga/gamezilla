@@ -31,7 +31,7 @@ async function wipeDatabase(url: string): Promise<void> {
     }
     await wipeClient.unsafe(WIPE_SQL).simple();
   } catch {
-    wipeClient?.close();
+    void wipeClient?.close();
     wipeClient = null;
     wipeClient = new SQL(url);
     await wipeClient.unsafe(WIPE_SQL).simple();
@@ -69,7 +69,7 @@ export async function getPostgresTestInstance(
  */
 export async function stopPostgresTestInstance(): Promise<void> {
   if (wipeClient) {
-    wipeClient.close();
+    void wipeClient.close();
     wipeClient = null;
   }
   if (instance) {

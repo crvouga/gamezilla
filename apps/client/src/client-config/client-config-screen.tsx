@@ -47,19 +47,30 @@ export function ClientConfigScreen() {
       content={({ sx }) => (
         <Box style={{ ...sx, gap: 12 }}>
           <Card elevation={1} sx={{ p: 4, gap: 3 }}>
-            <Text variant="bodyBold" label={<Trans>Local PatchDB (synced)</Trans>} />
+            <Text
+              variant="bodyBold"
+              label={<Trans>Local PatchDB (synced)</Trans>}
+            />
             <Text
               variant="caption"
               sx={{ color: 'textSecondary' }}
               label={
-                <Trans>Entity type clientConfig, id clientConfig__singleton</Trans>
+                <Trans>
+                  Entity type clientConfig, id clientConfig__singleton
+                </Trans>
               }
             />
             <Box sx={{ gap: 1 }}>
-              <Text variant="label" label={<Trans>Google web client ID</Trans>} />
+              <Text
+                variant="label"
+                label={<Trans>Google web client ID</Trans>}
+              />
               <Text variant="mono" selectable label={googleLine} />
             </Box>
-            <Text variant="label" label={<Trans>All attributes (JSON)</Trans>} />
+            <Text
+              variant="label"
+              label={<Trans>All attributes (JSON)</Trans>}
+            />
             <Text variant="mono" selectable label={jsonPreview} />
           </Card>
 

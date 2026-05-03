@@ -35,7 +35,10 @@ function mergeRanges(ranges: [number, number][]): [number, number][] {
   return out;
 }
 
-export function fuzzyMatch(query: string, text: string): FuzzyMatchResult | null {
+export function fuzzyMatch(
+  query: string,
+  text: string
+): FuzzyMatchResult | null {
   const q = query.trim().toLowerCase();
   const hay = text.toLowerCase();
   if (q === '') {

@@ -43,9 +43,7 @@ function SpacesList({ loading, spaces }: SpacesListProps) {
           <Text
             variant="body"
             sx={{ color: 'textSecondary' }}
-            label={
-              <Trans>No live spaces. Tap + New space to start one.</Trans>
-            }
+            label={<Trans>No live spaces. Tap + New space to start one.</Trans>}
           />
         </Box>
       ) : (

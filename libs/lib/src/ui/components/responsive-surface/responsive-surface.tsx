@@ -4,12 +4,7 @@
  */
 
 import type { PropsWithChildren, ReactNode } from 'react';
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-} from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
@@ -48,10 +43,7 @@ function MobileSheet({
 }: ResponsiveSurfaceProps) {
   const theme = useTheme();
   const sheetRef = useRef<React.ElementRef<typeof BottomSheetModal>>(null);
-  const snapPoints = useMemo(
-    () => snapPointsProp ?? ['80%'],
-    [snapPointsProp]
-  );
+  const snapPoints = useMemo(() => snapPointsProp ?? ['80%'], [snapPointsProp]);
 
   useEffect(() => {
     const sheet = sheetRef.current;

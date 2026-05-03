@@ -7,5 +7,5 @@
       "@gamezilla/room/*": ["../room/src/*"]
     }
   },
-  "include": ["./src/**/*.ts", "./src/**/*.tsx"]
+  "include": ["../lib/src/ts-reset.ts", "./src/**/*.ts", "./src/**/*.tsx"]
 }

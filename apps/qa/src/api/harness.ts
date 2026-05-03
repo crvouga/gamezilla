@@ -129,7 +129,9 @@ export async function waitForHttpOk(
     }
     await Bun.sleep(250);
   }
-  const procOutput = opts.process ? `\nProcess output:\n${opts.process.getOutput()}` : '';
+  const procOutput = opts.process
+    ? `\nProcess output:\n${opts.process.getOutput()}`
+    : '';
   throw new Error(
     `${opts.label}: timed out (${opts.timeoutMs}ms). Last: ${lastErr ?? 'unknown'}${procOutput}`
   );
@@ -150,15 +152,16 @@ export function killSubprocess(proc: Subprocess | null): void {
 }
 
 /** Long-running workspace script (e.g. `preview`); use with `await using` for teardown. */
-export type PackageScriptHandle = AsyncDisposable &
-  SpawnedProcess;
+export type PackageScriptHandle = AsyncDisposable & SpawnedProcess;
 
 export function startPackageScriptBackground(
   packageName: string,
   scriptName: string,
   env: Record<string, string>
 ): PackageScriptHandle {
-  const handle = spawnPackageScript(packageName, scriptName, env, { echo: false });
+  const handle = spawnPackageScript(packageName, scriptName, env, {
+    echo: false,
+  });
   return {
     subprocess: handle.subprocess,
     getOutput: handle.getOutput,
@@ -174,7 +177,9 @@ export async function runPackageScriptOnce(
   scriptName: string,
   env: Record<string, string>
 ): Promise<void> {
-  const handle = spawnPackageScript(packageName, scriptName, env, { echo: false });
+  const handle = spawnPackageScript(packageName, scriptName, env, {
+    echo: false,
+  });
   const code = await handle.subprocess.exited;
   killSubprocess(handle.subprocess);
   if (code !== 0) {

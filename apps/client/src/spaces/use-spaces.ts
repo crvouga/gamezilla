@@ -6,10 +6,7 @@ import {
 import { PrincipalServiceToken } from '@gamezilla/client/auth/principal-service';
 import { usePrincipalProfileEntities } from '@gamezilla/client/auth/use-principal-profile-entities';
 import { displayNameForPrincipal } from '@gamezilla/client/profile/principal-display';
-import {
-  PRINCIPAL_ENTITY_TYPE,
-  PrincipalAttr,
-} from '@gamezilla/domain/auth';
+import { PRINCIPAL_ENTITY_TYPE, PrincipalAttr } from '@gamezilla/domain/auth';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
@@ -113,8 +110,11 @@ export function useSpaces() {
     return [...ids];
   }, [spacesResult.entities, selfPrincipalId]);
 
-  const { principalById, profileById, loading: hostProfilesLoading } =
-    usePrincipalProfileEntities(hostIds);
+  const {
+    principalById,
+    profileById,
+    loading: hostProfilesLoading,
+  } = usePrincipalProfileEntities(hostIds);
 
   const { entity: selfAccountProfile, loading: selfProfileLoading } =
     useSelfAccountProfile(selfAccountId);
@@ -182,9 +182,7 @@ export function useSpace(spaceId: string | undefined) {
   };
 }
 
-function normalizePrincipalId(
-  principalId: string | null | undefined
-): string {
+function normalizePrincipalId(principalId: string | null | undefined): string {
   return typeof principalId === 'string' && principalId.length > 0
     ? principalId
     : NO_ENTITY_PLACEHOLDER;
@@ -379,9 +377,7 @@ export function useCurrentMembership(): CurrentMembership {
     entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
     where: stampWhere,
     limit: 50,
-    orderBy: [
-      { attribute: SpaceMembershipAttr.joinedAt, direction: 'desc' },
-    ],
+    orderBy: [{ attribute: SpaceMembershipAttr.joinedAt, direction: 'desc' }],
   });
 
   const membership = useMemo(() => {
@@ -482,8 +478,11 @@ export function useSpaceMembers(spaceId: string | undefined) {
     return ids.length > 0 ? ids : [selfPrincipalId];
   }, [membersRes.entities, selfPrincipalId]);
 
-  const { principalById, profileById, loading: memberProfilesLoading } =
-    usePrincipalProfileEntities(memberPrincipalIds);
+  const {
+    principalById,
+    profileById,
+    loading: memberProfilesLoading,
+  } = usePrincipalProfileEntities(memberPrincipalIds);
 
   const { entity: selfAccountProfile, loading: selfProfileLoading } =
     useSelfAccountProfile(selfAccountId);

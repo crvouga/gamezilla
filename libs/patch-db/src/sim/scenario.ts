@@ -1,10 +1,7 @@
 import { buildScenario } from './build-scenario';
 import { type SimRecordingMeta } from './event-recorder';
 import type { Sim } from './sim';
-import type {
-  ScenarioClientSpec,
-  ScenarioServerSpec,
-} from './sim-types';
+import type { ScenarioClientSpec, ScenarioServerSpec } from './sim-types';
 
 export { Sim } from './sim';
 export type {

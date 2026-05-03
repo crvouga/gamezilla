@@ -250,7 +250,6 @@ export function handleLeaveSession(
   const forfeit = maybeAddForfeitWin(state, held, seq);
   if (forfeit !== null) {
     events.push(forfeit.event);
-    seq = forfeit.nextSeq;
   }
 
   return { ok: true, events };

@@ -65,7 +65,11 @@ function TypeSegment({
   const { t } = useLingui();
   return (
     <Box sx={{ gap: 2 }}>
-      <Text variant="caption" sx={{ opacity: 0.8 }} label={<Trans>Type</Trans>} />
+      <Text
+        variant="caption"
+        sx={{ opacity: 0.8 }}
+        label={<Trans>Type</Trans>}
+      />
       <SegmentedControl
         segments={[
           { key: SOLID, label: t`Solid` },

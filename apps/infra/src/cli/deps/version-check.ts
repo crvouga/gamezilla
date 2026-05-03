@@ -7,7 +7,7 @@ export type DepVersionIssue =
 
 /** Resolves installed version + latest upstream; records missing/outdated deps. */
 export async function collectDepVersionIssues(
-  dep: Dep,
+  dep: Dep
 ): Promise<
   | { ok: true; name: string; version: string }
   | { ok: false; issue: DepVersionIssue }

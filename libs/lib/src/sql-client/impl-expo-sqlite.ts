@@ -36,7 +36,9 @@ function formatErrorChain(parts: unknown[]): string {
 }
 
 /** Runs before the first open attempt. Non-fatal: failures here are best-effort. */
-async function maybeHandleResetDbQueryParam(databaseName: string): Promise<void> {
+async function maybeHandleResetDbQueryParam(
+  databaseName: string
+): Promise<void> {
   if (Platform.OS !== 'web' || typeof window === 'undefined') {
     return;
   }
@@ -50,14 +52,14 @@ async function maybeHandleResetDbQueryParam(databaseName: string): Promise<void>
   url.searchParams.delete(RESET_DB_QUERY_PARAM);
   window.history.replaceState(null, '', url.toString());
   console.warn(
-    `[SqlClientImplExpoSqlite] ?${RESET_DB_QUERY_PARAM}=1 detected — wiped expo-sqlite OPFS and deleted "${databaseName}" before opening.`,
+    `[SqlClientImplExpoSqlite] ?${RESET_DB_QUERY_PARAM}=1 detected — wiped expo-sqlite OPFS and deleted "${databaseName}" before opening.`
   );
 }
 
 function buildLockedOpfsError(
   databaseName: string,
   clearError: unknown,
-  previous: unknown[],
+  previous: unknown[]
 ): Error {
   const origin =
     typeof window !== 'undefined' && window.location !== undefined
@@ -70,13 +72,13 @@ function buildLockedOpfsError(
       `another tab or worker is holding the OPFS handle (${clearMessage}). ` +
       `Fix: close every other tab of ${origin}, unregister any Service Worker in DevTools → Application → Service Workers, ` +
       `then reload with ?${RESET_DB_QUERY_PARAM}=1 appended to the URL (or use DevTools → Application → Clear site data). ` +
-      `Underlying open errors: ${formatErrorChain(previous)}`,
+      `Underlying open errors: ${formatErrorChain(previous)}`
   );
 }
 
 async function openDatabaseOnce(
   databaseName: string,
-  recovery: boolean,
+  recovery: boolean
 ): Promise<SqlClientImplExpoSqlite> {
   const opts =
     Platform.OS === 'web' && recovery ? { useNewConnection: true } : {};
@@ -115,18 +117,18 @@ export class SqlClientImplExpoSqlite implements SqlClient {
 
   query<T = Record<string, unknown>>(
     sql: string,
-    params?: unknown[],
+    params?: unknown[]
   ): Promise<T[]> {
     return this.db.getAllAsync<T>(
       sql,
-      (params ?? []) as SQLite.SQLiteBindValue[],
+      (params ?? []) as SQLite.SQLiteBindValue[]
     );
   }
 
   async run(sql: string, params?: unknown[]): Promise<RunResult> {
     const result = await this.db.runAsync(
       sql,
-      (params ?? []) as SQLite.SQLiteBindValue[],
+      (params ?? []) as SQLite.SQLiteBindValue[]
     );
     return {
       changes: result.changes,
@@ -139,13 +141,13 @@ export class SqlClientImplExpoSqlite implements SqlClient {
     return {
       query: async <T = Record<string, unknown>>(params?: unknown[]) => {
         const result = await stmt.executeAsync(
-          (params ?? []) as SQLite.SQLiteBindParams,
+          (params ?? []) as SQLite.SQLiteBindParams
         );
         return result.getAllAsync() as Promise<T[]>;
       },
       run: async (params?: unknown[]) => {
         const result = await stmt.executeAsync(
-          (params ?? []) as SQLite.SQLiteBindParams,
+          (params ?? []) as SQLite.SQLiteBindParams
         );
         return {
           changes: result.changes,
@@ -256,10 +258,7 @@ async function openWithOpfsRecovery(
     `[SqlClientImplExpoSqlite] Open failed again; cleared expo-sqlite OPFS and reloading.`,
     second
   );
-  if (
-    typeof window !== 'undefined' &&
-    typeof sessionStorage !== 'undefined'
-  ) {
+  if (typeof window !== 'undefined' && typeof sessionStorage !== 'undefined') {
     sessionStorage.setItem(WEB_RECOVERY_RELOAD_KEY, '1');
     window.location.reload();
     return await new Promise<SqlClientImplExpoSqlite>(() => {});
@@ -285,7 +284,12 @@ async function openAfterOpfsRecovery(
     try {
       return await finishOpen(await openDatabaseOnce(databaseName, true));
     } catch (fourth: unknown) {
-      throw buildPostRecoveryError(databaseName, [fourth, third, second, first]);
+      throw buildPostRecoveryError(databaseName, [
+        fourth,
+        third,
+        second,
+        first,
+      ]);
     }
   }
 }

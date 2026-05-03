@@ -6,8 +6,14 @@ export {
   SecretStoreRequestError,
   isSecretStoreError,
 } from './errors';
-export { CachingSecretStore, createCachingSecretStore } from './caching-secret-store';
-export { CombinedSecretStore, createCombinedSecretStore } from './combined-secret-store';
+export {
+  CachingSecretStore,
+  createCachingSecretStore,
+} from './caching-secret-store';
+export {
+  CombinedSecretStore,
+  createCombinedSecretStore,
+} from './combined-secret-store';
 export type { CachingSecretStoreOptions } from './caching-secret-store';
 export {
   createDopplerSecretStoreForScripts,

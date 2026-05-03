@@ -2,11 +2,7 @@ import { assert } from '@gamezilla/lib/assert';
 import { fireAndForget } from '@gamezilla/lib/async/fire-and-forget';
 import type { PubSub, Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
 import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
-import type {
-  PatchesDb,
-  PatchesDbQuery,
-  PatchesDbResult,
-} from '../interface';
+import type { PatchesDb, PatchesDbQuery, PatchesDbResult } from '../interface';
 
 /** Pub/sub topic carrying patch-db invalidation events. */
 export const PATCHES_DB_TOPIC = 'patches-db';
@@ -66,10 +62,7 @@ export class ActiveQueryRegistry {
     return this.entries.size;
   }
 
-  subscribe(
-    query: PatchesDbQuery,
-    listener: ActiveQueryListener
-  ): Unsubscribe {
+  subscribe(query: PatchesDbQuery, listener: ActiveQueryListener): Unsubscribe {
     const key = JSON.stringify(query);
     let entry = this.entries.get(key);
     const isFirstEntry = entry === undefined;
@@ -151,9 +144,7 @@ export class ActiveQueryRegistry {
     entry.inFlight = run.finally(() => {
       entry.inFlight = null;
       const shouldRerun =
-        entry.rerunPending &&
-        entry.listeners.size > 0 &&
-        !this.isDestroyed();
+        entry.rerunPending && entry.listeners.size > 0 && !this.isDestroyed();
       entry.rerunPending = false;
       if (shouldRerun) {
         fireAndForget(this.notify(key), {

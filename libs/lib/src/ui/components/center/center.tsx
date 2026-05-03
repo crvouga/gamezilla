@@ -21,14 +21,18 @@ export type CenterProps = ViewProps & {
 
 export const Center = forwardRef<View, CenterProps>(function Center(
   { sx: sxProp, style, ...rest },
-  ref,
+  ref
 ) {
   const theme = useTheme();
   const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
   return (
     <View
       ref={ref}
-      style={[{ alignItems: 'center', justifyContent: 'center' }, sxStyle, style]}
+      style={[
+        { alignItems: 'center', justifyContent: 'center' },
+        sxStyle,
+        style,
+      ]}
       {...rest}
     />
   );

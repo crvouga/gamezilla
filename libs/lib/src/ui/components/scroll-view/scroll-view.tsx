@@ -33,5 +33,5 @@ export const ScrollView = forwardRef<RNScrollView, ScrollViewProps>(
         {...rest}
       />
     );
-  },
+  }
 );

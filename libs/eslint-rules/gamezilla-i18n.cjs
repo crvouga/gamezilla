@@ -38,7 +38,10 @@ const ruleTextMustBeTrans = {
             a.name.type === 'JSXIdentifier' &&
             a.name.name === 'label'
         );
-        if (labelAttr?.type === 'JSXAttribute' && isStringLiteralJsxAttrValue(labelAttr)) {
+        if (
+          labelAttr?.type === 'JSXAttribute' &&
+          isStringLiteralJsxAttrValue(labelAttr)
+        ) {
           context.report({
             node: labelAttr,
             message:

@@ -55,7 +55,10 @@ function resolveDopplerScope(): DopplerScope {
   const config =
     envConfig.length > 0 ? envConfig : cli.tryConfigureGetConfigPlain();
 
-  if (tokenRequiresScopeParams(token) && (project === null || config === null)) {
+  if (
+    tokenRequiresScopeParams(token) &&
+    (project === null || config === null)
+  ) {
     process.stderr.write(
       '[setup-dev-vars] DOPPLER_TOKEN is not a config-scoped service token (`dp.st.…`); ' +
         'DOPPLER_PROJECT and DOPPLER_CONFIG must be resolvable from env or `doppler configure`.\n'

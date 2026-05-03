@@ -15,7 +15,13 @@ import {
 import { usePatchesDb } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 
 function useSyncedDisplayName(entity: Entity | null | undefined) {
   const [value, setValue] = useState('');

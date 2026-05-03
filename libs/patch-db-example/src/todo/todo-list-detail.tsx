@@ -24,7 +24,6 @@ import { useState } from 'react';
 import { INBOX_LIST_ID } from './todo-constants';
 import { TodoItem } from './todo-item';
 
-/* eslint-disable lingui/no-unlocalized-strings */
 const DELETED_CLAUSE: PatchesDbQueryWhereClause = {
   type: 'or',
   clauses: [
@@ -59,7 +58,7 @@ function buildListClause(listId: string): PatchesDbQueryWhereClause {
 
 function buildWhereForFilter(
   filter: Filter,
-  listClause: PatchesDbQueryWhereClause,
+  listClause: PatchesDbQueryWhereClause
 ): PatchesDbQueryWhereClause {
   if (filter === 'all') {
     return { type: 'and', clauses: [DELETED_CLAUSE, listClause] };
@@ -92,14 +91,12 @@ function buildTodoQuery(listId: string, filter: Filter): PatchesDbQuery {
     ],
   };
 }
-/* eslint-enable lingui/no-unlocalized-strings */
 
 function useListName(listId: string): string {
   const { t } = useLingui();
   const listEntity = useEntity({
-    // eslint-disable-next-line lingui/no-unlocalized-strings
     entityType: 'todoList',
-    // eslint-disable-next-line lingui/no-unlocalized-strings
+
     entityId: listId === INBOX_LIST_ID ? '__inbox_placeholder__' : listId,
   });
   if (listId === INBOX_LIST_ID) return t`Inbox`;
@@ -138,11 +135,11 @@ function FilterTabs({
 
   return (
     <Box sx={{ flexDirection: 'row', gap: 2, mb: 3 }}>
-      {/* eslint-disable lingui/no-unlocalized-strings */}
+      {}
       {renderTab('all', t`All`)}
       {renderTab('active', t`Active`)}
       {renderTab('completed', t`Completed`)}
-      {/* eslint-enable lingui/no-unlocalized-strings */}
+      {}
     </Box>
   );
 }
@@ -235,11 +232,10 @@ export type TodoListDetailProps = {
   onBack?: () => void;
 };
 
-/* eslint-disable lingui/no-unlocalized-strings */
 function buildTodoCreatePayload(
   listId: string,
   title: string,
-  totalCount: number,
+  totalCount: number
 ) {
   return {
     entityId: crypto.randomUUID(),
@@ -271,7 +267,6 @@ function buildTodoDeletePayload(entity: Entity) {
     attributes: { 'todo/deleted': true },
   };
 }
-/* eslint-enable lingui/no-unlocalized-strings */
 
 export function TodoListDetail({ listId, onBack }: TodoListDetailProps) {
   const { t } = useLingui();
@@ -279,7 +274,6 @@ export function TodoListDetail({ listId, onBack }: TodoListDetailProps) {
   const [input, setInput] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
 
-  // eslint-disable-next-line lingui/no-unlocalized-strings
   const allResult = useEntities(buildTodoQuery(listId, 'all'));
   const filterResult = useEntities(buildTodoQuery(listId, filter));
   const todos = filterResult.entities;

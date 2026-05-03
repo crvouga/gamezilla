@@ -6,7 +6,10 @@ import type {
 } from '@gamezilla/patch-db/interface';
 import type { PatchDbClientTransport } from '@gamezilla/patch-db/transport';
 import { NO_CACHE_REQUEST_HEADERS } from '@gamezilla/patch-db/transport';
-import { assertPatches, assertPatchesDbResults } from '@gamezilla/patch-db/validate-remote';
+import {
+  assertPatches,
+  assertPatchesDbResults,
+} from '@gamezilla/patch-db/validate-remote';
 import type { GamezillaApiClient } from './hc';
 
 const JSON_HEADERS = {

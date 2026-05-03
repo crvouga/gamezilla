@@ -21,7 +21,10 @@ import {
 } from '../testkit/fixtures/tic-tac-toe.module';
 import { TestCrashHandler } from '../testkit/test-crash-handler';
 import { ticTacToeBoardCell } from '../testkit/tic-tac-toe-board';
-import { testPeerForLabel, ticTacToeThreePeers } from '../testkit/tic-tac-toe-peers';
+import {
+  testPeerForLabel,
+  ticTacToeThreePeers,
+} from '../testkit/tic-tac-toe-peers';
 import { InMemoryBus, InMemoryTransport } from '../transport';
 import { recoverRoomFromPersistence } from './persistence';
 import { InMemoryRoomPersistence } from './persistence-in-memory';
@@ -34,7 +37,10 @@ function validateTurnChangedPayload(p: unknown): p is { next: string } {
   const next = p['next'];
   return typeof next === 'string' && next.length > 0;
 }
-const TurnChanged = persistenceTestNs('TURN_CHANGED', validateTurnChangedPayload);
+const TurnChanged = persistenceTestNs(
+  'TURN_CHANGED',
+  validateTurnChangedPayload
+);
 
 let disposeCrashHandler: () => void;
 beforeAll(() => {
@@ -120,7 +126,10 @@ describe('recoverRoomFromPersistence', () => {
       message: { type: 'MOVE', payload: {} },
     };
 
-    await journal.append('log-part-1', { kind: 'command', command: resolvedCmd });
+    await journal.append('log-part-1', {
+      kind: 'command',
+      command: resolvedCmd,
+    });
     await journal.append('log-part-1', {
       kind: 'committed',
       commandId: 'cmd-resolved',
@@ -128,7 +137,10 @@ describe('recoverRoomFromPersistence', () => {
         { seq: 1, event: { type: 'PIECE_MOVED', payload: { cell: 0 } } },
       ],
     });
-    await journal.append('log-part-1', { kind: 'command', command: unresolvedCmd });
+    await journal.append('log-part-1', {
+      kind: 'command',
+      command: unresolvedCmd,
+    });
 
     let rehydratedEntries: LogEntry[] = [];
     const unresolved: Command[] = [];

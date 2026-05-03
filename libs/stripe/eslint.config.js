@@ -1,40 +1,14 @@
-const tsParser = require('@typescript-eslint/parser');
-const eslintPluginNaming = require('eslint-plugin-naming');
-const sizeLimits = require('../eslint-rules/size-limits.cjs');
-const a11yRestrictions = require('../eslint-rules/a11y-restrictions.cjs');
+const { createSharedBlocks } = require('../eslint-rules/base-config.cjs');
 
 module.exports = [
+  ...createSharedBlocks(__dirname),
   {
-    ignores: ['dist/**', 'src/generated/**'],
-  },
-  {
-    files: ['**/*.ts', '**/*.tsx'],
-    languageOptions: {
-      parser: tsParser,
-    },
-    plugins: {
-      naming: eslintPluginNaming,
-    },
-    rules: {
-      ...sizeLimits.rules(),
-      'naming/case': [
-        'error',
-        {
-          match: ['kebab'],
-          validateFolders: false,
-          ignore: ['^index\\.(ts|tsx|js|jsx)$'],
-        },
-      ],
-      'no-restricted-syntax': ['error', ...a11yRestrictions.restrictedSyntax()],
-    },
-  },
-  sizeLimits.testOverrides(),
-  {
-    files: ['scripts/**/*.ts'],
+    files: ['scripts/**/*.ts', 'src/sync/**/*.ts'],
     rules: {
       'max-statements': 'off',
       complexity: 'off',
       'max-lines-per-function': 'off',
+      'no-console': 'off',
     },
   },
 ];

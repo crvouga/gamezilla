@@ -55,18 +55,14 @@ export function SignInModal({
   }, [google.available, loading, run]);
 
   return (
-    <ResponsiveSurface
-      visible={visible}
-      onClose={onClose}
-      title={t`Sign in`}
-    >
+    <ResponsiveSurface visible={visible} onClose={onClose} title={t`Sign in`}>
       <ModalBody>
         <Text
           variant="body"
           label={
             <Trans>
-              Sign in to link this device to your server account. Your data stays
-              local first.
+              Sign in to link this device to your server account. Your data
+              stays local first.
             </Trans>
           }
         />
@@ -80,7 +76,11 @@ export function SignInModal({
         />
       </ModalBody>
       <ModalFooter>
-        <ModalButton label={<Trans>Close</Trans>} variant="cancel" onPress={onClose} />
+        <ModalButton
+          label={<Trans>Close</Trans>}
+          variant="cancel"
+          onPress={onClose}
+        />
       </ModalFooter>
     </ResponsiveSurface>
   );

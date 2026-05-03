@@ -49,7 +49,7 @@ export const Stack = forwardRef<View, StackProps>(function Stack(
     style,
     ...rest
   },
-  ref,
+  ref
 ) {
   const theme = useTheme();
 

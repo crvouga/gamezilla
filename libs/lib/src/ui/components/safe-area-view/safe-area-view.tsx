@@ -30,5 +30,5 @@ export const SafeAreaView = forwardRef<View, SafeAreaViewProps>(
     const theme = useTheme();
     const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
     return <RNSafeAreaView ref={ref} style={[sxStyle, style]} {...rest} />;
-  },
+  }
 );

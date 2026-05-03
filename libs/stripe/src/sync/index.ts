@@ -26,11 +26,5 @@ export {
   type EntitiesSyncEntry,
   type EntitiesSyncResult,
 } from './entities';
-export {
-  runStripeFullSync,
-  type StripeFullSyncResult,
-} from './full';
-export {
-  runStripeWebhookSync,
-  type WebhookSyncResult,
-} from './webhooks';
+export { runStripeFullSync, type StripeFullSyncResult } from './full';
+export { runStripeWebhookSync, type WebhookSyncResult } from './webhooks';

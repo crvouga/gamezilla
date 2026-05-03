@@ -17,7 +17,7 @@ function derivePanelState(
   displayState: State,
   committedState: State,
   player: 'X' | 'O' | null,
-  t: LinguiT,
+  t: LinguiT
 ): { isReadonly: boolean; hasOptimistic: boolean; turnHint: LocalizedString } {
   const currentTurn = displayState['currentTurn'];
   const status = displayState['status'];
@@ -29,7 +29,8 @@ function derivePanelState(
 
   return {
     isReadonly: player === null || !isPlayerTurn || gameCompleted,
-    hasOptimistic: JSON.stringify(displayState) !== JSON.stringify(committedState),
+    hasOptimistic:
+      JSON.stringify(displayState) !== JSON.stringify(committedState),
     turnHint:
       player === null
         ? t`Authority/relay node`
@@ -75,7 +76,7 @@ export function PeerPanel({
     displayState,
     committedState,
     player,
-    t,
+    t
   );
 
   return (

@@ -205,20 +205,24 @@ function wireEnvelopeAsRecord(raw: unknown): Record<string, unknown> | null {
 
 function wireHeaderChecks(
   rec: Record<string, unknown>,
-  expectedTopic: string,
+  expectedTopic: string
 ): WireVerifyFail | void {
   if (rec['scheme'] !== ROOM_WIRE_SCHEME) {
     return { ok: false, reason: 'bad_scheme' };
   }
   if (rec['v'] !== 1) return { ok: false, reason: 'bad_version' };
-  if (rec['topic'] !== expectedTopic) return { ok: false, reason: 'topic_mismatch' };
+  if (rec['topic'] !== expectedTopic)
+    return { ok: false, reason: 'topic_mismatch' };
 }
 
-function wireSignerMaterial(
-  rec: Record<string, unknown>,
-):
+function wireSignerMaterial(rec: Record<string, unknown>):
   | WireVerifyFail
-  | { ok: true; signerPeerId: string; signerPubKeyB64: string; publicKey: Uint8Array } {
+  | {
+      ok: true;
+      signerPeerId: string;
+      signerPubKeyB64: string;
+      publicKey: Uint8Array;
+    } {
   const signerPeerId = rec['signerPeerId'];
   if (typeof signerPeerId !== 'string' || !signerPeerId) {
     return { ok: false, reason: 'bad_signer_peer_id' };
@@ -248,19 +252,21 @@ function wireSignerMaterial(
 function wireRoomProof(
   rec: Record<string, unknown>,
   roomSecret: string,
-  topic: string,
+  topic: string
 ): WireVerifyFail | { ok: true; roomProof: string } {
   const roomProof = rec['roomProof'];
-  if (typeof roomProof !== 'string') return { ok: false, reason: 'bad_room_proof' };
+  if (typeof roomProof !== 'string')
+    return { ok: false, reason: 'bad_room_proof' };
   const expectedProof = computeRoomProof(roomSecret, topic);
-  if (roomProof !== expectedProof) return { ok: false, reason: 'room_proof_mismatch' };
+  if (roomProof !== expectedProof)
+    return { ok: false, reason: 'room_proof_mismatch' };
   return { ok: true, roomProof };
 }
 
 function wireCounter(
   rec: Record<string, unknown>,
   signerPeerId: string,
-  lastCounters: Map<string, number>,
+  lastCounters: Map<string, number>
 ): WireVerifyFail | { ok: true; counter: number } {
   const counterRaw = rec['counter'];
   if (
@@ -277,7 +283,7 @@ function wireCounter(
 }
 
 function wireParsedBody(
-  rec: Record<string, unknown>,
+  rec: Record<string, unknown>
 ): WireVerifyFail | { ok: true; body: WireMessage; bodyDigest: string } {
   const bodyDigest = rec['bodyDigest'];
   if (typeof bodyDigest !== 'string') {
@@ -353,7 +359,7 @@ type WireAuthzBodyOk = {
 
 function wireEnvelopeAuthzAndBody(
   input: VerifyWireEnvelopeInput,
-  rec: Record<string, unknown>,
+  rec: Record<string, unknown>
 ): WireVerifyFail | WireAuthzBodyOk {
   const h = wireHeaderChecks(rec, input.topic);
   if (h) return h;

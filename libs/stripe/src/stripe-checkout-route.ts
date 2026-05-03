@@ -1,11 +1,14 @@
 import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '@gamezilla/domain/auth';
 import { createLogger } from '@gamezilla/lib/logger';
-import type { PatchesDb, PatchesDbAuthContext } from '@gamezilla/patch-db/interface';
+import type {
+  PatchesDb,
+  PatchesDbAuthContext,
+} from '@gamezilla/patch-db/interface';
 import { zValidator } from '@hono/zod-validator';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
 import { z } from 'zod';
 import { STRIPE_CATALOG_PRICE_KEYS } from './catalog-spec';
 import { getStripeCatalogPriceStripeId } from './stripe-catalog-mirror';

@@ -152,7 +152,9 @@ function resolveFontSize(
 }
 
 /** Pairs of (input shorthand key) → (output style key) for theme spacing. */
-const SPACING_MAP: ReadonlyArray<readonly [keyof SxProps, keyof ResolvedStyle]> = [
+const SPACING_MAP: ReadonlyArray<
+  readonly [keyof SxProps, keyof ResolvedStyle]
+> = [
   ['p', 'padding'],
   ['px', 'paddingHorizontal'],
   ['py', 'paddingVertical'],
@@ -235,9 +237,7 @@ function applyColors(
 function applyBorderBottom(props: SxProps, result: ResolvedStyle): void {
   if (props.borderBottomWidth === undefined) return;
   result.borderBottomWidth =
-    props.borderBottomWidth === 'hairline'
-      ? HAIRLINE
-      : props.borderBottomWidth;
+    props.borderBottomWidth === 'hairline' ? HAIRLINE : props.borderBottomWidth;
 }
 
 function applyTypography(props: SxProps, result: ResolvedStyle): void {

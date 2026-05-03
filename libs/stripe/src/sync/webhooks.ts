@@ -27,7 +27,11 @@ const WEBHOOK_MANAGED_BY_TAG = 'gamezilla_stripe_sync';
 const WEBHOOK_PATH = '/stripe/webhook';
 
 export type WebhookSyncResult =
-  | { readonly kind: 'noop'; readonly desiredUrl: string; readonly existing: number }
+  | {
+      readonly kind: 'noop';
+      readonly desiredUrl: string;
+      readonly existing: number;
+    }
   | {
       readonly kind: 'rebuilt';
       readonly desiredUrl: string;
@@ -152,9 +156,7 @@ export async function runStripeWebhookSync(args: {
   }
 
   if (dryRun) {
-    console.log(
-      `[${TAG}] dry-run: would delete all endpoints and create one`
-    );
+    console.log(`[${TAG}] dry-run: would delete all endpoints and create one`);
     return {
       kind: 'dry-run',
       desiredUrl,

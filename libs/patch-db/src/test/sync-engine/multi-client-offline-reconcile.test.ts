@@ -17,10 +17,7 @@ function pickEntityIds(results: PatchesDbResult[]): Set<string> {
   return new Set((results[0]?.entities ?? []).map((e) => e.entityId));
 }
 
-function getAttr(
-  results: PatchesDbResult[],
-  key: string
-): unknown {
+function getAttr(results: PatchesDbResult[], key: string): unknown {
   return results[0]?.entities[0]?.attributes?.[key];
 }
 

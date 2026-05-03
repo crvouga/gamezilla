@@ -19,7 +19,12 @@ export default function DividerExample() {
 
       <Box sx={{ gap: 1 }}>
         <Text variant="label" label="Vertical (inside horizontal stack)" />
-        <Stack direction="horizontal" spacing={3} align="center" sx={{ height: 40 }}>
+        <Stack
+          direction="horizontal"
+          spacing={3}
+          align="center"
+          sx={{ height: 40 }}
+        >
           <Text variant="body" label="Left" />
           <Divider orientation="vertical" />
           <Text variant="body" label="Right" />

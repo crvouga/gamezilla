@@ -35,11 +35,9 @@ export interface EntityDb {
 }
 
 function assertNoNulByte(s: string, field: string): void {
-  assert.ok(
-    !s.includes('\u0000'),
-    'entity-db: NUL byte in key field',
-    { field }
-  );
+  assert.ok(!s.includes('\u0000'), 'entity-db: NUL byte in key field', {
+    field,
+  });
 }
 
 function assertKeyPart(
@@ -47,16 +45,14 @@ function assertKeyPart(
   field: keyof EntityKey,
   maxLen: number
 ): asserts value is string {
-  assert.nonEmptyString(
-    value,
-    `entity-db: ${field} must be non-empty string`,
-    { field }
-  );
-  assert.ok(
-    value.length <= maxLen,
-    `entity-db: ${field} exceeds max length`,
-    { field, len: value.length, maxLen }
-  );
+  assert.nonEmptyString(value, `entity-db: ${field} must be non-empty string`, {
+    field,
+  });
+  assert.ok(value.length <= maxLen, `entity-db: ${field} exceeds max length`, {
+    field,
+    len: value.length,
+    maxLen,
+  });
   assertNoNulByte(value, field);
 }
 
@@ -85,13 +81,16 @@ export function assertUpsertArgs(args: UpsertArgs): void {
     { namespace: args.namespace, type: args.type, id: args.id }
   );
   const meta = args.metadata ?? {};
-  assert.record(meta, 'entity-db: metadata must be a plain object when provided', {
-    namespace: args.namespace,
-    type: args.type,
-    id: args.id,
-  });
-  const bytes =
-    jsonUtf8ByteLength(args.data) + jsonUtf8ByteLength(meta);
+  assert.record(
+    meta,
+    'entity-db: metadata must be a plain object when provided',
+    {
+      namespace: args.namespace,
+      type: args.type,
+      id: args.id,
+    }
+  );
+  const bytes = jsonUtf8ByteLength(args.data) + jsonUtf8ByteLength(meta);
   assert.ok(
     bytes <= ENTITY_DB_LIMITS.MAX_JSON_BYTES,
     'entity-db: data + metadata JSON exceeds max byte size',

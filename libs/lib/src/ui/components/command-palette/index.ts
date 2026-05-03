@@ -5,12 +5,12 @@ export {
   type CommandRegistryProviderProps,
   type CommandRegistryContextValue,
 } from './command-registry-context';
-export {
-  CommandPalette,
-  type CommandPaletteProps,
-} from './command-palette';
+export { CommandPalette, type CommandPaletteProps } from './command-palette';
 export { RegisterCommand, type RegisterCommandProps } from './register-command';
-export { CommandPaletteTrigger, type CommandPaletteTriggerProps } from './command-palette-trigger';
+export {
+  CommandPaletteTrigger,
+  type CommandPaletteTriggerProps,
+} from './command-palette-trigger';
 export { useCommandPalette } from './use-command-palette';
 export { useCommand } from './use-command';
 export type {

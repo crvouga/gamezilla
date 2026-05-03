@@ -25,7 +25,7 @@
     "@noble/hashes": "^2.2.0"
   },
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
     "test": "bun test",
     "tc": "tsc --noEmit -p ./tsconfig.json"
   },

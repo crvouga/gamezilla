@@ -56,26 +56,26 @@ export function AppProviders({ children }: { children: ReactNode }) {
           {...(fontsLoaded ? { fonts: nunitoFontStacks } : {})}
         >
           <GamezillaI18nProvider>
-          <DismissibleBannerPortalProvider>
-            <BottomSheetModalProvider>
-              <ConfigContainerProvider>
-                <PrincipalAuthShell>
-                  <PatchBootstrap>
-                    <AuthProvider>
-                      <CommandRegistryProvider storage={AsyncStorage}>
-                        <AppCommands />
-                        <CommandPalette />
-                        <CommandPaletteNativeGesture>
-                          {children}
-                          <PwaUpdatePromptBanner />
-                        </CommandPaletteNativeGesture>
-                      </CommandRegistryProvider>
-                    </AuthProvider>
-                  </PatchBootstrap>
-                </PrincipalAuthShell>
-              </ConfigContainerProvider>
-            </BottomSheetModalProvider>
-          </DismissibleBannerPortalProvider>
+            <DismissibleBannerPortalProvider>
+              <BottomSheetModalProvider>
+                <ConfigContainerProvider>
+                  <PrincipalAuthShell>
+                    <PatchBootstrap>
+                      <AuthProvider>
+                        <CommandRegistryProvider storage={AsyncStorage}>
+                          <AppCommands />
+                          <CommandPalette />
+                          <CommandPaletteNativeGesture>
+                            {children}
+                            <PwaUpdatePromptBanner />
+                          </CommandPaletteNativeGesture>
+                        </CommandRegistryProvider>
+                      </AuthProvider>
+                    </PatchBootstrap>
+                  </PrincipalAuthShell>
+                </ConfigContainerProvider>
+              </BottomSheetModalProvider>
+            </DismissibleBannerPortalProvider>
           </GamezillaI18nProvider>
         </AppThemeRoot>
       </SafeAreaProvider>

@@ -152,7 +152,9 @@ export function validatePlaceMarkInputs(
   return null;
 }
 
-export function readBoardCells(state: State): Array<null | string> | HandleResult {
+export function readBoardCells(
+  state: State
+): Array<null | string> | HandleResult {
   const boardUnknown = readBoard(state);
   const boardCells: Array<null | string> = [];
   for (let i = 0; i < 9; i++) {

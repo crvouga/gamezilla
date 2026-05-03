@@ -1,5 +1,11 @@
 import { assert } from '../assert';
-import type { CompareVersions, Entity, EntityDb, EntityKey, UpsertArgs } from './interface';
+import type {
+  CompareVersions,
+  Entity,
+  EntityDb,
+  EntityKey,
+  UpsertArgs,
+} from './interface';
 import {
   assertCompareVersionsResult,
   assertEntityKey,

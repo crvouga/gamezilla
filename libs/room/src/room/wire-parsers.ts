@@ -10,13 +10,13 @@ const crash: Assert = Assert.crash();
 const validation: Assert = Assert.validation();
 
 export function parseProposeWire(
-  msg: Record<string, unknown>,
+  msg: Record<string, unknown>
 ): WireMessage & { kind: 'propose' } {
   return { kind: 'propose', command: assertCommand(msg['command']) };
 }
 
 export function parseAcceptedWire(
-  msg: Record<string, unknown>,
+  msg: Record<string, unknown>
 ): WireMessage & { kind: 'accepted' } {
   const commandId = msg['commandId'];
   crash.string(commandId, 'accepted.commandId must be a string');
@@ -40,7 +40,7 @@ function coerceErrorPayload(rawPayload: unknown): unknown {
 }
 
 export function parseRejectedWire(
-  msg: Record<string, unknown>,
+  msg: Record<string, unknown>
 ): WireMessage & { kind: 'rejected' } {
   const commandId = msg['commandId'];
   crash.string(commandId, 'rejected.commandId must be a string');
@@ -55,7 +55,7 @@ export function parseRejectedWire(
 }
 
 export function parseSyncRequestWire(
-  msg: Record<string, unknown>,
+  msg: Record<string, unknown>
 ): WireMessage & { kind: 'sync-request' } {
   const from = msg['from'];
   crash.string(from, 'sync-request.from must be a string');
@@ -68,13 +68,13 @@ export function parseSyncRequestWire(
   crash.string(syncSessionId, 'sync-request.syncSessionId must be a string');
   validation.nonEmptyString(
     syncSessionId,
-    'sync-request.syncSessionId must be non-empty',
+    'sync-request.syncSessionId must be non-empty'
   );
   return { kind: 'sync-request', from, sinceSeq, syncSessionId };
 }
 
 export function parseSyncResponseWire(
-  msg: Record<string, unknown>,
+  msg: Record<string, unknown>
 ): WireMessage & { kind: 'sync-response' } {
   const to = msg['to'];
   crash.string(to, 'sync-response.to must be a string');
@@ -82,13 +82,12 @@ export function parseSyncResponseWire(
   crash.number(baseSeqRaw, 'sync-response.baseSeq must be a finite number');
   const snapshot = assertSnapshot(msg['snapshot']);
   const prefixRaw = msg['prefix'];
-  const prefix =
-    prefixRaw === undefined ? [] : assertLogEntryArray(prefixRaw);
+  const prefix = prefixRaw === undefined ? [] : assertLogEntryArray(prefixRaw);
   const syncSessionId = msg['syncSessionId'];
   crash.string(syncSessionId, 'sync-response.syncSessionId must be a string');
   validation.nonEmptyString(
     syncSessionId,
-    'sync-response.syncSessionId must be non-empty',
+    'sync-response.syncSessionId must be non-empty'
   );
   return {
     kind: 'sync-response',

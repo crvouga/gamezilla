@@ -112,7 +112,9 @@ describe('priceMatchesSpec', () => {
 
 describe('decidePriceReconcile', () => {
   it('returns replace when no live price', () => {
-    expect(decidePriceReconcile(null, null, monthlySpec, prodId)).toBe('replace');
+    expect(decidePriceReconcile(null, null, monthlySpec, prodId)).toBe(
+      'replace'
+    );
   });
 
   it('returns noop when live matches', () => {

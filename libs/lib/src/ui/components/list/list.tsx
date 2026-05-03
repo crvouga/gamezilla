@@ -10,7 +10,7 @@
  * ```
  */
 
-import { type ReactNode } from 'react';
+import { Children, type ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useTheme } from '../../theme';
 import { Text } from '../text';
@@ -26,7 +26,7 @@ export function List({ children, separator = true }: ListProps) {
 
   if (!separator) return <View>{children}</View>;
 
-  const items = Array.isArray(children) ? children : [children];
+  const items = Children.toArray(children);
   return (
     <View>
       {items.map((child, i) => (

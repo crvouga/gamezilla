@@ -7,7 +7,11 @@ function LinguiDefaultText(props: TransRenderProps): ReactNode {
   return <Text variant="body">{props.children}</Text>;
 }
 
-export function GamezillaI18nProvider({ children }: { children: ReactNode }): ReactNode {
+export function GamezillaI18nProvider({
+  children,
+}: {
+  children: ReactNode;
+}): ReactNode {
   return (
     <I18nProvider i18n={i18n} defaultComponent={LinguiDefaultText}>
       {children}

@@ -28,7 +28,7 @@ export function TodoItem({
         py: 3,
         px: 0,
         gap: 3,
-        // eslint-disable-next-line lingui/no-unlocalized-strings
+
         borderBottomWidth: 'hairline',
         borderColor: 'border',
         userSelect: 'none',

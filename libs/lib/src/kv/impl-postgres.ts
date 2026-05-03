@@ -65,7 +65,9 @@ async function runKvPostgresMigrations(
     }
     log.info('kv postgres migrate: ddl applied', { table: TABLE });
   } else {
-    log.info('kv postgres migrate: table exists (skipping create)', { table: TABLE });
+    log.info('kv postgres migrate: table exists (skipping create)', {
+      table: TABLE,
+    });
   }
   await migrateKvLegacyUpdatedAtColumn(sqlClient, log);
 }

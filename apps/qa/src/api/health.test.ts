@@ -16,7 +16,11 @@ test(
     const databaseUrl = databaseHttpOrigin(sqlPort);
 
     await runPackageScriptOnce('@gamezilla/db', 'kill', {});
-    await using db = startPackageScriptBackground('@gamezilla/db', 'preview', {});
+    await using db = startPackageScriptBackground(
+      '@gamezilla/db',
+      'preview',
+      {}
+    );
     await waitForHttpOk(`${databaseUrl}/health`, {
       timeoutMs: 60_000,
       label: 'local db /health',
@@ -26,7 +30,11 @@ test(
     await runPackageScriptOnce('@gamezilla/api', 'kill', {});
     await runPackageScriptOnce('@gamezilla/api', 'setup', {});
 
-    await using api = startPackageScriptBackground('@gamezilla/api', 'preview', {});
+    await using api = startPackageScriptBackground(
+      '@gamezilla/api',
+      'preview',
+      {}
+    );
     await waitForHttpOk(`${LOCAL_API_ORIGIN}/health`, {
       timeoutMs: 120_000,
       label: 'api /health',

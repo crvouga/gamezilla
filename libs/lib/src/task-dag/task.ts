@@ -38,7 +38,7 @@ export class Task<T = void> implements ITask<T> {
     const value = wrap
       ? await (wrap as <U>(t: ITask<U>, f: () => Promise<U>) => Promise<U>)(
           this,
-          fn,
+          fn
         )
       : await fn();
     this._result = { value };

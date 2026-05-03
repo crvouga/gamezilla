@@ -1,7 +1,5 @@
 import { displayNameForPrincipal } from '@gamezilla/client/profile/principal-display';
-import {
-  PrincipalAttr,
-} from '@gamezilla/domain/auth';
+import { PrincipalAttr } from '@gamezilla/domain/auth';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { parseAvatarConfigAttr } from '@gamezilla/domain/profile/avatar-config';
 import { ProfileAttr } from '@gamezilla/domain/profile/profile-entities';
@@ -51,7 +49,10 @@ function summaryForPrincipal(
   }
   const attrs = prof.attributes as Record<string, unknown>;
   return {
-    displayName: displayNameForPrincipal(attrs[ProfileAttr.displayName], principalId),
+    displayName: displayNameForPrincipal(
+      attrs[ProfileAttr.displayName],
+      principalId
+    ),
     avatarConfig: parseAvatarConfigAttr(attrs, ProfileAttr.avatarConfig),
   };
 }

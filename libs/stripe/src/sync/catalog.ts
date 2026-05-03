@@ -9,7 +9,7 @@
  * by `lookup_key`; archives drifted prices and recreates with `transfer_lookup_key`.
  */
 import type { PatchesDb } from '@gamezilla/patch-db/interface';
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
 import { STRIPE_PATCH_DB_SCRIPT_CONTEXT } from '../stripe-script-patch-db';
 import { STRIPE_CATALOG_SPEC } from '../catalog-spec';
 import {
@@ -205,15 +205,15 @@ async function reconcileOnePrice(args: {
   return created.id;
 }
 
-async function reconcileAllProducts(
-  stripe: Stripe
-): Promise<{
+async function reconcileAllProducts(stripe: Stripe): Promise<{
   readonly entries: ReadonlyArray<CatalogProductSyncEntry>;
   readonly stripeIdsByKey: Readonly<Record<string, string>>;
 }> {
   const entries: CatalogProductSyncEntry[] = [];
   const stripeIdsByKey: Record<string, string> = {};
-  for (const [productKey, def] of Object.entries(STRIPE_CATALOG_SPEC.products)) {
+  for (const [productKey, def] of Object.entries(
+    STRIPE_CATALOG_SPEC.products
+  )) {
     const p = await ensureProduct(stripe, def);
     stripeIdsByKey[productKey] = p.id;
     entries.push({ key: productKey, stripeProductId: p.id });

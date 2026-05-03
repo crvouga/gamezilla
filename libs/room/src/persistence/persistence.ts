@@ -1,10 +1,10 @@
-import type { LogEntry } from './log-entry'
-import type { Command, RoomApi } from '../room/types'
+import type { LogEntry } from './log-entry';
+import type { Command, RoomApi } from '../room/types';
 
 export type RoomPersistenceEntry =
   | { kind: 'command'; command: Command }
   | { kind: 'committed'; commandId: string; entries: LogEntry[] }
-  | { kind: 'rejected'; commandId: string }
+  | { kind: 'rejected'; commandId: string };
 
 /**
  * Pluggable write-ahead persistence journal for durable replicated command
@@ -18,8 +18,8 @@ export type RoomPersistenceEntry =
  * caller (e.g. document id, session id, room id) that isolates one journal stream.
  */
 export interface RoomPersistence {
-  append(partitionKey: string, entry: RoomPersistenceEntry): Promise<void>
-  load(partitionKey: string): Promise<RoomPersistenceEntry[]>
+  append(partitionKey: string, entry: RoomPersistenceEntry): Promise<void>;
+  load(partitionKey: string): Promise<RoomPersistenceEntry[]>;
 }
 
 /**
@@ -33,24 +33,24 @@ export async function recoverRoomFromPersistence(
   persistence: RoomPersistence,
   partitionKey: string,
   room: RoomApi,
-  onUnresolved?: (command: Command) => void,
+  onUnresolved?: (command: Command) => void
 ): Promise<void> {
-  const entries = await persistence.load(partitionKey)
+  const entries = await persistence.load(partitionKey);
 
-  const committedLogEntries: LogEntry[] = []
-  const resolvedCommandIds = new Set<string>()
+  const committedLogEntries: LogEntry[] = [];
+  const resolvedCommandIds = new Set<string>();
 
   for (const entry of entries) {
     if (entry.kind === 'committed') {
-      resolvedCommandIds.add(entry.commandId)
-      committedLogEntries.push(...entry.entries)
+      resolvedCommandIds.add(entry.commandId);
+      committedLogEntries.push(...entry.entries);
     } else if (entry.kind === 'rejected') {
-      resolvedCommandIds.add(entry.commandId)
+      resolvedCommandIds.add(entry.commandId);
     }
   }
 
-  committedLogEntries.sort((a, b) => a.seq - b.seq)
-  room.rehydrate(committedLogEntries)
+  committedLogEntries.sort((a, b) => a.seq - b.seq);
+  room.rehydrate(committedLogEntries);
 
   if (onUnresolved) {
     for (const entry of entries) {
@@ -58,7 +58,7 @@ export async function recoverRoomFromPersistence(
         entry.kind === 'command' &&
         !resolvedCommandIds.has(entry.command.id)
       ) {
-        onUnresolved(entry.command)
+        onUnresolved(entry.command);
       }
     }
   }

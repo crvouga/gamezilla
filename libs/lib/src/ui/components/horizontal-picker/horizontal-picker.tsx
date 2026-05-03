@@ -32,9 +32,7 @@ export type HorizontalPickerProps<T> = {
   randomItem?: HorizontalPickerRandomItem;
 };
 
-type Row<T> =
-  | { type: 'random' }
-  | { type: 'item'; item: T };
+type Row<T> = { type: 'random' } | { type: 'item'; item: T };
 
 type CellProps = {
   itemWidth: number;

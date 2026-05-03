@@ -1,18 +1,18 @@
-import { Assert } from '@gamezilla/lib/assert'
+import { Assert } from '@gamezilla/lib/assert';
 import type {
   Message,
   MessageNamespace,
   MessagePayloadValidator,
   MessageTag,
-} from './message'
+} from './message';
 
-const validation: Assert = Assert.validation()
+const validation: Assert = Assert.validation();
 
 type Handler<TState, TCtx, TOutput, P = unknown> = (
   state: TState,
   ctx: TCtx,
-  msg: Message<P>,
-) => TOutput
+  msg: Message<P>
+) => TOutput;
 
 /**
  * Validator + handler fused into a single call site at registration time so
@@ -22,8 +22,8 @@ type Handler<TState, TCtx, TOutput, P = unknown> = (
 type CompiledHandler<TState, TCtx, TOutput> = (
   state: TState,
   ctx: TCtx,
-  msg: Message,
-) => TOutput
+  msg: Message
+) => TOutput;
 
 /**
  * Dispatches a {@link Message} to a handler registered by {@link MessageTag}.
@@ -35,15 +35,15 @@ type CompiledHandler<TState, TCtx, TOutput> = (
 export interface MessageRouter<TState, TCtx, TOutput> {
   on<P>(
     tag: MessageTag<P>,
-    handler: Handler<TState, TCtx, TOutput, P>,
-  ): MessageRouter<TState, TCtx, TOutput>
+    handler: Handler<TState, TCtx, TOutput, P>
+  ): MessageRouter<TState, TCtx, TOutput>;
   dispatch(
     state: TState,
     ctx: TCtx,
     msg: Message,
-    fallback: (state: TState, ctx: TCtx, msg: Message) => TOutput,
-  ): TOutput
-  has(msg: Message): boolean
+    fallback: (state: TState, ctx: TCtx, msg: Message) => TOutput
+  ): TOutput;
+  has(msg: Message): boolean;
 }
 
 /**
@@ -56,92 +56,94 @@ export interface ComposedMessageRouter<TState, TCtx, TOutput> {
     state: TState,
     ctx: TCtx,
     msg: Message,
-    fallback: (state: TState, ctx: TCtx, msg: Message) => TOutput,
-  ): TOutput
-  has(msg: Message): boolean
+    fallback: (state: TState, ctx: TCtx, msg: Message) => TOutput
+  ): TOutput;
+  has(msg: Message): boolean;
 }
 
-class MessageRouterImpl<TState, TCtx, TOutput>
-  implements MessageRouter<TState, TCtx, TOutput>
-{
+class MessageRouterImpl<TState, TCtx, TOutput> implements MessageRouter<
+  TState,
+  TCtx,
+  TOutput
+> {
   private readonly handlers = new Map<
     string,
     CompiledHandler<TState, TCtx, TOutput>
-  >()
+  >();
   /** Pre-built `${prefix}/` so the dispatch hot path is a direct `startsWith`. */
-  private readonly prefixSlash: string | undefined
-  private readonly namespacePrefix: string | undefined
+  private readonly prefixSlash: string | undefined;
+  private readonly namespacePrefix: string | undefined;
 
   constructor(namespace: MessageNamespace | undefined) {
     if (namespace !== undefined) {
-      this.namespacePrefix = namespace.prefix
-      this.prefixSlash = `${namespace.prefix}/`
+      this.namespacePrefix = namespace.prefix;
+      this.prefixSlash = `${namespace.prefix}/`;
     } else {
-      this.namespacePrefix = undefined
-      this.prefixSlash = undefined
+      this.namespacePrefix = undefined;
+      this.prefixSlash = undefined;
     }
   }
 
   on<P>(
     tag: MessageTag<P>,
-    handler: Handler<TState, TCtx, TOutput, P>,
+    handler: Handler<TState, TCtx, TOutput, P>
   ): MessageRouter<TState, TCtx, TOutput> {
-    const ps = this.prefixSlash
+    const ps = this.prefixSlash;
     if (ps !== undefined) {
       validation.ok(
         tag.type.startsWith(ps),
-        `message tag ${tag.type} is not in router namespace ${this.namespacePrefix}`,
-      )
+        `message tag ${tag.type} is not in router namespace ${this.namespacePrefix}`
+      );
     }
     validation.ok(
       !this.handlers.has(tag.type),
-      `duplicate message router registration for type: ${tag.type}`,
-    )
+      `duplicate message router registration for type: ${tag.type}`
+    );
 
-    const fullType = tag.type
+    const fullType = tag.type;
     const validatePayload =
-      tag.validatePayload as MessagePayloadValidator<unknown>
-    const typedHandler = handler as Handler<TState, TCtx, TOutput, unknown>
+      tag.validatePayload as MessagePayloadValidator<unknown>;
+    const typedHandler = handler as Handler<TState, TCtx, TOutput, unknown>;
     const compiled: CompiledHandler<TState, TCtx, TOutput> = (
       state,
       ctx,
-      msg,
+      msg
     ) => {
       if (!validatePayload(msg.payload)) {
         validation.fail(`invalid payload for routed message type ${fullType}`, {
           type: fullType,
           payload: msg.payload,
-        })
+        });
       }
-      return typedHandler(state, ctx, msg as Message<unknown>)
-    }
-    this.handlers.set(fullType, compiled)
-    return this
+      return typedHandler(state, ctx, msg as Message<unknown>);
+    };
+    this.handlers.set(fullType, compiled);
+    return this;
   }
 
   has(msg: Message): boolean {
-    const ps = this.prefixSlash
+    const ps = this.prefixSlash;
     if (ps !== undefined && !msg.type.startsWith(ps)) {
-      return false
+      return false;
     }
-    return this.handlers.has(msg.type)
+    return this.handlers.has(msg.type);
   }
 
   dispatch(
     state: TState,
     ctx: TCtx,
     msg: Message,
-    fallback: (state: TState, ctx: TCtx, msg: Message) => TOutput,
+    fallback: (state: TState, ctx: TCtx, msg: Message) => TOutput
   ): TOutput {
-    const ps = this.prefixSlash
+    const ps = this.prefixSlash;
     if (ps !== undefined && !msg.type.startsWith(ps)) {
-      return fallback(state, ctx, msg)
+      return fallback(state, ctx, msg);
     }
-    const compiled = this.handlers.get(msg.type)
+    const compiled = this.handlers.get(msg.type);
     if (compiled === undefined) {
-      return fallback(state, ctx, msg)
+      return fallback(state, ctx, msg);
     }
-    return compiled(state, ctx, msg)
+    return compiled(state, ctx, msg);
   }
 }
 
@@ -150,9 +152,9 @@ class MessageRouterImpl<TState, TCtx, TOutput>
  * so only types under that prefix are registered and considered by {@link MessageRouter.dispatch}.
  */
 export function createMessageRouter<TState, TCtx, TOutput>(
-  namespace?: MessageNamespace,
+  namespace?: MessageNamespace
 ): MessageRouter<TState, TCtx, TOutput> {
-  return new MessageRouterImpl<TState, TCtx, TOutput>(namespace)
+  return new MessageRouterImpl<TState, TCtx, TOutput>(namespace);
 }
 
 /**
@@ -165,44 +167,44 @@ export function createMessageRouter<TState, TCtx, TOutput>(
  */
 export function createComposedMessageRouter<TState, TCtx, TOutput>(
   children: ReadonlyArray<{
-    namespace: MessageNamespace
-    router: MessageRouter<TState, TCtx, TOutput>
-  }>,
+    namespace: MessageNamespace;
+    router: MessageRouter<TState, TCtx, TOutput>;
+  }>
 ): ComposedMessageRouter<TState, TCtx, TOutput> {
-  const seen = new Set<string>()
-  const prefixes: string[] = []
-  const routers: MessageRouter<TState, TCtx, TOutput>[] = []
+  const seen = new Set<string>();
+  const prefixes: string[] = [];
+  const routers: MessageRouter<TState, TCtx, TOutput>[] = [];
   for (const { namespace, router } of children) {
     validation.ok(
       !seen.has(namespace.prefix),
-      `duplicate composed router namespace prefix: ${namespace.prefix}`,
-    )
-    seen.add(namespace.prefix)
-    prefixes.push(`${namespace.prefix}/`)
-    routers.push(router)
+      `duplicate composed router namespace prefix: ${namespace.prefix}`
+    );
+    seen.add(namespace.prefix);
+    prefixes.push(`${namespace.prefix}/`);
+    routers.push(router);
   }
-  const n = prefixes.length
+  const n = prefixes.length;
 
   return {
     dispatch(state, ctx, msg, fallback) {
-      const type = msg.type
+      const type = msg.type;
       for (let i = 0; i < n; i++) {
         if (type.startsWith(prefixes[i]!)) {
           // Pass `fallback` through directly; its signature matches what the
           // child router expects, so we avoid allocating a closure per call.
-          return routers[i]!.dispatch(state, ctx, msg, fallback)
+          return routers[i]!.dispatch(state, ctx, msg, fallback);
         }
       }
-      return fallback(state, ctx, msg)
+      return fallback(state, ctx, msg);
     },
     has(msg) {
-      const type = msg.type
+      const type = msg.type;
       for (let i = 0; i < n; i++) {
         if (type.startsWith(prefixes[i]!)) {
-          return routers[i]!.has(msg)
+          return routers[i]!.has(msg);
         }
       }
-      return false
+      return false;
     },
-  }
+  };
 }

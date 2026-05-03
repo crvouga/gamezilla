@@ -181,9 +181,15 @@ describe('TicTacToe integration', () => {
     sim.disconnectPeer(PEER.playerO);
     sim.dispatch(PEER.playerX, PlaceMark({ cell: 0, player: 'X' }));
 
-    expect(ticTacToeBoardCell(sim.getCommittedState(PEER.playerX), 0)).toBe('X');
-    expect(ticTacToeBoardCell(sim.getCommittedState(PEER.authority), 0)).toBe('X');
-    expect(ticTacToeBoardCell(sim.getCommittedState(PEER.playerO), 0)).toBeNull();
+    expect(ticTacToeBoardCell(sim.getCommittedState(PEER.playerX), 0)).toBe(
+      'X'
+    );
+    expect(ticTacToeBoardCell(sim.getCommittedState(PEER.authority), 0)).toBe(
+      'X'
+    );
+    expect(
+      ticTacToeBoardCell(sim.getCommittedState(PEER.playerO), 0)
+    ).toBeNull();
     sim.destroy();
   });
 
@@ -253,7 +259,9 @@ describe('TicTacToe integration', () => {
 
     sim.dispatch(PEER.playerX, PlaceMark({ cell: 0, player: 'X' }));
     sim.assertConverged();
-    expect(ticTacToeBoardCell(sim.getCommittedState(PEER.playerX), 0)).toBe('X');
+    expect(ticTacToeBoardCell(sim.getCommittedState(PEER.playerX), 0)).toBe(
+      'X'
+    );
 
     sim.disconnectPeer(PEER.playerO);
 
@@ -265,7 +273,9 @@ describe('TicTacToe integration', () => {
     sim.advanceTime(5001);
 
     expect(ticTacToeBoardCell(sim.getState(PEER.playerO), 4)).toBe('O');
-    expect(ticTacToeBoardCell(sim.getCommittedState(PEER.playerO), 4)).toBe('O');
+    expect(ticTacToeBoardCell(sim.getCommittedState(PEER.playerO), 4)).toBe(
+      'O'
+    );
 
     sim.destroy();
   });
@@ -286,7 +296,9 @@ describe('TicTacToe session seats (join / leave)', () => {
 
     sim.dispatch(PEER.playerX, PlaceMark({ cell: 0, player: 'X' }));
     sim.assertConverged();
-    expect(ticTacToeBoardCell(sim.getCommittedState(PEER.playerX), 0)).toBe('X');
+    expect(ticTacToeBoardCell(sim.getCommittedState(PEER.playerX), 0)).toBe(
+      'X'
+    );
     sim.destroy();
   });
 
@@ -366,7 +378,7 @@ describe('TicTacToe chess-style clock (simulator)', () => {
 
     sim.dispatch(
       PEER.authority,
-      TickClock({ elapsedMs: TIC_TAC_TOE_CLOCK_MS_PER_PLAYER + 500 }),
+      TickClock({ elapsedMs: TIC_TAC_TOE_CLOCK_MS_PER_PLAYER + 500 })
     );
 
     sim.assertConverged();

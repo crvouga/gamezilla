@@ -72,7 +72,7 @@ const SKIP_KEYS = new Set(['seed', 'size']);
 
 /** Merged JSON Schema properties: core options + style-specific options. */
 export function getMergedSchemaProperties(
-  styleKey: StyleKey,
+  styleKey: StyleKey
 ): Record<string, JsonSchemaProp> {
   const style = getStyleOrDefault(styleKey);
   const styleProps = (style.schema?.properties ?? {}) as Record<
@@ -94,10 +94,7 @@ function parseBooleanField(
   return { kind: 'boolean', key, default: def.default };
 }
 
-function parseIntegerField(
-  key: string,
-  def: JsonSchemaProp
-): SchemaField {
+function parseIntegerField(key: string, def: JsonSchemaProp): SchemaField {
   const min = typeof def.minimum === 'number' ? def.minimum : 0;
   const max = typeof def.maximum === 'number' ? def.maximum : 100;
   const defaultVal = typeof def.default === 'number' ? def.default : min;
@@ -185,10 +182,7 @@ function parseColorStringArray(
   return { kind: 'color', key, default: defaultVal };
 }
 
-function parseArrayField(
-  key: string,
-  def: JsonSchemaProp
-): SchemaField | null {
+function parseArrayField(key: string, def: JsonSchemaProp): SchemaField | null {
   const is = getItemSchema(def);
   if (is === null) return null;
   if (is.type === 'integer') return parseIntegerArrayField(key, def, is);
@@ -227,7 +221,12 @@ export function getFieldsForStyle(styleKey: StyleKey): SchemaField[] {
   return fields;
 }
 
-export type EditorTab = 'features' | 'colors' | 'effects' | 'background' | 'transform';
+export type EditorTab =
+  | 'features'
+  | 'colors'
+  | 'effects'
+  | 'background'
+  | 'transform';
 
 export function fieldTab(field: SchemaField): EditorTab | null {
   const k = field.key;
@@ -246,7 +245,7 @@ export function fieldTab(field: SchemaField): EditorTab | null {
 }
 
 export function getFieldsByTab(
-  styleKey: StyleKey,
+  styleKey: StyleKey
 ): Record<EditorTab, SchemaField[]> {
   const fields = getFieldsForStyle(styleKey);
   const empty: Record<EditorTab, SchemaField[]> = {
@@ -264,7 +263,9 @@ export function getFieldsByTab(
 }
 
 /** Defaults object from merged schema (for reset). */
-export function getDefaultOptionsFromSchema(styleKey: StyleKey): Record<string, unknown> {
+export function getDefaultOptionsFromSchema(
+  styleKey: StyleKey
+): Record<string, unknown> {
   const merged = getMergedSchemaProperties(styleKey);
   const out: Record<string, unknown> = {};
   for (const [key, def] of Object.entries(merged)) {

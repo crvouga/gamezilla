@@ -3,7 +3,10 @@ import { CombinedSecretStore } from './combined-secret-store';
 import type { SecretStore } from './interface';
 
 type WritableMockStore = SecretStore & {
-  readonly writes: ReadonlyArray<{ readonly name: string; readonly value: string }>;
+  readonly writes: ReadonlyArray<{
+    readonly name: string;
+    readonly value: string;
+  }>;
 };
 
 function makeStore(
@@ -66,7 +69,9 @@ describe('CombinedSecretStore', () => {
       makeStore({ A: null }),
       makeStore({ A: null })
     );
-    await expect(store.getRequired('A')).rejects.toThrow('Secret "A" is missing');
+    await expect(store.getRequired('A')).rejects.toThrow(
+      'Secret "A" is missing'
+    );
   });
 
   it('combines requiredMany with same precedence', async () => {

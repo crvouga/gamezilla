@@ -29,20 +29,32 @@ function MetaPair({ label, value }: { label: ReactNode; value: string }) {
 function DeviceRowMetaGrid({ principal }: { principal: AccountPrincipal }) {
   return (
     <Box sx={{ flexDirection: 'row', flexWrap: 'wrap', gap: 3 }}>
-      <MetaPair label={<Trans>Platform</Trans>} value={principal.platform ?? EM_DASH} />
+      <MetaPair
+        label={<Trans>Platform</Trans>}
+        value={principal.platform ?? EM_DASH}
+      />
       <MetaPair label={<Trans>OS</Trans>} value={formatOsLine(principal)} />
       <MetaPair
         label={<Trans>Device name</Trans>}
         value={principal.deviceName ?? EM_DASH}
       />
-      <MetaPair label={<Trans>Model</Trans>} value={formatModelLine(principal)} />
+      <MetaPair
+        label={<Trans>Model</Trans>}
+        value={formatModelLine(principal)}
+      />
       <MetaPair label={<Trans>App</Trans>} value={formatAppLine(principal)} />
       <MetaPair
         label={<Trans>First seen</Trans>}
         value={formatTimestamp(principal.firstSeenAt ?? principal.createdAt)}
       />
-      <MetaPair label={<Trans>Last seen</Trans>} value={formatTimestamp(principal.lastSeenAt)} />
-      <MetaPair label={<Trans>Created</Trans>} value={formatTimestamp(principal.createdAt)} />
+      <MetaPair
+        label={<Trans>Last seen</Trans>}
+        value={formatTimestamp(principal.lastSeenAt)}
+      />
+      <MetaPair
+        label={<Trans>Created</Trans>}
+        value={formatTimestamp(principal.createdAt)}
+      />
     </Box>
   );
 }
@@ -50,7 +62,11 @@ function DeviceRowMetaGrid({ principal }: { principal: AccountPrincipal }) {
 function DeviceRowUserAgent({ userAgent }: { userAgent: string }) {
   return (
     <Box sx={{ gap: 1 }}>
-      <Text variant="caption" sx={{ color: 'textSecondary' }} label={<Trans>User agent</Trans>} />
+      <Text
+        variant="caption"
+        sx={{ color: 'textSecondary' }}
+        label={<Trans>User agent</Trans>}
+      />
       <Text variant="caption" selectable label={userAgent} />
     </Box>
   );

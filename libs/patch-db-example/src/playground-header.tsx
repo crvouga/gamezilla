@@ -70,7 +70,7 @@ function HeaderControls({
       { value: 2000, label: t`2 s` },
       { value: 5000, label: t`5 s` },
     ],
-    [t],
+    [t]
   );
   return (
     <Stack direction="horizontal" spacing={3} align="center" wrap>
@@ -97,7 +97,7 @@ function HeaderControls({
 export function PlaygroundHeader() {
   const { sim, addClient, reset } = useSimContext();
   const [globalLatency, setGlobalLatency] = useState(() =>
-    sim.getGlobalLatency(),
+    sim.getGlobalLatency()
   );
   const theme = useTheme();
 
@@ -106,7 +106,7 @@ export function PlaygroundHeader() {
       setGlobalLatency(ms);
       sim.setGlobalLatency(ms);
     },
-    [sim],
+    [sim]
   );
 
   return (

@@ -73,13 +73,11 @@ function useAccountMenuActions(args: { auth: Auth; close: () => void }) {
     },
   });
 
-  const onAuth = useCallback(async () => {
+  const onAuth = useCallback(() => {
     close();
-    try {
-      await runAuth();
-    } catch {
+    void runAuth().catch(() => {
       // onError already logged via hook.
-    }
+    });
   }, [close, runAuth]);
 
   return { onProfile, onSettings, onServerStatus, onAuth };

@@ -83,9 +83,7 @@ export function ColorsBlock({
   setSurface: (k: string | null) => void;
   closeSurface: () => void;
 }) {
-  const fields = colorFields.filter(
-    (f): f is ColorField => f.kind === 'color'
-  );
+  const fields = colorFields.filter((f): f is ColorField => f.kind === 'color');
   if (fields.length === 0) return null;
   return (
     <Box sx={{ mt: 2 }}>

@@ -11,6 +11,8 @@ export class FallbackCrashHandler implements CrashHandler {
   }
 
   crash(message: string, context?: Record<string, unknown>): void {
+    // Tiger: non-Error throw object is intentional (filtered by crash dispatch).
+    // eslint-disable-next-line no-throw-literal -- uncatchable assertion envelope, not a string
     throw { ...UNCATCHABLE_ERROR, message, context };
   }
 }

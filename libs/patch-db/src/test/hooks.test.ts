@@ -20,8 +20,16 @@ describe('PatchesDb hooks (sqlite)', () => {
   test('beforeRead can narrow results (limit)', async () => {
     db.hooks.beforeRead((q) => ({ ...q, limit: 1 }));
     await db.write([
-      { entityId: 'h1', entityType: 'hookTask', attributes: { 'hookTask/n': 1 } },
-      { entityId: 'h2', entityType: 'hookTask', attributes: { 'hookTask/n': 2 } },
+      {
+        entityId: 'h1',
+        entityType: 'hookTask',
+        attributes: { 'hookTask/n': 1 },
+      },
+      {
+        entityId: 'h2',
+        entityType: 'hookTask',
+        attributes: { 'hookTask/n': 2 },
+      },
     ]);
     const [r] = await db.read([{ entityType: 'hookTask' }]);
     assert.defined(r, 'result');
@@ -34,7 +42,11 @@ describe('PatchesDb hooks (sqlite)', () => {
     });
     await expect(
       db.write([
-        { entityId: 'x', entityType: 'hookAbort', attributes: { 'hookAbort/a': 1 } },
+        {
+          entityId: 'x',
+          entityType: 'hookAbort',
+          attributes: { 'hookAbort/a': 1 },
+        },
       ])
     ).rejects.toThrow('abort write');
     const [r] = await db.read([{ entityType: 'hookAbort', entityId: 'x' }]);

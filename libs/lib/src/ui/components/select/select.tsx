@@ -10,6 +10,8 @@ export type SelectOption<T extends string | number = string> = PickerOption<T>;
 
 export type SelectProps<T extends string | number = string> = PickerProps<T>;
 
-export function Select<T extends string | number = string>(props: SelectProps<T>) {
+export function Select<T extends string | number = string>(
+  props: SelectProps<T>
+) {
   return <Picker {...props} />;
 }

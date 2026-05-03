@@ -26,7 +26,10 @@ export function DbClientScreen() {
       />
       <Box sx={{ flex: 1, minHeight: 0 }}>
         <ExplorerRoute
+          // ExplorerRoute expects patch-db-example navigator types; screen bridges expo-router.
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           navigation={navigation as any}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           route={{ key: 'db-client', name: 'explorer', params } as any}
           onExit={() => router.replace('/more/developer' as Href)}
         />

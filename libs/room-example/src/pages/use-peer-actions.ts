@@ -11,7 +11,7 @@ function inProgress(state: State): boolean {
 function buildSpoofAction(
   sim: PlaygroundSimulator,
   peerId: PeerId,
-  visible: boolean,
+  visible: boolean
 ): PeerAction {
   const other = peerId === 'player-x' ? 'O' : 'X';
   const isOn = sim.isSpoofing(peerId);
@@ -27,7 +27,7 @@ function buildSpoofAction(
 function buildFloodAction(
   sim: PlaygroundSimulator,
   peerId: PeerId,
-  visible: boolean,
+  visible: boolean
 ): PeerAction {
   return {
     label: 'Flood',
@@ -46,25 +46,23 @@ function buildFloodAction(
 export function usePeerActions(
   sim: PlaygroundSimulator,
   tick: number,
-  disconnectedPeers: MutableRefObject<Set<string>>,
+  disconnectedPeers: MutableRefObject<Set<string>>
 ): Record<PeerId, PeerAction[]> {
-  return useMemo<Record<PeerId, PeerAction[]>>(
-    () => {
-      const makePeerActions = (peerId: 'player-x' | 'player-o'): PeerAction[] => {
-        const online = !disconnectedPeers.current.has(peerId);
-        const state = sim.getState(peerId);
-        const visible = online && inProgress(state);
-        return [
-          buildFloodAction(sim, peerId, visible),
-          buildSpoofAction(sim, peerId, visible),
-        ];
-      };
-      return {
-        'player-x': makePeerActions('player-x'),
-        'player-o': makePeerActions('player-o'),
-        server: [],
-      };
-    },
-    [sim, tick, disconnectedPeers],
-  );
+  return useMemo<Record<PeerId, PeerAction[]>>(() => {
+    const makePeerActions = (peerId: 'player-x' | 'player-o'): PeerAction[] => {
+      const online = !disconnectedPeers.current.has(peerId);
+      const state = sim.getState(peerId);
+      const visible = online && inProgress(state);
+      return [
+        buildFloodAction(sim, peerId, visible),
+        buildSpoofAction(sim, peerId, visible),
+      ];
+    };
+    void tick;
+    return {
+      'player-x': makePeerActions('player-x'),
+      'player-o': makePeerActions('player-o'),
+      server: [],
+    };
+  }, [sim, tick, disconnectedPeers]);
 }

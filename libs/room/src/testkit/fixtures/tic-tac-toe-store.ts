@@ -1,6 +1,11 @@
 import { Assert } from '@gamezilla/lib/assert';
 import { createMessageRouter } from '@gamezilla/lib/message';
-import type { Command, HandleResult, State, RoomModule } from '../../room/types';
+import type {
+  Command,
+  HandleResult,
+  State,
+  RoomModule,
+} from '../../room/types';
 import type { Event } from '../../events/message-types';
 import {
   ClockSliceSet,

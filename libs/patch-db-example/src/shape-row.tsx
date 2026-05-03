@@ -95,16 +95,8 @@ function ReorderControls({
 }) {
   return (
     <Stack spacing={0} align="center">
-      <ReorderButton
-        label="▲"
-        disabled={busy || isFirst}
-        onPress={onMoveUp}
-      />
-      <ReorderButton
-        label="▼"
-        disabled={busy || isLast}
-        onPress={onMoveDown}
-      />
+      <ReorderButton label="▲" disabled={busy || isFirst} onPress={onMoveUp} />
+      <ReorderButton label="▼" disabled={busy || isLast} onPress={onMoveDown} />
     </Stack>
   );
 }

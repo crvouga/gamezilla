@@ -15,7 +15,7 @@ export type NetworkControls = {
 
 export function useNetworkControls(
   sim: PlaygroundSimulator,
-  disconnectedPeers: React.MutableRefObject<Set<string>>,
+  disconnectedPeers: React.MutableRefObject<Set<string>>
 ): NetworkControls {
   const isPaused = useRef(false);
 

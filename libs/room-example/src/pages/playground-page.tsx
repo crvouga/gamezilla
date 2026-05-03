@@ -1,9 +1,4 @@
-import {
-  Collapsible,
-  ScrollView,
-  Stack,
-  useTheme,
-} from '@gamezilla/lib/ui';
+import { Collapsible, ScrollView, Stack, useTheme } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback } from 'react';
 import { CryptoDiagnosticsSection } from '../components/crypto-diagnostics-section';
@@ -42,6 +37,7 @@ export function PlaygroundPage() {
   const { log, badActorIds, cheaterIds } = useDerivedState(sim, tick);
 
   const handleCopyLog = useCallback(() => {
+    void tick;
     const text = sim.formatLogForClipboard();
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
       navigator.clipboard.writeText(text).catch(() => {});

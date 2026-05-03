@@ -15,7 +15,9 @@ export function PeerPanelActions({
 }: {
   actions?: PeerAction[] | undefined;
 }) {
-  const visibleActions = (actions ?? []).filter((action) => action.visible !== false);
+  const visibleActions = (actions ?? []).filter(
+    (action) => action.visible !== false
+  );
   const hasActions = visibleActions.length > 0;
   return (
     <Box sx={{ minHeight: 28 }}>

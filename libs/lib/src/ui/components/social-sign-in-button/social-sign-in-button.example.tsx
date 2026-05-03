@@ -43,7 +43,10 @@ export default function SocialSignInButtonExample() {
       </Stack>
 
       <Stack spacing={3}>
-        <Text variant="label" label="Google · Neutral · Rectangular · Sign up" />
+        <Text
+          variant="label"
+          label="Google · Neutral · Rectangular · Sign up"
+        />
         <SocialSignInButton
           provider="google"
           theme="neutral"

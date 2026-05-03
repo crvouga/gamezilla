@@ -39,10 +39,15 @@ export class CfApiToken implements SecretEntry {
       const acctBody = (await acctRes.json()) as {
         result?: Array<{ id: string }>;
       };
-      if (!acctBody.result?.length)
+      const accounts = acctBody.result;
+      if (accounts === undefined || accounts.length === 0) {
         return 'Token has no accessible accounts — check account scope';
-
-      const accountId = acctBody.result[0].id;
+      }
+      const firstAccount = accounts[0];
+      if (firstAccount === undefined) {
+        return 'Token has no accessible accounts — check account scope';
+      }
+      const accountId = firstAccount.id;
 
       const checks: Array<{ label: string; probe: Promise<boolean> }> = [
         {

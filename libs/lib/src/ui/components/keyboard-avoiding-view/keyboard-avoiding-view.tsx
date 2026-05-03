@@ -21,13 +21,12 @@ export const KeyboardAvoidingView = forwardRef<
   KeyboardAvoidingViewProps
 >(function KeyboardAvoidingView(
   { sx: sxProp, style, behavior: behaviorProp, ...rest },
-  ref,
+  ref
 ) {
   const theme = useTheme();
   const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
   const behavior =
-    behaviorProp ??
-    (Platform.OS === 'ios' ? 'padding' : 'height');
+    behaviorProp ?? (Platform.OS === 'ios' ? 'padding' : 'height');
 
   return (
     <RNKeyboardAvoidingView

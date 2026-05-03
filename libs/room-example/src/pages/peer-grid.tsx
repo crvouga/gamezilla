@@ -3,7 +3,11 @@ import { Box, Stack } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';
 import { PeerPanel } from '../components/peer-panel';
 import type { PeerAction } from '../components/peer-panel-actions';
-import { PEERS, type PeerId, type PlaygroundSimulator } from '../simulator/playground';
+import {
+  PEERS,
+  type PeerId,
+  type PlaygroundSimulator,
+} from '../simulator/playground';
 import type { PeerHandlers } from './use-peer-handlers';
 
 type LinguiT = ReturnType<typeof useLingui>['t'];

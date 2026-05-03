@@ -1,31 +1,36 @@
 // https://docs.expo.dev/guides/using-eslint/
-// File naming: all source files must use kebab-case (naming/case rule below)
 const { defineConfig } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
-const eslintPluginNaming = require('eslint-plugin-naming');
 const eslintPluginGamezillaI18n = require('../../libs/eslint-rules/gamezilla-i18n.cjs');
 const eslintPluginLingui = require('eslint-plugin-lingui');
+const {
+  createSharedBlocks,
+} = require('../../libs/eslint-rules/base-config.cjs');
 const { linguiRules } = require('../../libs/eslint-rules/lingui-rules.cjs');
-const sizeLimits = require('../../libs/eslint-rules/size-limits.cjs');
 const a11yRestrictions = require('../../libs/eslint-rules/a11y-restrictions.cjs');
 
 module.exports = defineConfig([
   expoConfig,
   {
-    ignores: ['dist/*'],
+    ignores: ['dist/*', 'src/i18n/locales/**/messages.ts'],
   },
   {
     settings: {
       'import/core-modules': ['bun:test'],
-      'import/resolver': {
-        typescript: true,
-      },
     },
-    plugins: {
-      naming: eslintPluginNaming,
-    },
+  },
+  ...createSharedBlocks(__dirname, {
+    mergeWithExpo: true,
+    namingIgnore: [
+      '^index\\.(ts|tsx|js|jsx)$',
+      '^_layout\\.(ts|tsx|js|jsx)$',
+      '^\\[.*\\]\\.(ts|tsx|js|jsx)$',
+      '\\.(ios|android|web)\\.(ts|tsx|js|jsx)$',
+    ],
+  }),
+  {
+    files: ['src/**/*.{ts,tsx}'],
     rules: {
-      ...sizeLimits.rules(),
       'no-restricted-imports': [
         'error',
         {
@@ -46,8 +51,6 @@ module.exports = defineConfig([
           ],
         },
       ],
-      '@typescript-eslint/no-non-null-assertion': 'error',
-      eqeqeq: ['error', 'always'],
       'no-restricted-syntax': [
         'error',
         ...a11yRestrictions.restrictedSyntax(),
@@ -56,19 +59,6 @@ module.exports = defineConfig([
             'CallExpression > MemberExpression[object.type="AwaitExpression"]',
           message:
             'Avoid nesting await inside function calls. Extract to a variable first: const x = await ...; fn(x);',
-        },
-      ],
-      'naming/case': [
-        'error',
-        {
-          match: ['kebab'],
-          validateFolders: false,
-          ignore: [
-            '^index\\.(ts|tsx|js|jsx)$',
-            '^_layout\\.(ts|tsx|js|jsx)$',
-            '^\\[.*\\]\\.(ts|tsx|js|jsx)$',
-            '\\.(ios|android|web)\\.(ts|tsx|js|jsx)$',
-          ],
         },
       ],
     },
@@ -96,5 +86,4 @@ module.exports = defineConfig([
       'gamezillaI18n/text-must-be-trans': 'off',
     },
   },
-  sizeLimits.testOverrides(),
 ]);

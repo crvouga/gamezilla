@@ -24,9 +24,7 @@ function buildEntitySetMismatchError(
     `Entity set mismatch between ${firstNodeId} and ${otherNodeId}.`,
   ];
   if (missingFromOther.length > 0) {
-    parts.push(
-      `  Missing from ${otherNodeId}: ${missingFromOther.join(', ')}`
-    );
+    parts.push(`  Missing from ${otherNodeId}: ${missingFromOther.join(', ')}`);
   }
   if (extraInOther.length > 0) {
     parts.push(`  Extra in ${otherNodeId}: ${extraInOther.join(', ')}`);

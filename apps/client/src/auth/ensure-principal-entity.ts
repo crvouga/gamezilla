@@ -134,7 +134,10 @@ export async function ensurePrincipalEntity(
     return;
   }
 
-  assert.ok(entity !== undefined, 'principal entity must exist after completeness check');
+  assert.ok(
+    entity !== undefined,
+    'principal entity must exist after completeness check'
+  );
   const stored = entity.attributes;
   const updates: Record<string, unknown> = {
     [PrincipalAttr.lastSeenAt]: now,
@@ -143,8 +146,7 @@ export async function ensurePrincipalEntity(
   const existingFirst = normString(stored[PrincipalAttr.firstSeenAt]);
   if (existingFirst === null) {
     const created = normString(stored[PrincipalAttr.createdAt]);
-    updates[PrincipalAttr.firstSeenAt] =
-      created !== null ? created : now;
+    updates[PrincipalAttr.firstSeenAt] = created !== null ? created : now;
   }
 
   for (const key of Object.keys(snapshot) as (keyof ReturnType<

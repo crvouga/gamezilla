@@ -104,7 +104,11 @@ function createRunHandler<TResult, TArgs extends unknown[]>(args: {
     const requestId = ++latestRequestIdRef.current;
     const abortController = new AbortController();
     if (mountedRef.current) {
-      setState((prev) => ({ status: 'running', value: prev.value, error: null }));
+      setState((prev) => ({
+        status: 'running',
+        value: prev.value,
+        error: null,
+      }));
     }
 
     const promise = (async () => {
@@ -208,7 +212,10 @@ export function useAsync<TResult, TArgs extends unknown[]>(
       }),
     [operation]
   );
-  const run = useCallback((...args: TArgs) => runHandler(...args), [runHandler]);
+  const run = useCallback(
+    (...args: TArgs) => runHandler(...args),
+    [runHandler]
+  );
   const loading = state.status === 'running';
 
   return useMemo(

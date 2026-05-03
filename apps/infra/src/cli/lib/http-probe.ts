@@ -25,12 +25,20 @@ export async function httpProbe(
   let resolvedIp: string;
   try {
     const results = await dns.resolve4(hostname); // or resolve6 for IPv6
-    resolvedIp = results[0];
+    const first = results[0];
+    if (first === undefined) {
+      return {
+        ok: false,
+        durationMs: Date.now() - start,
+        error: 'DNS returned no A records',
+      };
+    }
+    resolvedIp = first;
   } catch (err) {
     return {
       ok: false,
       durationMs: Date.now() - start,
-      error: `DNS failed: ${err}`,
+      error: `DNS failed: ${err instanceof Error ? err.message : String(err)}`,
     };
   }
 
@@ -60,13 +68,21 @@ export async function httpProbe(
           if (body.length < 4096) body += chunk;
         });
         res.on('end', () => {
-          resolve({
-            ok: (res.statusCode ?? 0) < 500,
-            status: res.statusCode,
-            durationMs: Date.now() - start,
+          const durationMs = Date.now() - start;
+          const statusCode = res.statusCode;
+          const base: HealthResult = {
+            ok: (statusCode ?? 0) < 500,
+            durationMs,
             resolvedIp,
-            body: body.length > 0 ? body : undefined,
-          });
+          };
+          let out: HealthResult = base;
+          if (statusCode !== undefined) {
+            out = { ...out, status: statusCode };
+          }
+          if (body.length > 0) {
+            out = { ...out, body };
+          }
+          resolve(out);
         });
       }
     );

@@ -6,40 +6,44 @@ import {
   PRINCIPAL_ENTITY_TYPE,
   PrincipalAttr,
 } from '@gamezilla/domain/auth';
-import type { AuthClaimResult } from './claim-handler';
-import { beforeAll, describe, expect, it, mock } from 'bun:test';
 import { PatchDbHookRegistry } from '@gamezilla/patch-db/hook-registry';
 import type {
   Entity,
   Patch,
   PatchInput,
   PatchesDb,
+  PatchesDbCompactionResult,
   PatchesDbContext,
   PatchesDbQuery,
   PatchesDbQueryWhereClause,
   PatchesDbResult,
 } from '@gamezilla/patch-db/interface';
+import { describe, expect, it } from 'bun:test';
+import {
+  GOOGLE_OAUTH_NOT_CONFIGURED_MESSAGE,
+  handleAuthClaimResult,
+  type VerifyGoogleIdTokenFn,
+} from './claim-handler';
 
-mock.module('./google-token', () => ({
-  verifyGoogleIdToken: async () => ({
+const GOOGLE_WEB_CLIENT_ID = 'web-client-id.apps.googleusercontent.com';
+
+const verifyFirstClaim: VerifyGoogleIdTokenFn = () =>
+  Promise.resolve({
     sub: 'google-sub-test',
     email: 'tester@example.com',
-  }),
-}));
+  });
 
-let handleAuthClaimResult: (
-  db: PatchesDb,
-  body: { googleIdToken: string; principalId: string },
-  options: { googleClientId?: string }
-) => Promise<AuthClaimResult>;
+const verifySharedSub: VerifyGoogleIdTokenFn = () =>
+  Promise.resolve({
+    sub: 'google-sub-shared',
+    email: 'shared@example.com',
+  });
 
-let GOOGLE_OAUTH_NOT_CONFIGURED_MESSAGE: string;
-
-beforeAll(async () => {
-  const mod = await import('./claim-handler');
-  handleAuthClaimResult = mod.handleAuthClaimResult;
-  GOOGLE_OAUTH_NOT_CONFIGURED_MESSAGE = mod.GOOGLE_OAUTH_NOT_CONFIGURED_MESSAGE;
-});
+const verifyRebind: VerifyGoogleIdTokenFn = () =>
+  Promise.resolve({
+    sub: 'google-sub-rebind',
+    email: 'rebind@example.com',
+  });
 
 function matchWhere(entity: Entity, where: PatchesDbQueryWhereClause): boolean {
   if (where.type === 'and') {
@@ -70,37 +74,45 @@ function executeQuery(entities: Entity[], q: PatchesDbQuery): Entity[] {
 class MemoryPatchesDb implements PatchesDb {
   readonly hooks = new PatchDbHookRegistry();
   readonly compaction = {
-    compactEntity: async () => ({
-      removedPatchIds: [] as string[],
-      compactionPatchId: null as string | null,
-    }),
-    compactAll: async () => ({ entitiesCompacted: 0 }),
+    compactEntity: (
+      _key: { entityId: string; entityType: string },
+      _options: { keepLatest: number },
+      _ctx: PatchesDbContext
+    ): Promise<PatchesDbCompactionResult> =>
+      Promise.resolve({
+        removedPatchIds: [],
+        compactionPatchId: null,
+      }),
+    compactAll: (
+      _options: { keepLatest?: number; entityType?: string },
+      _ctx: PatchesDbContext
+    ): Promise<{ entitiesCompacted: number }> =>
+      Promise.resolve({ entitiesCompacted: 0 }),
   };
 
   private entities: Entity[] = [];
 
-  async read(
+  read(
     queries: PatchesDbQuery[],
     _ctx?: PatchesDbContext
   ): Promise<PatchesDbResult[]> {
     void _ctx;
-    return queries.map((query) => {
-      const entities = executeQuery(this.entities, query);
-      return {
-        query,
-        entities,
-        patches: [],
-        total: entities.length,
-        hasMore: false,
-        nextCursor: null,
-      };
-    });
+    return Promise.resolve(
+      queries.map((query) => {
+        const entities = executeQuery(this.entities, query);
+        return {
+          query,
+          entities,
+          patches: [],
+          total: entities.length,
+          hasMore: false,
+          nextCursor: null,
+        };
+      })
+    );
   }
 
-  async write(
-    patches: PatchInput[],
-    _ctx?: PatchesDbContext
-  ): Promise<Patch[]> {
+  write(patches: PatchInput[], _ctx?: PatchesDbContext): Promise<Patch[]> {
     void _ctx;
     for (const p of patches) {
       const idx = this.entities.findIndex(
@@ -123,15 +135,16 @@ class MemoryPatchesDb implements PatchesDb {
         };
       }
     }
-    return [] as Patch[];
+    return Promise.resolve([] as Patch[]);
   }
 
-  async update(
+  update(
     _updates: { patchId: string; attributes: Record<string, unknown> }[],
     _ctx?: PatchesDbContext
   ): Promise<void> {
     void _updates;
     void _ctx;
+    return Promise.resolve();
   }
 }
 
@@ -140,7 +153,10 @@ describe('handleAuthClaimResult', () => {
     const db = new MemoryPatchesDb();
     const r = await handleAuthClaimResult(
       db,
-      { googleIdToken: 'any', principalId: '00000000-0000-4000-8000-000000000001' },
+      {
+        googleIdToken: 'any',
+        principalId: '00000000-0000-4000-8000-000000000001',
+      },
       {}
     );
     expect(r.status).toBe(503);
@@ -155,7 +171,10 @@ describe('handleAuthClaimResult', () => {
     const r = await handleAuthClaimResult(
       db,
       { googleIdToken: 'fake-token', principalId },
-      { googleClientId: 'web-client-id.apps.googleusercontent.com' }
+      {
+        googleClientId: GOOGLE_WEB_CLIENT_ID,
+        verifyGoogleIdToken: verifyFirstClaim,
+      }
     );
     expect(r.status).toBe(200);
     if (r.status !== 200) return;
@@ -201,7 +220,10 @@ describe('handleAuthClaimResult', () => {
     const db = new MemoryPatchesDb();
     const principalA = '00000000-0000-4000-8000-0000000000a1';
     const principalB = '00000000-0000-4000-8000-0000000000b2';
-    const opts = { googleClientId: 'web-client-id.apps.googleusercontent.com' };
+    const opts = {
+      googleClientId: GOOGLE_WEB_CLIENT_ID,
+      verifyGoogleIdToken: verifySharedSub,
+    };
 
     const r1 = await handleAuthClaimResult(
       db,
@@ -250,7 +272,10 @@ describe('handleAuthClaimResult', () => {
     const r = await handleAuthClaimResult(
       db,
       { googleIdToken: 't', principalId },
-      { googleClientId: 'web-client-id.apps.googleusercontent.com' }
+      {
+        googleClientId: GOOGLE_WEB_CLIENT_ID,
+        verifyGoogleIdToken: verifyRebind,
+      }
     );
     expect(r.status).toBe(200);
     if (r.status !== 200) return;

@@ -1,4 +1,7 @@
-import { registerServiceWorker, type PwaUpdatePrompt } from './register-service-worker';
+import {
+  registerServiceWorker,
+  type PwaUpdatePrompt,
+} from './register-service-worker';
 import { DismissibleBanner } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useEffect, useState, type ReactNode } from 'react';

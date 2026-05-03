@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "lint": "eslint src --max-warnings 0",
     "build": "bun -e \"process.exit(0)\"",
     "migrate": "bun run scripts/migrate-db.ts",
     "dev": "bun run --watch src/server.ts",

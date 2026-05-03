@@ -11,9 +11,10 @@ function toSqliteJsonSetValue(value: unknown): unknown {
 }
 
 /** Builds a `json_set(attributes, …)` expression + bind params for one patch update. */
-export function buildSqliteUpdateJsonSet(
-  attributes: Record<string, unknown>
-): { expr: string; params: unknown[] } {
+export function buildSqliteUpdateJsonSet(attributes: Record<string, unknown>): {
+  expr: string;
+  params: unknown[];
+} {
   const parts: string[] = [];
   const params: unknown[] = [];
   for (const [key, value] of Object.entries(attributes)) {

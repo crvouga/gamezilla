@@ -14,7 +14,7 @@ const STYLE_ELEMENT_ID = 'gamezilla-theme-scrollbar';
 
 function buildScrollbarCss(
   colorScheme: ColorScheme,
-  colors: ColorTokens,
+  colors: ColorTokens
 ): string {
   const track = 'transparent';
   const thumb = colors.tintMuted;

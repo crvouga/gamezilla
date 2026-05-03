@@ -4,7 +4,10 @@ import {
 } from '@gamezilla/domain/auth';
 import { assertPrincipalId } from '@gamezilla/domain/auth/principal-id';
 import { assert } from '@gamezilla/lib/assert';
-import type { PatchesDb, PatchesDbContext } from '@gamezilla/patch-db/interface';
+import type {
+  PatchesDb,
+  PatchesDbContext,
+} from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import type {
   AppAuthContext,

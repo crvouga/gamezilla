@@ -21,8 +21,7 @@ export class StripeDep implements Dep {
   }
 
   check(): DepStatus {
-    if (!whichSync('stripe'))
-      return { ok: false, reason: 'not found on PATH' };
+    if (!whichSync('stripe')) return { ok: false, reason: 'not found on PATH' };
     const v = this.version();
     if (!v) return { ok: false, reason: 'could not determine version' };
     return { ok: true, version: v };

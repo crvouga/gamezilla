@@ -15,6 +15,7 @@ export type FlatListProps<ItemT> = RNFlatListProps<ItemT> & {
   sx?: SxProps;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- RN FlatList ref/component generics are invariant; item type flows via props
 export const FlatList = forwardRef<RNFlatList<any>, FlatListProps<any>>(
   function FlatList({ sx: sxProp, contentContainerStyle, ...rest }, ref) {
     const theme = useTheme();
@@ -26,5 +27,5 @@ export const FlatList = forwardRef<RNFlatList<any>, FlatListProps<any>>(
         {...rest}
       />
     );
-  },
+  }
 );

@@ -80,7 +80,7 @@ async function waitForReady(
     try {
       const sql = new SQL(url);
       await sql.unsafe('SELECT 1');
-      sql.close();
+      void sql.close();
       return;
     } catch {
       await new Promise((r) => setTimeout(r, pollIntervalMs));

@@ -48,7 +48,9 @@ export function CommandPaletteKbd({ shortcut }: CommandPaletteKbdProps) {
   }
 
   return (
-    <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 1, flexShrink: 0 }}>
+    <Box
+      sx={{ flexDirection: 'row', alignItems: 'center', gap: 1, flexShrink: 0 }}
+    >
       {parts.map((p, i) => (
         <Box
           key={`${p}-${i}`}

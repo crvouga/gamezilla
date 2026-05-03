@@ -33,7 +33,9 @@ type BootHandlers = {
   simRef: React.MutableRefObject<PlaygroundSim | null>;
 };
 
-async function createFreshSim(handlers: BootHandlers): Promise<PlaygroundSim | null> {
+async function createFreshSim(
+  handlers: BootHandlers
+): Promise<PlaygroundSim | null> {
   const p = await createPlaygroundSim({ clientCount: 2, dbFactory });
   if (!handlers.isMounted()) {
     await p.destroy();
@@ -68,7 +70,7 @@ async function buildSim(handlers: BootHandlers): Promise<PlaygroundSim | null> {
 async function runBoot(
   handlers: BootHandlers,
   setSim: (s: PlaygroundSim | null) => void,
-  bumpPulse: () => void,
+  bumpPulse: () => void
 ): Promise<void> {
   await getSimTeardown();
   if (!handlers.isMounted()) return;
@@ -90,7 +92,9 @@ async function runBoot(
   }
 }
 
-function scheduleTeardown(simRef: React.MutableRefObject<PlaygroundSim | null>) {
+function scheduleTeardown(
+  simRef: React.MutableRefObject<PlaygroundSim | null>
+) {
   const x = simRef.current;
   simRef.current = null;
   if (x) {
@@ -103,8 +107,8 @@ function scheduleTeardown(simRef: React.MutableRefObject<PlaygroundSim | null>) 
   const prev = getSimTeardown();
   setSimTeardown(
     prev.then(() =>
-      x !== null && x !== undefined ? x.destroy() : Promise.resolve(),
-    ),
+      x !== null && x !== undefined ? x.destroy() : Promise.resolve()
+    )
   );
 }
 
@@ -135,12 +139,9 @@ function useSimActions(
   simRef: React.MutableRefObject<PlaygroundSim | null>,
   setPulseKey: React.Dispatch<React.SetStateAction<number>>,
   setLinkEpoch: React.Dispatch<React.SetStateAction<number>>,
-  setClientEpoch: React.Dispatch<React.SetStateAction<number>>,
+  setClientEpoch: React.Dispatch<React.SetStateAction<number>>
 ) {
-  const bumpGraph = useCallback(
-    () => setPulseKey((k) => k + 1),
-    [setPulseKey],
-  );
+  const bumpGraph = useCallback(() => setPulseKey((k) => k + 1), [setPulseKey]);
   const bumpLink = useCallback(() => {
     setLinkEpoch((e) => e + 1);
     setPulseKey((k) => k + 1);
@@ -163,14 +164,14 @@ function useSimActions(
       setClientEpoch((e) => e + 1);
       setPulseKey((k) => k + 1);
     },
-    [simRef, setClientEpoch, setPulseKey],
+    [simRef, setClientEpoch, setPulseKey]
   );
 
   return { bumpGraph, bumpLink, addClient, removeClient };
 }
 
 async function performReset(
-  simRef: React.MutableRefObject<PlaygroundSim | null>,
+  simRef: React.MutableRefObject<PlaygroundSim | null>
 ) {
   const s = simRef.current;
   simRef.current = null;
@@ -230,7 +231,7 @@ export function usePlaygroundBoot() {
     simRef,
     setPulseKey,
     setLinkEpoch,
-    setClientEpoch,
+    setClientEpoch
   );
 
   const reset = useCallback(async () => {

@@ -1,7 +1,4 @@
-import {
-  PRINCIPAL_ENTITY_TYPE,
-  PrincipalAttr,
-} from '@gamezilla/domain/auth';
+import { PRINCIPAL_ENTITY_TYPE, PrincipalAttr } from '@gamezilla/domain/auth';
 import type { Entity } from '@gamezilla/patch-db/interface';
 import { useEntities } from '@gamezilla/patch-db/react';
 import { useMemo } from 'react';

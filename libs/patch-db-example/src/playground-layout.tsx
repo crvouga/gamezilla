@@ -84,7 +84,10 @@ export function PlaygroundLayout({
 }) {
   const { t } = useLingui();
   void linkEpoch;
-  const clients = useMemo(() => [...sim.clients], [sim, pulseKey]);
+  const clients = useMemo(() => {
+    void pulseKey;
+    return [...sim.clients];
+  }, [sim, pulseKey]);
 
   return (
     <ScrollView sx={{ flex: 1 }}>

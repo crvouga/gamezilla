@@ -3,7 +3,9 @@ import { useLingui } from '@lingui/react/macro';
 import type { PeerCryptoSummary, PeerId } from '../simulator/playground';
 
 function short(value: string): string {
-  return value.length <= 16 ? value : `${value.slice(0, 8)}...${value.slice(-8)}`;
+  return value.length <= 16
+    ? value
+    : `${value.slice(0, 8)}...${value.slice(-8)}`;
 }
 
 export function CryptoDiagnosticsSection({

@@ -13,7 +13,6 @@ export type AppStatusBarProps = {
 
 export function AppStatusBar({ style }: AppStatusBarProps) {
   const theme = useTheme();
-  const resolved =
-    style ?? (theme.colorScheme === 'dark' ? 'light' : 'dark');
+  const resolved = style ?? (theme.colorScheme === 'dark' ? 'light' : 'dark');
   return <StatusBar style={resolved} />;
 }

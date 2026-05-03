@@ -44,7 +44,11 @@ export default function HorizontalPickerExample() {
             />
           )}
         />
-        <Text variant="caption" sx={{ opacity: 0.75 }} label={`Selected: ${sel}`} />
+        <Text
+          variant="caption"
+          sx={{ opacity: 0.75 }}
+          label={`Selected: ${sel}`}
+        />
       </Box>
 
       <Box sx={{ gap: 2 }}>

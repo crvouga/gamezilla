@@ -52,7 +52,11 @@ export function TrustElectionSection({
         />
       ))}
       <Stack direction="horizontal" spacing={2} wrap>
-        <Button title={t`Apply Election`} size="sm" onPress={election.applyElection} />
+        <Button
+          title={t`Apply Election`}
+          size="sm"
+          onPress={election.applyElection}
+        />
         <Button
           title={t`Reset Preferences`}
           variant="outlined"

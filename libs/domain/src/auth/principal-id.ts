@@ -11,7 +11,10 @@ export function isUuid(value: unknown): value is string {
 /**
  * Asserts value is a valid UUID string at trust boundaries. Crashes on violation.
  */
-export function assertUuid(value: unknown, message: string): asserts value is string {
+export function assertUuid(
+  value: unknown,
+  message: string
+): asserts value is string {
   assert.string(value, message);
   assert.ok(UUID_REGEX.test(value), message, { value });
 }

@@ -1,4 +1,4 @@
-import { CrashHandler } from './crash-handler';
+import type { CrashHandler } from './crash-handler';
 
 export class NodeCrashHandler implements CrashHandler {
   readonly priority: number = 30;

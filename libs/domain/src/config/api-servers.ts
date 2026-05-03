@@ -14,13 +14,14 @@ export const DEFAULT_LOCAL_PREVIEW_API_ORIGIN =
   'http://127.0.0.1:8788' as const;
 
 function isProductionApiHttpHostname(hostname: string): boolean {
-  return (PRODUCTION_API_HTTP_HOSTNAMES as readonly string[]).includes(hostname);
+  return (PRODUCTION_API_HTTP_HOSTNAMES as readonly string[]).includes(
+    hostname
+  );
 }
 
 /** Metro / Expo set `globalThis.__DEV__ === true` only in development bundles. */
 function isExpoOrMetroDevelopmentBundle(): boolean {
-  const g = globalThis as { __DEV__?: boolean };
-  return g.__DEV__ === true;
+  return Reflect.get(globalThis, '__DEV__') === true;
 }
 
 /** Opt-in escape hatch for rare QA / incident tooling (must be explicit `1`). */

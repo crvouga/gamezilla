@@ -90,7 +90,7 @@ describe('computeTrustMap', () => {
 
   it('crash on vote for unknown peer', () => {
     expect(() =>
-      computeTrustMap([{ from: 'a', trustedPeer: 'unknown' }], ['a', 'b']),
+      computeTrustMap([{ from: 'a', trustedPeer: 'unknown' }], ['a', 'b'])
     ).toThrow();
   });
 });
@@ -113,7 +113,7 @@ describe('TrustElection', () => {
           roomSecret: ROOM,
           secretSeed: peer(labels[i]!).secretSeed,
           timeoutMs: 5000,
-        }),
+        })
     );
 
     const results = await Promise.all(elections.map((e) => e.resolve()));

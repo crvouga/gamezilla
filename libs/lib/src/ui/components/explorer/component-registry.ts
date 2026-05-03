@@ -117,14 +117,22 @@ export const componentRegistry: ComponentEntry[] = [
 
   // Compound Inputs
   { name: 'Select', category: 'Inputs', Example: SelectExample },
-  { name: 'SegmentedControl', category: 'Inputs', Example: SegmentedControlExample },
+  {
+    name: 'SegmentedControl',
+    category: 'Inputs',
+    Example: SegmentedControlExample,
+  },
 
   // Status
   { name: 'StatusDot', category: 'Data Display', Example: StatusDotExample },
 
   // Overlay
   { name: 'Modal', category: 'Overlay', Example: ModalExample },
-  { name: 'CommandPalette', category: 'Overlay', Example: CommandPaletteExample },
+  {
+    name: 'CommandPalette',
+    category: 'Overlay',
+    Example: CommandPaletteExample,
+  },
   {
     name: 'ResponsiveSurface',
     category: 'Overlay',
@@ -148,4 +156,6 @@ export const componentRegistry: ComponentEntry[] = [
   { name: 'SectionCard', category: 'Disclosure', Example: SectionCardExample },
 ];
 
-export const categories = [...new Set(componentRegistry.map((c) => c.category))];
+export const categories = [
+  ...new Set(componentRegistry.map((c) => c.category)),
+];

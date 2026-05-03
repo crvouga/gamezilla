@@ -4,9 +4,8 @@ import { useLingui } from '@lingui/react/macro';
 const MAX_INLINE = 200;
 
 export function formatAttrValue(value: unknown): string {
-  // eslint-disable-next-line lingui/no-unlocalized-strings
   if (value === null) return 'null';
-  // eslint-disable-next-line lingui/no-unlocalized-strings
+
   if (value === undefined) return 'undefined';
   if (typeof value === 'object') {
     try {
@@ -20,7 +19,6 @@ export function formatAttrValue(value: unknown): string {
 
 export type ValueKind = 'null' | 'bool' | 'number' | 'string' | 'object';
 
-/* eslint-disable lingui/no-unlocalized-strings */
 export function valueKind(value: unknown): ValueKind {
   if (value === null || value === undefined) return 'null';
   if (typeof value === 'boolean') return 'bool';
@@ -28,7 +26,6 @@ export function valueKind(value: unknown): ValueKind {
   if (typeof value === 'string') return 'string';
   return 'object';
 }
-/* eslint-enable lingui/no-unlocalized-strings */
 
 export function ValueKindBadge({ value }: { value: unknown }) {
   const { t } = useLingui();

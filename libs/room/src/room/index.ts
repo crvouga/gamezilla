@@ -1,8 +1,5 @@
 export { Room } from './room';
-export {
-  normalizeRoomInit,
-  peelRoomConfigCore,
-} from './normalize-init';
+export { normalizeRoomInit, peelRoomConfigCore } from './normalize-init';
 export type { RoomCoreInitConfig } from './validate-init-config';
 export type {
   Command,

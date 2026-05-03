@@ -2,7 +2,9 @@ import { STRIPE_CLI_LOG_TAG } from './constants';
 import { asReadableUint8Stream } from './readable-stream-lines';
 
 /** Ensure `bun x stripe` resolves (native Stripe CLI on PATH). */
-export async function exitUnlessStripeCliWorks(repoRoot: string): Promise<void> {
+export async function exitUnlessStripeCliWorks(
+  repoRoot: string
+): Promise<void> {
   const proc = Bun.spawn([process.execPath, 'x', 'stripe', 'version'], {
     cwd: repoRoot,
     stdin: 'ignore',

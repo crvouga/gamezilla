@@ -1,4 +1,4 @@
-import { Entity } from '@gamezilla/patch-db/interface';
+import type { Entity } from '@gamezilla/patch-db/interface';
 import { useEntities, usePatchesDb } from '@gamezilla/patch-db/react';
 import {
   Box,
@@ -15,7 +15,6 @@ import { useState } from 'react';
 
 import { TodoItem } from './todo-item';
 
-/* eslint-disable lingui/no-unlocalized-strings */
 const DELETED_CLAUSE = {
   type: 'or' as const,
   clauses: [
@@ -60,7 +59,6 @@ function buildTodoQuery(filter: Filter) {
     ],
   };
 }
-/* eslint-enable lingui/no-unlocalized-strings */
 
 function FilterTabs({
   filter,
@@ -91,11 +89,11 @@ function FilterTabs({
   );
   return (
     <Box sx={{ flexDirection: 'row', gap: 2, mb: 3 }}>
-      {/* eslint-disable lingui/no-unlocalized-strings */}
+      {}
       {renderTab('all', t`All`)}
       {renderTab('active', t`Active`)}
       {renderTab('completed', t`Completed`)}
-      {/* eslint-enable lingui/no-unlocalized-strings */}
+      {}
     </Box>
   );
 }
@@ -183,7 +181,6 @@ function TodoItems({
   );
 }
 
-/* eslint-disable lingui/no-unlocalized-strings */
 function buildTodoCreatePayload(title: string, totalCount: number) {
   return {
     entityId: globalThis.crypto.randomUUID(),
@@ -213,14 +210,13 @@ function buildTodoDeletePayload(entity: Entity) {
     attributes: { 'todo/deleted': true },
   };
 }
-/* eslint-enable lingui/no-unlocalized-strings */
 
 export function TodoList() {
   const { t } = useLingui();
   const db = usePatchesDb();
   const [input, setInput] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
-  // eslint-disable-next-line lingui/no-unlocalized-strings
+
   const allResult = useEntities(buildTodoQuery('all'));
   const filterResult = useEntities(buildTodoQuery(filter));
   const todos = filterResult.entities;

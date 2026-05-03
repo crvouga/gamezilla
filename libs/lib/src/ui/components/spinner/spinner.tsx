@@ -51,8 +51,7 @@ export function Spinner({
   strokeWidth,
 }: SpinnerProps) {
   const theme = useTheme();
-  const stroke =
-    theme.colors[color as keyof typeof theme.colors] ?? color;
+  const stroke = theme.colors[color as keyof typeof theme.colors] ?? color;
   const diameter = resolveSize(size);
   const sw = strokeWidth ?? Math.max(2, Math.round(diameter * 0.12));
   const radius = (diameter - sw) / 2;
@@ -90,7 +89,11 @@ export function Spinner({
         transform: [{ rotate: spin }],
       }}
     >
-      <Svg width={diameter} height={diameter} viewBox={`0 0 ${diameter} ${diameter}`}>
+      <Svg
+        width={diameter}
+        height={diameter}
+        viewBox={`0 0 ${diameter} ${diameter}`}
+      >
         <Circle
           cx={diameter / 2}
           cy={diameter / 2}

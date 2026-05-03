@@ -37,16 +37,13 @@ export function runRoomConstructorBootstrap(
   module: RoomModule,
   config: RoomBootstrapConfig,
   memberPublicKeys: Map<string, Uint8Array>,
-  last_seen: Map<string, number>,
+  last_seen: Map<string, number>
 ): ConstructorBootstrapResult {
   let committed_state = module.initialState();
-  crash.record(
-    committed_state,
-    'initialState must return a plain object',
-  );
+  crash.record(committed_state, 'initialState must return a plain object');
 
   const bootstrapKind = config.bootstrap.kind;
-  let synced = bootstrapKind === 'genesis';
+  const synced = bootstrapKind === 'genesis';
   let joinGenesis: JoinGenesisSnapshot | null = null;
   let membership = new Map<string, number>();
   let committed_entries: LogEntry[] = [];
@@ -57,7 +54,7 @@ export function runRoomConstructorBootstrap(
       module,
       memberPublicKeys,
       config.peerId,
-      config.bootstrap,
+      config.bootstrap
     );
     membership = snap.membership;
     committed_entries = snap.committed_entries;
@@ -81,7 +78,7 @@ export function runRoomConstructorBootstrap(
         memberPublicKeys,
         last_seen,
       },
-      jg,
+      jg
     );
   }
 

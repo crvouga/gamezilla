@@ -13,6 +13,13 @@ function mockFetch(
   return impl;
 }
 
+function fetchInputToUrl(input: RequestInfo | URL): string {
+  if (typeof input === 'string') return input;
+  if (input instanceof URL) return input.href;
+  if (input instanceof Request) return input.url;
+  return '';
+}
+
 describe('DopplerSecretStore', () => {
   it('throws when token is blank', () => {
     expect(() => new DopplerSecretStore({ token: '' })).toThrow(
@@ -94,12 +101,12 @@ describe('DopplerSecretStore', () => {
     const store = new DopplerSecretStore({
       token: 'tok',
       fetchFn: mockFetch((input) => {
-        url = typeof input === 'string' ? input : input.toString();
+        url = fetchInputToUrl(input);
         return Promise.resolve(
-          new Response(
-            JSON.stringify({ A: '1', B: '2' }),
-            { status: 200, headers: { 'Content-Type': 'application/json' } }
-          )
+          new Response(JSON.stringify({ A: '1', B: '2' }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          })
         );
       }),
     });
@@ -120,15 +127,13 @@ describe('DopplerSecretStore', () => {
     );
   });
 
-
-
   it('includes config query when configName is set', async () => {
     let url = '';
     const store = new DopplerSecretStore({
       token: 'tok',
       configName: 'shared',
       fetchFn: mockFetch((input) => {
-        url = typeof input === 'string' ? input : input.toString();
+        url = fetchInputToUrl(input);
         return Promise.resolve(
           new Response(JSON.stringify({ A: '1' }), {
             status: 200,
@@ -148,7 +153,7 @@ describe('DopplerSecretStore', () => {
       token: 'tok',
       project: 'my-app',
       fetchFn: mockFetch((input) => {
-        url = typeof input === 'string' ? input : input.toString();
+        url = fetchInputToUrl(input);
         return Promise.resolve(
           new Response(JSON.stringify({ A: '1' }), {
             status: 200,

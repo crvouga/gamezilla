@@ -189,8 +189,5 @@ export async function recomputeSnapshotSingle(
   entityId: string,
   entityType: string
 ): Promise<void> {
-  await recomputeTouchedSnapshots(
-    tx,
-    new Set([`${entityId}\0${entityType}`])
-  );
+  await recomputeTouchedSnapshots(tx, new Set([`${entityId}\0${entityType}`]));
 }

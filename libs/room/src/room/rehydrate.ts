@@ -2,11 +2,7 @@ import { Assert } from '@gamezilla/lib/assert';
 import type { LogEntry } from '../persistence/log-entry';
 import { seedAllRemotePeersLiveness } from './authority-monitor';
 import { rebuildMembershipFromLog } from './membership';
-import type {
-  RoomSecurityConfig,
-  State,
-  RoomModule,
-} from './types';
+import type { RoomSecurityConfig, State, RoomModule } from './types';
 import { rebuildMemberPublicKeysFromCommittedLog } from './member-public-keys';
 import { replayDomainEntries } from './replay';
 import type { OptimisticEvent } from './wire-protocol';
@@ -36,7 +32,7 @@ export type RoomRehydrateTarget = {
 
 export function applyRehydrateCommittedEntries(
   target: RoomRehydrateTarget,
-  entries: LogEntry[],
+  entries: LogEntry[]
 ): void {
   crash.array(entries, 'entries must be an array');
   const sorted = [...entries].sort((a, b) => a.seq - b.seq);
@@ -44,11 +40,11 @@ export function applyRehydrateCommittedEntries(
   for (const e of sorted) {
     validation.nonEmptyString(
       e.event.type,
-      'rehydrated event must have non-empty type',
+      'rehydrated event must have non-empty type'
     );
     crash.ok(
       e.seq > prev,
-      'rehydrate entries must have strictly increasing seq',
+      'rehydrate entries must have strictly increasing seq'
     );
     prev = e.seq;
   }
@@ -61,7 +57,7 @@ export function applyRehydrateCommittedEntries(
       peerId: target.peerId,
       secretSeed: target.security.secretSeed,
     },
-    sorted,
+    sorted
   );
   target.committed_entries = [...sorted];
   target.committed_state = replayDomainEntries(target.module, sorted);

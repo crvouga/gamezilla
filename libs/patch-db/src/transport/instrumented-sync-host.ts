@@ -9,7 +9,10 @@ import type {
   PatchesDbResult,
   PatchInput,
 } from '../interface';
-import { OPEN_PATCHES_DB_CONTEXT, PATCHES_DB_SYSTEM_CONTEXT } from '../interface';
+import {
+  OPEN_PATCHES_DB_CONTEXT,
+  PATCHES_DB_SYSTEM_CONTEXT,
+} from '../interface';
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '../policy/system-principal';
 import type { PatchDbSyncHost } from './interface';
 

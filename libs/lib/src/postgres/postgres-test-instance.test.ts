@@ -37,7 +37,7 @@ describe.skip('postgres-test-instance', () => {
     await sql.unsafe('CREATE TABLE t (id SERIAL PRIMARY KEY, x TEXT)');
     await sql.unsafe('INSERT INTO t (x) VALUES ($1), ($2)', ['a', 'b']);
     const rows = await sql.unsafe('SELECT * FROM t');
-    sql.close();
+    void sql.close();
     expect(rows).toHaveLength(2);
   });
 
@@ -48,7 +48,7 @@ describe.skip('postgres-test-instance', () => {
     const tables = await sql.unsafe(
       "SELECT tablename FROM pg_tables WHERE schemaname = 'public'"
     );
-    sql.close();
+    void sql.close();
     expect(tables).toHaveLength(0);
   });
 

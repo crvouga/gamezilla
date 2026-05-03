@@ -189,11 +189,17 @@ export class SyncPatchesDb implements PatchesDb {
   /** Stops push and poll timers. Call before disposing of the db. */
   destroy(): void {
     this.destroyed = true;
-    if (this.pushScheduleHandle !== null && this.pushScheduleHandle !== undefined) {
+    if (
+      this.pushScheduleHandle !== null &&
+      this.pushScheduleHandle !== undefined
+    ) {
       this.pushScheduleHandle.cancel();
       this.pushScheduleHandle = null;
     }
-    if (this.pollScheduleHandle !== null && this.pollScheduleHandle !== undefined) {
+    if (
+      this.pollScheduleHandle !== null &&
+      this.pollScheduleHandle !== undefined
+    ) {
       this.pollScheduleHandle.cancel();
       this.pollScheduleHandle = null;
     }
@@ -227,7 +233,10 @@ export class SyncPatchesDb implements PatchesDb {
   }
 
   private ensurePollTimer(): void {
-    if (this.pollScheduleHandle !== null && this.pollScheduleHandle !== undefined)
+    if (
+      this.pollScheduleHandle !== null &&
+      this.pollScheduleHandle !== undefined
+    )
       return;
     const pollDriver = this.options.pollDriver ?? 'interval';
     if (pollDriver === 'manual') return;
@@ -301,7 +310,9 @@ export class SyncPatchesDb implements PatchesDb {
     this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
   }
 
-  private async markRemotePushSucceeded(patches: readonly Patch[]): Promise<void> {
+  private async markRemotePushSucceeded(
+    patches: readonly Patch[]
+  ): Promise<void> {
     await this.local.update(
       patches.map((p) => ({
         patchId: p.patchId,
@@ -390,7 +401,11 @@ export class SyncPatchesDb implements PatchesDb {
   ): Promise<PatchesDbQuery[]> {
     const syncQueries: PatchesDbQuery[] = [];
     for (const { query } of entries) {
-      const { limit, offset, ...queryWithoutPagination } = query;
+      const {
+        limit: _limit,
+        offset: _offset,
+        ...queryWithoutPagination
+      } = query;
       const [localResult] = await this.local.read(
         [queryWithoutPagination],
         OPEN_PATCHES_DB_CONTEXT
@@ -496,7 +511,9 @@ export class SyncPatchesDb implements PatchesDb {
    * full Patch objects with just their IDs. The server only needs IDs
    * to know what the client already has.
    */
-  private static toWireQueries(syncQueries: PatchesDbQuery[]): PatchesDbQuery[] {
+  private static toWireQueries(
+    syncQueries: PatchesDbQuery[]
+  ): PatchesDbQuery[] {
     return syncQueries.map(({ knownPatches, ...rest }) => ({
       ...rest,
       knownPatchIds: knownPatches?.map((p) => p.patchId) ?? [],

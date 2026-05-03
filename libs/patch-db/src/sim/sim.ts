@@ -1,18 +1,12 @@
 import type { Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
-import {
-  SYNC_ERROR_TOPIC,
-  type SyncErrorEvent,
-} from '../impl-sync';
+import { SYNC_ERROR_TOPIC, type SyncErrorEvent } from '../impl-sync';
 import type { Entity, PatchesDbQuery } from '../interface';
 import {
   assertNodesConsistent,
   type NodeSnapshot,
 } from './assert-nodes-consistent';
 import type { DeterministicScheduler } from './deterministic-scheduler';
-import {
-  type SimEventRecorder,
-  type SimRecordingMeta,
-} from './event-recorder';
+import { type SimEventRecorder, type SimRecordingMeta } from './event-recorder';
 import { saveRecording } from './recording-store';
 import type {
   ClientRuntime,

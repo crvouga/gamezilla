@@ -4,7 +4,13 @@ import {
   getCommitHash,
   getShortCommitHash,
 } from '@gamezilla/domain/config/app-metadata';
-import { Box, Card, CopyToClipboardField, ScreenBase, Text } from '@gamezilla/lib/ui';
+import {
+  Box,
+  Card,
+  CopyToClipboardField,
+  ScreenBase,
+  Text,
+} from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
@@ -45,7 +51,10 @@ export function AboutScreen() {
 
           <Card elevation={1} sx={{ p: 4, gap: 2 }}>
             <Text variant="bodyBold" label={<Trans>Build</Trans>} />
-            <Text variant="caption" label={t`Commit (short): ${shortCommitHash}`} />
+            <Text
+              variant="caption"
+              label={t`Commit (short): ${shortCommitHash}`}
+            />
             <CopyToClipboardField
               label={<Trans>Full commit</Trans>}
               helperText={t`Tap to copy`}

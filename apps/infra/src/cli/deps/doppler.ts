@@ -87,7 +87,11 @@ export class DopplerDep implements Dep {
   }
 
   upgrade(): void {
-    if (isMacOS() && hasHomebrew() && !whichSync(join(dopplerInstallBinDir(), 'doppler'))) {
+    if (
+      isMacOS() &&
+      hasHomebrew() &&
+      !whichSync(join(dopplerInstallBinDir(), 'doppler'))
+    ) {
       spawnInstall('brew', ['upgrade', 'dopplerhq/cli/doppler']);
       return;
     }

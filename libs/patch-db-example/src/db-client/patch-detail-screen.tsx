@@ -34,7 +34,7 @@ function useLoadPatch(
   db: Db,
   entityType: string,
   entityId: string,
-  patchId: string,
+  patchId: string
 ) {
   const { t } = useLingui();
   const [patch, setPatch] = useState<Patch | null>(null);
@@ -48,7 +48,6 @@ function useLoadPatch(
       setLoadError(null);
       try {
         const results = await db.read([
-          // eslint-disable-next-line lingui/no-unlocalized-strings
           { entityType, entityId, on: 'patches', limit: 500 },
         ]);
         const result = results[0];
@@ -84,7 +83,7 @@ function useLoadPatch(
 function useLoadParent(
   db: Db,
   patch: Patch | null,
-  onNavigateToPatch: (p: Patch) => void,
+  onNavigateToPatch: (p: Patch) => void
 ) {
   const [loadingParent, setLoadingParent] = useState(false);
   const loadParent = useCallback(async () => {
@@ -97,7 +96,7 @@ function useLoadParent(
         {
           entityType: patch.entityType,
           entityId: patch.entityId,
-          // eslint-disable-next-line lingui/no-unlocalized-strings
+
           on: 'patches',
           limit: 500,
         },
@@ -162,24 +161,23 @@ function MetaCard({
   const { t } = useLingui();
   const metaRows: Array<readonly [string, string]> = useMemo(
     () => [
-      // eslint-disable-next-line lingui/no-unlocalized-strings
       ['patchId', patch.patchId],
-      // eslint-disable-next-line lingui/no-unlocalized-strings
+
       ['parentId', patch.parentId ?? 'null'],
-      // eslint-disable-next-line lingui/no-unlocalized-strings
+
       ['entityId', patch.entityId],
-      // eslint-disable-next-line lingui/no-unlocalized-strings
+
       ['entityType', patch.entityType],
-      // eslint-disable-next-line lingui/no-unlocalized-strings
+
       ['createdAt', patch.createdAt],
-      // eslint-disable-next-line lingui/no-unlocalized-strings
+
       ['recordedAt', patch.recordedAt],
-      // eslint-disable-next-line lingui/no-unlocalized-strings
+
       ['createdBy', patch.createdBy],
-      // eslint-disable-next-line lingui/no-unlocalized-strings
+
       ['sessionId', patch.sessionId],
     ],
-    [patch],
+    [patch]
   );
   return (
     <Card elevation={1} sx={{ mb: 3 }}>
@@ -231,11 +229,7 @@ function AttrRow({
   return (
     <Box>
       <Stack spacing={2} sx={{ px: 3, py: 2.5 }}>
-        <Stack
-          direction="horizontal"
-          align="center"
-          justify="space-between"
-        >
+        <Stack direction="horizontal" align="center" justify="space-between">
           <Text
             variant="mono"
             style={{ fontSize: 11, color: theme.colors.tint, flex: 1 }}
@@ -259,7 +253,7 @@ function AttrsCard({ patch }: { patch: Patch }) {
   const attrEntries = useMemo(
     () =>
       Object.entries(patch.attributes).sort(([a], [b]) => a.localeCompare(b)),
-    [patch],
+    [patch]
   );
   return (
     <Card elevation={1}>
@@ -292,12 +286,12 @@ export function PatchDetailScreen({
     db,
     entityType,
     entityId,
-    patchId,
+    patchId
   );
   const { loadingParent, loadParent } = useLoadParent(
     db,
     patch,
-    onNavigateToPatch,
+    onNavigateToPatch
   );
 
   if (loading) {

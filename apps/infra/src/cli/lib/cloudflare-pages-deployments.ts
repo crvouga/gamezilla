@@ -96,7 +96,6 @@ async function listAllDeployments(
   const all: Deployment[] = [];
   let page = 1;
 
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const resp = await cfGet<CfListResponse<Deployment>>(
       `/accounts/${accountId}/pages/projects/${projectName}/deployments?page=${page}&per_page=${LIST_PAGE_SIZE}`,
@@ -169,7 +168,10 @@ export async function cleanupPagesDeployments(
   );
   const attempts = Math.max(1, options.attempts ?? DEFAULT_DELETE_ATTEMPTS);
 
-  assert.ok(accountId.length > 0, 'cleanupPagesDeployments: accountId required');
+  assert.ok(
+    accountId.length > 0,
+    'cleanupPagesDeployments: accountId required'
+  );
   assert.ok(
     projectName.length > 0,
     'cleanupPagesDeployments: projectName required'
@@ -209,7 +211,8 @@ export async function cleanupPagesDeployments(
 
   const skippedAliased = deleteAliased
     ? 0
-    : deployments.filter((d) => d.id !== liveProductionId && hasAlias(d)).length;
+    : deployments.filter((d) => d.id !== liveProductionId && hasAlias(d))
+        .length;
   if (skippedAliased > 0) {
     info('Skipped aliased deployments', String(skippedAliased));
   }

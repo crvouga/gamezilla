@@ -58,13 +58,8 @@ function toPatchDbApiConfig(config: ApiHandlerConfig): PatchDbApiConfig {
  * [Hono best practices](https://hono.dev/docs/guides/best-practices).
  */
 export function createApiApp(config: ApiHandlerConfig) {
-  const {
-    secretStore,
-    db,
-    stripe,
-    requireAuth,
-    webhookSecretDopplerKey,
-  } = config;
+  const { secretStore, db, stripe, requireAuth, webhookSecretDopplerKey } =
+    config;
   const { honoApp: patchDbApp, basePath: resolvedBase } =
     createPatchDbApiHandler(toPatchDbApiConfig(config));
   /** RPC client keys use the literal mount path; wire URL stays `basePath`-driven. */

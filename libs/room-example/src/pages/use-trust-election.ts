@@ -30,14 +30,17 @@ export type TrustElectionControls = {
 
 export function useTrustElection(
   sim: PlaygroundSimulator,
-  tick: number,
+  tick: number
 ): TrustElectionControls {
-  const [rankings, setRankings] = useState<ElectionRanking>(() => defaultRankings());
+  const [rankings, setRankings] = useState<ElectionRanking>(() =>
+    defaultRankings()
+  );
   const [history, setHistory] = useState<
     Array<{ authority: PeerId; trustMap: Record<PeerId, number> }>
   >([]);
 
   const projectedTrustMap = useMemo(() => {
+    void tick;
     const votes: TrustVote[] = PEERS.map((from) => ({
       from,
       trustedPeer: firstChoice(rankings, from),

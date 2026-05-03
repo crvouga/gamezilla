@@ -108,7 +108,9 @@ export function runEntityDbContractTests(
     assert.defined(after, 'after');
     expect(after.data).toEqual({ v: 10 });
     expect(after.metadata).toEqual({ m: 1 });
-    expect(after.lastModifiedAt.getTime()).toBe(before.lastModifiedAt.getTime());
+    expect(after.lastModifiedAt.getTime()).toBe(
+      before.lastModifiedAt.getTime()
+    );
   });
 
   test('delete is idempotent', async () => {
@@ -179,97 +181,90 @@ describe('entity-db interface', () => {
     disposeCrash();
   });
 
-describe('EntityDbImplInMemory (contract)', () => {
-  runEntityDbContractTests(() => createEntityDbInMemory(compareByVersion));
-});
-
-describe('entity-db tiger violations (in-memory)', () => {
-  test('empty namespace throws', () => {
-    const db = createEntityDbInMemory(compareByVersion);
-    expect(() =>
-      db.get({ namespace: '', type: 't', id: 'i' })
-    ).toThrow();
+  describe('EntityDbImplInMemory (contract)', () => {
+    runEntityDbContractTests(() => createEntityDbInMemory(compareByVersion));
   });
 
-  test('key length overflow throws', () => {
-    const db = createEntityDbInMemory(compareByVersion);
-    const long = 'x'.repeat(ENTITY_DB_LIMITS.MAX_NAMESPACE_LEN + 1);
-    expect(() =>
-      db.get({ namespace: long, type: 't', id: 'i' })
-    ).toThrow();
-  });
-
-  test('NUL in key throws', () => {
-    const db = createEntityDbInMemory(compareByVersion);
-    expect(() =>
-      db.get({ namespace: 'a\0b', type: 't', id: 'i' })
-    ).toThrow();
-  });
-
-  test('data undefined on upsert throws', () => {
-    const db = createEntityDbInMemory(compareByVersion);
-    expect(() =>
-      db.upsert({
-        namespace: 'n',
-        type: 't',
-        id: 'i',
-        data: undefined,
-      })
-    ).toThrow();
-  });
-
-  test('compareVersions invalid return throws', async () => {
-    const raw = new EntityDbImplInMemory((_a, _b) => 2 as unknown as -1);
-    await raw.upsert({
-      namespace: 'n',
-      type: 't',
-      id: 'x',
-      data: { v: 1 } satisfies V,
+  describe('entity-db tiger violations (in-memory)', () => {
+    test('empty namespace throws', () => {
+      const db = createEntityDbInMemory(compareByVersion);
+      expect(() => db.get({ namespace: '', type: 't', id: 'i' })).toThrow();
     });
-    await expect(
-      raw.upsert({
+
+    test('key length overflow throws', () => {
+      const db = createEntityDbInMemory(compareByVersion);
+      const long = 'x'.repeat(ENTITY_DB_LIMITS.MAX_NAMESPACE_LEN + 1);
+      expect(() => db.get({ namespace: long, type: 't', id: 'i' })).toThrow();
+    });
+
+    test('NUL in key throws', () => {
+      const db = createEntityDbInMemory(compareByVersion);
+      expect(() => db.get({ namespace: 'a\0b', type: 't', id: 'i' })).toThrow();
+    });
+
+    test('data undefined on upsert throws', () => {
+      const db = createEntityDbInMemory(compareByVersion);
+      expect(() =>
+        db.upsert({
+          namespace: 'n',
+          type: 't',
+          id: 'i',
+          data: undefined,
+        })
+      ).toThrow();
+    });
+
+    test('compareVersions invalid return throws', async () => {
+      const raw = new EntityDbImplInMemory((_a, _b) => 2 as unknown as -1);
+      await raw.upsert({
         namespace: 'n',
         type: 't',
         id: 'x',
-        data: { v: 2 } satisfies V,
-      })
-    ).rejects.toThrow();
-  });
+        data: { v: 1 } satisfies V,
+      });
+      await expect(
+        raw.upsert({
+          namespace: 'n',
+          type: 't',
+          id: 'x',
+          data: { v: 2 } satisfies V,
+        })
+      ).rejects.toThrow();
+    });
 
-  test('payload over MAX_JSON_BYTES throws', () => {
-    const db = createEntityDbInMemory(compareByVersion);
-    const big = 'z'.repeat(ENTITY_DB_LIMITS.MAX_JSON_BYTES);
-    expect(() =>
-      db.upsert({
-        namespace: 'n',
-        type: 't',
-        id: 'big',
-        data: { v: 1, big },
-      })
-    ).toThrow();
-  });
+    test('payload over MAX_JSON_BYTES throws', () => {
+      const db = createEntityDbInMemory(compareByVersion);
+      const big = 'z'.repeat(ENTITY_DB_LIMITS.MAX_JSON_BYTES);
+      expect(() =>
+        db.upsert({
+          namespace: 'n',
+          type: 't',
+          id: 'big',
+          data: { v: 1, big },
+        })
+      ).toThrow();
+    });
 
-  test('unsafe tableName throws at createEntityDb', () => {
-    const noopSql = {
-      connect: async () => {},
-      disconnect: async () => {},
-      query: async () => [],
-      run: async () => ({ changes: 0, lastInsertRowid: 0 }),
-      transaction: async <R,>(fn: (tx: SqlClient) => Promise<R>) =>
-        fn(noopSql as SqlClient),
-      prepare: () => ({
+    test('unsafe tableName throws at createEntityDb', () => {
+      const noopSql = {
+        connect: async () => {},
+        disconnect: async () => {},
         query: async () => [],
         run: async () => ({ changes: 0, lastInsertRowid: 0 }),
-      }),
-    } as SqlClient;
-    expect(() =>
-      createEntityDb({
-        sqlClient: noopSql,
-        tableName: 'bad;',
-        compareVersions: compareByVersion,
-      })
-    ).toThrow();
+        transaction: async <R>(fn: (tx: SqlClient) => Promise<R>) =>
+          fn(noopSql as SqlClient),
+        prepare: () => ({
+          query: async () => [],
+          run: async () => ({ changes: 0, lastInsertRowid: 0 }),
+        }),
+      } as SqlClient;
+      expect(() =>
+        createEntityDb({
+          sqlClient: noopSql,
+          tableName: 'bad;',
+          compareVersions: compareByVersion,
+        })
+      ).toThrow();
+    });
   });
-});
-
 });

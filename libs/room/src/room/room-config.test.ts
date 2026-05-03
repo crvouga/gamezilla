@@ -5,7 +5,10 @@ import { Room } from './room';
 import { InMemoryBus, InMemoryTransport } from '../transport';
 import { TicTacToeModule } from '../testkit/fixtures/tic-tac-toe.module';
 import { TestCrashHandler } from '../testkit/test-crash-handler';
-import { testPeerForLabel, ticTacToeThreePeers } from '../testkit/tic-tac-toe-peers';
+import {
+  testPeerForLabel,
+  ticTacToeThreePeers,
+} from '../testkit/tic-tac-toe-peers';
 import { normalizeRoomInit } from './normalize-init';
 
 let disposeCrashHandler: () => void;

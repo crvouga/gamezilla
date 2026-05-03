@@ -1,10 +1,7 @@
 {
   "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "noUnusedLocals": false,
-    "noUnusedParameters": false
-  },
   "include": [
+    "../lib/src/ts-reset.ts",
     "./src/**/*.ts",
     "./src/**/*.tsx",
     "./src/**/*.d.ts",

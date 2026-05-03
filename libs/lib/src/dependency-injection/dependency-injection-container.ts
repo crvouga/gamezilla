@@ -1,4 +1,5 @@
-import { assert, Assert } from '../assert';
+import type { Assert } from '../assert';
+import { assert } from '../assert';
 
 /**
  * Token used to identify a dependency in the container.

@@ -79,78 +79,82 @@ function assertQueryResultShape(
 export function createSqlApp(deps: SqlAppDeps): Hono {
   const { db, log } = deps;
 
-  return new Hono().post('/sql', zValidator('json', sqlBodySchema), async (c) => {
-    const contentLengthBytes = parseContentLengthBytes(
-      c.req.header('content-length')
-    );
-    if (contentLengthBytes === null) {
-      return c.json({ error: 'Invalid Content-Length' }, 400);
-    }
-    if (contentLengthBytes > LIMITS.maxBodyBytes) {
-      return c.json({ error: 'Request body too large' }, 413);
-    }
-
-    const { sql, params: rawParams } = c.req.valid('json');
-
-    assert.nonEmptyString(sql, 'validated JSON must include non-empty sql');
-    const paramArray = rawParams ?? [];
-    assert.array(paramArray, 'params must be an array when present');
-    assert.ok(
-      paramArray.length <= LIMITS.maxParams,
-      'param count must not exceed schema max',
-      { length: paramArray.length, max: LIMITS.maxParams }
-    );
-
-    const sqlBytes = sqlByteLength(sql);
-    if (sqlBytes > LIMITS.maxSqlBytes) {
-      return c.json({ error: 'SQL exceeds 16 MB limit' }, 413);
-    }
-
-    const start = performance.now();
-    let rawResult: unknown;
-    try {
-      rawResult = await db.query(
-        sql,
-        paramArray.length > 0 ? paramArray : undefined
+  return new Hono().post(
+    '/sql',
+    zValidator('json', sqlBodySchema),
+    async (c) => {
+      const contentLengthBytes = parseContentLengthBytes(
+        c.req.header('content-length')
       );
-    } catch (err) {
+      if (contentLengthBytes === null) {
+        return c.json({ error: 'Invalid Content-Length' }, 400);
+      }
+      if (contentLengthBytes > LIMITS.maxBodyBytes) {
+        return c.json({ error: 'Request body too large' }, 413);
+      }
+
+      const { sql, params: rawParams } = c.req.valid('json');
+
+      assert.nonEmptyString(sql, 'validated JSON must include non-empty sql');
+      const paramArray = rawParams ?? [];
+      assert.array(paramArray, 'params must be an array when present');
+      assert.ok(
+        paramArray.length <= LIMITS.maxParams,
+        'param count must not exceed schema max',
+        { length: paramArray.length, max: LIMITS.maxParams }
+      );
+
+      const sqlBytes = sqlByteLength(sql);
+      if (sqlBytes > LIMITS.maxSqlBytes) {
+        return c.json({ error: 'SQL exceeds 16 MB limit' }, 413);
+      }
+
+      const start = performance.now();
+      let rawResult: unknown;
+      try {
+        rawResult = await db.query(
+          sql,
+          paramArray.length > 0 ? paramArray : undefined
+        );
+      } catch (err) {
+        const durationMs = Math.round((performance.now() - start) * 100) / 100;
+        const message = err instanceof Error ? err.message : String(err);
+        log.error('query failed', {
+          sql,
+          params: paramArray.length > 0 ? paramArray : undefined,
+          error: message,
+          durationMs,
+        });
+        return c.json(
+          { error: 'Query execution failed', detail: message },
+          400
+        );
+      }
+
+      assertQueryResultShape(rawResult);
+
+      const rowCount = rawResult.rows.length;
+      const rows = rawResult.rows.slice(0, LIMITS.maxRows);
+      assert.ok(
+        rows.length <= rowCount && rows.length <= LIMITS.maxRows,
+        'slice must not grow row set or exceed configured cap',
+        { sliced: rows.length, rowCount, cap: LIMITS.maxRows }
+      );
+
+      const affectedRows = rawResult.affectedRows ?? 0;
       const durationMs = Math.round((performance.now() - start) * 100) / 100;
-      const message = err instanceof Error ? err.message : String(err);
-      log.error('query failed', {
+      log.info('query ok', {
         sql,
         params: paramArray.length > 0 ? paramArray : undefined,
-        error: message,
+        rows: rows.length,
+        affectedRows,
         durationMs,
       });
-      return c.json(
-        { error: 'Query execution failed', detail: message },
-        400
-      );
+      return c.json({
+        rows,
+        affectedRows,
+        truncated: rowCount > LIMITS.maxRows,
+      });
     }
-
-    assertQueryResultShape(rawResult);
-
-    const rowCount = rawResult.rows.length;
-    const rows = rawResult.rows.slice(0, LIMITS.maxRows);
-    assert.ok(
-      rows.length <= rowCount && rows.length <= LIMITS.maxRows,
-      'slice must not grow row set or exceed configured cap',
-      { sliced: rows.length, rowCount, cap: LIMITS.maxRows }
-    );
-
-    const affectedRows = rawResult.affectedRows ?? 0;
-    const durationMs = Math.round((performance.now() - start) * 100) / 100;
-    log.info('query ok', {
-      sql,
-      params: paramArray.length > 0 ? paramArray : undefined,
-      rows: rows.length,
-      affectedRows,
-      durationMs,
-    });
-    return c.json({
-      rows,
-      affectedRows,
-      truncated: rowCount > LIMITS.maxRows,
-    });
-  });
+  );
 }

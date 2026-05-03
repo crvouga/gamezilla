@@ -1,11 +1,11 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
 import type { PatchesDb } from './interface';
-import type { PatchDbHttpAuthOptions } from './transport/impl-http-request-handler';
-import {
+import type {
+  PatchDbHttpAuthOptions,
   createPatchDbHttpHono,
-  PatchDbHttpRequestHandler,
 } from './transport/impl-http-request-handler';
+import { PatchDbHttpRequestHandler } from './transport/impl-http-request-handler';
 import { PatchDbImplSyncHost } from './transport/impl-sync-host';
 import { PatchDbImplInstrumentedSyncHost } from './transport/instrumented-sync-host';
 import type { PatchDbSyncHost } from './transport/interface';

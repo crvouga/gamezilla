@@ -116,7 +116,11 @@ describe('->> value params cast to ::text (prevents PG "operator does not exist:
   });
 
   test('contains casts value to ::text', () => {
-    const pgSql = toPgSql({ type: 'contains', attribute: 'task/name', value: 'foo' });
+    const pgSql = toPgSql({
+      type: 'contains',
+      attribute: 'task/name',
+      value: 'foo',
+    });
     expect(pgSql).toContain('$2::text');
   });
 });

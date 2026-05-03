@@ -204,7 +204,11 @@ export function SocialSignInButton({
         buildPressableStyle({ palette, shape, isDisabled, pressed })
       }
     >
-      <SocialSignInLeadingSlot spec={spec} palette={palette} loading={loading} />
+      <SocialSignInLeadingSlot
+        spec={spec}
+        palette={palette}
+        loading={loading}
+      />
       <Text
         style={{
           fontFamily: FONT_FAMILY,

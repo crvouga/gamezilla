@@ -189,9 +189,10 @@ async function resolveCursor(
     entity_id: string;
     entity_type: string;
     patch_id: string;
-  }>('SELECT entity_id, entity_type, patch_id FROM patches WHERE patch_id = ?', [
-    after,
-  ]);
+  }>(
+    'SELECT entity_id, entity_type, patch_id FROM patches WHERE patch_id = ?',
+    [after]
+  );
   assert.ok(cursorRows.length > 0, 'Cursor patch not found', { after });
   const c = cursorRows[0];
   assert.ok(c !== null && c !== undefined, 'cursorRows[0] must exist', {

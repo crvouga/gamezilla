@@ -51,10 +51,7 @@ async function resolveRequestContext(
   }
   try {
     const resolved = await resolve(c.req.raw);
-    if (
-      resolved === null ||
-      resolved === undefined
-    ) {
+    if (resolved === null || resolved === undefined) {
       if (auth?.requirePatchesDbAuth === true) {
         return { ok: false, status: 401, message: 'Unauthorized' };
       }

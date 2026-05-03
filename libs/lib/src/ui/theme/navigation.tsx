@@ -1,4 +1,4 @@
-import { Stack, Tabs } from 'expo-router';
+import type { Stack, Tabs } from 'expo-router';
 import { useTheme } from './theme-context';
 
 export function useStackProps(): Parameters<typeof Stack>[0] {

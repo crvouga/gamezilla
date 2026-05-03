@@ -1,2 +1,2 @@
-export { TrustElection, computeTrustMap } from './election'
-export type { TrustVote } from './election'
+export { TrustElection, computeTrustMap } from './election';
+export type { TrustVote } from './election';

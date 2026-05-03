@@ -4,6 +4,7 @@ name: Deployment Pipeline
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -12,7 +13,7 @@ jobs:
     concurrency:
       group: check-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
       cancel-in-progress: true
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -28,10 +29,34 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Check (tc + lint + test + build)
+      - name: Check (format + tc + lint + test + build)
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
         run: bun run check
+
+      - name: Syncpack (prod + dev)
+        run: bun run syncpack:lint
+
+      - name: Knip
+        run: bun run knip:ci
+
+      - name: Dependency cruiser
+        run: bun run depcruise:ci
+
+      - name: Install actionlint
+        run: bash <(curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.7/scripts/download-actionlint.bash)
+        shell: bash
+
+      - name: Actionlint
+        run: ./actionlint -color
+
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bun audit
+        run: bun audit --audit-level high
 
   qa:
     runs-on: ubuntu-latest

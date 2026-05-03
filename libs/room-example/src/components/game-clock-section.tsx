@@ -11,11 +11,7 @@ function formatMs(ms: number): string {
   return `${mins}:${secs}`;
 }
 
-export function GameClockSection({
-  clock,
-}: {
-  clock: GameClockControls;
-}) {
+export function GameClockSection({ clock }: { clock: GameClockControls }) {
   const { t } = useLingui();
   const realtimeTitle = clock.realtimeEnabled
     ? t`Stop realtime`

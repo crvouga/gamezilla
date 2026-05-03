@@ -65,7 +65,9 @@ function iconOverall(overall: string): string {
   }
 }
 
-export function parseNeedsJson(raw: string | undefined): Record<string, NeedState> {
+export function parseNeedsJson(
+  raw: string | undefined
+): Record<string, NeedState> {
   if (raw === undefined || raw.trim() === '') {
     throw new Error(
       'NEEDS_JSON is required (e.g. env NEEDS_JSON: ${{ toJSON(needs) }} in GitHub Actions)'
@@ -84,14 +86,18 @@ export function parseNeedsJson(raw: string | undefined): Record<string, NeedStat
     const result = typeof e['result'] === 'string' ? e['result'] : 'unknown';
     let outputs: Record<string, string> | undefined;
     const rawOut = e['outputs'];
-    if (typeof rawOut === 'object' && rawOut !== null && !Array.isArray(rawOut)) {
+    if (
+      typeof rawOut === 'object' &&
+      rawOut !== null &&
+      !Array.isArray(rawOut)
+    ) {
       outputs = {};
       for (const [k, v] of Object.entries(rawOut)) {
         if (typeof v === 'string') outputs[k] = v;
-        else if (v != null) outputs[k] = String(v);
+        else if (v !== undefined && v !== null) outputs[k] = String(v);
       }
     }
-    out[jobId] = { result, outputs };
+    out[jobId] = outputs !== undefined ? { result, outputs } : { result };
   }
   return out;
 }
@@ -111,7 +117,9 @@ function readPrUrlFromEvent(): string {
   }
 }
 
-function hasNonEmptyDeployOutputs(outputs: Readonly<Record<string, string>>): boolean {
+function hasNonEmptyDeployOutputs(
+  outputs: Readonly<Record<string, string>>
+): boolean {
   return Object.values(outputs).some((v) => (v ?? '').trim() !== '');
 }
 
@@ -211,9 +219,7 @@ export function buildPipelineReportMarkdown(
   lines.push(`- **ref:** \`${tableCell(ref)}\``);
   if (sha !== '') {
     const short = sha.slice(0, 7);
-    lines.push(
-      `- **commit:** [\`${short}\`](${server}/${repo}/commit/${sha})`
-    );
+    lines.push(`- **commit:** [\`${short}\`](${server}/${repo}/commit/${sha})`);
   }
   lines.push(`- **actor:** @${tableCell(actor)}`);
   if (repo !== '' && runId !== '') {

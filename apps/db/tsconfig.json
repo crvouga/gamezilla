@@ -1,13 +1,8 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
     "outDir": "dist",
     "types": ["@types/bun"]
   },
-  "include": ["src"]
+  "include": ["../../libs/lib/src/ts-reset.ts", "src/**/*.ts"]
 }

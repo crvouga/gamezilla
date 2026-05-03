@@ -4,7 +4,10 @@ import type { SecretStore } from './interface';
 
 type CountingStore = SecretStore & {
   readonly counts: { g: number; o: number; m: number; s: number };
-  readonly writes: ReadonlyArray<{ readonly name: string; readonly value: string }>;
+  readonly writes: ReadonlyArray<{
+    readonly name: string;
+    readonly value: string;
+  }>;
 };
 
 function createCountingStore(): CountingStore {
@@ -49,7 +52,7 @@ describe('CachingSecretStore', () => {
   });
 
   it('caches getOptional including null', async () => {
-    let t = 0;
+    const t = 0;
     const inner = createCountingStore();
     const cache = new CachingSecretStore(inner, { ttlMs: 1000, now: () => t });
 
@@ -59,7 +62,7 @@ describe('CachingSecretStore', () => {
   });
 
   it('getRequiredMany uses cache for hits', async () => {
-    let t = 0;
+    const t = 0;
     const inner = createCountingStore();
     const cache = new CachingSecretStore(inner, { ttlMs: 1000, now: () => t });
 
@@ -70,7 +73,7 @@ describe('CachingSecretStore', () => {
   });
 
   it('setSecret forwards to inner and invalidates the read cache', async () => {
-    let t = 0;
+    const t = 0;
     const inner = createCountingStore();
     const cache = new CachingSecretStore(inner, { ttlMs: 1000, now: () => t });
 

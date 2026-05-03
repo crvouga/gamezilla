@@ -282,9 +282,7 @@ function BootstrappedShell({
   children: ReactNode;
 }) {
   return (
-    <ContainerProvider container={container}>
-      {children}
-    </ContainerProvider>
+    <ContainerProvider container={container}>{children}</ContainerProvider>
   );
 }
 

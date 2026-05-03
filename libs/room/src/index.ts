@@ -10,10 +10,7 @@ export {
   recoverRoomFromPersistence,
   SqliteRoomPersistence,
 } from './persistence';
-export type {
-  RoomPersistence,
-  RoomPersistenceEntry,
-} from './persistence';
+export type { RoomPersistence, RoomPersistenceEntry } from './persistence';
 export type { LogEntry } from './persistence/log-entry';
 export {
   normalizeRoomInit,
@@ -56,11 +53,7 @@ export {
   RoomUnknownSystemCommand,
   RoomWireAuthFailed,
 } from './events/room-errors';
-export {
-  generateId,
-  isSystemEvent,
-  SYSTEM_EVENT_PREFIX,
-} from './events/utils';
+export { generateId, isSystemEvent, SYSTEM_EVENT_PREFIX } from './events/utils';
 export { DeterministicSimulator } from './simulator';
 export {
   InMemoryBus,

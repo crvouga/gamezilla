@@ -21,9 +21,7 @@ export function EventLog({ events }: { events: Event[] }) {
       {events.map((event, i) => {
         const raw = event.payload;
         const payload =
-          raw !== null &&
-          typeof raw === 'object' &&
-          !Array.isArray(raw)
+          raw !== null && typeof raw === 'object' && !Array.isArray(raw)
             ? raw
             : undefined;
         return (

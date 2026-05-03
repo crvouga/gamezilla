@@ -19,9 +19,9 @@ export function usePlaygroundSim(): {
           versionRef.current += 1;
           cb();
         }),
-      [sim],
+      [sim]
     ),
-    useCallback(() => versionRef.current, []),
+    useCallback(() => versionRef.current, [])
   );
 
   return { sim, tick };

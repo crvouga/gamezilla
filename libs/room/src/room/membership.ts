@@ -1,16 +1,16 @@
 import { Assert } from '@gamezilla/lib/assert';
 import { createMessageRouter } from '@gamezilla/lib/message';
-import type { LogEntry } from '../persistence/log-entry'
-import type { Event } from '../events/message-types'
-import type { Snapshot, RoomModule } from './types'
+import type { LogEntry } from '../persistence/log-entry';
+import type { Event } from '../events/message-types';
+import type { Snapshot, RoomModule } from './types';
 import {
   PeerJoined,
   PeerLeft,
   peerNamespace,
   PeerTrustUpdated,
 } from '../events/system-messages';
-import { isSystemEvent } from '../events/utils'
-import { replayDomainEntries } from './replay'
+import { isSystemEvent } from '../events/utils';
+import { replayDomainEntries } from './replay';
 
 const crash: Assert = Assert.crash();
 
@@ -55,7 +55,9 @@ export function computeAuthorityOrder(peers: Record<string, number>): string[] {
     .map(([id]) => id);
 }
 
-export function membershipToRecord(m: Map<string, number>): Record<string, number> {
+export function membershipToRecord(
+  m: Map<string, number>
+): Record<string, number> {
   return Object.fromEntries(m);
 }
 
@@ -66,7 +68,9 @@ export function applyMembershipEvent(
   membershipEventRouter.dispatch(membership, undefined, event, () => {});
 }
 
-export function rebuildMembershipFromLog(entries: LogEntry[]): Map<string, number> {
+export function rebuildMembershipFromLog(
+  entries: LogEntry[]
+): Map<string, number> {
   const m = new Map<string, number>();
   for (const { event } of entries) {
     if (isSystemEvent(event)) {

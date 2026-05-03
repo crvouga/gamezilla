@@ -33,7 +33,7 @@ export class DurableObjectPubSub implements PubSub {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic, message }),
-      }),
+      })
     );
   }
 

@@ -171,11 +171,7 @@ function describe(e: unknown): string {
   }
 }
 
-function withTimeout<T>(
-  p: Promise<T>,
-  ms: number,
-  label: string
-): Promise<T> {
+function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | null = null;
   const timeout = new Promise<never>((_, reject) => {
     timer = setTimeout(() => reject(new Error(label)), ms);

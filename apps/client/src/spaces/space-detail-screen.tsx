@@ -95,7 +95,11 @@ function JoinPrompt({
       ]}
       content={({ sx }) => (
         <Box style={sx} sx={{ gap: 3 }}>
-          <Text variant="label" sx={{ color: 'textSecondary' }} label={<Trans>Host</Trans>} />
+          <Text
+            variant="label"
+            sx={{ color: 'textSecondary' }}
+            label={<Trans>Host</Trans>}
+          />
           <Text variant="bodyBold" label={hostLabel} />
           <Text
             variant="body"
@@ -258,8 +262,7 @@ export function SpaceDetailScreen() {
 
   const router = useRouter();
   const pageLoading = space.loading || current.loading;
-  const shouldRedirectHome =
-    !pageLoading && (!space.space || !space.live);
+  const shouldRedirectHome = !pageLoading && (!space.space || !space.live);
 
   useEffect(() => {
     if (shouldRedirectHome) {

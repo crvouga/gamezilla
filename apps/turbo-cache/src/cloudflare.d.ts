@@ -10,7 +10,7 @@ declare interface R2Bucket {
   put(
     key: string,
     value: ArrayBuffer | ReadableStream | string | Blob | null,
-    options?: R2PutOptions,
+    options?: R2PutOptions
   ): Promise<R2Object | null>;
   get(key: string): Promise<R2ObjectBody | null>;
   delete(key: string | string[]): Promise<void>;
@@ -49,6 +49,6 @@ declare interface ExportedHandler<Env = unknown> {
   fetch?(
     request: Request,
     env: Env,
-    ctx: ExecutionContext,
+    ctx: ExecutionContext
   ): Response | Promise<Response>;
 }

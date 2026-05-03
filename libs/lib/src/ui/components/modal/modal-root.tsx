@@ -10,7 +10,11 @@ export type ModalRootProps = PropsWithChildren<{
   onRequestClose: () => void;
 }>;
 
-export function ModalRoot({ visible, onRequestClose, children }: ModalRootProps) {
+export function ModalRoot({
+  visible,
+  onRequestClose,
+  children,
+}: ModalRootProps) {
   return (
     <Modal
       visible={visible}

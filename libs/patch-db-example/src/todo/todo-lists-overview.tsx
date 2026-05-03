@@ -15,7 +15,6 @@ import { useState } from 'react';
 
 import { INBOX_LIST_ID } from './todo-constants';
 
-/* eslint-disable lingui/no-unlocalized-strings */
 const TODO_LIST_DELETED_CLAUSE = {
   type: 'or' as const,
   clauses: [
@@ -31,13 +30,11 @@ const TODO_DELETED_CLAUSE = {
     { type: '=' as const, attribute: 'todo/deleted', value: false },
   ],
 };
-/* eslint-enable lingui/no-unlocalized-strings */
 
 type ListRow = { id: string; name: string; count: number };
 
 function useTodoCountByList() {
   const todosResult = useEntities({
-    // eslint-disable-next-line lingui/no-unlocalized-strings
     entityType: 'todo',
     where: TODO_DELETED_CLAUSE,
   });
@@ -180,7 +177,6 @@ function ListRowItem({
   );
 }
 
-/* eslint-disable lingui/no-unlocalized-strings */
 function getListName(attrs: Record<string, unknown>, fallback: string): string {
   const nameRaw = attrs['todoList/name'];
   return typeof nameRaw === 'string' ? nameRaw : fallback;
@@ -219,7 +215,6 @@ function useTodoListMutations(db: Db) {
 
   return { addList, deleteList };
 }
-/* eslint-enable lingui/no-unlocalized-strings */
 
 function ListRowsList({
   rows,
@@ -333,7 +328,7 @@ function buildListRows(
   lists: ReturnType<typeof useEntities>['entities'],
   todoCounts: Map<unknown, number>,
   inboxName: string,
-  untitledName: string,
+  untitledName: string
 ): ListRow[] {
   const inboxCount = todoCounts.get(INBOX_LIST_ID) ?? 0;
   return [
@@ -346,9 +341,7 @@ function buildListRows(
   ];
 }
 
-function useTodoListsState(
-  onClearLocalDatabase?: () => Promise<void> | void,
-) {
+function useTodoListsState(onClearLocalDatabase?: () => Promise<void> | void) {
   const db = usePatchesDb();
   const [input, setInput] = useState('');
   const [adding, setAdding] = useState(false);
@@ -359,15 +352,13 @@ function useTodoListsState(
   const [deleteDbModalVisible, setDeleteDbModalVisible] = useState(false);
 
   const listsResult = useEntities({
-    // eslint-disable-next-line lingui/no-unlocalized-strings
     entityType: 'todoList',
     where: TODO_LIST_DELETED_CLAUSE,
     orderBy: [
-      // eslint-disable-next-line lingui/no-unlocalized-strings
       { attribute: 'todoList/order', direction: 'asc' },
-      // eslint-disable-next-line lingui/no-unlocalized-strings
+
       { attribute: 'todoList/createdAt', direction: 'asc' },
-      // eslint-disable-next-line lingui/no-unlocalized-strings
+
       { attribute: 'todoList/id', direction: 'asc' },
     ],
   });

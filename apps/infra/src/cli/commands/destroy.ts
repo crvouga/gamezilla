@@ -22,7 +22,7 @@ export class DestroyCommand implements Command {
 
     for (const resource of resources) {
       await runStep(this.platform, `Destroy: ${resource.id}`, () =>
-        resource.destroy(this.platform),
+        resource.destroy(this.platform)
       );
     }
 

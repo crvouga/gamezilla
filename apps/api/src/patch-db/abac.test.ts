@@ -3,7 +3,10 @@ import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlit
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
-import type { PatchesDb, PatchesDbVisitorContext } from '@gamezilla/patch-db/interface';
+import type {
+  PatchesDb,
+  PatchesDbVisitorContext,
+} from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
@@ -206,10 +209,7 @@ describe('default ABAC policies (sqlite)', () => {
     const visitor: PatchesDbVisitorContext = {
       visitorId: crypto.randomUUID(),
     };
-    const [r] = await db.read(
-      [{ entityType: 'profile.private' }],
-      visitor
-    );
+    const [r] = await db.read([{ entityType: 'profile.private' }], visitor);
     assert.defined(r, 'r');
     expect(r.entities).toHaveLength(0);
   });

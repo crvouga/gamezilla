@@ -71,7 +71,7 @@
     "zod": "^4.3.6"
   },
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
     "tc": "tsc --noEmit",
     "test": "bun test"
   },

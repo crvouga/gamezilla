@@ -52,9 +52,7 @@ export type AppVisitorContext = {
 
 type AppVisibilityPolicy = VisibilityPolicy<AppAuthContext>;
 
-function requireAuth(
-  ctx: PatchesDbContext
-): asserts ctx is AppAuthContext {
+function requireAuth(ctx: PatchesDbContext): asserts ctx is AppAuthContext {
   if (!isPatchesDbAuthContext(ctx)) {
     throw new ForbiddenError('authentication required', { ctx });
   }
@@ -222,8 +220,7 @@ const spacePolicy: AppVisibilityPolicy = {
     const members = patch.attributes['space/memberAccountIds'];
     const isHost = typeof hostId === 'string' && hostId === ctx.principalId;
     const isOwner = typeof owner === 'string' && owner === ctx.accountId;
-    const isMember =
-      Array.isArray(members) && members.includes(ctx.accountId);
+    const isMember = Array.isArray(members) && members.includes(ctx.accountId);
     if (!isHost && !isOwner && !isMember) {
       throw new ForbiddenError('space write denied');
     }

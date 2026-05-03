@@ -1,15 +1,15 @@
 import { assert } from '@gamezilla/lib/assert';
-import { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
-import { PubSub, Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
-import {
+import type { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
+import type { PubSub, Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
+import type {
   Patch,
   PatchesDb,
   PatchesDbContext,
   PatchesDbQuery,
   PatchesDbResult,
   PatchInput,
-  OPEN_PATCHES_DB_CONTEXT,
 } from './interface';
+import { OPEN_PATCHES_DB_CONTEXT } from './interface';
 
 const PATCHES_DB_TOPIC = 'patches-db';
 

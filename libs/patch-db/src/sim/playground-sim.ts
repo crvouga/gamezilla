@@ -7,10 +7,7 @@ import type { PatchesDb } from '../interface';
 import { NetworkLink } from './network-link';
 import { NotifyingPatchesDb } from './notifying-patches-db';
 import type { SimLink } from './scenario';
-import {
-  type SimServerPort,
-  simServerPortFromPubSub,
-} from './server-port';
+import { type SimServerPort, simServerPortFromPubSub } from './server-port';
 import { BrowserWallClockScheduler } from './sim-link-scheduler';
 import { SimulatedPatchDbClientTransport } from './simulated-client-transport';
 
@@ -267,9 +264,7 @@ async function ctxSyncNow(
   await flushSyncSubscriptionMicrotasks();
 }
 
-async function ctxAddClient(
-  ctx: SimContext
-): Promise<PlaygroundClientHandle> {
+async function ctxAddClient(ctx: SimContext): Promise<PlaygroundClientHandle> {
   const id = `c${ctx.state.nextClientNum++}`;
   const { runtime, handle } = await createClientRuntime(ctx, id);
   registerClient(ctx, runtime, handle);

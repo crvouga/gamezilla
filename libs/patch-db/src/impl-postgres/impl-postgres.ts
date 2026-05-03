@@ -2,16 +2,9 @@ import { assert } from '@gamezilla/lib/assert';
 import type { Logger } from '@gamezilla/lib/logger';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import type { PatchRow } from '../impl-sqlite/types';
-import {
-  assertAttribute,
-  assertEntityKey,
-  assertPatchId,
+import type {
   Attribute,
-  getPatchTopLevelFromAttributes,
-  normalizePatchAttributesForStorage,
-  OPEN_PATCHES_DB_CONTEXT,
   Patch,
-  PATCH_META_KEYS,
   PatchDbEngineOptions,
   PatchesDb,
   PatchesDbCompaction,
@@ -19,6 +12,15 @@ import {
   PatchesDbQuery,
   PatchesDbResult,
   PatchInput,
+} from '../interface';
+import {
+  assertAttribute,
+  assertEntityKey,
+  assertPatchId,
+  getPatchTopLevelFromAttributes,
+  normalizePatchAttributesForStorage,
+  OPEN_PATCHES_DB_CONTEXT,
+  PATCH_META_KEYS,
   topologicalSortPatches,
 } from '../interface';
 import { PatchDbHookRegistry } from '../hook-registry';
@@ -54,8 +56,7 @@ export class PatchDbImplPostgres implements PatchesDb {
   readonly hooks = new PatchDbHookRegistry();
 
   readonly compaction: PatchesDbCompaction = {
-    compactEntity: (key, options, ctx) =>
-      this.compactEntity(key, options, ctx),
+    compactEntity: (key, options, ctx) => this.compactEntity(key, options, ctx),
     compactAll: (options, ctx) => this.compactAll(options, ctx),
   };
 

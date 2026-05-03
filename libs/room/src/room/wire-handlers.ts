@@ -2,7 +2,11 @@ import { Assert } from '@gamezilla/lib/assert';
 import type { LogEntry } from '../persistence/log-entry';
 import type { RoomError } from '../events/message-types';
 import { decodeKeyB64 } from './security/peer-crypto';
-import { PeerJoined, PeerLeave, peerNamespace } from '../events/system-messages';
+import {
+  PeerJoined,
+  PeerLeave,
+  peerNamespace,
+} from '../events/system-messages';
 import { isSystemEvent } from '../events/utils';
 import {
   checkAuthorityChange,
@@ -32,7 +36,7 @@ export function authorityAcceptCommit(
   self: Room,
   commandId: string,
   entries: LogEntry[],
-  effects?: RoomEffect[],
+  effects?: RoomEffect[]
 ): void {
   handleCommitEntries(self, commandId, entries, effects);
   self.publishSignedWire({
@@ -45,7 +49,7 @@ export function authorityAcceptCommit(
 export function authorityRejectProposal(
   self: Room,
   commandId: string,
-  error: RoomError,
+  error: RoomError
 ): void {
   self.finalized_command_ids.add(commandId);
   self.appendPersistenceEntry({ kind: 'rejected', commandId });
@@ -84,7 +88,7 @@ function dispatchVerifiedBody(self: Room, body: WireMessage): void {
 
 export function handleProposeWire(
   self: Room,
-  wire: WireMessage & { kind: 'propose' },
+  wire: WireMessage & { kind: 'propose' }
 ): void {
   if (!self.isAuthority()) return;
   const { command } = wire;
@@ -114,7 +118,7 @@ function handleProposeDomain(self: Room, command: Command): void {
       self,
       command.id,
       evaluated.entries,
-      evaluated.effects,
+      evaluated.effects
     );
   } else {
     authorityRejectProposal(self, command.id, evaluated.error);
@@ -123,7 +127,7 @@ function handleProposeDomain(self: Room, command: Command): void {
 
 export function handleAcceptedWire(
   self: Room,
-  wire: WireMessage & { kind: 'accepted' },
+  wire: WireMessage & { kind: 'accepted' }
 ): void {
   const { commandId, entries } = wire;
   crash.array(entries, 'accepted must include entries array');
@@ -132,7 +136,7 @@ export function handleAcceptedWire(
 
 export function handleRejectedWire(
   self: Room,
-  wire: WireMessage & { kind: 'rejected' },
+  wire: WireMessage & { kind: 'rejected' }
 ): void {
   const { commandId } = wire;
   if (self.finalized_command_ids.has(commandId)) return;
@@ -140,7 +144,7 @@ export function handleRejectedWire(
   self.appendPersistenceEntry({ kind: 'rejected', commandId });
 
   self.optimistic_events = self.optimistic_events.filter(
-    (e) => e._commandId !== commandId,
+    (e) => e._commandId !== commandId
   );
 
   const timeout = self.pending_timeouts.get(commandId);
@@ -159,7 +163,7 @@ function applyCommitEntry(self: Room, entry: LogEntry): void {
     if (PeerJoined.is(event)) {
       self.memberPublicKeys.set(
         event.payload.peerId,
-        decodeKeyB64(event.payload.publicKey),
+        decodeKeyB64(event.payload.publicKey)
       );
     }
     if (PeerLeave.is(event)) {
@@ -174,7 +178,7 @@ function applyCommitEntry(self: Room, entry: LogEntry): void {
   self.committed_state = self.module.reduce(self.committed_state, event);
   crash.record(
     self.committed_state,
-    'reduce must return a plain object after commit',
+    'reduce must return a plain object after commit'
   );
 }
 
@@ -182,7 +186,7 @@ export function handleCommitEntries(
   self: Room,
   commandId: string,
   entries: LogEntry[],
-  effects?: RoomEffect[],
+  effects?: RoomEffect[]
 ): void {
   if (self.finalized_command_ids.has(commandId)) return;
   self.finalized_command_ids.add(commandId);
@@ -193,7 +197,7 @@ export function handleCommitEntries(
     crash.ok(
       entry.seq === expectNext,
       'commit entries must have consecutive global seq',
-      { expectNext, got: entry.seq },
+      { expectNext, got: entry.seq }
     );
     expectNext++;
     applyCommitEntry(self, entry);
@@ -204,7 +208,7 @@ export function handleCommitEntries(
   self.rebuildAuthorityFromMembership();
 
   self.optimistic_events = self.optimistic_events.filter(
-    (e) => e._commandId !== commandId,
+    (e) => e._commandId !== commandId
   );
 
   const timeout = self.pending_timeouts.get(commandId);
@@ -219,7 +223,7 @@ export function handleCommitEntries(
 
 export function handleSyncRequestWire(
   self: Room,
-  wire: WireMessage & { kind: 'sync-request' },
+  wire: WireMessage & { kind: 'sync-request' }
 ): void {
   if (wire.from === self.peerId) return;
   if (!self.isAuthority()) return;
@@ -232,7 +236,7 @@ export function handleSyncRequestWire(
   const snapshot = materializeAtSeq(
     self.module,
     self.committed_entries,
-    sinceSeq,
+    sinceSeq
   );
   const prefix = self.committed_entries.filter((e) => e.seq <= sinceSeq);
   const tail = self.committed_entries.filter((e) => e.seq > sinceSeq);
@@ -250,7 +254,7 @@ export function handleSyncRequestWire(
 
 export function handleSyncResponseWire(
   self: Room,
-  wire: WireMessage & { kind: 'sync-response' },
+  wire: WireMessage & { kind: 'sync-response' }
 ): void {
   if (wire.to !== self.peerId) return;
   if (!self.sync_pending) return;

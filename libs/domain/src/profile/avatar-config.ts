@@ -6,6 +6,10 @@
 
 export const DEFAULT_AVATAR_STYLE = 'lorelei';
 
+function isPlainObject(v: unknown): v is Record<string, unknown> {
+  return v !== null && typeof v === 'object' && !Array.isArray(v);
+}
+
 export type AvatarConfig = {
   /** Style key matching `@dicebear/collection` export names (e.g. `lorelei`, `pixelArt`). */
   style: string;
@@ -18,10 +22,10 @@ export type AvatarConfig = {
 function tryParseJsonObject(raw: string): Record<string, unknown> | null {
   try {
     const parsed: unknown = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    if (!isPlainObject(parsed)) {
       return null;
     }
-    return parsed as Record<string, unknown>;
+    return parsed;
   } catch {
     return null;
   }
@@ -34,13 +38,8 @@ function pickStyle(o: Record<string, unknown>): string {
 
 function pickOptions(o: Record<string, unknown>): Record<string, unknown> {
   const opt = o['options'];
-  if (
-    opt !== null &&
-    opt !== undefined &&
-    typeof opt === 'object' &&
-    !Array.isArray(opt)
-  ) {
-    return opt as Record<string, unknown>;
+  if (isPlainObject(opt)) {
+    return opt;
   }
   return {};
 }
@@ -62,7 +61,10 @@ export function serializeAvatarConfig(config: AvatarConfig): string {
 }
 
 /** Effective seed for DiceBear (principal id when custom seed is empty). */
-export function resolveAvatarSeed(config: AvatarConfig, principalId: string): string {
+export function resolveAvatarSeed(
+  config: AvatarConfig,
+  principalId: string
+): string {
   const t = config.seed.trim();
   return t.length > 0 ? t : principalId;
 }
@@ -75,7 +77,7 @@ export function resolveAvatarSeed(config: AvatarConfig, principalId: string): st
  */
 export function parseAvatarConfigAttr(
   attributes: Record<string, unknown> | undefined,
-  attr: string,
+  attr: string
 ): AvatarConfig | null {
   if (!attributes) return null;
   const raw = attributes[attr];
@@ -86,7 +88,7 @@ export function parseAvatarConfigAttr(
 export function resolveAvatarConfig(
   attributes: Record<string, unknown> | undefined,
   _principalId: string,
-  avatarConfigAttr: string,
+  avatarConfigAttr: string
 ): AvatarConfig {
   const rawConfig = attributes?.[avatarConfigAttr];
   const parsed = parseAvatarConfig(rawConfig);
@@ -109,13 +111,7 @@ function sortKeysDeep(obj: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const k of keys) {
     const v = obj[k];
-    out[k] =
-      v !== null &&
-      typeof v === 'object' &&
-      !Array.isArray(v) &&
-      !(v instanceof Date)
-        ? sortKeysDeep(v as Record<string, unknown>)
-        : v;
+    out[k] = isPlainObject(v) && !(v instanceof Date) ? sortKeysDeep(v) : v;
   }
   return out;
 }

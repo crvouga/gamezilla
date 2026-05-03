@@ -96,11 +96,7 @@ const AuthContext = createContext<AuthState>(defaultState);
 
 type SessionDerivedState = Pick<
   AuthState,
-  | 'principalId'
-  | 'session'
-  | 'mode'
-  | 'accountId'
-  | 'displayName'
+  'principalId' | 'session' | 'mode' | 'accountId' | 'displayName'
 >;
 
 function deriveStateFromSession(args: {
@@ -185,10 +181,7 @@ function useAuthModals(): AuthModals {
   const closeSignInModal = useCallback(() => setSignInModalOpen(false), []);
 
   const [signOutConfirmOpen, setSignOutConfirmOpen] = useState(false);
-  const openSignOutConfirm = useCallback(
-    () => setSignOutConfirmOpen(true),
-    []
-  );
+  const openSignOutConfirm = useCallback(() => setSignOutConfirmOpen(true), []);
   const closeSignOutConfirm = useCallback(
     () => setSignOutConfirmOpen(false),
     []
@@ -422,9 +415,12 @@ function AuthStubGoogleBridge({
   children: ReactNode;
   googleProvider: AuthGoogleProviderState;
 }) {
-  const promptGoogleIdTokenUnreachable = useCallback(async (): Promise<string> => {
-    throw new Error('Google sign-in prompt should not run when Google is unavailable');
-  }, []);
+  const promptGoogleIdTokenUnreachable =
+    useCallback(async (): Promise<string> => {
+      throw new Error(
+        'Google sign-in prompt should not run when Google is unavailable'
+      );
+    }, []);
 
   return (
     <AuthContainerBridgeInner

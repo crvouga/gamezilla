@@ -507,11 +507,7 @@ function parseJsonbMetadata(
   return raw;
 }
 
-function parseJsonbValue(
-  raw: unknown,
-  label: string,
-  key: EntityKey
-): unknown {
+function parseJsonbValue(raw: unknown, label: string, key: EntityKey): unknown {
   if (typeof raw === 'string') {
     let parsed: unknown;
     assert.notThrows(

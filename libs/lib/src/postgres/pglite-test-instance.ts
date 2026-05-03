@@ -32,7 +32,7 @@ async function wipeDatabase(url: string): Promise<void> {
   try {
     await client.unsafe(WIPE_SQL).simple();
   } finally {
-    client.close();
+    void client.close();
   }
 }
 

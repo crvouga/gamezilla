@@ -34,15 +34,9 @@ export const RoomLeaveInvalid = errNs('LEAVE_INVALID', validateDetail);
 export const RoomTrustInvalid = errNs('TRUST_INVALID', validateDetail);
 
 /** Join peerId did not match command author. */
-export const RoomJoinPeerMismatch = errNs(
-  'JOIN_PEER_MISMATCH',
-  validateDetail,
-);
+export const RoomJoinPeerMismatch = errNs('JOIN_PEER_MISMATCH', validateDetail);
 
-export const RoomDuplicatePeer = errNs(
-  'DUPLICATE_PEER',
-  validatePeerIdOnly,
-);
+export const RoomDuplicatePeer = errNs('DUPLICATE_PEER', validatePeerIdOnly);
 
 export const RoomLeaveNotSelf = errNs('LEAVE_NOT_SELF', validateDetail);
 export const RoomUnknownPeer = errNs('UNKNOWN_PEER', validatePeerIdOnly);
@@ -50,22 +44,16 @@ export const RoomUnknownPeer = errNs('UNKNOWN_PEER', validatePeerIdOnly);
 export const RoomNotAuthority = errNs('NOT_AUTHORITY', validateEmpty);
 export const RoomUnknownSystemCommand = errNs(
   'UNKNOWN_SYSTEM_COMMAND',
-  validateUnknownSystem,
+  validateUnknownSystem
 );
 
 export const RoomNotSynced = errNs('NOT_SYNCED', validateEmpty);
 
-export const RoomInvalidPublicKey = errNs(
-  'INVALID_PUBLIC_KEY',
-  validateDetail,
-);
+export const RoomInvalidPublicKey = errNs('INVALID_PUBLIC_KEY', validateDetail);
 
-export const RoomWireAuthFailed = errNs(
-  'WIRE_AUTH_FAILED',
-  validateDetail,
-);
+export const RoomWireAuthFailed = errNs('WIRE_AUTH_FAILED', validateDetail);
 
 export const RoomSyncSessionMismatch = errNs(
   'SYNC_SESSION_MISMATCH',
-  validateDetail,
+  validateDetail
 );

@@ -1,11 +1,4 @@
-import {
-  Box,
-  Card,
-  Divider,
-  Stack,
-  StatusDot,
-  Text,
-} from '@gamezilla/lib/ui';
+import { Box, Card, Divider, Stack, StatusDot, Text } from '@gamezilla/lib/ui';
 import { useTheme } from '@gamezilla/lib/ui/theme';
 import type { ReactNode } from 'react';
 

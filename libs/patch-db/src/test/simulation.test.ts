@@ -26,8 +26,7 @@ describe('patch-db deterministic simulation', () => {
       .build();
     sim.setMeta({
       title: 'Poll sees parallel server write',
-      intent:
-        'Client poll sees server-side patches written by another writer.',
+      intent: 'Client poll sees server-side patches written by another writer.',
       source: {
         testName:
           'poll after push sees server-side patches from another writer',

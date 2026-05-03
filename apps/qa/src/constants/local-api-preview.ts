@@ -16,7 +16,7 @@ function trimStringOrNull(v: string | undefined): string | null {
  * env or Doppler when set; otherwise {@link DEFAULT_LOCAL_PREVIEW_API_ORIGIN}.
  */
 export async function resolveLocalPreviewApiOrigin(): Promise<string> {
-  const fromEnv = trimStringOrNull(process.env.LOCAL_PREVIEW_API_ORIGIN);
+  const fromEnv = trimStringOrNull(process.env['LOCAL_PREVIEW_API_ORIGIN']);
   if (fromEnv !== null) return fromEnv;
   const store = createDopplerSecretStoreForScripts();
   const fromDoppler = await store.getOptional(SECRET_NAME);
@@ -35,7 +35,7 @@ export async function resolveLocalPreviewApiOrigin(): Promise<string> {
  * {@link DEFAULT_LOCAL_PREVIEW_API_ORIGIN}.
  */
 export function resolveLocalPreviewApiOriginSync(): string {
-  const fromEnv = trimStringOrNull(process.env.LOCAL_PREVIEW_API_ORIGIN);
+  const fromEnv = trimStringOrNull(process.env['LOCAL_PREVIEW_API_ORIGIN']);
   if (fromEnv !== null) return fromEnv;
   try {
     const out = execSync(`doppler secrets get ${SECRET_NAME} --plain`, {

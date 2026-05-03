@@ -17,10 +17,7 @@ import {
 } from './event-recorder';
 import { NetworkLink } from './network-link';
 import { NotifyingPatchesDb } from './notifying-patches-db';
-import {
-  type SimServerPort,
-  simServerPortFromPubSub,
-} from './server-port';
+import { type SimServerPort, simServerPortFromPubSub } from './server-port';
 import { Sim } from './sim';
 import type {
   ClientRuntime,
@@ -184,9 +181,7 @@ type ClientHandleContext = {
   scheduler: DeterministicScheduler;
 };
 
-function buildClientWrite(
-  ctx: ClientHandleContext
-): SimClient['write'] {
+function buildClientWrite(ctx: ClientHandleContext): SimClient['write'] {
   const { runtime, recorder, scheduler } = ctx;
   return async (patches) => {
     if (recorder) {
@@ -290,9 +285,7 @@ function buildSubscribe(
         ? runtime.syncDb.subscribe.patches(query, listener)
         : runtime.syncDb.subscribe.entities(
             query,
-            listener as Parameters<
-              SyncPatchesDb['subscribe']['entities']
-            >[1]
+            listener as Parameters<SyncPatchesDb['subscribe']['entities']>[1]
           );
     return () => {
       if (recorder) {
@@ -340,11 +333,8 @@ function createServerHandle(
 ): SimServer {
   const db =
     recorder !== null
-      ? wrapServerDbForViz(
-          runtime.id,
-          runtime.backing,
-          recorder,
-          () => scheduler.now()
+      ? wrapServerDbForViz(runtime.id, runtime.backing, recorder, () =>
+          scheduler.now()
         )
       : runtime.backing;
   return {
@@ -357,9 +347,10 @@ function createServerHandle(
   };
 }
 
-async function createAllServers(
-  serverSpecs: ScenarioServerSpec[]
-): Promise<{ servers: ServerRuntime[]; serverById: Map<string, ServerRuntime> }> {
+async function createAllServers(serverSpecs: ScenarioServerSpec[]): Promise<{
+  servers: ServerRuntime[];
+  serverById: Map<string, ServerRuntime>;
+}> {
   const servers: ServerRuntime[] = [];
   const serverById = new Map<string, ServerRuntime>();
   for (const spec of serverSpecs) {
@@ -456,11 +447,7 @@ export async function buildScenario(
     });
   }
 
-  const clientHandles = buildClientHandles(
-    clientRuntimes,
-    recorder,
-    scheduler
-  );
+  const clientHandles = buildClientHandles(clientRuntimes, recorder, scheduler);
   const serverHandles = buildServerHandles(servers, recorder, scheduler);
 
   return new Sim({

@@ -35,10 +35,7 @@ export class DopplerScriptSecretStore implements SecretStore {
     return this.reader.getRequired(name, init);
   }
 
-  getOptional(
-    name: string,
-    init?: SecretStoreGetInit
-  ): Promise<string | null> {
+  getOptional(name: string, init?: SecretStoreGetInit): Promise<string | null> {
     return this.reader.getOptional(name, init);
   }
 

@@ -1,10 +1,4 @@
-import {
-  Badge,
-  Button,
-  Stack,
-  StatusDot,
-  Text,
-} from '@gamezilla/lib/ui';
+import { Badge, Button, Stack, StatusDot, Text } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';
 
 export function PeerPanelHeader({

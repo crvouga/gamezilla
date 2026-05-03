@@ -5,5 +5,8 @@ export { ModalHeader, type ModalHeaderProps } from './modal-header';
 export { ModalBody, type ModalBodyProps } from './modal-body';
 export { ModalFooter } from './modal-footer';
 export { ModalButton, type ModalButtonProps } from './modal-button';
-export { ConfirmationModal, type ConfirmationModalProps } from './confirmation-modal';
+export {
+  ConfirmationModal,
+  type ConfirmationModalProps,
+} from './confirmation-modal';
 export { default as ModalExample } from './modal.example';

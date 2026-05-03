@@ -11,7 +11,10 @@ import {
   ProfileAttr,
 } from '@gamezilla/domain/profile/profile-entities';
 import { useDependency } from '@gamezilla/lib/dependency-injection/react';
-import type { Entity, PatchesDbQueryWhereClause } from '@gamezilla/patch-db/interface';
+import type {
+  Entity,
+  PatchesDbQueryWhereClause,
+} from '@gamezilla/patch-db/interface';
 import { useEntities } from '@gamezilla/patch-db/react';
 import { useMemo } from 'react';
 
@@ -66,8 +69,13 @@ function buildProfileResult(args: {
   profileQueryId: string;
   loading: boolean;
 }): ProfileResult {
-  const { principalId, effectiveProfileId, profileEntity, profileQueryId, loading } =
-    args;
+  const {
+    principalId,
+    effectiveProfileId,
+    profileEntity,
+    profileQueryId,
+    loading,
+  } = args;
   const attrs = profileEntity?.attributes as
     | Record<string, unknown>
     | undefined;

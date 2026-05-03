@@ -49,12 +49,27 @@ const CASING_VARIANTS = new Set<TextVariant>([
 
 const variantStyles: Record<TextVariant, SxProps> = {
   body: { fontSize: 'base', lineHeight: 26, color: 'text' },
-  bodyBold: { fontSize: 'base', lineHeight: 26, fontWeight: '600', color: 'text' },
+  bodyBold: {
+    fontSize: 'base',
+    lineHeight: 26,
+    fontWeight: '600',
+    color: 'text',
+  },
   caption: { fontSize: 'xs', lineHeight: 18, color: 'textSecondary' },
   label: { fontSize: 'sm', lineHeight: 22, fontWeight: '500', color: 'text' },
   title: { fontSize: '4xl', fontWeight: '800', lineHeight: 44, color: 'text' },
-  subtitle: { fontSize: 'xl', fontWeight: '800', lineHeight: 28, color: 'text' },
-  heading: { fontSize: '2xl', fontWeight: '800', lineHeight: 34, color: 'text' },
+  subtitle: {
+    fontSize: 'xl',
+    fontWeight: '800',
+    lineHeight: 28,
+    color: 'text',
+  },
+  heading: {
+    fontSize: '2xl',
+    fontWeight: '800',
+    lineHeight: 34,
+    color: 'text',
+  },
   navigationTitle: {
     fontSize: 'lg',
     lineHeight: 24,
@@ -101,7 +116,7 @@ export type TextProps = RNTextProps & {
 
 export const Text = forwardRef<RNText, TextProps>(function Text(
   { variant = 'body', sx: sxProp, style, label, children, ...rest },
-  ref,
+  ref
 ) {
   const theme = useTheme();
   const base = theme.sx(variantStyles[variant]);

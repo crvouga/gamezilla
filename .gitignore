@@ -59,3 +59,6 @@ app-example
 /.turbo/
 /turbo/
 .wrangler/
+
+# actionlint binary (downloaded by CI / local check)
+/actionlint

@@ -1,6 +1,6 @@
-import type { LogEntry } from '../persistence/log-entry'
-import type { Event, RoomError } from '../events/message-types'
-import type { Command, Snapshot } from './types'
+import type { LogEntry } from '../persistence/log-entry';
+import type { Event, RoomError } from '../events/message-types';
+import type { Command, Snapshot } from './types';
 
 export type OptimisticEvent = Event & { readonly _commandId: string };
 

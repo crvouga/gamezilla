@@ -1,6 +1,8 @@
-import { Assert, assert } from '@gamezilla/lib/assert';
+import type { Assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/lib/assert';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
-import { PatchesDbContext } from './context';
+import type { PatchesDbContext } from './context';
+import type { PatchDbCompactionPolicyResolver } from './policy/compaction-policy';
 
 export type AttributeKey = `${string}/${string}`;
 
@@ -64,8 +66,13 @@ export function assertPatch(a: Assert, p: unknown): asserts p is Patch {
 }
 
 export {
-  PATCH_CREATED_BY, PATCH_LAST_MODIFIED_AT, PATCH_LAST_MODIFIED_BY_ACCOUNT, PATCH_LAST_MODIFIED_BY_PRINCIPAL, PATCH_META_KEYS, PATCH_SESSION_ID,
-  PATCH_SYNCED_AT
+  PATCH_CREATED_BY,
+  PATCH_LAST_MODIFIED_AT,
+  PATCH_LAST_MODIFIED_BY_ACCOUNT,
+  PATCH_LAST_MODIFIED_BY_PRINCIPAL,
+  PATCH_META_KEYS,
+  PATCH_SESSION_ID,
+  PATCH_SYNCED_AT,
 } from './metadata/patch-metadata';
 
 /**
@@ -345,7 +352,11 @@ export function assertQuery(
 export function stripKnownPatchesFromQuery(
   query: PatchesDbQuery
 ): PatchesDbQuery {
-  const { knownPatches, knownPatchIds, ...rest } = query;
+  const {
+    knownPatches: _knownPatches,
+    knownPatchIds: _knownPatchIds,
+    ...rest
+  } = query;
   return rest;
 }
 
@@ -362,11 +373,17 @@ export type PatchesDbResult = {
 export type Unsubscribe = () => void;
 
 export {
-  isPatchesDbAuthContext, isPatchesDbSystemContext, isPatchesDbVisitorContext, OPEN_PATCHES_DB_CONTEXT,
-  PATCHES_DB_SYSTEM_CONTEXT
+  isPatchesDbAuthContext,
+  isPatchesDbSystemContext,
+  isPatchesDbVisitorContext,
+  OPEN_PATCHES_DB_CONTEXT,
+  PATCHES_DB_SYSTEM_CONTEXT,
 } from './context';
 export type {
-  PatchesDbAuthContext, PatchesDbContext, PatchesDbSystemContext, PatchesDbVisitorContext
+  PatchesDbAuthContext,
+  PatchesDbContext,
+  PatchesDbSystemContext,
+  PatchesDbVisitorContext,
 } from './context';
 
 /** AND-combines an optional existing where-clause with an additional clause. */
@@ -479,7 +496,7 @@ export type PatchDbEngineOptions = {
    * every entity uses {@link DEFAULT_PATCH_DB_COMPACTION_POLICY} (`keepLatest: 2`).
    * Apps typically pass {@link PatchDbCompactionPolicyRegistry.resolve}.
    */
-  compactionPolicy?: import('./policy/compaction-policy').PatchDbCompactionPolicyResolver;
+  compactionPolicy?: PatchDbCompactionPolicyResolver;
 };
 
 export { topologicalSortPatches } from './topological-sort';

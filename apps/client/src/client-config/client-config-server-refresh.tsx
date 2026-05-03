@@ -1,8 +1,5 @@
 import { createGamezillaApiClient } from '@gamezilla/client/api/hc';
-import {
-  type AsyncRunContext,
-  useAsync,
-} from '@gamezilla/lib/async/use-async';
+import { type AsyncRunContext, useAsync } from '@gamezilla/lib/async/use-async';
 import {
   ConfigServiceToken,
   type ConfigService,

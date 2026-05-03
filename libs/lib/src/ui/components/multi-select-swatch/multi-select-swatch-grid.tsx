@@ -95,7 +95,9 @@ export function MultiSelectSwatchGrid({
         defaultPalette={defaultPalette}
         isRandom={isRandom}
         onPickRandom={() =>
-          defaultPalette !== undefined ? onChange([...defaultPalette]) : undefined
+          defaultPalette !== undefined
+            ? onChange([...defaultPalette])
+            : undefined
         }
         allowTransparent={allowTransparent}
         transparentToken={transparentToken}
@@ -292,7 +294,11 @@ function CustomHexInput({
 
   return (
     <Box sx={{ gap: 1 }}>
-      <Text variant="caption" sx={{ opacity: 0.8 }} label={<Trans>Add hex (6 chars, no #)</Trans>} />
+      <Text
+        variant="caption"
+        sx={{ opacity: 0.8 }}
+        label={<Trans>Add hex (6 chars, no #)</Trans>}
+      />
       <Box sx={{ flexDirection: 'row', gap: 2, alignItems: 'flex-end' }}>
         <Box sx={{ flex: 1 }}>
           <TextInput
@@ -308,7 +314,11 @@ function CustomHexInput({
           onPress={addHex}
           style={{ paddingVertical: 8, paddingHorizontal: 12 }}
         >
-          <Text variant="label" style={{ color: theme.colors.tint }} label={<Trans>Add</Trans>} />
+          <Text
+            variant="label"
+            style={{ color: theme.colors.tint }}
+            label={<Trans>Add</Trans>}
+          />
         </Pressable>
       </Box>
     </Box>

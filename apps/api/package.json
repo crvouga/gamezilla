@@ -21,6 +21,7 @@
     "wrangler": "^4.54.0"
   },
   "scripts": {
+    "lint": "eslint src --max-warnings 0",
     "test": "bun test",
     "build": "bun -e \"process.exit(0)\"",
     "tc": "tsc --noEmit -p ../../tsconfig.json",

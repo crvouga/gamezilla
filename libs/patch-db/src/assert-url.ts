@@ -33,9 +33,7 @@ export function assertUrl(baseUrl: string): asserts baseUrl is string {
     'API URL must use http:// or https://',
     { baseUrl, protocol: parsed.protocol }
   );
-  assert.ok(
-    parsed.host.length > 0,
-    'API URL must include a non-empty host',
-    { baseUrl }
-  );
+  assert.ok(parsed.host.length > 0, 'API URL must include a non-empty host', {
+    baseUrl,
+  });
 }

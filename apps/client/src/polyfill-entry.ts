@@ -29,18 +29,15 @@ assert.notThrows(
   'crypto.randomUUID must be available'
 );
 assert.ok(typeof Buffer !== 'undefined', 'Buffer must exist for room');
-assert.notThrows(
-  () => {
-    const u = new Uint8Array([0xab, 0xcd, 0x3c, 0x3e]);
-    const b64 = Buffer.from(u).toString('base64');
-    const back = Buffer.from(b64, 'base64');
-    assert.ok(
-      back.length === u.length && back.every((b, i) => b === u[i]),
-      'Buffer base64 round-trip'
-    );
-  },
-  'Buffer base64 must work for room (polyfill has no base64url encoding)'
-);
+assert.notThrows(() => {
+  const u = new Uint8Array([0xab, 0xcd, 0x3c, 0x3e]);
+  const b64 = Buffer.from(u).toString('base64');
+  const back = Buffer.from(b64, 'base64');
+  assert.ok(
+    back.length === u.length && back.every((b, i) => b === u[i]),
+    'Buffer base64 round-trip'
+  );
+}, 'Buffer base64 must work for room (polyfill has no base64url encoding)');
 assert.ok(
   typeof TextEncoder === 'function',
   'TextEncoder must exist for room crypto'

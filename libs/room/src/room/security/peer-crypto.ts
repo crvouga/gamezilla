@@ -9,25 +9,22 @@ assert.ok(
   typeof globalThis.crypto?.getRandomValues === 'function',
   'crypto.getRandomValues must exist for room (polyfill + WebCrypto)'
 );
-assert.ok(typeof Buffer !== 'undefined', 'Buffer must exist (room peer-crypto)');
-assert.notThrows(
-  () => {
-    sha256(new Uint8Array([1, 2, 3]));
-    randomBytes(1);
-  },
-  'room crypto smoke (sha256 + randomBytes)'
+assert.ok(
+  typeof Buffer !== 'undefined',
+  'Buffer must exist (room peer-crypto)'
 );
-assert.notThrows(
-  () => {
-    const u = new Uint8Array([0, 255, 1, 44]);
-    const dec = bufferFromBase64Url(bufferToBase64Url(u));
-    assert.ok(
-      dec.length === u.length && dec.every((b, i) => b === u[i]),
-      'base64url codec round-trip'
-    );
-  },
-  'room base64url (Buffer+base64) codec must work'
-);
+assert.notThrows(() => {
+  sha256(new Uint8Array([1, 2, 3]));
+  randomBytes(1);
+}, 'room crypto smoke (sha256 + randomBytes)');
+assert.notThrows(() => {
+  const u = new Uint8Array([0, 255, 1, 44]);
+  const dec = bufferFromBase64Url(bufferToBase64Url(u));
+  assert.ok(
+    dec.length === u.length && dec.every((b, i) => b === u[i]),
+    'base64url codec round-trip'
+  );
+}, 'room base64url (Buffer+base64) codec must work');
 
 const enc = new TextEncoder();
 
@@ -125,13 +122,13 @@ export function computeRoomProof(roomSecret: string, topic: string): string {
       scheme: 'room-session-v1',
       roomSecret,
       topic,
-    }),
+    })
   );
 }
 
 export function signDetached(
   messageUtf8: Uint8Array,
-  secretSeed: Uint8Array,
+  secretSeed: Uint8Array
 ): Uint8Array {
   return sign(messageUtf8, secretSeed);
 }
@@ -139,7 +136,7 @@ export function signDetached(
 export function verifyDetached(
   messageUtf8: Uint8Array,
   signature: Uint8Array,
-  publicKey: Uint8Array,
+  publicKey: Uint8Array
 ): boolean {
   if (signature.length !== 64) return false;
   try {

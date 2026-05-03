@@ -17,7 +17,7 @@ export class StatusCommand implements Command {
   readonly group = 'setup' as const;
   readonly summary = 'Health: deps, secrets, CF, DB, lock, URLs';
 
-  constructor(private readonly platform: CiPlatform) {}
+  constructor(_platform: CiPlatform) {}
 
   async execute(): Promise<void> {
     banner('Infrastructure Status');

@@ -75,13 +75,8 @@ function EditorSections({ editor }: { editor: UseAvatarEditor }) {
 }
 
 function EditorBody({ editor }: { editor: UseAvatarEditor }) {
-  const {
-    principalId,
-    initialized,
-    previewConfig,
-    shuffleSeed,
-    copySeed,
-  } = editor;
+  const { principalId, initialized, previewConfig, shuffleSeed, copySeed } =
+    editor;
   return (
     <Box>
       <AvatarPreview

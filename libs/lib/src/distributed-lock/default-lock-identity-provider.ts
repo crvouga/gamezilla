@@ -15,7 +15,7 @@ export class DefaultLockIdentityProvider implements LockIdentityProvider {
   private ciHolder(): string {
     const repo = process.env['GITHUB_REPOSITORY'] ?? 'unknown';
     const run = process.env['GITHUB_RUN_ID'] ?? '?';
-    return `${repo} run ${run}`;
+    return `${String(repo)} run ${String(run)}`;
   }
 
   private localHolder(): string {

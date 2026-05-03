@@ -1,6 +1,6 @@
 /** Thrown when a visibility or write policy rejects an operation (HTTP 403). */
 export class ForbiddenError extends Error {
-  readonly name = 'ForbiddenError';
+  override readonly name = 'ForbiddenError';
 
   constructor(
     message: string,

@@ -175,10 +175,7 @@ async function lookupViaAuthNs(
   return out;
 }
 
-async function checkDns(
-  platform: CiPlatform,
-  outputs: InfraOutputs
-): Promise<void> {
+async function checkDns(outputs: InfraOutputs): Promise<void> {
   const domain = PROJECT_CONFIG.domain;
 
   const expectedNs = outputs.cloudflare_nameservers
@@ -213,7 +210,10 @@ async function checkDns(
 
   const authNs = expectedNs[0];
   if (!authNs) {
-    warn('DNS checks', 'no expected nameservers in infra outputs — skipping host checks');
+    warn(
+      'DNS checks',
+      'no expected nameservers in infra outputs — skipping host checks'
+    );
     return;
   }
 
@@ -349,7 +349,7 @@ export async function runHttpSmokeTests(
   platform: CiPlatform,
   outputs: InfraOutputs
 ): Promise<void> {
-  await runStep(platform, 'DNS diagnostics', () => checkDns(platform, outputs));
+  await runStep(platform, 'DNS diagnostics', () => checkDns(outputs));
 
   const endpoints = httpEndpoints(outputs);
   let step = 0;
@@ -362,10 +362,16 @@ export async function runHttpSmokeTests(
         total,
         label: ep.label,
         rawUrl: ep.url,
-        probePath: ep.probePath,
-        gatewayCheck: ep.gatewayCheck,
-        fallbackRawUrl: ep.fallbackUrl,
-        fallbackLabel: ep.fallbackLabel,
+        ...(ep.probePath !== undefined ? { probePath: ep.probePath } : {}),
+        ...(ep.gatewayCheck !== undefined
+          ? { gatewayCheck: ep.gatewayCheck }
+          : {}),
+        ...(ep.fallbackUrl !== undefined
+          ? { fallbackRawUrl: ep.fallbackUrl }
+          : {}),
+        ...(ep.fallbackLabel !== undefined
+          ? { fallbackLabel: ep.fallbackLabel }
+          : {}),
       })
     );
   }

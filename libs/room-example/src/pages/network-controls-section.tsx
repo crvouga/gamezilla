@@ -9,10 +9,20 @@ function NetworkButtons({ network }: { network: NetworkControls }) {
   return (
     <Stack direction="horizontal" spacing={2} wrap>
       {!isPaused && (
-        <Button title={t`Pause`} variant="outlined" size="sm" onPress={network.pause} />
+        <Button
+          title={t`Pause`}
+          variant="outlined"
+          size="sm"
+          onPress={network.pause}
+        />
       )}
       {isPaused && (
-        <Button title={t`Resume`} variant="outlined" size="sm" onPress={network.resume} />
+        <Button
+          title={t`Resume`}
+          variant="outlined"
+          size="sm"
+          onPress={network.resume}
+        />
       )}
       <Button
         title={t`Drop next`}
@@ -59,8 +69,20 @@ function ReplayAndFabricationButtons({ cheats }: { cheats: CheatHandlers }) {
     <Stack spacing={1}>
       <Text variant="caption" label={t`Replay / Fabrication`} />
       <Stack direction="horizontal" spacing={2} wrap>
-        <Button title={t`Fabricate Commit`} variant="outlined" size="sm" color="destructive" onPress={cheats.fabricate} />
-        <Button title={t`Replay Events`} variant="outlined" size="sm" color="destructive" onPress={cheats.replay} />
+        <Button
+          title={t`Fabricate Commit`}
+          variant="outlined"
+          size="sm"
+          color="destructive"
+          onPress={cheats.fabricate}
+        />
+        <Button
+          title={t`Replay Events`}
+          variant="outlined"
+          size="sm"
+          color="destructive"
+          onPress={cheats.replay}
+        />
       </Stack>
     </Stack>
   );
@@ -72,8 +94,20 @@ function IdentityBypassButtons({ cheats }: { cheats: CheatHandlers }) {
     <Stack spacing={1}>
       <Text variant="caption" label={t`Identity / Authority Bypass`} />
       <Stack direction="horizontal" spacing={2} wrap>
-        <Button title={t`X: non-authority trust_update`} variant="outlined" size="sm" color="destructive" onPress={cheats.unauthorizedTrustX} />
-        <Button title={t`O: non-authority trust_update`} variant="outlined" size="sm" color="destructive" onPress={cheats.unauthorizedTrustO} />
+        <Button
+          title={t`X: non-authority trust_update`}
+          variant="outlined"
+          size="sm"
+          color="destructive"
+          onPress={cheats.unauthorizedTrustX}
+        />
+        <Button
+          title={t`O: non-authority trust_update`}
+          variant="outlined"
+          size="sm"
+          color="destructive"
+          onPress={cheats.unauthorizedTrustO}
+        />
       </Stack>
     </Stack>
   );
@@ -85,8 +119,20 @@ function ClockTamperingButtons({ cheats }: { cheats: CheatHandlers }) {
     <Stack spacing={1}>
       <Text variant="caption" label={t`Clock Tampering`} />
       <Stack direction="horizontal" spacing={2} wrap>
-        <Button title={t`X: force TickClock`} variant="outlined" size="sm" color="destructive" onPress={cheats.forcedClockX} />
-        <Button title={t`O: force TickClock`} variant="outlined" size="sm" color="destructive" onPress={cheats.forcedClockO} />
+        <Button
+          title={t`X: force TickClock`}
+          variant="outlined"
+          size="sm"
+          color="destructive"
+          onPress={cheats.forcedClockX}
+        />
+        <Button
+          title={t`O: force TickClock`}
+          variant="outlined"
+          size="sm"
+          color="destructive"
+          onPress={cheats.forcedClockO}
+        />
       </Stack>
     </Stack>
   );
@@ -99,10 +145,21 @@ function MitmButtons({ cheats }: { cheats: CheatHandlers }) {
       <Text variant="caption" label={t`MITM Integrity`} />
       <Stack direction="horizontal" spacing={2} wrap>
         {!cheats.tamperActive && (
-          <Button title={t`Tamper Events`} variant="outlined" size="sm" color="destructive" onPress={cheats.tamper} />
+          <Button
+            title={t`Tamper Events`}
+            variant="outlined"
+            size="sm"
+            color="destructive"
+            onPress={cheats.tamper}
+          />
         )}
         {cheats.tamperActive && (
-          <Button title={t`Clear Tamper`} variant="outlined" size="sm" onPress={cheats.clearTamper} />
+          <Button
+            title={t`Clear Tamper`}
+            variant="outlined"
+            size="sm"
+            onPress={cheats.clearTamper}
+          />
         )}
       </Stack>
     </Stack>

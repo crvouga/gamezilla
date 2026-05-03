@@ -27,7 +27,7 @@ export type TrustVote = {
  */
 export function computeTrustMap(
   votes: TrustVote[],
-  allPeers: string[],
+  allPeers: string[]
 ): Record<string, number> {
   crash.ok(allPeers.length >= 2, 'computeTrustMap requires at least 2 peers');
 
@@ -41,13 +41,13 @@ export function computeTrustMap(
     crash.nonEmptyString(vote.from, 'vote.from must be non-empty');
     crash.nonEmptyString(
       vote.trustedPeer,
-      'vote.trustedPeer must be non-empty',
+      'vote.trustedPeer must be non-empty'
     );
     if (seenVoter.has(vote.from)) continue;
     seenVoter.add(vote.from);
     crash.ok(
       vote.trustedPeer in trust,
-      `vote.trustedPeer "${vote.trustedPeer}" is not in allPeers`,
+      `vote.trustedPeer "${vote.trustedPeer}" is not in allPeers`
     );
     trust[vote.trustedPeer]! += 1;
   }
@@ -94,21 +94,21 @@ export class TrustElection {
     crash.nonEmptyString(config.peerId, 'config.peerId must be non-empty');
     crash.ok(
       config.expectedPeers.length >= 2,
-      'expectedPeers must have at least 2 members',
+      'expectedPeers must have at least 2 members'
     );
     crash.ok(
       config.expectedPeers.includes(config.peerId),
-      'expectedPeers must include peerId',
+      'expectedPeers must include peerId'
     );
     crash.ok(
       config.expectedPeers.includes(config.myVote),
-      'myVote must be one of expectedPeers',
+      'myVote must be one of expectedPeers'
     );
     crash.nonEmptyString(config.roomSecret, 'roomSecret must be non-empty');
     crash.ok(
       config.secretSeed instanceof Uint8Array &&
         config.secretSeed.length === 32,
-      'secretSeed must be Uint8Array length 32',
+      'secretSeed must be Uint8Array length 32'
     );
 
     this.electionId = config.electionId;
@@ -127,8 +127,9 @@ export class TrustElection {
       trustedPeer: this.myVote,
     });
 
-    this.transport_unsubscribe = this.transport.subscribe(this.topic, (payload: unknown) =>
-      this.handleMessage(payload),
+    this.transport_unsubscribe = this.transport.subscribe(
+      this.topic,
+      (payload: unknown) => this.handleMessage(payload)
     );
 
     this.connect_unsubscribe = this.transport.onConnect(() => {
@@ -211,7 +212,7 @@ export class TrustElection {
 
   private trustBallotFingerprintOk(
     signerPeerId: string,
-    signerPublicKey: Uint8Array,
+    signerPublicKey: Uint8Array
   ): boolean {
     const expectedFp = this.peerFingerprints?.[signerPeerId];
     if (expectedFp === undefined) return true;
@@ -220,7 +221,7 @@ export class TrustElection {
 
   private trustBallotContextOk(
     signerPeerId: string,
-    body: TrustBallotBody,
+    body: TrustBallotBody
   ): boolean {
     return (
       body.electionId === this.electionId &&

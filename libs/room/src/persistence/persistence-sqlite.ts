@@ -1,12 +1,9 @@
-import { Assert } from '@gamezilla/lib/assert'
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface'
-import type {
-  RoomPersistence,
-  RoomPersistenceEntry,
-} from './persistence'
-import { assertCommand, assertLogEntryArray } from './assert-durable-json'
+import { Assert } from '@gamezilla/lib/assert';
+import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import type { RoomPersistence, RoomPersistenceEntry } from './persistence';
+import { assertCommand, assertLogEntryArray } from './assert-durable-json';
 
-const crash: Assert = Assert.crash()
+const crash: Assert = Assert.crash();
 
 const MIGRATIONS = `
 CREATE TABLE IF NOT EXISTS room_persistence (
@@ -19,20 +16,20 @@ CREATE TABLE IF NOT EXISTS room_persistence (
     PRIMARY KEY (partition_key, seq)
 );
 CREATE INDEX IF NOT EXISTS idx_room_persistence_partition ON room_persistence (partition_key);
-`
+`;
 
 const INSERT = `INSERT INTO room_persistence (partition_key, seq, kind, command_id, payload, created_at)
-VALUES (?, (SELECT COALESCE(MAX(seq), 0) + 1 FROM room_persistence WHERE partition_key = ?), ?, ?, ?, ?)`
+VALUES (?, (SELECT COALESCE(MAX(seq), 0) + 1 FROM room_persistence WHERE partition_key = ?), ?, ?, ?, ?)`;
 
 const SELECT = `SELECT kind, command_id, payload FROM room_persistence
-WHERE partition_key = ? ORDER BY seq ASC`
+WHERE partition_key = ? ORDER BY seq ASC`;
 
-type Row = { kind: string; command_id: string; payload: string }
+type Row = { kind: string; command_id: string; payload: string };
 
 function entryToRow(entry: RoomPersistenceEntry): {
-  kind: string
-  commandId: string
-  payload: string
+  kind: string;
+  commandId: string;
+  payload: string;
 } {
   switch (entry.kind) {
     case 'command':
@@ -40,36 +37,39 @@ function entryToRow(entry: RoomPersistenceEntry): {
         kind: 'command',
         commandId: entry.command.id,
         payload: JSON.stringify(entry.command),
-      }
+      };
     case 'committed':
       return {
         kind: 'committed',
         commandId: entry.commandId,
         payload: JSON.stringify(entry.entries),
-      }
+      };
     case 'rejected':
       return {
         kind: 'rejected',
         commandId: entry.commandId,
         payload: '{}',
-      }
+      };
   }
 }
 
 function rowToEntry(row: Row): RoomPersistenceEntry {
   switch (row.kind) {
     case 'command':
-      return { kind: 'command', command: assertCommand(JSON.parse(row.payload)) }
+      return {
+        kind: 'command',
+        command: assertCommand(JSON.parse(row.payload)),
+      };
     case 'committed':
       return {
         kind: 'committed',
         commandId: row.command_id,
         entries: assertLogEntryArray(JSON.parse(row.payload)),
-      }
+      };
     case 'rejected':
-      return { kind: 'rejected', commandId: row.command_id }
+      return { kind: 'rejected', commandId: row.command_id };
     default:
-      crash.fail('unknown room_persistence kind', { kind: row.kind })
+      crash.fail('unknown room_persistence kind', { kind: row.kind });
   }
 }
 
@@ -83,16 +83,19 @@ export class SqliteRoomPersistence implements RoomPersistence {
   async migrate(): Promise<void> {
     const statements = MIGRATIONS.split(';')
       .map((s) => s.trim())
-      .filter(Boolean)
+      .filter(Boolean);
     for (const stmt of statements) {
-      await this.sqlClient.run(stmt)
+      await this.sqlClient.run(stmt);
     }
   }
 
-  async append(partitionKey: string, entry: RoomPersistenceEntry): Promise<void> {
-    crash.nonEmptyString(partitionKey, 'partitionKey must be non-empty')
-    const { kind, commandId, payload } = entryToRow(entry)
-    const now = new Date().toISOString()
+  async append(
+    partitionKey: string,
+    entry: RoomPersistenceEntry
+  ): Promise<void> {
+    crash.nonEmptyString(partitionKey, 'partitionKey must be non-empty');
+    const { kind, commandId, payload } = entryToRow(entry);
+    const now = new Date().toISOString();
     await this.sqlClient.run(INSERT, [
       partitionKey,
       partitionKey,
@@ -100,12 +103,12 @@ export class SqliteRoomPersistence implements RoomPersistence {
       commandId,
       payload,
       now,
-    ])
+    ]);
   }
 
   async load(partitionKey: string): Promise<RoomPersistenceEntry[]> {
-    crash.nonEmptyString(partitionKey, 'partitionKey must be non-empty')
-    const rows = await this.sqlClient.query<Row>(SELECT, [partitionKey])
-    return rows.map(rowToEntry)
+    crash.nonEmptyString(partitionKey, 'partitionKey must be non-empty');
+    const rows = await this.sqlClient.query<Row>(SELECT, [partitionKey]);
+    return rows.map(rowToEntry);
   }
 }

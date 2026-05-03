@@ -18,8 +18,10 @@ export function NavigationThemeProvider({
   const theme = useTheme();
   const navigationTheme = reactNavigationThemeFromTokens(
     theme.colorScheme,
-    theme.colors,
+    theme.colors
   );
 
-  return <NavThemeProvider value={navigationTheme}>{children}</NavThemeProvider>;
+  return (
+    <NavThemeProvider value={navigationTheme}>{children}</NavThemeProvider>
+  );
 }

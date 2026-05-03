@@ -1,4 +1,9 @@
-import { captureVersionDiagnostic, spawnInstall, verifyRun, whichSync } from './spawn';
+import {
+  captureVersionDiagnostic,
+  spawnInstall,
+  verifyRun,
+  whichSync,
+} from './spawn';
 import type { Dep, DepStatus } from './types';
 
 const UA = 'gamezilla-infra-cli';
@@ -9,7 +14,9 @@ function summarize(stream: string): string {
   if (trimmed.length === 0) return '<empty>';
   const lines = trimmed.split('\n');
   const head = lines.slice(0, 3).join(' / ');
-  return lines.length > 3 ? `${head} … (+${String(lines.length - 3)} more lines)` : head;
+  return lines.length > 3
+    ? `${head} … (+${String(lines.length - 3)} more lines)`
+    : head;
 }
 
 export class WranglerDep implements Dep {

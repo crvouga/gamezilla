@@ -28,18 +28,18 @@ function validateRoomHostConfig(room: RoomConfigCore): void {
   crash.ok(
     derivedPeerId in initialMembership,
     'host role: initialMembership must include peer derived from secretSeed',
-    { derivedPeerId },
+    { derivedPeerId }
   );
   const ids = Object.keys(initialMembership);
   crash.ok(
     ids.length >= 2,
-    'host initialMembership must list at least 2 peers',
+    'host initialMembership must list at least 2 peers'
   );
   for (const id of ids) {
     crash.ok(
       id in initialMemberPublicKeys,
       'host initialMemberPublicKeys must cover initialMembership',
-      { id },
+      { id }
     );
   }
 }
@@ -50,13 +50,13 @@ function validateRoomJoinConfig(room: RoomConfigCore): void {
   const ids = Object.keys(initialMembership);
   crash.ok(
     ids.length >= 2,
-    'join roomSnapshot.initialMembership must list at least 2 peers',
+    'join roomSnapshot.initialMembership must list at least 2 peers'
   );
   for (const id of ids) {
     crash.ok(
       id in initialMemberPublicKeys,
       'join roomSnapshot.initialMemberPublicKeys must cover initialMembership',
-      { id },
+      { id }
     );
   }
 }
@@ -67,7 +67,7 @@ function validateRoomConfig(room: RoomConfigCore): void {
   crash.defined(room.persistence, 'room.persistence is required');
   crash.ok(
     room.secretSeed instanceof Uint8Array && room.secretSeed.length === 32,
-    'room.secretSeed must be Uint8Array of length 32',
+    'room.secretSeed must be Uint8Array of length 32'
   );
   if (room.role.type === 'host') {
     validateRoomHostConfig(room);
@@ -96,7 +96,7 @@ function roomToBootstrap(room: RoomConfigCore): PeerBootstrap {
 function pickDefinedTimingFields(
   timeoutMs: number | undefined,
   heartbeatIntervalMs: number | undefined,
-  heartbeatTimeoutMs: number | undefined,
+  heartbeatTimeoutMs: number | undefined
 ): {
   timeoutMs?: number;
   heartbeatIntervalMs?: number;
@@ -119,7 +119,7 @@ function pickDefinedTimingFields(
 
 function applyOptionalTiming(
   normalized: NormalizedRoomInit,
-  timing: ReturnType<typeof pickDefinedTimingFields>,
+  timing: ReturnType<typeof pickDefinedTimingFields>
 ): void {
   if (timing.timeoutMs !== undefined) normalized.timeoutMs = timing.timeoutMs;
   if (timing.heartbeatIntervalMs !== undefined) {
@@ -131,9 +131,7 @@ function applyOptionalTiming(
 }
 
 /** Strip `module`, callbacks, and recovery hook; use with {@link normalizeRoomInit}. */
-export function peelRoomConfigCore(
-  config: RoomConfig,
-): RoomConfigCore {
+export function peelRoomConfigCore(config: RoomConfig): RoomConfigCore {
   const {
     module: _m,
     onUnresolvedPersistenceCommand: _u,
@@ -153,9 +151,7 @@ export function peelRoomConfigCore(
 /**
  * Validates {@link RoomConfigCore} into the normalized init payload for `Room`.
  */
-export function normalizeRoomInit(
-  config: RoomConfigCore,
-): NormalizedRoomInit {
+export function normalizeRoomInit(config: RoomConfigCore): NormalizedRoomInit {
   validateRoomConfig(config);
   const peerId = peerIdFromSecretSeed(config.secretSeed);
   const bootstrap = roomToBootstrap(config);
@@ -188,8 +184,8 @@ export function normalizeRoomInit(
     pickDefinedTimingFields(
       config.timeoutMs,
       config.heartbeatIntervalMs,
-      config.heartbeatTimeoutMs,
-    ),
+      config.heartbeatTimeoutMs
+    )
   );
   return normalized;
 }

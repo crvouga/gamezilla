@@ -12,7 +12,8 @@ export function deriveGoogleProviderState(
   googleWebClientId: string | null | undefined
 ): AuthGoogleProviderState {
   const available =
-    typeof googleWebClientId === 'string' && googleWebClientId.trim().length > 0;
+    typeof googleWebClientId === 'string' &&
+    googleWebClientId.trim().length > 0;
   return {
     available,
     unavailableReason: available ? null : GOOGLE_SIGN_IN_UNAVAILABLE_REASON,

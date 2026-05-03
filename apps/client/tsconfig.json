@@ -1,6 +1,7 @@
 {
-  "extends": "expo/tsconfig.base",
+  "extends": "../../tsconfig.json",
   "include": [
+    "../../libs/lib/src/ts-reset.ts",
     "./src/**/*.ts",
     "./src/**/*.tsx",
     ".expo/types/**/*.ts",

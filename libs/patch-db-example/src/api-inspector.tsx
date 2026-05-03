@@ -22,9 +22,8 @@ import { Trans } from '@lingui/react/macro';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-// eslint-disable-next-line lingui/no-unlocalized-strings
 const URL_STORAGE_KEY = 'patchdb-inspector-sync-url';
-// eslint-disable-next-line lingui/no-unlocalized-strings
+
 const DEFAULT_URL = 'http://localhost:5001';
 
 function formatAttrValue(value: unknown): string {
@@ -105,7 +104,7 @@ type InspectorState = {
 
 function useStoredUrl(
   setUrlInput: (v: string) => void,
-  setConnectedUrl: (v: string | null) => void,
+  setConnectedUrl: (v: string | null) => void
 ) {
   useEffect(() => {
     void AsyncStorage.getItem(URL_STORAGE_KEY).then((stored) => {
@@ -126,7 +125,7 @@ function useInspectorPolling(
   connectedUrl: string | null,
   knownPatchesRef: React.MutableRefObject<Patch[]>,
   setResult: (r: PatchesDbResult | null) => void,
-  setError: (e: string | null) => void,
+  setError: (e: string | null) => void
 ) {
   useEffect(() => {
     if (connectedUrl === null) return;
@@ -208,11 +207,7 @@ function useApiInspectorState(): InspectorState {
   };
 }
 
-function ConnectionCard({
-  state,
-}: {
-  state: InspectorState;
-}) {
+function ConnectionCard({ state }: { state: InspectorState }) {
   const { t } = useLingui();
   const {
     urlInput,
@@ -237,7 +232,9 @@ function ConnectionCard({
         />
         <Stack direction="horizontal" spacing={2} align="center">
           <Button
-            title={connectedUrl ? <Trans>Reconnect</Trans> : <Trans>Connect</Trans>}
+            title={
+              connectedUrl ? <Trans>Reconnect</Trans> : <Trans>Connect</Trans>
+            }
             variant="solid"
             size="md"
             onPress={handleConnect}

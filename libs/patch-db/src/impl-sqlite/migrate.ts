@@ -27,7 +27,9 @@ async function dropLegacyLineageIndex(sqlClient: SqlClient): Promise<void> {
   }
 }
 
-async function migrateLegacyMetadataColumn(sqlClient: SqlClient): Promise<void> {
+async function migrateLegacyMetadataColumn(
+  sqlClient: SqlClient
+): Promise<void> {
   try {
     const tableInfo = await sqlClient.query<{ name: string }>(
       "SELECT name FROM pragma_table_info('patches') WHERE name = 'metadata'"
@@ -54,7 +56,9 @@ async function migrateLegacyMetadataColumn(sqlClient: SqlClient): Promise<void> 
 }
 
 /** Applies base DDL + forward-compatible cleanups for legacy columns. */
-export async function migratePatchDbSqlite(sqlClient: SqlClient): Promise<void> {
+export async function migratePatchDbSqlite(
+  sqlClient: SqlClient
+): Promise<void> {
   await runBaseMigrations(sqlClient);
   await dropLegacyLineageDepth(sqlClient);
   await dropLegacyLineageIndex(sqlClient);

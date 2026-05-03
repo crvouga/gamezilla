@@ -8,7 +8,7 @@ function hasLabelAttribute(openingElement) {
     (attr) =>
       attr.type === 'JSXAttribute' &&
       attr.name.type === 'JSXIdentifier' &&
-      attr.name.name === 'label',
+      attr.name.name === 'label'
   );
 }
 

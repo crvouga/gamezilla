@@ -21,9 +21,7 @@ export function StyleBlock({
   styleKey: StyleKey;
   draft: AvatarConfig;
   principalId: string;
-  setDraft: (
-    fn: (d: AvatarConfig) => AvatarConfig
-  ) => void;
+  setDraft: (fn: (d: AvatarConfig) => AvatarConfig) => void;
   surface: string | null;
   setSurface: (k: string | null) => void;
   closeSurface: () => void;

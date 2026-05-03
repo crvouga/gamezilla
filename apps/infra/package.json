@@ -2,6 +2,7 @@
   "name": "@gamezilla/infra",
   "private": true,
   "scripts": {
+    "lint": "eslint src --max-warnings 0",
     "tc": "tsc --noEmit -p ./tsconfig.json",
     "infra": "bun run ./src/bin/cli.ts",
     "pipeline-report": "bun run ./src/bin/pipeline-report.ts"
@@ -15,6 +16,6 @@
   },
   "devDependencies": {
     "@types/node": "^20.17.0",
-    "typescript": "~5.6.3"
+    "typescript": "~5.9.2"
   }
 }

@@ -23,7 +23,7 @@ export function topoSort(resources: readonly Resource[]): Resource[] {
     for (const dep of r.dependencyIds()) {
       assert.ok(
         byId.has(dep),
-        `topoSort: resource "${r.id}" depends on unknown resource "${dep}"`,
+        `topoSort: resource "${r.id}" depends on unknown resource "${dep}"`
       );
       inDegree.set(r.id, (inDegree.get(r.id) ?? 0) + 1);
       dependents.get(dep)!.push(r.id);
@@ -48,7 +48,7 @@ export function topoSort(resources: readonly Resource[]): Resource[] {
 
   assert.ok(
     sorted.length === resources.length,
-    `topoSort: cycle detected — only ${sorted.length} of ${resources.length} resources could be ordered`,
+    `topoSort: cycle detected — only ${sorted.length} of ${resources.length} resources could be ordered`
   );
 
   return sorted;
