@@ -29,7 +29,6 @@ export function ProfileScreen() {
               avatarConfig={profile.avatarConfig}
               principalId={profile.principalId}
               size={80}
-              loading={profile.loading}
             />
             <Text variant="title" label={profile.displayLabel} />
           </Box>

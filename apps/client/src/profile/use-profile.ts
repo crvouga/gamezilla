@@ -56,7 +56,6 @@ type ProfileResult = {
   /** Profile row id (`accountId` when signed in, else `principalId`), or null when missing. */
   profileId: string | null;
   entity: Entity | null;
-  loading: boolean;
   displayLabel: string;
   /** `null` when no persisted `profile/avatarConfig` on the profile row. */
   avatarConfig: AvatarConfig | null;
@@ -67,15 +66,9 @@ function buildProfileResult(args: {
   effectiveProfileId: string;
   profileEntity: Entity | null;
   profileQueryId: string;
-  loading: boolean;
 }): ProfileResult {
-  const {
-    principalId,
-    effectiveProfileId,
-    profileEntity,
-    profileQueryId,
-    loading,
-  } = args;
+  const { principalId, effectiveProfileId, profileEntity, profileQueryId } =
+    args;
   const attrs = profileEntity?.attributes as
     | Record<string, unknown>
     | undefined;
@@ -92,7 +85,6 @@ function buildProfileResult(args: {
     principalId,
     profileId: usable ? effectiveProfileId : null,
     entity: usable ? profileEntity : null,
-    loading,
     displayLabel,
     avatarConfig,
   };
@@ -133,8 +125,6 @@ export function useProfile() {
   });
   const profileEntity = profileRes.entities[0] ?? null;
 
-  const loading = profileRes.loading;
-
   return useMemo(
     () =>
       buildProfileResult({
@@ -142,8 +132,7 @@ export function useProfile() {
         effectiveProfileId,
         profileEntity,
         profileQueryId,
-        loading,
       }),
-    [principalId, effectiveProfileId, profileEntity, profileQueryId, loading]
+    [principalId, effectiveProfileId, profileEntity, profileQueryId]
   );
 }

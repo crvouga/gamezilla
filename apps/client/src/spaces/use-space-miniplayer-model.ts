@@ -40,9 +40,7 @@ export function useSpaceMiniplayerModel(): SpaceMiniplayerModel {
   if (
     isSpaceMiniplayerHidden({
       rawPath,
-      currentLoading: current.loading,
       activeSpaceId,
-      spaceLoading: space.loading,
     })
   ) {
     return { visible: false };

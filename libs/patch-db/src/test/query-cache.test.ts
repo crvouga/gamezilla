@@ -65,14 +65,14 @@ describe('PatchesDbQueryCache', () => {
     await teardown();
   });
 
-  test('starts with loading=true and transitions to loading=false on first delivery', async () => {
+  test('starts with empty snapshot until first subscription delivery', async () => {
     const cache = new PatchesDbQueryCache(db);
     const query: PatchesDbQuery = { entityType: 'todo' };
     const queryKey = JSON.stringify(query);
 
     const initial = cache.getOrCreateResult(queryKey, query);
-    expect(initial.loading).toBe(true);
     expect(initial.entities).toEqual([]);
+    expect(initial.total).toBe(0);
 
     let snapshot = initial;
     cache.subscribe(queryKey, query, () => {
@@ -80,8 +80,8 @@ describe('PatchesDbQueryCache', () => {
     });
 
     await flushMicrotasks();
-    expect(snapshot.loading).toBe(false);
     expect(snapshot.entities).toEqual([]);
+    expect(snapshot.total).toBe(0);
   });
 
   test('shares one underlying subscription across multiple subscribers', async () => {
@@ -124,14 +124,12 @@ describe('PatchesDbQueryCache', () => {
     await flushMicrotasks();
 
     const cached = cache.getResult(queryKey);
-    expect(cached?.loading).toBe(false);
     expect(cached?.entities.length).toBe(1);
 
     let observed = cache.getResult(queryKey);
     cache.subscribe(queryKey, query, () => {
       observed = cache.getResult(queryKey);
     });
-    expect(observed?.loading).toBe(false);
     expect(observed?.entities.length).toBe(1);
 
     unsubFirst();
@@ -161,7 +159,6 @@ describe('PatchesDbQueryCache', () => {
 
     cache.subscribe(queryKey, query, () => {});
     expect(sched.pending.size).toBe(0);
-    expect(cache.getResult(queryKey)?.loading).toBe(false);
     expect(cache.getResult(queryKey)?.entities.length).toBe(1);
   });
 

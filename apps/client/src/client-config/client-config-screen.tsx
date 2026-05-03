@@ -13,7 +13,7 @@ import { ClientConfigServerRefreshCard } from './client-config-server-refresh';
 export function ClientConfigScreen() {
   const { t } = useLingui();
   const nav = useBreadcrumbNav();
-  const { entities, loading } = useEntities({
+  const { entities } = useEntities({
     entityType: CLIENT_CONFIG_ENTITY_TYPE,
     entityId: CLIENT_CONFIG_ENTITY_ID,
   });
@@ -26,9 +26,7 @@ export function ClientConfigScreen() {
       ? googleRaw
       : googleRaw === null
         ? t`null`
-        : loading
-          ? '…'
-          : '—';
+        : '—';
 
   const jsonPreview = JSON.stringify(attrs, null, 2);
 

@@ -31,10 +31,7 @@ function useAccountDeviceDetailScreenState() {
   const principalId = normalizePrincipalId(params.principalId);
   const currentPid = auth.principalId;
 
-  const { principals, loading: principalsLoading } = useAccountPrincipals(
-    auth.accountId,
-    currentPid
-  );
+  const { principals } = useAccountPrincipals(auth.accountId, currentPid);
 
   const fromList = useMemo(
     () =>
@@ -64,13 +61,12 @@ function useAccountDeviceDetailScreenState() {
     return accountPrincipalFromEntity(entity, currentPid);
   }, [fromList, principalId, entity, currentPid]);
 
-  const { sessionsByPrincipal, loading: sessionsLoading } =
-    useSessionsForPrincipals(principalId === null ? [] : [principalId]);
+  const { sessionsByPrincipal } = useSessionsForPrincipals(
+    principalId === null ? [] : [principalId]
+  );
 
   const sessionInfo =
     principalId === null ? undefined : sessionsByPrincipal.get(principalId);
-
-  const loading = principalsLoading || sessionsLoading;
 
   const title =
     principal !== null ? formatDeviceListTitle(principal) : t`Device`;
@@ -79,14 +75,13 @@ function useAccountDeviceDetailScreenState() {
     nav,
     principalId,
     principal,
-    loading,
     sessionInfo,
     title,
   };
 }
 
 export function AccountDeviceDetailScreen() {
-  const { nav, principalId, principal, loading, sessionInfo, title } =
+  const { nav, principalId, principal, sessionInfo, title } =
     useAccountDeviceDetailScreenState();
 
   return (
@@ -102,12 +97,6 @@ export function AccountDeviceDetailScreen() {
         <Box style={{ ...sx, gap: 12 }}>
           {principalId === null ? (
             <Text variant="body" label={<Trans>Missing device id.</Trans>} />
-          ) : loading ? (
-            <Text
-              variant="caption"
-              sx={{ color: 'textSecondary' }}
-              label={<Trans>Loading…</Trans>}
-            />
           ) : principal === null ? (
             <Text
               variant="body"

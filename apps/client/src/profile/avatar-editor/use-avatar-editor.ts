@@ -25,12 +25,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useProfile } from '../use-profile';
 
 function usePersistedConfig() {
-  const {
-    principalId,
-    profileId,
-    entity,
-    loading: profileLoading,
-  } = useProfile();
+  const { principalId, profileId, entity } = useProfile();
   const persisted = useMemo(
     () =>
       resolveAvatarConfig(
@@ -40,20 +35,16 @@ function usePersistedConfig() {
       ),
     [entity?.attributes, principalId]
   );
-  return { principalId, profileId, persisted, profileLoading };
+  return { principalId, profileId, persisted };
 }
 
-function useDraftSync(args: {
-  persisted: AvatarConfig;
-  profileLoading: boolean;
-}) {
-  const { persisted, profileLoading } = args;
+function useDraftSync(args: { persisted: AvatarConfig }) {
+  const { persisted } = args;
   const [draft, setDraft] = useState<AvatarConfig>(persisted);
   const [initialized, setInitialized] = useState(false);
   const lastPersistedRef = useRef<AvatarConfig | null>(null);
 
   useEffect(() => {
-    if (profileLoading) return;
     const prev = lastPersistedRef.current;
     if (prev === null) {
       setDraft(persisted);
@@ -67,7 +58,7 @@ function useDraftSync(args: {
       );
       lastPersistedRef.current = persisted;
     }
-  }, [persisted, profileLoading]);
+  }, [persisted]);
 
   return { draft, setDraft, initialized };
 }
@@ -232,11 +223,9 @@ function useEditorActions(args: {
 }
 
 export function useAvatarEditor(): UseAvatarEditor {
-  const { principalId, profileId, persisted, profileLoading } =
-    usePersistedConfig();
+  const { principalId, profileId, persisted } = usePersistedConfig();
   const { draft, setDraft, initialized } = useDraftSync({
     persisted,
-    profileLoading,
   });
 
   const [saving, setSaving] = useState(false);

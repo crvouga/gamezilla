@@ -6,17 +6,16 @@ import { SubscribablePatchesDbToken } from '../subscribable';
 import { getCacheForDb, type CachedQueryResult } from './query-cache';
 
 /**
- * `loading` is `true` only until the first delivery for a given query has
- * arrived. Switching a hook to a query that another hook (or this hook in a
- * recent past life) has already loaded returns `loading: false` immediately —
- * use this flag to suppress fallback renders during initial hydration.
+ * Result of a PatchDB entity subscription. Before the first delivery, the
+ * snapshot is empty arrays with zero totals — indistinguishable from a query
+ * that genuinely returns no rows (local-first).
  */
-export type UseEntitiesResult = PatchesDbResult & { loading: boolean };
+export type UseEntitiesResult = PatchesDbResult;
 
 /**
  * Subscribes to the cached snapshot for `query`. Identical query shapes share
  * a single underlying subscription; teardown is deferred briefly across
- * unmounts so route flips and conditional renders don't re-flash `loading`.
+ * unmounts so route flips don't tear down a query that is about to be re-asked.
  */
 export function useEntities(query: PatchesDbQuery): UseEntitiesResult {
   const db = useDependency(SubscribablePatchesDbToken);

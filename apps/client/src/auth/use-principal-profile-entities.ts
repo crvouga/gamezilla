@@ -16,7 +16,6 @@ function readStringAttr(
 export type PrincipalProfileEntityMaps = {
   principalById: Map<string, Entity>;
   profileById: Map<string, Entity>;
-  loading: boolean;
 };
 
 /**
@@ -85,9 +84,5 @@ export function usePrincipalProfileEntities(
     return m;
   }, [profilesResult.entities]);
 
-  const loading =
-    principalsResult.loading ||
-    (profileIds.length > 0 && profilesResult.loading);
-
-  return { principalById, profileById, loading };
+  return { principalById, profileById };
 }

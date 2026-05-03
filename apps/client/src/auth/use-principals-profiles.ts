@@ -63,9 +63,8 @@ function summaryForPrincipal(
  */
 export function useProfilesForPrincipals(principalIds: string[]): {
   profilesByPrincipal: Map<string, PrincipalProfileSummary>;
-  loading: boolean;
 } {
-  const { principalById, profileById, loading } =
+  const { principalById, profileById } =
     usePrincipalProfileEntities(principalIds);
 
   const profilesByPrincipal = useMemo(() => {
@@ -76,5 +75,5 @@ export function useProfilesForPrincipals(principalIds: string[]): {
     return m;
   }, [principalById, profileById, principalIds]);
 
-  return { profilesByPrincipal, loading };
+  return { profilesByPrincipal };
 }

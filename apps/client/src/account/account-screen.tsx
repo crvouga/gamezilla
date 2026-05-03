@@ -43,7 +43,6 @@ function asString(value: unknown): string | null {
 
 function useLinkedProviders(accountId: string | null): {
   providers: LinkedProvider[];
-  loading: boolean;
 } {
   const result = useEntities(
     accountId === null
@@ -80,7 +79,7 @@ function useLinkedProviders(accountId: string | null): {
       .filter((p): p is LinkedProvider => p !== null);
   }, [accountId, result.entities]);
 
-  return { providers, loading: result.loading };
+  return { providers };
 }
 
 function CaptionLine({ label }: { label: string }) {
@@ -113,11 +112,9 @@ function LinkedProviderRow({ provider }: { provider: LinkedProvider }) {
 function LinkedProvidersBody({
   accountId,
   providers,
-  loading,
 }: {
   accountId: string | null;
   providers: LinkedProvider[];
-  loading: boolean;
 }) {
   const { t } = useLingui();
   if (accountId === null) {
@@ -126,9 +123,6 @@ function LinkedProvidersBody({
         label={t`OAuth provider details are listed here once you are signed in.`}
       />
     );
-  }
-  if (loading) {
-    return <CaptionLine label={t`Loading provider records…`} />;
   }
   if (providers.length === 0) {
     return (
@@ -149,11 +143,9 @@ function LinkedProvidersBody({
 function LinkedProvidersCard({
   accountId,
   providers,
-  loading,
 }: {
   accountId: string | null;
   providers: LinkedProvider[];
-  loading: boolean;
 }) {
   const { t } = useLingui();
   return (
@@ -162,11 +154,7 @@ function LinkedProvidersCard({
       <CaptionLine
         label={t`Read-only: OAuth identities stored for your account.`}
       />
-      <LinkedProvidersBody
-        accountId={accountId}
-        providers={providers}
-        loading={loading}
-      />
+      <LinkedProvidersBody accountId={accountId} providers={providers} />
     </Card>
   );
 }
@@ -199,11 +187,8 @@ function AccountActionsRow({
 function AccountScreenBody({
   auth,
   providers,
-  loading,
   principals,
-  principalsLoading,
   sessionsByPrincipal,
-  sessionsLoading,
   onSignIn,
   onRequestSignOut,
   onOpenDevice,
@@ -211,11 +196,8 @@ function AccountScreenBody({
 }: {
   auth: ReturnType<typeof useAuth>;
   providers: LinkedProvider[];
-  loading: boolean;
   principals: AccountPrincipal[];
-  principalsLoading: boolean;
   sessionsByPrincipal: Map<string, PrincipalSessionAggregate>;
-  sessionsLoading: boolean;
   onSignIn: () => void;
   onRequestSignOut: () => void;
   onOpenDevice: (principalId: string) => void;
@@ -226,16 +208,10 @@ function AccountScreenBody({
       <AccountDevicesCard
         accountId={auth.accountId}
         principals={principals}
-        principalsLoading={principalsLoading}
         sessionsByPrincipal={sessionsByPrincipal}
-        sessionsLoading={sessionsLoading}
         onOpenDevice={onOpenDevice}
       />
-      <LinkedProvidersCard
-        accountId={auth.accountId}
-        providers={providers}
-        loading={loading}
-      />
+      <LinkedProvidersCard accountId={auth.accountId} providers={providers} />
       <AccountActionsRow
         auth={auth}
         onRequestSignOut={onRequestSignOut}
@@ -249,10 +225,10 @@ export function AccountScreen() {
   const nav = useBreadcrumbNav();
   const router = useRouter();
   const auth = useAuth();
-  const { providers, loading } = useLinkedProviders(auth.accountId);
+  const { providers } = useLinkedProviders(auth.accountId);
 
   const currentPrincipalId = auth.principalId;
-  const { principals, loading: principalsLoading } = useAccountPrincipals(
+  const { principals } = useAccountPrincipals(
     auth.accountId,
     currentPrincipalId
   );
@@ -260,8 +236,7 @@ export function AccountScreen() {
     () => principals.map((p) => p.entityId),
     [principals]
   );
-  const { sessionsByPrincipal, loading: sessionsLoading } =
-    useSessionsForPrincipals(principalIds);
+  const { sessionsByPrincipal } = useSessionsForPrincipals(principalIds);
 
   const onOpenDevice = useCallback(
     (principalId: string) => {
@@ -293,11 +268,8 @@ export function AccountScreen() {
         <AccountScreenBody
           auth={auth}
           providers={providers}
-          loading={loading}
           principals={principals}
-          principalsLoading={principalsLoading}
           sessionsByPrincipal={sessionsByPrincipal}
-          sessionsLoading={sessionsLoading}
           onSignIn={onSignIn}
           onRequestSignOut={onRequestSignOut}
           onOpenDevice={onOpenDevice}

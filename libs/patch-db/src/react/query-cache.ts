@@ -3,7 +3,7 @@ import type { Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
 import type { PatchesDbQuery } from '../interface';
 import type { SubscribablePatchesDbLike } from '../subscribable';
 import {
-  makeLoadingResult,
+  makeEmptyResult,
   resultsShallowEqual,
   reuseStableArrays,
   type CachedQueryResult,
@@ -18,6 +18,12 @@ type CacheEntry = {
   query: PatchesDbQuery;
   /** Stable result identity; replaced whenever data changes. */
   result: CachedQueryResult;
+  /**
+   * After the first `subscribe.entities` callback, even an empty read must
+   * replace the placeholder snapshot — otherwise it shallow-equals the initial
+   * empty result and subscribers would never re-render.
+   */
+  hasDelivered: boolean;
   listeners: Set<Listener>;
   /** Open underlying subscription handle, or `null` when not yet opened. */
   unsubscribe: Unsubscribe | null;
@@ -47,8 +53,8 @@ export type PatchesDbQueryCacheOptions = {
  * Module-level cache that fans subscribers in over a single underlying
  * `db.subscribe.entities` per queryKey, retains snapshots across short
  * unmount/remount cycles, and serves cached snapshots synchronously to new
- * subscribers so React consumers never see a `loading: true` flash for data
- * the cache has already loaded.
+ * subscribers so React consumers immediately see the last-known or empty
+ * snapshot for that queryKey.
  */
 export class PatchesDbQueryCache {
   private entries = new Map<string, CacheEntry>();
@@ -97,9 +103,10 @@ export class PatchesDbQueryCache {
           total: next.total,
           hasMore: next.hasMore,
           nextCursor: next.nextCursor,
-          loading: false,
         };
-        if (resultsShallowEqual(prev, nextResult)) {
+        const firstDelivery = !entry.hasDelivered;
+        entry.hasDelivered = true;
+        if (!firstDelivery && resultsShallowEqual(prev, nextResult)) {
           return;
         }
         entry.result = nextResult;
@@ -126,7 +133,7 @@ export class PatchesDbQueryCache {
   }
 
   /**
-   * Returns a stable snapshot for `queryKey`, materializing a loading entry if
+   * Returns a stable snapshot for `queryKey`, materializing an empty entry if
    * none exists yet. Callers (e.g. `useSyncExternalStore.getSnapshot`) require
    * referential stability across calls, so we never return fresh objects.
    */
@@ -154,7 +161,8 @@ export class PatchesDbQueryCache {
     const entry: CacheEntry = {
       queryKey,
       query,
-      result: makeLoadingResult(query),
+      result: makeEmptyResult(query),
+      hasDelivered: false,
       listeners: new Set(),
       unsubscribe: null,
       teardownTimer: null,

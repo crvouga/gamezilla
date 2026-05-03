@@ -6,14 +6,13 @@ import type {
 } from '../interface';
 
 /**
- * Snapshot returned to React consumers. `loading` is `true` only until the
- * first underlying delivery for a given queryKey; once data has been seen,
- * subscribers (including newly-mounted ones for a cached queryKey) get
- * `loading: false` immediately.
+ * Snapshot returned to React consumers. Before the first subscription
+ * delivery, the cache holds empty arrays and zero totals — same shape as a
+ * real empty query result (local-first: no separate loading flag).
  */
-export type CachedQueryResult = PatchesDbResult & { loading: boolean };
+export type CachedQueryResult = PatchesDbResult;
 
-export function makeLoadingResult(query: PatchesDbQuery): CachedQueryResult {
+export function makeEmptyResult(query: PatchesDbQuery): CachedQueryResult {
   return {
     query,
     entities: [] as Entity[],
@@ -21,7 +20,6 @@ export function makeLoadingResult(query: PatchesDbQuery): CachedQueryResult {
     total: 0,
     hasMore: false,
     nextCursor: null,
-    loading: true,
   };
 }
 
@@ -70,7 +68,6 @@ export function resultsShallowEqual(
     a.patches === b.patches &&
     a.total === b.total &&
     a.hasMore === b.hasMore &&
-    a.nextCursor === b.nextCursor &&
-    a.loading === b.loading
+    a.nextCursor === b.nextCursor
   );
 }

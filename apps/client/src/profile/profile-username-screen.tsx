@@ -48,13 +48,11 @@ function useSyncedDisplayName(entity: Entity | null | undefined) {
 
 function ProfileUsernameScreenBody({
   sx,
-  loading,
   profileId,
   value,
   setValue,
 }: {
   sx: BodyContentProps['sx'];
-  loading: boolean;
   profileId: string | null;
   value: string;
   setValue: (v: string) => void;
@@ -62,7 +60,7 @@ function ProfileUsernameScreenBody({
   const { t } = useLingui();
   return (
     <Box style={sx}>
-      {!loading && profileId === null ? (
+      {profileId === null ? (
         <Box sx={{ gap: 2 }}>
           <Text
             variant="body"
@@ -90,7 +88,7 @@ function ProfileUsernameScreenBody({
 export function ProfileUsernameScreen() {
   const router = useRouter();
   const db = usePatchesDb();
-  const { profileId, entity, loading } = useProfile();
+  const { profileId, entity } = useProfile();
   const [saving, setSaving] = useState(false);
   const [value, setValue] = useSyncedDisplayName(entity);
   const nav = useBreadcrumbNav();
@@ -127,14 +125,13 @@ export function ProfileUsernameScreen() {
           label: <Trans>Save</Trans>,
           onPress: () => void save(),
           loading: saving,
-          disabled: saving || loading || profileId === null,
+          disabled: saving || profileId === null,
         },
       ]}
       keyboardAvoiding
       content={({ sx }) => (
         <ProfileUsernameScreenBody
           sx={sx}
-          loading={loading}
           profileId={profileId}
           value={value}
           setValue={setValue}

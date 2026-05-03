@@ -8,9 +8,8 @@ export type PrincipalAvatarProps = {
   avatarConfig: AvatarConfig | null;
   principalId: string;
   size: number;
-  loading?: boolean;
   /**
-   * Empty / loading placeholder only: frosted light plate + light person
+   * Empty placeholder only: frosted light plate + light person
    * glyph for vivid backgrounds (e.g. space card gradient), matching other
    * white-on-gradient chrome on that surface.
    */
@@ -23,16 +22,15 @@ const VIVID_GLYPH = String('rgba(255,255,255,0.92)');
 
 /**
  * Renders a principal’s avatar: generic user silhouette on a muted disk when
- * loading or no persisted config; otherwise the persisted DiceBear avatar.
+ * no persisted config; otherwise the persisted DiceBear avatar.
  */
 export function PrincipalAvatar({
   avatarConfig,
   principalId,
   size,
-  loading = false,
   vividBackdrop = false,
 }: PrincipalAvatarProps): ReactNode {
-  if (loading || avatarConfig === null) {
+  if (avatarConfig === null) {
     return (
       <Avatar
         size={size}
@@ -47,7 +45,6 @@ export function PrincipalAvatar({
       config={avatarConfig}
       fallbackSeed={principalId}
       size={size}
-      loading={false}
     />
   );
 }

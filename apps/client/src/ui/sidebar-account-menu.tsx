@@ -243,7 +243,6 @@ function AccountTrigger({
           avatarConfig={profile.avatarConfig}
           principalId={profile.principalId}
           size={32}
-          loading={profile.loading}
         />
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <Text

@@ -36,7 +36,6 @@ function readExpiresAt(entity: Entity): string | null {
  */
 export function useSessionsForPrincipals(principalIds: string[]): {
   sessionsByPrincipal: Map<string, PrincipalSessionAggregate>;
-  loading: boolean;
 } {
   const sortedUniqueIds = useMemo(
     () => [...new Set(principalIds)].sort(),
@@ -93,5 +92,5 @@ export function useSessionsForPrincipals(principalIds: string[]): {
     return out;
   }, [result.entities]);
 
-  return { sessionsByPrincipal, loading: result.loading };
+  return { sessionsByPrincipal };
 }

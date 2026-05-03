@@ -99,7 +99,7 @@ function mergePrincipalsForAccount(args: {
 export function useAccountPrincipals(
   accountId: string | null,
   currentPrincipalId: string
-): { principals: AccountPrincipal[]; loading: boolean } {
+): { principals: AccountPrincipal[] } {
   const localQuery = useMemo(
     () => ({
       entityType: PRINCIPAL_ENTITY_TYPE,
@@ -154,10 +154,5 @@ export function useAccountPrincipals(
     localResult.entities,
   ]);
 
-  const loading =
-    accountId === null
-      ? localResult.loading
-      : localResult.loading || accountResult.loading;
-
-  return { principals, loading };
+  return { principals };
 }

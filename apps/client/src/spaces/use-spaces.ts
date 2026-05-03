@@ -110,14 +110,9 @@ export function useSpaces() {
     return [...ids];
   }, [spacesResult.entities, selfPrincipalId]);
 
-  const {
-    principalById,
-    profileById,
-    loading: hostProfilesLoading,
-  } = usePrincipalProfileEntities(hostIds);
+  const { principalById, profileById } = usePrincipalProfileEntities(hostIds);
 
-  const { entity: selfAccountProfile, loading: selfProfileLoading } =
-    useSelfAccountProfile(selfAccountId);
+  const { entity: selfAccountProfile } = useSelfAccountProfile(selfAccountId);
 
   const spaces: SpaceView[] = useMemo(() => {
     const list = spacesResult.entities ?? [];
@@ -146,10 +141,7 @@ export function useSpaces() {
     t,
   ]);
 
-  const loading =
-    spacesResult.loading || hostProfilesLoading || selfProfileLoading;
-
-  return { spaces, loading };
+  return { spaces };
 }
 
 export function useSpace(spaceId: string | undefined) {
@@ -171,7 +163,6 @@ export function useSpace(spaceId: string | undefined) {
 
   return {
     space: entity,
-    loading: spaceRes.loading,
     title,
     customTitle,
     hostId,
@@ -258,7 +249,6 @@ export type CurrentMembership = {
   activeSpaceId: string | null;
   role: SpaceMembershipRole | null;
   membershipEntity: Entity | null;
-  loading: boolean;
 };
 
 function resolveCurrentMembership(args: {
@@ -268,34 +258,20 @@ function resolveCurrentMembership(args: {
   spaceEntity: Entity | null;
   spaceEnded: boolean;
   role: SpaceMembershipRole | null;
-  memLoading: boolean;
-  spaceLoading: boolean;
 }): CurrentMembership {
-  const {
-    membership,
-    hasLeft,
-    spaceIdRaw,
-    spaceEntity,
-    spaceEnded,
-    role,
-    memLoading,
-    spaceLoading,
-  } = args;
-  const loading = memLoading || spaceLoading;
+  const { membership, hasLeft, spaceIdRaw, spaceEntity, spaceEnded, role } =
+    args;
   const inactive: CurrentMembership = {
     activeSpaceId: null,
     role: null,
     membershipEntity: membership,
-    loading,
   };
   if (!membership || hasLeft || !spaceIdRaw) return inactive;
-  if (spaceLoading) return { ...inactive, loading: true };
-  if (!spaceEntity || spaceEnded) return { ...inactive, loading: false };
+  if (!spaceEntity || spaceEnded) return inactive;
   return {
     activeSpaceId: spaceIdRaw,
     role,
     membershipEntity: membership,
-    loading: false,
   };
 }
 
@@ -409,19 +385,8 @@ export function useCurrentMembership(): CurrentMembership {
         spaceEntity,
         spaceEnded,
         role,
-        memLoading: memRes.loading,
-        spaceLoading: spaceRes.loading,
       }),
-    [
-      membership,
-      hasLeft,
-      spaceIdRaw,
-      spaceEnded,
-      spaceEntity,
-      role,
-      memRes.loading,
-      spaceRes.loading,
-    ]
+    [membership, hasLeft, spaceIdRaw, spaceEnded, spaceEntity, role]
   );
 }
 
@@ -478,14 +443,10 @@ export function useSpaceMembers(spaceId: string | undefined) {
     return ids.length > 0 ? ids : [selfPrincipalId];
   }, [membersRes.entities, selfPrincipalId]);
 
-  const {
-    principalById,
-    profileById,
-    loading: memberProfilesLoading,
-  } = usePrincipalProfileEntities(memberPrincipalIds);
+  const { principalById, profileById } =
+    usePrincipalProfileEntities(memberPrincipalIds);
 
-  const { entity: selfAccountProfile, loading: selfProfileLoading } =
-    useSelfAccountProfile(selfAccountId);
+  const { entity: selfAccountProfile } = useSelfAccountProfile(selfAccountId);
 
   const members: SpaceMemberRow[] = useMemo(() => {
     const augmented = withSelfAccountProfile(
@@ -514,8 +475,5 @@ export function useSpaceMembers(spaceId: string | undefined) {
     selfAccountId,
   ]);
 
-  const loading =
-    membersRes.loading || memberProfilesLoading || selfProfileLoading;
-
-  return { members, loading };
+  return { members };
 }

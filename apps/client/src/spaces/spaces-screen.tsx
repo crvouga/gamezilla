@@ -17,11 +17,10 @@ import { useRouter } from 'expo-router';
 type Space = ReturnType<typeof useSpaces>['spaces'][number];
 
 type SpacesListProps = {
-  loading: boolean;
   spaces: Space[];
 };
 
-function SpacesList({ loading, spaces }: SpacesListProps) {
+function SpacesList({ spaces }: SpacesListProps) {
   return (
     <ScrollView
       style={{ flex: 1 }}
@@ -30,15 +29,7 @@ function SpacesList({ loading, spaces }: SpacesListProps) {
         gap: 12,
       }}
     >
-      {loading ? (
-        <Box sx={{ py: 8, alignItems: 'center' }}>
-          <Text
-            variant="body"
-            sx={{ color: 'textSecondary' }}
-            label={<Trans>Loading…</Trans>}
-          />
-        </Box>
-      ) : spaces.length === 0 ? (
+      {spaces.length === 0 ? (
         <Box sx={{ py: 8, alignItems: 'center' }}>
           <Text
             variant="body"
@@ -61,7 +52,7 @@ export function SpacesScreen() {
   const accountActions = useAccountActions();
   const isMobile = useBreakpoint() === 'mobile';
   const router = useRouter();
-  const { spaces, loading } = useSpaces();
+  const { spaces } = useSpaces();
   const { createSpace } = useSpaceActions();
   const { t } = useLingui();
   const theme = useTheme();
@@ -101,7 +92,7 @@ export function SpacesScreen() {
           >
             <Text variant="bodyBold" label={<Trans>+ New space</Trans>} />
           </Pressable>
-          <SpacesList loading={loading} spaces={spaces} />
+          <SpacesList spaces={spaces} />
         </Box>
       )}
     />

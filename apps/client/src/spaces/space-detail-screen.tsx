@@ -52,27 +52,6 @@ function useAutoLeaveIfEnded(args: {
   ]);
 }
 
-function LoadingState() {
-  const nav = useBreadcrumbNav();
-  return (
-    <ScreenBase
-      breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, onPress: nav('/') },
-        { name: <Trans>Space</Trans> },
-      ]}
-      content={({ sx }) => (
-        <Box style={sx} sx={{ flex: 1, justifyContent: 'center' }}>
-          <Text
-            variant="body"
-            sx={{ color: 'textSecondary' }}
-            label={<Trans>Loading…</Trans>}
-          />
-        </Box>
-      )}
-    />
-  );
-}
-
 function JoinPrompt({
   spaceId,
   title,
@@ -249,6 +228,21 @@ function ActiveSpace({
   );
 }
 
+/** After first macrotask, local subscribe.read has usually applied so `useSpace` is authoritative. */
+function useSpaceReadDefer(spaceId: string | undefined): boolean {
+  const [ready, setReady] = useState(spaceId === undefined);
+  useEffect(() => {
+    if (spaceId === undefined) {
+      setReady(true);
+      return;
+    }
+    setReady(false);
+    const t = setTimeout(() => setReady(true), 0);
+    return () => clearTimeout(t);
+  }, [spaceId]);
+  return ready;
+}
+
 export function SpaceDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const spaceId = typeof id === 'string' ? id : undefined;
@@ -261,8 +255,8 @@ export function SpaceDetailScreen() {
   useAutoLeaveIfEnded({ spaceId, space, current, leaveSpace });
 
   const router = useRouter();
-  const pageLoading = space.loading || current.loading;
-  const shouldRedirectHome = !pageLoading && (!space.space || !space.live);
+  const readDefer = useSpaceReadDefer(spaceId);
+  const shouldRedirectHome = readDefer && (!space.space || !space.live);
 
   useEffect(() => {
     if (shouldRedirectHome) {
@@ -270,8 +264,8 @@ export function SpaceDetailScreen() {
     }
   }, [shouldRedirectHome, router]);
 
-  if (pageLoading) return <LoadingState />;
-  if (shouldRedirectHome) return <LoadingState />;
+  if (!readDefer) return null;
+  if (shouldRedirectHome) return null;
 
   const inThisSpace = current.activeSpaceId === spaceId;
   if (!inThisSpace) {

@@ -23,7 +23,6 @@ export function AvatarPreview({
         config={previewConfig}
         fallbackSeed={principalId}
         size={192}
-        loading={!initialized}
       />
       <Box
         sx={{

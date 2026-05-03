@@ -10,12 +10,6 @@ export type ProfileDiceBearAvatarProps = {
   /** Used when `config.seed` is empty (falls back to principal id). */
   fallbackSeed: string;
   size: number;
-  /**
-   * When `true`, render a neutral placeholder circle instead of a
-   * DiceBear SVG. Prevents a random, principal-id-seeded avatar from
-   * flashing on screen before the user's persisted config is loaded.
-   */
-  loading?: boolean;
 };
 
 /**
@@ -26,16 +20,14 @@ export function ProfileDiceBearAvatar({
   config,
   fallbackSeed,
   size,
-  loading = false,
 }: ProfileDiceBearAvatarProps): ReactNode {
   const svg = useMemo(() => {
-    if (loading) return null;
     const resolved = {
       ...config,
       seed: resolveAvatarSeed(config, fallbackSeed),
     };
     return profileAvatarSvg(resolved, size);
-  }, [loading, config, fallbackSeed, size]);
+  }, [config, fallbackSeed, size]);
 
   return <Avatar size={size} background="surface" svg={svg} />;
 }

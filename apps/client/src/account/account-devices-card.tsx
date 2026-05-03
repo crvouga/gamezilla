@@ -81,20 +81,15 @@ function DevicePrincipalMenuRow({
 export function AccountDevicesCard({
   accountId,
   principals,
-  principalsLoading,
   sessionsByPrincipal,
-  sessionsLoading,
   onOpenDevice,
 }: {
   accountId: string | null;
   principals: AccountPrincipal[];
-  principalsLoading: boolean;
   sessionsByPrincipal: Map<string, PrincipalSessionAggregate>;
-  sessionsLoading: boolean;
   onOpenDevice: (principalId: string) => void;
 }) {
   const { t } = useLingui();
-  const devicesLoading = principalsLoading || sessionsLoading;
 
   return (
     <Card elevation={1} sx={{ p: 4, gap: 3 }}>
@@ -122,9 +117,7 @@ export function AccountDevicesCard({
           }
         />
       )}
-      {devicesLoading ? (
-        <CaptionLine label={<Trans>Loading devices…</Trans>} />
-      ) : principals.length === 0 ? (
+      {principals.length === 0 ? (
         <CaptionLine label={<Trans>No principal data yet.</Trans>} />
       ) : (
         <Box sx={{ gap: 0, pt: 2 }}>

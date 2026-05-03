@@ -92,14 +92,13 @@ export function principalPresentation(args: {
  */
 export function useSelfAccountProfile(selfAccountId: string | null): {
   entity: Entity | null;
-  loading: boolean;
 } {
   const res = useEntities(
     selfAccountId !== null
       ? { entityType: PROFILE_ENTITY_TYPE, entityId: selfAccountId }
       : { entityType: PROFILE_ENTITY_TYPE, limit: 0 }
   );
-  return { entity: res.entities[0] ?? null, loading: res.loading };
+  return { entity: res.entities[0] ?? null };
 }
 
 export function withSelfAccountProfile(
