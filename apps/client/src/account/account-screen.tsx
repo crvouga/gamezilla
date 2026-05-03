@@ -14,8 +14,8 @@ import {
   GOOGLE_PROVIDER,
 } from '@gamezilla/domain/auth';
 import { Box, Button, Card, ScreenBase, Text } from '@gamezilla/lib/ui';
+import { useQuery } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useEntities } from '@gamezilla/patch-db/react';
 import { type Href, useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
 import { AccountDevicesCard } from './account-devices-card';
@@ -44,7 +44,7 @@ function asString(value: unknown): string | null {
 function useLinkedProviders(accountId: string | null): {
   providers: LinkedProvider[];
 } {
-  const result = useEntities(
+  const result = useQuery(
     accountId === null
       ? { entityType: ACCOUNT_PROVIDER_ENTITY_TYPE, limit: 0 }
       : {

@@ -73,6 +73,7 @@ describe('PatchDbQueryCache', () => {
     const initial = cache.getOrCreateResult(queryKey, query);
     expect(initial.entities).toEqual([]);
     expect(initial.total).toBe(0);
+    expect(initial.isLoading).toBe(true);
 
     let snapshot = initial;
     cache.subscribe(queryKey, query, () => {
@@ -82,6 +83,28 @@ describe('PatchDbQueryCache', () => {
     await flushMicrotasks();
     expect(snapshot.entities).toEqual([]);
     expect(snapshot.total).toBe(0);
+    expect(snapshot.isLoading).toBe(false);
+  });
+
+  test('first delivery flips isLoading even when no rows match', async () => {
+    const cache = new PatchDbQueryCache(db);
+    const query: PatchDbQuery = {
+      entityType: 'todo',
+      entityId: 'never-exists',
+    };
+    const queryKey = JSON.stringify(query);
+
+    let notifications = 0;
+    cache.subscribe(queryKey, query, () => {
+      notifications += 1;
+    });
+
+    expect(cache.getResult(queryKey)?.isLoading).toBe(true);
+
+    await flushMicrotasks();
+    expect(cache.getResult(queryKey)?.isLoading).toBe(false);
+    expect(cache.getResult(queryKey)?.entities).toEqual([]);
+    expect(notifications).toBeGreaterThan(0);
   });
 
   test('shares one underlying subscription across multiple subscribers', async () => {

@@ -1,23 +1,23 @@
 import { assert } from '@gamezilla/lib/assert';
 import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import { useCallback, useMemo, useSyncExternalStore } from 'react';
-import type { PatchDbQuery, PatchDbResult } from '../interface';
+import type { PatchDbQuery } from '../interface';
 import { SubscribablePatchDbToken } from '../subscribable';
 import { getCacheForDb, type CachedQueryResult } from './query-cache';
 
 /**
- * Result of a PatchDB entity subscription. Before the first delivery, the
- * snapshot is empty arrays with zero totals — indistinguishable from a query
- * that genuinely returns no rows (local-first).
+ * Result of a PatchDB entity subscription. `isLoading` is `true` until the
+ * underlying subscription delivers its first snapshot; consumers should use
+ * it to distinguish "still reading from the local DB" from "no rows match".
  */
-export type UseEntitiesResult = PatchDbResult;
+export type UseQueryResult = CachedQueryResult;
 
 /**
  * Subscribes to the cached snapshot for `query`. Identical query shapes share
  * a single underlying subscription; teardown is deferred briefly across
  * unmounts so route flips don't tear down a query that is about to be re-asked.
  */
-export function useEntities(query: PatchDbQuery): UseEntitiesResult {
+export function useQuery(query: PatchDbQuery): UseQueryResult {
   const db = useDependency(SubscribablePatchDbToken);
   const cache = useMemo(() => getCacheForDb(db), [db]);
   const queryKey = JSON.stringify(query);

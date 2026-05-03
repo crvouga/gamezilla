@@ -12,7 +12,7 @@ import {
   useTheme,
 } from '@gamezilla/lib/ui';
 import type { Entity, Patch } from '@gamezilla/patch-db/interface';
-import { useEntity, usePatchDb } from '@gamezilla/patch-db/react';
+import { usePatchDb, useQueryOne } from '@gamezilla/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -235,7 +235,7 @@ export function EntityDetailScreen({
   onSelectPatch,
 }: EntityDetailScreenProps) {
   const { t } = useLingui();
-  const entity = useEntity({ entityType, entityId });
+  const entity = useQueryOne({ entityType, entityId });
   const [tab, setTab] = useState<'attrs' | 'patches'>('attrs');
   const { patches, loadingPatches, patchError, loadPatches } = useEntityPatches(
     entityType,

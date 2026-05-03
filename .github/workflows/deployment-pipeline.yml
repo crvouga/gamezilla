@@ -248,13 +248,15 @@ jobs:
         run: bun run qa:api
 
   qa-browser:
-    # Gate on `build` (rather than running in parallel) so the Playwright
-    # `webServer` -- which runs `turbo run preview --filter=...client`,
-    # depending on `^build` + `build` per turbo.json -- gets a remote cache
-    # hit on `@gamezilla/client:build` instead of re-bundling Metro/Expo
-    # for the web. Without this dep, qa-browser races the build job and
-    # both jobs build the client from scratch (the slow ~1-2min step).
-    needs: [build]
+    # Intentionally not `needs: [build]`. The `build` job filters
+    # `@gamezilla/client` out of `check:build` (see root package.json),
+    # so qa-browser is the only place the web client is actually built
+    # in CI before deploy. Sequencing on `build` would just delay this
+    # job for no cache benefit -- the playwright `webServer` overrides
+    # `EXPO_PUBLIC_API_URL` to a localhost origin before spawning
+    # `turbo run preview`, so its `^build` hash for `@gamezilla/client`
+    # would not match a prod-API build anyway (Turborepo's framework
+    # inference auto-hashes `EXPO_PUBLIC_*` for Expo workspaces).
     runs-on: ubuntu-latest
     concurrency:
       group: qa-browser-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}

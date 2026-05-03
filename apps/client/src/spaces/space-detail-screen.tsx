@@ -10,8 +10,10 @@ import { SpaceMembershipAttr } from '@gamezilla/domain/spaces/space-entities';
 import {
   Box,
   Button,
+  Center,
   ConfirmationModal,
   ScreenBase,
+  Spinner,
   Text,
 } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -228,19 +230,18 @@ function ActiveSpace({
   );
 }
 
-/** After first macrotask, local subscribe.read has usually applied so `useSpace` is authoritative. */
-function useSpaceReadDefer(spaceId: string | undefined): boolean {
-  const [ready, setReady] = useState(spaceId === undefined);
-  useEffect(() => {
-    if (spaceId === undefined) {
-      setReady(true);
-      return;
-    }
-    setReady(false);
-    const t = setTimeout(() => setReady(true), 0);
-    return () => clearTimeout(t);
-  }, [spaceId]);
-  return ready;
+function SpaceLoading() {
+  const nav = useBreadcrumbNav();
+  return (
+    <ScreenBase
+      breadcrumbs={[{ name: <Trans>Spaces</Trans>, onPress: nav('/') }]}
+      content={({ sx }) => (
+        <Center style={sx} sx={{ flex: 1 }}>
+          <Spinner size="large" />
+        </Center>
+      )}
+    />
+  );
 }
 
 export function SpaceDetailScreen() {
@@ -254,18 +255,9 @@ export function SpaceDetailScreen() {
 
   useAutoLeaveIfEnded({ spaceId, space, current, leaveSpace });
 
-  const router = useRouter();
-  const readDefer = useSpaceReadDefer(spaceId);
-  const shouldRedirectHome = readDefer && (!space.space || !space.live);
-
-  useEffect(() => {
-    if (shouldRedirectHome) {
-      router.replace('/');
-    }
-  }, [shouldRedirectHome, router]);
-
-  if (!readDefer) return null;
-  if (shouldRedirectHome) return null;
+  if (space.isLoading || current.isLoading) {
+    return <SpaceLoading />;
+  }
 
   const inThisSpace = current.activeSpaceId === spaceId;
   if (!inThisSpace) {

@@ -8,7 +8,7 @@ import {
   useTheme,
 } from '@gamezilla/lib/ui';
 import type { Entity } from '@gamezilla/patch-db/interface';
-import { useEntities, usePatchDb } from '@gamezilla/patch-db/react';
+import { usePatchDb, useQuery } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 
@@ -216,8 +216,8 @@ export function TodoList() {
   const [input, setInput] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
 
-  const allResult = useEntities(buildTodoQuery('all'));
-  const filterResult = useEntities(buildTodoQuery(filter));
+  const allResult = useQuery(buildTodoQuery('all'));
+  const filterResult = useQuery(buildTodoQuery(filter));
   const todos = filterResult.entities;
   const totalCount = allResult.total;
 

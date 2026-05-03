@@ -11,7 +11,7 @@ import {
 } from '@gamezilla/lib/ui';
 import { useTheme } from '@gamezilla/lib/ui/theme';
 import type { Entity } from '@gamezilla/patch-db/interface';
-import { PatchDbToken, useEntities } from '@gamezilla/patch-db/react';
+import { PatchDbToken, useQuery } from '@gamezilla/patch-db/react';
 import {
   nextShapeOrder,
   playgroundCreateShape,
@@ -243,7 +243,7 @@ function ClientNodePanelInner({ client }: { client: PlaygroundClientHandle }) {
   const { t } = useLingui();
   const { removeClient } = useSimContext();
   const shapeQuery = useMemo(() => shapeListQuery(), []);
-  const { entities } = useEntities(shapeQuery);
+  const { entities } = useQuery(shapeQuery);
   const [latencyMs, setLatencyMs] = useState(() =>
     closestLatency(client.link.getLatency())
   );

@@ -5,15 +5,15 @@ import {
   ClientConfigAttr,
 } from '@gamezilla/domain/client-config/client-config-entities';
 import { Box, Card, ScreenBase, Text } from '@gamezilla/lib/ui';
+import { useQuery } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useEntities } from '@gamezilla/patch-db/react';
 
 import { ClientConfigServerRefreshCard } from './client-config-server-refresh';
 
 export function ClientConfigScreen() {
   const { t } = useLingui();
   const nav = useBreadcrumbNav();
-  const { entities } = useEntities({
+  const { entities } = useQuery({
     entityType: CLIENT_CONFIG_ENTITY_TYPE,
     entityId: CLIENT_CONFIG_ENTITY_ID,
   });

@@ -1,13 +1,13 @@
-import { i18n } from './i18n';
-import { I18nProvider, type TransRenderProps } from '@lingui/react';
 import { Text } from '@gamezilla/lib/ui';
+import { I18nProvider, type TransRenderProps } from '@lingui/react';
 import type { ReactNode } from 'react';
+import { i18n } from './i18n';
 
 function LinguiDefaultText(props: TransRenderProps): ReactNode {
   return <Text variant="body">{props.children}</Text>;
 }
 
-export function GamezillaI18nProvider({
+export function AppI18nProvider({
   children,
 }: {
   children: ReactNode;

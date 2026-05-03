@@ -8,7 +8,7 @@ import {
   TextInput,
   useTheme,
 } from '@gamezilla/lib/ui';
-import { useEntities, usePatchDb } from '@gamezilla/patch-db/react';
+import { usePatchDb, useQuery } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 
@@ -33,7 +33,7 @@ const TODO_DELETED_CLAUSE = {
 type ListRow = { id: string; name: string; count: number };
 
 function useTodoCountByList() {
-  const todosResult = useEntities({
+  const todosResult = useQuery({
     entityType: 'todo',
     where: TODO_DELETED_CLAUSE,
   });
@@ -324,7 +324,7 @@ function buildBreadcrumbs(t: LinguiT, onBack?: () => void) {
 }
 
 function buildListRows(
-  lists: ReturnType<typeof useEntities>['entities'],
+  lists: ReturnType<typeof useQuery>['entities'],
   todoCounts: Map<unknown, number>,
   inboxName: string,
   untitledName: string
@@ -350,7 +350,7 @@ function useTodoListsState(onClearLocalDatabase?: () => Promise<void> | void) {
   } | null>(null);
   const [deleteDbModalVisible, setDeleteDbModalVisible] = useState(false);
 
-  const listsResult = useEntities({
+  const listsResult = useQuery({
     entityType: 'todoList',
     where: TODO_LIST_DELETED_CLAUSE,
     orderBy: [

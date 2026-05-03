@@ -15,7 +15,7 @@ import {
   PATCH_LAST_MODIFIED_BY_ACCOUNT,
   PATCH_LAST_MODIFIED_BY_PRINCIPAL,
 } from '@gamezilla/patch-db/metadata/patch-metadata';
-import { useEntities } from '@gamezilla/patch-db/react';
+import { useQuery } from '@gamezilla/patch-db/react';
 import { useMemo } from 'react';
 
 import { displayNameForPrincipal } from './principal-display';
@@ -118,7 +118,7 @@ export function useProfile() {
   const profileQueryId =
     effectiveProfileId.length > 0 ? effectiveProfileId : NO_ENTITY_PLACEHOLDER;
 
-  const profileRes = useEntities({
+  const profileRes = useQuery({
     entityType: PROFILE_ENTITY_TYPE,
     entityId: profileQueryId,
     where: stampWhere,

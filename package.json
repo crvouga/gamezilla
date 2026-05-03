@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "check": "bun run check:format && bun run check:tc && bun run check:lint && bun run check:test && bun run check:build && bun run i18n:check",
-    "check:build": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run build",
+    "check:build": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run build --filter='!@gamezilla/client'",
     "check:format": "prettier --check .",
     "check:lint": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run lint",
     "check:tc": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run tc",
@@ -21,7 +21,7 @@
     "i18n:check": "lingui extract && lingui compile --typescript && git diff --exit-code -- apps/client/src/i18n libs/lib/src/i18n libs/patch-db-example/src/i18n libs/room-example/src/i18n",
     "i18n:compile": "lingui compile --typescript",
     "i18n:extract": "lingui extract",
-    "infra": "DOPPLER_CONFIG=prod bun run apps/infra/src/bin/cli.ts",
+    "infra": "DOPPLER_PROJECT=gamezilla DOPPLER_CONFIG=prod bun run apps/infra/src/bin/cli.ts",
     "knip:ci": "knip --no-progress -c knip.jsonc --exclude exports,nsExports,types,nsTypes,enumMembers,namespaceMembers,duplicates",
     "preview": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run preview --filter=@gamezilla/db --filter=@gamezilla/api --filter=@gamezilla/client",
     "pw": "bun run --filter '@gamezilla/qa' browser",

@@ -10,7 +10,7 @@ import {
 } from '@gamezilla/domain/profile/profile-entities';
 import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import type { Entity } from '@gamezilla/patch-db/interface';
-import { useEntities } from '@gamezilla/patch-db/react';
+import { useQuery } from '@gamezilla/patch-db/react';
 
 function readStringAttr(
   attrs: Record<string, unknown> | undefined,
@@ -93,7 +93,7 @@ export function principalPresentation(args: {
 export function useSelfAccountProfile(selfAccountId: string | null): {
   entity: Entity | null;
 } {
-  const res = useEntities(
+  const res = useQuery(
     selfAccountId !== null
       ? { entityType: PROFILE_ENTITY_TYPE, entityId: selfAccountId }
       : { entityType: PROFILE_ENTITY_TYPE, limit: 0 }

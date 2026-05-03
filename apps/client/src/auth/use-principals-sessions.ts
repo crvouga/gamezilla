@@ -3,7 +3,7 @@ import {
   PrincipalSessionAttr,
 } from '@gamezilla/domain/auth';
 import type { Entity } from '@gamezilla/patch-db/interface';
-import { useEntities } from '@gamezilla/patch-db/react';
+import { useQuery } from '@gamezilla/patch-db/react';
 import { useMemo } from 'react';
 
 export type PrincipalSessionAggregate = {
@@ -58,7 +58,7 @@ export function useSessionsForPrincipals(principalIds: string[]): {
     [sortedUniqueIds]
   );
 
-  const result = useEntities(query);
+  const result = useQuery(query);
 
   const sessionsByPrincipal = useMemo(() => {
     const byPrincipal = new Map<

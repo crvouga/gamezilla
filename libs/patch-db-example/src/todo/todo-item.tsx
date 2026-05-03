@@ -1,5 +1,5 @@
-import { useEntity } from '@gamezilla/patch-db/react';
 import { Box, Pressable, Text, useTheme } from '@gamezilla/lib/ui';
+import { useQueryOne } from '@gamezilla/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
 
 import { TODO_ENTITY_TYPE } from './todo-constants';
@@ -15,7 +15,7 @@ export function TodoItem({
 }) {
   const { t } = useLingui();
   const theme = useTheme();
-  const entity = useEntity({ entityId, entityType: TODO_ENTITY_TYPE });
+  const entity = useQueryOne({ entityId, entityType: TODO_ENTITY_TYPE });
   const completed = entity?.attributes['todo/completed'] === true;
   const titleRaw = entity?.attributes['todo/title'];
   const title = typeof titleRaw === 'string' ? titleRaw : '';

@@ -103,6 +103,7 @@ export class PatchDbQueryCache {
           total: next.total,
           hasMore: next.hasMore,
           nextCursor: next.nextCursor,
+          isLoading: false,
         };
         const firstDelivery = !entry.hasDelivered;
         entry.hasDelivered = true;

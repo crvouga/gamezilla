@@ -17,7 +17,7 @@ import {
 } from '@gamezilla/lib/dependency-injection/react';
 import { useLogger } from '@gamezilla/lib/logger/react';
 import { ConfirmationModal } from '@gamezilla/lib/ui';
-import { PatchDbToken, useEntity } from '@gamezilla/patch-db/react';
+import { PatchDbToken, useQueryOne } from '@gamezilla/patch-db/react';
 import { SubscribablePatchDbToken } from '@gamezilla/patch-db/subscribable';
 import { Trans } from '@lingui/react/macro';
 import {
@@ -433,7 +433,7 @@ function AuthStubGoogleBridge({
 }
 
 function AuthContainerBridge({ children }: { children: ReactNode }) {
-  const entity = useEntity({
+  const entity = useQueryOne({
     entityType: CLIENT_CONFIG_ENTITY_TYPE,
     entityId: CLIENT_CONFIG_ENTITY_ID,
   });

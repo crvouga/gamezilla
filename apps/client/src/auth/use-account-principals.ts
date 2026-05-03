@@ -1,9 +1,8 @@
 import { PRINCIPAL_ENTITY_TYPE, PrincipalAttr } from '@gamezilla/domain/auth';
 import type { Entity } from '@gamezilla/patch-db/interface';
-import { useEntities } from '@gamezilla/patch-db/react';
+import { useQuery } from '@gamezilla/patch-db/react';
 import { useMemo } from 'react';
 
-/** Stable empty query when signed out so `useEntities` does not resubscribe every render. */
 const NO_ACCOUNT_PRINCIPALS_QUERY = {
   entityType: PRINCIPAL_ENTITY_TYPE,
   limit: 0 as const,
@@ -131,10 +130,8 @@ export function useAccountPrincipals(
     [accountId]
   );
 
-  const localResult = useEntities(localQuery);
-  const accountResult = useEntities(
-    accountQuery ?? NO_ACCOUNT_PRINCIPALS_QUERY
-  );
+  const localResult = useQuery(localQuery);
+  const accountResult = useQuery(accountQuery ?? NO_ACCOUNT_PRINCIPALS_QUERY);
 
   const principals = useMemo(() => {
     if (accountId === null) {

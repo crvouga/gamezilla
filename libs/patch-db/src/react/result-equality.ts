@@ -1,11 +1,14 @@
 import type { Entity, Patch, PatchDbQuery, PatchDbResult } from '../interface';
 
 /**
- * Snapshot returned to React consumers. Before the first subscription
- * delivery, the cache holds empty arrays and zero totals — same shape as a
- * real empty query result (local-first: no separate loading flag).
+ * Snapshot returned to React consumers. `isLoading` is `true` until the
+ * cache receives its first delivery from the underlying subscription, which
+ * lets consumers distinguish "query has not produced a result yet" from "the
+ * query genuinely has no rows" — the on-disk shape is identical otherwise.
  */
-export type CachedQueryResult = PatchDbResult;
+export type CachedQueryResult = PatchDbResult & {
+  isLoading: boolean;
+};
 
 export function makeEmptyResult(query: PatchDbQuery): CachedQueryResult {
   return {
@@ -15,6 +18,7 @@ export function makeEmptyResult(query: PatchDbQuery): CachedQueryResult {
     total: 0,
     hasMore: false,
     nextCursor: null,
+    isLoading: true,
   };
 }
 
@@ -63,6 +67,7 @@ export function resultsShallowEqual(
     a.patches === b.patches &&
     a.total === b.total &&
     a.hasMore === b.hasMore &&
-    a.nextCursor === b.nextCursor
+    a.nextCursor === b.nextCursor &&
+    a.isLoading === b.isLoading
   );
 }

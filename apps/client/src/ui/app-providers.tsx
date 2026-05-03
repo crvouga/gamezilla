@@ -6,7 +6,7 @@ import {
 } from '@expo-google-fonts/nunito';
 import { AuthProvider } from '@gamezilla/client/auth/auth-context';
 import { PrincipalAuthShell } from '@gamezilla/client/auth/principal-auth-shell';
-import { GamezillaI18nProvider } from '@gamezilla/client/i18n/i18n-provider';
+import { AppI18nProvider } from '@gamezilla/client/i18n/i18n-provider';
 import { PwaUpdatePromptBanner } from '@gamezilla/client/pwa/update-prompt';
 import { AppCommands } from '@gamezilla/client/ui/app-commands';
 import { CommandPaletteNativeGesture } from '@gamezilla/client/ui/command-palette-native-gesture';
@@ -55,7 +55,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
           storage={AsyncStorage}
           {...(fontsLoaded ? { fonts: nunitoFontStacks } : {})}
         >
-          <GamezillaI18nProvider>
+          <AppI18nProvider>
             <DismissibleBannerPortalProvider>
               <BottomSheetModalProvider>
                 <ConfigContainerProvider>
@@ -76,7 +76,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
                 </ConfigContainerProvider>
               </BottomSheetModalProvider>
             </DismissibleBannerPortalProvider>
-          </GamezillaI18nProvider>
+          </AppI18nProvider>
         </AppThemeRoot>
       </SafeAreaProvider>
     </GestureHandlerRootView>

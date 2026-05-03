@@ -12,7 +12,7 @@ import type {
   PatchDbQuery,
   PatchDbQueryWhereClause,
 } from '@gamezilla/patch-db/interface';
-import { useEntities, useEntity, usePatchDb } from '@gamezilla/patch-db/react';
+import { usePatchDb, useQuery, useQueryOne } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 
@@ -89,7 +89,7 @@ function buildTodoQuery(listId: string, filter: Filter): PatchDbQuery {
 
 function useListName(listId: string): string {
   const { t } = useLingui();
-  const listEntity = useEntity({
+  const listEntity = useQueryOne({
     entityType: 'todoList',
 
     entityId: listId === INBOX_LIST_ID ? '__inbox_placeholder__' : listId,
@@ -269,8 +269,8 @@ export function TodoListDetail({ listId, onBack }: TodoListDetailProps) {
   const [input, setInput] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
 
-  const allResult = useEntities(buildTodoQuery(listId, 'all'));
-  const filterResult = useEntities(buildTodoQuery(listId, filter));
+  const allResult = useQuery(buildTodoQuery(listId, 'all'));
+  const filterResult = useQuery(buildTodoQuery(listId, filter));
   const todos = filterResult.entities;
   const totalCount = allResult.total;
 

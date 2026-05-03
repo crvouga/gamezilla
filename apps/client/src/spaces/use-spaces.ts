@@ -1,4 +1,3 @@
-import { useAuth } from '@gamezilla/client/auth/auth-context';
 import { PrincipalServiceToken } from '@gamezilla/client/auth/principal-service';
 import { usePrincipalProfileEntities } from '@gamezilla/client/auth/use-principal-profile-entities';
 import { displayNameForPrincipal } from '@gamezilla/client/profile/principal-display';
@@ -15,16 +14,8 @@ import {
   type SpaceMembershipRole,
 } from '@gamezilla/domain/spaces/space-entities';
 import { useDependency } from '@gamezilla/lib/dependency-injection/react';
-import type {
-  Entity,
-  PatchDbQuery,
-  PatchDbQueryWhereClause,
-} from '@gamezilla/patch-db/interface';
-import {
-  PATCH_LAST_MODIFIED_BY_ACCOUNT,
-  PATCH_LAST_MODIFIED_BY_PRINCIPAL,
-} from '@gamezilla/patch-db/metadata/patch-metadata';
-import { useEntities } from '@gamezilla/patch-db/react';
+import type { Entity, PatchDbQuery } from '@gamezilla/patch-db/interface';
+import { useQuery } from '@gamezilla/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
 import { useMemo } from 'react';
 
@@ -97,7 +88,7 @@ export function useSpaces() {
   const { selfPrincipalId, selfAccountId } = useSelfAuthIdentity();
   const { t } = useLingui();
 
-  const spacesResult = useEntities(LIVE_SPACES_QUERY);
+  const spacesResult = useQuery(LIVE_SPACES_QUERY);
 
   const hostIds = useMemo(() => {
     const list = spacesResult.entities ?? [];
@@ -149,7 +140,7 @@ export function useSpace(spaceId: string | undefined) {
     typeof spaceId === 'string' && spaceId.length > 0
       ? spaceId
       : NO_ENTITY_PLACEHOLDER;
-  const spaceRes = useEntities({
+  const spaceRes = useQuery({
     entityType: SPACE_ENTITY_TYPE,
     entityId: id,
   });
@@ -170,6 +161,7 @@ export function useSpace(spaceId: string | undefined) {
     createdAt: readStringAttr(entity?.attributes, SpaceAttr.createdAt),
     live: entity ? spaceEntityIsLive(entity.attributes) : false,
     endedAt: readStringAttr(entity?.attributes, SpaceAttr.endedAt),
+    isLoading: spaceRes.isLoading,
   };
 }
 
@@ -217,7 +209,7 @@ export function usePrincipalDisplayName(
   const skipPrincipalLookup =
     id === NO_ENTITY_PLACEHOLDER || (isSelf && selfAccountId !== null);
 
-  const principalRes = useEntities(
+  const principalRes = useQuery(
     skipPrincipalLookup
       ? { entityType: PRINCIPAL_ENTITY_TYPE, limit: 0 }
       : { entityType: PRINCIPAL_ENTITY_TYPE, entityId: id }
@@ -231,7 +223,7 @@ export function usePrincipalDisplayName(
     principalRow,
   });
 
-  const profileRes = useEntities({
+  const profileRes = useQuery({
     entityType: PROFILE_ENTITY_TYPE,
     entityId: profileEntityId,
   });
@@ -249,6 +241,8 @@ export type CurrentMembership = {
   activeSpaceId: string | null;
   role: SpaceMembershipRole | null;
   membershipEntity: Entity | null;
+  /** True until both the membership and resolved space queries have delivered. */
+  isLoading: boolean;
 };
 
 function resolveCurrentMembership(args: {
@@ -258,13 +252,22 @@ function resolveCurrentMembership(args: {
   spaceEntity: Entity | null;
   spaceEnded: boolean;
   role: SpaceMembershipRole | null;
+  isLoading: boolean;
 }): CurrentMembership {
-  const { membership, hasLeft, spaceIdRaw, spaceEntity, spaceEnded, role } =
-    args;
+  const {
+    membership,
+    hasLeft,
+    spaceIdRaw,
+    spaceEntity,
+    spaceEnded,
+    role,
+    isLoading,
+  } = args;
   const inactive: CurrentMembership = {
     activeSpaceId: null,
     role: null,
     membershipEntity: membership,
+    isLoading,
   };
   if (!membership || hasLeft || !spaceIdRaw) return inactive;
   if (!spaceEntity || spaceEnded) return inactive;
@@ -272,6 +275,7 @@ function resolveCurrentMembership(args: {
     activeSpaceId: spaceIdRaw,
     role,
     membershipEntity: membership,
+    isLoading,
   };
 }
 
@@ -292,82 +296,30 @@ function extractMembershipState(membership: Entity | null): {
   return { spaceIdRaw, hasLeft, role };
 }
 
-function membershipStampWhere(args: {
-  signedIn: boolean;
-  accountId: string | null;
-  principalId: string;
-}): PatchDbQueryWhereClause {
-  const { signedIn, accountId, principalId } = args;
-  const leftClause = {
-    type: 'not_exists' as const,
-    attribute: SpaceMembershipAttr.leftAt,
-  };
-  if (signedIn && accountId !== null) {
-    return {
-      type: 'and',
-      clauses: [
-        {
-          type: '=',
-          attribute: PATCH_LAST_MODIFIED_BY_ACCOUNT,
-          value: accountId,
-        },
-        leftClause,
-      ],
-    };
-  }
-  return {
-    type: 'and',
-    clauses: [
-      {
-        type: '=',
-        attribute: PATCH_LAST_MODIFIED_BY_PRINCIPAL,
-        value: principalId,
-      },
-      {
-        type: 'not_exists',
-        attribute: PATCH_LAST_MODIFIED_BY_ACCOUNT,
-      },
-      leftClause,
-    ],
-  };
-}
-
 export function useCurrentMembership(): CurrentMembership {
   const principalService = useDependency(PrincipalServiceToken);
   const principalId = principalService.getPrincipalId();
-  const auth = useAuth();
-  const signedIn = auth.mode === 'signed-in';
-  const accountId = auth.accountId;
 
-  const stampWhere = useMemo(
-    () =>
-      membershipStampWhere({
-        signedIn,
-        accountId,
-        principalId,
-      }),
-    [signedIn, accountId, principalId]
-  );
-
-  const memRes = useEntities({
+  // Memberships are keyed by `entityId === principalId` (one row per device
+  // principal — see `space-entities.ts`), so the current device's membership
+  // is found by direct entityId lookup. Earlier versions of this hook tried
+  // to scope by `patch/lastModifiedByAccountId` to gather memberships across
+  // an account's devices, but that meta-key is stripped from entity
+  // snapshots, so the WHERE clause never matched and the query was always
+  // empty.
+  const memRes = useQuery({
     entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
-    where: stampWhere,
-    limit: 50,
-    orderBy: [{ attribute: SpaceMembershipAttr.joinedAt, direction: 'desc' }],
+    entityId: principalId,
   });
 
-  const membership = useMemo(() => {
-    const list = memRes.entities ?? [];
-    const preferred = list.find((e) => e.entityId === principalId);
-    return (preferred ?? list[0] ?? null) as Entity | null;
-  }, [memRes.entities, principalId]);
+  const membership = (memRes.entities[0] ?? null) as Entity | null;
 
   const { spaceIdRaw, hasLeft, role } = extractMembershipState(membership);
 
   const spaceIdForQuery =
     spaceIdRaw && !hasLeft ? spaceIdRaw : NO_ENTITY_PLACEHOLDER;
 
-  const spaceRes = useEntities({
+  const spaceRes = useQuery({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceIdForQuery,
   });
@@ -375,6 +327,8 @@ export function useCurrentMembership(): CurrentMembership {
   const spaceEnded = spaceEntity
     ? !spaceEntityIsLive(spaceEntity.attributes)
     : false;
+
+  const isLoading = memRes.isLoading || spaceRes.isLoading;
 
   return useMemo(
     () =>
@@ -385,8 +339,9 @@ export function useCurrentMembership(): CurrentMembership {
         spaceEntity,
         spaceEnded,
         role,
+        isLoading,
       }),
-    [membership, hasLeft, spaceIdRaw, spaceEnded, spaceEntity, role]
+    [membership, hasLeft, spaceIdRaw, spaceEnded, spaceEntity, role, isLoading]
   );
 }
 
@@ -427,7 +382,7 @@ export function useSpaceMembers(spaceId: string | undefined) {
       ? spaceId
       : NO_ENTITY_PLACEHOLDER;
 
-  const membersRes = useEntities({
+  const membersRes = useQuery({
     entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
     where: {
       type: 'and',
