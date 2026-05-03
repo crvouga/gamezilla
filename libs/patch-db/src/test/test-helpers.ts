@@ -62,6 +62,7 @@ export async function createSyncDbFactory(options?: {
   pushDriver?: 'interval' | 'manual';
   pollDriver?: 'interval' | 'manual';
   scheduler?: SyncPatchesDbScheduler;
+  maxPushBatchSize?: number;
 }): Promise<SyncDbFixture> {
   const localClient: SqlClient = SqlClientImplBunSqlite.open(':memory:');
   const remoteClient: SqlClient = SqlClientImplBunSqlite.open(':memory:');
@@ -81,6 +82,9 @@ export async function createSyncDbFactory(options?: {
   };
   if (options?.scheduler !== undefined) {
     syncOptions.scheduler = options.scheduler;
+  }
+  if (options?.maxPushBatchSize !== undefined) {
+    syncOptions.maxPushBatchSize = options.maxPushBatchSize;
   }
   const syncDb = new SyncPatchesDb(local, remote, pubSub, syncOptions);
 

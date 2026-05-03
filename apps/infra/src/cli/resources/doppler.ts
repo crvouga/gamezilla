@@ -4,10 +4,12 @@ import { ok, warn } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import {
   fetchDopplerSecret,
+  fetchDopplerSecretFrom,
   getSecretMap,
   listDopplerSecretNames,
   loadSecretsIntoEnv,
   setDopplerSecret,
+  setDopplerSecretIn,
   validateSecret,
 } from '../secrets/secrets';
 import { ResourceBase, type InfraContext } from './types';
@@ -57,6 +59,23 @@ const DOPPLER_RESERVED_KEYS: ReadonlyArray<string> = [
   'DOPPLER_PROJECT',
 ];
 
+/**
+ * Secrets shared between the deployed Turbo cache Worker and the
+ * CI/dev clients that authenticate against it. The Worker secret is
+ * written by `TurboCacheResource` from the active (prod) config, so the
+ * `local` Doppler config — which `bun run check:tc` reads — must hold
+ * the *same* values or every cache request 401s. Mirrored prod → local
+ * after defaults are populated so drift is structurally impossible.
+ */
+const SHARED_TURBO_KEYS: ReadonlyArray<string> = [
+  'TURBO_TOKEN',
+  'TURBO_API',
+  'TURBO_TEAM',
+  'TURBO_CACHE',
+  'TURBO_LOG_ORDER',
+  'TURBO_TELEMETRY_DISABLED',
+];
+
 export class DopplerResource extends ResourceBase {
   readonly id = 'doppler';
 
@@ -64,6 +83,7 @@ export class DopplerResource extends ResourceBase {
     this.loadSecrets(platform);
     await this.validateSecrets(platform);
     this.ensureDefaults();
+    this.mirrorSharedToLocal(platform);
     this.warnOnOrphans(platform);
   }
 
@@ -145,6 +165,57 @@ export class DopplerResource extends ResourceBase {
       } catch {
         ok(key, 'set in env (Doppler save skipped)');
       }
+    }
+  }
+
+  /**
+   * Invariant: the Turbo cache token (and friends) must be identical in
+   * the active config and `local`. The Worker is gated by `TURBO_TOKEN`
+   * pulled from the active config; `bun run check:tc` reads `local`. If
+   * they diverge every cache request 401s, silently destroying CI cache
+   * hits. Mirror unconditionally so this is structurally impossible.
+   */
+  private mirrorSharedToLocal(platform: CiPlatform): void {
+    const active = (process.env['DOPPLER_CONFIG'] ?? '').trim();
+    if (active === '' || active === 'local') {
+      // Nothing to mirror: either we don't know what config is active,
+      // or we're already operating on `local` (no other source to copy
+      // from).
+      return;
+    }
+
+    let mirrored = 0;
+    let skipped = 0;
+    for (const key of SHARED_TURBO_KEYS) {
+      const source = process.env[key];
+      if (typeof source !== 'string' || source.length === 0) continue;
+
+      let current: string | null = null;
+      try {
+        current = fetchDopplerSecretFrom('local', key);
+      } catch {
+        current = null;
+      }
+
+      if (current === source) {
+        skipped++;
+        continue;
+      }
+
+      try {
+        setDopplerSecretIn('local', key, source);
+        mirrored++;
+      } catch (e) {
+        platform.warning(
+          `Failed to mirror ${key} from ${active} → local: ${e instanceof Error ? e.message : String(e)}`
+        );
+      }
+    }
+
+    if (mirrored > 0) {
+      ok('Turbo cache secrets', `mirrored ${active} → local (${mirrored})`);
+    } else if (skipped > 0) {
+      ok('Turbo cache secrets', `already in sync with local (${skipped})`);
     }
   }
 

@@ -26,3 +26,7 @@ export {
   PATCHES_READ,
   PATCHES_WRITE,
 } from './paths';
+export {
+  MAX_PATCHES_PER_REQUEST,
+  MAX_QUERIES_PER_REQUEST,
+} from './wire-schemas';

@@ -44,6 +44,37 @@ export function setDopplerSecret(name: string, value: string): void {
 }
 
 /**
+ * Read a secret from a *specific* Doppler config (not the active one).
+ * Used to mirror values across configs (e.g. prod → local) so secrets
+ * shared between server and CI/dev don't drift.
+ */
+export function fetchDopplerSecretFrom(config: string, name: string): string {
+  return runCapture('doppler', [
+    'secrets',
+    'get',
+    name,
+    '--plain',
+    '--config',
+    config,
+  ]);
+}
+
+/** Counterpart to {@link fetchDopplerSecretFrom} — write into a specific config. */
+export function setDopplerSecretIn(
+  config: string,
+  name: string,
+  value: string
+): void {
+  runCapture('doppler', [
+    'secrets',
+    'set',
+    `${name}=${value}`,
+    '--config',
+    config,
+  ]);
+}
+
+/**
  * Lists every secret name in the active Doppler project/config.
  * Uses `--json` to avoid parsing the CLI's human-formatted table output.
  */

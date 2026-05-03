@@ -11,6 +11,7 @@ import type {
   PatchInput,
 } from '../interface';
 import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
+import { MAX_PATCHES_PER_REQUEST } from '../transport/wire-schemas';
 import {
   ActiveQueryRegistry,
   PATCHES_DB_TOPIC,
@@ -102,6 +103,13 @@ export type SyncPatchesDbOptions = {
   logPushPollFailures?: boolean;
   /** Structured logger for push/poll diagnostics. Falls back to a default logger if omitted. */
   logger?: Logger;
+  /**
+   * Maximum number of patches sent per `remote.write` call. Defaults to
+   * {@link MAX_PATCHES_PER_REQUEST}. Overridable for deterministic tests; in
+   * production this MUST stay at or below the wire contract bound — the HTTP
+   * client transport will crash if a single request exceeds it.
+   */
+  maxPushBatchSize?: number;
 };
 
 const defaultLog = createLogger({ name: 'patch-db:sync' });
@@ -117,6 +125,7 @@ export class SyncPatchesDb implements PatchesDb {
 
   private readonly log: Logger;
   private readonly logPushPollFailures: boolean;
+  private readonly maxPushBatchSize: number;
   /** Stops subscription callbacks after {@link destroy} (e.g. HMR / teardown races). */
   private destroyed = false;
 
@@ -152,6 +161,17 @@ export class SyncPatchesDb implements PatchesDb {
   ) {
     this.log = options.logger ?? defaultLog;
     this.logPushPollFailures = options.logPushPollFailures !== false;
+    this.maxPushBatchSize = options.maxPushBatchSize ?? MAX_PATCHES_PER_REQUEST;
+    assert.ok(
+      Number.isSafeInteger(this.maxPushBatchSize) &&
+        this.maxPushBatchSize > 0 &&
+        this.maxPushBatchSize <= MAX_PATCHES_PER_REQUEST,
+      'maxPushBatchSize must be a positive integer not exceeding MAX_PATCHES_PER_REQUEST',
+      {
+        maxPushBatchSize: this.maxPushBatchSize,
+        wireMax: MAX_PATCHES_PER_REQUEST,
+      }
+    );
     this.activeQueries = new ActiveQueryRegistry({
       read: singleResultReader(this.local),
       pubSub: this.pubSub,
@@ -310,7 +330,7 @@ export class SyncPatchesDb implements PatchesDb {
     this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
   }
 
-  private async markRemotePushSucceeded(
+  private async markChunkPushSucceeded(
     patches: readonly Patch[]
   ): Promise<void> {
     await this.local.update(
@@ -323,7 +343,6 @@ export class SyncPatchesDb implements PatchesDb {
     this.pushConsecutiveFailures = 0;
     this.parentFkRecoveryInFlight = false;
     this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
-    await this.poll();
   }
 
   private logPushFailure(err: unknown): void {
@@ -387,8 +406,18 @@ export class SyncPatchesDb implements PatchesDb {
         this.parentFkRecoveryInFlight = false;
         return;
       }
-      await this.remote.write(patches, OPEN_PATCHES_DB_CONTEXT);
-      await this.markRemotePushSucceeded(patches);
+      // The wire contract caps each request at MAX_PATCHES_PER_REQUEST.
+      // Push in order: patches form parent-linked chains, so chunk N+1 may
+      // FK-reference a patch in chunk N. Stop on first failure to preserve
+      // the invariant that the server has every parent before its child.
+      const batchSize = this.maxPushBatchSize;
+      for (let i = 0; i < patches.length; i += batchSize) {
+        if (this.destroyed) return;
+        const chunk = patches.slice(i, i + batchSize);
+        await this.remote.write(chunk, OPEN_PATCHES_DB_CONTEXT);
+        await this.markChunkPushSucceeded(chunk);
+      }
+      await this.poll();
     } catch (err) {
       this.logPushFailure(err);
       this.publishPushFatalIfNeeded(err);

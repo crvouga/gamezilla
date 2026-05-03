@@ -14,6 +14,10 @@ import {
   PATCH_SUFFIX_READ,
   PATCH_SUFFIX_WRITE,
 } from './paths';
+import {
+  MAX_PATCHES_PER_REQUEST,
+  MAX_QUERIES_PER_REQUEST,
+} from './wire-schemas';
 
 export type PatchDbClientTransportHttpFetchOptions = {
   /** Extra headers (e.g. `Authorization: Bearer …`) for authenticated patch-db API. */
@@ -59,6 +63,14 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
   ): Promise<PatchesDbResult[]> {
     void _ctx;
     if (queries.length === 0) return [];
+    assert.ok(
+      queries.length <= MAX_QUERIES_PER_REQUEST,
+      'patch-db client must chunk reads to fit MAX_QUERIES_PER_REQUEST; sending an over-sized batch is a programmer error',
+      {
+        queriesLength: queries.length,
+        max: MAX_QUERIES_PER_REQUEST,
+      }
+    );
     const url = this.requestUrl(PATCH_SUFFIX_READ);
     const res = await fetch(url, {
       method: 'POST',
@@ -84,6 +96,19 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
     _ctx?: PatchesDbContext
   ): Promise<Patch[]> {
     void _ctx;
+    assert.ok(
+      patches.length > 0,
+      'patch-db client must not call write([]); empty pushes waste a round trip and violate the wire contract',
+      { patchesLength: patches.length }
+    );
+    assert.ok(
+      patches.length <= MAX_PATCHES_PER_REQUEST,
+      'patch-db client must chunk pushes to fit MAX_PATCHES_PER_REQUEST; sending an over-sized batch is a programmer error',
+      {
+        patchesLength: patches.length,
+        max: MAX_PATCHES_PER_REQUEST,
+      }
+    );
     const url = this.requestUrl(PATCH_SUFFIX_WRITE);
     const res = await fetch(url, {
       method: 'POST',

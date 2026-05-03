@@ -124,6 +124,7 @@
     "QLAPI",
     "RAILPACK",
     "rankdir",
+    "reconstructable",
     "recordset",
     "relkind",
     "relname",
