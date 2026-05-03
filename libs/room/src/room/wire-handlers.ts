@@ -122,10 +122,7 @@ export function authorityRejectProposal(
   } satisfies WireMessage);
 }
 
-function dispatchVerifiedBody(
-  self: WireHandlerRoom,
-  body: WireMessage
-): void {
+function dispatchVerifiedBody(self: WireHandlerRoom, body: WireMessage): void {
   switch (body.kind) {
     case 'propose':
       handleProposeWire(self, body);
