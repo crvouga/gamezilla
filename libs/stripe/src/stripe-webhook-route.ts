@@ -1,8 +1,8 @@
 import { createLogger } from '@gamezilla/lib/logger';
 import type { SecretStore } from '@gamezilla/lib/secret-store';
 import type {
-  PatchesDb,
-  PatchesDbSystemContext,
+  PatchDb,
+  PatchDbSystemContext,
 } from '@gamezilla/patch-db/interface';
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
 import { Hono } from 'hono';
@@ -11,7 +11,7 @@ import { stripeEventObjectId } from './event-object-id';
 import { resolveAccountIdByStripeCustomerId } from './resolve-account-by-stripe-customer';
 
 /** Stripe webhook handler — bypasses ABAC like other system contexts. */
-const PATCHES_DB_STRIPE_WEBHOOK_CONTEXT: PatchesDbSystemContext = {
+const PATCHES_DB_STRIPE_WEBHOOK_CONTEXT: PatchDbSystemContext = {
   principalId: null,
   reason: 'stripe-webhook',
 };
@@ -44,7 +44,7 @@ function webhookEventEntityType(eventType: string): string {
 }
 
 async function recordVerifiedStripeWebhookInPatchDb(
-  patchDb: PatchesDb,
+  patchDb: PatchDb,
   event: Stripe.Event,
   objectId: string
 ): Promise<void> {
@@ -68,7 +68,7 @@ async function recordVerifiedStripeWebhookInPatchDb(
     eventCacheAttrs['entity/owner'] = accountId;
   }
 
-  const patches: Parameters<PatchesDb['write']>[0] = [
+  const patches: Parameters<PatchDb['write']>[0] = [
     {
       entityId: objectId,
       entityType: webhookEventEntityType(event.type),
@@ -95,7 +95,7 @@ async function recordVerifiedStripeWebhookInPatchDb(
 export function createStripeWebhookRoutes(args: {
   readonly secretStore: SecretStore;
   readonly stripe: Stripe | null;
-  readonly patchDb: PatchesDb;
+  readonly patchDb: PatchDb;
   readonly webhookSecretKey: string;
 }) {
   const { secretStore, stripe, patchDb, webhookSecretKey } = args;

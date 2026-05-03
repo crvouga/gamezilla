@@ -6,15 +6,15 @@ import { assert } from '@gamezilla/lib/assert';
 import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
-import type { PatchesDb } from '@gamezilla/patch-db/interface';
-import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
+import type { PatchDb } from '@gamezilla/patch-db/interface';
+import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { installDefaultPatchDbPolicies } from './install-default-patch-db-policies';
 
 async function createSqliteFactory(): Promise<{
-  db: PatchesDb;
+  db: PatchDb;
   teardown: () => Promise<void>;
 }> {
   const client: SqlClient = SqlClientImplBunSqlite.open(':memory:');
@@ -25,7 +25,7 @@ async function createSqliteFactory(): Promise<{
 }
 
 describe('gamezilla default policies (system + auth writes)', () => {
-  let db: PatchesDb;
+  let db: PatchDb;
   let teardown: () => Promise<void>;
 
   beforeEach(async () => {

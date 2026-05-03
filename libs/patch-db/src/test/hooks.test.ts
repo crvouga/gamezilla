@@ -1,10 +1,10 @@
 import { assert } from '@gamezilla/lib/assert';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import type { PatchesDb } from '../interface';
+import type { PatchDb } from '../interface';
 import { createSqliteFactory } from './test-helpers';
 
-describe('PatchesDb hooks (sqlite)', () => {
-  let db: PatchesDb;
+describe('PatchDb hooks (sqlite)', () => {
+  let db: PatchDb;
   let teardown: () => Promise<void>;
 
   beforeEach(async () => {

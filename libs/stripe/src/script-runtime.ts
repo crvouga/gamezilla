@@ -2,7 +2,7 @@
  * Shared runtime for Stripe CLI sync scripts.
  *
  * Centralizes secret resolution (Stripe key, `DB_URL`), Stripe client
- * construction, and PatchesDb setup so per-entity scripts stay thin and
+ * construction, and PatchDb setup so per-entity scripts stay thin and
  * consistent (Tiger Style: small surface, fail fast).
  *
  * `DB_URL` accepts either:
@@ -20,8 +20,8 @@ import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import type { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
 import Stripe from 'stripe';
 import { createStripeScriptSecretStore } from './script-secret-store';
-import { createStripeScriptPatchDb } from './stripe-script-patch-db';
 import { StripeSecretKeys } from './secret-keys';
+import { createStripeScriptPatchDb } from './stripe-script-patch-db';
 
 function isPostgresDbUrl(u: string): boolean {
   return u.startsWith('postgres://') || u.startsWith('postgresql://');
@@ -114,7 +114,7 @@ export type StripeScriptContext = {
 };
 
 /**
- * Build a fully-wired script context: Stripe client + PatchesDb backed by
+ * Build a fully-wired script context: Stripe client + PatchDb backed by
  * whichever SQL impl matches `DB_URL` (Postgres TCP or PGlite HTTP).
  * Caller MUST `await ctx.disconnect()` in a `finally` block.
  */

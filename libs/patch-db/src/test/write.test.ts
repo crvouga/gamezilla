@@ -1,10 +1,10 @@
 import { assert } from '@gamezilla/lib/assert';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import type { PatchesDb } from '../interface';
+import type { PatchDb } from '../interface';
 import { implementations } from './test-helpers';
 
 describe.each(implementations)('$name', ({ factory }) => {
-  let db: PatchesDb;
+  let db: PatchDb;
   let teardown: () => Promise<void>;
 
   beforeEach(async () => {

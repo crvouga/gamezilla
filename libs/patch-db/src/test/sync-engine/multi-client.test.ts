@@ -6,7 +6,7 @@ const VIZ_FILE = import.meta.path;
 
 registerTwoClientSimHooks();
 
-describe('SyncPatchesDb (deterministic sim, multi-client)', () => {
+describe('SyncPatchDb (deterministic sim, multi-client)', () => {
   test('multi-client: second client polls after first pushes', async () => {
     const sim = getTwoClientSim();
     sim.setMeta({

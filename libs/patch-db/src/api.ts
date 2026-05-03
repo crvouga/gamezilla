@@ -1,6 +1,6 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
-import type { PatchesDb } from './interface';
+import type { PatchDb } from './interface';
 import type {
   PatchDbHttpAuthOptions,
   createPatchDbHttpHono,
@@ -12,11 +12,11 @@ import type { PatchDbSyncHost } from './transport/interface';
 import { patchDbPaths } from './transport/paths';
 
 export type PatchDbApiConfig = {
-  db: PatchesDb;
+  db: PatchDb;
   pubSub: PubSub;
   /** Default: `/patch-db`. */
   basePath?: string;
-  /** When set, patch-db HTTP routes resolve {@link import('./interface').PatchesDbContext} per request. */
+  /** When set, patch-db HTTP routes resolve {@link import('./interface').PatchDbContext} per request. */
   patchDbHttpAuth?: PatchDbHttpAuthOptions;
   instrumentation?:
     | boolean
@@ -40,7 +40,7 @@ export type PatchDbApiHandlerBundle = {
 };
 
 /**
- * Wires PatchesDb + PubSub into a sync host (optional instrumentation) and an
+ * Wires PatchDb + PubSub into a sync host (optional instrumentation) and an
  * HTTP handler that speaks the patch-db wire protocol (Request / Response).
  */
 export function createPatchDbApiHandler(

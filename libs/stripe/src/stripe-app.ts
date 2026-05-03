@@ -1,5 +1,5 @@
 import type { SecretStore } from '@gamezilla/lib/secret-store';
-import type { PatchesDb } from '@gamezilla/patch-db/interface';
+import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { Hono } from 'hono';
 import type Stripe from 'stripe';
 import {
@@ -13,7 +13,7 @@ import { createStripeWebhookRoutes } from './stripe-webhook-route';
  * Mount at `/` on a parent app that already defines Worker `Bindings`.
  */
 export function createStripeApp(args: {
-  readonly db: PatchesDb;
+  readonly db: PatchDb;
   readonly secretStore: SecretStore;
   readonly stripe: Stripe | null;
   readonly requireAuth: StripeRequireAuth;

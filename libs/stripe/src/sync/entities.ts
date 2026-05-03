@@ -8,10 +8,10 @@
  * round-tripping Stripe.
  *
  * Pure orchestration — no secret resolution, no SQL setup. Callers pass a
- * ready-to-use Stripe client and PatchesDb; the entry-point script in
+ * ready-to-use Stripe client and PatchDb; the entry-point script in
  * `scripts/sync.ts` owns those resources.
  */
-import type { PatchesDb } from '@gamezilla/patch-db/interface';
+import type { PatchDb } from '@gamezilla/patch-db/interface';
 import type Stripe from 'stripe';
 import {
   ALL_BACKFILL_ENTITY_TYPES,
@@ -35,7 +35,7 @@ export type EntitiesSyncResult = {
 
 async function runOne(args: {
   readonly stripe: Stripe;
-  readonly patchDb: PatchesDb;
+  readonly patchDb: PatchDb;
   readonly entity: StripeEntityObjectType;
 }): Promise<number> {
   const { stripe, patchDb, entity } = args;
@@ -62,7 +62,7 @@ async function runOne(args: {
  */
 export async function runStripeEntityBackfill(args: {
   readonly stripe: Stripe;
-  readonly patchDb: PatchesDb;
+  readonly patchDb: PatchDb;
   readonly entity: StripeEntityObjectType;
 }): Promise<EntitiesSyncEntry> {
   const written = await runOne(args);
@@ -72,7 +72,7 @@ export async function runStripeEntityBackfill(args: {
 /** Run every entity backfill in {@link ALL_BACKFILL_ENTITY_TYPES} order. */
 export async function runStripeEntitiesSync(args: {
   readonly stripe: Stripe;
-  readonly patchDb: PatchesDb;
+  readonly patchDb: PatchDb;
 }): Promise<EntitiesSyncResult> {
   const { stripe, patchDb } = args;
   const perEntity: EntitiesSyncEntry[] = [];

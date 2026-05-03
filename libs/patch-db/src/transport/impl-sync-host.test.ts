@@ -1,6 +1,6 @@
 import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import { describe, expect, test } from 'bun:test';
-import type { PatchesDbQuery } from '../interface';
+import type { PatchDbQuery } from '../interface';
 import { createSqliteFactory } from '../test/test-helpers';
 import { PatchDbImplSyncHost } from './impl-sync-host';
 
@@ -24,8 +24,8 @@ describe('PatchDbImplSyncHost', () => {
         },
       ]);
 
-      const q1: PatchesDbQuery = { entityType: 'task', entityId: 'e1' };
-      const q2: PatchesDbQuery = { entityType: 'task', entityId: 'e1' };
+      const q1: PatchDbQuery = { entityType: 'task', entityId: 'e1' };
+      const q2: PatchDbQuery = { entityType: 'task', entityId: 'e1' };
 
       const results = await host.read([q1, q2]);
       expect(results).toHaveLength(2);

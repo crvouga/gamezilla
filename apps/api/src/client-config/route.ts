@@ -1,4 +1,3 @@
-import type { SecretStore } from '@gamezilla/lib/secret-store';
 import {
   CLIENT_CONFIG_ENTITY_ID,
   CLIENT_CONFIG_ENTITY_TYPE,
@@ -6,7 +5,8 @@ import {
 } from '@gamezilla/domain/client-config/client-config-entities';
 import { isEqual } from '@gamezilla/lib/equal/is-equal';
 import type { Logger } from '@gamezilla/lib/logger';
-import type { PatchesDb } from '@gamezilla/patch-db/interface';
+import type { SecretStore } from '@gamezilla/lib/secret-store';
+import type { PatchDb } from '@gamezilla/patch-db/interface';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 import type { ApiWorkerEnv } from '../config/env';
@@ -45,7 +45,7 @@ function snapshotAttributes(
 async function handleClientConfigRefresh(
   c: Context<{ Bindings: ApiWorkerEnv }>,
   deps: {
-    db: PatchesDb;
+    db: PatchDb;
     logger: Logger;
     secretStore: SecretStore;
   }
@@ -119,7 +119,7 @@ async function handleClientConfigRefresh(
 }
 
 export function createClientConfigApp(
-  db: PatchesDb,
+  db: PatchDb,
   logger: Logger,
   secretStore: SecretStore
 ) {

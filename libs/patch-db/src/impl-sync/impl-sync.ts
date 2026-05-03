@@ -4,15 +4,15 @@ import { createLogger, type Logger } from '@gamezilla/lib/logger';
 import type { PubSub, Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
 import type {
   Patch,
-  PatchesDb,
-  PatchesDbContext,
-  PatchesDbQuery,
-  PatchesDbResult,
+  PatchDb,
+  PatchDbContext,
+  PatchDbQuery,
+  PatchDbResult,
   PatchInput,
 } from '../interface';
 import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
-import { MAX_PATCHES_PER_REQUEST } from '../transport/wire-schemas';
 import { PatchDbTransportRejectedError } from '../transport/transport-rejected-error';
+import { MAX_PATCHES_PER_REQUEST } from '../transport/wire-schemas';
 import {
   ActiveQueryRegistry,
   PATCHES_DB_TOPIC,
@@ -53,8 +53,8 @@ export type SyncErrorEvent = {
   error: unknown;
 };
 
-/** Handle returned by {@link SyncPatchesDbScheduler.scheduleInterval}. */
-export type SyncPatchesDbScheduleHandle = {
+/** Handle returned by {@link SyncPatchDbScheduler.scheduleInterval}. */
+export type SyncPatchDbScheduleHandle = {
   cancel: () => void;
 };
 
@@ -62,14 +62,14 @@ export type SyncPatchesDbScheduleHandle = {
  * Injectable interval scheduler (default uses `setInterval`).
  * Use in tests with a deterministic scheduler.
  */
-export type SyncPatchesDbScheduler = {
+export type SyncPatchDbScheduler = {
   scheduleInterval(
     intervalMs: number,
     callback: () => void
-  ): SyncPatchesDbScheduleHandle;
+  ): SyncPatchDbScheduleHandle;
 };
 
-export const defaultSyncPatchesDbScheduler: SyncPatchesDbScheduler = {
+export const defaultSyncPatchDbScheduler: SyncPatchDbScheduler = {
   scheduleInterval(intervalMs, callback) {
     const id = setInterval(callback, intervalMs);
     return {
@@ -78,21 +78,21 @@ export const defaultSyncPatchesDbScheduler: SyncPatchesDbScheduler = {
   },
 };
 
-export type SyncPatchesDbOptions = {
+export type SyncPatchDbOptions = {
   pushIntervalMs?: number;
   pollIntervalMs?: number;
   /**
-   * `interval` (default): repeat {@link SyncPatchesDb.runPushNow} on a timer.
-   * `manual`: no timer; call {@link SyncPatchesDb.runPushNow} explicitly (tests / simulation).
+   * `interval` (default): repeat {@link SyncPatchDb.runPushNow} on a timer.
+   * `manual`: no timer; call {@link SyncPatchDb.runPushNow} explicitly (tests / simulation).
    */
   pushDriver?: 'interval' | 'manual';
   /**
-   * `interval` (default): repeat {@link SyncPatchesDb.runPollNow} on a timer.
-   * `manual`: no timer; call {@link SyncPatchesDb.runPollNow} explicitly (tests / simulation).
+   * `interval` (default): repeat {@link SyncPatchDb.runPollNow} on a timer.
+   * `manual`: no timer; call {@link SyncPatchDb.runPollNow} explicitly (tests / simulation).
    */
   pollDriver?: 'interval' | 'manual';
   /** Scheduler for push and poll timers (default: real-time `setInterval`). */
-  scheduler?: SyncPatchesDbScheduler;
+  scheduler?: SyncPatchDbScheduler;
   /**
    * When false, failed push/poll cycles are not logged to stderr (failures still increment counters and may publish {@link SYNC_ERROR_TOPIC}).
    * Default true. Deterministic sim tests set this to false to avoid expected-failure noise.
@@ -111,7 +111,7 @@ export type SyncPatchesDbOptions = {
 
 const defaultLog = createLogger({ name: 'patch-db:sync' });
 
-export class SyncPatchesDb implements PatchesDb {
+export class SyncPatchDb implements PatchDb {
   get hooks() {
     return this.local.hooks;
   }
@@ -128,18 +128,18 @@ export class SyncPatchesDb implements PatchesDb {
 
   subscribe = {
     patches: (
-      query: PatchesDbQuery,
-      listener: (result: PatchesDbResult) => void
+      query: PatchDbQuery,
+      listener: (result: PatchDbResult) => void
     ): Unsubscribe => this.activeQueries.subscribe(query, listener),
     entities: (
-      query: PatchesDbQuery,
-      listener: (result: PatchesDbResult) => void
+      query: PatchDbQuery,
+      listener: (result: PatchDbResult) => void
     ): Unsubscribe => this.activeQueries.subscribe(query, listener),
   };
 
   private activeQueries: ActiveQueryRegistry;
-  private pushScheduleHandle: SyncPatchesDbScheduleHandle | null = null;
-  private pollScheduleHandle: SyncPatchesDbScheduleHandle | null = null;
+  private pushScheduleHandle: SyncPatchDbScheduleHandle | null = null;
+  private pollScheduleHandle: SyncPatchDbScheduleHandle | null = null;
   private pollInProgress = false;
   private pushConsecutiveFailures = 0;
   private pollConsecutiveFailures = 0;
@@ -151,10 +151,10 @@ export class SyncPatchesDb implements PatchesDb {
   private parentFkRecoveryInFlight = false;
 
   constructor(
-    private local: PatchesDb,
-    private remote: PatchesDb,
+    private local: PatchDb,
+    private remote: PatchDb,
     private pubSub: PubSub,
-    private options: SyncPatchesDbOptions
+    private options: SyncPatchDbOptions
   ) {
     this.log = options.logger ?? defaultLog;
     this.logPushPollFailures = options.logPushPollFailures !== false;
@@ -181,7 +181,7 @@ export class SyncPatchesDb implements PatchesDb {
 
   /**
    * Runs a single push cycle (read unsynced locals -> remote.write -> local.update synced flags).
-   * Use with {@link SyncPatchesDbOptions.pushDriver} `"manual"` or to force an extra push.
+   * Use with {@link SyncPatchDbOptions.pushDriver} `"manual"` or to force an extra push.
    */
   async runPushNow(): Promise<void> {
     await this.pushUnsynced();
@@ -189,7 +189,7 @@ export class SyncPatchesDb implements PatchesDb {
 
   /**
    * Runs a single poll cycle (merge remote patches for active subscription queries).
-   * Use with {@link SyncPatchesDbOptions.pollDriver} `"manual"` or to force an extra poll.
+   * Use with {@link SyncPatchDbOptions.pollDriver} `"manual"` or to force an extra poll.
    */
   async runPollNow(): Promise<void> {
     await this.poll();
@@ -224,7 +224,7 @@ export class SyncPatchesDb implements PatchesDb {
 
   async write(
     patches: PatchInput[],
-    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<Patch[]> {
     const withUnsynced = patches.map((p) => ({
       ...p,
@@ -236,15 +236,15 @@ export class SyncPatchesDb implements PatchesDb {
   }
 
   read(
-    queries: PatchesDbQuery[],
-    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
-  ): Promise<PatchesDbResult[]> {
+    queries: PatchDbQuery[],
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+  ): Promise<PatchDbResult[]> {
     return this.local.read(queries, ctx);
   }
 
   async update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
-    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<void> {
     return this.local.update(updates, ctx);
   }
@@ -258,15 +258,15 @@ export class SyncPatchesDb implements PatchesDb {
     const pollDriver = this.options.pollDriver ?? 'interval';
     if (pollDriver === 'manual') return;
     const pollIntervalMs = this.options.pollIntervalMs ?? 5000;
-    const scheduler = this.options.scheduler ?? defaultSyncPatchesDbScheduler;
+    const scheduler = this.options.scheduler ?? defaultSyncPatchDbScheduler;
     this.pollScheduleHandle = scheduler.scheduleInterval(pollIntervalMs, () => {
       fireAndForget(this.poll(), {
-        component: 'SyncPatchesDb',
+        component: 'SyncPatchDb',
         op: 'poll-interval',
       });
     });
     fireAndForget(this.poll(), {
-      component: 'SyncPatchesDb',
+      component: 'SyncPatchDb',
       op: 'poll-initial',
     });
   }
@@ -291,10 +291,10 @@ export class SyncPatchesDb implements PatchesDb {
     const pushDriver = this.options.pushDriver ?? 'interval';
     if (pushDriver === 'manual') return;
     const pushIntervalMs = this.options.pushIntervalMs ?? 2000;
-    const scheduler = this.options.scheduler ?? defaultSyncPatchesDbScheduler;
+    const scheduler = this.options.scheduler ?? defaultSyncPatchDbScheduler;
     this.pushScheduleHandle = scheduler.scheduleInterval(pushIntervalMs, () => {
       fireAndForget(this.pushUnsynced(), {
-        component: 'SyncPatchesDb',
+        component: 'SyncPatchDb',
         op: 'pushUnsynced',
       });
     });

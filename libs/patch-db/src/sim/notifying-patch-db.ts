@@ -1,21 +1,21 @@
 import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
 import type {
   Patch,
-  PatchesDb,
-  PatchesDbContext,
-  PatchesDbQuery,
-  PatchesDbResult,
+  PatchDb,
+  PatchDbContext,
+  PatchDbQuery,
+  PatchDbResult,
   PatchInput,
 } from '../interface';
 import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
 
-const PATCHES_DB_TOPIC = 'patches-db';
+const PATCHES_DB_TOPIC = 'patch-db';
 
 /**
- * Wraps a {@link PatchesDb} and publishes on `patches-db` after successful writes
+ * Wraps a {@link PatchDb} and publishes on `patch-db` after successful writes
  * so simulated transports can mirror "server pushed invalidation".
  */
-export class NotifyingPatchesDb implements PatchesDb {
+export class NotifyingPatchDb implements PatchDb {
   get hooks() {
     return this.inner.hooks;
   }
@@ -25,20 +25,20 @@ export class NotifyingPatchesDb implements PatchesDb {
   }
 
   constructor(
-    private readonly inner: PatchesDb,
+    private readonly inner: PatchDb,
     private readonly pubSub: PubSub
   ) {}
 
   read(
-    queries: PatchesDbQuery[],
-    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
-  ): Promise<PatchesDbResult[]> {
+    queries: PatchDbQuery[],
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+  ): Promise<PatchDbResult[]> {
     return this.inner.read(queries, ctx);
   }
 
   async write(
     patches: PatchInput[],
-    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<Patch[]> {
     const out = await this.inner.write(patches, ctx);
     this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
@@ -47,7 +47,7 @@ export class NotifyingPatchesDb implements PatchesDb {
 
   update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
-    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<void> {
     return this.inner.update(updates, ctx);
   }

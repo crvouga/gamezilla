@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, test } from 'bun:test';
-import type { PatchesDbQuery } from '../../interface';
+import type { PatchDbQuery } from '../../interface';
 import { PatchDbScenarioBuilder, type Sim } from '../../sim/scenario';
 import { DELETED_CLAUSE } from './constants';
 
 const VIZ_FILE = import.meta.path;
 
-describe('SyncPatchesDb (data loss recovery)', () => {
+describe('SyncPatchDb (data loss recovery)', () => {
   let sim: Sim;
 
   afterEach(async () => {
@@ -77,7 +77,7 @@ describe('SyncPatchesDb (data loss recovery)', () => {
     const srv = sim.server('s');
     const created = new Date(0).toISOString();
 
-    const orderedQuery: PatchesDbQuery = {
+    const orderedQuery: PatchDbQuery = {
       entityType: 'todoList',
       where: DELETED_CLAUSE,
       orderBy: [{ attribute: 'todoList/order', direction: 'asc' }],

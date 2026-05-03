@@ -6,7 +6,7 @@ import {
 import { assertUuid } from '@gamezilla/domain/auth/principal-id';
 import { assert } from '@gamezilla/lib/assert';
 import type { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
-import type { PatchesDb } from '@gamezilla/patch-db/interface';
+import type { PatchDb } from '@gamezilla/patch-db/interface';
 import type { PrincipalService } from './principal-service';
 
 export type PrincipalSessionRecord = {
@@ -74,7 +74,7 @@ function isExpired(iso: string): boolean {
 }
 
 async function readLatestSessionEntity(
-  db: PatchesDb,
+  db: PatchDb,
   principalId: string,
   limit: number
 ) {
@@ -96,7 +96,7 @@ async function readLatestSessionEntity(
 }
 
 async function loadActiveSession(
-  db: PatchesDb,
+  db: PatchDb,
   principalId: string
 ): Promise<PrincipalSessionRecord | null> {
   const entities = await readLatestSessionEntity(db, principalId, 50);
@@ -110,7 +110,7 @@ async function loadActiveSession(
 }
 
 async function clearAllActiveSessions(
-  db: PatchesDb,
+  db: PatchDb,
   principalId: string
 ): Promise<void> {
   // Must clear every non-expired entity for the principal: clearing only the
@@ -135,7 +135,7 @@ async function clearAllActiveSessions(
 }
 
 export function createSessionService(
-  db: PatchesDb,
+  db: PatchDb,
   principalService: PrincipalService
 ): SessionService {
   let cached: PrincipalSessionRecord | null = null;

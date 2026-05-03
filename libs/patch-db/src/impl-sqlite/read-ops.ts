@@ -1,11 +1,6 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
-import type {
-  Entity,
-  Patch,
-  PatchesDbQuery,
-  PatchesDbResult,
-} from '../interface';
+import type { Entity, Patch, PatchDbQuery, PatchDbResult } from '../interface';
 import { toEntity, toPatch } from './mappers';
 import {
   buildLimitSQL,
@@ -18,11 +13,11 @@ import type { PatchRow, SnapshotRow } from './types';
 
 export async function readPatches(
   sqlClient: SqlClient,
-  queries: PatchesDbQuery[]
-): Promise<PatchesDbResult[]> {
+  queries: PatchDbQuery[]
+): Promise<PatchDbResult[]> {
   if (queries.length === 0) return [];
   /** Sequential: each PGlite-HTTP / Neon query is a Worker subrequest when used from the API. */
-  const results: PatchesDbResult[] = [];
+  const results: PatchDbResult[] = [];
   for (const q of queries) {
     results.push(await readOne(sqlClient, q));
   }
@@ -31,8 +26,8 @@ export async function readPatches(
 
 async function readOne(
   sqlClient: SqlClient,
-  query: PatchesDbQuery
-): Promise<PatchesDbResult> {
+  query: PatchDbQuery
+): Promise<PatchDbResult> {
   const isSingleEntityQuery = typeof query.entityId === 'string';
   if (query.on === 'patches') {
     return readOnePatchesMode(sqlClient, query);
@@ -47,8 +42,8 @@ async function readOne(
 
 async function readOnePatchesMode(
   sqlClient: SqlClient,
-  query: PatchesDbQuery
-): Promise<PatchesDbResult> {
+  query: PatchDbQuery
+): Promise<PatchDbResult> {
   const { conditions, params } = buildPatchConditions(query, 'p');
   const whereSQL = conditions.join(' AND ');
 
@@ -79,7 +74,7 @@ async function readOnePatchesMode(
 type PatchBasedFilter = { conditions: string[]; params: unknown[] };
 
 function buildPatchBasedFilter(
-  query: PatchesDbQuery,
+  query: PatchDbQuery,
   snapWhereSQL: string,
   snapParams: unknown[]
 ): PatchBasedFilter {
@@ -104,7 +99,7 @@ function buildPatchBasedFilter(
   return buildPlainPatchFilter(query);
 }
 
-function buildPlainPatchFilter(query: PatchesDbQuery): PatchBasedFilter {
+function buildPlainPatchFilter(query: PatchDbQuery): PatchBasedFilter {
   const conditions: string[] = [];
   const params: unknown[] = [];
   if (query.entityType !== null && query.entityType !== undefined) {
@@ -157,8 +152,8 @@ async function resolveCursor(
 
 async function readOnePatchBased(
   sqlClient: SqlClient,
-  query: PatchesDbQuery
-): Promise<PatchesDbResult> {
+  query: PatchDbQuery
+): Promise<PatchDbResult> {
   const { conditions: snapConditions, params: snapParams } =
     buildSnapshotConditions(query);
   const snapWhereSQL = snapConditions.join(' AND ');
@@ -221,7 +216,7 @@ ${orderSQL}${limit.sql}`;
 }
 
 function computeHasMore(
-  query: PatchesDbQuery,
+  query: PatchDbQuery,
   patchesLength: number,
   total: number
 ): boolean {
@@ -253,8 +248,8 @@ function computeOrderedEntityKeys(patches: readonly Patch[]): string[] {
 
 async function readOneSnapshotBased(
   sqlClient: SqlClient,
-  query: PatchesDbQuery
-): Promise<PatchesDbResult> {
+  query: PatchDbQuery
+): Promise<PatchDbResult> {
   const { conditions, params } = buildSnapshotConditions(query);
   const whereSQL = conditions.join(' AND ');
 

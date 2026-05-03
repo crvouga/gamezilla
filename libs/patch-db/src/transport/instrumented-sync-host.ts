@@ -3,10 +3,10 @@ import { createLogger, type Logger } from '@gamezilla/lib/logger';
 import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
 import type {
   Patch,
-  PatchesDb,
-  PatchesDbContext,
-  PatchesDbQuery,
-  PatchesDbResult,
+  PatchDb,
+  PatchDbContext,
+  PatchDbQuery,
+  PatchDbResult,
   PatchInput,
 } from '../interface';
 import {
@@ -16,7 +16,7 @@ import {
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '../policy/system-principal';
 import type { PatchDbSyncHost } from './interface';
 
-const PATCHES_DB_TOPIC = 'patches-db';
+const PATCHES_DB_TOPIC = 'patch-db';
 
 /** Fixed entity for api instrumentation snapshot (see plan: admin/metric). */
 export const ADMIN_METRIC_ENTITY_ID = 'server-stats';
@@ -36,7 +36,7 @@ const defaultLog = createLogger({ name: 'patch-db:metrics' });
 
 export type PatchDbImplInstrumentedSyncHostOptions = {
   inner: PatchDbSyncHost;
-  db: PatchesDb;
+  db: PatchDb;
   pubSub: PubSub;
   flushIntervalMs?: number;
   logger?: Logger;
@@ -44,7 +44,7 @@ export type PatchDbImplInstrumentedSyncHostOptions = {
 
 export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
   private readonly inner: PatchDbSyncHost;
-  private readonly db: PatchesDb;
+  private readonly db: PatchDb;
   private readonly pubSub: PubSub;
   private readonly flushIntervalMs: number;
   private readonly log: Logger;
@@ -85,9 +85,9 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
   }
 
   async read(
-    queries: PatchesDbQuery[],
-    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
-  ): Promise<PatchesDbResult[]> {
+    queries: PatchDbQuery[],
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+  ): Promise<PatchDbResult[]> {
     this.touchActivity();
     if (queries.length > 0) {
       this.counters.totalReadsServed += queries.length;
@@ -97,7 +97,7 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
 
   async write(
     patches: PatchInput[],
-    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<Patch[]> {
     this.touchActivity();
     this.counters.totalPatchesWritten += patches.length;

@@ -5,9 +5,9 @@ import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
 import {
   SYNC_ERROR_TOPIC,
   type SyncErrorEvent,
-  SyncPatchesDb,
+  SyncPatchDb,
 } from '../impl-sync';
-import type { PatchesDb } from '../interface';
+import type { PatchDb } from '../interface';
 import { DeterministicScheduler } from './deterministic-scheduler';
 import {
   SimEventRecorder,
@@ -16,7 +16,7 @@ import {
   summarizePatchInputs,
 } from './event-recorder';
 import { NetworkLink } from './network-link';
-import { NotifyingPatchesDb } from './notifying-patches-db';
+import { NotifyingPatchDb } from './notifying-patch-db';
 import { type SimServerPort, simServerPortFromPubSub } from './server-port';
 import { Sim } from './sim';
 import type {
@@ -60,7 +60,7 @@ function wrapServerDbForViz(
   inner: PatchDbImplSqlite,
   recorder: SimEventRecorder,
   getTime: () => number
-): PatchesDb {
+): PatchDb {
   return {
     get hooks() {
       return inner.hooks;
@@ -92,7 +92,7 @@ async function createServerRuntime(
   await backing.migrate();
   const pubSub = new InMemoryPubSub();
 
-  const notifying = new NotifyingPatchesDb(backing, pubSub);
+  const notifying = new NotifyingPatchDb(backing, pubSub);
   const port: SimServerPort = simServerPortFromPubSub(
     (q, ctx) => notifying.read(q, ctx),
     (p, ctx) => notifying.write(p, ctx),
@@ -133,10 +133,10 @@ async function createClientRuntime(
         }
       : undefined
   );
-  const remotePatchesDb = new PatchDbImplClientTransport(transport);
+  const remotePatchDb = new PatchDbImplClientTransport(transport);
   const pubSub = new InMemoryPubSub();
 
-  const syncDb = new SyncPatchesDb(local, remotePatchesDb, pubSub, {
+  const syncDb = new SyncPatchDb(local, remotePatchDb, pubSub, {
     pushDriver: 'manual',
     pollDriver: 'manual',
     pushIntervalMs: 10,
@@ -149,7 +149,7 @@ async function createClientRuntime(
     sqlClient: sql,
     localDb: local,
     transport,
-    remoteDb: remotePatchesDb,
+    remoteDb: remotePatchDb,
     syncDb,
     pubSub,
     link,
@@ -285,7 +285,7 @@ function buildSubscribe(
         ? runtime.syncDb.subscribe.patches(query, listener)
         : runtime.syncDb.subscribe.entities(
             query,
-            listener as Parameters<SyncPatchesDb['subscribe']['entities']>[1]
+            listener as Parameters<SyncPatchDb['subscribe']['entities']>[1]
           );
     return () => {
       if (recorder) {

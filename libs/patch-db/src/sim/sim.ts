@@ -1,6 +1,6 @@
 import type { Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
 import { SYNC_ERROR_TOPIC, type SyncErrorEvent } from '../impl-sync';
-import type { Entity, PatchesDbQuery } from '../interface';
+import type { Entity, PatchDbQuery } from '../interface';
 import {
   assertNodesConsistent,
   type NodeSnapshot,
@@ -77,7 +77,7 @@ export class Sim {
    * Read `query` on every client and every server, then assert they all
    * agree on the same set of entity IDs and the same attribute values.
    */
-  async assertConsistent(query: PatchesDbQuery): Promise<void> {
+  async assertConsistent(query: PatchDbQuery): Promise<void> {
     const nodes = await this.readAllNodes(query);
     assertNodesConsistent(nodes);
   }
@@ -90,7 +90,7 @@ export class Sim {
     entityType: string,
     entityIds: string[]
   ): Promise<void> {
-    const query: PatchesDbQuery = {
+    const query: PatchDbQuery = {
       entityType,
       entityId: entityIds,
     };
@@ -98,7 +98,7 @@ export class Sim {
     assertNodesConsistent(nodes);
   }
 
-  private async readAllNodes(query: PatchesDbQuery): Promise<NodeSnapshot[]> {
+  private async readAllNodes(query: PatchDbQuery): Promise<NodeSnapshot[]> {
     const nodes: NodeSnapshot[] = [];
     for (const [id, client] of this.clientHandles) {
       const results = await client.read([query]);

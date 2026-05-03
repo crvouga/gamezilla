@@ -1,13 +1,13 @@
-import { zValidator } from '@hono/zod-validator';
 import { Assert } from '@gamezilla/lib/assert';
-import { Hono } from 'hono';
+import { zValidator } from '@hono/zod-validator';
 import type { Context } from 'hono';
+import { Hono } from 'hono';
 import { ForbiddenError } from '../forbidden-error';
 import {
-  type PatchInput,
-  type PatchesDbQuery,
   OPEN_PATCHES_DB_CONTEXT,
-  type PatchesDbContext,
+  type PatchDbContext,
+  type PatchDbQuery,
+  type PatchInput,
   assertPatchInput,
   assertQuery,
   stripKnownPatchesFromQuery,
@@ -31,28 +31,28 @@ function applyNoCacheHeaders(c: Context): void {
 }
 
 export type PatchDbHttpAuthOptions = {
-  resolvePatchesDbContext?: (
+  resolvePatchDbContext?: (
     req: Request
-  ) => Promise<PatchesDbContext | null | undefined>;
+  ) => Promise<PatchDbContext | null | undefined>;
   /** When true, missing / null context from resolver yields 401. */
-  requirePatchesDbAuth?: boolean;
+  requirePatchDbAuth?: boolean;
 };
 
 async function resolveRequestContext(
   c: Context,
   auth: PatchDbHttpAuthOptions | undefined
 ): Promise<
-  | { ok: true; ctx: PatchesDbContext }
+  | { ok: true; ctx: PatchDbContext }
   | { ok: false; status: 401 | 403; message: string }
 > {
-  const resolve = auth?.resolvePatchesDbContext;
+  const resolve = auth?.resolvePatchDbContext;
   if (resolve === undefined) {
     return { ok: true, ctx: OPEN_PATCHES_DB_CONTEXT };
   }
   try {
     const resolved = await resolve(c.req.raw);
     if (resolved === null || resolved === undefined) {
-      if (auth?.requirePatchesDbAuth === true) {
+      if (auth?.requirePatchDbAuth === true) {
         return { ok: false, status: 401, message: 'Unauthorized' };
       }
       return { ok: true, ctx: OPEN_PATCHES_DB_CONTEXT };
@@ -89,7 +89,7 @@ export function createPatchDbHttpHono(
         a.field(body, 'queries', 'queries required');
         a.array(body.queries, 'queries required');
         a.ok(body.queries.length > 0, 'queries must not be empty');
-        a.all(body.queries, (q): asserts q is PatchesDbQuery =>
+        a.all(body.queries, (q): asserts q is PatchDbQuery =>
           assertQuery(a, q)
         );
         const queries = body.queries;

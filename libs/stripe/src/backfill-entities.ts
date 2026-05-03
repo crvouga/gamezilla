@@ -7,10 +7,7 @@
  * `entityId=<object.id>`, attribute `stripe/payload`. This sits alongside
  * webhook-event rows (`stripe.<event.type>`) so the two sources never collide.
  */
-import type {
-  PatchesDb,
-  PatchesDbContext,
-} from '@gamezilla/patch-db/interface';
+import type { PatchDb, PatchDbContext } from '@gamezilla/patch-db/interface';
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
 import type Stripe from 'stripe';
 
@@ -78,8 +75,8 @@ function extractCustomerIdFromRef(customerRef: unknown): string | null {
 }
 
 async function lookupOwnerByCustomerId(
-  db: PatchesDb,
-  ctx: PatchesDbContext,
+  db: PatchDb,
+  ctx: PatchDbContext,
   customerId: string
 ): Promise<string | null> {
   const [r] = await db.read(
@@ -97,8 +94,8 @@ async function lookupOwnerByCustomerId(
 }
 
 async function resolveEntityOwner(args: {
-  readonly db: PatchesDb;
-  readonly ctx: PatchesDbContext;
+  readonly db: PatchDb;
+  readonly ctx: PatchDbContext;
   readonly obj: StripeIdentifiable;
   readonly expectedObjectType: StripeEntityObjectType;
 }): Promise<string | null> {
@@ -125,8 +122,8 @@ async function resolveEntityOwner(args: {
 export async function backfillStripeListIntoPatchDb<
   T extends StripeIdentifiable,
 >(args: {
-  readonly db: PatchesDb;
-  readonly ctx: PatchesDbContext;
+  readonly db: PatchDb;
+  readonly ctx: PatchDbContext;
   readonly iterator: AsyncIterable<T>;
   readonly expectedObjectType: StripeEntityObjectType;
   /** Called every `progressEvery` rows; default 100. */

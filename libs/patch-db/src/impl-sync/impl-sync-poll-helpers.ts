@@ -1,10 +1,5 @@
 import { assert } from '@gamezilla/lib/assert';
-import type {
-  Patch,
-  PatchesDb,
-  PatchesDbQuery,
-  PatchesDbResult,
-} from '../interface';
+import type { Patch, PatchDb, PatchDbQuery, PatchDbResult } from '../interface';
 import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
 import type { ActiveQuery } from './active-query-registry';
 
@@ -23,10 +18,10 @@ function collectMissingSyncedIds(
 }
 
 export async function buildSyncQueriesForPoll(
-  local: PatchesDb,
+  local: PatchDb,
   entries: ActiveQuery[]
-): Promise<PatchesDbQuery[]> {
-  const syncQueries: PatchesDbQuery[] = [];
+): Promise<PatchDbQuery[]> {
+  const syncQueries: PatchDbQuery[] = [];
   for (const { query } of entries) {
     const { limit: _limit, offset: _offset, ...queryWithoutPagination } = query;
     const [localResult] = await local.read(
@@ -72,8 +67,8 @@ export async function buildSyncQueriesForPoll(
 }
 
 export async function mergeRemotePatchesIntoLocal(
-  local: PatchesDb,
-  results: PatchesDbResult[]
+  local: PatchDb,
+  results: PatchDbResult[]
 ): Promise<boolean> {
   let hasNewPatches = false;
   for (const remoteResult of results) {
@@ -96,9 +91,9 @@ export async function mergeRemotePatchesIntoLocal(
  * those patches are marked unsynced so the next push cycle re-sends them.
  */
 export async function markMissingSyncedPatchesOnLocal(
-  local: PatchesDb,
-  queries: PatchesDbQuery[],
-  results: PatchesDbResult[]
+  local: PatchDb,
+  queries: PatchDbQuery[],
+  results: PatchDbResult[]
 ): Promise<boolean> {
   const patchIdsToUnsync = new Set<string>();
 
@@ -129,8 +124,8 @@ export async function markMissingSyncedPatchesOnLocal(
 }
 
 export function toWireQueriesFromSyncQueries(
-  syncQueries: PatchesDbQuery[]
-): PatchesDbQuery[] {
+  syncQueries: PatchDbQuery[]
+): PatchDbQuery[] {
   return syncQueries.map(({ knownPatches, ...rest }) => ({
     ...rest,
     knownPatchIds: knownPatches?.map((p) => p.patchId) ?? [],

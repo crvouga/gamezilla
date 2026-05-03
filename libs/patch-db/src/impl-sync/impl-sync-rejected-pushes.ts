@@ -1,17 +1,17 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { Logger } from '@gamezilla/lib/logger';
 import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
-import type { Patch, PatchesDb, PatchesDbQuery } from '../interface';
+import type { Patch, PatchDb, PatchDbQuery } from '../interface';
 import {
   OPEN_PATCHES_DB_CONTEXT,
   PATCH_SYNC_REJECTED_AT,
   PATCH_SYNC_REJECTED_REASON,
 } from '../interface';
-import { PatchDbTransportRejectedError } from '../transport/transport-rejected-error';
+import type { PatchDbTransportRejectedError } from '../transport/transport-rejected-error';
 import { PATCHES_DB_TOPIC } from './active-query-registry';
 
 /** Patches that still need a successful remote push (excludes server-rejected). */
-export function unsyncedPatchesQueryForPush(): PatchesDbQuery {
+export function unsyncedPatchesQueryForPush(): PatchDbQuery {
   return {
     on: 'patches',
     where: {
@@ -25,7 +25,7 @@ export function unsyncedPatchesQueryForPush(): PatchesDbQuery {
 }
 
 export async function markPatchesRejectedByServer(args: {
-  local: PatchesDb;
+  local: PatchDb;
   chunk: readonly Patch[];
   err: PatchDbTransportRejectedError;
   pubSub: PubSub;
@@ -55,7 +55,7 @@ export async function markPatchesRejectedByServer(args: {
 }
 
 export async function clearRejectedPushMarkersOnLocal(
-  local: PatchesDb,
+  local: PatchDb,
   pubSub: PubSub
 ): Promise<void> {
   const [result] = await local.read(

@@ -1,15 +1,3 @@
-import type { Entity } from '@gamezilla/patch-db/interface';
-import { PatchesDbToken, useEntities } from '@gamezilla/patch-db/react';
-import {
-  nextShapeOrder,
-  playgroundCreateShape,
-  playgroundDeleteShape,
-  playgroundRandomizeShape,
-  playgroundReorderShapes,
-  shapeListQuery,
-} from '@gamezilla/patch-db/sim/playground-shapes';
-import type { PlaygroundClientHandle } from '@gamezilla/patch-db/sim/playground-sim';
-import { SubscribablePatchesDbToken } from '@gamezilla/patch-db/subscribable';
 import { DependencyInjectionContainer } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 import { ContainerProvider } from '@gamezilla/lib/dependency-injection/react';
 import {
@@ -22,6 +10,18 @@ import {
   Text,
 } from '@gamezilla/lib/ui';
 import { useTheme } from '@gamezilla/lib/ui/theme';
+import type { Entity } from '@gamezilla/patch-db/interface';
+import { PatchDbToken, useEntities } from '@gamezilla/patch-db/react';
+import {
+  nextShapeOrder,
+  playgroundCreateShape,
+  playgroundDeleteShape,
+  playgroundRandomizeShape,
+  playgroundReorderShapes,
+  shapeListQuery,
+} from '@gamezilla/patch-db/sim/playground-shapes';
+import type { PlaygroundClientHandle } from '@gamezilla/patch-db/sim/playground-sim';
+import { SubscribablePatchDbToken } from '@gamezilla/patch-db/subscribable';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback, useMemo, useState } from 'react';
 import {
@@ -311,8 +311,8 @@ export function ClientNodePanel({
 }) {
   const container = useMemo(() => {
     const c = new DependencyInjectionContainer();
-    c.registerValue(PatchesDbToken, client.syncDb);
-    c.registerValue(SubscribablePatchesDbToken, client.syncDb);
+    c.registerValue(PatchDbToken, client.syncDb);
+    c.registerValue(SubscribablePatchDbToken, client.syncDb);
     return c;
   }, [client.syncDb]);
 

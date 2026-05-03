@@ -1,12 +1,12 @@
 import { assert } from '@gamezilla/lib/assert';
 import { describe, expect, test } from 'bun:test';
 import {
-  defaultSyncPatchesDbScheduler,
-  type SyncPatchesDbScheduler,
+  defaultSyncPatchDbScheduler,
+  type SyncPatchDbScheduler,
 } from '../impl-sync';
 import { createSyncDbFactory } from './test-helpers';
 
-describe('SyncPatchesDb scheduler hooks', () => {
+describe('SyncPatchDb scheduler hooks', () => {
   test('pushDriver manual does not push until runPushNow', async () => {
     const { syncDb, remote, teardown } = await createSyncDbFactory({
       pushDriver: 'manual',
@@ -85,11 +85,11 @@ describe('SyncPatchesDb scheduler hooks', () => {
   test('scheduler receives pushIntervalMs from options', async () => {
     let capturedMs: number | null = null;
     let scheduleCalls = 0;
-    const customScheduler: SyncPatchesDbScheduler = {
+    const customScheduler: SyncPatchDbScheduler = {
       scheduleInterval(intervalMs, callback) {
         scheduleCalls++;
         capturedMs = intervalMs;
-        return defaultSyncPatchesDbScheduler.scheduleInterval(
+        return defaultSyncPatchDbScheduler.scheduleInterval(
           intervalMs,
           callback
         );

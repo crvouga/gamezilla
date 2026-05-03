@@ -2,7 +2,7 @@
  * Top-level Stripe sync orchestrator.
  *
  * Composes catalog reconcile → patch-db backfills → webhook reconcile in a
- * stable order on a single shared Stripe client + PatchesDb + Doppler CLI.
+ * stable order on a single shared Stripe client + PatchDb + Doppler CLI.
  *
  * The order matters:
  *   1. Catalog: ensures Products/Prices exist + patch-db has the latest
@@ -16,7 +16,7 @@
  *      a DB that doesn't know about the existing customers/subs.
  */
 import type { SecretStore } from '@gamezilla/lib/secret-store';
-import type { PatchesDb } from '@gamezilla/patch-db/interface';
+import type { PatchDb } from '@gamezilla/patch-db/interface';
 import type Stripe from 'stripe';
 import { runStripeCatalogSync, type CatalogSyncResult } from './catalog';
 import { runStripeEntitiesSync, type EntitiesSyncResult } from './entities';
@@ -30,7 +30,7 @@ export type StripeFullSyncResult = {
 
 export async function runStripeFullSync(args: {
   readonly stripe: Stripe;
-  readonly patchDb: PatchesDb;
+  readonly patchDb: PatchDb;
   /** Used by the webhook step to persist the freshly-issued `whsec_…`. */
   readonly secretStore: SecretStore;
   /** Absolute origin of the API Worker, e.g. `https://api.gamezilla.app`. */

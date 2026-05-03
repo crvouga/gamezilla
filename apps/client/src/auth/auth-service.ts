@@ -10,7 +10,7 @@ import { assertUuid } from '@gamezilla/domain/auth/principal-id';
 import type { ConfigService } from '@gamezilla/domain/config/config-service';
 import { assert } from '@gamezilla/lib/assert';
 import type { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
-import type { PatchesDb } from '@gamezilla/patch-db/interface';
+import type { PatchDb } from '@gamezilla/patch-db/interface';
 import type { AuthAccountIdHolder } from './auth-account-id-holder';
 import type { AuthSessionTokenHolder } from './auth-session-token-holder';
 import { ensureAccountProfile } from './ensure-profile-entity';
@@ -35,7 +35,7 @@ type ClaimResponse = {
 type CreateAuthServiceDeps = {
   configService: ConfigService;
   principalService: PrincipalService;
-  db: PatchesDb;
+  db: PatchDb;
   sessionService: SessionService;
   accountIdHolder: AuthAccountIdHolder;
   sessionTokenHolder: AuthSessionTokenHolder;

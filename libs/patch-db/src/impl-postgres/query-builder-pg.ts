@@ -3,7 +3,7 @@ import {
   assertOffsetLimitFragment,
   assertOrderByFragment,
 } from '@gamezilla/lib/sqlite';
-import type { PatchesDbQuery, PatchesDbQueryWhereClause } from '../interface';
+import type { PatchDbQuery, PatchDbQueryWhereClause } from '../interface';
 import { assertAttribute, assertDirection } from '../interface';
 import { sqliteJsonPathToKey } from './json-path';
 
@@ -29,17 +29,17 @@ function jsonPathForAttribute(attribute: string): string {
 }
 
 type BinaryClause = Extract<
-  PatchesDbQueryWhereClause,
+  PatchDbQueryWhereClause,
   { type: '=' | '!=' | 'gt' | 'gte' | 'lt' | 'lte' }
 >;
-type SetClause = Extract<PatchesDbQueryWhereClause, { type: 'in' | 'not_in' }>;
+type SetClause = Extract<PatchDbQueryWhereClause, { type: 'in' | 'not_in' }>;
 type ExistenceClause = Extract<
-  PatchesDbQueryWhereClause,
+  PatchDbQueryWhereClause,
   { type: 'exists' | 'not_exists' }
 >;
-type AndOrClause = Extract<PatchesDbQueryWhereClause, { type: 'and' | 'or' }>;
-type ContainsClause = Extract<PatchesDbQueryWhereClause, { type: 'contains' }>;
-type NotClause = Extract<PatchesDbQueryWhereClause, { type: 'not' }>;
+type AndOrClause = Extract<PatchDbQueryWhereClause, { type: 'and' | 'or' }>;
+type ContainsClause = Extract<PatchDbQueryWhereClause, { type: 'contains' }>;
+type NotClause = Extract<PatchDbQueryWhereClause, { type: 'not' }>;
 
 const BINARY_OPS_SQL: Record<BinaryClause['type'], string> = {
   '=': '= ?::text',
@@ -129,32 +129,30 @@ function buildNotClause(clause: NotClause, jsonColumn: string): WhereFragment {
 }
 
 type ClauseBuilder = (
-  clause: PatchesDbQueryWhereClause,
+  clause: PatchDbQueryWhereClause,
   jsonColumn: string
 ) => WhereFragment;
 
-const CLAUSE_BUILDERS: Record<
-  PatchesDbQueryWhereClause['type'],
-  ClauseBuilder
-> = {
-  '=': (c, j) => buildBinaryClause(c as BinaryClause, j),
-  '!=': (c, j) => buildBinaryClause(c as BinaryClause, j),
-  gt: (c, j) => buildBinaryClause(c as BinaryClause, j),
-  gte: (c, j) => buildBinaryClause(c as BinaryClause, j),
-  lt: (c, j) => buildBinaryClause(c as BinaryClause, j),
-  lte: (c, j) => buildBinaryClause(c as BinaryClause, j),
-  contains: (c, j) => buildContainsClause(c as ContainsClause, j),
-  in: (c, j) => buildSetClause(c as SetClause, j),
-  not_in: (c, j) => buildSetClause(c as SetClause, j),
-  exists: (c, j) => buildExistenceClause(c as ExistenceClause, j),
-  not_exists: (c, j) => buildExistenceClause(c as ExistenceClause, j),
-  and: (c, j) => buildAndOrClause(c as AndOrClause, j),
-  or: (c, j) => buildAndOrClause(c as AndOrClause, j),
-  not: (c, j) => buildNotClause(c as NotClause, j),
-};
+const CLAUSE_BUILDERS: Record<PatchDbQueryWhereClause['type'], ClauseBuilder> =
+  {
+    '=': (c, j) => buildBinaryClause(c as BinaryClause, j),
+    '!=': (c, j) => buildBinaryClause(c as BinaryClause, j),
+    gt: (c, j) => buildBinaryClause(c as BinaryClause, j),
+    gte: (c, j) => buildBinaryClause(c as BinaryClause, j),
+    lt: (c, j) => buildBinaryClause(c as BinaryClause, j),
+    lte: (c, j) => buildBinaryClause(c as BinaryClause, j),
+    contains: (c, j) => buildContainsClause(c as ContainsClause, j),
+    in: (c, j) => buildSetClause(c as SetClause, j),
+    not_in: (c, j) => buildSetClause(c as SetClause, j),
+    exists: (c, j) => buildExistenceClause(c as ExistenceClause, j),
+    not_exists: (c, j) => buildExistenceClause(c as ExistenceClause, j),
+    and: (c, j) => buildAndOrClause(c as AndOrClause, j),
+    or: (c, j) => buildAndOrClause(c as AndOrClause, j),
+    not: (c, j) => buildNotClause(c as NotClause, j),
+  };
 
 function buildWhereClauseForColumn(
-  clause: PatchesDbQueryWhereClause,
+  clause: PatchDbQueryWhereClause,
   jsonColumn: string
 ): WhereFragment {
   const builder = CLAUSE_BUILDERS[clause.type];
@@ -163,14 +161,14 @@ function buildWhereClauseForColumn(
 }
 
 export function buildWhereClause(
-  clause: PatchesDbQueryWhereClause,
+  clause: PatchDbQueryWhereClause,
   columnPrefix = ''
 ): WhereFragment {
   const jsonColumn = `${columnPrefix}attributes`;
   return buildWhereClauseForColumn(clause, jsonColumn);
 }
 
-export function buildSnapshotConditions(query: PatchesDbQuery): {
+export function buildSnapshotConditions(query: PatchDbQuery): {
   conditions: string[];
   params: unknown[];
 } {
@@ -207,7 +205,7 @@ export function buildSnapshotConditions(query: PatchesDbQuery): {
 }
 
 export function buildPatchConditions(
-  query: PatchesDbQuery,
+  query: PatchDbQuery,
   tableAlias = 'p'
 ): { conditions: string[]; params: unknown[] } {
   const conditions: string[] = [];
@@ -244,7 +242,7 @@ export function buildPatchConditions(
 }
 
 export function buildOrderSQL(
-  query: PatchesDbQuery,
+  query: PatchDbQuery,
   defaultOrder: string,
   attributePrefix = ''
 ): string {
@@ -268,7 +266,7 @@ export function buildOrderSQL(
   return defaultOrder;
 }
 
-export function buildLimitSQL(query: PatchesDbQuery): {
+export function buildLimitSQL(query: PatchDbQuery): {
   sql: string;
   params: unknown[];
 } {

@@ -1,5 +1,3 @@
-import type { Entity, Patch } from '@gamezilla/patch-db/interface';
-import { useEntity, usePatchesDb } from '@gamezilla/patch-db/react';
 import {
   Box,
   Card,
@@ -13,6 +11,8 @@ import {
   Text,
   useTheme,
 } from '@gamezilla/lib/ui';
+import type { Entity, Patch } from '@gamezilla/patch-db/interface';
+import { useEntity, usePatchDb } from '@gamezilla/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -29,7 +29,7 @@ export type EntityDetailScreenProps = {
 };
 
 function useEntityPatches(entityType: string, entityId: string) {
-  const db = usePatchesDb();
+  const db = usePatchDb();
   const [patches, setPatches] = useState<Patch[]>([]);
   const [loadingPatches, setLoadingPatches] = useState(false);
   const [patchError, setPatchError] = useState<string | null>(null);

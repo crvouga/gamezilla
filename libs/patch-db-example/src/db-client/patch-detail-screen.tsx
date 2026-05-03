@@ -1,5 +1,3 @@
-import type { Patch } from '@gamezilla/patch-db/interface';
-import { usePatchesDb } from '@gamezilla/patch-db/react';
 import {
   Box,
   Card,
@@ -11,6 +9,8 @@ import {
   Text,
   useTheme,
 } from '@gamezilla/lib/ui';
+import type { Patch } from '@gamezilla/patch-db/interface';
+import { usePatchDb } from '@gamezilla/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -28,7 +28,7 @@ export type PatchDetailScreenProps = {
   onNavigateToPatch: (patch: Patch) => void;
 };
 
-type Db = ReturnType<typeof usePatchesDb>;
+type Db = ReturnType<typeof usePatchDb>;
 
 function useLoadPatch(
   db: Db,
@@ -281,7 +281,7 @@ export function PatchDetailScreen({
 }: PatchDetailScreenProps) {
   const { t } = useLingui();
   const theme = useTheme();
-  const db = usePatchesDb();
+  const db = usePatchDb();
   const { patch, loading, loadError } = useLoadPatch(
     db,
     entityType,

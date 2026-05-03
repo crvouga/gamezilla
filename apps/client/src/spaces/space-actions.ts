@@ -6,18 +6,18 @@ import {
   SpaceMembershipAttr,
 } from '@gamezilla/domain/spaces/space-entities';
 import { useDependency } from '@gamezilla/lib/dependency-injection/react';
-import type { PatchesDb } from '@gamezilla/patch-db/interface';
-import { usePatchesDb } from '@gamezilla/patch-db/react';
+import type { PatchDb } from '@gamezilla/patch-db/interface';
+import { usePatchDb } from '@gamezilla/patch-db/react';
 import { useCallback } from 'react';
 
-type WritePatches = Parameters<PatchesDb['write']>[0];
+type WritePatches = Parameters<PatchDb['write']>[0];
 
 function isoNow(): string {
   return new Date().toISOString();
 }
 
 async function readActiveHostMembership(
-  db: PatchesDb,
+  db: PatchDb,
   principalId: string
 ): Promise<{ spaceId: string } | null> {
   const [memRes] = await db.read([
@@ -57,7 +57,7 @@ function endHostedSpacePatches(
 }
 
 async function createSpaceAction(
-  db: PatchesDb,
+  db: PatchDb,
   principalId: string
 ): Promise<string | undefined> {
   const now = isoNow();
@@ -95,7 +95,7 @@ async function createSpaceAction(
 }
 
 async function joinSpaceAction(
-  db: PatchesDb,
+  db: PatchDb,
   principalId: string,
   spaceId: string
 ): Promise<void> {
@@ -119,7 +119,7 @@ async function joinSpaceAction(
 }
 
 async function leaveSpaceAction(
-  db: PatchesDb,
+  db: PatchDb,
   principalId: string
 ): Promise<void> {
   await db.write([
@@ -132,7 +132,7 @@ async function leaveSpaceAction(
 }
 
 async function endSpaceAction(
-  db: PatchesDb,
+  db: PatchDb,
   principalId: string,
   spaceId: string
 ): Promise<void> {
@@ -141,7 +141,7 @@ async function endSpaceAction(
 }
 
 export function useSpaceActions() {
-  const db = usePatchesDb();
+  const db = usePatchDb();
   const principalService = useDependency(PrincipalServiceToken);
   const principalId = principalService.getPrincipalId();
 

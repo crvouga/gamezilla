@@ -4,7 +4,7 @@ import {
   PrincipalAttr,
 } from '@gamezilla/domain/auth';
 import { assert } from '@gamezilla/lib/assert';
-import type { Entity, PatchesDb } from '@gamezilla/patch-db/interface';
+import type { Entity, PatchDb } from '@gamezilla/patch-db/interface';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
@@ -96,7 +96,7 @@ function snapshotDiffers(
  * then on every launch refreshes `lastSeenAt` and any changed device metadata.
  */
 export async function ensurePrincipalEntity(
-  db: PatchesDb,
+  db: PatchDb,
   principalId: string
 ): Promise<void> {
   assertPrincipalId(principalId);

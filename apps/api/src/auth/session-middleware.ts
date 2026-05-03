@@ -4,10 +4,7 @@ import {
 } from '@gamezilla/domain/auth';
 import { assertPrincipalId } from '@gamezilla/domain/auth/principal-id';
 import { assert } from '@gamezilla/lib/assert';
-import type {
-  PatchesDb,
-  PatchesDbContext,
-} from '@gamezilla/patch-db/interface';
+import type { PatchDb, PatchDbContext } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import type {
   AppAuthContext,
@@ -23,11 +20,11 @@ export type AuthContext = AppAuthContext;
  * Returns a visitor context instead of null so the ABAC layer can filter
  * reads for anonymous visitors.
  */
-export async function resolvePatchesDbContext(
-  db: PatchesDb,
+export async function resolvePatchDbContext(
+  db: PatchDb,
   request: Request,
   visitorId: string
-): Promise<PatchesDbContext> {
+): Promise<PatchDbContext> {
   const header = request.headers.get('Authorization');
   if (header === null || !header.startsWith('Bearer ')) {
     return { visitorId } satisfies AppVisitorContext;
@@ -88,11 +85,11 @@ export async function resolvePatchesDbContext(
 }
 
 /**
- * Same as {@link resolvePatchesDbContext} but throws 401 when there is no
+ * Same as {@link resolvePatchDbContext} but throws 401 when there is no
  * valid Bearer session. Use for endpoints that require authentication.
  */
 export async function requireAuthContext(
-  db: PatchesDb,
+  db: PatchDb,
   request: Request,
   visitorId: string
 ): Promise<AuthContext> {
@@ -100,7 +97,7 @@ export async function requireAuthContext(
   if (header === null || !header.startsWith('Bearer ')) {
     throw new UnauthorizedError('Missing bearer token');
   }
-  const ctx = await resolvePatchesDbContext(db, request, visitorId);
+  const ctx = await resolvePatchDbContext(db, request, visitorId);
   if (typeof ctx.principalId !== 'string') {
     throw new UnauthorizedError('Invalid or expired session');
   }

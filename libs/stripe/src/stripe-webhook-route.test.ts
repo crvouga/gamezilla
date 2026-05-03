@@ -1,5 +1,5 @@
 import type { SecretStore } from '@gamezilla/lib/secret-store';
-import type { PatchInput, PatchesDb } from '@gamezilla/patch-db/interface';
+import type { PatchDb, PatchInput } from '@gamezilla/patch-db/interface';
 import { describe, expect, it, mock } from 'bun:test';
 import Stripe from 'stripe';
 import { StripeSecretKeys } from './secret-keys';
@@ -9,7 +9,7 @@ describe('createStripeWebhookRoutes', () => {
   it('returns 503 when Stripe client is not configured', async () => {
     const patchDb = {
       write: async () => [],
-    } as unknown as PatchesDb;
+    } as unknown as PatchDb;
     const secretStore = {
       getRequired: async () => '',
       getOptional: async () => 'whsec_test',
@@ -34,7 +34,7 @@ describe('createStripeWebhookRoutes', () => {
   it('returns 503 when webhook secret is missing', async () => {
     const patchDb = {
       write: async () => [],
-    } as unknown as PatchesDb;
+    } as unknown as PatchDb;
     const secretStore = {
       getRequired: async () => '',
       getOptional: async () => null,
@@ -67,7 +67,7 @@ describe('createStripeWebhookRoutes', () => {
         writeCalls.push({ patches });
         return [];
       },
-    } as unknown as PatchesDb;
+    } as unknown as PatchDb;
 
     const secretStore = {
       getRequired: async () => '',

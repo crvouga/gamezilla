@@ -1,14 +1,15 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { PatchDbHookRegistry } from '../hook-registry';
 import type {
   Attribute,
   Patch,
+  PatchDb,
+  PatchDbCompaction,
+  PatchDbContext,
   PatchDbEngineOptions,
-  PatchesDb,
-  PatchesDbCompaction,
-  PatchesDbContext,
-  PatchesDbQuery,
-  PatchesDbResult,
+  PatchDbQuery,
+  PatchDbResult,
   PatchInput,
 } from '../interface';
 import {
@@ -21,10 +22,9 @@ import {
   OPEN_PATCHES_DB_CONTEXT,
   PATCH_META_KEYS,
 } from '../interface';
-import { topologicalSortPatches } from '../topological-sort';
-import { PatchDbHookRegistry } from '../hook-registry';
 import { DEFAULT_PATCH_DB_COMPACTION_POLICY } from '../policy/compaction-policy';
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '../policy/system-principal';
+import { topologicalSortPatches } from '../topological-sort';
 import { parseAttributes } from './mappers';
 import { migratePatchDbSqlite } from './migrate';
 import { readPatches } from './read-ops';
@@ -46,10 +46,10 @@ type InsertPatchOptions = {
   recordedAt: string;
 };
 
-export class PatchDbImplSqlite implements PatchesDb {
+export class PatchDbImplSqlite implements PatchDb {
   readonly hooks = new PatchDbHookRegistry();
 
-  readonly compaction: PatchesDbCompaction = {
+  readonly compaction: PatchDbCompaction = {
     compactEntity: (key, options, ctx) => this.compactEntity(key, options, ctx),
     compactAll: (options, ctx) => this.compactAll(options, ctx),
   };
@@ -333,7 +333,7 @@ export class PatchDbImplSqlite implements PatchesDb {
 
   async write(
     patches: PatchInput[],
-    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<Patch[]> {
     this.assertPatchInputs(patches);
     const writtenPatches: Patch[] = [];
@@ -387,10 +387,10 @@ export class PatchDbImplSqlite implements PatchesDb {
   }
 
   async read(
-    queries: PatchesDbQuery[],
-    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
-  ): Promise<PatchesDbResult[]> {
-    const rewritten: PatchesDbQuery[] = [];
+    queries: PatchDbQuery[],
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+  ): Promise<PatchDbResult[]> {
+    const rewritten: PatchDbQuery[] = [];
     for (const q of queries) {
       rewritten.push(await this.hooks.runBeforeRead(q, ctx));
     }
@@ -399,7 +399,7 @@ export class PatchDbImplSqlite implements PatchesDb {
 
   async update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
-    _ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+    _ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<void> {
     void _ctx;
     if (updates.length === 0) return;
@@ -419,7 +419,7 @@ export class PatchDbImplSqlite implements PatchesDb {
   async compactEntity(
     key: { entityId: string; entityType: string },
     options: { keepLatest: number },
-    _ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+    _ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<{ removedPatchIds: string[]; compactionPatchId: string | null }> {
     void _ctx;
     let result: {
@@ -439,7 +439,7 @@ export class PatchDbImplSqlite implements PatchesDb {
 
   async compactAll(
     options: { keepLatest?: number; entityType?: string },
-    _ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+    _ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<{ entitiesCompacted: number }> {
     void _ctx;
     const keepLatest = options.keepLatest ?? 2;

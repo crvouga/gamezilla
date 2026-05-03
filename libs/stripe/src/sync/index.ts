@@ -11,7 +11,7 @@
  *
  * Composed:
  *   - {@link runStripeFullSync} — catalog → entities → webhooks on a single
- *     shared Stripe + PatchesDb + Doppler CLI; this is what `scripts/sync.ts`
+ *     shared Stripe + PatchDb + Doppler CLI; this is what `scripts/sync.ts`
  *     calls and what deploys invoke.
  */
 export {

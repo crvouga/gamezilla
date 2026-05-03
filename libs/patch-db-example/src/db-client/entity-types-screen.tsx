@@ -1,4 +1,3 @@
-import { usePatchesDb } from '@gamezilla/patch-db/react';
 import {
   Box,
   Button,
@@ -11,8 +10,8 @@ import {
   TextInput,
   useTheme,
 } from '@gamezilla/lib/ui';
-import { useLingui } from '@lingui/react/macro';
-import { Trans } from '@lingui/react/macro';
+import { usePatchDb } from '@gamezilla/patch-db/react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const PAGE_SIZE = 500;
@@ -31,7 +30,7 @@ type LoadState = {
 };
 
 function useEntityTypeCounts(): LoadState {
-  const db = usePatchesDb();
+  const db = usePatchDb();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [counts, setCounts] = useState<Map<string, number>>(new Map());

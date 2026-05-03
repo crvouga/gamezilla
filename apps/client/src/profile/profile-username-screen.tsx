@@ -4,15 +4,15 @@ import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
 } from '@gamezilla/domain/profile/profile-entities';
-import type { Entity } from '@gamezilla/patch-db/interface';
 import {
   Box,
-  type BodyContentProps,
   ScreenBase,
   Text,
   TextInput,
+  type BodyContentProps,
 } from '@gamezilla/lib/ui';
-import { usePatchesDb } from '@gamezilla/patch-db/react';
+import type { Entity } from '@gamezilla/patch-db/interface';
+import { usePatchDb } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import {
@@ -87,7 +87,7 @@ function ProfileUsernameScreenBody({
 
 export function ProfileUsernameScreen() {
   const router = useRouter();
-  const db = usePatchesDb();
+  const db = usePatchDb();
   const { profileId, entity } = useProfile();
   const [saving, setSaving] = useState(false);
   const [value, setValue] = useSyncedDisplayName(entity);

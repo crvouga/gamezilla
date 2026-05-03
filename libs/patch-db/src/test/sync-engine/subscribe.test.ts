@@ -6,7 +6,7 @@ const VIZ_FILE = import.meta.path;
 
 registerSyncEngineHooks();
 
-describe('SyncPatchesDb (deterministic sim)', () => {
+describe('SyncPatchDb (deterministic sim)', () => {
   test('subscribe: same query stays live with one of two subscribers unsubscribed', async () => {
     const sim = getSim();
     sim.setMeta({

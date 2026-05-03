@@ -6,19 +6,19 @@ import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbImplPostgres } from '../impl-postgres/impl-postgres';
 import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
 import {
-  SyncPatchesDb,
-  type SyncPatchesDbOptions,
-  type SyncPatchesDbScheduler,
+  SyncPatchDb,
+  type SyncPatchDbOptions,
+  type SyncPatchDbScheduler,
 } from '../impl-sync';
-import type { PatchesDb, PatchInput } from '../interface';
+import type { PatchDb, PatchInput } from '../interface';
 
 export type DbFactory = () => Promise<{
-  db: PatchesDb;
+  db: PatchDb;
   teardown: () => Promise<void>;
 }>;
 
 export async function createSqliteFactory(): Promise<{
-  db: PatchesDb;
+  db: PatchDb;
   teardown: () => Promise<void>;
 }> {
   const client: SqlClient = SqlClientImplBunSqlite.open(':memory:');
@@ -29,7 +29,7 @@ export async function createSqliteFactory(): Promise<{
 }
 
 export async function createPostgresFactory(): Promise<{
-  db: PatchesDb;
+  db: PatchDb;
   teardown: () => Promise<void>;
 }> {
   const url = process.env['DB_URL'];
@@ -50,9 +50,9 @@ export const implementations: { name: string; factory: DbFactory }[] = [
 ];
 
 export type SyncDbFixture = {
-  syncDb: SyncPatchesDb;
-  local: PatchesDb;
-  remote: PatchesDb;
+  syncDb: SyncPatchDb;
+  local: PatchDb;
+  remote: PatchDb;
   pubSub: InMemoryPubSub;
   teardown: () => Promise<void>;
 };
@@ -61,15 +61,15 @@ export type CreateSyncDbFactoryOptions = {
   pushIntervalMs?: number;
   pushDriver?: 'interval' | 'manual';
   pollDriver?: 'interval' | 'manual';
-  scheduler?: SyncPatchesDbScheduler;
+  scheduler?: SyncPatchDbScheduler;
   maxPushBatchSize?: number;
 };
 
 function buildSyncOptions(
   options: CreateSyncDbFactoryOptions | undefined
-): SyncPatchesDbOptions {
+): SyncPatchDbOptions {
   const opts = options ?? {};
-  const syncOptions: SyncPatchesDbOptions = {
+  const syncOptions: SyncPatchDbOptions = {
     pushIntervalMs: opts.pushIntervalMs ?? 10,
     pushDriver: opts.pushDriver ?? 'interval',
     pollDriver: opts.pollDriver ?? 'manual',
@@ -97,7 +97,7 @@ export async function createSyncDbFactory(
   await remote.migrate();
 
   const pubSub = new InMemoryPubSub();
-  const syncDb = new SyncPatchesDb(
+  const syncDb = new SyncPatchDb(
     local,
     remote,
     pubSub,

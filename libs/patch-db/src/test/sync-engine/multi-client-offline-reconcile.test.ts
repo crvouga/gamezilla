@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { PatchesDb, PatchesDbResult, PatchInput } from '../../interface';
+import type { PatchDb, PatchDbResult, PatchInput } from '../../interface';
 import type { SimClient } from '../../sim/scenario';
 import { DELETED_CLAUSE } from './constants';
 import { getTwoClientSim, registerTwoClientSimHooks } from './two-client-sim';
@@ -13,16 +13,16 @@ const LIST_QUERY = {
   where: DELETED_CLAUSE,
 } as const;
 
-function pickEntityIds(results: PatchesDbResult[]): Set<string> {
+function pickEntityIds(results: PatchDbResult[]): Set<string> {
   return new Set((results[0]?.entities ?? []).map((e) => e.entityId));
 }
 
-function getAttr(results: PatchesDbResult[], key: string): unknown {
+function getAttr(results: PatchDbResult[], key: string): unknown {
   return results[0]?.entities[0]?.attributes?.[key];
 }
 
 async function writeTodoList(
-  writer: SimClient | PatchesDb,
+  writer: SimClient | PatchDb,
   patches: PatchInput[]
 ): Promise<void> {
   await writer.write(patches);
@@ -113,7 +113,7 @@ async function assertOfflineVisibility(
 async function readAllIdSets(
   a: SimClient,
   b: SimClient,
-  srvDb: PatchesDb
+  srvDb: PatchDb
 ): Promise<{ idsA: Set<string>; idsB: Set<string>; idsR: Set<string> }> {
   const [ra, rb, rr] = await Promise.all([
     a.read([LIST_QUERY]),
@@ -145,7 +145,7 @@ function assertAllHaveIds(
 async function assertSharedMerged(
   a: SimClient,
   b: SimClient,
-  srvDb: PatchesDb,
+  srvDb: PatchDb,
   sharedId: string
 ): Promise<void> {
   const mergedName = 'Renamed-by-A-while-B-offline';
@@ -163,7 +163,7 @@ async function assertSharedMerged(
   expect(getAttr(sr, 'todoList/order')).toBe(42);
 }
 
-describe('SyncPatchesDb (deterministic sim, multi-client offline)', () => {
+describe('SyncPatchDb (deterministic sim, multi-client offline)', () => {
   test('offline client diverges then reconciles with server and peer', async () => {
     const sim = getTwoClientSim();
     sim.setMeta({

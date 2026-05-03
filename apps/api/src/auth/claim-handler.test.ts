@@ -10,13 +10,13 @@ import { PatchDbHookRegistry } from '@gamezilla/patch-db/hook-registry';
 import type {
   Entity,
   Patch,
+  PatchDb,
+  PatchDbCompactionResult,
+  PatchDbContext,
+  PatchDbQuery,
+  PatchDbQueryWhereClause,
+  PatchDbResult,
   PatchInput,
-  PatchesDb,
-  PatchesDbCompactionResult,
-  PatchesDbContext,
-  PatchesDbQuery,
-  PatchesDbQueryWhereClause,
-  PatchesDbResult,
 } from '@gamezilla/patch-db/interface';
 import { describe, expect, it } from 'bun:test';
 import {
@@ -45,7 +45,7 @@ const verifyRebind: VerifyGoogleIdTokenFn = () =>
     email: 'rebind@example.com',
   });
 
-function matchWhere(entity: Entity, where: PatchesDbQueryWhereClause): boolean {
+function matchWhere(entity: Entity, where: PatchDbQueryWhereClause): boolean {
   if (where.type === 'and') {
     return where.clauses.every((c) => matchWhere(entity, c));
   }
@@ -55,7 +55,7 @@ function matchWhere(entity: Entity, where: PatchesDbQueryWhereClause): boolean {
   return false;
 }
 
-function executeQuery(entities: Entity[], q: PatchesDbQuery): Entity[] {
+function executeQuery(entities: Entity[], q: PatchDbQuery): Entity[] {
   const list = entities.filter((e) => {
     if (q.entityType !== undefined && e.entityType !== q.entityType) {
       return false;
@@ -71,21 +71,21 @@ function executeQuery(entities: Entity[], q: PatchesDbQuery): Entity[] {
   return list.slice(0, limit);
 }
 
-class MemoryPatchesDb implements PatchesDb {
+class MemoryPatchDb implements PatchDb {
   readonly hooks = new PatchDbHookRegistry();
   readonly compaction = {
     compactEntity: (
       _key: { entityId: string; entityType: string },
       _options: { keepLatest: number },
-      _ctx: PatchesDbContext
-    ): Promise<PatchesDbCompactionResult> =>
+      _ctx: PatchDbContext
+    ): Promise<PatchDbCompactionResult> =>
       Promise.resolve({
         removedPatchIds: [],
         compactionPatchId: null,
       }),
     compactAll: (
       _options: { keepLatest?: number; entityType?: string },
-      _ctx: PatchesDbContext
+      _ctx: PatchDbContext
     ): Promise<{ entitiesCompacted: number }> =>
       Promise.resolve({ entitiesCompacted: 0 }),
   };
@@ -93,9 +93,9 @@ class MemoryPatchesDb implements PatchesDb {
   private entities: Entity[] = [];
 
   read(
-    queries: PatchesDbQuery[],
-    _ctx?: PatchesDbContext
-  ): Promise<PatchesDbResult[]> {
+    queries: PatchDbQuery[],
+    _ctx?: PatchDbContext
+  ): Promise<PatchDbResult[]> {
     void _ctx;
     return Promise.resolve(
       queries.map((query) => {
@@ -112,7 +112,7 @@ class MemoryPatchesDb implements PatchesDb {
     );
   }
 
-  write(patches: PatchInput[], _ctx?: PatchesDbContext): Promise<Patch[]> {
+  write(patches: PatchInput[], _ctx?: PatchDbContext): Promise<Patch[]> {
     void _ctx;
     for (const p of patches) {
       const idx = this.entities.findIndex(
@@ -127,7 +127,7 @@ class MemoryPatchesDb implements PatchesDb {
       } else {
         const prev = this.entities[idx];
         if (prev === undefined) {
-          throw new Error('MemoryPatchesDb: missing entity during merge');
+          throw new Error('MemoryPatchDb: missing entity during merge');
         }
         this.entities[idx] = {
           ...prev,
@@ -140,7 +140,7 @@ class MemoryPatchesDb implements PatchesDb {
 
   update(
     _updates: { patchId: string; attributes: Record<string, unknown> }[],
-    _ctx?: PatchesDbContext
+    _ctx?: PatchDbContext
   ): Promise<void> {
     void _updates;
     void _ctx;
@@ -150,7 +150,7 @@ class MemoryPatchesDb implements PatchesDb {
 
 describe('handleAuthClaimResult', () => {
   it('returns 503 when Google client id is not configured', async () => {
-    const db = new MemoryPatchesDb();
+    const db = new MemoryPatchDb();
     const r = await handleAuthClaimResult(
       db,
       {
@@ -166,7 +166,7 @@ describe('handleAuthClaimResult', () => {
   });
 
   it('creates account and session on first successful claim', async () => {
-    const db = new MemoryPatchesDb();
+    const db = new MemoryPatchDb();
     const principalId = '00000000-0000-4000-8000-0000000000aa';
     const r = await handleAuthClaimResult(
       db,
@@ -217,7 +217,7 @@ describe('handleAuthClaimResult', () => {
   });
 
   it('reuses same accountId for same Google sub on a second device principal', async () => {
-    const db = new MemoryPatchesDb();
+    const db = new MemoryPatchDb();
     const principalA = '00000000-0000-4000-8000-0000000000a1';
     const principalB = '00000000-0000-4000-8000-0000000000b2';
     const opts = {
@@ -256,7 +256,7 @@ describe('handleAuthClaimResult', () => {
   });
 
   it('rebinds the principal to the new account when previously bound to a different account', async () => {
-    const db = new MemoryPatchesDb();
+    const db = new MemoryPatchDb();
     const principalId = '00000000-0000-4000-8000-00000000c001';
     const staleAccount = '00000000-0000-4000-8000-00000000d001';
     await db.write([

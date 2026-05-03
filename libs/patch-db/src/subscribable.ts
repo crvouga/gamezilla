@@ -3,40 +3,40 @@ import type { InjectionToken } from '@gamezilla/lib/dependency-injection/depende
 import type { PubSub, Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
 import type {
   Patch,
-  PatchesDb,
-  PatchesDbContext,
-  PatchesDbQuery,
-  PatchesDbResult,
+  PatchDb,
+  PatchDbContext,
+  PatchDbQuery,
+  PatchDbResult,
   PatchInput,
 } from './interface';
 import { OPEN_PATCHES_DB_CONTEXT } from './interface';
 
-const PATCHES_DB_TOPIC = 'patches-db';
+const PATCHES_DB_TOPIC = 'patch-db';
 
-/** Any PatchesDb that exposes subscribe.entities and subscribe.patches (e.g. SubscribablePatchesDb, SyncPatchesDb) */
-export type SubscribablePatchesDbLike = PatchesDb & {
+/** Any PatchDb that exposes subscribe.entities and subscribe.patches (e.g. SubscribablePatchDb, SyncPatchDb) */
+export type SubscribablePatchDbLike = PatchDb & {
   subscribe: {
     patches: (
-      query: PatchesDbQuery,
-      listener: (result: PatchesDbResult) => void
+      query: PatchDbQuery,
+      listener: (result: PatchDbResult) => void
     ) => Unsubscribe;
     entities: (
-      query: PatchesDbQuery,
-      listener: (result: PatchesDbResult) => void
+      query: PatchDbQuery,
+      listener: (result: PatchDbResult) => void
     ) => Unsubscribe;
   };
 };
 
-export const SubscribablePatchesDbToken: InjectionToken<SubscribablePatchesDbLike> =
-  Symbol('SubscribablePatchesDb');
+export const SubscribablePatchDbToken: InjectionToken<SubscribablePatchDbLike> =
+  Symbol('SubscribablePatchDb');
 
-type SubscriberListener = (result: PatchesDbResult) => void;
+type SubscriberListener = (result: PatchDbResult) => void;
 
 type SubscriptionGroup = {
-  query: PatchesDbQuery;
+  query: PatchDbQuery;
   listeners: Set<SubscriberListener>;
   /** Last delivered result, served immediately to late-joining subscribers. */
-  lastResult: PatchesDbResult | null;
+  lastResult: PatchDbResult | null;
   /** Active read coalesced across listeners; collapses bursts of invalidations. */
   inFlight: Promise<void> | null;
   /** True when an invalidation arrived while a read was in flight. */
@@ -44,7 +44,7 @@ type SubscriptionGroup = {
   pubSubUnsub: Unsubscribe | null;
 };
 
-export class SubscribablePatchesDb implements PatchesDb {
+export class SubscribablePatchDb implements PatchDb {
   get hooks() {
     return this.db.hooks;
   }
@@ -62,13 +62,13 @@ export class SubscribablePatchesDb implements PatchesDb {
   private patchGroups = new Map<string, SubscriptionGroup>();
 
   constructor(
-    private db: PatchesDb,
+    private db: PatchDb,
     private pubSub: PubSub
   ) {}
 
   async write(
     patches: PatchInput[],
-    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<Patch[]> {
     const result = await this.db.write(patches, ctx);
     this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
@@ -76,33 +76,31 @@ export class SubscribablePatchesDb implements PatchesDb {
   }
 
   read(
-    queries: PatchesDbQuery[],
-    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
-  ): Promise<PatchesDbResult[]> {
+    queries: PatchDbQuery[],
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+  ): Promise<PatchDbResult[]> {
     return this.db.read(queries, ctx);
   }
 
   async update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
-    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<void> {
     return this.db.update(updates, ctx);
   }
 
   subscribe = {
-    patches: (
-      query: PatchesDbQuery,
-      listener: SubscriberListener
-    ): Unsubscribe => this.subscribeGroup(this.patchGroups, query, listener),
+    patches: (query: PatchDbQuery, listener: SubscriberListener): Unsubscribe =>
+      this.subscribeGroup(this.patchGroups, query, listener),
     entities: (
-      query: PatchesDbQuery,
+      query: PatchDbQuery,
       listener: SubscriberListener
     ): Unsubscribe => this.subscribeGroup(this.entityGroups, query, listener),
   };
 
   private subscribeGroup(
     groups: Map<string, SubscriptionGroup>,
-    query: PatchesDbQuery,
+    query: PatchDbQuery,
     listener: SubscriberListener
   ): Unsubscribe {
     const queryKey = JSON.stringify(query);
@@ -132,7 +130,7 @@ export class SubscribablePatchesDb implements PatchesDb {
   private openGroup(
     groups: Map<string, SubscriptionGroup>,
     queryKey: string,
-    query: PatchesDbQuery
+    query: PatchDbQuery
   ): SubscriptionGroup {
     const group: SubscriptionGroup = {
       query,

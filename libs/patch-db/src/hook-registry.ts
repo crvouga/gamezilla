@@ -1,27 +1,27 @@
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import type {
   Patch,
-  PatchesDbContext,
-  PatchesDbQuery,
+  PatchDbContext,
+  PatchDbHooks,
+  PatchDbQuery,
   PatchInput,
-  PatchesDbHooks,
   Unsubscribe,
 } from './interface';
 
 type BeforeReadFn = (
-  query: PatchesDbQuery,
-  ctx: PatchesDbContext
-) => PatchesDbQuery | Promise<PatchesDbQuery>;
+  query: PatchDbQuery,
+  ctx: PatchDbContext
+) => PatchDbQuery | Promise<PatchDbQuery>;
 
 type BeforeWriteFn = (
   patches: PatchInput[],
-  ctx: PatchesDbContext,
+  ctx: PatchDbContext,
   tx: SqlClient
 ) => PatchInput[] | Promise<PatchInput[]>;
 
 type AfterWriteFn = (
   written: Patch[],
-  ctx: PatchesDbContext,
+  ctx: PatchDbContext,
   tx: SqlClient
 ) => void | Promise<void>;
 
@@ -29,7 +29,7 @@ type AfterWriteFn = (
  * Composable hook lists; {@link PatchDbImplSqlite} / {@link PatchDbImplPostgres}
  * invoke these inside the read path and inside the write transaction.
  */
-export class PatchDbHookRegistry implements PatchesDbHooks {
+export class PatchDbHookRegistry implements PatchDbHooks {
   private beforeReadFns: BeforeReadFn[] = [];
   private beforeWriteFns: BeforeWriteFn[] = [];
   private afterWriteFns: AfterWriteFn[] = [];
@@ -59,9 +59,9 @@ export class PatchDbHookRegistry implements PatchesDbHooks {
   }
 
   async runBeforeRead(
-    query: PatchesDbQuery,
-    ctx: PatchesDbContext
-  ): Promise<PatchesDbQuery> {
+    query: PatchDbQuery,
+    ctx: PatchDbContext
+  ): Promise<PatchDbQuery> {
     let q = query;
     for (const fn of this.beforeReadFns) {
       q = await fn(q, ctx);
@@ -71,7 +71,7 @@ export class PatchDbHookRegistry implements PatchesDbHooks {
 
   async runBeforeWrite(
     patches: PatchInput[],
-    ctx: PatchesDbContext,
+    ctx: PatchDbContext,
     tx: SqlClient
   ): Promise<PatchInput[]> {
     let p = patches;
@@ -83,7 +83,7 @@ export class PatchDbHookRegistry implements PatchesDbHooks {
 
   async runAfterWrite(
     written: Patch[],
-    ctx: PatchesDbContext,
+    ctx: PatchDbContext,
     tx: SqlClient
   ): Promise<void> {
     for (const fn of this.afterWriteFns) {

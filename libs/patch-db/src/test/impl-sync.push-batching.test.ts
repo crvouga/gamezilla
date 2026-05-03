@@ -2,39 +2,39 @@ import { assert } from '@gamezilla/lib/assert';
 import { describe, expect, test } from 'bun:test';
 import type {
   Patch,
-  PatchesDb,
-  PatchesDbContext,
-  PatchesDbQuery,
-  PatchesDbResult,
+  PatchDb,
+  PatchDbContext,
+  PatchDbQuery,
+  PatchDbResult,
   PatchInput,
 } from '../interface';
 import { MAX_PATCHES_PER_REQUEST } from '../transport/wire-schemas';
 import { createSyncDbFactory } from './test-helpers';
 
 /**
- * Wraps a PatchesDb to (a) record the size of each `write` batch, and (b)
+ * Wraps a PatchDb to (a) record the size of each `write` batch, and (b)
  * crash if any batch exceeds the wire contract — mirroring the assertion
  * baked into `PatchDbClientTransportHttpFetch` so deterministic tests catch
  * over-batches that would otherwise only show up against a real server.
  */
-class WireContractRecordingRemote implements PatchesDb {
-  readonly hooks: PatchesDb['hooks'];
-  readonly compaction: PatchesDb['compaction'];
+class WireContractRecordingRemote implements PatchDb {
+  readonly hooks: PatchDb['hooks'];
+  readonly compaction: PatchDb['compaction'];
   readonly writeBatches: number[] = [];
 
-  constructor(private readonly inner: PatchesDb) {
+  constructor(private readonly inner: PatchDb) {
     this.hooks = inner.hooks;
     this.compaction = inner.compaction;
   }
 
   read(
-    queries: PatchesDbQuery[],
-    ctx?: PatchesDbContext
-  ): Promise<PatchesDbResult[]> {
+    queries: PatchDbQuery[],
+    ctx?: PatchDbContext
+  ): Promise<PatchDbResult[]> {
     return this.inner.read(queries, ctx);
   }
 
-  async write(patches: PatchInput[], ctx?: PatchesDbContext): Promise<Patch[]> {
+  async write(patches: PatchInput[], ctx?: PatchDbContext): Promise<Patch[]> {
     assert.ok(
       patches.length > 0,
       'remote.write must never receive an empty batch',
@@ -51,13 +51,13 @@ class WireContractRecordingRemote implements PatchesDb {
 
   update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
-    ctx?: PatchesDbContext
+    ctx?: PatchDbContext
   ): Promise<void> {
     return this.inner.update(updates, ctx);
   }
 }
 
-describe('SyncPatchesDb push batching', () => {
+describe('SyncPatchDb push batching', () => {
   test('pushUnsynced chunks patches by maxPushBatchSize and pushes every patch', async () => {
     const fixture = await createSyncDbFactory({
       pushDriver: 'manual',

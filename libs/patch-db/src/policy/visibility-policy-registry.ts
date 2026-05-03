@@ -1,33 +1,33 @@
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { ForbiddenError } from '../forbidden-error';
 import type {
+  PatchDb,
+  PatchDbAuthContext,
+  PatchDbContext,
+  PatchDbQueryWhereClause,
+  PatchDbVisitorContext,
   PatchInput,
-  PatchesDb,
-  PatchesDbAuthContext,
-  PatchesDbContext,
-  PatchesDbQueryWhereClause,
-  PatchesDbVisitorContext,
 } from '../interface';
 import {
   andWhereClause,
   denyAllReadsQuery,
-  isPatchesDbSystemContext,
+  isPatchDbSystemContext,
 } from '../interface';
 
 /**
  * Read context passed to a {@link VisibilityPolicy.read}. Excludes the
- * {@link PatchesDbSystemContext} branch — system reads bypass the registry
+ * {@link PatchDbSystemContext} branch — system reads bypass the registry
  * before reaching the policy.
  */
 export type VisibilityPolicyReadContext<
-  TCtx extends PatchesDbAuthContext = PatchesDbAuthContext,
-> = TCtx | PatchesDbVisitorContext;
+  TCtx extends PatchDbAuthContext = PatchDbAuthContext,
+> = TCtx | PatchDbVisitorContext;
 
 /**
  * Per-entity-type ABAC policy.
  *
  * `TCtx` lets apps narrow the authenticated branch of `read` to a richer
- * context (e.g. a base {@link PatchesDbAuthContext} intersected with
+ * context (e.g. a base {@link PatchDbAuthContext} intersected with
  * `accountId`, `memberOfSpaceIds`, etc). The library never inspects the extra
  * claims; `install` passes whatever context arrives from the hook through to
  * the policy.
@@ -38,18 +38,18 @@ export type VisibilityPolicyReadContext<
  * {@link READ_WHERE_NEVER_TRUE}.
  */
 export type VisibilityPolicy<
-  TCtx extends PatchesDbAuthContext = PatchesDbAuthContext,
+  TCtx extends PatchDbAuthContext = PatchDbAuthContext,
 > = {
-  read: (ctx: VisibilityPolicyReadContext<TCtx>) => PatchesDbQueryWhereClause;
+  read: (ctx: VisibilityPolicyReadContext<TCtx>) => PatchDbQueryWhereClause;
   write: (
-    ctx: PatchesDbContext,
+    ctx: PatchDbContext,
     patch: PatchInput,
     tx: SqlClient
   ) => void | Promise<void>;
 };
 
 export class VisibilityPolicyRegistry<
-  TCtx extends PatchesDbAuthContext = PatchesDbAuthContext,
+  TCtx extends PatchDbAuthContext = PatchDbAuthContext,
 > {
   private readonly policies = new Map<string, VisibilityPolicy<TCtx>>();
 
@@ -70,7 +70,7 @@ export class VisibilityPolicyRegistry<
   }
 
   /**
-   * Wires ABAC read filtering + write checks onto {@link PatchesDb.hooks}.
+   * Wires ABAC read filtering + write checks onto {@link PatchDb.hooks}.
    * Returns an unsubscribe that removes both hook registrations.
    *
    * System contexts bypass the registry entirely. Auth and visitor contexts
@@ -81,9 +81,9 @@ export class VisibilityPolicyRegistry<
    * Writes dispatch to each entity type's `policy.write` for every non-system
    * context (including visitors). Authorization lives in those hooks only.
    */
-  install(db: PatchesDb): () => void {
+  install(db: PatchDb): () => void {
     const offRead = db.hooks.beforeRead((query, ctx) => {
-      if (isPatchesDbSystemContext(ctx)) return query;
+      if (isPatchDbSystemContext(ctx)) return query;
 
       if (query.entityType === undefined || query.entityType === '') {
         return denyAllReadsQuery(query);
@@ -101,7 +101,7 @@ export class VisibilityPolicyRegistry<
     });
 
     const offWrite = db.hooks.beforeWrite(async (patches, ctx, tx) => {
-      if (isPatchesDbSystemContext(ctx)) return patches;
+      if (isPatchDbSystemContext(ctx)) return patches;
       for (const p of patches) {
         const policy = this.policies.get(p.entityType);
         if (policy === undefined) {

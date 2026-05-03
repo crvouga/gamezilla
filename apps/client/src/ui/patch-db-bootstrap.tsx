@@ -13,7 +13,6 @@ import {
   ensureAccountProfile,
   ensurePrincipalProfile,
 } from '@gamezilla/client/auth/ensure-profile-entity';
-import { PatchMetadataStamper } from '@gamezilla/patch-db/metadata/patch-metadata-stamper';
 import {
   PrincipalServiceToken,
   type PrincipalService,
@@ -43,15 +42,16 @@ import { Box, Button, Center, hideSplash, Text } from '@gamezilla/lib/ui';
 import { assertUrl } from '@gamezilla/patch-db/assert-url';
 import { PatchDbImplClientTransport } from '@gamezilla/patch-db/impl-client-transport';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
-import { SyncPatchesDb } from '@gamezilla/patch-db/impl-sync';
-import type { PatchesDb } from '@gamezilla/patch-db/interface';
+import { SyncPatchDb } from '@gamezilla/patch-db/impl-sync';
+import type { PatchDb } from '@gamezilla/patch-db/interface';
+import { PatchMetadataStamper } from '@gamezilla/patch-db/metadata/patch-metadata-stamper';
 import {
   PatchDbSyncPubSubToken,
-  PatchesDbToken,
+  PatchDbToken,
 } from '@gamezilla/patch-db/react';
 import {
-  SubscribablePatchesDbToken,
-  type SubscribablePatchesDbLike,
+  SubscribablePatchDbToken,
+  type SubscribablePatchDbLike,
 } from '@gamezilla/patch-db/subscribable';
 import {
   PatchDbClientTransportHttpFetch,
@@ -93,11 +93,9 @@ type BootstrapPatchDbExpoSyncOptions = {
   parentContainer?: DependencyInjectionContainer;
   /**
    * Wrap the sync DB (e.g. stamp every patch with principalId via `createdBy`).
-   * Must preserve {@link SubscribablePatchesDbLike.subscribe}.
+   * Must preserve {@link SubscribablePatchDbLike.subscribe}.
    */
-  decoratePatchesDb?: (
-    db: SubscribablePatchesDbLike
-  ) => SubscribablePatchesDbLike;
+  decoratePatchDb?: (db: SubscribablePatchDbLike) => SubscribablePatchDbLike;
 };
 
 let cachedBootstrap: { key: string; promise: Promise<BootstrapResult> } | null =
@@ -127,7 +125,7 @@ async function bootstrapPatchDbExpoSync(
     pushIntervalMs = 2000,
     pollIntervalMs = 5000,
     parentContainer,
-    decoratePatchesDb,
+    decoratePatchDb,
   } = options;
 
   assertDatabaseName(databaseName);
@@ -150,17 +148,17 @@ async function bootstrapPatchDbExpoSync(
       transportOption ?? new PatchDbClientTransportHttpFetch(apiUrl);
     const remoteDb = new PatchDbImplClientTransport(transport);
     const pubSub = new InMemoryPubSub();
-    const syncDb = new SyncPatchesDb(localDb, remoteDb, pubSub, {
+    const syncDb = new SyncPatchDb(localDb, remoteDb, pubSub, {
       pushIntervalMs,
       pollIntervalMs,
     });
 
-    const dbForDi: SubscribablePatchesDbLike =
-      decoratePatchesDb !== undefined ? decoratePatchesDb(syncDb) : syncDb;
+    const dbForDi: SubscribablePatchDbLike =
+      decoratePatchDb !== undefined ? decoratePatchDb(syncDb) : syncDb;
 
     const container = new DependencyInjectionContainer(parentContainer);
-    container.registerValue(PatchesDbToken, dbForDi);
-    container.registerValue(SubscribablePatchesDbToken, dbForDi);
+    container.registerValue(PatchDbToken, dbForDi);
+    container.registerValue(SubscribablePatchDbToken, dbForDi);
     container.registerValue(PatchDbSyncPubSubToken, pubSub);
 
     return { container };
@@ -196,7 +194,7 @@ export async function clearLocalDatabaseAndReload(
 }
 
 async function applySessionToHolders(args: {
-  readonly db: PatchesDb;
+  readonly db: PatchDb;
   readonly session: PrincipalSessionRecord | null;
   readonly accountIdHolder: { set: (id: string | null) => void };
   readonly sessionTokenHolder: { set: (token: string | null) => void };
@@ -221,7 +219,7 @@ async function registerSessionService(
     set: (token: string | null) => void;
   }
 ) {
-  const db = c.get(PatchesDbToken);
+  const db = c.get(PatchDbToken);
   const principalId = principalService.getPrincipalId();
   await ensurePrincipalEntity(db, principalId);
   await ensurePrincipalProfile(db, principalId);
@@ -311,7 +309,7 @@ async function performPatchBootstrap(
       getAuthToken: () => sessionTokenHolder.get(),
     }),
     parentContainer,
-    decoratePatchesDb: (db) => {
+    decoratePatchDb: (db) => {
       stamper = new PatchMetadataStamper(db, {
         getPrincipalId: () => principalService.getPrincipalId(),
         getAccountId: () => accountIdHolder.get(),
@@ -324,7 +322,7 @@ async function performPatchBootstrap(
     c instanceof DependencyInjectionContainer,
     'bootstrap must return DependencyInjectionContainer'
   );
-  /** Stamper is assigned inside `decoratePatchesDb` before the bootstrap promise resolves. */
+  /** Stamper is assigned inside `decoratePatchDb` before the bootstrap promise resolves. */
   const metadataStamper = stamper as PatchMetadataStamper | null;
   if (metadataStamper !== null) {
     await metadataStamper.backfillCreatedBy();

@@ -1,5 +1,3 @@
-import type { Entity } from '@gamezilla/patch-db/interface';
-import { usePatchesDb } from '@gamezilla/patch-db/react';
 import {
   Box,
   Button,
@@ -12,9 +10,11 @@ import {
   TextInput,
   useTheme,
 } from '@gamezilla/lib/ui';
+import type { Entity } from '@gamezilla/patch-db/interface';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { usePatchDb } from '@gamezilla/patch-db/react';
 import { formatAttrValue } from './format-value';
 
 const PAGE_SIZE = 50;
@@ -54,7 +54,7 @@ type PageState = {
 
 function useEntityPager(entityType: string): PageState {
   const { t } = useLingui();
-  const db = usePatchesDb();
+  const db = usePatchDb();
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -6,12 +6,12 @@ import type { PatchRow } from '../impl-sqlite/types';
 import type {
   Attribute,
   Patch,
+  PatchDb,
+  PatchDbCompaction,
+  PatchDbContext,
   PatchDbEngineOptions,
-  PatchesDb,
-  PatchesDbCompaction,
-  PatchesDbContext,
-  PatchesDbQuery,
-  PatchesDbResult,
+  PatchDbQuery,
+  PatchDbResult,
   PatchInput,
 } from '../interface';
 import {
@@ -52,10 +52,10 @@ type PatchInsertBatchRow = {
   parent_id: string | null;
 };
 
-export class PatchDbImplPostgres implements PatchesDb {
+export class PatchDbImplPostgres implements PatchDb {
   readonly hooks = new PatchDbHookRegistry();
 
-  readonly compaction: PatchesDbCompaction = {
+  readonly compaction: PatchDbCompaction = {
     compactEntity: (key, options, ctx) => this.compactEntity(key, options, ctx),
     compactAll: (options, ctx) => this.compactAll(options, ctx),
   };
@@ -317,7 +317,7 @@ export class PatchDbImplPostgres implements PatchesDb {
 
   async write(
     patches: PatchInput[],
-    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<Patch[]> {
     this.assertPatchInputs(patches);
     let writtenPatches: Patch[] = [];
@@ -339,10 +339,10 @@ export class PatchDbImplPostgres implements PatchesDb {
   }
 
   async read(
-    queries: PatchesDbQuery[],
-    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
-  ): Promise<PatchesDbResult[]> {
-    const rewritten: PatchesDbQuery[] = [];
+    queries: PatchDbQuery[],
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+  ): Promise<PatchDbResult[]> {
+    const rewritten: PatchDbQuery[] = [];
     for (const q of queries) {
       rewritten.push(await this.hooks.runBeforeRead(q, ctx));
     }
@@ -351,7 +351,7 @@ export class PatchDbImplPostgres implements PatchesDb {
 
   async update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
-    _ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+    _ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<void> {
     void _ctx;
     if (updates.length === 0) return;
@@ -376,7 +376,7 @@ export class PatchDbImplPostgres implements PatchesDb {
   async compactEntity(
     key: { entityId: string; entityType: string },
     options: { keepLatest: number },
-    _ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+    _ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<{ removedPatchIds: string[]; compactionPatchId: string | null }> {
     void _ctx;
     let result: {
@@ -396,7 +396,7 @@ export class PatchDbImplPostgres implements PatchesDb {
 
   async compactAll(
     options: { keepLatest?: number; entityType?: string },
-    _ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+    _ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<{ entitiesCompacted: number }> {
     void _ctx;
     const keepLatest = options.keepLatest ?? 2;

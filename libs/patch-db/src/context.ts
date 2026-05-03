@@ -3,7 +3,7 @@
  * or accountId — ABAC policies decide what visitors can read (typically
  * only public entity types like client config).
  */
-export type PatchesDbVisitorContext = {
+export type PatchDbVisitorContext = {
   readonly visitorId: string;
   readonly principalId?: undefined;
 };
@@ -14,7 +14,7 @@ export type PatchesDbVisitorContext = {
  * Consuming apps extend via intersection to carry their own claims
  * (e.g. `accountId`, group memberships) into their visibility policies.
  */
-export type PatchesDbAuthContext = {
+export type PatchDbAuthContext = {
   readonly visitorId: string;
   readonly principalId: string;
   readonly [claim: string]: unknown;
@@ -25,43 +25,43 @@ export type PatchesDbAuthContext = {
  * `reason` is a free-form string so apps can tag privileged contexts
  * (e.g. `'stripe-webhook'`) without modifying the library.
  */
-export type PatchesDbSystemContext = {
+export type PatchDbSystemContext = {
   principalId: null;
   reason: string;
 };
 
-export type PatchesDbContext =
-  | PatchesDbVisitorContext
-  | PatchesDbAuthContext
-  | PatchesDbSystemContext;
+export type PatchDbContext =
+  | PatchDbVisitorContext
+  | PatchDbAuthContext
+  | PatchDbSystemContext;
 
 /** Default for local-first client DB, tests, and in-process sim — no ABAC filtering. */
-export const OPEN_PATCHES_DB_CONTEXT: PatchesDbSystemContext = {
+export const OPEN_PATCHES_DB_CONTEXT: PatchDbSystemContext = {
   principalId: null,
   reason: 'sim',
 };
 
 /** Server-side privileged operations (auth claim, session resolution bootstrap). */
-export const PATCHES_DB_SYSTEM_CONTEXT: PatchesDbSystemContext = {
+export const PATCHES_DB_SYSTEM_CONTEXT: PatchDbSystemContext = {
   principalId: null,
   reason: 'system',
 };
 
-export function isPatchesDbSystemContext(
-  ctx: PatchesDbContext
-): ctx is PatchesDbSystemContext {
+export function isPatchDbSystemContext(
+  ctx: PatchDbContext
+): ctx is PatchDbSystemContext {
   return ctx.principalId === null;
 }
 
-export function isPatchesDbAuthContext(
-  ctx: PatchesDbContext
-): ctx is PatchesDbAuthContext {
+export function isPatchDbAuthContext(
+  ctx: PatchDbContext
+): ctx is PatchDbAuthContext {
   return typeof ctx.principalId === 'string';
 }
 
-export function isPatchesDbVisitorContext(
-  ctx: PatchesDbContext
-): ctx is PatchesDbVisitorContext {
+export function isPatchDbVisitorContext(
+  ctx: PatchDbContext
+): ctx is PatchDbVisitorContext {
   return (
     'visitorId' in ctx &&
     typeof (ctx as Record<string, unknown>)['visitorId'] === 'string' &&

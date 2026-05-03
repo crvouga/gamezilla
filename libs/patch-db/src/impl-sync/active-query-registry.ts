@@ -1,19 +1,19 @@
 import { assert } from '@gamezilla/lib/assert';
 import { fireAndForget } from '@gamezilla/lib/async/fire-and-forget';
 import type { PubSub, Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
+import type { PatchDb, PatchDbQuery, PatchDbResult } from '../interface';
 import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
-import type { PatchesDb, PatchesDbQuery, PatchesDbResult } from '../interface';
 
 /** Pub/sub topic carrying patch-db invalidation events. */
-export const PATCHES_DB_TOPIC = 'patches-db';
+export const PATCHES_DB_TOPIC = 'patch-db';
 
-export type ActiveQueryListener = (result: PatchesDbResult) => void;
+export type ActiveQueryListener = (result: PatchDbResult) => void;
 
 export type ActiveQuery = {
-  query: PatchesDbQuery;
+  query: PatchDbQuery;
   listeners: Set<ActiveQueryListener>;
   /** Last delivered result; served instantly to late subscribers (no read flicker on remount). */
-  lastResult: PatchesDbResult | null;
+  lastResult: PatchDbResult | null;
   /** Active read collapsed across listeners; coalesces bursts of invalidations. */
   inFlight: Promise<void> | null;
   /** True when an invalidation arrived mid-read, scheduling exactly one re-read on settle. */
@@ -22,7 +22,7 @@ export type ActiveQuery = {
 };
 
 export type ActiveQueryRegistryOptions = {
-  read: (query: PatchesDbQuery) => Promise<PatchesDbResult>;
+  read: (query: PatchDbQuery) => Promise<PatchDbResult>;
   pubSub: PubSub;
   isDestroyed: () => boolean;
   /** Called when the registry transitions from empty -> non-empty. */
@@ -62,7 +62,7 @@ export class ActiveQueryRegistry {
     return this.entries.size;
   }
 
-  subscribe(query: PatchesDbQuery, listener: ActiveQueryListener): Unsubscribe {
+  subscribe(query: PatchDbQuery, listener: ActiveQueryListener): Unsubscribe {
     const key = JSON.stringify(query);
     let entry = this.entries.get(key);
     const isFirstEntry = entry === undefined;
@@ -96,7 +96,7 @@ export class ActiveQueryRegistry {
     };
   }
 
-  private open(key: string, query: PatchesDbQuery): ActiveQuery {
+  private open(key: string, query: PatchDbQuery): ActiveQuery {
     const entry: ActiveQuery = {
       query,
       listeners: new Set(),
@@ -160,8 +160,8 @@ export class ActiveQueryRegistry {
 
 /** Helper that wraps `db.read([q])` and asserts a single result. */
 export function singleResultReader(
-  db: PatchesDb
-): (query: PatchesDbQuery) => Promise<PatchesDbResult> {
+  db: PatchDb
+): (query: PatchDbQuery) => Promise<PatchDbResult> {
   return async (query) => {
     const [result] = await db.read([query], OPEN_PATCHES_DB_CONTEXT);
     assert.ok(

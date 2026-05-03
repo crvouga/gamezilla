@@ -1,9 +1,9 @@
 export {
   SYNC_ERROR_TOPIC,
-  SyncPatchesDb,
-  defaultSyncPatchesDbScheduler,
+  SyncPatchDb,
+  defaultSyncPatchDbScheduler,
   type SyncErrorEvent,
-  type SyncPatchesDbOptions,
-  type SyncPatchesDbScheduleHandle,
-  type SyncPatchesDbScheduler,
+  type SyncPatchDbOptions,
+  type SyncPatchDbScheduleHandle,
+  type SyncPatchDbScheduler,
 } from './impl-sync';

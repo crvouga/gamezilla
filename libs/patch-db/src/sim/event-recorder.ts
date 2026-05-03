@@ -1,4 +1,4 @@
-import type { PatchInput, PatchesDbQuery, PatchesDbResult } from '../interface';
+import type { PatchDbQuery, PatchDbResult, PatchInput } from '../interface';
 
 /**
  * True when sim should record events and persist on destroy.
@@ -262,7 +262,7 @@ export function summarizePatchInputs(
   });
 }
 
-export function summarizeQueries(queries: PatchesDbQuery[]): QuerySummary[] {
+export function summarizeQueries(queries: PatchDbQuery[]): QuerySummary[] {
   return queries.map((q) => {
     const s: QuerySummary = {
       hasWhere: q.where !== undefined && q.where !== null,
@@ -283,7 +283,7 @@ export function summarizeQueries(queries: PatchesDbQuery[]): QuerySummary[] {
   });
 }
 
-export function summarizeResults(results: PatchesDbResult[]): ResultSummary[] {
+export function summarizeResults(results: PatchDbResult[]): ResultSummary[] {
   return results.map((r) => ({
     entityCount: r.entities.length,
     patchCount: r.patches.length,
@@ -291,7 +291,7 @@ export function summarizeResults(results: PatchesDbResult[]): ResultSummary[] {
 }
 
 export function summarizeResultEntities(
-  results: PatchesDbResult[]
+  results: PatchDbResult[]
 ): PatchInputSummary[] {
   const seen = new Set<string>();
   const out: PatchInputSummary[] = [];

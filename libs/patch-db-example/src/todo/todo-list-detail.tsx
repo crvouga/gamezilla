@@ -1,13 +1,3 @@
-import type {
-  Entity,
-  PatchesDbQuery,
-  PatchesDbQueryWhereClause,
-} from '@gamezilla/patch-db/interface';
-import {
-  useEntities,
-  useEntity,
-  usePatchesDb,
-} from '@gamezilla/patch-db/react';
 import {
   Box,
   KeyboardAvoidingView,
@@ -17,14 +7,19 @@ import {
   TextInput,
   useTheme,
 } from '@gamezilla/lib/ui';
-import { useLingui } from '@lingui/react/macro';
-import { Trans } from '@lingui/react/macro';
+import type {
+  Entity,
+  PatchDbQuery,
+  PatchDbQueryWhereClause,
+} from '@gamezilla/patch-db/interface';
+import { useEntities, useEntity, usePatchDb } from '@gamezilla/patch-db/react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 
 import { INBOX_LIST_ID } from './todo-constants';
 import { TodoItem } from './todo-item';
 
-const DELETED_CLAUSE: PatchesDbQueryWhereClause = {
+const DELETED_CLAUSE: PatchDbQueryWhereClause = {
   type: 'or',
   clauses: [
     { type: 'not_exists', attribute: 'todo/deleted' },
@@ -32,7 +27,7 @@ const DELETED_CLAUSE: PatchesDbQueryWhereClause = {
   ],
 };
 
-const ACTIVE_CLAUSE: PatchesDbQueryWhereClause = {
+const ACTIVE_CLAUSE: PatchDbQueryWhereClause = {
   type: 'or',
   clauses: [
     { type: 'not_exists', attribute: 'todo/completed' },
@@ -42,7 +37,7 @@ const ACTIVE_CLAUSE: PatchesDbQueryWhereClause = {
 
 type Filter = 'all' | 'active' | 'completed';
 
-function buildListClause(listId: string): PatchesDbQueryWhereClause {
+function buildListClause(listId: string): PatchDbQueryWhereClause {
   if (listId === INBOX_LIST_ID) {
     return {
       type: 'or',
@@ -58,8 +53,8 @@ function buildListClause(listId: string): PatchesDbQueryWhereClause {
 
 function buildWhereForFilter(
   filter: Filter,
-  listClause: PatchesDbQueryWhereClause
-): PatchesDbQueryWhereClause {
+  listClause: PatchDbQueryWhereClause
+): PatchDbQueryWhereClause {
   if (filter === 'all') {
     return { type: 'and', clauses: [DELETED_CLAUSE, listClause] };
   }
@@ -79,7 +74,7 @@ function buildWhereForFilter(
   };
 }
 
-function buildTodoQuery(listId: string, filter: Filter): PatchesDbQuery {
+function buildTodoQuery(listId: string, filter: Filter): PatchDbQuery {
   const listClause = buildListClause(listId);
   const where = buildWhereForFilter(filter, listClause);
   return {
@@ -270,7 +265,7 @@ function buildTodoDeletePayload(entity: Entity) {
 
 export function TodoListDetail({ listId, onBack }: TodoListDetailProps) {
   const { t } = useLingui();
-  const db = usePatchesDb();
+  const db = usePatchDb();
   const [input, setInput] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
 

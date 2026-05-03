@@ -1,8 +1,4 @@
 import { useAuth } from '@gamezilla/client/auth/auth-context';
-import {
-  PATCH_LAST_MODIFIED_BY_ACCOUNT,
-  PATCH_LAST_MODIFIED_BY_PRINCIPAL,
-} from '@gamezilla/patch-db/metadata/patch-metadata';
 import { PrincipalServiceToken } from '@gamezilla/client/auth/principal-service';
 import { usePrincipalProfileEntities } from '@gamezilla/client/auth/use-principal-profile-entities';
 import { displayNameForPrincipal } from '@gamezilla/client/profile/principal-display';
@@ -21,9 +17,13 @@ import {
 import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import type {
   Entity,
-  PatchesDbQuery,
-  PatchesDbQueryWhereClause,
+  PatchDbQuery,
+  PatchDbQueryWhereClause,
 } from '@gamezilla/patch-db/interface';
+import {
+  PATCH_LAST_MODIFIED_BY_ACCOUNT,
+  PATCH_LAST_MODIFIED_BY_PRINCIPAL,
+} from '@gamezilla/patch-db/metadata/patch-metadata';
 import { useEntities } from '@gamezilla/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
 import { useMemo } from 'react';
@@ -54,7 +54,7 @@ function spaceEntityIsLive(
   return ended === undefined || ended === null;
 }
 
-const LIVE_SPACES_QUERY: PatchesDbQuery = {
+const LIVE_SPACES_QUERY: PatchDbQuery = {
   entityType: SPACE_ENTITY_TYPE,
   where: {
     type: 'not_exists' as const,
@@ -296,7 +296,7 @@ function membershipStampWhere(args: {
   signedIn: boolean;
   accountId: string | null;
   principalId: string;
-}): PatchesDbQueryWhereClause {
+}): PatchDbQueryWhereClause {
   const { signedIn, accountId, principalId } = args;
   const leftClause = {
     type: 'not_exists' as const,

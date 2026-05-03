@@ -950,20 +950,17 @@ msgid "Load more"
 msgstr "Load more"
 
 #: apps/client/src/account/account-devices-card.tsx
-msgid "Loading devices…"
-msgstr "Loading devices…"
+#~ msgid "Loading devices…"
+#~ msgstr "Loading devices…"
 
 #: libs/patch-db-example/src/db-client/entity-detail-screen.tsx
 msgid "Loading entity…"
 msgstr "Loading entity…"
 
 #: apps/client/src/account/account-screen.tsx
-msgid "Loading provider records…"
-msgstr "Loading provider records…"
+#~ msgid "Loading provider records…"
+#~ msgstr "Loading provider records…"
 
-#: apps/client/src/account/account-device-detail-screen.tsx
-#: apps/client/src/spaces/space-detail-screen.tsx
-#: apps/client/src/spaces/spaces-screen.tsx
 #: libs/patch-db-example/src/db-client/entities-screen.tsx
 msgid "Loading…"
 msgstr "Loading…"
@@ -1565,7 +1562,6 @@ msgid "Solid"
 msgstr "Solid"
 
 #: apps/client/src/spaces/space-card.tsx
-#: apps/client/src/spaces/space-detail-screen.tsx
 msgid "Space"
 msgstr "Space"
 
@@ -1581,7 +1577,6 @@ msgstr "Space"
 #: apps/client/src/settings/about-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/settings/theme-screen.tsx
-#: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/spaces-screen.tsx

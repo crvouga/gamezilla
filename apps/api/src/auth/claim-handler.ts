@@ -16,14 +16,14 @@ import {
 import { assert } from '@gamezilla/lib/assert';
 import type {
   Entity,
+  PatchDb,
   PatchInput,
-  PatchesDb,
 } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import type { z } from 'zod';
-import type { authClaimRequestSchema } from './schema';
 import type { GoogleIdTokenClaims } from './google-token';
 import { verifyGoogleIdToken as verifyGoogleIdTokenLive } from './google-token';
+import type { authClaimRequestSchema } from './schema';
 
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -62,7 +62,7 @@ export type HandleAuthClaimOptions = {
  * Looks up an existing account linked to this Google `sub`.
  */
 async function findGoogleAccountProvider(
-  db: PatchesDb,
+  db: PatchDb,
   providerAccountId: string
 ): Promise<Entity | undefined> {
   const [providerResult] = await db.read(
@@ -133,7 +133,7 @@ function patchesForNewGoogleAccount(args: {
  * Resolves `accountId` from an existing provider row or creates account + provider patches.
  */
 async function resolveOrCreateAccountForGoogle(args: {
-  db: PatchesDb;
+  db: PatchDb;
   claims: GoogleIdTokenClaims;
   principalId: string;
   patchesToWrite: PatchInput[];
@@ -155,7 +155,7 @@ async function resolveOrCreateAccountForGoogle(args: {
 }
 
 async function readPrincipal(
-  db: PatchesDb,
+  db: PatchDb,
   principalId: string
 ): Promise<Entity | undefined> {
   const [principalResult] = await db.read(
@@ -240,7 +240,7 @@ function appendSessionPatch(args: {
  * Google OAuth claim: validates token, links account + session. Typed for Hono RPC (`c.json`).
  */
 export async function handleAuthClaimResult(
-  db: PatchesDb,
+  db: PatchDb,
   body: ClaimRequestBody,
   options: HandleAuthClaimOptions = {}
 ): Promise<AuthClaimResult> {

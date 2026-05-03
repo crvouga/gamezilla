@@ -6,11 +6,13 @@ import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
 import { createStripeApp } from '@gamezilla/stripe/stripe-app';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import { resolvePatchesDbContext } from '../auth/session-middleware';
-import { parseVisitorIdFromCookies } from '../auth/visitor-cookie';
-import { visitorCookieMiddleware } from '../auth/visitor-cookie';
 import { createAuthClaimApp } from '../auth/route';
+import { resolvePatchDbContext } from '../auth/session-middleware';
 import { UnauthorizedError } from '../auth/unauthorized-error';
+import {
+  parseVisitorIdFromCookies,
+  visitorCookieMiddleware,
+} from '../auth/visitor-cookie';
 import { createClientConfigApp } from '../client-config/route';
 import type { ApiWorkerEnv } from '../config/env';
 import { healthApp } from '../health/route';
@@ -38,9 +40,9 @@ function toPatchDbApiConfig(config: ApiHandlerConfig): PatchDbApiConfig {
     db,
     pubSub,
     patchDbHttpAuth: {
-      resolvePatchesDbContext: (req) => {
+      resolvePatchDbContext: (req) => {
         const visitorId = parseVisitorIdFromCookies(req);
-        return resolvePatchesDbContext(db, req, visitorId);
+        return resolvePatchDbContext(db, req, visitorId);
       },
     },
   };

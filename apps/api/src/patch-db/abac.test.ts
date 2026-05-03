@@ -1,16 +1,16 @@
-import { assert } from '@gamezilla/lib/assert';
 import { PRINCIPAL_ENTITY_TYPE, PrincipalAttr } from '@gamezilla/domain/auth';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
 } from '@gamezilla/domain/profile/profile-entities';
+import { assert } from '@gamezilla/lib/assert';
 import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
 import type {
-  PatchesDb,
-  PatchesDbVisitorContext,
+  PatchDb,
+  PatchDbVisitorContext,
 } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
@@ -19,7 +19,7 @@ import type { AppAuthContext } from './default-patch-db-policies';
 import { installDefaultPatchDbPolicies } from './install-default-patch-db-policies';
 
 async function createSqliteFactory(): Promise<{
-  db: PatchesDb;
+  db: PatchDb;
   teardown: () => Promise<void>;
 }> {
   const client: SqlClient = SqlClientImplBunSqlite.open(':memory:');
@@ -30,7 +30,7 @@ async function createSqliteFactory(): Promise<{
 }
 
 describe('default ABAC policies (sqlite)', () => {
-  let db: PatchesDb;
+  let db: PatchDb;
   let teardown: () => Promise<void>;
 
   beforeEach(async () => {
@@ -186,7 +186,7 @@ describe('default ABAC policies (sqlite)', () => {
       PATCHES_DB_SYSTEM_CONTEXT
     );
 
-    const visitor: PatchesDbVisitorContext = {
+    const visitor: PatchDbVisitorContext = {
       visitorId: crypto.randomUUID(),
     };
     const [r] = await db.read([{ entityType: 'clientConfig' }], visitor);
@@ -211,7 +211,7 @@ describe('default ABAC policies (sqlite)', () => {
       PATCHES_DB_SYSTEM_CONTEXT
     );
 
-    const visitor: PatchesDbVisitorContext = {
+    const visitor: PatchDbVisitorContext = {
       visitorId: crypto.randomUUID(),
     };
     const [r] = await db.read([{ entityType: 'profile.private' }], visitor);
@@ -220,7 +220,7 @@ describe('default ABAC policies (sqlite)', () => {
   });
 
   test('visitor context can write patches (registry dispatches to policy)', async () => {
-    const visitor: PatchesDbVisitorContext = {
+    const visitor: PatchDbVisitorContext = {
       visitorId: crypto.randomUUID(),
     };
     const principalId = '00000000-0000-4000-8000-00000000a0b1';
@@ -242,7 +242,7 @@ describe('default ABAC policies (sqlite)', () => {
   });
 
   test('visitor write to system-only entity (clientConfig) is rejected by policy', async () => {
-    const visitor: PatchesDbVisitorContext = {
+    const visitor: PatchDbVisitorContext = {
       visitorId: crypto.randomUUID(),
     };
     await expect(

@@ -1,14 +1,14 @@
 import {
+  PRINCIPAL_SESSION_ENTITY_TYPE,
+  PrincipalSessionAttr,
+} from '@gamezilla/domain/auth';
+import {
   CLIENT_CONFIG_ENTITY_ID,
   CLIENT_CONFIG_ENTITY_TYPE,
   ClientConfigAttr,
 } from '@gamezilla/domain/client-config/client-config-entities';
-import {
-  PRINCIPAL_SESSION_ENTITY_TYPE,
-  PrincipalSessionAttr,
-} from '@gamezilla/domain/auth';
-import { assert } from '@gamezilla/lib/assert';
 import { ConfigServiceToken } from '@gamezilla/domain/config/config-service';
+import { assert } from '@gamezilla/lib/assert';
 import { DependencyInjectionContainer } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 import {
   ContainerProvider,
@@ -17,9 +17,9 @@ import {
 } from '@gamezilla/lib/dependency-injection/react';
 import { useLogger } from '@gamezilla/lib/logger/react';
 import { ConfirmationModal } from '@gamezilla/lib/ui';
+import { PatchDbToken, useEntity } from '@gamezilla/patch-db/react';
+import { SubscribablePatchDbToken } from '@gamezilla/patch-db/subscribable';
 import { Trans } from '@lingui/react/macro';
-import { PatchesDbToken, useEntity } from '@gamezilla/patch-db/react';
-import { SubscribablePatchesDbToken } from '@gamezilla/patch-db/subscribable';
 import {
   createContext,
   useCallback,
@@ -29,6 +29,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { AuthAccountIdHolderToken } from './auth-account-id-holder';
 import type { AuthGoogleProviderState } from './auth-capabilities';
 import { deriveGoogleProviderState } from './auth-capabilities';
 import {
@@ -36,7 +37,6 @@ import {
   createAuthService,
   type AuthService,
 } from './auth-service';
-import { AuthAccountIdHolderToken } from './auth-account-id-holder';
 import { AuthSessionTokenHolderToken } from './auth-session-token-holder';
 import { PrincipalServiceToken } from './principal-service';
 import {
@@ -147,7 +147,7 @@ function useSubscribeToSessionChanges(args: {
   refreshSession: () => Promise<void>;
 }) {
   const { principalId, refreshSession } = args;
-  const subDb = useDependency(SubscribablePatchesDbToken);
+  const subDb = useDependency(SubscribablePatchDbToken);
   useEffect(() => {
     const unsub = subDb.subscribe.entities(
       {
@@ -346,7 +346,7 @@ function AuthContainerBridgeInner({
   );
   const configService = useDependency(ConfigServiceToken);
   const principalService = useDependency(PrincipalServiceToken);
-  const db = useDependency(PatchesDbToken);
+  const db = useDependency(PatchDbToken);
   const sessionService = useDependency(SessionServiceToken);
   const accountIdHolder = useDependency(AuthAccountIdHolderToken);
   const sessionTokenHolder = useDependency(AuthSessionTokenHolderToken);

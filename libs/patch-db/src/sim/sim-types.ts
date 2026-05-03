@@ -1,13 +1,13 @@
-import type { Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
 import type { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
+import type { Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import type { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
-import type { SyncPatchesDb } from '../impl-sync';
+import type { SyncPatchDb } from '../impl-sync';
 import type {
   Patch,
-  PatchesDb,
-  PatchesDbQuery,
-  PatchesDbResult,
+  PatchDb,
+  PatchDbQuery,
+  PatchDbResult,
   PatchInput,
 } from '../interface';
 import type { NetworkLink } from './network-link';
@@ -37,8 +37,8 @@ export type ClientRuntime = {
   sqlClient: SqlClient;
   localDb: PatchDbImplSqlite;
   transport: SimulatedPatchDbClientTransport;
-  remoteDb: PatchesDb;
-  syncDb: SyncPatchesDb;
+  remoteDb: PatchDb;
+  syncDb: SyncPatchDb;
   pubSub: InMemoryPubSub;
   link: NetworkLink;
   vizUnsubs: Unsubscribe[];
@@ -60,23 +60,23 @@ export type SimClient = {
   /** Write patches to local (unsynced). */
   write(patches: PatchInput[]): Promise<Patch[]>;
   /** Read from local db. */
-  read(queries: PatchesDbQuery[]): Promise<PatchesDbResult[]>;
+  read(queries: PatchDbQuery[]): Promise<PatchDbResult[]>;
   /** Run one push cycle + flush microtasks. */
   push(): Promise<void>;
   /** Run one poll cycle + flush microtasks. */
   poll(): Promise<void>;
   /** Wipe all local data (simulate catastrophic client data loss). */
   wipeStorage(): Promise<void>;
-  subscribe: SyncPatchesDb['subscribe'];
+  subscribe: SyncPatchDb['subscribe'];
   link: SimLink;
-  /** Escape hatch: raw SyncPatchesDb (for edge-case tests). */
-  syncDb: SyncPatchesDb;
+  /** Escape hatch: raw SyncPatchDb (for edge-case tests). */
+  syncDb: SyncPatchDb;
 };
 
 export type SimServer = {
   id: string;
-  /** The authority PatchesDb (write here to simulate other clients). */
-  db: PatchesDb;
+  /** The authority PatchDb (write here to simulate other clients). */
+  db: PatchDb;
   /** Wipe all server data (simulate catastrophic server data loss). */
   wipeStorage(): Promise<void>;
 };

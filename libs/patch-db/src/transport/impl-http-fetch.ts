@@ -2,23 +2,23 @@ import { assert } from '@gamezilla/lib/assert';
 import { assertUrl } from '../assert-url';
 import type {
   Patch,
-  PatchesDbContext,
-  PatchesDbQuery,
-  PatchesDbResult,
+  PatchDbContext,
+  PatchDbQuery,
+  PatchDbResult,
   PatchInput,
 } from '../interface';
-import { assertPatches, assertPatchesDbResults } from '../validate-remote';
+import { assertPatchDbResults, assertPatches } from '../validate-remote';
 import type { PatchDbClientTransport } from './interface';
 import {
   NO_CACHE_REQUEST_HEADERS,
   PATCH_SUFFIX_READ,
   PATCH_SUFFIX_WRITE,
 } from './paths';
+import { PatchDbTransportRejectedError } from './transport-rejected-error';
 import {
   MAX_PATCHES_PER_REQUEST,
   MAX_QUERIES_PER_REQUEST,
 } from './wire-schemas';
-import { PatchDbTransportRejectedError } from './transport-rejected-error';
 
 function throwHttpFailure(res: Response, text: string): never {
   if (res.status === 401 || res.status === 403) {
@@ -66,9 +66,9 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
   }
 
   async read(
-    queries: PatchesDbQuery[],
-    _ctx?: PatchesDbContext
-  ): Promise<PatchesDbResult[]> {
+    queries: PatchDbQuery[],
+    _ctx?: PatchDbContext
+  ): Promise<PatchDbResult[]> {
     void _ctx;
     if (queries.length === 0) return [];
     assert.ok(
@@ -95,14 +95,11 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
       throwHttpFailure(res, text);
     }
     const raw: unknown = await res.json();
-    assertPatchesDbResults(raw);
+    assertPatchDbResults(raw);
     return raw;
   }
 
-  async write(
-    patches: PatchInput[],
-    _ctx?: PatchesDbContext
-  ): Promise<Patch[]> {
+  async write(patches: PatchInput[], _ctx?: PatchDbContext): Promise<Patch[]> {
     void _ctx;
     assert.ok(
       patches.length > 0,

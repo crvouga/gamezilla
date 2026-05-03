@@ -1,11 +1,11 @@
 export {
   DEFAULT_TEARDOWN_GRACE_MS,
+  PatchDbQueryCache,
   getCacheForDb,
-  PatchesDbQueryCache,
   type CachedQueryResult,
-  type PatchesDbQueryCacheOptions,
+  type PatchDbQueryCacheOptions,
 } from './query-cache';
-export { PatchDbSyncPubSubToken, PatchesDbToken } from './tokens';
+export { PatchDbSyncPubSubToken, PatchDbToken } from './tokens';
 export { useEntities, type UseEntitiesResult } from './use-entities';
 export { useEntity } from './use-entity';
-export { usePatchesDb } from './use-patches-db';
+export { usePatchDb } from './use-patch-db';

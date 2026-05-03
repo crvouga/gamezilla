@@ -1,9 +1,6 @@
-import type Stripe from 'stripe';
-import type {
-  PatchesDb,
-  PatchesDbContext,
-} from '@gamezilla/patch-db/interface';
+import type { PatchDb, PatchDbContext } from '@gamezilla/patch-db/interface';
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
+import type Stripe from 'stripe';
 
 /** Patch-db entity type for catalog prices (SPEC / checkout `priceKey` = entityId). */
 export const STRIPE_PATCH_ENTITY_CATALOG_PRICE =
@@ -31,8 +28,8 @@ export function stripePriceIdFromCatalogRowData(data: unknown): string | null {
 }
 
 export async function getStripeCatalogPriceStripeId(
-  db: PatchesDb,
-  ctx: PatchesDbContext,
+  db: PatchDb,
+  ctx: PatchDbContext,
   priceLookupKey: string
 ): Promise<string | null> {
   const [res] = await db.read(
@@ -56,8 +53,8 @@ export async function getStripeCatalogPriceStripeId(
  * `rowId` is the stable catalog key (SPEC / checkout `priceKey`).
  */
 export async function upsertCatalogPriceFromStripeApi(
-  db: PatchesDb,
-  ctx: PatchesDbContext,
+  db: PatchDb,
+  ctx: PatchDbContext,
   rowId: string,
   price: Stripe.Price
 ): Promise<void> {
@@ -83,8 +80,8 @@ export async function upsertCatalogPriceFromStripeApi(
  * `rowId` is `metadata.catalog_product_id` for that product.
  */
 export async function upsertCatalogProductFromStripeApi(
-  db: PatchesDb,
-  ctx: PatchesDbContext,
+  db: PatchDb,
+  ctx: PatchDbContext,
   rowId: string,
   product: Stripe.Product
 ): Promise<void> {

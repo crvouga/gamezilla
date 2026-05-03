@@ -4,7 +4,7 @@ import {
   assertPatchId,
   type Entity,
   type Patch,
-  type PatchesDbResult,
+  type PatchDbResult,
 } from './interface';
 
 function assertObject(
@@ -21,24 +21,22 @@ function assertObject(
   );
 }
 
-function assertPatchesDbResult(
-  value: unknown
-): asserts value is PatchesDbResult {
-  assertObject(value, 'PatchesDbResult must be an object');
-  assert.ok('query' in value, 'PatchesDbResult must have query', { value });
-  assert.array(value['entities'], 'PatchesDbResult.entities must be an array');
-  assert.array(value['patches'], 'PatchesDbResult.patches must be an array');
+function assertPatchDbResult(value: unknown): asserts value is PatchDbResult {
+  assertObject(value, 'PatchDbResult must be an object');
+  assert.ok('query' in value, 'PatchDbResult must have query', { value });
+  assert.array(value['entities'], 'PatchDbResult.entities must be an array');
+  assert.array(value['patches'], 'PatchDbResult.patches must be an array');
   assert.ok(
     typeof value['total'] === 'number',
-    'PatchesDbResult.total must be number'
+    'PatchDbResult.total must be number'
   );
   assert.ok(
     typeof value['hasMore'] === 'boolean',
-    'PatchesDbResult.hasMore must be boolean'
+    'PatchDbResult.hasMore must be boolean'
   );
   assert.ok(
     value['nextCursor'] === null || typeof value['nextCursor'] === 'string',
-    'PatchesDbResult.nextCursor must be string or null'
+    'PatchDbResult.nextCursor must be string or null'
   );
 }
 
@@ -93,13 +91,13 @@ function assertPatch(value: unknown): asserts value is Patch {
 /**
  * Validates remote response for read(). Call after res.json() at trust boundary.
  */
-export function assertPatchesDbResults(
+export function assertPatchDbResults(
   value: unknown
-): asserts value is PatchesDbResult[] {
-  assert.array(value, 'PatchesDbResults must be an array');
+): asserts value is PatchDbResult[] {
+  assert.array(value, 'PatchDbResults must be an array');
   const arr = value;
   for (const result of arr) {
-    assertPatchesDbResult(result);
+    assertPatchDbResult(result);
     for (const entity of result.entities) {
       assertEntity(entity);
     }

@@ -17,7 +17,7 @@ import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
 } from '@gamezilla/domain/profile/profile-entities';
-import { usePatchesDb } from '@gamezilla/patch-db/react';
+import { usePatchDb } from '@gamezilla/patch-db/react';
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -163,7 +163,7 @@ function useSaveAction(args: {
 }) {
   const { draft, profileId, setSaving } = args;
   const router = useRouter();
-  const db = usePatchesDb();
+  const db = usePatchDb();
   return useCallback(async () => {
     if (profileId === null) return;
     setSaving(true);

@@ -2,15 +2,14 @@
  * Catalog reconcile: declarative {@link STRIPE_CATALOG_SPEC} → Stripe Products/Prices.
  *
  * Pure orchestration — no secret resolution, no SQL connection setup. Callers
- * pass a ready-to-use Stripe client and (optionally) a PatchesDb to dump
+ * pass a ready-to-use Stripe client and (optionally) a PatchDb to dump
  * `products.retrieve` / `prices.retrieve` payloads into.
  *
  * Idempotent: identifies products by `metadata.catalog_product_id` and prices
  * by `lookup_key`; archives drifted prices and recreates with `transfer_lookup_key`.
  */
-import type { PatchesDb } from '@gamezilla/patch-db/interface';
+import type { PatchDb } from '@gamezilla/patch-db/interface';
 import type Stripe from 'stripe';
-import { STRIPE_PATCH_DB_SCRIPT_CONTEXT } from '../stripe-script-patch-db';
 import { STRIPE_CATALOG_SPEC } from '../catalog-spec';
 import {
   decidePriceReconcile,
@@ -24,6 +23,7 @@ import {
   upsertCatalogPriceFromStripeApi,
   upsertCatalogProductFromStripeApi,
 } from '../stripe-catalog-mirror';
+import { STRIPE_PATCH_DB_SCRIPT_CONTEXT } from '../stripe-script-patch-db';
 
 const TAG = 'stripe sync catalog';
 
@@ -251,7 +251,7 @@ async function reconcileAllPrices(
 
 async function dumpCatalogToPatchDb(args: {
   readonly stripe: Stripe;
-  readonly patchDb: PatchesDb;
+  readonly patchDb: PatchDb;
   readonly productStripeIdsByKey: Readonly<Record<string, string>>;
   readonly priceStripeIdsByKey: Readonly<Record<string, string>>;
 }): Promise<void> {
@@ -294,7 +294,7 @@ async function dumpCatalogToPatchDb(args: {
 export async function runStripeCatalogSync(args: {
   readonly stripe: Stripe;
   /** When provided, dumps `products.retrieve` / `prices.retrieve` JSON into patch-db. */
-  readonly patchDb?: PatchesDb;
+  readonly patchDb?: PatchDb;
 }): Promise<CatalogSyncResult> {
   const { stripe, patchDb } = args;
 

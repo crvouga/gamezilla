@@ -1,14 +1,16 @@
 import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '@gamezilla/domain/auth';
-import type { PatchesDb } from '@gamezilla/patch-db/interface';
-import type { PatchesDbSystemContext } from '@gamezilla/patch-db/interface';
+import type {
+  PatchDb,
+  PatchDbSystemContext,
+} from '@gamezilla/patch-db/interface';
 
 /**
  * Resolves `account/id` for the row whose `account/stripeCustomerId` matches Stripe `cus_…`.
  */
 export async function resolveAccountIdByStripeCustomerId(
-  db: PatchesDb,
+  db: PatchDb,
   stripeCustomerId: string,
-  ctx: PatchesDbSystemContext
+  ctx: PatchDbSystemContext
 ): Promise<string | null> {
   const [row] = await db.read(
     [

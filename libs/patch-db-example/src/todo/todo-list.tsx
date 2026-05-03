@@ -1,5 +1,3 @@
-import type { Entity } from '@gamezilla/patch-db/interface';
-import { useEntities, usePatchesDb } from '@gamezilla/patch-db/react';
 import {
   Box,
   KeyboardAvoidingView,
@@ -9,8 +7,9 @@ import {
   TextInput,
   useTheme,
 } from '@gamezilla/lib/ui';
-import { useLingui } from '@lingui/react/macro';
-import { Trans } from '@lingui/react/macro';
+import type { Entity } from '@gamezilla/patch-db/interface';
+import { useEntities, usePatchDb } from '@gamezilla/patch-db/react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 
 import { TodoItem } from './todo-item';
@@ -213,7 +212,7 @@ function buildTodoDeletePayload(entity: Entity) {
 
 export function TodoList() {
   const { t } = useLingui();
-  const db = usePatchesDb();
+  const db = usePatchDb();
   const [input, setInput] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
 

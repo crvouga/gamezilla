@@ -1,8 +1,8 @@
 import type {
   Entity,
+  PatchDbQuery,
+  PatchDbQueryWhereClause,
   PatchInput,
-  PatchesDbQuery,
-  PatchesDbQueryWhereClause,
 } from '../interface';
 import { playgroundPollAllClients, type PlaygroundSim } from './playground-sim';
 
@@ -16,7 +16,7 @@ export const SHAPE_ATTR = {
   deleted: 'shape/deleted',
 } as const;
 
-export const SHAPE_NOT_DELETED_CLAUSE: PatchesDbQueryWhereClause = {
+export const SHAPE_NOT_DELETED_CLAUSE: PatchDbQueryWhereClause = {
   type: 'or',
   clauses: [
     { type: 'not_exists', attribute: SHAPE_ATTR.deleted },
@@ -25,7 +25,7 @@ export const SHAPE_NOT_DELETED_CLAUSE: PatchesDbQueryWhereClause = {
 };
 
 /** Non-deleted shapes sorted for stable UI lists. */
-export function shapeListQuery(): PatchesDbQuery {
+export function shapeListQuery(): PatchDbQuery {
   return {
     entityType: SHAPE_ENTITY_TYPE,
     where: SHAPE_NOT_DELETED_CLAUSE,

@@ -92,7 +92,7 @@ function mergePrincipalsForAccount(args: {
  * When signed in, merges an explicit fetch of the local principal so it still appears if
  * `principal/accountId` is not yet replicated on the row.
  *
- * Cross-device: `createPatchDbHcTransport` posts arbitrary `PatchesDbQuery` / patches to
+ * Cross-device: `createPatchDbHcTransport` posts arbitrary `PatchDbQuery` / patches to
  * `/patch-db` with no principal-scoped filter — other devices' `principal` rows appear
  * here once their patches have synced through the shared patch stream.
  */

@@ -1,9 +1,3 @@
-import { assertUrl } from '@gamezilla/patch-db/assert-url';
-import type { Patch, PatchesDbResult } from '@gamezilla/patch-db/interface';
-import {
-  ADMIN_METRIC_ENTITY_TYPE,
-  PatchDbClientTransportHttpFetch,
-} from '@gamezilla/patch-db/transport';
 import {
   Box,
   Button,
@@ -17,8 +11,13 @@ import {
   TextInput,
 } from '@gamezilla/lib/ui';
 import { useTheme } from '@gamezilla/lib/ui/theme';
-import { useLingui } from '@lingui/react/macro';
-import { Trans } from '@lingui/react/macro';
+import { assertUrl } from '@gamezilla/patch-db/assert-url';
+import type { Patch, PatchDbResult } from '@gamezilla/patch-db/interface';
+import {
+  ADMIN_METRIC_ENTITY_TYPE,
+  PatchDbClientTransportHttpFetch,
+} from '@gamezilla/patch-db/transport';
+import { Trans, useLingui } from '@lingui/react/macro';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -97,7 +96,7 @@ type InspectorState = {
   setUrlInput: (v: string) => void;
   connectedUrl: string | null;
   error: string | null;
-  result: PatchesDbResult | null;
+  result: PatchDbResult | null;
   handleConnect: () => void;
   handleDisconnect: () => void;
 };
@@ -124,7 +123,7 @@ function useStoredUrl(
 function useInspectorPolling(
   connectedUrl: string | null,
   knownPatchesRef: React.MutableRefObject<Patch[]>,
-  setResult: (r: PatchesDbResult | null) => void,
+  setResult: (r: PatchDbResult | null) => void,
   setError: (e: string | null) => void
 ) {
   useEffect(() => {
@@ -167,7 +166,7 @@ function useApiInspectorState(): InspectorState {
   const [urlInput, setUrlInput] = useState(DEFAULT_URL);
   const [connectedUrl, setConnectedUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<PatchesDbResult | null>(null);
+  const [result, setResult] = useState<PatchDbResult | null>(null);
   const knownPatchesRef = useRef<Patch[]>([]);
 
   useStoredUrl(setUrlInput, setConnectedUrl);
@@ -274,7 +273,7 @@ function ErrorCard({ message }: { message: string }) {
   );
 }
 
-function MetricsCard({ result }: { result: PatchesDbResult }) {
+function MetricsCard({ result }: { result: PatchDbResult }) {
   const { t } = useLingui();
   const theme = useTheme();
   const entity = result.entities[0];

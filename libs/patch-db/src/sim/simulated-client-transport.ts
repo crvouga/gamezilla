@@ -1,8 +1,8 @@
 import type {
   Patch,
-  PatchesDbContext,
-  PatchesDbQuery,
-  PatchesDbResult,
+  PatchDbContext,
+  PatchDbQuery,
+  PatchDbResult,
   PatchInput,
 } from '../interface';
 import type { PatchDbClientTransport } from '../transport/interface';
@@ -33,9 +33,9 @@ export class SimulatedPatchDbClientTransport implements PatchDbClientTransport {
   ) {}
 
   read(
-    queries: PatchesDbQuery[],
-    ctx?: PatchesDbContext
-  ): Promise<PatchesDbResult[]> {
+    queries: PatchDbQuery[],
+    ctx?: PatchDbContext
+  ): Promise<PatchDbResult[]> {
     return this.link.invoke('read', async () => {
       const results = await this.server.read(queries, ctx);
       if (this.recording) {
@@ -53,7 +53,7 @@ export class SimulatedPatchDbClientTransport implements PatchDbClientTransport {
     });
   }
 
-  write(patches: PatchInput[], ctx?: PatchesDbContext): Promise<Patch[]> {
+  write(patches: PatchInput[], ctx?: PatchDbContext): Promise<Patch[]> {
     return this.link.invoke('write', async () => {
       const out = await this.server.write(patches, ctx);
       if (this.recording) {

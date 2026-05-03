@@ -1,18 +1,13 @@
-import type {
-  Entity,
-  Patch,
-  PatchesDbQuery,
-  PatchesDbResult,
-} from '../interface';
+import type { Entity, Patch, PatchDbQuery, PatchDbResult } from '../interface';
 
 /**
  * Snapshot returned to React consumers. Before the first subscription
  * delivery, the cache holds empty arrays and zero totals — same shape as a
  * real empty query result (local-first: no separate loading flag).
  */
-export type CachedQueryResult = PatchesDbResult;
+export type CachedQueryResult = PatchDbResult;
 
-export function makeEmptyResult(query: PatchesDbQuery): CachedQueryResult {
+export function makeEmptyResult(query: PatchDbQuery): CachedQueryResult {
   return {
     query,
     entities: [] as Entity[],
@@ -31,7 +26,7 @@ export function makeEmptyResult(query: PatchesDbQuery): CachedQueryResult {
  */
 export function reuseStableArrays(
   prev: CachedQueryResult,
-  next: PatchesDbResult
+  next: PatchDbResult
 ): { entities: Entity[]; patches: Patch[] } {
   const entities =
     prev.entities.length === next.entities.length &&

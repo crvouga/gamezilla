@@ -2,10 +2,10 @@ import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbImplClientTransport } from '../impl-client-transport';
 import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
-import { SyncPatchesDb } from '../impl-sync';
-import type { PatchesDb } from '../interface';
+import { SyncPatchDb } from '../impl-sync';
+import type { PatchDb } from '../interface';
 import { NetworkLink } from './network-link';
-import { NotifyingPatchesDb } from './notifying-patches-db';
+import { NotifyingPatchDb } from './notifying-patch-db';
 import type { SimLink } from './scenario';
 import { type SimServerPort, simServerPortFromPubSub } from './server-port';
 import { BrowserWallClockScheduler } from './sim-link-scheduler';
@@ -100,13 +100,13 @@ type ClientRuntime = {
   sqlClient: SqlClient;
   localDb: PatchDbImplSqlite;
   transport: SimulatedPatchDbClientTransport;
-  syncDb: SyncPatchesDb;
+  syncDb: SyncPatchDb;
   link: NetworkLink;
 };
 
 export type PlaygroundClientHandle = {
   id: string;
-  syncDb: SyncPatchesDb;
+  syncDb: SyncPatchDb;
   link: SimLink;
   sqlClient: SqlClient;
   localDb: PatchDbImplSqlite;
@@ -118,7 +118,7 @@ export type PlaygroundSim = {
   scheduler: BrowserWallClockScheduler;
   serverBacking: PatchDbImplSqlite;
   serverSql: SqlClient;
-  serverDb: PatchesDb;
+  serverDb: PatchDb;
   clients: PlaygroundClientHandle[];
   syncNow(actorClientId: string): Promise<void>;
   addClient(): Promise<PlaygroundClientHandle>;
@@ -177,7 +177,7 @@ async function buildServerStack(
 }> {
   const serverBacking = new PatchDbImplSqlite(serverSql);
   const serverPubSub = new InMemoryPubSub();
-  const notifying = new NotifyingPatchesDb(serverBacking, serverPubSub);
+  const notifying = new NotifyingPatchDb(serverBacking, serverPubSub);
   const innerPort: SimServerPort = simServerPortFromPubSub(
     (q, ctx) => notifying.read(q, ctx),
     (p, ctx) => notifying.write(p, ctx),
@@ -201,9 +201,9 @@ function buildClientFromSql(
     link.setReadWriteLatencyMs(ctx.state.globalLatencyMs);
   }
   const transport = new SimulatedPatchDbClientTransport(ctx.port, link);
-  const remotePatchesDb = new PatchDbImplClientTransport(transport);
+  const remotePatchDb = new PatchDbImplClientTransport(transport);
   const clientPubSub = new InMemoryPubSub();
-  const syncDb = new SyncPatchesDb(localDb, remotePatchesDb, clientPubSub, {
+  const syncDb = new SyncPatchDb(localDb, remotePatchDb, clientPubSub, {
     pushDriver: 'manual',
     pollDriver: 'manual',
     pushIntervalMs: 10,
@@ -441,7 +441,7 @@ export async function restorePlaygroundSim(
   return buildSimApi(ctx);
 }
 
-/** Run {@link SyncPatchesDb.runPollNow} on every client (e.g. after a direct {@link PlaygroundSim.serverBacking} write). */
+/** Run {@link SyncPatchDb.runPollNow} on every client (e.g. after a direct {@link PlaygroundSim.serverBacking} write). */
 export async function playgroundPollAllClients(
   sim: PlaygroundSim
 ): Promise<void> {

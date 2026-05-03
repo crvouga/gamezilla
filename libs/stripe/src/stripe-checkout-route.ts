@@ -1,8 +1,8 @@
 import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '@gamezilla/domain/auth';
 import { createLogger } from '@gamezilla/lib/logger';
 import type {
-  PatchesDb,
-  PatchesDbAuthContext,
+  PatchDb,
+  PatchDbAuthContext,
 } from '@gamezilla/patch-db/interface';
 import { zValidator } from '@hono/zod-validator';
 import type { Context } from 'hono';
@@ -23,7 +23,7 @@ export type StripeAuthContext = {
 
 /** Resolve session principal + account from the API Worker auth layer. */
 export type StripeRequireAuth = (
-  db: PatchesDb,
+  db: PatchDb,
   request: Request
 ) => Promise<StripeAuthContext>;
 
@@ -40,7 +40,7 @@ const portalBodySchema = z.object({
 type CheckoutValidated = z.infer<typeof checkoutBodySchema>;
 type PortalValidated = z.infer<typeof portalBodySchema>;
 
-function stripePatchesDbContext(auth: StripeAuthContext): PatchesDbAuthContext {
+function stripePatchDbContext(auth: StripeAuthContext): PatchDbAuthContext {
   // `accountId` / `memberOfSpaceIds` / etc. are app-level claims consumed by
   // visibility policies. They're plain extra keys on the auth context — the
   // patch-db library itself only needs `principalId`.
@@ -55,10 +55,10 @@ function stripePatchesDbContext(auth: StripeAuthContext): PatchesDbAuthContext {
 }
 
 async function ensureStripeCustomerId(args: {
-  readonly db: PatchesDb;
+  readonly db: PatchDb;
   readonly stripe: Stripe;
   readonly auth: StripeAuthContext;
-  readonly patchCtx: PatchesDbAuthContext;
+  readonly patchCtx: PatchDbAuthContext;
 }): Promise<string> {
   const { db, stripe, auth, patchCtx } = args;
   const { accountId, principalId } = auth;
@@ -96,14 +96,14 @@ async function handleStripeCheckout(
   c: Context,
   body: CheckoutValidated,
   args: {
-    readonly db: PatchesDb;
+    readonly db: PatchDb;
     readonly stripe: Stripe;
     readonly requireAuth: StripeRequireAuth;
   }
 ): Promise<Response> {
   const { db, stripe, requireAuth } = args;
   const auth = await requireAuth(db, c.req.raw);
-  const patchCtx = stripePatchesDbContext(auth);
+  const patchCtx = stripePatchDbContext(auth);
 
   const priceId = await getStripeCatalogPriceStripeId(
     db,
@@ -154,7 +154,7 @@ async function handleStripePortal(
   c: Context,
   body: PortalValidated,
   args: {
-    readonly db: PatchesDb;
+    readonly db: PatchDb;
     readonly stripe: Stripe;
     readonly requireAuth: StripeRequireAuth;
   }
@@ -162,7 +162,7 @@ async function handleStripePortal(
   const { db, stripe, requireAuth } = args;
   const auth = await requireAuth(db, c.req.raw);
   const { accountId } = auth;
-  const patchCtx = stripePatchesDbContext(auth);
+  const patchCtx = stripePatchDbContext(auth);
 
   const [accRes] = await db.read(
     [{ entityType: ACCOUNT_ENTITY_TYPE, entityId: accountId, limit: 1 }],
@@ -197,7 +197,7 @@ async function handleStripePortal(
 }
 
 export function createStripeCheckoutRoutes(args: {
-  readonly db: PatchesDb;
+  readonly db: PatchDb;
   readonly stripe: Stripe | null;
   readonly requireAuth: StripeRequireAuth;
 }) {

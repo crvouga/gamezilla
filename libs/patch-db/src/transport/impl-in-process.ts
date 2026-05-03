@@ -5,36 +5,36 @@ import {
   assertQuery,
   OPEN_PATCHES_DB_CONTEXT,
   type Patch,
-  type PatchesDbContext,
-  type PatchesDbQuery,
-  type PatchesDbResult,
+  type PatchDbContext,
+  type PatchDbQuery,
+  type PatchDbResult,
   type PatchInput,
 } from '../interface';
 import type { PatchDbClientTransport, PatchDbSyncHost } from './interface';
 
-function assertPatchesDbResultShape(r: PatchesDbResult, index: number): void {
+function assertPatchDbResultShape(r: PatchDbResult, index: number): void {
   assert.ok(
     r !== null && r !== undefined,
     'PatchDbTransportInProcess.read: result must be defined',
     { index }
   );
   assert.record(r, 'PatchDbTransportInProcess.read: result must be an object');
-  assert.ok('query' in r, 'PatchesDbResult must have query', { index });
-  assert.array(r.entities, 'PatchesDbResult.entities must be an array', {
+  assert.ok('query' in r, 'PatchDbResult must have query', { index });
+  assert.array(r.entities, 'PatchDbResult.entities must be an array', {
     index,
   });
-  assert.array(r.patches, 'PatchesDbResult.patches must be an array', {
+  assert.array(r.patches, 'PatchDbResult.patches must be an array', {
     index,
   });
-  assert.number(r.total, 'PatchesDbResult.total must be a finite number');
+  assert.number(r.total, 'PatchDbResult.total must be a finite number');
   assert.ok(
     typeof r.hasMore === 'boolean',
-    'PatchesDbResult.hasMore must be boolean',
+    'PatchDbResult.hasMore must be boolean',
     { index }
   );
   assert.ok(
     r.nextCursor === null || typeof r.nextCursor === 'string',
-    'PatchesDbResult.nextCursor must be string or null',
+    'PatchDbResult.nextCursor must be string or null',
     { index, nextCursor: r.nextCursor }
   );
 }
@@ -60,9 +60,9 @@ export class PatchDbTransportInProcess implements PatchDbClientTransport {
   }
 
   async read(
-    queries: PatchesDbQuery[],
-    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
-  ): Promise<PatchesDbResult[]> {
+    queries: PatchDbQuery[],
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+  ): Promise<PatchDbResult[]> {
     assert.array(
       queries,
       'PatchDbTransportInProcess.read: queries must be an array'
@@ -112,7 +112,7 @@ export class PatchDbTransportInProcess implements PatchDbClientTransport {
         'PatchDbTransportInProcess.read: result slot must be defined',
         { i }
       );
-      assertPatchesDbResultShape(r, i);
+      assertPatchDbResultShape(r, i);
     }
 
     return results;
@@ -120,7 +120,7 @@ export class PatchDbTransportInProcess implements PatchDbClientTransport {
 
   async write(
     patches: PatchInput[],
-    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<Patch[]> {
     assert.array(
       patches,

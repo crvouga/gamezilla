@@ -1,13 +1,13 @@
 import { assert } from '@gamezilla/lib/assert';
 import type {
   Patch,
-  PatchesDbContext,
-  PatchesDbQuery,
-  PatchesDbResult,
+  PatchDbContext,
+  PatchDbQuery,
+  PatchDbResult,
   PatchInput,
 } from '../interface';
 import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
-import type { SubscribablePatchesDbLike } from '../subscribable';
+import type { SubscribablePatchDbLike } from '../subscribable';
 import {
   PATCH_CREATED_BY,
   PATCH_LAST_MODIFIED_AT,
@@ -29,8 +29,8 @@ export type PatchMetadataStamperConfig = {
  *
  * Delegates read, update, and subscribe to the inner sync DB.
  */
-export class PatchMetadataStamper implements SubscribablePatchesDbLike {
-  readonly subscribe: SubscribablePatchesDbLike['subscribe'];
+export class PatchMetadataStamper implements SubscribablePatchDbLike {
+  readonly subscribe: SubscribablePatchDbLike['subscribe'];
 
   get hooks() {
     return this.inner.hooks;
@@ -41,7 +41,7 @@ export class PatchMetadataStamper implements SubscribablePatchesDbLike {
   }
 
   constructor(
-    private readonly inner: SubscribablePatchesDbLike,
+    private readonly inner: SubscribablePatchDbLike,
     private readonly config: PatchMetadataStamperConfig
   ) {
     config.assertPrincipalId?.(config.getPrincipalId());
@@ -50,7 +50,7 @@ export class PatchMetadataStamper implements SubscribablePatchesDbLike {
 
   async write(
     patches: PatchInput[],
-    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<Patch[]> {
     const principalId = this.config.getPrincipalId();
     this.config.assertPrincipalId?.(principalId);
@@ -76,15 +76,15 @@ export class PatchMetadataStamper implements SubscribablePatchesDbLike {
   }
 
   read(
-    queries: PatchesDbQuery[],
-    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
-  ): Promise<PatchesDbResult[]> {
+    queries: PatchDbQuery[],
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+  ): Promise<PatchDbResult[]> {
     return this.inner.read(queries, ctx);
   }
 
   async update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
-    ctx: PatchesDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<void> {
     return this.inner.update(updates, ctx);
   }

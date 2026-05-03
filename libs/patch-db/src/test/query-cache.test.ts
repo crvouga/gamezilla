@@ -2,9 +2,9 @@ import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
-import type { PatchesDbQuery } from '../interface';
-import { PatchesDbQueryCache } from '../react/query-cache';
-import { SubscribablePatchesDb } from '../subscribable';
+import type { PatchDbQuery } from '../interface';
+import { PatchDbQueryCache } from '../react/query-cache';
+import { SubscribablePatchDb } from '../subscribable';
 
 type SchedulerArg = {
   setTimeout: (fn: () => void, ms: number) => unknown;
@@ -47,9 +47,9 @@ async function flushMicrotasks(): Promise<void> {
   }
 }
 
-describe('PatchesDbQueryCache', () => {
+describe('PatchDbQueryCache', () => {
   let teardown: () => Promise<void>;
-  let db: SubscribablePatchesDb;
+  let db: SubscribablePatchDb;
 
   beforeEach(async () => {
     const client = SqlClientImplBunSqlite.open(':memory:');
@@ -57,7 +57,7 @@ describe('PatchesDbQueryCache', () => {
     const localDb = new PatchDbImplSqlite(client);
     await localDb.migrate();
     const pubSub = new InMemoryPubSub();
-    db = new SubscribablePatchesDb(localDb, pubSub);
+    db = new SubscribablePatchDb(localDb, pubSub);
     teardown = () => client.disconnect();
   });
 
@@ -66,8 +66,8 @@ describe('PatchesDbQueryCache', () => {
   });
 
   test('starts with empty snapshot until first subscription delivery', async () => {
-    const cache = new PatchesDbQueryCache(db);
-    const query: PatchesDbQuery = { entityType: 'todo' };
+    const cache = new PatchDbQueryCache(db);
+    const query: PatchDbQuery = { entityType: 'todo' };
     const queryKey = JSON.stringify(query);
 
     const initial = cache.getOrCreateResult(queryKey, query);
@@ -85,8 +85,8 @@ describe('PatchesDbQueryCache', () => {
   });
 
   test('shares one underlying subscription across multiple subscribers', async () => {
-    const cache = new PatchesDbQueryCache(db);
-    const query: PatchesDbQuery = { entityType: 'todo' };
+    const cache = new PatchDbQueryCache(db);
+    const query: PatchDbQuery = { entityType: 'todo' };
     const queryKey = JSON.stringify(query);
 
     const calls = { a: 0, b: 0 };
@@ -113,8 +113,8 @@ describe('PatchesDbQueryCache', () => {
   });
 
   test('serves cached snapshot synchronously to a late-joining subscriber', async () => {
-    const cache = new PatchesDbQueryCache(db);
-    const query: PatchesDbQuery = { entityType: 'todo' };
+    const cache = new PatchDbQueryCache(db);
+    const query: PatchDbQuery = { entityType: 'todo' };
     const queryKey = JSON.stringify(query);
 
     const unsubFirst = cache.subscribe(queryKey, query, () => {});
@@ -137,11 +137,11 @@ describe('PatchesDbQueryCache', () => {
 
   test('keeps the cache entry alive during the teardown grace window', async () => {
     const sched = manualScheduler();
-    const cache = new PatchesDbQueryCache(db, {
+    const cache = new PatchDbQueryCache(db, {
       teardownGraceMs: 1_000,
       scheduler: sched.scheduler,
     });
-    const query: PatchesDbQuery = { entityType: 'todo' };
+    const query: PatchDbQuery = { entityType: 'todo' };
     const queryKey = JSON.stringify(query);
 
     const unsub = cache.subscribe(queryKey, query, () => {});
@@ -164,11 +164,11 @@ describe('PatchesDbQueryCache', () => {
 
   test('tears down the underlying subscription after grace expires', async () => {
     const sched = manualScheduler();
-    const cache = new PatchesDbQueryCache(db, {
+    const cache = new PatchDbQueryCache(db, {
       teardownGraceMs: 1_000,
       scheduler: sched.scheduler,
     });
-    const query: PatchesDbQuery = { entityType: 'todo' };
+    const query: PatchDbQuery = { entityType: 'todo' };
     const queryKey = JSON.stringify(query);
 
     const unsub = cache.subscribe(queryKey, query, () => {});
@@ -184,8 +184,8 @@ describe('PatchesDbQueryCache', () => {
   });
 
   test('snapshot identity stays stable when invalidations do not change rows', async () => {
-    const cache = new PatchesDbQueryCache(db);
-    const query: PatchesDbQuery = { entityType: 'todo' };
+    const cache = new PatchDbQueryCache(db);
+    const query: PatchDbQuery = { entityType: 'todo' };
     const queryKey = JSON.stringify(query);
 
     cache.subscribe(queryKey, query, () => {});

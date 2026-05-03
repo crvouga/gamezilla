@@ -9,7 +9,7 @@ const VIZ_FILE = import.meta.path;
 
 registerSyncEngineHooks();
 
-describe('SyncPatchesDb (deterministic sim)', () => {
+describe('SyncPatchDb (deterministic sim)', () => {
   test('poll: remote patches are merged into local', async () => {
     const sim = getSim();
     sim.setMeta({

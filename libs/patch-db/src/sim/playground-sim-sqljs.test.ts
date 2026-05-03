@@ -1,17 +1,17 @@
 import { describe, expect, test } from 'bun:test';
-import type { PatchesDbResult } from '../interface';
+import type { PatchDbResult } from '../interface';
 import { sqlJsPlaygroundDbFactory } from './playground-db-factory-sqljs';
 import { shapeListQuery } from './playground-shapes';
 import { createPlaygroundSim } from './playground-sim';
 
 const dbFactory = sqlJsPlaygroundDbFactory();
 
-function entityCount(results: PatchesDbResult[]): number {
+function entityCount(results: PatchDbResult[]): number {
   const first = results[0];
   return first ? first.entities.length : 0;
 }
 
-function entityIds(results: PatchesDbResult[]): Set<string> {
+function entityIds(results: PatchDbResult[]): Set<string> {
   const first = results[0];
   return new Set((first?.entities ?? []).map((e) => e.entityId));
 }

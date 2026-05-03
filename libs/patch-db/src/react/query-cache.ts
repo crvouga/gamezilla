@@ -1,7 +1,7 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
-import type { PatchesDbQuery } from '../interface';
-import type { SubscribablePatchesDbLike } from '../subscribable';
+import type { PatchDbQuery } from '../interface';
+import type { SubscribablePatchDbLike } from '../subscribable';
 import {
   makeEmptyResult,
   resultsShallowEqual,
@@ -15,7 +15,7 @@ type Listener = () => void;
 
 type CacheEntry = {
   queryKey: string;
-  query: PatchesDbQuery;
+  query: PatchDbQuery;
   /** Stable result identity; replaced whenever data changes. */
   result: CachedQueryResult;
   /**
@@ -39,7 +39,7 @@ type CacheEntry = {
 /** Grace window before a query with no listeners is fully torn down. */
 export const DEFAULT_TEARDOWN_GRACE_MS = 10_000;
 
-export type PatchesDbQueryCacheOptions = {
+export type PatchDbQueryCacheOptions = {
   /** Override the grace window. Tests use a small value to assert teardown. */
   teardownGraceMs?: number;
   /** Injectable scheduler for tests; defaults to setTimeout/clearTimeout. */
@@ -56,14 +56,14 @@ export type PatchesDbQueryCacheOptions = {
  * subscribers so React consumers immediately see the last-known or empty
  * snapshot for that queryKey.
  */
-export class PatchesDbQueryCache {
+export class PatchDbQueryCache {
   private entries = new Map<string, CacheEntry>();
   private graceMs: number;
-  private scheduler: NonNullable<PatchesDbQueryCacheOptions['scheduler']>;
+  private scheduler: NonNullable<PatchDbQueryCacheOptions['scheduler']>;
 
   constructor(
-    private readonly db: SubscribablePatchesDbLike,
-    options: PatchesDbQueryCacheOptions = {}
+    private readonly db: SubscribablePatchDbLike,
+    options: PatchDbQueryCacheOptions = {}
   ) {
     this.graceMs = options.teardownGraceMs ?? DEFAULT_TEARDOWN_GRACE_MS;
     this.scheduler = options.scheduler ?? {
@@ -80,7 +80,7 @@ export class PatchesDbQueryCache {
    */
   subscribe(
     queryKey: string,
-    query: PatchesDbQuery,
+    query: PatchDbQuery,
     listener: Listener
   ): Unsubscribe {
     const entry = this.getOrCreate(queryKey, query);
@@ -137,10 +137,7 @@ export class PatchesDbQueryCache {
    * none exists yet. Callers (e.g. `useSyncExternalStore.getSnapshot`) require
    * referential stability across calls, so we never return fresh objects.
    */
-  getOrCreateResult(
-    queryKey: string,
-    query: PatchesDbQuery
-  ): CachedQueryResult {
+  getOrCreateResult(queryKey: string, query: PatchDbQuery): CachedQueryResult {
     return this.getOrCreate(queryKey, query).result;
   }
 
@@ -155,7 +152,7 @@ export class PatchesDbQueryCache {
     return entry?.unsubscribe !== null && entry !== undefined;
   }
 
-  private getOrCreate(queryKey: string, query: PatchesDbQuery): CacheEntry {
+  private getOrCreate(queryKey: string, query: PatchDbQuery): CacheEntry {
     const existing = this.entries.get(queryKey);
     if (existing !== undefined) return existing;
     const entry: CacheEntry = {
@@ -186,19 +183,17 @@ export class PatchesDbQueryCache {
   }
 }
 
-const cacheByDb = new WeakMap<SubscribablePatchesDbLike, PatchesDbQueryCache>();
+const cacheByDb = new WeakMap<SubscribablePatchDbLike, PatchDbQueryCache>();
 
 /**
- * Returns the singleton `PatchesDbQueryCache` for `db`. Creating one cache per
+ * Returns the singleton `PatchDbQueryCache` for `db`. Creating one cache per
  * db keeps subscribers from different containers isolated, while letting
  * every consumer of the same db share snapshots.
  */
-export function getCacheForDb(
-  db: SubscribablePatchesDbLike
-): PatchesDbQueryCache {
+export function getCacheForDb(db: SubscribablePatchDbLike): PatchDbQueryCache {
   const existing = cacheByDb.get(db);
   if (existing !== undefined) return existing;
-  const created = new PatchesDbQueryCache(db);
+  const created = new PatchDbQueryCache(db);
   cacheByDb.set(db, created);
   return created;
 }

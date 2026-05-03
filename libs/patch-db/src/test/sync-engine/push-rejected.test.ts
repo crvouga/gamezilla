@@ -2,20 +2,20 @@ import { assert } from '@gamezilla/lib/assert';
 import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { afterEach, describe, expect, test } from 'bun:test';
 import { PatchDbImplSqlite } from '../../impl-sqlite/impl-sqlite';
-import { SyncPatchesDb } from '../../impl-sync';
-import type { PatchesDb, PatchInput } from '../../interface';
+import { SyncPatchDb } from '../../impl-sync';
+import type { PatchDb, PatchInput } from '../../interface';
 import {
   OPEN_PATCHES_DB_CONTEXT,
   PATCH_SYNC_REJECTED_AT,
 } from '../../interface';
 import { PatchDbTransportRejectedError } from '../../transport/transport-rejected-error';
-import { afterEach, describe, expect, test } from 'bun:test';
 
 function createRejectingRemote(
-  inner: PatchesDb,
+  inner: PatchDb,
   rejectWhen: (remoteWriteCallNumber: number) => boolean
-): PatchesDb {
+): PatchDb {
   let writeCount = 0;
   return {
     get hooks() {
@@ -39,7 +39,7 @@ function createRejectingRemote(
   };
 }
 
-describe('SyncPatchesDb push rejection (401/403)', () => {
+describe('SyncPatchDb push rejection (401/403)', () => {
   let localClient: SqlClient;
   let remoteClient: SqlClient;
   let teardown: () => Promise<void> = async () => {};
@@ -59,7 +59,7 @@ describe('SyncPatchesDb push rejection (401/403)', () => {
     await remoteInner.migrate();
     const remote = createRejectingRemote(remoteInner, (n) => n === 1);
     const pubSub = new InMemoryPubSub();
-    const syncDb = new SyncPatchesDb(local, remote, pubSub, {
+    const syncDb = new SyncPatchDb(local, remote, pubSub, {
       pushDriver: 'manual',
       pollDriver: 'manual',
       logPushPollFailures: false,
@@ -109,7 +109,7 @@ describe('SyncPatchesDb push rejection (401/403)', () => {
     await remoteInner.migrate();
     const remote = createRejectingRemote(remoteInner, (n) => n === 2);
     const pubSub = new InMemoryPubSub();
-    const syncDb = new SyncPatchesDb(local, remote, pubSub, {
+    const syncDb = new SyncPatchDb(local, remote, pubSub, {
       pushDriver: 'manual',
       pollDriver: 'manual',
       maxPushBatchSize: 1,
@@ -141,10 +141,14 @@ describe('SyncPatchesDb push rejection (401/403)', () => {
     );
     assert.defined(allLocal, 'allLocal');
     const synced = allLocal.patches.filter(
-      (x) => x.attributes['patch/syncedAt'] != null
+      (x) =>
+        x.attributes['patch/syncedAt'] !== undefined &&
+        x.attributes['patch/syncedAt'] !== null
     );
     const rejected = allLocal.patches.filter(
-      (x) => x.attributes[PATCH_SYNC_REJECTED_AT] != null
+      (x) =>
+        x.attributes[PATCH_SYNC_REJECTED_AT] !== undefined &&
+        x.attributes[PATCH_SYNC_REJECTED_AT] !== null
     );
     expect(synced).toHaveLength(1);
     expect(rejected).toHaveLength(1);
@@ -168,7 +172,7 @@ describe('SyncPatchesDb push rejection (401/403)', () => {
     await remoteInner.migrate();
     const remote = createRejectingRemote(remoteInner, (n) => n === 1);
     const pubSub = new InMemoryPubSub();
-    const syncDb = new SyncPatchesDb(local, remote, pubSub, {
+    const syncDb = new SyncPatchDb(local, remote, pubSub, {
       pushDriver: 'manual',
       pollDriver: 'manual',
       logPushPollFailures: false,

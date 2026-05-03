@@ -2,14 +2,14 @@ import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
 } from '@gamezilla/domain/profile/profile-entities';
-import type { PatchesDb } from '@gamezilla/patch-db/interface';
+import type { PatchDb } from '@gamezilla/patch-db/interface';
 
 /**
  * Updates display name and/or avatar on the profile row at `profileId`
  * (`principalId` when guest, `accountId` when signed in).
  */
 export async function updateProfile(
-  db: PatchesDb,
+  db: PatchDb,
   profileId: string,
   args: {
     displayName?: string;

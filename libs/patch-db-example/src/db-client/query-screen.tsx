@@ -1,8 +1,3 @@
-import type {
-  PatchesDbQuery,
-  PatchesDbQueryWhereClause,
-} from '@gamezilla/patch-db/interface';
-import { usePatchesDb } from '@gamezilla/patch-db/react';
 import {
   Button,
   Card,
@@ -13,8 +8,12 @@ import {
   TextInput,
   useTheme,
 } from '@gamezilla/lib/ui';
-import { useLingui } from '@lingui/react/macro';
-import { Trans } from '@lingui/react/macro';
+import type {
+  PatchDbQuery,
+  PatchDbQueryWhereClause,
+} from '@gamezilla/patch-db/interface';
+import { usePatchDb } from '@gamezilla/patch-db/react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 import { useWindowDimensions } from 'react-native';
 
@@ -70,8 +69,8 @@ function useQueryFormState(): QueryFormState {
   };
 }
 
-function buildQuery(form: QueryFormState): PatchesDbQuery {
-  const q: PatchesDbQuery = { on: form.mode };
+function buildQuery(form: QueryFormState): PatchDbQuery {
+  const q: PatchDbQuery = { on: form.mode };
   const et = form.entityType.trim();
   if (et) q.entityType = et;
   const eid = form.entityId.trim();
@@ -83,7 +82,7 @@ function buildQuery(form: QueryFormState): PatchesDbQuery {
   const w = form.whereJson.trim();
   if (w) {
     const parsed: unknown = JSON.parse(w);
-    q.where = parsed as PatchesDbQueryWhereClause;
+    q.where = parsed as PatchDbQueryWhereClause;
   }
   return q;
 }
@@ -201,7 +200,7 @@ function ResultCard({ json }: { json: string }) {
 
 export function QueryScreen({ onClose }: QueryScreenProps) {
   const { t } = useLingui();
-  const db = usePatchesDb();
+  const db = usePatchDb();
   const { height: windowHeight } = useWindowDimensions();
   const scrollMaxHeight = Math.min(560, windowHeight * 0.72);
   const form = useQueryFormState();

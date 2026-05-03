@@ -1,6 +1,6 @@
 import { assert } from '@gamezilla/lib/assert';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import type { PatchesDb } from '../interface';
+import type { PatchDb } from '../interface';
 import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '../policy/system-principal';
 import { createSqliteFactory } from './test-helpers';
@@ -10,7 +10,7 @@ const WIDGET_ID_ATTR = 'widget/id';
 const WIDGET_NAME_ATTR = 'widget/displayName';
 
 describe('compaction (sqlite)', () => {
-  let db: PatchesDb;
+  let db: PatchDb;
   let teardown: () => Promise<void>;
 
   beforeEach(async () => {

@@ -1,7 +1,7 @@
 import type { Assert } from '@gamezilla/lib/assert';
 import { assert } from '@gamezilla/lib/assert';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
-import type { PatchesDbContext } from './context';
+import type { PatchDbContext } from './context';
 import type { PatchDbCompactionPolicyResolver } from './policy/compaction-policy';
 
 export type AttributeKey = `${string}/${string}`;
@@ -241,7 +241,7 @@ export function assertAttributes(
   }
 }
 
-export type PatchesDbQueryWhereClause =
+export type PatchDbQueryWhereClause =
   | {
       type: '=';
       attribute: string;
@@ -297,15 +297,15 @@ export type PatchesDbQueryWhereClause =
     }
   | {
       type: 'or';
-      clauses: PatchesDbQueryWhereClause[];
+      clauses: PatchDbQueryWhereClause[];
     }
   | {
       type: 'and';
-      clauses: PatchesDbQueryWhereClause[];
+      clauses: PatchDbQueryWhereClause[];
     }
   | {
       type: 'not';
-      clause: PatchesDbQueryWhereClause;
+      clause: PatchDbQueryWhereClause;
     };
 
 export type Direction = 'asc' | 'desc';
@@ -317,16 +317,16 @@ export function assertDirection(
   a.enum<Direction>(direction, ['asc', 'desc'], 'Invalid direction');
 }
 
-export type PatchesDbQueryOrderBy = {
+export type PatchDbQueryOrderBy = {
   attribute: string;
   direction: 'asc' | 'desc';
 };
 
-export type PatchesDbQuery = {
+export type PatchDbQuery = {
   entityType?: string;
   entityId?: string | string[];
-  where?: PatchesDbQueryWhereClause;
-  orderBy?: PatchesDbQueryOrderBy[];
+  where?: PatchDbQueryWhereClause;
+  orderBy?: PatchDbQueryOrderBy[];
   limit?: number;
   offset?: number;
   after?: string;
@@ -336,10 +336,7 @@ export type PatchesDbQuery = {
   on?: 'patches' | 'entities';
 };
 
-export function assertQuery(
-  a: Assert,
-  q: unknown
-): asserts q is PatchesDbQuery {
+export function assertQuery(a: Assert, q: unknown): asserts q is PatchDbQuery {
   a.record(q, 'Each query must be an object');
   const query = q as Record<string, unknown>;
   if (query['entityType'] !== undefined) {
@@ -351,9 +348,7 @@ export function assertQuery(
 }
 
 /** Strips knownPatches/knownPatchIds from a query for wire responses. */
-export function stripKnownPatchesFromQuery(
-  query: PatchesDbQuery
-): PatchesDbQuery {
+export function stripKnownPatchesFromQuery(query: PatchDbQuery): PatchDbQuery {
   const {
     knownPatches: _knownPatches,
     knownPatchIds: _knownPatchIds,
@@ -362,8 +357,8 @@ export function stripKnownPatchesFromQuery(
   return rest;
 }
 
-export type PatchesDbResult = {
-  query: PatchesDbQuery;
+export type PatchDbResult = {
+  query: PatchDbQuery;
   entities: Entity[];
   patches: Patch[];
   total: number;
@@ -375,24 +370,24 @@ export type PatchesDbResult = {
 export type Unsubscribe = () => void;
 
 export {
-  isPatchesDbAuthContext,
-  isPatchesDbSystemContext,
-  isPatchesDbVisitorContext,
+  isPatchDbAuthContext,
+  isPatchDbSystemContext,
+  isPatchDbVisitorContext,
   OPEN_PATCHES_DB_CONTEXT,
   PATCHES_DB_SYSTEM_CONTEXT,
 } from './context';
 export type {
-  PatchesDbAuthContext,
-  PatchesDbContext,
-  PatchesDbSystemContext,
-  PatchesDbVisitorContext,
+  PatchDbAuthContext,
+  PatchDbContext,
+  PatchDbSystemContext,
+  PatchDbVisitorContext,
 } from './context';
 
 /** AND-combines an optional existing where-clause with an additional clause. */
 export function andWhereClause(
-  existing: PatchesDbQueryWhereClause | undefined,
-  clause: PatchesDbQueryWhereClause
-): PatchesDbQueryWhereClause {
+  existing: PatchDbQueryWhereClause | undefined,
+  clause: PatchDbQueryWhereClause
+): PatchDbQueryWhereClause {
   if (existing === undefined) return clause;
   return { type: 'and', clauses: [existing, clause] };
 }
@@ -401,7 +396,7 @@ export function andWhereClause(
  * Read predicate that is always true for snapshot/patch JSON attribute queries.
  * (Every stored patch has `patch/createdBy` after normalization.)
  */
-export const READ_WHERE_ALWAYS_TRUE: PatchesDbQueryWhereClause = {
+export const READ_WHERE_ALWAYS_TRUE: PatchDbQueryWhereClause = {
   type: 'or',
   clauses: [
     { type: 'exists', attribute: 'patch/createdBy' },
@@ -414,7 +409,7 @@ export const READ_WHERE_ALWAYS_TRUE: PatchesDbQueryWhereClause = {
  * to deny a context (e.g. visitors on a private entity type) while keeping
  * a single read function instead of a separate visitor branch.
  */
-export const READ_WHERE_NEVER_TRUE: PatchesDbQueryWhereClause = {
+export const READ_WHERE_NEVER_TRUE: PatchDbQueryWhereClause = {
   type: 'and',
   clauses: [
     { type: 'exists', attribute: 'patch/createdBy' },
@@ -423,42 +418,42 @@ export const READ_WHERE_NEVER_TRUE: PatchesDbQueryWhereClause = {
 };
 
 /** Deny all rows for this query without breaking SQL (limit 0). */
-export function denyAllReadsQuery(query: PatchesDbQuery): PatchesDbQuery {
-  const out: PatchesDbQuery = { ...query, limit: 0 };
+export function denyAllReadsQuery(query: PatchDbQuery): PatchDbQuery {
+  const out: PatchDbQuery = { ...query, limit: 0 };
   delete (out as { offset?: number }).offset;
   return out;
 }
 
-export type PatchesDbCompactionResult = {
+export type PatchDbCompactionResult = {
   removedPatchIds: string[];
   compactionPatchId: string | null;
 };
 
-export type PatchesDbCompaction = {
+export type PatchDbCompaction = {
   compactEntity(
     key: { entityId: string; entityType: string },
     options: { keepLatest: number },
-    ctx: PatchesDbContext
-  ): Promise<PatchesDbCompactionResult>;
+    ctx: PatchDbContext
+  ): Promise<PatchDbCompactionResult>;
 
   compactAll(
     options: { keepLatest?: number; entityType?: string },
-    ctx: PatchesDbContext
+    ctx: PatchDbContext
   ): Promise<{ entitiesCompacted: number }>;
 };
 
-export type PatchesDbHooks = {
+export type PatchDbHooks = {
   beforeRead(
     fn: (
-      query: PatchesDbQuery,
-      ctx: PatchesDbContext
-    ) => PatchesDbQuery | Promise<PatchesDbQuery>
+      query: PatchDbQuery,
+      ctx: PatchDbContext
+    ) => PatchDbQuery | Promise<PatchDbQuery>
   ): Unsubscribe;
 
   beforeWrite(
     fn: (
       patches: PatchInput[],
-      ctx: PatchesDbContext,
+      ctx: PatchDbContext,
       tx: SqlClient
     ) => PatchInput[] | Promise<PatchInput[]>
   ): Unsubscribe;
@@ -466,38 +461,35 @@ export type PatchesDbHooks = {
   afterWrite(
     fn: (
       written: Patch[],
-      ctx: PatchesDbContext,
+      ctx: PatchDbContext,
       tx: SqlClient
     ) => void | Promise<void>
   ): Unsubscribe;
 };
 
-/** Query side of {@link PatchesDb}; contract varies by implementation (local read vs sync merge-then-read). */
-export type PatchesDbRead = {
-  read(
-    queries: PatchesDbQuery[],
-    ctx?: PatchesDbContext
-  ): Promise<PatchesDbResult[]>;
+/** Query side of {@link PatchDb}; contract varies by implementation (local read vs sync merge-then-read). */
+export type PatchDbRead = {
+  read(queries: PatchDbQuery[], ctx?: PatchDbContext): Promise<PatchDbResult[]>;
 };
 
-/** Write side of {@link PatchesDb}; contract varies by implementation (local persist vs sync + invalidation). */
-export type PatchesDbWrite = {
-  write(patches: PatchInput[], ctx?: PatchesDbContext): Promise<Patch[]>;
+/** Write side of {@link PatchDb}; contract varies by implementation (local persist vs sync + invalidation). */
+export type PatchDbWrite = {
+  write(patches: PatchInput[], ctx?: PatchDbContext): Promise<Patch[]>;
 };
 
-/** Update side of {@link PatchesDb}; contract varies by implementation (local persist vs sync + invalidation). */
-export type PatchesDbUpdate = {
+/** Update side of {@link PatchDb}; contract varies by implementation (local persist vs sync + invalidation). */
+export type PatchDbUpdate = {
   update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
-    ctx?: PatchesDbContext
+    ctx?: PatchDbContext
   ): Promise<void>;
 };
 
-export type PatchesDb = PatchesDbRead &
-  PatchesDbWrite &
-  PatchesDbUpdate & {
-    readonly hooks: PatchesDbHooks;
-    readonly compaction: PatchesDbCompaction;
+export type PatchDb = PatchDbRead &
+  PatchDbWrite &
+  PatchDbUpdate & {
+    readonly hooks: PatchDbHooks;
+    readonly compaction: PatchDbCompaction;
   };
 
 /** Shared options for SQLite / Postgres patch-db implementations. */

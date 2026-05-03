@@ -20,14 +20,14 @@ import {
 } from '@gamezilla/domain/spaces/space-entities';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
 import type {
-  PatchesDbAuthContext,
-  PatchesDbContext,
-  PatchesDbQueryWhereClause,
+  PatchDbAuthContext,
+  PatchDbContext,
+  PatchDbQueryWhereClause,
   PatchInput,
 } from '@gamezilla/patch-db/interface';
 import {
-  isPatchesDbAuthContext,
-  isPatchesDbSystemContext,
+  isPatchDbAuthContext,
+  isPatchDbSystemContext,
   READ_WHERE_ALWAYS_TRUE,
   READ_WHERE_NEVER_TRUE,
 } from '@gamezilla/patch-db/interface';
@@ -42,7 +42,7 @@ import type {
  * with the claims needed by our visibility policies. The session middleware is
  * responsible for producing contexts of this shape.
  */
-export type AppAuthContext = PatchesDbAuthContext & {
+export type AppAuthContext = PatchDbAuthContext & {
   readonly accountId: string;
   readonly memberOfSpaceIds: readonly string[];
   readonly friendAccountIds: readonly string[];
@@ -63,17 +63,17 @@ type AppReadContext = VisibilityPolicyReadContext<AppAuthContext>;
  * rows) without each policy repeating the narrowing check.
  */
 function authOnlyRead(
-  fn: (ctx: AppAuthContext) => PatchesDbQueryWhereClause
-): (ctx: AppReadContext) => PatchesDbQueryWhereClause {
+  fn: (ctx: AppAuthContext) => PatchDbQueryWhereClause
+): (ctx: AppReadContext) => PatchDbQueryWhereClause {
   return (ctx) =>
-    isPatchesDbAuthContext(ctx)
+    isPatchDbAuthContext(ctx)
       ? fn(ctx as AppAuthContext)
       : READ_WHERE_NEVER_TRUE;
 }
 
 /** Visitor writes skip the auth branch; session middleware always uses {@link AppAuthContext}. */
-function appAuthFromWriteContext(ctx: PatchesDbContext): AppAuthContext | null {
-  if (!isPatchesDbAuthContext(ctx)) return null;
+function appAuthFromWriteContext(ctx: PatchDbContext): AppAuthContext | null {
+  if (!isPatchDbAuthContext(ctx)) return null;
   return ctx as AppAuthContext;
 }
 
@@ -87,7 +87,7 @@ function createdBy(patch: PatchInput): string {
 }
 
 function assertCreatedByMatchesPrincipal(
-  ctx: PatchesDbAuthContext,
+  ctx: PatchDbAuthContext,
   patch: PatchInput
 ): void {
   const cb = createdBy(patch);
@@ -106,7 +106,7 @@ const principalPolicy: AppVisibilityPolicy = {
     value: ctx.principalId,
   })),
   write: async (ctx, patch, _tx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
     assertCreatedByMatchesPrincipal(appCtx, patch);
@@ -124,7 +124,7 @@ const accountPolicy: AppVisibilityPolicy = {
     value: ctx.accountId,
   })),
   write: async (ctx, patch, _tx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
     assertCreatedByMatchesPrincipal(appCtx, patch);
@@ -142,7 +142,7 @@ const principalSessionPolicy: AppVisibilityPolicy = {
     value: ctx.principalId,
   })),
   write: async (ctx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     throw new ForbiddenError('principalSession is system-managed');
   },
 };
@@ -154,7 +154,7 @@ const accountProviderPolicy: AppVisibilityPolicy = {
     value: ctx.accountId,
   })),
   write: async (ctx, patch, _tx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
     assertCreatedByMatchesPrincipal(appCtx, patch);
@@ -168,7 +168,7 @@ const accountProviderPolicy: AppVisibilityPolicy = {
 const clientConfigPolicy: AppVisibilityPolicy = {
   read: () => READ_WHERE_ALWAYS_TRUE,
   write: async (ctx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     throw new ForbiddenError('clientConfig is system-only');
   },
 };
@@ -176,7 +176,7 @@ const clientConfigPolicy: AppVisibilityPolicy = {
 const adminMetricPolicy: AppVisibilityPolicy = {
   read: () => READ_WHERE_ALWAYS_TRUE,
   write: async (ctx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     throw new ForbiddenError('admin/metric is system-only');
   },
 };
@@ -184,7 +184,7 @@ const adminMetricPolicy: AppVisibilityPolicy = {
 const profilePolicy: AppVisibilityPolicy = {
   read: () => READ_WHERE_ALWAYS_TRUE,
   write: async (ctx, patch, _tx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
     assertCreatedByMatchesPrincipal(appCtx, patch);
@@ -208,7 +208,7 @@ const profilePrivatePolicy: AppVisibilityPolicy = {
     value: ctx.accountId,
   })),
   write: async (ctx, patch, _tx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
     assertCreatedByMatchesPrincipal(appCtx, patch);
@@ -221,7 +221,7 @@ const profilePrivatePolicy: AppVisibilityPolicy = {
 
 const spacePolicy: AppVisibilityPolicy = {
   read: authOnlyRead(
-    (ctx): PatchesDbQueryWhereClause => ({
+    (ctx): PatchDbQueryWhereClause => ({
       type: 'or',
       clauses: [
         { type: '=', attribute: SpaceAttr.hostId, value: ctx.principalId },
@@ -235,7 +235,7 @@ const spacePolicy: AppVisibilityPolicy = {
     })
   ),
   write: async (ctx, patch, _tx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
     assertCreatedByMatchesPrincipal(appCtx, patch);
@@ -253,7 +253,7 @@ const spacePolicy: AppVisibilityPolicy = {
 };
 
 const spaceMembershipPolicy: AppVisibilityPolicy = {
-  read: authOnlyRead((ctx): PatchesDbQueryWhereClause => {
+  read: authOnlyRead((ctx): PatchDbQueryWhereClause => {
     if (ctx.memberOfSpaceIds.length === 0) {
       return {
         type: '=',
@@ -268,7 +268,7 @@ const spaceMembershipPolicy: AppVisibilityPolicy = {
     };
   }),
   write: async (ctx, patch, _tx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
     assertCreatedByMatchesPrincipal(appCtx, patch);
@@ -276,7 +276,7 @@ const spaceMembershipPolicy: AppVisibilityPolicy = {
 };
 
 const chatMessagePolicy: AppVisibilityPolicy = {
-  read: authOnlyRead((ctx): PatchesDbQueryWhereClause => {
+  read: authOnlyRead((ctx): PatchDbQueryWhereClause => {
     if (ctx.memberOfSpaceIds.length === 0) {
       return {
         type: '=',
@@ -291,7 +291,7 @@ const chatMessagePolicy: AppVisibilityPolicy = {
     };
   }),
   write: async (ctx, patch, _tx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
     assertCreatedByMatchesPrincipal(appCtx, patch);
@@ -304,7 +304,7 @@ const chatMessagePolicy: AppVisibilityPolicy = {
 
 const friendshipPolicy: AppVisibilityPolicy = {
   read: authOnlyRead(
-    (ctx): PatchesDbQueryWhereClause => ({
+    (ctx): PatchDbQueryWhereClause => ({
       type: 'or',
       clauses: [
         {
@@ -321,7 +321,7 @@ const friendshipPolicy: AppVisibilityPolicy = {
     })
   ),
   write: async (ctx, patch, _tx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
     assertCreatedByMatchesPrincipal(appCtx, patch);
@@ -339,7 +339,7 @@ const friendshipPolicy: AppVisibilityPolicy = {
 
 const friendRequestPolicy: AppVisibilityPolicy = {
   read: authOnlyRead(
-    (ctx): PatchesDbQueryWhereClause => ({
+    (ctx): PatchDbQueryWhereClause => ({
       type: 'or',
       clauses: [
         {
@@ -356,7 +356,7 @@ const friendRequestPolicy: AppVisibilityPolicy = {
     })
   ),
   write: async (ctx, patch, _tx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
     assertCreatedByMatchesPrincipal(appCtx, patch);
@@ -365,7 +365,7 @@ const friendRequestPolicy: AppVisibilityPolicy = {
 
 const matchPolicy: AppVisibilityPolicy = {
   read: authOnlyRead(
-    (ctx): PatchesDbQueryWhereClause => ({
+    (ctx): PatchDbQueryWhereClause => ({
       type: 'or',
       clauses: [
         {
@@ -378,7 +378,7 @@ const matchPolicy: AppVisibilityPolicy = {
     })
   ),
   write: async (ctx, patch, _tx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
     assertCreatedByMatchesPrincipal(appCtx, patch);
@@ -388,7 +388,7 @@ const matchPolicy: AppVisibilityPolicy = {
 const matchScorePolicy: AppVisibilityPolicy = {
   read: () => READ_WHERE_ALWAYS_TRUE,
   write: async (ctx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     throw new ForbiddenError('match.score is system-only');
   },
 };
@@ -400,7 +400,7 @@ const inventoryItemPolicy: AppVisibilityPolicy = {
     value: ctx.accountId,
   })),
   write: async (ctx, patch, _tx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
     assertCreatedByMatchesPrincipal(appCtx, patch);
@@ -408,7 +408,7 @@ const inventoryItemPolicy: AppVisibilityPolicy = {
 };
 
 const stripeOwnerScopedRead = authOnlyRead(
-  (ctx): PatchesDbQueryWhereClause => ({
+  (ctx): PatchDbQueryWhereClause => ({
     type: '=',
     attribute: 'entity/owner',
     value: ctx.accountId,
@@ -418,7 +418,7 @@ const stripeOwnerScopedRead = authOnlyRead(
 const stripeSubscriptionPolicy: AppVisibilityPolicy = {
   read: stripeOwnerScopedRead,
   write: async (ctx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     throw new ForbiddenError('stripe.subscription is system-only');
   },
 };
@@ -426,7 +426,7 @@ const stripeSubscriptionPolicy: AppVisibilityPolicy = {
 const stripePaymentMethodPolicy: AppVisibilityPolicy = {
   read: stripeOwnerScopedRead,
   write: async (ctx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     throw new ForbiddenError('stripe.paymentMethod is system-only');
   },
 };
@@ -434,7 +434,7 @@ const stripePaymentMethodPolicy: AppVisibilityPolicy = {
 const stripeInvoicePolicy: AppVisibilityPolicy = {
   read: stripeOwnerScopedRead,
   write: async (ctx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     throw new ForbiddenError('stripe.invoice is system-only');
   },
 };
@@ -442,7 +442,7 @@ const stripeInvoicePolicy: AppVisibilityPolicy = {
 const stripeWebhookEventPolicy: AppVisibilityPolicy = {
   read: stripeOwnerScopedRead,
   write: async (ctx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     throw new ForbiddenError('stripe.webhook_event is system-only');
   },
 };
@@ -451,7 +451,7 @@ const stripeWebhookEventPolicy: AppVisibilityPolicy = {
 const stripeCatalogPricePolicy: AppVisibilityPolicy = {
   read: authOnlyRead(() => READ_WHERE_ALWAYS_TRUE),
   write: async (ctx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     throw new ForbiddenError('stripe.catalog_price is system-only');
   },
 };
@@ -459,7 +459,7 @@ const stripeCatalogPricePolicy: AppVisibilityPolicy = {
 const stripeCatalogProductPolicy: AppVisibilityPolicy = {
   read: authOnlyRead(() => READ_WHERE_ALWAYS_TRUE),
   write: async (ctx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     throw new ForbiddenError('stripe.catalog_product is system-only');
   },
 };
@@ -468,7 +468,7 @@ const stripeCatalogProductPolicy: AppVisibilityPolicy = {
 const stripeOwnedSnapshotPolicy: AppVisibilityPolicy = {
   read: stripeOwnerScopedRead,
   write: async (ctx) => {
-    if (isPatchesDbSystemContext(ctx)) return;
+    if (isPatchDbSystemContext(ctx)) return;
     throw new ForbiddenError('stripe snapshot entity is system-only');
   },
 };

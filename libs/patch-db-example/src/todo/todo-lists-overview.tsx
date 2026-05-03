@@ -1,4 +1,3 @@
-import { useEntities, usePatchesDb } from '@gamezilla/patch-db/react';
 import {
   Box,
   ConfirmationModal,
@@ -9,8 +8,8 @@ import {
   TextInput,
   useTheme,
 } from '@gamezilla/lib/ui';
-import { useLingui } from '@lingui/react/macro';
-import { Trans } from '@lingui/react/macro';
+import { useEntities, usePatchDb } from '@gamezilla/patch-db/react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 
 import { INBOX_LIST_ID } from './todo-constants';
@@ -182,7 +181,7 @@ function getListName(attrs: Record<string, unknown>, fallback: string): string {
   return typeof nameRaw === 'string' ? nameRaw : fallback;
 }
 
-type Db = ReturnType<typeof usePatchesDb>;
+type Db = ReturnType<typeof usePatchDb>;
 
 function useTodoListMutations(db: Db) {
   const addList = async (name: string, order: number) => {
@@ -342,7 +341,7 @@ function buildListRows(
 }
 
 function useTodoListsState(onClearLocalDatabase?: () => Promise<void> | void) {
-  const db = usePatchesDb();
+  const db = usePatchDb();
   const [input, setInput] = useState('');
   const [adding, setAdding] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{

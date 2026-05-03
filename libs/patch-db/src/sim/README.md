@@ -48,4 +48,4 @@ For non-zero network latency, advance time with `await sim.scheduler.drain()` (o
 
 ## Internal modules
 
-`deterministic-scheduler`, `network-link`, `notifying-patches-db`, `server-port`, and `simulated-client-transport` are implementation details; import them only when extending the simulator.
+`deterministic-scheduler`, `network-link`, `notifying-patch-db`, `server-port`, and `simulated-client-transport` are implementation details; import them only when extending the simulator.

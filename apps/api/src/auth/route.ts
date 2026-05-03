@@ -1,5 +1,5 @@
 import type { SecretStore } from '@gamezilla/lib/secret-store';
-import type { PatchesDb } from '@gamezilla/patch-db/interface';
+import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import type { ApiWorkerEnv } from '../config/env';
@@ -8,7 +8,7 @@ import { handleAuthClaimResult } from './claim-handler';
 import { authClaimRequestSchema } from './schema';
 
 /** POST `/auth/claim` — Google id_token + principal binding. */
-export function createAuthClaimApp(db: PatchesDb, secretStore: SecretStore) {
+export function createAuthClaimApp(db: PatchDb, secretStore: SecretStore) {
   return new Hono<{ Bindings: ApiWorkerEnv }>().post(
     '/auth/claim',
     zValidator('json', authClaimRequestSchema),

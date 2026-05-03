@@ -3,14 +3,14 @@ import {
   CLIENT_CONFIG_ENTITY_TYPE,
   ClientConfigAttr,
 } from '@gamezilla/domain/client-config/client-config-entities';
-import type { PatchesDb } from '@gamezilla/patch-db/interface';
+import type { PatchDb } from '@gamezilla/patch-db/interface';
 
 export type ClientRuntimeConfig = {
   googleWebClientId: string | null;
 };
 
 export async function readClientRuntimeConfig(
-  db: PatchesDb
+  db: PatchDb
 ): Promise<ClientRuntimeConfig> {
   const [result] = await db.read([
     {

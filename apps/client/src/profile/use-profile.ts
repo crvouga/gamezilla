@@ -1,11 +1,7 @@
 import { useAuth } from '@gamezilla/client/auth/auth-context';
-import {
-  PATCH_LAST_MODIFIED_BY_ACCOUNT,
-  PATCH_LAST_MODIFIED_BY_PRINCIPAL,
-} from '@gamezilla/patch-db/metadata/patch-metadata';
 import { PrincipalServiceToken } from '@gamezilla/client/auth/principal-service';
-import { parseAvatarConfigAttr } from '@gamezilla/domain/profile/avatar-config';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
+import { parseAvatarConfigAttr } from '@gamezilla/domain/profile/avatar-config';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
@@ -13,8 +9,12 @@ import {
 import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import type {
   Entity,
-  PatchesDbQueryWhereClause,
+  PatchDbQueryWhereClause,
 } from '@gamezilla/patch-db/interface';
+import {
+  PATCH_LAST_MODIFIED_BY_ACCOUNT,
+  PATCH_LAST_MODIFIED_BY_PRINCIPAL,
+} from '@gamezilla/patch-db/metadata/patch-metadata';
 import { useEntities } from '@gamezilla/patch-db/react';
 import { useMemo } from 'react';
 
@@ -26,7 +26,7 @@ function profileStampWhere(args: {
   signedIn: boolean;
   accountId: string | null;
   principalId: string;
-}): PatchesDbQueryWhereClause {
+}): PatchDbQueryWhereClause {
   const { signedIn, accountId, principalId } = args;
   if (signedIn && accountId !== null) {
     return {

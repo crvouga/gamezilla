@@ -4,7 +4,7 @@ import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
 } from '@gamezilla/domain/profile/profile-entities';
-import type { Entity, PatchesDb } from '@gamezilla/patch-db/interface';
+import type { Entity, PatchDb } from '@gamezilla/patch-db/interface';
 
 function profileLooksPresent(
   entity: Entity | undefined,
@@ -22,7 +22,7 @@ function profileLooksPresent(
  * Ensures a `profile` row at `entityId === principalId` (guest / device-local profile).
  */
 export async function ensurePrincipalProfile(
-  db: PatchesDb,
+  db: PatchDb,
   principalId: string
 ): Promise<void> {
   assertPrincipalId(principalId);
@@ -51,7 +51,7 @@ export async function ensurePrincipalProfile(
  * Ensures a `profile` row at `entityId === accountId` (signed-in account profile).
  */
 export async function ensureAccountProfile(
-  db: PatchesDb,
+  db: PatchDb,
   accountId: string
 ): Promise<void> {
   assertUuid(accountId, 'ensureAccountProfile accountId');
