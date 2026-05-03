@@ -1579,6 +1579,7 @@ msgstr "Space"
 #: apps/client/src/settings/theme-screen.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/spaces-screen.tsx
 #: apps/client/src/ui/app-sidebar.tsx
 msgid "Spaces"
