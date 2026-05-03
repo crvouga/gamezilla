@@ -17,7 +17,7 @@ import {
 } from '@gamezilla/lib/dependency-injection/react';
 import { useLogger } from '@gamezilla/lib/logger/react';
 import { ConfirmationModal } from '@gamezilla/lib/ui';
-import { PatchDbToken, useQueryOne } from '@gamezilla/patch-db/react';
+import { useQueryOne } from '@gamezilla/patch-db/react';
 import { SubscribablePatchDbToken } from '@gamezilla/patch-db/subscribable';
 import { Trans } from '@lingui/react/macro';
 import {
@@ -344,8 +344,6 @@ function AuthContainerBridgeInner({
   );
   const configService = useDependency(ConfigServiceToken);
   const deviceService = useDependency(DeviceServiceToken);
-  const db = useDependency(PatchDbToken);
-  const sessionService = useDependency(SessionServiceToken);
   const accountIdHolder = useDependency(AuthAccountIdHolderToken);
   const sessionTokenHolder = useDependency(AuthSessionTokenHolderToken);
 
@@ -356,8 +354,6 @@ function AuthContainerBridgeInner({
       createAuthService({
         configService,
         deviceService,
-        db,
-        sessionService,
         accountIdHolder,
         sessionTokenHolder,
         googleSignInAvailable: googleProvider.available,
@@ -369,8 +365,6 @@ function AuthContainerBridgeInner({
     parentContainer,
     configService,
     deviceService,
-    db,
-    sessionService,
     accountIdHolder,
     sessionTokenHolder,
     googleProvider.available,

@@ -75,6 +75,14 @@ module.exports = defineConfig([
     },
   },
   {
+    files: ['src/ui/patch-db-bootstrap.tsx'],
+    rules: {
+      'max-lines': 'off',
+      'max-lines-per-function': 'off',
+      'lingui/no-unlocalized-strings': 'off',
+    },
+  },
+  {
     files: ['**/*.test.{ts,tsx}', 'src/**/*.test.*'],
     rules: {
       'lingui/no-unlocalized-strings': 'off',

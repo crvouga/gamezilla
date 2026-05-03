@@ -78,11 +78,15 @@ function buildLockedOpfsError(
 
 async function openDatabaseOnce(
   databaseName: string,
-  recovery: boolean
+  recovery: boolean,
+  directory?: string
 ): Promise<SqlClientImplExpoSqlite> {
   const opts =
     Platform.OS === 'web' && recovery ? { useNewConnection: true } : {};
-  const db = await SQLite.openDatabaseAsync(databaseName, opts);
+  const db =
+    directory !== undefined && directory.length > 0
+      ? await SQLite.openDatabaseAsync(databaseName, opts, directory)
+      : await SQLite.openDatabaseAsync(databaseName, opts);
   return new SqlClientImplExpoSqlite(db);
 }
 
@@ -101,10 +105,26 @@ export class SqlClientImplExpoSqlite implements SqlClient {
 
   constructor(private db: SQLite.SQLiteDatabase) {}
 
-  static async open(databaseName: string): Promise<SqlClientImplExpoSqlite> {
+  /**
+   * Native-only: pass `directory` so the DB file lives under a managed folder
+   * (e.g. per-account isolation). Ignored on web (expo-sqlite has no directory param).
+   */
+  static async open(
+    databaseName: string,
+    directory?: string
+  ): Promise<SqlClientImplExpoSqlite> {
     assertSecureContext();
     await maybeHandleResetDbQueryParam(databaseName);
-    return openWithRecovery(databaseName);
+    const dir =
+      Platform.OS === 'web' || directory === undefined || directory.length === 0
+        ? undefined
+        : directory;
+    return openWithRecovery(databaseName, dir);
+  }
+
+  /** Underlying expo-sqlite handle (for modules that need `SQLiteDatabase`). */
+  getSqliteDatabase(): SQLite.SQLiteDatabase {
+    return this.db;
   }
 
   connect(): Promise<void> {
@@ -197,54 +217,73 @@ async function finishOpen(
 }
 
 async function openWithRecovery(
-  databaseName: string
+  databaseName: string,
+  directory?: string
 ): Promise<SqlClientImplExpoSqlite> {
   try {
-    return await finishOpen(await openDatabaseOnce(databaseName, false));
+    return await finishOpen(
+      await openDatabaseOnce(databaseName, false, directory)
+    );
   } catch (first: unknown) {
-    return openAfterFirstFailure(databaseName, first);
+    return openAfterFirstFailure(databaseName, first, directory);
+  }
+}
+
+async function deleteDbFile(
+  databaseName: string,
+  directory?: string
+): Promise<void> {
+  if (directory !== undefined && directory.length > 0) {
+    await SQLite.deleteDatabaseAsync(databaseName, directory).catch(() => {});
+  } else {
+    await SQLite.deleteDatabaseAsync(databaseName).catch(() => {});
   }
 }
 
 async function openAfterFirstFailure(
   databaseName: string,
-  first: unknown
+  first: unknown,
+  directory?: string
 ): Promise<SqlClientImplExpoSqlite> {
-  await SQLite.deleteDatabaseAsync(databaseName).catch(() => {});
+  await deleteDbFile(databaseName, directory);
   console.warn(
     `[SqlClientImplExpoSqlite] Open failed for "${databaseName}"; removed DB file and retrying once.`,
     first
   );
   try {
-    return await finishOpen(await openDatabaseOnce(databaseName, true));
+    return await finishOpen(
+      await openDatabaseOnce(databaseName, true, directory)
+    );
   } catch (second: unknown) {
     if (Platform.OS !== 'web') throw second;
-    return openAfterSecondFailure(databaseName, first, second);
+    return openAfterSecondFailure(databaseName, first, second, directory);
   }
 }
 
 async function openAfterSecondFailure(
   databaseName: string,
   first: unknown,
-  second: unknown
+  second: unknown,
+  directory?: string
 ): Promise<SqlClientImplExpoSqlite> {
-  await SQLite.deleteDatabaseAsync(databaseName).catch(() => {});
+  await deleteDbFile(databaseName, directory);
   const postOpfsReload =
     typeof sessionStorage !== 'undefined' &&
     Boolean(sessionStorage.getItem(WEB_RECOVERY_RELOAD_KEY));
   if (!postOpfsReload) {
-    return openWithOpfsRecovery(databaseName, first, second);
+    return openWithOpfsRecovery(databaseName, first, second, directory);
   }
-  return openAfterOpfsRecovery(databaseName, first, second);
+  return openAfterOpfsRecovery(databaseName, first, second, directory);
 }
 
 async function openWithOpfsRecovery(
   databaseName: string,
   first: unknown,
-  second: unknown
+  second: unknown,
+  directory?: string
 ): Promise<SqlClientImplExpoSqlite> {
   const clearResult = await clearExpoSqliteWebOpfsBestEffort();
-  await SQLite.deleteDatabaseAsync(databaseName).catch(() => {});
+  await deleteDbFile(databaseName, directory);
   if (!clearResult.ok) {
     // The wipe silently failing (e.g. `NoModificationAllowedError` because another
     // tab still holds a `FileSystemSyncAccessHandle`) used to set the session flag
@@ -269,7 +308,8 @@ async function openWithOpfsRecovery(
 async function openAfterOpfsRecovery(
   databaseName: string,
   first: unknown,
-  second: unknown
+  second: unknown,
+  directory?: string
 ): Promise<SqlClientImplExpoSqlite> {
   // Already survived one OPFS wipe + reload; never wipe OPFS again in this tab — it
   // breaks the worker VFS. Retry with fresh connections only.
@@ -278,11 +318,15 @@ async function openAfterOpfsRecovery(
     second
   );
   try {
-    return await finishOpen(await openDatabaseOnce(databaseName, true));
+    return await finishOpen(
+      await openDatabaseOnce(databaseName, true, directory)
+    );
   } catch (third: unknown) {
-    await SQLite.deleteDatabaseAsync(databaseName).catch(() => {});
+    await deleteDbFile(databaseName, directory);
     try {
-      return await finishOpen(await openDatabaseOnce(databaseName, true));
+      return await finishOpen(
+        await openDatabaseOnce(databaseName, true, directory)
+      );
     } catch (fourth: unknown) {
       throw buildPostRecoveryError(databaseName, [
         fourth,

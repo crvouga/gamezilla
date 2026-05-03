@@ -20,7 +20,7 @@ export function TodoListsScreen() {
           subtitle: <Trans>Group your todos by list</Trans>,
         },
       ]}
-      onClearLocalDatabase={() => clearLocalDatabaseAndReload('main')}
+      onClearLocalDatabase={() => void clearLocalDatabaseAndReload()}
     />
   );
 }

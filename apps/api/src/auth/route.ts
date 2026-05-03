@@ -7,19 +7,29 @@ import { ApiSecretName } from '../config/secret-names';
 import { handleAuthClaimResult } from './claim-handler';
 import { authClaimRequestSchema } from './schema';
 
-/** POST `/auth/claim` — Google id_token + device binding. */
+/**
+ * Auth routes: claim, and readable `clientId` for per-device anonymous SQLite naming
+ * (httpOnly cookie is not visible to Expo JS).
+ */
 export function createAuthClaimApp(db: PatchDb, secretStore: SecretStore) {
-  return new Hono<{ Bindings: ApiWorkerEnv }>().post(
-    '/auth/claim',
-    zValidator('json', authClaimRequestSchema),
-    async (c) => {
-      const body = c.req.valid('json');
-      const googleClientId = await secretStore.getOptional(
-        ApiSecretName.googleWebClientId
-      );
-      const authOpts = googleClientId !== null ? { googleClientId } : {};
-      const result = await handleAuthClaimResult(db, body, authOpts);
-      return c.json(result.json, result.status);
-    }
-  );
+  return new Hono<{
+    Bindings: ApiWorkerEnv;
+    Variables: { clientId: string };
+  }>()
+    .get('/auth/client-id', (c) => {
+      return c.json({ clientId: c.var.clientId });
+    })
+    .post(
+      '/auth/claim',
+      zValidator('json', authClaimRequestSchema),
+      async (c) => {
+        const body = c.req.valid('json');
+        const googleClientId = await secretStore.getOptional(
+          ApiSecretName.googleWebClientId
+        );
+        const authOpts = googleClientId !== null ? { googleClientId } : {};
+        const result = await handleAuthClaimResult(db, body, authOpts);
+        return c.json(result.json, result.status);
+      }
+    );
 }

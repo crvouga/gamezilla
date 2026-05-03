@@ -22,6 +22,22 @@ import {
   SessionServiceToken,
   type AccountSessionRecord,
 } from '@gamezilla/client/auth/session-service';
+import {
+  closeCurrentAccountDb,
+  deleteAccountLocalData,
+  deleteAnonymousDatabaseFileBestEffort,
+  ensureAccountDatabaseDirectory,
+  getCurrentAccountDatabaseBasename,
+  getCurrentPatchSqlClient,
+  openAccountDb,
+  openAnonymousDb,
+  registerAccountDatabaseSwitchHooks,
+} from '@gamezilla/client/db/account-db';
+import {
+  readLastLocalAccountId,
+  writeLastLocalAccountId,
+} from '@gamezilla/client/db/account-local-state';
+import { ensureServerClientId } from '@gamezilla/client/db/ensure-server-client-id';
 import { assertDeviceId } from '@gamezilla/domain/auth/device-id';
 import { ConfigServiceToken } from '@gamezilla/domain/config/config-service';
 import { assert } from '@gamezilla/lib/assert';
@@ -37,6 +53,10 @@ import { useLogger } from '@gamezilla/lib/logger/react';
 import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import { SqlClientImplExpoSqlite } from '@gamezilla/lib/sql-client/impl-expo-sqlite';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import {
+  SecureStorageToken,
+  type SecureStorage,
+} from '@gamezilla/lib/secure-storage/interface';
 import { assertDatabaseName } from '@gamezilla/lib/sqlite';
 import { Box, Button, Center, hideSplash, Text } from '@gamezilla/lib/ui';
 import { assertUrl } from '@gamezilla/patch-db/assert-url';
@@ -46,8 +66,10 @@ import { SyncPatchDb } from '@gamezilla/patch-db/impl-sync';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { PatchMetadataStamper } from '@gamezilla/patch-db/metadata/patch-metadata-stamper';
 import {
+  forceDetachPatchDbQuerySubscriptionsForDb,
   PatchDbSyncPubSubToken,
   PatchDbToken,
+  SyncPatchDbToken,
 } from '@gamezilla/patch-db/react';
 import {
   SubscribablePatchDbToken,
@@ -69,20 +91,25 @@ import {
 } from 'react';
 import { Platform } from 'react-native';
 
+import {
+  registerPatchDbLifecycleCallbacks,
+  reopenPatchDbAsAnonymous,
+} from './patch-db-lifecycle-api';
+import {
+  getSessionServiceForAuth,
+  setPatchRuntimeHandles,
+} from './patch-runtime-ref';
+
 /**
- * Web uses sql.js + absurd-sql (IndexedDB-backed SQLite) in a worker for a
- * local-first, offline-capable store. Native uses persistent expo-sqlite.
- *
- * We avoid expo-sqlite on web: its `AccessHandlePoolVFS` grabs an exclusive
- * `FileSystemSyncAccessHandle` on OPFS pool files at worker init, so a second
- * tab fails with `NoModificationAllowedError`. absurd-sql uses IndexedDB
- * instead.
+ * Web: single default SQLite name (no per-account directory support in expo-sqlite on web).
+ * Native: one file per account under {@link ensureAccountDatabaseDirectory}.
  */
 type BootstrapResult = {
   container: DependencyInjectionContainer;
 };
 
 type BootstrapPatchDbExpoSyncOptions = {
+  /** Web only; native supplies {@link sqlClient} from account-db. */
   databaseName?: string;
   /** Absolute URL including patch-db base path, e.g. `https://host/patch-db`. */
   apiUrl: string;
@@ -96,15 +123,36 @@ type BootstrapPatchDbExpoSyncOptions = {
    * Must preserve {@link SubscribablePatchDbLike.subscribe}.
    */
   decoratePatchDb?: (db: SubscribablePatchDbLike) => SubscribablePatchDbLike;
+  /** Native: already opened + migrated via account-db (omit on web). */
+  sqlClient?: SqlClient;
 };
 
 let cachedBootstrap: { key: string; promise: Promise<BootstrapResult> } | null =
   null;
-let currentSqlClient: SqlClient | null = null;
 
 const USE_ABSURD_SQL_ON_WEB = false;
 
-async function openLocalSqlClient(databaseName: string): Promise<SqlClient> {
+const DEFAULT_DATABASE_NAME = String('main');
+
+/** Last decorated db + sync for teardown before closing SQLite. */
+let activePatchStack: {
+  readonly decorated: SubscribablePatchDbLike;
+  readonly syncDb: SyncPatchDb;
+} | null = null;
+
+function clearActivePatchStack(): void {
+  activePatchStack = null;
+}
+
+async function teardownActivePatchStack(): Promise<void> {
+  const stack = activePatchStack;
+  if (stack === null) return;
+  forceDetachPatchDbQuerySubscriptionsForDb(stack.decorated);
+  stack.syncDb.destroy();
+  clearActivePatchStack();
+}
+
+async function openLocalSqlClientWeb(databaseName: string): Promise<SqlClient> {
   if (Platform.OS === 'web' && USE_ABSURD_SQL_ON_WEB) {
     const { SqlClientImplAbsurdSql } =
       await import('@gamezilla/lib/sql-client/impl-absurd-sql');
@@ -112,8 +160,6 @@ async function openLocalSqlClient(databaseName: string): Promise<SqlClient> {
   }
   return await SqlClientImplExpoSqlite.open(databaseName);
 }
-
-const DEFAULT_DATABASE_NAME = String('main');
 
 async function bootstrapPatchDbExpoSync(
   options: BootstrapPatchDbExpoSyncOptions
@@ -126,20 +172,34 @@ async function bootstrapPatchDbExpoSync(
     pollIntervalMs = 5000,
     parentContainer,
     decoratePatchDb,
+    sqlClient: sqlClientOption,
   } = options;
 
-  assertDatabaseName(databaseName);
   assertUrl(apiUrl);
 
-  const key = `${databaseName}:${apiUrl}`;
+  const key =
+    Platform.OS === 'web'
+      ? `web:${databaseName}:${apiUrl}`
+      : `native:${apiUrl}:${sqlClientOption !== undefined ? 'ext' : 'none'}`;
+
   if (Platform.OS === 'web' && cachedBootstrap?.key === key) {
     return cachedBootstrap.promise;
   }
 
   const bootstrapPromise = (async (): Promise<BootstrapResult> => {
-    const sqlClient = await openLocalSqlClient(databaseName);
-    currentSqlClient = sqlClient;
-    await sqlClient.connect();
+    let sqlClient: SqlClient;
+    if (Platform.OS === 'web') {
+      assertDatabaseName(databaseName);
+      sqlClient = await openLocalSqlClientWeb(databaseName);
+      await sqlClient.connect();
+    } else {
+      if (sqlClientOption === undefined) {
+        throw new Error(
+          'bootstrapPatchDbExpoSync: sqlClient required on native'
+        );
+      }
+      sqlClient = sqlClientOption;
+    }
 
     const localDb = new PatchDbImplSqlite(sqlClient);
     await localDb.migrate();
@@ -160,6 +220,9 @@ async function bootstrapPatchDbExpoSync(
     container.registerValue(PatchDbToken, dbForDi);
     container.registerValue(SubscribablePatchDbToken, dbForDi);
     container.registerValue(PatchDbSyncPubSubToken, pubSub);
+    container.registerValue(SyncPatchDbToken, syncDb);
+
+    activePatchStack = { decorated: dbForDi, syncDb };
 
     return { container };
   })();
@@ -175,14 +238,45 @@ async function bootstrapPatchDbExpoSync(
   return bootstrapPromise;
 }
 
-export async function clearLocalDatabaseAndReload(
-  databaseName = DEFAULT_DATABASE_NAME
-): Promise<void> {
-  cachedBootstrap = null;
-  if (currentSqlClient) {
-    await currentSqlClient.disconnect();
-    currentSqlClient = null;
+type NativeBootstrapIdentity =
+  | { readonly mode: 'account'; readonly accountId: string }
+  | { readonly mode: 'anonymous'; readonly clientId: string };
+
+async function resolveNativeBootstrapIdentity(
+  apiBase: string,
+  storage: SecureStorage
+): Promise<NativeBootstrapIdentity> {
+  const last = await readLastLocalAccountId(storage);
+  if (last !== null) {
+    return { mode: 'account', accountId: last };
   }
+  const clientId = await ensureServerClientId(apiBase, storage);
+  return { mode: 'anonymous', clientId };
+}
+
+/** Tear down sync + React patch-db subscriptions (SQLite may still be open). */
+export async function teardownPatchDbStack(): Promise<void> {
+  await teardownActivePatchStack();
+}
+
+/**
+ * Clears session rows on the current DB, deletes this account's SQLite file,
+ * clears last-local-account pointer, and reopens the anonymous database.
+ */
+export async function removeLocalDataForAccount(
+  accountId: string,
+  storage: SecureStorage
+): Promise<void> {
+  await getSessionServiceForAuth().clearSession();
+  await teardownActivePatchStack();
+  await deleteAccountLocalData(accountId);
+  await writeLastLocalAccountId(storage, null);
+  await reopenPatchDbAsAnonymous();
+}
+
+export async function clearLocalDatabaseAndReload(): Promise<void> {
+  cachedBootstrap = null;
+  await teardownActivePatchStack();
   if (Platform.OS === 'web') {
     if (typeof window !== 'undefined') {
       await clearWebClientPersistentState();
@@ -190,7 +284,16 @@ export async function clearLocalDatabaseAndReload(
     }
     return;
   }
-  await SQLite.deleteDatabaseAsync(databaseName);
+  const name = getCurrentAccountDatabaseBasename();
+  await closeCurrentAccountDb();
+  if (name !== null) {
+    const dir = await ensureAccountDatabaseDirectory();
+    if (dir !== undefined && dir.length > 0) {
+      await SQLite.deleteDatabaseAsync(name, dir);
+    } else {
+      await SQLite.deleteDatabaseAsync(name);
+    }
+  }
 }
 
 async function applySessionToHolders(args: {
@@ -290,10 +393,12 @@ type PatchBootstrapDeps = {
   readonly deviceService: DeviceService;
   readonly accountIdHolder: AuthAccountIdHolder;
   readonly sessionTokenHolder: AuthSessionTokenHolder;
+  readonly secureStorage: SecureStorage;
 };
 
-async function performPatchBootstrap(
-  deps: PatchBootstrapDeps
+async function performPatchInfrastructureOnly(
+  deps: PatchBootstrapDeps,
+  sqlClient: SqlClient | null
 ): Promise<DependencyInjectionContainer> {
   const {
     apiBase,
@@ -303,27 +408,47 @@ async function performPatchBootstrap(
     sessionTokenHolder,
   } = deps;
   let stamper: PatchMetadataStamper | null = null;
-  const { container: c } = await bootstrapPatchDbExpoSync({
-    apiUrl: String(`${apiBase}/patch-db`),
-    transport: createPatchDbHcTransport(createGamezillaApiClient(apiBase), {
+  const transport = createPatchDbHcTransport(
+    createGamezillaApiClient(apiBase),
+    {
       patchDbBaseUrl: String(`${apiBase}/patch-db`),
       getAuthToken: () => sessionTokenHolder.get(),
-    }),
-    parentContainer,
-    decoratePatchDb: (db) => {
-      stamper = new PatchMetadataStamper(db, {
-        getDeviceId: () => deviceService.getDeviceId(),
-        getAccountId: () => accountIdHolder.get(),
-        assertDeviceId: (id) => assertDeviceId(id),
-      });
-      return stamper;
-    },
-  });
+    }
+  );
+  const decoratePatchDb = (db: SubscribablePatchDbLike) => {
+    stamper = new PatchMetadataStamper(db, {
+      getDeviceId: () => deviceService.getDeviceId(),
+      getAccountId: () => accountIdHolder.get(),
+      assertDeviceId: (id) => assertDeviceId(id),
+    });
+    return stamper;
+  };
+  const syncOpts =
+    Platform.OS === 'web'
+      ? {
+          apiUrl: String(`${apiBase}/patch-db`),
+          transport,
+          parentContainer,
+          decoratePatchDb,
+        }
+      : {
+          apiUrl: String(`${apiBase}/patch-db`),
+          transport,
+          parentContainer,
+          decoratePatchDb,
+          sqlClient:
+            sqlClient ??
+            (() => {
+              throw new Error(
+                'performPatchInfrastructureOnly: sqlClient required on native'
+              );
+            })(),
+        };
+  const { container: c } = await bootstrapPatchDbExpoSync(syncOpts);
   assert.ok(
     c instanceof DependencyInjectionContainer,
     'bootstrap must return DependencyInjectionContainer'
   );
-  /** Stamper is assigned inside `decoratePatchDb` before the bootstrap promise resolves. */
   const metadataStamper = stamper as PatchMetadataStamper | null;
   if (metadataStamper !== null) {
     await metadataStamper.backfillCreatedBy();
@@ -340,10 +465,47 @@ async function performPatchBootstrap(
   return c;
 }
 
+async function performPatchBootstrap(
+  deps: PatchBootstrapDeps
+): Promise<DependencyInjectionContainer> {
+  const { apiBase, secureStorage } = deps;
+
+  if (Platform.OS === 'web') {
+    return performPatchInfrastructureOnly(deps, null);
+  }
+
+  await ensureAccountDatabaseDirectory();
+  const identity = await resolveNativeBootstrapIdentity(apiBase, secureStorage);
+
+  if (identity.mode === 'account') {
+    await openAccountDb(identity.accountId);
+  } else {
+    await openAnonymousDb(identity.clientId);
+  }
+
+  const sql = getCurrentPatchSqlClient();
+  let c = await performPatchInfrastructureOnly(deps, sql);
+
+  const sessionService = c.get(SessionServiceToken);
+  if (identity.mode === 'account' && sessionService.getSession() === null) {
+    await writeLastLocalAccountId(secureStorage, null);
+    await teardownActivePatchStack();
+    setPatchRuntimeHandles(null);
+    await closeCurrentAccountDb();
+    const clientId = await ensureServerClientId(apiBase, secureStorage);
+    await openAnonymousDb(clientId);
+    const sql2 = getCurrentPatchSqlClient();
+    c = await performPatchInfrastructureOnly(deps, sql2);
+  }
+
+  return c;
+}
+
 function usePatchBootstrap() {
   const log = useLogger('patch-bootstrap');
   const [container, setContainer] = useState<Container | null>(null);
   const [error, setError] = useState<Error | null>(null);
+  const [nativeIdentityKey, setNativeIdentityKey] = useState<string>('');
   const rawContainer = useContainer();
   assert.ok(
     rawContainer instanceof DependencyInjectionContainer,
@@ -354,18 +516,32 @@ function usePatchBootstrap() {
   const deviceService = useDependency(DeviceServiceToken);
   const accountIdHolder = useDependency(AuthAccountIdHolderToken);
   const sessionTokenHolder = useDependency(AuthSessionTokenHolderToken);
+  const secureStorage = useDependency(SecureStorageToken);
   const mountedRef = useRef(true);
+  const depsRef = useRef<PatchBootstrapDeps | null>(null);
+  depsRef.current = {
+    apiBase: configService.getApiUrl(),
+    parentContainer,
+    deviceService,
+    accountIdHolder,
+    sessionTokenHolder,
+    secureStorage,
+  };
+
+  const wireRuntime = useCallback((c: DependencyInjectionContainer) => {
+    setPatchRuntimeHandles({
+      getPatchDb: () => c.get(PatchDbToken),
+      getSessionService: () => c.get(SessionServiceToken),
+    });
+  }, []);
 
   const runBootstrap = useCallback(() => {
     setError(null);
-    performPatchBootstrap({
-      apiBase: configService.getApiUrl(),
-      parentContainer,
-      deviceService,
-      accountIdHolder,
-      sessionTokenHolder,
-    })
+    const deps = depsRef.current;
+    if (deps === null) return;
+    performPatchBootstrap(deps)
       .then((c) => {
+        wireRuntime(c);
         if (mountedRef.current) setContainer(c);
       })
       .catch((err: unknown) => {
@@ -376,22 +552,105 @@ function usePatchBootstrap() {
           setError(err instanceof Error ? err : new Error(String(err)));
         }
       });
-  }, [
-    accountIdHolder,
-    configService,
-    log,
-    parentContainer,
-    deviceService,
-    sessionTokenHolder,
-  ]);
+  }, [log, wireRuntime]);
 
   useEffect(() => {
     mountedRef.current = true;
-    runBootstrap();
+    if (Platform.OS === 'web') {
+      setNativeIdentityKey('web');
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      const d = depsRef.current;
+      if (d === null) return;
+      try {
+        const id = await resolveNativeBootstrapIdentity(
+          d.apiBase,
+          d.secureStorage
+        );
+        const key =
+          id.mode === 'account' ? `a:${id.accountId}` : `n:${id.clientId}`;
+        if (!cancelled) setNativeIdentityKey(key);
+      } catch (e: unknown) {
+        if (!cancelled) {
+          setError(e instanceof Error ? e : new Error(String(e)));
+        }
+      }
+    })();
     return () => {
-      mountedRef.current = false;
+      cancelled = true;
     };
-  }, [runBootstrap]);
+  }, [configService, secureStorage]);
+
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      runBootstrap();
+      return;
+    }
+    if (nativeIdentityKey.length === 0) return;
+    runBootstrap();
+  }, [nativeIdentityKey, runBootstrap]);
+
+  useEffect(() => {
+    registerAccountDatabaseSwitchHooks({
+      beforeClose: async () => {
+        await teardownActivePatchStack();
+      },
+      afterOpen: async () => {},
+    });
+    return () => {
+      registerAccountDatabaseSwitchHooks(null);
+    };
+  }, []);
+
+  useEffect(() => {
+    registerPatchDbLifecycleCallbacks({
+      reopenAsAccount: async (accountId: string) => {
+        const deps = depsRef.current;
+        if (deps === null) throw new Error('patch bootstrap deps missing');
+        await teardownActivePatchStack();
+        await closeCurrentAccountDb();
+        await writeLastLocalAccountId(deps.secureStorage, accountId);
+        await openAccountDb(accountId);
+        const sql = getCurrentPatchSqlClient();
+        const c = await performPatchInfrastructureOnly(deps, sql);
+        wireRuntime(c);
+        const clientId = await ensureServerClientId(
+          deps.apiBase,
+          deps.secureStorage
+        );
+        await deleteAnonymousDatabaseFileBestEffort(clientId);
+        if (mountedRef.current) {
+          setContainer(c);
+          setNativeIdentityKey(`a:${accountId}`);
+        }
+      },
+      reopenAsAnonymous: async () => {
+        const deps = depsRef.current;
+        if (deps === null) throw new Error('patch bootstrap deps missing');
+        await teardownActivePatchStack();
+        await closeCurrentAccountDb();
+        await writeLastLocalAccountId(deps.secureStorage, null);
+        const clientId = await ensureServerClientId(
+          deps.apiBase,
+          deps.secureStorage
+        );
+        await openAnonymousDb(clientId);
+        const sql = getCurrentPatchSqlClient();
+        const c = await performPatchInfrastructureOnly(deps, sql);
+        wireRuntime(c);
+        if (mountedRef.current) {
+          setContainer(c);
+          setNativeIdentityKey(`n:${clientId}`);
+        }
+      },
+    });
+    return () => {
+      registerPatchDbLifecycleCallbacks(null);
+      setPatchRuntimeHandles(null);
+    };
+  }, [wireRuntime]);
 
   useEffect(() => {
     if (container !== null || error !== null) void hideSplash();
@@ -400,7 +659,7 @@ function usePatchBootstrap() {
   const onClearLocalDataAndReload = useCallback(async () => {
     try {
       setError(null);
-      await clearLocalDatabaseAndReload('main');
+      await clearLocalDatabaseAndReload();
       if (Platform.OS !== 'web') runBootstrap();
     } catch (err: unknown) {
       log.error('clear local database failed', {

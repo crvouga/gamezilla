@@ -1,5 +1,13 @@
 import { createGamezillaApiClient } from '@gamezilla/client/api/hc';
 import {
+  reopenPatchDbAsAccount,
+  reopenPatchDbAsAnonymous,
+} from '@gamezilla/client/ui/patch-db-lifecycle-api';
+import {
+  getPatchDbForAuthWrites,
+  getSessionServiceForAuth,
+} from '@gamezilla/client/ui/patch-runtime-ref';
+import {
   assertDeviceId,
   DEVICE_ENTITY_TYPE,
   ACCOUNT_SESSION_ENTITY_TYPE,
@@ -10,13 +18,11 @@ import { assertUuid } from '@gamezilla/domain/auth/device-id';
 import type { ConfigService } from '@gamezilla/domain/config/config-service';
 import { assert } from '@gamezilla/lib/assert';
 import type { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
-import type { PatchDb } from '@gamezilla/patch-db/interface';
 import type { AuthAccountIdHolder } from './auth-account-id-holder';
 import type { AuthSessionTokenHolder } from './auth-session-token-holder';
 import { ensureAccountProfile } from './ensure-profile-entity';
 import { AuthConfigurationError } from './auth-errors';
 import type { DeviceService } from './device-service';
-import type { SessionService } from './session-service';
 
 export interface AuthService {
   signInWithGoogle(): Promise<void>;
@@ -35,8 +41,6 @@ type ClaimResponse = {
 type CreateAuthServiceDeps = {
   configService: ConfigService;
   deviceService: DeviceService;
-  db: PatchDb;
-  sessionService: SessionService;
   accountIdHolder: AuthAccountIdHolder;
   sessionTokenHolder: AuthSessionTokenHolder;
   /** When false, sign-in is refused before opening the Google prompt. */
@@ -66,7 +70,6 @@ function createGoogleSignInHandler(
   const {
     configService,
     deviceService,
-    db,
     accountIdHolder,
     sessionTokenHolder,
     googleSignInAvailable,
@@ -111,7 +114,11 @@ function createGoogleSignInHandler(
     // the unsynced session/device patches would 401 against the server.
     sessionTokenHolder.set(sessionToken);
 
+    await reopenPatchDbAsAccount(accountId);
+    accountIdHolder.set(accountId);
+
     const sessionEntityId = globalThis.crypto.randomUUID();
+    const db = getPatchDbForAuthWrites();
 
     await db.write([
       {
@@ -134,9 +141,8 @@ function createGoogleSignInHandler(
       },
     ]);
 
-    accountIdHolder.set(accountId);
     await ensureAccountProfile(db, accountId);
-    await deps.sessionService.refresh();
+    await getSessionServiceForAuth().refresh();
   };
 }
 
@@ -144,9 +150,10 @@ export function createAuthService(deps: CreateAuthServiceDeps): AuthService {
   return {
     signInWithGoogle: createGoogleSignInHandler(deps),
     async signOut(): Promise<void> {
+      await getSessionServiceForAuth().clearSession();
       deps.accountIdHolder.set(null);
       deps.sessionTokenHolder.set(null);
-      await deps.sessionService.clearSession();
+      await reopenPatchDbAsAnonymous();
     },
   };
 }

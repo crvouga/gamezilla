@@ -1,4 +1,7 @@
 import { useAuth } from '@gamezilla/client/auth/auth-context';
+import { useDependency } from '@gamezilla/lib/dependency-injection/react';
+import { SecureStorageToken } from '@gamezilla/lib/secure-storage/interface';
+import { removeLocalDataForAccount } from '@gamezilla/client/ui/patch-db-bootstrap';
 import {
   type AccountDevice,
   useAccountDevices,
@@ -18,6 +21,7 @@ import { useQuery } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { type Href, useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
+import { Alert, Platform } from 'react-native';
 import { AccountDevicesCard } from './account-devices-card';
 import { formatTimestamp } from './account-format';
 
@@ -163,20 +167,31 @@ function AccountActionsRow({
   auth,
   onRequestSignOut,
   onSignIn,
+  onRemoveLocalData,
 }: {
   auth: ReturnType<typeof useAuth>;
   onRequestSignOut: () => void;
   onSignIn: () => void;
+  onRemoveLocalData: () => void;
 }) {
   const { t } = useLingui();
   return (
     <Box sx={{ gap: 2 }}>
       {auth.mode === 'signed-in' ? (
-        <Button
-          title={t`Sign out`}
-          color="destructive"
-          onPress={onRequestSignOut}
-        />
+        <>
+          {Platform.OS !== 'web' ? (
+            <Button
+              title={t`Remove local data for this account`}
+              color="destructive"
+              onPress={onRemoveLocalData}
+            />
+          ) : null}
+          <Button
+            title={t`Sign out`}
+            color="destructive"
+            onPress={onRequestSignOut}
+          />
+        </>
       ) : (
         <Button title={t`Sign in`} onPress={onSignIn} />
       )}
@@ -191,6 +206,7 @@ function AccountScreenBody({
   sessionsByDevice,
   onSignIn,
   onRequestSignOut,
+  onRemoveLocalData,
   onOpenDevice,
   sx,
 }: {
@@ -200,6 +216,7 @@ function AccountScreenBody({
   sessionsByDevice: Map<string, AccountSessionAggregate>;
   onSignIn: () => void;
   onRequestSignOut: () => void;
+  onRemoveLocalData: () => void;
   onOpenDevice: (deviceId: string) => void;
   sx: object;
 }) {
@@ -216,6 +233,7 @@ function AccountScreenBody({
         auth={auth}
         onRequestSignOut={onRequestSignOut}
         onSignIn={onSignIn}
+        onRemoveLocalData={onRemoveLocalData}
       />
     </Box>
   );
@@ -225,6 +243,8 @@ export function AccountScreen() {
   const nav = useBreadcrumbNav();
   const router = useRouter();
   const auth = useAuth();
+  const { t } = useLingui();
+  const secureStorage = useDependency(SecureStorageToken);
   const { providers } = useLinkedProviders(auth.accountId);
 
   const currentDeviceId = auth.deviceId;
@@ -247,6 +267,35 @@ export function AccountScreen() {
     auth.openSignOutConfirm();
   }, [auth]);
 
+  const onRemoveLocalData = useCallback(() => {
+    if (auth.accountId === null || Platform.OS === 'web') return;
+    const accountId = auth.accountId;
+    Alert.alert(
+      t`Remove local data?`,
+      t`This deletes the offline database file for this account on this device. You stay signed in; data will re-download from the server.`,
+      [
+        { text: t`Cancel`, style: 'cancel' },
+        {
+          text: t`Remove`,
+          style: 'destructive',
+          onPress: () => {
+            void (async () => {
+              try {
+                await removeLocalDataForAccount(accountId, secureStorage);
+                await auth.refreshSession();
+              } catch (err: unknown) {
+                Alert.alert(
+                  t`Could not remove local data`,
+                  err instanceof Error ? err.message : String(err)
+                );
+              }
+            })();
+          },
+        },
+      ]
+    );
+  }, [auth, secureStorage, t]);
+
   return (
     <ScreenBase
       breadcrumbs={[
@@ -266,6 +315,7 @@ export function AccountScreen() {
           sessionsByDevice={sessionsByDevice}
           onSignIn={onSignIn}
           onRequestSignOut={onRequestSignOut}
+          onRemoveLocalData={onRemoveLocalData}
           onOpenDevice={onOpenDevice}
           sx={sx}
         />

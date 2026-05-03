@@ -40,7 +40,7 @@ export function WipeLocalDatabaseCommand() {
         confirmLabel={<Trans>Wipe and reload</Trans>}
         onConfirm={() => {
           setVisible(false);
-          void clearLocalDatabaseAndReload('main');
+          void clearLocalDatabaseAndReload();
         }}
         onCancel={() => setVisible(false)}
       />

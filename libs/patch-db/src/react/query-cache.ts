@@ -153,6 +153,26 @@ export class PatchDbQueryCache {
     return entry?.unsubscribe !== null && entry !== undefined;
   }
 
+  /**
+   * Immediately tears down every cache entry (subscriptions + timers), even if
+   * listeners are still registered. Used when swapping the underlying SQLite
+   * file so no stale snapshots reference a closed DB.
+   */
+  forceDetachAll(): void {
+    for (const entry of this.entries.values()) {
+      if (entry.teardownTimer !== null) {
+        this.scheduler.clearTimeout(entry.teardownTimer);
+        entry.teardownTimer = null;
+      }
+      if (entry.unsubscribe !== null) {
+        entry.unsubscribe();
+        entry.unsubscribe = null;
+      }
+      entry.listeners.clear();
+    }
+    this.entries.clear();
+  }
+
   private getOrCreate(queryKey: string, query: PatchDbQuery): CacheEntry {
     const existing = this.entries.get(queryKey);
     if (existing !== undefined) return existing;
@@ -197,4 +217,17 @@ export function getCacheForDb(db: SubscribablePatchDbLike): PatchDbQueryCache {
   const created = new PatchDbQueryCache(db);
   cacheByDb.set(db, created);
   return created;
+}
+
+/**
+ * Detaches all patch-db React query subscriptions for `db` (if a cache exists).
+ * Call before destroying the sync patch-db layer / closing SQLite when swapping account DBs.
+ */
+export function forceDetachPatchDbQuerySubscriptionsForDb(
+  db: SubscribablePatchDbLike
+): void {
+  const cache = cacheByDb.get(db);
+  if (cache === undefined) return;
+  cache.forceDetachAll();
+  cacheByDb.delete(db);
 }
