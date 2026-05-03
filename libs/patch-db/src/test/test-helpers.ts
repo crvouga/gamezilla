@@ -57,13 +57,35 @@ export type SyncDbFixture = {
   teardown: () => Promise<void>;
 };
 
-export async function createSyncDbFactory(options?: {
+export type CreateSyncDbFactoryOptions = {
   pushIntervalMs?: number;
   pushDriver?: 'interval' | 'manual';
   pollDriver?: 'interval' | 'manual';
   scheduler?: SyncPatchesDbScheduler;
   maxPushBatchSize?: number;
-}): Promise<SyncDbFixture> {
+};
+
+function buildSyncOptions(
+  options: CreateSyncDbFactoryOptions | undefined,
+): SyncPatchesDbOptions {
+  const opts = options ?? {};
+  const syncOptions: SyncPatchesDbOptions = {
+    pushIntervalMs: opts.pushIntervalMs ?? 10,
+    pushDriver: opts.pushDriver ?? 'interval',
+    pollDriver: opts.pollDriver ?? 'manual',
+  };
+  if (opts.scheduler !== undefined) {
+    syncOptions.scheduler = opts.scheduler;
+  }
+  if (opts.maxPushBatchSize !== undefined) {
+    syncOptions.maxPushBatchSize = opts.maxPushBatchSize;
+  }
+  return syncOptions;
+}
+
+export async function createSyncDbFactory(
+  options?: CreateSyncDbFactoryOptions,
+): Promise<SyncDbFixture> {
   const localClient: SqlClient = SqlClientImplBunSqlite.open(':memory:');
   const remoteClient: SqlClient = SqlClientImplBunSqlite.open(':memory:');
   await localClient.connect();
@@ -75,18 +97,12 @@ export async function createSyncDbFactory(options?: {
   await remote.migrate();
 
   const pubSub = new InMemoryPubSub();
-  const syncOptions: SyncPatchesDbOptions = {
-    pushIntervalMs: options?.pushIntervalMs ?? 10,
-    pushDriver: options?.pushDriver ?? 'interval',
-    pollDriver: options?.pollDriver ?? 'manual',
-  };
-  if (options?.scheduler !== undefined) {
-    syncOptions.scheduler = options.scheduler;
-  }
-  if (options?.maxPushBatchSize !== undefined) {
-    syncOptions.maxPushBatchSize = options.maxPushBatchSize;
-  }
-  const syncDb = new SyncPatchesDb(local, remote, pubSub, syncOptions);
+  const syncDb = new SyncPatchesDb(
+    local,
+    remote,
+    pubSub,
+    buildSyncOptions(options),
+  );
 
   return {
     syncDb,
