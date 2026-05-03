@@ -18,6 +18,14 @@ import {
   MAX_PATCHES_PER_REQUEST,
   MAX_QUERIES_PER_REQUEST,
 } from './wire-schemas';
+import { PatchDbTransportRejectedError } from './transport-rejected-error';
+
+function throwHttpFailure(res: Response, text: string): never {
+  if (res.status === 401 || res.status === 403) {
+    throw new PatchDbTransportRejectedError(res.status, text);
+  }
+  throw new Error(`HTTP ${res.status}: ${text}`);
+}
 
 export type PatchDbClientTransportHttpFetchOptions = {
   /** Extra headers (e.g. `Authorization: Bearer …`) for authenticated patch-db API. */
@@ -84,7 +92,7 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
     });
     if (!res.ok) {
       const text = await res.text();
-      throw new Error(`HTTP ${res.status}: ${text}`);
+      throwHttpFailure(res, text);
     }
     const raw: unknown = await res.json();
     assertPatchesDbResults(raw);
@@ -121,7 +129,7 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
     });
     if (!res.ok) {
       const text = await res.text();
-      throw new Error(`HTTP ${res.status}: ${text}`);
+      throwHttpFailure(res, text);
     }
     const raw: unknown = await res.json();
     assertPatches(raw);

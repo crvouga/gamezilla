@@ -2,6 +2,7 @@ export {
   PatchDbClientTransportHttpFetch,
   type PatchDbClientTransportHttpFetchOptions,
 } from './impl-http-fetch';
+export { PatchDbTransportRejectedError } from './transport-rejected-error';
 export {
   createPatchDbHttpHono,
   PatchDbHttpRequestHandler,

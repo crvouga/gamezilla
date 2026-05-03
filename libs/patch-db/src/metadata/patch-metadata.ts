@@ -7,6 +7,8 @@
 export const PATCH_CREATED_BY = 'patch/createdBy' as const;
 export const PATCH_SESSION_ID = 'patch/sessionId' as const;
 export const PATCH_SYNCED_AT = 'patch/syncedAt' as const;
+export const PATCH_SYNC_REJECTED_AT = 'patch/syncRejectedAt' as const;
+export const PATCH_SYNC_REJECTED_REASON = 'patch/syncRejectedReason' as const;
 export const PATCH_LAST_MODIFIED_BY_PRINCIPAL =
   'patch/lastModifiedByPrincipalId' as const;
 export const PATCH_LAST_MODIFIED_BY_ACCOUNT =
@@ -21,6 +23,8 @@ export const PATCH_META_KEYS: readonly string[] = [
   PATCH_CREATED_BY,
   PATCH_SESSION_ID,
   PATCH_SYNCED_AT,
+  PATCH_SYNC_REJECTED_AT,
+  PATCH_SYNC_REJECTED_REASON,
   PATCH_LAST_MODIFIED_BY_PRINCIPAL,
   PATCH_LAST_MODIFIED_BY_ACCOUNT,
   PATCH_LAST_MODIFIED_AT,

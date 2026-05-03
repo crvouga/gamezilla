@@ -1,4 +1,9 @@
 import { assert } from '@gamezilla/lib/assert';
+import { PRINCIPAL_ENTITY_TYPE, PrincipalAttr } from '@gamezilla/domain/auth';
+import {
+  PROFILE_ENTITY_TYPE,
+  ProfileAttr,
+} from '@gamezilla/domain/profile/profile-entities';
 import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
@@ -214,7 +219,29 @@ describe('default ABAC policies (sqlite)', () => {
     expect(r.entities).toHaveLength(0);
   });
 
-  test('visitor context cannot write patches', async () => {
+  test('visitor context can write patches (registry dispatches to policy)', async () => {
+    const visitor: PatchesDbVisitorContext = {
+      visitorId: crypto.randomUUID(),
+    };
+    const principalId = '00000000-0000-4000-8000-00000000a0b1';
+    const written = await db.write(
+      [
+        {
+          entityId: principalId,
+          entityType: PRINCIPAL_ENTITY_TYPE,
+          attributes: {
+            [PrincipalAttr.id]: principalId,
+            'patch/createdBy': 'visitor-device',
+          },
+        },
+      ],
+      visitor
+    );
+    expect(written).toHaveLength(1);
+    expect(written[0]?.entityId).toBe(principalId);
+  });
+
+  test('visitor write to system-only entity (clientConfig) is rejected by policy', async () => {
     const visitor: PatchesDbVisitorContext = {
       visitorId: crypto.randomUUID(),
     };
@@ -231,6 +258,34 @@ describe('default ABAC policies (sqlite)', () => {
           },
         ],
         visitor
+      )
+    ).rejects.toBeInstanceOf(ForbiddenError);
+  });
+
+  test('authenticated write still enforces patch/createdBy match', async () => {
+    const principalId = '00000000-0000-4000-8000-00000000c0d2';
+    const accountId = '00000000-0000-4000-8000-0000000000c2';
+    const ctx: AppAuthContext = {
+      visitorId: crypto.randomUUID(),
+      principalId,
+      accountId,
+      memberOfSpaceIds: [],
+      friendAccountIds: [],
+      blockedAccountIds: [],
+    };
+    await expect(
+      db.write(
+        [
+          {
+            entityId: principalId,
+            entityType: PROFILE_ENTITY_TYPE,
+            attributes: {
+              [ProfileAttr.id]: principalId,
+              'patch/createdBy': '00000000-0000-4000-8000-00000000dead',
+            },
+          },
+        ],
+        ctx
       )
     ).rejects.toBeInstanceOf(ForbiddenError);
   });

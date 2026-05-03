@@ -66,7 +66,7 @@ export type CreateSyncDbFactoryOptions = {
 };
 
 function buildSyncOptions(
-  options: CreateSyncDbFactoryOptions | undefined,
+  options: CreateSyncDbFactoryOptions | undefined
 ): SyncPatchesDbOptions {
   const opts = options ?? {};
   const syncOptions: SyncPatchesDbOptions = {
@@ -84,7 +84,7 @@ function buildSyncOptions(
 }
 
 export async function createSyncDbFactory(
-  options?: CreateSyncDbFactoryOptions,
+  options?: CreateSyncDbFactoryOptions
 ): Promise<SyncDbFixture> {
   const localClient: SqlClient = SqlClientImplBunSqlite.open(':memory:');
   const remoteClient: SqlClient = SqlClientImplBunSqlite.open(':memory:');
@@ -101,7 +101,7 @@ export async function createSyncDbFactory(
     local,
     remote,
     pubSub,
-    buildSyncOptions(options),
+    buildSyncOptions(options)
   );
 
   return {

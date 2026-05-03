@@ -1,7 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import { assert } from '@gamezilla/lib/assert';
 
@@ -79,7 +78,6 @@ assert.nonEmptyString(
   'PATH must remain non-empty after stripping bun-node shim'
 );
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 assert.nonEmptyString(__dirname, '__dirname must resolve to a non-empty path');
 
 const repoRoot = path.join(__dirname, '..', '..', '..', '..');

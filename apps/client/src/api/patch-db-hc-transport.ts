@@ -5,7 +5,10 @@ import type {
   PatchesDbResult,
 } from '@gamezilla/patch-db/interface';
 import type { PatchDbClientTransport } from '@gamezilla/patch-db/transport';
-import { NO_CACHE_REQUEST_HEADERS } from '@gamezilla/patch-db/transport';
+import {
+  NO_CACHE_REQUEST_HEADERS,
+  PatchDbTransportRejectedError,
+} from '@gamezilla/patch-db/transport';
 import {
   assertPatches,
   assertPatchesDbResults,
@@ -28,6 +31,13 @@ function authHeaders(
   const token = getAuthToken?.() ?? null;
   if (token === null || token.length === 0) return {};
   return { Authorization: `Bearer ${token}` };
+}
+
+function throwHcFailure(status: number, text: string): never {
+  if (status === 401 || status === 403) {
+    throw new PatchDbTransportRejectedError(status, text);
+  }
+  throw new Error(`HTTP ${String(status)}: ${text}`);
 }
 
 /**
@@ -54,7 +64,7 @@ export function createPatchDbHcTransport(
       );
       if (!res.ok) {
         const text = await res.text();
-        throw new Error(`HTTP ${String(res.status)}: ${text}`);
+        throwHcFailure(res.status, text);
       }
       let raw: unknown;
       try {
@@ -82,7 +92,7 @@ export function createPatchDbHcTransport(
       );
       if (!res.ok) {
         const text = await res.text();
-        throw new Error(`HTTP ${String(res.status)}: ${text}`);
+        throwHcFailure(res.status, text);
       }
       let raw: unknown;
       try {

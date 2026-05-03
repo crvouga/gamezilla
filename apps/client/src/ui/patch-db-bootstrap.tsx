@@ -324,8 +324,10 @@ async function performPatchBootstrap(
     c instanceof DependencyInjectionContainer,
     'bootstrap must return DependencyInjectionContainer'
   );
-  if (stamper !== null) {
-    await (stamper as PatchMetadataStamper).backfillCreatedBy();
+  /** Stamper is assigned inside `decoratePatchesDb` before the bootstrap promise resolves. */
+  const metadataStamper = stamper as PatchMetadataStamper | null;
+  if (metadataStamper !== null) {
+    await metadataStamper.backfillCreatedBy();
   }
   await registerSessionService(
     c,
@@ -333,6 +335,9 @@ async function performPatchBootstrap(
     accountIdHolder,
     sessionTokenHolder
   );
+  if (metadataStamper !== null) {
+    await metadataStamper.clearRejectedPushes();
+  }
   return c;
 }
 

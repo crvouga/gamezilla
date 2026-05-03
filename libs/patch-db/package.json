@@ -16,6 +16,7 @@
     "./transport/index": "./src/transport/index.ts",
     "./transport/paths": "./src/transport/paths.ts",
     "./transport/impl-in-process": "./src/transport/impl-in-process.ts",
+    "./transport/transport-rejected-error": "./src/transport/transport-rejected-error.ts",
     "./assert-url": "./src/assert-url.ts",
     "./subscribable": "./src/subscribable.ts",
     "./impl-client-transport/impl-client-transport": "./src/impl-client-transport/impl-client-transport.ts",

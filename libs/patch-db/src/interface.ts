@@ -72,6 +72,8 @@ export {
   PATCH_LAST_MODIFIED_BY_PRINCIPAL,
   PATCH_META_KEYS,
   PATCH_SESSION_ID,
+  PATCH_SYNC_REJECTED_AT,
+  PATCH_SYNC_REJECTED_REASON,
   PATCH_SYNCED_AT,
 } from './metadata/patch-metadata';
 
@@ -401,6 +403,19 @@ export function andWhereClause(
  */
 export const READ_WHERE_ALWAYS_TRUE: PatchesDbQueryWhereClause = {
   type: 'or',
+  clauses: [
+    { type: 'exists', attribute: 'patch/createdBy' },
+    { type: 'not_exists', attribute: 'patch/createdBy' },
+  ],
+};
+
+/**
+ * Read predicate that is always false. Use from a visibility policy's `read`
+ * to deny a context (e.g. visitors on a private entity type) while keeping
+ * a single read function instead of a separate visitor branch.
+ */
+export const READ_WHERE_NEVER_TRUE: PatchesDbQueryWhereClause = {
+  type: 'and',
   clauses: [
     { type: 'exists', attribute: 'patch/createdBy' },
     { type: 'not_exists', attribute: 'patch/createdBy' },
