@@ -7,7 +7,7 @@
     "libs/*"
   ],
   "scripts": {
-    "check": "bun run format:check && env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo check build && bun run i18n:check",
+    "check": "bun run format:check && env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo check build --force && bun run i18n:check",
     "depcruise:ci": "dependency-cruise apps libs --validate .dependency-cruiser.cjs --output-type err",
     "dev": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo dev --ui=tui",
     "format": "sort-package-json && prettier --write .",

@@ -96,7 +96,7 @@ function killerTypeScriptRules() {
     'no-extra-boolean-cast': 'off',
     eqeqeq: ['error', 'always'],
     // Sequential awaits are intentional in migrations and boot scripts.
-    'no-await-in-loop': 'off',
+    // 'no-await-in-loop': 'off',
     'no-only-tests/no-only-tests': 'error',
   };
 }

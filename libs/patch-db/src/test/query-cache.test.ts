@@ -1,9 +1,9 @@
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite';
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
 import type { PatchesDbQuery } from '../interface';
-import { PatchesDbQueryCache } from '../react-query-cache';
+import { PatchesDbQueryCache } from '../react/query-cache';
 import { SubscribablePatchesDb } from '../subscribable';
 
 type SchedulerArg = {

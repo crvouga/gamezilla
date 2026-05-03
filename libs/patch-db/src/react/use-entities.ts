@@ -1,29 +1,9 @@
 import { assert } from '@gamezilla/lib/assert';
-import type { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 import { useDependency } from '@gamezilla/lib/dependency-injection/react';
-import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
 import { useCallback, useMemo, useSyncExternalStore } from 'react';
-import type {
-  Entity,
-  PatchesDb,
-  PatchesDbQuery,
-  PatchesDbResult,
-} from './interface';
-import type { CachedQueryResult } from './react-query-cache';
-import { getCacheForDb } from './react-query-cache';
-import { SubscribablePatchesDbToken } from './subscribable';
-
-export const PatchesDbToken: InjectionToken<PatchesDb> = Symbol('PatchesDb');
-
-/** In-memory bus used by {@link SyncPatchesDb} (e.g. subscribe to sync-error topic). */
-export const PatchDbSyncPubSubToken: InjectionToken<PubSub> =
-  Symbol('PatchDbSyncPubSub');
-
-export function usePatchesDb(): PatchesDb {
-  const db = useDependency(PatchesDbToken);
-  assert.defined(db, 'PatchesDb not found');
-  return db;
-}
+import type { PatchesDbQuery, PatchesDbResult } from '../interface';
+import { SubscribablePatchesDbToken } from '../subscribable';
+import { getCacheForDb, type CachedQueryResult } from './query-cache';
 
 /**
  * `loading` is `true` only until the first delivery for a given query has
@@ -69,10 +49,4 @@ export function useEntities(query: PatchesDbQuery): UseEntitiesResult {
   }, [cache, queryKey]);
 
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
-}
-
-export function useEntity(query: PatchesDbQuery): Entity | null {
-  const entities = useEntities(query);
-  const first = entities.entities[0];
-  return first ?? null;
 }
