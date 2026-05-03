@@ -2,13 +2,17 @@ import { assert } from '@gamezilla/lib/assert';
 import { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
-import { useEffect, useState } from 'react';
+import { useCallback, useMemo, useSyncExternalStore } from 'react';
 import {
   Entity,
   PatchesDb,
   PatchesDbQuery,
   PatchesDbResult,
 } from './interface';
+import {
+  CachedQueryResult,
+  getCacheForDb,
+} from './react-query-cache';
 import { SubscribablePatchesDbToken } from './subscribable';
 
 export const PatchesDbToken: InjectionToken<PatchesDb> = Symbol('PatchesDb');
@@ -24,39 +28,49 @@ export function usePatchesDb(): PatchesDb {
 }
 
 /**
- * `loading` is `true` until the subscription delivers its first result.
- * Use it to avoid rendering default/fallback content (which can cause UI
- * flashes) while patch-db is still hydrating.
+ * `loading` is `true` only until the first delivery for a given query has
+ * arrived. Switching a hook to a query that another hook (or this hook in a
+ * recent past life) has already loaded returns `loading: false` immediately —
+ * use this flag to suppress fallback renders during initial hydration.
  */
 export type UseEntitiesResult = PatchesDbResult & { loading: boolean };
 
+/**
+ * Subscribes to the cached snapshot for `query`. Identical query shapes share
+ * a single underlying subscription; teardown is deferred briefly across
+ * unmounts so route flips and conditional renders don't re-flash `loading`.
+ */
 export function useEntities(query: PatchesDbQuery): UseEntitiesResult {
   const db = useDependency(SubscribablePatchesDbToken);
-  const [result, setResult] = useState<UseEntitiesResult>(() => ({
-    query,
-    entities: [],
-    patches: [],
-    total: 0,
-    hasMore: false,
-    nextCursor: null,
-    loading: true,
-  }));
+  const cache = useMemo(() => getCacheForDb(db), [db]);
   const queryKey = JSON.stringify(query);
-  useEffect(() => {
-    setResult((prev) => ({ ...prev, loading: true }));
+
+  const subscribe = useCallback(
+    (listener: () => void) => {
+      const parsed: unknown = JSON.parse(queryKey);
+      assert.record(
+        parsed,
+        'queryKey must roundtrip to object (from JSON.stringify of PatchesDbQuery)',
+        { queryKey }
+      );
+      return cache.subscribe(queryKey, parsed as PatchesDbQuery, listener);
+    },
+    [cache, queryKey]
+  );
+
+  const getSnapshot = useCallback((): CachedQueryResult => {
+    const existing = cache.getResult(queryKey);
+    if (existing !== null) return existing;
     const parsed: unknown = JSON.parse(queryKey);
     assert.record(
       parsed,
       'queryKey must roundtrip to object (from JSON.stringify of PatchesDbQuery)',
       { queryKey }
     );
-    const parsedQuery = parsed as PatchesDbQuery;
-    const unsubscribe = db.subscribe.entities(parsedQuery, (r) => {
-      setResult((prev) => ({ ...prev, ...r, loading: false }));
-    });
-    return unsubscribe;
-  }, [db, queryKey]);
-  return result;
+    return cache.getOrCreateResult(queryKey, parsed as PatchesDbQuery);
+  }, [cache, queryKey]);
+
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
 
 export function useEntity(query: PatchesDbQuery): Entity | null {

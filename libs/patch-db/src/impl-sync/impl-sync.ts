@@ -11,8 +11,12 @@ import type {
   PatchInput,
 } from '../interface';
 import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
-
-const PATCHES_DB_TOPIC = 'patches-db';
+import {
+  ActiveQueryRegistry,
+  PATCHES_DB_TOPIC,
+  singleResultReader,
+  type ActiveQuery,
+} from './active-query-registry';
 
 /** Topic for sync errors. Subscribe to surface push/poll failures to the UI after consecutive failures. */
 export const SYNC_ERROR_TOPIC = 'sync-error';
@@ -100,11 +104,6 @@ export type SyncPatchesDbOptions = {
   logger?: Logger;
 };
 
-type ActiveQuery = {
-  query: PatchesDbQuery;
-  refCount: number;
-};
-
 const defaultLog = createLogger({ name: 'patch-db:sync' });
 
 export class SyncPatchesDb implements PatchesDb {
@@ -125,14 +124,14 @@ export class SyncPatchesDb implements PatchesDb {
     patches: (
       query: PatchesDbQuery,
       listener: (result: PatchesDbResult) => void
-    ): Unsubscribe => this.registerAndSubscribe(query, 'patches', listener),
+    ): Unsubscribe => this.activeQueries.subscribe(query, listener),
     entities: (
       query: PatchesDbQuery,
       listener: (result: PatchesDbResult) => void
-    ): Unsubscribe => this.registerAndSubscribe(query, 'entities', listener),
+    ): Unsubscribe => this.activeQueries.subscribe(query, listener),
   };
 
-  private activeQueries = new Map<string, ActiveQuery>();
+  private activeQueries: ActiveQueryRegistry;
   private pushScheduleHandle: SyncPatchesDbScheduleHandle | null = null;
   private pollScheduleHandle: SyncPatchesDbScheduleHandle | null = null;
   private pollInProgress = false;
@@ -153,6 +152,13 @@ export class SyncPatchesDb implements PatchesDb {
   ) {
     this.log = options.logger ?? defaultLog;
     this.logPushPollFailures = options.logPushPollFailures !== false;
+    this.activeQueries = new ActiveQueryRegistry({
+      read: singleResultReader(this.local),
+      pubSub: this.pubSub,
+      isDestroyed: () => this.destroyed,
+      onFirstSubscriber: () => this.ensurePollTimer(),
+      onLastUnsubscribe: () => this.maybeStopPollTimer(),
+    });
     this.ensurePushTimer();
   }
 
@@ -220,61 +226,6 @@ export class SyncPatchesDb implements PatchesDb {
     return this.local.update(updates, ctx);
   }
 
-  private queryKey(query: PatchesDbQuery): string {
-    return JSON.stringify(query);
-  }
-
-  private registerAndSubscribe(
-    query: PatchesDbQuery,
-    _mode: 'patches' | 'entities',
-    listener: (result: PatchesDbResult) => void
-  ): Unsubscribe {
-    const key = this.queryKey(query);
-    const existing = this.activeQueries.get(key);
-    if (existing) {
-      existing.refCount++;
-    } else {
-      this.activeQueries.set(key, { query, refCount: 1 });
-      this.ensurePollTimer();
-    }
-
-    const notify = async () => {
-      if (this.destroyed) return;
-      const [result] = await this.local.read([query], OPEN_PATCHES_DB_CONTEXT);
-      if (this.destroyed) return;
-      assert.ok(
-        result !== null && result !== undefined,
-        'read([query]) must return one result'
-      );
-      listener(result);
-    };
-    fireAndForget(notify(), {
-      component: 'SyncPatchesDb',
-      op: 'notify',
-      queryKey: key,
-    });
-
-    const unsub = this.pubSub.subscribe(PATCHES_DB_TOPIC, () => {
-      fireAndForget(notify(), {
-        component: 'SyncPatchesDb',
-        op: 'notify-invalidation',
-        queryKey: key,
-      });
-    });
-
-    return () => {
-      unsub();
-      const entry = this.activeQueries.get(key);
-      if (entry) {
-        entry.refCount--;
-        if (entry.refCount <= 0) {
-          this.activeQueries.delete(key);
-          this.maybeStopPollTimer();
-        }
-      }
-    };
-  }
-
   private ensurePollTimer(): void {
     if (this.pollScheduleHandle !== null && this.pollScheduleHandle !== undefined)
       return;
@@ -296,7 +247,7 @@ export class SyncPatchesDb implements PatchesDb {
 
   private maybeStopPollTimer(): void {
     if (
-      this.activeQueries.size === 0 &&
+      this.activeQueries.size() === 0 &&
       this.pollScheduleHandle !== null &&
       this.pollScheduleHandle !== undefined
     ) {
@@ -554,7 +505,7 @@ export class SyncPatchesDb implements PatchesDb {
 
   private async poll(): Promise<void> {
     if (this.destroyed) return;
-    const entries = Array.from(this.activeQueries.values());
+    const entries = this.activeQueries.values();
     if (entries.length === 0) return;
     if (this.pollInProgress) return;
 

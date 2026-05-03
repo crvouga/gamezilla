@@ -24,6 +24,7 @@
     "./api": "./src/api.ts",
     "./validate-remote": "./src/validate-remote.ts",
     "./react": "./src/react.tsx",
+    "./react-query-cache": "./src/react-query-cache.ts",
     "./impl-sqlite/mappers": "./src/impl-sqlite/mappers.ts",
     "./impl-sqlite/types": "./src/impl-sqlite/types.ts",
     "./impl-sqlite/impl-sqlite": "./src/impl-sqlite/impl-sqlite.ts",
