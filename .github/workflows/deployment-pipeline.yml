@@ -178,17 +178,44 @@ jobs:
       group: gitleaks-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
       cancel-in-progress: true
     timeout-minutes: 10
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     permissions:
       contents: read
     steps:
+      # Need full history so PR scans can diff base..head.
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      # `gitleaks/gitleaks-action@v2` pins gitleaks 8.24.3, which has a bug
+      # where top-level `[[allowlists]]` are silently dropped when combined
+      # with `[extend].useDefault = true` (fixed in 8.25+). It also targets
+      # the deprecated Node.js 20 runtime. Install the latest gitleaks
+      # release directly so our `.gitleaks.toml` allowlist actually applies.
+      - name: Install gitleaks
+        run: |
+          GITLEAKS_VERSION=$(curl -fsSL https://api.github.com/repos/gitleaks/gitleaks/releases/latest | jq -r '.tag_name' | sed 's/^v//')
+          curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin gitleaks
+          gitleaks version
+
       - name: Gitleaks
-        uses: gitleaks/gitleaks-action@v2
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [ "$GH_EVENT" = "pull_request" ]; then
+            LOG_OPTS="$PR_BASE..$PR_HEAD"
+          else
+            LOG_OPTS="-1"
+          fi
+          gitleaks detect \
+            --redact \
+            --verbose \
+            --no-banner \
+            --exit-code 1 \
+            --log-opts="$LOG_OPTS"
 
   audit:
     runs-on: ubuntu-latest
