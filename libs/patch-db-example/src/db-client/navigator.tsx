@@ -446,22 +446,26 @@ type HeaderBreadcrumb = {
   onPress?: () => void;
 };
 
-function buildHeaderBreadcrumbs(
-  args: {
-    showHeaderBack: boolean;
-    goBackOneLevel: () => void;
-    headerTitle: LocalizedString;
-    headerSubtitle: LocalizedString | undefined;
-  },
-  t: LinguiT
-): HeaderBreadcrumb[] {
-  const { showHeaderBack, goBackOneLevel, headerTitle, headerSubtitle } = args;
+function buildHeaderBreadcrumbs(args: {
+  showHeaderBack: boolean;
+  goBackOneLevel: () => void;
+  headerTitle: LocalizedString;
+  headerSubtitle: LocalizedString | undefined;
+  backLabel: LocalizedString;
+}): HeaderBreadcrumb[] {
+  const {
+    showHeaderBack,
+    goBackOneLevel,
+    headerTitle,
+    headerSubtitle,
+    backLabel,
+  } = args;
   const titleEntry: HeaderBreadcrumb = {
     name: headerTitle,
     ...(headerSubtitle !== undefined ? { subtitle: headerSubtitle } : {}),
   };
   if (showHeaderBack) {
-    return [{ name: t`Back`, onPress: goBackOneLevel }, titleEntry];
+    return [{ name: backLabel, onPress: goBackOneLevel }, titleEntry];
   }
   return [titleEntry];
 }
@@ -525,10 +529,14 @@ export function ExplorerRoute({
   }, [applyParams, params]);
 
   const showHeaderBack = canGoBackInApp(params) || onExit !== undefined;
-  const explorerBreadcrumbs = buildHeaderBreadcrumbs(
-    { showHeaderBack, goBackOneLevel, headerTitle, headerSubtitle },
-    t
-  );
+  const backLabel = t`Back`;
+  const explorerBreadcrumbs = buildHeaderBreadcrumbs({
+    showHeaderBack,
+    goBackOneLevel,
+    headerTitle,
+    headerSubtitle,
+    backLabel,
+  });
 
   return (
     <Box sx={{ flex: 1 }}>

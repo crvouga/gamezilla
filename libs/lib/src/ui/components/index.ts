@@ -82,6 +82,25 @@ export {
 // Disclosure
 export { Collapsible, type CollapsibleProps } from './collapsible';
 
+// Data inspection
+export {
+  JsonView,
+  type JsonViewProps,
+  type JsonPath,
+  type JsonValueKind,
+  classifyValue,
+  containerBrackets,
+  containerCount,
+  encodePath,
+  entriesOf,
+  formatContainerSummary,
+  formatLeafPreview,
+  formatPathLabel,
+  isContainer,
+  safeStringify,
+  collectAllContainerPaths,
+} from './json-view';
+
 // Anchored overlay
 export {
   FloatingMenu,

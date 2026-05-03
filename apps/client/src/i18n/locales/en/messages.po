@@ -192,6 +192,10 @@ msgstr "Account menu"
 msgid "Active"
 msgstr "Active"
 
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "Active space ID"
+#~ msgstr "Active space ID"
+
 #: libs/lib/src/ui/components/multi-select-swatch/multi-select-swatch-grid.tsx
 #: libs/patch-db-example/src/todo/todo-list-detail.tsx
 #: libs/patch-db-example/src/todo/todo-list.tsx
@@ -564,9 +568,21 @@ msgstr "Create new space"
 msgid "Created"
 msgstr "Created"
 
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "Created at"
+#~ msgstr "Created at"
+
 #: libs/room-example/src/components/crypto-diagnostics-section.tsx
 msgid "Crypto Diagnostics"
 msgstr "Crypto Diagnostics"
+
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "Current membership"
+#~ msgstr "Current membership"
+
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "Custom title"
+#~ msgstr "Custom title"
 
 #: apps/client/src/ui/app-commands/appearance-commands.tsx
 msgid "dark"
@@ -583,6 +599,10 @@ msgstr "database"
 #: apps/client/src/ui/app-commands/appearance-commands.tsx
 msgid "day"
 msgstr "day"
+
+#: apps/client/src/spaces/space-detail-screen.tsx
+msgid "Debug"
+msgstr "Debug"
 
 #: libs/patch-db-example/src/todo/todo-item.tsx
 #: libs/patch-db-example/src/todo/todo-lists-overview.tsx
@@ -736,6 +756,10 @@ msgstr "End space?"
 #~ msgid "Ended"
 #~ msgstr "Ended"
 
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "Ended at"
+#~ msgstr "Ended at"
+
 #: libs/patch-db-example/src/db-client/query-screen.tsx
 msgid "entities"
 msgstr "entities"
@@ -780,6 +804,10 @@ msgstr "Failed to initialize"
 #: apps/client/src/auth/principal-auth-shell.tsx
 msgid "Failed to initialize identity"
 msgstr "Failed to initialize identity"
+
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "false"
+#~ msgstr "false"
 
 #: apps/client/src/profile/avatar-editor/avatar-editor-features-block.tsx
 msgid "Features"
@@ -843,6 +871,14 @@ msgstr "Gradient rotation (°)"
 msgid "Host"
 msgstr "Host"
 
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "Host display name"
+#~ msgstr "Host display name"
+
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "Host principal ID"
+#~ msgstr "Host principal ID"
+
 #: libs/patch-db-example/src/api-inspector.tsx
 msgid "https://..."
 msgstr "https://..."
@@ -871,6 +907,10 @@ msgstr "Join space"
 #: apps/client/src/spaces/space-detail-screen.tsx
 msgid "Join this space to see who is here and hang out."
 msgstr "Join this space to see who is here and hang out."
+
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "Joined at"
+#~ msgstr "Joined at"
 
 #: apps/client/src/account/account-device-detail-body.tsx
 msgid "Last seen"
@@ -915,6 +955,10 @@ msgstr "Leave space"
 #: apps/client/src/spaces/space-miniplayer.tsx
 msgid "Leave space?"
 msgstr "Leave space?"
+
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "Left at"
+#~ msgstr "Left at"
 
 #: apps/client/src/ui/app-commands/appearance-commands.tsx
 msgid "light"
@@ -993,6 +1037,22 @@ msgstr "login"
 msgid "Max rotation"
 msgstr "Max rotation"
 
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "Members"
+#~ msgstr "Members"
+
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "Members ({count})"
+#~ msgstr "Members ({count})"
+
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "Membership entity ID"
+#~ msgstr "Membership entity ID"
+
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "Membership space ID (attr)"
+#~ msgstr "Membership space ID (attr)"
+
 #: libs/room-example/src/components/message-log.tsx
 msgid "Message Log"
 msgstr "Message Log"
@@ -1008,6 +1068,10 @@ msgstr "Missing device id."
 #: libs/room-example/src/pages/network-controls-section.tsx
 msgid "MITM Integrity"
 msgstr "MITM Integrity"
+
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "Mode"
+#~ msgstr "Mode"
 
 #: apps/client/src/account/account-device-detail-body.tsx
 msgid "Model"
@@ -1102,6 +1166,10 @@ msgstr "No lists yet. Create one above or add todos to Inbox."
 #: apps/client/src/spaces/spaces-screen.tsx
 msgid "No live spaces. Tap + New space to start one."
 msgstr "No live spaces. Tap + New space to start one."
+
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "No members"
+#~ msgstr "No members"
 
 #: libs/room-example/src/components/message-log.tsx
 msgid "No messages yet."
@@ -1343,6 +1411,10 @@ msgstr "Query"
 msgid "Random"
 msgstr "Random"
 
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "Raw attributes"
+#~ msgstr "Raw attributes"
+
 #: apps/client/src/connection/server-status-screen.tsx
 msgid "Reachable"
 msgstr "Reachable"
@@ -1404,6 +1476,10 @@ msgstr "Reset"
 msgid "Reset Preferences"
 msgstr "Reset Preferences"
 
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "Resolved title"
+#~ msgstr "Resolved title"
+
 #: libs/patch-db-example/src/db-client/query-screen.tsx
 msgid "Result"
 msgstr "Result"
@@ -1416,6 +1492,10 @@ msgstr "Resume"
 #: apps/client/src/ui/patch-db-bootstrap.tsx
 msgid "Retry"
 msgstr "Retry"
+
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "Role"
+#~ msgstr "Role"
 
 #: apps/client/src/developer/developer-screen.tsx
 msgid "Room Playground"
@@ -1454,6 +1534,14 @@ msgstr "Scanning snapshots…"
 msgid "Select…"
 msgstr "Select…"
 
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "Self account ID"
+#~ msgstr "Self account ID"
+
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "Self principal ID"
+#~ msgstr "Self principal ID"
+
 #: apps/client/src/client-config/client-config-server-refresh.tsx
 #: libs/patch-db-example/src/playground-layout.tsx
 msgid "Server"
@@ -1474,6 +1562,10 @@ msgstr "Server health"
 #: apps/client/src/account/account-devices-card.tsx
 msgid "Server-side account; tap to copy"
 msgstr "Server-side account; tap to copy"
+
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "Session token"
+#~ msgstr "Session token"
 
 #: apps/client/src/account/account-screen.tsx
 #: apps/client/src/client-config/client-config-screen.tsx
@@ -1565,9 +1657,33 @@ msgstr "Solid"
 msgid "Space"
 msgstr "Space"
 
+#: apps/client/src/spaces/space-debug-modal.tsx
+msgid "Space debug"
+msgstr "Space debug"
+
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "Space entity ID"
+#~ msgstr "Space entity ID"
+
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "Space ID (route)"
+#~ msgstr "Space ID (route)"
+
 #: apps/client/src/spaces/spaces-screen.tsx
 #~ msgid "Space title…"
 #~ msgstr "Space title…"
+
+#: apps/client/src/spaces/space-debug-modal.tsx
+msgid "space-screen.debug"
+msgstr "space-screen.debug"
+
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "space.attributes"
+#~ msgstr "space.attributes"
+
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "spaceMembership.attributes"
+#~ msgstr "spaceMembership.attributes"
 
 #: apps/client/src/account/account-screen.tsx
 #: apps/client/src/app/(tabs)/_layout.tsx
@@ -1657,6 +1773,10 @@ msgstr "Tap to return to your space"
 msgid "TextInput"
 msgstr "TextInput"
 
+#: apps/client/src/connection/server-status-screen.tsx
+msgid "The OS reports the device as offline, but the server is reachable. This is usually a quirk of the platform's network reporting and can be ignored."
+msgstr "The OS reports the device as offline, but the server is reachable. This is usually a quirk of the platform's network reporting and can be ignored."
+
 #: apps/client/src/settings/theme-screen.tsx
 msgid "Theme"
 msgstr "Theme"
@@ -1710,6 +1830,10 @@ msgstr "Todos, UI explorer, Patch DB and Room playgrounds"
 #: apps/client/src/profile/avatar-editor/avatar-editor-transform-block.tsx
 msgid "Transform"
 msgstr "Transform"
+
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "true"
+#~ msgstr "true"
 
 #: libs/room-example/src/components/trust-election-section.tsx
 msgid "Trust Election"
@@ -1842,6 +1966,10 @@ msgstr "X: non-authority trust_update"
 #: apps/client/src/connection/server-status-screen.tsx
 msgid "Yes"
 msgstr "Yes"
+
+#: apps/client/src/spaces/space-debug-modal.tsx
+#~ msgid "You"
+#~ msgstr "You"
 
 #: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/space-miniplayer.tsx

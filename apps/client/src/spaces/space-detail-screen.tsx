@@ -1,4 +1,5 @@
 import { useSpaceActions } from '@gamezilla/client/spaces/space-actions';
+import { SpaceDebugModal } from '@gamezilla/client/spaces/space-debug-modal';
 import { SpaceMemberList } from '@gamezilla/client/spaces/space-member-list';
 import {
   useCurrentMembership,
@@ -15,10 +16,11 @@ import {
   ScreenBase,
   Spinner,
   Text,
+  type ScreenBaseAction,
 } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 type Space = ReturnType<typeof useSpace>;
 type CurrentMembership = ReturnType<typeof useCurrentMembership>;
@@ -54,26 +56,46 @@ function useAutoLeaveIfEnded(args: {
   ]);
 }
 
+function useDebugAction(onOpenDebug: () => void): ScreenBaseAction[] {
+  const { t } = useLingui();
+  return useMemo(
+    () => [
+      {
+        type: 'default',
+        label: t`Debug`,
+        icon: 'chevron.left.forwardslash.chevron.right',
+        onPress: onOpenDebug,
+        overflow: 'auto',
+      },
+    ],
+    [onOpenDebug, t]
+  );
+}
+
 function JoinPrompt({
   spaceId,
   title,
   hostLabel,
   onJoin,
+  onOpenDebug,
 }: {
   spaceId: string | undefined;
   title: string;
   hostLabel: string;
   onJoin: (id: string) => Promise<void> | void;
+  onOpenDebug: () => void;
 }) {
   const { t } = useLingui();
   const router = useRouter();
   const nav = useBreadcrumbNav();
+  const actions = useDebugAction(onOpenDebug);
   return (
     <ScreenBase
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         { name: title },
       ]}
+      actions={actions}
       content={({ sx }) => (
         <Box style={sx} sx={{ gap: 3 }}>
           <Text
@@ -157,6 +179,34 @@ function LeaveSpaceModal({
   );
 }
 
+function ActiveSpaceBody({
+  isHost,
+  members,
+  onRequestEnd,
+  onRequestLeave,
+}: {
+  isHost: boolean;
+  members: ReturnType<typeof useSpaceMembers>['members'];
+  onRequestEnd: () => void;
+  onRequestLeave: () => void;
+}) {
+  const { t } = useLingui();
+  return (
+    <>
+      <SpaceMemberList members={members} />
+      {isHost ? (
+        <Button title={t`End space`} variant="solid" onPress={onRequestEnd} />
+      ) : (
+        <Button
+          title={t`Leave space`}
+          variant="outlined"
+          onPress={onRequestLeave}
+        />
+      )}
+    </>
+  );
+}
+
 function ActiveSpace({
   spaceId,
   space,
@@ -164,6 +214,7 @@ function ActiveSpace({
   members,
   endSpace,
   leaveSpace,
+  onOpenDebug,
 }: {
   spaceId: string | undefined;
   space: Space;
@@ -171,13 +222,14 @@ function ActiveSpace({
   members: ReturnType<typeof useSpaceMembers>['members'];
   endSpace: (id: string) => Promise<void> | void;
   leaveSpace: () => Promise<void> | void;
+  onOpenDebug: () => void;
 }) {
-  const { t } = useLingui();
   const router = useRouter();
   const nav = useBreadcrumbNav();
   const [confirmEnd, setConfirmEnd] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
   const isHost = current.role === 'host';
+  const actions = useDebugAction(onOpenDebug);
 
   const handleEnd = () => {
     setConfirmEnd(false);
@@ -198,22 +250,15 @@ function ActiveSpace({
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         { name: space.title },
       ]}
+      actions={actions}
       content={({ sx }) => (
         <Box style={sx} sx={{ gap: 4 }}>
-          <SpaceMemberList members={members} />
-          {isHost ? (
-            <Button
-              title={t`End space`}
-              variant="solid"
-              onPress={() => setConfirmEnd(true)}
-            />
-          ) : (
-            <Button
-              title={t`Leave space`}
-              variant="outlined"
-              onPress={() => setConfirmLeave(true)}
-            />
-          )}
+          <ActiveSpaceBody
+            isHost={isHost}
+            members={members}
+            onRequestEnd={() => setConfirmEnd(true)}
+            onRequestLeave={() => setConfirmLeave(true)}
+          />
           <EndSpaceModal
             visible={confirmEnd}
             onClose={() => setConfirmEnd(false)}
@@ -252,8 +297,22 @@ export function SpaceDetailScreen() {
   const current = useCurrentMembership();
   const { members } = useSpaceMembers(spaceId);
   const { joinSpace, leaveSpace, endSpace } = useSpaceActions();
+  const [debugOpen, setDebugOpen] = useState(false);
+  const openDebug = () => setDebugOpen(true);
+  const closeDebug = () => setDebugOpen(false);
 
   useAutoLeaveIfEnded({ spaceId, space, current, leaveSpace });
+
+  const debugModal = (
+    <SpaceDebugModal
+      visible={debugOpen}
+      onClose={closeDebug}
+      spaceId={spaceId}
+      space={space}
+      current={current}
+      members={members}
+    />
+  );
 
   if (space.isLoading || current.isLoading) {
     return <SpaceLoading />;
@@ -262,23 +321,31 @@ export function SpaceDetailScreen() {
   const inThisSpace = current.activeSpaceId === spaceId;
   if (!inThisSpace) {
     return (
-      <JoinPrompt
-        spaceId={spaceId}
-        title={space.title}
-        hostLabel={space.hostDisplayName}
-        onJoin={joinSpace}
-      />
+      <>
+        <JoinPrompt
+          spaceId={spaceId}
+          title={space.title}
+          hostLabel={space.hostDisplayName}
+          onJoin={joinSpace}
+          onOpenDebug={openDebug}
+        />
+        {debugModal}
+      </>
     );
   }
 
   return (
-    <ActiveSpace
-      spaceId={spaceId}
-      space={space}
-      current={current}
-      members={members}
-      endSpace={endSpace}
-      leaveSpace={leaveSpace}
-    />
+    <>
+      <ActiveSpace
+        spaceId={spaceId}
+        space={space}
+        current={current}
+        members={members}
+        endSpace={endSpace}
+        leaveSpace={leaveSpace}
+        onOpenDebug={openDebug}
+      />
+      {debugModal}
+    </>
   );
 }

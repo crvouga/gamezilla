@@ -121,9 +121,13 @@ function computeAggregateStatus(
   isConnected: boolean | null | undefined,
   phase: HealthCheckPhase
 ): 'online' | 'offline' | 'warning' {
-  if (isConnected === false) return 'offline';
-  if (phase === 'loading') return 'warning';
+  // A successful health check is the strongest possible signal that the
+  // device is online — trust it over OS-reported network flags, which
+  // can be wrong (e.g. expo-network on web frequently reports
+  // isConnected=false even when the network works).
   if (phase === 'success') return 'online';
+  if (phase === 'loading') return 'warning';
+  if (isConnected === false) return 'offline';
   return 'warning';
 }
 

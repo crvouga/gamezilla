@@ -33,6 +33,7 @@ import { default as ProgressBarExample } from '../progress-bar/progress-bar.exam
 import { default as DismissibleBannerExample } from '../dismissible-top-banner/dismissible-top-banner.example';
 
 import { default as CollapsibleExample } from '../collapsible/collapsible.example';
+import { default as JsonViewExample } from '../json-view/json-view.example';
 
 import { default as SelectExample } from '../select/select.example';
 import { default as SegmentedControlExample } from '../segmented-control/segmented-control.example';
@@ -114,6 +115,9 @@ export const componentRegistry: ComponentEntry[] = [
 
   // Disclosure
   { name: 'Collapsible', category: 'Disclosure', Example: CollapsibleExample },
+
+  // Data inspection
+  { name: 'JsonView', category: 'Data Display', Example: JsonViewExample },
 
   // Compound Inputs
   { name: 'Select', category: 'Inputs', Example: SelectExample },

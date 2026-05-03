@@ -58,8 +58,10 @@ function OverallRow({
 
 function DeviceNetworkCard({
   networkState,
+  health,
 }: {
   networkState: ServerStatus['networkState'];
+  health: ServerStatus['health'];
 }) {
   const { t } = useLingui();
   const formatNetworkType = useNetworkTypeLabel();
@@ -76,12 +78,26 @@ function DeviceNetworkCard({
         ? t`Yes`
         : t`No`;
   const networkTypeLabel = formatNetworkType(networkState.type);
+  // The OS-reported network state can disagree with reality (especially on
+  // web). When the server is actually reachable, surface a note explaining
+  // the discrepancy instead of leaving the card looking contradictory.
+  const osReportsOffline =
+    networkState.isConnected === false ||
+    networkState.isInternetReachable === false;
+  const showDiscrepancyNote = health.phase === 'success' && osReportsOffline;
   return (
     <Card elevation={1} sx={{ p: 4, gap: 2 }}>
       <Text variant="bodyBold" label={<Trans>Device network</Trans>} />
       <Text variant="body" label={t`Status: ${networkLine}`} />
       <Text variant="caption" label={t`Type: ${networkTypeLabel}`} />
       <Text variant="caption" label={t`Internet reachable: ${reachable}`} />
+      {showDiscrepancyNote ? (
+        <Text
+          variant="caption"
+          sx={{ color: 'textSecondary' }}
+          label={t`The OS reports the device as offline, but the server is reachable. This is usually a quirk of the platform's network reporting and can be ignored.`}
+        />
+      ) : null}
     </Card>
   );
 }
@@ -153,7 +169,7 @@ export function ServerStatusScreen() {
       content={({ sx }) => (
         <Box style={{ ...sx, gap: 12 }}>
           <OverallRow aggregateStatus={aggregateStatus} />
-          <DeviceNetworkCard networkState={networkState} />
+          <DeviceNetworkCard networkState={networkState} health={health} />
           <Card elevation={1} sx={{ p: 4, gap: 2 }}>
             <Text variant="bodyBold" label={<Trans>API endpoint</Trans>} />
             <Text variant="body" selectable label={apiUrl} />
