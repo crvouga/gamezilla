@@ -6,8 +6,15 @@ import { fail, fmtMs, info, kv, ok, warn } from './lib/fmt';
 import type { CiPlatform } from './platform/platform';
 import { DopplerResource } from './resources/doppler';
 
-/** Hard upper bound on a single lock-release/disconnect attempt. */
-const RELEASE_TIMEOUT_MS = 20_000;
+/**
+ * Hard upper bound on a single lock-release/disconnect attempt. Sized to
+ * fit inside GitHub Actions' ~7.5s SIGTERM-to-SIGKILL grace window so the
+ * happy-path in-process release can win the cleanup race on cancelled /
+ * timed-out steps. The `Unlock on failure` job step in
+ * `.github/workflows/deployment-pipeline.yml` is the safety net for
+ * everything that doesn't fit (full SIGKILL, runner death, OOM).
+ */
+const RELEASE_TIMEOUT_MS = 5_000;
 
 /**
  * Signals we translate into a graceful release-and-exit. SIGKILL / SIGSTOP

@@ -421,6 +421,23 @@ jobs:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
         run: bun run infra deploy
 
+      # Safety net for the global deploy lock. The in-process release path
+      # in `apps/infra/src/cli/run-infra-command.ts` only wins the cleanup
+      # race when the deploy exits cleanly or via a catchable signal; a
+      # GitHub Actions step timeout / manual cancel / runner crash sends
+      # SIGTERM with ~7.5s grace before SIGKILL, which can outrun the
+      # Postgres release. `infra unlock` is idempotent (no-op when no lock
+      # is held) and safe here: `concurrency: { group: deploy }` prevents
+      # any other deploy from holding the lock concurrently, so
+      # force-unlock can only ever clear our own stuck row.
+      - name: Unlock on failure
+        if: always() && (failure() || cancelled())
+        timeout-minutes: 5
+        working-directory: apps/infra
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+        run: bun run infra unlock
+
   report:
     if: always()
     needs:

@@ -21,9 +21,15 @@ export async function buildDistributedLock(): Promise<DistributedLockConnection>
   await sql.connect();
   // Long CI deploys can leave the TCP session idle; a stuck `BEGIN` on release
   // would otherwise block the process forever (no stdin — not an interactive hang).
+  // Sized to fit the in-process release inside GitHub Actions' ~7.5s
+  // SIGTERM-to-SIGKILL grace window (see `RELEASE_TIMEOUT_MS` in
+  // `run-infra-command.ts`): primary release must fail over to the recovery
+  // connection well before SIGKILL. `lock_timeout` (2s) bounds how long we
+  // wait on a row-level lock held by a peer; `statement_timeout` (4s) bounds
+  // any single statement (e.g. a stuck transaction begin).
   try {
-    await sql.run("SET statement_timeout = '15s'");
-    await sql.run("SET lock_timeout = '8s'");
+    await sql.run("SET statement_timeout = '4s'");
+    await sql.run("SET lock_timeout = '2s'");
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     console.warn(`[infra lock] session timeouts not applied (${msg})`);
