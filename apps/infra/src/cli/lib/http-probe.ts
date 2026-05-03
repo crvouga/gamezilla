@@ -8,6 +8,7 @@ interface HealthResult {
   durationMs: number;
   resolvedIp?: string;
   error?: string;
+  body?: string;
 }
 
 export async function httpProbe(
@@ -53,12 +54,19 @@ export async function httpProbe(
         ...(isHttps && { servername: hostname }),
       },
       (res) => {
-        res.resume(); // drain the body so the socket closes cleanly
-        resolve({
-          ok: (res.statusCode ?? 0) < 500,
-          status: res.statusCode,
-          durationMs: Date.now() - start,
-          resolvedIp,
+        let body = '';
+        res.setEncoding('utf8');
+        res.on('data', (chunk: string) => {
+          if (body.length < 4096) body += chunk;
+        });
+        res.on('end', () => {
+          resolve({
+            ok: (res.statusCode ?? 0) < 500,
+            status: res.statusCode,
+            durationMs: Date.now() - start,
+            resolvedIp,
+            body: body.length > 0 ? body : undefined,
+          });
         });
       }
     );

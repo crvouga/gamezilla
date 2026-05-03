@@ -1,4 +1,4 @@
-import { clearLocalDatabaseAndReload } from '@gamezilla/client/ui/patch-bootstrap';
+import { clearLocalDatabaseAndReload } from '@gamezilla/client/ui/patch-db-bootstrap';
 import { TodoListsOverview } from '@gamezilla/patch-db-example/todo';
 import { useRouter } from 'expo-router';
 

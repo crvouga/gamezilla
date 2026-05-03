@@ -1,0 +1,27 @@
+/**
+ * Canonical attribute keys for patch metadata. These are stored in the
+ * patch attributes JSON but excluded from entity snapshots by
+ * implementations (via {@link PATCH_META_KEYS}).
+ */
+
+export const PATCH_CREATED_BY = 'patch/createdBy' as const;
+export const PATCH_SESSION_ID = 'patch/sessionId' as const;
+export const PATCH_SYNCED_AT = 'patch/syncedAt' as const;
+export const PATCH_LAST_MODIFIED_BY_PRINCIPAL =
+  'patch/lastModifiedByPrincipalId' as const;
+export const PATCH_LAST_MODIFIED_BY_ACCOUNT =
+  'patch/lastModifiedByAccountId' as const;
+export const PATCH_LAST_MODIFIED_AT = 'patch/lastModifiedAt' as const;
+
+/**
+ * Attribute keys treated as patch-level metadata by the library.
+ * Implementations strip these from entity snapshots when merging patches.
+ */
+export const PATCH_META_KEYS: readonly string[] = [
+  PATCH_CREATED_BY,
+  PATCH_SESSION_ID,
+  PATCH_SYNCED_AT,
+  PATCH_LAST_MODIFIED_BY_PRINCIPAL,
+  PATCH_LAST_MODIFIED_BY_ACCOUNT,
+  PATCH_LAST_MODIFIED_AT,
+] as const;

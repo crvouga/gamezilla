@@ -40,7 +40,7 @@ function useMoreRows(): readonly MoreRow[] {
   ];
 }
 
-export function MoreScreen() {
+export function SettingsScreen() {
   const router = useRouter();
   const nav = useBreadcrumbNav();
   const rows = useMoreRows();

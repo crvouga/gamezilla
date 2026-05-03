@@ -1,3 +1,3 @@
-import { UiExplorerDetailScreen } from '@gamezilla/client/more/ui-explorer-detail-screen';
+import { UiExplorerDetailScreen } from '@gamezilla/client/ui/explorer/ui-explorer-detail-screen';
 
 export default UiExplorerDetailScreen;

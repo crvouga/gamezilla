@@ -1,8 +1,8 @@
 import { useAuth } from '@gamezilla/client/auth/auth-context';
 import {
-  LAST_MODIFIED_BY_ACCOUNT_ID_KEY,
-  LAST_MODIFIED_BY_PRINCIPAL_ID_KEY,
-} from '@gamezilla/client/auth/last-modified-by-patches-db';
+  PATCH_LAST_MODIFIED_BY_ACCOUNT,
+  PATCH_LAST_MODIFIED_BY_PRINCIPAL,
+} from '@gamezilla/patch-db/metadata/patch-metadata';
 import { PrincipalServiceToken } from '@gamezilla/client/auth/principal-service';
 import { usePrincipalProfileEntities } from '@gamezilla/client/auth/use-principal-profile-entities';
 import { displayNameForPrincipal } from '@gamezilla/client/profile/principal-display';
@@ -402,7 +402,7 @@ function membershipStampWhere(args: {
       clauses: [
         {
           type: '=',
-          attribute: LAST_MODIFIED_BY_ACCOUNT_ID_KEY,
+          attribute: PATCH_LAST_MODIFIED_BY_ACCOUNT,
           value: accountId,
         },
         leftClause,
@@ -414,12 +414,12 @@ function membershipStampWhere(args: {
     clauses: [
       {
         type: '=',
-        attribute: LAST_MODIFIED_BY_PRINCIPAL_ID_KEY,
+        attribute: PATCH_LAST_MODIFIED_BY_PRINCIPAL,
         value: principalId,
       },
       {
         type: 'not_exists',
-        attribute: LAST_MODIFIED_BY_ACCOUNT_ID_KEY,
+        attribute: PATCH_LAST_MODIFIED_BY_ACCOUNT,
       },
       leftClause,
     ],

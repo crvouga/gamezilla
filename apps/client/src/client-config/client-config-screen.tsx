@@ -8,7 +8,7 @@ import { Box, Card, ScreenBase, Text } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useEntities } from '@gamezilla/patch-db/react';
 
-import { ClientConfigServerRefreshCard } from '@gamezilla/client/more/client-config-server-refresh';
+import { ClientConfigServerRefreshCard } from './client-config-server-refresh';
 
 export function ClientConfigScreen() {
   const { t } = useLingui();

@@ -1,7 +1,7 @@
 import type { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 
 /**
- * Mutable holder for the current session's account id, read by {@link LastModifiedByPatchesDb}
+ * Mutable holder for the current session's account id, read by {@link PatchMetadataStamper}
  * when stamping writes. Updated from session refresh / auth state.
  */
 export class AuthAccountIdHolder {

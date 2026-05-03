@@ -1,3 +1,3 @@
-import { ClientConfigScreen } from '@gamezilla/client/more/client-config-screen';
+import { ClientConfigScreen } from '@gamezilla/client/client-config/client-config-screen';
 
 export default ClientConfigScreen;

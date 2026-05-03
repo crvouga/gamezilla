@@ -193,6 +193,13 @@ jobs:
       - name: Install Doppler CLI
         uses: dopplerhq/cli-action@v4
 
+      - name: Install Stripe CLI
+        run: |
+          STRIPE_VERSION=$(curl -fsSL https://api.github.com/repos/stripe/stripe-cli/releases/latest | jq -r '.tag_name' | sed 's/^v//')
+          curl -fsSL "https://github.com/stripe/stripe-cli/releases/download/v${STRIPE_VERSION}/stripe_${STRIPE_VERSION}_linux_x86_64.tar.gz" \
+            | tar -xz -C /usr/local/bin stripe
+          stripe version
+
       - name: Deploy
         id: deploy
         timeout-minutes: 45

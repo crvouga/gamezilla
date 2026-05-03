@@ -7,9 +7,10 @@ import {
   PrincipalAttr,
   PrincipalSessionAttr,
 } from '@gamezilla/domain/auth';
+import { CLIENT_CONFIG_ENTITY_TYPE } from '@gamezilla/domain/client-config/client-config-entities';
 import {
-  ProfileAttr,
   PROFILE_ENTITY_TYPE,
+  ProfileAttr,
 } from '@gamezilla/domain/profile/profile-entities';
 import {
   SPACE_ENTITY_TYPE,
@@ -19,36 +20,41 @@ import {
 } from '@gamezilla/domain/spaces/space-entities';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
 import type {
-  PatchInput,
   PatchesDbAuthContext,
   PatchesDbContext,
   PatchesDbQueryWhereClause,
+  PatchInput,
 } from '@gamezilla/patch-db/interface';
 import {
   isPatchesDbAuthContext,
   isPatchesDbSystemContext,
   READ_WHERE_ALWAYS_TRUE,
 } from '@gamezilla/patch-db/interface';
-import type { VisibilityPolicy } from '@gamezilla/patch-db/policy/visibility-policy-registry';
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
+import type { VisibilityPolicy } from '@gamezilla/patch-db/policy/visibility-policy-registry';
 
 /**
  * Gamezilla-specific auth context: extends the generic patch-db auth context
  * with the claims needed by our visibility policies. The session middleware is
  * responsible for producing contexts of this shape.
  */
-export type GamezillaAuthContext = PatchesDbAuthContext & {
+export type AppAuthContext = PatchesDbAuthContext & {
   readonly accountId: string;
   readonly memberOfSpaceIds: readonly string[];
   readonly friendAccountIds: readonly string[];
   readonly blockedAccountIds: readonly string[];
 };
 
-type GamezillaVisibilityPolicy = VisibilityPolicy<GamezillaAuthContext>;
+export type AppVisitorContext = {
+  readonly visitorId: string;
+  readonly principalId?: undefined;
+};
+
+type AppVisibilityPolicy = VisibilityPolicy<AppAuthContext>;
 
 function requireAuth(
   ctx: PatchesDbContext
-): asserts ctx is GamezillaAuthContext {
+): asserts ctx is AppAuthContext {
   if (!isPatchesDbAuthContext(ctx)) {
     throw new ForbiddenError('authentication required', { ctx });
   }
@@ -64,7 +70,7 @@ function createdBy(patch: PatchInput): string {
 }
 
 function assertCreatedByMatchesPrincipal(
-  ctx: GamezillaAuthContext,
+  ctx: AppAuthContext,
   patch: PatchInput
 ): void {
   const cb = createdBy(patch);
@@ -76,7 +82,7 @@ function assertCreatedByMatchesPrincipal(
   }
 }
 
-const principalPolicy: GamezillaVisibilityPolicy = {
+const principalPolicy: AppVisibilityPolicy = {
   read: (ctx) => ({
     type: '=',
     attribute: PrincipalAttr.id,
@@ -93,7 +99,7 @@ const principalPolicy: GamezillaVisibilityPolicy = {
   },
 };
 
-const accountPolicy: GamezillaVisibilityPolicy = {
+const accountPolicy: AppVisibilityPolicy = {
   read: (ctx) => ({
     type: '=',
     attribute: AccountAttr.id,
@@ -110,7 +116,7 @@ const accountPolicy: GamezillaVisibilityPolicy = {
   },
 };
 
-const principalSessionPolicy: GamezillaVisibilityPolicy = {
+const principalSessionPolicy: AppVisibilityPolicy = {
   read: (ctx) => ({
     type: '=',
     attribute: PrincipalSessionAttr.principalId,
@@ -122,7 +128,7 @@ const principalSessionPolicy: GamezillaVisibilityPolicy = {
   },
 };
 
-const accountProviderPolicy: GamezillaVisibilityPolicy = {
+const accountProviderPolicy: AppVisibilityPolicy = {
   read: (ctx) => ({
     type: '=',
     attribute: AccountProviderAttr.accountId,
@@ -139,16 +145,27 @@ const accountProviderPolicy: GamezillaVisibilityPolicy = {
   },
 };
 
-const adminMetricPolicy: GamezillaVisibilityPolicy = {
+const clientConfigPolicy: AppVisibilityPolicy = {
   read: () => READ_WHERE_ALWAYS_TRUE,
+  visitorRead: () => READ_WHERE_ALWAYS_TRUE,
+  write: async (ctx) => {
+    if (isPatchesDbSystemContext(ctx)) return;
+    throw new ForbiddenError('clientConfig is system-only');
+  },
+};
+
+const adminMetricPolicy: AppVisibilityPolicy = {
+  read: () => READ_WHERE_ALWAYS_TRUE,
+  visitorRead: () => READ_WHERE_ALWAYS_TRUE,
   write: async (ctx) => {
     if (isPatchesDbSystemContext(ctx)) return;
     throw new ForbiddenError('admin/metric is system-only');
   },
 };
 
-const profilePolicy: GamezillaVisibilityPolicy = {
+const profilePolicy: AppVisibilityPolicy = {
   read: () => READ_WHERE_ALWAYS_TRUE,
+  visitorRead: () => READ_WHERE_ALWAYS_TRUE,
   write: async (ctx, patch, _tx) => {
     if (isPatchesDbSystemContext(ctx)) return;
     requireAuth(ctx);
@@ -166,7 +183,7 @@ const profilePolicy: GamezillaVisibilityPolicy = {
   },
 };
 
-const profilePrivatePolicy: GamezillaVisibilityPolicy = {
+const profilePrivatePolicy: AppVisibilityPolicy = {
   read: (ctx) => ({
     type: '=',
     attribute: 'entity/owner',
@@ -183,7 +200,7 @@ const profilePrivatePolicy: GamezillaVisibilityPolicy = {
   },
 };
 
-const spacePolicy: GamezillaVisibilityPolicy = {
+const spacePolicy: AppVisibilityPolicy = {
   read: (ctx): PatchesDbQueryWhereClause => ({
     type: 'or',
     clauses: [
@@ -213,7 +230,7 @@ const spacePolicy: GamezillaVisibilityPolicy = {
   },
 };
 
-const spaceMembershipPolicy: GamezillaVisibilityPolicy = {
+const spaceMembershipPolicy: AppVisibilityPolicy = {
   read: (ctx): PatchesDbQueryWhereClause => {
     if (ctx.memberOfSpaceIds.length === 0) {
       return {
@@ -235,7 +252,7 @@ const spaceMembershipPolicy: GamezillaVisibilityPolicy = {
   },
 };
 
-const chatMessagePolicy: GamezillaVisibilityPolicy = {
+const chatMessagePolicy: AppVisibilityPolicy = {
   read: (ctx): PatchesDbQueryWhereClause => {
     if (ctx.memberOfSpaceIds.length === 0) {
       return {
@@ -261,7 +278,7 @@ const chatMessagePolicy: GamezillaVisibilityPolicy = {
   },
 };
 
-const friendshipPolicy: GamezillaVisibilityPolicy = {
+const friendshipPolicy: AppVisibilityPolicy = {
   read: (ctx): PatchesDbQueryWhereClause => ({
     type: 'or',
     clauses: [
@@ -293,7 +310,7 @@ const friendshipPolicy: GamezillaVisibilityPolicy = {
   },
 };
 
-const friendRequestPolicy: GamezillaVisibilityPolicy = {
+const friendRequestPolicy: AppVisibilityPolicy = {
   read: (ctx): PatchesDbQueryWhereClause => ({
     type: 'or',
     clauses: [
@@ -316,7 +333,7 @@ const friendRequestPolicy: GamezillaVisibilityPolicy = {
   },
 };
 
-const matchPolicy: GamezillaVisibilityPolicy = {
+const matchPolicy: AppVisibilityPolicy = {
   read: (ctx): PatchesDbQueryWhereClause => ({
     type: 'or',
     clauses: [
@@ -335,15 +352,16 @@ const matchPolicy: GamezillaVisibilityPolicy = {
   },
 };
 
-const matchScorePolicy: GamezillaVisibilityPolicy = {
+const matchScorePolicy: AppVisibilityPolicy = {
   read: () => READ_WHERE_ALWAYS_TRUE,
+  visitorRead: () => READ_WHERE_ALWAYS_TRUE,
   write: async (ctx) => {
     if (isPatchesDbSystemContext(ctx)) return;
     throw new ForbiddenError('match.score is system-only');
   },
 };
 
-const inventoryItemPolicy: GamezillaVisibilityPolicy = {
+const inventoryItemPolicy: AppVisibilityPolicy = {
   read: (ctx) => ({
     type: '=',
     attribute: 'entity/owner',
@@ -356,7 +374,7 @@ const inventoryItemPolicy: GamezillaVisibilityPolicy = {
   },
 };
 
-function stripeRead(ctx: GamezillaAuthContext): PatchesDbQueryWhereClause {
+function stripeRead(ctx: AppAuthContext): PatchesDbQueryWhereClause {
   return {
     type: '=',
     attribute: 'entity/owner',
@@ -364,7 +382,7 @@ function stripeRead(ctx: GamezillaAuthContext): PatchesDbQueryWhereClause {
   };
 }
 
-const stripeSubscriptionPolicy: GamezillaVisibilityPolicy = {
+const stripeSubscriptionPolicy: AppVisibilityPolicy = {
   read: stripeRead,
   write: async (ctx) => {
     if (isPatchesDbSystemContext(ctx)) return;
@@ -372,7 +390,7 @@ const stripeSubscriptionPolicy: GamezillaVisibilityPolicy = {
   },
 };
 
-const stripePaymentMethodPolicy: GamezillaVisibilityPolicy = {
+const stripePaymentMethodPolicy: AppVisibilityPolicy = {
   read: stripeRead,
   write: async (ctx) => {
     if (isPatchesDbSystemContext(ctx)) return;
@@ -380,7 +398,7 @@ const stripePaymentMethodPolicy: GamezillaVisibilityPolicy = {
   },
 };
 
-const stripeInvoicePolicy: GamezillaVisibilityPolicy = {
+const stripeInvoicePolicy: AppVisibilityPolicy = {
   read: stripeRead,
   write: async (ctx) => {
     if (isPatchesDbSystemContext(ctx)) return;
@@ -388,7 +406,7 @@ const stripeInvoicePolicy: GamezillaVisibilityPolicy = {
   },
 };
 
-const stripeWebhookEventPolicy: GamezillaVisibilityPolicy = {
+const stripeWebhookEventPolicy: AppVisibilityPolicy = {
   read: stripeRead,
   write: async (ctx) => {
     if (isPatchesDbSystemContext(ctx)) return;
@@ -397,7 +415,7 @@ const stripeWebhookEventPolicy: GamezillaVisibilityPolicy = {
 };
 
 /** Catalog rows are global; any authenticated caller may read for checkout. */
-const stripeCatalogPricePolicy: GamezillaVisibilityPolicy = {
+const stripeCatalogPricePolicy: AppVisibilityPolicy = {
   read: () => READ_WHERE_ALWAYS_TRUE,
   write: async (ctx) => {
     if (isPatchesDbSystemContext(ctx)) return;
@@ -405,7 +423,7 @@ const stripeCatalogPricePolicy: GamezillaVisibilityPolicy = {
   },
 };
 
-const stripeCatalogProductPolicy: GamezillaVisibilityPolicy = {
+const stripeCatalogProductPolicy: AppVisibilityPolicy = {
   read: () => READ_WHERE_ALWAYS_TRUE,
   write: async (ctx) => {
     if (isPatchesDbSystemContext(ctx)) return;
@@ -414,7 +432,7 @@ const stripeCatalogProductPolicy: GamezillaVisibilityPolicy = {
 };
 
 /** Stripe API snapshots keyed by Stripe object id; owner-scoped reads. */
-const stripeOwnedSnapshotPolicy: GamezillaVisibilityPolicy = {
+const stripeOwnedSnapshotPolicy: AppVisibilityPolicy = {
   read: stripeRead,
   write: async (ctx) => {
     if (isPatchesDbSystemContext(ctx)) return;
@@ -424,12 +442,13 @@ const stripeOwnedSnapshotPolicy: GamezillaVisibilityPolicy = {
 
 /** Domain + auth entity visibility (ABAC predicates). */
 export const DEFAULT_PATCH_DB_VISIBILITY_POLICIES: Readonly<
-  Record<string, GamezillaVisibilityPolicy>
+  Record<string, AppVisibilityPolicy>
 > = {
   [PRINCIPAL_ENTITY_TYPE]: principalPolicy,
   account: accountPolicy,
   [PRINCIPAL_SESSION_ENTITY_TYPE]: principalSessionPolicy,
   [ACCOUNT_PROVIDER_ENTITY_TYPE]: accountProviderPolicy,
+  [CLIENT_CONFIG_ENTITY_TYPE]: clientConfigPolicy,
   'admin/metric': adminMetricPolicy,
   [PROFILE_ENTITY_TYPE]: profilePolicy,
   'profile.private': profilePrivatePolicy,

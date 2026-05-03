@@ -13,6 +13,7 @@ import { getStripeCatalogPriceStripeId } from './stripe-catalog-mirror';
 const log = createLogger({ name: 'stripe:checkout' });
 
 export type StripeAuthContext = {
+  readonly visitorId: string;
   readonly accountId: string;
   readonly principalId: string;
 };
@@ -41,6 +42,7 @@ function stripePatchesDbContext(auth: StripeAuthContext): PatchesDbAuthContext {
   // visibility policies. They're plain extra keys on the auth context — the
   // patch-db library itself only needs `principalId`.
   return {
+    visitorId: auth.visitorId,
     principalId: auth.principalId,
     accountId: auth.accountId,
     memberOfSpaceIds: [] as readonly string[],

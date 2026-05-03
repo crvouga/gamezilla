@@ -1,3 +1,3 @@
-import { DbClientScreen } from '@gamezilla/client/more/db-client-screen';
+import { DbClientScreen } from '@gamezilla/client/developer/db-client-screen';
 
 export default DbClientScreen;

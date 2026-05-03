@@ -1,5 +1,6 @@
 import { Assert, assert } from '@gamezilla/lib/assert';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { PatchesDbContext } from './context';
 
 export type AttributeKey = `${string}/${string}`;
 
@@ -62,12 +63,10 @@ export function assertPatch(a: Assert, p: unknown): asserts p is Patch {
   a.field(p, 'createdAt', 'patch.createdAt must be string');
 }
 
-/** Attribute keys for patch metadata. Excluded from entity snapshots by implementations. */
-export const PATCH_META_KEYS: readonly string[] = [
-  'patch/createdBy',
-  'patch/sessionId',
-  'patch/syncedAt',
-] as const;
+export {
+  PATCH_CREATED_BY, PATCH_LAST_MODIFIED_AT, PATCH_LAST_MODIFIED_BY_ACCOUNT, PATCH_LAST_MODIFIED_BY_PRINCIPAL, PATCH_META_KEYS, PATCH_SESSION_ID,
+  PATCH_SYNCED_AT
+} from './metadata/patch-metadata';
 
 /**
  * For legacy migration only: maps current metadata attr keys to old metadata column keys.
@@ -362,51 +361,13 @@ export type PatchesDbResult = {
 /** Unsubscribe from a hook registration. */
 export type Unsubscribe = () => void;
 
-/**
- * Authenticated caller identifier. Only `principalId` is required by the
- * library; consuming apps extend via intersection to carry their own claims
- * (e.g. `accountId`, group memberships) into their visibility policies.
- */
-export type PatchesDbAuthContext = {
-  readonly principalId: string;
-  readonly [claim: string]: unknown;
-};
-
-/**
- * System / simulation / migration — bypasses any hook-based ABAC checks.
- * `reason` is a free-form string so apps can tag privileged contexts
- * (e.g. `'stripe-webhook'`) without modifying the library.
- */
-export type PatchesDbSystemContext = {
-  principalId: null;
-  reason: string;
-};
-
-export type PatchesDbContext = PatchesDbAuthContext | PatchesDbSystemContext;
-
-/** Default for local-first client DB, tests, and in-process sim — no ABAC filtering. */
-export const OPEN_PATCHES_DB_CONTEXT: PatchesDbSystemContext = {
-  principalId: null,
-  reason: 'sim',
-};
-
-/** Server-side privileged operations (auth claim, session resolution bootstrap). */
-export const PATCHES_DB_SYSTEM_CONTEXT: PatchesDbSystemContext = {
-  principalId: null,
-  reason: 'system',
-};
-
-export function isPatchesDbSystemContext(
-  ctx: PatchesDbContext
-): ctx is PatchesDbSystemContext {
-  return ctx.principalId === null;
-}
-
-export function isPatchesDbAuthContext(
-  ctx: PatchesDbContext
-): ctx is PatchesDbAuthContext {
-  return ctx.principalId !== null;
-}
+export {
+  isPatchesDbAuthContext, isPatchesDbSystemContext, isPatchesDbVisitorContext, OPEN_PATCHES_DB_CONTEXT,
+  PATCHES_DB_SYSTEM_CONTEXT
+} from './context';
+export type {
+  PatchesDbAuthContext, PatchesDbContext, PatchesDbSystemContext, PatchesDbVisitorContext
+} from './context';
 
 /** AND-combines an optional existing where-clause with an additional clause. */
 export function andWhereClause(
@@ -521,104 +482,4 @@ export type PatchDbEngineOptions = {
   compactionPolicy?: import('./policy/compaction-policy').PatchDbCompactionPolicyResolver;
 };
 
-function patchInputId(p: PatchInput): string | undefined {
-  const r = p as Record<string, unknown>;
-  return typeof r['patchId'] === 'string' ? r['patchId'] : undefined;
-}
-
-function patchInputParentId(p: PatchInput): string | undefined {
-  const r = p as Record<string, unknown>;
-  return typeof r['parentId'] === 'string' ? r['parentId'] : undefined;
-}
-
-function topologicalSortPatchesImpl(patches: PatchInput[]): PatchInput[] {
-  const batchIds = new Set<string>();
-  for (const p of patches) {
-    const id = patchInputId(p);
-    if (id !== undefined) batchIds.add(id);
-  }
-
-  const hasIntraBatchDeps = patches.some((p) => {
-    const pid = patchInputParentId(p);
-    return pid !== undefined && batchIds.has(pid);
-  });
-  if (!hasIntraBatchDeps) return patches;
-
-  const byId = new Map<string, PatchInput>();
-  for (const p of patches) {
-    const id = patchInputId(p);
-    if (id !== undefined) byId.set(id, p);
-  }
-
-  const sorted: PatchInput[] = [];
-  const visited = new Set<string>();
-
-  function visit(p: PatchInput): void {
-    const id = patchInputId(p);
-    if (id !== undefined && visited.has(id)) return;
-    if (id !== undefined) visited.add(id);
-
-    const pid = patchInputParentId(p);
-    if (pid !== undefined && byId.has(pid) && !visited.has(pid)) {
-      visit(byId.get(pid)!);
-    }
-    sorted.push(p);
-  }
-
-  for (const p of patches) visit(p);
-  return sorted;
-}
-
-/**
- * Topologically sorts patches so that a patch's parent (if also in the batch)
- * is always inserted before its child. Prevents FK violations when the wire
- * order is arbitrary.
- *
- * Invariant: output is a permutation of input — same length, same elements,
- * only the order changes. Patches without intra-batch parent references keep
- * their relative order (stable for the common case of no dependencies).
- */
-export const topologicalSortPatches = assert.fn(
-  {
-    fn: topologicalSortPatchesImpl,
-
-    pre(patches: PatchInput[]) {
-      assert.array(patches, 'topologicalSortPatches: input must be an array');
-      assert.ok(
-        patches.length > 0,
-        'topologicalSortPatches: input must not be empty',
-        { length: patches.length }
-      );
-    },
-
-    post(sorted: PatchInput[]) {
-      assert.array(sorted, 'topologicalSortPatches: output must be an array');
-      assert.ok(
-        sorted.length > 0,
-        'topologicalSortPatches: output must not be empty',
-        { length: sorted.length }
-      );
-      const batchIds = new Set<string>();
-      for (const p of sorted) {
-        const id = patchInputId(p);
-        if (id !== undefined) batchIds.add(id);
-      }
-      const emitted = new Set<string>();
-      for (let i = 0; i < sorted.length; i++) {
-        const p = sorted[i];
-        assert.defined(p, 'topologicalSortPatches: element must be defined', {
-          i,
-        });
-        const pid = patchInputParentId(p);
-        assert.ok(
-          pid === undefined || !batchIds.has(pid) || emitted.has(pid),
-          'topologicalSortPatches: parent must precede child in output',
-          { i, pid }
-        );
-        const id = patchInputId(p);
-        if (id !== undefined) emitted.add(id);
-      }
-    },
-  },
-  'topologicalSortPatches'
-);
+export { topologicalSortPatches } from './topological-sort';

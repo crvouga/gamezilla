@@ -42,7 +42,7 @@ msgstr "(untitled)"
 #~ msgid "{0} here"
 #~ msgstr "{0} here"
 
-#: apps/client/src/more/account-device-detail-body.tsx
+#: apps/client/src/account/account-device-detail-body.tsx
 msgid "{activeCount} active session(s) — latest expires {latestExpires}"
 msgstr "{activeCount} active session(s) — latest expires {latestExpires}"
 
@@ -63,7 +63,6 @@ msgstr "{createdAt} · {createdBy}"
 msgid "{entityType} / {entityIdShort} · {patchCount} patches"
 msgstr "{entityType} / {entityIdShort} · {patchCount} patches"
 
-#: apps/client/src/spaces/use-spaces.ts
 #: apps/client/src/spaces/use-spaces.ts
 msgid "{hostDisplayName}'s space"
 msgstr "{hostDisplayName}'s space"
@@ -129,15 +128,15 @@ msgstr "▸ state (differs)"
 msgid "▾ state"
 msgstr "▾ state"
 
-#: apps/client/src/more/theme-screen.tsx
+#: apps/client/src/settings/theme-screen.tsx
 msgid "☀️ Light"
 msgstr "☀️ Light"
 
-#: apps/client/src/more/theme-screen.tsx
+#: apps/client/src/settings/theme-screen.tsx
 msgid "🌙 Dark"
 msgstr "🌙 Dark"
 
-#: apps/client/src/more/theme-screen.tsx
+#: apps/client/src/settings/theme-screen.tsx
 msgid "💻 System"
 msgstr "💻 System"
 
@@ -169,18 +168,18 @@ msgstr "50 ms"
 msgid "500 ms"
 msgstr "500 ms"
 
-#: apps/client/src/more/about-screen.tsx
-#: apps/client/src/more/more-screen.tsx
+#: apps/client/src/settings/about-screen.tsx
+#: apps/client/src/settings/settings-screen.tsx
 msgid "About"
 msgstr "About"
 
-#: apps/client/src/more/account-screen.tsx
-#: apps/client/src/more/more-screen.tsx
+#: apps/client/src/account/account-screen.tsx
+#: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/ui/app-commands/account-command.tsx
 msgid "Account"
 msgstr "Account"
 
-#: apps/client/src/more/account-devices-card.tsx
+#: apps/client/src/account/account-devices-card.tsx
 msgid "Account ID"
 msgstr "Account ID"
 
@@ -226,7 +225,7 @@ msgstr "Admin Metrics"
 msgid "All"
 msgstr "All"
 
-#: apps/client/src/more/client-config-screen.tsx
+#: apps/client/src/client-config/client-config-screen.tsx
 msgid "All attributes (JSON)"
 msgstr "All attributes (JSON)"
 
@@ -234,11 +233,11 @@ msgstr "All attributes (JSON)"
 msgid "Always"
 msgstr "Always"
 
-#: apps/client/src/more/about-screen.tsx
+#: apps/client/src/settings/about-screen.tsx
 msgid "API"
 msgstr "API"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "API endpoint"
 msgstr "API endpoint"
 
@@ -246,25 +245,25 @@ msgstr "API endpoint"
 msgid "API origin (no helper)"
 msgstr "API origin (no helper)"
 
-#: apps/client/src/more/about-screen.tsx
-#: apps/client/src/more/account-device-detail-body.tsx
+#: apps/client/src/account/account-device-detail-body.tsx
+#: apps/client/src/settings/about-screen.tsx
 msgid "App"
 msgstr "App"
 
-#: apps/client/src/more/more-screen.tsx
+#: apps/client/src/settings/settings-screen.tsx
 msgid "App preferences and tools"
 msgstr "App preferences and tools"
 
-#: apps/client/src/more/about-screen.tsx
+#: apps/client/src/settings/about-screen.tsx
 msgid "App version and build metadata"
 msgstr "App version and build metadata"
 
-#: apps/client/src/more/more-screen.tsx
+#: apps/client/src/settings/settings-screen.tsx
 msgid "App version, build, and commit hash"
 msgstr "App version, build, and commit hash"
 
-#: apps/client/src/more/more-screen.tsx
-#: apps/client/src/more/theme-screen.tsx
+#: apps/client/src/settings/settings-screen.tsx
+#: apps/client/src/settings/theme-screen.tsx
 #: apps/client/src/ui/app-commands/appearance-commands.tsx
 #: apps/client/src/ui/app-commands/appearance-commands.tsx
 #: apps/client/src/ui/app-commands/appearance-commands.tsx
@@ -317,7 +316,7 @@ msgstr "Avatar style"
 msgid "Back"
 msgstr "Back"
 
-#: apps/client/src/more/modal-screen.tsx
+#: apps/client/src/developer/modal-screen.tsx
 msgid "Back to Dev"
 msgstr "Back to Dev"
 
@@ -334,7 +333,7 @@ msgstr "Background colors"
 msgid "BAD ACTOR"
 msgstr "BAD ACTOR"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "Bluetooth"
 msgstr "Bluetooth"
 
@@ -350,15 +349,15 @@ msgstr "Both"
 msgid "bright"
 msgstr "bright"
 
-#: apps/client/src/more/developer-screen.tsx
+#: apps/client/src/developer/developer-screen.tsx
 msgid "Browse entities, attributes, and patch history"
 msgstr "Browse entities, attributes, and patch history"
 
-#: apps/client/src/more/about-screen.tsx
+#: apps/client/src/settings/about-screen.tsx
 msgid "Build"
 msgstr "Build"
 
-#: apps/client/src/more/about-screen.tsx
+#: apps/client/src/settings/about-screen.tsx
 msgid "Build mode: {buildMode}"
 msgstr "Build mode: {buildMode}"
 
@@ -377,7 +376,7 @@ msgstr "Cancel"
 msgid "Cannot edit"
 msgstr "Cannot edit"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "Cellular"
 msgstr "Cellular"
 
@@ -385,12 +384,12 @@ msgstr "Cellular"
 msgid "Cheat Log"
 msgstr "Cheat Log"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "Check again"
 msgstr "Check again"
 
-#: apps/client/src/more/server-status-screen.tsx
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "Checking…"
 msgstr "Checking…"
 
@@ -398,7 +397,7 @@ msgstr "Checking…"
 msgid "Choose"
 msgstr "Choose"
 
-#: apps/client/src/more/theme-screen.tsx
+#: apps/client/src/settings/theme-screen.tsx
 msgid "Choose how the app looks. System matches your device appearance."
 msgstr "Choose how the app looks. System matches your device appearance."
 
@@ -426,7 +425,7 @@ msgstr "Clear All Data"
 msgid "Clear data"
 msgstr "Clear data"
 
-#: apps/client/src/ui/patch-bootstrap.tsx
+#: apps/client/src/ui/patch-db-bootstrap.tsx
 msgid "Clear local data & reload"
 msgstr "Clear local data & reload"
 
@@ -438,8 +437,8 @@ msgstr "Clear SQLite and reload (same as Clear data in Todos)"
 msgid "Clear Tamper"
 msgstr "Clear Tamper"
 
-#: apps/client/src/more/client-config-screen.tsx
-#: apps/client/src/more/developer-screen.tsx
+#: apps/client/src/client-config/client-config-screen.tsx
+#: apps/client/src/developer/developer-screen.tsx
 msgid "Client config"
 msgstr "Client config"
 
@@ -461,7 +460,7 @@ msgstr "Close"
 msgid "Colors"
 msgstr "Colors"
 
-#: apps/client/src/more/about-screen.tsx
+#: apps/client/src/settings/about-screen.tsx
 msgid "Commit (short): {shortCommitHash}"
 msgstr "Commit (short): {shortCommitHash}"
 
@@ -490,7 +489,7 @@ msgstr "Confirm"
 msgid "Connect"
 msgstr "Connect"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "Connected"
 msgstr "Connected"
 
@@ -498,7 +497,7 @@ msgstr "Connected"
 msgid "Connected to {url}"
 msgstr "Connected to {url}"
 
-#: apps/client/src/more/account-screen.tsx
+#: apps/client/src/account/account-screen.tsx
 msgid "Connected: {connectedAt}"
 msgstr "Connected: {connectedAt}"
 
@@ -506,8 +505,8 @@ msgstr "Connected: {connectedAt}"
 msgid "Connecting to {url}"
 msgstr "Connecting to {url}"
 
-#: apps/client/src/more/more-screen.tsx
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
+#: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/ui/sidebar-account-menu.tsx
 #: apps/client/src/ui/use-account-actions.tsx
 msgid "Connection"
@@ -561,7 +560,7 @@ msgstr "CopyToClipboardField"
 msgid "Create new space"
 msgstr "Create new space"
 
-#: apps/client/src/more/account-device-detail-body.tsx
+#: apps/client/src/account/account-device-detail-body.tsx
 msgid "Created"
 msgstr "Created"
 
@@ -595,21 +594,21 @@ msgstr "Delete"
 msgid "Delete List"
 msgstr "Delete List"
 
-#: apps/client/src/more/developer-screen.tsx
+#: apps/client/src/developer/developer-screen.tsx
 msgid "Demos and internal tools"
 msgstr "Demos and internal tools"
 
-#: apps/client/src/more/client-config-screen.tsx
-#: apps/client/src/more/developer-screen.tsx
-#: apps/client/src/more/more-screen.tsx
+#: apps/client/src/client-config/client-config-screen.tsx
+#: apps/client/src/developer/developer-screen.tsx
+#: apps/client/src/settings/settings-screen.tsx
 msgid "Developer"
 msgstr "Developer"
 
-#: apps/client/src/more/about-screen.tsx
+#: apps/client/src/settings/about-screen.tsx
 msgid "development"
 msgstr "development"
 
-#: apps/client/src/more/account-device-detail-screen.tsx
+#: apps/client/src/account/account-device-detail-screen.tsx
 msgid "Device"
 msgstr "Device"
 
@@ -617,27 +616,27 @@ msgstr "Device"
 #~ msgid "Device {0}"
 #~ msgstr "Device {0}"
 
-#: apps/client/src/more/account-devices-card.tsx
+#: apps/client/src/account/account-devices-card.tsx
 msgid "Device {deviceTitle}"
 msgstr "Device {deviceTitle}"
 
-#: apps/client/src/more/account-device-detail-body.tsx
+#: apps/client/src/account/account-device-detail-body.tsx
 msgid "Device name"
 msgstr "Device name"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "Device network"
 msgstr "Device network"
 
-#: apps/client/src/more/account-devices-card.tsx
+#: apps/client/src/account/account-devices-card.tsx
 msgid "Devices"
 msgstr "Devices"
 
-#: apps/client/src/more/more-screen.tsx
+#: apps/client/src/settings/settings-screen.tsx
 msgid "Devices and read-only sign-in provider info"
 msgstr "Devices and read-only sign-in provider info"
 
-#: apps/client/src/more/account-screen.tsx
+#: apps/client/src/account/account-screen.tsx
 msgid "Devices and sign-in provider records"
 msgstr "Devices and sign-in provider records"
 
@@ -662,7 +661,7 @@ msgstr "Discard changes?"
 msgid "Disconnect"
 msgstr "Disconnect"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "Disconnected"
 msgstr "Disconnected"
 
@@ -694,7 +693,7 @@ msgstr "e.g. {\"type\":\"=\",\"attribute\":\"todo/title\",\"value\":\"x\"}"
 msgid "e.g. ff5733"
 msgstr "e.g. ff5733"
 
-#: apps/client/src/more/account-devices-card.tsx
+#: apps/client/src/account/account-devices-card.tsx
 msgid "Each install has its own principal id. Tap a row for full details."
 msgstr "Each install has its own principal id. Tap a row for full details."
 
@@ -741,7 +740,7 @@ msgstr "End space?"
 msgid "entities"
 msgstr "entities"
 
-#: apps/client/src/more/client-config-screen.tsx
+#: apps/client/src/client-config/client-config-screen.tsx
 msgid "Entity type clientConfig, id clientConfig__singleton"
 msgstr "Entity type clientConfig, id clientConfig__singleton"
 
@@ -757,7 +756,7 @@ msgstr "entityType (optional)"
 msgid "Error state"
 msgstr "Error state"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "Ethernet"
 msgstr "Ethernet"
 
@@ -774,7 +773,7 @@ msgstr "Everyone will leave this space. This cannot be undone."
 msgid "Fabricate Commit"
 msgstr "Fabricate Commit"
 
-#: apps/client/src/ui/patch-bootstrap.tsx
+#: apps/client/src/ui/patch-db-bootstrap.tsx
 msgid "Failed to initialize"
 msgstr "Failed to initialize"
 
@@ -794,11 +793,11 @@ msgstr "Filter loaded rows (id or attributes)…"
 msgid "Filter types…"
 msgstr "Filter types…"
 
-#: apps/client/src/more/account-device-detail-body.tsx
+#: apps/client/src/account/account-device-detail-body.tsx
 msgid "First seen"
 msgstr "First seen"
 
-#: apps/client/src/more/about-screen.tsx
+#: apps/client/src/settings/about-screen.tsx
 msgid "Full commit"
 msgstr "Full commit"
 
@@ -806,7 +805,7 @@ msgstr "Full commit"
 msgid "Game Clock"
 msgstr "Game Clock"
 
-#: apps/client/src/i18n/bootstrap-catalog.ts
+#: apps/client/src/i18n/catalog-bootstrap.ts
 #: apps/client/src/ui/app-sidebar.tsx
 msgid "Gamezilla"
 msgstr "Gamezilla"
@@ -827,7 +826,7 @@ msgstr "Go to {target}"
 msgid "google"
 msgstr "google"
 
-#: apps/client/src/more/client-config-screen.tsx
+#: apps/client/src/client-config/client-config-screen.tsx
 msgid "Google web client ID"
 msgstr "Google web client ID"
 
@@ -857,7 +856,7 @@ msgstr "Identity / Authority Bypass"
 msgid "Inbox"
 msgstr "Inbox"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "Internet reachable: {reachable}"
 msgstr "Internet reachable: {reachable}"
 
@@ -873,7 +872,7 @@ msgstr "Join space"
 msgid "Join this space to see who is here and hang out."
 msgstr "Join this space to see who is here and hang out."
 
-#: apps/client/src/more/account-device-detail-body.tsx
+#: apps/client/src/account/account-device-detail-body.tsx
 msgid "Last seen"
 msgstr "Last seen"
 
@@ -897,7 +896,7 @@ msgstr "latency unavailable"
 msgid "Latency: {latencyLabel}"
 msgstr "Latency: {latencyLabel}"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "Latency: {latencyMs} ms"
 msgstr "Latency: {latencyMs} ms"
 
@@ -921,7 +920,7 @@ msgstr "Leave space?"
 msgid "light"
 msgstr "light"
 
-#: apps/client/src/more/more-screen.tsx
+#: apps/client/src/settings/settings-screen.tsx
 msgid "Light, dark, or system theme"
 msgstr "Light, dark, or system theme"
 
@@ -929,7 +928,7 @@ msgstr "Light, dark, or system theme"
 msgid "limit"
 msgstr "limit"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 #: apps/client/src/ui/sidebar-account-menu.tsx
 msgid "Limited or checking"
 msgstr "Limited or checking"
@@ -950,7 +949,7 @@ msgstr "Live"
 msgid "Load more"
 msgstr "Load more"
 
-#: apps/client/src/more/account-devices-card.tsx
+#: apps/client/src/account/account-devices-card.tsx
 msgid "Loading devices…"
 msgstr "Loading devices…"
 
@@ -958,11 +957,11 @@ msgstr "Loading devices…"
 msgid "Loading entity…"
 msgstr "Loading entity…"
 
-#: apps/client/src/more/account-screen.tsx
+#: apps/client/src/account/account-screen.tsx
 msgid "Loading provider records…"
 msgstr "Loading provider records…"
 
-#: apps/client/src/more/account-device-detail-screen.tsx
+#: apps/client/src/account/account-device-detail-screen.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/spaces-screen.tsx
 #: libs/patch-db-example/src/db-client/entities-screen.tsx
@@ -973,7 +972,7 @@ msgstr "Loading…"
 msgid "local"
 msgstr "local"
 
-#: apps/client/src/more/client-config-screen.tsx
+#: apps/client/src/client-config/client-config-screen.tsx
 msgid "Local PatchDB (synced)"
 msgstr "Local PatchDB (synced)"
 
@@ -1005,7 +1004,7 @@ msgstr "Message Log"
 msgid "Min rotation"
 msgstr "Min rotation"
 
-#: apps/client/src/more/account-device-detail-screen.tsx
+#: apps/client/src/account/account-device-detail-screen.tsx
 msgid "Missing device id."
 msgstr "Missing device id."
 
@@ -1013,7 +1012,7 @@ msgstr "Missing device id."
 msgid "MITM Integrity"
 msgstr "MITM Integrity"
 
-#: apps/client/src/more/account-device-detail-body.tsx
+#: apps/client/src/account/account-device-detail-body.tsx
 msgid "Model"
 msgstr "Model"
 
@@ -1021,7 +1020,7 @@ msgstr "Model"
 msgid "More"
 msgstr "More"
 
-#: apps/client/src/more/developer-screen.tsx
+#: apps/client/src/developer/developer-screen.tsx
 msgid "Multi-peer tic-tac-toe simulator"
 msgstr "Multi-peer tic-tac-toe simulator"
 
@@ -1029,7 +1028,7 @@ msgstr "Multi-peer tic-tac-toe simulator"
 msgid "Name"
 msgstr "Name"
 
-#: apps/client/src/more/about-screen.tsx
+#: apps/client/src/settings/about-screen.tsx
 msgid "Name: {appName}"
 msgstr "Name: {appName}"
 
@@ -1037,7 +1036,7 @@ msgstr "Name: {appName}"
 msgid "Navigation"
 msgstr "Navigation"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "Network and API status"
 msgstr "Network and API status"
 
@@ -1045,7 +1044,7 @@ msgstr "Network and API status"
 msgid "Network Controls"
 msgstr "Network Controls"
 
-#: apps/client/src/more/more-screen.tsx
+#: apps/client/src/settings/settings-screen.tsx
 msgid "Network reachability and API server health"
 msgstr "Network reachability and API server health"
 
@@ -1057,7 +1056,7 @@ msgstr "New version available — reload to update"
 msgid "night"
 msgstr "night"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "No"
 msgstr "No"
 
@@ -1065,7 +1064,7 @@ msgstr "No"
 msgid "No active profile. Open Profiles and create or select one first."
 msgstr "No active profile. Open Profiles and create or select one first."
 
-#: apps/client/src/more/account-device-detail-body.tsx
+#: apps/client/src/account/account-device-detail-body.tsx
 msgid "No active session"
 msgstr "No active session"
 
@@ -1111,7 +1110,7 @@ msgstr "No live spaces. Tap + New space to start one."
 msgid "No messages yet."
 msgstr "No messages yet."
 
-#: apps/client/src/more/account-screen.tsx
+#: apps/client/src/account/account-screen.tsx
 msgid "No OAuth provider records on file for this account."
 msgstr "No OAuth provider records on file for this account."
 
@@ -1119,7 +1118,7 @@ msgstr "No OAuth provider records on file for this account."
 msgid "No patches for this entity."
 msgstr "No patches for this entity."
 
-#: apps/client/src/more/account-devices-card.tsx
+#: apps/client/src/account/account-devices-card.tsx
 msgid "No principal data yet."
 msgstr "No principal data yet."
 
@@ -1148,11 +1147,11 @@ msgstr "No types match filter."
 msgid "none"
 msgstr "none"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "None"
 msgstr "None"
 
-#: apps/client/src/more/client-config-screen.tsx
+#: apps/client/src/client-config/client-config-screen.tsx
 #: libs/patch-db-example/src/db-client/format-value.tsx
 msgid "null"
 msgstr "null"
@@ -1173,7 +1172,7 @@ msgstr "O: force TickClock"
 msgid "O: non-authority trust_update"
 msgstr "O: non-authority trust_update"
 
-#: apps/client/src/more/account-screen.tsx
+#: apps/client/src/account/account-screen.tsx
 msgid "OAuth provider details are listed here once you are signed in."
 msgstr "OAuth provider details are listed here once you are signed in."
 
@@ -1186,7 +1185,7 @@ msgid "Off"
 msgstr "Off"
 
 #: apps/client/src/connection/offline-indicator.tsx
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 #: apps/client/src/ui/sidebar-account-menu.tsx
 msgid "Offline"
 msgstr "Offline"
@@ -1195,7 +1194,7 @@ msgstr "Offline"
 msgid "offset"
 msgstr "offset"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 #: apps/client/src/ui/sidebar-account-menu.tsx
 msgid "Online"
 msgstr "Online"
@@ -1224,15 +1223,15 @@ msgstr "optimistic"
 msgid "os"
 msgstr "os"
 
-#: apps/client/src/more/account-device-detail-body.tsx
+#: apps/client/src/account/account-device-detail-body.tsx
 msgid "OS"
 msgstr "OS"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "Other"
 msgstr "Other"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "Overall"
 msgstr "Overall"
 
@@ -1246,15 +1245,15 @@ msgstr "Partition"
 msgid "Patch attributes"
 msgstr "Patch attributes"
 
-#: apps/client/src/more/developer-screen.tsx
+#: apps/client/src/developer/developer-screen.tsx
 msgid "Patch DB Client"
 msgstr "Patch DB Client"
 
-#: apps/client/src/more/developer-screen.tsx
+#: apps/client/src/developer/developer-screen.tsx
 msgid "Patch DB Playground"
 msgstr "Patch DB Playground"
 
-#: apps/client/src/more/developer-screen.tsx
+#: apps/client/src/developer/developer-screen.tsx
 msgid "Patch DB todo lists (demo)"
 msgstr "Patch DB todo lists (demo)"
 
@@ -1283,7 +1282,7 @@ msgstr "Pause"
 msgid "People here"
 msgstr "People here"
 
-#: apps/client/src/more/account-device-detail-body.tsx
+#: apps/client/src/account/account-device-detail-body.tsx
 msgid "Platform"
 msgstr "Platform"
 
@@ -1291,7 +1290,7 @@ msgstr "Platform"
 #~ msgid "Platform: {0}"
 #~ msgstr "Platform: {0}"
 
-#: apps/client/src/more/about-screen.tsx
+#: apps/client/src/settings/about-screen.tsx
 msgid "Platform: {platformOs}"
 msgstr "Platform: {platformOs}"
 
@@ -1303,7 +1302,7 @@ msgstr "Playground"
 msgid "Playground failed to start"
 msgstr "Playground failed to start"
 
-#: apps/client/src/more/client-config-server-refresh.tsx
+#: apps/client/src/client-config/client-config-server-refresh.tsx
 msgid "POST /client-config/refresh writes the Worker secret into PatchDB on the server (deploy pipeline uses this too)."
 msgstr "POST /client-config/refresh writes the Worker secret into PatchDB on the server (deploy pipeline uses this too)."
 
@@ -1311,11 +1310,11 @@ msgstr "POST /client-config/refresh writes the Worker secret into PatchDB on the
 msgid "Preview updates as you edit. Save to keep changes."
 msgstr "Preview updates as you edit. Save to keep changes."
 
-#: apps/client/src/more/account-device-detail-body.tsx
+#: apps/client/src/account/account-device-detail-body.tsx
 msgid "Principal ID"
 msgstr "Principal ID"
 
-#: apps/client/src/more/about-screen.tsx
+#: apps/client/src/settings/about-screen.tsx
 msgid "production"
 msgstr "production"
 
@@ -1334,7 +1333,7 @@ msgstr "Profile"
 msgid "Projected trust — X:{projectedX} O:{projectedO} S:{projectedS}"
 msgstr "Projected trust — X:{projectedX} O:{projectedO} S:{projectedS}"
 
-#: apps/client/src/more/account-screen.tsx
+#: apps/client/src/account/account-screen.tsx
 msgid "Provider account id: {providerAccountId}"
 msgstr "Provider account id: {providerAccountId}"
 
@@ -1347,11 +1346,11 @@ msgstr "Query"
 msgid "Random"
 msgstr "Random"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "Reachable"
 msgstr "Reachable"
 
-#: apps/client/src/more/account-screen.tsx
+#: apps/client/src/account/account-screen.tsx
 msgid "Read-only: OAuth identities stored for your account."
 msgstr "Read-only: OAuth identities stored for your account."
 
@@ -1366,11 +1365,11 @@ msgstr "Reconnect"
 msgid "Refresh"
 msgstr "Refresh"
 
-#: apps/client/src/more/client-config-server-refresh.tsx
+#: apps/client/src/client-config/client-config-server-refresh.tsx
 msgid "Refresh on server"
 msgstr "Refresh on server"
 
-#: apps/client/src/more/client-config-server-refresh.tsx
+#: apps/client/src/client-config/client-config-server-refresh.tsx
 msgid "Refreshing…"
 msgstr "Refreshing…"
 
@@ -1417,11 +1416,11 @@ msgid "Resume"
 msgstr "Resume"
 
 #: apps/client/src/auth/principal-auth-shell.tsx
-#: apps/client/src/ui/patch-bootstrap.tsx
+#: apps/client/src/ui/patch-db-bootstrap.tsx
 msgid "Retry"
 msgstr "Retry"
 
-#: apps/client/src/more/developer-screen.tsx
+#: apps/client/src/developer/developer-screen.tsx
 msgid "Room Playground"
 msgstr "Room Playground"
 
@@ -1458,12 +1457,12 @@ msgstr "Scanning snapshots…"
 msgid "Select…"
 msgstr "Select…"
 
-#: apps/client/src/more/client-config-server-refresh.tsx
+#: apps/client/src/client-config/client-config-server-refresh.tsx
 #: libs/patch-db-example/src/playground-layout.tsx
 msgid "Server"
 msgstr "Server"
 
-#: apps/client/src/more/client-config-server-refresh.tsx
+#: apps/client/src/client-config/client-config-server-refresh.tsx
 msgid "Server client config updated. Local view updates after the next PatchDB sync."
 msgstr "Server client config updated. Local view updates after the next PatchDB sync."
 
@@ -1471,21 +1470,21 @@ msgstr "Server client config updated. Local view updates after the next PatchDB 
 msgid "Server Connection"
 msgstr "Server Connection"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "Server health"
 msgstr "Server health"
 
-#: apps/client/src/more/account-devices-card.tsx
+#: apps/client/src/account/account-devices-card.tsx
 msgid "Server-side account; tap to copy"
 msgstr "Server-side account; tap to copy"
 
-#: apps/client/src/more/about-screen.tsx
-#: apps/client/src/more/account-screen.tsx
-#: apps/client/src/more/client-config-screen.tsx
-#: apps/client/src/more/developer-screen.tsx
-#: apps/client/src/more/more-screen.tsx
-#: apps/client/src/more/server-status-screen.tsx
-#: apps/client/src/more/theme-screen.tsx
+#: apps/client/src/account/account-screen.tsx
+#: apps/client/src/client-config/client-config-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
+#: apps/client/src/developer/developer-screen.tsx
+#: apps/client/src/settings/about-screen.tsx
+#: apps/client/src/settings/settings-screen.tsx
+#: apps/client/src/settings/theme-screen.tsx
 #: apps/client/src/ui/sidebar-account-menu.tsx
 #: apps/client/src/ui/sidebar-account-menu.tsx
 #: apps/client/src/ui/use-account-actions.tsx
@@ -1497,7 +1496,7 @@ msgstr "Settings"
 msgid "Shapes ({entityCount})"
 msgstr "Shapes ({entityCount})"
 
-#: apps/client/src/more/developer-screen.tsx
+#: apps/client/src/developer/developer-screen.tsx
 msgid "Shared UI explorer"
 msgstr "Shared UI explorer"
 
@@ -1509,15 +1508,15 @@ msgstr "Shuffle seed"
 msgid "sign in"
 msgstr "sign in"
 
+#: apps/client/src/account/account-screen.tsx
 #: apps/client/src/auth/sign-in-modal.tsx
-#: apps/client/src/more/account-screen.tsx
 #: apps/client/src/ui/app-commands/account-command.tsx
 #: apps/client/src/ui/sidebar-account-menu.tsx
 #: apps/client/src/ui/use-account-actions.tsx
 msgid "Sign in"
 msgstr "Sign in"
 
-#: apps/client/src/more/account-devices-card.tsx
+#: apps/client/src/account/account-devices-card.tsx
 msgid "Sign in to link this device to a server account and see all principals for that account."
 msgstr "Sign in to link this device to a server account and see all principals for that account."
 
@@ -1529,8 +1528,8 @@ msgstr "Sign in to link this device to your server account. Your data stays loca
 msgid "Sign in with Google"
 msgstr "Sign in with Google"
 
+#: apps/client/src/account/account-screen.tsx
 #: apps/client/src/auth/auth-context.tsx
-#: apps/client/src/more/account-screen.tsx
 #: apps/client/src/ui/app-commands/account-command.tsx
 #: apps/client/src/ui/sidebar-account-menu.tsx
 #: apps/client/src/ui/use-account-actions.tsx
@@ -1545,7 +1544,7 @@ msgstr "Sign out?"
 msgid "Sign up with Google"
 msgstr "Sign up with Google"
 
-#: apps/client/src/more/account-screen.tsx
+#: apps/client/src/account/account-screen.tsx
 msgid "Sign-in providers"
 msgstr "Sign-in providers"
 
@@ -1553,11 +1552,11 @@ msgstr "Sign-in providers"
 msgid "Signing in…"
 msgstr "Signing in…"
 
-#: apps/client/src/more/developer-screen.tsx
+#: apps/client/src/developer/developer-screen.tsx
 msgid "Singleton clientConfig entity and server refresh"
 msgstr "Singleton clientConfig entity and server refresh"
 
-#: apps/client/src/more/client-config-screen.tsx
+#: apps/client/src/client-config/client-config-screen.tsx
 msgid "Singleton entity + server refresh"
 msgstr "Singleton entity + server refresh"
 
@@ -1574,14 +1573,14 @@ msgstr "Space"
 #~ msgid "Space title…"
 #~ msgstr "Space title…"
 
+#: apps/client/src/account/account-screen.tsx
 #: apps/client/src/app/(tabs)/_layout.tsx
-#: apps/client/src/more/about-screen.tsx
-#: apps/client/src/more/account-screen.tsx
-#: apps/client/src/more/client-config-screen.tsx
-#: apps/client/src/more/developer-screen.tsx
-#: apps/client/src/more/more-screen.tsx
-#: apps/client/src/more/server-status-screen.tsx
-#: apps/client/src/more/theme-screen.tsx
+#: apps/client/src/client-config/client-config-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
+#: apps/client/src/developer/developer-screen.tsx
+#: apps/client/src/settings/about-screen.tsx
+#: apps/client/src/settings/settings-screen.tsx
+#: apps/client/src/settings/theme-screen.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
@@ -1594,7 +1593,7 @@ msgstr "Spaces"
 msgid "sqlite"
 msgstr "sqlite"
 
-#: apps/client/src/more/account-device-detail-body.tsx
+#: apps/client/src/account/account-device-detail-body.tsx
 msgid "Stable per-device identifier; tap to copy"
 msgstr "Stable per-device identifier; tap to copy"
 
@@ -1602,11 +1601,11 @@ msgstr "Stable per-device identifier; tap to copy"
 msgid "Start realtime"
 msgstr "Start realtime"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "Status: {networkLine}"
 msgstr "Status: {networkLine}"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "Status: {serverLine}"
 msgstr "Status: {serverLine}"
 
@@ -1630,7 +1629,7 @@ msgstr "Style"
 msgid "Sync issue"
 msgstr "Sync issue"
 
-#: apps/client/src/more/developer-screen.tsx
+#: apps/client/src/developer/developer-screen.tsx
 msgid "Sync simulation with server and clients"
 msgstr "Sync simulation with server and clients"
 
@@ -1646,7 +1645,7 @@ msgstr "Tamper Events"
 msgid "Tap the field or icon to copy"
 msgstr "Tap the field or icon to copy"
 
-#: apps/client/src/more/about-screen.tsx
+#: apps/client/src/settings/about-screen.tsx
 msgid "Tap to copy"
 msgstr "Tap to copy"
 
@@ -1662,7 +1661,7 @@ msgstr "Tap to return to your space"
 msgid "TextInput"
 msgstr "TextInput"
 
-#: apps/client/src/more/theme-screen.tsx
+#: apps/client/src/settings/theme-screen.tsx
 msgid "Theme"
 msgstr "Theme"
 
@@ -1670,12 +1669,12 @@ msgstr "Theme"
 msgid "This deletes all local SQLite data and reloads the app. You cannot undo this."
 msgstr "This deletes all local SQLite data and reloads the app. You cannot undo this."
 
-#: apps/client/src/more/account-device-detail-screen.tsx
-#: apps/client/src/more/account-devices-card.tsx
+#: apps/client/src/account/account-device-detail-screen.tsx
+#: apps/client/src/account/account-devices-card.tsx
 msgid "This device"
 msgstr "This device"
 
-#: apps/client/src/more/account-device-detail-screen.tsx
+#: apps/client/src/account/account-device-detail-screen.tsx
 msgid "This device was not found. It may have been removed or is not visible for the current account."
 msgstr "This device was not found. It may have been removed or is not visible for the current account."
 
@@ -1683,7 +1682,7 @@ msgstr "This device was not found. It may have been removed or is not visible fo
 msgid "This field is required"
 msgstr "This field is required"
 
-#: apps/client/src/more/modal-screen.tsx
+#: apps/client/src/developer/modal-screen.tsx
 msgid "This is a modal screen."
 msgstr "This is a modal screen."
 
@@ -1703,12 +1702,12 @@ msgstr "Timeout"
 msgid "Todo Lists"
 msgstr "Todo Lists"
 
-#: apps/client/src/more/developer-screen.tsx
+#: apps/client/src/developer/developer-screen.tsx
 #: libs/patch-db-example/src/todo/todo-list.tsx
 msgid "Todos"
 msgstr "Todos"
 
-#: apps/client/src/more/more-screen.tsx
+#: apps/client/src/settings/settings-screen.tsx
 msgid "Todos, UI explorer, Patch DB and Room playgrounds"
 msgstr "Todos, UI explorer, Patch DB and Room playgrounds"
 
@@ -1736,21 +1735,21 @@ msgstr "Type a command or search…"
 msgid "Type something..."
 msgstr "Type something..."
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "Type: {networkTypeLabel}"
 msgstr "Type: {networkTypeLabel}"
 
-#: apps/client/src/more/developer-screen.tsx
+#: apps/client/src/developer/developer-screen.tsx
 #: apps/client/src/ui/app-commands/ui-components-commands.tsx
 msgid "UI Components"
 msgstr "UI Components"
 
-#: apps/client/src/more/server-status-screen.tsx
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "Unknown"
 msgstr "Unknown"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "Unreachable"
 msgstr "Unreachable"
 
@@ -1770,7 +1769,7 @@ msgstr "Use light theme"
 msgid "Use system theme"
 msgstr "Use system theme"
 
-#: apps/client/src/more/account-device-detail-body.tsx
+#: apps/client/src/account/account-device-detail-body.tsx
 msgid "User agent"
 msgstr "User agent"
 
@@ -1784,7 +1783,7 @@ msgstr "Username"
 msgid "Value"
 msgstr "Value"
 
-#: apps/client/src/more/about-screen.tsx
+#: apps/client/src/settings/about-screen.tsx
 msgid "Version: {appVersion}"
 msgstr "Version: {appVersion}"
 
@@ -1844,7 +1843,7 @@ msgstr "X: force TickClock"
 msgid "X: non-authority trust_update"
 msgstr "X: non-authority trust_update"
 
-#: apps/client/src/more/server-status-screen.tsx
+#: apps/client/src/connection/server-status-screen.tsx
 msgid "Yes"
 msgstr "Yes"
 

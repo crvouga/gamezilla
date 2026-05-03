@@ -1,4 +1,4 @@
-import { clearLocalDatabaseAndReload } from '@gamezilla/client/ui/patch-bootstrap';
+import { clearLocalDatabaseAndReload } from '@gamezilla/client/ui/patch-db-bootstrap';
 import { ConfirmationModal, RegisterCommand } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';

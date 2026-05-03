@@ -10,7 +10,7 @@ import { GamezillaI18nProvider } from '@gamezilla/client/i18n/i18n-provider';
 import { PwaUpdatePromptBanner } from '@gamezilla/client/pwa/update-prompt';
 import { AppCommands } from '@gamezilla/client/ui/app-commands';
 import { CommandPaletteNativeGesture } from '@gamezilla/client/ui/command-palette-native-gesture';
-import { PatchBootstrap } from '@gamezilla/client/ui/patch-bootstrap';
+import { PatchBootstrap } from '@gamezilla/client/ui/patch-db-bootstrap';
 import { ConfigContainerProvider } from '@gamezilla/domain/config/config-container';
 import {
   AppThemeRoot,

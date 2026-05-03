@@ -28,6 +28,8 @@
     "./impl-sqlite/types": "./src/impl-sqlite/types.ts",
     "./impl-sqlite/impl-sqlite": "./src/impl-sqlite/impl-sqlite.ts",
     "./impl-sqlite/query-builder": "./src/impl-sqlite/query-builder.ts",
+    "./metadata/patch-metadata": "./src/metadata/patch-metadata.ts",
+    "./metadata/patch-metadata-stamper": "./src/metadata/patch-metadata-stamper.ts",
     "./policy/compaction-policy": "./src/policy/compaction-policy.ts",
     "./policy/visibility-policy-registry": "./src/policy/visibility-policy-registry.ts",
     "./policy/system-principal": "./src/policy/system-principal.ts",

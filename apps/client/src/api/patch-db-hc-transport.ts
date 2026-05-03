@@ -46,6 +46,7 @@ export function createPatchDbHcTransport(
             ...NO_CACHE_REQUEST_HEADERS,
             ...authHeaders(getAuthToken),
           },
+          init: { credentials: 'include' },
         }
       );
       if (!res.ok) {
@@ -73,6 +74,7 @@ export function createPatchDbHcTransport(
             ...NO_CACHE_REQUEST_HEADERS,
             ...authHeaders(getAuthToken),
           },
+          init: { credentials: 'include' },
         }
       );
       if (!res.ok) {

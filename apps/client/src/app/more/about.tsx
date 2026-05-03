@@ -1,3 +1,3 @@
-import { AboutScreen } from '@gamezilla/client/more/about-screen';
+import { AboutScreen } from '@gamezilla/client/settings/about-screen';
 
 export default AboutScreen;

@@ -6,12 +6,14 @@ import type {
   PatchesDbAuthContext,
   PatchesDbContext,
   PatchesDbQueryWhereClause,
+  PatchesDbVisitorContext,
 } from '../interface';
 import {
   andWhereClause,
   denyAllReadsQuery,
   isPatchesDbAuthContext,
   isPatchesDbSystemContext,
+  isPatchesDbVisitorContext,
 } from '../interface';
 
 /**
@@ -21,11 +23,15 @@ import {
  * {@link PatchesDbAuthContext} intersected with `accountId`, `memberOfSpaceIds`,
  * etc). The library never inspects the extra claims; `install` passes whatever
  * context arrives from the hook through to the policy.
+ *
+ * `visitorRead` is called for anonymous visitors (cookie-only, no Bearer).
+ * When omitted, visitor reads are denied for this entity type.
  */
 export type VisibilityPolicy<
   TCtx extends PatchesDbAuthContext = PatchesDbAuthContext,
 > = {
   read: (ctx: TCtx) => PatchesDbQueryWhereClause;
+  visitorRead?: (ctx: PatchesDbVisitorContext) => PatchesDbQueryWhereClause;
   write: (
     ctx: PatchesDbContext,
     patch: PatchInput,
@@ -63,14 +69,26 @@ export class VisibilityPolicyRegistry<
   install(db: PatchesDb): () => void {
     const offRead = db.hooks.beforeRead((query, ctx) => {
       if (isPatchesDbSystemContext(ctx)) return query;
-      if (!isPatchesDbAuthContext(ctx)) {
-        return denyAllReadsQuery(query);
-      }
+
       if (query.entityType === undefined || query.entityType === '') {
         return denyAllReadsQuery(query);
       }
       const policy = this.policies.get(query.entityType);
       if (policy === undefined) {
+        return denyAllReadsQuery(query);
+      }
+
+      if (isPatchesDbVisitorContext(ctx)) {
+        if (policy.visitorRead === undefined) {
+          return denyAllReadsQuery(query);
+        }
+        return {
+          ...query,
+          where: andWhereClause(query.where, policy.visitorRead(ctx)),
+        };
+      }
+
+      if (!isPatchesDbAuthContext(ctx)) {
         return denyAllReadsQuery(query);
       }
       return {
@@ -81,6 +99,9 @@ export class VisibilityPolicyRegistry<
 
     const offWrite = db.hooks.beforeWrite(async (patches, ctx, tx) => {
       if (isPatchesDbSystemContext(ctx)) return patches;
+      if (isPatchesDbVisitorContext(ctx)) {
+        throw new ForbiddenError('visitors cannot write patches');
+      }
       for (const p of patches) {
         const policy = this.policies.get(p.entityType);
         if (policy === undefined) {
