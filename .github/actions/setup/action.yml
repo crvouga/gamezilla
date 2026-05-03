@@ -1,5 +1,5 @@
 name: Setup repo (Bun + deps)
-description: Checkout, Bun, cache install store, bun install, optional Doppler CLI
+description: Bun, cache install store, bun install, optional Doppler CLI (run actions/checkout first)
 
 inputs:
   doppler:
@@ -10,9 +10,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Checkout
-      uses: actions/checkout@v6
-
     - name: Setup Bun
       uses: oven-sh/setup-bun@v2
       with:

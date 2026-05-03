@@ -29,6 +29,8 @@ jobs:
       cancel-in-progress: true
     timeout-minutes: 10
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
       - uses: ./.github/actions/setup
         with:
           doppler: 'false'
@@ -42,6 +44,8 @@ jobs:
       cancel-in-progress: true
     timeout-minutes: 15
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
       - uses: ./.github/actions/setup
       - name: Typecheck
         env:
@@ -55,6 +59,8 @@ jobs:
       cancel-in-progress: true
     timeout-minutes: 15
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
       - uses: ./.github/actions/setup
       - name: Lint
         env:
@@ -68,6 +74,8 @@ jobs:
       cancel-in-progress: true
     timeout-minutes: 20
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
       - uses: ./.github/actions/setup
       - name: Test
         env:
@@ -81,6 +89,8 @@ jobs:
       cancel-in-progress: true
     timeout-minutes: 20
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
       - uses: ./.github/actions/setup
       - name: Build
         env:
@@ -94,6 +104,8 @@ jobs:
       cancel-in-progress: true
     timeout-minutes: 15
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
       - uses: ./.github/actions/setup
         with:
           doppler: 'false'
@@ -107,6 +119,8 @@ jobs:
       cancel-in-progress: true
     timeout-minutes: 10
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
       - uses: ./.github/actions/setup
         with:
           doppler: 'false'
@@ -120,6 +134,8 @@ jobs:
       cancel-in-progress: true
     timeout-minutes: 15
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
       - uses: ./.github/actions/setup
         with:
           doppler: 'false'
@@ -133,6 +149,8 @@ jobs:
       cancel-in-progress: true
     timeout-minutes: 15
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
       - uses: ./.github/actions/setup
         with:
           doppler: 'false'
@@ -160,6 +178,8 @@ jobs:
       group: gitleaks-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
       cancel-in-progress: true
     timeout-minutes: 10
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     permissions:
       contents: read
     steps:
@@ -177,6 +197,8 @@ jobs:
       cancel-in-progress: true
     timeout-minutes: 10
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
       - uses: ./.github/actions/setup
         with:
           doppler: 'false'
@@ -190,6 +212,8 @@ jobs:
       cancel-in-progress: true
     timeout-minutes: 30
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
       - uses: ./.github/actions/setup
       - name: QA API integration
         env:
@@ -203,6 +227,8 @@ jobs:
       cancel-in-progress: true
     timeout-minutes: 30
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
       - uses: ./.github/actions/setup
 
       # Resolve the actually-installed @playwright/test version (not the
@@ -264,7 +290,9 @@ jobs:
           path: apps/qa/playwright-report/
 
   publish-playwright-report:
-    if: ${{ always() && needs.qa-browser.result != 'skipped' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    if: >-
+      github.event_name == 'push' && github.ref == 'refs/heads/main' &&
+      needs.qa-browser.result == 'success'
     needs: [qa-browser]
     runs-on: ubuntu-latest
     outputs:
@@ -323,6 +351,8 @@ jobs:
       cancel-in-progress: false
     timeout-minutes: 60
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
       - uses: ./.github/actions/setup
 
       # Wrangler 4.x requires Node.js v22+. The `setup-bun` action sets up
@@ -381,6 +411,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
       - uses: ./.github/actions/setup
 
       - name: Write pipeline report
