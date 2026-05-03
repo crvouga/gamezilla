@@ -5,8 +5,7 @@ module.exports = {
   forbidden: [
     {
       name: 'no-circular',
-      // Existing cycles in room/patch-db/lib — tighten back to error after extraction passes.
-      severity: 'warn',
+      severity: 'error',
       from: {},
       to: { circular: true },
     },

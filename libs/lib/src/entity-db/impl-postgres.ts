@@ -264,7 +264,7 @@ export class EntityDbImplPostgres implements EntityDb {
    * Omit `tableName` to use {@link DEFAULT_POSTGRES_ENTITY_TABLE} (same default as `createEntityDb`).
    * `logger` is used for structured migration progress and failures.
    */
-  static migrate(args: {
+  static migrateUp(args: {
     sqlClient: SqlClient;
     logger: Logger;
   }): Promise<void> {

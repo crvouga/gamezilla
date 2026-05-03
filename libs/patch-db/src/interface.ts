@@ -498,5 +498,3 @@ export type PatchDbEngineOptions = {
    */
   compactionPolicy?: PatchDbCompactionPolicyResolver;
 };
-
-export { topologicalSortPatches } from './topological-sort';

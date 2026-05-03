@@ -2,13 +2,9 @@ import type { LogEntry } from '../persistence/log-entry';
 import type { RoomPersistence } from '../persistence/persistence';
 import type { Event, Message, RoomError } from '../events/message-types';
 import type { Transport } from '../transport/transport-types';
+import type { Command } from './command';
 
-export type Command = {
-  id: string;
-  seq: number;
-  peerId: string;
-  message: Message;
-};
+export type { Command };
 
 /**
  * Plain serializable object used as reducer state.

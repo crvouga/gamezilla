@@ -4,13 +4,10 @@ import { DefaultLockIdentityProvider } from './default-lock-identity-provider';
 import {
   type DistributedLock,
   type LockHandle,
+  type LockIdentityProvider,
   type LockInfo,
   LockHeldError,
 } from './interface';
-
-export interface LockIdentityProvider {
-  build(operation: string): LockInfo;
-}
 
 export interface DistributedLockImplKvOptions {
   readonly key: string;

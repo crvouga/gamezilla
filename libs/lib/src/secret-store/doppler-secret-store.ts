@@ -1,5 +1,3 @@
-import { DopplerCli } from '../doppler/doppler-cli';
-import { DopplerScriptSecretStore } from './doppler-script-secret-store';
 import {
   SecretBlankError,
   SecretMissingError,
@@ -162,8 +160,8 @@ export class DopplerSecretStore implements SecretStore {
   /**
    * Doppler's `secrets/download` is read-only — there is no symmetric write
    * endpoint we can call with the same auth flow. Use a CLI-backed factory
-   * such as {@link createDopplerSecretStoreForScripts} (which composes this
-   * class with {@link DopplerScriptSecretStore}) when you need writes.
+   * such as `createDopplerSecretStoreForScripts` (which composes this class
+   * with `DopplerScriptSecretStore`) when you need writes.
    */
   async setSecret(
     name: string,
@@ -252,36 +250,4 @@ export class DopplerSecretStore implements SecretStore {
     }
     return out;
   }
-}
-
-/**
- * {@link SecretStore} for Node/Bun scripts (setup, migrations, deploy).
- * Reads via Doppler's HTTP `secrets/download` endpoint and writes via the local
- * Doppler CLI (`doppler secrets set`) — both transports converge on the same
- * project/config.
- *
- * Fills `project` / `config` from `DOPPLER_PROJECT` / `DOPPLER_CONFIG` or from
- * `doppler configure get … --plain` so personal CLI tokens work with the
- * secrets download API. Workers should use `new DopplerSecretStore({ token })`
- * with a config-scoped service token (no project/config query params, no CLI).
- */
-export function createDopplerSecretStoreForScripts(): SecretStore {
-  const cli = new DopplerCli();
-  const { token } = cli.resolveToken();
-  const envProject =
-    typeof process !== 'undefined'
-      ? trimOpt(process.env['DOPPLER_PROJECT'])
-      : null;
-  const envConfig =
-    typeof process !== 'undefined'
-      ? trimOpt(process.env['DOPPLER_CONFIG'])
-      : null;
-  const project = envProject ?? cli.tryConfigureGetProjectPlain();
-  const config = envConfig ?? cli.tryConfigureGetConfigPlain();
-  const reader = new DopplerSecretStore({
-    token,
-    ...(project !== null ? { project } : {}),
-    ...(config !== null ? { config } : {}),
-  });
-  return new DopplerScriptSecretStore(reader, cli);
 }

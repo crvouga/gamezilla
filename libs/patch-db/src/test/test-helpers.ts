@@ -1,5 +1,5 @@
-import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import { createLogger } from '@gamezilla/lib/logger';
+import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import { SqlClientImplBunPostgres } from '@gamezilla/lib/sql-client/impl-bun-postgres';
 import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
@@ -39,7 +39,7 @@ export async function createPostgresFactory(): Promise<{
   const client: SqlClient = SqlClientImplBunPostgres.connect(url);
   await client.connect();
   const logger = createLogger({ name: 'patch-db-test', level: 'silent' });
-  await PatchDbImplPostgres.migrate({ sqlClient: client, logger });
+  await PatchDbImplPostgres.migrateUp({ sqlClient: client, logger });
   const db = new PatchDbImplPostgres(client);
   return { db, teardown: () => client.disconnect() };
 }

@@ -22,8 +22,8 @@ export async function runPostgresMigrations(
 ): Promise<void> {
   const { sqlClient, logger } = args;
   await sqlClient.transaction(async (tx) => {
-    await PatchDbImplPostgres.migrate({ sqlClient: tx, logger });
-    await KvImplPostgres.migrate({ sqlClient: tx, logger });
+    await PatchDbImplPostgres.migrateUp({ sqlClient: tx, logger });
+    await KvImplPostgres.migrateUp({ sqlClient: tx, logger });
     await EntityDbImplPostgres.migrateDown({ sqlClient: tx, logger });
   });
 }

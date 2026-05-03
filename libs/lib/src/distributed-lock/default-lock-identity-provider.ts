@@ -1,6 +1,5 @@
 import * as os from 'node:os';
-import type { LockInfo } from './interface';
-import type { LockIdentityProvider } from './impl-kv';
+import type { LockIdentityProvider, LockInfo } from './interface';
 
 export class DefaultLockIdentityProvider implements LockIdentityProvider {
   build(operation: string): LockInfo {

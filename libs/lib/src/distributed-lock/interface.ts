@@ -35,3 +35,7 @@ export interface DistributedLock {
    */
   releaseIfHeldById(expectedId: string): Promise<void>;
 }
+
+export interface LockIdentityProvider {
+  build(operation: string): LockInfo;
+}

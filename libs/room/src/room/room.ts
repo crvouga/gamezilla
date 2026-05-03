@@ -1,11 +1,11 @@
 import { Assert } from '@gamezilla/lib/assert';
 import type { MessageRouter } from '@gamezilla/lib/message';
 import type { LogEntry } from '../persistence/log-entry';
-import {
-  recoverRoomFromPersistence,
-  type RoomPersistence,
-  type RoomPersistenceEntry,
+import type {
+  RoomPersistence,
+  RoomPersistenceEntry,
 } from '../persistence/persistence';
+import { recoverRoomFromPersistence } from '../persistence/recover-room-from-persistence';
 import type { Event, Message, RoomError } from '../events/message-types';
 import { RoomNotSynced, RoomUnknownSystemCommand } from '../events/room-errors';
 import { PeerJoin, peerNamespace } from '../events/system-messages';

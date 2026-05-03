@@ -26,7 +26,7 @@ import {
   ticTacToeThreePeers,
 } from '../testkit/tic-tac-toe-peers';
 import { InMemoryBus, InMemoryTransport } from '../transport';
-import { recoverRoomFromPersistence } from './persistence';
+import { recoverRoomFromPersistence } from './recover-room-from-persistence';
 import { InMemoryRoomPersistence } from './persistence-in-memory';
 import { SqliteRoomPersistence } from './persistence-sqlite';
 import type { LogEntry } from './log-entry';

@@ -86,12 +86,12 @@ export class KvImplPostgres implements Kv {
     sqlClient: SqlClient;
     logger: Logger;
   }): Promise<KvImplPostgres> {
-    await KvImplPostgres.migrate(args);
+    await KvImplPostgres.migrateUp(args);
     return new KvImplPostgres(args.sqlClient);
   }
 
   /** Idempotent Postgres DDL for the `kv` table (no instance required). */
-  static async migrate(args: {
+  static async migrateUp(args: {
     sqlClient: SqlClient;
     logger: Logger;
   }): Promise<void> {

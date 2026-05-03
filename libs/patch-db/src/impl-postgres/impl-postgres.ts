@@ -1,6 +1,7 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { Logger } from '@gamezilla/lib/logger';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { PatchDbHookRegistry } from '../hook-registry';
 import type { PatchRow } from '../impl-sqlite/types';
 import type {
   Attribute,
@@ -21,11 +22,10 @@ import {
   normalizePatchAttributesForStorage,
   OPEN_PATCHES_DB_CONTEXT,
   PATCH_META_KEYS,
-  topologicalSortPatches,
 } from '../interface';
-import { PatchDbHookRegistry } from '../hook-registry';
 import { DEFAULT_PATCH_DB_COMPACTION_POLICY } from '../policy/compaction-policy';
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '../policy/system-principal';
+import { topologicalSortPatches } from '../topological-sort';
 import { migratePatchDbPostgres } from './migrate';
 import { readPatches } from './read-ops';
 import {
@@ -66,7 +66,7 @@ export class PatchDbImplPostgres implements PatchesDb {
   ) {}
 
   /** Idempotent Postgres DDL for patches + snapshots (no instance required). */
-  static async migrate(args: {
+  static async migrateUp(args: {
     sqlClient: SqlClient;
     logger: Logger;
   }): Promise<void> {

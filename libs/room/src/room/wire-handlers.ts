@@ -1,7 +1,9 @@
 import { Assert } from '@gamezilla/lib/assert';
 import type { LogEntry } from '../persistence/log-entry';
 import type { RoomError } from '../events/message-types';
+import type { RoomPersistenceEntry } from '../persistence/persistence';
 import { decodeKeyB64 } from './security/peer-crypto';
+import type { VerifiedWireEnvelope } from './security/wire-envelope';
 import {
   PeerJoined,
   PeerLeave,
@@ -14,13 +16,73 @@ import {
   updateLastSeenVerified,
 } from './authority-monitor';
 import { applyMembershipEvent, materializeAtSeq } from './membership';
-import type { Room } from './room';
-import type { Command, RoomEffect } from './types';
-import type { WireMessage } from './wire-protocol';
+import type {
+  Command,
+  RoomCallbacks,
+  RoomEffect,
+  RoomModule,
+  State,
+} from './types';
+import type {
+  OptimisticEvent,
+  SystemCommandEvalResult,
+  WireMessage,
+} from './wire-protocol';
 
 const crash: Assert = Assert.crash();
 
-export function handleWireMessage(self: Room, payload: unknown): void {
+/**
+ * Structural subset of `Room` consumed by wire-message handlers. Defined here
+ * (instead of importing `Room`) to keep this module free of the `room.ts`
+ * dependency and avoid a `wire-handlers → room` cycle.
+ */
+export type WireHandlerRoom = {
+  readonly peerId: string;
+  is_destroyed: boolean;
+  readonly module: RoomModule;
+  readonly callbacks: RoomCallbacks;
+
+  readonly membership: Map<string, number>;
+  readonly memberPublicKeys: Map<string, Uint8Array>;
+  current_authority: string;
+  readonly authority_order: readonly string[];
+  readonly last_seen: Map<string, number>;
+  readonly heartbeatTimeoutMs: number;
+  rebuildAuthorityFromMembership(): void;
+  isAuthority(): boolean;
+
+  committed_state: State;
+  committed_entries: LogEntry[];
+  last_committed_log_seq: number;
+  readonly latestLogSeq: number;
+  optimistic_events: OptimisticEvent[];
+
+  readonly finalized_command_ids: Set<string>;
+  readonly pending_timeouts: Map<string, ReturnType<typeof setTimeout>>;
+
+  sync_pending: boolean;
+  pendingSyncSessionId: string | null;
+  synced: boolean;
+
+  verifyInboundWire(raw: unknown): VerifiedWireEnvelope | null;
+  publishSignedWire(body: WireMessage): void;
+  appendPersistenceEntry(entry: RoomPersistenceEntry): void;
+
+  evaluateSystemCommand(command: Command): SystemCommandEvalResult;
+  authorityEvaluateDomain(
+    command: Command
+  ):
+    | { ok: true; entries: LogEntry[]; effects: RoomEffect[] }
+    | { ok: false; error: RoomError };
+
+  notifySubscribers(): void;
+  rehydrate(entries: LogEntry[]): void;
+};
+
+export function handleWireMessage(
+  self: WireHandlerRoom,
+  payload: unknown
+): void {
   if (self.is_destroyed) return;
   const verified = self.verifyInboundWire(payload);
   if (!verified) return;
@@ -33,7 +95,7 @@ export function handleWireMessage(self: Room, payload: unknown): void {
 
 /** Single path: apply committed entries then broadcast `accepted` (authority). */
 export function authorityAcceptCommit(
-  self: Room,
+  self: WireHandlerRoom,
   commandId: string,
   entries: LogEntry[],
   effects?: RoomEffect[]
@@ -47,7 +109,7 @@ export function authorityAcceptCommit(
 }
 
 export function authorityRejectProposal(
-  self: Room,
+  self: WireHandlerRoom,
   commandId: string,
   error: RoomError
 ): void {
@@ -60,7 +122,10 @@ export function authorityRejectProposal(
   } satisfies WireMessage);
 }
 
-function dispatchVerifiedBody(self: Room, body: WireMessage): void {
+function dispatchVerifiedBody(
+  self: WireHandlerRoom,
+  body: WireMessage
+): void {
   switch (body.kind) {
     case 'propose':
       handleProposeWire(self, body);
@@ -87,7 +152,7 @@ function dispatchVerifiedBody(self: Room, body: WireMessage): void {
 }
 
 export function handleProposeWire(
-  self: Room,
+  self: WireHandlerRoom,
   wire: WireMessage & { kind: 'propose' }
 ): void {
   if (!self.isAuthority()) return;
@@ -102,7 +167,7 @@ export function handleProposeWire(
   handleProposeDomain(self, command);
 }
 
-function handleProposeSystem(self: Room, command: Command): void {
+function handleProposeSystem(self: WireHandlerRoom, command: Command): void {
   const sys = self.evaluateSystemCommand(command);
   if (sys.ok) {
     authorityAcceptCommit(self, command.id, sys.entries);
@@ -111,7 +176,7 @@ function handleProposeSystem(self: Room, command: Command): void {
   }
 }
 
-function handleProposeDomain(self: Room, command: Command): void {
+function handleProposeDomain(self: WireHandlerRoom, command: Command): void {
   const evaluated = self.authorityEvaluateDomain(command);
   if (evaluated.ok) {
     authorityAcceptCommit(
@@ -126,7 +191,7 @@ function handleProposeDomain(self: Room, command: Command): void {
 }
 
 export function handleAcceptedWire(
-  self: Room,
+  self: WireHandlerRoom,
   wire: WireMessage & { kind: 'accepted' }
 ): void {
   const { commandId, entries } = wire;
@@ -135,7 +200,7 @@ export function handleAcceptedWire(
 }
 
 export function handleRejectedWire(
-  self: Room,
+  self: WireHandlerRoom,
   wire: WireMessage & { kind: 'rejected' }
 ): void {
   const { commandId } = wire;
@@ -157,7 +222,7 @@ export function handleRejectedWire(
   self.notifySubscribers();
 }
 
-function applyCommitEntry(self: Room, entry: LogEntry): void {
+function applyCommitEntry(self: WireHandlerRoom, entry: LogEntry): void {
   const { event } = entry;
   if (isSystemEvent(event)) {
     if (PeerJoined.is(event)) {
@@ -183,7 +248,7 @@ function applyCommitEntry(self: Room, entry: LogEntry): void {
 }
 
 export function handleCommitEntries(
-  self: Room,
+  self: WireHandlerRoom,
   commandId: string,
   entries: LogEntry[],
   effects?: RoomEffect[]
@@ -222,7 +287,7 @@ export function handleCommitEntries(
 }
 
 export function handleSyncRequestWire(
-  self: Room,
+  self: WireHandlerRoom,
   wire: WireMessage & { kind: 'sync-request' }
 ): void {
   if (wire.from === self.peerId) return;
@@ -253,7 +318,7 @@ export function handleSyncRequestWire(
 }
 
 export function handleSyncResponseWire(
-  self: Room,
+  self: WireHandlerRoom,
   wire: WireMessage & { kind: 'sync-response' }
 ): void {
   if (wire.to !== self.peerId) return;

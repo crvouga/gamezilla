@@ -1,12 +1,30 @@
 import type { WireMessage } from './wire-protocol';
-import type { Room } from './room';
+
+/**
+ * Structural subset of `Room` consumed by authority monitoring helpers.
+ * Defined here (instead of importing `Room`) to keep this module free of
+ * the `room.ts` dependency and avoid an `authority-monitor → room` cycle.
+ */
+export type AuthorityMonitorRoom = {
+  readonly peerId: string;
+  is_destroyed: boolean;
+  readonly last_seen: Map<string, number>;
+  current_authority: string;
+  readonly authority_order: readonly string[];
+  readonly heartbeatTimeoutMs: number;
+  readonly callbacks: {
+    onAuthorityChange?: (next: string, prev: string) => void;
+  };
+  publishSignedWire(body: WireMessage): void;
+  readonly latestLogSeq: number;
+};
 
 export type LivenessSink = {
   peerId: string;
   last_seen: Map<string, number>;
 };
 
-export function broadcastHeartbeat(self: Room): void {
+export function broadcastHeartbeat(self: AuthorityMonitorRoom): void {
   if (self.is_destroyed) return;
   self.publishSignedWire({
     kind: 'heartbeat',
@@ -16,7 +34,7 @@ export function broadcastHeartbeat(self: Room): void {
 }
 
 export function checkAuthorityChange(
-  self: Room,
+  self: AuthorityMonitorRoom,
   onLivenessAuthorityChange?: (prev: string, next: string) => void
 ): void {
   const newAuthority = deriveAuthority(self);
@@ -28,14 +46,14 @@ export function checkAuthorityChange(
   }
 }
 
-function deriveAuthority(self: Room): string {
+function deriveAuthority(self: AuthorityMonitorRoom): string {
   const alive = self.authority_order.filter(
     (id) => id === self.peerId || isAlive(self, id)
   );
   return alive[0] ?? self.peerId;
 }
 
-function isAlive(self: Room, peerId: string): boolean {
+function isAlive(self: AuthorityMonitorRoom, peerId: string): boolean {
   if (peerId === self.peerId) return true;
   const lastSeen = self.last_seen.get(peerId);
   if (lastSeen === undefined) return false;
@@ -60,7 +78,10 @@ export function seedAllRemotePeersLiveness(
 }
 
 /** After cryptographic verification, record liveness for the authenticated signer. */
-export function updateLastSeenVerified(self: Room, signerPeerId: string): void {
+export function updateLastSeenVerified(
+  self: LivenessSink,
+  signerPeerId: string
+): void {
   if (signerPeerId !== self.peerId) {
     self.last_seen.set(signerPeerId, Date.now());
   }

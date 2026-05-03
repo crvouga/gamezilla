@@ -20,8 +20,8 @@ import {
   normalizePatchAttributesForStorage,
   OPEN_PATCHES_DB_CONTEXT,
   PATCH_META_KEYS,
-  topologicalSortPatches,
 } from '../interface';
+import { topologicalSortPatches } from '../topological-sort';
 import { PatchDbHookRegistry } from '../hook-registry';
 import { DEFAULT_PATCH_DB_COMPACTION_POLICY } from '../policy/compaction-policy';
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '../policy/system-principal';
