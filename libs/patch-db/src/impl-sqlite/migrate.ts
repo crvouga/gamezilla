@@ -63,4 +63,6 @@ export async function migratePatchDbSqlite(
   await dropLegacyLineageDepth(sqlClient);
   await dropLegacyLineageIndex(sqlClient);
   await migrateLegacyMetadataColumn(sqlClient);
+  await sqlClient.run('DROP TABLE IF EXISTS patch_db_client_replica_epoch');
+  await sqlClient.run('DROP TABLE IF EXISTS patch_db_authority_replica_meta');
 }

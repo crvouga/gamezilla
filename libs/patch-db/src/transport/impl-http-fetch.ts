@@ -7,7 +7,10 @@ import type {
   PatchInput,
   WritePatchesResult,
 } from '../interface';
-import { assertPatchDbResults, assertWriteResponse } from '../validate-remote';
+import {
+  assertWireReadResponse,
+  assertWireWriteResponse,
+} from '../validate-remote';
 import type { PatchDbClientTransport } from './interface';
 import {
   NO_CACHE_REQUEST_HEADERS,
@@ -70,7 +73,11 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
     _ctx?: PatchDbContext
   ): Promise<PatchDbResult[]> {
     void _ctx;
-    if (queries.length === 0) return [];
+    if (queries.length === 0) {
+      throw new Error(
+        'PatchDbClientTransportHttpFetch.read: empty queries are unsupported over HTTP; read locally instead'
+      );
+    }
     assert.ok(
       queries.length <= MAX_QUERIES_PER_REQUEST,
       'patch-db client must chunk reads to fit MAX_QUERIES_PER_REQUEST; sending an over-sized batch is a programmer error',
@@ -95,8 +102,8 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
       throwHttpFailure(res, text);
     }
     const raw: unknown = await res.json();
-    assertPatchDbResults(raw);
-    return raw;
+    assertWireReadResponse(raw);
+    return raw.results;
   }
 
   async write(
@@ -132,7 +139,7 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
       throwHttpFailure(res, text);
     }
     const raw: unknown = await res.json();
-    assertWriteResponse(raw);
+    assertWireWriteResponse(raw);
     return raw;
   }
 }

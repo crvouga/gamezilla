@@ -8,7 +8,7 @@ import type {
 } from '../interface';
 
 /**
- * Minimal server-side port for {@link SimulatedPatchDbClientTransport}: read/write only.
+ * Server-side port for {@link SimulatedPatchDbClientTransport}: read/write only.
  */
 export type SimServerPort = {
   read(queries: PatchDbQuery[], ctx?: PatchDbContext): Promise<PatchDbResult[]>;
@@ -23,8 +23,6 @@ export function simServerPortFromPubSub(
   write: SimServerPort['write'],
   _pubSub: InMemoryPubSub
 ): SimServerPort {
-  return {
-    read,
-    write,
-  };
+  void _pubSub;
+  return { read, write };
 }

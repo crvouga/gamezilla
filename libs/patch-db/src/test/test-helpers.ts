@@ -3,6 +3,7 @@ import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import { SqlClientImplBunPostgres } from '@gamezilla/lib/sql-client/impl-bun-postgres';
 import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { PatchDbImplClientTransport } from '../impl-client-transport';
 import { PatchDbImplPostgres } from '../impl-postgres/impl-postgres';
 import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
 import {
@@ -10,6 +11,8 @@ import {
   type SyncPatchDbOptions,
   type SyncPatchDbScheduler,
 } from '../impl-sync';
+import { PatchDbImplSyncHost } from '../transport/impl-sync-host';
+import { PatchDbTransportInProcess } from '../transport/impl-in-process';
 import type { PatchDb, PatchInput } from '../interface';
 
 export type DbFactory = () => Promise<{
@@ -52,7 +55,10 @@ export const implementations: { name: string; factory: DbFactory }[] = [
 export type SyncDbFixture = {
   syncDb: SyncPatchDb;
   local: PatchDb;
+  /** Authority backing DB (direct read/write for test setup). */
   remote: PatchDb;
+  /** Same instance passed to {@link SyncPatchDb} as `remote` (HTTP-shaped facade). */
+  syncRemote: PatchDbImplClientTransport;
   pubSub: InMemoryPubSub;
   teardown: () => Promise<void>;
 };
@@ -63,8 +69,6 @@ export type CreateSyncDbFactoryOptions = {
   pollDriver?: 'interval' | 'manual';
   scheduler?: SyncPatchDbScheduler;
   maxPushBatchSize?: number;
-  /** Default true for in-memory sim tests (server-loss recovery). */
-  detectServerPatchLossOnPoll?: boolean;
 };
 
 function buildSyncOptions(
@@ -82,8 +86,6 @@ function buildSyncOptions(
   if (opts.maxPushBatchSize !== undefined) {
     syncOptions.maxPushBatchSize = opts.maxPushBatchSize;
   }
-  syncOptions.detectServerPatchLossOnPoll =
-    opts.detectServerPatchLossOnPoll ?? true;
   return syncOptions;
 }
 
@@ -96,14 +98,19 @@ export async function createSyncDbFactory(
   await remoteClient.connect();
 
   const local = new PatchDbImplSqlite(localClient);
-  const remote = new PatchDbImplSqlite(remoteClient);
+  const remoteBacking = new PatchDbImplSqlite(remoteClient);
   await local.migrate();
-  await remote.migrate();
+  await remoteBacking.migrate();
+
+  const remoteHostPubSub = new InMemoryPubSub();
+  const remoteHost = new PatchDbImplSyncHost(remoteBacking, remoteHostPubSub);
+  const remoteTransport = new PatchDbTransportInProcess(remoteHost);
+  const syncRemote = new PatchDbImplClientTransport(remoteTransport);
 
   const pubSub = new InMemoryPubSub();
   const syncDb = new SyncPatchDb(
     local,
-    remote,
+    syncRemote,
     pubSub,
     buildSyncOptions(options)
   );
@@ -111,7 +118,8 @@ export async function createSyncDbFactory(
   return {
     syncDb,
     local,
-    remote,
+    remote: remoteBacking,
+    syncRemote,
     pubSub,
     teardown: async () => {
       syncDb.destroy();

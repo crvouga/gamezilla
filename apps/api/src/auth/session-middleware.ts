@@ -9,7 +9,7 @@ import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import type {
   AppAuthContext,
   AppVisitorContext,
-} from '../patch-db/default-patch-db-policies';
+} from '../patch-db/abac-policies';
 import { UnauthorizedError } from './unauthorized-error';
 
 export type AuthContext = AppAuthContext;

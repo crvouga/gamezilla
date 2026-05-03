@@ -106,17 +106,17 @@ export class ActiveQueryRegistry {
       pubSubUnsub: null,
     };
     this.entries.set(key, entry);
-    fireAndForget(this.notify(key), {
-      component: 'ActiveQueryRegistry',
-      op: 'notify',
-      queryKey: key,
-    });
     entry.pubSubUnsub = this.pubSub.subscribe(PATCHES_DB_TOPIC, () => {
       fireAndForget(this.notify(key), {
         component: 'ActiveQueryRegistry',
         op: 'notify-invalidation',
         queryKey: key,
       });
+    });
+    fireAndForget(this.notify(key), {
+      component: 'ActiveQueryRegistry',
+      op: 'notify',
+      queryKey: key,
     });
     return entry;
   }

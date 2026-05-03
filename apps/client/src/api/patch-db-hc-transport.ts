@@ -10,8 +10,8 @@ import {
   PatchDbTransportRejectedError,
 } from '@gamezilla/patch-db/transport';
 import {
-  assertPatchDbResults,
-  assertWriteResponse,
+  assertWireReadResponse,
+  assertWireWriteResponse,
 } from '@gamezilla/patch-db/validate-remote';
 import type { GamezillaApiClient } from './hc';
 
@@ -21,6 +21,8 @@ const JSON_HEADERS = {
 } as const;
 
 export type CreatePatchDbHcTransportOptions = {
+  /** Same origin + path prefix as read/write (e.g. `https://host/patch-db`). */
+  patchDbBaseUrl: string;
   /** Returns the current session bearer token, or null when unauthenticated. */
   getAuthToken?: () => string | null;
 };
@@ -45,12 +47,17 @@ function throwHcFailure(status: number, text: string): never {
  */
 export function createPatchDbHcTransport(
   client: GamezillaApiClient,
-  options?: CreatePatchDbHcTransportOptions
+  options: CreatePatchDbHcTransportOptions
 ): PatchDbClientTransport {
-  const getAuthToken = options?.getAuthToken;
+  const { getAuthToken, patchDbBaseUrl: _patchDbBaseUrl } = options;
+  void _patchDbBaseUrl;
   return {
     async read(queries: PatchDbQuery[]): Promise<PatchDbResult[]> {
-      if (queries.length === 0) return [];
+      if (queries.length === 0) {
+        throw new Error(
+          'createPatchDbHcTransport.read: empty queries unsupported over HTTP'
+        );
+      }
       const res = await client['patch-db']['patches']['read'].$post(
         { json: { queries } },
         {
@@ -74,8 +81,8 @@ export function createPatchDbHcTransport(
           `Response body is not valid JSON (status ${String(res.status)})`
         );
       }
-      assertPatchDbResults(raw);
-      return raw;
+      assertWireReadResponse(raw);
+      return raw.results;
     },
 
     async write(patches: PatchInput[]): Promise<WritePatchesResult> {
@@ -102,7 +109,7 @@ export function createPatchDbHcTransport(
           `Response body is not valid JSON (status ${String(res.status)})`
         );
       }
-      assertWriteResponse(raw);
+      assertWireWriteResponse(raw);
       return raw;
     },
   };

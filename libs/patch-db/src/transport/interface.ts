@@ -6,7 +6,7 @@ import type {
   WritePatchesResult,
 } from '../interface';
 
-/** Client-side transport port: stateless remote read/write over HTTP. */
+/** Client-side transport: remote read/write over HTTP or in-process host. */
 export type PatchDbClientTransport = {
   read(queries: PatchDbQuery[], ctx?: PatchDbContext): Promise<PatchDbResult[]>;
   write(
@@ -15,7 +15,7 @@ export type PatchDbClientTransport = {
   ): Promise<WritePatchesResult>;
 };
 
-/** Authority-side sync port: merge known patches, read, and write. */
+/** Authority-side sync port: same as {@link PatchDb} read/write for wire handlers. */
 export type PatchDbSyncHost = {
   read(queries: PatchDbQuery[], ctx?: PatchDbContext): Promise<PatchDbResult[]>;
   write(

@@ -10,7 +10,7 @@ import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { installDefaultPatchDbPolicies } from './install-default-patch-db-policies';
+import { installDefaultPatchDbPolicies } from './patch-db';
 
 async function createSqliteFactory(): Promise<{
   db: PatchDb;

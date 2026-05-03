@@ -12,6 +12,7 @@ import {
 } from '../interface';
 import { assertWriteResponse } from '../validate-remote';
 import type { PatchDbClientTransport, PatchDbSyncHost } from './interface';
+import { MAX_PATCHES_PER_REQUEST } from './wire-schemas';
 
 function assertPatchDbResultShape(r: PatchDbResult, index: number): void {
   assert.ok(
@@ -31,7 +32,9 @@ function assertPatchDbResultShape(r: PatchDbResult, index: number): void {
   assert.ok(
     typeof r.hasMore === 'boolean',
     'PatchDbResult.hasMore must be boolean',
-    { index }
+    {
+      index,
+    }
   );
   assert.ok(
     r.nextCursor === null || typeof r.nextCursor === 'string',
@@ -132,6 +135,11 @@ export class PatchDbTransportInProcess implements PatchDbClientTransport {
       'PatchDbTransportInProcess.write: patches must not be empty',
       { length: patches.length }
     );
+    assert.ok(
+      patches.length <= MAX_PATCHES_PER_REQUEST,
+      'PatchDbTransportInProcess.write: batch exceeds MAX_PATCHES_PER_REQUEST',
+      { length: patches.length, max: MAX_PATCHES_PER_REQUEST }
+    );
     assert.defined(
       this.host,
       'PatchDbTransportInProcess.write: host must be defined'
@@ -141,7 +149,7 @@ export class PatchDbTransportInProcess implements PatchDbClientTransport {
       assertPatchInput(assert, p)
     );
 
-    const out = await this.host.write(patches, ctx);
+    const out: WritePatchesResult = await this.host.write(patches, ctx);
     assertWriteResponse(out);
     assert.ok(
       out.accepted.length + out.rejected.length === patches.length,

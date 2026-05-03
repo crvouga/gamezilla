@@ -1,8 +1,6 @@
 export const DELETE_SNAPSHOT = `DELETE FROM snapshots
 WHERE entity_id = ? AND entity_type = ?`;
 
-export const DELETE_PATCH_BY_ID = `DELETE FROM patches WHERE patch_id = ?`;
-
 // `?::text::jsonb` (rather than `CAST(? AS jsonb)`) is intentional. Bun's
 // `bun:sql` Postgres driver runs `jsonStringifyFast` on every parameter
 // whose resolved PG type is `json`/`jsonb`, double-encoding values that
@@ -76,6 +74,12 @@ CREATE TABLE IF NOT EXISTS snapshots (
 );
 
 CREATE INDEX IF NOT EXISTS idx_snapshots_entity_type ON snapshots (entity_type);
+`;
+
+/** Drops removed replica-epoch tables on existing deployments. */
+export const POSTGRES_DROP_REPLICA_EPOCH_TABLES = `
+DROP TABLE IF EXISTS patch_db_client_replica_epoch;
+DROP TABLE IF EXISTS patch_db_authority_replica_meta;
 `;
 
 export const RESOLVE_PARENT_ID = `WITH RECURSIVE lineage AS (

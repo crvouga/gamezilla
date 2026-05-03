@@ -132,7 +132,7 @@ function assertPatchRejectionReason(value: unknown): void {
 }
 
 /**
- * Validates remote response for write() after partial-reject wire change.
+ * Validates remote response for write() after partial-reject wire shape.
  */
 export function assertWriteResponse(
   value: unknown
@@ -146,4 +146,30 @@ export function assertWriteResponse(
   for (const r of value['rejected'] as unknown[]) {
     assertPatchRejectionReason(r);
   }
+}
+
+export type PatchDbWireReadResponse = {
+  results: PatchDbResult[];
+};
+
+export type PatchDbWireWriteResponse = WritePatchesResult;
+
+/**
+ * Validates remote `/patches/read` JSON (trust boundary): `{ results }`.
+ */
+export function assertWireReadResponse(
+  value: unknown
+): asserts value is PatchDbWireReadResponse {
+  assertObject(value, 'wire read response must be an object');
+  assert.ok(Array.isArray(value['results']), 'results must be an array');
+  assertPatchDbResults(value['results']);
+}
+
+/**
+ * Validates remote `/patches/write` JSON (trust boundary): flat accepted/rejected.
+ */
+export function assertWireWriteResponse(
+  value: unknown
+): asserts value is PatchDbWireWriteResponse {
+  assertWriteResponse(value);
 }

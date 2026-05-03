@@ -337,6 +337,7 @@ describe.each(implementations)('$name', ({ factory }) => {
         attributes: {
           'patch/syncRejectedAt': new Date().toISOString(),
           'patch/syncRejectedReason': 'forbidden: test',
+          'patch/rejected': true,
         },
       },
     ]);

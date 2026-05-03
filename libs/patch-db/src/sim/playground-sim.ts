@@ -11,8 +11,6 @@ import { type SimServerPort, simServerPortFromPubSub } from './server-port';
 import { BrowserWallClockScheduler } from './sim-link-scheduler';
 import { SimulatedPatchDbClientTransport } from './simulated-client-transport';
 
-const MARK_ALL_UNSYNCED = `UPDATE patches SET attributes = json_remove(attributes, '$."patch/syncedAt"')`;
-
 export type PlaygroundDbFactory = {
   /** Create a fresh, empty database for the given playground node. */
   create(label: string): Promise<SqlClient>;
@@ -208,7 +206,6 @@ function buildClientFromSql(
     pollDriver: 'manual',
     pushIntervalMs: 10,
     logPushPollFailures: false,
-    detectServerPatchLossOnPoll: true,
   });
   const runtime: ClientRuntime = {
     id,
@@ -319,7 +316,6 @@ async function ctxWipeServerDb(ctx: SimContext): Promise<void> {
   await ctx.serverSql.run('DELETE FROM patches');
   await ctx.serverSql.run('DELETE FROM snapshots');
   for (const c of ctx.clientRuntimes) {
-    await c.sqlClient.run(MARK_ALL_UNSYNCED);
     c.syncDb.notifyInvalidated();
   }
 }

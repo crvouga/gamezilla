@@ -34,8 +34,13 @@ const patchRejectionReasonSchema = z.object({
   reason: z.string(),
 });
 
-/** Wire JSON body for successful `/patches/write` responses. */
-export const patchDbWriteResponseSchema = z.object({
+/** Successful `/patches/read` response: flat `{ results }`. */
+export const patchDbReadWireResponseSchema = z.object({
+  results: z.array(z.record(z.string(), z.unknown())),
+});
+
+/** Successful `/patches/write` response: flat accepted/rejected. */
+export const patchDbWriteWireResponseSchema = z.object({
   accepted: z.array(z.record(z.string(), z.unknown())),
   rejected: z.array(patchRejectionReasonSchema),
 });

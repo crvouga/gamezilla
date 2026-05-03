@@ -14,8 +14,8 @@ import type {
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import type { AppAuthContext } from './default-patch-db-policies';
-import { installDefaultPatchDbPolicies } from './install-default-patch-db-policies';
+import type { AppAuthContext } from './abac-policies';
+import { installDefaultPatchDbPolicies } from './patch-db';
 
 async function createSqliteFactory(): Promise<{
   db: PatchDb;

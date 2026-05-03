@@ -151,8 +151,6 @@ async function bootstrapPatchDbExpoSync(
     const syncDb = new SyncPatchDb(localDb, remoteDb, pubSub, {
       pushIntervalMs,
       pollIntervalMs,
-      // Server read is ABAC-filtered; omitting patch ids must not clear patch/syncedAt.
-      detectServerPatchLossOnPoll: false,
     });
 
     const dbForDi: SubscribablePatchDbLike =
@@ -308,6 +306,7 @@ async function performPatchBootstrap(
   const { container: c } = await bootstrapPatchDbExpoSync({
     apiUrl: String(`${apiBase}/patch-db`),
     transport: createPatchDbHcTransport(createGamezillaApiClient(apiBase), {
+      patchDbBaseUrl: String(`${apiBase}/patch-db`),
       getAuthToken: () => sessionTokenHolder.get(),
     }),
     parentContainer,

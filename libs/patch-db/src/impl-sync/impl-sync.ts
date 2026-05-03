@@ -13,6 +13,7 @@ import type {
 } from '../interface';
 import {
   OPEN_PATCHES_DB_CONTEXT,
+  PATCH_REJECTED,
   PATCH_SYNC_REJECTED_AT,
   PATCH_SYNC_REJECTED_REASON,
   PATCH_SYNCED_AT,
@@ -27,13 +28,12 @@ import {
 } from './active-query-registry';
 import {
   buildSyncQueriesForPoll,
-  markMissingSyncedPatchesOnLocal,
   mergeRemotePatchesIntoLocal,
   toWireQueriesFromSyncQueries,
 } from './impl-sync-poll-helpers';
 import {
   clearRejectedPushMarkersOnLocal,
-  markPatchesRejectedByServer,
+  discardTransportRejectedChunk,
   unsyncedPatchesQueryForPush,
 } from './impl-sync-rejected-pushes';
 
@@ -41,19 +41,6 @@ import {
 export const SYNC_ERROR_TOPIC = 'sync-error';
 
 const MAX_CONSECUTIVE_FAILURES = 5;
-
-/** Postgres constraint name; also see {@link isPatchParentFkViolation}. */
-const PATCHES_PARENT_FK_MARKER = 'patches_parent_id_fkey';
-/** SQLite (Bun) message when `PRAGMA foreign_keys = ON` and parent row is missing. */
-const SQLITE_FK_FAILED_MARKER = 'FOREIGN KEY constraint failed';
-
-function isPatchParentFkViolation(err: unknown): boolean {
-  const msg = err instanceof Error ? err.message : String(err);
-  return (
-    msg.includes(PATCHES_PARENT_FK_MARKER) ||
-    msg.includes(SQLITE_FK_FAILED_MARKER)
-  );
-}
 
 export type SyncErrorEvent = {
   source: 'push' | 'poll';
@@ -114,18 +101,6 @@ export type SyncPatchDbOptions = {
    * client transport will crash if a single request exceeds it.
    */
   maxPushBatchSize?: number;
-  /**
-   * When true, each poll clears `patch/syncedAt` on local rows the server read omits
-   * (per tracked query) so the next push can re-send them after catastrophic server loss.
-   *
-   * Leave **false** (default) when `remote.read` uses ABAC / visibility filtering: a
-   * filtered read can omit legitimately-synced patch ids and would otherwise cause
-   * infinite re-push loops.
-   *
-   * In-memory sims and unit tests should set **true** so server-wipe recovery tests
-   * keep working.
-   */
-  detectServerPatchLossOnPoll?: boolean;
 };
 
 const defaultLog = createLogger({ name: 'patch-db:sync' });
@@ -142,7 +117,6 @@ export class SyncPatchDb implements PatchDb {
   private readonly log: Logger;
   private readonly logPushPollFailures: boolean;
   private readonly maxPushBatchSize: number;
-  private readonly detectServerPatchLossOnPoll: boolean;
   /** Stops subscription callbacks after {@link destroy} (e.g. HMR / teardown races). */
   private destroyed = false;
 
@@ -163,12 +137,6 @@ export class SyncPatchDb implements PatchDb {
   private pollInProgress = false;
   private pushConsecutiveFailures = 0;
   private pollConsecutiveFailures = 0;
-  /**
-   * After we run parent-chain recovery (unsync all locally-synced patches), stay
-   * true until the next successful push batch clears it — avoids hammering
-   * `unsyncAllLocallySyncedPatches` on every failed tick while still unsynced.
-   */
-  private parentFkRecoveryInFlight = false;
 
   constructor(
     private local: PatchDb,
@@ -179,8 +147,6 @@ export class SyncPatchDb implements PatchDb {
     this.log = options.logger ?? defaultLog;
     this.logPushPollFailures = options.logPushPollFailures !== false;
     this.maxPushBatchSize = options.maxPushBatchSize ?? MAX_PATCHES_PER_REQUEST;
-    this.detectServerPatchLossOnPoll =
-      options.detectServerPatchLossOnPoll === true;
     assert.ok(
       Number.isSafeInteger(this.maxPushBatchSize) &&
         this.maxPushBatchSize > 0 &&
@@ -322,33 +288,6 @@ export class SyncPatchDb implements PatchDb {
     });
   }
 
-  private async unsyncAllLocallySyncedPatches(): Promise<void> {
-    const [result] = await this.local.read(
-      [
-        {
-          on: 'patches',
-          where: { type: 'exists', attribute: 'patch/syncedAt' },
-        },
-      ],
-      OPEN_PATCHES_DB_CONTEXT
-    );
-    assert.ok(
-      result !== null && result !== undefined,
-      'read([query]) must return one result'
-    );
-    const synced = result.patches;
-    if (synced.length === 0) return;
-
-    await this.local.update(
-      synced.map((p) => ({
-        patchId: p.patchId,
-        attributes: { 'patch/syncedAt': null },
-      })),
-      OPEN_PATCHES_DB_CONTEXT
-    );
-    this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
-  }
-
   private assertChunkMatchesWriteResult(
     chunk: readonly Patch[],
     result: WritePatchesResult
@@ -386,18 +325,20 @@ export class SyncPatchDb implements PatchDb {
           [PATCH_SYNC_REJECTED_AT]: now,
           [PATCH_SYNC_REJECTED_REASON]:
             `${String(r.code)}: ${String(r.reason)}`.slice(0, 256),
+          [PATCH_REJECTED]: true,
         },
       })),
     ];
-    await this.local.update(updates, OPEN_PATCHES_DB_CONTEXT);
+    if (updates.length > 0) {
+      await this.local.update(updates, OPEN_PATCHES_DB_CONTEXT);
+    }
     this.pushConsecutiveFailures = 0;
-    this.parentFkRecoveryInFlight = false;
     this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
   }
 
   /**
-   * Clears server-rejected markers on local patches so the next push retries
-   * them (e.g. after sign-in when the server would accept).
+   * Clears push-rejection markers on local patches so a later push can retry
+   * (e.g. after session/auth is fixed). Rows are never deleted.
    */
   async clearRejectedPushes(): Promise<void> {
     await clearRejectedPushMarkersOnLocal(this.local, this.pubSub);
@@ -420,28 +361,9 @@ export class SyncPatchDb implements PatchDb {
     } satisfies SyncErrorEvent);
   }
 
-  private async tryRecoverFromParentFkPushError(err: unknown): Promise<void> {
-    if (!isPatchParentFkViolation(err) || this.parentFkRecoveryInFlight) return;
-    this.parentFkRecoveryInFlight = true;
-    try {
-      this.log.info('recovering from patch chain divergence');
-      await this.unsyncAllLocallySyncedPatches();
-      this.pushConsecutiveFailures = 0;
-    } catch (recoveryErr) {
-      this.parentFkRecoveryInFlight = false;
-      if (!this.logPushPollFailures) return;
-      this.log.error('patch chain recovery failed', {
-        error:
-          recoveryErr instanceof Error
-            ? recoveryErr.message
-            : String(recoveryErr),
-      });
-    }
-  }
-
   /**
-   * Pushes `patches` in order in wire-sized chunks; on 401/403 marks the failing
-   * chunk rejected and returns without polling.
+   * Pushes `patches` in order in wire-sized chunks; on 401/403 marks the
+   * failing chunk rejected locally and returns without polling.
    */
   private async pushUnsyncedChunksThenPoll(
     patches: readonly Patch[]
@@ -459,7 +381,7 @@ export class SyncPatchDb implements PatchDb {
         await this.applyChunkPushWriteResult(writeResult);
       } catch (chunkErr) {
         if (chunkErr instanceof PatchDbTransportRejectedError) {
-          await markPatchesRejectedByServer({
+          await discardTransportRejectedChunk({
             local: this.local,
             chunk,
             err: chunkErr,
@@ -468,7 +390,6 @@ export class SyncPatchDb implements PatchDb {
             logPushPollFailures: this.logPushPollFailures,
           });
           this.pushConsecutiveFailures = 0;
-          this.parentFkRecoveryInFlight = false;
           return;
         }
         throw chunkErr;
@@ -491,34 +412,29 @@ export class SyncPatchDb implements PatchDb {
       const patches = result.patches;
       if (patches.length === 0) {
         this.pushConsecutiveFailures = 0;
-        this.parentFkRecoveryInFlight = false;
         return;
       }
       await this.pushUnsyncedChunksThenPoll(patches);
     } catch (err) {
       this.logPushFailure(err);
       this.publishPushFatalIfNeeded(err);
-      await this.tryRecoverFromParentFkPushError(err);
     }
   }
 
   private async runPollMergeOnce(
     entries: ActiveQuery[]
-  ): Promise<{ recoveredPatches: boolean; hasNewPatches: boolean }> {
+  ): Promise<{ hasNewPatches: boolean }> {
     const syncQueries = await buildSyncQueriesForPoll(this.local, entries);
     const wireQueries = toWireQueriesFromSyncQueries(syncQueries);
     const results = await this.remote.read(
       wireQueries,
       OPEN_PATCHES_DB_CONTEXT
     );
-    const recoveredPatches = this.detectServerPatchLossOnPoll
-      ? await markMissingSyncedPatchesOnLocal(this.local, syncQueries, results)
-      : false;
     const hasNewPatches = await mergeRemotePatchesIntoLocal(
       this.local,
       results
     );
-    return { recoveredPatches, hasNewPatches };
+    return { hasNewPatches };
   }
 
   private onPollFailure(err: unknown): void {
@@ -545,10 +461,9 @@ export class SyncPatchDb implements PatchDb {
 
     this.pollInProgress = true;
     try {
-      const { recoveredPatches, hasNewPatches } =
-        await this.runPollMergeOnce(entries);
+      const { hasNewPatches } = await this.runPollMergeOnce(entries);
       this.pollConsecutiveFailures = 0;
-      if (hasNewPatches || recoveredPatches) {
+      if (hasNewPatches) {
         this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
       }
     } catch (err) {

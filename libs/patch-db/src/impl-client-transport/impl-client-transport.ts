@@ -30,14 +30,14 @@ export class PatchDbImplClientTransport implements PatchDb {
 
   constructor(private transport: PatchDbClientTransport) {}
 
-  read(
+  async read(
     queries: PatchDbQuery[],
     ctx?: PatchDbContext
   ): Promise<PatchDbResult[]> {
     return this.transport.read(queries, ctx);
   }
 
-  write(
+  async write(
     patches: PatchInput[],
     ctx?: PatchDbContext
   ): Promise<WritePatchesResult> {

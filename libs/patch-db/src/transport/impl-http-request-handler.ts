@@ -100,7 +100,7 @@ export function createPatchDbHttpHono(
             query: stripKnownPatchesFromQuery(r.query),
           }));
           applyNoCacheHeaders(c);
-          return c.json(stripped, 200);
+          return c.json({ results: stripped }, 200);
         } catch (e: unknown) {
           if (e instanceof ForbiddenError) {
             return c.json({ error: e.message }, 403);
@@ -128,7 +128,13 @@ export function createPatchDbHttpHono(
         );
         const out = await host.write(body.patches, authResult.ctx);
         applyNoCacheHeaders(c);
-        return c.json(out, 200);
+        return c.json(
+          {
+            accepted: out.accepted,
+            rejected: out.rejected,
+          },
+          200
+        );
       }
     );
 }

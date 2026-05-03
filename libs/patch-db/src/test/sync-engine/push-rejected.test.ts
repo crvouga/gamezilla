@@ -5,9 +5,10 @@ import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { afterEach, describe, expect, test } from 'bun:test';
 import { PatchDbImplSqlite } from '../../impl-sqlite/impl-sqlite';
 import { SyncPatchDb } from '../../impl-sync';
-import type { Patch, PatchDb, PatchInput } from '../../interface';
+import type { PatchDb, PatchInput } from '../../interface';
 import {
   OPEN_PATCHES_DB_CONTEXT,
+  PATCH_REJECTED,
   PATCH_SYNC_REJECTED_AT,
 } from '../../interface';
 import { PatchDbTransportRejectedError } from '../../transport/transport-rejected-error';
@@ -81,7 +82,7 @@ describe('SyncPatchDb push rejection (401/403)', () => {
     await teardown();
   });
 
-  test('marks chunk with syncRejectedAt and stops retrying that patch', async () => {
+  test('403 on push marks local patch rejected and stops retrying as outbox', async () => {
     localClient = SqlClientImplBunSqlite.open(':memory:');
     remoteClient = SqlClientImplBunSqlite.open(':memory:');
     await localClient.connect();
@@ -96,7 +97,6 @@ describe('SyncPatchDb push rejection (401/403)', () => {
       pushDriver: 'manual',
       pollDriver: 'manual',
       logPushPollFailures: false,
-      detectServerPatchLossOnPoll: true,
     });
     teardown = async () => {
       syncDb.destroy();
@@ -122,6 +122,7 @@ describe('SyncPatchDb push rejection (401/403)', () => {
     const p = localPatches.patches[0];
     assert.defined(p, 'patch');
     expect(p.attributes[PATCH_SYNC_REJECTED_AT]).toBeTruthy();
+    expect(p.attributes[PATCH_REJECTED]).toBeTruthy();
     expect(p.attributes['patch/syncedAt']).toBeNull();
 
     const [remotePatches] = await remoteInner.read(
@@ -132,7 +133,7 @@ describe('SyncPatchDb push rejection (401/403)', () => {
     expect(remotePatches.patches).toHaveLength(0);
   });
 
-  test('first chunk succeeds then rejected chunk leaves prior synced', async () => {
+  test('first chunk succeeds then 403 chunk marks only that chunk rejected', async () => {
     localClient = SqlClientImplBunSqlite.open(':memory:');
     remoteClient = SqlClientImplBunSqlite.open(':memory:');
     await localClient.connect();
@@ -148,7 +149,6 @@ describe('SyncPatchDb push rejection (401/403)', () => {
       pollDriver: 'manual',
       maxPushBatchSize: 1,
       logPushPollFailures: false,
-      detectServerPatchLossOnPoll: true,
     });
     teardown = async () => {
       syncDb.destroy();
@@ -211,7 +211,6 @@ describe('SyncPatchDb push rejection (401/403)', () => {
       pushDriver: 'manual',
       pollDriver: 'manual',
       logPushPollFailures: false,
-      detectServerPatchLossOnPoll: true,
     });
     teardown = async () => {
       syncDb.destroy();
@@ -254,7 +253,6 @@ describe('SyncPatchDb push rejection (401/403)', () => {
       pollDriver: 'manual',
       maxPushBatchSize: 10,
       logPushPollFailures: false,
-      detectServerPatchLossOnPoll: true,
     });
     teardown = async () => {
       syncDb.destroy();
@@ -283,17 +281,18 @@ describe('SyncPatchDb push rejection (401/403)', () => {
     assert.defined(localPatches, 'localPatches');
     expect(localPatches.patches).toHaveLength(2);
     const synced = localPatches.patches.filter(
-      (x: Patch) =>
+      (x) =>
         x.attributes['patch/syncedAt'] !== undefined &&
         x.attributes['patch/syncedAt'] !== null
     );
     const rejected = localPatches.patches.filter(
-      (x: Patch) =>
+      (x) =>
         x.attributes[PATCH_SYNC_REJECTED_AT] !== undefined &&
         x.attributes[PATCH_SYNC_REJECTED_AT] !== null
     );
     expect(synced).toHaveLength(1);
     expect(rejected).toHaveLength(1);
+    expect(rejected.every((p) => p.attributes[PATCH_REJECTED])).toBe(true);
 
     const [remotePatches] = await remoteInner.read(
       [{ on: 'patches', limit: 20 }],

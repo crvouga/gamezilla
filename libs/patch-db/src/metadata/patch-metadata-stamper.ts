@@ -127,8 +127,8 @@ export class PatchMetadataStamper implements SubscribablePatchDbLike {
   }
 
   /**
-   * When the wrapped inner sync DB exposes `clearRejectedPushes`, forwards to
-   * it so the next push can retry after auth (e.g. session token is set).
+   * When the wrapped inner sync DB exposes `clearRejectedPushes`, forwards so
+   * push-rejection markers can be cleared (e.g. after auth is fixed).
    */
   async clearRejectedPushes(): Promise<void> {
     const maybe = this.inner as { clearRejectedPushes?: () => Promise<void> };

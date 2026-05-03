@@ -4,9 +4,6 @@ export const DELETE_SNAPSHOT = `DELETE FROM snapshots
 WHERE entity_id = ? AND entity_type = ?`;
 assertSqliteQuery(DELETE_SNAPSHOT);
 
-export const DELETE_PATCH_BY_ID = `DELETE FROM patches WHERE patch_id = ?`;
-assertSqliteQuery(DELETE_PATCH_BY_ID);
-
 export const INSERT_PATCH = `INSERT OR IGNORE INTO
     patches (
         patch_id,

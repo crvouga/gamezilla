@@ -67,7 +67,7 @@ describe('SyncPatchDb push batching', () => {
       pollDriver: 'manual',
       maxPushBatchSize: 3,
     });
-    const recordingRemote = new WireContractRecordingRemote(fixture.remote);
+    const recordingRemote = new WireContractRecordingRemote(fixture.syncRemote);
     const syncDb = fixture.syncDb;
 
     // Replace the remote on the engine via the instance field. We intercept
@@ -109,7 +109,7 @@ describe('SyncPatchDb push batching', () => {
       pollDriver: 'manual',
       maxPushBatchSize: 3,
     });
-    const recordingRemote = new WireContractRecordingRemote(fixture.remote);
+    const recordingRemote = new WireContractRecordingRemote(fixture.syncRemote);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- swap private field for test wiring
     (fixture.syncDb as any).remote = recordingRemote;
 

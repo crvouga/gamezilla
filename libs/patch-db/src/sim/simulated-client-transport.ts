@@ -58,7 +58,7 @@ export class SimulatedPatchDbClientTransport implements PatchDbClientTransport {
     ctx?: PatchDbContext
   ): Promise<WritePatchesResult> {
     return this.link.invoke('write', async () => {
-      const out = await this.server.write(patches, ctx);
+      const out: WritePatchesResult = await this.server.write(patches, ctx);
       if (this.recording) {
         const { recorder, clientId, getTime } = this.recording;
         recorder.emit({
