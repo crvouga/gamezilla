@@ -18,8 +18,11 @@ CREATE TABLE IF NOT EXISTS room_persistence (
 CREATE INDEX IF NOT EXISTS idx_room_persistence_partition ON room_persistence (partition_key);
 `;
 
+// `?::text::jsonb` (rather than `CAST(? AS jsonb)`) avoids Bun's
+// double-encoding of pre-stringified JSON params (oven-sh/bun#28819).
+// See `libs/patch-db/src/impl-postgres/sql-constants.ts` for details.
 const INSERT = `INSERT INTO room_persistence (partition_key, seq, kind, command_id, payload, created_at)
-VALUES (?, (SELECT COALESCE(MAX(seq), 0) + 1 FROM room_persistence WHERE partition_key = ?), ?, ?, CAST(? AS jsonb), NOW())`;
+VALUES (?, (SELECT COALESCE(MAX(seq), 0) + 1 FROM room_persistence WHERE partition_key = ?), ?, ?, ?::text::jsonb, NOW())`;
 
 const SELECT = `SELECT kind, command_id, payload FROM room_persistence
 WHERE partition_key = ? ORDER BY seq ASC`;

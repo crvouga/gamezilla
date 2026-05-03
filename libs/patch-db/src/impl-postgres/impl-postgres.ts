@@ -365,7 +365,7 @@ export class PatchDbImplPostgres implements PatchDb {
       for (const [key, value] of Object.entries(attributes)) {
         const jsonLiteral =
           value === undefined ? 'null' : JSON.stringify(value);
-        expr = `jsonb_set(${expr}, ARRAY[?::text], CAST(? AS jsonb), true)`;
+        expr = `jsonb_set(${expr}, ARRAY[?::text], ?::text::jsonb, true)`;
         bind.push(key, jsonLiteral);
       }
       const sql = `UPDATE patches SET attributes = ${expr} WHERE patch_id = ?`;

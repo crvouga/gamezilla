@@ -3,6 +3,15 @@ WHERE entity_id = ? AND entity_type = ?`;
 
 export const DELETE_PATCH_BY_ID = `DELETE FROM patches WHERE patch_id = ?`;
 
+// `?::text::jsonb` (rather than `CAST(? AS jsonb)`) is intentional. Bun's
+// `bun:sql` Postgres driver runs `jsonStringifyFast` on every parameter
+// whose resolved PG type is `json`/`jsonb`, double-encoding values that
+// were already `JSON.stringify`'d by the caller. Casting the parameter
+// to `text` first pins its resolved type to `text`, so Bun sends the raw
+// UTF-8 string and Postgres parses it into jsonb on the server side. The
+// Neon HTTP driver (used in production by the Worker) is unaffected
+// either way -- both paths see a plain text param + `text::jsonb` cast.
+// See https://github.com/oven-sh/bun/issues/28819.
 export const INSERT_PATCH = `INSERT INTO patches (
         patch_id,
         entity_id,
@@ -12,7 +21,7 @@ export const INSERT_PATCH = `INSERT INTO patches (
         recorded_at,
         parent_id
     )
-VALUES (?, ?, ?, CAST(? AS jsonb), ?, ?, ?)
+VALUES (?, ?, ?, ?::text::jsonb, ?, ?, ?)
 ON CONFLICT (patch_id) DO NOTHING`;
 
 /** Single round-trip for many rows (Neon HTTP = one subrequest per `run`). */
@@ -33,7 +42,7 @@ export const INSERT_PATCHES_BATCH = `INSERT INTO patches (
         created_at,
         recorded_at,
         parent_id
-    FROM jsonb_to_recordset(CAST(? AS jsonb)) AS batch_rows (
+    FROM jsonb_to_recordset(?::text::jsonb) AS batch_rows (
         patch_id text,
         entity_id text,
         entity_type text,
@@ -108,13 +117,13 @@ WHERE p.entity_id = ? AND p.entity_type = ?
 ORDER BY l.depth ASC, p.patch_id ASC`;
 
 export const UPSERT_SNAPSHOT = `INSERT INTO snapshots (entity_id, entity_type, attributes)
-VALUES (?, ?, CAST(? AS jsonb))
+VALUES (?, ?, ?::text::jsonb)
 ON CONFLICT (entity_id, entity_type) DO UPDATE SET attributes = EXCLUDED.attributes`;
 
 /** One round-trip to upsert many snapshot rows (Neon HTTP = one subrequest per `run`). */
 export const UPSERT_SNAPSHOTS_BATCH = `INSERT INTO snapshots (entity_id, entity_type, attributes)
     SELECT entity_id, entity_type, attributes
-    FROM jsonb_to_recordset(CAST(? AS jsonb)) AS batch_rows (
+    FROM jsonb_to_recordset(?::text::jsonb) AS batch_rows (
         entity_id text,
         entity_type text,
         attributes jsonb
