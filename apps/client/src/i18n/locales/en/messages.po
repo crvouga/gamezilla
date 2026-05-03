@@ -15,8 +15,8 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: libs/patch-db-example/src/db-client/navigator.tsx
-msgid "/+Z5u4"
-msgstr "/+Z5u4"
+#~ msgid "/+Z5u4"
+#~ msgstr "/+Z5u4"
 
 #: apps/client/src/profile/components/variant-swatch-strip.tsx
 msgid "?"
@@ -317,6 +317,7 @@ msgstr "Avatar style"
 
 #: apps/client/src/spaces/space-detail-screen.tsx
 #: libs/lib/src/ui/components/screen-base/screen-base-header.tsx
+#: libs/patch-db-example/src/db-client/navigator.tsx
 msgid "Back"
 msgstr "Back"
 
