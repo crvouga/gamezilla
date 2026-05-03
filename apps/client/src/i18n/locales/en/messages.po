@@ -317,7 +317,6 @@ msgstr "Avatar style"
 
 #: apps/client/src/spaces/space-detail-screen.tsx
 #: libs/lib/src/ui/components/screen-base/screen-base-header.tsx
-#: libs/patch-db-example/src/db-client/navigator.tsx
 msgid "Back"
 msgstr "Back"
 
@@ -353,6 +352,10 @@ msgstr "Both"
 #: apps/client/src/ui/app-commands/appearance-commands.tsx
 msgid "bright"
 msgstr "bright"
+
+#: apps/client/src/developer/db-client-screen.tsx
+msgid "Browse entities and patch history"
+msgstr "Browse entities and patch history"
 
 #: apps/client/src/developer/developer-screen.tsx
 msgid "Browse entities, attributes, and patch history"
@@ -485,6 +488,10 @@ msgstr "Committed Events"
 #: libs/patch-db-example/src/todo/todo-list.tsx
 msgid "Completed"
 msgstr "Completed"
+
+#: apps/client/src/ui/explorer/ui-explorer-detail-screen.tsx
+msgid "Component"
+msgstr "Component"
 
 #: libs/lib/src/ui/components/modal/confirmation-modal.tsx
 msgid "Confirm"
@@ -620,8 +627,15 @@ msgid "Demos and internal tools"
 msgstr "Demos and internal tools"
 
 #: apps/client/src/client-config/client-config-screen.tsx
+#: apps/client/src/developer/db-client-screen.tsx
 #: apps/client/src/developer/developer-screen.tsx
+#: apps/client/src/developer/patch-db-screen.tsx
+#: apps/client/src/developer/room-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
+#: apps/client/src/todos/todo-list-detail-screen.tsx
+#: apps/client/src/todos/todo-lists-screen.tsx
+#: apps/client/src/ui/explorer/ui-explorer-detail-screen.tsx
+#: apps/client/src/ui/explorer/ui-explorer-screen.tsx
 msgid "Developer"
 msgstr "Developer"
 
@@ -867,6 +881,10 @@ msgstr "Gradient"
 msgid "Gradient rotation (°)"
 msgstr "Gradient rotation (°)"
 
+#: apps/client/src/todos/todo-lists-screen.tsx
+msgid "Group your todos by list"
+msgstr "Group your todos by list"
+
 #: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/space-member-list.tsx
 msgid "Host"
@@ -1083,6 +1101,7 @@ msgid "More"
 msgstr "More"
 
 #: apps/client/src/developer/developer-screen.tsx
+#: apps/client/src/developer/room-screen.tsx
 msgid "Multi-peer tic-tac-toe simulator"
 msgstr "Multi-peer tic-tac-toe simulator"
 
@@ -1311,11 +1330,13 @@ msgstr "Partition"
 msgid "Patch attributes"
 msgstr "Patch attributes"
 
+#: apps/client/src/developer/db-client-screen.tsx
 #: apps/client/src/developer/developer-screen.tsx
 msgid "Patch DB Client"
 msgstr "Patch DB Client"
 
 #: apps/client/src/developer/developer-screen.tsx
+#: apps/client/src/developer/patch-db-screen.tsx
 msgid "Patch DB Playground"
 msgstr "Patch DB Playground"
 
@@ -1499,6 +1520,7 @@ msgstr "Retry"
 #~ msgstr "Role"
 
 #: apps/client/src/developer/developer-screen.tsx
+#: apps/client/src/developer/room-screen.tsx
 msgid "Room Playground"
 msgstr "Room Playground"
 
@@ -1571,10 +1593,17 @@ msgstr "Server-side account; tap to copy"
 #: apps/client/src/account/account-screen.tsx
 #: apps/client/src/client-config/client-config-screen.tsx
 #: apps/client/src/connection/server-status-screen.tsx
+#: apps/client/src/developer/db-client-screen.tsx
 #: apps/client/src/developer/developer-screen.tsx
+#: apps/client/src/developer/patch-db-screen.tsx
+#: apps/client/src/developer/room-screen.tsx
 #: apps/client/src/settings/about-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/settings/theme-screen.tsx
+#: apps/client/src/todos/todo-list-detail-screen.tsx
+#: apps/client/src/todos/todo-lists-screen.tsx
+#: apps/client/src/ui/explorer/ui-explorer-detail-screen.tsx
+#: apps/client/src/ui/explorer/ui-explorer-screen.tsx
 #: apps/client/src/ui/sidebar-account-menu.tsx
 #: apps/client/src/ui/sidebar-account-menu.tsx
 #: apps/client/src/ui/use-account-actions.tsx
@@ -1587,6 +1616,7 @@ msgid "Shapes ({entityCount})"
 msgstr "Shapes ({entityCount})"
 
 #: apps/client/src/developer/developer-screen.tsx
+#: apps/client/src/ui/explorer/ui-explorer-screen.tsx
 msgid "Shared UI explorer"
 msgstr "Shared UI explorer"
 
@@ -1690,7 +1720,10 @@ msgstr "space-screen.debug"
 #: apps/client/src/app/(tabs)/_layout.tsx
 #: apps/client/src/client-config/client-config-screen.tsx
 #: apps/client/src/connection/server-status-screen.tsx
+#: apps/client/src/developer/db-client-screen.tsx
 #: apps/client/src/developer/developer-screen.tsx
+#: apps/client/src/developer/patch-db-screen.tsx
+#: apps/client/src/developer/room-screen.tsx
 #: apps/client/src/settings/about-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/settings/theme-screen.tsx
@@ -1698,7 +1731,11 @@ msgstr "space-screen.debug"
 #: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/spaces-screen.tsx
+#: apps/client/src/todos/todo-list-detail-screen.tsx
+#: apps/client/src/todos/todo-lists-screen.tsx
 #: apps/client/src/ui/app-sidebar.tsx
+#: apps/client/src/ui/explorer/ui-explorer-detail-screen.tsx
+#: apps/client/src/ui/explorer/ui-explorer-screen.tsx
 msgid "Spaces"
 msgstr "Spaces"
 
@@ -1743,6 +1780,7 @@ msgid "Sync issue"
 msgstr "Sync issue"
 
 #: apps/client/src/developer/developer-screen.tsx
+#: apps/client/src/developer/patch-db-screen.tsx
 msgid "Sync simulation with server and clients"
 msgstr "Sync simulation with server and clients"
 
@@ -1816,10 +1854,12 @@ msgid "Timeout"
 msgstr "Timeout"
 
 #: libs/patch-db-example/src/todo/todo-list-detail.tsx
-msgid "Todo Lists"
-msgstr "Todo Lists"
+#~ msgid "Todo Lists"
+#~ msgstr "Todo Lists"
 
 #: apps/client/src/developer/developer-screen.tsx
+#: apps/client/src/todos/todo-list-detail-screen.tsx
+#: apps/client/src/todos/todo-lists-screen.tsx
 #: libs/patch-db-example/src/todo/todo-list.tsx
 msgid "Todos"
 msgstr "Todos"
@@ -1862,6 +1902,8 @@ msgstr "Type: {networkTypeLabel}"
 
 #: apps/client/src/developer/developer-screen.tsx
 #: apps/client/src/ui/app-commands/ui-components-commands.tsx
+#: apps/client/src/ui/explorer/ui-explorer-detail-screen.tsx
+#: apps/client/src/ui/explorer/ui-explorer-screen.tsx
 msgid "UI Components"
 msgstr "UI Components"
 

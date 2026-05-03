@@ -3,6 +3,7 @@ import {
   KeyboardAvoidingView,
   Pressable,
   ScreenBaseHeader,
+  type ScreenBaseBreadcrumb,
   Text,
   TextInput,
   useTheme,
@@ -87,7 +88,7 @@ function buildTodoQuery(listId: string, filter: Filter): PatchDbQuery {
   };
 }
 
-function useListName(listId: string): string {
+export function useTodoListName(listId: string): string {
   const { t } = useLingui();
   const listEntity = useQueryOne({
     entityType: 'todoList',
@@ -224,7 +225,12 @@ function TodoItems({
 
 export type TodoListDetailProps = {
   listId: string;
-  onBack?: () => void;
+  /**
+   * Breadcrumb trail prepended before the dynamic list-name crumb.
+   * Standalone playgrounds can omit this; the app passes the full hierarchy
+   * (Spaces / Settings / Developer / Todos / ...).
+   */
+  parentBreadcrumbs?: ScreenBaseBreadcrumb[];
 };
 
 function buildTodoCreatePayload(
@@ -263,8 +269,10 @@ function buildTodoDeletePayload(entity: Entity) {
   };
 }
 
-export function TodoListDetail({ listId, onBack }: TodoListDetailProps) {
-  const { t } = useLingui();
+export function TodoListDetail({
+  listId,
+  parentBreadcrumbs,
+}: TodoListDetailProps) {
   const db = usePatchDb();
   const [input, setInput] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
@@ -274,7 +282,7 @@ export function TodoListDetail({ listId, onBack }: TodoListDetailProps) {
   const todos = filterResult.entities;
   const totalCount = allResult.total;
 
-  const listName = useListName(listId);
+  const listName = useTodoListName(listId);
 
   const addTodo = async () => {
     const title = input.trim();
@@ -291,10 +299,10 @@ export function TodoListDetail({ listId, onBack }: TodoListDetailProps) {
     await db.write([buildTodoDeletePayload(entity)]);
   };
 
-  const breadcrumbs =
-    onBack !== undefined
-      ? [{ name: t`Todo Lists`, onPress: onBack }, { name: listName }]
-      : [{ name: listName }];
+  const breadcrumbs: ScreenBaseBreadcrumb[] = [
+    ...(parentBreadcrumbs ?? []),
+    { name: listName },
+  ];
 
   return (
     <Box sx={{ flex: 1 }}>

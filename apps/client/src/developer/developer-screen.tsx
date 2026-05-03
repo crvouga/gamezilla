@@ -7,7 +7,7 @@ type DevHref =
   | '/todos'
   | '/ui'
   | '/more/patch-db'
-  | '/more/db-client'
+  | '/more/patch-db-client'
   | '/more/room'
   | '/more/client-config';
 
@@ -40,8 +40,8 @@ function useDevItems(): readonly DevItem[] {
       description: t`Sync simulation with server and clients`,
     },
     {
-      key: 'db-client',
-      href: '/more/db-client',
+      key: 'patch-db-client',
+      href: '/more/patch-db-client',
       label: t`Patch DB Client`,
       description: t`Browse entities, attributes, and patch history`,
     },

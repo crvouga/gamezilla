@@ -1,36 +1,95 @@
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
-import { ExplorerRoute } from '@gamezilla/patch-db-example/db-client/navigator';
 import { Box, ScreenBaseHeader } from '@gamezilla/lib/ui';
 import {
-  type Href,
-  useLocalSearchParams,
-  useNavigation,
-  useRouter,
-} from 'expo-router';
+  buildExplorerScreenBreadcrumbs,
+  ExplorerRoute,
+  type PatchDbExplorerApplyParams,
+  type PatchDbExplorerParams,
+} from '@gamezilla/patch-db-example/db-client/navigator';
+import { Trans, useLingui } from '@lingui/react/macro';
+import { type Href, useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useMemo } from 'react';
+
+type RawParams = Partial<Record<keyof PatchDbExplorerParams, string | string[]>>;
+
+function pickString(value: string | string[] | undefined): string | undefined {
+  if (Array.isArray(value)) return value[0];
+  return value;
+}
+
+function readExplorerParams(raw: RawParams): PatchDbExplorerParams {
+  const out: PatchDbExplorerParams = {};
+  const entityType = pickString(raw.entityType);
+  if (entityType !== undefined && entityType !== '') {
+    out.entityType = entityType;
+  }
+  const entityId = pickString(raw.entityId);
+  if (entityId !== undefined && entityId !== '') {
+    out.entityId = entityId;
+  }
+  const patchId = pickString(raw.patchId);
+  if (patchId !== undefined && patchId !== '') {
+    out.patchId = patchId;
+  }
+  const query = pickString(raw.query);
+  if (query === '1') {
+    out.query = '1';
+  }
+  return out;
+}
 
 export function DbClientScreen() {
   const router = useRouter();
-  const navigation = useNavigation();
-  const params = useLocalSearchParams();
+  const rawParams = useLocalSearchParams<RawParams>();
   const nav = useBreadcrumbNav();
+  const { t } = useLingui();
+
+  const params = useMemo(() => readExplorerParams(rawParams), [rawParams]);
+
+  // expo-router's setParams keeps existing params unless explicitly overridden,
+  // so always pass an empty string for keys we want to clear from the URL.
+  const applyParams = useCallback<PatchDbExplorerApplyParams>(
+    (next) => {
+      router.setParams({
+        entityType: next.entityType ?? '',
+        entityId: next.entityId ?? '',
+        patchId: next.patchId ?? '',
+        query: next.query ?? '',
+      });
+    },
+    [router]
+  );
+
+  const explorerCrumbs = useMemo(
+    () => buildExplorerScreenBreadcrumbs(params, applyParams, t),
+    [params, applyParams, t]
+  );
+
+  const hasExplorerCrumbs = explorerCrumbs.length > 0;
 
   return (
     <Box sx={{ flex: 1 }}>
       <ScreenBaseHeader
         breadcrumbs={[
-          { name: 'Spaces', onPress: nav('/') },
-          { name: 'Settings', onPress: nav('/more') },
-          { name: 'Developer', onPress: nav('/more/developer') },
-          { name: 'Patch DB Client' },
+          { name: <Trans>Spaces</Trans>, onPress: nav('/') },
+          { name: <Trans>Settings</Trans>, onPress: nav('/more') },
+          {
+            name: <Trans>Developer</Trans>,
+            onPress: nav('/more/developer'),
+          },
+          {
+            name: <Trans>Patch DB Client</Trans>,
+            ...(hasExplorerCrumbs
+              ? { onPress: () => applyParams({}) }
+              : { subtitle: <Trans>Browse entities and patch history</Trans> }),
+          },
+          ...explorerCrumbs,
         ]}
       />
       <Box sx={{ flex: 1, minHeight: 0 }}>
         <ExplorerRoute
-          // ExplorerRoute expects patch-db-example navigator types; screen bridges expo-router.
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          navigation={navigation as any}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          route={{ key: 'db-client', name: 'explorer', params } as any}
+          params={params}
+          applyParams={applyParams}
           onExit={() => router.replace('/more/developer' as Href)}
         />
       </Box>

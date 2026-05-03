@@ -4,6 +4,7 @@ import {
   FlatList,
   Pressable,
   ScreenBaseHeader,
+  type ScreenBaseBreadcrumb,
   Text,
   TextInput,
   useTheme,
@@ -304,23 +305,24 @@ function ClearDbModal({
 
 export type TodoListsOverviewProps = {
   onOpenList: (listId: string) => void;
-  /** When set, shows Back in the header (e.g. stack navigation + fallback replace). */
-  onBack?: () => void;
+  /**
+   * Full breadcrumb trail for the screen header. When omitted, a single
+   * "Todo Lists" crumb is rendered (used by standalone playgrounds).
+   */
+  breadcrumbs?: ScreenBaseBreadcrumb[];
   /** Wipe local SQLite (and reload on web). When omitted, the "Clear data" action is hidden. */
   onClearLocalDatabase?: () => Promise<void> | void;
 };
 
 type LinguiT = ReturnType<typeof useLingui>['t'];
 
-function buildBreadcrumbs(t: LinguiT, onBack?: () => void) {
-  const subtitle = t`Group your todos by list`;
-  if (onBack !== undefined) {
-    return [
-      { name: t`Developer`, onPress: onBack },
-      { name: t`Todo Lists`, subtitle },
-    ];
-  }
-  return [{ name: t`Todo Lists`, subtitle }];
+function defaultBreadcrumbs(t: LinguiT): ScreenBaseBreadcrumb[] {
+  return [
+    {
+      name: t`Todo Lists`,
+      subtitle: t`Group your todos by list`,
+    },
+  ];
 }
 
 function buildListRows(
@@ -399,7 +401,7 @@ function useTodoListsState(onClearLocalDatabase?: () => Promise<void> | void) {
 
 export function TodoListsOverview({
   onOpenList,
-  onBack,
+  breadcrumbs,
   onClearLocalDatabase,
 }: TodoListsOverviewProps) {
   const { t } = useLingui();
@@ -409,7 +411,7 @@ export function TodoListsOverview({
   return (
     <Box sx={{ flex: 1 }}>
       <ScreenBaseHeader
-        breadcrumbs={buildBreadcrumbs(t, onBack)}
+        breadcrumbs={breadcrumbs ?? defaultBreadcrumbs(t)}
         actions={
           onClearLocalDatabase !== undefined
             ? [

@@ -1,22 +1,26 @@
+import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 import {
   INBOX_LIST_ID,
   TodoListDetail,
 } from '@gamezilla/patch-db-example/todo';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Trans } from '@lingui/react/macro';
+import { useLocalSearchParams } from 'expo-router';
 
 export function TodoListDetailScreen() {
   const { listId } = useLocalSearchParams<{ listId: string }>();
-  const router = useRouter();
-
-  const onBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-      return;
-    }
-    router.replace('/todos');
-  };
+  const nav = useBreadcrumbNav();
 
   const lid = listId ?? INBOX_LIST_ID;
 
-  return <TodoListDetail listId={lid} onBack={onBack} />;
+  return (
+    <TodoListDetail
+      listId={lid}
+      parentBreadcrumbs={[
+        { name: <Trans>Spaces</Trans>, onPress: nav('/') },
+        { name: <Trans>Settings</Trans>, onPress: nav('/more') },
+        { name: <Trans>Developer</Trans>, onPress: nav('/more/developer') },
+        { name: <Trans>Todos</Trans>, onPress: nav('/todos') },
+      ]}
+    />
+  );
 }

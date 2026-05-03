@@ -14,7 +14,12 @@ export {
   valueKind,
   ValueKindBadge,
 } from './format-value';
-export { type PatchDbExplorerParams } from './navigator';
+export {
+  buildExplorerScreenBreadcrumbs,
+  ExplorerRoute,
+  type PatchDbExplorerApplyParams,
+  type PatchDbExplorerParams,
+} from './navigator';
 export {
   PatchDetailScreen,
   type PatchDetailScreenProps,

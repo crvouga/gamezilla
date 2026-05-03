@@ -7,10 +7,11 @@ import {
   Select,
   Stack,
   Text,
+  useTheme,
 } from '@gamezilla/lib/ui';
-import { useTheme } from '@gamezilla/lib/ui/theme';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback, useMemo, useState } from 'react';
+
 import { IconPlus } from './icons';
 import { useSimContext } from './sim-context';
 
@@ -99,7 +100,6 @@ export function PlaygroundHeader() {
   const [globalLatency, setGlobalLatency] = useState(() =>
     sim.getGlobalLatency()
   );
-  const theme = useTheme();
 
   const handleGlobalLatencyChange = useCallback(
     (ms: number) => {
@@ -110,10 +110,7 @@ export function PlaygroundHeader() {
   );
 
   return (
-    <Box
-      sx={{ px: 4, py: 3, gap: 3 }}
-      style={{ borderBottomWidth: 1, borderBottomColor: theme.colors.border }}
-    >
+    <Box sx={{ px: 4, py: 3, gap: 3 }}>
       <HeaderTopRow serverId={sim.serverId} reset={reset} />
       <Divider />
       <HeaderControls

@@ -1,6 +1,7 @@
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 import { Box, ScreenBase } from '@gamezilla/lib/ui';
 import { ExplorerList } from '@gamezilla/lib/ui/explorer';
+import { Trans } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 
 export function UiExplorerScreen() {
@@ -10,10 +11,13 @@ export function UiExplorerScreen() {
   return (
     <ScreenBase
       breadcrumbs={[
-        { name: 'Spaces', onPress: nav('/') },
-        { name: 'Settings', onPress: nav('/more') },
-        { name: 'Developer', onPress: nav('/more/developer') },
-        { name: 'UI Components' },
+        { name: <Trans>Spaces</Trans>, onPress: nav('/') },
+        { name: <Trans>Settings</Trans>, onPress: nav('/more') },
+        { name: <Trans>Developer</Trans>, onPress: nav('/more/developer') },
+        {
+          name: <Trans>UI Components</Trans>,
+          subtitle: <Trans>Shared UI explorer</Trans>,
+        },
       ]}
       content={({ sx }) => (
         <Box style={sx}>

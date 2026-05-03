@@ -1,22 +1,25 @@
 import { clearLocalDatabaseAndReload } from '@gamezilla/client/ui/patch-db-bootstrap';
+import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 import { TodoListsOverview } from '@gamezilla/patch-db-example/todo';
+import { Trans } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 
 export function TodoListsScreen() {
   const router = useRouter();
-
-  const onBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-      return;
-    }
-    router.replace('/more/developer');
-  };
+  const nav = useBreadcrumbNav();
 
   return (
     <TodoListsOverview
       onOpenList={(id) => router.push(`/todos/${id}`)}
-      onBack={onBack}
+      breadcrumbs={[
+        { name: <Trans>Spaces</Trans>, onPress: nav('/') },
+        { name: <Trans>Settings</Trans>, onPress: nav('/more') },
+        { name: <Trans>Developer</Trans>, onPress: nav('/more/developer') },
+        {
+          name: <Trans>Todos</Trans>,
+          subtitle: <Trans>Group your todos by list</Trans>,
+        },
+      ]}
       onClearLocalDatabase={() => clearLocalDatabaseAndReload('main')}
     />
   );
