@@ -6,7 +6,7 @@
     "./auth": "./src/auth/index.ts",
     "./auth/index": "./src/auth/index.ts",
     "./auth/auth-entities": "./src/auth/auth-entities.ts",
-    "./auth/principal-id": "./src/auth/principal-id.ts",
+    "./auth/device-id": "./src/auth/device-id.ts",
     "./client-config/client-config-entities": "./src/client-config/client-config-entities.ts",
     "./spaces/space-entities": "./src/spaces/space-entities.ts",
     "./profile/profile-entities": "./src/profile/profile-entities.ts",

@@ -1,14 +1,14 @@
 import {
-  PRINCIPAL_SESSION_ENTITY_TYPE,
-  PrincipalSessionAttr,
+  ACCOUNT_SESSION_ENTITY_TYPE,
+  AccountSessionAttr,
 } from '@gamezilla/domain/auth';
-import { assertPrincipalId } from '@gamezilla/domain/auth/principal-id';
+import { assertDeviceId } from '@gamezilla/domain/auth/device-id';
 import { assert } from '@gamezilla/lib/assert';
 import type { PatchDb, PatchDbContext } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import type {
   AppAuthContext,
-  AppVisitorContext,
+  AppClientContext,
 } from '../patch-db/abac-policies';
 import { UnauthorizedError } from './unauthorized-error';
 
@@ -16,18 +16,18 @@ export type AuthContext = AppAuthContext;
 
 /**
  * Resolves a request to either a full auth context (when Bearer is valid)
- * or a visitor context (when only a visitorId cookie is available).
- * Returns a visitor context instead of null so the ABAC layer can filter
- * reads for anonymous visitors.
+ * or a client-only context (when only a clientId cookie is available).
+ * Returns a client context instead of null so the ABAC layer can filter
+ * reads for unauthenticated HTTP clients.
  */
 export async function resolvePatchDbContext(
   db: PatchDb,
   request: Request,
-  visitorId: string
+  clientId: string
 ): Promise<PatchDbContext> {
   const header = request.headers.get('Authorization');
   if (header === null || !header.startsWith('Bearer ')) {
-    return { visitorId } satisfies AppVisitorContext;
+    return { clientId } satisfies AppClientContext;
   }
   const token = header.slice('Bearer '.length).trim();
   assert.ok(token.length > 0, 'Bearer token must be non-empty');
@@ -35,10 +35,10 @@ export async function resolvePatchDbContext(
   const [result] = await db.read(
     [
       {
-        entityType: PRINCIPAL_SESSION_ENTITY_TYPE,
+        entityType: ACCOUNT_SESSION_ENTITY_TYPE,
         where: {
           type: '=',
-          attribute: PrincipalSessionAttr.token,
+          attribute: AccountSessionAttr.token,
           value: token,
         },
         limit: 5,
@@ -51,14 +51,14 @@ export async function resolvePatchDbContext(
   const now = Date.now();
 
   for (const entity of entities) {
-    const principalId = entity.attributes[PrincipalSessionAttr.principalId];
-    const accountId = entity.attributes[PrincipalSessionAttr.accountId];
-    const expiresAtRaw = entity.attributes[PrincipalSessionAttr.expiresAt];
+    const deviceId = entity.attributes[AccountSessionAttr.deviceId];
+    const accountId = entity.attributes[AccountSessionAttr.accountId];
+    const expiresAtRaw = entity.attributes[AccountSessionAttr.expiresAt];
 
-    if (typeof principalId !== 'string' || typeof accountId !== 'string') {
+    if (typeof deviceId !== 'string' || typeof accountId !== 'string') {
       continue;
     }
-    assertPrincipalId(principalId);
+    assertDeviceId(deviceId);
 
     if (typeof expiresAtRaw !== 'string') {
       continue;
@@ -72,16 +72,16 @@ export async function resolvePatchDbContext(
     }
 
     return {
-      visitorId,
-      principalId,
+      clientId,
+      deviceId,
       accountId,
       memberOfSpaceIds: [],
-      friendAccountIds: [],
-      blockedAccountIds: [],
+      friendUserIds: [],
+      blockedUserIds: [],
     } satisfies AppAuthContext;
   }
 
-  return { visitorId } satisfies AppVisitorContext;
+  return { clientId } satisfies AppClientContext;
 }
 
 /**
@@ -91,14 +91,14 @@ export async function resolvePatchDbContext(
 export async function requireAuthContext(
   db: PatchDb,
   request: Request,
-  visitorId: string
+  clientId: string
 ): Promise<AuthContext> {
   const header = request.headers.get('Authorization');
   if (header === null || !header.startsWith('Bearer ')) {
     throw new UnauthorizedError('Missing bearer token');
   }
-  const ctx = await resolvePatchDbContext(db, request, visitorId);
-  if (typeof ctx.principalId !== 'string') {
+  const ctx = await resolvePatchDbContext(db, request, clientId);
+  if (typeof ctx.deviceId !== 'string') {
     throw new UnauthorizedError('Invalid or expired session');
   }
   return ctx as AuthContext;

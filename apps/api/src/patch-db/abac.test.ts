@@ -1,4 +1,4 @@
-import { PRINCIPAL_ENTITY_TYPE, PrincipalAttr } from '@gamezilla/domain/auth';
+import { DEVICE_ENTITY_TYPE, DeviceAttr } from '@gamezilla/domain/auth';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
@@ -9,10 +9,10 @@ import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
 import type {
   PatchDb,
-  PatchDbVisitorContext,
+  PatchDbClientContext,
 } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
-import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
+import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { AppAuthContext } from './abac-policies';
 import { installDefaultPatchDbPolicies } from './patch-db';
@@ -54,7 +54,7 @@ describe('default ABAC policies (sqlite)', () => {
           attributes: {
             'entity/owner': accountA,
             'profile/displayName': 'A',
-            'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+            'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
         {
@@ -63,7 +63,7 @@ describe('default ABAC policies (sqlite)', () => {
           attributes: {
             'entity/owner': accountB,
             'profile/displayName': 'B',
-            'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+            'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
       ],
@@ -71,31 +71,31 @@ describe('default ABAC policies (sqlite)', () => {
     );
 
     const ctxA: AppAuthContext = {
-      visitorId: crypto.randomUUID(),
-      principalId: '00000000-0000-4000-8000-00000000a001',
+      clientId: crypto.randomUUID(),
+      deviceId: '00000000-0000-4000-8000-00000000a001',
       accountId: accountA,
       memberOfSpaceIds: [],
-      friendAccountIds: [],
-      blockedAccountIds: [],
+      friendUserIds: [],
+      blockedUserIds: [],
     };
     const [forA] = await db.read([{ entityType: 'profile.private' }], ctxA);
     assert.defined(forA, 'forA');
     expect(forA.entities.map((e) => e.entityId)).toEqual(['priv-a']);
 
     const ctxB: AppAuthContext = {
-      visitorId: crypto.randomUUID(),
-      principalId: '00000000-0000-4000-8000-00000000b002',
+      clientId: crypto.randomUUID(),
+      deviceId: '00000000-0000-4000-8000-00000000b002',
       accountId: accountB,
       memberOfSpaceIds: [],
-      friendAccountIds: [],
-      blockedAccountIds: [],
+      friendUserIds: [],
+      blockedUserIds: [],
     };
     const [forB] = await db.read([{ entityType: 'profile.private' }], ctxB);
     assert.defined(forB, 'forB');
     expect(forB.entities.map((e) => e.entityId)).toEqual(['priv-b']);
   });
 
-  test('cross-tenant read of another account private profile is empty', async () => {
+  test('cross-tenant read of another user private profile is empty', async () => {
     const accountA = '00000000-0000-4000-8000-0000000000cc';
     const accountB = '00000000-0000-4000-8000-0000000000dd';
     await db.write(
@@ -106,7 +106,7 @@ describe('default ABAC policies (sqlite)', () => {
           attributes: {
             'entity/owner': accountA,
             'profile/displayName': 'X',
-            'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+            'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
       ],
@@ -114,12 +114,12 @@ describe('default ABAC policies (sqlite)', () => {
     );
 
     const ctxB: AppAuthContext = {
-      visitorId: crypto.randomUUID(),
-      principalId: '00000000-0000-4000-8000-00000000c003',
+      clientId: crypto.randomUUID(),
+      deviceId: '00000000-0000-4000-8000-00000000c003',
       accountId: accountB,
       memberOfSpaceIds: [],
-      friendAccountIds: [],
-      blockedAccountIds: [],
+      friendUserIds: [],
+      blockedUserIds: [],
     };
     const [forB] = await db.read(
       [{ entityType: 'profile.private', entityId: 'priv-x' }],
@@ -131,12 +131,12 @@ describe('default ABAC policies (sqlite)', () => {
 
   test('query without entityType is denied for auth context', async () => {
     const ctx: AppAuthContext = {
-      visitorId: crypto.randomUUID(),
-      principalId: '00000000-0000-4000-8000-00000000e004',
+      clientId: crypto.randomUUID(),
+      deviceId: '00000000-0000-4000-8000-00000000e004',
       accountId: '00000000-0000-4000-8000-0000000000ee',
       memberOfSpaceIds: [],
-      friendAccountIds: [],
-      blockedAccountIds: [],
+      friendUserIds: [],
+      blockedUserIds: [],
     };
     const [r] = await db.read([{ on: 'patches', limit: 5 }], ctx);
     assert.defined(r, 'r');
@@ -146,12 +146,12 @@ describe('default ABAC policies (sqlite)', () => {
 
   test('non-system write to stripe.webhook_event is forbidden', async () => {
     const ctx: AppAuthContext = {
-      visitorId: crypto.randomUUID(),
-      principalId: '00000000-0000-4000-8000-00000000f005',
+      clientId: crypto.randomUUID(),
+      deviceId: '00000000-0000-4000-8000-00000000f005',
       accountId: '00000000-0000-4000-8000-0000000000ff',
       memberOfSpaceIds: [],
-      friendAccountIds: [],
-      blockedAccountIds: [],
+      friendUserIds: [],
+      blockedUserIds: [],
     };
     const out = await db.write(
       [
@@ -160,7 +160,7 @@ describe('default ABAC policies (sqlite)', () => {
           entityType: 'stripe.webhook_event',
           attributes: {
             'entity/owner': ctx.accountId,
-            'patch/createdBy': ctx.principalId,
+            'patch/createdBy': ctx.deviceId,
           },
         },
       ],
@@ -171,7 +171,7 @@ describe('default ABAC policies (sqlite)', () => {
     expect(out.rejected[0]?.code).toBe('forbidden');
   });
 
-  test('visitor context can read clientConfig (public)', async () => {
+  test('client context can read clientConfig (public)', async () => {
     await db.write(
       [
         {
@@ -179,72 +179,72 @@ describe('default ABAC policies (sqlite)', () => {
           entityType: 'clientConfig',
           attributes: {
             'clientConfig/googleWebClientId': 'test-id',
-            'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+            'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
       ],
       PATCHES_DB_SYSTEM_CONTEXT
     );
 
-    const visitor: PatchDbVisitorContext = {
-      visitorId: crypto.randomUUID(),
+    const clientCtx: PatchDbClientContext = {
+      clientId: crypto.randomUUID(),
     };
-    const [r] = await db.read([{ entityType: 'clientConfig' }], visitor);
+    const [r] = await db.read([{ entityType: 'clientConfig' }], clientCtx);
     assert.defined(r, 'r');
     expect(r.entities).toHaveLength(1);
     expect(r.entities[0]?.entityId).toBe('clientConfig__singleton');
   });
 
-  test('visitor context cannot read private entities', async () => {
+  test('client context cannot read private entities', async () => {
     await db.write(
       [
         {
-          entityId: 'priv-visitor-test',
+          entityId: 'priv-client-test',
           entityType: 'profile.private',
           attributes: {
             'entity/owner': '00000000-0000-4000-8000-0000000000aa',
             'profile/displayName': 'Private',
-            'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+            'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
       ],
       PATCHES_DB_SYSTEM_CONTEXT
     );
 
-    const visitor: PatchDbVisitorContext = {
-      visitorId: crypto.randomUUID(),
+    const clientCtx: PatchDbClientContext = {
+      clientId: crypto.randomUUID(),
     };
-    const [r] = await db.read([{ entityType: 'profile.private' }], visitor);
+    const [r] = await db.read([{ entityType: 'profile.private' }], clientCtx);
     assert.defined(r, 'r');
     expect(r.entities).toHaveLength(0);
   });
 
-  test('visitor context can write patches (registry dispatches to policy)', async () => {
-    const visitor: PatchDbVisitorContext = {
-      visitorId: crypto.randomUUID(),
+  test('client context can write patches (registry dispatches to policy)', async () => {
+    const clientCtx: PatchDbClientContext = {
+      clientId: crypto.randomUUID(),
     };
-    const principalId = '00000000-0000-4000-8000-00000000a0b1';
+    const deviceId = '00000000-0000-4000-8000-00000000a0b1';
     const written = await db.write(
       [
         {
-          entityId: principalId,
-          entityType: PRINCIPAL_ENTITY_TYPE,
+          entityId: deviceId,
+          entityType: DEVICE_ENTITY_TYPE,
           attributes: {
-            [PrincipalAttr.id]: principalId,
-            'patch/createdBy': 'visitor-device',
+            [DeviceAttr.id]: deviceId,
+            'patch/createdBy': 'anonymous-client-writer',
           },
         },
       ],
-      visitor
+      clientCtx
     );
     expect(written.rejected).toHaveLength(0);
     expect(written.accepted).toHaveLength(1);
-    expect(written.accepted[0]?.entityId).toBe(principalId);
+    expect(written.accepted[0]?.entityId).toBe(deviceId);
   });
 
-  test('visitor write to system-only entity (clientConfig) is rejected by policy', async () => {
-    const visitor: PatchDbVisitorContext = {
-      visitorId: crypto.randomUUID(),
+  test('client write to system-only entity (clientConfig) is rejected by policy', async () => {
+    const clientCtx: PatchDbClientContext = {
+      clientId: crypto.randomUUID(),
     };
     const out = await db.write(
       [
@@ -257,7 +257,7 @@ describe('default ABAC policies (sqlite)', () => {
           },
         },
       ],
-      visitor
+      clientCtx
     );
     expect(out.accepted).toHaveLength(0);
     expect(out.rejected).toHaveLength(1);
@@ -266,23 +266,23 @@ describe('default ABAC policies (sqlite)', () => {
   });
 
   test('authenticated write still enforces patch/createdBy match', async () => {
-    const principalId = '00000000-0000-4000-8000-00000000c0d2';
+    const deviceId = '00000000-0000-4000-8000-00000000c0d2';
     const accountId = '00000000-0000-4000-8000-0000000000c2';
     const ctx: AppAuthContext = {
-      visitorId: crypto.randomUUID(),
-      principalId,
+      clientId: crypto.randomUUID(),
+      deviceId,
       accountId,
       memberOfSpaceIds: [],
-      friendAccountIds: [],
-      blockedAccountIds: [],
+      friendUserIds: [],
+      blockedUserIds: [],
     };
     const out = await db.write(
       [
         {
-          entityId: principalId,
+          entityId: deviceId,
           entityType: PROFILE_ENTITY_TYPE,
           attributes: {
-            [ProfileAttr.id]: principalId,
+            [ProfileAttr.id]: deviceId,
             'patch/createdBy': '00000000-0000-4000-8000-00000000dead',
           },
         },

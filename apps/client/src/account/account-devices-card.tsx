@@ -1,5 +1,5 @@
-import type { AccountPrincipal } from '@gamezilla/client/auth/use-account-principals';
-import type { PrincipalSessionAggregate } from '@gamezilla/client/auth/use-principals-sessions';
+import type { AccountDevice } from '@gamezilla/client/auth/use-account-devices';
+import type { AccountSessionAggregate } from '@gamezilla/client/auth/use-device-account-sessions';
 import {
   Badge,
   Box,
@@ -25,7 +25,7 @@ function CaptionLine({ label }: { label: ReactNode }) {
 }
 
 function formatSessionCaption(
-  sessionInfo: PrincipalSessionAggregate | undefined,
+  sessionInfo: AccountSessionAggregate | undefined,
   t: ReturnType<typeof useLingui>['t']
 ): string {
   if (sessionInfo === undefined || sessionInfo.active === 0) {
@@ -36,14 +36,14 @@ function formatSessionCaption(
   return t`${active} active — expires ${expires}`;
 }
 
-function DevicePrincipalMenuRow({
-  principal: p,
+function DeviceMenuRow({
+  userDevice: p,
   sessionInfo,
   onOpenDevice,
 }: {
-  principal: AccountPrincipal;
-  sessionInfo: PrincipalSessionAggregate | undefined;
-  onOpenDevice: (principalId: string) => void;
+  userDevice: AccountDevice;
+  sessionInfo: AccountSessionAggregate | undefined;
+  onOpenDevice: (deviceId: string) => void;
 }) {
   const { t } = useLingui();
   const theme = useTheme();
@@ -80,14 +80,14 @@ function DevicePrincipalMenuRow({
 
 export function AccountDevicesCard({
   accountId,
-  principals,
-  sessionsByPrincipal,
+  devices,
+  sessionsByDevice,
   onOpenDevice,
 }: {
   accountId: string | null;
-  principals: AccountPrincipal[];
-  sessionsByPrincipal: Map<string, PrincipalSessionAggregate>;
-  onOpenDevice: (principalId: string) => void;
+  devices: AccountDevice[];
+  sessionsByDevice: Map<string, AccountSessionAggregate>;
+  onOpenDevice: (deviceId: string) => void;
 }) {
   const { t } = useLingui();
 
@@ -97,7 +97,7 @@ export function AccountDevicesCard({
       <CaptionLine
         label={
           <Trans>
-            Each install has its own principal id. Tap a row for full details.
+            Each install has its own device id. Tap a row for full details.
           </Trans>
         }
       />
@@ -112,20 +112,20 @@ export function AccountDevicesCard({
           label={
             <Trans>
               Sign in to link this device to a server account and see all
-              principals for that account.
+              devices for that account.
             </Trans>
           }
         />
       )}
-      {principals.length === 0 ? (
-        <CaptionLine label={<Trans>No principal data yet.</Trans>} />
+      {devices.length === 0 ? (
+        <CaptionLine label={<Trans>No device data yet.</Trans>} />
       ) : (
         <Box sx={{ gap: 0, pt: 2 }}>
-          {principals.map((p) => (
-            <DevicePrincipalMenuRow
+          {devices.map((p) => (
+            <DeviceMenuRow
               key={p.entityId}
-              principal={p}
-              sessionInfo={sessionsByPrincipal.get(p.entityId)}
+              userDevice={p}
+              sessionInfo={sessionsByDevice.get(p.entityId)}
               onOpenDevice={onOpenDevice}
             />
           ))}

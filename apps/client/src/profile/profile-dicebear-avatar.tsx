@@ -7,7 +7,7 @@ import { profileAvatarSvg } from './profile-dicebear';
 
 export type ProfileDiceBearAvatarProps = {
   config: AvatarConfig;
-  /** Used when `config.seed` is empty (falls back to principal id). */
+  /** Used when `config.seed` is empty (falls back to device id). */
   fallbackSeed: string;
   size: number;
 };

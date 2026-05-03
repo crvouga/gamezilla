@@ -31,17 +31,17 @@ const SAMPLE_PAYLOAD = {
       memberCount: 3,
       members: [
         {
-          principalId: 'p_aaaa',
+          deviceId: 'p_aaaa',
           role: 'host',
           joinedAt: '2026-05-03T10:00:00Z',
         },
         {
-          principalId: 'p_bbbb',
+          deviceId: 'p_bbbb',
           role: 'guest',
           joinedAt: '2026-05-03T10:02:11Z',
         },
         {
-          principalId: 'p_cccc',
+          deviceId: 'p_cccc',
           role: 'guest',
           joinedAt: '2026-05-03T10:05:42Z',
         },

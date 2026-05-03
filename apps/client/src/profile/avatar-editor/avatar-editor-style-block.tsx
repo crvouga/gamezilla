@@ -12,7 +12,7 @@ import { TriggerRow } from './avatar-editor-trigger-row';
 export function StyleBlock({
   styleKey,
   draft,
-  principalId,
+  deviceId,
   setDraft,
   surface,
   setSurface,
@@ -20,7 +20,7 @@ export function StyleBlock({
 }: {
   styleKey: StyleKey;
   draft: AvatarConfig;
-  principalId: string;
+  deviceId: string;
   setDraft: (fn: (d: AvatarConfig) => AvatarConfig) => void;
   surface: string | null;
   setSurface: (k: string | null) => void;
@@ -42,8 +42,8 @@ export function StyleBlock({
       >
         <StylePickerStrip
           selected={styleKey}
-          seed={draft.seed.trim() || principalId}
-          principalId={principalId}
+          seed={draft.seed.trim() || deviceId}
+          deviceId={deviceId}
           onSelect={(k) => {
             setDraft((d) => ({ ...d, style: k, options: {} }));
             closeSurface();

@@ -8,21 +8,21 @@ import {
   AuthSessionTokenHolderToken,
   type AuthSessionTokenHolder,
 } from '@gamezilla/client/auth/auth-session-token-holder';
-import { ensurePrincipalEntity } from '@gamezilla/client/auth/ensure-principal-entity';
+import { ensureDeviceEntity } from '@gamezilla/client/auth/ensure-device-entity';
 import {
   ensureAccountProfile,
-  ensurePrincipalProfile,
+  ensureDeviceProfile,
 } from '@gamezilla/client/auth/ensure-profile-entity';
 import {
-  PrincipalServiceToken,
-  type PrincipalService,
-} from '@gamezilla/client/auth/principal-service';
+  DeviceServiceToken,
+  type DeviceService,
+} from '@gamezilla/client/auth/device-service';
 import {
   createSessionService,
   SessionServiceToken,
-  type PrincipalSessionRecord,
+  type AccountSessionRecord,
 } from '@gamezilla/client/auth/session-service';
-import { assertPrincipalId } from '@gamezilla/domain/auth/principal-id';
+import { assertDeviceId } from '@gamezilla/domain/auth/device-id';
 import { ConfigServiceToken } from '@gamezilla/domain/config/config-service';
 import { assert } from '@gamezilla/lib/assert';
 import { clearWebClientPersistentState } from '@gamezilla/lib/browser/clear-web-client-state';
@@ -92,7 +92,7 @@ type BootstrapPatchDbExpoSyncOptions = {
   pollIntervalMs?: number;
   parentContainer?: DependencyInjectionContainer;
   /**
-   * Wrap the sync DB (e.g. stamp every patch with principalId via `createdBy`).
+   * Wrap the sync DB (e.g. stamp every patch with deviceId via `createdBy`).
    * Must preserve {@link SubscribablePatchDbLike.subscribe}.
    */
   decoratePatchDb?: (db: SubscribablePatchDbLike) => SubscribablePatchDbLike;
@@ -195,7 +195,7 @@ export async function clearLocalDatabaseAndReload(
 
 async function applySessionToHolders(args: {
   readonly db: PatchDb;
-  readonly session: PrincipalSessionRecord | null;
+  readonly session: AccountSessionRecord | null;
   readonly accountIdHolder: { set: (id: string | null) => void };
   readonly sessionTokenHolder: { set: (token: string | null) => void };
 }): Promise<void> {
@@ -209,7 +209,7 @@ async function applySessionToHolders(args: {
 
 async function registerSessionService(
   c: DependencyInjectionContainer,
-  principalService: PrincipalService,
+  deviceService: DeviceService,
   accountIdHolder: {
     get: () => string | null;
     set: (id: string | null) => void;
@@ -220,12 +220,12 @@ async function registerSessionService(
   }
 ) {
   const db = c.get(PatchDbToken);
-  const principalId = principalService.getPrincipalId();
-  await ensurePrincipalEntity(db, principalId);
-  await ensurePrincipalProfile(db, principalId);
+  const deviceId = deviceService.getDeviceId();
+  await ensureDeviceEntity(db, deviceId);
+  await ensureDeviceProfile(db, deviceId);
   const sessionService = c.has(SessionServiceToken)
     ? c.get(SessionServiceToken)
-    : createSessionService(db, principalService);
+    : createSessionService(db, deviceService);
   await sessionService.refresh();
   await applySessionToHolders({
     db,
@@ -287,7 +287,7 @@ function BootstrappedShell({
 type PatchBootstrapDeps = {
   readonly apiBase: string;
   readonly parentContainer: DependencyInjectionContainer;
-  readonly principalService: PrincipalService;
+  readonly deviceService: DeviceService;
   readonly accountIdHolder: AuthAccountIdHolder;
   readonly sessionTokenHolder: AuthSessionTokenHolder;
 };
@@ -298,7 +298,7 @@ async function performPatchBootstrap(
   const {
     apiBase,
     parentContainer,
-    principalService,
+    deviceService,
     accountIdHolder,
     sessionTokenHolder,
   } = deps;
@@ -312,9 +312,9 @@ async function performPatchBootstrap(
     parentContainer,
     decoratePatchDb: (db) => {
       stamper = new PatchMetadataStamper(db, {
-        getPrincipalId: () => principalService.getPrincipalId(),
+        getDeviceId: () => deviceService.getDeviceId(),
         getAccountId: () => accountIdHolder.get(),
-        assertPrincipalId: (id) => assertPrincipalId(id),
+        assertDeviceId: (id) => assertDeviceId(id),
       });
       return stamper;
     },
@@ -330,7 +330,7 @@ async function performPatchBootstrap(
   }
   await registerSessionService(
     c,
-    principalService,
+    deviceService,
     accountIdHolder,
     sessionTokenHolder
   );
@@ -347,11 +347,11 @@ function usePatchBootstrap() {
   const rawContainer = useContainer();
   assert.ok(
     rawContainer instanceof DependencyInjectionContainer,
-    'PatchBootstrap must be rendered inside ConfigContainerProvider (and PrincipalAuthShell for principal)'
+    'PatchBootstrap must be rendered inside ConfigContainerProvider (and DeviceAuthShell for device identity)'
   );
   const parentContainer = rawContainer;
   const configService = useDependency(ConfigServiceToken);
-  const principalService = useDependency(PrincipalServiceToken);
+  const deviceService = useDependency(DeviceServiceToken);
   const accountIdHolder = useDependency(AuthAccountIdHolderToken);
   const sessionTokenHolder = useDependency(AuthSessionTokenHolderToken);
   const mountedRef = useRef(true);
@@ -361,7 +361,7 @@ function usePatchBootstrap() {
     performPatchBootstrap({
       apiBase: configService.getApiUrl(),
       parentContainer,
-      principalService,
+      deviceService,
       accountIdHolder,
       sessionTokenHolder,
     })
@@ -381,7 +381,7 @@ function usePatchBootstrap() {
     configService,
     log,
     parentContainer,
-    principalService,
+    deviceService,
     sessionTokenHolder,
   ]);
 

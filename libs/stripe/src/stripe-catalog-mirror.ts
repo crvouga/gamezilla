@@ -1,5 +1,5 @@
 import type { PatchDb, PatchDbContext } from '@gamezilla/patch-db/interface';
-import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
+import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
 import type Stripe from 'stripe';
 
 /** Patch-db entity type for catalog prices (SPEC / checkout `priceKey` = entityId). */
@@ -67,7 +67,7 @@ export async function upsertCatalogPriceFromStripeApi(
           'stripe/payload': price as unknown,
           'stripe/objectType': 'price',
           'stripe/source': 'stripe_catalog_sync',
-          'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+          'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
         },
       },
     ],
@@ -94,7 +94,7 @@ export async function upsertCatalogProductFromStripeApi(
           'stripe/payload': product as unknown,
           'stripe/objectType': 'product',
           'stripe/source': 'stripe_catalog_sync',
-          'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+          'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
         },
       },
     ],

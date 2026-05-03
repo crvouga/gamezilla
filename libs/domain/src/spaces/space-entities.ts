@@ -9,7 +9,7 @@ export const SpaceAttr = {
 } as const;
 
 /**
- * One membership row per device principal (`entityId === principalId`).
+ * One membership row per device (`entityId === deviceId`).
  * Joining a different space overwrites this entity so a user is in at most one space.
  */
 export const SPACE_MEMBERSHIP_ENTITY_TYPE = 'spaceMembership';

@@ -10,9 +10,9 @@ import { createAuthClaimApp } from '../auth/route';
 import { resolvePatchDbContext } from '../auth/session-middleware';
 import { UnauthorizedError } from '../auth/unauthorized-error';
 import {
-  parseVisitorIdFromCookies,
-  visitorCookieMiddleware,
-} from '../auth/visitor-cookie';
+  clientCookieMiddleware,
+  parseClientIdFromCookies,
+} from '../auth/client-cookie';
 import { createClientConfigApp } from '../client-config/route';
 import type { ApiWorkerEnv } from '../config/env';
 import { healthApp } from '../health/route';
@@ -41,8 +41,8 @@ function toPatchDbApiConfig(config: ApiHandlerConfig): PatchDbApiConfig {
     pubSub,
     patchDbHttpAuth: {
       resolvePatchDbContext: (req) => {
-        const visitorId = parseVisitorIdFromCookies(req);
-        return resolvePatchDbContext(db, req, visitorId);
+        const clientId = parseClientIdFromCookies(req);
+        return resolvePatchDbContext(db, req, clientId);
       },
     },
   };
@@ -69,7 +69,7 @@ export function createApiApp(config: ApiHandlerConfig) {
 
   return new Hono<{ Bindings: ApiWorkerEnv }>()
     .use('*', apiCors)
-    .use('*', visitorCookieMiddleware)
+    .use('*', clientCookieMiddleware)
     .route('/', healthApp)
     .route('/', createClientConfigApp(db, log, secretStore))
     .route('/', createAuthClaimApp(db, secretStore))

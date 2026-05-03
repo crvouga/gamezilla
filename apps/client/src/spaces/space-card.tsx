@@ -1,4 +1,4 @@
-import { PrincipalAvatar } from '@gamezilla/client/profile/principal-avatar';
+import { DeviceAvatar } from '@gamezilla/client/profile/device-avatar';
 import {
   Box,
   GradientBox,
@@ -15,9 +15,9 @@ import type { SpaceView } from './types';
 function HostHeader({ space }: { space: SpaceView }) {
   return (
     <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2, flex: 1 }}>
-      <PrincipalAvatar
+      <DeviceAvatar
         avatarConfig={space.hostAvatarConfig}
-        principalId={space.hostId}
+        deviceId={space.hostId}
         size={44}
         vividBackdrop
       />

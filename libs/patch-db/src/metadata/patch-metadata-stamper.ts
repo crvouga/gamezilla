@@ -12,19 +12,19 @@ import {
   PATCH_CREATED_BY,
   PATCH_LAST_MODIFIED_AT,
   PATCH_LAST_MODIFIED_BY_ACCOUNT,
-  PATCH_LAST_MODIFIED_BY_PRINCIPAL,
+  PATCH_LAST_MODIFIED_BY_DEVICE,
 } from './patch-metadata';
 
 export type PatchMetadataStamperConfig = {
-  getPrincipalId: () => string;
+  getDeviceId: () => string;
   getAccountId?: () => string | null;
-  /** Optional validator for principalId (e.g. assertPrincipalId from domain). */
-  assertPrincipalId?: (id: string) => void;
+  /** Optional validator for deviceId (e.g. assertDeviceId from domain). */
+  assertDeviceId?: (id: string) => void;
 };
 
 /**
  * Stamps every write with authorship metadata (`patch/createdBy`,
- * `patch/lastModifiedByPrincipalId`, etc.) and sets the top-level
+ * `patch/lastModifiedByDeviceId`, etc.) and sets the top-level
  * `createdBy` field on each patch input.
  *
  * Delegates read, update, and subscribe to the inner sync DB.
@@ -44,7 +44,7 @@ export class PatchMetadataStamper implements SubscribablePatchDbLike {
     private readonly inner: SubscribablePatchDbLike,
     private readonly config: PatchMetadataStamperConfig
   ) {
-    config.assertPrincipalId?.(config.getPrincipalId());
+    config.assertDeviceId?.(config.getDeviceId());
     this.subscribe = inner.subscribe;
   }
 
@@ -52,14 +52,14 @@ export class PatchMetadataStamper implements SubscribablePatchDbLike {
     patches: PatchInput[],
     ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<WritePatchesResult> {
-    const principalId = this.config.getPrincipalId();
-    this.config.assertPrincipalId?.(principalId);
+    const deviceId = this.config.getDeviceId();
+    this.config.assertDeviceId?.(deviceId);
     const accountId = this.config.getAccountId?.() ?? null;
     const stamped: PatchInput[] = patches.map((p) => {
       const attrs: Record<string, unknown> = {
         ...p.attributes,
-        [PATCH_CREATED_BY]: principalId,
-        [PATCH_LAST_MODIFIED_BY_PRINCIPAL]: principalId,
+        [PATCH_CREATED_BY]: deviceId,
+        [PATCH_LAST_MODIFIED_BY_DEVICE]: deviceId,
         [PATCH_LAST_MODIFIED_AT]: Date.now(),
       };
       if (accountId !== null && accountId !== undefined && accountId !== '') {
@@ -68,7 +68,7 @@ export class PatchMetadataStamper implements SubscribablePatchDbLike {
       }
       return {
         ...p,
-        createdBy: principalId,
+        createdBy: deviceId,
         attributes: attrs as PatchInput['attributes'],
       };
     });
@@ -96,8 +96,8 @@ export class PatchMetadataStamper implements SubscribablePatchDbLike {
    * on every push attempt.
    */
   async backfillCreatedBy(): Promise<void> {
-    const principalId = this.config.getPrincipalId();
-    this.config.assertPrincipalId?.(principalId);
+    const deviceId = this.config.getDeviceId();
+    this.config.assertDeviceId?.(deviceId);
 
     const [result] = await this.inner.read(
       [
@@ -120,7 +120,7 @@ export class PatchMetadataStamper implements SubscribablePatchDbLike {
     await this.inner.update(
       result.patches.map((p) => ({
         patchId: p.patchId,
-        attributes: { [PATCH_CREATED_BY]: principalId },
+        attributes: { [PATCH_CREATED_BY]: deviceId },
       })),
       OPEN_PATCHES_DB_CONTEXT
     );

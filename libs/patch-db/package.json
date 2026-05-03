@@ -40,7 +40,7 @@
     "./metadata/patch-metadata-stamper": "./src/metadata/patch-metadata-stamper.ts",
     "./policy/compaction-policy": "./src/policy/compaction-policy.ts",
     "./policy/visibility-policy-registry": "./src/policy/visibility-policy-registry.ts",
-    "./policy/system-principal": "./src/policy/system-principal.ts",
+    "./policy/system-device": "./src/policy/system-device.ts",
     "./hook-registry": "./src/hook-registry.ts",
     "./forbidden-error": "./src/forbidden-error.ts",
     "./interface": "./src/interface.ts",

@@ -1,5 +1,5 @@
-import { assertPrincipalId } from '@gamezilla/domain/auth';
-import { assertUuid } from '@gamezilla/domain/auth/principal-id';
+import { assertDeviceId } from '@gamezilla/domain/auth';
+import { assertUuid } from '@gamezilla/domain/auth/device-id';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
@@ -19,28 +19,28 @@ function profileLooksPresent(
 }
 
 /**
- * Ensures a `profile` row at `entityId === principalId` (guest / device-local profile).
+ * Ensures a `profile` row at `entityId === deviceId` (guest / device-local profile).
  */
-export async function ensurePrincipalProfile(
+export async function ensureDeviceProfile(
   db: PatchDb,
-  principalId: string
+  deviceId: string
 ): Promise<void> {
-  assertPrincipalId(principalId);
+  assertDeviceId(deviceId);
   const [res] = await db.read([
     {
       entityType: PROFILE_ENTITY_TYPE,
-      entityId: principalId,
+      entityId: deviceId,
       limit: 1,
     },
   ]);
-  if (profileLooksPresent(res?.entities[0], principalId)) return;
+  if (profileLooksPresent(res?.entities[0], deviceId)) return;
   const now = new Date().toISOString();
   await db.write([
     {
-      entityId: principalId,
+      entityId: deviceId,
       entityType: PROFILE_ENTITY_TYPE,
       attributes: {
-        [ProfileAttr.id]: principalId,
+        [ProfileAttr.id]: deviceId,
         [ProfileAttr.createdAt]: now,
       },
     },

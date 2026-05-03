@@ -5,7 +5,7 @@ import { PatchDbCompactionPolicyRegistry } from '@gamezilla/patch-db/policy/comp
 
 /** System context for Stripe CLI sync scripts (catalog dump + entity backfills). */
 export const STRIPE_PATCH_DB_SCRIPT_CONTEXT: PatchDbSystemContext = {
-  principalId: null,
+  deviceId: null,
   reason: 'stripe-sync',
 };
 

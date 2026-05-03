@@ -11,7 +11,7 @@ export type StylePickerStripProps = {
   selected: StyleKey;
   seed: string;
   onSelect: (key: StyleKey) => void;
-  principalId: string;
+  deviceId: string;
 };
 
 const ITEM = 60;
@@ -20,7 +20,7 @@ export function StylePickerStrip({
   selected,
   seed,
   onSelect,
-  principalId,
+  deviceId,
 }: StylePickerStripProps) {
   return (
     <HorizontalPicker
@@ -39,7 +39,7 @@ export function StylePickerStrip({
         return (
           <ProfileDiceBearAvatar
             config={preview}
-            fallbackSeed={principalId}
+            fallbackSeed={deviceId}
             size={ITEM - 12}
           />
         );

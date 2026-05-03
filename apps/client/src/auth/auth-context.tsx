@@ -1,6 +1,6 @@
 import {
-  PRINCIPAL_SESSION_ENTITY_TYPE,
-  PrincipalSessionAttr,
+  ACCOUNT_SESSION_ENTITY_TYPE,
+  AccountSessionAttr,
 } from '@gamezilla/domain/auth';
 import {
   CLIENT_CONFIG_ENTITY_ID,
@@ -38,10 +38,10 @@ import {
   type AuthService,
 } from './auth-service';
 import { AuthSessionTokenHolderToken } from './auth-session-token-holder';
-import { PrincipalServiceToken } from './principal-service';
+import { DeviceServiceToken } from './device-service';
 import {
   SessionServiceToken,
-  type PrincipalSessionRecord,
+  type AccountSessionRecord,
   type SessionService,
 } from './session-service';
 import { SignInModal } from './sign-in-modal';
@@ -50,9 +50,9 @@ import { useGoogleIdTokenPrompt } from './use-google-id-token-prompt';
 export type AuthState = {
   mode: 'guest' | 'signed-in';
   displayName: string;
-  principalId: string;
+  deviceId: string;
   accountId: string | null;
-  session: PrincipalSessionRecord | null;
+  session: AccountSessionRecord | null;
   /** Google OAuth availability from synced client config. */
   providers: { google: AuthGoogleProviderState };
   signInModalOpen: boolean;
@@ -77,7 +77,7 @@ const defaultSignOut = async (): Promise<void> => {
 const defaultState: AuthState = {
   mode: 'guest',
   displayName: 'Guest',
-  principalId: '',
+  deviceId: '',
   accountId: null,
   session: null,
   providers: { google: deriveGoogleProviderState(null) },
@@ -96,17 +96,17 @@ const AuthContext = createContext<AuthState>(defaultState);
 
 type SessionDerivedState = Pick<
   AuthState,
-  'principalId' | 'session' | 'mode' | 'accountId' | 'displayName'
+  'deviceId' | 'session' | 'mode' | 'accountId' | 'displayName'
 >;
 
 function deriveStateFromSession(args: {
-  principalId: string;
+  deviceId: string;
   sessionService: SessionService;
 }): SessionDerivedState {
-  const { principalId, sessionService } = args;
+  const { deviceId, sessionService } = args;
   const session = sessionService.getSession();
   return {
-    principalId,
+    deviceId,
     session,
     mode:
       session !== null && sessionService.isAuthenticated()
@@ -118,13 +118,13 @@ function deriveStateFromSession(args: {
 }
 
 function useAuthSessionState(
-  principalId: string,
+  deviceId: string,
   sessionService: SessionService,
   accountIdHolder: { set: (id: string | null) => void },
   sessionTokenHolder: { set: (token: string | null) => void }
 ) {
   const [state, setState] = useState(() =>
-    deriveStateFromSession({ principalId, sessionService })
+    deriveStateFromSession({ deviceId, sessionService })
   );
 
   const refreshSession = useCallback(async () => {
@@ -132,8 +132,8 @@ function useAuthSessionState(
     const session = sessionService.getSession();
     accountIdHolder.set(session?.accountId ?? null);
     sessionTokenHolder.set(session?.token ?? null);
-    setState(deriveStateFromSession({ principalId, sessionService }));
-  }, [accountIdHolder, principalId, sessionService, sessionTokenHolder]);
+    setState(deriveStateFromSession({ deviceId, sessionService }));
+  }, [accountIdHolder, deviceId, sessionService, sessionTokenHolder]);
 
   useEffect(() => {
     void refreshSession();
@@ -143,19 +143,19 @@ function useAuthSessionState(
 }
 
 function useSubscribeToSessionChanges(args: {
-  principalId: string;
+  deviceId: string;
   refreshSession: () => Promise<void>;
 }) {
-  const { principalId, refreshSession } = args;
+  const { deviceId, refreshSession } = args;
   const subDb = useDependency(SubscribablePatchDbToken);
   useEffect(() => {
     const unsub = subDb.subscribe.entities(
       {
-        entityType: PRINCIPAL_SESSION_ENTITY_TYPE,
+        entityType: ACCOUNT_SESSION_ENTITY_TYPE,
         where: {
           type: '=',
-          attribute: PrincipalSessionAttr.principalId,
-          value: principalId,
+          attribute: AccountSessionAttr.deviceId,
+          value: deviceId,
         },
       },
       () => {
@@ -163,7 +163,7 @@ function useSubscribeToSessionChanges(args: {
       }
     );
     return unsub;
-  }, [subDb, principalId, refreshSession]);
+  }, [subDb, deviceId, refreshSession]);
 }
 
 type AuthModals = {
@@ -269,20 +269,20 @@ function AuthStateProvider({
   googleProvider: AuthGoogleProviderState;
 }) {
   const authService = useDependency(AuthServiceToken);
-  const principalService = useDependency(PrincipalServiceToken);
+  const deviceService = useDependency(DeviceServiceToken);
   const sessionService = useDependency(SessionServiceToken);
   const accountIdHolder = useDependency(AuthAccountIdHolderToken);
   const sessionTokenHolder = useDependency(AuthSessionTokenHolderToken);
-  const principalId = principalService.getPrincipalId();
+  const deviceId = deviceService.getDeviceId();
   const log = useLogger('auth-context');
 
   const { state, refreshSession } = useAuthSessionState(
-    principalId,
+    deviceId,
     sessionService,
     accountIdHolder,
     sessionTokenHolder
   );
-  useSubscribeToSessionChanges({ principalId, refreshSession });
+  useSubscribeToSessionChanges({ deviceId, refreshSession });
 
   const modals = useAuthModals();
   const { signInWithGoogle, signOut } = useAuthActions({
@@ -316,9 +316,7 @@ function AuthStateProvider({
         visible={modals.signOutConfirmOpen}
         title={<Trans>Sign out?</Trans>}
         message={
-          <Trans>
-            You will need to sign in again to sync with your account.
-          </Trans>
+          <Trans>You will need to sign in again to sync with your user.</Trans>
         }
         confirmLabel={<Trans>Sign out</Trans>}
         cancelLabel={<Trans>Cancel</Trans>}
@@ -345,7 +343,7 @@ function AuthContainerBridgeInner({
     'AuthProvider must be under DI'
   );
   const configService = useDependency(ConfigServiceToken);
-  const principalService = useDependency(PrincipalServiceToken);
+  const deviceService = useDependency(DeviceServiceToken);
   const db = useDependency(PatchDbToken);
   const sessionService = useDependency(SessionServiceToken);
   const accountIdHolder = useDependency(AuthAccountIdHolderToken);
@@ -357,7 +355,7 @@ function AuthContainerBridgeInner({
       AuthServiceToken,
       createAuthService({
         configService,
-        principalService,
+        deviceService,
         db,
         sessionService,
         accountIdHolder,
@@ -370,7 +368,7 @@ function AuthContainerBridgeInner({
   }, [
     parentContainer,
     configService,
-    principalService,
+    deviceService,
     db,
     sessionService,
     accountIdHolder,

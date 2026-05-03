@@ -2,7 +2,7 @@ import { assert } from '@gamezilla/lib/assert';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { PatchDb } from '../interface';
 import { OPEN_PATCHES_DB_CONTEXT, PATCH_SYNC_REJECTED_AT } from '../interface';
-import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '../policy/system-principal';
+import { PATCH_DB_SYSTEM_DEVICE_ID } from '../policy/system-device';
 import { createSqliteFactory } from './test-helpers';
 
 const WIDGET_ENTITY_TYPE = 'widget';
@@ -33,7 +33,7 @@ describe('compaction (sqlite)', () => {
           attributes: {
             [WIDGET_ID_ATTR]: entityId,
             [WIDGET_NAME_ATTR]: `v${i}`,
-            'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+            'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
       ]);
@@ -75,7 +75,7 @@ describe('compaction (sqlite)', () => {
           attributes: {
             [WIDGET_ID_ATTR]: entityId,
             [WIDGET_NAME_ATTR]: `x${i}`,
-            'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+            'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
       ]);
@@ -99,7 +99,7 @@ describe('compaction (sqlite)', () => {
           attributes: {
             [WIDGET_ID_ATTR]: entityId,
             [WIDGET_NAME_ATTR]: `r${i}`,
-            'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+            'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
       ]);

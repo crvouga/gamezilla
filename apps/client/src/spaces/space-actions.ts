@@ -1,4 +1,4 @@
-import { PrincipalServiceToken } from '@gamezilla/client/auth/principal-service';
+import { DeviceServiceToken } from '@gamezilla/client/auth/device-service';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
@@ -18,12 +18,12 @@ function isoNow(): string {
 
 async function readActiveHostMembership(
   db: PatchDb,
-  principalId: string
+  deviceId: string
 ): Promise<{ spaceId: string } | null> {
   const [memRes] = await db.read([
     {
       entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
-      entityId: principalId,
+      entityId: deviceId,
     },
   ]);
   const mem = memRes?.entities[0];
@@ -39,7 +39,7 @@ async function readActiveHostMembership(
 
 function endHostedSpacePatches(
   hostSpaceId: string,
-  principalId: string,
+  deviceId: string,
   now: string
 ): WritePatches {
   return [
@@ -49,7 +49,7 @@ function endHostedSpacePatches(
       attributes: { [SpaceAttr.endedAt]: now },
     },
     {
-      entityId: principalId,
+      entityId: deviceId,
       entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
       attributes: { [SpaceMembershipAttr.leftAt]: now },
     },
@@ -58,14 +58,14 @@ function endHostedSpacePatches(
 
 async function createSpaceAction(
   db: PatchDb,
-  principalId: string
+  deviceId: string
 ): Promise<string | undefined> {
   const now = isoNow();
   const patches: WritePatches = [];
 
-  const hosted = await readActiveHostMembership(db, principalId);
+  const hosted = await readActiveHostMembership(db, deviceId);
   if (hosted) {
-    patches.push(...endHostedSpacePatches(hosted.spaceId, principalId, now));
+    patches.push(...endHostedSpacePatches(hosted.spaceId, deviceId, now));
   }
 
   const spaceId = crypto.randomUUID();
@@ -74,12 +74,12 @@ async function createSpaceAction(
       entityId: spaceId,
       entityType: SPACE_ENTITY_TYPE,
       attributes: {
-        [SpaceAttr.hostId]: principalId,
+        [SpaceAttr.hostId]: deviceId,
         [SpaceAttr.createdAt]: now,
       },
     },
     {
-      entityId: principalId,
+      entityId: deviceId,
       entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
       attributes: {
         [SpaceMembershipAttr.spaceId]: spaceId,
@@ -96,17 +96,17 @@ async function createSpaceAction(
 
 async function joinSpaceAction(
   db: PatchDb,
-  principalId: string,
+  deviceId: string,
   spaceId: string
 ): Promise<void> {
   const now = isoNow();
   const patches: WritePatches = [];
-  const hosted = await readActiveHostMembership(db, principalId);
+  const hosted = await readActiveHostMembership(db, deviceId);
   if (hosted && hosted.spaceId !== spaceId) {
-    patches.push(...endHostedSpacePatches(hosted.spaceId, principalId, now));
+    patches.push(...endHostedSpacePatches(hosted.spaceId, deviceId, now));
   }
   patches.push({
-    entityId: principalId,
+    entityId: deviceId,
     entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
     attributes: {
       [SpaceMembershipAttr.spaceId]: spaceId,
@@ -118,13 +118,10 @@ async function joinSpaceAction(
   await db.write(patches);
 }
 
-async function leaveSpaceAction(
-  db: PatchDb,
-  principalId: string
-): Promise<void> {
+async function leaveSpaceAction(db: PatchDb, deviceId: string): Promise<void> {
   await db.write([
     {
-      entityId: principalId,
+      entityId: deviceId,
       entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
       attributes: { [SpaceMembershipAttr.leftAt]: isoNow() },
     },
@@ -133,33 +130,33 @@ async function leaveSpaceAction(
 
 async function endSpaceAction(
   db: PatchDb,
-  principalId: string,
+  deviceId: string,
   spaceId: string
 ): Promise<void> {
   const now = isoNow();
-  await db.write(endHostedSpacePatches(spaceId, principalId, now));
+  await db.write(endHostedSpacePatches(spaceId, deviceId, now));
 }
 
 export function useSpaceActions() {
   const db = usePatchDb();
-  const principalService = useDependency(PrincipalServiceToken);
-  const principalId = principalService.getPrincipalId();
+  const deviceService = useDependency(DeviceServiceToken);
+  const deviceId = deviceService.getDeviceId();
 
   const createSpace = useCallback(
-    () => createSpaceAction(db, principalId),
-    [db, principalId]
+    () => createSpaceAction(db, deviceId),
+    [db, deviceId]
   );
   const joinSpace = useCallback(
-    (spaceId: string) => joinSpaceAction(db, principalId, spaceId),
-    [db, principalId]
+    (spaceId: string) => joinSpaceAction(db, deviceId, spaceId),
+    [db, deviceId]
   );
   const leaveSpace = useCallback(
-    () => leaveSpaceAction(db, principalId),
-    [db, principalId]
+    () => leaveSpaceAction(db, deviceId),
+    [db, deviceId]
   );
   const endSpace = useCallback(
-    (spaceId: string) => endSpaceAction(db, principalId, spaceId),
-    [db, principalId]
+    (spaceId: string) => endSpaceAction(db, deviceId, spaceId),
+    [db, deviceId]
   );
 
   return { createSpace, joinSpace, leaveSpace, endSpace };

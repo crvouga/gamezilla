@@ -1,22 +1,22 @@
 /**
- * Anonymous visitor identified by a server-set cookie. Has no principalId
- * or accountId — ABAC policies decide what visitors can read (typically
- * only public entity types like client config).
+ * HTTP client identified by a server-set cookie (`clientId`). Has no deviceId
+ * or userId — ABAC policies decide what unauthenticated clients can read
+ * (typically only public entity types like client config).
  */
-export type PatchDbVisitorContext = {
-  readonly visitorId: string;
-  readonly principalId?: undefined;
+export type PatchDbClientContext = {
+  readonly clientId: string;
+  readonly deviceId?: undefined;
 };
 
 /**
- * Authenticated caller identifier. `principalId` is the client-generated
- * device identity; `visitorId` is the server-assigned cookie identity.
+ * Authenticated caller. `deviceId` is the client-generated replication identity;
+ * `clientId` is the server-assigned cookie identity for the HTTP client.
  * Consuming apps extend via intersection to carry their own claims
  * (e.g. `accountId`, group memberships) into their visibility policies.
  */
 export type PatchDbAuthContext = {
-  readonly visitorId: string;
-  readonly principalId: string;
+  readonly clientId: string;
+  readonly deviceId: string;
   readonly [claim: string]: unknown;
 };
 
@@ -26,46 +26,46 @@ export type PatchDbAuthContext = {
  * (e.g. `'stripe-webhook'`) without modifying the library.
  */
 export type PatchDbSystemContext = {
-  principalId: null;
+  deviceId: null;
   reason: string;
 };
 
 export type PatchDbContext =
-  | PatchDbVisitorContext
+  | PatchDbClientContext
   | PatchDbAuthContext
   | PatchDbSystemContext;
 
 /** Default for local-first client DB, tests, and in-process sim — no ABAC filtering. */
 export const OPEN_PATCHES_DB_CONTEXT: PatchDbSystemContext = {
-  principalId: null,
+  deviceId: null,
   reason: 'sim',
 };
 
 /** Server-side privileged operations (auth claim, session resolution bootstrap). */
 export const PATCHES_DB_SYSTEM_CONTEXT: PatchDbSystemContext = {
-  principalId: null,
+  deviceId: null,
   reason: 'system',
 };
 
 export function isPatchDbSystemContext(
   ctx: PatchDbContext
 ): ctx is PatchDbSystemContext {
-  return ctx.principalId === null;
+  return ctx.deviceId === null;
 }
 
 export function isPatchDbAuthContext(
   ctx: PatchDbContext
 ): ctx is PatchDbAuthContext {
-  return typeof ctx.principalId === 'string';
+  return typeof ctx.deviceId === 'string';
 }
 
-export function isPatchDbVisitorContext(
+export function isPatchDbClientContext(
   ctx: PatchDbContext
-): ctx is PatchDbVisitorContext {
+): ctx is PatchDbClientContext {
   return (
-    'visitorId' in ctx &&
-    typeof (ctx as Record<string, unknown>)['visitorId'] === 'string' &&
-    ctx.principalId !== null &&
-    typeof ctx.principalId !== 'string'
+    'clientId' in ctx &&
+    typeof (ctx as Record<string, unknown>)['clientId'] === 'string' &&
+    ctx.deviceId !== null &&
+    typeof ctx.deviceId !== 'string'
   );
 }

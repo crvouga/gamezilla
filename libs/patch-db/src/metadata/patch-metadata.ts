@@ -11,22 +11,22 @@ export const PATCH_SYNC_REJECTED_AT = 'patch/syncRejectedAt' as const;
 export const PATCH_SYNC_REJECTED_REASON = 'patch/syncRejectedReason' as const;
 /** When true, this patch is treated as rejected for sync/outbox and entity materialization. */
 export const PATCH_REJECTED = 'patch/rejected' as const;
-export const PATCH_LAST_MODIFIED_BY_PRINCIPAL =
-  'patch/lastModifiedByPrincipalId' as const;
-export const PATCH_LAST_MODIFIED_BY_PRINCIPAL_TIMESTAMP =
-  'patch/lastModifiedByPrincipalTimestamp' as const;
+export const PATCH_LAST_MODIFIED_BY_DEVICE =
+  'patch/lastModifiedByDeviceId' as const;
+export const PATCH_LAST_MODIFIED_BY_DEVICE_TIMESTAMP =
+  'patch/lastModifiedByDeviceTimestamp' as const;
 export const PATCH_LAST_MODIFIED_BY_ACCOUNT =
   'patch/lastModifiedByAccountId' as const;
 export const PATCH_LAST_MODIFIED_BY_ACCOUNT_TIMESTAMP =
   'patch/lastModifiedByAccountTimestamp' as const;
-export const PATCH_LAST_MODIFIED_BY_PRINCIPAL_SESSION =
-  'patch/lastModifiedByPrincipalSessionId' as const;
-export const PATCH_LAST_MODIFIED_BY_PRINCIPAL_SESSION_TIMESTAMP =
-  'patch/lastModifiedByPrincipalSessionTimestamp' as const;
-export const PATCH_LAST_MODIFIED_BY_VISITOR =
-  'patch/lastModifiedByVisitorId' as const;
-export const PATCH_LAST_MODIFIED_BY_VISITOR_TIMESTAMP =
-  'patch/lastModifiedByVisitorTimestamp' as const;
+export const PATCH_LAST_MODIFIED_BY_ACCOUNT_SESSION =
+  'patch/lastModifiedByAccountSessionId' as const;
+export const PATCH_LAST_MODIFIED_BY_ACCOUNT_SESSION_TIMESTAMP =
+  'patch/lastModifiedByAccountSessionTimestamp' as const;
+export const PATCH_LAST_MODIFIED_BY_CLIENT =
+  'patch/lastModifiedByClientId' as const;
+export const PATCH_LAST_MODIFIED_BY_CLIENT_TIMESTAMP =
+  'patch/lastModifiedByClientTimestamp' as const;
 export const PATCH_LAST_MODIFIED_AT = 'patch/lastModifiedAt' as const;
 
 /**
@@ -40,7 +40,7 @@ export const PATCH_META_KEYS: readonly string[] = [
   PATCH_SYNC_REJECTED_AT,
   PATCH_SYNC_REJECTED_REASON,
   PATCH_REJECTED,
-  PATCH_LAST_MODIFIED_BY_PRINCIPAL,
+  PATCH_LAST_MODIFIED_BY_DEVICE,
   PATCH_LAST_MODIFIED_BY_ACCOUNT,
   PATCH_LAST_MODIFIED_AT,
 ] as const;

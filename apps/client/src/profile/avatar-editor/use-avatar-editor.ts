@@ -25,17 +25,17 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useProfile } from '../use-profile';
 
 function usePersistedConfig() {
-  const { principalId, profileId, entity } = useProfile();
+  const { deviceId, profileId, entity } = useProfile();
   const persisted = useMemo(
     () =>
       resolveAvatarConfig(
         entity?.attributes as Record<string, unknown> | undefined,
-        principalId,
+        deviceId,
         ProfileAttr.avatarConfig
       ),
-    [entity?.attributes, principalId]
+    [entity?.attributes, deviceId]
   );
-  return { principalId, profileId, persisted };
+  return { deviceId, profileId, persisted };
 }
 
 function useDraftSync(args: { persisted: AvatarConfig }) {
@@ -64,7 +64,7 @@ function useDraftSync(args: { persisted: AvatarConfig }) {
 }
 
 export type UseAvatarEditor = {
-  principalId: string;
+  deviceId: string;
   profileId: string | null;
   draft: AvatarConfig;
   setDraft: React.Dispatch<React.SetStateAction<AvatarConfig>>;
@@ -93,10 +93,10 @@ export type UseAvatarEditor = {
 
 function useDerivedFields(args: {
   draft: AvatarConfig;
-  principalId: string;
+  deviceId: string;
   styleKey: StyleKey;
 }) {
-  const { draft, principalId, styleKey } = args;
+  const { draft, deviceId, styleKey } = args;
   const byTab = useMemo(() => getFieldsByTab(styleKey), [styleKey]);
   const featureEnums = useMemo(
     () =>
@@ -108,9 +108,9 @@ function useDerivedFields(args: {
   const previewConfig = useMemo(
     () => ({
       ...draft,
-      seed: draft.seed.trim() || principalId,
+      seed: draft.seed.trim() || deviceId,
     }),
-    [draft, principalId]
+    [draft, deviceId]
   );
   return { byTab, featureEnums, previewConfig };
 }
@@ -189,12 +189,12 @@ function useEditorActions(args: {
   setDraft: React.Dispatch<React.SetStateAction<AvatarConfig>>;
   dirty: boolean;
   styleKey: StyleKey;
-  principalId: string;
+  deviceId: string;
   profileId: string | null;
   setShowDiscard: (v: boolean) => void;
   setSaving: (v: boolean) => void;
 }) {
-  const { draft, setDraft, dirty, styleKey, principalId, profileId } = args;
+  const { draft, setDraft, dirty, styleKey, deviceId, profileId } = args;
   const { setShowDiscard, setSaving } = args;
 
   const { onBack, confirmDiscard } = useDiscardActions({
@@ -207,9 +207,9 @@ function useEditorActions(args: {
   });
   const save = useSaveAction({ draft, profileId, setSaving });
   const copySeed = useCallback(async () => {
-    const s = draft.seed.trim() || principalId;
+    const s = draft.seed.trim() || deviceId;
     await Clipboard.setStringAsync(s);
-  }, [draft.seed, principalId]);
+  }, [draft.seed, deviceId]);
 
   return {
     updateOptions,
@@ -223,7 +223,7 @@ function useEditorActions(args: {
 }
 
 export function useAvatarEditor(): UseAvatarEditor {
-  const { principalId, profileId, persisted } = usePersistedConfig();
+  const { deviceId, profileId, persisted } = usePersistedConfig();
   const { draft, setDraft, initialized } = useDraftSync({
     persisted,
   });
@@ -237,7 +237,7 @@ export function useAvatarEditor(): UseAvatarEditor {
 
   const { byTab, featureEnums, previewConfig } = useDerivedFields({
     draft,
-    principalId,
+    deviceId,
     styleKey,
   });
 
@@ -246,7 +246,7 @@ export function useAvatarEditor(): UseAvatarEditor {
     setDraft,
     dirty,
     styleKey,
-    principalId,
+    deviceId,
     profileId,
     setShowDiscard,
     setSaving,
@@ -255,7 +255,7 @@ export function useAvatarEditor(): UseAvatarEditor {
   const closeSurface = useCallback(() => setSurface(null), []);
 
   return {
-    principalId,
+    deviceId,
     profileId,
     draft,
     setDraft,

@@ -8,7 +8,7 @@ import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
-import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
+import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { installDefaultPatchDbPolicies } from './patch-db';
 
@@ -49,7 +49,7 @@ describe('gamezilla default policies (system + auth writes)', () => {
             'entity/owner': owner,
             'stripe/webhookEventType': 'customer.created',
             'stripe/stripeObjectId': 'evt_sys_test',
-            'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+            'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
       ],
@@ -70,23 +70,23 @@ describe('gamezilla default policies (system + auth writes)', () => {
   });
 
   test('authenticated write rejects patch/createdBy mismatch', async () => {
-    const principalId = '00000000-0000-4000-8000-000000000011';
-    const accountId = '00000000-0000-4000-8000-000000000022';
+    const deviceId = '00000000-0000-4000-8000-000000000011';
+    const userId = '00000000-0000-4000-8000-000000000022';
     const ctx = {
-      visitorId: crypto.randomUUID(),
-      principalId,
-      accountId,
+      clientId: crypto.randomUUID(),
+      deviceId,
+      accountId: userId,
       memberOfSpaceIds: [] as readonly string[],
-      friendAccountIds: [] as readonly string[],
-      blockedAccountIds: [] as readonly string[],
+      friendUserIds: [] as readonly string[],
+      blockedUserIds: [] as readonly string[],
     };
     const out = await db.write(
       [
         {
-          entityId: principalId,
+          entityId: deviceId,
           entityType: PROFILE_ENTITY_TYPE,
           attributes: {
-            [ProfileAttr.id]: principalId,
+            [ProfileAttr.id]: deviceId,
             'patch/createdBy': '00000000-0000-4000-8000-00000000dead',
           },
         },

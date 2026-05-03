@@ -3,8 +3,8 @@ export const PROFILE_ENTITY_TYPE = 'profile';
 
 /**
  * One profile per identity:
- * - Guest / device-local: `entityId === principalId`
- * - Signed-in account: `entityId === accountId`
+ * - Guest / device-local: `entityId === deviceId`
+ * - Signed-in account: `entityId === userId`
  */
 export const ProfileAttr = {
   id: 'profile/id',

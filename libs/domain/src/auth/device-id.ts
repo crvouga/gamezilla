@@ -20,8 +20,8 @@ export function assertUuid(
 }
 
 /**
- * Asserts principalId is a valid UUID. Crashes on violation.
+ * Asserts deviceId is a valid UUID. Crashes on violation.
  */
-export function assertPrincipalId(value: unknown): asserts value is string {
-  assertUuid(value, 'principalId must be a valid UUID');
+export function assertDeviceId(value: unknown): asserts value is string {
+  assertUuid(value, 'deviceId must be a valid UUID');
 }

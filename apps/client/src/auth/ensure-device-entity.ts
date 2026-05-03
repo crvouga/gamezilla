@@ -1,7 +1,7 @@
 import {
-  assertPrincipalId,
-  PRINCIPAL_ENTITY_TYPE,
-  PrincipalAttr,
+  assertDeviceId,
+  DEVICE_ENTITY_TYPE,
+  DeviceAttr,
 } from '@gamezilla/domain/auth';
 import { assert } from '@gamezilla/lib/assert';
 import type { Entity, PatchDb } from '@gamezilla/patch-db/interface';
@@ -44,38 +44,38 @@ function readWebUserAgent(): string | null {
 }
 
 function collectDeviceSnapshot(): Record<
-  | typeof PrincipalAttr.platform
-  | typeof PrincipalAttr.osName
-  | typeof PrincipalAttr.osVersion
-  | typeof PrincipalAttr.deviceModelName
-  | typeof PrincipalAttr.deviceBrand
-  | typeof PrincipalAttr.deviceName
-  | typeof PrincipalAttr.appVersion
-  | typeof PrincipalAttr.appBuildNumber
-  | typeof PrincipalAttr.userAgent,
+  | typeof DeviceAttr.platform
+  | typeof DeviceAttr.osName
+  | typeof DeviceAttr.osVersion
+  | typeof DeviceAttr.deviceModelName
+  | typeof DeviceAttr.deviceBrand
+  | typeof DeviceAttr.deviceName
+  | typeof DeviceAttr.appVersion
+  | typeof DeviceAttr.appBuildNumber
+  | typeof DeviceAttr.userAgent,
   string | null
 > {
   return {
-    [PrincipalAttr.platform]: Platform.OS,
-    [PrincipalAttr.osName]: normString(Device.osName),
-    [PrincipalAttr.osVersion]: normString(Device.osVersion),
-    [PrincipalAttr.deviceModelName]: normString(Device.modelName),
-    [PrincipalAttr.deviceBrand]: normString(Device.brand),
-    [PrincipalAttr.deviceName]: normString(Constants.deviceName),
-    [PrincipalAttr.appVersion]: normString(Constants.expoConfig?.version),
-    [PrincipalAttr.appBuildNumber]: resolveAppBuildNumber(),
-    [PrincipalAttr.userAgent]: readWebUserAgent(),
+    [DeviceAttr.platform]: Platform.OS,
+    [DeviceAttr.osName]: normString(Device.osName),
+    [DeviceAttr.osVersion]: normString(Device.osVersion),
+    [DeviceAttr.deviceModelName]: normString(Device.modelName),
+    [DeviceAttr.deviceBrand]: normString(Device.brand),
+    [DeviceAttr.deviceName]: normString(Constants.deviceName),
+    [DeviceAttr.appVersion]: normString(Constants.expoConfig?.version),
+    [DeviceAttr.appBuildNumber]: resolveAppBuildNumber(),
+    [DeviceAttr.userAgent]: readWebUserAgent(),
   };
 }
 
-function isPrincipalRowComplete(
+function isDeviceEntityComplete(
   entity: Entity | undefined,
-  principalId: string
+  deviceId: string
 ): boolean {
   if (entity === undefined) return false;
   return (
-    entity.attributes[PrincipalAttr.id] === principalId &&
-    typeof entity.attributes[PrincipalAttr.createdAt] === 'string'
+    entity.attributes[DeviceAttr.id] === deviceId &&
+    typeof entity.attributes[DeviceAttr.createdAt] === 'string'
   );
 }
 
@@ -92,19 +92,19 @@ function snapshotDiffers(
 }
 
 /**
- * Ensures a `principal` entity exists locally with id + createdAt (first launch),
+ * Ensures a `device` entity exists locally with id + createdAt (first launch),
  * then on every launch refreshes `lastSeenAt` and any changed device metadata.
  */
-export async function ensurePrincipalEntity(
+export async function ensureDeviceEntity(
   db: PatchDb,
-  principalId: string
+  deviceId: string
 ): Promise<void> {
-  assertPrincipalId(principalId);
+  assertDeviceId(deviceId);
 
   const [res] = await db.read([
     {
-      entityType: PRINCIPAL_ENTITY_TYPE,
-      entityId: principalId,
+      entityType: DEVICE_ENTITY_TYPE,
+      entityId: deviceId,
       limit: 1,
     },
   ]);
@@ -112,12 +112,12 @@ export async function ensurePrincipalEntity(
   const now = new Date().toISOString();
   const snapshot = collectDeviceSnapshot();
 
-  if (!isPrincipalRowComplete(entity, principalId)) {
+  if (!isDeviceEntityComplete(entity, deviceId)) {
     const attributes: Record<string, unknown> = {
-      [PrincipalAttr.id]: principalId,
-      [PrincipalAttr.createdAt]: now,
-      [PrincipalAttr.firstSeenAt]: now,
-      [PrincipalAttr.lastSeenAt]: now,
+      [DeviceAttr.id]: deviceId,
+      [DeviceAttr.createdAt]: now,
+      [DeviceAttr.firstSeenAt]: now,
+      [DeviceAttr.lastSeenAt]: now,
     };
     for (const [k, v] of Object.entries(snapshot)) {
       if (v !== null) {
@@ -126,8 +126,8 @@ export async function ensurePrincipalEntity(
     }
     await db.write([
       {
-        entityId: principalId,
-        entityType: PRINCIPAL_ENTITY_TYPE,
+        entityId: deviceId,
+        entityType: DEVICE_ENTITY_TYPE,
         attributes,
       },
     ]);
@@ -136,17 +136,17 @@ export async function ensurePrincipalEntity(
 
   assert.ok(
     entity !== undefined,
-    'principal entity must exist after completeness check'
+    'device entity must exist after completeness check'
   );
   const stored = entity.attributes;
   const updates: Record<string, unknown> = {
-    [PrincipalAttr.lastSeenAt]: now,
+    [DeviceAttr.lastSeenAt]: now,
   };
 
-  const existingFirst = normString(stored[PrincipalAttr.firstSeenAt]);
+  const existingFirst = normString(stored[DeviceAttr.firstSeenAt]);
   if (existingFirst === null) {
-    const created = normString(stored[PrincipalAttr.createdAt]);
-    updates[PrincipalAttr.firstSeenAt] = created !== null ? created : now;
+    const created = normString(stored[DeviceAttr.createdAt]);
+    updates[DeviceAttr.firstSeenAt] = created !== null ? created : now;
   }
 
   for (const key of Object.keys(snapshot) as (keyof ReturnType<
@@ -161,8 +161,8 @@ export async function ensurePrincipalEntity(
 
   await db.write([
     {
-      entityId: principalId,
-      entityType: PRINCIPAL_ENTITY_TYPE,
+      entityId: deviceId,
+      entityType: DEVICE_ENTITY_TYPE,
       attributes: updates,
     },
   ]);

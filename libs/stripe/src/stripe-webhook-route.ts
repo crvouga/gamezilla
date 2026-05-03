@@ -4,7 +4,7 @@ import type {
   PatchDb,
   PatchDbSystemContext,
 } from '@gamezilla/patch-db/interface';
-import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
+import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
 import { Hono } from 'hono';
 import Stripe from 'stripe';
 import { stripeEventObjectId } from './event-object-id';
@@ -12,7 +12,7 @@ import { resolveAccountIdByStripeCustomerId } from './resolve-account-by-stripe-
 
 /** Stripe webhook handler — bypasses ABAC like other system contexts. */
 const PATCHES_DB_STRIPE_WEBHOOK_CONTEXT: PatchDbSystemContext = {
-  principalId: null,
+  deviceId: null,
   reason: 'stripe-webhook',
 };
 
@@ -62,7 +62,7 @@ async function recordVerifiedStripeWebhookInPatchDb(
     'stripe/payload': event as unknown,
     'stripe/objectType': 'event',
     'stripe/source': 'stripe_webhook',
-    'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+    'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
   };
   if (accountId !== null) {
     eventCacheAttrs['entity/owner'] = accountId;
@@ -84,7 +84,7 @@ async function recordVerifiedStripeWebhookInPatchDb(
         'entity/owner': accountId,
         'stripe/webhookEventType': event.type,
         'stripe/stripeObjectId': objectId,
-        'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+        'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
       },
     });
   }

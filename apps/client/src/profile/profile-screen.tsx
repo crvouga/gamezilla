@@ -1,4 +1,4 @@
-import { PrincipalAvatar } from '@gamezilla/client/profile/principal-avatar';
+import { DeviceAvatar } from '@gamezilla/client/profile/device-avatar';
 import { useProfile } from '@gamezilla/client/profile/use-profile';
 import { useAccountActions } from '@gamezilla/client/ui/use-account-actions';
 import {
@@ -25,9 +25,9 @@ export function ProfileScreen() {
       content={({ sx }) => (
         <Box style={sx}>
           <Box sx={{ alignItems: 'center', gap: 2 }}>
-            <PrincipalAvatar
+            <DeviceAvatar
               avatarConfig={profile.avatarConfig}
-              principalId={profile.principalId}
+              deviceId={profile.deviceId}
               size={80}
             />
             <Text variant="title" label={profile.displayLabel} />

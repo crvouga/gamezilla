@@ -8,7 +8,7 @@
  */
 
 import { useAuth, type AuthState } from '@gamezilla/client/auth/auth-context';
-import { PrincipalServiceToken } from '@gamezilla/client/auth/principal-service';
+import { DeviceServiceToken } from '@gamezilla/client/auth/device-service';
 import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import { JsonView, ResponsiveSurface } from '@gamezilla/lib/ui';
 import { Trans } from '@lingui/react/macro';
@@ -23,7 +23,7 @@ type CurrentMembership = ReturnType<typeof useCurrentMembership>;
 
 type SpaceDebugPayload = {
   self: {
-    principalId: string;
+    deviceId: string;
     accountId: AuthState['accountId'];
     mode: AuthState['mode'];
     displayName: AuthState['displayName'];
@@ -52,17 +52,17 @@ type SpaceDebugPayload = {
 };
 
 function buildPayload(args: {
-  selfPrincipalId: string;
+  selfDeviceId: string;
   auth: AuthState;
   spaceId: string | undefined;
   space: Space;
   current: CurrentMembership;
   members: SpaceMemberRow[];
 }): SpaceDebugPayload {
-  const { selfPrincipalId, auth, spaceId, space, current, members } = args;
+  const { selfDeviceId, auth, spaceId, space, current, members } = args;
   return {
     self: {
-      principalId: selfPrincipalId,
+      deviceId: selfDeviceId,
       accountId: auth.accountId,
       mode: auth.mode,
       displayName: auth.displayName,
@@ -108,9 +108,9 @@ export function SpaceDebugModal({
   current,
   members,
 }: SpaceDebugModalProps) {
-  const principalService = useDependency(PrincipalServiceToken);
+  const deviceService = useDependency(DeviceServiceToken);
   const auth = useAuth();
-  const selfPrincipalId = principalService.getPrincipalId();
+  const selfDeviceId = deviceService.getDeviceId();
   const { height: windowHeight } = useWindowDimensions();
   // Surface caps at 80% (mobile sheet) / unconstrained (desktop modal). Bound
   // the inner JSON viewer to ~65% of the viewport so it never escapes either
@@ -119,8 +119,8 @@ export function SpaceDebugModal({
 
   const payload = useMemo(
     () =>
-      buildPayload({ selfPrincipalId, auth, spaceId, space, current, members }),
-    [auth, current, members, selfPrincipalId, space, spaceId]
+      buildPayload({ selfDeviceId, auth, spaceId, space, current, members }),
+    [auth, current, members, selfDeviceId, space, spaceId]
   );
 
   return (

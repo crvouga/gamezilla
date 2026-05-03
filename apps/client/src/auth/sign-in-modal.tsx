@@ -1,5 +1,5 @@
 /**
- * Google-only sign-in surface. Shown from the account menu / commands when the user chooses Sign in.
+ * Google-only sign-in surface. Shown from the user menu / commands when the user chooses Sign in.
  */
 
 import {
@@ -61,8 +61,8 @@ export function SignInModal({
           variant="body"
           label={
             <Trans>
-              Sign in to link this device to your server account. Your data
-              stays local first.
+              Sign in to link this device to your server user. Your data stays
+              local first.
             </Trans>
           }
         />

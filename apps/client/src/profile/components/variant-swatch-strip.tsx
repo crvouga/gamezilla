@@ -13,7 +13,7 @@ export type VariantSwatchStripProps = {
   field: Extract<SchemaField, { kind: 'enum' }>;
   styleKey: StyleKey;
   draft: AvatarConfig;
-  principalId: string;
+  deviceId: string;
   onSelect: (variant: string | null) => void;
 };
 
@@ -23,7 +23,7 @@ export function VariantSwatchStrip({
   field,
   styleKey,
   draft,
-  principalId,
+  deviceId,
   onSelect,
 }: VariantSwatchStripProps) {
   const current = draft.options[field.key];
@@ -64,7 +64,7 @@ export function VariantSwatchStrip({
         return (
           <ProfileDiceBearAvatar
             config={thumbConfig}
-            fallbackSeed={principalId}
+            fallbackSeed={deviceId}
             size={ITEM - 12}
           />
         );

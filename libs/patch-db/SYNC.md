@@ -18,3 +18,10 @@
 ## API host
 
 - Gamezilla mounts ABAC on the authority `PatchDb` in `apps/api` (`abac-policies.ts` + `patch-db.ts`). Reads may be filtered by policy; that does **not** mean data is missing on the server.
+
+## Identity vocabulary (patch-db context)
+
+- **device** — per-install replication identity (`patch/createdBy`, `device/*` attrs).
+- **client** — HTTP client cookie (`clientId`) on API requests; `PatchDbClientContext`.
+- **account** — registered account id after login; `account/*` entity types.
+- **accountSession** — authenticated session rows (`accountSession/*`). Distinct from **`patch/sessionId`**, which is write-batch correlation only.

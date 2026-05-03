@@ -1,7 +1,7 @@
 import { useAuth } from '@gamezilla/client/auth/auth-context';
-import { PrincipalServiceToken } from '@gamezilla/client/auth/principal-service';
-import { displayNameForPrincipal } from '@gamezilla/client/profile/principal-display';
-import { PrincipalAttr } from '@gamezilla/domain/auth';
+import { DeviceServiceToken } from '@gamezilla/client/auth/device-service';
+import { displayNameForDevice } from '@gamezilla/client/profile/device-display';
+import { DeviceAttr } from '@gamezilla/domain/auth';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { parseAvatarConfigAttr } from '@gamezilla/domain/profile/avatar-config';
 import {
@@ -22,52 +22,52 @@ function readStringAttr(
 }
 
 /**
- * Identity of the current viewer in the form needed by the principal display
- * helpers below: principal id is always available; account id is only set when
+ * Identity of the current viewer in the form needed by the device display
+ * helpers below: device id is always available; account id is only set when
  * the viewer is signed in.
  */
 export function useSelfAuthIdentity(): {
-  selfPrincipalId: string;
+  selfDeviceId: string;
   selfAccountId: string | null;
 } {
-  const principalService = useDependency(PrincipalServiceToken);
+  const deviceService = useDependency(DeviceServiceToken);
   const auth = useAuth();
   return {
-    selfPrincipalId: principalService.getPrincipalId(),
+    selfDeviceId: deviceService.getDeviceId(),
     selfAccountId: auth.mode === 'signed-in' ? auth.accountId : null,
   };
 }
 
 /**
- * Resolves the profile entity id to look up for a principal:
- * - When `principalId` is the current viewer and they're signed in, use the
+ * Resolves the profile entity id to look up for a device:
+ * - When `deviceId` is the current viewer and they're signed in, use the
  *   auth-supplied accountId directly (matches `useProfile()`).
- * - Otherwise read `principal/accountId` from the principal entity, falling
- *   back to the principal-local profile id.
+ * - Otherwise read `device/accountId` from the device entity, falling
+ *   back to the device-local profile id.
  */
 export function resolveProfileKey(args: {
-  principalId: string;
-  principalById: Map<string, Entity>;
-  selfPrincipalId: string;
+  deviceId: string;
+  deviceById: Map<string, Entity>;
+  selfDeviceId: string;
   selfAccountId: string | null;
 }): string {
-  const { principalId, principalById, selfPrincipalId, selfAccountId } = args;
-  if (principalId === selfPrincipalId && selfAccountId !== null) {
+  const { deviceId, deviceById, selfDeviceId, selfAccountId } = args;
+  if (deviceId === selfDeviceId && selfAccountId !== null) {
     return selfAccountId;
   }
-  const principalRow = principalById.get(principalId);
+  const deviceEntity = deviceById.get(deviceId);
   const accountIdAttr = readStringAttr(
-    principalRow?.attributes as Record<string, unknown> | undefined,
-    PrincipalAttr.accountId
+    deviceEntity?.attributes as Record<string, unknown> | undefined,
+    DeviceAttr.accountId
   );
-  return accountIdAttr ?? principalId;
+  return accountIdAttr ?? deviceId;
 }
 
-export function principalPresentation(args: {
-  principalId: string;
-  principalById: Map<string, Entity>;
+export function devicePresentation(args: {
+  deviceId: string;
+  deviceById: Map<string, Entity>;
   profileById: Map<string, Entity>;
-  selfPrincipalId: string;
+  selfDeviceId: string;
   selfAccountId: string | null;
 }): { displayName: string; avatarConfig: AvatarConfig | null } {
   const profileKey = resolveProfileKey(args);
@@ -76,9 +76,9 @@ export function principalPresentation(args: {
     | Record<string, unknown>
     | undefined;
   return {
-    displayName: displayNameForPrincipal(
+    displayName: displayNameForDevice(
       attrs?.[ProfileAttr.displayName],
-      args.principalId
+      args.deviceId
     ),
     avatarConfig: parseAvatarConfigAttr(attrs, ProfileAttr.avatarConfig),
   };
@@ -88,7 +88,7 @@ export function principalPresentation(args: {
  * Loads the current viewer's account-scoped profile (when signed in) so
  * callers can layer it onto bulk-fetched profile maps. This makes display
  * lookups fall back to the live account display name without waiting for the
- * principal entity's `accountId` attribute to sync.
+ * device entity's `accountId` attribute to sync.
  */
 export function useSelfAccountProfile(selfAccountId: string | null): {
   entity: Entity | null;

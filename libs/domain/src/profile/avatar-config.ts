@@ -13,7 +13,7 @@ function isPlainObject(v: unknown): v is Record<string, unknown> {
 export type AvatarConfig = {
   /** Style key matching `@dicebear/collection` export names (e.g. `lorelei`, `pixelArt`). */
   style: string;
-  /** DiceBear seed; empty string means “use principal id” at render time. */
+  /** DiceBear seed; empty string means “use device id” at render time. */
   seed: string;
   /** Partial options merged into `createAvatar(style, { ...options, seed })`. */
   options: Record<string, unknown>;
@@ -60,13 +60,13 @@ export function serializeAvatarConfig(config: AvatarConfig): string {
   });
 }
 
-/** Effective seed for DiceBear (principal id when custom seed is empty). */
+/** Effective seed for DiceBear (device id when custom seed is empty). */
 export function resolveAvatarSeed(
   config: AvatarConfig,
-  principalId: string
+  deviceId: string
 ): string {
   const t = config.seed.trim();
-  return t.length > 0 ? t : principalId;
+  return t.length > 0 ? t : deviceId;
 }
 
 /**
@@ -87,7 +87,7 @@ export function parseAvatarConfigAttr(
 
 export function resolveAvatarConfig(
   attributes: Record<string, unknown> | undefined,
-  _principalId: string,
+  _deviceId: string,
   avatarConfigAttr: string
 ): AvatarConfig {
   const rawConfig = attributes?.[avatarConfigAttr];

@@ -3,8 +3,8 @@ import {
   ACCOUNT_PROVIDER_ENTITY_TYPE,
   AccountProviderAttr,
   GOOGLE_PROVIDER,
-  PRINCIPAL_ENTITY_TYPE,
-  PrincipalAttr,
+  DEVICE_ENTITY_TYPE,
+  DeviceAttr,
 } from '@gamezilla/domain/auth';
 import { PatchDbHookRegistry } from '@gamezilla/patch-db/hook-registry';
 import type {
@@ -158,7 +158,7 @@ describe('handleAuthClaimResult', () => {
       db,
       {
         googleIdToken: 'any',
-        principalId: '00000000-0000-4000-8000-000000000001',
+        deviceId: '00000000-0000-4000-8000-000000000001',
       },
       {}
     );
@@ -170,10 +170,10 @@ describe('handleAuthClaimResult', () => {
 
   it('creates account and session on first successful claim', async () => {
     const db = new MemoryPatchDb();
-    const principalId = '00000000-0000-4000-8000-0000000000aa';
+    const deviceId = '00000000-0000-4000-8000-0000000000aa';
     const r = await handleAuthClaimResult(
       db,
-      { googleIdToken: 'fake-token', principalId },
+      { googleIdToken: 'fake-token', deviceId },
       {
         googleClientId: GOOGLE_WEB_CLIENT_ID,
         verifyGoogleIdToken: verifyFirstClaim,
@@ -205,7 +205,7 @@ describe('handleAuthClaimResult', () => {
             },
             {
               type: '=',
-              attribute: AccountProviderAttr.providerAccountId,
+              attribute: AccountProviderAttr.providerUserId,
               value: 'google-sub-test',
             },
           ],
@@ -219,10 +219,10 @@ describe('handleAuthClaimResult', () => {
     expect(providers.entities.length).toBe(1);
   });
 
-  it('reuses same accountId for same Google sub on a second device principal', async () => {
+  it('reuses same accountId for same Google sub on a second device', async () => {
     const db = new MemoryPatchDb();
-    const principalA = '00000000-0000-4000-8000-0000000000a1';
-    const principalB = '00000000-0000-4000-8000-0000000000b2';
+    const deviceA = '00000000-0000-4000-8000-0000000000a1';
+    const deviceB = '00000000-0000-4000-8000-0000000000b2';
     const opts = {
       googleClientId: GOOGLE_WEB_CLIENT_ID,
       verifyGoogleIdToken: verifySharedSub,
@@ -230,7 +230,7 @@ describe('handleAuthClaimResult', () => {
 
     const r1 = await handleAuthClaimResult(
       db,
-      { googleIdToken: 't1', principalId: principalA },
+      { googleIdToken: 't1', deviceId: deviceA },
       opts
     );
     expect(r1.status).toBe(200);
@@ -239,42 +239,42 @@ describe('handleAuthClaimResult', () => {
 
     const r2 = await handleAuthClaimResult(
       db,
-      { googleIdToken: 't2', principalId: principalB },
+      { googleIdToken: 't2', deviceId: deviceB },
       opts
     );
     expect(r2.status).toBe(200);
     if (r2.status !== 200) return;
     expect(r2.json.accountId).toBe(accountId1);
 
-    const readPrincipalB = await db.read([
-      { entityType: PRINCIPAL_ENTITY_TYPE, entityId: principalB, limit: 1 },
+    const readDeviceB = await db.read([
+      { entityType: DEVICE_ENTITY_TYPE, entityId: deviceB, limit: 1 },
     ]);
-    const pB = readPrincipalB[0];
+    const pB = readDeviceB[0];
     expect(pB).toBeDefined();
     if (pB === undefined) return;
     const ent = pB.entities[0];
     expect(ent).toBeDefined();
     if (ent === undefined) return;
-    expect(ent.attributes['principal/accountId']).toBe(accountId1);
+    expect(ent.attributes['device/accountId']).toBe(accountId1);
   });
 
-  it('rebinds the principal to the new account when previously bound to a different account', async () => {
+  it('rebinds the device to the new account when previously bound to a different account', async () => {
     const db = new MemoryPatchDb();
-    const principalId = '00000000-0000-4000-8000-00000000c001';
+    const deviceId = '00000000-0000-4000-8000-00000000c001';
     const staleAccount = '00000000-0000-4000-8000-00000000d001';
     await db.write([
       {
-        entityId: principalId,
-        entityType: PRINCIPAL_ENTITY_TYPE,
+        entityId: deviceId,
+        entityType: DEVICE_ENTITY_TYPE,
         attributes: {
-          [PrincipalAttr.accountId]: staleAccount,
+          [DeviceAttr.accountId]: staleAccount,
         },
       },
     ]);
 
     const r = await handleAuthClaimResult(
       db,
-      { googleIdToken: 't', principalId },
+      { googleIdToken: 't', deviceId },
       {
         googleClientId: GOOGLE_WEB_CLIENT_ID,
         verifyGoogleIdToken: verifyRebind,
@@ -284,15 +284,15 @@ describe('handleAuthClaimResult', () => {
     if (r.status !== 200) return;
     expect(r.json.accountId).not.toBe(staleAccount);
 
-    const readPrincipal = await db.read([
-      { entityType: PRINCIPAL_ENTITY_TYPE, entityId: principalId, limit: 1 },
+    const readDevice = await db.read([
+      { entityType: DEVICE_ENTITY_TYPE, entityId: deviceId, limit: 1 },
     ]);
-    const p = readPrincipal[0];
+    const p = readDevice[0];
     expect(p).toBeDefined();
     if (p === undefined) return;
     const ent = p.entities[0];
     expect(ent).toBeDefined();
     if (ent === undefined) return;
-    expect(ent.attributes['principal/accountId']).toBe(r.json.accountId);
+    expect(ent.attributes['device/accountId']).toBe(r.json.accountId);
   });
 });

@@ -13,7 +13,7 @@ export type SpaceView = {
 };
 
 export type SpaceMemberRow = {
-  principalId: string;
+  deviceId: string;
   displayName: string;
   avatarConfig: AvatarConfig | null;
   role: 'host' | 'guest';

@@ -27,7 +27,7 @@ import {
 } from '../interface';
 import { patchRowIsSyncRejected } from '../patch-row-sync-rejected';
 import { DEFAULT_PATCH_DB_COMPACTION_POLICY } from '../policy/compaction-policy';
-import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '../policy/system-principal';
+import { PATCH_DB_SYSTEM_DEVICE_ID } from '../policy/system-device';
 import { finishCompactionAfterInsert } from '../compact-entity-tx-helpers';
 import { topologicalSortPatches } from '../topological-sort';
 import { migratePatchDbPostgres } from './migrate';
@@ -274,7 +274,7 @@ export class PatchDbImplPostgres implements PatchDb {
       delete merged[k];
     }
     merged['patch/compacted'] = '1';
-    merged['patch/createdBy'] = PATCH_DB_SYSTEM_PRINCIPAL_ID;
+    merged['patch/createdBy'] = PATCH_DB_SYSTEM_DEVICE_ID;
     merged['patch/sessionId'] = '';
 
     const now = new Date().toISOString();

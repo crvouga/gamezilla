@@ -15,7 +15,7 @@
     "libs/room/src/events/index.ts",
     "libs/room/src/testkit/index.ts",
     "apps/client/src/auth/fetch-client-runtime-config.ts",
-    "apps/client/src/auth/use-principals-profiles.ts",
+    "apps/client/src/auth/use-device-profiles.ts",
     "apps/client/src/connection/offline-indicator.tsx",
     "apps/client/src/profile/profile-actions.ts",
   ],

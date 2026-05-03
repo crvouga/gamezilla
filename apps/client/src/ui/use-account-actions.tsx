@@ -166,7 +166,7 @@ function buildActions(args: {
 }
 
 /**
- * Header overflow actions for account / connection / settings.
+ * Header overflow actions for user / connection / settings.
  * Tab roots should pass these only on mobile (`useBreakpoint() === 'mobile'`).
  */
 export function useAccountActions(): ScreenBaseAction[] {

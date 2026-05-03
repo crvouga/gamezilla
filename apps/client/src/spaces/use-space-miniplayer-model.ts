@@ -48,9 +48,9 @@ export function useSpaceMiniplayerModel(): SpaceMiniplayerModel {
 
   const hostId = space.hostId ?? '';
   const hostAvatarConfig =
-    members.find((m) => m.principalId === hostId)?.avatarConfig ?? null;
+    members.find((m) => m.deviceId === hostId)?.avatarConfig ?? null;
   const membersForStack = hostId
-    ? members.filter((m) => m.principalId !== hostId)
+    ? members.filter((m) => m.deviceId !== hostId)
     : members;
 
   return {

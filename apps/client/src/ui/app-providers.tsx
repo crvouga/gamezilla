@@ -5,7 +5,7 @@ import {
   useFonts,
 } from '@expo-google-fonts/nunito';
 import { AuthProvider } from '@gamezilla/client/auth/auth-context';
-import { PrincipalAuthShell } from '@gamezilla/client/auth/principal-auth-shell';
+import { DeviceAuthShell } from '@gamezilla/client/auth/device-auth-shell';
 import { AppI18nProvider } from '@gamezilla/client/i18n/i18n-provider';
 import { PwaUpdatePromptBanner } from '@gamezilla/client/pwa/update-prompt';
 import { AppCommands } from '@gamezilla/client/ui/app-commands';
@@ -59,7 +59,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
             <DismissibleBannerPortalProvider>
               <BottomSheetModalProvider>
                 <ConfigContainerProvider>
-                  <PrincipalAuthShell>
+                  <DeviceAuthShell>
                     <PatchBootstrap>
                       <AuthProvider>
                         <CommandRegistryProvider storage={AsyncStorage}>
@@ -72,7 +72,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
                         </CommandRegistryProvider>
                       </AuthProvider>
                     </PatchBootstrap>
-                  </PrincipalAuthShell>
+                  </DeviceAuthShell>
                 </ConfigContainerProvider>
               </BottomSheetModalProvider>
             </DismissibleBannerPortalProvider>

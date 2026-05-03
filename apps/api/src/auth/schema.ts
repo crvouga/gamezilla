@@ -5,5 +5,5 @@ const UUID_REGEX =
 
 export const authClaimRequestSchema = z.object({
   googleIdToken: z.string().min(1, 'googleIdToken must be non-empty').max(8192),
-  principalId: z.string().regex(UUID_REGEX, 'principalId must be a valid UUID'),
+  deviceId: z.string().regex(UUID_REGEX, 'deviceId must be a valid UUID'),
 });

@@ -5,13 +5,13 @@ import { Trans, useLingui } from '@lingui/react/macro';
 
 export function AvatarPreview({
   previewConfig,
-  principalId,
+  deviceId,
   initialized,
   shuffleSeed,
   copySeed,
 }: {
   previewConfig: AvatarConfig;
-  principalId: string;
+  deviceId: string;
   initialized: boolean;
   shuffleSeed: () => void;
   copySeed: () => Promise<void>;
@@ -21,7 +21,7 @@ export function AvatarPreview({
     <Box sx={{ alignItems: 'center', gap: 2, minHeight: 260 }}>
       <ProfileDiceBearAvatar
         config={previewConfig}
-        fallbackSeed={principalId}
+        fallbackSeed={deviceId}
         size={192}
       />
       <Box

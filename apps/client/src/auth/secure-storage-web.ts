@@ -6,7 +6,7 @@ export function createWebSecureStorage(): SecureStorage {
     async getItem(key: string): Promise<string | null> {
       if (typeof globalThis.localStorage === 'undefined') {
         throw new Error(
-          'localStorage is not available — principalId cannot be persisted on this platform'
+          'localStorage is not available — deviceId cannot be persisted on this platform'
         );
       }
       return globalThis.localStorage.getItem(key);
@@ -14,7 +14,7 @@ export function createWebSecureStorage(): SecureStorage {
     async setItem(key: string, value: string): Promise<void> {
       if (typeof globalThis.localStorage === 'undefined') {
         throw new Error(
-          'localStorage is not available — principalId cannot be persisted on this platform'
+          'localStorage is not available — deviceId cannot be persisted on this platform'
         );
       }
       globalThis.localStorage.setItem(key, value);
@@ -22,7 +22,7 @@ export function createWebSecureStorage(): SecureStorage {
     async deleteItem(key: string): Promise<void> {
       if (typeof globalThis.localStorage === 'undefined') {
         throw new Error(
-          'localStorage is not available — principalId cannot be persisted on this platform'
+          'localStorage is not available — deviceId cannot be persisted on this platform'
         );
       }
       globalThis.localStorage.removeItem(key);

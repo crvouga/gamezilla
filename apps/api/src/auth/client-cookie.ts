@@ -1,20 +1,20 @@
 import { getCookie, setCookie } from 'hono/cookie';
 import type { MiddlewareHandler } from 'hono';
 
-const VISITOR_COOKIE_NAME = 'visitorId';
+const CLIENT_COOKIE_NAME = 'clientId';
 const ONE_YEAR_SECONDS = 365 * 24 * 60 * 60;
 
 /**
- * Parses the visitorId from a raw `Request`'s Cookie header.
+ * Parses the clientId from a raw `Request`'s Cookie header.
  * Falls back to a fresh UUID when the cookie is absent — the Hono
  * middleware will set the cookie on the response so future requests
  * carry the same id.
  */
-export function parseVisitorIdFromCookies(req: Request): string {
+export function parseClientIdFromCookies(req: Request): string {
   const header = req.headers.get('Cookie') ?? '';
   for (const part of header.split(';')) {
     const [name, ...rest] = part.split('=');
-    if (name?.trim() === VISITOR_COOKIE_NAME) {
+    if (name?.trim() === CLIENT_COOKIE_NAME) {
       const value = rest.join('=').trim();
       if (value.length > 0) return value;
     }
@@ -23,18 +23,18 @@ export function parseVisitorIdFromCookies(req: Request): string {
 }
 
 /**
- * Hono middleware that ensures every request has a `visitorId`.
+ * Hono middleware that ensures every request has a `clientId`.
  * Reads it from the cookie; if absent, generates a UUID and sets the cookie.
- * The value is stored on the Hono context via `c.set('visitorId', id)`.
+ * The value is stored on the Hono context via `c.set('clientId', id)`.
  */
-export const visitorCookieMiddleware: MiddlewareHandler<{
-  Variables: { visitorId: string };
+export const clientCookieMiddleware: MiddlewareHandler<{
+  Variables: { clientId: string };
 }> = async (c, next) => {
-  let visitorId = getCookie(c, VISITOR_COOKIE_NAME);
+  let clientId = getCookie(c, CLIENT_COOKIE_NAME);
 
-  if (!visitorId || visitorId.trim().length === 0) {
-    visitorId = crypto.randomUUID();
-    setCookie(c, VISITOR_COOKIE_NAME, visitorId, {
+  if (!clientId || clientId.trim().length === 0) {
+    clientId = crypto.randomUUID();
+    setCookie(c, CLIENT_COOKIE_NAME, clientId, {
       path: '/',
       httpOnly: true,
       sameSite: 'Lax',
@@ -43,6 +43,6 @@ export const visitorCookieMiddleware: MiddlewareHandler<{
     });
   }
 
-  c.set('visitorId', visitorId);
+  c.set('clientId', clientId);
   await next();
 };

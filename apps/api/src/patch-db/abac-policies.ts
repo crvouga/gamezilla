@@ -1,11 +1,12 @@
 import {
   ACCOUNT_PROVIDER_ENTITY_TYPE,
+  ACCOUNT_ENTITY_TYPE,
   AccountAttr,
   AccountProviderAttr,
-  PRINCIPAL_ENTITY_TYPE,
-  PRINCIPAL_SESSION_ENTITY_TYPE,
-  PrincipalAttr,
-  PrincipalSessionAttr,
+  DEVICE_ENTITY_TYPE,
+  ACCOUNT_SESSION_ENTITY_TYPE,
+  DeviceAttr,
+  AccountSessionAttr,
 } from '@gamezilla/domain/auth';
 import { CLIENT_CONFIG_ENTITY_TYPE } from '@gamezilla/domain/client-config/client-config-entities';
 import {
@@ -31,7 +32,7 @@ import {
   READ_WHERE_ALWAYS_TRUE,
   READ_WHERE_NEVER_TRUE,
 } from '@gamezilla/patch-db/interface';
-import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
+import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
 import type {
   VisibilityPolicy,
   VisibilityPolicyReadContext,
@@ -45,13 +46,13 @@ import type {
 export type AppAuthContext = PatchDbAuthContext & {
   readonly accountId: string;
   readonly memberOfSpaceIds: readonly string[];
-  readonly friendAccountIds: readonly string[];
-  readonly blockedAccountIds: readonly string[];
+  readonly friendUserIds: readonly string[];
+  readonly blockedUserIds: readonly string[];
 };
 
-export type AppVisitorContext = {
-  readonly visitorId: string;
-  readonly principalId?: undefined;
+export type AppClientContext = {
+  readonly clientId: string;
+  readonly deviceId?: undefined;
 };
 
 type AppVisibilityPolicy = VisibilityPolicy<AppAuthContext>;
@@ -59,7 +60,7 @@ type AppReadContext = VisibilityPolicyReadContext<AppAuthContext>;
 
 /**
  * Wraps an authenticated-only read function so it can be assigned directly to
- * `VisibilityPolicy.read`. Visitors get {@link READ_WHERE_NEVER_TRUE} (no
+ * `VisibilityPolicy.read`. Unauthenticated clients get {@link READ_WHERE_NEVER_TRUE} (no
  * rows) without each policy repeating the narrowing check.
  */
 function authOnlyRead(
@@ -71,7 +72,7 @@ function authOnlyRead(
       : READ_WHERE_NEVER_TRUE;
 }
 
-/** Visitor writes skip the auth branch; session middleware always uses {@link AppAuthContext}. */
+/** Client-only writes skip the auth branch; session middleware always uses {@link AppAuthContext}. */
 function appAuthFromWriteContext(ctx: PatchDbContext): AppAuthContext | null {
   if (!isPatchDbAuthContext(ctx)) return null;
   return ctx as AppAuthContext;
@@ -86,33 +87,33 @@ function createdBy(patch: PatchInput): string {
   return top || fromAttr;
 }
 
-function assertCreatedByMatchesPrincipal(
+function assertCreatedByMatchesDevice(
   ctx: PatchDbAuthContext,
   patch: PatchInput
 ): void {
   const cb = createdBy(patch);
-  if (cb !== ctx.principalId && cb !== PATCH_DB_SYSTEM_PRINCIPAL_ID) {
-    throw new ForbiddenError('patch/createdBy must match principal', {
-      expected: ctx.principalId,
+  if (cb !== ctx.deviceId && cb !== PATCH_DB_SYSTEM_DEVICE_ID) {
+    throw new ForbiddenError('patch/createdBy must match device', {
+      expected: ctx.deviceId,
       actual: cb,
     });
   }
 }
 
-const principalPolicy: AppVisibilityPolicy = {
+const devicePolicy: AppVisibilityPolicy = {
   read: authOnlyRead((ctx) => ({
     type: '=',
-    attribute: PrincipalAttr.id,
-    value: ctx.principalId,
+    attribute: DeviceAttr.id,
+    value: ctx.deviceId,
   })),
   write: async (ctx, patch, _tx) => {
     if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
-    assertCreatedByMatchesPrincipal(appCtx, patch);
-    const id = patch.attributes[PrincipalAttr.id];
-    if (typeof id === 'string' && id !== appCtx.principalId) {
-      throw new ForbiddenError('principal id mismatch', { id });
+    assertCreatedByMatchesDevice(appCtx, patch);
+    const id = patch.attributes[DeviceAttr.id];
+    if (typeof id === 'string' && id !== appCtx.deviceId) {
+      throw new ForbiddenError('device id mismatch', { id });
     }
   },
 };
@@ -127,7 +128,7 @@ const accountPolicy: AppVisibilityPolicy = {
     if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
-    assertCreatedByMatchesPrincipal(appCtx, patch);
+    assertCreatedByMatchesDevice(appCtx, patch);
     const id = patch.attributes[AccountAttr.id];
     if (typeof id === 'string' && id !== appCtx.accountId) {
       throw new ForbiddenError('account id mismatch', { id });
@@ -135,15 +136,15 @@ const accountPolicy: AppVisibilityPolicy = {
   },
 };
 
-const principalSessionPolicy: AppVisibilityPolicy = {
+const accountSessionPolicy: AppVisibilityPolicy = {
   read: authOnlyRead((ctx) => ({
     type: '=',
-    attribute: PrincipalSessionAttr.principalId,
-    value: ctx.principalId,
+    attribute: AccountSessionAttr.deviceId,
+    value: ctx.deviceId,
   })),
   write: async (ctx) => {
     if (isPatchDbSystemContext(ctx)) return;
-    throw new ForbiddenError('principalSession is system-managed');
+    throw new ForbiddenError('accountSession is system-managed');
   },
 };
 
@@ -157,7 +158,7 @@ const accountProviderPolicy: AppVisibilityPolicy = {
     if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
-    assertCreatedByMatchesPrincipal(appCtx, patch);
+    assertCreatedByMatchesDevice(appCtx, patch);
     const aid = patch.attributes[AccountProviderAttr.accountId];
     if (typeof aid === 'string' && aid !== appCtx.accountId) {
       throw new ForbiddenError('accountProvider accountId mismatch');
@@ -187,13 +188,13 @@ const profilePolicy: AppVisibilityPolicy = {
     if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
-    assertCreatedByMatchesPrincipal(appCtx, patch);
+    assertCreatedByMatchesDevice(appCtx, patch);
     const pid = patch.attributes[ProfileAttr.id];
-    if (typeof pid === 'string' && pid !== appCtx.principalId) {
-      throw new ForbiddenError('profile principal mismatch');
+    if (typeof pid === 'string' && pid !== appCtx.deviceId) {
+      throw new ForbiddenError('profile device mismatch');
     }
     if (
-      patch.entityId !== appCtx.principalId &&
+      patch.entityId !== appCtx.deviceId &&
       patch.entityId !== appCtx.accountId
     ) {
       throw new ForbiddenError('profile entity id mismatch');
@@ -211,7 +212,7 @@ const profilePrivatePolicy: AppVisibilityPolicy = {
     if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
-    assertCreatedByMatchesPrincipal(appCtx, patch);
+    assertCreatedByMatchesDevice(appCtx, patch);
     const owner = patch.attributes['entity/owner'];
     if (owner !== undefined && owner !== appCtx.accountId) {
       throw new ForbiddenError('entity/owner mismatch');
@@ -224,11 +225,11 @@ const spacePolicy: AppVisibilityPolicy = {
     (ctx): PatchDbQueryWhereClause => ({
       type: 'or',
       clauses: [
-        { type: '=', attribute: SpaceAttr.hostId, value: ctx.principalId },
+        { type: '=', attribute: SpaceAttr.hostId, value: ctx.deviceId },
         { type: '=', attribute: 'entity/owner', value: ctx.accountId },
         {
           type: 'contains',
-          attribute: 'space/memberAccountIds',
+          attribute: 'space/memberUserIds',
           value: ctx.accountId,
         },
       ],
@@ -238,11 +239,11 @@ const spacePolicy: AppVisibilityPolicy = {
     if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
-    assertCreatedByMatchesPrincipal(appCtx, patch);
+    assertCreatedByMatchesDevice(appCtx, patch);
     const hostId = patch.attributes[SpaceAttr.hostId];
     const owner = patch.attributes['entity/owner'];
-    const members = patch.attributes['space/memberAccountIds'];
-    const isHost = typeof hostId === 'string' && hostId === appCtx.principalId;
+    const members = patch.attributes['space/memberUserIds'];
+    const isHost = typeof hostId === 'string' && hostId === appCtx.deviceId;
     const isOwner = typeof owner === 'string' && owner === appCtx.accountId;
     const isMember =
       Array.isArray(members) && members.includes(appCtx.accountId);
@@ -271,7 +272,7 @@ const spaceMembershipPolicy: AppVisibilityPolicy = {
     if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
-    assertCreatedByMatchesPrincipal(appCtx, patch);
+    assertCreatedByMatchesDevice(appCtx, patch);
   },
 };
 
@@ -294,7 +295,7 @@ const chatMessagePolicy: AppVisibilityPolicy = {
     if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
-    assertCreatedByMatchesPrincipal(appCtx, patch);
+    assertCreatedByMatchesDevice(appCtx, patch);
     const sid = patch.attributes['chat.message/spaceId'];
     if (typeof sid !== 'string' || !appCtx.memberOfSpaceIds.includes(sid)) {
       throw new ForbiddenError('chat.message space membership required');
@@ -309,12 +310,12 @@ const friendshipPolicy: AppVisibilityPolicy = {
       clauses: [
         {
           type: '=',
-          attribute: 'friendship/fromAccountId',
+          attribute: 'friendship/fromUserId',
           value: ctx.accountId,
         },
         {
           type: '=',
-          attribute: 'friendship/toAccountId',
+          attribute: 'friendship/toUserId',
           value: ctx.accountId,
         },
       ],
@@ -324,9 +325,9 @@ const friendshipPolicy: AppVisibilityPolicy = {
     if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
-    assertCreatedByMatchesPrincipal(appCtx, patch);
-    const from = patch.attributes['friendship/fromAccountId'];
-    const to = patch.attributes['friendship/toAccountId'];
+    assertCreatedByMatchesDevice(appCtx, patch);
+    const from = patch.attributes['friendship/fromUserId'];
+    const to = patch.attributes['friendship/toUserId'];
     if (
       (typeof from === 'string' && from === appCtx.accountId) ||
       (typeof to === 'string' && to === appCtx.accountId)
@@ -344,12 +345,12 @@ const friendRequestPolicy: AppVisibilityPolicy = {
       clauses: [
         {
           type: '=',
-          attribute: 'friend.request/fromAccountId',
+          attribute: 'friend.request/fromUserId',
           value: ctx.accountId,
         },
         {
           type: '=',
-          attribute: 'friend.request/toAccountId',
+          attribute: 'friend.request/toUserId',
           value: ctx.accountId,
         },
       ],
@@ -359,7 +360,7 @@ const friendRequestPolicy: AppVisibilityPolicy = {
     if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
-    assertCreatedByMatchesPrincipal(appCtx, patch);
+    assertCreatedByMatchesDevice(appCtx, patch);
   },
 };
 
@@ -370,7 +371,7 @@ const matchPolicy: AppVisibilityPolicy = {
       clauses: [
         {
           type: 'contains',
-          attribute: 'match/participantAccountIds',
+          attribute: 'match/participantUserIds',
           value: ctx.accountId,
         },
         { type: '=', attribute: 'entity/owner', value: ctx.accountId },
@@ -381,7 +382,7 @@ const matchPolicy: AppVisibilityPolicy = {
     if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
-    assertCreatedByMatchesPrincipal(appCtx, patch);
+    assertCreatedByMatchesDevice(appCtx, patch);
   },
 };
 
@@ -403,7 +404,7 @@ const inventoryItemPolicy: AppVisibilityPolicy = {
     if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
-    assertCreatedByMatchesPrincipal(appCtx, patch);
+    assertCreatedByMatchesDevice(appCtx, patch);
   },
 };
 
@@ -477,9 +478,9 @@ const stripeOwnedSnapshotPolicy: AppVisibilityPolicy = {
 export const DEFAULT_PATCH_DB_VISIBILITY_POLICIES: Readonly<
   Record<string, AppVisibilityPolicy>
 > = {
-  [PRINCIPAL_ENTITY_TYPE]: principalPolicy,
-  account: accountPolicy,
-  [PRINCIPAL_SESSION_ENTITY_TYPE]: principalSessionPolicy,
+  [DEVICE_ENTITY_TYPE]: devicePolicy,
+  [ACCOUNT_ENTITY_TYPE]: accountPolicy,
+  [ACCOUNT_SESSION_ENTITY_TYPE]: accountSessionPolicy,
   [ACCOUNT_PROVIDER_ENTITY_TYPE]: accountProviderPolicy,
   [CLIENT_CONFIG_ENTITY_TYPE]: clientConfigPolicy,
   'admin/metric': adminMetricPolicy,

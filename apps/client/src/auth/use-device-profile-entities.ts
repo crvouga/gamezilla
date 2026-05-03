@@ -1,4 +1,4 @@
-import { PRINCIPAL_ENTITY_TYPE, PrincipalAttr } from '@gamezilla/domain/auth';
+import { DEVICE_ENTITY_TYPE, DeviceAttr } from '@gamezilla/domain/auth';
 import { PROFILE_ENTITY_TYPE } from '@gamezilla/domain/profile/profile-entities';
 import type { Entity } from '@gamezilla/patch-db/interface';
 import { useQuery } from '@gamezilla/patch-db/react';
@@ -13,54 +13,54 @@ function readStringAttr(
   return typeof v === 'string' && v.length > 0 ? v : null;
 }
 
-export type PrincipalProfileEntityMaps = {
-  principalById: Map<string, Entity>;
+export type DeviceProfileEntityMaps = {
+  deviceById: Map<string, Entity>;
   profileById: Map<string, Entity>;
 };
 
 /**
- * Resolves profile id per principal: `principal/accountId` profile when bound,
- * otherwise the principal-local profile (`entityId === principalId`).
+ * Resolves profile id per device: `device/accountId` profile when bound,
+ * otherwise the device-local profile (`entityId === deviceId`).
  */
-function profileEntityIdForPrincipal(principalRow: Entity | undefined): string {
+function profileEntityIdForDevice(deviceEntity: Entity | undefined): string {
   const accountId = readStringAttr(
-    principalRow?.attributes as Record<string, unknown> | undefined,
-    PrincipalAttr.accountId
+    deviceEntity?.attributes as Record<string, unknown> | undefined,
+    DeviceAttr.accountId
   );
   if (accountId !== null) return accountId;
-  return principalRow?.entityId ?? '';
+  return deviceEntity?.entityId ?? '';
 }
 
 /**
- * Loads `principal` rows and their corresponding `profile` rows
- * (account-scoped or principal-scoped).
+ * Loads `device` rows and their corresponding `profile` rows
+ * (account-scoped or device-scoped).
  */
-export function usePrincipalProfileEntities(
-  principalIds: string[]
-): PrincipalProfileEntityMaps {
+export function useDeviceProfileEntities(
+  deviceIds: string[]
+): DeviceProfileEntityMaps {
   const sortedUniqueIds = useMemo(
-    () => [...new Set(principalIds)].sort(),
-    [principalIds]
+    () => [...new Set(deviceIds)].sort(),
+    [deviceIds]
   );
 
-  const principalsQuery = useMemo(
+  const devicesQuery = useMemo(
     () =>
       sortedUniqueIds.length === 0
-        ? { entityType: PRINCIPAL_ENTITY_TYPE, limit: 0 }
-        : { entityType: PRINCIPAL_ENTITY_TYPE, entityId: sortedUniqueIds },
+        ? { entityType: DEVICE_ENTITY_TYPE, limit: 0 }
+        : { entityType: DEVICE_ENTITY_TYPE, entityId: sortedUniqueIds },
     [sortedUniqueIds]
   );
 
-  const principalsResult = useQuery(principalsQuery);
+  const devicesResult = useQuery(devicesQuery);
 
   const profileIds = useMemo(() => {
     const ids = new Set<string>();
-    for (const p of principalsResult.entities) {
-      const pid = profileEntityIdForPrincipal(p);
+    for (const p of devicesResult.entities) {
+      const pid = profileEntityIdForDevice(p);
       if (pid.length > 0) ids.add(pid);
     }
     return [...ids].sort();
-  }, [principalsResult.entities]);
+  }, [devicesResult.entities]);
 
   const profilesResult = useQuery(
     profileIds.length === 0
@@ -68,13 +68,13 @@ export function usePrincipalProfileEntities(
       : { entityType: PROFILE_ENTITY_TYPE, entityId: profileIds }
   );
 
-  const principalById = useMemo(() => {
+  const deviceById = useMemo(() => {
     const m = new Map<string, Entity>();
-    for (const p of principalsResult.entities) {
+    for (const p of devicesResult.entities) {
       m.set(p.entityId, p);
     }
     return m;
-  }, [principalsResult.entities]);
+  }, [devicesResult.entities]);
 
   const profileById = useMemo(() => {
     const m = new Map<string, Entity>();
@@ -84,5 +84,5 @@ export function usePrincipalProfileEntities(
     return m;
   }, [profilesResult.entities]);
 
-  return { principalById, profileById };
+  return { deviceById, profileById };
 }

@@ -2,7 +2,7 @@ import { cors } from 'hono/cors';
 
 /**
  * CORS for browser / Expo web clients calling the API.
- * `credentials: true` is required so the visitorId cookie is
+ * `credentials: true` is required so the clientId cookie is
  * included in cross-origin requests. With credentials, `origin`
  * cannot be `*` — the callback echoes back the request origin.
  */

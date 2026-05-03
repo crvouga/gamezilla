@@ -1,19 +1,19 @@
 import {
-  PRINCIPAL_SESSION_ENTITY_TYPE,
-  PrincipalSessionAttr,
+  ACCOUNT_SESSION_ENTITY_TYPE,
+  AccountSessionAttr,
 } from '@gamezilla/domain/auth';
 import type { Entity } from '@gamezilla/patch-db/interface';
 import { useQuery } from '@gamezilla/patch-db/react';
 import { useMemo } from 'react';
 
-export type PrincipalSessionAggregate = {
+export type AccountSessionAggregate = {
   active: number;
   latestExpiresAt: string | null;
 };
 
 function isSessionActive(entity: Entity): boolean {
-  const token = entity.attributes[PrincipalSessionAttr.token];
-  const expiresAt = entity.attributes[PrincipalSessionAttr.expiresAt];
+  const token = entity.attributes[AccountSessionAttr.token];
+  const expiresAt = entity.attributes[AccountSessionAttr.expiresAt];
   if (typeof token !== 'string' || token.length === 0) return false;
   if (typeof expiresAt !== 'string') return false;
   const t = Date.parse(expiresAt);
@@ -21,36 +21,36 @@ function isSessionActive(entity: Entity): boolean {
   return t > Date.now();
 }
 
-function readPrincipalId(entity: Entity): string | null {
-  const v = entity.attributes[PrincipalSessionAttr.principalId];
+function readDeviceId(entity: Entity): string | null {
+  const v = entity.attributes[AccountSessionAttr.deviceId];
   return typeof v === 'string' && v.length > 0 ? v : null;
 }
 
 function readExpiresAt(entity: Entity): string | null {
-  const v = entity.attributes[PrincipalSessionAttr.expiresAt];
+  const v = entity.attributes[AccountSessionAttr.expiresAt];
   return typeof v === 'string' && v.length > 0 ? v : null;
 }
 
 /**
- * Active session counts and latest expiry per principal id.
+ * Active session counts and latest expiry per device id.
  */
-export function useSessionsForPrincipals(principalIds: string[]): {
-  sessionsByPrincipal: Map<string, PrincipalSessionAggregate>;
+export function useSessionsForDevices(deviceIds: string[]): {
+  sessionsByDevice: Map<string, AccountSessionAggregate>;
 } {
   const sortedUniqueIds = useMemo(
-    () => [...new Set(principalIds)].sort(),
-    [principalIds]
+    () => [...new Set(deviceIds)].sort(),
+    [deviceIds]
   );
 
   const query = useMemo(
     () =>
       sortedUniqueIds.length === 0
-        ? { entityType: PRINCIPAL_SESSION_ENTITY_TYPE, limit: 0 }
+        ? { entityType: ACCOUNT_SESSION_ENTITY_TYPE, limit: 0 }
         : {
-            entityType: PRINCIPAL_SESSION_ENTITY_TYPE,
+            entityType: ACCOUNT_SESSION_ENTITY_TYPE,
             where: {
               type: 'in' as const,
-              attribute: PrincipalSessionAttr.principalId,
+              attribute: AccountSessionAttr.deviceId,
               values: sortedUniqueIds,
             },
             limit: 500,
@@ -60,31 +60,28 @@ export function useSessionsForPrincipals(principalIds: string[]): {
 
   const result = useQuery(query);
 
-  const sessionsByPrincipal = useMemo(() => {
-    const byPrincipal = new Map<
-      string,
-      { active: number; expiries: number[] }
-    >();
+  const sessionsByDevice = useMemo(() => {
+    const byDevice = new Map<string, { active: number; expiries: number[] }>();
 
     for (const e of result.entities) {
-      const pid = readPrincipalId(e);
-      if (pid === null) continue;
+      const did = readDeviceId(e);
+      if (did === null) continue;
       if (!isSessionActive(e)) continue;
 
-      const cur = byPrincipal.get(pid) ?? { active: 0, expiries: [] };
+      const cur = byDevice.get(did) ?? { active: 0, expiries: [] };
       cur.active += 1;
       const exp = readExpiresAt(e);
       if (exp !== null) {
         const ms = Date.parse(exp);
         if (!Number.isNaN(ms)) cur.expiries.push(ms);
       }
-      byPrincipal.set(pid, cur);
+      byDevice.set(did, cur);
     }
 
-    const out = new Map<string, PrincipalSessionAggregate>();
-    for (const [pid, { active, expiries }] of byPrincipal) {
+    const out = new Map<string, AccountSessionAggregate>();
+    for (const [did, { active, expiries }] of byDevice) {
       const maxMs = expiries.length === 0 ? null : Math.max(...expiries);
-      out.set(pid, {
+      out.set(did, {
         active,
         latestExpiresAt: maxMs === null ? null : new Date(maxMs).toISOString(),
       });
@@ -92,5 +89,5 @@ export function useSessionsForPrincipals(principalIds: string[]): {
     return out;
   }, [result.entities]);
 
-  return { sessionsByPrincipal };
+  return { sessionsByDevice };
 }

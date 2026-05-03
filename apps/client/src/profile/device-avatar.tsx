@@ -4,9 +4,9 @@ import type { ReactNode } from 'react';
 
 import { ProfileDiceBearAvatar } from './profile-dicebear-avatar';
 
-export type PrincipalAvatarProps = {
+export type DeviceAvatarProps = {
   avatarConfig: AvatarConfig | null;
-  principalId: string;
+  deviceId: string;
   size: number;
   /**
    * Empty placeholder only: frosted light plate + light person
@@ -21,15 +21,15 @@ const VIVID_PLATE = String('rgba(255,255,255,0.22)');
 const VIVID_GLYPH = String('rgba(255,255,255,0.92)');
 
 /**
- * Renders a principal’s avatar: generic user silhouette on a muted disk when
+ * Renders a device’s avatar: generic user silhouette on a muted disk when
  * no persisted config; otherwise the persisted DiceBear avatar.
  */
-export function PrincipalAvatar({
+export function DeviceAvatar({
   avatarConfig,
-  principalId,
+  deviceId,
   size,
   vividBackdrop = false,
-}: PrincipalAvatarProps): ReactNode {
+}: DeviceAvatarProps): ReactNode {
   if (avatarConfig === null) {
     return (
       <Avatar
@@ -43,7 +43,7 @@ export function PrincipalAvatar({
   return (
     <ProfileDiceBearAvatar
       config={avatarConfig}
-      fallbackSeed={principalId}
+      fallbackSeed={deviceId}
       size={size}
     />
   );

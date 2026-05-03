@@ -1,12 +1,12 @@
 import { createGamezillaApiClient } from '@gamezilla/client/api/hc';
 import {
-  assertPrincipalId,
-  PRINCIPAL_ENTITY_TYPE,
-  PRINCIPAL_SESSION_ENTITY_TYPE,
-  PrincipalAttr,
-  PrincipalSessionAttr,
+  assertDeviceId,
+  DEVICE_ENTITY_TYPE,
+  ACCOUNT_SESSION_ENTITY_TYPE,
+  DeviceAttr,
+  AccountSessionAttr,
 } from '@gamezilla/domain/auth';
-import { assertUuid } from '@gamezilla/domain/auth/principal-id';
+import { assertUuid } from '@gamezilla/domain/auth/device-id';
 import type { ConfigService } from '@gamezilla/domain/config/config-service';
 import { assert } from '@gamezilla/lib/assert';
 import type { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
@@ -15,7 +15,7 @@ import type { AuthAccountIdHolder } from './auth-account-id-holder';
 import type { AuthSessionTokenHolder } from './auth-session-token-holder';
 import { ensureAccountProfile } from './ensure-profile-entity';
 import { AuthConfigurationError } from './auth-errors';
-import type { PrincipalService } from './principal-service';
+import type { DeviceService } from './device-service';
 import type { SessionService } from './session-service';
 
 export interface AuthService {
@@ -34,7 +34,7 @@ type ClaimResponse = {
 
 type CreateAuthServiceDeps = {
   configService: ConfigService;
-  principalService: PrincipalService;
+  deviceService: DeviceService;
   db: PatchDb;
   sessionService: SessionService;
   accountIdHolder: AuthAccountIdHolder;
@@ -65,7 +65,7 @@ function createGoogleSignInHandler(
 ): AuthService['signInWithGoogle'] {
   const {
     configService,
-    principalService,
+    deviceService,
     db,
     accountIdHolder,
     sessionTokenHolder,
@@ -81,13 +81,13 @@ function createGoogleSignInHandler(
     assert.string(googleIdToken, 'Google id_token must be string');
     assert.ok(googleIdToken.length > 0, 'Google id_token must be non-empty');
 
-    const principalId = principalService.getPrincipalId();
-    assertPrincipalId(principalId);
+    const deviceId = deviceService.getDeviceId();
+    assertDeviceId(deviceId);
 
     const apiUrl = configService.getApiUrl();
     const client = createGamezillaApiClient(apiUrl);
     const response = await client.auth.claim.$post({
-      json: { googleIdToken, principalId },
+      json: { googleIdToken, deviceId },
     });
 
     const text = await response.text();
@@ -108,28 +108,28 @@ function createGoogleSignInHandler(
     const { accountId, sessionToken, expiresAt } = parseClaimResponse(json);
 
     // Stamp the bearer token before any patch-db sync push fires; otherwise
-    // the unsynced session/principal patches would 401 against the server.
+    // the unsynced session/device patches would 401 against the server.
     sessionTokenHolder.set(sessionToken);
 
     const sessionEntityId = globalThis.crypto.randomUUID();
 
     await db.write([
       {
-        entityId: principalId,
-        entityType: PRINCIPAL_ENTITY_TYPE,
+        entityId: deviceId,
+        entityType: DEVICE_ENTITY_TYPE,
         attributes: {
-          [PrincipalAttr.accountId]: accountId,
+          [DeviceAttr.accountId]: accountId,
         },
       },
       {
         entityId: sessionEntityId,
-        entityType: PRINCIPAL_SESSION_ENTITY_TYPE,
+        entityType: ACCOUNT_SESSION_ENTITY_TYPE,
         attributes: {
-          [PrincipalSessionAttr.principalId]: principalId,
-          [PrincipalSessionAttr.accountId]: accountId,
-          [PrincipalSessionAttr.token]: sessionToken,
-          [PrincipalSessionAttr.expiresAt]: expiresAt,
-          [PrincipalSessionAttr.createdAt]: new Date().toISOString(),
+          [AccountSessionAttr.deviceId]: deviceId,
+          [AccountSessionAttr.accountId]: accountId,
+          [AccountSessionAttr.token]: sessionToken,
+          [AccountSessionAttr.expiresAt]: expiresAt,
+          [AccountSessionAttr.createdAt]: new Date().toISOString(),
         },
       },
     ]);

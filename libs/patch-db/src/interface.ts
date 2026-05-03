@@ -94,7 +94,7 @@ export {
   isSyncRejectedPatchAttributes,
   PATCH_LAST_MODIFIED_AT,
   PATCH_LAST_MODIFIED_BY_ACCOUNT,
-  PATCH_LAST_MODIFIED_BY_PRINCIPAL,
+  PATCH_LAST_MODIFIED_BY_DEVICE,
   PATCH_META_KEYS,
   PATCH_REJECTED,
   PATCH_SESSION_ID,
@@ -398,7 +398,7 @@ export type Unsubscribe = () => void;
 export {
   isPatchDbAuthContext,
   isPatchDbSystemContext,
-  isPatchDbVisitorContext,
+  isPatchDbClientContext,
   OPEN_PATCHES_DB_CONTEXT,
   PATCHES_DB_SYSTEM_CONTEXT,
 } from './context';
@@ -406,7 +406,7 @@ export type {
   PatchDbAuthContext,
   PatchDbContext,
   PatchDbSystemContext,
-  PatchDbVisitorContext,
+  PatchDbClientContext,
 } from './context';
 
 /** AND-combines an optional existing where-clause with an additional clause. */
@@ -432,8 +432,8 @@ export const READ_WHERE_ALWAYS_TRUE: PatchDbQueryWhereClause = {
 
 /**
  * Read predicate that is always false. Use from a visibility policy's `read`
- * to deny a context (e.g. visitors on a private entity type) while keeping
- * a single read function instead of a separate visitor branch.
+ * to deny a context (e.g. unauthenticated clients on a private entity type) while keeping
+ * a single read function instead of a separate client-only branch.
  */
 export const READ_WHERE_NEVER_TRUE: PatchDbQueryWhereClause = {
   type: 'and',

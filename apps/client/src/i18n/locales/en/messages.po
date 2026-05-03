@@ -174,7 +174,6 @@ msgid "About"
 msgstr "About"
 
 #: apps/client/src/account/account-screen.tsx
-#: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/ui/app-commands/account-command.tsx
 msgid "Account"
 msgstr "Account"
@@ -183,9 +182,9 @@ msgstr "Account"
 msgid "Account ID"
 msgstr "Account ID"
 
-#: apps/client/src/ui/sidebar-account-menu.tsx
-msgid "Account menu"
-msgstr "Account menu"
+#: apps/client/src/ui/sidebar-user-menu.tsx
+#~ msgid "Account menu"
+#~ msgstr "Account menu"
 
 #: libs/patch-db-example/src/todo/todo-list-detail.tsx
 #: libs/patch-db-example/src/todo/todo-list.tsx
@@ -656,6 +655,10 @@ msgid "Device {deviceTitle}"
 msgstr "Device {deviceTitle}"
 
 #: apps/client/src/account/account-device-detail-body.tsx
+msgid "Device ID"
+msgstr "Device ID"
+
+#: apps/client/src/account/account-device-detail-body.tsx
 msgid "Device name"
 msgstr "Device name"
 
@@ -729,8 +732,12 @@ msgid "e.g. ff5733"
 msgstr "e.g. ff5733"
 
 #: apps/client/src/account/account-devices-card.tsx
-msgid "Each install has its own principal id. Tap a row for full details."
-msgstr "Each install has its own principal id. Tap a row for full details."
+msgid "Each install has its own device id. Tap a row for full details."
+msgstr "Each install has its own device id. Tap a row for full details."
+
+#: apps/client/src/user/user-devices-card.tsx
+#~ msgid "Each install has its own deviceRow id. Tap a row for full details."
+#~ msgstr "Each install has its own deviceRow id. Tap a row for full details."
 
 #: apps/client/src/profile/profile-edit-screen.tsx
 #: apps/client/src/profile/profile-screen.tsx
@@ -816,7 +823,7 @@ msgstr "Fabricate Commit"
 msgid "Failed to initialize"
 msgstr "Failed to initialize"
 
-#: apps/client/src/auth/principal-auth-shell.tsx
+#: apps/client/src/auth/device-auth-shell.tsx
 msgid "Failed to initialize identity"
 msgstr "Failed to initialize identity"
 
@@ -891,12 +898,12 @@ msgid "Host"
 msgstr "Host"
 
 #: apps/client/src/spaces/space-debug-modal.tsx
-#~ msgid "Host display name"
-#~ msgstr "Host display name"
+#~ msgid "Host deviceRow ID"
+#~ msgstr "Host deviceRow ID"
 
 #: apps/client/src/spaces/space-debug-modal.tsx
-#~ msgid "Host principal ID"
-#~ msgstr "Host principal ID"
+#~ msgid "Host display name"
+#~ msgstr "Host display name"
 
 #: libs/patch-db-example/src/api-inspector.tsx
 msgid "https://..."
@@ -1012,7 +1019,7 @@ msgstr "Live"
 msgid "Load more"
 msgstr "Load more"
 
-#: apps/client/src/account/account-devices-card.tsx
+#: apps/client/src/user/user-devices-card.tsx
 #~ msgid "Loading devices…"
 #~ msgstr "Loading devices…"
 
@@ -1020,7 +1027,7 @@ msgstr "Load more"
 msgid "Loading entity…"
 msgstr "Loading entity…"
 
-#: apps/client/src/account/account-screen.tsx
+#: apps/client/src/user/user-screen.tsx
 #~ msgid "Loading provider records…"
 #~ msgstr "Loading provider records…"
 
@@ -1171,6 +1178,14 @@ msgstr "No committed events yet."
 msgid "No completed todos."
 msgstr "No completed todos."
 
+#: apps/client/src/account/account-devices-card.tsx
+msgid "No device data yet."
+msgstr "No device data yet."
+
+#: apps/client/src/user/user-devices-card.tsx
+#~ msgid "No deviceRow data yet."
+#~ msgstr "No deviceRow data yet."
+
 #: libs/patch-db-example/src/db-client/entities-screen.tsx
 msgid "No entities for this type."
 msgstr "No entities for this type."
@@ -1195,17 +1210,17 @@ msgstr "No live spaces. Tap + New space to start one."
 msgid "No messages yet."
 msgstr "No messages yet."
 
+#: apps/client/src/user/user-screen.tsx
+#~ msgid "No OAuth provider records on file for this account."
+#~ msgstr "No OAuth provider records on file for this account."
+
 #: apps/client/src/account/account-screen.tsx
-msgid "No OAuth provider records on file for this account."
-msgstr "No OAuth provider records on file for this account."
+msgid "No OAuth provider records on file for this user."
+msgstr "No OAuth provider records on file for this user."
 
 #: libs/patch-db-example/src/db-client/entity-detail-screen.tsx
 msgid "No patches for this entity."
 msgstr "No patches for this entity."
-
-#: apps/client/src/account/account-devices-card.tsx
-msgid "No principal data yet."
-msgstr "No principal data yet."
 
 #: libs/patch-db-example/src/db-client/entities-screen.tsx
 msgid "No rows match filter."
@@ -1397,10 +1412,6 @@ msgstr "POST /client-config/refresh writes the Worker secret into PatchDB on the
 msgid "Preview updates as you edit. Save to keep changes."
 msgstr "Preview updates as you edit. Save to keep changes."
 
-#: apps/client/src/account/account-device-detail-body.tsx
-msgid "Principal ID"
-msgstr "Principal ID"
-
 #: apps/client/src/settings/about-screen.tsx
 msgid "production"
 msgstr "production"
@@ -1420,9 +1431,13 @@ msgstr "Profile"
 msgid "Projected trust — X:{projectedX} O:{projectedO} S:{projectedS}"
 msgstr "Projected trust — X:{projectedX} O:{projectedO} S:{projectedS}"
 
+#: apps/client/src/user/user-screen.tsx
+#~ msgid "Provider account id: {providerUserId}"
+#~ msgstr "Provider account id: {providerUserId}"
+
 #: apps/client/src/account/account-screen.tsx
-msgid "Provider account id: {providerAccountId}"
-msgstr "Provider account id: {providerAccountId}"
+msgid "Provider user id: {providerUserId}"
+msgstr "Provider user id: {providerUserId}"
 
 #: libs/patch-db-example/src/db-client/query-screen.tsx
 msgid "Query"
@@ -1444,6 +1459,10 @@ msgstr "Reachable"
 #: apps/client/src/account/account-screen.tsx
 msgid "Read-only: OAuth identities stored for your account."
 msgstr "Read-only: OAuth identities stored for your account."
+
+#: apps/client/src/user/user-screen.tsx
+#~ msgid "Read-only: OAuth identities stored for your user."
+#~ msgstr "Read-only: OAuth identities stored for your user."
 
 #: libs/patch-db-example/src/api-inspector.tsx
 #: libs/patch-db-example/src/client-node-panel.tsx
@@ -1510,7 +1529,7 @@ msgstr "Result"
 msgid "Resume"
 msgstr "Resume"
 
-#: apps/client/src/auth/principal-auth-shell.tsx
+#: apps/client/src/auth/device-auth-shell.tsx
 #: apps/client/src/ui/patch-db-bootstrap.tsx
 msgid "Retry"
 msgstr "Retry"
@@ -1562,8 +1581,8 @@ msgstr "Select…"
 #~ msgstr "Self account ID"
 
 #: apps/client/src/spaces/space-debug-modal.tsx
-#~ msgid "Self principal ID"
-#~ msgstr "Self principal ID"
+#~ msgid "Self deviceRow ID"
+#~ msgstr "Self deviceRow ID"
 
 #: apps/client/src/client-config/client-config-server-refresh.tsx
 #: libs/patch-db-example/src/playground-layout.tsx
@@ -1585,6 +1604,10 @@ msgstr "Server health"
 #: apps/client/src/account/account-devices-card.tsx
 msgid "Server-side account; tap to copy"
 msgstr "Server-side account; tap to copy"
+
+#: apps/client/src/user/user-devices-card.tsx
+#~ msgid "Server-side user; tap to copy"
+#~ msgstr "Server-side user; tap to copy"
 
 #: apps/client/src/spaces/space-debug-modal.tsx
 #~ msgid "Session token"
@@ -1637,12 +1660,20 @@ msgid "Sign in"
 msgstr "Sign in"
 
 #: apps/client/src/account/account-devices-card.tsx
-msgid "Sign in to link this device to a server account and see all principals for that account."
-msgstr "Sign in to link this device to a server account and see all principals for that account."
+msgid "Sign in to link this device to a server account and see all devices for that account."
+msgstr "Sign in to link this device to a server account and see all devices for that account."
+
+#: apps/client/src/user/user-devices-card.tsx
+#~ msgid "Sign in to link this device to a server user and see all devices for that user."
+#~ msgstr "Sign in to link this device to a server user and see all devices for that user."
 
 #: apps/client/src/auth/sign-in-modal.tsx
-msgid "Sign in to link this device to your server account. Your data stays local first."
-msgstr "Sign in to link this device to your server account. Your data stays local first."
+#~ msgid "Sign in to link this device to your server account. Your data stays local first."
+#~ msgstr "Sign in to link this device to your server account. Your data stays local first."
+
+#: apps/client/src/auth/sign-in-modal.tsx
+msgid "Sign in to link this device to your server user. Your data stays local first."
+msgstr "Sign in to link this device to your server user. Your data stays local first."
 
 #: libs/lib/src/ui/components/social-sign-in-button/social-provider-config.ts
 msgid "Sign in with Google"
@@ -1833,6 +1864,10 @@ msgstr "This device"
 msgid "This device was not found. It may have been removed or is not visible for the current account."
 msgstr "This device was not found. It may have been removed or is not visible for the current account."
 
+#: apps/client/src/user/user-device-detail-screen.tsx
+#~ msgid "This device was not found. It may have been removed or is not visible for the current user."
+#~ msgstr "This device was not found. It may have been removed or is not visible for the current user."
+
 #: libs/lib/src/ui/components/text-input/text-input.example.tsx
 msgid "This field is required"
 msgstr "This field is required"
@@ -1932,9 +1967,21 @@ msgstr "Use light theme"
 msgid "Use system theme"
 msgstr "Use system theme"
 
+#: apps/client/src/settings/settings-screen.tsx
+msgid "User"
+msgstr "User"
+
 #: apps/client/src/account/account-device-detail-body.tsx
 msgid "User agent"
 msgstr "User agent"
+
+#: apps/client/src/user/user-devices-card.tsx
+#~ msgid "User ID"
+#~ msgstr "User ID"
+
+#: apps/client/src/ui/sidebar-account-menu.tsx
+msgid "User menu"
+msgstr "User menu"
 
 #: apps/client/src/profile/profile-edit-screen.tsx
 #: apps/client/src/profile/profile-username-screen.tsx
@@ -2024,8 +2071,12 @@ msgid "You have unsaved avatar changes."
 msgstr "You have unsaved avatar changes."
 
 #: apps/client/src/auth/auth-context.tsx
-msgid "You will need to sign in again to sync with your account."
-msgstr "You will need to sign in again to sync with your account."
+#~ msgid "You will need to sign in again to sync with your account."
+#~ msgstr "You will need to sign in again to sync with your account."
+
+#: apps/client/src/auth/auth-context.tsx
+msgid "You will need to sign in again to sync with your user."
+msgstr "You will need to sign in again to sync with your user."
 
 #: libs/lib/src/ui/components/text-input/text-input.example.tsx
 msgid "you@example.com"

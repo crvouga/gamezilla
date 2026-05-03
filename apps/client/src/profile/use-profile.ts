@@ -1,5 +1,5 @@
 import { useAuth } from '@gamezilla/client/auth/auth-context';
-import { PrincipalServiceToken } from '@gamezilla/client/auth/principal-service';
+import { DeviceServiceToken } from '@gamezilla/client/auth/device-service';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { parseAvatarConfigAttr } from '@gamezilla/domain/profile/avatar-config';
 import {
@@ -13,21 +13,21 @@ import type {
 } from '@gamezilla/patch-db/interface';
 import {
   PATCH_LAST_MODIFIED_BY_ACCOUNT,
-  PATCH_LAST_MODIFIED_BY_PRINCIPAL,
+  PATCH_LAST_MODIFIED_BY_DEVICE,
 } from '@gamezilla/patch-db/metadata/patch-metadata';
 import { useQuery } from '@gamezilla/patch-db/react';
 import { useMemo } from 'react';
 
-import { displayNameForPrincipal } from './principal-display';
+import { displayNameForDevice } from './device-display';
 
 const NO_ENTITY_PLACEHOLDER = '__patch_db_no_entity__';
 
 function profileStampWhere(args: {
   signedIn: boolean;
   accountId: string | null;
-  principalId: string;
+  deviceId: string;
 }): PatchDbQueryWhereClause {
-  const { signedIn, accountId, principalId } = args;
+  const { signedIn, accountId, deviceId } = args;
   if (signedIn && accountId !== null) {
     return {
       type: '=',
@@ -40,8 +40,8 @@ function profileStampWhere(args: {
     clauses: [
       {
         type: '=',
-        attribute: PATCH_LAST_MODIFIED_BY_PRINCIPAL,
-        value: principalId,
+        attribute: PATCH_LAST_MODIFIED_BY_DEVICE,
+        value: deviceId,
       },
       {
         type: 'not_exists',
@@ -52,8 +52,8 @@ function profileStampWhere(args: {
 }
 
 type ProfileResult = {
-  principalId: string;
-  /** Profile row id (`accountId` when signed in, else `principalId`), or null when missing. */
+  deviceId: string;
+  /** Profile row id (`accountId` when signed in, else `deviceId`), or null when missing. */
   profileId: string | null;
   entity: Entity | null;
   displayLabel: string;
@@ -62,27 +62,26 @@ type ProfileResult = {
 };
 
 function buildProfileResult(args: {
-  principalId: string;
+  deviceId: string;
   effectiveProfileId: string;
   profileEntity: Entity | null;
   profileQueryId: string;
 }): ProfileResult {
-  const { principalId, effectiveProfileId, profileEntity, profileQueryId } =
-    args;
+  const { deviceId, effectiveProfileId, profileEntity, profileQueryId } = args;
   const attrs = profileEntity?.attributes as
     | Record<string, unknown>
     | undefined;
   const usable =
     profileEntity !== null && profileQueryId !== NO_ENTITY_PLACEHOLDER;
-  const displayLabel = displayNameForPrincipal(
+  const displayLabel = displayNameForDevice(
     usable ? attrs?.[ProfileAttr.displayName] : undefined,
-    principalId
+    deviceId
   );
   const avatarConfig = usable
     ? parseAvatarConfigAttr(attrs, ProfileAttr.avatarConfig)
     : null;
   return {
-    principalId,
+    deviceId,
     profileId: usable ? effectiveProfileId : null,
     entity: usable ? profileEntity : null,
     displayLabel,
@@ -92,27 +91,27 @@ function buildProfileResult(args: {
 
 /**
  * PatchDB-backed profile for the current session identity.
- * Profile `entityId` is `accountId` when signed in, otherwise `principalId`.
+ * Profile `entityId` is `accountId` when signed in, otherwise `deviceId`.
  * Reads are filtered by last-modified stamps for defense in depth.
  */
 export function useProfile() {
-  const principalService = useDependency(PrincipalServiceToken);
-  const principalId = principalService.getPrincipalId();
+  const deviceService = useDependency(DeviceServiceToken);
+  const deviceId = deviceService.getDeviceId();
   const auth = useAuth();
   const signedIn = auth.mode === 'signed-in';
   const accountId = auth.accountId;
 
   const effectiveProfileId =
-    signedIn && accountId !== null ? accountId : principalId;
+    signedIn && accountId !== null ? accountId : deviceId;
 
   const stampWhere = useMemo(
     () =>
       profileStampWhere({
         signedIn,
         accountId,
-        principalId,
+        deviceId,
       }),
-    [signedIn, accountId, principalId]
+    [signedIn, accountId, deviceId]
   );
 
   const profileQueryId =
@@ -128,11 +127,11 @@ export function useProfile() {
   return useMemo(
     () =>
       buildProfileResult({
-        principalId,
+        deviceId,
         effectiveProfileId,
         profileEntity,
         profileQueryId,
       }),
-    [principalId, effectiveProfileId, profileEntity, profileQueryId]
+    [deviceId, effectiveProfileId, profileEntity, profileQueryId]
   );
 }

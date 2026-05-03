@@ -1,4 +1,4 @@
-import { PrincipalAvatar } from '@gamezilla/client/profile/principal-avatar';
+import { DeviceAvatar } from '@gamezilla/client/profile/device-avatar';
 import type { SpaceMemberRow } from '@gamezilla/client/spaces/types';
 import { Box, Text } from '@gamezilla/lib/ui';
 
@@ -13,9 +13,9 @@ export function MiniplayerHostRow({
 }) {
   return (
     <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
-      <PrincipalAvatar
+      <DeviceAvatar
         avatarConfig={hostAvatarConfig}
-        principalId={hostId}
+        deviceId={hostId}
         size={22}
       />
       <Text
@@ -44,7 +44,7 @@ export function MiniplayerMemberStack({
     <Box sx={{ flexDirection: 'row', alignItems: 'center' }}>
       {visible.map((member, i) => (
         <Box
-          key={member.principalId}
+          key={member.deviceId}
           style={{
             marginLeft: i > 0 ? -6 : 0,
             borderWidth: 2,
@@ -52,9 +52,9 @@ export function MiniplayerMemberStack({
             borderRadius: 999,
           }}
         >
-          <PrincipalAvatar
+          <DeviceAvatar
             avatarConfig={member.avatarConfig}
-            principalId={member.principalId}
+            deviceId={member.deviceId}
             size={26}
           />
         </Box>

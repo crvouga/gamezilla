@@ -1,2 +1,2 @@
 export * from './auth-entities';
-export * from './principal-id';
+export * from './device-id';

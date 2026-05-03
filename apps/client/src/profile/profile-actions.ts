@@ -6,7 +6,7 @@ import type { PatchDb } from '@gamezilla/patch-db/interface';
 
 /**
  * Updates display name and/or avatar on the profile row at `profileId`
- * (`principalId` when guest, `accountId` when signed in).
+ * (`deviceId` when guest, `userId` when signed in).
  */
 export async function updateProfile(
   db: PatchDb,

@@ -25,19 +25,16 @@ import {
   AuthSessionTokenHolderToken,
 } from './auth-session-token-holder';
 import { createSecureStorage } from './create-secure-storage';
-import {
-  createPrincipalService,
-  PrincipalServiceToken,
-} from './principal-service';
+import { createDeviceService, DeviceServiceToken } from './device-service';
 
-async function createPrincipalChildContainer(
+async function createAuthDeviceChildContainer(
   parentContainer: DependencyInjectionContainer
 ): Promise<DependencyInjectionContainer> {
   const storage = createSecureStorage();
-  const principalService = await createPrincipalService(storage);
+  const deviceService = await createDeviceService(storage);
   const child = new DependencyInjectionContainer(parentContainer);
   child.registerValue(SecureStorageToken, storage);
-  child.registerValue(PrincipalServiceToken, principalService);
+  child.registerValue(DeviceServiceToken, deviceService);
   child.registerValue(AuthAccountIdHolderToken, new AuthAccountIdHolder());
   child.registerValue(
     AuthSessionTokenHolderToken,
@@ -46,7 +43,7 @@ async function createPrincipalChildContainer(
   return child;
 }
 
-function PrincipalErrorView({
+function DeviceIdentityErrorView({
   error,
   onRetry,
 }: {
@@ -73,12 +70,12 @@ function PrincipalErrorView({
   );
 }
 
-export function PrincipalAuthShell({ children }: { children: ReactNode }) {
+export function DeviceAuthShell({ children }: { children: ReactNode }) {
   const log = useLogger('auth');
   const parentContainer = useContainer();
   assert.ok(
     parentContainer instanceof DependencyInjectionContainer,
-    'PrincipalAuthShell must be inside ConfigContainerProvider'
+    'DeviceAuthShell must be inside ConfigContainerProvider'
   );
 
   const [childContainer, setChildContainer] =
@@ -88,12 +85,12 @@ export function PrincipalAuthShell({ children }: { children: ReactNode }) {
 
   const run = useCallback(() => {
     setError(null);
-    createPrincipalChildContainer(parentContainer)
+    createAuthDeviceChildContainer(parentContainer)
       .then((child) => {
         if (mountedRef.current) setChildContainer(child);
       })
       .catch((err: unknown) => {
-        log.error('principal init failed', {
+        log.error('auth device init failed', {
           error: err instanceof Error ? err.message : String(err),
         });
         if (mountedRef.current) {
@@ -111,7 +108,7 @@ export function PrincipalAuthShell({ children }: { children: ReactNode }) {
   }, [run]);
 
   if (error !== null) {
-    return <PrincipalErrorView error={error} onRetry={run} />;
+    return <DeviceIdentityErrorView error={error} onRetry={run} />;
   }
   if (childContainer === null) {
     return null;

@@ -8,7 +8,7 @@
  * webhook-event rows (`stripe.<event.type>`) so the two sources never collide.
  */
 import type { PatchDb, PatchDbContext } from '@gamezilla/patch-db/interface';
-import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '@gamezilla/patch-db/policy/system-principal';
+import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
 import type Stripe from 'stripe';
 
 /** Marker on backfill rows so consumers can tell snapshots from webhook events. */
@@ -162,7 +162,7 @@ export async function backfillStripeListIntoPatchDb<
       'stripe/payload': obj as unknown,
       'stripe/objectType': expectedObjectType,
       'stripe/source': source,
-      'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+      'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
     };
     if (owner !== null) {
       attrs['entity/owner'] = owner;

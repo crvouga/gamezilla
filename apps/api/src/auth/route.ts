@@ -7,7 +7,7 @@ import { ApiSecretName } from '../config/secret-names';
 import { handleAuthClaimResult } from './claim-handler';
 import { authClaimRequestSchema } from './schema';
 
-/** POST `/auth/claim` — Google id_token + principal binding. */
+/** POST `/auth/claim` — Google id_token + device binding. */
 export function createAuthClaimApp(db: PatchDb, secretStore: SecretStore) {
   return new Hono<{ Bindings: ApiWorkerEnv }>().post(
     '/auth/claim',

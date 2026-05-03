@@ -1,12 +1,12 @@
 import { useAuth } from '@gamezilla/client/auth/auth-context';
 import {
-  type AccountPrincipal,
-  useAccountPrincipals,
-} from '@gamezilla/client/auth/use-account-principals';
+  type AccountDevice,
+  useAccountDevices,
+} from '@gamezilla/client/auth/use-account-devices';
 import {
-  type PrincipalSessionAggregate,
-  useSessionsForPrincipals,
-} from '@gamezilla/client/auth/use-principals-sessions';
+  type AccountSessionAggregate,
+  useSessionsForDevices,
+} from '@gamezilla/client/auth/use-device-account-sessions';
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 import {
   ACCOUNT_PROVIDER_ENTITY_TYPE,
@@ -24,7 +24,7 @@ import { formatTimestamp } from './account-format';
 type LinkedProvider = {
   entityId: string;
   provider: string;
-  providerAccountId: string;
+  providerUserId: string;
   email: string | null;
   linkedAt: string | null;
 };
@@ -64,14 +64,14 @@ function useLinkedProviders(accountId: string | null): {
         const provider = asString(
           entity.attributes[AccountProviderAttr.provider]
         );
-        const providerAccountId = asString(
-          entity.attributes[AccountProviderAttr.providerAccountId]
+        const providerUserId = asString(
+          entity.attributes[AccountProviderAttr.providerUserId]
         );
-        if (provider === null || providerAccountId === null) return null;
+        if (provider === null || providerUserId === null) return null;
         return {
           entityId: entity.entityId,
           provider,
-          providerAccountId,
+          providerUserId,
           email: asString(entity.attributes[AccountProviderAttr.email]),
           linkedAt: asString(entity.attributes[AccountProviderAttr.linkedAt]),
         };
@@ -91,7 +91,7 @@ function CaptionLine({ label }: { label: string }) {
 function LinkedProviderRow({ provider }: { provider: LinkedProvider }) {
   const { t } = useLingui();
   const connectedAt = formatTimestamp(provider.linkedAt);
-  const providerAccountId = provider.providerAccountId;
+  const providerUserId = provider.providerUserId;
   return (
     <Box sx={{ gap: 1 }}>
       <Text variant="bodyBold" label={providerLabel(provider.provider)} />
@@ -103,7 +103,7 @@ function LinkedProviderRow({ provider }: { provider: LinkedProvider }) {
         variant="caption"
         sx={{ color: 'textSecondary' }}
         selectable
-        label={t`Provider account id: ${providerAccountId}`}
+        label={t`Provider user id: ${providerUserId}`}
       />
     </Box>
   );
@@ -127,7 +127,7 @@ function LinkedProvidersBody({
   if (providers.length === 0) {
     return (
       <CaptionLine
-        label={t`No OAuth provider records on file for this account.`}
+        label={t`No OAuth provider records on file for this user.`}
       />
     );
   }
@@ -187,8 +187,8 @@ function AccountActionsRow({
 function AccountScreenBody({
   auth,
   providers,
-  principals,
-  sessionsByPrincipal,
+  devices,
+  sessionsByDevice,
   onSignIn,
   onRequestSignOut,
   onOpenDevice,
@@ -196,19 +196,19 @@ function AccountScreenBody({
 }: {
   auth: ReturnType<typeof useAuth>;
   providers: LinkedProvider[];
-  principals: AccountPrincipal[];
-  sessionsByPrincipal: Map<string, PrincipalSessionAggregate>;
+  devices: AccountDevice[];
+  sessionsByDevice: Map<string, AccountSessionAggregate>;
   onSignIn: () => void;
   onRequestSignOut: () => void;
-  onOpenDevice: (principalId: string) => void;
+  onOpenDevice: (deviceId: string) => void;
   sx: object;
 }) {
   return (
     <Box style={{ ...sx, gap: 12 }}>
       <AccountDevicesCard
         accountId={auth.accountId}
-        principals={principals}
-        sessionsByPrincipal={sessionsByPrincipal}
+        devices={devices}
+        sessionsByDevice={sessionsByDevice}
         onOpenDevice={onOpenDevice}
       />
       <LinkedProvidersCard accountId={auth.accountId} providers={providers} />
@@ -227,20 +227,14 @@ export function AccountScreen() {
   const auth = useAuth();
   const { providers } = useLinkedProviders(auth.accountId);
 
-  const currentPrincipalId = auth.principalId;
-  const { principals } = useAccountPrincipals(
-    auth.accountId,
-    currentPrincipalId
-  );
-  const principalIds = useMemo(
-    () => principals.map((p) => p.entityId),
-    [principals]
-  );
-  const { sessionsByPrincipal } = useSessionsForPrincipals(principalIds);
+  const currentDeviceId = auth.deviceId;
+  const { devices } = useAccountDevices(auth.accountId, currentDeviceId);
+  const deviceIds = useMemo(() => devices.map((p) => p.entityId), [devices]);
+  const { sessionsByDevice } = useSessionsForDevices(deviceIds);
 
   const onOpenDevice = useCallback(
-    (principalId: string) => {
-      router.push(`/more/account/device/${principalId}` as Href);
+    (deviceId: string) => {
+      router.push(`/more/account/device/${deviceId}` as Href);
     },
     [router]
   );
@@ -268,8 +262,8 @@ export function AccountScreen() {
         <AccountScreenBody
           auth={auth}
           providers={providers}
-          principals={principals}
-          sessionsByPrincipal={sessionsByPrincipal}
+          devices={devices}
+          sessionsByDevice={sessionsByDevice}
           onSignIn={onSignIn}
           onRequestSignOut={onRequestSignOut}
           onOpenDevice={onOpenDevice}

@@ -1,4 +1,4 @@
-import type { AccountPrincipal } from '@gamezilla/client/auth/use-account-principals';
+import type { AccountDevice } from '@gamezilla/client/auth/use-account-devices';
 
 export const EM_DASH = '\u2014';
 
@@ -9,7 +9,7 @@ export function formatTimestamp(value: string | null): string {
   return new Date(ms).toLocaleString();
 }
 
-export function formatOsLine(p: AccountPrincipal): string {
+export function formatOsLine(p: AccountDevice): string {
   if (p.osName !== null && p.osVersion !== null) {
     return `${p.osName} ${p.osVersion}`;
   }
@@ -18,7 +18,7 @@ export function formatOsLine(p: AccountPrincipal): string {
   return EM_DASH;
 }
 
-export function formatModelLine(p: AccountPrincipal): string {
+export function formatModelLine(p: AccountDevice): string {
   const parts = [p.deviceBrand, p.deviceModelName].filter(
     (x): x is string => x !== null && x.length > 0
   );
@@ -26,7 +26,7 @@ export function formatModelLine(p: AccountPrincipal): string {
   return parts.join(' ');
 }
 
-export function formatAppLine(p: AccountPrincipal): string {
+export function formatAppLine(p: AccountDevice): string {
   const v = p.appVersion;
   const b = p.appBuildNumber;
   if (v !== null && b !== null) return `${v} (build ${b})`;
@@ -36,7 +36,7 @@ export function formatAppLine(p: AccountPrincipal): string {
 }
 
 /** Primary label for a device row (no profile display name). */
-export function formatDeviceListTitle(p: AccountPrincipal): string {
+export function formatDeviceListTitle(p: AccountDevice): string {
   if (p.deviceName !== null && p.deviceName.trim().length > 0) {
     return p.deviceName.trim();
   }
@@ -46,7 +46,7 @@ export function formatDeviceListTitle(p: AccountPrincipal): string {
 }
 
 /** Secondary line for device list rows (OS + last seen). */
-export function formatDeviceListCaption(p: AccountPrincipal): string {
+export function formatDeviceListCaption(p: AccountDevice): string {
   const os = formatOsLine(p);
   const last = formatTimestamp(p.lastSeenAt ?? p.createdAt);
   return `${os} · Last seen ${last}`;

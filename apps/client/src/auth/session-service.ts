@@ -1,17 +1,17 @@
 import {
-  assertPrincipalId,
-  PRINCIPAL_SESSION_ENTITY_TYPE,
-  PrincipalSessionAttr,
+  assertDeviceId,
+  ACCOUNT_SESSION_ENTITY_TYPE,
+  AccountSessionAttr,
 } from '@gamezilla/domain/auth';
-import { assertUuid } from '@gamezilla/domain/auth/principal-id';
+import { assertUuid } from '@gamezilla/domain/auth/device-id';
 import { assert } from '@gamezilla/lib/assert';
 import type { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
-import type { PrincipalService } from './principal-service';
+import type { DeviceService } from './device-service';
 
-export type PrincipalSessionRecord = {
+export type AccountSessionRecord = {
   entityId: string;
-  principalId: string;
+  deviceId: string;
   accountId: string;
   token: string;
   expiresAt: string;
@@ -20,9 +20,9 @@ export type PrincipalSessionRecord = {
 
 export interface SessionService {
   /** Last {@link refresh} result; call {@link refresh} after writes. */
-  getSession(): PrincipalSessionRecord | null;
+  getSession(): AccountSessionRecord | null;
   isAuthenticated(): boolean;
-  /** Re-reads PatchDB for the active non-expired session for this principal. */
+  /** Re-reads PatchDB for the active non-expired session for this device. */
   refresh(): Promise<void>;
   clearSession(): Promise<void>;
 }
@@ -35,15 +35,15 @@ function parseSessionEntity(
     entityId: string;
     attributes: Record<string, unknown>;
   },
-  expectedPrincipalId: string
-): PrincipalSessionRecord | null {
-  const principalId = entity.attributes[PrincipalSessionAttr.principalId];
-  const accountId = entity.attributes[PrincipalSessionAttr.accountId];
-  const token = entity.attributes[PrincipalSessionAttr.token];
-  const expiresAt = entity.attributes[PrincipalSessionAttr.expiresAt];
-  const createdAt = entity.attributes[PrincipalSessionAttr.createdAt];
+  expectedDeviceId: string
+): AccountSessionRecord | null {
+  const deviceId = entity.attributes[AccountSessionAttr.deviceId];
+  const accountId = entity.attributes[AccountSessionAttr.accountId];
+  const token = entity.attributes[AccountSessionAttr.token];
+  const expiresAt = entity.attributes[AccountSessionAttr.expiresAt];
+  const createdAt = entity.attributes[AccountSessionAttr.createdAt];
 
-  if (principalId !== expectedPrincipalId) {
+  if (deviceId !== expectedDeviceId) {
     return null;
   }
   if (
@@ -59,7 +59,7 @@ function parseSessionEntity(
   assertUuid(accountId, 'session accountId must be UUID');
   return {
     entityId: entity.entityId,
-    principalId: String(principalId),
+    deviceId: String(deviceId),
     accountId,
     token,
     expiresAt,
@@ -75,20 +75,18 @@ function isExpired(iso: string): boolean {
 
 async function readLatestSessionEntity(
   db: PatchDb,
-  principalId: string,
+  deviceId: string,
   limit: number
 ) {
   const [result] = await db.read([
     {
-      entityType: PRINCIPAL_SESSION_ENTITY_TYPE,
+      entityType: ACCOUNT_SESSION_ENTITY_TYPE,
       where: {
         type: '=',
-        attribute: PrincipalSessionAttr.principalId,
-        value: principalId,
+        attribute: AccountSessionAttr.deviceId,
+        value: deviceId,
       },
-      orderBy: [
-        { attribute: PrincipalSessionAttr.createdAt, direction: 'desc' },
-      ],
+      orderBy: [{ attribute: AccountSessionAttr.createdAt, direction: 'desc' }],
       limit,
     },
   ]);
@@ -97,11 +95,11 @@ async function readLatestSessionEntity(
 
 async function loadActiveSession(
   db: PatchDb,
-  principalId: string
-): Promise<PrincipalSessionRecord | null> {
-  const entities = await readLatestSessionEntity(db, principalId, 50);
+  deviceId: string
+): Promise<AccountSessionRecord | null> {
+  const entities = await readLatestSessionEntity(db, deviceId, 50);
   for (const entity of entities) {
-    const parsed = parseSessionEntity(entity, principalId);
+    const parsed = parseSessionEntity(entity, deviceId);
     if (parsed === null) continue;
     if (isExpired(parsed.expiresAt)) continue;
     return parsed;
@@ -111,23 +109,23 @@ async function loadActiveSession(
 
 async function clearAllActiveSessions(
   db: PatchDb,
-  principalId: string
+  deviceId: string
 ): Promise<void> {
-  // Must clear every non-expired entity for the principal: clearing only the
+  // Must clear every non-expired entity for the device: clearing only the
   // latest leaves older active sessions which `loadActiveSession` would
   // resurrect on the next refresh, leaving the user signed in.
-  const entities = await readLatestSessionEntity(db, principalId, 50);
+  const entities = await readLatestSessionEntity(db, deviceId, 50);
   const epoch = new Date(0).toISOString();
   const writes = entities
-    .map((entity) => parseSessionEntity(entity, principalId))
-    .filter((parsed): parsed is PrincipalSessionRecord => parsed !== null)
+    .map((entity) => parseSessionEntity(entity, deviceId))
+    .filter((parsed): parsed is AccountSessionRecord => parsed !== null)
     .filter((parsed) => !isExpired(parsed.expiresAt))
     .map((parsed) => ({
       entityId: parsed.entityId,
-      entityType: PRINCIPAL_SESSION_ENTITY_TYPE,
+      entityType: ACCOUNT_SESSION_ENTITY_TYPE,
       attributes: {
-        [PrincipalSessionAttr.token]: null,
-        [PrincipalSessionAttr.expiresAt]: epoch,
+        [AccountSessionAttr.token]: null,
+        [AccountSessionAttr.expiresAt]: epoch,
       },
     }));
   if (writes.length === 0) return;
@@ -136,12 +134,12 @@ async function clearAllActiveSessions(
 
 export function createSessionService(
   db: PatchDb,
-  principalService: PrincipalService
+  deviceService: DeviceService
 ): SessionService {
-  let cached: PrincipalSessionRecord | null = null;
+  let cached: AccountSessionRecord | null = null;
 
   return {
-    getSession(): PrincipalSessionRecord | null {
+    getSession(): AccountSessionRecord | null {
       const s = cached;
       if (s === null) return null;
       if (isExpired(s.expiresAt)) return null;
@@ -155,15 +153,15 @@ export function createSessionService(
     },
 
     async refresh(): Promise<void> {
-      const principalId = principalService.getPrincipalId();
-      assertPrincipalId(principalId);
-      cached = await loadActiveSession(db, principalId);
+      const deviceId = deviceService.getDeviceId();
+      assertDeviceId(deviceId);
+      cached = await loadActiveSession(db, deviceId);
     },
 
     async clearSession(): Promise<void> {
-      const principalId = principalService.getPrincipalId();
-      assertPrincipalId(principalId);
-      await clearAllActiveSessions(db, principalId);
+      const deviceId = deviceService.getDeviceId();
+      assertDeviceId(deviceId);
+      await clearAllActiveSessions(db, deviceId);
       cached = null;
     },
   };

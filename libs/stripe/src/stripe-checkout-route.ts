@@ -16,12 +16,12 @@ import { getStripeCatalogPriceStripeId } from './stripe-catalog-mirror';
 const log = createLogger({ name: 'stripe:checkout' });
 
 export type StripeAuthContext = {
-  readonly visitorId: string;
+  readonly clientId: string;
   readonly accountId: string;
-  readonly principalId: string;
+  readonly deviceId: string;
 };
 
-/** Resolve session principal + account from the API Worker auth layer. */
+/** Resolve session device + account from the API Worker auth layer. */
 export type StripeRequireAuth = (
   db: PatchDb,
   request: Request
@@ -43,14 +43,14 @@ type PortalValidated = z.infer<typeof portalBodySchema>;
 function stripePatchDbContext(auth: StripeAuthContext): PatchDbAuthContext {
   // `accountId` / `memberOfSpaceIds` / etc. are app-level claims consumed by
   // visibility policies. They're plain extra keys on the auth context — the
-  // patch-db library itself only needs `principalId`.
+  // patch-db library itself only needs `deviceId`.
   return {
-    visitorId: auth.visitorId,
-    principalId: auth.principalId,
+    clientId: auth.clientId,
+    deviceId: auth.deviceId,
     accountId: auth.accountId,
     memberOfSpaceIds: [] as readonly string[],
-    friendAccountIds: [] as readonly string[],
-    blockedAccountIds: [] as readonly string[],
+    friendUserIds: [] as readonly string[],
+    blockedUserIds: [] as readonly string[],
   };
 }
 
@@ -61,7 +61,7 @@ async function ensureStripeCustomerId(args: {
   readonly patchCtx: PatchDbAuthContext;
 }): Promise<string> {
   const { db, stripe, auth, patchCtx } = args;
-  const { accountId, principalId } = auth;
+  const { accountId, deviceId } = auth;
 
   const [accRes] = await db.read(
     [{ entityType: ACCOUNT_ENTITY_TYPE, entityId: accountId, limit: 1 }],
@@ -74,7 +74,7 @@ async function ensureStripeCustomerId(args: {
   }
 
   const customer = await stripe.customers.create({
-    metadata: { account_id: accountId, principal_id: principalId },
+    metadata: { account_id: accountId, device_id: deviceId },
   });
   await db.write(
     [
@@ -83,7 +83,7 @@ async function ensureStripeCustomerId(args: {
         entityType: ACCOUNT_ENTITY_TYPE,
         attributes: {
           [AccountAttr.stripeCustomerId]: customer.id,
-          'patch/createdBy': principalId,
+          'patch/createdBy': deviceId,
         },
       },
     ],

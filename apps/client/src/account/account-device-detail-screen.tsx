@@ -1,23 +1,21 @@
 import { useAuth } from '@gamezilla/client/auth/auth-context';
 import {
-  accountPrincipalFromEntity,
-  useAccountPrincipals,
-} from '@gamezilla/client/auth/use-account-principals';
-import { useSessionsForPrincipals } from '@gamezilla/client/auth/use-principals-sessions';
+  accountDeviceFromEntity,
+  useAccountDevices,
+} from '@gamezilla/client/auth/use-account-devices';
+import { useSessionsForDevices } from '@gamezilla/client/auth/use-device-account-sessions';
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
-import { PRINCIPAL_ENTITY_TYPE } from '@gamezilla/domain/auth';
+import { DEVICE_ENTITY_TYPE } from '@gamezilla/domain/auth';
 import { Badge, Box, Card, ScreenBase, Text } from '@gamezilla/lib/ui';
 import { useQueryOne } from '@gamezilla/patch-db/react';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
-import { useLocalSearchParams } from 'expo-router';
+import { type Href, useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
 import { AccountDeviceDetailBody } from './account-device-detail-body';
 import { formatDeviceListTitle } from './account-format';
 
-function normalizePrincipalId(
-  raw: string | string[] | undefined
-): string | null {
+function normalizeDeviceId(raw: string | string[] | undefined): string | null {
   if (raw === undefined) return null;
   const s = Array.isArray(raw) ? raw[0] : raw;
   if (typeof s !== 'string' || s.trim().length === 0) return null;
@@ -27,61 +25,61 @@ function normalizePrincipalId(
 function useAccountDeviceDetailScreenState() {
   const nav = useBreadcrumbNav();
   const auth = useAuth();
-  const params = useLocalSearchParams<{ principalId?: string | string[] }>();
-  const principalId = normalizePrincipalId(params.principalId);
-  const currentPid = auth.principalId;
+  const params = useLocalSearchParams<{ deviceId?: string | string[] }>();
+  const deviceId = normalizeDeviceId(params.deviceId);
+  const currentPid = auth.deviceId;
 
-  const { principals } = useAccountPrincipals(auth.accountId, currentPid);
+  const { devices } = useAccountDevices(auth.accountId, currentPid);
 
   const fromList = useMemo(
     () =>
-      principalId === null
+      deviceId === null
         ? undefined
-        : principals.find((p) => p.entityId === principalId),
-    [principals, principalId]
+        : devices.find((p) => p.entityId === deviceId),
+    [devices, deviceId]
   );
 
   const entityQuery = useMemo(
     () =>
-      principalId === null
-        ? { entityType: PRINCIPAL_ENTITY_TYPE, limit: 0 as const }
+      deviceId === null
+        ? { entityType: DEVICE_ENTITY_TYPE, limit: 0 as const }
         : {
-            entityType: PRINCIPAL_ENTITY_TYPE,
-            entityId: principalId,
+            entityType: DEVICE_ENTITY_TYPE,
+            entityId: deviceId,
             limit: 1 as const,
           },
-    [principalId]
+    [deviceId]
   );
 
   const entity = useQueryOne(entityQuery);
 
-  const principal = useMemo(() => {
+  const userDevice = useMemo(() => {
     if (fromList !== undefined) return fromList;
-    if (principalId === null || entity === null) return null;
-    return accountPrincipalFromEntity(entity, currentPid);
-  }, [fromList, principalId, entity, currentPid]);
+    if (deviceId === null || entity === null) return null;
+    return accountDeviceFromEntity(entity, currentPid);
+  }, [fromList, deviceId, entity, currentPid]);
 
-  const { sessionsByPrincipal } = useSessionsForPrincipals(
-    principalId === null ? [] : [principalId]
+  const { sessionsByDevice } = useSessionsForDevices(
+    deviceId === null ? [] : [deviceId]
   );
 
   const sessionInfo =
-    principalId === null ? undefined : sessionsByPrincipal.get(principalId);
+    deviceId === null ? undefined : sessionsByDevice.get(deviceId);
 
   const title =
-    principal !== null ? formatDeviceListTitle(principal) : t`Device`;
+    userDevice !== null ? formatDeviceListTitle(userDevice) : t`Device`;
 
   return {
     nav,
-    principalId,
-    principal,
+    deviceId,
+    userDevice,
     sessionInfo,
     title,
   };
 }
 
 export function AccountDeviceDetailScreen() {
-  const { nav, principalId, principal, sessionInfo, title } =
+  const { nav, deviceId, userDevice, sessionInfo, title } =
     useAccountDeviceDetailScreenState();
 
   return (
@@ -89,15 +87,18 @@ export function AccountDeviceDetailScreen() {
       breadcrumbs={[
         { name: 'Spaces', onPress: nav('/') },
         { name: 'Settings', onPress: nav('/more') },
-        { name: 'Account', onPress: nav('/more/account') },
+        {
+          name: 'Account',
+          onPress: nav('/more/account' as Href),
+        },
         { name: title },
       ]}
       scroll
       content={({ sx }) => (
         <Box style={{ ...sx, gap: 12 }}>
-          {principalId === null ? (
+          {deviceId === null ? (
             <Text variant="body" label={<Trans>Missing device id.</Trans>} />
-          ) : principal === null ? (
+          ) : userDevice === null ? (
             <Text
               variant="body"
               label={
@@ -120,14 +121,14 @@ export function AccountDeviceDetailScreen() {
                 <Text
                   variant="heading"
                   numberOfLines={2}
-                  label={formatDeviceListTitle(principal)}
+                  label={formatDeviceListTitle(userDevice)}
                 />
-                {principal.isCurrentDevice ? (
+                {userDevice.isCurrentDevice ? (
                   <Badge label={t`This device`} color="info" size="sm" />
                 ) : null}
               </Box>
               <AccountDeviceDetailBody
-                principal={principal}
+                userDevice={userDevice}
                 sessionInfo={sessionInfo}
               />
             </Card>

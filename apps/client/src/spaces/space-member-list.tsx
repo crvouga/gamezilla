@@ -1,4 +1,4 @@
-import { PrincipalAvatar } from '@gamezilla/client/profile/principal-avatar';
+import { DeviceAvatar } from '@gamezilla/client/profile/device-avatar';
 import { Box, Text } from '@gamezilla/lib/ui';
 import { Trans } from '@lingui/react/macro';
 
@@ -18,10 +18,10 @@ export function SpaceMemberList({ members }: SpaceMemberListProps) {
       />
       <Box sx={{ flexDirection: 'row', flexWrap: 'wrap', gap: 2 }}>
         {members.map((m) => (
-          <Box key={m.principalId} sx={{ alignItems: 'center', gap: 1 }}>
-            <PrincipalAvatar
+          <Box key={m.deviceId} sx={{ alignItems: 'center', gap: 1 }}>
+            <DeviceAvatar
               avatarConfig={m.avatarConfig}
-              principalId={m.principalId}
+              deviceId={m.deviceId}
               size={40}
             />
             <Text variant="caption" numberOfLines={1} label={m.displayName} />

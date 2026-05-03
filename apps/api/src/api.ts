@@ -4,7 +4,7 @@ import { isSecretStoreError } from '@gamezilla/lib/secret-store';
 import { makeStripeClient } from '@gamezilla/stripe/make-stripe-client';
 import { createApiApp } from './app/create-app';
 import { requireAuthContext } from './auth/session-middleware';
-import { parseVisitorIdFromCookies } from './auth/visitor-cookie';
+import { parseClientIdFromCookies } from './auth/client-cookie';
 import type { ApiWorkerEnv } from './config/env';
 import {
   assertDopplerTokenBinding,
@@ -100,7 +100,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     secretStore,
     stripe,
     requireAuth: (db, req) =>
-      requireAuthContext(db, req, parseVisitorIdFromCookies(req)),
+      requireAuthContext(db, req, parseClientIdFromCookies(req)),
     webhookSecretDopplerKey: ApiSecretName.stripeWebhookSecret,
   });
 }

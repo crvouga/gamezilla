@@ -13,9 +13,9 @@ function useMoreRows(): readonly MoreRow[] {
   const { t } = useLingui();
   return [
     {
-      title: t`Account`,
+      title: t`User`,
       caption: t`Devices and read-only sign-in provider info`,
-      href: '/more/account',
+      href: '/more/account' as Href,
     },
     {
       title: t`Appearance`,

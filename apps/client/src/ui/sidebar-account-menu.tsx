@@ -1,5 +1,5 @@
 /**
- * Wide-layout sidebar account row + {@link FloatingMenu} (same entries as header overflow).
+ * Wide-layout sidebar user row + {@link FloatingMenu} (same entries as header overflow).
  */
 
 import { useServerStatus } from '@gamezilla/client/connection/use-server-status';
@@ -28,7 +28,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@gamezilla/client/auth/auth-context';
-import { PrincipalAvatar } from '@gamezilla/client/profile/principal-avatar';
+import { DeviceAvatar } from '@gamezilla/client/profile/device-avatar';
 import { useProfile } from '@gamezilla/client/profile/use-profile';
 import { useAsync } from '@gamezilla/lib/async/use-async';
 
@@ -227,7 +227,7 @@ function AccountTrigger({
       <Pressable
         onPress={openMenu}
         accessibilityRole="button"
-        accessibilityLabel={t`Account menu`}
+        accessibilityLabel={t`User menu`}
         accessibilityState={{ expanded: open }}
         sx={{
           flexDirection: 'row',
@@ -239,9 +239,9 @@ function AccountTrigger({
           background: open ? 'surface' : 'transparent',
         }}
       >
-        <PrincipalAvatar
+        <DeviceAvatar
           avatarConfig={profile.avatarConfig}
-          principalId={profile.principalId}
+          deviceId={profile.deviceId}
           size={32}
         />
         <Box sx={{ flex: 1, minWidth: 0 }}>

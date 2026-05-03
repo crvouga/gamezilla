@@ -13,7 +13,7 @@ import {
   OPEN_PATCHES_DB_CONTEXT,
   PATCHES_DB_SYSTEM_CONTEXT,
 } from '../interface';
-import { PATCH_DB_SYSTEM_PRINCIPAL_ID } from '../policy/system-principal';
+import { PATCH_DB_SYSTEM_DEVICE_ID } from '../policy/system-device';
 import type { PatchDbSyncHost } from './interface';
 
 const PATCHES_DB_TOPIC = 'patch-db';
@@ -128,7 +128,7 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
             entityId: ADMIN_METRIC_ENTITY_ID,
             entityType: ADMIN_METRIC_ENTITY_TYPE,
             attributes: {
-              'patch/createdBy': PATCH_DB_SYSTEM_PRINCIPAL_ID,
+              'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
               'admin/startedAt': this.startedAt,
               'admin/uptimeSeconds': uptimeSeconds,
               'admin/totalPatchesWritten': this.counters.totalPatchesWritten,
