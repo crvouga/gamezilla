@@ -40,6 +40,9 @@
   "overrides": {
     "serialize-javascript": "7.0.5"
   },
+  "engines": {
+    "node": ">=22"
+  },
   "devDependencies": {
     "@lingui/cli": "5.9.5",
     "@lingui/conf": "5.9.5",

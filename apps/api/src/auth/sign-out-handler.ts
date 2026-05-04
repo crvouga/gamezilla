@@ -3,35 +3,16 @@ import {
   AccountSessionAttr,
 } from '@gamezilla/domain/auth';
 import { assert } from '@gamezilla/lib/assert';
-import type { Entity, PatchDb } from '@gamezilla/patch-db/interface';
+import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
+
+import { readAccountSessionsByToken } from './account-session-by-token';
 
 export type SignOutResult =
   | { status: 204 }
   | { status: 401; json: { error: string } };
 
 const EPOCH_ISO = new Date(0).toISOString();
-
-async function readSessionsByToken(
-  db: PatchDb,
-  token: string
-): Promise<Entity[]> {
-  const [result] = await db.read(
-    [
-      {
-        entityType: ACCOUNT_SESSION_ENTITY_TYPE,
-        where: {
-          type: '=',
-          attribute: AccountSessionAttr.token,
-          value: token,
-        },
-        limit: 5,
-      },
-    ],
-    PATCHES_DB_SYSTEM_CONTEXT
-  );
-  return result?.entities ?? [];
-}
 
 /**
  * Server-authoritative session revoke. Idempotent: re-revoking an already
@@ -52,7 +33,7 @@ export async function handleSignOut(args: {
     return { status: 401, json: { error: 'Missing bearer token' } };
   }
 
-  const entities = await readSessionsByToken(db, bearer);
+  const entities = await readAccountSessionsByToken(db, bearer);
   if (entities.length === 0) {
     return { status: 204 };
   }

@@ -1,6 +1,7 @@
 import { createApiClient } from '@gamezilla/client/api/hc';
 import { createPatchDbHcTransport } from '@gamezilla/client/api/patch-db-hc-transport';
 import { createSecureStorage } from '@gamezilla/client/auth/create-secure-storage';
+import { createKeyValueStorage } from '@gamezilla/client/runtime/create-key-value-storage';
 import { createDeviceService } from '@gamezilla/client/auth/device-service';
 import { ensureDeviceEntity } from '@gamezilla/client/auth/ensure-device-entity';
 import {
@@ -21,6 +22,7 @@ import {
 } from '@gamezilla/domain/auth';
 import { createConfigService } from '@gamezilla/domain/config/config-service';
 import { createLogger } from '@gamezilla/lib/logger/logger';
+import type { KeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
 import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
 import { SqlClientImplExpoSqlite } from '@gamezilla/lib/sql-client/impl-expo-sqlite';
@@ -49,6 +51,15 @@ export const configServiceAtom = atom(createConfigService());
 export const loggerAtom = atom(createLogger({ name: 'client' }));
 
 export const secureStorageAtom = atom<SecureStorage>(createSecureStorage());
+
+/**
+ * Bulk async key-value storage (localStorage on web, AsyncStorage on native).
+ * Use for cache/queue blobs that may exceed the 2048-byte expo-secure-store
+ * cap (e.g. `KeyValueClientRoomStorage`-style room state). Not encrypted.
+ */
+export const keyValueStorageAtom = atom<KeyValueStorage>(
+  createKeyValueStorage()
+);
 
 export const deviceServiceAtom = atom(async (get) => {
   const storage = get(secureStorageAtom);

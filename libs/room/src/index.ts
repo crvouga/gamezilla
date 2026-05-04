@@ -21,13 +21,14 @@ export {
 } from './protocol/wire';
 export { newCommandId } from './protocol/ids';
 export { Room } from './client/room';
-export type { RoomClientConfig } from './client/room';
+export type { RoomClientConfig, RoomSnapshot } from './client/room';
+export { useRoomSnapshot } from './client/use-room-snapshot';
 export type { ClientTransport, ClientTransportHandlers } from './client/transport';
 export type { ClientRoomStorage, QueuedCommand } from './client/storage';
 export { WebSocketRoomTransport } from './client/adapters/websocket';
 export type { WebSocketRoomTransportOptions } from './client/adapters/websocket';
 export { InMemoryClientStorage } from './client/adapters/memory-storage';
-export { SecureClientRoomStorage } from './client/adapters/secure-storage';
+export { KeyValueClientRoomStorage } from './client/adapters/key-value-storage';
 export { WebClientStorage } from './client/adapters/web-storage';
 
 export { openLoopbackRoom } from './testkit/simulator';

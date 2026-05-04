@@ -26,7 +26,7 @@ const DERIVED_DEFAULTS: Record<string, () => string> = {
   TURBO_TOKEN: () => crypto.randomUUID(),
   TURBO_API: () => turboCachePublicUrl(),
   TURBO_TEAM: () => `team_${PROJECT_CONFIG.domain.replace(/\.\w+$/, '')}`,
-  TURBO_LOG_ORDER: () => 'stream',
+  TURBO_LOG_ORDER: () => 'auto',
   TURBO_TELEMETRY_DISABLED: () => '1',
   // Force every `turbo` invocation to use the self-hosted remote cache
   // instead of the local filesystem cache. Same syntax as `--cache`.

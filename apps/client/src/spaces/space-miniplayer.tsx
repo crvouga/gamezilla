@@ -126,29 +126,36 @@ function SpaceMiniplayerView(props: VisibleModel) {
   return (
     <>
       <MiniplayerDock>
-        <Pressable
-          onPress={props.onOpenSpace}
-          accessibilityRole="button"
-          accessibilityLabel={t`Tap to return to your space`}
+        <GradientBox
+          colors={gradientColors}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          sx={{
+            borderRadius: 16,
+            flexDirection: 'row',
+            alignItems: 'center',
+            p: 3,
+            gap: 2,
+            minHeight: 72,
+          }}
+          style={{
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.18,
+            shadowRadius: 12,
+            elevation: 6,
+          }}
         >
-          <GradientBox
-            colors={gradientColors}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
+          <Pressable
+            onPress={props.onOpenSpace}
+            accessibilityRole="button"
+            accessibilityLabel={t`Tap to return to your space`}
             sx={{
-              borderRadius: 16,
+              flex: 1,
               flexDirection: 'row',
               alignItems: 'center',
-              p: 3,
               gap: 2,
-              minHeight: 72,
-            }}
-            style={{
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.18,
-              shadowRadius: 12,
-              elevation: 6,
+              minWidth: 0,
             }}
           >
             <MiniplayerHostHeader
@@ -159,9 +166,9 @@ function SpaceMiniplayerView(props: VisibleModel) {
               countLabel={countLabel}
             />
             <MiniplayerLiveBadge />
-            <MiniplayerActionButton model={props} />
-          </GradientBox>
-        </Pressable>
+          </Pressable>
+          <MiniplayerActionButton model={props} />
+        </GradientBox>
       </MiniplayerDock>
       <EndSpaceModal
         visible={props.confirmEnd}

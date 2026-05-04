@@ -1,4 +1,5 @@
 import type { ConfigService } from '@gamezilla/domain/config/config-service';
+import type { KeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
 import type { Logger } from '@gamezilla/lib/logger/logger';
 import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
 import { useAtomValue } from 'jotai';
@@ -8,6 +9,7 @@ import type { SessionService } from '../auth/session-service';
 import {
   configServiceAtom,
   deviceServiceAtom,
+  keyValueStorageAtom,
   loggerAtom,
   secureStorageAtom,
   sessionServiceAtom,
@@ -24,6 +26,10 @@ export function useLogger(namespace: string): Logger {
 
 export function useSecureStorage(): SecureStorage {
   return useAtomValue(secureStorageAtom);
+}
+
+export function useKeyValueStorage(): KeyValueStorage {
+  return useAtomValue(keyValueStorageAtom);
 }
 
 export function useDeviceService(): DeviceService {

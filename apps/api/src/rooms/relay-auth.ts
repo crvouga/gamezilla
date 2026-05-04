@@ -1,7 +1,4 @@
-import {
-  ACCOUNT_SESSION_ENTITY_TYPE,
-  AccountSessionAttr,
-} from '@gamezilla/domain/auth';
+import { AccountSessionAttr } from '@gamezilla/domain/auth';
 import { assertDeviceId } from '@gamezilla/domain/auth/device-id';
 import {
   SPACE_ENTITY_TYPE,
@@ -12,6 +9,8 @@ import {
 import { assert } from '@gamezilla/lib/assert';
 import type { Entity, PatchDb } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
+
+import { readAccountSessionsByToken } from '../auth/account-session-by-token';
 
 const ROOM_TOPIC_PREFIX = 'space:' as const;
 
@@ -37,22 +36,7 @@ async function resolveAccountIdFromBearer(
   db: PatchDb,
   bearer: string
 ): Promise<string | null> {
-  const [result] = await db.read(
-    [
-      {
-        entityType: ACCOUNT_SESSION_ENTITY_TYPE,
-        where: {
-          type: '=',
-          attribute: AccountSessionAttr.token,
-          value: bearer,
-        },
-        limit: 5,
-      },
-    ],
-    PATCHES_DB_SYSTEM_CONTEXT
-  );
-
-  const entities = result?.entities ?? [];
+  const entities = await readAccountSessionsByToken(db, bearer);
   const now = Date.now();
 
   for (const entity of entities) {

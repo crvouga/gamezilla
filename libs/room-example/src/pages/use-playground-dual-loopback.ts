@@ -63,8 +63,8 @@ export function usePlaygroundDualLoopback(): {
           roomB.destroy();
           return;
         }
-        roomA.subscribe(() => rerender());
-        roomB.subscribe(() => rerender());
+        roomA.subscribe(rerender);
+        roomB.subscribe(rerender);
         setA(roomA);
         setB(roomB);
       } catch (e) {
@@ -91,7 +91,7 @@ export function usePlaygroundDualLoopback(): {
 
 export function readPlaygroundCount(room: CounterRoom | null): number {
   if (room === null) return 0;
-  const c = room.getState()['count'];
+  const c = room.getSnapshot().state['count'];
   return typeof c === 'number' && Number.isFinite(c) ? c : 0;
 }
 

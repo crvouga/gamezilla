@@ -1,7 +1,4 @@
-import {
-  ACCOUNT_SESSION_ENTITY_TYPE,
-  AccountSessionAttr,
-} from '@gamezilla/domain/auth';
+import { AccountSessionAttr } from '@gamezilla/domain/auth';
 import { assertDeviceId } from '@gamezilla/domain/auth/device-id';
 import {
   SPACE_MEMBERSHIP_ENTITY_TYPE,
@@ -14,6 +11,7 @@ import type {
   AppAuthContext,
   AppClientContext,
 } from '../patch-db/abac-policies';
+import { readAccountSessionsByToken } from './account-session-by-token';
 import { UnauthorizedError } from './unauthorized-error';
 
 export type AuthContext = AppAuthContext;
@@ -57,22 +55,7 @@ export async function resolvePatchDbContext(
   const token = header.slice('Bearer '.length).trim();
   assert.ok(token.length > 0, 'Bearer token must be non-empty');
 
-  const [result] = await db.read(
-    [
-      {
-        entityType: ACCOUNT_SESSION_ENTITY_TYPE,
-        where: {
-          type: '=',
-          attribute: AccountSessionAttr.token,
-          value: token,
-        },
-        limit: 5,
-      },
-    ],
-    PATCHES_DB_SYSTEM_CONTEXT
-  );
-
-  const entities = result?.entities ?? [];
+  const entities = await readAccountSessionsByToken(db, token);
   const now = Date.now();
 
   for (const entity of entities) {

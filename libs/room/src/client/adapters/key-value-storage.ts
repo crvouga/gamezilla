@@ -1,4 +1,4 @@
-import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
+import type { KeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
 
 import type { LogEntry } from '../../types';
 import type { ClientRoomStorage, QueuedCommand } from '../storage';
@@ -13,20 +13,25 @@ function parseJson<T>(raw: string | null): T | null {
 }
 
 /**
- * Async secure storage (Expo SecureStore / web localStorage) for room cache + queue.
+ * Async key-value storage backed room cache + outbound queue.
+ *
+ * Use a non-secure backend such as `localStorage` (web) or AsyncStorage
+ * (native): committed-log + queue blobs grow past `expo-secure-store`'s
+ * 2048 UTF-8 byte per-value cap as soon as a few entries accumulate. None
+ * of this data is sensitive — it's a recovery cache for replay-on-reconnect.
  */
-export class SecureClientRoomStorage implements ClientRoomStorage {
+export class KeyValueClientRoomStorage implements ClientRoomStorage {
   constructor(
-    private readonly storage: SecureStorage,
+    private readonly storage: KeyValueStorage,
     private readonly rootKey: string
   ) {}
 
   private committedKey(): string {
-    return `${this.rootKey}:committed`;
+    return `${this.rootKey}.committed`;
   }
 
   private queueKey(): string {
-    return `${this.rootKey}:queue`;
+    return `${this.rootKey}.queue`;
   }
 
   async loadCommitted(): Promise<{ lastSeq: number; entries: LogEntry[] }> {

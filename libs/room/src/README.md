@@ -31,7 +31,7 @@ Versioned JSON frames (`wireVersion` on envelopes). Client → server: `command`
 
 ## Shipped adapters
 
-- **Client**: `WebSocketRoomTransport` (browser `WebSocket`), `InMemoryClientStorage`, `WebClientStorage` / `SecureClientRoomStorage` (secure storage backend).
+- **Client**: `WebSocketRoomTransport` (browser `WebSocket`), `InMemoryClientStorage`, `WebClientStorage` (sync `localStorage`), `KeyValueClientRoomStorage` (async `KeyValueStorage` — backed by `localStorage` on web, `AsyncStorage` on native; do **not** back this with `SecureStorage`/`expo-secure-store`, the per-value cap will reject committed-log blobs).
 - **Server**: `InMemoryRoomStorage` (tests). Production API uses a **Durable Object** implementation of `RoomStorage` plus hibernating WebSockets (see `apps/api/src/rooms/`).
 - **Testkit**: `openLoopbackRoom`, `LoopbackRoomTransport`, `TestCounterModule` for in-process convergence tests.
 

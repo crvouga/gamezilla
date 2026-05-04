@@ -1,8 +1,8 @@
-import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
+import type { KeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
 import { CounterModule } from '@gamezilla/domain/spaces/counter-room-module';
 import {
+  KeyValueClientRoomStorage,
   Room,
-  SecureClientRoomStorage,
   WebSocketRoomTransport,
 } from '@gamezilla/room';
 
@@ -11,7 +11,13 @@ import { apiUrlToRoomWebSocketUrl } from './space-room-url';
 export type CreateSpaceRoomParams = {
   spaceId: string;
   apiUrl: string;
-  storage: SecureStorage;
+  /**
+   * Bulk async key-value storage (localStorage on web, AsyncStorage on
+   * native). Must NOT be {@link SecureStorage}: room committed log + outbound
+   * queue blobs exceed the 2048-byte expo-secure-store cap once a handful of
+   * entries accumulate.
+   */
+  storage: KeyValueStorage;
   /** Account id for server-side authorization; passed as client `identity` for local handle. */
   accountId: string;
   sessionToken: string | null;
@@ -30,7 +36,10 @@ export async function createSpaceRoom(
   const transport = new WebSocketRoomTransport({
     url: apiUrlToRoomWebSocketUrl(apiUrl, topic, sessionToken),
   });
-  const clientStorage = new SecureClientRoomStorage(storage, `room:${spaceId}`);
+  const clientStorage = new KeyValueClientRoomStorage(
+    storage,
+    `room.${spaceId}`
+  );
 
   const room = await Room.open({
     topic,

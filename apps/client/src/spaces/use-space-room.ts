@@ -1,10 +1,10 @@
 import {
   useConfigService,
-  useSecureStorage,
+  useKeyValueStorage,
 } from '@gamezilla/client/runtime/runtime-hooks';
 import { sessionTokenAtom } from '@gamezilla/client/runtime/atoms';
-import { getDefaultStore } from 'jotai';
-import { useCallback, useMemo } from 'react';
+import { useAtomValue } from 'jotai';
+import { useMemo } from 'react';
 
 import type { WebSocketRoomTransport } from '@gamezilla/room';
 
@@ -28,12 +28,9 @@ export function useSpaceRoom(spaceId: string | undefined): SpaceRoomUiState {
   const current = useCurrentMembership();
   const { selfAccountId } = useSelfAuthIdentity();
   const configService = useConfigService();
-  const storage = useSecureStorage();
+  const storage = useKeyValueStorage();
   const role = current.activeSpaceId === spaceId ? current.role : null;
-  const getSessionToken = useCallback(
-    () => getDefaultStore().get(sessionTokenAtom),
-    []
-  );
+  const sessionToken = useAtomValue(sessionTokenAtom);
 
   const bootstrap = useMemo((): SpaceRoomConnectionBootstrap | null => {
     if (
@@ -52,7 +49,7 @@ export function useSpaceRoom(spaceId: string | undefined): SpaceRoomUiState {
     bootstrap,
     configService,
     storage,
-    getSessionToken
+    sessionToken
   );
   const controls = useSpaceRoomCounterControls(room, roomRef);
   return {

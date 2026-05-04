@@ -10,11 +10,10 @@ describe('server-authoritative room (loopback)', () => {
       module: TestCounterModule,
     });
     await room.untilSynced();
-    expect(room.getCommittedState()['count']).toBe(0);
+    expect(room.getSnapshot().state['count']).toBe(0);
     room.dispatch(Increment({}));
     await new Promise<void>((r) => setTimeout(r, 30));
-    expect(room.getCommittedState()['count']).toBe(1);
-    expect(room.getState()['count']).toBe(1);
+    expect(room.getSnapshot().state['count']).toBe(1);
     room.destroy();
   });
 
