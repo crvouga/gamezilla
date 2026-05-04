@@ -1,6 +1,9 @@
 /**
  * Per-account local SQLite (Expo) — structural isolation without SQLCipher.
  *
+ * **Web note:** `sqlClientAtom` opens patch-db with **sql.js** in-memory (see
+ * `apps/client/src/runtime/open-sql-client.ts`); this module is for **native** file-backed opens only.
+ *
  * **Invariant:** Callers (Jotai `sqlClientAtom`) own at most one open connection at a time;
  * abort the previous `SqlClient` before opening another. All native opens for patch-db
  * should go through this module plus {@link SqlClientImplExpoSqlite}; do not call

@@ -9,11 +9,6 @@ import {
 } from '@gamezilla/client/auth/ensure-profile-entity';
 import { createSessionService } from '@gamezilla/client/auth/session-service';
 import { readSessionToken } from '@gamezilla/client/auth/session-token-storage';
-import {
-  openAccountDb,
-  openAnonymousDb,
-} from '@gamezilla/client/db/account-db';
-import { ensureServerClientId } from '@gamezilla/client/db/ensure-server-client-id';
 import { createKeyValueStorage } from '@gamezilla/client/runtime/create-key-value-storage';
 import {
   ACCOUNT_SESSION_ENTITY_TYPE,
@@ -24,7 +19,6 @@ import type { KeyValueStorage } from '@gamezilla/lib/key-value-storage/interface
 import { createLogger } from '@gamezilla/lib/logger/logger';
 import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbImplClientTransport } from '@gamezilla/patch-db/impl-client-transport';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
 import { SyncPatchDb } from '@gamezilla/patch-db/impl-sync';
@@ -35,6 +29,7 @@ import {
 } from '@gamezilla/patch-db/react';
 import { atom, getDefaultStore } from 'jotai';
 import { atomEffect } from 'jotai-effect';
+import { openSqlClientForPlatform } from './open-sql-client';
 
 /** Last signed-in account for native cold start (SQLite file selection). */
 export const accountIdAtom = atom<string | null>(null);
@@ -63,22 +58,21 @@ export const deviceServiceAtom = atom(async (get) => {
 });
 
 /**
- * Single SQLite path for every platform: expo-sqlite (native file on iOS/Android,
- * OPFS-backed worker on web). Pre-auth opens use a server-issued `clientId` so
- * the anonymous DB is stable across cold starts; once signed in, the per-account
- * file provides structural isolation (see `account-db.ts`).
+ * **Native:** per-account or anonymous file DB via expo-sqlite (see `account-db.ts`).
+ * Pre-auth uses a server-issued `clientId` for a stable anonymous filename.
+ *
+ * **Web:** sql.js in-memory — avoids expo-sqlite OPFS multi-tab lock. Patch-db
+ * rehydrates from the server after refresh. See {@link openSqlClientForPlatform}.
  */
 export const sqlClientAtom = atom(async (get, { signal }) => {
-  const accountId = get(accountIdAtom);
-  const storage = get(secureStorageAtom);
-  const configService = get(configServiceAtom);
-  const apiUrl = configService.getApiUrl();
-
-  const sql: SqlClient =
-    accountId !== null
-      ? await openAccountDb(accountId)
-      : await openAnonymousDb(await ensureServerClientId(apiUrl, storage));
-
+  const sql = await openSqlClientForPlatform(
+    {
+      getAccountId: () => get(accountIdAtom),
+      getSecureStorage: () => get(secureStorageAtom),
+      getApiUrl: () => get(configServiceAtom).getApiUrl(),
+    },
+    signal
+  );
   signal.addEventListener('abort', () => {
     void sql.disconnect();
   });

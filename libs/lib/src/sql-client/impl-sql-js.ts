@@ -65,6 +65,9 @@ function rowsFromStatement(stmt: SqlStatement): Record<string, unknown>[] {
 
 export class SqlClientImplSqlJs implements SqlClient {
   private closed = false;
+  /** Serialize `transaction()` like {@link SqlClientImplExpoSqlite} — concurrent writes (e.g. sync poll + bootstrap) must not overlap `BEGIN`. */
+  private txQueue: Promise<unknown> = Promise.resolve();
+
   private constructor(private readonly db: SqlDatabase) {}
 
   /**
@@ -177,14 +180,26 @@ export class SqlClientImplSqlJs implements SqlClient {
   }
 
   async transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
-    this.db.run('BEGIN');
+    let resolveGate!: (v: unknown) => void;
+    const gate = new Promise<unknown>((r) => {
+      resolveGate = r;
+    });
+    const waiting = this.txQueue;
+    this.txQueue = gate;
+
+    await waiting;
     try {
-      const result = await fn(this);
-      this.db.run('COMMIT');
-      return result;
-    } catch (e) {
-      this.db.run('ROLLBACK');
-      throw e;
+      this.db.run('BEGIN');
+      try {
+        const result = await fn(this);
+        this.db.run('COMMIT');
+        return result;
+      } catch (e) {
+        this.db.run('ROLLBACK');
+        throw e;
+      }
+    } finally {
+      resolveGate(undefined);
     }
   }
 }
