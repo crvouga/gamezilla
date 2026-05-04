@@ -3,14 +3,6 @@
   "version": "0.0.1",
   "private": true,
   "exports": {
-    "./components/simulator-log": "./src/components/simulator-log.tsx",
-    "./components/state-inspector": "./src/components/state-inspector.tsx",
-    "./components/cheat-log": "./src/components/cheat-log.tsx",
-    "./components/message-log": "./src/components/message-log.tsx",
-    "./components/event-log": "./src/components/event-log.tsx",
-    "./components/tic-tac-toe-board": "./src/components/tic-tac-toe-board.tsx",
-    "./components/peer-panel": "./src/components/peer-panel.tsx",
-    "./simulator/playground": "./src/simulator/playground.ts",
     "./pages/playground-page": "./src/pages/playground-page.tsx"
   },
   "scripts": {
@@ -31,7 +23,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
-    "eslint-plugin-lingui": "^0.13.1",
+    "eslint-plugin-lingui": "^0.13.0",
     "typescript": "~5.9.2"
   }
 }

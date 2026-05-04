@@ -79,9 +79,9 @@ The server performs merge-then-read: it incorporates client-known patches before
 
 ### Rooms
 
-Multiplayer sessions are coordinated through rooms. The room is a thin coordination primitive — it routes patches between connected clients and holds no game-specific logic.
+`@gamezilla/room` implements **server-authoritative** sessions per topic (e.g. `space:<id>`). The server is the sole writer to the ordered event log (`seq` monotonic per topic). Clients keep an **optimistic** view plus a **durable command queue**: dispatch runs `RoomModule.handle` locally for UX, queues `{ commandId, command }`, sends over WebSocket when connected, sends `sync(fromSeq)` on reconnect, and drops optimistic overlays when the server returns `committed` or `rejected`. Server dedupes by `commandId` so retries are safe.
 
-Because rooms are game-agnostic and the sync layer treats every client's patches identically, **any single-player game becomes a collaborative multiplayer game automatically**, with no extra code. Drop the same game into a room and every connected player is editing the same shared entities in real time — turn-taking, shared boards, co-op puzzles, spectator mode, and live co-editing all fall out of the same primitive for free.
+Game rules live in a shared **`RoomModule`** (used on client for optimism and on server for validation). Wire traffic is a small fixed set of JSON message kinds; auth runs at WebSocket upgrade (`RoomAuth`). See `libs/room/src/README.md` for ports, adapters, and Tiger Style expectations.
 
 ### Dependency Injection
 

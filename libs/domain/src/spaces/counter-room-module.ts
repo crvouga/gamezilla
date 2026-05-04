@@ -1,21 +1,18 @@
-import { createNamespace, isPlainRecord } from '@gamezilla/lib/message';
+import {
+  createNamespace,
+  isPlainRecord,
+  type Message,
+} from '@gamezilla/lib/message';
 import type {
-  Command,
-  Event,
   HandleResult,
+  RoomCommand,
   RoomError,
   RoomModule,
-  State,
+  RoomState,
 } from '@gamezilla/room';
 
 function validateEmptyPayload(p: unknown): p is Record<string, never> {
   return isPlainRecord(p) && Object.keys(p).length === 0;
-}
-
-function validateErrUnknownCommand(p: unknown): p is { commandType: string } {
-  if (!isPlainRecord(p)) return false;
-  const t = p['commandType'];
-  return typeof t === 'string' && t.length > 0;
 }
 
 const cmdNs = createNamespace('spaceCounterCmd');
@@ -32,43 +29,63 @@ export const CounterDecremented = evtNs(
   validateEmptyPayload
 );
 
-const errNs = createNamespace('spaceCounterErr');
-const UnknownCommandError = errNs('UNKNOWN_COMMAND', validateErrUnknownCommand);
-
 function reject(error: RoomError): HandleResult {
   return { ok: false, error };
 }
 
-function readCount(state: State): number {
+function readCount(state: RoomState): number {
   const c = state['count'];
   return typeof c === 'number' && Number.isFinite(c) ? c : 0;
 }
 
-export const CounterModule: RoomModule = {
-  initialState(): State {
+function asMessage(payload: unknown): Message | null {
+  if (typeof payload !== 'object' || payload === null) return null;
+  if (!('type' in payload) || !('payload' in payload)) return null;
+  return payload as Message;
+}
+
+export const CounterModule: RoomModule<
+  RoomState,
+  unknown,
+  unknown,
+  string
+> = {
+  initialState(): RoomState {
     return { count: 0 };
   },
 
-  handle(_state: State, command: Command): HandleResult {
-    const msg = command.message;
+  handle(
+    _state: RoomState,
+    command: RoomCommand,
+    _identity: string
+  ): HandleResult {
+    void _identity;
+    const msg = asMessage(command.payload);
+    if (msg === null) {
+      return reject({
+        type: 'invalid_command',
+        reason: 'not a message envelope',
+      });
+    }
     if (Increment.is(msg)) {
       return { ok: true, events: [CounterIncremented({})] };
     }
     if (Decrement.is(msg)) {
       return { ok: true, events: [CounterDecremented({})] };
     }
-    return reject(
-      UnknownCommandError({
-        commandType: typeof msg.type === 'string' ? msg.type : '?',
-      })
-    );
+    return reject({
+      type: 'invalid_command',
+      reason: String(msg.type),
+    });
   },
 
-  reduce(state: State, event: Event): State {
-    if (CounterIncremented.is(event)) {
+  reduce(state: RoomState, event: unknown): RoomState {
+    const ev = asMessage(event);
+    if (ev === null) return state;
+    if (CounterIncremented.is(ev)) {
       return { ...state, count: readCount(state) + 1 };
     }
-    if (CounterDecremented.is(event)) {
+    if (CounterDecremented.is(ev)) {
       return { ...state, count: readCount(state) - 1 };
     }
     return state;

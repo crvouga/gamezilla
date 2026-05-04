@@ -8,10 +8,11 @@ import { useCallback, useMemo } from 'react';
 
 import type { WebSocketRoomTransport } from '@gamezilla/room';
 
-import { computeSpaceRoomBootstrap } from './space-room-bootstrap';
+import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
 import { useSpaceRoomConnection } from './use-space-room-connection';
 import { useSpaceRoomCounterControls } from './use-space-room-counter-controls';
 import { useCurrentMembership, useSpace } from './use-spaces';
+import { useSelfAuthIdentity } from './device-display-resolution';
 
 export type SpaceRoomUiState = {
   count: number;
@@ -20,12 +21,12 @@ export type SpaceRoomUiState = {
   isSynced: boolean;
   roomActive: boolean;
   transport: WebSocketRoomTransport | null;
-  sessionPeerId: string | null;
 };
 
 export function useSpaceRoom(spaceId: string | undefined): SpaceRoomUiState {
   const space = useSpace(spaceId);
   const current = useCurrentMembership();
+  const { selfAccountId } = useSelfAuthIdentity();
   const configService = useConfigService();
   const storage = useSecureStorage();
   const role = current.activeSpaceId === spaceId ? current.role : null;
@@ -34,28 +35,20 @@ export function useSpaceRoom(spaceId: string | undefined): SpaceRoomUiState {
     []
   );
 
-  const bootstrap = useMemo(
-    () =>
-      computeSpaceRoomBootstrap({
-        spaceId,
-        spaceLive: space.live,
-        role,
-        phantomPeerId: space.phantomPeerId,
-        phantomPublicKey: space.phantomPublicKey,
-        hostRoomPeerId: space.hostRoomPeerId,
-        hostRoomPublicKey: space.hostRoomPublicKey,
-      }),
-    [
-      spaceId,
-      space.live,
-      space.phantomPeerId,
-      space.phantomPublicKey,
-      space.hostRoomPeerId,
-      space.hostRoomPublicKey,
-      role,
-    ]
-  );
-  const { room, roomRef, transport, sessionPeerId } = useSpaceRoomConnection(
+  const bootstrap = useMemo((): SpaceRoomConnectionBootstrap | null => {
+    if (
+      typeof spaceId !== 'string' ||
+      spaceId.length === 0 ||
+      !space.live ||
+      role === null ||
+      selfAccountId === null
+    ) {
+      return null;
+    }
+    return { spaceId, accountId: selfAccountId };
+  }, [spaceId, space.live, role, selfAccountId]);
+
+  const { room, roomRef, transport } = useSpaceRoomConnection(
     bootstrap,
     configService,
     storage,
@@ -66,6 +59,5 @@ export function useSpaceRoom(spaceId: string | undefined): SpaceRoomUiState {
     ...controls,
     roomActive: room !== null,
     transport,
-    sessionPeerId,
   };
 }

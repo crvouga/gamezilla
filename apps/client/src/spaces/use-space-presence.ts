@@ -1,125 +1,32 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
+import { useSelfAuthIdentity } from './device-display-resolution';
 import { useSpaceRoomWire } from './space-room-wire-context';
 
-type PresencePeer = { peerId: string; accountId: string };
-
-function isPresencePayload(v: unknown): v is {
-  ch: 'presence';
-  kind: string;
-  peerId?: string;
-  accountId?: string;
-  peers?: unknown;
-} {
-  return (
-    v !== null &&
-    typeof v === 'object' &&
-    'ch' in v &&
-    (v as { ch?: unknown }).ch === 'presence' &&
-    'kind' in v &&
-    typeof (v as { kind?: unknown }).kind === 'string'
-  );
-}
-
-function parseSnapshotPeers(peers: unknown): PresencePeer[] {
-  if (!Array.isArray(peers)) return [];
-  const out: PresencePeer[] = [];
-  for (const row of peers) {
-    if (
-      row !== null &&
-      typeof row === 'object' &&
-      'peerId' in row &&
-      'accountId' in row &&
-      typeof (row as { peerId?: unknown }).peerId === 'string' &&
-      typeof (row as { accountId?: unknown }).accountId === 'string'
-    ) {
-      out.push({
-        peerId: (row as { peerId: string }).peerId,
-        accountId: (row as { accountId: string }).accountId,
-      });
-    }
-  }
-  return out;
-}
-
-function snapshotMap(peers: unknown): Map<string, string> {
-  const m = new Map<string, string>();
-  for (const p of parseSnapshotPeers(peers)) {
-    m.set(p.peerId, p.accountId);
-  }
-  return m;
-}
-
-function applyJoin(
-  prev: Map<string, string>,
-  peerId: unknown,
-  accountId: unknown
-): Map<string, string> {
-  if (
-    typeof peerId === 'string' &&
-    peerId.length > 0 &&
-    typeof accountId === 'string' &&
-    accountId.length > 0
-  ) {
-    return new Map(prev).set(peerId, accountId);
-  }
-  return prev;
-}
-
-function applyLeave(
-  prev: Map<string, string>,
-  peerId: unknown
-): Map<string, string> {
-  if (typeof peerId !== 'string' || peerId.length === 0) return prev;
-  const next = new Map(prev);
-  next.delete(peerId);
-  return next;
-}
-
-function applyPresenceMessage(
-  prev: Map<string, string>,
-  msg: {
-    kind: string;
-    peerId?: string;
-    accountId?: string;
-    peers?: unknown;
-  }
-): Map<string, string> {
-  if (msg.kind === 'snapshot') return snapshotMap(msg.peers);
-  if (msg.kind === 'join') return applyJoin(prev, msg.peerId, msg.accountId);
-  if (msg.kind === 'leave') return applyLeave(prev, msg.peerId);
-  return prev;
-}
-
+/**
+ * Live “who is in this tab” used legacy WebSocket presence. The authoritative
+ * room no longer multiplexes presence frames; we approximate “online” as
+ * “this account has an active synced room connection for this screen”.
+ */
 export function useSpacePresence(): {
   peersByAccountId: Map<string, string[]>;
   selfPeerId: string | null;
 } {
-  const { transport, sessionPeerId } = useSpaceRoomWire();
-  const [peerAccountByPeerId, setPeerAccountByPeerId] = useState<
-    Map<string, string>
-  >(() => new Map());
-
-  useEffect(() => {
-    if (transport === null) {
-      setPeerAccountByPeerId(new Map());
-      return;
-    }
-    return transport.subscribePresence((msg) => {
-      if (!isPresencePayload(msg)) return;
-      setPeerAccountByPeerId((prev) => applyPresenceMessage(prev, msg));
-    });
-  }, [transport]);
+  const { selfAccountId } = useSelfAuthIdentity();
+  const { roomActive, roomSynced } = useSpaceRoomWire();
 
   const peersByAccountId = useMemo(() => {
-    const acc = new Map<string, string[]>();
-    for (const [peerId, accountId] of peerAccountByPeerId) {
-      const list = acc.get(accountId) ?? [];
-      list.push(peerId);
-      acc.set(accountId, list);
+    const m = new Map<string, string[]>();
+    if (
+      selfAccountId !== null &&
+      selfAccountId.length > 0 &&
+      roomActive &&
+      roomSynced
+    ) {
+      m.set(selfAccountId, ['local']);
     }
-    return acc;
-  }, [peerAccountByPeerId]);
+    return m;
+  }, [selfAccountId, roomActive, roomSynced]);
 
-  return { peersByAccountId, selfPeerId: sessionPeerId };
+  return { peersByAccountId, selfPeerId: roomActive && roomSynced ? 'local' : null };
 }

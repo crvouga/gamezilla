@@ -1,78 +1,66 @@
-import { Collapsible, ScrollView, Stack, useTheme } from '@gamezilla/lib/ui';
+import { Button, ScrollView, Stack, Text, useTheme } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';
-import { useCallback } from 'react';
-import { CryptoDiagnosticsSection } from '../components/crypto-diagnostics-section';
-import { GameClockSection } from '../components/game-clock-section';
-import { SimulatorLog } from '../components/simulator-log';
-import { TrustElectionSection } from '../components/trust-election-section';
-import { NetworkControlsSection } from './network-controls-section';
-import { PeerGrid } from './peer-grid';
-import { useCheatHandlers } from './use-cheat-handlers';
-import { useDerivedState } from './use-derived-state';
-import { useGameClock } from './use-game-clock';
-import { useNetworkControls } from './use-network-controls';
-import { usePeerActions } from './use-peer-actions';
-import { usePeerHandlers } from './use-peer-handlers';
-import { usePlaygroundSim } from './use-playground-sim';
-import { useTrustElection } from './use-trust-election';
 
-const PANEL_MIN_WIDTH = 280;
+import {
+  Decrement,
+  Increment,
+  readPlaygroundCount,
+  usePlaygroundDualLoopback,
+} from './use-playground-dual-loopback';
 
-function computePanelWidth(width: number): number | undefined {
-  const columns = Math.max(1, Math.floor(width / PANEL_MIN_WIDTH));
-  if (columns <= 1) return undefined;
-  return (width - 32 - (columns - 1) * 12) / columns;
+function CounterColumn(props: {
+  title: string;
+  count: number;
+  onInc: () => void;
+  onDec: () => void;
+  disabled: boolean;
+}) {
+  return (
+    <Stack spacing={2} sx={{ minWidth: 200 }}>
+      <Text variant="subtitle" label={props.title} />
+      <Text variant="heading" label={String(props.count)} />
+      <Stack direction="horizontal" spacing={2}>
+        <Button title="+1" onPress={props.onInc} disabled={props.disabled} />
+        <Button title="-1" onPress={props.onDec} disabled={props.disabled} />
+      </Stack>
+    </Stack>
+  );
 }
 
 export function PlaygroundPage() {
   const { t } = useLingui();
-  const { layout } = useTheme();
-  const { sim, tick } = usePlaygroundSim();
-  const peerHandlers = usePeerHandlers(sim);
-  const network = useNetworkControls(sim, peerHandlers.disconnectedPeers);
-  const cheats = useCheatHandlers(sim);
-  const clock = useGameClock(sim, tick);
-  const peerActions = usePeerActions(sim, tick, peerHandlers.disconnectedPeers);
-  const trustElection = useTrustElection(sim, tick);
-  const { log, badActorIds, cheaterIds } = useDerivedState(sim, tick);
-
-  const handleCopyLog = useCallback(() => {
-    void tick;
-    const text = sim.formatLogForClipboard();
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      navigator.clipboard.writeText(text).catch(() => {});
-    }
-  }, [sim, tick]);
-
-  const panelWidth = computePanelWidth(layout.width);
-  const logCount = log.length;
+  const { colors } = useTheme();
+  const { roomA, roomB, error } = usePlaygroundDualLoopback();
 
   return (
     <ScrollView sx={{ flex: 1, px: 4, py: 3 }}>
-      <Stack spacing={4} sx={{ pb: 8 }}>
-        <NetworkControlsSection network={network} cheats={cheats} />
-        <GameClockSection clock={clock} />
-
-        <PeerGrid
-          sim={sim}
-          handlers={peerHandlers}
-          peerActions={peerActions}
-          badActorIds={badActorIds}
-          cheaterIds={cheaterIds}
-          panelWidth={panelWidth}
-        />
-
-        <TrustElectionSection election={trustElection} />
-
-        <CryptoDiagnosticsSection
-          peers={sim.getPeerCryptoSummary()}
-          authority={sim.getCurrentAuthorityLabel()}
-          wireAuthFailures={sim.getWireAuthFailures()}
-        />
-
-        <Collapsible title={t`Log (${logCount})`} defaultOpen>
-          <SimulatorLog entries={log} onCopy={handleCopyLog} />
-        </Collapsible>
+      <Stack spacing={3} sx={{ pb: 8 }}>
+        <Text variant="title" label={t`Room v2 (loopback)`} />
+        {error !== null ? (
+          <Text variant="body" sx={{ color: colors.destructive }} label={error} />
+        ) : (
+          <Text
+            variant="body"
+            sx={{ color: colors.textSecondary }}
+            label={t`Two clients share one in-memory RoomServer; increments converge on both.`}
+          />
+        )}
+        <Stack direction="horizontal" spacing={4} wrap sx={{ rowGap: 16 }}>
+          <CounterColumn
+            title={t`Client A (alice)`}
+            count={readPlaygroundCount(roomA)}
+            onInc={() => roomA?.dispatch(Increment({}))}
+            onDec={() => roomA?.dispatch(Decrement({}))}
+            disabled={roomA === null}
+          />
+          <CounterColumn
+            title={t`Client B (bob)`}
+            count={readPlaygroundCount(roomB)}
+            onInc={() => roomB?.dispatch(Increment({}))}
+            onDec={() => roomB?.dispatch(Decrement({}))}
+            disabled={roomB === null}
+          />
+        </Stack>
       </Stack>
     </ScrollView>
   );

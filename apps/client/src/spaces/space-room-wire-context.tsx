@@ -3,12 +3,14 @@ import { createContext, useContext } from 'react';
 
 export type SpaceRoomWire = {
   transport: WebSocketRoomTransport | null;
-  sessionPeerId: string | null;
+  roomActive: boolean;
+  roomSynced: boolean;
 };
 
 export const SpaceRoomWireContext = createContext<SpaceRoomWire>({
   transport: null,
-  sessionPeerId: null,
+  roomActive: false,
+  roomSynced: false,
 });
 
 export function useSpaceRoomWire(): SpaceRoomWire {

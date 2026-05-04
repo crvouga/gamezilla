@@ -6,8 +6,9 @@
     "./rpc": "./src/rpc.ts"
   },
   "dependencies": {
-    "@gamezilla/patch-db": "workspace:*",
     "@gamezilla/domain": "workspace:*",
+    "@gamezilla/patch-db": "workspace:*",
+    "@gamezilla/room": "workspace:*",
     "@gamezilla/lib": "workspace:*",
     "@gamezilla/stripe": "workspace:*",
     "@hono/zod-validator": "^0.7.6",

@@ -1,5 +1,3 @@
-import { loadOrCreateHostRoomSeed } from '@gamezilla/client/auth/peer-identity';
-import { useSecureStorage } from '@gamezilla/client/runtime/runtime-hooks';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
@@ -8,13 +6,6 @@ import {
 } from '@gamezilla/domain/spaces/space-entities';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { usePatchDb } from '@gamezilla/patch-db/react';
-import {
-  derivePhantomSecretSeed,
-  encodeKeyB64,
-  peerIdFromPublicKey,
-  publicKeyFromSecretSeed,
-} from '@gamezilla/room';
-import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
 import { useCallback } from 'react';
 
 import { useSelfAuthIdentity } from './device-display-resolution';
@@ -79,8 +70,7 @@ function endHostedSpacePatches(
 
 async function createSpaceAction(
   db: PatchDb,
-  accountId: string,
-  storage: SecureStorage
+  accountId: string
 ): Promise<string | undefined> {
   const now = isoNow();
   const patches: WritePatches = [];
@@ -91,15 +81,6 @@ async function createSpaceAction(
   }
 
   const spaceId = crypto.randomUUID();
-  const hostSeed = await loadOrCreateHostRoomSeed(storage, spaceId);
-  const hostPub = publicKeyFromSecretSeed(hostSeed);
-  const hostRoomPeerId = peerIdFromPublicKey(hostPub);
-  const hostRoomPublicKeyB64 = encodeKeyB64(hostPub);
-
-  const phantomSeed = derivePhantomSecretSeed(spaceId);
-  const phantomPub = publicKeyFromSecretSeed(phantomSeed);
-  const phantomPeerId = peerIdFromPublicKey(phantomPub);
-  const phantomPublicKeyB64 = encodeKeyB64(phantomPub);
 
   patches.push(
     {
@@ -108,10 +89,6 @@ async function createSpaceAction(
       attributes: {
         [SpaceAttr.hostId]: accountId,
         [SpaceAttr.createdAt]: now,
-        [SpaceAttr.phantomPeerId]: phantomPeerId,
-        [SpaceAttr.phantomPublicKey]: phantomPublicKeyB64,
-        [SpaceAttr.hostRoomPeerId]: hostRoomPeerId,
-        [SpaceAttr.hostRoomPublicKey]: hostRoomPublicKeyB64,
         [SpaceAttr.memberUserIds]: [accountId],
       },
     },
@@ -176,15 +153,14 @@ async function endSpaceAction(
 
 export function useSpaceActions() {
   const db = usePatchDb();
-  const storage = useSecureStorage();
   const { selfAccountId } = useSelfAuthIdentity();
 
   const createSpace = useCallback(async () => {
     if (selfAccountId === null) {
       throw new SpaceActionAuthError();
     }
-    return createSpaceAction(db, selfAccountId, storage);
-  }, [db, selfAccountId, storage]);
+    return createSpaceAction(db, selfAccountId);
+  }, [db, selfAccountId]);
 
   const joinSpace = useCallback(
     async (spaceId: string) => {

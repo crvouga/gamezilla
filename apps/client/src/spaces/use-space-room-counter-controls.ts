@@ -5,6 +5,8 @@ import {
 import type { Room } from '@gamezilla/room';
 import { useCallback, useEffect, useState, type MutableRefObject } from 'react';
 
+type AppRoom = Room<Record<string, unknown>, unknown, unknown, string>;
+
 function readCount(state: { count?: unknown } | null): number {
   if (state === null) return 0;
   const c = state['count'];
@@ -12,8 +14,8 @@ function readCount(state: { count?: unknown } | null): number {
 }
 
 export function useSpaceRoomCounterControls(
-  room: Room | null,
-  roomRef: MutableRefObject<Room | null>
+  room: AppRoom | null,
+  roomRef: MutableRefObject<AppRoom | null>
 ): {
   count: number;
   increment: () => void;

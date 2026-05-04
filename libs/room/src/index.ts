@@ -1,79 +1,36 @@
 /**
- * @gamezilla/room — replicated log + wire sync.
+ * @gamezilla/room — server-authoritative sessions + optimistic client queue.
  *
- * Smaller public surface: use `@gamezilla/room/types` for UI-only types.
- * Advanced: `@gamezilla/room/trust`, `@gamezilla/room/room-errors`, etc.
+ * Server entry: `@gamezilla/room/server`. Tests: `@gamezilla/room/testkit`.
  */
-export {
-  InMemoryRoomPersistence,
-  PostgresRoomPersistence,
-  recoverRoomFromPersistence,
-  SqliteRoomPersistence,
-} from './persistence';
-export type { RoomPersistence, RoomPersistenceEntry } from './persistence';
-export type { LogEntry } from './persistence/log-entry';
-export {
-  normalizeRoomInit,
-  peelRoomConfigCore,
-  Room,
-  replayDomainEntries,
-  replayEvents,
-} from './room';
-export type { RoomCoreInitConfig } from './room/validate-init-config';
 export type {
-  Command,
   HandleResult,
-  NormalizedRoomInit,
-  PeerBootstrap,
-  RoomApi,
-  RoomCallbacks,
-  RoomConfig,
-  RoomConfigCore,
-  RoomRoleHost,
-  RoomRoleJoin,
-  RoomSecurityConfig,
-  Snapshot,
-  State,
-  RoomEffect,
+  LogEntry,
+  RoomCommand,
+  RoomError,
+  RoomEvent,
   RoomModule,
-} from './room/types';
-export type { Event, Message, RoomError } from './events/message-types';
+  RoomState,
+} from './types';
+export { WIRE_VERSION } from './protocol/wire';
 export {
-  RoomDuplicatePeer,
-  RoomInvalidPublicKey,
-  RoomJoinInvalid,
-  RoomJoinPeerMismatch,
-  RoomLeaveInvalid,
-  RoomLeaveNotSelf,
-  RoomNotAuthority,
-  RoomNotSynced,
-  RoomSyncSessionMismatch,
-  RoomTrustInvalid,
-  RoomUnknownPeer,
-  RoomUnknownSystemCommand,
-  RoomWireAuthFailed,
-} from './events/room-errors';
-export { generateId, isSystemEvent, SYSTEM_EVENT_PREFIX } from './events/utils';
-export {
-  decodeKeyB64,
-  encodeKeyB64,
-  peerIdFromPublicKey,
-  publicKeyFromSecretSeed,
-  randomSecretSeed,
-  sha256Hex,
-} from './room/security/peer-crypto';
-export { derivePhantomSecretSeed } from './room/security/phantom-peer';
-export { DeterministicSimulator } from './simulator';
-export {
-  InMemoryBus,
-  InMemoryTransport,
-  isRoomPresenceWirePayload,
-  ROOM_PRESENCE_CHANNEL,
-  WebSocketRoomTransport,
-  type MessageInterceptor,
-  type WebSocketRoomTransportOptions,
-} from './transport';
-export type {
-  Transport,
-  TransportMessageContext,
-} from './transport/transport-types';
+  parseClientToServerWire,
+  parseServerToClientWire,
+  type ClientToServerWire,
+  type ServerToClientWire,
+} from './protocol/wire';
+export { newCommandId } from './protocol/ids';
+export { Room } from './client/room';
+export type { RoomClientConfig } from './client/room';
+export type { ClientTransport, ClientTransportHandlers } from './client/transport';
+export type { ClientRoomStorage, QueuedCommand } from './client/storage';
+export { WebSocketRoomTransport } from './client/adapters/websocket';
+export type { WebSocketRoomTransportOptions } from './client/adapters/websocket';
+export { InMemoryClientStorage } from './client/adapters/memory-storage';
+export { SecureClientRoomStorage } from './client/adapters/secure-storage';
+export { WebClientStorage } from './client/adapters/web-storage';
+
+export { openLoopbackRoom } from './testkit/simulator';
+export type { LoopbackRoomSystem } from './testkit/simulator';
+export { LoopbackRoomTransport } from './testkit/loopback-transport';
+export { Increment, Decrement, TestCounterModule } from './testkit/counter-module';

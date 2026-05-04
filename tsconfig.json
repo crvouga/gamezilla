@@ -20,6 +20,8 @@
       "@gamezilla/lib/*": ["./libs/lib/src/*"],
       "@gamezilla/domain/*": ["./libs/domain/src/*"],
       "@gamezilla/patch-db/*": ["./libs/patch-db/src/*"],
+      "@gamezilla/room": ["./libs/room/src/index.ts"],
+      "@gamezilla/room/server": ["./libs/room/src/server.ts"],
       "@gamezilla/room/*": ["./libs/room/src/*"],
       "@gamezilla/patch-db-example/*": ["./libs/patch-db-example/src/*"],
       "@gamezilla/room-example/*": ["./libs/room-example/src/*"],

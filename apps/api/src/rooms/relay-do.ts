@@ -1,20 +1,34 @@
-/**
- * Durable Object that relays WebSocket text frames between all clients on the
- * same topic (one DO instance per `idFromName(topic)`).
- *
- * Uses WebSocket hibernation (`acceptWebSocket`) so idle rooms can sleep.
- * Frames with `ch === "presence"` are handled for account↔peer mapping; all
- * other JSON payloads are broadcast as room envelopes.
- */
+import { CounterModule } from '@gamezilla/domain/spaces/counter-room-module';
+import type { RoomState } from '@gamezilla/room';
+import { RoomServer } from '@gamezilla/room/server';
+
+import { DoRoomStorage } from './do-room-storage';
 
 const ACCOUNT_HEADER = 'x-gamezilla-account-id';
 
-type WsMeta = { accountId: string; peerId: string | null };
+type CounterState = RoomState;
+type CounterCommand = unknown;
+type CounterEvent = unknown;
 
+/**
+ * Durable Object: one instance per room topic (`idFromName(topic)`).
+ * Authoritative counter (and future room state) via {@link RoomServer}.
+ */
 export class RoomRelay implements DurableObject {
   protected readonly ctx: DurableObjectState;
   readonly _env: unknown;
-  private readonly wsMeta = new WeakMap<WebSocket, WsMeta>();
+
+  private server: RoomServer<
+    CounterState,
+    CounterCommand,
+    CounterEvent,
+    string
+  > | null = null;
+
+  private readonly wsMeta = new WeakMap<
+    WebSocket,
+    { id: string; accountId: string }
+  >();
 
   constructor(ctx: DurableObjectState, env: unknown) {
     this.ctx = ctx;
@@ -22,19 +36,53 @@ export class RoomRelay implements DurableObject {
   }
 
   async fetch(request: Request): Promise<Response> {
+    const url = new URL(request.url);
+    const topic = url.searchParams.get('topic') ?? '';
+    if (topic.length === 0) {
+      return new Response('missing topic', { status: 400 });
+    }
+
+    await this.ctx.blockConcurrencyWhile(async () => {
+      if (this.server === null) {
+        const storage = new DoRoomStorage(this.ctx.storage);
+        this.server = new RoomServer({
+          topic,
+          module: CounterModule,
+          storage,
+        });
+        await this.server.hydrateFromStorage();
+      }
+    });
+
     if (request.headers.get('Upgrade') !== 'websocket') {
       return new Response('Expected WebSocket Upgrade', { status: 426 });
     }
+
     const accountId = request.headers.get(ACCOUNT_HEADER)?.trim() ?? '';
     if (accountId.length === 0) {
       return new Response('missing account header', { status: 401 });
     }
 
+    if (this.server === null) {
+      return new Response('room server unavailable', { status: 500 });
+    }
+
     const pair = new WebSocketPair();
     const client = pair[0];
-    const server = pair[1];
-    this.wsMeta.set(server, { accountId, peerId: null });
-    this.ctx.acceptWebSocket(server);
+    const serverWs = pair[1];
+    const connId = crypto.randomUUID();
+    this.wsMeta.set(serverWs, { id: connId, accountId });
+
+    this.server.registerConnection(connId, (msg) => {
+      try {
+        serverWs.send(JSON.stringify(msg));
+      } catch {
+        // socket may be closing
+      }
+    });
+
+    this.ctx.acceptWebSocket(serverWs, [connId]);
+
     return new Response(null, {
       status: 101,
       webSocket: client,
@@ -45,120 +93,31 @@ export class RoomRelay implements DurableObject {
     ws: WebSocket,
     message: string | ArrayBuffer
   ): Promise<void> {
+    const meta = this.wsMeta.get(ws);
+    if (meta === undefined || this.server === null) {
+      return;
+    }
     const data =
-      typeof message === 'string' ? message : new TextDecoder().decode(message);
-
+      typeof message === 'string'
+        ? message
+        : new TextDecoder().decode(message);
     let parsed: unknown;
     try {
       parsed = JSON.parse(data) as unknown;
     } catch {
-      await this.broadcastRaw(data);
       return;
     }
-
-    if (this.isPresenceFrame(parsed)) {
-      await this.handlePresence(ws, parsed);
-      return;
-    }
-
-    await this.broadcastRaw(data);
-  }
-
-  private isPresenceFrame(
-    v: unknown
-  ): v is { ch: 'presence'; kind: string; peerId?: string } {
-    return (
-      v !== null &&
-      typeof v === 'object' &&
-      'ch' in v &&
-      (v as { ch?: unknown }).ch === 'presence' &&
-      'kind' in v &&
-      typeof (v as { kind?: unknown }).kind === 'string'
+    await this.server.handleClientMessage(
+      meta.id,
+      meta.accountId,
+      parsed
     );
   }
 
-  private async handlePresence(
-    ws: WebSocket,
-    frame: { ch: 'presence'; kind: string; peerId?: string }
-  ): Promise<void> {
+  webSocketClose(ws: WebSocket): void {
     const meta = this.wsMeta.get(ws);
-    if (meta === undefined) return;
-
-    if (frame.kind === 'hello') {
-      const peerId = frame.peerId;
-      if (typeof peerId !== 'string' || peerId.length === 0) {
-        return;
-      }
-      meta.peerId = peerId;
-      const snapshot = this.buildPresenceSnapshot();
-      try {
-        ws.send(
-          JSON.stringify({
-            ch: 'presence',
-            kind: 'snapshot',
-            peers: snapshot,
-          })
-        );
-      } catch {
-        // closed
-      }
-      await this.broadcastPresence(
-        { ch: 'presence', kind: 'join', peerId, accountId: meta.accountId },
-        ws
-      );
-      return;
-    }
-  }
-
-  private buildPresenceSnapshot(): { peerId: string; accountId: string }[] {
-    const out: { peerId: string; accountId: string }[] = [];
-    for (const socket of this.ctx.getWebSockets()) {
-      const m = this.wsMeta.get(socket);
-      const pid = m?.peerId;
-      if (m !== undefined && typeof pid === 'string' && pid.length > 0) {
-        out.push({ peerId: pid, accountId: m.accountId });
-      }
-    }
-    return out;
-  }
-
-  private async broadcastPresence(
-    payload: Record<string, unknown>,
-    except: WebSocket
-  ): Promise<void> {
-    const text = JSON.stringify(payload);
-    for (const socket of this.ctx.getWebSockets()) {
-      if (socket === except) continue;
-      try {
-        socket.send(text);
-      } catch {
-        // peer may be closing
-      }
-    }
-  }
-
-  private async broadcastRaw(data: string): Promise<void> {
-    for (const socket of this.ctx.getWebSockets()) {
-      try {
-        socket.send(data);
-      } catch {
-        // peer may be closing
-      }
-    }
-  }
-
-  async webSocketClose(
-    ws: WebSocket,
-    _code: number,
-    _reason: string
-  ): Promise<void> {
-    const meta = this.wsMeta.get(ws);
-    const peerId = meta?.peerId;
-    if (typeof peerId === 'string' && peerId.length > 0 && meta !== undefined) {
-      await this.broadcastPresence(
-        { ch: 'presence', kind: 'leave', peerId, accountId: meta.accountId },
-        ws
-      );
+    if (meta !== undefined && this.server !== null) {
+      this.server.unregisterConnection(meta.id);
     }
   }
 }

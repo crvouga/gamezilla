@@ -35,9 +35,17 @@ declare interface DurableObjectNamespace {
   get(id: DurableObjectId): DurableObjectStub;
 }
 
+/** KV-style persistence for Durable Objects (see Cloudflare DO storage API). */
+interface DurableObjectStorage {
+  get<T = unknown>(key: string): Promise<T | undefined>;
+  put<T>(key: string, value: T): Promise<void>;
+}
+
 interface DurableObjectState {
   acceptWebSocket(ws: WebSocket, tags?: string[]): void;
   getWebSockets(tag?: string): WebSocket[];
+  readonly storage: DurableObjectStorage;
+  blockConcurrencyWhile<T>(fn: () => Promise<T>): Promise<T>;
 }
 
 declare interface DurableObject {

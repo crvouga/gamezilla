@@ -218,7 +218,8 @@ function ActiveSpaceBody({
     <SpaceRoomWireContext.Provider
       value={{
         transport: room.transport,
-        sessionPeerId: room.sessionPeerId,
+        roomActive: room.roomActive,
+        roomSynced: room.isSynced,
       }}
     >
       <SpaceCounterPanel room={room} />

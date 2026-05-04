@@ -128,10 +128,6 @@ function readSpaceEntitySnapshot(entity: Entity | null): {
   createdAt: string | null;
   live: boolean;
   endedAt: string | null;
-  phantomPeerId: string | null;
-  phantomPublicKey: string | null;
-  hostRoomPeerId: string | null;
-  hostRoomPublicKey: string | null;
 } {
   const attrs = entity?.attributes;
   return {
@@ -140,10 +136,6 @@ function readSpaceEntitySnapshot(entity: Entity | null): {
     createdAt: readStringAttr(attrs, SpaceAttr.createdAt),
     live: entity ? spaceEntityIsLive(attrs) : false,
     endedAt: readStringAttr(attrs, SpaceAttr.endedAt),
-    phantomPeerId: readStringAttr(attrs, SpaceAttr.phantomPeerId),
-    phantomPublicKey: readStringAttr(attrs, SpaceAttr.phantomPublicKey),
-    hostRoomPeerId: readStringAttr(attrs, SpaceAttr.hostRoomPeerId),
-    hostRoomPublicKey: readStringAttr(attrs, SpaceAttr.hostRoomPublicKey),
   };
 }
 
@@ -172,10 +164,6 @@ export function useSpace(spaceId: string | undefined) {
     createdAt: snap.createdAt,
     live: snap.live,
     endedAt: snap.endedAt,
-    phantomPeerId: snap.phantomPeerId,
-    phantomPublicKey: snap.phantomPublicKey,
-    hostRoomPeerId: snap.hostRoomPeerId,
-    hostRoomPublicKey: snap.hostRoomPublicKey,
     isLoading: spaceRes.isLoading,
   };
 }
