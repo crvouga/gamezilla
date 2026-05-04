@@ -6,6 +6,64 @@ import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { createSpaceRoom } from './create-space-room';
 import type { SpaceRoomBootstrap } from './space-room-bootstrap';
 
+type ConnectionSetters = {
+  setRoom: (r: Room | null) => void;
+  setTransport: (t: WebSocketRoomTransport | null) => void;
+  setSessionPeerId: (id: string | null) => void;
+  roomRef: MutableRefObject<Room | null>;
+  transportRef: MutableRefObject<WebSocketRoomTransport | null>;
+};
+
+type ConnectArgs = {
+  bootstrap: SpaceRoomBootstrap;
+  configService: ConfigService;
+  storage: SecureStorage;
+  getSessionToken: () => string | null;
+  setters: ConnectionSetters;
+  isCancelled: () => boolean;
+};
+
+async function connectSpaceRoom(args: ConnectArgs): Promise<void> {
+  const { bootstrap, configService, storage, getSessionToken, setters } = args;
+  const {
+    room: r,
+    transport: tr,
+    sessionPeerId: sid,
+  } = await createSpaceRoom({
+    spaceId: bootstrap.spaceId,
+    role: bootstrap.role,
+    apiUrl: configService.getApiUrl(),
+    storage,
+    hostRoomPeerId: bootstrap.hostRoomPeerId,
+    hostRoomPublicKey: bootstrap.hostRoomPublicKey,
+    phantomPeerId: bootstrap.phantomPeerId,
+    phantomPublicKey: bootstrap.phantomPublicKey,
+    sessionToken: getSessionToken(),
+  });
+  if (args.isCancelled()) {
+    r.destroy();
+    tr.destroy();
+    return;
+  }
+  setters.transportRef.current = tr;
+  setters.roomRef.current = r;
+  setters.setRoom(r);
+  setters.setTransport(tr);
+  setters.setSessionPeerId(sid);
+}
+
+function teardownConnection(setters: ConnectionSetters): void {
+  const t = setters.transportRef.current;
+  const r = setters.roomRef.current;
+  setters.roomRef.current = null;
+  setters.transportRef.current = null;
+  setters.setRoom(null);
+  setters.setTransport(null);
+  setters.setSessionPeerId(null);
+  r?.destroy();
+  t?.destroy();
+}
+
 export function useSpaceRoomConnection(
   bootstrap: SpaceRoomBootstrap | null,
   configService: ConfigService,
@@ -26,58 +84,29 @@ export function useSpaceRoomConnection(
   const roomRef = useRef<Room | null>(null);
 
   useEffect(() => {
-    roomRef.current = null;
-    setRoom(null);
-    setTransport(null);
-    setSessionPeerId(null);
+    const setters: ConnectionSetters = {
+      setRoom,
+      setTransport,
+      setSessionPeerId,
+      roomRef,
+      transportRef,
+    };
+    teardownConnection(setters);
     if (bootstrap === null) {
       return;
     }
-
     let cancelled = false;
-    transportRef.current = null;
-
-    const run = async (): Promise<void> => {
-      const {
-        room: r,
-        transport: tr,
-        sessionPeerId: sid,
-      } = await createSpaceRoom({
-        spaceId: bootstrap.spaceId,
-        role: bootstrap.role,
-        apiUrl: configService.getApiUrl(),
-        storage,
-        hostRoomPeerId: bootstrap.hostRoomPeerId,
-        hostRoomPublicKey: bootstrap.hostRoomPublicKey,
-        phantomPeerId: bootstrap.phantomPeerId,
-        phantomPublicKey: bootstrap.phantomPublicKey,
-        sessionToken: getSessionToken(),
-      });
-      if (cancelled) {
-        r.destroy();
-        tr.destroy();
-        return;
-      }
-      transportRef.current = tr;
-      roomRef.current = r;
-      setRoom(r);
-      setTransport(tr);
-      setSessionPeerId(sid);
-    };
-
-    void run();
-
+    void connectSpaceRoom({
+      bootstrap,
+      configService,
+      storage,
+      getSessionToken,
+      setters,
+      isCancelled: () => cancelled,
+    });
     return () => {
       cancelled = true;
-      const t = transportRef.current;
-      const r = roomRef.current;
-      roomRef.current = null;
-      transportRef.current = null;
-      setRoom(null);
-      setTransport(null);
-      setSessionPeerId(null);
-      r?.destroy();
-      t?.destroy();
+      teardownConnection(setters);
     };
   }, [bootstrap, configService, storage, getSessionToken]);
 
