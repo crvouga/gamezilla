@@ -2,6 +2,7 @@ import { assert } from '@gamezilla/lib/assert';
 import {
   assertEntityKey,
   assertPatchId,
+  assertPatchInput,
   type Entity,
   type Patch,
   type PatchDbResult,
@@ -129,6 +130,9 @@ function assertPatchRejectionReason(value: unknown): void {
   assertPatchId(v['patchId']);
   assert.ok(typeof v['code'] === 'string', 'rejection.code must be string');
   assert.ok(typeof v['reason'] === 'string', 'rejection.reason must be string');
+  if ('patch' in v && v['patch'] !== undefined && v['patch'] !== null) {
+    assertPatchInput(assert, v['patch']);
+  }
 }
 
 /**

@@ -8,7 +8,7 @@
  */
 
 import { useAuth, type AuthState } from '@gamezilla/client/auth/auth-context';
-import { useDeviceService } from '@gamezilla/client/runtime/runtime-contexts';
+import { useDeviceService } from '@gamezilla/client/runtime/runtime-hooks';
 import { JsonView, ResponsiveSurface } from '@gamezilla/lib/ui';
 import { Trans } from '@lingui/react/macro';
 import { useMemo } from 'react';

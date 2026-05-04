@@ -1,4 +1,4 @@
-import { useDeviceService } from '@gamezilla/client/runtime/runtime-contexts';
+import { useDeviceService } from '@gamezilla/client/runtime/runtime-hooks';
 import { useDeviceProfileEntities } from '@gamezilla/client/auth/use-device-profile-entities';
 import { displayNameForDevice } from '@gamezilla/client/profile/device-display';
 import { DEVICE_ENTITY_TYPE, DeviceAttr } from '@gamezilla/domain/auth';

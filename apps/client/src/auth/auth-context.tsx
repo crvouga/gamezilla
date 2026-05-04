@@ -1,50 +1,28 @@
-import {
-  ACCOUNT_SESSION_ENTITY_TYPE,
-  AccountSessionAttr,
-} from '@gamezilla/domain/auth';
-import {
-  CLIENT_CONFIG_ENTITY_ID,
-  CLIENT_CONFIG_ENTITY_TYPE,
-  ClientConfigAttr,
-} from '@gamezilla/domain/client-config/client-config-entities';
-import { useConfigService } from '@gamezilla/domain/config/config-service';
-import { writeLastLocalAccountId } from '@gamezilla/client/db/account-local-state';
-import {
-  accountIdAtom,
-  sessionTokenAtom,
-} from '@gamezilla/client/runtime/atoms';
-import { useLogger } from '@gamezilla/lib/logger/react';
-import {
-  useSecureStorage,
-  type SecureStorage,
-} from '@gamezilla/lib/secure-storage/interface';
-import { ConfirmationModal } from '@gamezilla/lib/ui';
-import { usePatchDbStack, useQueryOne } from '@gamezilla/patch-db/react';
-import { Trans } from '@lingui/react/macro';
-import { getDefaultStore } from 'jotai';
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react';
-import { Platform } from 'react-native';
 import type { AuthGoogleProviderState } from './auth-capabilities';
-import { deriveGoogleProviderState } from './auth-capabilities';
 import { createAuthService, type AuthService } from './auth-service';
 import {
-  useDeviceService,
-  useSessionService,
-} from '../runtime/runtime-contexts';
-import {
-  type AccountSessionRecord,
-  type SessionService,
-} from './session-service';
+  authActionsAtom,
+  authSessionDerivedAtom,
+  authSessionSyncEffect,
+  authSignOutModalCallbacksAtom,
+  deriveStateFromSession,
+  googleProviderAtom,
+  googleWebClientIdAtom,
+  googleWebClientIdSyncEffect,
+  signInModalOpenAtom,
+  signOutConfirmOpenAtom,
+} from './auth-atoms';
+import type { AccountSessionRecord } from './session-service';
 import { SignInModal } from './sign-in-modal';
 import { useGoogleIdTokenPrompt } from './use-google-id-token-prompt';
+import { useSignOutConfirmationModal } from './use-sign-out-confirmation';
+import {
+  useConfigService,
+  useDeviceService,
+  useSessionService,
+} from '@gamezilla/client/runtime/runtime-hooks';
+import { getDefaultStore, useAtom, useAtomValue } from 'jotai';
+import { useCallback, useLayoutEffect, useMemo, type ReactNode } from 'react';
 
 export type AuthState = {
   mode: 'guest' | 'signed-in';
@@ -66,143 +44,13 @@ export type AuthState = {
   refreshSession: () => Promise<void>;
 };
 
-const defaultSignIn = async (): Promise<void> => {
-  throw new Error('AuthProvider not mounted');
-};
-const defaultSignOut = async (): Promise<void> => {
-  throw new Error('AuthProvider not mounted');
-};
-
-const defaultState: AuthState = {
-  mode: 'guest',
-  displayName: 'Guest',
-  deviceId: '',
-  accountId: null,
-  session: null,
-  providers: { google: deriveGoogleProviderState(null) },
-  signInModalOpen: false,
-  openSignInModal: () => {},
-  closeSignInModal: () => {},
-  signOutConfirmOpen: false,
-  openSignOutConfirm: () => {},
-  closeSignOutConfirm: () => {},
-  signInWithGoogle: defaultSignIn,
-  signOut: defaultSignOut,
-  refreshSession: async () => {},
-};
-
-const AuthContext = createContext<AuthState>(defaultState);
-
-type SessionDerivedState = Pick<
-  AuthState,
-  'deviceId' | 'session' | 'mode' | 'accountId' | 'displayName'
->;
-
-function deriveStateFromSession(args: {
-  deviceId: string;
-  sessionService: SessionService;
-}): SessionDerivedState {
-  const { deviceId, sessionService } = args;
-  const session = sessionService.getSession();
-  return {
-    deviceId,
-    session,
-    mode:
-      session !== null && sessionService.isAuthenticated()
-        ? 'signed-in'
-        : 'guest',
-    accountId: session?.accountId ?? null,
-    displayName: session !== null ? 'Signed in' : 'Guest',
-  };
+function AuthAtomsMount() {
+  useAtom(authSessionSyncEffect);
+  useAtom(googleWebClientIdSyncEffect);
+  return null;
 }
 
-function useAuthSessionState(
-  deviceId: string,
-  sessionService: SessionService,
-  secureStorage: SecureStorage
-) {
-  const [state, setState] = useState(() =>
-    deriveStateFromSession({ deviceId, sessionService })
-  );
-
-  const refreshSession = useCallback(async () => {
-    await sessionService.refresh();
-    const session = sessionService.getSession();
-    const store = getDefaultStore();
-    if (Platform.OS !== 'web' && session === null) {
-      const current = store.get(accountIdAtom);
-      if (current !== null) {
-        await writeLastLocalAccountId(secureStorage, null);
-      }
-    }
-    store.set(accountIdAtom, session?.accountId ?? null);
-    store.set(sessionTokenAtom, session?.token ?? null);
-    setState(deriveStateFromSession({ deviceId, sessionService }));
-  }, [deviceId, sessionService, secureStorage]);
-
-  useEffect(() => {
-    void refreshSession();
-  }, [refreshSession]);
-
-  return { state, refreshSession };
-}
-
-function useSubscribeToSessionChanges(args: {
-  deviceId: string;
-  refreshSession: () => Promise<void>;
-}) {
-  const { deviceId, refreshSession } = args;
-  const { decorated: subDb } = usePatchDbStack();
-  useEffect(() => {
-    const unsub = subDb.subscribe.entities(
-      {
-        entityType: ACCOUNT_SESSION_ENTITY_TYPE,
-        where: {
-          type: '=',
-          attribute: AccountSessionAttr.deviceId,
-          value: deviceId,
-        },
-      },
-      () => {
-        void refreshSession();
-      }
-    );
-    return unsub;
-  }, [subDb, deviceId, refreshSession]);
-}
-
-type AuthModals = {
-  signInModalOpen: boolean;
-  openSignInModal: () => void;
-  closeSignInModal: () => void;
-  signOutConfirmOpen: boolean;
-  openSignOutConfirm: () => void;
-  closeSignOutConfirm: () => void;
-};
-
-function useAuthModals(): AuthModals {
-  const [signInModalOpen, setSignInModalOpen] = useState(false);
-  const openSignInModal = useCallback(() => setSignInModalOpen(true), []);
-  const closeSignInModal = useCallback(() => setSignInModalOpen(false), []);
-
-  const [signOutConfirmOpen, setSignOutConfirmOpen] = useState(false);
-  const openSignOutConfirm = useCallback(() => setSignOutConfirmOpen(true), []);
-  const closeSignOutConfirm = useCallback(
-    () => setSignOutConfirmOpen(false),
-    []
-  );
-
-  return {
-    signInModalOpen,
-    openSignInModal,
-    closeSignInModal,
-    signOutConfirmOpen,
-    openSignOutConfirm,
-    closeSignOutConfirm,
-  };
-}
-
-function useAuthActions(args: {
+function useAuthActionsSync(args: {
   authService: AuthService;
   refreshSession: () => Promise<void>;
 }) {
@@ -215,124 +63,28 @@ function useAuthActions(args: {
     await authService.signOut();
     await refreshSession();
   }, [authService, refreshSession]);
-  return { signInWithGoogle, signOut };
-}
 
-function useConfirmSignOut(args: {
-  signOut: () => Promise<void>;
-  closeConfirm: () => void;
-  log: ReturnType<typeof useLogger>;
-}) {
-  const { signOut, closeConfirm, log } = args;
-  return useCallback(() => {
-    closeConfirm();
-    void (async () => {
-      try {
-        await signOut();
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        log.error('sign out failed', { error: message });
-      }
-    })();
-  }, [signOut, closeConfirm, log]);
-}
-
-function useAuthStateValue(args: {
-  state: SessionDerivedState;
-  googleProvider: AuthGoogleProviderState;
-  modals: AuthModals;
-  signInWithGoogle: () => Promise<void>;
-  signOut: () => Promise<void>;
-  refreshSession: () => Promise<void>;
-}): AuthState {
-  const {
-    state,
-    googleProvider,
-    modals,
-    signInWithGoogle,
-    signOut,
-    refreshSession,
-  } = args;
-  return useMemo<AuthState>(
-    () => ({
-      ...state,
-      providers: { google: googleProvider },
-      ...modals,
+  useLayoutEffect(() => {
+    getDefaultStore().set(authActionsAtom, {
       signInWithGoogle,
       signOut,
       refreshSession,
-    }),
-    [state, googleProvider, modals, signInWithGoogle, signOut, refreshSession]
-  );
+    });
+    return () => {
+      getDefaultStore().set(authActionsAtom, {
+        signInWithGoogle: async () => {
+          throw new Error('AuthProvider not mounted');
+        },
+        signOut: async () => {
+          throw new Error('AuthProvider not mounted');
+        },
+        refreshSession: async () => {},
+      });
+    };
+  }, [signInWithGoogle, signOut, refreshSession]);
 }
 
-function AuthStateProvider({
-  children,
-  googleProvider,
-  authService,
-}: {
-  children: ReactNode;
-  googleProvider: AuthGoogleProviderState;
-  authService: AuthService;
-}) {
-  const deviceService = useDeviceService();
-  const sessionService = useSessionService();
-  const secureStorage = useSecureStorage();
-  const deviceId = deviceService.getDeviceId();
-  const log = useLogger('auth-context');
-
-  const { state, refreshSession } = useAuthSessionState(
-    deviceId,
-    sessionService,
-    secureStorage
-  );
-  useSubscribeToSessionChanges({ deviceId, refreshSession });
-
-  const modals = useAuthModals();
-  const { signInWithGoogle, signOut } = useAuthActions({
-    authService,
-    refreshSession,
-  });
-  const handleConfirmSignOut = useConfirmSignOut({
-    signOut,
-    closeConfirm: modals.closeSignOutConfirm,
-    log,
-  });
-  const value = useAuthStateValue({
-    state,
-    googleProvider,
-    modals,
-    signInWithGoogle,
-    signOut,
-    refreshSession,
-  });
-
-  return (
-    <>
-      <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-      <SignInModal
-        visible={modals.signInModalOpen}
-        onClose={modals.closeSignInModal}
-        google={googleProvider}
-        onSignInWithGoogle={signInWithGoogle}
-      />
-      <ConfirmationModal
-        visible={modals.signOutConfirmOpen}
-        title={<Trans>Sign out?</Trans>}
-        message={
-          <Trans>You will need to sign in again to sync with your user.</Trans>
-        }
-        confirmLabel={<Trans>Sign out</Trans>}
-        cancelLabel={<Trans>Cancel</Trans>}
-        variant="destructive"
-        onConfirm={handleConfirmSignOut}
-        onCancel={modals.closeSignOutConfirm}
-      />
-    </>
-  );
-}
-
-function AuthContainerBridgeInner({
+function AuthActionsBridge({
   children,
   promptGoogleIdToken,
   googleProvider,
@@ -343,6 +95,8 @@ function AuthContainerBridgeInner({
 }) {
   const configService = useConfigService();
   const deviceService = useDeviceService();
+  const sessionService = useSessionService();
+  const deviceId = deviceService.getDeviceId();
 
   const authService = useMemo(
     () =>
@@ -360,13 +114,60 @@ function AuthContainerBridgeInner({
     ]
   );
 
+  const refreshSession = useCallback(async () => {
+    await sessionService.refresh();
+    getDefaultStore().set(
+      authSessionDerivedAtom,
+      deriveStateFromSession({ deviceId, sessionService })
+    );
+  }, [deviceId, sessionService]);
+
+  useAuthActionsSync({ authService, refreshSession });
+
+  return <>{children}</>;
+}
+
+function AuthModals() {
+  const [signInModalOpen, setSignInModalOpen] = useAtom(signInModalOpenAtom);
+  const [signOutConfirmOpen, setSignOutConfirmOpen] = useAtom(
+    signOutConfirmOpenAtom
+  );
+  const googleProvider = useAtomValue(googleProviderAtom);
+  const actions = useAtomValue(authActionsAtom);
+
+  const { openSignOutConfirm, closeSignOutConfirm, modal } =
+    useSignOutConfirmationModal({
+      signOut: actions.signOut,
+      signOutConfirmOpen,
+      openSignOutConfirmBase: () => setSignOutConfirmOpen(true),
+      closeSignOutConfirmBase: () => setSignOutConfirmOpen(false),
+    });
+
+  useLayoutEffect(() => {
+    getDefaultStore().set(authSignOutModalCallbacksAtom, {
+      openSignOutConfirm,
+      closeSignOutConfirm,
+    });
+    return () => {
+      getDefaultStore().set(authSignOutModalCallbacksAtom, {
+        openSignOutConfirm: () => {
+          throw new Error('AuthProvider not mounted');
+        },
+        closeSignOutConfirm: () => {},
+      });
+    };
+  }, [openSignOutConfirm, closeSignOutConfirm]);
+
   return (
-    <AuthStateProvider
-      googleProvider={googleProvider}
-      authService={authService}
-    >
-      {children}
-    </AuthStateProvider>
+    <>
+      <SignInModal
+        visible={signInModalOpen}
+        onClose={() => setSignInModalOpen(false)}
+        google={googleProvider}
+        onSignInWithGoogle={actions.signInWithGoogle}
+      />
+      {modal}
+    </>
   );
 }
 
@@ -381,12 +182,12 @@ function AuthWithGoogleBridge({
 }) {
   const promptGoogleIdToken = useGoogleIdTokenPrompt(googleWebClientId);
   return (
-    <AuthContainerBridgeInner
+    <AuthActionsBridge
       promptGoogleIdToken={promptGoogleIdToken}
       googleProvider={googleProvider}
     >
       {children}
-    </AuthContainerBridgeInner>
+    </AuthActionsBridge>
   );
 }
 
@@ -405,29 +206,18 @@ function AuthStubGoogleBridge({
     }, []);
 
   return (
-    <AuthContainerBridgeInner
+    <AuthActionsBridge
       promptGoogleIdToken={promptGoogleIdTokenUnreachable}
       googleProvider={googleProvider}
     >
       {children}
-    </AuthContainerBridgeInner>
+    </AuthActionsBridge>
   );
 }
 
-function AuthContainerBridge({ children }: { children: ReactNode }) {
-  const entity = useQueryOne({
-    entityType: CLIENT_CONFIG_ENTITY_TYPE,
-    entityId: CLIENT_CONFIG_ENTITY_ID,
-  });
-
-  const raw = entity?.attributes[ClientConfigAttr.googleWebClientId];
-  const trimmed = typeof raw === 'string' ? raw.trim() : '';
-  const googleWebClientId = trimmed.length > 0 ? trimmed : null;
-
-  const googleProvider = useMemo(
-    () => deriveGoogleProviderState(googleWebClientId),
-    [googleWebClientId]
-  );
+function AuthGoogleRouter({ children }: { children: ReactNode }) {
+  const googleWebClientId = useAtomValue(googleWebClientIdAtom);
+  const googleProvider = useAtomValue(googleProviderAtom);
 
   if (googleWebClientId !== null) {
     return (
@@ -435,6 +225,7 @@ function AuthContainerBridge({ children }: { children: ReactNode }) {
         googleWebClientId={googleWebClientId}
         googleProvider={googleProvider}
       >
+        <AuthModals />
         {children}
       </AuthWithGoogleBridge>
     );
@@ -442,15 +233,54 @@ function AuthContainerBridge({ children }: { children: ReactNode }) {
 
   return (
     <AuthStubGoogleBridge googleProvider={googleProvider}>
+      <AuthModals />
       {children}
     </AuthStubGoogleBridge>
   );
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  return <AuthContainerBridge>{children}</AuthContainerBridge>;
+  return (
+    <>
+      <AuthAtomsMount />
+      <AuthGoogleRouter>{children}</AuthGoogleRouter>
+    </>
+  );
 }
 
 export function useAuth(): AuthState {
-  return useContext(AuthContext);
+  const derived = useAtomValue(authSessionDerivedAtom);
+  const googleProvider = useAtomValue(googleProviderAtom);
+  const [signInModalOpen, setSignInModalOpen] = useAtom(signInModalOpenAtom);
+  const [signOutConfirmOpen] = useAtom(signOutConfirmOpenAtom);
+  const signOutCallbacks = useAtomValue(authSignOutModalCallbacksAtom);
+  const actions = useAtomValue(authActionsAtom);
+
+  return useMemo<AuthState>(
+    () => ({
+      ...derived,
+      providers: { google: googleProvider },
+      signInModalOpen,
+      openSignInModal: () => setSignInModalOpen(true),
+      closeSignInModal: () => setSignInModalOpen(false),
+      signOutConfirmOpen,
+      openSignOutConfirm: signOutCallbacks.openSignOutConfirm,
+      closeSignOutConfirm: signOutCallbacks.closeSignOutConfirm,
+      signInWithGoogle: actions.signInWithGoogle,
+      signOut: actions.signOut,
+      refreshSession: actions.refreshSession,
+    }),
+    [
+      derived,
+      googleProvider,
+      signInModalOpen,
+      setSignInModalOpen,
+      signOutConfirmOpen,
+      signOutCallbacks.openSignOutConfirm,
+      signOutCallbacks.closeSignOutConfirm,
+      actions.signInWithGoogle,
+      actions.signOut,
+      actions.refreshSession,
+    ]
+  );
 }

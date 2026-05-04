@@ -1,4 +1,4 @@
-import { useDeviceService } from '@gamezilla/client/runtime/runtime-contexts';
+import { useDeviceService } from '@gamezilla/client/runtime/runtime-hooks';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,

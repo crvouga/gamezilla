@@ -38,6 +38,8 @@ import type {
   VisibilityPolicyReadContext,
 } from '@gamezilla/patch-db/policy/visibility-policy-registry';
 
+import { assertAccountSessionClientRevokeOnly } from './account-session-client-revoke';
+
 /**
  * Gamezilla-specific auth context: extends the generic patch-db auth context
  * with the claims needed by our visibility policies. The session middleware is
@@ -142,9 +144,19 @@ const accountSessionPolicy: AppVisibilityPolicy = {
     attribute: AccountSessionAttr.deviceId,
     value: ctx.deviceId,
   })),
-  write: async (ctx) => {
+  write: async (ctx, patch, tx) => {
     if (isPatchDbSystemContext(ctx)) return;
-    throw new ForbiddenError('accountSession is system-managed');
+    const appCtx = appAuthFromWriteContext(ctx);
+    if (appCtx === null) {
+      throw new ForbiddenError('accountSession is system-managed');
+    }
+    assertCreatedByMatchesDevice(appCtx, patch);
+    await assertAccountSessionClientRevokeOnly({
+      deviceId: appCtx.deviceId,
+      accountId: appCtx.accountId,
+      patch,
+      tx,
+    });
   },
 };
 

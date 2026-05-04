@@ -301,4 +301,44 @@ describe('SyncPatchDb push rejection (401/403)', () => {
     assert.defined(remotePatches, 'remotePatches');
     expect(remotePatches.patches).toHaveLength(1);
   });
+
+  test('runPushNowStrict throws when remote returns partial reject', async () => {
+    localClient = SqlClientImplBunSqlite.open(':memory:');
+    remoteClient = SqlClientImplBunSqlite.open(':memory:');
+    await localClient.connect();
+    await remoteClient.connect();
+    const local = new PatchDbImplSqlite(localClient);
+    const remoteInner = new PatchDbImplSqlite(remoteClient);
+    await local.migrate();
+    await remoteInner.migrate();
+    const remote = createPartialPolicyRejectRemote(remoteInner);
+    const pubSub = new InMemoryPubSub();
+    const syncDb = new SyncPatchDb(local, remote, pubSub, {
+      pushDriver: 'manual',
+      pollDriver: 'manual',
+      maxPushBatchSize: 10,
+      logPushPollFailures: false,
+    });
+    teardown = async () => {
+      syncDb.destroy();
+      await localClient.disconnect();
+      await remoteClient.disconnect();
+    };
+
+    await syncDb.write([
+      {
+        entityId: 'strict1',
+        entityType: 'item',
+        attributes: { 'item/name': 'a' },
+      },
+      {
+        entityId: 'strict2',
+        entityType: 'item',
+        attributes: { 'item/name': 'b' },
+      },
+    ]);
+    await expect(syncDb.runPushNowStrict()).rejects.toThrow(
+      /simulated partial reject/
+    );
+  });
 });

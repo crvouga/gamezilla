@@ -1,6 +1,6 @@
 import { useAuth } from '@gamezilla/client/auth/auth-context';
 import { useServerStatus } from '@gamezilla/client/connection/use-server-status';
-import { useLogger } from '@gamezilla/lib/logger/react';
+import { useLogger } from '@gamezilla/client/runtime/runtime-hooks';
 import { Box, StatusDot, Text, type ScreenBaseAction } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';

@@ -12,12 +12,14 @@ export type ModalButtonProps = {
   label: ReactNode;
   variant?: 'default' | 'cancel' | 'destructive';
   onPress: () => void;
+  disabled?: boolean;
 };
 
 export function ModalButton({
   label,
   variant = 'default',
   onPress,
+  disabled = false,
 }: ModalButtonProps) {
   const theme = useTheme();
 
@@ -30,10 +32,12 @@ export function ModalButton({
 
   return (
     <Pressable
-      onPress={onPress}
+      disabled={disabled}
+      onPress={disabled ? () => {} : onPress}
       style={({ pressed }) => [
         theme.sx({ py: 2, px: 4, borderRadius: borderRadius.sm }),
-        pressed && { opacity: 0.7 },
+        pressed && !disabled && { opacity: 0.7 },
+        disabled && { opacity: 0.45 },
       ]}
     >
       <Text variant="bodyBold" style={{ color }} label={label} />

@@ -1,4 +1,9 @@
-import { DEVICE_ENTITY_TYPE, DeviceAttr } from '@gamezilla/domain/auth';
+import {
+  ACCOUNT_SESSION_ENTITY_TYPE,
+  AccountSessionAttr,
+  DEVICE_ENTITY_TYPE,
+  DeviceAttr,
+} from '@gamezilla/domain/auth';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
@@ -263,6 +268,135 @@ describe('default ABAC policies (sqlite)', () => {
     expect(out.rejected).toHaveLength(1);
     expect(out.rejected[0]?.code).toBe('forbidden');
     expect(out.rejected[0]?.reason).toContain('system-only');
+  });
+
+  test('accountSession: client may push revoke-only for own row', async () => {
+    const deviceId = '00000000-0000-4000-8000-00000000d0e1';
+    const accountId = '00000000-0000-4000-8000-0000000000e1';
+    const sessionEntityId = crypto.randomUUID();
+    const future = new Date(Date.now() + 86_400_000).toISOString();
+    await db.write(
+      [
+        {
+          entityId: sessionEntityId,
+          entityType: ACCOUNT_SESSION_ENTITY_TYPE,
+          attributes: {
+            [AccountSessionAttr.deviceId]: deviceId,
+            [AccountSessionAttr.accountId]: accountId,
+            [AccountSessionAttr.token]: 'server-issued-token',
+            [AccountSessionAttr.expiresAt]: future,
+            [AccountSessionAttr.createdAt]: new Date().toISOString(),
+            'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
+          },
+        },
+      ],
+      PATCHES_DB_SYSTEM_CONTEXT
+    );
+
+    const ctx: AppAuthContext = {
+      clientId: crypto.randomUUID(),
+      deviceId,
+      accountId,
+      memberOfSpaceIds: [],
+      friendUserIds: [],
+      blockedUserIds: [],
+    };
+    const epoch = new Date(0).toISOString();
+    const out = await db.write(
+      [
+        {
+          entityId: sessionEntityId,
+          entityType: ACCOUNT_SESSION_ENTITY_TYPE,
+          attributes: {
+            [AccountSessionAttr.token]: null,
+            [AccountSessionAttr.expiresAt]: epoch,
+            'patch/createdBy': deviceId,
+          },
+        },
+      ],
+      ctx
+    );
+    expect(out.rejected).toHaveLength(0);
+    expect(out.accepted).toHaveLength(1);
+  });
+
+  test('accountSession: client cannot create row without server snapshot', async () => {
+    const deviceId = '00000000-0000-4000-8000-00000000d0e2';
+    const accountId = '00000000-0000-4000-8000-0000000000e2';
+    const ctx: AppAuthContext = {
+      clientId: crypto.randomUUID(),
+      deviceId,
+      accountId,
+      memberOfSpaceIds: [],
+      friendUserIds: [],
+      blockedUserIds: [],
+    };
+    const out = await db.write(
+      [
+        {
+          entityId: crypto.randomUUID(),
+          entityType: ACCOUNT_SESSION_ENTITY_TYPE,
+          attributes: {
+            [AccountSessionAttr.token]: null,
+            [AccountSessionAttr.expiresAt]: new Date(0).toISOString(),
+            'patch/createdBy': deviceId,
+          },
+        },
+      ],
+      ctx
+    );
+    expect(out.accepted).toHaveLength(0);
+    expect(out.rejected).toHaveLength(1);
+    expect(out.rejected[0]?.code).toBe('forbidden');
+  });
+
+  test('accountSession: client cannot set a new token', async () => {
+    const deviceId = '00000000-0000-4000-8000-00000000d0e3';
+    const accountId = '00000000-0000-4000-8000-0000000000e3';
+    const sessionEntityId = crypto.randomUUID();
+    const future = new Date(Date.now() + 86_400_000).toISOString();
+    await db.write(
+      [
+        {
+          entityId: sessionEntityId,
+          entityType: ACCOUNT_SESSION_ENTITY_TYPE,
+          attributes: {
+            [AccountSessionAttr.deviceId]: deviceId,
+            [AccountSessionAttr.accountId]: accountId,
+            [AccountSessionAttr.token]: 'a',
+            [AccountSessionAttr.expiresAt]: future,
+            [AccountSessionAttr.createdAt]: new Date().toISOString(),
+            'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
+          },
+        },
+      ],
+      PATCHES_DB_SYSTEM_CONTEXT
+    );
+
+    const ctx: AppAuthContext = {
+      clientId: crypto.randomUUID(),
+      deviceId,
+      accountId,
+      memberOfSpaceIds: [],
+      friendUserIds: [],
+      blockedUserIds: [],
+    };
+    const out = await db.write(
+      [
+        {
+          entityId: sessionEntityId,
+          entityType: ACCOUNT_SESSION_ENTITY_TYPE,
+          attributes: {
+            [AccountSessionAttr.token]: 'hijacked',
+            [AccountSessionAttr.expiresAt]: new Date(0).toISOString(),
+            'patch/createdBy': deviceId,
+          },
+        },
+      ],
+      ctx
+    );
+    expect(out.accepted).toHaveLength(0);
+    expect(out.rejected).toHaveLength(1);
   });
 
   test('authenticated write still enforces patch/createdBy match', async () => {

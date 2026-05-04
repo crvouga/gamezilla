@@ -39,6 +39,11 @@ export type PatchRejectionReason = {
   code: string;
   /** Human-readable; keep short for `patch/syncRejectedReason` storage. */
   reason: string;
+  /**
+   * Echo of the rejected patch input when the producer attaches it (e.g. wire
+   * `/patches/write` for debugging). Omitted in some in-process paths.
+   */
+  patch?: PatchInput;
 };
 
 export type WritePatchesResult = {

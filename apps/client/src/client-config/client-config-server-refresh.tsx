@@ -1,9 +1,7 @@
-import { createGamezillaApiClient } from '@gamezilla/client/api/hc';
-import { type AsyncRunContext, useAsync } from '@gamezilla/lib/async/use-async';
-import {
-  useConfigService,
-  type ConfigService,
-} from '@gamezilla/domain/config/config-service';
+import { createApiClient } from '@gamezilla/client/api/hc';
+import type { ConfigService } from '@gamezilla/domain/config/config-service';
+import { useConfigService } from '@gamezilla/client/runtime/runtime-hooks';
+import { useAsync, type AsyncRunContext } from '@gamezilla/lib/async/use-async';
 import { Button, Card, Text } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback } from 'react';
@@ -13,7 +11,7 @@ async function postClientConfigRefresh(
   ctx: AsyncRunContext
 ): Promise<void> {
   const apiUrl = configService.getApiUrl();
-  const client = createGamezillaApiClient(apiUrl);
+  const client = createApiClient(apiUrl);
   const res = await client['client-config']['refresh'].$post(undefined, {
     init: { signal: ctx.signal },
   });

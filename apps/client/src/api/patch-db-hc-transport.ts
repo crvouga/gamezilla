@@ -13,7 +13,7 @@ import {
   assertWireReadResponse,
   assertWireWriteResponse,
 } from '@gamezilla/patch-db/validate-remote';
-import type { GamezillaApiClient } from './hc';
+import type { ApiClient } from './hc';
 
 const JSON_HEADERS = {
   'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ function throwHcFailure(status: number, text: string): never {
  * Patch-db sync transport using the Hono RPC client (`/patch-db/patches/read|write`).
  */
 export function createPatchDbHcTransport(
-  client: GamezillaApiClient,
+  client: ApiClient,
   options: CreatePatchDbHcTransportOptions
 ): PatchDbClientTransport {
   const { getAuthToken, patchDbBaseUrl: _patchDbBaseUrl } = options;

@@ -176,6 +176,27 @@ export class SyncPatchDb implements PatchDb {
   }
 
   /**
+   * Pushes pending local patches once, then throws if the server rejected any
+   * patch in the chunk or the transport returned 401/403. Still applies local
+   * rejection markers (same as the interval push path). Use when the caller
+   * must surface failure to the user (e.g. sign-out).
+   */
+  async runPushNowStrict(): Promise<void> {
+    if (this.destroyed) return;
+    const [result] = await this.local.read(
+      [unsyncedPatchesQueryForPush()],
+      OPEN_PATCHES_DB_CONTEXT
+    );
+    assert.ok(
+      result !== null && result !== undefined,
+      'read([query]) must return one result'
+    );
+    const patches = result.patches;
+    if (patches.length === 0) return;
+    await this.pushUnsyncedChunksThenPoll(patches, { strictRejections: true });
+  }
+
+  /**
    * Runs a single poll cycle (merge remote patches for active subscription queries).
    * Use with {@link SyncPatchDbOptions.pollDriver} `"manual"` or to force an extra poll.
    */
@@ -344,6 +365,51 @@ export class SyncPatchDb implements PatchDb {
     await clearRejectedPushMarkersOnLocal(this.local, this.pubSub);
   }
 
+  /**
+   * Marks patches as synced for local outbox bookkeeping when the server
+   * already holds authoritative rows (e.g. `accountSession` from OAuth claim)
+   * and local rows are mirrors that must not be sent via {@link remote.write}.
+   */
+  async markPatchesAsAlreadyOnRemote(
+    patchIds: readonly string[]
+  ): Promise<void> {
+    if (patchIds.length === 0) return;
+    await this.local.update(
+      patchIds.map((patchId) => ({
+        patchId,
+        attributes: { [PATCH_SYNCED_AT]: '1' },
+      })),
+      OPEN_PATCHES_DB_CONTEXT
+    );
+    this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
+  }
+
+  /**
+   * Drops every unsynced patch for `entityType` from the push outbox. Use for
+   * server-authoritative entity types (e.g. `accountSession`) where every
+   * client-side write is either a mirror of a server-applied row (OAuth
+   * claim) or a local revoke whose authoritative copy has already been
+   * applied server-side via a side-channel (e.g. `POST /auth/sign-out`).
+   * Pushing either kind would race the cleared Bearer and bounce off ABAC
+   * with `accountSession is system-managed`.
+   */
+  async markAllUnsyncedPatchesForEntityTypeAsAlreadyOnRemote(
+    entityType: string
+  ): Promise<void> {
+    const [result] = await this.local.read(
+      [unsyncedPatchesQueryForPush()],
+      OPEN_PATCHES_DB_CONTEXT
+    );
+    assert.ok(
+      result !== null && result !== undefined,
+      'read([query]) must return one result'
+    );
+    const patchIds = result.patches
+      .filter((p) => p.entityType === entityType)
+      .map((p) => p.patchId);
+    await this.markPatchesAsAlreadyOnRemote(patchIds);
+  }
+
   private logPushFailure(err: unknown): void {
     this.pushConsecutiveFailures += 1;
     if (!this.logPushPollFailures) return;
@@ -366,9 +432,11 @@ export class SyncPatchDb implements PatchDb {
    * failing chunk rejected locally and returns without polling.
    */
   private async pushUnsyncedChunksThenPoll(
-    patches: readonly Patch[]
+    patches: readonly Patch[],
+    opts: { strictRejections?: boolean } = {}
   ): Promise<void> {
     const batchSize = this.maxPushBatchSize;
+    const strict = opts.strictRejections === true;
     for (let i = 0; i < patches.length; i += batchSize) {
       if (this.destroyed) return;
       const chunk = patches.slice(i, i + batchSize);
@@ -379,6 +447,12 @@ export class SyncPatchDb implements PatchDb {
         );
         this.assertChunkMatchesWriteResult(chunk, writeResult);
         await this.applyChunkPushWriteResult(writeResult);
+        if (strict && writeResult.rejected.length > 0) {
+          const detail = writeResult.rejected
+            .map((r) => r.reason || r.code)
+            .join('; ');
+          throw new Error(detail.length > 0 ? detail : 'patch push rejected');
+        }
       } catch (chunkErr) {
         if (chunkErr instanceof PatchDbTransportRejectedError) {
           await discardTransportRejectedChunk({
@@ -390,6 +464,9 @@ export class SyncPatchDb implements PatchDb {
             logPushPollFailures: this.logPushPollFailures,
           });
           this.pushConsecutiveFailures = 0;
+          if (strict) {
+            throw chunkErr;
+          }
           return;
         }
         throw chunkErr;

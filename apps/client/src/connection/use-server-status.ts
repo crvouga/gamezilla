@@ -1,4 +1,4 @@
-import { useConfigService } from '@gamezilla/domain/config/config-service';
+import { useConfigService } from '@gamezilla/client/runtime/runtime-hooks';
 import { useNetworkState } from 'expo-network';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 

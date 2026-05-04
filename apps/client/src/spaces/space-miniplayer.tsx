@@ -1,20 +1,24 @@
 import type { SpaceMiniplayerModel } from '@gamezilla/client/spaces/space-miniplayer-model-types';
 import {
-  MiniplayerHostRow,
-  MiniplayerMemberStack,
+  MiniplayerHostHeader,
+  MiniplayerLiveBadge,
 } from '@gamezilla/client/spaces/space-miniplayer-parts';
 import { useSpaceMiniplayerModel } from '@gamezilla/client/spaces/use-space-miniplayer-model';
 import {
   Box,
   ConfirmationModal,
+  GradientBox,
   Pressable,
-  StatusDot,
   Text,
   useTheme,
 } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+const ACTION_BG = 'rgba(255,255,255,0.22)';
+const ACTION_BG_DESTRUCTIVE = 'rgba(0,0,0,0.28)';
+const ACTION_TEXT = '#FFFFFF';
 
 function EndSpaceModal({
   visible,
@@ -67,20 +71,13 @@ function LeaveSpaceModal({
 }
 
 function MiniplayerDock({ children }: { children: ReactNode }) {
-  const theme = useTheme();
   const insets = useSafeAreaInsets();
   return (
     <Box
       style={{
-        borderTopWidth: 1,
-        borderTopColor: theme.colors.border,
-        backgroundColor: theme.colors.surface,
-        paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 4,
-        elevation: 8,
+        paddingTop: 8,
+        paddingHorizontal: 12,
+        paddingBottom: insets.bottom > 0 ? insets.bottom : 12,
       }}
     >
       {children}
@@ -90,102 +87,79 @@ function MiniplayerDock({ children }: { children: ReactNode }) {
 
 type VisibleModel = Extract<SpaceMiniplayerModel, { visible: true }>;
 
-function MiniplayerOpenArea({ model }: { model: VisibleModel }) {
+function MiniplayerActionButton({ model }: { model: VisibleModel }) {
   const { t } = useLingui();
-  const theme = useTheme();
-  const surfaceColor = theme.colors.surface;
-  const count = model.memberCount;
-  const countLabel = t`${count} people here`;
-
+  const isHost = model.isHost;
   return (
     <Pressable
-      onPress={model.onOpenSpace}
+      onPress={isHost ? model.onRequestEnd : model.onRequestLeave}
       accessibilityRole="button"
-      accessibilityLabel={t`Tap to return to your space`}
-      sx={{ flex: 1, minWidth: 0, paddingVertical: 2, paddingHorizontal: 2 }}
-    >
-      <Box sx={{ gap: 1 }}>
-        <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 1.5 }}>
-          <StatusDot status="online" size={8} />
-          <Text
-            variant="bodyBold"
-            numberOfLines={1}
-            sx={{ flex: 1, minWidth: 0 }}
-            label={model.spaceTitle}
-          />
-        </Box>
-        <Box
-          sx={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 1.5,
-            flexWrap: 'wrap',
-          }}
-        >
-          {model.hostId ? (
-            <MiniplayerHostRow
-              hostId={model.hostId}
-              hostLabel={model.hostLabel}
-              hostAvatarConfig={model.hostAvatarConfig}
-            />
-          ) : null}
-          <MiniplayerMemberStack
-            membersForStack={model.membersForStack}
-            surfaceColor={surfaceColor}
-          />
-          <Text
-            variant="caption"
-            sx={{ color: 'textSecondary' }}
-            label={countLabel}
-          />
-        </Box>
-      </Box>
-    </Pressable>
-  );
-}
-
-function MiniplayerEndLeave({ model }: { model: VisibleModel }) {
-  const { t } = useLingui();
-  return (
-    <Pressable
-      onPress={model.isHost ? model.onRequestEnd : model.onRequestLeave}
-      accessibilityRole="button"
-      accessibilityLabel={model.isHost ? t`End space` : t`Leave space`}
+      accessibilityLabel={isHost ? t`End space` : t`Leave space`}
       sx={{
         paddingVertical: 2,
-        paddingHorizontal: 3,
-        borderRadius: 8,
-        background: model.isHost ? 'tint' : 'transparent',
-        borderWidth: model.isHost ? 0 : 1,
-        borderColor: 'border',
+        paddingHorizontal: 4,
+        borderRadius: 999,
+        backgroundColor: isHost ? ACTION_BG_DESTRUCTIVE : ACTION_BG,
       }}
     >
       <Text
         variant="caption"
-        sx={{ color: model.isHost ? '#fff' : 'text' }}
-        label={model.isHost ? <Trans>End</Trans> : <Trans>Leave</Trans>}
+        sx={{ color: ACTION_TEXT, fontWeight: '600' }}
+        label={isHost ? <Trans>End</Trans> : <Trans>Leave</Trans>}
       />
     </Pressable>
   );
 }
 
 function SpaceMiniplayerView(props: VisibleModel) {
+  const { t } = useLingui();
+  const theme = useTheme();
+  const gradientColors = [
+    theme.colors.gradientPrimaryStart,
+    theme.colors.gradientPrimaryEnd,
+  ] as const;
+  const count = props.memberCount;
+  const countLabel = t`${count} people here`;
+
   return (
     <>
       <MiniplayerDock>
-        <Box
-          sx={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            paddingVertical: 2,
-            paddingHorizontal: 2,
-            gap: 2,
-            minHeight: 56,
-          }}
+        <Pressable
+          onPress={props.onOpenSpace}
+          accessibilityRole="button"
+          accessibilityLabel={t`Tap to return to your space`}
         >
-          <MiniplayerOpenArea model={props} />
-          <MiniplayerEndLeave model={props} />
-        </Box>
+          <GradientBox
+            colors={gradientColors}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            sx={{
+              borderRadius: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+              p: 3,
+              gap: 2,
+              minHeight: 72,
+            }}
+            style={{
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.18,
+              shadowRadius: 12,
+              elevation: 6,
+            }}
+          >
+            <MiniplayerHostHeader
+              spaceTitle={props.spaceTitle}
+              hostId={props.hostId}
+              hostLabel={props.hostLabel}
+              hostAvatarConfig={props.hostAvatarConfig}
+              countLabel={countLabel}
+            />
+            <MiniplayerLiveBadge />
+            <MiniplayerActionButton model={props} />
+          </GradientBox>
+        </Pressable>
       </MiniplayerDock>
       <EndSpaceModal
         visible={props.confirmEnd}

@@ -7,7 +7,6 @@ import {
 import {
   Box,
   ScreenBase,
-  Text,
   TextInput,
   type BodyContentProps,
 } from '@gamezilla/lib/ui';
@@ -32,8 +31,11 @@ function useSyncedDisplayName(entity: Entity | null | undefined) {
     const raw = entity.attributes[ProfileAttr.displayName];
     const persisted = typeof raw === 'string' ? raw : '';
     const prev = lastPersistedRef.current;
+    // First hydration: only seed the input if the user hasn't started
+    // typing yet, otherwise we'd clobber in-progress input as soon as the
+    // patch-db query resolves.
     if (prev === null) {
-      setValue(persisted);
+      setValue((current) => (current === '' ? persisted : current));
       lastPersistedRef.current = persisted;
       return;
     }
@@ -48,39 +50,29 @@ function useSyncedDisplayName(entity: Entity | null | undefined) {
 
 function ProfileUsernameScreenBody({
   sx,
-  profileId,
   value,
   setValue,
 }: {
   sx: BodyContentProps['sx'];
-  profileId: string | null;
   value: string;
   setValue: (v: string) => void;
 }): ReactNode {
   const { t } = useLingui();
+  // The runtime bootstrap (`entityBootstrapEffect`) guarantees the profile
+  // row exists; until the local query has hydrated, Save stays disabled but
+  // the input must remain editable so the user can type without waiting on
+  // patch-db. Gating `editable` on profileId leaves the input focusable but
+  // silently swallows keystrokes on web, which looks like a broken keyboard.
   return (
     <Box style={sx}>
-      {profileId === null ? (
-        <Box sx={{ gap: 2 }}>
-          <Text
-            variant="body"
-            label={
-              <Trans>
-                No active profile. Open Profiles and create or select one first.
-              </Trans>
-            }
-          />
-        </Box>
-      ) : (
-        <TextInput
-          label={<Trans>Display name</Trans>}
-          value={value}
-          onChangeText={setValue}
-          placeholder={t`Your name`}
-          autoCapitalize="words"
-          autoCorrect
-        />
-      )}
+      <TextInput
+        label={<Trans>Display name</Trans>}
+        value={value}
+        onChangeText={setValue}
+        placeholder={t`Your name`}
+        autoCapitalize="words"
+        autoCorrect
+      />
     </Box>
   );
 }
@@ -130,12 +122,7 @@ export function ProfileUsernameScreen() {
       ]}
       keyboardAvoiding
       content={({ sx }) => (
-        <ProfileUsernameScreenBody
-          sx={sx}
-          profileId={profileId}
-          value={value}
-          setValue={setValue}
-        />
+        <ProfileUsernameScreenBody sx={sx} value={value} setValue={setValue} />
       )}
     />
   );

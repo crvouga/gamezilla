@@ -1,81 +1,97 @@
 import { DeviceAvatar } from '@gamezilla/client/profile/device-avatar';
 import type { SpaceMemberRow } from '@gamezilla/client/spaces/types';
-import { Box, Text } from '@gamezilla/lib/ui';
+import { Box, StatusDot, Text } from '@gamezilla/lib/ui';
+import { Trans } from '@lingui/react/macro';
 
-export function MiniplayerHostRow({
-  hostId,
-  hostLabel,
-  hostAvatarConfig,
-}: {
-  hostId: string;
-  hostLabel: string;
-  hostAvatarConfig: SpaceMemberRow['avatarConfig'];
-}) {
+const TITLE_COLOR = '#FFFFFF';
+const SUBTITLE_COLOR = 'rgba(255,255,255,0.85)';
+const SEPARATOR_COLOR = 'rgba(255,255,255,0.55)';
+const BADGE_BG = 'rgba(255,255,255,0.22)';
+
+export function MiniplayerLiveBadge() {
   return (
-    <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
-      <DeviceAvatar
-        avatarConfig={hostAvatarConfig}
-        deviceId={hostId}
-        size={22}
-      />
+    <Box
+      sx={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 1,
+        backgroundColor: BADGE_BG,
+        borderRadius: 999,
+        px: 2,
+        py: 0.5,
+      }}
+    >
+      <StatusDot status="online" size={6} />
       <Text
         variant="caption"
-        sx={{ color: 'textSecondary' }}
-        numberOfLines={1}
-        label={hostLabel}
+        sx={{ color: TITLE_COLOR }}
+        label={<Trans>Live</Trans>}
       />
     </Box>
   );
 }
 
-const MAX_MEMBER_AVATARS = 3;
-
-export function MiniplayerMemberStack({
-  membersForStack,
-  surfaceColor,
+export function MiniplayerHostHeader({
+  spaceTitle,
+  hostId,
+  hostLabel,
+  hostAvatarConfig,
+  countLabel,
 }: {
-  membersForStack: SpaceMemberRow[];
-  surfaceColor: string;
+  spaceTitle: string;
+  hostId: string;
+  hostLabel: string;
+  hostAvatarConfig: SpaceMemberRow['avatarConfig'];
+  countLabel: string;
 }) {
-  const visible = membersForStack.slice(0, MAX_MEMBER_AVATARS);
-  const overflow = Math.max(0, membersForStack.length - MAX_MEMBER_AVATARS);
-
   return (
-    <Box sx={{ flexDirection: 'row', alignItems: 'center' }}>
-      {visible.map((member, i) => (
-        <Box
-          key={member.deviceId}
-          style={{
-            marginLeft: i > 0 ? -6 : 0,
-            borderWidth: 2,
-            borderColor: surfaceColor,
-            borderRadius: 999,
-          }}
-        >
-          <DeviceAvatar
-            avatarConfig={member.avatarConfig}
-            deviceId={member.deviceId}
-            size={26}
-          />
-        </Box>
-      ))}
-      {overflow > 0 ? (
+    <Box
+      sx={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 3,
+        flex: 1,
+        minWidth: 0,
+      }}
+    >
+      {hostId ? (
+        <DeviceAvatar
+          avatarConfig={hostAvatarConfig}
+          deviceId={hostId}
+          size={40}
+          vividBackdrop
+        />
+      ) : null}
+      <Box sx={{ flex: 1, minWidth: 0, gap: 0.5 }}>
+        <Text
+          variant="bodyBold"
+          numberOfLines={1}
+          sx={{ color: TITLE_COLOR }}
+          label={spaceTitle}
+        />
         <Box
           sx={{
-            marginLeft: -6,
-            minWidth: 26,
-            height: 26,
-            borderRadius: 999,
-            background: 'tintMuted',
+            flexDirection: 'row',
             alignItems: 'center',
-            justifyContent: 'center',
-            borderWidth: 2,
-            borderColor: 'surface',
+            gap: 1.5,
+            minWidth: 0,
           }}
         >
-          <Text variant="caption" label={`+${overflow}`} />
+          <Text
+            variant="caption"
+            numberOfLines={1}
+            sx={{ color: SUBTITLE_COLOR, flexShrink: 1 }}
+            label={hostLabel}
+          />
+          <Text variant="caption" sx={{ color: SEPARATOR_COLOR }} label="·" />
+          <Text
+            variant="caption"
+            numberOfLines={1}
+            sx={{ color: SUBTITLE_COLOR }}
+            label={countLabel}
+          />
         </Box>
-      ) : null}
+      </Box>
     </Box>
   );
 }

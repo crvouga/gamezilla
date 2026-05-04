@@ -32,6 +32,8 @@ const patchRejectionReasonSchema = z.object({
   patchId: z.string(),
   code: z.string(),
   reason: z.string(),
+  /** Rejected patch body for debugging (omit in minimal / legacy responses). */
+  patch: z.record(z.string(), z.unknown()).optional(),
 });
 
 /** Successful `/patches/read` response: flat `{ results }`. */

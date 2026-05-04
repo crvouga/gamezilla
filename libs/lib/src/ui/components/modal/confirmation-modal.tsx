@@ -20,6 +20,8 @@
 import { useLingui } from '@lingui/react/macro';
 import { useRef } from 'react';
 import type { ReactNode } from 'react';
+import { Box } from '../box';
+import { Text } from '../text';
 import { ResponsiveSurface } from '../responsive-surface';
 import { ModalBody } from './modal-body';
 import { ModalButton } from './modal-button';
@@ -32,7 +34,11 @@ export type ConfirmationModalProps = {
   confirmLabel?: ReactNode;
   cancelLabel?: ReactNode;
   variant?: 'default' | 'destructive';
-  onConfirm: () => void;
+  /** Shown under {@link message} after a failed confirm (e.g. destructive error text). */
+  confirmError?: ReactNode;
+  /** When true, both actions are disabled (e.g. while {@link onConfirm} is async). */
+  submitting?: boolean;
+  onConfirm: () => void | Promise<void>;
   onCancel: () => void;
 };
 
@@ -42,6 +48,7 @@ type LatchedContent = {
   confirmLabel: ReactNode;
   cancelLabel: ReactNode;
   variant: 'default' | 'destructive';
+  confirmError: ReactNode | undefined;
 };
 
 export function ConfirmationModal({
@@ -51,6 +58,8 @@ export function ConfirmationModal({
   confirmLabel,
   cancelLabel,
   variant = 'default',
+  confirmError,
+  submitting = false,
   onConfirm,
   onCancel,
 }: ConfirmationModalProps) {
@@ -66,6 +75,7 @@ export function ConfirmationModal({
     confirmLabel: resolvedConfirmLabel,
     cancelLabel: resolvedCancelLabel,
     variant,
+    confirmError: confirmError ?? undefined,
   });
   if (visible) {
     latchedRef.current = {
@@ -74,6 +84,7 @@ export function ConfirmationModal({
       confirmLabel: resolvedConfirmLabel,
       cancelLabel: resolvedCancelLabel,
       variant,
+      confirmError,
     };
   }
   const display = visible
@@ -83,20 +94,40 @@ export function ConfirmationModal({
         confirmLabel: resolvedConfirmLabel,
         cancelLabel: resolvedCancelLabel,
         variant,
+        confirmError,
       }
     : latchedRef.current;
+
+  const body =
+    display.confirmError !== undefined &&
+    display.confirmError !== null &&
+    display.confirmError !== false ? (
+      <ModalBody>
+        <Box sx={{ gap: 2 }}>
+          <Text variant="body" label={display.message} />
+          <Text
+            variant="caption"
+            sx={{ color: 'destructive' }}
+            label={display.confirmError}
+          />
+        </Box>
+      </ModalBody>
+    ) : (
+      <ModalBody message={display.message} />
+    );
 
   return (
     <ResponsiveSurface
       visible={visible}
-      onClose={onCancel}
+      onClose={submitting ? () => undefined : onCancel}
       title={display.title}
     >
-      <ModalBody message={display.message} />
+      {body}
       <ModalFooter>
         <ModalButton
           label={display.cancelLabel}
           variant="cancel"
+          disabled={submitting}
           onPress={onCancel}
         />
         <ModalButton
@@ -104,7 +135,10 @@ export function ConfirmationModal({
           variant={
             display.variant === 'destructive' ? 'destructive' : 'default'
           }
-          onPress={onConfirm}
+          disabled={submitting}
+          onPress={() => {
+            void onConfirm();
+          }}
         />
       </ModalFooter>
     </ResponsiveSurface>

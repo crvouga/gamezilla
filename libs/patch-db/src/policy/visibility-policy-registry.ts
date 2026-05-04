@@ -14,6 +14,8 @@ import {
   andWhereClause,
   denyAllReadsQuery,
   isPatchDbSystemContext,
+  READ_WHERE_ALWAYS_TRUE,
+  READ_WHERE_NEVER_TRUE,
 } from '../interface';
 
 /**
@@ -96,9 +98,23 @@ export class VisibilityPolicyRegistry<
       }
 
       const readCtx = ctx as VisibilityPolicyReadContext<TCtx>;
+      const filter = policy.read(readCtx);
+      // Short-circuit the sentinels: `READ_WHERE_*` are encoded as
+      // `exists/not_exists patch/createdBy` (a JSON-path key the snapshot
+      // recompute strips out via PATCH_META_KEYS). They evaluate correctly,
+      // but ANDing them onto every read forces redundant JSON probes in the
+      // generated SQL, which floods the dev DB log and adds real work to
+      // every poll. NEVER_TRUE reuses the existing `denyAllReadsQuery`
+      // (LIMIT 0) path; ALWAYS_TRUE skips the where merge entirely.
+      if (filter === READ_WHERE_NEVER_TRUE) {
+        return denyAllReadsQuery(query);
+      }
+      if (filter === READ_WHERE_ALWAYS_TRUE) {
+        return query;
+      }
       return {
         ...query,
-        where: andWhereClause(query.where, policy.read(readCtx)),
+        where: andWhereClause(query.where, filter),
       };
     });
 
@@ -123,6 +139,7 @@ export class VisibilityPolicyRegistry<
             reason: truncate(
               `no visibility policy for entity type ${p.entityType}`
             ),
+            patch: p,
           });
           continue;
         }
@@ -135,6 +152,7 @@ export class VisibilityPolicyRegistry<
               patchId,
               code: 'forbidden',
               reason: truncate(e.message),
+              patch: p,
             });
             continue;
           }

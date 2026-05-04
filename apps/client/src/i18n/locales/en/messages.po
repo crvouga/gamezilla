@@ -369,7 +369,7 @@ msgid "Build mode: {buildMode}"
 msgstr "Build mode: {buildMode}"
 
 #: apps/client/src/account/use-account-remove-local-data.ts
-#: apps/client/src/auth/auth-context.tsx
+#: apps/client/src/auth/use-sign-out-confirmation.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/space-miniplayer.tsx
@@ -434,8 +434,8 @@ msgid "Clear data"
 msgstr "Clear data"
 
 #: apps/client/src/ui/patch-db-bootstrap.tsx
-msgid "Clear local data & reload"
-msgstr "Clear local data & reload"
+#~ msgid "Clear local data & reload"
+#~ msgstr "Clear local data & reload"
 
 #: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "Clear SQLite and reload (same as Clear data in Todos)"
@@ -825,12 +825,12 @@ msgid "Fabricate Commit"
 msgstr "Fabricate Commit"
 
 #: apps/client/src/ui/patch-db-bootstrap.tsx
-msgid "Failed to initialize"
-msgstr "Failed to initialize"
+#~ msgid "Failed to initialize"
+#~ msgstr "Failed to initialize"
 
 #: apps/client/src/auth/device-auth-shell.tsx
-msgid "Failed to initialize identity"
-msgstr "Failed to initialize identity"
+#~ msgid "Failed to initialize identity"
+#~ msgstr "Failed to initialize identity"
 
 #: apps/client/src/spaces/space-debug-modal.tsx
 #~ msgid "false"
@@ -1152,10 +1152,6 @@ msgstr "night"
 #: apps/client/src/connection/server-status-screen.tsx
 msgid "No"
 msgstr "No"
-
-#: apps/client/src/profile/profile-username-screen.tsx
-msgid "No active profile. Open Profiles and create or select one first."
-msgstr "No active profile. Open Profiles and create or select one first."
 
 #: apps/client/src/account/account-device-detail-body.tsx
 msgid "No active session"
@@ -1548,8 +1544,8 @@ msgstr "Resume"
 
 #: apps/client/src/auth/device-auth-shell.tsx
 #: apps/client/src/ui/patch-db-bootstrap.tsx
-msgid "Retry"
-msgstr "Retry"
+#~ msgid "Retry"
+#~ msgstr "Retry"
 
 #: apps/client/src/spaces/space-debug-modal.tsx
 #~ msgid "Role"
@@ -1697,14 +1693,14 @@ msgid "Sign in with Google"
 msgstr "Sign in with Google"
 
 #: apps/client/src/account/account-screen.tsx
-#: apps/client/src/auth/auth-context.tsx
+#: apps/client/src/auth/use-sign-out-confirmation.tsx
 #: apps/client/src/ui/app-commands/account-command.tsx
 #: apps/client/src/ui/sidebar-account-menu.tsx
 #: apps/client/src/ui/use-account-actions.tsx
 msgid "Sign out"
 msgstr "Sign out"
 
-#: apps/client/src/auth/auth-context.tsx
+#: apps/client/src/auth/use-sign-out-confirmation.tsx
 msgid "Sign out?"
 msgstr "Sign out?"
 
@@ -1716,9 +1712,17 @@ msgstr "Sign up with Google"
 msgid "Sign-in providers"
 msgstr "Sign-in providers"
 
+#: apps/client/src/auth/use-sign-out-confirmation.tsx
+msgid "Sign-out failed: {detail}"
+msgstr "Sign-out failed: {detail}"
+
 #: libs/lib/src/ui/components/social-sign-in-button/social-provider-config.ts
 msgid "Signing in…"
 msgstr "Signing in…"
+
+#: apps/client/src/auth/use-sign-out-confirmation.tsx
+msgid "Signing out…"
+msgstr "Signing out…"
 
 #: apps/client/src/developer/developer-screen.tsx
 msgid "Singleton clientConfig entity and server refresh"
@@ -2095,7 +2099,7 @@ msgstr "You have unsaved avatar changes."
 #~ msgid "You will need to sign in again to sync with your account."
 #~ msgstr "You will need to sign in again to sync with your account."
 
-#: apps/client/src/auth/auth-context.tsx
+#: apps/client/src/auth/use-sign-out-confirmation.tsx
 msgid "You will need to sign in again to sync with your user."
 msgstr "You will need to sign in again to sync with your user."
 

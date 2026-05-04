@@ -1,5 +1,5 @@
 import { useAuth } from '@gamezilla/client/auth/auth-context';
-import { useDeviceService } from '@gamezilla/client/runtime/runtime-contexts';
+import { useDeviceService } from '@gamezilla/client/runtime/runtime-hooks';
 import { displayNameForDevice } from '@gamezilla/client/profile/device-display';
 import { DeviceAttr } from '@gamezilla/domain/auth';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';

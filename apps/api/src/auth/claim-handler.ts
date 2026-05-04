@@ -34,6 +34,8 @@ export type ClaimSuccessBody = {
   accountId: string;
   sessionToken: string;
   expiresAt: string;
+  /** Same `entityId` as the server-written `accountSession` row (for local-first mirroring). */
+  sessionEntityId: string;
 };
 
 export type AuthClaimErrorBody = { error: string };
@@ -210,7 +212,7 @@ function appendSessionPatch(args: {
   deviceId: string;
   accountId: string;
   patchesToWrite: PatchInput[];
-}): { sessionToken: string; expiresAt: string } {
+}): { sessionToken: string; expiresAt: string; sessionEntityId: string } {
   const { deviceId, accountId, patchesToWrite } = args;
   const sessionToken = crypto.randomUUID();
   const expiresAt = new Date(Date.now() + SESSION_TTL_MS).toISOString();
@@ -229,7 +231,7 @@ function appendSessionPatch(args: {
       'patch/createdBy': deviceId,
     },
   });
-  return { sessionToken, expiresAt };
+  return { sessionToken, expiresAt, sessionEntityId };
 }
 
 /**
@@ -281,7 +283,7 @@ export async function handleAuthClaimResult(
     patchesToWrite,
   });
 
-  const { sessionToken, expiresAt } = appendSessionPatch({
+  const { sessionToken, expiresAt, sessionEntityId } = appendSessionPatch({
     deviceId,
     accountId,
     patchesToWrite,
@@ -289,6 +291,11 @@ export async function handleAuthClaimResult(
 
   await db.write(patchesToWrite, PATCHES_DB_SYSTEM_CONTEXT);
 
-  const success: ClaimSuccessBody = { accountId, sessionToken, expiresAt };
+  const success: ClaimSuccessBody = {
+    accountId,
+    sessionToken,
+    expiresAt,
+    sessionEntityId,
+  };
   return { status: 200, json: success };
 }

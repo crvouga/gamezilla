@@ -1,5 +1,5 @@
 import { useAuth } from '@gamezilla/client/auth/auth-context';
-import { useSecureStorage } from '@gamezilla/lib/secure-storage/interface';
+import { useSecureStorage } from '@gamezilla/client/runtime/runtime-hooks';
 import {
   type AccountDevice,
   useAccountDevices,

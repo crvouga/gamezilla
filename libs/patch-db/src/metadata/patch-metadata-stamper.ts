@@ -8,6 +8,7 @@ import type {
 } from '../interface';
 import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
 import type { SubscribablePatchDbLike } from '../subscribable';
+import { PATCH_DB_SYSTEM_DEVICE_ID } from '../policy/system-device';
 import {
   PATCH_CREATED_BY,
   PATCH_LAST_MODIFIED_AT,
@@ -91,15 +92,16 @@ export class PatchMetadataStamper implements SubscribablePatchDbLike {
 
   /**
    * Backfills `patch/createdBy` on existing local patches that have an empty
-   * or missing value. Fixes patches created before the metadata stamping was
-   * added, which would otherwise be rejected by the server's ABAC write hook
-   * on every push attempt.
+   * or missing value, then rewrites values that still differ from the current
+   * device id (e.g. after secure-storage rotation while the SQLite file
+   * survived). Skips {@link PATCH_DB_SYSTEM_DEVICE_ID}. Without this, ABAC
+   * rejects pushes with `patch/createdBy must match device`.
    */
   async backfillCreatedBy(): Promise<void> {
     const deviceId = this.config.getDeviceId();
     this.config.assertDeviceId?.(deviceId);
 
-    const [result] = await this.inner.read(
+    const [emptyOrMissing] = await this.inner.read(
       [
         {
           on: 'patches',
@@ -115,15 +117,47 @@ export class PatchMetadataStamper implements SubscribablePatchDbLike {
       OPEN_PATCHES_DB_CONTEXT
     );
 
-    if (!result || result.patches.length === 0) return;
+    if (emptyOrMissing !== undefined && emptyOrMissing.patches.length > 0) {
+      await this.inner.update(
+        emptyOrMissing.patches.map((p) => ({
+          patchId: p.patchId,
+          attributes: { [PATCH_CREATED_BY]: deviceId },
+        })),
+        OPEN_PATCHES_DB_CONTEXT
+      );
+    }
 
-    await this.inner.update(
-      result.patches.map((p) => ({
-        patchId: p.patchId,
-        attributes: { [PATCH_CREATED_BY]: deviceId },
-      })),
+    const [stale] = await this.inner.read(
+      [
+        {
+          on: 'patches',
+          where: {
+            type: 'and',
+            clauses: [
+              { type: 'exists', attribute: PATCH_CREATED_BY },
+              { type: '!=', attribute: PATCH_CREATED_BY, value: deviceId },
+              {
+                type: '!=',
+                attribute: PATCH_CREATED_BY,
+                value: PATCH_DB_SYSTEM_DEVICE_ID,
+              },
+              { type: '!=', attribute: PATCH_CREATED_BY, value: '' },
+            ],
+          },
+        },
+      ],
       OPEN_PATCHES_DB_CONTEXT
     );
+
+    if (stale !== undefined && stale.patches.length > 0) {
+      await this.inner.update(
+        stale.patches.map((p) => ({
+          patchId: p.patchId,
+          attributes: { [PATCH_CREATED_BY]: deviceId },
+        })),
+        OPEN_PATCHES_DB_CONTEXT
+      );
+    }
   }
 
   /**

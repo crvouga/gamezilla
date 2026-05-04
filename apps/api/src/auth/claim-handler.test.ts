@@ -183,6 +183,7 @@ describe('handleAuthClaimResult', () => {
     if (r.status !== 200) return;
     const accountId = r.json.accountId;
     expect(accountId.length).toBeGreaterThan(0);
+    expect(r.json.sessionEntityId.length).toBeGreaterThan(0);
 
     const readAccounts = await db.read([
       { entityType: ACCOUNT_ENTITY_TYPE, entityId: accountId, limit: 1 },

@@ -1,10 +1,11 @@
-import { createGamezillaApiClient } from '@gamezilla/client/api/hc';
+import { createApiClient } from '@gamezilla/client/api/hc';
 import { assert } from '@gamezilla/lib/assert';
 
 export type GoogleClaimSuccess = {
   accountId: string;
   sessionToken: string;
   expiresAt: string;
+  sessionEntityId: string;
 };
 
 function parseClaimResponse(json: unknown): GoogleClaimSuccess {
@@ -12,10 +13,15 @@ function parseClaimResponse(json: unknown): GoogleClaimSuccess {
   const accountId = json['accountId'];
   const sessionToken = json['sessionToken'];
   const expiresAt = json['expiresAt'];
+  const sessionEntityId = json['sessionEntityId'];
   assert.string(accountId, 'claim response accountId must be string');
   assert.string(sessionToken, 'claim response sessionToken must be string');
   assert.string(expiresAt, 'claim response expiresAt must be string');
-  return { accountId, sessionToken, expiresAt };
+  assert.string(
+    sessionEntityId,
+    'claim response sessionEntityId must be string'
+  );
+  return { accountId, sessionToken, expiresAt, sessionEntityId };
 }
 
 export async function postGoogleAuthClaim(args: {
@@ -24,7 +30,7 @@ export async function postGoogleAuthClaim(args: {
   deviceId: string;
 }): Promise<GoogleClaimSuccess> {
   const { apiUrl, googleIdToken, deviceId } = args;
-  const client = createGamezillaApiClient(apiUrl);
+  const client = createApiClient(apiUrl);
   const response = await client.auth.claim.$post({
     json: { googleIdToken, deviceId },
   });
