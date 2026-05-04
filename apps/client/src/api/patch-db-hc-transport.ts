@@ -23,7 +23,12 @@ const JSON_HEADERS = {
 export type CreatePatchDbHcTransportOptions = {
   /** Same origin + path prefix as read/write (e.g. `https://host/patch-db`). */
   patchDbBaseUrl: string;
-  /** Returns the current session bearer token, or null when unauthenticated. */
+  /**
+   * Returns the current session bearer token, or null when unauthenticated.
+   * Prefer `getDefaultStore().get(sessionTokenAtom)` (or equivalent) **per
+   * request** so token refresh rotates the header without rebuilding the
+   * transport; do not capture a fixed token in a closure.
+   */
   getAuthToken?: () => string | null;
 };
 

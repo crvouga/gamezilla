@@ -1,12 +1,21 @@
-import type { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
+import { createContext, useContext } from 'react';
 import { getApiBaseUrl } from './api-servers';
 
 export interface ConfigService {
   getApiUrl(): string;
 }
 
-export const ConfigServiceToken: InjectionToken<ConfigService> =
-  Symbol('ConfigService');
+const ConfigServiceContext = createContext<ConfigService | null>(null);
+
+export function useConfigService(): ConfigService {
+  const v = useContext(ConfigServiceContext);
+  if (v === null) {
+    throw new Error('useConfigService: ConfigServiceContext.Provider missing');
+  }
+  return v;
+}
+
+export const ConfigServiceContextProvider = ConfigServiceContext.Provider;
 
 function createConfigService(): ConfigService {
   const apiUrl = getApiBaseUrl();

@@ -1,12 +1,11 @@
 import { useAuth } from '@gamezilla/client/auth/auth-context';
-import { DeviceServiceToken } from '@gamezilla/client/auth/device-service';
+import { useDeviceService } from '@gamezilla/client/runtime/runtime-contexts';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { parseAvatarConfigAttr } from '@gamezilla/domain/profile/avatar-config';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
 } from '@gamezilla/domain/profile/profile-entities';
-import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import type {
   Entity,
   PatchDbQueryWhereClause,
@@ -95,7 +94,7 @@ function buildProfileResult(args: {
  * Reads are filtered by last-modified stamps for defense in depth.
  */
 export function useProfile() {
-  const deviceService = useDependency(DeviceServiceToken);
+  const deviceService = useDeviceService();
   const deviceId = deviceService.getDeviceId();
   const auth = useAuth();
   const signedIn = auth.mode === 'signed-in';

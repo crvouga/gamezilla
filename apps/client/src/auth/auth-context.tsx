@@ -7,22 +7,21 @@ import {
   CLIENT_CONFIG_ENTITY_TYPE,
   ClientConfigAttr,
 } from '@gamezilla/domain/client-config/client-config-entities';
-import { ConfigServiceToken } from '@gamezilla/domain/config/config-service';
-import { assert } from '@gamezilla/lib/assert';
+import { useConfigService } from '@gamezilla/domain/config/config-service';
+import { writeLastLocalAccountId } from '@gamezilla/client/db/account-local-state';
 import {
-  DependencyInjectionContainer,
-  isComposableDiParent,
-} from '@gamezilla/lib/dependency-injection';
-import {
-  ContainerProvider,
-  useContainer,
-  useDependency,
-} from '@gamezilla/lib/dependency-injection/react';
+  accountIdAtom,
+  sessionTokenAtom,
+} from '@gamezilla/client/runtime/atoms';
 import { useLogger } from '@gamezilla/lib/logger/react';
+import {
+  useSecureStorage,
+  type SecureStorage,
+} from '@gamezilla/lib/secure-storage/interface';
 import { ConfirmationModal } from '@gamezilla/lib/ui';
-import { useQueryOne } from '@gamezilla/patch-db/react';
-import { SubscribablePatchDbToken } from '@gamezilla/patch-db/subscribable';
+import { usePatchDbStack, useQueryOne } from '@gamezilla/patch-db/react';
 import { Trans } from '@lingui/react/macro';
+import { getDefaultStore } from 'jotai';
 import {
   createContext,
   useCallback,
@@ -32,18 +31,15 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { AuthAccountIdHolderToken } from './auth-account-id-holder';
+import { Platform } from 'react-native';
 import type { AuthGoogleProviderState } from './auth-capabilities';
 import { deriveGoogleProviderState } from './auth-capabilities';
+import { createAuthService, type AuthService } from './auth-service';
 import {
-  AuthServiceToken,
-  createAuthService,
-  type AuthService,
-} from './auth-service';
-import { AuthSessionTokenHolderToken } from './auth-session-token-holder';
-import { DeviceServiceToken } from './device-service';
+  useDeviceService,
+  useSessionService,
+} from '../runtime/runtime-contexts';
 import {
-  SessionServiceToken,
   type AccountSessionRecord,
   type SessionService,
 } from './session-service';
@@ -123,8 +119,7 @@ function deriveStateFromSession(args: {
 function useAuthSessionState(
   deviceId: string,
   sessionService: SessionService,
-  accountIdHolder: { set: (id: string | null) => void },
-  sessionTokenHolder: { set: (token: string | null) => void }
+  secureStorage: SecureStorage
 ) {
   const [state, setState] = useState(() =>
     deriveStateFromSession({ deviceId, sessionService })
@@ -133,10 +128,17 @@ function useAuthSessionState(
   const refreshSession = useCallback(async () => {
     await sessionService.refresh();
     const session = sessionService.getSession();
-    accountIdHolder.set(session?.accountId ?? null);
-    sessionTokenHolder.set(session?.token ?? null);
+    const store = getDefaultStore();
+    if (Platform.OS !== 'web' && session === null) {
+      const current = store.get(accountIdAtom);
+      if (current !== null) {
+        await writeLastLocalAccountId(secureStorage, null);
+      }
+    }
+    store.set(accountIdAtom, session?.accountId ?? null);
+    store.set(sessionTokenAtom, session?.token ?? null);
     setState(deriveStateFromSession({ deviceId, sessionService }));
-  }, [accountIdHolder, deviceId, sessionService, sessionTokenHolder]);
+  }, [deviceId, sessionService, secureStorage]);
 
   useEffect(() => {
     void refreshSession();
@@ -150,7 +152,7 @@ function useSubscribeToSessionChanges(args: {
   refreshSession: () => Promise<void>;
 }) {
   const { deviceId, refreshSession } = args;
-  const subDb = useDependency(SubscribablePatchDbToken);
+  const { decorated: subDb } = usePatchDbStack();
   useEffect(() => {
     const unsub = subDb.subscribe.entities(
       {
@@ -267,23 +269,22 @@ function useAuthStateValue(args: {
 function AuthStateProvider({
   children,
   googleProvider,
+  authService,
 }: {
   children: ReactNode;
   googleProvider: AuthGoogleProviderState;
+  authService: AuthService;
 }) {
-  const authService = useDependency(AuthServiceToken);
-  const deviceService = useDependency(DeviceServiceToken);
-  const sessionService = useDependency(SessionServiceToken);
-  const accountIdHolder = useDependency(AuthAccountIdHolderToken);
-  const sessionTokenHolder = useDependency(AuthSessionTokenHolderToken);
+  const deviceService = useDeviceService();
+  const sessionService = useSessionService();
+  const secureStorage = useSecureStorage();
   const deviceId = deviceService.getDeviceId();
   const log = useLogger('auth-context');
 
   const { state, refreshSession } = useAuthSessionState(
     deviceId,
     sessionService,
-    accountIdHolder,
-    sessionTokenHolder
+    secureStorage
   );
   useSubscribeToSessionChanges({ deviceId, refreshSession });
 
@@ -340,46 +341,32 @@ function AuthContainerBridgeInner({
   promptGoogleIdToken: () => Promise<string>;
   googleProvider: AuthGoogleProviderState;
 }) {
-  const parentContainer = useContainer();
-  assert.ok(
-    isComposableDiParent(parentContainer),
-    'AuthProvider must be under DI'
-  );
-  const configService = useDependency(ConfigServiceToken);
-  const deviceService = useDependency(DeviceServiceToken);
-  const accountIdHolder = useDependency(AuthAccountIdHolderToken);
-  const sessionTokenHolder = useDependency(AuthSessionTokenHolderToken);
+  const configService = useConfigService();
+  const deviceService = useDeviceService();
 
-  const authContainer = useMemo(() => {
-    const child = new DependencyInjectionContainer(parentContainer);
-    child.registerValue(
-      AuthServiceToken,
+  const authService = useMemo(
+    () =>
       createAuthService({
         configService,
         deviceService,
-        accountIdHolder,
-        sessionTokenHolder,
         googleSignInAvailable: googleProvider.available,
         promptGoogleIdToken,
-      })
-    );
-    return child;
-  }, [
-    parentContainer,
-    configService,
-    deviceService,
-    accountIdHolder,
-    sessionTokenHolder,
-    googleProvider.available,
-    promptGoogleIdToken,
-  ]);
+      }),
+    [
+      configService,
+      deviceService,
+      googleProvider.available,
+      promptGoogleIdToken,
+    ]
+  );
 
   return (
-    <ContainerProvider container={authContainer}>
-      <AuthStateProvider googleProvider={googleProvider}>
-        {children}
-      </AuthStateProvider>
-    </ContainerProvider>
+    <AuthStateProvider
+      googleProvider={googleProvider}
+      authService={authService}
+    >
+      {children}
+    </AuthStateProvider>
   );
 }
 

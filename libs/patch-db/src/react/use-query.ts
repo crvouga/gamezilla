@@ -1,8 +1,7 @@
 import { assert } from '@gamezilla/lib/assert';
-import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import { useCallback, useMemo, useSyncExternalStore } from 'react';
 import type { PatchDbQuery } from '../interface';
-import { SubscribablePatchDbToken } from '../subscribable';
+import { usePatchDbStack } from './patch-db-stack-context';
 import { getCacheForDb, type CachedQueryResult } from './query-cache';
 
 /**
@@ -18,7 +17,7 @@ export type UseQueryResult = CachedQueryResult;
  * unmounts so route flips don't tear down a query that is about to be re-asked.
  */
 export function useQuery(query: PatchDbQuery): UseQueryResult {
-  const db = useDependency(SubscribablePatchDbToken);
+  const { decorated: db } = usePatchDbStack();
   const cache = useMemo(() => getCacheForDb(db), [db]);
   const queryKey = JSON.stringify(query);
 

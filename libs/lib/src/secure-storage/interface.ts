@@ -1,4 +1,4 @@
-import type { InjectionToken } from '../dependency-injection/dependency-injection-container';
+import { createContext, useContext } from 'react';
 
 /**
  * Key-value storage with async API. Used for deviceId (native: SecureStore, web: localStorage).
@@ -9,5 +9,14 @@ export interface SecureStorage {
   deleteItem(key: string): Promise<void>;
 }
 
-export const SecureStorageToken: InjectionToken<SecureStorage> =
-  Symbol('SecureStorage');
+const SecureStorageContext = createContext<SecureStorage | null>(null);
+
+export function useSecureStorage(): SecureStorage {
+  const v = useContext(SecureStorageContext);
+  if (v === null) {
+    throw new Error('useSecureStorage: SecureStorageContext.Provider missing');
+  }
+  return v;
+}
+
+export const SecureStorageContextProvider = SecureStorageContext.Provider;

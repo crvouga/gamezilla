@@ -8,8 +8,7 @@
  */
 
 import { useAuth, type AuthState } from '@gamezilla/client/auth/auth-context';
-import { DeviceServiceToken } from '@gamezilla/client/auth/device-service';
-import { useDependency } from '@gamezilla/lib/dependency-injection/react';
+import { useDeviceService } from '@gamezilla/client/runtime/runtime-contexts';
 import { JsonView, ResponsiveSurface } from '@gamezilla/lib/ui';
 import { Trans } from '@lingui/react/macro';
 import { useMemo } from 'react';
@@ -108,7 +107,7 @@ export function SpaceDebugModal({
   current,
   members,
 }: SpaceDebugModalProps) {
-  const deviceService = useDependency(DeviceServiceToken);
+  const deviceService = useDeviceService();
   const auth = useAuth();
   const selfDeviceId = deviceService.getDeviceId();
   const { height: windowHeight } = useWindowDimensions();

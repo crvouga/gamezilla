@@ -13,8 +13,7 @@
     "./profile/avatar-config": "./src/profile/avatar-config.ts",
     "./config/config-service": "./src/config/config-service.ts",
     "./config/api-servers": "./src/config/api-servers.ts",
-    "./config/app-metadata": "./src/config/app-metadata.ts",
-    "./config/config-container": "./src/config/config-container.tsx"
+    "./config/app-metadata": "./src/config/app-metadata.ts"
   },
   "dependencies": {
     "@gamezilla/lib": "workspace:*",

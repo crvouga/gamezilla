@@ -1,11 +1,13 @@
+import { deleteAnonymousDatabaseFileBestEffort } from '@gamezilla/client/db/account-db';
+import { ensureServerClientId } from '@gamezilla/client/db/ensure-server-client-id';
+import { writeLastLocalAccountId } from '@gamezilla/client/db/account-local-state';
 import {
-  reopenPatchDbAsAccount,
-  reopenPatchDbAsAnonymous,
-} from '@gamezilla/client/ui/patch-db-lifecycle-api';
-import {
-  getPatchDbForAuthWrites,
-  getSessionServiceForAuth,
-} from '@gamezilla/client/ui/patch-runtime-ref';
+  accountIdAtom,
+  patchDbStackAtom,
+  secureStorageAtom,
+  sessionServiceAtom,
+  sessionTokenAtom,
+} from '@gamezilla/client/runtime/atoms';
 import {
   assertDeviceId,
   DEVICE_ENTITY_TYPE,
@@ -16,9 +18,7 @@ import {
 import { assertUuid } from '@gamezilla/domain/auth/device-id';
 import type { ConfigService } from '@gamezilla/domain/config/config-service';
 import { assert } from '@gamezilla/lib/assert';
-import type { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
-import type { AuthAccountIdHolder } from './auth-account-id-holder';
-import type { AuthSessionTokenHolder } from './auth-session-token-holder';
+import { getDefaultStore } from 'jotai';
 import { ensureAccountProfile } from './ensure-profile-entity';
 import { AuthConfigurationError } from './auth-errors';
 import type { DeviceService } from './device-service';
@@ -29,14 +29,9 @@ export interface AuthService {
   signOut(): Promise<void>;
 }
 
-export const AuthServiceToken: InjectionToken<AuthService> =
-  Symbol('AuthService');
-
 type CreateAuthServiceDeps = {
   configService: ConfigService;
   deviceService: DeviceService;
-  accountIdHolder: AuthAccountIdHolder;
-  sessionTokenHolder: AuthSessionTokenHolder;
   /** When false, sign-in is refused before opening the Google prompt. */
   googleSignInAvailable: boolean;
   promptGoogleIdToken: () => Promise<string>;
@@ -48,8 +43,6 @@ function createGoogleSignInHandler(
   const {
     configService,
     deviceService,
-    accountIdHolder,
-    sessionTokenHolder,
     googleSignInAvailable,
     promptGoogleIdToken,
   } = deps;
@@ -77,16 +70,14 @@ function createGoogleSignInHandler(
       'claim response sessionToken must be non-empty'
     );
 
-    // Stamp the bearer token before any patch-db sync push fires; otherwise
-    // the unsynced session/device patches would 401 against the server.
-    sessionTokenHolder.set(sessionToken);
+    const store = getDefaultStore();
+    store.set(sessionTokenAtom, sessionToken);
+    store.set(accountIdAtom, accountId);
 
-    await reopenPatchDbAsAccount(accountId);
-    accountIdHolder.set(accountId);
+    const patchStack = await store.get(patchDbStackAtom);
+    const { db } = patchStack;
 
     const sessionEntityId = globalThis.crypto.randomUUID();
-    const db = getPatchDbForAuthWrites();
-
     await db.write([
       {
         entityId: deviceId,
@@ -108,8 +99,14 @@ function createGoogleSignInHandler(
       },
     ]);
 
+    const storage = store.get(secureStorageAtom);
+    await writeLastLocalAccountId(storage, accountId);
+    const clientId = await ensureServerClientId(apiUrl, storage);
+    await deleteAnonymousDatabaseFileBestEffort(clientId);
+
     await ensureAccountProfile(db, accountId);
-    await getSessionServiceForAuth().refresh();
+    const sessionSvc = await store.get(sessionServiceAtom);
+    await sessionSvc.refresh();
   };
 }
 
@@ -117,10 +114,12 @@ export function createAuthService(deps: CreateAuthServiceDeps): AuthService {
   return {
     signInWithGoogle: createGoogleSignInHandler(deps),
     async signOut(): Promise<void> {
-      await getSessionServiceForAuth().clearSession();
-      deps.accountIdHolder.set(null);
-      deps.sessionTokenHolder.set(null);
-      await reopenPatchDbAsAnonymous();
+      const store = getDefaultStore();
+      const sessionSvc = await store.get(sessionServiceAtom);
+      await sessionSvc.clearSession();
+      await writeLastLocalAccountId(store.get(secureStorageAtom), null);
+      store.set(sessionTokenAtom, null);
+      store.set(accountIdAtom, null);
     },
   };
 }

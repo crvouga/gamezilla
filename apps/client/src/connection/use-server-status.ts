@@ -1,5 +1,4 @@
-import { ConfigServiceToken } from '@gamezilla/domain/config/config-service';
-import { useDependency } from '@gamezilla/lib/dependency-injection/react';
+import { useConfigService } from '@gamezilla/domain/config/config-service';
 import { useNetworkState } from 'expo-network';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -132,7 +131,7 @@ function computeAggregateStatus(
 }
 
 export function useServerStatus() {
-  const config = useDependency(ConfigServiceToken);
+  const config = useConfigService();
   const networkState = useNetworkState();
 
   const apiUrl = config.getApiUrl();

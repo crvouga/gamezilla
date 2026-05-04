@@ -298,7 +298,6 @@
     "./logger/logger": "./src/logger/logger.ts",
     "./logger": "./src/logger/index.ts",
     "./logger/index": "./src/logger/index.ts",
-    "./logger/token": "./src/logger/token.ts",
     "./message": "./src/message/index.ts",
     "./message/index": "./src/message/index.ts",
     "./message/message": "./src/message/message.ts",
@@ -353,10 +352,6 @@
     "./browser/clear-web-client-state": "./src/browser/clear-web-client-state.ts",
     "./polyfill": "./src/polyfill/index.ts",
     "./polyfill/index": "./src/polyfill/index.ts",
-    "./dependency-injection/dependency-injection-container": "./src/dependency-injection/dependency-injection-container.ts",
-    "./dependency-injection/react": "./src/dependency-injection/react.tsx",
-    "./dependency-injection": "./src/dependency-injection/index.ts",
-    "./dependency-injection/index": "./src/dependency-injection/index.ts",
     "./sql-client/impl-planetscale": "./src/sql-client/impl-planetscale-postgres.ts"
   },
   "dependencies": {

@@ -1,6 +1,5 @@
 import { SYNC_ERROR_TOPIC } from '@gamezilla/patch-db/impl-sync';
-import { PatchDbSyncPubSubToken } from '@gamezilla/patch-db/react';
-import { useDependency } from '@gamezilla/lib/dependency-injection/react';
+import { usePatchDbStack } from '@gamezilla/patch-db/react';
 import { Box, Text } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useEffect, useState, type ReactNode } from 'react';
@@ -11,7 +10,7 @@ import { Platform, Pressable } from 'react-native';
  */
 export function OfflineIndicator(): ReactNode {
   const { t } = useLingui();
-  const pubSub = useDependency(PatchDbSyncPubSubToken);
+  const { pubSub } = usePatchDbStack();
   const [offline, setOffline] = useState(
     () => typeof navigator !== 'undefined' && navigator.onLine === false
   );

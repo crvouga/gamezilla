@@ -5,13 +5,11 @@ import {
   useFonts,
 } from '@expo-google-fonts/nunito';
 import { AuthProvider } from '@gamezilla/client/auth/auth-context';
-import { DeviceAuthShell } from '@gamezilla/client/auth/device-auth-shell';
 import { AppI18nProvider } from '@gamezilla/client/i18n/i18n-provider';
 import { PwaUpdatePromptBanner } from '@gamezilla/client/pwa/update-prompt';
 import { AppCommands } from '@gamezilla/client/ui/app-commands';
 import { CommandPaletteNativeGesture } from '@gamezilla/client/ui/command-palette-native-gesture';
 import { PatchBootstrap } from '@gamezilla/client/ui/patch-db-bootstrap';
-import { ConfigContainerProvider } from '@gamezilla/domain/config/config-container';
 import {
   AppThemeRoot,
   CommandPalette,
@@ -58,22 +56,18 @@ export function AppProviders({ children }: { children: ReactNode }) {
           <AppI18nProvider>
             <DismissibleBannerPortalProvider>
               <BottomSheetModalProvider>
-                <ConfigContainerProvider>
-                  <DeviceAuthShell>
-                    <PatchBootstrap>
-                      <AuthProvider>
-                        <CommandRegistryProvider storage={AsyncStorage}>
-                          <AppCommands />
-                          <CommandPalette />
-                          <CommandPaletteNativeGesture>
-                            {children}
-                            <PwaUpdatePromptBanner />
-                          </CommandPaletteNativeGesture>
-                        </CommandRegistryProvider>
-                      </AuthProvider>
-                    </PatchBootstrap>
-                  </DeviceAuthShell>
-                </ConfigContainerProvider>
+                <PatchBootstrap>
+                  <AuthProvider>
+                    <CommandRegistryProvider storage={AsyncStorage}>
+                      <AppCommands />
+                      <CommandPalette />
+                      <CommandPaletteNativeGesture>
+                        {children}
+                        <PwaUpdatePromptBanner />
+                      </CommandPaletteNativeGesture>
+                    </CommandRegistryProvider>
+                  </AuthProvider>
+                </PatchBootstrap>
               </BottomSheetModalProvider>
             </DismissibleBannerPortalProvider>
           </AppI18nProvider>

@@ -7,10 +7,10 @@ export {
   type PatchDbQueryCacheOptions,
 } from './query-cache';
 export {
-  PatchDbSyncPubSubToken,
-  PatchDbToken,
-  SyncPatchDbToken,
-} from './tokens';
+  PatchDbStackContextProvider,
+  usePatchDbStack,
+  type PatchDbStackValue,
+} from './patch-db-stack-context';
 export { usePatchDb } from './use-patch-db';
 export { useQuery, type UseQueryResult } from './use-query';
 export { useQueryOne } from './use-query-one';

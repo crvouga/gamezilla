@@ -26,7 +26,7 @@
     "./validate-remote": "./src/validate-remote.ts",
     "./react": "./src/react/index.ts",
     "./react/index": "./src/react/index.ts",
-    "./react/tokens": "./src/react/tokens.ts",
+    "./react/patch-db-stack-context": "./src/react/patch-db-stack-context.tsx",
     "./react/use-patch-db": "./src/react/use-patch-db.ts",
     "./react/use-query": "./src/react/use-query.ts",
     "./react/use-query-one": "./src/react/use-query-one.ts",

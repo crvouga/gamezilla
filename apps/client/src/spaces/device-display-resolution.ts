@@ -1,5 +1,5 @@
 import { useAuth } from '@gamezilla/client/auth/auth-context';
-import { DeviceServiceToken } from '@gamezilla/client/auth/device-service';
+import { useDeviceService } from '@gamezilla/client/runtime/runtime-contexts';
 import { displayNameForDevice } from '@gamezilla/client/profile/device-display';
 import { DeviceAttr } from '@gamezilla/domain/auth';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
@@ -8,7 +8,6 @@ import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
 } from '@gamezilla/domain/profile/profile-entities';
-import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import type { Entity } from '@gamezilla/patch-db/interface';
 import { useQuery } from '@gamezilla/patch-db/react';
 
@@ -30,7 +29,7 @@ export function useSelfAuthIdentity(): {
   selfDeviceId: string;
   selfAccountId: string | null;
 } {
-  const deviceService = useDependency(DeviceServiceToken);
+  const deviceService = useDeviceService();
   const auth = useAuth();
   return {
     selfDeviceId: deviceService.getDeviceId(),

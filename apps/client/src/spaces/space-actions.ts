@@ -1,11 +1,10 @@
-import { DeviceServiceToken } from '@gamezilla/client/auth/device-service';
+import { useDeviceService } from '@gamezilla/client/runtime/runtime-contexts';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceAttr,
   SpaceMembershipAttr,
 } from '@gamezilla/domain/spaces/space-entities';
-import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { usePatchDb } from '@gamezilla/patch-db/react';
 import { useCallback } from 'react';
@@ -139,7 +138,7 @@ async function endSpaceAction(
 
 export function useSpaceActions() {
   const db = usePatchDb();
-  const deviceService = useDependency(DeviceServiceToken);
+  const deviceService = useDeviceService();
   const deviceId = deviceService.getDeviceId();
 
   const createSpace = useCallback(

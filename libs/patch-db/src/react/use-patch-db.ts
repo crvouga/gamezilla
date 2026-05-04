@@ -1,10 +1,6 @@
-import { assert } from '@gamezilla/lib/assert';
-import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import type { PatchDb } from '../interface';
-import { PatchDbToken } from './tokens';
+import { usePatchDbStack } from './patch-db-stack-context';
 
 export function usePatchDb(): PatchDb {
-  const db = useDependency(PatchDbToken);
-  assert.defined(db, 'PatchDb not found');
-  return db;
+  return usePatchDbStack().db;
 }

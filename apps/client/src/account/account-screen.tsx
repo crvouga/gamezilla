@@ -1,6 +1,5 @@
 import { useAuth } from '@gamezilla/client/auth/auth-context';
-import { useDependency } from '@gamezilla/lib/dependency-injection/react';
-import { SecureStorageToken } from '@gamezilla/lib/secure-storage/interface';
+import { useSecureStorage } from '@gamezilla/lib/secure-storage/interface';
 import {
   type AccountDevice,
   useAccountDevices,
@@ -243,7 +242,7 @@ export function AccountScreen() {
   const nav = useBreadcrumbNav();
   const router = useRouter();
   const auth = useAuth();
-  const secureStorage = useDependency(SecureStorageToken);
+  const secureStorage = useSecureStorage();
   const { providers } = useLinkedProviders(auth.accountId);
 
   const currentDeviceId = auth.deviceId;

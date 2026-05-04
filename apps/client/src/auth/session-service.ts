@@ -5,7 +5,6 @@ import {
 } from '@gamezilla/domain/auth';
 import { assertUuid } from '@gamezilla/domain/auth/device-id';
 import { assert } from '@gamezilla/lib/assert';
-import type { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import type { DeviceService } from './device-service';
 
@@ -26,9 +25,6 @@ export interface SessionService {
   refresh(): Promise<void>;
   clearSession(): Promise<void>;
 }
-
-export const SessionServiceToken: InjectionToken<SessionService> =
-  Symbol('SessionService');
 
 function parseSessionEntity(
   entity: {

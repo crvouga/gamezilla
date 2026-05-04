@@ -1,9 +1,76 @@
 // @ts-check
 const { getDefaultConfig } = require('expo/metro-config');
+const fs = require('fs');
 const path = require('path');
 
 const projectRoot = __dirname;
 const monorepoRoot = path.resolve(projectRoot, '../..');
+
+/** Root of installed `jotai` (CommonJS `.js` shims at package root). */
+const jotaiPackageRoot = path.dirname(
+  require.resolve('jotai/package.json', { paths: [projectRoot] })
+);
+
+/**
+ * Metro's `unstable_enablePackageExports` can pick the ESM build (`esm/*.mjs`),
+ * which references `import.meta.env` (Vite). Hermes web bundles run as a
+ * classic script, so that throws "Cannot use 'import.meta' outside a module".
+ * Force the published CJS entry files instead.
+ *
+ * @param {string} moduleName
+ * @returns {string | null}
+ */
+function resolveJotaiPackageToCjsFile(moduleName) {
+  if (moduleName === 'jotai') {
+    return path.join(jotaiPackageRoot, 'index.js');
+  }
+  const prefix = 'jotai/';
+  if (!moduleName.startsWith(prefix)) {
+    return null;
+  }
+  const sub = moduleName.slice(prefix.length);
+  const asFile = path.join(jotaiPackageRoot, `${sub}.js`);
+  if (fs.existsSync(asFile)) {
+    return asFile;
+  }
+  const asIndex = path.join(jotaiPackageRoot, sub, 'index.js');
+  if (fs.existsSync(asIndex)) {
+    return asIndex;
+  }
+  return null;
+}
+
+/**
+ * When `unstable_enablePackageExports` resolves the `import` condition, Metro
+ * may pass an absolute path under `.../jotai/esm/*.mjs` instead of the bare
+ * specifier `jotai/...`. Map those to the sibling CJS tree at package root.
+ *
+ * @param {string} moduleName
+ * @returns {string | null}
+ */
+function resolveJotaiEsmAbsolutePathToCjs(moduleName) {
+  const normalized = moduleName.replace(/\\/g, '/');
+  const marker = '/jotai/esm/';
+  const idx = normalized.indexOf(marker);
+  if (idx === -1) {
+    return null;
+  }
+  const rel = normalized.slice(idx + marker.length);
+  const asJs = rel.replace(/\.mjs$/i, '.js');
+  const candidate = path.join(jotaiPackageRoot, asJs);
+  if (fs.existsSync(candidate)) {
+    return candidate;
+  }
+  const asIndex = path.join(
+    jotaiPackageRoot,
+    rel.replace(/\.mjs$/i, ''),
+    'index.js'
+  );
+  if (fs.existsSync(asIndex)) {
+    return asIndex;
+  }
+  return null;
+}
 
 const config = getDefaultConfig(projectRoot);
 
@@ -40,6 +107,14 @@ const linguiAliasPrefixes = ['@lingui/core', '@lingui/react'];
 const previousResolveRequest = config.resolver.resolveRequest;
 // @ts-ignore
 config.resolver.resolveRequest = (context, moduleName, platform) => {
+  const jotaiCjs =
+    typeof moduleName === 'string'
+      ? (resolveJotaiPackageToCjsFile(moduleName) ??
+        resolveJotaiEsmAbsolutePathToCjs(moduleName))
+      : null;
+  if (jotaiCjs !== null) {
+    return { type: 'sourceFile', filePath: jotaiCjs };
+  }
   const matchesLinguiAlias = linguiAliasPrefixes.some(
     (prefix) => moduleName === prefix || moduleName.startsWith(prefix + '/')
   );

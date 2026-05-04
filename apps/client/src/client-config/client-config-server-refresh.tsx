@@ -1,10 +1,9 @@
 import { createGamezillaApiClient } from '@gamezilla/client/api/hc';
 import { type AsyncRunContext, useAsync } from '@gamezilla/lib/async/use-async';
 import {
-  ConfigServiceToken,
+  useConfigService,
   type ConfigService,
 } from '@gamezilla/domain/config/config-service';
-import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import { Button, Card, Text } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback } from 'react';
@@ -42,7 +41,7 @@ async function postClientConfigRefresh(
 
 export function ClientConfigServerRefreshCard() {
   const { t } = useLingui();
-  const configService = useDependency(ConfigServiceToken);
+  const configService = useConfigService();
   const refreshServer = useAsync<void, []>({
     operation: useCallback(
       (ctx: AsyncRunContext) => postClientConfigRefresh(configService, ctx),

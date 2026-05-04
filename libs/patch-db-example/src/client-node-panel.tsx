@@ -1,5 +1,4 @@
-import { DependencyInjectionContainer } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
-import { ContainerProvider } from '@gamezilla/lib/dependency-injection/react';
+import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import {
   Box,
   Button,
@@ -11,7 +10,11 @@ import {
 } from '@gamezilla/lib/ui';
 import { useTheme } from '@gamezilla/lib/ui/theme';
 import type { Entity } from '@gamezilla/patch-db/interface';
-import { PatchDbToken, useQuery } from '@gamezilla/patch-db/react';
+import {
+  PatchDbStackContextProvider,
+  useQuery,
+  type PatchDbStackValue,
+} from '@gamezilla/patch-db/react';
 import {
   nextShapeOrder,
   playgroundCreateShape,
@@ -21,7 +24,6 @@ import {
   shapeListQuery,
 } from '@gamezilla/patch-db/sim/playground-shapes';
 import type { PlaygroundClientHandle } from '@gamezilla/patch-db/sim/playground-sim';
-import { SubscribablePatchDbToken } from '@gamezilla/patch-db/subscribable';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback, useMemo, useState } from 'react';
 import {
@@ -309,16 +311,19 @@ export function ClientNodePanel({
 }: {
   client: PlaygroundClientHandle;
 }) {
-  const container = useMemo(() => {
-    const c = new DependencyInjectionContainer();
-    c.registerValue(PatchDbToken, client.syncDb);
-    c.registerValue(SubscribablePatchDbToken, client.syncDb);
-    return c;
+  const stack = useMemo((): PatchDbStackValue => {
+    const pubSub = new InMemoryPubSub();
+    return {
+      db: client.syncDb,
+      sync: client.syncDb,
+      pubSub,
+      decorated: client.syncDb,
+    };
   }, [client.syncDb]);
 
   return (
-    <ContainerProvider container={container}>
+    <PatchDbStackContextProvider value={stack}>
       <ClientNodePanelInner client={client} />
-    </ContainerProvider>
+    </PatchDbStackContextProvider>
   );
 }

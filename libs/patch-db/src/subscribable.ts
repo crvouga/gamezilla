@@ -1,5 +1,4 @@
 import { assert } from '@gamezilla/lib/assert';
-import type { InjectionToken } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
 import type { PubSub, Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
 import type {
   PatchDb,
@@ -26,9 +25,6 @@ export type SubscribablePatchDbLike = PatchDb & {
     ) => Unsubscribe;
   };
 };
-
-export const SubscribablePatchDbToken: InjectionToken<SubscribablePatchDbLike> =
-  Symbol('SubscribablePatchDb');
 
 type SubscriberListener = (result: PatchDbResult) => void;
 

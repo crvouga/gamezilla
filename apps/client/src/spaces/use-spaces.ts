@@ -1,4 +1,4 @@
-import { DeviceServiceToken } from '@gamezilla/client/auth/device-service';
+import { useDeviceService } from '@gamezilla/client/runtime/runtime-contexts';
 import { useDeviceProfileEntities } from '@gamezilla/client/auth/use-device-profile-entities';
 import { displayNameForDevice } from '@gamezilla/client/profile/device-display';
 import { DEVICE_ENTITY_TYPE, DeviceAttr } from '@gamezilla/domain/auth';
@@ -13,7 +13,6 @@ import {
   SpaceMembershipAttr,
   type SpaceMembershipRole,
 } from '@gamezilla/domain/spaces/space-entities';
-import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import type { Entity, PatchDbQuery } from '@gamezilla/patch-db/interface';
 import { useQuery } from '@gamezilla/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
@@ -295,7 +294,7 @@ function extractMembershipState(membership: Entity | null): {
 }
 
 export function useCurrentMembership(): CurrentMembership {
-  const deviceService = useDependency(DeviceServiceToken);
+  const deviceService = useDeviceService();
   const deviceId = deviceService.getDeviceId();
 
   // Memberships are keyed by `entityId === deviceId` (one row per device;
