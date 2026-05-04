@@ -1,4 +1,4 @@
-import type { NeedState } from './write-pipeline-report';
+import type { NeedState } from './pipeline-needs';
 
 /**
  * Builds a copy-pasteable LLM prompt that aggregates the failing-step logs of

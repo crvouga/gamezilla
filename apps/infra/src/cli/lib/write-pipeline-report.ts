@@ -1,6 +1,7 @@
 import { appendFileSync, readFileSync } from 'node:fs';
 import { buildLlmFixPromptMarkdown } from './build-llm-fix-prompt';
 import { buildVendorDashboardMarkdown } from './dashboard-links';
+import type { NeedState } from './pipeline-needs';
 
 /** Stable display order for known jobs; unknown ids sort after, alphabetically. */
 const KNOWN_JOB_ORDER: readonly string[] = [
@@ -21,11 +22,6 @@ const KNOWN_JOB_ORDER: readonly string[] = [
   'publish-playwright-report',
   'deploy',
 ];
-
-export interface NeedState {
-  readonly result: string;
-  readonly outputs?: Readonly<Record<string, string>>;
-}
 
 function sortJobIds(ids: string[]): string[] {
   return [...ids].sort((a, b) => {
@@ -250,10 +246,11 @@ export function buildPipelineReportMarkdown(
 /**
  * Reads `NEEDS_JSON`, builds the report, appends to `GITHUB_STEP_SUMMARY` when
  * set; otherwise prints to stdout (local runs). When any job in `needs`
- * failed, also appends an aggregated LLM fix prompt that includes the failing
+ * failed, also prepends an aggregated LLM fix prompt that includes the failing
  * step's logs (best-effort; requires `GITHUB_TOKEN` with `actions: read` and
  * the standard `GITHUB_REPOSITORY` / `GITHUB_RUN_ID` env vars provided by the
- * runner).
+ * runner). The prompt is placed first so failures are immediately actionable
+ * without scrolling past the per-job table.
  */
 export async function writePipelineReportToSummary(): Promise<void> {
   const needs = parseNeedsJson(process.env['NEEDS_JSON']);
@@ -268,7 +265,7 @@ export async function writePipelineReportToSummary(): Promise<void> {
     console.error(`[pipeline-report] LLM fix prompt unavailable: ${msg}`);
   }
 
-  const out = llmPrompt === '' ? md : `${md}\n${llmPrompt}`;
+  const out = llmPrompt === '' ? md : `${llmPrompt}\n${md}`;
   const summaryPath = process.env['GITHUB_STEP_SUMMARY'] ?? '';
   if (summaryPath === '') {
     console.log(out);

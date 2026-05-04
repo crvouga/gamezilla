@@ -31,6 +31,7 @@
     "make-plural",
     "react-native-svg",
     "@jlongster/sql.js",
+    "sql.js",
     "buffer",
     "@gorhom/bottom-sheet",
     "@lingui/core",
