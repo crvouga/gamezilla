@@ -83,8 +83,9 @@
     "install:deps": "npx expo install --check || true",
     "setup": "bun run scripts/setup-env.ts",
     "bundle:absurd-sql-worker": "bun run scripts/bundle-absurd-sql-worker.ts",
-    "predev": "bun run bundle:absurd-sql-worker && cd ../.. && bun run i18n:compile",
-    "prebuild": "bun run bundle:absurd-sql-worker && cd ../.. && bun run i18n:compile",
+    "bundle:sqljs-wasm": "bun run scripts/bundle-sqljs-wasm.ts",
+    "predev": "bun run bundle:absurd-sql-worker && bun run bundle:sqljs-wasm && cd ../.. && bun run i18n:compile",
+    "prebuild": "bun run bundle:absurd-sql-worker && bun run bundle:sqljs-wasm && cd ../.. && bun run i18n:compile",
     "dev": "expo start --web --port 5173",
     "kill": "lsof -ti :5173 | xargs kill -9 2>/dev/null || true",
     "build": "expo customize tsconfig.json && expo export -p web && bun run scripts/build-sw.ts",
@@ -92,10 +93,10 @@
     "preview": "serve -s dist -l 5173",
     "ios": "expo start --ios",
     "lint": "expo lint --no-cache --max-warnings 0",
-    "prestart": "bun run bundle:absurd-sql-worker",
+    "prestart": "bun run bundle:absurd-sql-worker && bun run bundle:sqljs-wasm",
     "start": "expo start --web",
     "tc": "tsc --noEmit -p ../../tsconfig.json",
-    "preweb": "bun run bundle:absurd-sql-worker",
+    "preweb": "bun run bundle:absurd-sql-worker && bun run bundle:sqljs-wasm",
     "web": "expo start --web"
   }
 }

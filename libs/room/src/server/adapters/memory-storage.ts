@@ -29,7 +29,10 @@ export class InMemoryRoomStorage implements RoomStorage {
     return s.entries[s.entries.length - 1]!.seq;
   }
 
-  async appendCommittedEntries(topic: string, newEntries: LogEntry[]): Promise<void> {
+  async appendCommittedEntries(
+    topic: string,
+    newEntries: LogEntry[]
+  ): Promise<void> {
     if (newEntries.length === 0) return;
     const s = this.getOrCreate(topic);
     const last = s.entries[s.entries.length - 1]?.seq ?? 0;

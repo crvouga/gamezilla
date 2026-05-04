@@ -28,5 +28,8 @@ export function useSpacePresence(): {
     return m;
   }, [selfAccountId, roomActive, roomSynced]);
 
-  return { peersByAccountId, selfPeerId: roomActive && roomSynced ? 'local' : null };
+  return {
+    peersByAccountId,
+    selfPeerId: roomActive && roomSynced ? 'local' : null,
+  };
 }

@@ -1,8 +1,5 @@
 import type { LogEntry } from '@gamezilla/room';
-import type {
-  CommandDedupOutcome,
-  RoomStorage,
-} from '@gamezilla/room/server';
+import type { CommandDedupOutcome, RoomStorage } from '@gamezilla/room/server';
 
 const STATE_KEY = 'room_state_v2' as const;
 
@@ -43,10 +40,7 @@ export class DoRoomStorage implements RoomStorage {
     await this.kv.put(STATE_KEY, p);
   }
 
-  async loadEventsAfter(
-    _topic: string,
-    afterSeq: number
-  ): Promise<LogEntry[]> {
+  async loadEventsAfter(_topic: string, afterSeq: number): Promise<LogEntry[]> {
     const p = await this.load();
     return p.events.filter((e) => e.seq > afterSeq);
   }
@@ -68,7 +62,7 @@ export class DoRoomStorage implements RoomStorage {
     for (const e of newEntries) {
       if (e.seq !== expect) {
         throw new Error(
-          `DoRoomStorage.appendCommittedEntries: expected seq ${expect}, got ${e.seq}`
+          `DoRoomStorage.appendCommittedEntries: expected seq ${String(expect)}, got ${String(e.seq)}`
         );
       }
       expect++;

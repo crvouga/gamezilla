@@ -11,7 +11,10 @@ export interface RoomStorage {
   loadEventsAfter(topic: string, afterSeq: number): Promise<LogEntry[]>;
   getLastSeq(topic: string): Promise<number>;
   appendCommittedEntries(topic: string, entries: LogEntry[]): Promise<void>;
-  getDedupOutcome(topic: string, commandId: string): Promise<CommandDedupOutcome | null>;
+  getDedupOutcome(
+    topic: string,
+    commandId: string
+  ): Promise<CommandDedupOutcome | null>;
   putDedupOutcome(
     topic: string,
     commandId: string,

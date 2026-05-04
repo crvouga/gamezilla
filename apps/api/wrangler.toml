@@ -8,12 +8,20 @@ preview_urls = false
 routes = [{ pattern = "api.gamezilla.app", custom_domain = true }]
 
 [[durable_objects.bindings]]
-name = "ROOM_RELAY"
-class_name = "RoomRelay"
+name = "ROOM"
+class_name = "Room"
 
+# Cloudflare DO migrations are append-only and identified by tag; never edit
+# a tag that has already been applied in production. The original v1 created
+# the `RoomRelay` class; v2 renames the existing class to `Room` so the
+# Durable Object storage and IDs are preserved.
 [[migrations]]
 tag = "v1-room-relay"
 new_classes = ["RoomRelay"]
+
+[[migrations]]
+tag = "v2-rename-room"
+renamed_classes = [{ from = "RoomRelay", to = "Room" }]
 
 [observability]
 [observability.logs]

@@ -1,5 +1,5 @@
-name: Setup repo (Bun + deps)
-description: Bun, cache install store, bun install, optional Doppler CLI (run actions/checkout first)
+name: Setup repo (Node + Bun + deps)
+description: Node 22, Bun, cache install store, bun install, optional Doppler CLI (run actions/checkout first)
 
 inputs:
   doppler:
@@ -10,6 +10,17 @@ inputs:
 runs:
   using: composite
   steps:
+    # Wrangler 4.x requires Node.js v22+. The runner's default Node is v20
+    # and `setup-bun` does not configure Node, so any Wrangler-touching job
+    # (deploy, qa-api, qa-browser via `apps/api preview`) aborts with
+    # "Wrangler requires at least Node.js v22.0.0" without this step.
+    # Installed in the shared setup so every job inherits a Wrangler-
+    # compatible Node toolchain by default.
+    - name: Setup Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: '22'
+
     - name: Setup Bun
       uses: oven-sh/setup-bun@v2
       with:

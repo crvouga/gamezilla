@@ -12,9 +12,9 @@ type CounterEvent = unknown;
 
 /**
  * Durable Object: one instance per room topic (`idFromName(topic)`).
- * Authoritative counter (and future room state) via {@link RoomServer}.
+ * Authoritative room state (counter today, more later) via {@link RoomServer}.
  */
-export class RoomRelay implements DurableObject {
+export class Room implements DurableObject {
   protected readonly ctx: DurableObjectState;
   readonly _env: unknown;
 
@@ -98,20 +98,14 @@ export class RoomRelay implements DurableObject {
       return;
     }
     const data =
-      typeof message === 'string'
-        ? message
-        : new TextDecoder().decode(message);
+      typeof message === 'string' ? message : new TextDecoder().decode(message);
     let parsed: unknown;
     try {
       parsed = JSON.parse(data) as unknown;
     } catch {
       return;
     }
-    await this.server.handleClientMessage(
-      meta.id,
-      meta.accountId,
-      parsed
-    );
+    await this.server.handleClientMessage(meta.id, meta.accountId, parsed);
   }
 
   webSocketClose(ws: WebSocket): void {

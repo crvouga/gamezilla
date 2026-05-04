@@ -14,7 +14,7 @@ import {
 import { ApiSecretName } from './config/secret-names';
 import { createApiSecretStore } from './config/secret-store';
 import { getPatchDb } from './patch-db/patch-db';
-import { RoomRelay } from './rooms/relay-do';
+import { Room } from './rooms/room-do';
 
 const log = createLogger({ name: 'api' });
 
@@ -129,7 +129,7 @@ async function ensureApp(env: ApiWorkerEnv): Promise<App | null> {
   }
 }
 
-export { RoomRelay };
+export { Room };
 
 export default {
   async fetch(

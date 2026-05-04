@@ -4,7 +4,8 @@
   "private": true,
   "exports": {
     ".": "./src/index.ts",
-    "./server": "./src/server.ts"
+    "./server": "./src/server.ts",
+    "./testkit": "./src/testkit.ts"
   },
   "dependencies": {
     "@gamezilla/lib": "workspace:*"

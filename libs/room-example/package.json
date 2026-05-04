@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
-    "eslint-plugin-lingui": "^0.13.0",
+    "eslint-plugin-lingui": "^0.13.1",
     "typescript": "~5.9.2"
   }
 }

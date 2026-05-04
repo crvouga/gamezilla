@@ -2,11 +2,7 @@ import {
   Decrement,
   Increment,
 } from '@gamezilla/domain/spaces/counter-room-module';
-import {
-  useRoomSnapshot,
-  type Room,
-  type RoomSnapshot,
-} from '@gamezilla/room';
+import { useRoomSnapshot, type Room, type RoomSnapshot } from '@gamezilla/room';
 import { useCallback, useMemo, type MutableRefObject } from 'react';
 
 type AppRoom = Room<Record<string, unknown>, unknown, unknown, string>;

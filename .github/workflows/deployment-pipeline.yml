@@ -391,15 +391,6 @@ jobs:
         uses: actions/checkout@v6
       - uses: ./.github/actions/setup
 
-      # Wrangler 4.x requires Node.js v22+. The `setup-bun` action sets up
-      # Bun but not Node, and the runner's default Node is v20. Without
-      # this step, `wrangler whoami` (and any other `wrangler …`
-      # invocation) aborts with "Wrangler requires at least Node.js v22.0.0".
-      - name: Setup Node.js (required by wrangler)
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-
       # Use `npm install -g` rather than `bun add -g`: the latter produces
       # a Bun-runtime wrapper that, in non-TTY CI shells, writes
       # `--version` output to stderr with empty stdout, tripping the dep
@@ -468,8 +459,13 @@ jobs:
         uses: actions/checkout@v6
       - uses: ./.github/actions/setup
 
+      # `GITHUB_TOKEN` is passed through so the report can call the GitHub
+      # REST API to fetch per-job logs for any failed `needs.*` job and embed
+      # them in an LLM fix prompt appended to the step summary. Needs the
+      # workflow-level `actions: write` permission (which includes read).
       - name: Write pipeline report
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: env DOPPLER_CONFIG=prod doppler run -- bun run apps/infra/src/bin/pipeline-report.ts

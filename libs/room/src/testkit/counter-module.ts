@@ -4,7 +4,12 @@ import {
   type Message,
 } from '@gamezilla/lib/message';
 
-import type { HandleResult, RoomCommand, RoomModule, RoomState } from '../types';
+import type {
+  HandleResult,
+  RoomCommand,
+  RoomModule,
+  RoomState,
+} from '../types';
 
 function validateEmptyPayload(p: unknown): p is Record<string, never> {
   return isPlainRecord(p) && Object.keys(p).length === 0;
@@ -40,7 +45,11 @@ export const TestCounterModule: RoomModule<
     return { count: 0 };
   },
 
-  handle(state: RoomState, command: RoomCommand, _identity: string): HandleResult {
+  handle(
+    state: RoomState,
+    command: RoomCommand,
+    _identity: string
+  ): HandleResult {
     void state;
     void _identity;
     const msg = asMessage(command.payload);

@@ -1,7 +1,7 @@
 import { writePipelineReportToSummary } from '../cli/lib/write-pipeline-report';
 
 try {
-  writePipelineReportToSummary();
+  await writePipelineReportToSummary();
 } catch (e: unknown) {
   const message = e instanceof Error ? e.message : String(e);
   console.error(message);

@@ -42,7 +42,9 @@ function parseClientPing(kind: unknown): ClientToServerWire | null {
   return kind === 'ping' ? { v: WIRE_VERSION, kind: 'ping' } : null;
 }
 
-function parseClientSync(raw: Record<string, unknown>): ClientToServerWire | null {
+function parseClientSync(
+  raw: Record<string, unknown>
+): ClientToServerWire | null {
   const fromSeq = raw['fromSeq'];
   if (typeof fromSeq !== 'number' || !Number.isFinite(fromSeq) || fromSeq < 0) {
     return null;
@@ -50,7 +52,9 @@ function parseClientSync(raw: Record<string, unknown>): ClientToServerWire | nul
   return { v: WIRE_VERSION, kind: 'sync', fromSeq: Math.floor(fromSeq) };
 }
 
-function parseClientCommand(raw: Record<string, unknown>): ClientToServerWire | null {
+function parseClientCommand(
+  raw: Record<string, unknown>
+): ClientToServerWire | null {
   const id = raw['id'];
   const ts = raw['ts'];
   if (typeof id !== 'string' || id.length === 0) return null;
@@ -65,7 +69,9 @@ function parseClientCommand(raw: Record<string, unknown>): ClientToServerWire | 
   };
 }
 
-export function parseClientToServerWire(raw: unknown): ClientToServerWire | null {
+export function parseClientToServerWire(
+  raw: unknown
+): ClientToServerWire | null {
   if (!isRecord(raw) || raw['v'] !== WIRE_VERSION) return null;
   const kind = raw['kind'];
   return (
@@ -75,7 +81,9 @@ export function parseClientToServerWire(raw: unknown): ClientToServerWire | null
   );
 }
 
-function parseWelcomeWire(raw: Record<string, unknown>): ServerToClientWire | null {
+function parseWelcomeWire(
+  raw: Record<string, unknown>
+): ServerToClientWire | null {
   const fromSeq = raw['fromSeq'];
   const lastSeq = raw['lastSeq'];
   const entries = raw['entries'];
@@ -91,7 +99,9 @@ function parseWelcomeWire(raw: Record<string, unknown>): ServerToClientWire | nu
   };
 }
 
-function parseCommittedWire(raw: Record<string, unknown>): ServerToClientWire | null {
+function parseCommittedWire(
+  raw: Record<string, unknown>
+): ServerToClientWire | null {
   const entries = raw['entries'];
   if (!Array.isArray(entries)) return null;
   const commandId = raw['commandId'];
@@ -99,12 +109,16 @@ function parseCommittedWire(raw: Record<string, unknown>): ServerToClientWire | 
   return {
     v: WIRE_VERSION,
     kind: 'committed',
-    ...(typeof commandId === 'string' && commandId.length > 0 ? { commandId } : {}),
+    ...(typeof commandId === 'string' && commandId.length > 0
+      ? { commandId }
+      : {}),
     entries: entries as LogEntry[],
   };
 }
 
-function parseRejectedWire(raw: Record<string, unknown>): ServerToClientWire | null {
+function parseRejectedWire(
+  raw: Record<string, unknown>
+): ServerToClientWire | null {
   const commandId = raw['commandId'];
   const error = raw['error'];
   if (typeof commandId !== 'string' || commandId.length === 0) return null;
@@ -118,7 +132,9 @@ function parseRejectedWire(raw: Record<string, unknown>): ServerToClientWire | n
   };
 }
 
-export function parseServerToClientWire(raw: unknown): ServerToClientWire | null {
+export function parseServerToClientWire(
+  raw: unknown
+): ServerToClientWire | null {
   if (!isRecord(raw) || raw['v'] !== WIRE_VERSION) return null;
   const kind = raw['kind'];
   if (kind === 'welcome') return parseWelcomeWire(raw);

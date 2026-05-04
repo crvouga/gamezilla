@@ -37,7 +37,11 @@ export function PlaygroundPage() {
       <Stack spacing={3} sx={{ pb: 8 }}>
         <Text variant="title" label={t`Room v2 (loopback)`} />
         {error !== null ? (
-          <Text variant="body" sx={{ color: colors.destructive }} label={error} />
+          <Text
+            variant="body"
+            sx={{ color: colors.destructive }}
+            label={error}
+          />
         ) : (
           <Text
             variant="body"

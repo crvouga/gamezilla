@@ -10,12 +10,7 @@ import type { CommandDedupOutcome, RoomStorage } from './storage';
 
 const crash: Assert = Assert.crash();
 
-export type RoomServerConfig<
-  S extends RoomState,
-  C,
-  E,
-  Identity,
-> = {
+export type RoomServerConfig<S extends RoomState, C, E, Identity> = {
   topic: string;
   module: RoomModule<S, C, E, Identity>;
   storage: RoomStorage;
@@ -31,12 +26,7 @@ type Sender = (payload: unknown) => void;
 /**
  * Single-threaded authoritative room (run inside one DO or one test harness).
  */
-export class RoomServer<
-  S extends RoomState,
-  C,
-  E,
-  Identity,
-> {
+export class RoomServer<S extends RoomState, C, E, Identity> {
   readonly topic: string;
   private readonly module: RoomModule<S, C, E, Identity>;
   private readonly storage: RoomStorage;

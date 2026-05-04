@@ -1,4 +1,5 @@
 import { appendFileSync, readFileSync } from 'node:fs';
+import { buildLlmFixPromptMarkdown } from './build-llm-fix-prompt';
 import { buildVendorDashboardMarkdown } from './dashboard-links';
 
 /** Stable display order for known jobs; unknown ids sort after, alphabetically. */
@@ -248,15 +249,30 @@ export function buildPipelineReportMarkdown(
 
 /**
  * Reads `NEEDS_JSON`, builds the report, appends to `GITHUB_STEP_SUMMARY` when
- * set; otherwise prints to stdout (local runs).
+ * set; otherwise prints to stdout (local runs). When any job in `needs`
+ * failed, also appends an aggregated LLM fix prompt that includes the failing
+ * step's logs (best-effort; requires `GITHUB_TOKEN` with `actions: read` and
+ * the standard `GITHUB_REPOSITORY` / `GITHUB_RUN_ID` env vars provided by the
+ * runner).
  */
-export function writePipelineReportToSummary(): void {
+export async function writePipelineReportToSummary(): Promise<void> {
   const needs = parseNeedsJson(process.env['NEEDS_JSON']);
   const md = buildPipelineReportMarkdown(needs);
+
+  let llmPrompt = '';
+  try {
+    llmPrompt = await buildLlmFixPromptMarkdown(needs);
+  } catch (e) {
+    // The prompt is a nice-to-have; never fail the pipeline-report step on it.
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error(`[pipeline-report] LLM fix prompt unavailable: ${msg}`);
+  }
+
+  const out = llmPrompt === '' ? md : `${md}\n${llmPrompt}`;
   const summaryPath = process.env['GITHUB_STEP_SUMMARY'] ?? '';
   if (summaryPath === '') {
-    console.log(md);
+    console.log(out);
     return;
   }
-  appendFileSync(summaryPath, md, 'utf8');
+  appendFileSync(summaryPath, out, 'utf8');
 }

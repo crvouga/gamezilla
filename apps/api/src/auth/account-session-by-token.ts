@@ -2,7 +2,12 @@ import {
   ACCOUNT_SESSION_ENTITY_TYPE,
   AccountSessionAttr,
 } from '@gamezilla/domain/auth';
-import type { Entity, Patch, PatchDb, PatchDbResult } from '@gamezilla/patch-db/interface';
+import type {
+  Entity,
+  Patch,
+  PatchDb,
+  PatchDbResult,
+} from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 
 /**
@@ -28,12 +33,11 @@ function foldSessionEntitiesFromPatches(patches: readonly Patch[]): Entity[] {
   >();
   for (const p of patches) {
     const key = `${p.entityId}\0${p.entityType}`;
-    const cur =
-      byKey.get(key) ?? {
-        entityId: p.entityId,
-        entityType: p.entityType,
-        attrs: {},
-      };
+    const cur = byKey.get(key) ?? {
+      entityId: p.entityId,
+      entityType: p.entityType,
+      attrs: {},
+    };
     cur.attrs = { ...cur.attrs, ...p.attributes };
     byKey.set(key, cur);
   }

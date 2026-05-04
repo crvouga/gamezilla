@@ -11,6 +11,6 @@ export class PipelineReportCommand implements Command {
   constructor(_platform: CiPlatform) {}
 
   async execute(): Promise<void> {
-    writePipelineReportToSummary();
+    await writePipelineReportToSummary();
   }
 }

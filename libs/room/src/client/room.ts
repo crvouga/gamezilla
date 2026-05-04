@@ -18,12 +18,7 @@ import type { ClientRoomStorage, QueuedCommand } from './storage';
 
 const crash: Assert = Assert.crash();
 
-export type RoomClientConfig<
-  S extends RoomState,
-  C,
-  E,
-  Identity,
-> = {
+export type RoomClientConfig<S extends RoomState, C, E, Identity> = {
   topic: string;
   module: RoomModule<S, C, E, Identity>;
   storage: ClientRoomStorage;
@@ -265,7 +260,9 @@ export class Room<S extends RoomState, C, E, Identity> {
     await this.storage.saveCommitted(this.lastSeq, this.committedEntries);
     if (typeof msg.commandId === 'string' && msg.commandId.length > 0) {
       this.optimistic.delete(msg.commandId);
-      this.pendingQueue = this.pendingQueue.filter((c) => c.id !== msg.commandId);
+      this.pendingQueue = this.pendingQueue.filter(
+        (c) => c.id !== msg.commandId
+      );
       await this.storage.removeQueued(msg.commandId);
     }
     this.notify();

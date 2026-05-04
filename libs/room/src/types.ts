@@ -41,6 +41,10 @@ export type RoomModule<
   Identity = unknown,
 > = {
   initialState(): S;
-  handle(state: S, command: RoomCommand<C>, identity: Identity): HandleResult<E>;
+  handle(
+    state: S,
+    command: RoomCommand<C>,
+    identity: Identity
+  ): HandleResult<E>;
   reduce(state: S, event: E): S;
 };

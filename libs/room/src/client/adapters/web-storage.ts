@@ -20,7 +20,10 @@ function readJson<T>(raw: string | null): T | null {
 export class WebClientStorage implements ClientRoomStorage {
   constructor(
     private readonly prefix: string,
-    private readonly storage: Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>
+    private readonly storage: Pick<
+      Storage,
+      'getItem' | 'setItem' | 'removeItem'
+    >
   ) {
     crash.nonEmptyString(prefix, 'WebClientStorage prefix must be non-empty');
   }

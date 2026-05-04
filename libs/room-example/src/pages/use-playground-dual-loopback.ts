@@ -1,13 +1,11 @@
+import { InMemoryClientStorage, Room, type RoomState } from '@gamezilla/room';
+import { InMemoryRoomStorage, RoomServer } from '@gamezilla/room/server';
 import {
   Decrement,
   Increment,
-  InMemoryClientStorage,
   LoopbackRoomTransport,
-  Room,
   TestCounterModule,
-  type RoomState,
-} from '@gamezilla/room';
-import { InMemoryRoomStorage, RoomServer } from '@gamezilla/room/server';
+} from '@gamezilla/room/testkit';
 import { useCallback, useEffect, useState } from 'react';
 
 type CounterRoom = Room<RoomState, unknown, unknown, string>;

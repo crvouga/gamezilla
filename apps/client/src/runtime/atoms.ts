@@ -25,9 +25,8 @@ import { createLogger } from '@gamezilla/lib/logger/logger';
 import type { KeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
 import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
-import { SqlClientImplExpoSqlite } from '@gamezilla/lib/sql-client/impl-expo-sqlite';
+import { SqlClientImplSqlJs } from '@gamezilla/lib/sql-client/impl-sql-js';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
-import { assertDatabaseName } from '@gamezilla/lib/sqlite';
 import { PatchDbImplClientTransport } from '@gamezilla/patch-db/impl-client-transport';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
 import { SyncPatchDb } from '@gamezilla/patch-db/impl-sync';
@@ -70,59 +69,41 @@ export const accountDbDirectoryAtom = atom(async () => {
   return await ensureAccountDatabaseDirectory();
 });
 
-const WEB_DATABASE_NAME = 'main';
+/**
+ * Resolve sql.js's wasm against `window.location.origin` instead of
+ * `document.baseURI` so SPA navigation (deep route reloads) still hits
+ * `/sql-wasm-browser.wasm`. The wasm itself is copied into `apps/client/public`
+ * by `scripts/bundle-sqljs-wasm.ts` (wired through the `pre*` hooks).
+ */
+function locateSqlJsWasmFile(file: string): string {
+  if (typeof window === 'undefined') return file;
+  return new URL(`/${file}`, window.location.origin).href;
+}
 
 /**
- * expo-sqlite on web uses a single OPFS handle per database name. If we open
- * again while {@link SqlClientImplExpoSqlite.disconnect} is still in flight
- * (Jotai abort used to use `void disconnect()`), the second open can fail and
- * recovery may try to wipe OPFS while the worker still holds the handle
- * (`NoModificationAllowedError`). Serialize opens so each new connection only
- * starts after the previous one's disconnect has finished.
+ * Web client uses an in-memory sql.js database — one per tab. Persisting to
+ * OPFS via expo-sqlite tied every browser tab to a single shared
+ * `AccessHandlePoolVFS`, so a second tab could not boot at all (the worker
+ * threw on `createSyncAccessHandle`). The patch-db sync layer rehydrates from
+ * the server on cold start, so losing the local cache on tab refresh is fine.
  */
-let webSqlMainDisconnectDone: Promise<void> = Promise.resolve();
-
 async function openWebSqlMain(signal: AbortSignal): Promise<SqlClient> {
-  await webSqlMainDisconnectDone;
-
-  let resolveDisconnect!: () => void;
-  const disconnectBarrier = new Promise<void>((r) => {
-    resolveDisconnect = r;
+  const client = await SqlClientImplSqlJs.openMemory({
+    locateFile: locateSqlJsWasmFile,
   });
-  webSqlMainDisconnectDone = disconnectBarrier;
-
-  let settled = false;
-  const settleBarrier = () => {
-    if (settled) return;
-    settled = true;
-    resolveDisconnect();
-  };
-
-  let client: SqlClient | undefined;
-  try {
-    client = await SqlClientImplExpoSqlite.open(WEB_DATABASE_NAME);
-    await client.connect();
-    const bound = client;
-    signal.addEventListener(
-      'abort',
-      () => {
-        void bound.disconnect().finally(settleBarrier);
-      },
-      { once: true }
-    );
-    return client;
-  } catch (err) {
-    if (client !== undefined) {
-      await client.disconnect().catch(() => {});
-    }
-    settleBarrier();
-    throw err;
-  }
+  await client.connect();
+  signal.addEventListener(
+    'abort',
+    () => {
+      void client.disconnect();
+    },
+    { once: true }
+  );
+  return client;
 }
 
 export const sqlClientAtom = atom(async (get, { signal }) => {
   if (Platform.OS === 'web') {
-    assertDatabaseName(WEB_DATABASE_NAME);
     return openWebSqlMain(signal);
   }
 

@@ -6,10 +6,10 @@ The **server** is the only writer to the committed event log. The **client** is 
 
 ## Entrypoints
 
-| Import                    | Purpose                                                                 |
-| ------------------------- | ----------------------------------------------------------------------- |
-| `@gamezilla/room`         | `Room`, wire parse helpers, client transports/storage, testkit exports   |
-| `@gamezilla/room/server`  | `RoomServer`, `RoomStorage`, `RoomAuth`, in-memory storage               |
+| Import                   | Purpose                                                                |
+| ------------------------ | ---------------------------------------------------------------------- |
+| `@gamezilla/room`        | `Room`, wire parse helpers, client transports/storage, testkit exports |
+| `@gamezilla/room/server` | `RoomServer`, `RoomStorage`, `RoomAuth`, in-memory storage             |
 
 ## Core types
 

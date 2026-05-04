@@ -44,12 +44,7 @@ function asMessage(payload: unknown): Message | null {
   return payload as Message;
 }
 
-export const CounterModule: RoomModule<
-  RoomState,
-  unknown,
-  unknown,
-  string
-> = {
+export const CounterModule: RoomModule<RoomState, unknown, unknown, string> = {
   initialState(): RoomState {
     return { count: 0 };
   },
