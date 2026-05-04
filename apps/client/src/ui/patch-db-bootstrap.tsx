@@ -19,7 +19,6 @@ import {
 import { isUuid } from '@gamezilla/domain/auth/device-id';
 import { clearWebClientPersistentState } from '@gamezilla/lib/browser/clear-web-client-state';
 import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
-import { RESET_DB_QUERY_PARAM } from '@gamezilla/lib/sql-client/impl-expo-sqlite';
 import { getDefaultStore } from 'jotai';
 import type { ReactNode } from 'react';
 import { Suspense } from 'react';
@@ -50,17 +49,11 @@ export async function clearLocalDatabaseAndReload(): Promise<void> {
   const store = getDefaultStore();
   if (Platform.OS === 'web') {
     if (typeof window !== 'undefined') {
-      // SQLite on web lives in OPFS, which `clearWebClientPersistentState`
-      // (IndexedDB / Service Workers / Cache Storage) does not touch. Wiping
-      // OPFS while the running worker still holds access handles silently
-      // fails (`NoModificationAllowedError`), so delegate to the existing
-      // `?reset-db=1` recovery branch: on the next page load — before any
-      // worker reopens the DB — `maybeHandleResetDbQueryParam` clears OPFS,
-      // deletes the SQLite file, and strips the query param.
+      // The web client's SQLite is in-memory sql.js (one DB per tab), so a
+      // reload alone wipes it. We still need `clearWebClientPersistentState`
+      // for IndexedDB / Service Workers / Cache Storage that survive reload.
       await clearWebClientPersistentState();
-      const url = new URL(window.location.href);
-      url.searchParams.set(RESET_DB_QUERY_PARAM, '1');
-      window.location.replace(url.toString());
+      window.location.reload();
     }
     return;
   }
