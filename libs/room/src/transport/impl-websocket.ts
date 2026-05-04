@@ -75,7 +75,9 @@ export class WebSocketRoomTransport implements Transport {
       return;
     }
     if (isRoomPresenceWirePayload(payload)) {
-      crash.fail('presence payloads must use sendPresenceFrame(), not publish()');
+      crash.fail(
+        'presence payloads must use sendPresenceFrame(), not publish()'
+      );
     }
     const text = JSON.stringify(payload);
     s.send(text);
@@ -90,7 +92,10 @@ export class WebSocketRoomTransport implements Transport {
       !this.is_destroyed,
       'cannot sendPresenceFrame on destroyed WebSocketRoomTransport'
     );
-    crash.ok(isRoomPresenceWirePayload(payload), 'payload must be a presence frame');
+    crash.ok(
+      isRoomPresenceWirePayload(payload),
+      'payload must be a presence frame'
+    );
     const s = this.socket;
     const OPEN = typeof WebSocket !== 'undefined' ? WebSocket.OPEN : 1;
     if (s === null || s.readyState !== OPEN) {
