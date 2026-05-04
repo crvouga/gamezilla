@@ -1,4 +1,5 @@
 import { useSpaceActions } from '@gamezilla/client/spaces/space-actions';
+import { SpaceCounterPanel } from '@gamezilla/client/spaces/space-counter-panel';
 import { SpaceDebugModal } from '@gamezilla/client/spaces/space-debug-modal';
 import { SpaceMemberList } from '@gamezilla/client/spaces/space-member-list';
 import {
@@ -180,11 +181,13 @@ function LeaveSpaceModal({
 }
 
 function ActiveSpaceBody({
+  spaceId,
   isHost,
   members,
   onRequestEnd,
   onRequestLeave,
 }: {
+  spaceId: string | undefined;
   isHost: boolean;
   members: ReturnType<typeof useSpaceMembers>['members'];
   onRequestEnd: () => void;
@@ -193,6 +196,7 @@ function ActiveSpaceBody({
   const { t } = useLingui();
   return (
     <>
+      <SpaceCounterPanel spaceId={spaceId} />
       <SpaceMemberList members={members} />
       {isHost ? (
         <Button title={t`End space`} variant="solid" onPress={onRequestEnd} />
@@ -254,6 +258,7 @@ function ActiveSpace({
       content={({ sx }) => (
         <Box style={sx} sx={{ gap: 4 }}>
           <ActiveSpaceBody
+            spaceId={spaceId}
             isHost={isHost}
             members={members}
             onRequestEnd={() => setConfirmEnd(true)}

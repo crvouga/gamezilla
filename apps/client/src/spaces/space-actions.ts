@@ -1,4 +1,8 @@
-import { useDeviceService } from '@gamezilla/client/runtime/runtime-hooks';
+import { loadOrCreatePeerIdentity } from '@gamezilla/client/auth/peer-identity';
+import {
+  useDeviceService,
+  useSecureStorage,
+} from '@gamezilla/client/runtime/runtime-hooks';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
@@ -7,6 +11,13 @@ import {
 } from '@gamezilla/domain/spaces/space-entities';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { usePatchDb } from '@gamezilla/patch-db/react';
+import {
+  derivePhantomSecretSeed,
+  encodeKeyB64,
+  peerIdFromPublicKey,
+  publicKeyFromSecretSeed,
+} from '@gamezilla/room';
+import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
 import { useCallback } from 'react';
 
 type WritePatches = Parameters<PatchDb['write']>[0];
@@ -57,7 +68,8 @@ function endHostedSpacePatches(
 
 async function createSpaceAction(
   db: PatchDb,
-  deviceId: string
+  deviceId: string,
+  storage: SecureStorage
 ): Promise<string | undefined> {
   const now = isoNow();
   const patches: WritePatches = [];
@@ -68,6 +80,12 @@ async function createSpaceAction(
   }
 
   const spaceId = crypto.randomUUID();
+  const identity = await loadOrCreatePeerIdentity(storage, deviceId);
+  const phantomSeed = derivePhantomSecretSeed(spaceId);
+  const phantomPub = publicKeyFromSecretSeed(phantomSeed);
+  const phantomPeerId = peerIdFromPublicKey(phantomPub);
+  const phantomPublicKeyB64 = encodeKeyB64(phantomPub);
+
   patches.push(
     {
       entityId: spaceId,
@@ -75,6 +93,8 @@ async function createSpaceAction(
       attributes: {
         [SpaceAttr.hostId]: deviceId,
         [SpaceAttr.createdAt]: now,
+        [SpaceAttr.phantomPeerId]: phantomPeerId,
+        [SpaceAttr.phantomPublicKey]: phantomPublicKeyB64,
       },
     },
     {
@@ -85,6 +105,8 @@ async function createSpaceAction(
         [SpaceMembershipAttr.role]: 'host',
         [SpaceMembershipAttr.joinedAt]: now,
         [SpaceMembershipAttr.leftAt]: null,
+        [SpaceMembershipAttr.peerId]: identity.peerId,
+        [SpaceMembershipAttr.peerPublicKey]: identity.publicKeyB64,
       },
     }
   );
@@ -96,7 +118,8 @@ async function createSpaceAction(
 async function joinSpaceAction(
   db: PatchDb,
   deviceId: string,
-  spaceId: string
+  spaceId: string,
+  storage: SecureStorage
 ): Promise<void> {
   const now = isoNow();
   const patches: WritePatches = [];
@@ -104,6 +127,7 @@ async function joinSpaceAction(
   if (hosted && hosted.spaceId !== spaceId) {
     patches.push(...endHostedSpacePatches(hosted.spaceId, deviceId, now));
   }
+  const identity = await loadOrCreatePeerIdentity(storage, deviceId);
   patches.push({
     entityId: deviceId,
     entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
@@ -112,6 +136,8 @@ async function joinSpaceAction(
       [SpaceMembershipAttr.role]: 'guest',
       [SpaceMembershipAttr.joinedAt]: now,
       [SpaceMembershipAttr.leftAt]: null,
+      [SpaceMembershipAttr.peerId]: identity.peerId,
+      [SpaceMembershipAttr.peerPublicKey]: identity.publicKeyB64,
     },
   });
   await db.write(patches);
@@ -139,15 +165,16 @@ async function endSpaceAction(
 export function useSpaceActions() {
   const db = usePatchDb();
   const deviceService = useDeviceService();
+  const storage = useSecureStorage();
   const deviceId = deviceService.getDeviceId();
 
   const createSpace = useCallback(
-    () => createSpaceAction(db, deviceId),
-    [db, deviceId]
+    () => createSpaceAction(db, deviceId, storage),
+    [db, deviceId, storage]
   );
   const joinSpace = useCallback(
-    (spaceId: string) => joinSpaceAction(db, deviceId, spaceId),
-    [db, deviceId]
+    (spaceId: string) => joinSpaceAction(db, deviceId, spaceId, storage),
+    [db, deviceId, storage]
   );
   const leaveSpace = useCallback(
     () => leaveSpaceAction(db, deviceId),

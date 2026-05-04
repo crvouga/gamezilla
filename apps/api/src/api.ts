@@ -14,6 +14,7 @@ import {
 import { ApiSecretName } from './config/secret-names';
 import { createApiSecretStore } from './config/secret-store';
 import { getPatchDb } from './patch-db/patch-db';
+import { RoomRelay } from './rooms/relay-do';
 
 const log = createLogger({ name: 'api' });
 
@@ -127,6 +128,8 @@ async function ensureApp(env: ApiWorkerEnv): Promise<App | null> {
     throw err;
   }
 }
+
+export { RoomRelay };
 
 export default {
   async fetch(

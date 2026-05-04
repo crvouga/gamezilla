@@ -54,11 +54,22 @@ export {
   RoomWireAuthFailed,
 } from './events/room-errors';
 export { generateId, isSystemEvent, SYSTEM_EVENT_PREFIX } from './events/utils';
+export {
+  decodeKeyB64,
+  encodeKeyB64,
+  peerIdFromPublicKey,
+  publicKeyFromSecretSeed,
+  randomSecretSeed,
+  sha256Hex,
+} from './room/security/peer-crypto';
+export { derivePhantomSecretSeed } from './room/security/phantom-peer';
 export { DeterministicSimulator } from './simulator';
 export {
   InMemoryBus,
   InMemoryTransport,
+  WebSocketRoomTransport,
   type MessageInterceptor,
+  type WebSocketRoomTransportOptions,
 } from './transport';
 export type {
   Transport,

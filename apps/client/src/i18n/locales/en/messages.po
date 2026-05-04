@@ -517,6 +517,10 @@ msgstr "Connected: {connectedAt}"
 msgid "Connecting to {url}"
 msgstr "Connecting to {url}"
 
+#: apps/client/src/spaces/space-counter-panel.tsx
+msgid "Connecting to room…"
+msgstr "Connecting to room…"
+
 #: apps/client/src/connection/server-status-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/ui/sidebar-account-menu.tsx
@@ -615,6 +619,10 @@ msgstr "day"
 #: apps/client/src/spaces/space-detail-screen.tsx
 msgid "Debug"
 msgstr "Debug"
+
+#: apps/client/src/spaces/space-counter-panel.tsx
+msgid "Decrement"
+msgstr "Decrement"
 
 #: libs/patch-db-example/src/todo/todo-item.tsx
 #: libs/patch-db-example/src/todo/todo-lists-overview.tsx
@@ -923,6 +931,10 @@ msgstr "Identity / Authority Bypass"
 msgid "Inbox"
 msgstr "Inbox"
 
+#: apps/client/src/spaces/space-counter-panel.tsx
+msgid "Increment"
+msgstr "Increment"
+
 #: apps/client/src/connection/server-status-screen.tsx
 msgid "Internet reachable: {reachable}"
 msgstr "Internet reachable: {reachable}"
@@ -1017,6 +1029,7 @@ msgid "List name..."
 msgstr "List name..."
 
 #: apps/client/src/spaces/space-card.tsx
+#: apps/client/src/spaces/space-miniplayer-parts.tsx
 msgid "Live"
 msgstr "Live"
 
@@ -1465,6 +1478,10 @@ msgstr "Read-only: OAuth identities stored for your account."
 #~ msgid "Read-only: OAuth identities stored for your user."
 #~ msgstr "Read-only: OAuth identities stored for your user."
 
+#: apps/client/src/spaces/space-counter-panel.tsx
+msgid "Realtime counter will appear once this space is upgraded for multiplayer sync."
+msgstr "Realtime counter will appear once this space is upgraded for multiplayer sync."
+
 #: libs/patch-db-example/src/api-inspector.tsx
 #: libs/patch-db-example/src/client-node-panel.tsx
 #: libs/patch-db-example/src/server-node-panel.tsx
@@ -1650,6 +1667,10 @@ msgstr "Settings"
 #: libs/patch-db-example/src/server-node-panel.tsx
 msgid "Shapes ({entityCount})"
 msgstr "Shapes ({entityCount})"
+
+#: apps/client/src/spaces/space-counter-panel.tsx
+msgid "Shared counter"
+msgstr "Shared counter"
 
 #: apps/client/src/developer/developer-screen.tsx
 #: apps/client/src/ui/explorer/ui-explorer-screen.tsx

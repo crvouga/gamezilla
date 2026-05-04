@@ -1,6 +1,6 @@
 import { Assert } from '@gamezilla/lib/assert';
-import type { LogEntry } from '../persistence/log-entry';
 import { PeerJoined, PeerLeave } from '../events/system-messages';
+import type { LogEntry } from '../persistence/log-entry';
 import { decodeKeyB64, publicKeyFromSecretSeed } from './security/peer-crypto';
 
 const crash: Assert = Assert.crash();

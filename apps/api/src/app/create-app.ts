@@ -16,6 +16,7 @@ import {
 import { createClientConfigApp } from '../client-config/route';
 import type { ApiWorkerEnv } from '../config/env';
 import { healthApp } from '../health/route';
+import { createRoomRelayApp } from '../rooms/route';
 import type { ApiHandlerConfig } from './config';
 import { apiCors } from './cors';
 
@@ -83,6 +84,7 @@ export function createApiApp(config: ApiHandlerConfig) {
         webhookSecretDopplerKey,
       })
     )
+    .route('/', createRoomRelayApp())
     .route(patchMount, patchDbApp)
     .onError((err, c) => {
       if (err instanceof ForbiddenError) {

@@ -8,6 +8,8 @@
 
 interface WebSocket {
   accept(): void;
+  send(data: string | ArrayBuffer): void;
+  close(code?: number, reason?: string): void;
 }
 
 interface ResponseInit {
@@ -33,10 +35,18 @@ declare interface DurableObjectNamespace {
   get(id: DurableObjectId): DurableObjectStub;
 }
 
-type DurableObjectState = object;
+interface DurableObjectState {
+  acceptWebSocket(ws: WebSocket, tags?: string[]): void;
+  getWebSockets(tag?: string): WebSocket[];
+}
 
 declare interface DurableObject {
   fetch(request: Request): Promise<Response>;
+  webSocketMessage?(
+    ws: WebSocket,
+    message: string | ArrayBuffer
+  ): void | Promise<void>;
+  webSocketClose?(ws: WebSocket, code: number, reason: string): void | Promise<void>;
 }
 
 declare interface ExecutionContext {

@@ -4,7 +4,9 @@ import { ForbiddenError } from '../forbidden-error';
 import type {
   PatchDb,
   PatchDbAuthContext,
+  PatchDbBeforeWriteHookResult,
   PatchDbContext,
+  PatchDbQuery,
   PatchDbQueryWhereClause,
   PatchDbClientContext,
   PatchInput,
@@ -86,85 +88,92 @@ export class VisibilityPolicyRegistry<
    * context (including client-only). Authorization lives in those hooks only.
    */
   install(db: PatchDb): () => void {
-    const offRead = db.hooks.beforeRead((query, ctx) => {
-      if (isPatchDbSystemContext(ctx)) return query;
-
-      if (query.entityType === undefined || query.entityType === '') {
-        return denyAllReadsQuery(query);
-      }
-      const policy = this.policies.get(query.entityType);
-      if (policy === undefined) {
-        return denyAllReadsQuery(query);
-      }
-
-      const readCtx = ctx as VisibilityPolicyReadContext<TCtx>;
-      const filter = policy.read(readCtx);
-      // Short-circuit the sentinels: `READ_WHERE_*` are encoded as
-      // `exists/not_exists patch/createdBy` (a JSON-path key the snapshot
-      // recompute strips out via PATCH_META_KEYS). They evaluate correctly,
-      // but ANDing them onto every read forces redundant JSON probes in the
-      // generated SQL, which floods the dev DB log and adds real work to
-      // every poll. NEVER_TRUE reuses the existing `denyAllReadsQuery`
-      // (LIMIT 0) path; ALWAYS_TRUE skips the where merge entirely.
-      if (filter === READ_WHERE_NEVER_TRUE) {
-        return denyAllReadsQuery(query);
-      }
-      if (filter === READ_WHERE_ALWAYS_TRUE) {
-        return query;
-      }
-      return {
-        ...query,
-        where: andWhereClause(query.where, filter),
-      };
-    });
-
-    const offWrite = db.hooks.beforeWrite(async (patches, ctx, tx) => {
-      if (isPatchDbSystemContext(ctx)) {
-        return { accepted: patches, rejected: [] };
-      }
-      const accepted: PatchInput[] = [];
-      const rejected: PatchRejectionReason[] = [];
-      const truncate = (s: string): string => s.slice(0, 256);
-      for (const p of patches) {
-        assert.ok(
-          typeof p.patchId === 'string' && p.patchId.length > 0,
-          'visibility beforeWrite expects patchId (assign before hooks in impl)'
-        );
-        const patchId = p.patchId;
-        const policy = this.policies.get(p.entityType);
-        if (policy === undefined) {
-          rejected.push({
-            patchId,
-            code: 'unknown_entity_type',
-            reason: truncate(
-              `no visibility policy for entity type ${p.entityType}`
-            ),
-            patch: p,
-          });
-          continue;
-        }
-        try {
-          await policy.write(ctx, p, tx);
-          accepted.push(p);
-        } catch (e: unknown) {
-          if (e instanceof ForbiddenError) {
-            rejected.push({
-              patchId,
-              code: 'forbidden',
-              reason: truncate(e.message),
-              patch: p,
-            });
-            continue;
-          }
-          throw e;
-        }
-      }
-      return { accepted, rejected };
-    });
+    const offRead = db.hooks.beforeRead((query, ctx) => this.applyReadPolicy(query, ctx));
+    const offWrite = db.hooks.beforeWrite((patches, ctx, tx) =>
+      this.applyWritePolicy(patches, ctx, tx)
+    );
 
     return () => {
       offRead();
       offWrite();
     };
+  }
+
+  private applyReadPolicy(query: PatchDbQuery, ctx: PatchDbContext): PatchDbQuery {
+    if (isPatchDbSystemContext(ctx)) return query;
+
+    if (query.entityType === undefined || query.entityType === '') {
+      return denyAllReadsQuery(query);
+    }
+    const policy = this.policies.get(query.entityType);
+    if (policy === undefined) {
+      return denyAllReadsQuery(query);
+    }
+
+    const readCtx = ctx as VisibilityPolicyReadContext<TCtx>;
+    const filter = policy.read(readCtx);
+    // Short-circuit the sentinels: `READ_WHERE_*` are encoded as
+    // `exists/not_exists patch/createdBy` (a JSON-path key the snapshot
+    // recompute strips out via PATCH_META_KEYS). They evaluate correctly,
+    // but ANDing them onto every read forces redundant JSON probes in the
+    // generated SQL, which floods the dev DB log and adds real work to
+    // every poll. NEVER_TRUE reuses the existing `denyAllReadsQuery`
+    // (LIMIT 0) path; ALWAYS_TRUE skips the where merge entirely.
+    if (filter === READ_WHERE_NEVER_TRUE) {
+      return denyAllReadsQuery(query);
+    }
+    if (filter === READ_WHERE_ALWAYS_TRUE) {
+      return query;
+    }
+    return {
+      ...query,
+      where: andWhereClause(query.where, filter),
+    };
+  }
+
+  private async applyWritePolicy(
+    patches: PatchInput[],
+    ctx: PatchDbContext,
+    tx: SqlClient
+  ): Promise<PatchDbBeforeWriteHookResult> {
+    if (isPatchDbSystemContext(ctx)) {
+      return { accepted: patches, rejected: [] };
+    }
+    const accepted: PatchInput[] = [];
+    const rejected: PatchRejectionReason[] = [];
+    const truncate = (s: string): string => s.slice(0, 256);
+    for (const p of patches) {
+      assert.ok(
+        typeof p.patchId === 'string' && p.patchId.length > 0,
+        'visibility beforeWrite expects patchId (assign before hooks in impl)'
+      );
+      const patchId = p.patchId;
+      const policy = this.policies.get(p.entityType);
+      if (policy === undefined) {
+        rejected.push({
+          patchId,
+          code: 'unknown_entity_type',
+          reason: truncate(`no visibility policy for entity type ${p.entityType}`),
+          patch: p,
+        });
+        continue;
+      }
+      try {
+        await policy.write(ctx, p, tx);
+        accepted.push(p);
+      } catch (e: unknown) {
+        if (e instanceof ForbiddenError) {
+          rejected.push({
+            patchId,
+            code: 'forbidden',
+            reason: truncate(e.message),
+            patch: p,
+          });
+          continue;
+        }
+        throw e;
+      }
+    }
+    return { accepted, rejected };
   }
 }

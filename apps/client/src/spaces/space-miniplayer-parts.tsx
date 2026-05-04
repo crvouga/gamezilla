@@ -3,10 +3,12 @@ import type { SpaceMemberRow } from '@gamezilla/client/spaces/types';
 import { Box, StatusDot, Text } from '@gamezilla/lib/ui';
 import { Trans } from '@lingui/react/macro';
 
+/* eslint-disable lingui/no-unlocalized-strings -- RGBA / hex style tokens, not copy */
 const TITLE_COLOR = '#FFFFFF';
 const SUBTITLE_COLOR = 'rgba(255,255,255,0.85)';
 const SEPARATOR_COLOR = 'rgba(255,255,255,0.55)';
 const BADGE_BG = 'rgba(255,255,255,0.22)';
+/* eslint-enable lingui/no-unlocalized-strings */
 
 export function MiniplayerLiveBadge() {
   return (
@@ -26,6 +28,41 @@ export function MiniplayerLiveBadge() {
         variant="caption"
         sx={{ color: TITLE_COLOR }}
         label={<Trans>Live</Trans>}
+      />
+    </Box>
+  );
+}
+
+function MiniplayerHostSubtitleRow({
+  hostLabel,
+  countLabel,
+}: {
+  hostLabel: string;
+  countLabel: string;
+}) {
+  return (
+    <Box
+      sx={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 1.5,
+        minWidth: 0,
+      }}
+    >
+      <Text
+        variant="caption"
+        numberOfLines={1}
+        sx={{ color: SUBTITLE_COLOR, flexShrink: 1 }}
+        label={hostLabel}
+      />
+      {/* Typographic separator between host label and member count */}
+      {/* eslint-disable-next-line gamezillaI18n/text-must-be-trans */}
+      <Text variant="caption" sx={{ color: SEPARATOR_COLOR }} label="·" />
+      <Text
+        variant="caption"
+        numberOfLines={1}
+        sx={{ color: SUBTITLE_COLOR }}
+        label={countLabel}
       />
     </Box>
   );
@@ -69,28 +106,7 @@ export function MiniplayerHostHeader({
           sx={{ color: TITLE_COLOR }}
           label={spaceTitle}
         />
-        <Box
-          sx={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 1.5,
-            minWidth: 0,
-          }}
-        >
-          <Text
-            variant="caption"
-            numberOfLines={1}
-            sx={{ color: SUBTITLE_COLOR, flexShrink: 1 }}
-            label={hostLabel}
-          />
-          <Text variant="caption" sx={{ color: SEPARATOR_COLOR }} label="·" />
-          <Text
-            variant="caption"
-            numberOfLines={1}
-            sx={{ color: SUBTITLE_COLOR }}
-            label={countLabel}
-          />
-        </Box>
+        <MiniplayerHostSubtitleRow hostLabel={hostLabel} countLabel={countLabel} />
       </Box>
     </Box>
   );

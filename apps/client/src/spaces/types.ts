@@ -17,4 +17,7 @@ export type SpaceMemberRow = {
   displayName: string;
   avatarConfig: AvatarConfig | null;
   role: 'host' | 'guest';
+  /** Room `peerId` when published on membership (realtime). */
+  peerRoomId: string | null;
+  peerPublicKeyB64: string | null;
 };

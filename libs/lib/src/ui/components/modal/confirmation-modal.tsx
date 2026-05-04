@@ -51,6 +51,50 @@ type LatchedContent = {
   confirmError: ReactNode | undefined;
 };
 
+/**
+ * Keep last-seen content rendered while the modal animates closed so callers
+ * can null out their source state on confirm/cancel without producing a flash
+ * of empty content during the fade-out.
+ */
+function useLatchedContent(
+  visible: boolean,
+  current: LatchedContent
+): LatchedContent {
+  const latchedRef = useRef<LatchedContent>(current);
+  if (visible) {
+    latchedRef.current = current;
+  }
+  return visible ? current : latchedRef.current;
+}
+
+function ConfirmationModalBody({
+  message,
+  confirmError,
+}: {
+  message: ReactNode;
+  confirmError: ReactNode | undefined;
+}) {
+  const hasError =
+    confirmError !== undefined &&
+    confirmError !== null &&
+    confirmError !== false;
+  if (!hasError) {
+    return <ModalBody message={message} />;
+  }
+  return (
+    <ModalBody>
+      <Box sx={{ gap: 2 }}>
+        <Text variant="body" label={message} />
+        <Text
+          variant="caption"
+          sx={{ color: 'destructive' }}
+          label={confirmError}
+        />
+      </Box>
+    </ModalBody>
+  );
+}
+
 export function ConfirmationModal({
   visible,
   title,
@@ -64,65 +108,31 @@ export function ConfirmationModal({
   onCancel,
 }: ConfirmationModalProps) {
   const { t } = useLingui();
-  const resolvedConfirmLabel = confirmLabel ?? t`Confirm`;
-  const resolvedCancelLabel = cancelLabel ?? t`Cancel`;
-  // Keep last-seen content rendered while the modal animates closed so callers
-  // can null out their source state on confirm/cancel without producing a
-  // flash of empty content during the fade-out.
-  const latchedRef = useRef<LatchedContent>({
+  const display = useLatchedContent(visible, {
     title,
     message,
-    confirmLabel: resolvedConfirmLabel,
-    cancelLabel: resolvedCancelLabel,
+    confirmLabel: confirmLabel ?? t`Confirm`,
+    cancelLabel: cancelLabel ?? t`Cancel`,
     variant,
-    confirmError: confirmError ?? undefined,
+    confirmError,
   });
-  if (visible) {
-    latchedRef.current = {
-      title,
-      message,
-      confirmLabel: resolvedConfirmLabel,
-      cancelLabel: resolvedCancelLabel,
-      variant,
-      confirmError,
-    };
-  }
-  const display = visible
-    ? {
-        title,
-        message,
-        confirmLabel: resolvedConfirmLabel,
-        cancelLabel: resolvedCancelLabel,
-        variant,
-        confirmError,
-      }
-    : latchedRef.current;
-
-  const body =
-    display.confirmError !== undefined &&
-    display.confirmError !== null &&
-    display.confirmError !== false ? (
-      <ModalBody>
-        <Box sx={{ gap: 2 }}>
-          <Text variant="body" label={display.message} />
-          <Text
-            variant="caption"
-            sx={{ color: 'destructive' }}
-            label={display.confirmError}
-          />
-        </Box>
-      </ModalBody>
-    ) : (
-      <ModalBody message={display.message} />
-    );
+  const confirmVariant =
+    display.variant === 'destructive' ? 'destructive' : 'default';
+  const handleClose = submitting ? () => undefined : onCancel;
+  const handleConfirm = () => {
+    void onConfirm();
+  };
 
   return (
     <ResponsiveSurface
       visible={visible}
-      onClose={submitting ? () => undefined : onCancel}
+      onClose={handleClose}
       title={display.title}
     >
-      {body}
+      <ConfirmationModalBody
+        message={display.message}
+        confirmError={display.confirmError}
+      />
       <ModalFooter>
         <ModalButton
           label={display.cancelLabel}
@@ -132,13 +142,9 @@ export function ConfirmationModal({
         />
         <ModalButton
           label={display.confirmLabel}
-          variant={
-            display.variant === 'destructive' ? 'destructive' : 'default'
-          }
+          variant={confirmVariant}
           disabled={submitting}
-          onPress={() => {
-            void onConfirm();
-          }}
+          onPress={handleConfirm}
         />
       </ModalFooter>
     </ResponsiveSurface>

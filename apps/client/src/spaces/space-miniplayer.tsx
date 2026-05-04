@@ -16,9 +16,11 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+/* eslint-disable lingui/no-unlocalized-strings -- RGBA style tokens, not copy */
 const ACTION_BG = 'rgba(255,255,255,0.22)';
 const ACTION_BG_DESTRUCTIVE = 'rgba(0,0,0,0.28)';
 const ACTION_TEXT = '#FFFFFF';
+/* eslint-enable lingui/no-unlocalized-strings */
 
 function EndSpaceModal({
   visible,

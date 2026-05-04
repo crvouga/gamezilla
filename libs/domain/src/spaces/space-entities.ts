@@ -6,6 +6,10 @@ export const SpaceAttr = {
   hostId: 'space/hostId',
   createdAt: 'space/createdAt',
   endedAt: 'space/endedAt',
+  /** Room phantom peer id (base64url hash id) for `@gamezilla/room` genesis. */
+  phantomPeerId: 'space/phantomPeerId',
+  /** Base64url-encoded 32-byte Ed25519 phantom peer public key. */
+  phantomPublicKey: 'space/phantomPublicKey',
 } as const;
 
 /**
@@ -19,6 +23,10 @@ export const SpaceMembershipAttr = {
   role: 'spaceMembership/role',
   joinedAt: 'spaceMembership/joinedAt',
   leftAt: 'spaceMembership/leftAt',
+  /** Self-certifying Room `peerId` for this device in this space. */
+  peerId: 'spaceMembership/peerId',
+  /** Base64url-encoded 32-byte Ed25519 public key for {@link SpaceMembershipAttr.peerId}. */
+  peerPublicKey: 'spaceMembership/peerPublicKey',
 } as const;
 
 export type SpaceMembershipRole = 'host' | 'guest';

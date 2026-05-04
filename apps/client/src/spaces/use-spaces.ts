@@ -134,6 +134,27 @@ export function useSpaces() {
   return { spaces };
 }
 
+function readSpaceEntitySnapshot(entity: Entity | null): {
+  customTitle: string | null;
+  hostId: string | null;
+  createdAt: string | null;
+  live: boolean;
+  endedAt: string | null;
+  phantomPeerId: string | null;
+  phantomPublicKey: string | null;
+} {
+  const attrs = entity?.attributes;
+  return {
+    customTitle: readStringAttr(attrs, SpaceAttr.title),
+    hostId: readStringAttr(attrs, SpaceAttr.hostId),
+    createdAt: readStringAttr(attrs, SpaceAttr.createdAt),
+    live: entity ? spaceEntityIsLive(attrs) : false,
+    endedAt: readStringAttr(attrs, SpaceAttr.endedAt),
+    phantomPeerId: readStringAttr(attrs, SpaceAttr.phantomPeerId),
+    phantomPublicKey: readStringAttr(attrs, SpaceAttr.phantomPublicKey),
+  };
+}
+
 export function useSpace(spaceId: string | undefined) {
   const id =
     typeof spaceId === 'string' && spaceId.length > 0
@@ -144,22 +165,23 @@ export function useSpace(spaceId: string | undefined) {
     entityId: id,
   });
   const entity = spaceRes.entities[0] ?? null;
+  const snap = readSpaceEntitySnapshot(entity);
 
-  const customTitle = readStringAttr(entity?.attributes, SpaceAttr.title);
-  const hostId = readStringAttr(entity?.attributes, SpaceAttr.hostId);
-  const hostDisplayName = useDeviceDisplayName(hostId);
+  const hostDisplayName = useDeviceDisplayName(snap.hostId);
   const { t } = useLingui();
-  const title = customTitle ?? t`${hostDisplayName}'s space`;
+  const title = snap.customTitle ?? t`${hostDisplayName}'s space`;
 
   return {
     space: entity,
     title,
-    customTitle,
-    hostId,
+    customTitle: snap.customTitle,
+    hostId: snap.hostId,
     hostDisplayName,
-    createdAt: readStringAttr(entity?.attributes, SpaceAttr.createdAt),
-    live: entity ? spaceEntityIsLive(entity.attributes) : false,
-    endedAt: readStringAttr(entity?.attributes, SpaceAttr.endedAt),
+    createdAt: snap.createdAt,
+    live: snap.live,
+    endedAt: snap.endedAt,
+    phantomPeerId: snap.phantomPeerId,
+    phantomPublicKey: snap.phantomPublicKey,
     isLoading: spaceRes.isLoading,
   };
 }
@@ -368,6 +390,14 @@ function buildMemberRow(args: {
       selfAccountId: args.selfAccountId,
     }),
     role,
+    peerRoomId: readStringAttr(
+      membership.attributes,
+      SpaceMembershipAttr.peerId
+    ),
+    peerPublicKeyB64: readStringAttr(
+      membership.attributes,
+      SpaceMembershipAttr.peerPublicKey
+    ),
   };
 }
 

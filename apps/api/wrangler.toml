@@ -7,6 +7,14 @@ preview_urls = false
 
 routes = [{ pattern = "api.gamezilla.app", custom_domain = true }]
 
+[[durable_objects.bindings]]
+name = "ROOM_RELAY"
+class_name = "RoomRelay"
+
+[[migrations]]
+tag = "v1-room-relay"
+new_classes = ["RoomRelay"]
+
 [observability]
 [observability.logs]
 enabled = true

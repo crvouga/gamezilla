@@ -1,11 +1,11 @@
 import { Assert } from '@gamezilla/lib/assert';
-import type { PeerBootstrap, RoomSecurityConfig } from './types';
 import { seedDiscoveredPeerLiveness } from './authority-monitor';
 import {
   decodeKeyB64,
   peerIdFromPublicKey,
   publicKeyFromSecretSeed,
 } from './security/peer-crypto';
+import type { PeerBootstrap, RoomSecurityConfig } from './types';
 
 const crash: Assert = Assert.crash();
 

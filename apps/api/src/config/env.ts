@@ -9,10 +9,23 @@
  *   into `.dev.vars` by `setup-dev-vars`). The Doppler secrets-download API
  *   returns HTTP 400 for non-service tokens unless these are supplied.
  */
+/**
+ * Structural shape of the Durable Object namespace consumed by the room relay
+ * route. Defined locally so this module compiles for downstream consumers
+ * (e.g. `apps/infra` pulling in `@gamezilla/api/rpc`) that do not load the
+ * api package's ambient Cloudflare type stubs in `app/cloudflare.d.ts`.
+ */
+export type RoomRelayNamespace = {
+  idFromName(name: string): object;
+  get(id: object): { fetch(request: Request): Promise<Response> };
+};
+
 export type ApiWorkerEnv = {
   DOPPLER_TOKEN: string;
   DOPPLER_PROJECT?: string;
   DOPPLER_CONFIG?: string;
+  /** Room WebSocket relay (Durable Object namespace). Omitted in unit tests. */
+  ROOM_RELAY?: RoomRelayNamespace;
 };
 
 /**

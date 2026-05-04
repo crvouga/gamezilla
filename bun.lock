@@ -197,6 +197,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@gamezilla/lib": "workspace:*",
+        "@gamezilla/room": "workspace:*",
         "react": "19.1.0",
       },
       "devDependencies": {

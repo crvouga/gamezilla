@@ -21,7 +21,6 @@
   ],
   "ignoreDependencies": [
     "expo-updates",
-    "@gamezilla/room",
     "@react-navigation/bottom-tabs",
     "@react-navigation/elements",
     "absurd-sql",
