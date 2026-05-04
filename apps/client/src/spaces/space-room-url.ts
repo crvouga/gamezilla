@@ -1,5 +1,14 @@
-export function apiUrlToRoomWebSocketUrl(apiUrl: string, topic: string): string {
+export function apiUrlToRoomWebSocketUrl(
+  apiUrl: string,
+  topic: string,
+  sessionToken: string | null
+): string {
   const base = apiUrl.replace(/\/$/, '');
   const wsBase = base.replace(/^http:/, 'ws:').replace(/^https:/, 'wss:');
-  return `${wsBase}/room/ws?topic=${encodeURIComponent(topic)}`;
+  const u = new URL(`${wsBase}/room/ws`);
+  u.searchParams.set('topic', topic);
+  if (sessionToken !== null && sessionToken.length > 0) {
+    u.searchParams.set('token', sessionToken);
+  }
+  return u.toString();
 }

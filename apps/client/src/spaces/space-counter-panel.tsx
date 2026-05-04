@@ -1,12 +1,11 @@
 import { Box, Button, Text } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 
-import { useSpaceRoom } from './use-space-room';
+import type { SpaceRoomUiState } from './use-space-room';
 
-export function SpaceCounterPanel({ spaceId }: { spaceId: string | undefined }) {
+export function SpaceCounterPanel({ room }: { room: SpaceRoomUiState }) {
   const { t } = useLingui();
-  const { count, increment, decrement, isSynced, roomActive } =
-    useSpaceRoom(spaceId);
+  const { count, increment, decrement, isSynced, roomActive } = room;
 
   if (!roomActive) {
     return (
@@ -16,8 +15,8 @@ export function SpaceCounterPanel({ spaceId }: { spaceId: string | undefined }) 
           sx={{ color: 'textSecondary' }}
           label={
             <Trans>
-              Realtime counter will appear once this space is upgraded for
-              multiplayer sync.
+              Counter unavailable — sign in and open this space on the device
+              where you created it to host, or wait for the host to come online.
             </Trans>
           }
         />

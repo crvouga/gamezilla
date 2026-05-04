@@ -3,6 +3,10 @@ import {
   AccountSessionAttr,
 } from '@gamezilla/domain/auth';
 import { assertDeviceId } from '@gamezilla/domain/auth/device-id';
+import {
+  SPACE_MEMBERSHIP_ENTITY_TYPE,
+  SpaceMembershipAttr,
+} from '@gamezilla/domain/spaces/space-entities';
 import { assert } from '@gamezilla/lib/assert';
 import type { PatchDb, PatchDbContext } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
@@ -13,6 +17,27 @@ import type {
 import { UnauthorizedError } from './unauthorized-error';
 
 export type AuthContext = AppAuthContext;
+
+async function loadMemberOfSpaceIds(
+  db: PatchDb,
+  accountId: string
+): Promise<string[]> {
+  const [memRes] = await db.read(
+    [
+      {
+        entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
+        entityId: accountId,
+      },
+    ],
+    PATCHES_DB_SYSTEM_CONTEXT
+  );
+  const mem = memRes?.entities[0];
+  if (!mem) return [];
+  const leftAt = mem.attributes[SpaceMembershipAttr.leftAt];
+  if (leftAt !== undefined && leftAt !== null) return [];
+  const sid = mem.attributes[SpaceMembershipAttr.spaceId];
+  return typeof sid === 'string' && sid.length > 0 ? [sid] : [];
+}
 
 /**
  * Resolves a request to either a full auth context (when Bearer is valid)
@@ -71,11 +96,13 @@ export async function resolvePatchDbContext(
       continue;
     }
 
+    const memberOfSpaceIds = await loadMemberOfSpaceIds(db, accountId);
+
     return {
       clientId,
       deviceId,
       accountId,
-      memberOfSpaceIds: [],
+      memberOfSpaceIds,
       friendUserIds: [],
       blockedUserIds: [],
     } satisfies AppAuthContext;

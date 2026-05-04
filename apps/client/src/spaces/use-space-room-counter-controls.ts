@@ -1,4 +1,7 @@
-import { Decrement, Increment } from '@gamezilla/domain/spaces/counter-room-module';
+import {
+  Decrement,
+  Increment,
+} from '@gamezilla/domain/spaces/counter-room-module';
 import type { Room } from '@gamezilla/room';
 import { useCallback, useEffect, useState, type MutableRefObject } from 'react';
 

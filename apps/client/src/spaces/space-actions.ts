@@ -1,8 +1,5 @@
-import { loadOrCreatePeerIdentity } from '@gamezilla/client/auth/peer-identity';
-import {
-  useDeviceService,
-  useSecureStorage,
-} from '@gamezilla/client/runtime/runtime-hooks';
+import { loadOrCreateHostRoomSeed } from '@gamezilla/client/auth/peer-identity';
+import { useSecureStorage } from '@gamezilla/client/runtime/runtime-hooks';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
@@ -20,7 +17,18 @@ import {
 import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
 import { useCallback } from 'react';
 
+import { useSelfAuthIdentity } from './device-display-resolution';
+
 type WritePatches = Parameters<PatchDb['write']>[0];
+
+export class SpaceActionAuthError extends Error {
+  readonly __space_action_auth = true as const;
+
+  constructor() {
+    super('Sign in to create or join a space');
+    this.name = 'SpaceActionAuthError';
+  }
+}
 
 function isoNow(): string {
   return new Date().toISOString();
@@ -28,12 +36,12 @@ function isoNow(): string {
 
 async function readActiveHostMembership(
   db: PatchDb,
-  deviceId: string
+  accountId: string
 ): Promise<{ spaceId: string } | null> {
   const [memRes] = await db.read([
     {
       entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
-      entityId: deviceId,
+      entityId: accountId,
     },
   ]);
   const mem = memRes?.entities[0];
@@ -49,17 +57,20 @@ async function readActiveHostMembership(
 
 function endHostedSpacePatches(
   hostSpaceId: string,
-  deviceId: string,
+  hostAccountId: string,
   now: string
 ): WritePatches {
   return [
     {
       entityId: hostSpaceId,
       entityType: SPACE_ENTITY_TYPE,
-      attributes: { [SpaceAttr.endedAt]: now },
+      attributes: {
+        [SpaceAttr.endedAt]: now,
+        [SpaceAttr.hostId]: hostAccountId,
+      },
     },
     {
-      entityId: deviceId,
+      entityId: hostAccountId,
       entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
       attributes: { [SpaceMembershipAttr.leftAt]: now },
     },
@@ -68,19 +79,23 @@ function endHostedSpacePatches(
 
 async function createSpaceAction(
   db: PatchDb,
-  deviceId: string,
+  accountId: string,
   storage: SecureStorage
 ): Promise<string | undefined> {
   const now = isoNow();
   const patches: WritePatches = [];
 
-  const hosted = await readActiveHostMembership(db, deviceId);
+  const hosted = await readActiveHostMembership(db, accountId);
   if (hosted) {
-    patches.push(...endHostedSpacePatches(hosted.spaceId, deviceId, now));
+    patches.push(...endHostedSpacePatches(hosted.spaceId, accountId, now));
   }
 
   const spaceId = crypto.randomUUID();
-  const identity = await loadOrCreatePeerIdentity(storage, deviceId);
+  const hostSeed = await loadOrCreateHostRoomSeed(storage, spaceId);
+  const hostPub = publicKeyFromSecretSeed(hostSeed);
+  const hostRoomPeerId = peerIdFromPublicKey(hostPub);
+  const hostRoomPublicKeyB64 = encodeKeyB64(hostPub);
+
   const phantomSeed = derivePhantomSecretSeed(spaceId);
   const phantomPub = publicKeyFromSecretSeed(phantomSeed);
   const phantomPeerId = peerIdFromPublicKey(phantomPub);
@@ -91,22 +106,23 @@ async function createSpaceAction(
       entityId: spaceId,
       entityType: SPACE_ENTITY_TYPE,
       attributes: {
-        [SpaceAttr.hostId]: deviceId,
+        [SpaceAttr.hostId]: accountId,
         [SpaceAttr.createdAt]: now,
         [SpaceAttr.phantomPeerId]: phantomPeerId,
         [SpaceAttr.phantomPublicKey]: phantomPublicKeyB64,
+        [SpaceAttr.hostRoomPeerId]: hostRoomPeerId,
+        [SpaceAttr.hostRoomPublicKey]: hostRoomPublicKeyB64,
+        [SpaceAttr.memberUserIds]: [accountId],
       },
     },
     {
-      entityId: deviceId,
+      entityId: accountId,
       entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
       attributes: {
         [SpaceMembershipAttr.spaceId]: spaceId,
         [SpaceMembershipAttr.role]: 'host',
         [SpaceMembershipAttr.joinedAt]: now,
         [SpaceMembershipAttr.leftAt]: null,
-        [SpaceMembershipAttr.peerId]: identity.peerId,
-        [SpaceMembershipAttr.peerPublicKey]: identity.publicKeyB64,
       },
     }
   );
@@ -117,36 +133,32 @@ async function createSpaceAction(
 
 async function joinSpaceAction(
   db: PatchDb,
-  deviceId: string,
-  spaceId: string,
-  storage: SecureStorage
+  accountId: string,
+  spaceId: string
 ): Promise<void> {
   const now = isoNow();
   const patches: WritePatches = [];
-  const hosted = await readActiveHostMembership(db, deviceId);
+  const hosted = await readActiveHostMembership(db, accountId);
   if (hosted && hosted.spaceId !== spaceId) {
-    patches.push(...endHostedSpacePatches(hosted.spaceId, deviceId, now));
+    patches.push(...endHostedSpacePatches(hosted.spaceId, accountId, now));
   }
-  const identity = await loadOrCreatePeerIdentity(storage, deviceId);
   patches.push({
-    entityId: deviceId,
+    entityId: accountId,
     entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
     attributes: {
       [SpaceMembershipAttr.spaceId]: spaceId,
       [SpaceMembershipAttr.role]: 'guest',
       [SpaceMembershipAttr.joinedAt]: now,
       [SpaceMembershipAttr.leftAt]: null,
-      [SpaceMembershipAttr.peerId]: identity.peerId,
-      [SpaceMembershipAttr.peerPublicKey]: identity.publicKeyB64,
     },
   });
   await db.write(patches);
 }
 
-async function leaveSpaceAction(db: PatchDb, deviceId: string): Promise<void> {
+async function leaveSpaceAction(db: PatchDb, accountId: string): Promise<void> {
   await db.write([
     {
-      entityId: deviceId,
+      entityId: accountId,
       entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
       attributes: { [SpaceMembershipAttr.leftAt]: isoNow() },
     },
@@ -155,34 +167,50 @@ async function leaveSpaceAction(db: PatchDb, deviceId: string): Promise<void> {
 
 async function endSpaceAction(
   db: PatchDb,
-  deviceId: string,
+  accountId: string,
   spaceId: string
 ): Promise<void> {
   const now = isoNow();
-  await db.write(endHostedSpacePatches(spaceId, deviceId, now));
+  await db.write(endHostedSpacePatches(spaceId, accountId, now));
 }
 
 export function useSpaceActions() {
   const db = usePatchDb();
-  const deviceService = useDeviceService();
   const storage = useSecureStorage();
-  const deviceId = deviceService.getDeviceId();
+  const { selfAccountId } = useSelfAuthIdentity();
 
-  const createSpace = useCallback(
-    () => createSpaceAction(db, deviceId, storage),
-    [db, deviceId, storage]
-  );
+  const createSpace = useCallback(async () => {
+    if (selfAccountId === null) {
+      throw new SpaceActionAuthError();
+    }
+    return createSpaceAction(db, selfAccountId, storage);
+  }, [db, selfAccountId, storage]);
+
   const joinSpace = useCallback(
-    (spaceId: string) => joinSpaceAction(db, deviceId, spaceId, storage),
-    [db, deviceId, storage]
+    async (spaceId: string) => {
+      if (selfAccountId === null) {
+        throw new SpaceActionAuthError();
+      }
+      return joinSpaceAction(db, selfAccountId, spaceId);
+    },
+    [db, selfAccountId]
   );
-  const leaveSpace = useCallback(
-    () => leaveSpaceAction(db, deviceId),
-    [db, deviceId]
-  );
+
+  const leaveSpace = useCallback(async () => {
+    if (selfAccountId === null) {
+      throw new SpaceActionAuthError();
+    }
+    return leaveSpaceAction(db, selfAccountId);
+  }, [db, selfAccountId]);
+
   const endSpace = useCallback(
-    (spaceId: string) => endSpaceAction(db, deviceId, spaceId),
-    [db, deviceId]
+    async (spaceId: string) => {
+      if (selfAccountId === null) {
+        throw new SpaceActionAuthError();
+      }
+      return endSpaceAction(db, selfAccountId, spaceId);
+    },
+    [db, selfAccountId]
   );
 
   return { createSpace, joinSpace, leaveSpace, endSpace };

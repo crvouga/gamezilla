@@ -7,17 +7,15 @@ export type SpaceView = {
   title: string;
   /** User-set name, or null when the host has not chosen one. */
   customTitle: string | null;
+  /** Host account id. */
   hostId: string;
   hostDisplayName: string;
   hostAvatarConfig: AvatarConfig | null;
 };
 
 export type SpaceMemberRow = {
-  deviceId: string;
+  accountId: string;
   displayName: string;
   avatarConfig: AvatarConfig | null;
   role: 'host' | 'guest';
-  /** Room `peerId` when published on membership (realtime). */
-  peerRoomId: string | null;
-  peerPublicKeyB64: string | null;
 };

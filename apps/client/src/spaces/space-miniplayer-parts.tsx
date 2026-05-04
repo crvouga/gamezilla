@@ -106,7 +106,10 @@ export function MiniplayerHostHeader({
           sx={{ color: TITLE_COLOR }}
           label={spaceTitle}
         />
-        <MiniplayerHostSubtitleRow hostLabel={hostLabel} countLabel={countLabel} />
+        <MiniplayerHostSubtitleRow
+          hostLabel={hostLabel}
+          countLabel={countLabel}
+        />
       </Box>
     </Box>
   );

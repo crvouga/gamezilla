@@ -1,6 +1,9 @@
-import { loadOrCreatePeerIdentity } from '@gamezilla/client/auth/peer-identity';
-import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
+import {
+  createSessionPeerIdentity,
+  loadOrCreateHostRoomSeed,
+} from '@gamezilla/client/auth/peer-identity';
 import type { SpaceMembershipRole } from '@gamezilla/domain/spaces/space-entities';
+import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
 import {
   InMemoryRoomPersistence,
   Room,
@@ -17,17 +20,41 @@ export type CreateSpaceRoomParams = {
   role: SpaceMembershipRole;
   apiUrl: string;
   storage: SecureStorage;
-  selfDeviceId: string;
   hostRoomPeerId: string;
   hostRoomPublicKey: string;
   phantomPeerId: string;
   phantomPublicKey: string;
+  /** Session bearer for `/room/ws` (query param); required when relay enforces auth. */
+  sessionToken: string | null;
 };
 
 export type CreateSpaceRoomResult = {
   room: Room;
   transport: WebSocketRoomTransport;
+  /** Room `peerId` for this tab (guest ephemeral; host = stable host slot id). */
+  sessionPeerId: string;
 };
+
+function buildGenesisSnapshot(args: {
+  hostRoomPeerId: string;
+  hostRoomPublicKey: string;
+  phantomPeerId: string;
+  phantomPublicKey: string;
+}): {
+  initialMembership: Record<string, number>;
+  initialMemberPublicKeys: Record<string, string>;
+} {
+  return {
+    initialMembership: {
+      [args.hostRoomPeerId]: 1,
+      [args.phantomPeerId]: 0,
+    },
+    initialMemberPublicKeys: {
+      [args.hostRoomPeerId]: args.hostRoomPublicKey,
+      [args.phantomPeerId]: args.phantomPublicKey,
+    },
+  };
+}
 
 export async function createSpaceRoom(
   params: CreateSpaceRoomParams
@@ -37,30 +64,33 @@ export async function createSpaceRoom(
     role,
     apiUrl,
     storage,
-    selfDeviceId,
     hostRoomPeerId,
     hostRoomPublicKey,
     phantomPeerId,
     phantomPublicKey,
+    sessionToken,
   } = params;
 
-  const identity = await loadOrCreatePeerIdentity(storage, selfDeviceId);
   const roomSecret = sha256Hex(spaceId);
   const topic = `space:${spaceId}`;
   const transport = new WebSocketRoomTransport({
-    url: apiUrlToRoomWebSocketUrl(apiUrl, topic),
+    url: apiUrlToRoomWebSocketUrl(apiUrl, topic, sessionToken),
     topic,
   });
   const persistence = new InMemoryRoomPersistence();
 
-  const initialMembership: Record<string, number> = {
-    [hostRoomPeerId]: 1,
-    [phantomPeerId]: 0,
-  };
-  const initialMemberPublicKeys: Record<string, string> = {
-    [hostRoomPeerId]: hostRoomPublicKey,
-    [phantomPeerId]: phantomPublicKey,
-  };
+  const hostSeed = await loadOrCreateHostRoomSeed(storage, spaceId);
+  const guestIdentity = createSessionPeerIdentity();
+
+  const secretSeed = role === 'host' ? hostSeed : guestIdentity.secretSeed;
+  const sessionPeerId = role === 'host' ? hostRoomPeerId : guestIdentity.peerId;
+
+  const { initialMembership, initialMemberPublicKeys } = buildGenesisSnapshot({
+    hostRoomPeerId,
+    hostRoomPublicKey,
+    phantomPeerId,
+    phantomPublicKey,
+  });
 
   let didJoinPeer = false;
   const roomRef: { current: Room | null } = { current: null };
@@ -72,18 +102,26 @@ export async function createSpaceRoom(
     didJoinPeer = true;
     r.dispatch(
       PeerJoin({
-        peerId: identity.peerId,
+        peerId: guestIdentity.peerId,
         trust: 1,
-        publicKey: identity.publicKeyB64,
+        publicKey: guestIdentity.publicKeyB64,
       })
     );
   };
+
+  transport.onConnect(() => {
+    transport.sendPresenceFrame({
+      ch: 'presence',
+      kind: 'hello',
+      peerId: sessionPeerId,
+    });
+  });
 
   const room = await Room.create(
     buildSpaceRoomConfig({
       topic,
       roomSecret,
-      secretSeed: identity.secretSeed,
+      secretSeed,
       persistence,
       transport,
       role,
@@ -93,5 +131,5 @@ export async function createSpaceRoom(
     })
   );
   roomRef.current = room;
-  return { room, transport };
+  return { room, transport, sessionPeerId };
 }

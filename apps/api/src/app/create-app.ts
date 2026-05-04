@@ -84,7 +84,7 @@ export function createApiApp(config: ApiHandlerConfig) {
         webhookSecretDopplerKey,
       })
     )
-    .route('/', createRoomRelayApp())
+    .route('/', createRoomRelayApp({ db }))
     .route(patchMount, patchDbApp)
     .onError((err, c) => {
       if (err instanceof ForbiddenError) {

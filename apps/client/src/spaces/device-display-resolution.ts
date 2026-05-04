@@ -83,6 +83,24 @@ export function devicePresentation(args: {
   };
 }
 
+/** Profile display for a PatchDB `profile` row keyed by `accountId`. */
+export function accountPresentation(args: {
+  accountId: string;
+  profileById: Map<string, Entity>;
+}): { displayName: string; avatarConfig: AvatarConfig | null } {
+  const profileEntity = args.profileById.get(args.accountId);
+  const attrs = profileEntity?.attributes as
+    | Record<string, unknown>
+    | undefined;
+  return {
+    displayName: displayNameForDevice(
+      attrs?.[ProfileAttr.displayName],
+      args.accountId
+    ),
+    avatarConfig: parseAvatarConfigAttr(attrs, ProfileAttr.avatarConfig),
+  };
+}
+
 /**
  * Loads the current viewer's account-scoped profile (when signed in) so
  * callers can layer it onto bulk-fetched profile maps. This makes display

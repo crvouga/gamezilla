@@ -1,5 +1,11 @@
-import { useSpaceActions } from '@gamezilla/client/spaces/space-actions';
+import { useAuth } from '@gamezilla/client/auth/auth-context';
+import {
+  SpaceActionAuthError,
+  useSpaceActions,
+} from '@gamezilla/client/spaces/space-actions';
 import { SpaceCounterPanel } from '@gamezilla/client/spaces/space-counter-panel';
+import { SpaceRoomWireContext } from '@gamezilla/client/spaces/space-room-wire-context';
+import { useSpaceRoom } from '@gamezilla/client/spaces/use-space-room';
 import { SpaceDebugModal } from '@gamezilla/client/spaces/space-debug-modal';
 import { SpaceMemberList } from '@gamezilla/client/spaces/space-member-list';
 import {
@@ -77,18 +83,21 @@ function JoinPrompt({
   spaceId,
   title,
   hostLabel,
+  needsSignIn,
   onJoin,
   onOpenDebug,
 }: {
   spaceId: string | undefined;
   title: string;
   hostLabel: string;
+  needsSignIn: boolean;
   onJoin: (id: string) => Promise<void> | void;
   onOpenDebug: () => void;
 }) {
   const { t } = useLingui();
   const router = useRouter();
   const nav = useBreadcrumbNav();
+  const auth = useAuth();
   const actions = useDebugAction(onOpenDebug);
   return (
     <ScreenBase
@@ -112,13 +121,23 @@ function JoinPrompt({
               <Trans>Join this space to see who is here and hang out.</Trans>
             }
           />
-          <Button
-            title={t`Join space`}
-            variant="solid"
-            onPress={() => {
-              if (spaceId) void onJoin(spaceId);
-            }}
-          />
+          {needsSignIn ? (
+            <Button
+              title={t`Sign in`}
+              variant="solid"
+              onPress={() => {
+                auth.openSignInModal();
+              }}
+            />
+          ) : (
+            <Button
+              title={t`Join space`}
+              variant="solid"
+              onPress={() => {
+                if (spaceId) void onJoin(spaceId);
+              }}
+            />
+          )}
           <Button
             title={t`Back`}
             variant="outlined"
@@ -194,9 +213,15 @@ function ActiveSpaceBody({
   onRequestLeave: () => void;
 }) {
   const { t } = useLingui();
+  const room = useSpaceRoom(spaceId);
   return (
-    <>
-      <SpaceCounterPanel spaceId={spaceId} />
+    <SpaceRoomWireContext.Provider
+      value={{
+        transport: room.transport,
+        sessionPeerId: room.sessionPeerId,
+      }}
+    >
+      <SpaceCounterPanel room={room} />
       <SpaceMemberList members={members} />
       {isHost ? (
         <Button title={t`End space`} variant="solid" onPress={onRequestEnd} />
@@ -207,7 +232,7 @@ function ActiveSpaceBody({
           onPress={onRequestLeave}
         />
       )}
-    </>
+    </SpaceRoomWireContext.Provider>
   );
 }
 
@@ -302,6 +327,7 @@ export function SpaceDetailScreen() {
   const current = useCurrentMembership();
   const { members } = useSpaceMembers(spaceId);
   const { joinSpace, leaveSpace, endSpace } = useSpaceActions();
+  const auth = useAuth();
   const [debugOpen, setDebugOpen] = useState(false);
   const openDebug = () => setDebugOpen(true);
   const closeDebug = () => setDebugOpen(false);
@@ -325,13 +351,25 @@ export function SpaceDetailScreen() {
 
   const inThisSpace = current.activeSpaceId === spaceId;
   if (!inThisSpace) {
+    const needsSignIn = auth.mode !== 'signed-in';
     return (
       <>
         <JoinPrompt
           spaceId={spaceId}
           title={space.title}
           hostLabel={space.hostDisplayName}
-          onJoin={joinSpace}
+          needsSignIn={needsSignIn}
+          onJoin={async (sid) => {
+            try {
+              await joinSpace(sid);
+            } catch (e) {
+              if (e instanceof SpaceActionAuthError) {
+                auth.openSignInModal();
+              } else {
+                throw e;
+              }
+            }
+          }}
           onOpenDebug={openDebug}
         />
         {debugModal}

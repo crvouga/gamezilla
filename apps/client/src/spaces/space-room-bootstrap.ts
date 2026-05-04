@@ -1,83 +1,7 @@
-import {
-  SpaceMembershipAttr,
-  type SpaceMembershipRole,
-} from '@gamezilla/domain/spaces/space-entities';
-import type { Entity } from '@gamezilla/patch-db/interface';
-
-import type { SpaceMemberRow } from './types';
-
-function readStringAttr(
-  attrs: Record<string, unknown> | undefined,
-  key: string
-): string | null {
-  if (!attrs) return null;
-  const v = attrs[key];
-  return typeof v === 'string' && v.length > 0 ? v : null;
-}
+import type { SpaceMembershipRole } from '@gamezilla/domain/spaces/space-entities';
 
 function nonEmptyString(v: string | null | undefined): v is string {
   return typeof v === 'string' && v.length > 0;
-}
-
-function findHostMember(
-  members: SpaceMemberRow[],
-  hostDeviceId: string | null
-): SpaceMemberRow | undefined {
-  if (!nonEmptyString(hostDeviceId)) return undefined;
-  return members.find((m) => m.deviceId === hostDeviceId);
-}
-
-function readKeysFromMembershipEntity(
-  entity: Entity
-): { peer: string | null; pub: string | null } {
-  const attrs = entity.attributes as Record<string, unknown>;
-  return {
-    peer: readStringAttr(attrs, SpaceMembershipAttr.peerId),
-    pub: readStringAttr(attrs, SpaceMembershipAttr.peerPublicKey),
-  };
-}
-
-function mergeHostKeysFromSelfMembership(args: {
-  peer: string | null;
-  pub: string | null;
-  hostDeviceId: string | null;
-  selfDeviceId: string;
-  membershipEntity: Entity | null;
-}): { peer: string | null; pub: string | null } {
-  const { peer, pub, hostDeviceId, selfDeviceId, membershipEntity } = args;
-  if (peer !== null && pub !== null) {
-    return { peer, pub };
-  }
-  if (
-    !nonEmptyString(hostDeviceId) ||
-    hostDeviceId !== selfDeviceId ||
-    membershipEntity === null
-  ) {
-    return { peer, pub };
-  }
-  const fromMem = readKeysFromMembershipEntity(membershipEntity);
-  return {
-    peer: fromMem.peer ?? peer,
-    pub: fromMem.pub ?? pub,
-  };
-}
-
-function resolveHostRoomKeys(args: {
-  members: SpaceMemberRow[];
-  hostDeviceId: string | null;
-  selfDeviceId: string;
-  membershipEntity: Entity | null;
-}): { peer: string | null; pub: string | null } {
-  const row = findHostMember(args.members, args.hostDeviceId);
-  const peer = row?.peerRoomId ?? null;
-  const pub = row?.peerPublicKeyB64 ?? null;
-  return mergeHostKeysFromSelfMembership({
-    peer,
-    pub,
-    hostDeviceId: args.hostDeviceId,
-    selfDeviceId: args.selfDeviceId,
-    membershipEntity: args.membershipEntity,
-  });
 }
 
 export type SpaceRoomBootstrap = {
@@ -95,31 +19,18 @@ export function computeSpaceRoomBootstrap(args: {
   role: SpaceMembershipRole | null;
   phantomPeerId: string | null;
   phantomPublicKey: string | null;
-  members: SpaceMemberRow[];
-  hostDeviceId: string | null;
-  selfDeviceId: string;
-  membershipEntity: Entity | null;
+  hostRoomPeerId: string | null;
+  hostRoomPublicKey: string | null;
 }): SpaceRoomBootstrap | null {
-  if (
-    !nonEmptyString(args.spaceId) ||
-    !args.spaceLive ||
-    args.role === null
-  ) {
+  if (!nonEmptyString(args.spaceId) || !args.spaceLive || args.role === null) {
     return null;
   }
-
-  const hk = resolveHostRoomKeys({
-    members: args.members,
-    hostDeviceId: args.hostDeviceId,
-    selfDeviceId: args.selfDeviceId,
-    membershipEntity: args.membershipEntity,
-  });
 
   if (
     !nonEmptyString(args.phantomPeerId) ||
     !nonEmptyString(args.phantomPublicKey) ||
-    !nonEmptyString(hk.peer) ||
-    !nonEmptyString(hk.pub)
+    !nonEmptyString(args.hostRoomPeerId) ||
+    !nonEmptyString(args.hostRoomPublicKey)
   ) {
     return null;
   }
@@ -127,8 +38,8 @@ export function computeSpaceRoomBootstrap(args: {
   return {
     spaceId: args.spaceId,
     role: args.role,
-    hostRoomPeerId: hk.peer,
-    hostRoomPublicKey: hk.pub,
+    hostRoomPeerId: args.hostRoomPeerId,
+    hostRoomPublicKey: args.hostRoomPublicKey,
     phantomPeerId: args.phantomPeerId,
     phantomPublicKey: args.phantomPublicKey,
   };

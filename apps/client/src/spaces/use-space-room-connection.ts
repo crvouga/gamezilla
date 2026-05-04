@@ -10,15 +10,26 @@ export function useSpaceRoomConnection(
   bootstrap: SpaceRoomBootstrap | null,
   configService: ConfigService,
   storage: SecureStorage,
-  selfDeviceId: string
-): { room: Room | null; roomRef: MutableRefObject<Room | null> } {
+  getSessionToken: () => string | null
+): {
+  room: Room | null;
+  roomRef: MutableRefObject<Room | null>;
+  transport: WebSocketRoomTransport | null;
+  sessionPeerId: string | null;
+} {
   const [room, setRoom] = useState<Room | null>(null);
+  const [transport, setTransport] = useState<WebSocketRoomTransport | null>(
+    null
+  );
+  const [sessionPeerId, setSessionPeerId] = useState<string | null>(null);
   const transportRef = useRef<WebSocketRoomTransport | null>(null);
   const roomRef = useRef<Room | null>(null);
 
   useEffect(() => {
     roomRef.current = null;
     setRoom(null);
+    setTransport(null);
+    setSessionPeerId(null);
     if (bootstrap === null) {
       return;
     }
@@ -27,25 +38,31 @@ export function useSpaceRoomConnection(
     transportRef.current = null;
 
     const run = async (): Promise<void> => {
-      const { room: r, transport } = await createSpaceRoom({
+      const {
+        room: r,
+        transport: tr,
+        sessionPeerId: sid,
+      } = await createSpaceRoom({
         spaceId: bootstrap.spaceId,
         role: bootstrap.role,
         apiUrl: configService.getApiUrl(),
         storage,
-        selfDeviceId,
         hostRoomPeerId: bootstrap.hostRoomPeerId,
         hostRoomPublicKey: bootstrap.hostRoomPublicKey,
         phantomPeerId: bootstrap.phantomPeerId,
         phantomPublicKey: bootstrap.phantomPublicKey,
+        sessionToken: getSessionToken(),
       });
       if (cancelled) {
         r.destroy();
-        transport.destroy();
+        tr.destroy();
         return;
       }
-      transportRef.current = transport;
+      transportRef.current = tr;
       roomRef.current = r;
       setRoom(r);
+      setTransport(tr);
+      setSessionPeerId(sid);
     };
 
     void run();
@@ -57,10 +74,12 @@ export function useSpaceRoomConnection(
       roomRef.current = null;
       transportRef.current = null;
       setRoom(null);
+      setTransport(null);
+      setSessionPeerId(null);
       r?.destroy();
       t?.destroy();
     };
-  }, [bootstrap, configService, storage, selfDeviceId]);
+  }, [bootstrap, configService, storage, getSessionToken]);
 
-  return { room, roomRef };
+  return { room, roomRef, transport, sessionPeerId };
 }

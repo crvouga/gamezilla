@@ -46,7 +46,11 @@ declare interface DurableObject {
     ws: WebSocket,
     message: string | ArrayBuffer
   ): void | Promise<void>;
-  webSocketClose?(ws: WebSocket, code: number, reason: string): void | Promise<void>;
+  webSocketClose?(
+    ws: WebSocket,
+    code: number,
+    reason: string
+  ): void | Promise<void>;
 }
 
 declare interface ExecutionContext {

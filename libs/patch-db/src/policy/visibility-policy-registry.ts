@@ -88,7 +88,9 @@ export class VisibilityPolicyRegistry<
    * context (including client-only). Authorization lives in those hooks only.
    */
   install(db: PatchDb): () => void {
-    const offRead = db.hooks.beforeRead((query, ctx) => this.applyReadPolicy(query, ctx));
+    const offRead = db.hooks.beforeRead((query, ctx) =>
+      this.applyReadPolicy(query, ctx)
+    );
     const offWrite = db.hooks.beforeWrite((patches, ctx, tx) =>
       this.applyWritePolicy(patches, ctx, tx)
     );
@@ -99,7 +101,10 @@ export class VisibilityPolicyRegistry<
     };
   }
 
-  private applyReadPolicy(query: PatchDbQuery, ctx: PatchDbContext): PatchDbQuery {
+  private applyReadPolicy(
+    query: PatchDbQuery,
+    ctx: PatchDbContext
+  ): PatchDbQuery {
     if (isPatchDbSystemContext(ctx)) return query;
 
     if (query.entityType === undefined || query.entityType === '') {
@@ -153,7 +158,9 @@ export class VisibilityPolicyRegistry<
         rejected.push({
           patchId,
           code: 'unknown_entity_type',
-          reason: truncate(`no visibility policy for entity type ${p.entityType}`),
+          reason: truncate(
+            `no visibility policy for entity type ${p.entityType}`
+          ),
           patch: p,
         });
         continue;

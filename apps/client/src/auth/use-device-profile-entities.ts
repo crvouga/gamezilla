@@ -86,3 +86,31 @@ export function useDeviceProfileEntities(
 
   return { deviceById, profileById };
 }
+
+/**
+ * Loads `profile` rows by entity id (e.g. account ids for space members).
+ */
+export function useProfileEntities(profileEntityIds: string[]): {
+  profileById: Map<string, Entity>;
+} {
+  const sortedUniqueIds = useMemo(
+    () => [...new Set(profileEntityIds)].filter((id) => id.length > 0).sort(),
+    [profileEntityIds]
+  );
+
+  const profilesResult = useQuery(
+    sortedUniqueIds.length === 0
+      ? { entityType: PROFILE_ENTITY_TYPE, limit: 0 }
+      : { entityType: PROFILE_ENTITY_TYPE, entityId: sortedUniqueIds }
+  );
+
+  const profileById = useMemo(() => {
+    const m = new Map<string, Entity>();
+    for (const p of profilesResult.entities) {
+      m.set(p.entityId, p);
+    }
+    return m;
+  }, [profilesResult.entities]);
+
+  return { profileById };
+}

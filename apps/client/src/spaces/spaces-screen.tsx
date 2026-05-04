@@ -1,4 +1,8 @@
-import { useSpaceActions } from '@gamezilla/client/spaces/space-actions';
+import { useAuth } from '@gamezilla/client/auth/auth-context';
+import {
+  SpaceActionAuthError,
+  useSpaceActions,
+} from '@gamezilla/client/spaces/space-actions';
 import { SpaceCard } from '@gamezilla/client/spaces/space-card';
 import { useSpaces } from '@gamezilla/client/spaces/use-spaces';
 import { useAccountActions } from '@gamezilla/client/ui/use-account-actions';
@@ -50,6 +54,7 @@ function SpacesList({ spaces }: SpacesListProps) {
 
 export function SpacesScreen() {
   const accountActions = useAccountActions();
+  const auth = useAuth();
   const isMobile = useBreakpoint() === 'mobile';
   const router = useRouter();
   const { spaces } = useSpaces();
@@ -58,9 +63,17 @@ export function SpacesScreen() {
   const theme = useTheme();
 
   const onNewSpace = async () => {
-    const newId = await createSpace();
-    if (newId) {
-      router.push({ pathname: '/space/[id]', params: { id: newId } });
+    try {
+      const newId = await createSpace();
+      if (newId) {
+        router.push({ pathname: '/space/[id]', params: { id: newId } });
+      }
+    } catch (e) {
+      if (e instanceof SpaceActionAuthError) {
+        auth.openSignInModal();
+      } else {
+        throw e;
+      }
     }
   };
 

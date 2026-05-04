@@ -67,6 +67,8 @@ export { DeterministicSimulator } from './simulator';
 export {
   InMemoryBus,
   InMemoryTransport,
+  isRoomPresenceWirePayload,
+  ROOM_PRESENCE_CHANNEL,
   WebSocketRoomTransport,
   type MessageInterceptor,
   type WebSocketRoomTransportOptions,

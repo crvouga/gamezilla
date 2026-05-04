@@ -224,13 +224,15 @@ const spacePolicy: AppVisibilityPolicy = {
     (ctx): PatchDbQueryWhereClause => ({
       type: 'or',
       clauses: [
-        { type: '=', attribute: SpaceAttr.hostId, value: ctx.deviceId },
+        { type: '=', attribute: SpaceAttr.hostId, value: ctx.accountId },
         { type: '=', attribute: 'entity/owner', value: ctx.accountId },
         {
           type: 'contains',
-          attribute: 'space/memberUserIds',
+          attribute: SpaceAttr.memberUserIds,
           value: ctx.accountId,
         },
+        /** Signed-in users can open live spaces (join UX, lobby list). */
+        { type: 'not_exists', attribute: SpaceAttr.endedAt },
       ],
     })
   ),
@@ -241,8 +243,8 @@ const spacePolicy: AppVisibilityPolicy = {
     assertCreatedByMatchesDevice(appCtx, patch);
     const hostId = patch.attributes[SpaceAttr.hostId];
     const owner = patch.attributes['entity/owner'];
-    const members = patch.attributes['space/memberUserIds'];
-    const isHost = typeof hostId === 'string' && hostId === appCtx.deviceId;
+    const members = patch.attributes[SpaceAttr.memberUserIds];
+    const isHost = typeof hostId === 'string' && hostId === appCtx.accountId;
     const isOwner = typeof owner === 'string' && owner === appCtx.accountId;
     const isMember =
       Array.isArray(members) && members.includes(appCtx.accountId);

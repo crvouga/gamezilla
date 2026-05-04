@@ -1,5 +1,4 @@
-import { useDeviceService } from '@gamezilla/client/runtime/runtime-hooks';
-import { useDeviceProfileEntities } from '@gamezilla/client/auth/use-device-profile-entities';
+import { useProfileEntities } from '@gamezilla/client/auth/use-device-profile-entities';
 import { displayNameForDevice } from '@gamezilla/client/profile/device-display';
 import { DEVICE_ENTITY_TYPE, DeviceAttr } from '@gamezilla/domain/auth';
 import {
@@ -19,7 +18,7 @@ import { useLingui } from '@lingui/react/macro';
 import { useMemo } from 'react';
 
 import {
-  devicePresentation,
+  accountPresentation,
   useSelfAccountProfile,
   useSelfAuthIdentity,
   withSelfAccountProfile,
@@ -55,22 +54,16 @@ const LIVE_SPACES_QUERY: PatchDbQuery = {
 
 function buildSpaceView(args: {
   entity: Entity;
-  deviceById: Map<string, Entity>;
   profileById: Map<string, Entity>;
-  selfDeviceId: string;
-  selfAccountId: string | null;
   t: ReturnType<typeof useLingui>['t'];
 }): SpaceView {
   const { entity, t } = args;
   const customTitle = readStringAttr(entity.attributes, SpaceAttr.title);
   const hostId = readStringAttr(entity.attributes, SpaceAttr.hostId) ?? '';
   const { displayName: hostDisplayName, avatarConfig: hostAvatarConfig } =
-    devicePresentation({
-      deviceId: hostId,
-      deviceById: args.deviceById,
+    accountPresentation({
+      accountId: hostId,
       profileById: args.profileById,
-      selfDeviceId: args.selfDeviceId,
-      selfAccountId: args.selfAccountId,
     });
   const title = customTitle ?? t`${hostDisplayName}'s space`;
   return {
@@ -84,23 +77,23 @@ function buildSpaceView(args: {
 }
 
 export function useSpaces() {
-  const { selfDeviceId, selfAccountId } = useSelfAuthIdentity();
+  const { selfAccountId } = useSelfAuthIdentity();
   const { t } = useLingui();
 
   const spacesResult = useQuery(LIVE_SPACES_QUERY);
 
-  const hostIds = useMemo(() => {
+  const hostAccountIds = useMemo(() => {
     const list = spacesResult.entities ?? [];
     const ids = new Set<string>();
     for (const e of list) {
       const hid = readStringAttr(e.attributes, SpaceAttr.hostId);
       if (hid) ids.add(hid);
     }
-    ids.add(selfDeviceId);
+    if (selfAccountId !== null) ids.add(selfAccountId);
     return [...ids];
-  }, [spacesResult.entities, selfDeviceId]);
+  }, [spacesResult.entities, selfAccountId]);
 
-  const { deviceById, profileById } = useDeviceProfileEntities(hostIds);
+  const { profileById } = useProfileEntities(hostAccountIds);
 
   const { entity: selfAccountProfile } = useSelfAccountProfile(selfAccountId);
 
@@ -114,19 +107,14 @@ export function useSpaces() {
     return list.map((entity) =>
       buildSpaceView({
         entity,
-        deviceById,
         profileById: augmented,
-        selfDeviceId,
-        selfAccountId,
         t,
       })
     );
   }, [
     spacesResult.entities,
-    deviceById,
     profileById,
     selfAccountProfile,
-    selfDeviceId,
     selfAccountId,
     t,
   ]);
@@ -142,6 +130,8 @@ function readSpaceEntitySnapshot(entity: Entity | null): {
   endedAt: string | null;
   phantomPeerId: string | null;
   phantomPublicKey: string | null;
+  hostRoomPeerId: string | null;
+  hostRoomPublicKey: string | null;
 } {
   const attrs = entity?.attributes;
   return {
@@ -152,6 +142,8 @@ function readSpaceEntitySnapshot(entity: Entity | null): {
     endedAt: readStringAttr(attrs, SpaceAttr.endedAt),
     phantomPeerId: readStringAttr(attrs, SpaceAttr.phantomPeerId),
     phantomPublicKey: readStringAttr(attrs, SpaceAttr.phantomPublicKey),
+    hostRoomPeerId: readStringAttr(attrs, SpaceAttr.hostRoomPeerId),
+    hostRoomPublicKey: readStringAttr(attrs, SpaceAttr.hostRoomPublicKey),
   };
 }
 
@@ -167,7 +159,7 @@ export function useSpace(spaceId: string | undefined) {
   const entity = spaceRes.entities[0] ?? null;
   const snap = readSpaceEntitySnapshot(entity);
 
-  const hostDisplayName = useDeviceDisplayName(snap.hostId);
+  const hostDisplayName = useAccountDisplayName(snap.hostId);
   const { t } = useLingui();
   const title = snap.customTitle ?? t`${hostDisplayName}'s space`;
 
@@ -182,6 +174,8 @@ export function useSpace(spaceId: string | undefined) {
     endedAt: snap.endedAt,
     phantomPeerId: snap.phantomPeerId,
     phantomPublicKey: snap.phantomPublicKey,
+    hostRoomPeerId: snap.hostRoomPeerId,
+    hostRoomPublicKey: snap.hostRoomPublicKey,
     isLoading: spaceRes.isLoading,
   };
 }
@@ -255,6 +249,30 @@ export function useDeviceDisplayName(deviceId: string | null | undefined) {
   }, [id, profileEntity]);
 }
 
+/** Display label from a `profile` row keyed by `accountId`. */
+export function useAccountDisplayName(accountId: string | null | undefined) {
+  const id =
+    typeof accountId === 'string' && accountId.length > 0
+      ? accountId
+      : NO_ENTITY_PLACEHOLDER;
+
+  const profileRes = useQuery(
+    id === NO_ENTITY_PLACEHOLDER
+      ? { entityType: PROFILE_ENTITY_TYPE, limit: 0 }
+      : {
+          entityType: PROFILE_ENTITY_TYPE,
+          entityId: id,
+        }
+  );
+  const profileEntity = profileRes.entities[0] ?? null;
+
+  return useMemo(() => {
+    const effectiveId = id === NO_ENTITY_PLACEHOLDER ? 'unknown' : id;
+    const raw = profileEntity?.attributes[ProfileAttr.displayName];
+    return displayNameForDevice(raw, effectiveId);
+  }, [id, profileEntity]);
+}
+
 export type CurrentMembership = {
   /** Active space id when the user is a member of a live space. */
   activeSpaceId: string | null;
@@ -316,20 +334,16 @@ function extractMembershipState(membership: Entity | null): {
 }
 
 export function useCurrentMembership(): CurrentMembership {
-  const deviceService = useDeviceService();
-  const deviceId = deviceService.getDeviceId();
+  const { selfAccountId } = useSelfAuthIdentity();
 
-  // Memberships are keyed by `entityId === deviceId` (one row per device;
-  // see `space-entities.ts`), so the current device's membership
-  // is found by direct entityId lookup. Earlier versions of this hook tried
-  // to scope by `patch/lastModifiedByAccountId` to gather memberships across
-  // an account's devices, but that meta-key is stripped from entity
-  // snapshots, so the WHERE clause never matched and the query was always
-  // empty.
-  const memRes = useQuery({
-    entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
-    entityId: deviceId,
-  });
+  const memRes = useQuery(
+    selfAccountId === null
+      ? { entityType: SPACE_MEMBERSHIP_ENTITY_TYPE, limit: 0 }
+      : {
+          entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
+          entityId: selfAccountId,
+        }
+  );
 
   const membership = (memRes.entities[0] ?? null) as Entity | null;
 
@@ -372,37 +386,24 @@ function compareMembers(a: SpaceMemberRow, b: SpaceMemberRow): number {
 
 function buildMemberRow(args: {
   membership: Entity;
-  deviceById: Map<string, Entity>;
   profileById: Map<string, Entity>;
-  selfDeviceId: string;
-  selfAccountId: string | null;
 }): SpaceMemberRow {
   const { membership } = args;
+  const accountId = membership.entityId;
   const roleRaw = membership.attributes[SpaceMembershipAttr.role];
   const role: 'host' | 'guest' = roleRaw === 'host' ? 'host' : 'guest';
   return {
-    deviceId: membership.entityId,
-    ...devicePresentation({
-      deviceId: membership.entityId,
-      deviceById: args.deviceById,
+    accountId,
+    ...accountPresentation({
+      accountId,
       profileById: args.profileById,
-      selfDeviceId: args.selfDeviceId,
-      selfAccountId: args.selfAccountId,
     }),
     role,
-    peerRoomId: readStringAttr(
-      membership.attributes,
-      SpaceMembershipAttr.peerId
-    ),
-    peerPublicKeyB64: readStringAttr(
-      membership.attributes,
-      SpaceMembershipAttr.peerPublicKey
-    ),
   };
 }
 
 export function useSpaceMembers(spaceId: string | undefined) {
-  const { selfDeviceId, selfAccountId } = useSelfAuthIdentity();
+  const { selfAccountId } = useSelfAuthIdentity();
 
   const sid =
     typeof spaceId === 'string' && spaceId.length > 0
@@ -420,12 +421,18 @@ export function useSpaceMembers(spaceId: string | undefined) {
     },
   });
 
-  const memberDeviceIds = useMemo(() => {
+  const memberAccountIds = useMemo(() => {
     const ids = (membersRes.entities ?? []).map((e) => e.entityId);
-    return ids.length > 0 ? ids : [selfDeviceId];
-  }, [membersRes.entities, selfDeviceId]);
+    return ids.length > 0 && selfAccountId !== null
+      ? [...ids, selfAccountId]
+      : ids.length > 0
+        ? ids
+        : selfAccountId !== null
+          ? [selfAccountId]
+          : [];
+  }, [membersRes.entities, selfAccountId]);
 
-  const { deviceById, profileById } = useDeviceProfileEntities(memberDeviceIds);
+  const { profileById } = useProfileEntities(memberAccountIds);
 
   const { entity: selfAccountProfile } = useSelfAccountProfile(selfAccountId);
 
@@ -439,22 +446,12 @@ export function useSpaceMembers(spaceId: string | undefined) {
       (membership) =>
         buildMemberRow({
           membership,
-          deviceById,
           profileById: augmented,
-          selfDeviceId,
-          selfAccountId,
         })
     );
     rows.sort(compareMembers);
     return rows;
-  }, [
-    membersRes.entities,
-    deviceById,
-    profileById,
-    selfAccountProfile,
-    selfDeviceId,
-    selfAccountId,
-  ]);
+  }, [membersRes.entities, profileById, selfAccountProfile, selfAccountId]);
 
   return { members };
 }

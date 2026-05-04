@@ -3,6 +3,17 @@ import type { Transport, TransportMessageContext } from './transport-types';
 
 const crash: Assert = Assert.crash();
 
+export const ROOM_PRESENCE_CHANNEL = 'presence' as const;
+
+export function isRoomPresenceWirePayload(v: unknown): boolean {
+  return (
+    v !== null &&
+    typeof v === 'object' &&
+    'ch' in v &&
+    (v as { ch?: unknown }).ch === ROOM_PRESENCE_CHANNEL
+  );
+}
+
 export type WebSocketRoomTransportOptions = {
   /** Full WebSocket URL (e.g. `wss://api.example.com/room/ws?topic=...`). */
   url: string;
@@ -15,6 +26,8 @@ export type WebSocketRoomTransportOptions = {
 };
 
 type Subscriber = (payload: unknown, context?: TransportMessageContext) => void;
+
+const PRESENCE_TOPIC = '__room_presence__' as const;
 
 /**
  * `Transport` backed by a browser / RN `WebSocket`, for real multi-device sync
@@ -34,8 +47,14 @@ export class WebSocketRoomTransport implements Transport {
   private readonly connectHandlers = new Set<() => void>();
 
   constructor(options: WebSocketRoomTransportOptions) {
-    crash.nonEmptyString(options.url, 'WebSocketRoomTransport url must be non-empty');
-    crash.nonEmptyString(options.topic, 'WebSocketRoomTransport topic must be non-empty');
+    crash.nonEmptyString(
+      options.url,
+      'WebSocketRoomTransport url must be non-empty'
+    );
+    crash.nonEmptyString(
+      options.topic,
+      'WebSocketRoomTransport topic must be non-empty'
+    );
     this.url = options.url;
     this.topic = options.topic;
     this.reconnectBaseMs = options.reconnectBaseMs ?? 500;
@@ -45,22 +64,49 @@ export class WebSocketRoomTransport implements Transport {
 
   publish(topic: string, payload: unknown, _options?: { qos?: 0 | 1 }): void {
     void _options;
-    crash.ok(!this.is_destroyed, 'cannot publish on destroyed WebSocketRoomTransport');
+    crash.ok(
+      !this.is_destroyed,
+      'cannot publish on destroyed WebSocketRoomTransport'
+    );
     crash.nonEmptyString(topic, 'topic must be non-empty string');
     const s = this.socket;
     const OPEN = typeof WebSocket !== 'undefined' ? WebSocket.OPEN : 1;
     if (s === null || s.readyState !== OPEN) {
       return;
     }
+    if (isRoomPresenceWirePayload(payload)) {
+      crash.fail('presence payloads must use sendPresenceFrame(), not publish()');
+    }
     const text = JSON.stringify(payload);
     s.send(text);
+  }
+
+  /**
+   * Sends a presence control frame on the same socket (not routed through
+   * {@link Room} `publish` — presence uses a parallel `ch: "presence"` wire shape).
+   */
+  sendPresenceFrame(payload: unknown): void {
+    crash.ok(
+      !this.is_destroyed,
+      'cannot sendPresenceFrame on destroyed WebSocketRoomTransport'
+    );
+    crash.ok(isRoomPresenceWirePayload(payload), 'payload must be a presence frame');
+    const s = this.socket;
+    const OPEN = typeof WebSocket !== 'undefined' ? WebSocket.OPEN : 1;
+    if (s === null || s.readyState !== OPEN) {
+      return;
+    }
+    s.send(JSON.stringify(payload));
   }
 
   subscribe(
     topic: string,
     handler: (payload: unknown, context?: TransportMessageContext) => void
   ): () => void {
-    crash.ok(!this.is_destroyed, 'cannot subscribe on destroyed WebSocketRoomTransport');
+    crash.ok(
+      !this.is_destroyed,
+      'cannot subscribe on destroyed WebSocketRoomTransport'
+    );
     crash.nonEmptyString(topic, 'topic must be non-empty string');
     crash.ok(typeof handler === 'function', 'handler must be a function');
     if (!this.subscribers.has(topic)) {
@@ -74,8 +120,18 @@ export class WebSocketRoomTransport implements Transport {
     };
   }
 
+  /** Subscribe to inbound `ch: "presence"` frames only. */
+  subscribePresence(
+    handler: (payload: unknown, context?: TransportMessageContext) => void
+  ): () => void {
+    return this.subscribe(PRESENCE_TOPIC, handler);
+  }
+
   onConnect(handler: () => void): () => void {
-    crash.ok(!this.is_destroyed, 'cannot onConnect on destroyed WebSocketRoomTransport');
+    crash.ok(
+      !this.is_destroyed,
+      'cannot onConnect on destroyed WebSocketRoomTransport'
+    );
     crash.ok(typeof handler === 'function', 'handler must be a function');
     this.connectHandlers.add(handler);
     return () => {
@@ -124,6 +180,14 @@ export class WebSocketRoomTransport implements Transport {
       try {
         parsed = JSON.parse(raw) as unknown;
       } catch {
+        return;
+      }
+      if (isRoomPresenceWirePayload(parsed)) {
+        const handlers = this.subscribers.get(PRESENCE_TOPIC);
+        if (!handlers) return;
+        for (const h of [...handlers]) {
+          h(parsed, undefined);
+        }
         return;
       }
       const handlers = this.subscribers.get(this.topic);
