@@ -669,7 +669,7 @@ class_name = "GameRoom"
 
 [[migrations]]
 tag = "v1"
-new_classes = ["GameRoom"]
+new_sqlite_classes = ["GameRoom"]
 
 [vars]
 ENVIRONMENT = "production"

@@ -11,17 +11,16 @@ routes = [{ pattern = "api.gamezilla.app", custom_domain = true }]
 name = "ROOM"
 class_name = "Room"
 
-# Cloudflare DO migrations are append-only and identified by tag; never edit
-# a tag that has already been applied in production. The original v1 created
-# the `RoomRelay` class; v2 renames the existing class to `Room` so the
-# Durable Object storage and IDs are preserved.
+# Cloudflare DO migrations are append-only and identified by tag; never edit a
+# tag that has already been applied in production. Free-plan Workers require
+# SQLite-backed DOs (`new_sqlite_classes`); `new_classes` is paid-plan only.
+# The earlier `v1-room-relay` / `v2-rename-room` tags never deployed
+# successfully (all prior deploys failed with Cloudflare error 10097 before
+# the namespace was created), so replacing them with a single SQLite-backed
+# migration is safe.
 [[migrations]]
-tag = "v1-room-relay"
-new_classes = ["RoomRelay"]
-
-[[migrations]]
-tag = "v2-rename-room"
-renamed_classes = [{ from = "RoomRelay", to = "Room" }]
+tag = "v1-room-sqlite"
+new_sqlite_classes = ["Room"]
 
 [observability]
 [observability.logs]
