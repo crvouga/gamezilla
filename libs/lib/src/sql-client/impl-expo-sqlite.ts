@@ -18,8 +18,12 @@ const WEB_RECOVERY_RELOAD_KEY = 'gamezilla.expo-sqlite.web-recovery-reloaded';
  * next load: clears the one-shot recovery flag, wipes OPFS, deletes the DB file, and strips
  * the query param so a subsequent reload behaves normally. Use this when a dev is stuck in
  * the "already survived one recovery reload" branch and DevTools isn't convenient.
+ *
+ * Exported so user-initiated "wipe local data" flows can reuse the same recovery code path
+ * (otherwise the wipe runs while the live worker still holds OPFS access handles, which
+ * silently leaves the SQLite file on disk).
  */
-const RESET_DB_QUERY_PARAM = 'reset-db';
+export const RESET_DB_QUERY_PARAM = 'reset-db';
 
 /** Call before manual clear/reload so the one-time recovery reload can run again if needed. */
 export function clearExpoSqliteWebRecoverySessionFlag(): void {

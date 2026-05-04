@@ -1,18 +1,15 @@
 import {
-  ACCOUNT_PROVIDER_ENTITY_TYPE,
   ACCOUNT_ENTITY_TYPE,
+  ACCOUNT_PROVIDER_ENTITY_TYPE,
+  ACCOUNT_SESSION_ENTITY_TYPE,
   AccountAttr,
   AccountProviderAttr,
-  DEVICE_ENTITY_TYPE,
-  ACCOUNT_SESSION_ENTITY_TYPE,
-  DeviceAttr,
   AccountSessionAttr,
+  DEVICE_ENTITY_TYPE,
+  DeviceAttr,
 } from '@gamezilla/domain/auth';
 import { CLIENT_CONFIG_ENTITY_TYPE } from '@gamezilla/domain/client-config/client-config-entities';
-import {
-  PROFILE_ENTITY_TYPE,
-  ProfileAttr,
-} from '@gamezilla/domain/profile/profile-entities';
+import { PROFILE_ENTITY_TYPE } from '@gamezilla/domain/profile/profile-entities';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
@@ -201,16 +198,6 @@ const profilePolicy: AppVisibilityPolicy = {
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
     assertCreatedByMatchesDevice(appCtx, patch);
-    const pid = patch.attributes[ProfileAttr.id];
-    if (typeof pid === 'string' && pid !== appCtx.deviceId) {
-      throw new ForbiddenError('profile device mismatch');
-    }
-    if (
-      patch.entityId !== appCtx.deviceId &&
-      patch.entityId !== appCtx.accountId
-    ) {
-      throw new ForbiddenError('profile entity id mismatch');
-    }
   },
 };
 
