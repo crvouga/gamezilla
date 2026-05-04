@@ -150,19 +150,28 @@ export class ApiWorkerResource extends ResourceBase {
 
   async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {}
 
+  async dryRun(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
+    await this.validateDopplerForDeploy();
+
+    // `wrangler deploy --dry-run` bundles the Worker and validates bindings /
+    // migration syntax *locally* without contacting the Cloudflare API. This
+    // catches TypeScript errors, missing imports, invalid wrangler.toml, and
+    // binding mismatches before we start touching production.
+    const apiDir = join(REPO_ROOT, 'apps/api');
+    await runAsync(platform, 'wrangler', ['deploy', '--dry-run'], {
+      cwd: apiDir,
+      env: wranglerEnv(),
+      label: 'workers-api: Cloudflare Workers deploy (dry-run)',
+    });
+
+    ok('workers-api dry-run', 'bundle + bindings validated locally');
+  }
+
   async deploy(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const apiDir = join(REPO_ROOT, 'apps/api');
     const env = wranglerEnv();
 
-    const doppler = resolveDopplerConfigForDeploy();
-
-    await preflightDopplerDownload(doppler);
-    ok(
-      'Doppler preflight',
-      doppler.project !== null
-        ? `token + project=${doppler.project} config=${doppler.config} verified`
-        : 'config-scoped service token verified'
-    );
+    const doppler = await this.validateDopplerForDeploy();
 
     await runCaptureAsync('wrangler', ['secret', 'put', 'DOPPLER_TOKEN'], {
       cwd: apiDir,
@@ -198,6 +207,24 @@ export class ApiWorkerResource extends ResourceBase {
     });
 
     platform.notice('Workers API deployed.');
+  }
+
+  /**
+   * Shared between `dryRun` and `deploy`: verify the Doppler token format and
+   * that the Worker-runtime scope can actually hit Doppler's download API.
+   * Idempotent — running it twice per CI job (once in dry-run, once in deploy)
+   * adds a few hundred ms but keeps both phases self-sufficient.
+   */
+  private async validateDopplerForDeploy(): Promise<DopplerDeployConfig> {
+    const doppler = resolveDopplerConfigForDeploy();
+    await preflightDopplerDownload(doppler);
+    ok(
+      'Doppler preflight',
+      doppler.project !== null
+        ? `token + project=${doppler.project} config=${doppler.config} verified`
+        : 'config-scoped service token verified'
+    );
+    return doppler;
   }
 
   destroy(): void {

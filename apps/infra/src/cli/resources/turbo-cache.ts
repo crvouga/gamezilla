@@ -24,6 +24,19 @@ export class TurboCacheResource extends ResourceBase {
     this.syncTurboToken();
   }
 
+  async dryRun(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
+    // Bundle + validate the Worker locally; no Cloudflare API calls, no
+    // secret writes. The TURBO_TOKEN secret is already synced by `provision`,
+    // so nothing state-modifying is needed here.
+    await runAsync(platform, 'wrangler', ['deploy', '--dry-run'], {
+      cwd: join(REPO_ROOT, 'apps/turbo-cache'),
+      env: wranglerEnv(),
+      label: 'turbo-cache: Cloudflare Workers deploy (dry-run)',
+    });
+
+    ok('turbo-cache dry-run', 'bundle + bindings validated locally');
+  }
+
   async deploy(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     this.syncTurboToken();
 

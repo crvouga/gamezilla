@@ -24,25 +24,28 @@ export class ClientResource extends ResourceBase {
 
   async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {}
 
+  /**
+   * `wrangler pages deploy` has no `--dry-run` and the Expo build is too
+   * expensive to run twice per CI job, so the dry-run only checks the cheap
+   * preconditions that would otherwise blow up mid-build or mid-upload. Any
+   * build-time failure still shows up at `deploy`, but by then the earlier
+   * Workers in the pipeline have also been dry-run-validated, so we fail in a
+   * consistent place rather than after turbo-cache has already shipped.
+   */
+  async dryRun(platform: CiPlatform, ctx: InfraContext): Promise<void> {
+    this.validateBuildInputs(platform, ctx);
+    ok('client dry-run', 'API URL + commit SHA validated');
+  }
+
   async deploy(platform: CiPlatform, ctx: InfraContext): Promise<void> {
+    const { apiUrl: _apiUrl, commitHash } = this.validateBuildInputs(
+      platform,
+      ctx
+    );
     const outputs = infraOutputs(ctx);
-    const apiUrl = toHttps(outputs.api_url);
     const pagesProject = outputs.pages_project_name;
 
-    if (!/^https:\/\//.test(apiUrl)) {
-      platform.error(`API_URL must be https:// (got: ${apiUrl})`);
-      assert.fail('client: API URL must be https://');
-    }
-
     const clientDir = join(REPO_ROOT, 'apps/client');
-
-    const rawSha = runCapture('git', ['rev-parse', 'HEAD'], { cwd: REPO_ROOT });
-    const commitHash = rawSha.trim().toLowerCase();
-    assert.ok(
-      COMMIT_HASH_HEX_REGEX.test(commitHash),
-      'client: git HEAD must be a valid lowercase hex commit SHA',
-      { rawSha }
-    );
 
     await runAsync(platform, 'bun', ['run', 'build'], {
       cwd: clientDir,
@@ -80,6 +83,34 @@ export class ClientResource extends ResourceBase {
     });
 
     platform.notice('Client exported and deployed to Cloudflare Pages.');
+  }
+
+  /**
+   * Shared between `dryRun` and `deploy`. Kept cheap and side-effect-free:
+   * no build, no network — only local validation of inputs that must be in
+   * the right shape for the Pages deploy to succeed.
+   */
+  private validateBuildInputs(
+    platform: CiPlatform,
+    ctx: InfraContext
+  ): { apiUrl: string; commitHash: string } {
+    const outputs = infraOutputs(ctx);
+    const apiUrl = toHttps(outputs.api_url);
+
+    if (!/^https:\/\//.test(apiUrl)) {
+      platform.error(`API_URL must be https:// (got: ${apiUrl})`);
+      assert.fail('client: API URL must be https://');
+    }
+
+    const rawSha = runCapture('git', ['rev-parse', 'HEAD'], { cwd: REPO_ROOT });
+    const commitHash = rawSha.trim().toLowerCase();
+    assert.ok(
+      COMMIT_HASH_HEX_REGEX.test(commitHash),
+      'client: git HEAD must be a valid lowercase hex commit SHA',
+      { rawSha }
+    );
+
+    return { apiUrl, commitHash };
   }
 
   async destroy(): Promise<void> {

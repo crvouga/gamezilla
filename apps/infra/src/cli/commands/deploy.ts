@@ -83,6 +83,20 @@ export class DeployCommand implements Command {
       });
     });
 
+    // ── 2c. Dry-run every deployable resource BEFORE touching any of them ──
+    // Fail-fast gate: if any resource's deploy would fail at bundle/bindings
+    // validation, we surface that here — *before* turbo-cache ships and
+    // leaves the stack in a half-deployed state. Resources without a
+    // `dryRun` method (e.g. infra that can't be simulated) are skipped; a
+    // missing `dryRun` on a resource that *does* have `deploy` is allowed
+    // but worth revisiting if partial-deploy incidents recur.
+    for (const resource of resources) {
+      if (!resource.dryRun) continue;
+      await runStep(p, `Dry run: ${resource.id}`, async () => {
+        await resource.dryRun!(p, ctx);
+      });
+    }
+
     // ── 3. Deploy resources that have a deploy method (topological order)
     for (const resource of resources) {
       if (!resource.deploy) continue;
