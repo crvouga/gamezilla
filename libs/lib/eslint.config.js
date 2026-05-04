@@ -31,6 +31,20 @@ module.exports = [
     },
   },
   {
+    files: ['src/dependency-injection/component-system.ts'],
+    rules: {
+      'max-classes-per-file': 'off',
+      'max-statements': 'off',
+      complexity: 'off',
+    },
+  },
+  {
+    files: ['src/dependency-injection/component-system.test.ts'],
+    rules: {
+      'max-classes-per-file': 'off',
+    },
+  },
+  {
     files: ['**/*.test.{ts,tsx}'],
     rules: {
       'lingui/no-unlocalized-strings': 'off',

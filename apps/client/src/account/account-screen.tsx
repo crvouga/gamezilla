@@ -1,7 +1,6 @@
 import { useAuth } from '@gamezilla/client/auth/auth-context';
 import { useDependency } from '@gamezilla/lib/dependency-injection/react';
 import { SecureStorageToken } from '@gamezilla/lib/secure-storage/interface';
-import { removeLocalDataForAccount } from '@gamezilla/client/ui/patch-db-bootstrap';
 import {
   type AccountDevice,
   useAccountDevices,
@@ -21,9 +20,10 @@ import { useQuery } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { type Href, useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
-import { Alert, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import { AccountDevicesCard } from './account-devices-card';
 import { formatTimestamp } from './account-format';
+import { useAccountRemoveLocalData } from './use-account-remove-local-data';
 
 type LinkedProvider = {
   entityId: string;
@@ -243,7 +243,6 @@ export function AccountScreen() {
   const nav = useBreadcrumbNav();
   const router = useRouter();
   const auth = useAuth();
-  const { t } = useLingui();
   const secureStorage = useDependency(SecureStorageToken);
   const { providers } = useLinkedProviders(auth.accountId);
 
@@ -267,34 +266,11 @@ export function AccountScreen() {
     auth.openSignOutConfirm();
   }, [auth]);
 
-  const onRemoveLocalData = useCallback(() => {
-    if (auth.accountId === null || Platform.OS === 'web') return;
-    const accountId = auth.accountId;
-    Alert.alert(
-      t`Remove local data?`,
-      t`This deletes the offline database file for this account on this device. You stay signed in; data will re-download from the server.`,
-      [
-        { text: t`Cancel`, style: 'cancel' },
-        {
-          text: t`Remove`,
-          style: 'destructive',
-          onPress: () => {
-            void (async () => {
-              try {
-                await removeLocalDataForAccount(accountId, secureStorage);
-                await auth.refreshSession();
-              } catch (err: unknown) {
-                Alert.alert(
-                  t`Could not remove local data`,
-                  err instanceof Error ? err.message : String(err)
-                );
-              }
-            })();
-          },
-        },
-      ]
-    );
-  }, [auth, secureStorage, t]);
+  const onRemoveLocalData = useAccountRemoveLocalData({
+    accountId: auth.accountId,
+    secureStorage,
+    refreshSession: auth.refreshSession,
+  });
 
   return (
     <ScreenBase

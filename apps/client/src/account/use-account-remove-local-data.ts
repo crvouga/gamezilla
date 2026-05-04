@@ -29,12 +29,10 @@ export function useAccountRemoveLocalData({
       [
         {
           text: t`Cancel`,
-          // eslint-disable-next-line lingui/no-unlocalized-strings -- RN Alert API
           style: 'cancel',
         },
         {
           text: t`Remove`,
-          // eslint-disable-next-line lingui/no-unlocalized-strings -- RN Alert API
           style: 'destructive',
           onPress: () => {
             void (async () => {

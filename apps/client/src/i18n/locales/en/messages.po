@@ -368,7 +368,7 @@ msgstr "Build"
 msgid "Build mode: {buildMode}"
 msgstr "Build mode: {buildMode}"
 
-#: apps/client/src/account/account-screen.tsx
+#: apps/client/src/account/use-account-remove-local-data.ts
 #: apps/client/src/auth/auth-context.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
@@ -564,7 +564,7 @@ msgstr "Copy to clipboard"
 msgid "CopyToClipboardField"
 msgstr "CopyToClipboardField"
 
-#: apps/client/src/account/account-screen.tsx
+#: apps/client/src/account/use-account-remove-local-data.ts
 msgid "Could not remove local data"
 msgstr "Could not remove local data"
 
@@ -1496,7 +1496,7 @@ msgstr "reload"
 msgid "Reload"
 msgstr "Reload"
 
-#: apps/client/src/account/account-screen.tsx
+#: apps/client/src/account/use-account-remove-local-data.ts
 msgid "Remove"
 msgstr "Remove"
 
@@ -1504,7 +1504,7 @@ msgstr "Remove"
 msgid "Remove local data for this account"
 msgstr "Remove local data for this account"
 
-#: apps/client/src/account/account-screen.tsx
+#: apps/client/src/account/use-account-remove-local-data.ts
 msgid "Remove local data?"
 msgstr "Remove local data?"
 
@@ -1872,7 +1872,7 @@ msgstr "Theme"
 msgid "This deletes all local SQLite data and reloads the app. You cannot undo this."
 msgstr "This deletes all local SQLite data and reloads the app. You cannot undo this."
 
-#: apps/client/src/account/account-screen.tsx
+#: apps/client/src/account/use-account-remove-local-data.ts
 msgid "This deletes the offline database file for this account on this device. You stay signed in; data will re-download from the server."
 msgstr "This deletes the offline database file for this account on this device. You stay signed in; data will re-download from the server."
 

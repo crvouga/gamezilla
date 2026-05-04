@@ -42,8 +42,11 @@ import { assertDeviceId } from '@gamezilla/domain/auth/device-id';
 import { ConfigServiceToken } from '@gamezilla/domain/config/config-service';
 import { assert } from '@gamezilla/lib/assert';
 import { clearWebClientPersistentState } from '@gamezilla/lib/browser/clear-web-client-state';
-import type { Container } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
-import { DependencyInjectionContainer } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
+import {
+  DependencyInjectionContainer,
+  isComposableDiParent,
+  type Container,
+} from '@gamezilla/lib/dependency-injection';
 import {
   ContainerProvider,
   useContainer,
@@ -117,7 +120,7 @@ type BootstrapPatchDbExpoSyncOptions = {
   transport?: PatchDbClientTransport;
   pushIntervalMs?: number;
   pollIntervalMs?: number;
-  parentContainer?: DependencyInjectionContainer;
+  parentContainer?: Container;
   /**
    * Wrap the sync DB (e.g. stamp every patch with deviceId via `createdBy`).
    * Must preserve {@link SubscribablePatchDbLike.subscribe}.
@@ -389,7 +392,7 @@ function BootstrappedShell({
 
 type PatchBootstrapDeps = {
   readonly apiBase: string;
-  readonly parentContainer: DependencyInjectionContainer;
+  readonly parentContainer: Container;
   readonly deviceService: DeviceService;
   readonly accountIdHolder: AuthAccountIdHolder;
   readonly sessionTokenHolder: AuthSessionTokenHolder;
@@ -508,7 +511,7 @@ function usePatchBootstrap() {
   const [nativeIdentityKey, setNativeIdentityKey] = useState<string>('');
   const rawContainer = useContainer();
   assert.ok(
-    rawContainer instanceof DependencyInjectionContainer,
+    isComposableDiParent(rawContainer),
     'PatchBootstrap must be rendered inside ConfigContainerProvider (and DeviceAuthShell for device identity)'
   );
   const parentContainer = rawContainer;
@@ -528,7 +531,7 @@ function usePatchBootstrap() {
     secureStorage,
   };
 
-  const wireRuntime = useCallback((c: DependencyInjectionContainer) => {
+  const wireRuntime = useCallback((c: Container) => {
     setPatchRuntimeHandles({
       getPatchDb: () => c.get(PatchDbToken),
       getSessionService: () => c.get(SessionServiceToken),

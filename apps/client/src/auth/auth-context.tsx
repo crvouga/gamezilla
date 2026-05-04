@@ -9,7 +9,10 @@ import {
 } from '@gamezilla/domain/client-config/client-config-entities';
 import { ConfigServiceToken } from '@gamezilla/domain/config/config-service';
 import { assert } from '@gamezilla/lib/assert';
-import { DependencyInjectionContainer } from '@gamezilla/lib/dependency-injection/dependency-injection-container';
+import {
+  DependencyInjectionContainer,
+  isComposableDiParent,
+} from '@gamezilla/lib/dependency-injection';
 import {
   ContainerProvider,
   useContainer,
@@ -339,7 +342,7 @@ function AuthContainerBridgeInner({
 }) {
   const parentContainer = useContainer();
   assert.ok(
-    parentContainer instanceof DependencyInjectionContainer,
+    isComposableDiParent(parentContainer),
     'AuthProvider must be under DI'
   );
   const configService = useDependency(ConfigServiceToken);

@@ -1,4 +1,3 @@
-import { createGamezillaApiClient } from '@gamezilla/client/api/hc';
 import {
   reopenPatchDbAsAccount,
   reopenPatchDbAsAnonymous,
@@ -23,6 +22,7 @@ import type { AuthSessionTokenHolder } from './auth-session-token-holder';
 import { ensureAccountProfile } from './ensure-profile-entity';
 import { AuthConfigurationError } from './auth-errors';
 import type { DeviceService } from './device-service';
+import { postGoogleAuthClaim } from './google-claim';
 
 export interface AuthService {
   signInWithGoogle(): Promise<void>;
@@ -31,12 +31,6 @@ export interface AuthService {
 
 export const AuthServiceToken: InjectionToken<AuthService> =
   Symbol('AuthService');
-
-type ClaimResponse = {
-  accountId: string;
-  sessionToken: string;
-  expiresAt: string;
-};
 
 type CreateAuthServiceDeps = {
   configService: ConfigService;
@@ -47,22 +41,6 @@ type CreateAuthServiceDeps = {
   googleSignInAvailable: boolean;
   promptGoogleIdToken: () => Promise<string>;
 };
-
-function parseClaimResponse(json: unknown): ClaimResponse {
-  assert.record(json, 'claim response must be object');
-  const accountId = json['accountId'];
-  const sessionToken = json['sessionToken'];
-  const expiresAt = json['expiresAt'];
-  assert.string(accountId, 'claim response accountId must be string');
-  assert.string(sessionToken, 'claim response sessionToken must be string');
-  assert.string(expiresAt, 'claim response expiresAt must be string');
-  assertUuid(accountId, 'claim response accountId must be UUID');
-  assert.ok(
-    sessionToken.length > 0,
-    'claim response sessionToken must be non-empty'
-  );
-  return { accountId, sessionToken, expiresAt };
-}
 
 function createGoogleSignInHandler(
   deps: CreateAuthServiceDeps
@@ -88,27 +66,16 @@ function createGoogleSignInHandler(
     assertDeviceId(deviceId);
 
     const apiUrl = configService.getApiUrl();
-    const client = createGamezillaApiClient(apiUrl);
-    const response = await client.auth.claim.$post({
-      json: { googleIdToken, deviceId },
+    const { accountId, sessionToken, expiresAt } = await postGoogleAuthClaim({
+      apiUrl,
+      googleIdToken,
+      deviceId,
     });
-
-    const text = await response.text();
-    let json: unknown;
-    try {
-      json = text.length > 0 ? (JSON.parse(text) as unknown) : null;
-    } catch {
-      throw new Error(
-        `Claim response was not JSON (status ${String(response.status)})`
-      );
-    }
-
-    if (!response.ok) {
-      throw new Error(`Claim failed (${String(response.status)}): ${text}`);
-    }
-
-    assert.ok(json !== null, 'claim success body must not be empty');
-    const { accountId, sessionToken, expiresAt } = parseClaimResponse(json);
+    assertUuid(accountId, 'claim response accountId must be UUID');
+    assert.ok(
+      sessionToken.length > 0,
+      'claim response sessionToken must be non-empty'
+    );
 
     // Stamp the bearer token before any patch-db sync push fires; otherwise
     // the unsynced session/device patches would 401 against the server.

@@ -35,25 +35,17 @@ export interface Container {
  */
 export class DependencyInjectionContainer implements Container {
   private registrations = new Map<symbol | string, Registration<unknown>>();
-  private parent: DependencyInjectionContainer | null = null;
+  private parent: Container | null = null;
   private resolutionStack: Set<symbol | string> = new Set();
   private assert: Assert;
 
   /**
    * @param parent - Optional parent container. Child inherits parent registrations
    * and can override them. Resolution falls back to parent when token is not found.
+   * Parent may be any {@link Container} (including a started component system).
    */
-  constructor(
-    parent?: DependencyInjectionContainer,
-    assertParam: Assert = assert
-  ) {
+  constructor(parent?: Container, assertParam: Assert = assert) {
     this.assert = assertParam;
-    if (parent) {
-      this.assert.ok(
-        parent instanceof DependencyInjectionContainer,
-        'Parent must be a DependencyInjectionContainer'
-      );
-    }
     this.parent = parent ?? null;
   }
 
