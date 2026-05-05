@@ -8,6 +8,7 @@
     "migrate": "bun run scripts/migrate-db.ts",
     "dev": "bun run --watch src/server.ts",
     "kill": "lsof -ti :15432 | xargs kill -9 2>/dev/null || true",
+    "clean": "rm -rf .pglite",
     "preview": "bun run src/server.ts",
     "up": "bun run src/server.ts"
   },
