@@ -50,7 +50,9 @@ export function authOnlyRead(
 }
 
 /** Client-only writes skip the auth branch; session middleware always uses {@link AppAuthContext}. */
-export function appAuthFromWriteContext(ctx: PatchDbContext): AppAuthContext | null {
+export function appAuthFromWriteContext(
+  ctx: PatchDbContext
+): AppAuthContext | null {
   if (!isPatchDbAuthContext(ctx)) return null;
   return ctx as AppAuthContext;
 }

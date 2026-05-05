@@ -253,8 +253,13 @@ export function useCurrentSpaces(): {
   isLoading: boolean;
 } {
   const myId = useMyId();
-  const { hostedRes, guestMemRes, guestSpaceIds, guestSpacesRes, guestSpaceById } =
-    useCurrentSpacesQueries(myId);
+  const {
+    hostedRes,
+    guestMemRes,
+    guestSpaceIds,
+    guestSpacesRes,
+    guestSpaceById,
+  } = useCurrentSpacesQueries(myId);
 
   const entries = useMemo((): CurrentSpaceEntry[] => {
     const bySpace = new Map<string, CurrentSpaceEntry>();
