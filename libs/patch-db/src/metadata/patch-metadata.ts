@@ -4,7 +4,10 @@
  * implementations (via {@link PATCH_META_KEYS}).
  */
 
-export const PATCH_CREATED_BY = 'patch/createdBy' as const;
+/** Original patch author id (account id when signed in, else install id). */
+export const PATCH_CREATED_BY_ID = 'patch/createdById' as const;
+/** @deprecated Use {@link PATCH_CREATED_BY_ID}. */
+export const PATCH_CREATED_BY = PATCH_CREATED_BY_ID;
 export const PATCH_SESSION_ID = 'patch/sessionId' as const;
 export const PATCH_SYNCED_AT = 'patch/syncedAt' as const;
 export const PATCH_SYNC_REJECTED_AT = 'patch/syncRejectedAt' as const;
@@ -28,6 +31,10 @@ export const PATCH_LAST_MODIFIED_BY_CLIENT =
 export const PATCH_LAST_MODIFIED_BY_CLIENT_TIMESTAMP =
   'patch/lastModifiedByClientTimestamp' as const;
 export const PATCH_LAST_MODIFIED_AT = 'patch/lastModifiedAt' as const;
+/** Last touch author id (same semantics as {@link PATCH_CREATED_BY_ID}). */
+export const PATCH_LAST_MODIFIED_BY_ID = 'patch/lastModifiedById' as const;
+/** Legacy; stripped from snapshots. */
+export const PATCH_CREATED_BY_LEGACY = 'patch/createdBy' as const;
 
 /**
  * Attribute keys treated as patch-level metadata by the library.
@@ -35,11 +42,13 @@ export const PATCH_LAST_MODIFIED_AT = 'patch/lastModifiedAt' as const;
  */
 export const PATCH_META_KEYS: readonly string[] = [
   PATCH_CREATED_BY,
+  PATCH_CREATED_BY_LEGACY,
   PATCH_SESSION_ID,
   PATCH_SYNCED_AT,
   PATCH_SYNC_REJECTED_AT,
   PATCH_SYNC_REJECTED_REASON,
   PATCH_REJECTED,
+  PATCH_LAST_MODIFIED_BY_ID,
   PATCH_LAST_MODIFIED_BY_DEVICE,
   PATCH_LAST_MODIFIED_BY_ACCOUNT,
   PATCH_LAST_MODIFIED_AT,

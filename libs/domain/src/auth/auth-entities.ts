@@ -23,7 +23,6 @@ export const ACCOUNT_SESSION_ENTITY_TYPE = 'accountSession';
 export const DeviceAttr = {
   id: 'device/id',
   createdAt: 'device/createdAt',
-  accountId: 'device/accountId',
   /** 'ios' | 'android' | 'web' — from React Native Platform.OS */
   platform: 'device/platform',
   osName: 'device/osName',

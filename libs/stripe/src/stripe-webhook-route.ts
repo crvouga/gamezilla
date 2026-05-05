@@ -62,7 +62,7 @@ async function recordVerifiedStripeWebhookInPatchDb(
     'stripe/payload': event as unknown,
     'stripe/objectType': 'event',
     'stripe/source': 'stripe_webhook',
-    'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
+    'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
   };
   if (accountId !== null) {
     eventCacheAttrs['entity/owner'] = accountId;
@@ -84,7 +84,7 @@ async function recordVerifiedStripeWebhookInPatchDb(
         'entity/owner': accountId,
         'stripe/webhookEventType': event.type,
         'stripe/stripeObjectId': objectId,
-        'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
+        'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
       },
     });
   }

@@ -25,10 +25,10 @@ import { getDefaultStore, useAtom, useAtomValue } from 'jotai';
 import { useCallback, useLayoutEffect, useMemo, type ReactNode } from 'react';
 
 export type AuthState = {
-  mode: 'guest' | 'signed-in';
-  displayName: string;
   deviceId: string;
   accountId: string | null;
+  isAuthenticated: boolean;
+  myId: string;
   session: AccountSessionRecord | null;
   /** Google OAuth availability from synced client config. */
   providers: { google: AuthGoogleProviderState };
@@ -283,4 +283,9 @@ export function useAuth(): AuthState {
       actions.refreshSession,
     ]
   );
+}
+
+/** Signed-in → `accountId`, else install `deviceId`. */
+export function useMyId(): string {
+  return useAuth().myId;
 }

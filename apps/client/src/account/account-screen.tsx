@@ -176,7 +176,7 @@ function AccountActionsRow({
   const { t } = useLingui();
   return (
     <Box sx={{ gap: 2 }}>
-      {auth.mode === 'signed-in' ? (
+      {auth.isAuthenticated ? (
         <>
           {Platform.OS !== 'web' ? (
             <Button

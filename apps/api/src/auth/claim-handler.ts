@@ -4,18 +4,12 @@ import {
   AccountAttr,
   AccountProviderAttr,
   GOOGLE_PROVIDER,
-  DEVICE_ENTITY_TYPE,
   ACCOUNT_SESSION_ENTITY_TYPE,
-  DeviceAttr,
   AccountSessionAttr,
 } from '@gamezilla/domain/auth';
 import { assertDeviceId, assertUuid } from '@gamezilla/domain/auth/device-id';
 import { assert } from '@gamezilla/lib/assert';
-import type {
-  Entity,
-  PatchDb,
-  PatchInput,
-} from '@gamezilla/patch-db/interface';
+import type { Entity, PatchDb, PatchInput } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import type { z } from 'zod';
 import type { GoogleIdTokenClaims } from './google-token';
@@ -97,10 +91,9 @@ async function findGoogleAccountProvider(
  */
 function patchesForNewGoogleAccount(args: {
   claims: GoogleIdTokenClaims;
-  deviceId: string;
+  accountId: string;
 }): { accountId: string; patches: PatchInput[] } {
-  const { claims, deviceId } = args;
-  const accountId = crypto.randomUUID();
+  const { claims, accountId } = args;
   const now = new Date().toISOString();
   const patches: PatchInput[] = [
     {
@@ -109,7 +102,7 @@ function patchesForNewGoogleAccount(args: {
       attributes: {
         [AccountAttr.id]: accountId,
         [AccountAttr.createdAt]: now,
-        'patch/createdBy': deviceId,
+        'patch/createdById': accountId,
       },
     },
     {
@@ -121,7 +114,7 @@ function patchesForNewGoogleAccount(args: {
         [AccountProviderAttr.providerUserId]: claims.sub,
         [AccountProviderAttr.email]: claims.email,
         [AccountProviderAttr.linkedAt]: now,
-        'patch/createdBy': deviceId,
+        'patch/createdById': accountId,
       },
     },
   ];
@@ -134,10 +127,9 @@ function patchesForNewGoogleAccount(args: {
 async function resolveOrCreateAccountForGoogle(args: {
   db: PatchDb;
   claims: GoogleIdTokenClaims;
-  deviceId: string;
   patchesToWrite: PatchInput[];
 }): Promise<string> {
-  const { db, claims, deviceId, patchesToWrite } = args;
+  const { db, claims, patchesToWrite } = args;
   const existing = await findGoogleAccountProvider(db, claims.sub);
   if (existing !== undefined) {
     const aid = existing.attributes[AccountProviderAttr.accountId];
@@ -145,67 +137,13 @@ async function resolveOrCreateAccountForGoogle(args: {
     assertUuid(aid, 'accountId must be UUID');
     return aid;
   }
-  const { accountId, patches } = patchesForNewGoogleAccount({
+  const accountId = crypto.randomUUID();
+  const { patches } = patchesForNewGoogleAccount({
     claims,
-    deviceId,
+    accountId,
   });
   patchesToWrite.push(...patches);
   return accountId;
-}
-
-async function readDeviceEntity(
-  db: PatchDb,
-  deviceId: string
-): Promise<Entity | undefined> {
-  const [deviceResult] = await db.read(
-    [
-      {
-        entityType: DEVICE_ENTITY_TYPE,
-        entityId: deviceId,
-        limit: 1,
-      },
-    ],
-    PATCHES_DB_SYSTEM_CONTEXT
-  );
-  return deviceResult?.entities[0];
-}
-
-/**
- * Appends a patch binding `deviceId` to `accountId`, rebinding if the device row
- * is already pointing at a different account.
- *
- * Local-first rationale: the device is the durable per-install identity that owns
- * its authored patches (`patch/createdBy`). The account is server-side identity that
- * opts the device into cross-device sync. A fresh, verified Google id_token
- * expresses the account holder's *current* intent for which account this device should sync
- * under, so the latest sign-in wins. Refusing the rebind would force people to
- * reinstall to switch Google sign-in on the same install (and would also surface
- * spuriously after dev DB resets, when stale `device/accountId` no longer
- * resolves to a real account on the server).
- */
-function appendAccountBindingOnDeviceIfNeeded(args: {
-  deviceId: string;
-  accountId: string;
-  deviceEntity: Entity | undefined;
-  patchesToWrite: PatchInput[];
-}): void {
-  const { deviceId, accountId, deviceEntity, patchesToWrite } = args;
-  const existingAccountId = deviceEntity?.attributes[DeviceAttr.accountId];
-
-  const alreadyBoundToSameAccount =
-    typeof existingAccountId === 'string' && existingAccountId === accountId;
-  if (alreadyBoundToSameAccount) {
-    return;
-  }
-
-  patchesToWrite.push({
-    entityId: deviceId,
-    entityType: DEVICE_ENTITY_TYPE,
-    attributes: {
-      [DeviceAttr.accountId]: accountId,
-      'patch/createdBy': deviceId,
-    },
-  });
 }
 
 function appendSessionPatch(args: {
@@ -228,7 +166,7 @@ function appendSessionPatch(args: {
       [AccountSessionAttr.token]: sessionToken,
       [AccountSessionAttr.expiresAt]: expiresAt,
       [AccountSessionAttr.createdAt]: sessionCreatedAt,
-      'patch/createdBy': deviceId,
+      'patch/createdById': accountId,
     },
   });
   return { sessionToken, expiresAt, sessionEntityId };
@@ -271,15 +209,6 @@ export async function handleAuthClaimResult(
   const accountId = await resolveOrCreateAccountForGoogle({
     db,
     claims,
-    deviceId,
-    patchesToWrite,
-  });
-
-  const deviceEntity = await readDeviceEntity(db, deviceId);
-  appendAccountBindingOnDeviceIfNeeded({
-    deviceId,
-    accountId,
-    deviceEntity,
     patchesToWrite,
   });
 

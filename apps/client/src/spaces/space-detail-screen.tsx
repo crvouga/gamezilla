@@ -1,20 +1,22 @@
-import { useAuth } from '@gamezilla/client/auth/auth-context';
-import {
-  SpaceActionAuthError,
-  useSpaceActions,
-} from '@gamezilla/client/spaces/space-actions';
+import { useMyId } from '@gamezilla/client/auth/auth-context';
+import { useSpaceActions } from '@gamezilla/client/spaces/space-actions';
 import { SpaceCounterPanel } from '@gamezilla/client/spaces/space-counter-panel';
 import { SpaceRoomWireContext } from '@gamezilla/client/spaces/space-room-wire-context';
 import { useSpaceRoom } from '@gamezilla/client/spaces/use-space-room';
 import { SpaceDebugModal } from '@gamezilla/client/spaces/space-debug-modal';
 import { SpaceMemberList } from '@gamezilla/client/spaces/space-member-list';
 import {
-  useCurrentMembership,
+  useCurrentSpaces,
   useSpace,
   useSpaceMembers,
 } from '@gamezilla/client/spaces/use-spaces';
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
-import { SpaceMembershipAttr } from '@gamezilla/domain/spaces/space-entities';
+import { spaceGuestMembershipEntityId } from '@gamezilla/domain/spaces/membership-key';
+import {
+  SPACE_MEMBERSHIP_ENTITY_TYPE,
+  SpaceMembershipAttr,
+} from '@gamezilla/domain/spaces/space-entities';
+import { useQuery } from '@gamezilla/patch-db/react';
 import {
   Box,
   Button,
@@ -29,29 +31,52 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 
+const NO_ENTITY_PLACEHOLDER = '__patch_db_no_entity__';
+
 type Space = ReturnType<typeof useSpace>;
-type CurrentMembership = ReturnType<typeof useCurrentMembership>;
+
+function readMembershipString(
+  attrs: Record<string, unknown> | undefined,
+  key: string
+): string | null {
+  if (!attrs) return null;
+  const v = attrs[key];
+  return typeof v === 'string' && v.length > 0 ? v : null;
+}
 
 function useAutoLeaveIfEnded(args: {
   spaceId: string | undefined;
   space: Space;
-  current: CurrentMembership;
-  leaveSpace: () => Promise<void> | void;
+  myId: string;
+  leaveSpace: (spaceId: string) => Promise<void> | void;
 }) {
-  const { spaceId, space, current, leaveSpace } = args;
-  const membershipSpaceId = (() => {
-    const raw =
-      current.membershipEntity?.attributes[SpaceMembershipAttr.spaceId];
-    return typeof raw === 'string' ? raw : null;
-  })();
+  const { spaceId, space, myId, leaveSpace } = args;
+  const memEntityId =
+    spaceId && myId
+      ? spaceGuestMembershipEntityId(myId, spaceId)
+      : NO_ENTITY_PLACEHOLDER;
+
+  const memRes = useQuery(
+    memEntityId === NO_ENTITY_PLACEHOLDER
+      ? { entityType: SPACE_MEMBERSHIP_ENTITY_TYPE, limit: 0 }
+      : {
+          entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
+          entityId: memEntityId,
+        }
+  );
+  const membership = memRes.entities[0] ?? null;
+  const membershipSpaceId = readMembershipString(
+    membership?.attributes as Record<string, unknown> | undefined,
+    SpaceMembershipAttr.spaceId
+  );
   const membershipLeftAt =
-    current.membershipEntity?.attributes[SpaceMembershipAttr.leftAt];
+    membership?.attributes[SpaceMembershipAttr.leftAt];
 
   useEffect(() => {
     if (!spaceId || !space.space || space.live) return;
     const left = membershipLeftAt !== undefined && membershipLeftAt !== null;
     if (membershipSpaceId === spaceId && !left) {
-      void leaveSpace();
+      void leaveSpace(spaceId);
     }
   }, [
     spaceId,
@@ -83,21 +108,20 @@ function JoinPrompt({
   spaceId,
   title,
   hostLabel,
-  needsSignIn,
+  joinBlocked,
   onJoin,
   onOpenDebug,
 }: {
   spaceId: string | undefined;
   title: string;
   hostLabel: string;
-  needsSignIn: boolean;
+  joinBlocked: boolean;
   onJoin: (id: string) => Promise<void> | void;
   onOpenDebug: () => void;
 }) {
   const { t } = useLingui();
   const router = useRouter();
   const nav = useBreadcrumbNav();
-  const auth = useAuth();
   const actions = useDebugAction(onOpenDebug);
   return (
     <ScreenBase
@@ -121,23 +145,21 @@ function JoinPrompt({
               <Trans>Join this space to see who is here and hang out.</Trans>
             }
           />
-          {needsSignIn ? (
-            <Button
-              title={t`Sign in`}
-              variant="solid"
-              onPress={() => {
-                auth.openSignInModal();
-              }}
+          {joinBlocked ? (
+            <Text
+              variant="body"
+              sx={{ color: 'textSecondary' }}
+              label={<Trans>You're already in a space</Trans>}
             />
-          ) : (
-            <Button
-              title={t`Join space`}
-              variant="solid"
-              onPress={() => {
-                if (spaceId) void onJoin(spaceId);
-              }}
-            />
-          )}
+          ) : null}
+          <Button
+            title={t`Join space`}
+            variant="solid"
+            disabled={joinBlocked}
+            onPress={() => {
+              if (spaceId) void onJoin(spaceId);
+            }}
+          />
           <Button
             title={t`Back`}
             variant="outlined"
@@ -240,7 +262,7 @@ function ActiveSpaceBody({
 function ActiveSpace({
   spaceId,
   space,
-  current,
+  isHost,
   members,
   endSpace,
   leaveSpace,
@@ -248,17 +270,16 @@ function ActiveSpace({
 }: {
   spaceId: string | undefined;
   space: Space;
-  current: CurrentMembership;
+  isHost: boolean;
   members: ReturnType<typeof useSpaceMembers>['members'];
   endSpace: (id: string) => Promise<void> | void;
-  leaveSpace: () => Promise<void> | void;
+  leaveSpace: (id: string) => Promise<void> | void;
   onOpenDebug: () => void;
 }) {
   const router = useRouter();
   const nav = useBreadcrumbNav();
   const [confirmEnd, setConfirmEnd] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
-  const isHost = current.role === 'host';
   const actions = useDebugAction(onOpenDebug);
 
   const handleEnd = () => {
@@ -270,7 +291,7 @@ function ActiveSpace({
   };
   const handleLeave = () => {
     setConfirmLeave(false);
-    void leaveSpace();
+    if (spaceId) void leaveSpace(spaceId);
     router.back();
   };
 
@@ -325,15 +346,15 @@ export function SpaceDetailScreen() {
   const spaceId = typeof id === 'string' ? id : undefined;
 
   const space = useSpace(spaceId);
-  const current = useCurrentMembership();
+  const currentSpaces = useCurrentSpaces();
   const { members } = useSpaceMembers(spaceId);
   const { joinSpace, leaveSpace, endSpace } = useSpaceActions();
-  const auth = useAuth();
+  const myId = useMyId();
   const [debugOpen, setDebugOpen] = useState(false);
   const openDebug = () => setDebugOpen(true);
   const closeDebug = () => setDebugOpen(false);
 
-  useAutoLeaveIfEnded({ spaceId, space, current, leaveSpace });
+  useAutoLeaveIfEnded({ spaceId, space, myId, leaveSpace });
 
   const debugModal = (
     <SpaceDebugModal
@@ -341,36 +362,30 @@ export function SpaceDetailScreen() {
       onClose={closeDebug}
       spaceId={spaceId}
       space={space}
-      current={current}
+      currentSpaces={currentSpaces}
       members={members}
     />
   );
 
-  if (space.isLoading || current.isLoading) {
+  if (space.isLoading || currentSpaces.isLoading) {
     return <SpaceLoading />;
   }
 
-  const inThisSpace = current.activeSpaceId === spaceId;
+  const inThisSpace = currentSpaces.entries.some((e) => e.spaceId === spaceId);
+  const entryForSpace = currentSpaces.entries.find((e) => e.spaceId === spaceId);
+
   if (!inThisSpace) {
-    const needsSignIn = auth.mode !== 'signed-in';
+    const joinBlocked =
+      currentSpaces.entries.length > 0 &&
+      !currentSpaces.entries.some((e) => e.spaceId === spaceId);
     return (
       <>
         <JoinPrompt
           spaceId={spaceId}
           title={space.title}
           hostLabel={space.hostDisplayName}
-          needsSignIn={needsSignIn}
-          onJoin={async (sid) => {
-            try {
-              await joinSpace(sid);
-            } catch (e) {
-              if (e instanceof SpaceActionAuthError) {
-                auth.openSignInModal();
-              } else {
-                throw e;
-              }
-            }
-          }}
+          joinBlocked={joinBlocked}
+          onJoin={(sid) => joinSpace(sid)}
           onOpenDebug={openDebug}
         />
         {debugModal}
@@ -383,7 +398,7 @@ export function SpaceDetailScreen() {
       <ActiveSpace
         spaceId={spaceId}
         space={space}
-        current={current}
+        isHost={entryForSpace?.role === 'host'}
         members={members}
         endSpace={endSpace}
         leaveSpace={leaveSpace}

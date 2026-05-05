@@ -16,8 +16,8 @@ export type CreateSpaceRoomParams = {
    * entries accumulate.
    */
   storage: KeyValueStorage;
-  /** Account id for server-side authorization; passed as client `identity` for local handle. */
-  accountId: string;
+  /** Actor id (signed-in account or install id); relay auth + local room handle. */
+  myId: string;
   sessionToken: string | null;
 };
 
@@ -29,10 +29,15 @@ export type CreateSpaceRoomResult = {
 export async function createSpaceRoom(
   params: CreateSpaceRoomParams
 ): Promise<CreateSpaceRoomResult> {
-  const { spaceId, apiUrl, storage, accountId, sessionToken } = params;
+  const { spaceId, apiUrl, storage, myId, sessionToken } = params;
   const topic = `space:${spaceId}`;
   const transport = new WebSocketRoomTransport({
-    url: apiUrlToRoomWebSocketUrl(apiUrl, topic, sessionToken),
+    url: apiUrlToRoomWebSocketUrl(
+      apiUrl,
+      topic,
+      sessionToken,
+      sessionToken !== null && sessionToken.length > 0 ? null : myId
+    ),
   });
   const clientStorage = new KeyValueClientRoomStorage(
     storage,
@@ -44,7 +49,7 @@ export async function createSpaceRoom(
     module: SpaceModule,
     storage: clientStorage,
     transport,
-    identity: accountId,
+    identity: myId,
   });
 
   return { room, transport };

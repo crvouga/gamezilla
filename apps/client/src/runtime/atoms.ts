@@ -3,10 +3,7 @@ import { createPatchDbHcTransport } from '@gamezilla/client/api/patch-db-hc-tran
 import { createSecureStorage } from '@gamezilla/client/auth/create-secure-storage';
 import { createDeviceService } from '@gamezilla/client/auth/device-service';
 import { ensureDeviceEntity } from '@gamezilla/client/auth/ensure-device-entity';
-import {
-  ensureAccountProfile,
-  ensureDeviceProfile,
-} from '@gamezilla/client/auth/ensure-profile-entity';
+import { ensureProfile } from '@gamezilla/client/auth/ensure-profile-entity';
 import { createSessionService } from '@gamezilla/client/auth/session-service';
 import { readSessionToken } from '@gamezilla/client/auth/session-token-storage';
 import { createKeyValueStorage } from '@gamezilla/client/runtime/create-key-value-storage';
@@ -88,11 +85,19 @@ export const patchDbStackAtom = atom(async (get, { signal }) => {
   const local = new PatchDbImplSqlite(sql);
   await local.migrate();
 
+  const installId = deviceService.getDeviceId();
+  assertDeviceId(installId);
+
   const transport = createPatchDbHcTransport(
     createApiClient(config.getApiUrl()),
     {
       patchDbBaseUrl: `${config.getApiUrl()}/patch-db`,
       getAuthToken: () => getDefaultStore().get(sessionTokenAtom),
+      getAnonId: () => {
+        const tok = getDefaultStore().get(sessionTokenAtom);
+        if (tok !== null && tok.length > 0) return null;
+        return installId;
+      },
     }
   );
 
@@ -104,8 +109,11 @@ export const patchDbStackAtom = atom(async (get, { signal }) => {
   });
 
   const stamper = new PatchMetadataStamper(sync, {
-    getDeviceId: () => deviceService.getDeviceId(),
-    getAccountId: () => getDefaultStore().get(accountIdAtom),
+    getDeviceId: () => installId,
+    getMyId: () => {
+      const aid = getDefaultStore().get(accountIdAtom);
+      return aid !== null && aid.length > 0 ? aid : installId;
+    },
     assertDeviceId: (id) => assertDeviceId(id),
   });
 
@@ -138,10 +146,8 @@ export const sessionServiceAtom = atom(async (get) => {
 });
 
 /**
- * One-time-per-(stack, deviceId, accountId) idempotent writes that the old
- * `patch-db-bootstrap.tsx` performed inside `registerSessionService`. Without
- * this the device row, guest profile row, and account profile row never get
- * created on cold start, and consumers (e.g. `useProfile`) see `profileId === null`.
+ * Device row + profile for current {@link myId} (`accountId` when signed in,
+ * else install id).
  */
 export const entityBootstrapEffect = atomEffect((get) => {
   let cancelled = false;
@@ -150,12 +156,12 @@ export const entityBootstrapEffect = atomEffect((get) => {
     const stack = await get(patchDbStackAtom);
     const accountId = get(accountIdAtom);
     if (cancelled) return;
-    const deviceId = deviceService.getDeviceId();
-    await ensureDeviceEntity(stack.db, deviceId);
+    const installId = deviceService.getDeviceId();
+    await ensureDeviceEntity(stack.db, installId);
     if (cancelled) return;
-    await ensureDeviceProfile(stack.db, deviceId);
-    if (cancelled || accountId === null) return;
-    await ensureAccountProfile(stack.db, accountId);
+    const myId =
+      accountId !== null && accountId.length > 0 ? accountId : installId;
+    await ensureProfile(stack.db, myId);
   })();
   return () => {
     cancelled = true;

@@ -24,6 +24,7 @@ import {
   PATCH_META_KEYS,
 } from '../interface';
 import { patchRowIsSyncRejected } from '../patch-row-sync-rejected';
+import { PATCH_CREATED_BY_ID } from '../metadata/patch-metadata';
 import { DEFAULT_PATCH_DB_COMPACTION_POLICY } from '../policy/compaction-policy';
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '../policy/system-device';
 import { finishCompactionAfterInsert } from '../compact-entity-tx-helpers';
@@ -212,7 +213,7 @@ export class PatchDbImplSqlite implements PatchDb {
       delete merged[k];
     }
     merged['patch/compacted'] = '1';
-    merged['patch/createdBy'] = PATCH_DB_SYSTEM_DEVICE_ID;
+    merged[PATCH_CREATED_BY_ID] = PATCH_DB_SYSTEM_DEVICE_ID;
     merged['patch/sessionId'] = '';
 
     const now = new Date().toISOString();

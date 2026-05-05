@@ -128,7 +128,7 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
             entityId: ADMIN_METRIC_ENTITY_ID,
             entityType: ADMIN_METRIC_ENTITY_TYPE,
             attributes: {
-              'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
+              'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
               'admin/startedAt': this.startedAt,
               'admin/uptimeSeconds': uptimeSeconds,
               'admin/totalPatchesWritten': this.counters.totalPatchesWritten,

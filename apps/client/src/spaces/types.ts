@@ -7,14 +7,15 @@ export type SpaceView = {
   title: string;
   /** User-set name, or null when the host has not chosen one. */
   customTitle: string | null;
-  /** Host account id. */
+  /** Host's id (opaque; account or install id). */
   hostId: string;
   hostDisplayName: string;
   hostAvatarConfig: AvatarConfig | null;
 };
 
 export type SpaceMemberRow = {
-  accountId: string;
+  /** Actor id (host or guest). */
+  memberId: string;
   displayName: string;
   avatarConfig: AvatarConfig | null;
   role: 'host' | 'guest';

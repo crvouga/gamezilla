@@ -1,6 +1,6 @@
 export function isSpaceMiniplayerHidden(args: {
   rawPath: string;
-  activeSpaceId: string | null;
+  activeSpaceCount: number;
 }): boolean {
-  return args.rawPath.startsWith('/space/') || !args.activeSpaceId;
+  return args.rawPath.startsWith('/space/') || args.activeSpaceCount === 0;
 }

@@ -1,10 +1,5 @@
 /**
  * `SpaceDebugModal` — developer-facing inspector for the space detail screen.
- *
- * Renders the full debug payload (self auth identity, the space entity, the
- * current device's membership row, and resolved member presentations) as a
- * single {@link JsonView} tree so every id/name/timestamp is reachable
- * without bespoke labels.
  */
 
 import { useAuth, type AuthState } from '@gamezilla/client/auth/auth-context';
@@ -14,18 +9,18 @@ import { Trans } from '@lingui/react/macro';
 import { useMemo } from 'react';
 import { useWindowDimensions } from 'react-native';
 
-import type { useCurrentMembership, useSpace } from './use-spaces';
+import type { useCurrentSpaces, useSpace } from './use-spaces';
 import type { SpaceMemberRow } from './types';
 
 type Space = ReturnType<typeof useSpace>;
-type CurrentMembership = ReturnType<typeof useCurrentMembership>;
+type CurrentSpacesState = ReturnType<typeof useCurrentSpaces>;
 
 type SpaceDebugPayload = {
   self: {
     deviceId: string;
     accountId: AuthState['accountId'];
-    mode: AuthState['mode'];
-    displayName: AuthState['displayName'];
+    myId: AuthState['myId'];
+    isAuthenticated: AuthState['isAuthenticated'];
     session: AuthState['session'];
     providers: AuthState['providers'];
   };
@@ -41,11 +36,9 @@ type SpaceDebugPayload = {
     isLoading: Space['isLoading'];
     entity: Space['space'];
   };
-  currentMembership: {
-    activeSpaceId: CurrentMembership['activeSpaceId'];
-    role: CurrentMembership['role'];
-    isLoading: CurrentMembership['isLoading'];
-    entity: CurrentMembership['membershipEntity'];
+  currentSpaces: {
+    entries: CurrentSpacesState['entries'];
+    isLoading: CurrentSpacesState['isLoading'];
   };
   members: SpaceMemberRow[];
 };
@@ -55,16 +48,16 @@ function buildPayload(args: {
   auth: AuthState;
   spaceId: string | undefined;
   space: Space;
-  current: CurrentMembership;
+  currentSpaces: CurrentSpacesState;
   members: SpaceMemberRow[];
 }): SpaceDebugPayload {
-  const { selfDeviceId, auth, spaceId, space, current, members } = args;
+  const { selfDeviceId, auth, spaceId, space, currentSpaces, members } = args;
   return {
     self: {
       deviceId: selfDeviceId,
       accountId: auth.accountId,
-      mode: auth.mode,
-      displayName: auth.displayName,
+      myId: auth.myId,
+      isAuthenticated: auth.isAuthenticated,
       session: auth.session,
       providers: auth.providers,
     },
@@ -80,11 +73,9 @@ function buildPayload(args: {
       isLoading: space.isLoading,
       entity: space.space,
     },
-    currentMembership: {
-      activeSpaceId: current.activeSpaceId,
-      role: current.role,
-      isLoading: current.isLoading,
-      entity: current.membershipEntity,
+    currentSpaces: {
+      entries: currentSpaces.entries,
+      isLoading: currentSpaces.isLoading,
     },
     members,
   };
@@ -95,7 +86,7 @@ export type SpaceDebugModalProps = {
   onClose: () => void;
   spaceId: string | undefined;
   space: Space;
-  current: CurrentMembership;
+  currentSpaces: CurrentSpacesState;
   members: SpaceMemberRow[];
 };
 
@@ -104,22 +95,26 @@ export function SpaceDebugModal({
   onClose,
   spaceId,
   space,
-  current,
+  currentSpaces,
   members,
 }: SpaceDebugModalProps) {
   const deviceService = useDeviceService();
   const auth = useAuth();
   const selfDeviceId = deviceService.getDeviceId();
   const { height: windowHeight } = useWindowDimensions();
-  // Surface caps at 80% (mobile sheet) / unconstrained (desktop modal). Bound
-  // the inner JSON viewer to ~65% of the viewport so it never escapes either
-  // form factor.
   const treeMaxHeight = Math.round(windowHeight * 0.65);
 
   const payload = useMemo(
     () =>
-      buildPayload({ selfDeviceId, auth, spaceId, space, current, members }),
-    [auth, current, members, selfDeviceId, space, spaceId]
+      buildPayload({
+        selfDeviceId,
+        auth,
+        spaceId,
+        space,
+        currentSpaces,
+        members,
+      }),
+    [auth, currentSpaces, members, selfDeviceId, space, spaceId]
   );
 
   return (

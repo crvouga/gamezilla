@@ -83,7 +83,7 @@ async function ensureStripeCustomerId(args: {
         entityType: ACCOUNT_ENTITY_TYPE,
         attributes: {
           [AccountAttr.stripeCustomerId]: customer.id,
-          'patch/createdBy': deviceId,
+          'patch/createdById': deviceId,
         },
       },
     ],

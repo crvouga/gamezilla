@@ -11,7 +11,7 @@ import {
   type DurableObjectInstanceState,
 } from './types';
 
-const DEFAULT_IDENTITY_HEADER = 'x-gamezilla-account-id' as const;
+const DEFAULT_IDENTITY_HEADER = 'x-gamezilla-actor-id' as const;
 
 export type CreateDurableObjectAdapterOptions<
   S extends RoomState,
@@ -25,7 +25,7 @@ export type CreateDurableObjectAdapterOptions<
   /**
    * HTTP header that carries the authenticated identity for this upgrade.
    * The route layer in front of the DO is expected to populate it.
-   * Defaults to `x-gamezilla-account-id`.
+   * Defaults to `x-gamezilla-actor-id`.
    */
   identityHeader?: string;
   /**

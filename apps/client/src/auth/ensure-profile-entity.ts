@@ -1,4 +1,3 @@
-import { assertDeviceId } from '@gamezilla/domain/auth';
 import { assertUuid } from '@gamezilla/domain/auth/device-id';
 import {
   PROFILE_ENTITY_TYPE,
@@ -19,57 +18,26 @@ function profileLooksPresent(
 }
 
 /**
- * Ensures a `profile` row at `entityId === deviceId` (guest / device-local profile).
+ * Ensures a `profile` row at `entityId === myId` (install id when anonymous,
+ * account id when signed in).
  */
-export async function ensureDeviceProfile(
-  db: PatchDb,
-  deviceId: string
-): Promise<void> {
-  assertDeviceId(deviceId);
+export async function ensureProfile(db: PatchDb, myId: string): Promise<void> {
+  assertUuid(myId, 'ensureProfile myId');
   const [res] = await db.read([
     {
       entityType: PROFILE_ENTITY_TYPE,
-      entityId: deviceId,
+      entityId: myId,
       limit: 1,
     },
   ]);
-  if (profileLooksPresent(res?.entities[0], deviceId)) return;
+  if (profileLooksPresent(res?.entities[0], myId)) return;
   const now = new Date().toISOString();
   await db.write([
     {
-      entityId: deviceId,
+      entityId: myId,
       entityType: PROFILE_ENTITY_TYPE,
       attributes: {
-        [ProfileAttr.id]: deviceId,
-        [ProfileAttr.createdAt]: now,
-      },
-    },
-  ]);
-}
-
-/**
- * Ensures a `profile` row at `entityId === accountId` (signed-in account profile).
- */
-export async function ensureAccountProfile(
-  db: PatchDb,
-  accountId: string
-): Promise<void> {
-  assertUuid(accountId, 'ensureAccountProfile accountId');
-  const [res] = await db.read([
-    {
-      entityType: PROFILE_ENTITY_TYPE,
-      entityId: accountId,
-      limit: 1,
-    },
-  ]);
-  if (profileLooksPresent(res?.entities[0], accountId)) return;
-  const now = new Date().toISOString();
-  await db.write([
-    {
-      entityId: accountId,
-      entityType: PROFILE_ENTITY_TYPE,
-      attributes: {
-        [ProfileAttr.id]: accountId,
+        [ProfileAttr.id]: myId,
         [ProfileAttr.createdAt]: now,
       },
     },

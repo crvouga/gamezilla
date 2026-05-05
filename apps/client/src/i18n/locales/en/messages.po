@@ -42,6 +42,11 @@ msgstr "(untitled)"
 #~ msgid "{0} here"
 #~ msgstr "{0} here"
 
+#. placeholder {0}: hostPres.displayName
+#: apps/client/src/spaces/use-space-miniplayer-model.ts
+msgid "{0}'s space"
+msgstr "{0}'s space"
+
 #: apps/client/src/account/account-device-detail-body.tsx
 msgid "{activeCount} active session(s) — latest expires {latestExpires}"
 msgstr "{activeCount} active session(s) — latest expires {latestExpires}"
@@ -1699,7 +1704,6 @@ msgstr "sign in"
 
 #: apps/client/src/account/account-screen.tsx
 #: apps/client/src/auth/sign-in-modal.tsx
-#: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/ui/app-commands/account-command.tsx
 #: apps/client/src/ui/sidebar-account-menu.tsx
 #: apps/client/src/ui/use-account-actions.tsx
@@ -2144,6 +2148,11 @@ msgstr "You have unsaved avatar changes."
 #: apps/client/src/auth/use-sign-out-confirmation.tsx
 msgid "You will need to sign in again to sync with your user."
 msgstr "You will need to sign in again to sync with your user."
+
+#: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/spaces-screen.tsx
+msgid "You're already in a space"
+msgstr "You're already in a space"
 
 #: libs/lib/src/ui/components/text-input/text-input.example.tsx
 msgid "you@example.com"

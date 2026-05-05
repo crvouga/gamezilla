@@ -13,7 +13,6 @@
     "apps/infra/src/cli/secrets/planetscale.ts",
     "apps/infra/src/cli/secrets/turbo-token.ts",
     "apps/client/src/auth/fetch-client-runtime-config.ts",
-    "apps/client/src/auth/use-device-profiles.ts",
     "apps/client/src/connection/offline-indicator.tsx",
     "apps/client/src/profile/profile-actions.ts",
   ],

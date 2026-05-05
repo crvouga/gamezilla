@@ -17,7 +17,7 @@ function normalizeSessionToken(t: string | null): string | null {
 
 type OpenArgs = {
   bootstrap: SpaceRoomConnectionBootstrap;
-  token: string;
+  token: string | null;
   configService: ConfigService;
   storage: KeyValueStorage;
   setRoom: (r: SpaceRoom | null) => void;
@@ -33,7 +33,7 @@ function openConnection(args: OpenArgs): () => void {
       spaceId: args.bootstrap.spaceId,
       apiUrl: args.configService.getApiUrl(),
       storage: args.storage,
-      accountId: args.bootstrap.accountId,
+      myId: args.bootstrap.myId,
       sessionToken: args.token,
     });
     if (cancelled) {
@@ -75,7 +75,12 @@ export function useSpaceRoomConnection(
     transportRef.current = null;
     setTransport(null);
     const token = normalizeSessionToken(sessionToken);
-    if (bootstrap === null || token === null) {
+    if (bootstrap === null) {
+      return;
+    }
+    const hasBearer = token !== null;
+    const hasAnon = bootstrap.myId.length > 0;
+    if (!hasBearer && !hasAnon) {
       return;
     }
     const cancel = openConnection({

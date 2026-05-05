@@ -33,7 +33,7 @@ describe('compaction (sqlite)', () => {
           attributes: {
             [WIDGET_ID_ATTR]: entityId,
             [WIDGET_NAME_ATTR]: `v${i}`,
-            'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
+            'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
       ]);
@@ -75,7 +75,7 @@ describe('compaction (sqlite)', () => {
           attributes: {
             [WIDGET_ID_ATTR]: entityId,
             [WIDGET_NAME_ATTR]: `x${i}`,
-            'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
+            'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
       ]);
@@ -99,7 +99,7 @@ describe('compaction (sqlite)', () => {
           attributes: {
             [WIDGET_ID_ATTR]: entityId,
             [WIDGET_NAME_ATTR]: `r${i}`,
-            'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
+            'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
       ]);

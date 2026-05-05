@@ -28,7 +28,7 @@ function useAuthAction(auth: Auth) {
   const log = useLogger('use-account-actions');
   const { run } = useAsync({
     operation: async () => {
-      if (auth.mode === 'signed-in') {
+      if (auth.isAuthenticated) {
         auth.openSignOutConfirm();
       } else {
         auth.openSignInModal();
@@ -114,9 +114,9 @@ function buildAuthAction(
 ): ScreenBaseAction {
   return {
     type: 'default',
-    label: auth.mode === 'signed-in' ? labels.signOut : labels.signIn,
+    label: auth.isAuthenticated ? labels.signOut : labels.signIn,
     icon:
-      auth.mode === 'signed-in'
+      auth.isAuthenticated
         ? 'arrow.right.from.bracket'
         : 'right.to.bracket',
     overflow: 'always',

@@ -162,7 +162,7 @@ export async function backfillStripeListIntoPatchDb<
       'stripe/payload': obj as unknown,
       'stripe/objectType': expectedObjectType,
       'stripe/source': source,
-      'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
+      'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
     };
     if (owner !== null) {
       attrs['entity/owner'] = owner;

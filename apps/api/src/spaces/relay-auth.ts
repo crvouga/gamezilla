@@ -1,5 +1,6 @@
 import { AccountSessionAttr } from '@gamezilla/domain/auth';
 import { assertDeviceId } from '@gamezilla/domain/auth/device-id';
+import { spaceGuestMembershipEntityId } from '@gamezilla/domain/spaces/membership-key';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
@@ -10,9 +11,12 @@ import { assert } from '@gamezilla/lib/assert';
 import type { Entity, PatchDb } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 
+import { ANON_ID_HEADER } from '../auth/session-middleware';
 import { readAccountSessionsByToken } from '../auth/account-session-by-token';
 
 const ROOM_TOPIC_PREFIX = 'space:' as const;
+
+export const ACTOR_ID_HEADER = 'x-gamezilla-actor-id';
 
 function jsonResponse(status: number, error: string): Response {
   return new Response(JSON.stringify({ error }), {
@@ -32,7 +36,15 @@ function parseBearerFromUrlOrHeader(request: Request): string | null {
   return t.length > 0 ? t : null;
 }
 
-async function resolveAccountIdFromBearer(
+function parseAnonIdFromRequest(request: Request): string | null {
+  const url = new URL(request.url);
+  const q = url.searchParams.get('anonId')?.trim() ?? '';
+  if (q.length > 0) return q;
+  const h = request.headers.get(ANON_ID_HEADER)?.trim() ?? '';
+  return h.length > 0 ? h : null;
+}
+
+async function resolveMyIdFromBearer(
   db: PatchDb,
   bearer: string
 ): Promise<string | null> {
@@ -95,20 +107,22 @@ async function readSpaceEntity(
   return spaceRes?.entities[0] ?? null;
 }
 
-function readHostAccountId(space: Entity): string {
+function readHostId(space: Entity): string {
   const raw = space.attributes[SpaceAttr.hostId];
   return typeof raw === 'string' ? raw : '';
 }
 
-async function readMembershipRow(
+async function readGuestMembershipRow(
   db: PatchDb,
-  accountId: string
+  myId: string,
+  spaceId: string
 ): Promise<Entity | null> {
+  const entityId = spaceGuestMembershipEntityId(myId, spaceId);
   const [memRes] = await db.read(
     [
       {
         entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
-        entityId: accountId,
+        entityId,
       },
     ],
     PATCHES_DB_SYSTEM_CONTEXT
@@ -135,23 +149,29 @@ function guestMembershipDenied(
 }
 
 /**
- * Validates the WebSocket upgrade for `/space/ws`: bearer session, topic shape,
- * and that the account is the space host or has an active membership row for
- * that space.
+ * Validates the WebSocket upgrade for `/space/ws`: Bearer (account) or anon id,
+ * topic shape, and that the caller is the space host or an active guest member.
  */
 export async function authorizeRoomWebSocket(
   db: PatchDb,
   request: Request,
   topic: string
-): Promise<{ accountId: string } | Response> {
+): Promise<{ myId: string } | Response> {
   const bearer = parseBearerFromUrlOrHeader(request);
-  if (bearer === null) {
-    return jsonResponse(401, 'missing session token');
-  }
+  let myId: string | null = null;
 
-  const accountId = await resolveAccountIdFromBearer(db, bearer);
-  if (accountId === null) {
-    return jsonResponse(401, 'invalid or expired session');
+  if (bearer !== null) {
+    myId = await resolveMyIdFromBearer(db, bearer);
+    if (myId === null) {
+      return jsonResponse(401, 'invalid or expired session');
+    }
+  } else {
+    const anon = parseAnonIdFromRequest(request);
+    if (anon === null || anon.length === 0) {
+      return jsonResponse(401, 'missing session token or anon id');
+    }
+    assertDeviceId(anon);
+    myId = anon;
   }
 
   const spaceId = parseSpaceIdFromTopic(topic);
@@ -164,13 +184,13 @@ export async function authorizeRoomWebSocket(
     return jsonResponse(403, 'space not found or ended');
   }
 
-  if (readHostAccountId(space) === accountId) {
-    return { accountId };
+  if (readHostId(space) === myId) {
+    return { myId };
   }
 
   const denied = guestMembershipDenied(
-    await readMembershipRow(db, accountId),
+    await readGuestMembershipRow(db, myId, spaceId),
     spaceId
   );
-  return denied ?? { accountId };
+  return denied ?? { myId };
 }

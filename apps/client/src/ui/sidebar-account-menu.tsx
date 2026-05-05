@@ -60,7 +60,7 @@ function useAccountMenuActions(args: { auth: Auth; close: () => void }) {
 
   const { run: runAuth } = useAsync({
     operation: async () => {
-      if (auth.mode === 'signed-in') {
+      if (auth.isAuthenticated) {
         auth.openSignOutConfirm();
       } else {
         auth.openSignInModal();
@@ -152,13 +152,13 @@ function buildConnectionRow(args: {
 }
 
 function buildAuthRow(auth: Auth, onAuth: () => void): MenuRow {
-  const label = auth.mode === 'signed-in' ? t`Sign out` : t`Sign in`;
+  const label = auth.isAuthenticated ? t`Sign out` : t`Sign in`;
   return {
     type: 'item',
     id: 'sign-in',
     label,
     icon:
-      auth.mode === 'signed-in'
+      auth.isAuthenticated
         ? 'arrow.right.from.bracket'
         : 'right.to.bracket',
     onPress: onAuth,

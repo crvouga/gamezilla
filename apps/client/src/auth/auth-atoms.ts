@@ -21,9 +21,13 @@ import type { AccountSessionRecord, SessionService } from './session-service';
 export type SessionDerivedState = {
   deviceId: string;
   session: AccountSessionRecord | null;
-  mode: 'guest' | 'signed-in';
   accountId: string | null;
-  displayName: string;
+  /** True when PatchDB session is authenticated (valid bearer-backed session row). */
+  isAuthenticated: boolean;
+  /**
+   * Replication identity: `accountId` when signed in, else install `deviceId`.
+   */
+  myId: string;
 };
 
 export function deriveStateFromSession(args: {
@@ -32,24 +36,28 @@ export function deriveStateFromSession(args: {
 }): SessionDerivedState {
   const { deviceId, sessionService } = args;
   const session = sessionService.getSession();
+  const isAuthenticated =
+    session !== null && sessionService.isAuthenticated();
+  const accountId = session?.accountId ?? null;
+  const myId =
+    isAuthenticated && accountId !== null && accountId.length > 0
+      ? accountId
+      : deviceId;
   return {
     deviceId,
     session,
-    mode:
-      session !== null && sessionService.isAuthenticated()
-        ? 'signed-in'
-        : 'guest',
-    accountId: session?.accountId ?? null,
-    displayName: session !== null ? 'Signed in' : 'Guest',
+    accountId,
+    isAuthenticated,
+    myId,
   };
 }
 
 export const authSessionDerivedAtom = atom<SessionDerivedState>({
   deviceId: '',
   session: null,
-  mode: 'guest',
   accountId: null,
-  displayName: 'Guest',
+  isAuthenticated: false,
+  myId: '',
 });
 
 /**

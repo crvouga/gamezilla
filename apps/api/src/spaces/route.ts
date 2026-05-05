@@ -32,7 +32,7 @@ export function createSpaceApp(options: { db: PatchDb }) {
     const stub = ns.get(id);
 
     const headers = new Headers(c.req.raw.headers);
-    headers.set('x-gamezilla-account-id', auth.accountId);
+    headers.set('x-gamezilla-actor-id', auth.myId);
 
     return stub.fetch(
       new Request(c.req.raw.url, {

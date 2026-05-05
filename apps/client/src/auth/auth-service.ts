@@ -9,13 +9,7 @@ import {
   sessionServiceAtom,
   sessionTokenAtom,
 } from '@gamezilla/client/runtime/atoms';
-import {
-  assertDeviceId,
-  DEVICE_ENTITY_TYPE,
-  ACCOUNT_SESSION_ENTITY_TYPE,
-  DeviceAttr,
-  AccountSessionAttr,
-} from '@gamezilla/domain/auth';
+import { assertDeviceId, ACCOUNT_SESSION_ENTITY_TYPE, AccountSessionAttr } from '@gamezilla/domain/auth';
 import { assertUuid } from '@gamezilla/domain/auth/device-id';
 import type { ConfigService } from '@gamezilla/domain/config/config-service';
 import { assert } from '@gamezilla/lib/assert';
@@ -25,7 +19,7 @@ import type {
 } from '@gamezilla/patch-db/interface';
 import { getDefaultStore } from 'jotai';
 import { ensureDeviceEntity } from './ensure-device-entity';
-import { ensureAccountProfile } from './ensure-profile-entity';
+import { ensureProfile } from './ensure-profile-entity';
 import { AuthConfigurationError } from './auth-errors';
 import type { DeviceService } from './device-service';
 import { postGoogleAuthClaim } from './google-claim';
@@ -52,20 +46,13 @@ type ClaimResult = {
   sessionEntityId: string;
 };
 
-async function writeSessionAndDevice(args: {
+async function writeSessionMirror(args: {
   db: PatchDb;
   deviceId: string;
   claim: ClaimResult;
 }): Promise<WritePatchesResult> {
   const { db, deviceId, claim } = args;
   return await db.write([
-    {
-      entityId: deviceId,
-      entityType: DEVICE_ENTITY_TYPE,
-      attributes: {
-        [DeviceAttr.accountId]: claim.accountId,
-      },
-    },
     {
       entityId: claim.sessionEntityId,
       entityType: ACCOUNT_SESSION_ENTITY_TYPE,
@@ -92,11 +79,8 @@ async function finalizeSignIn(args: {
   await writeLastLocalAccountId(storage, accountId);
   const clientId = await ensureServerClientId(apiUrl, storage);
   await deleteAnonymousDatabaseFileBestEffort(clientId);
-  // Refresh the device row with full platform metadata; the partial write
-  // in writeSessionAndDevice only stamps the account binding so sync push
-  // has the linkage immediately.
   await ensureDeviceEntity(db, deviceId);
-  await ensureAccountProfile(db, accountId);
+  await ensureProfile(db, accountId);
   const sessionSvc = await store.get(sessionServiceAtom);
   await sessionSvc.refresh();
 }
@@ -143,7 +127,7 @@ function createGoogleSignInHandler(
     const patchStack = await store.get(patchDbStackAtom);
     const { db, sync } = patchStack;
 
-    const sessionWrite = await writeSessionAndDevice({ db, deviceId, claim });
+    const sessionWrite = await writeSessionMirror({ db, deviceId, claim });
     const sessionPatchIds = sessionWrite.accepted
       .filter((p) => p.entityType === ACCOUNT_SESSION_ENTITY_TYPE)
       .map((p) => p.patchId);

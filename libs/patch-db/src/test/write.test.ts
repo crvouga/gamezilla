@@ -172,7 +172,7 @@ describe.each(implementations)('$name', ({ factory }) => {
       attributes: {
         'todo/done': value,
         'patch/syncedAt': null,
-        'patch/createdBy': '',
+        'patch/createdById': '',
         'patch/sessionId': '',
       },
       patchId,
@@ -227,7 +227,7 @@ describe.each(implementations)('$name', ({ factory }) => {
         attributes: {
           'todo/n': 2,
           'patch/syncedAt': null,
-          'patch/createdBy': '',
+          'patch/createdById': '',
           'patch/sessionId': '',
         },
         patchId: childId,

@@ -20,6 +20,9 @@ const JSON_HEADERS = {
   Accept: 'application/json',
 } as const;
 
+/** Must match {@link ANON_ID_HEADER} in apps/api session-middleware. */
+const X_ANON_ID = 'x-anon-id';
+
 export type CreatePatchDbHcTransportOptions = {
   /** Same origin + path prefix as read/write (e.g. `https://host/patch-db`). */
   patchDbBaseUrl: string;
@@ -30,14 +33,26 @@ export type CreatePatchDbHcTransportOptions = {
    * transport; do not capture a fixed token in a closure.
    */
   getAuthToken?: () => string | null;
+  /**
+   * Install id sent as `x-anon-id` when there is no Bearer token so the API
+   * can resolve patch-db `myId` for anonymous clients.
+   */
+  getAnonId?: () => string | null;
 };
 
-function authHeaders(
-  getAuthToken?: () => string | null
-): Record<string, string> {
-  const token = getAuthToken?.() ?? null;
-  if (token === null || token.length === 0) return {};
-  return { Authorization: `Bearer ${token}` };
+function authHeaders(options: {
+  getAuthToken?: () => string | null;
+  getAnonId?: () => string | null;
+}): Record<string, string> {
+  const token = options.getAuthToken?.() ?? null;
+  if (token !== null && token.length > 0) {
+    return { Authorization: `Bearer ${token}` };
+  }
+  const anon = options.getAnonId?.() ?? null;
+  if (anon !== null && anon.length > 0) {
+    return { [X_ANON_ID]: anon };
+  }
+  return {};
 }
 
 function throwHcFailure(status: number, text: string): never {
@@ -54,8 +69,13 @@ export function createPatchDbHcTransport(
   client: ApiClient,
   options: CreatePatchDbHcTransportOptions
 ): PatchDbClientTransport {
-  const { getAuthToken, patchDbBaseUrl: _patchDbBaseUrl } = options;
+  const { getAuthToken, getAnonId, patchDbBaseUrl: _patchDbBaseUrl } = options;
   void _patchDbBaseUrl;
+  const hdr = () =>
+    authHeaders({
+      ...(getAuthToken !== undefined ? { getAuthToken } : {}),
+      ...(getAnonId !== undefined ? { getAnonId } : {}),
+    });
   return {
     async read(queries: PatchDbQuery[]): Promise<PatchDbResult[]> {
       if (queries.length === 0) {
@@ -69,7 +89,7 @@ export function createPatchDbHcTransport(
           headers: {
             ...JSON_HEADERS,
             ...NO_CACHE_REQUEST_HEADERS,
-            ...authHeaders(getAuthToken),
+            ...hdr(),
           },
           init: { credentials: 'include' },
         }
@@ -97,7 +117,7 @@ export function createPatchDbHcTransport(
           headers: {
             'Content-Type': 'application/json',
             ...NO_CACHE_REQUEST_HEADERS,
-            ...authHeaders(getAuthToken),
+            ...hdr(),
           },
           init: { credentials: 'include' },
         }

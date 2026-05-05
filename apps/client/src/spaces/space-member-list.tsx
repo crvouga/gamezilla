@@ -2,7 +2,7 @@ import { DeviceAvatar } from '@gamezilla/client/profile/device-avatar';
 import { Box, StatusDot, Text } from '@gamezilla/lib/ui';
 import { Trans } from '@lingui/react/macro';
 
-import { useSelfAuthIdentity } from './device-display-resolution';
+import { useMyId } from '@gamezilla/client/auth/auth-context';
 import type { SpaceMemberRow } from './types';
 import { useSpacePresence } from './use-space-presence';
 
@@ -11,8 +11,8 @@ export type SpaceMemberListProps = {
 };
 
 export function SpaceMemberList({ members }: SpaceMemberListProps) {
-  const { peersByAccountId, selfPeerId } = useSpacePresence();
-  const { selfAccountId } = useSelfAuthIdentity();
+  const { peersByMemberId, selfPeerId } = useSpacePresence();
+  const myId = useMyId();
 
   return (
     <Box sx={{ gap: 2 }}>
@@ -23,17 +23,17 @@ export function SpaceMemberList({ members }: SpaceMemberListProps) {
       />
       <Box sx={{ flexDirection: 'row', flexWrap: 'wrap', gap: 2 }}>
         {members.map((m) => {
-          const peerIds = peersByAccountId.get(m.accountId) ?? [];
+          const peerIds = peersByMemberId.get(m.memberId) ?? [];
           const online = peerIds.length > 0;
           const sessionCount = peerIds.length;
           const thisTab =
             selfPeerId !== null &&
             peerIds.includes(selfPeerId) &&
-            selfAccountId === m.accountId;
+            myId === m.memberId;
 
           return (
             <Box
-              key={m.accountId}
+              key={m.memberId}
               sx={{
                 alignItems: 'center',
                 gap: 1,
@@ -48,7 +48,7 @@ export function SpaceMemberList({ members }: SpaceMemberListProps) {
                 {online ? <StatusDot status="online" size={8} /> : null}
                 <DeviceAvatar
                   avatarConfig={m.avatarConfig}
-                  deviceId={m.accountId}
+                  deviceId={m.memberId}
                   size={40}
                 />
               </Box>

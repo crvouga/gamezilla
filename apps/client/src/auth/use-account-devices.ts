@@ -1,10 +1,20 @@
-import { DEVICE_ENTITY_TYPE, DeviceAttr } from '@gamezilla/domain/auth';
+import {
+  ACCOUNT_SESSION_ENTITY_TYPE,
+  AccountSessionAttr,
+  DEVICE_ENTITY_TYPE,
+  DeviceAttr,
+} from '@gamezilla/domain/auth';
 import type { Entity } from '@gamezilla/patch-db/interface';
 import { useQuery } from '@gamezilla/patch-db/react';
 import { useMemo } from 'react';
 
-const NO_ACCOUNT_DEVICES_QUERY = {
+const EMPTY_DEVICE_QUERY = {
   entityType: DEVICE_ENTITY_TYPE,
+  limit: 0 as const,
+};
+
+const EMPTY_SESSION_QUERY = {
+  entityType: ACCOUNT_SESSION_ENTITY_TYPE,
   limit: 0 as const,
 };
 
@@ -87,13 +97,8 @@ function mergeDevicesForAccount(args: {
 }
 
 /**
- * Devices bound to `accountId`, or the local device only when `accountId` is null.
- * When signed in, merges an explicit fetch of the local device so it still appears if
- * `device/accountId` is not yet replicated on the row.
- *
- * Cross-device: `createPatchDbHcTransport` posts arbitrary `PatchDbQuery` / patches to
- * `/patch-db` with no device-scoped filter — other installs' `device` rows appear
- * here once their patches have synced through the shared patch stream.
+ * Devices that have an `accountSession` row for `accountId`, plus the local
+ * install row when signed in (so the current device appears even before sync).
  */
 export function useAccountDevices(
   accountId: string | null,
@@ -108,32 +113,46 @@ export function useAccountDevices(
     [currentDeviceId]
   );
 
-  const accountDevicesQuery = useMemo(
+  const sessionsQuery = useMemo(
     () =>
       accountId === null
         ? null
         : {
-            entityType: DEVICE_ENTITY_TYPE,
+            entityType: ACCOUNT_SESSION_ENTITY_TYPE,
             where: {
               type: '=' as const,
-              attribute: DeviceAttr.accountId,
+              attribute: AccountSessionAttr.accountId,
               value: accountId,
             },
-            orderBy: [
-              {
-                attribute: DeviceAttr.lastSeenAt,
-                direction: 'desc' as const,
-              },
-            ],
-            limit: 200,
+            limit: 500,
           },
     [accountId]
   );
 
   const localResult = useQuery(localQuery);
-  const accountDevicesResult = useQuery(
-    accountDevicesQuery ?? NO_ACCOUNT_DEVICES_QUERY
+  const sessionsResult = useQuery(sessionsQuery ?? EMPTY_SESSION_QUERY);
+
+  const deviceIdsFromSessions = useMemo(() => {
+    const s = new Set<string>();
+    for (const e of sessionsResult.entities) {
+      const did = e.attributes[AccountSessionAttr.deviceId];
+      if (typeof did === 'string' && did.length > 0) s.add(did);
+    }
+    return [...s].sort();
+  }, [sessionsResult.entities]);
+
+  const remoteDevicesQuery = useMemo(
+    () =>
+      accountId === null || deviceIdsFromSessions.length === 0
+        ? EMPTY_DEVICE_QUERY
+        : {
+            entityType: DEVICE_ENTITY_TYPE,
+            entityId: deviceIdsFromSessions,
+          },
+    [accountId, deviceIdsFromSessions]
   );
+
+  const remoteDevicesResult = useQuery(remoteDevicesQuery);
 
   const devices = useMemo(() => {
     if (accountId === null) {
@@ -142,13 +161,13 @@ export function useAccountDevices(
       );
     }
     return mergeDevicesForAccount({
-      accountEntities: accountDevicesResult.entities,
+      accountEntities: remoteDevicesResult.entities,
       localEntities: localResult.entities,
       currentDeviceId,
     });
   }, [
     accountId,
-    accountDevicesResult.entities,
+    remoteDevicesResult.entities,
     currentDeviceId,
     localResult.entities,
   ]);

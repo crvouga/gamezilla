@@ -1,4 +1,4 @@
-import type { SpaceMiniplayerModel } from '@gamezilla/client/spaces/space-miniplayer-model-types';
+import type { SpaceMiniplayerItemModel } from '@gamezilla/client/spaces/space-miniplayer-model-types';
 import {
   MiniplayerHostHeader,
   MiniplayerLiveBadge,
@@ -87,9 +87,7 @@ function MiniplayerDock({ children }: { children: ReactNode }) {
   );
 }
 
-type VisibleModel = Extract<SpaceMiniplayerModel, { visible: true }>;
-
-function MiniplayerActionButton({ model }: { model: VisibleModel }) {
+function MiniplayerActionButton({ model }: { model: SpaceMiniplayerItemModel }) {
   const { t } = useLingui();
   const isHost = model.isHost;
   return (
@@ -113,7 +111,7 @@ function MiniplayerActionButton({ model }: { model: VisibleModel }) {
   );
 }
 
-function SpaceMiniplayerView(props: VisibleModel) {
+function SpaceMiniplayerCard(props: SpaceMiniplayerItemModel) {
   const { t } = useLingui();
   const theme = useTheme();
   const gradientColors = [
@@ -125,51 +123,49 @@ function SpaceMiniplayerView(props: VisibleModel) {
 
   return (
     <>
-      <MiniplayerDock>
-        <GradientBox
-          colors={gradientColors}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+      <GradientBox
+        colors={gradientColors}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        sx={{
+          borderRadius: 16,
+          flexDirection: 'row',
+          alignItems: 'center',
+          p: 3,
+          gap: 2,
+          minHeight: 72,
+        }}
+        style={{
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.18,
+          shadowRadius: 12,
+          elevation: 6,
+        }}
+      >
+        <Pressable
+          onPress={props.onOpenSpace}
+          accessibilityRole="button"
+          accessibilityLabel={t`Tap to return to your space`}
           sx={{
-            borderRadius: 16,
+            flex: 1,
             flexDirection: 'row',
             alignItems: 'center',
-            p: 3,
             gap: 2,
-            minHeight: 72,
-          }}
-          style={{
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.18,
-            shadowRadius: 12,
-            elevation: 6,
+            minWidth: 0,
           }}
         >
-          <Pressable
-            onPress={props.onOpenSpace}
-            accessibilityRole="button"
-            accessibilityLabel={t`Tap to return to your space`}
-            sx={{
-              flex: 1,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 2,
-              minWidth: 0,
-            }}
-          >
-            <MiniplayerHostHeader
-              spaceTitle={props.spaceTitle}
-              hostId={props.hostId}
-              hostLabel={props.hostLabel}
-              hostAvatarConfig={props.hostAvatarConfig}
-              countLabel={countLabel}
-            />
-            <MiniplayerLiveBadge />
-          </Pressable>
-          <MiniplayerActionButton model={props} />
-        </GradientBox>
-      </MiniplayerDock>
+          <MiniplayerHostHeader
+            spaceTitle={props.spaceTitle}
+            hostId={props.hostId}
+            hostLabel={props.hostLabel}
+            hostAvatarConfig={props.hostAvatarConfig}
+            countLabel={countLabel}
+          />
+          <MiniplayerLiveBadge />
+        </Pressable>
+        <MiniplayerActionButton model={props} />
+      </GradientBox>
       <EndSpaceModal
         visible={props.confirmEnd}
         onClose={props.onCloseEnd}
@@ -189,5 +185,13 @@ export function SpaceMiniplayer() {
   if (!model.visible) {
     return null;
   }
-  return <SpaceMiniplayerView {...model} />;
+  return (
+    <MiniplayerDock>
+      <Box sx={{ gap: 2 }}>
+        {model.items.map((item) => (
+          <SpaceMiniplayerCard key={item.spaceId} {...item} />
+        ))}
+      </Box>
+    </MiniplayerDock>
+  );
 }

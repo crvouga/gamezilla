@@ -3,25 +3,21 @@ export const SPACE_ENTITY_TYPE = 'space';
 
 export const SpaceAttr = {
   title: 'space/title',
-  /** Host account id (`entityId` of the host's `spaceMembership` row). */
+  /** Host's id (account id when signed in, else install id). */
   hostId: 'space/hostId',
   createdAt: 'space/createdAt',
   endedAt: 'space/endedAt',
-  /** Account ids allowed to read this space (optional; used for tighter ABAC). */
-  memberUserIds: 'space/memberUserIds',
 } as const;
 
 /**
- * One membership row per signed-in account (`entityId === accountId`).
- * Joining a different space overwrites this entity so a user is in at most one space.
+ * Guest membership only. Host is {@link SpaceAttr.hostId}. Entity id
+ * `${guestId}:${spaceId}`.
  */
 export const SPACE_MEMBERSHIP_ENTITY_TYPE = 'spaceMembership';
 
 export const SpaceMembershipAttr = {
+  guestId: 'spaceMembership/guestId',
   spaceId: 'spaceMembership/spaceId',
-  role: 'spaceMembership/role',
   joinedAt: 'spaceMembership/joinedAt',
   leftAt: 'spaceMembership/leftAt',
 } as const;
-
-export type SpaceMembershipRole = 'host' | 'guest';

@@ -8,7 +8,7 @@ export function AccountCommand() {
   const auth = useAuth();
   const { run } = useAsync({
     operation: async () => {
-      if (auth.mode === 'signed-in') {
+      if (auth.isAuthenticated) {
         auth.openSignOutConfirm();
       } else {
         auth.openSignInModal();
@@ -18,10 +18,10 @@ export function AccountCommand() {
   return (
     <RegisterCommand
       id="auth-toggle"
-      title={auth.mode === 'signed-in' ? t`Sign out` : t`Sign in`}
+      title={auth.isAuthenticated ? t`Sign out` : t`Sign in`}
       category={t`Account`}
       icon={
-        auth.mode === 'signed-in'
+        auth.isAuthenticated
           ? 'arrow.right.from.bracket'
           : 'right.to.bracket'
       }

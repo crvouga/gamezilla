@@ -1,7 +1,9 @@
 import {
   ACCOUNT_ENTITY_TYPE,
   ACCOUNT_PROVIDER_ENTITY_TYPE,
+  ACCOUNT_SESSION_ENTITY_TYPE,
   AccountProviderAttr,
+  AccountSessionAttr,
   GOOGLE_PROVIDER,
   DEVICE_ENTITY_TYPE,
   DeviceAttr,
@@ -247,28 +249,35 @@ describe('handleAuthClaimResult', () => {
     if (r2.status !== 200) return;
     expect(r2.json.accountId).toBe(accountId1);
 
-    const readDeviceB = await db.read([
-      { entityType: DEVICE_ENTITY_TYPE, entityId: deviceB, limit: 1 },
+    const readSessionsB = await db.read([
+      {
+        entityType: ACCOUNT_SESSION_ENTITY_TYPE,
+        where: {
+          type: '=',
+          attribute: AccountSessionAttr.deviceId,
+          value: deviceB,
+        },
+        limit: 20,
+      },
     ]);
-    const pB = readDeviceB[0];
-    expect(pB).toBeDefined();
-    if (pB === undefined) return;
-    const ent = pB.entities[0];
-    expect(ent).toBeDefined();
-    if (ent === undefined) return;
-    expect(ent.attributes['device/accountId']).toBe(accountId1);
+    const sessionsB = readSessionsB[0];
+    expect(sessionsB).toBeDefined();
+    if (sessionsB === undefined) return;
+    const sessionForB = sessionsB.entities.find(
+      (e) => e.attributes[AccountSessionAttr.accountId] === accountId1
+    );
+    expect(sessionForB).toBeDefined();
   });
 
-  it('rebinds the device to the new account when previously bound to a different account', async () => {
+  it('claim succeeds for an install with only a device metadata row (no device↔account patch)', async () => {
     const db = new MemoryPatchDb();
     const deviceId = '00000000-0000-4000-8000-00000000c001';
-    const staleAccount = '00000000-0000-4000-8000-00000000d001';
     await db.write([
       {
         entityId: deviceId,
         entityType: DEVICE_ENTITY_TYPE,
         attributes: {
-          [DeviceAttr.accountId]: staleAccount,
+          [DeviceAttr.createdAt]: new Date().toISOString(),
         },
       },
     ]);
@@ -283,17 +292,26 @@ describe('handleAuthClaimResult', () => {
     );
     expect(r.status).toBe(200);
     if (r.status !== 200) return;
-    expect(r.json.accountId).not.toBe(staleAccount);
+    expect(r.json.accountId.length).toBeGreaterThan(0);
 
-    const readDevice = await db.read([
-      { entityType: DEVICE_ENTITY_TYPE, entityId: deviceId, limit: 1 },
+    const readSessions = await db.read([
+      {
+        entityType: ACCOUNT_SESSION_ENTITY_TYPE,
+        where: {
+          type: '=',
+          attribute: AccountSessionAttr.deviceId,
+          value: deviceId,
+        },
+        limit: 20,
+      },
     ]);
-    const p = readDevice[0];
-    expect(p).toBeDefined();
-    if (p === undefined) return;
-    const ent = p.entities[0];
-    expect(ent).toBeDefined();
-    if (ent === undefined) return;
-    expect(ent.attributes['device/accountId']).toBe(r.json.accountId);
+    const sess = readSessions[0];
+    expect(sess).toBeDefined();
+    if (sess === undefined) return;
+    expect(
+      sess.entities.some(
+        (e) => e.attributes[AccountSessionAttr.accountId] === r.json.accountId
+      )
+    ).toBe(true);
   });
 });

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { useSelfAuthIdentity } from './device-display-resolution';
+import { useMyId } from '@gamezilla/client/auth/auth-context';
 import { useSpaceRoomWire } from './space-room-wire-context';
 
 /**
@@ -9,27 +9,22 @@ import { useSpaceRoomWire } from './space-room-wire-context';
  * “this account has an active synced room connection for this screen”.
  */
 export function useSpacePresence(): {
-  peersByAccountId: Map<string, string[]>;
+  peersByMemberId: Map<string, string[]>;
   selfPeerId: string | null;
 } {
-  const { selfAccountId } = useSelfAuthIdentity();
+  const myId = useMyId();
   const { roomActive, roomSynced } = useSpaceRoomWire();
 
-  const peersByAccountId = useMemo(() => {
+  const peersByMemberId = useMemo(() => {
     const m = new Map<string, string[]>();
-    if (
-      selfAccountId !== null &&
-      selfAccountId.length > 0 &&
-      roomActive &&
-      roomSynced
-    ) {
-      m.set(selfAccountId, ['local']);
+    if (myId.length > 0 && roomActive && roomSynced) {
+      m.set(myId, ['local']);
     }
     return m;
-  }, [selfAccountId, roomActive, roomSynced]);
+  }, [myId, roomActive, roomSynced]);
 
   return {
-    peersByAccountId,
+    peersByMemberId,
     selfPeerId: roomActive && roomSynced ? 'local' : null,
   };
 }

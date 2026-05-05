@@ -1,10 +1,9 @@
-import { useAuth } from '@gamezilla/client/auth/auth-context';
-import {
-  SpaceActionAuthError,
-  useSpaceActions,
-} from '@gamezilla/client/spaces/space-actions';
+import { useSpaceActions } from '@gamezilla/client/spaces/space-actions';
 import { SpaceCard } from '@gamezilla/client/spaces/space-card';
-import { useSpaces } from '@gamezilla/client/spaces/use-spaces';
+import {
+  useCurrentSpaces,
+  useSpaces,
+} from '@gamezilla/client/spaces/use-spaces';
 import { useAccountActions } from '@gamezilla/client/ui/use-account-actions';
 import {
   Box,
@@ -54,27 +53,20 @@ function SpacesList({ spaces }: SpacesListProps) {
 
 export function SpacesScreen() {
   const accountActions = useAccountActions();
-  const auth = useAuth();
   const isMobile = useBreakpoint() === 'mobile';
   const router = useRouter();
   const { spaces } = useSpaces();
+  const { entries } = useCurrentSpaces();
   const { createSpace } = useSpaceActions();
   const { t } = useLingui();
   const theme = useTheme();
 
+  const alreadyInSpace = entries.length > 0;
+
   const onNewSpace = async () => {
-    try {
-      const newId = await createSpace();
-      if (newId) {
-        router.push({ pathname: '/space/[id]', params: { id: newId } });
-      }
-    } catch (e) {
-      if (e instanceof SpaceActionAuthError) {
-        auth.openSignInModal();
-      } else {
-        throw e;
-      }
-    }
+    if (alreadyInSpace) return;
+    const newId = await createSpace();
+    router.push({ pathname: '/space/[id]', params: { id: newId } });
   };
 
   return (
@@ -92,19 +84,30 @@ export function SpacesScreen() {
             onPress={() => void onNewSpace()}
             accessibilityRole="button"
             accessibilityLabel={t`Create new space`}
+            disabled={alreadyInSpace}
             style={[
               theme.sx({
                 py: 3,
                 px: 4,
                 borderRadius: 8,
-                mb: 4,
+                mb: 2,
                 alignItems: 'center',
+                opacity: alreadyInSpace ? 0.5 : 1,
               }),
               { backgroundColor: theme.colors.tintMuted },
             ]}
           >
             <Text variant="bodyBold" label={<Trans>+ New space</Trans>} />
           </Pressable>
+          {alreadyInSpace ? (
+            <Text
+              variant="caption"
+              sx={{ color: 'textSecondary', mb: 4 }}
+              label={<Trans>You're already in a space</Trans>}
+            />
+          ) : (
+            <Box sx={{ mb: 4 }} />
+          )}
           <SpacesList spaces={spaces} />
         </Box>
       )}

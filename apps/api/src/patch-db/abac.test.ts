@@ -59,7 +59,7 @@ describe('default ABAC policies (sqlite)', () => {
           attributes: {
             'entity/owner': accountA,
             'profile/displayName': 'A',
-            'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
+            'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
         {
@@ -68,7 +68,7 @@ describe('default ABAC policies (sqlite)', () => {
           attributes: {
             'entity/owner': accountB,
             'profile/displayName': 'B',
-            'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
+            'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
       ],
@@ -79,6 +79,7 @@ describe('default ABAC policies (sqlite)', () => {
       clientId: crypto.randomUUID(),
       deviceId: '00000000-0000-4000-8000-00000000a001',
       accountId: accountA,
+      myId: accountA,
       memberOfSpaceIds: [],
       friendUserIds: [],
       blockedUserIds: [],
@@ -91,6 +92,7 @@ describe('default ABAC policies (sqlite)', () => {
       clientId: crypto.randomUUID(),
       deviceId: '00000000-0000-4000-8000-00000000b002',
       accountId: accountB,
+      myId: accountB,
       memberOfSpaceIds: [],
       friendUserIds: [],
       blockedUserIds: [],
@@ -111,7 +113,7 @@ describe('default ABAC policies (sqlite)', () => {
           attributes: {
             'entity/owner': accountA,
             'profile/displayName': 'X',
-            'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
+            'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
       ],
@@ -122,6 +124,7 @@ describe('default ABAC policies (sqlite)', () => {
       clientId: crypto.randomUUID(),
       deviceId: '00000000-0000-4000-8000-00000000c003',
       accountId: accountB,
+      myId: accountB,
       memberOfSpaceIds: [],
       friendUserIds: [],
       blockedUserIds: [],
@@ -139,6 +142,7 @@ describe('default ABAC policies (sqlite)', () => {
       clientId: crypto.randomUUID(),
       deviceId: '00000000-0000-4000-8000-00000000e004',
       accountId: '00000000-0000-4000-8000-0000000000ee',
+      myId: '00000000-0000-4000-8000-0000000000ee',
       memberOfSpaceIds: [],
       friendUserIds: [],
       blockedUserIds: [],
@@ -154,6 +158,7 @@ describe('default ABAC policies (sqlite)', () => {
       clientId: crypto.randomUUID(),
       deviceId: '00000000-0000-4000-8000-00000000f005',
       accountId: '00000000-0000-4000-8000-0000000000ff',
+      myId: '00000000-0000-4000-8000-0000000000ff',
       memberOfSpaceIds: [],
       friendUserIds: [],
       blockedUserIds: [],
@@ -165,7 +170,7 @@ describe('default ABAC policies (sqlite)', () => {
           entityType: 'stripe.webhook_event',
           attributes: {
             'entity/owner': ctx.accountId,
-            'patch/createdBy': ctx.deviceId,
+            'patch/createdById': ctx.myId,
           },
         },
       ],
@@ -184,7 +189,7 @@ describe('default ABAC policies (sqlite)', () => {
           entityType: 'clientConfig',
           attributes: {
             'clientConfig/googleWebClientId': 'test-id',
-            'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
+            'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
       ],
@@ -209,7 +214,7 @@ describe('default ABAC policies (sqlite)', () => {
           attributes: {
             'entity/owner': '00000000-0000-4000-8000-0000000000aa',
             'profile/displayName': 'Private',
-            'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
+            'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
       ],
@@ -236,7 +241,7 @@ describe('default ABAC policies (sqlite)', () => {
           entityType: DEVICE_ENTITY_TYPE,
           attributes: {
             [DeviceAttr.id]: deviceId,
-            'patch/createdBy': 'anonymous-client-writer',
+            'patch/createdById': 'anonymous-client-writer',
           },
         },
       ],
@@ -258,7 +263,7 @@ describe('default ABAC policies (sqlite)', () => {
           entityType: 'clientConfig',
           attributes: {
             'clientConfig/googleWebClientId': 'hacked',
-            'patch/createdBy': '__hacker__',
+            'patch/createdById': '__hacker__',
           },
         },
       ],
@@ -286,7 +291,7 @@ describe('default ABAC policies (sqlite)', () => {
             [AccountSessionAttr.token]: 'server-issued-token',
             [AccountSessionAttr.expiresAt]: future,
             [AccountSessionAttr.createdAt]: new Date().toISOString(),
-            'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
+            'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
       ],
@@ -297,6 +302,7 @@ describe('default ABAC policies (sqlite)', () => {
       clientId: crypto.randomUUID(),
       deviceId,
       accountId,
+      myId: accountId,
       memberOfSpaceIds: [],
       friendUserIds: [],
       blockedUserIds: [],
@@ -310,7 +316,7 @@ describe('default ABAC policies (sqlite)', () => {
           attributes: {
             [AccountSessionAttr.token]: null,
             [AccountSessionAttr.expiresAt]: epoch,
-            'patch/createdBy': deviceId,
+            'patch/createdById': accountId,
           },
         },
       ],
@@ -327,6 +333,7 @@ describe('default ABAC policies (sqlite)', () => {
       clientId: crypto.randomUUID(),
       deviceId,
       accountId,
+      myId: accountId,
       memberOfSpaceIds: [],
       friendUserIds: [],
       blockedUserIds: [],
@@ -339,7 +346,7 @@ describe('default ABAC policies (sqlite)', () => {
           attributes: {
             [AccountSessionAttr.token]: null,
             [AccountSessionAttr.expiresAt]: new Date(0).toISOString(),
-            'patch/createdBy': deviceId,
+            'patch/createdById': accountId,
           },
         },
       ],
@@ -366,7 +373,7 @@ describe('default ABAC policies (sqlite)', () => {
             [AccountSessionAttr.token]: 'a',
             [AccountSessionAttr.expiresAt]: future,
             [AccountSessionAttr.createdAt]: new Date().toISOString(),
-            'patch/createdBy': PATCH_DB_SYSTEM_DEVICE_ID,
+            'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
       ],
@@ -377,6 +384,7 @@ describe('default ABAC policies (sqlite)', () => {
       clientId: crypto.randomUUID(),
       deviceId,
       accountId,
+      myId: accountId,
       memberOfSpaceIds: [],
       friendUserIds: [],
       blockedUserIds: [],
@@ -389,7 +397,7 @@ describe('default ABAC policies (sqlite)', () => {
           attributes: {
             [AccountSessionAttr.token]: 'hijacked',
             [AccountSessionAttr.expiresAt]: new Date(0).toISOString(),
-            'patch/createdBy': deviceId,
+            'patch/createdById': accountId,
           },
         },
       ],
@@ -399,13 +407,14 @@ describe('default ABAC policies (sqlite)', () => {
     expect(out.rejected).toHaveLength(1);
   });
 
-  test('authenticated write still enforces patch/createdBy match', async () => {
+  test('authenticated write still enforces patch/createdById match', async () => {
     const deviceId = '00000000-0000-4000-8000-00000000c0d2';
     const accountId = '00000000-0000-4000-8000-0000000000c2';
     const ctx: AppAuthContext = {
       clientId: crypto.randomUUID(),
       deviceId,
       accountId,
+      myId: accountId,
       memberOfSpaceIds: [],
       friendUserIds: [],
       blockedUserIds: [],
@@ -413,11 +422,11 @@ describe('default ABAC policies (sqlite)', () => {
     const out = await db.write(
       [
         {
-          entityId: deviceId,
+          entityId: accountId,
           entityType: PROFILE_ENTITY_TYPE,
           attributes: {
-            [ProfileAttr.id]: deviceId,
-            'patch/createdBy': '00000000-0000-4000-8000-00000000dead',
+            [ProfileAttr.id]: accountId,
+            'patch/createdById': '00000000-0000-4000-8000-00000000dead',
           },
         },
       ],

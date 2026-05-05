@@ -1,7 +1,9 @@
 import { AccountSessionAttr } from '@gamezilla/domain/auth';
 import { assertDeviceId } from '@gamezilla/domain/auth/device-id';
 import {
+  SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
+  SpaceAttr,
   SpaceMembershipAttr,
 } from '@gamezilla/domain/spaces/space-entities';
 import { assert } from '@gamezilla/lib/assert';
@@ -14,34 +16,61 @@ import type {
 import { readAccountSessionsByToken } from './account-session-by-token';
 import { UnauthorizedError } from './unauthorized-error';
 
-export type AuthContext = AppAuthContext;
+export type AuthContext = AppAuthContext & { readonly accountId: string };
 
-async function loadMemberOfSpaceIds(
-  db: PatchDb,
-  accountId: string
-): Promise<string[]> {
-  const [memRes] = await db.read(
+/** HTTP header: install id for unauthenticated patch-db clients (must match UUID device id). */
+export const ANON_ID_HEADER = 'x-anon-id';
+
+async function loadMemberOfSpaceIds(db: PatchDb, myId: string): Promise<string[]> {
+  const ids = new Set<string>();
+
+  const [hosted] = await db.read(
     [
       {
-        entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
-        entityId: accountId,
+        entityType: SPACE_ENTITY_TYPE,
+        where: {
+          type: 'and',
+          clauses: [
+            { type: '=', attribute: SpaceAttr.hostId, value: myId },
+            { type: 'not_exists', attribute: SpaceAttr.endedAt },
+          ],
+        },
       },
     ],
     PATCHES_DB_SYSTEM_CONTEXT
   );
-  const mem = memRes?.entities[0];
-  if (!mem) return [];
-  const leftAt = mem.attributes[SpaceMembershipAttr.leftAt];
-  if (leftAt !== undefined && leftAt !== null) return [];
-  const sid = mem.attributes[SpaceMembershipAttr.spaceId];
-  return typeof sid === 'string' && sid.length > 0 ? [sid] : [];
+  for (const e of hosted?.entities ?? []) {
+    ids.add(e.entityId);
+  }
+
+  const [guestMem] = await db.read(
+    [
+      {
+        entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
+        where: {
+          type: 'and',
+          clauses: [
+            { type: '=', attribute: SpaceMembershipAttr.guestId, value: myId },
+            { type: 'not_exists', attribute: SpaceMembershipAttr.leftAt },
+          ],
+        },
+      },
+    ],
+    PATCHES_DB_SYSTEM_CONTEXT
+  );
+  for (const e of guestMem?.entities ?? []) {
+    const sid = e.attributes[SpaceMembershipAttr.spaceId];
+    if (typeof sid === 'string' && sid.length > 0) ids.add(sid);
+  }
+
+  return [...ids];
 }
 
 /**
  * Resolves a request to either a full auth context (when Bearer is valid)
  * or a client-only context (when only a clientId cookie is available).
- * Returns a client context instead of null so the ABAC layer can filter
- * reads for unauthenticated HTTP clients.
+ * When `x-anon-id` is set (valid device UUID) without Bearer, returns an auth-shaped
+ * context with `myId` = that id and `accountId` = null.
  */
 export async function resolvePatchDbContext(
   db: PatchDb,
@@ -49,9 +78,25 @@ export async function resolvePatchDbContext(
   clientId: string
 ): Promise<PatchDbContext> {
   const header = request.headers.get('Authorization');
+  const anonRaw = request.headers.get(ANON_ID_HEADER)?.trim() ?? '';
+
   if (header === null || !header.startsWith('Bearer ')) {
+    if (anonRaw.length > 0) {
+      assertDeviceId(anonRaw);
+      const memberOfSpaceIds = await loadMemberOfSpaceIds(db, anonRaw);
+      return {
+        clientId,
+        deviceId: anonRaw,
+        accountId: null,
+        myId: anonRaw,
+        memberOfSpaceIds,
+        friendUserIds: [],
+        blockedUserIds: [],
+      } satisfies AppAuthContext;
+    }
     return { clientId } satisfies AppClientContext;
   }
+
   const token = header.slice('Bearer '.length).trim();
   assert.ok(token.length > 0, 'Bearer token must be non-empty');
 
@@ -85,6 +130,7 @@ export async function resolvePatchDbContext(
       clientId,
       deviceId,
       accountId,
+      myId: accountId,
       memberOfSpaceIds,
       friendUserIds: [],
       blockedUserIds: [],
@@ -96,7 +142,7 @@ export async function resolvePatchDbContext(
 
 /**
  * Same as {@link resolvePatchDbContext} but throws 401 when there is no
- * valid Bearer session. Use for endpoints that require authentication.
+ * valid Bearer session.
  */
 export async function requireAuthContext(
   db: PatchDb,
@@ -111,5 +157,9 @@ export async function requireAuthContext(
   if (typeof ctx.deviceId !== 'string') {
     throw new UnauthorizedError('Invalid or expired session');
   }
-  return ctx as AuthContext;
+  const auth = ctx as AppAuthContext;
+  if (auth.accountId === null) {
+    throw new UnauthorizedError('Invalid or expired session');
+  }
+  return auth as AuthContext;
 }

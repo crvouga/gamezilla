@@ -8,11 +8,11 @@ import { useMemo } from 'react';
 
 import type { WebSocketRoomTransport } from '@gamezilla/room/client/adapters/transport/websocket';
 
+import { useMyId } from '@gamezilla/client/auth/auth-context';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
 import { useSpaceRoomConnection } from './use-space-room-connection';
 import { useSpaceRoomCounterControls } from './use-space-room-counter-controls';
-import { useCurrentMembership, useSpace } from './use-spaces';
-import { useSelfAuthIdentity } from './device-display-resolution';
+import { useCurrentSpaces, useSpace } from './use-spaces';
 
 export type SpaceRoomUiState = {
   count: number;
@@ -25,25 +25,29 @@ export type SpaceRoomUiState = {
 
 export function useSpaceRoom(spaceId: string | undefined): SpaceRoomUiState {
   const space = useSpace(spaceId);
-  const current = useCurrentMembership();
-  const { selfAccountId } = useSelfAuthIdentity();
+  const { entries } = useCurrentSpaces();
+  const myId = useMyId();
   const configService = useConfigService();
   const storage = useKeyValueStorage();
-  const role = current.activeSpaceId === spaceId ? current.role : null;
   const sessionToken = useAtomValue(sessionTokenAtom);
+
+  const inThisSpace = useMemo(
+    () => entries.some((e) => e.spaceId === spaceId),
+    [entries, spaceId]
+  );
 
   const bootstrap = useMemo((): SpaceRoomConnectionBootstrap | null => {
     if (
       typeof spaceId !== 'string' ||
       spaceId.length === 0 ||
       !space.live ||
-      role === null ||
-      selfAccountId === null
+      !inThisSpace ||
+      myId.length === 0
     ) {
       return null;
     }
-    return { spaceId, accountId: selfAccountId };
-  }, [spaceId, space.live, role, selfAccountId]);
+    return { spaceId, myId };
+  }, [spaceId, space.live, inThisSpace, myId]);
 
   const { room, roomRef, transport } = useSpaceRoomConnection(
     bootstrap,

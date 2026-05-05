@@ -10,7 +10,7 @@ describe('mappers', () => {
       attributes: JSON.stringify({
         'task/title': 'valid',
         completed: 'stale-key', // pre-migration non-namespaced
-        'patch/createdBy': 'user',
+        'patch/createdById': 'user',
         'patch/sessionId': 's1',
       }),
       created_at: '2025-01-01T00:00:00Z',
@@ -19,7 +19,7 @@ describe('mappers', () => {
     };
     const patch = toPatch(row);
     expect(patch.attributes['task/title']).toBe('valid');
-    expect(patch.attributes['patch/createdBy']).toBe('user');
+    expect(patch.attributes['patch/createdById']).toBe('user');
     expect(patch.attributes['patch/sessionId']).toBe('s1');
     expect(patch.attributes).not.toHaveProperty('completed');
   });

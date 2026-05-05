@@ -96,10 +96,13 @@ export function assertPatch(a: Assert, p: unknown): asserts p is Patch {
 
 export {
   PATCH_CREATED_BY,
+  PATCH_CREATED_BY_ID,
+  PATCH_CREATED_BY_LEGACY,
   isSyncRejectedPatchAttributes,
   PATCH_LAST_MODIFIED_AT,
   PATCH_LAST_MODIFIED_BY_ACCOUNT,
   PATCH_LAST_MODIFIED_BY_DEVICE,
+  PATCH_LAST_MODIFIED_BY_ID,
   PATCH_META_KEYS,
   PATCH_REJECTED,
   PATCH_SESSION_ID,
@@ -113,6 +116,7 @@ export {
  * Used when migrating from DBs that stored metadata in a separate column.
  */
 export const PATCH_META_LEGACY_KEY_MAP: Record<string, string> = {
+  'patch/createdById': 'createdBy',
   'patch/createdBy': 'createdBy',
   'patch/sessionId': 'sessionId',
   'patch/syncedAt': 'syncedAt',
@@ -129,10 +133,12 @@ type PatchInputWithOptionalMeta = PatchInput &
 export function normalizePatchAttributesForStorage(
   patch: PatchInputWithOptionalMeta
 ): Record<string, unknown> {
+  const attrs = patch.attributes as Record<string, unknown>;
   const createdBy =
     ('createdBy' in patch
       ? patch.createdBy
-      : patch.attributes['patch/createdBy']) ?? '';
+      : attrs['patch/createdById'] ??
+        attrs['patch/createdBy']) ?? '';
   const sessionId =
     'sessionId' in patch
       ? patch.sessionId
@@ -141,7 +147,7 @@ export function normalizePatchAttributesForStorage(
 
   return {
     ...patch.attributes,
-    'patch/createdBy': String(createdBy),
+    'patch/createdById': String(createdBy),
     'patch/sessionId':
       sessionId !== null && sessionId !== undefined ? String(sessionId) : '',
     'patch/syncedAt': syncedAt,
@@ -155,7 +161,8 @@ export function normalizePatchAttributesForStorage(
 export function getPatchTopLevelFromAttributes(
   attrs: Record<string, unknown>
 ): Pick<Patch, 'createdBy' | 'sessionId'> {
-  const createdBy = attrs['patch/createdBy'];
+  const createdBy =
+    attrs['patch/createdById'] ?? attrs['patch/createdBy'];
   const sessionId = attrs['patch/sessionId'];
   return {
     createdBy: String(createdBy ?? ''),
@@ -425,13 +432,13 @@ export function andWhereClause(
 
 /**
  * Read predicate that is always true for snapshot/patch JSON attribute queries.
- * (Every stored patch has `patch/createdBy` after normalization.)
+ * (Every stored patch has `patch/createdById` after normalization.)
  */
 export const READ_WHERE_ALWAYS_TRUE: PatchDbQueryWhereClause = {
   type: 'or',
   clauses: [
-    { type: 'exists', attribute: 'patch/createdBy' },
-    { type: 'not_exists', attribute: 'patch/createdBy' },
+    { type: 'exists', attribute: 'patch/createdById' },
+    { type: 'not_exists', attribute: 'patch/createdById' },
   ],
 };
 
@@ -443,8 +450,8 @@ export const READ_WHERE_ALWAYS_TRUE: PatchDbQueryWhereClause = {
 export const READ_WHERE_NEVER_TRUE: PatchDbQueryWhereClause = {
   type: 'and',
   clauses: [
-    { type: 'exists', attribute: 'patch/createdBy' },
-    { type: 'not_exists', attribute: 'patch/createdBy' },
+    { type: 'exists', attribute: 'patch/createdById' },
+    { type: 'not_exists', attribute: 'patch/createdById' },
   ],
 };
 

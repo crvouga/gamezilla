@@ -1,6 +1,8 @@
-import { useProfileEntities } from '@gamezilla/client/auth/use-device-profile-entities';
+import { useMyId } from '@gamezilla/client/auth/auth-context';
+import { useProfileEntities } from '@gamezilla/client/profile/use-profile-entities';
 import { displayNameForDevice } from '@gamezilla/client/profile/device-display';
-import { DEVICE_ENTITY_TYPE, DeviceAttr } from '@gamezilla/domain/auth';
+import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
+import { parseAvatarConfigAttr } from '@gamezilla/domain/profile/avatar-config';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
@@ -10,19 +12,12 @@ import {
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceAttr,
   SpaceMembershipAttr,
-  type SpaceMembershipRole,
 } from '@gamezilla/domain/spaces/space-entities';
 import type { Entity, PatchDbQuery } from '@gamezilla/patch-db/interface';
 import { useQuery } from '@gamezilla/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
 import { useMemo } from 'react';
 
-import {
-  accountPresentation,
-  useSelfAccountProfile,
-  useSelfAuthIdentity,
-  withSelfAccountProfile,
-} from './device-display-resolution';
 import type { SpaceMemberRow, SpaceView } from './types';
 
 const NO_ENTITY_PLACEHOLDER = '__patch_db_no_entity__';
@@ -52,6 +47,20 @@ const LIVE_SPACES_QUERY: PatchDbQuery = {
   orderBy: [{ attribute: SpaceAttr.createdAt, direction: 'desc' }],
 };
 
+function profilePresentation(
+  profileById: Map<string, Entity>,
+  id: string
+): { displayName: string; avatarConfig: AvatarConfig | null } {
+  const profileEntity = profileById.get(id);
+  const attrs = profileEntity?.attributes as
+    | Record<string, unknown>
+    | undefined;
+  return {
+    displayName: displayNameForDevice(attrs?.[ProfileAttr.displayName], id),
+    avatarConfig: parseAvatarConfigAttr(attrs, ProfileAttr.avatarConfig),
+  };
+}
+
 function buildSpaceView(args: {
   entity: Entity;
   profileById: Map<string, Entity>;
@@ -61,10 +70,7 @@ function buildSpaceView(args: {
   const customTitle = readStringAttr(entity.attributes, SpaceAttr.title);
   const hostId = readStringAttr(entity.attributes, SpaceAttr.hostId) ?? '';
   const { displayName: hostDisplayName, avatarConfig: hostAvatarConfig } =
-    accountPresentation({
-      accountId: hostId,
-      profileById: args.profileById,
-    });
+    profilePresentation(args.profileById, hostId);
   const title = customTitle ?? t`${hostDisplayName}'s space`;
   return {
     id: entity.entityId,
@@ -77,47 +83,34 @@ function buildSpaceView(args: {
 }
 
 export function useSpaces() {
-  const { selfAccountId } = useSelfAuthIdentity();
+  const myId = useMyId();
   const { t } = useLingui();
 
   const spacesResult = useQuery(LIVE_SPACES_QUERY);
 
-  const hostAccountIds = useMemo(() => {
+  const hostIds = useMemo(() => {
     const list = spacesResult.entities ?? [];
     const ids = new Set<string>();
     for (const e of list) {
       const hid = readStringAttr(e.attributes, SpaceAttr.hostId);
       if (hid) ids.add(hid);
     }
-    if (selfAccountId !== null) ids.add(selfAccountId);
+    ids.add(myId);
     return [...ids];
-  }, [spacesResult.entities, selfAccountId]);
+  }, [spacesResult.entities, myId]);
 
-  const { profileById } = useProfileEntities(hostAccountIds);
-
-  const { entity: selfAccountProfile } = useSelfAccountProfile(selfAccountId);
+  const { profileById } = useProfileEntities(hostIds);
 
   const spaces: SpaceView[] = useMemo(() => {
     const list = spacesResult.entities ?? [];
-    const augmented = withSelfAccountProfile(
-      profileById,
-      selfAccountId,
-      selfAccountProfile
-    );
     return list.map((entity) =>
       buildSpaceView({
         entity,
-        profileById: augmented,
+        profileById,
         t,
       })
     );
-  }, [
-    spacesResult.entities,
-    profileById,
-    selfAccountProfile,
-    selfAccountId,
-    t,
-  ]);
+  }, [spacesResult.entities, profileById, t]);
 
   return { spaces };
 }
@@ -151,7 +144,7 @@ export function useSpace(spaceId: string | undefined) {
   const entity = spaceRes.entities[0] ?? null;
   const snap = readSpaceEntitySnapshot(entity);
 
-  const hostDisplayName = useAccountDisplayName(snap.hostId);
+  const hostDisplayName = useDisplayName(snap.hostId);
   const { t } = useLingui();
   const title = snap.customTitle ?? t`${hostDisplayName}'s space`;
 
@@ -168,202 +161,114 @@ export function useSpace(spaceId: string | undefined) {
   };
 }
 
-function normalizeDeviceId(deviceId: string | null | undefined): string {
-  return typeof deviceId === 'string' && deviceId.length > 0
-    ? deviceId
-    : NO_ENTITY_PLACEHOLDER;
-}
-
-function pickProfileEntityId(args: {
-  id: string;
-  isSelf: boolean;
-  selfAccountId: string | null;
-  deviceEntity: Entity | null;
-}): string {
-  const { id, isSelf, selfAccountId, deviceEntity } = args;
-  if (id === NO_ENTITY_PLACEHOLDER) return NO_ENTITY_PLACEHOLDER;
-  if (isSelf && selfAccountId !== null) return selfAccountId;
-  const accountIdAttr = readStringAttr(
-    deviceEntity?.attributes as Record<string, unknown> | undefined,
-    DeviceAttr.accountId
-  );
-  return accountIdAttr ?? id;
-}
-
-/**
- * Display label for a device's current profile (for host / join UI).
- *
- * Selection rules:
- * - When the device row is the current viewer, the auth context drives the lookup:
- *   signed-in → account profile (`entityId === accountId`),
- *   guest → device-local profile (`entityId === deviceId`).
- *   This matches `useProfile()` and avoids waiting on the device entity to
- *   reflect a freshly bound `accountId`.
- * - For other devices we still derive the profile id from their device entity
- *   when visible.
- */
-export function useDeviceDisplayName(deviceId: string | null | undefined) {
-  const { selfDeviceId, selfAccountId } = useSelfAuthIdentity();
-
-  const id = normalizeDeviceId(deviceId);
-  const isSelf = id !== NO_ENTITY_PLACEHOLDER && id === selfDeviceId;
-  const skipDeviceLookup =
-    id === NO_ENTITY_PLACEHOLDER || (isSelf && selfAccountId !== null);
-
-  const deviceRes = useQuery(
-    skipDeviceLookup
-      ? { entityType: DEVICE_ENTITY_TYPE, limit: 0 }
-      : { entityType: DEVICE_ENTITY_TYPE, entityId: id }
-  );
-  const deviceEntity = deviceRes.entities[0] ?? null;
-
-  const profileEntityId = pickProfileEntityId({
-    id,
-    isSelf,
-    selfAccountId,
-    deviceEntity,
-  });
-
-  const profileRes = useQuery({
-    entityType: PROFILE_ENTITY_TYPE,
-    entityId: profileEntityId,
-  });
-  const profileEntity = profileRes.entities[0] ?? null;
-
-  return useMemo(() => {
-    const effectiveId = id === NO_ENTITY_PLACEHOLDER ? 'unknown' : id;
-    const raw = profileEntity?.attributes[ProfileAttr.displayName];
-    return displayNameForDevice(raw, effectiveId);
-  }, [id, profileEntity]);
-}
-
-/** Display label from a `profile` row keyed by `accountId`. */
-export function useAccountDisplayName(accountId: string | null | undefined) {
-  const id =
-    typeof accountId === 'string' && accountId.length > 0
-      ? accountId
-      : NO_ENTITY_PLACEHOLDER;
+/** Profile-backed display label for any actor id. */
+export function useDisplayName(id: string | null | undefined): string {
+  const resolvedId =
+    typeof id === 'string' && id.length > 0 ? id : NO_ENTITY_PLACEHOLDER;
 
   const profileRes = useQuery(
-    id === NO_ENTITY_PLACEHOLDER
+    resolvedId === NO_ENTITY_PLACEHOLDER
       ? { entityType: PROFILE_ENTITY_TYPE, limit: 0 }
       : {
           entityType: PROFILE_ENTITY_TYPE,
-          entityId: id,
+          entityId: resolvedId,
         }
   );
   const profileEntity = profileRes.entities[0] ?? null;
 
   return useMemo(() => {
-    const effectiveId = id === NO_ENTITY_PLACEHOLDER ? 'unknown' : id;
+    const fallback =
+      resolvedId === NO_ENTITY_PLACEHOLDER ? 'unknown' : resolvedId;
     const raw = profileEntity?.attributes[ProfileAttr.displayName];
-    return displayNameForDevice(raw, effectiveId);
-  }, [id, profileEntity]);
+    return displayNameForDevice(raw, fallback);
+  }, [resolvedId, profileEntity]);
 }
 
-export type CurrentMembership = {
-  /** Active space id when the user is a member of a live space. */
-  activeSpaceId: string | null;
-  role: SpaceMembershipRole | null;
-  membershipEntity: Entity | null;
-  /** True until both the membership and resolved space queries have delivered. */
-  isLoading: boolean;
+export type CurrentSpaceEntry = {
+  spaceId: string;
+  role: 'host' | 'guest';
+  spaceEntity: Entity | null;
 };
 
-function resolveCurrentMembership(args: {
-  membership: Entity | null;
-  hasLeft: boolean;
-  spaceIdRaw: string | null;
-  spaceEntity: Entity | null;
-  spaceEnded: boolean;
-  role: SpaceMembershipRole | null;
+export function useCurrentSpaces(): {
+  entries: CurrentSpaceEntry[];
   isLoading: boolean;
-}): CurrentMembership {
-  const {
-    membership,
-    hasLeft,
-    spaceIdRaw,
-    spaceEntity,
-    spaceEnded,
-    role,
-    isLoading,
-  } = args;
-  const inactive: CurrentMembership = {
-    activeSpaceId: null,
-    role: null,
-    membershipEntity: membership,
-    isLoading,
-  };
-  if (!membership || hasLeft || !spaceIdRaw) return inactive;
-  if (!spaceEntity || spaceEnded) return inactive;
-  return {
-    activeSpaceId: spaceIdRaw,
-    role,
-    membershipEntity: membership,
-    isLoading,
-  };
-}
-
-function extractMembershipState(membership: Entity | null): {
-  spaceIdRaw: string | null;
-  hasLeft: boolean;
-  role: SpaceMembershipRole | null;
 } {
-  const spaceIdRaw = readStringAttr(
-    membership?.attributes,
-    SpaceMembershipAttr.spaceId
-  );
-  const leftAt = membership?.attributes[SpaceMembershipAttr.leftAt];
-  const hasLeft = leftAt !== undefined && leftAt !== null;
-  const roleRaw = membership?.attributes[SpaceMembershipAttr.role];
-  const role: SpaceMembershipRole | null =
-    roleRaw === 'host' || roleRaw === 'guest' ? roleRaw : null;
-  return { spaceIdRaw, hasLeft, role };
-}
+  const myId = useMyId();
 
-export function useCurrentMembership(): CurrentMembership {
-  const { selfAccountId } = useSelfAuthIdentity();
-
-  const memRes = useQuery(
-    selfAccountId === null
-      ? { entityType: SPACE_MEMBERSHIP_ENTITY_TYPE, limit: 0 }
-      : {
-          entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
-          entityId: selfAccountId,
-        }
-  );
-
-  const membership = (memRes.entities[0] ?? null) as Entity | null;
-
-  const { spaceIdRaw, hasLeft, role } = extractMembershipState(membership);
-
-  const spaceIdForQuery =
-    spaceIdRaw && !hasLeft ? spaceIdRaw : NO_ENTITY_PLACEHOLDER;
-
-  const spaceRes = useQuery({
+  const hostedRes = useQuery({
     entityType: SPACE_ENTITY_TYPE,
-    entityId: spaceIdForQuery,
+    where: {
+      type: 'and',
+      clauses: [
+        { type: '=', attribute: SpaceAttr.hostId, value: myId },
+        { type: 'not_exists', attribute: SpaceAttr.endedAt },
+      ],
+    },
+    orderBy: [{ attribute: SpaceAttr.createdAt, direction: 'desc' }],
   });
-  const spaceEntity = spaceRes.entities[0] ?? null;
-  const spaceEnded = spaceEntity
-    ? !spaceEntityIsLive(spaceEntity.attributes)
-    : false;
 
-  const isLoading = memRes.isLoading || spaceRes.isLoading;
+  const guestMemRes = useQuery({
+    entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
+    where: {
+      type: 'and',
+      clauses: [
+        { type: '=', attribute: SpaceMembershipAttr.guestId, value: myId },
+        { type: 'not_exists', attribute: SpaceMembershipAttr.leftAt },
+      ],
+    },
+  });
 
-  return useMemo(
-    () =>
-      resolveCurrentMembership({
-        membership,
-        hasLeft,
-        spaceIdRaw,
-        spaceEntity,
-        spaceEnded,
-        role,
-        isLoading,
-      }),
-    [membership, hasLeft, spaceIdRaw, spaceEnded, spaceEntity, role, isLoading]
+  const guestSpaceIds = useMemo(() => {
+    const ids: string[] = [];
+    for (const e of guestMemRes.entities ?? []) {
+      const sid = readStringAttr(
+        e.attributes as Record<string, unknown>,
+        SpaceMembershipAttr.spaceId
+      );
+      if (sid) ids.push(sid);
+    }
+    return [...new Set(ids)].sort();
+  }, [guestMemRes.entities]);
+
+  const guestSpacesRes = useQuery(
+    guestSpaceIds.length === 0
+      ? { entityType: SPACE_ENTITY_TYPE, limit: 0 }
+      : { entityType: SPACE_ENTITY_TYPE, entityId: guestSpaceIds }
   );
+
+  const guestSpaceById = useMemo(() => {
+    const m = new Map<string, Entity>();
+    for (const e of guestSpacesRes.entities ?? []) {
+      m.set(e.entityId, e);
+    }
+    return m;
+  }, [guestSpacesRes.entities]);
+
+  const entries = useMemo((): CurrentSpaceEntry[] => {
+    const bySpace = new Map<string, CurrentSpaceEntry>();
+    for (const e of hostedRes.entities ?? []) {
+      bySpace.set(e.entityId, {
+        spaceId: e.entityId,
+        role: 'host',
+        spaceEntity: e,
+      });
+    }
+    for (const sid of guestSpaceIds) {
+      if (bySpace.has(sid)) continue;
+      const spaceEntity = guestSpaceById.get(sid) ?? null;
+      if (spaceEntity && !spaceEntityIsLive(spaceEntity.attributes)) {
+        continue;
+      }
+      bySpace.set(sid, { spaceId: sid, role: 'guest', spaceEntity });
+    }
+    return [...bySpace.values()];
+  }, [hostedRes.entities, guestSpaceIds, guestSpaceById]);
+
+  const isLoading =
+    hostedRes.isLoading || guestMemRes.isLoading || guestSpacesRes.isLoading;
+
+  return { entries, isLoading };
 }
 
 function compareMembers(a: SpaceMemberRow, b: SpaceMemberRow): number {
@@ -372,74 +277,77 @@ function compareMembers(a: SpaceMemberRow, b: SpaceMemberRow): number {
   return a.displayName.localeCompare(b.displayName);
 }
 
-function buildMemberRow(args: {
-  membership: Entity;
-  profileById: Map<string, Entity>;
-}): SpaceMemberRow {
-  const { membership } = args;
-  const accountId = membership.entityId;
-  const roleRaw = membership.attributes[SpaceMembershipAttr.role];
-  const role: 'host' | 'guest' = roleRaw === 'host' ? 'host' : 'guest';
-  return {
-    accountId,
-    ...accountPresentation({
-      accountId,
-      profileById: args.profileById,
-    }),
-    role,
-  };
-}
-
 export function useSpaceMembers(spaceId: string | undefined) {
-  const { selfAccountId } = useSelfAuthIdentity();
-
+  const myId = useMyId();
   const sid =
     typeof spaceId === 'string' && spaceId.length > 0
       ? spaceId
       : NO_ENTITY_PLACEHOLDER;
 
-  const membersRes = useQuery({
-    entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
-    where: {
-      type: 'and',
-      clauses: [
-        { type: '=', attribute: SpaceMembershipAttr.spaceId, value: sid },
-        { type: 'not_exists', attribute: SpaceMembershipAttr.leftAt },
-      ],
-    },
-  });
+  const spaceRes = useQuery(
+    sid === NO_ENTITY_PLACEHOLDER
+      ? { entityType: SPACE_ENTITY_TYPE, limit: 0 }
+      : { entityType: SPACE_ENTITY_TYPE, entityId: sid }
+  );
+  const spaceEntity = spaceRes.entities[0] ?? null;
+  const hostId = readStringAttr(spaceEntity?.attributes, SpaceAttr.hostId);
 
-  const memberAccountIds = useMemo(() => {
-    const ids = (membersRes.entities ?? []).map((e) => e.entityId);
-    return ids.length > 0 && selfAccountId !== null
-      ? [...ids, selfAccountId]
-      : ids.length > 0
-        ? ids
-        : selfAccountId !== null
-          ? [selfAccountId]
-          : [];
-  }, [membersRes.entities, selfAccountId]);
+  const membersRes = useQuery(
+    sid === NO_ENTITY_PLACEHOLDER
+      ? { entityType: SPACE_MEMBERSHIP_ENTITY_TYPE, limit: 0 }
+      : {
+          entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
+          where: {
+            type: 'and',
+            clauses: [
+              { type: '=', attribute: SpaceMembershipAttr.spaceId, value: sid },
+              { type: 'not_exists', attribute: SpaceMembershipAttr.leftAt },
+            ],
+          },
+        }
+  );
 
-  const { profileById } = useProfileEntities(memberAccountIds);
+  const guestIds = useMemo(() => {
+    const ids: string[] = [];
+    for (const e of membersRes.entities ?? []) {
+      const gid = readStringAttr(
+        e.attributes as Record<string, unknown>,
+        SpaceMembershipAttr.guestId
+      );
+      if (gid) ids.push(gid);
+    }
+    return ids;
+  }, [membersRes.entities]);
 
-  const { entity: selfAccountProfile } = useSelfAccountProfile(selfAccountId);
+  const memberIdsForProfiles = useMemo(() => {
+    const s = new Set<string>();
+    if (hostId) s.add(hostId);
+    for (const g of guestIds) s.add(g);
+    if (myId) s.add(myId);
+    return [...s];
+  }, [hostId, guestIds, myId]);
+
+  const { profileById } = useProfileEntities(memberIdsForProfiles);
 
   const members: SpaceMemberRow[] = useMemo(() => {
-    const augmented = withSelfAccountProfile(
-      profileById,
-      selfAccountId,
-      selfAccountProfile
-    );
-    const rows: SpaceMemberRow[] = (membersRes.entities ?? []).map(
-      (membership) =>
-        buildMemberRow({
-          membership,
-          profileById: augmented,
-        })
-    );
+    if (!hostId || sid === NO_ENTITY_PLACEHOLDER) return [];
+    const rows: SpaceMemberRow[] = [];
+    rows.push({
+      memberId: hostId,
+      ...profilePresentation(profileById, hostId),
+      role: 'host',
+    });
+    for (const gid of guestIds) {
+      if (gid === hostId) continue;
+      rows.push({
+        memberId: gid,
+        ...profilePresentation(profileById, gid),
+        role: 'guest',
+      });
+    }
     rows.sort(compareMembers);
     return rows;
-  }, [membersRes.entities, profileById, selfAccountProfile, selfAccountId]);
+  }, [hostId, guestIds, profileById, sid]);
 
   return { members };
 }

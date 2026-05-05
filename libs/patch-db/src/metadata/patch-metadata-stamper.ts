@@ -2,30 +2,86 @@ import { assert } from '@gamezilla/lib/assert';
 import type {
   PatchDbContext,
   PatchDbQuery,
+  PatchDbQueryWhereClause,
   PatchDbResult,
   PatchInput,
   WritePatchesResult,
 } from '../interface';
 import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
-import type { SubscribablePatchDbLike } from '../subscribable';
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '../policy/system-device';
+import type { SubscribablePatchDbLike } from '../subscribable';
 import {
-  PATCH_CREATED_BY,
+  PATCH_CREATED_BY_ID,
+  PATCH_CREATED_BY_LEGACY,
   PATCH_LAST_MODIFIED_AT,
-  PATCH_LAST_MODIFIED_BY_ACCOUNT,
-  PATCH_LAST_MODIFIED_BY_DEVICE,
+  PATCH_LAST_MODIFIED_BY_ID,
 } from './patch-metadata';
 
+function backfillWhereEmptyOrMissing(): PatchDbQueryWhereClause {
+  return {
+    type: 'or',
+    clauses: [
+      {
+        type: 'and',
+        clauses: [
+          { type: 'not_exists', attribute: PATCH_CREATED_BY_ID },
+          { type: 'not_exists', attribute: PATCH_CREATED_BY_LEGACY },
+        ],
+      },
+      { type: '=', attribute: PATCH_CREATED_BY_ID, value: '' },
+      { type: '=', attribute: PATCH_CREATED_BY_LEGACY, value: '' },
+    ],
+  };
+}
+
+function backfillWhereStaleNewKey(myId: string): PatchDbQueryWhereClause {
+  return {
+    type: 'and',
+    clauses: [
+      { type: 'exists', attribute: PATCH_CREATED_BY_ID },
+      { type: '!=', attribute: PATCH_CREATED_BY_ID, value: myId },
+      { type: '!=', attribute: PATCH_CREATED_BY_ID, value: '' },
+      {
+        type: '!=',
+        attribute: PATCH_CREATED_BY_ID,
+        value: PATCH_DB_SYSTEM_DEVICE_ID,
+      },
+    ],
+  };
+}
+
+function backfillWhereStaleLegacyOnly(myId: string): PatchDbQueryWhereClause {
+  return {
+    type: 'and',
+    clauses: [
+      { type: 'not_exists', attribute: PATCH_CREATED_BY_ID },
+      { type: 'exists', attribute: PATCH_CREATED_BY_LEGACY },
+      { type: '!=', attribute: PATCH_CREATED_BY_LEGACY, value: myId },
+      { type: '!=', attribute: PATCH_CREATED_BY_LEGACY, value: '' },
+      {
+        type: '!=',
+        attribute: PATCH_CREATED_BY_LEGACY,
+        value: PATCH_DB_SYSTEM_DEVICE_ID,
+      },
+    ],
+  };
+}
+
 export type PatchMetadataStamperConfig = {
+  /** Install / replication device id (for assertions only). */
   getDeviceId: () => string;
-  getAccountId?: () => string | null;
+  /**
+   * Author id on patches: account id when signed in, else install id.
+   * Must match server ABAC `myId`.
+   */
+  getMyId: () => string;
   /** Optional validator for deviceId (e.g. assertDeviceId from domain). */
   assertDeviceId?: (id: string) => void;
 };
 
 /**
- * Stamps every write with authorship metadata (`patch/createdBy`,
- * `patch/lastModifiedByDeviceId`, etc.) and sets the top-level
+ * Stamps every write with authorship metadata (`patch/createdById`,
+ * `patch/lastModifiedById`, etc.) and sets the top-level
  * `createdBy` field on each patch input.
  *
  * Delegates read, update, and subscribe to the inner sync DB.
@@ -55,21 +111,18 @@ export class PatchMetadataStamper implements SubscribablePatchDbLike {
   ): Promise<WritePatchesResult> {
     const deviceId = this.config.getDeviceId();
     this.config.assertDeviceId?.(deviceId);
-    const accountId = this.config.getAccountId?.() ?? null;
+    const myId = this.config.getMyId();
+    assert.ok(myId.length > 0, 'myId must be non-empty');
     const stamped: PatchInput[] = patches.map((p) => {
       const attrs: Record<string, unknown> = {
         ...p.attributes,
-        [PATCH_CREATED_BY]: deviceId,
-        [PATCH_LAST_MODIFIED_BY_DEVICE]: deviceId,
+        [PATCH_CREATED_BY_ID]: myId,
+        [PATCH_LAST_MODIFIED_BY_ID]: myId,
         [PATCH_LAST_MODIFIED_AT]: Date.now(),
       };
-      if (accountId !== null && accountId !== undefined && accountId !== '') {
-        assert.ok(accountId.length > 0, 'accountId must be a non-empty string');
-        attrs[PATCH_LAST_MODIFIED_BY_ACCOUNT] = accountId;
-      }
       return {
         ...p,
-        createdBy: deviceId,
+        createdBy: myId,
         attributes: attrs as PatchInput['attributes'],
       };
     });
@@ -90,74 +143,36 @@ export class PatchMetadataStamper implements SubscribablePatchDbLike {
     return this.inner.update(updates, ctx);
   }
 
+  private async backfillPatchesWhere(
+    myId: string,
+    where: PatchDbQueryWhereClause
+  ): Promise<void> {
+    const [row] = await this.inner.read(
+      [{ on: 'patches', where }],
+      OPEN_PATCHES_DB_CONTEXT
+    );
+    if (row === undefined || row.patches.length === 0) return;
+    await this.inner.update(
+      row.patches.map((p) => ({
+        patchId: p.patchId,
+        attributes: { [PATCH_CREATED_BY_ID]: myId },
+      })),
+      OPEN_PATCHES_DB_CONTEXT
+    );
+  }
+
   /**
-   * Backfills `patch/createdBy` on existing local patches that have an empty
+   * Backfills `patch/createdById` on existing local patches that have an empty
    * or missing value, then rewrites values that still differ from the current
-   * device id (e.g. after secure-storage rotation while the SQLite file
-   * survived). Skips {@link PATCH_DB_SYSTEM_DEVICE_ID}. Without this, ABAC
-   * rejects pushes with `patch/createdBy must match device`.
+   * my id. Skips {@link PATCH_DB_SYSTEM_DEVICE_ID}. Without this, ABAC
+   * rejects pushes with `patch/createdById must match author`.
    */
   async backfillCreatedBy(): Promise<void> {
-    const deviceId = this.config.getDeviceId();
-    this.config.assertDeviceId?.(deviceId);
-
-    const [emptyOrMissing] = await this.inner.read(
-      [
-        {
-          on: 'patches',
-          where: {
-            type: 'or',
-            clauses: [
-              { type: 'not_exists', attribute: PATCH_CREATED_BY },
-              { type: '=', attribute: PATCH_CREATED_BY, value: '' },
-            ],
-          },
-        },
-      ],
-      OPEN_PATCHES_DB_CONTEXT
-    );
-
-    if (emptyOrMissing !== undefined && emptyOrMissing.patches.length > 0) {
-      await this.inner.update(
-        emptyOrMissing.patches.map((p) => ({
-          patchId: p.patchId,
-          attributes: { [PATCH_CREATED_BY]: deviceId },
-        })),
-        OPEN_PATCHES_DB_CONTEXT
-      );
-    }
-
-    const [stale] = await this.inner.read(
-      [
-        {
-          on: 'patches',
-          where: {
-            type: 'and',
-            clauses: [
-              { type: 'exists', attribute: PATCH_CREATED_BY },
-              { type: '!=', attribute: PATCH_CREATED_BY, value: deviceId },
-              {
-                type: '!=',
-                attribute: PATCH_CREATED_BY,
-                value: PATCH_DB_SYSTEM_DEVICE_ID,
-              },
-              { type: '!=', attribute: PATCH_CREATED_BY, value: '' },
-            ],
-          },
-        },
-      ],
-      OPEN_PATCHES_DB_CONTEXT
-    );
-
-    if (stale !== undefined && stale.patches.length > 0) {
-      await this.inner.update(
-        stale.patches.map((p) => ({
-          patchId: p.patchId,
-          attributes: { [PATCH_CREATED_BY]: deviceId },
-        })),
-        OPEN_PATCHES_DB_CONTEXT
-      );
-    }
+    const myId = this.config.getMyId();
+    this.config.assertDeviceId?.(this.config.getDeviceId());
+    await this.backfillPatchesWhere(myId, backfillWhereEmptyOrMissing());
+    await this.backfillPatchesWhere(myId, backfillWhereStaleNewKey(myId));
+    await this.backfillPatchesWhere(myId, backfillWhereStaleLegacyOnly(myId));
   }
 
   /**
