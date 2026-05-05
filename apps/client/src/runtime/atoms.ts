@@ -58,21 +58,16 @@ export const deviceServiceAtom = atom(async (get) => {
 });
 
 /**
- * **Native:** per-account or anonymous file DB via expo-sqlite (see `account-db.ts`).
- * Pre-auth uses a server-issued `clientId` for a stable anonymous filename.
- *
- * **Web:** sql.js in-memory — avoids expo-sqlite OPFS multi-tab lock. Patch-db
- * rehydrates from the server after refresh. See {@link openSqlClientForPlatform}.
+ * Per-account or anonymous-by-server-clientId file DB via expo-sqlite. Same
+ * code path on native and web (web uses expo-sqlite's OPFS adapter). See
+ * {@link openSqlClientForPlatform} and `account-db.ts`.
  */
 export const sqlClientAtom = atom(async (get, { signal }) => {
-  const sql = await openSqlClientForPlatform(
-    {
-      getAccountId: () => get(accountIdAtom),
-      getSecureStorage: () => get(secureStorageAtom),
-      getApiUrl: () => get(configServiceAtom).getApiUrl(),
-    },
-    signal
-  );
+  const sql = await openSqlClientForPlatform({
+    getAccountId: () => get(accountIdAtom),
+    getSecureStorage: () => get(secureStorageAtom),
+    getApiUrl: () => get(configServiceAtom).getApiUrl(),
+  });
   signal.addEventListener('abort', () => {
     void sql.disconnect();
   });
