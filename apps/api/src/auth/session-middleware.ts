@@ -69,40 +69,29 @@ async function loadMemberOfSpaceIds(
   return [...ids];
 }
 
-/**
- * Resolves a request to either a full auth context (when Bearer is valid)
- * or a client-only context (when only a clientId cookie is available).
- * When `x-anon-id` is set (valid device UUID) without Bearer, returns an auth-shaped
- * context with `myId` = that id and `accountId` = null.
- */
-export async function resolvePatchDbContext(
+async function buildAnonAppAuthContext(
   db: PatchDb,
-  request: Request,
+  clientId: string,
+  anonId: string
+): Promise<AppAuthContext> {
+  assertDeviceId(anonId);
+  const memberOfSpaceIds = await loadMemberOfSpaceIds(db, anonId);
+  return {
+    clientId,
+    deviceId: anonId,
+    accountId: null,
+    myId: anonId,
+    memberOfSpaceIds,
+    friendUserIds: [],
+    blockedUserIds: [],
+  } satisfies AppAuthContext;
+}
+
+async function tryResolveBearerAppAuth(
+  db: PatchDb,
+  token: string,
   clientId: string
-): Promise<PatchDbContext> {
-  const header = request.headers.get('Authorization');
-  const anonRaw = request.headers.get(ANON_ID_HEADER)?.trim() ?? '';
-
-  if (header === null || !header.startsWith('Bearer ')) {
-    if (anonRaw.length > 0) {
-      assertDeviceId(anonRaw);
-      const memberOfSpaceIds = await loadMemberOfSpaceIds(db, anonRaw);
-      return {
-        clientId,
-        deviceId: anonRaw,
-        accountId: null,
-        myId: anonRaw,
-        memberOfSpaceIds,
-        friendUserIds: [],
-        blockedUserIds: [],
-      } satisfies AppAuthContext;
-    }
-    return { clientId } satisfies AppClientContext;
-  }
-
-  const token = header.slice('Bearer '.length).trim();
-  assert.ok(token.length > 0, 'Bearer token must be non-empty');
-
+): Promise<AppAuthContext | null> {
   const entities = await readAccountSessionsByToken(db, token);
   const now = Date.now();
 
@@ -140,7 +129,35 @@ export async function resolvePatchDbContext(
     } satisfies AppAuthContext;
   }
 
-  return { clientId } satisfies AppClientContext;
+  return null;
+}
+
+/**
+ * Resolves a request to either a full auth context (when Bearer is valid)
+ * or a client-only context (when only a clientId cookie is available).
+ * When `x-anon-id` is set (valid device UUID) without Bearer, returns an auth-shaped
+ * context with `myId` = that id and `accountId` = null.
+ */
+export async function resolvePatchDbContext(
+  db: PatchDb,
+  request: Request,
+  clientId: string
+): Promise<PatchDbContext> {
+  const header = request.headers.get('Authorization');
+  const anonRaw = request.headers.get(ANON_ID_HEADER)?.trim() ?? '';
+
+  if (header === null || !header.startsWith('Bearer ')) {
+    if (anonRaw.length > 0) {
+      return await buildAnonAppAuthContext(db, clientId, anonRaw);
+    }
+    return { clientId } satisfies AppClientContext;
+  }
+
+  const token = header.slice('Bearer '.length).trim();
+  assert.ok(token.length > 0, 'Bearer token must be non-empty');
+
+  const auth = await tryResolveBearerAppAuth(db, token, clientId);
+  return auth ?? ({ clientId } satisfies AppClientContext);
 }
 
 /**
