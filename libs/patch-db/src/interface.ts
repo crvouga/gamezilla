@@ -95,14 +95,8 @@ export function assertPatch(a: Assert, p: unknown): asserts p is Patch {
 }
 
 export {
-  PATCH_CREATED_BY,
   PATCH_CREATED_BY_ID,
-  PATCH_CREATED_BY_LEGACY,
   isSyncRejectedPatchAttributes,
-  PATCH_LAST_MODIFIED_AT,
-  PATCH_LAST_MODIFIED_BY_ACCOUNT,
-  PATCH_LAST_MODIFIED_BY_DEVICE,
-  PATCH_LAST_MODIFIED_BY_ID,
   PATCH_META_KEYS,
   PATCH_REJECTED,
   PATCH_SESSION_ID,
@@ -110,17 +104,6 @@ export {
   PATCH_SYNC_REJECTED_REASON,
   PATCH_SYNCED_AT,
 } from './metadata/patch-metadata';
-
-/**
- * For legacy migration only: maps current metadata attr keys to old metadata column keys.
- * Used when migrating from DBs that stored metadata in a separate column.
- */
-export const PATCH_META_LEGACY_KEY_MAP: Record<string, string> = {
-  'patch/createdById': 'createdBy',
-  'patch/createdBy': 'createdBy',
-  'patch/sessionId': 'sessionId',
-  'patch/syncedAt': 'syncedAt',
-};
 
 type PatchInputWithOptionalMeta = PatchInput &
   Partial<Record<'createdBy' | 'sessionId', unknown>>;
@@ -135,9 +118,7 @@ export function normalizePatchAttributesForStorage(
 ): Record<string, unknown> {
   const attrs = patch.attributes as Record<string, unknown>;
   const createdBy =
-    ('createdBy' in patch
-      ? patch.createdBy
-      : (attrs['patch/createdById'] ?? attrs['patch/createdBy'])) ?? '';
+    ('createdBy' in patch ? patch.createdBy : attrs['patch/createdById']) ?? '';
   const sessionId =
     'sessionId' in patch
       ? patch.sessionId
@@ -160,7 +141,7 @@ export function normalizePatchAttributesForStorage(
 export function getPatchTopLevelFromAttributes(
   attrs: Record<string, unknown>
 ): Pick<Patch, 'createdBy' | 'sessionId'> {
-  const createdBy = attrs['patch/createdById'] ?? attrs['patch/createdBy'];
+  const createdBy = attrs['patch/createdById'];
   const sessionId = attrs['patch/sessionId'];
   return {
     createdBy: String(createdBy ?? ''),

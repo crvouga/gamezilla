@@ -117,8 +117,6 @@ export const patchDbStackAtom = atom(async (get, { signal }) => {
     assertDeviceId: (id) => assertDeviceId(id),
   });
 
-  await stamper.backfillCreatedBy();
-
   signal.addEventListener('abort', () => {
     forceDetachPatchDbQuerySubscriptionsForDb(stamper);
     sync.destroy();

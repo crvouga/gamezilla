@@ -2,8 +2,6 @@ import { assertDeviceId } from '@gamezilla/domain/auth';
 import { assert } from '@gamezilla/lib/assert';
 import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
 
-import { migrateDeviceStorageWebLegacy } from './migrate-device-storage-web-legacy';
-
 /** Must match expo-secure-store key rules (`[\w.-]+`). */
 export const DEVICE_STORAGE_KEY = 'gamezilla.deviceId';
 
@@ -19,8 +17,6 @@ export interface DeviceService {
 export async function createDeviceService(
   storage: SecureStorage
 ): Promise<DeviceService> {
-  await migrateDeviceStorageWebLegacy(storage, DEVICE_STORAGE_KEY);
-
   let raw: string | null = null;
   try {
     raw = await storage.getItem(DEVICE_STORAGE_KEY);

@@ -27,7 +27,6 @@ import {
   isPatchDbAuthContext,
   isPatchDbSystemContext,
   PATCH_CREATED_BY_ID,
-  PATCH_CREATED_BY_LEGACY,
   READ_WHERE_ALWAYS_TRUE,
   READ_WHERE_NEVER_TRUE,
 } from '@gamezilla/patch-db/interface';
@@ -86,11 +85,8 @@ function createdBy(patch: PatchInput): string {
   const raw = patch as Record<string, unknown>;
   const top =
     typeof raw['createdBy'] === 'string' ? (raw['createdBy'] as string) : '';
-  const attr =
-    patch.attributes[PATCH_CREATED_BY_ID] ??
-    patch.attributes[PATCH_CREATED_BY_LEGACY];
-  const fromAttr = typeof attr === 'string' ? attr : '';
-  return top || fromAttr;
+  const attr = patch.attributes[PATCH_CREATED_BY_ID];
+  return top || (typeof attr === 'string' ? attr : '');
 }
 
 function assertCreatedByMatchesAuthor(

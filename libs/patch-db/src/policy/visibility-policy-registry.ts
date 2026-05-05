@@ -118,7 +118,7 @@ export class VisibilityPolicyRegistry<
     const readCtx = ctx as VisibilityPolicyReadContext<TCtx>;
     const filter = policy.read(readCtx);
     // Short-circuit the sentinels: `READ_WHERE_*` are encoded as
-    // `exists/not_exists patch/createdBy` (a JSON-path key the snapshot
+    // `exists/not_exists patch/createdById` (a JSON-path key the snapshot
     // recompute strips out via PATCH_META_KEYS). They evaluate correctly,
     // but ANDing them onto every read forces redundant JSON probes in the
     // generated SQL, which floods the dev DB log and adds real work to

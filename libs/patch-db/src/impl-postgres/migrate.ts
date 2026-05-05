@@ -1,9 +1,6 @@
 import type { Logger } from '@gamezilla/lib/logger';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
-import {
-  MIGRATIONS,
-  POSTGRES_DROP_REPLICA_EPOCH_TABLES,
-} from './sql-constants';
+import { MIGRATIONS } from './sql-constants';
 
 /** Idempotent Postgres DDL for patches + snapshots. */
 async function runPatchDbPostgresMigrations(
@@ -17,7 +14,6 @@ async function runPatchDbPostgresMigrations(
     log.info('patch-db postgres migrate: core tables already exist', {
       existingTables: existing.map((r) => r.tablename),
     });
-    await dropRemovedReplicaEpochTables(sqlClient, log);
     return;
   }
 
@@ -32,22 +28,6 @@ async function runPatchDbPostgresMigrations(
     await sqlClient.run(stmt);
   }
   log.info('patch-db postgres migrate: ddl applied');
-  await dropRemovedReplicaEpochTables(sqlClient, log);
-}
-
-async function dropRemovedReplicaEpochTables(
-  sqlClient: SqlClient,
-  log: Logger
-): Promise<void> {
-  const stmts = POSTGRES_DROP_REPLICA_EPOCH_TABLES.split(';')
-    .map((s) => s.trim())
-    .filter(Boolean);
-  for (const stmt of stmts) {
-    await sqlClient.run(stmt);
-  }
-  log.info(
-    'patch-db postgres migrate: dropped legacy replica-epoch tables if present'
-  );
 }
 
 /** Entry point used by {@link PatchDbImplPostgres.migrate}; wraps DDL with structured logging. */

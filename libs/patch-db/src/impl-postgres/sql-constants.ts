@@ -76,12 +76,6 @@ CREATE TABLE IF NOT EXISTS snapshots (
 CREATE INDEX IF NOT EXISTS idx_snapshots_entity_type ON snapshots (entity_type);
 `;
 
-/** Drops removed replica-epoch tables on existing deployments. */
-export const POSTGRES_DROP_REPLICA_EPOCH_TABLES = `
-DROP TABLE IF EXISTS patch_db_client_replica_epoch;
-DROP TABLE IF EXISTS patch_db_authority_replica_meta;
-`;
-
 export const RESOLVE_PARENT_ID = `WITH RECURSIVE lineage AS (
     SELECT patch_id, 0 AS depth
     FROM patches

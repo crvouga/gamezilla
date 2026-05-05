@@ -54,10 +54,7 @@ function buildProfileResult(args: {
 
 /**
  * PatchDB-backed profile for the current session identity.
- * Profile `entityId` is `useAuth().myId` (account id when signed in, else install id),
- * which is sufficient to uniquely identify the row -- the previous
- * `patch/lastModifiedBy*` `where` filter never matched, because the
- * snapshot recompute strips those `PATCH_META_KEYS` from entity attributes.
+ * Profile `entityId` is `useAuth().myId` (account id when signed in, else install id).
  */
 export function useProfile() {
   const deviceService = useDeviceService();
