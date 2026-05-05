@@ -21,9 +21,7 @@ export function AccountCommand() {
       title={auth.isAuthenticated ? t`Sign out` : t`Sign in`}
       category={t`Account`}
       icon={
-        auth.isAuthenticated
-          ? 'arrow.right.from.bracket'
-          : 'right.to.bracket'
+        auth.isAuthenticated ? 'arrow.right.from.bracket' : 'right.to.bracket'
       }
       keywords={[t`sign in`, t`login`, t`google`, t`auth`]}
       run={async () => {

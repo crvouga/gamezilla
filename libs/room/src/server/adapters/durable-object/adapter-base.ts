@@ -33,8 +33,7 @@ export class RoomDurableObjectAdapterBase<
   E,
   Identity,
   Env,
-> implements DurableObjectInstance
-{
+> implements DurableObjectInstance {
   protected readonly ctx: DurableObjectInstanceState;
   readonly _env: Env;
   private readonly config: ResolvedAdapterConfig<S, C, E, Identity, Env>;

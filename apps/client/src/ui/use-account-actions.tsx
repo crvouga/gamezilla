@@ -115,10 +115,9 @@ function buildAuthAction(
   return {
     type: 'default',
     label: auth.isAuthenticated ? labels.signOut : labels.signIn,
-    icon:
-      auth.isAuthenticated
-        ? 'arrow.right.from.bracket'
-        : 'right.to.bracket',
+    icon: auth.isAuthenticated
+      ? 'arrow.right.from.bracket'
+      : 'right.to.bracket',
     overflow: 'always',
     onPress: () => {
       void onAuth();

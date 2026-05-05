@@ -157,10 +157,9 @@ function buildAuthRow(auth: Auth, onAuth: () => void): MenuRow {
     type: 'item',
     id: 'sign-in',
     label,
-    icon:
-      auth.isAuthenticated
-        ? 'arrow.right.from.bracket'
-        : 'right.to.bracket',
+    icon: auth.isAuthenticated
+      ? 'arrow.right.from.bracket'
+      : 'right.to.bracket',
     onPress: onAuth,
     accessibilityLabel: label,
   };

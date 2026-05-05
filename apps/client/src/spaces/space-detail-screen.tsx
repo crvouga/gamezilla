@@ -69,8 +69,7 @@ function useAutoLeaveIfEnded(args: {
     membership?.attributes as Record<string, unknown> | undefined,
     SpaceMembershipAttr.spaceId
   );
-  const membershipLeftAt =
-    membership?.attributes[SpaceMembershipAttr.leftAt];
+  const membershipLeftAt = membership?.attributes[SpaceMembershipAttr.leftAt];
 
   useEffect(() => {
     if (!spaceId || !space.space || space.live) return;
@@ -372,7 +371,9 @@ export function SpaceDetailScreen() {
   }
 
   const inThisSpace = currentSpaces.entries.some((e) => e.spaceId === spaceId);
-  const entryForSpace = currentSpaces.entries.find((e) => e.spaceId === spaceId);
+  const entryForSpace = currentSpaces.entries.find(
+    (e) => e.spaceId === spaceId
+  );
 
   if (!inThisSpace) {
     const joinBlocked =

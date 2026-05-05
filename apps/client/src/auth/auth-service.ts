@@ -9,7 +9,11 @@ import {
   sessionServiceAtom,
   sessionTokenAtom,
 } from '@gamezilla/client/runtime/atoms';
-import { assertDeviceId, ACCOUNT_SESSION_ENTITY_TYPE, AccountSessionAttr } from '@gamezilla/domain/auth';
+import {
+  assertDeviceId,
+  ACCOUNT_SESSION_ENTITY_TYPE,
+  AccountSessionAttr,
+} from '@gamezilla/domain/auth';
 import { assertUuid } from '@gamezilla/domain/auth/device-id';
 import type { ConfigService } from '@gamezilla/domain/config/config-service';
 import { assert } from '@gamezilla/lib/assert';

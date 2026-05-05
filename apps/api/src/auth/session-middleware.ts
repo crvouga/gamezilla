@@ -21,7 +21,10 @@ export type AuthContext = AppAuthContext & { readonly accountId: string };
 /** HTTP header: install id for unauthenticated patch-db clients (must match UUID device id). */
 export const ANON_ID_HEADER = 'x-anon-id';
 
-async function loadMemberOfSpaceIds(db: PatchDb, myId: string): Promise<string[]> {
+async function loadMemberOfSpaceIds(
+  db: PatchDb,
+  myId: string
+): Promise<string[]> {
   const ids = new Set<string>();
 
   const [hosted] = await db.read(

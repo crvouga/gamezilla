@@ -5,12 +5,7 @@ import {
   WIRE_VERSION,
   type ClientToServerWire,
 } from '../../protocol/wire';
-import type {
-  LogEntry,
-  RoomCommand,
-  RoomModule,
-  RoomState,
-} from '../../types';
+import type { LogEntry, RoomCommand, RoomModule, RoomState } from '../../types';
 import type { CommandDedupOutcome, RoomStorage } from './storage';
 
 const crash: Assert = Assert.crash();

@@ -36,8 +36,7 @@ export function deriveStateFromSession(args: {
 }): SessionDerivedState {
   const { deviceId, sessionService } = args;
   const session = sessionService.getSession();
-  const isAuthenticated =
-    session !== null && sessionService.isAuthenticated();
+  const isAuthenticated = session !== null && sessionService.isAuthenticated();
   const accountId = session?.accountId ?? null;
   const myId =
     isAuthenticated && accountId !== null && accountId.length > 0

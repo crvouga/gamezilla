@@ -137,8 +137,7 @@ export function normalizePatchAttributesForStorage(
   const createdBy =
     ('createdBy' in patch
       ? patch.createdBy
-      : attrs['patch/createdById'] ??
-        attrs['patch/createdBy']) ?? '';
+      : (attrs['patch/createdById'] ?? attrs['patch/createdBy'])) ?? '';
   const sessionId =
     'sessionId' in patch
       ? patch.sessionId
@@ -161,8 +160,7 @@ export function normalizePatchAttributesForStorage(
 export function getPatchTopLevelFromAttributes(
   attrs: Record<string, unknown>
 ): Pick<Patch, 'createdBy' | 'sessionId'> {
-  const createdBy =
-    attrs['patch/createdById'] ?? attrs['patch/createdBy'];
+  const createdBy = attrs['patch/createdById'] ?? attrs['patch/createdBy'];
   const sessionId = attrs['patch/sessionId'];
   return {
     createdBy: String(createdBy ?? ''),

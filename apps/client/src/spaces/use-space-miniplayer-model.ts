@@ -123,8 +123,7 @@ export function useSpaceMiniplayerModel(): SpaceMiniplayerModel {
   const items: SpaceMiniplayerItemModel[] = useMemo(() => {
     return entries.map((ent) => {
       const se = ent.spaceEntity;
-      const hostId =
-        readStringAttr(se?.attributes, SpaceAttr.hostId) ?? '';
+      const hostId = readStringAttr(se?.attributes, SpaceAttr.hostId) ?? '';
       const customTitle = readStringAttr(se?.attributes, SpaceAttr.title);
       const hostPres =
         hostId.length > 0

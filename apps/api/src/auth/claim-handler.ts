@@ -9,7 +9,11 @@ import {
 } from '@gamezilla/domain/auth';
 import { assertDeviceId, assertUuid } from '@gamezilla/domain/auth/device-id';
 import { assert } from '@gamezilla/lib/assert';
-import type { Entity, PatchDb, PatchInput } from '@gamezilla/patch-db/interface';
+import type {
+  Entity,
+  PatchDb,
+  PatchInput,
+} from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import type { z } from 'zod';
 import type { GoogleIdTokenClaims } from './google-token';

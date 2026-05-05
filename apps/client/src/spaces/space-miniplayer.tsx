@@ -87,7 +87,11 @@ function MiniplayerDock({ children }: { children: ReactNode }) {
   );
 }
 
-function MiniplayerActionButton({ model }: { model: SpaceMiniplayerItemModel }) {
+function MiniplayerActionButton({
+  model,
+}: {
+  model: SpaceMiniplayerItemModel;
+}) {
   const { t } = useLingui();
   const isHost = model.isHost;
   return (
