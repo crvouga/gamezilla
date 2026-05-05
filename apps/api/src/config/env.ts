@@ -15,7 +15,7 @@
  * (e.g. `apps/infra` pulling in `@gamezilla/api/rpc`) that do not load the
  * api package's ambient Cloudflare type stubs in `app/cloudflare.d.ts`.
  */
-export type RoomNamespace = {
+export type SpaceNamespace = {
   idFromName(name: string): object;
   get(id: object): { fetch(request: Request): Promise<Response> };
 };
@@ -24,8 +24,8 @@ export type ApiWorkerEnv = {
   DOPPLER_TOKEN: string;
   DOPPLER_PROJECT?: string;
   DOPPLER_CONFIG?: string;
-  /** Room Durable Object namespace (one DO per room topic). Omitted in unit tests. */
-  ROOM?: RoomNamespace;
+  /** Space Durable Object namespace (one DO per space topic). Omitted in unit tests. */
+  SPACE?: SpaceNamespace;
 };
 
 /**

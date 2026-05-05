@@ -1,6 +1,9 @@
 import { Assert } from '@gamezilla/lib/assert';
 
-import type { ClientTransport, ClientTransportHandlers } from '../transport';
+import type {
+  ClientTransport,
+  ClientTransportHandlers,
+} from '../../../core/transport';
 
 const crash: Assert = Assert.crash();
 

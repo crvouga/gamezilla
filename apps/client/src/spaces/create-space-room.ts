@@ -1,10 +1,8 @@
 import type { KeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
-import { CounterModule } from '@gamezilla/domain/spaces/counter-room-module';
-import {
-  KeyValueClientRoomStorage,
-  Room,
-  WebSocketRoomTransport,
-} from '@gamezilla/room';
+import { SpaceModule } from '@gamezilla/domain/spaces/space-module';
+import { Room } from '@gamezilla/room';
+import { KeyValueClientRoomStorage } from '@gamezilla/room/client/adapters/storage/key-value';
+import { WebSocketRoomTransport } from '@gamezilla/room/client/adapters/transport/websocket';
 
 import { apiUrlToRoomWebSocketUrl } from './space-room-url';
 
@@ -43,7 +41,7 @@ export async function createSpaceRoom(
 
   const room = await Room.open({
     topic,
-    module: CounterModule,
+    module: SpaceModule,
     storage: clientStorage,
     transport,
     identity: accountId,

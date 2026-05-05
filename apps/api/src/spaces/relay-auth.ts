@@ -135,7 +135,7 @@ function guestMembershipDenied(
 }
 
 /**
- * Validates the WebSocket upgrade for `/room/ws`: bearer session, topic shape,
+ * Validates the WebSocket upgrade for `/space/ws`: bearer session, topic shape,
  * and that the account is the space host or has an active membership row for
  * that space.
  */

@@ -9,7 +9,7 @@
     "./auth/device-id": "./src/auth/device-id.ts",
     "./client-config/client-config-entities": "./src/client-config/client-config-entities.ts",
     "./spaces/space-entities": "./src/spaces/space-entities.ts",
-    "./spaces/counter-room-module": "./src/spaces/counter-room-module.ts",
+    "./spaces/space-module": "./src/spaces/space-module.ts",
     "./profile/profile-entities": "./src/profile/profile-entities.ts",
     "./profile/avatar-config": "./src/profile/avatar-config.ts",
     "./config/config-service": "./src/config/config-service.ts",

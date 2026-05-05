@@ -1,7 +1,7 @@
 import { useCallback, useSyncExternalStore } from 'react';
 
 import type { Room, RoomSnapshot } from './room';
-import type { RoomState } from '../types';
+import type { RoomState } from '../../types';
 
 const noop = (): void => {};
 

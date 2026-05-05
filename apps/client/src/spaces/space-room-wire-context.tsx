@@ -1,4 +1,4 @@
-import type { WebSocketRoomTransport } from '@gamezilla/room';
+import type { WebSocketRoomTransport } from '@gamezilla/room/client/adapters/transport/websocket';
 import { createContext, useContext } from 'react';
 
 export type SpaceRoomWire = {

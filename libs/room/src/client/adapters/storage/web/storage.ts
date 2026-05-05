@@ -1,7 +1,7 @@
 import { Assert } from '@gamezilla/lib/assert';
 
-import type { LogEntry } from '../../types';
-import type { ClientRoomStorage, QueuedCommand } from '../storage';
+import type { LogEntry } from '../../../../types';
+import type { ClientRoomStorage, QueuedCommand } from '../../../core/storage';
 
 const crash: Assert = Assert.crash();
 
@@ -15,7 +15,10 @@ function readJson<T>(raw: string | null): T | null {
 }
 
 /**
- * localStorage-backed room cache (topic-scoped keys).
+ * Synchronous `localStorage`-backed room cache (topic-scoped keys). Web only.
+ *
+ * Use {@link KeyValueClientRoomStorage} instead when the same code must run
+ * on React Native (AsyncStorage) — `Storage` is not available in Hermes.
  */
 export class WebClientStorage implements ClientRoomStorage {
   constructor(

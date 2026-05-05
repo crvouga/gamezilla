@@ -15,11 +15,11 @@ function validateEmptyPayload(p: unknown): p is Record<string, never> {
   return isPlainRecord(p) && Object.keys(p).length === 0;
 }
 
-const cmdNs = createNamespace('spaceCounterCmd');
+const cmdNs = createNamespace('spaceCmd');
 export const Increment = cmdNs('INCREMENT', validateEmptyPayload);
 export const Decrement = cmdNs('DECREMENT', validateEmptyPayload);
 
-const evtNs = createNamespace('spaceCounterEvt');
+const evtNs = createNamespace('spaceEvt');
 export const CounterIncremented = evtNs(
   'COUNTER_INCREMENTED',
   validateEmptyPayload
@@ -44,7 +44,12 @@ function asMessage(payload: unknown): Message | null {
   return payload as Message;
 }
 
-export const CounterModule: RoomModule<RoomState, unknown, unknown, string> = {
+/**
+ * Real-time multiplayer state for a single space entity. Handled by the
+ * authoritative `Space` Durable Object on the server and mirrored by the
+ * client `Room` for offline-tolerant local dispatch + convergent replay.
+ */
+export const SpaceModule: RoomModule<RoomState, unknown, unknown, string> = {
   initialState(): RoomState {
     return { count: 0 };
   },

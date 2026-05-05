@@ -5,7 +5,9 @@ export type ClientTransportHandlers = {
 };
 
 /**
- * Browser/worker WebSocket (or test double): sends JSON frames to the room server.
+ * Network port the {@link Room} engine pushes/pulls JSON wire frames over.
+ * Every transport adapter (browser WebSocket, loopback test double,
+ * future WebRTC, etc.) must satisfy this contract.
  */
 export interface ClientTransport {
   readonly isConnected: boolean;

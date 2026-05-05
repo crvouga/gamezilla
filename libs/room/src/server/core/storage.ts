@@ -1,4 +1,4 @@
-import type { LogEntry, RoomError } from '../types';
+import type { LogEntry, RoomError } from '../../types';
 
 export type CommandDedupOutcome =
   | { kind: 'committed'; entries: LogEntry[] }
@@ -6,6 +6,10 @@ export type CommandDedupOutcome =
 
 /**
  * Server-authoritative append-only log + command idempotency.
+ *
+ * This interface is the only contract every adapter (Durable Object,
+ * in-memory, future Postgres, etc.) must satisfy. The {@link RoomServer}
+ * engine never knows where bytes actually live.
  */
 export interface RoomStorage {
   loadEventsAfter(topic: string, afterSeq: number): Promise<LogEntry[]>;

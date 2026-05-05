@@ -1,7 +1,7 @@
 import type { KeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
 
-import type { LogEntry } from '../../types';
-import type { ClientRoomStorage, QueuedCommand } from '../storage';
+import type { LogEntry } from '../../../../types';
+import type { ClientRoomStorage, QueuedCommand } from '../../../core/storage';
 
 function parseJson<T>(raw: string | null): T | null {
   if (raw === null || raw.length === 0) return null;

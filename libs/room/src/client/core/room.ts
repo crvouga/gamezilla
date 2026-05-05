@@ -1,18 +1,18 @@
 import { Assert } from '@gamezilla/lib/assert';
 
-import { newCommandId } from '../protocol/ids';
+import { newCommandId } from '../../protocol/ids';
 import {
   parseServerToClientWire,
   WIRE_VERSION,
   type ServerToClientWire,
-} from '../protocol/wire';
+} from '../../protocol/wire';
 import type {
   LogEntry,
   RoomCommand,
   RoomError,
   RoomModule,
   RoomState,
-} from '../types';
+} from '../../types';
 import type { ClientTransport } from './transport';
 import type { ClientRoomStorage, QueuedCommand } from './storage';
 

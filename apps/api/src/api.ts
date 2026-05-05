@@ -3,8 +3,8 @@ import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import { isSecretStoreError } from '@gamezilla/lib/secret-store';
 import { makeStripeClient } from '@gamezilla/stripe/make-stripe-client';
 import { createApiApp } from './app/create-app';
-import { requireAuthContext } from './auth/session-middleware';
 import { parseClientIdFromCookies } from './auth/client-cookie';
+import { requireAuthContext } from './auth/session-middleware';
 import type { ApiWorkerEnv } from './config/env';
 import {
   assertDopplerTokenBinding,
@@ -14,7 +14,7 @@ import {
 import { ApiSecretName } from './config/secret-names';
 import { createApiSecretStore } from './config/secret-store';
 import { getPatchDb } from './patch-db/patch-db';
-import { Room } from './rooms/room-do';
+import Space from './spaces/space-do';
 
 const log = createLogger({ name: 'api' });
 
@@ -129,7 +129,7 @@ async function ensureApp(env: ApiWorkerEnv): Promise<App | null> {
   }
 }
 
-export { Room };
+export { Space };
 
 export default {
   async fetch(

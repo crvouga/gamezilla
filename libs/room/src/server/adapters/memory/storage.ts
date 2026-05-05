@@ -1,11 +1,15 @@
-import type { LogEntry } from '../../types';
-import type { CommandDedupOutcome, RoomStorage } from '../storage';
+import type { LogEntry } from '../../../types';
+import type { CommandDedupOutcome, RoomStorage } from '../../core/storage';
 
 type TopicState = {
   entries: LogEntry[];
   dedup: Map<string, CommandDedupOutcome>;
 };
 
+/**
+ * Volatile per-process {@link RoomStorage} for tests and the loopback
+ * testkit. Not safe across isolates or restarts.
+ */
 export class InMemoryRoomStorage implements RoomStorage {
   private readonly topics = new Map<string, TopicState>();
 

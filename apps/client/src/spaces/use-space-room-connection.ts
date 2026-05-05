@@ -1,6 +1,7 @@
 import type { ConfigService } from '@gamezilla/domain/config/config-service';
 import type { KeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
-import type { Room, WebSocketRoomTransport } from '@gamezilla/room';
+import type { Room } from '@gamezilla/room';
+import type { WebSocketRoomTransport } from '@gamezilla/room/client/adapters/transport/websocket';
 import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 
 import { createSpaceRoom } from './create-space-room';
@@ -54,7 +55,7 @@ export function useSpaceRoomConnection(
   bootstrap: SpaceRoomConnectionBootstrap | null,
   configService: ConfigService,
   storage: KeyValueStorage,
-  /** Bearer for `/room/ws`; must be in sync with `sessionTokenAtom` (re-run when it changes). */
+  /** Bearer for `/space/ws`; must be in sync with `sessionTokenAtom` (re-run when it changes). */
   sessionToken: string | null
 ): {
   room: SpaceRoom | null;

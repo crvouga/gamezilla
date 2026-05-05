@@ -6,17 +6,17 @@ import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
 import { createStripeApp } from '@gamezilla/stripe/stripe-app';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import { createAuthClaimApp } from '../auth/route';
-import { resolvePatchDbContext } from '../auth/session-middleware';
-import { UnauthorizedError } from '../auth/unauthorized-error';
 import {
   clientCookieMiddleware,
   parseClientIdFromCookies,
 } from '../auth/client-cookie';
+import { createAuthClaimApp } from '../auth/route';
+import { resolvePatchDbContext } from '../auth/session-middleware';
+import { UnauthorizedError } from '../auth/unauthorized-error';
 import { createClientConfigApp } from '../client-config/route';
 import type { ApiWorkerEnv } from '../config/env';
 import { healthApp } from '../health/route';
-import { createRoomApp } from '../rooms/route';
+import { createSpaceApp } from '../spaces/route';
 import type { ApiHandlerConfig } from './config';
 import { apiCors } from './cors';
 
@@ -84,7 +84,7 @@ export function createApiApp(config: ApiHandlerConfig) {
         webhookSecretDopplerKey,
       })
     )
-    .route('/', createRoomApp({ db }))
+    .route('/', createSpaceApp({ db }))
     .route(patchMount, patchDbApp)
     .onError((err, c) => {
       if (err instanceof ForbiddenError) {

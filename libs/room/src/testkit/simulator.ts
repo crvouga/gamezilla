@@ -1,7 +1,7 @@
-import { InMemoryClientStorage } from '../client/adapters/memory-storage';
-import { Room } from '../client/room';
-import { InMemoryRoomStorage } from '../server/adapters/memory-storage';
-import { RoomServer } from '../server/room-server';
+import { InMemoryClientStorage } from '../client/adapters/storage/memory';
+import { Room } from '../client/core/room';
+import { InMemoryRoomStorage } from '../server/adapters/memory';
+import { RoomServer } from '../server/core/room-server';
 import type { RoomError, RoomModule, RoomState } from '../types';
 
 import { LoopbackRoomTransport } from './loopback-transport';

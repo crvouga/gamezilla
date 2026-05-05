@@ -1,8 +1,8 @@
 import type {
   ClientTransport,
   ClientTransportHandlers,
-} from '../client/transport';
-import type { RoomServer } from '../server/room-server';
+} from '../client/core/transport';
+import type { RoomServer } from '../server/core/room-server';
 import type { RoomState } from '../types';
 
 /**

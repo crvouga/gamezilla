@@ -1,5 +1,7 @@
-import { InMemoryClientStorage, Room, type RoomState } from '@gamezilla/room';
-import { InMemoryRoomStorage, RoomServer } from '@gamezilla/room/server';
+import { Room, type RoomState } from '@gamezilla/room';
+import { InMemoryClientStorage } from '@gamezilla/room/client/adapters/storage/memory';
+import { RoomServer } from '@gamezilla/room/server';
+import { InMemoryRoomStorage } from '@gamezilla/room/server/adapters/memory';
 import {
   Decrement,
   Increment,

@@ -1,6 +1,10 @@
-import type { LogEntry } from '../../types';
-import type { ClientRoomStorage, QueuedCommand } from '../storage';
+import type { LogEntry } from '../../../../types';
+import type { ClientRoomStorage, QueuedCommand } from '../../../core/storage';
 
+/**
+ * Volatile per-process {@link ClientRoomStorage} for tests and the loopback
+ * testkit. Not safe across reloads or app restarts.
+ */
 export class InMemoryClientStorage implements ClientRoomStorage {
   private lastSeq = 0;
   private entries: LogEntry[] = [];

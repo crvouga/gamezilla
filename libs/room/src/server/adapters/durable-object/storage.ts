@@ -1,5 +1,6 @@
-import type { LogEntry } from '@gamezilla/room';
-import type { CommandDedupOutcome, RoomStorage } from '@gamezilla/room/server';
+import type { LogEntry } from '../../../types';
+import type { CommandDedupOutcome, RoomStorage } from '../../core/storage';
+import type { DurableObjectKvStorage } from './types';
 
 const STATE_KEY = 'room_state_v2' as const;
 
@@ -13,10 +14,11 @@ function emptyPersisted(): Persisted {
 }
 
 /**
- * Single-topic room log in a Durable Object `storage` binding.
+ * Single-topic room log persisted in a Durable Object's KV `storage` binding.
+ * Suitable for any module that fits in one DO (one topic per instance).
  */
-export class DoRoomStorage implements RoomStorage {
-  constructor(private readonly kv: DurableObjectStorage) {}
+export class DurableObjectRoomStorage implements RoomStorage {
+  constructor(private readonly kv: DurableObjectKvStorage) {}
 
   private async load(): Promise<Persisted> {
     const raw = await this.kv.get<Persisted>(STATE_KEY);
@@ -62,7 +64,7 @@ export class DoRoomStorage implements RoomStorage {
     for (const e of newEntries) {
       if (e.seq !== expect) {
         throw new Error(
-          `DoRoomStorage.appendCommittedEntries: expected seq ${String(expect)}, got ${String(e.seq)}`
+          `DurableObjectRoomStorage.appendCommittedEntries: expected seq ${String(expect)}, got ${String(e.seq)}`
         );
       }
       expect++;

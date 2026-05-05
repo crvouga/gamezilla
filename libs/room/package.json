@@ -5,6 +5,12 @@
   "exports": {
     ".": "./src/index.ts",
     "./server": "./src/server.ts",
+    "./server/adapters/durable-object": "./src/server/adapters/durable-object/index.ts",
+    "./server/adapters/memory": "./src/server/adapters/memory/index.ts",
+    "./client/adapters/storage/memory": "./src/client/adapters/storage/memory/index.ts",
+    "./client/adapters/storage/web": "./src/client/adapters/storage/web/index.ts",
+    "./client/adapters/storage/key-value": "./src/client/adapters/storage/key-value/index.ts",
+    "./client/adapters/transport/websocket": "./src/client/adapters/transport/websocket/index.ts",
     "./testkit": "./src/testkit.ts"
   },
   "dependencies": {

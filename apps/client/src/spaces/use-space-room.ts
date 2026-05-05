@@ -6,7 +6,7 @@ import { sessionTokenAtom } from '@gamezilla/client/runtime/atoms';
 import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 
-import type { WebSocketRoomTransport } from '@gamezilla/room';
+import type { WebSocketRoomTransport } from '@gamezilla/room/client/adapters/transport/websocket';
 
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
 import { useSpaceRoomConnection } from './use-space-room-connection';
