@@ -5,6 +5,7 @@ import { SpaceRoomWireContext } from '@gamezilla/client/spaces/space-room-wire-c
 import { useSpaceRoom } from '@gamezilla/client/spaces/use-space-room';
 import { SpaceDebugModal } from '@gamezilla/client/spaces/space-debug-modal';
 import { SpaceMemberList } from '@gamezilla/client/spaces/space-member-list';
+import { NO_ENTITY_PLACEHOLDER } from '@gamezilla/client/spaces/spaces-internal-ids';
 import {
   useCurrentSpaces,
   useSpace,
@@ -30,8 +31,6 @@ import {
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-
-const NO_ENTITY_PLACEHOLDER = '__patch_db_no_entity__';
 
 type Space = ReturnType<typeof useSpace>;
 
@@ -148,7 +147,7 @@ function JoinPrompt({
             <Text
               variant="body"
               sx={{ color: 'textSecondary' }}
-              label={<Trans>You're already in a space</Trans>}
+              label={<Trans>You’re already in a space</Trans>}
             />
           ) : null}
           <Button

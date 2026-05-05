@@ -103,7 +103,7 @@ export function SpacesScreen() {
             <Text
               variant="caption"
               sx={{ color: 'textSecondary', mb: 4 }}
-              label={<Trans>You're already in a space</Trans>}
+              label={<Trans>You’re already in a space</Trans>}
             />
           ) : (
             <Box sx={{ mb: 4 }} />

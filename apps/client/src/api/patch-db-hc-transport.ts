@@ -62,6 +62,74 @@ function throwHcFailure(status: number, text: string): never {
   throw new Error(`HTTP ${String(status)}: ${text}`);
 }
 
+async function readJsonBodyOrThrow(res: {
+  readonly status: number;
+  json(): Promise<unknown>;
+}): Promise<unknown> {
+  try {
+    return await res.json();
+  } catch {
+    throw new Error(
+      `Response body is not valid JSON (status ${String(res.status)})`
+    );
+  }
+}
+
+async function patchDbHcRead(
+  client: ApiClient,
+  hdr: () => Record<string, string>,
+  queries: PatchDbQuery[]
+): Promise<PatchDbResult[]> {
+  if (queries.length === 0) {
+    throw new Error(
+      'createPatchDbHcTransport.read: empty queries unsupported over HTTP'
+    );
+  }
+  const res = await client['patch-db']['patches']['read'].$post(
+    { json: { queries } },
+    {
+      headers: {
+        ...JSON_HEADERS,
+        ...NO_CACHE_REQUEST_HEADERS,
+        ...hdr(),
+      },
+      init: { credentials: 'include' },
+    }
+  );
+  if (!res.ok) {
+    const text = await res.text();
+    throwHcFailure(res.status, text);
+  }
+  const raw = await readJsonBodyOrThrow(res);
+  assertWireReadResponse(raw);
+  return raw.results;
+}
+
+async function patchDbHcWrite(
+  client: ApiClient,
+  hdr: () => Record<string, string>,
+  patches: PatchInput[]
+): Promise<WritePatchesResult> {
+  const res = await client['patch-db']['patches']['write'].$post(
+    { json: { patches } },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        ...NO_CACHE_REQUEST_HEADERS,
+        ...hdr(),
+      },
+      init: { credentials: 'include' },
+    }
+  );
+  if (!res.ok) {
+    const text = await res.text();
+    throwHcFailure(res.status, text);
+  }
+  const raw = await readJsonBodyOrThrow(res);
+  assertWireWriteResponse(raw);
+  return raw;
+}
+
 /**
  * Patch-db sync transport using the Hono RPC client (`/patch-db/patches/read|write`).
  */
@@ -77,65 +145,7 @@ export function createPatchDbHcTransport(
       ...(getAnonId !== undefined ? { getAnonId } : {}),
     });
   return {
-    async read(queries: PatchDbQuery[]): Promise<PatchDbResult[]> {
-      if (queries.length === 0) {
-        throw new Error(
-          'createPatchDbHcTransport.read: empty queries unsupported over HTTP'
-        );
-      }
-      const res = await client['patch-db']['patches']['read'].$post(
-        { json: { queries } },
-        {
-          headers: {
-            ...JSON_HEADERS,
-            ...NO_CACHE_REQUEST_HEADERS,
-            ...hdr(),
-          },
-          init: { credentials: 'include' },
-        }
-      );
-      if (!res.ok) {
-        const text = await res.text();
-        throwHcFailure(res.status, text);
-      }
-      let raw: unknown;
-      try {
-        raw = await res.json();
-      } catch {
-        throw new Error(
-          `Response body is not valid JSON (status ${String(res.status)})`
-        );
-      }
-      assertWireReadResponse(raw);
-      return raw.results;
-    },
-
-    async write(patches: PatchInput[]): Promise<WritePatchesResult> {
-      const res = await client['patch-db']['patches']['write'].$post(
-        { json: { patches } },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            ...NO_CACHE_REQUEST_HEADERS,
-            ...hdr(),
-          },
-          init: { credentials: 'include' },
-        }
-      );
-      if (!res.ok) {
-        const text = await res.text();
-        throwHcFailure(res.status, text);
-      }
-      let raw: unknown;
-      try {
-        raw = await res.json();
-      } catch {
-        throw new Error(
-          `Response body is not valid JSON (status ${String(res.status)})`
-        );
-      }
-      assertWireWriteResponse(raw);
-      return raw;
-    },
+    read: (queries) => patchDbHcRead(client, hdr, queries),
+    write: (patches) => patchDbHcWrite(client, hdr, patches),
   };
 }

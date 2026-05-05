@@ -18,9 +18,8 @@ import { useQuery } from '@gamezilla/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
 import { useMemo } from 'react';
 
+import { NO_ENTITY_PLACEHOLDER } from '@gamezilla/client/spaces/spaces-internal-ids';
 import type { SpaceMemberRow, SpaceView } from './types';
-
-const NO_ENTITY_PLACEHOLDER = '__patch_db_no_entity__';
 
 function readStringAttr(
   attrs: Record<string, unknown> | undefined,
@@ -190,12 +189,7 @@ export type CurrentSpaceEntry = {
   spaceEntity: Entity | null;
 };
 
-export function useCurrentSpaces(): {
-  entries: CurrentSpaceEntry[];
-  isLoading: boolean;
-} {
-  const myId = useMyId();
-
+function useCurrentSpacesQueries(myId: string) {
   const hostedRes = useQuery({
     entityType: SPACE_ENTITY_TYPE,
     where: {
@@ -244,6 +238,23 @@ export function useCurrentSpaces(): {
     }
     return m;
   }, [guestSpacesRes.entities]);
+
+  return {
+    hostedRes,
+    guestMemRes,
+    guestSpaceIds,
+    guestSpacesRes,
+    guestSpaceById,
+  };
+}
+
+export function useCurrentSpaces(): {
+  entries: CurrentSpaceEntry[];
+  isLoading: boolean;
+} {
+  const myId = useMyId();
+  const { hostedRes, guestMemRes, guestSpaceIds, guestSpacesRes, guestSpaceById } =
+    useCurrentSpacesQueries(myId);
 
   const entries = useMemo((): CurrentSpaceEntry[] => {
     const bySpace = new Map<string, CurrentSpaceEntry>();
