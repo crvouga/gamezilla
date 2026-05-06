@@ -7,8 +7,8 @@ import { profileAvatarSvg } from './profile-dicebear';
 
 export type ProfileDiceBearAvatarProps = {
   config: AvatarConfig;
-  /** Used when `config.seed` is empty (falls back to device id). */
-  fallbackSeed: string;
+  /** Profile or host `entityId` when `config.seed` is empty (legacy / in-editor). */
+  fallbackSeed?: string;
   size: number;
 };
 
@@ -18,7 +18,7 @@ export type ProfileDiceBearAvatarProps = {
  */
 export function ProfileDiceBearAvatar({
   config,
-  fallbackSeed,
+  fallbackSeed = '',
   size,
 }: ProfileDiceBearAvatarProps): ReactNode {
   const svg = useMemo(() => {

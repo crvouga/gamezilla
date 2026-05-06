@@ -27,7 +27,7 @@ export function ProfileScreen() {
           <Box sx={{ alignItems: 'center', gap: 2 }}>
             <DeviceAvatar
               avatarConfig={profile.avatarConfig}
-              deviceId={profile.deviceId}
+              seedFallback={profile.profileId ?? profile.deviceId}
               size={80}
             />
             <Text variant="title" label={profile.displayLabel} />

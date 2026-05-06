@@ -1,4 +1,8 @@
 import { assertUuid } from '@gamezilla/domain/auth/device-id';
+import {
+  parseAvatarConfigAttr,
+  serializeDefaultAvatarConfig,
+} from '@gamezilla/domain/profile/avatar-config';
 import { generateRandomDisplayName } from '@gamezilla/domain/profile/display-name-generator';
 import {
   PROFILE_ENTITY_TYPE,
@@ -25,6 +29,13 @@ function hasDisplayName(entity: Entity | undefined): boolean {
   return typeof v === 'string' && v.trim().length > 0;
 }
 
+function hasAvatarConfig(entity: Entity | undefined): boolean {
+  if (entity === undefined) return false;
+  const attrs = entity.attributes as Record<string, unknown>;
+  const parsed = parseAvatarConfigAttr(attrs, ProfileAttr.avatarConfig);
+  return parsed !== null && parsed.seed.trim().length > 0;
+}
+
 /**
  * Ensures a `profile` row at `entityId === myId` (install id when anonymous,
  * account id when signed in).
@@ -40,14 +51,19 @@ export async function ensureProfile(db: PatchDb, myId: string): Promise<void> {
   ]);
   const existing = res?.entities[0];
   if (profileLooksPresent(existing, myId)) {
-    if (hasDisplayName(existing)) return;
+    const patch: Record<string, unknown> = {};
+    if (!hasDisplayName(existing)) {
+      patch[ProfileAttr.displayName] = generateRandomDisplayName();
+    }
+    if (!hasAvatarConfig(existing)) {
+      patch[ProfileAttr.avatarConfig] = serializeDefaultAvatarConfig(myId);
+    }
+    if (Object.keys(patch).length === 0) return;
     await db.write([
       {
         entityId: myId,
         entityType: PROFILE_ENTITY_TYPE,
-        attributes: {
-          [ProfileAttr.displayName]: generateRandomDisplayName(),
-        },
+        attributes: patch,
       },
     ]);
     return;
@@ -61,6 +77,7 @@ export async function ensureProfile(db: PatchDb, myId: string): Promise<void> {
         [ProfileAttr.id]: myId,
         [ProfileAttr.createdAt]: now,
         [ProfileAttr.displayName]: generateRandomDisplayName(),
+        [ProfileAttr.avatarConfig]: serializeDefaultAvatarConfig(myId),
       },
     },
   ]);

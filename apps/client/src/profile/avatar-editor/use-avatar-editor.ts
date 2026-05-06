@@ -10,7 +10,8 @@ import {
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import {
   configsEqual,
-  resolveAvatarConfig,
+  createDefaultAvatarConfig,
+  parseAvatarConfigAttr,
   serializeAvatarConfig,
 } from '@gamezilla/domain/profile/avatar-config';
 import {
@@ -26,16 +27,17 @@ import { useProfile } from '../use-profile';
 
 function usePersistedConfig() {
   const { deviceId, profileId, entity } = useProfile();
-  const persisted = useMemo(
-    () =>
-      resolveAvatarConfig(
-        entity?.attributes as Record<string, unknown> | undefined,
-        deviceId,
-        ProfileAttr.avatarConfig
-      ),
-    [entity?.attributes, deviceId]
-  );
-  return { deviceId, profileId, persisted };
+  const persisted = useMemo(() => {
+    const attrs = entity?.attributes as Record<string, unknown> | undefined;
+    const parsed = parseAvatarConfigAttr(attrs, ProfileAttr.avatarConfig);
+    if (parsed !== null) {
+      return parsed;
+    }
+    const id = profileId ?? deviceId;
+    return createDefaultAvatarConfig(id);
+  }, [entity?.attributes, profileId, deviceId]);
+  const seedFallback = profileId ?? deviceId;
+  return { seedFallback, profileId, persisted };
 }
 
 function useDraftSync(args: { persisted: AvatarConfig }) {
@@ -64,7 +66,8 @@ function useDraftSync(args: { persisted: AvatarConfig }) {
 }
 
 export type UseAvatarEditor = {
-  deviceId: string;
+  /** Profile `entityId` (or install id before profile id is known) for empty-seed preview. */
+  seedFallback: string;
   profileId: string | null;
   draft: AvatarConfig;
   setDraft: React.Dispatch<React.SetStateAction<AvatarConfig>>;
@@ -93,10 +96,10 @@ export type UseAvatarEditor = {
 
 function useDerivedFields(args: {
   draft: AvatarConfig;
-  deviceId: string;
+  seedFallback: string;
   styleKey: StyleKey;
 }) {
-  const { draft, deviceId, styleKey } = args;
+  const { draft, seedFallback, styleKey } = args;
   const byTab = useMemo(() => getFieldsByTab(styleKey), [styleKey]);
   const featureEnums = useMemo(
     () =>
@@ -108,9 +111,9 @@ function useDerivedFields(args: {
   const previewConfig = useMemo(
     () => ({
       ...draft,
-      seed: draft.seed.trim() || deviceId,
+      seed: draft.seed.trim() || seedFallback,
     }),
-    [draft, deviceId]
+    [draft, seedFallback]
   );
   return { byTab, featureEnums, previewConfig };
 }
@@ -189,12 +192,12 @@ function useEditorActions(args: {
   setDraft: React.Dispatch<React.SetStateAction<AvatarConfig>>;
   dirty: boolean;
   styleKey: StyleKey;
-  deviceId: string;
+  seedFallback: string;
   profileId: string | null;
   setShowDiscard: (v: boolean) => void;
   setSaving: (v: boolean) => void;
 }) {
-  const { draft, setDraft, dirty, styleKey, deviceId, profileId } = args;
+  const { draft, setDraft, dirty, styleKey, seedFallback, profileId } = args;
   const { setShowDiscard, setSaving } = args;
 
   const { onBack, confirmDiscard } = useDiscardActions({
@@ -207,9 +210,9 @@ function useEditorActions(args: {
   });
   const save = useSaveAction({ draft, profileId, setSaving });
   const copySeed = useCallback(async () => {
-    const s = draft.seed.trim() || deviceId;
+    const s = draft.seed.trim() || seedFallback;
     await Clipboard.setStringAsync(s);
-  }, [draft.seed, deviceId]);
+  }, [draft.seed, seedFallback]);
 
   return {
     updateOptions,
@@ -223,7 +226,7 @@ function useEditorActions(args: {
 }
 
 export function useAvatarEditor(): UseAvatarEditor {
-  const { deviceId, profileId, persisted } = usePersistedConfig();
+  const { seedFallback, profileId, persisted } = usePersistedConfig();
   const { draft, setDraft, initialized } = useDraftSync({
     persisted,
   });
@@ -237,7 +240,7 @@ export function useAvatarEditor(): UseAvatarEditor {
 
   const { byTab, featureEnums, previewConfig } = useDerivedFields({
     draft,
-    deviceId,
+    seedFallback,
     styleKey,
   });
 
@@ -246,7 +249,7 @@ export function useAvatarEditor(): UseAvatarEditor {
     setDraft,
     dirty,
     styleKey,
-    deviceId,
+    seedFallback,
     profileId,
     setShowDiscard,
     setSaving,
@@ -255,7 +258,7 @@ export function useAvatarEditor(): UseAvatarEditor {
   const closeSurface = useCallback(() => setSurface(null), []);
 
   return {
-    deviceId,
+    seedFallback,
     profileId,
     draft,
     setDraft,

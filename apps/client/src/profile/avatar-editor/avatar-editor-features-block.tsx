@@ -18,7 +18,7 @@ function FeatureRow({
   field,
   draft,
   styleKey,
-  deviceId,
+  seedFallback,
   updateOptions,
   surface,
   setSurface,
@@ -27,7 +27,7 @@ function FeatureRow({
   field: EnumField;
   draft: AvatarConfig;
   styleKey: StyleKey;
-  deviceId: string;
+  seedFallback: string;
   updateOptions: UpdateOptionsFn;
   surface: string | null;
   setSurface: (k: string | null) => void;
@@ -52,7 +52,7 @@ function FeatureRow({
           field={field}
           styleKey={styleKey}
           draft={draft}
-          deviceId={deviceId}
+          seedFallback={seedFallback}
           onSelect={(variant) => {
             updateOptions((o) => {
               const next = { ...o };
@@ -75,7 +75,7 @@ export function FeaturesBlock({
   featureEnums,
   draft,
   styleKey,
-  deviceId,
+  seedFallback,
   updateOptions,
   surface,
   setSurface,
@@ -84,7 +84,7 @@ export function FeaturesBlock({
   featureEnums: EnumField[];
   draft: AvatarConfig;
   styleKey: StyleKey;
-  deviceId: string;
+  seedFallback: string;
   updateOptions: UpdateOptionsFn;
   surface: string | null;
   setSurface: (k: string | null) => void;
@@ -100,7 +100,7 @@ export function FeaturesBlock({
           field={f}
           draft={draft}
           styleKey={styleKey}
-          deviceId={deviceId}
+          seedFallback={seedFallback}
           updateOptions={updateOptions}
           surface={surface}
           setSurface={setSurface}

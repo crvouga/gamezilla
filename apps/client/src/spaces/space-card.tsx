@@ -17,7 +17,7 @@ function HostHeader({ space }: { space: SpaceView }) {
     <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2, flex: 1 }}>
       <DeviceAvatar
         avatarConfig={space.hostAvatarConfig}
-        deviceId={space.hostId}
+        seedFallback={space.hostId}
         size={44}
         vividBackdrop
       />

@@ -13,11 +13,26 @@ function isPlainObject(v: unknown): v is Record<string, unknown> {
 export type AvatarConfig = {
   /** Style key matching `@dicebear/collection` export names (e.g. `lorelei`, `pixelArt`). */
   style: string;
-  /** DiceBear seed; empty string means “use device id” at render time. */
+  /**
+   * DiceBear seed. Persisted profiles should use a non-empty value (typically
+   * the profile `entityId`). Empty string is legacy / in-editor only; UI may
+   * pass `identitySeedFallback` to `resolveAvatarSeed` until backfill runs.
+   */
   seed: string;
   /** Partial options merged into `createAvatar(style, { ...options, seed })`. */
   options: Record<string, unknown>;
 };
+
+/** Deterministic default avatar for `entityId === profileEntityId`. */
+export function createDefaultAvatarConfig(
+  profileEntityId: string
+): AvatarConfig {
+  return {
+    style: DEFAULT_AVATAR_STYLE,
+    seed: profileEntityId,
+    options: {},
+  };
+}
 
 function tryParseJsonObject(raw: string): Record<string, unknown> | null {
   try {
@@ -60,20 +75,25 @@ export function serializeAvatarConfig(config: AvatarConfig): string {
   });
 }
 
-/** Effective seed for DiceBear (device id when custom seed is empty). */
-export function resolveAvatarSeed(
-  config: AvatarConfig,
-  deviceId: string
-): string {
-  const t = config.seed.trim();
-  return t.length > 0 ? t : deviceId;
+export function serializeDefaultAvatarConfig(profileEntityId: string): string {
+  return serializeAvatarConfig(createDefaultAvatarConfig(profileEntityId));
 }
 
 /**
- * Returns a parsed avatar config only when `profile/avatarConfig` (or other attr)
- * is present and valid JSON. Use for UI: `null` means “no persisted config”
- * (show empty avatar), distinct from `resolveAvatarConfig` which always returns
- * a default for editors.
+ * Effective DiceBear seed: `config.seed` when non-empty, else `identitySeedFallback`
+ * (use profile / host `entityId`, not an unrelated install id).
+ */
+export function resolveAvatarSeed(
+  config: AvatarConfig,
+  identitySeedFallback: string
+): string {
+  const t = config.seed.trim();
+  return t.length > 0 ? t : identitySeedFallback;
+}
+
+/**
+ * Returns a parsed avatar config only when the attr is present and valid JSON.
+ * `null` means no persisted config (e.g. row not synced yet).
  */
 export function parseAvatarConfigAttr(
   attributes: Record<string, unknown> | undefined,
@@ -83,23 +103,6 @@ export function parseAvatarConfigAttr(
   const raw = attributes[attr];
   if (raw === undefined || raw === null) return null;
   return parseAvatarConfig(raw);
-}
-
-export function resolveAvatarConfig(
-  attributes: Record<string, unknown> | undefined,
-  _deviceId: string,
-  avatarConfigAttr: string
-): AvatarConfig {
-  const rawConfig = attributes?.[avatarConfigAttr];
-  const parsed = parseAvatarConfig(rawConfig);
-  if (parsed) {
-    return parsed;
-  }
-  return {
-    style: DEFAULT_AVATAR_STYLE,
-    seed: '',
-    options: {},
-  };
 }
 
 export function configsEqual(a: AvatarConfig, b: AvatarConfig): boolean {

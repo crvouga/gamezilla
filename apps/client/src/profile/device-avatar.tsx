@@ -6,7 +6,8 @@ import { ProfileDiceBearAvatar } from './profile-dicebear-avatar';
 
 export type DeviceAvatarProps = {
   avatarConfig: AvatarConfig | null;
-  deviceId: string;
+  /** Profile or member `entityId` for legacy empty `config.seed` only. */
+  seedFallback: string;
   size: number;
   /**
    * Empty placeholder only: frosted light plate + light person
@@ -21,12 +22,13 @@ const VIVID_PLATE = String('rgba(255,255,255,0.22)');
 const VIVID_GLYPH = String('rgba(255,255,255,0.92)');
 
 /**
- * Renders a device’s avatar: generic user silhouette on a muted disk when
- * no persisted config; otherwise the persisted DiceBear avatar.
+ * Renders a profile avatar: generic user silhouette when there is no persisted
+ * config (e.g. not synced); otherwise the persisted DiceBear avatar. Uses
+ * `seedFallback` only when persisted config has an empty legacy seed.
  */
 export function DeviceAvatar({
   avatarConfig,
-  deviceId,
+  seedFallback,
   size,
   vividBackdrop = false,
 }: DeviceAvatarProps): ReactNode {
@@ -43,7 +45,7 @@ export function DeviceAvatar({
   return (
     <ProfileDiceBearAvatar
       config={avatarConfig}
-      fallbackSeed={deviceId}
+      fallbackSeed={seedFallback}
       size={size}
     />
   );

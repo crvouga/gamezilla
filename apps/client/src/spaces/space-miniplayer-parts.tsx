@@ -94,7 +94,7 @@ export function MiniplayerHostHeader({
       {hostId ? (
         <DeviceAvatar
           avatarConfig={hostAvatarConfig}
-          deviceId={hostId}
+          seedFallback={hostId}
           size={40}
           vividBackdrop
         />

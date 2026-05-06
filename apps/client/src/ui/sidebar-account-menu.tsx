@@ -240,7 +240,7 @@ function AccountTrigger({
       >
         <DeviceAvatar
           avatarConfig={profile.avatarConfig}
-          deviceId={profile.deviceId}
+          seedFallback={profile.profileId ?? profile.deviceId}
           size={32}
         />
         <Box sx={{ flex: 1, minWidth: 0 }}>

@@ -48,7 +48,7 @@ export function SpaceMemberList({ members }: SpaceMemberListProps) {
                 {online ? <StatusDot status="online" size={8} /> : null}
                 <DeviceAvatar
                   avatarConfig={m.avatarConfig}
-                  deviceId={m.memberId}
+                  seedFallback={m.memberId}
                   size={40}
                 />
               </Box>

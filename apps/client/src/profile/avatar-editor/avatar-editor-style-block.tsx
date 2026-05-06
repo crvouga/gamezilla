@@ -12,7 +12,7 @@ import { TriggerRow } from './avatar-editor-trigger-row';
 export function StyleBlock({
   styleKey,
   draft,
-  deviceId,
+  seedFallback,
   setDraft,
   surface,
   setSurface,
@@ -20,7 +20,7 @@ export function StyleBlock({
 }: {
   styleKey: StyleKey;
   draft: AvatarConfig;
-  deviceId: string;
+  seedFallback: string;
   setDraft: (fn: (d: AvatarConfig) => AvatarConfig) => void;
   surface: string | null;
   setSurface: (k: string | null) => void;
@@ -42,8 +42,8 @@ export function StyleBlock({
       >
         <StylePickerStrip
           selected={styleKey}
-          seed={draft.seed.trim() || deviceId}
-          deviceId={deviceId}
+          seed={draft.seed.trim() || seedFallback}
+          seedFallback={seedFallback}
           onSelect={(k) => {
             setDraft((d) => ({ ...d, style: k, options: {} }));
             closeSurface();

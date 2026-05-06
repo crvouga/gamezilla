@@ -12,7 +12,7 @@ import { useAvatarEditor, type UseAvatarEditor } from './use-avatar-editor';
 
 function EditorSections({ editor }: { editor: UseAvatarEditor }) {
   const {
-    deviceId,
+    seedFallback,
     draft,
     setDraft,
     surface,
@@ -28,7 +28,7 @@ function EditorSections({ editor }: { editor: UseAvatarEditor }) {
       <StyleBlock
         styleKey={styleKey}
         draft={draft}
-        deviceId={deviceId}
+        seedFallback={seedFallback}
         setDraft={setDraft}
         surface={surface}
         setSurface={setSurface}
@@ -38,7 +38,7 @@ function EditorSections({ editor }: { editor: UseAvatarEditor }) {
         featureEnums={featureEnums}
         draft={draft}
         styleKey={styleKey}
-        deviceId={deviceId}
+        seedFallback={seedFallback}
         updateOptions={updateOptions}
         surface={surface}
         setSurface={setSurface}
@@ -75,13 +75,13 @@ function EditorSections({ editor }: { editor: UseAvatarEditor }) {
 }
 
 function EditorBody({ editor }: { editor: UseAvatarEditor }) {
-  const { deviceId, initialized, previewConfig, shuffleSeed, copySeed } =
+  const { seedFallback, initialized, previewConfig, shuffleSeed, copySeed } =
     editor;
   return (
     <Box>
       <AvatarPreview
         previewConfig={previewConfig}
-        deviceId={deviceId}
+        seedFallback={seedFallback}
         initialized={initialized}
         shuffleSeed={shuffleSeed}
         copySeed={copySeed}
