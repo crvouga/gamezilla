@@ -27,7 +27,6 @@
     "expo-linear-gradient",
     "expo-status-bar",
     "make-plural",
-    "react-native-svg",
     "@jlongster/sql.js",
     "sql.js",
     "buffer",
