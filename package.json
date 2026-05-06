@@ -65,8 +65,5 @@
   "packageManager": "bun@1.3.11",
   "engines": {
     "node": ">=22"
-  },
-  "dependencies": {
-    "unique-names-generator": "^4.7.1"
   }
 }

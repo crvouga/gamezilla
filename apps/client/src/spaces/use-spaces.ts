@@ -1,6 +1,5 @@
 import { useMyId } from '@gamezilla/client/auth/auth-context';
 import { useProfileEntities } from '@gamezilla/client/profile/use-profile-entities';
-import { displayNameForDevice } from '@gamezilla/client/profile/device-display';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { parseAvatarConfigAttr } from '@gamezilla/domain/profile/avatar-config';
 import {
@@ -54,8 +53,11 @@ function profilePresentation(
   const attrs = profileEntity?.attributes as
     | Record<string, unknown>
     | undefined;
+  const raw = attrs?.[ProfileAttr.displayName];
+  const displayName =
+    typeof raw === 'string' && raw.trim().length > 0 ? raw.trim() : '';
   return {
-    displayName: displayNameForDevice(attrs?.[ProfileAttr.displayName], id),
+    displayName,
     avatarConfig: parseAvatarConfigAttr(attrs, ProfileAttr.avatarConfig),
   };
 }
@@ -176,10 +178,9 @@ export function useDisplayName(id: string | null | undefined): string {
   const profileEntity = profileRes.entities[0] ?? null;
 
   return useMemo(() => {
-    const fallback =
-      resolvedId === NO_ENTITY_PLACEHOLDER ? 'unknown' : resolvedId;
+    if (resolvedId === NO_ENTITY_PLACEHOLDER) return '';
     const raw = profileEntity?.attributes[ProfileAttr.displayName];
-    return displayNameForDevice(raw, fallback);
+    return typeof raw === 'string' && raw.trim().length > 0 ? raw.trim() : '';
   }, [resolvedId, profileEntity]);
 }
 

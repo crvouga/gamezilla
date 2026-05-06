@@ -19,8 +19,8 @@ import type { LocalizedString } from '@gamezilla/lib/i18n';
 import type { ReactNode } from 'react';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
-import { IconSymbol } from '../symbol-icon';
 import { Pressable } from '../pressable';
+import { IconSymbol } from '../symbol-icon';
 import { Text } from '../text';
 
 export type MenuRowProps = {

@@ -28,8 +28,12 @@ export type AppAuthContext = PatchDbAuthContext & {
   readonly blockedUserIds: readonly string[];
 };
 
+/**
+ * Marker for unauthenticated HTTP callers (no Bearer, no `x-anon-id`).
+ * Carries no identity claims; ABAC policies decide what (if anything) such
+ * callers may read.
+ */
 export type AppClientContext = {
-  readonly clientId: string;
   readonly deviceId?: undefined;
 };
 

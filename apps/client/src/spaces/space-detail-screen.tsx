@@ -1,11 +1,11 @@
 import { useMyId } from '@gamezilla/client/auth/auth-context';
 import { useSpaceActions } from '@gamezilla/client/spaces/space-actions';
 import { SpaceCounterPanel } from '@gamezilla/client/spaces/space-counter-panel';
-import { SpaceRoomWireContext } from '@gamezilla/client/spaces/space-room-wire-context';
-import { useSpaceRoom } from '@gamezilla/client/spaces/use-space-room';
 import { SpaceDebugModal } from '@gamezilla/client/spaces/space-debug-modal';
 import { SpaceMemberList } from '@gamezilla/client/spaces/space-member-list';
+import { SpaceRoomWireContext } from '@gamezilla/client/spaces/space-room-wire-context';
 import { NO_ENTITY_PLACEHOLDER } from '@gamezilla/client/spaces/spaces-internal-ids';
+import { useSpaceRoom } from '@gamezilla/client/spaces/use-space-room';
 import {
   useCurrentSpaces,
   useSpace,
@@ -17,7 +17,6 @@ import {
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceMembershipAttr,
 } from '@gamezilla/domain/spaces/space-entities';
-import { useQuery } from '@gamezilla/patch-db/react';
 import {
   Box,
   Button,
@@ -28,6 +27,7 @@ import {
   Text,
   type ScreenBaseAction,
 } from '@gamezilla/lib/ui';
+import { useQuery } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';

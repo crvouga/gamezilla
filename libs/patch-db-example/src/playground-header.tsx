@@ -1,4 +1,3 @@
-import { SHAPE_ENTITY_TYPE } from '@gamezilla/patch-db/sim/playground-shapes';
 import {
   Badge,
   Box,
@@ -9,6 +8,7 @@ import {
   Text,
   useTheme,
 } from '@gamezilla/lib/ui';
+import { SHAPE_ENTITY_TYPE } from '@gamezilla/patch-db/sim/playground-shapes';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback, useMemo, useState } from 'react';
 

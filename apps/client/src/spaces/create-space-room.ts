@@ -16,7 +16,7 @@ export type CreateSpaceRoomParams = {
    * entries accumulate.
    */
   storage: KeyValueStorage;
-  /** Actor id (signed-in account or install id); relay auth + local room handle. */
+  /** Actor id (signed-in account or install id); space DO auth + local room handle. */
   myId: string;
   sessionToken: string | null;
 };

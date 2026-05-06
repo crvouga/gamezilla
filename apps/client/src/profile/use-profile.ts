@@ -10,8 +10,6 @@ import type { Entity } from '@gamezilla/patch-db/interface';
 import { useQuery } from '@gamezilla/patch-db/react';
 import { useMemo } from 'react';
 
-import { displayNameForDevice } from './device-display';
-
 const NO_ENTITY_PLACEHOLDER = '__patch_db_no_entity__';
 
 type ProfileResult = {
@@ -42,10 +40,11 @@ function buildProfileResult(args: {
     | undefined;
   const usable =
     profileEntity !== null && profileQueryId !== NO_ENTITY_PLACEHOLDER;
-  const displayLabel = displayNameForDevice(
-    usable ? attrs?.[ProfileAttr.displayName] : undefined,
-    deviceId
-  );
+  const rawName = usable ? attrs?.[ProfileAttr.displayName] : undefined;
+  const displayLabel =
+    typeof rawName === 'string' && rawName.trim().length > 0
+      ? rawName.trim()
+      : '';
   const avatarConfig = usable
     ? parseAvatarConfigAttr(attrs, ProfileAttr.avatarConfig)
     : null;

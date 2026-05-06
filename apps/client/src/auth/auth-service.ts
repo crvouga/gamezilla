@@ -1,5 +1,4 @@
 import { deleteAnonymousDatabaseFileBestEffort } from '@gamezilla/client/db/account-db';
-import { ensureServerClientId } from '@gamezilla/client/db/ensure-server-client-id';
 import { writeLastLocalAccountId } from '@gamezilla/client/db/account-local-state';
 import {
   accountIdAtom,
@@ -72,17 +71,15 @@ async function writeSessionMirror(args: {
 }
 
 async function finalizeSignIn(args: {
-  apiUrl: string;
   db: PatchDb;
   deviceId: string;
   accountId: string;
 }): Promise<void> {
-  const { apiUrl, db, deviceId, accountId } = args;
+  const { db, deviceId, accountId } = args;
   const store = getDefaultStore();
   const storage = store.get(secureStorageAtom);
   await writeLastLocalAccountId(storage, accountId);
-  const clientId = await ensureServerClientId(apiUrl, storage);
-  await deleteAnonymousDatabaseFileBestEffort(clientId);
+  await deleteAnonymousDatabaseFileBestEffort(deviceId);
   await ensureDeviceEntity(db, deviceId);
   await ensureProfile(db, accountId);
   const sessionSvc = await store.get(sessionServiceAtom);
@@ -138,7 +135,6 @@ function createGoogleSignInHandler(
     await sync.markPatchesAsAlreadyOnRemote(sessionPatchIds);
 
     await finalizeSignIn({
-      apiUrl,
       db,
       deviceId,
       accountId: claim.accountId,

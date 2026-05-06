@@ -1,21 +1,19 @@
 /**
- * HTTP client identified by a server-set cookie (`clientId`). Has no deviceId
- * or userId — ABAC policies decide what unauthenticated clients can read
- * (typically only public entity types like client config).
+ * Unauthenticated HTTP caller. Carries no identity claims; ABAC policies
+ * decide what unauthenticated clients can read (typically only public entity
+ * types like client config). Apps may extend this with extra claims via
+ * intersection (the patch-db library never inspects them).
  */
 export type PatchDbClientContext = {
-  readonly clientId: string;
   readonly deviceId?: undefined;
 };
 
 /**
- * Authenticated caller. `deviceId` is the client-generated replication identity;
- * `clientId` is the server-assigned cookie identity for the HTTP client.
- * Consuming apps extend via intersection to carry their own claims
+ * Authenticated caller. `deviceId` is the client-generated replication
+ * identity. Consuming apps extend via intersection to carry their own claims
  * (e.g. `accountId`, group memberships) into their visibility policies.
  */
 export type PatchDbAuthContext = {
-  readonly clientId: string;
   readonly deviceId: string;
   readonly [claim: string]: unknown;
 };
@@ -62,10 +60,5 @@ export function isPatchDbAuthContext(
 export function isPatchDbClientContext(
   ctx: PatchDbContext
 ): ctx is PatchDbClientContext {
-  return (
-    'clientId' in ctx &&
-    typeof (ctx as Record<string, unknown>)['clientId'] === 'string' &&
-    ctx.deviceId !== null &&
-    typeof ctx.deviceId !== 'string'
-  );
+  return !isPatchDbAuthContext(ctx) && !isPatchDbSystemContext(ctx);
 }

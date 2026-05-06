@@ -1,7 +1,7 @@
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { Hono } from 'hono';
 import type { ApiWorkerEnv } from '../config/env';
-import { authorizeRoomWebSocket } from './relay-auth';
+import { ACTOR_ID_HEADER, authorizeSpaceDoWebSocket } from './space-do-auth';
 
 /**
  * WebSocket upgrade → {@link Space} Durable Object for a space topic.
@@ -19,7 +19,7 @@ export function createSpaceApp(options: { db: PatchDb }) {
       return c.json({ error: 'missing or empty topic query parameter' }, 400);
     }
 
-    const auth = await authorizeRoomWebSocket(db, c.req.raw, topic);
+    const auth = await authorizeSpaceDoWebSocket(db, c.req.raw, topic);
     if (auth instanceof Response) {
       return auth;
     }
@@ -32,7 +32,7 @@ export function createSpaceApp(options: { db: PatchDb }) {
     const stub = ns.get(id);
 
     const headers = new Headers(c.req.raw.headers);
-    headers.set('x-gamezilla-actor-id', auth.myId);
+    headers.set(ACTOR_ID_HEADER, auth.myId);
 
     return stub.fetch(
       new Request(c.req.raw.url, {

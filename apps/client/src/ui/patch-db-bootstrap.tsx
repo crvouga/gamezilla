@@ -2,21 +2,16 @@ import {
   deleteAccountLocalData,
   deleteAnonymousDatabaseFileBestEffort,
 } from '@gamezilla/client/db/account-db';
-import {
-  HTTP_CLIENT_ID_STORAGE_KEY,
-  ensureServerClientId,
-} from '@gamezilla/client/db/ensure-server-client-id';
 import { writeLastLocalAccountId } from '@gamezilla/client/db/account-local-state';
 import { RuntimeBridge } from '@gamezilla/client/runtime/runtime-bridge';
 import {
   accountIdAtom,
-  configServiceAtom,
+  deviceServiceAtom,
   secureStorageAtom,
   sessionServiceAtom,
   sessionTokenAtom,
   sqlClientAtom,
 } from '@gamezilla/client/runtime/atoms';
-import { isUuid } from '@gamezilla/domain/auth/device-id';
 import { clearWebClientPersistentState } from '@gamezilla/lib/browser/clear-web-client-state';
 import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
 import { getDefaultStore } from 'jotai';
@@ -40,9 +35,8 @@ export async function removeLocalDataForAccount(
   await store.get(sqlClientAtom);
   await deleteAccountLocalData(accountId);
   await writeLastLocalAccountId(storage, null);
-  const apiBase = store.get(configServiceAtom).getApiUrl();
-  const clientId = await ensureServerClientId(apiBase, storage);
-  await deleteAnonymousDatabaseFileBestEffort(clientId);
+  const deviceService = await store.get(deviceServiceAtom);
+  await deleteAnonymousDatabaseFileBestEffort(deviceService.getDeviceId());
 }
 
 export async function clearLocalDatabaseAndReload(): Promise<void> {
@@ -60,10 +54,7 @@ export async function clearLocalDatabaseAndReload(): Promise<void> {
 
   const accountId = store.get(accountIdAtom);
   const storage = store.get(secureStorageAtom);
-  let anonymousClientId: string | null = null;
-  if (accountId === null) {
-    anonymousClientId = await storage.getItem(HTTP_CLIENT_ID_STORAGE_KEY);
-  }
+  const deviceService = await store.get(deviceServiceAtom);
 
   store.set(accountIdAtom, null);
   store.set(sessionTokenAtom, null);
@@ -71,12 +62,8 @@ export async function clearLocalDatabaseAndReload(): Promise<void> {
 
   if (accountId !== null) {
     await deleteAccountLocalData(accountId);
-  } else if (
-    anonymousClientId !== null &&
-    anonymousClientId.length > 0 &&
-    isUuid(anonymousClientId)
-  ) {
-    await deleteAnonymousDatabaseFileBestEffort(anonymousClientId);
+  } else {
+    await deleteAnonymousDatabaseFileBestEffort(deviceService.getDeviceId());
   }
 
   await writeLastLocalAccountId(storage, null);

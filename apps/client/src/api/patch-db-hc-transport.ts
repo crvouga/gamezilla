@@ -93,7 +93,6 @@ async function patchDbHcRead(
         ...NO_CACHE_REQUEST_HEADERS,
         ...hdr(),
       },
-      init: { credentials: 'include' },
     }
   );
   if (!res.ok) {
@@ -118,7 +117,6 @@ async function patchDbHcWrite(
         ...NO_CACHE_REQUEST_HEADERS,
         ...hdr(),
       },
-      init: { credentials: 'include' },
     }
   );
   if (!res.ok) {

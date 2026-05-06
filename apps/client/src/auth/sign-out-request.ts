@@ -14,7 +14,6 @@ export async function postAuthSignOut(args: {
   const client = createApiClient(apiUrl);
   const response = await client.auth['sign-out'].$post(undefined, {
     headers: { Authorization: `Bearer ${bearer}` },
-    init: { credentials: 'include' },
   });
   if (response.status === 204 || response.status === 401) {
     return;

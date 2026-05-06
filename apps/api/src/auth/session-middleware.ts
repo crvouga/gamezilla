@@ -21,6 +21,8 @@ export type AuthContext = AppAuthContext & { readonly accountId: string };
 /** HTTP header: install id for unauthenticated patch-db clients (must match UUID device id). */
 export const ANON_ID_HEADER = 'x-anon-id';
 
+const UNAUTH_CLIENT_CONTEXT: AppClientContext = {};
+
 async function loadMemberOfSpaceIds(
   db: PatchDb,
   myId: string
@@ -71,13 +73,11 @@ async function loadMemberOfSpaceIds(
 
 async function buildAnonAppAuthContext(
   db: PatchDb,
-  clientId: string,
   anonId: string
 ): Promise<AppAuthContext> {
   assertDeviceId(anonId);
   const memberOfSpaceIds = await loadMemberOfSpaceIds(db, anonId);
   return {
-    clientId,
     deviceId: anonId,
     accountId: null,
     myId: anonId,
@@ -89,8 +89,7 @@ async function buildAnonAppAuthContext(
 
 async function tryResolveBearerAppAuth(
   db: PatchDb,
-  token: string,
-  clientId: string
+  token: string
 ): Promise<AppAuthContext | null> {
   const entities = await readAccountSessionsByToken(db, token);
   const now = Date.now();
@@ -119,7 +118,6 @@ async function tryResolveBearerAppAuth(
     const memberOfSpaceIds = await loadMemberOfSpaceIds(db, accountId);
 
     return {
-      clientId,
       deviceId,
       accountId,
       myId: accountId,
@@ -133,31 +131,33 @@ async function tryResolveBearerAppAuth(
 }
 
 /**
- * Resolves a request to either a full auth context (when Bearer is valid)
- * or a client-only context (when only a clientId cookie is available).
- * When `x-anon-id` is set (valid device UUID) without Bearer, returns an auth-shaped
- * context with `myId` = that id and `accountId` = null.
+ * Token-only request resolution. Returns either:
+ *   - {@link AppAuthContext} when `Authorization: Bearer …` is valid;
+ *   - {@link AppAuthContext} with `accountId: null` when only `x-anon-id`
+ *     (a UUID device id) is set;
+ *   - {@link AppClientContext} (an empty marker) for unauthenticated callers.
+ *
+ * No cookies are read or set anywhere in this stack.
  */
 export async function resolvePatchDbContext(
   db: PatchDb,
-  request: Request,
-  clientId: string
+  request: Request
 ): Promise<PatchDbContext> {
   const header = request.headers.get('Authorization');
   const anonRaw = request.headers.get(ANON_ID_HEADER)?.trim() ?? '';
 
   if (header === null || !header.startsWith('Bearer ')) {
     if (anonRaw.length > 0) {
-      return await buildAnonAppAuthContext(db, clientId, anonRaw);
+      return await buildAnonAppAuthContext(db, anonRaw);
     }
-    return { clientId } satisfies AppClientContext;
+    return UNAUTH_CLIENT_CONTEXT;
   }
 
   const token = header.slice('Bearer '.length).trim();
   assert.ok(token.length > 0, 'Bearer token must be non-empty');
 
-  const auth = await tryResolveBearerAppAuth(db, token, clientId);
-  return auth ?? ({ clientId } satisfies AppClientContext);
+  const auth = await tryResolveBearerAppAuth(db, token);
+  return auth ?? UNAUTH_CLIENT_CONTEXT;
 }
 
 /**
@@ -166,14 +166,13 @@ export async function resolvePatchDbContext(
  */
 export async function requireAuthContext(
   db: PatchDb,
-  request: Request,
-  clientId: string
+  request: Request
 ): Promise<AuthContext> {
   const header = request.headers.get('Authorization');
   if (header === null || !header.startsWith('Bearer ')) {
     throw new UnauthorizedError('Missing bearer token');
   }
-  const ctx = await resolvePatchDbContext(db, request, clientId);
+  const ctx = await resolvePatchDbContext(db, request);
   if (typeof ctx.deviceId !== 'string') {
     throw new UnauthorizedError('Invalid or expired session');
   }

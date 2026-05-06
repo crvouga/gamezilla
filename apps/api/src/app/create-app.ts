@@ -6,10 +6,6 @@ import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
 import { createStripeApp } from '@gamezilla/stripe/stripe-app';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import {
-  clientCookieMiddleware,
-  parseClientIdFromCookies,
-} from '../auth/client-cookie';
 import { createAuthClaimApp } from '../auth/route';
 import { resolvePatchDbContext } from '../auth/session-middleware';
 import { UnauthorizedError } from '../auth/unauthorized-error';
@@ -41,10 +37,7 @@ function toPatchDbApiConfig(config: ApiHandlerConfig): PatchDbApiConfig {
     db,
     pubSub,
     patchDbHttpAuth: {
-      resolvePatchDbContext: (req) => {
-        const clientId = parseClientIdFromCookies(req);
-        return resolvePatchDbContext(db, req, clientId);
-      },
+      resolvePatchDbContext: (req) => resolvePatchDbContext(db, req),
     },
   };
   if (basePath !== undefined) {
@@ -70,7 +63,6 @@ export function createApiApp(config: ApiHandlerConfig) {
 
   return new Hono<{ Bindings: ApiWorkerEnv }>()
     .use('*', apiCors)
-    .use('*', clientCookieMiddleware)
     .route('/', healthApp)
     .route('/', createClientConfigApp(db, log, secretStore))
     .route('/', createAuthClaimApp(db, secretStore))

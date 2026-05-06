@@ -1,11 +1,11 @@
 import { useAuth } from '@gamezilla/client/auth/auth-context';
 import { useServerStatus } from '@gamezilla/client/connection/use-server-status';
 import { useLogger } from '@gamezilla/client/runtime/runtime-hooks';
+import { useAsync } from '@gamezilla/lib/async/use-async';
 import { Box, StatusDot, Text, type ScreenBaseAction } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
-import { useAsync } from '@gamezilla/lib/async/use-async';
 
 type Auth = ReturnType<typeof useAuth>;
 type ServerStatus = ReturnType<typeof useServerStatus>;

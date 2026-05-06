@@ -3,14 +3,14 @@
  * centered modal on tablet/desktop, based on `theme.breakpoint`.
  */
 
-import type { PropsWithChildren, ReactNode } from 'react';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
-import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
+import type { PropsWithChildren, ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTheme } from '../../theme';
 import { ModalBackdrop } from '../modal/modal-backdrop';
 import { ModalContent } from '../modal/modal-content';

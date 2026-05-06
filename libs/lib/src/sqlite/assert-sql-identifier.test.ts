@@ -1,9 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { assert } from '../assert';
-import {
-  assertSqlIdentifier,
-  assertSqlPrefix,
-} from './assert-sql-identifier';
+import { assertSqlIdentifier, assertSqlPrefix } from './assert-sql-identifier';
 
 /** Node crash handler calls `process.exit`; register one that throws so tests can assert failures. */
 function registerThrowingCrashHandlerForTests(): () => void {

@@ -1,4 +1,5 @@
 import { assertUuid } from '@gamezilla/domain/auth/device-id';
+import { generateRandomDisplayName } from '@gamezilla/domain/profile/display-name-generator';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
@@ -17,6 +18,13 @@ function profileLooksPresent(
   );
 }
 
+function hasDisplayName(entity: Entity | undefined): boolean {
+  if (entity === undefined) return false;
+  const attrs = entity.attributes as Record<string, unknown>;
+  const v = attrs[ProfileAttr.displayName];
+  return typeof v === 'string' && v.trim().length > 0;
+}
+
 /**
  * Ensures a `profile` row at `entityId === myId` (install id when anonymous,
  * account id when signed in).
@@ -30,7 +38,20 @@ export async function ensureProfile(db: PatchDb, myId: string): Promise<void> {
       limit: 1,
     },
   ]);
-  if (profileLooksPresent(res?.entities[0], myId)) return;
+  const existing = res?.entities[0];
+  if (profileLooksPresent(existing, myId)) {
+    if (hasDisplayName(existing)) return;
+    await db.write([
+      {
+        entityId: myId,
+        entityType: PROFILE_ENTITY_TYPE,
+        attributes: {
+          [ProfileAttr.displayName]: generateRandomDisplayName(),
+        },
+      },
+    ]);
+    return;
+  }
   const now = new Date().toISOString();
   await db.write([
     {
@@ -39,6 +60,7 @@ export async function ensureProfile(db: PatchDb, myId: string): Promise<void> {
       attributes: {
         [ProfileAttr.id]: myId,
         [ProfileAttr.createdAt]: now,
+        [ProfileAttr.displayName]: generateRandomDisplayName(),
       },
     },
   ]);

@@ -55,15 +55,15 @@ export const deviceServiceAtom = atom(async (get) => {
 });
 
 /**
- * Per-account or anonymous-by-server-clientId file DB via expo-sqlite. Same
- * code path on native and web (web uses expo-sqlite's OPFS adapter). See
+ * Per-account or anonymous-by-device-id file DB via expo-sqlite. Same code
+ * path on native and web (web uses expo-sqlite's OPFS adapter). See
  * {@link openSqlClientForPlatform} and `account-db.ts`.
  */
 export const sqlClientAtom = atom(async (get, { signal }) => {
+  const deviceService = await get(deviceServiceAtom);
   const sql = await openSqlClientForPlatform({
     getAccountId: () => get(accountIdAtom),
-    getSecureStorage: () => get(secureStorageAtom),
-    getApiUrl: () => get(configServiceAtom).getApiUrl(),
+    getDeviceId: () => deviceService.getDeviceId(),
   });
   signal.addEventListener('abort', () => {
     void sql.disconnect();

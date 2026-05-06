@@ -4,9 +4,6 @@
   "workspaces": {
     "": {
       "name": "gamezilla",
-      "dependencies": {
-        "unique-names-generator": "^4.7.1",
-      },
       "devDependencies": {
         "@lingui/cli": "5.9.5",
         "@lingui/conf": "5.9.5",
@@ -203,6 +200,7 @@
         "@gamezilla/lib": "workspace:*",
         "@gamezilla/room": "workspace:*",
         "react": "19.1.0",
+        "unique-names-generator": "^4.7.1",
       },
       "devDependencies": {
         "@types/react": "~19.1.0",

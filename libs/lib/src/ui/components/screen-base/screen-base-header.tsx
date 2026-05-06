@@ -2,6 +2,8 @@
  * App screen header: safe area, breadcrumbs, title from last crumb, actions + overflow.
  */
 
+import { t } from '@lingui/core/macro';
+import { useLingui } from '@lingui/react/macro';
 import {
   Fragment,
   useCallback,
@@ -12,8 +14,6 @@ import {
   type ReactNode,
 } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
-import { t } from '@lingui/core/macro';
-import { useLingui } from '@lingui/react/macro';
 
 import { useBreakpoint, useTheme } from '../../theme';
 import { Box } from '../box';

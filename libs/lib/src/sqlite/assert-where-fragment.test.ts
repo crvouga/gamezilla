@@ -81,15 +81,15 @@ describe('assertWhereFragment', () => {
   });
 
   test('rejects placeholder/param mismatch (too many params)', () => {
-    expect(() =>
-      assertWhereFragment({ sql: 'a = ?', params: [1, 2] })
-    ).toThrow(/placeholder count/i);
+    expect(() => assertWhereFragment({ sql: 'a = ?', params: [1, 2] })).toThrow(
+      /placeholder count/i
+    );
   });
 
   test('rejects empty IN ()', () => {
-    expect(() =>
-      assertWhereFragment({ sql: 'a IN ()', params: [] })
-    ).toThrow(/empty parentheses/i);
+    expect(() => assertWhereFragment({ sql: 'a IN ()', params: [] })).toThrow(
+      /empty parentheses/i
+    );
   });
 
   test('allows niladic call form COUNT(*) OVER()', () => {
@@ -111,9 +111,9 @@ describe('assertWhereFragment', () => {
   });
 
   test('rejects bare empty parens (with leading whitespace)', () => {
-    expect(() =>
-      assertWhereFragment({ sql: 'a IN ( )', params: [] })
-    ).toThrow(/empty parentheses/i);
+    expect(() => assertWhereFragment({ sql: 'a IN ( )', params: [] })).toThrow(
+      /empty parentheses/i
+    );
   });
 
   test('rejects double placeholder', () => {
@@ -141,15 +141,15 @@ describe('assertWhereFragment', () => {
   });
 
   test('rejects unbalanced parentheses (unclosed)', () => {
-    expect(() =>
-      assertWhereFragment({ sql: '(a = ?', params: [1] })
-    ).toThrow(/unbalanced parentheses/i);
+    expect(() => assertWhereFragment({ sql: '(a = ?', params: [1] })).toThrow(
+      /unbalanced parentheses/i
+    );
   });
 
   test('rejects unbalanced parentheses (extra closing)', () => {
-    expect(() =>
-      assertWhereFragment({ sql: 'a = ?)', params: [1] })
-    ).toThrow(/unbalanced parentheses/i);
+    expect(() => assertWhereFragment({ sql: 'a = ?)', params: [1] })).toThrow(
+      /unbalanced parentheses/i
+    );
   });
 
   test('rejects semicolon', () => {

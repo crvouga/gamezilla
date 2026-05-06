@@ -9,17 +9,12 @@ import { authClaimRequestSchema } from './schema';
 import { handleSignOut, parseBearerFromRequest } from './sign-out-handler';
 
 /**
- * Auth routes: claim, sign-out, and readable `clientId` for per-device
- * anonymous SQLite naming (httpOnly cookie is not visible to Expo JS).
+ * Auth routes: claim and sign-out. Token-only — the API never reads or sets
+ * cookies. Anonymous patch-db identity is the device UUID supplied by the
+ * client via `x-anon-id`; there is no server-issued client id to fetch.
  */
 export function createAuthClaimApp(db: PatchDb, secretStore: SecretStore) {
-  return new Hono<{
-    Bindings: ApiWorkerEnv;
-    Variables: { clientId: string };
-  }>()
-    .get('/auth/client-id', (c) => {
-      return c.json({ clientId: c.var.clientId });
-    })
+  return new Hono<{ Bindings: ApiWorkerEnv }>()
     .post(
       '/auth/claim',
       zValidator('json', authClaimRequestSchema),

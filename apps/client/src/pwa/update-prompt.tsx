@@ -1,11 +1,11 @@
-import {
-  registerServiceWorker,
-  type PwaUpdatePrompt,
-} from './register-service-worker';
 import { DismissibleBanner } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Platform } from 'react-native';
+import {
+  registerServiceWorker,
+  type PwaUpdatePrompt,
+} from './register-service-worker';
 
 /**
  * Top banner when a new Workbox-generated service worker is waiting.

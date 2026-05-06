@@ -76,7 +76,6 @@ describe('default ABAC policies (sqlite)', () => {
     );
 
     const ctxA: AppAuthContext = {
-      clientId: crypto.randomUUID(),
       deviceId: '00000000-0000-4000-8000-00000000a001',
       accountId: accountA,
       myId: accountA,
@@ -89,7 +88,6 @@ describe('default ABAC policies (sqlite)', () => {
     expect(forA.entities.map((e) => e.entityId)).toEqual(['priv-a']);
 
     const ctxB: AppAuthContext = {
-      clientId: crypto.randomUUID(),
       deviceId: '00000000-0000-4000-8000-00000000b002',
       accountId: accountB,
       myId: accountB,
@@ -121,7 +119,6 @@ describe('default ABAC policies (sqlite)', () => {
     );
 
     const ctxB: AppAuthContext = {
-      clientId: crypto.randomUUID(),
       deviceId: '00000000-0000-4000-8000-00000000c003',
       accountId: accountB,
       myId: accountB,
@@ -139,7 +136,6 @@ describe('default ABAC policies (sqlite)', () => {
 
   test('query without entityType is denied for auth context', async () => {
     const ctx: AppAuthContext = {
-      clientId: crypto.randomUUID(),
       deviceId: '00000000-0000-4000-8000-00000000e004',
       accountId: '00000000-0000-4000-8000-0000000000ee',
       myId: '00000000-0000-4000-8000-0000000000ee',
@@ -155,7 +151,6 @@ describe('default ABAC policies (sqlite)', () => {
 
   test('non-system write to stripe.webhook_event is forbidden', async () => {
     const ctx: AppAuthContext = {
-      clientId: crypto.randomUUID(),
       deviceId: '00000000-0000-4000-8000-00000000f005',
       accountId: '00000000-0000-4000-8000-0000000000ff',
       myId: '00000000-0000-4000-8000-0000000000ff',
@@ -196,9 +191,7 @@ describe('default ABAC policies (sqlite)', () => {
       PATCHES_DB_SYSTEM_CONTEXT
     );
 
-    const clientCtx: PatchDbClientContext = {
-      clientId: crypto.randomUUID(),
-    };
+    const clientCtx: PatchDbClientContext = {};
     const [r] = await db.read([{ entityType: 'clientConfig' }], clientCtx);
     assert.defined(r, 'r');
     expect(r.entities).toHaveLength(1);
@@ -221,18 +214,14 @@ describe('default ABAC policies (sqlite)', () => {
       PATCHES_DB_SYSTEM_CONTEXT
     );
 
-    const clientCtx: PatchDbClientContext = {
-      clientId: crypto.randomUUID(),
-    };
+    const clientCtx: PatchDbClientContext = {};
     const [r] = await db.read([{ entityType: 'profile.private' }], clientCtx);
     assert.defined(r, 'r');
     expect(r.entities).toHaveLength(0);
   });
 
   test('client context can write patches (registry dispatches to policy)', async () => {
-    const clientCtx: PatchDbClientContext = {
-      clientId: crypto.randomUUID(),
-    };
+    const clientCtx: PatchDbClientContext = {};
     const deviceId = '00000000-0000-4000-8000-00000000a0b1';
     const written = await db.write(
       [
@@ -253,9 +242,7 @@ describe('default ABAC policies (sqlite)', () => {
   });
 
   test('client write to system-only entity (clientConfig) is rejected by policy', async () => {
-    const clientCtx: PatchDbClientContext = {
-      clientId: crypto.randomUUID(),
-    };
+    const clientCtx: PatchDbClientContext = {};
     const out = await db.write(
       [
         {
@@ -299,7 +286,6 @@ describe('default ABAC policies (sqlite)', () => {
     );
 
     const ctx: AppAuthContext = {
-      clientId: crypto.randomUUID(),
       deviceId,
       accountId,
       myId: accountId,
@@ -330,7 +316,6 @@ describe('default ABAC policies (sqlite)', () => {
     const deviceId = '00000000-0000-4000-8000-00000000d0e2';
     const accountId = '00000000-0000-4000-8000-0000000000e2';
     const ctx: AppAuthContext = {
-      clientId: crypto.randomUUID(),
       deviceId,
       accountId,
       myId: accountId,
@@ -381,7 +366,6 @@ describe('default ABAC policies (sqlite)', () => {
     );
 
     const ctx: AppAuthContext = {
-      clientId: crypto.randomUUID(),
       deviceId,
       accountId,
       myId: accountId,
@@ -411,7 +395,6 @@ describe('default ABAC policies (sqlite)', () => {
     const deviceId = '00000000-0000-4000-8000-00000000c0d2';
     const accountId = '00000000-0000-4000-8000-0000000000c2';
     const ctx: AppAuthContext = {
-      clientId: crypto.randomUUID(),
       deviceId,
       accountId,
       myId: accountId,

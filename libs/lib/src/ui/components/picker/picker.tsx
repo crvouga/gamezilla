@@ -11,8 +11,8 @@ import { FlatList, Pressable, View } from 'react-native';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { List, ListItem } from '../list';
-import { Text } from '../text';
 import { ResponsiveSurface } from '../responsive-surface';
+import { Text } from '../text';
 
 export type PickerOption<T extends string | number = string> = {
   label: ReactNode;

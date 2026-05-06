@@ -149,10 +149,11 @@ function guestMembershipDenied(
 }
 
 /**
- * Validates the WebSocket upgrade for `/space/ws`: Bearer (account) or anon id,
- * topic shape, and that the caller is the space host or an active guest member.
+ * Validates the WebSocket upgrade for `/space/ws` before forwarding to the
+ * Space Durable Object: Bearer (account) or anon id, topic shape, and that
+ * the caller is the space host or an active guest member.
  */
-export async function authorizeRoomWebSocket(
+export async function authorizeSpaceDoWebSocket(
   db: PatchDb,
   request: Request,
   topic: string

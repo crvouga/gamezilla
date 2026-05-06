@@ -18,11 +18,11 @@
  */
 
 import { useLingui } from '@lingui/react/macro';
-import { useRef } from 'react';
 import type { ReactNode } from 'react';
+import { useRef } from 'react';
 import { Box } from '../box';
-import { Text } from '../text';
 import { ResponsiveSurface } from '../responsive-surface';
+import { Text } from '../text';
 import { ModalBody } from './modal-body';
 import { ModalButton } from './modal-button';
 import { ModalFooter } from './modal-footer';

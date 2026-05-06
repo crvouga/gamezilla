@@ -1,6 +1,6 @@
 /**
- * Local SQLite for patch-db: per-account (or anonymous-by-server-clientId)
- * file via expo-sqlite. Same code path on web and native — `account-db.ts`
+ * Local SQLite for patch-db: per-account (or anonymous-by-device-id) file
+ * via expo-sqlite. Same code path on web and native — `account-db.ts`
  * passes `dir = undefined` on web, which is the expo-sqlite OPFS path with
  * the recovery logic in `SqlClientImplExpoSqlite.open` (open → fail →
  * `deleteDatabaseAsync` retry → fail → OPFS wipe + reload). Multi-tab on web
@@ -17,20 +17,18 @@ import {
   openAccountDb,
   openAnonymousDb,
 } from '@gamezilla/client/db/account-db';
-import { ensureServerClientId } from '@gamezilla/client/db/ensure-server-client-id';
-import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 
 export type OpenSqlClientRuntimeDeps = {
   getAccountId: () => string | null;
-  getSecureStorage: () => SecureStorage;
-  getApiUrl: () => string;
+  /** Local device UUID from secure storage (`createDeviceService`). */
+  getDeviceId: () => string;
 };
 
 /**
  * Per-account file DB when signed in; otherwise an anonymous file keyed by
- * the server-issued `clientId` (stable across cold starts of the same
- * device). Identical resolution on web and native.
+ * the local device UUID (stable across cold starts of the same install).
+ * Identical resolution on web and native.
  */
 export async function openSqlClientForPlatform(
   deps: OpenSqlClientRuntimeDeps
@@ -39,9 +37,5 @@ export async function openSqlClientForPlatform(
   if (accountId !== null) {
     return openAccountDb(accountId);
   }
-  const clientId = await ensureServerClientId(
-    deps.getApiUrl(),
-    deps.getSecureStorage()
-  );
-  return openAnonymousDb(clientId);
+  return openAnonymousDb(deps.getDeviceId());
 }

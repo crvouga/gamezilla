@@ -226,19 +226,13 @@ describe('tiger-style invariants in query-builder-pg', () => {
 
   test('rejects unsafe column prefix interpolated into WHERE', () => {
     expect(() =>
-      buildWhereClause(
-        { type: 'exists', attribute: 'task/title' },
-        'p; DROP--'
-      )
+      buildWhereClause({ type: 'exists', attribute: 'task/title' }, 'p; DROP--')
     ).toThrow();
   });
 
   test('rejects unsafe table alias interpolated into patch conditions', () => {
     expect(() =>
-      buildPatchConditions(
-        { entityType: 'task' },
-        'p; DROP TABLE patches; --'
-      )
+      buildPatchConditions({ entityType: 'task' }, 'p; DROP TABLE patches; --')
     ).toThrow();
   });
 

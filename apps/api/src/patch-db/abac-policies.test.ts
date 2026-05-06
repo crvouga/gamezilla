@@ -73,7 +73,6 @@ describe('gamezilla default policies (system + auth writes)', () => {
     const deviceId = '00000000-0000-4000-8000-000000000011';
     const userId = '00000000-0000-4000-8000-000000000022';
     const ctx = {
-      clientId: crypto.randomUUID(),
       deviceId,
       accountId: userId,
       myId: userId,

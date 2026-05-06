@@ -1,12 +1,3 @@
-import type { Entity } from '@gamezilla/patch-db/interface';
-import {
-  nextShapeOrder,
-  playgroundServerCreateShape,
-  playgroundServerDeleteShape,
-  playgroundServerRandomizeShape,
-  playgroundServerReorderShapes,
-} from '@gamezilla/patch-db/sim/playground-shapes';
-import type { PlaygroundSim } from '@gamezilla/patch-db/sim/playground-sim';
 import {
   Box,
   Button,
@@ -16,6 +7,15 @@ import {
   Text,
 } from '@gamezilla/lib/ui';
 import { useTheme } from '@gamezilla/lib/ui/theme';
+import type { Entity } from '@gamezilla/patch-db/interface';
+import {
+  nextShapeOrder,
+  playgroundServerCreateShape,
+  playgroundServerDeleteShape,
+  playgroundServerRandomizeShape,
+  playgroundServerReorderShapes,
+} from '@gamezilla/patch-db/sim/playground-shapes';
+import type { PlaygroundSim } from '@gamezilla/patch-db/sim/playground-sim';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback } from 'react';
 import {

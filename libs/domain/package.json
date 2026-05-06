@@ -13,6 +13,7 @@
     "./spaces/space-module": "./src/spaces/space-module.ts",
     "./profile/profile-entities": "./src/profile/profile-entities.ts",
     "./profile/avatar-config": "./src/profile/avatar-config.ts",
+    "./profile/display-name-generator": "./src/profile/display-name-generator.ts",
     "./config/config-service": "./src/config/config-service.ts",
     "./config/api-servers": "./src/config/api-servers.ts",
     "./config/app-metadata": "./src/config/app-metadata.ts"
@@ -20,7 +21,8 @@
   "dependencies": {
     "@gamezilla/room": "workspace:*",
     "@gamezilla/lib": "workspace:*",
-    "react": "19.1.0"
+    "react": "19.1.0",
+    "unique-names-generator": "^4.7.1"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",

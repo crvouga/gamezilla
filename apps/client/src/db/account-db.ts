@@ -90,10 +90,11 @@ export async function openAccountDb(accountId: string): Promise<SqlClient> {
 }
 
 /**
- * Opens the anonymous (pre-auth) SQLite file keyed by server-issued `clientId`.
+ * Opens the anonymous (pre-auth) SQLite file keyed by the local device id
+ * (UUID generated on first launch and persisted to secure storage).
  */
-export async function openAnonymousDb(clientId: string): Promise<SqlClient> {
-  const basename = anonymousDatabaseBasename(clientId);
+export async function openAnonymousDb(deviceId: string): Promise<SqlClient> {
+  const basename = anonymousDatabaseBasename(deviceId);
   assertDatabaseName(basename);
   const dir = await ensureAccountDatabaseDirectory();
   const client = await SqlClientImplExpoSqlite.open(basename, dir);
@@ -119,13 +120,13 @@ export async function deleteAccountLocalData(accountId: string): Promise<void> {
 }
 
 /**
- * Best-effort removal of the anonymous DB file for `clientId` (e.g. after sign-in when
+ * Best-effort removal of the anonymous DB file for `deviceId` (e.g. after sign-in when
  * guest data is discarded). Does not throw if the file is missing.
  */
 export async function deleteAnonymousDatabaseFileBestEffort(
-  clientId: string
+  deviceId: string
 ): Promise<void> {
-  const basename = anonymousDatabaseBasename(clientId);
+  const basename = anonymousDatabaseBasename(deviceId);
   assertDatabaseName(basename);
   try {
     const dir =

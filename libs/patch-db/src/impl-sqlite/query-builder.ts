@@ -279,12 +279,7 @@ export function buildPatchConditions(
     params.push(query.entityType);
   }
 
-  pushEntityIdCondition(
-    query,
-    conditions,
-    params,
-    `${tableAlias}.entity_id`
-  );
+  pushEntityIdCondition(query, conditions, params, `${tableAlias}.entity_id`);
 
   if (query.where) {
     const jsonColumn = `${tableAlias}.attributes`;

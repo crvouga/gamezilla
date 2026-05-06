@@ -2,6 +2,7 @@
  * Google-only sign-in surface. Shown from the user menu / commands when the user chooses Sign in.
  */
 
+import { useAsync } from '@gamezilla/lib/async/use-async';
 import {
   ModalBody,
   ModalButton,
@@ -12,7 +13,6 @@ import {
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import { useCallback, useEffect } from 'react';
-import { useAsync } from '@gamezilla/lib/async/use-async';
 import type { AuthGoogleProviderState } from './auth-capabilities';
 import { SignInGooglePanel } from './sign-in-modal-google-panel';
 

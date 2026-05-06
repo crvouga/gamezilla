@@ -1,5 +1,4 @@
 import { useMyId } from '@gamezilla/client/auth/auth-context';
-import { displayNameForDevice } from '@gamezilla/client/profile/device-display';
 import { useProfileEntities } from '@gamezilla/client/profile/use-profile-entities';
 import { isSpaceMiniplayerHidden } from '@gamezilla/client/spaces/space-miniplayer-layout';
 import type {
@@ -42,8 +41,11 @@ function profilePresentation(
   const attrs = profileEntity?.attributes as
     | Record<string, unknown>
     | undefined;
+  const raw = attrs?.[ProfileAttr.displayName];
+  const displayName =
+    typeof raw === 'string' && raw.trim().length > 0 ? raw.trim() : '';
   return {
-    displayName: displayNameForDevice(attrs?.[ProfileAttr.displayName], id),
+    displayName,
     avatarConfig: parseAvatarConfigAttr(attrs, ProfileAttr.avatarConfig),
   };
 }
@@ -116,7 +118,7 @@ function buildMiniplayerItem(
   const hostPres =
     hostId.length > 0
       ? profilePresentation(ctx.profileById, hostId)
-      : { displayName: '…', avatarConfig: null };
+      : { displayName: '', avatarConfig: null };
   const spaceTitle = customTitle ?? ctx.t`${hostPres.displayName}'s space`;
   const guestIds = ctx.guestsBySpace.get(ent.spaceId) ?? [];
   let memberCount = hostId ? 1 : 0;

@@ -3,8 +3,8 @@
  */
 
 import { useServerStatus } from '@gamezilla/client/connection/use-server-status';
-import { asLocalized } from '@gamezilla/lib/i18n';
 import { useLogger } from '@gamezilla/client/runtime/runtime-hooks';
+import { asLocalized } from '@gamezilla/lib/i18n';
 import {
   Box,
   FloatingMenu,

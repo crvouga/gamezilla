@@ -34,13 +34,13 @@ export function accountDatabaseBasename(accountId: string): string {
   return `${ACCOUNT_DB_PREFIX}${uuidToFlat32(accountId)}`;
 }
 
-export function anonymousDatabaseBasename(clientId: string): string {
-  if (!isUuid(clientId)) {
+export function anonymousDatabaseBasename(deviceId: string): string {
+  if (!isUuid(deviceId)) {
     throw new Error(
-      `anonymousDatabaseBasename: clientId must be a UUID, got ${String(clientId)}`
+      `anonymousDatabaseBasename: deviceId must be a UUID, got ${String(deviceId)}`
     );
   }
-  return `${ANONYMOUS_DB_PREFIX}${uuidToFlat32(clientId)}`;
+  return `${ANONYMOUS_DB_PREFIX}${uuidToFlat32(deviceId)}`;
 }
 
 /**

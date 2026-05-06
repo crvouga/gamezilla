@@ -3,7 +3,6 @@ import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import { isSecretStoreError } from '@gamezilla/lib/secret-store';
 import { makeStripeClient } from '@gamezilla/stripe/make-stripe-client';
 import { createApiApp } from './app/create-app';
-import { parseClientIdFromCookies } from './auth/client-cookie';
 import { requireAuthContext } from './auth/session-middleware';
 import type { ApiWorkerEnv } from './config/env';
 import {
@@ -100,8 +99,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     pubSub,
     secretStore,
     stripe,
-    requireAuth: (db, req) =>
-      requireAuthContext(db, req, parseClientIdFromCookies(req)),
+    requireAuth: (db, req) => requireAuthContext(db, req),
     webhookSecretDopplerKey: ApiSecretName.stripeWebhookSecret,
   });
 }
