@@ -1,9 +1,4 @@
-import {
-  Button,
-  IconButton,
-  IconSymbol,
-  useTheme,
-} from '@gamezilla/lib/ui';
+import { Button, IconButton, IconSymbol, useTheme } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';
 
 export type SpaceSessionChromeActionsProps = {
@@ -51,6 +46,10 @@ export function SpaceSessionChromeActions({
   return isHost ? (
     <Button title={t`End space`} variant="solid" onPress={onRequestEnd} />
   ) : (
-    <Button title={t`Leave space`} variant="outlined" onPress={onRequestLeave} />
+    <Button
+      title={t`Leave space`}
+      variant="outlined"
+      onPress={onRequestLeave}
+    />
   );
 }

@@ -35,7 +35,11 @@ export function SpaceMembersAvatarGroup({
         accessibilityRole="button"
         accessibilityLabel={t`People in this space`}
       >
-        <AvatarGroup size={AVATAR_SIZE} maxVisible={MAX_VISIBLE} ringColor={AVATAR_GROUP_RING}>
+        <AvatarGroup
+          size={AVATAR_SIZE}
+          maxVisible={MAX_VISIBLE}
+          ringColor={AVATAR_GROUP_RING}
+        >
           {orderedMembers.map((m) => (
             <DeviceAvatar
               key={m.memberId}

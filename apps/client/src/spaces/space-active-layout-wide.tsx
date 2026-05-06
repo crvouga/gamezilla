@@ -46,7 +46,10 @@ export function SpaceActiveLayoutWide({
           background: 'surface',
         }}
       >
-        <SpaceWideRailHeader spaceTitle={spaceTitle} onPressHome={onPressHome} />
+        <SpaceWideRailHeader
+          spaceTitle={spaceTitle}
+          onPressHome={onPressHome}
+        />
         <Box sx={{ flex: 1, minHeight: 0 }}>
           <SpaceSessionMemberRail host={host} guests={guests} flags={flags} />
         </Box>
@@ -57,7 +60,9 @@ export function SpaceActiveLayoutWide({
           onPressDebug={onPressDebug}
         />
       </Box>
-      <Box sx={{ flex: 1, minHeight: 0, minWidth: 0, justifyContent: 'center' }}>
+      <Box
+        sx={{ flex: 1, minHeight: 0, minWidth: 0, justifyContent: 'center' }}
+      >
         {children}
       </Box>
     </Box>

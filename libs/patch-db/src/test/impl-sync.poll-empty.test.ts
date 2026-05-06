@@ -12,15 +12,13 @@ import type { PatchDbClientTransport } from '../transport/interface';
 
 describe('SyncPatchDb immediate poll on hydrated empty', () => {
   test('polls immediately when first hydrated local result is empty (once)', async () => {
-    let pollIntervalTick: (() => void) | null = null;
     let pollIntervalCalls = 0;
     const scheduler: SyncPatchDbScheduler = {
-      scheduleInterval(intervalMs, callback) {
+      scheduleInterval(intervalMs, _callback) {
         // pollIntervalMs in SyncPatchDb is 5000 by default; our fixture does not
         // currently override it. Capture only the poll interval registration.
         if (intervalMs === 5000) {
           pollIntervalCalls += 1;
-          pollIntervalTick = callback;
           return { cancel: () => {} };
         }
         // push interval (default 10ms in test helper) can be ignored

@@ -1,9 +1,4 @@
-import {
-  ClerkProvider,
-  useAuth,
-  useClerk,
-  useSSO,
-} from '@clerk/clerk-expo';
+import { ClerkProvider, useAuth, useClerk, useSSO } from '@clerk/clerk-expo';
 import { useMemo, type ReactNode } from 'react';
 import { HostedAuthPortsProvider } from '../hosted-auth-ports-context';
 import type { HostedAuthPorts } from '../ports';

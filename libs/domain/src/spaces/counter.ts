@@ -10,17 +10,17 @@ function validateEmptyPayload(p: unknown): p is Record<string, never> {
   return isPlainRecord(p) && Object.keys(p).length === 0;
 }
 
-export const counterCmdNs = createNamespace('spaceCounterCmd');
+export const counterCmdNs = createNamespace('counterCmd');
 export const Increment = counterCmdNs('INCREMENT', validateEmptyPayload);
 export const Decrement = counterCmdNs('DECREMENT', validateEmptyPayload);
 
-export const counterEvtNs = createNamespace('spaceCounterEvt');
+export const counterEvtNs = createNamespace('counterEvt');
 export const CounterIncremented = counterEvtNs(
-  'COUNTER_INCREMENTED',
+  'INCREMENTED',
   validateEmptyPayload
 );
 export const CounterDecremented = counterEvtNs(
-  'COUNTER_DECREMENTED',
+  'DECREMENTED',
   validateEmptyPayload
 );
 
@@ -48,16 +48,13 @@ export const counterCommandRouter: MessageRouter<
   .on(Decrement, () => ({ ok: true, events: [CounterDecremented({})] }));
 
 /** Routes counter events back into updates of the `count` slice. */
-export const counterEventReducer: MessageRouter<
-  RoomState,
-  void,
-  RoomState
-> = createMessageRouter<RoomState, void, RoomState>(counterEvtNs)
-  .on(CounterIncremented, (state) => ({
-    ...state,
-    count: readCount(state) + 1,
-  }))
-  .on(CounterDecremented, (state) => ({
-    ...state,
-    count: readCount(state) - 1,
-  }));
+export const counterEventReducer: MessageRouter<RoomState, void, RoomState> =
+  createMessageRouter<RoomState, void, RoomState>(counterEvtNs)
+    .on(CounterIncremented, (state) => ({
+      ...state,
+      count: readCount(state) + 1,
+    }))
+    .on(CounterDecremented, (state) => ({
+      ...state,
+      count: readCount(state) - 1,
+    }));

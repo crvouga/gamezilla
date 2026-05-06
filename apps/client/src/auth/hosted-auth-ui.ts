@@ -10,7 +10,9 @@ export class HostedAuthUiFromPublishableKeyAdapter implements HostedAuthUiPort {
     const available =
       typeof publishableKey === 'string' && publishableKey.trim().length > 0;
     this.available = available;
-    this.unavailableReason = available ? null : CLERK_SIGN_IN_UNAVAILABLE_REASON;
+    this.unavailableReason = available
+      ? null
+      : CLERK_SIGN_IN_UNAVAILABLE_REASON;
   }
 }
 

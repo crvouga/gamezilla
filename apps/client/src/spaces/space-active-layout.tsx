@@ -19,7 +19,10 @@ export type SpaceActiveLayoutProps = {
   children: ReactNode;
 };
 
-function useOrderedStripMembers(host: SpaceMemberRow | null, guests: SpaceMemberRow[]) {
+function useOrderedStripMembers(
+  host: SpaceMemberRow | null,
+  guests: SpaceMemberRow[]
+) {
   return useMemo(() => {
     const list: SpaceMemberRow[] = [];
     if (host) list.push(host);

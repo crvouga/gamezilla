@@ -11,10 +11,7 @@ export type SpaceMemberTileProps = {
   variant: 'chip' | 'rail';
 };
 
-export function SpaceMemberTile({
-  variant,
-  ...rest
-}: SpaceMemberTileProps) {
+export function SpaceMemberTile({ variant, ...rest }: SpaceMemberTileProps) {
   if (variant === 'chip') {
     return <SpaceMemberTileChip {...rest} />;
   }

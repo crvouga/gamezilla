@@ -31,9 +31,101 @@ import {
 import { useQuery } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
+import { ChessArtwork } from './games/chess/chess-artwork';
+import { ConnectFourArtwork } from './games/connect-four/connect-four-artwork';
+import { GomokuArtwork } from './games/gomoku/gomoku-artwork';
+import { TicTacToeArtwork } from './games/tic-tac-toe/tic-tac-toe-artwork';
 
 type Space = ReturnType<typeof useSpace>;
+
+function GameTile({
+  title,
+  status,
+  children,
+  disabled = false,
+}: {
+  title: ReactNode;
+  status?: ReactNode;
+  disabled?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <Box
+      sx={{
+        flexGrow: 1,
+        flexBasis: 160,
+        maxWidth: 260,
+        minWidth: 140,
+        borderRadius: 16,
+        padding: 12,
+        background: 'card',
+        borderWidth: 1,
+        borderStyle: 'solid',
+        borderColor: 'border',
+        opacity: disabled ? 0.6 : 1,
+      }}
+    >
+      <Center sx={{ aspectRatio: 1, alignSelf: 'stretch' }}>
+        <Box sx={{ width: 140 }}>{children}</Box>
+      </Center>
+      <Box sx={{ marginTop: 10 }}>
+        <Text variant="heading">{title}</Text>
+        {status ? (
+          <Text sx={{ marginTop: 2, color: 'muted' }} variant="body">
+            {status}
+          </Text>
+        ) : null}
+      </Box>
+    </Box>
+  );
+}
+
+function GamesGrid() {
+  return (
+    <Box
+      sx={{
+        alignSelf: 'stretch',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 12,
+        alignItems: 'stretch',
+        justifyContent: 'flex-start',
+      }}
+    >
+      <GameTile title={<Trans>Chess</Trans>}>
+        <ChessArtwork size={128} />
+      </GameTile>
+      <GameTile
+        title={<Trans>Tic-tac-toe</Trans>}
+        status={<Trans>Coming soon</Trans>}
+        disabled
+      >
+        <TicTacToeArtwork size={128} />
+      </GameTile>
+      <GameTile
+        title={<Trans>Connect Four</Trans>}
+        status={<Trans>Coming soon</Trans>}
+        disabled
+      >
+        <ConnectFourArtwork size={128} />
+      </GameTile>
+      <GameTile
+        title={<Trans>Gomoku</Trans>}
+        status={<Trans>Coming soon</Trans>}
+        disabled
+      >
+        <GomokuArtwork size={128} />
+      </GameTile>
+    </Box>
+  );
+}
 
 function readMembershipString(
   attrs: Record<string, unknown> | undefined,
@@ -258,6 +350,7 @@ function ActiveSpaceBody({
           onPressHome={onPressHome}
           onPressDebug={onPressDebug}
         >
+          <GamesGrid />
           <SpaceCounterPanel room={room} />
         </SpaceActiveLayout>
       </SpaceRoomWireContext.Provider>

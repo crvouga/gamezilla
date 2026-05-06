@@ -8,7 +8,9 @@ export type GroupedSpaceMembers = {
 /**
  * Dedupes by `memberId` (prefer host row if both exist), then splits host vs guests.
  */
-export function groupSpaceMembers(members: SpaceMemberRow[]): GroupedSpaceMembers {
+export function groupSpaceMembers(
+  members: SpaceMemberRow[]
+): GroupedSpaceMembers {
   const byId = new Map<string, SpaceMemberRow>();
   for (const m of members) {
     const prev = byId.get(m.memberId);

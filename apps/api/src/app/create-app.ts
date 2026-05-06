@@ -36,9 +36,7 @@ function isAssertionCrash(
 
 function toPatchDbApiConfig(
   config: ApiHandlerConfig,
-  resolvePatchDbContext: (
-    req: Request
-  ) => Promise<PatchDbContext>
+  resolvePatchDbContext: (req: Request) => Promise<PatchDbContext>
 ): PatchDbApiConfig {
   const { db, pubSub, basePath, instrumentation } = config;
   const patchDbConfig: PatchDbApiConfig = {
@@ -57,6 +55,43 @@ function toPatchDbApiConfig(
   return patchDbConfig;
 }
 
+function createApiErrorHandler() {
+  return (
+    err: unknown,
+    c: { json: (body: { error: string }, status: number) => Response }
+  ) => {
+    if (err instanceof ForbiddenError) {
+      return c.json({ error: err.message }, 403);
+    }
+    if (err instanceof UnauthorizedError) {
+      return c.json({ error: err.message }, 401);
+    }
+    if (err instanceof ValidationError) {
+      return c.json({ error: err.message }, 400);
+    }
+    if (err instanceof HTTPException) {
+      return c.json({ error: err.message }, err.status);
+    }
+    if (isAssertionCrash(err as unknown)) {
+      const crash = err as unknown as {
+        message: string;
+        context?: Record<string, unknown>;
+      };
+      log.error('assertion failure', {
+        error: crash.message,
+        context: crash.context,
+      });
+      return c.json({ error: 'Internal server error' }, 500);
+    }
+    const message =
+      err instanceof Error ? err.message : 'Internal server error';
+    log.error('handler error', {
+      error: err instanceof Error ? err.message : String(err),
+    });
+    return c.json({ error: message }, 500);
+  };
+}
+
 /**
  * Composes the API Worker app from mounted sub-apps (`app.route()`), per
  * [Hono best practices](https://hono.dev/docs/guides/best-practices).
@@ -64,11 +99,15 @@ function toPatchDbApiConfig(
 export async function createApiApp(config: ApiHandlerConfig) {
   const { secretStore, db } = config;
 
-  const clerkSecretKey = await secretStore.getRequired(ApiSecretName.clerkSecretKey);
+  const clerkSecretKey = await secretStore.getRequired(
+    ApiSecretName.clerkSecretKey
+  );
   const bearerAuth = createClerkHttpBearerAuthPorts(clerkSecretKey);
   const sessionAuth = createSessionAuth(bearerAuth);
 
-  const stripeRaw = await secretStore.getOptional(ApiSecretName.stripeSecretKey);
+  const stripeRaw = await secretStore.getOptional(
+    ApiSecretName.stripeSecretKey
+  );
   const stripeKey =
     typeof stripeRaw === 'string' && stripeRaw.trim().length > 0
       ? stripeRaw.trim()
@@ -101,35 +140,5 @@ export async function createApiApp(config: ApiHandlerConfig) {
     )
     .route('/', createSpaceApp({ db, bearerAuth }))
     .route(patchMount, patchDbApp)
-    .onError((err, c) => {
-      if (err instanceof ForbiddenError) {
-        return c.json({ error: err.message }, 403);
-      }
-      if (err instanceof UnauthorizedError) {
-        return c.json({ error: err.message }, 401);
-      }
-      if (err instanceof ValidationError) {
-        return c.json({ error: err.message }, 400);
-      }
-      if (err instanceof HTTPException) {
-        return c.json({ error: err.message }, err.status);
-      }
-      if (isAssertionCrash(err as unknown)) {
-        const crash = err as unknown as {
-          message: string;
-          context?: Record<string, unknown>;
-        };
-        log.error('assertion failure', {
-          error: crash.message,
-          context: crash.context,
-        });
-        return c.json({ error: 'Internal server error' }, 500);
-      }
-      const message =
-        err instanceof Error ? err.message : 'Internal server error';
-      log.error('handler error', {
-        error: err instanceof Error ? err.message : String(err),
-      });
-      return c.json({ error: message }, 500);
-    });
+    .onError(createApiErrorHandler());
 }

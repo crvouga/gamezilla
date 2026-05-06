@@ -56,7 +56,11 @@ function DefaultOverflowPill({
       }}
       sx={{ background: 'outline' }}
     >
-      <Text variant="caption" label={`+${String(count)}`} sx={{ color: 'text' }} />
+      <Text
+        variant="caption"
+        label={`+${String(count)}`}
+        sx={{ color: 'text' }}
+      />
     </Box>
   );
 }

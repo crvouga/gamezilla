@@ -76,10 +76,7 @@ export class RoomServer<S extends RoomState, C, E, Identity> {
     if (send === undefined) return;
     void (async () => {
       try {
-        const entries = await this.storage.loadEventsAfter(
-          this.topic,
-          fromSeq
-        );
+        const entries = await this.storage.loadEventsAfter(this.topic, fromSeq);
         // `lastSeq` must match the seq of the last entry the client will apply
         // after this frame (see client `onWelcomeWire`). Derive it from the
         // same `entries` tail when non-empty so a buggy or racy `getLastSeq`

@@ -5,4 +5,3 @@ export class SessionClaimsNullAdapter implements SessionClaimsPort {
     return null;
   }
 }
-

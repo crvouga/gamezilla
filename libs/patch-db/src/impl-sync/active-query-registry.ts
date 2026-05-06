@@ -164,7 +164,11 @@ export class ActiveQueryRegistry {
         result.patches.length === 0
       ) {
         entry.hydratedEmptyFired = true;
-        this.onHydratedEmptyOnce?.({ queryKey: key, query: entry.query, result });
+        this.onHydratedEmptyOnce?.({
+          queryKey: key,
+          query: entry.query,
+          result,
+        });
       }
     })();
     const settle = () => {

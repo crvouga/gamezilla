@@ -84,7 +84,9 @@ function GuestSummary({ spaceId }: { spaceId: string }) {
   const guestNamesLabel = useMemo(() => {
     if (guests.length === 0) return t`No guests yet`;
     return guests
-      .map((g) => (g.displayName.trim().length > 0 ? g.displayName : g.memberId))
+      .map((g) =>
+        g.displayName.trim().length > 0 ? g.displayName : g.memberId
+      )
       .join(', ');
   }, [guests, t]);
 

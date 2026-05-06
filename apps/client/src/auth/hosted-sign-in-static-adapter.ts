@@ -20,4 +20,3 @@ export class HostedSignInStaticAdapter implements HostedSignInPort {
     await this.#signOut();
   }
 }
-

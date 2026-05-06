@@ -20,4 +20,3 @@ export class HostedSessionStaticAdapter implements HostedSessionPort {
     return await this.#getToken();
   }
 }
-

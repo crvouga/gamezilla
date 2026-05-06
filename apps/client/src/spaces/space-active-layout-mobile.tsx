@@ -85,7 +85,9 @@ export function SpaceActiveLayoutMobile({
           />
         </IconButton>
       </Box>
-      <Box sx={{ flex: 1, minHeight: 0, justifyContent: 'center' }}>{children}</Box>
+      <Box sx={{ flex: 1, minHeight: 0, justifyContent: 'center' }}>
+        {children}
+      </Box>
     </Box>
   );
 }

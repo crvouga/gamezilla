@@ -85,7 +85,9 @@ function RailGuestsBlock({
             label={<Trans>No guests yet</Trans>}
           />
         ) : (
-          guests.map((m) => <RailMemberTile key={m.memberId} member={m} flags={flags} />)
+          guests.map((m) => (
+            <RailMemberTile key={m.memberId} member={m} flags={flags} />
+          ))
         )}
       </Box>
     </Box>

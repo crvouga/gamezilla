@@ -33,7 +33,11 @@ export function SpaceMembersListModal({
         <ModalContent>
           <ModalHeader title={t`People in this space`} />
           <ScrollView style={{ maxHeight: 420 }}>
-            <SpaceSessionMemberRailInner host={host} guests={guests} flags={flags} />
+            <SpaceSessionMemberRailInner
+              host={host}
+              guests={guests}
+              flags={flags}
+            />
           </ScrollView>
         </ModalContent>
       </ModalBackdrop>

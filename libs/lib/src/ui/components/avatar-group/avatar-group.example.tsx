@@ -42,7 +42,10 @@ export default function AvatarGroupExample() {
         </AvatarGroup>
       </Stack>
 
-      <Text variant="caption" label="onPress wraps stack (accessibility button)" />
+      <Text
+        variant="caption"
+        label="onPress wraps stack (accessibility button)"
+      />
       <AvatarGroup size={32} maxVisible={4} onPress={() => {}}>
         <Avatar initials="1" size={32} />
         <Avatar initials="2" size={32} background="success" />

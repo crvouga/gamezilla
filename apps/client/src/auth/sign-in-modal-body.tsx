@@ -27,11 +27,7 @@ export function SignInModalBody(props: {
         />
       ) : null}
       {typeof errorMessage === 'string' && errorMessage.length > 0 ? (
-        <Text
-          variant="caption"
-          sx={{ color: 'error' }}
-          label={errorMessage}
-        />
+        <Text variant="caption" sx={{ color: 'error' }} label={errorMessage} />
       ) : null}
     </ModalBody>
   );

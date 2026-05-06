@@ -18,10 +18,7 @@ import {
   HostedAuthPortsProvider,
   useHostedAuthPorts,
 } from './hosted-auth-ports-context';
-import type {
-  HostedAuthPorts,
-  HostedAuthUiPort,
-} from './ports';
+import type { HostedAuthPorts, HostedAuthUiPort } from './ports';
 import { HostedSignInStaticAdapter } from './hosted-sign-in-static-adapter';
 import { HostedSessionStaticAdapter } from './hosted-session-static-adapter';
 import type { AccountSessionRecord } from './session-service';
@@ -32,12 +29,7 @@ import {
   useSessionService,
 } from '@gamezilla/client/runtime/runtime-hooks';
 import { getDefaultStore, useAtom, useAtomValue } from 'jotai';
-import {
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  type ReactNode,
-} from 'react';
+import { useCallback, useLayoutEffect, useMemo, type ReactNode } from 'react';
 
 export type AuthState = {
   deviceId: string;

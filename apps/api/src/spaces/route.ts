@@ -23,7 +23,12 @@ export function createSpaceApp(options: {
       return c.json({ error: 'missing or empty topic query parameter' }, 400);
     }
 
-    const auth = await authorizeSpaceDoWebSocket(db, c.req.raw, topic, bearerAuth);
+    const auth = await authorizeSpaceDoWebSocket(
+      db,
+      c.req.raw,
+      topic,
+      bearerAuth
+    );
     if (auth instanceof Response) {
       return auth;
     }

@@ -17,7 +17,14 @@ export function MemberPresenceBadges({
   isYou,
 }: MemberPresenceBadgesProps) {
   return (
-    <Box sx={{ flexDirection: 'row', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
+    <Box
+      sx={{
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 1,
+        alignItems: 'center',
+      }}
+    >
       {sessionCount > 1 ? (
         <Text
           variant="caption"

@@ -4,7 +4,10 @@ export class HostedSessionClerkAdapter implements HostedSessionPort {
   readonly #getState: () => HostedAuthState;
   readonly #getToken: () => Promise<string | null>;
 
-  constructor(args: { getState: () => HostedAuthState; getToken: () => Promise<string | null> }) {
+  constructor(args: {
+    getState: () => HostedAuthState;
+    getToken: () => Promise<string | null>;
+  }) {
     this.#getState = args.getState;
     this.#getToken = args.getToken;
   }
@@ -17,4 +20,3 @@ export class HostedSessionClerkAdapter implements HostedSessionPort {
     return await this.#getToken();
   }
 }
-

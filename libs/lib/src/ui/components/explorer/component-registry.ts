@@ -99,7 +99,11 @@ export const componentRegistry: ComponentEntry[] = [
   // Data Display
   { name: 'Card', category: 'Data Display', Example: CardExample },
   { name: 'Avatar', category: 'Data Display', Example: AvatarExample },
-  { name: 'AvatarGroup', category: 'Data Display', Example: AvatarGroupExample },
+  {
+    name: 'AvatarGroup',
+    category: 'Data Display',
+    Example: AvatarGroupExample,
+  },
   { name: 'Badge', category: 'Data Display', Example: BadgeExample },
   { name: 'Chip', category: 'Data Display', Example: ChipExample },
   { name: 'List', category: 'Data Display', Example: ListExample },

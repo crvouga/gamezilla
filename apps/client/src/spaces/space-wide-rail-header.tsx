@@ -1,10 +1,4 @@
-import {
-  Box,
-  IconButton,
-  IconSymbol,
-  Text,
-  useTheme,
-} from '@gamezilla/lib/ui';
+import { Box, IconButton, IconSymbol, Text, useTheme } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';
 
 export type SpaceWideRailHeaderProps = {

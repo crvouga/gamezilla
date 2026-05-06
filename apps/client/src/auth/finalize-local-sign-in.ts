@@ -1,6 +1,9 @@
 import { deleteAnonymousDatabaseFileBestEffort } from '@gamezilla/client/db/account-db';
 import { writeLastLocalAccountId } from '@gamezilla/client/db/account-local-state';
-import { secureStorageAtom, sessionServiceAtom } from '@gamezilla/client/runtime/atoms';
+import {
+  secureStorageAtom,
+  sessionServiceAtom,
+} from '@gamezilla/client/runtime/atoms';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { getDefaultStore } from 'jotai';
 import { ensureDeviceEntity } from './ensure-device-entity';

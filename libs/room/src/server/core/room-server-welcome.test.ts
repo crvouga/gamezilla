@@ -24,10 +24,7 @@ class BrokenGetLastSeqStorage implements RoomStorage {
     return Promise.resolve(0);
   }
 
-  appendCommittedEntries(
-    topic: string,
-    entries: LogEntry[]
-  ): Promise<void> {
+  appendCommittedEntries(topic: string, entries: LogEntry[]): Promise<void> {
     return this.inner.appendCommittedEntries(topic, entries);
   }
 
