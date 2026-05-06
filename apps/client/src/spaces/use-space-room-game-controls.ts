@@ -1,5 +1,8 @@
 import { SelectGame } from '@gamezilla/domain/spaces/space-module';
-import { readSelectedSpaceGame, type SelectedSpaceGame } from '@gamezilla/domain/spaces/games/games';
+import {
+  readSelectedSpaceGame,
+  type SelectedSpaceGame,
+} from '@gamezilla/domain/spaces/games/games';
 import { useRoomSnapshot, type Room, type RoomSnapshot } from '@gamezilla/room';
 import { useCallback, useMemo, type MutableRefObject } from 'react';
 

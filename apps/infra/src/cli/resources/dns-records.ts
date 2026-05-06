@@ -10,6 +10,45 @@ const CF_API = 'https://api.cloudflare.com/client/v4';
 interface RequiredCname {
   readonly name: string;
   readonly content: string;
+  /** Cloudflare: false = DNS-only (required for Clerk CNAMEs); true = proxied. */
+  readonly proxied: boolean;
+}
+
+/**
+ * Clerk production DNS for custom domain — targets must match Clerk dashboard exactly.
+ *
+ * After `infra deploy`, confirm at Cloudflare authoritative NS, then re-run verification in Clerk:
+ * `dig +short @dan.ns.cloudflare.com CNAME accounts.gamezilla.app` → `accounts.clerk.services`
+ * (same pattern for `clerk`, `clk._domainkey`, `clk2._domainkey`, `clkmail`).
+ */
+function clerkCnameRecords(domain: string): readonly RequiredCname[] {
+  return [
+    {
+      name: `accounts.${domain}`,
+      content: 'accounts.clerk.services',
+      proxied: false,
+    },
+    {
+      name: `clerk.${domain}`,
+      content: 'frontend-api.clerk.services',
+      proxied: false,
+    },
+    {
+      name: `clk._domainkey.${domain}`,
+      content: 'dkim1.rtdm52y1jgzn.clerk.services',
+      proxied: false,
+    },
+    {
+      name: `clk2._domainkey.${domain}`,
+      content: 'dkim2.rtdm52y1jgzn.clerk.services',
+      proxied: false,
+    },
+    {
+      name: `clkmail.${domain}`,
+      content: 'mail.rtdm52y1jgzn.clerk.services',
+      proxied: false,
+    },
+  ];
 }
 
 export class DnsRecordsResource extends ResourceBase {
@@ -30,8 +69,9 @@ export class DnsRecordsResource extends ResourceBase {
     const domain = PROJECT_CONFIG.domain;
 
     const required: RequiredCname[] = [
-      { name: domain, content: ctx.pagesSubdomain },
-      { name: `www.${domain}`, content: ctx.pagesSubdomain },
+      { name: domain, content: ctx.pagesSubdomain, proxied: true },
+      { name: `www.${domain}`, content: ctx.pagesSubdomain, proxied: true },
+      ...clerkCnameRecords(domain),
     ];
 
     const res = await fetch(
@@ -46,6 +86,7 @@ export class DnsRecordsResource extends ResourceBase {
         name: string;
         content: string;
         type: string;
+        proxied?: boolean;
       }>;
     };
     const existing = body.result ?? [];
@@ -55,7 +96,8 @@ export class DnsRecordsResource extends ResourceBase {
         (e) => e.name === rec.name && e.type === 'CNAME'
       );
 
-      if (match && match.content === rec.content) {
+      const proxied = match?.proxied ?? false;
+      if (match && match.content === rec.content && proxied === rec.proxied) {
         ok('DNS CNAME', `${rec.name} → ${rec.content} (exists)`);
         continue;
       }
@@ -66,7 +108,10 @@ export class DnsRecordsResource extends ResourceBase {
           {
             method: 'PATCH',
             headers,
-            body: JSON.stringify({ content: rec.content }),
+            body: JSON.stringify({
+              content: rec.content,
+              proxied: rec.proxied,
+            }),
           }
         );
         assert.ok(
@@ -84,7 +129,7 @@ export class DnsRecordsResource extends ResourceBase {
           type: 'CNAME',
           name: rec.name === domain ? '@' : rec.name,
           content: rec.content,
-          proxied: true,
+          proxied: rec.proxied,
           ttl: 1,
         }),
       });

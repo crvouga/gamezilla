@@ -31,12 +31,7 @@ import {
 import { useQuery } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { SpaceGamePicker } from './space-game-picker';
 
 type Space = ReturnType<typeof useSpace>;
@@ -227,7 +222,7 @@ function LeaveSpaceModal({
 }
 
 function ActiveSpaceBody({
-  spaceId,
+  room,
   spaceTitle,
   isHost,
   members,
@@ -236,7 +231,7 @@ function ActiveSpaceBody({
   onPressHome,
   onPressDebug,
 }: {
-  spaceId: string | undefined;
+  room: ReturnType<typeof useSpaceRoom>;
   spaceTitle: string;
   isHost: boolean;
   members: ReturnType<typeof useSpaceMembers>['members'];
@@ -245,7 +240,6 @@ function ActiveSpaceBody({
   onPressHome: () => void;
   onPressDebug: () => void;
 }) {
-  const room = useSpaceRoom(spaceId);
   return (
     <Box sx={{ flex: 1, minHeight: 0 }}>
       <SpaceRoomWireContext.Provider
@@ -278,6 +272,7 @@ function ActiveSpaceBody({
 
 function ActiveSpace({
   spaceId,
+  room,
   space,
   isHost,
   members,
@@ -286,6 +281,7 @@ function ActiveSpace({
   onOpenDebug,
 }: {
   spaceId: string | undefined;
+  room: ReturnType<typeof useSpaceRoom>;
   space: Space;
   isHost: boolean;
   members: ReturnType<typeof useSpaceMembers>['members'];
@@ -317,7 +313,7 @@ function ActiveSpace({
     <SafeAreaView sx={{ flex: 1, background: 'background' }}>
       <Box sx={{ flex: 1, minHeight: 0 }}>
         <ActiveSpaceBody
-          spaceId={spaceId}
+          room={room}
           spaceTitle={space.title}
           isHost={isHost}
           members={members}
@@ -362,6 +358,7 @@ export function SpaceDetailScreen() {
   const space = useSpace(spaceId);
   const currentSpaces = useCurrentSpaces();
   const { members } = useSpaceMembers(spaceId);
+  const room = useSpaceRoom(spaceId);
   const { joinSpace, leaveSpace, endSpace } = useSpaceActions();
   const myId = useMyId();
   const [debugOpen, setDebugOpen] = useState(false);
@@ -378,6 +375,7 @@ export function SpaceDetailScreen() {
       space={space}
       currentSpaces={currentSpaces}
       members={members}
+      room={room}
     />
   );
 
@@ -413,6 +411,7 @@ export function SpaceDetailScreen() {
     <>
       <ActiveSpace
         spaceId={spaceId}
+        room={room}
         space={space}
         isHost={entryForSpace?.role === 'host'}
         members={members}

@@ -413,9 +413,17 @@ msgstr "Check again"
 msgid "Checking…"
 msgstr "Checking…"
 
-#: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-game-picker.tsx
 msgid "Chess"
 msgstr "Chess"
+
+#: apps/client/src/spaces/space-game-picker.tsx
+msgid "Chess is selected for this space. Match setup options are coming next."
+msgstr "Chess is selected for this space. Match setup options are coming next."
+
+#: apps/client/src/spaces/space-game-picker.tsx
+msgid "Chess main menu"
+msgstr "Chess main menu"
 
 #: libs/lib/src/ui/components/picker/picker.tsx
 msgid "Choose"
@@ -496,9 +504,9 @@ msgstr "Close"
 msgid "Colors"
 msgstr "Colors"
 
-#: apps/client/src/spaces/space-detail-screen.tsx
-#: apps/client/src/spaces/space-detail-screen.tsx
-#: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-game-picker.tsx
+#: apps/client/src/spaces/space-game-picker.tsx
+#: apps/client/src/spaces/space-game-picker.tsx
 msgid "Coming soon"
 msgstr "Coming soon"
 
@@ -535,7 +543,7 @@ msgstr "Confirm"
 msgid "Connect"
 msgstr "Connect"
 
-#: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-game-picker.tsx
 msgid "Connect Four"
 msgstr "Connect Four"
 
@@ -935,7 +943,7 @@ msgstr "Go home"
 msgid "Go to {target}"
 msgstr "Go to {target}"
 
-#: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-game-picker.tsx
 msgid "Gomoku"
 msgstr "Gomoku"
 
@@ -1472,6 +1480,10 @@ msgstr "Patches"
 msgid "People in this space"
 msgstr "People in this space"
 
+#: apps/client/src/spaces/space-game-picker.tsx
+msgid "Pick a different game"
+msgstr "Pick a different game"
+
 #: apps/client/src/account/account-device-detail-body.tsx
 msgid "Platform"
 msgstr "Platform"
@@ -1965,6 +1977,10 @@ msgstr "Tap to return to your space"
 msgid "TextInput"
 msgstr "TextInput"
 
+#: apps/client/src/spaces/space-game-picker.tsx
+msgid "The host picks the game for this space."
+msgstr "The host picks the game for this space."
+
 #: apps/client/src/connection/server-status-screen.tsx
 msgid "The OS reports the device as offline, but the server is reachable. This is usually a quirk of the platform's network reporting and can be ignored."
 msgstr "The OS reports the device as offline, but the server is reachable. This is usually a quirk of the platform's network reporting and can be ignored."
@@ -2014,7 +2030,7 @@ msgstr "This is a modal screen."
 msgid "This tab"
 msgstr "This tab"
 
-#: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-game-picker.tsx
 msgid "Tic-tac-toe"
 msgstr "Tic-tac-toe"
 

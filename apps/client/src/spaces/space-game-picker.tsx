@@ -1,4 +1,7 @@
-import { SpaceGame, type SelectedSpaceGame } from '@gamezilla/domain/spaces/games/games';
+import {
+  SpaceGame,
+  type SelectedSpaceGame,
+} from '@gamezilla/domain/spaces/games/games';
 import { Box, Button, Center, Pressable, Text } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
@@ -91,7 +94,11 @@ function GamesGrid({
           justifyContent: 'flex-start',
         }}
       >
-        <GameTile title={<Trans>Chess</Trans>} selected={selectedGame === SpaceGame.chess} {...chessProps}>
+        <GameTile
+          title={<Trans>Chess</Trans>}
+          selected={selectedGame === SpaceGame.chess}
+          {...chessProps}
+        >
           <ChessArtwork size={128} />
         </GameTile>
         <GameTile

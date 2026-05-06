@@ -9,6 +9,7 @@ import { Trans } from '@lingui/react/macro';
 import { useMemo } from 'react';
 import { useWindowDimensions } from 'react-native';
 
+import type { SpaceRoomUiState } from './use-space-room';
 import type { useCurrentSpaces, useSpace } from './use-spaces';
 import type { SpaceMemberRow } from './types';
 
@@ -41,6 +42,12 @@ type SpaceDebugPayload = {
     isLoading: CurrentSpacesState['isLoading'];
   };
   members: SpaceMemberRow[];
+  room: {
+    roomActive: boolean;
+    isSynced: boolean;
+    count: number;
+    selectedGame: SpaceRoomUiState['selectedGame'];
+  };
 };
 
 function buildPayload(args: {
@@ -50,8 +57,10 @@ function buildPayload(args: {
   space: Space;
   currentSpaces: CurrentSpacesState;
   members: SpaceMemberRow[];
+  room: SpaceRoomUiState;
 }): SpaceDebugPayload {
-  const { selfDeviceId, auth, spaceId, space, currentSpaces, members } = args;
+  const { selfDeviceId, auth, spaceId, space, currentSpaces, members, room } =
+    args;
   return {
     self: {
       deviceId: selfDeviceId,
@@ -78,6 +87,12 @@ function buildPayload(args: {
       isLoading: currentSpaces.isLoading,
     },
     members,
+    room: {
+      roomActive: room.roomActive,
+      isSynced: room.isSynced,
+      count: room.count,
+      selectedGame: room.selectedGame,
+    },
   };
 }
 
@@ -88,6 +103,7 @@ export type SpaceDebugModalProps = {
   space: Space;
   currentSpaces: CurrentSpacesState;
   members: SpaceMemberRow[];
+  room: SpaceRoomUiState;
 };
 
 export function SpaceDebugModal({
@@ -97,6 +113,7 @@ export function SpaceDebugModal({
   space,
   currentSpaces,
   members,
+  room,
 }: SpaceDebugModalProps) {
   const deviceService = useDeviceService();
   const auth = useAuth();
@@ -113,8 +130,9 @@ export function SpaceDebugModal({
         space,
         currentSpaces,
         members,
+        room,
       }),
-    [auth, currentSpaces, members, selfDeviceId, space, spaceId]
+    [auth, currentSpaces, members, room, selfDeviceId, space, spaceId]
   );
 
   return (
