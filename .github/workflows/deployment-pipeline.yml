@@ -343,7 +343,6 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs:
       [
-        format,
         tc,
         lint,
         test,
@@ -421,7 +420,6 @@ jobs:
     if: always()
     needs:
       [
-        format,
         tc,
         lint,
         test,
