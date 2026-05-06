@@ -10,9 +10,11 @@ import { useMemo } from 'react';
 import type { WebSocketRoomTransport } from '@gamezilla/room/client/adapters/transport/websocket';
 
 import { useMyId } from '@gamezilla/client/auth/auth-context';
+import type { SelectedSpaceGame } from '@gamezilla/domain/spaces/games/games';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
 import { useSpaceRoomConnection } from './use-space-room-connection';
 import { useSpaceRoomCounterControls } from './use-space-room-counter-controls';
+import { useSpaceRoomGameControls } from './use-space-room-game-controls';
 import { useCurrentSpaces, useSpace } from './use-spaces';
 
 export type SpaceRoomUiState = {
@@ -22,6 +24,8 @@ export type SpaceRoomUiState = {
   isSynced: boolean;
   roomActive: boolean;
   transport: WebSocketRoomTransport | null;
+  selectedGame: SelectedSpaceGame;
+  selectGame: (game: SelectedSpaceGame) => void;
 };
 
 export function useSpaceRoom(spaceId: string | undefined): SpaceRoomUiState {
@@ -61,9 +65,11 @@ export function useSpaceRoom(spaceId: string | undefined): SpaceRoomUiState {
     storage,
     sessionToken
   );
-  const controls = useSpaceRoomCounterControls(room, roomRef);
+  const counter = useSpaceRoomCounterControls(room, roomRef);
+  const games = useSpaceRoomGameControls(room, roomRef);
   return {
-    ...controls,
+    ...counter,
+    ...games,
     roomActive: room !== null,
     transport,
   };
