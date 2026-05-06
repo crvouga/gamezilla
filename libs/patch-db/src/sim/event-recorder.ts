@@ -270,7 +270,7 @@ export function summarizeQueries(queries: PatchDbQuery[]): QuerySummary[] {
     if (q.entityType !== undefined) {
       s.entityType = q.entityType;
     }
-    if (q.entityId !== undefined) {
+    if (q.entityId !== undefined && q.entityId !== null) {
       s.entityId = q.entityId;
     }
     if (q.limit !== undefined) {

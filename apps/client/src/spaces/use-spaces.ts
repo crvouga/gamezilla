@@ -297,32 +297,27 @@ function compareMembers(a: SpaceMemberRow, b: SpaceMemberRow): number {
 export function useSpaceMembers(spaceId: string | undefined) {
   const myId = useMyId();
   const sid =
-    typeof spaceId === 'string' && spaceId.length > 0
-      ? spaceId
-      : NO_ENTITY_PLACEHOLDER;
+    typeof spaceId === 'string' && spaceId.length > 0 ? spaceId : null;
 
-  const spaceRes = useQuery(
-    sid === NO_ENTITY_PLACEHOLDER
-      ? { entityType: SPACE_ENTITY_TYPE, limit: 0 }
-      : { entityType: SPACE_ENTITY_TYPE, entityId: sid }
-  );
+  const spaceRes = useQuery({
+    entityType: SPACE_ENTITY_TYPE,
+    entityId: sid,
+    limit: sid === null ? 0 : 1,
+  });
   const spaceEntity = spaceRes.entities[0] ?? null;
   const hostId = readStringAttr(spaceEntity?.attributes, SpaceAttr.hostId);
 
-  const membersRes = useQuery(
-    sid === NO_ENTITY_PLACEHOLDER
-      ? { entityType: SPACE_MEMBERSHIP_ENTITY_TYPE, limit: 0 }
-      : {
-          entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
-          where: {
-            type: 'and',
-            clauses: [
-              { type: '=', attribute: SpaceMembershipAttr.spaceId, value: sid },
-              { type: 'not_exists', attribute: SpaceMembershipAttr.leftAt },
-            ],
-          },
-        }
-  );
+  const membersRes = useQuery({
+    limit: sid === null ? 0 : 1,
+    entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
+    where: {
+      type: 'and',
+      clauses: [
+        { type: '=', attribute: SpaceMembershipAttr.spaceId, value: sid },
+        { type: 'not_exists', attribute: SpaceMembershipAttr.leftAt },
+      ],
+    },
+  });
 
   const guestIds = useMemo(() => {
     const ids: string[] = [];
@@ -347,7 +342,7 @@ export function useSpaceMembers(spaceId: string | undefined) {
   const { profileById } = useProfileEntities(memberIdsForProfiles);
 
   const members: SpaceMemberRow[] = useMemo(() => {
-    if (!hostId || sid === NO_ENTITY_PLACEHOLDER) return [];
+    if (!hostId || sid === null) return [];
     const rows: SpaceMemberRow[] = [];
     rows.push({
       memberId: hostId,

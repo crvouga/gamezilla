@@ -135,6 +135,7 @@ export class SyncPatchDb implements PatchDb {
   private pushScheduleHandle: SyncPatchDbScheduleHandle | null = null;
   private pollScheduleHandle: SyncPatchDbScheduleHandle | null = null;
   private pollInProgress = false;
+  private pollEmptyLocalPending = false;
   private pushConsecutiveFailures = 0;
   private pollConsecutiveFailures = 0;
 
@@ -163,8 +164,29 @@ export class SyncPatchDb implements PatchDb {
       isDestroyed: () => this.destroyed,
       onFirstSubscriber: () => this.ensurePollTimer(),
       onLastUnsubscribe: () => this.maybeStopPollTimer(),
+      onHydratedEmptyOnce: () => {
+        // Best-effort acceleration for newly subscribed queries that read empty locally:
+        // trigger one extra poll so we don't wait for the next interval tick.
+        this.maybePollSoonAfterHydratedEmpty();
+      },
     });
     this.ensurePushTimer();
+  }
+
+  private maybePollSoonAfterHydratedEmpty(): void {
+    if (this.destroyed) return;
+    const pollDriver = this.options.pollDriver ?? 'interval';
+    if (pollDriver === 'manual') return;
+    if (this.pollScheduleHandle === null) return;
+    // One-shot latch: if multiple empty reads arrive in a burst, we still only
+    // want at most one follow-up poll.
+    if (this.pollEmptyLocalPending) return;
+    this.pollEmptyLocalPending = true;
+    if (this.pollInProgress) return;
+    fireAndForget(this.poll(), {
+      component: 'SyncPatchDb',
+      op: 'poll-empty-local',
+    });
   }
 
   /**
@@ -547,6 +569,15 @@ export class SyncPatchDb implements PatchDb {
       this.onPollFailure(err);
     } finally {
       this.pollInProgress = false;
+      if (this.pollEmptyLocalPending && !this.destroyed) {
+        // Drain the one-shot latch. Fire a single follow-up poll so empty local
+        // queries that arrived mid-poll don't wait for the next interval tick.
+        this.pollEmptyLocalPending = false;
+        fireAndForget(this.poll(), {
+          component: 'SyncPatchDb',
+          op: 'poll-empty-local-drain',
+        });
+      }
     }
   }
 }

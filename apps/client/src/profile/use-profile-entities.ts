@@ -12,11 +12,10 @@ export function useProfileEntities(profileEntityIds: string[]): {
     [profileEntityIds]
   );
 
-  const profilesResult = useQuery(
-    sortedUniqueIds.length === 0
-      ? { entityType: PROFILE_ENTITY_TYPE, limit: 0 }
-      : { entityType: PROFILE_ENTITY_TYPE, entityId: sortedUniqueIds }
-  );
+  const profilesResult = useQuery({
+    entityType: PROFILE_ENTITY_TYPE,
+    entityId: sortedUniqueIds,
+  });
 
   const profileById = useMemo(() => {
     const m = new Map<string, Entity>();

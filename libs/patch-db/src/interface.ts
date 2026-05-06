@@ -95,8 +95,8 @@ export function assertPatch(a: Assert, p: unknown): asserts p is Patch {
 }
 
 export {
-  PATCH_CREATED_BY_ID,
   isSyncRejectedPatchAttributes,
+  PATCH_CREATED_BY_ID,
   PATCH_META_KEYS,
   PATCH_REJECTED,
   PATCH_SESSION_ID,
@@ -341,7 +341,7 @@ export type PatchDbQueryOrderBy = {
 
 export type PatchDbQuery = {
   entityType?: string;
-  entityId?: string | string[];
+  entityId?: string | string[] | null;
   where?: PatchDbQueryWhereClause;
   orderBy?: PatchDbQueryOrderBy[];
   limit?: number;
@@ -388,16 +388,16 @@ export type Unsubscribe = () => void;
 
 export {
   isPatchDbAuthContext,
-  isPatchDbSystemContext,
   isPatchDbClientContext,
+  isPatchDbSystemContext,
   OPEN_PATCHES_DB_CONTEXT,
   PATCHES_DB_SYSTEM_CONTEXT,
 } from './context';
 export type {
   PatchDbAuthContext,
+  PatchDbClientContext,
   PatchDbContext,
   PatchDbSystemContext,
-  PatchDbClientContext,
 } from './context';
 
 /** AND-combines an optional existing where-clause with an additional clause. */

@@ -18,6 +18,11 @@ export type ActiveQuery = {
   inFlight: Promise<void> | null;
   /** True when an invalidation arrived mid-read, scheduling exactly one re-read on settle. */
   rerunPending: boolean;
+  /**
+   * One-shot flag for this entry lifecycle. True after we have observed a hydrated empty
+   * local read and fired {@link ActiveQueryRegistryOptions.onHydratedEmptyOnce}.
+   */
+  hydratedEmptyFired: boolean;
   pubSubUnsub: Unsubscribe | null;
 };
 
@@ -29,6 +34,16 @@ export type ActiveQueryRegistryOptions = {
   onFirstSubscriber: () => void;
   /** Called when the registry transitions from non-empty -> empty. */
   onLastUnsubscribe: () => void;
+  /**
+   * Called exactly once per query-key lifecycle when the first hydrated local
+   * result is empty (no entities and no patches). Intended to trigger a best-effort
+   * immediate poll so newly subscribed queries don't wait for the next poll interval.
+   */
+  onHydratedEmptyOnce?: (args: {
+    queryKey: string;
+    query: PatchDbQuery;
+    result: PatchDbResult;
+  }) => void;
 };
 
 /**
@@ -44,6 +59,7 @@ export class ActiveQueryRegistry {
   private readonly isDestroyed: () => boolean;
   private readonly onFirstSubscriber: () => void;
   private readonly onLastUnsubscribe: () => void;
+  private readonly onHydratedEmptyOnce: ActiveQueryRegistryOptions['onHydratedEmptyOnce'];
 
   constructor(options: ActiveQueryRegistryOptions) {
     this.read = options.read;
@@ -51,6 +67,7 @@ export class ActiveQueryRegistry {
     this.isDestroyed = options.isDestroyed;
     this.onFirstSubscriber = options.onFirstSubscriber;
     this.onLastUnsubscribe = options.onLastUnsubscribe;
+    this.onHydratedEmptyOnce = options.onHydratedEmptyOnce;
   }
 
   /** Test/diagnostics: snapshot of all live entries. */
@@ -103,6 +120,7 @@ export class ActiveQueryRegistry {
       lastResult: null,
       inFlight: null,
       rerunPending: false,
+      hydratedEmptyFired: false,
       pubSubUnsub: null,
     };
     this.entries.set(key, entry);
@@ -140,8 +158,16 @@ export class ActiveQueryRegistry {
       if (this.isDestroyed()) return;
       entry.lastResult = result;
       for (const l of [...entry.listeners]) l(result);
+      if (
+        !entry.hydratedEmptyFired &&
+        result.entities.length === 0 &&
+        result.patches.length === 0
+      ) {
+        entry.hydratedEmptyFired = true;
+        this.onHydratedEmptyOnce?.({ queryKey: key, query: entry.query, result });
+      }
     })();
-    entry.inFlight = run.finally(() => {
+    const settle = () => {
       entry.inFlight = null;
       const shouldRerun =
         entry.rerunPending && entry.listeners.size > 0 && !this.isDestroyed();
@@ -153,7 +179,15 @@ export class ActiveQueryRegistry {
           queryKey: key,
         });
       }
-    });
+    };
+    // Avoid relying on Promise.prototype.finally for environments where it may be missing.
+    entry.inFlight = Promise.resolve(run).then(
+      () => settle(),
+      (err) => {
+        settle();
+        throw err;
+      }
+    );
     await entry.inFlight;
   }
 }

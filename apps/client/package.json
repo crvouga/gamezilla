@@ -4,7 +4,7 @@
   "private": true,
   "main": "index.js",
   "dependencies": {
-    "@clerk/clerk-expo": "^2.19.0",
+    "@clerk/clerk-expo": "^2.19.36",
     "@dicebear/collection": "^9.4.2",
     "@dicebear/core": "^9.4.2",
     "@expo-google-fonts/nunito": "^0.4.2",

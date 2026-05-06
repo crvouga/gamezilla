@@ -21,7 +21,6 @@
     "@react-navigation/bottom-tabs",
     "@react-navigation/elements",
     "absurd-sql",
-    "expo-crypto",
     "expo-font",
     "expo-haptics",
     "expo-image",

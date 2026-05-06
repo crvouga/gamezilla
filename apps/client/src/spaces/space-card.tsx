@@ -1,5 +1,6 @@
 import { DeviceAvatar } from '@gamezilla/client/profile/device-avatar';
 import {
+  AvatarGroup,
   Box,
   GradientBox,
   Pressable,
@@ -9,8 +10,10 @@ import {
 } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
+import { useMemo } from 'react';
 
 import type { SpaceView } from './types';
+import { useSpaceMembers } from './use-spaces';
 
 function HostHeader({ space }: { space: SpaceView }) {
   return (
@@ -66,6 +69,54 @@ export type SpaceCardProps = {
   space: SpaceView;
 };
 
+const AVATAR_GROUP_RING = 'surface' as const;
+
+function GuestSummary({ spaceId }: { spaceId: string }) {
+  const { t } = useLingui();
+  const { members } = useSpaceMembers(spaceId);
+  const guests = useMemo(
+    () => members.filter((m) => m.role === 'guest'),
+    [members]
+  );
+  const guestCount = guests.length;
+  const guestCountLabel =
+    guestCount === 1 ? t`1 guest` : t`${guestCount} guests`;
+  const guestNamesLabel = useMemo(() => {
+    if (guests.length === 0) return t`No guests yet`;
+    return guests
+      .map((g) => (g.displayName.trim().length > 0 ? g.displayName : g.memberId))
+      .join(', ');
+  }, [guests, t]);
+
+  return (
+    <Box sx={{ mt: 3, gap: 1.5 }}>
+      <Text
+        variant="caption"
+        sx={{ color: 'rgba(255,255,255,0.95)' }}
+        label={guestCountLabel}
+      />
+      {guestCount > 0 ? (
+        <AvatarGroup size={24} maxVisible={6} ringColor={AVATAR_GROUP_RING}>
+          {guests.map((member) => (
+            <DeviceAvatar
+              key={member.memberId}
+              avatarConfig={member.avatarConfig}
+              seedFallback={member.memberId}
+              size={24}
+            />
+          ))}
+        </AvatarGroup>
+      ) : null}
+      <Text
+        variant="caption"
+        sx={{ color: 'rgba(255,255,255,0.9)' }}
+        numberOfLines={1}
+        label={guestNamesLabel}
+      />
+    </Box>
+  );
+}
+
 export function SpaceCard({ space }: SpaceCardProps) {
   const { t } = useLingui();
   const router = useRouter();
@@ -99,13 +150,7 @@ export function SpaceCard({ space }: SpaceCardProps) {
           <HostHeader space={space} />
           <LiveBadge />
         </Box>
-        <Box sx={{ mt: 3 }}>
-          <Text
-            variant="caption"
-            sx={{ color: 'rgba(255,255,255,0.95)' }}
-            label={<Trans>Space</Trans>}
-          />
-        </Box>
+        <GuestSummary spaceId={space.id} />
       </GradientBox>
     </Pressable>
   );

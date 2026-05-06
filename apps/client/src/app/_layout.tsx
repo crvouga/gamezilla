@@ -30,7 +30,6 @@ function AppStack() {
         name="sso-callback"
         options={{
           headerShown: false,
-          /* eslint-disable-next-line lingui/no-unlocalized-strings */
           animation: 'fade',
         }}
       />
