@@ -2,6 +2,8 @@ import { assert } from '@gamezilla/lib/assert';
 import {
   assertOffsetLimitFragment,
   assertOrderByFragment,
+  assertSqlPrefix,
+  assertWhereFragment,
 } from '@gamezilla/lib/sqlite';
 import type { PatchDbQuery, PatchDbQueryWhereClause } from '../interface';
 import { assertAttribute, assertDirection } from '../interface';
@@ -81,6 +83,11 @@ function buildContainsClause(
 }
 
 function buildSetClause(clause: SetClause, jsonColumn: string): WhereFragment {
+  assert.ok(
+    Array.isArray(clause.values) && clause.values.length > 0,
+    `Empty values list for ${clause.type} clause would produce invalid SQL "IN ()"`,
+    { clause }
+  );
   const col = `${jsonColumn}::jsonb`;
   const key = attributeKey(clause.attribute);
   const placeholders = clause.values.map(() => '?::text').join(', ');
@@ -113,6 +120,11 @@ function buildAndOrClause(
   clause: AndOrClause,
   jsonColumn: string
 ): WhereFragment {
+  assert.ok(
+    Array.isArray(clause.clauses) && clause.clauses.length > 0,
+    `Empty clauses list for ${clause.type} clause would produce invalid SQL "()"`,
+    { clause }
+  );
   const parts = clause.clauses.map((c) =>
     buildWhereClauseForColumn(c, jsonColumn)
   );
@@ -151,21 +163,81 @@ const CLAUSE_BUILDERS: Record<PatchDbQueryWhereClause['type'], ClauseBuilder> =
     not: (c, j) => buildNotClause(c as NotClause, j),
   };
 
+/** Always-false predicate, used to short-circuit `in []` / `or []`. */
+const ALWAYS_FALSE: WhereFragment = { sql: '(1 = 0)', params: [] };
+/** Always-true predicate, used to short-circuit `not_in []` / `and []`. */
+const ALWAYS_TRUE: WhereFragment = { sql: '(1 = 1)', params: [] };
+
+/**
+ * Returns a trivial WhereFragment when `clause` is an empty collection clause
+ * whose answer is fixed by set theory — `in []` matches nothing, `not_in []`
+ * matches everything, `and []` is vacuously true, `or []` is vacuously false.
+ *
+ * Short-circuiting here keeps the assertion in {@link buildSetClause} /
+ * {@link buildAndOrClause} as a real defense — those should never be called
+ * with an empty collection — while letting the caller pass a runtime-derived
+ * empty list (e.g. an ABAC predicate when the user has zero memberships)
+ * without crashing.
+ */
+function trivialFragmentForEmptyCollection(
+  clause: PatchDbQueryWhereClause
+): WhereFragment | null {
+  if (clause.type === 'in' && clause.values.length === 0) return ALWAYS_FALSE;
+  if (clause.type === 'not_in' && clause.values.length === 0) {
+    return ALWAYS_TRUE;
+  }
+  if (clause.type === 'and' && clause.clauses.length === 0) return ALWAYS_TRUE;
+  if (clause.type === 'or' && clause.clauses.length === 0) return ALWAYS_FALSE;
+  return null;
+}
+
 function buildWhereClauseForColumn(
   clause: PatchDbQueryWhereClause,
   jsonColumn: string
 ): WhereFragment {
+  const trivial = trivialFragmentForEmptyCollection(clause);
+  if (trivial !== null) return trivial;
   const builder = CLAUSE_BUILDERS[clause.type];
   assert.defined(builder, 'Invalid where clause type');
-  return builder(clause, jsonColumn);
+  const fragment = builder(clause, jsonColumn);
+  assertWhereFragment(fragment, { clauseType: clause.type, jsonColumn });
+  return fragment;
 }
 
 export function buildWhereClause(
   clause: PatchDbQueryWhereClause,
   columnPrefix = ''
 ): WhereFragment {
+  assertSqlPrefix(columnPrefix, 'Invalid column prefix for where clause');
   const jsonColumn = `${columnPrefix}attributes`;
   return buildWhereClauseForColumn(clause, jsonColumn);
+}
+
+/**
+ * Pushes an `entity_id = ?` / `entity_id IN (?, …)` predicate onto `conditions`.
+ *
+ * An empty `entityId[]` short-circuits the whole query to "no matches" by
+ * pushing `1=0` — same semantics as `in []` in {@link buildSetClause}.
+ */
+function pushEntityIdCondition(
+  query: PatchDbQuery,
+  conditions: string[],
+  params: unknown[],
+  columnExpr: string
+): void {
+  if (query.entityId === null || query.entityId === undefined) return;
+  if (Array.isArray(query.entityId)) {
+    if (query.entityId.length === 0) {
+      conditions.push('1 = 0');
+      return;
+    }
+    const placeholders = query.entityId.map(() => '?').join(', ');
+    conditions.push(`${columnExpr} IN (${placeholders})`);
+    params.push(...query.entityId);
+    return;
+  }
+  conditions.push(`${columnExpr} = ?`);
+  params.push(query.entityId);
 }
 
 export function buildSnapshotConditions(query: PatchDbQuery): {
@@ -180,16 +252,7 @@ export function buildSnapshotConditions(query: PatchDbQuery): {
     params.push(query.entityType);
   }
 
-  if (query.entityId !== null && query.entityId !== undefined) {
-    if (Array.isArray(query.entityId)) {
-      const placeholders = query.entityId.map(() => '?').join(', ');
-      conditions.push(`entity_id IN (${placeholders})`);
-      params.push(...query.entityId);
-    } else {
-      conditions.push('entity_id = ?');
-      params.push(query.entityId);
-    }
-  }
+  pushEntityIdCondition(query, conditions, params, 'entity_id');
 
   if (query.where) {
     const fragment = buildWhereClause(query.where);
@@ -208,6 +271,10 @@ export function buildPatchConditions(
   query: PatchDbQuery,
   tableAlias = 'p'
 ): { conditions: string[]; params: unknown[] } {
+  assertSqlPrefix(
+    `${tableAlias}.`,
+    'Invalid tableAlias for patch conditions (must be a simple SQL identifier)'
+  );
   const conditions: string[] = [];
   const params: unknown[] = [];
 
@@ -216,16 +283,12 @@ export function buildPatchConditions(
     params.push(query.entityType);
   }
 
-  if (query.entityId !== null && query.entityId !== undefined) {
-    if (Array.isArray(query.entityId)) {
-      const placeholders = query.entityId.map(() => '?').join(', ');
-      conditions.push(`${tableAlias}.entity_id IN (${placeholders})`);
-      params.push(...query.entityId);
-    } else {
-      conditions.push(`${tableAlias}.entity_id = ?`);
-      params.push(query.entityId);
-    }
-  }
+  pushEntityIdCondition(
+    query,
+    conditions,
+    params,
+    `${tableAlias}.entity_id`
+  );
 
   if (query.where) {
     const jsonColumn = `${tableAlias}.attributes`;
@@ -246,6 +309,10 @@ export function buildOrderSQL(
   defaultOrder: string,
   attributePrefix = ''
 ): string {
+  assertSqlPrefix(
+    attributePrefix,
+    'Invalid attributePrefix for ORDER BY (must be empty or "<identifier>.")'
+  );
   if (query.orderBy && query.orderBy.length > 0) {
     const custom = query.orderBy
       .map((o) => {
@@ -273,10 +340,18 @@ export function buildLimitSQL(query: PatchDbQuery): {
   let sql = '';
   const params: unknown[] = [];
   if (query.limit !== null && query.limit !== undefined) {
+    assert.nonNegativeInteger(
+      query.limit,
+      'query.limit must be a non-negative safe integer'
+    );
     sql += ' LIMIT ?';
     params.push(query.limit);
   }
   if (query.offset !== null && query.offset !== undefined) {
+    assert.nonNegativeInteger(
+      query.offset,
+      'query.offset must be a non-negative safe integer'
+    );
     sql += ' OFFSET ?';
     params.push(query.offset);
   }

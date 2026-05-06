@@ -16,7 +16,13 @@ const NO_ENTITY_PLACEHOLDER = '__patch_db_no_entity__';
 
 type ProfileResult = {
   deviceId: string;
-  /** Profile row id (`accountId` when signed in, else `deviceId`), or null when missing. */
+  /**
+   * Writable profile row id (`accountId` when signed in, else `deviceId`).
+   * Non-null whenever we can derive an id for the current session — does NOT
+   * gate on the patch-db row having hydrated, because the runtime bootstrap
+   * (`entityBootstrapEffect`) creates the row idempotently and writes target
+   * the id directly. Only `null` when neither account nor device id is known.
+   */
   profileId: string | null;
   entity: Entity | null;
   displayLabel: string;
@@ -45,7 +51,7 @@ function buildProfileResult(args: {
     : null;
   return {
     deviceId,
-    profileId: usable ? effectiveProfileId : null,
+    profileId: effectiveProfileId.length > 0 ? effectiveProfileId : null,
     entity: usable ? profileEntity : null,
     displayLabel,
     avatarConfig,

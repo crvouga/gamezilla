@@ -58,11 +58,6 @@ function ProfileUsernameScreenBody({
   setValue: (v: string) => void;
 }): ReactNode {
   const { t } = useLingui();
-  // The runtime bootstrap (`entityBootstrapEffect`) guarantees the profile
-  // row exists; until the local query has hydrated, Save stays disabled but
-  // the input must remain editable so the user can type without waiting on
-  // patch-db. Gating `editable` on profileId leaves the input focusable but
-  // silently swallows keystrokes on web, which looks like a broken keyboard.
   return (
     <Box style={sx}>
       <TextInput
@@ -117,7 +112,7 @@ export function ProfileUsernameScreen() {
           label: <Trans>Save</Trans>,
           onPress: () => void save(),
           loading: saving,
-          disabled: saving || profileId === null,
+          disabled: saving,
         },
       ]}
       keyboardAvoiding

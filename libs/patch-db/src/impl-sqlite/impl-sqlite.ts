@@ -1,5 +1,6 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { assertWhereFragment } from '@gamezilla/lib/sqlite';
 import { PatchDbHookRegistry } from '../hook-registry';
 import type {
   Attribute,
@@ -375,15 +376,18 @@ export class PatchDbImplSqlite implements PatchDb {
     if (updates.length === 0) return;
     const touchedPatchIds: string[] = [];
     for (const { patchId, attributes } of updates) {
+      assertPatchId(patchId);
       if (Object.keys(attributes).length === 0) continue;
       for (const key of Object.keys(attributes)) {
         assertAttribute(key);
       }
       const { expr, params } = buildSqliteUpdateJsonSet(attributes);
-      await this.sqlClient.run(
-        `UPDATE patches SET attributes = ${expr} WHERE patch_id = ?`,
-        [...params, patchId]
+      const sql = `UPDATE patches SET attributes = ${expr} WHERE patch_id = ?`;
+      assertWhereFragment(
+        { sql, params: [...params, patchId] },
+        { context: 'PatchDbImplSqlite.update' }
       );
+      await this.sqlClient.run(sql, [...params, patchId]);
       touchedPatchIds.push(patchId);
     }
     if (touchedPatchIds.length === 0) return;

@@ -50,6 +50,16 @@ const EXTERNALLY_MANAGED_KEYS: ReadonlyArray<string> = [
   'PLANETSCALE_ORG',
   'WEB_CLIENT_GOOGLE_CLIENT_ID',
   'WEB_CLIENT_GOOGLE_CLIENT_SECRET',
+  // Auto-populated by the Doppler ↔ Planetscale integration alongside
+  // PLANETSCALE_DATABASE / PLANETSCALE_ORG. Not consumed by the infra CLI
+  // (we connect via PLANETSCALE_SERVICE_TOKEN_* + DB_URL), but kept so the
+  // integration sync doesn't fight the orphan check.
+  'PLANETSCALE_DATABASE_URL',
+  // Stripe publishable key (pk_…) mirrored from the Stripe Dashboard.
+  // Not yet wired into the client; reserved for the eventual Stripe.js /
+  // Checkout-Elements integration. Acknowledge it here so it stops
+  // tripping the orphan check.
+  'STRIPE_PUBLISHABLE_KEY',
 ];
 
 /** Doppler's built-in config metadata — always present, never user-managed. */

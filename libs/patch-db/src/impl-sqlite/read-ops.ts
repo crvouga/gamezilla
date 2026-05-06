@@ -1,5 +1,6 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { assertWhereFragment } from '@gamezilla/lib/sqlite';
 import type { Entity, Patch, PatchDbQuery, PatchDbResult } from '../interface';
 import { toEntity, toPatch } from './mappers';
 import {
@@ -50,9 +51,15 @@ async function readOnePatchesMode(
   const orderSQL = buildOrderSQL(query, 'ORDER BY p.patch_id ASC', 'p.');
   const limit = buildLimitSQL(query);
 
+  const sql = `SELECT p.*, COUNT(*) OVER() AS total_count FROM patches p WHERE ${whereSQL} ${orderSQL}${limit.sql}`;
+  const allParams = [...params, ...limit.params];
+  assertWhereFragment(
+    { sql, params: allParams },
+    { context: 'sqlite.readOnePatchesMode' }
+  );
   const rows = await sqlClient.query<PatchRow & { total_count: number }>(
-    `SELECT p.*, COUNT(*) OVER() AS total_count FROM patches p WHERE ${whereSQL} ${orderSQL}${limit.sql}`,
-    [...params, ...limit.params]
+    sql,
+    allParams
   );
 
   const total = rows.length > 0 ? Number(rows[0]!.total_count) : 0;
@@ -186,22 +193,23 @@ SELECT p.patch_id, p.entity_id, p.entity_type, p.attributes, p.created_at, p.rec
        (SELECT COUNT(*) FROM cand) AS total_count
 FROM cand p
 ${orderSQL}${limit.sql}`;
+  const allParams = [...patchParams, ...cursor.params, ...limit.params];
+  assertWhereFragment(
+    { sql: selectSql, params: allParams },
+    { context: 'sqlite.readOnePatchBased' }
+  );
 
   const rows = await sqlClient.query<PatchRow & { total_count: number }>(
     selectSql,
-    [...patchParams, ...cursor.params, ...limit.params]
+    allParams
   );
 
-  let total: number;
-  if (rows.length > 0) {
-    total = Number(rows[0]!.total_count);
-  } else {
-    const countRows = await sqlClient.query<{ cnt: number }>(
-      `SELECT COUNT(*) as cnt FROM patches p WHERE ${patchWhereSQL}`,
-      patchParams
-    );
-    total = countRows[0]?.cnt ?? 0;
-  }
+  const total = await resolvePatchBasedTotal(
+    sqlClient,
+    rows,
+    patchWhereSQL,
+    patchParams
+  );
 
   const patches = rows.map(toPatch);
   const hasMore = computeHasMore(query, patches.length, total);
@@ -213,6 +221,22 @@ ${orderSQL}${limit.sql}`;
   const entities = await batchFetchSnapshots(sqlClient, entityKeysOrdered);
 
   return { query, entities, patches, total, hasMore, nextCursor };
+}
+
+async function resolvePatchBasedTotal(
+  sqlClient: SqlClient,
+  rows: readonly { total_count: number }[],
+  patchWhereSQL: string,
+  patchParams: readonly unknown[]
+): Promise<number> {
+  if (rows.length > 0) {
+    return Number(rows[0]!.total_count);
+  }
+  const countRows = await sqlClient.query<{ cnt: number }>(
+    `SELECT COUNT(*) as cnt FROM patches p WHERE ${patchWhereSQL}`,
+    [...patchParams]
+  );
+  return countRows[0]?.cnt ?? 0;
 }
 
 function computeHasMore(
@@ -256,9 +280,15 @@ async function readOneSnapshotBased(
   const orderSQL = buildOrderSQL(query, 'ORDER BY entity_id ASC');
   const limit = buildLimitSQL(query);
 
+  const sql = `SELECT *, COUNT(*) OVER() AS total_count FROM snapshots WHERE ${whereSQL} ${orderSQL}${limit.sql}`;
+  const allParams = [...params, ...limit.params];
+  assertWhereFragment(
+    { sql, params: allParams },
+    { context: 'sqlite.readOneSnapshotBased' }
+  );
   const rows = await sqlClient.query<SnapshotRow & { total_count: number }>(
-    `SELECT *, COUNT(*) OVER() AS total_count FROM snapshots WHERE ${whereSQL} ${orderSQL}${limit.sql}`,
-    [...params, ...limit.params]
+    sql,
+    allParams
   );
 
   const total = rows.length > 0 ? Number(rows[0]!.total_count) : 0;

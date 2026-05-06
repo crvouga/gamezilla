@@ -1,5 +1,6 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { assertWhereFragment } from '@gamezilla/lib/sqlite';
 import { parseAttributes, toEntity, toPatch } from '../impl-sqlite/mappers';
 import type { PatchRow, SnapshotRow } from '../impl-sqlite/types';
 import type { Entity, Patch, PatchDbQuery, PatchDbResult } from '../interface';
@@ -60,14 +61,17 @@ async function readOnePatchesMode(
   const orderSQL = buildOrderSQL(query, 'ORDER BY p.patch_id ASC', 'p.');
   const limit = buildLimitSQL(query);
 
+  const sql = `SELECT p.patch_id, p.entity_id, p.entity_type, p.attributes::text AS attributes,
+              p.created_at, p.recorded_at, p.parent_id, COUNT(*) OVER() AS total_count
+       FROM patches p WHERE ${whereSQL} ${orderSQL}${limit.sql}`;
+  const allParams = [...params, ...limit.params];
+  assertWhereFragment(
+    { sql, params: allParams },
+    { context: 'readOnePatchesMode' }
+  );
   const rows = await sqlClient.query<
     PatchRow & { total_count: string | number }
-  >(
-    `SELECT p.patch_id, p.entity_id, p.entity_type, p.attributes::text AS attributes,
-              p.created_at, p.recorded_at, p.parent_id, COUNT(*) OVER() AS total_count
-       FROM patches p WHERE ${whereSQL} ${orderSQL}${limit.sql}`,
-    [...params, ...limit.params]
-  );
+  >(sql, allParams);
 
   const total = rows.length > 0 ? Number(rows[0]!.total_count) : 0;
   const patches = rows.map((r) => toPatch(toPatchRow(r)));
@@ -235,10 +239,15 @@ async function readOnePatchBased(
     orderSQL,
     limit.sql
   );
+  const allParams = [...patchParams, ...cursor.params, ...limit.params];
+  assertWhereFragment(
+    { sql: selectSql, params: allParams },
+    { context: 'readOnePatchBased' }
+  );
 
   const rows = await sqlClient.query<
     PatchRow & { total_count: string | number }
-  >(selectSql, [...patchParams, ...cursor.params, ...limit.params]);
+  >(selectSql, allParams);
 
   const totalFromRows = totalFromPatchBasedRows(rows);
   const total =
@@ -298,12 +307,15 @@ async function readOneSnapshotBased(
   const orderSQL = buildOrderSQL(query, 'ORDER BY entity_id ASC');
   const limit = buildLimitSQL(query);
 
+  const sql = `SELECT entity_id, entity_type, attributes::text AS attributes, COUNT(*) OVER() AS total_count FROM snapshots WHERE ${whereSQL} ${orderSQL}${limit.sql}`;
+  const allParams = [...params, ...limit.params];
+  assertWhereFragment(
+    { sql, params: allParams },
+    { context: 'readOneSnapshotBased' }
+  );
   const rows = await sqlClient.query<
     SnapshotRow & { total_count: string | number }
-  >(
-    `SELECT entity_id, entity_type, attributes::text AS attributes, COUNT(*) OVER() AS total_count FROM snapshots WHERE ${whereSQL} ${orderSQL}${limit.sql}`,
-    [...params, ...limit.params]
-  );
+  >(sql, allParams);
 
   const total = rows.length > 0 ? Number(rows[0]!.total_count) : 0;
   const entities = rows.map((r) =>
