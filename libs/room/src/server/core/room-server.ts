@@ -74,11 +74,22 @@ export class RoomServer<S extends RoomState, C, E, Identity> {
   private sendWelcomeTo(connectionId: string, fromSeq: number): void {
     const send = this.senders.get(connectionId);
     if (send === undefined) return;
-    void Promise.all([
-      this.storage.loadEventsAfter(this.topic, fromSeq),
-      this.storage.getLastSeq(this.topic),
-    ])
-      .then(([entries, lastSeq]) => {
+    void (async () => {
+      try {
+        const entries = await this.storage.loadEventsAfter(
+          this.topic,
+          fromSeq
+        );
+        // `lastSeq` must match the seq of the last entry the client will apply
+        // after this frame (see client `onWelcomeWire`). Derive it from the
+        // same `entries` tail when non-empty so a buggy or racy `getLastSeq`
+        // cannot disagree with `loadEventsAfter` (e.g. two KV reads diverging).
+        const lastSeqFromBatch =
+          entries.length > 0 ? entries[entries.length - 1]!.seq : undefined;
+        const lastSeq =
+          lastSeqFromBatch !== undefined
+            ? lastSeqFromBatch
+            : await this.storage.getLastSeq(this.topic);
         send({
           v: WIRE_VERSION,
           kind: 'welcome',
@@ -86,8 +97,7 @@ export class RoomServer<S extends RoomState, C, E, Identity> {
           lastSeq,
           entries,
         });
-      })
-      .catch((err: unknown) => {
+      } catch (err: unknown) {
         send({
           v: WIRE_VERSION,
           kind: 'rejected',
@@ -97,7 +107,8 @@ export class RoomServer<S extends RoomState, C, E, Identity> {
             reason: err instanceof Error ? err.message : String(err),
           },
         });
-      });
+      }
+    })();
   }
 
   private sendDedupReplay(

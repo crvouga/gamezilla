@@ -1,16 +1,19 @@
 import { ValidationError } from '@gamezilla/lib/assert';
 import { createLogger } from '@gamezilla/lib/logger';
 import type { PatchDbApiConfig } from '@gamezilla/patch-db/api';
+import type { PatchDbContext } from '@gamezilla/patch-db/interface';
 import { createPatchDbApiHandler } from '@gamezilla/patch-db/api';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
 import { createStripeApp } from '@gamezilla/stripe/stripe-app';
+import { makeStripeClient } from '@gamezilla/stripe/make-stripe-client';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import { createAuthClaimApp } from '../auth/route';
-import { resolvePatchDbContext } from '../auth/session-middleware';
+import { createAuthApiRoutes } from '../auth/auth-routes';
+import { createClerkHttpBearerAuthPorts, createSessionAuth } from '../auth';
 import { UnauthorizedError } from '../auth/unauthorized-error';
 import { createClientConfigApp } from '../client-config/route';
 import type { ApiWorkerEnv } from '../config/env';
+import { ApiSecretName } from '../config/secret-names';
 import { healthApp } from '../health/route';
 import { createSpaceApp } from '../spaces/route';
 import type { ApiHandlerConfig } from './config';
@@ -31,13 +34,18 @@ function isAssertionCrash(
   );
 }
 
-function toPatchDbApiConfig(config: ApiHandlerConfig): PatchDbApiConfig {
+function toPatchDbApiConfig(
+  config: ApiHandlerConfig,
+  resolvePatchDbContext: (
+    req: Request
+  ) => Promise<PatchDbContext>
+): PatchDbApiConfig {
   const { db, pubSub, basePath, instrumentation } = config;
   const patchDbConfig: PatchDbApiConfig = {
     db,
     pubSub,
     patchDbHttpAuth: {
-      resolvePatchDbContext: (req) => resolvePatchDbContext(db, req),
+      resolvePatchDbContext: (req) => resolvePatchDbContext(req),
     },
   };
   if (basePath !== undefined) {
@@ -53,11 +61,26 @@ function toPatchDbApiConfig(config: ApiHandlerConfig): PatchDbApiConfig {
  * Composes the API Worker app from mounted sub-apps (`app.route()`), per
  * [Hono best practices](https://hono.dev/docs/guides/best-practices).
  */
-export function createApiApp(config: ApiHandlerConfig) {
-  const { secretStore, db, stripe, requireAuth, webhookSecretDopplerKey } =
-    config;
+export async function createApiApp(config: ApiHandlerConfig) {
+  const { secretStore, db } = config;
+
+  const clerkSecretKey = await secretStore.getRequired(ApiSecretName.clerkSecretKey);
+  const bearerAuth = createClerkHttpBearerAuthPorts(clerkSecretKey);
+  const sessionAuth = createSessionAuth(bearerAuth);
+
+  const stripeRaw = await secretStore.getOptional(ApiSecretName.stripeSecretKey);
+  const stripeKey =
+    typeof stripeRaw === 'string' && stripeRaw.trim().length > 0
+      ? stripeRaw.trim()
+      : null;
+  const stripe = stripeKey !== null ? makeStripeClient(stripeKey) : null;
+
   const { honoApp: patchDbApp, basePath: resolvedBase } =
-    createPatchDbApiHandler(toPatchDbApiConfig(config));
+    createPatchDbApiHandler(
+      toPatchDbApiConfig(config, (req) =>
+        sessionAuth.resolvePatchDbContext(db, req)
+      )
+    );
   /** RPC client keys use the literal mount path; wire URL stays `basePath`-driven. */
   const patchMount = resolvedBase as '/patch-db';
 
@@ -65,18 +88,18 @@ export function createApiApp(config: ApiHandlerConfig) {
     .use('*', apiCors)
     .route('/', healthApp)
     .route('/', createClientConfigApp(db, log, secretStore))
-    .route('/', createAuthClaimApp(db, secretStore))
+    .route('/', createAuthApiRoutes(db, sessionAuth))
     .route(
       '/',
       createStripeApp({
         db,
         secretStore,
         stripe,
-        requireAuth,
-        webhookSecretDopplerKey,
+        requireAuth: (d, req) => sessionAuth.requireAuthContext(d, req),
+        webhookSecretDopplerKey: ApiSecretName.stripeWebhookSecret,
       })
     )
-    .route('/', createSpaceApp({ db }))
+    .route('/', createSpaceApp({ db, bearerAuth }))
     .route(patchMount, patchDbApp)
     .onError((err, c) => {
       if (err instanceof ForbiddenError) {

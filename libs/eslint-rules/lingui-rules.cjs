@@ -13,6 +13,9 @@ function linguiRules() {
           '^[A-Z0-9_-]+$',
           '^[a-z]+(\\.[a-z0-9-]+)+$',
           '^#[0-9a-fA-F]{3,8}$',
+          // expo-router / React Navigation — not user-facing copy
+          '^fade$',
+          '^sso-callback$',
         ],
         ignoreNames: [
           'testID',
@@ -123,6 +126,10 @@ function linguiRules() {
           { regex: { pattern: 'className', flags: 'i' } },
           { regex: { pattern: 'TestID$', flags: '' } },
           { regex: { pattern: 'testID$', flags: '' } },
+          'animation',
+          'presentation',
+          'anchor',
+          'options',
         ],
         ignoreFunctions: [
           'console.*',

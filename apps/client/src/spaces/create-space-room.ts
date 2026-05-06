@@ -18,6 +18,8 @@ export type CreateSpaceRoomParams = {
   storage: KeyValueStorage;
   /** Actor id (signed-in account or install id); space DO auth + local room handle. */
   myId: string;
+  /** Install UUID — required with Clerk JWT for `/space/ws` device binding. */
+  installId: string;
   sessionToken: string | null;
 };
 
@@ -29,15 +31,10 @@ export type CreateSpaceRoomResult = {
 export async function createSpaceRoom(
   params: CreateSpaceRoomParams
 ): Promise<CreateSpaceRoomResult> {
-  const { spaceId, apiUrl, storage, myId, sessionToken } = params;
+  const { spaceId, apiUrl, storage, myId, installId, sessionToken } = params;
   const topic = `space:${spaceId}`;
   const transport = new WebSocketRoomTransport({
-    url: apiUrlToRoomWebSocketUrl(
-      apiUrl,
-      topic,
-      sessionToken,
-      sessionToken !== null && sessionToken.length > 0 ? null : myId
-    ),
+    url: apiUrlToRoomWebSocketUrl(apiUrl, topic, sessionToken, installId),
   });
   const clientStorage = new KeyValueClientRoomStorage(
     storage,

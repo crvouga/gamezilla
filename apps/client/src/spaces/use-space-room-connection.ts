@@ -34,6 +34,7 @@ function openConnection(args: OpenArgs): () => void {
       apiUrl: args.configService.getApiUrl(),
       storage: args.storage,
       myId: args.bootstrap.myId,
+      installId: args.bootstrap.installId,
       sessionToken: args.token,
     });
     if (cancelled) {

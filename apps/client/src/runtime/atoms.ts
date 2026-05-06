@@ -93,11 +93,7 @@ export const patchDbStackAtom = atom(async (get, { signal }) => {
     {
       patchDbBaseUrl: `${config.getApiUrl()}/patch-db`,
       getAuthToken: () => getDefaultStore().get(sessionTokenAtom),
-      getAnonId: () => {
-        const tok = getDefaultStore().get(sessionTokenAtom);
-        if (tok !== null && tok.length > 0) return null;
-        return installId;
-      },
+      getAnonId: () => installId,
     }
   );
 

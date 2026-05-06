@@ -1,18 +1,17 @@
-import { AccountSessionAttr } from '@gamezilla/domain/auth';
 import { assertDeviceId } from '@gamezilla/domain/auth/device-id';
-import { spaceGuestMembershipEntityId } from '@gamezilla/domain/spaces/membership-key';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceAttr,
   SpaceMembershipAttr,
 } from '@gamezilla/domain/spaces/space-entities';
-import { assert } from '@gamezilla/lib/assert';
+import { spaceGuestMembershipEntityId } from '@gamezilla/domain/spaces/membership-key';
 import type { Entity, PatchDb } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 
+import { resolveAccountIdFromBearer } from '../auth/bearer-resolve';
+import type { HttpBearerAuthPorts } from '../auth/ports';
 import { ANON_ID_HEADER } from '../auth/session-middleware';
-import { readAccountSessionsByToken } from '../auth/account-session-by-token';
 
 const ROOM_TOPIC_PREFIX = 'space:' as const;
 
@@ -42,40 +41,6 @@ function parseAnonIdFromRequest(request: Request): string | null {
   if (q.length > 0) return q;
   const h = request.headers.get(ANON_ID_HEADER)?.trim() ?? '';
   return h.length > 0 ? h : null;
-}
-
-async function resolveMyIdFromBearer(
-  db: PatchDb,
-  bearer: string
-): Promise<string | null> {
-  const entities = await readAccountSessionsByToken(db, bearer);
-  const now = Date.now();
-
-  for (const entity of entities) {
-    const deviceId = entity.attributes[AccountSessionAttr.deviceId];
-    const accountId = entity.attributes[AccountSessionAttr.accountId];
-    const expiresAtRaw = entity.attributes[AccountSessionAttr.expiresAt];
-
-    if (typeof deviceId !== 'string' || typeof accountId !== 'string') {
-      continue;
-    }
-    assertDeviceId(deviceId);
-
-    if (typeof expiresAtRaw !== 'string') {
-      continue;
-    }
-    const exp = Date.parse(expiresAtRaw);
-    assert.ok(!Number.isNaN(exp), 'session expiresAt must parse', {
-      expiresAtRaw,
-    });
-    if (exp <= now) {
-      continue;
-    }
-
-    return accountId;
-  }
-
-  return null;
 }
 
 function parseSpaceIdFromTopic(topic: string): string | null {
@@ -148,32 +113,59 @@ function guestMembershipDenied(
   return null;
 }
 
+export type SpaceDoAuthDeps = HttpBearerAuthPorts;
+
+async function resolveActorIdForSpaceWebSocket(
+  db: PatchDb,
+  request: Request,
+  deps: SpaceDoAuthDeps
+): Promise<{ myId: string } | Response> {
+  const bearer = parseBearerFromUrlOrHeader(request);
+  if (bearer !== null) {
+    const installId = parseAnonIdFromRequest(request);
+    if (installId === null || installId.length === 0) {
+      return jsonResponse(
+        401,
+        'missing anonId (install id) for authenticated websocket'
+      );
+    }
+    assertDeviceId(installId);
+    const myId = await resolveAccountIdFromBearer({
+      db,
+      bearerAuth: deps,
+      bearerToken: bearer,
+      deviceId: installId,
+    });
+    if (myId === null) {
+      return jsonResponse(401, 'invalid or expired session');
+    }
+    return { myId };
+  }
+
+  const anon = parseAnonIdFromRequest(request);
+  if (anon === null || anon.length === 0) {
+    return jsonResponse(401, 'missing session token or anon id');
+  }
+  assertDeviceId(anon);
+  return { myId: anon };
+}
+
 /**
  * Validates the WebSocket upgrade for `/space/ws` before forwarding to the
- * Space Durable Object: Bearer (account) or anon id, topic shape, and that
- * the caller is the space host or an active guest member.
+ * Space Durable Object: session JWT (+ install id) or anon id, topic shape, and
+ * that the caller is the space host or an active guest member.
  */
 export async function authorizeSpaceDoWebSocket(
   db: PatchDb,
   request: Request,
-  topic: string
+  topic: string,
+  deps: SpaceDoAuthDeps
 ): Promise<{ myId: string } | Response> {
-  const bearer = parseBearerFromUrlOrHeader(request);
-  let myId: string | null = null;
-
-  if (bearer !== null) {
-    myId = await resolveMyIdFromBearer(db, bearer);
-    if (myId === null) {
-      return jsonResponse(401, 'invalid or expired session');
-    }
-  } else {
-    const anon = parseAnonIdFromRequest(request);
-    if (anon === null || anon.length === 0) {
-      return jsonResponse(401, 'missing session token or anon id');
-    }
-    assertDeviceId(anon);
-    myId = anon;
+  const actor = await resolveActorIdForSpaceWebSocket(db, request, deps);
+  if (actor instanceof Response) {
+    return actor;
   }
+  const { myId } = actor;
 
   const spaceId = parseSpaceIdFromTopic(topic);
   if (spaceId === null) {

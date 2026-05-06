@@ -1,37 +1,31 @@
 /**
- * Google-only sign-in surface. Shown from the user menu / commands when the user chooses Sign in.
+ * Hosted sign-in surface. Shown from the user menu / commands when the user chooses Sign in.
  */
 
 import { useAsync } from '@gamezilla/lib/async/use-async';
-import {
-  ModalBody,
-  ModalButton,
-  ModalFooter,
-  ResponsiveSurface,
-  Text,
-} from '@gamezilla/lib/ui';
+import { ModalButton, ModalFooter, ResponsiveSurface } from '@gamezilla/lib/ui';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import { useCallback, useEffect } from 'react';
-import type { AuthGoogleProviderState } from './auth-capabilities';
-import { SignInGooglePanel } from './sign-in-modal-google-panel';
+import type { HostedAuthUiPort } from './ports';
+import { SignInModalBody } from './sign-in-modal-body';
 
 export type SignInModalProps = {
   visible: boolean;
   onClose: () => void;
-  google: AuthGoogleProviderState;
-  onSignInWithGoogle: () => Promise<void>;
+  hostedUi: HostedAuthUiPort;
+  onSignInWithHosted: () => Promise<void>;
 };
 
 export function SignInModal({
   visible,
   onClose,
-  google,
-  onSignInWithGoogle,
+  hostedUi,
+  onSignInWithHosted,
 }: SignInModalProps) {
   const signIn = useAsync({
     operation: async () => {
-      await onSignInWithGoogle();
+      await onSignInWithHosted();
       onClose();
     },
   });
@@ -45,41 +39,39 @@ export function SignInModal({
     cancelAll('Sign-in modal closed');
   }, [cancelAll, reset, visible]);
 
-  const handleGoogle = useCallback(async () => {
-    if (!google.available || loading) return;
+  const handleHostedSignIn = useCallback(async () => {
+    if (!hostedUi.available || loading) return;
     try {
       await run();
     } catch {
       // Hook state already captures and exposes the error.
     }
-  }, [google.available, loading, run]);
+  }, [hostedUi.available, loading, run]);
+
+  const errorMessage =
+    error === null || error === undefined ? undefined : error.message;
 
   return (
     <ResponsiveSurface visible={visible} onClose={onClose} title={t`Sign in`}>
-      <ModalBody>
-        <Text
-          variant="body"
-          label={
-            <Trans>
-              Sign in to link this device to your server user. Your data stays
-              local first.
-            </Trans>
-          }
-        />
-        <SignInGooglePanel
-          google={google}
-          submitting={loading}
-          errorMessage={error?.message ?? null}
-          onPressGoogle={() => {
-            void handleGoogle();
-          }}
-        />
-      </ModalBody>
+      <SignInModalBody hostedUi={hostedUi} errorMessage={errorMessage} />
       <ModalFooter>
         <ModalButton
           label={<Trans>Close</Trans>}
           variant="cancel"
           onPress={onClose}
+        />
+        <ModalButton
+          label={
+            loading ? (
+              <Trans>Signing in…</Trans>
+            ) : (
+              <Trans>Continue with Google</Trans>
+            )
+          }
+          disabled={!hostedUi.available || loading}
+          onPress={() => {
+            void handleHostedSignIn();
+          }}
         />
       </ModalFooter>
     </ResponsiveSurface>

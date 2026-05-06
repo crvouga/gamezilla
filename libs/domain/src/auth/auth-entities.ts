@@ -62,3 +62,6 @@ export const AccountSessionAttr = {
 } as const;
 
 export const GOOGLE_PROVIDER = 'google' as const;
+
+/** Clerk user id is stored in {@link AccountProviderAttr.providerUserId}. */
+export const CLERK_PROVIDER = 'clerk' as const;

@@ -632,7 +632,9 @@ msgstr "database"
 msgid "day"
 msgstr "day"
 
+#: apps/client/src/spaces/space-active-layout-mobile.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/space-wide-rail-footer.tsx
 msgid "Debug"
 msgstr "Debug"
 
@@ -791,9 +793,10 @@ msgid "End"
 msgstr "End"
 
 #: apps/client/src/spaces/space-detail-screen.tsx
-#: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/space-miniplayer.tsx
 #: apps/client/src/spaces/space-miniplayer.tsx
+#: apps/client/src/spaces/space-session-chrome-actions.tsx
+#: apps/client/src/spaces/space-session-chrome-actions.tsx
 msgid "End space"
 msgstr "End space"
 
@@ -896,6 +899,11 @@ msgstr "Global latency"
 msgid "Go back"
 msgstr "Go back"
 
+#: apps/client/src/spaces/space-active-layout-mobile.tsx
+#: apps/client/src/spaces/space-wide-rail-header.tsx
+msgid "Go home"
+msgstr "Go home"
+
 #: apps/client/src/ui/app-commands/navigation-commands.tsx
 msgid "Go to {target}"
 msgstr "Go to {target}"
@@ -920,8 +928,13 @@ msgstr "Gradient rotation (°)"
 msgid "Group your todos by list"
 msgstr "Group your todos by list"
 
+#: apps/client/src/spaces/space-session-member-rail.tsx
+msgid "Guests"
+msgstr "Guests"
+
 #: apps/client/src/spaces/space-detail-screen.tsx
-#: apps/client/src/spaces/space-member-list.tsx
+#: apps/client/src/spaces/space-member-presence-badges.tsx
+#: apps/client/src/spaces/space-session-member-rail.tsx
 msgid "Host"
 msgstr "Host"
 
@@ -1004,8 +1017,9 @@ msgstr "Latency: {latencyMs} ms"
 msgid "Leave"
 msgstr "Leave"
 
-#: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/space-miniplayer.tsx
+#: apps/client/src/spaces/space-session-chrome-actions.tsx
+#: apps/client/src/spaces/space-session-chrome-actions.tsx
 msgid "Leave space"
 msgstr "Leave space"
 
@@ -1223,6 +1237,14 @@ msgstr "No entities for this type."
 msgid "No entities in this database."
 msgstr "No entities in this database."
 
+#: apps/client/src/spaces/space-session-member-rail.tsx
+msgid "No guests yet"
+msgstr "No guests yet"
+
+#: apps/client/src/spaces/space-session-member-rail.tsx
+msgid "No host listed"
+msgstr "No host listed"
+
 #: libs/patch-db-example/src/todo/todo-lists-overview.tsx
 msgid "No lists yet. Create one above or add todos to Inbox."
 msgstr "No lists yet. Create one above or add todos to Inbox."
@@ -1409,8 +1431,13 @@ msgstr "Patches"
 #~ msgstr "Pause"
 
 #: apps/client/src/spaces/space-member-list.tsx
-msgid "People here"
-msgstr "People here"
+#~ msgid "People here"
+#~ msgstr "People here"
+
+#: apps/client/src/spaces/space-members-avatar-group.tsx
+#: apps/client/src/spaces/space-members-list-modal.tsx
+msgid "People in this space"
+msgstr "People in this space"
 
 #: apps/client/src/account/account-device-detail-body.tsx
 msgid "Platform"
@@ -1818,7 +1845,6 @@ msgstr "space-screen.debug"
 #: apps/client/src/settings/theme-screen.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/space-detail-screen.tsx
-#: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/spaces-screen.tsx
 #: apps/client/src/todos/todo-list-detail-screen.tsx
 #: apps/client/src/todos/todo-lists-screen.tsx
@@ -1946,7 +1972,7 @@ msgstr "This is a modal screen."
 #~ msgid "This space has ended."
 #~ msgstr "This space has ended."
 
-#: apps/client/src/spaces/space-member-list.tsx
+#: apps/client/src/spaces/space-member-presence-badges.tsx
 msgid "This tab"
 msgstr "This tab"
 
@@ -2127,9 +2153,9 @@ msgstr "Wipe local database?"
 msgid "Yes"
 msgstr "Yes"
 
-#: apps/client/src/spaces/space-debug-modal.tsx
-#~ msgid "You"
-#~ msgstr "You"
+#: apps/client/src/spaces/space-member-presence-badges.tsx
+msgid "You"
+msgstr "You"
 
 #: apps/client/src/spaces/space-detail-screen.tsx
 #: apps/client/src/spaces/space-miniplayer.tsx

@@ -63,6 +63,7 @@ export { Checkbox, type CheckboxProps } from './checkbox';
 // Data Display
 export { Card, type CardProps } from './card';
 export { Avatar, type AvatarProps } from './avatar';
+export { AvatarGroup, type AvatarGroupProps } from './avatar-group';
 export { Badge, type BadgeProps } from './badge';
 export { Chip, type ChipProps } from './chip';
 export { List, ListItem, type ListProps, type ListItemProps } from './list';

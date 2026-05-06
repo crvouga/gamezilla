@@ -1,28 +1,43 @@
-import type { AuthGoogleProviderState } from './auth-capabilities';
+import { AuthConfigurationError } from './auth-errors';
 import { createAuthService, type AuthService } from './auth-service';
 import {
   authActionsAtom,
   authSessionDerivedAtom,
   authSessionSyncEffect,
   authSignOutModalCallbacksAtom,
+  clerkPublishableKeyAtom,
+  clerkPublishableKeySyncEffect,
   deriveStateFromSession,
-  googleProviderAtom,
-  googleWebClientIdAtom,
-  googleWebClientIdSyncEffect,
+  hostedAuthUiAtom,
   signInModalOpenAtom,
   signOutConfirmOpenAtom,
 } from './auth-atoms';
+import { ClerkAuthRuntime } from './clerk/clerk-auth-runtime';
+import { deriveHostedAuthUiFromPublishableKey } from './hosted-auth-ui';
+import {
+  HostedAuthPortsProvider,
+  useHostedAuthPorts,
+} from './hosted-auth-ports-context';
+import type {
+  HostedAuthPorts,
+  HostedAuthUiPort,
+} from './ports';
+import { HostedSignInStaticAdapter } from './hosted-sign-in-static-adapter';
+import { HostedSessionStaticAdapter } from './hosted-session-static-adapter';
 import type { AccountSessionRecord } from './session-service';
 import { SignInModal } from './sign-in-modal';
-import { useGoogleIdTokenPrompt } from './use-google-id-token-prompt';
 import { useSignOutConfirmationModal } from './use-sign-out-confirmation';
 import {
-  useConfigService,
   useDeviceService,
   useSessionService,
 } from '@gamezilla/client/runtime/runtime-hooks';
 import { getDefaultStore, useAtom, useAtomValue } from 'jotai';
-import { useCallback, useLayoutEffect, useMemo, type ReactNode } from 'react';
+import {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  type ReactNode,
+} from 'react';
 
 export type AuthState = {
   deviceId: string;
@@ -30,23 +45,21 @@ export type AuthState = {
   isAuthenticated: boolean;
   myId: string;
   session: AccountSessionRecord | null;
-  /** Google OAuth availability from synced client config. */
-  providers: { google: AuthGoogleProviderState };
+  providers: { hosted: HostedAuthUiPort };
   signInModalOpen: boolean;
   openSignInModal: () => void;
   closeSignInModal: () => void;
   signOutConfirmOpen: boolean;
-  /** Opens the sign-out confirmation modal; prefer this over calling {@link signOut} directly from UI. */
   openSignOutConfirm: () => void;
   closeSignOutConfirm: () => void;
-  signInWithGoogle: () => Promise<void>;
+  signInWithHosted: () => Promise<void>;
   signOut: () => Promise<void>;
   refreshSession: () => Promise<void>;
 };
 
 function AuthAtomsMount() {
   useAtom(authSessionSyncEffect);
-  useAtom(googleWebClientIdSyncEffect);
+  useAtom(clerkPublishableKeySyncEffect);
   return null;
 }
 
@@ -55,8 +68,8 @@ function useAuthActionsSync(args: {
   refreshSession: () => Promise<void>;
 }) {
   const { authService, refreshSession } = args;
-  const signInWithGoogle = useCallback(async () => {
-    await authService.signInWithGoogle();
+  const signInWithHosted = useCallback(async () => {
+    await authService.startHostedSignIn();
     await refreshSession();
   }, [authService, refreshSession]);
   const signOut = useCallback(async () => {
@@ -66,13 +79,13 @@ function useAuthActionsSync(args: {
 
   useLayoutEffect(() => {
     getDefaultStore().set(authActionsAtom, {
-      signInWithGoogle,
+      signInWithHosted,
       signOut,
       refreshSession,
     });
     return () => {
       getDefaultStore().set(authActionsAtom, {
-        signInWithGoogle: async () => {
+        signInWithHosted: async () => {
           throw new Error('AuthProvider not mounted');
         },
         signOut: async () => {
@@ -81,38 +94,29 @@ function useAuthActionsSync(args: {
         refreshSession: async () => {},
       });
     };
-  }, [signInWithGoogle, signOut, refreshSession]);
+  }, [signInWithHosted, signOut, refreshSession]);
 }
 
-function AuthActionsBridge({
-  children,
-  promptGoogleIdToken,
-  googleProvider,
-}: {
-  children: ReactNode;
-  promptGoogleIdToken: () => Promise<string>;
-  googleProvider: AuthGoogleProviderState;
-}) {
-  const configService = useConfigService();
-  const deviceService = useDeviceService();
-  const sessionService = useSessionService();
-  const deviceId = deviceService.getDeviceId();
-
+function AuthActionsMount() {
+  const ports = useHostedAuthPorts();
+  const startHostedSignIn = useCallback(async () => {
+    await ports.signIn.startSignIn();
+  }, [ports]);
+  const hostedSignOut = useCallback(async () => {
+    await ports.signIn.signOut();
+  }, [ports]);
   const authService = useMemo(
     () =>
       createAuthService({
-        configService,
-        deviceService,
-        googleSignInAvailable: googleProvider.available,
-        promptGoogleIdToken,
+        startHostedSignIn,
+        hostedSignOut,
       }),
-    [
-      configService,
-      deviceService,
-      googleProvider.available,
-      promptGoogleIdToken,
-    ]
+    [startHostedSignIn, hostedSignOut]
   );
+
+  const deviceService = useDeviceService();
+  const sessionService = useSessionService();
+  const deviceId = deviceService.getDeviceId();
 
   const refreshSession = useCallback(async () => {
     await sessionService.refresh();
@@ -124,7 +128,7 @@ function AuthActionsBridge({
 
   useAuthActionsSync({ authService, refreshSession });
 
-  return <>{children}</>;
+  return null;
 }
 
 function AuthModals() {
@@ -132,7 +136,7 @@ function AuthModals() {
   const [signOutConfirmOpen, setSignOutConfirmOpen] = useAtom(
     signOutConfirmOpenAtom
   );
-  const googleProvider = useAtomValue(googleProviderAtom);
+  const hostedUi = useAtomValue(hostedAuthUiAtom);
   const actions = useAtomValue(authActionsAtom);
 
   const { openSignOutConfirm, closeSignOutConfirm, modal } =
@@ -163,94 +167,94 @@ function AuthModals() {
       <SignInModal
         visible={signInModalOpen}
         onClose={() => setSignInModalOpen(false)}
-        google={googleProvider}
-        onSignInWithGoogle={actions.signInWithGoogle}
+        hostedUi={hostedUi}
+        onSignInWithHosted={actions.signInWithHosted}
       />
       {modal}
     </>
   );
 }
 
-function AuthWithGoogleBridge({
-  children,
-  googleWebClientId,
-  googleProvider,
-}: {
-  children: ReactNode;
-  googleWebClientId: string;
-  googleProvider: AuthGoogleProviderState;
-}) {
-  const promptGoogleIdToken = useGoogleIdTokenPrompt(googleWebClientId);
+function AuthShell({ children }: { children: ReactNode }) {
   return (
-    <AuthActionsBridge
-      promptGoogleIdToken={promptGoogleIdToken}
-      googleProvider={googleProvider}
-    >
-      {children}
-    </AuthActionsBridge>
-  );
-}
-
-function AuthStubGoogleBridge({
-  children,
-  googleProvider,
-}: {
-  children: ReactNode;
-  googleProvider: AuthGoogleProviderState;
-}) {
-  const promptGoogleIdTokenUnreachable =
-    useCallback(async (): Promise<string> => {
-      throw new Error(
-        'Google sign-in prompt should not run when Google is unavailable'
-      );
-    }, []);
-
-  return (
-    <AuthActionsBridge
-      promptGoogleIdToken={promptGoogleIdTokenUnreachable}
-      googleProvider={googleProvider}
-    >
-      {children}
-    </AuthActionsBridge>
-  );
-}
-
-function AuthGoogleRouter({ children }: { children: ReactNode }) {
-  const googleWebClientId = useAtomValue(googleWebClientIdAtom);
-  const googleProvider = useAtomValue(googleProviderAtom);
-
-  if (googleWebClientId !== null) {
-    return (
-      <AuthWithGoogleBridge
-        googleWebClientId={googleWebClientId}
-        googleProvider={googleProvider}
-      >
-        <AuthModals />
-        {children}
-      </AuthWithGoogleBridge>
-    );
-  }
-
-  return (
-    <AuthStubGoogleBridge googleProvider={googleProvider}>
+    <>
+      <AuthActionsMount />
       <AuthModals />
       {children}
-    </AuthStubGoogleBridge>
+    </>
   );
+}
+
+function AuthWithoutHostedConfigured({ children }: { children: ReactNode }) {
+  const clerkPublishableKey = useAtomValue(clerkPublishableKeyAtom);
+  const ui = useMemo(
+    () => deriveHostedAuthUiFromPublishableKey(clerkPublishableKey),
+    [clerkPublishableKey]
+  );
+  const startSignIn = useCallback(async () => {
+    throw new AuthConfigurationError();
+  }, []);
+  const signOutNoop = useCallback(async () => {}, []);
+  const ports = useMemo<HostedAuthPorts>(
+    () => ({
+      session: new HostedSessionStaticAdapter({
+        getState: () => ({ isLoaded: true, isSignedIn: false }),
+        getToken: async () => null,
+      }),
+      signIn: new HostedSignInStaticAdapter({
+        startSignIn,
+        signOut: signOutNoop,
+      }),
+      ui,
+    }),
+    [startSignIn, signOutNoop, ui]
+  );
+
+  return (
+    <HostedAuthPortsProvider value={ports}>
+      <AuthShell>{children}</AuthShell>
+    </HostedAuthPortsProvider>
+  );
+}
+
+function AuthWithHostedConfigured({
+  publishableKey,
+  children,
+}: {
+  publishableKey: string;
+  children: ReactNode;
+}) {
+  return (
+    <ClerkAuthRuntime publishableKey={publishableKey}>
+      <AuthShell>{children}</AuthShell>
+    </ClerkAuthRuntime>
+  );
+}
+
+function AuthHostedRouter({ children }: { children: ReactNode }) {
+  const clerkPublishableKey = useAtomValue(clerkPublishableKeyAtom);
+  if (clerkPublishableKey !== null && clerkPublishableKey.length > 0) {
+    return (
+      <AuthWithHostedConfigured publishableKey={clerkPublishableKey}>
+        {children}
+      </AuthWithHostedConfigured>
+    );
+  }
+  return <AuthWithoutHostedConfigured>{children}</AuthWithoutHostedConfigured>;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <>
       <AuthAtomsMount />
-      <AuthGoogleRouter>{children}</AuthGoogleRouter>
+      <AuthHostedRouter>{children}</AuthHostedRouter>
     </>
   );
 }
 
 export function useAuth(): AuthState {
   const derived = useAtomValue(authSessionDerivedAtom);
-  const googleProvider = useAtomValue(googleProviderAtom);
+  const hostedUi = useAtomValue(hostedAuthUiAtom);
   const [signInModalOpen, setSignInModalOpen] = useAtom(signInModalOpenAtom);
   const [signOutConfirmOpen] = useAtom(signOutConfirmOpenAtom);
   const signOutCallbacks = useAtomValue(authSignOutModalCallbacksAtom);
@@ -259,26 +263,26 @@ export function useAuth(): AuthState {
   return useMemo<AuthState>(
     () => ({
       ...derived,
-      providers: { google: googleProvider },
+      providers: { hosted: hostedUi },
       signInModalOpen,
       openSignInModal: () => setSignInModalOpen(true),
       closeSignInModal: () => setSignInModalOpen(false),
       signOutConfirmOpen,
       openSignOutConfirm: signOutCallbacks.openSignOutConfirm,
       closeSignOutConfirm: signOutCallbacks.closeSignOutConfirm,
-      signInWithGoogle: actions.signInWithGoogle,
+      signInWithHosted: actions.signInWithHosted,
       signOut: actions.signOut,
       refreshSession: actions.refreshSession,
     }),
     [
       derived,
-      googleProvider,
+      hostedUi,
       signInModalOpen,
       setSignInModalOpen,
       signOutConfirmOpen,
       signOutCallbacks.openSignOutConfirm,
       signOutCallbacks.closeSignOutConfirm,
-      actions.signInWithGoogle,
+      actions.signInWithHosted,
       actions.signOut,
       actions.refreshSession,
     ]

@@ -12,6 +12,7 @@ export const unstable_settings = {
 
 function AppStack() {
   const props = useStackProps();
+
   return (
     <Stack {...props}>
       <Stack.Screen name="(tabs)" />
@@ -23,6 +24,14 @@ function AppStack() {
         name="modal"
         options={{
           presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="sso-callback"
+        options={{
+          headerShown: false,
+          /* eslint-disable-next-line lingui/no-unlocalized-strings */
+          animation: 'fade',
         }}
       />
     </Stack>

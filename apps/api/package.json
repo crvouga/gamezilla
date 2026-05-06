@@ -6,10 +6,11 @@
     "./rpc": "./src/rpc.ts"
   },
   "dependencies": {
+    "@clerk/backend": "^1.21.0",
     "@gamezilla/domain": "workspace:*",
+    "@gamezilla/lib": "workspace:*",
     "@gamezilla/patch-db": "workspace:*",
     "@gamezilla/room": "workspace:*",
-    "@gamezilla/lib": "workspace:*",
     "@gamezilla/stripe": "workspace:*",
     "@hono/zod-validator": "^0.7.6",
     "hono": "^4.7.0",

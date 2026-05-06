@@ -40,15 +40,28 @@ export type CreatePatchDbHcTransportOptions = {
   getAnonId?: () => string | null;
 };
 
+function bearerPlusAnonHeaders(
+  token: string,
+  anon: string | null
+): Record<string, string> {
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
+  };
+  if (anon !== null && anon.length > 0) {
+    headers[X_ANON_ID] = anon;
+  }
+  return headers;
+}
+
 function authHeaders(options: {
   getAuthToken?: () => string | null;
   getAnonId?: () => string | null;
 }): Record<string, string> {
   const token = options.getAuthToken?.() ?? null;
-  if (token !== null && token.length > 0) {
-    return { Authorization: `Bearer ${token}` };
-  }
   const anon = options.getAnonId?.() ?? null;
+  if (token !== null && token.length > 0) {
+    return bearerPlusAnonHeaders(token, anon);
+  }
   if (anon !== null && anon.length > 0) {
     return { [X_ANON_ID]: anon };
   }

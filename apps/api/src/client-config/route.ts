@@ -30,6 +30,21 @@ function snapshotAttributes(
   return { ...attrs };
 }
 
+async function loadClientConfigAttributesFromDoppler(
+  secretStore: SecretStore
+): Promise<Record<string, unknown>> {
+  const googleWebClientId = await secretStore.getOptional(
+    ApiSecretName.googleWebClientId
+  );
+  const clerkPublishableKey = await secretStore.getOptional(
+    ApiSecretName.clerkPublishableKey
+  );
+  return {
+    [ClientConfigAttr.googleWebClientId]: googleWebClientId,
+    [ClientConfigAttr.clerkPublishableKey]: clerkPublishableKey,
+  };
+}
+
 /**
  * `POST /client-config/refresh` — writes the singleton clientConfig entity into patch-db
  * so clients receive it via the normal sync cycle. Invoked by the infra deploy pipeline
@@ -52,9 +67,7 @@ async function handleClientConfigRefresh(
 ): Promise<Response> {
   const { db, logger, secretStore } = deps;
   logger.info('POST /client-config/refresh: requested');
-  const googleWebClientId = await secretStore.getOptional(
-    ApiSecretName.googleWebClientId
-  );
+  const configNew = await loadClientConfigAttributesFromDoppler(secretStore);
 
   const configPrevResult = await db.read([
     {
@@ -63,9 +76,6 @@ async function handleClientConfigRefresh(
     },
   ]);
   const configPrev = configPrevResult[0]?.entities[0]?.attributes;
-  const configNew = {
-    [ClientConfigAttr.googleWebClientId]: googleWebClientId,
-  };
   const before = snapshotAttributes(configPrev);
   logger.debug('Client config comparison', { configPrev, configNew });
 
@@ -89,9 +99,7 @@ async function handleClientConfigRefresh(
     {
       entityId: CLIENT_CONFIG_ENTITY_ID,
       entityType: CLIENT_CONFIG_ENTITY_TYPE,
-      attributes: {
-        [ClientConfigAttr.googleWebClientId]: googleWebClientId,
-      },
+      attributes: configNew,
     },
   ]);
 

@@ -6,4 +6,6 @@ export const CLIENT_CONFIG_ENTITY_ID = 'clientConfig__singleton';
 
 export const ClientConfigAttr = {
   googleWebClientId: 'clientConfig/googleWebClientId',
+  /** Clerk publishable key (`pk_…`) — synced from Doppler for Expo/web. */
+  clerkPublishableKey: 'clientConfig/clerkPublishableKey',
 } as const;

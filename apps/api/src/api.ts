@@ -1,9 +1,7 @@
 import { createLogger } from '@gamezilla/lib/logger';
 import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import { isSecretStoreError } from '@gamezilla/lib/secret-store';
-import { makeStripeClient } from '@gamezilla/stripe/make-stripe-client';
 import { createApiApp } from './app/create-app';
-import { requireAuthContext } from './auth/session-middleware';
 import type { ApiWorkerEnv } from './config/env';
 import {
   assertDopplerTokenBinding,
@@ -19,7 +17,7 @@ const log = createLogger({ name: 'api' });
 
 const pubSub = new InMemoryPubSub();
 
-type App = ReturnType<typeof createApiApp>;
+type App = Awaited<ReturnType<typeof createApiApp>>;
 
 /**
  * Per-isolate boot latch. The Cloudflare Worker runtime has no `process.exit`
@@ -86,21 +84,10 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const secretStore = createApiSecretStore(token, { project, config });
   const databaseUrl = await secretStore.getRequired(ApiSecretName.dbUrl);
   const patchDb = getPatchDb(databaseUrl);
-  const stripeRaw = await secretStore.getOptional(
-    ApiSecretName.stripeSecretKey
-  );
-  const stripeKey =
-    typeof stripeRaw === 'string' && stripeRaw.trim().length > 0
-      ? stripeRaw.trim()
-      : null;
-  const stripe = stripeKey !== null ? makeStripeClient(stripeKey) : null;
-  return createApiApp({
+  return await createApiApp({
     db: patchDb,
     pubSub,
     secretStore,
-    stripe,
-    requireAuth: (db, req) => requireAuthContext(db, req),
-    webhookSecretDopplerKey: ApiSecretName.stripeWebhookSecret,
   });
 }
 

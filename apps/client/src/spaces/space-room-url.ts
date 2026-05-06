@@ -2,8 +2,11 @@ export function apiUrlToRoomWebSocketUrl(
   apiUrl: string,
   topic: string,
   sessionToken: string | null,
-  /** Install id when opening the room anonymously (no Bearer). */
-  anonId: string | null
+  /**
+   * Install id: sent as `anonId` for anonymous connections, or alongside
+   * `token` so the Worker can bind Clerk JWTs to {@link deviceId}.
+   */
+  installId: string | null
 ): string {
   const base = apiUrl.replace(/\/$/, '');
   const wsBase = base.replace(/^http:/, 'ws:').replace(/^https:/, 'wss:');
@@ -11,8 +14,11 @@ export function apiUrlToRoomWebSocketUrl(
   u.searchParams.set('topic', topic);
   if (sessionToken !== null && sessionToken.length > 0) {
     u.searchParams.set('token', sessionToken);
-  } else if (anonId !== null && anonId.length > 0) {
-    u.searchParams.set('anonId', anonId);
+    if (installId !== null && installId.length > 0) {
+      u.searchParams.set('anonId', installId);
+    }
+  } else if (installId !== null && installId.length > 0) {
+    u.searchParams.set('anonId', installId);
   }
   return u.toString();
 }

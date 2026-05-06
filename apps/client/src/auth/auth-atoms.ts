@@ -12,17 +12,18 @@ import {
   deviceServiceAtom,
   patchDbStackAtom,
   sessionServiceAtom,
+  sessionTokenAtom,
 } from '@gamezilla/client/runtime/atoms';
-import { atom } from 'jotai';
+import { atom, getDefaultStore } from 'jotai';
 import { atomEffect } from 'jotai-effect';
-import { deriveGoogleProviderState } from './auth-capabilities';
+import { deriveHostedAuthUiFromPublishableKey } from './hosted-auth-ui';
 import type { AccountSessionRecord, SessionService } from './session-service';
 
 export type SessionDerivedState = {
   deviceId: string;
   session: AccountSessionRecord | null;
   accountId: string | null;
-  /** True when PatchDB session is authenticated (valid bearer-backed session row). */
+  /** True when session JWT + internal account id are present (or legacy PatchDB session). */
   isAuthenticated: boolean;
   /**
    * Replication identity: `accountId` when signed in, else install `deviceId`.
@@ -30,18 +31,42 @@ export type SessionDerivedState = {
   myId: string;
 };
 
+function resolveReplicationIdentity(args: {
+  deviceId: string;
+  isAuthenticated: boolean;
+  accountId: string | null;
+}): string {
+  const { deviceId, isAuthenticated, accountId } = args;
+  if (isAuthenticated && accountId !== null && accountId.length > 0) {
+    return accountId;
+  }
+  return deviceId;
+}
+
 export function deriveStateFromSession(args: {
   deviceId: string;
   sessionService: SessionService;
 }): SessionDerivedState {
   const { deviceId, sessionService } = args;
+  const store = getDefaultStore();
+  const token = store.get(sessionTokenAtom);
+  const accountIdFromAtom = store.get(accountIdAtom);
   const session = sessionService.getSession();
-  const isAuthenticated = session !== null && sessionService.isAuthenticated();
-  const accountId = session?.accountId ?? null;
-  const myId =
-    isAuthenticated && accountId !== null && accountId.length > 0
-      ? accountId
-      : deviceId;
+  const legacyAuth = session !== null && sessionService.isAuthenticated();
+  const hasHostedToken = typeof token === 'string' && token.length > 0;
+  const hasAccount = accountIdFromAtom !== null && accountIdFromAtom.length > 0;
+  const hostedAuth = hasHostedToken && hasAccount;
+  const isAuthenticated = hostedAuth || legacyAuth;
+  const accountId = hostedAuth
+    ? accountIdFromAtom
+    : legacyAuth
+      ? session!.accountId
+      : null;
+  const myId = resolveReplicationIdentity({
+    deviceId,
+    isAuthenticated,
+    accountId,
+  });
   return {
     deviceId,
     session,
@@ -61,14 +86,14 @@ export const authSessionDerivedAtom = atom<SessionDerivedState>({
 
 /**
  * Keeps {@link authSessionDerivedAtom} in sync with PatchDB account-session rows
- * for this device and with {@link accountIdAtom} (see SYNC.md — never mutate
- * session tokens from here).
+ * for this device, Clerk atoms, and {@link accountIdAtom}.
  */
 export const authSessionSyncEffect = atomEffect((get, set) => {
   let cancelled = false;
   let unsub: (() => void) | null = null;
 
   get(accountIdAtom);
+  get(sessionTokenAtom);
 
   void (async () => {
     const deviceService = await get(deviceServiceAtom);
@@ -111,18 +136,18 @@ export const authSessionSyncEffect = atomEffect((get, set) => {
   };
 });
 
-function parseGoogleWebClientIdFromEntity(
+function parseClerkPublishableKeyFromEntity(
   entity: { attributes: Record<string, unknown> } | undefined
 ): string | null {
   if (entity === undefined) return null;
-  const raw = entity.attributes[ClientConfigAttr.googleWebClientId];
+  const raw = entity.attributes[ClientConfigAttr.clerkPublishableKey];
   const trimmed = typeof raw === 'string' ? raw.trim() : '';
   return trimmed.length > 0 ? trimmed : null;
 }
 
-export const googleWebClientIdAtom = atom<string | null>(null);
+export const clerkPublishableKeyAtom = atom<string | null>(null);
 
-export const googleWebClientIdSyncEffect = atomEffect((get, set) => {
+export const clerkPublishableKeySyncEffect = atomEffect((get, set) => {
   let cancelled = false;
   let unsub: (() => void) | null = null;
 
@@ -140,7 +165,7 @@ export const googleWebClientIdSyncEffect = atomEffect((get, set) => {
         },
       ]);
       const entity = result?.entities[0];
-      set(googleWebClientIdAtom, parseGoogleWebClientIdFromEntity(entity));
+      set(clerkPublishableKeyAtom, parseClerkPublishableKeyFromEntity(entity));
     };
 
     await push();
@@ -162,8 +187,8 @@ export const googleWebClientIdSyncEffect = atomEffect((get, set) => {
   };
 });
 
-export const googleProviderAtom = atom((get) =>
-  deriveGoogleProviderState(get(googleWebClientIdAtom))
+export const hostedAuthUiAtom = atom((get) =>
+  deriveHostedAuthUiFromPublishableKey(get(clerkPublishableKeyAtom))
 );
 
 export const signInModalOpenAtom = atom(false);
@@ -174,11 +199,11 @@ const authNotMountedAsync = async (): Promise<void> => {
 };
 
 export const authActionsAtom = atom<{
-  signInWithGoogle: () => Promise<void>;
+  signInWithHosted: () => Promise<void>;
   signOut: () => Promise<void>;
   refreshSession: () => Promise<void>;
 }>({
-  signInWithGoogle: authNotMountedAsync,
+  signInWithHosted: authNotMountedAsync,
   signOut: authNotMountedAsync,
   refreshSession: async () => {},
 });

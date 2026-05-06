@@ -60,6 +60,8 @@ const EXTERNALLY_MANAGED_KEYS: ReadonlyArray<string> = [
   // Checkout-Elements integration. Acknowledge it here so it stops
   // tripping the orphan check.
   'STRIPE_PUBLISHABLE_KEY',
+  'CLERK_SECRET_KEY',
+  'CLERK_PUBLISHABLE_KEY',
 ];
 
 /** Doppler's built-in config metadata — always present, never user-managed. */

@@ -1,8 +1,8 @@
 import { useMyId } from '@gamezilla/client/auth/auth-context';
 import { useSpaceActions } from '@gamezilla/client/spaces/space-actions';
+import { SpaceActiveLayout } from '@gamezilla/client/spaces/space-active-layout';
 import { SpaceCounterPanel } from '@gamezilla/client/spaces/space-counter-panel';
 import { SpaceDebugModal } from '@gamezilla/client/spaces/space-debug-modal';
-import { SpaceMemberList } from '@gamezilla/client/spaces/space-member-list';
 import { SpaceRoomWireContext } from '@gamezilla/client/spaces/space-room-wire-context';
 import { NO_ENTITY_PLACEHOLDER } from '@gamezilla/client/spaces/spaces-internal-ids';
 import { useSpaceRoom } from '@gamezilla/client/spaces/use-space-room';
@@ -22,6 +22,7 @@ import {
   Button,
   Center,
   ConfirmationModal,
+  SafeAreaView,
   ScreenBase,
   Spinner,
   Text,
@@ -30,7 +31,7 @@ import {
 import { useQuery } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 type Space = ReturnType<typeof useSpace>;
 
@@ -221,39 +222,46 @@ function LeaveSpaceModal({
 
 function ActiveSpaceBody({
   spaceId,
+  spaceTitle,
   isHost,
   members,
   onRequestEnd,
   onRequestLeave,
+  onPressHome,
+  onPressDebug,
 }: {
   spaceId: string | undefined;
+  spaceTitle: string;
   isHost: boolean;
   members: ReturnType<typeof useSpaceMembers>['members'];
   onRequestEnd: () => void;
   onRequestLeave: () => void;
+  onPressHome: () => void;
+  onPressDebug: () => void;
 }) {
-  const { t } = useLingui();
   const room = useSpaceRoom(spaceId);
   return (
-    <SpaceRoomWireContext.Provider
-      value={{
-        transport: room.transport,
-        roomActive: room.roomActive,
-        roomSynced: room.isSynced,
-      }}
-    >
-      <SpaceCounterPanel room={room} />
-      <SpaceMemberList members={members} />
-      {isHost ? (
-        <Button title={t`End space`} variant="solid" onPress={onRequestEnd} />
-      ) : (
-        <Button
-          title={t`Leave space`}
-          variant="outlined"
-          onPress={onRequestLeave}
-        />
-      )}
-    </SpaceRoomWireContext.Provider>
+    <Box sx={{ flex: 1, minHeight: 0 }}>
+      <SpaceRoomWireContext.Provider
+        value={{
+          transport: room.transport,
+          roomActive: room.roomActive,
+          roomSynced: room.isSynced,
+        }}
+      >
+        <SpaceActiveLayout
+          spaceTitle={spaceTitle}
+          members={members}
+          isHost={isHost}
+          onRequestEnd={onRequestEnd}
+          onRequestLeave={onRequestLeave}
+          onPressHome={onPressHome}
+          onPressDebug={onPressDebug}
+        >
+          <SpaceCounterPanel room={room} />
+        </SpaceActiveLayout>
+      </SpaceRoomWireContext.Provider>
+    </Box>
   );
 }
 
@@ -275,10 +283,11 @@ function ActiveSpace({
   onOpenDebug: () => void;
 }) {
   const router = useRouter();
-  const nav = useBreadcrumbNav();
   const [confirmEnd, setConfirmEnd] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
-  const actions = useDebugAction(onOpenDebug);
+  const onPressHome = useCallback(() => {
+    router.replace('/');
+  }, [router]);
 
   const handleEnd = () => {
     setConfirmEnd(false);
@@ -294,34 +303,30 @@ function ActiveSpace({
   };
 
   return (
-    <ScreenBase
-      breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, onPress: nav('/') },
-        { name: space.title },
-      ]}
-      actions={actions}
-      content={({ sx }) => (
-        <Box style={sx} sx={{ gap: 4 }}>
-          <ActiveSpaceBody
-            spaceId={spaceId}
-            isHost={isHost}
-            members={members}
-            onRequestEnd={() => setConfirmEnd(true)}
-            onRequestLeave={() => setConfirmLeave(true)}
-          />
-          <EndSpaceModal
-            visible={confirmEnd}
-            onClose={() => setConfirmEnd(false)}
-            onEnd={handleEnd}
-          />
-          <LeaveSpaceModal
-            visible={confirmLeave}
-            onClose={() => setConfirmLeave(false)}
-            onLeave={handleLeave}
-          />
-        </Box>
-      )}
-    />
+    <SafeAreaView sx={{ flex: 1, background: 'background' }}>
+      <Box sx={{ flex: 1, minHeight: 0 }}>
+        <ActiveSpaceBody
+          spaceId={spaceId}
+          spaceTitle={space.title}
+          isHost={isHost}
+          members={members}
+          onRequestEnd={() => setConfirmEnd(true)}
+          onRequestLeave={() => setConfirmLeave(true)}
+          onPressHome={onPressHome}
+          onPressDebug={onOpenDebug}
+        />
+        <EndSpaceModal
+          visible={confirmEnd}
+          onClose={() => setConfirmEnd(false)}
+          onEnd={handleEnd}
+        />
+        <LeaveSpaceModal
+          visible={confirmLeave}
+          onClose={() => setConfirmLeave(false)}
+          onLeave={handleLeave}
+        />
+      </Box>
+    </SafeAreaView>
   );
 }
 

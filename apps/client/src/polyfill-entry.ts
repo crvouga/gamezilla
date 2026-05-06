@@ -2,10 +2,13 @@ import { assert } from '@gamezilla/lib/assert';
 import { BrowserCrashHandler } from '@gamezilla/lib/assert/crash/crash-handler/crash-handler-browser';
 import { ExpoCrashHandler } from '@gamezilla/lib/assert/crash/crash-handler/crash-handler-expo';
 import { polyfill } from '@gamezilla/lib/polyfill';
+import * as WebBrowser from 'expo-web-browser';
 
 import { suppressThirdPartyWarnings } from './suppress-third-party-warnings';
 
 suppressThirdPartyWarnings();
+
+WebBrowser.maybeCompleteAuthSession();
 
 assert.registerCrashHandler(new BrowserCrashHandler());
 assert.registerCrashHandler(new ExpoCrashHandler());

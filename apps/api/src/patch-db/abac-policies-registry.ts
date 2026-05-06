@@ -26,9 +26,9 @@ import {
 import type { VisibilityPolicy } from '@gamezilla/patch-db/policy/visibility-policy-registry';
 
 import {
+  appAuthFromWriteContext,
   assertCreatedByMatchesAuthor,
   authOnlyRead,
-  appAuthFromWriteContext,
   type AppAuthContext,
 } from './abac-policies-context';
 import { STRIPE_PATCH_DB_VISIBILITY_POLICIES } from './abac-policies-registry-stripe';
@@ -205,6 +205,7 @@ const spacePolicy: AppVisibilityPolicy = {
     assertCreatedByMatchesAuthor(appCtx, patch);
     const hostId = patch.attributes[SpaceAttr.hostId];
     const owner = patch.attributes['entity/owner'];
+
     const isHost = typeof hostId === 'string' && hostId === appCtx.myId;
     const isOwner = typeof owner === 'string' && owner === appCtx.myId;
     if (!isHost && !isOwner) {

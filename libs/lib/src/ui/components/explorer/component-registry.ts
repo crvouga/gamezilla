@@ -23,6 +23,7 @@ import { default as CheckboxExample } from '../checkbox/checkbox.example';
 
 import { default as CardExample } from '../card/card.example';
 import { default as AvatarExample } from '../avatar/avatar.example';
+import { default as AvatarGroupExample } from '../avatar-group/avatar-group.example';
 import { default as BadgeExample } from '../badge/badge.example';
 import { default as ChipExample } from '../chip/chip.example';
 import { default as ListExample } from '../list/list.example';
@@ -98,6 +99,7 @@ export const componentRegistry: ComponentEntry[] = [
   // Data Display
   { name: 'Card', category: 'Data Display', Example: CardExample },
   { name: 'Avatar', category: 'Data Display', Example: AvatarExample },
+  { name: 'AvatarGroup', category: 'Data Display', Example: AvatarGroupExample },
   { name: 'Badge', category: 'Data Display', Example: BadgeExample },
   { name: 'Chip', category: 'Data Display', Example: ChipExample },
   { name: 'List', category: 'Data Display', Example: ListExample },

@@ -2,7 +2,7 @@ import { hc, type ApplyGlobalResponse } from 'hono/client';
 import type { createApiApp } from './app/create-app';
 
 /** Hono app shape for `hono/client` RPC. Use `import type` from client — no runtime import. */
-export type AppType = ReturnType<typeof createApiApp>;
+export type AppType = Awaited<ReturnType<typeof createApiApp>>;
 
 /** Includes `app.onError` 401/500 JSON bodies for typed client narrowing. */
 export type AppTypeWithGlobalErrors = ApplyGlobalResponse<
