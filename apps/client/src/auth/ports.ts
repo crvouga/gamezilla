@@ -1,5 +1,5 @@
 /**
- * Provider-agnostic hosted auth contracts. Implementations live under `./clerk` (or future providers).
+ * Provider-agnostic hosted auth contracts. Implementations live under provider-specific adapter folders.
  */
 
 export type HostedAuthState = {

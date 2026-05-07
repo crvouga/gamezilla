@@ -9,7 +9,11 @@ import { makeStripeClient } from '@gamezilla/stripe/make-stripe-client';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { createAuthApiRoutes } from '../auth/auth-routes';
-import { createClerkHttpBearerAuthPorts, createSessionAuth } from '../auth';
+import {
+  createHttpBearerAuthPorts,
+  createSessionAuth,
+  mountHostedAuthHandler,
+} from '../auth';
 import { UnauthorizedError } from '../auth/unauthorized-error';
 import { createClientConfigApp } from '../client-config/route';
 import type { ApiWorkerEnv } from '../config/env';
@@ -99,10 +103,7 @@ function createApiErrorHandler() {
 export async function createApiApp(config: ApiHandlerConfig) {
   const { secretStore, db } = config;
 
-  const clerkSecretKey = await secretStore.getRequired(
-    ApiSecretName.clerkSecretKey
-  );
-  const bearerAuth = createClerkHttpBearerAuthPorts(clerkSecretKey);
+  const bearerAuth = await createHttpBearerAuthPorts(secretStore);
   const sessionAuth = createSessionAuth(bearerAuth);
 
   const stripeRaw = await secretStore.getOptional(
@@ -123,7 +124,7 @@ export async function createApiApp(config: ApiHandlerConfig) {
   /** RPC client keys use the literal mount path; wire URL stays `basePath`-driven. */
   const patchMount = resolvedBase as '/patch-db';
 
-  return new Hono<{ Bindings: ApiWorkerEnv }>()
+  const app = new Hono<{ Bindings: ApiWorkerEnv }>()
     .use('*', apiCors)
     .route('/', healthApp)
     .route('/', createClientConfigApp(db, log, secretStore))
@@ -141,4 +142,7 @@ export async function createApiApp(config: ApiHandlerConfig) {
     .route('/', createSpaceApp({ db, bearerAuth }))
     .route(patchMount, patchDbApp)
     .onError(createApiErrorHandler());
+
+  await mountHostedAuthHandler(app, secretStore);
+  return app;
 }

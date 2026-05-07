@@ -36,12 +36,8 @@ async function loadClientConfigAttributesFromDoppler(
   const googleWebClientId = await secretStore.getOptional(
     ApiSecretName.googleWebClientId
   );
-  const clerkPublishableKey = await secretStore.getOptional(
-    ApiSecretName.clerkPublishableKey
-  );
   return {
     [ClientConfigAttr.googleWebClientId]: googleWebClientId,
-    [ClientConfigAttr.clerkPublishableKey]: clerkPublishableKey,
   };
 }
 

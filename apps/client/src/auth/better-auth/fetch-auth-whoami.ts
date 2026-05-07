@@ -6,15 +6,15 @@ const X_ANON_ID = 'x-anon-id';
 /** Must match apps/api `GET /auth/whoami`. */
 export async function fetchAuthWhoAmI(args: {
   apiUrl: string;
-  clerkJwt: string;
+  bearerToken: string;
   deviceId: string;
 }): Promise<{ accountId: string }> {
-  const { apiUrl, clerkJwt, deviceId } = args;
+  const { apiUrl, bearerToken, deviceId } = args;
   const base = apiUrl.replace(/\/$/, '');
   const res = await fetch(`${base}/auth/whoami`, {
     method: 'GET',
     headers: {
-      Authorization: `Bearer ${clerkJwt}`,
+      Authorization: `Bearer ${bearerToken}`,
       [X_ANON_ID]: deviceId,
     },
   });

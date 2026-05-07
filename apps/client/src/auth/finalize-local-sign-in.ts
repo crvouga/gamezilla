@@ -10,7 +10,7 @@ import { ensureDeviceEntity } from './ensure-device-entity';
 import { ensureProfile } from './ensure-profile-entity';
 
 /**
- * After the server has bound Clerk → internal `accountId`, finish local-first
+ * After the server has bound hosted auth → internal `accountId`, finish local-first
  * setup (profile row, device row, SQLite account selection).
  */
 export async function finalizeLocalSignInAfterServerAccount(args: {

@@ -1,7 +1,7 @@
 import { writeLastLocalAccountId } from '@gamezilla/client/db/account-local-state';
-import { finalizeLocalSignInAfterServerAccount } from '@gamezilla/client/auth/finalize-local-sign-in';
-import { clearLocalAuthMirrors } from '@gamezilla/client/auth/local-auth-cleanup';
 import { writeSessionToken } from '@gamezilla/client/auth/session-token-storage';
+import { finalizeLocalSignInAfterServerAccount } from '../finalize-local-sign-in';
+import { clearLocalAuthMirrors } from '../local-auth-cleanup';
 import {
   accountIdAtom,
   configServiceAtom,
@@ -20,19 +20,19 @@ type JotaiStore = ReturnType<typeof getDefaultStore>;
 type SyncArgs = {
   store: JotaiStore;
   isSignedIn: boolean;
-  getToken: () => Promise<string | null>;
+  getSessionToken: () => Promise<string | null>;
   lastSyncedRef: { current: string | null };
 };
 
-export async function runClerkSessionSync(args: SyncArgs): Promise<void> {
+export async function runHostedSessionSync(args: SyncArgs): Promise<void> {
   if (!args.isSignedIn) {
-    await handleClerkSignedOut(args);
+    await handleHostedSignedOut(args);
     return;
   }
-  await handleClerkSignedIn(args);
+  await handleHostedSignedIn(args);
 }
 
-async function handleClerkSignedOut(args: SyncArgs): Promise<void> {
+async function handleHostedSignedOut(args: SyncArgs): Promise<void> {
   const { store, lastSyncedRef } = args;
   lastSyncedRef.current = null;
   const hadLocal =
@@ -42,9 +42,9 @@ async function handleClerkSignedOut(args: SyncArgs): Promise<void> {
   }
 }
 
-async function handleClerkSignedIn(args: SyncArgs): Promise<void> {
-  const { store, getToken, lastSyncedRef } = args;
-  const token = await getToken();
+async function handleHostedSignedIn(args: SyncArgs): Promise<void> {
+  const { store, getSessionToken, lastSyncedRef } = args;
+  const token = await getSessionToken();
   if (token === null || token.length === 0) {
     return;
   }
@@ -57,7 +57,7 @@ async function handleClerkSignedIn(args: SyncArgs): Promise<void> {
     return;
   }
 
-  const log = store.get(loggerAtom).child({ namespace: 'clerk_bridge' });
+  const log = store.get(loggerAtom).child({ namespace: 'hosted_auth_bridge' });
   const deviceService = await store.get(deviceServiceAtom);
   const deviceId = deviceService.getDeviceId();
   const config = store.get(configServiceAtom);
@@ -65,7 +65,7 @@ async function handleClerkSignedIn(args: SyncArgs): Promise<void> {
   try {
     const { accountId } = await fetchAuthWhoAmI({
       apiUrl: config.getApiUrl(),
-      clerkJwt: token,
+      bearerToken: token,
       deviceId,
     });
     store.set(accountIdAtom, accountId);
@@ -83,7 +83,7 @@ async function handleClerkSignedIn(args: SyncArgs): Promise<void> {
 }
 
 function logWhoamiFailed(log: Logger, e: unknown): void {
-  log.error('clerk_whoami_failed', {
+  log.error('hosted_auth_whoami_failed', {
     error: e instanceof Error ? e.message : String(e),
   });
 }

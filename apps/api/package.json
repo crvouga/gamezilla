@@ -6,12 +6,16 @@
     "./rpc": "./src/rpc.ts"
   },
   "dependencies": {
-    "@clerk/backend": "^1.21.0",
+    "@better-auth/drizzle-adapter": "^1.6.9",
+    "@better-auth/expo": "^1.6.9",
     "@gamezilla/domain": "workspace:*",
     "@gamezilla/lib": "workspace:*",
     "@gamezilla/patch-db": "workspace:*",
     "@gamezilla/room": "workspace:*",
     "@gamezilla/stripe": "workspace:*",
+    "@neondatabase/serverless": "^1.1.0",
+    "better-auth": "^1.6.9",
+    "drizzle-orm": "^0.45.2",
     "hono": "^4.7.0"
   },
   "devDependencies": {

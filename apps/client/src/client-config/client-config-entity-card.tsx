@@ -24,14 +24,6 @@ export function ClientConfigEntityCard() {
         ? t`null`
         : '—';
 
-  const clerkRaw = attrs[ClientConfigAttr.clerkPublishableKey];
-  const clerkLine =
-    typeof clerkRaw === 'string' && clerkRaw.length > 0
-      ? clerkRaw
-      : clerkRaw === null
-        ? t`null`
-        : '—';
-
   const jsonPreview = JSON.stringify(attrs, null, 2);
 
   return (
@@ -47,10 +39,6 @@ export function ClientConfigEntityCard() {
       <Box sx={{ gap: 1 }}>
         <Text variant="label" label={<Trans>Google web client ID</Trans>} />
         <Text variant="mono" selectable label={googleLine} />
-      </Box>
-      <Box sx={{ gap: 1 }}>
-        <Text variant="label" label={<Trans>Clerk publishable key</Trans>} />
-        <Text variant="mono" selectable label={clerkLine} />
       </Box>
       <Text variant="label" label={<Trans>All attributes (JSON)</Trans>} />
       <Text variant="mono" selectable label={jsonPreview} />

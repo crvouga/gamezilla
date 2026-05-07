@@ -1,5 +1,6 @@
 import { runCapture } from '../subprocess';
 import { ApiUrl } from './api-url';
+import { BetterAuthSecret } from './better-auth-secret';
 import { CfAccountId } from './cf-account-id';
 import { CfApiToken } from './cf-api-token';
 import { DbUrl } from './db-url';
@@ -7,6 +8,8 @@ import { PsServiceToken, PsServiceTokenId } from './ps-credentials';
 import { StripeSecretKey } from './stripe-secret-key';
 import { StripeWebhookSecret } from './stripe-webhook-secret';
 import type { SecretEntry } from './types';
+import { WebClientGoogleClientId } from './web-client-google-client-id';
+import { WebClientGoogleClientSecret } from './web-client-google-client-secret';
 
 export { validateSecret } from './types';
 export type { SecretEntry } from './types';
@@ -18,6 +21,9 @@ const SECRET_MAP: ReadonlyArray<SecretEntry> = [
   new PsServiceToken(),
   new DbUrl(),
   new ApiUrl(),
+  new BetterAuthSecret(),
+  new WebClientGoogleClientId(),
+  new WebClientGoogleClientSecret(),
   new StripeSecretKey(),
   new StripeWebhookSecret(),
 ];

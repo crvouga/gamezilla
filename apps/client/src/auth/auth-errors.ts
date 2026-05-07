@@ -2,21 +2,21 @@
  * Typed errors for auth flows (client).
  */
 
-/** User-visible when client config has no Clerk publishable key synced from Doppler. */
-export const CLERK_SIGN_IN_UNAVAILABLE_REASON =
-  'Sign-in is not configured on this server. Ensure CLERK_PUBLISHABLE_KEY is in Doppler, the API Worker has DOPPLER_TOKEN, and client config has been refreshed.';
+/** User-visible when the client has no API URL (hosted auth unreachable). */
+export const HOSTED_SIGN_IN_UNAVAILABLE_REASON =
+  'Sign-in is not available. Configure EXPO_PUBLIC_API_URL (or your build-time API URL) so this app can reach the server’s hosted auth.';
 
-export class AuthConfigurationError extends Error {
-  readonly code = 'clerk_not_configured' as const;
+export class HostedAuthNotConfiguredError extends Error {
+  readonly code = 'hosted_auth_not_configured' as const;
 
-  constructor(message: string = CLERK_SIGN_IN_UNAVAILABLE_REASON) {
+  constructor(message: string = HOSTED_SIGN_IN_UNAVAILABLE_REASON) {
     super(message);
-    this.name = 'AuthConfigurationError';
+    this.name = 'HostedAuthNotConfiguredError';
   }
 }
 
-export function isAuthConfigurationError(
+export function isHostedAuthNotConfiguredError(
   value: unknown
-): value is AuthConfigurationError {
-  return value instanceof AuthConfigurationError;
+): value is HostedAuthNotConfiguredError {
+  return value instanceof HostedAuthNotConfiguredError;
 }

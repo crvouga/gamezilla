@@ -4,7 +4,7 @@ export function apiUrlToRoomWebSocketUrl(
   sessionToken: string | null,
   /**
    * Install id: sent as `anonId` for anonymous connections, or alongside
-   * `token` so the Worker can bind Clerk JWTs to {@link deviceId}.
+   * `token` so the Worker can bind bearer JWTs to {@link deviceId}.
    */
   installId: string | null
 ): string {

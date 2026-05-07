@@ -1,26 +1,17 @@
-import { AuthConfigurationError } from './auth-errors';
 import { createAuthService, type AuthService } from './auth-service';
 import {
   authActionsAtom,
   authSessionDerivedAtom,
   authSessionSyncEffect,
   authSignOutModalCallbacksAtom,
-  clerkPublishableKeyAtom,
-  clerkPublishableKeySyncEffect,
   deriveStateFromSession,
   hostedAuthUiAtom,
   signInModalOpenAtom,
   signOutConfirmOpenAtom,
 } from './auth-atoms';
-import { ClerkAuthRuntime } from './clerk/clerk-auth-runtime';
-import { deriveHostedAuthUiFromPublishableKey } from './hosted-auth-ui';
-import {
-  HostedAuthPortsProvider,
-  useHostedAuthPorts,
-} from './hosted-auth-ports-context';
-import type { HostedAuthPorts, HostedAuthUiPort } from './ports';
-import { HostedSignInStaticAdapter } from './hosted-sign-in-static-adapter';
-import { HostedSessionStaticAdapter } from './hosted-session-static-adapter';
+import { HostedAuthRuntime } from './hosted-auth-runtime';
+import { useHostedAuthPorts } from './hosted-auth-ports-context';
+import type { HostedAuthUiPort } from './ports';
 import type { AccountSessionRecord } from './session-service';
 import { SignInModal } from './sign-in-modal';
 import { useSignOutConfirmationModal } from './use-sign-out-confirmation';
@@ -51,7 +42,6 @@ export type AuthState = {
 
 function AuthAtomsMount() {
   useAtom(authSessionSyncEffect);
-  useAtom(clerkPublishableKeySyncEffect);
   return null;
 }
 
@@ -177,69 +167,13 @@ function AuthShell({ children }: { children: ReactNode }) {
   );
 }
 
-function AuthWithoutHostedConfigured({ children }: { children: ReactNode }) {
-  const clerkPublishableKey = useAtomValue(clerkPublishableKeyAtom);
-  const ui = useMemo(
-    () => deriveHostedAuthUiFromPublishableKey(clerkPublishableKey),
-    [clerkPublishableKey]
-  );
-  const startSignIn = useCallback(async () => {
-    throw new AuthConfigurationError();
-  }, []);
-  const signOutNoop = useCallback(async () => {}, []);
-  const ports = useMemo<HostedAuthPorts>(
-    () => ({
-      session: new HostedSessionStaticAdapter({
-        getState: () => ({ isLoaded: true, isSignedIn: false }),
-        getToken: async () => null,
-      }),
-      signIn: new HostedSignInStaticAdapter({
-        startSignIn,
-        signOut: signOutNoop,
-      }),
-      ui,
-    }),
-    [startSignIn, signOutNoop, ui]
-  );
-
-  return (
-    <HostedAuthPortsProvider value={ports}>
-      <AuthShell>{children}</AuthShell>
-    </HostedAuthPortsProvider>
-  );
-}
-
-function AuthWithHostedConfigured({
-  publishableKey,
-  children,
-}: {
-  publishableKey: string;
-  children: ReactNode;
-}) {
-  return (
-    <ClerkAuthRuntime publishableKey={publishableKey}>
-      <AuthShell>{children}</AuthShell>
-    </ClerkAuthRuntime>
-  );
-}
-
-function AuthHostedRouter({ children }: { children: ReactNode }) {
-  const clerkPublishableKey = useAtomValue(clerkPublishableKeyAtom);
-  if (clerkPublishableKey !== null && clerkPublishableKey.length > 0) {
-    return (
-      <AuthWithHostedConfigured publishableKey={clerkPublishableKey}>
-        {children}
-      </AuthWithHostedConfigured>
-    );
-  }
-  return <AuthWithoutHostedConfigured>{children}</AuthWithoutHostedConfigured>;
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <>
       <AuthAtomsMount />
-      <AuthHostedRouter>{children}</AuthHostedRouter>
+      <HostedAuthRuntime>
+        <AuthShell>{children}</AuthShell>
+      </HostedAuthRuntime>
     </>
   );
 }

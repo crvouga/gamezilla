@@ -469,10 +469,6 @@ msgstr "Clear SQLite and reload (same as Clear data in Todos)"
 #~ msgid "Clear Tamper"
 #~ msgstr "Clear Tamper"
 
-#: apps/client/src/client-config/client-config-entity-card.tsx
-msgid "Clerk publishable key"
-msgstr "Clerk publishable key"
-
 #: libs/room-example/src/pages/playground-page.tsx
 msgid "Client A (alice)"
 msgstr "Client A (alice)"
@@ -1342,7 +1338,6 @@ msgstr "No types match filter."
 msgid "None"
 msgstr "None"
 
-#: apps/client/src/client-config/client-config-entity-card.tsx
 #: apps/client/src/client-config/client-config-entity-card.tsx
 #: libs/patch-db-example/src/db-client/format-value.tsx
 msgid "null"

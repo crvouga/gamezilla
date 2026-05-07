@@ -11,7 +11,7 @@ import { getDefaultStore } from 'jotai';
 import { writeLastLocalAccountId } from '@gamezilla/client/db/account-local-state';
 import { writeSessionToken } from './session-token-storage';
 
-/** Clears Gamezilla session atoms + legacy PatchDB session mirrors (no Clerk calls). */
+/** Clears Gamezilla session atoms + legacy PatchDB session mirrors (no hosted-provider calls). */
 export async function clearLocalAuthMirrors(): Promise<void> {
   const store = getDefaultStore();
   const log = store.get(loggerAtom).child({ namespace: 'auth-cleanup' });

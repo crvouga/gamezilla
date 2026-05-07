@@ -10,45 +10,59 @@ const CF_API = 'https://api.cloudflare.com/client/v4';
 interface RequiredCname {
   readonly name: string;
   readonly content: string;
-  /** Cloudflare: false = DNS-only (required for Clerk CNAMEs); true = proxied. */
+  /** Cloudflare: false = DNS-only; true = proxied (Pages apex/www). */
   readonly proxied: boolean;
 }
 
-/**
- * Clerk production DNS for custom domain — targets must match Clerk dashboard exactly.
- *
- * After `infra deploy`, confirm at Cloudflare authoritative NS, then re-run verification in Clerk:
- * `dig +short @dan.ns.cloudflare.com CNAME accounts.gamezilla.app` → `accounts.clerk.services`
- * (same pattern for `clerk`, `clk._domainkey`, `clk2._domainkey`, `clkmail`).
- */
-function clerkCnameRecords(domain: string): readonly RequiredCname[] {
+/** Legacy custom-domain CNAMEs for the previous hosted-auth vendor — deleted on deploy if still present. */
+function legacyVendorAuthCnameHostnames(domain: string): readonly string[] {
   return [
-    {
-      name: `accounts.${domain}`,
-      content: 'accounts.clerk.services',
-      proxied: false,
-    },
-    {
-      name: `clerk.${domain}`,
-      content: 'frontend-api.clerk.services',
-      proxied: false,
-    },
-    {
-      name: `clk._domainkey.${domain}`,
-      content: 'dkim1.rtdm52y1jgzn.clerk.services',
-      proxied: false,
-    },
-    {
-      name: `clk2._domainkey.${domain}`,
-      content: 'dkim2.rtdm52y1jgzn.clerk.services',
-      proxied: false,
-    },
-    {
-      name: `clkmail.${domain}`,
-      content: 'mail.rtdm52y1jgzn.clerk.services',
-      proxied: false,
-    },
+    `accounts.${domain}`,
+    `clerk.${domain}`,
+    `clk._domainkey.${domain}`,
+    `clk2._domainkey.${domain}`,
+    `clkmail.${domain}`,
   ];
+}
+
+/** One-shot cleanup after migrating hosted auth DNS. */
+async function deleteLegacyVendorAuthCnameRecords(
+  zoneId: string,
+  headers: Record<string, string>,
+  domain: string
+): Promise<void> {
+  const res = await fetch(
+    `${CF_API}/zones/${zoneId}/dns_records?per_page=100&type=CNAME`,
+    { headers }
+  );
+  if (!res.ok) return;
+
+  const body = (await res.json()) as {
+    result?: Array<{
+      id: string;
+      name: string;
+      content: string;
+      type: string;
+    }>;
+  };
+  const existing = body.result ?? [];
+  const legacy = new Set(legacyVendorAuthCnameHostnames(domain));
+  for (const e of existing) {
+    if (e.type !== 'CNAME') continue;
+    const normalized = e.name.replace(/\.$/, '');
+    if (!legacy.has(normalized)) continue;
+    if (!e.content.includes('clerk.services')) continue;
+
+    const del = await fetch(
+      `${CF_API}/zones/${zoneId}/dns_records/${e.id}`,
+      { method: 'DELETE', headers }
+    );
+    if (del.ok || del.status === 404) {
+      ok('DNS CNAME (legacy vendor auth removed)', normalized);
+    } else {
+      warn('DNS legacy vendor auth delete', `${normalized} — HTTP ${del.status}`);
+    }
+  }
 }
 
 export class DnsRecordsResource extends ResourceBase {
@@ -71,7 +85,6 @@ export class DnsRecordsResource extends ResourceBase {
     const required: RequiredCname[] = [
       { name: domain, content: ctx.pagesSubdomain, proxied: true },
       { name: `www.${domain}`, content: ctx.pagesSubdomain, proxied: true },
-      ...clerkCnameRecords(domain),
     ];
 
     const res = await fetch(
@@ -139,6 +152,8 @@ export class DnsRecordsResource extends ResourceBase {
       );
       ok('DNS CNAME', `${rec.name} → ${rec.content} (created)`);
     }
+
+    await deleteLegacyVendorAuthCnameRecords(zoneId, headers, domain);
   }
 
   async destroy(_platform: CiPlatform): Promise<void> {

@@ -5,6 +5,6 @@
 export type SpaceRoomConnectionBootstrap = {
   spaceId: string;
   myId: string;
-  /** Install UUID for `anonId` query param when using Clerk JWT on `/space/ws`. */
+  /** Install UUID for `anonId` query param when using bearer JWT on `/space/ws`. */
   installId: string;
 };

@@ -18,7 +18,7 @@ export type CreateSpaceRoomParams = {
   storage: KeyValueStorage;
   /** Actor id (signed-in account or install id); space DO auth + local room handle. */
   myId: string;
-  /** Install UUID — required with Clerk JWT for `/space/ws` device binding. */
+  /** Install UUID — required with bearer JWT for `/space/ws` device binding. */
   installId: string;
   sessionToken: string | null;
 };

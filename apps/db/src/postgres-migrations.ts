@@ -1,10 +1,11 @@
 /**
  * Single place that defines Postgres DDL migration order for this app:
- * patch-db → kv → entity-db down (drop legacy `entities` table).
+ * patch-db → better-auth → kv → entity-db down (drop legacy `entities` table).
  *
  * Callers supply the {@link SqlClient} (optionally a transaction-scoped client)
  * and a {@link Logger}; see `scripts/migrate-db.ts` and `src/migrate.ts` (`migrateInProcessPglite`).
  */
+import { BetterAuthDbImplPostgres } from '@gamezilla/lib/better-auth-db/impl-postgres';
 import { EntityDbImplPostgres } from '@gamezilla/lib/entity-db/impl-postgres';
 import { KvImplPostgres } from '@gamezilla/lib/kv/impl-postgres';
 import type { Logger } from '@gamezilla/lib/logger';
@@ -23,6 +24,7 @@ export async function runPostgresMigrations(
   const { sqlClient, logger } = args;
   await sqlClient.transaction(async (tx) => {
     await PatchDbImplPostgres.migrateUp({ sqlClient: tx, logger });
+    await BetterAuthDbImplPostgres.migrateUp({ sqlClient: tx, logger });
     await KvImplPostgres.migrateUp({ sqlClient: tx, logger });
     await EntityDbImplPostgres.migrateDown({ sqlClient: tx, logger });
   });

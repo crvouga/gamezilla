@@ -287,6 +287,7 @@
     "./kv/impl-in-memory": "./src/kv/impl-in-memory.ts",
     "./kv/interface": "./src/kv/interface.ts",
     "./kv/impl-postgres": "./src/kv/impl-postgres.ts",
+    "./better-auth-db/impl-postgres": "./src/better-auth-db/impl-postgres.ts",
     "./entity-db/interface": "./src/entity-db/interface.ts",
     "./entity-db/constants": "./src/entity-db/constants.ts",
     "./entity-db/identifier": "./src/entity-db/identifier.ts",

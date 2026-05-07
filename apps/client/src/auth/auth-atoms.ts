@@ -3,12 +3,8 @@ import {
   AccountSessionAttr,
 } from '@gamezilla/domain/auth';
 import {
-  CLIENT_CONFIG_ENTITY_ID,
-  CLIENT_CONFIG_ENTITY_TYPE,
-  ClientConfigAttr,
-} from '@gamezilla/domain/client-config/client-config-entities';
-import {
   accountIdAtom,
+  configServiceAtom,
   deviceServiceAtom,
   patchDbStackAtom,
   sessionServiceAtom,
@@ -16,7 +12,7 @@ import {
 } from '@gamezilla/client/runtime/atoms';
 import { atom, getDefaultStore } from 'jotai';
 import { atomEffect } from 'jotai-effect';
-import { deriveHostedAuthUiFromPublishableKey } from './hosted-auth-ui';
+import { deriveHostedAuthUiFromApiUrl } from './hosted-auth-ui';
 import type { AccountSessionRecord, SessionService } from './session-service';
 
 export type SessionDerivedState = {
@@ -86,7 +82,7 @@ export const authSessionDerivedAtom = atom<SessionDerivedState>({
 
 /**
  * Keeps {@link authSessionDerivedAtom} in sync with PatchDB account-session rows
- * for this device, Clerk atoms, and {@link accountIdAtom}.
+ * for this device, hosted session token, and {@link accountIdAtom}.
  */
 export const authSessionSyncEffect = atomEffect((get, set) => {
   let cancelled = false;
@@ -136,59 +132,8 @@ export const authSessionSyncEffect = atomEffect((get, set) => {
   };
 });
 
-function parseClerkPublishableKeyFromEntity(
-  entity: { attributes: Record<string, unknown> } | undefined
-): string | null {
-  if (entity === undefined) return null;
-  const raw = entity.attributes[ClientConfigAttr.clerkPublishableKey];
-  const trimmed = typeof raw === 'string' ? raw.trim() : '';
-  return trimmed.length > 0 ? trimmed : null;
-}
-
-export const clerkPublishableKeyAtom = atom<string | null>(null);
-
-export const clerkPublishableKeySyncEffect = atomEffect((get, set) => {
-  let cancelled = false;
-  let unsub: (() => void) | null = null;
-
-  void (async () => {
-    const stack = await get(patchDbStackAtom);
-    if (cancelled) return;
-    const subDb = stack.decorated;
-
-    const push = async () => {
-      if (cancelled) return;
-      const [result] = await subDb.read([
-        {
-          entityType: CLIENT_CONFIG_ENTITY_TYPE,
-          entityId: CLIENT_CONFIG_ENTITY_ID,
-        },
-      ]);
-      const entity = result?.entities[0];
-      set(clerkPublishableKeyAtom, parseClerkPublishableKeyFromEntity(entity));
-    };
-
-    await push();
-
-    unsub = subDb.subscribe.entities(
-      {
-        entityType: CLIENT_CONFIG_ENTITY_TYPE,
-        entityId: CLIENT_CONFIG_ENTITY_ID,
-      },
-      () => {
-        void push();
-      }
-    );
-  })();
-
-  return () => {
-    cancelled = true;
-    unsub?.();
-  };
-});
-
 export const hostedAuthUiAtom = atom((get) =>
-  deriveHostedAuthUiFromPublishableKey(get(clerkPublishableKeyAtom))
+  deriveHostedAuthUiFromApiUrl(get(configServiceAtom).getApiUrl())
 );
 
 export const signInModalOpenAtom = atom(false);

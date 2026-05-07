@@ -3,7 +3,6 @@ import {
   ACCOUNT_PROVIDER_ENTITY_TYPE,
   AccountAttr,
   AccountProviderAttr,
-  CLERK_PROVIDER,
 } from '@gamezilla/domain/auth';
 import { assertUuid } from '@gamezilla/domain/auth/device-id';
 import { assert } from '@gamezilla/lib/assert';
@@ -15,9 +14,12 @@ import type {
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import type { AccountProvisioningPort } from '../ports';
 
-async function findClerkAccountProvider(
+/** Stored in {@link AccountProviderAttr.provider} — only referenced inside this adapter. */
+const INTERNAL_AUTH_PROVIDER = 'better-auth' as const;
+
+async function findAuthAccountProvider(
   db: PatchDb,
-  clerkUserId: string
+  externalUserId: string
 ): Promise<Entity | undefined> {
   const [providerResult] = await db.read(
     [
@@ -29,12 +31,12 @@ async function findClerkAccountProvider(
             {
               type: '=',
               attribute: AccountProviderAttr.provider,
-              value: CLERK_PROVIDER,
+              value: INTERNAL_AUTH_PROVIDER,
             },
             {
               type: '=',
               attribute: AccountProviderAttr.providerUserId,
-              value: clerkUserId,
+              value: externalUserId,
             },
           ],
         },
@@ -46,20 +48,20 @@ async function findClerkAccountProvider(
   return providerResult?.entities[0];
 }
 
-function patchesForNewClerkAccount(args: {
-  clerkUserId: string;
+function patchesForNewAuthUserAccount(args: {
+  externalUserId: string;
   email: string | null;
   accountId: string;
 }): PatchInput[] {
-  const { clerkUserId, email, accountId } = args;
+  const { externalUserId, email, accountId } = args;
   const now = new Date().toISOString();
   const providerPatch: PatchInput = {
     entityId: crypto.randomUUID(),
     entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
     attributes: {
       [AccountProviderAttr.accountId]: accountId,
-      [AccountProviderAttr.provider]: CLERK_PROVIDER,
-      [AccountProviderAttr.providerUserId]: clerkUserId,
+      [AccountProviderAttr.provider]: INTERNAL_AUTH_PROVIDER,
+      [AccountProviderAttr.providerUserId]: externalUserId,
       ...(email !== null ? { [AccountProviderAttr.email]: email } : {}),
       [AccountProviderAttr.linkedAt]: now,
       'patch/createdById': accountId,
@@ -79,13 +81,13 @@ function patchesForNewClerkAccount(args: {
   ];
 }
 
-async function ensureInternalAccountIdForClerkUser(args: {
+async function ensureInternalAccountIdForExternalUser(args: {
   db: PatchDb;
-  clerkUserId: string;
+  externalUserId: string;
   email: string | null;
 }): Promise<string> {
-  const { db, clerkUserId, email } = args;
-  const existing = await findClerkAccountProvider(db, clerkUserId);
+  const { db, externalUserId, email } = args;
+  const existing = await findAuthAccountProvider(db, externalUserId);
   if (existing !== undefined) {
     const aid = existing.attributes[AccountProviderAttr.accountId];
     assert.string(aid, 'accountProvider must have accountId');
@@ -93,8 +95,8 @@ async function ensureInternalAccountIdForClerkUser(args: {
     return aid;
   }
   const accountId = crypto.randomUUID();
-  const patches = patchesForNewClerkAccount({
-    clerkUserId,
+  const patches = patchesForNewAuthUserAccount({
+    externalUserId,
     email,
     accountId,
   });
@@ -102,21 +104,20 @@ async function ensureInternalAccountIdForClerkUser(args: {
   return accountId;
 }
 
-/**
- * Clerk-backed account rows: maps external subject → internal UUID (creates on first sight).
- */
-export class AccountProvisioningClerkAdapter implements AccountProvisioningPort {
+export class AccountProvisioningBetterAuthAdapter
+  implements AccountProvisioningPort
+{
   async resolveInternalAccountId({
     db,
     claims,
   }: Parameters<AccountProvisioningPort['resolveInternalAccountId']>[0]) {
-    return await ensureInternalAccountIdForClerkUser({
+    return await ensureInternalAccountIdForExternalUser({
       db,
-      clerkUserId: claims.subject,
+      externalUserId: claims.subject,
       email: claims.email,
     });
   }
 }
 
-export const clerkAccountProvisioning: AccountProvisioningPort =
-  new AccountProvisioningClerkAdapter();
+export const betterAuthAccountProvisioning: AccountProvisioningPort =
+  new AccountProvisioningBetterAuthAdapter();
