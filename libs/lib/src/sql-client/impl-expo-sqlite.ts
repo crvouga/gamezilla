@@ -105,9 +105,71 @@ async function openDatabaseOnce(
  *    `deleteDatabaseAsync` and `useNewConnection` retries, then throw with a full error chain.
  */
 export class SqlClientImplExpoSqlite implements SqlClient {
-  private txQueue: Promise<unknown> = Promise.resolve();
+  /**
+   * expo-sqlite's web worker uses an async `onmessage` handler, so multiple
+   * worker messages can run `handleMessageImpl` concurrently before the first
+   * `await` — overlapping prepare/finalize on one DB yields "Error finalizing
+   * statement". Serialize **all** top-level {@link query}/{@link run}/
+   * {@link transaction} on the main thread.
+   *
+   * Nested calls (e.g. `transaction` → `tx.run`) MUST bypass this queue or the
+   * chain deadlocks. The bypass is done by exposing a separate `tx` object
+   * inside {@link transaction} (see {@link buildBypassTx}) whose methods talk
+   * directly to {@link SQLite.SQLiteDatabase}; we never use a global
+   * "queueDepth" flag because that incorrectly bypasses *concurrent* external
+   * callers as well, which causes `BEGIN within BEGIN` on the same connection.
+   *
+   * {@link disconnect} sets {@link disconnecting} synchronously so new top-level
+   * work rejects immediately, then chains `closeAsync` on this tail so close
+   * never runs while queued work is still in flight.
+   */
+  private opChain: Promise<unknown> = Promise.resolve();
+  private closed = false;
+  private disconnecting = false;
+  private pendingDisconnect: Promise<void> | null = null;
 
   constructor(private db: SQLite.SQLiteDatabase) {}
+
+  private runSerialized<T>(fn: () => Promise<T>): Promise<T> {
+    if (this.disconnecting || this.closed) {
+      return Promise.reject(
+        new Error(
+          'SqlClientImplExpoSqlite: client disconnecting or already closed'
+        )
+      );
+    }
+    const done = this.opChain.then(() => fn());
+    this.opChain = done.then(
+      () => undefined,
+      () => undefined
+    );
+    return done as Promise<T>;
+  }
+
+  private buildBypassTx(): SqlClient {
+    const tx: SqlClient = {
+      connect: () => Promise.resolve(),
+      disconnect: () => Promise.resolve(),
+      query: <T = Record<string, unknown>>(sql: string, params?: unknown[]) =>
+        this.db.getAllAsync<T>(
+          sql,
+          (params ?? []) as SQLite.SQLiteBindValue[]
+        ) as Promise<T[]>,
+      run: async (sql: string, params?: unknown[]) => {
+        const result = await this.db.runAsync(
+          sql,
+          (params ?? []) as SQLite.SQLiteBindValue[]
+        );
+        return {
+          changes: result.changes,
+          lastInsertRowid: result.lastInsertRowId,
+        };
+      },
+      prepare: (sql: string) => this.prepare(sql),
+      transaction: async <T>(fn: (inner: SqlClient) => Promise<T>) => fn(tx),
+    };
+    return tx;
+  }
 
   /**
    * Native-only: pass `directory` so the DB file lives under a managed folder
@@ -136,28 +198,53 @@ export class SqlClientImplExpoSqlite implements SqlClient {
   }
 
   disconnect(): Promise<void> {
-    return this.db.closeAsync();
+    if (this.closed) {
+      return Promise.resolve();
+    }
+    if (this.pendingDisconnect !== null) {
+      return this.pendingDisconnect;
+    }
+    this.disconnecting = true;
+    const done = this.opChain
+      .then(async () => {
+        await this.db.closeAsync();
+      })
+      .finally(() => {
+        this.closed = true;
+        this.disconnecting = false;
+        this.pendingDisconnect = null;
+      });
+    this.pendingDisconnect = done;
+    this.opChain = done.then(
+      () => undefined,
+      () => undefined
+    );
+    return this.pendingDisconnect;
   }
 
   query<T = Record<string, unknown>>(
     sql: string,
     params?: unknown[]
   ): Promise<T[]> {
-    return this.db.getAllAsync<T>(
-      sql,
-      (params ?? []) as SQLite.SQLiteBindValue[]
+    return this.runSerialized(() =>
+      this.db.getAllAsync<T>(
+        sql,
+        (params ?? []) as SQLite.SQLiteBindValue[]
+      )
     );
   }
 
   async run(sql: string, params?: unknown[]): Promise<RunResult> {
-    const result = await this.db.runAsync(
-      sql,
-      (params ?? []) as SQLite.SQLiteBindValue[]
-    );
-    return {
-      changes: result.changes,
-      lastInsertRowid: result.lastInsertRowId,
-    };
+    return this.runSerialized(async () => {
+      const result = await this.db.runAsync(
+        sql,
+        (params ?? []) as SQLite.SQLiteBindValue[]
+      );
+      return {
+        changes: result.changes,
+        lastInsertRowid: result.lastInsertRowId,
+      };
+    });
   }
 
   prepare(sql: string): PreparedStatement {
@@ -182,23 +269,14 @@ export class SqlClientImplExpoSqlite implements SqlClient {
   }
 
   async transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
-    let resolve!: (v: unknown) => void;
-    const gate = new Promise<unknown>((r) => {
-      resolve = r;
-    });
-    const waiting = this.txQueue;
-    this.txQueue = gate;
-
-    await waiting;
-    try {
+    return this.runSerialized(async () => {
+      const tx = this.buildBypassTx();
       const ref: { value: T } = { value: undefined as unknown as T };
       await this.db.withTransactionAsync(async () => {
-        ref.value = await fn(this);
+        ref.value = await fn(tx);
       });
       return ref.value;
-    } finally {
-      resolve(undefined);
-    }
+    });
   }
 }
 

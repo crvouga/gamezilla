@@ -4291,11 +4291,16 @@
     }
     postReply({ id, ok: false, error: `Unknown op: ${String(op)}` });
   }
+  var opChain = Promise.resolve();
   self.onmessage = (ev) => {
     const data = ev.data;
-    void handleMessage(data).catch((err) => {
-      const message = err instanceof Error ? err.message : String(err);
-      postReply({ id: data.id, ok: false, error: message });
+    opChain = opChain.then(async () => {
+      try {
+        await handleMessage(data);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        postReply({ id: data.id, ok: false, error: message });
+      }
     });
   };
 })();

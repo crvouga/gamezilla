@@ -28,12 +28,64 @@ import { atom, getDefaultStore } from 'jotai';
 import { atomEffect } from 'jotai-effect';
 import { openSqlClientForPlatform } from './open-sql-client';
 
+/**
+ * expo-sqlite **web** multiplexes every DB into one shared {@link Worker}. If
+ * `openDatabaseAsync` / `closeAsync` / `deleteDatabaseAsync` overlap across
+ * connection swaps, the worker can process messages out of order and surface
+ * a worker-level rejection at `WorkerChannel.ts:64` (`new Error(error)`).
+ *
+ * Serialize every connection-lifecycle worker call — **open** (from this
+ * atom), **disconnect** (abort), and direct **delete** (sign-in/sign-out
+ * cleanup) — on one tail so they never interleave on the shared worker.
+ */
+let sqlClientLifecycleTail: Promise<unknown> = Promise.resolve();
+
+/** Queue connection-lifecycle work (open/close/delete) on the shared tail. */
+export function enqueueSqlClientLifecycle<T>(
+  fn: () => Promise<T>
+): Promise<T> {
+  const job = sqlClientLifecycleTail.then(fn, fn) as Promise<T>;
+  sqlClientLifecycleTail = job.then(
+    () => undefined,
+    () => undefined
+  );
+  return job;
+}
+
+/** Await all opens/disconnects/deletes already enqueued on {@link sqlClientAtom}. */
+export async function awaitSqlClientDisconnectChain(): Promise<void> {
+  await sqlClientLifecycleTail;
+}
+
 type PatchStackCleanupEntry = {
   id: string;
   cleanup: (reason: 'replaced' | 'abort') => void;
 };
 
 let activePatchStackCleanup: PatchStackCleanupEntry | null = null;
+
+/**
+ * Mirrors {@link activePatchStackCleanup} for {@link sqlClientAtom}. Jotai's
+ * async-atom `signal` abort does not fire reliably on re-derivation in our
+ * runtime, so when `accountId` changes the OLD client must be torn down via
+ * this synchronous "register-and-replace" path instead of waiting for the
+ * signal.
+ *
+ * **Account-keyed**: only replace when the new derivation targets a different
+ * `accountId`. React 18 StrictMode and atom subscription churn can re-run
+ * `sqlClientAtom` for the *same* `accountId`; tearing down the existing
+ * client in that case rejects every in-flight `client.run/query` from the
+ * still-running consumer derivations (logs showed `client disconnecting or
+ * already closed` cascades from `entityBootstrapEffect`, `ensureDeviceEntity`,
+ * `ensureProfile`, `SyncPatchDb.write`).
+ */
+type SqlClientCleanupEntry = {
+  id: string;
+  accountKey: string;
+  disconnect: () => Promise<unknown>;
+};
+
+let activeSqlClientCleanup: SqlClientCleanupEntry | null = null;
 
 function registerPatchStackCleanup(args: {
   stamper: PatchMetadataStamper;
@@ -92,12 +144,42 @@ export const deviceServiceAtom = atom(async (get) => {
  */
 export const sqlClientAtom = atom(async (get, { signal }) => {
   const deviceService = await get(deviceServiceAtom);
-  const sql = await openSqlClientForPlatform({
-    getAccountId: () => get(accountIdAtom),
-    getDeviceId: () => deviceService.getDeviceId(),
-  });
+  const accountId = get(accountIdAtom);
+  const accountKey = accountId ?? '<anon>';
+
+  if (
+    activeSqlClientCleanup !== null &&
+    activeSqlClientCleanup.accountKey !== accountKey
+  ) {
+    const prev = activeSqlClientCleanup;
+    activeSqlClientCleanup = null;
+    void enqueueSqlClientLifecycle(() =>
+      prev.disconnect().catch(() => undefined)
+    );
+  }
+
+  await sqlClientLifecycleTail;
+  const sql = await enqueueSqlClientLifecycle(() =>
+    openSqlClientForPlatform({
+      getAccountId: () => accountId,
+      getDeviceId: () => deviceService.getDeviceId(),
+    })
+  );
+
+  const id = `sql-${String(Date.now())}-${Math.random()
+    .toString(36)
+    .slice(2, 8)}`;
+  activeSqlClientCleanup = {
+    id,
+    accountKey,
+    disconnect: () => sql.disconnect(),
+  };
+
   signal.addEventListener('abort', () => {
-    void sql.disconnect();
+    if (activeSqlClientCleanup?.id === id) {
+      activeSqlClientCleanup = null;
+    }
+    void enqueueSqlClientLifecycle(() => sql.disconnect().catch(() => {}));
   });
   return sql;
 });
@@ -174,16 +256,23 @@ export const sessionServiceAtom = atom(async (get) => {
 export const entityBootstrapEffect = atomEffect((get) => {
   let cancelled = false;
   void (async () => {
-    const deviceService = await get(deviceServiceAtom);
-    const stack = await get(patchDbStackAtom);
-    const accountId = get(accountIdAtom);
-    if (cancelled) return;
-    const installId = deviceService.getDeviceId();
-    await ensureDeviceEntity(stack.db, installId);
-    if (cancelled) return;
-    const myId =
-      accountId !== null && accountId.length > 0 ? accountId : installId;
-    await ensureProfile(stack.db, myId);
+    try {
+      const deviceService = await get(deviceServiceAtom);
+      const stack = await get(patchDbStackAtom);
+      const accountId = get(accountIdAtom);
+      if (cancelled) return;
+      const installId = deviceService.getDeviceId();
+      await ensureDeviceEntity(stack.db, installId);
+      if (cancelled) return;
+      const myId =
+        accountId !== null && accountId.length > 0 ? accountId : installId;
+      await ensureProfile(stack.db, myId);
+    } catch {
+      // Stale derivations see `client disconnecting or already closed` when
+      // `sqlClientAtom` is replaced mid-flight (sign-in/sign-out). The next
+      // effect run on the new stack will write the rows; swallow here so the
+      // doomed run does not surface as an unhandled rejection.
+    }
   })();
   return () => {
     cancelled = true;

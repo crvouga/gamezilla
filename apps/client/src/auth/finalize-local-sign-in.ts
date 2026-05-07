@@ -1,6 +1,7 @@
 import { deleteAnonymousDatabaseFileBestEffort } from '@gamezilla/client/db/account-db';
 import { writeLastLocalAccountId } from '@gamezilla/client/db/account-local-state';
 import {
+  enqueueSqlClientLifecycle,
   secureStorageAtom,
   sessionServiceAtom,
 } from '@gamezilla/client/runtime/atoms';
@@ -22,7 +23,9 @@ export async function finalizeLocalSignInAfterServerAccount(args: {
   const store = getDefaultStore();
   const storage = store.get(secureStorageAtom);
   await writeLastLocalAccountId(storage, accountId);
-  await deleteAnonymousDatabaseFileBestEffort(deviceId);
+  await enqueueSqlClientLifecycle(() =>
+    deleteAnonymousDatabaseFileBestEffort(deviceId)
+  );
   await ensureDeviceEntity(db, deviceId);
   await ensureProfile(db, accountId);
   const sessionSvc = await store.get(sessionServiceAtom);

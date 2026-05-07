@@ -7,6 +7,7 @@ import { RuntimeBridge } from '@gamezilla/client/runtime/runtime-bridge';
 import {
   accountIdAtom,
   deviceServiceAtom,
+  enqueueSqlClientLifecycle,
   secureStorageAtom,
   sessionServiceAtom,
   sessionTokenAtom,
@@ -33,10 +34,12 @@ export async function removeLocalDataForAccount(
   store.set(accountIdAtom, null);
   store.set(sessionTokenAtom, null);
   await store.get(sqlClientAtom);
-  await deleteAccountLocalData(accountId);
+  await enqueueSqlClientLifecycle(() => deleteAccountLocalData(accountId));
   await writeLastLocalAccountId(storage, null);
   const deviceService = await store.get(deviceServiceAtom);
-  await deleteAnonymousDatabaseFileBestEffort(deviceService.getDeviceId());
+  await enqueueSqlClientLifecycle(() =>
+    deleteAnonymousDatabaseFileBestEffort(deviceService.getDeviceId())
+  );
 }
 
 export async function clearLocalDatabaseAndReload(): Promise<void> {
@@ -59,12 +62,13 @@ export async function clearLocalDatabaseAndReload(): Promise<void> {
   store.set(accountIdAtom, null);
   store.set(sessionTokenAtom, null);
   await store.get(sqlClientAtom);
-
-  if (accountId !== null) {
-    await deleteAccountLocalData(accountId);
-  } else {
-    await deleteAnonymousDatabaseFileBestEffort(deviceService.getDeviceId());
-  }
+  await enqueueSqlClientLifecycle(async () => {
+    if (accountId !== null) {
+      await deleteAccountLocalData(accountId);
+    } else {
+      await deleteAnonymousDatabaseFileBestEffort(deviceService.getDeviceId());
+    }
+  });
 
   await writeLastLocalAccountId(storage, null);
 }

@@ -238,10 +238,22 @@ async function handleMessage(msg: WorkerInboundMessage): Promise<void> {
   postReply({ id, ok: false, error: `Unknown op: ${String(op)}` });
 }
 
+/**
+ * sql.js `Database` is single-threaded and not re-entrant. The main thread can
+ * post many ops back-to-back (e.g. sign-out cleanup + concurrent reads); if
+ * we handle messages in parallel, overlapping `prepare` / `free` throws
+ * "Error finalizing statement". Serialize all ops on one chain.
+ */
+let opChain: Promise<void> = Promise.resolve();
+
 self.onmessage = (ev: MessageEvent<WorkerInboundMessage>) => {
   const data = ev.data;
-  void handleMessage(data).catch((err: unknown) => {
-    const message = err instanceof Error ? err.message : String(err);
-    postReply({ id: data.id, ok: false, error: message });
+  opChain = opChain.then(async () => {
+    try {
+      await handleMessage(data);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      postReply({ id: data.id, ok: false, error: message });
+    }
   });
 };

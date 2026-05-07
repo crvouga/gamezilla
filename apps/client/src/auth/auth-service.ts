@@ -15,7 +15,8 @@ type CreateAuthServiceDeps = {
 
 /**
  * Hosted provider handles credentials; local PatchDB session rows are legacy-only.
- * Sign-out clears the remote session; the session bridge mirrors local atoms.
+ * Sign-out clears the remote session, then always runs {@link clearLocalAuthMirrors}
+ * (success or failure) so local atoms and PatchDB session mirrors are not left stale.
  */
 export function createAuthService(deps: CreateAuthServiceDeps): AuthService {
   return {
@@ -37,6 +38,8 @@ function createSignOutHandler(
       log.warn('Hosted sign-out failed', {
         error: err instanceof Error ? err.message : String(err),
       });
+    } finally {
+      // Always clear local atoms + PatchDB session mirrors (idempotent with bridge).
       await clearLocalAuthMirrors();
     }
   };
