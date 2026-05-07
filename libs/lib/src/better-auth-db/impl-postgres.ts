@@ -1,6 +1,6 @@
 /**
  * Idempotent Postgres DDL for Better Auth tables (`auth_*` prefix).
- * Column names use snake_case to match the Drizzle schema in the API adapter.
+ * Column names use snake_case to match the API Better Auth SQL adapter.
  */
 import type { Logger } from '../logger/logger';
 import type { SqlClient } from '../sql-client/interface';

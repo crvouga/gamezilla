@@ -35,6 +35,14 @@ const DERIVED_DEFAULTS: Record<string, () => string> = {
   API_URL: apiWorkerPublicOrigin,
   // Public API origin baked into the Expo/web client at build time.
   EXPO_PUBLIC_API_URL: apiWorkerPublicOrigin,
+  /**
+   * Better Auth signing secret — generated when absent so Workers can boot
+   * without a manual `openssl` step (stored only in Doppler).
+   */
+  BETTER_AUTH_SECRET: () =>
+    Array.from(crypto.getRandomValues(new Uint8Array(32)), (b) =>
+      b.toString(16).padStart(2, '0')
+    ).join(''),
 };
 
 /**

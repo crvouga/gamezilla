@@ -196,7 +196,12 @@ async function reconcileOnePrice(args: {
     product: productStripeId,
     unit_amount: spec.unit_amount,
     currency: spec.currency,
-    recurring: { interval: spec.recurring.interval },
+    recurring: {
+      interval: spec.recurring.interval,
+      ...(spec.recurring.trial_period_days === undefined
+        ? {}
+        : { trial_period_days: spec.recurring.trial_period_days }),
+    },
     lookup_key: spec.lookup_key,
     transfer_lookup_key: live !== null,
     currency_options: specCurrencyOptionsToStripe(spec.currency_options),

@@ -1,115 +1,59 @@
-import { relations } from 'drizzle-orm';
-import {
-  boolean,
-  pgTable,
-  text,
-  timestamp,
-} from 'drizzle-orm/pg-core';
+/**
+ * Better Auth physical Postgres tables + columns (raw SQL naming).
+ * DDL is applied by `BetterAuthDbImplPostgres.migrateUp` in
+ * `libs/lib/src/better-auth-db/impl-postgres.ts`.
+ */
 
-/** Logical `user` model — physical table `auth_user`. */
-export const user = pgTable('auth_user', {
-  id: text('id').primaryKey(),
-  name: text('name').notNull(),
-  email: text('email').notNull(),
-  emailVerified: boolean('email_verified').notNull().default(false),
-  image: text('image'),
-  createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
-    .notNull()
-    .defaultNow(),
-});
+export const AuthTable = {
+  user: 'auth_user',
+  session: 'auth_session',
+  account: 'auth_account',
+  verification: 'auth_verification',
+} as const;
 
-/** Logical `session` model — physical table `auth_session`. */
-export const session = pgTable('auth_session', {
-  id: text('id').primaryKey(),
-  expiresAt: timestamp('expires_at', {
-    withTimezone: true,
-    mode: 'date',
-  }).notNull(),
-  token: text('token').notNull().unique(),
-  createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
-    .notNull()
-    .defaultNow(),
-  ipAddress: text('ip_address'),
-  userAgent: text('user_agent'),
-  userId: text('user_id')
-    .notNull()
-    .references(() => user.id, { onDelete: 'cascade' }),
-});
+/** Column names as stored in Postgres (snake_case). */
+export const AuthUserColumn = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  emailVerified: 'email_verified',
+  image: 'image',
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+} as const;
 
-/** Logical `account` model — physical table `auth_account`. */
-export const account = pgTable('auth_account', {
-  id: text('id').primaryKey(),
-  accountId: text('account_id').notNull(),
-  providerId: text('provider_id').notNull(),
-  userId: text('user_id')
-    .notNull()
-    .references(() => user.id, { onDelete: 'cascade' }),
-  accessToken: text('access_token'),
-  refreshToken: text('refresh_token'),
-  idToken: text('id_token'),
-  accessTokenExpiresAt: timestamp('access_token_expires_at', {
-    withTimezone: true,
-    mode: 'date',
-  }),
-  refreshTokenExpiresAt: timestamp('refresh_token_expires_at', {
-    withTimezone: true,
-    mode: 'date',
-  }),
-  scope: text('scope'),
-  password: text('password'),
-  createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
-    .notNull()
-    .defaultNow(),
-});
+export const AuthSessionColumn = {
+  id: 'id',
+  expiresAt: 'expires_at',
+  token: 'token',
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+  ipAddress: 'ip_address',
+  userAgent: 'user_agent',
+  userId: 'user_id',
+} as const;
 
-/** Logical `verification` model — physical table `auth_verification`. */
-export const verification = pgTable('auth_verification', {
-  id: text('id').primaryKey(),
-  identifier: text('identifier').notNull(),
-  value: text('value').notNull(),
-  expiresAt: timestamp('expires_at', {
-    withTimezone: true,
-    mode: 'date',
-  }).notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
-    .notNull()
-    .defaultNow(),
-});
+export const AuthAccountColumn = {
+  id: 'id',
+  accountId: 'account_id',
+  providerId: 'provider_id',
+  userId: 'user_id',
+  accessToken: 'access_token',
+  refreshToken: 'refresh_token',
+  idToken: 'id_token',
+  accessTokenExpiresAt: 'access_token_expires_at',
+  refreshTokenExpiresAt: 'refresh_token_expires_at',
+  scope: 'scope',
+  password: 'password',
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+} as const;
 
-export const userRelations = relations(user, ({ many }) => ({
-  sessions: many(session),
-  accounts: many(account),
-}));
-
-export const sessionRelations = relations(session, ({ one }) => ({
-  user: one(user, {
-    fields: [session.userId],
-    references: [user.id],
-  }),
-}));
-
-export const accountRelations = relations(account, ({ one }) => ({
-  user: one(user, {
-    fields: [account.userId],
-    references: [user.id],
-  }),
-}));
-
-export const authDrizzleSchema = {
-  user,
-  session,
-  account,
-  verification,
-};
+export const AuthVerificationColumn = {
+  id: 'id',
+  identifier: 'identifier',
+  value: 'value',
+  expiresAt: 'expires_at',
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+} as const;

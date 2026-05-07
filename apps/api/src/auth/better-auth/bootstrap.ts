@@ -1,5 +1,6 @@
 import type { SecretStore } from '@gamezilla/lib/secret-store';
 import type { Hono } from 'hono';
+import { withBetterAuthBrowserCorsForRequest } from '../../app/cors';
 import type { ApiWorkerEnv } from '../../config/env';
 import type { HttpBearerAuthPorts } from '../ports';
 import { betterAuthAccountProvisioning } from './account-provisioning';
@@ -42,5 +43,9 @@ export async function mountHostedAuthRoutes(
   secretStore: SecretStore
 ): Promise<void> {
   const { auth } = await getHostedAuthStack(secretStore);
-  app.all('/api/auth/*', (c) => auth.handler(c.req.raw));
+  app.all('/api/auth/*', async (c) => {
+    const req = c.req.raw;
+    const res = await auth.handler(req);
+    return withBetterAuthBrowserCorsForRequest(req, res);
+  });
 }

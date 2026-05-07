@@ -108,6 +108,94 @@ describe('priceMatchesSpec', () => {
     );
     expect(ok).toBe(false);
   });
+
+  it('returns true when spec trial matches live trial', () => {
+    const trialSpec: PriceSpecEntry = {
+      ...monthlySpec,
+      recurring: { interval: 'month', trial_period_days: 7 },
+    };
+    const ok = priceMatchesSpec(
+      {
+        unit_amount: 700,
+        currency: 'usd',
+        recurring: { interval: 'month', trial_period_days: 7 },
+        active: true,
+        product: prodId,
+        currency_options: {
+          inr: { unit_amount: 29_900 },
+          brl: { unit_amount: 1990 },
+        },
+      },
+      trialSpec,
+      prodId
+    );
+    expect(ok).toBe(true);
+  });
+
+  it('returns false when spec declares trial but live has none', () => {
+    const trialSpec: PriceSpecEntry = {
+      ...monthlySpec,
+      recurring: { interval: 'month', trial_period_days: 7 },
+    };
+    const ok = priceMatchesSpec(
+      {
+        unit_amount: 700,
+        currency: 'usd',
+        recurring: { interval: 'month', trial_period_days: null },
+        active: true,
+        product: prodId,
+        currency_options: {
+          inr: { unit_amount: 29_900 },
+          brl: { unit_amount: 1990 },
+        },
+      },
+      trialSpec,
+      prodId
+    );
+    expect(ok).toBe(false);
+  });
+
+  it('returns false when spec has no trial but live has one', () => {
+    const ok = priceMatchesSpec(
+      {
+        unit_amount: 700,
+        currency: 'usd',
+        recurring: { interval: 'month', trial_period_days: 7 },
+        active: true,
+        product: prodId,
+        currency_options: {
+          inr: { unit_amount: 29_900 },
+          brl: { unit_amount: 1990 },
+        },
+      },
+      monthlySpec,
+      prodId
+    );
+    expect(ok).toBe(false);
+  });
+
+  it('returns false when trial day counts drift', () => {
+    const trialSpec: PriceSpecEntry = {
+      ...monthlySpec,
+      recurring: { interval: 'month', trial_period_days: 7 },
+    };
+    const ok = priceMatchesSpec(
+      {
+        unit_amount: 700,
+        currency: 'usd',
+        recurring: { interval: 'month', trial_period_days: 14 },
+        active: true,
+        product: prodId,
+        currency_options: {
+          inr: { unit_amount: 29_900 },
+          brl: { unit_amount: 1990 },
+        },
+      },
+      trialSpec,
+      prodId
+    );
+    expect(ok).toBe(false);
+  });
 });
 
 describe('decidePriceReconcile', () => {
@@ -151,6 +239,31 @@ describe('decidePriceReconcile', () => {
           currency_options: {},
         },
         monthlySpec,
+        prodId
+      )
+    ).toBe('replace');
+  });
+
+  it('returns replace when trial drifts from spec', () => {
+    const trialSpec: PriceSpecEntry = {
+      ...monthlySpec,
+      recurring: { interval: 'month', trial_period_days: 7 },
+    };
+    expect(
+      decidePriceReconcile(
+        { id: 'price_1' },
+        {
+          unit_amount: 700,
+          currency: 'usd',
+          recurring: { interval: 'month', trial_period_days: null },
+          active: true,
+          product: prodId,
+          currency_options: {
+            inr: { unit_amount: 29_900 },
+            brl: { unit_amount: 1990 },
+          },
+        },
+        trialSpec,
         prodId
       )
     ).toBe('replace');

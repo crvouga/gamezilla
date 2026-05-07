@@ -9,7 +9,16 @@ export type PriceSpecEntry = {
   readonly lookup_key: string;
   readonly unit_amount: number;
   readonly currency: string;
-  readonly recurring: { readonly interval: 'month' | 'year' };
+  readonly recurring: {
+    readonly interval: 'month' | 'year';
+    /**
+     * Default trial length in days, surfaced to Stripe via the Price's
+     * `recurring.trial_period_days`. Stripe applies this only when a
+     * subscription is created with `trial_from_plan=true` (or copied
+     * explicitly via `subscription_data.trial_period_days`).
+     */
+    readonly trial_period_days?: number;
+  };
   readonly currency_options: Record<string, CurrencyOptionSpec>;
 };
 
@@ -73,11 +82,24 @@ export function stripePriceProductId(product: unknown): string | null {
   return null;
 }
 
+function recurringMatchesSpec(
+  live: { interval: string; trial_period_days?: number | null } | null,
+  spec: PriceSpecEntry['recurring']
+): boolean {
+  if (live?.interval !== spec.interval) return false;
+  const specTrial = spec.trial_period_days ?? null;
+  const liveTrial = live.trial_period_days ?? null;
+  return specTrial === liveTrial;
+}
+
 export function priceMatchesSpec(
   live: {
     unit_amount: number | null;
     currency: string;
-    recurring: { interval: string } | null;
+    recurring: {
+      interval: string;
+      trial_period_days?: number | null;
+    } | null;
     active: boolean;
     product?: string | { id: string } | null;
     currency_options?: Record<string, { unit_amount?: number | null }> | null;
@@ -91,7 +113,7 @@ export function priceMatchesSpec(
   if (live.unit_amount !== spec.unit_amount) return false;
   if (live.currency?.toLowerCase() !== spec.currency.toLowerCase())
     return false;
-  if (live.recurring?.interval !== spec.recurring.interval) return false;
+  if (!recurringMatchesSpec(live.recurring, spec.recurring)) return false;
   const liveCo = normalizeCurrencyOptions(live.currency_options ?? undefined);
   const specCo = specCurrencyAmountMap(spec);
   return specCurrencyOptionsMatchLive(specCo, liveCo);
@@ -105,7 +127,10 @@ export function decidePriceReconcile(
     | {
         unit_amount: number | null;
         currency: string;
-        recurring: { interval: string } | null;
+        recurring: {
+          interval: string;
+          trial_period_days?: number | null;
+        } | null;
         active: boolean;
         product?: string | { id: string } | null;
         currency_options?: Record<

@@ -35,7 +35,7 @@ export const STRIPE_CATALOG_SPEC = {
       lookup_key: 'subscription_monthly',
       unit_amount: 700,
       currency: 'usd',
-      recurring: { interval: 'month' as const },
+      recurring: { interval: 'month' as const, trial_period_days: 7 },
       currency_options: {
         inr: { unit_amount: 4900 }, // India ~USD PPP $7.00
         brl: { unit_amount: 2090 }, // Brazil ~USD PPP $7.00
@@ -57,7 +57,7 @@ export const STRIPE_CATALOG_SPEC = {
       lookup_key: 'subscription_yearly',
       unit_amount: 6000,
       currency: 'usd',
-      recurring: { interval: 'year' as const },
+      recurring: { interval: 'year' as const, trial_period_days: 7 },
       currency_options: {
         inr: { unit_amount: 49900 }, // India ~USD PPP $60.00
         brl: { unit_amount: 20900 }, // Brazil ~USD PPP $60.00

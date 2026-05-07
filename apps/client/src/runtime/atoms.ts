@@ -28,6 +28,37 @@ import { atom, getDefaultStore } from 'jotai';
 import { atomEffect } from 'jotai-effect';
 import { openSqlClientForPlatform } from './open-sql-client';
 
+type PatchStackCleanupEntry = {
+  id: string;
+  cleanup: (reason: 'replaced' | 'abort') => void;
+};
+
+let activePatchStackCleanup: PatchStackCleanupEntry | null = null;
+
+function registerPatchStackCleanup(args: {
+  stamper: PatchMetadataStamper;
+  sync: SyncPatchDb;
+  signal: AbortSignal;
+}): void {
+  const { stamper, sync, signal } = args;
+  const stackId = `stack-${String(Date.now())}-${Math.random().toString(36).slice(2, 8)}`;
+  let cleaned = false;
+  const cleanup = (_reason: 'replaced' | 'abort') => {
+    if (cleaned) return;
+    cleaned = true;
+    forceDetachPatchDbQuerySubscriptionsForDb(stamper);
+    sync.destroy();
+    if (activePatchStackCleanup?.id === stackId) {
+      activePatchStackCleanup = null;
+    }
+  };
+  if (activePatchStackCleanup !== null) {
+    activePatchStackCleanup.cleanup('replaced');
+  }
+  activePatchStackCleanup = { id: stackId, cleanup };
+  signal.addEventListener('abort', () => cleanup('abort'));
+}
+
 /** Last signed-in account for native cold start (SQLite file selection). */
 export const accountIdAtom = atom<string | null>(null);
 
@@ -113,10 +144,7 @@ export const patchDbStackAtom = atom(async (get, { signal }) => {
     assertDeviceId: (id) => assertDeviceId(id),
   });
 
-  signal.addEventListener('abort', () => {
-    forceDetachPatchDbQuerySubscriptionsForDb(stamper);
-    sync.destroy();
-  });
+  registerPatchStackCleanup({ stamper, sync, signal });
 
   await stamper.clearRejectedPushes();
 

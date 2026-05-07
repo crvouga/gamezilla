@@ -1,28 +1,26 @@
-import { drizzleAdapter } from '@better-auth/drizzle-adapter';
-import { neon } from '@neondatabase/serverless';
 import { betterAuth } from 'better-auth';
-import { drizzle } from 'drizzle-orm/neon-http';
 import { createDopplerSecretStoreForScripts } from '@gamezilla/lib/secret-store';
-import { ApiSecretName } from '../../../config/secret-names';
-
-const sql = neon('postgresql://stub:stub@127.0.0.1:5432/stub');
-const db = drizzle(sql);
+import { getDb } from '../../../patch-db/sql-client';
+import { loadBetterAuthSecrets } from '../load-better-auth-secrets';
+import { createSqlClientBetterAuthAdapter } from '../sql-client-better-auth-adapter';
 
 const secretStore = createDopplerSecretStoreForScripts();
-const [googleClientId, googleClientSecret] = await Promise.all([
-  secretStore.getRequired(ApiSecretName.googleWebClientId),
-  secretStore.getRequired(ApiSecretName.googleWebClientSecret),
-]);
+const cfg = await loadBetterAuthSecrets(secretStore);
+const sql = getDb(cfg.dbUrl);
+await sql.connect();
 
 /** Stub for `bunx @better-auth/cli generate` only — not used at runtime. */
 export const auth = betterAuth({
-  baseURL: 'http://127.0.0.1:8788',
-  database: drizzleAdapter(db, { provider: 'pg' }),
+  appName: cfg.appName,
+  baseURL: cfg.baseURL,
+  secret: cfg.secret,
+  trustedOrigins: [...cfg.trustedOrigins],
+  database: createSqlClientBetterAuthAdapter(sql),
   emailAndPassword: { enabled: false },
   socialProviders: {
     google: {
-      clientId: googleClientId.trim(),
-      clientSecret: googleClientSecret.trim(),
+      clientId: cfg.googleClientId,
+      clientSecret: cfg.googleClientSecret,
     },
   },
 });

@@ -54,6 +54,8 @@ type InsertPatchOptions = {
 
 export class PatchDbImplSqlite implements PatchDb {
   readonly hooks = new PatchDbHookRegistry();
+  private hasEnsuredCoreTables = false;
+  private ensureCoreTablesInFlight: Promise<void> | null = null;
 
   readonly compaction: PatchDbCompaction = {
     compactEntity: (key, options, ctx) => this.compactEntity(key, options, ctx),
@@ -67,6 +69,38 @@ export class PatchDbImplSqlite implements PatchDb {
 
   async migrate(): Promise<void> {
     await migratePatchDbSqlite(this.sqlClient);
+    this.hasEnsuredCoreTables = true;
+  }
+
+  private async queryCoreTableNames(): Promise<string[]> {
+    const rows = await this.sqlClient.query<{ name: string }>(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name IN ('patches', 'snapshots')"
+    );
+    return rows.map((r) => r.name);
+  }
+
+  private hasRequiredCoreTables(tableNames: readonly string[]): boolean {
+    return tableNames.includes('patches') && tableNames.includes('snapshots');
+  }
+
+  private async ensureCoreTables(force = false): Promise<void> {
+    if (!force && this.hasEnsuredCoreTables) return;
+    if (this.ensureCoreTablesInFlight !== null) {
+      await this.ensureCoreTablesInFlight;
+      return;
+    }
+    this.ensureCoreTablesInFlight = (async () => {
+      const tableNames = await this.queryCoreTableNames();
+      if (!this.hasRequiredCoreTables(tableNames)) {
+        await migratePatchDbSqlite(this.sqlClient);
+      }
+      this.hasEnsuredCoreTables = true;
+    })();
+    try {
+      await this.ensureCoreTablesInFlight;
+    } finally {
+      this.ensureCoreTablesInFlight = null;
+    }
   }
 
   private async resolveParentId(
@@ -283,70 +317,98 @@ export class PatchDbImplSqlite implements PatchDb {
     patches: PatchInput[],
     ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<WritePatchesResult> {
+    await this.ensureCoreTables();
     this.assertPatchInputs(patches);
     const withIds = this.assignPatchIdsIfMissing(patches);
-    const writtenPatches: Patch[] = [];
-    let hookRejected: PatchRejectionReason[] = [];
-    await this.sqlClient.transaction(async (tx) => {
-      const { accepted, rejected } = await this.hooks.runBeforeWrite(
-        withIds,
-        ctx,
-        tx
-      );
-      hookRejected = rejected;
-      const sortedInput =
-        accepted.length === 0 ? [] : topologicalSortPatches(accepted);
-      const touchedEntities = new Set<string>();
-      let lastTimestamp = Date.now() - 1;
-      const sorted = sortedInput;
-      const parentCache = new Map<string, string | null>();
-      const patchIdsInBatch = new Set<string>();
-      for (const p of sorted) {
-        if ('patchId' in p && typeof p.patchId === 'string') {
-          patchIdsInBatch.add(p.patchId);
-        }
-      }
-      for (const patch of sorted) {
-        const parentId = await this.resolveWriteParentId(
-          tx,
-          patch,
-          parentCache,
-          patchIdsInBatch
+    const writeOnce = async (): Promise<WritePatchesResult> => {
+      const writtenPatches: Patch[] = [];
+      let hookRejected: PatchRejectionReason[] = [];
+      await this.sqlClient.transaction(async (tx) => {
+        const { accepted, rejected } = await this.hooks.runBeforeWrite(
+          withIds,
+          ctx,
+          tx
         );
-        lastTimestamp += 1;
-        const now =
-          'createdAt' in patch && typeof patch.createdAt === 'string'
-            ? patch.createdAt
-            : new Date(lastTimestamp).toISOString();
-        const recordedAt =
-          'recordedAt' in patch && typeof patch.recordedAt === 'string'
-            ? patch.recordedAt
-            : now;
-        const written = await this.insertPatchRow(tx, {
-          patch,
-          parentId,
-          now,
-          recordedAt,
-        });
-        writtenPatches.push(written);
-        touchedEntities.add(`${patch.entityId}\0${patch.entityType}`);
+        hookRejected = rejected;
+        const sortedInput =
+          accepted.length === 0 ? [] : topologicalSortPatches(accepted);
+        const touchedEntities = new Set<string>();
+        let lastTimestamp = Date.now() - 1;
+        const sorted = sortedInput;
+        const parentCache = new Map<string, string | null>();
+        const patchIdsInBatch = new Set<string>();
+        for (const p of sorted) {
+          if ('patchId' in p && typeof p.patchId === 'string') {
+            patchIdsInBatch.add(p.patchId);
+          }
+        }
+        for (const patch of sorted) {
+          const parentId = await this.resolveWriteParentId(
+            tx,
+            patch,
+            parentCache,
+            patchIdsInBatch
+          );
+          lastTimestamp += 1;
+          const now =
+            'createdAt' in patch && typeof patch.createdAt === 'string'
+              ? patch.createdAt
+              : new Date(lastTimestamp).toISOString();
+          const recordedAt =
+            'recordedAt' in patch && typeof patch.recordedAt === 'string'
+              ? patch.recordedAt
+              : now;
+          const written = await this.insertPatchRow(tx, {
+            patch,
+            parentId,
+            now,
+            recordedAt,
+          });
+          writtenPatches.push(written);
+          touchedEntities.add(`${patch.entityId}\0${patch.entityType}`);
+        }
+        await recomputeTouchedSnapshots(tx, touchedEntities);
+        await this.hooks.runAfterWrite(writtenPatches, ctx, tx);
+        await this.runAfterWriteCompactionPass(tx, touchedEntities);
+      });
+      return { accepted: writtenPatches, rejected: hookRejected };
+    };
+    try {
+      return await writeOnce();
+    } catch (error) {
+      const tableNames = await this.queryCoreTableNames().catch(() => []);
+      if (!this.hasRequiredCoreTables(tableNames)) {
+        this.hasEnsuredCoreTables = false;
+        await this.ensureCoreTables(true);
+        return await writeOnce();
       }
-      await recomputeTouchedSnapshots(tx, touchedEntities);
-      await this.hooks.runAfterWrite(writtenPatches, ctx, tx);
-      await this.runAfterWriteCompactionPass(tx, touchedEntities);
-    });
-    return { accepted: writtenPatches, rejected: hookRejected };
+      throw error;
+    }
   }
 
   async read(
     queries: PatchDbQuery[],
     ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<PatchDbResult[]> {
-    const rewritten: PatchDbQuery[] = [];
-    for (const q of queries) {
-      rewritten.push(await this.hooks.runBeforeRead(q, ctx));
+    await this.ensureCoreTables();
+    try {
+      const rewritten: PatchDbQuery[] = [];
+      for (const q of queries) {
+        rewritten.push(await this.hooks.runBeforeRead(q, ctx));
+      }
+      return readPatches(this.sqlClient, rewritten);
+    } catch (error) {
+      const tableNames = await this.queryCoreTableNames().catch(() => []);
+      if (!this.hasRequiredCoreTables(tableNames)) {
+        await this.ensureCoreTables(true);
+        const rewrittenRetry: PatchDbQuery[] = [];
+        for (const q of queries) {
+          rewrittenRetry.push(await this.hooks.runBeforeRead(q, ctx));
+        }
+        return readPatches(this.sqlClient, rewrittenRetry);
+      }
+      throw error;
     }
-    return readPatches(this.sqlClient, rewritten);
   }
 
   private async distinctEntityKeysForPatchIds(
@@ -373,30 +435,42 @@ export class PatchDbImplSqlite implements PatchDb {
     _ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<void> {
     void _ctx;
-    if (updates.length === 0) return;
-    const touchedPatchIds: string[] = [];
-    for (const { patchId, attributes } of updates) {
-      assertPatchId(patchId);
-      if (Object.keys(attributes).length === 0) continue;
-      for (const key of Object.keys(attributes)) {
-        assertAttribute(key);
+    await this.ensureCoreTables();
+    try {
+      if (updates.length === 0) return;
+      const touchedPatchIds: string[] = [];
+      for (const { patchId, attributes } of updates) {
+        assertPatchId(patchId);
+        if (Object.keys(attributes).length === 0) continue;
+        for (const key of Object.keys(attributes)) {
+          assertAttribute(key);
+        }
+        const { expr, params } = buildSqliteUpdateJsonSet(attributes);
+        const sql = `UPDATE patches SET attributes = ${expr} WHERE patch_id = ?`;
+        assertWhereFragment(
+          { sql, params: [...params, patchId] },
+          { context: 'PatchDbImplSqlite.update' }
+        );
+        await this.sqlClient.run(sql, [...params, patchId]);
+        touchedPatchIds.push(patchId);
       }
-      const { expr, params } = buildSqliteUpdateJsonSet(attributes);
-      const sql = `UPDATE patches SET attributes = ${expr} WHERE patch_id = ?`;
-      assertWhereFragment(
-        { sql, params: [...params, patchId] },
-        { context: 'PatchDbImplSqlite.update' }
-      );
-      await this.sqlClient.run(sql, [...params, patchId]);
-      touchedPatchIds.push(patchId);
+      if (touchedPatchIds.length === 0) return;
+      const touchedEntities =
+        await this.distinctEntityKeysForPatchIds(touchedPatchIds);
+      if (touchedEntities.size === 0) return;
+      await this.sqlClient.transaction(async (tx) => {
+        await recomputeTouchedSnapshots(tx, touchedEntities);
+      });
+    } catch (error) {
+      const tableNames = await this.queryCoreTableNames().catch(() => []);
+      if (!this.hasRequiredCoreTables(tableNames)) {
+        this.hasEnsuredCoreTables = false;
+        await this.ensureCoreTables(true);
+        await this.update(updates, _ctx);
+        return;
+      }
+      throw error;
     }
-    if (touchedPatchIds.length === 0) return;
-    const touchedEntities =
-      await this.distinctEntityKeysForPatchIds(touchedPatchIds);
-    if (touchedEntities.size === 0) return;
-    await this.sqlClient.transaction(async (tx) => {
-      await recomputeTouchedSnapshots(tx, touchedEntities);
-    });
   }
 
   async compactEntity(

@@ -6,16 +6,14 @@
     "./rpc": "./src/rpc.ts"
   },
   "dependencies": {
-    "@better-auth/drizzle-adapter": "^1.6.9",
+    "@better-auth/core": "^1.6.9",
     "@better-auth/expo": "^1.6.9",
     "@gamezilla/domain": "workspace:*",
     "@gamezilla/lib": "workspace:*",
     "@gamezilla/patch-db": "workspace:*",
     "@gamezilla/room": "workspace:*",
     "@gamezilla/stripe": "workspace:*",
-    "@neondatabase/serverless": "^1.1.0",
     "better-auth": "^1.6.9",
-    "drizzle-orm": "^0.45.2",
     "hono": "^4.7.0"
   },
   "devDependencies": {
@@ -28,7 +26,7 @@
     "test": "bun test",
     "build": "bun -e \"process.exit(0)\"",
     "tc": "tsc --noEmit -p ../../tsconfig.json",
-    "setup": "bun run scripts/setup-dev-vars.ts",
+    "setup": "bun run scripts/setup-dev-vars.ts && bun run scripts/setup-better-auth-secret.ts",
     "stripe:sync": "bun run --filter @gamezilla/stripe sync",
     "stripe:check": "bun run --filter @gamezilla/stripe check",
     "dev": "bun run scripts/dev-refresh-client-config.ts & wrangler dev --port 8788 --inspector-port 9231",

@@ -2,6 +2,7 @@ import { createLogger } from '@gamezilla/lib/logger';
 import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import { isSecretStoreError } from '@gamezilla/lib/secret-store';
 import { createApiApp } from './app/create-app';
+import { tryBetterAuthOptionsResponse } from './app/cors';
 import type { ApiWorkerEnv } from './config/env';
 import {
   assertDopplerTokenBinding,
@@ -38,11 +39,8 @@ type BootState =
 let bootState: BootState = { kind: 'pending' };
 let fatalLogged = false;
 
-const CORS_HEADERS = {
+const ERROR_CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers':
-    'Content-Type, Cache-Control, Pragma, Authorization',
 } as const;
 
 /**
@@ -50,9 +48,25 @@ const CORS_HEADERS = {
  * crashes early (e.g. missing env), returning 500 here makes the browser
  * surface an opaque CORS error and hide the real cause. Always reply OK
  * for OPTIONS so the subsequent real request can fail with a readable body.
+ *
+ * Echo `Access-Control-Request-Headers` when present so preflight matches what
+ * libraries (e.g. Better Auth) actually send; a fixed short list fails preflight.
  */
-function preflightResponse(): Response {
-  return new Response(null, { status: 204, headers: CORS_HEADERS });
+function preflightResponse(request: Request): Response {
+  const requested = request.headers.get('Access-Control-Request-Headers');
+  const allowHeaders =
+    requested !== null && requested.trim().length > 0 ?
+      requested
+    : 'Authorization, Cache-Control, Content-Type, Pragma, x-anon-id';
+  return new Response(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods':
+        'GET, HEAD, PUT, POST, PATCH, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': allowHeaders,
+    },
+  });
 }
 
 /**
@@ -65,7 +79,7 @@ function fatalConfigResponse(reason: string): Response {
     headers: {
       'Content-Type': 'application/json',
       'Cache-Control': 'no-store',
-      ...CORS_HEADERS,
+      ...ERROR_CORS_HEADERS,
     },
   });
 }
@@ -114,6 +128,27 @@ async function ensureApp(env: ApiWorkerEnv): Promise<App | null> {
   }
 }
 
+async function handleWorkerFetch(
+  request: Request,
+  env: ApiWorkerEnv
+): Promise<Response> {
+  const app = await ensureApp(env);
+  if (app === null) {
+    if (request.method === 'OPTIONS') {
+      return preflightResponse(request);
+    }
+    const reason = bootState.kind === 'fatal' ? bootState.reason : 'unknown';
+    return fatalConfigResponse(reason);
+  }
+
+  const authPreflight = tryBetterAuthOptionsResponse(request);
+  if (authPreflight !== null) {
+    return authPreflight;
+  }
+
+  return app.fetch(request, env);
+}
+
 export { Space };
 
 export default {
@@ -123,22 +158,13 @@ export default {
     _ctx: ExecutionContext
   ): Promise<Response> {
     try {
-      const app = await ensureApp(env);
-      if (app === null) {
-        if (request.method === 'OPTIONS') {
-          return preflightResponse();
-        }
-        const reason =
-          bootState.kind === 'fatal' ? bootState.reason : 'unknown';
-        return fatalConfigResponse(reason);
-      }
-      return app.fetch(request, env);
+      return await handleWorkerFetch(request, env);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       log.error('top-level handler error', { error: message });
 
       if (request.method === 'OPTIONS') {
-        return preflightResponse();
+        return preflightResponse(request);
       }
 
       return new Response(JSON.stringify({ error: 'Internal server error' }), {
@@ -146,7 +172,7 @@ export default {
         headers: {
           'Content-Type': 'application/json',
           'Cache-Control': 'no-store',
-          ...CORS_HEADERS,
+          ...ERROR_CORS_HEADERS,
         },
       });
     }
