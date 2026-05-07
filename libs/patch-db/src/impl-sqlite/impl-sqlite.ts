@@ -1,6 +1,5 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
-import { assertWhereFragment } from '@gamezilla/lib/sqlite';
 import { PatchDbHookRegistry } from '../hook-registry';
 import type {
   Attribute,
@@ -30,6 +29,10 @@ import { DEFAULT_PATCH_DB_COMPACTION_POLICY } from '../policy/compaction-policy'
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '../policy/system-device';
 import { finishCompactionAfterInsert } from '../compact-entity-tx-helpers';
 import { topologicalSortPatches } from '../topological-sort';
+import {
+  applyPatchUpdatesAndCollectTouchedIds,
+  distinctEntityKeysForPatchIds,
+} from './impl-sqlite-patch-updates';
 import { migratePatchDbSqlite } from './migrate';
 import { readPatches } from './read-ops';
 import {
@@ -43,7 +46,6 @@ import {
   SELECT_PATCHES_FOR_SNAPSHOT,
 } from './sql-constants';
 import type { PatchRow } from './types';
-import { buildSqliteUpdateJsonSet } from './update-ops';
 
 type InsertPatchOptions = {
   patch: PatchInput;
@@ -313,6 +315,63 @@ export class PatchDbImplSqlite implements PatchDb {
     await this.compactEntityInTx(tx, entityId, entityType, policy.keepLatest);
   }
 
+  private async executeWritePatchesTransaction(
+    withIds: PatchInput[],
+    ctx: PatchDbContext
+  ): Promise<WritePatchesResult> {
+    const writtenPatches: Patch[] = [];
+    let hookRejected: PatchRejectionReason[] = [];
+    await this.sqlClient.transaction(async (tx) => {
+      const { accepted, rejected } = await this.hooks.runBeforeWrite(
+        withIds,
+        ctx,
+        tx
+      );
+      hookRejected = rejected;
+      const sortedInput =
+        accepted.length === 0 ? [] : topologicalSortPatches(accepted);
+      const touchedEntities = new Set<string>();
+      let lastTimestamp = Date.now() - 1;
+      const sorted = sortedInput;
+      const parentCache = new Map<string, string | null>();
+      const patchIdsInBatch = new Set<string>();
+      for (const p of sorted) {
+        if ('patchId' in p && typeof p.patchId === 'string') {
+          patchIdsInBatch.add(p.patchId);
+        }
+      }
+      for (const patch of sorted) {
+        const parentId = await this.resolveWriteParentId(
+          tx,
+          patch,
+          parentCache,
+          patchIdsInBatch
+        );
+        lastTimestamp += 1;
+        const now =
+          'createdAt' in patch && typeof patch.createdAt === 'string'
+            ? patch.createdAt
+            : new Date(lastTimestamp).toISOString();
+        const recordedAt =
+          'recordedAt' in patch && typeof patch.recordedAt === 'string'
+            ? patch.recordedAt
+            : now;
+        const written = await this.insertPatchRow(tx, {
+          patch,
+          parentId,
+          now,
+          recordedAt,
+        });
+        writtenPatches.push(written);
+        touchedEntities.add(`${patch.entityId}\0${patch.entityType}`);
+      }
+      await recomputeTouchedSnapshots(tx, touchedEntities);
+      await this.hooks.runAfterWrite(writtenPatches, ctx, tx);
+      await this.runAfterWriteCompactionPass(tx, touchedEntities);
+    });
+    return { accepted: writtenPatches, rejected: hookRejected };
+  }
+
   async write(
     patches: PatchInput[],
     ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
@@ -320,59 +379,8 @@ export class PatchDbImplSqlite implements PatchDb {
     await this.ensureCoreTables();
     this.assertPatchInputs(patches);
     const withIds = this.assignPatchIdsIfMissing(patches);
-    const writeOnce = async (): Promise<WritePatchesResult> => {
-      const writtenPatches: Patch[] = [];
-      let hookRejected: PatchRejectionReason[] = [];
-      await this.sqlClient.transaction(async (tx) => {
-        const { accepted, rejected } = await this.hooks.runBeforeWrite(
-          withIds,
-          ctx,
-          tx
-        );
-        hookRejected = rejected;
-        const sortedInput =
-          accepted.length === 0 ? [] : topologicalSortPatches(accepted);
-        const touchedEntities = new Set<string>();
-        let lastTimestamp = Date.now() - 1;
-        const sorted = sortedInput;
-        const parentCache = new Map<string, string | null>();
-        const patchIdsInBatch = new Set<string>();
-        for (const p of sorted) {
-          if ('patchId' in p && typeof p.patchId === 'string') {
-            patchIdsInBatch.add(p.patchId);
-          }
-        }
-        for (const patch of sorted) {
-          const parentId = await this.resolveWriteParentId(
-            tx,
-            patch,
-            parentCache,
-            patchIdsInBatch
-          );
-          lastTimestamp += 1;
-          const now =
-            'createdAt' in patch && typeof patch.createdAt === 'string'
-              ? patch.createdAt
-              : new Date(lastTimestamp).toISOString();
-          const recordedAt =
-            'recordedAt' in patch && typeof patch.recordedAt === 'string'
-              ? patch.recordedAt
-              : now;
-          const written = await this.insertPatchRow(tx, {
-            patch,
-            parentId,
-            now,
-            recordedAt,
-          });
-          writtenPatches.push(written);
-          touchedEntities.add(`${patch.entityId}\0${patch.entityType}`);
-        }
-        await recomputeTouchedSnapshots(tx, touchedEntities);
-        await this.hooks.runAfterWrite(writtenPatches, ctx, tx);
-        await this.runAfterWriteCompactionPass(tx, touchedEntities);
-      });
-      return { accepted: writtenPatches, rejected: hookRejected };
-    };
+    const writeOnce = (): Promise<WritePatchesResult> =>
+      this.executeWritePatchesTransaction(withIds, ctx);
     try {
       return await writeOnce();
     } catch (error) {
@@ -411,25 +419,6 @@ export class PatchDbImplSqlite implements PatchDb {
     }
   }
 
-  private async distinctEntityKeysForPatchIds(
-    patchIds: readonly string[]
-  ): Promise<Set<string>> {
-    if (patchIds.length === 0) return new Set();
-    const ph = patchIds.map(() => '?').join(', ');
-    const rows = await this.sqlClient.query<{
-      entity_id: string;
-      entity_type: string;
-    }>(
-      `SELECT DISTINCT entity_id, entity_type FROM patches WHERE patch_id IN (${ph})`,
-      [...patchIds]
-    );
-    const keys = new Set<string>();
-    for (const r of rows) {
-      keys.add(`${r.entity_id}\0${r.entity_type}`);
-    }
-    return keys;
-  }
-
   async update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
     _ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
@@ -438,25 +427,15 @@ export class PatchDbImplSqlite implements PatchDb {
     await this.ensureCoreTables();
     try {
       if (updates.length === 0) return;
-      const touchedPatchIds: string[] = [];
-      for (const { patchId, attributes } of updates) {
-        assertPatchId(patchId);
-        if (Object.keys(attributes).length === 0) continue;
-        for (const key of Object.keys(attributes)) {
-          assertAttribute(key);
-        }
-        const { expr, params } = buildSqliteUpdateJsonSet(attributes);
-        const sql = `UPDATE patches SET attributes = ${expr} WHERE patch_id = ?`;
-        assertWhereFragment(
-          { sql, params: [...params, patchId] },
-          { context: 'PatchDbImplSqlite.update' }
-        );
-        await this.sqlClient.run(sql, [...params, patchId]);
-        touchedPatchIds.push(patchId);
-      }
+      const touchedPatchIds = await applyPatchUpdatesAndCollectTouchedIds(
+        this.sqlClient,
+        updates
+      );
       if (touchedPatchIds.length === 0) return;
-      const touchedEntities =
-        await this.distinctEntityKeysForPatchIds(touchedPatchIds);
+      const touchedEntities = await distinctEntityKeysForPatchIds(
+        this.sqlClient,
+        touchedPatchIds
+      );
       if (touchedEntities.size === 0) return;
       await this.sqlClient.transaction(async (tx) => {
         await recomputeTouchedSnapshots(tx, touchedEntities);

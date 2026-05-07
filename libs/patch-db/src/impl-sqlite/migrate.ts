@@ -5,7 +5,7 @@ async function runBaseMigrations(sqlClient: SqlClient): Promise<void> {
   const statements = MIGRATIONS.split(';')
     .map((s) => s.trim())
     .filter(Boolean);
-  for (const [index, stmt] of statements.entries()) {
+  for (const [, stmt] of statements.entries()) {
     try {
       await sqlClient.run(stmt);
     } catch (error) {
