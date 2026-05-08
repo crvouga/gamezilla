@@ -31,8 +31,7 @@ export function SpaceTitleText({
   const customTitle = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.title.key,
-    parse: SpaceAttr.title.parse,
+    attribute: SpaceAttr.title,
   });
   if (customTitle !== null) {
     return (

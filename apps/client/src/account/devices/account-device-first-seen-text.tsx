@@ -17,16 +17,12 @@ export function AccountDeviceFirstSeenText({
   const firstSeenAt = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.firstSeenAt.key,
-
-    parse: DeviceAttr.firstSeenAt.parse,
+    attribute: DeviceAttr.firstSeenAt,
   });
   const createdAt = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.createdAt.key,
-
-    parse: DeviceAttr.createdAt.parse,
+    attribute: DeviceAttr.createdAt,
   });
   return (
     <Text

@@ -18,9 +18,7 @@ export function LinkedProviderNameText({
   const provider = useQueryAttribute({
     entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
     entityId: accountProviderEntityId,
-    attributeKey: AccountProviderAttr.provider.key,
-
-    parse: AccountProviderAttr.provider.parse,
+    attribute: AccountProviderAttr.provider,
   });
   if (provider === null) return null;
   return <Text variant="bodyBold" label={providerLabel(provider)} />;

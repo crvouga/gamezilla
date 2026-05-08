@@ -32,9 +32,7 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
   const endedAt = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.endedAt.key,
-
-    parse: SpaceAttr.endedAt.parse,
+    attribute: SpaceAttr.endedAt,
   });
   const isLive = endedAt === null;
   const { entries } = useCurrentSpaceIds();

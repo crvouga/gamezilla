@@ -3,15 +3,15 @@ import type {
   PatchDbQueryOrderBy,
   PatchDbQueryWhereClause,
 } from '../interface';
+import type { PatchDbEntityStore } from './entity-store';
+import { getEntityStoreForDb } from './entity-store';
+import { usePatchDbStack } from './patch-db-stack-context';
 import {
   buildQueryAttributeDescriptor,
   type QueryAttributeDescriptor,
 } from './query-attribute-descriptor';
-import { usePatchDbStack } from './patch-db-stack-context';
-import { getEntityStoreForDb } from './entity-store';
-import type { PatchDbEntityStore } from './entity-store';
-import { getCacheForDb } from './query-cache';
 import type { PatchDbQueryCache } from './query-cache';
+import { getCacheForDb } from './query-cache';
 
 function descriptorFromShapeKey(shapeKey: string): QueryAttributeDescriptor {
   const parsed = JSON.parse(shapeKey) as {
@@ -52,6 +52,15 @@ function readRawForQueryAttribute(
   return r.entities[0]?.attributes[attributeKey];
 }
 
+/**
+ * Structural match for `@gamezilla/lib/attribute` `AttributeTag` — only `key` and
+ * `parse` are required for {@link useQueryAttribute}.
+ */
+export type QueryAttributeLike<T = unknown> = {
+  key: string;
+  parse: (raw: unknown) => T;
+};
+
 function reuseOrParse<T>(
   cacheRef: { current: ParseCache<T> | null },
   shapeAttr: string,
@@ -79,22 +88,23 @@ function reuseOrParse<T>(
  * shares one underlying subscription per `(entityType, entityId)` with other
  * attribute hooks. Otherwise falls back to the predicate query cache.
  *
- * `parse` receives the raw stored value (or `undefined` when no entity matched /
- * the attribute is absent). Typically pass the same `parse` as your domain attribute tag.
+ * `attribute.parse` receives the raw stored value (or `undefined` when no entity matched /
+ * the attribute is absent). Pass a domain attribute tag (e.g. `SpaceAttr.title`).
  */
 export function useQueryAttribute<T>(args: {
   entityType: string;
   entityId?: string | string[];
   where?: PatchDbQueryWhereClause;
   orderBy?: PatchDbQueryOrderBy[];
-  attributeKey: string;
-  parse: (raw: unknown) => T;
+  attribute: QueryAttributeLike<T>;
 }): T {
   const { decorated: db } = usePatchDbStack();
   const entityStore = useMemo(() => getEntityStoreForDb(db), [db]);
   const queryCache = useMemo(() => getCacheForDb(db), [db]);
 
-  const { entityType, entityId, where, orderBy, attributeKey, parse } = args;
+  const { entityType, entityId, where, orderBy, attribute } = args;
+  const attributeKey = attribute.key;
+  const parse = attribute.parse;
 
   /** Serialize shape so inline `where` / `orderBy` objects do not churn `desc` every render (would break `useSyncExternalStore`). */
   const shapeKey = JSON.stringify({
@@ -109,11 +119,7 @@ export function useQueryAttribute<T>(args: {
   const subscribe = useCallback(
     (listener: () => void) => {
       if (desc.kind === 'entity') {
-        return entityStore.subscribe(
-          desc.entityType,
-          desc.entityId,
-          listener
-        );
+        return entityStore.subscribe(desc.entityType, desc.entityId, listener);
       }
       return queryCache.subscribe(desc.queryKey, desc.query, listener);
     },

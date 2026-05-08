@@ -19,9 +19,7 @@ export function LinkedProviderUserIdText({
   const providerUserId = useQueryAttribute({
     entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
     entityId: accountProviderEntityId,
-    attributeKey: AccountProviderAttr.providerUserId.key,
-
-    parse: AccountProviderAttr.providerUserId.parse,
+    attribute: AccountProviderAttr.providerUserId,
   });
   if (providerUserId === null) return null;
   return (

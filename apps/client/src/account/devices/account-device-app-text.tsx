@@ -17,16 +17,12 @@ export function AccountDeviceAppText({
   const appVersion = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.appVersion.key,
-
-    parse: DeviceAttr.appVersion.parse,
+    attribute: DeviceAttr.appVersion,
   });
   const appBuildNumber = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.appBuildNumber.key,
-
-    parse: DeviceAttr.appBuildNumber.parse,
+    attribute: DeviceAttr.appBuildNumber,
   });
   return (
     <Text

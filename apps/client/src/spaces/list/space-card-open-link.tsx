@@ -38,23 +38,17 @@ export function SpaceCardOpenLink({
   const customTitle = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.title.key,
-
-    parse: SpaceAttr.title.parse,
+    attribute: SpaceAttr.title,
   });
   const hostId = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.hostId.key,
-
-    parse: SpaceAttr.hostId.parse,
+    attribute: SpaceAttr.hostId,
   });
   const hostDisplayName = useQueryAttribute({
     entityType: PROFILE_ENTITY_TYPE,
     entityId: hostId ?? [],
-    attributeKey: ProfileAttr.displayName.key,
-
-    parse: ProfileAttr.displayName.parse,
+    attribute: ProfileAttr.displayName,
   });
   const resolvedTitle = customTitle ?? t`${hostDisplayName}'s space`;
   const accessibilityLabel =

@@ -17,9 +17,7 @@ export function AccountDeviceCreatedText({
   const createdAt = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.createdAt.key,
-
-    parse: DeviceAttr.createdAt.parse,
+    attribute: DeviceAttr.createdAt,
   });
   return (
     <Text variant="body" numberOfLines={4} label={formatTimestamp(createdAt)} />

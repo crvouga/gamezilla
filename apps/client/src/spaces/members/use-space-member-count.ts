@@ -16,9 +16,7 @@ export function useSpaceMemberCount(spaceId: string): number {
   const hostId = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.hostId.key,
-
-    parse: SpaceAttr.hostId.parse,
+    attribute: SpaceAttr.hostId,
   });
   const guests = useSpaceGuestMembershipIds(spaceId);
   return (hostId !== null ? 1 : 0) + guests.length;

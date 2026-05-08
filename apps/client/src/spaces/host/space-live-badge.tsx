@@ -25,9 +25,7 @@ export function SpaceLiveBadge({ spaceId }: SpaceLiveBadgeProps): ReactNode {
   const endedAt = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.endedAt.key,
-
-    parse: SpaceAttr.endedAt.parse,
+    attribute: SpaceAttr.endedAt,
   });
   const isLive = endedAt === null;
   if (!isLive) return null;

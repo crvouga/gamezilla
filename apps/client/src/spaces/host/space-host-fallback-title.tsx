@@ -35,9 +35,7 @@ export function SpaceHostFallbackTitle({
   const hostId = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.hostId.key,
-
-    parse: SpaceAttr.hostId.parse,
+    attribute: SpaceAttr.hostId,
   });
   if (hostId === null) {
     return <Text {...optionalProps({ variant, sx, numberOfLines })} label={EMPTY_LABEL} />;
@@ -67,9 +65,7 @@ function SpaceHostFallbackTitleResolved({
   const hostDisplayName = useQueryAttribute({
     entityType: PROFILE_ENTITY_TYPE,
     entityId: hostId,
-    attributeKey: ProfileAttr.displayName.key,
-
-    parse: ProfileAttr.displayName.parse,
+    attribute: ProfileAttr.displayName,
   });
   return (
     <Text

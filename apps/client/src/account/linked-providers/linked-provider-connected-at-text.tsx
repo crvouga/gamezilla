@@ -22,9 +22,7 @@ export function LinkedProviderConnectedAtText({
   const linkedAt = useQueryAttribute({
     entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
     entityId: accountProviderEntityId,
-    attributeKey: AccountProviderAttr.linkedAt.key,
-
-    parse: AccountProviderAttr.linkedAt.parse,
+    attribute: AccountProviderAttr.linkedAt,
   });
   const connectedAt = formatTimestamp(linkedAt);
   return (

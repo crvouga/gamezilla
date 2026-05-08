@@ -17,16 +17,12 @@ export function AccountDeviceOsText({
   const osName = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.osName.key,
-
-    parse: DeviceAttr.osName.parse,
+    attribute: DeviceAttr.osName,
   });
   const osVersion = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.osVersion.key,
-
-    parse: DeviceAttr.osVersion.parse,
+    attribute: DeviceAttr.osVersion,
   });
   return (
     <Text variant="body" numberOfLines={4} label={formatOsLine(osName, osVersion)} />

@@ -17,9 +17,7 @@ export function AccountDeviceNameText({
   const deviceName = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.deviceName.key,
-
-    parse: DeviceAttr.deviceName.parse,
+    attribute: DeviceAttr.deviceName,
   });
   return (
     <Text variant="body" numberOfLines={4} label={deviceName ?? EM_DASH} />

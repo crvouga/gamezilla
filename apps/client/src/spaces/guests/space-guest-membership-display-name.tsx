@@ -25,9 +25,7 @@ export function SpaceGuestMembershipDisplayName({
   const guestId = useQueryAttribute({
     entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
     entityId: membershipId,
-    attributeKey: SpaceMembershipAttr.guestId.key,
-
-    parse: SpaceMembershipAttr.guestId.parse,
+    attribute: SpaceMembershipAttr.guestId,
   });
   return (
     <UserDisplayName

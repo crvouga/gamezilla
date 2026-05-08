@@ -1,12 +1,7 @@
-export { INBOX_LIST_ID, TodoAttr, TodoListAttr } from './todo-constants';
-export { TodoItem } from './todo-item';
-export { TodoList } from './todo-list';
-export {
-  TodoListDetail,
-  type TodoListDetailProps,
-  useTodoListName,
-} from './todo-list-detail';
+export { INBOX_LIST_ID, TodoAttr, TodoListAttr } from './domain/todo-constants';
+export { TodoItemRow } from './item/todo-item-row';
+export { TodoListDetail, type TodoListDetailProps } from './list/todo-list-detail';
 export {
   TodoListsOverview,
   type TodoListsOverviewProps,
-} from './todo-lists-overview';
+} from './list/todo-lists-overview';

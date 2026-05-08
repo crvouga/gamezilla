@@ -49,9 +49,7 @@ function UserDisplayNameInner({
   const displayName = useQueryAttribute({
     entityType: PROFILE_ENTITY_TYPE,
     entityId: profileId,
-    attributeKey: ProfileAttr.displayName.key,
-
-    parse: ProfileAttr.displayName.parse,
+    attribute: ProfileAttr.displayName,
   });
   return (
     <Text

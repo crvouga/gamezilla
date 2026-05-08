@@ -17,9 +17,7 @@ export function LinkedProviderEmailText({
   const email = useQueryAttribute({
     entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
     entityId: accountProviderEntityId,
-    attributeKey: AccountProviderAttr.email.key,
-
-    parse: AccountProviderAttr.email.parse,
+    attribute: AccountProviderAttr.email,
   });
   if (email === null) return null;
   return <Text variant="caption" selectable label={email} />;

@@ -17,16 +17,12 @@ export function AccountDeviceModelText({
   const deviceBrand = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.deviceBrand.key,
-
-    parse: DeviceAttr.deviceBrand.parse,
+    attribute: DeviceAttr.deviceBrand,
   });
   const deviceModelName = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.deviceModelName.key,
-
-    parse: DeviceAttr.deviceModelName.parse,
+    attribute: DeviceAttr.deviceModelName,
   });
   return (
     <Text

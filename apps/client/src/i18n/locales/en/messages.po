@@ -30,7 +30,7 @@ msgstr "›"
 msgid "({count})"
 msgstr "({count})"
 
-#: libs/patch-db-example/src/todo/todo-item.tsx
+#: libs/patch-db-example/src/todo/item/todo-item-title-text.tsx
 msgid "(untitled)"
 msgstr "(untitled)"
 
@@ -117,7 +117,7 @@ msgstr "{totalRows} snapshot row(s) · {typeCount} type(s)"
 #~ msgid "{winner} wins"
 #~ msgstr "{winner} wins"
 
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
+#: libs/patch-db-example/src/todo/list/todo-list-create-bar.tsx
 msgid "+ New List"
 msgstr "+ New List"
 
@@ -212,8 +212,7 @@ msgstr "Account ID"
 #~ msgid "Account menu"
 #~ msgstr "Account menu"
 
-#: libs/patch-db-example/src/todo/todo-list-detail.tsx
-#: libs/patch-db-example/src/todo/todo-list.tsx
+#: libs/patch-db-example/src/todo/list/todo-list-detail.tsx
 msgid "Active"
 msgstr "Active"
 
@@ -222,14 +221,12 @@ msgstr "Active"
 #~ msgstr "Active space ID"
 
 #: libs/lib/src/ui/components/multi-select-swatch/multi-select-swatch-grid.tsx
-#: libs/patch-db-example/src/todo/todo-list-detail.tsx
-#: libs/patch-db-example/src/todo/todo-list.tsx
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
+#: libs/patch-db-example/src/todo/item/todo-add-bar.tsx
+#: libs/patch-db-example/src/todo/list/todo-list-create-bar.tsx
 msgid "Add"
 msgstr "Add"
 
-#: libs/patch-db-example/src/todo/todo-list-detail.tsx
-#: libs/patch-db-example/src/todo/todo-list.tsx
+#: libs/patch-db-example/src/todo/item/todo-add-bar.tsx
 msgid "Add a todo..."
 msgstr "Add a todo..."
 
@@ -249,8 +246,7 @@ msgstr "Add Shape"
 msgid "Admin Metrics"
 msgstr "Admin Metrics"
 
-#: libs/patch-db-example/src/todo/todo-list-detail.tsx
-#: libs/patch-db-example/src/todo/todo-list.tsx
+#: libs/patch-db-example/src/todo/list/todo-list-detail.tsx
 msgid "All"
 msgstr "All"
 
@@ -303,11 +299,15 @@ msgstr "Appearance"
 #~ msgid "Apply Election"
 #~ msgstr "Apply Election"
 
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
-msgid "Are you sure you want to delete \"{targetName}\"? This cannot be undone."
-msgstr "Are you sure you want to delete \"{targetName}\"? This cannot be undone."
+#: libs/patch-db-example/src/todo/list/todo-list-delete-confirmation-modal.tsx
+msgid "Are you sure you want to delete \"{name}\"? This cannot be undone."
+msgstr "Are you sure you want to delete \"{name}\"? This cannot be undone."
 
 #: libs/patch-db-example/src/todo/todo-lists-overview.tsx
+#~ msgid "Are you sure you want to delete \"{targetName}\"? This cannot be undone."
+#~ msgstr "Are you sure you want to delete \"{targetName}\"? This cannot be undone."
+
+#: libs/patch-db-example/src/todo/list/todo-lists-overview.tsx
 msgid "Are you sure you want to delete the local database? All todos and lists will be permanently removed. The app will reload."
 msgstr "Are you sure you want to delete the local database? All todos and lists will be permanently removed. The app will reload."
 
@@ -403,8 +403,8 @@ msgstr "Build mode: {buildMode}"
 #: apps/client/src/spaces/actions/end-space-confirm-modal.tsx
 #: apps/client/src/spaces/actions/leave-space-confirm-modal.tsx
 #: libs/lib/src/ui/components/modal/confirmation-modal.tsx
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
+#: libs/patch-db-example/src/todo/list/todo-list-delete-confirmation-modal.tsx
+#: libs/patch-db-example/src/todo/list/todo-lists-overview.tsx
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -469,15 +469,15 @@ msgstr "Choose what to update"
 msgid "clear"
 msgstr "clear"
 
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
+#: libs/patch-db-example/src/todo/list/todo-lists-overview.tsx
 msgid "Clear"
 msgstr "Clear"
 
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
+#: libs/patch-db-example/src/todo/list/todo-lists-overview.tsx
 msgid "Clear All Data"
 msgstr "Clear All Data"
 
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
+#: libs/patch-db-example/src/todo/list/todo-lists-overview.tsx
 msgid "Clear data"
 msgstr "Clear data"
 
@@ -550,8 +550,7 @@ msgstr "Commit hash"
 #~ msgid "Committed Events"
 #~ msgstr "Committed Events"
 
-#: libs/patch-db-example/src/todo/todo-list-detail.tsx
-#: libs/patch-db-example/src/todo/todo-list.tsx
+#: libs/patch-db-example/src/todo/list/todo-list-detail.tsx
 msgid "Completed"
 msgstr "Completed"
 
@@ -712,13 +711,13 @@ msgstr "Debug"
 msgid "Decrement"
 msgstr "Decrement"
 
-#: libs/patch-db-example/src/todo/todo-item.tsx
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
+#: libs/patch-db-example/src/todo/item/todo-item-row.tsx
+#: libs/patch-db-example/src/todo/list/todo-list-delete-confirmation-modal.tsx
+#: libs/patch-db-example/src/todo/list/todo-list-row-delete-button.tsx
 msgid "Delete"
 msgstr "Delete"
 
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
+#: libs/patch-db-example/src/todo/list/todo-list-delete-confirmation-modal.tsx
 msgid "Delete List"
 msgstr "Delete List"
 
@@ -1025,8 +1024,7 @@ msgstr "https://..."
 #~ msgid "Identity / Authority Bypass"
 #~ msgstr "Identity / Authority Bypass"
 
-#: libs/patch-db-example/src/todo/todo-list-detail.tsx
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
+#: libs/patch-db-example/src/todo/list/todo-list-row-name-text.tsx
 msgid "Inbox"
 msgstr "Inbox"
 
@@ -1119,10 +1117,10 @@ msgid "Limited or checking"
 msgstr "Limited or checking"
 
 #: libs/patch-db-example/src/todo/todo-list-detail.tsx
-msgid "List"
-msgstr "List"
+#~ msgid "List"
+#~ msgstr "List"
 
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
+#: libs/patch-db-example/src/todo/list/todo-list-create-bar.tsx
 msgid "List name..."
 msgstr "List name..."
 
@@ -1277,8 +1275,7 @@ msgstr "No"
 msgid "No active session"
 msgstr "No active session"
 
-#: libs/patch-db-example/src/todo/todo-list-detail.tsx
-#: libs/patch-db-example/src/todo/todo-list.tsx
+#: libs/patch-db-example/src/todo/list/todo-list-detail.tsx
 msgid "No active todos."
 msgstr "No active todos."
 
@@ -1294,8 +1291,7 @@ msgstr "No active todos."
 #~ msgid "No committed events yet."
 #~ msgstr "No committed events yet."
 
-#: libs/patch-db-example/src/todo/todo-list-detail.tsx
-#: libs/patch-db-example/src/todo/todo-list.tsx
+#: libs/patch-db-example/src/todo/list/todo-list-detail.tsx
 msgid "No completed todos."
 msgstr "No completed todos."
 
@@ -1324,7 +1320,7 @@ msgstr "No guests yet"
 msgid "No host listed"
 msgstr "No host listed"
 
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
+#: libs/patch-db-example/src/todo/list/todo-lists-overview.tsx
 msgid "No lists yet. Create one above or add todos to Inbox."
 msgstr "No lists yet. Create one above or add todos to Inbox."
 
@@ -1364,8 +1360,7 @@ msgstr "No shapes yet"
 #~ msgid "No spaces match this filter."
 #~ msgstr "No spaces match this filter."
 
-#: libs/patch-db-example/src/todo/todo-list-detail.tsx
-#: libs/patch-db-example/src/todo/todo-list.tsx
+#: libs/patch-db-example/src/todo/list/todo-list-detail.tsx
 msgid "No todos yet. Add one above!"
 msgstr "No todos yet. Add one above!"
 
@@ -2116,7 +2111,6 @@ msgstr "Tic-tac-toe"
 #: apps/client/src/developer/developer-screen.tsx
 #: apps/client/src/todos/todo-list-detail-screen.tsx
 #: apps/client/src/todos/todo-lists-screen.tsx
-#: libs/patch-db-example/src/todo/todo-list.tsx
 msgid "Todos"
 msgstr "Todos"
 
@@ -2176,7 +2170,7 @@ msgstr "Unknown"
 msgid "Unreachable"
 msgstr "Unreachable"
 
-#: libs/patch-db-example/src/todo/todo-lists-overview.tsx
+#: libs/patch-db-example/src/todo/list/todo-list-row-name-text.tsx
 msgid "Untitled"
 msgstr "Untitled"
 

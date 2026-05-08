@@ -18,37 +18,27 @@ export function SpaceDebugSpaceSection({
   const customTitle = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.title.key,
-
-    parse: SpaceAttr.title.parse,
+    attribute: SpaceAttr.title,
   });
   const hostId = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.hostId.key,
-
-    parse: SpaceAttr.hostId.parse,
+    attribute: SpaceAttr.hostId,
   });
   const createdAt = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.createdAt.key,
-
-    parse: SpaceAttr.createdAt.parse,
+    attribute: SpaceAttr.createdAt,
   });
   const endedAt = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.endedAt.key,
-
-    parse: SpaceAttr.endedAt.parse,
+    attribute: SpaceAttr.endedAt,
   });
   const live = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.endedAt.key,
-
-    parse: SpaceAttr.endedAt.parse,
+    attribute: SpaceAttr.endedAt,
   });
   const res = useQuery({
     entityType: SPACE_ENTITY_TYPE,

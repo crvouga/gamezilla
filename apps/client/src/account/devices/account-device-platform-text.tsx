@@ -17,9 +17,7 @@ export function AccountDevicePlatformText({
   const platform = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.platform.key,
-
-    parse: DeviceAttr.platform.parse,
+    attribute: DeviceAttr.platform,
   });
   return <Text variant="body" numberOfLines={4} label={platform ?? EM_DASH} />;
 }

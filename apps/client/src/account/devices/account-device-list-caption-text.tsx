@@ -17,30 +17,22 @@ export function AccountDeviceListCaptionText({
   const osName = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.osName.key,
-
-    parse: DeviceAttr.osName.parse,
+    attribute: DeviceAttr.osName,
   });
   const osVersion = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.osVersion.key,
-
-    parse: DeviceAttr.osVersion.parse,
+    attribute: DeviceAttr.osVersion,
   });
   const lastSeenAt = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.lastSeenAt.key,
-
-    parse: DeviceAttr.lastSeenAt.parse,
+    attribute: DeviceAttr.lastSeenAt,
   });
   const createdAt = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.createdAt.key,
-
-    parse: DeviceAttr.createdAt.parse,
+    attribute: DeviceAttr.createdAt,
   });
   const label = formatDeviceListCaption({
     osName,

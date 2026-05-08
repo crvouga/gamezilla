@@ -19,9 +19,7 @@ export function SpaceGuestMembershipTileRail({
   const guestId = useQueryAttribute({
     entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
     entityId: membershipId,
-    attributeKey: SpaceMembershipAttr.guestId.key,
-
-    parse: SpaceMembershipAttr.guestId.parse,
+    attribute: SpaceMembershipAttr.guestId,
   });
   if (guestId === null) return null;
   return <SpaceMemberTileRail spaceId={spaceId} profileId={guestId} />;

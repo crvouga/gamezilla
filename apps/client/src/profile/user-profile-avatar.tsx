@@ -44,9 +44,7 @@ function UserProfileAvatarInner({
   const avatarConfig = useQueryAttribute({
     entityType: PROFILE_ENTITY_TYPE,
     entityId: profileId,
-    attributeKey: ProfileAttr.avatarConfig.key,
-
-    parse: ProfileAttr.avatarConfig.parse,
+    attribute: ProfileAttr.avatarConfig,
   });
   return (
     <DeviceAvatar

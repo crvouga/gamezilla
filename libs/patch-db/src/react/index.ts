@@ -21,7 +21,10 @@ export { usePatchDb } from './use-patch-db';
 export { useEntity } from './use-entity';
 export { useEntityAttribute } from './use-entity-attribute';
 export { useQuery, type UseQueryResult } from './use-query';
-export { useQueryAttribute } from './use-query-attribute';
+export {
+  useQueryAttribute,
+  type QueryAttributeLike,
+} from './use-query-attribute';
 export { useQueryAttributes } from './use-query-attributes';
 export { useQueryEntityIds } from './use-query-entity-ids';
 export { useQueryOne } from './use-query-one';

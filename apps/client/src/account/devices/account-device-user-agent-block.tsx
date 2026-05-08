@@ -15,9 +15,7 @@ export function AccountDeviceUserAgentBlock({
   const userAgent = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.userAgent.key,
-
-    parse: DeviceAttr.userAgent.parse,
+    attribute: DeviceAttr.userAgent,
   });
   if (userAgent === null) return null;
   return (

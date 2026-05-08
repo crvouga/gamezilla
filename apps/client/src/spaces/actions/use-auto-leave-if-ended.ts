@@ -25,9 +25,7 @@ export function useAutoLeaveIfEnded(spaceId: string): void {
   const endedAt = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.endedAt.key,
-
-    parse: SpaceAttr.endedAt.parse,
+    attribute: SpaceAttr.endedAt,
   });
   const spaceStillLive = endedAt === null;
 
@@ -35,16 +33,12 @@ export function useAutoLeaveIfEnded(spaceId: string): void {
   const membershipExists = useQueryAttribute({
     entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
     entityId: membershipId ?? '',
-    attributeKey: SpaceMembershipAttr.guestIdIsPresent.key,
-
-    parse: SpaceMembershipAttr.guestIdIsPresent.parse,
+    attribute: SpaceMembershipAttr.guestIdIsPresent,
   });
   const membershipActive = useQueryAttribute({
     entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
     entityId: membershipId ?? '',
-    attributeKey: SpaceMembershipAttr.leftAtIsAbsent.key,
-
-    parse: SpaceMembershipAttr.leftAtIsAbsent.parse,
+    attribute: SpaceMembershipAttr.leftAtIsAbsent,
   });
 
   useEffect(() => {

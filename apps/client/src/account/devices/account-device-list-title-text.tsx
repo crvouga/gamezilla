@@ -24,23 +24,17 @@ export function AccountDeviceListTitleText({
   const deviceName = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.deviceName.key,
-
-    parse: DeviceAttr.deviceName.parse,
+    attribute: DeviceAttr.deviceName,
   });
   const deviceBrand = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.deviceBrand.key,
-
-    parse: DeviceAttr.deviceBrand.parse,
+    attribute: DeviceAttr.deviceBrand,
   });
   const deviceModelName = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.deviceModelName.key,
-
-    parse: DeviceAttr.deviceModelName.parse,
+    attribute: DeviceAttr.deviceModelName,
   });
   const label = formatDeviceListTitle({
     deviceId,

@@ -17,7 +17,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 import { useWindowDimensions } from 'react-native';
 
-import { TodoAttr } from '../todo/todo-constants';
+import { TodoAttr } from '../todo/domain/todo-constants';
 
 export type QueryScreenProps = {
   onClose?: () => void;

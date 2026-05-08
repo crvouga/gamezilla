@@ -21,9 +21,7 @@ export function SpaceHostAvatar({
   const hostId = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.hostId.key,
-
-    parse: SpaceAttr.hostId.parse,
+    attribute: SpaceAttr.hostId,
   });
   return (
     <UserProfileAvatar

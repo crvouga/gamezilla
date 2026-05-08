@@ -17,9 +17,7 @@ export function AccountDeviceLastSeenText({
   const lastSeenAt = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.lastSeenAt.key,
-
-    parse: DeviceAttr.lastSeenAt.parse,
+    attribute: DeviceAttr.lastSeenAt,
   });
   return (
     <Text
