@@ -1,6 +1,6 @@
 import { SpaceActiveLayout } from '@gamezilla/client/spaces/layout/space-active-layout';
 import { SpaceCounterPanel } from '@gamezilla/client/spaces/layout/space-counter-panel';
-import { SpaceGamePicker } from '@gamezilla/client/spaces/layout/space-game-picker';
+import { SpaceGamePicker } from '@gamezilla/client/spaces/games/space-game-picker';
 import { useSpaceRoomState } from '@gamezilla/client/spaces/room/space-room-context';
 import { SpaceRoomWireContext } from '@gamezilla/client/spaces/room/space-room-wire-context';
 import { useCurrentSpaceRole } from '@gamezilla/client/spaces/use-current-space-role';

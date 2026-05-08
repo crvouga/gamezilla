@@ -1,6 +1,5 @@
 import { parseDisplayName } from '@gamezilla/client/profile/profile-parsers';
 import { parseStringAttr } from '@gamezilla/client/spaces/lib/space-parsers';
-import { NO_ENTITY_PLACEHOLDER } from '@gamezilla/client/spaces/lib/spaces-internal-ids';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
@@ -52,7 +51,7 @@ export function SpaceCardOpenLink({
   });
   const hostDisplayName = useQueryAttribute({
     entityType: PROFILE_ENTITY_TYPE,
-    entityId: hostId ?? NO_ENTITY_PLACEHOLDER,
+    entityId: hostId ?? [],
     attributeKey: ProfileAttr.displayName,
     attributeValue: parseDisplayName,
   });
@@ -61,7 +60,9 @@ export function SpaceCardOpenLink({
     accessibilityLabelOverride ?? t`Open space ${resolvedTitle}`;
   return (
     <Pressable
-      onPress={() => router.push({ pathname: '/space/[id]', params: { id: spaceId } })}
+      onPress={() =>
+        router.push({ pathname: '/space/[id]', params: { id: spaceId } })
+      }
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       style={style}

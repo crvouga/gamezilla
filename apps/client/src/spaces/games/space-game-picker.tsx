@@ -7,10 +7,10 @@ import {
 import { Box, Button, Center, Pressable, Text } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
-import { ChessArtwork } from '../games/chess/chess-artwork';
-import { ConnectFourArtwork } from '../games/connect-four/connect-four-artwork';
-import { GomokuArtwork } from '../games/gomoku/gomoku-artwork';
-import { TicTacToeArtwork } from '../games/tic-tac-toe/tic-tac-toe-artwork';
+import { ChessArtwork } from '@gamezilla/client/spaces/games/chess/chess-artwork';
+import { ConnectFourArtwork } from '@gamezilla/client/spaces/games/connect-four/connect-four-artwork';
+import { GomokuArtwork } from '@gamezilla/client/spaces/games/gomoku/gomoku-artwork';
+import { TicTacToeArtwork } from '@gamezilla/client/spaces/games/tic-tac-toe/tic-tac-toe-artwork';
 
 function GameTile({
   title,
