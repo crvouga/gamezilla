@@ -1,5 +1,4 @@
 import { DeviceAvatar } from '@gamezilla/client/profile/avatar-editor/device-avatar';
-import { parseAvatarConfigAttrValue } from '@gamezilla/client/profile/profile-parsers';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
@@ -45,8 +44,9 @@ function UserProfileAvatarInner({
   const avatarConfig = useQueryAttribute({
     entityType: PROFILE_ENTITY_TYPE,
     entityId: profileId,
-    attributeKey: ProfileAttr.avatarConfig,
-    attributeValue: parseAvatarConfigAttrValue,
+    attributeKey: ProfileAttr.avatarConfig.key,
+
+    parse: ProfileAttr.avatarConfig.parse,
   });
   return (
     <DeviceAvatar

@@ -6,7 +6,11 @@ import {
   assertWhereFragment,
 } from '@gamezilla/lib/sqlite';
 import type { PatchDbQuery, PatchDbQueryWhereClause } from '../interface';
-import { assertAttribute, assertDirection } from '../interface';
+import {
+  assertAttribute,
+  assertDirection,
+  patchDbAttributeKey,
+} from '../interface';
 
 export type WhereFragment = { sql: string; params: unknown[] };
 
@@ -62,8 +66,8 @@ function buildBinaryClause(
   clause: BinaryClause,
   jsonColumn: string
 ): WhereFragment {
-  assertAttribute(clause.attribute);
-  const path = jsonPathForAttribute(clause.attribute);
+  const attrKey = patchDbAttributeKey(clause.attribute);
+  const path = jsonPathForAttribute(attrKey);
   const op = BINARY_OPS_SQL[clause.type];
   return {
     sql: `json_extract(${jsonColumn}, ?) ${op} ?`,
@@ -75,8 +79,8 @@ function buildContainsClause(
   clause: ContainsClause,
   jsonColumn: string
 ): WhereFragment {
-  assertAttribute(clause.attribute);
-  const path = jsonPathForAttribute(clause.attribute);
+  const attrKey = patchDbAttributeKey(clause.attribute);
+  const path = jsonPathForAttribute(attrKey);
   return {
     sql: `json_extract(${jsonColumn}, ?) LIKE '%' || ? || '%'`,
     params: [path, clause.value],
@@ -84,13 +88,13 @@ function buildContainsClause(
 }
 
 function buildSetClause(clause: SetClause, jsonColumn: string): WhereFragment {
-  assertAttribute(clause.attribute);
+  const attrKey = patchDbAttributeKey(clause.attribute);
   assert.ok(
     Array.isArray(clause.values) && clause.values.length > 0,
     `Empty values list for ${clause.type} clause would produce invalid SQL "IN ()"`,
     { clause }
   );
-  const path = jsonPathForAttribute(clause.attribute);
+  const path = jsonPathForAttribute(attrKey);
   const placeholders = clause.values.map(() => '?').join(', ');
   const op = clause.type === 'in' ? 'IN' : 'NOT IN';
   return {
@@ -103,8 +107,8 @@ function buildExistenceClause(
   clause: ExistenceClause,
   jsonColumn: string
 ): WhereFragment {
-  assertAttribute(clause.attribute);
-  const path = jsonPathForAttribute(clause.attribute);
+  const attrKey = patchDbAttributeKey(clause.attribute);
+  const path = jsonPathForAttribute(attrKey);
   const op = clause.type === 'exists' ? 'IS NOT NULL' : 'IS NULL';
   return {
     sql: `json_extract(${jsonColumn}, ?) ${op}`,
@@ -307,7 +311,7 @@ export function buildOrderSQL(
   if (query.orderBy && query.orderBy.length > 0) {
     const custom = query.orderBy
       .map((o) => {
-        const path = jsonPathForAttribute(o.attribute);
+        const path = jsonPathForAttribute(patchDbAttributeKey(o.attribute));
         assertDirection(o.direction);
         const dir = o.direction === 'desc' ? 'DESC' : 'ASC';
         return `json_extract(${attributePrefix}attributes, '${path.replace(/'/g, "''")}') ${dir}`;

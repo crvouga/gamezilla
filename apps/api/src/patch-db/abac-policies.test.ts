@@ -86,7 +86,7 @@ describe('gamezilla default policies (system + auth writes)', () => {
           entityId: userId,
           entityType: PROFILE_ENTITY_TYPE,
           attributes: {
-            [ProfileAttr.id]: userId,
+            [ProfileAttr.id.key]: userId,
             'patch/createdById': '00000000-0000-4000-8000-00000000dead',
           },
         },

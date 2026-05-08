@@ -6,12 +6,14 @@ import {
 } from '@gamezilla/domain/auth';
 import { assertUuid } from '@gamezilla/domain/auth/device-id';
 import { assert } from '@gamezilla/lib/assert';
+import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type {
   Entity,
   PatchDb,
   PatchInput,
 } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
+import { PATCH_CREATED_BY_ID } from '@gamezilla/patch-db/metadata/patch-metadata';
 import type { AccountProvisioningPort } from '../ports';
 
 /** Stored in {@link AccountProviderAttr.provider} — only referenced inside this adapter. */
@@ -30,12 +32,12 @@ async function findAuthAccountProvider(
           clauses: [
             {
               type: '=',
-              attribute: AccountProviderAttr.provider,
+              attribute: AccountProviderAttr.provider.key,
               value: INTERNAL_AUTH_PROVIDER,
             },
             {
               type: '=',
-              attribute: AccountProviderAttr.providerUserId,
+              attribute: AccountProviderAttr.providerUserId.key,
               value: externalUserId,
             },
           ],
@@ -58,24 +60,24 @@ function patchesForNewAuthUserAccount(args: {
   const providerPatch: PatchInput = {
     entityId: crypto.randomUUID(),
     entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
-    attributes: {
-      [AccountProviderAttr.accountId]: accountId,
-      [AccountProviderAttr.provider]: INTERNAL_AUTH_PROVIDER,
-      [AccountProviderAttr.providerUserId]: externalUserId,
-      ...(email !== null ? { [AccountProviderAttr.email]: email } : {}),
-      [AccountProviderAttr.linkedAt]: now,
-      'patch/createdById': accountId,
-    },
+    attributes: mergePlain(
+      AccountProviderAttr.accountId(accountId),
+      AccountProviderAttr.provider(INTERNAL_AUTH_PROVIDER),
+      AccountProviderAttr.providerUserId(externalUserId),
+      email !== null ? AccountProviderAttr.email(email) : {},
+      AccountProviderAttr.linkedAt(now),
+      { [PATCH_CREATED_BY_ID]: accountId }
+    ),
   };
   return [
     {
       entityId: accountId,
       entityType: ACCOUNT_ENTITY_TYPE,
-      attributes: {
-        [AccountAttr.id]: accountId,
-        [AccountAttr.createdAt]: now,
-        'patch/createdById': accountId,
-      },
+      attributes: mergePlain(
+        AccountAttr.id(accountId),
+        AccountAttr.createdAt(now),
+        { [PATCH_CREATED_BY_ID]: accountId }
+      ),
     },
     providerPatch,
   ];
@@ -89,7 +91,7 @@ async function ensureInternalAccountIdForExternalUser(args: {
   const { db, externalUserId, email } = args;
   const existing = await findAuthAccountProvider(db, externalUserId);
   if (existing !== undefined) {
-    const aid = existing.attributes[AccountProviderAttr.accountId];
+    const aid = existing.attributes[AccountProviderAttr.accountId.key];
     assert.string(aid, 'accountProvider must have accountId');
     assertUuid(aid, 'accountId must be UUID');
     return aid;

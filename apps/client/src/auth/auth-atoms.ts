@@ -122,7 +122,7 @@ export const authSessionSyncEffect = atomEffect((get, set) => {
           entityType: ACCOUNT_SESSION_ENTITY_TYPE,
           where: {
             type: '=',
-            attribute: AccountSessionAttr.deviceId,
+            attribute: AccountSessionAttr.deviceId.key,
             value: deviceId,
           },
         },

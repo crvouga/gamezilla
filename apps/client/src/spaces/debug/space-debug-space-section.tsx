@@ -1,4 +1,3 @@
-import { parseAbsent, parseStringAttr } from '@gamezilla/client/spaces/lib/space-parsers';
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
@@ -19,32 +18,37 @@ export function SpaceDebugSpaceSection({
   const customTitle = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.title,
-    attributeValue: parseStringAttr,
+    attributeKey: SpaceAttr.title.key,
+
+    parse: SpaceAttr.title.parse,
   });
   const hostId = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.hostId,
-    attributeValue: parseStringAttr,
+    attributeKey: SpaceAttr.hostId.key,
+
+    parse: SpaceAttr.hostId.parse,
   });
   const createdAt = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.createdAt,
-    attributeValue: parseStringAttr,
+    attributeKey: SpaceAttr.createdAt.key,
+
+    parse: SpaceAttr.createdAt.parse,
   });
   const endedAt = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.endedAt,
-    attributeValue: parseStringAttr,
+    attributeKey: SpaceAttr.endedAt.key,
+
+    parse: SpaceAttr.endedAt.parse,
   });
   const live = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.endedAt,
-    attributeValue: parseAbsent,
+    attributeKey: SpaceAttr.endedAt.key,
+
+    parse: SpaceAttr.endedAt.parse,
   });
   const res = useQuery({
     entityType: SPACE_ENTITY_TYPE,

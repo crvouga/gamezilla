@@ -1,8 +1,14 @@
 import type { Assert } from '@gamezilla/lib/assert';
 import { assert } from '@gamezilla/lib/assert';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { isValidPatchDbAttributeKey } from './attribute-key';
 import type { PatchDbContext } from './context';
 import type { PatchDbCompactionPolicyResolver } from './policy/compaction-policy';
+import {
+  PATCH_CREATED_BY_ID,
+  PATCH_SESSION_ID,
+  PATCH_SYNCED_AT,
+} from './metadata/patch-metadata';
 
 export type AttributeKey = `${string}/${string}`;
 
@@ -118,19 +124,20 @@ export function normalizePatchAttributesForStorage(
 ): Record<string, unknown> {
   const attrs = patch.attributes as Record<string, unknown>;
   const createdBy =
-    ('createdBy' in patch ? patch.createdBy : attrs['patch/createdById']) ?? '';
+    ('createdBy' in patch ? patch.createdBy : attrs[PATCH_CREATED_BY_ID]) ??
+    '';
   const sessionId =
     'sessionId' in patch
       ? patch.sessionId
-      : patch.attributes['patch/sessionId'];
-  const syncedAt = patch.attributes['patch/syncedAt'] ?? null;
+      : patch.attributes[PATCH_SESSION_ID];
+  const syncedAt = patch.attributes[PATCH_SYNCED_AT] ?? null;
 
   return {
     ...patch.attributes,
-    'patch/createdById': String(createdBy),
-    'patch/sessionId':
+    [PATCH_CREATED_BY_ID]: String(createdBy),
+    [PATCH_SESSION_ID]:
       sessionId !== null && sessionId !== undefined ? String(sessionId) : '',
-    'patch/syncedAt': syncedAt,
+    [PATCH_SYNCED_AT]: syncedAt,
   };
 }
 
@@ -141,8 +148,8 @@ export function normalizePatchAttributesForStorage(
 export function getPatchTopLevelFromAttributes(
   attrs: Record<string, unknown>
 ): Pick<Patch, 'createdBy' | 'sessionId'> {
-  const createdBy = attrs['patch/createdById'];
-  const sessionId = attrs['patch/sessionId'];
+  const createdBy = attrs[PATCH_CREATED_BY_ID];
+  const sessionId = attrs[PATCH_SESSION_ID];
   return {
     createdBy: String(createdBy ?? ''),
     sessionId:
@@ -168,13 +175,9 @@ export function assertEntity(
 
 export type Attribute = string & { __brand: 'attribute' };
 
-/** Clojure-style namespaced key; no whitespace allowed. */
-const ATTRIBUTE_REGEX =
-  /^(?!.*\s)[a-zA-Z_][a-zA-Z0-9_.]*\/[a-zA-Z_][a-zA-Z0-9_.]*$/;
-
 /** Returns true if the key is a valid namespaced attribute. Use when reading stored data that may be stale. */
 export function isValidAttribute(key: unknown): key is string {
-  return typeof key === 'string' && ATTRIBUTE_REGEX.test(key);
+  return isValidPatchDbAttributeKey(key);
 }
 
 const ID_MAX_LEN = 1024;
@@ -241,13 +244,24 @@ export function assertAttribute(
 ): asserts attribute is string {
   a.string(attribute, 'Invalid attribute name — must be a string');
   a.ok(
-    ATTRIBUTE_REGEX.test(attribute),
+    isValidPatchDbAttributeKey(attribute),
     'Invalid attribute name — must be a Clojure-style namespaced key'
   );
 }
-assertAttribute('todo/title');
-assertAttribute('my.namespace/attr');
-assertAttribute('todo.title/sub');
+
+/**
+ * Validates and returns the PatchDB namespaced key for SQL builders.
+ */
+export function patchDbAttributeKey(
+  attribute: string | null | undefined
+): string {
+  assert.ok(
+    attribute !== null && attribute !== undefined && attribute !== '',
+    'query clause attribute is required'
+  );
+  assertAttribute(attribute);
+  return attribute;
+}
 
 export function assertAttributes(
   attributes: Record<string, unknown>,
@@ -261,56 +275,56 @@ export function assertAttributes(
 export type PatchDbQueryWhereClause =
   | {
       type: '=';
-      attribute: string;
+      attribute: AttributeKey;
       value: unknown;
     }
   | {
       type: '!=';
-      attribute: string;
+      attribute: AttributeKey;
       value: unknown;
     }
   | {
       type: 'in';
-      attribute: string;
+      attribute: AttributeKey;
       values: unknown[];
     }
   | {
       type: 'not_in';
-      attribute: string;
+      attribute: AttributeKey;
       values: unknown[];
     }
   | {
       type: 'gt';
-      attribute: string;
+      attribute: AttributeKey;
       value: unknown;
     }
   | {
       type: 'gte';
-      attribute: string;
+      attribute: AttributeKey;
       value: unknown;
     }
   | {
       type: 'lt';
-      attribute: string;
+      attribute: AttributeKey;
       value: unknown;
     }
   | {
       type: 'lte';
-      attribute: string;
+      attribute: AttributeKey;
       value: unknown;
     }
   | {
       type: 'contains';
-      attribute: string;
+      attribute: AttributeKey;
       value: string;
     }
   | {
       type: 'exists';
-      attribute: string;
+      attribute: AttributeKey;
     }
   | {
       type: 'not_exists';
-      attribute: string;
+      attribute: AttributeKey;
     }
   | {
       type: 'or';
@@ -335,7 +349,7 @@ export function assertDirection(
 }
 
 export type PatchDbQueryOrderBy = {
-  attribute: string;
+  attribute: AttributeKey;
   direction: 'asc' | 'desc';
 };
 
@@ -416,8 +430,8 @@ export function andWhereClause(
 export const READ_WHERE_ALWAYS_TRUE: PatchDbQueryWhereClause = {
   type: 'or',
   clauses: [
-    { type: 'exists', attribute: 'patch/createdById' },
-    { type: 'not_exists', attribute: 'patch/createdById' },
+    { type: 'exists', attribute: PATCH_CREATED_BY_ID },
+    { type: 'not_exists', attribute: PATCH_CREATED_BY_ID },
   ],
 };
 
@@ -429,8 +443,8 @@ export const READ_WHERE_ALWAYS_TRUE: PatchDbQueryWhereClause = {
 export const READ_WHERE_NEVER_TRUE: PatchDbQueryWhereClause = {
   type: 'and',
   clauses: [
-    { type: 'exists', attribute: 'patch/createdById' },
-    { type: 'not_exists', attribute: 'patch/createdById' },
+    { type: 'exists', attribute: PATCH_CREATED_BY_ID },
+    { type: 'not_exists', attribute: PATCH_CREATED_BY_ID },
   ],
 };
 

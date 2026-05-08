@@ -52,7 +52,7 @@ function parseSpaceIdFromTopic(topic: string): string | null {
 function spaceEntityIsLive(
   attrs: Record<string, unknown> | undefined
 ): boolean {
-  const ended = attrs?.[SpaceAttr.endedAt];
+  const ended = attrs?.[SpaceAttr.endedAt.key];
   return ended === undefined || ended === null;
 }
 
@@ -73,7 +73,7 @@ async function readSpaceEntity(
 }
 
 function readHostId(space: Entity): string {
-  const raw = space.attributes[SpaceAttr.hostId];
+  const raw = space.attributes[SpaceAttr.hostId.key];
   return typeof raw === 'string' ? raw : '';
 }
 
@@ -102,11 +102,11 @@ function guestMembershipDenied(
   if (!mem) {
     return jsonResponse(403, 'not a member of this space');
   }
-  const leftAt = mem.attributes[SpaceMembershipAttr.leftAt];
+  const leftAt = mem.attributes[SpaceMembershipAttr.leftAt.key];
   if (leftAt !== undefined && leftAt !== null) {
     return jsonResponse(403, 'membership inactive');
   }
-  const memSpaceId = mem.attributes[SpaceMembershipAttr.spaceId];
+  const memSpaceId = mem.attributes[SpaceMembershipAttr.spaceId.key];
   if (typeof memSpaceId !== 'string' || memSpaceId !== spaceId) {
     return jsonResponse(403, 'not a member of this space');
   }

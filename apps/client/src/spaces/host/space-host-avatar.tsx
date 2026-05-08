@@ -1,5 +1,4 @@
 import { UserProfileAvatar } from '@gamezilla/client/profile/user-profile-avatar';
-import { parseStringAttr } from '@gamezilla/client/spaces/lib/space-parsers';
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
@@ -22,8 +21,9 @@ export function SpaceHostAvatar({
   const hostId = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.hostId,
-    attributeValue: parseStringAttr,
+    attributeKey: SpaceAttr.hostId.key,
+
+    parse: SpaceAttr.hostId.parse,
   });
   return (
     <UserProfileAvatar

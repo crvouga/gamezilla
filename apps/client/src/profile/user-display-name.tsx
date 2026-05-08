@@ -1,4 +1,3 @@
-import { parseDisplayName } from '@gamezilla/client/profile/profile-parsers';
 import { optionalProps } from '@gamezilla/client/ui/optional-props';
 import {
   PROFILE_ENTITY_TYPE,
@@ -50,8 +49,9 @@ function UserDisplayNameInner({
   const displayName = useQueryAttribute({
     entityType: PROFILE_ENTITY_TYPE,
     entityId: profileId,
-    attributeKey: ProfileAttr.displayName,
-    attributeValue: parseDisplayName,
+    attributeKey: ProfileAttr.displayName.key,
+
+    parse: ProfileAttr.displayName.parse,
   });
   return (
     <Text

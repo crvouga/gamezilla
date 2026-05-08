@@ -7,6 +7,7 @@ import {
 } from '@gamezilla/patch-db/interface';
 import type { VisibilityPolicy } from '@gamezilla/patch-db/policy/visibility-policy-registry';
 
+import { AbacEntityAttr } from './abac-patch-attrs';
 import { authOnlyRead, type AppAuthContext } from './abac-policies-context';
 
 type AppVisibilityPolicy = VisibilityPolicy<AppAuthContext>;
@@ -15,7 +16,7 @@ const stripeOwnerScopedRead = authOnlyRead((ctx): PatchDbQueryWhereClause => {
   if (ctx.accountId === null) return READ_WHERE_NEVER_TRUE;
   return {
     type: '=',
-    attribute: 'entity/owner',
+    attribute: AbacEntityAttr.owner.key,
     value: ctx.accountId,
   };
 });

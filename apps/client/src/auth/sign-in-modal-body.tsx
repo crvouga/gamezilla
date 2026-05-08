@@ -30,7 +30,7 @@ export function SignInModalBody(props: {
         <SocialSignInButton
           provider="google"
           action="signIn"
-          theme="light"
+          theme={'light' as const}
           onPress={onPressGoogle}
           loading={loading && hostedUi.available}
           disabled={!hostedUi.available}

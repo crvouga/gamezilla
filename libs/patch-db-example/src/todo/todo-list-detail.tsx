@@ -8,6 +8,7 @@ import {
   useTheme,
   type ScreenBaseBreadcrumb,
 } from '@gamezilla/lib/ui';
+import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type {
   Entity,
   PatchDbQuery,
@@ -17,22 +18,22 @@ import { usePatchDb, useQuery, useQueryOne } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 
-import { INBOX_LIST_ID } from './todo-constants';
+import { INBOX_LIST_ID, TodoAttr, TodoListAttr } from './todo-constants';
 import { TodoItem } from './todo-item';
 
 const DELETED_CLAUSE: PatchDbQueryWhereClause = {
   type: 'or',
   clauses: [
-    { type: 'not_exists', attribute: 'todo/deleted' },
-    { type: '=', attribute: 'todo/deleted', value: false },
+    { type: 'not_exists', attribute: TodoAttr.deleted.key },
+    { type: '=', attribute: TodoAttr.deleted.key, value: false },
   ],
 };
 
 const ACTIVE_CLAUSE: PatchDbQueryWhereClause = {
   type: 'or',
   clauses: [
-    { type: 'not_exists', attribute: 'todo/completed' },
-    { type: '=', attribute: 'todo/completed', value: false },
+    { type: 'not_exists', attribute: TodoAttr.completed.key },
+    { type: '=', attribute: TodoAttr.completed.key, value: false },
   ],
 };
 
@@ -43,13 +44,13 @@ function buildListClause(listId: string): PatchDbQueryWhereClause {
     return {
       type: 'or',
       clauses: [
-        { type: 'not_exists', attribute: 'todo/listId' },
-        { type: '=', attribute: 'todo/listId', value: null },
-        { type: '=', attribute: 'todo/listId', value: '' },
+        { type: 'not_exists', attribute: TodoAttr.listId.key },
+        { type: '=', attribute: TodoAttr.listId.key, value: null },
+        { type: '=', attribute: TodoAttr.listId.key, value: '' },
       ],
     };
   }
-  return { type: '=', attribute: 'todo/listId', value: listId };
+  return { type: '=', attribute: TodoAttr.listId.key, value: listId };
 }
 
 function buildWhereForFilter(
@@ -70,7 +71,7 @@ function buildWhereForFilter(
     clauses: [
       DELETED_CLAUSE,
       listClause,
-      { type: '=', attribute: 'todo/completed', value: true },
+      { type: '=', attribute: TodoAttr.completed.key, value: true },
     ],
   };
 }
@@ -82,8 +83,8 @@ function buildTodoQuery(listId: string, filter: Filter): PatchDbQuery {
     entityType: 'todo',
     where,
     orderBy: [
-      { attribute: 'todo/order', direction: 'asc' },
-      { attribute: 'todo/createdAt', direction: 'asc' },
+      { attribute: TodoAttr.order.key, direction: 'asc' },
+      { attribute: TodoAttr.createdAt.key, direction: 'asc' },
     ],
   };
 }
@@ -96,8 +97,8 @@ export function useTodoListName(listId: string): string {
     entityId: listId === INBOX_LIST_ID ? '__inbox_placeholder__' : listId,
   });
   if (listId === INBOX_LIST_ID) return t`Inbox`;
-  const nameRaw = listEntity?.attributes['todoList/name'];
-  return typeof nameRaw === 'string' ? nameRaw : t`List`;
+  const nameRaw = TodoListAttr.name.from(listEntity?.attributes ?? {});
+  return nameRaw.length > 0 ? nameRaw : t`List`;
 }
 
 function FilterTabs({
@@ -241,13 +242,13 @@ function buildTodoCreatePayload(
   return {
     entityId: crypto.randomUUID(),
     entityType: 'todo',
-    attributes: {
-      'todo/title': title,
-      'todo/completed': false,
-      'todo/order': totalCount,
-      'todo/createdAt': new Date().toISOString(),
-      ...(listId !== INBOX_LIST_ID && { 'todo/listId': listId }),
-    },
+    attributes: mergePlain(
+      TodoAttr.title(title),
+      TodoAttr.completed(false),
+      TodoAttr.order(totalCount),
+      TodoAttr.createdAt(new Date().toISOString()),
+      listId !== INBOX_LIST_ID ? TodoAttr.listId(listId) : {}
+    ),
   };
 }
 
@@ -255,9 +256,9 @@ function buildTodoTogglePayload(entity: Entity) {
   return {
     entityId: entity.entityId,
     entityType: 'todo',
-    attributes: {
-      'todo/completed': !Boolean(entity.attributes['todo/completed']),
-    },
+    attributes: TodoAttr.completed(
+      !TodoAttr.completed.from(entity.attributes)
+    ),
   };
 }
 
@@ -265,7 +266,7 @@ function buildTodoDeletePayload(entity: Entity) {
   return {
     entityId: entity.entityId,
     entityType: 'todo',
-    attributes: { 'todo/deleted': true },
+    attributes: TodoAttr.deleted(true),
   };
 }
 

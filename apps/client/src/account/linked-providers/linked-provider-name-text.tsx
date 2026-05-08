@@ -1,5 +1,4 @@
 import { providerLabel } from '@gamezilla/client/account/linked-providers/provider-parsers';
-import { parseTrimmedStringAttr } from '@gamezilla/client/account/devices/device-parsers';
 import {
   ACCOUNT_PROVIDER_ENTITY_TYPE,
   AccountProviderAttr,
@@ -19,8 +18,9 @@ export function LinkedProviderNameText({
   const provider = useQueryAttribute({
     entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
     entityId: accountProviderEntityId,
-    attributeKey: AccountProviderAttr.provider,
-    attributeValue: parseTrimmedStringAttr,
+    attributeKey: AccountProviderAttr.provider.key,
+
+    parse: AccountProviderAttr.provider.parse,
   });
   if (provider === null) return null;
   return <Text variant="bodyBold" label={providerLabel(provider)} />;

@@ -125,11 +125,11 @@ function seedActive(db: MemoryPatchDb, expiresAt = futureIso()): void {
     entityId: SESSION_ID,
     entityType: ACCOUNT_SESSION_ENTITY_TYPE,
     attributes: {
-      [AccountSessionAttr.deviceId]: DEVICE_ID,
-      [AccountSessionAttr.accountId]: ACCOUNT_ID,
-      [AccountSessionAttr.token]: 'token-abc',
-      [AccountSessionAttr.expiresAt]: expiresAt,
-      [AccountSessionAttr.createdAt]: new Date().toISOString(),
+      [AccountSessionAttr.deviceId.key]: DEVICE_ID,
+      [AccountSessionAttr.accountId.key]: ACCOUNT_ID,
+      [AccountSessionAttr.token.key]: 'token-abc',
+      [AccountSessionAttr.expiresAt.key]: expiresAt,
+      [AccountSessionAttr.createdAt.key]: new Date().toISOString(),
     },
   });
 }
@@ -151,8 +151,8 @@ describe('createSessionService.clearSession (offline-friendly local revoke)', ()
     expect(svc.getSession()).toBeNull();
     expect(svc.isAuthenticated()).toBe(false);
     const row = db.entities.find((e) => e.entityId === SESSION_ID);
-    expect(row?.attributes[AccountSessionAttr.token]).toBeNull();
-    const exp = row?.attributes[AccountSessionAttr.expiresAt];
+    expect(row?.attributes[AccountSessionAttr.token.key]).toBeNull();
+    const exp = row?.attributes[AccountSessionAttr.expiresAt.key];
     expect(typeof exp).toBe('string');
     expect(Date.parse(exp as string)).toBeLessThanOrEqual(Date.now());
   });
@@ -176,11 +176,11 @@ describe('createSessionService.clearSession (offline-friendly local revoke)', ()
       entityId: otherSessionId,
       entityType: ACCOUNT_SESSION_ENTITY_TYPE,
       attributes: {
-        [AccountSessionAttr.deviceId]: DEVICE_ID,
-        [AccountSessionAttr.accountId]: ACCOUNT_ID,
-        [AccountSessionAttr.token]: 'token-other',
-        [AccountSessionAttr.expiresAt]: futureIso(),
-        [AccountSessionAttr.createdAt]: new Date(
+        [AccountSessionAttr.deviceId.key]: DEVICE_ID,
+        [AccountSessionAttr.accountId.key]: ACCOUNT_ID,
+        [AccountSessionAttr.token.key]: 'token-other',
+        [AccountSessionAttr.expiresAt.key]: futureIso(),
+        [AccountSessionAttr.createdAt.key]: new Date(
           Date.now() - 60_000
         ).toISOString(),
       },
@@ -192,7 +192,7 @@ describe('createSessionService.clearSession (offline-friendly local revoke)', ()
 
     for (const id of [SESSION_ID, otherSessionId]) {
       const row = db.entities.find((e) => e.entityId === id);
-      expect(row?.attributes[AccountSessionAttr.token]).toBeNull();
+      expect(row?.attributes[AccountSessionAttr.token.key]).toBeNull();
     }
   });
 });

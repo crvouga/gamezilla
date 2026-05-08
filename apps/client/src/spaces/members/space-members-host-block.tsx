@@ -1,4 +1,3 @@
-import { parseStringAttr } from '@gamezilla/client/spaces/lib/space-parsers';
 import { SpaceMemberTileRail } from '@gamezilla/client/spaces/members/space-member-tile-rail';
 import {
   SPACE_ENTITY_TYPE,
@@ -23,8 +22,9 @@ export function SpaceMembersHostBlock({
   const hostId = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.hostId,
-    attributeValue: parseStringAttr,
+    attributeKey: SpaceAttr.hostId.key,
+
+    parse: SpaceAttr.hostId.parse,
   });
   return (
     <Box sx={{ gap: 1 }}>

@@ -1,3 +1,5 @@
+import { createAttrNamespace } from '@gamezilla/lib/attribute';
+
 /**
  * PatchDB entity type for the replication device: a stable identifier for this
  * app install, generated and owned by the client.
@@ -20,45 +22,69 @@ export const ACCOUNT_PROVIDER_ENTITY_TYPE = 'accountProvider';
  */
 export const ACCOUNT_SESSION_ENTITY_TYPE = 'accountSession';
 
+function readString(v: unknown): string {
+  return typeof v === 'string' ? v : '';
+}
+
+function readOptionalString(v: unknown): string | undefined {
+  return typeof v === 'string' ? v : undefined;
+}
+
+/** Trimmed non-empty string, else `null` (matches client `parseTrimmedStringAttr`). */
+function readTrimmedNullableString(v: unknown): string | null {
+  if (typeof v !== 'string') return null;
+  const t = v.trim();
+  return t.length > 0 ? t : null;
+}
+
+const deviceNs = createAttrNamespace('device');
+
+/** Device entity attributes (`device/…`). */
 export const DeviceAttr = {
-  id: 'device/id',
-  createdAt: 'device/createdAt',
+  id: deviceNs('id', readString),
+  createdAt: deviceNs('createdAt', readTrimmedNullableString),
   /** 'ios' | 'android' | 'web' — from React Native Platform.OS */
-  platform: 'device/platform',
-  osName: 'device/osName',
-  osVersion: 'device/osVersion',
-  deviceModelName: 'device/deviceModelName',
-  deviceBrand: 'device/deviceBrand',
-  deviceName: 'device/deviceName',
-  appVersion: 'device/appVersion',
-  appBuildNumber: 'device/appBuildNumber',
+  platform: deviceNs('platform', readTrimmedNullableString),
+  osName: deviceNs('osName', readTrimmedNullableString),
+  osVersion: deviceNs('osVersion', readTrimmedNullableString),
+  deviceModelName: deviceNs('deviceModelName', readTrimmedNullableString),
+  deviceBrand: deviceNs('deviceBrand', readTrimmedNullableString),
+  deviceName: deviceNs('deviceName', readTrimmedNullableString),
+  appVersion: deviceNs('appVersion', readTrimmedNullableString),
+  appBuildNumber: deviceNs('appBuildNumber', readTrimmedNullableString),
   /** Web only — from navigator.userAgent */
-  userAgent: 'device/userAgent',
-  firstSeenAt: 'device/firstSeenAt',
-  lastSeenAt: 'device/lastSeenAt',
+  userAgent: deviceNs('userAgent', readTrimmedNullableString),
+  firstSeenAt: deviceNs('firstSeenAt', readTrimmedNullableString),
+  lastSeenAt: deviceNs('lastSeenAt', readTrimmedNullableString),
 } as const;
+
+const accountNs = createAttrNamespace('account');
 
 export const AccountAttr = {
-  id: 'account/id',
-  createdAt: 'account/createdAt',
+  id: accountNs('id', readString),
+  createdAt: accountNs('createdAt', readString),
   /** Stripe customer id (`cus_…`) for this account — set by checkout in the API. */
-  stripeCustomerId: 'account/stripeCustomerId',
+  stripeCustomerId: accountNs('stripeCustomerId', readOptionalString),
 } as const;
+
+const accountProviderNs = createAttrNamespace('accountProvider');
 
 export const AccountProviderAttr = {
-  accountId: 'accountProvider/accountId',
-  provider: 'accountProvider/provider',
-  providerUserId: 'accountProvider/providerUserId',
-  email: 'accountProvider/email',
-  linkedAt: 'accountProvider/linkedAt',
+  accountId: accountProviderNs('accountId', readString),
+  provider: accountProviderNs('provider', readTrimmedNullableString),
+  providerUserId: accountProviderNs('providerUserId', readTrimmedNullableString),
+  email: accountProviderNs('email', readTrimmedNullableString),
+  linkedAt: accountProviderNs('linkedAt', readTrimmedNullableString),
 } as const;
 
+const accountSessionNs = createAttrNamespace('accountSession');
+
 export const AccountSessionAttr = {
-  deviceId: 'accountSession/deviceId',
-  accountId: 'accountSession/accountId',
-  token: 'accountSession/token',
-  expiresAt: 'accountSession/expiresAt',
-  createdAt: 'accountSession/createdAt',
+  deviceId: accountSessionNs('deviceId', readString),
+  accountId: accountSessionNs('accountId', readString),
+  token: accountSessionNs('token', readString),
+  expiresAt: accountSessionNs('expiresAt', readTrimmedNullableString),
+  createdAt: accountSessionNs('createdAt', readTrimmedNullableString),
 } as const;
 
 export const GOOGLE_PROVIDER = 'google' as const;

@@ -5,7 +5,6 @@ import {
   useKeyValueStorage,
 } from '@gamezilla/client/runtime/runtime-hooks';
 import { sessionTokenAtom } from '@gamezilla/client/runtime/atoms';
-import { parseAbsent } from '@gamezilla/client/spaces/lib/space-parsers';
 import { useCurrentSpaceIds } from '@gamezilla/client/spaces/use-current-space-ids';
 import {
   SPACE_ENTITY_TYPE,
@@ -34,12 +33,14 @@ export type SpaceRoomUiState = {
 };
 
 export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
-  const isLive = useQueryAttribute({
+  const endedAt = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.endedAt,
-    attributeValue: parseAbsent,
+    attributeKey: SpaceAttr.endedAt.key,
+
+    parse: SpaceAttr.endedAt.parse,
   });
+  const isLive = endedAt === null;
   const { entries } = useCurrentSpaceIds();
   const myId = useMyId();
   const deviceService = useDeviceService();

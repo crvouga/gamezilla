@@ -20,8 +20,8 @@ export async function loadMemberOfSpaceIds(
         where: {
           type: 'and',
           clauses: [
-            { type: '=', attribute: SpaceAttr.hostId, value: myId },
-            { type: 'not_exists', attribute: SpaceAttr.endedAt },
+            { type: '=', attribute: SpaceAttr.hostId.key, value: myId },
+            { type: 'not_exists', attribute: SpaceAttr.endedAt.key },
           ],
         },
       },
@@ -39,8 +39,8 @@ export async function loadMemberOfSpaceIds(
         where: {
           type: 'and',
           clauses: [
-            { type: '=', attribute: SpaceMembershipAttr.guestId, value: myId },
-            { type: 'not_exists', attribute: SpaceMembershipAttr.leftAt },
+            { type: '=', attribute: SpaceMembershipAttr.guestId.key, value: myId },
+            { type: 'not_exists', attribute: SpaceMembershipAttr.leftAt.key },
           ],
         },
       },
@@ -48,7 +48,7 @@ export async function loadMemberOfSpaceIds(
     PATCHES_DB_SYSTEM_CONTEXT
   );
   for (const e of guestMem?.entities ?? []) {
-    const sid = e.attributes[SpaceMembershipAttr.spaceId];
+    const sid = e.attributes[SpaceMembershipAttr.spaceId.key];
     if (typeof sid === 'string' && sid.length > 0) ids.add(sid);
   }
 

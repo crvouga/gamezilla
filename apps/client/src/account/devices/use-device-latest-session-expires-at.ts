@@ -6,8 +6,8 @@ import type { Entity } from '@gamezilla/patch-db/interface';
 import { useQuery } from '@gamezilla/patch-db/react';
 
 function activeExpiryMs(entity: Entity, now: number): number | null {
-  const token = entity.attributes[AccountSessionAttr.token];
-  const expiresAt = entity.attributes[AccountSessionAttr.expiresAt];
+  const token = entity.attributes[AccountSessionAttr.token.key];
+  const expiresAt = entity.attributes[AccountSessionAttr.expiresAt.key];
   if (typeof token !== 'string' || token.length === 0) return null;
   if (typeof expiresAt !== 'string') return null;
   const t = Date.parse(expiresAt);
@@ -42,7 +42,7 @@ export function useDeviceLatestSessionExpiresAt(
           entityType: ACCOUNT_SESSION_ENTITY_TYPE,
           where: {
             type: '=' as const,
-            attribute: AccountSessionAttr.deviceId,
+            attribute: AccountSessionAttr.deviceId.key,
             value: deviceId,
           },
           limit: 500,

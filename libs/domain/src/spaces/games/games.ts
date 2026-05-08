@@ -1,3 +1,5 @@
+import { createAttrNamespace } from '@gamezilla/lib/attribute';
+import { mergePlain } from '@gamezilla/lib/merge-plain';
 import {
   createMessageNamespace,
   createMessageRouter,
@@ -24,6 +26,13 @@ export function readSelectedSpaceGame(value: unknown): SelectedSpaceGame {
   return isSpaceGameDiscriminator(value) ? value : null;
 }
 
+const gamesRoomNs = createAttrNamespace('games');
+
+/** Namespaced keys in {@link RoomState} for the space games slice. */
+export const GamesRoomAttr = {
+  selected: gamesRoomNs('selected', readSelectedSpaceGame),
+} as const;
+
 export function validateSelectGamePayload(
   payload: unknown
 ): payload is { game: SelectedSpaceGame } {
@@ -31,12 +40,6 @@ export function validateSelectGamePayload(
   if (!('game' in payload)) return false;
   const game = payload['game'];
   return game === null || isSpaceGameDiscriminator(game);
-}
-
-export function gamesInitialState(): Pick<RoomState, 'selectedGame'> {
-  return {
-    selectedGame: null,
-  };
 }
 
 export const gamesCmdNs = createMessageNamespace('gamesCmd');
@@ -58,7 +61,9 @@ export const gamesEventReducer = createMessageRouter<
   RoomState,
   void,
   RoomState
->(gamesEvtNs).on(GameSelected, (state, _identity, event) => ({
-  ...state,
-  selectedGame: readSelectedSpaceGame(event.payload.game),
-}));
+>(gamesEvtNs).on(GameSelected, (state, _identity, event) =>
+  mergePlain(
+    state,
+    GamesRoomAttr.selected(readSelectedSpaceGame(event.payload.game))
+  )
+);

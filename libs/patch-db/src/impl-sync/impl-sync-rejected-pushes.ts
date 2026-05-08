@@ -1,4 +1,5 @@
 import { assert } from '@gamezilla/lib/assert';
+import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type { Logger } from '@gamezilla/lib/logger';
 import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
 import type { Patch, PatchDb, PatchDbQuery } from '../interface';
@@ -7,6 +8,7 @@ import {
   PATCH_REJECTED,
   PATCH_SYNC_REJECTED_AT,
   PATCH_SYNC_REJECTED_REASON,
+  PATCH_SYNCED_AT,
 } from '../interface';
 import type { PatchDbTransportRejectedError } from '../transport/transport-rejected-error';
 import { PATCHES_DB_TOPIC } from './active-query-registry';
@@ -18,7 +20,7 @@ export function unsyncedPatchesQueryForPush(): PatchDbQuery {
     where: {
       type: 'and',
       clauses: [
-        { type: 'not_exists', attribute: 'patch/syncedAt' },
+        { type: 'not_exists', attribute: PATCH_SYNCED_AT },
         { type: 'not_exists', attribute: PATCH_SYNC_REJECTED_AT },
       ],
     },
@@ -27,11 +29,11 @@ export function unsyncedPatchesQueryForPush(): PatchDbQuery {
 
 function pushRejectionAttributes(reason: string): Record<string, unknown> {
   const now = new Date().toISOString();
-  return {
-    [PATCH_SYNC_REJECTED_AT]: now,
-    [PATCH_SYNC_REJECTED_REASON]: reason.slice(0, 256),
-    [PATCH_REJECTED]: true,
-  };
+  return mergePlain(
+    { [PATCH_SYNC_REJECTED_AT]: now },
+    { [PATCH_SYNC_REJECTED_REASON]: reason.slice(0, 256) },
+    { [PATCH_REJECTED]: true }
+  );
 }
 
 /**
@@ -96,11 +98,11 @@ export async function clearRejectedPushMarkersOnLocal(
   await local.update(
     result.patches.map((p) => ({
       patchId: p.patchId,
-      attributes: {
+      attributes: mergePlain({
         [PATCH_SYNC_REJECTED_AT]: null,
         [PATCH_SYNC_REJECTED_REASON]: null,
         [PATCH_REJECTED]: null,
-      },
+      }),
     })),
     OPEN_PATCHES_DB_CONTEXT
   );

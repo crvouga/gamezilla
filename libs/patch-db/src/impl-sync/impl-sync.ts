@@ -1,6 +1,7 @@
 import { assert } from '@gamezilla/lib/assert';
 import { fireAndForget } from '@gamezilla/lib/async/fire-and-forget';
 import { createLogger, type Logger } from '@gamezilla/lib/logger';
+import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type { PubSub, Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
 import type {
   Patch,
@@ -259,7 +260,9 @@ export class SyncPatchDb implements PatchDb {
   ): Promise<WritePatchesResult> {
     const withUnsynced = patches.map((p) => ({
       ...p,
-      attributes: { ...p.attributes, 'patch/syncedAt': null },
+      attributes: mergePlain(p.attributes, {
+        [PATCH_SYNCED_AT]: null,
+      }),
     }));
     const result = await this.local.write(withUnsynced, ctx);
     this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
@@ -364,12 +367,16 @@ export class SyncPatchDb implements PatchDb {
       })),
       ...result.rejected.map((r) => ({
         patchId: r.patchId,
-        attributes: {
-          [PATCH_SYNC_REJECTED_AT]: now,
-          [PATCH_SYNC_REJECTED_REASON]:
-            `${String(r.code)}: ${String(r.reason)}`.slice(0, 256),
-          [PATCH_REJECTED]: true,
-        },
+        attributes: mergePlain(
+          { [PATCH_SYNC_REJECTED_AT]: now },
+          {
+            [PATCH_SYNC_REJECTED_REASON]: `${String(r.code)}: ${String(r.reason)}`.slice(
+              0,
+              256
+            ),
+          },
+          { [PATCH_REJECTED]: true }
+        ),
       })),
     ];
     if (updates.length > 0) {

@@ -6,7 +6,11 @@ import {
   assertWhereFragment,
 } from '@gamezilla/lib/sqlite';
 import type { PatchDbQuery, PatchDbQueryWhereClause } from '../interface';
-import { assertAttribute, assertDirection } from '../interface';
+import {
+  assertAttribute,
+  assertDirection,
+  patchDbAttributeKey,
+} from '../interface';
 import { sqliteJsonPathToKey } from './json-path';
 
 export type WhereFragment = { sql: string; params: unknown[] };
@@ -52,7 +56,7 @@ const BINARY_OPS_SQL: Record<BinaryClause['type'], string> = {
   lte: '<= ?::text',
 };
 
-function attributeKey(attribute: string): string {
+function topLevelJsonKey(attribute: string): string {
   assertAttribute(attribute);
   return sqliteJsonPathToKey(jsonPathForAttribute(attribute));
 }
@@ -62,7 +66,7 @@ function buildBinaryClause(
   jsonColumn: string
 ): WhereFragment {
   const col = `${jsonColumn}::jsonb`;
-  const key = attributeKey(clause.attribute);
+  const key = topLevelJsonKey(patchDbAttributeKey(clause.attribute));
   const opTail = BINARY_OPS_SQL[clause.type];
   return {
     sql: `(${col} ->> ?) ${opTail}`,
@@ -75,7 +79,7 @@ function buildContainsClause(
   jsonColumn: string
 ): WhereFragment {
   const col = `${jsonColumn}::jsonb`;
-  const key = attributeKey(clause.attribute);
+  const key = topLevelJsonKey(patchDbAttributeKey(clause.attribute));
   return {
     sql: `(${col} ->> ?) LIKE '%' || ?::text || '%'`,
     params: [key, toTextParam(clause.value)],
@@ -89,7 +93,7 @@ function buildSetClause(clause: SetClause, jsonColumn: string): WhereFragment {
     { clause }
   );
   const col = `${jsonColumn}::jsonb`;
-  const key = attributeKey(clause.attribute);
+  const key = topLevelJsonKey(patchDbAttributeKey(clause.attribute));
   const placeholders = clause.values.map(() => '?::text').join(', ');
   if (clause.type === 'in') {
     return {
@@ -108,7 +112,7 @@ function buildExistenceClause(
   jsonColumn: string
 ): WhereFragment {
   const col = `${jsonColumn}::jsonb`;
-  const key = attributeKey(clause.attribute);
+  const key = topLevelJsonKey(patchDbAttributeKey(clause.attribute));
   const op = clause.type === 'exists' ? 'IS NOT NULL' : 'IS NULL';
   return {
     sql: `(${col} -> ?) ${op}`,
@@ -311,7 +315,7 @@ export function buildOrderSQL(
   if (query.orderBy && query.orderBy.length > 0) {
     const custom = query.orderBy
       .map((o) => {
-        const path = jsonPathForAttribute(o.attribute);
+        const path = jsonPathForAttribute(patchDbAttributeKey(o.attribute));
         const key = sqliteJsonPathToKey(path);
         const escaped = key.replace(/'/g, "''");
         assertDirection(o.direction);

@@ -22,7 +22,7 @@ export async function readClientRuntimeConfig(
   if (!entity) {
     return { googleWebClientId: null };
   }
-  const googleRaw = entity.attributes[ClientConfigAttr.googleWebClientId];
+  const googleRaw = entity.attributes[ClientConfigAttr.googleWebClientId.key];
   const googleId =
     typeof googleRaw === 'string' && googleRaw.length > 0 ? googleRaw : null;
   return { googleWebClientId: googleId };

@@ -1,5 +1,4 @@
 import { SpaceHostFallbackTitle } from '@gamezilla/client/spaces/host/space-host-fallback-title';
-import { parseStringAttr } from '@gamezilla/client/spaces/lib/space-parsers';
 import { optionalProps } from '@gamezilla/client/ui/optional-props';
 import {
   SPACE_ENTITY_TYPE,
@@ -32,8 +31,9 @@ export function SpaceTitleText({
   const customTitle = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.title,
-    attributeValue: parseStringAttr,
+    attributeKey: SpaceAttr.title.key,
+
+    parse: SpaceAttr.title.parse,
   });
   if (customTitle !== null) {
     return (

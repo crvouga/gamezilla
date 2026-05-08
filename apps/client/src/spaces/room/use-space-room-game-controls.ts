@@ -1,8 +1,8 @@
-import { SelectGame } from '@gamezilla/domain/spaces/space-module';
 import {
-  readSelectedSpaceGame,
-  type SelectedSpaceGame,
-} from '@gamezilla/domain/spaces/games/games';
+  GamesRoomAttr,
+  SelectGame,
+} from '@gamezilla/domain/spaces/space-module';
+import type { SelectedSpaceGame } from '@gamezilla/domain/spaces/games/games';
 import { useRoomSnapshot, type Room, type RoomSnapshot } from '@gamezilla/room';
 import { useCallback, useMemo, type MutableRefObject } from 'react';
 
@@ -12,7 +12,7 @@ function readSelectedGame(
   snap: RoomSnapshot<Record<string, unknown>> | null
 ): SelectedSpaceGame {
   if (snap === null) return null;
-  return readSelectedSpaceGame(snap.state['selectedGame']);
+  return GamesRoomAttr.selected.from(snap.state);
 }
 
 export function useSpaceRoomGameControls(

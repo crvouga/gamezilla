@@ -1,6 +1,5 @@
 import {
   EM_DASH,
-  parseTrimmedStringAttr,
 } from '@gamezilla/client/account/devices/device-parsers';
 import { DEVICE_ENTITY_TYPE, DeviceAttr } from '@gamezilla/domain/auth';
 import { Text } from '@gamezilla/lib/ui';
@@ -18,8 +17,9 @@ export function AccountDeviceNameText({
   const deviceName = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.deviceName,
-    attributeValue: parseTrimmedStringAttr,
+    attributeKey: DeviceAttr.deviceName.key,
+
+    parse: DeviceAttr.deviceName.parse,
   });
   return (
     <Text variant="body" numberOfLines={4} label={deviceName ?? EM_DASH} />

@@ -13,7 +13,7 @@ import { useQueryEntityIds } from '@gamezilla/patch-db/react';
 export function useLiveSpaceIds(): string[] {
   return useQueryEntityIds({
     entityType: SPACE_ENTITY_TYPE,
-    where: { type: 'not_exists', attribute: SpaceAttr.endedAt },
-    orderBy: [{ attribute: SpaceAttr.createdAt, direction: 'desc' }],
+    where: { type: 'not_exists', attribute: SpaceAttr.endedAt.key },
+    orderBy: [{ attribute: SpaceAttr.createdAt.key, direction: 'desc' }],
   });
 }

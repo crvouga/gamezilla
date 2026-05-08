@@ -26,6 +26,10 @@ export const PATCH_META_KEYS: readonly string[] = [
   PATCH_REJECTED,
 ] as const;
 
+function readBooleanish(v: unknown): boolean {
+  return v === true || v === 1;
+}
+
 /**
  * True when this patch must be ignored for entity snapshots and outbox push
  * (transport or partial write rejection, or explicit flag).
@@ -34,7 +38,7 @@ export function isSyncRejectedPatchAttributes(
   attrs: Record<string, unknown>
 ): boolean {
   const rej = attrs[PATCH_REJECTED];
-  if (rej === true || rej === 1) return true;
+  if (readBooleanish(rej)) return true;
   const v = attrs[PATCH_SYNC_REJECTED_AT];
   if (v === null || v === undefined || v === false) return false;
   if (typeof v === 'string') return v.length > 0;

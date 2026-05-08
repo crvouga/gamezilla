@@ -1,13 +1,11 @@
 import { assertUuid } from '@gamezilla/domain/auth/device-id';
-import {
-  parseAvatarConfigAttr,
-  serializeDefaultAvatarConfig,
-} from '@gamezilla/domain/profile/avatar-config';
+import { serializeDefaultAvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { generateRandomDisplayName } from '@gamezilla/domain/profile/display-name-generator';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
 } from '@gamezilla/domain/profile/profile-entities';
+import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type { Entity, PatchDb } from '@gamezilla/patch-db/interface';
 
 function profileLooksPresent(
@@ -17,22 +15,22 @@ function profileLooksPresent(
   if (entity === undefined) return false;
   const attrs = entity.attributes as Record<string, unknown>;
   return (
-    attrs[ProfileAttr.id] === expectedId &&
-    typeof attrs[ProfileAttr.createdAt] === 'string'
+    attrs[ProfileAttr.id.key] === expectedId &&
+    typeof attrs[ProfileAttr.createdAt.key] === 'string'
   );
 }
 
 function hasDisplayName(entity: Entity | undefined): boolean {
   if (entity === undefined) return false;
   const attrs = entity.attributes as Record<string, unknown>;
-  const v = attrs[ProfileAttr.displayName];
+  const v = attrs[ProfileAttr.displayName.key];
   return typeof v === 'string' && v.trim().length > 0;
 }
 
 function hasAvatarConfig(entity: Entity | undefined): boolean {
   if (entity === undefined) return false;
   const attrs = entity.attributes as Record<string, unknown>;
-  const parsed = parseAvatarConfigAttr(attrs, ProfileAttr.avatarConfig);
+  const parsed = ProfileAttr.avatarConfig.from(attrs);
   return parsed !== null && parsed.seed.trim().length > 0;
 }
 
@@ -51,13 +49,14 @@ export async function ensureProfile(db: PatchDb, myId: string): Promise<void> {
   ]);
   const existing = res?.entities[0];
   if (profileLooksPresent(existing, myId)) {
-    const patch: Record<string, unknown> = {};
-    if (!hasDisplayName(existing)) {
-      patch[ProfileAttr.displayName] = generateRandomDisplayName();
-    }
-    if (!hasAvatarConfig(existing)) {
-      patch[ProfileAttr.avatarConfig] = serializeDefaultAvatarConfig(myId);
-    }
+    const patch = mergePlain(
+      !hasDisplayName(existing)
+        ? ProfileAttr.displayName(generateRandomDisplayName())
+        : {},
+      !hasAvatarConfig(existing)
+        ? ProfileAttr.avatarConfig(serializeDefaultAvatarConfig(myId))
+        : {}
+    );
     if (Object.keys(patch).length === 0) return;
     await db.write([
       {
@@ -73,12 +72,12 @@ export async function ensureProfile(db: PatchDb, myId: string): Promise<void> {
     {
       entityId: myId,
       entityType: PROFILE_ENTITY_TYPE,
-      attributes: {
-        [ProfileAttr.id]: myId,
-        [ProfileAttr.createdAt]: now,
-        [ProfileAttr.displayName]: generateRandomDisplayName(),
-        [ProfileAttr.avatarConfig]: serializeDefaultAvatarConfig(myId),
-      },
+      attributes: mergePlain(
+        ProfileAttr.id(myId),
+        ProfileAttr.createdAt(now),
+        ProfileAttr.displayName(generateRandomDisplayName()),
+        ProfileAttr.avatarConfig(serializeDefaultAvatarConfig(myId))
+      ),
     },
   ]);
 }

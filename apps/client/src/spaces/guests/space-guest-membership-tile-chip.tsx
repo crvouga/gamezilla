@@ -1,4 +1,3 @@
-import { parseStringAttr } from '@gamezilla/client/spaces/lib/space-parsers';
 import { SpaceMemberTileChip } from '@gamezilla/client/spaces/members/space-member-tile-chip';
 import {
   SPACE_MEMBERSHIP_ENTITY_TYPE,
@@ -20,8 +19,9 @@ export function SpaceGuestMembershipTileChip({
   const guestId = useQueryAttribute({
     entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
     entityId: membershipId,
-    attributeKey: SpaceMembershipAttr.guestId,
-    attributeValue: parseStringAttr,
+    attributeKey: SpaceMembershipAttr.guestId.key,
+
+    parse: SpaceMembershipAttr.guestId.parse,
   });
   if (guestId === null) return null;
   return <SpaceMemberTileChip spaceId={spaceId} profileId={guestId} />;

@@ -1,4 +1,8 @@
-import { Decrement, Increment } from '@gamezilla/domain/spaces/space-module';
+import {
+  CounterRoomAttr,
+  Decrement,
+  Increment,
+} from '@gamezilla/domain/spaces/space-module';
 import { useRoomSnapshot, type Room, type RoomSnapshot } from '@gamezilla/room';
 import { useCallback, useMemo, type MutableRefObject } from 'react';
 
@@ -6,8 +10,7 @@ type AppRoom = Room<Record<string, unknown>, unknown, unknown, string>;
 
 function readCount(snap: RoomSnapshot<Record<string, unknown>> | null): number {
   if (snap === null) return 0;
-  const c = snap.state['count'];
-  return typeof c === 'number' && Number.isFinite(c) ? c : 0;
+  return CounterRoomAttr.count.from(snap.state);
 }
 
 export function useSpaceRoomCounterControls(

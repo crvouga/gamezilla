@@ -23,8 +23,8 @@ function assertSessionScope(
   deviceId: string,
   accountId: string
 ): void {
-  const sid = snap[AccountSessionAttr.deviceId];
-  const aid = snap[AccountSessionAttr.accountId];
+  const sid = snap[AccountSessionAttr.deviceId.key];
+  const aid = snap[AccountSessionAttr.accountId.key];
   if (sid !== deviceId || aid !== accountId) {
     throw new ForbiddenError('accountSession scope mismatch');
   }
@@ -47,11 +47,11 @@ function assertRevocationExpiresAt(value: unknown): void {
 }
 
 function assertRevocationAttribute(key: string, value: unknown): boolean {
-  if (key === AccountSessionAttr.token) {
+  if (key === AccountSessionAttr.token.key) {
     assertRevocationToken(value);
     return true;
   }
-  if (key === AccountSessionAttr.expiresAt) {
+  if (key === AccountSessionAttr.expiresAt.key) {
     assertRevocationExpiresAt(value);
     return true;
   }

@@ -22,14 +22,14 @@ export function useSpaceGuestMembershipIds(spaceId: string): string[] {
           clauses: [
             {
               type: '=',
-              attribute: SpaceMembershipAttr.spaceId,
+              attribute: SpaceMembershipAttr.spaceId.key,
               value: spaceId,
             },
-            { type: 'not_exists', attribute: SpaceMembershipAttr.leftAt },
+            { type: 'not_exists', attribute: SpaceMembershipAttr.leftAt.key },
           ],
         },
         orderBy: [
-          { attribute: SpaceMembershipAttr.joinedAt, direction: 'asc' },
+          { attribute: SpaceMembershipAttr.joinedAt.key, direction: 'asc' },
         ],
       }
     : { entityType: SPACE_MEMBERSHIP_ENTITY_TYPE, limit: 0 };

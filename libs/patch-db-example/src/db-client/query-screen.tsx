@@ -17,6 +17,8 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 import { useWindowDimensions } from 'react-native';
 
+import { TodoAttr } from '../todo/todo-constants';
+
 export type QueryScreenProps = {
   onClose?: () => void;
 };
@@ -30,6 +32,38 @@ const INPUT_SX = {
   background: 'surface',
   borderColor: 'border',
 } as const;
+
+const WHERE_JSON_INPUT_SX = {
+  borderWidth: 1,
+  borderRadius: 8,
+  px: 3,
+  py: 2,
+  fontSize: 12,
+  minHeight: 100,
+  background: 'surface',
+  borderColor: 'border',
+  fontFamily: 'monospace',
+} as const;
+
+function WhereJsonTextInput({
+  value,
+  onChangeText,
+}: {
+  value: string;
+  onChangeText: (v: string) => void;
+}) {
+  return (
+    <TextInput
+      value={value}
+      onChangeText={onChangeText}
+      placeholder={
+        `e.g. {"type":"=","attribute":"${TodoAttr.title.key}","value":"x"}` as never
+      }
+      multiline
+      sx={WHERE_JSON_INPUT_SX}
+    />
+  );
+}
 
 type QueryFormState = {
   entityType: string;
@@ -130,22 +164,9 @@ function QueryFormCard({
           sx={INPUT_SX}
         />
         <Text variant="caption" label={<Trans>where (JSON, optional)</Trans>} />
-        <TextInput
+        <WhereJsonTextInput
           value={form.whereJson}
           onChangeText={form.setWhereJson}
-          placeholder={t`e.g. {"type":"=","attribute":"todo/title","value":"x"}`}
-          multiline
-          sx={{
-            borderWidth: 1,
-            borderRadius: 8,
-            px: 3,
-            py: 2,
-            fontSize: 12,
-            minHeight: 100,
-            background: 'surface',
-            borderColor: 'border',
-            fontFamily: 'monospace',
-          }}
         />
         <Button
           title={running ? t`Running…` : t`Run read([query])`}

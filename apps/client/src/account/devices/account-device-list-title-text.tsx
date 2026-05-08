@@ -1,6 +1,5 @@
 import {
   formatDeviceListTitle,
-  parseTrimmedStringAttr,
 } from '@gamezilla/client/account/devices/device-parsers';
 import { optionalProps } from '@gamezilla/client/ui/optional-props';
 import { DEVICE_ENTITY_TYPE, DeviceAttr } from '@gamezilla/domain/auth';
@@ -25,20 +24,23 @@ export function AccountDeviceListTitleText({
   const deviceName = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.deviceName,
-    attributeValue: parseTrimmedStringAttr,
+    attributeKey: DeviceAttr.deviceName.key,
+
+    parse: DeviceAttr.deviceName.parse,
   });
   const deviceBrand = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.deviceBrand,
-    attributeValue: parseTrimmedStringAttr,
+    attributeKey: DeviceAttr.deviceBrand.key,
+
+    parse: DeviceAttr.deviceBrand.parse,
   });
   const deviceModelName = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.deviceModelName,
-    attributeValue: parseTrimmedStringAttr,
+    attributeKey: DeviceAttr.deviceModelName.key,
+
+    parse: DeviceAttr.deviceModelName.parse,
   });
   const label = formatDeviceListTitle({
     deviceId,

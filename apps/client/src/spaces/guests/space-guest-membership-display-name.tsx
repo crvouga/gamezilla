@@ -1,5 +1,4 @@
 import { UserDisplayName } from '@gamezilla/client/profile/user-display-name';
-import { parseStringAttr } from '@gamezilla/client/spaces/lib/space-parsers';
 import { optionalProps } from '@gamezilla/client/ui/optional-props';
 import {
   SPACE_MEMBERSHIP_ENTITY_TYPE,
@@ -26,8 +25,9 @@ export function SpaceGuestMembershipDisplayName({
   const guestId = useQueryAttribute({
     entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
     entityId: membershipId,
-    attributeKey: SpaceMembershipAttr.guestId,
-    attributeValue: parseStringAttr,
+    attributeKey: SpaceMembershipAttr.guestId.key,
+
+    parse: SpaceMembershipAttr.guestId.parse,
   });
   return (
     <UserDisplayName

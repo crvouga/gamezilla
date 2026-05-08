@@ -9,25 +9,26 @@ import {
   useTheme,
   type ScreenBaseBreadcrumb,
 } from '@gamezilla/lib/ui';
+import { mergePlain } from '@gamezilla/lib/merge-plain';
 import { usePatchDb, useQuery } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 
-import { INBOX_LIST_ID } from './todo-constants';
+import { INBOX_LIST_ID, TodoAttr, TodoListAttr } from './todo-constants';
 
 const TODO_LIST_DELETED_CLAUSE = {
   type: 'or' as const,
   clauses: [
-    { type: 'not_exists' as const, attribute: 'todoList/deleted' },
-    { type: '=' as const, attribute: 'todoList/deleted', value: false },
+    { type: 'not_exists' as const, attribute: TodoListAttr.deleted.key },
+    { type: '=' as const, attribute: TodoListAttr.deleted.key, value: false },
   ],
 };
 
 const TODO_DELETED_CLAUSE = {
   type: 'or' as const,
   clauses: [
-    { type: 'not_exists' as const, attribute: 'todo/deleted' },
-    { type: '=' as const, attribute: 'todo/deleted', value: false },
+    { type: 'not_exists' as const, attribute: TodoAttr.deleted.key },
+    { type: '=' as const, attribute: TodoAttr.deleted.key, value: false },
   ],
 };
 
@@ -40,7 +41,7 @@ function useTodoCountByList() {
   });
   const counts = new Map<unknown, number>();
   for (const t of todosResult.entities) {
-    const lid = t.attributes['todo/listId'] ?? INBOX_LIST_ID;
+    const lid = TodoAttr.listId.from(t.attributes) ?? INBOX_LIST_ID;
     counts.set(lid, (counts.get(lid) ?? 0) + 1);
   }
   return counts;
@@ -178,8 +179,8 @@ function ListRowItem({
 }
 
 function getListName(attrs: Record<string, unknown>, fallback: string): string {
-  const nameRaw = attrs['todoList/name'];
-  return typeof nameRaw === 'string' ? nameRaw : fallback;
+  const nameRaw = TodoListAttr.name.from(attrs);
+  return nameRaw.length > 0 ? nameRaw : fallback;
 }
 
 type Db = ReturnType<typeof usePatchDb>;
@@ -193,11 +194,11 @@ function useTodoListMutations(db: Db) {
       {
         entityId,
         entityType: 'todoList',
-        attributes: {
-          'todoList/name': trimmed,
-          'todoList/order': order,
-          'todoList/createdAt': new Date().toISOString(),
-        },
+        attributes: mergePlain(
+          TodoListAttr.name(trimmed),
+          TodoListAttr.order(order),
+          TodoListAttr.createdAt(new Date().toISOString())
+        ),
       },
     ]);
     return true;
@@ -208,7 +209,7 @@ function useTodoListMutations(db: Db) {
       {
         entityId: listId,
         entityType: 'todoList',
-        attributes: { 'todoList/deleted': true },
+        attributes: TodoListAttr.deleted(true),
       },
     ]);
   };
@@ -356,11 +357,9 @@ function useTodoListsState(onClearLocalDatabase?: () => Promise<void> | void) {
     entityType: 'todoList',
     where: TODO_LIST_DELETED_CLAUSE,
     orderBy: [
-      { attribute: 'todoList/order', direction: 'asc' },
-
-      { attribute: 'todoList/createdAt', direction: 'asc' },
-
-      { attribute: 'todoList/id', direction: 'asc' },
+      { attribute: TodoListAttr.order.key, direction: 'asc' },
+      { attribute: TodoListAttr.createdAt.key, direction: 'asc' },
+      { attribute: TodoListAttr.id.key, direction: 'asc' },
     ],
   });
   const lists = listsResult.entities ?? [];

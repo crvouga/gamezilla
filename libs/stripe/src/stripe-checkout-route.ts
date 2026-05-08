@@ -1,9 +1,11 @@
 import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '@gamezilla/domain/auth';
 import { createLogger } from '@gamezilla/lib/logger';
+import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type {
   PatchDb,
   PatchDbAuthContext,
 } from '@gamezilla/patch-db/interface';
+import { PATCH_CREATED_BY_ID } from '@gamezilla/patch-db/metadata/patch-metadata';
 import { zValidator } from '@hono/zod-validator';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
@@ -66,7 +68,7 @@ async function ensureStripeCustomerId(args: {
     patchCtx
   );
   const account = accRes?.entities[0];
-  const existingRaw = account?.attributes[AccountAttr.stripeCustomerId];
+  const existingRaw = account?.attributes[AccountAttr.stripeCustomerId.key];
   if (typeof existingRaw === 'string' && existingRaw.length > 0) {
     return existingRaw;
   }
@@ -79,10 +81,10 @@ async function ensureStripeCustomerId(args: {
       {
         entityId: accountId,
         entityType: ACCOUNT_ENTITY_TYPE,
-        attributes: {
-          [AccountAttr.stripeCustomerId]: customer.id,
-          'patch/createdById': deviceId,
-        },
+        attributes: mergePlain(
+          AccountAttr.stripeCustomerId(customer.id),
+          { [PATCH_CREATED_BY_ID]: deviceId }
+        ),
       },
     ],
     patchCtx
@@ -167,7 +169,7 @@ async function handleStripePortal(
     patchCtx
   );
   const account = accRes?.entities[0];
-  const stripeCustomerIdRaw = account?.attributes[AccountAttr.stripeCustomerId];
+  const stripeCustomerIdRaw = account?.attributes[AccountAttr.stripeCustomerId.key];
   const stripeCustomerId =
     typeof stripeCustomerIdRaw === 'string' && stripeCustomerIdRaw.length > 0
       ? stripeCustomerIdRaw

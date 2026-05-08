@@ -1,7 +1,4 @@
-import {
-  parseAvatarConfigAttr,
-  type AvatarConfig,
-} from '@gamezilla/domain/profile/avatar-config';
+import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { ProfileAttr } from '@gamezilla/domain/profile/profile-entities';
 
 /**
@@ -15,16 +12,11 @@ export function parseDisplayName(raw: unknown): string {
 }
 
 /**
- * Parses a `profile/avatarConfig` attribute value into an `AvatarConfig`,
- * delegating to the canonical parser. Returns `null` when the attribute is
- * missing or invalid (i.e. profile not synced yet).
+ * Parses a `profile/avatarConfig` attribute value into an `AvatarConfig`.
+ * Returns `null` when the attribute is missing or invalid (i.e. profile not synced yet).
  *
- * Inline parser for `useQueryAttribute`: receives just the raw value, wraps
- * it back into the shape `parseAvatarConfigAttr` expects.
+ * Inline parser for `useQueryAttribute`: receives just the raw value.
  */
 export function parseAvatarConfigAttrValue(raw: unknown): AvatarConfig | null {
-  return parseAvatarConfigAttr(
-    { [ProfileAttr.avatarConfig]: raw },
-    ProfileAttr.avatarConfig
-  );
+  return ProfileAttr.avatarConfig.parse(raw);
 }

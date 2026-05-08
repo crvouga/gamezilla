@@ -1,5 +1,3 @@
-import { parseDisplayName } from '@gamezilla/client/profile/profile-parsers';
-import { parseStringAttr } from '@gamezilla/client/spaces/lib/space-parsers';
 import { optionalProps } from '@gamezilla/client/ui/optional-props';
 import {
   PROFILE_ENTITY_TYPE,
@@ -37,8 +35,9 @@ export function SpaceHostFallbackTitle({
   const hostId = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.hostId,
-    attributeValue: parseStringAttr,
+    attributeKey: SpaceAttr.hostId.key,
+
+    parse: SpaceAttr.hostId.parse,
   });
   if (hostId === null) {
     return <Text {...optionalProps({ variant, sx, numberOfLines })} label={EMPTY_LABEL} />;
@@ -68,8 +67,9 @@ function SpaceHostFallbackTitleResolved({
   const hostDisplayName = useQueryAttribute({
     entityType: PROFILE_ENTITY_TYPE,
     entityId: hostId,
-    attributeKey: ProfileAttr.displayName,
-    attributeValue: parseDisplayName,
+    attributeKey: ProfileAttr.displayName.key,
+
+    parse: ProfileAttr.displayName.parse,
   });
   return (
     <Text

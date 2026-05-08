@@ -11,7 +11,6 @@ import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import {
   configsEqual,
   createDefaultAvatarConfig,
-  parseAvatarConfigAttr,
   serializeAvatarConfig,
 } from '@gamezilla/domain/profile/avatar-config';
 import {
@@ -33,7 +32,7 @@ function usePersistedConfig() {
   const entity = useProfileEntityById(profileId);
   const persisted = useMemo(() => {
     const attrs = entity?.attributes as Record<string, unknown> | undefined;
-    const parsed = parseAvatarConfigAttr(attrs, ProfileAttr.avatarConfig);
+    const parsed = ProfileAttr.avatarConfig.from(attrs ?? {});
     if (parsed !== null) {
       return parsed;
     }
@@ -179,9 +178,7 @@ function useSaveAction(args: {
         {
           entityId: profileId,
           entityType: PROFILE_ENTITY_TYPE,
-          attributes: {
-            [ProfileAttr.avatarConfig]: serializeAvatarConfig(draft),
-          },
+          attributes: ProfileAttr.avatarConfig(serializeAvatarConfig(draft)),
         },
       ]);
       router.back();

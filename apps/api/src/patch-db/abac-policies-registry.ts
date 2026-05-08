@@ -26,6 +26,13 @@ import {
 import type { VisibilityPolicy } from '@gamezilla/patch-db/policy/visibility-policy-registry';
 
 import {
+  AbacEntityAttr,
+  ChatMessageAttr,
+  FriendRequestAttr,
+  FriendshipAttr,
+  MatchAttr,
+} from './abac-patch-attrs';
+import {
   appAuthFromWriteContext,
   assertCreatedByMatchesAuthor,
   authOnlyRead,
@@ -39,7 +46,7 @@ type AppVisibilityPolicy = VisibilityPolicy<AppAuthContext>;
 const devicePolicy: AppVisibilityPolicy = {
   read: authOnlyRead((ctx) => ({
     type: '=',
-    attribute: DeviceAttr.id,
+    attribute: DeviceAttr.id.key,
     value: ctx.deviceId,
   })),
   write: async (ctx, patch, _tx) => {
@@ -47,7 +54,7 @@ const devicePolicy: AppVisibilityPolicy = {
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
     assertCreatedByMatchesAuthor(appCtx, patch);
-    const id = patch.attributes[DeviceAttr.id];
+    const id = patch.attributes[DeviceAttr.id.key];
     if (typeof id === 'string' && id !== appCtx.deviceId) {
       throw new ForbiddenError('device id mismatch', { id });
     }
@@ -59,7 +66,7 @@ const accountPolicy: AppVisibilityPolicy = {
     if (ctx.accountId === null) return READ_WHERE_NEVER_TRUE;
     return {
       type: '=',
-      attribute: AccountAttr.id,
+      attribute: AccountAttr.id.key,
       value: ctx.accountId,
     };
   }),
@@ -71,7 +78,7 @@ const accountPolicy: AppVisibilityPolicy = {
       throw new ForbiddenError('account writes require sign-in');
     }
     assertCreatedByMatchesAuthor(appCtx, patch);
-    const id = patch.attributes[AccountAttr.id];
+    const id = patch.attributes[AccountAttr.id.key];
     if (typeof id === 'string' && id !== appCtx.accountId) {
       throw new ForbiddenError('account id mismatch', { id });
     }
@@ -83,7 +90,7 @@ const accountSessionPolicy: AppVisibilityPolicy = {
     if (ctx.accountId === null) return READ_WHERE_NEVER_TRUE;
     return {
       type: '=',
-      attribute: AccountSessionAttr.deviceId,
+      attribute: AccountSessionAttr.deviceId.key,
       value: ctx.deviceId,
     };
   }),
@@ -111,7 +118,7 @@ const accountProviderPolicy: AppVisibilityPolicy = {
     if (ctx.accountId === null) return READ_WHERE_NEVER_TRUE;
     return {
       type: '=',
-      attribute: AccountProviderAttr.accountId,
+      attribute: AccountProviderAttr.accountId.key,
       value: ctx.accountId,
     };
   }),
@@ -123,7 +130,7 @@ const accountProviderPolicy: AppVisibilityPolicy = {
       throw new ForbiddenError('accountProvider requires sign-in');
     }
     assertCreatedByMatchesAuthor(appCtx, patch);
-    const aid = patch.attributes[AccountProviderAttr.accountId];
+    const aid = patch.attributes[AccountProviderAttr.accountId.key];
     if (typeof aid === 'string' && aid !== appCtx.accountId) {
       throw new ForbiddenError('accountProvider accountId mismatch');
     }
@@ -167,7 +174,7 @@ const profilePrivatePolicy: AppVisibilityPolicy = {
     if (ctx.accountId === null) return READ_WHERE_NEVER_TRUE;
     return {
       type: '=',
-      attribute: 'entity/owner',
+      attribute: AbacEntityAttr.owner.key,
       value: ctx.accountId,
     };
   }),
@@ -179,7 +186,7 @@ const profilePrivatePolicy: AppVisibilityPolicy = {
       throw new ForbiddenError('profile.private requires sign-in');
     }
     assertCreatedByMatchesAuthor(appCtx, patch);
-    const owner = patch.attributes['entity/owner'];
+    const owner = patch.attributes[AbacEntityAttr.owner.key];
     if (owner !== undefined && owner !== appCtx.accountId) {
       throw new ForbiddenError('entity/owner mismatch');
     }
@@ -191,10 +198,10 @@ const spacePolicy: AppVisibilityPolicy = {
     (ctx): PatchDbQueryWhereClause => ({
       type: 'or',
       clauses: [
-        { type: '=', attribute: SpaceAttr.hostId, value: ctx.myId },
-        { type: '=', attribute: 'entity/owner', value: ctx.myId },
+        { type: '=', attribute: SpaceAttr.hostId.key, value: ctx.myId },
+        { type: '=', attribute: AbacEntityAttr.owner.key, value: ctx.myId },
         /** Browse live spaces (lobby / join UX). */
-        { type: 'not_exists', attribute: SpaceAttr.endedAt },
+        { type: 'not_exists', attribute: SpaceAttr.endedAt.key },
       ],
     })
   ),
@@ -203,8 +210,8 @@ const spacePolicy: AppVisibilityPolicy = {
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
     assertCreatedByMatchesAuthor(appCtx, patch);
-    const hostId = patch.attributes[SpaceAttr.hostId];
-    const owner = patch.attributes['entity/owner'];
+    const hostId = patch.attributes[SpaceAttr.hostId.key];
+    const owner = patch.attributes[AbacEntityAttr.owner.key];
 
     const isHost = typeof hostId === 'string' && hostId === appCtx.myId;
     const isOwner = typeof owner === 'string' && owner === appCtx.myId;
@@ -219,7 +226,7 @@ const spaceMembershipPolicy: AppVisibilityPolicy = {
     if (ctx.memberOfSpaceIds.length === 0) {
       return {
         type: '=',
-        attribute: SpaceMembershipAttr.guestId,
+        attribute: SpaceMembershipAttr.guestId.key,
         value: ctx.myId,
       };
     }
@@ -228,12 +235,12 @@ const spaceMembershipPolicy: AppVisibilityPolicy = {
       clauses: [
         {
           type: '=',
-          attribute: SpaceMembershipAttr.guestId,
+          attribute: SpaceMembershipAttr.guestId.key,
           value: ctx.myId,
         },
         {
           type: 'in',
-          attribute: SpaceMembershipAttr.spaceId,
+          attribute: SpaceMembershipAttr.spaceId.key,
           values: [...ctx.memberOfSpaceIds],
         },
       ],
@@ -244,7 +251,7 @@ const spaceMembershipPolicy: AppVisibilityPolicy = {
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
     assertCreatedByMatchesAuthor(appCtx, patch);
-    const gid = patch.attributes[SpaceMembershipAttr.guestId];
+    const gid = patch.attributes[SpaceMembershipAttr.guestId.key];
     if (gid !== undefined && gid !== null && gid !== appCtx.myId) {
       throw new ForbiddenError('spaceMembership guestId mismatch');
     }
@@ -257,13 +264,13 @@ const chatMessagePolicy: AppVisibilityPolicy = {
     if (ctx.memberOfSpaceIds.length === 0) {
       return {
         type: '=',
-        attribute: 'chat.message/spaceId',
+        attribute: ChatMessageAttr.spaceId.key,
         value: '__patchdb_none__',
       };
     }
     return {
       type: 'in',
-      attribute: 'chat.message/spaceId',
+      attribute: ChatMessageAttr.spaceId.key,
       values: [...ctx.memberOfSpaceIds],
     };
   }),
@@ -275,7 +282,7 @@ const chatMessagePolicy: AppVisibilityPolicy = {
       throw new ForbiddenError('chat.message requires sign-in');
     }
     assertCreatedByMatchesAuthor(appCtx, patch);
-    const sid = patch.attributes['chat.message/spaceId'];
+    const sid = patch.attributes[ChatMessageAttr.spaceId.key];
     if (typeof sid !== 'string' || !appCtx.memberOfSpaceIds.includes(sid)) {
       throw new ForbiddenError('chat.message space membership required');
     }
@@ -290,12 +297,12 @@ const friendshipPolicy: AppVisibilityPolicy = {
       clauses: [
         {
           type: '=',
-          attribute: 'friendship/fromUserId',
+          attribute: FriendshipAttr.fromUserId.key,
           value: ctx.accountId,
         },
         {
           type: '=',
-          attribute: 'friendship/toUserId',
+          attribute: FriendshipAttr.toUserId.key,
           value: ctx.accountId,
         },
       ],
@@ -309,8 +316,8 @@ const friendshipPolicy: AppVisibilityPolicy = {
       throw new ForbiddenError('friendship requires sign-in');
     }
     assertCreatedByMatchesAuthor(appCtx, patch);
-    const from = patch.attributes['friendship/fromUserId'];
-    const to = patch.attributes['friendship/toUserId'];
+    const from = patch.attributes[FriendshipAttr.fromUserId.key];
+    const to = patch.attributes[FriendshipAttr.toUserId.key];
     if (
       (typeof from === 'string' && from === appCtx.accountId) ||
       (typeof to === 'string' && to === appCtx.accountId)
@@ -329,12 +336,12 @@ const friendRequestPolicy: AppVisibilityPolicy = {
       clauses: [
         {
           type: '=',
-          attribute: 'friend.request/fromUserId',
+          attribute: FriendRequestAttr.fromUserId.key,
           value: ctx.accountId,
         },
         {
           type: '=',
-          attribute: 'friend.request/toUserId',
+          attribute: FriendRequestAttr.toUserId.key,
           value: ctx.accountId,
         },
       ],
@@ -359,10 +366,10 @@ const matchPolicy: AppVisibilityPolicy = {
       clauses: [
         {
           type: 'contains',
-          attribute: 'match/participantUserIds',
+          attribute: MatchAttr.participantUserIds.key,
           value: ctx.accountId,
         },
-        { type: '=', attribute: 'entity/owner', value: ctx.accountId },
+        { type: '=', attribute: AbacEntityAttr.owner.key, value: ctx.accountId },
       ],
     };
   }),
@@ -390,7 +397,7 @@ const inventoryItemPolicy: AppVisibilityPolicy = {
     if (ctx.accountId === null) return READ_WHERE_NEVER_TRUE;
     return {
       type: '=',
-      attribute: 'entity/owner',
+      attribute: AbacEntityAttr.owner.key,
       value: ctx.accountId,
     };
   }),

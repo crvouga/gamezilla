@@ -1,4 +1,5 @@
 import { assert } from '@gamezilla/lib/assert';
+import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type { Logger } from '@gamezilla/lib/logger';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { assertWhereFragment } from '@gamezilla/lib/sqlite';
@@ -275,9 +276,14 @@ export class PatchDbImplPostgres implements PatchDb {
     for (const k of PATCH_META_KEYS) {
       delete merged[k];
     }
-    merged['patch/compacted'] = '1';
-    merged[PATCH_CREATED_BY_ID] = PATCH_DB_SYSTEM_DEVICE_ID;
-    merged['patch/sessionId'] = '';
+    Object.assign(
+      merged,
+      mergePlain(
+        { 'patch/compacted': '1' },
+        { [PATCH_CREATED_BY_ID]: PATCH_DB_SYSTEM_DEVICE_ID },
+        { 'patch/sessionId': '' }
+      )
+    );
 
     const now = new Date().toISOString();
     const patchId = crypto.randomUUID();

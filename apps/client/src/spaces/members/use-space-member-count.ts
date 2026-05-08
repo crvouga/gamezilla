@@ -1,5 +1,4 @@
 import { useSpaceGuestMembershipIds } from '@gamezilla/client/spaces/guests/use-space-guest-membership-ids';
-import { parseStringAttr } from '@gamezilla/client/spaces/lib/space-parsers';
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
@@ -17,8 +16,9 @@ export function useSpaceMemberCount(spaceId: string): number {
   const hostId = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.hostId,
-    attributeValue: parseStringAttr,
+    attributeKey: SpaceAttr.hostId.key,
+
+    parse: SpaceAttr.hostId.parse,
   });
   const guests = useSpaceGuestMembershipIds(spaceId);
   return (hostId !== null ? 1 : 0) + guests.length;

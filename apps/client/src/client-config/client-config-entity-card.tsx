@@ -16,7 +16,7 @@ export function ClientConfigEntityCard() {
   const entity = entities[0] ?? null;
 
   const attrs = entity?.attributes ?? {};
-  const googleRaw = attrs[ClientConfigAttr.googleWebClientId];
+  const googleRaw = attrs[ClientConfigAttr.googleWebClientId.key];
   const googleLine =
     typeof googleRaw === 'string' && googleRaw.length > 0
       ? googleRaw

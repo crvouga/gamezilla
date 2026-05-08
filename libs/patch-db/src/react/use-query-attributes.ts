@@ -8,10 +8,6 @@ import { useQuery } from './use-query';
 
 /**
  * Returns a list of parsed attribute values for every entity matching a query.
- *
- * Each entity contributes one parsed value (`attributeValue(rawAttribute)`).
- * Use for narrow aggregations like "the `expiresAt` of every active session
- * for this device" — anywhere a per-entity scalar list is needed.
  */
 export function useQueryAttributes<T>(args: {
   entityType: string;
@@ -19,10 +15,9 @@ export function useQueryAttributes<T>(args: {
   orderBy?: PatchDbQueryOrderBy[];
   limit?: number;
   attributeKey: string;
-  attributeValue: (raw: unknown) => T;
+  parse: (raw: unknown) => T;
 }): T[] {
-  const { entityType, where, orderBy, limit, attributeKey, attributeValue } =
-    args;
+  const { entityType, where, orderBy, limit, attributeKey, parse } = args;
   const query: PatchDbQuery = { entityType };
   if (where !== undefined) query.where = where;
   if (orderBy !== undefined) query.orderBy = orderBy;
@@ -30,10 +25,7 @@ export function useQueryAttributes<T>(args: {
   const result = useQuery(query);
   const entities = result.entities;
   return useMemo(
-    () => entities.map((e) => attributeValue(e.attributes[attributeKey])),
-    // Parser is assumed stable; re-run whenever entities or the attributeKey
-    // change.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [entities, attributeKey]
+    () => entities.map((e) => parse(e.attributes[attributeKey])),
+    [entities, attributeKey, parse]
   );
 }

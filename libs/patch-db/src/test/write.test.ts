@@ -1,6 +1,7 @@
 import { assert } from '@gamezilla/lib/assert';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { PatchDb } from '../interface';
+import { PATCH_SYNCED_AT } from '../interface';
 import { implementations } from './test-helpers';
 
 describe.each(implementations)('$name', ({ factory }) => {
@@ -280,7 +281,7 @@ describe.each(implementations)('$name', ({ factory }) => {
         on: 'patches',
         where: {
           type: 'not_exists',
-          attribute: 'patch/syncedAt',
+          attribute: PATCH_SYNCED_AT,
         },
       },
     ]);
@@ -297,7 +298,7 @@ describe.each(implementations)('$name', ({ factory }) => {
     await db.update(
       unsynced.map((p) => ({
         patchId: p.patchId,
-        attributes: { 'patch/syncedAt': '1' },
+        attributes: { [PATCH_SYNCED_AT]: '1' },
       }))
     );
     const afterSyncResults = await db.read([
@@ -305,7 +306,7 @@ describe.each(implementations)('$name', ({ factory }) => {
         on: 'patches',
         where: {
           type: 'not_exists',
-          attribute: 'patch/syncedAt',
+          attribute: PATCH_SYNCED_AT,
         },
       },
     ]);

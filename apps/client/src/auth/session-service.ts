@@ -5,6 +5,7 @@ import {
 } from '@gamezilla/domain/auth';
 import { assertUuid } from '@gamezilla/domain/auth/device-id';
 import { assert } from '@gamezilla/lib/assert';
+import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import type { DeviceService } from './device-service';
 
@@ -33,11 +34,11 @@ function parseSessionEntity(
   },
   expectedDeviceId: string
 ): AccountSessionRecord | null {
-  const deviceId = entity.attributes[AccountSessionAttr.deviceId];
-  const accountId = entity.attributes[AccountSessionAttr.accountId];
-  const token = entity.attributes[AccountSessionAttr.token];
-  const expiresAt = entity.attributes[AccountSessionAttr.expiresAt];
-  const createdAt = entity.attributes[AccountSessionAttr.createdAt];
+  const deviceId = entity.attributes[AccountSessionAttr.deviceId.key];
+  const accountId = entity.attributes[AccountSessionAttr.accountId.key];
+  const token = entity.attributes[AccountSessionAttr.token.key];
+  const expiresAt = entity.attributes[AccountSessionAttr.expiresAt.key];
+  const createdAt = entity.attributes[AccountSessionAttr.createdAt.key];
 
   if (deviceId !== expectedDeviceId) {
     return null;
@@ -79,10 +80,10 @@ async function readLatestSessionEntity(
       entityType: ACCOUNT_SESSION_ENTITY_TYPE,
       where: {
         type: '=',
-        attribute: AccountSessionAttr.deviceId,
+        attribute: AccountSessionAttr.deviceId.key,
         value: deviceId,
       },
-      orderBy: [{ attribute: AccountSessionAttr.createdAt, direction: 'desc' }],
+      orderBy: [{ attribute: AccountSessionAttr.createdAt.key, direction: 'desc' }],
       limit,
     },
   ]);
@@ -119,10 +120,10 @@ async function clearAllActiveSessions(
     .map((parsed) => ({
       entityId: parsed.entityId,
       entityType: ACCOUNT_SESSION_ENTITY_TYPE,
-      attributes: {
-        [AccountSessionAttr.token]: null,
-        [AccountSessionAttr.expiresAt]: epoch,
-      },
+      attributes: mergePlain(
+        { [AccountSessionAttr.token.key]: null },
+        AccountSessionAttr.expiresAt(epoch)
+      ),
     }));
   if (writes.length === 0) return;
   await db.write(writes);

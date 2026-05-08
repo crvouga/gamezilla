@@ -7,26 +7,28 @@ import {
   TextInput,
   useTheme,
 } from '@gamezilla/lib/ui';
+import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type { Entity } from '@gamezilla/patch-db/interface';
 import { usePatchDb, useQuery } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 
 import { TodoItem } from './todo-item';
+import { TodoAttr } from './todo-constants';
 
 const DELETED_CLAUSE = {
   type: 'or' as const,
   clauses: [
-    { type: 'not_exists' as const, attribute: 'todo/deleted' },
-    { type: '=' as const, attribute: 'todo/deleted', value: false },
+    { type: 'not_exists' as const, attribute: TodoAttr.deleted.key },
+    { type: '=' as const, attribute: TodoAttr.deleted.key, value: false },
   ],
 };
 
 const ACTIVE_CLAUSE = {
   type: 'or' as const,
   clauses: [
-    { type: 'not_exists' as const, attribute: 'todo/completed' },
-    { type: '=' as const, attribute: 'todo/completed', value: false },
+    { type: 'not_exists' as const, attribute: TodoAttr.completed.key },
+    { type: '=' as const, attribute: TodoAttr.completed.key, value: false },
   ],
 };
 
@@ -44,7 +46,7 @@ function buildTodoQuery(filter: Filter) {
               DELETED_CLAUSE,
               {
                 type: '=' as const,
-                attribute: 'todo/completed',
+                attribute: TodoAttr.completed.key,
                 value: true,
               },
             ],
@@ -53,8 +55,8 @@ function buildTodoQuery(filter: Filter) {
     entityType: 'todo' as const,
     where,
     orderBy: [
-      { attribute: 'todo/order', direction: 'asc' as const },
-      { attribute: 'todo/createdAt', direction: 'asc' as const },
+      { attribute: TodoAttr.order.key, direction: 'asc' as const },
+      { attribute: TodoAttr.createdAt.key, direction: 'asc' as const },
     ],
   };
 }
@@ -184,21 +186,21 @@ function buildTodoCreatePayload(title: string, totalCount: number) {
   return {
     entityId: globalThis.crypto.randomUUID(),
     entityType: 'todo',
-    attributes: {
-      'todo/title': title,
-      'todo/completed': false,
-      'todo/order': totalCount,
-      'todo/createdAt': new Date().toISOString(),
-    },
+    attributes: mergePlain(
+      TodoAttr.title(title),
+      TodoAttr.completed(false),
+      TodoAttr.order(totalCount),
+      TodoAttr.createdAt(new Date().toISOString())
+    ),
   };
 }
 
 function buildTodoTogglePayload(entity: Entity) {
-  const completed = entity.attributes['todo/completed'] === true;
+  const completed = TodoAttr.completed.from(entity.attributes);
   return {
     entityId: entity.entityId,
     entityType: 'todo',
-    attributes: { 'todo/completed': !completed },
+    attributes: TodoAttr.completed(!completed),
   };
 }
 
@@ -206,7 +208,7 @@ function buildTodoDeletePayload(entity: Entity) {
   return {
     entityId: entity.entityId,
     entityType: 'todo',
-    attributes: { 'todo/deleted': true },
+    attributes: TodoAttr.deleted(true),
   };
 }
 

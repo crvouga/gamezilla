@@ -1,6 +1,5 @@
 import {
   formatTimestamp,
-  parseTrimmedStringAttr,
 } from '@gamezilla/client/account/devices/device-parsers';
 import { DEVICE_ENTITY_TYPE, DeviceAttr } from '@gamezilla/domain/auth';
 import { Text } from '@gamezilla/lib/ui';
@@ -18,8 +17,9 @@ export function AccountDeviceLastSeenText({
   const lastSeenAt = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.lastSeenAt,
-    attributeValue: parseTrimmedStringAttr,
+    attributeKey: DeviceAttr.lastSeenAt.key,
+
+    parse: DeviceAttr.lastSeenAt.parse,
   });
   return (
     <Text

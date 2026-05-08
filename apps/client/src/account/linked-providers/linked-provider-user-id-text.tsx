@@ -1,4 +1,3 @@
-import { parseTrimmedStringAttr } from '@gamezilla/client/account/devices/device-parsers';
 import {
   ACCOUNT_PROVIDER_ENTITY_TYPE,
   AccountProviderAttr,
@@ -20,8 +19,9 @@ export function LinkedProviderUserIdText({
   const providerUserId = useQueryAttribute({
     entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
     entityId: accountProviderEntityId,
-    attributeKey: AccountProviderAttr.providerUserId,
-    attributeValue: parseTrimmedStringAttr,
+    attributeKey: AccountProviderAttr.providerUserId.key,
+
+    parse: AccountProviderAttr.providerUserId.parse,
   });
   if (providerUserId === null) return null;
   return (

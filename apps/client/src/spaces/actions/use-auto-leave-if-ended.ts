@@ -1,5 +1,4 @@
 import { useSpaceActions } from '@gamezilla/client/spaces/actions/space-actions';
-import { parseAbsent, parseExists } from '@gamezilla/client/spaces/lib/space-parsers';
 import { useMyGuestMembershipId } from '@gamezilla/client/spaces/guests/use-my-guest-membership-id';
 import {
   SPACE_ENTITY_TYPE,
@@ -23,38 +22,42 @@ import { useEffect } from 'react';
 export function useAutoLeaveIfEnded(spaceId: string): void {
   const { leaveSpace } = useSpaceActions();
 
-  const isLive = useQueryAttribute({
+  const endedAt = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.endedAt,
-    attributeValue: parseAbsent,
+    attributeKey: SpaceAttr.endedAt.key,
+
+    parse: SpaceAttr.endedAt.parse,
   });
+  const spaceStillLive = endedAt === null;
 
   const membershipId = useMyGuestMembershipId(spaceId);
   const membershipExists = useQueryAttribute({
     entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
     entityId: membershipId ?? '',
-    attributeKey: SpaceMembershipAttr.guestId,
-    attributeValue: parseExists,
+    attributeKey: SpaceMembershipAttr.guestIdIsPresent.key,
+
+    parse: SpaceMembershipAttr.guestIdIsPresent.parse,
   });
   const membershipActive = useQueryAttribute({
     entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
     entityId: membershipId ?? '',
-    attributeKey: SpaceMembershipAttr.leftAt,
-    attributeValue: parseAbsent,
+    attributeKey: SpaceMembershipAttr.leftAtIsAbsent.key,
+
+    parse: SpaceMembershipAttr.leftAtIsAbsent.parse,
   });
 
   useEffect(() => {
     if (spaceId.length === 0) return;
     if (membershipId === null) return;
-    if (isLive) return;
+    if (spaceStillLive) return;
     if (!membershipExists) return;
     if (!membershipActive) return;
     void leaveSpace(spaceId);
   }, [
     spaceId,
     membershipId,
-    isLive,
+    spaceStillLive,
     membershipExists,
     membershipActive,
     leaveSpace,

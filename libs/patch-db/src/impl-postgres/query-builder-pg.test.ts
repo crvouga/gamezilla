@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { assert } from '@gamezilla/lib/assert';
 import { questionMarkParamsToDollarParams } from '@gamezilla/lib/sql-client/positional-params';
+import { QGameSession, QTask } from '../test/query-test-attrs';
 import {
   buildLimitSQL,
   buildOrderSQL,
@@ -40,7 +41,7 @@ describe('buildWhereClause with namespaced attributes', () => {
   test('= clause with namespaced attribute', () => {
     const { sql, params } = buildWhereClause({
       type: '=',
-      attribute: 'task/title',
+      attribute: QTask.title,
       value: 'hello',
     });
     expect(sql).toContain('->>');
@@ -52,7 +53,7 @@ describe('buildWhereClause with namespaced attributes', () => {
   test('!= clause with namespaced attribute', () => {
     const { sql, params } = buildWhereClause({
       type: '!=',
-      attribute: 'task/done',
+      attribute: QTask.done,
       value: true,
     });
     expect(sql).toContain('IS DISTINCT FROM ?::text');
@@ -63,7 +64,7 @@ describe('buildWhereClause with namespaced attributes', () => {
   test('in clause with namespaced attribute', () => {
     const { sql, params } = buildWhereClause({
       type: 'in',
-      attribute: 'task/status',
+      attribute: QTask.status,
       values: ['open', 'closed'],
     });
     expect(sql).toContain('IN');
@@ -73,12 +74,27 @@ describe('buildWhereClause with namespaced attributes', () => {
     expect(params).toContain('closed');
   });
 
+  test('wire query: string attribute key matches tag .key SQL', () => {
+    const tag = buildWhereClause({
+      type: '=',
+      attribute: QTask.title,
+      value: 'hello',
+    });
+    const wire = buildWhereClause({
+      type: '=',
+      attribute: 'task/title',
+      value: 'hello',
+    });
+    expect(wire.sql).toBe(tag.sql);
+    expect(wire.params).toEqual(tag.params);
+  });
+
   test('and clause combining namespaced attributes', () => {
     const { sql, params } = buildWhereClause({
       type: 'and',
       clauses: [
-        { type: '=', attribute: 'task/title', value: 'a' },
-        { type: '=', attribute: 'task/done', value: false },
+        { type: '=', attribute: QTask.title, value: 'a' },
+        { type: '=', attribute: QTask.done, value: false },
       ],
     });
     expect(sql).toContain('AND');
@@ -88,7 +104,7 @@ describe('buildWhereClause with namespaced attributes', () => {
   test('attribute with dot in namespace', () => {
     const { sql, params } = buildWhereClause({
       type: '=',
-      attribute: 'game.session/score',
+      attribute: QGameSession.score,
       value: 42,
     });
     expect(sql).toContain('->>');
@@ -100,24 +116,24 @@ describe('buildWhereClause with namespaced attributes', () => {
 
 describe('->> value params cast to ::text (prevents PG "operator does not exist: text = <type>")', () => {
   test('= with boolean produces $N::text, not bare $N', () => {
-    const pgSql = toPgSql({ type: '=', attribute: 'task/done', value: true });
+    const pgSql = toPgSql({ type: '=', attribute: QTask.done, value: true });
     expect(pgSql).toContain('$2::text');
     expect(pgSql).not.toMatch(/= \$2(?!::text)/);
   });
 
   test('= with number produces $N::text', () => {
-    const pgSql = toPgSql({ type: '=', attribute: 'task/score', value: 42 });
+    const pgSql = toPgSql({ type: '=', attribute: QTask.score, value: 42 });
     expect(pgSql).toContain('$2::text');
   });
 
   test('!= with boolean produces $N::text', () => {
-    const pgSql = toPgSql({ type: '!=', attribute: 'task/done', value: false });
+    const pgSql = toPgSql({ type: '!=', attribute: QTask.done, value: false });
     expect(pgSql).toContain('$2::text');
   });
 
   test('gt/gte/lt/lte cast value to ::text', () => {
     for (const type of ['gt', 'gte', 'lt', 'lte'] as const) {
-      const pgSql = toPgSql({ type, attribute: 'task/score', value: 10 });
+      const pgSql = toPgSql({ type, attribute: QTask.score, value: 10 });
       expect(pgSql).toContain('$2::text');
     }
   });
@@ -125,7 +141,7 @@ describe('->> value params cast to ::text (prevents PG "operator does not exist:
   test('in with mixed types casts every value to ::text', () => {
     const pgSql = toPgSql({
       type: 'in',
-      attribute: 'task/status',
+      attribute: QTask.status,
       values: ['open', true, 7],
     });
     expect(pgSql).toContain('$2::text');
@@ -136,7 +152,7 @@ describe('->> value params cast to ::text (prevents PG "operator does not exist:
   test('not_in casts every value to ::text', () => {
     const pgSql = toPgSql({
       type: 'not_in',
-      attribute: 'task/status',
+      attribute: QTask.status,
       values: [false, 'closed'],
     });
     expect(pgSql).toContain('$3::text');
@@ -146,7 +162,7 @@ describe('->> value params cast to ::text (prevents PG "operator does not exist:
   test('contains casts value to ::text', () => {
     const pgSql = toPgSql({
       type: 'contains',
-      attribute: 'task/name',
+      attribute: QTask.name,
       value: 'foo',
     });
     expect(pgSql).toContain('$2::text');
@@ -157,7 +173,7 @@ describe('tiger-style invariants in query-builder-pg', () => {
   test('empty `in` short-circuits to (1 = 0) with no params', () => {
     const { sql, params } = buildWhereClause({
       type: 'in',
-      attribute: 'task/status',
+      attribute: QTask.status,
       values: [],
     });
     expect(sql).toBe('(1 = 0)');
@@ -167,7 +183,7 @@ describe('tiger-style invariants in query-builder-pg', () => {
   test('empty `not_in` short-circuits to (1 = 1) with no params', () => {
     const { sql, params } = buildWhereClause({
       type: 'not_in',
-      attribute: 'task/status',
+      attribute: QTask.status,
       values: [],
     });
     expect(sql).toBe('(1 = 1)');
@@ -190,8 +206,8 @@ describe('tiger-style invariants in query-builder-pg', () => {
     const { sql, params } = buildWhereClause({
       type: 'and',
       clauses: [
-        { type: '=', attribute: 'task/title', value: 'a' },
-        { type: 'in', attribute: 'task/status', values: [] },
+        { type: '=', attribute: QTask.title, value: 'a' },
+        { type: 'in', attribute: QTask.status, values: [] },
       ],
     });
     expect(sql).toContain('(1 = 0)');
@@ -203,8 +219,8 @@ describe('tiger-style invariants in query-builder-pg', () => {
     const { sql, params } = buildWhereClause({
       type: 'or',
       clauses: [
-        { type: '=', attribute: 'task/title', value: 'a' },
-        { type: 'not_in', attribute: 'task/status', values: [] },
+        { type: '=', attribute: QTask.title, value: 'a' },
+        { type: 'not_in', attribute: QTask.status, values: [] },
       ],
     });
     expect(sql).toContain('(1 = 1)');
@@ -226,7 +242,7 @@ describe('tiger-style invariants in query-builder-pg', () => {
 
   test('rejects unsafe column prefix interpolated into WHERE', () => {
     expect(() =>
-      buildWhereClause({ type: 'exists', attribute: 'task/title' }, 'p; DROP--')
+      buildWhereClause({ type: 'exists', attribute: QTask.title }, 'p; DROP--')
     ).toThrow();
   });
 
@@ -247,17 +263,32 @@ describe('tiger-style invariants in query-builder-pg', () => {
   test('rejects unsafe attributePrefix in ORDER BY', () => {
     expect(() =>
       buildOrderSQL(
-        { orderBy: [{ attribute: 'task/title', direction: 'asc' }] },
+        { orderBy: [{ attribute: QTask.title, direction: 'asc' }] },
         'ORDER BY id ASC',
         'p; DROP--'
       )
     ).toThrow();
   });
 
+  test('wire query: string attribute in ORDER BY matches tag .key', () => {
+    const def = 'ORDER BY id ASC';
+    const tag = buildOrderSQL(
+      { orderBy: [{ attribute: QTask.title, direction: 'desc' }] },
+      def,
+      ''
+    );
+    const wire = buildOrderSQL(
+      { orderBy: [{ attribute: 'task/title', direction: 'desc' }] },
+      def,
+      ''
+    );
+    expect(wire).toBe(tag);
+  });
+
   test('happy path: builds well-formed `in` clause for non-empty values', () => {
     const { sql, params } = buildWhereClause({
       type: 'in',
-      attribute: 'task/status',
+      attribute: QTask.status,
       values: ['open'],
     });
     expect(sql).toContain('IN (?::text)');

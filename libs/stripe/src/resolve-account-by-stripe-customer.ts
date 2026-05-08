@@ -18,7 +18,7 @@ export async function resolveAccountIdByStripeCustomerId(
         entityType: ACCOUNT_ENTITY_TYPE,
         where: {
           type: '=',
-          attribute: AccountAttr.stripeCustomerId,
+          attribute: AccountAttr.stripeCustomerId.key,
           value: stripeCustomerId,
         },
         limit: 1,
@@ -27,6 +27,6 @@ export async function resolveAccountIdByStripeCustomerId(
     ctx
   );
   const ent = row?.entities[0];
-  const id = ent?.attributes[AccountAttr.id];
+  const id = ent?.attributes[AccountAttr.id.key];
   return typeof id === 'string' ? id : null;
 }

@@ -4,8 +4,10 @@ import type { Message } from '@gamezilla/lib/message';
 import {
   CounterDecremented,
   CounterIncremented,
+  CounterRoomAttr,
   Decrement,
   GameSelected,
+  GamesRoomAttr,
   Increment,
   SelectGame,
   SpaceGame,
@@ -27,11 +29,11 @@ describe('SpaceModule', () => {
     const ev = h.events[0]! as Message;
     expect(CounterIncremented.is(ev)).toBe(true);
     const s1 = SpaceModule.reduce(state0, ev);
-    expect(s1['count']).toBe(1);
+    expect(s1[CounterRoomAttr.count.key]).toBe(1);
   });
 
   test('decrement', () => {
-    const state0 = { count: 2 };
+    const state0 = { [CounterRoomAttr.count.key]: 2 };
     const cmd = {
       id: crypto.randomUUID(),
       ts: Date.now(),
@@ -43,7 +45,7 @@ describe('SpaceModule', () => {
     const ev = h.events[0]! as Message;
     expect(CounterDecremented.is(ev)).toBe(true);
     const s1 = SpaceModule.reduce(state0, ev);
-    expect(s1['count']).toBe(1);
+    expect(s1[CounterRoomAttr.count.key]).toBe(1);
   });
 
   test('host picks chess game', () => {
@@ -60,6 +62,6 @@ describe('SpaceModule', () => {
     const ev = h.events[0]! as Message;
     expect(GameSelected.is(ev)).toBe(true);
     const s1 = SpaceModule.reduce(state0, ev);
-    expect(s1['selectedGame']).toBe(SpaceGame.chess);
+    expect(s1[GamesRoomAttr.selected.key]).toBe(SpaceGame.chess);
   });
 });

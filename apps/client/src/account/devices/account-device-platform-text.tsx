@@ -1,6 +1,5 @@
 import {
   EM_DASH,
-  parseTrimmedStringAttr,
 } from '@gamezilla/client/account/devices/device-parsers';
 import { DEVICE_ENTITY_TYPE, DeviceAttr } from '@gamezilla/domain/auth';
 import { Text } from '@gamezilla/lib/ui';
@@ -18,8 +17,9 @@ export function AccountDevicePlatformText({
   const platform = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.platform,
-    attributeValue: parseTrimmedStringAttr,
+    attributeKey: DeviceAttr.platform.key,
+
+    parse: DeviceAttr.platform.parse,
   });
   return <Text variant="body" numberOfLines={4} label={platform ?? EM_DASH} />;
 }

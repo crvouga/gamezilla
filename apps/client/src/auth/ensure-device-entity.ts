@@ -4,6 +4,7 @@ import {
   DeviceAttr,
 } from '@gamezilla/domain/auth';
 import { assert } from '@gamezilla/lib/assert';
+import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type { Entity, PatchDb } from '@gamezilla/patch-db/interface';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
@@ -43,28 +44,17 @@ function readWebUserAgent(): string | null {
   return normString(globalThis.navigator.userAgent);
 }
 
-function collectDeviceSnapshot(): Record<
-  | typeof DeviceAttr.platform
-  | typeof DeviceAttr.osName
-  | typeof DeviceAttr.osVersion
-  | typeof DeviceAttr.deviceModelName
-  | typeof DeviceAttr.deviceBrand
-  | typeof DeviceAttr.deviceName
-  | typeof DeviceAttr.appVersion
-  | typeof DeviceAttr.appBuildNumber
-  | typeof DeviceAttr.userAgent,
-  string | null
-> {
+function collectDeviceSnapshot(): Record<string, string | null> {
   return {
-    [DeviceAttr.platform]: Platform.OS,
-    [DeviceAttr.osName]: normString(Device.osName),
-    [DeviceAttr.osVersion]: normString(Device.osVersion),
-    [DeviceAttr.deviceModelName]: normString(Device.modelName),
-    [DeviceAttr.deviceBrand]: normString(Device.brand),
-    [DeviceAttr.deviceName]: normString(Constants.deviceName),
-    [DeviceAttr.appVersion]: normString(Constants.expoConfig?.version),
-    [DeviceAttr.appBuildNumber]: resolveAppBuildNumber(),
-    [DeviceAttr.userAgent]: readWebUserAgent(),
+    [DeviceAttr.platform.key]: Platform.OS,
+    [DeviceAttr.osName.key]: normString(Device.osName),
+    [DeviceAttr.osVersion.key]: normString(Device.osVersion),
+    [DeviceAttr.deviceModelName.key]: normString(Device.modelName),
+    [DeviceAttr.deviceBrand.key]: normString(Device.brand),
+    [DeviceAttr.deviceName.key]: normString(Constants.deviceName),
+    [DeviceAttr.appVersion.key]: normString(Constants.expoConfig?.version),
+    [DeviceAttr.appBuildNumber.key]: resolveAppBuildNumber(),
+    [DeviceAttr.userAgent.key]: readWebUserAgent(),
   };
 }
 
@@ -74,15 +64,15 @@ function isDeviceEntityComplete(
 ): boolean {
   if (entity === undefined) return false;
   return (
-    entity.attributes[DeviceAttr.id] === deviceId &&
-    typeof entity.attributes[DeviceAttr.createdAt] === 'string'
+    entity.attributes[DeviceAttr.id.key] === deviceId &&
+    typeof entity.attributes[DeviceAttr.createdAt.key] === 'string'
   );
 }
 
 function snapshotDiffers(
   stored: Record<string, unknown>,
   snapshot: ReturnType<typeof collectDeviceSnapshot>,
-  key: keyof ReturnType<typeof collectDeviceSnapshot>
+  key: string
 ): boolean {
   const prev = normString(stored[key]);
   const next = snapshot[key];
@@ -113,17 +103,16 @@ export async function ensureDeviceEntity(
   const snapshot = collectDeviceSnapshot();
 
   if (!isDeviceEntityComplete(entity, deviceId)) {
-    const attributes: Record<string, unknown> = {
-      [DeviceAttr.id]: deviceId,
-      [DeviceAttr.createdAt]: now,
-      [DeviceAttr.firstSeenAt]: now,
-      [DeviceAttr.lastSeenAt]: now,
-    };
-    for (const [k, v] of Object.entries(snapshot)) {
-      if (v !== null) {
-        attributes[k] = v;
-      }
-    }
+    const snapshotPatches = Object.entries(snapshot)
+      .filter((entry): entry is [string, string] => entry[1] !== null)
+      .map(([k, v]) => ({ [k]: v }));
+    const attributes = mergePlain(
+      DeviceAttr.id(deviceId),
+      DeviceAttr.createdAt(now),
+      DeviceAttr.firstSeenAt(now),
+      DeviceAttr.lastSeenAt(now),
+      mergePlain(...snapshotPatches)
+    );
     await db.write([
       {
         entityId: deviceId,
@@ -139,23 +128,20 @@ export async function ensureDeviceEntity(
     'device entity must exist after completeness check'
   );
   const stored = entity.attributes;
-  const updates: Record<string, unknown> = {
-    [DeviceAttr.lastSeenAt]: now,
-  };
+  const existingFirst = normString(stored[DeviceAttr.firstSeenAt.key]);
+  const created = normString(stored[DeviceAttr.createdAt.key]);
+  let updates = mergePlain(
+    DeviceAttr.lastSeenAt(now),
+    existingFirst === null
+      ? DeviceAttr.firstSeenAt(created !== null ? created : now)
+      : {}
+  );
 
-  const existingFirst = normString(stored[DeviceAttr.firstSeenAt]);
-  if (existingFirst === null) {
-    const created = normString(stored[DeviceAttr.createdAt]);
-    updates[DeviceAttr.firstSeenAt] = created !== null ? created : now;
-  }
-
-  for (const key of Object.keys(snapshot) as (keyof ReturnType<
-    typeof collectDeviceSnapshot
-  >)[]) {
+  for (const key of Object.keys(snapshot)) {
     const next = snapshot[key];
     if (next === null) continue;
     if (snapshotDiffers(stored, snapshot, key)) {
-      updates[key] = next;
+      updates = mergePlain(updates, { [key]: next });
     }
   }
 

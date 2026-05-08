@@ -16,7 +16,7 @@ export function useDeviceActiveSessionCount(deviceId: string): number {
           entityType: ACCOUNT_SESSION_ENTITY_TYPE,
           where: {
             type: '=' as const,
-            attribute: AccountSessionAttr.deviceId,
+            attribute: AccountSessionAttr.deviceId.key,
             value: deviceId,
           },
           limit: 500,
@@ -27,8 +27,8 @@ export function useDeviceActiveSessionCount(deviceId: string): number {
   let count = 0;
   const now = Date.now();
   for (const e of result.entities) {
-    const token = e.attributes[AccountSessionAttr.token];
-    const expiresAt = e.attributes[AccountSessionAttr.expiresAt];
+    const token = e.attributes[AccountSessionAttr.token.key];
+    const expiresAt = e.attributes[AccountSessionAttr.expiresAt.key];
     if (typeof token !== 'string' || token.length === 0) continue;
     if (typeof expiresAt !== 'string') continue;
     const t = Date.parse(expiresAt);

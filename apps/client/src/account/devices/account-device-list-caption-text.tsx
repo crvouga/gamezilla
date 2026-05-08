@@ -1,6 +1,5 @@
 import {
   formatDeviceListCaption,
-  parseTrimmedStringAttr,
 } from '@gamezilla/client/account/devices/device-parsers';
 import { DEVICE_ENTITY_TYPE, DeviceAttr } from '@gamezilla/domain/auth';
 import { Text } from '@gamezilla/lib/ui';
@@ -18,26 +17,30 @@ export function AccountDeviceListCaptionText({
   const osName = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.osName,
-    attributeValue: parseTrimmedStringAttr,
+    attributeKey: DeviceAttr.osName.key,
+
+    parse: DeviceAttr.osName.parse,
   });
   const osVersion = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.osVersion,
-    attributeValue: parseTrimmedStringAttr,
+    attributeKey: DeviceAttr.osVersion.key,
+
+    parse: DeviceAttr.osVersion.parse,
   });
   const lastSeenAt = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.lastSeenAt,
-    attributeValue: parseTrimmedStringAttr,
+    attributeKey: DeviceAttr.lastSeenAt.key,
+
+    parse: DeviceAttr.lastSeenAt.parse,
   });
   const createdAt = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.createdAt,
-    attributeValue: parseTrimmedStringAttr,
+    attributeKey: DeviceAttr.createdAt.key,
+
+    parse: DeviceAttr.createdAt.parse,
   });
   const label = formatDeviceListCaption({
     osName,

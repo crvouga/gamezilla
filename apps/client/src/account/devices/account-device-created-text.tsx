@@ -1,6 +1,5 @@
 import {
   formatTimestamp,
-  parseTrimmedStringAttr,
 } from '@gamezilla/client/account/devices/device-parsers';
 import { DEVICE_ENTITY_TYPE, DeviceAttr } from '@gamezilla/domain/auth';
 import { Text } from '@gamezilla/lib/ui';
@@ -18,8 +17,9 @@ export function AccountDeviceCreatedText({
   const createdAt = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.createdAt,
-    attributeValue: parseTrimmedStringAttr,
+    attributeKey: DeviceAttr.createdAt.key,
+
+    parse: DeviceAttr.createdAt.parse,
   });
   return (
     <Text variant="body" numberOfLines={4} label={formatTimestamp(createdAt)} />

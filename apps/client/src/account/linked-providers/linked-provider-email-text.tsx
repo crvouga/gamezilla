@@ -1,4 +1,3 @@
-import { parseTrimmedStringAttr } from '@gamezilla/client/account/devices/device-parsers';
 import {
   ACCOUNT_PROVIDER_ENTITY_TYPE,
   AccountProviderAttr,
@@ -18,8 +17,9 @@ export function LinkedProviderEmailText({
   const email = useQueryAttribute({
     entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
     entityId: accountProviderEntityId,
-    attributeKey: AccountProviderAttr.email,
-    attributeValue: parseTrimmedStringAttr,
+    attributeKey: AccountProviderAttr.email.key,
+
+    parse: AccountProviderAttr.email.parse,
   });
   if (email === null) return null;
   return <Text variant="caption" selectable label={email} />;

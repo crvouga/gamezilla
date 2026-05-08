@@ -91,20 +91,6 @@ export function resolveAvatarSeed(
   return t.length > 0 ? t : identitySeedFallback;
 }
 
-/**
- * Returns a parsed avatar config only when the attr is present and valid JSON.
- * `null` means no persisted config (e.g. row not synced yet).
- */
-export function parseAvatarConfigAttr(
-  attributes: Record<string, unknown> | undefined,
-  attr: string
-): AvatarConfig | null {
-  if (!attributes) return null;
-  const raw = attributes[attr];
-  if (raw === undefined || raw === null) return null;
-  return parseAvatarConfig(raw);
-}
-
 export function configsEqual(a: AvatarConfig, b: AvatarConfig): boolean {
   return serializeAvatarConfig(a) === serializeAvatarConfig(b);
 }

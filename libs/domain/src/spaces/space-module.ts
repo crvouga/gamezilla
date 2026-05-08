@@ -1,3 +1,4 @@
+import { mergePlain } from '@gamezilla/lib/merge-plain';
 import {
   createComposedMessageRouter,
   type Message,
@@ -11,27 +12,33 @@ import type {
 } from '@gamezilla/room';
 
 import {
+  CounterRoomAttr,
   counterCmdNs,
   counterCommandRouter,
   counterEventReducer,
   counterEvtNs,
-  counterInitialState,
 } from './counter';
 import {
+  GamesRoomAttr,
   gamesCmdNs,
   gamesCommandRouter,
   gamesEventReducer,
   gamesEvtNs,
-  gamesInitialState,
 } from './games/games';
 
 export {
   CounterDecremented,
   CounterIncremented,
+  CounterRoomAttr,
   Decrement,
   Increment,
 } from './counter';
-export { GameSelected, SelectGame, SpaceGame } from './games/games';
+export {
+  GameSelected,
+  GamesRoomAttr,
+  SelectGame,
+  SpaceGame,
+} from './games/games';
 
 function reject(error: RoomError): HandleResult {
   return { ok: false, error };
@@ -74,10 +81,7 @@ const spaceEventReducer = createComposedMessageRouter<
  */
 export const SpaceModule: RoomModule<RoomState, unknown, unknown, string> = {
   initialState(): RoomState {
-    return {
-      ...counterInitialState(),
-      ...gamesInitialState(),
-    };
+    return mergePlain(CounterRoomAttr.count(0), GamesRoomAttr.selected(null));
   },
 
   handle(

@@ -29,7 +29,7 @@ function useSyncedDisplayName(entity: Entity | null) {
 
   useEffect(() => {
     if (!entity) return;
-    const raw = entity.attributes[ProfileAttr.displayName];
+    const raw = entity.attributes[ProfileAttr.displayName.key];
     const persisted = typeof raw === 'string' ? raw : '';
     const prev = lastPersistedRef.current;
     if (prev === null) {
@@ -87,9 +87,7 @@ export function ProfileUsernameScreen() {
         {
           entityId: profileId,
           entityType: PROFILE_ENTITY_TYPE,
-          attributes: {
-            [ProfileAttr.displayName]: value.trim(),
-          },
+          attributes: ProfileAttr.displayName(value.trim()),
         },
       ]);
       router.back();

@@ -1,4 +1,3 @@
-import { parseAbsent } from '@gamezilla/client/spaces/lib/space-parsers';
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
@@ -23,12 +22,14 @@ const PILL_TEXT = '#FFFFFF';
  * to branch on liveness.
  */
 export function SpaceLiveBadge({ spaceId }: SpaceLiveBadgeProps): ReactNode {
-  const isLive = useQueryAttribute({
+  const endedAt = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.endedAt,
-    attributeValue: parseAbsent,
+    attributeKey: SpaceAttr.endedAt.key,
+
+    parse: SpaceAttr.endedAt.parse,
   });
+  const isLive = endedAt === null;
   if (!isLive) return null;
   return (
     <Box

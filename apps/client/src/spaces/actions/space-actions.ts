@@ -5,6 +5,7 @@ import {
   SpaceAttr,
   SpaceMembershipAttr,
 } from '@gamezilla/domain/spaces/space-entities';
+import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { usePatchDb } from '@gamezilla/patch-db/react';
 import { useCallback } from 'react';
@@ -24,7 +25,7 @@ async function readSpaceHostId(
   ]);
   const ent = res?.entities[0];
   if (!ent) return null;
-  const raw = ent.attributes[SpaceAttr.hostId];
+  const raw = ent.attributes[SpaceAttr.hostId.key];
   return typeof raw === 'string' && raw.length > 0 ? raw : null;
 }
 
@@ -35,10 +36,10 @@ async function createSpaceAction(db: PatchDb, myId: string): Promise<string> {
     {
       entityId: spaceId,
       entityType: SPACE_ENTITY_TYPE,
-      attributes: {
-        [SpaceAttr.hostId]: myId,
-        [SpaceAttr.createdAt]: now,
-      },
+      attributes: mergePlain(
+        SpaceAttr.hostId(myId),
+        SpaceAttr.createdAt(now)
+      ),
     },
   ]);
   return spaceId;
@@ -61,12 +62,12 @@ async function joinSpaceAction(
     {
       entityId: spaceGuestMembershipEntityId(myId, spaceId),
       entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
-      attributes: {
-        [SpaceMembershipAttr.guestId]: myId,
-        [SpaceMembershipAttr.spaceId]: spaceId,
-        [SpaceMembershipAttr.joinedAt]: now,
-        [SpaceMembershipAttr.leftAt]: null,
-      },
+      attributes: mergePlain(
+        SpaceMembershipAttr.guestId(myId),
+        SpaceMembershipAttr.spaceId(spaceId),
+        SpaceMembershipAttr.joinedAt(now),
+        SpaceMembershipAttr.leftAt(null)
+      ),
     },
   ]);
 }
@@ -80,7 +81,7 @@ async function leaveSpaceAction(
     {
       entityId: spaceGuestMembershipEntityId(myId, spaceId),
       entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
-      attributes: { [SpaceMembershipAttr.leftAt]: isoNow() },
+      attributes: SpaceMembershipAttr.leftAt(isoNow()),
     },
   ]);
 }
@@ -99,10 +100,7 @@ async function endSpaceAction(
     {
       entityId: spaceId,
       entityType: SPACE_ENTITY_TYPE,
-      attributes: {
-        [SpaceAttr.endedAt]: now,
-        [SpaceAttr.hostId]: myId,
-      },
+      attributes: mergePlain(SpaceAttr.endedAt(now), SpaceAttr.hostId(myId)),
     },
   ]);
 }

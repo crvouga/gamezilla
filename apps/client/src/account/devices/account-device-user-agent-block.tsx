@@ -1,4 +1,3 @@
-import { parseTrimmedStringAttr } from '@gamezilla/client/account/devices/device-parsers';
 import { DEVICE_ENTITY_TYPE, DeviceAttr } from '@gamezilla/domain/auth';
 import { Box, Text } from '@gamezilla/lib/ui';
 import { useQueryAttribute } from '@gamezilla/patch-db/react';
@@ -16,8 +15,9 @@ export function AccountDeviceUserAgentBlock({
   const userAgent = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.userAgent,
-    attributeValue: parseTrimmedStringAttr,
+    attributeKey: DeviceAttr.userAgent.key,
+
+    parse: DeviceAttr.userAgent.parse,
   });
   if (userAgent === null) return null;
   return (

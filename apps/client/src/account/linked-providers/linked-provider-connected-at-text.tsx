@@ -1,6 +1,5 @@
 import {
   formatTimestamp,
-  parseTrimmedStringAttr,
 } from '@gamezilla/client/account/devices/device-parsers';
 import {
   ACCOUNT_PROVIDER_ENTITY_TYPE,
@@ -23,8 +22,9 @@ export function LinkedProviderConnectedAtText({
   const linkedAt = useQueryAttribute({
     entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
     entityId: accountProviderEntityId,
-    attributeKey: AccountProviderAttr.linkedAt,
-    attributeValue: parseTrimmedStringAttr,
+    attributeKey: AccountProviderAttr.linkedAt.key,
+
+    parse: AccountProviderAttr.linkedAt.parse,
   });
   const connectedAt = formatTimestamp(linkedAt);
   return (

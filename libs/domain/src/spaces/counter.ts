@@ -1,3 +1,5 @@
+import { createAttrNamespace } from '@gamezilla/lib/attribute';
+import { mergePlain } from '@gamezilla/lib/merge-plain';
 import {
   createMessageNamespace,
   createMessageRouter,
@@ -9,6 +11,15 @@ import type { HandleResult, RoomState } from '@gamezilla/room';
 function validateEmptyPayload(p: unknown): p is Record<string, never> {
   return isPlainRecord(p) && Object.keys(p).length === 0;
 }
+
+const counterRoomNs = createAttrNamespace('counter');
+
+/** Namespaced keys in {@link RoomState} for the space counter slice. */
+export const CounterRoomAttr = {
+  count: counterRoomNs('count', (v): number =>
+    typeof v === 'number' && Number.isFinite(v) ? v : 0
+  ),
+} as const;
 
 export const counterCmdNs = createMessageNamespace('counterCmd');
 export const Increment = counterCmdNs('INCREMENT', validateEmptyPayload);
@@ -25,17 +36,7 @@ export const CounterDecremented = counterEvtNs(
 );
 
 function readCount(state: RoomState): number {
-  const c = state['count'];
-  return typeof c === 'number' && Number.isFinite(c) ? c : 0;
-}
-
-/**
- * Counter sub-module of {@link SpaceModule}: owns the `count` slice of room state.
- * Exposed as namespaced message routers so the parent space module can compose
- * it via {@link createComposedMessageRouter} alongside other future sub-modules.
- */
-export function counterInitialState(): RoomState {
-  return { count: 0 };
+  return CounterRoomAttr.count.from(state);
 }
 
 /** Routes counter commands to the events that should be appended to the log. */
@@ -50,11 +51,9 @@ export const counterCommandRouter: MessageRouter<
 /** Routes counter events back into updates of the `count` slice. */
 export const counterEventReducer: MessageRouter<RoomState, void, RoomState> =
   createMessageRouter<RoomState, void, RoomState>(counterEvtNs)
-    .on(CounterIncremented, (state) => ({
-      ...state,
-      count: readCount(state) + 1,
-    }))
-    .on(CounterDecremented, (state) => ({
-      ...state,
-      count: readCount(state) - 1,
-    }));
+    .on(CounterIncremented, (state) =>
+      mergePlain(state, CounterRoomAttr.count(readCount(state) + 1))
+    )
+    .on(CounterDecremented, (state) =>
+      mergePlain(state, CounterRoomAttr.count(readCount(state) - 1))
+    );

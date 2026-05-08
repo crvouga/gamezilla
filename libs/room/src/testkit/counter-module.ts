@@ -1,3 +1,5 @@
+import { createAttrNamespace } from '@gamezilla/lib/attribute';
+import { mergePlain } from '@gamezilla/lib/merge-plain';
 import {
   createMessageNamespace,
   isPlainRecord,
@@ -15,6 +17,11 @@ function validateEmptyPayload(p: unknown): p is Record<string, never> {
   return isPlainRecord(p) && Object.keys(p).length === 0;
 }
 
+const counterRoomNs = createAttrNamespace('counter');
+const counterCount = counterRoomNs('count', (v): number =>
+  typeof v === 'number' && Number.isFinite(v) ? v : 0
+);
+
 const cmdNs = createMessageNamespace('spaceCounterCmd');
 const Increment = cmdNs('INCREMENT', validateEmptyPayload);
 const Decrement = cmdNs('DECREMENT', validateEmptyPayload);
@@ -24,8 +31,7 @@ const CounterIncremented = evtNs('COUNTER_INCREMENTED', validateEmptyPayload);
 const CounterDecremented = evtNs('COUNTER_DECREMENTED', validateEmptyPayload);
 
 function readCount(state: RoomState): number {
-  const c = state['count'];
-  return typeof c === 'number' && Number.isFinite(c) ? c : 0;
+  return counterCount.from(state);
 }
 
 function asMessage(payload: unknown): Message | null {
@@ -42,7 +48,7 @@ export const TestCounterModule: RoomModule<
   string
 > = {
   initialState(): RoomState {
-    return { count: 0 };
+    return counterCount(0);
   },
 
   handle(
@@ -78,10 +84,10 @@ export const TestCounterModule: RoomModule<
     const ev = asMessage(event);
     if (ev === null) return state;
     if (CounterIncremented.is(ev)) {
-      return { ...state, count: readCount(state) + 1 };
+      return mergePlain(state, counterCount(readCount(state) + 1));
     }
     if (CounterDecremented.is(ev)) {
-      return { ...state, count: readCount(state) - 1 };
+      return mergePlain(state, counterCount(readCount(state) - 1));
     }
     return state;
   },

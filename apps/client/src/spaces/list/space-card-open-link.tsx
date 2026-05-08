@@ -1,5 +1,3 @@
-import { parseDisplayName } from '@gamezilla/client/profile/profile-parsers';
-import { parseStringAttr } from '@gamezilla/client/spaces/lib/space-parsers';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
@@ -40,20 +38,23 @@ export function SpaceCardOpenLink({
   const customTitle = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.title,
-    attributeValue: parseStringAttr,
+    attributeKey: SpaceAttr.title.key,
+
+    parse: SpaceAttr.title.parse,
   });
   const hostId = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
-    attributeKey: SpaceAttr.hostId,
-    attributeValue: parseStringAttr,
+    attributeKey: SpaceAttr.hostId.key,
+
+    parse: SpaceAttr.hostId.parse,
   });
   const hostDisplayName = useQueryAttribute({
     entityType: PROFILE_ENTITY_TYPE,
     entityId: hostId ?? [],
-    attributeKey: ProfileAttr.displayName,
-    attributeValue: parseDisplayName,
+    attributeKey: ProfileAttr.displayName.key,
+
+    parse: ProfileAttr.displayName.parse,
   });
   const resolvedTitle = customTitle ?? t`${hostDisplayName}'s space`;
   const accessibilityLabel =

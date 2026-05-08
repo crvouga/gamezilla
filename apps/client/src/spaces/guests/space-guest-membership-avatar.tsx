@@ -1,5 +1,4 @@
 import { UserProfileAvatar } from '@gamezilla/client/profile/user-profile-avatar';
-import { parseStringAttr } from '@gamezilla/client/spaces/lib/space-parsers';
 import {
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceMembershipAttr,
@@ -22,8 +21,9 @@ export function SpaceGuestMembershipAvatar({
   const guestId = useQueryAttribute({
     entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
     entityId: membershipId,
-    attributeKey: SpaceMembershipAttr.guestId,
-    attributeValue: parseStringAttr,
+    attributeKey: SpaceMembershipAttr.guestId.key,
+
+    parse: SpaceMembershipAttr.guestId.parse,
   });
   return (
     <UserProfileAvatar

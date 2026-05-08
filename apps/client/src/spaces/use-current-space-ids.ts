@@ -1,5 +1,4 @@
 import { useMyId } from '@gamezilla/client/auth/auth-context';
-import { parseStringAttr } from '@gamezilla/client/spaces/lib/space-parsers';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
@@ -32,11 +31,11 @@ export function useCurrentSpaceIds(): {
     where: {
       type: 'and',
       clauses: [
-        { type: '=', attribute: SpaceAttr.hostId, value: myId },
-        { type: 'not_exists', attribute: SpaceAttr.endedAt },
+        { type: '=', attribute: SpaceAttr.hostId.key, value: myId },
+        { type: 'not_exists', attribute: SpaceAttr.endedAt.key },
       ],
     },
-    orderBy: [{ attribute: SpaceAttr.createdAt, direction: 'desc' }],
+    orderBy: [{ attribute: SpaceAttr.createdAt.key, direction: 'desc' }],
   });
 
   const guestMemRes = useQuery({
@@ -44,8 +43,8 @@ export function useCurrentSpaceIds(): {
     where: {
       type: 'and',
       clauses: [
-        { type: '=', attribute: SpaceMembershipAttr.guestId, value: myId },
-        { type: 'not_exists', attribute: SpaceMembershipAttr.leftAt },
+        { type: '=', attribute: SpaceMembershipAttr.guestId.key, value: myId },
+        { type: 'not_exists', attribute: SpaceMembershipAttr.leftAt.key },
       ],
     },
   });
@@ -53,10 +52,8 @@ export function useCurrentSpaceIds(): {
   const guestSpaceIds = useMemo(() => {
     const ids: string[] = [];
     for (const e of guestMemRes.entities) {
-      const sid = parseStringAttr(
-        e.attributes[SpaceMembershipAttr.spaceId]
-      );
-      if (sid !== null) ids.push(sid);
+      const sid = SpaceMembershipAttr.spaceId.from(e.attributes);
+      if (sid.length > 0) ids.push(sid);
     }
     return [...new Set(ids)].sort();
   }, [guestMemRes.entities]);
@@ -74,7 +71,7 @@ export function useCurrentSpaceIds(): {
     }
     const liveById = new Map<string, boolean>();
     for (const e of guestSpacesRes.entities) {
-      const ended = e.attributes[SpaceAttr.endedAt];
+      const ended = e.attributes[SpaceAttr.endedAt.key];
       liveById.set(e.entityId, ended === undefined || ended === null);
     }
     for (const sid of guestSpaceIds) {

@@ -1,6 +1,5 @@
 import {
   formatAppLine,
-  parseTrimmedStringAttr,
 } from '@gamezilla/client/account/devices/device-parsers';
 import { DEVICE_ENTITY_TYPE, DeviceAttr } from '@gamezilla/domain/auth';
 import { Text } from '@gamezilla/lib/ui';
@@ -18,14 +17,16 @@ export function AccountDeviceAppText({
   const appVersion = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.appVersion,
-    attributeValue: parseTrimmedStringAttr,
+    attributeKey: DeviceAttr.appVersion.key,
+
+    parse: DeviceAttr.appVersion.parse,
   });
   const appBuildNumber = useQueryAttribute({
     entityType: DEVICE_ENTITY_TYPE,
     entityId: deviceId,
-    attributeKey: DeviceAttr.appBuildNumber,
-    attributeValue: parseTrimmedStringAttr,
+    attributeKey: DeviceAttr.appBuildNumber.key,
+
+    parse: DeviceAttr.appBuildNumber.parse,
   });
   return (
     <Text

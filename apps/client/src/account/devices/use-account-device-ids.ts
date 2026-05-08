@@ -27,8 +27,8 @@ function readString(raw: unknown): string | null {
 
 function lastSeenMsOf(entity: Entity): number {
   const raw =
-    readString(entity.attributes[DeviceAttr.lastSeenAt]) ??
-    readString(entity.attributes[DeviceAttr.createdAt]);
+    readString(entity.attributes[DeviceAttr.lastSeenAt.key]) ??
+    readString(entity.attributes[DeviceAttr.createdAt.key]);
   if (raw === null) return 0;
   const t = Date.parse(raw);
   return Number.isNaN(t) ? 0 : t;
@@ -61,7 +61,7 @@ function sortDeviceIds(
 function uniqueDeviceIdsFromSessions(sessions: readonly Entity[]): string[] {
   const s = new Set<string>();
   for (const e of sessions) {
-    const did = e.attributes[AccountSessionAttr.deviceId];
+    const did = e.attributes[AccountSessionAttr.deviceId.key];
     if (typeof did === 'string' && did.length > 0) s.add(did);
   }
   return [...s].sort();
@@ -96,7 +96,7 @@ export function useAccountDeviceIds(accountId: string | null): string[] {
             entityType: ACCOUNT_SESSION_ENTITY_TYPE,
             where: {
               type: '=' as const,
-              attribute: AccountSessionAttr.accountId,
+              attribute: AccountSessionAttr.accountId.key,
               value: accountId,
             },
             limit: 500,

@@ -10,6 +10,7 @@ import {
   OPEN_PATCHES_DB_CONTEXT,
   PATCH_REJECTED,
   PATCH_SYNC_REJECTED_AT,
+  PATCH_SYNCED_AT,
 } from '../../interface';
 import { PatchDbTransportRejectedError } from '../../transport/transport-rejected-error';
 
@@ -123,7 +124,7 @@ describe('SyncPatchDb push rejection (401/403)', () => {
     assert.defined(p, 'patch');
     expect(p.attributes[PATCH_SYNC_REJECTED_AT]).toBeTruthy();
     expect(p.attributes[PATCH_REJECTED]).toBeTruthy();
-    expect(p.attributes['patch/syncedAt']).toBeNull();
+    expect(p.attributes[PATCH_SYNCED_AT]).toBeNull();
 
     const [remotePatches] = await remoteInner.read(
       [{ on: 'patches', limit: 10 }],
@@ -177,8 +178,8 @@ describe('SyncPatchDb push rejection (401/403)', () => {
     assert.defined(allLocal, 'allLocal');
     const synced = allLocal.patches.filter(
       (x) =>
-        x.attributes['patch/syncedAt'] !== undefined &&
-        x.attributes['patch/syncedAt'] !== null
+        x.attributes[PATCH_SYNCED_AT] !== undefined &&
+        x.attributes[PATCH_SYNCED_AT] !== null
     );
     const rejected = allLocal.patches.filter(
       (x) =>
@@ -282,8 +283,8 @@ describe('SyncPatchDb push rejection (401/403)', () => {
     expect(localPatches.patches).toHaveLength(2);
     const synced = localPatches.patches.filter(
       (x) =>
-        x.attributes['patch/syncedAt'] !== undefined &&
-        x.attributes['patch/syncedAt'] !== null
+        x.attributes[PATCH_SYNCED_AT] !== undefined &&
+        x.attributes[PATCH_SYNCED_AT] !== null
     );
     const rejected = localPatches.patches.filter(
       (x) =>

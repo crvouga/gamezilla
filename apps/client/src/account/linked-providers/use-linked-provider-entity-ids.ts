@@ -19,7 +19,7 @@ export function useLinkedProviderEntityIds(
           entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
           where: {
             type: '=' as const,
-            attribute: AccountProviderAttr.accountId,
+            attribute: AccountProviderAttr.accountId.key,
             value: accountId,
           },
         };

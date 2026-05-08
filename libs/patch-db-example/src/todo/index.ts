@@ -1,4 +1,4 @@
-export { INBOX_LIST_ID } from './todo-constants';
+export { INBOX_LIST_ID, TodoAttr, TodoListAttr } from './todo-constants';
 export { TodoItem } from './todo-item';
 export { TodoList } from './todo-list';
 export {
