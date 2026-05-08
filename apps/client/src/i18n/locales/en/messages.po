@@ -529,7 +529,6 @@ msgstr "Colors"
 #: apps/client/src/spaces/games/chess/chess-main-menu.tsx
 #: apps/client/src/spaces/games/chess/chess-main-menu.tsx
 #: apps/client/src/spaces/games/chess/chess-main-menu.tsx
-#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
 #: apps/client/src/spaces/games/games-main-menu.tsx
 #: apps/client/src/spaces/games/games-main-menu.tsx
 #: apps/client/src/spaces/games/games-main-menu.tsx
@@ -684,8 +683,8 @@ msgstr "Custom Games"
 #~ msgstr "Custom title"
 
 #: apps/client/src/spaces/games/chess/chess-main-menu.tsx
-msgid "Daily Puzzle"
-msgstr "Daily Puzzle"
+#~ msgid "Daily Puzzle"
+#~ msgstr "Daily Puzzle"
 
 #: apps/client/src/ui/app-commands/appearance-commands.tsx
 msgid "dark"
@@ -1547,6 +1546,10 @@ msgstr "Platform"
 msgid "Platform: {platformOs}"
 msgstr "Platform: {platformOs}"
 
+#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
+msgid "Play"
+msgstr "Play"
+
 #: libs/patch-db-example/src/nav.tsx
 msgid "Playground"
 msgstr "Playground"
@@ -1560,8 +1563,8 @@ msgid "POST /client-config/refresh writes the Worker secret into PatchDB on the 
 msgstr "POST /client-config/refresh writes the Worker secret into PatchDB on the server (deploy pipeline uses this too)."
 
 #: apps/client/src/spaces/games/chess/chess-main-menu.tsx
-msgid "Practice Puzzles"
-msgstr "Practice Puzzles"
+#~ msgid "Practice Puzzles"
+#~ msgstr "Practice Puzzles"
 
 #: apps/client/src/profile/avatar-editor/avatar-editor-preview.tsx
 msgid "Preview updates as you edit. Save to keep changes."
@@ -1576,6 +1579,7 @@ msgstr "production"
 #: apps/client/src/profile/profile-edit-screen.tsx
 #: apps/client/src/profile/profile-screen.tsx
 #: apps/client/src/profile/profile-username-screen.tsx
+#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
 #: apps/client/src/ui/sidebar/app-sidebar.tsx
 #: apps/client/src/ui/sidebar/sidebar-account-menu.tsx
 #: apps/client/src/ui/use-account-actions.tsx

@@ -49,6 +49,7 @@ export {
 export {
   CHESS_MAIN_MENU_ROOT,
   CHESS_MAIN_MENU_PUZZLE,
+  CHESS_MAIN_MENU_PUZZLE_PLAY,
   ChessMainMenuScreenAttr,
   SetChessMainMenuScreen,
   type ChessMainMenuScreen,

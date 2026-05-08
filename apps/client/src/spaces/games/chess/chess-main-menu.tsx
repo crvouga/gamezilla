@@ -8,13 +8,15 @@ import {
 } from '@gamezilla/client/spaces/room/use-space-room-selector';
 import {
   CHESS_MAIN_MENU_PUZZLE,
-  CHESS_MAIN_MENU_ROOT,
+  CHESS_MAIN_MENU_PUZZLE_PLAY,
   ChessMainMenuScreenAttr,
   SelectGame,
   SetChessMainMenuScreen,
 } from '@gamezilla/domain/spaces/space-module';
 import { Trans } from '@lingui/react/macro';
 import { useCallback, useMemo, type ReactNode } from 'react';
+import { PuzzleMainMenu } from './puzzle/puzzle-main-menu';
+import { PuzzlePlayScreen } from './puzzle/puzzle-play-screen';
 
 function useRootItems(openPuzzleMenu: () => void): readonly MainMenuItem[] {
   return useMemo(
@@ -41,20 +43,6 @@ function useRootItems(openPuzzleMenu: () => void): readonly MainMenuItem[] {
   );
 }
 
-const PUZZLE_ITEMS: readonly MainMenuItem[] = [
-  {
-    key: 'play',
-    title: <Trans>Play</Trans>,
-    onPress() {},
-  },
-  {
-    key: 'profile',
-    title: <Trans>Profile</Trans>,
-    caption: <Trans>Coming soon</Trans>,
-    disabled: true,
-  },
-];
-
 export function ChessMainMenu(): ReactNode {
   const screen = useSpaceSelector(ChessMainMenuScreenAttr.screen.from);
   const dispatch = useSpaceDispatch();
@@ -64,20 +52,13 @@ export function ChessMainMenu(): ReactNode {
   const openPuzzleMenu = useCallback(() => {
     dispatch(SetChessMainMenuScreen({ screen: CHESS_MAIN_MENU_PUZZLE }));
   }, [dispatch]);
-  const backToChessRoot = useCallback(() => {
-    dispatch(SetChessMainMenuScreen({ screen: CHESS_MAIN_MENU_ROOT }));
-  }, [dispatch]);
   const rootItems = useRootItems(openPuzzleMenu);
 
   if (screen === CHESS_MAIN_MENU_PUZZLE) {
-    return (
-      <MainMenuScreen
-        title={<Trans>Puzzle</Trans>}
-        subtitle={<Trans>Pick a puzzle mode.</Trans>}
-        items={PUZZLE_ITEMS}
-        onPressBack={backToChessRoot}
-      />
-    );
+    return <PuzzleMainMenu dispatch={dispatch} />;
+  }
+  if (screen === CHESS_MAIN_MENU_PUZZLE_PLAY) {
+    return <PuzzlePlayScreen />;
   }
 
   return (

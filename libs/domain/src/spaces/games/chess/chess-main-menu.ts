@@ -5,18 +5,27 @@ import {
   isPlainRecord,
 } from '@gamezilla/lib/message';
 import type { HandleResult, RoomState } from '@gamezilla/room';
+import {
+  CHESS_MAIN_MENU_PUZZLE,
+} from './puzzle/puzzle-main-menu';
+import {
+  CHESS_MAIN_MENU_PUZZLE_PLAY,
+} from './puzzle/puzzle-play-screen';
 
 const gamesNs = createAttrNamespace('games');
 
 export const CHESS_MAIN_MENU_ROOT = 0;
-export const CHESS_MAIN_MENU_PUZZLE = 1;
+export { CHESS_MAIN_MENU_PUZZLE } from './puzzle/puzzle-main-menu';
+export { CHESS_MAIN_MENU_PUZZLE_PLAY } from './puzzle/puzzle-play-screen';
 
 export type ChessMainMenuScreen =
   | typeof CHESS_MAIN_MENU_ROOT
-  | typeof CHESS_MAIN_MENU_PUZZLE;
+  | typeof CHESS_MAIN_MENU_PUZZLE
+  | typeof CHESS_MAIN_MENU_PUZZLE_PLAY;
 
 function readChessMainMenuScreen(v: unknown): ChessMainMenuScreen {
   if (v === CHESS_MAIN_MENU_PUZZLE) return CHESS_MAIN_MENU_PUZZLE;
+  if (v === CHESS_MAIN_MENU_PUZZLE_PLAY) return CHESS_MAIN_MENU_PUZZLE_PLAY;
   return CHESS_MAIN_MENU_ROOT;
 }
 
@@ -31,7 +40,11 @@ function validateSetChessMainMenuScreenPayload(
   if (!isPlainRecord(payload)) return false;
   if (!('screen' in payload)) return false;
   const s = payload['screen'];
-  return s === CHESS_MAIN_MENU_ROOT || s === CHESS_MAIN_MENU_PUZZLE;
+  return (
+    s === CHESS_MAIN_MENU_ROOT ||
+    s === CHESS_MAIN_MENU_PUZZLE ||
+    s === CHESS_MAIN_MENU_PUZZLE_PLAY
+  );
 }
 
 export const chessCmdNs = createMessageNamespace('chessCmd');
