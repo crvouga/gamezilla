@@ -5,7 +5,6 @@ import {
 } from '@gamezilla/domain/auth';
 import { assertUuid } from '@gamezilla/domain/auth/device-id';
 import { assert } from '@gamezilla/lib/assert';
-import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import type { DeviceService } from './device-service';
 
@@ -120,10 +119,10 @@ async function clearAllActiveSessions(
     .map((parsed) => ({
       entityId: parsed.entityId,
       entityType: ACCOUNT_SESSION_ENTITY_TYPE,
-      attributes: mergePlain(
-        { [AccountSessionAttr.token.key]: null },
-        AccountSessionAttr.expiresAt(epoch)
-      ),
+      attributes: {
+        [AccountSessionAttr.token.key]: null,
+        ...AccountSessionAttr.expiresAt(epoch),
+      },
     }));
   if (writes.length === 0) return;
   await db.write(writes);

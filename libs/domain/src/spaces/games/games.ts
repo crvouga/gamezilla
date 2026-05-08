@@ -1,11 +1,15 @@
 import { createAttrNamespace } from '@gamezilla/lib/attribute';
-import { mergePlain } from '@gamezilla/lib/merge-plain';
 import {
   createMessageNamespace,
   createMessageRouter,
   isPlainRecord,
 } from '@gamezilla/lib/message';
 import type { HandleResult, RoomState } from '@gamezilla/room';
+
+import {
+  CHESS_MAIN_MENU_ROOT,
+  ChessMainMenuScreenAttr,
+} from './chess/chess-main-menu';
 
 export const SpaceGame = {
   chess: 'chess',
@@ -61,9 +65,11 @@ export const gamesEventReducer = createMessageRouter<
   RoomState,
   void,
   RoomState
->(gamesEvtNs).on(GameSelected, (state, _identity, event) =>
-  mergePlain(
-    state,
-    GamesRoomAttr.selected(readSelectedSpaceGame(event.payload.game))
-  )
-);
+>(gamesEvtNs).on(GameSelected, (state, _identity, event) => {
+  const game = readSelectedSpaceGame(event.payload.game);
+  let next = { ...state, ...GamesRoomAttr.selected(game) };
+  if (game !== SpaceGame.chess) {
+    next = { ...next, ...ChessMainMenuScreenAttr.screen(CHESS_MAIN_MENU_ROOT) };
+  }
+  return next;
+});

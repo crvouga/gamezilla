@@ -5,7 +5,6 @@ import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
 } from '@gamezilla/domain/profile/profile-entities';
-import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type { Entity, PatchDb } from '@gamezilla/patch-db/interface';
 
 function profileLooksPresent(
@@ -49,14 +48,14 @@ export async function ensureProfile(db: PatchDb, myId: string): Promise<void> {
   ]);
   const existing = res?.entities[0];
   if (profileLooksPresent(existing, myId)) {
-    const patch = mergePlain(
-      !hasDisplayName(existing)
+    const patch = {
+      ...(!hasDisplayName(existing)
         ? ProfileAttr.displayName(generateRandomDisplayName())
-        : {},
-      !hasAvatarConfig(existing)
+        : {}),
+      ...(!hasAvatarConfig(existing)
         ? ProfileAttr.avatarConfig(serializeDefaultAvatarConfig(myId))
-        : {}
-    );
+        : {}),
+    };
     if (Object.keys(patch).length === 0) return;
     await db.write([
       {
@@ -72,12 +71,12 @@ export async function ensureProfile(db: PatchDb, myId: string): Promise<void> {
     {
       entityId: myId,
       entityType: PROFILE_ENTITY_TYPE,
-      attributes: mergePlain(
-        ProfileAttr.id(myId),
-        ProfileAttr.createdAt(now),
-        ProfileAttr.displayName(generateRandomDisplayName()),
-        ProfileAttr.avatarConfig(serializeDefaultAvatarConfig(myId))
-      ),
+      attributes: {
+        ...ProfileAttr.id(myId),
+        ...ProfileAttr.createdAt(now),
+        ...ProfileAttr.displayName(generateRandomDisplayName()),
+        ...ProfileAttr.avatarConfig(serializeDefaultAvatarConfig(myId)),
+      },
     },
   ]);
 }

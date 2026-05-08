@@ -1,23 +1,12 @@
+import { SpaceSessionChromeActions } from '@gamezilla/client/spaces/layout/space-session-chrome-actions';
+import { useSpaceSessionUi } from '@gamezilla/client/spaces/layout/space-session-ui-context';
 import { Box, IconButton, IconSymbol, useTheme } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';
 
-import { SpaceSessionChromeActions } from './space-session-chrome-actions';
-
-export type SpaceWideRailFooterProps = {
-  isHost: boolean;
-  onRequestEnd: () => void;
-  onRequestLeave: () => void;
-  onPressDebug: () => void;
-};
-
-export function SpaceWideRailFooter({
-  isHost,
-  onRequestEnd,
-  onRequestLeave,
-  onPressDebug,
-}: SpaceWideRailFooterProps) {
+export function SpaceWideRailFooter() {
   const { t } = useLingui();
   const theme = useTheme();
+  const { onPressDebug } = useSpaceSessionUi();
 
   return (
     <Box
@@ -32,12 +21,7 @@ export function SpaceWideRailFooter({
       }}
     >
       <Box sx={{ flex: 1, minWidth: 160 }}>
-        <SpaceSessionChromeActions
-          isHost={isHost}
-          onRequestEnd={onRequestEnd}
-          onRequestLeave={onRequestLeave}
-          compact={false}
-        />
+        <SpaceSessionChromeActions compact={false} />
       </Box>
       <IconButton
         size={40}

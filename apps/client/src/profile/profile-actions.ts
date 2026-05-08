@@ -2,7 +2,6 @@ import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
 } from '@gamezilla/domain/profile/profile-entities';
-import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 
 /**
@@ -17,14 +16,14 @@ export async function updateProfile(
     avatarConfig?: unknown;
   }
 ): Promise<void> {
-  const attributes = mergePlain(
-    args.displayName !== undefined
+  const attributes = {
+    ...(args.displayName !== undefined
       ? ProfileAttr.displayName(args.displayName)
-      : {},
-    args.avatarConfig !== undefined
+      : {}),
+    ...(args.avatarConfig !== undefined
       ? ProfileAttr.avatarConfig(args.avatarConfig)
-      : {}
-  );
+      : {}),
+  };
   if (Object.keys(attributes).length === 0) return;
   await db.write([
     {

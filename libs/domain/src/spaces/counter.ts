@@ -1,5 +1,4 @@
 import { createAttrNamespace } from '@gamezilla/lib/attribute';
-import { mergePlain } from '@gamezilla/lib/merge-plain';
 import {
   createMessageNamespace,
   createMessageRouter,
@@ -51,9 +50,11 @@ export const counterCommandRouter: MessageRouter<
 /** Routes counter events back into updates of the `count` slice. */
 export const counterEventReducer: MessageRouter<RoomState, void, RoomState> =
   createMessageRouter<RoomState, void, RoomState>(counterEvtNs)
-    .on(CounterIncremented, (state) =>
-      mergePlain(state, CounterRoomAttr.count(readCount(state) + 1))
-    )
-    .on(CounterDecremented, (state) =>
-      mergePlain(state, CounterRoomAttr.count(readCount(state) - 1))
-    );
+    .on(CounterIncremented, (state) => ({
+      ...state,
+      ...CounterRoomAttr.count(readCount(state) + 1),
+    }))
+    .on(CounterDecremented, (state) => ({
+      ...state,
+      ...CounterRoomAttr.count(readCount(state) - 1),
+    }));

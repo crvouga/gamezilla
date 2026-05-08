@@ -10,26 +10,22 @@ import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
 } from '@gamezilla/domain/spaces/space-entities';
-import type { SelectedSpaceGame } from '@gamezilla/domain/spaces/games/games';
 import { useQueryAttribute } from '@gamezilla/patch-db/react';
-import type { WebSocketRoomTransport } from '@gamezilla/room/client/adapters/transport/websocket';
+import type { Room } from '@gamezilla/room';
+import { RoomMetaAttr, useRoomSnapshot } from '@gamezilla/room';
 import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
 import { useSpaceRoomConnection } from './use-space-room-connection';
-import { useSpaceRoomCounterControls } from './use-space-room-counter-controls';
-import { useSpaceRoomGameControls } from './use-space-room-game-controls';
+
+type SpaceRoom = Room<Record<string, unknown>, unknown, unknown, string>;
 
 export type SpaceRoomUiState = {
-  count: number;
-  increment: () => void;
-  decrement: () => void;
+  /** Open room client for registry-backed hooks; `null` while connecting. */
+  room: SpaceRoom | null;
   isSynced: boolean;
   roomActive: boolean;
-  transport: WebSocketRoomTransport | null;
-  selectedGame: SelectedSpaceGame;
-  selectGame: (game: SelectedSpaceGame) => void;
 };
 
 export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
@@ -69,18 +65,17 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
     };
   }, [spaceId, isLive, inThisSpace, myId, deviceService]);
 
-  const { room, roomRef, transport } = useSpaceRoomConnection(
+  const { room } = useSpaceRoomConnection(
     bootstrap,
     configService,
     storage,
     sessionToken
   );
-  const counter = useSpaceRoomCounterControls(room, roomRef);
-  const games = useSpaceRoomGameControls(room, roomRef);
+  const snap = useRoomSnapshot(room);
+  const isSynced = RoomMetaAttr.isSynced.from(snap);
   return {
-    ...counter,
-    ...games,
+    room,
     roomActive: room !== null,
-    transport,
+    isSynced,
   };
 }

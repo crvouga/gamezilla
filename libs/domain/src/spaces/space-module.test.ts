@@ -2,6 +2,9 @@ import { describe, expect, test } from 'bun:test';
 import type { Message } from '@gamezilla/lib/message';
 
 import {
+  CHESS_MAIN_MENU_PUZZLE,
+  CHESS_MAIN_MENU_ROOT,
+  ChessMainMenuScreenAttr,
   CounterDecremented,
   CounterIncremented,
   CounterRoomAttr,
@@ -10,6 +13,7 @@ import {
   GamesRoomAttr,
   Increment,
   SelectGame,
+  SetChessMainMenuScreen,
   SpaceGame,
   SpaceModule,
 } from './space-module';
@@ -63,5 +67,21 @@ describe('SpaceModule', () => {
     expect(GameSelected.is(ev)).toBe(true);
     const s1 = SpaceModule.reduce(state0, ev);
     expect(s1[GamesRoomAttr.selected.key]).toBe(SpaceGame.chess);
+  });
+
+  test('chess main menu screen in room state', () => {
+    const state0 = SpaceModule.initialState();
+    expect(ChessMainMenuScreenAttr.screen.from(state0)).toBe(CHESS_MAIN_MENU_ROOT);
+    const cmd = {
+      id: crypto.randomUUID(),
+      ts: Date.now(),
+      payload: SetChessMainMenuScreen({ screen: CHESS_MAIN_MENU_PUZZLE }),
+    };
+    const h = SpaceModule.handle(state0, cmd, 'account');
+    expect(h.ok).toBe(true);
+    if (!h.ok) return;
+    const ev = h.events[0]!;
+    const s1 = SpaceModule.reduce(state0, ev);
+    expect(ChessMainMenuScreenAttr.screen.from(s1)).toBe(CHESS_MAIN_MENU_PUZZLE);
   });
 });

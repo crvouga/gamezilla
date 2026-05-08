@@ -1,4 +1,3 @@
-import { mergePlain } from '@gamezilla/lib/merge-plain';
 import {
   createComposedMessageRouter,
   type Message,
@@ -18,6 +17,14 @@ import {
   counterEventReducer,
   counterEvtNs,
 } from './counter';
+import {
+  chessCmdNs,
+  chessEvtNs,
+  chessMainMenuCommandRouter,
+  chessMainMenuEventReducer,
+  CHESS_MAIN_MENU_ROOT,
+  ChessMainMenuScreenAttr,
+} from './games/chess/chess-main-menu';
 import {
   GamesRoomAttr,
   gamesCmdNs,
@@ -39,6 +46,13 @@ export {
   SelectGame,
   SpaceGame,
 } from './games/games';
+export {
+  CHESS_MAIN_MENU_ROOT,
+  CHESS_MAIN_MENU_PUZZLE,
+  ChessMainMenuScreenAttr,
+  SetChessMainMenuScreen,
+  type ChessMainMenuScreen,
+} from './games/chess/chess-main-menu';
 
 function reject(error: RoomError): HandleResult {
   return { ok: false, error };
@@ -62,6 +76,7 @@ const spaceCommandRouter = createComposedMessageRouter<
 >([
   { namespace: counterCmdNs, router: counterCommandRouter },
   { namespace: gamesCmdNs, router: gamesCommandRouter },
+  { namespace: chessCmdNs, router: chessMainMenuCommandRouter },
 ]);
 
 const spaceEventReducer = createComposedMessageRouter<
@@ -71,6 +86,7 @@ const spaceEventReducer = createComposedMessageRouter<
 >([
   { namespace: counterEvtNs, router: counterEventReducer },
   { namespace: gamesEvtNs, router: gamesEventReducer },
+  { namespace: chessEvtNs, router: chessMainMenuEventReducer },
 ]);
 
 /**
@@ -81,7 +97,11 @@ const spaceEventReducer = createComposedMessageRouter<
  */
 export const SpaceModule: RoomModule<RoomState, unknown, unknown, string> = {
   initialState(): RoomState {
-    return mergePlain(CounterRoomAttr.count(0), GamesRoomAttr.selected(null));
+    return {
+      ...CounterRoomAttr.count(0),
+      ...GamesRoomAttr.selected(null),
+      ...ChessMainMenuScreenAttr.screen(CHESS_MAIN_MENU_ROOT),
+    };
   },
 
   handle(

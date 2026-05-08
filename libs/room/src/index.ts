@@ -21,6 +21,36 @@
  * `./client/adapters/{transport,storage}/` and re-exporting it via
  * `package.json` — the core engine stays untouched.
  */
+export { Room } from './client/core/room';
+export type { RoomClientConfig } from './client/core/room';
+export { RoomMetaAttr } from './client/core/room-meta';
+export type { ClientRoomStorage, QueuedCommand } from './client/core/storage';
+export type {
+  ClientTransport,
+  ClientTransportHandlers,
+} from './client/core/transport';
+export {
+  RoomClientsProvider,
+  SPACE_ROOM_NAME,
+  useRoomFromRegistry,
+  type AnyRoom,
+} from './client/react/room-clients-context';
+export {
+  useRoomDispatch,
+  useRoomSelector,
+} from './client/react/use-room-registry-hooks';
+export {
+  useRoomSnapshot,
+  useRoomSnapshotSelector,
+} from './client/react/use-room-snapshot';
+export { newCommandId } from './protocol/ids';
+export {
+  parseClientToServerWire,
+  parseServerToClientWire,
+  WIRE_VERSION,
+  type ClientToServerWire,
+  type ServerToClientWire,
+} from './protocol/wire';
 export type {
   HandleResult,
   LogEntry,
@@ -30,19 +60,3 @@ export type {
   RoomModule,
   RoomState,
 } from './types';
-export { WIRE_VERSION } from './protocol/wire';
-export {
-  parseClientToServerWire,
-  parseServerToClientWire,
-  type ClientToServerWire,
-  type ServerToClientWire,
-} from './protocol/wire';
-export { newCommandId } from './protocol/ids';
-export { Room } from './client/core/room';
-export type { RoomClientConfig, RoomSnapshot } from './client/core/room';
-export { useRoomSnapshot } from './client/core/use-room-snapshot';
-export type {
-  ClientTransport,
-  ClientTransportHandlers,
-} from './client/core/transport';
-export type { ClientRoomStorage, QueuedCommand } from './client/core/storage';

@@ -1,5 +1,4 @@
 import { createAttrNamespace } from '@gamezilla/lib/attribute';
-import { mergePlain } from '@gamezilla/lib/merge-plain';
 import {
   createMessageNamespace,
   isPlainRecord,
@@ -84,10 +83,10 @@ export const TestCounterModule: RoomModule<
     const ev = asMessage(event);
     if (ev === null) return state;
     if (CounterIncremented.is(ev)) {
-      return mergePlain(state, counterCount(readCount(state) + 1));
+      return { ...state, ...counterCount(readCount(state) + 1) };
     }
     if (CounterDecremented.is(ev)) {
-      return mergePlain(state, counterCount(readCount(state) - 1));
+      return { ...state, ...counterCount(readCount(state) - 1) };
     }
     return state;
   },

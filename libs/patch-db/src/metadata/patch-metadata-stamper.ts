@@ -1,5 +1,4 @@
 import { assert } from '@gamezilla/lib/assert';
-import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type {
   PatchDbContext,
   PatchDbQuery,
@@ -57,10 +56,10 @@ export class PatchMetadataStamper implements SubscribablePatchDbLike {
     const myId = this.config.getMyId();
     assert.ok(myId.length > 0, 'myId must be non-empty');
     const stamped: PatchInput[] = patches.map((p) => {
-      const attrs = mergePlain(
-        p.attributes as Record<string, unknown>,
-        { [PATCH_CREATED_BY_ID]: myId }
-      );
+      const attrs = {
+        ...(p.attributes as Record<string, unknown>),
+        [PATCH_CREATED_BY_ID]: myId,
+      };
       return {
         ...p,
         createdBy: myId,

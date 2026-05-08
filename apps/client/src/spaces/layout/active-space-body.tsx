@@ -1,9 +1,9 @@
-import { SpaceActiveLayout } from '@gamezilla/client/spaces/layout/space-active-layout';
-import { SpaceCounterPanel } from '@gamezilla/client/spaces/layout/space-counter-panel';
 import { SpaceGamePicker } from '@gamezilla/client/spaces/games/space-game-picker';
-import { useSpaceRoomState } from '@gamezilla/client/spaces/room/space-room-context';
-import { SpaceRoomWireContext } from '@gamezilla/client/spaces/room/space-room-wire-context';
-import { useCurrentSpaceRole } from '@gamezilla/client/spaces/use-current-space-role';
+import { SpaceActiveLayout } from '@gamezilla/client/spaces/layout/space-active-layout';
+import {
+  SpaceSessionUiProvider,
+  type SpaceSessionUiValue,
+} from '@gamezilla/client/spaces/layout/space-session-ui-context';
 import { Box } from '@gamezilla/lib/ui';
 import { useMemo, type ReactNode } from 'react';
 
@@ -17,7 +17,8 @@ export type ActiveSpaceBodyProps = {
 
 /**
  * Body of an active space session: chrome layout + game picker + counter
- * panel. Pure layout — reads role/room state via context-backed hooks.
+ * panel. Session UI is provided via {@link SpaceSessionUiProvider}; room state
+ * uses registry hooks under {@link SpaceRoomProvider}.
  */
 export function ActiveSpaceBody({
   spaceId,
@@ -26,34 +27,24 @@ export function ActiveSpaceBody({
   onPressHome,
   onPressDebug,
 }: ActiveSpaceBodyProps): ReactNode {
-  const role = useCurrentSpaceRole(spaceId);
-  const isHost = role === 'host';
-  const room = useSpaceRoomState();
-
-  const wire = useMemo(
-    () => ({
-      transport: room?.transport ?? null,
-      roomActive: room?.roomActive ?? false,
-      roomSynced: room?.isSynced ?? false,
+  const sessionUi = useMemo(
+    (): SpaceSessionUiValue => ({
+      spaceId,
+      onRequestEnd,
+      onRequestLeave,
+      onPressHome,
+      onPressDebug,
     }),
-    [room?.transport, room?.roomActive, room?.isSynced]
+    [spaceId, onRequestEnd, onRequestLeave, onPressHome, onPressDebug]
   );
 
   return (
-    <Box sx={{ flex: 1, minHeight: 0 }}>
-      <SpaceRoomWireContext.Provider value={wire}>
-        <SpaceActiveLayout
-          spaceId={spaceId}
-          isHost={isHost}
-          onRequestEnd={onRequestEnd}
-          onRequestLeave={onRequestLeave}
-          onPressHome={onPressHome}
-          onPressDebug={onPressDebug}
-        >
-          <SpaceGamePicker spaceId={spaceId} />
-          <SpaceCounterPanel spaceId={spaceId} />
+    <SpaceSessionUiProvider value={sessionUi}>
+      <Box sx={{ flex: 1, minHeight: 0 }}>
+        <SpaceActiveLayout>
+          <SpaceGamePicker />
         </SpaceActiveLayout>
-      </SpaceRoomWireContext.Provider>
-    </Box>
+      </Box>
+    </SpaceSessionUiProvider>
   );
 }

@@ -1,6 +1,5 @@
 import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '@gamezilla/domain/auth';
 import { createLogger } from '@gamezilla/lib/logger';
-import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type {
   PatchDb,
   PatchDbAuthContext,
@@ -81,10 +80,10 @@ async function ensureStripeCustomerId(args: {
       {
         entityId: accountId,
         entityType: ACCOUNT_ENTITY_TYPE,
-        attributes: mergePlain(
-          AccountAttr.stripeCustomerId(customer.id),
-          { [PATCH_CREATED_BY_ID]: deviceId }
-        ),
+        attributes: {
+          ...AccountAttr.stripeCustomerId(customer.id),
+          [PATCH_CREATED_BY_ID]: deviceId,
+        },
       },
     ],
     patchCtx

@@ -8,7 +8,6 @@ import {
   useTheme,
   type ScreenBaseBreadcrumb,
 } from '@gamezilla/lib/ui';
-import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type {
   Entity,
   PatchDbQuery,
@@ -242,13 +241,13 @@ function buildTodoCreatePayload(
   return {
     entityId: crypto.randomUUID(),
     entityType: 'todo',
-    attributes: mergePlain(
-      TodoAttr.title(title),
-      TodoAttr.completed(false),
-      TodoAttr.order(totalCount),
-      TodoAttr.createdAt(new Date().toISOString()),
-      listId !== INBOX_LIST_ID ? TodoAttr.listId(listId) : {}
-    ),
+    attributes: {
+      ...TodoAttr.title(title),
+      ...TodoAttr.completed(false),
+      ...TodoAttr.order(totalCount),
+      ...TodoAttr.createdAt(new Date().toISOString()),
+      ...(listId !== INBOX_LIST_ID ? TodoAttr.listId(listId) : {}),
+    },
   };
 }
 

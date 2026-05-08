@@ -7,7 +7,6 @@ import {
   TextInput,
   useTheme,
 } from '@gamezilla/lib/ui';
-import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type { Entity } from '@gamezilla/patch-db/interface';
 import { usePatchDb, useQuery } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -186,12 +185,12 @@ function buildTodoCreatePayload(title: string, totalCount: number) {
   return {
     entityId: globalThis.crypto.randomUUID(),
     entityType: 'todo',
-    attributes: mergePlain(
-      TodoAttr.title(title),
-      TodoAttr.completed(false),
-      TodoAttr.order(totalCount),
-      TodoAttr.createdAt(new Date().toISOString())
-    ),
+    attributes: {
+      ...TodoAttr.title(title),
+      ...TodoAttr.completed(false),
+      ...TodoAttr.order(totalCount),
+      ...TodoAttr.createdAt(new Date().toISOString()),
+    },
   };
 }
 

@@ -1,5 +1,4 @@
 import { assert } from '@gamezilla/lib/assert';
-import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbHookRegistry } from '../hook-registry';
 import type {
@@ -252,11 +251,11 @@ export class PatchDbImplSqlite implements PatchDb {
     }
     Object.assign(
       merged,
-      mergePlain(
-        { 'patch/compacted': '1' },
-        { [PATCH_CREATED_BY_ID]: PATCH_DB_SYSTEM_DEVICE_ID },
-        { 'patch/sessionId': '' }
-      )
+      {
+        'patch/compacted': '1',
+        [PATCH_CREATED_BY_ID]: PATCH_DB_SYSTEM_DEVICE_ID,
+        'patch/sessionId': '',
+      }
     );
 
     const now = new Date().toISOString();

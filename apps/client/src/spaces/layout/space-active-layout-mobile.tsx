@@ -1,30 +1,20 @@
 import { SpaceMembersAvatarGroup } from '@gamezilla/client/spaces/members/space-members-avatar-group';
 import { SpaceSessionChromeActions } from '@gamezilla/client/spaces/layout/space-session-chrome-actions';
+import { useSpaceSessionUi } from '@gamezilla/client/spaces/layout/space-session-ui-context';
 import { Box, IconButton, IconSymbol, useTheme } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
 export type SpaceActiveLayoutMobileProps = {
-  spaceId: string;
-  isHost: boolean;
-  onRequestEnd: () => void;
-  onRequestLeave: () => void;
-  onPressHome: () => void;
-  onPressDebug: () => void;
   children: ReactNode;
 };
 
 export function SpaceActiveLayoutMobile({
-  spaceId,
-  isHost,
-  onRequestEnd,
-  onRequestLeave,
-  onPressHome,
-  onPressDebug,
   children,
 }: SpaceActiveLayoutMobileProps): ReactNode {
   const { t } = useLingui();
   const theme = useTheme();
+  const { spaceId, onPressHome, onPressDebug } = useSpaceSessionUi();
 
   return (
     <Box sx={{ flex: 1, minHeight: 0 }}>
@@ -52,12 +42,7 @@ export function SpaceActiveLayoutMobile({
         <Box sx={{ flex: 1, minWidth: 0, alignItems: 'flex-end' }}>
           <SpaceMembersAvatarGroup spaceId={spaceId} />
         </Box>
-        <SpaceSessionChromeActions
-          isHost={isHost}
-          onRequestEnd={onRequestEnd}
-          onRequestLeave={onRequestLeave}
-          compact
-        />
+        <SpaceSessionChromeActions compact />
         <IconButton
           size={40}
           background="surface"

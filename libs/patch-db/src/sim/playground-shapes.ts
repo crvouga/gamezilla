@@ -1,4 +1,3 @@
-import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type {
   Entity,
   PatchDbQuery,
@@ -131,12 +130,12 @@ export function createShapeInput(order: number): PatchInput {
   return {
     entityId: randomEntityId(),
     entityType: SHAPE_ENTITY_TYPE,
-    attributes: mergePlain(
-      { [SHAPE_ATTR.kind]: resolved.id },
-      { [SHAPE_ATTR.fill]: randomHueColor() },
-      { [SHAPE_ATTR.points]: resolved.svgPoints() },
-      { [SHAPE_ATTR.order]: order }
-    ),
+    attributes: {
+      [SHAPE_ATTR.kind]: resolved.id,
+      [SHAPE_ATTR.fill]: randomHueColor(),
+      [SHAPE_ATTR.points]: resolved.svgPoints(),
+      [SHAPE_ATTR.order]: order,
+    },
   };
 }
 
@@ -173,11 +172,11 @@ export async function playgroundUpdateRandomShape(
   const picked = pickRandomRegisteredKind();
   const def =
     shapeKindRegistryBase[picked] ?? shapeKindRegistryBase[defaultShapeKindKey];
-  const attrs = mergePlain(
-    { [SHAPE_ATTR.kind]: def.id },
-    { [SHAPE_ATTR.fill]: randomHueColor() },
-    { [SHAPE_ATTR.points]: def.svgPoints() }
-  );
+  const attrs = {
+    [SHAPE_ATTR.kind]: def.id,
+    [SHAPE_ATTR.fill]: randomHueColor(),
+    [SHAPE_ATTR.points]: def.svgPoints(),
+  };
   await client.syncDb.write([
     {
       entityId: entity.entityId,
@@ -242,11 +241,11 @@ export async function playgroundServerUpdateRandomShape(
   const picked = pickRandomRegisteredKind();
   const def =
     shapeKindRegistryBase[picked] ?? shapeKindRegistryBase[defaultShapeKindKey];
-  const attrs = mergePlain(
-    { [SHAPE_ATTR.kind]: def.id },
-    { [SHAPE_ATTR.fill]: randomHueColor() },
-    { [SHAPE_ATTR.points]: def.svgPoints() }
-  );
+  const attrs = {
+    [SHAPE_ATTR.kind]: def.id,
+    [SHAPE_ATTR.fill]: randomHueColor(),
+    [SHAPE_ATTR.points]: def.svgPoints(),
+  };
   await sim.serverBacking.write([
     {
       entityId: entity.entityId,
@@ -322,11 +321,11 @@ export async function playgroundRandomizeShape(
     {
       entityId,
       entityType: SHAPE_ENTITY_TYPE,
-      attributes: mergePlain(
-        { [SHAPE_ATTR.kind]: def.id },
-        { [SHAPE_ATTR.fill]: randomHueColor() },
-        { [SHAPE_ATTR.points]: def.svgPoints() }
-      ),
+      attributes: {
+        [SHAPE_ATTR.kind]: def.id,
+        [SHAPE_ATTR.fill]: randomHueColor(),
+        [SHAPE_ATTR.points]: def.svgPoints(),
+      },
     },
   ]);
   await sim.syncNow(clientId);
@@ -343,11 +342,11 @@ export async function playgroundServerRandomizeShape(
     {
       entityId,
       entityType: SHAPE_ENTITY_TYPE,
-      attributes: mergePlain(
-        { [SHAPE_ATTR.kind]: def.id },
-        { [SHAPE_ATTR.fill]: randomHueColor() },
-        { [SHAPE_ATTR.points]: def.svgPoints() }
-      ),
+      attributes: {
+        [SHAPE_ATTR.kind]: def.id,
+        [SHAPE_ATTR.fill]: randomHueColor(),
+        [SHAPE_ATTR.points]: def.svgPoints(),
+      },
     },
   ]);
   await playgroundPollAllClients(sim);

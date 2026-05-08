@@ -1,25 +1,40 @@
-import { useSpaceRoomState } from '@gamezilla/client/spaces/room/space-room-context';
+import {
+  useSpaceDispatch,
+  useSpaceSelector,
+} from '@gamezilla/client/spaces/room/use-space-room-selector';
+import {
+  CounterRoomAttr,
+  Decrement,
+  Increment,
+} from '@gamezilla/domain/spaces/space-module';
+import {
+  RoomMetaAttr,
+  SPACE_ROOM_NAME,
+  useRoomFromRegistry,
+} from '@gamezilla/room';
 import { Box, Button, Text } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
-import type { ReactNode } from 'react';
-
-export type SpaceCounterPanelProps = {
-  spaceId: string;
-};
+import { useCallback, type ReactNode } from 'react';
 
 /**
- * Counter panel for a space. Reads shared room state from a
- * {@link SpaceRoomProvider} ancestor. The `spaceId` prop is used for accessibility
- * / debugging clarity — there is exactly one room state per space because
- * the provider hosts the connection.
+ * Counter panel for a space. Reads shared room state via
+ * {@link useSpaceSelector} under {@link SpaceRoomProvider}.
  */
-export function SpaceCounterPanel({
-  spaceId: _spaceId,
-}: SpaceCounterPanelProps): ReactNode {
+export function SpaceCounterPanel(): ReactNode {
   const { t } = useLingui();
-  const room = useSpaceRoomState();
+  const room = useRoomFromRegistry(SPACE_ROOM_NAME);
+  const roomActive = room !== null;
+  const count = useSpaceSelector(CounterRoomAttr.count.from);
+  const isSynced = useSpaceSelector(RoomMetaAttr.isSynced.from);
+  const dispatch = useSpaceDispatch();
+  const increment = useCallback(() => {
+    dispatch(Increment({}));
+  }, [dispatch]);
+  const decrement = useCallback(() => {
+    dispatch(Decrement({}));
+  }, [dispatch]);
 
-  if (room === null || !room.roomActive) {
+  if (!roomActive) {
     return (
       <Box sx={{ py: 2 }}>
         <Text
@@ -35,8 +50,6 @@ export function SpaceCounterPanel({
       </Box>
     );
   }
-
-  const { count, increment, decrement, isSynced } = room;
 
   return (
     <Box sx={{ gap: 3, py: 2 }}>

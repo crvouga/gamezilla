@@ -306,7 +306,6 @@
     "./attribute": "./src/attribute/index.ts",
     "./attribute/index": "./src/attribute/index.ts",
     "./attribute/attribute": "./src/attribute/attribute.ts",
-    "./merge-plain": "./src/merge-plain.ts",
     "./async/fetch-with-retry": "./src/async/fetch-with-retry.ts",
     "./async/fire-and-forget": "./src/async/fire-and-forget.ts",
     "./async/use-async": "./src/async/use-async.ts",

@@ -1,7 +1,12 @@
 import { useMemo } from 'react';
 
 import { useMyId } from '@gamezilla/client/auth/auth-context';
-import { useSpaceRoomWire } from '../room/space-room-wire-context';
+import { useSpaceSelector } from '@gamezilla/client/spaces/room/use-space-room-selector';
+import {
+  RoomMetaAttr,
+  SPACE_ROOM_NAME,
+  useRoomFromRegistry,
+} from '@gamezilla/room';
 
 /**
  * Live “who is in this tab” used legacy WebSocket presence. The authoritative
@@ -13,7 +18,9 @@ export function useSpacePresence(): {
   selfPeerId: string | null;
 } {
   const myId = useMyId();
-  const { roomActive, roomSynced } = useSpaceRoomWire();
+  const room = useRoomFromRegistry(SPACE_ROOM_NAME);
+  const roomActive = room !== null;
+  const roomSynced = useSpaceSelector(RoomMetaAttr.isSynced.from);
 
   const peersByMemberId = useMemo(() => {
     const m = new Map<string, string[]>();

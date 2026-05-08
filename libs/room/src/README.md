@@ -10,7 +10,7 @@ Both the client and server entrypoints expose **core only** — engine + ports. 
 
 | Import                                                | Purpose                                                                                              |
 | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `@gamezilla/room`                                     | Core client: `Room`, `useRoomSnapshot`, ports (`ClientTransport`, `ClientRoomStorage`), wire helpers |
+| `@gamezilla/room`                                     | Core client: `Room` (flat `getSnapshot()` + `RoomMetaAttr`), `useRoomSnapshot`, registry hooks, ports, wire helpers |
 | `@gamezilla/room/server`                              | Core server: `RoomServer`, `RoomStorage`, `RoomAuth` (no adapters)                                   |
 | `@gamezilla/room/client/adapters/transport/websocket` | `WebSocketRoomTransport` (browser/Worker `WebSocket`)                                                |
 | `@gamezilla/room/client/adapters/storage/memory`      | `InMemoryClientStorage` (tests)                                                                      |

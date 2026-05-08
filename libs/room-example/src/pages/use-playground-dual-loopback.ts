@@ -91,7 +91,7 @@ export function usePlaygroundDualLoopback(): {
 
 export function readPlaygroundCount(room: CounterRoom | null): number {
   if (room === null) return 0;
-  const c = room.getSnapshot().state['counter/count'];
+  const c = room.getSnapshot()['counter/count'];
   return typeof c === 'number' && Number.isFinite(c) ? c : 0;
 }
 

@@ -3,13 +3,22 @@ import {
   MainMenuScreen,
   type MainMenuItem,
 } from '@gamezilla/client/spaces/games/main-menu-screen';
+import { useSpaceSessionUi } from '@gamezilla/client/spaces/layout/space-session-ui-context';
+import {
+  useSpaceDispatch,
+  useSpaceSelector,
+} from '@gamezilla/client/spaces/room/use-space-room-selector';
+import { useCurrentSpaceRole } from '@gamezilla/client/spaces/use-current-space-role';
+import {
+  CHESS_MAIN_MENU_PUZZLE,
+  CHESS_MAIN_MENU_ROOT,
+  ChessMainMenuScreenAttr,
+  SelectGame,
+  SetChessMainMenuScreen,
+} from '@gamezilla/domain/spaces/space-module';
 import { Button } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useMemo, useState, type ReactNode } from 'react';
-
-const CHESS_MENU_ROOT = 0;
-const CHESS_MENU_PUZZLE = 1;
-type ChessMenuScreen = typeof CHESS_MENU_ROOT | typeof CHESS_MENU_PUZZLE;
+import { useCallback, useMemo, type ReactNode } from 'react';
 
 function chessMenuArtwork() {
   return <ChessArtwork size={120} />;
@@ -56,22 +65,35 @@ const PUZZLE_ITEMS: readonly MainMenuItem[] = [
   },
 ];
 
-function BackButton({ title, onPress }: { title: ReactNode; onPress: () => void }) {
+function BackButton({
+  title,
+  onPress,
+}: {
+  title: ReactNode;
+  onPress: () => void;
+}) {
   return <Button title={title} variant="outlined" onPress={onPress} />;
 }
 
-export function ChessMainMenu({
-  isHost,
-  onBackToGames,
-}: {
-  isHost: boolean;
-  onBackToGames: () => void;
-}): ReactNode {
+export function ChessMainMenu(): ReactNode {
   const { t } = useLingui();
-  const [screen, setScreen] = useState<ChessMenuScreen>(CHESS_MENU_ROOT);
-  const rootItems = useRootItems(() => setScreen(CHESS_MENU_PUZZLE));
+  const { spaceId } = useSpaceSessionUi();
+  const role = useCurrentSpaceRole(spaceId);
+  const isHost = role === 'host';
+  const screen = useSpaceSelector(ChessMainMenuScreenAttr.screen.from);
+  const dispatch = useSpaceDispatch();
+  const onBackToGames = useCallback(() => {
+    dispatch(SelectGame({ game: null }));
+  }, [dispatch]);
+  const openPuzzleMenu = useCallback(() => {
+    dispatch(SetChessMainMenuScreen({ screen: CHESS_MAIN_MENU_PUZZLE }));
+  }, [dispatch]);
+  const backToChessRoot = useCallback(() => {
+    dispatch(SetChessMainMenuScreen({ screen: CHESS_MAIN_MENU_ROOT }));
+  }, [dispatch]);
+  const rootItems = useRootItems(openPuzzleMenu);
 
-  if (screen === CHESS_MENU_PUZZLE) {
+  if (screen === CHESS_MAIN_MENU_PUZZLE) {
     return (
       <MainMenuScreen
         artwork={chessMenuArtwork()}
@@ -79,10 +101,7 @@ export function ChessMainMenu({
         subtitle={<Trans>Pick a puzzle mode.</Trans>}
         items={PUZZLE_ITEMS}
         footer={
-          <BackButton
-            title={t`Back to chess menu`}
-            onPress={() => setScreen(CHESS_MENU_ROOT)}
-          />
+          <BackButton title={t`Back to chess menu`} onPress={backToChessRoot} />
         }
       />
     );
@@ -96,7 +115,10 @@ export function ChessMainMenu({
       items={rootItems}
       footer={
         isHost ? (
-          <BackButton title={t`Pick a different game`} onPress={onBackToGames} />
+          <BackButton
+            title={t`Pick a different game`}
+            onPress={onBackToGames}
+          />
         ) : null
       }
     />

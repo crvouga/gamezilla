@@ -13,8 +13,9 @@ import type {
   RoomModule,
   RoomState,
 } from '../../types';
-import type { ClientTransport } from './transport';
+import { RoomMetaAttr } from './room-meta';
 import type { ClientRoomStorage, QueuedCommand } from './storage';
+import type { ClientTransport } from './transport';
 
 const crash: Assert = Assert.crash();
 
@@ -26,20 +27,6 @@ export type RoomClientConfig<S extends RoomState, C, E, Identity> = {
   identity: Identity;
   onError?: (err: RoomError | Error) => void;
 };
-
-/**
- * Single immutable view of room status + state. Returned by {@link Room.getSnapshot}.
- *
- * `useSyncExternalStore` requires a stable reference between change events; the
- * Room caches `RoomSnapshot` and replaces it only inside `notify()` so React
- * never sees a "moving" snapshot mid-render.
- */
-export type RoomSnapshot<S extends RoomState> = Readonly<{
-  state: S;
-  isSynced: boolean;
-  isConnected: boolean;
-  lastError: RoomError | Error | null;
-}>;
 
 function foldEntries<S extends RoomState, E>(
   module: RoomModule<S, unknown, E, unknown>,
@@ -75,14 +62,11 @@ function foldDisplay<S extends RoomState, C, E, Identity>(
  * Client room: optimistic commands + durable queue; server is source of truth for commits.
  *
  * **API surface (designed for `useSyncExternalStore`)**:
- * - `getSnapshot()` returns a stable {@link RoomSnapshot} that is replaced only
- *   inside `notify()`. Callers can compare references to detect change.
+ * - `getSnapshot()` returns stable flat {@link RoomState} (module display state +
+ *   {@link RoomMetaAttr} client metadata). Replaced only inside `notify()`.
  * - `subscribe(listener)` takes a no-arg listener; React's external-store
  *   contract calls `getSnapshot()` after every notify.
  * - `dispatch(payload)` enqueues an optimistic command.
- *
- * Internals (`getState`, `isSynced`, `isConnected`) are intentionally not part
- * of the public surface — read them via `getSnapshot()`.
  */
 export class Room<S extends RoomState, C, E, Identity> {
   static async open<S2 extends RoomState, C2, E2, I2>(
@@ -98,7 +82,7 @@ export class Room<S extends RoomState, C, E, Identity> {
   /** Test / bootstrap: wait until first `welcome` applied. */
   async untilSynced(timeoutMs = 2000): Promise<void> {
     const start = Date.now();
-    while (!this.snapshot.isSynced) {
+    while (!RoomMetaAttr.isSynced.from(this.snapshot)) {
       if (Date.now() - start > timeoutMs) {
         throw new Error('Room.untilSynced: timeout waiting for welcome');
       }
@@ -120,7 +104,7 @@ export class Room<S extends RoomState, C, E, Identity> {
   private synced = false;
   private destroyed = false;
   private lastError: RoomError | Error | null = null;
-  private snapshot: RoomSnapshot<S>;
+  private snapshot: S;
   private readonly subscribers = new Set<() => void>();
   private unsubTransport: (() => void) | null = null;
   private unsubHandlers: (() => void) | null = null;
@@ -135,18 +119,20 @@ export class Room<S extends RoomState, C, E, Identity> {
     this.snapshot = this.computeSnapshot();
   }
 
-  private computeSnapshot(): RoomSnapshot<S> {
-    return Object.freeze({
-      state: foldDisplay(
-        this.module,
-        this.committedState,
-        this.pendingQueue,
-        this.optimistic
-      ),
-      isSynced: this.synced,
-      isConnected: this.transport.isConnected,
-      lastError: this.lastError,
-    });
+  private computeSnapshot(): S {
+    const display = foldDisplay(
+      this.module,
+      this.committedState,
+      this.pendingQueue,
+      this.optimistic
+    );
+    const merged = {
+      ...(display as Record<string, unknown>),
+      ...RoomMetaAttr.isSynced(this.synced),
+      ...RoomMetaAttr.isConnected(this.transport.isConnected),
+      ...RoomMetaAttr.lastError(this.lastError),
+    };
+    return Object.freeze(merged as unknown as S);
   }
 
   private notify(): void {
@@ -357,7 +343,7 @@ export class Room<S extends RoomState, C, E, Identity> {
   }
 
   /** Stable reference between notifications. Safe inside `useSyncExternalStore`. */
-  getSnapshot(): RoomSnapshot<S> {
+  getSnapshot(): S {
     return this.snapshot;
   }
 

@@ -1,9 +1,12 @@
 import { useCallback, useSyncExternalStore } from 'react';
 
-import type { Room, RoomSnapshot } from './room';
 import type { RoomState } from '../../types';
+import type { Room } from '../core/room';
 
 const noop = (): void => {};
+
+/** Stable empty bag for `useSyncExternalStore` when `room === null`. */
+export const EMPTY_ROOM_STATE: Readonly<RoomState> = Object.freeze({});
 
 /**
  * React-friendly read of {@link Room}. Built on `useSyncExternalStore` so:
@@ -12,12 +15,12 @@ const noop = (): void => {};
  * - Every `notify()` triggers a re-render with a fresh snapshot reference.
  * - Concurrent React stays tearing-free.
  *
- * Pass `room === null` while the connection is being constructed; the hook
- * returns `null` until a Room is provided.
+ * When `room === null`, returns {@link EMPTY_ROOM_STATE} so selectors can run
+ * with parser defaults.
  */
 export function useRoomSnapshot<S extends RoomState, C, E, Identity>(
   room: Room<S, C, E, Identity> | null
-): RoomSnapshot<S> | null {
+): S {
   const subscribe = useCallback(
     (listener: () => void): (() => void) => {
       if (room === null) return noop;
@@ -26,8 +29,25 @@ export function useRoomSnapshot<S extends RoomState, C, E, Identity>(
     [room]
   );
   const getSnapshot = useCallback(
-    (): RoomSnapshot<S> | null => (room === null ? null : room.getSnapshot()),
+    (): S => (room === null ? (EMPTY_ROOM_STATE as S) : room.getSnapshot()),
     [room]
   );
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+}
+
+/**
+ * Select from flat room state. When `room === null`, reads {@link EMPTY_ROOM_STATE}.
+ */
+export function useRoomSnapshotSelector<
+  S extends RoomState,
+  C,
+  E,
+  Identity,
+  R,
+>(
+  room: Room<S, C, E, Identity> | null,
+  selector: (state: S) => R
+): R {
+  const state = useRoomSnapshot(room);
+  return selector(state);
 }

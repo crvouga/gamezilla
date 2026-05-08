@@ -9,7 +9,6 @@ import {
   useTheme,
   type ScreenBaseBreadcrumb,
 } from '@gamezilla/lib/ui';
-import { mergePlain } from '@gamezilla/lib/merge-plain';
 import { usePatchDb, useQuery } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
@@ -194,11 +193,11 @@ function useTodoListMutations(db: Db) {
       {
         entityId,
         entityType: 'todoList',
-        attributes: mergePlain(
-          TodoListAttr.name(trimmed),
-          TodoListAttr.order(order),
-          TodoListAttr.createdAt(new Date().toISOString())
-        ),
+        attributes: {
+          ...TodoListAttr.name(trimmed),
+          ...TodoListAttr.order(order),
+          ...TodoListAttr.createdAt(new Date().toISOString()),
+        },
       },
     ]);
     return true;

@@ -94,13 +94,12 @@ function createAttributeTag<T, K extends string>(
  *
  * @example
  * ```ts
- * import { mergePlain } from '@gamezilla/lib/merge-plain';
  * const createAttr = createAttrNamespace('games');
  * const Selected = createAttr('selected', (v) => {
  *   if (v === 'chess' || v === 'connect-four' || v === null) return v;
  *   throw new Error('invalid');
  * });
- * const patch = mergePlain(Selected('chess'), Selected(null));
+ * const patch = { ...Selected('chess'), ...Selected(null) };
  * const x = Selected.from(someState);
  * ```
  */

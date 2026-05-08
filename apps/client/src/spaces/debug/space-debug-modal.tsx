@@ -7,6 +7,7 @@
 import { SpaceDebugCurrentSpacesSection } from '@gamezilla/client/spaces/debug/space-debug-current-spaces-section';
 import { SpaceDebugMembersSection } from '@gamezilla/client/spaces/debug/space-debug-members-section';
 import { SpaceDebugRoomSection } from '@gamezilla/client/spaces/debug/space-debug-room-section';
+import { SpaceCounterPanel } from '@gamezilla/client/spaces/layout/space-counter-panel';
 import { SpaceDebugRouteSection } from '@gamezilla/client/spaces/debug/space-debug-route-section';
 import { SpaceDebugSelfSection } from '@gamezilla/client/spaces/debug/space-debug-self-section';
 import { SpaceDebugSpaceSection } from '@gamezilla/client/spaces/debug/space-debug-space-section';
@@ -39,6 +40,7 @@ export function SpaceDebugModal({
         <SpaceDebugCurrentSpacesSection />
         <SpaceDebugMembersSection spaceId={spaceId} />
         <SpaceDebugRoomSection />
+        <SpaceCounterPanel />
       </Box>
     </ResponsiveSurface>
   );

@@ -4,7 +4,6 @@ import {
   DeviceAttr,
 } from '@gamezilla/domain/auth';
 import { assert } from '@gamezilla/lib/assert';
-import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type { Entity, PatchDb } from '@gamezilla/patch-db/interface';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
@@ -106,13 +105,13 @@ export async function ensureDeviceEntity(
     const snapshotPatches = Object.entries(snapshot)
       .filter((entry): entry is [string, string] => entry[1] !== null)
       .map(([k, v]) => ({ [k]: v }));
-    const attributes = mergePlain(
-      DeviceAttr.id(deviceId),
-      DeviceAttr.createdAt(now),
-      DeviceAttr.firstSeenAt(now),
-      DeviceAttr.lastSeenAt(now),
-      mergePlain(...snapshotPatches)
-    );
+    const attributes = {
+      ...DeviceAttr.id(deviceId),
+      ...DeviceAttr.createdAt(now),
+      ...DeviceAttr.firstSeenAt(now),
+      ...DeviceAttr.lastSeenAt(now),
+      ...Object.assign({}, ...snapshotPatches),
+    };
     await db.write([
       {
         entityId: deviceId,
@@ -130,18 +129,18 @@ export async function ensureDeviceEntity(
   const stored = entity.attributes;
   const existingFirst = normString(stored[DeviceAttr.firstSeenAt.key]);
   const created = normString(stored[DeviceAttr.createdAt.key]);
-  let updates = mergePlain(
-    DeviceAttr.lastSeenAt(now),
-    existingFirst === null
+  let updates = {
+    ...DeviceAttr.lastSeenAt(now),
+    ...(existingFirst === null
       ? DeviceAttr.firstSeenAt(created !== null ? created : now)
-      : {}
-  );
+      : {}),
+  };
 
   for (const key of Object.keys(snapshot)) {
     const next = snapshot[key];
     if (next === null) continue;
     if (snapshotDiffers(stored, snapshot, key)) {
-      updates = mergePlain(updates, { [key]: next });
+      updates = { ...updates, [key]: next };
     }
   }
 

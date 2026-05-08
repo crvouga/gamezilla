@@ -6,7 +6,6 @@ import {
 } from '@gamezilla/domain/auth';
 import { assertUuid } from '@gamezilla/domain/auth/device-id';
 import { assert } from '@gamezilla/lib/assert';
-import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type {
   Entity,
   PatchDb,
@@ -60,24 +59,24 @@ function patchesForNewAuthUserAccount(args: {
   const providerPatch: PatchInput = {
     entityId: crypto.randomUUID(),
     entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
-    attributes: mergePlain(
-      AccountProviderAttr.accountId(accountId),
-      AccountProviderAttr.provider(INTERNAL_AUTH_PROVIDER),
-      AccountProviderAttr.providerUserId(externalUserId),
-      email !== null ? AccountProviderAttr.email(email) : {},
-      AccountProviderAttr.linkedAt(now),
-      { [PATCH_CREATED_BY_ID]: accountId }
-    ),
+    attributes: {
+      ...AccountProviderAttr.accountId(accountId),
+      ...AccountProviderAttr.provider(INTERNAL_AUTH_PROVIDER),
+      ...AccountProviderAttr.providerUserId(externalUserId),
+      ...(email !== null ? AccountProviderAttr.email(email) : {}),
+      ...AccountProviderAttr.linkedAt(now),
+      [PATCH_CREATED_BY_ID]: accountId,
+    },
   };
   return [
     {
       entityId: accountId,
       entityType: ACCOUNT_ENTITY_TYPE,
-      attributes: mergePlain(
-        AccountAttr.id(accountId),
-        AccountAttr.createdAt(now),
-        { [PATCH_CREATED_BY_ID]: accountId }
-      ),
+      attributes: {
+        ...AccountAttr.id(accountId),
+        ...AccountAttr.createdAt(now),
+        [PATCH_CREATED_BY_ID]: accountId,
+      },
     },
     providerPatch,
   ];

@@ -1,5 +1,4 @@
 import { assert } from '@gamezilla/lib/assert';
-import { mergePlain } from '@gamezilla/lib/merge-plain';
 import type { Logger } from '@gamezilla/lib/logger';
 import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
 import type { Patch, PatchDb, PatchDbQuery } from '../interface';
@@ -29,11 +28,11 @@ export function unsyncedPatchesQueryForPush(): PatchDbQuery {
 
 function pushRejectionAttributes(reason: string): Record<string, unknown> {
   const now = new Date().toISOString();
-  return mergePlain(
-    { [PATCH_SYNC_REJECTED_AT]: now },
-    { [PATCH_SYNC_REJECTED_REASON]: reason.slice(0, 256) },
-    { [PATCH_REJECTED]: true }
-  );
+  return {
+    [PATCH_SYNC_REJECTED_AT]: now,
+    [PATCH_SYNC_REJECTED_REASON]: reason.slice(0, 256),
+    [PATCH_REJECTED]: true,
+  };
 }
 
 /**
@@ -98,11 +97,11 @@ export async function clearRejectedPushMarkersOnLocal(
   await local.update(
     result.patches.map((p) => ({
       patchId: p.patchId,
-      attributes: mergePlain({
+      attributes: {
         [PATCH_SYNC_REJECTED_AT]: null,
         [PATCH_SYNC_REJECTED_REASON]: null,
         [PATCH_REJECTED]: null,
-      }),
+      },
     })),
     OPEN_PATCHES_DB_CONTEXT
   );
