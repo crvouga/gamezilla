@@ -7,6 +7,36 @@ import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
 /** Pub/sub topic carrying patch-db invalidation events. */
 export const PATCHES_DB_TOPIC = 'patch-db';
 
+/**
+ * When `touched` is present, {@link ActiveQueryRegistry} may skip re-reads for
+ * simple single-entity queries whose key is not in the touched set.
+ */
+export type PatchDbInvalidationMessage = {
+  type: 'invalidated';
+  touched?: readonly { entityType: string; entityId: string }[];
+};
+
+/** Returns true when a targeted invalidation can skip re-reading `query`. */
+export function shouldSkipTargetedEntityReread(
+  query: PatchDbQuery,
+  message: unknown
+): boolean {
+  if (typeof message !== 'object' || message === null) return false;
+  const touched = (message as PatchDbInvalidationMessage).touched;
+  if (!Array.isArray(touched) || touched.length === 0) return false;
+  if (query.where !== undefined && query.where !== null) return false;
+  if (typeof query.entityId !== 'string') return false;
+  if (query.entityType === undefined || query.entityType === '') return false;
+  const hit = touched.some((row) => {
+    if (typeof row !== 'object' || row === null) return false;
+    const o = row as Record<string, unknown>;
+    return (
+      o['entityType'] === query.entityType && o['entityId'] === query.entityId
+    );
+  });
+  return !hit;
+}
+
 export type ActiveQueryListener = (result: PatchDbResult) => void;
 
 export type ActiveQuery = {
@@ -30,6 +60,11 @@ export type ActiveQueryRegistryOptions = {
   read: (query: PatchDbQuery) => Promise<PatchDbResult>;
   pubSub: PubSub;
   isDestroyed: () => boolean;
+  /**
+   * When true, invalidation messages that carry `touched` skip re-reads for
+   * simple `(entityType, entityId)` queries not listed in `touched`.
+   */
+  targetedInvalidation?: boolean;
   /** Called when the registry transitions from empty -> non-empty. */
   onFirstSubscriber: () => void;
   /** Called when the registry transitions from non-empty -> empty. */
@@ -60,11 +95,13 @@ export class ActiveQueryRegistry {
   private readonly onFirstSubscriber: () => void;
   private readonly onLastUnsubscribe: () => void;
   private readonly onHydratedEmptyOnce: ActiveQueryRegistryOptions['onHydratedEmptyOnce'];
+  private readonly targetedInvalidation: boolean;
 
   constructor(options: ActiveQueryRegistryOptions) {
     this.read = options.read;
     this.pubSub = options.pubSub;
     this.isDestroyed = options.isDestroyed;
+    this.targetedInvalidation = options.targetedInvalidation === true;
     this.onFirstSubscriber = options.onFirstSubscriber;
     this.onLastUnsubscribe = options.onLastUnsubscribe;
     this.onHydratedEmptyOnce = options.onHydratedEmptyOnce;
@@ -124,7 +161,13 @@ export class ActiveQueryRegistry {
       pubSubUnsub: null,
     };
     this.entries.set(key, entry);
-    entry.pubSubUnsub = this.pubSub.subscribe(PATCHES_DB_TOPIC, () => {
+    entry.pubSubUnsub = this.pubSub.subscribe(PATCHES_DB_TOPIC, (msg: unknown) => {
+      if (
+        this.targetedInvalidation &&
+        shouldSkipTargetedEntityReread(entry.query, msg)
+      ) {
+        return;
+      }
       fireAndForget(this.notify(key), {
         component: 'ActiveQueryRegistry',
         op: 'notify-invalidation',

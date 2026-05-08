@@ -36,6 +36,7 @@ import {
   discardTransportRejectedChunk,
   unsyncedPatchesQueryForPush,
 } from './impl-sync-rejected-pushes';
+import { createPatchDbReadBatcher } from '../scheduling/microtask-batcher';
 
 /** Topic for sync errors. Subscribe to surface push/poll failures to the UI after consecutive failures. */
 export const SYNC_ERROR_TOPIC = 'sync-error';
@@ -101,6 +102,12 @@ export type SyncPatchDbOptions = {
    * client transport will crash if a single request exceeds it.
    */
   maxPushBatchSize?: number;
+  /**
+   * When true, local writes publish invalidation `touched` hints so
+   * {@link ActiveQueryRegistry} can skip re-reads for unrelated single-entity
+   * subscriptions. Default false.
+   */
+  targetedInvalidation?: boolean;
 };
 
 const defaultLog = createLogger({ name: 'patch-db:sync' });
@@ -114,9 +121,13 @@ export class SyncPatchDb implements PatchDb {
     return this.local.compaction;
   }
 
+  private readonly local: PatchDb;
+  private readonly remote: PatchDb;
+
   private readonly log: Logger;
   private readonly logPushPollFailures: boolean;
   private readonly maxPushBatchSize: number;
+  private readonly targetedInvalidation: boolean;
   /** Stops subscription callbacks after {@link destroy} (e.g. HMR / teardown races). */
   private destroyed = false;
 
@@ -140,14 +151,17 @@ export class SyncPatchDb implements PatchDb {
   private pollConsecutiveFailures = 0;
 
   constructor(
-    private local: PatchDb,
-    private remote: PatchDb,
+    localBackend: PatchDb,
+    remoteBackend: PatchDb,
     private pubSub: PubSub,
     private options: SyncPatchDbOptions
   ) {
+    this.local = createPatchDbReadBatcher(localBackend);
+    this.remote = createPatchDbReadBatcher(remoteBackend);
     this.log = options.logger ?? defaultLog;
     this.logPushPollFailures = options.logPushPollFailures !== false;
     this.maxPushBatchSize = options.maxPushBatchSize ?? MAX_PATCHES_PER_REQUEST;
+    this.targetedInvalidation = options.targetedInvalidation === true;
     assert.ok(
       Number.isSafeInteger(this.maxPushBatchSize) &&
         this.maxPushBatchSize > 0 &&
@@ -162,6 +176,7 @@ export class SyncPatchDb implements PatchDb {
       read: singleResultReader(this.local),
       pubSub: this.pubSub,
       isDestroyed: () => this.destroyed,
+      targetedInvalidation: this.targetedInvalidation,
       onFirstSubscriber: () => this.ensurePollTimer(),
       onLastUnsubscribe: () => this.maybeStopPollTimer(),
       onHydratedEmptyOnce: () => {
@@ -265,7 +280,17 @@ export class SyncPatchDb implements PatchDb {
       },
     }));
     const result = await this.local.write(withUnsynced, ctx);
-    this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
+    const touched =
+      this.targetedInvalidation && result.accepted.length > 0
+        ? result.accepted.map((p) => ({
+            entityType: p.entityType,
+            entityId: p.entityId,
+          }))
+        : undefined;
+    this.pubSub.publish(PATCHES_DB_TOPIC, {
+      type: 'invalidated',
+      ...(touched !== undefined ? { touched } : {}),
+    });
     return result;
   }
 

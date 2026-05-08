@@ -26,7 +26,7 @@ export function ChessArtwork({ size = 96, ...props }: ChessArtworkProps) {
       <Rect x={1} y={0} width={1} height={1} fill={theme.darkSquare} />
 
       <Svg x={0} y={0} width={2} height={2} viewBox="0 0 45 45">
-        <G transform="translate(0 -2) scale(0.8)">
+        <G transform="translate(0 -2)">
           <Path
             fill={theme.pawn}
             stroke={theme.pawn}

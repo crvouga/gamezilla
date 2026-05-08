@@ -5,6 +5,7 @@
  */
 import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
+import { createPatchDbReadBatcher } from '@gamezilla/patch-db/scheduling/microtask-batcher';
 import { VisibilityPolicyRegistry } from '@gamezilla/patch-db/policy/visibility-policy-registry';
 import {
   DEFAULT_PATCH_DB_VISIBILITY_POLICIES,
@@ -35,16 +36,18 @@ export function installDefaultPatchDbPolicies(db: PatchDb): () => void {
 
 export type { AppAuthContext };
 
-let db: PatchDbImplPostgres | null = null;
+let innerPostgres: PatchDbImplPostgres | null = null;
+let batchedPatchDb: PatchDb | null = null;
 
-export function getPatchDb(databaseUrl: string): PatchDbImplPostgres {
-  if (db === null) {
+export function getPatchDb(databaseUrl: string): PatchDb {
+  if (innerPostgres === null) {
     const compaction = createGamezillaCompactionPolicyRegistry();
-    db = new PatchDbImplPostgres(getDb(databaseUrl), {
+    innerPostgres = new PatchDbImplPostgres(getDb(databaseUrl), {
       autoCompactOnWrite: true,
       compactionPolicy: compaction.resolve,
     });
-    installDefaultPatchDbPolicies(db);
+    installDefaultPatchDbPolicies(innerPostgres);
+    batchedPatchDb = createPatchDbReadBatcher(innerPostgres);
   }
-  return db;
+  return batchedPatchDb!;
 }

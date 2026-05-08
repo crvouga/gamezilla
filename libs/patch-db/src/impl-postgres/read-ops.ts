@@ -22,15 +22,148 @@ function toPatchRow(row: PatchRow): PatchRow {
   return { ...row, attributes: rowAttributesText(row) };
 }
 
+function isDefaultEntityView(q: PatchDbQuery): boolean {
+  return q.on !== 'patches';
+}
+
+function hasBareStringEntityId(q: PatchDbQuery): boolean {
+  return (
+    typeof q.entityId === 'string' &&
+    q.entityType !== undefined &&
+    q.entityType !== ''
+  );
+}
+
+function hasNoWhereOrOrderBy(q: PatchDbQuery): boolean {
+  return (
+    (q.where === null || q.where === undefined) &&
+    (q.orderBy === null || q.orderBy === undefined)
+  );
+}
+
+function hasNoKnownPatchHints(q: PatchDbQuery): boolean {
+  const kp = q.knownPatches;
+  if (kp !== null && kp !== undefined && kp.length > 0) return false;
+  const kpi = q.knownPatchIds;
+  if (kpi !== null && kpi !== undefined && kpi.length > 0) return false;
+  return true;
+}
+
+function hasAtomPaginationDefaults(q: PatchDbQuery): boolean {
+  if (q.after !== null && q.after !== undefined) return false;
+  if (q.offset !== null && q.offset !== undefined && q.offset !== 0) return false;
+  if (q.limit !== null && q.limit !== undefined && q.limit !== 1) return false;
+  return true;
+}
+
+function isBareSingleEntityAtomQuery(q: PatchDbQuery): boolean {
+  return (
+    isDefaultEntityView(q) &&
+    hasBareStringEntityId(q) &&
+    hasNoWhereOrOrderBy(q) &&
+    hasNoKnownPatchHints(q) &&
+    hasAtomPaginationDefaults(q)
+  );
+}
+
+function canExtendBareSingleEntityBatch(
+  queries: readonly PatchDbQuery[],
+  start: number,
+  idx: number
+): boolean {
+  if (idx <= start) return true;
+  const a = queries[start];
+  const b = queries[idx];
+  if (a === undefined || b === undefined) return false;
+  return (
+    isBareSingleEntityAtomQuery(a) &&
+    isBareSingleEntityAtomQuery(b) &&
+    a.entityType === b.entityType
+  );
+}
+
+async function readBareSingleEntityBatchPostgres(
+  sqlClient: SqlClient,
+  slice: readonly PatchDbQuery[]
+): Promise<PatchDbResult[]> {
+  const entityType = slice[0]?.entityType;
+  assert.ok(
+    entityType !== undefined && entityType !== '',
+    'readBareSingleEntityBatchPostgres: entityType required'
+  );
+  const pairs = slice.map((q) => ({
+    entity_id: q.entityId as string,
+    entity_type: entityType,
+  }));
+  const allPatches = await batchFetchPatchesForEntities(sqlClient, pairs);
+  const byKey = new Map<string, Patch[]>();
+  for (const p of allPatches) {
+    const k = `${p.entityId}\0${p.entityType}`;
+    let list = byKey.get(k);
+    if (list === undefined) {
+      list = [];
+      byKey.set(k, list);
+    }
+    list.push(p);
+  }
+
+  const keys = slice.map((q) => `${q.entityId as string}\0${entityType}`);
+  const entitiesOrdered = await batchFetchSnapshots(sqlClient, keys);
+  const entityByKey = new Map<string, Entity>(
+    entitiesOrdered.map((e) => [`${e.entityId}\0${e.entityType}`, e])
+  );
+
+  return slice.map((query) => {
+    const id = query.entityId as string;
+    const k = `${id}\0${entityType}`;
+    const patchList = byKey.get(k) ?? [];
+    const total = patchList.length;
+    const patchesOut = patchList.slice(0, 1);
+    const hasMore = computeHasMore(query, patchesOut.length, total);
+    const lastPatch = patchesOut[patchesOut.length - 1];
+    const nextCursor =
+      lastPatch !== null && lastPatch !== undefined ? lastPatch.patchId : null;
+    const entityKeysOrdered = computeOrderedEntityKeys(patchesOut);
+    const entities = entityKeysOrdered
+      .map((key) => entityByKey.get(key))
+      .filter((e): e is Entity => e !== undefined);
+    return {
+      query,
+      entities,
+      patches: patchesOut,
+      total,
+      hasMore,
+      nextCursor,
+    };
+  });
+}
+
 export async function readPatches(
   sqlClient: SqlClient,
   queries: PatchDbQuery[]
 ): Promise<PatchDbResult[]> {
   if (queries.length === 0) return [];
-  /** Sequential: each Neon/PGlite-HTTP query is a Worker subrequest; parallel bursts hit CF limits fast. */
-  const results: PatchDbResult[] = [];
-  for (const q of queries) {
-    results.push(await readOne(sqlClient, q));
+  const results: PatchDbResult[] = new Array(queries.length);
+  let i = 0;
+  while (i < queries.length) {
+    const start = i;
+    i += 1;
+    while (i < queries.length && canExtendBareSingleEntityBatch(queries, start, i)) {
+      i += 1;
+    }
+    const slice = queries.slice(start, i);
+    if (slice.length > 1) {
+      const batch = await readBareSingleEntityBatchPostgres(sqlClient, slice);
+      for (let k = 0; k < batch.length; k++) {
+        const r = batch[k];
+        assert.defined(r, 'batch result must exist', { k });
+        results[start + k] = r;
+      }
+    } else {
+      const q = slice[0];
+      assert.defined(q, 'slice must be non-empty');
+      results[start] = await readOne(sqlClient, q);
+    }
   }
   return results;
 }

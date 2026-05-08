@@ -7,3 +7,8 @@ export {
   type SyncPatchDbScheduleHandle,
   type SyncPatchDbScheduler,
 } from './impl-sync';
+export {
+  PATCHES_DB_TOPIC,
+  shouldSkipTargetedEntityReread,
+  type PatchDbInvalidationMessage,
+} from './active-query-registry';

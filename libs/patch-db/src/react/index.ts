@@ -7,11 +7,19 @@ export {
   type PatchDbQueryCacheOptions,
 } from './query-cache';
 export {
+  forceDetachPatchDbEntitySubscriptionsForDb,
+  getEntityStoreForDb,
+  PatchDbEntityStore,
+  type CachedEntitySnapshot,
+} from './entity-store';
+export {
   PatchDbStackContextProvider,
   usePatchDbStack,
   type PatchDbStackValue,
 } from './patch-db-stack-context';
 export { usePatchDb } from './use-patch-db';
+export { useEntity } from './use-entity';
+export { useEntityAttribute } from './use-entity-attribute';
 export { useQuery, type UseQueryResult } from './use-query';
 export { useQueryAttribute } from './use-query-attribute';
 export { useQueryAttributes } from './use-query-attributes';

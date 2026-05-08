@@ -6,6 +6,7 @@ import { ensureDeviceEntity } from '@gamezilla/client/auth/ensure-device-entity'
 import { ensureProfile } from '@gamezilla/client/auth/ensure-profile-entity';
 import { createSessionService } from '@gamezilla/client/auth/session-service';
 import { readSessionToken } from '@gamezilla/client/auth/session-token-storage';
+import { readLastLocalAccountId } from '@gamezilla/client/db/account-local-state';
 import { createKeyValueStorage } from '@gamezilla/client/runtime/create-key-value-storage';
 import {
   ACCOUNT_SESSION_ENTITY_TYPE,
@@ -13,6 +14,7 @@ import {
 } from '@gamezilla/domain/auth';
 import { createConfigService } from '@gamezilla/domain/config/config-service';
 import type { KeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
+import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { createLogger } from '@gamezilla/lib/logger/logger';
 import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
@@ -21,6 +23,7 @@ import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
 import { SyncPatchDb } from '@gamezilla/patch-db/impl-sync';
 import { PatchMetadataStamper } from '@gamezilla/patch-db/metadata/patch-metadata-stamper';
 import {
+  forceDetachPatchDbEntitySubscriptionsForDb,
   forceDetachPatchDbQuerySubscriptionsForDb,
   type PatchDbStackValue,
 } from '@gamezilla/patch-db/react';
@@ -82,10 +85,18 @@ let activePatchStackCleanup: PatchStackCleanupEntry | null = null;
 type SqlClientCleanupEntry = {
   id: string;
   accountKey: string;
+  client: SqlClient;
   disconnect: () => Promise<unknown>;
 };
 
 let activeSqlClientCleanup: SqlClientCleanupEntry | null = null;
+
+async function disconnectActiveSqlClientIfAny(): Promise<void> {
+  const prev = activeSqlClientCleanup;
+  if (prev === null) return;
+  activeSqlClientCleanup = null;
+  await prev.disconnect().catch(() => undefined);
+}
 
 function registerPatchStackCleanup(args: {
   stamper: PatchMetadataStamper;
@@ -99,6 +110,7 @@ function registerPatchStackCleanup(args: {
     if (cleaned) return;
     cleaned = true;
     forceDetachPatchDbQuerySubscriptionsForDb(stamper);
+    forceDetachPatchDbEntitySubscriptionsForDb(stamper);
     sync.destroy();
     if (activePatchStackCleanup?.id === stackId) {
       activePatchStackCleanup = null;
@@ -144,42 +156,61 @@ export const deviceServiceAtom = atom(async (get) => {
  */
 export const sqlClientAtom = atom(async (get, { signal }) => {
   const deviceService = await get(deviceServiceAtom);
-  const accountId = get(accountIdAtom);
-  const accountKey = accountId ?? '<anon>';
+  const storage = get(secureStorageAtom);
+  const fromAtom = get(accountIdAtom);
+  const fromDisk =
+    fromAtom === null ? await readLastLocalAccountId(storage) : null;
+  if (fromAtom === null && fromDisk !== null) {
+    getDefaultStore().set(accountIdAtom, fromDisk);
+  }
+  const forOpen = getDefaultStore().get(accountIdAtom) ?? fromDisk;
+  const accountKey = forOpen ?? '<anon>';
 
-  if (
-    activeSqlClientCleanup !== null &&
-    activeSqlClientCleanup.accountKey !== accountKey
-  ) {
-    const prev = activeSqlClientCleanup;
-    activeSqlClientCleanup = null;
-    void enqueueSqlClientLifecycle(() =>
-      prev.disconnect().catch(() => undefined)
-    );
+  /**
+   * Always close the previous handle on the shared expo-sqlite web worker
+   * before opening again when the **account file** changes. When the key is
+   * unchanged (e.g. `hydrateAccountIdEffect` racing this atom), reuse the live
+   * client so we do not disconnect/reopen the same file repeatedly.
+   */
+  const sql = await enqueueSqlClientLifecycle(async () => {
+    if (
+      activeSqlClientCleanup !== null &&
+      activeSqlClientCleanup.accountKey === accountKey
+    ) {
+      return activeSqlClientCleanup.client;
+    }
+    await disconnectActiveSqlClientIfAny();
+    const opened = await openSqlClientForPlatform({
+      getAccountId: () => getDefaultStore().get(accountIdAtom) ?? forOpen,
+      getDeviceId: () => deviceService.getDeviceId(),
+    });
+    // Register before returning so the next queued lifecycle job sees reuse
+    // (avoids a duplicate open in the window before this async atom resumes).
+    const id = `sql-${String(Date.now())}-${Math.random()
+      .toString(36)
+      .slice(2, 8)}`;
+    activeSqlClientCleanup = {
+      id,
+      accountKey,
+      client: opened,
+      disconnect: () => opened.disconnect(),
+    };
+    return opened;
+  });
+
+  const entry = activeSqlClientCleanup;
+  if (entry === null || entry.client !== sql) {
+    throw new Error('sqlClientAtom: lifecycle invariant failed');
   }
 
-  await sqlClientLifecycleTail;
-  const sql = await enqueueSqlClientLifecycle(() =>
-    openSqlClientForPlatform({
-      getAccountId: () => accountId,
-      getDeviceId: () => deviceService.getDeviceId(),
-    })
-  );
-
-  const id = `sql-${String(Date.now())}-${Math.random()
-    .toString(36)
-    .slice(2, 8)}`;
-  activeSqlClientCleanup = {
-    id,
-    accountKey,
-    disconnect: () => sql.disconnect(),
-  };
-
   signal.addEventListener('abort', () => {
-    if (activeSqlClientCleanup?.id === id) {
-      activeSqlClientCleanup = null;
+    if (activeSqlClientCleanup !== entry) {
+      return;
     }
-    void enqueueSqlClientLifecycle(() => sql.disconnect().catch(() => {}));
+    activeSqlClientCleanup = null;
+    void enqueueSqlClientLifecycle(() =>
+      entry.client.disconnect().catch(() => {})
+    );
   });
   return sql;
 });

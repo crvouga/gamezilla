@@ -21,8 +21,6 @@ import {
   assertAttribute,
   assertEntityKey,
   assertPatchId,
-  getPatchTopLevelFromAttributes,
-  normalizePatchAttributesForStorage,
   OPEN_PATCHES_DB_CONTEXT,
   PATCH_META_KEYS,
 } from '../interface';
@@ -32,6 +30,10 @@ import { DEFAULT_PATCH_DB_COMPACTION_POLICY } from '../policy/compaction-policy'
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '../policy/system-device';
 import { finishCompactionAfterInsert } from '../compact-entity-tx-helpers';
 import { topologicalSortPatches } from '../topological-sort';
+import {
+  accumulateWritePatchesPostgres,
+  type PatchInsertBatchRow,
+} from './accumulate-write-patches-postgres';
 import { migratePatchDbPostgres } from './migrate';
 import { readPatches } from './read-ops';
 import {
@@ -46,16 +48,6 @@ import {
   RESOLVE_PARENT_ID,
   SELECT_PATCHES_FOR_SNAPSHOT,
 } from './sql-constants';
-
-type PatchInsertBatchRow = {
-  patch_id: string;
-  entity_id: string;
-  entity_type: string;
-  attributes: Record<string, unknown>;
-  created_at: string;
-  recorded_at: string;
-  parent_id: string | null;
-};
 
 export class PatchDbImplPostgres implements PatchDb {
   readonly hooks = new PatchDbHookRegistry();
@@ -132,44 +124,6 @@ export class PatchDbImplPostgres implements PatchDb {
     await tx.run(INSERT_PATCHES_BATCH, [JSON.stringify(rows)]);
   }
 
-  private async resolveWriteParentId(
-    tx: SqlClient,
-    patch: PatchInput,
-    parentCache: Map<string, string | null>,
-    patchIdsInBatch: ReadonlySet<string>
-  ): Promise<string | null> {
-    const isSyncedPatch =
-      'patchId' in patch &&
-      'parentId' in patch &&
-      typeof patch.patchId === 'string';
-    if (isSyncedPatch) {
-      const clientParent =
-        typeof patch.parentId === 'string' ? patch.parentId : null;
-      if (clientParent === null) {
-        return null;
-      }
-      if (patchIdsInBatch.has(clientParent)) {
-        return clientParent;
-      }
-      const parentRow = await tx.query<{ one: number }>(
-        `SELECT 1 AS one FROM patches WHERE patch_id = ? LIMIT 1`,
-        [clientParent]
-      );
-      if (parentRow.length > 0) {
-        return clientParent;
-      }
-      const key = `${patch.entityId}\0${patch.entityType}`;
-      if (!parentCache.has(key)) {
-        parentCache.set(
-          key,
-          await this.resolveParentId(tx, patch.entityId, patch.entityType)
-        );
-      }
-      return parentCache.get(key)!;
-    }
-    return await this.resolveParentId(tx, patch.entityId, patch.entityType);
-  }
-
   private bumpWriteTimestamps(
     patch: PatchInput,
     lastTimestamp: number
@@ -194,55 +148,15 @@ export class PatchDbImplPostgres implements PatchDb {
     batchRows: PatchInsertBatchRow[];
     touchedEntities: Set<string>;
   }> {
-    const writtenPatches: Patch[] = [];
-    const batchRows: PatchInsertBatchRow[] = [];
-    const touchedEntities = new Set<string>();
-    const parentCache = new Map<string, string | null>();
-    const patchIdsInBatch = new Set<string>();
-    for (const p of sorted) {
-      if ('patchId' in p && typeof p.patchId === 'string') {
-        patchIdsInBatch.add(p.patchId);
-      }
-    }
-    let lastTimestamp = Date.now() - 1;
-    for (const patch of sorted) {
-      const entityKey = `${patch.entityId}\0${patch.entityType}`;
-      const parentId = await this.resolveWriteParentId(
-        tx,
-        patch,
-        parentCache,
-        patchIdsInBatch
-      );
-      const ts = this.bumpWriteTimestamps(patch, lastTimestamp);
-      lastTimestamp = ts.lastTimestamp;
-      const storedAttributes = normalizePatchAttributesForStorage(patch);
-      const { createdBy, sessionId } =
-        getPatchTopLevelFromAttributes(storedAttributes);
-      const patchId =
-        'patchId' in patch && typeof patch.patchId === 'string'
-          ? patch.patchId
-          : crypto.randomUUID();
-      writtenPatches.push({
-        ...patch,
-        patchId,
-        parentId,
-        createdAt: ts.now,
-        recordedAt: ts.recordedAt,
-        createdBy,
-        sessionId,
-      });
-      batchRows.push({
-        patch_id: patchId,
-        entity_id: patch.entityId,
-        entity_type: patch.entityType,
-        attributes: storedAttributes,
-        created_at: ts.now,
-        recorded_at: ts.recordedAt,
-        parent_id: parentId,
-      });
-      touchedEntities.add(entityKey);
-    }
-    return { writtenPatches, batchRows, touchedEntities };
+    return accumulateWritePatchesPostgres(
+      {
+        resolveParentId: (t, entityId, entityType) =>
+          this.resolveParentId(t, entityId, entityType),
+        bumpWriteTimestamps: (p, t) => this.bumpWriteTimestamps(p, t),
+      },
+      tx,
+      sorted
+    );
   }
 
   private async compactEntityInTx(

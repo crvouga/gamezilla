@@ -2,6 +2,7 @@ import { assert } from '@gamezilla/lib/assert';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { assertWhereFragment } from '@gamezilla/lib/sqlite';
 import type { Entity, Patch, PatchDbQuery, PatchDbResult } from '../interface';
+import { entityIdTypeOrWhere } from './entity-pair-or-sql';
 import { toEntity, toPatch } from './mappers';
 import {
   buildLimitSQL,
@@ -17,12 +18,12 @@ export async function readPatches(
   queries: PatchDbQuery[]
 ): Promise<PatchDbResult[]> {
   if (queries.length === 0) return [];
-  /** Sequential: each PGlite-HTTP / Neon query is a Worker subrequest when used from the API. */
-  const results: PatchDbResult[] = [];
+  /** Serialize reads: expo-sqlite web shares one worker; overlapping statements can finalize badly. */
+  const out: PatchDbResult[] = [];
   for (const q of queries) {
-    results.push(await readOne(sqlClient, q));
+    out.push(await readOne(sqlClient, q));
   }
-  return results;
+  return out;
 }
 
 async function readOne(
@@ -309,10 +310,10 @@ export async function batchFetchSnapshots(
 ): Promise<Entity[]> {
   if (entityKeys.length === 0) return [];
   const pairs = entityKeysToPairs(entityKeys);
-  const placeholders = pairs.map(() => '(?, ?)').join(', ');
+  const orWhere = entityIdTypeOrWhere('', pairs.length);
   const params = pairs.flatMap(([id, type]) => [id, type]);
   const rows = await sqlClient.query<SnapshotRow>(
-    `SELECT * FROM snapshots WHERE (entity_id, entity_type) IN (VALUES ${placeholders})`,
+    `SELECT * FROM snapshots WHERE ${orWhere}`,
     params
   );
   const map = new Map<string, SnapshotRow>();
@@ -350,14 +351,13 @@ async function batchFetchPatchesForEntities(
   entities: readonly { entity_id: string; entity_type: string }[]
 ): Promise<Patch[]> {
   if (entities.length === 0) return [];
-  const placeholders = entities.map(() => '(?, ?)').join(', ');
+  const orWhere = entityIdTypeOrWhere('p', entities.length);
   const params = entities.flatMap((r) => [r.entity_id, r.entity_type]);
   const patchRows = await sqlClient.query<PatchRow>(
     `WITH RECURSIVE lineage AS (
-          SELECT patch_id, entity_id, entity_type, 0 AS depth
-          FROM patches
-          WHERE (entity_id, entity_type) IN (VALUES ${placeholders})
-            AND parent_id IS NULL
+          SELECT p.patch_id, p.entity_id, p.entity_type, 0 AS depth
+          FROM patches p
+          WHERE p.parent_id IS NULL AND (${orWhere})
           UNION ALL
           SELECT p.patch_id, p.entity_id, p.entity_type, l.depth + 1
           FROM patches p

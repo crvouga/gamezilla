@@ -32,7 +32,6 @@ export function SpaceTitleText({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
     attributeKey: SpaceAttr.title.key,
-
     parse: SpaceAttr.title.parse,
   });
   if (customTitle !== null) {
