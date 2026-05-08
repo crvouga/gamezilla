@@ -43,14 +43,13 @@ function useRootItems(openPuzzleMenu: () => void): readonly MainMenuItem[] {
 
 const PUZZLE_ITEMS: readonly MainMenuItem[] = [
   {
-    key: 'daily-puzzle',
-    title: <Trans>Daily Puzzle</Trans>,
-    caption: <Trans>Coming soon</Trans>,
-    disabled: true,
+    key: 'play',
+    title: <Trans>Play</Trans>,
+    onPress() {},
   },
   {
-    key: 'practice-puzzles',
-    title: <Trans>Practice Puzzles</Trans>,
+    key: 'profile',
+    title: <Trans>Profile</Trans>,
     caption: <Trans>Coming soon</Trans>,
     disabled: true,
   },
