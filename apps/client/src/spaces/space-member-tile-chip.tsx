@@ -1,52 +1,55 @@
-import { DeviceAvatar } from '@gamezilla/client/profile/device-avatar';
-import { Box, StatusDot, Text } from '@gamezilla/lib/ui';
-
-import { MemberPresenceBadges } from './space-member-presence-badges';
-import type { SpaceMemberRow } from './types';
+import { UserDisplayName } from '@gamezilla/client/profile/user-display-name';
+import { UserProfileAvatar } from '@gamezilla/client/profile/user-profile-avatar';
+import { MemberPresenceBadgesRow } from '@gamezilla/client/spaces/member-presence-badges-row';
+import { MemberPresenceDot } from '@gamezilla/client/spaces/member-presence-dot';
+import { MemberThisTabHighlight } from '@gamezilla/client/spaces/member-this-tab-highlight';
+import { Box } from '@gamezilla/lib/ui';
+import type { ReactNode } from 'react';
 
 export type SpaceMemberTileChipProps = {
-  member: SpaceMemberRow;
-  online: boolean;
-  sessionCount: number;
-  thisTab: boolean;
-  isYou: boolean;
+  spaceId: string;
+  profileId: string;
 };
 
+const CHIP_RADIUS = 12;
+const AVATAR_SIZE = 36;
+const ONLINE_DOT_SIZE = 8;
+
+/** Chip-style member tile keyed by `(spaceId, profileId)` — pure layout. */
 export function SpaceMemberTileChip({
-  member,
-  online,
-  sessionCount,
-  thisTab,
-  isYou,
-}: SpaceMemberTileChipProps) {
+  spaceId,
+  profileId,
+}: SpaceMemberTileChipProps): ReactNode {
   return (
-    <Box
-      sx={{
-        alignItems: 'center',
-        gap: 1,
-        borderRadius: 12,
-        px: 2,
-        py: 1,
-        minWidth: 56,
-        borderWidth: thisTab ? 2 : 0,
-        borderColor: thisTab ? 'primary' : 'transparent',
-      }}
+    <MemberThisTabHighlight
+      spaceId={spaceId}
+      profileId={profileId}
+      borderRadius={CHIP_RADIUS}
     >
-      <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
-        {online ? <StatusDot status="online" size={8} /> : null}
-        <DeviceAvatar
-          avatarConfig={member.avatarConfig}
-          seedFallback={member.memberId}
-          size={36}
+      <Box
+        sx={{
+          alignItems: 'center',
+          gap: 1,
+          px: 2,
+          py: 1,
+          minWidth: 56,
+        }}
+      >
+        <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
+          <MemberPresenceDot
+            spaceId={spaceId}
+            profileId={profileId}
+            size={ONLINE_DOT_SIZE}
+          />
+          <UserProfileAvatar profileId={profileId} size={AVATAR_SIZE} />
+        </Box>
+        <UserDisplayName
+          profileId={profileId}
+          variant="caption"
+          numberOfLines={1}
         />
+        <MemberPresenceBadgesRow spaceId={spaceId} profileId={profileId} />
       </Box>
-      <Text variant="caption" numberOfLines={1} label={member.displayName} />
-      <MemberPresenceBadges
-        member={member}
-        sessionCount={sessionCount}
-        thisTab={thisTab}
-        isYou={isYou}
-      />
-    </Box>
+    </MemberThisTabHighlight>
   );
 }

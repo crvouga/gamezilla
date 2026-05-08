@@ -1,20 +1,13 @@
-import { DeviceAvatar } from '@gamezilla/client/profile/device-avatar';
-import { useProfile } from '@gamezilla/client/profile/use-profile';
+import { MyDisplayName } from '@gamezilla/client/profile/my-display-name';
+import { MyProfileAvatar } from '@gamezilla/client/profile/my-profile-avatar';
 import { useAccountActions } from '@gamezilla/client/ui/use-account-actions';
-import {
-  Box,
-  Button,
-  ScreenBase,
-  Text,
-  useBreakpoint,
-} from '@gamezilla/lib/ui';
+import { Box, Button, ScreenBase, useBreakpoint } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 
 export function ProfileScreen() {
   const { t } = useLingui();
   const router = useRouter();
-  const profile = useProfile();
   const accountActions = useAccountActions();
   const isMobile = useBreakpoint() === 'mobile';
 
@@ -25,12 +18,8 @@ export function ProfileScreen() {
       content={({ sx }) => (
         <Box style={sx}>
           <Box sx={{ alignItems: 'center', gap: 2 }}>
-            <DeviceAvatar
-              avatarConfig={profile.avatarConfig}
-              seedFallback={profile.profileId ?? profile.deviceId}
-              size={80}
-            />
-            <Text variant="title" label={profile.displayLabel} />
+            <MyProfileAvatar size={80} />
+            <MyDisplayName variant="title" />
           </Box>
           <Box sx={{ mt: 2, alignSelf: 'stretch' }}>
             <Button

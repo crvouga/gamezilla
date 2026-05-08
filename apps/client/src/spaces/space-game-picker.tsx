@@ -1,3 +1,5 @@
+import { useSpaceRoomState } from '@gamezilla/client/spaces/space-room-context';
+import { useCurrentSpaceRole } from '@gamezilla/client/spaces/use-current-space-role';
 import {
   SpaceGame,
   type SelectedSpaceGame,
@@ -161,23 +163,25 @@ function ChessMainMenu({
   );
 }
 
-export function SpaceGamePicker({
-  isHost,
-  selectedGame,
-  onSelectGame,
-}: {
-  isHost: boolean;
-  selectedGame: SelectedSpaceGame;
-  onSelectGame: (game: SelectedSpaceGame) => void;
-}) {
+export type SpaceGamePickerProps = {
+  spaceId: string;
+};
+
+/** Game picker for a space. Reads shared room state via context. */
+export function SpaceGamePicker({ spaceId }: SpaceGamePickerProps): ReactNode {
+  const role = useCurrentSpaceRole(spaceId);
+  const isHost = role === 'host';
+  const room = useSpaceRoomState();
+  if (room === null) return null;
+  const { selectedGame, selectGame } = room;
   if (selectedGame === SpaceGame.chess) {
-    return <ChessMainMenu isHost={isHost} onBack={() => onSelectGame(null)} />;
+    return <ChessMainMenu isHost={isHost} onBack={() => selectGame(null)} />;
   }
   return (
     <GamesGrid
       isHost={isHost}
       selectedGame={selectedGame}
-      onSelectGame={onSelectGame}
+      onSelectGame={selectGame}
     />
   );
 }

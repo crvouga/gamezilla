@@ -1,0 +1,62 @@
+import { parseDisplayName } from '@gamezilla/client/profile/profile-parsers';
+import { optionalProps } from '@gamezilla/client/ui/optional-props';
+import {
+  PROFILE_ENTITY_TYPE,
+  ProfileAttr,
+} from '@gamezilla/domain/profile/profile-entities';
+import { Text, type SxProps, type TextVariant } from '@gamezilla/lib/ui';
+import { useQueryAttribute } from '@gamezilla/patch-db/react';
+import type { ReactNode } from 'react';
+
+export type UserDisplayNameProps = {
+  /** Profile entity id (account or install id). `null` renders nothing. */
+  profileId: string | null;
+  variant?: TextVariant;
+  sx?: SxProps;
+  numberOfLines?: number;
+};
+
+/**
+ * Renders the persisted `profile/displayName` for a profile id.
+ * Returns `null` when no profile id is supplied; renders an empty `Text` when
+ * the row hasn't synced (so layout positioning stays stable).
+ */
+export function UserDisplayName({
+  profileId,
+  variant,
+  sx,
+  numberOfLines,
+}: UserDisplayNameProps): ReactNode {
+  if (profileId === null) return null;
+  return (
+    <UserDisplayNameInner
+      profileId={profileId}
+      {...optionalProps({ variant, sx, numberOfLines })}
+    />
+  );
+}
+
+function UserDisplayNameInner({
+  profileId,
+  variant,
+  sx,
+  numberOfLines,
+}: {
+  profileId: string;
+  variant?: TextVariant;
+  sx?: SxProps;
+  numberOfLines?: number;
+}): ReactNode {
+  const displayName = useQueryAttribute({
+    entityType: PROFILE_ENTITY_TYPE,
+    entityId: profileId,
+    attributeKey: ProfileAttr.displayName,
+    attributeValue: parseDisplayName,
+  });
+  return (
+    <Text
+      {...optionalProps({ variant, sx, numberOfLines })}
+      label={displayName}
+    />
+  );
+}

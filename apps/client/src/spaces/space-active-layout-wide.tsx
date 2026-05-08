@@ -1,19 +1,13 @@
+import { SpaceSessionMemberRail } from '@gamezilla/client/spaces/space-session-member-rail';
+import { SpaceWideRailFooter } from '@gamezilla/client/spaces/space-wide-rail-footer';
+import { SpaceWideRailHeader } from '@gamezilla/client/spaces/space-wide-rail-header';
 import { Box } from '@gamezilla/lib/ui';
 import type { ReactNode } from 'react';
-
-import { SpaceSessionMemberRail } from './space-session-member-rail';
-import { SpaceWideRailFooter } from './space-wide-rail-footer';
-import { SpaceWideRailHeader } from './space-wide-rail-header';
-import type { SpaceMemberRow } from './types';
-import type { MemberPresenceFlags } from './use-member-presence-flags';
 
 const RAIL_WIDTH = 276;
 
 export type SpaceActiveLayoutWideProps = {
-  spaceTitle: string;
-  host: SpaceMemberRow | null;
-  guests: SpaceMemberRow[];
-  flags: Map<string, MemberPresenceFlags>;
+  spaceId: string;
   isHost: boolean;
   onRequestEnd: () => void;
   onRequestLeave: () => void;
@@ -23,17 +17,14 @@ export type SpaceActiveLayoutWideProps = {
 };
 
 export function SpaceActiveLayoutWide({
-  spaceTitle,
-  host,
-  guests,
-  flags,
+  spaceId,
   isHost,
   onRequestEnd,
   onRequestLeave,
   onPressHome,
   onPressDebug,
   children,
-}: SpaceActiveLayoutWideProps) {
+}: SpaceActiveLayoutWideProps): ReactNode {
   return (
     <Box sx={{ flex: 1, minHeight: 0, flexDirection: 'row' }}>
       <Box
@@ -47,11 +38,11 @@ export function SpaceActiveLayoutWide({
         }}
       >
         <SpaceWideRailHeader
-          spaceTitle={spaceTitle}
+          spaceId={spaceId}
           onPressHome={onPressHome}
         />
         <Box sx={{ flex: 1, minHeight: 0 }}>
-          <SpaceSessionMemberRail host={host} guests={guests} flags={flags} />
+          <SpaceSessionMemberRail spaceId={spaceId} />
         </Box>
         <SpaceWideRailFooter
           isHost={isHost}

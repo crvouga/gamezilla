@@ -1,22 +1,8 @@
-import type { AccountDevice } from '@gamezilla/client/auth/use-account-devices';
-import type { AccountSessionAggregate } from '@gamezilla/client/auth/use-device-account-sessions';
-import {
-  Badge,
-  Box,
-  Card,
-  CopyToClipboardField,
-  IconSymbol,
-  MenuRow,
-  Text,
-} from '@gamezilla/lib/ui';
-import { useTheme } from '@gamezilla/lib/ui/theme';
+import { AccountDeviceMenuRow } from '@gamezilla/client/account/account-device-menu-row';
+import { useAccountDeviceIds } from '@gamezilla/client/account/use-account-device-ids';
+import { Box, Card, CopyToClipboardField, Text } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
-import {
-  formatDeviceListCaption,
-  formatDeviceListTitle,
-  formatTimestamp,
-} from './account-format';
 
 function CaptionLine({ label }: { label: ReactNode }) {
   return (
@@ -24,72 +10,18 @@ function CaptionLine({ label }: { label: ReactNode }) {
   );
 }
 
-function formatSessionCaption(
-  sessionInfo: AccountSessionAggregate | undefined,
-  t: ReturnType<typeof useLingui>['t']
-): string {
-  if (sessionInfo === undefined || sessionInfo.active === 0) {
-    return t`No active session`;
-  }
-  const active = sessionInfo.active;
-  const expires = formatTimestamp(sessionInfo.latestExpiresAt);
-  return t`${active} active — expires ${expires}`;
-}
-
-function DeviceMenuRow({
-  userDevice: p,
-  sessionInfo,
-  onOpenDevice,
-}: {
-  userDevice: AccountDevice;
-  sessionInfo: AccountSessionAggregate | undefined;
+export type AccountDevicesCardProps = {
+  accountId: string | null;
   onOpenDevice: (deviceId: string) => void;
-}) {
-  const { t } = useLingui();
-  const theme = useTheme();
-  const caption = [
-    formatDeviceListCaption(p),
-    formatSessionCaption(sessionInfo, t),
-  ].join(' · ');
-  return (
-    <MenuRow
-      title={formatDeviceListTitle(p)}
-      caption={caption}
-      trailing={
-        <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-          {p.isCurrentDevice ? (
-            <Badge label={<Trans>This device</Trans>} color="info" size="sm" />
-          ) : null}
-          <IconSymbol
-            name="chevron.right"
-            size={20}
-            color={theme.colors.icon}
-          />
-        </Box>
-      }
-      onPress={() => {
-        onOpenDevice(p.entityId);
-      }}
-      accessibilityLabel={(() => {
-        const deviceTitle = formatDeviceListTitle(p);
-        return t`Device ${deviceTitle}`;
-      })()}
-    />
-  );
-}
+};
 
+/** Devices section for the account screen — pure layout + atoms. */
 export function AccountDevicesCard({
   accountId,
-  devices,
-  sessionsByDevice,
   onOpenDevice,
-}: {
-  accountId: string | null;
-  devices: AccountDevice[];
-  sessionsByDevice: Map<string, AccountSessionAggregate>;
-  onOpenDevice: (deviceId: string) => void;
-}) {
+}: AccountDevicesCardProps): ReactNode {
   const { t } = useLingui();
+  const deviceIds = useAccountDeviceIds(accountId);
 
   return (
     <Card elevation={1} sx={{ p: 4, gap: 3 }}>
@@ -117,15 +49,14 @@ export function AccountDevicesCard({
           }
         />
       )}
-      {devices.length === 0 ? (
+      {deviceIds.length === 0 ? (
         <CaptionLine label={<Trans>No device data yet.</Trans>} />
       ) : (
         <Box sx={{ gap: 0, pt: 2 }}>
-          {devices.map((p) => (
-            <DeviceMenuRow
-              key={p.entityId}
-              userDevice={p}
-              sessionInfo={sessionsByDevice.get(p.entityId)}
+          {deviceIds.map((deviceId) => (
+            <AccountDeviceMenuRow
+              key={deviceId}
+              deviceId={deviceId}
               onOpenDevice={onOpenDevice}
             />
           ))}

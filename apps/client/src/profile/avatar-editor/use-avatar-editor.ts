@@ -18,15 +18,19 @@ import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
 } from '@gamezilla/domain/profile/profile-entities';
+import { useDeviceService } from '@gamezilla/client/runtime/runtime-hooks';
 import { usePatchDb } from '@gamezilla/patch-db/react';
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { useProfile } from '../use-profile';
+import { useMyProfileId } from '../use-my-profile-id';
+import { useProfileEntityById } from '../use-profile-entity-by-id';
 
 function usePersistedConfig() {
-  const { deviceId, profileId, entity } = useProfile();
+  const profileId = useMyProfileId();
+  const deviceId = useDeviceService().getDeviceId();
+  const entity = useProfileEntityById(profileId);
   const persisted = useMemo(() => {
     const attrs = entity?.attributes as Record<string, unknown> | undefined;
     const parsed = parseAvatarConfigAttr(attrs, ProfileAttr.avatarConfig);

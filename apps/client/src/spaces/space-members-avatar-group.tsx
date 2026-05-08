@@ -1,32 +1,29 @@
-import { DeviceAvatar } from '@gamezilla/client/profile/device-avatar';
+import { SpaceGuestMembershipAvatar } from '@gamezilla/client/spaces/space-guest-membership-avatar';
+import { SpaceHostAvatar } from '@gamezilla/client/spaces/space-host-avatar';
+import { SpaceMembersListModal } from '@gamezilla/client/spaces/space-members-list-modal';
+import { useSpaceGuestMembershipIds } from '@gamezilla/client/spaces/use-space-guest-membership-ids';
 import { AvatarGroup, Pressable } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';
-import { useState } from 'react';
-
-import { SpaceMembersListModal } from './space-members-list-modal';
-import type { SpaceMemberRow } from './types';
-import type { MemberPresenceFlags } from './use-member-presence-flags';
+import { useState, type ReactNode } from 'react';
 
 export type SpaceMembersAvatarGroupProps = {
-  orderedMembers: SpaceMemberRow[];
-  host: SpaceMemberRow | null;
-  guests: SpaceMemberRow[];
-  flags: Map<string, MemberPresenceFlags>;
+  spaceId: string;
 };
 
 const AVATAR_SIZE = 36;
 const MAX_VISIBLE = 4;
-/** Theme token for avatar ring; extracted so eslint lingui does not treat as user-facing copy. */
 const AVATAR_GROUP_RING = 'surface' as const;
 
+/**
+ * Stacked avatar pill (host + guests) for the active space header. Clicking
+ * opens the full members list modal.
+ */
 export function SpaceMembersAvatarGroup({
-  orderedMembers,
-  host,
-  guests,
-  flags,
-}: SpaceMembersAvatarGroupProps) {
+  spaceId,
+}: SpaceMembersAvatarGroupProps): ReactNode {
   const { t } = useLingui();
   const [open, setOpen] = useState(false);
+  const membershipIds = useSpaceGuestMembershipIds(spaceId);
 
   return (
     <>
@@ -40,22 +37,20 @@ export function SpaceMembersAvatarGroup({
           maxVisible={MAX_VISIBLE}
           ringColor={AVATAR_GROUP_RING}
         >
-          {orderedMembers.map((m) => (
-            <DeviceAvatar
-              key={m.memberId}
-              avatarConfig={m.avatarConfig}
-              seedFallback={m.memberId}
+          <SpaceHostAvatar spaceId={spaceId} size={AVATAR_SIZE} />
+          {membershipIds.map((mid) => (
+            <SpaceGuestMembershipAvatar
+              key={mid}
+              membershipId={mid}
               size={AVATAR_SIZE}
             />
           ))}
         </AvatarGroup>
       </Pressable>
       <SpaceMembersListModal
+        spaceId={spaceId}
         visible={open}
         onClose={() => setOpen(false)}
-        host={host}
-        guests={guests}
-        flags={flags}
       />
     </>
   );

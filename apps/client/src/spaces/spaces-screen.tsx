@@ -1,9 +1,7 @@
 import { useSpaceActions } from '@gamezilla/client/spaces/space-actions';
 import { SpaceCard } from '@gamezilla/client/spaces/space-card';
-import {
-  useCurrentSpaces,
-  useSpaces,
-} from '@gamezilla/client/spaces/use-spaces';
+import { useCurrentSpaceCount } from '@gamezilla/client/spaces/use-current-space-count';
+import { useLiveSpaceIds } from '@gamezilla/client/spaces/use-live-space-ids';
 import { useAccountActions } from '@gamezilla/client/ui/use-account-actions';
 import {
   Box,
@@ -17,13 +15,8 @@ import {
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 
-type Space = ReturnType<typeof useSpaces>['spaces'][number];
-
-type SpacesListProps = {
-  spaces: Space[];
-};
-
-function SpacesList({ spaces }: SpacesListProps) {
+function SpacesList() {
+  const spaceIds = useLiveSpaceIds();
   return (
     <ScrollView
       style={{ flex: 1 }}
@@ -32,7 +25,7 @@ function SpacesList({ spaces }: SpacesListProps) {
         gap: 12,
       }}
     >
-      {spaces.length === 0 ? (
+      {spaceIds.length === 0 ? (
         <Box sx={{ py: 8, alignItems: 'center' }}>
           <Text
             variant="body"
@@ -41,9 +34,9 @@ function SpacesList({ spaces }: SpacesListProps) {
           />
         </Box>
       ) : (
-        spaces.map((space) => (
-          <Box key={space.id} sx={{ mb: 3 }}>
-            <SpaceCard space={space} />
+        spaceIds.map((spaceId) => (
+          <Box key={spaceId} sx={{ mb: 3 }}>
+            <SpaceCard spaceId={spaceId} />
           </Box>
         ))
       )}
@@ -55,13 +48,11 @@ export function SpacesScreen() {
   const accountActions = useAccountActions();
   const isMobile = useBreakpoint() === 'mobile';
   const router = useRouter();
-  const { spaces } = useSpaces();
-  const { entries } = useCurrentSpaces();
   const { createSpace } = useSpaceActions();
   const { t } = useLingui();
   const theme = useTheme();
-
-  const alreadyInSpace = entries.length > 0;
+  const currentSpaceCount = useCurrentSpaceCount();
+  const alreadyInSpace = currentSpaceCount > 0;
 
   const onNewSpace = async () => {
     if (alreadyInSpace) return;
@@ -108,7 +99,7 @@ export function SpacesScreen() {
           ) : (
             <Box sx={{ mb: 4 }} />
           )}
-          <SpacesList spaces={spaces} />
+          <SpacesList />
         </Box>
       )}
     />

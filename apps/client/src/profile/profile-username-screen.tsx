@@ -1,4 +1,5 @@
-import { useProfile } from '@gamezilla/client/profile/use-profile';
+import { useMyProfileId } from '@gamezilla/client/profile/use-my-profile-id';
+import { useProfileEntityById } from '@gamezilla/client/profile/use-profile-entity-by-id';
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 import {
   PROFILE_ENTITY_TYPE,
@@ -22,7 +23,7 @@ import {
   type ReactNode,
 } from 'react';
 
-function useSyncedDisplayName(entity: Entity | null | undefined) {
+function useSyncedDisplayName(entity: Entity | null) {
   const [value, setValue] = useState('');
   const lastPersistedRef = useRef<string | null>(null);
 
@@ -31,9 +32,6 @@ function useSyncedDisplayName(entity: Entity | null | undefined) {
     const raw = entity.attributes[ProfileAttr.displayName];
     const persisted = typeof raw === 'string' ? raw : '';
     const prev = lastPersistedRef.current;
-    // First hydration: only seed the input if the user hasn't started
-    // typing yet, otherwise we'd clobber in-progress input as soon as the
-    // patch-db query resolves.
     if (prev === null) {
       setValue((current) => (current === '' ? persisted : current));
       lastPersistedRef.current = persisted;
@@ -75,7 +73,8 @@ function ProfileUsernameScreenBody({
 export function ProfileUsernameScreen() {
   const router = useRouter();
   const db = usePatchDb();
-  const { profileId, entity } = useProfile();
+  const profileId = useMyProfileId();
+  const entity = useProfileEntityById(profileId);
   const [saving, setSaving] = useState(false);
   const [value, setValue] = useSyncedDisplayName(entity);
   const nav = useBreadcrumbNav();

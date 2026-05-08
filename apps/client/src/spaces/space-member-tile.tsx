@@ -1,19 +1,21 @@
-import type { SpaceMemberRow } from './types';
-import { SpaceMemberTileChip } from './space-member-tile-chip';
-import { SpaceMemberTileRail } from './space-member-tile-rail';
+import { SpaceMemberTileChip } from '@gamezilla/client/spaces/space-member-tile-chip';
+import { SpaceMemberTileRail } from '@gamezilla/client/spaces/space-member-tile-rail';
+import type { ReactNode } from 'react';
 
 export type SpaceMemberTileProps = {
-  member: SpaceMemberRow;
-  online: boolean;
-  sessionCount: number;
-  thisTab: boolean;
-  isYou: boolean;
+  spaceId: string;
+  profileId: string;
   variant: 'chip' | 'rail';
 };
 
-export function SpaceMemberTile({ variant, ...rest }: SpaceMemberTileProps) {
+/** Variant-dispatched member tile (id-keyed). */
+export function SpaceMemberTile({
+  spaceId,
+  profileId,
+  variant,
+}: SpaceMemberTileProps): ReactNode {
   if (variant === 'chip') {
-    return <SpaceMemberTileChip {...rest} />;
+    return <SpaceMemberTileChip spaceId={spaceId} profileId={profileId} />;
   }
-  return <SpaceMemberTileRail {...rest} />;
+  return <SpaceMemberTileRail spaceId={spaceId} profileId={profileId} />;
 }

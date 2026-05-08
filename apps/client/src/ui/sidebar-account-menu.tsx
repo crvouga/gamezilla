@@ -1,18 +1,20 @@
 /**
- * Wide-layout sidebar user row + {@link FloatingMenu} (same entries as header overflow).
+ * Wide-layout sidebar account row + {@link FloatingMenu} (same entries as
+ * header overflow). Pure layout — composes id-driven atoms for the trigger
+ * (avatar + name) and the menu header.
  */
 
+import { useAuth } from '@gamezilla/client/auth/auth-context';
 import { useServerStatus } from '@gamezilla/client/connection/use-server-status';
 import { useLogger } from '@gamezilla/client/runtime/runtime-hooks';
-import { asLocalized } from '@gamezilla/lib/i18n';
+import { SidebarAccountMenuHeader } from '@gamezilla/client/ui/sidebar-account-menu-header';
+import { SidebarAccountTrigger } from '@gamezilla/client/ui/sidebar-account-trigger';
+import { useAsync } from '@gamezilla/lib/async/use-async';
 import {
   Box,
   FloatingMenu,
-  IconSymbol,
-  Pressable,
   StatusDot,
   Text,
-  useTheme,
   type FloatingMenuContent,
 } from '@gamezilla/lib/ui';
 import { t } from '@lingui/core/macro';
@@ -27,15 +29,9 @@ import {
 } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useAuth } from '@gamezilla/client/auth/auth-context';
-import { DeviceAvatar } from '@gamezilla/client/profile/device-avatar';
-import { useProfile } from '@gamezilla/client/profile/use-profile';
-import { useAsync } from '@gamezilla/lib/async/use-async';
-
 type AnchorRect = { x: number; y: number; width: number; height: number };
 
 type Auth = ReturnType<typeof useAuth>;
-type Profile = ReturnType<typeof useProfile>;
 type ServerStatus = ReturnType<typeof useServerStatus>;
 
 function useAccountMenuActions(args: { auth: Auth; close: () => void }) {
@@ -123,12 +119,6 @@ function latencyPhrase(health: ServerStatus['health']): string {
 
 type MenuRow = FloatingMenuContent['rows'][number];
 
-function buildHeader(profile: Profile): FloatingMenuContent['header'] {
-  return {
-    title: asLocalized(profile.displayLabel),
-  };
-}
-
 function buildConnectionRow(args: {
   serverStatus: ServerStatus;
   onServerStatus: () => void;
@@ -166,7 +156,6 @@ function buildAuthRow(auth: Auth, onAuth: () => void): MenuRow {
 }
 
 function buildMenuContent(args: {
-  profile: Profile;
   auth: Auth;
   serverStatus: ServerStatus;
   onProfile: () => void;
@@ -174,17 +163,10 @@ function buildMenuContent(args: {
   onAuth: () => void;
   onSettings: () => void;
 }): FloatingMenuContent {
-  const {
-    profile,
-    auth,
-    serverStatus,
-    onProfile,
-    onServerStatus,
-    onAuth,
-    onSettings,
-  } = args;
+  const { auth, serverStatus, onProfile, onServerStatus, onAuth, onSettings } =
+    args;
   return {
-    header: buildHeader(profile),
+    header: { title: <SidebarAccountMenuHeader /> },
     rows: [
       {
         type: 'item',
@@ -209,57 +191,8 @@ function buildMenuContent(args: {
   };
 }
 
-function AccountTrigger({
-  triggerRef,
-  open,
-  openMenu,
-  profile,
-}: {
-  triggerRef: React.RefObject<ElementRef<typeof Box> | null>;
-  open: boolean;
-  openMenu: () => void;
-  profile: Profile;
-}) {
-  const theme = useTheme();
-  return (
-    <Box ref={triggerRef} collapsable={false} sx={{ alignSelf: 'stretch' }}>
-      <Pressable
-        onPress={openMenu}
-        accessibilityRole="button"
-        accessibilityLabel={t`User menu`}
-        accessibilityState={{ expanded: open }}
-        sx={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 3,
-          py: 2,
-          px: 2,
-          borderRadius: 12,
-          background: open ? 'surface' : 'transparent',
-        }}
-      >
-        <DeviceAvatar
-          avatarConfig={profile.avatarConfig}
-          seedFallback={profile.profileId ?? profile.deviceId}
-          size={32}
-        />
-        <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Text
-            variant="bodyBold"
-            sx={{ color: 'text' }}
-            numberOfLines={1}
-            label={profile.displayLabel}
-          />
-        </Box>
-        <IconSymbol name="ellipsis" size={18} color={theme.colors.icon} />
-      </Pressable>
-    </Box>
-  );
-}
-
 export function SidebarAccountMenu() {
   const auth = useAuth();
-  const profile = useProfile();
   const insets = useSafeAreaInsets();
   const triggerRef = useRef<ElementRef<typeof Box>>(null);
   const serverStatus = useServerStatus();
@@ -290,7 +223,6 @@ export function SidebarAccountMenu() {
   const menuContent = useMemo(
     () =>
       buildMenuContent({
-        profile,
         auth,
         serverStatus,
         onProfile,
@@ -298,16 +230,15 @@ export function SidebarAccountMenu() {
         onAuth,
         onSettings,
       }),
-    [profile, auth, serverStatus, onProfile, onServerStatus, onAuth, onSettings]
+    [auth, serverStatus, onProfile, onServerStatus, onAuth, onSettings]
   );
 
   return (
     <>
-      <AccountTrigger
+      <SidebarAccountTrigger
         triggerRef={triggerRef}
         open={open}
-        openMenu={openMenu}
-        profile={profile}
+        onPress={openMenu}
       />
       <FloatingMenu
         open={open}

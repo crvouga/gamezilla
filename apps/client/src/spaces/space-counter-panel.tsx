@@ -1,13 +1,25 @@
+import { useSpaceRoomState } from '@gamezilla/client/spaces/space-room-context';
 import { Box, Button, Text } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
+import type { ReactNode } from 'react';
 
-import type { SpaceRoomUiState } from './use-space-room';
+export type SpaceCounterPanelProps = {
+  spaceId: string;
+};
 
-export function SpaceCounterPanel({ room }: { room: SpaceRoomUiState }) {
+/**
+ * Counter panel for a space. Reads shared room state from a
+ * {@link SpaceRoomProvider} ancestor. The `spaceId` prop is used for accessibility
+ * / debugging clarity — there is exactly one room state per space because
+ * the provider hosts the connection.
+ */
+export function SpaceCounterPanel({
+  spaceId: _spaceId,
+}: SpaceCounterPanelProps): ReactNode {
   const { t } = useLingui();
-  const { count, increment, decrement, isSynced, roomActive } = room;
+  const room = useSpaceRoomState();
 
-  if (!roomActive) {
+  if (room === null || !room.roomActive) {
     return (
       <Box sx={{ py: 2 }}>
         <Text
@@ -23,6 +35,8 @@ export function SpaceCounterPanel({ room }: { room: SpaceRoomUiState }) {
       </Box>
     );
   }
+
+  const { count, increment, decrement, isSynced } = room;
 
   return (
     <Box sx={{ gap: 3, py: 2 }}>

@@ -1,0 +1,34 @@
+import { SpaceGuestMembershipAvatar } from '@gamezilla/client/spaces/space-guest-membership-avatar';
+import { useSpaceGuestMembershipIds } from '@gamezilla/client/spaces/use-space-guest-membership-ids';
+import { optionalProps } from '@gamezilla/client/ui/optional-props';
+import { AvatarGroup } from '@gamezilla/lib/ui';
+import type { ReactNode } from 'react';
+
+export type SpaceGuestAvatarGroupProps = {
+  spaceId: string;
+  size: number;
+  maxVisible: number;
+  ringColor?: string;
+};
+
+/** Stacked guest avatars for a space, keyed by membership id. */
+export function SpaceGuestAvatarGroup({
+  spaceId,
+  size,
+  maxVisible,
+  ringColor,
+}: SpaceGuestAvatarGroupProps): ReactNode {
+  const membershipIds = useSpaceGuestMembershipIds(spaceId);
+  if (membershipIds.length === 0) return null;
+  return (
+    <AvatarGroup
+      size={size}
+      maxVisible={maxVisible}
+      {...optionalProps({ ringColor })}
+    >
+      {membershipIds.map((mid) => (
+        <SpaceGuestMembershipAvatar key={mid} membershipId={mid} size={size} />
+      ))}
+    </AvatarGroup>
+  );
+}

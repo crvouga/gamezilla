@@ -1,0 +1,37 @@
+import {
+  SPACE_MEMBERSHIP_ENTITY_TYPE,
+  SpaceMembershipAttr,
+} from '@gamezilla/domain/spaces/space-entities';
+import { useQueryEntityIds } from '@gamezilla/patch-db/react';
+
+/**
+ * Membership entity ids for active guests of a space, ordered by `joinedAt`.
+ * Returns an empty list when `spaceId` is empty (caller passes `''` to
+ * disable, e.g. while the route param is missing).
+ *
+ * Atoms iterate these ids and render `<SpaceGuestMembershipAvatar
+ * membershipId />` etc.; each atom resolves the guest profile id itself.
+ */
+export function useSpaceGuestMembershipIds(spaceId: string): string[] {
+  const enabled = spaceId.length > 0;
+  const args: Parameters<typeof useQueryEntityIds>[0] = enabled
+    ? {
+        entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
+        where: {
+          type: 'and',
+          clauses: [
+            {
+              type: '=',
+              attribute: SpaceMembershipAttr.spaceId,
+              value: spaceId,
+            },
+            { type: 'not_exists', attribute: SpaceMembershipAttr.leftAt },
+          ],
+        },
+        orderBy: [
+          { attribute: SpaceMembershipAttr.joinedAt, direction: 'asc' },
+        ],
+      }
+    : { entityType: SPACE_MEMBERSHIP_ENTITY_TYPE, limit: 0 };
+  return useQueryEntityIds(args);
+}

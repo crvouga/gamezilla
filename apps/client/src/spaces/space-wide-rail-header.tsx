@@ -1,15 +1,18 @@
-import { Box, IconButton, IconSymbol, Text, useTheme } from '@gamezilla/lib/ui';
+import { SpaceWideRailTitleText } from '@gamezilla/client/spaces/space-wide-rail-title-text';
+import { Box, IconButton, IconSymbol, useTheme } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';
+import type { ReactNode } from 'react';
 
 export type SpaceWideRailHeaderProps = {
-  spaceTitle: string;
+  spaceId: string;
   onPressHome: () => void;
 };
 
+/** Wide-rail top bar: home button + space title. */
 export function SpaceWideRailHeader({
-  spaceTitle,
+  spaceId,
   onPressHome,
-}: SpaceWideRailHeaderProps) {
+}: SpaceWideRailHeaderProps): ReactNode {
   const { t } = useLingui();
   const theme = useTheme();
 
@@ -34,7 +37,7 @@ export function SpaceWideRailHeader({
         <IconSymbol name="house.fill" size={20} color={theme.colors.text} />
       </IconButton>
       <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Text variant="bodyBold" numberOfLines={1} label={spaceTitle} />
+        <SpaceWideRailTitleText spaceId={spaceId} />
       </Box>
     </Box>
   );

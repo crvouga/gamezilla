@@ -1,21 +1,26 @@
+import { useMyId } from '@gamezilla/client/auth/auth-context';
 import {
   useConfigService,
   useDeviceService,
   useKeyValueStorage,
 } from '@gamezilla/client/runtime/runtime-hooks';
 import { sessionTokenAtom } from '@gamezilla/client/runtime/atoms';
+import { parseAbsent } from '@gamezilla/client/spaces/space-parsers';
+import { useCurrentSpaceIds } from '@gamezilla/client/spaces/use-current-space-ids';
+import {
+  SPACE_ENTITY_TYPE,
+  SpaceAttr,
+} from '@gamezilla/domain/spaces/space-entities';
+import type { SelectedSpaceGame } from '@gamezilla/domain/spaces/games/games';
+import { useQueryAttribute } from '@gamezilla/patch-db/react';
+import type { WebSocketRoomTransport } from '@gamezilla/room/client/adapters/transport/websocket';
 import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 
-import type { WebSocketRoomTransport } from '@gamezilla/room/client/adapters/transport/websocket';
-
-import { useMyId } from '@gamezilla/client/auth/auth-context';
-import type { SelectedSpaceGame } from '@gamezilla/domain/spaces/games/games';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
 import { useSpaceRoomConnection } from './use-space-room-connection';
 import { useSpaceRoomCounterControls } from './use-space-room-counter-controls';
 import { useSpaceRoomGameControls } from './use-space-room-game-controls';
-import { useCurrentSpaces, useSpace } from './use-spaces';
 
 export type SpaceRoomUiState = {
   count: number;
@@ -28,9 +33,14 @@ export type SpaceRoomUiState = {
   selectGame: (game: SelectedSpaceGame) => void;
 };
 
-export function useSpaceRoom(spaceId: string | undefined): SpaceRoomUiState {
-  const space = useSpace(spaceId);
-  const { entries } = useCurrentSpaces();
+export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
+  const isLive = useQueryAttribute({
+    entityType: SPACE_ENTITY_TYPE,
+    entityId: spaceId,
+    attributeKey: SpaceAttr.endedAt,
+    attributeValue: parseAbsent,
+  });
+  const { entries } = useCurrentSpaceIds();
   const myId = useMyId();
   const deviceService = useDeviceService();
   const configService = useConfigService();
@@ -44,9 +54,8 @@ export function useSpaceRoom(spaceId: string | undefined): SpaceRoomUiState {
 
   const bootstrap = useMemo((): SpaceRoomConnectionBootstrap | null => {
     if (
-      typeof spaceId !== 'string' ||
       spaceId.length === 0 ||
-      !space.live ||
+      !isLive ||
       !inThisSpace ||
       myId.length === 0
     ) {
@@ -57,7 +66,7 @@ export function useSpaceRoom(spaceId: string | undefined): SpaceRoomUiState {
       myId,
       installId: deviceService.getDeviceId(),
     };
-  }, [spaceId, space.live, inThisSpace, myId, deviceService]);
+  }, [spaceId, isLive, inThisSpace, myId, deviceService]);
 
   const { room, roomRef, transport } = useSpaceRoomConnection(
     bootstrap,
