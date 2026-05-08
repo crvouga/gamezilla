@@ -13,10 +13,9 @@ function defaultBoardTheme(theme: ReturnType<typeof useTheme>): BoardTheme {
     border: '#8a6a3d',
     lastMove: '#cdd26a',
     selected: '#f7ec74',
-    legalMoveDot: 'rgba(20,85,30,0.5)',
+    legalMoveDot: 'rgba(20,85,30,0.5)' as const,
     check: '#d64545',
-    coordinates:
-      theme.colorScheme === 'dark' ? '#e8d6b4' : '#5a3b1c',
+    coordinates: theme.colorScheme === 'dark' ? '#e8d6b4' : '#5a3b1c',
   };
 }
 

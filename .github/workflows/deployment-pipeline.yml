@@ -23,6 +23,21 @@ on:
   workflow_dispatch:
 
 jobs:
+  format:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: format-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      cancel-in-progress: true
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+        with:
+          doppler: 'false'
+      - name: Format
+        run: bun run check:format
+
   tc:
     runs-on: ubuntu-latest
     concurrency:
@@ -343,6 +358,7 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs:
       [
+        format,
         tc,
         lint,
         test,
@@ -420,6 +436,7 @@ jobs:
     if: always()
     needs:
       [
+        format,
         tc,
         lint,
         test,

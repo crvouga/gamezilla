@@ -11,20 +11,23 @@ export function isSquare(v: string): v is Square {
 }
 
 export function clamp(n: number, min: number, max: number) {
+  'worklet';
   return Math.max(min, Math.min(max, n));
 }
 
 export function indexFromSquare(square: Square): number {
-  const file = square.charCodeAt(0) - 'a'.charCodeAt(0);
-  const rank = square.charCodeAt(1) - '1'.charCodeAt(0);
+  'worklet';
+  const file = square.charCodeAt(0) - 97; // 'a'
+  const rank = square.charCodeAt(1) - 49; // '1'
   // index 0 = a1, 63 = h8
   return rank * 8 + file;
 }
 
 export function squareFromIndex(index: number): Square {
+  'worklet';
   const i = clamp(index, 0, 63);
-  const file = files[i % 8]!;
-  const rank = ranks[Math.floor(i / 8)]!;
+  const file = String.fromCharCode(97 + (i % 8));
+  const rank = String.fromCharCode(49 + Math.floor(i / 8));
   return `${file}${rank}` as Square;
 }
 
@@ -33,6 +36,7 @@ export function toDisplayFileRank(
   row: number,
   col: number
 ): { file: number; rank: number } {
+  'worklet';
   // row/col are 0..7 in canvas coordinate space (top-left origin).
   // rank 8 at top if white orientation; rank 1 at top if black orientation.
   if (orientation === 'white') {
@@ -47,14 +51,15 @@ export function xyToSquare(
   boardPx: number,
   orientation: BoardOrientation
 ): Square | null {
+  'worklet';
   if (boardPx <= 0) return null;
   if (x < 0 || y < 0 || x >= boardPx || y >= boardPx) return null;
   const cell = boardPx / 8;
   const col = clamp(Math.floor(x / cell), 0, 7);
   const row = clamp(Math.floor(y / cell), 0, 7);
   const { file, rank } = toDisplayFileRank(orientation, row, col);
-  const f = files[file]!;
-  const r = ranks[rank]!;
+  const f = String.fromCharCode(97 + file);
+  const r = String.fromCharCode(49 + rank);
   return `${f}${r}` as Square;
 }
 
@@ -63,9 +68,10 @@ export function squareToXY(
   boardPx: number,
   orientation: BoardOrientation
 ): { x: number; y: number; cell: number } {
+  'worklet';
   const cell = boardPx / 8;
-  const file = square.charCodeAt(0) - 'a'.charCodeAt(0);
-  const rank = square.charCodeAt(1) - '1'.charCodeAt(0);
+  const file = square.charCodeAt(0) - 97;
+  const rank = square.charCodeAt(1) - 49;
 
   let col: number;
   let row: number;

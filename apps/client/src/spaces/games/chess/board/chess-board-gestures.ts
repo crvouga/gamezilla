@@ -1,13 +1,9 @@
 /* eslint-disable max-lines-per-function */
 import { useMemo } from 'react';
 import { Gesture } from 'react-native-gesture-handler';
-import type {
-  BoardOrientation,
-  Move,
-  Position,
-  Square,
-} from './chess-board-types';
-import { xyToSquare } from './chess-board-geometry';
+import { runOnJS, type SharedValue } from 'react-native-reanimated';
+import type { BoardOrientation, Position, Square } from './chess-board-types';
+import { indexFromSquare, xyToSquare } from './chess-board-geometry';
 
 export type BoardGesturesArgs = {
   size: number;
@@ -16,25 +12,15 @@ export type BoardGesturesArgs = {
   position: Position;
   turn: 'w' | 'b';
   selected: Square | null;
-  dragFrom: Square | null;
   legalTargets: readonly Square[];
+  dragX: SharedValue<number>;
+  dragY: SharedValue<number>;
+  isDragging: SharedValue<boolean>;
   setSelected: (sq: Square | null) => void;
-  onDragStart: (from: Square, xy: { x: number; y: number }) => void;
-  onDragMove: (xy: { x: number; y: number }) => void;
+  onDragStart: (from: Square) => void;
   onDragEnd: () => void;
-  onCommitMove: (m: {
-    from: Square;
-    to: Square;
-    promotion?: Move['promotion'];
-  }) => void;
+  onDrop: (fromSq: Square, toSq: Square) => void;
 };
-
-function indexFromSquare(square: Square): number {
-  return (
-    (square.charCodeAt(1) - '1'.charCodeAt(0)) * 8 +
-    (square.charCodeAt(0) - 'a'.charCodeAt(0))
-  );
-}
 
 export function useBoardGestures(args: BoardGesturesArgs) {
   const {
@@ -44,13 +30,14 @@ export function useBoardGestures(args: BoardGesturesArgs) {
     position,
     turn,
     selected,
-    dragFrom,
     legalTargets,
+    dragX,
+    dragY,
+    isDragging,
     setSelected,
     onDragStart,
-    onDragMove,
     onDragEnd,
-    onCommitMove,
+    onDrop,
   } = args;
 
   return useMemo(() => {
@@ -73,53 +60,74 @@ export function useBoardGestures(args: BoardGesturesArgs) {
         }
 
         if (legalTargets.includes(sq)) {
-          onCommitMove({ from: selected, to: sq });
+          onDrop(selected, sq);
         }
         setSelected(null);
       });
 
     const pan = Gesture.Pan()
-      .runOnJS(true)
       .enabled(interactive)
       .onBegin((e) => {
+        'worklet';
         const sq = xyToSquare(e.x, e.y, size, orientation);
         if (sq === null) return;
         const p = position[indexFromSquare(sq)] ?? null;
         if (!p || p.color !== turn) return;
-        setSelected(sq);
-        onDragStart(sq, { x: e.x, y: e.y });
+
+        dragX.value = e.x;
+        dragY.value = e.y;
+        isDragging.value = true;
+
+        runOnJS(setSelected)(sq);
+        runOnJS(onDragStart)(sq);
       })
       .onUpdate((e) => {
-        if (dragFrom !== null) onDragMove({ x: e.x, y: e.y });
+        'worklet';
+        if (isDragging.value) {
+          dragX.value = e.x;
+          dragY.value = e.y;
+        }
       })
       .onEnd((e) => {
+        'worklet';
+        if (!isDragging.value) return;
+        isDragging.value = false;
+
         const toSq = xyToSquare(e.x, e.y, size, orientation);
-        const fromSq = dragFrom;
-        onDragEnd();
-        setSelected(null);
-        if (toSq === null) return;
-        if (fromSq === null) return;
-        if (fromSq === toSq) return;
-        onCommitMove({ from: fromSq, to: toSq });
+        const startX = e.x - e.translationX;
+        const startY = e.y - e.translationY;
+        const startSq = xyToSquare(startX, startY, size, orientation);
+
+        runOnJS(onDragEnd)();
+        runOnJS(setSelected)(null);
+
+        if (toSq !== null && startSq !== null && startSq !== toSq) {
+          runOnJS(onDrop)(startSq, toSq);
+        }
       })
       .onFinalize(() => {
-        onDragEnd();
+        'worklet';
+        if (isDragging.value) {
+          isDragging.value = false;
+          runOnJS(onDragEnd)();
+        }
       });
 
     return Gesture.Race(pan, tap);
   }, [
     interactive,
     legalTargets,
-    onCommitMove,
+    onDrop,
     onDragEnd,
-    onDragMove,
     onDragStart,
     orientation,
     position,
     selected,
-    dragFrom,
     setSelected,
     size,
     turn,
+    dragX,
+    dragY,
+    isDragging,
   ]);
 }

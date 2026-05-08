@@ -4,14 +4,19 @@
 import { GestureDetector } from 'react-native-gesture-handler';
 import {
   Canvas,
+  FilterMode,
   Group,
-  ImageSVG,
+  Image,
+  MipmapMode,
   Rect,
   Skia,
   Text as SkiaText,
 } from '@shopify/react-native-skia';
 import { useMemo, useState, type ReactNode } from 'react';
-import { View } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
 import type {
   BoardTheme,
   ChessBoardProps,
@@ -25,7 +30,7 @@ import {
   squareToXY,
 } from './chess-board-geometry';
 import { pieceCode } from './chess-pieces-svg';
-import { usePieceSkiaSvgs } from './chess-pieces-cache';
+import { usePieceSkiaImages } from './chess-pieces-cache';
 import { useBoardGestures } from './chess-board-gestures';
 import { ChessBoardPromotionModal } from './chess-board-promotion';
 import {
@@ -33,9 +38,6 @@ import {
   hapticSelection,
   hapticSuccess,
 } from './chess-board-haptics';
-
-/** Matches `viewBox` of embedded Cburnett SVGs in `chess-pieces-svg.ts`. */
-const PIECE_VB = 45;
 
 export type ChessBoardCanvasProps = Required<
   Pick<
@@ -69,23 +71,35 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
   const game = useChessGame({ ...(fen ? { initialFen: fen } : {}) });
   const { position, lastMove, inCheck, turn } = game;
 
-  const pieceSvgs = usePieceSkiaSvgs();
+  const pieceImages = usePieceSkiaImages();
   const cell = size / 8;
-  const pieceScale = cell / PIECE_VB;
-
   const [selected, setSelected] = useState<Square | null>(null);
   const [dragFrom, setDragFrom] = useState<Square | null>(null);
-  const [dragXY, setDragXY] = useState<{ x: number; y: number } | null>(null);
-  const [pendingPromotion, setPendingPromotion] = useState<{
-    from: Square;
-    to: Square;
-  } | null>(null);
+  const dragX = useSharedValue(0);
+  const dragY = useSharedValue(0);
+  const isDragging = useSharedValue(false);
+
+  const draggedPieceStyle = useAnimatedStyle(() => {
+    return {
+      position: 'absolute',
+      left: dragX.value - cell / 2,
+      top: dragY.value - cell / 2,
+      width: cell,
+      height: cell,
+      opacity: isDragging.value ? 1 : 0,
+    };
+  });
 
   const legalTargets = useMemo(() => {
     if (!highlightLegalMoves || selected === null)
       return [] as readonly Square[];
     return game.legalMovesFrom(selected);
   }, [game, highlightLegalMoves, selected]);
+
+  const [pendingPromotion, setPendingPromotion] = useState<{
+    from: Square;
+    to: Square;
+  } | null>(null);
 
   const gesture = useBoardGestures({
     size,
@@ -94,40 +108,36 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
     position,
     turn,
     selected,
-    dragFrom,
     legalTargets,
+    dragX,
+    dragY,
+    isDragging,
     setSelected,
-    onDragStart: (from, xy) => {
+    onDragStart: (from) => {
       setDragFrom(from);
-      setDragXY(xy);
-    },
-    onDragMove: (xy) => {
-      setDragXY(xy);
     },
     onDragEnd: () => {
       setDragFrom(null);
-      setDragXY(null);
     },
-    onCommitMove: ({ from, to, promotion }) => {
-      if (!promotion && game.moveRequiresPromotion(from, to)) {
-        setPendingPromotion({ from, to });
-        return;
-      }
-      const res = game.tryMove({
-        from,
-        to,
-        ...(promotion ? { promotion } : {}),
-      });
-      if (!res.ok) {
-        hapticError();
-        return;
-      }
-      if (res.move.captured || game.inCheck) {
-        hapticSuccess();
+    onDrop: (fromSq, toSq) => {
+      if (!game.moveRequiresPromotion(fromSq, toSq)) {
+        const res = game.tryMove({
+          from: fromSq,
+          to: toSq,
+        });
+        if (!res.ok) {
+          hapticError();
+          return;
+        }
+        if (res.move.captured || game.inCheck) {
+          hapticSuccess();
+        } else {
+          hapticSelection();
+        }
+        onMove?.(res.move);
       } else {
-        hapticSelection();
+        setPendingPromotion({ from: fromSq, to: toSq });
       }
-      onMove?.(res.move);
     },
   });
 
@@ -145,21 +155,22 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
     return null;
   }, [inCheck, position, turn]);
 
-  const draggedPiece =
-    dragFrom && dragXY
-      ? (() => {
-          const p = position[indexFromSquare(dragFrom)] ?? null;
-          if (!p) return null;
-          const code = pieceCode(p.color, p.type);
-          if (!code) return null;
-          return { svg: pieceSvgs[code] };
-        })()
-      : null;
+  const draggedPiece = dragFrom
+    ? (() => {
+        const p = position[indexFromSquare(dragFrom)] ?? null;
+        if (!p) return null;
+        const code = pieceCode(p.color, p.type);
+        if (!code) return null;
+        return { code };
+      })()
+    : null;
 
   return (
     <GestureDetector gesture={gesture}>
       <>
-        <View style={{ width: size, height: size, overflow: 'visible' }}>
+        <Animated.View
+          style={{ width: size, height: size, overflow: 'visible' }}
+        >
           <Canvas style={{ width: size, height: size }}>
             {/* squares */}
             {Array.from({ length: 64 }).map((_, i) => {
@@ -256,35 +267,33 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
                 })()
               : null}
 
-            {/* pieces (transform positions SVGs — canvaskit web ignores ImageSVG x/y/wh) */}
-            {Array.from({ length: 64 }).map((_, i) => {
-              const square = squareFromIndex(i);
-              const p = position[i] ?? null;
-              if (p === null) return null;
-              if (dragFrom === square) return null;
-              const code = pieceCode(p.color, p.type);
-              if (code === null) return null;
-              const svg = pieceSvgs[code];
-              const { x, y } = squareToXY(square, size, orientation);
-              return (
-                <Group
-                  key={`p-${square}`}
-                  transform={[
-                    { translateX: x },
-                    { translateY: y },
-                    { scale: pieceScale },
-                  ]}
-                >
-                  <ImageSVG
-                    svg={svg}
-                    x={0}
-                    y={0}
-                    width={PIECE_VB}
-                    height={PIECE_VB}
-                  />
-                </Group>
-              );
-            })}
+            {/* pieces (pre-rasterized high-res Skia images for sharp downscaling) */}
+            {pieceImages
+              ? Array.from({ length: 64 }).map((_, i) => {
+                  const square = squareFromIndex(i);
+                  const p = position[i] ?? null;
+                  if (p === null) return null;
+                  if (dragFrom === square) return null;
+                  const code = pieceCode(p.color, p.type);
+                  if (code === null) return null;
+                  const image = pieceImages[code];
+                  const { x, y } = squareToXY(square, size, orientation);
+                  return (
+                    <Image
+                      key={`p-${square}`}
+                      image={image}
+                      x={x}
+                      y={y}
+                      width={cell}
+                      height={cell}
+                      sampling={{
+                        filter: FilterMode.Linear,
+                        mipmap: MipmapMode.Linear,
+                      }}
+                    />
+                  );
+                })
+              : null}
 
             {/* coordinates */}
             {showCoordinates && font ? (
@@ -337,31 +346,24 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
             ) : null}
           </Canvas>
 
-          {draggedPiece && dragXY ? (
-            <View
-              pointerEvents="none"
-              style={{
-                position: 'absolute',
-                left: dragXY.x - cell / 2,
-                top: dragXY.y - cell / 2,
-                width: cell,
-                height: cell,
-              }}
-            >
+          {draggedPiece && pieceImages ? (
+            <Animated.View pointerEvents="none" style={draggedPieceStyle}>
               <Canvas style={{ width: cell, height: cell }}>
-                <Group transform={[{ scale: pieceScale }]}>
-                  <ImageSVG
-                    svg={draggedPiece.svg}
-                    x={0}
-                    y={0}
-                    width={PIECE_VB}
-                    height={PIECE_VB}
-                  />
-                </Group>
+                <Image
+                  image={pieceImages[draggedPiece.code]}
+                  x={0}
+                  y={0}
+                  width={cell}
+                  height={cell}
+                  sampling={{
+                    filter: FilterMode.Linear,
+                    mipmap: MipmapMode.Linear,
+                  }}
+                />
               </Canvas>
-            </View>
+            </Animated.View>
           ) : null}
-        </View>
+        </Animated.View>
         <ChessBoardPromotionModal
           visible={pendingPromotion !== null}
           onCancel={() => {

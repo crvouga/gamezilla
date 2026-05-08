@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "ignoreBinaries": ["lsof", "pkill", "wrangler"],
+  "ignoreBinaries": ["actionlint", "gitleaks", "lsof", "pkill", "wrangler"],
   "ignore": [
     "**/*.bench.ts",
     "apps/client/babel.config.js",
@@ -21,6 +21,7 @@
     "@react-navigation/bottom-tabs",
     "@react-navigation/elements",
     "absurd-sql",
+    "canvaskit-wasm",
     "expo-font",
     "expo-haptics",
     "expo-image",
