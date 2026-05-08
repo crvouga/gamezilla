@@ -4,6 +4,7 @@
 import { GestureDetector } from 'react-native-gesture-handler';
 import {
   Canvas,
+  Circle,
   FilterMode,
   Group,
   Image,
@@ -12,10 +13,10 @@ import {
   Skia,
   Text as SkiaText,
 } from '@shopify/react-native-skia';
-import { useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import Animated, {
-  useSharedValue,
   useAnimatedStyle,
+  useSharedValue,
 } from 'react-native-reanimated';
 import type {
   BoardTheme,
@@ -38,6 +39,9 @@ import {
   hapticSelection,
   hapticSuccess,
 } from './chess-board-haptics';
+import { useChessBoardSounds } from './chess-board-sounds';
+import { useChessPieceRows } from './chess-board-piece-identities';
+import { ChessBoardPieceSkia, PIECE_DRAW_SCALE } from './chess-board-piece';
 
 export type ChessBoardCanvasProps = Required<
   Pick<
@@ -55,6 +59,36 @@ export type ChessBoardCanvasProps = Required<
   theme: BoardTheme;
 };
 
+type PostMoveAudio = {
+  inCheck: boolean;
+  isGameOver: boolean;
+};
+
+function playMoveSounds(
+  sounds: ReturnType<typeof useChessBoardSounds>,
+  move: Move,
+  post: PostMoveAudio
+) {
+  if (move.promotion) {
+    if (move.captured) {
+      sounds.playCapture();
+    }
+    sounds.playPromote();
+  } else if (move.castle) {
+    sounds.playCastle();
+  } else if (move.captured) {
+    sounds.playCapture();
+  } else {
+    sounds.playMove();
+  }
+  if (post.inCheck) {
+    sounds.playCheck();
+  }
+  if (post.isGameOver) {
+    sounds.playGameEnd();
+  }
+}
+
 export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
   const {
     fen,
@@ -71,24 +105,24 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
   const game = useChessGame({ ...(fen ? { initialFen: fen } : {}) });
   const { position, lastMove, inCheck, turn } = game;
 
+  const sounds = useChessBoardSounds();
   const pieceImages = usePieceSkiaImages();
   const cell = size / 8;
+  const pieceDraw = cell * PIECE_DRAW_SCALE;
+
+  const {
+    active: pieceRows,
+    exiting: exitingRows,
+    consumeExiting,
+  } = useChessPieceRows(position, lastMove);
+
   const [selected, setSelected] = useState<Square | null>(null);
   const [dragFrom, setDragFrom] = useState<Square | null>(null);
   const dragX = useSharedValue(0);
   const dragY = useSharedValue(0);
   const isDragging = useSharedValue(false);
-
-  const draggedPieceStyle = useAnimatedStyle(() => {
-    return {
-      position: 'absolute',
-      left: dragX.value - cell / 2,
-      top: dragY.value - cell / 2,
-      width: cell,
-      height: cell,
-      opacity: isDragging.value ? 1 : 0,
-    };
-  });
+  const dragPickupScale = useSharedValue(1);
+  const dragPickupOpacity = useSharedValue(1);
 
   const legalTargets = useMemo(() => {
     if (!highlightLegalMoves || selected === null)
@@ -101,6 +135,13 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
     to: Square;
   } | null>(null);
 
+  const applySuccessfulMove = useCallback(
+    (move: Move, post: PostMoveAudio) => {
+      playMoveSounds(sounds, move, post);
+    },
+    [sounds]
+  );
+
   const gesture = useBoardGestures({
     size,
     orientation,
@@ -112,6 +153,8 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
     dragX,
     dragY,
     isDragging,
+    dragPickupScale,
+    dragPickupOpacity,
     setSelected,
     onDragStart: (from) => {
       setDragFrom(from);
@@ -126,6 +169,7 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
           to: toSq,
         });
         if (!res.ok) {
+          sounds.playIllegal();
           hapticError();
           return;
         }
@@ -134,6 +178,10 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
         } else {
           hapticSelection();
         }
+        applySuccessfulMove(res.move, {
+          inCheck: res.inCheck,
+          isGameOver: res.isGameOver,
+        });
         onMove?.(res.move);
       } else {
         setPendingPromotion({ from: fromSq, to: toSq });
@@ -164,6 +212,16 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
         return { code };
       })()
     : null;
+
+  const draggedPieceStyle = useAnimatedStyle(() => ({
+    position: 'absolute',
+    left: dragX.value - pieceDraw / 2,
+    top: dragY.value - pieceDraw / 2,
+    width: pieceDraw,
+    height: pieceDraw,
+    opacity: isDragging.value ? dragPickupOpacity.value : 0,
+    transform: [{ scale: dragPickupScale.value }],
+  }));
 
   return (
     <GestureDetector gesture={gesture}>
@@ -228,17 +286,35 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
                 })()
               : null}
 
-            {/* legal move dots */}
+            {/* legal move markers: dot (empty) or ring (capture) */}
             {highlightLegalMoves
               ? legalTargets.map((sq) => {
                   const { x, y } = squareToXY(sq, size, orientation);
+                  const cx = x + cell / 2;
+                  const cy = y + cell / 2;
+                  const occupant = position[indexFromSquare(sq)] ?? null;
+                  const isCapture =
+                    occupant !== null && occupant?.color !== turn;
+                  if (isCapture) {
+                    return (
+                      <Circle
+                        key={`cap-${sq}`}
+                        cx={cx}
+                        cy={cy}
+                        r={cell * 0.46}
+                        color={theme.legalMoveCaptureRing}
+                        style="stroke"
+                        strokeWidth={cell * 0.08}
+                        opacity={0.55}
+                      />
+                    );
+                  }
                   return (
-                    <Rect
+                    <Circle
                       key={`dot-${sq}`}
-                      x={x + cell * 0.4}
-                      y={y + cell * 0.4}
-                      width={cell * 0.2}
-                      height={cell * 0.2}
+                      cx={cx}
+                      cy={cy}
+                      r={cell * 0.16}
                       color={theme.legalMoveDot}
                       opacity={0.6}
                     />
@@ -267,28 +343,43 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
                 })()
               : null}
 
-            {/* pieces (pre-rasterized high-res Skia images for sharp downscaling) */}
+            {/* pieces */}
             {pieceImages
-              ? Array.from({ length: 64 }).map((_, i) => {
-                  const square = squareFromIndex(i);
-                  const p = position[i] ?? null;
-                  if (p === null) return null;
-                  if (dragFrom === square) return null;
-                  const code = pieceCode(p.color, p.type);
-                  if (code === null) return null;
-                  const image = pieceImages[code];
-                  const { x, y } = squareToXY(square, size, orientation);
+              ? pieceRows.map((row) => {
+                  if (dragFrom === row.square) return null;
+                  const { x, y } = squareToXY(row.square, size, orientation);
+                  const cx = x + cell / 2;
+                  const cy = y + cell / 2;
+                  const image = pieceImages[row.code];
                   return (
-                    <Image
-                      key={`p-${square}`}
+                    <ChessBoardPieceSkia
+                      key={row.id}
                       image={image}
-                      x={x}
-                      y={y}
-                      width={cell}
-                      height={cell}
-                      sampling={{
-                        filter: FilterMode.Linear,
-                        mipmap: MipmapMode.Linear,
+                      pieceSize={pieceDraw}
+                      targetCenterX={cx}
+                      targetCenterY={cy}
+                      fadeInOnMount={!!row.fadeIn}
+                    />
+                  );
+                })
+              : null}
+
+            {pieceImages
+              ? exitingRows.map((row) => {
+                  const { x, y } = squareToXY(row.square, size, orientation);
+                  const cx = x + cell / 2;
+                  const cy = y + cell / 2;
+                  const image = pieceImages[row.code];
+                  return (
+                    <ChessBoardPieceSkia
+                      key={`ex-${row.id}`}
+                      image={image}
+                      pieceSize={pieceDraw}
+                      targetCenterX={cx}
+                      targetCenterY={cy}
+                      fadeOut
+                      onFadeOutComplete={() => {
+                        consumeExiting(row.id);
                       }}
                     />
                   );
@@ -345,16 +436,15 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
               </Group>
             ) : null}
           </Canvas>
-
           {draggedPiece && pieceImages ? (
             <Animated.View pointerEvents="none" style={draggedPieceStyle}>
-              <Canvas style={{ width: cell, height: cell }}>
+              <Canvas style={{ width: pieceDraw, height: pieceDraw }}>
                 <Image
                   image={pieceImages[draggedPiece.code]}
                   x={0}
                   y={0}
-                  width={cell}
-                  height={cell}
+                  width={pieceDraw}
+                  height={pieceDraw}
                   sampling={{
                     filter: FilterMode.Linear,
                     mipmap: MipmapMode.Linear,
@@ -380,6 +470,7 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
               promotion: p,
             });
             if (!res.ok) {
+              sounds.playIllegal();
               hapticError();
               return;
             }
@@ -388,6 +479,10 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
             } else {
               hapticSelection();
             }
+            applySuccessfulMove(res.move, {
+              inCheck: res.inCheck,
+              isGameOver: res.isGameOver,
+            });
             onMove?.(res.move);
           }}
         />

@@ -49,6 +49,25 @@ function positionFromChess(chess: Chess): Position {
   return out;
 }
 
+function rookCastleFromSan(
+  color: ChessColor,
+  san: string | undefined
+): { rookFrom: Square; rookTo: Square } | undefined {
+  if (!san) return undefined;
+  // Queenside first: "O-O-O" contains substring "O-O"
+  if (san.includes('O-O-O')) {
+    return color === 'w'
+      ? { rookFrom: 'a1' as Square, rookTo: 'd1' as Square }
+      : { rookFrom: 'a8' as Square, rookTo: 'd8' as Square };
+  }
+  if (san.includes('O-O')) {
+    return color === 'w'
+      ? { rookFrom: 'h1' as Square, rookTo: 'f1' as Square }
+      : { rookFrom: 'h8' as Square, rookTo: 'f8' as Square };
+  }
+  return undefined;
+}
+
 function mapMove(m: ChessJsMove): Move {
   const from = m.from as unknown as Square;
   const to = m.to as unknown as Square;
@@ -70,12 +89,14 @@ function mapMove(m: ChessJsMove): Move {
     captured === 'k'
       ? captured
       : undefined;
+  const castle = rookCastleFromSan(m.color, m.san);
   return {
     from,
     to,
     ...(promotionOut ? { promotion: promotionOut } : {}),
     san: m.san,
     ...(capturedOut ? { captured: capturedOut } : {}),
+    ...(castle ? { castle } : {}),
   };
 }
 
@@ -98,6 +119,9 @@ export function useChessGame(options: UseChessGameOptions = {}) {
   const turn = chess.turn();
   const inCheck = chess.inCheck();
   const isGameOver = chess.isGameOver();
+  const isCheckmate = chess.isCheckmate();
+  const isStalemate = chess.isStalemate();
+  const isDraw = chess.isDraw();
 
   const legalMovesFrom = useCallback(
     (from: Square): readonly Square[] => {
@@ -137,7 +161,15 @@ export function useChessGame(options: UseChessGameOptions = {}) {
         const mapped = mapMove(result);
         setLastMove(mapped);
         sync();
-        return { ok: true as const, move: mapped };
+        return {
+          ok: true as const,
+          move: mapped,
+          inCheck: chess.inCheck(),
+          isCheckmate: chess.isCheckmate(),
+          isStalemate: chess.isStalemate(),
+          isDraw: chess.isDraw(),
+          isGameOver: chess.isGameOver(),
+        };
       } catch {
         return { ok: false as const };
       }
@@ -189,6 +221,9 @@ export function useChessGame(options: UseChessGameOptions = {}) {
     lastMove,
     inCheck,
     isGameOver,
+    isCheckmate,
+    isStalemate,
+    isDraw,
     legalMovesFrom,
     moveRequiresPromotion,
     tryMove,

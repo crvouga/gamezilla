@@ -1,7 +1,12 @@
 /* eslint-disable max-lines-per-function */
 import { useMemo } from 'react';
 import { Gesture } from 'react-native-gesture-handler';
-import { runOnJS, type SharedValue } from 'react-native-reanimated';
+import {
+  Easing,
+  runOnJS,
+  withTiming,
+  type SharedValue,
+} from 'react-native-reanimated';
 import type { BoardOrientation, Position, Square } from './chess-board-types';
 import { indexFromSquare, xyToSquare } from './chess-board-geometry';
 
@@ -16,6 +21,8 @@ export type BoardGesturesArgs = {
   dragX: SharedValue<number>;
   dragY: SharedValue<number>;
   isDragging: SharedValue<boolean>;
+  dragPickupScale?: SharedValue<number>;
+  dragPickupOpacity?: SharedValue<number>;
   setSelected: (sq: Square | null) => void;
   onDragStart: (from: Square) => void;
   onDragEnd: () => void;
@@ -34,6 +41,8 @@ export function useBoardGestures(args: BoardGesturesArgs) {
     dragX,
     dragY,
     isDragging,
+    dragPickupScale,
+    dragPickupOpacity,
     setSelected,
     onDragStart,
     onDragEnd,
@@ -67,6 +76,7 @@ export function useBoardGestures(args: BoardGesturesArgs) {
 
     const pan = Gesture.Pan()
       .enabled(interactive)
+      .shouldCancelWhenOutside(false)
       .onBegin((e) => {
         'worklet';
         const sq = xyToSquare(e.x, e.y, size, orientation);
@@ -77,6 +87,18 @@ export function useBoardGestures(args: BoardGesturesArgs) {
         dragX.value = e.x;
         dragY.value = e.y;
         isDragging.value = true;
+        if (dragPickupScale) {
+          dragPickupScale.value = withTiming(2, {
+            duration: 120,
+            easing: Easing.out(Easing.cubic),
+          });
+        }
+        if (dragPickupOpacity) {
+          dragPickupOpacity.value = withTiming(0.95, {
+            duration: 120,
+            easing: Easing.out(Easing.cubic),
+          });
+        }
 
         runOnJS(setSelected)(sq);
         runOnJS(onDragStart)(sq);
@@ -91,6 +113,18 @@ export function useBoardGestures(args: BoardGesturesArgs) {
       .onEnd((e) => {
         'worklet';
         if (!isDragging.value) return;
+        if (dragPickupScale) {
+          dragPickupScale.value = withTiming(1, {
+            duration: 140,
+            easing: Easing.out(Easing.cubic),
+          });
+        }
+        if (dragPickupOpacity) {
+          dragPickupOpacity.value = withTiming(1, {
+            duration: 140,
+            easing: Easing.out(Easing.cubic),
+          });
+        }
         isDragging.value = false;
 
         const toSq = xyToSquare(e.x, e.y, size, orientation);
@@ -108,6 +142,18 @@ export function useBoardGestures(args: BoardGesturesArgs) {
       .onFinalize(() => {
         'worklet';
         if (isDragging.value) {
+          if (dragPickupScale) {
+            dragPickupScale.value = withTiming(1, {
+              duration: 140,
+              easing: Easing.out(Easing.cubic),
+            });
+          }
+          if (dragPickupOpacity) {
+            dragPickupOpacity.value = withTiming(1, {
+              duration: 140,
+              easing: Easing.out(Easing.cubic),
+            });
+          }
           isDragging.value = false;
           runOnJS(onDragEnd)();
         }
@@ -129,5 +175,7 @@ export function useBoardGestures(args: BoardGesturesArgs) {
     dragX,
     dragY,
     isDragging,
+    dragPickupScale,
+    dragPickupOpacity,
   ]);
 }

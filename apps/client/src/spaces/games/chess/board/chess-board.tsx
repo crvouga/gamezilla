@@ -14,6 +14,7 @@ function defaultBoardTheme(theme: ReturnType<typeof useTheme>): BoardTheme {
     lastMove: '#cdd26a',
     selected: '#f7ec74',
     legalMoveDot: 'rgba(20,85,30,0.5)' as const,
+    legalMoveCaptureRing: 'rgba(20,85,30,0.75)' as const,
     check: '#d64545',
     coordinates: theme.colorScheme === 'dark' ? '#e8d6b4' : '#5a3b1c',
   };

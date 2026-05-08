@@ -32,6 +32,8 @@ export type Move = {
   promotion?: Exclude<PieceType, 'p' | 'k'>;
   san?: string;
   captured?: PieceType;
+  /** Kingside (k) or queenside (q) castle: rook leg for animation. */
+  castle?: { rookFrom: Square; rookTo: Square };
 };
 
 export type BoardTheme = {
@@ -41,6 +43,7 @@ export type BoardTheme = {
   lastMove: string;
   selected: string;
   legalMoveDot: string;
+  legalMoveCaptureRing: string;
   check: string;
   coordinates: string;
 };
