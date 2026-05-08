@@ -345,6 +345,10 @@ msgstr "Avatar style"
 msgid "Back"
 msgstr "Back"
 
+#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
+msgid "Back to chess menu"
+msgstr "Back to chess menu"
+
 #: apps/client/src/developer/modal-screen.tsx
 msgid "Back to Dev"
 msgstr "Back to Dev"
@@ -430,10 +434,10 @@ msgid "Chess"
 msgstr "Chess"
 
 #: apps/client/src/spaces/games/space-game-picker.tsx
-msgid "Chess is selected for this space. Match setup options are coming next."
-msgstr "Chess is selected for this space. Match setup options are coming next."
+#~ msgid "Chess is selected for this space. Match setup options are coming next."
+#~ msgstr "Chess is selected for this space. Match setup options are coming next."
 
-#: apps/client/src/spaces/games/space-game-picker.tsx
+#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
 msgid "Chess main menu"
 msgstr "Chess main menu"
 
@@ -448,6 +452,10 @@ msgstr "Choose a sign-in method"
 #: apps/client/src/settings/theme-screen.tsx
 msgid "Choose how the app looks. System matches your device appearance."
 msgstr "Choose how the app looks. System matches your device appearance."
+
+#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
+msgid "Choose how you want to play."
+msgstr "Choose how you want to play."
 
 #: apps/client/src/profile/avatar-editor/avatar-editor-style-block.tsx
 msgid "Choose style"
@@ -516,6 +524,10 @@ msgstr "Close"
 msgid "Colors"
 msgstr "Colors"
 
+#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
+#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
+#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
+#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
 #: apps/client/src/spaces/games/space-game-picker.tsx
 #: apps/client/src/spaces/games/space-game-picker.tsx
 #: apps/client/src/spaces/games/space-game-picker.tsx
@@ -662,9 +674,17 @@ msgstr "Created"
 msgid "currentSpaces"
 msgstr "currentSpaces"
 
+#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
+msgid "Custom Games"
+msgstr "Custom Games"
+
 #: apps/client/src/spaces/space-debug-modal.tsx
 #~ msgid "Custom title"
 #~ msgstr "Custom title"
+
+#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
+msgid "Daily Puzzle"
+msgstr "Daily Puzzle"
 
 #: apps/client/src/ui/app-commands/appearance-commands.tsx
 msgid "dark"
@@ -1155,6 +1175,10 @@ msgstr "Local PatchDB (synced)"
 msgid "login"
 msgstr "login"
 
+#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
+msgid "Matchmaking"
+msgstr "Matchmaking"
+
 #: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx
 msgid "Max rotation"
 msgstr "Max rotation"
@@ -1498,9 +1522,13 @@ msgstr "Patches"
 msgid "People in this space"
 msgstr "People in this space"
 
-#: apps/client/src/spaces/games/space-game-picker.tsx
+#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
 msgid "Pick a different game"
 msgstr "Pick a different game"
+
+#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
+msgid "Pick a puzzle mode."
+msgstr "Pick a puzzle mode."
 
 #: apps/client/src/account/devices/account-device-meta-grid.tsx
 msgid "Platform"
@@ -1525,6 +1553,10 @@ msgstr "Playground failed to start"
 #: apps/client/src/client-config/client-config-server-refresh.tsx
 msgid "POST /client-config/refresh writes the Worker secret into PatchDB on the server (deploy pipeline uses this too)."
 msgstr "POST /client-config/refresh writes the Worker secret into PatchDB on the server (deploy pipeline uses this too)."
+
+#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
+msgid "Practice Puzzles"
+msgstr "Practice Puzzles"
 
 #: apps/client/src/profile/avatar-editor/avatar-editor-preview.tsx
 msgid "Preview updates as you edit. Save to keep changes."
@@ -1556,6 +1588,11 @@ msgstr "Profile"
 #: apps/client/src/account/linked-providers/linked-provider-user-id-text.tsx
 msgid "Provider user id: {providerUserId}"
 msgstr "Provider user id: {providerUserId}"
+
+#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
+#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
+msgid "Puzzle"
+msgstr "Puzzle"
 
 #: libs/patch-db-example/src/db-client/query-screen.tsx
 msgid "Query"
