@@ -2,11 +2,11 @@ import {
   getDefaultOptionsFromSchema,
   getFieldsByTab,
   type SchemaField,
-} from '@gamezilla/client/profile/dicebear-schema';
+} from '@gamezilla/client/profile/avatar-editor/dicebear-schema';
 import {
   isStyleKey,
   type StyleKey,
-} from '@gamezilla/client/profile/dicebear-styles';
+} from '@gamezilla/client/profile/avatar-editor/dicebear-styles';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import {
   configsEqual,

@@ -1,7 +1,7 @@
-import { LinkedProviderConnectedAtText } from '@gamezilla/client/account/linked-provider-connected-at-text';
-import { LinkedProviderEmailText } from '@gamezilla/client/account/linked-provider-email-text';
-import { LinkedProviderNameText } from '@gamezilla/client/account/linked-provider-name-text';
-import { LinkedProviderUserIdText } from '@gamezilla/client/account/linked-provider-user-id-text';
+import { LinkedProviderConnectedAtText } from '@gamezilla/client/account/linked-providers/linked-provider-connected-at-text';
+import { LinkedProviderEmailText } from '@gamezilla/client/account/linked-providers/linked-provider-email-text';
+import { LinkedProviderNameText } from '@gamezilla/client/account/linked-providers/linked-provider-name-text';
+import { LinkedProviderUserIdText } from '@gamezilla/client/account/linked-providers/linked-provider-user-id-text';
 import { Box } from '@gamezilla/lib/ui';
 import type { ReactNode } from 'react';
 

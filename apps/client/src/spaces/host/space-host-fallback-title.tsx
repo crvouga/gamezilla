@@ -1,5 +1,5 @@
 import { parseDisplayName } from '@gamezilla/client/profile/profile-parsers';
-import { parseStringAttr } from '@gamezilla/client/spaces/space-parsers';
+import { parseStringAttr } from '@gamezilla/client/spaces/lib/space-parsers';
 import { optionalProps } from '@gamezilla/client/ui/optional-props';
 import {
   PROFILE_ENTITY_TYPE,

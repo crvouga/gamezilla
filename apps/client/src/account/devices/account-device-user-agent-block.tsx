@@ -1,4 +1,4 @@
-import { parseTrimmedStringAttr } from '@gamezilla/client/account/device-parsers';
+import { parseTrimmedStringAttr } from '@gamezilla/client/account/devices/device-parsers';
 import { DEVICE_ENTITY_TYPE, DeviceAttr } from '@gamezilla/domain/auth';
 import { Box, Text } from '@gamezilla/lib/ui';
 import { useQueryAttribute } from '@gamezilla/patch-db/react';

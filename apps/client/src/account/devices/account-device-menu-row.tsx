@@ -1,7 +1,7 @@
-import { AccountDeviceCurrentBadge } from '@gamezilla/client/account/account-device-current-badge';
-import { AccountDeviceListCaptionText } from '@gamezilla/client/account/account-device-list-caption-text';
-import { AccountDeviceListTitleText } from '@gamezilla/client/account/account-device-list-title-text';
-import { AccountDeviceSessionCaptionText } from '@gamezilla/client/account/account-device-session-caption-text';
+import { AccountDeviceCurrentBadge } from '@gamezilla/client/account/devices/account-device-current-badge';
+import { AccountDeviceListCaptionText } from '@gamezilla/client/account/devices/account-device-list-caption-text';
+import { AccountDeviceListTitleText } from '@gamezilla/client/account/devices/account-device-list-title-text';
+import { AccountDeviceSessionCaptionText } from '@gamezilla/client/account/devices/account-device-session-caption-text';
 import { Box, IconSymbol, MenuRow } from '@gamezilla/lib/ui';
 import { useTheme } from '@gamezilla/lib/ui/theme';
 import type { ReactNode } from 'react';

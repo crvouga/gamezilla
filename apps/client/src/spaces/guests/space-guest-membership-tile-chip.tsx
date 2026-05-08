@@ -1,5 +1,5 @@
-import { parseStringAttr } from '@gamezilla/client/spaces/space-parsers';
-import { SpaceMemberTileChip } from '@gamezilla/client/spaces/space-member-tile-chip';
+import { parseStringAttr } from '@gamezilla/client/spaces/lib/space-parsers';
+import { SpaceMemberTileChip } from '@gamezilla/client/spaces/members/space-member-tile-chip';
 import {
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceMembershipAttr,

@@ -1,4 +1,4 @@
-import { useSpaceRoomState } from '@gamezilla/client/spaces/space-room-context';
+import { useSpaceRoomState } from '@gamezilla/client/spaces/room/space-room-context';
 import { useCurrentSpaceRole } from '@gamezilla/client/spaces/use-current-space-role';
 import {
   SpaceGame,
@@ -7,10 +7,10 @@ import {
 import { Box, Button, Center, Pressable, Text } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
-import { ChessArtwork } from './games/chess/chess-artwork';
-import { ConnectFourArtwork } from './games/connect-four/connect-four-artwork';
-import { GomokuArtwork } from './games/gomoku/gomoku-artwork';
-import { TicTacToeArtwork } from './games/tic-tac-toe/tic-tac-toe-artwork';
+import { ChessArtwork } from '../games/chess/chess-artwork';
+import { ConnectFourArtwork } from '../games/connect-four/connect-four-artwork';
+import { GomokuArtwork } from '../games/gomoku/gomoku-artwork';
+import { TicTacToeArtwork } from '../games/tic-tac-toe/tic-tac-toe-artwork';
 
 function GameTile({
   title,

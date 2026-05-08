@@ -1,5 +1,5 @@
-import { AccountDeviceCurrentBadge } from '@gamezilla/client/account/account-device-current-badge';
-import { AccountDeviceListTitleText } from '@gamezilla/client/account/account-device-list-title-text';
+import { AccountDeviceCurrentBadge } from '@gamezilla/client/account/devices/account-device-current-badge';
+import { AccountDeviceListTitleText } from '@gamezilla/client/account/devices/account-device-list-title-text';
 import { Box } from '@gamezilla/lib/ui';
 import type { ReactNode } from 'react';
 

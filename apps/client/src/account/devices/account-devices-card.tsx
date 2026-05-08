@@ -1,5 +1,5 @@
-import { AccountDeviceMenuRow } from '@gamezilla/client/account/account-device-menu-row';
-import { useAccountDeviceIds } from '@gamezilla/client/account/use-account-device-ids';
+import { AccountDeviceMenuRow } from '@gamezilla/client/account/devices/account-device-menu-row';
+import { useAccountDeviceIds } from '@gamezilla/client/account/devices/use-account-device-ids';
 import { Box, Card, CopyToClipboardField, Text } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';

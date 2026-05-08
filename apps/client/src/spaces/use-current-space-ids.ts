@@ -1,5 +1,5 @@
 import { useMyId } from '@gamezilla/client/auth/auth-context';
-import { parseStringAttr } from '@gamezilla/client/spaces/space-parsers';
+import { parseStringAttr } from '@gamezilla/client/spaces/lib/space-parsers';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,

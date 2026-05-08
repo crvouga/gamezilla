@@ -1,4 +1,4 @@
-import { useDeviceIsCurrent } from '@gamezilla/client/account/use-device-is-current';
+import { useDeviceIsCurrent } from '@gamezilla/client/account/devices/use-device-is-current';
 import { Badge } from '@gamezilla/lib/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';

@@ -1,5 +1,5 @@
 import { UserProfileAvatar } from '@gamezilla/client/profile/user-profile-avatar';
-import { parseStringAttr } from '@gamezilla/client/spaces/space-parsers';
+import { parseStringAttr } from '@gamezilla/client/spaces/lib/space-parsers';
 import {
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceMembershipAttr,

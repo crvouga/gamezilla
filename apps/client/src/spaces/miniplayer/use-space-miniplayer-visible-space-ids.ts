@@ -1,4 +1,4 @@
-import { isSpaceMiniplayerHidden } from '@gamezilla/client/spaces/space-miniplayer-layout';
+import { isSpaceMiniplayerHidden } from '@gamezilla/client/spaces/miniplayer/space-miniplayer-layout';
 import { useCurrentSpaceIds } from '@gamezilla/client/spaces/use-current-space-ids';
 import { usePathname } from 'expo-router';
 

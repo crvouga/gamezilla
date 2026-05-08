@@ -2,8 +2,8 @@ import {
   getDefaultOptionsFromSchema,
   getFieldsForStyle,
   type SchemaField,
-} from '../dicebear-schema';
-import type { StyleKey } from '../dicebear-styles';
+} from './dicebear-schema';
+import type { StyleKey } from './dicebear-styles';
 
 export function buildThumbnailEnumOptions(
   styleKey: StyleKey,

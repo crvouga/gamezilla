@@ -1,9 +1,9 @@
 import { ActiveSpace } from '@gamezilla/client/spaces/active-space';
-import { SpaceDebugModal } from '@gamezilla/client/spaces/space-debug-modal';
-import { SpaceJoinPrompt } from '@gamezilla/client/spaces/space-join-prompt';
-import { SpaceLoadingScreen } from '@gamezilla/client/spaces/space-loading-screen';
-import { SpaceRoomProvider } from '@gamezilla/client/spaces/space-room-context';
-import { useAutoLeaveIfEnded } from '@gamezilla/client/spaces/use-auto-leave-if-ended';
+import { SpaceDebugModal } from '@gamezilla/client/spaces/debug/space-debug-modal';
+import { SpaceJoinPrompt } from '@gamezilla/client/spaces/join/space-join-prompt';
+import { SpaceLoadingScreen } from '@gamezilla/client/spaces/layout/space-loading-screen';
+import { SpaceRoomProvider } from '@gamezilla/client/spaces/room/space-room-context';
+import { useAutoLeaveIfEnded } from '@gamezilla/client/spaces/actions/use-auto-leave-if-ended';
 import { useCurrentSpaceIds } from '@gamezilla/client/spaces/use-current-space-ids';
 import { useCurrentSpaceRole } from '@gamezilla/client/spaces/use-current-space-role';
 import { useLocalSearchParams } from 'expo-router';

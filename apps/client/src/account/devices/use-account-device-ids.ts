@@ -1,4 +1,4 @@
-import { useMyDeviceId } from '@gamezilla/client/account/use-my-device-id';
+import { useMyDeviceId } from '@gamezilla/client/account/devices/use-my-device-id';
 import {
   ACCOUNT_SESSION_ENTITY_TYPE,
   AccountSessionAttr,

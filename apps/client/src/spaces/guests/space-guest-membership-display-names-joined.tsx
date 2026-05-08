@@ -1,5 +1,5 @@
-import { SpaceGuestMembershipDisplayName } from '@gamezilla/client/spaces/space-guest-membership-display-name';
-import { useSpaceGuestMembershipIds } from '@gamezilla/client/spaces/use-space-guest-membership-ids';
+import { SpaceGuestMembershipDisplayName } from '@gamezilla/client/spaces/guests/space-guest-membership-display-name';
+import { useSpaceGuestMembershipIds } from '@gamezilla/client/spaces/guests/use-space-guest-membership-ids';
 import { optionalProps } from '@gamezilla/client/ui/optional-props';
 import { Text, type SxProps, type TextVariant } from '@gamezilla/lib/ui';
 import { Fragment, type ReactNode } from 'react';

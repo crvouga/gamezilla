@@ -1,5 +1,5 @@
-import { SpaceMembersGuestsBlock } from '@gamezilla/client/spaces/space-members-guests-block';
-import { SpaceMembersHostBlock } from '@gamezilla/client/spaces/space-members-host-block';
+import { SpaceMembersGuestsBlock } from '@gamezilla/client/spaces/guests/space-members-guests-block';
+import { SpaceMembersHostBlock } from '@gamezilla/client/spaces/members/space-members-host-block';
 import {
   Box,
   ModalBackdrop,

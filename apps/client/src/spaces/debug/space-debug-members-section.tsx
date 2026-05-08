@@ -1,5 +1,5 @@
-import { parseStringAttr } from '@gamezilla/client/spaces/space-parsers';
-import { useSpaceGuestMembershipIds } from '@gamezilla/client/spaces/use-space-guest-membership-ids';
+import { parseStringAttr } from '@gamezilla/client/spaces/lib/space-parsers';
+import { useSpaceGuestMembershipIds } from '@gamezilla/client/spaces/guests/use-space-guest-membership-ids';
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,

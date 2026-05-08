@@ -2,8 +2,8 @@ import {
   STYLE_KEYS,
   styleLabel,
   type StyleKey,
-} from '@gamezilla/client/profile/dicebear-styles';
-import { ProfileDiceBearAvatar } from '@gamezilla/client/profile/profile-dicebear-avatar';
+} from '@gamezilla/client/profile/avatar-editor/dicebear-styles';
+import { ProfileDiceBearAvatar } from '@gamezilla/client/profile/avatar-editor/profile-dicebear-avatar';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { HorizontalPicker } from '@gamezilla/lib/ui';
 

@@ -7,7 +7,7 @@ import {
 import { useLingui } from '@lingui/react/macro';
 import { Tabs } from 'expo-router';
 
-import { AppSidebar } from '@gamezilla/client/ui/app-sidebar';
+import { AppSidebar } from '@gamezilla/client/ui/sidebar/app-sidebar';
 
 export default function TabsLayout() {
   const { t } = useLingui();

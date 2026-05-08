@@ -3,7 +3,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { SidebarAccountMenu } from '@gamezilla/client/ui/sidebar-account-menu';
+import { SidebarAccountMenu } from '@gamezilla/client/ui/sidebar/sidebar-account-menu';
 
 type NavItem = {
   href: '/' | '/profile';

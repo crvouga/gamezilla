@@ -1,6 +1,6 @@
 import { parseDisplayName } from '@gamezilla/client/profile/profile-parsers';
-import { parseStringAttr } from '@gamezilla/client/spaces/space-parsers';
-import { NO_ENTITY_PLACEHOLDER } from '@gamezilla/client/spaces/spaces-internal-ids';
+import { parseStringAttr } from '@gamezilla/client/spaces/lib/space-parsers';
+import { NO_ENTITY_PLACEHOLDER } from '@gamezilla/client/spaces/lib/spaces-internal-ids';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,

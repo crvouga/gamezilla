@@ -1,6 +1,6 @@
-import { VariantSwatchStrip } from '@gamezilla/client/profile/components/variant-swatch-strip';
-import type { SchemaField } from '@gamezilla/client/profile/dicebear-schema';
-import type { StyleKey } from '@gamezilla/client/profile/dicebear-styles';
+import { VariantSwatchStrip } from '@gamezilla/client/profile/avatar-editor/components/variant-swatch-strip';
+import type { SchemaField } from '@gamezilla/client/profile/avatar-editor/dicebear-schema';
+import type { StyleKey } from '@gamezilla/client/profile/avatar-editor/dicebear-styles';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { Box, ResponsiveSurface, Text } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';

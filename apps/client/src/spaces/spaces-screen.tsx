@@ -1,5 +1,5 @@
-import { useSpaceActions } from '@gamezilla/client/spaces/space-actions';
-import { SpaceCard } from '@gamezilla/client/spaces/space-card';
+import { useSpaceActions } from '@gamezilla/client/spaces/actions/space-actions';
+import { SpaceCard } from '@gamezilla/client/spaces/list/space-card';
 import { useCurrentSpaceCount } from '@gamezilla/client/spaces/use-current-space-count';
 import { useLiveSpaceIds } from '@gamezilla/client/spaces/use-live-space-ids';
 import { useAccountActions } from '@gamezilla/client/ui/use-account-actions';

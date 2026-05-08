@@ -1,6 +1,6 @@
-import { useSpaceActions } from '@gamezilla/client/spaces/space-actions';
-import { EndSpaceConfirmModal } from '@gamezilla/client/spaces/end-space-confirm-modal';
-import { LeaveSpaceConfirmModal } from '@gamezilla/client/spaces/leave-space-confirm-modal';
+import { useSpaceActions } from '@gamezilla/client/spaces/actions/space-actions';
+import { EndSpaceConfirmModal } from '@gamezilla/client/spaces/actions/end-space-confirm-modal';
+import { LeaveSpaceConfirmModal } from '@gamezilla/client/spaces/actions/leave-space-confirm-modal';
 import { useCurrentSpaceRole } from '@gamezilla/client/spaces/use-current-space-role';
 import { Pressable, Text } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';

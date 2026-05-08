@@ -1,4 +1,4 @@
-import type { SchemaField } from '@gamezilla/client/profile/dicebear-schema';
+import type { SchemaField } from '@gamezilla/client/profile/avatar-editor/dicebear-schema';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import {
   Box,

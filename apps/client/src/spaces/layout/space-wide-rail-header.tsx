@@ -1,4 +1,4 @@
-import { SpaceWideRailTitleText } from '@gamezilla/client/spaces/space-wide-rail-title-text';
+import { SpaceWideRailTitleText } from '@gamezilla/client/spaces/layout/space-wide-rail-title-text';
 import { Box, IconButton, IconSymbol, useTheme } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';

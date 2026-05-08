@@ -1,8 +1,8 @@
-import { StylePickerStrip } from '@gamezilla/client/profile/components/style-picker-strip';
+import { StylePickerStrip } from '@gamezilla/client/profile/avatar-editor/components/style-picker-strip';
 import {
   styleLabel,
   type StyleKey,
-} from '@gamezilla/client/profile/dicebear-styles';
+} from '@gamezilla/client/profile/avatar-editor/dicebear-styles';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { ResponsiveSurface, Text } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';

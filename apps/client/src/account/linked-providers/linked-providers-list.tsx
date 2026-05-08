@@ -1,5 +1,5 @@
-import { LinkedProviderRow } from '@gamezilla/client/account/linked-provider-row';
-import { useLinkedProviderEntityIds } from '@gamezilla/client/account/use-linked-provider-entity-ids';
+import { LinkedProviderRow } from '@gamezilla/client/account/linked-providers/linked-provider-row';
+import { useLinkedProviderEntityIds } from '@gamezilla/client/account/linked-providers/use-linked-provider-entity-ids';
 import { Box, Text } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';

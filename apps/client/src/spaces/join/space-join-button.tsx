@@ -1,4 +1,4 @@
-import { useSpaceActions } from '@gamezilla/client/spaces/space-actions';
+import { useSpaceActions } from '@gamezilla/client/spaces/actions/space-actions';
 import { useCurrentSpaceCount } from '@gamezilla/client/spaces/use-current-space-count';
 import { useCurrentSpaceRole } from '@gamezilla/client/spaces/use-current-space-role';
 import { Button } from '@gamezilla/lib/ui';

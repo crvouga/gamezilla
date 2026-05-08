@@ -1,10 +1,10 @@
-import { MiniplayerHostNameLine } from '@gamezilla/client/spaces/miniplayer-host-name-line';
-import { MiniplayerLiveBadge } from '@gamezilla/client/spaces/miniplayer-live-badge';
-import { MiniplayerMemberCountText } from '@gamezilla/client/spaces/miniplayer-member-count-text';
-import { MiniplayerOpenSpacePressable } from '@gamezilla/client/spaces/miniplayer-open-space-pressable';
-import { MiniplayerSpaceTitle } from '@gamezilla/client/spaces/miniplayer-space-title';
-import { SpaceEndOrLeaveButton } from '@gamezilla/client/spaces/space-end-or-leave-button';
-import { SpaceHostAvatar } from '@gamezilla/client/spaces/space-host-avatar';
+import { MiniplayerHostNameLine } from '@gamezilla/client/spaces/miniplayer/miniplayer-host-name-line';
+import { MiniplayerLiveBadge } from '@gamezilla/client/spaces/miniplayer/miniplayer-live-badge';
+import { MiniplayerMemberCountText } from '@gamezilla/client/spaces/miniplayer/miniplayer-member-count-text';
+import { MiniplayerOpenSpacePressable } from '@gamezilla/client/spaces/miniplayer/miniplayer-open-space-pressable';
+import { MiniplayerSpaceTitle } from '@gamezilla/client/spaces/miniplayer/miniplayer-space-title';
+import { SpaceEndOrLeaveButton } from '@gamezilla/client/spaces/layout/space-end-or-leave-button';
+import { SpaceHostAvatar } from '@gamezilla/client/spaces/host/space-host-avatar';
 import { Box, GradientBox, Text, useTheme } from '@gamezilla/lib/ui';
 import type { ReactNode } from 'react';
 

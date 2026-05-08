@@ -1,4 +1,4 @@
-import { parseAbsent } from '@gamezilla/client/spaces/space-parsers';
+import { parseAbsent } from '@gamezilla/client/spaces/lib/space-parsers';
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,

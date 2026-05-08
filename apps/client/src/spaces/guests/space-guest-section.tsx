@@ -1,6 +1,6 @@
-import { SpaceGuestAvatarGroup } from '@gamezilla/client/spaces/space-guest-avatar-group';
-import { SpaceGuestCountText } from '@gamezilla/client/spaces/space-guest-count-text';
-import { SpaceGuestNamesLine } from '@gamezilla/client/spaces/space-guest-names-line';
+import { SpaceGuestAvatarGroup } from '@gamezilla/client/spaces/guests/space-guest-avatar-group';
+import { SpaceGuestCountText } from '@gamezilla/client/spaces/guests/space-guest-count-text';
+import { SpaceGuestNamesLine } from '@gamezilla/client/spaces/guests/space-guest-names-line';
 import { Box } from '@gamezilla/lib/ui';
 import type { ReactNode } from 'react';
 

@@ -1,5 +1,5 @@
-import { SpaceMemberTileChip } from '@gamezilla/client/spaces/space-member-tile-chip';
-import { SpaceMemberTileRail } from '@gamezilla/client/spaces/space-member-tile-rail';
+import { SpaceMemberTileChip } from '@gamezilla/client/spaces/members/space-member-tile-chip';
+import { SpaceMemberTileRail } from '@gamezilla/client/spaces/members/space-member-tile-rail';
 import type { ReactNode } from 'react';
 
 export type SpaceMemberTileProps = {

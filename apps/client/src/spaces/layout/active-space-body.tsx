@@ -1,8 +1,8 @@
-import { SpaceActiveLayout } from '@gamezilla/client/spaces/space-active-layout';
-import { SpaceCounterPanel } from '@gamezilla/client/spaces/space-counter-panel';
-import { SpaceGamePicker } from '@gamezilla/client/spaces/space-game-picker';
-import { useSpaceRoomState } from '@gamezilla/client/spaces/space-room-context';
-import { SpaceRoomWireContext } from '@gamezilla/client/spaces/space-room-wire-context';
+import { SpaceActiveLayout } from '@gamezilla/client/spaces/layout/space-active-layout';
+import { SpaceCounterPanel } from '@gamezilla/client/spaces/layout/space-counter-panel';
+import { SpaceGamePicker } from '@gamezilla/client/spaces/layout/space-game-picker';
+import { useSpaceRoomState } from '@gamezilla/client/spaces/room/space-room-context';
+import { SpaceRoomWireContext } from '@gamezilla/client/spaces/room/space-room-wire-context';
 import { useCurrentSpaceRole } from '@gamezilla/client/spaces/use-current-space-role';
 import { Box } from '@gamezilla/lib/ui';
 import { useMemo, type ReactNode } from 'react';

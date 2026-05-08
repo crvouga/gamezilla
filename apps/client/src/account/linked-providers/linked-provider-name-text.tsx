@@ -1,5 +1,5 @@
-import { providerLabel } from '@gamezilla/client/account/provider-parsers';
-import { parseTrimmedStringAttr } from '@gamezilla/client/account/device-parsers';
+import { providerLabel } from '@gamezilla/client/account/linked-providers/provider-parsers';
+import { parseTrimmedStringAttr } from '@gamezilla/client/account/devices/device-parsers';
 import {
   ACCOUNT_PROVIDER_ENTITY_TYPE,
   AccountProviderAttr,

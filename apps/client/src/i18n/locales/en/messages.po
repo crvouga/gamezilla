@@ -18,7 +18,7 @@ msgstr ""
 #~ msgid "/+Z5u4"
 #~ msgstr "/+Z5u4"
 
-#: apps/client/src/profile/components/variant-swatch-strip.tsx
+#: apps/client/src/profile/avatar-editor/components/variant-swatch-strip.tsx
 msgid "?"
 msgstr "?"
 
@@ -46,11 +46,23 @@ msgstr "(untitled)"
 #~ msgid "{0}'s space"
 #~ msgstr "{0}'s space"
 
-#: apps/client/src/account/account-device-detail-body.tsx
-msgid "{activeCount} active session(s) — latest expires {latestExpires}"
-msgstr "{activeCount} active session(s) — latest expires {latestExpires}"
+#: apps/client/src/account/devices/account-device-session-caption-text.tsx
+msgid "{active} active — expires {latestExpires}"
+msgstr "{active} active — expires {latestExpires}"
 
-#: apps/client/src/spaces/space-miniplayer.tsx
+#: apps/client/src/account/devices/account-device-active-session-line.tsx
+msgid "{active} active session(s) — latest expires {latestExpires}"
+msgstr "{active} active session(s) — latest expires {latestExpires}"
+
+#: apps/client/src/account/account-device-detail-body.tsx
+#~ msgid "{activeCount} active session(s) — latest expires {latestExpires}"
+#~ msgstr "{activeCount} active session(s) — latest expires {latestExpires}"
+
+#: apps/client/src/spaces/guests/space-guest-count-text.tsx
+msgid "{count} guests"
+msgstr "{count} guests"
+
+#: apps/client/src/spaces/miniplayer/miniplayer-member-count-text.tsx
 msgid "{count} people here"
 msgstr "{count} people here"
 
@@ -68,10 +80,11 @@ msgid "{entityType} / {entityIdShort} · {patchCount} patches"
 msgstr "{entityType} / {entityIdShort} · {patchCount} patches"
 
 #: apps/client/src/spaces/space-card.tsx
-msgid "{guestCount} guests"
-msgstr "{guestCount} guests"
+#~ msgid "{guestCount} guests"
+#~ msgstr "{guestCount} guests"
 
-#: apps/client/src/spaces/use-spaces.ts
+#: apps/client/src/spaces/host/space-host-fallback-title.tsx
+#: apps/client/src/spaces/list/space-card-open-link.tsx
 msgid "{hostDisplayName}'s space"
 msgstr "{hostDisplayName}'s space"
 
@@ -79,7 +92,7 @@ msgstr "{hostDisplayName}'s space"
 msgid "{latencyMs} ms"
 msgstr "{latencyMs} ms"
 
-#: apps/client/src/ui/sidebar-account-menu.tsx
+#: apps/client/src/ui/sidebar/sidebar-account-menu.tsx
 #: apps/client/src/ui/use-account-actions.tsx
 msgid "{ms} ms"
 msgstr "{ms} ms"
@@ -152,7 +165,7 @@ msgstr "💻 System"
 msgid "0 ms"
 msgstr "0 ms"
 
-#: apps/client/src/spaces/space-card.tsx
+#: apps/client/src/spaces/guests/space-guest-count-text.tsx
 msgid "1 guest"
 msgstr "1 guest"
 
@@ -186,11 +199,12 @@ msgid "About"
 msgstr "About"
 
 #: apps/client/src/account/account-screen.tsx
+#: apps/client/src/account/devices/account-device-detail-screen.tsx
 #: apps/client/src/ui/app-commands/account-command.tsx
 msgid "Account"
 msgstr "Account"
 
-#: apps/client/src/account/account-devices-card.tsx
+#: apps/client/src/account/devices/account-devices-card.tsx
 msgid "Account ID"
 msgstr "Account ID"
 
@@ -260,7 +274,7 @@ msgstr "API endpoint"
 msgid "API origin (no helper)"
 msgstr "API origin (no helper)"
 
-#: apps/client/src/account/account-device-detail-body.tsx
+#: apps/client/src/account/devices/account-device-meta-grid.tsx
 #: apps/client/src/settings/about-screen.tsx
 msgid "App"
 msgstr "App"
@@ -326,7 +340,7 @@ msgstr "Avatar"
 msgid "Avatar style"
 msgstr "Avatar style"
 
-#: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/join/space-back-button.tsx
 #: libs/lib/src/ui/components/screen-base/screen-base-header.tsx
 msgid "Back"
 msgstr "Back"
@@ -382,10 +396,8 @@ msgstr "Build mode: {buildMode}"
 
 #: apps/client/src/account/use-account-remove-local-data.ts
 #: apps/client/src/auth/use-sign-out-confirmation.tsx
-#: apps/client/src/spaces/space-detail-screen.tsx
-#: apps/client/src/spaces/space-detail-screen.tsx
-#: apps/client/src/spaces/space-miniplayer.tsx
-#: apps/client/src/spaces/space-miniplayer.tsx
+#: apps/client/src/spaces/actions/end-space-confirm-modal.tsx
+#: apps/client/src/spaces/actions/leave-space-confirm-modal.tsx
 #: libs/lib/src/ui/components/modal/confirmation-modal.tsx
 #: libs/patch-db-example/src/todo/todo-lists-overview.tsx
 #: libs/patch-db-example/src/todo/todo-lists-overview.tsx
@@ -413,15 +425,15 @@ msgstr "Check again"
 msgid "Checking…"
 msgstr "Checking…"
 
-#: apps/client/src/spaces/space-game-picker.tsx
+#: apps/client/src/spaces/layout/space-game-picker.tsx
 msgid "Chess"
 msgstr "Chess"
 
-#: apps/client/src/spaces/space-game-picker.tsx
+#: apps/client/src/spaces/layout/space-game-picker.tsx
 msgid "Chess is selected for this space. Match setup options are coming next."
 msgstr "Chess is selected for this space. Match setup options are coming next."
 
-#: apps/client/src/spaces/space-game-picker.tsx
+#: apps/client/src/spaces/layout/space-game-picker.tsx
 msgid "Chess main menu"
 msgstr "Chess main menu"
 
@@ -500,9 +512,9 @@ msgstr "Close"
 msgid "Colors"
 msgstr "Colors"
 
-#: apps/client/src/spaces/space-game-picker.tsx
-#: apps/client/src/spaces/space-game-picker.tsx
-#: apps/client/src/spaces/space-game-picker.tsx
+#: apps/client/src/spaces/layout/space-game-picker.tsx
+#: apps/client/src/spaces/layout/space-game-picker.tsx
+#: apps/client/src/spaces/layout/space-game-picker.tsx
 msgid "Coming soon"
 msgstr "Coming soon"
 
@@ -539,7 +551,7 @@ msgstr "Confirm"
 msgid "Connect"
 msgstr "Connect"
 
-#: apps/client/src/spaces/space-game-picker.tsx
+#: apps/client/src/spaces/layout/space-game-picker.tsx
 msgid "Connect Four"
 msgstr "Connect Four"
 
@@ -551,7 +563,7 @@ msgstr "Connected"
 msgid "Connected to {url}"
 msgstr "Connected to {url}"
 
-#: apps/client/src/account/account-screen.tsx
+#: apps/client/src/account/linked-providers/linked-provider-connected-at-text.tsx
 msgid "Connected: {connectedAt}"
 msgstr "Connected: {connectedAt}"
 
@@ -559,13 +571,13 @@ msgstr "Connected: {connectedAt}"
 msgid "Connecting to {url}"
 msgstr "Connecting to {url}"
 
-#: apps/client/src/spaces/space-counter-panel.tsx
+#: apps/client/src/spaces/layout/space-counter-panel.tsx
 msgid "Connecting to room…"
 msgstr "Connecting to room…"
 
 #: apps/client/src/connection/server-status-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
-#: apps/client/src/ui/sidebar-account-menu.tsx
+#: apps/client/src/ui/sidebar/sidebar-account-menu.tsx
 #: apps/client/src/ui/use-account-actions.tsx
 msgid "Connection"
 msgstr "Connection"
@@ -574,7 +586,7 @@ msgstr "Connection"
 #~ msgid "Connection and server status. {0}. {1}."
 #~ msgstr "Connection and server status. {0}. {1}."
 
-#: apps/client/src/ui/sidebar-account-menu.tsx
+#: apps/client/src/ui/sidebar/sidebar-account-menu.tsx
 msgid "Connection and server status. {statusWord}. {latency}."
 msgstr "Connection and server status. {statusWord}. {latency}."
 
@@ -615,7 +627,7 @@ msgstr "CopyToClipboardField"
 msgid "Could not remove local data"
 msgstr "Could not remove local data"
 
-#: apps/client/src/spaces/space-counter-panel.tsx
+#: apps/client/src/spaces/layout/space-counter-panel.tsx
 msgid "Counter unavailable — sign in and open this space on the device where you created it to host, or wait for the host to come online."
 msgstr "Counter unavailable — sign in and open this space on the device where you created it to host, or wait for the host to come online."
 
@@ -627,7 +639,7 @@ msgstr "Counter unavailable — sign in and open this space on the device where 
 msgid "Create new space"
 msgstr "Create new space"
 
-#: apps/client/src/account/account-device-detail-body.tsx
+#: apps/client/src/account/devices/account-device-meta-grid.tsx
 msgid "Created"
 msgstr "Created"
 
@@ -642,6 +654,10 @@ msgstr "Created"
 #: apps/client/src/spaces/space-debug-modal.tsx
 #~ msgid "Current membership"
 #~ msgstr "Current membership"
+
+#: apps/client/src/spaces/debug/space-debug-current-spaces-section.tsx
+msgid "currentSpaces"
+msgstr "currentSpaces"
 
 #: apps/client/src/spaces/space-debug-modal.tsx
 #~ msgid "Custom title"
@@ -663,13 +679,13 @@ msgstr "database"
 msgid "day"
 msgstr "day"
 
-#: apps/client/src/spaces/space-active-layout-mobile.tsx
-#: apps/client/src/spaces/space-detail-screen.tsx
-#: apps/client/src/spaces/space-wide-rail-footer.tsx
+#: apps/client/src/spaces/join/space-join-prompt.tsx
+#: apps/client/src/spaces/layout/space-active-layout-mobile.tsx
+#: apps/client/src/spaces/layout/space-wide-rail-footer.tsx
 msgid "Debug"
 msgstr "Debug"
 
-#: apps/client/src/spaces/space-counter-panel.tsx
+#: apps/client/src/spaces/layout/space-counter-panel.tsx
 msgid "Decrement"
 msgstr "Decrement"
 
@@ -704,7 +720,7 @@ msgstr "Developer"
 msgid "development"
 msgstr "development"
 
-#: apps/client/src/account/account-device-detail-screen.tsx
+#: apps/client/src/account/devices/account-device-detail-screen.tsx
 msgid "Device"
 msgstr "Device"
 
@@ -713,14 +729,14 @@ msgstr "Device"
 #~ msgstr "Device {0}"
 
 #: apps/client/src/account/account-devices-card.tsx
-msgid "Device {deviceTitle}"
-msgstr "Device {deviceTitle}"
+#~ msgid "Device {deviceTitle}"
+#~ msgstr "Device {deviceTitle}"
 
-#: apps/client/src/account/account-device-detail-body.tsx
+#: apps/client/src/account/devices/account-device-id-field.tsx
 msgid "Device ID"
 msgstr "Device ID"
 
-#: apps/client/src/account/account-device-detail-body.tsx
+#: apps/client/src/account/devices/account-device-meta-grid.tsx
 msgid "Device name"
 msgstr "Device name"
 
@@ -728,7 +744,7 @@ msgstr "Device name"
 msgid "Device network"
 msgstr "Device network"
 
-#: apps/client/src/account/account-devices-card.tsx
+#: apps/client/src/account/devices/account-devices-card.tsx
 msgid "Devices"
 msgstr "Devices"
 
@@ -792,7 +808,7 @@ msgstr "e.g. {\"type\":\"=\",\"attribute\":\"todo/title\",\"value\":\"x\"}"
 msgid "e.g. ff5733"
 msgstr "e.g. ff5733"
 
-#: apps/client/src/account/account-devices-card.tsx
+#: apps/client/src/account/devices/account-devices-card.tsx
 msgid "Each install has its own device id. Tap a row for full details."
 msgstr "Each install has its own device id. Tap a row for full details."
 
@@ -819,20 +835,18 @@ msgstr "Email"
 msgid "Empty read result"
 msgstr "Empty read result"
 
-#: apps/client/src/spaces/space-miniplayer.tsx
+#: apps/client/src/spaces/layout/space-end-or-leave-button.tsx
 msgid "End"
 msgstr "End"
 
-#: apps/client/src/spaces/space-detail-screen.tsx
-#: apps/client/src/spaces/space-miniplayer.tsx
-#: apps/client/src/spaces/space-miniplayer.tsx
-#: apps/client/src/spaces/space-session-chrome-actions.tsx
-#: apps/client/src/spaces/space-session-chrome-actions.tsx
+#: apps/client/src/spaces/actions/end-space-confirm-modal.tsx
+#: apps/client/src/spaces/layout/space-end-or-leave-button.tsx
+#: apps/client/src/spaces/layout/space-session-chrome-actions.tsx
+#: apps/client/src/spaces/layout/space-session-chrome-actions.tsx
 msgid "End space"
 msgstr "End space"
 
-#: apps/client/src/spaces/space-detail-screen.tsx
-#: apps/client/src/spaces/space-miniplayer.tsx
+#: apps/client/src/spaces/actions/end-space-confirm-modal.tsx
 msgid "End space?"
 msgstr "End space?"
 
@@ -872,8 +886,7 @@ msgstr "Ethernet"
 #~ msgid "Events ({eventCount})"
 #~ msgstr "Events ({eventCount})"
 
-#: apps/client/src/spaces/space-detail-screen.tsx
-#: apps/client/src/spaces/space-miniplayer.tsx
+#: apps/client/src/spaces/actions/end-space-confirm-modal.tsx
 msgid "Everyone will leave this space. This cannot be undone."
 msgstr "Everyone will leave this space. This cannot be undone."
 
@@ -905,7 +918,7 @@ msgstr "Filter loaded rows (id or attributes)…"
 msgid "Filter types…"
 msgstr "Filter types…"
 
-#: apps/client/src/account/account-device-detail-body.tsx
+#: apps/client/src/account/devices/account-device-meta-grid.tsx
 msgid "First seen"
 msgstr "First seen"
 
@@ -918,7 +931,7 @@ msgstr "Full commit"
 #~ msgstr "Game Clock"
 
 #: apps/client/src/i18n/catalog-bootstrap.ts
-#: apps/client/src/ui/app-sidebar.tsx
+#: apps/client/src/ui/sidebar/app-sidebar.tsx
 msgid "Gamezilla"
 msgstr "Gamezilla"
 
@@ -930,8 +943,8 @@ msgstr "Global latency"
 msgid "Go back"
 msgstr "Go back"
 
-#: apps/client/src/spaces/space-active-layout-mobile.tsx
-#: apps/client/src/spaces/space-wide-rail-header.tsx
+#: apps/client/src/spaces/layout/space-active-layout-mobile.tsx
+#: apps/client/src/spaces/layout/space-wide-rail-header.tsx
 msgid "Go home"
 msgstr "Go home"
 
@@ -939,7 +952,7 @@ msgstr "Go home"
 msgid "Go to {target}"
 msgstr "Go to {target}"
 
-#: apps/client/src/spaces/space-game-picker.tsx
+#: apps/client/src/spaces/layout/space-game-picker.tsx
 msgid "Gomoku"
 msgstr "Gomoku"
 
@@ -963,13 +976,13 @@ msgstr "Gradient rotation (°)"
 msgid "Group your todos by list"
 msgstr "Group your todos by list"
 
-#: apps/client/src/spaces/space-session-member-rail.tsx
+#: apps/client/src/spaces/guests/space-members-guests-block.tsx
 msgid "Guests"
 msgstr "Guests"
 
-#: apps/client/src/spaces/space-detail-screen.tsx
-#: apps/client/src/spaces/space-member-presence-badges.tsx
-#: apps/client/src/spaces/space-session-member-rail.tsx
+#: apps/client/src/spaces/join/space-join-host-section.tsx
+#: apps/client/src/spaces/members/member-host-badge.tsx
+#: apps/client/src/spaces/members/space-members-host-block.tsx
 msgid "Host"
 msgstr "Host"
 
@@ -994,7 +1007,7 @@ msgstr "https://..."
 msgid "Inbox"
 msgstr "Inbox"
 
-#: apps/client/src/spaces/space-counter-panel.tsx
+#: apps/client/src/spaces/layout/space-counter-panel.tsx
 msgid "Increment"
 msgstr "Increment"
 
@@ -1006,11 +1019,11 @@ msgstr "Internet reachable: {reachable}"
 msgid "John Doe"
 msgstr "John Doe"
 
-#: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/join/space-join-button.tsx
 msgid "Join space"
 msgstr "Join space"
 
-#: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/join/space-join-prompt.tsx
 msgid "Join this space to see who is here and hang out."
 msgstr "Join this space to see who is here and hang out."
 
@@ -1018,7 +1031,7 @@ msgstr "Join this space to see who is here and hang out."
 #~ msgid "Joined at"
 #~ msgstr "Joined at"
 
-#: apps/client/src/account/account-device-detail-body.tsx
+#: apps/client/src/account/devices/account-device-meta-grid.tsx
 msgid "Last seen"
 msgstr "Last seen"
 
@@ -1026,15 +1039,15 @@ msgstr "Last seen"
 msgid "Latency"
 msgstr "Latency"
 
-#: apps/client/src/ui/sidebar-account-menu.tsx
+#: apps/client/src/ui/sidebar/sidebar-account-menu.tsx
 msgid "latency {ms} ms"
 msgstr "latency {ms} ms"
 
-#: apps/client/src/ui/sidebar-account-menu.tsx
+#: apps/client/src/ui/sidebar/sidebar-account-menu.tsx
 msgid "latency checking"
 msgstr "latency checking"
 
-#: apps/client/src/ui/sidebar-account-menu.tsx
+#: apps/client/src/ui/sidebar/sidebar-account-menu.tsx
 msgid "latency unavailable"
 msgstr "latency unavailable"
 
@@ -1046,20 +1059,18 @@ msgstr "Latency: {latencyLabel}"
 msgid "Latency: {latencyMs} ms"
 msgstr "Latency: {latencyMs} ms"
 
-#: apps/client/src/spaces/space-detail-screen.tsx
-#: apps/client/src/spaces/space-miniplayer.tsx
-#: apps/client/src/spaces/space-miniplayer.tsx
+#: apps/client/src/spaces/actions/leave-space-confirm-modal.tsx
+#: apps/client/src/spaces/layout/space-end-or-leave-button.tsx
 msgid "Leave"
 msgstr "Leave"
 
-#: apps/client/src/spaces/space-miniplayer.tsx
-#: apps/client/src/spaces/space-session-chrome-actions.tsx
-#: apps/client/src/spaces/space-session-chrome-actions.tsx
+#: apps/client/src/spaces/layout/space-end-or-leave-button.tsx
+#: apps/client/src/spaces/layout/space-session-chrome-actions.tsx
+#: apps/client/src/spaces/layout/space-session-chrome-actions.tsx
 msgid "Leave space"
 msgstr "Leave space"
 
-#: apps/client/src/spaces/space-detail-screen.tsx
-#: apps/client/src/spaces/space-miniplayer.tsx
+#: apps/client/src/spaces/actions/leave-space-confirm-modal.tsx
 msgid "Leave space?"
 msgstr "Leave space?"
 
@@ -1080,7 +1091,7 @@ msgid "limit"
 msgstr "limit"
 
 #: apps/client/src/connection/server-status-screen.tsx
-#: apps/client/src/ui/sidebar-account-menu.tsx
+#: apps/client/src/ui/sidebar/sidebar-account-menu.tsx
 msgid "Limited or checking"
 msgstr "Limited or checking"
 
@@ -1092,8 +1103,8 @@ msgstr "List"
 msgid "List name..."
 msgstr "List name..."
 
-#: apps/client/src/spaces/space-card.tsx
-#: apps/client/src/spaces/space-miniplayer-parts.tsx
+#: apps/client/src/spaces/host/space-live-badge.tsx
+#: apps/client/src/spaces/miniplayer/miniplayer-live-badge.tsx
 msgid "Live"
 msgstr "Live"
 
@@ -1145,6 +1156,10 @@ msgstr "login"
 msgid "Max rotation"
 msgstr "Max rotation"
 
+#: apps/client/src/spaces/debug/space-debug-members-section.tsx
+msgid "members"
+msgstr "members"
+
 #: apps/client/src/spaces/space-debug-modal.tsx
 #~ msgid "Members"
 #~ msgstr "Members"
@@ -1169,7 +1184,7 @@ msgstr "Max rotation"
 msgid "Min rotation"
 msgstr "Min rotation"
 
-#: apps/client/src/account/account-device-detail-screen.tsx
+#: apps/client/src/account/devices/account-device-detail-screen.tsx
 msgid "Missing device id."
 msgstr "Missing device id."
 
@@ -1181,7 +1196,7 @@ msgstr "Missing device id."
 #~ msgid "Mode"
 #~ msgstr "Mode"
 
-#: apps/client/src/account/account-device-detail-body.tsx
+#: apps/client/src/account/devices/account-device-meta-grid.tsx
 msgid "Model"
 msgstr "Model"
 
@@ -1230,7 +1245,8 @@ msgstr "night"
 msgid "No"
 msgstr "No"
 
-#: apps/client/src/account/account-device-detail-body.tsx
+#: apps/client/src/account/devices/account-device-active-session-line.tsx
+#: apps/client/src/account/devices/account-device-session-caption-text.tsx
 msgid "No active session"
 msgstr "No active session"
 
@@ -1256,7 +1272,7 @@ msgstr "No active todos."
 msgid "No completed todos."
 msgstr "No completed todos."
 
-#: apps/client/src/account/account-devices-card.tsx
+#: apps/client/src/account/devices/account-devices-card.tsx
 msgid "No device data yet."
 msgstr "No device data yet."
 
@@ -1272,12 +1288,12 @@ msgstr "No entities for this type."
 msgid "No entities in this database."
 msgstr "No entities in this database."
 
-#: apps/client/src/spaces/space-card.tsx
-#: apps/client/src/spaces/space-session-member-rail.tsx
+#: apps/client/src/spaces/guests/no-guests-text.tsx
+#: apps/client/src/spaces/guests/space-members-guests-block.tsx
 msgid "No guests yet"
 msgstr "No guests yet"
 
-#: apps/client/src/spaces/space-session-member-rail.tsx
+#: apps/client/src/spaces/members/space-members-host-block.tsx
 msgid "No host listed"
 msgstr "No host listed"
 
@@ -1301,7 +1317,7 @@ msgstr "No live spaces. Tap + New space to start one."
 #~ msgid "No OAuth provider records on file for this account."
 #~ msgstr "No OAuth provider records on file for this account."
 
-#: apps/client/src/account/account-screen.tsx
+#: apps/client/src/account/linked-providers/linked-providers-list.tsx
 msgid "No OAuth provider records on file for this user."
 msgstr "No OAuth provider records on file for this user."
 
@@ -1359,7 +1375,7 @@ msgstr "num"
 #~ msgid "O: non-authority trust_update"
 #~ msgstr "O: non-authority trust_update"
 
-#: apps/client/src/account/account-screen.tsx
+#: apps/client/src/account/linked-providers/linked-providers-card.tsx
 msgid "OAuth provider details are listed here once you are signed in."
 msgstr "OAuth provider details are listed here once you are signed in."
 
@@ -1373,7 +1389,7 @@ msgstr "Off"
 
 #: apps/client/src/connection/offline-indicator.tsx
 #: apps/client/src/connection/server-status-screen.tsx
-#: apps/client/src/ui/sidebar-account-menu.tsx
+#: apps/client/src/ui/sidebar/sidebar-account-menu.tsx
 msgid "Offline"
 msgstr "Offline"
 
@@ -1382,7 +1398,7 @@ msgid "offset"
 msgstr "offset"
 
 #: apps/client/src/connection/server-status-screen.tsx
-#: apps/client/src/ui/sidebar-account-menu.tsx
+#: apps/client/src/ui/sidebar/sidebar-account-menu.tsx
 msgid "Online"
 msgstr "Online"
 
@@ -1394,9 +1410,13 @@ msgstr "Open {componentName} example"
 msgid "Open command palette"
 msgstr "Open command palette"
 
+#: apps/client/src/spaces/list/space-card-open-link.tsx
+msgid "Open space {resolvedTitle}"
+msgstr "Open space {resolvedTitle}"
+
 #: apps/client/src/spaces/space-card.tsx
-msgid "Open space {spaceTitle}"
-msgstr "Open space {spaceTitle}"
+#~ msgid "Open space {spaceTitle}"
+#~ msgstr "Open space {spaceTitle}"
 
 #: apps/client/src/spaces/spaces-screen.tsx
 #~ msgid "Open your current space"
@@ -1410,7 +1430,7 @@ msgstr "Open space {spaceTitle}"
 msgid "os"
 msgstr "os"
 
-#: apps/client/src/account/account-device-detail-body.tsx
+#: apps/client/src/account/devices/account-device-meta-grid.tsx
 msgid "OS"
 msgstr "OS"
 
@@ -1470,16 +1490,16 @@ msgstr "Patches"
 #~ msgid "People here"
 #~ msgstr "People here"
 
-#: apps/client/src/spaces/space-members-avatar-group.tsx
-#: apps/client/src/spaces/space-members-list-modal.tsx
+#: apps/client/src/spaces/members/space-members-avatar-group.tsx
+#: apps/client/src/spaces/members/space-members-list-modal.tsx
 msgid "People in this space"
 msgstr "People in this space"
 
-#: apps/client/src/spaces/space-game-picker.tsx
+#: apps/client/src/spaces/layout/space-game-picker.tsx
 msgid "Pick a different game"
 msgstr "Pick a different game"
 
-#: apps/client/src/account/account-device-detail-body.tsx
+#: apps/client/src/account/devices/account-device-meta-grid.tsx
 msgid "Platform"
 msgstr "Platform"
 
@@ -1516,8 +1536,8 @@ msgstr "production"
 #: apps/client/src/profile/profile-edit-screen.tsx
 #: apps/client/src/profile/profile-screen.tsx
 #: apps/client/src/profile/profile-username-screen.tsx
-#: apps/client/src/ui/app-sidebar.tsx
-#: apps/client/src/ui/sidebar-account-menu.tsx
+#: apps/client/src/ui/sidebar/app-sidebar.tsx
+#: apps/client/src/ui/sidebar/sidebar-account-menu.tsx
 #: apps/client/src/ui/use-account-actions.tsx
 msgid "Profile"
 msgstr "Profile"
@@ -1530,7 +1550,7 @@ msgstr "Profile"
 #~ msgid "Provider account id: {providerUserId}"
 #~ msgstr "Provider account id: {providerUserId}"
 
-#: apps/client/src/account/account-screen.tsx
+#: apps/client/src/account/linked-providers/linked-provider-user-id-text.tsx
 msgid "Provider user id: {providerUserId}"
 msgstr "Provider user id: {providerUserId}"
 
@@ -1551,7 +1571,7 @@ msgstr "Random"
 msgid "Reachable"
 msgstr "Reachable"
 
-#: apps/client/src/account/account-screen.tsx
+#: apps/client/src/account/linked-providers/linked-providers-card.tsx
 msgid "Read-only: OAuth identities stored for your account."
 msgstr "Read-only: OAuth identities stored for your account."
 
@@ -1593,7 +1613,7 @@ msgstr "Reload"
 msgid "Remove"
 msgstr "Remove"
 
-#: apps/client/src/account/account-screen.tsx
+#: apps/client/src/account/account-actions-row.tsx
 msgid "Remove local data for this account"
 msgstr "Remove local data for this account"
 
@@ -1647,6 +1667,10 @@ msgstr "Result"
 #~ msgid "Role"
 #~ msgstr "Role"
 
+#: apps/client/src/spaces/debug/space-debug-room-section.tsx
+msgid "room"
+msgstr "room"
+
 #: apps/client/src/developer/developer-screen.tsx
 #: apps/client/src/developer/room-screen.tsx
 msgid "Room Playground"
@@ -1659,6 +1683,10 @@ msgstr "Room v2 (loopback)"
 #: apps/client/src/spaces/spaces-screen.tsx
 msgid "Rooms to play with friends"
 msgstr "Rooms to play with friends"
+
+#: apps/client/src/spaces/debug/space-debug-route-section.tsx
+msgid "route"
+msgstr "route"
 
 #: libs/room-example/src/components/trust-election-section.tsx
 #~ msgid "Run {runNumber}: authority={authority} trust(X:{trustX} O:{trustO} S:{trustS})"
@@ -1689,6 +1717,10 @@ msgstr "Scanning snapshots…"
 msgid "Select…"
 msgstr "Select…"
 
+#: apps/client/src/spaces/debug/space-debug-self-section.tsx
+msgid "self"
+msgstr "self"
+
 #: apps/client/src/spaces/space-debug-modal.tsx
 #~ msgid "Self account ID"
 #~ msgstr "Self account ID"
@@ -1714,7 +1746,7 @@ msgstr "Server Connection"
 msgid "Server health"
 msgstr "Server health"
 
-#: apps/client/src/account/account-devices-card.tsx
+#: apps/client/src/account/devices/account-devices-card.tsx
 msgid "Server-side account; tap to copy"
 msgstr "Server-side account; tap to copy"
 
@@ -1727,6 +1759,7 @@ msgstr "Server-side account; tap to copy"
 #~ msgstr "Session token"
 
 #: apps/client/src/account/account-screen.tsx
+#: apps/client/src/account/devices/account-device-detail-screen.tsx
 #: apps/client/src/client-config/client-config-screen.tsx
 #: apps/client/src/connection/server-status-screen.tsx
 #: apps/client/src/developer/db-client-screen.tsx
@@ -1740,8 +1773,8 @@ msgstr "Server-side account; tap to copy"
 #: apps/client/src/todos/todo-lists-screen.tsx
 #: apps/client/src/ui/explorer/ui-explorer-detail-screen.tsx
 #: apps/client/src/ui/explorer/ui-explorer-screen.tsx
-#: apps/client/src/ui/sidebar-account-menu.tsx
-#: apps/client/src/ui/sidebar-account-menu.tsx
+#: apps/client/src/ui/sidebar/sidebar-account-menu.tsx
+#: apps/client/src/ui/sidebar/sidebar-account-menu.tsx
 #: apps/client/src/ui/use-account-actions.tsx
 msgid "Settings"
 msgstr "Settings"
@@ -1751,7 +1784,7 @@ msgstr "Settings"
 msgid "Shapes ({entityCount})"
 msgstr "Shapes ({entityCount})"
 
-#: apps/client/src/spaces/space-counter-panel.tsx
+#: apps/client/src/spaces/layout/space-counter-panel.tsx
 msgid "Shared counter"
 msgstr "Shared counter"
 
@@ -1768,15 +1801,15 @@ msgstr "Shuffle seed"
 msgid "sign in"
 msgstr "sign in"
 
-#: apps/client/src/account/account-screen.tsx
+#: apps/client/src/account/account-actions-row.tsx
 #: apps/client/src/auth/sign-in-modal.tsx
 #: apps/client/src/ui/app-commands/account-command.tsx
-#: apps/client/src/ui/sidebar-account-menu.tsx
+#: apps/client/src/ui/sidebar/sidebar-account-menu.tsx
 #: apps/client/src/ui/use-account-actions.tsx
 msgid "Sign in"
 msgstr "Sign in"
 
-#: apps/client/src/account/account-devices-card.tsx
+#: apps/client/src/account/devices/account-devices-card.tsx
 msgid "Sign in to link this device to a server account and see all devices for that account."
 msgstr "Sign in to link this device to a server account and see all devices for that account."
 
@@ -1796,10 +1829,10 @@ msgstr "Sign in to link this device to your server user. Your data stays local f
 msgid "Sign in with Google"
 msgstr "Sign in with Google"
 
-#: apps/client/src/account/account-screen.tsx
+#: apps/client/src/account/account-actions-row.tsx
 #: apps/client/src/auth/use-sign-out-confirmation.tsx
 #: apps/client/src/ui/app-commands/account-command.tsx
-#: apps/client/src/ui/sidebar-account-menu.tsx
+#: apps/client/src/ui/sidebar/sidebar-account-menu.tsx
 #: apps/client/src/ui/use-account-actions.tsx
 msgid "Sign out"
 msgstr "Sign out"
@@ -1816,7 +1849,7 @@ msgstr "Sign up with Google"
 msgid "Sign-in is not available."
 msgstr "Sign-in is not available."
 
-#: apps/client/src/account/account-screen.tsx
+#: apps/client/src/account/linked-providers/linked-providers-card.tsx
 msgid "Sign-in providers"
 msgstr "Sign-in providers"
 
@@ -1845,11 +1878,15 @@ msgstr "Singleton entity + server refresh"
 msgid "Solid"
 msgstr "Solid"
 
+#: apps/client/src/spaces/debug/space-debug-space-section.tsx
+msgid "space"
+msgstr "space"
+
 #: apps/client/src/spaces/space-card.tsx
 #~ msgid "Space"
 #~ msgstr "Space"
 
-#: apps/client/src/spaces/space-debug-modal.tsx
+#: apps/client/src/spaces/debug/space-debug-modal.tsx
 msgid "Space debug"
 msgstr "Space debug"
 
@@ -1866,8 +1903,8 @@ msgstr "Space debug"
 #~ msgstr "Space title…"
 
 #: apps/client/src/spaces/space-debug-modal.tsx
-msgid "space-screen.debug"
-msgstr "space-screen.debug"
+#~ msgid "space-screen.debug"
+#~ msgstr "space-screen.debug"
 
 #: apps/client/src/spaces/space-debug-modal.tsx
 #~ msgid "space.attributes"
@@ -1878,6 +1915,7 @@ msgstr "space-screen.debug"
 #~ msgstr "spaceMembership.attributes"
 
 #: apps/client/src/account/account-screen.tsx
+#: apps/client/src/account/devices/account-device-detail-screen.tsx
 #: apps/client/src/app/(tabs)/_layout.tsx
 #: apps/client/src/client-config/client-config-screen.tsx
 #: apps/client/src/connection/server-status-screen.tsx
@@ -1888,14 +1926,14 @@ msgstr "space-screen.debug"
 #: apps/client/src/settings/about-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/settings/theme-screen.tsx
-#: apps/client/src/spaces/space-detail-screen.tsx
-#: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/join/space-join-prompt.tsx
+#: apps/client/src/spaces/layout/space-loading-screen.tsx
 #: apps/client/src/spaces/spaces-screen.tsx
 #: apps/client/src/todos/todo-list-detail-screen.tsx
 #: apps/client/src/todos/todo-lists-screen.tsx
-#: apps/client/src/ui/app-sidebar.tsx
 #: apps/client/src/ui/explorer/ui-explorer-detail-screen.tsx
 #: apps/client/src/ui/explorer/ui-explorer-screen.tsx
+#: apps/client/src/ui/sidebar/app-sidebar.tsx
 msgid "Spaces"
 msgstr "Spaces"
 
@@ -1903,7 +1941,7 @@ msgstr "Spaces"
 msgid "sqlite"
 msgstr "sqlite"
 
-#: apps/client/src/account/account-device-detail-body.tsx
+#: apps/client/src/account/devices/account-device-id-field.tsx
 msgid "Stable per-device identifier; tap to copy"
 msgstr "Stable per-device identifier; tap to copy"
 
@@ -1964,7 +2002,7 @@ msgstr "Tap to copy"
 #~ msgid "Tap to open"
 #~ msgstr "Tap to open"
 
-#: apps/client/src/spaces/space-miniplayer.tsx
+#: apps/client/src/spaces/miniplayer/miniplayer-open-space-pressable.tsx
 msgid "Tap to return to your space"
 msgstr "Tap to return to your space"
 
@@ -1972,7 +2010,7 @@ msgstr "Tap to return to your space"
 msgid "TextInput"
 msgstr "TextInput"
 
-#: apps/client/src/spaces/space-game-picker.tsx
+#: apps/client/src/spaces/layout/space-game-picker.tsx
 msgid "The host picks the game for this space."
 msgstr "The host picks the game for this space."
 
@@ -1992,14 +2030,13 @@ msgstr "This deletes all local SQLite data and reloads the app. You cannot undo 
 msgid "This deletes the offline database file for this account on this device. You stay signed in; data will re-download from the server."
 msgstr "This deletes the offline database file for this account on this device. You stay signed in; data will re-download from the server."
 
-#: apps/client/src/account/account-device-detail-screen.tsx
-#: apps/client/src/account/account-devices-card.tsx
+#: apps/client/src/account/devices/account-device-current-badge.tsx
 msgid "This device"
 msgstr "This device"
 
 #: apps/client/src/account/account-device-detail-screen.tsx
-msgid "This device was not found. It may have been removed or is not visible for the current account."
-msgstr "This device was not found. It may have been removed or is not visible for the current account."
+#~ msgid "This device was not found. It may have been removed or is not visible for the current account."
+#~ msgstr "This device was not found. It may have been removed or is not visible for the current account."
 
 #: apps/client/src/user/user-device-detail-screen.tsx
 #~ msgid "This device was not found. It may have been removed or is not visible for the current user."
@@ -2021,11 +2058,11 @@ msgstr "This is a modal screen."
 #~ msgid "This space has ended."
 #~ msgstr "This space has ended."
 
-#: apps/client/src/spaces/space-member-presence-badges.tsx
+#: apps/client/src/spaces/members/member-this-tab-badge.tsx
 msgid "This tab"
 msgstr "This tab"
 
-#: apps/client/src/spaces/space-game-picker.tsx
+#: apps/client/src/spaces/layout/space-game-picker.tsx
 msgid "Tic-tac-toe"
 msgstr "Tic-tac-toe"
 
@@ -2120,7 +2157,7 @@ msgstr "Use system theme"
 msgid "User"
 msgstr "User"
 
-#: apps/client/src/account/account-device-detail-body.tsx
+#: apps/client/src/account/devices/account-device-user-agent-block.tsx
 msgid "User agent"
 msgstr "User agent"
 
@@ -2128,7 +2165,7 @@ msgstr "User agent"
 #~ msgid "User ID"
 #~ msgstr "User ID"
 
-#: apps/client/src/ui/sidebar-account-menu.tsx
+#: apps/client/src/ui/sidebar/sidebar-account-trigger.tsx
 msgid "User menu"
 msgstr "User menu"
 
@@ -2150,7 +2187,7 @@ msgstr "Version: {appVersion}"
 msgid "View parent patch"
 msgstr "View parent patch"
 
-#: apps/client/src/ui/sidebar-account-menu.tsx
+#: apps/client/src/ui/sidebar/sidebar-account-menu.tsx
 msgid "View profile"
 msgstr "View profile"
 
@@ -2206,12 +2243,11 @@ msgstr "Wipe local database?"
 msgid "Yes"
 msgstr "Yes"
 
-#: apps/client/src/spaces/space-member-presence-badges.tsx
+#: apps/client/src/spaces/members/member-you-badge.tsx
 msgid "You"
 msgstr "You"
 
-#: apps/client/src/spaces/space-detail-screen.tsx
-#: apps/client/src/spaces/space-miniplayer.tsx
+#: apps/client/src/spaces/actions/leave-space-confirm-modal.tsx
 msgid "You can join again later if the space is still live."
 msgstr "You can join again later if the space is still live."
 
@@ -2232,7 +2268,7 @@ msgstr "You will need to sign in again to sync with your user."
 #~ msgid "You're already in a space"
 #~ msgstr "You're already in a space"
 
-#: apps/client/src/spaces/space-detail-screen.tsx
+#: apps/client/src/spaces/join/space-join-blocked-note.tsx
 #: apps/client/src/spaces/spaces-screen.tsx
 msgid "You’re already in a space"
 msgstr "You’re already in a space"

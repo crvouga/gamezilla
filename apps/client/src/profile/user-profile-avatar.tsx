@@ -1,4 +1,4 @@
-import { DeviceAvatar } from '@gamezilla/client/profile/device-avatar';
+import { DeviceAvatar } from '@gamezilla/client/profile/avatar-editor/device-avatar';
 import { parseAvatarConfigAttrValue } from '@gamezilla/client/profile/profile-parsers';
 import {
   PROFILE_ENTITY_TYPE,

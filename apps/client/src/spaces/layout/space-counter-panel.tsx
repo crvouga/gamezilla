@@ -1,4 +1,4 @@
-import { useSpaceRoomState } from '@gamezilla/client/spaces/space-room-context';
+import { useSpaceRoomState } from '@gamezilla/client/spaces/room/space-room-context';
 import { Box, Button, Text } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';

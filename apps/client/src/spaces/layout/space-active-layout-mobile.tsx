@@ -1,5 +1,5 @@
-import { SpaceMembersAvatarGroup } from '@gamezilla/client/spaces/space-members-avatar-group';
-import { SpaceSessionChromeActions } from '@gamezilla/client/spaces/space-session-chrome-actions';
+import { SpaceMembersAvatarGroup } from '@gamezilla/client/spaces/members/space-members-avatar-group';
+import { SpaceSessionChromeActions } from '@gamezilla/client/spaces/layout/space-session-chrome-actions';
 import { Box, IconButton, IconSymbol, useTheme } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';

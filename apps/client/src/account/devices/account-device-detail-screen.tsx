@@ -1,5 +1,5 @@
-import { AccountDeviceDetailBody } from '@gamezilla/client/account/account-device-detail-body';
-import { AccountDeviceDetailHeader } from '@gamezilla/client/account/account-device-detail-header';
+import { AccountDeviceDetailBody } from '@gamezilla/client/account/devices/account-device-detail-body';
+import { AccountDeviceDetailHeader } from '@gamezilla/client/account/devices/account-device-detail-header';
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 import { Box, Card, ScreenBase, Text } from '@gamezilla/lib/ui';
 import { Trans } from '@lingui/react/macro';

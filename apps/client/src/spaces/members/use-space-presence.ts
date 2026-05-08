@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { useMyId } from '@gamezilla/client/auth/auth-context';
-import { useSpaceRoomWire } from './space-room-wire-context';
+import { useSpaceRoomWire } from '../room/space-room-wire-context';
 
 /**
  * Live “who is in this tab” used legacy WebSocket presence. The authoritative

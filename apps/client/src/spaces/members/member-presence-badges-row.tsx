@@ -1,7 +1,7 @@
-import { MemberHostBadge } from '@gamezilla/client/spaces/member-host-badge';
-import { MemberSessionCountBadge } from '@gamezilla/client/spaces/member-session-count-badge';
-import { MemberThisTabBadge } from '@gamezilla/client/spaces/member-this-tab-badge';
-import { MemberYouBadge } from '@gamezilla/client/spaces/member-you-badge';
+import { MemberHostBadge } from '@gamezilla/client/spaces/members/member-host-badge';
+import { MemberSessionCountBadge } from '@gamezilla/client/spaces/members/member-session-count-badge';
+import { MemberThisTabBadge } from '@gamezilla/client/spaces/members/member-this-tab-badge';
+import { MemberYouBadge } from '@gamezilla/client/spaces/members/member-you-badge';
 import { Box } from '@gamezilla/lib/ui';
 import type { ReactNode } from 'react';
 

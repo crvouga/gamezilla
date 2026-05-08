@@ -1,4 +1,4 @@
-import { LinkedProvidersList } from '@gamezilla/client/account/linked-providers-list';
+import { LinkedProvidersList } from '@gamezilla/client/account/linked-providers/linked-providers-list';
 import { Card, Text } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';

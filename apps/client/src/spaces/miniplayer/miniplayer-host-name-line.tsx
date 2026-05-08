@@ -1,4 +1,4 @@
-import { SpaceHostNameText } from '@gamezilla/client/spaces/space-host-name-text';
+import { SpaceHostNameText } from '@gamezilla/client/spaces/host/space-host-name-text';
 import type { ReactNode } from 'react';
 
 export type MiniplayerHostNameLineProps = {

@@ -1,5 +1,5 @@
-import { useSpaceActions } from '@gamezilla/client/spaces/space-actions';
-import { LeaveSpaceConfirmModal } from '@gamezilla/client/spaces/leave-space-confirm-modal';
+import { useSpaceActions } from '@gamezilla/client/spaces/actions/space-actions';
+import { LeaveSpaceConfirmModal } from '@gamezilla/client/spaces/actions/leave-space-confirm-modal';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
 

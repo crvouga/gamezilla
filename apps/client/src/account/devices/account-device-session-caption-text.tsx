@@ -1,6 +1,6 @@
-import { formatTimestamp } from '@gamezilla/client/account/device-parsers';
-import { useDeviceActiveSessionCount } from '@gamezilla/client/account/use-device-active-session-count';
-import { useDeviceLatestSessionExpiresAt } from '@gamezilla/client/account/use-device-latest-session-expires-at';
+import { formatTimestamp } from '@gamezilla/client/account/devices/device-parsers';
+import { useDeviceActiveSessionCount } from '@gamezilla/client/account/devices/use-device-active-session-count';
+import { useDeviceLatestSessionExpiresAt } from '@gamezilla/client/account/devices/use-device-latest-session-expires-at';
 import { Text } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';

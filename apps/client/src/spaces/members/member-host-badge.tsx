@@ -1,4 +1,4 @@
-import { useMemberRole } from '@gamezilla/client/spaces/use-member-role';
+import { useMemberRole } from '@gamezilla/client/spaces/members/use-member-role';
 import { Text } from '@gamezilla/lib/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';

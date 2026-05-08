@@ -1,6 +1,6 @@
-import { useSpaceActions } from '@gamezilla/client/spaces/space-actions';
-import { parseAbsent, parseExists } from '@gamezilla/client/spaces/space-parsers';
-import { useMyGuestMembershipId } from '@gamezilla/client/spaces/use-my-guest-membership-id';
+import { useSpaceActions } from '@gamezilla/client/spaces/actions/space-actions';
+import { parseAbsent, parseExists } from '@gamezilla/client/spaces/lib/space-parsers';
+import { useMyGuestMembershipId } from '@gamezilla/client/spaces/guests/use-my-guest-membership-id';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,

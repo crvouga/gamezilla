@@ -1,5 +1,5 @@
-import { parseStringAttr } from '@gamezilla/client/spaces/space-parsers';
-import { SpaceMemberTileRail } from '@gamezilla/client/spaces/space-member-tile-rail';
+import { parseStringAttr } from '@gamezilla/client/spaces/lib/space-parsers';
+import { SpaceMemberTileRail } from '@gamezilla/client/spaces/members/space-member-tile-rail';
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,

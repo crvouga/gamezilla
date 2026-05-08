@@ -1,6 +1,6 @@
 import { AccountActionsRow } from '@gamezilla/client/account/account-actions-row';
-import { AccountDevicesCard } from '@gamezilla/client/account/account-devices-card';
-import { LinkedProvidersCard } from '@gamezilla/client/account/linked-providers-card';
+import { AccountDevicesCard } from '@gamezilla/client/account/devices/account-devices-card';
+import { LinkedProvidersCard } from '@gamezilla/client/account/linked-providers/linked-providers-card';
 import { useAuth } from '@gamezilla/client/auth/auth-context';
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 import { Box, ScreenBase } from '@gamezilla/lib/ui';

@@ -1,4 +1,4 @@
-import { SpaceTitleText } from '@gamezilla/client/spaces/space-title-text';
+import { SpaceTitleText } from '@gamezilla/client/spaces/host/space-title-text';
 import type { ReactNode } from 'react';
 
 export type MiniplayerSpaceTitleProps = {

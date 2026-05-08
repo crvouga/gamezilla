@@ -1,7 +1,7 @@
-import { AccountDeviceActiveSessionLine } from '@gamezilla/client/account/account-device-active-session-line';
-import { AccountDeviceIdField } from '@gamezilla/client/account/account-device-id-field';
-import { AccountDeviceMetaGrid } from '@gamezilla/client/account/account-device-meta-grid';
-import { AccountDeviceUserAgentBlock } from '@gamezilla/client/account/account-device-user-agent-block';
+import { AccountDeviceActiveSessionLine } from '@gamezilla/client/account/devices/account-device-active-session-line';
+import { AccountDeviceIdField } from '@gamezilla/client/account/devices/account-device-id-field';
+import { AccountDeviceMetaGrid } from '@gamezilla/client/account/devices/account-device-meta-grid';
+import { AccountDeviceUserAgentBlock } from '@gamezilla/client/account/devices/account-device-user-agent-block';
 import { Box } from '@gamezilla/lib/ui';
 import type { ReactNode } from 'react';
 

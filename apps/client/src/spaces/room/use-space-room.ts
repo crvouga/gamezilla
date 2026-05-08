@@ -5,7 +5,7 @@ import {
   useKeyValueStorage,
 } from '@gamezilla/client/runtime/runtime-hooks';
 import { sessionTokenAtom } from '@gamezilla/client/runtime/atoms';
-import { parseAbsent } from '@gamezilla/client/spaces/space-parsers';
+import { parseAbsent } from '@gamezilla/client/spaces/lib/space-parsers';
 import { useCurrentSpaceIds } from '@gamezilla/client/spaces/use-current-space-ids';
 import {
   SPACE_ENTITY_TYPE,

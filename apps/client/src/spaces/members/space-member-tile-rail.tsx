@@ -1,8 +1,8 @@
 import { UserDisplayName } from '@gamezilla/client/profile/user-display-name';
 import { UserProfileAvatar } from '@gamezilla/client/profile/user-profile-avatar';
-import { MemberPresenceBadgesRow } from '@gamezilla/client/spaces/member-presence-badges-row';
-import { MemberPresenceDot } from '@gamezilla/client/spaces/member-presence-dot';
-import { MemberThisTabHighlight } from '@gamezilla/client/spaces/member-this-tab-highlight';
+import { MemberPresenceBadgesRow } from '@gamezilla/client/spaces/members/member-presence-badges-row';
+import { MemberPresenceDot } from '@gamezilla/client/spaces/members/member-presence-dot';
+import { MemberThisTabHighlight } from '@gamezilla/client/spaces/members/member-this-tab-highlight';
 import { Box } from '@gamezilla/lib/ui';
 import type { ReactNode } from 'react';
 

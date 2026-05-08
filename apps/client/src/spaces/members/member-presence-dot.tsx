@@ -1,4 +1,4 @@
-import { useMemberIsOnline } from '@gamezilla/client/spaces/use-member-is-online';
+import { useMemberIsOnline } from '@gamezilla/client/spaces/members/use-member-is-online';
 import { StatusDot } from '@gamezilla/lib/ui';
 import type { ReactNode } from 'react';
 

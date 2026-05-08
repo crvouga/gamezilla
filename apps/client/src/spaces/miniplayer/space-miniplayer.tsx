@@ -1,5 +1,5 @@
-import { SpaceMiniplayerCard } from '@gamezilla/client/spaces/space-miniplayer-card';
-import { useSpaceMiniplayerVisibleSpaceIds } from '@gamezilla/client/spaces/use-space-miniplayer-visible-space-ids';
+import { SpaceMiniplayerCard } from '@gamezilla/client/spaces/miniplayer/space-miniplayer-card';
+import { useSpaceMiniplayerVisibleSpaceIds } from '@gamezilla/client/spaces/miniplayer/use-space-miniplayer-visible-space-ids';
 import { Box } from '@gamezilla/lib/ui';
 import type { ReactNode } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

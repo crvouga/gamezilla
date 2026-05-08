@@ -1,4 +1,4 @@
-import { useSpaceRoom, type SpaceRoomUiState } from '@gamezilla/client/spaces/use-space-room';
+import { useSpaceRoom, type SpaceRoomUiState } from '@gamezilla/client/spaces/room/use-space-room';
 import { createContext, useContext, type ReactNode } from 'react';
 
 const SpaceRoomContext = createContext<SpaceRoomUiState | null>(null);

@@ -1,7 +1,7 @@
 import {
   formatDeviceListTitle,
   parseTrimmedStringAttr,
-} from '@gamezilla/client/account/device-parsers';
+} from '@gamezilla/client/account/devices/device-parsers';
 import { optionalProps } from '@gamezilla/client/ui/optional-props';
 import { DEVICE_ENTITY_TYPE, DeviceAttr } from '@gamezilla/domain/auth';
 import { Text, type SxProps, type TextVariant } from '@gamezilla/lib/ui';

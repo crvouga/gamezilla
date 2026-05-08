@@ -1,4 +1,4 @@
-import { ProfileDiceBearAvatar } from '@gamezilla/client/profile/profile-dicebear-avatar';
+import { ProfileDiceBearAvatar } from '@gamezilla/client/profile/avatar-editor/profile-dicebear-avatar';
 import type { AvatarConfig } from '@gamezilla/domain/profile/avatar-config';
 import { Box, Button, Text } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
