@@ -528,7 +528,7 @@ msgstr "Colors"
 
 #: apps/client/src/spaces/games/chess/chess-main-menu.tsx
 #: apps/client/src/spaces/games/chess/chess-main-menu.tsx
-#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-main-menu.tsx
 #: apps/client/src/spaces/games/games-main-menu.tsx
 #: apps/client/src/spaces/games/games-main-menu.tsx
 #: apps/client/src/spaces/games/games-main-menu.tsx
@@ -1530,7 +1530,7 @@ msgstr "People in this space"
 msgid "Pick a game to play."
 msgstr "Pick a game to play."
 
-#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-main-menu.tsx
 msgid "Pick a puzzle mode."
 msgstr "Pick a puzzle mode."
 
@@ -1546,7 +1546,8 @@ msgstr "Platform"
 msgid "Platform: {platformOs}"
 msgstr "Platform: {platformOs}"
 
-#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-main-menu.tsx
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
 msgid "Play"
 msgstr "Play"
 
@@ -1579,7 +1580,7 @@ msgstr "production"
 #: apps/client/src/profile/profile-edit-screen.tsx
 #: apps/client/src/profile/profile-screen.tsx
 #: apps/client/src/profile/profile-username-screen.tsx
-#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-main-menu.tsx
 #: apps/client/src/ui/sidebar/app-sidebar.tsx
 #: apps/client/src/ui/sidebar/sidebar-account-menu.tsx
 #: apps/client/src/ui/use-account-actions.tsx
@@ -1599,7 +1600,8 @@ msgid "Provider user id: {providerUserId}"
 msgstr "Provider user id: {providerUserId}"
 
 #: apps/client/src/spaces/games/chess/chess-main-menu.tsx
-#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-main-menu.tsx
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
 msgid "Puzzle"
 msgstr "Puzzle"
 
@@ -2097,6 +2099,10 @@ msgstr "This field is required"
 #: apps/client/src/developer/modal-screen.tsx
 msgid "This is a modal screen."
 msgstr "This is a modal screen."
+
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
+msgid "This is a placeholder puzzle board."
+msgstr "This is a placeholder puzzle board."
 
 #: apps/client/src/spaces/space-detail-screen.tsx
 #~ msgid "This space could not be found."

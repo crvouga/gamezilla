@@ -58,7 +58,7 @@ export function ChessMainMenu(): ReactNode {
     return <PuzzleMainMenu dispatch={dispatch} />;
   }
   if (screen === CHESS_MAIN_MENU_PUZZLE_PLAY) {
-    return <PuzzlePlayScreen />;
+    return <PuzzlePlayScreen dispatch={dispatch} />;
   }
 
   return (
