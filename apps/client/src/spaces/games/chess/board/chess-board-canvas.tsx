@@ -343,27 +343,7 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
                 })()
               : null}
 
-            {/* pieces */}
-            {pieceImages
-              ? pieceRows.map((row) => {
-                  if (dragFrom === row.square) return null;
-                  const { x, y } = squareToXY(row.square, size, orientation);
-                  const cx = x + cell / 2;
-                  const cy = y + cell / 2;
-                  const image = pieceImages[row.code];
-                  return (
-                    <ChessBoardPieceSkia
-                      key={row.id}
-                      image={image}
-                      pieceSize={pieceDraw}
-                      targetCenterX={cx}
-                      targetCenterY={cy}
-                      fadeInOnMount={!!row.fadeIn}
-                    />
-                  );
-                })
-              : null}
-
+            {/* exiting/captured pieces (drawn first so capturer stays on top) */}
             {pieceImages
               ? exitingRows.map((row) => {
                   const { x, y } = squareToXY(row.square, size, orientation);
@@ -381,6 +361,27 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
                       onFadeOutComplete={() => {
                         consumeExiting(row.id);
                       }}
+                    />
+                  );
+                })
+              : null}
+
+            {/* active pieces */}
+            {pieceImages
+              ? pieceRows.map((row) => {
+                  if (dragFrom === row.square) return null;
+                  const { x, y } = squareToXY(row.square, size, orientation);
+                  const cx = x + cell / 2;
+                  const cy = y + cell / 2;
+                  const image = pieceImages[row.code];
+                  return (
+                    <ChessBoardPieceSkia
+                      key={row.id}
+                      image={image}
+                      pieceSize={pieceDraw}
+                      targetCenterX={cx}
+                      targetCenterY={cy}
+                      fadeInOnMount={!!row.fadeIn}
                     />
                   );
                 })

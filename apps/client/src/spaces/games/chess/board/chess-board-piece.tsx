@@ -85,6 +85,10 @@ export function ChessBoardPieceSkia(
 
   useEffect(() => {
     if (!fadeOut) return;
+    scaleSV.value = withTiming(0.5, {
+      duration: FADE_OUT_MS,
+      easing: Easing.in(Easing.cubic),
+    });
     opacity.value = withTiming(
       0,
       { duration: FADE_OUT_MS, easing: Easing.in(Easing.cubic) },
@@ -94,7 +98,7 @@ export function ChessBoardPieceSkia(
         }
       }
     );
-  }, [fadeOut, onFadeOutComplete, opacity]);
+  }, [fadeOut, onFadeOutComplete, opacity, scaleSV]);
 
   const transform = useDerivedValue(() => {
     const cx = pieceSize / 2;
