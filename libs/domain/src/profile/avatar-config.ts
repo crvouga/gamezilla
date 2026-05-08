@@ -59,12 +59,27 @@ function pickOptions(o: Record<string, unknown>): Record<string, unknown> {
   return {};
 }
 
-export function parseAvatarConfig(raw: unknown): AvatarConfig | null {
-  if (typeof raw !== 'string') return null;
-  const o = tryParseJsonObject(raw);
-  if (o === null) return null;
+function avatarConfigFromObject(o: Record<string, unknown>): AvatarConfig {
   const seed = typeof o['seed'] === 'string' ? o['seed'] : '';
   return { style: pickStyle(o), seed, options: pickOptions(o) };
+}
+
+/**
+ * Accepts either a JSON-encoded string (canonical wire form) or an already-
+ * parsed `AvatarConfig`-shaped object. Idempotency matters because the
+ * namespaced attribute helper runs the parser on write, so the stored
+ * attribute can be the parsed object (not the original JSON string) on the
+ * read side. `null` for shapes that don't look like an avatar config.
+ */
+export function parseAvatarConfig(raw: unknown): AvatarConfig | null {
+  if (typeof raw === 'string') {
+    const o = tryParseJsonObject(raw);
+    return o === null ? null : avatarConfigFromObject(o);
+  }
+  if (isPlainObject(raw)) {
+    return avatarConfigFromObject(raw);
+  }
+  return null;
 }
 
 export function serializeAvatarConfig(config: AvatarConfig): string {
