@@ -38,6 +38,7 @@
     "react-native-web",
     "@lingui/react",
     "react-native",
+    "react-native-svg",
     "eslint-plugin-naming",
     "wrangler",
     "@lingui/conf",

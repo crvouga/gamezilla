@@ -1,0 +1,108 @@
+/* eslint-disable max-lines-per-function */
+import { WithSkiaWeb } from '@gamezilla/client/ui/with-skia-web';
+import { Box, useTheme } from '@gamezilla/lib/ui';
+import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import type { LayoutChangeEvent } from 'react-native';
+import type { ChessBoardCanvasProps } from './chess-board-canvas';
+import type { BoardTheme, ChessBoardProps } from './chess-board-types';
+
+function defaultBoardTheme(theme: ReturnType<typeof useTheme>): BoardTheme {
+  return {
+    lightSquare: theme.colors.surface,
+    darkSquare: theme.colors.outline,
+    border: theme.colors.border,
+    lastMove: theme.colors.tintMuted,
+    selected: theme.colors.tintMuted,
+    legalMoveDot: theme.colors.tint,
+    check: theme.colors.destructive,
+    coordinates: theme.colors.textSecondary,
+  };
+}
+
+export function ChessBoard(props: ChessBoardProps): ReactNode {
+  const {
+    fen,
+    onMove,
+    orientation = 'white',
+    size,
+    interactive = true,
+    showCoordinates = true,
+    highlightLastMove = true,
+    highlightLegalMoves = true,
+    theme: themeOverride,
+    testID,
+  } = props;
+
+  const appTheme = useTheme();
+  const theme = useMemo(() => {
+    const base = defaultBoardTheme(appTheme);
+    return { ...base, ...(themeOverride ?? {}) };
+  }, [appTheme, themeOverride]);
+
+  const [measured, setMeasured] = useState<number | null>(null);
+  const boardSize = size ?? measured ?? 0;
+
+  const onLayout = (e: LayoutChangeEvent) => {
+    if (size !== undefined) return;
+    const w = e.nativeEvent.layout.width;
+    const h = e.nativeEvent.layout.height;
+    const next = Math.floor(Math.min(w, h));
+    if (next > 0) setMeasured(next);
+  };
+
+  const componentProps = useMemo<ChessBoardCanvasProps>(
+    () => ({
+      ...(fen !== undefined ? { fen } : {}),
+      ...(onMove !== undefined ? { onMove } : {}),
+      orientation,
+      size: boardSize,
+      interactive,
+      showCoordinates,
+      highlightLastMove,
+      highlightLegalMoves,
+      theme,
+    }),
+    [
+      fen,
+      onMove,
+      orientation,
+      boardSize,
+      interactive,
+      showCoordinates,
+      highlightLastMove,
+      highlightLegalMoves,
+      theme,
+    ]
+  );
+
+  // Dynamic import keeps `chess-board-canvas` (and its
+  // `import { Skia } from '@shopify/react-native-skia'`) out of the eager
+  // module graph on web. Shopify's `WithSkiaWeb` awaits `LoadSkiaWeb()`
+  // before invoking this, so `global.CanvasKit` is set before any factory
+  // closures inside `Skia` capture it.
+  const getComponent = useCallback(
+    () =>
+      import('./chess-board-canvas').then((m) => ({
+        default: m.ChessBoardCanvas,
+      })),
+    []
+  );
+
+  return (
+    <Box
+      testID={testID}
+      onLayout={onLayout}
+      sx={{ alignSelf: 'center' }}
+      style={
+        size !== undefined ? { width: size, height: size } : { width: '100%' }
+      }
+    >
+      {boardSize > 0 ? (
+        <WithSkiaWeb<ChessBoardCanvasProps>
+          getComponent={getComponent}
+          componentProps={componentProps}
+        />
+      ) : null}
+    </Box>
+  );
+}

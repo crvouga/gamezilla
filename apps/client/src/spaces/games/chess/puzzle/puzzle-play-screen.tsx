@@ -1,52 +1,19 @@
-import { Box, Text, useTheme } from '@gamezilla/lib/ui';
+import { ChessBoard } from '@gamezilla/client/spaces/games/chess/board';
 import { MainMenuScreen } from '@gamezilla/client/spaces/games/main-menu-screen';
 import {
   CHESS_MAIN_MENU_PUZZLE,
   SetChessMainMenuScreen,
 } from '@gamezilla/domain/spaces/space-module';
+import { Box, Text } from '@gamezilla/lib/ui';
 import { Trans } from '@lingui/react/macro';
 import { useCallback, type ReactNode } from 'react';
 
-function PlaceholderChessBoard(): ReactNode {
-  const theme = useTheme();
-  const size = 320;
-  const cell = size / 8;
-  const light = theme.colors.surface;
-  const dark = theme.colors.surface;
+const SAMPLE_PUZZLE_FEN =
+  'r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3' as const;
 
-  return (
-    <Box
-      sx={{
-        width: size,
-        height: size,
-        borderRadius: 4,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: 'border',
-      }}
-    >
-      {Array.from({ length: 8 }).map((_, row) => (
-        <Box key={row} sx={{ flexDirection: 'row' }}>
-          {Array.from({ length: 8 }).map((__, col) => {
-            const isDark = (row + col) % 2 === 1;
-            return (
-              <Box
-                key={col}
-                style={{
-                  width: cell,
-                  height: cell,
-                  backgroundColor: isDark ? dark : light,
-                }}
-              />
-            );
-          })}
-        </Box>
-      ))}
-    </Box>
-  );
-}
-
-export function PuzzlePlayScreen(args: { dispatch: (cmd: unknown) => void }): ReactNode {
+export function PuzzlePlayScreen(args: {
+  dispatch: (cmd: unknown) => void;
+}): ReactNode {
   const { dispatch } = args;
 
   const backToPuzzleMenu = useCallback(() => {
@@ -59,11 +26,19 @@ export function PuzzlePlayScreen(args: { dispatch: (cmd: unknown) => void }): Re
       subtitle={<Trans>Play</Trans>}
       helper={
         <Box sx={{ alignItems: 'center', gap: 4, mt: 2 }}>
-          <PlaceholderChessBoard />
+          <ChessBoard
+            fen={SAMPLE_PUZZLE_FEN}
+            size={320}
+            orientation="white"
+            interactive
+            showCoordinates
+            highlightLastMove
+            highlightLegalMoves
+          />
           <Text
             variant="caption"
             sx={{ color: 'textSecondary', textAlign: 'center' }}
-            label={<Trans>This is a placeholder puzzle board.</Trans>}
+            label={<Trans>Drag or tap pieces to play the puzzle.</Trans>}
           />
         </Box>
       }
@@ -72,4 +47,3 @@ export function PuzzlePlayScreen(args: { dispatch: (cmd: unknown) => void }): Re
     />
   );
 }
-
