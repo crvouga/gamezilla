@@ -1,6 +1,6 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { SubscribablePatchDbLike } from '../subscribable';
-import { InMemoryEntityStore } from './in-memory-entity-store';
+import type { InMemoryEntityStore } from './in-memory-entity-store';
 
 const storeByDb = new WeakMap<SubscribablePatchDbLike, InMemoryEntityStore>();
 

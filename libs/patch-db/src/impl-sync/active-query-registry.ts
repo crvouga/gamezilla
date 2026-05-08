@@ -126,8 +126,8 @@ export class ActiveQueryRegistry {
     if (this.isDestroyed()) return;
     // `rerunPending` can schedule a follow-up read after an in-flight read
     // settles, so we loop until all entries are quiet.
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
+    let shouldContinue = true;
+    while (shouldContinue) {
       const pending: Promise<void>[] = [];
       for (const entry of this.entries.values()) {
         if (entry.inFlight !== null) pending.push(entry.inFlight);
@@ -139,6 +139,7 @@ export class ActiveQueryRegistry {
         (e) => e.inFlight !== null || e.rerunPending
       );
       if (!stillPending) return;
+      shouldContinue = stillPending;
     }
   }
 
