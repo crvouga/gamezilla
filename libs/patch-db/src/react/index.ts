@@ -17,6 +17,7 @@ export {
   usePatchDbStack,
   type PatchDbStackValue,
 } from './patch-db-stack-context';
+export { PatchDbCacheWarmer } from './cache-warmer';
 export { usePatchDb } from './use-patch-db';
 export { useEntity } from './use-entity';
 export { useEntityAttribute } from './use-entity-attribute';

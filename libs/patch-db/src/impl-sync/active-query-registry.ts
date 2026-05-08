@@ -116,6 +116,32 @@ export class ActiveQueryRegistry {
     return this.entries.size;
   }
 
+  /**
+   * Drains all in-flight reads across every active query key.
+   *
+   * Used by cache warmers that want `write()` to resolve only after all
+   * subscriptions have re-read the local DB following an invalidation.
+   */
+  async flushInFlight(): Promise<void> {
+    if (this.isDestroyed()) return;
+    // `rerunPending` can schedule a follow-up read after an in-flight read
+    // settles, so we loop until all entries are quiet.
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const pending: Promise<void>[] = [];
+      for (const entry of this.entries.values()) {
+        if (entry.inFlight !== null) pending.push(entry.inFlight);
+      }
+      if (pending.length === 0) return;
+      await Promise.allSettled(pending);
+      if (this.isDestroyed()) return;
+      const stillPending = Array.from(this.entries.values()).some(
+        (e) => e.inFlight !== null || e.rerunPending
+      );
+      if (!stillPending) return;
+    }
+  }
+
   subscribe(query: PatchDbQuery, listener: ActiveQueryListener): Unsubscribe {
     const key = JSON.stringify(query);
     let entry = this.entries.get(key);

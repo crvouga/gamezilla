@@ -249,6 +249,16 @@ export class SyncPatchDb implements PatchDb {
     this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
   }
 
+  /**
+   * Await completion of all currently in-flight subscription reads.
+   *
+   * Intended for UI cache warmers that want `write()` to resolve only after
+   * existing subscriptions have re-read the local DB for the invalidation.
+   */
+  flushPendingReads(): Promise<void> {
+    return this.activeQueries.flushInFlight();
+  }
+
   /** Stops push and poll timers. Call before disposing of the db. */
   destroy(): void {
     this.destroyed = true;

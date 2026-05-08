@@ -14,10 +14,10 @@ import {
 } from '@gamezilla/domain/auth';
 import { createConfigService } from '@gamezilla/domain/config/config-service';
 import type { KeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { createLogger } from '@gamezilla/lib/logger/logger';
 import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
+import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbImplClientTransport } from '@gamezilla/patch-db/impl-client-transport';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
 import { SyncPatchDb } from '@gamezilla/patch-db/impl-sync';
@@ -25,8 +25,10 @@ import { PatchMetadataStamper } from '@gamezilla/patch-db/metadata/patch-metadat
 import {
   forceDetachPatchDbEntitySubscriptionsForDb,
   forceDetachPatchDbQuerySubscriptionsForDb,
+  PatchDbCacheWarmer,
   type PatchDbStackValue,
 } from '@gamezilla/patch-db/react';
+import type { SubscribablePatchDbLike } from '@gamezilla/patch-db/subscribable';
 import { atom, getDefaultStore } from 'jotai';
 import { atomEffect } from 'jotai-effect';
 import { openSqlClientForPlatform } from './open-sql-client';
@@ -44,9 +46,7 @@ import { openSqlClientForPlatform } from './open-sql-client';
 let sqlClientLifecycleTail: Promise<unknown> = Promise.resolve();
 
 /** Queue connection-lifecycle work (open/close/delete) on the shared tail. */
-export function enqueueSqlClientLifecycle<T>(
-  fn: () => Promise<T>
-): Promise<T> {
+export function enqueueSqlClientLifecycle<T>(fn: () => Promise<T>): Promise<T> {
   const job = sqlClientLifecycleTail.then(fn, fn) as Promise<T>;
   sqlClientLifecycleTail = job.then(
     () => undefined,
@@ -99,18 +99,18 @@ async function disconnectActiveSqlClientIfAny(): Promise<void> {
 }
 
 function registerPatchStackCleanup(args: {
-  stamper: PatchMetadataStamper;
+  decorated: SubscribablePatchDbLike;
   sync: SyncPatchDb;
   signal: AbortSignal;
 }): void {
-  const { stamper, sync, signal } = args;
+  const { decorated, sync, signal } = args;
   const stackId = `stack-${String(Date.now())}-${Math.random().toString(36).slice(2, 8)}`;
   let cleaned = false;
   const cleanup = (_reason: 'replaced' | 'abort') => {
     if (cleaned) return;
     cleaned = true;
-    forceDetachPatchDbQuerySubscriptionsForDb(stamper);
-    forceDetachPatchDbEntitySubscriptionsForDb(stamper);
+    forceDetachPatchDbQuerySubscriptionsForDb(decorated);
+    forceDetachPatchDbEntitySubscriptionsForDb(decorated);
     sync.destroy();
     if (activePatchStackCleanup?.id === stackId) {
       activePatchStackCleanup = null;
@@ -257,7 +257,11 @@ export const patchDbStackAtom = atom(async (get, { signal }) => {
     assertDeviceId: (id) => assertDeviceId(id),
   });
 
-  registerPatchStackCleanup({ stamper, sync, signal });
+  const warmer = new PatchDbCacheWarmer(stamper, () =>
+    sync.flushPendingReads()
+  );
+
+  registerPatchStackCleanup({ decorated: warmer, sync, signal });
 
   await stamper.clearRejectedPushes();
 
@@ -266,10 +270,10 @@ export const patchDbStackAtom = atom(async (get, { signal }) => {
   );
 
   const stack: PatchDbStackValue = {
-    db: stamper,
+    db: warmer,
     sync,
     pubSub,
-    decorated: stamper,
+    decorated: warmer,
   };
   return stack;
 });

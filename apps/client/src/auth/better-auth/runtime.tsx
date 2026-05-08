@@ -59,13 +59,16 @@ function InnerHostedAuth({
   const lastSyncedRef = useRef<string | null>(null);
 
   useEffect(() => {
+    const isLoaded = !snapshot.isPending;
+    const computedSignedIn =
+      isLoaded &&
+      (snapshot.error === null || snapshot.error === undefined) &&
+      snapshot.data !== null &&
+      snapshot.data !== undefined;
     void runHostedSessionSync({
       store: getDefaultStore(),
-      isSignedIn:
-        !snapshot.isPending &&
-        (snapshot.error === null || snapshot.error === undefined) &&
-        snapshot.data !== null &&
-        snapshot.data !== undefined,
+      isLoaded,
+      isSignedIn: computedSignedIn,
       getSessionToken: async () => {
         const r = await authClient.getSession();
         if (r.error !== null && r.error !== undefined) return null;

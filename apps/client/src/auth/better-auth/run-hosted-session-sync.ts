@@ -19,12 +19,16 @@ type JotaiStore = ReturnType<typeof getDefaultStore>;
 
 type SyncArgs = {
   store: JotaiStore;
+  isLoaded: boolean;
   isSignedIn: boolean;
   getSessionToken: () => Promise<string | null>;
   lastSyncedRef: { current: string | null };
 };
 
 export async function runHostedSessionSync(args: SyncArgs): Promise<void> {
+  if (!args.isLoaded) {
+    return;
+  }
   if (!args.isSignedIn) {
     await handleHostedSignedOut(args);
     return;
