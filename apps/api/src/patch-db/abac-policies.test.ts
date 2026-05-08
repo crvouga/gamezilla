@@ -44,12 +44,12 @@ describe('gamezilla default policies (system + auth writes)', () => {
       [
         {
           entityId: 'evt_sys_test',
-          entityType: 'stripe.webhook_event',
+          entityType: 'stripe.webhook-event',
           attributes: {
             'entity/owner': owner,
-            'stripe/webhookEventType': 'customer.created',
-            'stripe/stripeObjectId': 'evt_sys_test',
-            'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
+            'stripe/webhook-event-type': 'customer.created',
+            'stripe/stripe-object-id': 'evt_sys_test',
+            'patch/created-by-id': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
       ],
@@ -58,7 +58,7 @@ describe('gamezilla default policies (system + auth writes)', () => {
     const [r] = await db.read(
       [
         {
-          entityType: 'stripe.webhook_event',
+          entityType: 'stripe.webhook-event',
           entityId: 'evt_sys_test',
           limit: 1,
         },
@@ -69,7 +69,7 @@ describe('gamezilla default policies (system + auth writes)', () => {
     expect(r.entities.length).toBe(1);
   });
 
-  test('authenticated write rejects patch/createdById mismatch', async () => {
+  test('authenticated write rejects patch/created-by-id mismatch', async () => {
     const deviceId = '00000000-0000-4000-8000-000000000011';
     const userId = '00000000-0000-4000-8000-000000000022';
     const ctx = {
@@ -87,7 +87,7 @@ describe('gamezilla default policies (system + auth writes)', () => {
           entityType: PROFILE_ENTITY_TYPE,
           attributes: {
             [ProfileAttr.id.key]: userId,
-            'patch/createdById': '00000000-0000-4000-8000-00000000dead',
+            'patch/created-by-id': '00000000-0000-4000-8000-00000000dead',
           },
         },
       ],

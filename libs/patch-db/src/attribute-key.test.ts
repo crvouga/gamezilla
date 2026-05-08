@@ -1,18 +1,21 @@
 import { describe, expect, test } from 'bun:test';
-import { isValidPatchDbAttributeKey } from './attribute-key';
+import { isClojureNamespacedKey } from './attribute-key';
 
-describe('isValidPatchDbAttributeKey', () => {
+describe('isClojureNamespacedKey', () => {
   test('accepts namespaced keys', () => {
-    expect(isValidPatchDbAttributeKey('todo/title')).toBe(true);
-    expect(isValidPatchDbAttributeKey('my.namespace/attr')).toBe(true);
-    expect(isValidPatchDbAttributeKey('patch/syncRejectedAt')).toBe(true);
+    expect(isClojureNamespacedKey('todo/title')).toBe(true);
+    expect(isClojureNamespacedKey('my.namespace/attr-name')).toBe(true);
+    expect(isClojureNamespacedKey('patch/sync-rejected-at')).toBe(true);
+    expect(isClojureNamespacedKey('chess.puzzle/id')).toBe(true);
   });
 
   test('rejects invalid keys', () => {
-    expect(isValidPatchDbAttributeKey('bad key/x')).toBe(false);
-    expect(isValidPatchDbAttributeKey('0prefix/name')).toBe(false);
-    expect(isValidPatchDbAttributeKey('prefix/9nope')).toBe(false);
-    expect(isValidPatchDbAttributeKey('onlyOne')).toBe(false);
-    expect(isValidPatchDbAttributeKey('a/b/c')).toBe(false);
+    expect(isClojureNamespacedKey('bad key/x')).toBe(false);
+    expect(isClojureNamespacedKey('0prefix/name')).toBe(false);
+    expect(isClojureNamespacedKey('prefix/9nope')).toBe(false);
+    expect(isClojureNamespacedKey('onlyOne')).toBe(false);
+    expect(isClojureNamespacedKey('a/b/c')).toBe(false);
+    expect(isClojureNamespacedKey('foo..bar/x')).toBe(false);
+    expect(isClojureNamespacedKey('ns/foo.bar')).toBe(false);
   });
 });

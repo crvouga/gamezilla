@@ -10,13 +10,11 @@ import {
 } from '@gamezilla/client/spaces/room/use-space-room-selector';
 import { useCurrentSpaceRole } from '@gamezilla/client/spaces/use-current-space-role';
 import {
+  GamesRoomAttr,
+  SelectGame,
   SpaceGame,
   type SelectedSpaceGame,
 } from '@gamezilla/domain/spaces/games/games';
-import {
-  GamesRoomAttr,
-  SelectGame,
-} from '@gamezilla/domain/spaces/space-module';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { useCallback, useMemo } from 'react';

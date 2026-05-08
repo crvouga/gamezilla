@@ -76,7 +76,7 @@ export function assertCreatedByMatchesAuthor(
   const app = ctx as AppAuthContext;
   const cb = createdBy(patch);
   if (cb !== app.myId && cb !== PATCH_DB_SYSTEM_DEVICE_ID) {
-    throw new ForbiddenError('patch/createdById must match author', {
+    throw new ForbiddenError('patch/created-by-id must match author', {
       expected: app.myId,
       actual: cb,
     });

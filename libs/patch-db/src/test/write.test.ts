@@ -172,9 +172,9 @@ describe.each(implementations)('$name', ({ factory }) => {
       entityType: 'todo',
       attributes: {
         'todo/done': value,
-        'patch/syncedAt': null,
-        'patch/createdById': '',
-        'patch/sessionId': '',
+        'patch/synced-at': null,
+        'patch/created-by-id': '',
+        'patch/session-id': '',
       },
       patchId,
       parentId,
@@ -227,9 +227,9 @@ describe.each(implementations)('$name', ({ factory }) => {
         entityType: 'todo',
         attributes: {
           'todo/n': 2,
-          'patch/syncedAt': null,
-          'patch/createdById': '',
-          'patch/sessionId': '',
+          'patch/synced-at': null,
+          'patch/created-by-id': '',
+          'patch/session-id': '',
         },
         patchId: childId,
         parentId: phantomParent,
@@ -249,16 +249,16 @@ describe.each(implementations)('$name', ({ factory }) => {
     expect(child.parentId).toBe(leaf.patchId);
   });
 
-  test('read with on:patches returns patches without patch/syncedAt (unsynced)', async () => {
+  test('read with on:patches returns patches without patch/synced-at (unsynced)', async () => {
     const listId = crypto.randomUUID();
     const createWritten = await db.write([
       {
         entityId: listId,
-        entityType: 'todoList',
+        entityType: 'todo-list',
         attributes: {
-          'todoList/name': 'My List',
-          'todoList/order': 0,
-          'todoList/createdAt': new Date().toISOString(),
+          'todo-list/name': 'My List',
+          'todo-list/order': 0,
+          'todo-list/created-at': new Date().toISOString(),
         },
       },
     ]);
@@ -268,8 +268,8 @@ describe.each(implementations)('$name', ({ factory }) => {
     const deleteWritten = await db.write([
       {
         entityId: listId,
-        entityType: 'todoList',
-        attributes: { 'todoList/deleted': true },
+        entityType: 'todo-list',
+        attributes: { 'todo-list/deleted': true },
       },
     ]);
     expect(deleteWritten.rejected).toHaveLength(0);
@@ -293,7 +293,7 @@ describe.each(implementations)('$name', ({ factory }) => {
     expect(unsynced.map((p) => p.patchId)).toContain(deletePatch.patchId);
     expect(
       unsynced.find((p) => p.patchId === deletePatch.patchId)?.attributes
-    ).toMatchObject({ 'todoList/deleted': true });
+    ).toMatchObject({ 'todo-list/deleted': true });
 
     await db.update(
       unsynced.map((p) => ({
@@ -336,8 +336,8 @@ describe.each(implementations)('$name', ({ factory }) => {
       {
         patchId: second.patchId,
         attributes: {
-          'patch/syncRejectedAt': new Date().toISOString(),
-          'patch/syncRejectedReason': 'forbidden: test',
+          'patch/sync-rejected-at': new Date().toISOString(),
+          'patch/sync-rejected-reason': 'forbidden: test',
           'patch/rejected': true,
         },
       },

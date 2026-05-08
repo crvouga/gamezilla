@@ -20,17 +20,17 @@ export const CounterRoomAttr = {
   ),
 } as const;
 
-export const counterCmdNs = createMessageNamespace('counterCmd');
-export const Increment = counterCmdNs('INCREMENT', validateEmptyPayload);
-export const Decrement = counterCmdNs('DECREMENT', validateEmptyPayload);
+export const counterCmdNs = createMessageNamespace('counter-cmd');
+export const Increment = counterCmdNs('increment', validateEmptyPayload);
+export const Decrement = counterCmdNs('decrement', validateEmptyPayload);
 
-export const counterEvtNs = createMessageNamespace('counterEvt');
+export const counterEvtNs = createMessageNamespace('counter-evt');
 export const CounterIncremented = counterEvtNs(
-  'INCREMENTED',
+  'incremented',
   validateEmptyPayload
 );
 export const CounterDecremented = counterEvtNs(
-  'DECREMENTED',
+  'decremented',
   validateEmptyPayload
 );
 

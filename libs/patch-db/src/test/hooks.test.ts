@@ -22,16 +22,16 @@ describe('PatchDb hooks (sqlite)', () => {
     await db.write([
       {
         entityId: 'h1',
-        entityType: 'hookTask',
-        attributes: { 'hookTask/n': 1 },
+        entityType: 'hook-task',
+        attributes: { 'hook-task/n': 1 },
       },
       {
         entityId: 'h2',
-        entityType: 'hookTask',
-        attributes: { 'hookTask/n': 2 },
+        entityType: 'hook-task',
+        attributes: { 'hook-task/n': 2 },
       },
     ]);
-    const [r] = await db.read([{ entityType: 'hookTask' }]);
+    const [r] = await db.read([{ entityType: 'hook-task' }]);
     assert.defined(r, 'result');
     expect(r.entities.length).toBe(1);
   });
@@ -44,12 +44,12 @@ describe('PatchDb hooks (sqlite)', () => {
       db.write([
         {
           entityId: 'x',
-          entityType: 'hookAbort',
-          attributes: { 'hookAbort/a': 1 },
+          entityType: 'hook-abort',
+          attributes: { 'hook-abort/a': 1 },
         },
       ])
     ).rejects.toThrow('abort write');
-    const [r] = await db.read([{ entityType: 'hookAbort', entityId: 'x' }]);
+    const [r] = await db.read([{ entityType: 'hook-abort', entityId: 'x' }]);
     assert.defined(r, 'result');
     expect(r.entities.length).toBe(0);
   });
@@ -65,7 +65,7 @@ describe('PatchDb hooks (sqlite)', () => {
         reason: string;
       }[] = [];
       for (const p of patches) {
-        if (p.entityType === 'hookDrop') {
+        if (p.entityType === 'hook-drop') {
           rejected.push({
             patchId: p.patchId!,
             code: 'hook1',
@@ -81,26 +81,26 @@ describe('PatchDb hooks (sqlite)', () => {
       {
         patchId: idKeep,
         entityId: 'e-keep',
-        entityType: 'hookKeep',
-        attributes: { 'hookKeep/n': 1 },
+        entityType: 'hook-keep',
+        attributes: { 'hook-keep/n': 1 },
       },
       {
         patchId: idDrop,
         entityId: 'e-drop',
-        entityType: 'hookDrop',
-        attributes: { 'hookDrop/n': 2 },
+        entityType: 'hook-drop',
+        attributes: { 'hook-drop/n': 2 },
       },
     ]);
     expect(out.rejected.some((r) => r.patchId === idDrop)).toBe(true);
     expect(out.accepted).toHaveLength(1);
     expect(out.accepted[0]?.patchId).toBe(idKeep);
     const [dropRead] = await db.read([
-      { entityType: 'hookDrop', entityId: 'e-drop' },
+      { entityType: 'hook-drop', entityId: 'e-drop' },
     ]);
     assert.defined(dropRead, 'dropRead');
     expect(dropRead.entities).toHaveLength(0);
     const [keepRead] = await db.read([
-      { entityType: 'hookKeep', entityId: 'e-keep' },
+      { entityType: 'hook-keep', entityId: 'e-keep' },
     ]);
     assert.defined(keepRead, 'keepRead');
     expect(keepRead.entities).toHaveLength(1);

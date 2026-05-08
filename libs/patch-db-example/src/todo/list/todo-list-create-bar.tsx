@@ -91,7 +91,7 @@ export function TodoListCreateBar(): ReactNode {
     await db.write([
       {
         entityId: crypto.randomUUID(),
-        entityType: 'todoList',
+        entityType: 'todo-list',
         attributes: {
           ...TodoListAttr.name(trimmed),
           ...TodoListAttr.order(listCount),

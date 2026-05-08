@@ -25,17 +25,17 @@ describe('SyncPatchDb (deterministic sim)', () => {
     await srv.db.write([
       {
         entityId: listId,
-        entityType: 'todoList',
+        entityType: 'todo-list',
         attributes: {
-          'todoList/name': 'Ref',
-          'todoList/order': 0,
-          'todoList/createdAt': new Date().toISOString(),
+          'todo-list/name': 'Ref',
+          'todo-list/order': 0,
+          'todo-list/created-at': new Date().toISOString(),
         },
       },
     ]);
 
     const listQuery = {
-      entityType: 'todoList',
+      entityType: 'todo-list',
       where: DELETED_CLAUSE,
     } as const;
     const u1 = c.subscribe.entities(listQuery, () => {});
@@ -45,18 +45,19 @@ describe('SyncPatchDb (deterministic sim)', () => {
     await srv.db.write([
       {
         entityId: listId,
-        entityType: 'todoList',
-        attributes: { 'todoList/name': 'Updated After Partial Unsub' },
+        entityType: 'todo-list',
+        attributes: { 'todo-list/name': 'Updated After Partial Unsub' },
       },
     ]);
 
     await c.poll();
     u2();
 
-    const local = await c.read([{ entityType: 'todoList', entityId: listId }]);
+    const local = await c.read([{ entityType: 'todo-list', entityId: listId }]);
     expect(
       (local[0]?.entities ?? []).some(
-        (e) => e.attributes?.['todoList/name'] === 'Updated After Partial Unsub'
+        (e) =>
+          e.attributes?.['todo-list/name'] === 'Updated After Partial Unsub'
       )
     ).toBe(true);
 
@@ -80,24 +81,24 @@ describe('SyncPatchDb (deterministic sim)', () => {
     await srv.db.write([
       {
         entityId: listId,
-        entityType: 'todoList',
+        entityType: 'todo-list',
         attributes: {
-          'todoList/name': 'Patch sub',
-          'todoList/order': 0,
-          'todoList/createdAt': new Date().toISOString(),
+          'todo-list/name': 'Patch sub',
+          'todo-list/order': 0,
+          'todo-list/created-at': new Date().toISOString(),
         },
       },
     ]);
 
     const listQuery = {
-      entityType: 'todoList',
+      entityType: 'todo-list',
       where: DELETED_CLAUSE,
     } as const;
     const unsubEntities = c.subscribe.entities(listQuery, () => {});
 
     const notifications: number[] = [];
     const unsub = c.subscribe.patches(
-      { entityType: 'todoList', entityId: listId },
+      { entityType: 'todo-list', entityId: listId },
       (result) => {
         notifications.push(result.patches.length);
       }

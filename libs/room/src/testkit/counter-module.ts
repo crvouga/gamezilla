@@ -21,13 +21,13 @@ const counterCount = counterRoomNs('count', (v): number =>
   typeof v === 'number' && Number.isFinite(v) ? v : 0
 );
 
-const cmdNs = createMessageNamespace('spaceCounterCmd');
-const Increment = cmdNs('INCREMENT', validateEmptyPayload);
-const Decrement = cmdNs('DECREMENT', validateEmptyPayload);
+const cmdNs = createMessageNamespace('space-counter-cmd');
+const Increment = cmdNs('increment', validateEmptyPayload);
+const Decrement = cmdNs('decrement', validateEmptyPayload);
 
-const evtNs = createMessageNamespace('spaceCounterEvt');
-const CounterIncremented = evtNs('COUNTER_INCREMENTED', validateEmptyPayload);
-const CounterDecremented = evtNs('COUNTER_DECREMENTED', validateEmptyPayload);
+const evtNs = createMessageNamespace('space-counter-evt');
+const CounterIncremented = evtNs('counter-incremented', validateEmptyPayload);
+const CounterDecremented = evtNs('counter-decremented', validateEmptyPayload);
 
 function readCount(state: RoomState): number {
   return counterCount.from(state);

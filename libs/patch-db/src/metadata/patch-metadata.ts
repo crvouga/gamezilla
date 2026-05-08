@@ -5,11 +5,11 @@
  */
 
 /** Original patch author id (account id when signed in, else install id). */
-export const PATCH_CREATED_BY_ID = 'patch/createdById' as const;
-export const PATCH_SESSION_ID = 'patch/sessionId' as const;
-export const PATCH_SYNCED_AT = 'patch/syncedAt' as const;
-export const PATCH_SYNC_REJECTED_AT = 'patch/syncRejectedAt' as const;
-export const PATCH_SYNC_REJECTED_REASON = 'patch/syncRejectedReason' as const;
+export const PATCH_CREATED_BY_ID = 'patch/created-by-id' as const;
+export const PATCH_SESSION_ID = 'patch/session-id' as const;
+export const PATCH_SYNCED_AT = 'patch/synced-at' as const;
+export const PATCH_SYNC_REJECTED_AT = 'patch/sync-rejected-at' as const;
+export const PATCH_SYNC_REJECTED_REASON = 'patch/sync-rejected-reason' as const;
 /** When true, this patch is treated as rejected for sync/outbox and entity materialization. */
 export const PATCH_REJECTED = 'patch/rejected' as const;
 

@@ -7,7 +7,7 @@ import { createSqliteFactory } from './test-helpers';
 
 const WIDGET_ENTITY_TYPE = 'widget';
 const WIDGET_ID_ATTR = 'widget/id';
-const WIDGET_NAME_ATTR = 'widget/displayName';
+const WIDGET_NAME_ATTR = 'widget/display-name';
 
 describe('compaction (sqlite)', () => {
   let db: PatchDb;
@@ -33,7 +33,7 @@ describe('compaction (sqlite)', () => {
           attributes: {
             [WIDGET_ID_ATTR]: entityId,
             [WIDGET_NAME_ATTR]: `v${i}`,
-            'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
+            'patch/created-by-id': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
       ]);
@@ -75,7 +75,7 @@ describe('compaction (sqlite)', () => {
           attributes: {
             [WIDGET_ID_ATTR]: entityId,
             [WIDGET_NAME_ATTR]: `x${i}`,
-            'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
+            'patch/created-by-id': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
       ]);
@@ -99,7 +99,7 @@ describe('compaction (sqlite)', () => {
           attributes: {
             [WIDGET_ID_ATTR]: entityId,
             [WIDGET_NAME_ATTR]: `r${i}`,
-            'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
+            'patch/created-by-id': PATCH_DB_SYSTEM_DEVICE_ID,
           },
         },
       ]);

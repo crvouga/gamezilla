@@ -25,7 +25,7 @@ export function TodoListRowDeleteButton({
     await db.write([
       {
         entityId: listId,
-        entityType: 'todoList',
+        entityType: 'todo-list',
         attributes: TodoListAttr.deleted(true),
       },
     ]);

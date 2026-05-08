@@ -27,18 +27,18 @@ describe('SyncPatchDb (deterministic sim)', () => {
     await srv.db.write([
       {
         entityId: listId,
-        entityType: 'todoList',
+        entityType: 'todo-list',
         attributes: {
-          'todoList/name': 'From Remote',
-          'todoList/order': 0,
-          'todoList/createdAt': new Date().toISOString(),
+          'todo-list/name': 'From Remote',
+          'todo-list/order': 0,
+          'todo-list/created-at': new Date().toISOString(),
         },
       },
     ]);
 
     const received: unknown[] = [];
     const unsub = c.subscribe.entities(
-      { entityType: 'todoList', where: DELETED_CLAUSE },
+      { entityType: 'todo-list', where: DELETED_CLAUSE },
       (result) => {
         received.push(result.entities);
       }
@@ -57,12 +57,12 @@ describe('SyncPatchDb (deterministic sim)', () => {
       ).some(
         (e) =>
           e.entityId === listId &&
-          e.attributes?.['todoList/name'] === 'From Remote'
+          e.attributes?.['todo-list/name'] === 'From Remote'
       )
     ).toBe(true);
 
     await sim.assertConsistent({
-      entityType: 'todoList',
+      entityType: 'todo-list',
       where: DELETED_CLAUSE,
     });
   });
@@ -84,11 +84,11 @@ describe('SyncPatchDb (deterministic sim)', () => {
     await srv.db.write([
       {
         entityId: listId,
-        entityType: 'todoList',
+        entityType: 'todo-list',
         attributes: {
-          'todoList/name': 'To Be Deleted',
-          'todoList/order': 0,
-          'todoList/createdAt': new Date().toISOString(),
+          'todo-list/name': 'To Be Deleted',
+          'todo-list/order': 0,
+          'todo-list/created-at': new Date().toISOString(),
         },
       },
     ]);
@@ -98,7 +98,7 @@ describe('SyncPatchDb (deterministic sim)', () => {
       attributes: Record<string, unknown>;
     }[][] = [];
     const unsub = c.subscribe.entities(
-      { entityType: 'todoList', where: DELETED_CLAUSE },
+      { entityType: 'todo-list', where: DELETED_CLAUSE },
       (result) => {
         received.push(
           result.entities as {
@@ -118,8 +118,8 @@ describe('SyncPatchDb (deterministic sim)', () => {
     await srv.db.write([
       {
         entityId: listId,
-        entityType: 'todoList',
-        attributes: { 'todoList/deleted': true },
+        entityType: 'todo-list',
+        attributes: { 'todo-list/deleted': true },
       },
     ]);
 
@@ -128,16 +128,16 @@ describe('SyncPatchDb (deterministic sim)', () => {
     unsub();
 
     const entitiesResults = await c.read([
-      { entityType: 'todoList', entityId: listId },
+      { entityType: 'todo-list', entityId: listId },
     ]);
     const entitiesResult = entitiesResults[0];
     assert.defined(entitiesResult, 'entitiesResult must be defined');
     const entity = entitiesResult.entities[0];
     assert.defined(entity, 'entity must be defined');
     expect(entity).toBeDefined();
-    expect(entity?.attributes?.['todoList/deleted']).toBe(true);
+    expect(entity?.attributes?.['todo-list/deleted']).toBe(true);
 
-    await sim.assertEntitiesConsistent('todoList', [listId]);
+    await sim.assertEntitiesConsistent('todo-list', [listId]);
   });
 
   test('poll: sibling patch from another client is not missed when its patchId sorts before cursor', async () => {
@@ -240,17 +240,17 @@ describe('SyncPatchDb (deterministic sim)', () => {
     const srv = sim.server('s1');
     const listId = crypto.randomUUID();
     const listQuery = {
-      entityType: 'todoList',
+      entityType: 'todo-list',
       where: DELETED_CLAUSE,
     } as const;
     await srv.db.write([
       {
         entityId: listId,
-        entityType: 'todoList',
+        entityType: 'todo-list',
         attributes: {
-          'todoList/name': 'Remote',
-          'todoList/order': 0,
-          'todoList/createdAt': new Date().toISOString(),
+          'todo-list/name': 'Remote',
+          'todo-list/order': 0,
+          'todo-list/created-at': new Date().toISOString(),
         },
       },
     ]);
@@ -260,13 +260,13 @@ describe('SyncPatchDb (deterministic sim)', () => {
     c.link.partition();
     await c.poll();
 
-    const mid = await c.read([{ entityType: 'todoList', entityId: listId }]);
+    const mid = await c.read([{ entityType: 'todo-list', entityId: listId }]);
     expect((mid[0]?.patches ?? []).length).toBe(0);
 
     c.link.heal();
     await c.poll();
 
-    const fin = await c.read([{ entityType: 'todoList', entityId: listId }]);
+    const fin = await c.read([{ entityType: 'todo-list', entityId: listId }]);
     expect((fin[0]?.patches ?? []).length).toBeGreaterThanOrEqual(1);
 
     unsub();
@@ -288,17 +288,17 @@ describe('SyncPatchDb (deterministic sim)', () => {
     const srv = sim.server('s1');
     const listId = crypto.randomUUID();
     const listQuery = {
-      entityType: 'todoList',
+      entityType: 'todo-list',
       where: DELETED_CLAUSE,
     } as const;
     await srv.db.write([
       {
         entityId: listId,
-        entityType: 'todoList',
+        entityType: 'todo-list',
         attributes: {
-          'todoList/name': 'Remote',
-          'todoList/order': 0,
-          'todoList/createdAt': new Date().toISOString(),
+          'todo-list/name': 'Remote',
+          'todo-list/order': 0,
+          'todo-list/created-at': new Date().toISOString(),
         },
       },
     ]);
@@ -339,17 +339,17 @@ describe('SyncPatchDb (deterministic sim)', () => {
     const srv = sim.server('s1');
     const listId = crypto.randomUUID();
     const listQuery = {
-      entityType: 'todoList',
+      entityType: 'todo-list',
       where: DELETED_CLAUSE,
     } as const;
     await srv.db.write([
       {
         entityId: listId,
-        entityType: 'todoList',
+        entityType: 'todo-list',
         attributes: {
-          'todoList/name': 'Remote',
-          'todoList/order': 0,
-          'todoList/createdAt': new Date().toISOString(),
+          'todo-list/name': 'Remote',
+          'todo-list/order': 0,
+          'todo-list/created-at': new Date().toISOString(),
         },
       },
     ]);
@@ -371,7 +371,7 @@ describe('SyncPatchDb (deterministic sim)', () => {
 
     expect(errors).toHaveLength(0);
 
-    const local = await c.read([{ entityType: 'todoList', entityId: listId }]);
+    const local = await c.read([{ entityType: 'todo-list', entityId: listId }]);
     expect((local[0]?.patches ?? []).length).toBeGreaterThanOrEqual(1);
 
     unsubSync();
@@ -398,18 +398,18 @@ describe('SyncPatchDb (deterministic sim)', () => {
     await srv.db.write([
       {
         entityId: listId,
-        entityType: 'todoList',
+        entityType: 'todo-list',
         attributes: {
-          'todoList/name': 'Lag',
-          'todoList/order': 0,
-          'todoList/createdAt': new Date().toISOString(),
+          'todo-list/name': 'Lag',
+          'todo-list/order': 0,
+          'todo-list/created-at': new Date().toISOString(),
         },
       },
     ]);
 
     c.link.setLatency(20);
     const listQuery = {
-      entityType: 'todoList',
+      entityType: 'todo-list',
       where: DELETED_CLAUSE,
     } as const;
     const unsub = c.subscribe.entities(listQuery, () => {});
@@ -424,7 +424,7 @@ describe('SyncPatchDb (deterministic sim)', () => {
     await sim.scheduler.drain();
     await p1;
 
-    const mid = await c.read([{ entityType: 'todoList', entityId: listId }]);
+    const mid = await c.read([{ entityType: 'todo-list', entityId: listId }]);
     expect((mid[0]?.patches ?? []).length).toBeGreaterThanOrEqual(1);
 
     unsub();
@@ -449,31 +449,31 @@ describe('SyncPatchDb (deterministic sim)', () => {
     await srv.db.write([
       {
         entityId: listId,
-        entityType: 'todoList',
+        entityType: 'todo-list',
         attributes: {
-          'todoList/name': 'Stable',
-          'todoList/order': 0,
-          'todoList/createdAt': new Date().toISOString(),
+          'todo-list/name': 'Stable',
+          'todo-list/order': 0,
+          'todo-list/created-at': new Date().toISOString(),
         },
       },
     ]);
 
     const listQuery = {
-      entityType: 'todoList',
+      entityType: 'todo-list',
       where: DELETED_CLAUSE,
     } as const;
     const unsub = c.subscribe.entities(listQuery, () => {});
 
     await c.poll();
     const afterFirst = await c.read([
-      { entityType: 'todoList', entityId: listId },
+      { entityType: 'todo-list', entityId: listId },
     ]);
     const n1 = (afterFirst[0]?.patches ?? []).length;
     expect(n1).toBeGreaterThanOrEqual(1);
 
     await c.poll();
     const afterSecond = await c.read([
-      { entityType: 'todoList', entityId: listId },
+      { entityType: 'todo-list', entityId: listId },
     ]);
     expect((afterSecond[0]?.patches ?? []).length).toBe(n1);
 
@@ -508,23 +508,23 @@ describe('SyncPatchDb (deterministic sim)', () => {
       await srv.db.write([
         {
           entityId: id,
-          entityType: 'todoList',
+          entityType: 'todo-list',
           attributes: {
-            'todoList/name': `L${i}`,
-            'todoList/order': i,
-            'todoList/createdAt': created,
+            'todo-list/name': `L${i}`,
+            'todo-list/order': i,
+            'todo-list/created-at': created,
           },
         },
       ]);
     }
 
     const listQuery = {
-      entityType: 'todoList',
+      entityType: 'todo-list',
       where: DELETED_CLAUSE,
     } as const;
     const unsubAll = c.subscribe.entities(listQuery, () => {});
     const unsub = c.subscribe.entities(
-      { entityType: 'todoList', where: DELETED_CLAUSE, limit: 1 },
+      { entityType: 'todo-list', where: DELETED_CLAUSE, limit: 1 },
       () => {}
     );
 
@@ -533,7 +533,7 @@ describe('SyncPatchDb (deterministic sim)', () => {
     unsubAll();
 
     const all = await c.read([
-      { entityType: 'todoList', where: DELETED_CLAUSE },
+      { entityType: 'todo-list', where: DELETED_CLAUSE },
     ]);
     const entityIds = new Set((all[0]?.entities ?? []).map((e) => e.entityId));
     for (const id of lists) {

@@ -81,11 +81,11 @@ describe('SyncPatchDb push batching', () => {
     for (let i = 0; i < PATCH_COUNT; i++) {
       inputs.push({
         entityId: `list-${i}`,
-        entityType: 'todoList',
+        entityType: 'todo-list',
         attributes: {
-          'todoList/name': `List ${i}`,
-          'todoList/order': i,
-          'todoList/createdAt': new Date(0).toISOString(),
+          'todo-list/name': `List ${i}`,
+          'todo-list/order': i,
+          'todo-list/created-at': new Date(0).toISOString(),
         },
       });
     }
@@ -95,7 +95,7 @@ describe('SyncPatchDb push batching', () => {
 
     expect(recordingRemote.writeBatches).toEqual([3, 3, 1]);
 
-    const remoteAll = await fixture.remote.read([{ entityType: 'todoList' }]);
+    const remoteAll = await fixture.remote.read([{ entityType: 'todo-list' }]);
     const result = remoteAll[0];
     assert.defined(result, 'remote result');
     expect(result.patches).toHaveLength(PATCH_COUNT);

@@ -368,7 +368,7 @@ msgstr "Background colors"
 #~ msgid "BAD ACTOR"
 #~ msgstr "BAD ACTOR"
 
-#: apps/client/src/spaces/games/chess/board/chess-board-promotion.tsx
+#: apps/client/src/spaces/games/chess/chess-board/chess-board-promotion.tsx
 msgid "Bishop"
 msgstr "Bishop"
 
@@ -408,7 +408,7 @@ msgstr "Build mode: {buildMode}"
 #: apps/client/src/auth/use-sign-out-confirmation.tsx
 #: apps/client/src/spaces/actions/end-space-confirm-modal.tsx
 #: apps/client/src/spaces/actions/leave-space-confirm-modal.tsx
-#: apps/client/src/spaces/games/chess/board/chess-board-promotion.tsx
+#: apps/client/src/spaces/games/chess/chess-board/chess-board-promotion.tsx
 #: libs/lib/src/ui/components/modal/confirmation-modal.tsx
 #: libs/patch-db-example/src/todo/list/todo-list-delete-confirmation-modal.tsx
 #: libs/patch-db-example/src/todo/list/todo-lists-overview.tsx
@@ -453,7 +453,7 @@ msgstr "Chess"
 msgid "Choose"
 msgstr "Choose"
 
-#: apps/client/src/spaces/games/chess/board/chess-board-promotion.tsx
+#: apps/client/src/spaces/games/chess/chess-board/chess-board-promotion.tsx
 msgid "Choose a piece to promote to."
 msgstr "Choose a piece to promote to."
 
@@ -900,8 +900,8 @@ msgid "entities"
 msgstr "entities"
 
 #: apps/client/src/client-config/client-config-entity-card.tsx
-msgid "Entity type clientConfig, id clientConfig__singleton"
-msgstr "Entity type clientConfig, id clientConfig__singleton"
+msgid "Entity type client-config, id client-config__singleton"
+msgstr "Entity type client-config, id client-config__singleton"
 
 #: libs/patch-db-example/src/db-client/query-screen.tsx
 msgid "entityId (optional)"
@@ -1071,7 +1071,7 @@ msgstr "Join this space to see who is here and hang out."
 #~ msgid "Joined at"
 #~ msgstr "Joined at"
 
-#: apps/client/src/spaces/games/chess/board/chess-board-promotion.tsx
+#: apps/client/src/spaces/games/chess/chess-board/chess-board-promotion.tsx
 msgid "Knight"
 msgstr "Knight"
 
@@ -1609,7 +1609,7 @@ msgstr "Profile"
 #~ msgid "Projected trust — X:{projectedX} O:{projectedO} S:{projectedS}"
 #~ msgstr "Projected trust — X:{projectedX} O:{projectedO} S:{projectedS}"
 
-#: apps/client/src/spaces/games/chess/board/chess-board-promotion.tsx
+#: apps/client/src/spaces/games/chess/chess-board/chess-board-promotion.tsx
 msgid "Promote pawn"
 msgstr "Promote pawn"
 
@@ -1627,7 +1627,7 @@ msgstr "Provider user id: {providerUserId}"
 msgid "Puzzle"
 msgstr "Puzzle"
 
-#: apps/client/src/spaces/games/chess/board/chess-board-promotion.tsx
+#: apps/client/src/spaces/games/chess/chess-board/chess-board-promotion.tsx
 msgid "Queen"
 msgstr "Queen"
 
@@ -1744,7 +1744,7 @@ msgstr "Result"
 #~ msgid "Role"
 #~ msgstr "Role"
 
-#: apps/client/src/spaces/games/chess/board/chess-board-promotion.tsx
+#: apps/client/src/spaces/games/chess/chess-board/chess-board-promotion.tsx
 msgid "Rook"
 msgstr "Rook"
 

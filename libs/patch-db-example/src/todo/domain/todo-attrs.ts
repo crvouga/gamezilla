@@ -1,7 +1,7 @@
 import { createAttrNamespace } from '@gamezilla/lib/attribute';
 
 const todoNs = createAttrNamespace('todo');
-const todoListNs = createAttrNamespace('todoList');
+const todoListNs = createAttrNamespace('todo-list');
 
 /** Attribute tags for `entityType: 'todo'`. */
 export const TodoAttr = {
@@ -10,7 +10,7 @@ export const TodoAttr = {
   title: todoNs('title', (v: unknown): string =>
     typeof v === 'string' ? v : ''
   ),
-  listId: todoNs('listId', (v: unknown): string | null => {
+  listId: todoNs('list-id', (v: unknown): string | null => {
     if (v === null || v === undefined || v === '') return null;
     if (typeof v === 'string') return v;
     return null;
@@ -18,12 +18,12 @@ export const TodoAttr = {
   order: todoNs('order', (v: unknown): number =>
     typeof v === 'number' && Number.isFinite(v) ? v : 0
   ),
-  createdAt: todoNs('createdAt', (v: unknown): string =>
+  createdAt: todoNs('created-at', (v: unknown): string =>
     typeof v === 'string' ? v : ''
   ),
 } as const;
 
-/** Attribute tags for `entityType: 'todoList'`. */
+/** Attribute tags for `entityType: 'todo-list'`. */
 export const TodoListAttr = {
   deleted: todoListNs('deleted', (v: unknown): boolean => v === true),
   name: todoListNs('name', (v: unknown): string =>
@@ -32,7 +32,7 @@ export const TodoListAttr = {
   order: todoListNs('order', (v: unknown): number =>
     typeof v === 'number' && Number.isFinite(v) ? v : 0
   ),
-  createdAt: todoListNs('createdAt', (v: unknown): string | null => {
+  createdAt: todoListNs('created-at', (v: unknown): string | null => {
     if (typeof v === 'string') {
       // Simple ISO 8601 check (YYYY-MM-DDTHH:MM:SS(.sss)?Z or with offset)
       const iso8601 =

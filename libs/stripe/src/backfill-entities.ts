@@ -3,11 +3,12 @@
  *
  * Each Stripe object has a stable `id` and `object` discriminator (e.g.
  * `customer`, `subscription`). We persist raw Stripe API payloads under
- * `entityType=stripe.<object>` (with `checkout.session` → `stripe.checkout_session`),
+ * `entityType=stripe.<object>` (with `checkout.session` → `stripe.checkout-session`),
  * `entityId=<object.id>`, attribute `stripe/payload`. This sits alongside
  * webhook-event rows (`stripe.<event.type>`) so the two sources never collide.
  */
 import type { PatchDb, PatchDbContext } from '@gamezilla/patch-db/interface';
+import { PATCH_CREATED_BY_ID } from '@gamezilla/patch-db/metadata/patch-metadata';
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
 import type Stripe from 'stripe';
 
@@ -37,7 +38,13 @@ export function stripeObjectTypeToPatchEntityType(
   objectType: StripeEntityObjectType
 ): string {
   if (objectType === 'checkout.session') {
-    return 'stripe.checkout_session';
+    return 'stripe.checkout-session';
+  }
+  if (objectType === 'payment_intent') {
+    return 'stripe.payment-intent';
+  }
+  if (objectType === 'setup_intent') {
+    return 'stripe.setup-intent';
   }
   return `stripe.${objectType}`;
 }
@@ -160,9 +167,9 @@ export async function backfillStripeListIntoPatchDb<
     });
     const attrs: Record<string, unknown> = {
       'stripe/payload': obj as unknown,
-      'stripe/objectType': expectedObjectType,
+      'stripe/object-type': expectedObjectType,
       'stripe/source': source,
-      'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
+      [PATCH_CREATED_BY_ID]: PATCH_DB_SYSTEM_DEVICE_ID,
     };
     if (owner !== null) {
       attrs['entity/owner'] = owner;

@@ -12,7 +12,7 @@ export async function mergeRemotePatchesIntoLocal(
     if (remoteResult.patches.length > 0) {
       const withSynced = remoteResult.patches.map((p) => ({
         ...p,
-        attributes: { ...p.attributes, 'patch/syncedAt': '1' },
+        attributes: { ...p.attributes, 'patch/synced-at': '1' },
       }));
       await local.write(withSynced, OPEN_PATCHES_DB_CONTEXT);
       hasNewPatches = true;

@@ -1,21 +1,61 @@
 import { Assert } from '@gamezilla/lib/assert';
 
-const validation: Assert = Assert.validation();
+const crash: Assert = Assert.crash();
 
 /**
- * Same rule as PatchDB {@link isValidAttribute}: Clojure-style namespaced key,
- * no whitespace; each segment is `[a-zA-Z_][a-zA-Z0-9_.]*`.
+ * One kebab-case Clojure-style symbol segment: lowercase letter first, then
+ * lowercase alphanumerics and single hyphens between groups (no leading/trailing
+ * hyphen, no consecutive hyphens). No uppercase, no underscores, no dots inside
+ * a segment — dots only separate namespace segments before `/`.
  */
-export const PATCH_DB_NAMESPACED_ATTRIBUTE_REGEX =
-  /^(?!.*\s)[a-zA-Z_][a-zA-Z0-9_.]*\/[a-zA-Z_][a-zA-Z0-9_.]*$/;
+export const CLOJURE_KEBAB_SEGMENT = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 
-const PATCH_DB_SEGMENT_REGEX = /^[a-zA-Z_][a-zA-Z0-9_.]*$/;
+/**
+ * Strict qualified attribute key: `namespace/name` with exactly one `/`.
+ *
+ * - **Namespace** (before `/`): one or more {@link CLOJURE_KEBAB_SEGMENT} pieces
+ *   joined by `.` (e.g. `patch`, `chat.message`, `chess.main-menu`).
+ * - **Name** (after `/`): a single {@link CLOJURE_KEBAB_SEGMENT} (no `/`, no `.`).
+ */
+export const CLOJURE_NAMESPACED_ATTRIBUTE_REGEX =
+  /^(?!.*\s)(?:[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:\.[a-z][a-z0-9]*(?:-[a-z0-9]+)*)*)\/[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 
-/** Returns true when `key` is a valid PatchDB attribute key string. */
-export function isValidPatchDbAttributeKey(key: unknown): key is string {
-  return (
-    typeof key === 'string' && PATCH_DB_NAMESPACED_ATTRIBUTE_REGEX.test(key)
-  );
+/** Join namespace segments with `.` for template literal typing. */
+export type JoinDot<T extends readonly string[]> = T extends readonly [
+  infer First extends string,
+  ...infer Rest extends readonly string[],
+]
+  ? Rest extends readonly []
+    ? First
+    : `${First}.${JoinDot<Rest>}`
+  : string;
+
+/** True when `prefix` is a valid dot-separated kebab namespace (before `/`). */
+export function isClojureNamespacePrefix(prefix: unknown): prefix is string {
+  if (typeof prefix !== 'string' || prefix.length === 0) return false;
+  if (prefix.startsWith('.') || prefix.endsWith('.')) return false;
+  if (prefix.includes('..')) return false;
+  const segments = prefix.split('.');
+  for (const seg of segments) {
+    if (seg.length === 0 || !CLOJURE_KEBAB_SEGMENT.test(seg)) return false;
+  }
+  return true;
+}
+
+/** True when `name` is a valid local attribute name (the part after `/`). */
+export function isClojureLocalName(name: unknown): name is string {
+  return typeof name === 'string' && CLOJURE_KEBAB_SEGMENT.test(name);
+}
+
+/** Returns true when `key` is a valid Clojure-style namespaced attribute key. */
+export function isClojureNamespacedKey(key: unknown): key is string {
+  if (typeof key !== 'string' || /\s/.test(key)) return false;
+  const slash = key.indexOf('/');
+  if (slash <= 0 || slash !== key.lastIndexOf('/')) return false;
+  const ns = key.slice(0, slash);
+  const local = key.slice(slash + 1);
+  if (local.length === 0) return false;
+  return isClojureNamespacePrefix(ns) && isClojureLocalName(local);
 }
 
 /** Flat state bag keyed by full attribute keys (`prefix/name`). */
@@ -50,19 +90,29 @@ export interface AttributeNamespace<Prefix extends string = string> {
   ): AttributeTag<T, `${Prefix}/${Name}`>;
 }
 
-function assertValidSegment(label: string, value: string): void {
-  validation.nonEmptyString(value, `${label} must be non-empty`);
-  validation.ok(!value.includes('/'), `${label} must not contain '/'`);
-  validation.ok(
-    PATCH_DB_SEGMENT_REGEX.test(value),
-    `${label} must match PatchDB segment rules (letter or underscore, then alnum / _ / .)`
+function assertValidNamespacePrefix(value: string): void {
+  crash.ok(
+    isClojureNamespacePrefix(value),
+    'namespace prefix must be one or more dot-separated kebab-case segments (e.g. chess.puzzle, patch); no empty segments; no uppercase, underscores, or spaces'
+  );
+}
+
+function assertValidAttributeLocalName(value: string): void {
+  crash.nonEmptyString(value, 'attribute name must be non-empty');
+  crash.ok(
+    !value.includes('/') && !value.includes('.'),
+    'attribute name must not contain / or .'
+  );
+  crash.ok(
+    isClojureLocalName(value),
+    'attribute name must be kebab-case Clojure segment (lowercase letter, then alnum/hyphens; no leading/trailing/consecutive hyphens)'
   );
 }
 
 function assertValidFullKey(fullKey: string): void {
-  validation.ok(
-    isValidPatchDbAttributeKey(fullKey),
-    `attribute key must be a valid PatchDB namespaced key`
+  crash.ok(
+    isClojureNamespacedKey(fullKey),
+    'attribute key must be a valid Clojure-style namespaced kebab-case key'
   );
 }
 
@@ -90,30 +140,48 @@ function createAttributeTag<T, K extends string>(
 }
 
 /**
- * Creates a namespace for attribute keys: `{prefix}/{name}`.
+ * Creates a namespace for attribute keys: `{prefix}/{name}` where `prefix` is
+ * `segment0.segment1...` from the given kebab-case segments.
  *
  * @example
  * ```ts
- * const createAttr = createAttrNamespace('games');
- * const Selected = createAttr('selected', (v) => {
+ * const gamesNs = createAttrNamespace('games');
+ * const Selected = gamesNs('selected', (v) => {
  *   if (v === 'chess' || v === 'connect-four' || v === null) return v;
  *   throw new Error('invalid');
  * });
- * const patch = { ...Selected('chess'), ...Selected(null) };
- * const x = Selected.from(someState);
+ *
+ * const chessNs = createAttrNamespace('chess', 'main-menu');
+ * const Fen = chessNs('fen', (v) => (typeof v === 'string' ? v : ''));
  * ```
  */
-export function createAttrNamespace<const Prefix extends string>(
-  prefix: Prefix
-): AttributeNamespace<Prefix> {
-  assertValidSegment('namespace prefix', prefix);
+export function createAttrNamespace<const Segments extends readonly string[]>(
+  ...segments: Segments
+): AttributeNamespace<JoinDot<Segments>> {
+  crash.ok(
+    segments.length > 0,
+    'createAttrNamespace requires at least one namespace segment'
+  );
+  for (const seg of segments) {
+    crash.nonEmptyString(
+      seg,
+      'each namespace segment must be a non-empty kebab-case string'
+    );
+    crash.ok(
+      isClojureLocalName(seg),
+      `each namespace segment must be kebab-case (lowercase, hyphens only; no dots or slashes in a segment) and not contain spaces or uppercase letters or underscores or leading/trailing hyphens`,
+      { seg }
+    );
+  }
+  const prefix = segments.join('.') as JoinDot<Segments>;
+  assertValidNamespacePrefix(prefix);
 
   function bind<const Name extends string, T>(
     name: Name,
     parse: AttributeParser<T>
-  ): AttributeTag<T, `${Prefix}/${Name}`> {
-    assertValidSegment('attribute name', name);
-    const fullKey = `${prefix}/${name}` as `${Prefix}/${Name}`;
+  ): AttributeTag<T, `${JoinDot<Segments>}/${Name}`> {
+    assertValidAttributeLocalName(name);
+    const fullKey = `${prefix}/${name}` as `${JoinDot<Segments>}/${Name}`;
     assertValidFullKey(fullKey);
     return createAttributeTag(fullKey, parse);
   }
@@ -125,5 +193,5 @@ export function createAttrNamespace<const Prefix extends string>(
     writable: false,
   });
 
-  return bind as AttributeNamespace<Prefix>;
+  return bind as AttributeNamespace<JoinDot<Segments>>;
 }

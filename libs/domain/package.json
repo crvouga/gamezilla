@@ -11,6 +11,7 @@
     "./spaces/space-entities": "./src/spaces/space-entities.ts",
     "./spaces/membership-key": "./src/spaces/membership-key.ts",
     "./spaces/space-module": "./src/spaces/space-module.ts",
+    "./spaces/games/chess/puzzle/chess-puzzle-entities": "./src/spaces/games/chess/puzzle/chess-puzzle-entities.ts",
     "./profile/profile-entities": "./src/profile/profile-entities.ts",
     "./profile/avatar-config": "./src/profile/avatar-config.ts",
     "./profile/display-name-generator": "./src/profile/display-name-generator.ts",

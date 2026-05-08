@@ -1,6 +1,11 @@
 import { Assert } from '@gamezilla/lib/assert';
+import type { JoinDot } from '../attribute/attribute';
+import {
+  CLOJURE_KEBAB_SEGMENT,
+  isClojureNamespacePrefix,
+} from '../attribute/attribute';
 
-const validation: Assert = Assert.validation();
+const crash: Assert = Assert.crash();
 
 /**
  * Serializable message envelope: a type tag plus an extensible payload.
@@ -16,14 +21,14 @@ export type MessagePayloadValidator<P> = (payload: unknown) => payload is P;
 export interface MessageTag<P = unknown> {
   readonly type: string;
   readonly validatePayload: MessagePayloadValidator<P>;
-  /** Validates `payload` then returns `{ type, payload }`; throws `ValidationError` on failure. */
+  /** Validates `payload` then returns `{ type, payload }`; crashes on failure. */
   (payload: unknown): Message<P>;
   /** True when `msg.type` matches this tag and `validatePayload(msg.payload)` passes. */
   is(msg: Message): msg is Message<P>;
 }
 
-export interface MessageNamespace {
-  readonly prefix: string;
+export interface MessageNamespace<Prefix extends string = string> {
+  readonly prefix: Prefix;
   /**
    * @param name - Short message name (becomes `{prefix}/{name}` on the wire).
    * @param validatePayload - Required runtime guard; unsafe to omit when `P` carries invariants.
@@ -48,9 +53,14 @@ export function acceptUnknownPayload(_payload: unknown): _payload is unknown {
   return true;
 }
 
-function assertValidPrefixOrName(label: string, value: string): void {
-  validation.nonEmptyString(value, `${label} must be non-empty`);
-  validation.ok(!value.includes('/'), `${label} must not contain '/'`);
+function assertValidMessageSegment(label: string, value: string): void {
+  crash.nonEmptyString(value, `${label} must be non-empty`);
+  crash.ok(!value.includes('/'), `${label} must not contain '/'`);
+  crash.ok(!value.includes('.'), `${label} must not contain '.'`);
+  crash.ok(
+    CLOJURE_KEBAB_SEGMENT.test(value),
+    `${label} must be kebab-case (lowercase letter, then alnum/hyphens; no uppercase, underscores, or spaces)`
+  );
 }
 
 function createMessageTag<P>(
@@ -59,7 +69,7 @@ function createMessageTag<P>(
 ): MessageTag<P> {
   function tag(payload: unknown): Message<P> {
     if (!validatePayload(payload)) {
-      validation.fail(`invalid payload for message type ${fullType}`, {
+      crash.fail(`invalid payload for message type ${fullType}`, {
         type: fullType,
         payload,
       });
@@ -84,32 +94,38 @@ function createMessageTag<P>(
 }
 
 /**
- * Creates a namespace for message type strings: `{prefix}/{name}`.
+ * Creates a namespace for message type strings: `{prefix}/{name}` where `prefix` is
+ * `segment0.segment1...` from the given kebab-case segments.
  *
  * Every tag **must** supply {@link MessagePayloadValidator} so constructors and `.is()`
  * cannot trust TypeScript types alone at the wire boundary.
- *
- * @example
- * ```ts
- * const cmd = createNamespace('ticTacToe')
- * const PlaceMark = cmd('PLACE_MARK', (p): p is { cell: number } =>
- *   isPlainRecord(p) &&
- *   typeof p['cell'] === 'number' &&
- *   Number.isInteger(p['cell'])
- * )
- * const m = PlaceMark({ cell: 0 })
- * if (PlaceMark.is(m)) { m.payload.cell }
- * ```
  */
-export function createMessageNamespace(prefix: string): MessageNamespace {
-  assertValidPrefixOrName('namespace prefix', prefix);
+export function createMessageNamespace<
+  const Segments extends readonly string[],
+>(...segments: Segments): MessageNamespace<JoinDot<Segments>> {
+  crash.ok(
+    segments.length > 0,
+    'createMessageNamespace requires at least one namespace segment'
+  );
+  for (const seg of segments) {
+    assertValidMessageSegment('namespace segment', seg);
+  }
+  const prefix = segments.join('.') as JoinDot<Segments>;
+  crash.ok(
+    isClojureNamespacePrefix(prefix),
+    'message namespace prefix must be valid dot-separated kebab segments'
+  );
 
   function bind<P>(
     name: string,
     validatePayload: MessagePayloadValidator<P>
   ): MessageTag<P> {
-    assertValidPrefixOrName('message name', name);
-    const fullType = `${prefix}/${name}`;
+    assertValidMessageSegment('message name', name);
+    const fullType = `${prefix as string}/${name}`;
+    crash.ok(
+      fullType.indexOf('/') === fullType.lastIndexOf('/'),
+      'message type must contain exactly one slash between namespace and name'
+    );
     return createMessageTag(fullType, validatePayload);
   }
 
@@ -121,5 +137,5 @@ export function createMessageNamespace(prefix: string): MessageNamespace {
   });
   bind.owns = (msg: Message): boolean => msg.type.startsWith(`${prefix}/`);
 
-  return bind as MessageNamespace;
+  return bind as MessageNamespace<JoinDot<Segments>>;
 }

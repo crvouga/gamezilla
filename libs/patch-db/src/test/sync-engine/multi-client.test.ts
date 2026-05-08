@@ -22,7 +22,7 @@ describe('SyncPatchDb (deterministic sim, multi-client)', () => {
     const b = sim.client('b');
     const listId = crypto.randomUUID();
     const listQuery = {
-      entityType: 'todoList',
+      entityType: 'todo-list',
       where: DELETED_CLAUSE,
     } as const;
     const unsubA = a.subscribe.entities(listQuery, () => {});
@@ -31,11 +31,11 @@ describe('SyncPatchDb (deterministic sim, multi-client)', () => {
     await a.write([
       {
         entityId: listId,
-        entityType: 'todoList',
+        entityType: 'todo-list',
         attributes: {
-          'todoList/name': 'Shared',
-          'todoList/order': 0,
-          'todoList/createdAt': new Date().toISOString(),
+          'todo-list/name': 'Shared',
+          'todo-list/order': 0,
+          'todo-list/created-at': new Date().toISOString(),
         },
       },
     ]);
@@ -44,7 +44,9 @@ describe('SyncPatchDb (deterministic sim, multi-client)', () => {
     await a.poll();
     await b.poll();
 
-    const bLocal = await b.read([{ entityType: 'todoList', entityId: listId }]);
+    const bLocal = await b.read([
+      { entityType: 'todo-list', entityId: listId },
+    ]);
     expect((bLocal[0]?.patches ?? []).length).toBeGreaterThanOrEqual(1);
 
     unsubA();
@@ -72,33 +74,33 @@ describe('SyncPatchDb (deterministic sim, multi-client)', () => {
     const listB = crypto.randomUUID();
 
     const unsubA = a.subscribe.entities(
-      { entityType: 'todoList', where: DELETED_CLAUSE },
+      { entityType: 'todo-list', where: DELETED_CLAUSE },
       () => {}
     );
     const unsubB = b.subscribe.entities(
-      { entityType: 'todoList', where: DELETED_CLAUSE },
+      { entityType: 'todo-list', where: DELETED_CLAUSE },
       () => {}
     );
 
     await a.write([
       {
         entityId: listA,
-        entityType: 'todoList',
+        entityType: 'todo-list',
         attributes: {
-          'todoList/name': 'By A',
-          'todoList/order': 0,
-          'todoList/createdAt': created,
+          'todo-list/name': 'By A',
+          'todo-list/order': 0,
+          'todo-list/created-at': created,
         },
       },
     ]);
     await b.write([
       {
         entityId: listB,
-        entityType: 'todoList',
+        entityType: 'todo-list',
         attributes: {
-          'todoList/name': 'By B',
-          'todoList/order': 1,
-          'todoList/createdAt': created,
+          'todo-list/name': 'By B',
+          'todo-list/order': 1,
+          'todo-list/created-at': created,
         },
       },
     ]);
@@ -113,10 +115,10 @@ describe('SyncPatchDb (deterministic sim, multi-client)', () => {
     unsubB();
 
     const localA = await a.read([
-      { entityType: 'todoList', where: DELETED_CLAUSE },
+      { entityType: 'todo-list', where: DELETED_CLAUSE },
     ]);
     const localB = await b.read([
-      { entityType: 'todoList', where: DELETED_CLAUSE },
+      { entityType: 'todo-list', where: DELETED_CLAUSE },
     ]);
     const idsA = new Set((localA[0]?.entities ?? []).map((e) => e.entityId));
     const idsB = new Set((localB[0]?.entities ?? []).map((e) => e.entityId));
@@ -126,7 +128,7 @@ describe('SyncPatchDb (deterministic sim, multi-client)', () => {
     expect(idsB.has(listB)).toBe(true);
 
     const remoteLists = await srv.db.read([
-      { entityType: 'todoList', where: DELETED_CLAUSE },
+      { entityType: 'todo-list', where: DELETED_CLAUSE },
     ]);
     const idsR = new Set(
       (remoteLists[0]?.entities ?? []).map((e) => e.entityId)
@@ -135,7 +137,7 @@ describe('SyncPatchDb (deterministic sim, multi-client)', () => {
     expect(idsR.has(listB)).toBe(true);
 
     await sim.assertConsistent({
-      entityType: 'todoList',
+      entityType: 'todo-list',
       where: DELETED_CLAUSE,
     });
   });

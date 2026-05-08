@@ -7,12 +7,11 @@ import {
   useSpaceSelector,
 } from '@gamezilla/client/spaces/room/use-space-room-selector';
 import {
-  CHESS_MAIN_MENU_PUZZLE,
-  CHESS_MAIN_MENU_PUZZLE_PLAY,
+  CHESS_SCREEN,
   ChessMainMenuScreenAttr,
-  SelectGame,
   SetChessMainMenuScreen,
-} from '@gamezilla/domain/spaces/space-module';
+} from '@gamezilla/domain/spaces/games/chess/chess-main-menu';
+import { SelectGame } from '@gamezilla/domain/spaces/games/games';
 import { Trans } from '@lingui/react/macro';
 import { useCallback, useMemo, type ReactNode } from 'react';
 import { PuzzleMainMenu } from './puzzle/puzzle-main-menu';
@@ -22,9 +21,9 @@ export function ChessMainMenu(): ReactNode {
   const screen = useSpaceSelector(ChessMainMenuScreenAttr.screen.from);
 
   switch (screen) {
-    case CHESS_MAIN_MENU_PUZZLE:
+    case CHESS_SCREEN.puzzle:
       return <PuzzleMainMenu />;
-    case CHESS_MAIN_MENU_PUZZLE_PLAY:
+    case CHESS_SCREEN.puzzlePlay:
       return <PuzzlePlayScreen />;
     default:
       return <RootMainMenu />;
@@ -42,7 +41,7 @@ function RootMainMenu(): ReactNode {
         key: 'puzzle',
         title: <Trans>Puzzle</Trans>,
         onPress: () =>
-          dispatch(SetChessMainMenuScreen({ screen: CHESS_MAIN_MENU_PUZZLE })),
+          dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.puzzle })),
       },
       {
         key: 'custom-games',

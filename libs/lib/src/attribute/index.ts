@@ -1,11 +1,15 @@
 export {
+  CLOJURE_KEBAB_SEGMENT,
+  CLOJURE_NAMESPACED_ATTRIBUTE_REGEX,
   createAttrNamespace,
-  isValidPatchDbAttributeKey,
-  PATCH_DB_NAMESPACED_ATTRIBUTE_REGEX,
+  isClojureLocalName,
+  isClojureNamespacedKey,
+  isClojureNamespacePrefix,
 } from './attribute';
 export type {
   AttributeNamespace,
   AttributeParser,
   AttributeState,
   AttributeTag,
+  JoinDot,
 } from './attribute';

@@ -5,29 +5,27 @@ import {
   isPlainRecord,
 } from '@gamezilla/lib/message';
 import type { HandleResult, RoomState } from '@gamezilla/room';
-import { CHESS_MAIN_MENU_PUZZLE } from './puzzle/puzzle-main-menu';
-import { CHESS_MAIN_MENU_PUZZLE_PLAY } from './puzzle/puzzle-play-screen';
 
-const gamesNs = createAttrNamespace('games');
-
-export const CHESS_MAIN_MENU_ROOT = 0;
-export { CHESS_MAIN_MENU_PUZZLE } from './puzzle/puzzle-main-menu';
-export { CHESS_MAIN_MENU_PUZZLE_PLAY } from './puzzle/puzzle-play-screen';
+export const CHESS_SCREEN = {
+  root: 'root',
+  puzzle: 'puzzle',
+  puzzlePlay: 'puzzle-play',
+};
 
 export type ChessMainMenuScreen =
-  | typeof CHESS_MAIN_MENU_ROOT
-  | typeof CHESS_MAIN_MENU_PUZZLE
-  | typeof CHESS_MAIN_MENU_PUZZLE_PLAY;
+  (typeof CHESS_SCREEN)[keyof typeof CHESS_SCREEN];
 
 function readChessMainMenuScreen(v: unknown): ChessMainMenuScreen {
-  if (v === CHESS_MAIN_MENU_PUZZLE) return CHESS_MAIN_MENU_PUZZLE;
-  if (v === CHESS_MAIN_MENU_PUZZLE_PLAY) return CHESS_MAIN_MENU_PUZZLE_PLAY;
-  return CHESS_MAIN_MENU_ROOT;
+  if (v === CHESS_SCREEN.puzzle) return CHESS_SCREEN.puzzle;
+  if (v === CHESS_SCREEN.puzzlePlay) return CHESS_SCREEN.puzzlePlay;
+  return CHESS_SCREEN.root;
 }
+
+const gamesNs = createAttrNamespace('chess', 'main-menu');
 
 /** Room keys for the chess in-space main menu (sub-screen under `games/selected === chess`). */
 export const ChessMainMenuScreenAttr = {
-  screen: gamesNs('chessMainMenuScreen', readChessMainMenuScreen),
+  screen: gamesNs('screen', readChessMainMenuScreen),
 } as const;
 
 function validateSetChessMainMenuScreenPayload(
@@ -37,21 +35,21 @@ function validateSetChessMainMenuScreenPayload(
   if (!('screen' in payload)) return false;
   const s = payload['screen'];
   return (
-    s === CHESS_MAIN_MENU_ROOT ||
-    s === CHESS_MAIN_MENU_PUZZLE ||
-    s === CHESS_MAIN_MENU_PUZZLE_PLAY
+    s === CHESS_SCREEN.root ||
+    s === CHESS_SCREEN.puzzle ||
+    s === CHESS_SCREEN.puzzlePlay
   );
 }
 
-export const chessCmdNs = createMessageNamespace('chessCmd');
+export const chessCmdNs = createMessageNamespace('chess-cmd');
 export const SetChessMainMenuScreen = chessCmdNs(
-  'SET_MAIN_MENU_SCREEN',
+  'set-main-menu-screen',
   validateSetChessMainMenuScreenPayload
 );
 
-export const chessEvtNs = createMessageNamespace('chessEvt');
+export const chessEvtNs = createMessageNamespace('chess-evt');
 export const ChessMainMenuScreenSet = chessEvtNs(
-  'MAIN_MENU_SCREEN_SET',
+  'main-menu-screen-set',
   validateSetChessMainMenuScreenPayload
 );
 

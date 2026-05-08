@@ -1,9 +1,9 @@
 import { ChessBoard } from '@gamezilla/client/spaces/games/chess/chess-board';
 import { useSpaceDispatch } from '@gamezilla/client/spaces/room/use-space-room-selector';
 import {
-  CHESS_MAIN_MENU_PUZZLE,
+  CHESS_SCREEN,
   SetChessMainMenuScreen,
-} from '@gamezilla/domain/spaces/space-module';
+} from '@gamezilla/domain/spaces/games/chess/chess-main-menu';
 import { Box, IconButton, IconSymbol, Text, useTheme } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, type ReactNode } from 'react';
@@ -50,7 +50,7 @@ export function PuzzlePlayScreen(): ReactNode {
   const dispatch = useSpaceDispatch();
 
   const backToPuzzleMenu = useCallback(() => {
-    dispatch(SetChessMainMenuScreen({ screen: CHESS_MAIN_MENU_PUZZLE }));
+    dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.puzzle }));
   }, [dispatch]);
 
   return (

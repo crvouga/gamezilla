@@ -28,10 +28,10 @@ assert.equals(
   { attribute: 'todo/title' }
 );
 assert.equals(
-  jsonPathForAttribute('my.namespace/attr'),
-  '$."my.namespace/attr"',
+  jsonPathForAttribute('my.namespace/attr-name'),
+  '$."my.namespace/attr-name"',
   'Invalid attribute name',
-  { attribute: 'my.namespace/attr' }
+  { attribute: 'my.namespace/attr-name' }
 );
 assert.equals(
   jsonPathForAttribute('todo/title'),

@@ -23,7 +23,7 @@ export type PatchMetadataStamperConfig = {
 };
 
 /**
- * Stamps every write with `patch/createdById` and sets the top-level
+ * Stamps every write with `patch/created-by-id` and sets the top-level
  * `createdBy` field on each patch input.
  *
  * Delegates read, update, and subscribe to the inner sync DB.

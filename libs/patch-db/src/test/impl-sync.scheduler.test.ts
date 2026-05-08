@@ -16,24 +16,24 @@ describe('SyncPatchDb scheduler hooks', () => {
     await syncDb.write([
       {
         entityId: listId,
-        entityType: 'todoList',
+        entityType: 'todo-list',
         attributes: {
-          'todoList/name': 'X',
-          'todoList/order': 0,
-          'todoList/createdAt': new Date(0).toISOString(),
+          'todo-list/name': 'X',
+          'todo-list/order': 0,
+          'todo-list/created-at': new Date(0).toISOString(),
         },
       },
     ]);
 
     const remoteBefore = await remote.read([
-      { entityType: 'todoList', entityId: listId },
+      { entityType: 'todo-list', entityId: listId },
     ]);
     expect(remoteBefore[0]?.patches ?? []).toHaveLength(0);
 
     await syncDb.runPushNow();
 
     const remoteAfter = await remote.read([
-      { entityType: 'todoList', entityId: listId },
+      { entityType: 'todo-list', entityId: listId },
     ]);
     const rr = remoteAfter[0];
     assert.defined(rr, 'remote result');
@@ -51,25 +51,25 @@ describe('SyncPatchDb scheduler hooks', () => {
     await remote.write([
       {
         entityId: listId,
-        entityType: 'todoList',
+        entityType: 'todo-list',
         attributes: {
-          'todoList/name': 'Remote Only',
-          'todoList/order': 0,
-          'todoList/createdAt': new Date(0).toISOString(),
+          'todo-list/name': 'Remote Only',
+          'todo-list/order': 0,
+          'todo-list/created-at': new Date(0).toISOString(),
         },
       },
     ]);
 
     const received: unknown[] = [];
     const unsub = syncDb.subscribe.entities(
-      { entityType: 'todoList', entityId: listId },
+      { entityType: 'todo-list', entityId: listId },
       (result) => {
         received.push(result.entities);
       }
     );
 
     const localMid = await syncDb.read([
-      { entityType: 'todoList', entityId: listId },
+      { entityType: 'todo-list', entityId: listId },
     ]);
     expect((localMid[0]?.patches ?? []).length).toBe(0);
 

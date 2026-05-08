@@ -4,5 +4,9 @@
     "outDir": "dist",
     "types": ["@types/bun"]
   },
-  "include": ["../../libs/lib/src/ts-reset.ts", "src/**/*.ts"]
+  "include": [
+    "../../libs/lib/src/ts-reset.ts",
+    "src/**/*.ts",
+    "scripts/**/*.ts"
+  ]
 }

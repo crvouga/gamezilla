@@ -57,8 +57,8 @@ describe('SyncPatchDb immediate poll on hydrated empty', () => {
       scheduler,
     });
 
-    const qA: PatchDbQuery = { entityType: 'todoList', entityId: 'first' };
-    const qB: PatchDbQuery = { entityType: 'todoList', entityId: 'missing' };
+    const qA: PatchDbQuery = { entityType: 'todo-list', entityId: 'first' };
+    const qB: PatchDbQuery = { entityType: 'todo-list', entityId: 'missing' };
 
     // Subscribe first query to start poll timer + initial poll.
     const unsubA = syncDb.subscribe.entities(qA, () => {});

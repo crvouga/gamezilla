@@ -4,6 +4,7 @@ import type {
   PatchDb,
   PatchDbSystemContext,
 } from '@gamezilla/patch-db/interface';
+import { PATCH_CREATED_BY_ID } from '@gamezilla/patch-db/metadata/patch-metadata';
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
 import { Hono } from 'hono';
 import Stripe from 'stripe';
@@ -39,8 +40,9 @@ function extractStripeCustomerId(event: Stripe.Event): string | null {
   return customerIdFromString(c) ?? customerIdFromObject(c);
 }
 
+/** Stripe event types use `_`; entity types use kebab segments after `stripe.`. */
 function webhookEventEntityType(eventType: string): string {
-  return `stripe.${eventType}`;
+  return `stripe.${eventType.replace(/_/g, '-')}`;
 }
 
 async function recordVerifiedStripeWebhookInPatchDb(
@@ -60,9 +62,9 @@ async function recordVerifiedStripeWebhookInPatchDb(
 
   const eventCacheAttrs: Record<string, unknown> = {
     'stripe/payload': event as unknown,
-    'stripe/objectType': 'event',
+    'stripe/object-type': 'event',
     'stripe/source': 'stripe_webhook',
-    'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
+    [PATCH_CREATED_BY_ID]: PATCH_DB_SYSTEM_DEVICE_ID,
   };
   if (accountId !== null) {
     eventCacheAttrs['entity/owner'] = accountId;
@@ -79,12 +81,12 @@ async function recordVerifiedStripeWebhookInPatchDb(
   if (accountId !== null) {
     patches.push({
       entityId: objectId,
-      entityType: 'stripe.webhook_event',
+      entityType: 'stripe.webhook-event',
       attributes: {
         'entity/owner': accountId,
-        'stripe/webhookEventType': event.type,
-        'stripe/stripeObjectId': objectId,
-        'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
+        'stripe/webhook-event-type': event.type,
+        'stripe/stripe-object-id': objectId,
+        [PATCH_CREATED_BY_ID]: PATCH_DB_SYSTEM_DEVICE_ID,
       },
     });
   }

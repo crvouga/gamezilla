@@ -220,29 +220,29 @@ describe('isEqual', () => {
   describe('client config shape', () => {
     test('matches when attributes equal', () => {
       const prev = {
-        'clientConfig/googleWebClientId': 'abc.apps.googleusercontent.com',
+        'client-config/google-web-client-id': 'abc.apps.googleusercontent.com',
       };
       const next = {
-        'clientConfig/googleWebClientId': 'abc.apps.googleusercontent.com',
+        'client-config/google-web-client-id': 'abc.apps.googleusercontent.com',
       };
       expect(isEqual(prev, next)).toBe(true);
     });
 
     test('differs when id changes', () => {
-      const prev = { 'clientConfig/googleWebClientId': 'a' };
-      const next = { 'clientConfig/googleWebClientId': 'b' };
+      const prev = { 'client-config/google-web-client-id': 'a' };
+      const next = { 'client-config/google-web-client-id': 'b' };
       expect(isEqual(prev, next)).toBe(false);
     });
 
     test('prev undefined vs new object is not equal', () => {
       expect(
-        isEqual(undefined, { 'clientConfig/googleWebClientId': null })
+        isEqual(undefined, { 'client-config/google-web-client-id': null })
       ).toBe(false);
     });
 
     test('null client id in both', () => {
-      const prev = { 'clientConfig/googleWebClientId': null };
-      const next = { 'clientConfig/googleWebClientId': null };
+      const prev = { 'client-config/google-web-client-id': null };
+      const next = { 'client-config/google-web-client-id': null };
       expect(isEqual(prev, next)).toBe(true);
     });
   });

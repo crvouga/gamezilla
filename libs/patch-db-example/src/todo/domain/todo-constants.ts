@@ -4,6 +4,6 @@ import { TodoAttr, TodoListAttr } from './todo-attrs';
 export const INBOX_LIST_ID = '__inbox__';
 
 export const TODO_ENTITY_TYPE = 'todo';
-export const TODO_LIST_ENTITY_TYPE = 'todoList';
+export const TODO_LIST_ENTITY_TYPE = 'todo-list';
 
 export { TodoAttr, TodoListAttr };

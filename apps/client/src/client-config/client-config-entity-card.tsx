@@ -33,7 +33,7 @@ export function ClientConfigEntityCard() {
         variant="caption"
         sx={{ color: 'textSecondary' }}
         label={
-          <Trans>Entity type clientConfig, id clientConfig__singleton</Trans>
+          <Trans>Entity type client-config, id client-config__singleton</Trans>
         }
       />
       <Box sx={{ gap: 1 }}>

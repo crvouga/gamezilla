@@ -6,10 +6,7 @@ import {
 } from '@gamezilla/lib/message';
 import type { HandleResult, RoomState } from '@gamezilla/room';
 
-import {
-  CHESS_MAIN_MENU_ROOT,
-  ChessMainMenuScreenAttr,
-} from './chess/chess-main-menu';
+import { CHESS_SCREEN, ChessMainMenuScreenAttr } from './chess/chess-main-menu';
 
 export const SpaceGame = {
   chess: 'chess',
@@ -46,11 +43,11 @@ export function validateSelectGamePayload(
   return game === null || isSpaceGameDiscriminator(game);
 }
 
-export const gamesCmdNs = createMessageNamespace('gamesCmd');
-export const SelectGame = gamesCmdNs('SELECT_GAME', validateSelectGamePayload);
+export const gamesCmdNs = createMessageNamespace('games-cmd');
+export const SelectGame = gamesCmdNs('select-game', validateSelectGamePayload);
 
-export const gamesEvtNs = createMessageNamespace('gamesEvt');
-export const GameSelected = gamesEvtNs('SELECTED', validateSelectGamePayload);
+export const gamesEvtNs = createMessageNamespace('games-evt');
+export const GameSelected = gamesEvtNs('selected', validateSelectGamePayload);
 
 export const gamesCommandRouter = createMessageRouter<
   RoomState,
@@ -69,7 +66,7 @@ export const gamesEventReducer = createMessageRouter<
   const game = readSelectedSpaceGame(event.payload.game);
   let next = { ...state, ...GamesRoomAttr.selected(game) };
   if (game !== SpaceGame.chess) {
-    next = { ...next, ...ChessMainMenuScreenAttr.screen(CHESS_MAIN_MENU_ROOT) };
+    next = { ...next, ...ChessMainMenuScreenAttr.screen(CHESS_SCREEN.root) };
   }
   return next;
 });

@@ -9,7 +9,7 @@ const VIZ_FILE = import.meta.path;
 registerTwoClientSimHooks();
 
 const LIST_QUERY = {
-  entityType: 'todoList',
+  entityType: 'todo-list',
   where: DELETED_CLAUSE,
 } as const;
 
@@ -37,11 +37,11 @@ async function setupSharedList(
   await writeTodoList(a, [
     {
       entityId: sharedId,
-      entityType: 'todoList',
+      entityType: 'todo-list',
       attributes: {
-        'todoList/name': 'Shared',
-        'todoList/order': 0,
-        'todoList/createdAt': created,
+        'todo-list/name': 'Shared',
+        'todo-list/order': 0,
+        'todo-list/created-at': created,
       },
     },
   ]);
@@ -58,11 +58,11 @@ async function writeBatchFromA(
     await writeTodoList(a, [
       {
         entityId: id,
-        entityType: 'todoList',
+        entityType: 'todo-list',
         attributes: {
-          'todoList/name': `From-A-${i}`,
-          'todoList/order': i + 1,
-          'todoList/createdAt': created,
+          'todo-list/name': `From-A-${i}`,
+          'todo-list/order': i + 1,
+          'todo-list/created-at': created,
         },
       },
     ]);
@@ -78,19 +78,19 @@ async function divergentEditsWhileOffline(
   await writeTodoList(b, [
     {
       entityId: bOfflineNew,
-      entityType: 'todoList',
+      entityType: 'todo-list',
       attributes: {
-        'todoList/name': 'Created-by-B-while-offline',
-        'todoList/order': 99,
-        'todoList/createdAt': created,
+        'todo-list/name': 'Created-by-B-while-offline',
+        'todo-list/order': 99,
+        'todo-list/created-at': created,
       },
     },
   ]);
   await writeTodoList(b, [
     {
       entityId: sharedId,
-      entityType: 'todoList',
-      attributes: { 'todoList/order': 42 },
+      entityType: 'todo-list',
+      attributes: { 'todo-list/order': 42 },
     },
   ]);
 }
@@ -149,18 +149,18 @@ async function assertSharedMerged(
   sharedId: string
 ): Promise<void> {
   const mergedName = 'Renamed-by-A-while-B-offline';
-  const sharedQuery = { entityType: 'todoList', entityId: sharedId };
+  const sharedQuery = { entityType: 'todo-list', entityId: sharedId };
   const [sa, sb, sr] = await Promise.all([
     a.read([sharedQuery]),
     b.read([sharedQuery]),
     srvDb.read([sharedQuery]),
   ]);
-  expect(getAttr(sa, 'todoList/name')).toBe(mergedName);
-  expect(getAttr(sb, 'todoList/name')).toBe(mergedName);
-  expect(getAttr(sr, 'todoList/name')).toBe(mergedName);
-  expect(getAttr(sa, 'todoList/order')).toBe(42);
-  expect(getAttr(sb, 'todoList/order')).toBe(42);
-  expect(getAttr(sr, 'todoList/order')).toBe(42);
+  expect(getAttr(sa, 'todo-list/name')).toBe(mergedName);
+  expect(getAttr(sb, 'todo-list/name')).toBe(mergedName);
+  expect(getAttr(sr, 'todo-list/name')).toBe(mergedName);
+  expect(getAttr(sa, 'todo-list/order')).toBe(42);
+  expect(getAttr(sb, 'todo-list/order')).toBe(42);
+  expect(getAttr(sr, 'todo-list/order')).toBe(42);
 }
 
 describe('SyncPatchDb (deterministic sim, multi-client offline)', () => {
@@ -202,8 +202,8 @@ describe('SyncPatchDb (deterministic sim, multi-client offline)', () => {
     await writeTodoList(a, [
       {
         entityId: sharedId,
-        entityType: 'todoList',
-        attributes: { 'todoList/name': 'Renamed-by-A-while-B-offline' },
+        entityType: 'todo-list',
+        attributes: { 'todo-list/name': 'Renamed-by-A-while-B-offline' },
       },
     ]);
     await a.push();
@@ -228,9 +228,11 @@ describe('SyncPatchDb (deterministic sim, multi-client offline)', () => {
     await assertSharedMerged(a, b, srv.db, sharedId);
 
     const bNameA = await a.read([
-      { entityType: 'todoList', entityId: bOfflineNew },
+      { entityType: 'todo-list', entityId: bOfflineNew },
     ]);
-    expect(getAttr(bNameA, 'todoList/name')).toBe('Created-by-B-while-offline');
+    expect(getAttr(bNameA, 'todo-list/name')).toBe(
+      'Created-by-B-while-offline'
+    );
 
     await sim.assertConsistent(LIST_QUERY);
   });

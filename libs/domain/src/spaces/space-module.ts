@@ -18,12 +18,12 @@ import {
   counterEvtNs,
 } from './counter';
 import {
+  CHESS_SCREEN,
+  ChessMainMenuScreenAttr,
   chessCmdNs,
   chessEvtNs,
   chessMainMenuCommandRouter,
   chessMainMenuEventReducer,
-  CHESS_MAIN_MENU_ROOT,
-  ChessMainMenuScreenAttr,
 } from './games/chess/chess-main-menu';
 import {
   GamesRoomAttr,
@@ -32,28 +32,6 @@ import {
   gamesEventReducer,
   gamesEvtNs,
 } from './games/games';
-
-export {
-  CounterDecremented,
-  CounterIncremented,
-  CounterRoomAttr,
-  Decrement,
-  Increment,
-} from './counter';
-export {
-  GameSelected,
-  GamesRoomAttr,
-  SelectGame,
-  SpaceGame,
-} from './games/games';
-export {
-  CHESS_MAIN_MENU_ROOT,
-  CHESS_MAIN_MENU_PUZZLE,
-  CHESS_MAIN_MENU_PUZZLE_PLAY,
-  ChessMainMenuScreenAttr,
-  SetChessMainMenuScreen,
-  type ChessMainMenuScreen,
-} from './games/chess/chess-main-menu';
 
 function reject(error: RoomError): HandleResult {
   return { ok: false, error };
@@ -101,7 +79,7 @@ export const SpaceModule: RoomModule<RoomState, unknown, unknown, string> = {
     return {
       ...CounterRoomAttr.count(0),
       ...GamesRoomAttr.selected(null),
-      ...ChessMainMenuScreenAttr.screen(CHESS_MAIN_MENU_ROOT),
+      ...ChessMainMenuScreenAttr.screen(CHESS_SCREEN.root),
     };
   },
 

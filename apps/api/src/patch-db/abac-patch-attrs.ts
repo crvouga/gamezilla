@@ -11,24 +11,24 @@ export const AbacEntityAttr = {
   owner: entityNs('owner', passthrough),
 } as const;
 
-const chatMessageNs = createAttrNamespace('chat.message');
+const chatMessageNs = createAttrNamespace('chat', 'message');
 export const ChatMessageAttr = {
-  spaceId: chatMessageNs('spaceId', passthrough),
+  spaceId: chatMessageNs('space-id', passthrough),
 } as const;
 
 const friendshipNs = createAttrNamespace('friendship');
 export const FriendshipAttr = {
-  fromUserId: friendshipNs('fromUserId', passthrough),
-  toUserId: friendshipNs('toUserId', passthrough),
+  fromUserId: friendshipNs('from-user-id', passthrough),
+  toUserId: friendshipNs('to-user-id', passthrough),
 } as const;
 
-const friendRequestNs = createAttrNamespace('friend.request');
+const friendRequestNs = createAttrNamespace('friend', 'request');
 export const FriendRequestAttr = {
-  fromUserId: friendRequestNs('fromUserId', passthrough),
-  toUserId: friendRequestNs('toUserId', passthrough),
+  fromUserId: friendRequestNs('from-user-id', passthrough),
+  toUserId: friendRequestNs('to-user-id', passthrough),
 } as const;
 
 const matchNs = createAttrNamespace('match');
 export const MatchAttr = {
-  participantUserIds: matchNs('participantUserIds', passthrough),
+  participantUserIds: matchNs('participant-user-ids', passthrough),
 } as const;

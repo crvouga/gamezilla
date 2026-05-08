@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "lint": "eslint src --max-warnings 0",
+    "lint": "eslint . --max-warnings 0",
     "build": "bun -e \"process.exit(0)\"",
     "migrate": "bun run scripts/migrate-db.ts",
+    "seed:puzzles": "bun run scripts/seed-chess-puzzles.ts",
     "dev": "bun run --watch src/server.ts",
     "kill": "lsof -ti :15432 | xargs kill -9 2>/dev/null || true",
     "clean": "rm -rf .pglite",
@@ -14,9 +15,12 @@
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.4.3",
-    "@gamezilla/patch-db": "workspace:*",
+    "@gamezilla/domain": "workspace:*",
     "@gamezilla/lib": "workspace:*",
+    "@gamezilla/patch-db": "workspace:*",
     "@hono/zod-validator": "^0.7.6",
+    "csv-parse": "^6.2.1",
+    "fzstd": "^0.1.1",
     "hono": "^4.7.0",
     "zod": "^4.3.6"
   },

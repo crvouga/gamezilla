@@ -117,6 +117,6 @@ describe('createStripeWebhookRoutes', () => {
     expect(p.entityType).toBe('stripe.customer.created');
     expect(p.entityId).toBe('cus_test_1');
     expect(p.attributes['stripe/payload']).toEqual(event);
-    expect(p.attributes['stripe/objectType']).toBe('event');
+    expect(p.attributes['stripe/object-type']).toBe('event');
   });
 });

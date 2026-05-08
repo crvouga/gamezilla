@@ -9,6 +9,10 @@ import {
   DeviceAttr,
 } from '@gamezilla/domain/auth';
 import { CLIENT_CONFIG_ENTITY_TYPE } from '@gamezilla/domain/client-config/client-config-entities';
+import {
+  CHESS_PUZZLE_ENTITY_TYPE,
+  CHESS_PUZZLE_LOAD_ENTITY_TYPE,
+} from '@gamezilla/domain/spaces/games/chess/puzzle/chess-puzzle-entities';
 import { PROFILE_ENTITY_TYPE } from '@gamezilla/domain/profile/profile-entities';
 import {
   SPACE_ENTITY_TYPE,
@@ -145,11 +149,27 @@ const clientConfigPolicy: AppVisibilityPolicy = {
   },
 };
 
+const chessPuzzlePolicy: AppVisibilityPolicy = {
+  read: () => READ_WHERE_ALWAYS_TRUE,
+  write: async (ctx) => {
+    if (isPatchDbSystemContext(ctx)) return;
+    throw new ForbiddenError('chess.puzzle is system-only');
+  },
+};
+
+const chessPuzzleLoadPolicy: AppVisibilityPolicy = {
+  read: () => READ_WHERE_ALWAYS_TRUE,
+  write: async (ctx) => {
+    if (isPatchDbSystemContext(ctx)) return;
+    throw new ForbiddenError('chess.puzzle.load is system-only');
+  },
+};
+
 const adminMetricPolicy: AppVisibilityPolicy = {
   read: () => READ_WHERE_ALWAYS_TRUE,
   write: async (ctx) => {
     if (isPatchDbSystemContext(ctx)) return;
-    throw new ForbiddenError('admin/metric is system-only');
+    throw new ForbiddenError('admin.metric is system-only');
   },
 };
 
@@ -425,7 +445,9 @@ export const DEFAULT_PATCH_DB_VISIBILITY_POLICIES: Readonly<
   [ACCOUNT_SESSION_ENTITY_TYPE]: accountSessionPolicy,
   [ACCOUNT_PROVIDER_ENTITY_TYPE]: accountProviderPolicy,
   [CLIENT_CONFIG_ENTITY_TYPE]: clientConfigPolicy,
-  'admin/metric': adminMetricPolicy,
+  [CHESS_PUZZLE_ENTITY_TYPE]: chessPuzzlePolicy,
+  [CHESS_PUZZLE_LOAD_ENTITY_TYPE]: chessPuzzleLoadPolicy,
+  'admin.metric': adminMetricPolicy,
   [PROFILE_ENTITY_TYPE]: profilePolicy,
   'profile.private': profilePrivatePolicy,
   [SPACE_ENTITY_TYPE]: spacePolicy,

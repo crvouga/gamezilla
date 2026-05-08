@@ -27,7 +27,7 @@ describe('server-authoritative room (loopback)', () => {
       },
     });
     await room.untilSynced();
-    room.dispatch({ type: 'spaceCounterCmd/BOGUS', payload: {} } as never);
+    room.dispatch({ type: 'space-counter-cmd/bogus', payload: {} } as never);
     await new Promise<void>((r) => setTimeout(r, 5));
     expect(errs.length).toBe(1);
     expect((errs[0] as { type: string }).type).toBe('invalid_command');

@@ -33,7 +33,7 @@ const stripePaymentMethodPolicy: AppVisibilityPolicy = {
   read: stripeOwnerScopedRead,
   write: async (ctx) => {
     if (isPatchDbSystemContext(ctx)) return;
-    throw new ForbiddenError('stripe.paymentMethod is system-only');
+    throw new ForbiddenError('stripe.payment-method is system-only');
   },
 };
 
@@ -49,7 +49,7 @@ const stripeWebhookEventPolicy: AppVisibilityPolicy = {
   read: stripeOwnerScopedRead,
   write: async (ctx) => {
     if (isPatchDbSystemContext(ctx)) return;
-    throw new ForbiddenError('stripe.webhook_event is system-only');
+    throw new ForbiddenError('stripe.webhook-event is system-only');
   },
 };
 
@@ -58,7 +58,7 @@ const stripeCatalogPricePolicy: AppVisibilityPolicy = {
   read: authOnlyRead(() => READ_WHERE_ALWAYS_TRUE),
   write: async (ctx) => {
     if (isPatchDbSystemContext(ctx)) return;
-    throw new ForbiddenError('stripe.catalog_price is system-only');
+    throw new ForbiddenError('stripe.catalog-price is system-only');
   },
 };
 
@@ -66,7 +66,7 @@ const stripeCatalogProductPolicy: AppVisibilityPolicy = {
   read: authOnlyRead(() => READ_WHERE_ALWAYS_TRUE),
   write: async (ctx) => {
     if (isPatchDbSystemContext(ctx)) return;
-    throw new ForbiddenError('stripe.catalog_product is system-only');
+    throw new ForbiddenError('stripe.catalog-product is system-only');
   },
 };
 
@@ -82,17 +82,17 @@ const stripeOwnedSnapshotPolicy: AppVisibilityPolicy = {
 export const STRIPE_PATCH_DB_VISIBILITY_POLICIES: Readonly<
   Record<string, AppVisibilityPolicy>
 > = {
-  'stripe.catalog_price': stripeCatalogPricePolicy,
-  'stripe.catalog_product': stripeCatalogProductPolicy,
+  'stripe.catalog-price': stripeCatalogPricePolicy,
+  'stripe.catalog-product': stripeCatalogProductPolicy,
   'stripe.customer': stripeOwnedSnapshotPolicy,
   'stripe.subscription': stripeSubscriptionPolicy,
-  'stripe.paymentMethod': stripePaymentMethodPolicy,
+  'stripe.payment-method': stripePaymentMethodPolicy,
   'stripe.invoice': stripeInvoicePolicy,
   'stripe.charge': stripeOwnedSnapshotPolicy,
-  'stripe.payment_intent': stripeOwnedSnapshotPolicy,
-  'stripe.setup_intent': stripeOwnedSnapshotPolicy,
+  'stripe.payment-intent': stripeOwnedSnapshotPolicy,
+  'stripe.setup-intent': stripeOwnedSnapshotPolicy,
   'stripe.refund': stripeOwnedSnapshotPolicy,
   'stripe.dispute': stripeOwnedSnapshotPolicy,
-  'stripe.checkout_session': stripeOwnedSnapshotPolicy,
-  'stripe.webhook_event': stripeWebhookEventPolicy,
+  'stripe.checkout-session': stripeOwnedSnapshotPolicy,
+  'stripe.webhook-event': stripeWebhookEventPolicy,
 };

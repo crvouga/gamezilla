@@ -32,7 +32,7 @@ const readRoomErrorOrNull = (v: unknown): RoomError | Error | null => {
  * Domain module state must not use the `room/` prefix.
  */
 export const RoomMetaAttr = {
-  isSynced: roomNs('isSynced', readBoolean),
-  isConnected: roomNs('isConnected', readBoolean),
-  lastError: roomNs('lastError', readRoomErrorOrNull),
+  isSynced: roomNs('is-synced', readBoolean),
+  isConnected: roomNs('is-connected', readBoolean),
+  lastError: roomNs('last-error', readRoomErrorOrNull),
 } as const;

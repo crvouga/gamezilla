@@ -38,11 +38,11 @@ describe('patch-db deterministic simulation', () => {
     await c.write([
       {
         entityId: listId,
-        entityType: 'todoList',
+        entityType: 'todo-list',
         attributes: {
-          'todoList/name': 'From client',
-          'todoList/order': 0,
-          'todoList/createdAt': new Date(0).toISOString(),
+          'todo-list/name': 'From client',
+          'todo-list/order': 0,
+          'todo-list/created-at': new Date(0).toISOString(),
         },
       },
     ]);
@@ -50,21 +50,21 @@ describe('patch-db deterministic simulation', () => {
     await srv.db.write([
       {
         entityId: listId,
-        entityType: 'todoList',
-        attributes: { 'todoList/name': 'From other writer on server' },
+        entityType: 'todo-list',
+        attributes: { 'todo-list/name': 'From other writer on server' },
       },
     ]);
     const listQuery = {
-      entityType: 'todoList',
+      entityType: 'todo-list',
       where: DELETED_CLAUSE,
     } as const;
     const unsub = c.subscribe.entities(listQuery, () => {});
     await c.poll();
-    const local = await c.read([{ entityType: 'todoList', entityId: listId }]);
+    const local = await c.read([{ entityType: 'todo-list', entityId: listId }]);
     const loc = local[0];
     assert.defined(loc, 'local');
     const names = loc.entities.map(
-      (e) => e.attributes?.['todoList/name'] as string
+      (e) => e.attributes?.['todo-list/name'] as string
     );
     expect(names.some((n) => n === 'From other writer on server')).toBe(true);
     unsub();

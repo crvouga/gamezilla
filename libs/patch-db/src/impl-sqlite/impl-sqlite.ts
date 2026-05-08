@@ -252,7 +252,7 @@ export class PatchDbImplSqlite implements PatchDb {
     Object.assign(merged, {
       'patch/compacted': '1',
       [PATCH_CREATED_BY_ID]: PATCH_DB_SYSTEM_DEVICE_ID,
-      'patch/sessionId': '',
+      'patch/session-id': '',
     });
 
     const now = new Date().toISOString();

@@ -68,9 +68,9 @@ function assertQueryResultShape(
     result.rows.length,
     'query result.rows.length must be a non-negative safe integer'
   );
-  if (result.affectedRows !== undefined) {
+  if (result['affectedRows'] !== undefined) {
     assert.nonNegativeInteger(
-      result.affectedRows,
+      result['affectedRows'],
       'query result.affectedRows must be a non-negative safe integer when present'
     );
   }

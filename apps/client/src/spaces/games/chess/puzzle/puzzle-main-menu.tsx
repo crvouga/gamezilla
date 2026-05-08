@@ -4,20 +4,19 @@ import {
 } from '@gamezilla/client/spaces/games/main-menu-screen';
 import { useSpaceDispatch } from '@gamezilla/client/spaces/room/use-space-room-selector';
 import {
-  CHESS_MAIN_MENU_PUZZLE_PLAY,
-  CHESS_MAIN_MENU_ROOT,
+  CHESS_SCREEN,
   SetChessMainMenuScreen,
-} from '@gamezilla/domain/spaces/space-module';
+} from '@gamezilla/domain/spaces/games/chess/chess-main-menu';
 import { Trans } from '@lingui/react/macro';
 import { useCallback, type ReactNode } from 'react';
 
 export function PuzzleMainMenu(): ReactNode {
   const dispatch = useSpaceDispatch();
   const backToChessRoot = useCallback(() => {
-    dispatch(SetChessMainMenuScreen({ screen: CHESS_MAIN_MENU_ROOT }));
+    dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }));
   }, [dispatch]);
   const openPuzzlePlay = useCallback(() => {
-    dispatch(SetChessMainMenuScreen({ screen: CHESS_MAIN_MENU_PUZZLE_PLAY }));
+    dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.puzzlePlay }));
   }, [dispatch]);
 
   const items: readonly MainMenuItem[] = [

@@ -2,9 +2,6 @@ import { createAttrNamespace } from '@gamezilla/lib/attribute';
 
 import { parseAvatarConfig } from './avatar-config';
 
-/** PatchDB entity type for user profile (presentation only). */
-export const PROFILE_ENTITY_TYPE = 'profile';
-
 function readString(v: unknown): string {
   return typeof v === 'string' ? v : '';
 }
@@ -13,7 +10,9 @@ function readDisplayName(v: unknown): string {
   return typeof v === 'string' && v.trim().length > 0 ? v.trim() : '';
 }
 
-const profileNs = createAttrNamespace('profile');
+export const profileNs = createAttrNamespace('profile');
+
+export const PROFILE_ENTITY_TYPE = profileNs.prefix;
 
 /**
  * One profile per identity:
@@ -22,7 +21,7 @@ const profileNs = createAttrNamespace('profile');
  */
 export const ProfileAttr = {
   id: profileNs('id', readString),
-  createdAt: profileNs('createdAt', readString),
-  displayName: profileNs('displayName', readDisplayName),
-  avatarConfig: profileNs('avatarConfig', parseAvatarConfig),
+  createdAt: profileNs('created-at', readString),
+  displayName: profileNs('display-name', readDisplayName),
+  avatarConfig: profileNs('avatar-config', parseAvatarConfig),
 } as const;

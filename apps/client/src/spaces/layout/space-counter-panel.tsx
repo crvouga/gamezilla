@@ -6,13 +6,13 @@ import {
   CounterRoomAttr,
   Decrement,
   Increment,
-} from '@gamezilla/domain/spaces/space-module';
+} from '@gamezilla/domain/spaces/counter';
+import { Box, Button, Text } from '@gamezilla/lib/ui';
 import {
   RoomMetaAttr,
   SPACE_ROOM_NAME,
   useRoomFromRegistry,
 } from '@gamezilla/room';
-import { Box, Button, Text } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, type ReactNode } from 'react';
 

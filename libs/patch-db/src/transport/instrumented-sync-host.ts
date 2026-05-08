@@ -18,9 +18,9 @@ import type { PatchDbSyncHost } from './interface';
 
 const PATCHES_DB_TOPIC = 'patch-db';
 
-/** Fixed entity for api instrumentation snapshot (see plan: admin/metric). */
+/** Fixed entity for api instrumentation snapshot (entity type `admin.metric`). */
 export const ADMIN_METRIC_ENTITY_ID = 'server-stats';
-export const ADMIN_METRIC_ENTITY_TYPE = 'admin/metric';
+export const ADMIN_METRIC_ENTITY_TYPE = 'admin.metric';
 
 type Counters = {
   totalPatchesWritten: number;
@@ -128,12 +128,12 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
             entityId: ADMIN_METRIC_ENTITY_ID,
             entityType: ADMIN_METRIC_ENTITY_TYPE,
             attributes: {
-              'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
-              'admin/startedAt': this.startedAt,
-              'admin/uptimeSeconds': uptimeSeconds,
-              'admin/totalPatchesWritten': this.counters.totalPatchesWritten,
-              'admin/totalReadsServed': this.counters.totalReadsServed,
-              'admin/lastActivityAt': this.lastActivityAt,
+              'patch/created-by-id': PATCH_DB_SYSTEM_DEVICE_ID,
+              'admin/started-at': this.startedAt,
+              'admin/uptime-seconds': uptimeSeconds,
+              'admin/total-patches-written': this.counters.totalPatchesWritten,
+              'admin/total-reads-served': this.counters.totalReadsServed,
+              'admin/last-activity-at': this.lastActivityAt,
             },
           },
         ],

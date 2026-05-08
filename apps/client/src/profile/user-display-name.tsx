@@ -16,7 +16,7 @@ export type UserDisplayNameProps = {
 };
 
 /**
- * Renders the persisted `profile/displayName` for a profile id.
+ * Renders the persisted `profile/display-name` for a profile id.
  * Returns `null` when no profile id is supplied; renders an empty `Text` when
  * the row hasn't synced (so layout positioning stays stable).
  */

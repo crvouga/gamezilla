@@ -16,7 +16,7 @@ export const QItem = {
 };
 
 export const QTodoList = {
-  deleted: 'todoList/deleted' as const,
+  deleted: 'todo-list/deleted' as const,
 };
 
 export const QGameSession = {

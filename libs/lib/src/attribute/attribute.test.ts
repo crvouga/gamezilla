@@ -1,33 +1,74 @@
-import { describe, expect, it } from 'bun:test';
-import { createAttrNamespace, isValidPatchDbAttributeKey } from './attribute';
+import { Assert } from '@gamezilla/lib/assert';
+import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
+import { createAttrNamespace, isClojureNamespacedKey } from './attribute';
 
-describe('isValidPatchDbAttributeKey', () => {
-  it('accepts PatchDB-style keys', () => {
-    expect(isValidPatchDbAttributeKey('todo/title')).toBe(true);
-    expect(isValidPatchDbAttributeKey('my.namespace/attr')).toBe(true);
-    expect(isValidPatchDbAttributeKey('patch/syncRejectedAt')).toBe(true);
+let disposeTestCrashHandler: () => void;
+beforeAll(() => {
+  disposeTestCrashHandler = Assert.registerCrashHandler({
+    priority: 0,
+    match: () => true,
+    crash(message, context) {
+      throw new Error(
+        context === undefined
+          ? message
+          : `${message} ${JSON.stringify(context)}`
+      );
+    },
+  });
+});
+afterAll(() => {
+  disposeTestCrashHandler();
+});
+
+describe('isClojureNamespacedKey', () => {
+  it('accepts kebab-case Clojure-style keys', () => {
+    expect(isClojureNamespacedKey('todo/title')).toBe(true);
+    expect(isClojureNamespacedKey('my.namespace/attr-name')).toBe(true);
+    expect(isClojureNamespacedKey('patch/sync-rejected-at')).toBe(true);
+    expect(isClojureNamespacedKey('chess.puzzle/id')).toBe(true);
+    expect(isClojureNamespacedKey('chat.message/space-id')).toBe(true);
   });
 
-  it('rejects whitespace and bad segments', () => {
-    expect(isValidPatchDbAttributeKey('bad key/x')).toBe(false);
-    expect(isValidPatchDbAttributeKey('0prefix/name')).toBe(false);
-    expect(isValidPatchDbAttributeKey('prefix/9nope')).toBe(false);
-    expect(isValidPatchDbAttributeKey('onlyOne')).toBe(false);
-    expect(isValidPatchDbAttributeKey('a/b/c')).toBe(false);
+  it('rejects camelCase, underscores, digits-first, multi-slash', () => {
+    expect(isClojureNamespacedKey('bad key/x')).toBe(false);
+    expect(isClojureNamespacedKey('0prefix/name')).toBe(false);
+    expect(isClojureNamespacedKey('prefix/9nope')).toBe(false);
+    expect(isClojureNamespacedKey('onlyOne')).toBe(false);
+    expect(isClojureNamespacedKey('a/b/c')).toBe(false);
+    expect(isClojureNamespacedKey('foo..bar/x')).toBe(false);
+    expect(isClojureNamespacedKey('.foo/x')).toBe(false);
+    expect(isClojureNamespacedKey('foo./x')).toBe(false);
+    expect(isClojureNamespacedKey('ns/foo.bar')).toBe(false);
+    expect(isClojureNamespacedKey('patch/syncRejectedAt')).toBe(false);
+    expect(isClojureNamespacedKey('MyNs/foo')).toBe(false);
+    expect(isClojureNamespacedKey('ns/foo_bar')).toBe(false);
   });
 });
 
 describe('createAttrNamespace', () => {
-  it('rejects empty prefix', () => {
-    expect(() => createAttrNamespace('')).toThrow();
+  it('rejects zero segments', () => {
+    expect(() => createAttrNamespace()).toThrow();
   });
 
-  it('rejects slash in prefix', () => {
+  it('rejects invalid segment (slash)', () => {
     expect(() => createAttrNamespace('a/b')).toThrow();
   });
 
-  it('rejects invalid PatchDB segment in prefix', () => {
+  it('rejects invalid segment (consecutive hyphens)', () => {
+    expect(() => createAttrNamespace('a--b')).toThrow();
+  });
+
+  it('rejects digit-first segment', () => {
     expect(() => createAttrNamespace('0bad')).toThrow();
+  });
+
+  it('rejects camelCase segment', () => {
+    expect(() => createAttrNamespace('helloWorld')).toThrow();
+  });
+
+  it('joins multiple segments with dots', () => {
+    const ns = createAttrNamespace('chess', 'main-menu');
+    expect(ns.prefix).toBe('chess.main-menu');
   });
 
   it('rejects empty name', () => {
@@ -38,6 +79,11 @@ describe('createAttrNamespace', () => {
   it('rejects slash in name', () => {
     const ns = createAttrNamespace('games');
     expect(() => ns('foo/bar', (v) => v)).toThrow();
+  });
+
+  it('rejects camelCase local name', () => {
+    const ns = createAttrNamespace('games');
+    expect(() => ns('displayName', (v) => v)).toThrow();
   });
 
   it('builds full key as prefix/name', () => {
@@ -68,10 +114,10 @@ describe('createAttrNamespace', () => {
 
   it('.from reads flat key and parses', () => {
     const ns = createAttrNamespace('profile');
-    const DisplayName = ns('displayName', (v): string =>
+    const DisplayName = ns('display-name', (v): string =>
       typeof v === 'string' ? v : ''
     );
-    expect(DisplayName.from({ 'profile/displayName': 'Ada' })).toBe('Ada');
+    expect(DisplayName.from({ 'profile/display-name': 'Ada' })).toBe('Ada');
     expect(DisplayName.from({})).toBe('');
   });
 

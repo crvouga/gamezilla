@@ -1,7 +1,7 @@
 import type { Assert } from '@gamezilla/lib/assert';
 import { assert } from '@gamezilla/lib/assert';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
-import { isValidPatchDbAttributeKey } from './attribute-key';
+import { isClojureNamespacedKey } from './attribute-key';
 import type { PatchDbContext } from './context';
 import type { PatchDbCompactionPolicyResolver } from './policy/compaction-policy';
 import {
@@ -43,7 +43,7 @@ export type PatchRejectionReason = {
   patchId: string;
   /** Machine-readable, e.g. `forbidden`, `unknown_entity_type`. */
   code: string;
-  /** Human-readable; keep short for `patch/syncRejectedReason` storage. */
+  /** Human-readable; keep short for `patch/sync-rejected-reason` storage. */
   reason: string;
   /**
    * Echo of the rejected patch input when the producer attaches it (e.g. wire
@@ -174,7 +174,7 @@ export type Attribute = string & { __brand: 'attribute' };
 
 /** Returns true if the key is a valid namespaced attribute. Use when reading stored data that may be stale. */
 export function isValidAttribute(key: unknown): key is string {
-  return isValidPatchDbAttributeKey(key);
+  return isClojureNamespacedKey(key);
 }
 
 const ID_MAX_LEN = 1024;
@@ -231,7 +231,7 @@ export function assertEntityKey(
 }
 /**
  * Sanitizes an attribute name to ensure it follows Clojure-style namespaced key conventions.
- * Valid: Clojure-style namespaced keys (e.g. "todo/title", "patch/syncedAt").
+ * Valid: Clojure-style kebab-case namespaced keys (e.g. "todo/title", "patch/synced-at").
  * @param attribute - The attribute to sanitize.
  * @returns The sanitized attribute.
  */
@@ -241,7 +241,7 @@ export function assertAttribute(
 ): asserts attribute is string {
   a.string(attribute, 'Invalid attribute name — must be a string');
   a.ok(
-    isValidPatchDbAttributeKey(attribute),
+    isClojureNamespacedKey(attribute),
     'Invalid attribute name — must be a Clojure-style namespaced key'
   );
 }
@@ -422,7 +422,7 @@ export function andWhereClause(
 
 /**
  * Read predicate that is always true for snapshot/patch JSON attribute queries.
- * (Every stored patch has `patch/createdById` after normalization.)
+ * (Every stored patch has `patch/created-by-id` after normalization.)
  */
 export const READ_WHERE_ALWAYS_TRUE: PatchDbQueryWhereClause = {
   type: 'or',

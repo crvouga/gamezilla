@@ -1,14 +1,15 @@
 import type { PatchDb, PatchDbContext } from '@gamezilla/patch-db/interface';
+import { PATCH_CREATED_BY_ID } from '@gamezilla/patch-db/metadata/patch-metadata';
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
 import type Stripe from 'stripe';
 
 /** Patch-db entity type for catalog prices (SPEC / checkout `priceKey` = entityId). */
 export const STRIPE_PATCH_ENTITY_CATALOG_PRICE =
-  'stripe.catalog_price' as const;
+  'stripe.catalog-price' as const;
 
 /** Patch-db entity type for catalog products (`catalog_product_id` metadata = entityId). */
 export const STRIPE_PATCH_ENTITY_CATALOG_PRODUCT =
-  'stripe.catalog_product' as const;
+  'stripe.catalog-product' as const;
 
 /** Stripe Product metadata — must match `src/sync/catalog.ts`. */
 export const STRIPE_CATALOG_PRODUCT_METADATA_KEY =
@@ -65,9 +66,9 @@ export async function upsertCatalogPriceFromStripeApi(
         entityType: STRIPE_PATCH_ENTITY_CATALOG_PRICE,
         attributes: {
           'stripe/payload': price as unknown,
-          'stripe/objectType': 'price',
+          'stripe/object-type': 'price',
           'stripe/source': 'stripe_catalog_sync',
-          'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
+          [PATCH_CREATED_BY_ID]: PATCH_DB_SYSTEM_DEVICE_ID,
         },
       },
     ],
@@ -92,9 +93,9 @@ export async function upsertCatalogProductFromStripeApi(
         entityType: STRIPE_PATCH_ENTITY_CATALOG_PRODUCT,
         attributes: {
           'stripe/payload': product as unknown,
-          'stripe/objectType': 'product',
+          'stripe/object-type': 'product',
           'stripe/source': 'stripe_catalog_sync',
-          'patch/createdById': PATCH_DB_SYSTEM_DEVICE_ID,
+          [PATCH_CREATED_BY_ID]: PATCH_DB_SYSTEM_DEVICE_ID,
         },
       },
     ],
