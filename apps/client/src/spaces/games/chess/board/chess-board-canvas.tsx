@@ -13,10 +13,18 @@ import {
   Skia,
   Text as SkiaText,
 } from '@shopify/react-native-skia';
-import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
+  withTiming,
 } from 'react-native-reanimated';
 import type {
   BoardTheme,
@@ -64,6 +72,61 @@ type PostMoveAudio = {
   isGameOver: boolean;
 };
 
+function LegalMoveIndicator(props: {
+  cell: number;
+  cx: number;
+  cy: number;
+  isCapture: boolean;
+  isHovered: boolean;
+  dotColor: string;
+  ringColor: string;
+}): ReactNode {
+  const { cell, cx, cy, isCapture, isHovered, dotColor, ringColor } = props;
+  const radius = useSharedValue(isCapture ? cell * 0.46 : cell * 0.16);
+  const opacity = useSharedValue(isCapture ? 0.55 : 0.6);
+  const strokeWidth = useSharedValue(cell * 0.08);
+
+  useEffect(() => {
+    radius.value = withTiming(
+      isCapture
+        ? isHovered
+          ? cell * 0.5
+          : cell * 0.46
+        : isHovered
+          ? cell * 0.2
+          : cell * 0.16,
+      { duration: 120, easing: Easing.out(Easing.cubic) }
+    );
+    opacity.value = withTiming(
+      isCapture ? (isHovered ? 0.85 : 0.55) : isHovered ? 0.9 : 0.6,
+      { duration: 120, easing: Easing.out(Easing.cubic) }
+    );
+    if (isCapture) {
+      strokeWidth.value = withTiming(isHovered ? cell * 0.1 : cell * 0.08, {
+        duration: 120,
+        easing: Easing.out(Easing.cubic),
+      });
+    }
+  }, [cell, isCapture, isHovered, opacity, radius, strokeWidth]);
+
+  if (isCapture) {
+    return (
+      <Circle
+        cx={cx}
+        cy={cy}
+        r={radius}
+        color={ringColor}
+        style="stroke"
+        strokeWidth={strokeWidth}
+        opacity={opacity}
+      />
+    );
+  }
+  return (
+    <Circle cx={cx} cy={cy} r={radius} color={dotColor} opacity={opacity} />
+  );
+}
+
 function playMoveSounds(
   sounds: ReturnType<typeof useChessBoardSounds>,
   move: Move,
@@ -110,14 +173,11 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
   const cell = size / 8;
   const pieceDraw = cell * PIECE_DRAW_SCALE;
 
-  const {
-    active: pieceRows,
-    exiting: exitingRows,
-    consumeExiting,
-  } = useChessPieceRows(position, lastMove);
+  const { active: pieceRows } = useChessPieceRows(position, lastMove);
 
   const [selected, setSelected] = useState<Square | null>(null);
   const [dragFrom, setDragFrom] = useState<Square | null>(null);
+  const [hoveredSquare, setHoveredSquare] = useState<Square | null>(null);
   const dragX = useSharedValue(0);
   const dragY = useSharedValue(0);
   const isDragging = useSharedValue(false);
@@ -161,6 +221,10 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
     },
     onDragEnd: () => {
       setDragFrom(null);
+      setHoveredSquare(null);
+    },
+    onHoverSquare: (sq) => {
+      setHoveredSquare(sq);
     },
     onDrop: (fromSq, toSq) => {
       if (!game.moveRequiresPromotion(fromSq, toSq)) {
@@ -295,28 +359,17 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
                   const occupant = position[indexFromSquare(sq)] ?? null;
                   const isCapture =
                     occupant !== null && occupant?.color !== turn;
-                  if (isCapture) {
-                    return (
-                      <Circle
-                        key={`cap-${sq}`}
-                        cx={cx}
-                        cy={cy}
-                        r={cell * 0.46}
-                        color={theme.legalMoveCaptureRing}
-                        style="stroke"
-                        strokeWidth={cell * 0.08}
-                        opacity={0.55}
-                      />
-                    );
-                  }
+                  const isHovered = hoveredSquare === sq;
                   return (
-                    <Circle
+                    <LegalMoveIndicator
                       key={`dot-${sq}`}
+                      cell={cell}
                       cx={cx}
                       cy={cy}
-                      r={cell * 0.16}
-                      color={theme.legalMoveDot}
-                      opacity={0.6}
+                      isCapture={isCapture}
+                      isHovered={isHovered}
+                      dotColor={theme.legalMoveDot}
+                      ringColor={theme.legalMoveCaptureRing}
                     />
                   );
                 })
@@ -343,36 +396,13 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
                 })()
               : null}
 
-            {/* exiting/captured pieces (drawn first so capturer stays on top) */}
-            {pieceImages
-              ? exitingRows.map((row) => {
-                  const { x, y } = squareToXY(row.square, size, orientation);
-                  const cx = x + cell / 2;
-                  const cy = y + cell / 2;
-                  const image = pieceImages[row.code];
-                  return (
-                    <ChessBoardPieceSkia
-                      key={`ex-${row.id}`}
-                      image={image}
-                      pieceSize={pieceDraw}
-                      targetCenterX={cx}
-                      targetCenterY={cy}
-                      fadeOut
-                      onFadeOutComplete={() => {
-                        consumeExiting(row.id);
-                      }}
-                    />
-                  );
-                })
-              : null}
-
             {/* active pieces */}
             {pieceImages
               ? pieceRows.map((row) => {
                   if (dragFrom === row.square) return null;
                   const { x, y } = squareToXY(row.square, size, orientation);
-                  const cx = x + cell / 2;
-                  const cy = y + cell / 2;
+                  const cx = x + cell / 2 + cell * 0.042;
+                  const cy = y + cell / 2 + cell * 0.012;
                   const image = pieceImages[row.code];
                   return (
                     <ChessBoardPieceSkia

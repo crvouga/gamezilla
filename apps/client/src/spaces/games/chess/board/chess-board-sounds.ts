@@ -1,5 +1,5 @@
 import { useAudioPlayer } from 'expo-audio';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 const moveSrc = require('../../../../../assets/sounds/spaces/games/chess/move-2.wav');
 const captureSrc = require('../../../../../assets/sounds/spaces/games/chess/capture-2.wav');
@@ -21,6 +21,21 @@ async function playFromStart(player: {
   player.play();
 }
 
+type WarmablePlayer = {
+  seekTo: (s: number) => Promise<void>;
+  pause?: () => void;
+};
+
+async function warmPlayer(player: WarmablePlayer): Promise<void> {
+  try {
+    // Force decode/seek work up front so first real playback is instant.
+    await player.seekTo(0);
+    player.pause?.();
+  } catch {
+    // Ignore warmup failures; normal playback path still works.
+  }
+}
+
 export function useChessBoardSounds() {
   const move = useAudioPlayer(moveSrc);
   const capture = useAudioPlayer(captureSrc);
@@ -29,6 +44,29 @@ export function useChessBoardSounds() {
   const promote = useAudioPlayer(promoteSrc);
   const illegal = useAudioPlayer(illegalSrc);
   const gameEnd = useAudioPlayer(gameEndSrc);
+
+  useEffect(() => {
+    let cancelled = false;
+    const players: WarmablePlayer[] = [
+      move,
+      capture,
+      check,
+      castle,
+      promote,
+      illegal,
+      gameEnd,
+    ];
+    async function warmAll() {
+      for (const player of players) {
+        if (cancelled) return;
+        await warmPlayer(player);
+      }
+    }
+    void warmAll();
+    return () => {
+      cancelled = true;
+    };
+  }, [castle, capture, check, gameEnd, illegal, move, promote]);
 
   const playMove = useCallback(() => void playFromStart(move), [move]);
   const playCapture = useCallback(() => void playFromStart(capture), [capture]);

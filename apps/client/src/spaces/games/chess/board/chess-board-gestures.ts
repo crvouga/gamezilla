@@ -26,6 +26,7 @@ export type BoardGesturesArgs = {
   setSelected: (sq: Square | null) => void;
   onDragStart: (from: Square) => void;
   onDragEnd: () => void;
+  onHoverSquare?: (sq: Square | null) => void;
   onDrop: (fromSq: Square, toSq: Square) => void;
 };
 
@@ -46,6 +47,7 @@ export function useBoardGestures(args: BoardGesturesArgs) {
     setSelected,
     onDragStart,
     onDragEnd,
+    onHoverSquare,
     onDrop,
   } = args;
 
@@ -88,16 +90,19 @@ export function useBoardGestures(args: BoardGesturesArgs) {
         dragY.value = e.y;
         isDragging.value = true;
         if (dragPickupScale) {
-          dragPickupScale.value = withTiming(2, {
+          dragPickupScale.value = withTiming(1.8, {
             duration: 120,
             easing: Easing.out(Easing.cubic),
           });
         }
         if (dragPickupOpacity) {
-          dragPickupOpacity.value = withTiming(0.95, {
+          dragPickupOpacity.value = withTiming(0.6, {
             duration: 120,
             easing: Easing.out(Easing.cubic),
           });
+        }
+        if (onHoverSquare) {
+          runOnJS(onHoverSquare)(sq);
         }
 
         runOnJS(setSelected)(sq);
@@ -108,6 +113,10 @@ export function useBoardGestures(args: BoardGesturesArgs) {
         if (isDragging.value) {
           dragX.value = e.x;
           dragY.value = e.y;
+          if (onHoverSquare) {
+            const hoverSq = xyToSquare(e.x, e.y, size, orientation);
+            runOnJS(onHoverSquare)(hoverSq);
+          }
         }
       })
       .onEnd((e) => {
@@ -133,6 +142,9 @@ export function useBoardGestures(args: BoardGesturesArgs) {
         const startSq = xyToSquare(startX, startY, size, orientation);
 
         runOnJS(onDragEnd)();
+        if (onHoverSquare) {
+          runOnJS(onHoverSquare)(null);
+        }
         runOnJS(setSelected)(null);
 
         if (toSq !== null && startSq !== null && startSq !== toSq) {
@@ -156,6 +168,9 @@ export function useBoardGestures(args: BoardGesturesArgs) {
           }
           isDragging.value = false;
           runOnJS(onDragEnd)();
+          if (onHoverSquare) {
+            runOnJS(onHoverSquare)(null);
+          }
         }
       });
 
@@ -177,5 +192,6 @@ export function useBoardGestures(args: BoardGesturesArgs) {
     isDragging,
     dragPickupScale,
     dragPickupOpacity,
+    onHoverSquare,
   ]);
 }

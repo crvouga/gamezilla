@@ -1,7 +1,7 @@
 import { Skia, type SkImage, type SkSVG } from '@shopify/react-native-skia';
 import { useEffect, useState } from 'react';
 import type { PieceCode } from './chess-board-types';
-import { PIECE_SVGS } from './chess-pieces-svg';
+import { PIECE_SVGS, PIECE_SVGS_CBURNETT } from './chess-pieces-svg';
 
 export type PieceImageCache = Record<PieceCode, SkImage>;
 
@@ -49,6 +49,22 @@ function rasterizePiece(svg: SkSVG): SkImage {
   return image;
 }
 
+function isSvgUrl(source: string): boolean {
+  return source.startsWith('https://') || source.startsWith('http://');
+}
+
+async function resolveSvgXml(code: PieceCode, source: string): Promise<string> {
+  if (!isSvgUrl(source)) return source;
+  try {
+    const res = await fetch(source);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.text();
+  } catch {
+    // Offline / blocked network: fall back to bundled Cburnett XML.
+    return PIECE_SVGS_CBURNETT[code];
+  }
+}
+
 export function usePieceSkiaImages(): PieceImageCache | null {
   const [cache, setCache] = useState<PieceImageCache | null>(null);
 
@@ -59,7 +75,8 @@ export function usePieceSkiaImages(): PieceImageCache | null {
     async function load() {
       const entries = Object.entries(PIECE_SVGS) as [PieceCode, string][];
       const results = await Promise.all(
-        entries.map(async ([code, xml]) => {
+        entries.map(async ([code, source]) => {
+          const xml = await resolveSvgXml(code, source);
           const svg = Skia.SVG.MakeFromString(xml);
           if (svg === null) {
             throw new Error(`Failed to parse SVG for piece ${code}`);

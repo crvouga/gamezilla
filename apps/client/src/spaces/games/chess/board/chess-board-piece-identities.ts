@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Move, PieceCode, Position, Square } from './chess-board-types';
-import { indexFromSquare, squareFromIndex } from './chess-board-geometry';
+import { squareFromIndex } from './chess-board-geometry';
 import { pieceCode } from './chess-pieces-svg';
 
 export type ChessPieceRow = {
@@ -45,43 +45,6 @@ function scanRows(pos: Position): ChessPieceRow[] {
   return rows;
 }
 
-function enPassantVictimSquare(
-  from: Square,
-  to: Square,
-  captured?: Move['captured']
-): Square | null {
-  if (captured !== 'p') return null;
-  const ff = from.charCodeAt(0);
-  const tf = to.charCodeAt(0);
-  if (ff === tf) return null;
-  if (Math.abs(tf - ff) !== 1) return null;
-  if (from[1] !== to[1]) return null;
-  const file = to[0]!;
-  const rank = from[1]!;
-  return `${file}${rank}` as Square;
-}
-
-type CaptureExitArgs = {
-  exiting: ChessPieceRow[];
-  prev: Position;
-  active: readonly ChessPieceRow[];
-  lastMove: Move;
-  mover: ChessPieceRow | undefined;
-};
-
-function pushCaptureExits(args: CaptureExitArgs): void {
-  const { exiting, prev, active, lastMove, mover } = args;
-  if (!lastMove.captured) return;
-  const victimSq = prev[indexFromSquare(lastMove.to)]
-    ? lastMove.to
-    : enPassantVictimSquare(lastMove.from, lastMove.to, lastMove.captured);
-  if (!victimSq) return;
-  const victim = active.find(
-    (r) => r.square === victimSq && r.id !== mover?.id
-  );
-  if (victim) exiting.push({ ...victim });
-}
-
 type ResolvePieceArgs = {
   sq: Square;
   code: PieceCode;
@@ -112,14 +75,11 @@ function resolvePieceId(args: ResolvePieceArgs): {
 }
 
 function buildNextRows(
-  prev: Position,
   position: Position,
   active: ChessPieceRow[],
   lastMove: Move
-): { next: ChessPieceRow[]; exiting: ChessPieceRow[] } {
-  const exiting: ChessPieceRow[] = [];
+): ChessPieceRow[] {
   const mover = active.find((r) => r.square === lastMove.from);
-  pushCaptureExits({ exiting, prev, active, lastMove, mover });
 
   const next: ChessPieceRow[] = [];
   for (let i = 0; i < 64; i++) {
@@ -137,28 +97,19 @@ function buildNextRows(
     });
     next.push({ id, square: sq, code, ...(fadeIn ? { fadeIn: true } : {}) });
   }
-  return { next, exiting };
+  return next;
 }
 
 export function useChessPieceRows(
   position: Position,
   lastMove: Move | null
-): {
-  active: ChessPieceRow[];
-  exiting: ChessPieceRow[];
-  consumeExiting: (id: string) => void;
-} {
+): { active: ChessPieceRow[] } {
   const [active, setActive] = useState<ChessPieceRow[]>(() =>
     scanRows(position)
   );
-  const [exiting, setExiting] = useState<ChessPieceRow[]>([]);
   const prevPositionRef = useRef<Position | null>(null);
   const activeRef = useRef(active);
   activeRef.current = active;
-
-  const consumeExiting = useCallback((id: string) => {
-    setExiting((xs) => xs.filter((r) => r.id !== id));
-  }, []);
 
   useEffect(() => {
     const prev = prevPositionRef.current;
@@ -174,23 +125,14 @@ export function useChessPieceRows(
 
     if (!lastMove) {
       setActive(scanRows(position));
-      setExiting([]);
       prevPositionRef.current = position;
       return;
     }
 
-    const { next, exiting: newExiting } = buildNextRows(
-      prev,
-      position,
-      activeRef.current,
-      lastMove
-    );
+    const next = buildNextRows(position, activeRef.current, lastMove);
     setActive(next);
-    if (newExiting.length > 0) {
-      setExiting((e) => [...e, ...newExiting]);
-    }
     prevPositionRef.current = position;
   }, [position, lastMove]);
 
-  return { active, exiting, consumeExiting };
+  return { active };
 }
