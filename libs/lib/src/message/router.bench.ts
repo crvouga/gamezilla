@@ -15,7 +15,7 @@
 import { Assert } from '@gamezilla/lib/assert';
 import {
   acceptUnknownPayload,
-  createNamespace,
+  createMessageNamespace,
   isPlainRecord,
   type Message,
   type MessageNamespace,
@@ -187,9 +187,9 @@ function printPairs(pairs: Pair[]): void {
 // Test fixtures
 // ---------------------------------------------------------------------------
 
-const game = createNamespace('game');
-const chat = createNamespace('chat');
-const sys = createNamespace('sys');
+const game = createMessageNamespace('game');
+const chat = createMessageNamespace('chat');
+const sys = createMessageNamespace('sys');
 
 type MovePayload = { cell: number; player: 'X' | 'O' };
 const isMovePayload: MessagePayloadValidator<MovePayload> = (

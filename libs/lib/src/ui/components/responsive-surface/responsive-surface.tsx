@@ -43,13 +43,21 @@ function MobileSheet({
 }: ResponsiveSurfaceProps) {
   const theme = useTheme();
   const sheetRef = useRef<React.ElementRef<typeof BottomSheetModal>>(null);
+  const hasPresentedRef = useRef(false);
   const snapPoints = useMemo(() => snapPointsProp ?? ['80%'], [snapPointsProp]);
 
   useEffect(() => {
     const sheet = sheetRef.current;
     if (sheet === null) return;
-    if (visible) sheet.present();
-    else sheet.dismiss();
+    if (visible) {
+      hasPresentedRef.current = true;
+      sheet.present();
+      return;
+    }
+    if (hasPresentedRef.current) {
+      sheet.dismiss();
+      return;
+    }
   }, [visible]);
 
   const renderBackdrop = useCallback(
@@ -70,7 +78,13 @@ function MobileSheet({
       ref={sheetRef}
       snapPoints={snapPoints}
       enablePanDownToClose
-      onDismiss={onClose}
+      onDismiss={() => {
+        hasPresentedRef.current = false;
+      }}
+      onChange={(index) => {
+        if (index === -1) hasPresentedRef.current = false;
+        if (index === -1 && visible) onClose();
+      }}
       backdropComponent={renderBackdrop}
       handleIndicatorStyle={{ backgroundColor: theme.colors.border }}
       backgroundStyle={{ backgroundColor: theme.colors.surface }}

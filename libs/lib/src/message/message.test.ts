@@ -1,32 +1,32 @@
 import { describe, expect, it } from 'bun:test';
 import {
   acceptUnknownPayload,
-  createNamespace,
+  createMessageNamespace,
   isPlainRecord,
   type Message,
 } from './message';
 
 describe('createNamespace', () => {
   it('rejects empty prefix', () => {
-    expect(() => createNamespace('')).toThrow();
+    expect(() => createMessageNamespace('')).toThrow();
   });
 
   it('rejects slash in prefix', () => {
-    expect(() => createNamespace('a/b')).toThrow();
+    expect(() => createMessageNamespace('a/b')).toThrow();
   });
 
   it('rejects empty name', () => {
-    const ns = createNamespace('ticTacToe');
+    const ns = createMessageNamespace('ticTacToe');
     expect(() => ns('', acceptUnknownPayload)).toThrow();
   });
 
   it('rejects slash in name', () => {
-    const ns = createNamespace('ticTacToe');
+    const ns = createMessageNamespace('ticTacToe');
     expect(() => ns('foo/bar', acceptUnknownPayload)).toThrow();
   });
 
   it('builds full type as prefix/name', () => {
-    const ns = createNamespace('ticTacToe');
+    const ns = createMessageNamespace('ticTacToe');
     const Foo = ns(
       'foo',
       (p): p is { x: number } => isPlainRecord(p) && typeof p['x'] === 'number'
@@ -37,7 +37,7 @@ describe('createNamespace', () => {
   });
 
   it('constructor throws when validator rejects', () => {
-    const ns = createNamespace('ticTacToe');
+    const ns = createMessageNamespace('ticTacToe');
     const Foo = ns(
       'foo',
       (p): p is { x: number } => isPlainRecord(p) && typeof p['x'] === 'number'
@@ -46,7 +46,7 @@ describe('createNamespace', () => {
   });
 
   it('Foo.is narrows and rejects other tags', () => {
-    const ns = createNamespace('ticTacToe');
+    const ns = createMessageNamespace('ticTacToe');
     const Foo = ns('foo', acceptUnknownPayload);
     const Bar = ns('bar', acceptUnknownPayload);
     const a: Message = Foo({});
@@ -58,7 +58,7 @@ describe('createNamespace', () => {
   });
 
   it('Foo.is rejects payload when validator fails', () => {
-    const ns = createNamespace('ticTacToe');
+    const ns = createMessageNamespace('ticTacToe');
     const Foo = ns(
       'foo',
       (p): p is { x: number } => isPlainRecord(p) && typeof p['x'] === 'number'
@@ -68,7 +68,7 @@ describe('createNamespace', () => {
   });
 
   it('owns returns true only for messages in that namespace', () => {
-    const ns = createNamespace('ticTacToe');
+    const ns = createMessageNamespace('ticTacToe');
     const Foo = ns('foo', acceptUnknownPayload);
     expect(ns.owns(Foo({}))).toBe(true);
     expect(ns.owns({ type: 'other/foo', payload: null })).toBe(false);

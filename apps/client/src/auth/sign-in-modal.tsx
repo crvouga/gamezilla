@@ -53,25 +53,19 @@ export function SignInModal({
 
   return (
     <ResponsiveSurface visible={visible} onClose={onClose} title={t`Sign in`}>
-      <SignInModalBody hostedUi={hostedUi} errorMessage={errorMessage} />
+      <SignInModalBody
+        hostedUi={hostedUi}
+        errorMessage={errorMessage}
+        loading={loading}
+        onPressGoogle={() => {
+          void handleHostedSignIn();
+        }}
+      />
       <ModalFooter>
         <ModalButton
           label={<Trans>Close</Trans>}
           variant="cancel"
           onPress={onClose}
-        />
-        <ModalButton
-          label={
-            loading ? (
-              <Trans>Signing in…</Trans>
-            ) : (
-              <Trans>Continue with Google</Trans>
-            )
-          }
-          disabled={!hostedUi.available || loading}
-          onPress={() => {
-            void handleHostedSignIn();
-          }}
         />
       </ModalFooter>
     </ResponsiveSurface>

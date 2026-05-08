@@ -1,7 +1,5 @@
 import {
   createComposedMessageRouter,
-  createMessageRouter,
-  createNamespace,
   type Message,
 } from '@gamezilla/lib/message';
 import type {
@@ -20,8 +18,11 @@ import {
   counterInitialState,
 } from './counter';
 import {
-  readSelectedSpaceGame,
-  validateSelectGamePayload,
+  gamesCmdNs,
+  gamesCommandRouter,
+  gamesEventReducer,
+  gamesEvtNs,
+  gamesInitialState,
 } from './games/games';
 
 export {
@@ -30,27 +31,7 @@ export {
   Decrement,
   Increment,
 } from './counter';
-export { SpaceGame } from './games/games';
-
-const gamesCmdNs = createNamespace('gamesCmd');
-export const SelectGame = gamesCmdNs('SELECT_GAME', validateSelectGamePayload);
-
-const gamesEvtNs = createNamespace('gamesEvt');
-export const GameSelected = gamesEvtNs('SELECTED', validateSelectGamePayload);
-
-const gamesCommandRouter = createMessageRouter<RoomState, string, HandleResult>(
-  gamesCmdNs
-).on(SelectGame, (_state, _identity, cmd) => ({
-  ok: true,
-  events: [GameSelected({ game: cmd.payload.game })],
-}));
-
-const gamesEventReducer = createMessageRouter<RoomState, void, RoomState>(
-  gamesEvtNs
-).on(GameSelected, (state, _identity, event) => ({
-  ...state,
-  selectedGame: readSelectedSpaceGame(event.payload.game),
-}));
+export { GameSelected, SelectGame, SpaceGame } from './games/games';
 
 function reject(error: RoomError): HandleResult {
   return { ok: false, error };
@@ -95,7 +76,7 @@ export const SpaceModule: RoomModule<RoomState, unknown, unknown, string> = {
   initialState(): RoomState {
     return {
       ...counterInitialState(),
-      selectedGame: null,
+      ...gamesInitialState(),
     };
   },
 

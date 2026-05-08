@@ -101,7 +101,7 @@ function createMessageTag<P>(
  * if (PlaceMark.is(m)) { m.payload.cell }
  * ```
  */
-export function createNamespace(prefix: string): MessageNamespace {
+export function createMessageNamespace(prefix: string): MessageNamespace {
   assertValidPrefixOrName('namespace prefix', prefix);
 
   function bind<P>(

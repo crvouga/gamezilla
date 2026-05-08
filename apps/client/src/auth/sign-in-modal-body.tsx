@@ -1,4 +1,4 @@
-import { ModalBody, Text } from '@gamezilla/lib/ui';
+import { Box, ModalBody, SocialSignInButton, Text } from '@gamezilla/lib/ui';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import type { HostedAuthUiPort } from './ports';
@@ -6,8 +6,10 @@ import type { HostedAuthUiPort } from './ports';
 export function SignInModalBody(props: {
   hostedUi: HostedAuthUiPort;
   errorMessage: string | undefined;
+  loading: boolean;
+  onPressGoogle: () => void;
 }) {
-  const { hostedUi, errorMessage } = props;
+  const { hostedUi, errorMessage, loading, onPressGoogle } = props;
   return (
     <ModalBody>
       <Text
@@ -19,6 +21,21 @@ export function SignInModalBody(props: {
           </Trans>
         }
       />
+      <Box sx={{ marginTop: 3, alignSelf: 'stretch', gap: 2 }}>
+        <Text
+          variant="caption"
+          sx={{ color: 'textSecondary' }}
+          label={<Trans>Choose a sign-in method</Trans>}
+        />
+        <SocialSignInButton
+          provider="google"
+          action="signIn"
+          theme="light"
+          onPress={onPressGoogle}
+          loading={loading && hostedUi.available}
+          disabled={!hostedUi.available}
+        />
+      </Box>
       {!hostedUi.available ? (
         <Text
           variant="caption"
