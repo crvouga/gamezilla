@@ -71,7 +71,9 @@ describe('SpaceModule', () => {
 
   test('chess main menu screen in room state', () => {
     const state0 = SpaceModule.initialState();
-    expect(ChessMainMenuScreenAttr.screen.from(state0)).toBe(CHESS_MAIN_MENU_ROOT);
+    expect(ChessMainMenuScreenAttr.screen.from(state0)).toBe(
+      CHESS_MAIN_MENU_ROOT
+    );
     const cmd = {
       id: crypto.randomUUID(),
       ts: Date.now(),
@@ -82,6 +84,8 @@ describe('SpaceModule', () => {
     if (!h.ok) return;
     const ev = h.events[0]!;
     const s1 = SpaceModule.reduce(state0, ev);
-    expect(ChessMainMenuScreenAttr.screen.from(s1)).toBe(CHESS_MAIN_MENU_PUZZLE);
+    expect(ChessMainMenuScreenAttr.screen.from(s1)).toBe(
+      CHESS_MAIN_MENU_PUZZLE
+    );
   });
 });

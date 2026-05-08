@@ -5,12 +5,8 @@ import {
   isPlainRecord,
 } from '@gamezilla/lib/message';
 import type { HandleResult, RoomState } from '@gamezilla/room';
-import {
-  CHESS_MAIN_MENU_PUZZLE,
-} from './puzzle/puzzle-main-menu';
-import {
-  CHESS_MAIN_MENU_PUZZLE_PLAY,
-} from './puzzle/puzzle-play-screen';
+import { CHESS_MAIN_MENU_PUZZLE } from './puzzle/puzzle-main-menu';
+import { CHESS_MAIN_MENU_PUZZLE_PLAY } from './puzzle/puzzle-play-screen';
 
 const gamesNs = createAttrNamespace('games');
 

@@ -22,16 +22,19 @@ function buildBetterAuthCorsHeaders(origin: string | null): {
  * Hono’s router can skip chained `use()` middleware for some OPTIONS matches, so the
  * Worker entry (`api.ts`) calls this **before** delegating to the Hono app.
  */
-export function tryBetterAuthOptionsResponse(request: Request): Response | null {
+export function tryBetterAuthOptionsResponse(
+  request: Request
+): Response | null {
   if (request.method !== 'OPTIONS') return null;
   const pathname = new URL(request.url).pathname;
-  if (pathname !== '/api/auth' && !pathname.startsWith('/api/auth/')) return null;
+  if (pathname !== '/api/auth' && !pathname.startsWith('/api/auth/'))
+    return null;
 
   const acrhRaw = request.headers.get('Access-Control-Request-Headers');
   const allowHeaders =
-    typeof acrhRaw === 'string' && acrhRaw.trim().length > 0 ?
-      acrhRaw.trim()
-    : 'authorization, cache-control, content-type, pragma, x-anon-id, accept';
+    typeof acrhRaw === 'string' && acrhRaw.trim().length > 0
+      ? acrhRaw.trim()
+      : 'authorization, cache-control, content-type, pragma, x-anon-id, accept';
 
   const origin = request.headers.get('Origin');
   const { acao, acac } = buildBetterAuthCorsHeaders(origin);

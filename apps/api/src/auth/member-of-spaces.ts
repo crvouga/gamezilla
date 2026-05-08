@@ -39,7 +39,11 @@ export async function loadMemberOfSpaceIds(
         where: {
           type: 'and',
           clauses: [
-            { type: '=', attribute: SpaceMembershipAttr.guestId.key, value: myId },
+            {
+              type: '=',
+              attribute: SpaceMembershipAttr.guestId.key,
+              value: myId,
+            },
             { type: 'not_exists', attribute: SpaceMembershipAttr.leftAt.key },
           ],
         },

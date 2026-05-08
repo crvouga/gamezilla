@@ -72,7 +72,10 @@ const accountProviderNs = createAttrNamespace('accountProvider');
 export const AccountProviderAttr = {
   accountId: accountProviderNs('accountId', readString),
   provider: accountProviderNs('provider', readTrimmedNullableString),
-  providerUserId: accountProviderNs('providerUserId', readTrimmedNullableString),
+  providerUserId: accountProviderNs(
+    'providerUserId',
+    readTrimmedNullableString
+  ),
   email: accountProviderNs('email', readTrimmedNullableString),
   linkedAt: accountProviderNs('linkedAt', readTrimmedNullableString),
 } as const;

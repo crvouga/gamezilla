@@ -105,9 +105,7 @@ async function ensureInternalAccountIdForExternalUser(args: {
   return accountId;
 }
 
-export class AccountProvisioningBetterAuthAdapter
-  implements AccountProvisioningPort
-{
+export class AccountProvisioningBetterAuthAdapter implements AccountProvisioningPort {
   async resolveInternalAccountId({
     db,
     claims,

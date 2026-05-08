@@ -25,10 +25,13 @@ mkdirSync(publicDir, { recursive: true });
 const clientRequire = createRequire(join(clientRoot, 'package.json'));
 // Anchor a second `require` inside `@shopify/react-native-skia` so the
 // canvaskit-wasm we copy matches the JS loader Shopify uses at runtime.
-const skiaPkgPath = clientRequire.resolve('@shopify/react-native-skia/package.json');
+const skiaPkgPath = clientRequire.resolve(
+  '@shopify/react-native-skia/package.json'
+);
 const skiaRequire = createRequire(skiaPkgPath);
-const wasmSource = skiaRequire.resolve('canvaskit-wasm/bin/full/canvaskit.wasm');
+const wasmSource = skiaRequire.resolve(
+  'canvaskit-wasm/bin/full/canvaskit.wasm'
+);
 const wasmDest = join(publicDir, 'canvaskit.wasm');
 copyFileSync(wasmSource, wasmDest);
 console.log(`Copied ${wasmSource} → ${wasmDest}`);
-

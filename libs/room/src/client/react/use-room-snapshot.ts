@@ -38,13 +38,7 @@ export function useRoomSnapshot<S extends RoomState, C, E, Identity>(
 /**
  * Select from flat room state. When `room === null`, reads {@link EMPTY_ROOM_STATE}.
  */
-export function useRoomSnapshotSelector<
-  S extends RoomState,
-  C,
-  E,
-  Identity,
-  R,
->(
+export function useRoomSnapshotSelector<S extends RoomState, C, E, Identity, R>(
   room: Room<S, C, E, Identity> | null,
   selector: (state: S) => R
 ): R {

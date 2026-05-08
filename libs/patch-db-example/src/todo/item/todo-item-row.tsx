@@ -66,7 +66,11 @@ export function TodoItemRow({ entityId }: TodoItemRowProps): ReactNode {
         <TodoItemCheckmark entityId={entityId} />
         <TodoItemTitleText entityId={entityId} />
       </Pressable>
-      <Pressable onPress={() => void remove()} style={theme.sx({ p: 1 })} hitSlop={8}>
+      <Pressable
+        onPress={() => void remove()}
+        style={theme.sx({ p: 1 })}
+        hitSlop={8}
+      >
         <Text
           style={[theme.sx({ fontSize: 14 }), { color: theme.colors.tint }]}
           label={t`Delete`}

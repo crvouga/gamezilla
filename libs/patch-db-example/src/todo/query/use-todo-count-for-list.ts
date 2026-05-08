@@ -1,10 +1,7 @@
 import { useQuery } from '@gamezilla/patch-db/react';
 
 import { TODO_ENTITY_TYPE } from '../domain/todo-constants';
-import {
-  buildTodoWhereClause,
-  type TodoFilter,
-} from './todo-where-clauses';
+import { buildTodoWhereClause, type TodoFilter } from './todo-where-clauses';
 
 /**
  * Count of non-deleted todos in `listId` matching `filter` (default `all`).

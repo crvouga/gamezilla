@@ -15,7 +15,9 @@ export function LinkedProviderRow({
 }: LinkedProviderRowProps): ReactNode {
   return (
     <Box sx={{ gap: 1 }}>
-      <LinkedProviderNameText accountProviderEntityId={accountProviderEntityId} />
+      <LinkedProviderNameText
+        accountProviderEntityId={accountProviderEntityId}
+      />
       <LinkedProviderEmailText
         accountProviderEntityId={accountProviderEntityId}
       />

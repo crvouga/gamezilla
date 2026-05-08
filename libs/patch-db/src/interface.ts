@@ -124,12 +124,9 @@ export function normalizePatchAttributesForStorage(
 ): Record<string, unknown> {
   const attrs = patch.attributes as Record<string, unknown>;
   const createdBy =
-    ('createdBy' in patch ? patch.createdBy : attrs[PATCH_CREATED_BY_ID]) ??
-    '';
+    ('createdBy' in patch ? patch.createdBy : attrs[PATCH_CREATED_BY_ID]) ?? '';
   const sessionId =
-    'sessionId' in patch
-      ? patch.sessionId
-      : patch.attributes[PATCH_SESSION_ID];
+    'sessionId' in patch ? patch.sessionId : patch.attributes[PATCH_SESSION_ID];
   const syncedAt = patch.attributes[PATCH_SYNCED_AT] ?? null;
 
   return {

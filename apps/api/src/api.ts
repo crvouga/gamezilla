@@ -55,9 +55,9 @@ const ERROR_CORS_HEADERS = {
 function preflightResponse(request: Request): Response {
   const requested = request.headers.get('Access-Control-Request-Headers');
   const allowHeaders =
-    requested !== null && requested.trim().length > 0 ?
-      requested
-    : 'Authorization, Cache-Control, Content-Type, Pragma, x-anon-id';
+    requested !== null && requested.trim().length > 0
+      ? requested
+      : 'Authorization, Cache-Control, Content-Type, Pragma, x-anon-id';
   return new Response(null, {
     status: 204,
     headers: {

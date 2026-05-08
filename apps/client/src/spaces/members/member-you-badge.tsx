@@ -8,9 +8,7 @@ export type MemberYouBadgeProps = {
 };
 
 /** "You" caption; renders nothing unless `profileId` is the current user. */
-export function MemberYouBadge({
-  profileId,
-}: MemberYouBadgeProps): ReactNode {
+export function MemberYouBadge({ profileId }: MemberYouBadgeProps): ReactNode {
   const isYou = useMemberIsYou(profileId);
   if (!isYou) return null;
   return (

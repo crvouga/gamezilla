@@ -8,17 +8,17 @@ The **server** is the only writer to the committed event log. The **client** is 
 
 Both the client and server entrypoints expose **core only** — engine + ports. Each adapter is its own subpath import so callers explicitly opt in to a runtime/backend, and swapping adapters is a one-line import change.
 
-| Import                                                | Purpose                                                                                              |
-| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Import                                                | Purpose                                                                                                             |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | `@gamezilla/room`                                     | Core client: `Room` (flat `getSnapshot()` + `RoomMetaAttr`), `useRoomSnapshot`, registry hooks, ports, wire helpers |
-| `@gamezilla/room/server`                              | Core server: `RoomServer`, `RoomStorage`, `RoomAuth` (no adapters)                                   |
-| `@gamezilla/room/client/adapters/transport/websocket` | `WebSocketRoomTransport` (browser/Worker `WebSocket`)                                                |
-| `@gamezilla/room/client/adapters/storage/memory`      | `InMemoryClientStorage` (tests)                                                                      |
-| `@gamezilla/room/client/adapters/storage/web`         | `WebClientStorage` (synchronous `localStorage`)                                                      |
-| `@gamezilla/room/client/adapters/storage/key-value`   | `KeyValueClientRoomStorage` (async KV — `localStorage` web, AsyncStorage native)                     |
-| `@gamezilla/room/server/adapters/durable-object`      | `createDurableObjectAdapter`, `DurableObjectRoomStorage`, DO type stubs                              |
-| `@gamezilla/room/server/adapters/memory`              | `InMemoryRoomStorage` (tests / loopback testkit)                                                     |
-| `@gamezilla/room/testkit`                             | `openLoopbackRoom`, `LoopbackRoomTransport`, `TestCounterModule`                                     |
+| `@gamezilla/room/server`                              | Core server: `RoomServer`, `RoomStorage`, `RoomAuth` (no adapters)                                                  |
+| `@gamezilla/room/client/adapters/transport/websocket` | `WebSocketRoomTransport` (browser/Worker `WebSocket`)                                                               |
+| `@gamezilla/room/client/adapters/storage/memory`      | `InMemoryClientStorage` (tests)                                                                                     |
+| `@gamezilla/room/client/adapters/storage/web`         | `WebClientStorage` (synchronous `localStorage`)                                                                     |
+| `@gamezilla/room/client/adapters/storage/key-value`   | `KeyValueClientRoomStorage` (async KV — `localStorage` web, AsyncStorage native)                                    |
+| `@gamezilla/room/server/adapters/durable-object`      | `createDurableObjectAdapter`, `DurableObjectRoomStorage`, DO type stubs                                             |
+| `@gamezilla/room/server/adapters/memory`              | `InMemoryRoomStorage` (tests / loopback testkit)                                                                    |
+| `@gamezilla/room/testkit`                             | `openLoopbackRoom`, `LoopbackRoomTransport`, `TestCounterModule`                                                    |
 
 The folder layout mirrors the entrypoint layout:
 

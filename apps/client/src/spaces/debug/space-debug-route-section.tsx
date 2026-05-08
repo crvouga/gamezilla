@@ -10,7 +10,5 @@ export type SpaceDebugRouteSectionProps = {
 export function SpaceDebugRouteSection({
   spaceId,
 }: SpaceDebugRouteSectionProps): ReactNode {
-  return (
-    <JsonView label={<Trans>route</Trans>} value={{ spaceId }} />
-  );
+  return <JsonView label={<Trans>route</Trans>} value={{ spaceId }} />;
 }

@@ -59,4 +59,3 @@ export type ChessBoardProps = {
 };
 
 export type Position = readonly (Piece | null)[];
-

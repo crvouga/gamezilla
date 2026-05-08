@@ -53,14 +53,17 @@ async function deleteLegacyVendorAuthCnameRecords(
     if (!legacy.has(normalized)) continue;
     if (!e.content.includes('clerk.services')) continue;
 
-    const del = await fetch(
-      `${CF_API}/zones/${zoneId}/dns_records/${e.id}`,
-      { method: 'DELETE', headers }
-    );
+    const del = await fetch(`${CF_API}/zones/${zoneId}/dns_records/${e.id}`, {
+      method: 'DELETE',
+      headers,
+    });
     if (del.ok || del.status === 404) {
       ok('DNS CNAME (legacy vendor auth removed)', normalized);
     } else {
-      warn('DNS legacy vendor auth delete', `${normalized} — HTTP ${del.status}`);
+      warn(
+        'DNS legacy vendor auth delete',
+        `${normalized} — HTTP ${del.status}`
+      );
     }
   }
 }

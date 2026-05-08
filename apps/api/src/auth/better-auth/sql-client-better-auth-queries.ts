@@ -25,8 +25,7 @@ export async function betterAuthSqlFindOne<T>(
   assertNoJoin(join, 'findOne');
   const table = qIdent(model);
   const params: unknown[] = [];
-  const whereSql =
-    where.length > 0 ? `WHERE ${buildWhere(where, params)}` : '';
+  const whereSql = where.length > 0 ? `WHERE ${buildWhere(where, params)}` : '';
   const projection = select?.length
     ? select.map((f) => qCol(getFieldName({ model, field: f }))).join(', ')
     : '*';
@@ -55,9 +54,7 @@ export async function betterAuthSqlFindMany<T>(
   assertNoJoin(join, 'findMany');
   const table = qIdent(model);
   const params: unknown[] = [];
-  const whereSql = where?.length
-    ? `WHERE ${buildWhere(where, params)}`
-    : '';
+  const whereSql = where?.length ? `WHERE ${buildWhere(where, params)}` : '';
   const projection = select?.length
     ? select.map((f) => qCol(getFieldName({ model, field: f }))).join(', ')
     : '*';
@@ -91,9 +88,7 @@ export async function betterAuthSqlCount(
   const { model, where } = args;
   const table = qIdent(model);
   const params: unknown[] = [];
-  const whereSql = where?.length
-    ? `WHERE ${buildWhere(where, params)}`
-    : '';
+  const whereSql = where?.length ? `WHERE ${buildWhere(where, params)}` : '';
   const rows = await sql.query<{ c: unknown }>(
     `SELECT COUNT(*)::bigint AS c FROM ${table} ${whereSql}`,
     params

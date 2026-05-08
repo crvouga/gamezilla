@@ -87,7 +87,9 @@ function groupSnapshotPatchRowsByKey(
   return rowsByKey;
 }
 
-function buildSelectPatchesForSnapshotBatchSqlSqlite(pairCount: number): string {
+function buildSelectPatchesForSnapshotBatchSqlSqlite(
+  pairCount: number
+): string {
   const roots = entityIdTypeOrWhere('p', pairCount);
   const rowFilter = entityIdTypeOrWhere('p', pairCount);
   return `WITH RECURSIVE lineage AS (

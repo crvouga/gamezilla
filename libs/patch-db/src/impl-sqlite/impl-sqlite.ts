@@ -249,14 +249,11 @@ export class PatchDbImplSqlite implements PatchDb {
     for (const k of PATCH_META_KEYS) {
       delete merged[k];
     }
-    Object.assign(
-      merged,
-      {
-        'patch/compacted': '1',
-        [PATCH_CREATED_BY_ID]: PATCH_DB_SYSTEM_DEVICE_ID,
-        'patch/sessionId': '',
-      }
-    );
+    Object.assign(merged, {
+      'patch/compacted': '1',
+      [PATCH_CREATED_BY_ID]: PATCH_DB_SYSTEM_DEVICE_ID,
+      'patch/sessionId': '',
+    });
 
     const now = new Date().toISOString();
     const compactionPatch: PatchInput = {

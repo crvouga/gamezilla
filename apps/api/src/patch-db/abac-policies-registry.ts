@@ -369,7 +369,11 @@ const matchPolicy: AppVisibilityPolicy = {
           attribute: MatchAttr.participantUserIds.key,
           value: ctx.accountId,
         },
-        { type: '=', attribute: AbacEntityAttr.owner.key, value: ctx.accountId },
+        {
+          type: '=',
+          attribute: AbacEntityAttr.owner.key,
+          value: ctx.accountId,
+        },
       ],
     };
   }),

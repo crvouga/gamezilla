@@ -13,7 +13,9 @@ export async function hydrateInMemoryStoreFromSqlite(
   store: InMemoryEntityStore
 ): Promise<void> {
   const [res] = await local.read([{}]);
-  assert.ok(res !== null && res !== undefined, 'read([{}]) must return one result');
+  assert.ok(
+    res !== null && res !== undefined,
+    'read([{}]) must return one result'
+  );
   store.upsertEntities(res.entities);
 }
-

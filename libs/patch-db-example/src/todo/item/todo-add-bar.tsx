@@ -3,7 +3,11 @@ import { usePatchDb } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState, type ReactNode } from 'react';
 
-import { INBOX_LIST_ID, TODO_ENTITY_TYPE, TodoAttr } from '../domain/todo-constants';
+import {
+  INBOX_LIST_ID,
+  TODO_ENTITY_TYPE,
+  TodoAttr,
+} from '../domain/todo-constants';
 import { useTodoCountForList } from '../query/use-todo-count-for-list';
 
 export type TodoAddBarProps = {

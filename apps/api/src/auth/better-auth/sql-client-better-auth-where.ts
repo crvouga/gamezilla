@@ -29,9 +29,9 @@ export function snakeToCamel(name: string): string {
  * Remap snake_case column names from a SQL row back to the camelCase field names
  * Better Auth's `transformOutput` expects.
  */
-export function rowToCamel<T extends Record<string, unknown> | null | undefined>(
-  row: T
-): T {
+export function rowToCamel<
+  T extends Record<string, unknown> | null | undefined,
+>(row: T): T {
   if (row === null || row === undefined) return row;
   const out: Record<string, unknown> = {};
   for (const k of Object.keys(row)) {
@@ -230,10 +230,7 @@ function formatPredicate(
  * Builds a `WHERE` clause that already quotes column identifiers via {@link qCol}
  * (snake-cases logical Better Auth field names so they match our DDL).
  */
-export function buildWhere(
-  where: CleanedWhere[],
-  params: unknown[]
-): string {
+export function buildWhere(where: CleanedWhere[], params: unknown[]): string {
   const parts: string[] = [];
   for (let i = 0; i < where.length; i++) {
     const w = where[i]!;

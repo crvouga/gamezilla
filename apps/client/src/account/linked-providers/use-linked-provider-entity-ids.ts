@@ -9,9 +9,7 @@ import { useQueryEntityIds } from '@gamezilla/patch-db/react';
  * out. Atoms iterate these ids and read each provider's attributes via
  * `useQueryAttribute` inline.
  */
-export function useLinkedProviderEntityIds(
-  accountId: string | null
-): string[] {
+export function useLinkedProviderEntityIds(accountId: string | null): string[] {
   const args: Parameters<typeof useQueryEntityIds>[0] =
     accountId === null
       ? { entityType: ACCOUNT_PROVIDER_ENTITY_TYPE, limit: 0 }

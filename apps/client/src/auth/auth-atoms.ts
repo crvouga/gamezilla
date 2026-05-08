@@ -105,11 +105,11 @@ export const authSessionSyncEffect = atomEffect((get, set) => {
         try {
           await sessionService.refresh();
           if (cancelled) return;
-          const nextState = deriveStateFromSession({ deviceId, sessionService });
-          set(
-            authSessionDerivedAtom,
-            nextState
-          );
+          const nextState = deriveStateFromSession({
+            deviceId,
+            sessionService,
+          });
+          set(authSessionDerivedAtom, nextState);
         } catch {
           // Stale `sessionService.refresh` after `sqlClientAtom` was replaced
           // mid-flight. Silently drop — a fresh effect run will derive again.

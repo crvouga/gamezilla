@@ -71,10 +71,7 @@ export function TodoListsOverview({
   const [deleteDbModalVisible, setDeleteDbModalVisible] = useState(false);
   const listIds = useTodoListIds();
 
-  const rowIds = useMemo(
-    () => [INBOX_LIST_ID, ...listIds],
-    [listIds]
-  );
+  const rowIds = useMemo(() => [INBOX_LIST_ID, ...listIds], [listIds]);
 
   const deleteLocalDatabase = async () => {
     setDeleteDbModalVisible(false);
@@ -106,10 +103,7 @@ export function TodoListsOverview({
           style={theme.sx({ flex: 1 })}
           sx={{ pb: 24 }}
           renderItem={({ item: listId }) => (
-            <TodoListRow
-              listId={listId}
-              onOpen={() => onOpenList(listId)}
-            />
+            <TodoListRow listId={listId} onOpen={() => onOpenList(listId)} />
           )}
           ListEmptyComponent={
             <Text

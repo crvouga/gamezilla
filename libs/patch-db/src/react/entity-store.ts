@@ -2,7 +2,10 @@ import { assert } from '@gamezilla/lib/assert';
 import type { Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
 import type { Entity } from '../interface';
 import type { SubscribablePatchDbLike } from '../subscribable';
-import { DEFAULT_TEARDOWN_GRACE_MS, type PatchDbQueryCacheOptions } from './query-cache';
+import {
+  DEFAULT_TEARDOWN_GRACE_MS,
+  type PatchDbQueryCacheOptions,
+} from './query-cache';
 import { getInMemoryStoreForDb } from './in-memory-store-registry';
 
 /**
@@ -185,7 +188,9 @@ export class PatchDbEntityStore {
 
 const storeByDb = new WeakMap<SubscribablePatchDbLike, PatchDbEntityStore>();
 
-export function getEntityStoreForDb(db: SubscribablePatchDbLike): PatchDbEntityStore {
+export function getEntityStoreForDb(
+  db: SubscribablePatchDbLike
+): PatchDbEntityStore {
   const existing = storeByDb.get(db);
   if (existing !== undefined) return existing;
   const created = new PatchDbEntityStore(db);

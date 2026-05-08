@@ -48,12 +48,7 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
   );
 
   const bootstrap = useMemo((): SpaceRoomConnectionBootstrap | null => {
-    if (
-      spaceId.length === 0 ||
-      !isLive ||
-      !inThisSpace ||
-      myId.length === 0
-    ) {
+    if (spaceId.length === 0 || !isLive || !inThisSpace || myId.length === 0) {
       return null;
     }
     return {

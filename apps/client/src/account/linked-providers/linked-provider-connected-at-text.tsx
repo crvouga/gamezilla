@@ -1,6 +1,4 @@
-import {
-  formatTimestamp,
-} from '@gamezilla/client/account/devices/device-parsers';
+import { formatTimestamp } from '@gamezilla/client/account/devices/device-parsers';
 import {
   ACCOUNT_PROVIDER_ENTITY_TYPE,
   AccountProviderAttr,

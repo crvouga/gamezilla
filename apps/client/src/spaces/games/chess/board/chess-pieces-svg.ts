@@ -21,9 +21,15 @@ export const PIECE_SVGS: Record<PieceCode, string> = {
 
 export function pieceCode(color: 'w' | 'b', type: string): PieceCode | null {
   const t = type;
-  if (t !== 'p' && t !== 'n' && t !== 'b' && t !== 'r' && t !== 'q' && t !== 'k') {
+  if (
+    t !== 'p' &&
+    t !== 'n' &&
+    t !== 'b' &&
+    t !== 'r' &&
+    t !== 'q' &&
+    t !== 'k'
+  ) {
     return null;
   }
   return `${color}${t}` as PieceCode;
 }
-

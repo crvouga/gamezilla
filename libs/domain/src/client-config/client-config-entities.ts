@@ -15,5 +15,8 @@ function readTrimmedNullableString(v: unknown): string | null {
 const clientConfigNs = createAttrNamespace('clientConfig');
 
 export const ClientConfigAttr = {
-  googleWebClientId: clientConfigNs('googleWebClientId', readTrimmedNullableString),
+  googleWebClientId: clientConfigNs(
+    'googleWebClientId',
+    readTrimmedNullableString
+  ),
 } as const;

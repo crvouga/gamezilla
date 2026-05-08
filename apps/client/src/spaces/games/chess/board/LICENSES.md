@@ -15,4 +15,3 @@ file pages such as `File:Chess_kdt45.svg`).
 
 When redistributing these SVGs, retain attribution to **Cburnett** and comply
 with the chosen license’s terms (share-alike where applicable).
-

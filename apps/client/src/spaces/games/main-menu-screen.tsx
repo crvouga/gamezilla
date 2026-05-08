@@ -137,10 +137,7 @@ function MainMenuItemRow(item: MainMenuItem) {
   }
 
   return (
-    <Box
-      accessibilityRole="text"
-      {...(testID !== undefined ? { testID } : {})}
-    >
+    <Box accessibilityRole="text" {...(testID !== undefined ? { testID } : {})}>
       <MainMenuItemBody item={item} resolvedTrailing={resolvedTrailing} />
     </Box>
   );
@@ -221,7 +218,11 @@ function MainMenuContent({
           {subtitle ? (
             <Text
               variant="body"
-              sx={{ color: 'textSecondary', textAlign: 'center', opacity: 0.75 }}
+              sx={{
+                color: 'textSecondary',
+                textAlign: 'center',
+                opacity: 0.75,
+              }}
               label={subtitle}
             />
           ) : null}

@@ -58,4 +58,3 @@ export class PatchDbWriteThroughMirror implements SubscribablePatchDbLike {
     return this.inner.update(updates, ctx);
   }
 }
-

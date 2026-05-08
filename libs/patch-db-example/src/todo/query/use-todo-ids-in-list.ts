@@ -7,10 +7,7 @@ import {
   type TodoFilter,
 } from './todo-where-clauses';
 
-export function useTodoIdsInList(
-  listId: string,
-  filter: TodoFilter
-): string[] {
+export function useTodoIdsInList(listId: string, filter: TodoFilter): string[] {
   return useQueryEntityIds({
     entityType: TODO_ENTITY_TYPE,
     where: buildTodoWhereClause(listId, filter),

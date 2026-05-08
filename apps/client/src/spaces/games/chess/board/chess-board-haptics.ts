@@ -15,4 +15,3 @@ export function hapticError() {
   if (Platform.OS === 'web') return;
   void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
 }
-

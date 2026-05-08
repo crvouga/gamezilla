@@ -112,10 +112,7 @@ export async function buildSyncQueriesForPoll(
 
   let trackedResults: PatchDbResult[] = [];
   if (trackedQueries.length > 0) {
-    trackedResults = await local.read(
-      trackedQueries,
-      OPEN_PATCHES_DB_CONTEXT
-    );
+    trackedResults = await local.read(trackedQueries, OPEN_PATCHES_DB_CONTEXT);
     assert.ok(
       trackedResults.length === trackedQueries.length,
       'buildSyncQueriesForPoll: tracked pass must return one result per tracked query',

@@ -1,2 +1,1 @@
 export const CHESS_MAIN_MENU_PUZZLE_PLAY = 2;
-

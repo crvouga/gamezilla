@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import {
-  createAttrNamespace,
-  isValidPatchDbAttributeKey,
-} from './attribute';
+import { createAttrNamespace, isValidPatchDbAttributeKey } from './attribute';
 
 describe('isValidPatchDbAttributeKey', () => {
   it('accepts PatchDB-style keys', () => {

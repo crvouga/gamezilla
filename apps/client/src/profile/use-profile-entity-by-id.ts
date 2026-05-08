@@ -8,9 +8,7 @@ import { useQuery } from '@gamezilla/patch-db/react';
  *
  * Returns `null` while the id is empty or the row hasn't materialized.
  */
-export function useProfileEntityById(
-  profileId: string | null
-): Entity | null {
+export function useProfileEntityById(profileId: string | null): Entity | null {
   const enabled = profileId !== null && profileId.length > 0;
   const res = useQuery(
     enabled

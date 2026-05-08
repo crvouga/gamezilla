@@ -1,6 +1,10 @@
 import type { PatchDbQueryWhereClause } from '@gamezilla/patch-db/interface';
 
-import { INBOX_LIST_ID, TodoAttr, TodoListAttr } from '../domain/todo-constants';
+import {
+  INBOX_LIST_ID,
+  TodoAttr,
+  TodoListAttr,
+} from '../domain/todo-constants';
 
 /** Todos that are not soft-deleted. */
 export const todoNotDeletedClause: PatchDbQueryWhereClause = {

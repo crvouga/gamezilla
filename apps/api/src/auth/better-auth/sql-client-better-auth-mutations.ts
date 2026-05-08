@@ -108,10 +108,10 @@ export async function betterAuthSqlUpdateMany(
     .join(', ');
   const whereParams: unknown[] = [];
   const whereSql = `WHERE ${buildWhere(where, whereParams)}`;
-  const res = await sql.run(
-    `UPDATE ${table} SET ${setClause} ${whereSql}`,
-    [...setParams, ...whereParams]
-  );
+  const res = await sql.run(`UPDATE ${table} SET ${setClause} ${whereSql}`, [
+    ...setParams,
+    ...whereParams,
+  ]);
   return res.changes;
 }
 

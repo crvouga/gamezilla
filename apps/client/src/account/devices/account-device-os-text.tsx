@@ -1,6 +1,4 @@
-import {
-  formatOsLine,
-} from '@gamezilla/client/account/devices/device-parsers';
+import { formatOsLine } from '@gamezilla/client/account/devices/device-parsers';
 import { DEVICE_ENTITY_TYPE, DeviceAttr } from '@gamezilla/domain/auth';
 import { Text } from '@gamezilla/lib/ui';
 import { useQueryAttribute } from '@gamezilla/patch-db/react';
@@ -25,6 +23,10 @@ export function AccountDeviceOsText({
     attribute: DeviceAttr.osVersion,
   });
   return (
-    <Text variant="body" numberOfLines={4} label={formatOsLine(osName, osVersion)} />
+    <Text
+      variant="body"
+      numberOfLines={4}
+      label={formatOsLine(osName, osVersion)}
+    />
   );
 }

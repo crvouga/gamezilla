@@ -227,10 +227,7 @@ export class SqlClientImplExpoSqlite implements SqlClient {
     params?: unknown[]
   ): Promise<T[]> {
     return this.runSerialized(() =>
-      this.db.getAllAsync<T>(
-        sql,
-        (params ?? []) as SQLite.SQLiteBindValue[]
-      )
+      this.db.getAllAsync<T>(sql, (params ?? []) as SQLite.SQLiteBindValue[])
     );
   }
 

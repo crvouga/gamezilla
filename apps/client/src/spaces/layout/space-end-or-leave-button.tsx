@@ -33,9 +33,7 @@ export function SpaceEndOrLeaveButton({
   return (
     <>
       <Pressable
-        onPress={() =>
-          isHost ? setConfirmEnd(true) : setConfirmLeave(true)
-        }
+        onPress={() => (isHost ? setConfirmEnd(true) : setConfirmLeave(true))}
         accessibilityRole="button"
         accessibilityLabel={isHost ? t`End space` : t`Leave space`}
         sx={{

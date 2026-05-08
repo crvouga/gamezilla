@@ -3,7 +3,10 @@
  * (bun:sqlite, native, expo-sqlite web). Row-value `IN (VALUES …)` is brittle
  * on some builds; `OR` chains of scalar comparisons are universally supported.
  */
-export function entityIdTypeOrWhere(tableAlias: string, pairCount: number): string {
+export function entityIdTypeOrWhere(
+  tableAlias: string,
+  pairCount: number
+): string {
   if (pairCount === 0) return '(1 = 0)';
   const p = tableAlias.length > 0 ? `${tableAlias}.` : '';
   return Array.from(

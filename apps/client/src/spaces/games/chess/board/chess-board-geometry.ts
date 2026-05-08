@@ -78,4 +78,3 @@ export function squareToXY(
   }
   return { x: col * cell, y: row * cell, cell };
 }
-

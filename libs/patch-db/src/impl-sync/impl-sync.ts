@@ -404,10 +404,8 @@ export class SyncPatchDb implements PatchDb {
         patchId: r.patchId,
         attributes: {
           [PATCH_SYNC_REJECTED_AT]: now,
-          [PATCH_SYNC_REJECTED_REASON]: `${String(r.code)}: ${String(r.reason)}`.slice(
-            0,
-            256
-          ),
+          [PATCH_SYNC_REJECTED_REASON]:
+            `${String(r.code)}: ${String(r.reason)}`.slice(0, 256),
           [PATCH_REJECTED]: true,
         },
       })),

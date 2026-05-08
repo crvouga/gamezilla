@@ -1,6 +1,4 @@
-import {
-  formatDeviceListTitle,
-} from '@gamezilla/client/account/devices/device-parsers';
+import { formatDeviceListTitle } from '@gamezilla/client/account/devices/device-parsers';
 import { optionalProps } from '@gamezilla/client/ui/optional-props';
 import { DEVICE_ENTITY_TYPE, DeviceAttr } from '@gamezilla/domain/auth';
 import { Text, type SxProps, type TextVariant } from '@gamezilla/lib/ui';
@@ -43,9 +41,6 @@ export function AccountDeviceListTitleText({
     deviceModelName,
   });
   return (
-    <Text
-      {...optionalProps({ variant, numberOfLines, sx })}
-      label={label}
-    />
+    <Text {...optionalProps({ variant, numberOfLines, sx })} label={label} />
   );
 }

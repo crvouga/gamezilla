@@ -44,16 +44,11 @@ export function createBetterAuthSqlDbOps(
       join?: JoinConfig | undefined;
     }) => betterAuthSqlFindMany<T>(sql, getFieldName, args),
 
-    count: (args: {
-      model: string;
-      where?: CleanedWhere[] | undefined;
-    }) => betterAuthSqlCount(sql, args),
+    count: (args: { model: string; where?: CleanedWhere[] | undefined }) =>
+      betterAuthSqlCount(sql, args),
 
-    update: <T>(args: {
-      model: string;
-      where: CleanedWhere[];
-      update: T;
-    }) => betterAuthSqlUpdate(sql, args),
+    update: <T>(args: { model: string; where: CleanedWhere[]; update: T }) =>
+      betterAuthSqlUpdate(sql, args),
 
     updateMany: (args: {
       model: string;

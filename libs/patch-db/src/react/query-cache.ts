@@ -175,7 +175,10 @@ export class PatchDbQueryCache {
     const touchedArray = touched.size > 0 ? Array.from(touched) : null;
     for (const entry of this.entries.values()) {
       if (entry.listeners.size === 0) continue;
-      if (touchedArray !== null && this.shouldSkipEntry(entry.query, touchedArray)) {
+      if (
+        touchedArray !== null &&
+        this.shouldSkipEntry(entry.query, touchedArray)
+      ) {
         continue;
       }
       const next = evaluateQuery(entry.query, store);
@@ -196,9 +199,16 @@ export class PatchDbQueryCache {
     }
   }
 
-  private shouldSkipEntry(query: PatchDbQuery, touched: readonly string[]): boolean {
+  private shouldSkipEntry(
+    query: PatchDbQuery,
+    touched: readonly string[]
+  ): boolean {
     // If a query does not restrict entityType, any touched entity could affect it.
-    if (query.entityType === undefined || query.entityType === null || query.entityType === '') {
+    if (
+      query.entityType === undefined ||
+      query.entityType === null ||
+      query.entityType === ''
+    ) {
       return false;
     }
     // If entityId is a single string, only re-eval when that exact key is touched.

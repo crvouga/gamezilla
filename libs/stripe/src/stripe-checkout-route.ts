@@ -168,7 +168,8 @@ async function handleStripePortal(
     patchCtx
   );
   const account = accRes?.entities[0];
-  const stripeCustomerIdRaw = account?.attributes[AccountAttr.stripeCustomerId.key];
+  const stripeCustomerIdRaw =
+    account?.attributes[AccountAttr.stripeCustomerId.key];
   const stripeCustomerId =
     typeof stripeCustomerIdRaw === 'string' && stripeCustomerIdRaw.length > 0
       ? stripeCustomerIdRaw

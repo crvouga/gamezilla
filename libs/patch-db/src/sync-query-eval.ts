@@ -9,10 +9,7 @@ import type {
 import { assertDirection, patchDbAttributeKey } from './interface';
 import type { InMemoryEntityStore } from './in-memory-store';
 
-function readAttr(
-  attrs: Record<string, unknown>,
-  attribute: string
-): unknown {
+function readAttr(attrs: Record<string, unknown>, attribute: string): unknown {
   const key = patchDbAttributeKey(attribute);
   return attrs[key];
 }
@@ -60,7 +57,9 @@ export function evaluateWhere(
         ? attrValue <= clause.value
         : false;
     case 'contains':
-      return typeof attrValue === 'string' ? attrValue.includes(clause.value) : false;
+      return typeof attrValue === 'string'
+        ? attrValue.includes(clause.value)
+        : false;
     case 'exists':
       return attrValue !== null && attrValue !== undefined;
     case 'not_exists':
@@ -147,7 +146,10 @@ export function evaluateQuery(
   };
 }
 
-function collectCandidates(query: PatchDbQuery, store: InMemoryEntityStore): Entity[] {
+function collectCandidates(
+  query: PatchDbQuery,
+  store: InMemoryEntityStore
+): Entity[] {
   const out: Entity[] = [];
   if (typeof query.entityType === 'string' && query.entityType.length > 0) {
     if (typeof query.entityId === 'string') {
@@ -167,7 +169,8 @@ function collectCandidates(query: PatchDbQuery, store: InMemoryEntityStore): Ent
   }
 
   if (typeof query.entityId === 'string') {
-    for (const e of store.iterAll()) if (e.entityId === query.entityId) out.push(e);
+    for (const e of store.iterAll())
+      if (e.entityId === query.entityId) out.push(e);
     return out;
   }
   if (Array.isArray(query.entityId)) {
@@ -195,13 +198,17 @@ function applyOrder(query: PatchDbQuery, entities: Entity[]): void {
         const cmp = compareKey(ka, kb);
         if (cmp !== 0) return o.direction === 'desc' ? -cmp : cmp;
       }
-      if (ea.entityId !== eb.entityId) return ea.entityId < eb.entityId ? -1 : 1;
-      if (ea.entityType !== eb.entityType) return ea.entityType < eb.entityType ? -1 : 1;
+      if (ea.entityId !== eb.entityId)
+        return ea.entityId < eb.entityId ? -1 : 1;
+      if (ea.entityType !== eb.entityType)
+        return ea.entityType < eb.entityType ? -1 : 1;
       return 0;
     });
     return;
   }
-  entities.sort((a, b) => (a.entityId < b.entityId ? -1 : a.entityId > b.entityId ? 1 : 0));
+  entities.sort((a, b) =>
+    a.entityId < b.entityId ? -1 : a.entityId > b.entityId ? 1 : 0
+  );
 }
 
 function applyPage(
@@ -216,7 +223,8 @@ function applyPage(
       ? entities.slice(offset)
       : entities.slice(offset, offset + limit);
   const hasMore =
-    limit !== undefined && limit !== null ? offset + slice.length < total : false;
+    limit !== undefined && limit !== null
+      ? offset + slice.length < total
+      : false;
   return { slice, hasMore };
 }
-

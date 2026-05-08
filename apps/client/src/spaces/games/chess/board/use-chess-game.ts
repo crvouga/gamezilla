@@ -15,7 +15,9 @@ export type UseChessGameOptions = {
   initialFen?: string;
 };
 
-function pieceFromChessJs(p: { type: ChessPieceSymbol; color: ChessColor } | null): Piece | null {
+function pieceFromChessJs(
+  p: { type: ChessPieceSymbol; color: ChessColor } | null
+): Piece | null {
   if (p === null) return null;
   const color = p.color === 'w' ? 'w' : 'b';
   const type = p.type;
@@ -52,7 +54,10 @@ function mapMove(m: ChessJsMove): Move {
   const to = m.to as unknown as Square;
   const promotion = m.promotion as ChessPieceSymbol | undefined;
   const promotionOut =
-    promotion === 'q' || promotion === 'r' || promotion === 'b' || promotion === 'n'
+    promotion === 'q' ||
+    promotion === 'r' ||
+    promotion === 'b' ||
+    promotion === 'n'
       ? promotion
       : undefined;
   const captured = m.captured as ChessPieceSymbol | undefined;
@@ -109,7 +114,10 @@ export function useChessGame(options: UseChessGameOptions = {}) {
 
   const moveRequiresPromotion = useCallback(
     (from: Square, to: Square) => {
-      const moves = chess.moves({ square: from, verbose: true }) as ChessJsMove[];
+      const moves = chess.moves({
+        square: from,
+        verbose: true,
+      }) as ChessJsMove[];
       for (const m of moves) {
         if (String(m.to) === to && m.promotion) return true;
       }
@@ -190,4 +198,3 @@ export function useChessGame(options: UseChessGameOptions = {}) {
     loadPgn,
   };
 }
-

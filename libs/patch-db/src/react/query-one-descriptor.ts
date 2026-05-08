@@ -33,7 +33,9 @@ function trySimpleEntityOneDescriptor(
   };
 }
 
-export function buildQueryOneDescriptor(query: PatchDbQuery): QueryOneDescriptor {
+export function buildQueryOneDescriptor(
+  query: PatchDbQuery
+): QueryOneDescriptor {
   const entity = trySimpleEntityOneDescriptor(query);
   if (entity !== undefined) return entity;
   return { kind: 'query', queryKey: JSON.stringify(query), query };

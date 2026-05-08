@@ -188,19 +188,22 @@ export class ActiveQueryRegistry {
       pubSubUnsub: null,
     };
     this.entries.set(key, entry);
-    entry.pubSubUnsub = this.pubSub.subscribe(PATCHES_DB_TOPIC, (msg: unknown) => {
-      if (
-        this.targetedInvalidation &&
-        shouldSkipTargetedEntityReread(entry.query, msg)
-      ) {
-        return;
+    entry.pubSubUnsub = this.pubSub.subscribe(
+      PATCHES_DB_TOPIC,
+      (msg: unknown) => {
+        if (
+          this.targetedInvalidation &&
+          shouldSkipTargetedEntityReread(entry.query, msg)
+        ) {
+          return;
+        }
+        fireAndForget(this.notify(key), {
+          component: 'ActiveQueryRegistry',
+          op: 'notify-invalidation',
+          queryKey: key,
+        });
       }
-      fireAndForget(this.notify(key), {
-        component: 'ActiveQueryRegistry',
-        op: 'notify-invalidation',
-        queryKey: key,
-      });
-    });
+    );
     fireAndForget(this.notify(key), {
       component: 'ActiveQueryRegistry',
       op: 'notify',

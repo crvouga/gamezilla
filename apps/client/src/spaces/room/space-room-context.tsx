@@ -26,7 +26,5 @@ export function SpaceRoomProvider({
     m.set(SPACE_ROOM_NAME, state.room as AnyRoom);
     return m;
   }, [state.room]);
-  return (
-    <RoomClientsProvider rooms={roomMap}>{children}</RoomClientsProvider>
-  );
+  return <RoomClientsProvider rooms={roomMap}>{children}</RoomClientsProvider>;
 }

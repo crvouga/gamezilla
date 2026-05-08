@@ -1,6 +1,4 @@
-import {
-  formatDeviceListCaption,
-} from '@gamezilla/client/account/devices/device-parsers';
+import { formatDeviceListCaption } from '@gamezilla/client/account/devices/device-parsers';
 import { DEVICE_ENTITY_TYPE, DeviceAttr } from '@gamezilla/domain/auth';
 import { Text } from '@gamezilla/lib/ui';
 import { useQueryAttribute } from '@gamezilla/patch-db/react';

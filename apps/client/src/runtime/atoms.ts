@@ -295,7 +295,13 @@ export const patchDbStackAtom = atom(async (get, { signal }) => {
   const config = get(configServiceAtom);
   const deviceService = await get(deviceServiceAtom);
   const storage = get(secureStorageAtom);
-  return await createPatchDbStack({ sql, config, deviceService, storage, signal });
+  return await createPatchDbStack({
+    sql,
+    config,
+    deviceService,
+    storage,
+    signal,
+  });
 });
 
 export const sessionServiceAtom = atom(async (get) => {

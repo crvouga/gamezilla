@@ -43,10 +43,7 @@ class PatchDbReadBatcher implements PatchDb {
     this.compaction = inner.compaction;
   }
 
-  read(
-    queries: PatchDbQuery[],
-    ctx: PatchDbContext
-  ): Promise<PatchDbResult[]> {
+  read(queries: PatchDbQuery[], ctx: PatchDbContext): Promise<PatchDbResult[]> {
     if (queries.length === 0) {
       return Promise.resolve([]);
     }

@@ -17,22 +17,16 @@ export function useQueryOne(query: PatchDbQuery): Entity | null {
   const queryKey = JSON.stringify(query);
   const desc = useMemo((): QueryOneDescriptor => {
     const parsed: unknown = JSON.parse(queryKey);
-    assert.record(
-      parsed,
-      'useQueryOne: queryKey must roundtrip to object',
-      { queryKey }
-    );
+    assert.record(parsed, 'useQueryOne: queryKey must roundtrip to object', {
+      queryKey,
+    });
     return buildQueryOneDescriptor(parsed as PatchDbQuery);
   }, [queryKey]);
 
   const subscribe = useCallback(
     (listener: () => void) => {
       if (desc.kind === 'entity') {
-        return entityStore.subscribe(
-          desc.entityType,
-          desc.entityId,
-          listener
-        );
+        return entityStore.subscribe(desc.entityType, desc.entityId, listener);
       }
       return queryCache.subscribe(desc.queryKey, desc.query, listener);
     },

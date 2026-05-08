@@ -51,7 +51,8 @@ function hasNoKnownPatchHints(q: PatchDbQuery): boolean {
 
 function hasAtomPaginationDefaults(q: PatchDbQuery): boolean {
   if (q.after !== null && q.after !== undefined) return false;
-  if (q.offset !== null && q.offset !== undefined && q.offset !== 0) return false;
+  if (q.offset !== null && q.offset !== undefined && q.offset !== 0)
+    return false;
   if (q.limit !== null && q.limit !== undefined && q.limit !== 1) return false;
   return true;
 }
@@ -148,7 +149,10 @@ export async function readPatches(
   while (i < queries.length) {
     const start = i;
     i += 1;
-    while (i < queries.length && canExtendBareSingleEntityBatch(queries, start, i)) {
+    while (
+      i < queries.length &&
+      canExtendBareSingleEntityBatch(queries, start, i)
+    ) {
       i += 1;
     }
     const slice = queries.slice(start, i);

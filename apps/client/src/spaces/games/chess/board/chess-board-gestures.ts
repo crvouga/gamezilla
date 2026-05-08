@@ -1,7 +1,12 @@
 /* eslint-disable max-lines-per-function */
 import { useMemo } from 'react';
 import { Gesture } from 'react-native-gesture-handler';
-import type { BoardOrientation, Move, Position, Square } from './chess-board-types';
+import type {
+  BoardOrientation,
+  Move,
+  Position,
+  Square,
+} from './chess-board-types';
 import { xyToSquare } from './chess-board-geometry';
 
 export type BoardGesturesArgs = {
@@ -17,7 +22,11 @@ export type BoardGesturesArgs = {
   onDragStart: (from: Square, xy: { x: number; y: number }) => void;
   onDragMove: (xy: { x: number; y: number }) => void;
   onDragEnd: () => void;
-  onCommitMove: (m: { from: Square; to: Square; promotion?: Move['promotion'] }) => void;
+  onCommitMove: (m: {
+    from: Square;
+    to: Square;
+    promotion?: Move['promotion'];
+  }) => void;
 };
 
 function indexFromSquare(square: Square): number {
@@ -114,4 +123,3 @@ export function useBoardGestures(args: BoardGesturesArgs) {
     turn,
   ]);
 }
-

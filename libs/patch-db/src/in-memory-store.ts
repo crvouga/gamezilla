@@ -94,7 +94,9 @@ export class InMemoryEntityStore {
     this.bumpAndEmit(touched);
   }
 
-  removeEntities(keys: readonly { entityType: string; entityId: string }[]): void {
+  removeEntities(
+    keys: readonly { entityType: string; entityId: string }[]
+  ): void {
     if (keys.length === 0) return;
     const touched = new Set<EntityKey>();
     for (const k of keys) {
@@ -164,4 +166,3 @@ export class InMemoryEntityStore {
     }
   }
 }
-

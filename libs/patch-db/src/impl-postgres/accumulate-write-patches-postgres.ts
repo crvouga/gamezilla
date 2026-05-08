@@ -76,7 +76,10 @@ async function prefetchParentIdsForEntities(
   sorted: readonly PatchInput[],
   parentCache: Map<string, string | null>
 ): Promise<void> {
-  const uniqueKeys = new Map<string, { entityId: string; entityType: string }>();
+  const uniqueKeys = new Map<
+    string,
+    { entityId: string; entityType: string }
+  >();
   for (const patch of sorted) {
     const key = `${patch.entityId}\0${patch.entityType}`;
     if (!uniqueKeys.has(key)) {

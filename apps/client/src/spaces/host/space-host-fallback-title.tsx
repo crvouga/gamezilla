@@ -38,7 +38,12 @@ export function SpaceHostFallbackTitle({
     attribute: SpaceAttr.hostId,
   });
   if (hostId === null) {
-    return <Text {...optionalProps({ variant, sx, numberOfLines })} label={EMPTY_LABEL} />;
+    return (
+      <Text
+        {...optionalProps({ variant, sx, numberOfLines })}
+        label={EMPTY_LABEL}
+      />
+    );
   }
   return (
     <SpaceHostFallbackTitleResolved

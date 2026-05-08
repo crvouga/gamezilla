@@ -14,9 +14,8 @@ export type AnyRoom = Room<RoomState, unknown, unknown, unknown>;
 
 const EMPTY_MAP: ReadonlyMap<string, AnyRoom> = new Map();
 
-const RoomClientsContext = createContext<ReadonlyMap<string, AnyRoom>>(
-  EMPTY_MAP
-);
+const RoomClientsContext =
+  createContext<ReadonlyMap<string, AnyRoom>>(EMPTY_MAP);
 
 export type RoomClientsProviderProps = {
   /** Map of logical room name → open {@link Room}. Pass `null` when none. */

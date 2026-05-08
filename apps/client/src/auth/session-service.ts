@@ -82,7 +82,9 @@ async function readLatestSessionEntity(
         attribute: AccountSessionAttr.deviceId.key,
         value: deviceId,
       },
-      orderBy: [{ attribute: AccountSessionAttr.createdAt.key, direction: 'desc' }],
+      orderBy: [
+        { attribute: AccountSessionAttr.createdAt.key, direction: 'desc' },
+      ],
       limit,
     },
   ]);

@@ -65,7 +65,11 @@ export function SpaceMiniplayerCard({
             >
               <MiniplayerHostNameLine spaceId={spaceId} />
               {/* eslint-disable-next-line gamezillaI18n/text-must-be-trans -- typographic separator */}
-              <Text variant="caption" sx={{ color: SEPARATOR_COLOR }} label="·" />
+              <Text
+                variant="caption"
+                sx={{ color: SEPARATOR_COLOR }}
+                label="·"
+              />
               <MiniplayerMemberCountText spaceId={spaceId} />
             </Box>
           </Box>

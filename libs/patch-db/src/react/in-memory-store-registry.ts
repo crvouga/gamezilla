@@ -22,4 +22,3 @@ export function getInMemoryStoreForDb(
 export function clearInMemoryStoreForDb(db: SubscribablePatchDbLike): void {
   storeByDb.delete(db);
 }
-

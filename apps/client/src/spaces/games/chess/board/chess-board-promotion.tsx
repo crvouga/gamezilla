@@ -17,7 +17,10 @@ const promotionOptions = [
   { key: 'r', label: <Trans>Rook</Trans> },
   { key: 'b', label: <Trans>Bishop</Trans> },
   { key: 'n', label: <Trans>Knight</Trans> },
-] as const satisfies readonly { key: NonNullable<Move['promotion']>; label: ReactNode }[];
+] as const satisfies readonly {
+  key: NonNullable<Move['promotion']>;
+  label: ReactNode;
+}[];
 
 export function ChessBoardPromotionModal(props: {
   visible: boolean;
@@ -33,29 +36,32 @@ export function ChessBoardPromotionModal(props: {
     <ModalRoot visible={visible} onRequestClose={onCancel}>
       <ModalBackdrop onPress={onCancel}>
         <ModalContent style={{ maxWidth: 520 }}>
-        <ModalHeader title={t`Promote pawn`} />
-        <ModalBody>
-          <Box sx={{ gap: 3 }}>
-            <Text
-              variant="body"
-              sx={{ color: 'textSecondary' }}
-              label={<Trans>Choose a piece to promote to.</Trans>}
-            />
-            <Box sx={{ flexDirection: 'row', flexWrap: 'wrap', gap: 2 }}>
-              {items.map((it) => (
+          <ModalHeader title={t`Promote pawn`} />
+          <ModalBody>
+            <Box sx={{ gap: 3 }}>
+              <Text
+                variant="body"
+                sx={{ color: 'textSecondary' }}
+                label={<Trans>Choose a piece to promote to.</Trans>}
+              />
+              <Box sx={{ flexDirection: 'row', flexWrap: 'wrap', gap: 2 }}>
+                {items.map((it) => (
+                  <Button
+                    key={it.key}
+                    title={it.label}
+                    onPress={() => onPick(it.key)}
+                  />
+                ))}
                 <Button
-                  key={it.key}
-                  title={it.label}
-                  onPress={() => onPick(it.key)}
+                  variant="outlined"
+                  title={<Trans>Cancel</Trans>}
+                  onPress={onCancel}
                 />
-              ))}
-              <Button variant="outlined" title={<Trans>Cancel</Trans>} onPress={onCancel} />
+              </Box>
             </Box>
-          </Box>
-        </ModalBody>
+          </ModalBody>
         </ModalContent>
       </ModalBackdrop>
     </ModalRoot>
   );
 }
-
