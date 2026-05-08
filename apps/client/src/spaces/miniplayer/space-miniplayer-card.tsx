@@ -5,7 +5,7 @@ import { MiniplayerOpenSpacePressable } from '@gamezilla/client/spaces/miniplaye
 import { MiniplayerSpaceTitle } from '@gamezilla/client/spaces/miniplayer/miniplayer-space-title';
 import { SpaceEndOrLeaveButton } from '@gamezilla/client/spaces/layout/space-end-or-leave-button';
 import { SpaceHostAvatar } from '@gamezilla/client/spaces/host/space-host-avatar';
-import { Box, GradientBox, Text, useTheme } from '@gamezilla/lib/ui';
+import { Box, elevation, GradientBox, Text, useTheme } from '@gamezilla/lib/ui';
 import type { ReactNode } from 'react';
 
 export type SpaceMiniplayerCardProps = {
@@ -14,6 +14,8 @@ export type SpaceMiniplayerCardProps = {
 
 /* eslint-disable-next-line lingui/no-unlocalized-strings -- color token */
 const SEPARATOR_COLOR = 'rgba(255,255,255,0.55)';
+
+const SPACE_CARD_RADIUS = 16;
 
 /** A single miniplayer entry — gradient + atoms. No `useQuery` here. */
 export function SpaceMiniplayerCard({
@@ -31,20 +33,14 @@ export function SpaceMiniplayerCard({
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       sx={{
-        borderRadius: 16,
+        borderRadius: SPACE_CARD_RADIUS,
         flexDirection: 'row',
         alignItems: 'center',
         p: 3,
         gap: 2,
         minHeight: 72,
       }}
-      style={{
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.18,
-        shadowRadius: 12,
-        elevation: 6,
-      }}
+      style={elevation(2)}
     >
       <MiniplayerOpenSpacePressable spaceId={spaceId}>
         <Box

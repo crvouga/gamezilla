@@ -5,18 +5,28 @@ import { useLiveSpaceIds } from '@gamezilla/client/spaces/use-live-space-ids';
 import { useAccountActions } from '@gamezilla/client/ui/use-account-actions';
 import {
   Box,
-  Pressable,
+  Button,
   ScreenBase,
   ScrollView,
   Text,
   useBreakpoint,
-  useTheme,
 } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 
 function SpacesList() {
   const spaceIds = useLiveSpaceIds();
+  if (spaceIds.length === 0) {
+    return (
+      <Box sx={{ py: 8, alignItems: 'center' }}>
+        <Text
+          variant="body"
+          sx={{ color: 'textSecondary' }}
+          label={<Trans>No live spaces. Tap + New space to start one.</Trans>}
+        />
+      </Box>
+    );
+  }
   return (
     <ScrollView
       style={{ flex: 1 }}
@@ -25,21 +35,9 @@ function SpacesList() {
         gap: 12,
       }}
     >
-      {spaceIds.length === 0 ? (
-        <Box sx={{ py: 8, alignItems: 'center' }}>
-          <Text
-            variant="body"
-            sx={{ color: 'textSecondary' }}
-            label={<Trans>No live spaces. Tap + New space to start one.</Trans>}
-          />
-        </Box>
-      ) : (
-        spaceIds.map((spaceId) => (
-          <Box key={spaceId} sx={{ mb: 3 }}>
-            <SpaceCard spaceId={spaceId} />
-          </Box>
-        ))
-      )}
+      {spaceIds.map((spaceId) => (
+        <SpaceCard key={spaceId} spaceId={spaceId} />
+      ))}
     </ScrollView>
   );
 }
@@ -50,7 +48,6 @@ export function SpacesScreen() {
   const router = useRouter();
   const { createSpace } = useSpaceActions();
   const { t } = useLingui();
-  const theme = useTheme();
   const currentSpaceCount = useCurrentSpaceCount();
   const alreadyInSpace = currentSpaceCount > 0;
 
@@ -70,35 +67,20 @@ export function SpacesScreen() {
       ]}
       actions={isMobile ? accountActions : []}
       content={({ sx }) => (
-        <Box style={sx}>
-          <Pressable
-            onPress={() => void onNewSpace()}
-            accessibilityRole="button"
-            accessibilityLabel={t`Create new space`}
+        <Box style={sx} sx={{ gap: 3 }}>
+          <Button
+            title={t`+ New space`}
+            variant="solid"
             disabled={alreadyInSpace}
-            style={[
-              theme.sx({
-                py: 3,
-                px: 4,
-                borderRadius: 8,
-                mb: 2,
-                alignItems: 'center',
-                opacity: alreadyInSpace ? 0.5 : 1,
-              }),
-              { backgroundColor: theme.colors.tintMuted },
-            ]}
-          >
-            <Text variant="bodyBold" label={<Trans>+ New space</Trans>} />
-          </Pressable>
+            onPress={() => void onNewSpace()}
+          />
           {alreadyInSpace ? (
             <Text
               variant="caption"
-              sx={{ color: 'textSecondary', mb: 4 }}
+              sx={{ color: 'textSecondary' }}
               label={<Trans>You’re already in a space</Trans>}
             />
-          ) : (
-            <Box sx={{ mb: 4 }} />
-          )}
+          ) : null}
           <SpacesList />
         </Box>
       )}

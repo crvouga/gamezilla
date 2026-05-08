@@ -35,7 +35,12 @@ export function SpaceActiveLayoutWide({
         <SpaceWideRailFooter />
       </Box>
       <Box
-        sx={{ flex: 1, minHeight: 0, minWidth: 0, justifyContent: 'center' }}
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          minWidth: 0,
+          justifyContent: 'flex-start',
+        }}
       >
         {children}
       </Box>

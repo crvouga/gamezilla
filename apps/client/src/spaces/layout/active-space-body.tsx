@@ -1,4 +1,4 @@
-import { SpaceGamePicker } from '@gamezilla/client/spaces/games/space-game-picker';
+import { GamesMainMenu } from '@gamezilla/client/spaces/games/games-main-menu';
 import { SpaceActiveLayout } from '@gamezilla/client/spaces/layout/space-active-layout';
 import {
   SpaceSessionUiProvider,
@@ -16,9 +16,9 @@ export type ActiveSpaceBodyProps = {
 };
 
 /**
- * Body of an active space session: chrome layout + game picker + counter
- * panel. Session UI is provided via {@link SpaceSessionUiProvider}; room state
- * uses registry hooks under {@link SpaceRoomProvider}.
+ * Body of an active space session: chrome layout + games main menu. Session
+ * UI is provided via {@link SpaceSessionUiProvider}; room state uses registry
+ * hooks under {@link SpaceRoomProvider}.
  */
 export function ActiveSpaceBody({
   spaceId,
@@ -42,7 +42,7 @@ export function ActiveSpaceBody({
     <SpaceSessionUiProvider value={sessionUi}>
       <Box sx={{ flex: 1, minHeight: 0 }}>
         <SpaceActiveLayout>
-          <SpaceGamePicker />
+          <GamesMainMenu />
         </SpaceActiveLayout>
       </Box>
     </SpaceSessionUiProvider>

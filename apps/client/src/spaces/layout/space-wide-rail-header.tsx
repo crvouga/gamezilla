@@ -22,8 +22,9 @@ export function SpaceWideRailHeader({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 2,
-        paddingVertical: 2,
-        paddingHorizontal: 2,
+        py: 2,
+        px: 3,
+        minHeight: 64,
         borderBottomWidth: 1,
         borderColor: 'border',
       }}

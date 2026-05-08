@@ -4,7 +4,7 @@ import { SpaceHostAvatar } from '@gamezilla/client/spaces/host/space-host-avatar
 import { SpaceHostNameText } from '@gamezilla/client/spaces/host/space-host-name-text';
 import { SpaceLiveBadge } from '@gamezilla/client/spaces/host/space-live-badge';
 import { SpaceTitleText } from '@gamezilla/client/spaces/host/space-title-text';
-import { Box, GradientBox, useTheme } from '@gamezilla/lib/ui';
+import { Box, elevation, GradientBox, useTheme } from '@gamezilla/lib/ui';
 import type { ReactNode } from 'react';
 
 export type SpaceCardProps = {
@@ -17,6 +17,7 @@ const SUBTITLE_COLOR = 'rgba(255,255,255,0.85)';
 /* eslint-enable lingui/no-unlocalized-strings */
 
 const HOST_AVATAR_SIZE = 44;
+const SPACE_CARD_RADIUS = 16;
 
 /**
  * Pure layout: gradient surface, host header, live badge, guest section.
@@ -36,11 +37,12 @@ export function SpaceCard({ spaceId }: SpaceCardProps): ReactNode {
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         sx={{
-          borderRadius: 16,
+          borderRadius: SPACE_CARD_RADIUS,
           p: 4,
           minHeight: 112,
           justifyContent: 'space-between',
         }}
+        style={elevation(1)}
       >
         <Box sx={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <Box

@@ -12,7 +12,7 @@ export function SpaceSessionMemberRailInner({
   spaceId,
 }: SpaceSessionMemberRailProps): ReactNode {
   return (
-    <Box sx={{ gap: 4, paddingBottom: 2 }}>
+    <Box sx={{ gap: 4 }}>
       <SpaceMembersHostBlock spaceId={spaceId} />
       <SpaceMembersGuestsBlock spaceId={spaceId} />
     </Box>
@@ -25,7 +25,7 @@ export function SpaceSessionMemberRail({
   return (
     <ScrollView
       style={{ flex: 1 }}
-      contentContainerStyle={{ flexGrow: 1, paddingBottom: 8, gap: 16 }}
+      contentContainerStyle={{ flexGrow: 1, paddingVertical: 12 }}
     >
       <SpaceSessionMemberRailInner spaceId={spaceId} />
     </ScrollView>

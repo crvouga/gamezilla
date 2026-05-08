@@ -2,7 +2,7 @@ import { useSpaceActions } from '@gamezilla/client/spaces/actions/space-actions'
 import { EndSpaceConfirmModal } from '@gamezilla/client/spaces/actions/end-space-confirm-modal';
 import { LeaveSpaceConfirmModal } from '@gamezilla/client/spaces/actions/leave-space-confirm-modal';
 import { useCurrentSpaceRole } from '@gamezilla/client/spaces/use-current-space-role';
-import { Pressable, Text } from '@gamezilla/lib/ui';
+import { borderRadius, Pressable, Text } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState, type ReactNode } from 'react';
 
@@ -39,9 +39,9 @@ export function SpaceEndOrLeaveButton({
         accessibilityRole="button"
         accessibilityLabel={isHost ? t`End space` : t`Leave space`}
         sx={{
-          paddingVertical: 2,
-          paddingHorizontal: 4,
-          borderRadius: 999,
+          py: 2,
+          px: 4,
+          borderRadius: borderRadius.full,
           backgroundColor: isHost ? ACTION_BG_DESTRUCTIVE : ACTION_BG,
         }}
       >

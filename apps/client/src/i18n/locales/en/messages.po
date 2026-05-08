@@ -340,14 +340,15 @@ msgstr "Avatar"
 msgid "Avatar style"
 msgstr "Avatar style"
 
+#: apps/client/src/spaces/games/main-menu-screen.tsx
 #: apps/client/src/spaces/join/space-back-button.tsx
 #: libs/lib/src/ui/components/screen-base/screen-base-header.tsx
 msgid "Back"
 msgstr "Back"
 
 #: apps/client/src/spaces/games/chess/chess-main-menu.tsx
-msgid "Back to chess menu"
-msgstr "Back to chess menu"
+#~ msgid "Back to chess menu"
+#~ msgstr "Back to chess menu"
 
 #: apps/client/src/developer/modal-screen.tsx
 msgid "Back to Dev"
@@ -429,7 +430,8 @@ msgstr "Check again"
 msgid "Checking…"
 msgstr "Checking…"
 
-#: apps/client/src/spaces/games/space-game-picker.tsx
+#: apps/client/src/spaces/games/chess/chess-main-menu.tsx
+#: apps/client/src/spaces/games/games-main-menu.tsx
 msgid "Chess"
 msgstr "Chess"
 
@@ -438,8 +440,8 @@ msgstr "Chess"
 #~ msgstr "Chess is selected for this space. Match setup options are coming next."
 
 #: apps/client/src/spaces/games/chess/chess-main-menu.tsx
-msgid "Chess main menu"
-msgstr "Chess main menu"
+#~ msgid "Chess main menu"
+#~ msgstr "Chess main menu"
 
 #: libs/lib/src/ui/components/picker/picker.tsx
 msgid "Choose"
@@ -528,9 +530,9 @@ msgstr "Colors"
 #: apps/client/src/spaces/games/chess/chess-main-menu.tsx
 #: apps/client/src/spaces/games/chess/chess-main-menu.tsx
 #: apps/client/src/spaces/games/chess/chess-main-menu.tsx
-#: apps/client/src/spaces/games/space-game-picker.tsx
-#: apps/client/src/spaces/games/space-game-picker.tsx
-#: apps/client/src/spaces/games/space-game-picker.tsx
+#: apps/client/src/spaces/games/games-main-menu.tsx
+#: apps/client/src/spaces/games/games-main-menu.tsx
+#: apps/client/src/spaces/games/games-main-menu.tsx
 msgid "Coming soon"
 msgstr "Coming soon"
 
@@ -566,7 +568,7 @@ msgstr "Confirm"
 msgid "Connect"
 msgstr "Connect"
 
-#: apps/client/src/spaces/games/space-game-picker.tsx
+#: apps/client/src/spaces/games/games-main-menu.tsx
 msgid "Connect Four"
 msgstr "Connect Four"
 
@@ -650,8 +652,8 @@ msgstr "Counter unavailable — sign in and open this space on the device where 
 #~ msgstr "Create"
 
 #: apps/client/src/spaces/spaces-screen.tsx
-msgid "Create new space"
-msgstr "Create new space"
+#~ msgid "Create new space"
+#~ msgstr "Create new space"
 
 #: apps/client/src/account/devices/account-device-meta-grid.tsx
 msgid "Created"
@@ -952,6 +954,10 @@ msgstr "Full commit"
 #~ msgid "Game Clock"
 #~ msgstr "Game Clock"
 
+#: apps/client/src/spaces/games/games-main-menu.tsx
+msgid "Games"
+msgstr "Games"
+
 #: apps/client/src/i18n/catalog-bootstrap.ts
 #: apps/client/src/ui/sidebar/app-sidebar.tsx
 msgid "Gamezilla"
@@ -974,7 +980,7 @@ msgstr "Go home"
 msgid "Go to {target}"
 msgstr "Go to {target}"
 
-#: apps/client/src/spaces/games/space-game-picker.tsx
+#: apps/client/src/spaces/games/games-main-menu.tsx
 msgid "Gomoku"
 msgstr "Gomoku"
 
@@ -1518,8 +1524,12 @@ msgid "People in this space"
 msgstr "People in this space"
 
 #: apps/client/src/spaces/games/chess/chess-main-menu.tsx
-msgid "Pick a different game"
-msgstr "Pick a different game"
+#~ msgid "Pick a different game"
+#~ msgstr "Pick a different game"
+
+#: apps/client/src/spaces/games/games-main-menu.tsx
+msgid "Pick a game to play."
+msgstr "Pick a game to play."
 
 #: apps/client/src/spaces/games/chess/chess-main-menu.tsx
 msgid "Pick a puzzle mode."
@@ -2044,7 +2054,7 @@ msgstr "Tap to return to your space"
 msgid "TextInput"
 msgstr "TextInput"
 
-#: apps/client/src/spaces/games/space-game-picker.tsx
+#: apps/client/src/spaces/games/games-main-menu.tsx
 msgid "The host picks the game for this space."
 msgstr "The host picks the game for this space."
 
@@ -2096,7 +2106,7 @@ msgstr "This is a modal screen."
 msgid "This tab"
 msgstr "This tab"
 
-#: apps/client/src/spaces/games/space-game-picker.tsx
+#: apps/client/src/spaces/games/games-main-menu.tsx
 msgid "Tic-tac-toe"
 msgstr "Tic-tac-toe"
 

@@ -23,9 +23,9 @@ export function SpaceActiveLayoutMobile({
           flexDirection: 'row',
           alignItems: 'center',
           gap: 2,
-          paddingVertical: 2,
-          paddingHorizontal: 2,
-          minHeight: 72,
+          py: 2,
+          px: 3,
+          minHeight: 64,
           borderBottomWidth: 1,
           borderColor: 'border',
           background: 'surface',
@@ -56,7 +56,7 @@ export function SpaceActiveLayoutMobile({
           />
         </IconButton>
       </Box>
-      <Box sx={{ flex: 1, minHeight: 0, justifyContent: 'center' }}>
+      <Box sx={{ flex: 1, minHeight: 0, justifyContent: 'flex-start' }}>
         {children}
       </Box>
     </Box>

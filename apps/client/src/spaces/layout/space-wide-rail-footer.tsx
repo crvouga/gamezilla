@@ -11,13 +11,14 @@ export function SpaceWideRailFooter() {
   return (
     <Box
       sx={{
+        flexDirection: 'row',
+        alignItems: 'center',
         gap: 2,
-        padding: 3,
+        py: 2,
+        px: 3,
         borderTopWidth: 1,
         borderColor: 'border',
-        flexDirection: 'row',
         flexWrap: 'wrap',
-        alignItems: 'center',
       }}
     >
       <Box sx={{ flex: 1, minWidth: 160 }}>
