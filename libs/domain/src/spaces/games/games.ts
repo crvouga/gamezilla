@@ -1,6 +1,6 @@
 import {
+  createMessageNamespace,
   createMessageRouter,
-  createNamespace,
   isPlainRecord,
 } from '@gamezilla/lib/message';
 import type { HandleResult, RoomState } from '@gamezilla/room';
@@ -39,10 +39,10 @@ export function gamesInitialState(): Pick<RoomState, 'selectedGame'> {
   };
 }
 
-export const gamesCmdNs = createNamespace('gamesCmd');
+export const gamesCmdNs = createMessageNamespace('gamesCmd');
 export const SelectGame = gamesCmdNs('SELECT_GAME', validateSelectGamePayload);
 
-export const gamesEvtNs = createNamespace('gamesEvt');
+export const gamesEvtNs = createMessageNamespace('gamesEvt');
 export const GameSelected = gamesEvtNs('SELECTED', validateSelectGamePayload);
 
 export const gamesCommandRouter = createMessageRouter<

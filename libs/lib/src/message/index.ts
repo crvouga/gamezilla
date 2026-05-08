@@ -1,6 +1,6 @@
 export {
   acceptUnknownPayload,
-  createMessageNamespace as createNamespace,
+  createMessageNamespace,
   isPlainRecord,
 } from './message';
 export type {

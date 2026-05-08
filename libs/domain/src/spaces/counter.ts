@@ -1,6 +1,6 @@
 import {
+  createMessageNamespace,
   createMessageRouter,
-  createNamespace,
   isPlainRecord,
   type MessageRouter,
 } from '@gamezilla/lib/message';
@@ -10,11 +10,11 @@ function validateEmptyPayload(p: unknown): p is Record<string, never> {
   return isPlainRecord(p) && Object.keys(p).length === 0;
 }
 
-export const counterCmdNs = createNamespace('counterCmd');
+export const counterCmdNs = createMessageNamespace('counterCmd');
 export const Increment = counterCmdNs('INCREMENT', validateEmptyPayload);
 export const Decrement = counterCmdNs('DECREMENT', validateEmptyPayload);
 
-export const counterEvtNs = createNamespace('counterEvt');
+export const counterEvtNs = createMessageNamespace('counterEvt');
 export const CounterIncremented = counterEvtNs(
   'INCREMENTED',
   validateEmptyPayload

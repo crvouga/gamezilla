@@ -1,5 +1,5 @@
 import {
-  createNamespace,
+  createMessageNamespace,
   isPlainRecord,
   type Message,
 } from '@gamezilla/lib/message';
@@ -15,11 +15,11 @@ function validateEmptyPayload(p: unknown): p is Record<string, never> {
   return isPlainRecord(p) && Object.keys(p).length === 0;
 }
 
-const cmdNs = createNamespace('spaceCounterCmd');
+const cmdNs = createMessageNamespace('spaceCounterCmd');
 const Increment = cmdNs('INCREMENT', validateEmptyPayload);
 const Decrement = cmdNs('DECREMENT', validateEmptyPayload);
 
-const evtNs = createNamespace('spaceCounterEvt');
+const evtNs = createMessageNamespace('spaceCounterEvt');
 const CounterIncremented = evtNs('COUNTER_INCREMENTED', validateEmptyPayload);
 const CounterDecremented = evtNs('COUNTER_DECREMENTED', validateEmptyPayload);
 
