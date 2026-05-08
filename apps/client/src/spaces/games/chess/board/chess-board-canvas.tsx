@@ -1,7 +1,6 @@
 /* eslint-disable lingui/no-unlocalized-strings */
 /* eslint-disable max-lines-per-function */
 /* eslint-disable complexity */
-import { GestureDetector } from 'react-native-gesture-handler';
 import {
   Canvas,
   Circle,
@@ -13,43 +12,36 @@ import {
   Skia,
   Text as SkiaText,
 } from '@shopify/react-native-skia';
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react';
+import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
-  Easing,
   useAnimatedStyle,
   useSharedValue,
-  withTiming,
 } from 'react-native-reanimated';
+import {
+  indexFromSquare,
+  squareFromIndex,
+  squareToXY,
+} from './chess-board-geometry';
+import { useBoardGestures } from './chess-board-gestures';
+import {
+  hapticError,
+  hapticSelection,
+  hapticSuccess,
+} from './chess-board-haptics';
+import { ChessBoardPieceSkia, PIECE_DRAW_SCALE } from './chess-board-piece';
+import { useChessPieceRows } from './chess-board-piece-identities';
+import { ChessBoardPromotionModal } from './chess-board-promotion';
+import { useChessBoardSounds } from './chess-board-sounds';
 import type {
   BoardTheme,
   ChessBoardProps,
   Move,
   Square,
 } from './chess-board-types';
-import { useChessGame } from './use-chess-game';
-import {
-  indexFromSquare,
-  squareFromIndex,
-  squareToXY,
-} from './chess-board-geometry';
-import { pieceCode } from './chess-pieces-svg';
 import { usePieceSkiaImages } from './chess-pieces-cache';
-import { useBoardGestures } from './chess-board-gestures';
-import { ChessBoardPromotionModal } from './chess-board-promotion';
-import {
-  hapticError,
-  hapticSelection,
-  hapticSuccess,
-} from './chess-board-haptics';
-import { useChessBoardSounds } from './chess-board-sounds';
-import { useChessPieceRows } from './chess-board-piece-identities';
-import { ChessBoardPieceSkia, PIECE_DRAW_SCALE } from './chess-board-piece';
+import { pieceCode } from './chess-pieces-svg';
+import { useChessGame } from './use-chess-game';
 
 export type ChessBoardCanvasProps = Required<
   Pick<
@@ -71,61 +63,6 @@ type PostMoveAudio = {
   inCheck: boolean;
   isGameOver: boolean;
 };
-
-function LegalMoveIndicator(props: {
-  cell: number;
-  cx: number;
-  cy: number;
-  isCapture: boolean;
-  isHovered: boolean;
-  dotColor: string;
-  ringColor: string;
-}): ReactNode {
-  const { cell, cx, cy, isCapture, isHovered, dotColor, ringColor } = props;
-  const radius = useSharedValue(isCapture ? cell * 0.46 : cell * 0.16);
-  const opacity = useSharedValue(isCapture ? 0.55 : 0.6);
-  const strokeWidth = useSharedValue(cell * 0.08);
-
-  useEffect(() => {
-    radius.value = withTiming(
-      isCapture
-        ? isHovered
-          ? cell * 0.5
-          : cell * 0.46
-        : isHovered
-          ? cell * 0.2
-          : cell * 0.16,
-      { duration: 120, easing: Easing.out(Easing.cubic) }
-    );
-    opacity.value = withTiming(
-      isCapture ? (isHovered ? 0.85 : 0.55) : isHovered ? 0.9 : 0.6,
-      { duration: 120, easing: Easing.out(Easing.cubic) }
-    );
-    if (isCapture) {
-      strokeWidth.value = withTiming(isHovered ? cell * 0.1 : cell * 0.08, {
-        duration: 120,
-        easing: Easing.out(Easing.cubic),
-      });
-    }
-  }, [cell, isCapture, isHovered, opacity, radius, strokeWidth]);
-
-  if (isCapture) {
-    return (
-      <Circle
-        cx={cx}
-        cy={cy}
-        r={radius}
-        color={ringColor}
-        style="stroke"
-        strokeWidth={strokeWidth}
-        opacity={opacity}
-      />
-    );
-  }
-  return (
-    <Circle cx={cx} cy={cy} r={radius} color={dotColor} opacity={opacity} />
-  );
-}
 
 function playMoveSounds(
   sounds: ReturnType<typeof useChessBoardSounds>,
@@ -359,20 +296,52 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
                   const occupant = position[indexFromSquare(sq)] ?? null;
                   const isCapture =
                     occupant !== null && occupant?.color !== turn;
-                  const isHovered = hoveredSquare === sq;
+                  if (isCapture) {
+                    return (
+                      <Circle
+                        key={`cap-${sq}`}
+                        cx={cx}
+                        cy={cy}
+                        r={cell * 0.46}
+                        color={theme.legalMoveCaptureRing}
+                        style="stroke"
+                        strokeWidth={cell * 0.08}
+                        opacity={0.55}
+                      />
+                    );
+                  }
                   return (
-                    <LegalMoveIndicator
+                    <Circle
                       key={`dot-${sq}`}
-                      cell={cell}
                       cx={cx}
                       cy={cy}
-                      isCapture={isCapture}
-                      isHovered={isHovered}
-                      dotColor={theme.legalMoveDot}
-                      ringColor={theme.legalMoveCaptureRing}
+                      r={cell * 0.16}
+                      color={theme.legalMoveDot}
+                      opacity={0.6}
                     />
                   );
                 })
+              : null}
+
+            {/* hovered cell indicator */}
+            {hoveredSquare
+              ? (() => {
+                  const { x, y } = squareToXY(hoveredSquare, size, orientation);
+                  const stroke = Math.max(2, cell * 0.08);
+                  const inset = stroke / 2;
+                  return (
+                    <Rect
+                      x={x + inset}
+                      y={y + inset}
+                      width={cell - stroke}
+                      height={cell - stroke}
+                      color={theme.selected}
+                      style="stroke"
+                      strokeWidth={stroke}
+                      opacity={0.85}
+                    />
+                  );
+                })()
               : null}
 
             {/* check */}
