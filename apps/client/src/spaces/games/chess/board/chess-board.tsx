@@ -8,14 +8,15 @@ import type { BoardTheme, ChessBoardProps } from './chess-board-types';
 
 function defaultBoardTheme(theme: ReturnType<typeof useTheme>): BoardTheme {
   return {
-    lightSquare: theme.colors.surface,
-    darkSquare: theme.colors.outline,
-    border: theme.colors.border,
-    lastMove: theme.colors.tintMuted,
-    selected: theme.colors.tintMuted,
-    legalMoveDot: theme.colors.tint,
-    check: theme.colors.destructive,
-    coordinates: theme.colors.textSecondary,
+    lightSquare: '#f0d9b5',
+    darkSquare: '#b58863',
+    border: '#8a6a3d',
+    lastMove: '#cdd26a',
+    selected: '#f7ec74',
+    legalMoveDot: 'rgba(20,85,30,0.5)',
+    check: '#d64545',
+    coordinates:
+      theme.colorScheme === 'dark' ? '#e8d6b4' : '#5a3b1c',
   };
 }
 
@@ -96,7 +97,9 @@ export function ChessBoard(props: ChessBoardProps): ReactNode {
       onLayout={onLayout}
       sx={{ alignSelf: 'center' }}
       style={
-        size !== undefined ? { width: size, height: size } : { width: '100%' }
+        size !== undefined
+          ? { width: size, height: size, overflow: 'visible' }
+          : { width: '100%', overflow: 'visible' }
       }
     >
       {boardSize > 0 ? (

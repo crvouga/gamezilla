@@ -2,19 +2,17 @@ import {
   MainMenuScreen,
   type MainMenuItem,
 } from '@gamezilla/client/spaces/games/main-menu-screen';
+import { useSpaceDispatch } from '@gamezilla/client/spaces/room/use-space-room-selector';
 import {
-  CHESS_MAIN_MENU_ROOT,
   CHESS_MAIN_MENU_PUZZLE_PLAY,
+  CHESS_MAIN_MENU_ROOT,
   SetChessMainMenuScreen,
 } from '@gamezilla/domain/spaces/space-module';
 import { Trans } from '@lingui/react/macro';
 import { useCallback, type ReactNode } from 'react';
 
-export function PuzzleMainMenu(args: {
-  dispatch: (cmd: unknown) => void;
-}): ReactNode {
-  const { dispatch } = args;
-
+export function PuzzleMainMenu(): ReactNode {
+  const dispatch = useSpaceDispatch();
   const backToChessRoot = useCallback(() => {
     dispatch(SetChessMainMenuScreen({ screen: CHESS_MAIN_MENU_ROOT }));
   }, [dispatch]);

@@ -1,4 +1,5 @@
 import { ChessBoard } from '@gamezilla/client/spaces/games/chess/board';
+import { useSpaceDispatch } from '@gamezilla/client/spaces/room/use-space-room-selector';
 import {
   CHESS_MAIN_MENU_PUZZLE,
   SetChessMainMenuScreen,
@@ -45,10 +46,8 @@ function BackButtonRow({ onPress }: { onPress: () => void }): ReactNode {
   );
 }
 
-export function PuzzlePlayScreen(args: {
-  dispatch: (cmd: unknown) => void;
-}): ReactNode {
-  const { dispatch } = args;
+export function PuzzlePlayScreen(): ReactNode {
+  const dispatch = useSpaceDispatch();
 
   const backToPuzzleMenu = useCallback(() => {
     dispatch(SetChessMainMenuScreen({ screen: CHESS_MAIN_MENU_PUZZLE }));
