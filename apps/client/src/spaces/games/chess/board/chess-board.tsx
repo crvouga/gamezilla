@@ -44,10 +44,12 @@ export function ChessBoard(props: ChessBoardProps): ReactNode {
 
   const onLayout = (e: LayoutChangeEvent) => {
     if (size !== undefined) return;
+    // The board is always square. Measure from width only — the wrapper has no
+    // intrinsic height before the canvas mounts, so using `min(w, h)` would
+    // deadlock at 0 (canvas only renders when `boardSize > 0`).
     const w = e.nativeEvent.layout.width;
-    const h = e.nativeEvent.layout.height;
-    const next = Math.floor(Math.min(w, h));
-    if (next > 0) setMeasured(next);
+    const next = Math.floor(w);
+    if (next > 0 && next !== measured) setMeasured(next);
   };
 
   const componentProps = useMemo<ChessBoardCanvasProps>(
