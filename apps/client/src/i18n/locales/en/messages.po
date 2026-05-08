@@ -340,6 +340,7 @@ msgstr "Avatar"
 msgid "Avatar style"
 msgstr "Avatar style"
 
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
 #: apps/client/src/spaces/games/main-menu-screen.tsx
 #: apps/client/src/spaces/join/space-back-button.tsx
 #: libs/lib/src/ui/components/screen-base/screen-base-header.tsx
