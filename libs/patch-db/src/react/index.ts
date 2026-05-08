@@ -17,7 +17,6 @@ export {
   usePatchDbStack,
   type PatchDbStackValue,
 } from './patch-db-stack-context';
-export { PatchDbCacheWarmer } from './cache-warmer';
 export { usePatchDb } from './use-patch-db';
 export { useEntity } from './use-entity';
 export { useEntityAttribute } from './use-entity-attribute';
@@ -29,3 +28,11 @@ export {
 export { useQueryAttributes } from './use-query-attributes';
 export { useQueryEntityIds } from './use-query-entity-ids';
 export { useQueryOne } from './use-query-one';
+export { InMemoryEntityStore } from './in-memory-entity-store';
+export {
+  setInMemoryStoreForDb,
+  getInMemoryStoreForDb,
+  clearInMemoryStoreForDb,
+} from './in-memory-store-registry';
+export { hydrateInMemoryStoreFromSqlite } from './hydrate-in-memory-store';
+export { PatchDbWriteThroughMirror } from './write-through-mirror';

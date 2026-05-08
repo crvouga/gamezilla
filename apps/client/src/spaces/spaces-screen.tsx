@@ -54,9 +54,9 @@ export function SpacesScreen() {
   const currentSpaceCount = useCurrentSpaceCount();
   const alreadyInSpace = currentSpaceCount > 0;
 
-  const onNewSpace = async () => {
+  const onNewSpace = () => {
     if (alreadyInSpace) return;
-    const newId = await createSpace();
+    const newId = createSpace();
     router.push({ pathname: '/space/[id]', params: { id: newId } });
   };
 

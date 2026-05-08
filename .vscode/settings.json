@@ -54,6 +54,7 @@
     "Emscripten",
     "endgroup",
     "esac",
+    "fanout",
     "flushcache",
     "flyctl",
     "fontawesome",

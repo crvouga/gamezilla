@@ -25,10 +25,13 @@ import { PatchMetadataStamper } from '@gamezilla/patch-db/metadata/patch-metadat
 import {
   forceDetachPatchDbEntitySubscriptionsForDb,
   forceDetachPatchDbQuerySubscriptionsForDb,
-  PatchDbCacheWarmer,
   type PatchDbStackValue,
 } from '@gamezilla/patch-db/react';
 import type { SubscribablePatchDbLike } from '@gamezilla/patch-db/subscribable';
+import { hydrateInMemoryStoreFromSqlite } from '@gamezilla/patch-db/react/hydrate-in-memory-store';
+import { InMemoryEntityStore } from '@gamezilla/patch-db/react/in-memory-entity-store';
+import { setInMemoryStoreForDb } from '@gamezilla/patch-db/react/in-memory-store-registry';
+import { PatchDbWriteThroughMirror } from '@gamezilla/patch-db/react/write-through-mirror';
 import { atom, getDefaultStore } from 'jotai';
 import { atomEffect } from 'jotai-effect';
 import { openSqlClientForPlatform } from './open-sql-client';
@@ -215,11 +218,14 @@ export const sqlClientAtom = atom(async (get, { signal }) => {
   return sql;
 });
 
-export const patchDbStackAtom = atom(async (get, { signal }) => {
-  const sql = await get(sqlClientAtom);
-  const config = get(configServiceAtom);
-  const deviceService = await get(deviceServiceAtom);
-  const storage = get(secureStorageAtom);
+async function createPatchDbStack(args: {
+  sql: SqlClient;
+  config: ReturnType<typeof createConfigService>;
+  deviceService: Awaited<ReturnType<typeof createDeviceService>>;
+  storage: SecureStorage;
+  signal: AbortSignal;
+}): Promise<PatchDbStackValue> {
+  const { sql, config, deviceService, storage, signal } = args;
 
   const persistedToken = await readSessionToken(storage);
   if (persistedToken !== null) {
@@ -257,11 +263,18 @@ export const patchDbStackAtom = atom(async (get, { signal }) => {
     assertDeviceId: (id) => assertDeviceId(id),
   });
 
-  const warmer = new PatchDbCacheWarmer(stamper, () =>
-    sync.flushPendingReads()
-  );
+  const store = new InMemoryEntityStore();
+  await hydrateInMemoryStoreFromSqlite(local, store);
 
-  registerPatchStackCleanup({ decorated: warmer, sync, signal });
+  const decorated = new PatchDbWriteThroughMirror(stamper, store);
+  setInMemoryStoreForDb(decorated, store);
+
+  const pollMirrorUnsub = pubSub.subscribe('patch-db', () => {
+    void hydrateInMemoryStoreFromSqlite(local, store);
+  });
+
+  registerPatchStackCleanup({ decorated, sync, signal });
+  signal.addEventListener('abort', () => pollMirrorUnsub());
 
   await stamper.clearRejectedPushes();
 
@@ -269,13 +282,20 @@ export const patchDbStackAtom = atom(async (get, { signal }) => {
     ACCOUNT_SESSION_ENTITY_TYPE
   );
 
-  const stack: PatchDbStackValue = {
-    db: warmer,
+  return {
+    db: decorated,
     sync,
     pubSub,
-    decorated: warmer,
+    decorated,
   };
-  return stack;
+}
+
+export const patchDbStackAtom = atom(async (get, { signal }) => {
+  const sql = await get(sqlClientAtom);
+  const config = get(configServiceAtom);
+  const deviceService = await get(deviceServiceAtom);
+  const storage = get(secureStorageAtom);
+  return await createPatchDbStack({ sql, config, deviceService, storage, signal });
 });
 
 export const sessionServiceAtom = atom(async (get) => {

@@ -1,16 +1,15 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
-import type { Entity, PatchDbQuery } from '../interface';
+import type { Entity } from '../interface';
 import type { SubscribablePatchDbLike } from '../subscribable';
 import { DEFAULT_TEARDOWN_GRACE_MS, type PatchDbQueryCacheOptions } from './query-cache';
+import { getInMemoryStoreForDb } from './in-memory-store-registry';
 
 /**
- * Snapshot for a single-entity subscription. `isLoading` is `true` until the
- * first delivery from `subscribe.entities`.
+ * Snapshot for a single-entity subscription.
  */
 export type CachedEntitySnapshot = {
   entity: Entity | null;
-  isLoading: boolean;
 };
 
 type Listener = () => void;
@@ -20,18 +19,12 @@ type EntityCacheEntry = {
   entityId: string;
   /** Stable snapshot; replaced when data changes. */
   result: CachedEntitySnapshot;
-  hasDelivered: boolean;
   listeners: Set<Listener>;
-  unsubscribe: Unsubscribe | null;
   teardownTimer: unknown | null;
 };
 
 function entityKey(entityType: string, entityId: string): string {
   return `${entityType}\0${entityId}`;
-}
-
-function makeEmptyEntitySnapshot(): CachedEntitySnapshot {
-  return { entity: null, isLoading: true };
 }
 
 function entityShallowEqual(a: Entity | null, b: Entity | null): boolean {
@@ -55,6 +48,7 @@ export class PatchDbEntityStore {
   private entries = new Map<string, EntityCacheEntry>();
   private graceMs: number;
   private scheduler: NonNullable<PatchDbQueryCacheOptions['scheduler']>;
+  private storeUnsub: Unsubscribe | null = null;
 
   constructor(
     private readonly db: SubscribablePatchDbLike,
@@ -83,30 +77,10 @@ export class PatchDbEntityStore {
 
     entry.listeners.add(listener);
 
-    if (entry.unsubscribe === null) {
-      const query: PatchDbQuery = { entityType, entityId, limit: 1 };
-      entry.unsubscribe = this.db.subscribe.entities(query, (next) => {
-        const prev = entry.result;
-        const first = next.entities[0] ?? null;
-        const entity =
-          first !== null && entityShallowEqual(prev.entity, first)
-            ? prev.entity
-            : first;
-        const nextResult: CachedEntitySnapshot = {
-          entity,
-          isLoading: false,
-        };
-        const firstDelivery = !entry.hasDelivered;
-        entry.hasDelivered = true;
-        if (
-          !firstDelivery &&
-          prev.entity === nextResult.entity &&
-          prev.isLoading === nextResult.isLoading
-        ) {
-          return;
-        }
-        entry.result = nextResult;
-        for (const l of [...entry.listeners]) l();
+    if (this.storeUnsub === null) {
+      const store = getInMemoryStoreForDb(this.db);
+      this.storeUnsub = store.subscribe((touched) => {
+        this.onStoreChanged(touched);
       });
     }
 
@@ -144,18 +118,18 @@ export class PatchDbEntityStore {
 
   isOpen(entityType: string, entityId: string): boolean {
     const entry = this.entries.get(entityKey(entityType, entityId));
-    return entry?.unsubscribe !== null && entry !== undefined;
+    return entry !== undefined && this.storeUnsub !== null;
   }
 
   forceDetachAll(): void {
+    if (this.storeUnsub !== null) {
+      this.storeUnsub();
+      this.storeUnsub = null;
+    }
     for (const entry of this.entries.values()) {
       if (entry.teardownTimer !== null) {
         this.scheduler.clearTimeout(entry.teardownTimer);
         entry.teardownTimer = null;
-      }
-      if (entry.unsubscribe !== null) {
-        entry.unsubscribe();
-        entry.unsubscribe = null;
       }
       entry.listeners.clear();
     }
@@ -172,14 +146,30 @@ export class PatchDbEntityStore {
     const entry: EntityCacheEntry = {
       entityType,
       entityId,
-      result: makeEmptyEntitySnapshot(),
-      hasDelivered: false,
+      result: { entity: null },
       listeners: new Set(),
-      unsubscribe: null,
       teardownTimer: null,
     };
     this.entries.set(key, entry);
     return entry;
+  }
+
+  private onStoreChanged(touched: ReadonlySet<string>): void {
+    const store = getInMemoryStoreForDb(this.db);
+    for (const entry of this.entries.values()) {
+      if (entry.listeners.size === 0) continue;
+      const key = entityKey(entry.entityType, entry.entityId);
+      if (touched.size > 0 && !touched.has(key)) continue;
+      const nextEntity = store.getEntity(entry.entityType, entry.entityId);
+      const prev = entry.result;
+      const entity =
+        nextEntity !== null && entityShallowEqual(prev.entity, nextEntity)
+          ? prev.entity
+          : nextEntity;
+      if (prev.entity === entity) continue;
+      entry.result = { entity };
+      for (const l of [...entry.listeners]) l();
+    }
   }
 
   private teardown(entry: EntityCacheEntry): void {
@@ -188,10 +178,6 @@ export class PatchDbEntityStore {
       'entity store teardown called with active listeners',
       { key: entityKey(entry.entityType, entry.entityId) }
     );
-    if (entry.unsubscribe !== null) {
-      entry.unsubscribe();
-      entry.unsubscribe = null;
-    }
     entry.teardownTimer = null;
     this.entries.delete(entityKey(entry.entityType, entry.entityId));
   }

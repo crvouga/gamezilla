@@ -3,11 +3,12 @@ import type { Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
 import type { PatchDbQuery } from '../interface';
 import type { SubscribablePatchDbLike } from '../subscribable';
 import {
-  makeEmptyResult,
   resultsShallowEqual,
   reuseStableArrays,
   type CachedQueryResult,
 } from './result-equality';
+import { evaluateQuery } from './sync-query-eval';
+import { getInMemoryStoreForDb } from './in-memory-store-registry';
 
 export type { CachedQueryResult } from './result-equality';
 
@@ -18,15 +19,7 @@ type CacheEntry = {
   query: PatchDbQuery;
   /** Stable result identity; replaced whenever data changes. */
   result: CachedQueryResult;
-  /**
-   * After the first `subscribe.entities` callback, even an empty read must
-   * replace the placeholder snapshot — otherwise it shallow-equals the initial
-   * empty result and subscribers would never re-render.
-   */
-  hasDelivered: boolean;
   listeners: Set<Listener>;
-  /** Open underlying subscription handle, or `null` when not yet opened. */
-  unsubscribe: Unsubscribe | null;
   /**
    * Pending teardown handle (opaque, scheduler-defined) set when refCount
    * drops to zero. Cancelled when a new subscriber re-attaches inside the
@@ -60,6 +53,7 @@ export class PatchDbQueryCache {
   private entries = new Map<string, CacheEntry>();
   private graceMs: number;
   private scheduler: NonNullable<PatchDbQueryCacheOptions['scheduler']>;
+  private storeUnsub: Unsubscribe | null = null;
 
   constructor(
     private readonly db: SubscribablePatchDbLike,
@@ -92,26 +86,10 @@ export class PatchDbQueryCache {
 
     entry.listeners.add(listener);
 
-    if (entry.unsubscribe === null) {
-      entry.unsubscribe = this.db.subscribe.entities(query, (next) => {
-        const prev = entry.result;
-        const { entities, patches } = reuseStableArrays(prev, next);
-        const nextResult: CachedQueryResult = {
-          query: next.query,
-          entities,
-          patches,
-          total: next.total,
-          hasMore: next.hasMore,
-          nextCursor: next.nextCursor,
-          isLoading: false,
-        };
-        const firstDelivery = !entry.hasDelivered;
-        entry.hasDelivered = true;
-        if (!firstDelivery && resultsShallowEqual(prev, nextResult)) {
-          return;
-        }
-        entry.result = nextResult;
-        for (const l of [...entry.listeners]) l();
+    if (this.storeUnsub === null) {
+      const store = getInMemoryStoreForDb(this.db);
+      this.storeUnsub = store.subscribe((touched) => {
+        this.onStoreChanged(touched);
       });
     }
 
@@ -150,7 +128,7 @@ export class PatchDbQueryCache {
   /** Test helper: whether `queryKey` has an open underlying subscription. */
   isOpen(queryKey: string): boolean {
     const entry = this.entries.get(queryKey);
-    return entry?.unsubscribe !== null && entry !== undefined;
+    return entry !== undefined && this.storeUnsub !== null;
   }
 
   /**
@@ -159,14 +137,14 @@ export class PatchDbQueryCache {
    * file so no stale snapshots reference a closed DB.
    */
   forceDetachAll(): void {
+    if (this.storeUnsub !== null) {
+      this.storeUnsub();
+      this.storeUnsub = null;
+    }
     for (const entry of this.entries.values()) {
       if (entry.teardownTimer !== null) {
         this.scheduler.clearTimeout(entry.teardownTimer);
         entry.teardownTimer = null;
-      }
-      if (entry.unsubscribe !== null) {
-        entry.unsubscribe();
-        entry.unsubscribe = null;
       }
       entry.listeners.clear();
     }
@@ -176,17 +154,61 @@ export class PatchDbQueryCache {
   private getOrCreate(queryKey: string, query: PatchDbQuery): CacheEntry {
     const existing = this.entries.get(queryKey);
     if (existing !== undefined) return existing;
+    const store = getInMemoryStoreForDb(this.db);
+    const evaluated = evaluateQuery(query, store);
     const entry: CacheEntry = {
       queryKey,
       query,
-      result: makeEmptyResult(query),
-      hasDelivered: false,
+      result: {
+        ...evaluated,
+        isLoading: false,
+      },
       listeners: new Set(),
-      unsubscribe: null,
       teardownTimer: null,
     };
     this.entries.set(queryKey, entry);
     return entry;
+  }
+
+  private onStoreChanged(touched: ReadonlySet<string>): void {
+    const store = getInMemoryStoreForDb(this.db);
+    const touchedArray = touched.size > 0 ? Array.from(touched) : null;
+    for (const entry of this.entries.values()) {
+      if (entry.listeners.size === 0) continue;
+      if (touchedArray !== null && this.shouldSkipEntry(entry.query, touchedArray)) {
+        continue;
+      }
+      const next = evaluateQuery(entry.query, store);
+      const prev = entry.result;
+      const { entities, patches } = reuseStableArrays(prev, next);
+      const nextResult: CachedQueryResult = {
+        query: next.query,
+        entities,
+        patches,
+        total: next.total,
+        hasMore: next.hasMore,
+        nextCursor: next.nextCursor,
+        isLoading: false,
+      };
+      if (resultsShallowEqual(prev, nextResult)) continue;
+      entry.result = nextResult;
+      for (const l of [...entry.listeners]) l();
+    }
+  }
+
+  private shouldSkipEntry(query: PatchDbQuery, touched: readonly string[]): boolean {
+    // If a query does not restrict entityType, any touched entity could affect it.
+    if (query.entityType === undefined || query.entityType === null || query.entityType === '') {
+      return false;
+    }
+    // If entityId is a single string, only re-eval when that exact key is touched.
+    if (typeof query.entityId === 'string') {
+      const key = `${query.entityType}\0${query.entityId}`;
+      return !touched.includes(key);
+    }
+    // Otherwise re-eval when any entity of that type is touched.
+    const prefix = `${query.entityType}\0`;
+    return !touched.some((k) => k.startsWith(prefix));
   }
 
   private teardown(entry: CacheEntry): void {
@@ -195,10 +217,6 @@ export class PatchDbQueryCache {
       'teardown called with active listeners',
       { queryKey: entry.queryKey }
     );
-    if (entry.unsubscribe !== null) {
-      entry.unsubscribe();
-      entry.unsubscribe = null;
-    }
     entry.teardownTimer = null;
     this.entries.delete(entry.queryKey);
   }

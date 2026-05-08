@@ -3,7 +3,11 @@ import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlit
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
 import type { PatchDbQuery } from '../interface';
+import { hydrateInMemoryStoreFromSqlite } from '../react/hydrate-in-memory-store';
+import { InMemoryEntityStore } from '../react/in-memory-entity-store';
+import { setInMemoryStoreForDb } from '../react/in-memory-store-registry';
 import { PatchDbQueryCache } from '../react/query-cache';
+import { PatchDbWriteThroughMirror } from '../react/write-through-mirror';
 import { SubscribablePatchDb } from '../subscribable';
 
 type SchedulerArg = {
@@ -49,7 +53,7 @@ async function flushMicrotasks(): Promise<void> {
 
 describe('PatchDbQueryCache', () => {
   let teardown: () => Promise<void>;
-  let db: SubscribablePatchDb;
+  let db: PatchDbWriteThroughMirror;
 
   beforeEach(async () => {
     const client = SqlClientImplBunSqlite.open(':memory:');
@@ -57,7 +61,11 @@ describe('PatchDbQueryCache', () => {
     const localDb = new PatchDbImplSqlite(client);
     await localDb.migrate();
     const pubSub = new InMemoryPubSub();
-    db = new SubscribablePatchDb(localDb, pubSub);
+    const base = new SubscribablePatchDb(localDb, pubSub);
+    const store = new InMemoryEntityStore();
+    await hydrateInMemoryStoreFromSqlite(localDb, store);
+    db = new PatchDbWriteThroughMirror(base, store);
+    setInMemoryStoreForDb(db, store);
     teardown = () => client.disconnect();
   });
 
@@ -65,7 +73,7 @@ describe('PatchDbQueryCache', () => {
     await teardown();
   });
 
-  test('starts with empty snapshot until first subscription delivery', async () => {
+  test('serves a synchronous snapshot immediately', async () => {
     const cache = new PatchDbQueryCache(db);
     const query: PatchDbQuery = { entityType: 'todo' };
     const queryKey = JSON.stringify(query);
@@ -73,20 +81,10 @@ describe('PatchDbQueryCache', () => {
     const initial = cache.getOrCreateResult(queryKey, query);
     expect(initial.entities).toEqual([]);
     expect(initial.total).toBe(0);
-    expect(initial.isLoading).toBe(true);
-
-    let snapshot = initial;
-    cache.subscribe(queryKey, query, () => {
-      snapshot = cache.getResult(queryKey)!;
-    });
-
-    await flushMicrotasks();
-    expect(snapshot.entities).toEqual([]);
-    expect(snapshot.total).toBe(0);
-    expect(snapshot.isLoading).toBe(false);
+    expect(initial.isLoading).toBe(false);
   });
 
-  test('first delivery flips isLoading even when no rows match', async () => {
+  test('no loading flag even when no rows match', async () => {
     const cache = new PatchDbQueryCache(db);
     const query: PatchDbQuery = {
       entityType: 'todo',
@@ -99,12 +97,9 @@ describe('PatchDbQueryCache', () => {
       notifications += 1;
     });
 
-    expect(cache.getResult(queryKey)?.isLoading).toBe(true);
-
-    await flushMicrotasks();
     expect(cache.getResult(queryKey)?.isLoading).toBe(false);
     expect(cache.getResult(queryKey)?.entities).toEqual([]);
-    expect(notifications).toBeGreaterThan(0);
+    expect(notifications).toBe(0);
   });
 
   test('shares one underlying subscription across multiple subscribers', async () => {
@@ -125,7 +120,6 @@ describe('PatchDbQueryCache', () => {
     await db.write([
       { entityId: 'a1', entityType: 'todo', attributes: { 'todo/n': 1 } },
     ]);
-    await flushMicrotasks();
 
     expect(calls.a).toBeGreaterThan(0);
     expect(calls.b).toBeGreaterThan(0);
@@ -144,7 +138,6 @@ describe('PatchDbQueryCache', () => {
     await db.write([
       { entityId: 'b1', entityType: 'todo', attributes: { 'todo/n': 1 } },
     ]);
-    await flushMicrotasks();
 
     const cached = cache.getResult(queryKey);
     expect(cached?.entities.length).toBe(1);
@@ -171,7 +164,6 @@ describe('PatchDbQueryCache', () => {
     await db.write([
       { entityId: 'c1', entityType: 'todo', attributes: { 'todo/n': 1 } },
     ]);
-    await flushMicrotasks();
 
     expect(cache.getResult(queryKey)?.entities.length).toBe(1);
 
@@ -215,7 +207,6 @@ describe('PatchDbQueryCache', () => {
     await db.write([
       { entityId: 'd1', entityType: 'todo', attributes: { 'todo/n': 1 } },
     ]);
-    await flushMicrotasks();
 
     const before = cache.getResult(queryKey);
     expect(before?.entities.length).toBe(1);
@@ -227,7 +218,6 @@ describe('PatchDbQueryCache', () => {
         attributes: { 'unrelated/n': 1 },
       },
     ]);
-    await flushMicrotasks();
 
     const after = cache.getResult(queryKey);
     expect(after).toBe(before);

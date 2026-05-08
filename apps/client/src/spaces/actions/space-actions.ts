@@ -28,9 +28,12 @@ async function readSpaceHostId(
   return typeof raw === 'string' && raw.length > 0 ? raw : null;
 }
 
-async function createSpaceAction(db: PatchDb, myId: string): Promise<string> {
+async function writeCreateSpaceAction(
+  db: PatchDb,
+  myId: string,
+  spaceId: string
+): Promise<void> {
   const now = isoNow();
-  const spaceId = crypto.randomUUID();
   await db.write([
     {
       entityId: spaceId,
@@ -41,7 +44,6 @@ async function createSpaceAction(db: PatchDb, myId: string): Promise<string> {
       },
     },
   ]);
-  return spaceId;
 }
 
 async function joinSpaceAction(
@@ -108,8 +110,11 @@ export function useSpaceActions() {
   const db = usePatchDb();
   const myId = useMyId();
 
-  const createSpace = useCallback(async () => {
-    return createSpaceAction(db, myId);
+  const createSpace = useCallback((): string => {
+    const spaceId = crypto.randomUUID();
+    // Navigate-first UX: do not block route transition on local write+fanout.
+    void writeCreateSpaceAction(db, myId, spaceId);
+    return spaceId;
   }, [db, myId]);
 
   const joinSpace = useCallback(

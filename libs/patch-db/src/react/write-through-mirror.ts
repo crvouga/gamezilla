@@ -7,15 +7,15 @@ import type {
 } from '../interface';
 import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
 import type { SubscribablePatchDbLike } from '../subscribable';
+import type { InMemoryEntityStore } from './in-memory-entity-store';
 
 /**
- * Decorator that delays `write()` resolution until active subscriptions have
- * refreshed their snapshots from the local DB.
+ * Decorator that keeps an {@link InMemoryEntityStore} in sync with writes.
  *
- * This is intended to reduce UI flicker for write-then-navigate flows by
- * ensuring subscribed query caches have settled before the caller continues.
+ * It applies patch inputs optimistically before persistence, then applies the
+ * accepted patches after the underlying write resolves.
  */
-export class PatchDbCacheWarmer implements SubscribablePatchDbLike {
+export class PatchDbWriteThroughMirror implements SubscribablePatchDbLike {
   readonly subscribe: SubscribablePatchDbLike['subscribe'];
 
   get hooks() {
@@ -28,7 +28,7 @@ export class PatchDbCacheWarmer implements SubscribablePatchDbLike {
 
   constructor(
     private readonly inner: SubscribablePatchDbLike,
-    private readonly flushPendingReads: () => Promise<void>
+    private readonly store: InMemoryEntityStore
   ) {
     this.subscribe = inner.subscribe;
   }
@@ -37,12 +37,10 @@ export class PatchDbCacheWarmer implements SubscribablePatchDbLike {
     patches: PatchInput[],
     ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<WritePatchesResult> {
+    // Optimistic: ensures navigate-first flows render synchronously from the store.
+    this.store.applyPatchInputs(patches);
     const result = await this.inner.write(patches, ctx);
-    try {
-      await this.flushPendingReads();
-    } catch {
-      // Best-effort only: writes must not fail due to cache warm errors.
-    }
+    this.store.applyAcceptedPatches(result.accepted);
     return result;
   }
 
