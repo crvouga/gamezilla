@@ -1,4 +1,4 @@
-import { ChessBoard } from '@gamezilla/client/spaces/games/chess/board';
+import { ChessBoard } from '@gamezilla/client/spaces/games/chess/chess-board';
 import { useSpaceDispatch } from '@gamezilla/client/spaces/room/use-space-room-selector';
 import {
   CHESS_MAIN_MENU_PUZZLE,
