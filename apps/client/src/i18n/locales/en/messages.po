@@ -367,6 +367,10 @@ msgstr "Background colors"
 #~ msgid "BAD ACTOR"
 #~ msgstr "BAD ACTOR"
 
+#: apps/client/src/spaces/games/chess/board/chess-board-promotion.tsx
+msgid "Bishop"
+msgstr "Bishop"
+
 #: apps/client/src/connection/server-status-screen.tsx
 msgid "Bluetooth"
 msgstr "Bluetooth"
@@ -403,6 +407,7 @@ msgstr "Build mode: {buildMode}"
 #: apps/client/src/auth/use-sign-out-confirmation.tsx
 #: apps/client/src/spaces/actions/end-space-confirm-modal.tsx
 #: apps/client/src/spaces/actions/leave-space-confirm-modal.tsx
+#: apps/client/src/spaces/games/chess/board/chess-board-promotion.tsx
 #: libs/lib/src/ui/components/modal/confirmation-modal.tsx
 #: libs/patch-db-example/src/todo/list/todo-list-delete-confirmation-modal.tsx
 #: libs/patch-db-example/src/todo/list/todo-lists-overview.tsx
@@ -446,6 +451,10 @@ msgstr "Chess"
 #: libs/lib/src/ui/components/picker/picker.tsx
 msgid "Choose"
 msgstr "Choose"
+
+#: apps/client/src/spaces/games/chess/board/chess-board-promotion.tsx
+msgid "Choose a piece to promote to."
+msgstr "Choose a piece to promote to."
 
 #: apps/client/src/auth/sign-in-modal-body.tsx
 msgid "Choose a sign-in method"
@@ -815,6 +824,10 @@ msgstr "Display name"
 msgid "Display name shown in the app"
 msgstr "Display name shown in the app"
 
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
+msgid "Drag or tap pieces to play the puzzle."
+msgstr "Drag or tap pieces to play the puzzle."
+
 #: libs/room-example/src/components/tic-tac-toe-board.tsx
 #~ msgid "Draw"
 #~ msgstr "Draw"
@@ -1056,6 +1069,10 @@ msgstr "Join this space to see who is here and hang out."
 #: apps/client/src/spaces/space-debug-modal.tsx
 #~ msgid "Joined at"
 #~ msgstr "Joined at"
+
+#: apps/client/src/spaces/games/chess/board/chess-board-promotion.tsx
+msgid "Knight"
+msgstr "Knight"
 
 #: apps/client/src/account/devices/account-device-meta-grid.tsx
 msgid "Last seen"
@@ -1591,6 +1608,10 @@ msgstr "Profile"
 #~ msgid "Projected trust — X:{projectedX} O:{projectedO} S:{projectedS}"
 #~ msgstr "Projected trust — X:{projectedX} O:{projectedO} S:{projectedS}"
 
+#: apps/client/src/spaces/games/chess/board/chess-board-promotion.tsx
+msgid "Promote pawn"
+msgstr "Promote pawn"
+
 #: apps/client/src/user/user-screen.tsx
 #~ msgid "Provider account id: {providerUserId}"
 #~ msgstr "Provider account id: {providerUserId}"
@@ -1604,6 +1625,10 @@ msgstr "Provider user id: {providerUserId}"
 #: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
 msgid "Puzzle"
 msgstr "Puzzle"
+
+#: apps/client/src/spaces/games/chess/board/chess-board-promotion.tsx
+msgid "Queen"
+msgstr "Queen"
 
 #: libs/patch-db-example/src/db-client/query-screen.tsx
 msgid "Query"
@@ -1717,6 +1742,10 @@ msgstr "Result"
 #: apps/client/src/spaces/space-debug-modal.tsx
 #~ msgid "Role"
 #~ msgstr "Role"
+
+#: apps/client/src/spaces/games/chess/board/chess-board-promotion.tsx
+msgid "Rook"
+msgstr "Rook"
 
 #: apps/client/src/spaces/debug/space-debug-room-section.tsx
 msgid "room"
@@ -2101,8 +2130,8 @@ msgid "This is a modal screen."
 msgstr "This is a modal screen."
 
 #: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
-msgid "This is a placeholder puzzle board."
-msgstr "This is a placeholder puzzle board."
+#~ msgid "This is a placeholder puzzle board."
+#~ msgstr "This is a placeholder puzzle board."
 
 #: apps/client/src/spaces/space-detail-screen.tsx
 #~ msgid "This space could not be found."
