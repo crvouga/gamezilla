@@ -22,4 +22,11 @@ module.exports = [
       'max-lines-per-function': 'off',
     },
   },
+  {
+    files: ['scripts/seed-chess-puzzles-reporter.ts'],
+    rules: {
+      complexity: 'off',
+      'max-lines-per-function': 'off',
+    },
+  },
 ];

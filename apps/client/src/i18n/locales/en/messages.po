@@ -340,6 +340,7 @@ msgstr "Avatar"
 msgid "Avatar style"
 msgstr "Avatar style"
 
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-picker.tsx
 #: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
 #: apps/client/src/spaces/games/main-menu-screen.tsx
 #: apps/client/src/spaces/join/space-back-button.tsx
@@ -354,6 +355,10 @@ msgstr "Back"
 #: apps/client/src/developer/modal-screen.tsx
 msgid "Back to Dev"
 msgstr "Back to Dev"
+
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
+msgid "Back to puzzle menu"
+msgstr "Back to puzzle menu"
 
 #: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx
 msgid "Background"
@@ -826,8 +831,12 @@ msgid "Display name shown in the app"
 msgstr "Display name shown in the app"
 
 #: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
-msgid "Drag or tap pieces to play the puzzle."
-msgstr "Drag or tap pieces to play the puzzle."
+#~ msgid "Drag or tap pieces to play the puzzle."
+#~ msgstr "Drag or tap pieces to play the puzzle."
+
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
+msgid "Drag or tap pieces. Play the solution line."
+msgstr "Drag or tap pieces. Play the solution line."
 
 #: libs/room-example/src/components/tic-tac-toe-board.tsx
 #~ msgid "Draw"
@@ -841,9 +850,21 @@ msgstr "Drag or tap pieces to play the puzzle."
 #~ msgid "e.g. {\"type\":\"=\",\"attribute\":\"todo/title\",\"value\":\"x\"}"
 #~ msgstr "e.g. {\"type\":\"=\",\"attribute\":\"todo/title\",\"value\":\"x\"}"
 
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-picker.tsx
+msgid "e.g. 1500"
+msgstr "e.g. 1500"
+
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-picker.tsx
+msgid "e.g. 2000"
+msgstr "e.g. 2000"
+
 #: libs/lib/src/ui/components/multi-select-swatch/multi-select-swatch-grid.tsx
 msgid "e.g. ff5733"
 msgstr "e.g. ff5733"
+
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-picker.tsx
+msgid "e.g. fork, mateIn2"
+msgstr "e.g. fork, mateIn2"
 
 #: apps/client/src/account/devices/account-devices-card.tsx
 msgid "Each install has its own device id. Tap a row for full details."
@@ -1055,6 +1076,10 @@ msgstr "Increment"
 msgid "Internet reachable: {reachable}"
 msgstr "Internet reachable: {reachable}"
 
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
+msgid "Invalid puzzle data"
+msgstr "Invalid puzzle data"
+
 #: libs/lib/src/ui/components/text-input/text-input.example.tsx
 msgid "John Doe"
 msgstr "John Doe"
@@ -1152,6 +1177,7 @@ msgstr "List name..."
 msgid "Live"
 msgstr "Live"
 
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-picker.tsx
 #: libs/patch-db-example/src/db-client/entities-screen.tsx
 msgid "Load more"
 msgstr "Load more"
@@ -1167,6 +1193,10 @@ msgstr "Loading entity…"
 #: apps/client/src/user/user-screen.tsx
 #~ msgid "Loading provider records…"
 #~ msgstr "Loading provider records…"
+
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
+msgid "Loading puzzle…"
+msgstr "Loading puzzle…"
 
 #: libs/patch-db-example/src/db-client/entities-screen.tsx
 msgid "Loading…"
@@ -1200,9 +1230,17 @@ msgstr "login"
 msgid "Matchmaking"
 msgstr "Matchmaking"
 
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-picker.tsx
+msgid "Max rating (optional)"
+msgstr "Max rating (optional)"
+
 #: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx
 msgid "Max rotation"
 msgstr "Max rotation"
+
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-picker.tsx
+msgid "Maximum rating"
+msgstr "Maximum rating"
 
 #: apps/client/src/spaces/debug/space-debug-members-section.tsx
 msgid "members"
@@ -1228,9 +1266,17 @@ msgstr "members"
 #~ msgid "Message Log"
 #~ msgstr "Message Log"
 
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-picker.tsx
+msgid "Min rating (optional)"
+msgstr "Min rating (optional)"
+
 #: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx
 msgid "Min rotation"
 msgstr "Min rotation"
+
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-picker.tsx
+msgid "Minimum rating"
+msgstr "Minimum rating"
 
 #: apps/client/src/account/devices/account-device-detail-screen.tsx
 msgid "Missing device id."
@@ -1371,6 +1417,10 @@ msgstr "No OAuth provider records on file for this user."
 msgid "No patches for this entity."
 msgstr "No patches for this entity."
 
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
+msgid "No puzzle selected"
+msgstr "No puzzle selected"
+
 #: libs/patch-db-example/src/db-client/entities-screen.tsx
 msgid "No rows match filter."
 msgstr "No rows match filter."
@@ -1382,6 +1432,11 @@ msgstr "No shapes yet"
 #: apps/client/src/spaces/spaces-screen.tsx
 #~ msgid "No spaces match this filter."
 #~ msgstr "No spaces match this filter."
+
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-picker.tsx
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
+msgid "No themes listed"
+msgstr "No themes listed"
 
 #: libs/patch-db-example/src/todo/list/todo-list-detail.tsx
 msgid "No todos yet. Add one above!"
@@ -1455,6 +1510,10 @@ msgstr "Open {componentName} example"
 msgid "Open command palette"
 msgstr "Open command palette"
 
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
+msgid "Open puzzle picker"
+msgstr "Open puzzle picker"
+
 #: apps/client/src/spaces/list/space-card-open-link.tsx
 msgid "Open space {resolvedTitle}"
 msgstr "Open space {resolvedTitle}"
@@ -1462,6 +1521,10 @@ msgstr "Open space {resolvedTitle}"
 #: apps/client/src/spaces/space-card.tsx
 #~ msgid "Open space {spaceTitle}"
 #~ msgstr "Open space {spaceTitle}"
+
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
+msgid "Open the picker to choose a puzzle from PatchDB."
+msgstr "Open the picker to choose a puzzle from PatchDB."
 
 #: apps/client/src/spaces/spaces-screen.tsx
 #~ msgid "Open your current space"
@@ -1548,6 +1611,10 @@ msgstr "People in this space"
 msgid "Pick a game to play."
 msgstr "Pick a game to play."
 
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-picker.tsx
+msgid "Pick a puzzle"
+msgstr "Pick a puzzle"
+
 #: apps/client/src/spaces/games/chess/puzzle/puzzle-main-menu.tsx
 msgid "Pick a puzzle mode."
 msgstr "Pick a puzzle mode."
@@ -1565,7 +1632,6 @@ msgid "Platform: {platformOs}"
 msgstr "Platform: {platformOs}"
 
 #: apps/client/src/spaces/games/chess/puzzle/puzzle-main-menu.tsx
-#: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
 msgid "Play"
 msgstr "Play"
 
@@ -1623,9 +1689,12 @@ msgstr "Provider user id: {providerUserId}"
 
 #: apps/client/src/spaces/games/chess/chess-main-menu.tsx
 #: apps/client/src/spaces/games/chess/puzzle/puzzle-main-menu.tsx
-#: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
 msgid "Puzzle"
 msgstr "Puzzle"
+
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
+msgid "Puzzle {puzzleId} · rating {rating}"
+msgstr "Puzzle {puzzleId} · rating {rating}"
 
 #: apps/client/src/spaces/games/chess/chess-board/chess-board-promotion.tsx
 msgid "Queen"
@@ -1639,6 +1708,10 @@ msgstr "Query"
 #: apps/client/src/profile/avatar-editor/avatar-editor-features-block.tsx
 msgid "Random"
 msgstr "Random"
+
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-picker.tsx
+msgid "Rating {rating} · popularity {popularity}"
+msgstr "Rating {rating} · popularity {popularity}"
 
 #: apps/client/src/spaces/space-debug-modal.tsx
 #~ msgid "Raw attributes"
@@ -1655,6 +1728,10 @@ msgstr "Read-only: OAuth identities stored for your account."
 #: apps/client/src/user/user-screen.tsx
 #~ msgid "Read-only: OAuth identities stored for your user."
 #~ msgstr "Read-only: OAuth identities stored for your user."
+
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
+msgid "Ready"
+msgstr "Ready"
 
 #: apps/client/src/spaces/space-counter-panel.tsx
 #~ msgid "Realtime counter will appear once this space is upgraded for multiplayer sync."
@@ -1722,6 +1799,10 @@ msgstr "Reset"
 #: libs/room-example/src/components/trust-election-section.tsx
 #~ msgid "Reset Preferences"
 #~ msgstr "Reset Preferences"
+
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
+msgid "Reset puzzle"
+msgstr "Reset puzzle"
 
 #: apps/client/src/spaces/space-debug-modal.tsx
 #~ msgid "Resolved title"
@@ -1793,6 +1874,10 @@ msgstr "Save"
 #: libs/patch-db-example/src/db-client/entity-types-screen.tsx
 msgid "Scanning snapshots…"
 msgstr "Scanning snapshots…"
+
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-picker.tsx
+msgid "Search by theme keyword and optional rating bounds. Data loads from PatchDB."
+msgstr "Search by theme keyword and optional rating bounds. Data loads from PatchDB."
 
 #: libs/lib/src/ui/components/picker/picker.tsx
 msgid "Select…"
@@ -1873,6 +1958,10 @@ msgstr "Shared counter"
 #: apps/client/src/ui/explorer/ui-explorer-screen.tsx
 msgid "Shared UI explorer"
 msgstr "Shared UI explorer"
+
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-picker.tsx
+msgid "Showing first {shownCount} by popularity"
+msgstr "Showing first {shownCount} by popularity"
 
 #: apps/client/src/profile/avatar-editor/avatar-editor-preview.tsx
 msgid "Shuffle seed"
@@ -1957,6 +2046,10 @@ msgstr "Singleton entity + server refresh"
 #: apps/client/src/profile/avatar-editor/avatar-editor-background-block.tsx
 msgid "Solid"
 msgstr "Solid"
+
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
+msgid "Solved"
+msgstr "Solved"
 
 #: apps/client/src/spaces/debug/space-debug-space-section.tsx
 msgid "space"
@@ -2101,6 +2194,14 @@ msgstr "The OS reports the device as offline, but the server is reachable. This 
 #: apps/client/src/settings/theme-screen.tsx
 msgid "Theme"
 msgstr "Theme"
+
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-picker.tsx
+msgid "Theme contains"
+msgstr "Theme contains"
+
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-picker.tsx
+msgid "Theme search"
+msgstr "Theme search"
 
 #: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "This deletes all local SQLite data and reloads the app. You cannot undo this."
@@ -2278,6 +2379,14 @@ msgstr "View profile"
 msgid "Waiting for metrics from server..."
 msgstr "Waiting for metrics from server..."
 
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
+msgid "Waiting for puzzle…"
+msgstr "Waiting for puzzle…"
+
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-picker.tsx
+msgid "Waiting for space sync…"
+msgstr "Waiting for space sync…"
+
 #: libs/patch-db-example/src/db-client/query-screen.tsx
 msgid "where (JSON, optional)"
 msgstr "where (JSON, optional)"
@@ -2309,6 +2418,10 @@ msgstr "Wipe local database?"
 #: libs/room-example/src/components/crypto-diagnostics-section.tsx
 #~ msgid "Wire auth failures: none"
 #~ msgstr "Wire auth failures: none"
+
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
+msgid "Wrong — try again"
+msgstr "Wrong — try again"
 
 #: libs/room-example/src/components/game-clock-section.tsx
 #~ msgid "X {remainingX}"
@@ -2367,6 +2480,10 @@ msgstr "Your changes are saved locally and will sync when you are back online."
 #: libs/lib/src/ui/components/text-input/text-input.example.tsx
 msgid "Your full name"
 msgstr "Your full name"
+
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
+msgid "Your move"
+msgstr "Your move"
 
 #: apps/client/src/profile/profile-username-screen.tsx
 msgid "Your name"

@@ -7,6 +7,7 @@ import {
 import type { HandleResult, RoomState } from '@gamezilla/room';
 
 import { CHESS_SCREEN, ChessMainMenuScreenAttr } from './chess/chess-main-menu';
+import { ChessPuzzleSessionAttr } from './chess/puzzle/chess-puzzle-session';
 
 export const SpaceGame = {
   chess: 'chess',
@@ -66,7 +67,11 @@ export const gamesEventReducer = createMessageRouter<
   const game = readSelectedSpaceGame(event.payload.game);
   let next = { ...state, ...GamesRoomAttr.selected(game) };
   if (game !== SpaceGame.chess) {
-    next = { ...next, ...ChessMainMenuScreenAttr.screen(CHESS_SCREEN.root) };
+    next = {
+      ...next,
+      ...ChessMainMenuScreenAttr.screen(CHESS_SCREEN.root),
+      ...ChessPuzzleSessionAttr.selectedPuzzleId(null),
+    };
   }
   return next;
 });

@@ -21,6 +21,12 @@ type CacheEntry = {
   result: CachedQueryResult;
   listeners: Set<Listener>;
   /**
+   * Registers this query with {@link SubscribablePatchDbLike.subscribe.entities}
+   * (e.g. {@link SyncPatchDb} active queries) so remote poll can fetch rows
+   * into local SQLite; UI still reads via the in-memory store + invalidation.
+   */
+  syncEntitiesUnsub: Unsubscribe | null;
+  /**
    * Pending teardown handle (opaque, scheduler-defined) set when refCount
    * drops to zero. Cancelled when a new subscriber re-attaches inside the
    * grace window so route flips and conditional renders don't tear down a
@@ -86,6 +92,12 @@ export class PatchDbQueryCache {
 
     entry.listeners.add(listener);
 
+    if (entry.syncEntitiesUnsub === null) {
+      entry.syncEntitiesUnsub = this.db.subscribe.entities(query, () => {
+        /* Sync layer drives local SQLite + hydrate; cache reacts via store. */
+      });
+    }
+
     if (this.storeUnsub === null) {
       const store = getInMemoryStoreForDb(this.db);
       this.storeUnsub = store.subscribe((touched) => {
@@ -146,6 +158,8 @@ export class PatchDbQueryCache {
         this.scheduler.clearTimeout(entry.teardownTimer);
         entry.teardownTimer = null;
       }
+      entry.syncEntitiesUnsub?.();
+      entry.syncEntitiesUnsub = null;
       entry.listeners.clear();
     }
     this.entries.clear();
@@ -164,6 +178,7 @@ export class PatchDbQueryCache {
         isLoading: false,
       },
       listeners: new Set(),
+      syncEntitiesUnsub: null,
       teardownTimer: null,
     };
     this.entries.set(queryKey, entry);
@@ -228,6 +243,8 @@ export class PatchDbQueryCache {
       { queryKey: entry.queryKey }
     );
     entry.teardownTimer = null;
+    entry.syncEntitiesUnsub?.();
+    entry.syncEntitiesUnsub = null;
     this.entries.delete(entry.queryKey);
   }
 }

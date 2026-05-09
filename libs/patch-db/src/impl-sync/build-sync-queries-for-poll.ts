@@ -3,6 +3,21 @@ import type { PatchDb, PatchDbQuery, PatchDbResult } from '../interface';
 import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
 import type { ActiveQuery } from './active-query-registry';
 
+/**
+ * Remote poll used to strip `limit`, which produced unbounded snapshot reads.
+ * PGlite HTTP and hosted Postgres reject or fail those (e.g. HTTP 400) on large
+ * reference tables such as `chess.puzzle`.
+ */
+export const SYNC_POLL_REMOTE_ENTITY_ROW_CAP = 10_000;
+
+function remotePollSnapshotLimit(query: PatchDbQuery): number {
+  const raw = query.limit;
+  if (raw === undefined || raw === null) {
+    return SYNC_POLL_REMOTE_ENTITY_ROW_CAP;
+  }
+  return Math.min(raw, SYNC_POLL_REMOTE_ENTITY_ROW_CAP);
+}
+
 function stripPagination(query: PatchDbQuery): PatchDbQuery {
   const { limit: _limit, offset: _offset, ...rest } = query;
   return rest;
@@ -70,6 +85,7 @@ function stitchSyncQueriesFromPollPasses(
     assert.defined(localResult, 'localResult must exist');
     syncQueries.push({
       ...queryWithoutPagination,
+      limit: remotePollSnapshotLimit(query),
       knownPatches: localResult.patches,
     });
     const tracked = trackedBySource.get(i);

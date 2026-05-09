@@ -9,6 +9,7 @@ import type { HandleResult, RoomState } from '@gamezilla/room';
 export const CHESS_SCREEN = {
   root: 'root',
   puzzle: 'puzzle',
+  puzzlePicker: 'puzzle-picker',
   puzzlePlay: 'puzzle-play',
 };
 
@@ -17,6 +18,7 @@ export type ChessMainMenuScreen =
 
 function readChessMainMenuScreen(v: unknown): ChessMainMenuScreen {
   if (v === CHESS_SCREEN.puzzle) return CHESS_SCREEN.puzzle;
+  if (v === CHESS_SCREEN.puzzlePicker) return CHESS_SCREEN.puzzlePicker;
   if (v === CHESS_SCREEN.puzzlePlay) return CHESS_SCREEN.puzzlePlay;
   return CHESS_SCREEN.root;
 }
@@ -37,6 +39,7 @@ function validateSetChessMainMenuScreenPayload(
   return (
     s === CHESS_SCREEN.root ||
     s === CHESS_SCREEN.puzzle ||
+    s === CHESS_SCREEN.puzzlePicker ||
     s === CHESS_SCREEN.puzzlePlay
   );
 }

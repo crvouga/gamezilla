@@ -1,7 +1,10 @@
 import type { PatchDb, PatchDbQuery, PatchDbResult } from '../interface';
 import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
 
-export { buildSyncQueriesForPoll } from './build-sync-queries-for-poll';
+export {
+  buildSyncQueriesForPoll,
+  SYNC_POLL_REMOTE_ENTITY_ROW_CAP,
+} from './build-sync-queries-for-poll';
 
 export async function mergeRemotePatchesIntoLocal(
   local: PatchDb,

@@ -22,9 +22,11 @@ async function main(): Promise<void> {
   const sqlClient = createSqlClient(databaseUrl);
   const log = createLogger({ name: 'db:migrate' });
   await runPostgresMigrations({ sqlClient, logger: log });
-  log.info('postgres migrations finished (patch-db + kv up, entity-db down)');
+  log.info(
+    'postgres migrations finished (patch-db + better-auth + kv; legacy entities dropped if present)'
+  );
   process.stdout.write(
-    '[db:migrate] completed (patch-db + kv up, entity-db down)\n'
+    '[db:migrate] completed (patch-db + better-auth + kv; legacy entities dropped if present)\n'
   );
 }
 

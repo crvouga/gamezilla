@@ -11,7 +11,7 @@ export const STRIPE_PATCH_DB_SCRIPT_CONTEXT: PatchDbSystemContext = {
 
 /**
  * Patch-db for scripts: tight compaction (`keepLatest: 1`) so each entity behaves
- * like a single-row entity-db snapshot after writes.
+ * like a single-row snapshot after writes.
  */
 export function createStripeScriptPatchDb(
   sqlClient: SqlClient

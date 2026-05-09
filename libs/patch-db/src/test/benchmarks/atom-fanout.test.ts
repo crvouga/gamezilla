@@ -6,7 +6,10 @@ import {
   shouldSkipTargetedEntityReread,
   type ActiveQuery,
 } from '../../impl-sync/active-query-registry';
-import { buildSyncQueriesForPoll } from '../../impl-sync/impl-sync-poll-helpers';
+import {
+  buildSyncQueriesForPoll,
+  SYNC_POLL_REMOTE_ENTITY_ROW_CAP,
+} from '../../impl-sync/impl-sync-poll-helpers';
 import { createPatchDbReadBatcher } from '../../scheduling/microtask-batcher';
 
 function emptyResult(q: PatchDbQuery): PatchDbResult {
@@ -149,6 +152,64 @@ describe('buildSyncQueriesForPoll', () => {
       }),
     ]);
     expect(call).toBe(2);
+  });
+
+  test('poll sync query adds row cap when active query has no limit', async () => {
+    const inner = createCountingPatchDb();
+    const mk = (q: PatchDbQuery): ActiveQuery => ({
+      query: q,
+      listeners: new Set(),
+      lastResult: null,
+      inFlight: null,
+      rerunPending: false,
+      hydratedEmptyFired: false,
+      pubSubUnsub: null,
+    });
+    const syncQs = await buildSyncQueriesForPoll(inner, [
+      mk({
+        entityType: 'chess.puzzle',
+        orderBy: [{ attribute: 'chess.puzzle/popularity', direction: 'desc' }],
+      }),
+    ]);
+    expect(syncQs[0]?.limit).toBe(SYNC_POLL_REMOTE_ENTITY_ROW_CAP);
+  });
+
+  test('poll sync query preserves client limit when under cap', async () => {
+    const inner = createCountingPatchDb();
+    const mk = (q: PatchDbQuery): ActiveQuery => ({
+      query: q,
+      listeners: new Set(),
+      lastResult: null,
+      inFlight: null,
+      rerunPending: false,
+      hydratedEmptyFired: false,
+      pubSubUnsub: null,
+    });
+    const syncQs = await buildSyncQueriesForPoll(inner, [
+      mk({
+        entityType: 'chess.puzzle',
+        orderBy: [{ attribute: 'chess.puzzle/popularity', direction: 'desc' }],
+        limit: 50,
+      }),
+    ]);
+    expect(syncQs[0]?.limit).toBe(50);
+  });
+
+  test('poll sync query clamps client limit above cap', async () => {
+    const inner = createCountingPatchDb();
+    const mk = (q: PatchDbQuery): ActiveQuery => ({
+      query: q,
+      listeners: new Set(),
+      lastResult: null,
+      inFlight: null,
+      rerunPending: false,
+      hydratedEmptyFired: false,
+      pubSubUnsub: null,
+    });
+    const syncQs = await buildSyncQueriesForPoll(inner, [
+      mk({ entityType: 'chess.puzzle', limit: 999_999 }),
+    ]);
+    expect(syncQs[0]?.limit).toBe(SYNC_POLL_REMOTE_ENTITY_ROW_CAP);
   });
 });
 

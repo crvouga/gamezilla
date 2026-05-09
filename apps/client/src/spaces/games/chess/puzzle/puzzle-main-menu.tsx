@@ -15,15 +15,15 @@ export function PuzzleMainMenu(): ReactNode {
   const backToChessRoot = useCallback(() => {
     dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }));
   }, [dispatch]);
-  const openPuzzlePlay = useCallback(() => {
-    dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.puzzlePlay }));
+  const openPuzzlePicker = useCallback(() => {
+    dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.puzzlePicker }));
   }, [dispatch]);
 
   const items: readonly MainMenuItem[] = [
     {
       key: 'play',
       title: <Trans>Play</Trans>,
-      onPress: openPuzzlePlay,
+      onPress: openPuzzlePicker,
     },
     {
       key: 'profile',

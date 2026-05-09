@@ -26,6 +26,13 @@ import {
   chessMainMenuEventReducer,
 } from './games/chess/chess-main-menu';
 import {
+  ChessPuzzleSessionAttr,
+  chessPuzzleSessionCmdNs,
+  chessPuzzleSessionCommandRouter,
+  chessPuzzleSessionEventReducer,
+  chessPuzzleSessionEvtNs,
+} from './games/chess/puzzle/chess-puzzle-session';
+import {
   GamesRoomAttr,
   gamesCmdNs,
   gamesCommandRouter,
@@ -56,6 +63,10 @@ const spaceCommandRouter = createComposedMessageRouter<
   { namespace: counterCmdNs, router: counterCommandRouter },
   { namespace: gamesCmdNs, router: gamesCommandRouter },
   { namespace: chessCmdNs, router: chessMainMenuCommandRouter },
+  {
+    namespace: chessPuzzleSessionCmdNs,
+    router: chessPuzzleSessionCommandRouter,
+  },
 ]);
 
 const spaceEventReducer = createComposedMessageRouter<
@@ -66,6 +77,10 @@ const spaceEventReducer = createComposedMessageRouter<
   { namespace: counterEvtNs, router: counterEventReducer },
   { namespace: gamesEvtNs, router: gamesEventReducer },
   { namespace: chessEvtNs, router: chessMainMenuEventReducer },
+  {
+    namespace: chessPuzzleSessionEvtNs,
+    router: chessPuzzleSessionEventReducer,
+  },
 ]);
 
 /**
@@ -80,6 +95,7 @@ export const SpaceModule: RoomModule<RoomState, unknown, unknown, string> = {
       ...CounterRoomAttr.count(0),
       ...GamesRoomAttr.selected(null),
       ...ChessMainMenuScreenAttr.screen(CHESS_SCREEN.root),
+      ...ChessPuzzleSessionAttr.selectedPuzzleId(null),
     };
   },
 

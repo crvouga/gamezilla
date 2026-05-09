@@ -9,20 +9,11 @@
  * Production (Doppler `prod`, `DB_URL` → Postgres):
  *   DOPPLER_CONFIG=prod doppler run -- bun run --filter @gamezilla/db seed:puzzles
  *
- * Options: `--source`, `--cache-dir`, `--batch-size`, `--limit`, `--no-resume`, `--dry-run`
- * (see `parseCli()`).
+ * Options: `--source`, `--cache-dir`, `--batch-size`, `--limit`, `--no-resume`, `--dry-run`,
+ * `--json` (one JSON log line per event), `--pretty` / `--no-pretty` (TTY progress styling).
+ * Default: colored progress on stderr when stderr is a TTY and `CI` is unset.
  */
 
-import { createHash } from 'node:crypto';
-import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { parseArgs } from 'node:util';
-import { assert } from '@gamezilla/lib/assert';
-import { createLogger } from '@gamezilla/lib/logger';
-import { SqlClientImplPgliteHttp } from '@gamezilla/lib/sql-client/impl-pglite-http';
-import { SqlClientImplPlanetScalePostgres } from '@gamezilla/lib/sql-client/impl-planetscale-postgres';
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
-import { createDopplerSecretStoreForScripts } from '@gamezilla/lib/secret-store';
 import {
   CHESS_PUZZLE_ENTITY_TYPE,
   CHESS_PUZZLE_LOAD_ENTITY_ID,
@@ -30,6 +21,12 @@ import {
   ChessPuzzleAttr,
   ChessPuzzleLoadAttr,
 } from '@gamezilla/domain/spaces/games/chess/puzzle/chess-puzzle-entities';
+import { assert } from '@gamezilla/lib/assert';
+import { createLogger } from '@gamezilla/lib/logger';
+import { createDopplerSecretStoreForScripts } from '@gamezilla/lib/secret-store';
+import { SqlClientImplPgliteHttp } from '@gamezilla/lib/sql-client/impl-pglite-http';
+import { SqlClientImplPlanetScalePostgres } from '@gamezilla/lib/sql-client/impl-planetscale-postgres';
+import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
 import {
   PATCHES_DB_SYSTEM_CONTEXT,
@@ -37,10 +34,16 @@ import {
   type PatchInput,
 } from '@gamezilla/patch-db/interface';
 import { PatchDbCompactionPolicyRegistry } from '@gamezilla/patch-db/policy/compaction-policy';
+import { createHash } from 'node:crypto';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
 import { runPostgresMigrations } from '../src/postgres-migrations';
+import { createPuzzleSeedReporter } from './seed-chess-puzzles-reporter.ts';
 import {
   ensureCachedArchive,
   iteratePuzzleRows,
+  type IteratePuzzleRowsOptions,
 } from './seed-chess-puzzles-streaming.ts';
 
 const DEFAULT_PUZZLE_URL =
@@ -80,6 +83,8 @@ type Cli = {
   limit: number | null;
   noResume: boolean;
   dryRun: boolean;
+  /** Colored stderr progress + concise phases (vs JSON lines). */
+  prettyOutput: boolean;
 };
 
 function parseCli(argv: string[]): Cli {
@@ -92,6 +97,9 @@ function parseCli(argv: string[]): Cli {
       limit: { type: 'string' },
       'no-resume': { type: 'boolean', default: false },
       'dry-run': { type: 'boolean', default: false },
+      json: { type: 'boolean', default: false },
+      pretty: { type: 'boolean', default: false },
+      'no-pretty': { type: 'boolean', default: false },
     },
     strict: false,
     allowPositionals: false,
@@ -118,6 +126,18 @@ function parseCli(argv: string[]): Cli {
           return n;
         })();
 
+  const jsonLogs = values.json === true;
+  const stderr = process.stderr as NodeJS.WriteStream & { isTTY?: boolean };
+  const ttyPretty =
+    stderr.isTTY === true &&
+    process.env['CI'] !== 'true' &&
+    process.env['CI'] !== '1';
+  let prettyOutput = false;
+  if (jsonLogs) prettyOutput = false;
+  else if (values['no-pretty'] === true) prettyOutput = false;
+  else if (values.pretty === true) prettyOutput = true;
+  else prettyOutput = ttyPretty;
+
   return {
     source:
       (typeof values.source === 'string' ? values.source.trim() : '') ||
@@ -130,6 +150,18 @@ function parseCli(argv: string[]): Cli {
     limit,
     noResume: values['no-resume'] === true,
     dryRun: values['dry-run'] === true,
+    prettyOutput,
+  };
+}
+
+function iterateProgressOptions(
+  reporter: ReturnType<typeof createPuzzleSeedReporter>
+): IteratePuzzleRowsOptions {
+  return {
+    onParsedRowCount: ({ parsedRows }) => {
+      reporter.parseProgress(parsedRows);
+    },
+    progressEveryDataRows: 25_000,
   };
 }
 
@@ -272,27 +304,65 @@ function loadProgressPatchInput(args: {
 async function main(): Promise<void> {
   const cli = parseCli(process.argv.slice(2));
   const log = createLogger({ name: 'db:seed-puzzles' });
+  const reporter = createPuzzleSeedReporter({
+    pretty: cli.prettyOutput,
+    logger: log,
+  });
 
+  reporter.phase('Lichess puzzle seed', {
+    source: cli.source,
+    cacheDir: cli.cacheDir,
+    batchSize: cli.batchSize,
+    limit: cli.limit,
+    dryRun: cli.dryRun,
+    prettyOutput: cli.prettyOutput,
+  });
+
+  reporter.phase('Resolve puzzle archive (HEAD / cache / download)', {
+    cacheDir: cli.cacheDir,
+  });
   const resolved = await ensureCachedArchive({
     source: cli.source,
     cacheDir: cli.cacheDir,
     log,
+    onDownloadProgress: (p) => {
+      reporter.downloadProgress(p);
+    },
+  });
+  reporter.endDownloadProgressLine();
+
+  reporter.phase('Archive ready', {
+    path: resolved.localPath,
+    isZst: resolved.isZst,
+    etagPreview:
+      resolved.etag.length > 48
+        ? `${resolved.etag.slice(0, 48)}…`
+        : resolved.etag,
   });
 
   if (cli.dryRun) {
-    log.info('seed:puzzles: dry-run (parse only, no database)', {
+    reporter.phase('Dry run — parse CSV only (no database writes)', {
       path: resolved.localPath,
     });
     let n = 0;
-    await iteratePuzzleRows(resolved, async (row) => {
-      if (rowToPatch(row) === null) return true;
-      n += 1;
-      return cli.limit === null || n < cli.limit;
-    });
-    log.info('seed:puzzles: dry-run complete', { rowsSeen: n });
+    try {
+      await iteratePuzzleRows(
+        resolved,
+        async (row) => {
+          if (rowToPatch(row) === null) return true;
+          n += 1;
+          return cli.limit === null || n < cli.limit;
+        },
+        iterateProgressOptions(reporter)
+      );
+    } finally {
+      reporter.endParseProgressLine();
+    }
+    reporter.phase('Dry run complete', { validPuzzleRowsSeen: n });
     return;
   }
 
+  reporter.phase('Connect database & run migrations');
   const databaseUrl = await resolveDatabaseUrlFromDoppler();
   const sqlClient = createSqlClient(databaseUrl);
   await sqlClient.connect();
@@ -308,7 +378,7 @@ async function main(): Promise<void> {
       prior.finishedAt.length > 0 &&
       prior.sourceEtag === resolved.etag
     ) {
-      log.info('seed:puzzles: already complete for this source fingerprint', {
+      reporter.phase('Already complete for this source fingerprint — exiting', {
         etag: resolved.etag,
         finishedAt: prior.finishedAt,
       });
@@ -317,6 +387,12 @@ async function main(): Promise<void> {
 
     const resumeCursor =
       cli.noResume || prior.sourceEtag !== resolved.etag ? null : prior.cursor;
+
+    if (resumeCursor !== null) {
+      reporter.phase('Resume from saved cursor', {
+        resumeAfterPuzzleId: resumeCursor,
+      });
+    }
 
     let processed = 0;
     let written = 0;
@@ -343,7 +419,7 @@ async function main(): Promise<void> {
         );
       }
       const ms = Math.round(performance.now() - chunkStart);
-      log.info('seed:puzzles: batch', {
+      reporter.batchSummary('seed:puzzles: batch', {
         processed,
         written,
         batchMs: ms,
@@ -351,23 +427,34 @@ async function main(): Promise<void> {
       });
     };
 
-    await iteratePuzzleRows(resolved, async (row) => {
-      if (resumeCursor !== null) {
-        const id = String(row['PuzzleId'] ?? '').trim();
-        if (id.length > 0 && id.localeCompare(resumeCursor) <= 0) {
-          return true;
-        }
-      }
-      const patch = rowToPatch(row);
-      if (patch === null) return true;
-      batch.push(patch);
-      processed += 1;
-      lastPuzzleId = String(patch.attributes[ChessPuzzleAttr.id.key]);
-      if (batch.length >= cli.batchSize) {
-        await flushPuzzleBatch();
-      }
-      return cli.limit === null || processed < cli.limit;
+    reporter.phase('Stream puzzles into PatchDB', {
+      batchSize: cli.batchSize,
     });
+    try {
+      await iteratePuzzleRows(
+        resolved,
+        async (row) => {
+          if (resumeCursor !== null) {
+            const id = String(row['PuzzleId'] ?? '').trim();
+            if (id.length > 0 && id.localeCompare(resumeCursor) <= 0) {
+              return true;
+            }
+          }
+          const patch = rowToPatch(row);
+          if (patch === null) return true;
+          batch.push(patch);
+          processed += 1;
+          lastPuzzleId = String(patch.attributes[ChessPuzzleAttr.id.key]);
+          if (batch.length >= cli.batchSize) {
+            await flushPuzzleBatch();
+          }
+          return cli.limit === null || processed < cli.limit;
+        },
+        iterateProgressOptions(reporter)
+      );
+    } finally {
+      reporter.endParseProgressLine();
+    }
 
     await flushPuzzleBatch();
 
@@ -382,11 +469,14 @@ async function main(): Promise<void> {
       PATCHES_DB_SYSTEM_CONTEXT
     );
 
-    log.info('seed:puzzles: done', {
+    reporter.phase('seed:puzzles: done', {
       processed,
       written,
       totalMs: Math.round(performance.now() - t0),
-      etag: resolved.etag,
+      etagPreview:
+        resolved.etag.length > 48
+          ? `${resolved.etag.slice(0, 48)}…`
+          : resolved.etag,
     });
   } finally {
     await sqlClient.disconnect();

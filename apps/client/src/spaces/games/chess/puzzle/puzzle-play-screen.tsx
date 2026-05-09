@@ -1,15 +1,35 @@
 import { ChessBoard } from '@gamezilla/client/spaces/games/chess/chess-board';
-import { useSpaceDispatch } from '@gamezilla/client/spaces/room/use-space-room-selector';
+import {
+  CHESS_PUZZLE_ENTITY_TYPE,
+  ChessPuzzleAttr,
+} from '@gamezilla/domain/spaces/games/chess/puzzle/chess-puzzle-entities';
 import {
   CHESS_SCREEN,
   SetChessMainMenuScreen,
 } from '@gamezilla/domain/spaces/games/chess/chess-main-menu';
-import { Box, IconButton, IconSymbol, Text, useTheme } from '@gamezilla/lib/ui';
+import {
+  ChessPuzzleSessionAttr,
+  SelectChessPuzzle,
+} from '@gamezilla/domain/spaces/games/chess/puzzle/chess-puzzle-session';
+import {
+  Box,
+  Card,
+  IconButton,
+  IconSymbol,
+  Pressable,
+  Text,
+  useTheme,
+} from '@gamezilla/lib/ui';
+import { useEntityAttribute } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useCallback, type ReactNode } from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
+import {
+  useSpaceDispatch,
+  useSpaceSelector,
+} from '../../../room/use-space-room-selector';
 
-const SAMPLE_PUZZLE_FEN =
-  'r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3' as const;
+import type { SolveStatus } from './use-puzzle-solver';
+import { usePuzzleSolver } from './use-puzzle-solver';
 
 const BOARD_MAX_WIDTH = 720;
 const BACK_BUTTON_SIZE = 40;
@@ -46,12 +66,95 @@ function BackButtonRow({ onPress }: { onPress: () => void }): ReactNode {
   );
 }
 
-export function PuzzlePlayScreen(): ReactNode {
+function EmptyPickPuzzle(): ReactNode {
   const dispatch = useSpaceDispatch();
-
-  const backToPuzzleMenu = useCallback(() => {
+  const theme = useTheme();
+  const openPicker = useCallback(() => {
+    dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.puzzlePicker }));
+  }, [dispatch]);
+  const backMenu = useCallback(() => {
     dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.puzzle }));
   }, [dispatch]);
+
+  return (
+    <Box sx={{ alignSelf: 'stretch', gap: 4, px: 4, pt: 4 }}>
+      <Text
+        variant="title"
+        sx={{ textAlign: 'center' }}
+        label={<Trans>No puzzle selected</Trans>}
+      />
+      <Text
+        variant="body"
+        sx={{ color: 'textSecondary', textAlign: 'center' }}
+        label={<Trans>Open the picker to choose a puzzle from PatchDB.</Trans>}
+      />
+      <Pressable onPress={openPicker}>
+        <Card elevation={0} sx={{ py: 4, alignItems: 'center' }}>
+          <Text variant="body" label={<Trans>Open puzzle picker</Trans>} />
+        </Card>
+      </Pressable>
+      <Pressable onPress={backMenu}>
+        <Card elevation={0} sx={{ py: 4, alignItems: 'center' }}>
+          <Text
+            variant="body"
+            sx={{ color: theme.colors.textSecondary }}
+            label={<Trans>Back to puzzle menu</Trans>}
+          />
+        </Card>
+      </Pressable>
+    </Box>
+  );
+}
+
+function statusLabelNode(status: SolveStatus): ReactNode {
+  if (status === 'loading') return <Trans>Loading puzzle…</Trans>;
+  if (status === 'solving') return <Trans>Your move</Trans>;
+  if (status === 'wrong') return <Trans>Wrong — try again</Trans>;
+  if (status === 'solved') return <Trans>Solved</Trans>;
+  if (status === 'invalid') return <Trans>Invalid puzzle data</Trans>;
+  return <Trans>Ready</Trans>;
+}
+
+function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
+  const dispatch = useSpaceDispatch();
+  const fen = useEntityAttribute(
+    CHESS_PUZZLE_ENTITY_TYPE,
+    puzzleId,
+    ChessPuzzleAttr.fen
+  );
+  const movesStr = useEntityAttribute(
+    CHESS_PUZZLE_ENTITY_TYPE,
+    puzzleId,
+    ChessPuzzleAttr.moves
+  );
+  const rating = useEntityAttribute(
+    CHESS_PUZZLE_ENTITY_TYPE,
+    puzzleId,
+    ChessPuzzleAttr.rating
+  );
+  const themes = useEntityAttribute(
+    CHESS_PUZZLE_ENTITY_TYPE,
+    puzzleId,
+    ChessPuzzleAttr.themes
+  );
+
+  const [resetNonce, setResetNonce] = useState(0);
+  const { displayFen, boardKey, status, orientation, onMove } = usePuzzleSolver(
+    {
+      fen,
+      movesStr,
+      puzzleId,
+      resetNonce,
+    }
+  );
+
+  const backToPuzzleMenu = useCallback(() => {
+    dispatch(SelectChessPuzzle({ puzzleId: null }));
+    dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.puzzle }));
+  }, [dispatch]);
+
+  const themesLine =
+    themes.length > 0 ? themes.slice(0, 6).join(', ') : undefined;
 
   return (
     <Box sx={{ alignSelf: 'stretch' }}>
@@ -63,6 +166,7 @@ export function PuzzlePlayScreen(): ReactNode {
           maxWidth: BOARD_MAX_WIDTH,
           gap: 4,
           pb: 8,
+          px: 4,
         }}
         style={{ width: '100%' }}
       >
@@ -70,30 +174,77 @@ export function PuzzlePlayScreen(): ReactNode {
           <Text
             variant="title"
             sx={{ textAlign: 'center' }}
-            label={<Trans>Puzzle</Trans>}
+            label={
+              <Trans>
+                Puzzle {puzzleId} · rating {rating}
+              </Trans>
+            }
           />
+          {themesLine !== undefined ? (
+            <Text
+              variant="caption"
+              sx={{ color: 'textSecondary', textAlign: 'center' }}
+              label={themesLine}
+            />
+          ) : (
+            <Text
+              variant="caption"
+              sx={{ color: 'textSecondary', textAlign: 'center' }}
+              label={<Trans>No themes listed</Trans>}
+            />
+          )}
           <Text
             variant="body"
-            sx={{ color: 'textSecondary', textAlign: 'center', opacity: 0.75 }}
-            label={<Trans>Play</Trans>}
+            sx={{ textAlign: 'center', opacity: 0.9 }}
+            label={statusLabelNode(status)}
           />
         </Box>
 
-        <ChessBoard
-          fen={SAMPLE_PUZZLE_FEN}
-          orientation="white"
-          interactive
-          showCoordinates
-          highlightLastMove
-          highlightLegalMoves
-        />
+        {displayFen !== null ? (
+          <ChessBoard
+            key={boardKey}
+            fen={displayFen}
+            orientation={orientation}
+            interactive={status === 'solving' || status === 'wrong'}
+            onMove={onMove}
+            showCoordinates
+            highlightLastMove
+            highlightLegalMoves
+          />
+        ) : (
+          <Text variant="body" label={<Trans>Waiting for puzzle…</Trans>} />
+        )}
+
+        <Pressable
+          onPress={() => {
+            setResetNonce((n) => n + 1);
+          }}
+        >
+          <Card elevation={0} sx={{ py: 3, alignItems: 'center' }}>
+            <Text variant="body" label={<Trans>Reset puzzle</Trans>} />
+          </Card>
+        </Pressable>
 
         <Text
           variant="caption"
           sx={{ color: 'textSecondary', textAlign: 'center' }}
-          label={<Trans>Drag or tap pieces to play the puzzle.</Trans>}
+          label={<Trans>Drag or tap pieces. Play the solution line.</Trans>}
         />
       </Box>
     </Box>
   );
+}
+
+export function PuzzlePlayScreen(): ReactNode {
+  const selectedId = useSpaceSelector(
+    ChessPuzzleSessionAttr.selectedPuzzleId.from
+  );
+  if (selectedId === null) {
+    return (
+      <Box sx={{ alignSelf: 'stretch' }}>
+        <EmptyPickPuzzle />
+      </Box>
+    );
+  }
+  return <PuzzlePlayer puzzleId={selectedId} />;
 }
