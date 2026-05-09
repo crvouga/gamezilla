@@ -36,6 +36,9 @@ export const WRAPPER_PID_FILE: string = resolve(RUN_DIR, 'wrapper.pid');
 /** Postmaster log (pg server stderr/stdout). */
 export const LOG_FILE: string = resolve(RUN_DIR, 'postgres.log');
 
+/** pgweb GUI sidecar log (stdout/stderr from the spawned pgweb process). */
+export const GUI_LOG_FILE: string = resolve(RUN_DIR, 'pgweb.log');
+
 /**
  * Resolve a possibly-relative path from a `PG_*` env var into an absolute path
  * rooted at the app dir. Lets developers do `PG_DATA_DIR=./scratch` without

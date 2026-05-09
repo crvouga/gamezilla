@@ -1,5 +1,6 @@
 import { BunDep } from './bun';
 import { DopplerDep } from './doppler';
+import { PgwebDep } from './pgweb';
 import { PostgresDep } from './postgres';
 import { StripeDep } from './stripe';
 import type { Dep } from './types';
@@ -11,4 +12,5 @@ export const ALL_DEPS: readonly Dep[] = [
   new DopplerDep(),
   new StripeDep(),
   new PostgresDep(),
+  new PgwebDep(),
 ];

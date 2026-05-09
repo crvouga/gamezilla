@@ -407,6 +407,22 @@ jobs:
             | tar -xz -C /usr/local/bin stripe
           stripe version
 
+      # `infra deploy` hard-checks local Postgres tooling (`postgres`,
+      # `pg_ctl`, `initdb`, `pg_isready`). On GitHub-hosted Ubuntu runners
+      # these binaries are installed under `/usr/lib/postgresql/*/bin` and
+      # are not guaranteed to be on PATH by default.
+      - name: Install PostgreSQL binaries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql
+          PG_BIN_DIR="$(find /usr/lib/postgresql -maxdepth 2 -mindepth 2 -type d -name bin 2>/dev/null | sort -V | tail -n 1)"
+          echo "PG_BIN_DIR=$PG_BIN_DIR" >> "$GITHUB_ENV"
+          echo "$PG_BIN_DIR" >> "$GITHUB_PATH"
+          postgres --version
+          pg_ctl --version
+          initdb --version
+          pg_isready --version
+
       - name: Deploy
         id: deploy
         timeout-minutes: 45

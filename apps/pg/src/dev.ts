@@ -6,16 +6,22 @@
  * Ctrl-C) are translated into a graceful `pg_ctl stop -m fast`, falling back
  * to escalated signals on the recorded postmaster PID if needed.
  *
+ * Also auto-starts the [pgweb](https://github.com/sosedoff/pgweb) GUI as a
+ * sibling foreground child, pre-connected to the local DB. The GUI is a
+ * developer convenience: missing binary or boot failure logs a warning and
+ * lets the cluster keep running.
+ *
  * Lifecycle invariants (the things that prevent orphans / wedged clusters):
  *
- * - The postmaster is spawned as a direct child in our process group; if our
- *   wrapper exits abnormally, the OS sends SIGHUP to the group and the
- *   cluster shuts down with us.
+ * - The postmaster + pgweb are spawned as direct children in our process
+ *   group; if our wrapper exits abnormally, the OS sends SIGHUP to the group
+ *   and they shut down with us.
  * - On stale `postmaster.pid` (recorded PID is dead), we reconcile *before*
  *   trying to start, so a previous abrupt exit doesn't permanently wedge
  *   `dev`.
  * - The shutdown handler is single-flight and idempotent; double Ctrl-C does
- *   not race.
+ *   not race. Shutdown order is GUI -> cluster -> wrapper.pid cleanup so the
+ *   GUI never queries a closed DB.
  * - We write a wrapper PID file so `kill.ts` can target *our* wrapper without
  *   depending on "whatever is on port 5432".
  */
@@ -25,6 +31,7 @@ import { assert } from '@gamezilla/lib/assert';
 import { createLogger } from '@gamezilla/lib/logger';
 import {
   buildConnectionUrl,
+  buildGuiUrl,
   loadPostgresConfig,
   type PostgresConfig,
 } from './postgres-config';
@@ -40,7 +47,13 @@ import {
   resolvePostgresBinaries,
   type ResolvedBinaries,
 } from './postgres-binaries';
-import { LOG_FILE, RUN_DIR, WRAPPER_PID_FILE } from './postgres-paths';
+import { resolvePgwebBinary, startPgweb, type StartedGui } from './pg-gui';
+import {
+  GUI_LOG_FILE,
+  LOG_FILE,
+  RUN_DIR,
+  WRAPPER_PID_FILE,
+} from './postgres-paths';
 
 const log = createLogger({ name: 'pg' });
 
@@ -60,6 +73,48 @@ function clearWrapperPidFile(): void {
 interface RunningServer {
   readonly config: PostgresConfig;
   readonly binaries: ResolvedBinaries;
+  /** null when the GUI sidecar is disabled or pgweb couldn't start. */
+  gui: StartedGui | null;
+}
+
+/**
+ * Best-effort GUI startup. Failures here NEVER bubble up — the cluster is the
+ * contract; the GUI is a convenience. Returns null on any failure (binary
+ * missing, port collision, etc.).
+ */
+function startGuiBestEffort(
+  config: PostgresConfig,
+  dbUrl: string
+): StartedGui | null {
+  if (!config.gui.enabled) {
+    log.info('pgweb sidecar disabled', {
+      reason: 'PG_GUI=off or CI=1',
+    });
+    return null;
+  }
+  const binary = resolvePgwebBinary(config.gui.binaryOverride, log);
+  if (binary === null) return null;
+  try {
+    const gui = startPgweb({
+      binary,
+      dbUrl,
+      host: config.gui.host,
+      port: config.gui.port,
+      logFile: GUI_LOG_FILE,
+      log,
+    });
+    log.info('pgweb sidecar started', {
+      pid: gui.pid,
+      url: gui.url,
+      logFile: GUI_LOG_FILE,
+    });
+    return gui;
+  } catch (e) {
+    log.warn('pgweb sidecar failed to start; continuing without GUI', {
+      error: e instanceof Error ? e.message : String(e),
+    });
+    return null;
+  }
 }
 
 async function bootCluster(): Promise<RunningServer> {
@@ -98,6 +153,25 @@ async function bootCluster(): Promise<RunningServer> {
     logFile: LOG_FILE,
   });
 
+  const gui = startGuiBestEffort(config, dbUrl);
+  const running: RunningServer = { config, binaries, gui };
+
+  if (gui !== null) {
+    log.info('dev sidecar ready', {
+      dbUrl,
+      guiUrl: buildGuiUrl(config),
+    });
+    // If pgweb dies on its own, log + warn but keep the cluster running.
+    void gui.exited.then(({ code, signal }) => {
+      if (shutdownInFlight) return;
+      log.warn('pgweb sidecar exited (cluster keeps running)', {
+        code,
+        signal,
+      });
+      running.gui = null;
+    });
+  }
+
   // If the postmaster dies on its own (crash, OOM, kill -9 from elsewhere)
   // there is nothing useful left for the wrapper to do — exit so Turbo
   // shows the failure instead of hanging on "ready" forever.
@@ -109,7 +183,7 @@ async function bootCluster(): Promise<RunningServer> {
     });
   });
 
-  return { config, binaries };
+  return running;
 }
 
 let server: RunningServer | null = null;
@@ -122,6 +196,10 @@ function shutdown(reason: string): Promise<void> {
   shutdownPromise = (async () => {
     log.info('shutting down', { reason });
     try {
+      // Stop the GUI BEFORE the cluster so it doesn't see torn-down connections.
+      if (server?.gui) {
+        await server.gui.stop(server.config.shutdownTimeoutMs);
+      }
       if (server !== null) {
         await stopCluster(server.binaries, server.config, log);
       }

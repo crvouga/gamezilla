@@ -16,7 +16,9 @@ The whole stack starts together via `bun run dev` at the repo root; to run just 
 
 Set Doppler **`local`** `DB_URL` to `postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`. Migrations: `DOPPLER_CONFIG=local doppler run -- bun run --filter @gamezilla/api db:migrate`. Persistent data lives in `apps/pg/.postgres/data/`; the wrapper PID and a tee'd `postgres.log` live in `apps/pg/.postgres/run/`. Tunables (all optional): `PG_HOST`, `PG_PORT`, `PG_DATA_DIR`, `PG_USER`, `PG_PASSWORD`, `PG_DATABASE`, `PG_BIN_DIR` (force a specific Postgres install).
 
+The wrapper also auto-launches the [`pgweb`](https://github.com/sosedoff/pgweb) GUI as a sibling foreground process (default `http://127.0.0.1:5455` — chosen to sit next to the Postgres port and avoid collisions with Expo Web on `8081` / Jupyter on `8888`), pre-connected to the local DB. Stops with the cluster on Ctrl-C / `turbo dev` shutdown — no orphans. GUI failure (missing binary, port collision) is non-fatal: a warning logs and the cluster keeps running. Required tool: `pgweb` (Homebrew: `brew install pgweb`), enforced by `bun run infra setup` via the `PgwebDep` class. Tunables: `PG_GUI` (set to `off`/`0`/`false` to skip; default off in CI), `PG_GUI_HOST`, `PG_GUI_PORT`, `PG_GUI_BIN`.
+
 Platform support:
 
-- **macOS / Linux** — install Postgres (`brew install postgresql@17` on macOS; `apt-get install postgresql` on Debian/Ubuntu, etc.) and run `bun run dev` directly.
+- **macOS / Linux** — install Postgres (`brew install postgresql@17` on macOS; `apt-get install postgresql` on Debian/Ubuntu, etc.) and pgweb (`brew install pgweb`); run `bun run dev` directly.
 - **Windows** — run dev inside WSL2; native Windows is not supported by `@gamezilla/pg` (the lifecycle script still produces a clear error message + install hint if invoked there).
