@@ -7,7 +7,7 @@
     "build": "bun -e \"process.exit(0)\"",
     "tc": "tsc --noEmit -p tsconfig.json",
     "setup": "bun -e \"process.exit(0)\"",
-    "test": "bun test",
+    "test": "bun test --pass-with-no-tests",
     "dev": "bun run src/pglite-socket.ts",
     "up": "bun run src/pglite-socket.ts",
     "start-daemon": "bun run src/start-background.ts",

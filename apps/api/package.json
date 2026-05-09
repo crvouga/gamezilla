@@ -8,8 +8,6 @@
   "dependencies": {
     "@better-auth/core": "^1.6.9",
     "@better-auth/expo": "^1.6.9",
-    "@better-auth/kysely-adapter": "^1.6.9",
-    "@gamezilla/db": "workspace:*",
     "@gamezilla/domain": "workspace:*",
     "@gamezilla/lib": "workspace:*",
     "@gamezilla/patch-db": "workspace:*",
