@@ -23,12 +23,12 @@ describe('PatchDb hooks (sqlite)', () => {
       {
         entityId: 'h1',
         entityType: 'hook-task',
-        attributes: { 'hook-task/n': 1 },
+        attributes: { 'hook-task/num': 1 },
       },
       {
         entityId: 'h2',
         entityType: 'hook-task',
-        attributes: { 'hook-task/n': 2 },
+        attributes: { 'hook-task/num': 2 },
       },
     ]);
     const [r] = await db.read([{ entityType: 'hook-task' }]);
@@ -45,7 +45,7 @@ describe('PatchDb hooks (sqlite)', () => {
         {
           entityId: 'x',
           entityType: 'hook-abort',
-          attributes: { 'hook-abort/a': 1 },
+          attributes: { 'hook-abort/val': 1 },
         },
       ])
     ).rejects.toThrow('abort write');
@@ -82,13 +82,13 @@ describe('PatchDb hooks (sqlite)', () => {
         patchId: idKeep,
         entityId: 'e-keep',
         entityType: 'hook-keep',
-        attributes: { 'hook-keep/n': 1 },
+        attributes: { 'hook-keep/num': 1 },
       },
       {
         patchId: idDrop,
         entityId: 'e-drop',
         entityType: 'hook-drop',
-        attributes: { 'hook-drop/n': 2 },
+        attributes: { 'hook-drop/num': 2 },
       },
     ]);
     expect(out.rejected.some((r) => r.patchId === idDrop)).toBe(true);

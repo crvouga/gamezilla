@@ -1,6 +1,6 @@
 /**
  * Copies Skia's CanvasKit wasm into `public/` for `loadSkiaWebOnce` in
- * `src/ui/skia-web-root.tsx` (and legacy `WithSkiaWeb`).
+ * `src/ui/skia-web-root.tsx`.
  *
  * Skia web defaults to fetching from `/canvaskit.wasm` (same origin). Expo web
  * serves `public/` at the site root, so we copy the dependency wasm there.

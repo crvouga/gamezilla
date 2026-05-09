@@ -84,9 +84,9 @@ describe.each(implementations)('$name', ({ factory }) => {
 
   test('patches ordered by lineage, nextCursor is patchId for pagination', async () => {
     await db.write([
-      { entityId: 'e2', entityType: 'task', attributes: { 'task/x': 1 } },
-      { entityId: 'e2', entityType: 'task', attributes: { 'task/x': 2 } },
-      { entityId: 'e2', entityType: 'task', attributes: { 'task/x': 3 } },
+      { entityId: 'e2', entityType: 'task', attributes: { 'task/seq': 1 } },
+      { entityId: 'e2', entityType: 'task', attributes: { 'task/seq': 2 } },
+      { entityId: 'e2', entityType: 'task', attributes: { 'task/seq': 3 } },
     ]);
 
     const page1Results = await db.read([
@@ -115,15 +115,15 @@ describe.each(implementations)('$name', ({ factory }) => {
     expect(page2.patches).toHaveLength(1);
     const page2First = page2.patches[0];
     assert.defined(page2First, 'page2First must be defined');
-    expect(page2First.attributes['task/x']).toBe(3);
+    expect(page2First.attributes['task/seq']).toBe(3);
     expect(page2.nextCursor).toBe(page2First.patchId);
     expect(page2.hasMore).toBe(false);
   });
 
   test('synced patches preserve parentId from client', async () => {
     const p1Written = await db.write([
-      { entityId: 'e3', entityType: 'task', attributes: { 'task/a': 1 } },
-      { entityId: 'e3', entityType: 'task', attributes: { 'task/a': 2 } },
+      { entityId: 'e3', entityType: 'task', attributes: { 'task/val': 1 } },
+      { entityId: 'e3', entityType: 'task', attributes: { 'task/val': 2 } },
     ]);
     expect(p1Written.rejected).toHaveLength(0);
     const p1 = p1Written.accepted[0];
@@ -131,7 +131,7 @@ describe.each(implementations)('$name', ({ factory }) => {
     const syncedP3 = {
       entityId: 'e3',
       entityType: 'task',
-      attributes: { 'task/a': 3 },
+      attributes: { 'task/val': 3 },
       patchId: crypto.randomUUID(),
       parentId: p1.patchId,
       createdAt: new Date().toISOString(),
@@ -212,8 +212,8 @@ describe.each(implementations)('$name', ({ factory }) => {
 
   test('synced patch whose parentId is absent on server re-anchors to chain leaf', async () => {
     const chain = await db.write([
-      { entityId: 'e7', entityType: 'todo', attributes: { 'todo/n': 0 } },
-      { entityId: 'e7', entityType: 'todo', attributes: { 'todo/n': 1 } },
+      { entityId: 'e7', entityType: 'todo', attributes: { 'todo/num': 0 } },
+      { entityId: 'e7', entityType: 'todo', attributes: { 'todo/num': 1 } },
     ]);
     expect(chain.rejected).toHaveLength(0);
     const leaf = chain.accepted[1];
@@ -226,7 +226,7 @@ describe.each(implementations)('$name', ({ factory }) => {
         entityId: 'e7',
         entityType: 'todo',
         attributes: {
-          'todo/n': 2,
+          'todo/num': 2,
           'patch/synced-at': null,
           'patch/created-by-id': '',
           'patch/session-id': '',

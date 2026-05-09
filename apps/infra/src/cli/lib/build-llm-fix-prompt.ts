@@ -158,6 +158,38 @@ function trimBlock(block: string): string {
   ].join('\n');
 }
 
+function cleanEntireLog(raw: string): string {
+  return raw
+    .split(/\r?\n/)
+    .map((line) => cleanLine(line))
+    .join('\n');
+}
+
+function renderLocalPromptBody(
+  failures: ReadonlyArray<{ readonly jobId: string; readonly output: string }>
+): string {
+  const lines: string[] = [];
+  lines.push('# Fix local pipeline failures for gamezilla.app');
+  lines.push('');
+  lines.push(
+    'The Deployment Pipeline checks failed when run locally via `bun run check:deployment-pipeline`.'
+  );
+  lines.push('');
+  lines.push(
+    'For each failing job below, identify the root cause from the captured output and fix it — do not just suppress the rule. After fixing, re-run `bun run check:deployment-pipeline` or the matching `bun run <script>` from the repo root `package.json` (e.g. `bun run check:format`, `bun run knip:ci`, `bun run qa:browser`).'
+  );
+  lines.push('');
+  for (const f of failures) {
+    lines.push(`## \`${f.jobId}\``);
+    lines.push('');
+    lines.push('```text');
+    lines.push(trimBlock(cleanEntireLog(f.output).trimEnd()));
+    lines.push('```');
+    lines.push('');
+  }
+  return lines.join('\n').trimEnd();
+}
+
 interface FailureSection {
   readonly jobId: string;
   readonly snippets: ReadonlyArray<string>;
@@ -206,14 +238,15 @@ function renderPromptBody(
  * backticks so the inner three-backtick code blocks render correctly when the
  * user copies the contents into an LLM.
  */
-function renderMarkdownSection(body: string): string {
+function renderMarkdownSection(
+  body: string,
+  expandSummary = 'Click to expand. Copy the entire fenced block into an LLM to fix all CI failures.'
+): string {
   const lines: string[] = [];
   lines.push('### LLM fix prompt');
   lines.push('');
   lines.push('<details>');
-  lines.push(
-    '<summary>Click to expand. Copy the entire fenced block into an LLM to fix all CI failures.</summary>'
-  );
+  lines.push(`<summary>${expandSummary}</summary>`);
   lines.push('');
   lines.push('````markdown');
   lines.push(body);
@@ -297,4 +330,18 @@ export async function buildLlmFixPromptMarkdown(
   }
 
   return renderMarkdownSection(renderPromptBody(ctx, sections));
+}
+
+/**
+ * Same collapsed markdown wrapper as CI (`renderMarkdownSection`), but body
+ * is built from locally captured command output instead of the GitHub API.
+ */
+export function buildLocalLlmFixPromptMarkdown(
+  failures: ReadonlyArray<{ readonly jobId: string; readonly output: string }>
+): string {
+  if (failures.length === 0) return '';
+  return renderMarkdownSection(
+    renderLocalPromptBody(failures),
+    'Click to expand. Copy the entire fenced block into an LLM to fix all local pipeline failures.'
+  );
 }

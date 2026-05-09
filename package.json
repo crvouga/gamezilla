@@ -11,6 +11,7 @@
     "check:actionlint": "actionlint -color",
     "check:audit": "bun audit --audit-level high",
     "check:build": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run build --filter='!@gamezilla/client'",
+    "check:deployment-pipeline": "bun run apps/infra/src/bin/run-deployment-pipeline-checks.ts",
     "check:format": "prettier --check .",
     "check:gitleaks": "gitleaks detect --redact --verbose --no-banner --log-opts=-1",
     "check:lint": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run lint",

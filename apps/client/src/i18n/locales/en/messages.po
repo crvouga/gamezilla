@@ -340,7 +340,7 @@ msgstr "Avatar"
 msgid "Avatar style"
 msgstr "Avatar style"
 
-#: apps/client/src/spaces/games/chess/puzzle/puzzle-picker.tsx
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-picker-screen.tsx
 #: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
 #: apps/client/src/spaces/games/main-menu-screen.tsx
 #: apps/client/src/spaces/join/space-back-button.tsx
@@ -2380,10 +2380,10 @@ msgid "Waiting for metrics from server..."
 msgstr "Waiting for metrics from server..."
 
 #: apps/client/src/spaces/games/chess/puzzle/puzzle-play-screen.tsx
-msgid "Waiting for puzzle…"
-msgstr "Waiting for puzzle…"
+#~ msgid "Waiting for puzzle…"
+#~ msgstr "Waiting for puzzle…"
 
-#: apps/client/src/spaces/games/chess/puzzle/puzzle-picker.tsx
+#: apps/client/src/spaces/games/chess/puzzle/puzzle-picker-screen.tsx
 msgid "Waiting for space sync…"
 msgstr "Waiting for space sync…"
 
