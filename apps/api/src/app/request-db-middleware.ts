@@ -34,7 +34,7 @@ export function createRequestDbMiddleware(
       'Hyperdrive connectionString must be a non-empty string'
     );
 
-    const { sqlClient } = await openRequestDb(cs);
+    const { client, sqlClient } = await openRequestDb(cs);
     const patchDb = createRequestPatchDb(sqlClient);
     const { auth: betterAuth, dispose } = await createBetterAuthRequestStack(
       secretStore,
@@ -56,6 +56,13 @@ export function createRequestDbMiddleware(
         await next();
       } finally {
         await dispose();
+        // Close the per-request Postgres TCP session. Without this the socket
+        // leaks for the lifetime of the Worker isolate; in local dev that
+        // saturates PGlite's connection slots and surfaces as
+        // "Connection terminated unexpectedly" on subsequent requests.
+        await client.end().catch(() => {
+          /* swallow: connection may already be closed by remote */
+        });
       }
     });
   };

@@ -72,6 +72,12 @@ async function main(): Promise<void> {
     db,
     port: PORT,
     host: HOST,
+    // PGLiteSocketServer defaults to `maxConnections: 1`; concurrent Worker
+    // requests (each opening a per-request `pg.Client` for Hyperdrive) get
+    // rejected with "Too many connections", surfacing as
+    // "Connection terminated unexpectedly" on the client. Queries are still
+    // serialized through PGlite's internal queue, so raising this is safe.
+    maxConnections: 100,
   });
   await server.start();
 

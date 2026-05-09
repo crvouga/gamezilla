@@ -16,7 +16,7 @@ async function main(): Promise<void> {
   try {
     await runPostgresMigrations({
       sqlClient,
-      pool,
+      databaseUrl,
       logger: log,
       betterAuthOptions: await loadBetterAuthOptionsForMigration(store),
     });
