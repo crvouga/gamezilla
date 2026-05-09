@@ -66,6 +66,15 @@ async function listHyperdriveConfigs(
   };
   if (!res.ok || body.success !== true || !Array.isArray(body.result)) {
     const detail = JSON.stringify(body.errors ?? body);
+    if (res.status === 403) {
+      assert.fail(
+        `Hyperdrive list failed: HTTP 403 — CLOUDFLARE_API_TOKEN is missing ` +
+          `the "Workers Hyperdrive Edit" Account permission. Edit the token at ` +
+          `https://dash.cloudflare.com/profile/api-tokens, add that permission ` +
+          `(Account Resources → All accounts), then update the token in Doppler ` +
+          `(\`doppler secrets set CLOUDFLARE_API_TOKEN=...\`). Detail: ${detail.slice(0, 400)}`
+      );
+    }
     assert.fail(
       `Hyperdrive list failed: HTTP ${String(res.status)} ${detail.slice(0, 500)}`
     );

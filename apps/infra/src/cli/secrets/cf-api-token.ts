@@ -12,7 +12,7 @@ export class CfApiToken implements SecretEntry {
     '                       Workers Routes Edit',
     '  Account permissions: Cloudflare Pages Edit, Workers Scripts Edit,',
     '                       Workers KV Storage Edit, Workers R2 Storage Edit,',
-    '                       Account Settings Read',
+    '                       Workers Hyperdrive Edit, Account Settings Read',
     'Zone Resources: All zones  |  Account Resources: All accounts',
   ].join('\n');
 
@@ -82,6 +82,15 @@ export class CfApiToken implements SecretEntry {
             headers,
             'GET',
             `https://api.cloudflare.com/client/v4/accounts/${accountId}/storage/kv/namespaces`
+          ),
+        },
+        {
+          label:
+            'Workers Hyperdrive Edit (Account permission — for Hyperdrive Postgres origin provisioning)',
+          probe: probeCfPermission(
+            headers,
+            'GET',
+            `https://api.cloudflare.com/client/v4/accounts/${accountId}/hyperdrive/configs`
           ),
         },
       ];
@@ -157,7 +166,7 @@ export class CfApiToken implements SecretEntry {
           '  Zone: Zone WAF Write, Workers Routes Edit',
           '  Account: Cloudflare Pages Edit, Workers Scripts Edit,',
           '           Workers KV Storage Edit, Workers R2 Storage Edit,',
-          '           Account Settings Read',
+          '           Workers Hyperdrive Edit, Account Settings Read',
           'Zone Resources → All zones  |  Account Resources → All accounts',
         ].join('\n');
       }

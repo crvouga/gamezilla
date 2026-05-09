@@ -3,6 +3,7 @@ import { PROJECT_CONFIG, turboCachePublicUrl } from '../../project-config';
 import { ok, warn } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import {
+  deleteDopplerSecret,
   fetchDopplerSecret,
   fetchDopplerSecretFrom,
   getSecretMap,
@@ -76,6 +77,20 @@ const DOPPLER_RESERVED_KEYS: ReadonlyArray<string> = [
 ];
 
 /**
+ * Doppler keys from removed integrations that should be hard-deleted on every
+ * provision. Adding a key here is an explicit, reviewed decision: the orphan
+ * check would otherwise warn about them indefinitely. Listed values:
+ *
+ * - `CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`: leftovers from when the API
+ *   used Clerk for auth before the Better Auth migration. No code references
+ *   them anymore.
+ */
+const STALE_KEYS_TO_DELETE: ReadonlyArray<string> = [
+  'CLERK_PUBLISHABLE_KEY',
+  'CLERK_SECRET_KEY',
+];
+
+/**
  * Secrets shared between the deployed Turbo cache Worker and the
  * CI/dev clients that authenticate against it. The Worker secret is
  * written by `TurboCacheResource` from the active (prod) config, so the
@@ -100,6 +115,7 @@ export class DopplerResource extends ResourceBase {
     await this.validateSecrets(platform);
     this.ensureDefaults();
     this.mirrorSharedToLocal(platform);
+    this.cleanupStaleSecrets();
     this.warnOnOrphans(platform);
   }
 
@@ -112,12 +128,14 @@ export class DopplerResource extends ResourceBase {
    * full resource DAG runs (e.g. destroy).
    */
   loadSecretsQuick(): void {
-    for (const { secretKey: doppler, env } of getSecretMap()) {
+    for (const entry of getSecretMap()) {
+      const { secretKey: doppler, env } = entry;
       const existing = process.env[env];
       if (typeof existing === 'string' && existing.trim().length > 0) continue;
       try {
         process.env[env] = fetchDopplerSecret(doppler);
       } catch (e) {
+        if (entry.optional === true) continue;
         warn(
           env,
           `Doppler get ${doppler} failed: ${e instanceof Error ? e.message : String(e)}`
@@ -134,10 +152,13 @@ export class DopplerResource extends ResourceBase {
     for (const r of results) {
       if (r.set) {
         loaded++;
-      } else {
-        warn(r.env, 'not found in Doppler');
-        failed++;
+        continue;
       }
+      // Optional secrets are allowed to be absent; consumers must use
+      // `SecretStore.getOptional` and fall back to a sensible default.
+      if (r.optional) continue;
+      warn(r.env, 'not found in Doppler');
+      failed++;
     }
 
     if (loaded > 0) ok('Doppler secrets loaded', String(loaded));
@@ -232,6 +253,39 @@ export class DopplerResource extends ResourceBase {
       ok('Turbo cache secrets', `mirrored ${active} → local (${mirrored})`);
     } else if (skipped > 0) {
       ok('Turbo cache secrets', `already in sync with local (${skipped})`);
+    }
+  }
+
+  /**
+   * Hard-delete keys in {@link STALE_KEYS_TO_DELETE} so removed integrations
+   * (e.g. Clerk before the Better Auth migration) don't linger in Doppler and
+   * trip the orphan check forever. Idempotent: keys that don't exist are a
+   * no-op.
+   */
+  private cleanupStaleSecrets(): void {
+    if (STALE_KEYS_TO_DELETE.length === 0) return;
+    let present: ReadonlyArray<string>;
+    try {
+      present = listDopplerSecretNames();
+    } catch (e) {
+      warn(
+        'Doppler stale-key cleanup',
+        e instanceof Error ? e.message : String(e)
+      );
+      return;
+    }
+    const presentSet = new Set(present);
+    for (const key of STALE_KEYS_TO_DELETE) {
+      if (!presentSet.has(key)) continue;
+      try {
+        deleteDopplerSecret(key);
+        ok(key, 'deleted (stale — removed integration)');
+      } catch (e) {
+        warn(
+          key,
+          `delete failed: ${e instanceof Error ? e.message : String(e)}`
+        );
+      }
     }
   }
 

@@ -6,10 +6,7 @@
       "outputs": []
     },
     "dev": {
-      "persistent": true,
-      "cache": false
-    },
-    "start-daemon": {
+      "persistent": false,
       "cache": false
     }
   }

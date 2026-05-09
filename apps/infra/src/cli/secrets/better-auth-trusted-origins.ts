@@ -3,6 +3,7 @@ import type { SecretEntry } from './types';
 export class BetterAuthTrustedOrigins implements SecretEntry {
   readonly secretKey = 'BETTER_AUTH_TRUSTED_ORIGINS';
   readonly env = 'BETTER_AUTH_TRUSTED_ORIGINS';
+  readonly optional = true;
   readonly hint =
     'Optional newline-separated Better Auth trustedOrigins (in addition to API_URL). When set, replaces implicit defaults — include myapp:// and exp://** if you use Expo.';
 

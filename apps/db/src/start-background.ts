@@ -13,7 +13,7 @@ import { waitForTcpPort } from './wait-for-tcp-port';
 /**
  * Tiger style (see repo `LLM.md`): validate env-derived host/port before spawn/wait.
  */
-const log = createLogger({ name: 'db:start-daemon' });
+const log = createLogger({ name: 'db:dev' });
 
 const srcDir = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = resolve(srcDir, '..');
@@ -50,6 +50,30 @@ const host = readHost();
 const port = readPort();
 const dbUrl = pgliteDevDbUrl(host, port);
 
+// #region agent log
+const dbgLog = (
+  location: string,
+  message: string,
+  data: Record<string, unknown> = {}
+): void => {
+  fetch('http://127.0.0.1:7510/ingest/c52c9028-9c01-42a4-9186-01f9b18984a5', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Debug-Session-Id': '8e3ce2',
+    },
+    body: JSON.stringify({
+      sessionId: '8e3ce2',
+      location,
+      message,
+      data,
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
+};
+// #endregion
+
+// eslint-disable-next-line max-lines-per-function -- temporary debug instrumentation
 async function main(): Promise<void> {
   try {
     await waitForTcpPort(host, port, 500);
@@ -73,6 +97,22 @@ async function main(): Promise<void> {
 
   assert.defined(proc.pid, 'failed to start PGlite socket (no pid)', { proc });
 
+  // #region agent log
+  dbgLog(
+    'apps/db/src/start-background.ts:after-spawn',
+    'spawned detached PGlite child',
+    {
+      hypothesisId: 'A,B',
+      pid: proc.pid,
+      ppid: process.pid,
+      entry,
+      cwd: pkgRoot,
+      host,
+      port,
+    }
+  );
+  // #endregion
+
   log.info('PGlite socket starting in background', {
     pid: proc.pid,
     host,
@@ -80,9 +120,35 @@ async function main(): Promise<void> {
     dbUrl,
   });
 
+  const tWaitStart = Date.now();
   try {
     await waitForTcpPort(host, port, 30_000);
+    // #region agent log
+    dbgLog(
+      'apps/db/src/start-background.ts:wait-success',
+      'TCP port became available before timeout',
+      {
+        hypothesisId: 'A',
+        pid: proc.pid,
+        elapsedMs: Date.now() - tWaitStart,
+      }
+    );
+    // #endregion
   } catch (error: unknown) {
+    // #region agent log
+    dbgLog(
+      'apps/db/src/start-background.ts:wait-timeout',
+      'waitForTcpPort timed out — child may still be initializing PGlite',
+      {
+        hypothesisId: 'A',
+        pid: proc.pid,
+        elapsedMs: Date.now() - tWaitStart,
+        host,
+        port,
+        errorMsg: error instanceof Error ? error.message : String(error),
+      }
+    );
+    // #endregion
     log.error('PGlite did not become ready', {
       host,
       port,
@@ -102,6 +168,6 @@ async function main(): Promise<void> {
 }
 
 await main().catch((error: unknown) => {
-  assert.fail('db:start-daemon failed', { error });
+  assert.fail('db:dev failed', { error });
 });
 process.exit(0);

@@ -54,6 +54,15 @@ export function setDopplerSecret(name: string, value: string): void {
 }
 
 /**
+ * Deletes a secret from the active Doppler config. Idempotent on the
+ * Doppler side (`--yes` skips the confirmation prompt; deleting an
+ * already-missing key returns 0).
+ */
+export function deleteDopplerSecret(name: string): void {
+  runCapture('doppler', ['secrets', 'delete', name, '--yes']);
+}
+
+/**
  * Read a secret from a *specific* Doppler config (not the active one).
  * Used to mirror values across configs (e.g. prod → local) so secrets
  * shared between server and CI/dev don't drift.
@@ -97,16 +106,22 @@ export function listDopplerSecretNames(): ReadonlyArray<string> {
   return Object.keys(parsed as Record<string, unknown>);
 }
 
-export function loadSecretsIntoEnv(): Array<{ env: string; set: boolean }> {
-  const results: Array<{ env: string; set: boolean }> = [];
+export function loadSecretsIntoEnv(): Array<{
+  env: string;
+  set: boolean;
+  optional: boolean;
+}> {
+  const results: Array<{ env: string; set: boolean; optional: boolean }> = [];
 
-  for (const { secretKey: doppler, env } of SECRET_MAP) {
+  for (const entry of SECRET_MAP) {
+    const { secretKey: doppler, env } = entry;
+    const optional = entry.optional === true;
     try {
       const value = fetchDopplerSecret(doppler);
       process.env[env] = value;
-      results.push({ env, set: true });
+      results.push({ env, set: true, optional });
     } catch {
-      results.push({ env, set: false });
+      results.push({ env, set: false, optional });
     }
   }
 

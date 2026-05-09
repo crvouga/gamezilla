@@ -6,12 +6,7 @@
       "outputs": []
     },
     "dev": {
-      "dependsOn": [
-        "kill",
-        "install:deps",
-        "setup",
-        "@gamezilla/db#start-daemon"
-      ],
+      "dependsOn": ["kill", "install:deps", "setup", "@gamezilla/db#dev"],
       "persistent": true,
       "cache": false
     }
