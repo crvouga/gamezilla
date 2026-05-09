@@ -17,5 +17,6 @@ describe('isClojureNamespacedKey', () => {
     expect(isClojureNamespacedKey('a/b/c')).toBe(false);
     expect(isClojureNamespacedKey('foo..bar/x')).toBe(false);
     expect(isClojureNamespacedKey('ns/foo.bar')).toBe(false);
+    expect(isClojureNamespacedKey('ab/c')).toBe(false);
   });
 });

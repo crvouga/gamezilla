@@ -16,7 +16,9 @@ import {
 } from 'react-native-reanimated';
 
 export const PIECE_DRAW_SCALE = 1.06;
-const MOVE_MS = 200;
+/** Piece slide duration; keep capture ghost + capture SFX aligned with this. */
+export const CHESS_PIECE_MOVE_MS = 200;
+const MOVE_MS = CHESS_PIECE_MOVE_MS;
 const FADE_IN_MS = 160;
 const FADE_OUT_MS = 140;
 

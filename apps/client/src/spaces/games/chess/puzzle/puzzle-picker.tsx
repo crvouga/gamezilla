@@ -1,16 +1,10 @@
 import {
-  CHESS_SCREEN,
-  SetChessMainMenuScreen,
-} from '@gamezilla/domain/spaces/games/chess/chess-main-menu';
-import {
   CHESS_PUZZLE_ENTITY_TYPE,
   ChessPuzzleAttr,
 } from '@gamezilla/domain/spaces/games/chess/puzzle/chess-puzzle-entities';
-import { SelectChessPuzzle } from '@gamezilla/domain/spaces/games/chess/puzzle/chess-puzzle-session';
 import {
   Box,
   Card,
-  IconButton,
   IconSymbol,
   Pressable,
   ScrollView,
@@ -26,25 +20,11 @@ import {
   useQueryAttribute,
   useQueryEntityIds,
 } from '@gamezilla/patch-db/react';
-import { RoomMetaAttr } from '@gamezilla/room';
 import { Trans, useLingui } from '@lingui/react/macro';
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react';
-import {
-  useSpaceDispatch,
-  useSpaceSelector,
-} from '../../../room/use-space-room-selector';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 
 const PAGE_STEP = 50;
 const LIST_MAX_WIDTH = 720;
-const BACK_BUTTON_SIZE = 40;
-const BACK_ROW_PADDING_TOP = 12;
-const BACK_ROW_PADDING_HORIZONTAL = 12;
 
 function buildPuzzleListWhere(args: {
   minRating: number;
@@ -153,39 +133,15 @@ function PuzzlePickerRow({
   );
 }
 
-function BackButtonRow({ onPress }: { onPress: () => void }): ReactNode {
-  const { t } = useLingui();
-  const theme = useTheme();
-  return (
-    <Box
-      style={{
-        alignSelf: 'stretch',
-        alignItems: 'flex-start',
-        height: BACK_BUTTON_SIZE + BACK_ROW_PADDING_TOP,
-        paddingHorizontal: BACK_ROW_PADDING_HORIZONTAL,
-        paddingTop: BACK_ROW_PADDING_TOP,
-      }}
-    >
-      <IconButton
-        size={BACK_BUTTON_SIZE}
-        background="surface"
-        onPress={onPress}
-        accessibilityLabel={t`Back`}
-      >
-        <IconSymbol
-          name="chevron.right"
-          size={20}
-          color={theme.colors.text}
-          style={{ transform: [{ scaleX: -1 }] }}
-        />
-      </IconButton>
-    </Box>
-  );
-}
+export type PuzzlePickerProps = {
+  onPickPuzzle: (puzzleId: string) => void;
+  notice?: ReactNode;
+};
 
-export function PuzzlePicker(): ReactNode {
-  const dispatch = useSpaceDispatch();
-  const isSynced = useSpaceSelector(RoomMetaAttr.isSynced.from);
+export function PuzzlePicker({
+  onPickPuzzle,
+  notice,
+}: PuzzlePickerProps): ReactNode {
   const { t } = useLingui();
   const [themeQuery, setThemeQuery] = useState('');
   const [minRatingRaw, setMinRatingRaw] = useState('');
@@ -223,128 +179,106 @@ export function PuzzlePicker(): ReactNode {
     limit: pageSize,
   });
 
-  const backToPuzzleMenu = useCallback(() => {
-    dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.puzzle }));
-  }, [dispatch]);
-
-  const onPick = useCallback(
-    (puzzleId: string) => {
-      dispatch(SelectChessPuzzle({ puzzleId }));
-      dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.puzzlePlay }));
-    },
-    [dispatch]
-  );
-
   const shownCount = ids.length;
 
   return (
-    <Box sx={{ alignSelf: 'stretch', flex: 1 }}>
-      <BackButtonRow onPress={backToPuzzleMenu} />
-
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{
-          paddingBottom: 24,
-          alignItems: 'stretch',
+    <ScrollView
+      style={{ flex: 1, alignSelf: 'stretch' }}
+      contentContainerStyle={{
+        paddingBottom: 24,
+        alignItems: 'stretch',
+      }}
+    >
+      <Box
+        sx={{
+          alignSelf: 'center',
+          maxWidth: LIST_MAX_WIDTH,
+          gap: 4,
+          px: 4,
+          pt: 2,
         }}
+        style={{ width: '100%' }}
       >
-        <Box
-          sx={{
-            alignSelf: 'center',
-            maxWidth: LIST_MAX_WIDTH,
-            gap: 4,
-            px: 4,
-            pt: 2,
-          }}
-          style={{ width: '100%' }}
-        >
-          <Text
-            variant="title"
-            sx={{ textAlign: 'center' }}
-            label={<Trans>Pick a puzzle</Trans>}
-          />
-          <Text
-            variant="body"
-            sx={{ color: 'textSecondary', textAlign: 'center', opacity: 0.85 }}
-            label={
-              <Trans>
-                Search by theme keyword and optional rating bounds. Data loads
-                from PatchDB.
-              </Trans>
-            }
-          />
+        <Text
+          variant="title"
+          sx={{ textAlign: 'center' }}
+          label={<Trans>Pick a puzzle</Trans>}
+        />
+        <Text
+          variant="body"
+          sx={{ color: 'textSecondary', textAlign: 'center', opacity: 0.85 }}
+          label={
+            <Trans>
+              Search by theme keyword and optional rating bounds. Data loads
+              from PatchDB.
+            </Trans>
+          }
+        />
 
-          {!isSynced ? (
-            <Text
-              variant="caption"
-              sx={{ color: 'textSecondary', textAlign: 'center' }}
-              label={<Trans>Waiting for space sync…</Trans>}
+        {notice}
+
+        <TextInput
+          label={<Trans>Theme contains</Trans>}
+          placeholder={t`e.g. fork, mateIn2`}
+          value={themeQuery}
+          onChangeText={setThemeQuery}
+          accessibilityLabel={t`Theme search`}
+        />
+        <Box sx={{ flexDirection: 'row', gap: 3 }}>
+          <Box sx={{ flex: 1 }}>
+            <TextInput
+              label={<Trans>Min rating (optional)</Trans>}
+              placeholder={t`e.g. 1500`}
+              value={minRatingRaw}
+              onChangeText={setMinRatingRaw}
+              keyboardType="number-pad"
+              accessibilityLabel={t`Minimum rating`}
             />
-          ) : null}
-
-          <TextInput
-            label={<Trans>Theme contains</Trans>}
-            placeholder={t`e.g. fork, mateIn2`}
-            value={themeQuery}
-            onChangeText={setThemeQuery}
-            accessibilityLabel={t`Theme search`}
-          />
-          <Box sx={{ flexDirection: 'row', gap: 3 }}>
-            <Box sx={{ flex: 1 }}>
-              <TextInput
-                label={<Trans>Min rating (optional)</Trans>}
-                placeholder={t`e.g. 1500`}
-                value={minRatingRaw}
-                onChangeText={setMinRatingRaw}
-                keyboardType="number-pad"
-                accessibilityLabel={t`Minimum rating`}
-              />
-            </Box>
-            <Box sx={{ flex: 1 }}>
-              <TextInput
-                label={<Trans>Max rating (optional)</Trans>}
-                placeholder={t`e.g. 2000`}
-                value={maxRatingRaw}
-                onChangeText={setMaxRatingRaw}
-                keyboardType="number-pad"
-                accessibilityLabel={t`Maximum rating`}
-              />
-            </Box>
           </Box>
-
-          <Text
-            variant="caption"
-            sx={{ color: 'textSecondary' }}
-            label={<Trans>Showing first {shownCount} by popularity</Trans>}
-          />
-
-          <Box sx={{ gap: 2 }}>
-            {ids.map((entityId) => (
-              <PuzzlePickerRow
-                key={entityId}
-                entityId={entityId}
-                onPick={onPick}
-              />
-            ))}
+          <Box sx={{ flex: 1 }}>
+            <TextInput
+              label={<Trans>Max rating (optional)</Trans>}
+              placeholder={t`e.g. 2000`}
+              value={maxRatingRaw}
+              onChangeText={setMaxRatingRaw}
+              keyboardType="number-pad"
+              accessibilityLabel={t`Maximum rating`}
+            />
           </Box>
+        </Box>
 
-          <Pressable
-            onPress={() => {
-              setPageSize((n) => n + PAGE_STEP);
+        <Text
+          variant="caption"
+          sx={{ color: 'textSecondary' }}
+          label={<Trans>Showing first {shownCount} by popularity</Trans>}
+        />
+
+        <Box sx={{ gap: 2 }}>
+          {ids.map((entityId) => (
+            <PuzzlePickerRow
+              key={entityId}
+              entityId={entityId}
+              onPick={onPickPuzzle}
+            />
+          ))}
+        </Box>
+
+        <Pressable
+          onPress={() => {
+            setPageSize((n) => n + PAGE_STEP);
+          }}
+        >
+          <Card
+            elevation={0}
+            sx={{
+              py: 3,
+              alignItems: 'center',
             }}
           >
-            <Card
-              elevation={0}
-              sx={{
-                py: 3,
-                alignItems: 'center',
-              }}
-            >
-              <Text variant="body" label={<Trans>Load more</Trans>} />
-            </Card>
-          </Pressable>
-        </Box>
-      </ScrollView>
-    </Box>
+            <Text variant="body" label={<Trans>Load more</Trans>} />
+          </Card>
+        </Pressable>
+      </Box>
+    </ScrollView>
   );
 }

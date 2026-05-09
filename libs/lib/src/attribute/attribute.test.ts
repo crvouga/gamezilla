@@ -1,6 +1,12 @@
 import { Assert } from '@gamezilla/lib/assert';
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
-import { createAttrNamespace, isClojureNamespacedKey } from './attribute';
+import {
+  ATTRIBUTE_KEY_MAX_LENGTH,
+  ATTRIBUTE_NAMESPACE_MAX_SEGMENTS,
+  ATTRIBUTE_SEGMENT_MAX_LENGTH,
+  createAttrNamespace,
+  isClojureNamespacedKey,
+} from './attribute';
 
 let disposeTestCrashHandler: () => void;
 beforeAll(() => {
@@ -43,6 +49,39 @@ describe('isClojureNamespacedKey', () => {
     expect(isClojureNamespacedKey('MyNs/foo')).toBe(false);
     expect(isClojureNamespacedKey('ns/foo_bar')).toBe(false);
   });
+
+  it('rejects single-character namespace or local segments', () => {
+    expect(isClojureNamespacedKey('a/b')).toBe(false);
+    expect(isClojureNamespacedKey('ab/c')).toBe(false);
+    expect(isClojureNamespacedKey('abc/d')).toBe(false);
+  });
+
+  it('rejects non-ASCII and invisible Unicode even when shape looks valid', () => {
+    expect(isClojureNamespacedKey('to\u200Bdo/title')).toBe(false);
+    expect(isClojureNamespacedKey('patch/sync-réjected')).toBe(false);
+  });
+
+  it('rejects keys longer than ATTRIBUTE_KEY_MAX_LENGTH', () => {
+    const seg64 = 'ab'.repeat(32);
+    const prefix = `${seg64}.${seg64}.${seg64}`;
+    const key = `${prefix}/${seg64}`;
+    expect(key.length).toBeGreaterThan(ATTRIBUTE_KEY_MAX_LENGTH);
+    expect(isClojureNamespacedKey(key)).toBe(false);
+  });
+
+  it('rejects oversized segments', () => {
+    const seg = 'x'.repeat(ATTRIBUTE_SEGMENT_MAX_LENGTH + 1);
+    expect(isClojureNamespacedKey(`${seg}/yz`)).toBe(false);
+    expect(isClojureNamespacedKey(`ab/${seg}`)).toBe(false);
+  });
+
+  it('rejects too many dot-separated namespace segments', () => {
+    const prefix = Array.from(
+      { length: ATTRIBUTE_NAMESPACE_MAX_SEGMENTS + 1 },
+      () => 'ab'
+    ).join('.');
+    expect(isClojureNamespacedKey(`${prefix}/cd`)).toBe(false);
+  });
 });
 
 describe('createAttrNamespace', () => {
@@ -60,6 +99,10 @@ describe('createAttrNamespace', () => {
 
   it('rejects digit-first segment', () => {
     expect(() => createAttrNamespace('0bad')).toThrow();
+  });
+
+  it('rejects single-character namespace segment', () => {
+    expect(() => createAttrNamespace('x')).toThrow();
   });
 
   it('rejects camelCase segment', () => {
@@ -84,6 +127,11 @@ describe('createAttrNamespace', () => {
   it('rejects camelCase local name', () => {
     const ns = createAttrNamespace('games');
     expect(() => ns('displayName', (v) => v)).toThrow();
+  });
+
+  it('rejects single-character local name', () => {
+    const ns = createAttrNamespace('games');
+    expect(() => ns('x', (v) => v)).toThrow();
   });
 
   it('builds full key as prefix/name', () => {

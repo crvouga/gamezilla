@@ -271,6 +271,12 @@ export type IteratePuzzleRowsOptions = {
   progressEveryDataRows?: number;
 };
 
+function isAbortError(error: unknown): boolean {
+  if (error === null || typeof error !== 'object') return false;
+  const e = error as { code?: unknown; name?: unknown };
+  return e.code === 'ABORT_ERR' || e.name === 'AbortError';
+}
+
 export async function iteratePuzzleRows(
   resolved: ResolvedSource,
   onRow: (row: Record<string, unknown>) => Promise<boolean>,
@@ -285,21 +291,52 @@ export async function iteratePuzzleRows(
     trim: true,
   });
 
-  const pipePromise = pipeline(fileStream, decode, parser);
   const every = options?.progressEveryDataRows ?? 25_000;
   let parsedRows = 0;
+  // `stopRequested` is set when the row callback returns `false` (e.g.
+  // `--limit` reached). Returning early from the consumer destroys the
+  // parser before its writable side ends, which makes `pipeline()` reject
+  // with `ABORT_ERR` on Node and Bun. We swallow exactly that case below
+  // so a user-requested early stop is not surfaced as a stream abort and,
+  // crucially, so it does not mask a real downstream error from `onRow`.
+  let stopRequested = false;
+  let rowCallbackError: unknown = null;
   try {
-    for await (const record of parser as AsyncIterable<
-      Record<string, unknown>
-    >) {
-      parsedRows += 1;
-      if (options?.onParsedRowCount !== undefined && parsedRows % every === 0) {
-        options.onParsedRowCount({ parsedRows });
+    await pipeline(
+      fileStream,
+      decode,
+      parser,
+      async (records: AsyncIterable<Record<string, unknown>>) => {
+        for await (const record of records) {
+          parsedRows += 1;
+          if (
+            options?.onParsedRowCount !== undefined &&
+            parsedRows % every === 0
+          ) {
+            options.onParsedRowCount({ parsedRows });
+          }
+          let cont: boolean;
+          try {
+            cont = await onRow(record);
+          } catch (err) {
+            // Capture the real error so we can rethrow it after pipeline
+            // unwinds — otherwise `pipeline()` may surface a bare
+            // `ABORT_ERR` from cleanup that hides the original cause.
+            rowCallbackError = err;
+            stopRequested = true;
+            return;
+          }
+          if (!cont) {
+            stopRequested = true;
+            return;
+          }
+        }
       }
-      const cont = await onRow(record);
-      if (!cont) break;
-    }
-  } finally {
-    await pipePromise;
+    );
+  } catch (err) {
+    if (rowCallbackError !== null) throw rowCallbackError;
+    if (stopRequested && isAbortError(err)) return;
+    throw err;
   }
+  if (rowCallbackError !== null) throw rowCallbackError;
 }

@@ -97,3 +97,5 @@ export function useChessBoardSounds() {
     ]
   );
 }
+
+export type ChessBoardSounds = ReturnType<typeof useChessBoardSounds>;

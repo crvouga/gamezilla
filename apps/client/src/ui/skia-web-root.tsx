@@ -19,9 +19,8 @@ const canvaskitLocateFile = (file: string): string =>
 export async function loadSkiaWebOnce(): Promise<void> {
   if (Platform.OS !== 'web') return;
   if (typeof globalThis.CanvasKit !== 'undefined') return;
-  const { LoadSkiaWeb } = await import(
-    '@shopify/react-native-skia/lib/module/web/LoadSkiaWeb'
-  );
+  const { LoadSkiaWeb } =
+    await import('@shopify/react-native-skia/lib/module/web/LoadSkiaWeb');
   await LoadSkiaWeb({ locateFile: canvaskitLocateFile });
 }
 

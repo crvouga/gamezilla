@@ -85,6 +85,7 @@ module.exports = defineConfig([
   {
     files: [
       'src/spaces/games/chess/puzzle/puzzle-picker.tsx',
+      'src/spaces/games/chess/puzzle/puzzle-picker-screen.tsx',
       'src/spaces/games/chess/puzzle/puzzle-play-screen.tsx',
       'src/spaces/games/chess/puzzle/use-puzzle-solver.ts',
     ],

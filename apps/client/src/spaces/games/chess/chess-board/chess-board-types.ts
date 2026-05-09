@@ -34,6 +34,8 @@ export type Move = {
   captured?: PieceType;
   /** Kingside (k) or queenside (q) castle: rook leg for animation. */
   castle?: { rookFrom: Square; rookTo: Square };
+  /** Pawn captured on the square behind the destination (not on `to`). */
+  enPassant?: true;
 };
 
 export type BoardTheme = {
@@ -50,6 +52,15 @@ export type BoardTheme = {
 
 export type ChessBoardProps = {
   fen?: string;
+  /**
+   * When true, the board never applies moves locally: `fen` (and optional
+   * `fenSyncKey`) are the only source of position. Validates plies on a copy,
+   * then calls `onMove`; parent must update `fen` (or bump `fenSyncKey` with
+   * the same FEN to discard a rejected attempt).
+   */
+  controlled?: boolean;
+  /** Bumps to re-apply the current `fen` when the string is unchanged (e.g. wrong puzzle try). */
+  fenSyncKey?: number;
   onMove?: (m: Move) => void;
   orientation?: BoardOrientation;
   size?: number;

@@ -15,7 +15,7 @@ import { SelectGame } from '@gamezilla/domain/spaces/games/games';
 import { Trans } from '@lingui/react/macro';
 import { useCallback, useMemo, type ReactNode } from 'react';
 import { PuzzleMainMenu } from './puzzle/puzzle-main-menu';
-import { PuzzlePicker } from './puzzle/puzzle-picker';
+import { PuzzlePickerScreen } from './puzzle/puzzle-picker-screen';
 import { PuzzlePlayScreen } from './puzzle/puzzle-play-screen';
 
 export function ChessMainMenu(): ReactNode {
@@ -25,7 +25,7 @@ export function ChessMainMenu(): ReactNode {
     case CHESS_SCREEN.puzzle:
       return <PuzzleMainMenu />;
     case CHESS_SCREEN.puzzlePicker:
-      return <PuzzlePicker />;
+      return <PuzzlePickerScreen />;
     case CHESS_SCREEN.puzzlePlay:
       return <PuzzlePlayScreen />;
     default:

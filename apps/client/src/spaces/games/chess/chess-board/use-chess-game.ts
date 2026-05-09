@@ -90,6 +90,10 @@ function mapMove(m: ChessJsMove): Move {
       ? captured
       : undefined;
   const castle = rookCastleFromSan(m.color, m.san);
+  const enPassant =
+    'isEnPassant' in m && typeof m.isEnPassant === 'function' && m.isEnPassant()
+      ? (true as const)
+      : undefined;
   return {
     from,
     to,
@@ -97,7 +101,69 @@ function mapMove(m: ChessJsMove): Move {
     san: m.san,
     ...(capturedOut ? { captured: capturedOut } : {}),
     ...(castle ? { castle } : {}),
+    ...(enPassant ? { enPassant } : {}),
   };
+}
+
+export type TryMoveOk = {
+  ok: true;
+  move: Move;
+  inCheck: boolean;
+  isCheckmate: boolean;
+  isStalemate: boolean;
+  isDraw: boolean;
+  isGameOver: boolean;
+};
+
+export type TryMoveResult = TryMoveOk | { ok: false };
+
+function tryMoveOnMutableChess(
+  chess: Chess,
+  m: { from: Square; to: Square; promotion?: Move['promotion'] }
+): TryMoveResult {
+  try {
+    const result = chess.move({
+      from: m.from,
+      to: m.to,
+      ...(m.promotion ? { promotion: m.promotion } : {}),
+    });
+    const mapped = mapMove(result);
+    return {
+      ok: true,
+      move: mapped,
+      inCheck: chess.inCheck(),
+      isCheckmate: chess.isCheckmate(),
+      isStalemate: chess.isStalemate(),
+      isDraw: chess.isDraw(),
+      isGameOver: chess.isGameOver(),
+    };
+  } catch {
+    return { ok: false };
+  }
+}
+
+/** Validate a ply on a throwaway position (controlled board: parent owns FEN). */
+export function tryMoveOnFen(
+  fen: string,
+  m: { from: Square; to: Square; promotion?: Move['promotion'] }
+): TryMoveResult {
+  return tryMoveOnMutableChess(new Chess(fen), m);
+}
+
+export function moveRequiresPromotionOnFen(
+  fen: string,
+  from: Square,
+  to: Square
+): boolean {
+  const chess = new Chess(fen);
+  const moves = chess.moves({
+    square: from as unknown as ChessSquare,
+    verbose: true,
+  }) as ChessJsMove[];
+  for (const mv of moves) {
+    if (String(mv.to) === to && mv.promotion) return true;
+  }
+  return false;
 }
 
 export function useChessGame(options: UseChessGameOptions = {}) {
@@ -152,27 +218,11 @@ export function useChessGame(options: UseChessGameOptions = {}) {
 
   const tryMove = useCallback(
     (m: { from: Square; to: Square; promotion?: Move['promotion'] }) => {
-      try {
-        const result = chess.move({
-          from: m.from,
-          to: m.to,
-          ...(m.promotion ? { promotion: m.promotion } : {}),
-        });
-        const mapped = mapMove(result);
-        setLastMove(mapped);
-        sync();
-        return {
-          ok: true as const,
-          move: mapped,
-          inCheck: chess.inCheck(),
-          isCheckmate: chess.isCheckmate(),
-          isStalemate: chess.isStalemate(),
-          isDraw: chess.isDraw(),
-          isGameOver: chess.isGameOver(),
-        };
-      } catch {
-        return { ok: false as const };
-      }
+      const r = tryMoveOnMutableChess(chess, m);
+      if (!r.ok) return r;
+      setLastMove(r.move);
+      sync();
+      return r;
     },
     [chess, sync]
   );

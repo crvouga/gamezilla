@@ -30,21 +30,57 @@ function defaultBoardTheme(theme: ReturnType<typeof useTheme>): BoardTheme {
   };
 }
 
-export function ChessBoard(props: ChessBoardProps): ReactNode {
-  assertSkiaWebLoaded();
-
+function useChessBoardCanvasProps(
+  props: ChessBoardProps,
+  boardSize: number,
+  theme: BoardTheme
+): ChessBoardCanvasProps {
   const {
     fen,
+    controlled = false,
+    fenSyncKey,
     onMove,
     orientation = 'white',
-    size,
     interactive = true,
     showCoordinates = true,
     highlightLastMove = true,
     highlightLegalMoves = true,
-    theme: themeOverride,
-    testID,
   } = props;
+
+  return useMemo(
+    () => ({
+      ...(fen !== undefined ? { fen } : {}),
+      ...(onMove !== undefined ? { onMove } : {}),
+      ...(controlled ? { controlled: true } : {}),
+      ...(fenSyncKey !== undefined ? { fenSyncKey } : {}),
+      orientation,
+      size: boardSize,
+      interactive,
+      showCoordinates,
+      highlightLastMove,
+      highlightLegalMoves,
+      theme,
+    }),
+    [
+      fen,
+      controlled,
+      fenSyncKey,
+      onMove,
+      orientation,
+      boardSize,
+      interactive,
+      showCoordinates,
+      highlightLastMove,
+      highlightLegalMoves,
+      theme,
+    ]
+  );
+}
+
+export function ChessBoard(props: ChessBoardProps): ReactNode {
+  assertSkiaWebLoaded();
+
+  const { size, testID, theme: themeOverride } = props;
 
   const appTheme = useTheme();
   const theme = useMemo(() => {
@@ -62,30 +98,7 @@ export function ChessBoard(props: ChessBoardProps): ReactNode {
     if (next > 0 && next !== measured) setMeasured(next);
   };
 
-  const canvasProps = useMemo<ChessBoardCanvasProps>(
-    () => ({
-      ...(fen !== undefined ? { fen } : {}),
-      ...(onMove !== undefined ? { onMove } : {}),
-      orientation,
-      size: boardSize,
-      interactive,
-      showCoordinates,
-      highlightLastMove,
-      highlightLegalMoves,
-      theme,
-    }),
-    [
-      fen,
-      onMove,
-      orientation,
-      boardSize,
-      interactive,
-      showCoordinates,
-      highlightLastMove,
-      highlightLegalMoves,
-      theme,
-    ]
-  );
+  const canvasProps = useChessBoardCanvasProps(props, boardSize, theme);
 
   return (
     <Box

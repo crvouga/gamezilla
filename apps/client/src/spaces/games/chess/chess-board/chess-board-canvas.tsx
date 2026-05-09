@@ -41,8 +41,38 @@ import type {
 } from './chess-board-types';
 import { usePieceSkiaImages } from './chess-pieces-cache';
 import { pieceCode } from './chess-pieces-svg';
-import { useChessGame } from './use-chess-game';
+import { useChessBoardApplyMoveSound } from './use-chess-board-apply-move-sound';
+import { useChessBoardCaptureGhost } from './use-chess-board-capture-ghost';
+import {
+  moveRequiresPromotionOnFen,
+  tryMoveOnFen,
+  type TryMoveResult,
+  useChessGame,
+} from './use-chess-game';
 import { useExternalFenSync } from './use-external-fen-sync';
+
+/**
+ * Controlled boards validate on a copy (`tryMoveOnFen`) but must still apply
+ * the ply to the live `useChessGame` instance so `lastMove` + `position` feed
+ * `useChessPieceRows` / piece slide animations; parent `fen` then replaces via
+ * `useExternalFenSync` (e.g. engine reply).
+ */
+function applyPlyForBoardUi(
+  rulesFen: string | undefined,
+  tryMove: (m: {
+    from: Square;
+    to: Square;
+    promotion?: Move['promotion'];
+  }) => TryMoveResult,
+  m: { from: Square; to: Square; promotion?: Move['promotion'] }
+): TryMoveResult {
+  if (rulesFen !== undefined) {
+    const dry = tryMoveOnFen(rulesFen, m);
+    if (!dry.ok) return dry;
+    return tryMove(m);
+  }
+  return tryMove(m);
+}
 
 export type ChessBoardCanvasProps = Required<
   Pick<
@@ -56,45 +86,19 @@ export type ChessBoardCanvasProps = Required<
 > & {
   fen?: string;
   onMove?: (m: Move) => void;
+  controlled?: boolean;
+  fenSyncKey?: number;
   size: number;
   theme: BoardTheme;
 };
-
-type PostMoveAudio = {
-  inCheck: boolean;
-  isGameOver: boolean;
-};
-
-function playMoveSounds(
-  sounds: ReturnType<typeof useChessBoardSounds>,
-  move: Move,
-  post: PostMoveAudio
-) {
-  if (move.promotion) {
-    if (move.captured) {
-      sounds.playCapture();
-    }
-    sounds.playPromote();
-  } else if (move.castle) {
-    sounds.playCastle();
-  } else if (move.captured) {
-    sounds.playCapture();
-  } else {
-    sounds.playMove();
-  }
-  if (post.inCheck) {
-    sounds.playCheck();
-  }
-  if (post.isGameOver) {
-    sounds.playGameEnd();
-  }
-}
 
 /* eslint-disable-next-line max-statements -- Skia board: layout, gestures, promotion, and FEN sync. */
 export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
   const {
     fen,
     onMove,
+    controlled = false,
+    fenSyncKey,
     orientation,
     interactive,
     showCoordinates,
@@ -104,8 +108,13 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
     theme,
   } = props;
 
+  const rulesFen =
+    controlled && fen !== undefined && fen.length > 0 ? fen : undefined;
+
   const game = useChessGame({ ...(fen ? { initialFen: fen } : {}) });
   const { position, lastMove, inCheck, turn, reset } = game;
+
+  const { captureGhost } = useChessBoardCaptureGhost(position, lastMove);
 
   const sounds = useChessBoardSounds();
   const pieceImages = usePieceSkiaImages();
@@ -141,14 +150,9 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
     setPendingPromotion(null);
   }, []);
 
-  useExternalFenSync(fen, reset, clearBoardInteraction);
+  useExternalFenSync(fen, fenSyncKey, reset, clearBoardInteraction);
 
-  const applySuccessfulMove = useCallback(
-    (move: Move, post: PostMoveAudio) => {
-      playMoveSounds(sounds, move, post);
-    },
-    [sounds]
-  );
+  const applySuccessfulMove = useChessBoardApplyMoveSound(sounds);
 
   const gesture = useBoardGestures({
     size,
@@ -175,8 +179,11 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
       setHoveredSquare(sq);
     },
     onDrop: (fromSq, toSq) => {
-      if (!game.moveRequiresPromotion(fromSq, toSq)) {
-        const res = game.tryMove({
+      const needsPromotion = rulesFen
+        ? moveRequiresPromotionOnFen(rulesFen, fromSq, toSq)
+        : game.moveRequiresPromotion(fromSq, toSq);
+      if (!needsPromotion) {
+        const res = applyPlyForBoardUi(rulesFen, game.tryMove, {
           from: fromSq,
           to: toSq,
         });
@@ -185,7 +192,7 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
           hapticError();
           return;
         }
-        if (res.move.captured || game.inCheck) {
+        if (res.move.captured || res.inCheck) {
           hapticSuccess();
         } else {
           hapticSelection();
@@ -376,6 +383,30 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
                 })()
               : null}
 
+            {/* Captured piece stays until attacker slide finishes (see CHESS_PIECE_MOVE_MS). */}
+            {pieceImages && captureGhost
+              ? (() => {
+                  const image = pieceImages[captureGhost.code];
+                  if (!image) return null;
+                  const { x, y } = squareToXY(
+                    captureGhost.square,
+                    size,
+                    orientation
+                  );
+                  const cx = x + cell / 2 + cell * 0.042;
+                  const cy = y + cell / 2 + cell * 0.012;
+                  return (
+                    <ChessBoardPieceSkia
+                      key="capture-ghost"
+                      image={image}
+                      pieceSize={pieceDraw}
+                      targetCenterX={cx}
+                      targetCenterY={cy}
+                    />
+                  );
+                })()
+              : null}
+
             {/* active pieces */}
             {pieceImages
               ? pieceRows.map((row) => {
@@ -475,7 +506,7 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
             const pending = pendingPromotion;
             if (!pending) return;
             setPendingPromotion(null);
-            const res = game.tryMove({
+            const res = applyPlyForBoardUi(rulesFen, game.tryMove, {
               from: pending.from,
               to: pending.to,
               promotion: p,
@@ -485,7 +516,7 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
               hapticError();
               return;
             }
-            if (res.move.captured || game.inCheck) {
+            if (res.move.captured || res.inCheck) {
               hapticSuccess();
             } else {
               hapticSelection();

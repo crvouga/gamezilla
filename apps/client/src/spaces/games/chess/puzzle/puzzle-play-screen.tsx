@@ -1,12 +1,12 @@
 import { ChessBoard } from '@gamezilla/client/spaces/games/chess/chess-board';
 import {
-  CHESS_PUZZLE_ENTITY_TYPE,
-  ChessPuzzleAttr,
-} from '@gamezilla/domain/spaces/games/chess/puzzle/chess-puzzle-entities';
-import {
   CHESS_SCREEN,
   SetChessMainMenuScreen,
 } from '@gamezilla/domain/spaces/games/chess/chess-main-menu';
+import {
+  CHESS_PUZZLE_ENTITY_TYPE,
+  ChessPuzzleAttr,
+} from '@gamezilla/domain/spaces/games/chess/puzzle/chess-puzzle-entities';
 import {
   ChessPuzzleSessionAttr,
   SelectChessPuzzle,
@@ -199,20 +199,17 @@ function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
           />
         </Box>
 
-        {displayFen !== null ? (
-          <ChessBoard
-            key={`${puzzleId}-${resetNonce}-${layoutKey}`}
-            fen={displayFen}
-            orientation={orientation}
-            interactive={status === 'solving' || status === 'wrong'}
-            onMove={onMove}
-            showCoordinates
-            highlightLastMove
-            highlightLegalMoves
-          />
-        ) : (
-          <Text variant="body" label={<Trans>Waiting for puzzle…</Trans>} />
-        )}
+        <ChessBoard
+          controlled
+          fen={displayFen ?? ''}
+          fenSyncKey={layoutKey}
+          orientation={orientation}
+          interactive={status === 'solving' || status === 'wrong'}
+          onMove={onMove}
+          showCoordinates
+          highlightLastMove
+          highlightLegalMoves
+        />
 
         <Pressable
           onPress={() => {
