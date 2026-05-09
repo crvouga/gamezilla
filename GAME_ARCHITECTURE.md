@@ -701,7 +701,7 @@ PlanetScale         Serverless MySQL
 
 Local dev           PGlite socket (`@gamezilla/db`) + Bun API — no Docker
                     Doppler `local` `DB_URL` → `postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`
-                    `bun run --filter @gamezilla/api db:up` then `bun run --filter @gamezilla/db migrate`
+                    `bun run --filter @gamezilla/api db:up` then `bun run --filter @gamezilla/api db:migrate`
 ```
 
 ### Scale estimates
@@ -722,7 +722,7 @@ Cloudflare Workers: 10M requests/month free, then $0.50/M. Durable Objects: firs
 ```bash
 # From repo root — TCP on 127.0.0.1:5432 (detached; use `@gamezilla/db` `up` for foreground logs)
 bun run --filter @gamezilla/api db:up
-DOPPLER_CONFIG=local doppler run -- bun run --filter @gamezilla/db migrate
+DOPPLER_CONFIG=local doppler run -- bun run --filter @gamezilla/api db:migrate
 ```
 
 Set Doppler `local` `DB_URL` to match the server log (`postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`). See [PGlite Socket](https://pglite.dev/docs/pglite-socket).

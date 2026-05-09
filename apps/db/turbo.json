@@ -11,9 +11,6 @@
     },
     "start-daemon": {
       "cache": false
-    },
-    "migrate": {
-      "cache": false
     }
   }
 }

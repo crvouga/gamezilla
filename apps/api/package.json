@@ -35,6 +35,7 @@
     "tc": "tsc --noEmit -p ../../tsconfig.json",
     "setup": "bun run scripts/setup-dev-vars.ts && bun run scripts/setup-better-auth-secret.ts",
     "db:up": "bun run --filter @gamezilla/db start-daemon",
+    "db:migrate": "bun run scripts/migrate-db.ts",
     "seed:puzzles": "bun run scripts/seed-chess-puzzles.ts",
     "stripe:sync": "bun run --filter @gamezilla/stripe sync",
     "stripe:check": "bun run --filter @gamezilla/stripe check",

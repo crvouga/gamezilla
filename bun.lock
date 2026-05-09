@@ -140,18 +140,12 @@
       "name": "@gamezilla/db",
       "version": "1.0.0",
       "dependencies": {
-        "@better-auth/expo": "^1.6.9",
         "@electric-sql/pglite": "^0.4.3",
         "@electric-sql/pglite-socket": "^0.0.21",
         "@gamezilla/lib": "workspace:*",
-        "@gamezilla/patch-db": "workspace:*",
-        "better-auth": "^1.6.9",
-        "kysely": "^0.28.9",
-        "pg": "^8.16.3",
       },
       "devDependencies": {
         "@types/bun": "^1.3.9",
-        "@types/pg": "^8.11.10",
         "typescript": "~5.9.2",
       },
     },

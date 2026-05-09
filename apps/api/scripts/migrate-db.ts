@@ -11,7 +11,7 @@ async function main(): Promise<void> {
   const databaseUrl = await store.getRequired('DB_URL');
   const pool = new Pool({ connectionString: databaseUrl });
   const sqlClient = new SqlClientImplPg(pool);
-  const log = createLogger({ name: 'db:migrate' });
+  const log = createLogger({ name: 'api:migrate' });
   await sqlClient.connect();
   try {
     await runPostgresMigrations({
@@ -24,7 +24,7 @@ async function main(): Promise<void> {
       'postgres migrations finished (patch-db + kv + better-auth; legacy entities dropped if present)'
     );
     process.stdout.write(
-      '[db:migrate] completed (patch-db + kv + better-auth; legacy entities dropped if present)\n'
+      '[api:migrate] completed (patch-db + kv + better-auth; legacy entities dropped if present)\n'
     );
   } finally {
     await pool.end();
@@ -32,5 +32,5 @@ async function main(): Promise<void> {
 }
 
 await main().catch((error: unknown) => {
-  assert.fail('db:migrate failed', { error });
+  assert.fail('api:migrate failed', { error });
 });
