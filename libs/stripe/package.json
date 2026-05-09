@@ -23,7 +23,7 @@
     "@gamezilla/patch-db": "workspace:*",
     "@hono/zod-validator": "^0.7.6",
     "hono": "^4.7.0",
-    "pg": "^8.13.1",
+    "pg": "^8.16.3",
     "stripe": "^18.0.0",
     "zod": "^4.3.6"
   },
