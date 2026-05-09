@@ -14,7 +14,7 @@
     "apps/infra/src/cli/secrets/turbo-token.ts",
     "apps/client/src/auth/fetch-client-runtime-config.ts",
     "apps/client/src/connection/offline-indicator.tsx",
-    "apps/client/src/profile/profile-actions.ts"
+    "apps/client/src/profile/profile-actions.ts",
   ],
   "ignoreDependencies": [
     "expo-updates",
@@ -45,17 +45,17 @@
     "@total-typescript/ts-reset",
     "eslint-plugin-lingui",
     "turbo",
-    "typescript-eslint"
+    "typescript-eslint",
   ],
   "workspaces": {
     ".": {
-      "entry": ["package.json"]
+      "entry": ["package.json"],
     },
     "apps/stripe-cli": {
-      "entry": "src/dev.ts"
+      "entry": "src/dev.ts",
     },
     "apps/qa": {
-      "entry": "src/browser/playwright.config.ts"
-    }
-  }
+      "entry": "src/browser/playwright.config.ts",
+    },
+  },
 }

@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import { captureVersion, spawnInstall, verifyRun, whichSync } from './spawn';
 import type { Dep, DepStatus } from './types';
 
@@ -10,6 +11,40 @@ function isMacOS(): boolean {
 
 function hasHomebrew(): boolean {
   return whichSync('brew');
+}
+
+function ensureStripeHomebrewTap(): void {
+  spawnInstall('brew', ['tap', 'stripe/stripe-cli']);
+}
+
+function hasStripeHomebrewFormulaInstalled(): boolean {
+  const result = spawnSync(
+    'brew',
+    ['list', '--formula', 'stripe/stripe-cli/stripe'],
+    {
+      stdio: 'ignore',
+      env: process.env,
+    }
+  );
+  return result.status === 0 && !result.error;
+}
+
+function hasLegacyStripeCliFormulaInstalled(): boolean {
+  const result = spawnSync('brew', ['list', '--formula', 'stripe-cli'], {
+    stdio: 'ignore',
+    env: process.env,
+  });
+  return result.status === 0 && !result.error;
+}
+
+function unlinkLegacyStripeCliIfNeeded(): void {
+  if (hasLegacyStripeCliFormulaInstalled()) {
+    spawnInstall('brew', ['unlink', 'stripe-cli']);
+  }
+}
+
+function ensureStripeFormulaLinked(): void {
+  spawnInstall('brew', ['link', '--overwrite', 'stripe']);
 }
 
 export class StripeDep implements Dep {
@@ -51,7 +86,10 @@ export class StripeDep implements Dep {
 
   install(): void {
     if (isMacOS() && hasHomebrew()) {
+      ensureStripeHomebrewTap();
+      unlinkLegacyStripeCliIfNeeded();
       spawnInstall('brew', ['install', 'stripe/stripe-cli/stripe']);
+      ensureStripeFormulaLinked();
       return;
     }
 
@@ -63,7 +101,14 @@ export class StripeDep implements Dep {
 
   upgrade(): void {
     if (isMacOS() && hasHomebrew()) {
-      spawnInstall('brew', ['upgrade', 'stripe/stripe-cli/stripe']);
+      ensureStripeHomebrewTap();
+      unlinkLegacyStripeCliIfNeeded();
+      if (hasStripeHomebrewFormulaInstalled()) {
+        spawnInstall('brew', ['upgrade', 'stripe/stripe-cli/stripe']);
+      } else {
+        spawnInstall('brew', ['install', 'stripe/stripe-cli/stripe']);
+      }
+      ensureStripeFormulaLinked();
       return;
     }
     this.install();
