@@ -58,10 +58,7 @@ const RETRY_MAX_DELAY_MS = 4000;
 
 function backoffDelayMs(attempt: number): number {
   // Exponential backoff with full jitter.
-  const exp = Math.min(
-    RETRY_MAX_DELAY_MS,
-    RETRY_BASE_DELAY_MS * 2 ** attempt
-  );
+  const exp = Math.min(RETRY_MAX_DELAY_MS, RETRY_BASE_DELAY_MS * 2 ** attempt);
   return Math.floor(Math.random() * exp);
 }
 
