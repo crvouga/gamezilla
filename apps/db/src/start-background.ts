@@ -50,31 +50,7 @@ const host = readHost();
 const port = readPort();
 const dbUrl = pgliteDevDbUrl(host, port);
 
-// #region agent log
-const dbgLog = (
-  location: string,
-  message: string,
-  data: Record<string, unknown> = {}
-): void => {
-  fetch('http://127.0.0.1:7510/ingest/c52c9028-9c01-42a4-9186-01f9b18984a5', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Debug-Session-Id': '8e3ce2',
-    },
-    body: JSON.stringify({
-      sessionId: '8e3ce2',
-      location,
-      message,
-      data,
-      timestamp: Date.now(),
-    }),
-  }).catch(() => {});
-};
-// #endregion
-
-// eslint-disable-next-line max-lines-per-function -- temporary debug instrumentation
-async function main(): Promise<void> {
+async function isAlreadyListening(): Promise<boolean> {
   try {
     await waitForTcpPort(host, port, 500);
     log.info('PGlite (or Postgres) already accepting TCP; skipping spawn', {
@@ -82,11 +58,13 @@ async function main(): Promise<void> {
       port,
       dbUrl,
     });
-    return;
+    return true;
   } catch {
-    /* port not open yet */
+    return false;
   }
+}
 
+function spawnDetached(): number {
   const proc = spawn('bun', ['run', entry], {
     cwd: pkgRoot,
     detached: true,
@@ -94,70 +72,23 @@ async function main(): Promise<void> {
     env: { ...process.env },
   });
   proc.unref();
-
   assert.defined(proc.pid, 'failed to start PGlite socket (no pid)', { proc });
-
-  // #region agent log
-  dbgLog(
-    'apps/db/src/start-background.ts:after-spawn',
-    'spawned detached PGlite child',
-    {
-      hypothesisId: 'A,B',
-      pid: proc.pid,
-      ppid: process.pid,
-      entry,
-      cwd: pkgRoot,
-      host,
-      port,
-    }
-  );
-  // #endregion
-
   log.info('PGlite socket starting in background', {
     pid: proc.pid,
     host,
     port,
     dbUrl,
   });
+  return proc.pid;
+}
 
-  const tWaitStart = Date.now();
+async function waitUntilReady(): Promise<void> {
   try {
     await waitForTcpPort(host, port, 30_000);
-    // #region agent log
-    dbgLog(
-      'apps/db/src/start-background.ts:wait-success',
-      'TCP port became available before timeout',
-      {
-        hypothesisId: 'A',
-        pid: proc.pid,
-        elapsedMs: Date.now() - tWaitStart,
-      }
-    );
-    // #endregion
   } catch (error: unknown) {
-    // #region agent log
-    dbgLog(
-      'apps/db/src/start-background.ts:wait-timeout',
-      'waitForTcpPort timed out — child may still be initializing PGlite',
-      {
-        hypothesisId: 'A',
-        pid: proc.pid,
-        elapsedMs: Date.now() - tWaitStart,
-        host,
-        port,
-        errorMsg: error instanceof Error ? error.message : String(error),
-      }
-    );
-    // #endregion
-    log.error('PGlite did not become ready', {
-      host,
-      port,
-      dbUrl,
-      error,
-    });
+    log.error('PGlite did not become ready', { host, port, dbUrl, error });
     process.exit(1);
   }
-
   log.info('PGlite ready', {
     host,
     port,
@@ -165,6 +96,12 @@ async function main(): Promise<void> {
     stopHint:
       'bun run --filter @gamezilla/db kill   (kills whatever listens on PGLITE_PORT, default 5432)',
   });
+}
+
+async function main(): Promise<void> {
+  if (await isAlreadyListening()) return;
+  spawnDetached();
+  await waitUntilReady();
 }
 
 await main().catch((error: unknown) => {
