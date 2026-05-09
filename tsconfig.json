@@ -49,6 +49,7 @@
     "libs/stripe/src/**/*.ts",
     "apps/turbo-cache/src/**/*.ts",
     "apps/stripe-cli/src/**/*.ts",
+    "apps/db/src/**/*.ts",
     "apps/client/.expo/types/**/*.ts",
     "apps/client/expo-env.d.ts"
   ],

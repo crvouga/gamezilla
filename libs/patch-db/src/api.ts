@@ -1,6 +1,6 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
-import type { PatchDb } from './interface';
+import type { PatchDbResolvable } from './interface';
 import type {
   PatchDbHttpAuthOptions,
   createPatchDbHttpHono,
@@ -11,8 +11,10 @@ import { PatchDbImplInstrumentedSyncHost } from './transport/instrumented-sync-h
 import type { PatchDbSyncHost } from './transport/interface';
 import { patchDbPaths } from './transport/paths';
 
+export type { PatchDbResolvable };
+
 export type PatchDbApiConfig = {
-  db: PatchDb;
+  db: PatchDbResolvable;
   pubSub: PubSub;
   /** Default: `/patch-db`. */
   basePath?: string;
@@ -48,6 +50,16 @@ export function createPatchDbApiHandler(
 ): PatchDbApiHandlerBundle {
   const { basePath: normalizedBase } = patchDbPaths(config.basePath);
 
+  if (
+    config.instrumentation !== undefined &&
+    config.instrumentation !== false
+  ) {
+    assert.ok(
+      typeof config.db !== 'function',
+      'PatchDbApiConfig: instrumentation requires a concrete PatchDb, not a resolver'
+    );
+  }
+
   let host: PatchDbSyncHost = new PatchDbImplSyncHost(config.db, config.pubSub);
   let disposeInstrumentation: (() => void) | undefined;
 
@@ -62,6 +74,10 @@ export function createPatchDbApiHandler(
     assert.nonNegativeInteger(
       flushIntervalMs,
       'flushIntervalMs must be a non-negative integer'
+    );
+    assert.ok(
+      typeof config.db !== 'function',
+      'instrumented host requires concrete db'
     );
     const instrumented = new PatchDbImplInstrumentedSyncHost({
       inner: host,

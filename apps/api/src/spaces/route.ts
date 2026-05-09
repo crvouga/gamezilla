@@ -1,7 +1,5 @@
-import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { Hono } from 'hono';
-import type { HttpBearerAuthPorts } from '../auth/ports';
-import type { ApiWorkerEnv } from '../config/env';
+import type { ApiHonoEnv } from '../app/api-hono-types';
 import { ACTOR_ID_HEADER, authorizeSpaceDoWebSocket } from './space-do-auth';
 
 /**
@@ -12,12 +10,10 @@ import { ACTOR_ID_HEADER, authorizeSpaceDoWebSocket } from './space-do-auth';
  * Query: `token` — hosted session JWT (browsers cannot set `Authorization` on `WebSocket`).
  * Query: `anonId` — install UUID; required with `token` for device binding (same as `x-anon-id` on HTTP).
  */
-export function createSpaceApp(options: {
-  db: PatchDb;
-  bearerAuth: HttpBearerAuthPorts;
-}) {
-  const { db, bearerAuth } = options;
-  return new Hono<{ Bindings: ApiWorkerEnv }>().get('/space/ws', async (c) => {
+export function createSpaceApp() {
+  return new Hono<ApiHonoEnv>().get('/space/ws', async (c) => {
+    const db = c.get('patchDb');
+    const bearerAuth = c.get('bearerAuth');
     const topic = c.req.query('topic');
     if (typeof topic !== 'string' || topic.length === 0) {
       return c.json({ error: 'missing or empty topic query parameter' }, 400);

@@ -5,18 +5,11 @@
  * construction, and PatchDb setup so per-entity scripts stay thin and
  * consistent (Tiger Style: small surface, fail fast).
  *
- * `DB_URL` accepts either:
- *   - `postgres://` / `postgresql://` — direct Postgres over Bun's TCP driver
- *     (production, deploys, any reachable Postgres).
- *   - `http://` / `https://` — local PGlite HTTP dev server (`apps/db`),
- *     selected automatically when running against Doppler `local`.
- *
- * Mirrors the URL-prefix dispatch already used by `apps/db/scripts/migrate-db.ts`
- * and `apps/api/src/db/sql-client.ts` so the dev/prod boundary stays uniform.
+ * `DB_URL` must be `postgres://` or `postgresql://` (TCP Postgres).
  */
-import { SqlClientImplPgliteHttp } from '@gamezilla/lib/sql-client/impl-pglite-http';
-import { SqlClientImplPostgresTcp } from '@gamezilla/lib/sql-client/impl-postgres-tcp';
+import { SqlClientImplPg } from '@gamezilla/lib/sql-client/impl-pg';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { Pool } from 'pg';
 import type { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
 import Stripe from 'stripe';
 import { createStripeScriptSecretStore } from './script-secret-store';
@@ -25,14 +18,6 @@ import { createStripeScriptPatchDb } from './stripe-script-patch-db';
 
 function isPostgresDbUrl(u: string): boolean {
   return u.startsWith('postgres://') || u.startsWith('postgresql://');
-}
-
-function isHttpDbUrl(u: string): boolean {
-  return u.startsWith('http://') || u.startsWith('https://');
-}
-
-function isSupportedDbUrl(u: string): boolean {
-  return isPostgresDbUrl(u) || isHttpDbUrl(u);
 }
 
 /**
@@ -64,13 +49,13 @@ export async function assertDbUrl(scriptTag: string): Promise<string> {
   const u = raw.trim();
   if (u.length === 0) {
     console.error(
-      `[${scriptTag}] DB_URL is missing in Doppler — set a postgres://… connection string, or http://127.0.0.1:15432 for the local PGlite dev server`
+      `[${scriptTag}] DB_URL is missing in Doppler — set a postgres://… connection string`
     );
     process.exit(1);
   }
-  if (!isSupportedDbUrl(u)) {
+  if (!isPostgresDbUrl(u)) {
     console.error(
-      `[${scriptTag}] DB_URL must be a postgres://, postgresql://, or http(s):// URL`
+      `[${scriptTag}] DB_URL must be a postgres:// or postgresql:// URL`
     );
     process.exit(1);
   }
@@ -80,26 +65,20 @@ export async function assertDbUrl(scriptTag: string): Promise<string> {
 /**
  * Optional `DB_URL` resolver — preserves soft-skip semantics for callers that
  * want catalog reconcile without patch-db persistence (e.g. CI gate scripts
- * running where no Postgres / PGlite is reachable).
+ * running where no Postgres is reachable).
  */
 export async function resolveOptionalDbUrl(): Promise<string | undefined> {
   const store = createStripeScriptSecretStore();
   const raw = (await store.getOptional('DB_URL')) ?? '';
   const u = raw.trim();
   if (u.length === 0) return undefined;
-  if (isSupportedDbUrl(u)) return u;
+  if (isPostgresDbUrl(u)) return u;
   return undefined;
 }
 
-/**
- * Build a {@link SqlClient} for the given `DB_URL`. HTTP URLs route to the
- * PGlite HTTP dev server; postgres URLs route to Bun's TCP driver.
- */
+/** Build a {@link SqlClient} for the given `DB_URL` (TCP Postgres). */
 export function createSqlClientFromDbUrl(dbUrl: string): SqlClient {
-  if (isHttpDbUrl(dbUrl)) {
-    return new SqlClientImplPgliteHttp(dbUrl);
-  }
-  return SqlClientImplPostgresTcp.connect(dbUrl);
+  return new SqlClientImplPg(new Pool({ connectionString: dbUrl }));
 }
 
 export function createStripeClientFromSecret(secretKey: string): Stripe {
@@ -115,8 +94,7 @@ export type StripeScriptContext = {
 
 /**
  * Build a fully-wired script context: Stripe client + PatchDb backed by
- * whichever SQL impl matches `DB_URL` (Postgres TCP or PGlite HTTP).
- * Caller MUST `await ctx.disconnect()` in a `finally` block.
+ * Postgres. Caller MUST `await ctx.disconnect()` in a `finally` block.
  */
 export async function createStripeScriptContext(
   scriptTag: string

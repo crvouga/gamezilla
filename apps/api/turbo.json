@@ -4,6 +4,16 @@
   "tasks": {
     "build": {
       "outputs": []
+    },
+    "dev": {
+      "dependsOn": [
+        "kill",
+        "install:deps",
+        "setup",
+        "@gamezilla/db#start-daemon"
+      ],
+      "persistent": true,
+      "cache": false
     }
   }
 }

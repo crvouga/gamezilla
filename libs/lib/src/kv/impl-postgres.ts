@@ -2,6 +2,19 @@
  * Postgres-backed {@link Kv}. Table layout and DDL are private to this module.
  * For correct `transaction` + advisory locking, use a TCP Postgres `SqlClient`
  * (e.g. `impl-postgres-tcp`) — not Neon's HTTP or WebSocket drivers.
+ *
+ * Schema is aggressively tuned for Redis-style hot-key access:
+ *   - UNLOGGED: skip WAL → much higher write throughput. Trade-off: the table
+ *     is truncated on a Postgres crash and is NOT replicated to standbys. Use
+ *     this only when the source of truth lives elsewhere (cache / scratch).
+ *   - fillfactor = 70: leave 30% slack per page so UPDATEs become HOT
+ *     (heap-only tuples) and don't dirty the PK index on every overwrite.
+ *   - toast_tuple_target = 8160: keep mid-sized values inline rather than
+ *     paying a separate TOAST round-trip per get/put.
+ *   - autovacuum tuned aggressively: KV tables churn fast; vacuum often,
+ *     don't throttle, so dead tuples never pile up.
+ *   - value column STORAGE MAIN: compress inline, skip the out-of-line probe
+ *     that EXTENDED does on every write.
  */
 import { assert } from '../assert';
 import type { Logger } from '../logger/logger';
@@ -12,12 +25,24 @@ import type { Kv } from './interface';
 const TABLE = 'kv';
 const LAST_MODIFIED_AT = 'last_modified_at';
 
+/** Per-table storage parameters applied to both fresh and existing tables. */
+const STORAGE_PARAMS = `
+  fillfactor = 70,
+  toast_tuple_target = 8160,
+  autovacuum_vacuum_scale_factor = 0.05,
+  autovacuum_analyze_scale_factor = 0.05,
+  autovacuum_vacuum_threshold = 100,
+  autovacuum_analyze_threshold = 100,
+  autovacuum_vacuum_cost_delay = 0
+`;
+
 const MIGRATIONS = `
-CREATE TABLE IF NOT EXISTS kv (
+CREATE UNLOGGED TABLE IF NOT EXISTS ${TABLE} (
   key        TEXT        PRIMARY KEY,
   value      TEXT        NOT NULL,
   ${LAST_MODIFIED_AT} TIMESTAMPTZ NOT NULL DEFAULT now()
-);
+) WITH (${STORAGE_PARAMS});
+ALTER TABLE ${TABLE} ALTER COLUMN value SET STORAGE MAIN;
 `;
 
 const ADVISORY_LOCK_SQL =
@@ -41,6 +66,40 @@ async function migrateKvLegacyUpdatedAtColumn(
   await sqlClient.run(
     `ALTER TABLE ${TABLE} RENAME COLUMN updated_at TO ${LAST_MODIFIED_AT}`
   );
+}
+
+/**
+ * Brings an existing kv table up to the Redis-style optimized layout.
+ * All operations are idempotent. The UNLOGGED conversion rewrites the heap
+ * under ACCESS EXCLUSIVE — fast on tiny tables, disruptive on huge ones.
+ */
+async function applyKvStorageOptimizations(
+  sqlClient: SqlClient,
+  log: Logger
+): Promise<void> {
+  log.info('kv postgres migrate: applying storage parameters', {
+    table: TABLE,
+  });
+  await sqlClient.run(`ALTER TABLE ${TABLE} SET (${STORAGE_PARAMS})`);
+  await sqlClient.run(
+    `ALTER TABLE ${TABLE} ALTER COLUMN value SET STORAGE MAIN`
+  );
+
+  // 'p' = permanent (logged), 'u' = unlogged, 't' = temp.
+  const rows = await sqlClient.query<{ relpersistence: string }>(
+    `SELECT relpersistence FROM pg_class
+     WHERE relname = ? AND relnamespace = 'public'::regnamespace`,
+    [TABLE]
+  );
+  assert.array(rows, 'kv migrate: pg_class lookup must return array');
+  const isUnlogged = rows[0]?.relpersistence === 'u';
+  if (!isUnlogged) {
+    log.warn(
+      'kv postgres migrate: converting kv to UNLOGGED — data will be wiped on Postgres crash and is NOT replicated to standbys; rewrite holds ACCESS EXCLUSIVE',
+      { table: TABLE }
+    );
+    await sqlClient.run(`ALTER TABLE ${TABLE} SET UNLOGGED`);
+  }
 }
 
 /** Idempotent Postgres DDL for the `kv` table (same as `KvImplPostgres.migrate`). */
@@ -70,6 +129,7 @@ async function runKvPostgresMigrations(
     });
   }
   await migrateKvLegacyUpdatedAtColumn(sqlClient, log);
+  await applyKvStorageOptimizations(sqlClient, log);
 }
 
 /**

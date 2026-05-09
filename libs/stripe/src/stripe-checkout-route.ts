@@ -197,11 +197,11 @@ async function handleStripePortal(
 }
 
 export function createStripeCheckoutRoutes(args: {
-  readonly db: PatchDb;
+  readonly getPatchDb: () => PatchDb;
   readonly stripe: Stripe | null;
   readonly requireAuth: StripeRequireAuth;
 }) {
-  const { db, stripe, requireAuth } = args;
+  const { getPatchDb, stripe, requireAuth } = args;
 
   return new Hono()
     .post(
@@ -212,6 +212,7 @@ export function createStripeCheckoutRoutes(args: {
           return c.json({ error: 'Stripe is not configured' }, 503);
         }
         const body = c.req.valid('json');
+        const db = getPatchDb();
         return handleStripeCheckout(c, body, {
           db,
           stripe,
@@ -224,6 +225,7 @@ export function createStripeCheckoutRoutes(args: {
         return c.json({ error: 'Stripe is not configured' }, 503);
       }
       const body = c.req.valid('json');
+      const db = getPatchDb();
       return handleStripePortal(c, body, { db, stripe, requireAuth });
     });
 }

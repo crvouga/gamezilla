@@ -3,11 +3,11 @@
  * write path (patches → snapshots). Idempotent: content-addressed `patchId`
  * per row; `INSERT … ON CONFLICT DO NOTHING` skips unchanged rows.
  *
- * Local (Doppler `local`, `DB_URL` → PGlite HTTP):
- *   DOPPLER_CONFIG=local doppler run -- bun run --filter @gamezilla/db seed:puzzles
+ * Local (Doppler `local`, `DB_URL` → PGlite socket or other Postgres):
+ *   DOPPLER_CONFIG=local doppler run -- bun run --filter @gamezilla/api seed:puzzles
  *
  * Production (Doppler `prod`, `DB_URL` → Postgres):
- *   DOPPLER_CONFIG=prod doppler run -- bun run --filter @gamezilla/db seed:puzzles
+ *   DOPPLER_CONFIG=prod doppler run -- bun run --filter @gamezilla/api seed:puzzles
  *
  * Options: `--source`, `--cache-dir`, `--batch-size`, `--limit`, `--no-resume`, `--dry-run`,
  * `--json` (one JSON log line per event), `--pretty` / `--no-pretty` (TTY progress styling).
@@ -24,8 +24,7 @@ import {
 import { assert } from '@gamezilla/lib/assert';
 import { createLogger } from '@gamezilla/lib/logger';
 import { createDopplerSecretStoreForScripts } from '@gamezilla/lib/secret-store';
-import { SqlClientImplPgliteHttp } from '@gamezilla/lib/sql-client/impl-pglite-http';
-import { SqlClientImplPlanetScalePostgres } from '@gamezilla/lib/sql-client/impl-planetscale-postgres';
+import { SqlClientImplPg } from '@gamezilla/lib/sql-client/impl-pg';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
 import {
@@ -38,7 +37,9 @@ import { createHash } from 'node:crypto';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
-import { runPostgresMigrations } from '../src/postgres-migrations';
+import { Pool } from 'pg';
+import { loadBetterAuthOptionsForMigration } from '@gamezilla/db/migrations/better-auth-doppler-options';
+import { runPostgresMigrations } from '@gamezilla/db/migrations/run-postgres-migrations';
 import { createPuzzleSeedReporter } from './seed-chess-puzzles-reporter.ts';
 import {
   ensureCachedArchive,
@@ -50,13 +51,15 @@ const DEFAULT_PUZZLE_URL =
   'https://database.lichess.org/lichess_db_puzzle.csv.zst';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
-const APP_DB_ROOT = resolve(SCRIPT_DIR, '..');
-const DEFAULT_CACHE_DIR = join(APP_DB_ROOT, '.cache', 'lichess');
+const APP_API_ROOT = resolve(SCRIPT_DIR, '..');
+const DEFAULT_CACHE_DIR = join(APP_API_ROOT, '.cache', 'lichess');
 
-function createSqlClient(databaseUrl: string): SqlClient {
-  return databaseUrl.startsWith('http')
-    ? new SqlClientImplPgliteHttp(databaseUrl)
-    : new SqlClientImplPlanetScalePostgres(databaseUrl);
+function createSqlClient(databaseUrl: string): {
+  sql: SqlClient;
+  pool: Pool;
+} {
+  const pool = new Pool({ connectionString: databaseUrl });
+  return { sql: new SqlClientImplPg(pool), pool };
 }
 
 function createSeedPatchDb(sql: SqlClient): PatchDb {
@@ -78,11 +81,6 @@ function createSeedPatchDb(sql: SqlClient): PatchDb {
     autoCompactOnWrite: false,
     compactionPolicy: compaction.resolve,
   });
-}
-
-async function resolveDatabaseUrlFromDoppler(): Promise<string> {
-  const store = createDopplerSecretStoreForScripts();
-  return store.getRequired('DB_URL');
 }
 
 type Cli = {
@@ -372,11 +370,17 @@ async function main(): Promise<void> {
   }
 
   reporter.phase('Connect database & run migrations');
-  const databaseUrl = await resolveDatabaseUrlFromDoppler();
-  const sqlClient = createSqlClient(databaseUrl);
+  const store = createDopplerSecretStoreForScripts();
+  const databaseUrl = await store.getRequired('DB_URL');
+  const { sql: sqlClient, pool } = createSqlClient(databaseUrl);
   await sqlClient.connect();
   try {
-    await runPostgresMigrations({ sqlClient, logger: log });
+    await runPostgresMigrations({
+      sqlClient,
+      pool,
+      logger: log,
+      betterAuthOptions: await loadBetterAuthOptionsForMigration(store),
+    });
     const patchDb = createSeedPatchDb(sqlClient);
 
     const priorAttrs = await readLoadSnapshotAttrs(patchDb);
@@ -488,7 +492,7 @@ async function main(): Promise<void> {
           : resolved.etag,
     });
   } finally {
-    await sqlClient.disconnect();
+    await pool.end();
   }
 }
 

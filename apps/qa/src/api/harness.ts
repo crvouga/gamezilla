@@ -24,15 +24,6 @@ function resolveWorkspaceRoot(): string {
 
 const repoRoot = resolveWorkspaceRoot();
 
-/** Port for `@gamezilla/db` PGlite HTTP server (fixed in apps/db; Doppler `local` `DB_URL` must match). */
-export function defaultSqlPort(): string {
-  return '15432';
-}
-
-export function databaseHttpOrigin(port: string): string {
-  return `http://127.0.0.1:${port}`;
-}
-
 type SpawnedProcess = {
   readonly subprocess: Subprocess;
   /** Captured combined stdout/stderr — drained continuously so the OS pipe buffers never fill. */

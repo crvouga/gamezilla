@@ -10,7 +10,7 @@ import {
   buildPatchConditions,
   buildSnapshotConditions,
 } from './query-builder-pg';
-import { LINEAGE_CTE, SELECT_DEPTH_BY_PATCH_ID } from './sql-constants';
+import { SELECT_DEPTH_BY_PATCH_ID } from './sql-constants';
 
 function rowAttributesText(row: PatchRow | SnapshotRow): string {
   const a = row.attributes;
@@ -49,6 +49,12 @@ function hasNoKnownPatchHints(q: PatchDbQuery): boolean {
   return true;
 }
 
+/** `knownPatchIds` allowed (sync poll); still rejects `knownPatches` (would need hydration). */
+function hasNoKnownPatches(q: PatchDbQuery): boolean {
+  const kp = q.knownPatches;
+  return kp === null || kp === undefined || kp.length === 0;
+}
+
 function hasAtomPaginationDefaults(q: PatchDbQuery): boolean {
   if (q.after !== null && q.after !== undefined) return false;
   if (q.offset !== null && q.offset !== undefined && q.offset !== 0)
@@ -63,6 +69,17 @@ function isBareSingleEntityAtomQuery(q: PatchDbQuery): boolean {
     hasBareStringEntityId(q) &&
     hasNoWhereOrOrderBy(q) &&
     hasNoKnownPatchHints(q) &&
+    hasAtomPaginationDefaults(q)
+  );
+}
+
+/** Solo snapshot fast-path: same as batchable atom, but allows `knownPatchIds` for SQL pruning. */
+function isBareSingleEntityFastPathQuery(q: PatchDbQuery): boolean {
+  return (
+    isDefaultEntityView(q) &&
+    hasBareStringEntityId(q) &&
+    hasNoWhereOrOrderBy(q) &&
+    hasNoKnownPatches(q) &&
     hasAtomPaginationDefaults(q)
   );
 }
@@ -96,7 +113,17 @@ async function readBareSingleEntityBatchPostgres(
     entity_id: q.entityId as string,
     entity_type: entityType,
   }));
-  const allPatches = await batchFetchPatchesForEntities(sqlClient, pairs);
+  const excludePatchIds =
+    slice.length === 1 &&
+    slice[0]!.knownPatchIds !== undefined &&
+    slice[0]!.knownPatchIds.length > 0
+      ? slice[0]!.knownPatchIds
+      : undefined;
+  const allPatches = await batchFetchPatchesForEntities(
+    sqlClient,
+    pairs,
+    excludePatchIds
+  );
   const byKey = new Map<string, Patch[]>();
   for (const p of allPatches) {
     const k = `${p.entityId}\0${p.entityType}`;
@@ -119,7 +146,9 @@ async function readBareSingleEntityBatchPostgres(
     const k = `${id}\0${entityType}`;
     const patchList = byKey.get(k) ?? [];
     const total = patchList.length;
-    const patchesOut = patchList.slice(0, 1);
+    const lim = query.limit;
+    const patchesOut =
+      lim === null || lim === undefined ? patchList : patchList.slice(0, lim);
     const hasMore = computeHasMore(query, patchesOut.length, total);
     const lastPatch = patchesOut[patchesOut.length - 1];
     const nextCursor =
@@ -176,10 +205,16 @@ async function readOne(
   sqlClient: SqlClient,
   query: PatchDbQuery
 ): Promise<PatchDbResult> {
-  const isSingleEntityQuery = typeof query.entityId === 'string';
   if (query.on === 'patches') {
     return readOnePatchesMode(sqlClient, query);
   }
+  if (isBareSingleEntityFastPathQuery(query)) {
+    const batch = await readBareSingleEntityBatchPostgres(sqlClient, [query]);
+    const first = batch[0];
+    assert.defined(first, 'readOne: bare fast-path must return one result');
+    return first;
+  }
+  const isSingleEntityQuery = typeof query.entityId === 'string';
   const usePatchBasedLogic =
     (query.after !== null && query.after !== undefined) || isSingleEntityQuery;
   if (usePatchBasedLogic) {
@@ -226,74 +261,196 @@ async function readOnePatchesMode(
   return { query, entities, patches, total, hasMore, nextCursor };
 }
 
-type PatchBasedFilter = { conditions: string[]; params: unknown[] };
+/**
+ * Split for patch-based reads: lineage CTE is scoped to matching entities (not the full table);
+ * optional `matching_entities` CTE when `where` filters snapshots without a concrete `entityId`.
+ */
+type LineageCandSplit = {
+  useMatchingEntities: boolean;
+  snapWhereSQL: string;
+  snapParams: unknown[];
+  lineageSeedPredicate: string;
+  lineageStepPredicate: string;
+  lineageParams: unknown[];
+  candConditions: string[];
+  candParams: unknown[];
+};
 
-function buildPatchBasedFilter(
+function buildLineageCandSplit(
   query: PatchDbQuery,
   snapWhereSQL: string,
   snapParams: unknown[]
-): PatchBasedFilter {
-  const hasSnapshotFilter = query.where !== null && query.where !== undefined;
-  if (hasSnapshotFilter) {
-    if (query.entityType !== null && query.entityType !== undefined) {
-      return {
-        conditions: [
-          `p.entity_id IN (SELECT s.entity_id FROM snapshots s WHERE ${snapWhereSQL})`,
-          'p.entity_type = ?',
-        ],
-        params: [...snapParams, query.entityType],
-      };
-    }
-    return {
-      conditions: [
-        `(p.entity_id, p.entity_type) IN (SELECT s.entity_id, s.entity_type FROM snapshots s WHERE ${snapWhereSQL})`,
-      ],
+): LineageCandSplit {
+  const hasWhere = query.where !== null && query.where !== undefined;
+  const entityType = query.entityType;
+  const eid = query.entityId;
+  const typeDefined =
+    entityType !== null && entityType !== undefined && entityType !== '';
+
+  const useMatchingEntities = hasWhere && eid === undefined;
+
+  const candSnapshot: { cond: string; params: unknown[] }[] = [];
+  if (hasWhere && !useMatchingEntities) {
+    candSnapshot.push({
+      cond: `(p.entity_id, p.entity_type) IN (SELECT s.entity_id, s.entity_type FROM snapshots s WHERE ${snapWhereSQL})`,
       params: [...snapParams],
+    });
+  }
+
+  if (useMatchingEntities) {
+    return {
+      useMatchingEntities: true,
+      snapWhereSQL,
+      snapParams,
+      lineageSeedPredicate:
+        '(entity_id, entity_type) IN (SELECT entity_id, entity_type FROM matching_entities)',
+      lineageStepPredicate:
+        '(p.entity_id, p.entity_type) IN (SELECT entity_id, entity_type FROM matching_entities)',
+      lineageParams: [],
+      candConditions: [],
+      candParams: [],
     };
   }
-  return buildPlainPatchFilter(query);
-}
 
-function buildPlainPatchFilter(query: PatchDbQuery): PatchBasedFilter {
-  const conditions: string[] = [];
-  const params: unknown[] = [];
-  if (query.entityType !== null && query.entityType !== undefined) {
-    conditions.push('p.entity_type = ?');
-    params.push(query.entityType);
-  }
-  if (query.entityId !== null && query.entityId !== undefined) {
-    if (Array.isArray(query.entityId)) {
-      const placeholders = query.entityId.map(() => '?').join(', ');
-      conditions.push(`p.entity_id IN (${placeholders})`);
-      params.push(...query.entityId);
-    } else {
-      conditions.push('p.entity_id = ?');
-      params.push(query.entityId);
+  const candConditions = candSnapshot.map((c) => c.cond);
+  const candParams = candSnapshot.flatMap((c) => c.params);
+
+  if (Array.isArray(eid)) {
+    if (eid.length === 0) {
+      return {
+        useMatchingEntities: false,
+        snapWhereSQL,
+        snapParams,
+        lineageSeedPredicate: '1 = 0',
+        lineageStepPredicate: '1 = 0',
+        lineageParams: [],
+        candConditions,
+        candParams,
+      };
     }
+    assert.ok(typeDefined, 'entityType required when entityId is an array', {
+      query,
+    });
+    const ph = eid.map(() => '?').join(', ');
+    return {
+      useMatchingEntities: false,
+      snapWhereSQL,
+      snapParams,
+      lineageSeedPredicate: `entity_type = ? AND entity_id IN (${ph})`,
+      lineageStepPredicate: `p.entity_type = ? AND p.entity_id IN (${ph})`,
+      lineageParams: [entityType!, ...eid, entityType!, ...eid],
+      candConditions,
+      candParams,
+    };
   }
-  return { conditions, params };
+
+  if (typeof eid === 'string') {
+    assert.ok(typeDefined, 'entityType required when entityId is a string', {
+      query,
+    });
+    return {
+      useMatchingEntities: false,
+      snapWhereSQL,
+      snapParams,
+      lineageSeedPredicate: 'entity_type = ? AND entity_id = ?',
+      lineageStepPredicate: 'p.entity_type = ? AND p.entity_id = ?',
+      lineageParams: [entityType!, eid, entityType!, eid],
+      candConditions,
+      candParams,
+    };
+  }
+
+  if (typeDefined) {
+    return {
+      useMatchingEntities: false,
+      snapWhereSQL,
+      snapParams,
+      lineageSeedPredicate: 'entity_type = ?',
+      lineageStepPredicate: 'p.entity_type = ?',
+      lineageParams: [entityType!, entityType!],
+      candConditions,
+      candParams,
+    };
+  }
+
+  return {
+    useMatchingEntities: false,
+    snapWhereSQL,
+    snapParams,
+    lineageSeedPredicate: '1=1',
+    lineageStepPredicate: '1=1',
+    lineageParams: [],
+    candConditions,
+    candParams,
+  };
 }
 
 type Cursor = { condition: string; params: unknown[] };
 
-function buildPatchBasedCandSelectSql(
-  patchWhereSQL: string,
+function candWhereSql(split: LineageCandSplit): string {
+  const base =
+    split.candConditions.length > 0
+      ? split.candConditions.join(' AND ')
+      : '1=1';
+  return base;
+}
+
+/** When `mode === 'count'`, `orderSQL` and `limitSql` are ignored. */
+function buildPatchBasedSql(
+  split: LineageCandSplit,
   cursorCondition: string,
   orderSQL: string,
-  limitSql: string
+  limitSql: string,
+  mode: 'select' | 'count'
 ): string {
-  return `${LINEAGE_CTE},
+  const withPrefix = split.useMatchingEntities
+    ? `WITH RECURSIVE matching_entities AS (SELECT s.entity_id, s.entity_type FROM snapshots s WHERE ${split.snapWhereSQL}), `
+    : `WITH RECURSIVE `;
+
+  const candWhere = candWhereSql(split);
+
+  const core = `${withPrefix}lineage AS (
+    SELECT patch_id, 0 AS depth
+    FROM patches
+    WHERE parent_id IS NULL AND ${split.lineageSeedPredicate}
+    UNION ALL
+    SELECT p.patch_id, l.depth + 1
+    FROM patches p
+    JOIN lineage l ON p.parent_id = l.patch_id
+    WHERE ${split.lineageStepPredicate}
+),
 cand AS (
   SELECT p.patch_id, p.entity_id, p.entity_type, p.attributes::text AS attributes,
          p.created_at, p.recorded_at, p.parent_id, l.depth AS lineage_depth
   FROM patches p
-  JOIN lineage l ON p.patch_id = l.patch_id AND p.entity_id = l.entity_id AND p.entity_type = l.entity_type
-  WHERE ${patchWhereSQL}${cursorCondition}
-)
+  JOIN lineage l ON p.patch_id = l.patch_id
+  WHERE ${candWhere}${cursorCondition}
+)`;
+
+  if (mode === 'count') {
+    return `${core} SELECT COUNT(*)::bigint AS cnt FROM cand`;
+  }
+
+  return `${core}
 SELECT p.patch_id, p.entity_id, p.entity_type, p.attributes, p.created_at, p.recorded_at, p.parent_id,
        (SELECT COUNT(*)::bigint FROM cand) AS total_count
 FROM cand p
 ${orderSQL}${limitSql}`;
+}
+
+function patchBasedParams(
+  split: LineageCandSplit,
+  cursor: Cursor,
+  limit: { sql: string; params: unknown[] }
+): unknown[] {
+  const head = split.useMatchingEntities ? [...split.snapParams] : [];
+  return [
+    ...head,
+    ...split.lineageParams,
+    ...split.candParams,
+    ...cursor.params,
+    ...limit.params,
+  ];
 }
 
 function totalFromPatchBasedRows(
@@ -304,14 +461,26 @@ function totalFromPatchBasedRows(
   return typeof raw === 'bigint' ? Number(raw) : Number(raw);
 }
 
-async function countPatchesForPatchWhere(
+async function countPatchesForPatchBased(
   sqlClient: SqlClient,
-  patchWhereSQL: string,
-  patchParams: unknown[]
+  split: LineageCandSplit
 ): Promise<number> {
+  const countSql = buildPatchBasedSql(split, '', '', '', 'count');
+  const params = patchBasedParams(
+    split,
+    { condition: '', params: [] },
+    {
+      sql: '',
+      params: [],
+    }
+  );
+  assertWhereFragment(
+    { sql: countSql, params },
+    { context: 'countPatchesForPatchBased' }
+  );
   const countRows = await sqlClient.query<{ cnt: string | number }>(
-    `SELECT COUNT(*)::bigint AS cnt FROM patches p WHERE ${patchWhereSQL}`,
-    patchParams
+    countSql,
+    params
   );
   const rawTotal = countRows[0]?.cnt ?? 0;
   return typeof rawTotal === 'bigint' ? Number(rawTotal) : Number(rawTotal);
@@ -354,29 +523,25 @@ async function readOnePatchBased(
     buildSnapshotConditions(query);
   const snapWhereSQL = snapConditions.join(' AND ');
 
-  const filter = buildPatchBasedFilter(query, snapWhereSQL, snapParams);
-  const patchConditions =
-    filter.conditions.length === 0 ? ['1=1'] : filter.conditions;
-  const patchParams = filter.params;
+  const split = buildLineageCandSplit(query, snapWhereSQL, snapParams);
 
   const cursor = query.after
     ? await resolveCursor(sqlClient, query.after)
     : { condition: '', params: [] as unknown[] };
-
-  const patchWhereSQL = patchConditions.join(' AND ');
 
   const defaultOrder =
     'ORDER BY p.entity_id ASC, p.entity_type ASC, p.lineage_depth ASC, p.patch_id ASC';
   const orderSQL = buildOrderSQL(query, defaultOrder, 'p.');
   const limit = buildLimitSQL(query);
 
-  const selectSql = buildPatchBasedCandSelectSql(
-    patchWhereSQL,
+  const selectSql = buildPatchBasedSql(
+    split,
     cursor.condition,
     orderSQL,
-    limit.sql
+    limit.sql,
+    'select'
   );
-  const allParams = [...patchParams, ...cursor.params, ...limit.params];
+  const allParams = patchBasedParams(split, cursor, limit);
   assertWhereFragment(
     { sql: selectSql, params: allParams },
     { context: 'readOnePatchBased' }
@@ -388,8 +553,7 @@ async function readOnePatchBased(
 
   const totalFromRows = totalFromPatchBasedRows(rows);
   const total =
-    totalFromRows ??
-    (await countPatchesForPatchWhere(sqlClient, patchWhereSQL, patchParams));
+    totalFromRows ?? (await countPatchesForPatchBased(sqlClient, split));
 
   const patches = rows.map((r) => toPatch(toPatchRow(r)));
   const hasMore = computeHasMore(query, patches.length, total);
@@ -475,10 +639,9 @@ export async function batchFetchSnapshots(
   if (entityKeys.length === 0) return [];
   const pairs = entityKeysToPairs(entityKeys);
   const placeholders = pairs.map(() => '(?, ?)').join(', ');
-  const params = pairs.flatMap(([id, type]) => [id, type]);
   const rows = await sqlClient.query<SnapshotRow>(
-    `SELECT entity_id, entity_type, attributes::text AS attributes FROM snapshots WHERE (entity_id, entity_type) IN (VALUES ${placeholders})`,
-    params
+    `SELECT entity_id, entity_type, attributes::text AS attributes FROM snapshots WHERE (entity_type, entity_id) IN (VALUES ${placeholders})`,
+    pairs.flatMap(([id, type]) => [type, id])
   );
   const map = new Map<string, SnapshotRow>();
   for (const row of rows) {
@@ -512,13 +675,25 @@ function entityKeysToPairs(entityKeys: string[]): [string, string][] {
 
 async function batchFetchPatchesForEntities(
   sqlClient: SqlClient,
-  entities: readonly { entity_id: string; entity_type: string }[]
+  entities: readonly { entity_id: string; entity_type: string }[],
+  excludePatchIds?: readonly string[]
 ): Promise<Patch[]> {
   if (entities.length === 0) return [];
   const placeholders = entities.map(() => '(?, ?)').join(', ');
   const params = entities.flatMap((r) => [r.entity_id, r.entity_type]);
-  const patchRows = await sqlClient.query<PatchRow>(
-    `WITH RECURSIVE lineage AS (
+  const exclude =
+    excludePatchIds !== undefined && excludePatchIds.length > 0
+      ? excludePatchIds
+      : null;
+  const excludeSql =
+    exclude !== null
+      ? ` AND p.patch_id NOT IN (${exclude.map(() => '?').join(', ')})`
+      : '';
+  const allParams =
+    exclude !== null
+      ? [...params, ...params, ...exclude]
+      : [...params, ...params];
+  const sql = `WITH RECURSIVE lineage AS (
           SELECT patch_id, entity_id, entity_type, 0 AS depth
           FROM patches
           WHERE (entity_id, entity_type) IN (VALUES ${placeholders})
@@ -529,15 +704,16 @@ async function batchFetchPatchesForEntities(
           JOIN lineage l ON p.parent_id = l.patch_id
             AND p.entity_id = l.entity_id
             AND p.entity_type = l.entity_type
+          WHERE (p.entity_id, p.entity_type) IN (VALUES ${placeholders})
       )
       SELECT p.patch_id, p.entity_id, p.entity_type,
              p.attributes::text AS attributes,
              p.created_at, p.recorded_at, p.parent_id
       FROM patches p
       JOIN lineage l ON p.patch_id = l.patch_id
-      ORDER BY p.entity_id, p.entity_type, l.depth ASC, p.patch_id ASC`,
-    params
-  );
+      WHERE TRUE${excludeSql}
+      ORDER BY p.entity_id, p.entity_type, l.depth ASC, p.patch_id ASC`;
+  const patchRows = await sqlClient.query<PatchRow>(sql, allParams);
   return patchRows.map((r) => toPatch(toPatchRow(r)));
 }
 

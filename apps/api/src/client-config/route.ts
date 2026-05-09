@@ -6,10 +6,9 @@ import {
 import { isEqual } from '@gamezilla/lib/equal/is-equal';
 import type { Logger } from '@gamezilla/lib/logger';
 import type { SecretStore } from '@gamezilla/lib/secret-store';
-import type { PatchDb } from '@gamezilla/patch-db/interface';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
-import type { ApiWorkerEnv } from '../config/env';
+import type { ApiHonoEnv } from '../app/api-hono-types';
 import { ApiSecretName } from '../config/secret-names';
 
 export type ClientConfigRefreshOutcome = 'unchanged' | 'updated';
@@ -52,14 +51,14 @@ async function loadClientConfigAttributesFromDoppler(
  * @see https://hono.dev/docs/guides/best-practices — mount sub-apps with `app.route()`.
  */
 async function handleClientConfigRefresh(
-  c: Context<{ Bindings: ApiWorkerEnv }>,
+  c: Context<ApiHonoEnv>,
   deps: {
-    db: PatchDb;
     logger: Logger;
     secretStore: SecretStore;
   }
 ): Promise<Response> {
-  const { db, logger, secretStore } = deps;
+  const db = c.get('patchDb');
+  const { logger, secretStore } = deps;
   logger.info('POST /client-config/refresh: requested');
   const configNew = await loadClientConfigAttributesFromDoppler(secretStore);
 
@@ -121,12 +120,10 @@ async function handleClientConfigRefresh(
 }
 
 export function createClientConfigApp(
-  db: PatchDb,
   logger: Logger,
   secretStore: SecretStore
 ) {
-  return new Hono<{ Bindings: ApiWorkerEnv }>().post(
-    '/client-config/refresh',
-    async (c) => handleClientConfigRefresh(c, { db, logger, secretStore })
+  return new Hono<ApiHonoEnv>().post('/client-config/refresh', async (c) =>
+    handleClientConfigRefresh(c, { logger, secretStore })
   );
 }

@@ -1,27 +1,25 @@
-import { ValidationError } from '@gamezilla/lib/assert';
+import { assert, ValidationError } from '@gamezilla/lib/assert';
 import { createLogger } from '@gamezilla/lib/logger';
 import type { PatchDbApiConfig } from '@gamezilla/patch-db/api';
-import type { PatchDbContext } from '@gamezilla/patch-db/interface';
 import { createPatchDbApiHandler } from '@gamezilla/patch-db/api';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
-import { createStripeApp } from '@gamezilla/stripe/stripe-app';
+import type { PatchDbContext } from '@gamezilla/patch-db/interface';
 import { makeStripeClient } from '@gamezilla/stripe/make-stripe-client';
+import { createStripeApp } from '@gamezilla/stripe/stripe-app';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
+import { mountHostedAuthHandler } from '../auth';
 import { createAuthApiRoutes } from '../auth/auth-routes';
-import {
-  createHttpBearerAuthPorts,
-  createSessionAuth,
-  mountHostedAuthHandler,
-} from '../auth';
 import { UnauthorizedError } from '../auth/unauthorized-error';
 import { createClientConfigApp } from '../client-config/route';
-import type { ApiWorkerEnv } from '../config/env';
 import { ApiSecretName } from '../config/secret-names';
 import { healthApp } from '../health/route';
+import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { createSpaceApp } from '../spaces/route';
+import type { ApiHonoEnv } from './api-hono-types';
 import type { ApiHandlerConfig } from './config';
 import { apiCors } from './cors';
+import { createRequestDbMiddleware } from './request-db-middleware';
 
 const log = createLogger({ name: 'api:app' });
 
@@ -42,9 +40,16 @@ function toPatchDbApiConfig(
   config: ApiHandlerConfig,
   resolvePatchDbContext: (req: Request) => Promise<PatchDbContext>
 ): PatchDbApiConfig {
-  const { db, pubSub, basePath, instrumentation } = config;
+  const { pubSub, basePath, instrumentation } = config;
   const patchDbConfig: PatchDbApiConfig = {
-    db,
+    db: () => {
+      const s = apiRequestAsyncLocalStorage.getStore();
+      assert.defined(
+        s,
+        'patch-db host resolver: apiRequestAsyncLocalStorage store missing'
+      );
+      return s.patchDb;
+    },
     pubSub,
     patchDbHttpAuth: {
       resolvePatchDbContext: (req) => resolvePatchDbContext(req),
@@ -101,10 +106,7 @@ function createApiErrorHandler() {
  * [Hono best practices](https://hono.dev/docs/guides/best-practices).
  */
 export async function createApiApp(config: ApiHandlerConfig) {
-  const { secretStore, db } = config;
-
-  const bearerAuth = await createHttpBearerAuthPorts(secretStore);
-  const sessionAuth = createSessionAuth(bearerAuth);
+  const { secretStore } = config;
 
   const stripeRaw = await secretStore.getOptional(
     ApiSecretName.stripeSecretKey
@@ -117,29 +119,43 @@ export async function createApiApp(config: ApiHandlerConfig) {
 
   const { honoApp: patchDbApp, basePath: resolvedBase } =
     createPatchDbApiHandler(
-      toPatchDbApiConfig(config, (req) =>
-        sessionAuth.resolvePatchDbContext(db, req)
-      )
+      toPatchDbApiConfig(config, (req) => {
+        const s = apiRequestAsyncLocalStorage.getStore();
+        assert.defined(
+          s,
+          'resolvePatchDbContext: apiRequestAsyncLocalStorage store missing'
+        );
+        return s.sessionAuth.resolvePatchDbContext(s.patchDb, req);
+      })
     );
   /** RPC client keys use the literal mount path; wire URL stays `basePath`-driven. */
   const patchMount = resolvedBase as '/patch-db';
 
-  const app = new Hono<{ Bindings: ApiWorkerEnv }>()
+  const app = new Hono<ApiHonoEnv>()
+    .use('*', createRequestDbMiddleware(secretStore))
     .use('*', apiCors)
     .route('/', healthApp)
-    .route('/', createClientConfigApp(db, log, secretStore))
-    .route('/', createAuthApiRoutes(db, sessionAuth))
+    .route('/', createClientConfigApp(log, secretStore))
+    .route('/', createAuthApiRoutes())
     .route(
       '/',
       createStripeApp({
-        db,
+        getPatchDb: () => {
+          const s = apiRequestAsyncLocalStorage.getStore();
+          assert.defined(s, 'stripe: request store missing');
+          return s.patchDb;
+        },
         secretStore,
         stripe,
-        requireAuth: (d, req) => sessionAuth.requireAuthContext(d, req),
+        requireAuth: (d, req) => {
+          const s = apiRequestAsyncLocalStorage.getStore();
+          assert.defined(s, 'stripe auth: request store missing');
+          return s.sessionAuth.requireAuthContext(d, req);
+        },
         webhookSecretDopplerKey: ApiSecretName.stripeWebhookSecret,
       })
     )
-    .route('/', createSpaceApp({ db, bearerAuth }))
+    .route('/', createSpaceApp())
     .route(patchMount, patchDbApp)
     .onError(createApiErrorHandler());
 

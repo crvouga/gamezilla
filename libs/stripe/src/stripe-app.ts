@@ -13,7 +13,7 @@ import { createStripeWebhookRoutes } from './stripe-webhook-route';
  * Mount at `/` on a parent app that already defines Worker `Bindings`.
  */
 export function createStripeApp(args: {
-  readonly db: PatchDb;
+  readonly getPatchDb: () => PatchDb;
   readonly secretStore: SecretStore;
   readonly stripe: Stripe | null;
   readonly requireAuth: StripeRequireAuth;
@@ -23,11 +23,11 @@ export function createStripeApp(args: {
   const webhook = createStripeWebhookRoutes({
     secretStore: args.secretStore,
     stripe: args.stripe,
-    patchDb: args.db,
+    getPatchDb: args.getPatchDb,
     webhookSecretKey: args.webhookSecretDopplerKey,
   });
   const checkout = createStripeCheckoutRoutes({
-    db: args.db,
+    getPatchDb: args.getPatchDb,
     stripe: args.stripe,
     requireAuth: args.requireAuth,
   });

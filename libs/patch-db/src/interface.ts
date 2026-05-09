@@ -551,6 +551,9 @@ export type PatchDb = PatchDbRead &
     readonly compaction: PatchDbCompaction;
   };
 
+/** Concrete {@link PatchDb} or resolver (e.g. request-scoped via AsyncLocalStorage). */
+export type PatchDbResolvable = PatchDb | (() => PatchDb);
+
 /** Shared options for SQLite / Postgres patch-db implementations. */
 export type PatchDbEngineOptions = {
   /** When true, compacts chains after writes when length exceeds keepLatest + slack. */

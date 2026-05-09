@@ -20,10 +20,17 @@ export type SpaceNamespace = {
   get(id: object): { fetch(request: Request): Promise<Response> };
 };
 
+/** Cloudflare Hyperdrive binding (`[[hyperdrive]]` in wrangler). */
+export type HyperdriveBinding = {
+  readonly connectionString: string;
+};
+
 export type ApiWorkerEnv = {
   DOPPLER_TOKEN: string;
   DOPPLER_PROJECT?: string;
   DOPPLER_CONFIG?: string;
+  /** Cloudflare Hyperdrive — Worker uses {@link HyperdriveBinding.connectionString} for Postgres. */
+  HYPERDRIVE: HyperdriveBinding;
   /** Space Durable Object namespace (one DO per space topic). Omitted in unit tests. */
   SPACE?: SpaceNamespace;
 };

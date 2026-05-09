@@ -49,6 +49,7 @@ export async function createPostgresFactory(): Promise<{
 
 export const implementations: { name: string; factory: DbFactory }[] = [
   { name: 'PatchDbImplSqlite', factory: createSqliteFactory },
+  // Set `DB_URL` to a reachable Postgres (e.g. PGlite socket / `bun run --filter @gamezilla/db up`) to enable:
   // { name: 'PatchDbImplPostgres', factory: createPostgresFactory },
 ];
 

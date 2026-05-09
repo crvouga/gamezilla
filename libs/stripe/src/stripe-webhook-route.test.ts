@@ -20,7 +20,7 @@ describe('createStripeWebhookRoutes', () => {
     const app = createStripeWebhookRoutes({
       secretStore,
       stripe: null,
-      patchDb,
+      getPatchDb: () => patchDb,
       webhookSecretKey: StripeSecretKeys.webhookSecret,
     });
 
@@ -49,7 +49,7 @@ describe('createStripeWebhookRoutes', () => {
     const app = createStripeWebhookRoutes({
       secretStore,
       stripe,
-      patchDb,
+      getPatchDb: () => patchDb,
       webhookSecretKey: StripeSecretKeys.webhookSecret,
     });
 
@@ -99,7 +99,7 @@ describe('createStripeWebhookRoutes', () => {
     const app = createStripeWebhookRoutes({
       secretStore,
       stripe,
-      patchDb,
+      getPatchDb: () => patchDb,
       webhookSecretKey: StripeSecretKeys.webhookSecret,
     });
 

@@ -4,6 +4,16 @@
   "tasks": {
     "build": {
       "outputs": []
+    },
+    "dev": {
+      "persistent": true,
+      "cache": false
+    },
+    "start-daemon": {
+      "cache": false
+    },
+    "migrate": {
+      "cache": false
     }
   }
 }

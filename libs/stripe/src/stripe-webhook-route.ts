@@ -98,10 +98,10 @@ async function recordVerifiedStripeWebhookInPatchDb(
 export function createStripeWebhookRoutes(args: {
   readonly secretStore: SecretStore;
   readonly stripe: Stripe | null;
-  readonly patchDb: PatchDb;
+  readonly getPatchDb: () => PatchDb;
   readonly webhookSecretKey: string;
 }) {
-  const { secretStore, stripe, patchDb, webhookSecretKey } = args;
+  const { secretStore, stripe, getPatchDb, webhookSecretKey } = args;
 
   return new Hono().post('/stripe/webhook', async (c) => {
     try {
@@ -130,7 +130,7 @@ export function createStripeWebhookRoutes(args: {
       );
       const objectId = stripeEventObjectId(event);
 
-      await recordVerifiedStripeWebhookInPatchDb(patchDb, event, objectId);
+      await recordVerifiedStripeWebhookInPatchDb(getPatchDb(), event, objectId);
 
       return c.json({ received: true as const }, 200);
     } catch (e: unknown) {

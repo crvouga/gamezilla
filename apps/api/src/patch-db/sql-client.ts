@@ -1,12 +1,19 @@
-import { SqlClientImplPgliteHttp } from '@gamezilla/lib/sql-client/impl-pglite-http';
-import { SqlClientImplPlanetScalePostgres } from '@gamezilla/lib/sql-client/impl-planetscale-postgres';
+import { SqlClientImplPgClient } from '@gamezilla/lib/sql-client/impl-pg';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { Client } from 'pg';
 
-let db: SqlClient | null = null;
+export type RequestDb = {
+  readonly client: Client;
+  readonly sqlClient: SqlClient;
+};
 
-export function getDb(databaseUrl: string): SqlClient {
-  db ??= databaseUrl.startsWith('http')
-    ? new SqlClientImplPgliteHttp(databaseUrl)
-    : new SqlClientImplPlanetScalePostgres(databaseUrl);
-  return db;
+/**
+ * One `pg.Client` per Worker request (Cloudflare Hyperdrive + no global pool).
+ */
+export async function openRequestDb(
+  connectionString: string
+): Promise<RequestDb> {
+  const client = new Client({ connectionString });
+  await client.connect();
+  return { client, sqlClient: new SqlClientImplPgClient(client) };
 }

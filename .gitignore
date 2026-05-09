@@ -36,11 +36,11 @@ yarn-error.*
 .turbo/
 /out
 
-# Local PGlite data (apps/db HTTP server)
-apps/db/.pglite/
-
 # Lichess puzzle CSV cache (seed:puzzles)
-apps/db/.cache/
+apps/api/.cache/
+
+# PGlite local dev data (apps/db socket server)
+apps/db/.pglite/
 
 # typescript
 *.tsbuildinfo

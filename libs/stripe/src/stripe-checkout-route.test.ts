@@ -10,7 +10,7 @@ describe('createStripeCheckoutRoutes', () => {
     } as unknown as PatchDb;
 
     const app = createStripeCheckoutRoutes({
-      db,
+      getPatchDb: () => db,
       stripe: null,
       requireAuth: async () => {
         throw new Error('should not be called');

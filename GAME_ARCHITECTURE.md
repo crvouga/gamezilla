@@ -699,11 +699,9 @@ PlanetScale         Serverless MySQL
                     Clients never write directly — local first
                     Read replicas for global low-latency reads
 
-Local dev           Bun + PGlite (apps/db)
-                    PGlite in-process — no Docker, no external DB
-                    HTTP /sql endpoint mimics PlanetScale limits
-                    Same createApiHandler as prod Worker
-                    bun run dev starts everything
+Local dev           PGlite socket (`@gamezilla/db`) + Bun API — no Docker
+                    Doppler `local` `DB_URL` → `postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`
+                    `bun run --filter @gamezilla/api db:up` then `bun run --filter @gamezilla/db migrate`
 ```
 
 ### Scale estimates
@@ -719,22 +717,15 @@ Chess.com          500k-1M       ~$2,000-5,000
 
 Cloudflare Workers: 10M requests/month free, then $0.50/M. Durable Objects: first 1M requests free, $0.15/M after. PlanetScale: hobby tier free, scaler from $39/month.
 
-### Local infra (`apps/db`)
-
-PGlite runs in-process via Bun — no Docker, no external services.
+### Local Postgres (PGlite socket)
 
 ```bash
-# From repo root: start local dev (PGlite + API)
-bun run --filter @gamezilla/db up
-
-# Or with turbo
-turbo run dev --filter=@gamezilla/db
+# From repo root — TCP on 127.0.0.1:5432 (detached; use `@gamezilla/db` `up` for foreground logs)
+bun run --filter @gamezilla/api db:up
+DOPPLER_CONFIG=local doppler run -- bun run --filter @gamezilla/db migrate
 ```
 
-Local server (`apps/db/src/server.ts`):
-
-- **Port 15432**: HTTP `/sql` endpoint with PlanetScale-like limits
-- **Port 8787**: Same `createApiHandler` as prod, backed by PGlite
+Set Doppler `local` `DB_URL` to match the server log (`postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`). See [PGlite Socket](https://pglite.dev/docs/pglite-socket).
 
 ---
 

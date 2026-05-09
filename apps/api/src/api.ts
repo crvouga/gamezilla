@@ -9,9 +9,7 @@ import {
   ConfigurationError,
   readDopplerScopeBindings,
 } from './config/env';
-import { ApiSecretName } from './config/secret-names';
 import { createApiSecretStore } from './config/secret-store';
-import { getPatchDb } from './patch-db/patch-db';
 import Space from './spaces/space-do';
 
 const log = createLogger({ name: 'api' });
@@ -96,10 +94,12 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const token = assertDopplerTokenBinding(env);
   const { project, config } = readDopplerScopeBindings(env);
   const secretStore = createApiSecretStore(token, { project, config });
-  const databaseUrl = await secretStore.getRequired(ApiSecretName.dbUrl);
-  const patchDb = getPatchDb(databaseUrl);
+  if (env.HYPERDRIVE === undefined || env.HYPERDRIVE === null) {
+    throw new ConfigurationError(
+      'HYPERDRIVE Worker binding is required — add [[hyperdrive]] to apps/api/wrangler.toml'
+    );
+  }
   return await createApiApp({
-    db: patchDb,
     pubSub,
     secretStore,
   });

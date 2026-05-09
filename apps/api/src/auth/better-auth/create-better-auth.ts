@@ -2,22 +2,40 @@ import { expo } from '@better-auth/expo';
 import type { SecretStore } from '@gamezilla/lib/secret-store';
 import { betterAuth } from 'better-auth';
 import { bearer } from 'better-auth/plugins';
-import { getDb } from '../../patch-db/sql-client';
-import { loadBetterAuthSecrets } from './load-better-auth-secrets';
-import { createSqlClientBetterAuthAdapter } from './sql-client-better-auth/adapter';
+import { Kysely, PostgresDialect } from 'kysely';
+import { Pool } from 'pg';
+import type { HostedBetterAuth } from '../../app/api-hono-types';
+import { loadBetterAuthSecretsWorker } from './load-better-auth-secrets';
 
-export async function createBetterAuthInstance(secretStore: SecretStore) {
-  const cfg = await loadBetterAuthSecrets(secretStore);
-  const sql = getDb(cfg.dbUrl);
-  await sql.connect();
+export type BetterAuthRequestStack = {
+  readonly auth: HostedBetterAuth;
+  /** Ends per-request Kysely pool (Hyperdrive-friendly `max: 1`). */
+  readonly dispose: () => Promise<void>;
+};
 
-  return betterAuth({
+/**
+ * Per-request Better Auth + Kysely over Hyperdrive (`connectionString`).
+ * Uses a short-lived `pg.Pool({ max: 1 })` because `PostgresDialect` requires a pool.
+ */
+export async function createBetterAuthRequestStack(
+  secretStore: SecretStore,
+  hyperdriveConnectionString: string
+): Promise<BetterAuthRequestStack> {
+  const cfg = await loadBetterAuthSecretsWorker(secretStore);
+  const pool = new Pool({
+    connectionString: hyperdriveConnectionString,
+    max: 1,
+  });
+  await pool.query('SELECT 1');
+  const db = new Kysely({ dialect: new PostgresDialect({ pool }) });
+
+  const auth = betterAuth({
     appName: cfg.appName,
     baseURL: cfg.baseURL,
     basePath: '/api/auth',
     secret: cfg.secret,
     trustedOrigins: [...cfg.trustedOrigins],
-    database: createSqlClientBetterAuthAdapter(sql),
+    database: { db, type: 'postgres' },
     emailAndPassword: { enabled: false },
     socialProviders: {
       google: {
@@ -26,9 +44,12 @@ export async function createBetterAuthInstance(secretStore: SecretStore) {
       },
     },
     plugins: [bearer(), expo()],
-    user: { modelName: 'auth_user' },
-    session: { modelName: 'auth_session' },
-    account: { modelName: 'auth_account' },
-    verification: { modelName: 'auth_verification' },
-  });
+  }) as HostedBetterAuth;
+
+  return {
+    auth,
+    dispose: async () => {
+      await db.destroy();
+    },
+  };
 }

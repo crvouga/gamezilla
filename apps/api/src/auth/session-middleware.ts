@@ -104,3 +104,5 @@ export function createSessionAuth(deps: SessionAuthDeps): AuthSessionPort {
 
   return { resolvePatchDbContext, requireAuthContext };
 }
+
+export type SessionAuth = ReturnType<typeof createSessionAuth>;

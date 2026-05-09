@@ -85,8 +85,7 @@ function buildTrustedOrigins(
   return [...set];
 }
 
-export type LoadedBetterAuthSecrets = {
-  readonly dbUrl: string;
+export type LoadedBetterAuthSecretsWorker = {
   readonly secret: string;
   readonly googleClientId: string;
   readonly googleClientSecret: string;
@@ -96,11 +95,17 @@ export type LoadedBetterAuthSecrets = {
   readonly trustedOrigins: readonly string[];
 };
 
-export async function loadBetterAuthSecrets(
-  secretStore: SecretStore
-): Promise<LoadedBetterAuthSecrets> {
-  const dbUrl = await secretStore.getRequired(ApiSecretName.dbUrl);
+export type LoadedBetterAuthSecrets = LoadedBetterAuthSecretsWorker & {
+  readonly dbUrl: string;
+};
 
+/**
+ * Better Auth options from Doppler **without** `DB_URL` (Worker uses Hyperdrive
+ * `connectionString` for Kysely instead).
+ */
+export async function loadBetterAuthSecretsWorker(
+  secretStore: SecretStore
+): Promise<LoadedBetterAuthSecretsWorker> {
   const secret = (
     await secretStore.getRequired(ApiSecretName.betterAuthSecret)
   ).trim();
@@ -129,7 +134,6 @@ export async function loadBetterAuthSecrets(
   const trustedOrigins = buildTrustedOrigins(apiOrigin, trustedRaw);
 
   return {
-    dbUrl,
     secret,
     googleClientId,
     googleClientSecret,
@@ -138,4 +142,12 @@ export async function loadBetterAuthSecrets(
     appName,
     trustedOrigins,
   };
+}
+
+export async function loadBetterAuthSecrets(
+  secretStore: SecretStore
+): Promise<LoadedBetterAuthSecrets> {
+  const worker = await loadBetterAuthSecretsWorker(secretStore);
+  const dbUrl = await secretStore.getRequired(ApiSecretName.dbUrl);
+  return { ...worker, dbUrl };
 }

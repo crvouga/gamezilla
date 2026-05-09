@@ -2,6 +2,7 @@ import { ApiWorkerResource } from './api-worker';
 import { ClientResource } from './client';
 import { DnsRecordsResource } from './dns-records';
 import { DopplerResource } from './doppler';
+import { HyperdriveResource } from './hyperdrive';
 import { PagesDomainResource } from './pages-domains';
 import { PagesProjectResource } from './pages-project';
 import { PlanetScalePostgres } from './planetscale-postgres';
@@ -25,6 +26,7 @@ export function createRegistry(): readonly Resource[] {
   const redirectRule = new RedirectRuleResource();
   const wafBotSkipRule = new WafBotSkipRuleResource();
   const turboCache = new TurboCacheResource();
+  const hyperdrive = new HyperdriveResource();
   const apiWorker = new ApiWorkerResource();
   const client = new ClientResource();
 
@@ -38,7 +40,8 @@ export function createRegistry(): readonly Resource[] {
   redirectRule.needs(zone);
   wafBotSkipRule.needs(zone);
   turboCache.needs(doppler, r2Bucket);
-  apiWorker.needs(planetscalePostgres, dnsRecords);
+  hyperdrive.needs(doppler, planetscalePostgres);
+  apiWorker.needs(planetscalePostgres, dnsRecords, hyperdrive);
   client.needs(apiWorker, dnsRecords);
 
   return [
@@ -53,6 +56,7 @@ export function createRegistry(): readonly Resource[] {
     redirectRule,
     wafBotSkipRule,
     turboCache,
+    hyperdrive,
     apiWorker,
     client,
   ];

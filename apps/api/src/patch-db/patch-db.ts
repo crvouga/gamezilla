@@ -3,6 +3,7 @@
  * synced game state. Clients hold a cache only; the library does not treat
  * client-side state as authoritative over the server.
  */
+import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { createPatchDbReadBatcher } from '@gamezilla/patch-db/scheduling/microtask-batcher';
@@ -12,7 +13,6 @@ import {
   type AppAuthContext,
 } from './abac-policies';
 import { createGamezillaCompactionPolicyRegistry } from './default-compaction-policies';
-import { getDb } from './sql-client';
 
 const uninstallByDb = new WeakMap<PatchDb, () => void>();
 
@@ -36,18 +36,15 @@ export function installDefaultPatchDbPolicies(db: PatchDb): () => void {
 
 export type { AppAuthContext };
 
-let innerPostgres: PatchDbImplPostgres | null = null;
-let batchedPatchDb: PatchDb | null = null;
-
-export function getPatchDb(databaseUrl: string): PatchDb {
-  if (innerPostgres === null) {
-    const compaction = createGamezillaCompactionPolicyRegistry();
-    innerPostgres = new PatchDbImplPostgres(getDb(databaseUrl), {
-      autoCompactOnWrite: true,
-      compactionPolicy: compaction.resolve,
-    });
-    installDefaultPatchDbPolicies(innerPostgres);
-    batchedPatchDb = createPatchDbReadBatcher(innerPostgres);
-  }
-  return batchedPatchDb!;
+/**
+ * Builds a request-scoped {@link PatchDb} (Postgres + read batcher + policies).
+ */
+export function createRequestPatchDb(sqlClient: SqlClient): PatchDb {
+  const compaction = createGamezillaCompactionPolicyRegistry();
+  const innerPostgres = new PatchDbImplPostgres(sqlClient, {
+    autoCompactOnWrite: true,
+    compactionPolicy: compaction.resolve,
+  });
+  installDefaultPatchDbPolicies(innerPostgres);
+  return createPatchDbReadBatcher(innerPostgres);
 }

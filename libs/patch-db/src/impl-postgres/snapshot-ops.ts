@@ -76,6 +76,7 @@ export function buildSelectPatchesForSnapshotBatchSql(
     FROM patches p
     JOIN lineage l ON p.parent_id = l.patch_id
       AND p.entity_id = l.entity_id AND p.entity_type = l.entity_type
+    WHERE (p.entity_id, p.entity_type) IN (VALUES ${valuesPlaceholder})
 )
 SELECT p.patch_id, p.entity_id, p.entity_type, p.attributes::text AS attributes,
        p.created_at, p.recorded_at, p.parent_id
@@ -100,7 +101,11 @@ export function mergePatchRowsIntoSnapshotAttrs(
       patch_id: r.patch_id,
     });
     for (const [key, value] of Object.entries(attrs)) {
-      if (!isValidAttribute(key) || PATCH_META_KEYS.includes(key)) continue;
+      if (
+        !isValidAttribute(key) ||
+        (PATCH_META_KEYS as readonly string[]).includes(key)
+      )
+        continue;
       if (value === null) {
         delete merged[key];
       } else {
@@ -175,7 +180,7 @@ export async function recomputeTouchedSnapshots(
   const pairParams = entityPairs.flatMap((p) => [p.entityId, p.entityType]);
   const patchRows = await tx.query<PatchRow>(
     buildSelectPatchesForSnapshotBatchSql(valuesPh),
-    [...pairParams, ...pairParams]
+    [...pairParams, ...pairParams, ...pairParams]
   );
   const rowsByKey = groupSnapshotPatchRowsByKey(patchRows);
   const { deleteParams, upsertPayload } = buildSnapshotMutations(

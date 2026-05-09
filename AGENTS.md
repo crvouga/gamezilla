@@ -7,3 +7,7 @@
 ## CI / Turbo Remote Cache
 
 GitHub Actions runs checks with `DOPPLER_CONFIG=local`. For Turbo Remote Cache hits in CI, ensure the Doppler **`local`** config defines `TURBO_API`, `TURBO_TOKEN`, `TURBO_TEAM`, and `TURBO_CACHE` (e.g. `remote:rw`). See `apps/infra/src/cli/secrets/turbo-token.ts` for hints.
+
+## Local database
+
+Local dev uses **PGlite in socket mode** (TCP Postgres wire on `127.0.0.1:5432` by default) — no Docker. **Detached** start (returns immediately): `bun run --filter @gamezilla/api db:up` or `bun run --filter @gamezilla/db start-daemon`. **Foreground** (logs): `bun run --filter @gamezilla/db up`. Set Doppler **`local`** `DB_URL` to `postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable` (PGlite does not support SSL on the socket server). See [PGlite Socket](https://pglite.dev/docs/pglite-socket). Migrations: `DOPPLER_CONFIG=local doppler run -- bun run --filter @gamezilla/db migrate`. Stop: `bun run --filter @gamezilla/db kill` (frees the listen port). Persistent data lives in `apps/db/.pglite/` unless `PGLITE_DATA_DIR` is set (`memory://` for ephemeral).

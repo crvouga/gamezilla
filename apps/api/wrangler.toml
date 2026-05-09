@@ -7,6 +7,11 @@ preview_urls = false
 
 routes = [{ pattern = "api.gamezilla.app", custom_domain = true }]
 
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "00000000-0000-0000-0000-000000000000"
+localConnectionString = "postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable"
+
 [[durable_objects.bindings]]
 name = "SPACE"
 class_name = "Space"

@@ -57,5 +57,8 @@
     "apps/qa": {
       "entry": "src/browser/playwright.config.ts",
     },
+    "apps/db": {
+      "entry": ["src/pglite-socket.ts", "src/start-background.ts"],
+    },
   },
 }

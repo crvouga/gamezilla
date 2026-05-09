@@ -2,27 +2,16 @@ import type { Logger } from '@gamezilla/lib/logger';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { MIGRATIONS } from './sql-constants';
 
-/** Idempotent Postgres DDL for patches + snapshots. */
+/** Idempotent Postgres DDL for patches + snapshots (runs every time; IF NOT EXISTS). */
 async function runPatchDbPostgresMigrations(
   sqlClient: SqlClient,
   log: Logger
 ): Promise<void> {
-  const existing = await sqlClient.query<{ tablename: string }>(
-    `SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename IN ('patches', 'snapshots')`
-  );
-  if (existing.length >= 2) {
-    log.info('patch-db postgres migrate: core tables already exist', {
-      existingTables: existing.map((r) => r.tablename),
-    });
-    return;
-  }
-
   const statements = MIGRATIONS.split(';')
     .map((s) => s.trim())
     .filter(Boolean);
   log.info('patch-db postgres migrate: applying ddl', {
     statementCount: statements.length,
-    existingTableCount: existing.length,
   });
   for (const stmt of statements) {
     await sqlClient.run(stmt);

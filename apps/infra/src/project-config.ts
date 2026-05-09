@@ -11,6 +11,15 @@ export const PROJECT_CONFIG = {
     apiWorker: 'gamezilla-api',
     /** Worker name — must match `apps/turbo-cache/wrangler.toml` `name`. */
     turboCacheWorker: 'gamezilla-turbo-cache',
+    /**
+     * Hyperdrive config for the API Worker Postgres origin.
+     * After first `infra deploy`, replace `id` with the UUID returned by Cloudflare
+     * and mirror it in `apps/api/wrangler.toml` `[[hyperdrive]]`.
+     */
+    hyperdrive: {
+      name: 'gamezilla-api-postgres',
+      id: '00000000-0000-0000-0000-000000000000',
+    },
   },
   /** PlanetScale org + database slugs (independent of GitHub `owner`/`repo`). */
   planetscale: {

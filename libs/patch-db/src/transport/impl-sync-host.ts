@@ -7,6 +7,7 @@ import {
   type PatchDb,
   type PatchDbContext,
   type PatchDbQuery,
+  type PatchDbResolvable,
   type PatchDbResult,
   type PatchInput,
   type WritePatchesResult,
@@ -15,6 +16,10 @@ import { assertWriteResponse } from '../validate-remote';
 import type { PatchDbSyncHost } from './interface';
 
 const PATCHES_DB_TOPIC = 'patch-db';
+
+function resolvePatchDb(db: PatchDbResolvable): PatchDb {
+  return typeof db === 'function' ? db() : db;
+}
 
 function assertPatchDbResultShape(r: PatchDbResult, index: number): void {
   assert.ok(
@@ -47,8 +52,8 @@ function assertPatchDbResultShape(r: PatchDbResult, index: number): void {
 
 export class PatchDbImplSyncHost implements PatchDbSyncHost {
   constructor(
-    private db: PatchDb,
-    private pubSub: PubSub
+    private readonly db: PatchDbResolvable,
+    private readonly pubSub: PubSub
   ) {
     assert.defined(db, 'PatchDbImplSyncHost: PatchDb must be defined');
     assert.defined(pubSub, 'PatchDbImplSyncHost: PubSub must be defined');
@@ -63,7 +68,7 @@ export class PatchDbImplSyncHost implements PatchDbSyncHost {
       return [];
     }
 
-    const results = await this.db.read(queries, ctx);
+    const results = await resolvePatchDb(this.db).read(queries, ctx);
     assert.array(
       results,
       'PatchDbImplSyncHost.read: db.read must return an array'
@@ -108,7 +113,7 @@ export class PatchDbImplSyncHost implements PatchDbSyncHost {
       assertPatchInput(assert, p)
     );
 
-    const out = await this.db.write(patches, ctx);
+    const out = await resolvePatchDb(this.db).write(patches, ctx);
     assert.record(
       out,
       'PatchDbImplSyncHost.write: db.write must return object'

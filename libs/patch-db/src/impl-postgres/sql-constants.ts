@@ -59,21 +59,56 @@ CREATE TABLE IF NOT EXISTS patches (
     attributes JSONB NOT NULL DEFAULT '{}',
     created_at TEXT NOT NULL,
     recorded_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP::TEXT),
-    parent_id TEXT REFERENCES patches (patch_id)
+    parent_id TEXT
 );
 
-CREATE INDEX IF NOT EXISTS idx_patches_entity_id ON patches (entity_id);
+CREATE INDEX IF NOT EXISTS idx_patches_entity ON patches (entity_type, entity_id, parent_id);
 
-CREATE INDEX IF NOT EXISTS idx_patches_parent_id ON patches (parent_id);
+CREATE INDEX IF NOT EXISTS idx_patches_roots
+    ON patches (entity_type, entity_id) WHERE parent_id IS NULL;
+
+CREATE INDEX IF NOT EXISTS idx_patches_parent ON patches (parent_id, entity_type, entity_id);
 
 CREATE TABLE IF NOT EXISTS snapshots (
     entity_id TEXT NOT NULL,
     entity_type TEXT NOT NULL,
     attributes JSONB NOT NULL DEFAULT '{}',
-    PRIMARY KEY (entity_id, entity_type)
+    PRIMARY KEY (entity_type, entity_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_snapshots_entity_type ON snapshots (entity_type);
+CREATE INDEX IF NOT EXISTS idx_snapshots_attrs_gin ON snapshots USING GIN (attributes jsonb_path_ops);
+
+CREATE INDEX IF NOT EXISTS idx_snap_space_host
+    ON snapshots ((attributes->>'space/host-id'))
+    WHERE entity_type = 'space';
+
+CREATE INDEX IF NOT EXISTS idx_snap_space_live
+    ON snapshots (entity_type, entity_id)
+    WHERE entity_type = 'space' AND NOT (attributes ? 'space/ended-at');
+
+CREATE INDEX IF NOT EXISTS idx_snap_membership_guest
+    ON snapshots ((attributes->>'space-membership/guest-id'))
+    WHERE entity_type = 'space-membership';
+
+CREATE INDEX IF NOT EXISTS idx_snap_membership_space
+    ON snapshots ((attributes->>'space-membership/space-id'))
+    WHERE entity_type = 'space-membership';
+
+CREATE INDEX IF NOT EXISTS idx_snap_membership_active
+    ON snapshots (entity_type, entity_id)
+    WHERE entity_type = 'space-membership' AND NOT (attributes ? 'space-membership/left-at');
+
+CREATE INDEX IF NOT EXISTS idx_snap_session_device
+    ON snapshots ((attributes->>'account.session/device-id'))
+    WHERE entity_type = 'account.session';
+
+CREATE INDEX IF NOT EXISTS idx_snap_session_account
+    ON snapshots ((attributes->>'account.session/account-id'))
+    WHERE entity_type = 'account.session';
+
+CREATE INDEX IF NOT EXISTS idx_snap_provider_account
+    ON snapshots ((attributes->>'account.provider/account-id'))
+    WHERE entity_type = 'account.provider';
 `;
 
 export const RESOLVE_PARENT_ID = `WITH RECURSIVE lineage AS (
@@ -128,6 +163,7 @@ lineage AS (
       ON p.parent_id = l.patch_id
      AND p.entity_id = l.entity_id
      AND p.entity_type = l.entity_type
+    WHERE (p.entity_id, p.entity_type) IN (SELECT entity_id, entity_type FROM input)
 )
 SELECT DISTINCT ON (l.entity_id, l.entity_type)
        l.entity_id, l.entity_type, l.patch_id
@@ -159,7 +195,7 @@ ORDER BY l.depth ASC, p.patch_id ASC`;
 
 export const UPSERT_SNAPSHOT = `INSERT INTO snapshots (entity_id, entity_type, attributes)
 VALUES (?, ?, ?::text::jsonb)
-ON CONFLICT (entity_id, entity_type) DO UPDATE SET attributes = EXCLUDED.attributes`;
+ON CONFLICT (entity_type, entity_id) DO UPDATE SET attributes = EXCLUDED.attributes`;
 
 /** One round-trip to upsert many snapshot rows (Neon HTTP = one subrequest per `run`). */
 export const UPSERT_SNAPSHOTS_BATCH = `INSERT INTO snapshots (entity_id, entity_type, attributes)
@@ -169,17 +205,7 @@ export const UPSERT_SNAPSHOTS_BATCH = `INSERT INTO snapshots (entity_id, entity_
         entity_type text,
         attributes jsonb
     )
-    ON CONFLICT (entity_id, entity_type) DO UPDATE SET attributes = EXCLUDED.attributes`;
-
-export const LINEAGE_CTE = `WITH RECURSIVE lineage AS (
-            SELECT patch_id, entity_id, entity_type, 0 AS depth
-            FROM patches
-            WHERE parent_id IS NULL
-            UNION ALL
-            SELECT p.patch_id, p.entity_id, p.entity_type, l.depth + 1
-            FROM patches p
-            JOIN lineage l ON p.parent_id = l.patch_id AND p.entity_id = l.entity_id AND p.entity_type = l.entity_type
-        )`;
+    ON CONFLICT (entity_type, entity_id) DO UPDATE SET attributes = EXCLUDED.attributes`;
 
 export const SELECT_DEPTH_BY_PATCH_ID = `WITH RECURSIVE path AS (
                         SELECT patch_id, parent_id, 1 AS len FROM patches WHERE patch_id = ?

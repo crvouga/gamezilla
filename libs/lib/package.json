@@ -269,8 +269,7 @@
     "./ui/index": "./src/ui/index.ts",
     "./static-file-server/static-file-server-adapter-bun": "./src/static-file-server/static-file-server-adapter-bun.ts",
     "./static-file-server/static-file-server": "./src/static-file-server/static-file-server.ts",
-    "./sql-client/impl-pglite-http": "./src/sql-client/impl-pglite-http.ts",
-    "./sql-client/impl-pglite": "./src/sql-client/impl-pglite.ts",
+    "./sql-client/impl-pg": "./src/sql-client/impl-pg.ts",
     "./sql-client/impl-with-pub-sub": "./src/sql-client/impl-with-pub-sub.ts",
     "./sql-client/impl-expo-sqlite": "./src/sql-client/impl-expo-sqlite.ts",
     "./sql-client/impl-planetscale-postgres": "./src/sql-client/impl-planetscale-postgres.ts",
@@ -287,7 +286,6 @@
     "./kv/impl-in-memory": "./src/kv/impl-in-memory.ts",
     "./kv/interface": "./src/kv/interface.ts",
     "./kv/impl-postgres": "./src/kv/impl-postgres.ts",
-    "./better-auth-db/impl-postgres": "./src/better-auth-db/impl-postgres.ts",
     "./logger/react": "./src/logger/react.tsx",
     "./logger/logger": "./src/logger/logger.ts",
     "./logger": "./src/logger/index.ts",
@@ -377,7 +375,8 @@
     "react": "19.1.0",
     "react-native": "0.81.5",
     "react-native-svg": "15.12.1",
-    "sql.js": "^1.14.0"
+    "sql.js": "^1.14.0",
+    "pg": "^8.16.3"
   },
   "peerDependencies": {
     "react-native-gesture-handler": ">=2.0.0",
@@ -393,6 +392,7 @@
     "@electric-sql/pglite": "^0.4.3",
     "@electric-sql/pglite-socket": "^0.0.21",
     "@types/bun": "^1.3.9",
+    "@types/pg": "^8.11.10",
     "@types/react": "~19.1.0",
     "@types/sql.js": "^1.4.10",
     "eslint-plugin-lingui": "^0.13.1",
