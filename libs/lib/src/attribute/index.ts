@@ -16,4 +16,5 @@ export type {
   AttributeState,
   AttributeTag,
   JoinDot,
+  Keyword,
 } from './attribute';

@@ -3,7 +3,7 @@ import type {
   ClientTransportHandlers,
 } from '../client/core/transport';
 import type { RoomServer } from '../server/core/room-server';
-import type { RoomState } from '../types';
+import type { RoomCommandPayload, RoomEvent, RoomState } from '../types';
 
 /**
  * In-process transport: `sendJson` runs the authoritative {@link RoomServer} and
@@ -11,8 +11,8 @@ import type { RoomState } from '../types';
  */
 export class LoopbackRoomTransport<
   S extends RoomState,
-  C,
-  E,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
 > implements ClientTransport {
   private readonly handlers = new Set<(raw: unknown) => void>();
   private readonly handlerSets: ClientTransportHandlers[] = [];

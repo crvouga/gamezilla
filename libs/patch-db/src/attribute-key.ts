@@ -14,3 +14,4 @@ export {
   isClojureNamespacedKey,
   isClojureNamespacePrefix,
 } from '@gamezilla/lib/attribute';
+export type { Keyword } from '@gamezilla/lib/keyword';

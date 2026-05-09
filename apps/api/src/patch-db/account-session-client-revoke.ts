@@ -2,13 +2,15 @@ import {
   ACCOUNT_SESSION_ENTITY_TYPE,
   AccountSessionAttr,
 } from '@gamezilla/domain/auth';
+import { namespacePrefixOf } from '@gamezilla/lib/keyword';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
 import type { PatchInput } from '@gamezilla/patch-db/interface';
 import { PATCH_META_KEYS } from '@gamezilla/patch-db/interface';
 
 function isPatchMetaAttributeKey(key: string): boolean {
-  return PATCH_META_KEYS.includes(key) || key.startsWith('patch/');
+  if ((PATCH_META_KEYS as readonly string[]).includes(key)) return true;
+  return namespacePrefixOf(key) === 'patch';
 }
 
 function parseSnapshotAttributes(raw: unknown): Record<string, unknown> {

@@ -11,8 +11,8 @@ import { createComposedMessageRouter, createMessageRouter } from './router';
 describe('createMessageRouter', () => {
   it('dispatches to the handler for the registered tag type', () => {
     const ns = createMessageNamespace('app');
-    const A = ns('a', (p): p is number => typeof p === 'number');
-    const B = ns('b', (p): p is string => typeof p === 'string');
+    const A = ns('aa', (p): p is number => typeof p === 'number');
+    const B = ns('bb', (p): p is string => typeof p === 'string');
     const r = createMessageRouter<void, void, string>()
       .on(A, (_, __, msg) => `num:${msg.payload}`)
       .on(B, (_, __, msg) => `str:${msg.payload}`);
@@ -49,7 +49,7 @@ describe('createMessageRouter', () => {
 
   it('calls fallback with state, ctx, and message when no handler exists', () => {
     const ns = createMessageNamespace('app');
-    const A = ns('a', acceptUnknownPayload);
+    const A = ns('aa', acceptUnknownPayload);
     const r = createMessageRouter<
       { id: number },
       { trace: string },
@@ -67,7 +67,7 @@ describe('createMessageRouter', () => {
 
   it('throws ValidationError when type matches but payload fails validation', () => {
     const ns = createMessageNamespace('app');
-    const A = ns('a', (p): p is number => typeof p === 'number');
+    const A = ns('aa', (p): p is number => typeof p === 'number');
     const r = createMessageRouter<void, void, string>().on(A, () => 'hit');
     expect(() =>
       r.dispatch(
@@ -81,7 +81,7 @@ describe('createMessageRouter', () => {
 
   it('includes message type in ValidationError context', () => {
     const ns = createMessageNamespace('app');
-    const A = ns('a', (p): p is number => typeof p === 'number');
+    const A = ns('aa', (p): p is number => typeof p === 'number');
     const r = createMessageRouter<void, void, string>().on(A, () => 'hit');
     try {
       r.dispatch(
@@ -101,7 +101,7 @@ describe('createMessageRouter', () => {
 
   it('has returns true only for a registered full type', () => {
     const ns = createMessageNamespace('app');
-    const A = ns('a', acceptUnknownPayload);
+    const A = ns('aa', acceptUnknownPayload);
     const r = createMessageRouter<void, void, void>().on(A, () => {});
     expect(r.has(A({}))).toBe(true);
     expect(r.has({ type: A.type, payload: {} })).toBe(true);
@@ -111,7 +111,7 @@ describe('createMessageRouter', () => {
 
   it('throws when registering the same tag twice', () => {
     const ns = createMessageNamespace('app');
-    const A = ns('a', acceptUnknownPayload);
+    const A = ns('aa', acceptUnknownPayload);
     expect(() =>
       createMessageRouter<void, void, void>()
         .on(A, () => {})
@@ -144,19 +144,19 @@ describe('createMessageRouter', () => {
 
 describe('createMessageRouter with namespace', () => {
   it('rejects .on() when tag is not in the router namespace', () => {
-    const nsA = createMessageNamespace('a');
-    const nsB = createMessageNamespace('b');
-    const TagB = nsB('x', acceptUnknownPayload);
+    const nsA = createMessageNamespace('na');
+    const nsB = createMessageNamespace('nb');
+    const TagB = nsB('xx', acceptUnknownPayload);
     expect(() =>
       createMessageRouter<void, void, void>(nsA).on(TagB, () => {})
     ).toThrow(/not in router namespace/);
   });
 
   it('dispatch uses fallback for messages outside namespace without hitting handlers', () => {
-    const nsA = createMessageNamespace('a');
-    const nsB = createMessageNamespace('b');
-    const TagA = nsA('x', acceptUnknownPayload);
-    const TagB = nsB('x', acceptUnknownPayload);
+    const nsA = createMessageNamespace('na');
+    const nsB = createMessageNamespace('nb');
+    const TagA = nsA('xx', acceptUnknownPayload);
+    const TagB = nsB('xx', acceptUnknownPayload);
     const r = createMessageRouter<void, void, string>(nsA).on(
       TagA,
       () => 'inner'
@@ -165,7 +165,7 @@ describe('createMessageRouter with namespace', () => {
   });
 
   it('has returns false when message type is outside namespace', () => {
-    const ns = createMessageNamespace('z');
+    const ns = createMessageNamespace('zz');
     const Z = ns('one', acceptUnknownPayload);
     const r = createMessageRouter<void, void, void>(ns).on(Z, () => {});
     expect(r.has(Z({}))).toBe(true);
@@ -208,8 +208,8 @@ describe('createComposedMessageRouter', () => {
   });
 
   it('has delegates to the child for that prefix', () => {
-    const ns = createMessageNamespace('q');
-    const Q = ns('q', acceptUnknownPayload);
+    const ns = createMessageNamespace('qq');
+    const Q = ns('qq', acceptUnknownPayload);
     const inner = createMessageRouter<void, void, void>(ns).on(Q, () => {});
     const composed = createComposedMessageRouter([
       { namespace: ns, router: inner },
@@ -234,8 +234,8 @@ describe('composing message routers (fallback delegation)', () => {
   it('outer fallback delegates to an inner router', () => {
     const nsOuter = createMessageNamespace('outer');
     const nsInner = createMessageNamespace('inner');
-    const OuterOnly = nsOuter('o', acceptUnknownPayload);
-    const InnerOnly = nsInner('i', acceptUnknownPayload);
+    const OuterOnly = nsOuter('oh', acceptUnknownPayload);
+    const InnerOnly = nsInner('ih', acceptUnknownPayload);
     const inner = createMessageRouter<void, void, string>(nsInner).on(
       InnerOnly,
       () => 'inner-hit'

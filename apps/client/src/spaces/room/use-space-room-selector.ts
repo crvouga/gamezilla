@@ -1,5 +1,6 @@
 import {
   SPACE_ROOM_NAME,
+  type RoomCommandPayload,
   type RoomState,
   useRoomDispatch,
   useRoomSelector,
@@ -17,6 +18,6 @@ export function useSpaceSelector<R>(selector: (state: RoomState) => R): R {
 /**
  * Dispatch to the default space room (`{@link SPACE_ROOM_NAME}`).
  */
-export function useSpaceDispatch(): (payload: unknown) => void {
+export function useSpaceDispatch(): (payload: RoomCommandPayload) => void {
   return useRoomDispatch(SPACE_ROOM_NAME);
 }

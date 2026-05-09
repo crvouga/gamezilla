@@ -1,6 +1,6 @@
 import { useQueryEntityIds } from '@gamezilla/patch-db/react';
 
-import { TODO_ENTITY_TYPE } from '../domain/todo-constants';
+import { TODO_LIST_ITEM_ENTITY_TYPE } from '../domain/todo-constants';
 import {
   buildTodoWhereClause,
   todoDefaultOrderBy,
@@ -9,7 +9,7 @@ import {
 
 export function useTodoIdsInList(listId: string, filter: TodoFilter): string[] {
   return useQueryEntityIds({
-    entityType: TODO_ENTITY_TYPE,
+    entityType: TODO_LIST_ITEM_ENTITY_TYPE,
     where: buildTodoWhereClause(listId, filter),
     orderBy: todoDefaultOrderBy,
   });

@@ -4,6 +4,7 @@ import {
   DEVICE_ENTITY_TYPE,
   DeviceAttr,
 } from '@gamezilla/domain/auth';
+import { ClientConfigAttr } from '@gamezilla/domain/client-config/client-config-entities';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
@@ -17,9 +18,11 @@ import type {
   PatchDbClientContext,
 } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
+import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { AppAuthContext } from './abac-policies';
+import { AbacEntityAttr } from './abac-patch-attrs';
 import { installDefaultPatchDbPolicies } from './patch-db';
 
 async function createSqliteFactory(): Promise<{
@@ -57,18 +60,18 @@ describe('default ABAC policies (sqlite)', () => {
           entityId: 'priv-a',
           entityType: 'profile.private',
           attributes: {
-            'entity/owner': accountA,
-            'profile/display-name': 'A',
-            'patch/created-by-id': PATCH_DB_SYSTEM_DEVICE_ID,
+            ...AbacEntityAttr.owner(accountA),
+            ...ProfileAttr.displayName('A'),
+            ...PatchMetaAttr.createdById(PATCH_DB_SYSTEM_DEVICE_ID),
           },
         },
         {
           entityId: 'priv-b',
           entityType: 'profile.private',
           attributes: {
-            'entity/owner': accountB,
-            'profile/display-name': 'B',
-            'patch/created-by-id': PATCH_DB_SYSTEM_DEVICE_ID,
+            ...AbacEntityAttr.owner(accountB),
+            ...ProfileAttr.displayName('B'),
+            ...PatchMetaAttr.createdById(PATCH_DB_SYSTEM_DEVICE_ID),
           },
         },
       ],
@@ -109,9 +112,9 @@ describe('default ABAC policies (sqlite)', () => {
           entityId: 'priv-x',
           entityType: 'profile.private',
           attributes: {
-            'entity/owner': accountA,
-            'profile/display-name': 'X',
-            'patch/created-by-id': PATCH_DB_SYSTEM_DEVICE_ID,
+            ...AbacEntityAttr.owner(accountA),
+            ...ProfileAttr.displayName('X'),
+            ...PatchMetaAttr.createdById(PATCH_DB_SYSTEM_DEVICE_ID),
           },
         },
       ],
@@ -164,8 +167,8 @@ describe('default ABAC policies (sqlite)', () => {
           entityId: 'evt_bad',
           entityType: 'stripe.webhook-event',
           attributes: {
-            'entity/owner': ctx.accountId,
-            'patch/created-by-id': ctx.myId,
+            ...AbacEntityAttr.owner(ctx.accountId),
+            ...PatchMetaAttr.createdById(ctx.myId),
           },
         },
       ],
@@ -183,8 +186,8 @@ describe('default ABAC policies (sqlite)', () => {
           entityId: 'client-config__singleton',
           entityType: 'client-config',
           attributes: {
-            'client-config/google-web-client-id': 'test-id',
-            'patch/created-by-id': PATCH_DB_SYSTEM_DEVICE_ID,
+            ...ClientConfigAttr.googleWebClientId('test-id'),
+            ...PatchMetaAttr.createdById(PATCH_DB_SYSTEM_DEVICE_ID),
           },
         },
       ],
@@ -205,9 +208,9 @@ describe('default ABAC policies (sqlite)', () => {
           entityId: 'priv-client-test',
           entityType: 'profile.private',
           attributes: {
-            'entity/owner': '00000000-0000-4000-8000-0000000000aa',
-            'profile/display-name': 'Private',
-            'patch/created-by-id': PATCH_DB_SYSTEM_DEVICE_ID,
+            ...AbacEntityAttr.owner('00000000-0000-4000-8000-0000000000aa'),
+            ...ProfileAttr.displayName('Private'),
+            ...PatchMetaAttr.createdById(PATCH_DB_SYSTEM_DEVICE_ID),
           },
         },
       ],
@@ -230,7 +233,7 @@ describe('default ABAC policies (sqlite)', () => {
           entityType: DEVICE_ENTITY_TYPE,
           attributes: {
             [DeviceAttr.id.key]: deviceId,
-            'patch/created-by-id': 'anonymous-client-writer',
+            ...PatchMetaAttr.createdById('anonymous-client-writer'),
           },
         },
       ],
@@ -249,8 +252,8 @@ describe('default ABAC policies (sqlite)', () => {
           entityId: 'test-entity',
           entityType: 'client-config',
           attributes: {
-            'client-config/google-web-client-id': 'hacked',
-            'patch/created-by-id': '__hacker__',
+            ...ClientConfigAttr.googleWebClientId('hacked'),
+            ...PatchMetaAttr.createdById('__hacker__'),
           },
         },
       ],
@@ -278,7 +281,7 @@ describe('default ABAC policies (sqlite)', () => {
             [AccountSessionAttr.token.key]: 'server-issued-token',
             [AccountSessionAttr.expiresAt.key]: future,
             [AccountSessionAttr.createdAt.key]: new Date().toISOString(),
-            'patch/created-by-id': PATCH_DB_SYSTEM_DEVICE_ID,
+            ...PatchMetaAttr.createdById(PATCH_DB_SYSTEM_DEVICE_ID),
           },
         },
       ],
@@ -302,7 +305,7 @@ describe('default ABAC policies (sqlite)', () => {
           attributes: {
             [AccountSessionAttr.token.key]: null,
             [AccountSessionAttr.expiresAt.key]: epoch,
-            'patch/created-by-id': accountId,
+            ...PatchMetaAttr.createdById(accountId),
           },
         },
       ],
@@ -331,7 +334,7 @@ describe('default ABAC policies (sqlite)', () => {
           attributes: {
             [AccountSessionAttr.token.key]: null,
             [AccountSessionAttr.expiresAt.key]: new Date(0).toISOString(),
-            'patch/created-by-id': accountId,
+            ...PatchMetaAttr.createdById(accountId),
           },
         },
       ],
@@ -358,7 +361,7 @@ describe('default ABAC policies (sqlite)', () => {
             [AccountSessionAttr.token.key]: 'a',
             [AccountSessionAttr.expiresAt.key]: future,
             [AccountSessionAttr.createdAt.key]: new Date().toISOString(),
-            'patch/created-by-id': PATCH_DB_SYSTEM_DEVICE_ID,
+            ...PatchMetaAttr.createdById(PATCH_DB_SYSTEM_DEVICE_ID),
           },
         },
       ],
@@ -381,7 +384,7 @@ describe('default ABAC policies (sqlite)', () => {
           attributes: {
             [AccountSessionAttr.token.key]: 'hijacked',
             [AccountSessionAttr.expiresAt.key]: new Date(0).toISOString(),
-            'patch/created-by-id': accountId,
+            ...PatchMetaAttr.createdById(accountId),
           },
         },
       ],
@@ -389,6 +392,118 @@ describe('default ABAC policies (sqlite)', () => {
     );
     expect(out.accepted).toHaveLength(0);
     expect(out.rejected).toHaveLength(1);
+  });
+
+  test('todo-list-item: authenticated write succeeds when createdBy matches', async () => {
+    const accountId = '00000000-0000-4000-8000-0000000000a1';
+    const ctx: AppAuthContext = {
+      deviceId: '00000000-0000-4000-8000-00000000a101',
+      accountId,
+      myId: accountId,
+      memberOfSpaceIds: [],
+      friendUserIds: [],
+      blockedUserIds: [],
+    };
+    const out = await db.write(
+      [
+        {
+          entityId: 'todo-1',
+          entityType: 'todo-list-item',
+          attributes: {
+            'todo-list-item/title': 'hello',
+            ...PatchMetaAttr.createdById(accountId),
+          },
+        },
+      ],
+      ctx
+    );
+    expect(out.rejected).toHaveLength(0);
+    expect(out.accepted).toHaveLength(1);
+
+    const [r] = await db.read([{ entityType: 'todo-list-item' }], ctx);
+    assert.defined(r, 'r');
+    expect(r.entities.map((e) => e.entityId)).toEqual(['todo-1']);
+  });
+
+  test('todo-list: authenticated write succeeds and is readable', async () => {
+    const accountId = '00000000-0000-4000-8000-0000000000b1';
+    const ctx: AppAuthContext = {
+      deviceId: '00000000-0000-4000-8000-00000000b101',
+      accountId,
+      myId: accountId,
+      memberOfSpaceIds: [],
+      friendUserIds: [],
+      blockedUserIds: [],
+    };
+    const out = await db.write(
+      [
+        {
+          entityId: 'list-1',
+          entityType: 'todo-list',
+          attributes: {
+            'todo-list/name': 'mine',
+            ...PatchMetaAttr.createdById(accountId),
+          },
+        },
+      ],
+      ctx
+    );
+    expect(out.rejected).toHaveLength(0);
+
+    const [r] = await db.read([{ entityType: 'todo-list' }], ctx);
+    assert.defined(r, 'r');
+    expect(r.entities.map((e) => e.entityId)).toEqual(['list-1']);
+  });
+
+  test('todo-list-item: unauthenticated client read returns empty', async () => {
+    await db.write(
+      [
+        {
+          entityId: 'todo-sys',
+          entityType: 'todo-list-item',
+          attributes: {
+            'todo-list-item/title': 'sys',
+            ...PatchMetaAttr.createdById(PATCH_DB_SYSTEM_DEVICE_ID),
+          },
+        },
+      ],
+      PATCHES_DB_SYSTEM_CONTEXT
+    );
+
+    const clientCtx: PatchDbClientContext = {};
+    const [r] = await db.read([{ entityType: 'todo-list-item' }], clientCtx);
+    assert.defined(r, 'r');
+    expect(r.entities).toHaveLength(0);
+  });
+
+  test('todo-list-item: authenticated write rejects mismatched created-by-id', async () => {
+    const accountId = '00000000-0000-4000-8000-0000000000d1';
+    const ctx: AppAuthContext = {
+      deviceId: '00000000-0000-4000-8000-00000000d1de',
+      accountId,
+      myId: accountId,
+      memberOfSpaceIds: [],
+      friendUserIds: [],
+      blockedUserIds: [],
+    };
+    const out = await db.write(
+      [
+        {
+          entityId: 'todo-mismatch',
+          entityType: 'todo-list-item',
+          attributes: {
+            'todo-list-item/title': 'x',
+            ...PatchMetaAttr.createdById(
+              '00000000-0000-4000-8000-00000000dead'
+            ),
+          },
+        },
+      ],
+      ctx
+    );
+    expect(out.accepted).toHaveLength(0);
+    expect(out.rejected).toHaveLength(1);
+    expect(out.rejected[0]?.code).toBe('forbidden');
   });
 
   test('authenticated write still enforces patch/created-by-id match', async () => {
@@ -409,7 +524,9 @@ describe('default ABAC policies (sqlite)', () => {
           entityType: PROFILE_ENTITY_TYPE,
           attributes: {
             [ProfileAttr.id.key]: accountId,
-            'patch/created-by-id': '00000000-0000-4000-8000-00000000dead',
+            ...PatchMetaAttr.createdById(
+              '00000000-0000-4000-8000-00000000dead'
+            ),
           },
         },
       ],

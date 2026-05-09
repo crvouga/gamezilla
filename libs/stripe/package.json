@@ -14,6 +14,7 @@
     "./backfill-entities": "./src/backfill-entities.ts",
     "./sync": "./src/sync/index.ts",
     "./secret-keys": "./src/secret-keys.ts",
+    "./stripe-attrs": "./src/stripe-attrs.ts",
     "./webhooks-sync-shared": "./src/webhooks-sync-shared.ts"
   },
   "dependencies": {

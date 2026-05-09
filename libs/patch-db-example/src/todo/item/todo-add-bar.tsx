@@ -5,8 +5,8 @@ import { useState, type ReactNode } from 'react';
 
 import {
   INBOX_LIST_ID,
-  TODO_ENTITY_TYPE,
-  TodoAttr,
+  TODO_LIST_ITEM_ENTITY_TYPE,
+  TodoListItemAttr,
 } from '../domain/todo-constants';
 import { useTodoCountForList } from '../query/use-todo-count-for-list';
 
@@ -27,13 +27,13 @@ export function TodoAddBar({ listId }: TodoAddBarProps): ReactNode {
     await db.write([
       {
         entityId: crypto.randomUUID(),
-        entityType: TODO_ENTITY_TYPE,
+        entityType: TODO_LIST_ITEM_ENTITY_TYPE,
         attributes: {
-          ...TodoAttr.title(title),
-          ...TodoAttr.completed(false),
-          ...TodoAttr.order(totalCount),
-          ...TodoAttr.createdAt(new Date().toISOString()),
-          ...(listId !== INBOX_LIST_ID ? TodoAttr.listId(listId) : {}),
+          ...TodoListItemAttr.title(title),
+          ...TodoListItemAttr.completed(false),
+          ...TodoListItemAttr.order(totalCount),
+          ...TodoListItemAttr.createdAt(new Date().toISOString()),
+          ...(listId !== INBOX_LIST_ID ? TodoListItemAttr.listId(listId) : {}),
         },
       },
     ]);

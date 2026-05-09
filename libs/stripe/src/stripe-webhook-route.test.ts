@@ -3,6 +3,7 @@ import type { PatchDb, PatchInput } from '@gamezilla/patch-db/interface';
 import { describe, expect, it, mock } from 'bun:test';
 import Stripe from 'stripe';
 import { StripeSecretKeys } from './secret-keys';
+import { StripeAttr } from './stripe-attrs';
 import { createStripeWebhookRoutes } from './stripe-webhook-route';
 
 describe('createStripeWebhookRoutes', () => {
@@ -116,7 +117,7 @@ describe('createStripeWebhookRoutes', () => {
     const p = patches[0]!;
     expect(p.entityType).toBe('stripe.customer.created');
     expect(p.entityId).toBe('cus_test_1');
-    expect(p.attributes['stripe/payload']).toEqual(event);
-    expect(p.attributes['stripe/object-type']).toBe('event');
+    expect(p.attributes[StripeAttr.payload.key]).toEqual(event);
+    expect(p.attributes[StripeAttr.objectType.key]).toBe('event');
   });
 });

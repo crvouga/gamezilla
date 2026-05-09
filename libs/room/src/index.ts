@@ -23,7 +23,7 @@
  */
 export { Room } from './client/core/room';
 export type { RoomClientConfig } from './client/core/room';
-export { RoomMetaAttr } from './client/core/room-meta';
+export { roomAttrNamespace, RoomMetaAttr } from './client/core/room-meta';
 export type { ClientRoomStorage, QueuedCommand } from './client/core/storage';
 export type {
   ClientTransport,
@@ -53,8 +53,10 @@ export {
 } from './protocol/wire';
 export type {
   HandleResult,
+  Keyword,
   LogEntry,
   RoomCommand,
+  RoomCommandPayload,
   RoomError,
   RoomEvent,
   RoomModule,

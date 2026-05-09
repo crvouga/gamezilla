@@ -8,9 +8,10 @@
  * webhook-event rows (`stripe.<event.type>`) so the two sources never collide.
  */
 import type { PatchDb, PatchDbContext } from '@gamezilla/patch-db/interface';
-import { PATCH_CREATED_BY_ID } from '@gamezilla/patch-db/metadata/patch-metadata';
+import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
 import type Stripe from 'stripe';
+import { StripeAttr, StripeEntityAttr } from './stripe-attrs';
 
 /** Marker on backfill rows so consumers can tell snapshots from webhook events. */
 export const BACKFILL_METADATA_SOURCE_PREFIX = 'stripe_backfill_' as const;
@@ -96,7 +97,7 @@ async function lookupOwnerByCustomerId(
     ],
     ctx
   );
-  const owner = r?.entities[0]?.attributes['entity/owner'];
+  const owner = r?.entities[0]?.attributes[StripeEntityAttr.owner.key];
   return typeof owner === 'string' && owner.length > 0 ? owner : null;
 }
 
@@ -166,13 +167,13 @@ export async function backfillStripeListIntoPatchDb<
       expectedObjectType,
     });
     const attrs: Record<string, unknown> = {
-      'stripe/payload': obj as unknown,
-      'stripe/object-type': expectedObjectType,
-      'stripe/source': source,
-      [PATCH_CREATED_BY_ID]: PATCH_DB_SYSTEM_DEVICE_ID,
+      ...StripeAttr.payload(obj as unknown),
+      ...StripeAttr.objectType(expectedObjectType),
+      ...StripeAttr.source(source),
+      ...PatchMetaAttr.createdById(PATCH_DB_SYSTEM_DEVICE_ID),
     };
     if (owner !== null) {
-      attrs['entity/owner'] = owner;
+      Object.assign(attrs, StripeEntityAttr.owner(owner));
     }
     await db.write(
       [

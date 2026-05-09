@@ -1,6 +1,7 @@
 import { createAttrNamespace } from '@gamezilla/lib/attribute';
 import {
   createMessageNamespace,
+  isMessageEnvelope,
   isPlainRecord,
   type Message,
 } from '@gamezilla/lib/message';
@@ -33,17 +34,11 @@ function readCount(state: RoomState): number {
   return counterCount.from(state);
 }
 
-function asMessage(payload: unknown): Message | null {
-  if (typeof payload !== 'object' || payload === null) return null;
-  if (!('type' in payload) || !('payload' in payload)) return null;
-  return payload as Message;
-}
-
 /** Minimal counter module for tests (mirrors domain counter shape). */
 export const TestCounterModule: RoomModule<
   RoomState,
-  unknown,
-  unknown,
+  Message,
+  Message,
   string
 > = {
   initialState(): RoomState {
@@ -57,7 +52,7 @@ export const TestCounterModule: RoomModule<
   ): HandleResult {
     void state;
     void _identity;
-    const msg = asMessage(command.payload);
+    const msg = isMessageEnvelope(command.payload) ? command.payload : null;
     if (msg === null) {
       return {
         ok: false,
@@ -79,8 +74,8 @@ export const TestCounterModule: RoomModule<
     };
   },
 
-  reduce(state: RoomState, event: unknown): RoomState {
-    const ev = asMessage(event);
+  reduce(state: RoomState, event: Message): RoomState {
+    const ev = isMessageEnvelope(event) ? event : null;
     if (ev === null) return state;
     if (CounterIncremented.is(ev)) {
       return { ...state, ...counterCount(readCount(state) + 1) };

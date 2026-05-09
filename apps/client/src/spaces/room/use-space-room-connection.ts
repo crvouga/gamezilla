@@ -1,13 +1,18 @@
 import type { ConfigService } from '@gamezilla/domain/config/config-service';
 import type { KeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
-import type { Room } from '@gamezilla/room';
+import type {
+  Room,
+  RoomCommandPayload,
+  RoomEvent,
+  RoomState,
+} from '@gamezilla/room';
 import type { WebSocketRoomTransport } from '@gamezilla/room/client/adapters/transport/websocket';
 import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 
 import { createSpaceRoom } from './create-space-room';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
 
-type SpaceRoom = Room<Record<string, unknown>, unknown, unknown, string>;
+type SpaceRoom = Room<RoomState, RoomCommandPayload, RoomEvent, string>;
 
 function normalizeSessionToken(t: string | null): string | null {
   if (typeof t !== 'string') return null;

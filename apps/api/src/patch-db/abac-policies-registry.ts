@@ -436,6 +436,34 @@ const inventoryItemPolicy: AppVisibilityPolicy = {
   },
 };
 
+/**
+ * Patch-db-example playground (Settings → Developer → Todos): authenticated
+ * readers see every list / item. We can't snapshot-filter by
+ * `patch/created-by-id` because {@link PATCH_META_KEYS} strips it from
+ * snapshots, and the example never stamps {@link AbacEntityAttr.owner}.
+ * Writes still require auth and must match the writer (Stamper sets
+ * `patch/created-by-id`; we re-assert via {@link assertCreatedByMatchesAuthor}).
+ */
+const todoListPolicy: AppVisibilityPolicy = {
+  read: authOnlyRead(() => READ_WHERE_ALWAYS_TRUE),
+  write: async (ctx, patch, _tx) => {
+    if (isPatchDbSystemContext(ctx)) return;
+    const appCtx = appAuthFromWriteContext(ctx);
+    if (appCtx === null) return;
+    assertCreatedByMatchesAuthor(appCtx, patch);
+  },
+};
+
+const todoListItemPolicy: AppVisibilityPolicy = {
+  read: authOnlyRead(() => READ_WHERE_ALWAYS_TRUE),
+  write: async (ctx, patch, _tx) => {
+    if (isPatchDbSystemContext(ctx)) return;
+    const appCtx = appAuthFromWriteContext(ctx);
+    if (appCtx === null) return;
+    assertCreatedByMatchesAuthor(appCtx, patch);
+  },
+};
+
 /** Domain + auth entity visibility (ABAC predicates). */
 export const DEFAULT_PATCH_DB_VISIBILITY_POLICIES: Readonly<
   Record<string, AppVisibilityPolicy>
@@ -458,5 +486,7 @@ export const DEFAULT_PATCH_DB_VISIBILITY_POLICIES: Readonly<
   match: matchPolicy,
   'match.score': matchScorePolicy,
   'inventory.item': inventoryItemPolicy,
+  'todo-list': todoListPolicy,
+  'todo-list-item': todoListItemPolicy,
   ...STRIPE_PATCH_DB_VISIBILITY_POLICIES,
 };

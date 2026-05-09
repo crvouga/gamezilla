@@ -132,18 +132,38 @@ async function handleWorkerFetch(
   request: Request,
   env: ApiWorkerEnv
 ): Promise<Response> {
-  const app = await ensureApp(env);
-  if (app === null) {
-    if (request.method === 'OPTIONS') {
-      return preflightResponse(request);
+  const url = new URL(request.url);
+
+  // Keep health checks independent from DB pressure so deploy checks and
+  // load-balancer liveness don't flap when Postgres is saturated.
+  if (url.pathname === '/health') {
+    if (request.method === 'HEAD') {
+      return new Response(null, {
+        status: 200,
+        headers: { ...ERROR_CORS_HEADERS },
+      });
     }
-    const reason = bootState.kind === 'fatal' ? bootState.reason : 'unknown';
-    return fatalConfigResponse(reason);
+    if (request.method === 'GET') {
+      return new Response(JSON.stringify({ status: 'ok' as const }), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          ...ERROR_CORS_HEADERS,
+        },
+      });
+    }
   }
 
-  const authPreflight = tryBetterAuthOptionsResponse(request);
-  if (authPreflight !== null) {
-    return authPreflight;
+  // Preflights must not depend on app boot / database availability.
+  if (request.method === 'OPTIONS') {
+    const authPreflight = tryBetterAuthOptionsResponse(request);
+    return authPreflight ?? preflightResponse(request);
+  }
+
+  const app = await ensureApp(env);
+  if (app === null) {
+    const reason = bootState.kind === 'fatal' ? bootState.reason : 'unknown';
+    return fatalConfigResponse(reason);
   }
 
   return app.fetch(request, env);

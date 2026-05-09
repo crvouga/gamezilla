@@ -3,27 +3,57 @@
  * patch attributes JSON but excluded from entity snapshots by
  * implementations (via {@link PATCH_META_KEYS}).
  */
+import { createAttrNamespace } from '@gamezilla/lib/attribute';
+
+function readPatchString(v: unknown): string {
+  return typeof v === 'string' ? v : String(v ?? '');
+}
+
+function readPatchUnknown(v: unknown): unknown {
+  return v;
+}
+
+function readPatchBooleanish(v: unknown): boolean {
+  return v === true || v === 1;
+}
+
+const patchMetaNs = createAttrNamespace('patch');
+
+/** Attribute tags from `@gamezilla/lib/attribute` — single source of truth for patch meta wire strings. */
+export const PatchMetaAttr = {
+  createdById: patchMetaNs('created-by-id', readPatchString),
+  sessionId: patchMetaNs('session-id', readPatchString),
+  syncedAt: patchMetaNs('synced-at', readPatchUnknown),
+  syncRejectedAt: patchMetaNs('sync-rejected-at', readPatchUnknown),
+  syncRejectedReason: patchMetaNs('sync-rejected-reason', readPatchUnknown),
+  rejected: patchMetaNs('rejected', readPatchBooleanish),
+} as const;
 
 /** Original patch author id (account id when signed in, else install id). */
-export const PATCH_CREATED_BY_ID = 'patch/created-by-id' as const;
-export const PATCH_SESSION_ID = 'patch/session-id' as const;
-export const PATCH_SYNCED_AT = 'patch/synced-at' as const;
-export const PATCH_SYNC_REJECTED_AT = 'patch/sync-rejected-at' as const;
-export const PATCH_SYNC_REJECTED_REASON = 'patch/sync-rejected-reason' as const;
+export const PATCH_CREATED_BY_ID = PatchMetaAttr.createdById.key;
+
+export const PATCH_SESSION_ID = PatchMetaAttr.sessionId.key;
+
+export const PATCH_SYNCED_AT = PatchMetaAttr.syncedAt.key;
+
+export const PATCH_SYNC_REJECTED_AT = PatchMetaAttr.syncRejectedAt.key;
+
+export const PATCH_SYNC_REJECTED_REASON = PatchMetaAttr.syncRejectedReason.key;
+
 /** When true, this patch is treated as rejected for sync/outbox and entity materialization. */
-export const PATCH_REJECTED = 'patch/rejected' as const;
+export const PATCH_REJECTED = PatchMetaAttr.rejected.key;
 
 /**
  * Attribute keys treated as patch-level metadata by the library.
  * Implementations strip these from entity snapshots when merging patches.
  */
-export const PATCH_META_KEYS: readonly string[] = [
-  PATCH_CREATED_BY_ID,
-  PATCH_SESSION_ID,
-  PATCH_SYNCED_AT,
-  PATCH_SYNC_REJECTED_AT,
-  PATCH_SYNC_REJECTED_REASON,
-  PATCH_REJECTED,
+export const PATCH_META_KEYS = [
+  PatchMetaAttr.createdById.key,
+  PatchMetaAttr.sessionId.key,
+  PatchMetaAttr.syncedAt.key,
+  PatchMetaAttr.syncRejectedAt.key,
+  PatchMetaAttr.syncRejectedReason.key,
+  PatchMetaAttr.rejected.key,
 ] as const;
 
 function readBooleanish(v: unknown): boolean {

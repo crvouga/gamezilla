@@ -1,7 +1,8 @@
 import type { PatchDb, PatchDbContext } from '@gamezilla/patch-db/interface';
-import { PATCH_CREATED_BY_ID } from '@gamezilla/patch-db/metadata/patch-metadata';
+import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
 import type Stripe from 'stripe';
+import { StripeAttr } from './stripe-attrs';
 
 /** Patch-db entity type for catalog prices (SPEC / checkout `priceKey` = entityId). */
 export const STRIPE_PATCH_ENTITY_CATALOG_PRICE =
@@ -45,7 +46,7 @@ export async function getStripeCatalogPriceStripeId(
   );
   const ent = res?.entities[0];
   if (ent === undefined) return null;
-  const payload = ent.attributes['stripe/payload'];
+  const payload = ent.attributes[StripeAttr.payload.key];
   return stripePriceIdFromCatalogRowData(payload);
 }
 
@@ -65,10 +66,10 @@ export async function upsertCatalogPriceFromStripeApi(
         entityId: rowId,
         entityType: STRIPE_PATCH_ENTITY_CATALOG_PRICE,
         attributes: {
-          'stripe/payload': price as unknown,
-          'stripe/object-type': 'price',
-          'stripe/source': 'stripe_catalog_sync',
-          [PATCH_CREATED_BY_ID]: PATCH_DB_SYSTEM_DEVICE_ID,
+          ...StripeAttr.payload(price as unknown),
+          ...StripeAttr.objectType('price'),
+          ...StripeAttr.source('stripe_catalog_sync'),
+          ...PatchMetaAttr.createdById(PATCH_DB_SYSTEM_DEVICE_ID),
         },
       },
     ],
@@ -92,10 +93,10 @@ export async function upsertCatalogProductFromStripeApi(
         entityId: rowId,
         entityType: STRIPE_PATCH_ENTITY_CATALOG_PRODUCT,
         attributes: {
-          'stripe/payload': product as unknown,
-          'stripe/object-type': 'product',
-          'stripe/source': 'stripe_catalog_sync',
-          [PATCH_CREATED_BY_ID]: PATCH_DB_SYSTEM_DEVICE_ID,
+          ...StripeAttr.payload(product as unknown),
+          ...StripeAttr.objectType('product'),
+          ...StripeAttr.source('stripe_catalog_sync'),
+          ...PatchMetaAttr.createdById(PATCH_DB_SYSTEM_DEVICE_ID),
         },
       },
     ],

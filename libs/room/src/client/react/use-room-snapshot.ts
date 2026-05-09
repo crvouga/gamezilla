@@ -1,6 +1,6 @@
 import { useCallback, useSyncExternalStore } from 'react';
 
-import type { RoomState } from '../../types';
+import type { RoomCommandPayload, RoomEvent, RoomState } from '../../types';
 import type { Room } from '../core/room';
 
 const noop = (): void => {};
@@ -18,9 +18,12 @@ export const EMPTY_ROOM_STATE: Readonly<RoomState> = Object.freeze({});
  * When `room === null`, returns {@link EMPTY_ROOM_STATE} so selectors can run
  * with parser defaults.
  */
-export function useRoomSnapshot<S extends RoomState, C, E, Identity>(
-  room: Room<S, C, E, Identity> | null
-): S {
+export function useRoomSnapshot<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+  Identity,
+>(room: Room<S, C, E, Identity> | null): S {
   const subscribe = useCallback(
     (listener: () => void): (() => void) => {
       if (room === null) return noop;
@@ -38,10 +41,13 @@ export function useRoomSnapshot<S extends RoomState, C, E, Identity>(
 /**
  * Select from flat room state. When `room === null`, reads {@link EMPTY_ROOM_STATE}.
  */
-export function useRoomSnapshotSelector<S extends RoomState, C, E, Identity, R>(
-  room: Room<S, C, E, Identity> | null,
-  selector: (state: S) => R
-): R {
+export function useRoomSnapshotSelector<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+  Identity,
+  R,
+>(room: Room<S, C, E, Identity> | null, selector: (state: S) => R): R {
   const state = useRoomSnapshot(room);
   return selector(state);
 }

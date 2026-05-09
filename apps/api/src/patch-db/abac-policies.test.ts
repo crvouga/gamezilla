@@ -8,8 +8,11 @@ import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
+import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
+import { StripeAttr } from '@gamezilla/stripe/stripe-attrs';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { AbacEntityAttr } from './abac-patch-attrs';
 import { installDefaultPatchDbPolicies } from './patch-db';
 
 async function createSqliteFactory(): Promise<{
@@ -46,10 +49,10 @@ describe('gamezilla default policies (system + auth writes)', () => {
           entityId: 'evt_sys_test',
           entityType: 'stripe.webhook-event',
           attributes: {
-            'entity/owner': owner,
-            'stripe/webhook-event-type': 'customer.created',
-            'stripe/stripe-object-id': 'evt_sys_test',
-            'patch/created-by-id': PATCH_DB_SYSTEM_DEVICE_ID,
+            ...AbacEntityAttr.owner(owner),
+            ...StripeAttr.webhookEventType('customer.created'),
+            ...StripeAttr.stripeObjectId('evt_sys_test'),
+            ...PatchMetaAttr.createdById(PATCH_DB_SYSTEM_DEVICE_ID),
           },
         },
       ],
@@ -87,7 +90,9 @@ describe('gamezilla default policies (system + auth writes)', () => {
           entityType: PROFILE_ENTITY_TYPE,
           attributes: {
             [ProfileAttr.id.key]: userId,
-            'patch/created-by-id': '00000000-0000-4000-8000-00000000dead',
+            ...PatchMetaAttr.createdById(
+              '00000000-0000-4000-8000-00000000dead'
+            ),
           },
         },
       ],

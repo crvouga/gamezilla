@@ -12,7 +12,7 @@ import type {
   PatchInput,
 } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
-import { PATCH_CREATED_BY_ID } from '@gamezilla/patch-db/metadata/patch-metadata';
+import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
 import type { AccountProvisioningPort } from '../ports';
 
 /** Stored in {@link AccountProviderAttr.provider} — only referenced inside this adapter. */
@@ -65,7 +65,7 @@ function patchesForNewAuthUserAccount(args: {
       ...AccountProviderAttr.providerUserId(externalUserId),
       ...(email !== null ? AccountProviderAttr.email(email) : {}),
       ...AccountProviderAttr.linkedAt(now),
-      [PATCH_CREATED_BY_ID]: accountId,
+      ...PatchMetaAttr.createdById(accountId),
     },
   };
   return [
@@ -75,7 +75,7 @@ function patchesForNewAuthUserAccount(args: {
       attributes: {
         ...AccountAttr.id(accountId),
         ...AccountAttr.createdAt(now),
-        [PATCH_CREATED_BY_ID]: accountId,
+        ...PatchMetaAttr.createdById(accountId),
       },
     },
     providerPatch,

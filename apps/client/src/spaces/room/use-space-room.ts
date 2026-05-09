@@ -11,7 +11,12 @@ import {
   SpaceAttr,
 } from '@gamezilla/domain/spaces/space-entities';
 import { useQueryAttribute } from '@gamezilla/patch-db/react';
-import type { Room } from '@gamezilla/room';
+import type {
+  Room,
+  RoomCommandPayload,
+  RoomEvent,
+  RoomState,
+} from '@gamezilla/room';
 import { RoomMetaAttr, useRoomSnapshot } from '@gamezilla/room';
 import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
@@ -19,7 +24,7 @@ import { useMemo } from 'react';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
 import { useSpaceRoomConnection } from './use-space-room-connection';
 
-type SpaceRoom = Room<Record<string, unknown>, unknown, unknown, string>;
+type SpaceRoom = Room<RoomState, RoomCommandPayload, RoomEvent, string>;
 
 export type SpaceRoomUiState = {
   /** Open room client for registry-backed hooks; `null` while connecting. */

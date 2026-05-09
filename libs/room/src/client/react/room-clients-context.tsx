@@ -1,6 +1,6 @@
 import { createContext, useContext, type ReactNode } from 'react';
 
-import type { RoomState } from '../../types';
+import type { RoomCommandPayload, RoomEvent, RoomState } from '../../types';
 import type { Room } from '../core/room';
 
 /**
@@ -10,7 +10,7 @@ import type { Room } from '../core/room';
 export const SPACE_ROOM_NAME = 'space';
 
 /** Type-erased room instance for multi-room React registries. */
-export type AnyRoom = Room<RoomState, unknown, unknown, unknown>;
+export type AnyRoom = Room<RoomState, RoomCommandPayload, RoomEvent, unknown>;
 
 const EMPTY_MAP: ReadonlyMap<string, AnyRoom> = new Map();
 

@@ -1,6 +1,11 @@
 import { RoomServer } from '../../core/room-server';
 import type { RoomStorage } from '../../core/storage';
-import type { RoomModule, RoomState } from '../../../types';
+import type {
+  RoomCommandPayload,
+  RoomEvent,
+  RoomModule,
+  RoomState,
+} from '../../../types';
 
 import {
   newWebSocketPair,
@@ -14,7 +19,13 @@ import {
  * instance. All defaults applied; no optional fields. Internal to the
  * adapter package.
  */
-export type ResolvedAdapterConfig<S extends RoomState, C, E, Identity, Env> = {
+export type ResolvedAdapterConfig<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+  Identity,
+  Env,
+> = {
   module: RoomModule<S, C, E, Identity>;
   identityHeader: string;
   parseIdentity: (raw: string) => Identity | null;
@@ -29,8 +40,8 @@ export type ResolvedAdapterConfig<S extends RoomState, C, E, Identity, Env> = {
  */
 export class RoomDurableObjectAdapterBase<
   S extends RoomState,
-  C,
-  E,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
   Identity,
   Env,
 > implements DurableObjectInstance {

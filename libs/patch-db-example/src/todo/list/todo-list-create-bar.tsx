@@ -3,7 +3,7 @@ import { usePatchDb } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState, type ReactNode } from 'react';
 
-import { TodoListAttr } from '../domain/todo-constants';
+import { TODO_LIST_ENTITY_TYPE, TodoListAttr } from '../domain/todo-constants';
 import { useTodoListCount } from '../query/use-todo-list-count';
 
 function AddListInput({
@@ -91,7 +91,7 @@ export function TodoListCreateBar(): ReactNode {
     await db.write([
       {
         entityId: crypto.randomUUID(),
-        entityType: 'todo-list',
+        entityType: TODO_LIST_ENTITY_TYPE,
         attributes: {
           ...TodoListAttr.name(trimmed),
           ...TodoListAttr.order(listCount),

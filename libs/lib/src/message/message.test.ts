@@ -1,8 +1,10 @@
 import { Assert } from '@gamezilla/lib/assert';
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
+import { isNamespacedKeyword } from '../keyword/keyword';
 import {
   acceptUnknownPayload,
   createMessageNamespace,
+  isMessageEnvelope,
   isPlainRecord,
   type Message,
 } from './message';
@@ -109,5 +111,49 @@ describe('createMessageNamespace', () => {
     const Foo = ns('foo', acceptUnknownPayload);
     expect(ns.owns(Foo({}))).toBe(true);
     expect(ns.owns({ type: 'other/foo', payload: null })).toBe(false);
+  });
+
+  it('tag type is a valid namespaced keyword', () => {
+    const ns = createMessageNamespace('tic-tac-toe');
+    const Foo = ns('foo', acceptUnknownPayload);
+    expect(isNamespacedKeyword(Foo.type)).toBe(true);
+  });
+});
+
+describe('isMessageEnvelope', () => {
+  it('accepts a message from createMessageNamespace', () => {
+    const ns = createMessageNamespace('tic-tac-toe');
+    const Foo = ns('foo', acceptUnknownPayload);
+    const m = Foo({});
+    expect(isMessageEnvelope(m)).toBe(true);
+  });
+
+  it('rejects missing payload key', () => {
+    expect(isMessageEnvelope({ type: 'tic-tac-toe/foo' } as unknown)).toBe(
+      false
+    );
+  });
+
+  it('rejects non-namespaced type string', () => {
+    expect(isMessageEnvelope({ type: 'not-a-keyword', payload: null })).toBe(
+      false
+    );
+  });
+
+  it('rejects type with single-char segment', () => {
+    expect(isMessageEnvelope({ type: 'ab/c', payload: null })).toBe(false);
+  });
+
+  it('rejects non-objects', () => {
+    expect(isMessageEnvelope(null)).toBe(false);
+    expect(isMessageEnvelope('x')).toBe(false);
+    expect(isMessageEnvelope([])).toBe(false);
+  });
+
+  it('allows opaque payload values', () => {
+    const ns = createMessageNamespace('tic-tac-toe');
+    const Foo = ns('foo', acceptUnknownPayload);
+    expect(isMessageEnvelope({ type: Foo.type, payload: null })).toBe(true);
+    expect(isMessageEnvelope({ type: Foo.type, payload: 42 })).toBe(true);
   });
 });

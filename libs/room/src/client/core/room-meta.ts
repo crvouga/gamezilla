@@ -2,7 +2,8 @@ import { createAttrNamespace } from '@gamezilla/lib/attribute';
 
 import type { RoomError } from '../../types';
 
-const roomNs = createAttrNamespace('room');
+/** Namespace for client-only `room/*` snapshot keys; use {@link roomAttrNamespace.ownsKey}. */
+export const roomAttrNamespace = createAttrNamespace('room');
 
 const readBoolean = (v: unknown): boolean =>
   typeof v === 'boolean' ? v : false;
@@ -32,7 +33,7 @@ const readRoomErrorOrNull = (v: unknown): RoomError | Error | null => {
  * Domain module state must not use the `room/` prefix.
  */
 export const RoomMetaAttr = {
-  isSynced: roomNs('is-synced', readBoolean),
-  isConnected: roomNs('is-connected', readBoolean),
-  lastError: roomNs('last-error', readRoomErrorOrNull),
+  isSynced: roomAttrNamespace('is-synced', readBoolean),
+  isConnected: roomAttrNamespace('is-connected', readBoolean),
+  lastError: roomAttrNamespace('last-error', readRoomErrorOrNull),
 } as const;

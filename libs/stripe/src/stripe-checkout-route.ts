@@ -4,7 +4,7 @@ import type {
   PatchDb,
   PatchDbAuthContext,
 } from '@gamezilla/patch-db/interface';
-import { PATCH_CREATED_BY_ID } from '@gamezilla/patch-db/metadata/patch-metadata';
+import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
 import { zValidator } from '@hono/zod-validator';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
@@ -82,7 +82,7 @@ async function ensureStripeCustomerId(args: {
         entityType: ACCOUNT_ENTITY_TYPE,
         attributes: {
           ...AccountAttr.stripeCustomerId(customer.id),
-          [PATCH_CREATED_BY_ID]: deviceId,
+          ...PatchMetaAttr.createdById(deviceId),
         },
       },
     ],

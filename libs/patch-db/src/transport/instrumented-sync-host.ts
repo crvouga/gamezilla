@@ -13,6 +13,7 @@ import {
   OPEN_PATCHES_DB_CONTEXT,
   PATCHES_DB_SYSTEM_CONTEXT,
 } from '../interface';
+import { PatchMetaAttr } from '../metadata/patch-metadata';
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '../policy/system-device';
 import type { PatchDbSyncHost } from './interface';
 
@@ -128,7 +129,7 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
             entityId: ADMIN_METRIC_ENTITY_ID,
             entityType: ADMIN_METRIC_ENTITY_TYPE,
             attributes: {
-              'patch/created-by-id': PATCH_DB_SYSTEM_DEVICE_ID,
+              ...PatchMetaAttr.createdById(PATCH_DB_SYSTEM_DEVICE_ID),
               'admin/started-at': this.startedAt,
               'admin/uptime-seconds': uptimeSeconds,
               'admin/total-patches-written': this.counters.totalPatchesWritten,

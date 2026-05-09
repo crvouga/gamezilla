@@ -3,7 +3,11 @@ import { usePatchDb } from '@gamezilla/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
 import { useState, type ReactNode } from 'react';
 
-import { INBOX_LIST_ID, TodoListAttr } from '../domain/todo-constants';
+import {
+  INBOX_LIST_ID,
+  TODO_LIST_ENTITY_TYPE,
+  TodoListAttr,
+} from '../domain/todo-constants';
 import { TodoListDeleteConfirmationModal } from './todo-list-delete-confirmation-modal';
 
 export type TodoListRowDeleteButtonProps = {
@@ -25,7 +29,7 @@ export function TodoListRowDeleteButton({
     await db.write([
       {
         entityId: listId,
-        entityType: 'todo-list',
+        entityType: TODO_LIST_ENTITY_TYPE,
         attributes: TodoListAttr.deleted(true),
       },
     ]);

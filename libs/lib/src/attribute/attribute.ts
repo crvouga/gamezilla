@@ -1,160 +1,68 @@
 /**
- * Tiger Style (see repo `LLM.md`): hard bounds on wire strings, split predicates so each
- * failure mode is obvious, assert relationships between compile-time limits, and crash on
- * programmer mistakes at construction time — never accept silently malformed attribute keys.
+ * Tiger Style (see repo `LLM.md`): attribute tags for PatchDB — keys validated via
+ * {@link @gamezilla/lib/keyword}; never accept silently malformed attribute keys.
  */
 import { Assert } from '@gamezilla/lib/assert';
+import {
+  assertLocalName,
+  assertNamespacedKeyword,
+  CLOJURE_KEBAB_SEGMENT,
+  CLOJURE_NAMESPACED_KEYWORD_REGEX,
+  isLocalName,
+  isNamespacedKeyword,
+  isNamespacePrefix,
+  joinKeywordSegments,
+  KEYWORD_MAX_LENGTH,
+  KEYWORD_NAMESPACE_MAX_SEGMENTS,
+  KEYWORD_SEGMENT_MAX_LENGTH,
+  KEYWORD_SEGMENT_MIN_LENGTH,
+  namespacePrefixOf,
+  type JoinDot,
+  type Keyword,
+} from '../keyword/keyword';
 
 const crash: Assert = Assert.crash();
 
-/**
- * One kebab-case Clojure-style symbol segment: lowercase letter first, then
- * lowercase alphanumerics and single hyphens between groups (no leading/trailing
- * hyphen, no consecutive hyphens). No uppercase, no underscores, no dots inside
- * a segment — dots only separate namespace segments before `/`.
- *
- * Message type segments may be a single character; **persisted attribute keys**
- * additionally require {@link ATTRIBUTE_SEGMENT_MIN_LENGTH}–{@link ATTRIBUTE_SEGMENT_MAX_LENGTH}
- * per segment (enforced by {@link isClojureNamespacedKey} and {@link createAttrNamespace}).
- */
-export const CLOJURE_KEBAB_SEGMENT = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
+/** @deprecated Use {@link KEYWORD_SEGMENT_MIN_LENGTH} from `@gamezilla/lib/keyword`. */
+export const ATTRIBUTE_SEGMENT_MIN_LENGTH = KEYWORD_SEGMENT_MIN_LENGTH;
 
-/** Minimum UTF-16 code units per namespace segment and per local name (attributes only). */
-export const ATTRIBUTE_SEGMENT_MIN_LENGTH = 2;
+/** @deprecated Use {@link KEYWORD_SEGMENT_MAX_LENGTH} from `@gamezilla/lib/keyword`. */
+export const ATTRIBUTE_SEGMENT_MAX_LENGTH = KEYWORD_SEGMENT_MAX_LENGTH;
 
-/** Maximum UTF-16 code units per namespace segment and per local name (attributes only). */
-export const ATTRIBUTE_SEGMENT_MAX_LENGTH = 64;
+/** @deprecated Use {@link KEYWORD_NAMESPACE_MAX_SEGMENTS} from `@gamezilla/lib/keyword`. */
+export const ATTRIBUTE_NAMESPACE_MAX_SEGMENTS = KEYWORD_NAMESPACE_MAX_SEGMENTS;
 
-/** Maximum dot-separated segments allowed in the namespace prefix (before `/`). */
-export const ATTRIBUTE_NAMESPACE_MAX_SEGMENTS = 16;
+/** @deprecated Use {@link KEYWORD_MAX_LENGTH} from `@gamezilla/lib/keyword`. */
+export const ATTRIBUTE_KEY_MAX_LENGTH = KEYWORD_MAX_LENGTH;
 
-/** Maximum UTF-16 code units for a full attribute key `prefix/local`. */
-export const ATTRIBUTE_KEY_MAX_LENGTH = 256;
+export { CLOJURE_KEBAB_SEGMENT };
 
-crash.ok(
-  ATTRIBUTE_SEGMENT_MIN_LENGTH <= ATTRIBUTE_SEGMENT_MAX_LENGTH,
-  'Tiger: ATTRIBUTE_SEGMENT_MIN_LENGTH must not exceed ATTRIBUTE_SEGMENT_MAX_LENGTH'
-);
-crash.ok(
-  ATTRIBUTE_NAMESPACE_MAX_SEGMENTS >= 1,
-  'Tiger: ATTRIBUTE_NAMESPACE_MAX_SEGMENTS must allow at least one namespace segment'
-);
-crash.ok(
-  ATTRIBUTE_KEY_MAX_LENGTH >=
-    ATTRIBUTE_SEGMENT_MIN_LENGTH + 1 + ATTRIBUTE_SEGMENT_MIN_LENGTH,
-  'Tiger: ATTRIBUTE_KEY_MAX_LENGTH must fit a minimal valid key (prefix/local plus one slash)'
-);
-
-/**
- * Qualified attribute key shape: `namespace/name` with exactly one `/`.
- *
- * Matches segment **shape** (kebab, min two chars per segment). Does **not**
- * enforce {@link ATTRIBUTE_KEY_MAX_LENGTH} or {@link ATTRIBUTE_NAMESPACE_MAX_SEGMENTS};
- * use {@link isClojureNamespacedKey} at persistence / wire boundaries.
- *
- * - **Namespace** (before `/`): one or more kebab pieces joined by `.`
- *   (e.g. `patch`, `chat.message`, `chess.main-menu`).
- * - **Name** (after `/`): a single kebab segment (no `/`, no `.`).
- */
+/** @deprecated Use {@link CLOJURE_NAMESPACED_KEYWORD_REGEX} from `@gamezilla/lib/keyword`. */
 export const CLOJURE_NAMESPACED_ATTRIBUTE_REGEX =
-  /^(?!.*\s)(?:[a-z][a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z][a-z0-9]+(?:-[a-z0-9]+)*)*)\/[a-z][a-z0-9]+(?:-[a-z0-9]+)*$/;
+  CLOJURE_NAMESPACED_KEYWORD_REGEX;
 
-/** Join namespace segments with `.` for template literal typing. */
-export type JoinDot<T extends readonly string[]> = T extends readonly [
-  infer First extends string,
-  ...infer Rest extends readonly string[],
-]
-  ? Rest extends readonly []
-    ? First
-    : `${First}.${JoinDot<Rest>}`
-  : string;
-
-function isAttributeWireKebabSegment(seg: string): boolean {
-  if (!CLOJURE_KEBAB_SEGMENT.test(seg)) return false;
-  if (seg.length < ATTRIBUTE_SEGMENT_MIN_LENGTH) return false;
-  if (seg.length > ATTRIBUTE_SEGMENT_MAX_LENGTH) return false;
-  return true;
-}
-
-function isAttributeWireNamespacePrefix(prefix: string): boolean {
-  if (prefix.startsWith('.')) return false;
-  if (prefix.endsWith('.')) return false;
-  if (prefix.includes('..')) return false;
-  const segments = prefix.split('.');
-  if (segments.length > ATTRIBUTE_NAMESPACE_MAX_SEGMENTS) return false;
-  for (const seg of segments) {
-    if (seg.length === 0) return false;
-    if (!isAttributeWireKebabSegment(seg)) return false;
-  }
-  return true;
-}
+export type { JoinDot, Keyword };
 
 /**
- * True when `prefix` is a valid dot-separated kebab namespace (before `/`).
- *
- * Lenient per-segment length (≥1 character) so message type prefixes stay compatible
- * with message namespaces. For persisted attributes, use
- * {@link isClojureNamespacedKey} on the full key instead.
+ * True when `prefix` is a valid dot-separated kebab namespace (before `/`),
+ * with strict per-segment length (same rules as PatchDB attributes and message types).
  */
 export function isClojureNamespacePrefix(prefix: unknown): prefix is string {
-  if (typeof prefix !== 'string') return false;
-  if (prefix.length === 0) return false;
-  if (prefix.startsWith('.')) return false;
-  if (prefix.endsWith('.')) return false;
-  if (prefix.includes('..')) return false;
-  const segments = prefix.split('.');
-  for (const seg of segments) {
-    if (seg.length === 0) return false;
-    if (!CLOJURE_KEBAB_SEGMENT.test(seg)) return false;
-  }
-  return true;
+  return isNamespacePrefix(prefix);
 }
 
 /**
- * True when `name` is a valid **attribute** local name (the part after `/`): kebab
- * shape with {@link ATTRIBUTE_SEGMENT_MIN_LENGTH}–{@link ATTRIBUTE_SEGMENT_MAX_LENGTH}
- * UTF-16 code units, ASCII letters/digits/hyphens only.
+ * True when `name` is a valid local name (after `/`): kebab, bounded length, ASCII.
  */
 export function isClojureLocalName(name: unknown): name is string {
-  if (typeof name !== 'string') return false;
-  if (!isAttributeWireKebabSegment(name)) return false;
-  return true;
-}
-
-/** True when every code unit is allowed in a persisted attribute key (ASCII subset). */
-function isAsciiAttributeKeyCharset(key: string): boolean {
-  for (let i = 0; i < key.length; i++) {
-    const c = key.charCodeAt(i);
-    if (c >= 97 && c <= 122) continue;
-    if (c >= 48 && c <= 57) continue;
-    if (c === 46) continue;
-    if (c === 45) continue;
-    if (c === 47) continue;
-    return false;
-  }
-  return true;
+  return isLocalName(name);
 }
 
 /**
- * True when `key` is a valid namespaced attribute key for wire / PatchDB storage:
- * exactly one `/`, strict ASCII charset, bounded lengths, kebab segments
- * ({@link ATTRIBUTE_SEGMENT_MIN_LENGTH}–{@link ATTRIBUTE_SEGMENT_MAX_LENGTH} each),
- * and at most {@link ATTRIBUTE_NAMESPACE_MAX_SEGMENTS} dot-separated namespace segments.
+ * True when `key` is a valid namespaced attribute key for wire / PatchDB storage.
  */
-export function isClojureNamespacedKey(key: unknown): key is string {
-  if (typeof key !== 'string') return false;
-  if (key.length === 0) return false;
-  if (key.length > ATTRIBUTE_KEY_MAX_LENGTH) return false;
-  if (!isAsciiAttributeKeyCharset(key)) return false;
-  const slash = key.indexOf('/');
-  if (slash <= 0) return false;
-  if (slash !== key.lastIndexOf('/')) return false;
-  const ns = key.slice(0, slash);
-  const local = key.slice(slash + 1);
-  if (local.length === 0) return false;
-  if (!isAttributeWireNamespacePrefix(ns)) return false;
-  if (!isAttributeWireKebabSegment(local)) return false;
-  return true;
+export function isClojureNamespacedKey(key: unknown): key is Keyword {
+  return isNamespacedKeyword(key);
 }
 
 /** Flat state bag keyed by full attribute keys (`prefix/name`). */
@@ -166,19 +74,21 @@ export type AttributeState = Record<string, unknown>;
 export type AttributeParser<T> = (value: unknown) => T;
 
 export interface AttributeTag<T = unknown, K extends string = string> {
-  readonly key: K;
+  readonly key: K & Keyword;
   readonly parse: AttributeParser<T>;
   /**
    * Builds a single-key patch `{ [key]: parse(value) }` for PatchDB writes.
    * Use {@link AttributeTag.parse} to validate raw input without wrapping.
    */
-  (value: unknown): { readonly [P in K]: T };
+  (value: unknown): { readonly [P in K & Keyword]: T };
   /** Reads `state[key]` then parses (missing key yields `undefined`). */
   from(state: AttributeState): T;
 }
 
 export interface AttributeNamespace<Prefix extends string = string> {
   readonly prefix: Prefix;
+  /** True when `key` is a full keyword whose namespace prefix equals this namespace's `prefix`. */
+  ownsKey(key: string): boolean;
   /**
    * @param name - Short attribute name (becomes `{prefix}/{name}`).
    * @param parse - Parses raw stored values; throw on invalid input.
@@ -189,28 +99,12 @@ export interface AttributeNamespace<Prefix extends string = string> {
   ): AttributeTag<T, `${Prefix}/${Name}`>;
 }
 
-function assertValidNamespacePrefix(value: string): void {
-  crash.ok(
-    isAttributeWireNamespacePrefix(value),
-    `namespace prefix must be 1–${ATTRIBUTE_NAMESPACE_MAX_SEGMENTS} dot-separated kebab segments, each ${ATTRIBUTE_SEGMENT_MIN_LENGTH}–${ATTRIBUTE_SEGMENT_MAX_LENGTH} chars (lowercase ASCII, single hyphens between alnum groups); no empty segments`
-  );
-}
-
 function assertValidAttributeLocalName(value: string): void {
-  crash.nonEmptyString(value, 'attribute name must be non-empty');
-  crash.ok(!value.includes('/'), 'attribute name must not contain /');
-  crash.ok(!value.includes('.'), 'attribute name must not contain .');
-  crash.ok(
-    isClojureLocalName(value),
-    `attribute name must be kebab-case ASCII, ${ATTRIBUTE_SEGMENT_MIN_LENGTH}–${ATTRIBUTE_SEGMENT_MAX_LENGTH} chars (lowercase letter first, then alnum/hyphens; no leading/trailing/consecutive hyphens)`
-  );
+  assertLocalName(value);
 }
 
 function assertValidFullKey(fullKey: string): void {
-  crash.ok(
-    isClojureNamespacedKey(fullKey),
-    `attribute key must be ASCII namespaced kebab-case, at most ${ATTRIBUTE_KEY_MAX_LENGTH} chars, one '/', strict segment lengths`
-  );
+  assertNamespacedKeyword(fullKey);
 }
 
 function createAttributeTag<T, K extends string>(
@@ -222,16 +116,15 @@ function createAttributeTag<T, K extends string>(
     typeof parse === 'function',
     'Tiger: attribute parser must be a function'
   );
-  crash.ok(
-    isClojureNamespacedKey(fullKey),
-    'Tiger: attribute tag key must pass wire validation'
-  );
+  assertNamespacedKeyword(fullKey);
 
-  function attr(value: unknown): { readonly [P in K]: T } {
-    return { [fullKey]: parse(value) } as { readonly [P in K]: T };
+  const brandedKey = fullKey as K & Keyword;
+
+  function attr(value: unknown): { readonly [P in K & Keyword]: T } {
+    return { [fullKey]: parse(value) } as { readonly [P in K & Keyword]: T };
   }
   Object.defineProperty(attr, 'key', {
-    value: fullKey,
+    value: brandedKey,
     enumerable: false,
     configurable: false,
     writable: false,
@@ -249,18 +142,6 @@ function createAttributeTag<T, K extends string>(
 /**
  * Creates a namespace for attribute keys: `{prefix}/{name}` where `prefix` is
  * `segment0.segment1...` from the given kebab-case segments.
- *
- * @example
- * ```ts
- * const gamesNs = createAttrNamespace('games');
- * const Selected = gamesNs('selected', (v) => {
- *   if (v === 'chess' || v === 'connect-four' || v === null) return v;
- *   throw new Error('invalid');
- * });
- *
- * const chessNs = createAttrNamespace('chess', 'main-menu');
- * const Fen = chessNs('fen', (v) => (typeof v === 'string' ? v : ''));
- * ```
  */
 export function createAttrNamespace<const Segments extends readonly string[]>(
   ...segments: Segments
@@ -269,24 +150,7 @@ export function createAttrNamespace<const Segments extends readonly string[]>(
     segments.length > 0,
     'createAttrNamespace requires at least one namespace segment'
   );
-  for (const seg of segments) {
-    crash.nonEmptyString(
-      seg,
-      'each namespace segment must be a non-empty kebab-case string'
-    );
-    crash.ok(
-      isClojureLocalName(seg),
-      `each namespace segment must be kebab-case ASCII, ${ATTRIBUTE_SEGMENT_MIN_LENGTH}–${ATTRIBUTE_SEGMENT_MAX_LENGTH} chars (no dots/slashes in a segment; no spaces, uppercase, or underscores)`,
-      { seg }
-    );
-  }
-  const prefix = segments.join('.') as JoinDot<Segments>;
-  assertValidNamespacePrefix(prefix);
-  crash.ok(
-    prefix.length <=
-      ATTRIBUTE_KEY_MAX_LENGTH - 1 - ATTRIBUTE_SEGMENT_MIN_LENGTH,
-    'Tiger: namespace prefix leaves no room for slash and a minimal local segment'
-  );
+  const prefix = joinKeywordSegments(...segments) as JoinDot<Segments>;
 
   function bind<const Name extends string, T>(
     name: Name,
@@ -304,6 +168,11 @@ export function createAttrNamespace<const Segments extends readonly string[]>(
     configurable: false,
     writable: false,
   });
+
+  bind.ownsKey = (key: string): boolean => {
+    const p = namespacePrefixOf(key);
+    return p !== null && p === prefix;
+  };
 
   return bind as AttributeNamespace<JoinDot<Segments>>;
 }

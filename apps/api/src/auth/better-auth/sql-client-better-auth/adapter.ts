@@ -1,7 +1,7 @@
 import { createAdapterFactory } from '@better-auth/core/db/adapter';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 
-import { createBetterAuthSqlDbOps } from './sql-client-better-auth-db-ops';
+import { createBetterAuthSqlDbOps } from './db-ops';
 
 export function createSqlClientBetterAuthAdapter(sql: SqlClient) {
   return createAdapterFactory({

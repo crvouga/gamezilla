@@ -4,12 +4,13 @@ import type {
   PatchDb,
   PatchDbSystemContext,
 } from '@gamezilla/patch-db/interface';
-import { PATCH_CREATED_BY_ID } from '@gamezilla/patch-db/metadata/patch-metadata';
+import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
 import { Hono } from 'hono';
 import Stripe from 'stripe';
 import { stripeEventObjectId } from './event-object-id';
 import { resolveAccountIdByStripeCustomerId } from './resolve-account-by-stripe-customer';
+import { StripeAttr, StripeEntityAttr } from './stripe-attrs';
 
 /** Stripe webhook handler — bypasses ABAC like other system contexts. */
 const PATCHES_DB_STRIPE_WEBHOOK_CONTEXT: PatchDbSystemContext = {
@@ -61,13 +62,13 @@ async function recordVerifiedStripeWebhookInPatchDb(
   }
 
   const eventCacheAttrs: Record<string, unknown> = {
-    'stripe/payload': event as unknown,
-    'stripe/object-type': 'event',
-    'stripe/source': 'stripe_webhook',
-    [PATCH_CREATED_BY_ID]: PATCH_DB_SYSTEM_DEVICE_ID,
+    ...StripeAttr.payload(event as unknown),
+    ...StripeAttr.objectType('event'),
+    ...StripeAttr.source('stripe_webhook'),
+    ...PatchMetaAttr.createdById(PATCH_DB_SYSTEM_DEVICE_ID),
   };
   if (accountId !== null) {
-    eventCacheAttrs['entity/owner'] = accountId;
+    Object.assign(eventCacheAttrs, StripeEntityAttr.owner(accountId));
   }
 
   const patches: Parameters<PatchDb['write']>[0] = [
@@ -83,10 +84,10 @@ async function recordVerifiedStripeWebhookInPatchDb(
       entityId: objectId,
       entityType: 'stripe.webhook-event',
       attributes: {
-        'entity/owner': accountId,
-        'stripe/webhook-event-type': event.type,
-        'stripe/stripe-object-id': objectId,
-        [PATCH_CREATED_BY_ID]: PATCH_DB_SYSTEM_DEVICE_ID,
+        ...StripeEntityAttr.owner(accountId),
+        ...StripeAttr.webhookEventType(event.type),
+        ...StripeAttr.stripeObjectId(objectId),
+        ...PatchMetaAttr.createdById(PATCH_DB_SYSTEM_DEVICE_ID),
       },
     });
   }

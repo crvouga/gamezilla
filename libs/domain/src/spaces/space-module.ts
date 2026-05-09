@@ -1,5 +1,6 @@
 import {
   createComposedMessageRouter,
+  isMessageEnvelope,
   type Message,
 } from '@gamezilla/lib/message';
 import type {
@@ -44,12 +45,6 @@ function reject(error: RoomError): HandleResult {
   return { ok: false, error };
 }
 
-function asMessage(payload: unknown): Message | null {
-  if (typeof payload !== 'object' || payload === null) return null;
-  if (!('type' in payload) || !('payload' in payload)) return null;
-  return payload as Message;
-}
-
 /**
  * Composed router across every sub-module's command namespace. Add new
  * sub-modules here and `dispatch` will route by wire prefix without a
@@ -89,7 +84,7 @@ const spaceEventReducer = createComposedMessageRouter<
  * Durable Object on the server runs this and clients mirror via `Room`
  * for offline-tolerant local dispatch + convergent replay.
  */
-export const SpaceModule: RoomModule<RoomState, unknown, unknown, string> = {
+export const SpaceModule: RoomModule<RoomState, Message, Message, string> = {
   initialState(): RoomState {
     return {
       ...CounterRoomAttr.count(0),
@@ -104,7 +99,7 @@ export const SpaceModule: RoomModule<RoomState, unknown, unknown, string> = {
     command: RoomCommand,
     identity: string
   ): HandleResult {
-    const msg = asMessage(command.payload);
+    const msg = isMessageEnvelope(command.payload) ? command.payload : null;
     if (msg === null) {
       return reject({
         type: 'invalid_command',
@@ -116,8 +111,8 @@ export const SpaceModule: RoomModule<RoomState, unknown, unknown, string> = {
     );
   },
 
-  reduce(state: RoomState, event: unknown): RoomState {
-    const ev = asMessage(event);
+  reduce(state: RoomState, event: Message): RoomState {
+    const ev = isMessageEnvelope(event) ? event : null;
     if (ev === null) return state;
     return spaceEventReducer.dispatch(state, undefined, ev, (s) => s);
   },

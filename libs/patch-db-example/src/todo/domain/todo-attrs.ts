@@ -1,24 +1,24 @@
 import { createAttrNamespace } from '@gamezilla/lib/attribute';
 
-const todoNs = createAttrNamespace('todo');
+const todoListItemNs = createAttrNamespace('todo-list-item');
 const todoListNs = createAttrNamespace('todo-list');
 
-/** Attribute tags for `entityType: 'todo'`. */
-export const TodoAttr = {
-  deleted: todoNs('deleted', (v: unknown): boolean => v === true),
-  completed: todoNs('completed', (v: unknown): boolean => v === true),
-  title: todoNs('title', (v: unknown): string =>
+/** Attribute tags for `entityType: 'todo-list-item'`. */
+export const TodoListItemAttr = {
+  deleted: todoListItemNs('deleted', (v: unknown): boolean => v === true),
+  completed: todoListItemNs('completed', (v: unknown): boolean => v === true),
+  title: todoListItemNs('title', (v: unknown): string =>
     typeof v === 'string' ? v : ''
   ),
-  listId: todoNs('list-id', (v: unknown): string | null => {
+  listId: todoListItemNs('list-id', (v: unknown): string | null => {
     if (v === null || v === undefined || v === '') return null;
     if (typeof v === 'string') return v;
     return null;
   }),
-  order: todoNs('order', (v: unknown): number =>
+  order: todoListItemNs('order', (v: unknown): number =>
     typeof v === 'number' && Number.isFinite(v) ? v : 0
   ),
-  createdAt: todoNs('created-at', (v: unknown): string =>
+  createdAt: todoListItemNs('created-at', (v: unknown): string =>
     typeof v === 'string' ? v : ''
   ),
 } as const;

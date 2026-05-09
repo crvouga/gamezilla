@@ -1,4 +1,5 @@
 import { Assert } from '@gamezilla/lib/assert';
+import { isClojureNamespacedKey } from '@gamezilla/lib/attribute';
 
 import { newCommandId } from '../../protocol/ids';
 import {
@@ -9,17 +10,24 @@ import {
 import type {
   LogEntry,
   RoomCommand,
+  RoomCommandPayload,
   RoomError,
+  RoomEvent,
   RoomModule,
   RoomState,
 } from '../../types';
-import { RoomMetaAttr } from './room-meta';
+import { roomAttrNamespace, RoomMetaAttr } from './room-meta';
 import type { ClientRoomStorage, QueuedCommand } from './storage';
 import type { ClientTransport } from './transport';
 
 const crash: Assert = Assert.crash();
 
-export type RoomClientConfig<S extends RoomState, C, E, Identity> = {
+export type RoomClientConfig<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+  Identity,
+> = {
   topic: string;
   module: RoomModule<S, C, E, Identity>;
   storage: ClientRoomStorage;
@@ -28,8 +36,8 @@ export type RoomClientConfig<S extends RoomState, C, E, Identity> = {
   onError?: (err: RoomError | Error) => void;
 };
 
-function foldEntries<S extends RoomState, E>(
-  module: RoomModule<S, unknown, E, unknown>,
+function foldEntries<S extends RoomState, E extends RoomEvent>(
+  module: RoomModule<S, RoomCommandPayload, E, unknown>,
   entries: LogEntry<E>[]
 ): { state: S; lastSeq: number } {
   let state = module.initialState();
@@ -41,7 +49,12 @@ function foldEntries<S extends RoomState, E>(
   return { state, lastSeq };
 }
 
-function foldDisplay<S extends RoomState, C, E, Identity>(
+function foldDisplay<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+  Identity,
+>(
   module: RoomModule<S, C, E, Identity>,
   committed: S,
   queue: QueuedCommand[],
@@ -68,10 +81,18 @@ function foldDisplay<S extends RoomState, C, E, Identity>(
  *   contract calls `getSnapshot()` after every notify.
  * - `dispatch(payload)` enqueues an optimistic command.
  */
-export class Room<S extends RoomState, C, E, Identity> {
-  static async open<S2 extends RoomState, C2, E2, I2>(
-    config: RoomClientConfig<S2, C2, E2, I2>
-  ): Promise<Room<S2, C2, E2, I2>> {
+export class Room<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+  Identity,
+> {
+  static async open<
+    S2 extends RoomState,
+    C2 extends RoomCommandPayload,
+    E2 extends RoomEvent,
+    I2,
+  >(config: RoomClientConfig<S2, C2, E2, I2>): Promise<Room<S2, C2, E2, I2>> {
     const r = new Room(config);
     await r.hydrateLocal();
     r.attachTransport();
@@ -126,6 +147,18 @@ export class Room<S extends RoomState, C, E, Identity> {
       this.pendingQueue,
       this.optimistic
     );
+    for (const k of Object.keys(display as Record<string, unknown>)) {
+      crash.ok(
+        !roomAttrNamespace.ownsKey(k),
+        'Tiger: domain room module state must not use room/* keys (reserved for RoomMetaAttr)',
+        { k }
+      );
+      crash.ok(
+        isClojureNamespacedKey(k),
+        'Tiger: room module state keys must be Clojure-style namespaced keywords (prefix/local)',
+        { k }
+      );
+    }
     const merged = {
       ...(display as Record<string, unknown>),
       ...RoomMetaAttr.isSynced(this.synced),

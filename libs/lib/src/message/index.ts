@@ -1,6 +1,7 @@
 export {
   acceptUnknownPayload,
   createMessageNamespace,
+  isMessageEnvelope,
   isPlainRecord,
 } from './message';
 export type {

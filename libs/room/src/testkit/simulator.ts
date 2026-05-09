@@ -2,11 +2,21 @@ import { InMemoryClientStorage } from '../client/adapters/storage/memory';
 import { Room } from '../client/core/room';
 import { InMemoryRoomStorage } from '../server/adapters/memory';
 import { RoomServer } from '../server/core/room-server';
-import type { RoomError, RoomModule, RoomState } from '../types';
+import type {
+  RoomCommandPayload,
+  RoomError,
+  RoomEvent,
+  RoomModule,
+  RoomState,
+} from '../types';
 
 import { LoopbackRoomTransport } from './loopback-transport';
 
-export type LoopbackRoomSystem<S extends RoomState, C, E> = {
+export type LoopbackRoomSystem<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+> = {
   server: RoomServer<S, C, E, string>;
   room: Room<S, C, E, string>;
   transport: LoopbackRoomTransport<S, C, E>;
@@ -15,7 +25,11 @@ export type LoopbackRoomSystem<S extends RoomState, C, E> = {
 /**
  * Single-topic room with in-memory server storage + loopback client transport.
  */
-export async function openLoopbackRoom<S extends RoomState, C, E>(args: {
+export async function openLoopbackRoom<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+>(args: {
   topic: string;
   module: RoomModule<S, C, E, string>;
   identity?: string;

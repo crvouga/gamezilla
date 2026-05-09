@@ -3,7 +3,10 @@ import { usePatchDb, useQueryAttribute } from '@gamezilla/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
-import { TODO_ENTITY_TYPE, TodoAttr } from '../domain/todo-constants';
+import {
+  TODO_LIST_ITEM_ENTITY_TYPE,
+  TodoListItemAttr,
+} from '../domain/todo-constants';
 import { TodoItemCheckmark } from './todo-item-checkmark';
 import { TodoItemTitleText } from './todo-item-title-text';
 
@@ -16,17 +19,17 @@ export function TodoItemRow({ entityId }: TodoItemRowProps): ReactNode {
   const theme = useTheme();
   const db = usePatchDb();
   const completed = useQueryAttribute({
-    entityType: TODO_ENTITY_TYPE,
+    entityType: TODO_LIST_ITEM_ENTITY_TYPE,
     entityId,
-    attribute: TodoAttr.completed,
+    attribute: TodoListItemAttr.completed,
   });
 
   const toggle = async () => {
     await db.write([
       {
         entityId,
-        entityType: TODO_ENTITY_TYPE,
-        attributes: TodoAttr.completed(!completed),
+        entityType: TODO_LIST_ITEM_ENTITY_TYPE,
+        attributes: TodoListItemAttr.completed(!completed),
       },
     ]);
   };
@@ -35,8 +38,8 @@ export function TodoItemRow({ entityId }: TodoItemRowProps): ReactNode {
     await db.write([
       {
         entityId,
-        entityType: TODO_ENTITY_TYPE,
-        attributes: TodoAttr.deleted(true),
+        entityType: TODO_LIST_ITEM_ENTITY_TYPE,
+        attributes: TodoListItemAttr.deleted(true),
       },
     ]);
   };

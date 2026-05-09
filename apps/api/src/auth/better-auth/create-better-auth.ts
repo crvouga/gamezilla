@@ -4,7 +4,7 @@ import { betterAuth } from 'better-auth';
 import { bearer } from 'better-auth/plugins';
 import { getDb } from '../../patch-db/sql-client';
 import { loadBetterAuthSecrets } from './load-better-auth-secrets';
-import { createSqlClientBetterAuthAdapter } from './sql-client-better-auth-adapter';
+import { createSqlClientBetterAuthAdapter } from './sql-client-better-auth/adapter';
 
 export async function createBetterAuthInstance(secretStore: SecretStore) {
   const cfg = await loadBetterAuthSecrets(secretStore);

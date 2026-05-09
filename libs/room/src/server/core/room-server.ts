@@ -1,16 +1,29 @@
 import { Assert } from '@gamezilla/lib/assert';
+import { isMessageEnvelope } from '@gamezilla/lib/message';
 
 import {
   parseClientToServerWire,
   WIRE_VERSION,
   type ClientToServerWire,
 } from '../../protocol/wire';
-import type { LogEntry, RoomCommand, RoomModule, RoomState } from '../../types';
+import type {
+  LogEntry,
+  RoomCommand,
+  RoomCommandPayload,
+  RoomEvent,
+  RoomModule,
+  RoomState,
+} from '../../types';
 import type { CommandDedupOutcome, RoomStorage } from './storage';
 
 const crash: Assert = Assert.crash();
 
-export type RoomServerConfig<S extends RoomState, C, E, Identity> = {
+export type RoomServerConfig<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+  Identity,
+> = {
   topic: string;
   module: RoomModule<S, C, E, Identity>;
   storage: RoomStorage;
@@ -26,7 +39,12 @@ type Sender = (payload: unknown) => void;
 /**
  * Single-threaded authoritative room (run inside one DO or one test harness).
  */
-export class RoomServer<S extends RoomState, C, E, Identity> {
+export class RoomServer<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+  Identity,
+> {
   readonly topic: string;
   private readonly module: RoomModule<S, C, E, Identity>;
   private readonly storage: RoomStorage;
@@ -47,6 +65,11 @@ export class RoomServer<S extends RoomState, C, E, Identity> {
     const entries = await this.storage.loadEventsAfter(this.topic, 0);
     let state = this.module.initialState();
     for (const e of entries) {
+      crash.ok(
+        isMessageEnvelope(e.event),
+        'Tiger: stored room events must be Message envelopes with wire-valid type',
+        { event: e.event }
+      );
       state = this.module.reduce(state, e.event as E);
     }
     this.committedState = state;
@@ -159,6 +182,13 @@ export class RoomServer<S extends RoomState, C, E, Identity> {
     events: E[]
   ): Promise<void> {
     crash.ok(events.length > 0, 'handle must produce events on success');
+    for (const event of events) {
+      crash.ok(
+        isMessageEnvelope(event),
+        'Tiger: room events must be Message envelopes with wire-valid type',
+        { event }
+      );
+    }
     const entries: LogEntry<E>[] = events.map((event, i) => ({
       seq: lastSeqBefore + i + 1,
       event,
@@ -192,6 +222,24 @@ export class RoomServer<S extends RoomState, C, E, Identity> {
     }
 
     const lastSeqBefore = await this.storage.getLastSeq(this.topic);
+    if (!isMessageEnvelope(parsed.payload)) {
+      const err = {
+        type: 'invalid_command' as const,
+        reason: 'not a valid message envelope',
+      };
+      await this.storage.putDedupOutcome(this.topic, commandId, {
+        kind: 'rejected',
+        error: err,
+      });
+      send({
+        v: WIRE_VERSION,
+        kind: 'rejected',
+        commandId,
+        error: err,
+      });
+      return;
+    }
+
     const command: RoomCommand<C> = {
       id: commandId,
       ts: parsed.ts,

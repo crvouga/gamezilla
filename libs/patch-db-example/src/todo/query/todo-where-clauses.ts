@@ -2,25 +2,25 @@ import type { PatchDbQueryWhereClause } from '@gamezilla/patch-db/interface';
 
 import {
   INBOX_LIST_ID,
-  TodoAttr,
   TodoListAttr,
+  TodoListItemAttr,
 } from '../domain/todo-constants';
 
-/** Todos that are not soft-deleted. */
+/** Todo-list-items that are not soft-deleted. */
 export const todoNotDeletedClause: PatchDbQueryWhereClause = {
   type: 'or',
   clauses: [
-    { type: 'not_exists', attribute: TodoAttr.deleted.key },
-    { type: '=', attribute: TodoAttr.deleted.key, value: false },
+    { type: 'not_exists', attribute: TodoListItemAttr.deleted.key },
+    { type: '=', attribute: TodoListItemAttr.deleted.key, value: false },
   ],
 };
 
-/** Todos that are not completed (missing attr or false). */
+/** Todo-list-items that are not completed (missing attr or false). */
 export const todoActiveClause: PatchDbQueryWhereClause = {
   type: 'or',
   clauses: [
-    { type: 'not_exists', attribute: TodoAttr.completed.key },
-    { type: '=', attribute: TodoAttr.completed.key, value: false },
+    { type: 'not_exists', attribute: TodoListItemAttr.completed.key },
+    { type: '=', attribute: TodoListItemAttr.completed.key, value: false },
   ],
 };
 
@@ -36,7 +36,7 @@ export const todoListNotDeletedClause: PatchDbQueryWhereClause = {
 export type TodoFilter = 'all' | 'active' | 'completed';
 
 /**
- * Where clause for todos belonging to `listId` (inbox = no / empty listId).
+ * Where clause for todo-list-items belonging to `listId` (inbox = no / empty listId).
  */
 export function buildTodoListWhereClause(
   listId: string
@@ -45,13 +45,13 @@ export function buildTodoListWhereClause(
     return {
       type: 'or',
       clauses: [
-        { type: 'not_exists', attribute: TodoAttr.listId.key },
-        { type: '=', attribute: TodoAttr.listId.key, value: null },
-        { type: '=', attribute: TodoAttr.listId.key, value: '' },
+        { type: 'not_exists', attribute: TodoListItemAttr.listId.key },
+        { type: '=', attribute: TodoListItemAttr.listId.key, value: null },
+        { type: '=', attribute: TodoListItemAttr.listId.key, value: '' },
       ],
     };
   }
-  return { type: '=', attribute: TodoAttr.listId.key, value: listId };
+  return { type: '=', attribute: TodoListItemAttr.listId.key, value: listId };
 }
 
 export function buildTodoWhereClause(
@@ -73,14 +73,14 @@ export function buildTodoWhereClause(
     clauses: [
       todoNotDeletedClause,
       listClause,
-      { type: '=', attribute: TodoAttr.completed.key, value: true },
+      { type: '=', attribute: TodoListItemAttr.completed.key, value: true },
     ],
   };
 }
 
 export const todoDefaultOrderBy = [
-  { attribute: TodoAttr.order.key, direction: 'asc' as const },
-  { attribute: TodoAttr.createdAt.key, direction: 'asc' as const },
+  { attribute: TodoListItemAttr.order.key, direction: 'asc' as const },
+  { attribute: TodoListItemAttr.createdAt.key, direction: 'asc' as const },
 ];
 
 export const todoListDefaultOrderBy = [

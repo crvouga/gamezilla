@@ -1,6 +1,11 @@
 import type { KeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
 import { SpaceModule } from '@gamezilla/domain/spaces/space-module';
-import { Room } from '@gamezilla/room';
+import {
+  Room,
+  type RoomCommandPayload,
+  type RoomEvent,
+  type RoomState,
+} from '@gamezilla/room';
 import { KeyValueClientRoomStorage } from '@gamezilla/room/client/adapters/storage/key-value';
 import { WebSocketRoomTransport } from '@gamezilla/room/client/adapters/transport/websocket';
 
@@ -24,7 +29,7 @@ export type CreateSpaceRoomParams = {
 };
 
 export type CreateSpaceRoomResult = {
-  room: Room<Record<string, unknown>, unknown, unknown, string>;
+  room: Room<RoomState, RoomCommandPayload, RoomEvent, string>;
   transport: WebSocketRoomTransport;
 };
 

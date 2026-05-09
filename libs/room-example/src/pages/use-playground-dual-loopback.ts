@@ -1,4 +1,9 @@
-import { Room, type RoomState } from '@gamezilla/room';
+import {
+  Room,
+  type RoomCommandPayload,
+  type RoomEvent,
+  type RoomState,
+} from '@gamezilla/room';
 import { InMemoryClientStorage } from '@gamezilla/room/client/adapters/storage/memory';
 import { RoomServer } from '@gamezilla/room/server';
 import { InMemoryRoomStorage } from '@gamezilla/room/server/adapters/memory';
@@ -10,7 +15,7 @@ import {
 } from '@gamezilla/room/testkit';
 import { useCallback, useEffect, useState } from 'react';
 
-type CounterRoom = Room<RoomState, unknown, unknown, string>;
+type CounterRoom = Room<RoomState, RoomCommandPayload, RoomEvent, string>;
 
 function useForceRender(): () => void {
   const [, setN] = useState(0);
@@ -18,7 +23,7 @@ function useForceRender(): () => void {
 }
 
 async function openClientOnServer(
-  server: RoomServer<RoomState, unknown, unknown, string>,
+  server: RoomServer<RoomState, RoomCommandPayload, RoomEvent, string>,
   connectionId: string,
   identity: string
 ): Promise<CounterRoom> {
@@ -50,7 +55,12 @@ export function usePlaygroundDualLoopback(): {
     void (async () => {
       try {
         const storage = new InMemoryRoomStorage();
-        const server = new RoomServer<RoomState, unknown, unknown, string>({
+        const server = new RoomServer<
+          RoomState,
+          RoomCommandPayload,
+          RoomEvent,
+          string
+        >({
           topic: 'playground',
           module: TestCounterModule,
           storage,

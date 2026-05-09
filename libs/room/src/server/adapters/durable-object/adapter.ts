@@ -1,4 +1,9 @@
-import type { RoomModule, RoomState } from '../../../types';
+import type {
+  RoomCommandPayload,
+  RoomEvent,
+  RoomModule,
+  RoomState,
+} from '../../../types';
 import type { RoomStorage } from '../../core/storage';
 
 import {
@@ -15,8 +20,8 @@ const DEFAULT_IDENTITY_HEADER = 'x-gamezilla-actor-id' as const;
 
 export type CreateDurableObjectAdapterOptions<
   S extends RoomState,
-  C,
-  E,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
   Identity,
   Env = unknown,
 > = {
@@ -48,7 +53,13 @@ function defaultParseIdentity<Identity>(raw: string): Identity | null {
   return raw as unknown as Identity;
 }
 
-function resolveOptions<S extends RoomState, C, E, Identity, Env>(
+function resolveOptions<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+  Identity,
+  Env,
+>(
   options: CreateDurableObjectAdapterOptions<S, C, E, Identity, Env>
 ): ResolvedAdapterConfig<S, C, E, Identity, Env> {
   return {
@@ -83,8 +94,8 @@ function resolveOptions<S extends RoomState, C, E, Identity, Env>(
  */
 export function createDurableObjectAdapter<
   S extends RoomState,
-  C,
-  E,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
   Identity,
   Env = unknown,
 >(

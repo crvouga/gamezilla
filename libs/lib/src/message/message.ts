@@ -1,14 +1,17 @@
 import { Assert } from '@gamezilla/lib/assert';
-import type { JoinDot } from '../attribute/attribute';
+import type { JoinDot, Keyword } from '../keyword/keyword';
 import {
-  CLOJURE_KEBAB_SEGMENT,
-  isClojureNamespacePrefix,
-} from '../attribute/attribute';
+  assertLocalName,
+  assertNamespacedKeyword,
+  isNamespacedKeyword,
+  joinKeywordSegments,
+} from '../keyword/keyword';
 
 const crash: Assert = Assert.crash();
 
 /**
  * Serializable message envelope: a type tag plus an extensible payload.
+ * `type` is a namespaced keyword string at runtime; see {@link MessageTag.type} for branded tags.
  */
 export type Message<P = unknown> = { type: string; payload: P };
 
@@ -19,7 +22,7 @@ export type Message<P = unknown> = { type: string; payload: P };
 export type MessagePayloadValidator<P> = (payload: unknown) => payload is P;
 
 export interface MessageTag<P = unknown> {
-  readonly type: string;
+  readonly type: Keyword;
   readonly validatePayload: MessagePayloadValidator<P>;
   /** Validates `payload` then returns `{ type, payload }`; crashes on failure. */
   (payload: unknown): Message<P>;
@@ -46,6 +49,18 @@ export function isPlainRecord(
 }
 
 /**
+ * True when `value` is a plain object with a wire-valid {@link Message.type}
+ * (`prefix/local` namespaced keyword) and a `payload` property (any value).
+ */
+export function isMessageEnvelope(value: unknown): value is Message {
+  if (!isPlainRecord(value)) return false;
+  if (!('type' in value) || typeof value['type'] !== 'string') return false;
+  if (!isNamespacedKeyword(value['type'])) return false;
+  if (!('payload' in value)) return false;
+  return true;
+}
+
+/**
  * Validator that accepts any payload. Use only when the wire format truly carries no
  * structured invariants (e.g. tests or opaque blobs).
  */
@@ -53,18 +68,12 @@ export function acceptUnknownPayload(_payload: unknown): _payload is unknown {
   return true;
 }
 
-function assertValidMessageSegment(label: string, value: string): void {
-  crash.nonEmptyString(value, `${label} must be non-empty`);
-  crash.ok(!value.includes('/'), `${label} must not contain '/'`);
-  crash.ok(!value.includes('.'), `${label} must not contain '.'`);
-  crash.ok(
-    CLOJURE_KEBAB_SEGMENT.test(value),
-    `${label} must be kebab-case (lowercase letter, then alnum/hyphens; no uppercase, underscores, or spaces)`
-  );
+function assertValidMessageSegment(_label: string, value: string): void {
+  assertLocalName(value);
 }
 
 function createMessageTag<P>(
-  fullType: string,
+  fullType: Keyword,
   validatePayload: MessagePayloadValidator<P>
 ): MessageTag<P> {
   function tag(payload: unknown): Message<P> {
@@ -110,23 +119,16 @@ export function createMessageNamespace<
   for (const seg of segments) {
     assertValidMessageSegment('namespace segment', seg);
   }
-  const prefix = segments.join('.') as JoinDot<Segments>;
-  crash.ok(
-    isClojureNamespacePrefix(prefix),
-    'message namespace prefix must be valid dot-separated kebab segments'
-  );
+  const prefix = joinKeywordSegments(...segments) as JoinDot<Segments>;
 
   function bind<P>(
     name: string,
     validatePayload: MessagePayloadValidator<P>
   ): MessageTag<P> {
     assertValidMessageSegment('message name', name);
-    const fullType = `${prefix as string}/${name}`;
-    crash.ok(
-      fullType.indexOf('/') === fullType.lastIndexOf('/'),
-      'message type must contain exactly one slash between namespace and name'
-    );
-    return createMessageTag(fullType, validatePayload);
+    const fullTypeStr = `${prefix as string}/${name}`;
+    assertNamespacedKeyword(fullTypeStr);
+    return createMessageTag(fullTypeStr as Keyword, validatePayload);
   }
 
   Object.defineProperty(bind, 'prefix', {

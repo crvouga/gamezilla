@@ -17,7 +17,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 import { useWindowDimensions } from 'react-native';
 
-import { TodoAttr } from '../todo/domain/todo-constants';
+import { TodoListItemAttr } from '../todo/domain/todo-constants';
 
 export type QueryScreenProps = {
   onClose?: () => void;
@@ -57,7 +57,7 @@ function WhereJsonTextInput({
       value={value}
       onChangeText={onChangeText}
       placeholder={
-        `e.g. {"type":"=","attribute":"${TodoAttr.title.key}","value":"x"}` as never
+        `e.g. {"type":"=","attribute":"${TodoListItemAttr.title.key}","value":"x"}` as never
       }
       multiline
       sx={WHERE_JSON_INPUT_SX}

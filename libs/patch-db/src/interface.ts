@@ -1,21 +1,33 @@
 import type { Assert } from '@gamezilla/lib/assert';
 import { assert } from '@gamezilla/lib/assert';
+import type { Keyword } from '@gamezilla/lib/keyword';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
-import { isClojureNamespacedKey } from './attribute-key';
+import {
+  isClojureNamespacedKey,
+  isClojureNamespacePrefix,
+} from './attribute-key';
 import type { PatchDbContext } from './context';
 import type { PatchDbCompactionPolicyResolver } from './policy/compaction-policy';
-import {
-  PATCH_CREATED_BY_ID,
-  PATCH_SESSION_ID,
-  PATCH_SYNCED_AT,
-} from './metadata/patch-metadata';
+import { PatchMetaAttr } from './metadata/patch-metadata';
 
-export type AttributeKey = `${string}/${string}`;
+/**
+ * Branded namespaced key for queries and {@link AttributeTag} APIs.
+ * Patch / entity attribute maps are `Record<string, unknown>` (runtime-validated via {@link assertAttribute}).
+ */
+export type AttributeKey = Keyword;
+
+/**
+ * Dot-separated kebab namespace for {@link PatchInput.entityType} / {@link PatchDbQuery.entityType}
+ * (same grammar as an attribute key’s namespace prefix; no `/`).
+ */
+export type PatchEntityType = Keyword;
 
 export type PatchInput = {
   entityId: string;
-  entityType: string;
-  attributes: Record<AttributeKey, unknown>;
+  /** Dot-kebab namespace segments only (e.g. `todo`, `todo-list`, `chess.puzzle`). */
+  entityType: PatchEntityType;
+  /** Keys validated at write time by {@link assertPatchInput} / {@link assertAttribute}. */
+  attributes: Record<string, unknown>;
   /** When set, storage uses this id instead of generating one (e.g. synced patches). */
   patchId?: string;
   /**
@@ -102,6 +114,7 @@ export function assertPatch(a: Assert, p: unknown): asserts p is Patch {
 
 export {
   isSyncRejectedPatchAttributes,
+  PatchMetaAttr,
   PATCH_CREATED_BY_ID,
   PATCH_META_KEYS,
   PATCH_REJECTED,
@@ -124,17 +137,22 @@ export function normalizePatchAttributesForStorage(
 ): Record<string, unknown> {
   const attrs = patch.attributes as Record<string, unknown>;
   const createdBy =
-    ('createdBy' in patch ? patch.createdBy : attrs[PATCH_CREATED_BY_ID]) ?? '';
+    ('createdBy' in patch
+      ? patch.createdBy
+      : attrs[PatchMetaAttr.createdById.key]) ?? '';
   const sessionId =
-    'sessionId' in patch ? patch.sessionId : patch.attributes[PATCH_SESSION_ID];
-  const syncedAt = patch.attributes[PATCH_SYNCED_AT] ?? null;
+    'sessionId' in patch
+      ? patch.sessionId
+      : patch.attributes[PatchMetaAttr.sessionId.key];
+  const syncedAt = patch.attributes[PatchMetaAttr.syncedAt.key] ?? null;
 
   return {
     ...patch.attributes,
-    [PATCH_CREATED_BY_ID]: String(createdBy),
-    [PATCH_SESSION_ID]:
-      sessionId !== null && sessionId !== undefined ? String(sessionId) : '',
-    [PATCH_SYNCED_AT]: syncedAt,
+    ...PatchMetaAttr.createdById(String(createdBy)),
+    ...PatchMetaAttr.sessionId(
+      sessionId !== null && sessionId !== undefined ? String(sessionId) : ''
+    ),
+    ...PatchMetaAttr.syncedAt(syncedAt),
   };
 }
 
@@ -145,8 +163,8 @@ export function normalizePatchAttributesForStorage(
 export function getPatchTopLevelFromAttributes(
   attrs: Record<string, unknown>
 ): Pick<Patch, 'createdBy' | 'sessionId'> {
-  const createdBy = attrs[PATCH_CREATED_BY_ID];
-  const sessionId = attrs[PATCH_SESSION_ID];
+  const createdBy = attrs[PatchMetaAttr.createdById.key];
+  const sessionId = attrs[PatchMetaAttr.sessionId.key];
   return {
     createdBy: String(createdBy ?? ''),
     sessionId:
@@ -156,7 +174,7 @@ export function getPatchTopLevelFromAttributes(
 
 export type Entity = {
   entityId: string;
-  entityType: string;
+  entityType: PatchEntityType;
   attributes: Record<string, unknown>;
 };
 
@@ -208,16 +226,20 @@ export function assertEntityId(
   a.ok(id === id.trim(), 'entityId must not have leading/trailing whitespace');
 }
 
-/** Asserts entityType is sufficient for global uniqueness (with entityId): non-empty, no null bytes, no trim loss. */
+/** Asserts entityType is sufficient for global uniqueness (with entityId): non-empty, no null bytes, no trim loss, dot-kebab namespace. */
 export function assertEntityType(
   t: unknown,
   a: Assert = assert
-): asserts t is string {
+): asserts t is PatchEntityType {
   a.string(t, 'entityType must be string');
   a.ok(t.length > 0, 'entityType must be non-empty');
   a.ok(t.length <= ID_MAX_LEN, 'entityType must not exceed 1024 chars');
   a.ok(!t.includes('\0'), 'entityType must not contain null byte');
   a.ok(t === t.trim(), 'entityType must not have leading/trailing whitespace');
+  a.ok(
+    isClojureNamespacePrefix(t),
+    'entityType must be a dot-separated kebab namespace (e.g. todo, todo-list, chess.puzzle)'
+  );
 }
 
 /** Asserts entity key (entityId + entityType) is sufficient for global uniqueness. */
@@ -351,7 +373,8 @@ export type PatchDbQueryOrderBy = {
 };
 
 export type PatchDbQuery = {
-  entityType?: string;
+  /** When set: same grammar as {@link PatchEntityType}. */
+  entityType?: PatchEntityType;
   entityId?: string | string[] | null;
   where?: PatchDbQueryWhereClause;
   orderBy?: PatchDbQueryOrderBy[];
@@ -367,8 +390,8 @@ export type PatchDbQuery = {
 export function assertQuery(a: Assert, q: unknown): asserts q is PatchDbQuery {
   a.record(q, 'Each query must be an object');
   const query = q as Record<string, unknown>;
-  if (query['entityType'] !== undefined) {
-    a.string(query['entityType'], 'query.entityType must be string');
+  if (query['entityType'] !== undefined && query['entityType'] !== null) {
+    assertEntityType(query['entityType'], a);
   }
   if (query['knownPatchIds'] !== undefined) {
     a.array(query['knownPatchIds'], 'query.knownPatchIds must be array');
@@ -427,8 +450,8 @@ export function andWhereClause(
 export const READ_WHERE_ALWAYS_TRUE: PatchDbQueryWhereClause = {
   type: 'or',
   clauses: [
-    { type: 'exists', attribute: PATCH_CREATED_BY_ID },
-    { type: 'not_exists', attribute: PATCH_CREATED_BY_ID },
+    { type: 'exists', attribute: PatchMetaAttr.createdById.key },
+    { type: 'not_exists', attribute: PatchMetaAttr.createdById.key },
   ],
 };
 
@@ -440,8 +463,8 @@ export const READ_WHERE_ALWAYS_TRUE: PatchDbQueryWhereClause = {
 export const READ_WHERE_NEVER_TRUE: PatchDbQueryWhereClause = {
   type: 'and',
   clauses: [
-    { type: 'exists', attribute: PATCH_CREATED_BY_ID },
-    { type: 'not_exists', attribute: PATCH_CREATED_BY_ID },
+    { type: 'exists', attribute: PatchMetaAttr.createdById.key },
+    { type: 'not_exists', attribute: PatchMetaAttr.createdById.key },
   ],
 };
 

@@ -2,7 +2,10 @@ import { Text, useTheme } from '@gamezilla/lib/ui';
 import { useQueryAttribute } from '@gamezilla/patch-db/react';
 import type { ReactNode } from 'react';
 
-import { TODO_ENTITY_TYPE, TodoAttr } from '../domain/todo-constants';
+import {
+  TODO_LIST_ITEM_ENTITY_TYPE,
+  TodoListItemAttr,
+} from '../domain/todo-constants';
 
 export type TodoItemCheckmarkProps = {
   entityId: string;
@@ -13,9 +16,9 @@ export function TodoItemCheckmark({
 }: TodoItemCheckmarkProps): ReactNode {
   const theme = useTheme();
   const completed = useQueryAttribute({
-    entityType: TODO_ENTITY_TYPE,
+    entityType: TODO_LIST_ITEM_ENTITY_TYPE,
     entityId,
-    attribute: TodoAttr.completed,
+    attribute: TodoListItemAttr.completed,
   });
   return (
     <Text
