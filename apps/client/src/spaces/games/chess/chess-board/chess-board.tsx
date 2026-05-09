@@ -1,10 +1,20 @@
-/* eslint-disable max-lines-per-function */
-import { WithSkiaWeb } from '@gamezilla/client/ui/with-skia-web';
+import { assertSkiaWebLoaded } from '@gamezilla/client/ui/skia-web-root';
 import { Box, useTheme } from '@gamezilla/lib/ui';
-import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useMemo, useState, type ReactNode } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
 import type { ChessBoardCanvasProps } from './chess-board-canvas';
 import type { BoardTheme, ChessBoardProps } from './chess-board-types';
+
+/**
+ * Canvas must load only after CanvasKit exists; a static import can run too
+ * early (prefetch / chunk order) and `Skia = JsiSkApi(global.CanvasKit)` captures
+ * `undefined` forever.
+ */
+const ChessBoardCanvasLazy = lazy(async () => {
+  assertSkiaWebLoaded();
+  const m = await import('./chess-board-canvas');
+  return { default: m.ChessBoardCanvas };
+});
 
 function defaultBoardTheme(theme: ReturnType<typeof useTheme>): BoardTheme {
   return {
@@ -21,6 +31,8 @@ function defaultBoardTheme(theme: ReturnType<typeof useTheme>): BoardTheme {
 }
 
 export function ChessBoard(props: ChessBoardProps): ReactNode {
+  assertSkiaWebLoaded();
+
   const {
     fen,
     onMove,
@@ -45,15 +57,12 @@ export function ChessBoard(props: ChessBoardProps): ReactNode {
 
   const onLayout = (e: LayoutChangeEvent) => {
     if (size !== undefined) return;
-    // The board is always square. Measure from width only — the wrapper has no
-    // intrinsic height before the canvas mounts, so using `min(w, h)` would
-    // deadlock at 0 (canvas only renders when `boardSize > 0`).
     const w = e.nativeEvent.layout.width;
     const next = Math.floor(w);
     if (next > 0 && next !== measured) setMeasured(next);
   };
 
-  const componentProps = useMemo<ChessBoardCanvasProps>(
+  const canvasProps = useMemo<ChessBoardCanvasProps>(
     () => ({
       ...(fen !== undefined ? { fen } : {}),
       ...(onMove !== undefined ? { onMove } : {}),
@@ -78,19 +87,6 @@ export function ChessBoard(props: ChessBoardProps): ReactNode {
     ]
   );
 
-  // Dynamic import keeps `chess-board-canvas` (and its
-  // `import { Skia } from '@shopify/react-native-skia'`) out of the eager
-  // module graph on web. Shopify's `WithSkiaWeb` awaits `LoadSkiaWeb()`
-  // before invoking this, so `global.CanvasKit` is set before any factory
-  // closures inside `Skia` capture it.
-  const getComponent = useCallback(
-    () =>
-      import('./chess-board-canvas').then((m) => ({
-        default: m.ChessBoardCanvas,
-      })),
-    []
-  );
-
   return (
     <Box
       testID={testID}
@@ -102,12 +98,9 @@ export function ChessBoard(props: ChessBoardProps): ReactNode {
           : { width: '100%', overflow: 'visible' }
       }
     >
-      {boardSize > 0 ? (
-        <WithSkiaWeb<ChessBoardCanvasProps>
-          getComponent={getComponent}
-          componentProps={componentProps}
-        />
-      ) : null}
+      <Suspense fallback={null}>
+        <ChessBoardCanvasLazy {...canvasProps} />
+      </Suspense>
     </Box>
   );
 }

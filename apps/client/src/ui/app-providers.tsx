@@ -10,6 +10,7 @@ import { PwaUpdatePromptBanner } from '@gamezilla/client/pwa/update-prompt';
 import { AppCommands } from '@gamezilla/client/ui/app-commands';
 import { CommandPaletteNativeGesture } from '@gamezilla/client/ui/command-palette-native-gesture';
 import { PatchBootstrap } from '@gamezilla/client/ui/patch-db-bootstrap';
+import { SkiaWebRoot } from '@gamezilla/client/ui/skia-web-root';
 import {
   AppThemeRoot,
   CommandPalette,
@@ -53,24 +54,26 @@ export function AppProviders({ children }: { children: ReactNode }) {
           storage={AsyncStorage}
           {...(fontsLoaded ? { fonts: nunitoFontStacks } : {})}
         >
-          <AppI18nProvider>
-            <DismissibleBannerPortalProvider>
-              <BottomSheetModalProvider>
-                <PatchBootstrap>
-                  <AuthProvider>
-                    <CommandRegistryProvider storage={AsyncStorage}>
-                      <AppCommands />
-                      <CommandPalette />
-                      <CommandPaletteNativeGesture>
-                        {children}
-                        <PwaUpdatePromptBanner />
-                      </CommandPaletteNativeGesture>
-                    </CommandRegistryProvider>
-                  </AuthProvider>
-                </PatchBootstrap>
-              </BottomSheetModalProvider>
-            </DismissibleBannerPortalProvider>
-          </AppI18nProvider>
+          <SkiaWebRoot>
+            <AppI18nProvider>
+              <DismissibleBannerPortalProvider>
+                <BottomSheetModalProvider>
+                  <PatchBootstrap>
+                    <AuthProvider>
+                      <CommandRegistryProvider storage={AsyncStorage}>
+                        <AppCommands />
+                        <CommandPalette />
+                        <CommandPaletteNativeGesture>
+                          {children}
+                          <PwaUpdatePromptBanner />
+                        </CommandPaletteNativeGesture>
+                      </CommandRegistryProvider>
+                    </AuthProvider>
+                  </PatchBootstrap>
+                </BottomSheetModalProvider>
+              </DismissibleBannerPortalProvider>
+            </AppI18nProvider>
+          </SkiaWebRoot>
         </AppThemeRoot>
       </SafeAreaProvider>
     </GestureHandlerRootView>

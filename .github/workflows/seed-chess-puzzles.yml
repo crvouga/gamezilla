@@ -1,0 +1,92 @@
+# https://github.com/crvouga/gamezilla/actions/workflows/seed-chess-puzzles.yml
+#
+# Manual workflow that runs `apps/db/scripts/seed-chess-puzzles.ts` against
+# the Doppler `prod` config (Postgres `DB_URL`). Idempotent: content-addressed
+# patch IDs + `INSERT … ON CONFLICT DO NOTHING` skip unchanged rows, and the
+# script resumes from the saved cursor when the source ETag is unchanged.
+#
+# All production credentials come from Doppler — the only repository secret
+# this workflow needs is `DOPPLER_TOKEN_SHARED`. `doppler run -- …` injects
+# `DB_URL` (and any other prod secrets) into the script's process env.
+name: Seed chess puzzles (prod)
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: 'Optional max number of puzzle rows to process (blank = no limit, full dataset)'
+        required: false
+        default: ''
+        type: string
+      dry_run:
+        description: 'Parse the CSV but skip all database writes'
+        required: false
+        default: false
+        type: boolean
+      no_resume:
+        description: 'Ignore the saved cursor and reseed from the start of the source'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    # Serialize prod seeds. `cancel-in-progress: false` so a queued manual run
+    # never preempts an in-flight seed mid-batch (the script is resumable, but
+    # interrupting wastes the partially-streamed CSV).
+    concurrency:
+      group: seed-chess-puzzles-prod
+      cancel-in-progress: false
+    # Full Lichess puzzle CSV is several million rows; allow plenty of
+    # headroom. Doppler `prod` `DB_URL` connection latency dominates over the
+    # ~150 MB download.
+    timeout-minutes: 360
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup
+
+      # Cache the downloaded `.csv.zst` archive between runs. The script
+      # writes to `apps/db/.cache/lichess/<name>` and stores an ETag manifest
+      # alongside it; the cache key uses the workflow file hash so a manual
+      # rerun on the same SHA reuses the archive, and a new push that bumps
+      # this workflow forces a fresh fetch (cheap relative to a full seed).
+      - name: Cache Lichess puzzle archive
+        uses: actions/cache@v5
+        with:
+          path: apps/db/.cache/lichess
+          key: lichess-puzzles-${{ runner.os }}-${{ hashFiles('.github/workflows/seed-chess-puzzles.yml') }}
+          restore-keys: |
+            lichess-puzzles-${{ runner.os }}-
+
+      - name: Seed chess puzzles → Doppler `prod` Postgres
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+          SEED_LIMIT: ${{ inputs.limit }}
+          SEED_DRY_RUN: ${{ inputs.dry_run }}
+          SEED_NO_RESUME: ${{ inputs.no_resume }}
+        run: |
+          set -euo pipefail
+          args=()
+          if [ -n "${SEED_LIMIT}" ]; then
+            args+=(--limit "${SEED_LIMIT}")
+          fi
+          if [ "${SEED_DRY_RUN}" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          if [ "${SEED_NO_RESUME}" = "true" ]; then
+            args+=(--no-resume)
+          fi
+          # `--no-pretty` for clean GH Actions log lines (no ANSI carriage
+          # returns). `doppler run` injects `DB_URL` from the `prod` config so
+          # the script's `createDopplerSecretStoreForScripts()` can also read
+          # any additional secrets it needs.
+          env DOPPLER_CONFIG=prod doppler run -- \
+            bun run --filter '@gamezilla/db' seed:puzzles \
+              --no-pretty \
+              "${args[@]}"

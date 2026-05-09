@@ -27,6 +27,9 @@ type ShopifyWithSkiaWebFn = <TProps extends object>(p: {
  * Defers evaluation of the Skia-using component until after CanvasKit is
  * loaded on web. On native, uses `React.lazy` for a single uniform code path.
  *
+ * Prefer `SkiaWebRoot` (`skia-web-root.tsx`) at the app root plus a direct Skia
+ * import when the subtree is always mounted after bootstrap (e.g. chess board).
+ *
  * IMPORTANT: callers MUST pass a `getComponent` that performs a *dynamic*
  * `import(...)` of the Skia-using module. Never statically import that
  * module from a parent chunk that mounts this wrapper, or its top-level
