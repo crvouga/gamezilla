@@ -8,13 +8,11 @@
     "tc": "tsc --noEmit -p tsconfig.json",
     "setup": "bun -e \"process.exit(0)\"",
     "test": "bun test --pass-with-no-tests",
-    "dev": "bun run src/pglite-socket.ts",
-    "preview": "bun run src/pglite-socket.ts",
-    "kill": "PORT=\"${PGLITE_PORT:-5432}\"; pids=\"$(lsof -tiTCP:\"$PORT\" -sTCP:LISTEN 2>/dev/null || true)\"; if [ -n \"$pids\" ]; then echo \"$pids\" | xargs kill -TERM 2>/dev/null || true; fi"
+    "dev": "bun run src/dev.ts",
+    "preview": "bun run src/dev.ts",
+    "kill": "bun run src/kill.ts"
   },
   "dependencies": {
-    "@electric-sql/pglite": "^0.4.3",
-    "@electric-sql/pglite-socket": "^0.0.21",
     "@gamezilla/lib": "workspace:*"
   },
   "devDependencies": {

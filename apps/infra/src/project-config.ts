@@ -18,7 +18,7 @@ export const PROJECT_CONFIG = {
      */
     hyperdrive: {
       name: 'gamezilla-api-postgres',
-      id: '00000000-0000-0000-0000-000000000000',
+      id: '3b8852ba7f4a43a981f672e3140b6acd',
     },
   },
   /** PlanetScale org + database slugs (independent of GitHub `owner`/`repo`). */

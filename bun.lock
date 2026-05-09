@@ -152,8 +152,6 @@
       "name": "@gamezilla/pg",
       "version": "1.0.0",
       "dependencies": {
-        "@electric-sql/pglite": "^0.4.3",
-        "@electric-sql/pglite-socket": "^0.0.21",
         "@gamezilla/lib": "workspace:*",
       },
       "devDependencies": {

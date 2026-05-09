@@ -699,7 +699,7 @@ PlanetScale         Serverless MySQL
                     Clients never write directly — local first
                     Read replicas for global low-latency reads
 
-Local dev           PGlite socket (`@gamezilla/pg`) + Bun API — no Docker
+Local dev           Real local PostgreSQL (`@gamezilla/pg`) + Bun API — no Docker
                     Doppler `local` `DB_URL` → `postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`
                     `bun run dev` (root) starts pg + api + client together; `db:migrate` once: `bun run --filter @gamezilla/api db:migrate`
 ```
@@ -717,7 +717,16 @@ Chess.com          500k-1M       ~$2,000-5,000
 
 Cloudflare Workers: 10M requests/month free, then $0.50/M. Durable Objects: first 1M requests free, $0.15/M after. PlanetScale: hobby tier free, scaler from $39/month.
 
-### Local Postgres (PGlite socket)
+### Local Postgres (managed cluster)
+
+`@gamezilla/pg` runs a real PostgreSQL server in the foreground so Turbo's persistent-task lifecycle owns it. The wrapper:
+
+- spawns `postgres` directly (no double-fork) inside its own process group, so `SIGINT`/`SIGTERM` from the dev shell can never leave an orphaned cluster behind,
+- reconciles a stale `postmaster.pid` from a previous abrupt exit before starting,
+- waits on `pg_isready` and prints the ready connection URL,
+- on shutdown runs `pg_ctl stop -m fast` and escalates to `SIGINT → SIGTERM → SIGKILL` on the recorded postmaster PID if that fails,
+- writes its own `wrapper.pid` so `kill` only ever signals the cluster we manage (it will not terminate other Postgres servers that happen to bind the same port),
+- tees the postmaster log to `apps/pg/.postgres/run/postgres.log` and to your terminal with a `pg-server:` prefix.
 
 ```bash
 # From repo root — turbo dev launches @gamezilla/pg alongside the api + client.
@@ -726,14 +735,24 @@ bun run dev
 # Or run just Postgres in this terminal (foreground; Ctrl-C to stop):
 bun run --filter @gamezilla/pg dev
 
-# Stop a detached instance (kills whatever is bound to PGLITE_PORT, default 5432):
+# Graceful stop (only signals our managed wrapper + cluster):
 bun run --filter @gamezilla/pg kill
 
-# Apply migrations against the running socket:
+# Apply migrations against the running cluster:
 DOPPLER_CONFIG=local doppler run -- bun run --filter @gamezilla/api db:migrate
 ```
 
-Set Doppler `local` `DB_URL` to match the server log (`postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`). See [PGlite Socket](https://pglite.dev/docs/pglite-socket).
+Set Doppler `local` `DB_URL` to match the server log (`postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`).
+
+Required tooling: `postgres`, `pg_ctl`, `initdb`, `pg_isready`. Enforced by `bun run infra setup` and `status` via the `PostgresDep` class.
+
+| Platform | Install                                                                                                                    | Notes                                                                                                                                                                                 |
+| -------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| macOS    | `brew install postgresql@17`                                                                                               | Homebrew installs keg-only; the wrapper auto-discovers `/opt/homebrew/opt/postgresql@17/bin` and `/usr/local/opt/...`. Override with `PG_BIN_DIR=$(brew --prefix postgresql@17)/bin`. |
+| Linux    | `apt-get install postgresql` (Debian/Ubuntu), `dnf install postgresql-server` (Fedora/RHEL), `pacman -S postgresql` (Arch) | The wrapper also probes `/usr/lib/postgresql/<version>/bin` automatically.                                                                                                            |
+| Windows  | Run dev inside WSL2                                                                                                        | Native Windows is not supported; the wrapper exits with a clear install hint if invoked there.                                                                                        |
+
+Tunables (all optional, env-driven): `PG_HOST`, `PG_PORT`, `PG_DATA_DIR`, `PG_USER`, `PG_PASSWORD`, `PG_DATABASE`, `PG_LOCALE`, `PG_ENCODING`, `PG_STARTUP_TIMEOUT_MS`, `PG_SHUTDOWN_TIMEOUT_MS`, `PG_BIN_DIR`.
 
 ---
 

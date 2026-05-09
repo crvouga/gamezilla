@@ -39,7 +39,9 @@ yarn-error.*
 # Lichess puzzle CSV cache (seed:puzzles)
 apps/api/.cache/
 
-# PGlite local dev data (apps/pg socket server)
+# Local PostgreSQL cluster + lifecycle artifacts (apps/pg)
+apps/pg/.postgres/
+# Legacy PGlite data dir (kept ignored so old checkouts don't dirty the tree)
 apps/pg/.pglite/
 
 # typescript

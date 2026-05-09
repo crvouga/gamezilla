@@ -9,6 +9,11 @@
       "dependsOn": ["kill"],
       "persistent": true,
       "cache": false
+    },
+    "preview": {
+      "dependsOn": ["kill"],
+      "persistent": true,
+      "cache": false
     }
   }
 }

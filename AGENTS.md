@@ -10,4 +10,13 @@ GitHub Actions runs checks with `DOPPLER_CONFIG=local`. For Turbo Remote Cache h
 
 ## Local database
 
-Local dev uses **PGlite in socket mode** (TCP Postgres wire on `127.0.0.1:5432` by default) — no Docker. The whole stack starts together via `bun run dev` at the repo root (turbo runs `@gamezilla/pg` alongside `@gamezilla/api` / `@gamezilla/client` as sibling persistent tasks). To run Postgres on its own (foreground, logs in this terminal): `bun run --filter @gamezilla/pg dev`. Stop it with `bun run --filter @gamezilla/pg kill` (frees whatever process is listening on `PGLITE_PORT`, default `5432`). Set Doppler **`local`** `DB_URL` to `postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable` (PGlite does not support SSL on the socket server). See [PGlite Socket](https://pglite.dev/docs/pglite-socket). Migrations: `DOPPLER_CONFIG=local doppler run -- bun run --filter @gamezilla/api db:migrate`. Persistent data lives in `apps/pg/.pglite/` unless `PGLITE_DATA_DIR` is set (`memory://` for ephemeral).
+Local dev runs a **real PostgreSQL cluster** managed by `@gamezilla/pg` — no Docker, no PGlite. The wrapper spawns `postgres` directly (in our process group, so it can never be orphaned by the dev shell), waits on `pg_isready`, and translates `SIGINT`/`SIGTERM` from `turbo dev` into a `pg_ctl stop -m fast`. Required CLI tooling (`postgres`, `pg_ctl`, `initdb`, `pg_isready`) is enforced by `bun run infra setup` / `status` via the `PostgresDep` class.
+
+The whole stack starts together via `bun run dev` at the repo root; to run just Postgres (foreground, logs visible): `bun run --filter @gamezilla/pg dev`. Stop it with `bun run --filter @gamezilla/pg kill` — this targets only our wrapper PID + cluster data dir; it will **not** terminate unrelated Postgres servers that happen to be on the same port.
+
+Set Doppler **`local`** `DB_URL` to `postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`. Migrations: `DOPPLER_CONFIG=local doppler run -- bun run --filter @gamezilla/api db:migrate`. Persistent data lives in `apps/pg/.postgres/data/`; the wrapper PID and a tee'd `postgres.log` live in `apps/pg/.postgres/run/`. Tunables (all optional): `PG_HOST`, `PG_PORT`, `PG_DATA_DIR`, `PG_USER`, `PG_PASSWORD`, `PG_DATABASE`, `PG_BIN_DIR` (force a specific Postgres install).
+
+Platform support:
+
+- **macOS / Linux** — install Postgres (`brew install postgresql@17` on macOS; `apt-get install postgresql` on Debian/Ubuntu, etc.) and run `bun run dev` directly.
+- **Windows** — run dev inside WSL2; native Windows is not supported by `@gamezilla/pg` (the lifecycle script still produces a clear error message + install hint if invoked there).
