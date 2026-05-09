@@ -8,6 +8,7 @@ import { ResourceBase, type InfraContext } from './types';
 const CF_API = 'https://api.cloudflare.com/client/v4';
 
 const PLACEHOLDER_HYPERDRIVE_ID = '00000000-0000-0000-0000-000000000000';
+const ORIGIN_CONNECTION_LIMIT = 20;
 
 type HyperdriveConfigSummary = {
   readonly id: string;
@@ -102,7 +103,7 @@ async function createHyperdriveConfig(args: {
           user: args.origin.user,
           password: args.origin.password,
         },
-        origin_connection_limit: 60,
+        origin_connection_limit: ORIGIN_CONNECTION_LIMIT,
       }),
     }
   );
@@ -139,7 +140,7 @@ async function patchHyperdriveOrigin(args: {
           user: args.origin.user,
           password: args.origin.password,
         },
-        origin_connection_limit: 60,
+        origin_connection_limit: ORIGIN_CONNECTION_LIMIT,
       }),
     }
   );
