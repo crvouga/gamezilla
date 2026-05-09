@@ -1,11 +1,11 @@
 import {
-  CHESS_PUZZLE_ENTITY_TYPE,
-  ChessPuzzleAttr,
-} from '@gamezilla/domain/spaces/games/chess/puzzle/chess-puzzle-entities';
-import {
   CHESS_SCREEN,
   SetChessMainMenuScreen,
 } from '@gamezilla/domain/spaces/games/chess/chess-main-menu';
+import {
+  CHESS_PUZZLE_ENTITY_TYPE,
+  ChessPuzzleAttr,
+} from '@gamezilla/domain/spaces/games/chess/puzzle/chess-puzzle-entities';
 import { SelectChessPuzzle } from '@gamezilla/domain/spaces/games/chess/puzzle/chess-puzzle-session';
 import {
   Box,
@@ -26,6 +26,7 @@ import {
   useQueryAttribute,
   useQueryEntityIds,
 } from '@gamezilla/patch-db/react';
+import { RoomMetaAttr } from '@gamezilla/room';
 import { Trans, useLingui } from '@lingui/react/macro';
 import {
   useCallback,
@@ -34,7 +35,6 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { RoomMetaAttr } from '@gamezilla/room';
 import {
   useSpaceDispatch,
   useSpaceSelector,
@@ -110,7 +110,7 @@ function PuzzlePickerRow({
   const themesPreview =
     themes.length > 0 ? themes.slice(0, 4).join(', ') : null;
   return (
-    <Pressable onPress={() => onPick(id.length > 0 ? id : entityId)}>
+    <Pressable onPress={() => onPick(entityId)}>
       <Card
         elevation={0}
         sx={{

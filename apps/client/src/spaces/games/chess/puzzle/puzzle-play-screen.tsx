@@ -139,14 +139,13 @@ function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
   );
 
   const [resetNonce, setResetNonce] = useState(0);
-  const { displayFen, boardKey, status, orientation, onMove } = usePuzzleSolver(
-    {
+  const { displayFen, layoutKey, status, orientation, onMove } =
+    usePuzzleSolver({
       fen,
       movesStr,
       puzzleId,
       resetNonce,
-    }
-  );
+    });
 
   const backToPuzzleMenu = useCallback(() => {
     dispatch(SelectChessPuzzle({ puzzleId: null }));
@@ -202,7 +201,7 @@ function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
 
         {displayFen !== null ? (
           <ChessBoard
-            key={boardKey}
+            key={`${puzzleId}-${resetNonce}-${layoutKey}`}
             fen={displayFen}
             orientation={orientation}
             interactive={status === 'solving' || status === 'wrong'}
@@ -246,5 +245,5 @@ export function PuzzlePlayScreen(): ReactNode {
       </Box>
     );
   }
-  return <PuzzlePlayer puzzleId={selectedId} />;
+  return <PuzzlePlayer key={selectedId} puzzleId={selectedId} />;
 }

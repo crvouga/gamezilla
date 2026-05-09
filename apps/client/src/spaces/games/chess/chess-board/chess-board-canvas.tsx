@@ -42,6 +42,7 @@ import type {
 import { usePieceSkiaImages } from './chess-pieces-cache';
 import { pieceCode } from './chess-pieces-svg';
 import { useChessGame } from './use-chess-game';
+import { useExternalFenSync } from './use-external-fen-sync';
 
 export type ChessBoardCanvasProps = Required<
   Pick<
@@ -89,6 +90,7 @@ function playMoveSounds(
   }
 }
 
+/* eslint-disable-next-line max-statements -- Skia board: layout, gestures, promotion, and FEN sync. */
 export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
   const {
     fen,
@@ -103,7 +105,7 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
   } = props;
 
   const game = useChessGame({ ...(fen ? { initialFen: fen } : {}) });
-  const { position, lastMove, inCheck, turn } = game;
+  const { position, lastMove, inCheck, turn, reset } = game;
 
   const sounds = useChessBoardSounds();
   const pieceImages = usePieceSkiaImages();
@@ -131,6 +133,15 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
     from: Square;
     to: Square;
   } | null>(null);
+
+  const clearBoardInteraction = useCallback(() => {
+    setSelected(null);
+    setDragFrom(null);
+    setHoveredSquare(null);
+    setPendingPromotion(null);
+  }, []);
+
+  useExternalFenSync(fen, reset, clearBoardInteraction);
 
   const applySuccessfulMove = useCallback(
     (move: Move, post: PostMoveAudio) => {

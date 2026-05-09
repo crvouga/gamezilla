@@ -1,4 +1,4 @@
-import type { Move } from '@gamezilla/client/spaces/games/chess/chess-board';
+import type { Move } from '@gamezilla/client/spaces/games/chess/chess-board/chess-board-types';
 import { Chess } from 'chess.js';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -22,8 +22,10 @@ export function usePuzzleSolver(args: {
   resetNonce: number;
 }): {
   displayFen: string | null;
-  boardKey: number;
+  /** Bumps on wrong move so the board remounts when FEN string is unchanged (canvas must resync). */
+  layoutKey: number;
   status: SolveStatus;
+  /** Side the human sits on for this puzzle — fixed for the session, not derived from live FEN. */
   orientation: 'white' | 'black';
   onMove: (m: Move) => void;
 } {
@@ -32,13 +34,16 @@ export function usePuzzleSolver(args: {
   const tokensRef = useRef<readonly string[]>([]);
   const [solveIdx, setSolveIdx] = useState(0);
   const [displayFen, setDisplayFen] = useState<string | null>(null);
-  const [boardKey, setBoardKey] = useState(0);
   const [status, setStatus] = useState<SolveStatus>('loading');
+  const [orientation, setOrientation] = useState<'white' | 'black'>('white');
+  const [layoutKey, setLayoutKey] = useState(0);
 
   useEffect(() => {
     if (fen.length === 0 || movesStr.length === 0) {
+      tokensRef.current = [];
       setStatus('loading');
       setDisplayFen(null);
+      chessRef.current.reset();
       return;
     }
     const chess = chessRef.current;
@@ -55,6 +60,7 @@ export function usePuzzleSolver(args: {
       loadOk = false;
     }
     if (!loadOk) {
+      tokensRef.current = [];
       setStatus('invalid');
       setDisplayFen(null);
       return;
@@ -65,6 +71,7 @@ export function usePuzzleSolver(args: {
       .map((s) => s.trim().toLowerCase())
       .filter((s) => s.length > 0);
     if (tokens.length === 0) {
+      tokensRef.current = [];
       setStatus('invalid');
       return;
     }
@@ -75,12 +82,15 @@ export function usePuzzleSolver(args: {
       return;
     }
     if (!applyUci(chess, first)) {
+      tokensRef.current = [];
       setStatus('invalid');
       return;
     }
     setSolveIdx(1);
-    setDisplayFen(chess.fen());
-    setBoardKey((k) => k + 1);
+    const afterFirst = chess.fen();
+    setDisplayFen(afterFirst);
+    setOrientation(boardOrientationFromFen(afterFirst));
+    setLayoutKey(0);
     setStatus(tokens.length <= 1 ? 'solved' : 'solving');
   }, [fen, movesStr, puzzleId, resetNonce]);
 
@@ -93,7 +103,7 @@ export function usePuzzleSolver(args: {
       const actual = uciFromMove(m).toLowerCase();
       if (actual !== expected) {
         chessRef.current.load(displayFen ?? fen);
-        setBoardKey((k) => k + 1);
+        setLayoutKey((k) => k + 1);
         setStatus('wrong');
         return;
       }
@@ -111,7 +121,6 @@ export function usePuzzleSolver(args: {
       if (nextIdx >= tokens.length) {
         setDisplayFen(chess.fen());
         setSolveIdx(nextIdx);
-        setBoardKey((k) => k + 1);
         setStatus('solved');
         return;
       }
@@ -119,7 +128,6 @@ export function usePuzzleSolver(args: {
       if (reply === undefined) {
         setDisplayFen(chess.fen());
         setSolveIdx(nextIdx);
-        setBoardKey((k) => k + 1);
         setStatus('solved');
         return;
       }
@@ -130,14 +138,10 @@ export function usePuzzleSolver(args: {
       nextIdx += 1;
       setSolveIdx(nextIdx);
       setDisplayFen(chess.fen());
-      setBoardKey((k) => k + 1);
       setStatus(nextIdx >= tokens.length ? 'solved' : 'solving');
     },
     [displayFen, fen, solveIdx, status]
   );
 
-  const orientation =
-    displayFen !== null ? boardOrientationFromFen(displayFen) : 'white';
-
-  return { displayFen, boardKey, status, orientation, onMove };
+  return { displayFen, layoutKey, status, orientation, onMove };
 }
