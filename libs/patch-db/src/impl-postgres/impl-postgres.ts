@@ -46,6 +46,7 @@ import {
   INSERT_PATCH,
   INSERT_PATCHES_BATCH,
   RESOLVE_PARENT_ID,
+  RESOLVE_PARENT_IDS_BATCH,
   SELECT_PATCHES_FOR_SNAPSHOT,
 } from './sql-constants';
 
@@ -85,6 +86,27 @@ export class PatchDbImplPostgres implements PatchDb {
     ]);
     const first = rows[0];
     return first !== null && first !== undefined ? first.patch_id : null;
+  }
+
+  private async resolveParentIdsBatch(
+    tx: SqlClient,
+    entities: readonly { entityId: string; entityType: string }[]
+  ): Promise<Map<string, string | null>> {
+    const out = new Map<string, string | null>();
+    if (entities.length === 0) return out;
+    const payload = entities.map((e) => ({
+      entity_id: e.entityId,
+      entity_type: e.entityType,
+    }));
+    const rows = await tx.query<{
+      entity_id: string;
+      entity_type: string;
+      patch_id: string;
+    }>(RESOLVE_PARENT_IDS_BATCH, [JSON.stringify(payload)]);
+    for (const r of rows) {
+      out.set(`${r.entity_id}\0${r.entity_type}`, r.patch_id);
+    }
+    return out;
   }
 
   private assignPatchIdsIfMissing(
@@ -152,6 +174,8 @@ export class PatchDbImplPostgres implements PatchDb {
       {
         resolveParentId: (t, entityId, entityType) =>
           this.resolveParentId(t, entityId, entityType),
+        resolveParentIdsBatch: (t, entities) =>
+          this.resolveParentIdsBatch(t, entities),
         bumpWriteTimestamps: (p, t) => this.bumpWriteTimestamps(p, t),
       },
       tx,

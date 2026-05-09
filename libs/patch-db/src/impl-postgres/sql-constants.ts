@@ -97,6 +97,49 @@ WHERE p.entity_id = ? AND p.entity_type = ?
 ORDER BY l.depth DESC, p.patch_id ASC
 LIMIT 1`;
 
+/**
+ * Batched form of {@link RESOLVE_PARENT_ID}. Takes a JSON array of
+ * `{ entity_id, entity_type }` pairs and returns the leaf patch (no
+ * children, reachable from the canonical `parent_id IS NULL` root) for
+ * each entity that has at least one patch. Entities with no patches are
+ * simply absent from the result set — the caller treats that as `null`.
+ *
+ * Replaces N-way `Promise.all(resolveParentId(...))` fan-outs that
+ * historically saturated serverless HTTP gateways (e.g. Neon) with one
+ * concurrent request per touched entity in a write batch.
+ */
+export const RESOLVE_PARENT_IDS_BATCH = `WITH RECURSIVE input AS (
+    SELECT entity_id, entity_type
+    FROM jsonb_to_recordset(?::text::jsonb) AS x (
+        entity_id text,
+        entity_type text
+    )
+),
+lineage AS (
+    SELECT p.entity_id, p.entity_type, p.patch_id, 0 AS depth
+    FROM patches p
+    JOIN input i
+      ON p.entity_id = i.entity_id AND p.entity_type = i.entity_type
+    WHERE p.parent_id IS NULL
+    UNION ALL
+    SELECT p.entity_id, p.entity_type, p.patch_id, l.depth + 1
+    FROM patches p
+    JOIN lineage l
+      ON p.parent_id = l.patch_id
+     AND p.entity_id = l.entity_id
+     AND p.entity_type = l.entity_type
+)
+SELECT DISTINCT ON (l.entity_id, l.entity_type)
+       l.entity_id, l.entity_type, l.patch_id
+FROM lineage l
+WHERE NOT EXISTS (
+    SELECT 1 FROM patches c
+    WHERE c.parent_id = l.patch_id
+      AND c.entity_id = l.entity_id
+      AND c.entity_type = l.entity_type
+)
+ORDER BY l.entity_id, l.entity_type, l.depth DESC, l.patch_id ASC`;
+
 export const SELECT_PATCHES_FOR_SNAPSHOT = `WITH RECURSIVE lineage AS (
     SELECT patch_id, 0 AS depth
     FROM patches

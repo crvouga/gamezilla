@@ -65,8 +65,17 @@ function createSeedPatchDb(sql: SqlClient): PatchDb {
     [CHESS_PUZZLE_ENTITY_TYPE]: { keepLatest: 1 },
     [CHESS_PUZZLE_LOAD_ENTITY_TYPE]: { keepLatest: 1 },
   });
+  // `autoCompactOnWrite: false`: each puzzle's `patchId` is content-addressed
+  // and `INSERT … ON CONFLICT DO NOTHING` keeps it at exactly one patch per
+  // entity, so post-write compaction is always a no-op for this seed. The
+  // post-write check still fires one `SELECT_PATCHES_FOR_SNAPSHOT` per
+  // touched entity though — a 5k-row batch turned into ~5k extra
+  // serverless HTTP round-trips, which contributed to gateway resets
+  // (`ECONNRESET` from Neon HTTP) under steady seeding load. The
+  // `compactionPolicy` is left wired so an explicit `compaction.compactAll`
+  // pass remains available if a future seed ever needs it.
   return new PatchDbImplPostgres(sql, {
-    autoCompactOnWrite: true,
+    autoCompactOnWrite: false,
     compactionPolicy: compaction.resolve,
   });
 }

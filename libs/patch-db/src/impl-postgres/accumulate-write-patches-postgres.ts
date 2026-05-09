@@ -21,6 +21,17 @@ export type AccumulateWritePostgresDeps = {
     entityId: string,
     entityType: string
   ) => Promise<string | null>;
+  /**
+   * Optional batched form of {@link resolveParentId}. When provided, the
+   * accumulator uses it to resolve all entity parent ids in a single
+   * round-trip instead of issuing one request per entity in parallel.
+   * Implementations should return only entries with a non-null leaf
+   * patch id; missing entries are treated as `null` by the caller.
+   */
+  resolveParentIdsBatch?: (
+    tx: SqlClient,
+    entities: readonly { entityId: string; entityType: string }[]
+  ) => Promise<Map<string, string | null>>;
   bumpWriteTimestamps: (
     patch: PatchInput,
     lastTimestamp: number
@@ -71,7 +82,10 @@ async function resolveWriteParentId(
 }
 
 async function prefetchParentIdsForEntities(
-  deps: Pick<AccumulateWritePostgresDeps, 'resolveParentId'>,
+  deps: Pick<
+    AccumulateWritePostgresDeps,
+    'resolveParentId' | 'resolveParentIdsBatch'
+  >,
   tx: SqlClient,
   sorted: readonly PatchInput[],
   parentCache: Map<string, string | null>
@@ -89,15 +103,33 @@ async function prefetchParentIdsForEntities(
       });
     }
   }
+  const pending = [...uniqueKeys.entries()].filter(
+    ([key]) => !parentCache.has(key)
+  );
+  if (pending.length === 0) return;
+  // Prefer the batched form: a single SQL round-trip for every touched
+  // entity. The legacy per-entity `Promise.all` path saturated serverless
+  // HTTP gateways (e.g. Neon) on large write batches and produced
+  // `ECONNRESET` once the concurrent fan-out exceeded the connection
+  // budget. The batched query is functionally equivalent: missing rows
+  // mean the entity has no patches yet, which we record as `null`.
+  if (deps.resolveParentIdsBatch !== undefined) {
+    const resolved = await deps.resolveParentIdsBatch(
+      tx,
+      pending.map(([, v]) => v)
+    );
+    for (const [key, value] of pending) {
+      const found = resolved.get(`${value.entityId}\0${value.entityType}`);
+      parentCache.set(key, found ?? null);
+    }
+    return;
+  }
   await Promise.all(
-    [...uniqueKeys.values()].map(async ({ entityId, entityType }) => {
-      const key = `${entityId}\0${entityType}`;
-      if (!parentCache.has(key)) {
-        parentCache.set(
-          key,
-          await deps.resolveParentId(tx, entityId, entityType)
-        );
-      }
+    pending.map(async ([key, { entityId, entityType }]) => {
+      parentCache.set(
+        key,
+        await deps.resolveParentId(tx, entityId, entityType)
+      );
     })
   );
 }
