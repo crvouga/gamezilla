@@ -55,14 +55,16 @@ export function createRequestDbMiddleware(
       try {
         await next();
       } finally {
-        await dispose();
-        // Close the per-request Postgres TCP session. Without this the socket
-        // leaks for the lifetime of the Worker isolate; in local dev that
-        // saturates PGlite's connection slots and surfaces as
-        // "Connection terminated unexpectedly" on subsequent requests.
-        await client.end().catch(() => {
-          /* swallow: connection may already be closed by remote */
-        });
+        // Defer Postgres + Better Auth cleanup beyond the response.
+        // `pg.Client.end()` does not resolve under Workers' `nodejs_compat`
+        // socket emulation when peering with the local PGlite socket, so
+        // awaiting it inline would block the Hono response forever.
+        c.executionCtx.waitUntil(
+          (async () => {
+            await dispose().catch(() => {});
+            await client.end().catch(() => {});
+          })()
+        );
       }
     });
   };

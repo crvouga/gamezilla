@@ -157,7 +157,8 @@ type PatchBasedSqlTail = {
 };
 
 function candWhereSql(split: LineageCandSplit): string {
-  if (split.candConditions.length > 0) return split.candConditions.join(' AND ');
+  if (split.candConditions.length > 0)
+    return split.candConditions.join(' AND ');
   return '1=1';
 }
 

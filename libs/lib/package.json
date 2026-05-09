@@ -270,6 +270,7 @@
     "./static-file-server/static-file-server-adapter-bun": "./src/static-file-server/static-file-server-adapter-bun.ts",
     "./static-file-server/static-file-server": "./src/static-file-server/static-file-server.ts",
     "./sql-client/impl-pg": "./src/sql-client/impl-pg.ts",
+    "./sql-client/impl-pg-client": "./src/sql-client/impl-pg-client.ts",
     "./sql-client/impl-with-pub-sub": "./src/sql-client/impl-with-pub-sub.ts",
     "./sql-client/impl-expo-sqlite": "./src/sql-client/impl-expo-sqlite.ts",
     "./sql-client/impl-planetscale-postgres": "./src/sql-client/impl-planetscale-postgres.ts",

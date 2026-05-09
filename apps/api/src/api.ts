@@ -130,7 +130,8 @@ async function ensureApp(env: ApiWorkerEnv): Promise<App | null> {
 
 async function handleWorkerFetch(
   request: Request,
-  env: ApiWorkerEnv
+  env: ApiWorkerEnv,
+  ctx: ExecutionContext
 ): Promise<Response> {
   const url = new URL(request.url);
 
@@ -166,7 +167,13 @@ async function handleWorkerFetch(
     return fatalConfigResponse(reason);
   }
 
-  return app.fetch(request, env);
+  // Cast: Cloudflare's `ExecutionContext` lacks Hono's newer `props` field,
+  // but Hono only reads `waitUntil`/`passThroughOnException` at runtime.
+  return app.fetch(
+    request,
+    env,
+    ctx as unknown as Parameters<typeof app.fetch>[2]
+  );
 }
 
 export { Space };
@@ -175,10 +182,10 @@ export default {
   async fetch(
     request: Request,
     env: ApiWorkerEnv,
-    _ctx: ExecutionContext
+    ctx: ExecutionContext
   ): Promise<Response> {
     try {
-      return await handleWorkerFetch(request, env);
+      return await handleWorkerFetch(request, env, ctx);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       log.error('top-level handler error', { error: message });

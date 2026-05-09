@@ -293,8 +293,4 @@ async function readOneSnapshotBased(
   return { query, entities, patches, total, hasMore, nextCursor: null };
 }
 
-export {
-  batchFetchSnapshots,
-  parseAttributes,
-  rowAttributesText,
-};
+export { batchFetchSnapshots, parseAttributes, rowAttributesText };

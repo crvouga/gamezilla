@@ -31,7 +31,9 @@ export async function runPostgresMigrations(
   });
 
   const kyselyPool = new Pool({ connectionString: databaseUrl });
-  const kysely = new Kysely({ dialect: new PostgresDialect({ pool: kyselyPool }) });
+  const kysely = new Kysely({
+    dialect: new PostgresDialect({ pool: kyselyPool }),
+  });
   try {
     const { runMigrations } = await getMigrations({
       ...betterAuthOptions,
