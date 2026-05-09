@@ -6,7 +6,7 @@
       "outputs": []
     },
     "dev": {
-      "dependsOn": ["kill", "install:deps", "setup", "@gamezilla/db#dev"],
+      "dependsOn": ["kill", "install:deps", "setup"],
       "persistent": true,
       "cache": false
     }

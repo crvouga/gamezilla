@@ -130,6 +130,14 @@ export class Room<
   private unsubTransport: (() => void) | null = null;
   private unsubHandlers: (() => void) | null = null;
 
+  /**
+   * Serializes {@link dispatch} work (storage append + optimistic rebuild).
+   * Without this, two synchronous `dispatch()` calls race inside storages that
+   * implement `appendQueued` as load/modify/write (e.g. web key-value): one
+   * command can be dropped from the outbound queue.
+   */
+  private dispatchSerial: Promise<void> = Promise.resolve();
+
   private constructor(config: RoomClientConfig<S, C, E, Identity>) {
     this.module = config.module;
     this.storage = config.storage;
@@ -330,37 +338,46 @@ export class Room<
     const ts = Date.now();
     const cmd: RoomCommand<C> = { id, ts, payload };
 
-    void (async () => {
-      const st = foldDisplay(
-        this.module,
-        this.committedState,
-        this.pendingQueue,
-        this.optimistic
-      );
-      const res = this.module.handle(st, cmd, this.identity);
-      if (!res.ok) {
-        this.reportError(res.error);
+    this.dispatchSerial = this.dispatchSerial
+      .then(() => this.processDispatchCommand(cmd))
+      .catch((err: unknown) => {
+        this.reportError(err instanceof Error ? err : new Error(String(err)));
         this.notify();
-        return;
-      }
-      const row: QueuedCommand = { id, ts, payload };
-      await this.storage.appendQueued(row);
-      this.pendingQueue = await this.storage.loadQueued();
-      this.rebuildOptimisticSync();
+      });
+  }
+
+  private async processDispatchCommand(cmd: RoomCommand<C>): Promise<void> {
+    if (this.destroyed) return;
+    const st = foldDisplay(
+      this.module,
+      this.committedState,
+      this.pendingQueue,
+      this.optimistic
+    );
+    const res = this.module.handle(st, cmd, this.identity);
+    if (!res.ok) {
+      this.reportError(res.error);
       this.notify();
-      if (this.transport.isConnected && this.synced) {
-        this.transport.sendJson({
-          v: WIRE_VERSION,
-          kind: 'command',
-          id,
-          ts,
-          payload,
-        });
-      }
-    })().catch((err: unknown) => {
-      this.reportError(err instanceof Error ? err : new Error(String(err)));
-      this.notify();
-    });
+      return;
+    }
+    const row: QueuedCommand = {
+      id: cmd.id,
+      ts: cmd.ts,
+      payload: cmd.payload,
+    };
+    await this.storage.appendQueued(row);
+    this.pendingQueue = await this.storage.loadQueued();
+    this.rebuildOptimisticSync();
+    this.notify();
+    if (this.transport.isConnected && this.synced) {
+      this.transport.sendJson({
+        v: WIRE_VERSION,
+        kind: 'command',
+        id: cmd.id,
+        ts: cmd.ts,
+        payload: cmd.payload,
+      });
+    }
   }
 
   /**

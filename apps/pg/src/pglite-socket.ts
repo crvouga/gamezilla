@@ -1,6 +1,10 @@
 /**
  * Local dev Postgres wire compatibility via PGlite + TCP socket server.
  *
+ * Foreground process — runs until SIGINT/SIGTERM. Use `bun run --filter
+ * @gamezilla/pg dev` (or `turbo dev` from the repo root) to start, and
+ * `bun run --filter @gamezilla/pg kill` to stop.
+ *
  * @see https://pglite.dev/docs/pglite-socket
  */
 
@@ -16,7 +20,7 @@ import { fileURLToPath } from 'node:url';
  * Tiger style (see repo `LLM.md`): validate env-derived listen config; never accept silently
  * malformed host/port.
  */
-const log = createLogger({ name: 'db:pglite-socket' });
+const log = createLogger({ name: 'pg' });
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const APP_ROOT = resolve(SCRIPT_DIR, '..');
@@ -105,5 +109,5 @@ async function main(): Promise<void> {
 }
 
 await main().catch((error: unknown) => {
-  assert.fail('db:pglite-socket failed', { error });
+  assert.fail('pg: pglite-socket failed', { error });
 });

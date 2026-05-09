@@ -699,9 +699,9 @@ PlanetScale         Serverless MySQL
                     Clients never write directly — local first
                     Read replicas for global low-latency reads
 
-Local dev           PGlite socket (`@gamezilla/db`) + Bun API — no Docker
+Local dev           PGlite socket (`@gamezilla/pg`) + Bun API — no Docker
                     Doppler `local` `DB_URL` → `postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`
-                    `bun run --filter @gamezilla/api db:up` then `bun run --filter @gamezilla/api db:migrate`
+                    `bun run dev` (root) starts pg + api + client together; `db:migrate` once: `bun run --filter @gamezilla/api db:migrate`
 ```
 
 ### Scale estimates
@@ -720,8 +720,16 @@ Cloudflare Workers: 10M requests/month free, then $0.50/M. Durable Objects: firs
 ### Local Postgres (PGlite socket)
 
 ```bash
-# From repo root — TCP on 127.0.0.1:5432 (detached; use `@gamezilla/db` `up` for foreground logs)
-bun run --filter @gamezilla/api db:up
+# From repo root — turbo dev launches @gamezilla/pg alongside the api + client.
+bun run dev
+
+# Or run just Postgres in this terminal (foreground; Ctrl-C to stop):
+bun run --filter @gamezilla/pg dev
+
+# Stop a detached instance (kills whatever is bound to PGLITE_PORT, default 5432):
+bun run --filter @gamezilla/pg kill
+
+# Apply migrations against the running socket:
 DOPPLER_CONFIG=local doppler run -- bun run --filter @gamezilla/api db:migrate
 ```
 

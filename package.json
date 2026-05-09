@@ -28,7 +28,7 @@
     "i18n:extract": "lingui extract",
     "infra": "DOPPLER_PROJECT=gamezilla DOPPLER_CONFIG=prod bun run apps/infra/src/bin/cli.ts",
     "knip:ci": "knip --no-progress -c knip.jsonc --exclude exports,nsExports,types,nsTypes,enumMembers,namespaceMembers,duplicates",
-    "preview": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run preview --filter=@gamezilla/db --filter=@gamezilla/api --filter=@gamezilla/client",
+    "preview": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run preview --filter=@gamezilla/pg --filter=@gamezilla/api --filter=@gamezilla/client",
     "pw": "bun run --filter '@gamezilla/qa' browser",
     "pw:headed": "bun run --filter '@gamezilla/qa' browser:headed",
     "pw:ui": "bun run --filter '@gamezilla/qa' browser:ui",

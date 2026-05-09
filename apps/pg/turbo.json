@@ -6,7 +6,8 @@
       "outputs": []
     },
     "dev": {
-      "persistent": false,
+      "dependsOn": ["kill"],
+      "persistent": true,
       "cache": false
     }
   }

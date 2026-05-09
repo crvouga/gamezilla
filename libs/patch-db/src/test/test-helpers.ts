@@ -11,9 +11,9 @@ import {
   type SyncPatchDbOptions,
   type SyncPatchDbScheduler,
 } from '../impl-sync';
-import { PatchDbImplSyncHost } from '../transport/impl-sync-host';
-import { PatchDbTransportInProcess } from '../transport/impl-in-process';
 import type { PatchDb, PatchInput } from '../interface';
+import { PatchDbTransportInProcess } from '../transport/impl-in-process';
+import { PatchDbImplSyncHost } from '../transport/impl-sync-host';
 
 export type DbFactory = () => Promise<{
   db: PatchDb;
@@ -49,7 +49,7 @@ export async function createPostgresFactory(): Promise<{
 
 export const implementations: { name: string; factory: DbFactory }[] = [
   { name: 'PatchDbImplSqlite', factory: createSqliteFactory },
-  // Set `DB_URL` to a reachable Postgres (e.g. PGlite socket / `bun run --filter @gamezilla/db up`) to enable:
+  // Set `DB_URL` to a reachable Postgres (e.g. PGlite socket / `bun run --filter @gamezilla/pg dev`) to enable:
   // { name: 'PatchDbImplPostgres', factory: createPostgresFactory },
 ];
 

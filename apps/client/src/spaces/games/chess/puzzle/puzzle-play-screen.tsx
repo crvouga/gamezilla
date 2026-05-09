@@ -11,6 +11,7 @@ import {
   ChessPuzzleSessionAttr,
   SelectChessPuzzle,
 } from '@gamezilla/domain/spaces/games/chess/puzzle/chess-puzzle-session';
+import type { PatchDbQuery } from '@gamezilla/patch-db/interface';
 import {
   Box,
   Card,
@@ -20,9 +21,19 @@ import {
   Text,
   useTheme,
 } from '@gamezilla/lib/ui';
-import { useEntityAttribute } from '@gamezilla/patch-db/react';
+import {
+  useEntityAttribute,
+  usePatchDbStack,
+  useQuery,
+} from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useCallback, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
 import {
   useSpaceDispatch,
   useSpaceSelector,
@@ -117,6 +128,31 @@ function statusLabelNode(status: SolveStatus): ReactNode {
 
 function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
   const dispatch = useSpaceDispatch();
+  const { sync } = usePatchDbStack();
+  /**
+   * Keep this puzzle in {@link SyncPatchDb} active entity queries while playing.
+   * Otherwise closing the picker tears down the list subscription and poll may
+   * omit `chess.puzzle` until the next interval — play then reads empty FEN/moves
+   * from the in-memory mirror until a poll merge hydrates SQLite into memory.
+   */
+  const selectedPuzzleSyncQuery = useMemo(
+    (): PatchDbQuery => ({
+      entityType: CHESS_PUZZLE_ENTITY_TYPE,
+      where: {
+        type: '=',
+        attribute: ChessPuzzleAttr.id.key,
+        value: puzzleId,
+      },
+      limit: 1,
+    }),
+    [puzzleId]
+  );
+  void useQuery(selectedPuzzleSyncQuery);
+
+  useEffect(() => {
+    void sync.runPollNow();
+  }, [puzzleId, sync]);
+
   const fen = useEntityAttribute(
     CHESS_PUZZLE_ENTITY_TYPE,
     puzzleId,

@@ -98,7 +98,7 @@ const turboPreviewCmd: string[] = [
   'turbo',
   'run',
   'preview',
-  '--filter=@gamezilla/db',
+  '--filter=@gamezilla/pg',
   '--filter=@gamezilla/api',
   '--filter=@gamezilla/client',
 ];

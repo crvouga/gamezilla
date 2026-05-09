@@ -39,8 +39,8 @@ yarn-error.*
 # Lichess puzzle CSV cache (seed:puzzles)
 apps/api/.cache/
 
-# PGlite local dev data (apps/db socket server)
-apps/db/.pglite/
+# PGlite local dev data (apps/pg socket server)
+apps/pg/.pglite/
 
 # typescript
 *.tsbuildinfo

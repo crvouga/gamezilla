@@ -74,12 +74,12 @@ export class DeployCommand implements Command {
       );
     }
 
-    // ── 2b. DB migrations (`migrate` loads DB_URL from Doppler via SecretStore) ───
+    // ── 2b. DB migrations (`db:migrate` loads DB_URL from Doppler via SecretStore) ───
     await runStep(p, 'Database migrate', async () => {
-      await runAsync(p, 'bun', ['run', 'migrate'], {
-        cwd: join(REPO_ROOT, 'apps/db'),
+      await runAsync(p, 'bun', ['run', 'db:migrate'], {
+        cwd: join(REPO_ROOT, 'apps/api'),
         env: process.env,
-        label: 'db: migrate',
+        label: 'api: db:migrate',
       });
     });
 
