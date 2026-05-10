@@ -25,7 +25,7 @@ export function createRequestDbMiddleware(
     const hyper = c.env.HYPERDRIVE;
     if (hyper === undefined || hyper === null) {
       throw new ConfigurationError(
-        'HYPERDRIVE Worker binding is required (configure apps/api/wrangler.toml)'
+        'HYPERDRIVE Worker binding is required (configure packages/api/wrangler.toml)'
       );
     }
     const cs = hyper.connectionString;

@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "include": [
-    "../../libs/lib/src/ts-reset.ts",
+    "../lib/src/ts-reset.ts",
     "./src/**/*.ts",
     "./src/**/*.tsx",
     ".expo/types/**/*.ts",
@@ -9,21 +9,21 @@
   ],
   "compilerOptions": {
     "paths": {
-      "@gamezilla/lib/*": ["../../libs/lib/src/*"],
-      "@gamezilla/ui/*": ["../../libs/ui/src/*"],
-      "@gamezilla/patch-db/*": ["../../libs/patch-db/src/*"],
-      "@gamezilla/room": ["../../libs/room/src/index.ts"],
-      "@gamezilla/room/server": ["../../libs/room/src/server.ts"],
-      "@gamezilla/room/*": ["../../libs/room/src/*"],
-      "@gamezilla/api/*": ["../../apps/api/src/*"],
-      "@gamezilla/client/*": ["../../apps/client/src/*"],
-      "@gamezilla/auth/*": ["../../libs/auth/src/*"],
-      "@gamezilla/chess/*": ["../../libs/chess/src/*"],
-      "@gamezilla/profile/*": ["../../libs/profile/src/*"],
-      "@gamezilla/spaces/*": ["../../libs/spaces/src/*"],
-      "@gamezilla/client-config/*": ["../../libs/client-config/src/*"],
-      "@gamezilla/room-example/*": ["../../libs/room-example/src/*"],
-      "@gamezilla/patch-db-example/*": ["../../libs/patch-db-example/src/*"]
+      "@gamezilla/lib/*": ["../lib/src/*"],
+      "@gamezilla/ui/*": ["../ui/src/*"],
+      "@gamezilla/patch-db/*": ["../patch-db/src/*"],
+      "@gamezilla/room": ["../room/src/index.ts"],
+      "@gamezilla/room/server": ["../room/src/server.ts"],
+      "@gamezilla/room/*": ["../room/src/*"],
+      "@gamezilla/api/*": ["../api/src/*"],
+      "@gamezilla/client/*": ["../client/src/*"],
+      "@gamezilla/auth/*": ["../auth/src/*"],
+      "@gamezilla/chess/*": ["../chess/src/*"],
+      "@gamezilla/profile/*": ["../profile/src/*"],
+      "@gamezilla/spaces/*": ["../spaces/src/*"],
+      "@gamezilla/client-config/*": ["../client-config/src/*"],
+      "@gamezilla/room-example/*": ["../room-example/src/*"],
+      "@gamezilla/patch-db-example/*": ["../patch-db-example/src/*"]
     }
   }
 }

@@ -1,5 +1,5 @@
 /**
- * Serves the `libs/patch-db-example` folder over HTTP (default port 8765).
+ * Serves the `packages/patch-db-example` folder over HTTP (default port 8765).
  * Use if `file://` blocks sql.js WASM; open http://127.0.0.1:8765
  */
 import { join } from 'node:path';

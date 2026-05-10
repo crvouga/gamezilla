@@ -727,7 +727,7 @@ Cloudflare Workers: 10M requests/month free, then $0.50/M. Durable Objects: firs
 - reconciles a stale `postmaster.pid` from a previous abrupt exit before starting,
 - on shutdown stops `pgweb` first, then runs `pg_ctl stop -m fast` and escalates to `SIGINT → SIGTERM → SIGKILL` on the recorded postmaster PID if that fails,
 - writes its own `wrapper.pid` so `kill` only ever signals the cluster we manage (it will not terminate other Postgres servers that happen to bind the same port),
-- tees the postmaster log to `apps/pg/.postgres/run/postgres.log` and pgweb's output to `apps/pg/.postgres/run/pgweb.log`; both are forwarded to the terminal with `pg-server:` / `pg-gui:` prefixes,
+- tees the postmaster log to `packages/pg/.postgres/run/postgres.log` and pgweb's output to `packages/pg/.postgres/run/pgweb.log`; both are forwarded to the terminal with `pg-server:` / `pg-gui:` prefixes,
 - treats GUI failures as non-fatal: missing `pgweb` binary or port collision logs a warning and the cluster keeps running.
 
 ```bash

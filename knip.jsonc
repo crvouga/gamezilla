@@ -3,16 +3,16 @@
   "ignoreBinaries": ["actionlint", "gitleaks", "lsof", "pkill", "wrangler"],
   "ignore": [
     "**/*.bench.ts",
-    "apps/client/babel.config.js",
-    "apps/client/public/**/*.worker.js",
-    "apps/client/scripts/shims/**",
-    "libs/lib/src/sql-client/absurd-sql-db.worker.ts",
-    "libs/lib/src/ts-reset.ts",
-    "libs/eslint-rules/**/*.cjs",
+    "packages/client/babel.config.js",
+    "packages/client/public/**/*.worker.js",
+    "packages/client/scripts/shims/**",
+    "packages/lib/src/sql-client/absurd-sql-db.worker.ts",
+    "packages/lib/src/ts-reset.ts",
+    "packages/eslint-rules/**/*.cjs",
     "lingui.config.cjs",
-    "apps/infra/src/cli/secrets/planetscale.ts",
-    "apps/infra/src/cli/secrets/turbo-token.ts",
-    "apps/client/src/connection/offline-indicator.tsx",
+    "packages/infra/src/cli/secrets/planetscale.ts",
+    "packages/infra/src/cli/secrets/turbo-token.ts",
+    "packages/client/src/connection/offline-indicator.tsx",
   ],
   "ignoreDependencies": [
     "expo-updates",
@@ -54,10 +54,10 @@
     ".": {
       "entry": ["package.json"],
     },
-    "apps/stripe-cli": {
+    "packages/stripe-cli": {
       "entry": "src/dev.ts",
     },
-    "apps/qa": {
+    "packages/qa": {
       "entry": "src/browser/playwright.config.ts",
     },
   },

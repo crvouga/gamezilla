@@ -14,7 +14,7 @@ module.exports = {
       severity: 'error',
       from: {
         pathNot:
-          '(\\.(test|spec)\\.|/(__tests__|testkit|fixtures?|tests?)/|libs/room/src/(simulator|testkit)\\.ts)',
+          '(\\.(test|spec)\\.|/(__tests__|testkit|fixtures?|tests?)/|packages/room/src/(simulator|testkit)\\.ts)',
       },
       to: {
         path: '(\\.(test|spec)\\.|/(__tests__|testkit|fixtures?|tests?)/)',
@@ -41,25 +41,18 @@ module.exports = {
       from: { path: '/src/server/' },
       to: { path: '/src/client/' },
     },
-    // libs/lib stays runtime-agnostic and feature-agnostic.
-    {
-      name: 'lib-no-features',
-      severity: 'error',
-      from: { path: '^libs/lib/' },
-      to: { path: '^libs/feature-' },
-    },
-    // apps/client cannot reach server code in any feature.
+    // packages/client cannot reach server code in any feature.
     {
       name: 'apps-client-no-server',
       severity: 'error',
-      from: { path: '^apps/client/' },
+      from: { path: '^packages/client/' },
       to: { path: '/src/server/' },
     },
-    // apps/api cannot reach client code in any feature.
+    // packages/api cannot reach client code in any feature.
     {
       name: 'apps-api-no-client',
       severity: 'error',
-      from: { path: '^apps/api/' },
+      from: { path: '^packages/api/' },
       to: { path: '/src/client/' },
     },
     {
@@ -72,7 +65,7 @@ module.exports = {
       name: 'not-to-dev-dep-from-src',
       severity: 'error',
       from: {
-        path: '^(apps|libs)/[^/]+/src/',
+        path: '^packages/[^/]+/src/',
         pathNot: '\\.(test|spec|example)\\.',
       },
       to: { dependencyTypes: ['npm-dev'] },
@@ -84,6 +77,6 @@ module.exports = {
       dependencyTypes: ['npm', 'npm-dev', 'npm-optional', 'npm-peer'],
     },
     tsPreCompilationDeps: true,
-    includeOnly: '^(apps|libs)/',
+    includeOnly: '^packages/',
   },
 };

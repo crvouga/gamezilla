@@ -94,11 +94,11 @@ config.resolver.unstable_enablePackageExports = true;
 
 // 3a. Dedupe `@lingui/core` and `@lingui/react` to a single instance.
 //     Bun's content-addressed deduper produces distinct physical paths for the
-//     same lingui version across workspaces (e.g. `apps/client` vs `libs/*`),
+//     same lingui version across workspaces (e.g. `packages/client` vs `packages/*`),
 //     which Metro treats as separate modules. That yields multiple `i18n`
-//     singletons: `apps/client/src/i18n/i18n.ts` activates one, but the
+//     singletons: `packages/client/src/i18n/i18n.ts` activates one, but the
 //     `@lingui/core/macro` `t` template (auto-injected `import { i18n } from
-//     '@lingui/core'`) inside `libs/*` resolves to a different copy — whose
+//     '@lingui/core'`) inside `packages/*` resolves to a different copy — whose
 //     singleton is never activated, causing
 //     "Lingui: Attempted to call a translation function without setting a locale."
 //     Pin all lingui imports to the client's resolution.

@@ -45,7 +45,7 @@ export class ClientResource extends ResourceBase {
     const outputs = infraOutputs(ctx);
     const pagesProject = outputs.pages_project_name;
 
-    const clientDir = join(REPO_ROOT, 'apps/client');
+    const clientDir = join(REPO_ROOT, 'packages/client');
 
     await runAsync(platform, 'bun', ['run', 'build'], {
       cwd: clientDir,
@@ -77,7 +77,7 @@ export class ClientResource extends ResourceBase {
       }
     );
 
-    rmSync(join(REPO_ROOT, 'apps/client/dist'), {
+    rmSync(join(REPO_ROOT, 'packages/client/dist'), {
       recursive: true,
       force: true,
     });

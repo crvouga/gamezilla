@@ -12,7 +12,7 @@
 /**
  * Structural shape of the Durable Object namespace consumed by the room
  * route. Defined locally so this module compiles for downstream consumers
- * (e.g. `apps/infra` pulling in `@gamezilla/api/rpc`) that do not load the
+ * (e.g. `packages/infra` pulling in `@gamezilla/api/rpc`) that do not load the
  * api package's ambient Cloudflare type stubs in `app/cloudflare.d.ts`.
  */
 export type SpaceNamespace = {

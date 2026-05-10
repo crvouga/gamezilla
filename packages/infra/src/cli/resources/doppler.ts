@@ -323,7 +323,7 @@ export class DopplerResource extends ResourceBase {
     );
     platform.warning(
       `Doppler has ${orphans.length} secret(s) not owned by the infra CLI: ${orphans.join(', ')}. ` +
-        'Either register them in `apps/infra/src/cli/resources/doppler.ts` ' +
+        'Either register them in `packages/infra/src/cli/resources/doppler.ts` ' +
         '(DERIVED_DEFAULTS or EXTERNALLY_MANAGED_KEYS) or delete them with ' +
         '`doppler secrets delete <NAME>`.'
     );

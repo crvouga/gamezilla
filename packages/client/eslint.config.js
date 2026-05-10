@@ -1,13 +1,13 @@
 // https://docs.expo.dev/guides/using-eslint/
 const { defineConfig } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
-const eslintPluginGamezillaI18n = require('../../libs/eslint-rules/gamezilla-i18n.cjs');
+const eslintPluginGamezillaI18n = require('../eslint-rules/gamezilla-i18n.cjs');
 const eslintPluginLingui = require('eslint-plugin-lingui');
 const {
   createSharedBlocks,
-} = require('../../libs/eslint-rules/base-config.cjs');
-const { linguiRules } = require('../../libs/eslint-rules/lingui-rules.cjs');
-const a11yRestrictions = require('../../libs/eslint-rules/a11y-restrictions.cjs');
+} = require('../eslint-rules/base-config.cjs');
+const { linguiRules } = require('../eslint-rules/lingui-rules.cjs');
+const a11yRestrictions = require('../eslint-rules/a11y-restrictions.cjs');
 
 module.exports = defineConfig([
   expoConfig,

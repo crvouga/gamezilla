@@ -6,7 +6,7 @@
  *
  * Patch-db reconciles these against the live database during
  * {@link PatchDbImplPostgres.migrateUp} (creates missing, drops orphaned
- * `pdb_idx_*` indexes); see `libs/patch-db/src/indexes/`.
+ * `pdb_idx_*` indexes); see `packages/patch-db/src/indexes/`.
  */
 import {
   ACCOUNT_PROVIDER_ENTITY_TYPE,

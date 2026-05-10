@@ -14,7 +14,7 @@ module.exports = [
     rules: {
       'gamezillaI18n/text-must-be-trans': 'off',
       ...linguiRules(),
-      // Design-system internals: product copy is enforced in apps/client.
+      // Design-system internals: product copy is enforced in packages/client.
       'lingui/no-unlocalized-strings': 'off',
     },
   },

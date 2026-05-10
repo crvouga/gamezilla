@@ -1,9 +1,9 @@
 import { assert } from '@gamezilla/lib/assert';
 
-/** Must match {@link ANON_ID_HEADER} in apps/api session-middleware. */
+/** Must match {@link ANON_ID_HEADER} in packages/api session-middleware. */
 const X_ANON_ID = 'x-anon-id';
 
-/** Must match apps/api `GET /auth/whoami`. */
+/** Must match packages/api `GET /auth/whoami`. */
 export async function fetchAuthWhoAmI(args: {
   apiUrl: string;
   bearerToken: string;

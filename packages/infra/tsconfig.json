@@ -9,14 +9,14 @@
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "@gamezilla/api/*": ["../../apps/api/src/*"],
-      "@gamezilla/auth/*": ["../../libs/auth/src/*"],
-      "@gamezilla/client/*": ["../../apps/client/src/*"],
-      "@gamezilla/lib/*": ["../../libs/lib/src/*"],
-      "@gamezilla/spaces/*": ["../../libs/spaces/src/*"],
-      "@gamezilla/client-config/*": ["../../libs/client-config/src/*"]
+      "@gamezilla/api/*": ["../api/src/*"],
+      "@gamezilla/auth/*": ["../auth/src/*"],
+      "@gamezilla/client/*": ["../client/src/*"],
+      "@gamezilla/lib/*": ["../lib/src/*"],
+      "@gamezilla/spaces/*": ["../spaces/src/*"],
+      "@gamezilla/client-config/*": ["../client-config/src/*"]
     }
   },
-  "include": ["../../libs/lib/src/ts-reset.ts", "src/**/*.ts"],
+  "include": ["../lib/src/ts-reset.ts", "src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

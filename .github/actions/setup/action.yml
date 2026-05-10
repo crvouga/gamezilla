@@ -12,7 +12,7 @@ runs:
   steps:
     # Wrangler 4.x requires Node.js v22+. The runner's default Node is v20
     # and `setup-bun` does not configure Node, so any Wrangler-touching job
-    # (deploy, qa-api, qa-browser via `apps/api preview`) aborts with
+    # (deploy, qa-api, qa-browser via `packages/api preview`) aborts with
     # "Wrangler requires at least Node.js v22.0.0" without this step.
     # Installed in the shared setup so every job inherits a Wrangler-
     # compatible Node toolchain by default.

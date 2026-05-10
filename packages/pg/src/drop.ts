@@ -1,11 +1,11 @@
 /**
  * Destructive: stop the managed local PostgreSQL cluster (if running) AND
- * delete its on-disk state directory (`apps/pg/.postgres/`), wiping every
+ * delete its on-disk state directory (`packages/pg/.postgres/`), wiping every
  * database it ever held. The next `bun run --filter @gamezilla/pg dev` boots
  * a fresh cluster via `initdb`.
  *
  * Scope is intentional and identical to `kill.ts`: this only touches state
- * inside `apps/pg/` (`.postgres/` and the legacy `.pglite/` folder still
+ * inside `packages/pg/` (`.postgres/` and the legacy `.pglite/` folder still
  * listed in `.gitignore`). It will never delete a Homebrew/system Postgres
  * data directory or kill an unrelated server on port 5432.
  *
@@ -17,7 +17,7 @@
  * 2. `rm -rf` the state dir and the legacy embedded-runtime dir.
  *
  * This is a dev-only quality-of-life script. There is no confirmation prompt
- * (matching the rest of `apps/pg`); the data lives entirely in gitignored
+ * (matching the rest of `packages/pg`); the data lives entirely in gitignored
  * directories that `dev` reinitializes from scratch on next boot.
  */
 

@@ -20,7 +20,7 @@ const JSON_HEADERS = {
   Accept: 'application/json',
 } as const;
 
-/** Must match {@link ANON_ID_HEADER} in apps/api session-middleware. */
+/** Must match {@link ANON_ID_HEADER} in packages/api session-middleware. */
 const X_ANON_ID = 'x-anon-id';
 
 export type CreatePatchDbHcTransportOptions = {

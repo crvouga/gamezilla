@@ -157,7 +157,7 @@ export class ApiWorkerResource extends ResourceBase {
     // migration syntax *locally* without contacting the Cloudflare API. This
     // catches TypeScript errors, missing imports, invalid wrangler.toml, and
     // binding mismatches before we start touching production.
-    const apiDir = join(REPO_ROOT, 'apps/api');
+    const apiDir = join(REPO_ROOT, 'packages/api');
     await runAsync(platform, 'wrangler', ['deploy', '--dry-run'], {
       cwd: apiDir,
       env: wranglerEnv(),
@@ -168,7 +168,7 @@ export class ApiWorkerResource extends ResourceBase {
   }
 
   async deploy(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
-    const apiDir = join(REPO_ROOT, 'apps/api');
+    const apiDir = join(REPO_ROOT, 'packages/api');
     const env = wranglerEnv();
 
     const doppler = await this.validateDopplerForDeploy();
@@ -228,7 +228,7 @@ export class ApiWorkerResource extends ResourceBase {
   }
 
   destroy(): void {
-    const apiDir = join(REPO_ROOT, 'apps/api');
+    const apiDir = join(REPO_ROOT, 'packages/api');
     const env: NodeJS.ProcessEnv = {
       ...process.env,
       CLOUDFLARE_ACCOUNT_ID: cfAccountId(),

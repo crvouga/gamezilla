@@ -17,7 +17,7 @@
 
 ## API host
 
-- Gamezilla mounts ABAC on the authority `PatchDb` in `apps/api` (`abac-policies.ts` + `patch-db.ts`). Reads may be filtered by policy; that does **not** mean data is missing on the server.
+- Gamezilla mounts ABAC on the authority `PatchDb` in `packages/api` (`abac-policies.ts` + `patch-db.ts`). Reads may be filtered by policy; that does **not** mean data is missing on the server.
 
 ## Identity vocabulary (patch-db context)
 

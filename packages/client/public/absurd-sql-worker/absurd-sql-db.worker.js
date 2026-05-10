@@ -32,9 +32,9 @@
     mod
   ));
 
-  // apps/client/scripts/shims/path-shim.js
+  // packages/client/scripts/shims/path-shim.js
   var require_path_shim = __commonJS({
-    "apps/client/scripts/shims/path-shim.js"(exports, module) {
+    "packages/client/scripts/shims/path-shim.js"(exports, module) {
       "use strict";
       module.exports = {
         dirname() {
@@ -50,9 +50,9 @@
     }
   });
 
-  // apps/client/scripts/shims/fs-shim.js
+  // packages/client/scripts/shims/fs-shim.js
   var require_fs_shim = __commonJS({
-    "apps/client/scripts/shims/fs-shim.js"(exports, module) {
+    "packages/client/scripts/shims/fs-shim.js"(exports, module) {
       "use strict";
       module.exports = {
         readFileSync() {
@@ -2977,7 +2977,7 @@
     }
   });
 
-  // libs/lib/src/sql-client/absurd-sql-db.worker.ts
+  // packages/lib/src/sql-client/absurd-sql-db.worker.ts
   var import_worker_sql_wasm = __toESM(require_worker_sql_wasm());
 
   // node_modules/.bun/absurd-sql@0.0.54/node_modules/absurd-sql/dist/index.js
@@ -4125,10 +4125,10 @@
   };
   var indexeddb_backend_default = IndexedDBBackend;
 
-  // libs/lib/src/sql-client/sqlite-connection-pragmas.ts
+  // packages/lib/src/sql-client/sqlite-connection-pragmas.ts
   var SQLITE_JS_BOOTSTRAP_AFTER_OPEN = "PRAGMA foreign_keys = ON; PRAGMA journal_mode = MEMORY;";
 
-  // libs/lib/src/sql-client/absurd-sql-db.worker.ts
+  // packages/lib/src/sql-client/absurd-sql-db.worker.ts
   var SQL = null;
   var sqlDatabase = null;
   var txDepth = 0;

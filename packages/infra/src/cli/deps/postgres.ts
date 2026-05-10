@@ -5,7 +5,7 @@ import type { Dep, DepStatus } from './types';
 
 /**
  * Required CLI tooling for the local PostgreSQL cluster managed by
- * `@gamezilla/pg` (see `apps/pg/src/dev.ts`).
+ * `@gamezilla/pg` (see `packages/pg/src/dev.ts`).
  *
  * We need four binaries: `postgres` (server), `pg_ctl` (lifecycle),
  * `initdb` (cluster bootstrap), `pg_isready` (readiness probe). All ship
@@ -95,7 +95,7 @@ function platformInstallHint(): string {
       `Run \`brew install ${HOMEBREW_FORMULA}\`, then either add`,
       `  $(brew --prefix ${HOMEBREW_FORMULA})/bin to PATH`,
       `or set PG_BIN_DIR=$(brew --prefix ${HOMEBREW_FORMULA})/bin`,
-      'so `apps/pg` can find the cluster tools.',
+      'so `packages/pg` can find the cluster tools.',
     ].join(' ');
   }
   if (isLinux()) {

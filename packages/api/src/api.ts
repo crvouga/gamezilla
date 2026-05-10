@@ -96,7 +96,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const secretStore = createApiSecretStore(token, { project, config });
   if (env.HYPERDRIVE === undefined || env.HYPERDRIVE === null) {
     throw new ConfigurationError(
-      'HYPERDRIVE Worker binding is required — add [[hyperdrive]] to apps/api/wrangler.toml'
+      'HYPERDRIVE Worker binding is required — add [[hyperdrive]] to packages/api/wrangler.toml'
     );
   }
   return await createApiApp({

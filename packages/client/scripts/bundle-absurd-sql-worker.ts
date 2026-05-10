@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const clientRoot = join(__dirname, '..');
 const repoRoot = join(clientRoot, '..', '..');
-const entry = join(repoRoot, 'libs/lib/src/sql-client/absurd-sql-db.worker.ts');
+const entry = join(repoRoot, 'packages/lib/src/sql-client/absurd-sql-db.worker.ts');
 const outDir = join(clientRoot, 'public', 'absurd-sql-worker');
 
 mkdirSync(outDir, { recursive: true });

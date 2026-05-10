@@ -2,7 +2,7 @@
  * Generates PWA icons, splash screens, favicon, and manifest under `public/`
  * from the app icon. Requires Chromium (pwa-asset-generator / Puppeteer).
  *
- * Usage: `bun run pwa:generate` from apps/client
+ * Usage: `bun run pwa:generate` from packages/client
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';

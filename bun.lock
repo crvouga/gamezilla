@@ -27,7 +27,7 @@
         "typescript-eslint": "^8.59.1",
       },
     },
-    "apps/api": {
+    "packages/api": {
       "name": "@gamezilla/api",
       "version": "1.0.0",
       "dependencies": {
@@ -49,7 +49,69 @@
         "wrangler": "^4.54.0",
       },
     },
-    "apps/client": {
+    "packages/auth": {
+      "name": "@gamezilla/auth",
+      "version": "0.0.0",
+      "dependencies": {
+        "@better-auth/core": "^1.6.9",
+        "@better-auth/expo": "^1.6.9",
+        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/patch-db": "workspace:*",
+        "@gamezilla/ui": "workspace:*",
+        "@lingui/core": "5.9.5",
+        "@lingui/react": "5.9.5",
+        "better-auth": "^1.6.9",
+        "expo-constants": "~18.0.13",
+        "expo-device": "~8.0.10",
+        "expo-file-system": "~19.0.22",
+        "expo-network": "~8.0.8",
+        "expo-router": "~6.0.23",
+        "expo-secure-store": "~15.0.8",
+        "expo-sqlite": "~16.0.10",
+        "expo-web-browser": "~15.0.11",
+        "hono": "^4.7.0",
+        "jotai": "^2.15.0",
+        "jotai-effect": "^2.1.3",
+        "kysely": "^0.28.9",
+        "pg": "^8.16.3",
+        "react": "19.1.0",
+        "react-native": "0.81.5",
+      },
+      "devDependencies": {
+        "@types/pg": "^8.11.10",
+        "@types/react": "~19.1.0",
+        "typescript": "~5.9.2",
+      },
+    },
+    "packages/chess": {
+      "name": "@gamezilla/chess",
+      "version": "0.0.0",
+      "dependencies": {
+        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/patch-db": "workspace:*",
+        "@gamezilla/room": "workspace:*",
+        "@gamezilla/ui": "workspace:*",
+        "@lingui/core": "5.9.5",
+        "@lingui/react": "5.9.5",
+        "@shopify/react-native-skia": "2.2.12",
+        "chess.js": "^1.4.0",
+        "csv-parse": "^6.2.1",
+        "expo-audio": "~1.1.1",
+        "expo-haptics": "~15.0.8",
+        "fzstd": "^0.1.1",
+        "pg": "^8.16.3",
+        "react": "19.1.0",
+        "react-native": "0.81.5",
+        "react-native-gesture-handler": "~2.28.0",
+        "react-native-reanimated": "~4.1.1",
+      },
+      "devDependencies": {
+        "@types/pg": "^8.11.10",
+        "@types/react": "~19.1.0",
+        "typescript": "~5.9.2",
+      },
+    },
+    "packages/client": {
       "name": "@gamezilla/client",
       "version": "1.0.0",
       "dependencies": {
@@ -125,131 +187,7 @@
         "workbox-build": "^7.4.0",
       },
     },
-    "apps/infra": {
-      "name": "@gamezilla/infra",
-      "dependencies": {
-        "@gamezilla/api": "workspace:*",
-        "@gamezilla/lib": "workspace:*",
-        "@neondatabase/serverless": "^1.0.0",
-        "picocolors": "^1.1.1",
-      },
-      "devDependencies": {
-        "@types/node": "^20.17.0",
-        "typescript": "~5.9.2",
-      },
-    },
-    "apps/pg": {
-      "name": "@gamezilla/pg",
-      "version": "1.0.0",
-      "dependencies": {
-        "@gamezilla/lib": "workspace:*",
-      },
-      "devDependencies": {
-        "@types/bun": "^1.3.9",
-        "typescript": "~5.9.2",
-      },
-    },
-    "apps/qa": {
-      "name": "@gamezilla/qa",
-      "version": "1.0.0",
-      "dependencies": {
-        "@gamezilla/lib": "workspace:*",
-      },
-      "devDependencies": {
-        "@playwright/test": "^1.56.0",
-        "@types/bun": "^1.3.9",
-        "@types/node": "^20.17.0",
-        "typescript": "~5.9.2",
-        "wrangler": "^4.54.0",
-      },
-    },
-    "apps/stripe-cli": {
-      "name": "@gamezilla/stripe-cli",
-      "version": "1.0.0",
-      "dependencies": {
-        "@gamezilla/lib": "workspace:*",
-        "@gamezilla/stripe": "workspace:*",
-        "stripe": "^18.0.0",
-      },
-      "devDependencies": {
-        "@types/bun": "^1.3.9",
-        "typescript": "~5.9.2",
-      },
-    },
-    "apps/turbo-cache": {
-      "name": "@gamezilla/turbo-cache",
-      "version": "1.0.0",
-      "dependencies": {
-        "@gamezilla/lib": "workspace:*",
-        "hono": "^4.7.0",
-      },
-      "devDependencies": {
-        "typescript": "~5.9.2",
-      },
-    },
-    "libs/auth": {
-      "name": "@gamezilla/auth",
-      "version": "0.0.0",
-      "dependencies": {
-        "@better-auth/core": "^1.6.9",
-        "@better-auth/expo": "^1.6.9",
-        "@gamezilla/lib": "workspace:*",
-        "@gamezilla/patch-db": "workspace:*",
-        "@gamezilla/ui": "workspace:*",
-        "@lingui/core": "5.9.5",
-        "@lingui/react": "5.9.5",
-        "better-auth": "^1.6.9",
-        "expo-constants": "~18.0.13",
-        "expo-device": "~8.0.10",
-        "expo-file-system": "~19.0.22",
-        "expo-network": "~8.0.8",
-        "expo-router": "~6.0.23",
-        "expo-secure-store": "~15.0.8",
-        "expo-sqlite": "~16.0.10",
-        "expo-web-browser": "~15.0.11",
-        "hono": "^4.7.0",
-        "jotai": "^2.15.0",
-        "jotai-effect": "^2.1.3",
-        "kysely": "^0.28.9",
-        "pg": "^8.16.3",
-        "react": "19.1.0",
-        "react-native": "0.81.5",
-      },
-      "devDependencies": {
-        "@types/pg": "^8.11.10",
-        "@types/react": "~19.1.0",
-        "typescript": "~5.9.2",
-      },
-    },
-    "libs/chess": {
-      "name": "@gamezilla/chess",
-      "version": "0.0.0",
-      "dependencies": {
-        "@gamezilla/lib": "workspace:*",
-        "@gamezilla/patch-db": "workspace:*",
-        "@gamezilla/room": "workspace:*",
-        "@gamezilla/ui": "workspace:*",
-        "@lingui/core": "5.9.5",
-        "@lingui/react": "5.9.5",
-        "@shopify/react-native-skia": "2.2.12",
-        "chess.js": "^1.4.0",
-        "csv-parse": "^6.2.1",
-        "expo-audio": "~1.1.1",
-        "expo-haptics": "~15.0.8",
-        "fzstd": "^0.1.1",
-        "pg": "^8.16.3",
-        "react": "19.1.0",
-        "react-native": "0.81.5",
-        "react-native-gesture-handler": "~2.28.0",
-        "react-native-reanimated": "~4.1.1",
-      },
-      "devDependencies": {
-        "@types/pg": "^8.11.10",
-        "@types/react": "~19.1.0",
-        "typescript": "~5.9.2",
-      },
-    },
-    "libs/client-config": {
+    "packages/client-config": {
       "name": "@gamezilla/client-config",
       "version": "0.0.0",
       "dependencies": {
@@ -267,7 +205,20 @@
         "typescript": "~5.9.2",
       },
     },
-    "libs/lib": {
+    "packages/infra": {
+      "name": "@gamezilla/infra",
+      "dependencies": {
+        "@gamezilla/api": "workspace:*",
+        "@gamezilla/lib": "workspace:*",
+        "@neondatabase/serverless": "^1.0.0",
+        "picocolors": "^1.1.1",
+      },
+      "devDependencies": {
+        "@types/node": "^20.17.0",
+        "typescript": "~5.9.2",
+      },
+    },
+    "packages/lib": {
       "name": "@gamezilla/lib",
       "version": "0.0.0",
       "dependencies": {
@@ -295,7 +246,7 @@
         "typescript": "~5.9.2",
       },
     },
-    "libs/patch-db": {
+    "packages/patch-db": {
       "name": "@gamezilla/patch-db",
       "version": "0.0.0",
       "dependencies": {
@@ -316,7 +267,7 @@
         "typescript": "~5.9.2",
       },
     },
-    "libs/patch-db-example": {
+    "packages/patch-db-example": {
       "name": "@gamezilla/patch-db-example",
       "version": "0.0.1",
       "dependencies": {
@@ -351,7 +302,18 @@
         "react-native-screens": ">=4.0.0",
       },
     },
-    "libs/profile": {
+    "packages/pg": {
+      "name": "@gamezilla/pg",
+      "version": "1.0.0",
+      "dependencies": {
+        "@gamezilla/lib": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.3.9",
+        "typescript": "~5.9.2",
+      },
+    },
+    "packages/profile": {
       "name": "@gamezilla/profile",
       "version": "0.0.0",
       "dependencies": {
@@ -374,7 +336,21 @@
         "typescript": "~5.9.2",
       },
     },
-    "libs/room": {
+    "packages/qa": {
+      "name": "@gamezilla/qa",
+      "version": "1.0.0",
+      "dependencies": {
+        "@gamezilla/lib": "workspace:*",
+      },
+      "devDependencies": {
+        "@playwright/test": "^1.56.0",
+        "@types/bun": "^1.3.9",
+        "@types/node": "^20.17.0",
+        "typescript": "~5.9.2",
+        "wrangler": "^4.54.0",
+      },
+    },
+    "packages/room": {
       "name": "@gamezilla/room",
       "version": "0.0.0",
       "dependencies": {
@@ -390,7 +366,7 @@
         "react": "19.1.0",
       },
     },
-    "libs/room-example": {
+    "packages/room-example": {
       "name": "@gamezilla/room-example",
       "version": "0.0.1",
       "dependencies": {
@@ -412,7 +388,7 @@
         "typescript": "~5.9.2",
       },
     },
-    "libs/spaces": {
+    "packages/spaces": {
       "name": "@gamezilla/spaces",
       "version": "0.0.0",
       "dependencies": {
@@ -435,7 +411,7 @@
         "typescript": "~5.9.2",
       },
     },
-    "libs/stripe": {
+    "packages/stripe": {
       "name": "@gamezilla/stripe",
       "version": "0.0.0",
       "dependencies": {
@@ -454,7 +430,31 @@
         "typescript": "~5.9.2",
       },
     },
-    "libs/ui": {
+    "packages/stripe-cli": {
+      "name": "@gamezilla/stripe-cli",
+      "version": "1.0.0",
+      "dependencies": {
+        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/stripe": "workspace:*",
+        "stripe": "^18.0.0",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.3.9",
+        "typescript": "~5.9.2",
+      },
+    },
+    "packages/turbo-cache": {
+      "name": "@gamezilla/turbo-cache",
+      "version": "1.0.0",
+      "dependencies": {
+        "@gamezilla/lib": "workspace:*",
+        "hono": "^4.7.0",
+      },
+      "devDependencies": {
+        "typescript": "~5.9.2",
+      },
+    },
+    "packages/ui": {
       "name": "@gamezilla/ui",
       "version": "0.0.0",
       "dependencies": {
@@ -985,43 +985,43 @@
 
     "@expo/xcpretty": ["@expo/xcpretty@4.4.3", "", { "dependencies": { "@babel/code-frame": "^7.20.0", "chalk": "^4.1.0", "js-yaml": "^4.1.0" }, "bin": { "excpretty": "build/cli.js" } }, "sha512-wC562eD3gS6vO2tWHToFhlFnmHKfKHgF1oyvojeSkLK/ZYop1bMU+7cOMiF9Sq70CzcsLy/EMRy/uRc76QmNRw=="],
 
-    "@gamezilla/api": ["@gamezilla/api@workspace:apps/api"],
+    "@gamezilla/api": ["@gamezilla/api@workspace:packages/api"],
 
-    "@gamezilla/auth": ["@gamezilla/auth@workspace:libs/auth"],
+    "@gamezilla/auth": ["@gamezilla/auth@workspace:packages/auth"],
 
-    "@gamezilla/chess": ["@gamezilla/chess@workspace:libs/chess"],
+    "@gamezilla/chess": ["@gamezilla/chess@workspace:packages/chess"],
 
-    "@gamezilla/client": ["@gamezilla/client@workspace:apps/client"],
+    "@gamezilla/client": ["@gamezilla/client@workspace:packages/client"],
 
-    "@gamezilla/client-config": ["@gamezilla/client-config@workspace:libs/client-config"],
+    "@gamezilla/client-config": ["@gamezilla/client-config@workspace:packages/client-config"],
 
-    "@gamezilla/infra": ["@gamezilla/infra@workspace:apps/infra"],
+    "@gamezilla/infra": ["@gamezilla/infra@workspace:packages/infra"],
 
-    "@gamezilla/lib": ["@gamezilla/lib@workspace:libs/lib"],
+    "@gamezilla/lib": ["@gamezilla/lib@workspace:packages/lib"],
 
-    "@gamezilla/patch-db": ["@gamezilla/patch-db@workspace:libs/patch-db"],
+    "@gamezilla/patch-db": ["@gamezilla/patch-db@workspace:packages/patch-db"],
 
-    "@gamezilla/patch-db-example": ["@gamezilla/patch-db-example@workspace:libs/patch-db-example"],
+    "@gamezilla/patch-db-example": ["@gamezilla/patch-db-example@workspace:packages/patch-db-example"],
 
-    "@gamezilla/pg": ["@gamezilla/pg@workspace:apps/pg"],
+    "@gamezilla/pg": ["@gamezilla/pg@workspace:packages/pg"],
 
-    "@gamezilla/profile": ["@gamezilla/profile@workspace:libs/profile"],
+    "@gamezilla/profile": ["@gamezilla/profile@workspace:packages/profile"],
 
-    "@gamezilla/qa": ["@gamezilla/qa@workspace:apps/qa"],
+    "@gamezilla/qa": ["@gamezilla/qa@workspace:packages/qa"],
 
-    "@gamezilla/room": ["@gamezilla/room@workspace:libs/room"],
+    "@gamezilla/room": ["@gamezilla/room@workspace:packages/room"],
 
-    "@gamezilla/room-example": ["@gamezilla/room-example@workspace:libs/room-example"],
+    "@gamezilla/room-example": ["@gamezilla/room-example@workspace:packages/room-example"],
 
-    "@gamezilla/spaces": ["@gamezilla/spaces@workspace:libs/spaces"],
+    "@gamezilla/spaces": ["@gamezilla/spaces@workspace:packages/spaces"],
 
-    "@gamezilla/stripe": ["@gamezilla/stripe@workspace:libs/stripe"],
+    "@gamezilla/stripe": ["@gamezilla/stripe@workspace:packages/stripe"],
 
-    "@gamezilla/stripe-cli": ["@gamezilla/stripe-cli@workspace:apps/stripe-cli"],
+    "@gamezilla/stripe-cli": ["@gamezilla/stripe-cli@workspace:packages/stripe-cli"],
 
-    "@gamezilla/turbo-cache": ["@gamezilla/turbo-cache@workspace:apps/turbo-cache"],
+    "@gamezilla/turbo-cache": ["@gamezilla/turbo-cache@workspace:packages/turbo-cache"],
 
-    "@gamezilla/ui": ["@gamezilla/ui@workspace:libs/ui"],
+    "@gamezilla/ui": ["@gamezilla/ui@workspace:packages/ui"],
 
     "@gorhom/bottom-sheet": ["@gorhom/bottom-sheet@5.2.13", "", { "dependencies": { "@gorhom/portal": "1.0.14", "invariant": "^2.2.4" }, "peerDependencies": { "@types/react": "*", "@types/react-native": "*", "react": "*", "react-native": "*", "react-native-gesture-handler": ">=2.16.1", "react-native-reanimated": ">=3.16.0 || >=4.0.0-" }, "optionalPeers": ["@types/react", "@types/react-native"] }, "sha512-cMxyd9kIowMME9kw2wwXAuWrXUQnPkJQz7rDbOSBBomZ+PpV/C/tlO1UozBrAe2zs3tp9th3JMW21FI/y0VeuQ=="],
 

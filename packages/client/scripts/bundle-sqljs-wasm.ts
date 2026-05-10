@@ -17,9 +17,9 @@ const publicDir = join(clientRoot, 'public');
 
 mkdirSync(publicDir, { recursive: true });
 
-// Resolve from `libs/lib` (which declares `sql.js` as a workspace dep) so the
+// Resolve from `packages/lib` (which declares `sql.js` as a workspace dep) so the
 // content-addressed Bun install layout in the monorepo always finds it.
-const require = createRequire(join(repoRoot, 'libs/lib/package.json'));
+const require = createRequire(join(repoRoot, 'packages/lib/package.json'));
 const wasmSource = require.resolve('sql.js/dist/sql-wasm-browser.wasm');
 const wasmDest = join(publicDir, 'sql-wasm-browser.wasm');
 copyFileSync(wasmSource, wasmDest);

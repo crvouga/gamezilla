@@ -7,7 +7,7 @@ import { assert } from '@gamezilla/lib/assert';
 export const PRODUCTION_API_HTTP_HOSTNAMES = ['api.gamezilla.app'] as const;
 
 /**
- * Loopback origin for `wrangler dev` in this repo (`apps/api` uses port 8788).
+ * Loopback origin for `wrangler dev` in this repo (`packages/api` uses port 8788).
  * Used when `LOCAL_PREVIEW_API_ORIGIN` is unset in env and absent or blank in Doppler.
  */
 export const DEFAULT_LOCAL_PREVIEW_API_ORIGIN =
@@ -77,7 +77,7 @@ export function getApiBaseUrl(): string {
   const raw = process.env['EXPO_PUBLIC_API_URL'];
   assert.nonEmptyString(
     raw,
-    'EXPO_PUBLIC_API_URL is required; run `bun run dev` (with Doppler) or set apps/client/.env.local'
+    'EXPO_PUBLIC_API_URL is required; run `bun run dev` (with Doppler) or set packages/client/.env.local'
   );
   let origin = '';
   assert.notThrows(

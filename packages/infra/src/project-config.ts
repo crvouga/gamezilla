@@ -7,14 +7,14 @@ export const PROJECT_CONFIG = {
   cloudflare: {
     pagesProject: 'gamezilla-client',
     turboCacheBucket: 'turborepo-cache',
-    /** Worker name — must match `apps/api/wrangler.toml` `name`. */
+    /** Worker name — must match `packages/api/wrangler.toml` `name`. */
     apiWorker: 'gamezilla-api',
-    /** Worker name — must match `apps/turbo-cache/wrangler.toml` `name`. */
+    /** Worker name — must match `packages/turbo-cache/wrangler.toml` `name`. */
     turboCacheWorker: 'gamezilla-turbo-cache',
     /**
      * Hyperdrive config for the API Worker Postgres origin.
      * After first `infra deploy`, replace `id` with the UUID returned by Cloudflare
-     * and mirror it in `apps/api/wrangler.toml` `[[hyperdrive]]`.
+     * and mirror it in `packages/api/wrangler.toml` `[[hyperdrive]]`.
      */
     hyperdrive: {
       name: 'gamezilla-api-postgres',

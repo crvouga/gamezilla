@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 
-/** `apps/pg/` (the package root). */
+/** `packages/pg/` (the package root). */
 export const APP_ROOT: string = resolve(SCRIPT_DIR, '..');
 
 /**

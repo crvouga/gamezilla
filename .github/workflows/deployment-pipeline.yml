@@ -271,13 +271,13 @@ jobs:
       # Resolve the actually-installed @playwright/test version (not the
       # caret range from package.json) so the browser cache key only
       # invalidates when Playwright itself bumps -- not on every unrelated
-      # bun.lock change. Resolved from apps/qa because that's the package
+      # bun.lock change. Resolved from packages/qa because that's the package
       # that lists @playwright/test as a devDependency (bun install uses
       # isolated node_modules, so the package is not resolvable from repo
       # root). See https://playwright.dev/docs/ci#caching-browsers.
       - name: Resolve Playwright version
         id: playwright
-        working-directory: apps/qa
+        working-directory: packages/qa
         run: |
           version=$(node -p "require('@playwright/test/package.json').version")
           echo "version=$version" >> "$GITHUB_OUTPUT"
@@ -309,7 +309,7 @@ jobs:
 
       # Always upload the report (not just on failure) so the embedded
       # videos -- recorded for every test via `video: 'on'` in
-      # `apps/qa/src/browser/playwright.config.ts` -- are available for
+      # `packages/qa/src/browser/playwright.config.ts` -- are available for
       # green runs too. `if: always()` excludes only manually cancelled
       # runs; use `if: !cancelled()` if you want those too.
       - name: Upload Playwright report
@@ -317,14 +317,14 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: playwright-report
-          path: apps/qa/playwright-report/
+          path: packages/qa/playwright-report/
           retention-days: 7
 
       - name: Upload Playwright report as Pages artifact
-        if: ${{ always() && hashFiles('apps/qa/playwright-report/index.html') != '' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        if: ${{ always() && hashFiles('packages/qa/playwright-report/index.html') != '' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         uses: actions/upload-pages-artifact@v5
         with:
-          path: apps/qa/playwright-report/
+          path: packages/qa/playwright-report/
 
   publish-playwright-report:
     if: >-
@@ -405,7 +405,7 @@ jobs:
           postgres: 'true'
       - name: Acquire global deploy lock
         id: acquire
-        working-directory: apps/infra
+        working-directory: packages/infra
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
         run: bun run infra lock-acquire
@@ -431,7 +431,7 @@ jobs:
           postgres: 'true'
       - name: Provision resources
         id: provision
-        working-directory: apps/infra
+        working-directory: packages/infra
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
         run: bun run infra provision
@@ -450,7 +450,7 @@ jobs:
         with:
           postgres: 'true'
       - name: Migrate database
-        working-directory: apps/infra
+        working-directory: packages/infra
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
         run: bun run infra migrate
@@ -476,7 +476,7 @@ jobs:
           postgres: 'true'
       - name: Deploy resources (turbo-cache, api-worker, client)
         id: deploy
-        working-directory: apps/infra
+        working-directory: packages/infra
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
           INFRA_CONTEXT: ${{ needs.provision.outputs.infra_context }}
@@ -497,7 +497,7 @@ jobs:
           stripe: 'true'
           postgres: 'true'
       - name: Sync Stripe catalog + webhooks
-        working-directory: apps/infra
+        working-directory: packages/infra
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
         run: bun run infra stripe-sync
@@ -516,7 +516,7 @@ jobs:
         with:
           postgres: 'true'
       - name: Smoke tests (DNS + HTTP)
-        working-directory: apps/infra
+        working-directory: packages/infra
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
           INFRA_CONTEXT: ${{ needs.provision.outputs.infra_context }}
@@ -536,7 +536,7 @@ jobs:
         with:
           postgres: 'true'
       - name: Refresh PatchDB client config
-        working-directory: apps/infra
+        working-directory: packages/infra
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
           INFRA_CONTEXT: ${{ needs.provision.outputs.infra_context }}
@@ -570,7 +570,7 @@ jobs:
         with:
           postgres: 'true'
       - name: Release global deploy lock
-        working-directory: apps/infra
+        working-directory: packages/infra
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
           INFRA_LOCK_ID: ${{ needs.lock-acquire.outputs.lock_id }}
@@ -620,4 +620,4 @@ jobs:
           NEEDS_JSON: ${{ toJSON(needs) }}
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: env DOPPLER_CONFIG=prod doppler run -- bun run apps/infra/src/bin/pipeline-report.ts
+        run: env DOPPLER_CONFIG=prod doppler run -- bun run packages/infra/src/bin/pipeline-report.ts
