@@ -1,3 +1,4 @@
+import { PROVISION_DEPS } from '../deps/registry';
 import { banner, ok } from '../lib/fmt';
 import { infraOutputs } from '../lib/infra-outputs';
 import {
@@ -29,7 +30,7 @@ export class ProvisionCommand implements Command {
     banner('Provision');
     const p = this.platform;
 
-    await runCheckDepsPhase(p);
+    await runCheckDepsPhase(p, PROVISION_DEPS);
     await runWranglerAuthPhase(p);
 
     const ctx: InfraContext = {};

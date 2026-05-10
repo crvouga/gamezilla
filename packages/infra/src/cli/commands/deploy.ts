@@ -1,3 +1,4 @@
+import { DEPLOY_DEPS } from '../deps/registry';
 import { banner, ok } from '../lib/fmt';
 import { infraOutputs } from '../lib/infra-outputs';
 import {
@@ -35,7 +36,7 @@ export class DeployCommand implements Command {
     banner('Deploy');
     const p = this.platform;
 
-    await runCheckDepsPhase(p);
+    await runCheckDepsPhase(p, DEPLOY_DEPS);
     await runWranglerAuthPhase(p);
 
     const ctx: InfraContext = {};
