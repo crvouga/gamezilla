@@ -18,7 +18,7 @@ import {
   assertAttribute,
   assertEntityType,
   type PatchEntityType,
-} from '../interface';
+} from '../entity-key';
 
 /** Attribute reference for index specs. Accepts a raw keyword string or any
  * object with a `.key` property (e.g. an `AttributeTag` from `@gamezilla/lib/attribute`). */

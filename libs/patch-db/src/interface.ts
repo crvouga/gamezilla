@@ -1,39 +1,34 @@
 import type { Assert } from '@gamezilla/lib/assert';
 import { assert } from '@gamezilla/lib/assert';
-import {
-  isNamespacedKeyword,
-  isNamespacePrefix,
-  type Keyword,
-} from '@gamezilla/lib/keyword';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import type { PatchDbContext } from './context';
+import {
+  assertAttribute,
+  assertAttributes,
+  assertEntityKey,
+  assertEntityType,
+  assertPatchId,
+  type AttributeKey,
+  type PatchEntityType,
+} from './entity-key';
 import type { PatchDbIndexSpec } from './indexes/index-spec';
 import { PatchMetaAttr } from './metadata/patch-metadata';
 import type { PatchDbCompactionPolicyResolver } from './policy/compaction-policy';
 
-/**
- * Namespaced attribute key used in queries and the `attributes` map.
- * Producers (factories, tags, validators) always emit a {@link Keyword} brand;
- * this alias stays `string` at the type level so query literals stay ergonomic
- * (`{ attribute: 'task/title', … }`) while every wire / persistence boundary
- * runtime-validates via {@link assertAttribute} / {@link assertAttributes}.
- */
-export type AttributeKey = string;
-
-/**
- * Dot-separated kebab namespace for {@link PatchInput.entityType} / {@link PatchDbQuery.entityType}
- * (same grammar as an attribute key's namespace prefix; no `/`).
- *
- * Validated at runtime by {@link assertEntityType}; all wire / persistence
- * boundaries pipe untrusted inputs through it before the rest of the pipeline.
- */
-export type PatchEntityType = string;
-
-/** Asserts and tags `t` as a {@link PatchEntityType}. Crashes on invalid input. */
-export function asEntityType(t: string, a: Assert = assert): PatchEntityType {
-  assertEntityType(t, a);
-  return t;
-}
+export {
+  asEntityType,
+  assertAttribute,
+  assertAttributes,
+  assertEntityId,
+  assertEntityKey,
+  assertEntityType,
+  assertPatchId,
+  isValidAttribute,
+  patchDbAttributeKey,
+  type Attribute,
+  type AttributeKey,
+  type PatchEntityType,
+} from './entity-key';
 
 export type PatchInput = {
   entityId: string;
@@ -201,112 +196,6 @@ export function assertEntity(
   assertEntityKey(e['entityId'], e['entityType'], a);
   a.record(e['attributes'], 'entity.attributes must be object');
   assertAttributes(e['attributes'] as Record<string, unknown>, a);
-}
-
-/** @deprecated Use {@link AttributeKey} (alias of {@link Keyword}); collapsed to a single brand. */
-export type Attribute = Keyword;
-
-/** Returns true if the key is a valid namespaced attribute. Use when reading stored data that may be stale. */
-export function isValidAttribute(key: unknown): key is Keyword {
-  return isNamespacedKeyword(key);
-}
-
-const ID_MAX_LEN = 1024;
-
-/** Asserts patchId is sufficient for global uniqueness: non-empty, no null bytes, no trim loss, min length. */
-export function assertPatchId(
-  id: unknown,
-  a: Assert = assert
-): asserts id is string {
-  a.string(id, 'patchId must be string');
-  a.ok(id.length > 0, 'patchId must be non-empty');
-  a.ok(id.length <= ID_MAX_LEN, 'patchId must not exceed 1024 chars');
-  a.ok(!id.includes('\0'), 'patchId must not contain null byte');
-  a.ok(id === id.trim(), 'patchId must not have leading/trailing whitespace');
-  a.ok(
-    id.length >= 8,
-    'patchId must be at least 8 chars for global uniqueness',
-    { id }
-  );
-}
-
-/** Asserts entityId is sufficient for global uniqueness (with entityType): non-empty, no null bytes, no trim loss. */
-export function assertEntityId(
-  id: unknown,
-  a: Assert = assert
-): asserts id is string {
-  a.string(id, 'entityId must be string');
-  a.ok(id.length > 0, 'entityId must be non-empty');
-  a.ok(id.length <= ID_MAX_LEN, 'entityId must not exceed 1024 chars');
-  a.ok(!id.includes('\0'), 'entityId must not contain null byte');
-  a.ok(id === id.trim(), 'entityId must not have leading/trailing whitespace');
-}
-
-/** Asserts entityType is sufficient for global uniqueness (with entityId): non-empty, no null bytes, no trim loss, dot-kebab namespace. */
-export function assertEntityType(
-  t: unknown,
-  a: Assert = assert
-): asserts t is PatchEntityType {
-  a.string(t, 'entityType must be string');
-  a.ok(t.length > 0, 'entityType must be non-empty');
-  a.ok(t.length <= ID_MAX_LEN, 'entityType must not exceed 1024 chars');
-  a.ok(!t.includes('\0'), 'entityType must not contain null byte');
-  a.ok(t === t.trim(), 'entityType must not have leading/trailing whitespace');
-  a.ok(
-    isNamespacePrefix(t),
-    'entityType must be a dot-separated kebab namespace (e.g. todo, todo-list, chess.puzzle)',
-    { entityType: t }
-  );
-}
-
-/** Asserts entity key (entityId + entityType) is sufficient for global uniqueness. */
-export function assertEntityKey(
-  entityId: unknown,
-  entityType: unknown,
-  a?: Assert
-): asserts entityId is string {
-  assertEntityId(entityId, a);
-  assertEntityType(entityType, a);
-}
-/**
- * Sanitizes an attribute name to ensure it follows Clojure-style namespaced key conventions.
- * Valid: Clojure-style kebab-case namespaced keys (e.g. "todo/title", "patch/synced-at").
- * @param attribute - The attribute to sanitize.
- * @returns The sanitized attribute.
- */
-export function assertAttribute(
-  attribute: unknown,
-  a: Assert = assert
-): asserts attribute is Keyword {
-  a.string(attribute, 'Invalid attribute name — must be a string');
-  a.ok(
-    isNamespacedKeyword(attribute),
-    'Invalid attribute name — must be a Clojure-style namespaced key'
-  );
-}
-
-/**
- * Validates and returns the PatchDB namespaced key for SQL builders.
- */
-export function patchDbAttributeKey(
-  attribute: string | null | undefined
-): string {
-  assert.ok(
-    attribute !== null && attribute !== undefined && attribute !== '',
-    'query clause attribute is required'
-  );
-  assertAttribute(attribute);
-  return attribute;
-}
-
-export function assertAttributes(
-  attributes: unknown,
-  a: Assert = assert
-): asserts attributes is Record<string, unknown> {
-  a.record(attributes, 'attributes must be object');
-  for (const key of Object.keys(attributes)) {
-    assertAttribute(key, a);
-  }
 }
 
 export type PatchDbQueryWhereClause =
