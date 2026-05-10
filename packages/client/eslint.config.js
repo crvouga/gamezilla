@@ -3,9 +3,7 @@ const { defineConfig } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
 const eslintPluginGamezillaI18n = require('../eslint-rules/gamezilla-i18n.cjs');
 const eslintPluginLingui = require('eslint-plugin-lingui');
-const {
-  createSharedBlocks,
-} = require('../eslint-rules/base-config.cjs');
+const { createSharedBlocks } = require('../eslint-rules/base-config.cjs');
 const { linguiRules } = require('../eslint-rules/lingui-rules.cjs');
 const a11yRestrictions = require('../eslint-rules/a11y-restrictions.cjs');
 
