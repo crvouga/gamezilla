@@ -8,6 +8,10 @@ import {
   ChessPuzzleAttr,
 } from '@gamezilla/domain/spaces/games/chess/puzzle/chess-puzzle-entities';
 import {
+  ClearChessPuzzlePlay,
+  ResetChessPuzzlePlay,
+} from '@gamezilla/domain/spaces/games/chess/puzzle/chess-puzzle-play';
+import {
   ChessPuzzleSessionAttr,
   SelectChessPuzzle,
 } from '@gamezilla/domain/spaces/games/chess/puzzle/chess-puzzle-session';
@@ -27,13 +31,7 @@ import {
   useQuery,
 } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react';
+import { useCallback, useEffect, useMemo, type ReactNode } from 'react';
 import {
   useSpaceDispatch,
   useSpaceSelector,
@@ -174,18 +172,21 @@ function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
     ChessPuzzleAttr.themes
   );
 
-  const [resetNonce, setResetNonce] = useState(0);
   const { displayFen, layoutKey, status, orientation, onMove } =
     usePuzzleSolver({
       fen,
       movesStr,
       puzzleId,
-      resetNonce,
     });
 
   const backToPuzzleMenu = useCallback(() => {
+    dispatch(ClearChessPuzzlePlay({}));
     dispatch(SelectChessPuzzle({ puzzleId: null }));
     dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.puzzle }));
+  }, [dispatch]);
+
+  const onResetPuzzle = useCallback(() => {
+    dispatch(ResetChessPuzzlePlay({}));
   }, [dispatch]);
 
   const themesLine =
@@ -247,11 +248,7 @@ function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
           highlightLegalMoves
         />
 
-        <Pressable
-          onPress={() => {
-            setResetNonce((n) => n + 1);
-          }}
-        >
+        <Pressable onPress={onResetPuzzle}>
           <Card elevation={0} sx={{ py: 3, alignItems: 'center' }}>
             <Text variant="body" label={<Trans>Reset puzzle</Trans>} />
           </Card>

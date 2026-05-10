@@ -20,7 +20,7 @@ export default function ModalExample() {
         />
         <Button
           title="Open Destructive Modal"
-          color="destructive"
+          intent="danger"
           onPress={() => setDestructiveOpen(true)}
         />
       </Stack>

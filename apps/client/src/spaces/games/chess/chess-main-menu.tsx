@@ -17,6 +17,10 @@ import { useCallback, useMemo, type ReactNode } from 'react';
 import { PuzzleMainMenu } from './puzzle/puzzle-main-menu';
 import { PuzzlePickerScreen } from './puzzle/puzzle-picker-screen';
 import { PuzzlePlayScreen } from './puzzle/puzzle-play-screen';
+import { ChessSettingsDeveloperScreen } from './settings/chess-settings-developer-screen';
+import { ChessSettingsDeveloperUiComponentDetailScreen } from './settings/chess-settings-developer-ui-component-detail-screen';
+import { ChessSettingsDeveloperUiComponentsScreen } from './settings/chess-settings-developer-ui-components-screen';
+import { ChessSettingsScreen } from './settings/chess-settings-screen';
 
 export function ChessMainMenu(): ReactNode {
   const screen = useSpaceSelector(ChessMainMenuScreenAttr.screen.from);
@@ -28,6 +32,14 @@ export function ChessMainMenu(): ReactNode {
       return <PuzzlePickerScreen />;
     case CHESS_SCREEN.puzzlePlay:
       return <PuzzlePlayScreen />;
+    case CHESS_SCREEN.settings:
+      return <ChessSettingsScreen />;
+    case CHESS_SCREEN.settingsDeveloper:
+      return <ChessSettingsDeveloperScreen />;
+    case CHESS_SCREEN.settingsDeveloperUi:
+      return <ChessSettingsDeveloperUiComponentsScreen />;
+    case CHESS_SCREEN.settingsDeveloperUiDetail:
+      return <ChessSettingsDeveloperUiComponentDetailScreen />;
     default:
       return <RootMainMenu />;
   }
@@ -57,6 +69,13 @@ function RootMainMenu(): ReactNode {
         title: <Trans>Matchmaking</Trans>,
         caption: <Trans>Coming soon</Trans>,
         disabled: true,
+      },
+      {
+        key: 'settings',
+        title: <Trans>Settings</Trans>,
+        caption: <Trans>Preferences and developer tools.</Trans>,
+        onPress: () =>
+          dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.settings })),
       },
     ],
     [dispatch]

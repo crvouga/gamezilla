@@ -30,13 +30,13 @@ export function AccountActionsRow(): ReactNode {
           {Platform.OS !== 'web' ? (
             <Button
               title={t`Remove local data for this account`}
-              color="destructive"
+              intent="danger"
               onPress={onRemoveLocalData}
             />
           ) : null}
           <Button
             title={t`Sign out`}
-            color="destructive"
+            intent="danger"
             onPress={onRequestSignOut}
           />
         </>

@@ -21,7 +21,6 @@ export function SpaceJoinButton({ spaceId }: SpaceJoinButtonProps): ReactNode {
   return (
     <Button
       title={t`Join space`}
-      variant="solid"
       disabled={disabled}
       onPress={() => {
         if (spaceId.length === 0) return;

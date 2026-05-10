@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react';
+import { useSyncExternalStore, type ComponentType } from 'react';
 
 import { default as BoxExample } from '../box/box.example';
 import { default as GradientBoxExample } from '../gradient-box/gradient-box.example';
@@ -60,7 +60,7 @@ export type ComponentEntry = {
   Example: ComponentType;
 };
 
-export const componentRegistry: ComponentEntry[] = [
+const builtInEntries: ComponentEntry[] = [
   // Foundation
   { name: 'Box', category: 'Foundation', Example: BoxExample },
   { name: 'GradientBox', category: 'Foundation', Example: GradientBoxExample },
@@ -166,6 +166,77 @@ export const componentRegistry: ComponentEntry[] = [
   { name: 'SectionCard', category: 'Disclosure', Example: SectionCardExample },
 ];
 
-export const categories = [
-  ...new Set(componentRegistry.map((c) => c.category)),
-];
+/**
+ * Live registry of UI explorer entries. Mutated in place by
+ * {@link registerComponentExample}; consumers that want reactive updates
+ * should use {@link useComponentRegistry} instead of importing this directly.
+ */
+export const componentRegistry: ComponentEntry[] = [...builtInEntries];
+
+const externalNames = new Set<string>();
+const listeners = new Set<() => void>();
+let cachedSnapshot: readonly ComponentEntry[] = [...componentRegistry];
+
+function notify(): void {
+  cachedSnapshot = [...componentRegistry];
+  listeners.forEach((l) => {
+    l();
+  });
+}
+
+function subscribe(onStoreChange: () => void): () => void {
+  listeners.add(onStoreChange);
+  return () => {
+    listeners.delete(onStoreChange);
+  };
+}
+
+function getSnapshot(): readonly ComponentEntry[] {
+  return cachedSnapshot;
+}
+
+/**
+ * Register a UI explorer entry at runtime. App-level modules call this at
+ * module load via a side-effect import so the registry can include components
+ * that live above the lib layer (e.g. chess board).
+ *
+ * Idempotent on `entry.name`: re-registering replaces the prior entry.
+ *
+ * Returns an unregister callback for tests / hot-reloading.
+ */
+export function registerComponentExample(entry: ComponentEntry): () => void {
+  const existingIdx = componentRegistry.findIndex((c) => c.name === entry.name);
+  if (existingIdx >= 0) {
+    componentRegistry.splice(existingIdx, 1, entry);
+  } else {
+    componentRegistry.push(entry);
+  }
+  externalNames.add(entry.name);
+  notify();
+  return () => {
+    const idx = componentRegistry.findIndex((c) => c.name === entry.name);
+    if (idx >= 0) componentRegistry.splice(idx, 1);
+    externalNames.delete(entry.name);
+    notify();
+  };
+}
+
+/**
+ * Read the current set of registered examples reactively. Re-renders when
+ * external entries are added/removed via {@link registerComponentExample}.
+ */
+export function useComponentRegistry(): readonly ComponentEntry[] {
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+}
+
+/** Live snapshot of unique categories, recomputed each access. */
+export function getCategories(): readonly string[] {
+  return [...new Set(componentRegistry.map((c) => c.category))];
+}
+
+/**
+ * Backwards-compatible static categories list. Reflects the registry at
+ * import time; for live updates use {@link getCategories} or derive from
+ * {@link useComponentRegistry}.
+ */
+export const categories: string[] = getCategories() as string[];

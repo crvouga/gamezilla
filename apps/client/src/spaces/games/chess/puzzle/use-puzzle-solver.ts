@@ -1,147 +1,71 @@
 import type { Move } from '@gamezilla/client/spaces/games/chess/chess-board/chess-board-types';
-import { Chess } from 'chess.js';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  CHESS_PUZZLE_PLAY_STATUS,
+  ChessPuzzlePlayAttr,
+  StartChessPuzzlePlay,
+  SubmitChessPuzzleMove,
+  type ChessPuzzlePlayStatus,
+} from '@gamezilla/domain/spaces/games/chess/puzzle/chess-puzzle-play';
+import { useCallback, useEffect } from 'react';
 
 import {
-  applyUci,
-  boardOrientationFromFen,
-  uciFromMove,
-} from './puzzle-play-chess-utils';
+  useSpaceDispatch,
+  useSpaceSelector,
+} from '../../../room/use-space-room-selector';
+import { uciFromMove } from './puzzle-play-chess-utils';
 
-export type SolveStatus =
-  | 'loading'
-  | 'solving'
-  | 'wrong'
-  | 'solved'
-  | 'invalid';
+/**
+ * UI-facing status. `'loading'` is a client-side projection of the room's
+ * `'idle'` status — there is no separate `'loading'` state on the wire.
+ */
+export type SolveStatus = 'loading' | ChessPuzzlePlayStatus;
 
+/**
+ * Bridges the puzzle play screen to the server-authoritative FSM in
+ * {@link ChessPuzzlePlayAttr}. Auto-dispatches `StartChessPuzzlePlay` when the
+ * room is `idle` and the puzzle entity (FEN + moves) is available locally.
+ * `onMove` dispatches `SubmitChessPuzzleMove`; the server validates host
+ * identity, expected token, and move legality before mutating room state.
+ */
 export function usePuzzleSolver(args: {
   fen: string;
   movesStr: string;
   puzzleId: string;
-  resetNonce: number;
 }): {
   displayFen: string | null;
-  /** Bumps on wrong move so the board remounts when FEN string is unchanged (canvas must resync). */
+  /** Bumps on wrong move / reset so the board remounts when FEN string is unchanged. */
   layoutKey: number;
   status: SolveStatus;
   /** Side the human sits on for this puzzle — fixed for the session, not derived from live FEN. */
   orientation: 'white' | 'black';
   onMove: (m: Move) => void;
 } {
-  const { fen, movesStr, puzzleId, resetNonce } = args;
-  const chessRef = useRef(new Chess());
-  const tokensRef = useRef<readonly string[]>([]);
-  const [solveIdx, setSolveIdx] = useState(0);
-  const [displayFen, setDisplayFen] = useState<string | null>(null);
-  const [status, setStatus] = useState<SolveStatus>('loading');
-  const [orientation, setOrientation] = useState<'white' | 'black'>('white');
-  const [layoutKey, setLayoutKey] = useState(0);
+  const { fen, movesStr, puzzleId } = args;
+  const dispatch = useSpaceDispatch();
+
+  const roomStatus = useSpaceSelector(ChessPuzzlePlayAttr.status.from);
+  const roomPuzzleId = useSpaceSelector(ChessPuzzlePlayAttr.puzzleId.from);
+  const displayFen = useSpaceSelector(ChessPuzzlePlayAttr.displayFen.from);
+  const layoutKey = useSpaceSelector(ChessPuzzlePlayAttr.layoutKey.from);
+  const orientation = useSpaceSelector(ChessPuzzlePlayAttr.orientation.from);
 
   useEffect(() => {
-    if (fen.length === 0 || movesStr.length === 0) {
-      tokensRef.current = [];
-      setStatus('loading');
-      setDisplayFen(null);
-      chessRef.current.reset();
-      return;
-    }
-    const chess = chessRef.current;
-    chess.reset();
-    let loadOk = true;
-    try {
-      chess.load(fen);
-    } catch {
-      loadOk = false;
-    }
-    const wantBoard = fen.trim().split(/\s+/)[0];
-    const gotBoard = chess.fen().trim().split(/\s+/)[0];
-    if (wantBoard !== undefined && gotBoard !== wantBoard) {
-      loadOk = false;
-    }
-    if (!loadOk) {
-      tokensRef.current = [];
-      setStatus('invalid');
-      setDisplayFen(null);
-      return;
-    }
-    const tokens = movesStr
-      .trim()
-      .split(/\s+/)
-      .map((s) => s.trim().toLowerCase())
-      .filter((s) => s.length > 0);
-    if (tokens.length === 0) {
-      tokensRef.current = [];
-      setStatus('invalid');
-      return;
-    }
-    tokensRef.current = tokens;
-    const first = tokens[0];
-    if (first === undefined) {
-      setStatus('invalid');
-      return;
-    }
-    if (!applyUci(chess, first)) {
-      tokensRef.current = [];
-      setStatus('invalid');
-      return;
-    }
-    setSolveIdx(1);
-    const afterFirst = chess.fen();
-    setDisplayFen(afterFirst);
-    setOrientation(boardOrientationFromFen(afterFirst));
-    setLayoutKey(0);
-    setStatus(tokens.length <= 1 ? 'solved' : 'solving');
-  }, [fen, movesStr, puzzleId, resetNonce]);
+    if (roomStatus !== CHESS_PUZZLE_PLAY_STATUS.idle) return;
+    if (fen.length === 0 || movesStr.length === 0) return;
+    dispatch(StartChessPuzzlePlay({ puzzleId, fen, moves: movesStr }));
+  }, [dispatch, fen, movesStr, puzzleId, roomStatus]);
 
   const onMove = useCallback(
     (m: Move) => {
-      if (status !== 'solving' && status !== 'wrong') return;
-      const tokens = tokensRef.current;
-      const expected = tokens[solveIdx];
-      if (expected === undefined) return;
-      const actual = uciFromMove(m).toLowerCase();
-      if (actual !== expected) {
-        chessRef.current.load(displayFen ?? fen);
-        setLayoutKey((k) => k + 1);
-        setStatus('wrong');
-        return;
-      }
-      const chess = chessRef.current;
-      const moved = chess.move({
-        from: m.from,
-        to: m.to,
-        ...(m.promotion !== undefined ? { promotion: m.promotion } : {}),
-      });
-      if (moved === null) {
-        setStatus('invalid');
-        return;
-      }
-      let nextIdx = solveIdx + 1;
-      if (nextIdx >= tokens.length) {
-        setDisplayFen(chess.fen());
-        setSolveIdx(nextIdx);
-        setStatus('solved');
-        return;
-      }
-      const reply = tokens[nextIdx];
-      if (reply === undefined) {
-        setDisplayFen(chess.fen());
-        setSolveIdx(nextIdx);
-        setStatus('solved');
-        return;
-      }
-      if (!applyUci(chess, reply)) {
-        setStatus('invalid');
-        return;
-      }
-      nextIdx += 1;
-      setSolveIdx(nextIdx);
-      setDisplayFen(chess.fen());
-      setStatus(nextIdx >= tokens.length ? 'solved' : 'solving');
+      dispatch(SubmitChessPuzzleMove({ uci: uciFromMove(m) }));
     },
-    [displayFen, fen, solveIdx, status]
+    [dispatch]
   );
+
+  const status: SolveStatus =
+    roomStatus === CHESS_PUZZLE_PLAY_STATUS.idle || roomPuzzleId !== puzzleId
+      ? 'loading'
+      : roomStatus;
 
   return { displayFen, layoutKey, status, orientation, onMove };
 }

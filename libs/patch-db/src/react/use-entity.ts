@@ -19,7 +19,8 @@ export function useEntity(entityType: string, entityId: string): Entity | null {
   const getSnapshot = useCallback((): Entity | null => {
     const existing = store.getResult(entityType, entityId);
     if (existing !== null) return existing.entity;
-    return store.getOrCreateResult(entityType, entityId).entity;
+    const created = store.getOrCreateResult(entityType, entityId);
+    return created.entity;
   }, [store, entityType, entityId]);
 
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);

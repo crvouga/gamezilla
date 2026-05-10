@@ -228,7 +228,7 @@ function EntityList({
           <Box sx={{ py: 3, alignItems: 'center' }}>
             <Button
               title={loadingMore ? t`Loading…` : t`Load more`}
-              variant="ghost"
+              intent="neutral"
               size="sm"
               onPress={onLoadMore}
             />

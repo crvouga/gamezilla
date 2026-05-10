@@ -1,4 +1,5 @@
 /* eslint-disable lingui/no-unlocalized-strings */
+/* eslint-disable max-lines */
 /* eslint-disable max-lines-per-function */
 /* eslint-disable complexity */
 import {
@@ -12,12 +13,22 @@ import {
   Skia,
   Text as SkiaText,
 } from '@shopify/react-native-skia';
-import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
+import { View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
+import { ChessBoardArrows } from './chess-board-arrows';
+import { ChessBoardFeedback } from './chess-board-feedback';
 import {
   indexFromSquare,
   squareFromIndex,
@@ -31,18 +42,24 @@ import {
 } from './chess-board-haptics';
 import { ChessBoardPieceSkia, PIECE_DRAW_SCALE } from './chess-board-piece';
 import { useChessPieceRows } from './chess-board-piece-identities';
-import { ChessBoardPromotionModal } from './chess-board-promotion';
+import {
+  ChessBoardPromotionInline,
+  ChessBoardPromotionModal,
+} from './chess-board-promotion';
 import { useChessBoardSounds } from './chess-board-sounds';
 import type {
+  BoardArrow,
   BoardTheme,
   ChessBoardProps,
   Move,
+  PieceColor,
   Square,
 } from './chess-board-types';
 import { usePieceSkiaImages } from './chess-pieces-cache';
 import { pieceCode } from './chess-pieces-svg';
 import { useChessBoardApplyMoveSound } from './use-chess-board-apply-move-sound';
 import { useChessBoardCaptureGhost } from './use-chess-board-capture-ghost';
+import { useChessBoardDragOverlay } from './use-chess-board-drag-overlay';
 import {
   moveRequiresPromotionOnFen,
   tryMoveOnFen,
@@ -50,6 +67,7 @@ import {
   useChessGame,
 } from './use-chess-game';
 import { useExternalFenSync } from './use-external-fen-sync';
+import { useUserArrows } from './use-user-arrows';
 
 /**
  * Controlled boards validate on a copy (`tryMoveOnFen`) but must still apply
@@ -82,6 +100,9 @@ export type ChessBoardCanvasProps = Required<
     | 'showCoordinates'
     | 'highlightLastMove'
     | 'highlightLegalMoves'
+    | 'promotionStyle'
+    | 'dragOverlayPortal'
+    | 'enableUserArrows'
   >
 > & {
   fen?: string;
@@ -90,9 +111,77 @@ export type ChessBoardCanvasProps = Required<
   fenSyncKey?: number;
   size: number;
   theme: BoardTheme;
+  cellFeedback?: ChessBoardProps['cellFeedback'];
+  cellHighlights?: ChessBoardProps['cellHighlights'];
+  arrows?: readonly BoardArrow[];
+  onUserArrowsChange?: ChessBoardProps['onUserArrowsChange'];
 };
 
-/* eslint-disable-next-line max-statements -- Skia board: layout, gestures, promotion, and FEN sync. */
+type DraggedPieceLayerProps = {
+  pieceImages: ReturnType<typeof usePieceSkiaImages>;
+  draggedPieceCode: ReturnType<typeof pieceCode> | null;
+  dragX: ReturnType<typeof useSharedValue<number>>;
+  dragY: ReturnType<typeof useSharedValue<number>>;
+  isDragging: ReturnType<typeof useSharedValue<boolean>>;
+  dragPickupOpacity: ReturnType<typeof useSharedValue<number>>;
+  dragPickupScale: ReturnType<typeof useSharedValue<number>>;
+  pieceDraw: number;
+  /** When provided, the layer renders at `screen` coords (origin + drag). */
+  origin?: { x: number; y: number };
+};
+
+const DraggedPieceLayer = forwardRef<View, DraggedPieceLayerProps>(
+  function DraggedPieceLayer(props, ref) {
+    const {
+      pieceImages,
+      draggedPieceCode,
+      dragX,
+      dragY,
+      isDragging,
+      dragPickupOpacity,
+      dragPickupScale,
+      pieceDraw,
+      origin,
+    } = props;
+
+    const offsetX = origin?.x ?? 0;
+    const offsetY = origin?.y ?? 0;
+
+    const draggedStyle = useAnimatedStyle(() => ({
+      position: 'absolute',
+      left: offsetX + dragX.value - pieceDraw / 2,
+      top: offsetY + dragY.value - pieceDraw / 2,
+      width: pieceDraw,
+      height: pieceDraw,
+      opacity: isDragging.value ? dragPickupOpacity.value : 0,
+      transform: [{ scale: dragPickupScale.value }],
+    }));
+
+    if (!pieceImages || draggedPieceCode === null) return null;
+
+    const image = pieceImages[draggedPieceCode];
+
+    return (
+      <Animated.View ref={ref} pointerEvents="none" style={draggedStyle}>
+        <Canvas style={{ width: pieceDraw, height: pieceDraw }}>
+          <Image
+            image={image}
+            x={0}
+            y={0}
+            width={pieceDraw}
+            height={pieceDraw}
+            sampling={{
+              filter: FilterMode.Linear,
+              mipmap: MipmapMode.Linear,
+            }}
+          />
+        </Canvas>
+      </Animated.View>
+    );
+  }
+);
+
+/* eslint-disable-next-line max-statements -- Skia board: layout, gestures, promotion, FEN sync, overlays. */
 export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
   const {
     fen,
@@ -104,6 +193,13 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
     showCoordinates,
     highlightLastMove,
     highlightLegalMoves,
+    promotionStyle,
+    dragOverlayPortal,
+    enableUserArrows,
+    cellFeedback,
+    cellHighlights,
+    arrows: externalArrows,
+    onUserArrowsChange,
     size,
     theme,
   } = props;
@@ -141,6 +237,7 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
   const [pendingPromotion, setPendingPromotion] = useState<{
     from: Square;
     to: Square;
+    color: PieceColor;
   } | null>(null);
 
   const clearBoardInteraction = useCallback(() => {
@@ -203,7 +300,8 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
         });
         onMove?.(res.move);
       } else {
-        setPendingPromotion({ from: fromSq, to: toSq });
+        const moverColor = position[indexFromSquare(fromSq)]?.color ?? turn;
+        setPendingPromotion({ from: fromSq, to: toSq, color: moverColor });
       }
     },
   });
@@ -222,29 +320,92 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
     return null;
   }, [inCheck, position, turn]);
 
-  const draggedPiece = dragFrom
+  const draggedPieceCode = dragFrom
     ? (() => {
         const p = position[indexFromSquare(dragFrom)] ?? null;
         if (!p) return null;
-        const code = pieceCode(p.color, p.type);
-        if (!code) return null;
-        return { code };
+        return pieceCode(p.color, p.type);
       })()
     : null;
 
-  const draggedPieceStyle = useAnimatedStyle(() => ({
-    position: 'absolute',
-    left: dragX.value - pieceDraw / 2,
-    top: dragY.value - pieceDraw / 2,
-    width: pieceDraw,
-    height: pieceDraw,
-    opacity: isDragging.value ? dragPickupOpacity.value : 0,
-    transform: [{ scale: dragPickupScale.value }],
-  }));
+  const dragOverlay = useChessBoardDragOverlay(dragOverlayPortal);
+
+  /**
+   * Combined ref for the outer board View — drives both the overlay portal's
+   * `measureInWindow` source and the user-arrows DOM container.
+   */
+  const userArrows = useUserArrows({
+    size,
+    orientation,
+    theme,
+    enabled: enableUserArrows,
+    ...(onUserArrowsChange !== undefined
+      ? { onChange: onUserArrowsChange }
+      : {}),
+  });
+
+  const composedContainerRef = useCallback(
+    (node: View | null) => {
+      dragOverlay.containerRef(node);
+      userArrows.containerRef(node);
+    },
+    [dragOverlay, userArrows]
+  );
+
+  /**
+   * When the portal is enabled we mount the dragged piece into the overlay
+   * (via {@link useChessBoardDragOverlay}); otherwise we render it inline.
+   */
+  useEffect(() => {
+    if (!dragOverlayPortal) {
+      dragOverlay.setOverlayNode(null);
+      return;
+    }
+    if (draggedPieceCode === null || pieceImages === null) {
+      dragOverlay.setOverlayNode(null);
+      return;
+    }
+    dragOverlay.setOverlayNode(
+      <DraggedPieceLayer
+        key="chess-drag-overlay"
+        pieceImages={pieceImages}
+        draggedPieceCode={draggedPieceCode}
+        dragX={dragX}
+        dragY={dragY}
+        isDragging={isDragging}
+        dragPickupOpacity={dragPickupOpacity}
+        dragPickupScale={dragPickupScale}
+        pieceDraw={pieceDraw}
+        origin={dragOverlay.origin}
+      />
+    );
+  }, [
+    dragOverlay,
+    dragOverlayPortal,
+    dragPickupOpacity,
+    dragPickupScale,
+    dragX,
+    dragY,
+    draggedPieceCode,
+    isDragging,
+    pieceDraw,
+    pieceImages,
+  ]);
+
+  const mergedArrows = useMemo<readonly BoardArrow[]>(() => {
+    const ext = externalArrows ?? [];
+    if (userArrows.arrows.length === 0) return ext;
+    return [...ext, ...userArrows.arrows];
+  }, [externalArrows, userArrows.arrows]);
 
   return (
     <GestureDetector gesture={gesture}>
-      <>
+      <View
+        ref={composedContainerRef}
+        onLayout={dragOverlay.onContainerLayout}
+        style={{ width: size, height: size, overflow: 'visible' }}
+        {...userArrows.webEventHandlers}
+      >
         <Animated.View
           style={{ width: size, height: size, overflow: 'visible' }}
         >
@@ -267,6 +428,43 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
                 />
               );
             })}
+
+            {/* custom cell highlights (fill or ring) */}
+            {cellHighlights
+              ? Object.entries(cellHighlights).map(([sq, hl]) => {
+                  if (hl === undefined) return null;
+                  const { x, y } = squareToXY(sq as Square, size, orientation);
+                  const opacity = hl.opacity ?? 0.35;
+                  if (hl.ring) {
+                    const stroke = Math.max(2, cell * 0.07);
+                    const inset = stroke / 2;
+                    return (
+                      <Rect
+                        key={`hl-${sq}`}
+                        x={x + inset}
+                        y={y + inset}
+                        width={cell - stroke}
+                        height={cell - stroke}
+                        color={hl.color}
+                        style="stroke"
+                        strokeWidth={stroke}
+                        opacity={opacity}
+                      />
+                    );
+                  }
+                  return (
+                    <Rect
+                      key={`hl-${sq}`}
+                      x={x}
+                      y={y}
+                      width={cell}
+                      height={cell}
+                      color={hl.color}
+                      opacity={opacity}
+                    />
+                  );
+                })
+              : null}
 
             {/* last move */}
             {highlightLastMove && lastMove ? (
@@ -428,6 +626,22 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
                 })
               : null}
 
+            {/* arrows above pieces */}
+            <ChessBoardArrows
+              arrows={mergedArrows}
+              size={size}
+              orientation={orientation}
+              theme={theme}
+            />
+
+            {/* feedback indicators above arrows */}
+            <ChessBoardFeedback
+              cellFeedback={cellFeedback}
+              size={size}
+              orientation={orientation}
+              theme={theme}
+            />
+
             {/* coordinates */}
             {showCoordinates && font ? (
               <Group>
@@ -478,57 +692,125 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
               </Group>
             ) : null}
           </Canvas>
-          {draggedPiece && pieceImages ? (
-            <Animated.View pointerEvents="none" style={draggedPieceStyle}>
-              <Canvas style={{ width: pieceDraw, height: pieceDraw }}>
-                <Image
-                  image={pieceImages[draggedPiece.code]}
-                  x={0}
-                  y={0}
-                  width={pieceDraw}
-                  height={pieceDraw}
-                  sampling={{
-                    filter: FilterMode.Linear,
-                    mipmap: MipmapMode.Linear,
-                  }}
-                />
-              </Canvas>
-            </Animated.View>
+
+          {/* Inline-rendered drag piece (when not using overlay portal). */}
+          {!dragOverlayPortal ? (
+            <DraggedPieceLayer
+              pieceImages={pieceImages}
+              draggedPieceCode={draggedPieceCode}
+              dragX={dragX}
+              dragY={dragY}
+              isDragging={isDragging}
+              dragPickupOpacity={dragPickupOpacity}
+              dragPickupScale={dragPickupScale}
+              pieceDraw={pieceDraw}
+            />
+          ) : null}
+
+          {/* Inline promotion picker (default). */}
+          {promotionStyle === 'inline' && pendingPromotion !== null ? (
+            <ChessBoardPromotionInline
+              color={pendingPromotion.color}
+              to={pendingPromotion.to}
+              size={size}
+              orientation={orientation}
+              theme={theme}
+              pieceImages={pieceImages}
+              onCancel={() => {
+                setPendingPromotion(null);
+                hapticSelection();
+              }}
+              onPick={(p) => {
+                handlePromotionPick({
+                  pending: pendingPromotion,
+                  promotion: p,
+                  rulesFen,
+                  game,
+                  sounds,
+                  applySuccessfulMove,
+                  onMove,
+                  setPendingPromotion,
+                });
+              }}
+            />
           ) : null}
         </Animated.View>
-        <ChessBoardPromotionModal
-          visible={pendingPromotion !== null}
-          onCancel={() => {
-            setPendingPromotion(null);
-            hapticSelection();
-          }}
-          onPick={(p) => {
-            const pending = pendingPromotion;
-            if (!pending) return;
-            setPendingPromotion(null);
-            const res = applyPlyForBoardUi(rulesFen, game.tryMove, {
-              from: pending.from,
-              to: pending.to,
-              promotion: p,
-            });
-            if (!res.ok) {
-              sounds.playIllegal();
-              hapticError();
-              return;
-            }
-            if (res.move.captured || res.inCheck) {
-              hapticSuccess();
-            } else {
+
+        {/* Modal promotion picker (legacy fallback). */}
+        {promotionStyle === 'modal' ? (
+          <ChessBoardPromotionModal
+            visible={pendingPromotion !== null}
+            onCancel={() => {
+              setPendingPromotion(null);
               hapticSelection();
-            }
-            applySuccessfulMove(res.move, {
-              inCheck: res.inCheck,
-              isGameOver: res.isGameOver,
-            });
-            onMove?.(res.move);
-          }}
-        />
-      </>
+            }}
+            onPick={(p) => {
+              if (pendingPromotion === null) return;
+              handlePromotionPick({
+                pending: pendingPromotion,
+                promotion: p,
+                rulesFen,
+                game,
+                sounds,
+                applySuccessfulMove,
+                onMove,
+                setPendingPromotion,
+              });
+            }}
+          />
+        ) : null}
+      </View>
     </GestureDetector>
   );
+}
+
+type GameLike = ReturnType<typeof useChessGame>;
+type SoundsLike = ReturnType<typeof useChessBoardSounds>;
+type ApplyMoveSoundLike = ReturnType<typeof useChessBoardApplyMoveSound>;
+
+type HandlePromotionPickArgs = {
+  pending: { from: Square; to: Square; color: PieceColor };
+  promotion: NonNullable<Move['promotion']>;
+  rulesFen: string | undefined;
+  game: GameLike;
+  sounds: SoundsLike;
+  applySuccessfulMove: ApplyMoveSoundLike;
+  onMove: ((m: Move) => void) | undefined;
+  setPendingPromotion: (
+    next: { from: Square; to: Square; color: PieceColor } | null
+  ) => void;
+};
+
+function handlePromotionPick(args: HandlePromotionPickArgs): void {
+  const {
+    pending,
+    promotion,
+    rulesFen,
+    game,
+    sounds,
+    applySuccessfulMove,
+    onMove,
+    setPendingPromotion,
+  } = args;
+  setPendingPromotion(null);
+  const res = applyPlyForBoardUi(rulesFen, game.tryMove, {
+    from: pending.from,
+    to: pending.to,
+    promotion,
+  });
+  if (!res.ok) {
+    sounds.playIllegal();
+    hapticError();
+    return;
+  }
+  if (res.move.captured || res.inCheck) {
+    hapticSuccess();
+  } else {
+    hapticSelection();
+  }
+  applySuccessfulMove(res.move, {
+    inCheck: res.inCheck,
+    isGameOver: res.isGameOver,
+  });
+  onMove?.(res.move);
 }

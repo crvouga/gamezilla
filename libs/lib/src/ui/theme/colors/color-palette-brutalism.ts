@@ -31,6 +31,10 @@ export const BRUTALISM: ColorPalette = {
     disabled: '#d4d4d4',
     gradientPrimaryStart: '#c2185b',
     gradientPrimaryEnd: '#880e4f',
+    gradientDangerStart: '#d4213d',
+    gradientDangerEnd: '#8a0a1f',
+    gradientNeutralStart: '#1a1a1a',
+    gradientNeutralEnd: '#000000',
   },
   dark: {
     surface: '#1a1a1a',
@@ -51,5 +55,9 @@ export const BRUTALISM: ColorPalette = {
     disabled: '#404040',
     gradientPrimaryStart: '#c2185b',
     gradientPrimaryEnd: '#880e4f',
+    gradientDangerStart: '#d4213d',
+    gradientDangerEnd: '#8a0a1f',
+    gradientNeutralStart: '#27272a',
+    gradientNeutralEnd: '#0a0a0a',
   },
 };

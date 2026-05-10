@@ -38,6 +38,77 @@ export type Move = {
   enPassant?: true;
 };
 
+export type CellFeedbackKind =
+  | 'check'
+  | 'cross'
+  | 'exclamation'
+  | 'doubleExclam'
+  | 'question'
+  | 'questionExclam'
+  | 'star'
+  | 'crown'
+  | 'dot';
+
+export type CellFeedbackCorner =
+  | 'topRight'
+  | 'topLeft'
+  | 'bottomLeft'
+  | 'bottomRight'
+  | 'center';
+
+export type CellFeedback = {
+  kind: CellFeedbackKind;
+  /** Override default palette color (theme.feedback.<kind> by default). */
+  color?: string;
+  /** Pulse loop while present. */
+  pulse?: boolean;
+  /** 0..1, default 1. */
+  opacity?: number;
+  /** Default `'topRight'`. */
+  corner?: CellFeedbackCorner;
+};
+
+export type BoardArrow = {
+  from: Square;
+  to: Square;
+  /** Theme key or raw color. Default: theme.arrows.primary. */
+  color?: string;
+  /** Stroke width as fraction of cell. Default ~0.14. */
+  thickness?: number;
+  /** 0..1, default 0.85. */
+  opacity?: number;
+  /** Dashed shaft (e.g. plan lines vs forced lines). */
+  dashed?: boolean;
+  /** Render an L-shape (knight). Auto-detected if absent and from→to is a knight jump. */
+  knight?: boolean;
+  /** Stable id for keying / deduping. */
+  id?: string;
+};
+
+export type CellHighlight = {
+  /** Solid tint or theme key. */
+  color: string;
+  /** 0..1, default 0.35. */
+  opacity?: number;
+  /** Border ring instead of fill. */
+  ring?: boolean;
+};
+
+export type BoardArrowPalette = {
+  primary: string;
+  secondary: string;
+  alt: string;
+  danger: string;
+  muted: string;
+};
+
+export type BoardPromotionPalette = {
+  backdrop: string;
+  surface: string;
+  surfaceActive: string;
+  cancel: string;
+};
+
 export type BoardTheme = {
   lightSquare: string;
   darkSquare: string;
@@ -48,6 +119,9 @@ export type BoardTheme = {
   legalMoveCaptureRing: string;
   check: string;
   coordinates: string;
+  feedback: Record<CellFeedbackKind, string>;
+  arrows: BoardArrowPalette;
+  promotion: BoardPromotionPalette;
 };
 
 export type ChessBoardProps = {
@@ -70,6 +144,21 @@ export type ChessBoardProps = {
   highlightLegalMoves?: boolean;
   theme?: Partial<BoardTheme>;
   testID?: string;
+
+  /** Per-square feedback badges (checks, x marks, ?!, etc.). */
+  cellFeedback?: Partial<Record<Square, CellFeedback>>;
+  /** Per-square colored fill or ring on top of the square. */
+  cellHighlights?: Partial<Record<Square, CellHighlight>>;
+  /** Externally-driven arrows (engine hints, puzzle solution lines, etc.). */
+  arrows?: readonly BoardArrow[];
+  /** Inline (canvas) promotion. Default `'inline'`; set to `'modal'` for legacy modal. */
+  promotionStyle?: 'inline' | 'modal';
+  /** Render the dragged piece in an app-level overlay portal so it sits above any z-index. Default true. */
+  dragOverlayPortal?: boolean;
+  /** Right-click / two-finger draw arrows on board (lichess-style). Default false. */
+  enableUserArrows?: boolean;
+  /** Notified when user-drawn arrows change. */
+  onUserArrowsChange?: (arrows: readonly BoardArrow[]) => void;
 };
 
 export type Position = readonly (Piece | null)[];

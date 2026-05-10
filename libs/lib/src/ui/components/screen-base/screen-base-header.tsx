@@ -48,8 +48,7 @@ const DEFAULT_MENU_ICON = 'ellipsis' as const;
 function actionToButtonProps(action: ScreenBaseAction): {
   title: ReactNode;
   onPress: () => void;
-  variant: 'solid' | 'outlined' | 'ghost' | 'text';
-  color: string;
+  intent: 'primary' | 'danger' | 'neutral';
   loading: boolean;
   disabled: boolean;
 } {
@@ -62,14 +61,13 @@ function actionToButtonProps(action: ScreenBaseAction): {
   };
   switch (type) {
     case 'submit':
-      return { ...base, variant: 'solid' as const, color: 'tint' };
+      return { ...base, intent: 'primary' as const };
     case 'destructive':
-      return { ...base, variant: 'solid' as const, color: 'destructive' };
+      return { ...base, intent: 'danger' as const };
     case 'secondary':
-      return { ...base, variant: 'outlined' as const, color: 'tint' };
     case 'default':
     default:
-      return { ...base, variant: 'text' as const, color: 'tint' };
+      return { ...base, intent: 'neutral' as const };
   }
 }
 
@@ -262,8 +260,7 @@ function ActionsBar({
             key={`inline-${String(i)}`}
             title={bp.title}
             onPress={bp.onPress}
-            variant={bp.variant}
-            color={bp.color}
+            intent={bp.intent}
             size="sm"
             loading={bp.loading}
             disabled={bp.disabled}

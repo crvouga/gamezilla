@@ -40,7 +40,7 @@ export {
 export {
   Button,
   type ButtonProps,
-  type ButtonVariant,
+  type ButtonIntent,
   type ButtonSize,
 } from './button';
 export {
@@ -79,6 +79,15 @@ export {
   type DismissibleBannerPosition,
   type DismissibleBannerProps,
 } from './dismissible-top-banner';
+
+// Cross-stacking-context overlay portal
+export {
+  OverlayPortalProvider,
+  useOverlayPortal,
+  useOverlayPortalSlot,
+  type OverlayPortalApi,
+  type OverlayPortalProviderProps,
+} from './overlay-portal';
 
 // Disclosure
 export { Collapsible, type CollapsibleProps } from './collapsible';

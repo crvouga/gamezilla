@@ -20,6 +20,10 @@ export const BLUE: ColorPalette = {
     disabled: '#d4d4d8',
     gradientPrimaryStart: '#2563eb',
     gradientPrimaryEnd: '#1d4ed8',
+    gradientDangerStart: '#E11D48',
+    gradientDangerEnd: '#9F1239',
+    gradientNeutralStart: '#3f3f46',
+    gradientNeutralEnd: '#18181b',
   },
   dark: {
     surface: '#18181b',
@@ -40,5 +44,9 @@ export const BLUE: ColorPalette = {
     disabled: '#3f3f46',
     gradientPrimaryStart: '#2563eb',
     gradientPrimaryEnd: '#1d4ed8',
+    gradientDangerStart: '#E11D48',
+    gradientDangerEnd: '#9F1239',
+    gradientNeutralStart: '#52525b',
+    gradientNeutralEnd: '#27272a',
   },
 };

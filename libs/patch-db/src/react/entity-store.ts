@@ -146,10 +146,22 @@ export class PatchDbEntityStore {
   ): EntityCacheEntry {
     const existing = this.entries.get(key);
     if (existing !== undefined) return existing;
+    /**
+     * Seed the new entry from the in-memory mirror so a `useEntity` mounted
+     * for an entity already present in memory (e.g. a puzzle just shown by
+     * the picker) renders synchronously instead of waiting for the next
+     * `bumpAndEmit` (next sync poll re-hydrate, ~poll-interval later).
+     * Mirrors {@link PatchDbQueryCache.getOrCreate}, which already evaluates
+     * its query against the store at creation time.
+     */
+    const seeded = getInMemoryStoreForDb(this.db).getEntity(
+      entityType,
+      entityId
+    );
     const entry: EntityCacheEntry = {
       entityType,
       entityId,
-      result: { entity: null },
+      result: { entity: seeded },
       listeners: new Set(),
       teardownTimer: null,
     };

@@ -34,13 +34,13 @@ export function AvatarPreview({
       >
         <Button
           title={t`Shuffle seed`}
-          variant="outlined"
+          intent="neutral"
           onPress={shuffleSeed}
           disabled={!initialized}
         />
         <Button
           title={t`Copy seed`}
-          variant="outlined"
+          intent="neutral"
           onPress={() => void copySeed()}
           disabled={!initialized}
         />

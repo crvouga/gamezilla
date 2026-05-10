@@ -12,6 +12,7 @@
     "./spaces/membership-key": "./src/spaces/membership-key.ts",
     "./spaces/space-module": "./src/spaces/space-module.ts",
     "./spaces/games/chess/puzzle/chess-puzzle-entities": "./src/spaces/games/chess/puzzle/chess-puzzle-entities.ts",
+    "./spaces/games/chess/puzzle/chess-puzzle-play": "./src/spaces/games/chess/puzzle/chess-puzzle-play.ts",
     "./profile/profile-entities": "./src/profile/profile-entities.ts",
     "./profile/avatar-config": "./src/profile/avatar-config.ts",
     "./profile/display-name-generator": "./src/profile/display-name-generator.ts",
@@ -22,6 +23,7 @@
   "dependencies": {
     "@gamezilla/room": "workspace:*",
     "@gamezilla/lib": "workspace:*",
+    "chess.js": "^1.4.0",
     "react": "19.1.0",
     "unique-names-generator": "^4.7.1"
   },

@@ -247,7 +247,7 @@ function DismissibleBannerPromptBody({
       {actionLabel !== undefined &&
       actionLabel !== null &&
       onActionPress !== undefined ? (
-        <Button title={actionLabel} variant="solid" onPress={onActionPress} />
+        <Button title={actionLabel} onPress={onActionPress} />
       ) : null}
     </Box>
   );

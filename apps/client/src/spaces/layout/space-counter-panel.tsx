@@ -62,16 +62,11 @@ export function SpaceCounterPanel(): ReactNode {
       <Box sx={{ flexDirection: 'row', gap: 2, alignItems: 'center' }}>
         <Button
           title={t`Decrement`}
-          variant="outlined"
+          intent="neutral"
           onPress={decrement}
           disabled={!isSynced}
         />
-        <Button
-          title={t`Increment`}
-          variant="solid"
-          onPress={increment}
-          disabled={!isSynced}
-        />
+        <Button title={t`Increment`} onPress={increment} disabled={!isSynced} />
       </Box>
       {!isSynced ? (
         <Text

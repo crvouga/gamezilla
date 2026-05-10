@@ -92,7 +92,7 @@ export function ShapeList({
 
       <Button
         title={t`Add Shape`}
-        variant="ghost"
+        intent="neutral"
         size="sm"
         disabled={busy}
         startIcon={<IconPlus size={14} />}

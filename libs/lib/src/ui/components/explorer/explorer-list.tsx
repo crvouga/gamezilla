@@ -1,15 +1,17 @@
 /**
  * `ExplorerList` -- renders all registered components grouped by category.
  *
- * App-agnostic: navigation is handled via the `onSelect` callback.
+ * App-agnostic: navigation is handled via the `onSelect` callback. Reactive
+ * to runtime registrations via {@link useComponentRegistry}.
  */
 
+import { useMemo } from 'react';
 import { Pressable, View } from 'react-native';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { ScrollView } from '../scroll-view';
 import { Text } from '../text';
-import { categories, componentRegistry } from './component-registry';
+import { useComponentRegistry } from './component-registry';
 
 export type ExplorerListProps = {
   onSelect: (name: string) => void;
@@ -17,13 +19,18 @@ export type ExplorerListProps = {
 
 export function ExplorerList({ onSelect }: ExplorerListProps) {
   const theme = useTheme();
+  const registry = useComponentRegistry();
+  const categories = useMemo(
+    () => [...new Set(registry.map((c) => c.category))],
+    [registry]
+  );
 
   return (
     <ScrollView sx={{ p: 4, gap: 6, pb: 16 }}>
       {categories.map((cat) => (
         <View key={cat} style={{ gap: 4, marginBottom: 16 }}>
           <Text variant="label" sx={{ color: 'textSecondary' }} label={cat} />
-          {componentRegistry
+          {registry
             .filter((c) => c.category === cat)
             .map((c) => (
               <Pressable

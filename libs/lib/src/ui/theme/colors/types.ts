@@ -25,6 +25,12 @@ export type ColorTokens = {
   /** Subtle brand gradient (two close, dark stops for light text on top). */
   gradientPrimaryStart: string;
   gradientPrimaryEnd: string;
+  /** Danger/destructive gradient (dark stops in both schemes). */
+  gradientDangerStart: string;
+  gradientDangerEnd: string;
+  /** Neutral/secondary gradient (dark stops in both schemes). */
+  gradientNeutralStart: string;
+  gradientNeutralEnd: string;
 };
 
 export type ColorTokenName = keyof ColorTokens;

@@ -6,8 +6,8 @@
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
-import { createPatchDbReadBatcher } from '@gamezilla/patch-db/scheduling/microtask-batcher';
 import { VisibilityPolicyRegistry } from '@gamezilla/patch-db/policy/visibility-policy-registry';
+import { createPatchDbReadBatcher } from '@gamezilla/patch-db/scheduling/microtask-batcher';
 import {
   DEFAULT_PATCH_DB_VISIBILITY_POLICIES,
   type AppAuthContext,

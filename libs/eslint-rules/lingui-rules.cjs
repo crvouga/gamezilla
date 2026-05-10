@@ -30,6 +30,7 @@ function linguiRules() {
           'fontFamily',
           'variant',
           'color',
+          'intent',
           'icon',
           'displayName',
           'accessibilityRole',

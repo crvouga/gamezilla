@@ -156,9 +156,8 @@ function ServerControlBar({
     <Stack direction="horizontal" spacing={2} align="center">
       <Button
         title={partitioned ? t`Reconnect` : t`Partition`}
-        variant={partitioned ? 'solid' : 'ghost'}
+        intent={partitioned ? 'danger' : 'neutral'}
         size="sm"
-        {...(partitioned ? { color: 'destructive' } : {})}
         disabled={busy}
         startIcon={<IconPartition active={partitioned} size={14} />}
         onPress={togglePartition}

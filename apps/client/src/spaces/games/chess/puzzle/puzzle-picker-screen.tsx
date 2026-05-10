@@ -2,6 +2,7 @@ import {
   CHESS_SCREEN,
   SetChessMainMenuScreen,
 } from '@gamezilla/domain/spaces/games/chess/chess-main-menu';
+import { ClearChessPuzzlePlay } from '@gamezilla/domain/spaces/games/chess/puzzle/chess-puzzle-play';
 import { SelectChessPuzzle } from '@gamezilla/domain/spaces/games/chess/puzzle/chess-puzzle-session';
 import { Box, IconButton, IconSymbol, Text, useTheme } from '@gamezilla/lib/ui';
 import { RoomMetaAttr } from '@gamezilla/room';
@@ -57,6 +58,7 @@ export function PuzzlePickerScreen(): ReactNode {
 
   const onPickPuzzle = useCallback(
     (puzzleId: string) => {
+      dispatch(ClearChessPuzzlePlay({}));
       dispatch(SelectChessPuzzle({ puzzleId }));
       dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.puzzlePlay }));
     },

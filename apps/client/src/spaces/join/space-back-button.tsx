@@ -8,6 +8,6 @@ export function SpaceBackButton(): ReactNode {
   const { t } = useLingui();
   const router = useRouter();
   return (
-    <Button title={t`Back`} variant="outlined" onPress={() => router.back()} />
+    <Button title={t`Back`} intent="neutral" onPress={() => router.back()} />
   );
 }

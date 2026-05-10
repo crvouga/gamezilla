@@ -11,6 +11,7 @@ import {
 } from '@gorhom/bottom-sheet';
 import type { PropsWithChildren, ReactNode } from 'react';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { View } from 'react-native';
 import { useTheme } from '../../theme';
 import { ModalBackdrop } from '../modal/modal-backdrop';
 import { ModalContent } from '../modal/modal-content';
@@ -26,6 +27,17 @@ export type ResponsiveSurfaceProps = PropsWithChildren<{
   maxWidth?: number;
   /** Bottom sheet snap points when `breakpoint === 'mobile'`. */
   snapPoints?: (string | number)[];
+  /**
+   * Fixed pixel height for the body region (everything below the title). Use
+   * when the body's content can swap between payloads of varying height (e.g.
+   * tabbed inspectors) and you want the surface to keep a stable shape across
+   * those swaps. Overflowing children are clipped; they should provide their
+   * own internal scroll if needed.
+   *
+   * On mobile, the body still stretches with the bottom sheet's snap point
+   * but is guaranteed to be at least this tall.
+   */
+  bodyHeight?: number;
 }>;
 
 export function ResponsiveSurface(props: ResponsiveSurfaceProps) {
@@ -34,11 +46,29 @@ export function ResponsiveSurface(props: ResponsiveSurfaceProps) {
   return <DesktopModal {...props} />;
 }
 
+function SurfaceBody({
+  bodyHeight,
+  fillParent,
+  children,
+}: {
+  bodyHeight: number | undefined;
+  /** When true, body stretches to fill its parent (mobile bottom sheet). */
+  fillParent: boolean;
+  children: ReactNode;
+}) {
+  if (bodyHeight === undefined) return <>{children}</>;
+  const style = fillParent
+    ? { flex: 1, minHeight: bodyHeight, overflow: 'hidden' as const }
+    : { height: bodyHeight, overflow: 'hidden' as const };
+  return <View style={style}>{children}</View>;
+}
+
 function MobileSheet({
   visible,
   onClose,
   title,
   snapPoints: snapPointsProp,
+  bodyHeight,
   children,
 }: ResponsiveSurfaceProps) {
   const theme = useTheme();
@@ -98,7 +128,9 @@ function MobileSheet({
             onClose={() => sheetRef.current?.dismiss()}
           />
         ) : null}
-        {children}
+        <SurfaceBody bodyHeight={bodyHeight} fillParent>
+          {children}
+        </SurfaceBody>
       </BottomSheetView>
     </BottomSheetModal>
   );
@@ -109,6 +141,7 @@ function DesktopModal({
   onClose,
   title,
   maxWidth = 400,
+  bodyHeight,
   children,
 }: ResponsiveSurfaceProps) {
   return (
@@ -118,7 +151,9 @@ function DesktopModal({
           {title !== undefined ? (
             <ResponsiveSurfaceHeader title={title} onClose={onClose} />
           ) : null}
-          {children}
+          <SurfaceBody bodyHeight={bodyHeight} fillParent={false}>
+            {children}
+          </SurfaceBody>
         </ModalContent>
       </ModalBackdrop>
     </ModalRoot>

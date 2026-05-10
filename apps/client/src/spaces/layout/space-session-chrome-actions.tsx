@@ -43,12 +43,8 @@ export function SpaceSessionChromeActions({
   }
 
   return isHost ? (
-    <Button title={t`End space`} variant="solid" onPress={onRequestEnd} />
+    <Button title={t`End space`} onPress={onRequestEnd} />
   ) : (
-    <Button
-      title={t`Leave space`}
-      variant="outlined"
-      onPress={onRequestLeave}
-    />
+    <Button title={t`Leave space`} intent="neutral" onPress={onRequestLeave} />
   );
 }

@@ -170,7 +170,6 @@ function QueryFormCard({
         />
         <Button
           title={running ? t`Running…` : t`Run read([query])`}
-          variant="solid"
           onPress={onRun}
         />
       </Stack>
@@ -254,7 +253,7 @@ export function QueryScreen({ onClose }: QueryScreenProps) {
         {onClose !== undefined ? (
           <Button
             title={<Trans>Close</Trans>}
-            variant="ghost"
+            intent="neutral"
             size="sm"
             onPress={onClose}
           />

@@ -1,7 +1,7 @@
 export {
   Button,
   type ButtonProps,
-  type ButtonVariant,
+  type ButtonIntent,
   type ButtonSize,
 } from './button';
 export { default as ButtonExample } from './button.example';

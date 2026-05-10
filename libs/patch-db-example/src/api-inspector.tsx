@@ -234,14 +234,13 @@ function ConnectionCard({ state }: { state: InspectorState }) {
             title={
               connectedUrl ? <Trans>Reconnect</Trans> : <Trans>Connect</Trans>
             }
-            variant="solid"
             size="md"
             onPress={handleConnect}
           />
           {connectedUrl && (
             <Button
               title={<Trans>Disconnect</Trans>}
-              variant="ghost"
+              intent="neutral"
               size="md"
               onPress={handleDisconnect}
             />

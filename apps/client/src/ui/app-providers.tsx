@@ -17,6 +17,7 @@ import {
   CommandRegistryProvider,
   DismissibleBannerPortalProvider,
   hideSplash,
+  OverlayPortalProvider,
   preventSplashAutoHide,
   type FontStacks,
 } from '@gamezilla/lib/ui';
@@ -56,22 +57,24 @@ export function AppProviders({ children }: { children: ReactNode }) {
         >
           <SkiaWebRoot>
             <AppI18nProvider>
-              <DismissibleBannerPortalProvider>
-                <BottomSheetModalProvider>
-                  <PatchBootstrap>
-                    <AuthProvider>
-                      <CommandRegistryProvider storage={AsyncStorage}>
-                        <AppCommands />
-                        <CommandPalette />
-                        <CommandPaletteNativeGesture>
-                          {children}
-                          <PwaUpdatePromptBanner />
-                        </CommandPaletteNativeGesture>
-                      </CommandRegistryProvider>
-                    </AuthProvider>
-                  </PatchBootstrap>
-                </BottomSheetModalProvider>
-              </DismissibleBannerPortalProvider>
+              <OverlayPortalProvider>
+                <DismissibleBannerPortalProvider>
+                  <BottomSheetModalProvider>
+                    <PatchBootstrap>
+                      <AuthProvider>
+                        <CommandRegistryProvider storage={AsyncStorage}>
+                          <AppCommands />
+                          <CommandPalette />
+                          <CommandPaletteNativeGesture>
+                            {children}
+                            <PwaUpdatePromptBanner />
+                          </CommandPaletteNativeGesture>
+                        </CommandRegistryProvider>
+                      </AuthProvider>
+                    </PatchBootstrap>
+                  </BottomSheetModalProvider>
+                </DismissibleBannerPortalProvider>
+              </OverlayPortalProvider>
             </AppI18nProvider>
           </SkiaWebRoot>
         </AppThemeRoot>

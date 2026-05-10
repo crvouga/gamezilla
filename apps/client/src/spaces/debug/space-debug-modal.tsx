@@ -1,19 +1,29 @@
 /**
  * `SpaceDebugModal` — developer-facing inspector for the space detail screen.
  *
- * Pure layout shell — each section atom renders its own `<JsonView>` subtree.
+ * Three tabs of raw, un-normalized state: the patch-db space entity, the
+ * shared-room state for the same space, and the patch-db space-membership
+ * entities scoped to this space.
+ *
+ * The surface is given a fixed `bodyHeight` so the modal does not jump in
+ * size when the user switches tabs; long payloads scroll inside `JsonView`.
  */
 
-import { SpaceDebugCurrentSpacesSection } from '@gamezilla/client/spaces/debug/space-debug-current-spaces-section';
-import { SpaceDebugMembersSection } from '@gamezilla/client/spaces/debug/space-debug-members-section';
-import { SpaceDebugRoomSection } from '@gamezilla/client/spaces/debug/space-debug-room-section';
-import { SpaceCounterPanel } from '@gamezilla/client/spaces/layout/space-counter-panel';
-import { SpaceDebugRouteSection } from '@gamezilla/client/spaces/debug/space-debug-route-section';
-import { SpaceDebugSelfSection } from '@gamezilla/client/spaces/debug/space-debug-self-section';
-import { SpaceDebugSpaceSection } from '@gamezilla/client/spaces/debug/space-debug-space-section';
-import { Box, ResponsiveSurface } from '@gamezilla/lib/ui';
+import { useSpaceSelector } from '@gamezilla/client/spaces/room/use-space-room-selector';
+import {
+  SPACE_ENTITY_TYPE,
+  SPACE_MEMBERSHIP_ENTITY_TYPE,
+  SpaceMembershipAttr,
+} from '@gamezilla/domain/spaces/space-entities';
+import {
+  Box,
+  JsonView,
+  ResponsiveSurface,
+  SegmentedControl,
+} from '@gamezilla/lib/ui';
+import { useEntity, useQuery } from '@gamezilla/patch-db/react';
 import { Trans } from '@lingui/react/macro';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 
 export type SpaceDebugModalProps = {
   visible: boolean;
@@ -21,26 +31,54 @@ export type SpaceDebugModalProps = {
   spaceId: string;
 };
 
+type Tab = 'space' | 'room' | 'memberships';
+
+const TAB_BODY_HEIGHT = 480;
+
 export function SpaceDebugModal({
   visible,
   onClose,
   spaceId,
 }: SpaceDebugModalProps): ReactNode {
+  const [tab, setTab] = useState<Tab>('space');
+  const space = useEntity(SPACE_ENTITY_TYPE, spaceId);
+  const room = useSpaceSelector((state) => state);
+  const memberships = useQuery({
+    entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
+    where: {
+      type: '=',
+      attribute: SpaceMembershipAttr.spaceId.key,
+      value: spaceId,
+    },
+  });
+
   return (
     <ResponsiveSurface
       visible={visible}
       onClose={onClose}
       title={<Trans>Space debug</Trans>}
       maxWidth={720}
+      bodyHeight={TAB_BODY_HEIGHT}
     >
       <Box sx={{ gap: 3 }}>
-        <SpaceDebugSelfSection />
-        <SpaceDebugRouteSection spaceId={spaceId} />
-        <SpaceDebugSpaceSection spaceId={spaceId} />
-        <SpaceDebugCurrentSpacesSection />
-        <SpaceDebugMembersSection spaceId={spaceId} />
-        <SpaceDebugRoomSection />
-        <SpaceCounterPanel />
+        <SegmentedControl<Tab>
+          segments={[
+            { key: 'space', label: 'space' },
+            { key: 'room', label: 'room' },
+            { key: 'memberships', label: 'memberships' },
+          ]}
+          selected={tab}
+          onSelect={setTab}
+        />
+        {tab === 'space' ? (
+          <JsonView value={space} maxHeight={TAB_BODY_HEIGHT} />
+        ) : null}
+        {tab === 'room' ? (
+          <JsonView value={room} maxHeight={TAB_BODY_HEIGHT} />
+        ) : null}
+        {tab === 'memberships' ? (
+          <JsonView value={memberships} maxHeight={TAB_BODY_HEIGHT} />
+        ) : null}
       </Box>
     </ResponsiveSurface>
   );

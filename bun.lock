@@ -204,6 +204,7 @@
       "dependencies": {
         "@gamezilla/lib": "workspace:*",
         "@gamezilla/room": "workspace:*",
+        "chess.js": "^1.4.0",
         "react": "19.1.0",
         "unique-names-generator": "^4.7.1",
       },

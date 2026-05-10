@@ -88,13 +88,12 @@ function HeaderControls({
       <Stack direction="horizontal" spacing={2} align="center">
         <Button
           title={<Trans>Run query</Trans>}
-          variant="solid"
           size="sm"
           onPress={onOpenQuery}
         />
         <Button
           title={<Trans>Refresh</Trans>}
-          variant="ghost"
+          intent="neutral"
           size="sm"
           onPress={onRefresh}
         />

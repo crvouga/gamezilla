@@ -20,6 +20,10 @@ export const PURPLE: ColorPalette = {
     disabled: '#e7e5ec',
     gradientPrimaryStart: '#7c3aed',
     gradientPrimaryEnd: '#5b21b6',
+    gradientDangerStart: '#5b21b6',
+    gradientDangerEnd: '#3b0764',
+    gradientNeutralStart: '#3f3f46',
+    gradientNeutralEnd: '#18181b',
   },
   dark: {
     surface: '#171320',
@@ -40,5 +44,9 @@ export const PURPLE: ColorPalette = {
     disabled: '#2a2438',
     gradientPrimaryStart: '#7c3aed',
     gradientPrimaryEnd: '#5b21b6',
+    gradientDangerStart: '#5b21b6',
+    gradientDangerEnd: '#3b0764',
+    gradientNeutralStart: '#52525b',
+    gradientNeutralEnd: '#27272a',
   },
 };

@@ -40,13 +40,7 @@ function HeaderTopRow({
           />
         </Stack>
       </Box>
-      <Button
-        title={t`Reset`}
-        variant="ghost"
-        size="sm"
-        color="destructive"
-        onPress={reset}
-      />
+      <Button title={t`Reset`} intent="danger" size="sm" onPress={reset} />
     </Stack>
   );
 }
@@ -86,7 +80,6 @@ function HeaderControls({
       <Box style={{ flex: 1 }} />
       <Button
         title={t`Add Client`}
-        variant="solid"
         size="sm"
         startIcon={<IconPlus size={14} />}
         onPress={onAddClient}

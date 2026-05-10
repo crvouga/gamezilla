@@ -70,7 +70,6 @@ export function SpacesScreen() {
         <Box style={sx} sx={{ gap: 3 }}>
           <Button
             title={t`+ New space`}
-            variant="solid"
             disabled={alreadyInSpace}
             onPress={() => void onNewSpace()}
           />
