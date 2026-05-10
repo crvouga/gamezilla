@@ -1,6 +1,6 @@
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
-import { Box, ScreenBase } from '@gamezilla/lib/ui';
-import { ExplorerList } from '@gamezilla/lib/ui/explorer';
+import { Box, ScreenBase } from '@gamezilla/ui';
+import { ExplorerList } from '@gamezilla/ui/explorer';
 import { Trans } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 

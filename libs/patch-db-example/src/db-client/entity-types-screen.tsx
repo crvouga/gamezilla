@@ -9,7 +9,7 @@ import {
   Text,
   TextInput,
   useTheme,
-} from '@gamezilla/lib/ui';
+} from '@gamezilla/ui';
 import { usePatchDb } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useMemo, useState } from 'react';

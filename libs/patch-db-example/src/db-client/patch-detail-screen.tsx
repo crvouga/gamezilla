@@ -8,7 +8,7 @@ import {
   Stack,
   Text,
   useTheme,
-} from '@gamezilla/lib/ui';
+} from '@gamezilla/ui';
 import type { Patch } from '@gamezilla/patch-db/interface';
 import { usePatchDb } from '@gamezilla/patch-db/react';
 import { useLingui } from '@lingui/react/macro';

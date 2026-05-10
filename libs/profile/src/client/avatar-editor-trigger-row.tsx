@@ -1,4 +1,4 @@
-import { Pressable, Text } from '@gamezilla/lib/ui';
+import { Pressable, Text } from '@gamezilla/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 

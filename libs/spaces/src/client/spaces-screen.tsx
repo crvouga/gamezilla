@@ -10,7 +10,7 @@ import {
   ScrollView,
   Text,
   useBreakpoint,
-} from '@gamezilla/lib/ui';
+} from '@gamezilla/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 

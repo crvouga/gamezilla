@@ -1,5 +1,5 @@
 import { useMemberSessionCount } from './use-member-session-count';
-import { Text } from '@gamezilla/lib/ui';
+import { Text } from '@gamezilla/ui';
 import type { ReactNode } from 'react';
 
 export type MemberSessionCountBadgeProps = {

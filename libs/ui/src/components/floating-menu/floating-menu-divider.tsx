@@ -1,6 +1,6 @@
 /**
  * Horizontal rule between groups inside {@link FloatingMenu}.
- * @internal Used only by {@link FloatingMenu}; not exported from `@gamezilla/lib/ui`.
+ * @internal Used only by {@link FloatingMenu}; not exported from `@gamezilla/ui`.
  */
 
 import { Box } from '../box';

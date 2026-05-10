@@ -1,6 +1,6 @@
 import { AccountDeviceCurrentBadge } from './account-device-current-badge';
 import { AccountDeviceListTitleText } from './account-device-list-title-text';
-import { Box } from '@gamezilla/lib/ui';
+import { Box } from '@gamezilla/ui';
 import type { ReactNode } from 'react';
 
 export type AccountDeviceDetailHeaderProps = {

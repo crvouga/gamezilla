@@ -4,7 +4,7 @@ import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
 } from '@gamezilla/spaces/shared/space-entities';
-import type { SxProps, TextVariant } from '@gamezilla/lib/ui';
+import type { SxProps, TextVariant } from '@gamezilla/ui';
 import { useQueryAttribute } from '@gamezilla/patch-db/react';
 import type { ReactNode } from 'react';
 

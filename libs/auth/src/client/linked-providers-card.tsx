@@ -1,5 +1,5 @@
 import { LinkedProvidersList } from './linked-providers-list';
-import { Card, Text } from '@gamezilla/lib/ui';
+import { Card, Text } from '@gamezilla/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 

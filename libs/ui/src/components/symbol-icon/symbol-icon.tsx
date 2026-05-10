@@ -4,7 +4,7 @@
 
 import { View } from 'react-native';
 
-import { assert } from '../../../assert';
+import { assert } from '@gamezilla/lib/assert';
 import { ICON_REGISTRY, type IconSymbolName } from './icon-registry';
 
 export type { IconSymbolName };

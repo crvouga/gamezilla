@@ -3,7 +3,7 @@
  */
 
 import { useAsync } from '@gamezilla/lib/async/use-async';
-import { ModalButton, ModalFooter, ResponsiveSurface } from '@gamezilla/lib/ui';
+import { ModalButton, ModalFooter, ResponsiveSurface } from '@gamezilla/ui';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import { useCallback, useEffect } from 'react';

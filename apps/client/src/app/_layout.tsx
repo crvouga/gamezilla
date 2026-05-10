@@ -1,6 +1,6 @@
 import { SpaceMiniplayer } from '@gamezilla/spaces/client/space-miniplayer';
 import { AppProviders } from '@gamezilla/client/ui/app-providers';
-import { Box, useStackProps } from '@gamezilla/lib/ui';
+import { Box, useStackProps } from '@gamezilla/ui';
 import { Stack } from 'expo-router';
 import 'react-native-reanimated';
 

@@ -1,5 +1,5 @@
 import { DEVICE_ENTITY_TYPE, DeviceAttr } from '../shared';
-import { Box, Text } from '@gamezilla/lib/ui';
+import { Box, Text } from '@gamezilla/ui';
 import { useQueryAttribute } from '@gamezilla/patch-db/react';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';

@@ -37,6 +37,7 @@
     "@gamezilla/profile": "workspace:*",
     "@gamezilla/room-example": "workspace:*",
     "@gamezilla/spaces": "workspace:*",
+    "@gamezilla/ui": "workspace:*",
     "@gorhom/bottom-sheet": "^5.1.6",
     "@jlongster/sql.js": "^1.6.7",
     "@lingui/core": "5.9.5",

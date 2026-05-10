@@ -1,6 +1,6 @@
 /**
  * Tappable row inside {@link FloatingMenu}.
- * @internal Used only by {@link FloatingMenu}; not exported from `@gamezilla/lib/ui`.
+ * @internal Used only by {@link FloatingMenu}; not exported from `@gamezilla/ui`.
  */
 
 import type { LocalizedString } from '@gamezilla/lib/i18n';

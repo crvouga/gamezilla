@@ -1,7 +1,7 @@
 import { ActiveSpaceBody } from './active-space-body';
 import { EndSpaceModal } from './end-space-modal';
 import { LeaveSpaceModal } from './leave-space-modal';
-import { Box, SafeAreaView } from '@gamezilla/lib/ui';
+import { Box, SafeAreaView } from '@gamezilla/ui';
 import { useRouter } from 'expo-router';
 import { useCallback, useState, type ReactNode } from 'react';
 

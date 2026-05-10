@@ -1,4 +1,4 @@
-import '../i18n/lingui-augmentation';
+import './lingui-augmentation';
 
 export * from './components';
 export * from './explorer';

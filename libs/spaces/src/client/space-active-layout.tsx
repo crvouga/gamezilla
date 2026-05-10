@@ -1,6 +1,6 @@
 import { SpaceActiveLayoutMobile } from './space-active-layout-mobile';
 import { SpaceActiveLayoutWide } from './space-active-layout-wide';
-import { useBreakpoint } from '@gamezilla/lib/ui';
+import { useBreakpoint } from '@gamezilla/ui';
 import type { ReactNode } from 'react';
 
 export type SpaceActiveLayoutProps = {

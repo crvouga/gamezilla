@@ -1,5 +1,5 @@
 import { useMemberIsOnline } from './use-member-is-online';
-import { StatusDot } from '@gamezilla/lib/ui';
+import { StatusDot } from '@gamezilla/ui';
 import type { ReactNode } from 'react';
 
 export type MemberPresenceDotProps = {

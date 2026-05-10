@@ -4,7 +4,7 @@ import {
 } from '../shared/chess-main-menu';
 import { ClearChessPuzzlePlay } from '../shared/chess-puzzle-play';
 import { SelectChessPuzzle } from '../shared/chess-puzzle-session';
-import { Box, IconButton, IconSymbol, Text, useTheme } from '@gamezilla/lib/ui';
+import { Box, IconButton, IconSymbol, Text, useTheme } from '@gamezilla/ui';
 import { RoomMetaAttr } from '@gamezilla/room';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, type ReactNode } from 'react';

@@ -5,7 +5,7 @@ import {
   SegmentedControl,
   Text,
   useThemePreference,
-} from '@gamezilla/lib/ui';
+} from '@gamezilla/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 
 export function ThemeSettingsScreen() {

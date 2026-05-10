@@ -1,4 +1,4 @@
-import { RegisterCommand, useThemePreference } from '@gamezilla/lib/ui';
+import { RegisterCommand, useThemePreference } from '@gamezilla/ui';
 import { useLingui } from '@lingui/react/macro';
 
 export function AppearanceCommands() {

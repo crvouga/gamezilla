@@ -1,5 +1,5 @@
 import { useMemberIsThisTab } from './use-member-is-this-tab';
-import { Text } from '@gamezilla/lib/ui';
+import { Text } from '@gamezilla/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 

@@ -16,6 +16,7 @@ module.exports = {
       include: [
         '<rootDir>/apps/client/src',
         '<rootDir>/libs/lib/src',
+        '<rootDir>/libs/ui/src',
         '<rootDir>/libs/patch-db-example/src',
         '<rootDir>/libs/room-example/src',
         '<rootDir>/libs/chess/src',

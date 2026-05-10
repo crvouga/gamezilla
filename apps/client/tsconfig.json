@@ -10,6 +10,7 @@
   "compilerOptions": {
     "paths": {
       "@gamezilla/lib/*": ["../../libs/lib/src/*"],
+      "@gamezilla/ui/*": ["../../libs/ui/src/*"],
       "@gamezilla/patch-db/*": ["../../libs/patch-db/src/*"],
       "@gamezilla/room": ["../../libs/room/src/index.ts"],
       "@gamezilla/room/server": ["../../libs/room/src/server.ts"],

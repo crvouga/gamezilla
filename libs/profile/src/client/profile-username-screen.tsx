@@ -7,7 +7,7 @@ import {
   ScreenBase,
   TextInput,
   type BodyContentProps,
-} from '@gamezilla/lib/ui';
+} from '@gamezilla/ui';
 import type { Entity } from '@gamezilla/patch-db/interface';
 import { usePatchDb } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';

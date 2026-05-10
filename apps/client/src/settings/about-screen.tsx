@@ -10,7 +10,7 @@ import {
   CopyToClipboardField,
   ScreenBase,
   Text,
-} from '@gamezilla/lib/ui';
+} from '@gamezilla/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';

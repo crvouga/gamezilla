@@ -6,7 +6,7 @@
 
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import { useColorScheme, useWindowDimensions } from 'react-native';
-import { assert } from '../../assert';
+import { assert } from '@gamezilla/lib/assert';
 import { getBreakpoint, type BreakpointName } from './breakpoints';
 import type { ColorScheme, ColorTokens } from './colors';
 import { COLOR_PALETTE } from './colors';

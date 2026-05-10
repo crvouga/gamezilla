@@ -13,7 +13,7 @@ import {
   Stack,
   Switch,
   Text,
-} from '@gamezilla/lib/ui';
+} from '@gamezilla/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMemo, useState, type ReactNode } from 'react';
 import { ChessBoard } from './chess-board';

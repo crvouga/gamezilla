@@ -1,4 +1,4 @@
-import { Box, Text } from '@gamezilla/lib/ui';
+import { Box, Text } from '@gamezilla/ui';
 import type { ReactNode } from 'react';
 
 export type AccountDeviceMetaPairProps = {

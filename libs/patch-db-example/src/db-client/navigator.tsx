@@ -5,7 +5,7 @@ import {
   ModalRoot,
   Text,
   type ScreenBaseBreadcrumb,
-} from '@gamezilla/lib/ui';
+} from '@gamezilla/ui';
 import type { Patch } from '@gamezilla/patch-db/interface';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';

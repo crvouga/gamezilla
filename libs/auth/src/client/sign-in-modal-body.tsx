@@ -1,4 +1,4 @@
-import { Box, ModalBody, SocialSignInButton, Text } from '@gamezilla/lib/ui';
+import { Box, ModalBody, SocialSignInButton, Text } from '@gamezilla/ui';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import type { HostedAuthUiPort } from './ports';

@@ -1,5 +1,5 @@
 import { useMemberIsThisTab } from './use-member-is-this-tab';
-import { Box } from '@gamezilla/lib/ui';
+import { Box } from '@gamezilla/ui';
 import type { ReactNode } from 'react';
 
 export type MemberThisTabHighlightProps = {

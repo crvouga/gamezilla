@@ -1,7 +1,7 @@
 import { MyDisplayName } from './my-display-name';
 import { MyProfileAvatar } from './my-profile-avatar';
 import { useAccountActions } from '@gamezilla/client/ui/use-account-actions';
-import { Box, Button, ScreenBase, useBreakpoint } from '@gamezilla/lib/ui';
+import { Box, Button, ScreenBase, useBreakpoint } from '@gamezilla/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 

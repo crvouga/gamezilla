@@ -155,9 +155,9 @@ msgstr "Account ID"
 msgid "Active"
 msgstr "Active"
 
-#: libs/lib/src/ui/components/multi-select-swatch/multi-select-swatch-grid.tsx
 #: libs/patch-db-example/src/todo/item/todo-add-bar.tsx
 #: libs/patch-db-example/src/todo/list/todo-list-create-bar.tsx
+#: libs/ui/src/components/multi-select-swatch/multi-select-swatch-grid.tsx
 msgid "Add"
 msgstr "Add"
 
@@ -169,7 +169,7 @@ msgstr "Add a todo..."
 msgid "Add Client"
 msgstr "Add Client"
 
-#: libs/lib/src/ui/components/multi-select-swatch/multi-select-swatch-grid.tsx
+#: libs/ui/src/components/multi-select-swatch/multi-select-swatch-grid.tsx
 msgid "Add hex (6 chars, no #)"
 msgstr "Add hex (6 chars, no #)"
 
@@ -201,7 +201,7 @@ msgstr "API"
 msgid "API endpoint"
 msgstr "API endpoint"
 
-#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx
+#: libs/ui/src/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx
 msgid "API origin (no helper)"
 msgstr "API origin (no helper)"
 
@@ -271,9 +271,9 @@ msgstr "Avatar style"
 #: libs/chess/src/client/chess-puzzle-play-screen.tsx
 #: libs/chess/src/client/chess-settings-developer-ui-component-detail-screen.tsx
 #: libs/chess/src/client/chess-settings-developer-ui-components-screen.tsx
-#: libs/lib/src/ui/components/screen-base/screen-base-header.tsx
 #: libs/spaces/src/client/main-menu-screen.tsx
 #: libs/spaces/src/client/space-back-button.tsx
+#: libs/ui/src/components/screen-base/screen-base-header.tsx
 msgid "Back"
 msgstr "Back"
 
@@ -345,11 +345,11 @@ msgstr "Build mode: {buildMode}"
 #: libs/auth/src/client/use-account-remove-local-data.ts
 #: libs/auth/src/client/use-sign-out-confirmation.tsx
 #: libs/chess/src/client/chess-board-promotion.tsx
-#: libs/lib/src/ui/components/modal/confirmation-modal.tsx
 #: libs/patch-db-example/src/todo/list/todo-list-delete-confirmation-modal.tsx
 #: libs/patch-db-example/src/todo/list/todo-lists-overview.tsx
 #: libs/spaces/src/client/end-space-confirm-modal.tsx
 #: libs/spaces/src/client/leave-space-confirm-modal.tsx
+#: libs/ui/src/components/modal/confirmation-modal.tsx
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -357,7 +357,7 @@ msgstr "Cancel"
 msgid "Cancel promotion"
 msgstr "Cancel promotion"
 
-#: libs/lib/src/ui/components/text-input/text-input.example.tsx
+#: libs/ui/src/components/text-input/text-input.example.tsx
 msgid "Cannot edit"
 msgstr "Cannot edit"
 
@@ -395,7 +395,7 @@ msgstr "Chess preferences and developer tools."
 msgid "ChessBoard"
 msgstr "ChessBoard"
 
-#: libs/lib/src/ui/components/picker/picker.tsx
+#: libs/ui/src/components/picker/picker.tsx
 msgid "Choose"
 msgstr "Choose"
 
@@ -466,8 +466,8 @@ msgstr "Clients"
 
 #: libs/auth/src/client/sign-in-modal.tsx
 #: libs/chess/src/client/chess-board.example.tsx
-#: libs/lib/src/ui/components/responsive-surface/responsive-surface-header.tsx
 #: libs/patch-db-example/src/db-client/query-screen.tsx
+#: libs/ui/src/components/responsive-surface/responsive-surface-header.tsx
 msgid "Close"
 msgstr "Close"
 
@@ -488,7 +488,7 @@ msgstr "Coming soon"
 msgid "Commit (short): {shortCommitHash}"
 msgstr "Commit (short): {shortCommitHash}"
 
-#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx
+#: libs/ui/src/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx
 msgid "Commit hash"
 msgstr "Commit hash"
 
@@ -500,7 +500,7 @@ msgstr "Completed"
 msgid "Component"
 msgstr "Component"
 
-#: libs/lib/src/ui/components/modal/confirmation-modal.tsx
+#: libs/ui/src/components/modal/confirmation-modal.tsx
 msgid "Confirm"
 msgstr "Confirm"
 
@@ -543,11 +543,11 @@ msgstr "Connection"
 msgid "Connection and server status. {statusWord}. {latency}."
 msgstr "Connection and server status. {statusWord}. {latency}."
 
-#: libs/lib/src/ui/components/social-sign-in-button/social-provider-config.ts
+#: libs/ui/src/components/social-sign-in-button/social-provider-config.ts
 msgid "Continue with Google"
 msgstr "Continue with Google"
 
-#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.tsx
+#: libs/ui/src/components/copy-to-clipboard-field/copy-to-clipboard-field.tsx
 msgid "Copied to clipboard"
 msgstr "Copied to clipboard"
 
@@ -555,11 +555,11 @@ msgstr "Copied to clipboard"
 msgid "Copy seed"
 msgstr "Copy seed"
 
-#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.tsx
+#: libs/ui/src/components/copy-to-clipboard-field/copy-to-clipboard-field.tsx
 msgid "Copy to clipboard"
 msgstr "Copy to clipboard"
 
-#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx
+#: libs/ui/src/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx
 msgid "CopyToClipboardField"
 msgstr "CopyToClipboardField"
 
@@ -678,7 +678,7 @@ msgstr "Devices and sign-in provider records"
 msgid "DiceBear generated avatar"
 msgstr "DiceBear generated avatar"
 
-#: libs/lib/src/ui/components/text-input/text-input.example.tsx
+#: libs/ui/src/components/text-input/text-input.example.tsx
 msgid "Disabled"
 msgstr "Disabled"
 
@@ -698,7 +698,7 @@ msgstr "Disconnect"
 msgid "Disconnected"
 msgstr "Disconnected"
 
-#: libs/lib/src/ui/components/dismissible-top-banner/dismissible-top-banner.tsx
+#: libs/ui/src/components/dismissible-top-banner/dismissible-top-banner.tsx
 msgid "Dismiss"
 msgstr "Dismiss"
 
@@ -726,7 +726,7 @@ msgstr "e.g. 1500"
 msgid "e.g. 2000"
 msgstr "e.g. 2000"
 
-#: libs/lib/src/ui/components/multi-select-swatch/multi-select-swatch-grid.tsx
+#: libs/ui/src/components/multi-select-swatch/multi-select-swatch-grid.tsx
 msgid "e.g. ff5733"
 msgstr "e.g. ff5733"
 
@@ -748,7 +748,7 @@ msgstr "Edit profile"
 msgid "Effects"
 msgstr "Effects"
 
-#: libs/lib/src/ui/components/text-input/text-input.example.tsx
+#: libs/ui/src/components/text-input/text-input.example.tsx
 msgid "Email"
 msgstr "Email"
 
@@ -792,7 +792,7 @@ msgstr "entityId (optional)"
 msgid "entityType (optional)"
 msgstr "entityType (optional)"
 
-#: libs/lib/src/ui/components/text-input/text-input.example.tsx
+#: libs/ui/src/components/text-input/text-input.example.tsx
 msgid "Error state"
 msgstr "Error state"
 
@@ -837,7 +837,7 @@ msgstr "Gamezilla"
 msgid "Global latency"
 msgstr "Global latency"
 
-#: libs/lib/src/ui/components/screen-base/screen-base-header.tsx
+#: libs/ui/src/components/screen-base/screen-base-header.tsx
 msgid "Go back"
 msgstr "Go back"
 
@@ -908,7 +908,7 @@ msgstr "Internet reachable: {reachable}"
 msgid "Invalid puzzle data"
 msgstr "Invalid puzzle data"
 
-#: libs/lib/src/ui/components/text-input/text-input.example.tsx
+#: libs/ui/src/components/text-input/text-input.example.tsx
 msgid "John Doe"
 msgstr "John Doe"
 
@@ -1070,7 +1070,7 @@ msgstr "Modal above the board"
 msgid "Model"
 msgstr "Model"
 
-#: libs/lib/src/ui/components/screen-base/screen-base-header.tsx
+#: libs/ui/src/components/screen-base/screen-base-header.tsx
 msgid "More"
 msgstr "More"
 
@@ -1087,7 +1087,7 @@ msgstr "Move the white pawn to a8 to trigger promotion. Inline picker is the def
 msgid "Multi-peer tic-tac-toe simulator"
 msgstr "Multi-peer tic-tac-toe simulator"
 
-#: libs/lib/src/ui/components/text-input/text-input.example.tsx
+#: libs/ui/src/components/text-input/text-input.example.tsx
 msgid "Name"
 msgstr "Name"
 
@@ -1250,7 +1250,7 @@ msgstr "Open a modal above the board"
 msgid "Open a modal, then drag a piece — the dragged piece must stay above the modal when the overlay portal is enabled."
 msgstr "Open a modal, then drag a piece — the dragged piece must stay above the modal when the overlay portal is enabled."
 
-#: libs/lib/src/ui/components/command-palette/command-palette-trigger.tsx
+#: libs/ui/src/components/command-palette/command-palette-trigger.tsx
 msgid "Open command palette"
 msgstr "Open command palette"
 
@@ -1578,7 +1578,7 @@ msgstr "Scanning snapshots…"
 msgid "Search by theme keyword and optional rating bounds. Data loads from PatchDB."
 msgstr "Search by theme keyword and optional rating bounds. Data loads from PatchDB."
 
-#: libs/lib/src/ui/components/picker/picker.tsx
+#: libs/ui/src/components/picker/picker.tsx
 msgid "Select…"
 msgstr "Select…"
 
@@ -1672,7 +1672,7 @@ msgstr "Sign in to link this device to a server account and see all devices for 
 msgid "Sign in to link this device to your server user. Your data stays local first."
 msgstr "Sign in to link this device to your server user. Your data stays local first."
 
-#: libs/lib/src/ui/components/social-sign-in-button/social-provider-config.ts
+#: libs/ui/src/components/social-sign-in-button/social-provider-config.ts
 msgid "Sign in with Google"
 msgstr "Sign in with Google"
 
@@ -1688,7 +1688,7 @@ msgstr "Sign out"
 msgid "Sign out?"
 msgstr "Sign out?"
 
-#: libs/lib/src/ui/components/social-sign-in-button/social-provider-config.ts
+#: libs/ui/src/components/social-sign-in-button/social-provider-config.ts
 msgid "Sign up with Google"
 msgstr "Sign up with Google"
 
@@ -1704,7 +1704,7 @@ msgstr "Sign-in providers"
 msgid "Sign-out failed: {detail}"
 msgstr "Sign-out failed: {detail}"
 
-#: libs/lib/src/ui/components/social-sign-in-button/social-provider-config.ts
+#: libs/ui/src/components/social-sign-in-button/social-provider-config.ts
 msgid "Signing in…"
 msgstr "Signing in…"
 
@@ -1808,7 +1808,7 @@ msgstr "Sync simulation with server and clients"
 msgid "system"
 msgstr "system"
 
-#: libs/lib/src/ui/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx
+#: libs/ui/src/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx
 msgid "Tap the field or icon to copy"
 msgstr "Tap the field or icon to copy"
 
@@ -1820,7 +1820,7 @@ msgstr "Tap to copy"
 msgid "Tap to return to your space"
 msgstr "Tap to return to your space"
 
-#: libs/lib/src/ui/components/text-input/text-input.example.tsx
+#: libs/ui/src/components/text-input/text-input.example.tsx
 msgid "TextInput"
 msgstr "TextInput"
 
@@ -1860,7 +1860,7 @@ msgstr "This deletes the offline database file for this account on this device. 
 msgid "This device"
 msgstr "This device"
 
-#: libs/lib/src/ui/components/text-input/text-input.example.tsx
+#: libs/ui/src/components/text-input/text-input.example.tsx
 msgid "This field is required"
 msgstr "This field is required"
 
@@ -1906,11 +1906,11 @@ msgstr "Two clients share one in-memory RoomServer; increments converge on both.
 msgid "Type"
 msgstr "Type"
 
-#: libs/lib/src/ui/components/command-palette/command-palette-input.tsx
+#: libs/ui/src/components/command-palette/command-palette-input.tsx
 msgid "Type a command or search…"
 msgstr "Type a command or search…"
 
-#: libs/lib/src/ui/components/text-input/text-input.example.tsx
+#: libs/ui/src/components/text-input/text-input.example.tsx
 msgid "Type something..."
 msgstr "Type something..."
 
@@ -2054,7 +2054,7 @@ msgstr "You will need to sign in again to sync with your user."
 msgid "You’re already in a space"
 msgstr "You’re already in a space"
 
-#: libs/lib/src/ui/components/text-input/text-input.example.tsx
+#: libs/ui/src/components/text-input/text-input.example.tsx
 msgid "you@example.com"
 msgstr "you@example.com"
 
@@ -2062,7 +2062,7 @@ msgstr "you@example.com"
 msgid "Your changes are saved locally and will sync when you are back online."
 msgstr "Your changes are saved locally and will sync when you are back online."
 
-#: libs/lib/src/ui/components/text-input/text-input.example.tsx
+#: libs/ui/src/components/text-input/text-input.example.tsx
 msgid "Your full name"
 msgstr "Your full name"
 

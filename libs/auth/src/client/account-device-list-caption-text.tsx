@@ -1,6 +1,6 @@
 import { formatDeviceListCaption } from './device-parsers';
 import { DEVICE_ENTITY_TYPE, DeviceAttr } from '../shared';
-import { Text } from '@gamezilla/lib/ui';
+import { Text } from '@gamezilla/ui';
 import { useQueryAttribute } from '@gamezilla/patch-db/react';
 import type { ReactNode } from 'react';
 

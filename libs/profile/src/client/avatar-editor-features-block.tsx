@@ -2,7 +2,7 @@ import { VariantSwatchStrip } from './avatar-editor-variant-swatch-strip';
 import type { SchemaField } from './dicebear-schema';
 import type { StyleKey } from './dicebear-styles';
 import type { AvatarConfig } from '../shared/avatar-config';
-import { Box, ResponsiveSurface, Text } from '@gamezilla/lib/ui';
+import { Box, ResponsiveSurface, Text } from '@gamezilla/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 
 import { TriggerRow } from './avatar-editor-trigger-row';

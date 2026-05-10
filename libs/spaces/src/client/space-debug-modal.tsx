@@ -20,7 +20,7 @@ import {
   JsonView,
   ResponsiveSurface,
   SegmentedControl,
-} from '@gamezilla/lib/ui';
+} from '@gamezilla/ui';
 import { useEntity, useQuery } from '@gamezilla/patch-db/react';
 import { Trans } from '@lingui/react/macro';
 import { useState, type ReactNode } from 'react';

@@ -10,7 +10,7 @@ import {
   ScreenBase,
   Text,
   type ScreenBaseAction,
-} from '@gamezilla/lib/ui';
+} from '@gamezilla/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMemo, type ReactNode } from 'react';
 

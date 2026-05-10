@@ -1,5 +1,5 @@
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
-import { Center, ScreenBase, Spinner } from '@gamezilla/lib/ui';
+import { Center, ScreenBase, Spinner } from '@gamezilla/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 

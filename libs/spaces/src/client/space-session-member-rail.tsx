@@ -1,6 +1,6 @@
 import { SpaceMembersGuestsBlock } from './space-members-guests-block';
 import { SpaceMembersHostBlock } from './space-members-host-block';
-import { Box, ScrollView } from '@gamezilla/lib/ui';
+import { Box, ScrollView } from '@gamezilla/ui';
 import type { ReactNode } from 'react';
 
 export type SpaceSessionMemberRailProps = {

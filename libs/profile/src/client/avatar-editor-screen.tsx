@@ -1,4 +1,4 @@
-import { Box, ConfirmationModal, ScreenBase } from '@gamezilla/lib/ui';
+import { Box, ConfirmationModal, ScreenBase } from '@gamezilla/ui';
 import { Trans } from '@lingui/react/macro';
 
 import { BackgroundBlock } from './avatar-editor-background-block';

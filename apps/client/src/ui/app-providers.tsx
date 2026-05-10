@@ -21,7 +21,7 @@ import {
   OverlayPortalProvider,
   preventSplashAutoHide,
   type FontStacks,
-} from '@gamezilla/lib/ui';
+} from '@gamezilla/ui';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, type ReactNode } from 'react';

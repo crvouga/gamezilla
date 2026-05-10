@@ -7,7 +7,7 @@
  * Skia + chess.js stay out of the bundle for users who never open it.
  */
 
-import { registerComponentExample } from '@gamezilla/lib/ui';
+import { registerComponentExample } from '@gamezilla/ui';
 import ChessBoardExample from './chess-board.example';
 
 let registered = false;

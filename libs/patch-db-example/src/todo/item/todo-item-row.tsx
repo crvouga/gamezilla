@@ -1,4 +1,4 @@
-import { Box, Pressable, Text, useTheme } from '@gamezilla/lib/ui';
+import { Box, Pressable, Text, useTheme } from '@gamezilla/ui';
 import { usePatchDb, useQueryAttribute } from '@gamezilla/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';

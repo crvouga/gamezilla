@@ -1,4 +1,4 @@
-import { Box, Pressable, ScrollView, Text, useTheme } from '@gamezilla/lib/ui';
+import { Box, Pressable, ScrollView, Text, useTheme } from '@gamezilla/ui';
 import type { ReactNode } from 'react';
 import { ScrollView as RNScrollView } from 'react-native';
 

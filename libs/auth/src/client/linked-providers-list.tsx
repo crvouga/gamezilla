@@ -1,6 +1,6 @@
 import { LinkedProviderRow } from './linked-provider-row';
 import { useLinkedProviderEntityIds } from './use-linked-provider-entity-ids';
-import { Box, Text } from '@gamezilla/lib/ui';
+import { Box, Text } from '@gamezilla/ui';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 

@@ -7,8 +7,8 @@ import {
   Select,
   Stack,
   Text,
-} from '@gamezilla/lib/ui';
-import { useTheme } from '@gamezilla/lib/ui/theme';
+} from '@gamezilla/ui';
+import { useTheme } from '@gamezilla/ui/theme';
 import type { Entity } from '@gamezilla/patch-db/interface';
 import {
   PatchDbStackContextProvider,

@@ -6,7 +6,7 @@ import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
 } from '@gamezilla/spaces/shared/space-entities';
-import { Pressable, type PressableProps } from '@gamezilla/lib/ui';
+import { Pressable, type PressableProps } from '@gamezilla/ui';
 import { useQueryAttribute } from '@gamezilla/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';

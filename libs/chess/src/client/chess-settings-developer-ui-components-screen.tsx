@@ -11,7 +11,7 @@ import {
   IconButton,
   IconSymbol,
   useTheme,
-} from '@gamezilla/lib/ui';
+} from '@gamezilla/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, type ReactNode } from 'react';
 

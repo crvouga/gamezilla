@@ -1,8 +1,8 @@
 /**
- * @gamezilla/lib/ui -- application-agnostic React Native design system.
+ * @gamezilla/ui -- application-agnostic React Native design system.
  *
  * Usage:
- *   import { Box, Text, Stack, Button } from '@gamezilla/lib/ui';
+ *   import { Box, Text, Stack, Button } from '@gamezilla/ui';
  */
 
 // Foundation

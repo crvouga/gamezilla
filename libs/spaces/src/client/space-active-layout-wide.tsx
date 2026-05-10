@@ -2,7 +2,7 @@ import { SpaceSessionMemberRail } from './space-session-member-rail';
 import { useSpaceSessionUi } from './space-session-ui-context';
 import { SpaceWideRailFooter } from './space-wide-rail-footer';
 import { SpaceWideRailHeader } from './space-wide-rail-header';
-import { Box } from '@gamezilla/lib/ui';
+import { Box } from '@gamezilla/ui';
 import type { ReactNode } from 'react';
 
 const RAIL_WIDTH = 276;

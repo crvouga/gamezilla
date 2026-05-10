@@ -1,4 +1,4 @@
-import { Button } from '@gamezilla/lib/ui';
+import { Button } from '@gamezilla/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';

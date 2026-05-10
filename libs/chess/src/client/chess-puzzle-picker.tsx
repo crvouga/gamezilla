@@ -7,7 +7,7 @@ import {
   Text,
   TextInput,
   useTheme,
-} from '@gamezilla/lib/ui';
+} from '@gamezilla/ui';
 import {
   andWhereClause,
   type PatchDbQueryWhereClause,

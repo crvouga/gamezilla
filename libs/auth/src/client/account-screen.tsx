@@ -3,7 +3,7 @@ import { AccountDevicesCard } from './account-devices-card';
 import { LinkedProvidersCard } from './linked-providers-card';
 import { useAuth } from './auth-context';
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
-import { Box, ScreenBase } from '@gamezilla/lib/ui';
+import { Box, ScreenBase } from '@gamezilla/ui';
 import { Trans } from '@lingui/react/macro';
 import { type Href, useRouter } from 'expo-router';
 import { useCallback } from 'react';

@@ -1,9 +1,4 @@
-import {
-  Box,
-  IconSymbol,
-  useBreakpoint,
-  useTabsProps,
-} from '@gamezilla/lib/ui';
+import { Box, IconSymbol, useBreakpoint, useTabsProps } from '@gamezilla/ui';
 import { useLingui } from '@lingui/react/macro';
 import { Tabs } from 'expo-router';
 

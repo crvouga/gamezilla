@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SegmentedControl } from '@gamezilla/lib/ui';
+import { SegmentedControl } from '@gamezilla/ui';
 import { useLingui } from '@lingui/react/macro';
 
 export type PatchdbAppMode = 'playground' | 'syncInspector';

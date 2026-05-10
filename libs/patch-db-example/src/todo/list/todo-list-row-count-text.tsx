@@ -1,4 +1,4 @@
-import { Text } from '@gamezilla/lib/ui';
+import { Text } from '@gamezilla/ui';
 import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle } from 'react-native';
 

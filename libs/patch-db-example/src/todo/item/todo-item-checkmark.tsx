@@ -1,4 +1,4 @@
-import { Text, useTheme } from '@gamezilla/lib/ui';
+import { Text, useTheme } from '@gamezilla/ui';
 import { useQueryAttribute } from '@gamezilla/patch-db/react';
 import type { ReactNode } from 'react';
 

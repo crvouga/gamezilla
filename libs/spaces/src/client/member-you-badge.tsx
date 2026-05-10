@@ -1,5 +1,5 @@
 import { useMemberIsYou } from './use-member-is-you';
-import { Text } from '@gamezilla/lib/ui';
+import { Text } from '@gamezilla/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 

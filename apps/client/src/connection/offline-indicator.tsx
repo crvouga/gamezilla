@@ -1,4 +1,4 @@
-import { Box, Text } from '@gamezilla/lib/ui';
+import { Box, Text } from '@gamezilla/ui';
 import { SYNC_ERROR_TOPIC } from '@gamezilla/patch-db/impl-sync';
 import { usePatchDbStack } from '@gamezilla/patch-db/react';
 import { useLingui } from '@lingui/react/macro';

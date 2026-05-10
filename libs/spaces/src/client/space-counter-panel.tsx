@@ -4,7 +4,7 @@ import {
   Decrement,
   Increment,
 } from '@gamezilla/spaces/shared/counter';
-import { Box, Button, Text } from '@gamezilla/lib/ui';
+import { Box, Button, Text } from '@gamezilla/ui';
 import {
   RoomMetaAttr,
   SPACE_ROOM_NAME,

@@ -1,5 +1,5 @@
 import type { PlaygroundSim } from '@gamezilla/patch-db/sim/playground-sim';
-import { Box, Spinner, Stack, Text, useTheme } from '@gamezilla/lib/ui';
+import { Box, Spinner, Stack, Text, useTheme } from '@gamezilla/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useMemo, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

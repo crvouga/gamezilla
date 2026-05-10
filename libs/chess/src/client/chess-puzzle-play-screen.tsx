@@ -24,7 +24,7 @@ import {
   Pressable,
   Text,
   useTheme,
-} from '@gamezilla/lib/ui';
+} from '@gamezilla/ui';
 import {
   useEntityAttribute,
   usePatchDbStack,

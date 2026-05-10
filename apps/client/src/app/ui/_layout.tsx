@@ -1,4 +1,4 @@
-import { useStackProps } from '@gamezilla/lib/ui';
+import { useStackProps } from '@gamezilla/ui';
 import { Stack } from 'expo-router';
 
 export default function UIExplorerLayout() {

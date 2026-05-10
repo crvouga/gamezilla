@@ -3,7 +3,7 @@
  * Import this module from the UI package entry so dependents resolve the augmentation.
  */
 import type { I18n, MessageDescriptor } from '@lingui/core';
-import type { LocalizedString } from './localized-string';
+import type { LocalizedString } from '@gamezilla/lib/i18n';
 
 declare module '@lingui/core/macro' {
   export function t(

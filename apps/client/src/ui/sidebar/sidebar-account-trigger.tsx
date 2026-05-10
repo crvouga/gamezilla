@@ -1,6 +1,6 @@
 import { SidebarAccountTriggerAvatar } from '@gamezilla/client/ui/sidebar/sidebar-account-trigger-avatar';
 import { SidebarAccountTriggerName } from '@gamezilla/client/ui/sidebar/sidebar-account-trigger-name';
-import { Box, IconSymbol, Pressable, useTheme } from '@gamezilla/lib/ui';
+import { Box, IconSymbol, Pressable, useTheme } from '@gamezilla/ui';
 import { t } from '@lingui/core/macro';
 import { type ElementRef, type ReactNode, type RefObject } from 'react';
 

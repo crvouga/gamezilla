@@ -12,7 +12,7 @@
  */
 import { View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { assert } from '../../../assert';
+import { assert } from '@gamezilla/lib/assert';
 import { BRAND_ICON_REGISTRY, type BrandIconName } from './brand-icon-registry';
 
 export type { BrandIconName };

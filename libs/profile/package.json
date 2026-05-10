@@ -47,6 +47,7 @@
     "@gamezilla/auth": "workspace:*",
     "@gamezilla/lib": "workspace:*",
     "@gamezilla/patch-db": "workspace:*",
+    "@gamezilla/ui": "workspace:*",
     "@lingui/core": "5.9.5",
     "@lingui/react": "5.9.5",
     "expo-clipboard": "~8.0.7",

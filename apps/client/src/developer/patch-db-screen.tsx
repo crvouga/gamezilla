@@ -1,5 +1,5 @@
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
-import { Box, ScreenBaseHeader } from '@gamezilla/lib/ui';
+import { Box, ScreenBaseHeader } from '@gamezilla/ui';
 import { PlaygroundApp } from '@gamezilla/patch-db-example/playground-app';
 import { Trans } from '@lingui/react/macro';
 

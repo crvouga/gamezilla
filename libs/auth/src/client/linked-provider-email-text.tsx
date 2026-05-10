@@ -1,5 +1,5 @@
 import { ACCOUNT_PROVIDER_ENTITY_TYPE, AccountProviderAttr } from '../shared';
-import { Text } from '@gamezilla/lib/ui';
+import { Text } from '@gamezilla/ui';
 import { useQueryAttribute } from '@gamezilla/patch-db/react';
 import type { ReactNode } from 'react';
 

@@ -31,7 +31,7 @@ import {
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import { t } from '@lingui/core/macro';
-import { assert } from '../../../assert';
+import { assert } from '@gamezilla/lib/assert';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Button } from '../button';

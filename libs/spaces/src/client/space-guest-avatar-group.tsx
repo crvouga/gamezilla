@@ -1,7 +1,7 @@
 import { SpaceGuestMembershipAvatar } from './space-guest-membership-avatar';
 import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
 import { optionalProps } from '@gamezilla/client/ui/optional-props';
-import { AvatarGroup } from '@gamezilla/lib/ui';
+import { AvatarGroup } from '@gamezilla/ui';
 import type { ReactNode } from 'react';
 
 export type SpaceGuestAvatarGroupProps = {

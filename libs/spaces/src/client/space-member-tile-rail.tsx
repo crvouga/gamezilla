@@ -3,7 +3,7 @@ import { UserProfileAvatar } from '@gamezilla/profile/client/user-profile-avatar
 import { MemberPresenceBadgesRow } from './member-presence-badges-row';
 import { MemberPresenceDot } from './member-presence-dot';
 import { MemberThisTabHighlight } from './member-this-tab-highlight';
-import { Box } from '@gamezilla/lib/ui';
+import { Box } from '@gamezilla/ui';
 import type { ReactNode } from 'react';
 
 export type SpaceMemberTileRailProps = {

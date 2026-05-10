@@ -9,8 +9,8 @@ import {
   StatusDot,
   Text,
   TextInput,
-} from '@gamezilla/lib/ui';
-import { useTheme } from '@gamezilla/lib/ui/theme';
+} from '@gamezilla/ui';
+import { useTheme } from '@gamezilla/ui/theme';
 import { assertUrl } from '@gamezilla/patch-db/assert-url';
 import type { Patch, PatchDbResult } from '@gamezilla/patch-db/interface';
 import {

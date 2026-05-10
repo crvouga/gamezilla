@@ -2,8 +2,8 @@ import { AccountDeviceCurrentBadge } from './account-device-current-badge';
 import { AccountDeviceListCaptionText } from './account-device-list-caption-text';
 import { AccountDeviceListTitleText } from './account-device-list-title-text';
 import { AccountDeviceSessionCaptionText } from './account-device-session-caption-text';
-import { Box, IconSymbol, MenuRow } from '@gamezilla/lib/ui';
-import { useTheme } from '@gamezilla/lib/ui/theme';
+import { Box, IconSymbol, MenuRow } from '@gamezilla/ui';
+import { useTheme } from '@gamezilla/ui/theme';
 import type { ReactNode } from 'react';
 
 export type AccountDeviceMenuRowProps = {

@@ -1,4 +1,4 @@
-import { useOverlayPortalSlot } from '@gamezilla/lib/ui';
+import { useOverlayPortalSlot } from '@gamezilla/ui';
 import {
   useCallback,
   useId,

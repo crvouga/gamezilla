@@ -1,4 +1,4 @@
-import { RegisterCommand, componentRegistry } from '@gamezilla/lib/ui';
+import { RegisterCommand, componentRegistry } from '@gamezilla/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 

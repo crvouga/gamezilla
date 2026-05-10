@@ -12,6 +12,7 @@
   "dependencies": {
     "@gamezilla/lib": "workspace:*",
     "@gamezilla/room": "workspace:*",
+    "@gamezilla/ui": "workspace:*",
     "@lingui/core": "5.9.5",
     "@lingui/react": "5.9.5",
     "expo": "~54.0.34",

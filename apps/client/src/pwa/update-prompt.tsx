@@ -1,4 +1,4 @@
-import { DismissibleBanner } from '@gamezilla/lib/ui';
+import { DismissibleBanner } from '@gamezilla/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Platform } from 'react-native';

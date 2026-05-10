@@ -1,4 +1,4 @@
-import { Box, StatusDot, Text } from '@gamezilla/lib/ui';
+import { Box, StatusDot, Text } from '@gamezilla/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 

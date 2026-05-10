@@ -5,7 +5,7 @@ import {
   MultiSelectSwatchGrid,
   ResponsiveSurface,
   Text,
-} from '@gamezilla/lib/ui';
+} from '@gamezilla/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 
 import { TriggerRow } from './avatar-editor-trigger-row';

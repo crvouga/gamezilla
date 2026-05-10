@@ -4,7 +4,7 @@ import {
   SpaceSessionUiProvider,
   type SpaceSessionUiValue,
 } from './space-session-ui-context';
-import { Box } from '@gamezilla/lib/ui';
+import { Box } from '@gamezilla/ui';
 import { useMemo, type ReactNode } from 'react';
 
 export type ActiveSpaceBodyProps = {

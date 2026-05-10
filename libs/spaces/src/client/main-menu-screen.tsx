@@ -7,7 +7,7 @@ import {
   Text,
   useTheme,
   type Theme,
-} from '@gamezilla/lib/ui';
+} from '@gamezilla/ui';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 

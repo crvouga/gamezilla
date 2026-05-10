@@ -1,6 +1,6 @@
 import type { AvatarConfig } from '../shared/avatar-config';
 import { resolveAvatarSeed } from '../shared/avatar-config';
-import { Avatar } from '@gamezilla/lib/ui';
+import { Avatar } from '@gamezilla/ui';
 import { useMemo, type ReactNode } from 'react';
 
 import { profileAvatarSvg } from './profile-dicebear';

@@ -4,7 +4,7 @@ import { SpaceHostAvatar } from './space-host-avatar';
 import { SpaceHostNameText } from './space-host-name-text';
 import { SpaceLiveBadge } from './space-live-badge';
 import { SpaceTitleText } from './space-title-text';
-import { Box, elevation, GradientBox, useTheme } from '@gamezilla/lib/ui';
+import { Box, elevation, GradientBox, useTheme } from '@gamezilla/ui';
 import type { ReactNode } from 'react';
 
 export type SpaceCardProps = {

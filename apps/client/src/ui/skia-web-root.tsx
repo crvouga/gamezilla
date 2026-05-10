@@ -1,6 +1,6 @@
 /* eslint-disable lingui/no-unlocalized-strings -- CanvasKit asset paths / dev assertions */
 import { assert } from '@gamezilla/lib/assert';
-import { Box, Spinner } from '@gamezilla/lib/ui';
+import { Box, Spinner } from '@gamezilla/ui';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Platform } from 'react-native';
 

@@ -1,4 +1,4 @@
-import { Box, IconSymbol, Pressable, Text, useTheme } from '@gamezilla/lib/ui';
+import { Box, IconSymbol, Pressable, Text, useTheme } from '@gamezilla/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

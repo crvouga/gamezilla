@@ -16,7 +16,7 @@ import {
   StatusDot,
   Text,
   type FloatingMenuContent,
-} from '@gamezilla/lib/ui';
+} from '@gamezilla/ui';
 import { t } from '@lingui/core/macro';
 import { useRouter } from 'expo-router';
 import {

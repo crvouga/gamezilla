@@ -1,7 +1,7 @@
 import { formatTimestamp } from './device-parsers';
 import { useDeviceActiveSessionCount } from './use-device-active-session-count';
 import { useDeviceLatestSessionExpiresAt } from './use-device-latest-session-expires-at';
-import { Text } from '@gamezilla/lib/ui';
+import { Text } from '@gamezilla/ui';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
