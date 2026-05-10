@@ -8,6 +8,8 @@
     "./client/chess-board.example": "./src/client/chess-board.example.tsx",
     "./client/chess-board-arrows": "./src/client/chess-board-arrows.tsx",
     "./client/chess-board-canvas": "./src/client/chess-board-canvas.tsx",
+    "./client/chess-board-canvas-bootstrap": "./src/client/chess-board-canvas-bootstrap.tsx",
+    "./client/chess-board-canvas-runtime": "./src/client/chess-board-canvas-runtime.ts",
     "./client/chess-board-feedback": "./src/client/chess-board-feedback.tsx",
     "./client/chess-board-geometry": "./src/client/chess-board-geometry.ts",
     "./client/chess-board-gestures": "./src/client/chess-board-gestures.ts",

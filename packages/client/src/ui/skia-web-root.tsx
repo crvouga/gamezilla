@@ -1,11 +1,10 @@
 /* eslint-disable lingui/no-unlocalized-strings -- CanvasKit asset paths / dev assertions */
 import { assert } from '@gamezilla/lib/assert';
-import { Box, Spinner } from '@gamezilla/ui';
-import { useEffect, useState, type ReactNode } from 'react';
+import { use, type ReactNode } from 'react';
 import { Platform } from 'react-native';
 
 const canvaskitLocateFile = (file: string): string =>
-  file.endsWith('.wasm') ? '/canvaskit.wasm' : `/${file}`;
+  file.endsWith('.wasm') ? '/generated/skia/canvaskit.wasm' : `/${file}`;
 
 /**
  * Loads CanvasKit once on web (same contract as Shopify {@link LoadSkiaWeb}).
@@ -14,7 +13,7 @@ const canvaskitLocateFile = (file: string): string =>
  * Do not statically import `@shopify/react-native-skia` (or modules that do)
  * before this completes — `Skia` is created at import time from
  * `global.CanvasKit`. Use `React.lazy(() => import(...))` after
- * {@link assertSkiaWebLoaded} for Skia surfaces (see `chess-board.tsx`).
+ * {@link assertSkiaWebLoaded} for Skia surfaces.
  */
 export async function loadSkiaWebOnce(): Promise<void> {
   if (Platform.OS !== 'web') return;
@@ -25,29 +24,30 @@ export async function loadSkiaWebOnce(): Promise<void> {
 }
 
 /**
- * Web: blocks the subtree until {@link loadSkiaWebOnce} has finished so Skia
- * modules can import safely. Native: no-op pass-through.
+ * Stable promise reference for `React.use()`. `use()` requires the same
+ * thenable across renders or it would re-suspend forever.
+ */
+let skiaWebPromise: Promise<void> | null = null;
+function getSkiaWebPromise(): Promise<void> {
+  if (skiaWebPromise === null) {
+    skiaWebPromise = loadSkiaWebOnce();
+  }
+  return skiaWebPromise;
+}
+
+/**
+ * Web: suspends until {@link loadSkiaWebOnce} has finished so Skia modules
+ * can import safely. Native: no-op pass-through.
+ *
+ * Wrap with a `<Suspense fallback={...}>` boundary at the app root — that
+ * boundary owns the loading UI; this component intentionally has no UI of
+ * its own. Suspending (instead of state-gating) means the rest of the
+ * provider tree above the Suspense boundary keeps its identity across the
+ * loading transition.
  */
 export function SkiaWebRoot({ children }: { children: ReactNode }): ReactNode {
-  const [ready, setReady] = useState(Platform.OS !== 'web');
-
-  useEffect(() => {
-    if (Platform.OS !== 'web') return;
-    let cancelled = false;
-    void loadSkiaWebOnce().then(() => {
-      if (!cancelled) setReady(true);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  if (!ready) {
-    return (
-      <Box sx={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Spinner />
-      </Box>
-    );
+  if (Platform.OS === 'web') {
+    use(getSkiaWebPromise());
   }
   return <>{children}</>;
 }

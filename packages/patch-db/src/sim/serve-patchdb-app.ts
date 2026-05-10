@@ -2,10 +2,10 @@
  * Serves the `packages/patch-db-example` folder over HTTP (default port 8765).
  * Use if `file://` blocks sql.js WASM; open http://127.0.0.1:8765
  */
-import { join } from 'node:path';
 import { createLogger } from '@gamezilla/lib/logger';
 import { Hono } from 'hono';
 import { serveStatic } from 'hono/bun';
+import { join } from 'node:path';
 
 const log = createLogger({ name: 'patch-db:app' });
 
@@ -15,7 +15,7 @@ const ROOT = join(
   '..',
   '..',
   '..',
-  'libs',
+  'packages',
   'patch-db-example'
 );
 

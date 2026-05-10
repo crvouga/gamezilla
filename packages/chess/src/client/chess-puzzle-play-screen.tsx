@@ -206,9 +206,16 @@ function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
         }}
         style={{ width: '100%' }}
       >
+        {/**
+         * Each text row is pinned to a fixed line count so transitioning from
+         * loading → loaded (rating 0 → 1234, no themes → comma list, status
+         * text length changes) can never wrap and shift the rows below.
+         */}
         <Box sx={{ gap: 2, alignItems: 'center' }}>
           <Text
             variant="title"
+            numberOfLines={1}
+            ellipsizeMode="tail"
             sx={{ textAlign: 'center' }}
             label={
               <Trans>
@@ -219,18 +226,24 @@ function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
           {themesLine !== undefined ? (
             <Text
               variant="caption"
+              numberOfLines={1}
+              ellipsizeMode="tail"
               sx={{ color: 'textSecondary', textAlign: 'center' }}
               label={themesLine}
             />
           ) : (
             <Text
               variant="caption"
+              numberOfLines={1}
+              ellipsizeMode="tail"
               sx={{ color: 'textSecondary', textAlign: 'center' }}
               label={<Trans>No themes listed</Trans>}
             />
           )}
           <Text
             variant="body"
+            numberOfLines={1}
+            ellipsizeMode="tail"
             sx={{ textAlign: 'center', opacity: 0.9 }}
             label={statusLabelNode(status)}
           />

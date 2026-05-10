@@ -5,26 +5,28 @@ import {
   useFonts,
 } from '@expo-google-fonts/nunito';
 import { AuthProvider } from '@gamezilla/auth/client/auth-context';
-import { ensureProfile } from '@gamezilla/profile/client/ensure-profile-entity';
 import { AppI18nProvider } from '@gamezilla/client/i18n/i18n-provider';
 import { PwaUpdatePromptBanner } from '@gamezilla/client/pwa/update-prompt';
 import { AppCommands } from '@gamezilla/client/ui/app-commands';
 import { CommandPaletteNativeGesture } from '@gamezilla/client/ui/command-palette-native-gesture';
 import { PatchBootstrap } from '@gamezilla/client/ui/patch-db-bootstrap';
 import { SkiaWebRoot } from '@gamezilla/client/ui/skia-web-root';
+import { ensureProfile } from '@gamezilla/profile/client/ensure-profile-entity';
 import {
   AppThemeRoot,
+  Box,
   CommandPalette,
   CommandRegistryProvider,
   DismissibleBannerPortalProvider,
   hideSplash,
   OverlayPortalProvider,
   preventSplashAutoHide,
+  Spinner,
   type FontStacks,
 } from '@gamezilla/ui';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, type ReactNode } from 'react';
+import { Suspense, useEffect, type ReactNode } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -56,28 +58,48 @@ export function AppProviders({ children }: { children: ReactNode }) {
           storage={AsyncStorage}
           {...(fontsLoaded ? { fonts: nunitoFontStacks } : {})}
         >
-          <SkiaWebRoot>
-            <AppI18nProvider>
-              <OverlayPortalProvider>
-                <DismissibleBannerPortalProvider>
-                  <BottomSheetModalProvider>
-                    <PatchBootstrap>
-                      <AuthProvider ensureProfile={ensureProfile}>
-                        <CommandRegistryProvider storage={AsyncStorage}>
-                          <AppCommands />
-                          <CommandPalette />
-                          <CommandPaletteNativeGesture>
-                            {children}
-                            <PwaUpdatePromptBanner />
-                          </CommandPaletteNativeGesture>
-                        </CommandRegistryProvider>
-                      </AuthProvider>
-                    </PatchBootstrap>
-                  </BottomSheetModalProvider>
-                </DismissibleBannerPortalProvider>
-              </OverlayPortalProvider>
-            </AppI18nProvider>
-          </SkiaWebRoot>
+          {/**
+           * The whole app suspends here until `SkiaWebRoot` finishes loading
+           * CanvasKit on web (no-op on native). This is the ONLY thing this
+           * boundary waits for — no feature-package coupling: each game owns
+           * its own canvas-chunk preloading inside its own subtree.
+           */}
+          <Suspense
+            fallback={
+              <Box
+                sx={{
+                  flex: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Spinner />
+              </Box>
+            }
+          >
+            <SkiaWebRoot>
+              <AppI18nProvider>
+                <OverlayPortalProvider>
+                  <DismissibleBannerPortalProvider>
+                    <BottomSheetModalProvider>
+                      <PatchBootstrap>
+                        <AuthProvider ensureProfile={ensureProfile}>
+                          <CommandRegistryProvider storage={AsyncStorage}>
+                            <AppCommands />
+                            <CommandPalette />
+                            <CommandPaletteNativeGesture>
+                              {children}
+                              <PwaUpdatePromptBanner />
+                            </CommandPaletteNativeGesture>
+                          </CommandRegistryProvider>
+                        </AuthProvider>
+                      </PatchBootstrap>
+                    </BottomSheetModalProvider>
+                  </DismissibleBannerPortalProvider>
+                </OverlayPortalProvider>
+              </AppI18nProvider>
+            </SkiaWebRoot>
+          </Suspense>
         </AppThemeRoot>
       </SafeAreaProvider>
     </GestureHandlerRootView>

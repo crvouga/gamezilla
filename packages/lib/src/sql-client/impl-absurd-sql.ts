@@ -80,7 +80,8 @@ export class SqlClientImplAbsurdSql implements SqlClient {
     const { initBackend } =
       await import('absurd-sql/dist/indexeddb-main-thread');
     // Metro serves the app as a non-module script, so `import.meta.url` breaks. The worker is
-    // pre-bundled to `public/absurd-sql-worker/` by `bun run bundle:absurd-sql-worker`.
+    // pre-bundled to `public/generated/sql/absurd-sql-worker/` by
+    // `bun run bundle:absurd-sql-worker`.
     // Use an absolute URL string (not `new URL('./…', document.baseURI)`): on SPA routes
     // `document.baseURI` is e.g. `/profile`, which would incorrectly resolve `./…worker.ts`
     // to `/absurd-sql-db.worker.ts` at the origin root.
@@ -90,7 +91,7 @@ export class SqlClientImplAbsurdSql implements SqlClient {
       window.location.origin !== ''
         ? window.location.origin
         : 'http://localhost';
-    const workerSrc = `${origin}/absurd-sql-worker/absurd-sql-db.worker.js`;
+    const workerSrc = `${origin}/generated/sql/absurd-sql-worker/absurd-sql-db.worker.js`;
     const worker = new Worker(workerSrc, { type: 'classic' });
     initBackend(worker);
     this.worker = worker;

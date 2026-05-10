@@ -73,7 +73,7 @@ export class TurboCacheResource extends ResourceBase {
     assert.ok(token.length > 0, 'TURBO_TOKEN must be set');
 
     runCapture('wrangler', ['secret', 'put', 'TURBO_TOKEN'], {
-      cwd: join(REPO_ROOT, 'apps', 'turbo-cache'),
+      cwd: join(REPO_ROOT, 'packages', 'turbo-cache'),
       env: wranglerEnv(),
       input: token,
     });

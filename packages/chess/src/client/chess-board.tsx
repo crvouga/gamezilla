@@ -1,9 +1,11 @@
 /* eslint-disable lingui/no-unlocalized-strings */
 import { assertSkiaWebLoaded } from '@gamezilla/client/ui/skia-web-root';
+import { assert } from '@gamezilla/lib/assert';
 import { Box, useTheme } from '@gamezilla/ui';
-import { lazy, Suspense, useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
 import type { ChessBoardCanvasProps } from './chess-board-canvas';
+import { useChessBoardCanvas } from './chess-board-canvas-runtime';
 import type {
   BoardArrowPalette,
   BoardPromotionPalette,
@@ -11,17 +13,6 @@ import type {
   CellFeedbackKind,
   ChessBoardProps,
 } from './chess-board-types';
-
-/**
- * Canvas must load only after CanvasKit exists; a static import can run too
- * early (prefetch / chunk order) and `Skia = JsiSkApi(global.CanvasKit)` captures
- * `undefined` forever.
- */
-const ChessBoardCanvasLazy = lazy(async () => {
-  assertSkiaWebLoaded();
-  const m = await import('./chess-board-canvas');
-  return { default: m.ChessBoardCanvas };
-});
 
 function defaultFeedbackPalette(
   scheme: 'light' | 'dark'
@@ -212,6 +203,27 @@ export function ChessBoard(props: ChessBoardProps): ReactNode {
 
   const canvasProps = useChessBoardCanvasProps(props, boardSize, theme);
 
+  /**
+   * Canvas component is loaded ONCE inside `ChessBoardCanvasBootstrap`
+   * (mounted at `ChessMainMenu`, the chess subtree root) and published to
+   * the runtime singleton. The bootstrap's Suspense BLOCKS the chess
+   * subtree until the chunk has resolved, so by the time any `ChessBoard`
+   * mounts the singleton is guaranteed non-null — `assert.defined` here
+   * documents that invariant and lets the JSX use the component directly
+   * without a fallback branch (which would otherwise risk a layout swap).
+   *
+   * `aspectRatio: 1` reserves the square slot BEFORE first layout has
+   * been measured, so the canvas never shifts the rest of the screen.
+   *
+   * The `react-hooks/static-components` lint disable below is intentional:
+   * the singleton publishes a module-level component reference exactly once
+   * and never reassigns, so React's reconciler sees the same component type
+   * on every render — no unmount/remount, no state loss. Reading it through
+   * a hook is what gives the chess subtree its one-time subscription.
+   */
+  const ChessBoardCanvas = useChessBoardCanvas();
+  assert.defined(ChessBoardCanvas, 'ChessBoardCanvas must be defined');
+
   return (
     <Box
       testID={testID}
@@ -220,12 +232,11 @@ export function ChessBoard(props: ChessBoardProps): ReactNode {
       style={
         size !== undefined
           ? { width: size, height: size, overflow: 'visible' }
-          : { width: '100%', overflow: 'visible' }
+          : { width: '100%', aspectRatio: 1, overflow: 'visible' }
       }
     >
-      <Suspense fallback={null}>
-        <ChessBoardCanvasLazy {...canvasProps} />
-      </Suspense>
+      {/* eslint-disable-next-line react-hooks/static-components -- see hook call above */}
+      <ChessBoardCanvas {...canvasProps} />
     </Box>
   );
 }

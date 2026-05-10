@@ -1,9 +1,9 @@
 /**
- * Copies Skia's CanvasKit wasm into `public/` for `loadSkiaWebOnce` in
- * `src/ui/skia-web-root.tsx`.
+ * Copies Skia's CanvasKit wasm into `public/generated/skia/` for
+ * `loadSkiaWebOnce` in `src/ui/skia-web-root.tsx`.
  *
- * Skia web defaults to fetching from `/canvaskit.wasm` (same origin). Expo web
- * serves `public/` at the site root, so we copy the dependency wasm there.
+ * Skia web defaults to fetching from same-origin assets, so we serve it from
+ * `/generated/skia/canvaskit.wasm`.
  *
  * IMPORTANT: we resolve `canvaskit-wasm` from inside
  * `@shopify/react-native-skia` rather than from the app's direct dependency.
@@ -12,16 +12,22 @@
  * loader's ABI is tied to a specific WASM build, so a mismatched WASM produces
  * subtle runtime failures (e.g. `CanvasKit.Font is not a constructor`).
  */
-import { copyFileSync, mkdirSync } from 'node:fs';
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  statSync,
+  type Stats,
+} from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const clientRoot = join(__dirname, '..');
-const publicDir = join(clientRoot, 'public');
+const generatedSkiaDir = join(clientRoot, 'public', 'generated', 'skia');
 
-mkdirSync(publicDir, { recursive: true });
+mkdirSync(generatedSkiaDir, { recursive: true });
 
 const clientRequire = createRequire(join(clientRoot, 'package.json'));
 // Anchor a second `require` inside `@shopify/react-native-skia` so the
@@ -33,6 +39,22 @@ const skiaRequire = createRequire(skiaPkgPath);
 const wasmSource = skiaRequire.resolve(
   'canvaskit-wasm/bin/full/canvaskit.wasm'
 );
-const wasmDest = join(publicDir, 'canvaskit.wasm');
-copyFileSync(wasmSource, wasmDest);
-console.log(`Copied ${wasmSource} → ${wasmDest}`);
+const wasmDest = join(generatedSkiaDir, 'canvaskit.wasm');
+
+function needsCopy(sourcePath: string, destPath: string): boolean {
+  if (!existsSync(destPath)) {
+    return true;
+  }
+  const sourceStat: Stats = statSync(sourcePath);
+  const destStat: Stats = statSync(destPath);
+  return (
+    sourceStat.mtimeMs > destStat.mtimeMs || sourceStat.size !== destStat.size
+  );
+}
+
+if (needsCopy(wasmSource, wasmDest)) {
+  copyFileSync(wasmSource, wasmDest);
+  console.log(`Copied ${wasmSource} -> ${wasmDest}`);
+} else {
+  console.log(`Up-to-date: ${wasmDest}`);
+}

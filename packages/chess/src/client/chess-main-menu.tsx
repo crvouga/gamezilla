@@ -14,6 +14,7 @@ import {
 import { SelectGame } from '@gamezilla/spaces/shared/games';
 import { Trans } from '@lingui/react/macro';
 import { useCallback, useMemo, type ReactNode } from 'react';
+import { ChessBoardCanvasBootstrap } from './chess-board-canvas-bootstrap';
 import { PuzzleMainMenu } from './chess-puzzle-main-menu';
 import { PuzzlePickerScreen } from './chess-puzzle-picker-screen';
 import { PuzzlePlayScreen } from './chess-puzzle-play-screen';
@@ -22,7 +23,7 @@ import { ChessSettingsDeveloperUiComponentDetailScreen } from './chess-settings-
 import { ChessSettingsDeveloperUiComponentsScreen } from './chess-settings-developer-ui-components-screen';
 import { ChessSettingsScreen } from './chess-settings-screen';
 
-export function ChessMainMenu(): ReactNode {
+function ChessScreenSwitch(): ReactNode {
   const screen = useSpaceSelector(ChessMainMenuScreenAttr.screen.from);
 
   switch (screen) {
@@ -43,6 +44,25 @@ export function ChessMainMenu(): ReactNode {
     default:
       return <RootMainMenu />;
   }
+}
+
+/**
+ * Chess entry point. Wraps the entire chess subtree in
+ * `ChessBoardCanvasBootstrap` so the Skia canvas chunk starts loading the
+ * moment the user opens any chess screen — by the time they reach a board
+ * (puzzle play, picker preview, etc.) the chunk is cached and the per-board
+ * mount reads it synchronously via the runtime singleton (no Suspense flash).
+ *
+ * Bootstrap is mounted here — the highest point inside the chess package —
+ * to keep `@gamezilla/client` decoupled from any feature package; the only
+ * cross-package responsibility at the app root is `SkiaWebRoot`.
+ */
+export function ChessMainMenu(): ReactNode {
+  return (
+    <ChessBoardCanvasBootstrap>
+      <ChessScreenSwitch />
+    </ChessBoardCanvasBootstrap>
+  );
 }
 
 function RootMainMenu(): ReactNode {

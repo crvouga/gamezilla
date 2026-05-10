@@ -21,7 +21,12 @@ function mergeSqlJsInitConfig(
     return config;
   }
   const locateFile = (file: string) =>
-    new URL(file, globalThis.document.baseURI).href;
+    file.endsWith('.wasm')
+      ? new URL(
+          '/generated/sql/sql-wasm-browser.wasm',
+          globalThis.document.baseURI
+        ).href
+      : new URL(file, globalThis.document.baseURI).href;
   const base = { locateFile } as SqlJsInitConfig;
   if (config === undefined || config === null) {
     return base;
