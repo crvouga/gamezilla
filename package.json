@@ -19,6 +19,7 @@
     "check:tc": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run tc",
     "check:test": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run test",
     "db:migrate": "bun run --filter @gamezilla/api db:migrate",
+    "db:drop": "bun run --filter @gamezilla/pg drop",
     "db:seed:puzzles": "bun run --filter @gamezilla/api seed:puzzles",
     "depcruise:ci": "dependency-cruise apps libs --validate .dependency-cruiser.cjs --output-type err",
     "dev": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo dev --ui=tui",

@@ -92,7 +92,15 @@ function attributeKeyOf(ref: PatchDbIndexAttributeRef, a: Assert): string {
     assertAttribute(ref, a);
     return ref;
   }
-  a.record(ref, 'index attribute ref must be string or { key }');
+  // `AttributeTag` is a callable function with a non-enumerable `.key`; accept
+  // either a plain object or a function so spec authors can pass tags directly.
+  a.ok(
+    ref !== null &&
+      (typeof ref === 'object' || typeof ref === 'function') &&
+      !Array.isArray(ref),
+    'index attribute ref must be string, AttributeTag, or { key }',
+    { value: ref }
+  );
   const obj = ref as { key?: unknown };
   a.string(obj.key, 'index attribute ref.key must be string');
   assertAttribute(obj.key, a);
