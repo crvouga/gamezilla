@@ -38,7 +38,12 @@ export const ALL_DEPS: readonly Dep[] = [
  * Stripe CLI is unused here (no catalog sync in this phase) and
  * `pgweb` is a local dev GUI that CI runners never install.
  */
-export const PROVISION_DEPS: readonly Dep[] = [wrangler, bun, doppler, postgres];
+export const PROVISION_DEPS: readonly Dep[] = [
+  wrangler,
+  bun,
+  doppler,
+  postgres,
+];
 
 /**
  * Deps required by the legacy single-process `deploy` lifecycle: the
