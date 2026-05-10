@@ -77,8 +77,7 @@ const config = getDefaultConfig(projectRoot);
 // 1. Watch shared workspace packages for HMR (not the full monorepo — avoids watcher
 //    crashes from backend dist artifacts and transient pnpm temp directories)
 config.watchFolders = [
-  path.resolve(monorepoRoot, 'libs'),
-  path.resolve(monorepoRoot, 'apps'),
+  path.resolve(monorepoRoot, 'packages'),
   path.resolve(monorepoRoot, 'node_modules'),
 ];
 
