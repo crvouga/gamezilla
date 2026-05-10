@@ -20,7 +20,30 @@ const KNOWN_JOB_ORDER: readonly string[] = [
   'qa-api',
   'qa-browser',
   'publish-playwright-report',
-  'deploy',
+  'lock-acquire',
+  'provision',
+  'migrate',
+  'deploy-resources',
+  'stripe-sync',
+  'smoke',
+  'refresh-config',
+  'lock-release',
+];
+
+/**
+ * Output keys emitted by the deploy-pipeline jobs that should be aggregated
+ * into the "Deploy outputs" report section. Keys map to a single value
+ * across all jobs — if multiple jobs emit the same key, the first
+ * non-empty value (in `KNOWN_JOB_ORDER`) wins.
+ */
+const DEPLOY_OUTPUT_KEYS: readonly string[] = [
+  'client_url',
+  'api_url',
+  'turbo_cache_url',
+  'pages_project_name',
+  'pages_subdomain',
+  'cloudflare_nameservers',
+  'zone_id',
 ];
 
 function sortJobIds(ids: string[]): string[] {
@@ -125,12 +148,6 @@ function readPrUrlFromEvent(): string {
   }
 }
 
-function hasNonEmptyDeployOutputs(
-  outputs: Readonly<Record<string, string>>
-): boolean {
-  return Object.values(outputs).some((v) => (v ?? '').trim() !== '');
-}
-
 /** Any job that published `page_url` (Playwright report on Pages); job id is not hardcoded. */
 function findPlaywrightPageUrl(
   needs: Readonly<Record<string, NeedState>>
@@ -141,6 +158,31 @@ function findPlaywrightPageUrl(
     if (url !== '') return url;
   }
   return '';
+}
+
+/**
+ * Aggregates the deploy-pipeline outputs across every successful job.
+ * Returns the first non-empty value (in `KNOWN_JOB_ORDER`) for each key
+ * in `DEPLOY_OUTPUT_KEYS`. Tolerates the legacy single `deploy` job and
+ * the new chain (lock-acquire / provision / deploy-resources / ...) so
+ * the report renders correctly during the rolling refactor.
+ */
+function collectDeployOutputs(
+  needs: Readonly<Record<string, NeedState>>
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const jobId of sortJobIds(Object.keys(needs))) {
+    const state = needs[jobId];
+    if (state === undefined || state.result !== 'success') continue;
+    const outputs = state.outputs;
+    if (outputs === undefined) continue;
+    for (const key of DEPLOY_OUTPUT_KEYS) {
+      if (out[key] !== undefined) continue;
+      const value = (outputs[key] ?? '').trim();
+      if (value !== '') out[key] = value;
+    }
+  }
+  return out;
 }
 
 /** Builds markdown for the GitHub Actions pipeline summary. */
@@ -166,13 +208,8 @@ export function buildPipelineReportMarkdown(
   }
   lines.push('');
 
-  const deploy = needs['deploy'];
-  const deployOutputs = deploy?.outputs;
-  if (
-    deploy?.result === 'success' &&
-    deployOutputs !== undefined &&
-    hasNonEmptyDeployOutputs(deployOutputs)
-  ) {
+  const deployOutputs = collectDeployOutputs(needs);
+  if (Object.keys(deployOutputs).length > 0) {
     lines.push('### Deploy outputs');
     lines.push('');
     lines.push('| Key | Value |');
@@ -185,7 +222,7 @@ export function buildPipelineReportMarkdown(
     lines.push('');
   }
 
-  const ns = deployOutputs?.['cloudflare_nameservers']?.trim() ?? '';
+  const ns = deployOutputs['cloudflare_nameservers']?.trim() ?? '';
   if (ns !== '') {
     lines.push('### Squarespace Nameserver Setup (one-time)');
     lines.push('');

@@ -1,1 +1,1 @@
-export { AvatarEditorScreen as default } from '@gamezilla/client/profile/avatar-editor/avatar-editor-screen';
+export { AvatarEditorScreen as default } from '@gamezilla/profile/client/avatar-editor-screen';

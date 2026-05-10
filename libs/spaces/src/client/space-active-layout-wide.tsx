@@ -1,7 +1,7 @@
-import { SpaceSessionMemberRail } from '@gamezilla/client/spaces/layout/space-session-member-rail';
-import { useSpaceSessionUi } from '@gamezilla/client/spaces/layout/space-session-ui-context';
-import { SpaceWideRailFooter } from '@gamezilla/client/spaces/layout/space-wide-rail-footer';
-import { SpaceWideRailHeader } from '@gamezilla/client/spaces/layout/space-wide-rail-header';
+import { SpaceSessionMemberRail } from './space-session-member-rail';
+import { useSpaceSessionUi } from './space-session-ui-context';
+import { SpaceWideRailFooter } from './space-wide-rail-footer';
+import { SpaceWideRailHeader } from './space-wide-rail-header';
 import { Box } from '@gamezilla/lib/ui';
 import type { ReactNode } from 'react';
 

@@ -18,7 +18,7 @@
     "check:no-patches": "bun run scripts/check-no-patches.ts",
     "check:tc": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run tc",
     "check:test": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run test",
-    "chess:puzzles:seed": "bun run --filter @gamezilla/api seed:puzzles",
+    "chess:puzzles:seed": "bun run --filter @gamezilla/chess seed:puzzles",
     "db:drop": "bun run --filter @gamezilla/pg drop",
     "db:migrate": "bun run --filter @gamezilla/api db:migrate",
     "depcruise:ci": "NODE_OPTIONS=--max-old-space-size=8192 dependency-cruise apps libs --validate .dependency-cruiser.cjs --output-type err",

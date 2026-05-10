@@ -1,4 +1,4 @@
-import { useMemberIsThisTab } from '@gamezilla/client/spaces/members/use-member-is-this-tab';
+import { useMemberIsThisTab } from './use-member-is-this-tab';
 import { Text } from '@gamezilla/lib/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';

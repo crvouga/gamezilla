@@ -1,8 +1,8 @@
-import { useSpaceGuestMembershipIds } from '@gamezilla/client/spaces/guests/use-space-guest-membership-ids';
+import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
-} from '@gamezilla/domain/spaces/space-entities';
+} from '@gamezilla/spaces/shared/space-entities';
 import { useQueryAttribute } from '@gamezilla/patch-db/react';
 
 /**

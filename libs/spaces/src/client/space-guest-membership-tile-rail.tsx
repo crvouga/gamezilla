@@ -1,8 +1,8 @@
-import { SpaceMemberTileRail } from '@gamezilla/client/spaces/members/space-member-tile-rail';
+import { SpaceMemberTileRail } from './space-member-tile-rail';
 import {
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceMembershipAttr,
-} from '@gamezilla/domain/spaces/space-entities';
+} from '@gamezilla/spaces/shared/space-entities';
 import { useQueryAttribute } from '@gamezilla/patch-db/react';
 import type { ReactNode } from 'react';
 

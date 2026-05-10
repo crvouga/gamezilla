@@ -1,7 +1,7 @@
 import {
   ACCOUNT_SESSION_ENTITY_TYPE,
   AccountSessionAttr,
-} from '@gamezilla/domain/auth';
+} from '@gamezilla/auth/shared';
 import { namespacePrefixOf } from '@gamezilla/lib/keyword';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';

@@ -1,15 +1,15 @@
-import { useMyId } from '@gamezilla/client/auth/auth-context';
+import { useMyId } from '@gamezilla/auth/client/auth-context';
 import {
   useConfigService,
   useDeviceService,
   useKeyValueStorage,
 } from '@gamezilla/client/runtime/runtime-hooks';
 import { sessionTokenAtom } from '@gamezilla/client/runtime/atoms';
-import { useCurrentSpaceIds } from '@gamezilla/client/spaces/use-current-space-ids';
+import { useCurrentSpaceIds } from './use-current-space-ids';
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
-} from '@gamezilla/domain/spaces/space-entities';
+} from '@gamezilla/spaces/shared/space-entities';
 import { useQueryAttribute } from '@gamezilla/patch-db/react';
 import type {
   Room,

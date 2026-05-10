@@ -1,9 +1,9 @@
-import { SpaceCardOpenLink } from '@gamezilla/client/spaces/list/space-card-open-link';
-import { SpaceGuestSection } from '@gamezilla/client/spaces/guests/space-guest-section';
-import { SpaceHostAvatar } from '@gamezilla/client/spaces/host/space-host-avatar';
-import { SpaceHostNameText } from '@gamezilla/client/spaces/host/space-host-name-text';
-import { SpaceLiveBadge } from '@gamezilla/client/spaces/host/space-live-badge';
-import { SpaceTitleText } from '@gamezilla/client/spaces/host/space-title-text';
+import { SpaceCardOpenLink } from './space-card-open-link';
+import { SpaceGuestSection } from './space-guest-section';
+import { SpaceHostAvatar } from './space-host-avatar';
+import { SpaceHostNameText } from './space-host-name-text';
+import { SpaceLiveBadge } from './space-live-badge';
+import { SpaceTitleText } from './space-title-text';
 import { Box, elevation, GradientBox, useTheme } from '@gamezilla/lib/ui';
 import type { ReactNode } from 'react';
 

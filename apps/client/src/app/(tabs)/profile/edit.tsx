@@ -1,3 +1,3 @@
-import { ProfileEditScreen } from '@gamezilla/client/profile/profile-edit-screen';
+import { ProfileEditScreen } from '@gamezilla/profile/client/profile-edit-screen';
 
 export default ProfileEditScreen;

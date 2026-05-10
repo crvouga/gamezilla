@@ -35,7 +35,7 @@ import { useCallback, useEffect, useMemo, type ReactNode } from 'react';
 import {
   useSpaceDispatch,
   useSpaceSelector,
-} from '@gamezilla/client/spaces/room/use-space-room-selector';
+} from '@gamezilla/spaces/client/use-space-room-selector';
 
 import type { SolveStatus } from './use-chess-puzzle-solver';
 import { usePuzzleSolver } from './use-chess-puzzle-solver';

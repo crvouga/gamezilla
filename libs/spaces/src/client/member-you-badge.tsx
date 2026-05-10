@@ -1,4 +1,4 @@
-import { useMemberIsYou } from '@gamezilla/client/spaces/members/use-member-is-you';
+import { useMemberIsYou } from './use-member-is-you';
 import { Text } from '@gamezilla/lib/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';

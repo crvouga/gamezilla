@@ -18,7 +18,7 @@
  * **Filenames:** `app_account_<uuid32hex>` / `app_anonymous_<uuid32hex>` (hyphens stripped)
  * so names satisfy {@link assertDatabaseName} and remain parseable for discovery UI.
  *
- * @module @gamezilla/client/db/account-db
+ * @module @gamezilla/auth/client/account-db
  */
 
 import {
@@ -26,8 +26,8 @@ import {
   anonymousDatabaseBasename,
   tryParseAccountDatabaseBasename,
   type LocalAccountDbInfo,
-} from '@gamezilla/client/db/account-db-paths';
-import { runAccountDatabaseMigrations } from '@gamezilla/client/db/account-migrations';
+} from './account-db-paths';
+import { runAccountDatabaseMigrations } from './account-migrations';
 import { assertDatabaseName } from '@gamezilla/lib/sqlite';
 import { SqlClientImplExpoSqlite } from '@gamezilla/lib/sql-client/impl-expo-sqlite';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
@@ -35,7 +35,7 @@ import * as SQLite from 'expo-sqlite';
 import * as FileSystem from 'expo-file-system';
 import { Platform } from 'react-native';
 
-export type { LocalAccountDbInfo } from '@gamezilla/client/db/account-db-paths';
+export type { LocalAccountDbInfo } from './account-db-paths';
 
 const SQLITE_SUBDIR = 'gamezilla_sqlite_accounts';
 

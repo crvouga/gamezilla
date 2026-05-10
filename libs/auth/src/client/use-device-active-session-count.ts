@@ -1,7 +1,4 @@
-import {
-  ACCOUNT_SESSION_ENTITY_TYPE,
-  AccountSessionAttr,
-} from '../shared';
+import { ACCOUNT_SESSION_ENTITY_TYPE, AccountSessionAttr } from '../shared';
 import { useQuery } from '@gamezilla/patch-db/react';
 
 /**

@@ -1,20 +1,14 @@
-import { ChessMainMenu } from '@gamezilla/client/spaces/games/chess/chess-main-menu';
-import {
-  MainMenuScreen,
-  type MainMenuItem,
-} from '@gamezilla/client/spaces/games/main-menu-screen';
-import { useSpaceSessionUi } from '@gamezilla/client/spaces/layout/space-session-ui-context';
-import {
-  useSpaceDispatch,
-  useSpaceSelector,
-} from '@gamezilla/client/spaces/room/use-space-room-selector';
-import { useCurrentSpaceRole } from '@gamezilla/client/spaces/use-current-space-role';
+import { ChessMainMenu } from '@gamezilla/chess/client/chess-main-menu';
+import { MainMenuScreen, type MainMenuItem } from './main-menu-screen';
+import { useSpaceSessionUi } from './space-session-ui-context';
+import { useSpaceDispatch, useSpaceSelector } from './use-space-room-selector';
+import { useCurrentSpaceRole } from './use-current-space-role';
 import {
   GamesRoomAttr,
   SelectGame,
   SpaceGame,
   type SelectedSpaceGame,
-} from '@gamezilla/domain/spaces/games/games';
+} from '@gamezilla/spaces/shared/games';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { useCallback, useMemo } from 'react';

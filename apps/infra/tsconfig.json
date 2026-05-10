@@ -9,8 +9,12 @@
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
+      "@gamezilla/api/*": ["../../apps/api/src/*"],
+      "@gamezilla/auth/*": ["../../libs/auth/src/*"],
+      "@gamezilla/client/*": ["../../apps/client/src/*"],
       "@gamezilla/lib/*": ["../../libs/lib/src/*"],
-      "@gamezilla/domain/*": ["../../libs/domain/src/*"]
+      "@gamezilla/spaces/*": ["../../libs/spaces/src/*"],
+      "@gamezilla/client-config/*": ["../../libs/client-config/src/*"]
     }
   },
   "include": ["../../libs/lib/src/ts-reset.ts", "src/**/*.ts"],

@@ -37,6 +37,11 @@ yarn-error.*
 /out
 
 # Lichess puzzle CSV cache (seed:puzzles)
+libs/chess/.cache/
+# Legacy Lichess cache location (predates @gamezilla/chess colocation).
+# Kept ignored so old checkouts (and the pre-colocation `apps/api` cache
+# dir, which can hold a >100 MB CSV that GitHub will reject) don't dirty
+# the tree or sneak back into a commit.
 apps/api/.cache/
 
 # Local PostgreSQL cluster + lifecycle artifacts (apps/pg)

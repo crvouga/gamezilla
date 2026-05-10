@@ -17,9 +17,9 @@ async function main(): Promise<void> {
 
     let res: Response;
     try {
-      res = await client['client-config']['refresh'].$post(undefined, {
+      res = (await client['client-config']['refresh'].$post(undefined, {
         init: { signal: AbortSignal.timeout(10_000) },
-      });
+      })) as unknown as Response;
     } catch (e) {
       const elapsed = performance.now() - started;
       const msg = e instanceof Error ? e.message : String(e);

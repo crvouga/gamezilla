@@ -2,7 +2,7 @@ import { ensureChessBoardExampleRegistered } from './chess-board-register-exampl
 import {
   useSpaceDispatch,
   useSpaceSelector,
-} from '@gamezilla/client/spaces/room/use-space-room-selector';
+} from '@gamezilla/spaces/client/use-space-room-selector';
 import {
   CHESS_SCREEN,
   ChessMainMenuScreenAttr,

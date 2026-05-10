@@ -7,19 +7,19 @@ import {
   AccountSessionAttr,
   DEVICE_ENTITY_TYPE,
   DeviceAttr,
-} from '@gamezilla/domain/auth';
-import { CLIENT_CONFIG_ENTITY_TYPE } from '@gamezilla/domain/client-config/client-config-entities';
+} from '@gamezilla/auth/shared';
+import { CLIENT_CONFIG_ENTITY_TYPE } from '@gamezilla/client-config/shared/client-config-entities';
 import {
   CHESS_PUZZLE_ENTITY_TYPE,
   CHESS_PUZZLE_LOAD_ENTITY_TYPE,
-} from '@gamezilla/domain/spaces/games/chess/puzzle/chess-puzzle-entities';
-import { PROFILE_ENTITY_TYPE } from '@gamezilla/domain/profile/profile-entities';
+} from '@gamezilla/chess/shared/chess-puzzle-entities';
+import { PROFILE_ENTITY_TYPE } from '@gamezilla/profile/shared/profile-entities';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceAttr,
   SpaceMembershipAttr,
-} from '@gamezilla/domain/spaces/space-entities';
+} from '@gamezilla/spaces/shared/space-entities';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
 import type { PatchDbQueryWhereClause } from '@gamezilla/patch-db/interface';
 import {
@@ -42,8 +42,8 @@ import {
   authOnlyRead,
   type AppAuthContext,
 } from './abac-policies-context';
-import { STRIPE_PATCH_DB_VISIBILITY_POLICIES } from './abac-policies-registry-stripe';
-import { assertAccountSessionClientRevokeOnly } from './account-session-client-revoke';
+import { assertAccountSessionClientRevokeOnly } from '@gamezilla/auth/server/account-session-client-revoke';
+import { STRIPE_PATCH_DB_VISIBILITY_POLICIES } from '@gamezilla/stripe/abac-policies';
 
 type AppVisibilityPolicy = VisibilityPolicy<AppAuthContext>;
 

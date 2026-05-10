@@ -1,8 +1,8 @@
 import {
   deleteAccountLocalData,
   deleteAnonymousDatabaseFileBestEffort,
-} from '@gamezilla/client/db/account-db';
-import { writeLastLocalAccountId } from '@gamezilla/client/db/account-local-state';
+} from '@gamezilla/auth/client/account-db';
+import { writeLastLocalAccountId } from '@gamezilla/auth/client/account-local-state';
 import { RuntimeBridge } from '@gamezilla/client/runtime/runtime-bridge';
 import {
   accountIdAtom,

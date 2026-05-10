@@ -10,7 +10,7 @@ import {
   readDopplerScopeBindings,
 } from './config/env';
 import { createApiSecretStore } from './config/secret-store';
-import Space from './spaces/space-do';
+import Space from '@gamezilla/spaces/server/space-do';
 
 const log = createLogger({ name: 'api' });
 

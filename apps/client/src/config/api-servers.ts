@@ -71,6 +71,9 @@ export function assertTigerPolicyForResolvedApiOrigin(
 }
 
 export function getApiBaseUrl(): string {
+  // `noPropertyAccessFromIndexSignature` requires bracket notation for
+  // process.env; Expo's bundler still inlines `EXPO_PUBLIC_*` literals.
+  // eslint-disable-next-line expo/no-dynamic-env-var
   const raw = process.env['EXPO_PUBLIC_API_URL'];
   assert.nonEmptyString(
     raw,

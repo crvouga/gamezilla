@@ -1,4 +1,4 @@
-import type { AccountProvisioningPort } from '../ports';
+import type { AccountProvisioningPort } from './ports';
 
 export class AccountProvisioningUnexpectedAdapter implements AccountProvisioningPort {
   async resolveInternalAccountId(): Promise<string> {

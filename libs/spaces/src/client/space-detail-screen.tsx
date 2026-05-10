@@ -1,11 +1,11 @@
-import { ActiveSpace } from '@gamezilla/client/spaces/active-space';
-import { SpaceDebugModal } from '@gamezilla/client/spaces/debug/space-debug-modal';
-import { SpaceJoinPrompt } from '@gamezilla/client/spaces/join/space-join-prompt';
-import { SpaceLoadingScreen } from '@gamezilla/client/spaces/layout/space-loading-screen';
-import { SpaceRoomProvider } from '@gamezilla/client/spaces/room/space-room-context';
-import { useAutoLeaveIfEnded } from '@gamezilla/client/spaces/actions/use-auto-leave-if-ended';
-import { useCurrentSpaceIds } from '@gamezilla/client/spaces/use-current-space-ids';
-import { useCurrentSpaceRole } from '@gamezilla/client/spaces/use-current-space-role';
+import { ActiveSpace } from './active-space';
+import { SpaceDebugModal } from './space-debug-modal';
+import { SpaceJoinPrompt } from './space-join-prompt';
+import { SpaceLoadingScreen } from './space-loading-screen';
+import { SpaceRoomProvider } from './space-room-context';
+import { useAutoLeaveIfEnded } from './use-auto-leave-if-ended';
+import { useCurrentSpaceIds } from './use-current-space-ids';
+import { useCurrentSpaceRole } from './use-current-space-role';
 import { useLocalSearchParams } from 'expo-router';
 import { useState, type ReactNode } from 'react';
 

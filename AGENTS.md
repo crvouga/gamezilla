@@ -22,3 +22,64 @@ Platform support:
 
 - **macOS / Linux** — install Postgres (`brew install postgresql@17` on macOS; `apt-get install postgresql` on Debian/Ubuntu, etc.) and pgweb (`brew install pgweb`); run `bun run dev` directly.
 - **Windows** — run dev inside WSL2; native Windows is not supported by `@gamezilla/pg` (the lifecycle script still produces a clear error message + install hint if invoked there).
+
+## Per-feature package layout
+
+Feature code lives in `libs/feature-<name>/` workspace packages. Inside each one, runtimes are isolated by three flat sibling folders — no deeper nesting:
+
+```
+libs/feature-<name>/
+  package.json          # name "@gamezilla/<name>", per-file `exports`
+  tsconfig.json         # extends ../../tsconfig.json
+  eslint.config.js      # createSharedBlocks + linguiRules
+  src/
+    client/             # React Native / Expo
+    server/             # Cloudflare Worker / Hono
+    shared/             # isomorphic — entities, ports, pure logic
+```
+
+Cross-package imports always use deep paths: `@gamezilla/<name>/client/<file>`, `@gamezilla/<name>/server/<file>`, `@gamezilla/<name>/shared/<file>`. Every file gets an `exports` entry; do **not** add `index.ts` barrels across the runtime boundary (Metro / Wrangler need `exports` + tree-shaking to drop the wrong runtime from the bundle).
+
+Within a feature package, prefer **relative** imports between sibling files (`./foo`, `../shared/bar`); use the `@gamezilla/<name>/...` alias only for imports from a different feature package.
+
+Feature-specific scripts (seeders, dev refreshers, migration runners) live in `libs/feature-<name>/scripts/` and are wired up via the package's `scripts` block in `package.json` (e.g. `bun run --filter @gamezilla/<name> seed:<x>`). Lint targets `eslint src` so script files use Tiger-style structure but keep the freedom to grow long top-level orchestrators. Add `./scripts/**/*.ts` to the package `tsconfig.json` `include` and the root `tsconfig.json` `include` so type-checking covers them.
+
+`apps/client/src/app/**` (Expo Router) and `apps/api/src/api.ts` (worker entry) stay as 1-line re-export stubs that point at the feature packages — that keeps URL routes and the `Space` Durable Object class binding stable.
+
+### Current feature packages
+
+- `@gamezilla/auth` — sign-in flows, sessions, devices, account-scoped local SQLite (`account-db*`), Better Auth bootstrap + Postgres migrations runner.
+- `@gamezilla/chess` — chess board UI, puzzle play / picker, settings, plus the puzzle seeding script (`scripts/seed-chess-puzzles.ts`).
+- `@gamezilla/client-config` — server-pushed runtime config (singleton `clientConfig` entity): shared entity defs, server `POST /client-config/refresh` route, client cards / screens, and `dev-refresh-client-config.ts`.
+- `@gamezilla/profile` — public profile, dicebear avatar editor, display-name generator.
+- `@gamezilla/spaces` — spaces / lobby / multiplayer plumbing, game dispatch via `space-module.ts`.
+- `@gamezilla/stripe` — Stripe routes, catalog mirror, webhook handler, ABAC policies for stripe entities (`abac-policies.ts`).
+
+### Adding a new game
+
+Each game is its own package modelled after `@gamezilla/chess`. To add `@gamezilla/connect-four` (or numberlink, tic-tac-toe, battleship, etc.):
+
+1. Scaffold `libs/feature-<game>/`:
+   - `package.json` with `"name": "@gamezilla/<game>"`, per-file `exports`, deps mirroring what the implementation actually imports (typically `@gamezilla/lib`, `@gamezilla/patch-db`, `@lingui/*`, `react`, `react-native`).
+   - `tsconfig.json` extending root.
+   - `eslint.config.js` copied from `libs/chess/eslint.config.js`.
+   - Empty `src/{client,server,shared}/`.
+2. Add path alias to root `tsconfig.json`: `"@gamezilla/<game>/*": ["./libs/feature-<game>/src/*"]` and the matching `include` entries.
+3. Add the package's `src` directory to `lingui.config.cjs` `catalogs.include` so translatable strings are extracted.
+4. Implement the game:
+   - `shared/<game>-main-menu.ts` — `RoomModule` + `MainMenu` reducer (state, command/event router).
+   - `shared/<game>-play.ts` — game-play reducer (moves, win/loss state).
+   - `shared/<game>-entities.ts` — patch-db entity types if the game persists puzzles, sessions, leaderboards, etc.
+   - `client/<game>-main-menu.tsx`, `client/<game>-board.tsx`, `client/<game>-settings-screen.tsx`, etc. — flat under `client/`.
+5. Register the game in `libs/spaces/src/shared/games.ts` (composed game module) and `libs/spaces/src/shared/space-module.ts` (top-level router).
+6. Register ABAC policies for any new entity types in `apps/api/src/patch-db/abac-policies-registry.ts`.
+7. Wire the client entry in `libs/spaces/src/client/games-main-menu.tsx` so the new game shows up in the games list.
+
+`apps/api` and `apps/client` themselves do **not** need to be edited beyond the registries above — game packages compose into spaces, and spaces is already wired into the shells.
+
+### Layering rules (enforced by depcruise)
+
+- `shared/` cannot import from `client/` or `server/` anywhere in the repo (`shared-pure`).
+- Within and across feature packages, `client/` cannot import from `server/` and vice-versa (`client-not-server`, `server-not-client`).
+- `libs/lib` stays runtime-agnostic and feature-agnostic (`lib-no-features`).
+- `apps/client` cannot reach any feature's `server/`; `apps/api` cannot reach any feature's `client/` (`apps-client-no-server`, `apps-api-no-client`).

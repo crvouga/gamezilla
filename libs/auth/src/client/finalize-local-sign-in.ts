@@ -1,5 +1,5 @@
-import { deleteAnonymousDatabaseFileBestEffort } from '@gamezilla/client/db/account-db';
-import { writeLastLocalAccountId } from '@gamezilla/client/db/account-local-state';
+import { deleteAnonymousDatabaseFileBestEffort } from '@gamezilla/auth/client/account-db';
+import { writeLastLocalAccountId } from '@gamezilla/auth/client/account-local-state';
 import {
   enqueueSqlClientLifecycle,
   secureStorageAtom,

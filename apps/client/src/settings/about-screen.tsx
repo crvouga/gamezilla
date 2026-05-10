@@ -1,9 +1,9 @@
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
-import { getApiBaseUrl } from '@gamezilla/domain/config/api-servers';
+import { getApiBaseUrl } from '@gamezilla/client/config/api-servers';
 import {
   getCommitHash,
   getShortCommitHash,
-} from '@gamezilla/domain/config/app-metadata';
+} from '@gamezilla/client/config/app-metadata';
 import {
   Box,
   Card,

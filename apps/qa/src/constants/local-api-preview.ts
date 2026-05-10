@@ -1,6 +1,6 @@
 import { execSync } from 'node:child_process';
 
-import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@gamezilla/domain/config/api-servers';
+import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@gamezilla/client/config/api-servers';
 import { createDopplerSecretStoreForScripts } from '@gamezilla/lib/secret-store';
 
 const SECRET_NAME = 'LOCAL_PREVIEW_API_ORIGIN';

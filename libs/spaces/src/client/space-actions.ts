@@ -1,15 +1,15 @@
-import { spaceGuestMembershipEntityId } from '@gamezilla/domain/spaces/membership-key';
+import { spaceGuestMembershipEntityId } from '@gamezilla/spaces/shared/membership-key';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceAttr,
   SpaceMembershipAttr,
-} from '@gamezilla/domain/spaces/space-entities';
+} from '@gamezilla/spaces/shared/space-entities';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { usePatchDb } from '@gamezilla/patch-db/react';
 import { useCallback } from 'react';
 
-import { useMyId } from '@gamezilla/client/auth/auth-context';
+import { useMyId } from '@gamezilla/auth/client/auth-context';
 
 function isoNow(): string {
   return new Date().toISOString();

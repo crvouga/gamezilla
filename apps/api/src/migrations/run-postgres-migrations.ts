@@ -16,14 +16,14 @@
  * pool (created from `databaseUrl`) so `kysely.destroy()` cannot end a pool
  * the caller still owns — `pg.Pool.end()` throws on a second call.
  */
+import {
+  runBetterAuthMigrations,
+  type BetterAuthMigrationOptions,
+} from '@gamezilla/auth/server/better-auth-migrations';
 import { KvImplPostgres } from '@gamezilla/lib/kv/impl-postgres';
 import type { Logger } from '@gamezilla/lib/logger';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
-import type { BetterAuthOptions } from 'better-auth';
-import { getMigrations } from 'better-auth/db/migration';
-import { Kysely, PostgresDialect } from 'kysely';
-import { Pool } from 'pg';
 import { APP_SNAPSHOT_INDEXES } from '../patch-db/snapshot-indexes';
 import { dropLegacyAppSnapshotIndexes } from './drop-legacy-app-snapshot-indexes';
 
@@ -31,7 +31,7 @@ export type RunPostgresMigrationsArgs = {
   sqlClient: SqlClient;
   databaseUrl: string;
   logger: Logger;
-  betterAuthOptions: Omit<BetterAuthOptions, 'database'>;
+  betterAuthOptions: BetterAuthMigrationOptions;
 };
 
 export async function runPostgresMigrations(
@@ -48,17 +48,5 @@ export async function runPostgresMigrations(
     await KvImplPostgres.migrateUp({ sqlClient: tx, logger });
   });
 
-  const kyselyPool = new Pool({ connectionString: databaseUrl });
-  const kysely = new Kysely({
-    dialect: new PostgresDialect({ pool: kyselyPool }),
-  });
-  try {
-    const { runMigrations } = await getMigrations({
-      ...betterAuthOptions,
-      database: { db: kysely, type: 'postgres' },
-    });
-    await runMigrations();
-  } finally {
-    await kysely.destroy();
-  }
+  await runBetterAuthMigrations({ databaseUrl, betterAuthOptions });
 }

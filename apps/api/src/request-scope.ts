@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
-import type { SessionAuth } from './auth/session-middleware';
+import type { SessionAuth } from '@gamezilla/auth/server/session-middleware';
 
 /**
  * Request-scoped {@link PatchDb} for the patch-db sync host resolver

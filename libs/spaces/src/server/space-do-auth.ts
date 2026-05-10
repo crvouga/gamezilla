@@ -1,17 +1,17 @@
-import { assertDeviceId } from '@gamezilla/domain/auth/device-id';
+import { assertDeviceId } from '@gamezilla/auth/shared/device-id';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceAttr,
   SpaceMembershipAttr,
-} from '@gamezilla/domain/spaces/space-entities';
-import { spaceGuestMembershipEntityId } from '@gamezilla/domain/spaces/membership-key';
+} from '@gamezilla/spaces/shared/space-entities';
+import { spaceGuestMembershipEntityId } from '@gamezilla/spaces/shared/membership-key';
 import type { Entity, PatchDb } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 
-import { resolveAccountIdFromBearer } from '../auth/bearer-resolve';
-import type { HttpBearerAuthPorts } from '../auth/ports';
-import { ANON_ID_HEADER } from '../auth/session-middleware';
+import { resolveAccountIdFromBearer } from '@gamezilla/auth/server/bearer-resolve';
+import type { HttpBearerAuthPorts } from '@gamezilla/auth/server/ports';
+import { ANON_ID_HEADER } from '@gamezilla/auth/server/session-middleware';
 
 const ROOM_TOPIC_PREFIX = 'space:' as const;
 

@@ -1,4 +1,4 @@
-import { useSpacePresence } from '@gamezilla/client/spaces/members/use-space-presence';
+import { useSpacePresence } from './use-space-presence';
 
 /**
  * Number of active room connections (peer ids) for this member in this space.

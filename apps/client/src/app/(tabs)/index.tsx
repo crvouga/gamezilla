@@ -1,3 +1,3 @@
-import { SpacesScreen } from '@gamezilla/client/spaces/spaces-screen';
+import { SpacesScreen } from '@gamezilla/spaces/client/spaces-screen';
 
 export default SpacesScreen;

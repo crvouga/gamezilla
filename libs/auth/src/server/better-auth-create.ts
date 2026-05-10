@@ -1,11 +1,11 @@
 import { expo } from '@better-auth/expo';
+import type { HostedBetterAuth } from '@gamezilla/api/app/api-hono-types';
 import type { SecretStore } from '@gamezilla/lib/secret-store';
 import { betterAuth } from 'better-auth';
 import { bearer } from 'better-auth/plugins';
 import { Kysely, PostgresDialect } from 'kysely';
 import { Pool } from 'pg';
-import type { HostedBetterAuth } from '../../app/api-hono-types';
-import { loadBetterAuthSecretsWorker } from './load-better-auth-secrets';
+import { loadBetterAuthSecretsWorker } from './better-auth-load-secrets';
 
 export type BetterAuthRequestStack = {
   readonly auth: HostedBetterAuth;

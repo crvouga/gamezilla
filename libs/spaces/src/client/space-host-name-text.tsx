@@ -1,9 +1,9 @@
-import { UserDisplayName } from '@gamezilla/client/profile/user-display-name';
+import { UserDisplayName } from '@gamezilla/profile/client/user-display-name';
 import { optionalProps } from '@gamezilla/client/ui/optional-props';
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
-} from '@gamezilla/domain/spaces/space-entities';
+} from '@gamezilla/spaces/shared/space-entities';
 import type { SxProps, TextVariant } from '@gamezilla/lib/ui';
 import { useQueryAttribute } from '@gamezilla/patch-db/react';
 import type { ReactNode } from 'react';

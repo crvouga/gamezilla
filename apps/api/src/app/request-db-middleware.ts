@@ -1,10 +1,10 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { SecretStore } from '@gamezilla/lib/secret-store';
 import type { MiddlewareHandler } from 'hono';
-import { betterAuthAccountProvisioning } from '../auth/better-auth/account-provisioning';
-import { createBetterAuthRequestStack } from '../auth/better-auth/create-better-auth';
-import { SessionClaimsBetterAuthAdapter } from '../auth/better-auth/session-claims-port';
-import { createSessionAuth } from '../auth/session-middleware';
+import { betterAuthAccountProvisioning } from '@gamezilla/auth/server/better-auth-account-provisioning';
+import { createBetterAuthRequestStack } from '@gamezilla/auth/server/better-auth-create';
+import { SessionClaimsBetterAuthAdapter } from '@gamezilla/auth/server/better-auth-session-claims-port';
+import { createSessionAuth } from '@gamezilla/auth/server/session-middleware';
 import { ConfigurationError } from '../config/env';
 import { createRequestPatchDb } from '../patch-db/patch-db';
 import { openRequestDb } from '../patch-db/sql-client';

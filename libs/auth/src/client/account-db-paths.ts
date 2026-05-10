@@ -1,4 +1,4 @@
-import { isUuid } from '@gamezilla/domain/auth/device-id';
+import { isUuid } from '@gamezilla/auth/shared/device-id';
 
 export const ACCOUNT_DB_PREFIX = 'app_account_';
 export const ANONYMOUS_DB_PREFIX = 'app_anonymous_';

@@ -1,4 +1,4 @@
-import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '@gamezilla/domain/auth';
+import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '@gamezilla/auth/shared';
 import { createLogger } from '@gamezilla/lib/logger';
 import type {
   PatchDb,

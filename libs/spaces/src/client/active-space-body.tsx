@@ -1,9 +1,9 @@
-import { GamesMainMenu } from '@gamezilla/client/spaces/games/games-main-menu';
-import { SpaceActiveLayout } from '@gamezilla/client/spaces/layout/space-active-layout';
+import { GamesMainMenu } from './games-main-menu';
+import { SpaceActiveLayout } from './space-active-layout';
 import {
   SpaceSessionUiProvider,
   type SpaceSessionUiValue,
-} from '@gamezilla/client/spaces/layout/space-session-ui-context';
+} from './space-session-ui-context';
 import { Box } from '@gamezilla/lib/ui';
 import { useMemo, type ReactNode } from 'react';
 

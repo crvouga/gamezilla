@@ -1,4 +1,4 @@
-import { useMemberSessionCount } from '@gamezilla/client/spaces/members/use-member-session-count';
+import { useMemberSessionCount } from './use-member-session-count';
 import { Text } from '@gamezilla/lib/ui';
 import type { ReactNode } from 'react';
 

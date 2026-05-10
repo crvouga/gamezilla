@@ -1,4 +1,4 @@
-import type { SessionClaims, SessionClaimsPort } from '../ports';
+import type { SessionClaims, SessionClaimsPort } from './ports';
 
 /** Narrow surface — Better Auth’s `Auth` generic does not match our `createBetterAuth` options. */
 export type BetterAuthSessionApi = {

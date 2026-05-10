@@ -1,4 +1,4 @@
-import { readLastLocalAccountId } from '@gamezilla/client/db/account-local-state';
+import { readLastLocalAccountId } from '@gamezilla/auth/client/account-local-state';
 import { atomEffect } from 'jotai-effect';
 import { accountIdAtom, secureStorageAtom } from './atoms';
 

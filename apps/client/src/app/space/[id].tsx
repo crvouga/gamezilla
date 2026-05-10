@@ -1,3 +1,3 @@
-import { SpaceDetailScreen } from '@gamezilla/client/spaces/space-detail-screen';
+import { SpaceDetailScreen } from '@gamezilla/spaces/client/space-detail-screen';
 
 export default SpaceDetailScreen;

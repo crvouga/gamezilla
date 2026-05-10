@@ -1,5 +1,5 @@
-import { SpaceGuestMembershipAvatar } from '@gamezilla/client/spaces/guests/space-guest-membership-avatar';
-import { useSpaceGuestMembershipIds } from '@gamezilla/client/spaces/guests/use-space-guest-membership-ids';
+import { SpaceGuestMembershipAvatar } from './space-guest-membership-avatar';
+import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
 import { optionalProps } from '@gamezilla/client/ui/optional-props';
 import { AvatarGroup } from '@gamezilla/lib/ui';
 import type { ReactNode } from 'react';

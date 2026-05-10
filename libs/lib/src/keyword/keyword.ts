@@ -56,6 +56,19 @@ crash.ok(
 export const CLOJURE_NAMESPACED_KEYWORD_REGEX =
   /^(?!.*\s)(?:[a-z][a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z][a-z0-9]+(?:-[a-z0-9]+)*)*)\/[a-z][a-z0-9]+(?:-[a-z0-9]+)*$/;
 
+crash.ok(
+  CLOJURE_NAMESPACED_KEYWORD_REGEX.test('todo/title'),
+  'CLOJURE_NAMESPACED_KEYWORD_REGEX must match valid keywords'
+);
+crash.ok(
+  !CLOJURE_NAMESPACED_KEYWORD_REGEX.test('todo/title '),
+  'CLOJURE_NAMESPACED_KEYWORD_REGEX must not match invalid keywords'
+);
+crash.ok(
+  !CLOJURE_NAMESPACED_KEYWORD_REGEX.test('todo/title\n'),
+  'CLOJURE_NAMESPACED_KEYWORD_REGEX must not match invalid keywords'
+);
+
 /** Join namespace segments with `.` for template literal typing. */
 export type JoinDot<T extends readonly string[]> = T extends readonly [
   infer First extends string,

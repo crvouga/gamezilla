@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
-import { useMyId } from '@gamezilla/client/auth/auth-context';
-import { useSpaceSelector } from '@gamezilla/client/spaces/room/use-space-room-selector';
+import { useMyId } from '@gamezilla/auth/client/auth-context';
+import { useSpaceSelector } from './use-space-room-selector';
 import {
   RoomMetaAttr,
   SPACE_ROOM_NAME,

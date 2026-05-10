@@ -20,7 +20,7 @@ import {
   CHESS_PUZZLE_LOAD_ENTITY_TYPE,
   ChessPuzzleAttr,
   ChessPuzzleLoadAttr,
-} from '@gamezilla/domain/spaces/games/chess/puzzle/chess-puzzle-entities';
+} from '@gamezilla/chess/shared/chess-puzzle-entities';
 import { assert } from '@gamezilla/lib/assert';
 import { createLogger } from '@gamezilla/lib/logger';
 import { createDopplerSecretStoreForScripts } from '@gamezilla/lib/secret-store';
@@ -38,25 +38,25 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { Pool } from 'pg';
-import { loadBetterAuthOptionsForMigration } from '../src/migrations/better-auth-doppler-options';
-import { runPostgresMigrations } from '../src/migrations/run-postgres-migrations';
+import { loadBetterAuthOptionsForMigration } from '@gamezilla/auth/server/better-auth-doppler-options';
+import { runPostgresMigrations } from '@gamezilla/api/migrations/run-postgres-migrations';
 import {
   createPuzzleSeedReporter,
   type PuzzleSeedReporter,
-} from './seed-chess-puzzles-reporter.ts';
+} from './seed-chess-puzzles-reporter';
 import {
   ensureCachedArchive,
   iteratePuzzleRows,
   type IteratePuzzleRowsOptions,
   type ResolvedSource,
-} from './seed-chess-puzzles-streaming.ts';
+} from './seed-chess-puzzles-streaming';
 
 const DEFAULT_PUZZLE_URL =
   'https://database.lichess.org/lichess_db_puzzle.csv.zst';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
-const APP_API_ROOT = resolve(SCRIPT_DIR, '..');
-const DEFAULT_CACHE_DIR = join(APP_API_ROOT, '.cache', 'lichess');
+const FEATURE_CHESS_ROOT = resolve(SCRIPT_DIR, '..');
+const DEFAULT_CACHE_DIR = join(FEATURE_CHESS_ROOT, '.cache', 'lichess');
 
 function createSqlClient(databaseUrl: string): {
   sql: SqlClient;

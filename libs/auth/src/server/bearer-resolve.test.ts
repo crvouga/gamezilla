@@ -1,8 +1,8 @@
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { describe, expect, it } from 'bun:test';
 import { buildAppAuthContextFromBearer } from './bearer-resolve';
-import { AccountProvisioningUnexpectedAdapter } from './testing/account-provisioning-unexpected-adapter';
-import { SessionClaimsNullAdapter } from './testing/session-claims-null-adapter';
+import { AccountProvisioningUnexpectedAdapter } from './testing-account-provisioning-unexpected-adapter';
+import { SessionClaimsNullAdapter } from './testing-session-claims-null-adapter';
 
 const DEVICE = '550e8400-e29b-41d4-a716-446655440001';
 

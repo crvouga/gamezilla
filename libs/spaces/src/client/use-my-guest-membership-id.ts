@@ -1,5 +1,5 @@
-import { useMyProfileId } from '@gamezilla/client/profile/use-my-profile-id';
-import { spaceGuestMembershipEntityId } from '@gamezilla/domain/spaces/membership-key';
+import { useMyProfileId } from '@gamezilla/profile/client/use-my-profile-id';
+import { spaceGuestMembershipEntityId } from '@gamezilla/spaces/shared/membership-key';
 
 /**
  * Composite membership id `${myProfileId}:${spaceId}` for the current user

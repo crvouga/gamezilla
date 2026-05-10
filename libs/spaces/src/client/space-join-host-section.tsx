@@ -1,4 +1,4 @@
-import { SpaceHostNameText } from '@gamezilla/client/spaces/host/space-host-name-text';
+import { SpaceHostNameText } from './space-host-name-text';
 import { Box, Text } from '@gamezilla/lib/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';

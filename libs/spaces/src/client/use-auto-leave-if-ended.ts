@@ -1,11 +1,11 @@
-import { useSpaceActions } from '@gamezilla/client/spaces/actions/space-actions';
-import { useMyGuestMembershipId } from '@gamezilla/client/spaces/guests/use-my-guest-membership-id';
+import { useSpaceActions } from './space-actions';
+import { useMyGuestMembershipId } from './use-my-guest-membership-id';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceAttr,
   SpaceMembershipAttr,
-} from '@gamezilla/domain/spaces/space-entities';
+} from '@gamezilla/spaces/shared/space-entities';
 import { useQueryAttribute } from '@gamezilla/patch-db/react';
 import { useEffect } from 'react';
 

@@ -11,7 +11,7 @@ import { useCallback, type ReactNode } from 'react';
 import {
   useSpaceDispatch,
   useSpaceSelector,
-} from '@gamezilla/client/spaces/room/use-space-room-selector';
+} from '@gamezilla/spaces/client/use-space-room-selector';
 import { PuzzlePicker } from './chess-puzzle-picker';
 
 const BACK_BUTTON_SIZE = 40;

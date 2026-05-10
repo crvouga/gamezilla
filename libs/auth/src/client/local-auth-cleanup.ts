@@ -8,7 +8,7 @@ import {
   sessionTokenAtom,
 } from '@gamezilla/client/runtime/atoms';
 import { getDefaultStore } from 'jotai';
-import { writeLastLocalAccountId } from '@gamezilla/client/db/account-local-state';
+import { writeLastLocalAccountId } from '@gamezilla/auth/client/account-local-state';
 import { writeSessionToken } from './session-token-storage';
 
 /**

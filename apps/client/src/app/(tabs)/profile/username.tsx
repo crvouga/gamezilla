@@ -1,3 +1,3 @@
-import { ProfileUsernameScreen } from '@gamezilla/client/profile/profile-username-screen';
+import { ProfileUsernameScreen } from '@gamezilla/profile/client/profile-username-screen';
 
 export default ProfileUsernameScreen;

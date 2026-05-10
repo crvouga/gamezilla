@@ -9,3 +9,4 @@ apps/client/src/i18n/locales/*/messages.ts
 apps/client/expo-env.d.ts
 apps/qa/playwright-report/
 apps/qa/test-results/
+.cache

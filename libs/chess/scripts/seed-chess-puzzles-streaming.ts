@@ -103,11 +103,7 @@ async function streamWebBodyToFile(args: {
     },
   });
 
-  await pipeline(
-    Readable.fromWeb(args.body as unknown as ReadableStream),
-    counter,
-    ws
-  );
+  await pipeline(Readable.fromWeb(args.body), counter, ws);
 }
 
 async function downloadAndPersistHttpArchive(args: {
@@ -140,7 +136,9 @@ async function downloadAndPersistHttpArchive(args: {
     body: res.body as unknown as NodeReadableStream,
     destPath: tmpPath,
     totalBytes,
-    onProgress: args.onDownloadProgress,
+    ...(args.onDownloadProgress !== undefined
+      ? { onProgress: args.onDownloadProgress }
+      : {}),
   });
   await rename(tmpPath, args.dataPath);
   const etagFinal = etagAfterDownload(args.headEtag, res);
@@ -193,7 +191,9 @@ async function resolveHttpArchiveSource(args: {
     manifestPath,
     log: args.log,
     headEtag,
-    onDownloadProgress: args.onDownloadProgress,
+    ...(args.onDownloadProgress !== undefined
+      ? { onDownloadProgress: args.onDownloadProgress }
+      : {}),
   });
 }
 

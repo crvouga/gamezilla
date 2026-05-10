@@ -1,7 +1,7 @@
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
-} from '@gamezilla/domain/spaces/space-entities';
+} from '@gamezilla/spaces/shared/space-entities';
 import { Box, StatusDot, Text } from '@gamezilla/lib/ui';
 import { useQueryAttribute } from '@gamezilla/patch-db/react';
 import { Trans } from '@lingui/react/macro';

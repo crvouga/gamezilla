@@ -4,7 +4,7 @@
  * (avatar + name) and the menu header.
  */
 
-import { useAuth } from '@gamezilla/client/auth/auth-context';
+import { useAuth } from '@gamezilla/auth/client/auth-context';
 import { useServerStatus } from '@gamezilla/client/connection/use-server-status';
 import { useLogger } from '@gamezilla/client/runtime/runtime-hooks';
 import { SidebarAccountMenuHeader } from '@gamezilla/client/ui/sidebar/sidebar-account-menu-header';

@@ -1,5 +1,5 @@
-import { SpaceGuestMembershipTileRail } from '@gamezilla/client/spaces/guests/space-guest-membership-tile-rail';
-import { useSpaceGuestMembershipIds } from '@gamezilla/client/spaces/guests/use-space-guest-membership-ids';
+import { SpaceGuestMembershipTileRail } from './space-guest-membership-tile-rail';
+import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
 import { Box, Text } from '@gamezilla/lib/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';

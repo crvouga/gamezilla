@@ -10,13 +10,17 @@
   "compilerOptions": {
     "paths": {
       "@gamezilla/lib/*": ["../../libs/lib/src/*"],
-      "@gamezilla/domain/*": ["../../libs/domain/src/*"],
       "@gamezilla/patch-db/*": ["../../libs/patch-db/src/*"],
       "@gamezilla/room": ["../../libs/room/src/index.ts"],
       "@gamezilla/room/server": ["../../libs/room/src/server.ts"],
       "@gamezilla/room/*": ["../../libs/room/src/*"],
       "@gamezilla/api/*": ["../../apps/api/src/*"],
       "@gamezilla/client/*": ["../../apps/client/src/*"],
+      "@gamezilla/auth/*": ["../../libs/auth/src/*"],
+      "@gamezilla/chess/*": ["../../libs/chess/src/*"],
+      "@gamezilla/profile/*": ["../../libs/profile/src/*"],
+      "@gamezilla/spaces/*": ["../../libs/spaces/src/*"],
+      "@gamezilla/client-config/*": ["../../libs/client-config/src/*"],
       "@gamezilla/room-example/*": ["../../libs/room-example/src/*"],
       "@gamezilla/patch-db-example/*": ["../../libs/patch-db-example/src/*"]
     }

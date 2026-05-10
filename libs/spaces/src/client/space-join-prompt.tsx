@@ -1,8 +1,8 @@
-import { SpaceBackButton } from '@gamezilla/client/spaces/join/space-back-button';
-import { SpaceJoinBlockedNote } from '@gamezilla/client/spaces/join/space-join-blocked-note';
-import { SpaceJoinButton } from '@gamezilla/client/spaces/join/space-join-button';
-import { SpaceJoinHostSection } from '@gamezilla/client/spaces/join/space-join-host-section';
-import { SpaceTitleText } from '@gamezilla/client/spaces/host/space-title-text';
+import { SpaceBackButton } from './space-back-button';
+import { SpaceJoinBlockedNote } from './space-join-blocked-note';
+import { SpaceJoinButton } from './space-join-button';
+import { SpaceJoinHostSection } from './space-join-host-section';
+import { SpaceTitleText } from './space-title-text';
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 import {
   Box,

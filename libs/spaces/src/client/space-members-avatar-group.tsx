@@ -1,7 +1,7 @@
-import { SpaceGuestMembershipAvatar } from '@gamezilla/client/spaces/guests/space-guest-membership-avatar';
-import { SpaceHostAvatar } from '@gamezilla/client/spaces/host/space-host-avatar';
-import { SpaceMembersListModal } from '@gamezilla/client/spaces/members/space-members-list-modal';
-import { useSpaceGuestMembershipIds } from '@gamezilla/client/spaces/guests/use-space-guest-membership-ids';
+import { SpaceGuestMembershipAvatar } from './space-guest-membership-avatar';
+import { SpaceHostAvatar } from './space-host-avatar';
+import { SpaceMembersListModal } from './space-members-list-modal';
+import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
 import { AvatarGroup, Pressable } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useState, type ReactNode } from 'react';

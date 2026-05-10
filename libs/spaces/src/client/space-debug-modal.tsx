@@ -9,12 +9,12 @@
  * size when the user switches tabs; long payloads scroll inside `JsonView`.
  */
 
-import { useSpaceSelector } from '@gamezilla/client/spaces/room/use-space-room-selector';
+import { useSpaceSelector } from './use-space-room-selector';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceMembershipAttr,
-} from '@gamezilla/domain/spaces/space-entities';
+} from '@gamezilla/spaces/shared/space-entities';
 import {
   Box,
   JsonView,

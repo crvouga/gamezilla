@@ -1,10 +1,10 @@
-import { assertDeviceId } from '@gamezilla/domain/auth/device-id';
+import { assertDeviceId } from '@gamezilla/auth/shared/device-id';
 import { assert } from '@gamezilla/lib/assert';
 import type { PatchDb, PatchDbContext } from '@gamezilla/patch-db/interface';
 import type {
   AppAuthContext,
   AppClientContext,
-} from '../patch-db/abac-policies';
+} from '@gamezilla/api/patch-db/abac-policies';
 import { buildAppAuthContextFromBearer } from './bearer-resolve';
 import { loadMemberOfSpaceIds } from './member-of-spaces';
 import type { AuthSessionPort, HttpBearerAuthPorts } from './ports';

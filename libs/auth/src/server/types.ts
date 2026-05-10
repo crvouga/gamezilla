@@ -1,4 +1,4 @@
-import type { AppAuthContext } from '../patch-db/abac-policies';
+import type { AppAuthContext } from '@gamezilla/api/patch-db/abac-policies';
 
 /** Authenticated PatchDB context: signed-in account UUID (not anonymous). */
 export type AuthContext = AppAuthContext & { readonly accountId: string };

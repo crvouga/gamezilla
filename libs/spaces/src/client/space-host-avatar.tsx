@@ -1,8 +1,8 @@
-import { UserProfileAvatar } from '@gamezilla/client/profile/user-profile-avatar';
+import { UserProfileAvatar } from '@gamezilla/profile/client/user-profile-avatar';
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
-} from '@gamezilla/domain/spaces/space-entities';
+} from '@gamezilla/spaces/shared/space-entities';
 import { useQueryAttribute } from '@gamezilla/patch-db/react';
 import type { ReactNode } from 'react';
 

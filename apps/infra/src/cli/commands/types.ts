@@ -1,4 +1,4 @@
-export type CommandGroup = 'ci' | 'lifecycle' | 'setup';
+export type CommandGroup = 'ci' | 'lifecycle' | 'phase' | 'setup';
 
 export interface Command {
   readonly id: string;

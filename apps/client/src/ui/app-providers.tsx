@@ -4,7 +4,8 @@ import {
   Nunito_700Bold,
   useFonts,
 } from '@expo-google-fonts/nunito';
-import { AuthProvider } from '@gamezilla/client/auth/auth-context';
+import { AuthProvider } from '@gamezilla/auth/client/auth-context';
+import { ensureProfile } from '@gamezilla/profile/client/ensure-profile-entity';
 import { AppI18nProvider } from '@gamezilla/client/i18n/i18n-provider';
 import { PwaUpdatePromptBanner } from '@gamezilla/client/pwa/update-prompt';
 import { AppCommands } from '@gamezilla/client/ui/app-commands';
@@ -61,7 +62,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
                 <DismissibleBannerPortalProvider>
                   <BottomSheetModalProvider>
                     <PatchBootstrap>
-                      <AuthProvider>
+                      <AuthProvider ensureProfile={ensureProfile}>
                         <CommandRegistryProvider storage={AsyncStorage}>
                           <AppCommands />
                           <CommandPalette />

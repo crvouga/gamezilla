@@ -3,8 +3,8 @@ import {
   ACCOUNT_PROVIDER_ENTITY_TYPE,
   AccountAttr,
   AccountProviderAttr,
-} from '@gamezilla/domain/auth';
-import { assertUuid } from '@gamezilla/domain/auth/device-id';
+} from '@gamezilla/auth/shared';
+import { assertUuid } from '@gamezilla/auth/shared/device-id';
 import { assert } from '@gamezilla/lib/assert';
 import type {
   Entity,
@@ -13,7 +13,7 @@ import type {
 } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
-import type { AccountProvisioningPort } from '../ports';
+import type { AccountProvisioningPort } from './ports';
 
 /** Stored in {@link AccountProviderAttr.provider} — only referenced inside this adapter. */
 const INTERNAL_AUTH_PROVIDER = 'better-auth' as const;

@@ -1,0 +1,72 @@
+name: Setup repo + infra deploy tooling
+description: Wraps ./.github/actions/setup with optional wrangler / Stripe CLI / Postgres binaries
+
+inputs:
+  wrangler:
+    description: Install the latest wrangler CLI globally (npm install -g wrangler)
+    required: false
+    default: 'false'
+  stripe:
+    description: Install the latest Stripe CLI to /usr/local/bin
+    required: false
+    default: 'false'
+  postgres:
+    description: Install the postgresql package and put pg_ctl/initdb/pg_isready on PATH
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/setup
+
+    # Use `npm install -g` rather than `bun add -g`: the latter produces
+    # a Bun-runtime wrapper that, in non-TTY CI shells, writes
+    # `--version` output to stderr with empty stdout, tripping the dep
+    # version probe in `apps/infra/src/cli/deps/spawn.ts`. `npm` writes
+    # a plain Node shebang script that prints to stdout cleanly.
+    - name: Install wrangler
+      if: inputs.wrangler == 'true'
+      shell: bash
+      run: npm install -g wrangler@latest
+
+    - name: Install Stripe CLI
+      if: inputs.stripe == 'true'
+      shell: bash
+      run: |
+        STRIPE_VERSION=$(curl -fsSL https://api.github.com/repos/stripe/stripe-cli/releases/latest | jq -r '.tag_name' | sed 's/^v//')
+        curl -fsSL "https://github.com/stripe/stripe-cli/releases/download/v${STRIPE_VERSION}/stripe_${STRIPE_VERSION}_linux_x86_64.tar.gz" \
+          | tar -xz -C /usr/local/bin stripe
+        stripe version
+
+    # `infra` hard-checks local Postgres tooling (`postgres`, `pg_ctl`,
+    # `initdb`, `pg_isready`) for any phase that touches PlanetScale via
+    # the Bun TCP driver (lock-*, provision, migrate, smoke, ...).
+    # On GitHub-hosted Ubuntu runners these binaries live under
+    # `/usr/lib/postgresql/*/bin` and are not guaranteed on PATH by
+    # default. The `apt-get install` is a safety net -- the noble runner
+    # image ships postgresql-16 pre-installed, so this is usually a
+    # no-op meta-package update -- but keeps us forward-compatible if
+    # the image stops bundling it.
+    - name: Install PostgreSQL binaries
+      if: inputs.postgres == 'true'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y postgresql
+        PG_BIN_DIR="$(find /usr/lib/postgresql -maxdepth 2 -mindepth 2 -type d -name bin 2>/dev/null | sort -V | tail -n 1)"
+        if [ -z "$PG_BIN_DIR" ]; then
+          echo "::error::Failed to locate PostgreSQL bin directory under /usr/lib/postgresql/*/bin"
+          ls -la /usr/lib/postgresql 2>/dev/null || echo "/usr/lib/postgresql does not exist"
+          exit 1
+        fi
+        echo "PG_BIN_DIR=$PG_BIN_DIR" >> "$GITHUB_ENV"
+        echo "$PG_BIN_DIR" >> "$GITHUB_PATH"
+        # `$GITHUB_PATH` only takes effect in subsequent steps; export
+        # PATH here so the verification commands below resolve in the
+        # current shell.
+        export PATH="$PG_BIN_DIR:$PATH"
+        postgres --version
+        pg_ctl --version
+        initdb --version
+        pg_isready --version

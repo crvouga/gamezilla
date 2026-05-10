@@ -1,4 +1,4 @@
-import { MyDisplayName } from '@gamezilla/client/profile/my-display-name';
+import { MyDisplayName } from '@gamezilla/profile/client/my-display-name';
 import type { ReactNode } from 'react';
 
 /** Name slot inside {@link SidebarAccountTrigger}. */

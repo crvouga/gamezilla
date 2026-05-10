@@ -1,5 +1,5 @@
 import type { AppTypeWithGlobalErrors } from '@gamezilla/api/rpc';
-import { assertTigerPolicyForResolvedApiOrigin } from '@gamezilla/domain/config/api-servers';
+import { assertTigerPolicyForResolvedApiOrigin } from '@gamezilla/client/config/api-servers';
 import { hc } from 'hono/client';
 
 /**

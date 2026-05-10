@@ -1,12 +1,9 @@
-import {
-  useSpaceDispatch,
-  useSpaceSelector,
-} from '@gamezilla/client/spaces/room/use-space-room-selector';
+import { useSpaceDispatch, useSpaceSelector } from './use-space-room-selector';
 import {
   CounterRoomAttr,
   Decrement,
   Increment,
-} from '@gamezilla/domain/spaces/counter';
+} from '@gamezilla/spaces/shared/counter';
 import { Box, Button, Text } from '@gamezilla/lib/ui';
 import {
   RoomMetaAttr,

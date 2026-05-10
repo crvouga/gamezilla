@@ -5,7 +5,7 @@ import {
   type RoomState,
 } from '@gamezilla/room';
 
-import { SpaceModule } from '@gamezilla/domain/spaces/space-module';
+import { SpaceModule } from '@gamezilla/spaces/shared/space-module';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,

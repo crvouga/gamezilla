@@ -1,0 +1,25 @@
+import { REPO_ROOT } from '../../paths';
+import type { CiPlatform } from '../../platform/platform';
+import { runStep } from '../../platform/platform';
+import { runAsync } from '../../subprocess';
+
+/**
+ * Runs the `@gamezilla/stripe sync` script: catalog + patch-db backfill +
+ * webhook endpoints, with `STRIPE_WEBHOOK_SECRET` written back to Doppler.
+ * Must run after API worker is deployed so the webhook endpoint URL exists.
+ */
+export async function runStripeSyncPhase(platform: CiPlatform): Promise<void> {
+  await runStep(platform, 'Stripe sync', async () => {
+    await runAsync(
+      platform,
+      'bun',
+      ['run', '--filter', '@gamezilla/stripe', '--elide-lines=0', 'sync'],
+      {
+        cwd: REPO_ROOT,
+        env: process.env,
+        label:
+          'stripe: catalog + patch-db backfill + webhook endpoints (+ Doppler STRIPE_WEBHOOK_SECRET)',
+      }
+    );
+  });
+}

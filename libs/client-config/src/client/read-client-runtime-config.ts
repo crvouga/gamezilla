@@ -1,9 +1,9 @@
+import type { PatchDb } from '@gamezilla/patch-db/interface';
 import {
   CLIENT_CONFIG_ENTITY_ID,
   CLIENT_CONFIG_ENTITY_TYPE,
   ClientConfigAttr,
-} from '@gamezilla/domain/client-config/client-config-entities';
-import type { PatchDb } from '@gamezilla/patch-db/interface';
+} from '../shared/client-config-entities';
 
 export type ClientRuntimeConfig = {
   googleWebClientId: string | null;

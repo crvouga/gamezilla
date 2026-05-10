@@ -354,7 +354,19 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v5
 
-  deploy:
+  # ── Deploy pipeline ──────────────────────────────────────────────────
+  # The legacy single `deploy` job was decomposed into a chain of atomic
+  # jobs (lock-acquire → provision → migrate → deploy-resources →
+  # stripe-sync → smoke → refresh-config → lock-release). Each job calls
+  # one `infra` subcommand; the global PlanetScale lock is held by
+  # `lock-acquire` for the duration and removed by `lock-release` (which
+  # runs `if: always()` so a crash in any phase still releases the lock).
+  #
+  # `InfraContext` (zoneId, nameservers, pagesSubdomain) is built up by
+  # `provision` and round-tripped to downstream jobs as JSON via
+  # `needs.provision.outputs.infra_context`.
+
+  lock-acquire:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs:
       [
@@ -375,90 +387,194 @@ jobs:
       ]
     runs-on: ubuntu-latest
     outputs:
+      lock_id: ${{ steps.acquire.outputs.lock_id }}
+    permissions:
+      contents: read
+    # GitHub-level mutex (belt-and-suspenders alongside the PlanetScale
+    # lock). Only `lock-acquire` carries it, so the chain serializes at
+    # the entrypoint without queuing every individual phase.
+    concurrency:
+      group: deploy
+      cancel-in-progress: false
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - uses: ./.github/actions/infra-setup
+        with:
+          postgres: 'true'
+      - name: Acquire global deploy lock
+        id: acquire
+        working-directory: apps/infra
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+        run: bun run infra lock-acquire
+
+  provision:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [lock-acquire]
+    runs-on: ubuntu-latest
+    outputs:
+      infra_context: ${{ steps.provision.outputs.infra_context }}
+      zone_id: ${{ steps.provision.outputs.zone_id }}
+      pages_subdomain: ${{ steps.provision.outputs.pages_subdomain }}
+      cloudflare_nameservers: ${{ steps.provision.outputs.cloudflare_nameservers }}
+    permissions:
+      contents: read
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - uses: ./.github/actions/infra-setup
+        with:
+          wrangler: 'true'
+          postgres: 'true'
+      - name: Provision resources
+        id: provision
+        working-directory: apps/infra
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+        run: bun run infra provision
+
+  migrate:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [provision]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - uses: ./.github/actions/infra-setup
+        with:
+          postgres: 'true'
+      - name: Migrate database
+        working-directory: apps/infra
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+        run: bun run infra migrate
+
+  deploy-resources:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [provision, migrate]
+    runs-on: ubuntu-latest
+    outputs:
       client_url: ${{ steps.deploy.outputs.client_url }}
       api_url: ${{ steps.deploy.outputs.api_url }}
       turbo_cache_url: ${{ steps.deploy.outputs.turbo_cache_url }}
       pages_project_name: ${{ steps.deploy.outputs.pages_project_name }}
-      pages_subdomain: ${{ steps.deploy.outputs.pages_subdomain }}
-      cloudflare_nameservers: ${{ steps.deploy.outputs.cloudflare_nameservers }}
     permissions:
       contents: read
-    concurrency:
-      group: deploy
-      cancel-in-progress: false
-    timeout-minutes: 60
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - uses: ./.github/actions/setup
-
-      # Use `npm install -g` rather than `bun add -g`: the latter produces
-      # a Bun-runtime wrapper that, in non-TTY CI shells, writes
-      # `--version` output to stderr with empty stdout, tripping the dep
-      # version probe in `apps/infra/src/cli/deps/spawn.ts`. `npm` writes
-      # a plain Node shebang script that prints to stdout cleanly.
-      - name: Install wrangler
-        run: npm install -g wrangler@latest
-
-      - name: Install Stripe CLI
-        run: |
-          STRIPE_VERSION=$(curl -fsSL https://api.github.com/repos/stripe/stripe-cli/releases/latest | jq -r '.tag_name' | sed 's/^v//')
-          curl -fsSL "https://github.com/stripe/stripe-cli/releases/download/v${STRIPE_VERSION}/stripe_${STRIPE_VERSION}_linux_x86_64.tar.gz" \
-            | tar -xz -C /usr/local/bin stripe
-          stripe version
-
-      # `infra deploy` hard-checks local Postgres tooling (`postgres`,
-      # `pg_ctl`, `initdb`, `pg_isready`). On GitHub-hosted Ubuntu runners
-      # these binaries are installed under `/usr/lib/postgresql/*/bin` and
-      # are not guaranteed to be on PATH by default. The `apt-get install`
-      # is a safety net -- the noble runner image ships postgresql-16
-      # pre-installed, so this is usually a no-op meta-package update --
-      # but keeps us forward-compatible if the image stops bundling it.
-      - name: Install PostgreSQL binaries
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y postgresql
-          PG_BIN_DIR="$(find /usr/lib/postgresql -maxdepth 2 -mindepth 2 -type d -name bin 2>/dev/null | sort -V | tail -n 1)"
-          if [ -z "$PG_BIN_DIR" ]; then
-            echo "::error::Failed to locate PostgreSQL bin directory under /usr/lib/postgresql/*/bin"
-            ls -la /usr/lib/postgresql 2>/dev/null || echo "/usr/lib/postgresql does not exist"
-            exit 1
-          fi
-          echo "PG_BIN_DIR=$PG_BIN_DIR" >> "$GITHUB_ENV"
-          echo "$PG_BIN_DIR" >> "$GITHUB_PATH"
-          # `$GITHUB_PATH` only takes effect in subsequent steps; export
-          # PATH here so the verification commands below resolve in the
-          # current shell.
-          export PATH="$PG_BIN_DIR:$PATH"
-          postgres --version
-          pg_ctl --version
-          initdb --version
-          pg_isready --version
-
-      - name: Deploy
+      - uses: ./.github/actions/infra-setup
+        with:
+          wrangler: 'true'
+          postgres: 'true'
+      - name: Deploy resources (turbo-cache, api-worker, client)
         id: deploy
-        timeout-minutes: 45
         working-directory: apps/infra
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
-        run: bun run infra deploy
+          INFRA_CONTEXT: ${{ needs.provision.outputs.infra_context }}
+        run: bun run infra deploy-resources
 
-      # Safety net for the global deploy lock. The in-process release path
-      # in `apps/infra/src/cli/run-infra-command.ts` only wins the cleanup
-      # race when the deploy exits cleanly or via a catchable signal; a
-      # GitHub Actions step timeout / manual cancel / runner crash sends
-      # SIGTERM with ~7.5s grace before SIGKILL, which can outrun the
-      # Postgres release. `infra unlock` is idempotent (no-op when no lock
-      # is held) and safe here: `concurrency: { group: deploy }` prevents
-      # any other deploy from holding the lock concurrently, so
-      # force-unlock can only ever clear our own stuck row.
-      - name: Unlock on failure
-        if: always() && (failure() || cancelled())
-        timeout-minutes: 5
+  stripe-sync:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [deploy-resources]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - uses: ./.github/actions/infra-setup
+        with:
+          stripe: 'true'
+          postgres: 'true'
+      - name: Sync Stripe catalog + webhooks
         working-directory: apps/infra
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
-        run: bun run infra unlock
+        run: bun run infra stripe-sync
+
+  smoke:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [provision, stripe-sync]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - uses: ./.github/actions/infra-setup
+        with:
+          postgres: 'true'
+      - name: Smoke tests (DNS + HTTP)
+        working-directory: apps/infra
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+          INFRA_CONTEXT: ${{ needs.provision.outputs.infra_context }}
+        run: bun run infra smoke
+
+  refresh-config:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [provision, smoke]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - uses: ./.github/actions/infra-setup
+        with:
+          postgres: 'true'
+      - name: Refresh PatchDB client config
+        working-directory: apps/infra
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+          INFRA_CONTEXT: ${{ needs.provision.outputs.infra_context }}
+        run: bun run infra refresh-config
+
+  # Always-run safety net for the global deploy lock. Even on a crashed /
+  # cancelled / timed-out upstream job, this still runs and removes the
+  # lock row by id (`releaseIfHeldById` is idempotent if another run
+  # somehow grabbed it). Replaces the inline `Unlock on failure` step
+  # from the legacy single-job deploy.
+  lock-release:
+    if: always() && needs.lock-acquire.result == 'success' && needs.lock-acquire.outputs.lock_id != ''
+    needs:
+      [
+        lock-acquire,
+        provision,
+        migrate,
+        deploy-resources,
+        stripe-sync,
+        smoke,
+        refresh-config,
+      ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - uses: ./.github/actions/infra-setup
+        with:
+          postgres: 'true'
+      - name: Release global deploy lock
+        working-directory: apps/infra
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+          INFRA_LOCK_ID: ${{ needs.lock-acquire.outputs.lock_id }}
+        run: bun run infra lock-release
 
   report:
     if: always()
@@ -479,7 +595,14 @@ jobs:
         qa-api,
         qa-browser,
         publish-playwright-report,
-        deploy,
+        lock-acquire,
+        provision,
+        migrate,
+        deploy-resources,
+        stripe-sync,
+        smoke,
+        refresh-config,
+        lock-release,
       ]
     runs-on: ubuntu-latest
     timeout-minutes: 5

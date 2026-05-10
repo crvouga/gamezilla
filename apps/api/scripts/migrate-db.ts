@@ -3,7 +3,7 @@ import { createLogger } from '@gamezilla/lib/logger';
 import { createDopplerSecretStoreForScripts } from '@gamezilla/lib/secret-store';
 import { SqlClientImplPg } from '@gamezilla/lib/sql-client/impl-pg';
 import { Pool } from 'pg';
-import { loadBetterAuthOptionsForMigration } from '../src/migrations/better-auth-doppler-options';
+import { loadBetterAuthOptionsForMigration } from '@gamezilla/auth/server/better-auth-doppler-options';
 import { runPostgresMigrations } from '../src/migrations/run-postgres-migrations';
 
 async function main(): Promise<void> {

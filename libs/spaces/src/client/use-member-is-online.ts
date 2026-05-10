@@ -1,4 +1,4 @@
-import { useSpacePresence } from '@gamezilla/client/spaces/members/use-space-presence';
+import { useSpacePresence } from './use-space-presence';
 
 /**
  * Whether the given member has any active room connection in this space.

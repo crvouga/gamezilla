@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { SpaceModule } from '@gamezilla/domain/spaces/space-module';
+import { SpaceModule } from '@gamezilla/spaces/shared/space-module';
 import {
   ChessPuzzleSessionAttr,
   SelectChessPuzzle,

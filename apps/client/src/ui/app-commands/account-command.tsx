@@ -1,4 +1,4 @@
-import { useAuth } from '@gamezilla/client/auth/auth-context';
+import { useAuth } from '@gamezilla/auth/client/auth-context';
 import { RegisterCommand } from '@gamezilla/lib/ui';
 import { useAsync } from '@gamezilla/lib/async/use-async';
 import { useLingui } from '@lingui/react/macro';

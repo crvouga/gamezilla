@@ -1,5 +1,5 @@
 import { ensureChessBoardExampleRegistered } from './chess-board-register-example';
-import { useSpaceDispatch } from '@gamezilla/client/spaces/room/use-space-room-selector';
+import { useSpaceDispatch } from '@gamezilla/spaces/client/use-space-room-selector';
 import {
   CHESS_SCREEN,
   SetChessMainMenuScreen,

@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "@gamezilla/domain": "workspace:*",
     "@gamezilla/lib": "workspace:*"
   },
   "scripts": {

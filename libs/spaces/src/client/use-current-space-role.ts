@@ -1,4 +1,4 @@
-import { useCurrentSpaceIds } from '@gamezilla/client/spaces/use-current-space-ids';
+import { useCurrentSpaceIds } from './use-current-space-ids';
 
 /**
  * Returns the current user's role on `spaceId` — `'host'`, `'guest'`, or

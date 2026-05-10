@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@gamezilla/api": "workspace:*",
-    "@gamezilla/domain": "workspace:*",
     "@gamezilla/lib": "workspace:*",
     "@neondatabase/serverless": "^1.0.0",
     "picocolors": "^1.1.1"

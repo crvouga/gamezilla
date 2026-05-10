@@ -83,19 +83,6 @@ module.exports = defineConfig([
     },
   },
   {
-    files: [
-      'src/spaces/games/chess/puzzle/puzzle-picker.tsx',
-      'src/spaces/games/chess/puzzle/puzzle-picker-screen.tsx',
-      'src/spaces/games/chess/puzzle/puzzle-play-screen.tsx',
-      'src/spaces/games/chess/puzzle/use-puzzle-solver.ts',
-    ],
-    rules: {
-      'max-lines-per-function': 'off',
-      'max-statements': 'off',
-      complexity: 'off',
-    },
-  },
-  {
     files: ['**/*.test.{ts,tsx}', 'src/**/*.test.*'],
     rules: {
       'lingui/no-unlocalized-strings': 'off',

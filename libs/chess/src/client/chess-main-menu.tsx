@@ -1,17 +1,17 @@
 import {
   MainMenuScreen,
   type MainMenuItem,
-} from '@gamezilla/client/spaces/games/main-menu-screen';
+} from '@gamezilla/spaces/client/main-menu-screen';
 import {
   useSpaceDispatch,
   useSpaceSelector,
-} from '@gamezilla/client/spaces/room/use-space-room-selector';
+} from '@gamezilla/spaces/client/use-space-room-selector';
 import {
   CHESS_SCREEN,
   ChessMainMenuScreenAttr,
   SetChessMainMenuScreen,
 } from '../shared/chess-main-menu';
-import { SelectGame } from '@gamezilla/domain/spaces/games/games';
+import { SelectGame } from '@gamezilla/spaces/shared/games';
 import { Trans } from '@lingui/react/macro';
 import { useCallback, useMemo, type ReactNode } from 'react';
 import { PuzzleMainMenu } from './chess-puzzle-main-menu';

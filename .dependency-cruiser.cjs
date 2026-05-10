@@ -13,34 +13,54 @@ module.exports = {
       name: 'no-test-from-prod',
       severity: 'error',
       from: {
-        pathNot: '(test|fixture|__tests__|testkit|libs/room/src/simulator/)',
+        pathNot:
+          '(\\.(test|spec)\\.|/(__tests__|testkit|fixtures?|tests?)/|libs/room/src/(simulator|testkit)\\.ts)',
       },
       to: {
-        path: '(test|fixture|__tests__|testkit)',
+        path: '(\\.(test|spec)\\.|/(__tests__|testkit|fixtures?|tests?)/)',
         pathNot: 'smoke-tests',
       },
     },
+    // Shared cannot reach into any runtime-specific code, anywhere in the repo.
     {
-      name: 'domain-no-infra',
+      name: 'shared-pure',
       severity: 'error',
-      from: { path: '^libs/domain/' },
-      to: {
-        path: '^(apps/(api|db|infra|client)|libs/(patch-db|room|stripe))/',
-      },
+      from: { path: '/src/shared/' },
+      to: { path: '/src/(client|server)/' },
+    },
+    // Within and across feature packages, client and server are isolated.
+    {
+      name: 'client-not-server',
+      severity: 'error',
+      from: { path: '/src/client/' },
+      to: { path: '/src/server/' },
     },
     {
-      name: 'lib-no-domain',
+      name: 'server-not-client',
+      severity: 'error',
+      from: { path: '/src/server/' },
+      to: { path: '/src/client/' },
+    },
+    // libs/lib stays runtime-agnostic and feature-agnostic.
+    {
+      name: 'lib-no-features',
       severity: 'error',
       from: { path: '^libs/lib/' },
-      to: { path: '^libs/domain/' },
+      to: { path: '^libs/feature-' },
     },
+    // apps/client cannot reach server code in any feature.
     {
-      name: 'client-no-server-only',
+      name: 'apps-client-no-server',
       severity: 'error',
       from: { path: '^apps/client/' },
-      to: {
-        path: '^(apps/(api|db|infra|turbo-cache|stripe-cli)|libs/lib/src/(static-file-server|secret-store|distributed-lock|doppler|postgres))/',
-      },
+      to: { path: '/src/server/' },
+    },
+    // apps/api cannot reach client code in any feature.
+    {
+      name: 'apps-api-no-client',
+      severity: 'error',
+      from: { path: '^apps/api/' },
+      to: { path: '/src/client/' },
     },
     {
       name: 'no-non-package-json',

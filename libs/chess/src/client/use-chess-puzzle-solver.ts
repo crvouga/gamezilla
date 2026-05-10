@@ -11,7 +11,7 @@ import { useCallback, useEffect } from 'react';
 import {
   useSpaceDispatch,
   useSpaceSelector,
-} from '@gamezilla/client/spaces/room/use-space-room-selector';
+} from '@gamezilla/spaces/client/use-space-room-selector';
 import { uciFromMove } from './chess-puzzle-play-chess-utils';
 
 /**

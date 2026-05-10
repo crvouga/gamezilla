@@ -8,8 +8,8 @@ import {
   PRODUCTION_API_HTTP_HOSTNAMES,
   assertTigerPolicyForResolvedApiOrigin,
   productionApiUrlTigerExceptionEnabled,
-} from '@gamezilla/domain/config/api-servers';
-import { COMMIT_HASH_HEX_REGEX } from '@gamezilla/domain/config/app-metadata';
+} from '@gamezilla/client/config/api-servers';
+import { COMMIT_HASH_HEX_REGEX } from '@gamezilla/client/config/app-metadata';
 import { assert } from '@gamezilla/lib/assert';
 import {
   createDopplerSecretStoreForScripts,

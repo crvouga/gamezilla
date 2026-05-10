@@ -1,6 +1,6 @@
-import type { BetterAuthSessionApi } from '../auth/better-auth/session-claims-port';
-import type { HttpBearerAuthPorts } from '../auth/ports';
-import type { SessionAuth } from '../auth/session-middleware';
+import type { BetterAuthSessionApi } from '@gamezilla/auth/server/better-auth-session-claims-port';
+import type { HttpBearerAuthPorts } from '@gamezilla/auth/server/ports';
+import type { SessionAuth } from '@gamezilla/auth/server/session-middleware';
 import type { ApiWorkerEnv } from '../config/env';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 

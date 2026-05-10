@@ -1,7 +1,7 @@
 /**
  * Application-owned, declarative Postgres expression / partial indexes on
  * patch-db's `snapshots` table. Every spec is built from typed
- * `AttributeTag`s and `*_ENTITY_TYPE` constants from `@gamezilla/domain`, so
+ * `AttributeTag`s and `*_ENTITY_TYPE` constants from feature packages, so
  * entity-type and attribute-key drift between code and SQL cannot happen.
  *
  * Patch-db reconciles these against the live database during
@@ -13,13 +13,13 @@ import {
   ACCOUNT_SESSION_ENTITY_TYPE,
   AccountProviderAttr,
   AccountSessionAttr,
-} from '@gamezilla/domain/auth/auth-entities';
+} from '@gamezilla/auth/shared/auth-entities';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceAttr,
   SpaceMembershipAttr,
-} from '@gamezilla/domain/spaces/space-entities';
+} from '@gamezilla/spaces/shared/space-entities';
 import type { PatchDbIndexSpec } from '@gamezilla/patch-db/interface';
 
 export const APP_SNAPSHOT_INDEXES: readonly PatchDbIndexSpec[] = [

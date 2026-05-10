@@ -1,4 +1,4 @@
-import { useSpaceRoom } from '@gamezilla/client/spaces/room/use-space-room';
+import { useSpaceRoom } from './use-space-room';
 import {
   RoomClientsProvider,
   SPACE_ROOM_NAME,

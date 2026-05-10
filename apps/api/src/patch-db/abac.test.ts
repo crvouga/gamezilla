@@ -3,12 +3,12 @@ import {
   AccountSessionAttr,
   DEVICE_ENTITY_TYPE,
   DeviceAttr,
-} from '@gamezilla/domain/auth';
-import { ClientConfigAttr } from '@gamezilla/domain/client-config/client-config-entities';
+} from '@gamezilla/auth/shared';
+import { ClientConfigAttr } from '@gamezilla/client-config/shared/client-config-entities';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
-} from '@gamezilla/domain/profile/profile-entities';
+} from '@gamezilla/profile/shared/profile-entities';
 import { assert } from '@gamezilla/lib/assert';
 import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';

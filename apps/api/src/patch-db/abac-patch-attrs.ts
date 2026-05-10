@@ -1,6 +1,6 @@
 /**
  * {@link AttributeTag}s for PatchDB keys referenced by API ABAC / visibility
- * policies (not yet modeled in @gamezilla/domain).
+ * policies (not yet modeled in a dedicated feature package).
  */
 import { createAttrNamespace } from '@gamezilla/lib/attribute';
 

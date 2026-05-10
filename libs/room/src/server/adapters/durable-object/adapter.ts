@@ -86,7 +86,7 @@ function resolveOptions<
  * @example
  * ```ts
  * // apps/api/src/rooms/space-do.ts
- * import { SpaceModule } from '@gamezilla/domain/spaces/space-module';
+ * import { SpaceModule } from '@gamezilla/spaces/shared/space-module';
  * import { createDurableObjectAdapter } from '@gamezilla/room/server/adapters/durable-object';
  *
  * export default createDurableObjectAdapter({ module: SpaceModule });

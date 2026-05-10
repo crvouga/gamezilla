@@ -2,7 +2,7 @@ import {
   CLIENT_CONFIG_ENTITY_ID,
   CLIENT_CONFIG_ENTITY_TYPE,
   ClientConfigAttr,
-} from '@gamezilla/domain/client-config/client-config-entities';
+} from '../shared/client-config-entities';
 import { Box, Card, Text } from '@gamezilla/lib/ui';
 import { useQuery } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';

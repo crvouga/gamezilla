@@ -1,4 +1,4 @@
-import { useSpaceGuestMembershipIds } from '@gamezilla/client/spaces/guests/use-space-guest-membership-ids';
+import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
 import { optionalProps } from '@gamezilla/client/ui/optional-props';
 import { Text, type SxProps, type TextVariant } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';

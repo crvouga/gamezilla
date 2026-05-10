@@ -13,41 +13,35 @@ import {
 } from '@gamezilla/room';
 
 import {
-  CounterRoomAttr,
+  chessCmdNs,
+  chessEvtNs,
+  chessMainMenuCommandRouter,
+  chessMainMenuEventReducer,
+} from '@gamezilla/chess/shared/chess-main-menu';
+import {
+  chessPuzzlePlayCmdNs,
+  chessPuzzlePlayCommandRouter,
+  chessPuzzlePlayEventReducer,
+  chessPuzzlePlayEvtNs,
+} from '@gamezilla/chess/shared/chess-puzzle-play';
+import {
+  chessPuzzleSessionCmdNs,
+  chessPuzzleSessionCommandRouter,
+  chessPuzzleSessionEventReducer,
+  chessPuzzleSessionEvtNs,
+} from '@gamezilla/chess/shared/chess-puzzle-session';
+import {
   counterCmdNs,
   counterCommandRouter,
   counterEventReducer,
   counterEvtNs,
 } from './counter';
 import {
-  CHESS_SCREEN,
-  ChessMainMenuScreenAttr,
-  chessCmdNs,
-  chessEvtNs,
-  chessMainMenuCommandRouter,
-  chessMainMenuEventReducer,
-} from './games/chess/chess-main-menu';
-import {
-  chessPuzzlePlayCmdNs,
-  chessPuzzlePlayCommandRouter,
-  chessPuzzlePlayEventReducer,
-  chessPuzzlePlayEvtNs,
-  chessPuzzlePlayInitialAttrs,
-} from './games/chess/puzzle/chess-puzzle-play';
-import {
-  ChessPuzzleSessionAttr,
-  chessPuzzleSessionCmdNs,
-  chessPuzzleSessionCommandRouter,
-  chessPuzzleSessionEventReducer,
-  chessPuzzleSessionEvtNs,
-} from './games/chess/puzzle/chess-puzzle-session';
-import {
-  GamesRoomAttr,
   gamesCmdNs,
   gamesCommandRouter,
   gamesEventReducer,
   gamesEvtNs,
-} from './games/games';
+} from './games';
 
 function reject(error: RoomError): HandleResult {
   return { ok: false, error };
@@ -96,13 +90,7 @@ const spaceEventReducer = createComposedMessageRouter<
  */
 export const SpaceModule: RoomModule<RoomState, Message, Message, string> = {
   initialState(): RoomState {
-    return {
-      ...CounterRoomAttr.count(0),
-      ...GamesRoomAttr.selected(null),
-      ...ChessMainMenuScreenAttr.screen(CHESS_SCREEN.root),
-      ...ChessPuzzleSessionAttr.selectedPuzzleId(null),
-      ...chessPuzzlePlayInitialAttrs(),
-    };
+    return {};
   },
 
   handle(

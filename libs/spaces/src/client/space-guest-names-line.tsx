@@ -1,6 +1,6 @@
-import { NoGuestsText } from '@gamezilla/client/spaces/guests/no-guests-text';
-import { SpaceGuestMembershipDisplayNamesJoined } from '@gamezilla/client/spaces/guests/space-guest-membership-display-names-joined';
-import { useSpaceGuestMembershipIds } from '@gamezilla/client/spaces/guests/use-space-guest-membership-ids';
+import { NoGuestsText } from './no-guests-text';
+import { SpaceGuestMembershipDisplayNamesJoined } from './space-guest-membership-display-names-joined';
+import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
 import { optionalProps } from '@gamezilla/client/ui/optional-props';
 import type { SxProps, TextVariant } from '@gamezilla/lib/ui';
 import type { ReactNode } from 'react';

@@ -1,4 +1,4 @@
-import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '@gamezilla/domain/auth';
+import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '@gamezilla/auth/shared';
 import type {
   PatchDb,
   PatchDbSystemContext,

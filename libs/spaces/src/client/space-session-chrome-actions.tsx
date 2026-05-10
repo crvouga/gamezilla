@@ -1,5 +1,5 @@
-import { useSpaceSessionUi } from '@gamezilla/client/spaces/layout/space-session-ui-context';
-import { useCurrentSpaceRole } from '@gamezilla/client/spaces/use-current-space-role';
+import { useSpaceSessionUi } from './space-session-ui-context';
+import { useCurrentSpaceRole } from './use-current-space-role';
 import { Button, IconButton, IconSymbol, useTheme } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';
 

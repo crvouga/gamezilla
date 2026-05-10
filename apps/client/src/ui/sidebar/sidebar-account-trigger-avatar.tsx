@@ -1,4 +1,4 @@
-import { MyProfileAvatar } from '@gamezilla/client/profile/my-profile-avatar';
+import { MyProfileAvatar } from '@gamezilla/profile/client/my-profile-avatar';
 import type { ReactNode } from 'react';
 
 /** Avatar slot inside {@link SidebarAccountTrigger}. */

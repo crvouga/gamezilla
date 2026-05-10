@@ -1,4 +1,4 @@
-import { useSpaceMemberCount } from '@gamezilla/client/spaces/members/use-space-member-count';
+import { useSpaceMemberCount } from './use-space-member-count';
 import { Text } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';

@@ -1,6 +1,6 @@
 import { createApiClient } from '@gamezilla/client/api/hc';
 import { useConfigService } from '@gamezilla/client/runtime/runtime-hooks';
-import type { ConfigService } from '@gamezilla/domain/config/config-service';
+import type { ConfigService } from '@gamezilla/client/config/config-service';
 import { useAsync, type AsyncRunContext } from '@gamezilla/lib/async/use-async';
 import { Button, Card, Text } from '@gamezilla/lib/ui';
 import { Trans, useLingui } from '@lingui/react/macro';

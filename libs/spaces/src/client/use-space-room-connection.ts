@@ -1,4 +1,4 @@
-import type { ConfigService } from '@gamezilla/domain/config/config-service';
+import type { ConfigService } from '@gamezilla/client/config/config-service';
 import type { KeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
 import type {
   Room,

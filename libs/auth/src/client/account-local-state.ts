@@ -1,4 +1,4 @@
-import { isUuid } from '@gamezilla/domain/auth/device-id';
+import { isUuid } from '@gamezilla/auth/shared/device-id';
 import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
 
 /**

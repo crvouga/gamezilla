@@ -1,5 +1,5 @@
-import { SpaceSessionChromeActions } from '@gamezilla/client/spaces/layout/space-session-chrome-actions';
-import { useSpaceSessionUi } from '@gamezilla/client/spaces/layout/space-session-ui-context';
+import { SpaceSessionChromeActions } from './space-session-chrome-actions';
+import { useSpaceSessionUi } from './space-session-ui-context';
 import { Box, IconButton, IconSymbol, useTheme } from '@gamezilla/lib/ui';
 import { useLingui } from '@lingui/react/macro';
 

@@ -1,15 +1,15 @@
-import {
-  CLIENT_CONFIG_ENTITY_ID,
-  CLIENT_CONFIG_ENTITY_TYPE,
-  ClientConfigAttr,
-} from '@gamezilla/domain/client-config/client-config-entities';
+import type { ApiHonoEnv } from '@gamezilla/api/app/api-hono-types';
+import { ApiSecretName } from '@gamezilla/api/config/secret-names';
 import { isEqual } from '@gamezilla/lib/equal/is-equal';
 import type { Logger } from '@gamezilla/lib/logger';
 import type { SecretStore } from '@gamezilla/lib/secret-store';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
-import type { ApiHonoEnv } from '../app/api-hono-types';
-import { ApiSecretName } from '../config/secret-names';
+import {
+  CLIENT_CONFIG_ENTITY_ID,
+  CLIENT_CONFIG_ENTITY_TYPE,
+  ClientConfigAttr,
+} from '../shared/client-config-entities';
 
 export type ClientConfigRefreshOutcome = 'unchanged' | 'updated';
 

@@ -1,4 +1,4 @@
-import { SpaceMiniplayer } from '@gamezilla/client/spaces/miniplayer/space-miniplayer';
+import { SpaceMiniplayer } from '@gamezilla/spaces/client/space-miniplayer';
 import { AppProviders } from '@gamezilla/client/ui/app-providers';
 import { Box, useStackProps } from '@gamezilla/lib/ui';
 import { Stack } from 'expo-router';

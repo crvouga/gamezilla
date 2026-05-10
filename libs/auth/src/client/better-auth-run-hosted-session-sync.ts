@@ -1,4 +1,4 @@
-import { writeLastLocalAccountId } from '@gamezilla/client/db/account-local-state';
+import { writeLastLocalAccountId } from '@gamezilla/auth/client/account-local-state';
 import { writeSessionToken } from './session-token-storage';
 import {
   finalizeLocalSignInAfterServerAccount,

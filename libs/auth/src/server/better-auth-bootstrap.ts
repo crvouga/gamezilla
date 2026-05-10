@@ -1,8 +1,8 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { SecretStore } from '@gamezilla/lib/secret-store';
 import type { Hono } from 'hono';
-import type { ApiHonoEnv } from '../../app/api-hono-types';
-import { withBetterAuthBrowserCorsForRequest } from '../../app/cors';
+import type { ApiHonoEnv } from '@gamezilla/api/app/api-hono-types';
+import { withBetterAuthBrowserCorsForRequest } from '@gamezilla/api/app/cors';
 
 export async function mountHostedAuthRoutes(
   app: Hono<ApiHonoEnv>,

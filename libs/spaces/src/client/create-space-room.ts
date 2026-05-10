@@ -1,5 +1,5 @@
 import type { KeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
-import { SpaceModule } from '@gamezilla/domain/spaces/space-module';
+import { SpaceModule } from '@gamezilla/spaces/shared/space-module';
 import {
   Room,
   type RoomCommandPayload,

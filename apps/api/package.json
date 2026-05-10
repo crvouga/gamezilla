@@ -5,19 +5,29 @@
   "exports": {
     "./rpc": "./src/rpc.ts"
   },
+  "scripts": {
+    "build": "bun -e \"process.exit(0)\"",
+    "db:migrate": "bun run scripts/migrate-db.ts",
+    "dev": "bun run --filter @gamezilla/client-config dev:refresh & wrangler dev --port 8788 --inspector-port 9231",
+    "kill": "lsof -ti :8788 | xargs kill -9 2>/dev/null || true",
+    "lint": "eslint src --max-warnings 0",
+    "preview": "wrangler dev --port 8788",
+    "setup": "bun run scripts/setup-dev-vars.ts && bun run scripts/setup-better-auth-secret.ts",
+    "stripe:check": "bun run --filter @gamezilla/stripe check",
+    "stripe:sync": "bun run --filter @gamezilla/stripe sync",
+    "tc": "tsc --noEmit -p ../../tsconfig.json",
+    "test": "bun test"
+  },
   "dependencies": {
-    "@better-auth/core": "^1.6.9",
-    "@better-auth/expo": "^1.6.9",
-    "@gamezilla/domain": "workspace:*",
+    "@gamezilla/auth": "workspace:*",
+    "@gamezilla/chess": "workspace:*",
+    "@gamezilla/client-config": "workspace:*",
     "@gamezilla/lib": "workspace:*",
     "@gamezilla/patch-db": "workspace:*",
-    "@gamezilla/room": "workspace:*",
+    "@gamezilla/profile": "workspace:*",
+    "@gamezilla/spaces": "workspace:*",
     "@gamezilla/stripe": "workspace:*",
-    "better-auth": "^1.6.9",
-    "csv-parse": "^6.2.1",
-    "fzstd": "^0.1.1",
     "hono": "^4.7.0",
-    "kysely": "^0.28.9",
     "pg": "^8.16.3"
   },
   "devDependencies": {
@@ -25,19 +35,5 @@
     "@types/pg": "^8.11.10",
     "typescript": "~5.9.2",
     "wrangler": "^4.54.0"
-  },
-  "scripts": {
-    "lint": "eslint src --max-warnings 0",
-    "test": "bun test",
-    "build": "bun -e \"process.exit(0)\"",
-    "tc": "tsc --noEmit -p ../../tsconfig.json",
-    "setup": "bun run scripts/setup-dev-vars.ts && bun run scripts/setup-better-auth-secret.ts",
-    "db:migrate": "bun run scripts/migrate-db.ts",
-    "seed:puzzles": "bun run scripts/seed-chess-puzzles.ts",
-    "stripe:sync": "bun run --filter @gamezilla/stripe sync",
-    "stripe:check": "bun run --filter @gamezilla/stripe check",
-    "dev": "bun run scripts/dev-refresh-client-config.ts & wrangler dev --port 8788 --inspector-port 9231",
-    "kill": "lsof -ti :8788 | xargs kill -9 2>/dev/null || true",
-    "preview": "wrangler dev --port 8788"
   }
 }

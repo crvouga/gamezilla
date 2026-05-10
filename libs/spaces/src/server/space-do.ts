@@ -1,4 +1,4 @@
-import { SpaceModule } from '@gamezilla/domain/spaces/space-module';
+import { SpaceModule } from '@gamezilla/spaces/shared/space-module';
 import { createDurableObjectAdapter } from '@gamezilla/room/server/adapters/durable-object';
 
 /**

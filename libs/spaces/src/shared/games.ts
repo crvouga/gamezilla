@@ -6,8 +6,11 @@ import {
 } from '@gamezilla/lib/message';
 import type { HandleResult, RoomState } from '@gamezilla/room';
 
-import { CHESS_SCREEN, ChessMainMenuScreenAttr } from './chess/chess-main-menu';
-import { ChessPuzzleSessionAttr } from './chess/puzzle/chess-puzzle-session';
+import {
+  CHESS_SCREEN,
+  ChessMainMenuScreenAttr,
+} from '@gamezilla/chess/shared/chess-main-menu';
+import { ChessPuzzleSessionAttr } from '@gamezilla/chess/shared/chess-puzzle-session';
 
 export const SpaceGame = {
   chess: 'chess',

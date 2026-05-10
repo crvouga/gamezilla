@@ -1,18 +1,18 @@
 import { createApiClient } from '@gamezilla/client/api/hc';
 import { createPatchDbHcTransport } from '@gamezilla/client/api/patch-db-hc-transport';
-import { createSecureStorage } from '@gamezilla/client/auth/create-secure-storage';
-import { createDeviceService } from '@gamezilla/client/auth/device-service';
-import { ensureDeviceEntity } from '@gamezilla/client/auth/ensure-device-entity';
-import { ensureProfile } from '@gamezilla/client/auth/ensure-profile-entity';
-import { createSessionService } from '@gamezilla/client/auth/session-service';
-import { readSessionToken } from '@gamezilla/client/auth/session-token-storage';
-import { readLastLocalAccountId } from '@gamezilla/client/db/account-local-state';
+import { createSecureStorage } from '@gamezilla/auth/client/create-secure-storage';
+import { createDeviceService } from '@gamezilla/auth/client/device-service';
+import { ensureDeviceEntity } from '@gamezilla/auth/client/ensure-device-entity';
+import { ensureProfile } from '@gamezilla/profile/client/ensure-profile-entity';
+import { createSessionService } from '@gamezilla/auth/client/session-service';
+import { readSessionToken } from '@gamezilla/auth/client/session-token-storage';
+import { readLastLocalAccountId } from '@gamezilla/auth/client/account-local-state';
 import { createKeyValueStorage } from '@gamezilla/client/runtime/create-key-value-storage';
 import {
   ACCOUNT_SESSION_ENTITY_TYPE,
   assertDeviceId,
-} from '@gamezilla/domain/auth';
-import { createConfigService } from '@gamezilla/domain/config/config-service';
+} from '@gamezilla/auth/shared';
+import { createConfigService } from '@gamezilla/client/config/config-service';
 import type { KeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
 import { createLogger } from '@gamezilla/lib/logger/logger';
 import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';

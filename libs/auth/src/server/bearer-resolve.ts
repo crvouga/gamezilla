@@ -1,6 +1,6 @@
-import { assertDeviceId } from '@gamezilla/domain/auth/device-id';
+import { assertDeviceId } from '@gamezilla/auth/shared/device-id';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
-import type { AppAuthContext } from '../patch-db/abac-policies';
+import type { AppAuthContext } from '@gamezilla/api/patch-db/abac-policies';
 import type { HttpBearerAuthPorts } from './ports';
 import { loadMemberOfSpaceIds } from './member-of-spaces';
 

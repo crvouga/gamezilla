@@ -1,4 +1,4 @@
-import { useMyProfileId } from '@gamezilla/client/profile/use-my-profile-id';
+import { useMyProfileId } from '@gamezilla/profile/client/use-my-profile-id';
 
 /** Whether `profileId` is the current user's profile id. */
 export function useMemberIsYou(profileId: string): boolean {

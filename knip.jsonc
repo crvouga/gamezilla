@@ -12,9 +12,7 @@
     "lingui.config.cjs",
     "apps/infra/src/cli/secrets/planetscale.ts",
     "apps/infra/src/cli/secrets/turbo-token.ts",
-    "apps/client/src/auth/fetch-client-runtime-config.ts",
     "apps/client/src/connection/offline-indicator.tsx",
-    "apps/client/src/profile/profile-actions.ts",
   ],
   "ignoreDependencies": [
     "expo-updates",
@@ -43,9 +41,14 @@
     "wrangler",
     "@lingui/conf",
     "@total-typescript/ts-reset",
-    "eslint-plugin-lingui",
     "turbo",
     "typescript-eslint",
+    "@gamezilla/api",
+    "@gamezilla/auth",
+    "@gamezilla/chess",
+    "@gamezilla/client",
+    "@gamezilla/profile",
+    "@gamezilla/spaces",
   ],
   "workspaces": {
     ".": {

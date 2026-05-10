@@ -16,7 +16,7 @@
 import {
   openAccountDb,
   openAnonymousDb,
-} from '@gamezilla/client/db/account-db';
+} from '@gamezilla/auth/client/account-db';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 
 export type OpenSqlClientRuntimeDeps = {
