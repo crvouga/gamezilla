@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { WIRE_VERSION } from '../../protocol/wire';
+import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
 import type { LogEntry } from '../../types';
 import { Increment, TestCounterModule } from '../../testkit/counter-module';
 import { InMemoryRoomStorage } from '../adapters/memory/storage';
@@ -61,14 +61,14 @@ describe('RoomServer welcome lastSeq', () => {
 
     await server.handleClientMessage('c1', 'u1', {
       v: WIRE_VERSION,
-      kind: 'sync',
+      kind: ROOM_WIRE_KIND.sync,
       fromSeq: 0,
     });
     await new Promise<void>((r) => setTimeout(r, 5));
 
     await server.handleClientMessage('c1', 'u1', {
       v: WIRE_VERSION,
-      kind: 'command',
+      kind: ROOM_WIRE_KIND.command,
       id: 'cmd-1',
       ts: 1,
       payload: Increment({}),
@@ -77,7 +77,7 @@ describe('RoomServer welcome lastSeq', () => {
 
     await server.handleClientMessage('c1', 'u1', {
       v: WIRE_VERSION,
-      kind: 'sync',
+      kind: ROOM_WIRE_KIND.sync,
       fromSeq: 0,
     });
     await new Promise<void>((r) => setTimeout(r, 5));
@@ -86,7 +86,7 @@ describe('RoomServer welcome lastSeq', () => {
       (m): m is { kind: string; lastSeq?: number; entries?: LogEntry[] } =>
         typeof m === 'object' &&
         m !== null &&
-        (m as { kind?: string }).kind === 'welcome'
+        (m as { kind?: string }).kind === ROOM_WIRE_KIND.welcome
     );
     const lastWelcome = welcomes[welcomes.length - 1];
     expect(lastWelcome).toBeDefined();

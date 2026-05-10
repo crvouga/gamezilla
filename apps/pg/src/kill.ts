@@ -18,7 +18,7 @@
 
 import { existsSync, readFileSync, unlinkSync } from 'node:fs';
 import { setTimeout as sleep } from 'node:timers/promises';
-import { createLogger } from '@gamezilla/lib/logger';
+import { createLogger, type Logger } from '@gamezilla/lib/logger';
 import { loadPostgresConfig } from './postgres-config';
 import {
   probePostmaster,
@@ -82,7 +82,12 @@ async function signalWrapper(pid: number, timeoutMs: number): Promise<void> {
   }
 }
 
-async function main(): Promise<void> {
+/**
+ * Stop the managed cluster + signal the wrapper process. Reusable from other
+ * scripts (e.g. `drop.ts`, which needs to stop the DB before deleting its
+ * data dir). Logs to the provided logger so the caller controls naming.
+ */
+export async function killCluster(logger: Logger): Promise<void> {
   const config = loadPostgresConfig();
   const binaries = (() => {
     try {
@@ -90,9 +95,12 @@ async function main(): Promise<void> {
     } catch (e) {
       // Even without the binaries we can still try to signal the wrapper PID,
       // so don't make this fatal.
-      log.warn('postgres binaries unavailable; will only signal wrapper PID', {
-        error: e instanceof Error ? e.message : String(e),
-      });
+      logger.warn(
+        'postgres binaries unavailable; will only signal wrapper PID',
+        {
+          error: e instanceof Error ? e.message : String(e),
+        }
+      );
       return null;
     }
   })();
@@ -101,25 +109,25 @@ async function main(): Promise<void> {
   if (wrapperPid !== null && isAlive(wrapperPid)) {
     await signalWrapper(wrapperPid, config.shutdownTimeoutMs);
   } else if (wrapperPid !== null) {
-    log.info('removing stale wrapper.pid', { pid: wrapperPid });
+    logger.info('removing stale wrapper.pid', { pid: wrapperPid });
     try {
       unlinkSync(WRAPPER_PID_FILE);
     } catch {
       // best effort
     }
   } else {
-    log.info('no wrapper.pid present');
+    logger.info('no wrapper.pid present');
   }
 
   if (binaries !== null) {
-    await stopCluster(binaries, config, log);
+    await stopCluster(binaries, config, logger);
   } else {
     // Without binaries we can still clean up a stale postmaster.pid pointing
     // at a dead PID; live ones we have to leave to the user.
-    reconcileStalePostmaster(config.dataDir, log);
+    reconcileStalePostmaster(config.dataDir, logger);
     const probe = probePostmaster(config.dataDir);
     if (probe.state === 'alive') {
-      log.warn(
+      logger.warn(
         'postmaster still alive; install postgres CLI tools to enable graceful stop',
         {
           pid: probe.pid,
@@ -127,8 +135,15 @@ async function main(): Promise<void> {
       );
     }
   }
+}
 
+async function main(): Promise<void> {
+  await killCluster(log);
   log.info('kill complete');
 }
 
-await main();
+// Guard so other scripts (e.g. `drop.ts`) can import `killCluster` without
+// running `main()` as a side effect.
+if (import.meta.main) {
+  await main();
+}

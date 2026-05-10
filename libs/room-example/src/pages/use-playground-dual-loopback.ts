@@ -1,3 +1,4 @@
+import { asKeyword } from '@gamezilla/lib/keyword';
 import {
   Room,
   type RoomCommandPayload,
@@ -99,9 +100,11 @@ export function usePlaygroundDualLoopback(): {
   return { roomA: a, roomB: b, error: err };
 }
 
+const COUNTER_COUNT_KEY = asKeyword('counter/count');
+
 export function readPlaygroundCount(room: CounterRoom | null): number {
   if (room === null) return 0;
-  const c = room.getSnapshot()['counter/count'];
+  const c = room.getSnapshot()[COUNTER_COUNT_KEY];
   return typeof c === 'number' && Number.isFinite(c) ? c : 0;
 }
 

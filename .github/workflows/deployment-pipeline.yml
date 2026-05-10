@@ -410,14 +410,26 @@ jobs:
       # `infra deploy` hard-checks local Postgres tooling (`postgres`,
       # `pg_ctl`, `initdb`, `pg_isready`). On GitHub-hosted Ubuntu runners
       # these binaries are installed under `/usr/lib/postgresql/*/bin` and
-      # are not guaranteed to be on PATH by default.
+      # are not guaranteed to be on PATH by default. The `apt-get install`
+      # is a safety net -- the noble runner image ships postgresql-16
+      # pre-installed, so this is usually a no-op meta-package update --
+      # but keeps us forward-compatible if the image stops bundling it.
       - name: Install PostgreSQL binaries
         run: |
           sudo apt-get update
           sudo apt-get install -y postgresql
           PG_BIN_DIR="$(find /usr/lib/postgresql -maxdepth 2 -mindepth 2 -type d -name bin 2>/dev/null | sort -V | tail -n 1)"
+          if [ -z "$PG_BIN_DIR" ]; then
+            echo "::error::Failed to locate PostgreSQL bin directory under /usr/lib/postgresql/*/bin"
+            ls -la /usr/lib/postgresql 2>/dev/null || echo "/usr/lib/postgresql does not exist"
+            exit 1
+          fi
           echo "PG_BIN_DIR=$PG_BIN_DIR" >> "$GITHUB_ENV"
           echo "$PG_BIN_DIR" >> "$GITHUB_PATH"
+          # `$GITHUB_PATH` only takes effect in subsequent steps; export
+          # PATH here so the verification commands below resolve in the
+          # current shell.
+          export PATH="$PG_BIN_DIR:$PATH"
           postgres --version
           pg_ctl --version
           initdb --version

@@ -1,12 +1,6 @@
 import { Assert } from '@gamezilla/lib/assert';
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
-import {
-  ATTRIBUTE_KEY_MAX_LENGTH,
-  ATTRIBUTE_NAMESPACE_MAX_SEGMENTS,
-  ATTRIBUTE_SEGMENT_MAX_LENGTH,
-  createAttrNamespace,
-  isClojureNamespacedKey,
-} from './attribute';
+import { createAttrNamespace, type AttributeState } from './attribute';
 
 let disposeTestCrashHandler: () => void;
 beforeAll(() => {
@@ -24,64 +18,6 @@ beforeAll(() => {
 });
 afterAll(() => {
   disposeTestCrashHandler();
-});
-
-describe('isClojureNamespacedKey', () => {
-  it('accepts kebab-case Clojure-style keys', () => {
-    expect(isClojureNamespacedKey('todo/title')).toBe(true);
-    expect(isClojureNamespacedKey('my.namespace/attr-name')).toBe(true);
-    expect(isClojureNamespacedKey('patch/sync-rejected-at')).toBe(true);
-    expect(isClojureNamespacedKey('chess.puzzle/id')).toBe(true);
-    expect(isClojureNamespacedKey('chat.message/space-id')).toBe(true);
-  });
-
-  it('rejects camelCase, underscores, digits-first, multi-slash', () => {
-    expect(isClojureNamespacedKey('bad key/x')).toBe(false);
-    expect(isClojureNamespacedKey('0prefix/name')).toBe(false);
-    expect(isClojureNamespacedKey('prefix/9nope')).toBe(false);
-    expect(isClojureNamespacedKey('onlyOne')).toBe(false);
-    expect(isClojureNamespacedKey('a/b/c')).toBe(false);
-    expect(isClojureNamespacedKey('foo..bar/x')).toBe(false);
-    expect(isClojureNamespacedKey('.foo/x')).toBe(false);
-    expect(isClojureNamespacedKey('foo./x')).toBe(false);
-    expect(isClojureNamespacedKey('ns/foo.bar')).toBe(false);
-    expect(isClojureNamespacedKey('patch/syncRejectedAt')).toBe(false);
-    expect(isClojureNamespacedKey('MyNs/foo')).toBe(false);
-    expect(isClojureNamespacedKey('ns/foo_bar')).toBe(false);
-  });
-
-  it('rejects single-character namespace or local segments', () => {
-    expect(isClojureNamespacedKey('a/b')).toBe(false);
-    expect(isClojureNamespacedKey('ab/c')).toBe(false);
-    expect(isClojureNamespacedKey('abc/d')).toBe(false);
-  });
-
-  it('rejects non-ASCII and invisible Unicode even when shape looks valid', () => {
-    expect(isClojureNamespacedKey('to\u200Bdo/title')).toBe(false);
-    expect(isClojureNamespacedKey('patch/sync-réjected')).toBe(false);
-  });
-
-  it('rejects keys longer than ATTRIBUTE_KEY_MAX_LENGTH', () => {
-    const seg64 = 'ab'.repeat(32);
-    const prefix = `${seg64}.${seg64}.${seg64}`;
-    const key = `${prefix}/${seg64}`;
-    expect(key.length).toBeGreaterThan(ATTRIBUTE_KEY_MAX_LENGTH);
-    expect(isClojureNamespacedKey(key)).toBe(false);
-  });
-
-  it('rejects oversized segments', () => {
-    const seg = 'x'.repeat(ATTRIBUTE_SEGMENT_MAX_LENGTH + 1);
-    expect(isClojureNamespacedKey(`${seg}/yz`)).toBe(false);
-    expect(isClojureNamespacedKey(`ab/${seg}`)).toBe(false);
-  });
-
-  it('rejects too many dot-separated namespace segments', () => {
-    const prefix = Array.from(
-      { length: ATTRIBUTE_NAMESPACE_MAX_SEGMENTS + 1 },
-      () => 'ab'
-    ).join('.');
-    expect(isClojureNamespacedKey(`${prefix}/cd`)).toBe(false);
-  });
 });
 
 describe('createAttrNamespace', () => {
@@ -139,7 +75,7 @@ describe('createAttrNamespace', () => {
     const Selected = ns('selected', (v): string | null =>
       typeof v === 'string' ? v : null
     );
-    expect(Selected.key).toBe('games/selected');
+    expect(String(Selected.key)).toBe('games/selected');
   });
 
   it('callable builds single-key patch', () => {
@@ -165,8 +101,9 @@ describe('createAttrNamespace', () => {
     const DisplayName = ns('display-name', (v): string =>
       typeof v === 'string' ? v : ''
     );
-    expect(DisplayName.from({ 'profile/display-name': 'Ada' })).toBe('Ada');
-    expect(DisplayName.from({})).toBe('');
+    const state: AttributeState = DisplayName('Ada');
+    expect(DisplayName.from(state)).toBe('Ada');
+    expect(DisplayName.from({} as AttributeState)).toBe('');
   });
 
   it('parser throw propagates from callable', () => {
@@ -182,7 +119,8 @@ describe('createAttrNamespace', () => {
     const Selected = ns('selected', (_v): never => {
       throw new Error('bad');
     });
-    expect(() => Selected.from({ 'games/selected': 1 })).toThrow('bad');
+    const state = { [Selected.key]: 1 } as AttributeState;
+    expect(() => Selected.from(state)).toThrow('bad');
   });
 
   it('parser throw propagates from .parse', () => {

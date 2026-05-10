@@ -63,12 +63,26 @@ export class PatchDbImplPostgres implements PatchDb {
     private readonly opts: PatchDbEngineOptions = {}
   ) {}
 
-  /** Idempotent Postgres DDL for patches + snapshots (no instance required). */
+  /**
+   * Idempotent Postgres DDL for patches + snapshots (no instance required).
+   *
+   * When `options.indexes` is supplied, declarative snapshot indexes are
+   * reconciled after base DDL: indexes declared in code but absent in DB are
+   * created; indexes present in DB under the `pdb_idx_` prefix that are no
+   * longer declared are dropped. Non-`pdb_idx_` indexes (engine-owned and
+   * unrelated app indexes) are never touched.
+   */
   static async migrateUp(args: {
     sqlClient: SqlClient;
     logger: Logger;
+    options?: PatchDbEngineOptions;
   }): Promise<void> {
-    await migratePatchDbPostgres(args);
+    const indexes = args.options?.indexes;
+    await migratePatchDbPostgres({
+      sqlClient: args.sqlClient,
+      logger: args.logger,
+      ...(indexes !== undefined ? { indexes } : {}),
+    });
   }
 
   private async resolveParentId(

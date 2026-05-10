@@ -1,5 +1,6 @@
 import { ValidationError } from '@gamezilla/lib/assert';
 import { describe, expect, it } from 'bun:test';
+import { asKeyword } from '../keyword/keyword';
 import {
   acceptUnknownPayload,
   createMessageNamespace,
@@ -55,7 +56,7 @@ describe('createMessageRouter', () => {
       { trace: string },
       string
     >().on(A, () => 'hit');
-    const msg: Message = { type: 'app/ghost', payload: { x: 1 } };
+    const msg: Message = { type: asKeyword('app/ghost'), payload: { x: 1 } };
     const out = r.dispatch(
       { id: 7 },
       { trace: 't1' },
@@ -105,8 +106,8 @@ describe('createMessageRouter', () => {
     const r = createMessageRouter<void, void, void>().on(A, () => {});
     expect(r.has(A({}))).toBe(true);
     expect(r.has({ type: A.type, payload: {} })).toBe(true);
-    expect(r.has({ type: 'app/b', payload: null })).toBe(false);
-    expect(r.has({ type: 'other/a', payload: {} })).toBe(false);
+    expect(r.has({ type: asKeyword('app/aaaa'), payload: null })).toBe(false);
+    expect(r.has({ type: asKeyword('other/aaa'), payload: {} })).toBe(false);
   });
 
   it('throws when registering the same tag twice', () => {
@@ -169,7 +170,7 @@ describe('createMessageRouter with namespace', () => {
     const Z = ns('one', acceptUnknownPayload);
     const r = createMessageRouter<void, void, void>(ns).on(Z, () => {});
     expect(r.has(Z({}))).toBe(true);
-    expect(r.has({ type: 'other/one', payload: {} })).toBe(false);
+    expect(r.has({ type: asKeyword('other/one'), payload: {} })).toBe(false);
   });
 });
 
@@ -201,7 +202,7 @@ describe('createComposedMessageRouter', () => {
       composed.dispatch(
         undefined,
         undefined,
-        { type: 'gamma/x', payload: {} },
+        { type: asKeyword('gamma/xx'), payload: {} },
         () => 'miss'
       )
     ).toBe('miss');
@@ -215,7 +216,9 @@ describe('createComposedMessageRouter', () => {
       { namespace: ns, router: inner },
     ]);
     expect(composed.has(Q({}))).toBe(true);
-    expect(composed.has({ type: 'q/other', payload: {} })).toBe(false);
+    expect(composed.has({ type: asKeyword('qq/other'), payload: {} })).toBe(
+      false
+    );
   });
 
   it('throws when two children share the same namespace prefix', () => {
@@ -256,7 +259,7 @@ describe('composing message routers (fallback delegation)', () => {
       outer.dispatch(
         undefined,
         undefined,
-        { type: 'nope/x', payload: {} },
+        { type: asKeyword('nope/xx'), payload: {} },
         (s, c, m) => inner.dispatch(s, c, m, () => 'miss')
       )
     ).toBe('miss');

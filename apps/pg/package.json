@@ -10,7 +10,8 @@
     "test": "bun test --pass-with-no-tests",
     "dev": "bun run src/dev.ts",
     "preview": "bun run src/dev.ts",
-    "kill": "bun run src/kill.ts"
+    "kill": "bun run src/kill.ts",
+    "drop": "bun run src/drop.ts"
   },
   "dependencies": {
     "@gamezilla/lib": "workspace:*"

@@ -1,26 +1,39 @@
 import type { Assert } from '@gamezilla/lib/assert';
 import { assert } from '@gamezilla/lib/assert';
-import type { Keyword } from '@gamezilla/lib/keyword';
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import {
-  isClojureNamespacedKey,
-  isClojureNamespacePrefix,
-} from './attribute-key';
+  isNamespacedKeyword,
+  isNamespacePrefix,
+  type Keyword,
+} from '@gamezilla/lib/keyword';
+import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import type { PatchDbContext } from './context';
-import type { PatchDbCompactionPolicyResolver } from './policy/compaction-policy';
+import type { PatchDbIndexSpec } from './indexes/index-spec';
 import { PatchMetaAttr } from './metadata/patch-metadata';
+import type { PatchDbCompactionPolicyResolver } from './policy/compaction-policy';
 
 /**
- * Branded namespaced key for queries and {@link AttributeTag} APIs.
- * Patch / entity attribute maps are `Record<string, unknown>` (runtime-validated via {@link assertAttribute}).
+ * Namespaced attribute key used in queries and the `attributes` map.
+ * Producers (factories, tags, validators) always emit a {@link Keyword} brand;
+ * this alias stays `string` at the type level so query literals stay ergonomic
+ * (`{ attribute: 'task/title', … }`) while every wire / persistence boundary
+ * runtime-validates via {@link assertAttribute} / {@link assertAttributes}.
  */
-export type AttributeKey = Keyword;
+export type AttributeKey = string;
 
 /**
  * Dot-separated kebab namespace for {@link PatchInput.entityType} / {@link PatchDbQuery.entityType}
- * (same grammar as an attribute key’s namespace prefix; no `/`).
+ * (same grammar as an attribute key's namespace prefix; no `/`).
+ *
+ * Validated at runtime by {@link assertEntityType}; all wire / persistence
+ * boundaries pipe untrusted inputs through it before the rest of the pipeline.
  */
-export type PatchEntityType = Keyword;
+export type PatchEntityType = string;
+
+/** Asserts and tags `t` as a {@link PatchEntityType}. Crashes on invalid input. */
+export function asEntityType(t: string, a: Assert = assert): PatchEntityType {
+  assertEntityType(t, a);
+  return t;
+}
 
 export type PatchInput = {
   entityId: string;
@@ -114,7 +127,6 @@ export function assertPatch(a: Assert, p: unknown): asserts p is Patch {
 
 export {
   isSyncRejectedPatchAttributes,
-  PatchMetaAttr,
   PATCH_CREATED_BY_ID,
   PATCH_META_KEYS,
   PATCH_REJECTED,
@@ -122,6 +134,7 @@ export {
   PATCH_SYNC_REJECTED_AT,
   PATCH_SYNC_REJECTED_REASON,
   PATCH_SYNCED_AT,
+  PatchMetaAttr,
 } from './metadata/patch-metadata';
 
 type PatchInputWithOptionalMeta = PatchInput &
@@ -186,13 +199,16 @@ export function assertEntity(
   a.field(e, 'entityId', 'entity.entityId must be string');
   a.field(e, 'entityType', 'entity.entityType must be string');
   assertEntityKey(e['entityId'], e['entityType'], a);
+  a.record(e['attributes'], 'entity.attributes must be object');
+  assertAttributes(e['attributes'] as Record<string, unknown>, a);
 }
 
-export type Attribute = string & { __brand: 'attribute' };
+/** @deprecated Use {@link AttributeKey} (alias of {@link Keyword}); collapsed to a single brand. */
+export type Attribute = Keyword;
 
 /** Returns true if the key is a valid namespaced attribute. Use when reading stored data that may be stale. */
-export function isValidAttribute(key: unknown): key is string {
-  return isClojureNamespacedKey(key);
+export function isValidAttribute(key: unknown): key is Keyword {
+  return isNamespacedKeyword(key);
 }
 
 const ID_MAX_LEN = 1024;
@@ -237,8 +253,9 @@ export function assertEntityType(
   a.ok(!t.includes('\0'), 'entityType must not contain null byte');
   a.ok(t === t.trim(), 'entityType must not have leading/trailing whitespace');
   a.ok(
-    isClojureNamespacePrefix(t),
-    'entityType must be a dot-separated kebab namespace (e.g. todo, todo-list, chess.puzzle)'
+    isNamespacePrefix(t),
+    'entityType must be a dot-separated kebab namespace (e.g. todo, todo-list, chess.puzzle)',
+    { entityType: t }
   );
 }
 
@@ -260,10 +277,10 @@ export function assertEntityKey(
 export function assertAttribute(
   attribute: unknown,
   a: Assert = assert
-): asserts attribute is string {
+): asserts attribute is Keyword {
   a.string(attribute, 'Invalid attribute name — must be a string');
   a.ok(
-    isClojureNamespacedKey(attribute),
+    isNamespacedKeyword(attribute),
     'Invalid attribute name — must be a Clojure-style namespaced key'
   );
 }
@@ -283,9 +300,10 @@ export function patchDbAttributeKey(
 }
 
 export function assertAttributes(
-  attributes: Record<string, unknown>,
+  attributes: unknown,
   a: Assert = assert
 ): asserts attributes is Record<string, unknown> {
+  a.record(attributes, 'attributes must be object');
   for (const key of Object.keys(attributes)) {
     assertAttribute(key, a);
   }
@@ -387,14 +405,61 @@ export type PatchDbQuery = {
   on?: 'patches' | 'entities';
 };
 
+/**
+ * Recursively asserts every `attribute` field inside a where-clause is a valid
+ * namespaced keyword. Combinators (`and`/`or`/`not`) recurse into children.
+ */
+export function assertWhereClause(
+  clause: unknown,
+  a: Assert = assert
+): asserts clause is PatchDbQueryWhereClause {
+  a.record(clause, 'where clause must be an object');
+  const c = clause as Record<string, unknown>;
+  const t = c['type'];
+  a.string(t, 'where clause.type must be string');
+  if (t === 'and' || t === 'or') {
+    a.array(c['clauses'], `where clause.${t}.clauses must be array`);
+    for (const child of c['clauses'] as unknown[]) {
+      assertWhereClause(child, a);
+    }
+    return;
+  }
+  if (t === 'not') {
+    assertWhereClause(c['clause'], a);
+    return;
+  }
+  // Leaf clause: must carry a valid attribute key.
+  assertAttribute(c['attribute'], a);
+}
+
 export function assertQuery(a: Assert, q: unknown): asserts q is PatchDbQuery {
   a.record(q, 'Each query must be an object');
   const query = q as Record<string, unknown>;
   if (query['entityType'] !== undefined && query['entityType'] !== null) {
     assertEntityType(query['entityType'], a);
   }
+  if (query['where'] !== undefined) {
+    assertWhereClause(query['where'], a);
+  }
+  if (query['orderBy'] !== undefined) {
+    a.array(query['orderBy'], 'query.orderBy must be array');
+    for (const ob of query['orderBy'] as unknown[]) {
+      a.record(ob, 'query.orderBy[] must be object');
+      assertAttribute((ob as Record<string, unknown>)['attribute'], a);
+      assertDirection((ob as Record<string, unknown>)['direction'], a);
+    }
+  }
+  if (query['knownPatches'] !== undefined) {
+    a.array(query['knownPatches'], 'query.knownPatches must be array');
+    for (const p of query['knownPatches'] as unknown[]) {
+      assertPatch(a, p);
+    }
+  }
   if (query['knownPatchIds'] !== undefined) {
     a.array(query['knownPatchIds'], 'query.knownPatchIds must be array');
+    for (const id of query['knownPatchIds'] as unknown[]) {
+      assertPatchId(id, a);
+    }
   }
 }
 
@@ -566,4 +631,19 @@ export type PatchDbEngineOptions = {
    * Apps typically pass {@link PatchDbCompactionPolicyRegistry.resolve}.
    */
   compactionPolicy?: PatchDbCompactionPolicyResolver;
+  /**
+   * Declarative snapshot indexes. Reconciled (create missing, drop orphaned)
+   * during the engine's `migrateUp`. The library only manages indexes whose
+   * name starts with `pdb_idx_` and never touches indexes outside that prefix
+   * (engine-owned indexes from {@link MIGRATIONS} are kept; everything else is
+   * the app's responsibility).
+   */
+  indexes?: readonly PatchDbIndexSpec[];
 };
+
+export type {
+  PatchDbIndexAttributeRef,
+  PatchDbIndexField as PatchDbIndexColumn,
+  PatchDbIndexSpec,
+  PatchDbIndexWhere,
+} from './indexes/index-spec';

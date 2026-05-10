@@ -10,7 +10,10 @@ import {
   PATCH_SYNCED_AT,
 } from '../interface';
 import type { PatchDbTransportRejectedError } from '../transport/transport-rejected-error';
-import { PATCHES_DB_TOPIC } from './active-query-registry';
+import {
+  PATCHES_DB_INVALIDATED_TYPE,
+  PATCHES_DB_TOPIC,
+} from './active-query-registry';
 
 /** Patches that still need a successful remote push. */
 export function unsyncedPatchesQueryForPush(): PatchDbQuery {
@@ -57,7 +60,7 @@ export async function discardTransportRejectedChunk(args: {
     })),
     OPEN_PATCHES_DB_CONTEXT
   );
-  pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
+  pubSub.publish(PATCHES_DB_TOPIC, { type: PATCHES_DB_INVALIDATED_TYPE });
   if (logPushPollFailures) {
     log.info('marked local patches rejected after transport rejection', {
       count: chunk.length,
@@ -105,5 +108,5 @@ export async function clearRejectedPushMarkersOnLocal(
     })),
     OPEN_PATCHES_DB_CONTEXT
   );
-  pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
+  pubSub.publish(PATCHES_DB_TOPIC, { type: PATCHES_DB_INVALIDATED_TYPE });
 }

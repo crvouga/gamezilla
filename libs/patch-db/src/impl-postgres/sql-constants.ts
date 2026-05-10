@@ -77,38 +77,6 @@ CREATE TABLE IF NOT EXISTS snapshots (
 );
 
 CREATE INDEX IF NOT EXISTS idx_snapshots_attrs_gin ON snapshots USING GIN (attributes jsonb_path_ops);
-
-CREATE INDEX IF NOT EXISTS idx_snap_space_host
-    ON snapshots ((attributes->>'space/host-id'))
-    WHERE entity_type = 'space';
-
-CREATE INDEX IF NOT EXISTS idx_snap_space_live
-    ON snapshots (entity_type, entity_id)
-    WHERE entity_type = 'space' AND NOT (attributes ? 'space/ended-at');
-
-CREATE INDEX IF NOT EXISTS idx_snap_membership_guest
-    ON snapshots ((attributes->>'space-membership/guest-id'))
-    WHERE entity_type = 'space-membership';
-
-CREATE INDEX IF NOT EXISTS idx_snap_membership_space
-    ON snapshots ((attributes->>'space-membership/space-id'))
-    WHERE entity_type = 'space-membership';
-
-CREATE INDEX IF NOT EXISTS idx_snap_membership_active
-    ON snapshots (entity_type, entity_id)
-    WHERE entity_type = 'space-membership' AND NOT (attributes ? 'space-membership/left-at');
-
-CREATE INDEX IF NOT EXISTS idx_snap_session_device
-    ON snapshots ((attributes->>'account.session/device-id'))
-    WHERE entity_type = 'account.session';
-
-CREATE INDEX IF NOT EXISTS idx_snap_session_account
-    ON snapshots ((attributes->>'account.session/account-id'))
-    WHERE entity_type = 'account.session';
-
-CREATE INDEX IF NOT EXISTS idx_snap_provider_account
-    ON snapshots ((attributes->>'account.provider/account-id'))
-    WHERE entity_type = 'account.provider';
 `;
 
 export const RESOLVE_PARENT_ID = `WITH RECURSIVE lineage AS (

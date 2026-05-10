@@ -13,6 +13,7 @@
  * We report ns/op, ops/sec, and (current vs legacy) speedup.
  */
 import { Assert } from '@gamezilla/lib/assert';
+import { asKeyword } from '../keyword/keyword';
 import {
   acceptUnknownPayload,
   createMessageNamespace,
@@ -244,8 +245,14 @@ const fallback = (s: State): number => s.count;
 const moveMsg: Message = Move({ cell: 4, player: 'X' });
 const chatMsg: Message = Chat({ text: 'hi' });
 const heartbeatMsg: Message = Heartbeat({});
-const unknownInGameMsg: Message = { type: 'game/ghost', payload: {} };
-const outOfNamespaceMsg: Message = { type: 'other/x', payload: {} };
+const unknownInGameMsg: Message = {
+  type: asKeyword('game/ghost'),
+  payload: {},
+};
+const outOfNamespaceMsg: Message = {
+  type: asKeyword('other/xx'),
+  payload: {},
+};
 
 const currentSingle = buildSingle(createMessageRouter);
 const legacySingle = buildSingle(legacyCreateMessageRouter);

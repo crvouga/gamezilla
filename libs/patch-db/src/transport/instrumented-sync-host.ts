@@ -1,6 +1,10 @@
 import { assert } from '@gamezilla/lib/assert';
 import { createLogger, type Logger } from '@gamezilla/lib/logger';
 import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
+import {
+  PATCHES_DB_INVALIDATED_TYPE,
+  PATCHES_DB_TOPIC,
+} from '../impl-sync/active-query-registry';
 import type {
   PatchDb,
   PatchDbContext,
@@ -16,8 +20,6 @@ import {
 import { PatchMetaAttr } from '../metadata/patch-metadata';
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '../policy/system-device';
 import type { PatchDbSyncHost } from './interface';
-
-const PATCHES_DB_TOPIC = 'patch-db';
 
 /** Fixed entity for api instrumentation snapshot (entity type `admin.metric`). */
 export const ADMIN_METRIC_ENTITY_ID = 'server-stats';
@@ -140,7 +142,9 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
         ],
         PATCHES_DB_SYSTEM_CONTEXT
       );
-      this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
+      this.pubSub.publish(PATCHES_DB_TOPIC, {
+        type: PATCHES_DB_INVALIDATED_TYPE,
+      });
     } catch (err) {
       this.log.error('flushMetricsSnapshot failed', {
         error: err instanceof Error ? err.message : String(err),

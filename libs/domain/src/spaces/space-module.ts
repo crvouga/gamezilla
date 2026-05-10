@@ -3,12 +3,13 @@ import {
   isMessageEnvelope,
   type Message,
 } from '@gamezilla/lib/message';
-import type {
-  HandleResult,
-  RoomCommand,
-  RoomError,
-  RoomModule,
-  RoomState,
+import {
+  ROOM_ERROR_TYPE,
+  type HandleResult,
+  type RoomCommand,
+  type RoomError,
+  type RoomModule,
+  type RoomState,
 } from '@gamezilla/room';
 
 import {
@@ -102,12 +103,15 @@ export const SpaceModule: RoomModule<RoomState, Message, Message, string> = {
     const msg = isMessageEnvelope(command.payload) ? command.payload : null;
     if (msg === null) {
       return reject({
-        type: 'invalid_command',
+        type: ROOM_ERROR_TYPE.invalidCommand,
         reason: 'not a message envelope',
       });
     }
     return spaceCommandRouter.dispatch(state, identity, msg, (_s, _c, m) =>
-      reject({ type: 'invalid_command', reason: String(m.type) })
+      reject({
+        type: ROOM_ERROR_TYPE.invalidCommand,
+        reason: String(m.type),
+      })
     );
   },
 

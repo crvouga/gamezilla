@@ -1,9 +1,10 @@
 import { Assert } from '@gamezilla/lib/assert';
-import type {
-  Message,
-  MessageNamespace,
-  MessagePayloadValidator,
-  MessageTag,
+import {
+  assertMessageEnvelope,
+  type Message,
+  type MessageNamespace,
+  type MessagePayloadValidator,
+  type MessageTag,
 } from './message';
 
 const validation: Assert = Assert.validation();
@@ -122,6 +123,7 @@ class MessageRouterImpl<TState, TCtx, TOutput> implements MessageRouter<
   }
 
   has(msg: Message): boolean {
+    assertMessageEnvelope(msg);
     const ps = this.prefixSlash;
     if (ps !== undefined && !msg.type.startsWith(ps)) {
       return false;
@@ -135,6 +137,7 @@ class MessageRouterImpl<TState, TCtx, TOutput> implements MessageRouter<
     msg: Message,
     fallback: (state: TState, ctx: TCtx, msg: Message) => TOutput
   ): TOutput {
+    assertMessageEnvelope(msg);
     const ps = this.prefixSlash;
     if (ps !== undefined && !msg.type.startsWith(ps)) {
       return fallback(state, ctx, msg);
@@ -148,7 +151,7 @@ class MessageRouterImpl<TState, TCtx, TOutput> implements MessageRouter<
 }
 
 /**
- * Creates a message router. Pass a {@link MessageNamespace} from {@link createNamespace}
+ * Creates a message router. Pass a {@link MessageNamespace} from {@link createMessageNamespace}
  * so only types under that prefix are registered and considered by {@link MessageRouter.dispatch}.
  */
 export function createMessageRouter<TState, TCtx, TOutput>(
@@ -187,17 +190,17 @@ export function createComposedMessageRouter<TState, TCtx, TOutput>(
 
   return {
     dispatch(state, ctx, msg, fallback) {
+      assertMessageEnvelope(msg);
       const type = msg.type;
       for (let i = 0; i < n; i++) {
         if (type.startsWith(prefixes[i]!)) {
-          // Pass `fallback` through directly; its signature matches what the
-          // child router expects, so we avoid allocating a closure per call.
           return routers[i]!.dispatch(state, ctx, msg, fallback);
         }
       }
       return fallback(state, ctx, msg);
     },
     has(msg) {
+      assertMessageEnvelope(msg);
       const type = msg.type;
       for (let i = 0; i < n; i++) {
         if (type.startsWith(prefixes[i]!)) {

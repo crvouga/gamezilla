@@ -6,11 +6,12 @@ import {
   type Message,
 } from '@gamezilla/lib/message';
 
-import type {
-  HandleResult,
-  RoomCommand,
-  RoomModule,
-  RoomState,
+import {
+  ROOM_ERROR_TYPE,
+  type HandleResult,
+  type RoomCommand,
+  type RoomModule,
+  type RoomState,
 } from '../types';
 
 function validateEmptyPayload(p: unknown): p is Record<string, never> {
@@ -56,7 +57,10 @@ export const TestCounterModule: RoomModule<
     if (msg === null) {
       return {
         ok: false,
-        error: { type: 'invalid_command', reason: 'not a message envelope' },
+        error: {
+          type: ROOM_ERROR_TYPE.invalidCommand,
+          reason: 'not a message envelope',
+        },
       };
     }
     if (Increment.is(msg)) {
@@ -68,7 +72,7 @@ export const TestCounterModule: RoomModule<
     return {
       ok: false,
       error: {
-        type: 'invalid_command',
+        type: ROOM_ERROR_TYPE.invalidCommand,
         reason: String(msg.type),
       },
     };

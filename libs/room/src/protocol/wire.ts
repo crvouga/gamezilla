@@ -1,35 +1,65 @@
-import type { LogEntry, RoomCommandPayload, RoomError } from '../types';
+import { isMessageEnvelope } from '@gamezilla/lib/message';
+import {
+  ROOM_ERROR_TYPES,
+  type Keyword,
+  type LogEntry,
+  type RoomCommandPayload,
+  type RoomError,
+} from '../types';
 
 export const WIRE_VERSION = 1 as const;
+
+/**
+ * Wire `kind` discriminators. The wire protocol is a **static contract**:
+ * the set of envelope kinds is fixed and versioned via {@link WIRE_VERSION},
+ * not extended at runtime. So this is just a frozen string-literal map and a
+ * rigid discriminated union — no {@link Keyword}/attribute machinery, which
+ * is reserved for dynamic app state and message types.
+ */
+export const ROOM_WIRE_KIND = {
+  command: 'command',
+  sync: 'sync',
+  ping: 'ping',
+  welcome: 'welcome',
+  committed: 'committed',
+  rejected: 'rejected',
+} as const;
 
 export type ClientToServerWire =
   | {
       v: typeof WIRE_VERSION;
-      kind: 'command';
+      kind: typeof ROOM_WIRE_KIND.command;
       id: string;
       ts: number;
       payload: RoomCommandPayload;
     }
-  | { v: typeof WIRE_VERSION; kind: 'sync'; fromSeq: number }
-  | { v: typeof WIRE_VERSION; kind: 'ping' };
+  | {
+      v: typeof WIRE_VERSION;
+      kind: typeof ROOM_WIRE_KIND.sync;
+      fromSeq: number;
+    }
+  | {
+      v: typeof WIRE_VERSION;
+      kind: typeof ROOM_WIRE_KIND.ping;
+    };
 
 export type ServerToClientWire =
   | {
       v: typeof WIRE_VERSION;
-      kind: 'welcome';
+      kind: typeof ROOM_WIRE_KIND.welcome;
       fromSeq: number;
       lastSeq: number;
       entries: LogEntry[];
     }
   | {
       v: typeof WIRE_VERSION;
-      kind: 'committed';
+      kind: typeof ROOM_WIRE_KIND.committed;
       commandId?: string;
       entries: LogEntry[];
     }
   | {
       v: typeof WIRE_VERSION;
-      kind: 'rejected';
+      kind: typeof ROOM_WIRE_KIND.rejected;
       commandId: string;
       error: RoomError;
     };
@@ -38,8 +68,33 @@ function isRecord(v: unknown): v is Record<string, unknown> {
   return v !== null && typeof v === 'object' && !Array.isArray(v);
 }
 
-function parseClientPing(kind: unknown): ClientToServerWire | null {
-  return kind === 'ping' ? { v: WIRE_VERSION, kind: 'ping' } : null;
+function isRoomErrorWire(value: unknown): value is RoomError {
+  if (!isRecord(value)) return false;
+  const t = value['type'];
+  if (typeof t !== 'string') return false;
+  if (!ROOM_ERROR_TYPES.has(t as Keyword)) return false;
+  if (t === 'room.error/rate-limited') {
+    return true;
+  }
+  // All other variants carry a `reason` (required for invalid-command,
+  // unauthorized, conflict; optional for internal). Be strict on the wire:
+  // any non-rate-limited tag must carry a string reason if present.
+  if ('reason' in value && typeof value['reason'] !== 'string') return false;
+  if (t !== 'room.error/internal' && typeof value['reason'] !== 'string') {
+    return false;
+  }
+  return true;
+}
+
+function isLogEntryWire(value: unknown): value is LogEntry {
+  if (!isRecord(value)) return false;
+  const seq = value['seq'];
+  if (typeof seq !== 'number' || !Number.isFinite(seq) || seq < 0) return false;
+  return isMessageEnvelope(value['event']);
+}
+
+function parseClientPing(): ClientToServerWire {
+  return { v: WIRE_VERSION, kind: ROOM_WIRE_KIND.ping };
 }
 
 function parseClientSync(
@@ -49,7 +104,11 @@ function parseClientSync(
   if (typeof fromSeq !== 'number' || !Number.isFinite(fromSeq) || fromSeq < 0) {
     return null;
   }
-  return { v: WIRE_VERSION, kind: 'sync', fromSeq: Math.floor(fromSeq) };
+  return {
+    v: WIRE_VERSION,
+    kind: ROOM_WIRE_KIND.sync,
+    fromSeq: Math.floor(fromSeq),
+  };
 }
 
 function parseClientCommand(
@@ -60,9 +119,12 @@ function parseClientCommand(
   if (typeof id !== 'string' || id.length === 0) return null;
   if (typeof ts !== 'number' || !Number.isFinite(ts)) return null;
   if (!('payload' in raw)) return null;
+  // Note: payload envelope is intentionally not validated here so the server
+  // can echo a `rejected` frame to the client when malformed; see
+  // `RoomServer.handleParsedCommand`.
   return {
     v: WIRE_VERSION,
-    kind: 'command',
+    kind: ROOM_WIRE_KIND.command,
     id,
     ts,
     payload: raw['payload'] as RoomCommandPayload,
@@ -74,11 +136,19 @@ export function parseClientToServerWire(
 ): ClientToServerWire | null {
   if (!isRecord(raw) || raw['v'] !== WIRE_VERSION) return null;
   const kind = raw['kind'];
-  return (
-    parseClientPing(kind) ??
-    (kind === 'sync' ? parseClientSync(raw) : null) ??
-    (kind === 'command' ? parseClientCommand(raw) : null)
-  );
+  if (typeof kind !== 'string') return null;
+  if (kind === ROOM_WIRE_KIND.ping) return parseClientPing();
+  if (kind === ROOM_WIRE_KIND.sync) return parseClientSync(raw);
+  if (kind === ROOM_WIRE_KIND.command) return parseClientCommand(raw);
+  return null;
+}
+
+function parseEntriesWire(raw: unknown): LogEntry[] | null {
+  if (!Array.isArray(raw)) return null;
+  for (const e of raw) {
+    if (!isLogEntryWire(e)) return null;
+  }
+  return raw as LogEntry[];
 }
 
 function parseWelcomeWire(
@@ -86,33 +156,33 @@ function parseWelcomeWire(
 ): ServerToClientWire | null {
   const fromSeq = raw['fromSeq'];
   const lastSeq = raw['lastSeq'];
-  const entries = raw['entries'];
   if (typeof fromSeq !== 'number' || !Number.isFinite(fromSeq)) return null;
   if (typeof lastSeq !== 'number' || !Number.isFinite(lastSeq)) return null;
-  if (!Array.isArray(entries)) return null;
+  const entries = parseEntriesWire(raw['entries']);
+  if (entries === null) return null;
   return {
     v: WIRE_VERSION,
-    kind: 'welcome',
+    kind: ROOM_WIRE_KIND.welcome,
     fromSeq: Math.floor(fromSeq),
     lastSeq: Math.floor(lastSeq),
-    entries: entries as LogEntry[],
+    entries,
   };
 }
 
 function parseCommittedWire(
   raw: Record<string, unknown>
 ): ServerToClientWire | null {
-  const entries = raw['entries'];
-  if (!Array.isArray(entries)) return null;
+  const entries = parseEntriesWire(raw['entries']);
+  if (entries === null) return null;
   const commandId = raw['commandId'];
   if (commandId !== undefined && typeof commandId !== 'string') return null;
   return {
     v: WIRE_VERSION,
-    kind: 'committed',
+    kind: ROOM_WIRE_KIND.committed,
     ...(typeof commandId === 'string' && commandId.length > 0
       ? { commandId }
       : {}),
-    entries: entries as LogEntry[],
+    entries,
   };
 }
 
@@ -122,13 +192,12 @@ function parseRejectedWire(
   const commandId = raw['commandId'];
   const error = raw['error'];
   if (typeof commandId !== 'string' || commandId.length === 0) return null;
-  if (!isRecord(error)) return null;
-  if (typeof error['type'] !== 'string') return null;
+  if (!isRoomErrorWire(error)) return null;
   return {
     v: WIRE_VERSION,
-    kind: 'rejected',
+    kind: ROOM_WIRE_KIND.rejected,
     commandId,
-    error: error as RoomError,
+    error,
   };
 }
 
@@ -137,8 +206,9 @@ export function parseServerToClientWire(
 ): ServerToClientWire | null {
   if (!isRecord(raw) || raw['v'] !== WIRE_VERSION) return null;
   const kind = raw['kind'];
-  if (kind === 'welcome') return parseWelcomeWire(raw);
-  if (kind === 'committed') return parseCommittedWire(raw);
-  if (kind === 'rejected') return parseRejectedWire(raw);
+  if (typeof kind !== 'string') return null;
+  if (kind === ROOM_WIRE_KIND.welcome) return parseWelcomeWire(raw);
+  if (kind === ROOM_WIRE_KIND.committed) return parseCommittedWire(raw);
+  if (kind === ROOM_WIRE_KIND.rejected) return parseRejectedWire(raw);
   return null;
 }

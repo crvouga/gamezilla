@@ -1,8 +1,14 @@
+import { asKeyword, type Keyword } from '@gamezilla/lib/keyword';
 import type { LogEntry } from '../../../types';
 import type { CommandDedupOutcome, RoomStorage } from '../../core/storage';
 import type { DurableObjectKvStorage } from './types';
 
-const STATE_KEY = 'room_state_v2' as const;
+/**
+ * Persisted DO blob key: kebab-namespaced keyword so the storage key follows
+ * the same convention as room state / message types. Bump the local segment
+ * (e.g. `state-v3`) when the {@link Persisted} shape evolves.
+ */
+const STATE_KEY: Keyword = asKeyword('room.do/state-v2');
 
 type Persisted = {
   events: LogEntry[];

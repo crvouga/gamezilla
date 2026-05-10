@@ -8,6 +8,7 @@ export {
   type SyncPatchDbScheduler,
 } from './impl-sync';
 export {
+  PATCHES_DB_INVALIDATED_TYPE,
   PATCHES_DB_TOPIC,
   shouldSkipTargetedEntityReread,
   type PatchDbInvalidationMessage,

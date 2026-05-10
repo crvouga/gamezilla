@@ -89,7 +89,7 @@ function reuseOrParse<T>(
  * attribute hooks. Otherwise falls back to the predicate query cache.
  *
  * `attribute.parse` receives the raw stored value (or `undefined` when no entity matched /
- * the attribute is absent). Pass a domain attribute tag (e.g. `SpaceAttr.title`).
+ * the attribute is absent). Pass an attribute tag (e.g. `TodoAttr.title`).
  */
 export function useQueryAttribute<T>(args: {
   entityType: string;

@@ -1,4 +1,6 @@
 export {
+  assertKeyword,
+  assertKeywordRecord,
   assertLocalName,
   assertNamespacedKeyword,
   assertNamespacePrefix,
@@ -8,7 +10,6 @@ export {
   isKebabSegment,
   isLocalName,
   isNamespacePrefix,
-  isNamespacePrefixLenient,
   isNamespacedKeyword,
   joinKeywordSegments,
   KEYWORD_MAX_LENGTH,

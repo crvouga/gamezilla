@@ -1,4 +1,8 @@
 import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
+import {
+  PATCHES_DB_INVALIDATED_TYPE,
+  PATCHES_DB_TOPIC,
+} from '../impl-sync/active-query-registry';
 import type {
   PatchDb,
   PatchDbContext,
@@ -8,8 +12,6 @@ import type {
   WritePatchesResult,
 } from '../interface';
 import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
-
-const PATCHES_DB_TOPIC = 'patch-db';
 
 /**
  * Wraps a {@link PatchDb} and publishes on `patch-db` after successful writes
@@ -41,7 +43,9 @@ export class NotifyingPatchDb implements PatchDb {
     ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<WritePatchesResult> {
     const out = await this.inner.write(patches, ctx);
-    this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
+    this.pubSub.publish(PATCHES_DB_TOPIC, {
+      type: PATCHES_DB_INVALIDATED_TYPE,
+    });
     return out;
   }
 

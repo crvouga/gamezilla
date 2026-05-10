@@ -701,7 +701,7 @@ PlanetScale         Serverless MySQL
 
 Local dev           Real local PostgreSQL (`@gamezilla/pg`) + pgweb GUI + Bun API — no Docker
                     Doppler `local` `DB_URL` → `postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`
-                    Pre-connected pgweb GUI auto-launches at `http://127.0.0.1:5455` (disable with `PG_GUI=off`).
+                    Pre-connected pgweb GUI auto-launches at `http://127.0.0.1:5555` (disable with `PG_GUI=off`).
                     `bun run dev` (root) starts pg + api + client together; `db:migrate` once: `bun run --filter @gamezilla/api db:migrate`
 ```
 
@@ -757,7 +757,7 @@ Required tooling: `postgres`, `pg_ctl`, `initdb`, `pg_isready`, `pgweb`. Enforce
 Tunables (all optional, env-driven):
 
 - Cluster: `PG_HOST`, `PG_PORT`, `PG_DATA_DIR`, `PG_USER`, `PG_PASSWORD`, `PG_DATABASE`, `PG_LOCALE`, `PG_ENCODING`, `PG_STARTUP_TIMEOUT_MS`, `PG_SHUTDOWN_TIMEOUT_MS`, `PG_BIN_DIR`.
-- GUI sidecar: `PG_GUI` (set to `off`/`0`/`false` to disable; default off in CI), `PG_GUI_HOST` (default `127.0.0.1`), `PG_GUI_PORT` (default `5455` — picked to sit next to the Postgres port and avoid Expo Web's `8081`), `PG_GUI_BIN` (force a specific `pgweb` binary).
+- GUI sidecar: `PG_GUI` (set to `off`/`0`/`false` to disable; default off in CI), `PG_GUI_HOST` (default `127.0.0.1`), `PG_GUI_PORT` (default `5555` — picked to sit next to the Postgres port and avoid Expo Web's `8081`), `PG_GUI_BIN` (force a specific `pgweb` binary).
 
 ---
 

@@ -10,13 +10,11 @@ test('postgres migrations: entity-scoped indexes and snapshots PK order', () => 
   expect(MIGRATIONS).not.toContain('REFERENCES patches');
 });
 
-test('postgres migrations: hot snapshot expression indexes (client list queries)', () => {
-  expect(MIGRATIONS).toContain('idx_snap_space_host');
-  expect(MIGRATIONS).toContain('idx_snap_space_live');
-  expect(MIGRATIONS).toContain('idx_snap_membership_guest');
-  expect(MIGRATIONS).toContain('idx_snap_membership_space');
-  expect(MIGRATIONS).toContain('idx_snap_membership_active');
-  expect(MIGRATIONS).toContain('idx_snap_session_device');
-  expect(MIGRATIONS).toContain('idx_snap_session_account');
-  expect(MIGRATIONS).toContain('idx_snap_provider_account');
+test('postgres migrations: application-agnostic (no domain entity types)', () => {
+  // The library must not reference any application-specific entity types or
+  // attribute keys. Apps own their own snapshot expression indexes via their
+  // own migrations on top of the patch-db base schema.
+  expect(MIGRATIONS).not.toMatch(/entity_type\s*=\s*'/i);
+  expect(MIGRATIONS).not.toContain("attributes->>'");
+  expect(MIGRATIONS).not.toContain('attributes ?');
 });

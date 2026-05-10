@@ -20,7 +20,7 @@ import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbImplClientTransport } from '@gamezilla/patch-db/impl-client-transport';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
-import { SyncPatchDb } from '@gamezilla/patch-db/impl-sync';
+import { PATCHES_DB_TOPIC, SyncPatchDb } from '@gamezilla/patch-db/impl-sync';
 import { PatchMetadataStamper } from '@gamezilla/patch-db/metadata/patch-metadata-stamper';
 import {
   forceDetachPatchDbEntitySubscriptionsForDb,
@@ -269,7 +269,7 @@ async function createPatchDbStack(args: {
   const decorated = new PatchDbWriteThroughMirror(stamper, store);
   setInMemoryStoreForDb(decorated, store);
 
-  const pollMirrorUnsub = pubSub.subscribe('patch-db', () => {
+  const pollMirrorUnsub = pubSub.subscribe(PATCHES_DB_TOPIC, () => {
     void hydrateInMemoryStoreFromSqlite(local, store);
   });
 

@@ -47,10 +47,12 @@ export { newCommandId } from './protocol/ids';
 export {
   parseClientToServerWire,
   parseServerToClientWire,
+  ROOM_WIRE_KIND,
   WIRE_VERSION,
   type ClientToServerWire,
   type ServerToClientWire,
 } from './protocol/wire';
+export { ROOM_ERROR_TYPE, ROOM_ERROR_TYPES } from './types';
 export type {
   HandleResult,
   Keyword,

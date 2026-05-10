@@ -1,5 +1,6 @@
 import { assert } from '@gamezilla/lib/assert';
 import { fireAndForget } from '@gamezilla/lib/async/fire-and-forget';
+import { asKeyword, type Keyword } from '@gamezilla/lib/keyword';
 import { createLogger, type Logger } from '@gamezilla/lib/logger';
 import type { PubSub, Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
 import type {
@@ -22,6 +23,7 @@ import { PatchDbTransportRejectedError } from '../transport/transport-rejected-e
 import { MAX_PATCHES_PER_REQUEST } from '../transport/wire-schemas';
 import {
   ActiveQueryRegistry,
+  PATCHES_DB_INVALIDATED_TYPE,
   PATCHES_DB_TOPIC,
   singleResultReader,
   type ActiveQuery,
@@ -39,7 +41,7 @@ import {
 import { createPatchDbReadBatcher } from '../scheduling/microtask-batcher';
 
 /** Topic for sync errors. Subscribe to surface push/poll failures to the UI after consecutive failures. */
-export const SYNC_ERROR_TOPIC = 'sync-error';
+export const SYNC_ERROR_TOPIC: Keyword = asKeyword('patch-db.bus/sync-error');
 
 const MAX_CONSECUTIVE_FAILURES = 5;
 
@@ -245,8 +247,16 @@ export class SyncPatchDb implements PatchDb {
    * Publishes an invalidation so active subscription listeners re-read from the local db.
    * Call after out-of-band mutations (e.g. raw SQL wipes) that bypass {@link write}.
    */
-  notifyInvalidated(): void {
-    this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
+  notifyInvalidated = (): void => this.publishInvalidation();
+
+  private publishInvalidation(
+    touched?: readonly { entityType: string; entityId: string }[]
+  ): void {
+    const msg = {
+      type: PATCHES_DB_INVALIDATED_TYPE,
+      ...(touched && { touched }),
+    };
+    this.pubSub.publish(PATCHES_DB_TOPIC, msg);
   }
 
   /**
@@ -297,10 +307,7 @@ export class SyncPatchDb implements PatchDb {
             entityId: p.entityId,
           }))
         : undefined;
-    this.pubSub.publish(PATCHES_DB_TOPIC, {
-      type: 'invalidated',
-      ...(touched !== undefined ? { touched } : {}),
-    });
+    this.publishInvalidation(touched);
     return result;
   }
 
@@ -414,7 +421,7 @@ export class SyncPatchDb implements PatchDb {
       await this.local.update(updates, OPEN_PATCHES_DB_CONTEXT);
     }
     this.pushConsecutiveFailures = 0;
-    this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
+    this.publishInvalidation();
   }
 
   /**
@@ -441,7 +448,7 @@ export class SyncPatchDb implements PatchDb {
       })),
       OPEN_PATCHES_DB_CONTEXT
     );
-    this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
+    this.publishInvalidation();
   }
 
   /**
@@ -470,21 +477,20 @@ export class SyncPatchDb implements PatchDb {
     await this.markPatchesAsAlreadyOnRemote(patchIds);
   }
 
-  private logPushFailure(err: unknown): void {
+  private onPushFailure(err: unknown): void {
     this.pushConsecutiveFailures += 1;
-    if (!this.logPushPollFailures) return;
-    this.log.error('push failed', {
-      error: err instanceof Error ? err.message : String(err),
-      consecutiveFailures: this.pushConsecutiveFailures,
-    });
-  }
-
-  private publishPushFatalIfNeeded(err: unknown): void {
-    if (this.pushConsecutiveFailures < MAX_CONSECUTIVE_FAILURES) return;
-    this.pubSub.publish(SYNC_ERROR_TOPIC, {
-      source: 'push',
-      error: err,
-    } satisfies SyncErrorEvent);
+    if (this.logPushPollFailures) {
+      this.log.error('push failed', {
+        error: err instanceof Error ? err.message : String(err),
+        consecutiveFailures: this.pushConsecutiveFailures,
+      });
+    }
+    if (this.pushConsecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+      this.pubSub.publish(SYNC_ERROR_TOPIC, {
+        source: 'push',
+        error: err,
+      } satisfies SyncErrorEvent);
+    }
   }
 
   /**
@@ -553,8 +559,7 @@ export class SyncPatchDb implements PatchDb {
       }
       await this.pushUnsyncedChunksThenPoll(patches);
     } catch (err) {
-      this.logPushFailure(err);
-      this.publishPushFatalIfNeeded(err);
+      this.onPushFailure(err);
     }
   }
 
@@ -601,7 +606,7 @@ export class SyncPatchDb implements PatchDb {
       const { hasNewPatches } = await this.runPollMergeOnce(entries);
       this.pollConsecutiveFailures = 0;
       if (hasNewPatches) {
-        this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
+        this.publishInvalidation();
       }
     } catch (err) {
       this.onPollFailure(err);

@@ -1,18 +1,24 @@
 import { assert } from '@gamezilla/lib/assert';
 import { fireAndForget } from '@gamezilla/lib/async/fire-and-forget';
+import { asKeyword, type Keyword } from '@gamezilla/lib/keyword';
 import type { PubSub, Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
 import type { PatchDb, PatchDbQuery, PatchDbResult } from '../interface';
 import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
 
 /** Pub/sub topic carrying patch-db invalidation events. */
-export const PATCHES_DB_TOPIC = 'patch-db';
+export const PATCHES_DB_TOPIC: Keyword = asKeyword('patch-db.bus/invalidated');
+
+/** Discriminator value for invalidation messages on {@link PATCHES_DB_TOPIC}. */
+export const PATCHES_DB_INVALIDATED_TYPE: Keyword = asKeyword(
+  'patch-db.bus/invalidated'
+);
 
 /**
  * When `touched` is present, {@link ActiveQueryRegistry} may skip re-reads for
  * simple single-entity queries whose key is not in the touched set.
  */
 export type PatchDbInvalidationMessage = {
-  type: 'invalidated';
+  type: typeof PATCHES_DB_INVALIDATED_TYPE;
   touched?: readonly { entityType: string; entityId: string }[];
 };
 

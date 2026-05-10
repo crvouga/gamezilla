@@ -64,12 +64,12 @@ const DEFAULTS = {
   startupTimeoutMs: 30_000,
   shutdownTimeoutMs: 15_000,
   guiHost: '127.0.0.1',
-  // 5455 sits next to the Postgres port (5432) so the two dev URLs cluster in
+  // 5555 sits next to the Postgres port (5432) so the two dev URLs cluster in
   // the developer's mental port map. Avoids known local-dev collisions: 8081
   // is Expo Web's default (see better-auth trusted-origins), 8888 is Jupyter,
-  // 8080 is common for stray HTTP servers. 5455 is in IANA's unassigned range
+  // 8080 is common for stray HTTP servers. 5555 is in IANA's unassigned range
   // and not used by any common dev tool.
-  guiPort: 5455,
+  guiPort: 5555,
 } as const;
 
 /** Truthy/falsey parser for boolean env knobs. */

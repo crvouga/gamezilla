@@ -1,6 +1,7 @@
 import { createAttrNamespace } from '@gamezilla/lib/attribute';
+import type { Keyword } from '@gamezilla/lib/keyword';
 
-import type { RoomError } from '../../types';
+import { ROOM_ERROR_TYPES, type RoomError } from '../../types';
 
 /** Namespace for client-only `room/*` snapshot keys; use {@link roomAttrNamespace.ownsKey}. */
 export const roomAttrNamespace = createAttrNamespace('room');
@@ -12,13 +13,7 @@ function isRoomError(v: unknown): v is RoomError {
   if (typeof v !== 'object' || v === null) return false;
   if (!('type' in v)) return false;
   const t = (v as { type: unknown }).type;
-  return (
-    t === 'invalid_command' ||
-    t === 'unauthorized' ||
-    t === 'conflict' ||
-    t === 'rate_limited' ||
-    t === 'internal'
-  );
+  return typeof t === 'string' && ROOM_ERROR_TYPES.has(t as Keyword);
 }
 
 const readRoomErrorOrNull = (v: unknown): RoomError | Error | null => {

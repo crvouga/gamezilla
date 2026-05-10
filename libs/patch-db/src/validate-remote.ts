@@ -1,5 +1,6 @@
 import { assert } from '@gamezilla/lib/assert';
 import {
+  assertAttributes,
   assertEntityKey,
   assertPatchId,
   assertPatchInput,
@@ -54,6 +55,7 @@ function assertEntity(value: unknown): asserts value is Entity {
   );
   assertEntityKey(value['entityId'], value['entityType']);
   assertObject(value['attributes'], 'Entity.attributes must be object');
+  assertAttributes(value['attributes']);
 }
 
 function assertPatch(value: unknown): asserts value is Patch {
@@ -68,6 +70,7 @@ function assertPatch(value: unknown): asserts value is Patch {
   assertPatchId(v['patchId']);
   assertEntityKey(v['entityId'], v['entityType']);
   assertObject(v['attributes'], 'Patch.attributes must be object');
+  assertAttributes(v['attributes']);
   assert.ok(
     v['parentId'] === null || typeof v['parentId'] === 'string',
     'Patch.parentId must be string or null'

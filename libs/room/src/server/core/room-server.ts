@@ -3,16 +3,18 @@ import { isMessageEnvelope } from '@gamezilla/lib/message';
 
 import {
   parseClientToServerWire,
+  ROOM_WIRE_KIND,
   WIRE_VERSION,
   type ClientToServerWire,
 } from '../../protocol/wire';
-import type {
-  LogEntry,
-  RoomCommand,
-  RoomCommandPayload,
-  RoomEvent,
-  RoomModule,
-  RoomState,
+import {
+  ROOM_ERROR_TYPE,
+  type LogEntry,
+  type RoomCommand,
+  type RoomCommandPayload,
+  type RoomEvent,
+  type RoomModule,
+  type RoomState,
 } from '../../types';
 import type { CommandDedupOutcome, RoomStorage } from './storage';
 
@@ -112,7 +114,7 @@ export class RoomServer<
             : await this.storage.getLastSeq(this.topic);
         send({
           v: WIRE_VERSION,
-          kind: 'welcome',
+          kind: ROOM_WIRE_KIND.welcome,
           fromSeq,
           lastSeq,
           entries,
@@ -120,10 +122,10 @@ export class RoomServer<
       } catch (err: unknown) {
         send({
           v: WIRE_VERSION,
-          kind: 'rejected',
+          kind: ROOM_WIRE_KIND.rejected,
           commandId: '__welcome__',
           error: {
-            type: 'internal',
+            type: ROOM_ERROR_TYPE.internal,
             reason: err instanceof Error ? err.message : String(err),
           },
         });
@@ -139,14 +141,14 @@ export class RoomServer<
     if (prior.kind === 'committed') {
       send({
         v: WIRE_VERSION,
-        kind: 'committed',
+        kind: ROOM_WIRE_KIND.committed,
         commandId,
         entries: prior.entries,
       });
     } else {
       send({
         v: WIRE_VERSION,
-        kind: 'rejected',
+        kind: ROOM_WIRE_KIND.rejected,
         commandId,
         error: prior.error,
       });
@@ -162,14 +164,14 @@ export class RoomServer<
     if (this.authorize === undefined) return true;
     const a = await this.authorize(identity, this.topic, command);
     if (a.ok) return true;
-    const err = { type: 'unauthorized' as const, reason: a.reason };
+    const err = { type: ROOM_ERROR_TYPE.unauthorized, reason: a.reason };
     await this.storage.putDedupOutcome(this.topic, commandId, {
       kind: 'rejected',
       error: err,
     });
     send({
       v: WIRE_VERSION,
-      kind: 'rejected',
+      kind: ROOM_WIRE_KIND.rejected,
       commandId,
       error: err,
     });
@@ -203,7 +205,7 @@ export class RoomServer<
     }
     this.broadcast({
       v: WIRE_VERSION,
-      kind: 'committed',
+      kind: ROOM_WIRE_KIND.committed,
       commandId,
       entries,
     });
@@ -212,7 +214,7 @@ export class RoomServer<
   private async handleParsedCommand(
     send: Sender,
     identity: Identity,
-    parsed: Extract<ClientToServerWire, { kind: 'command' }>
+    parsed: Extract<ClientToServerWire, { kind: typeof ROOM_WIRE_KIND.command }>
   ): Promise<void> {
     const commandId = parsed.id;
     const prior = await this.storage.getDedupOutcome(this.topic, commandId);
@@ -224,7 +226,7 @@ export class RoomServer<
     const lastSeqBefore = await this.storage.getLastSeq(this.topic);
     if (!isMessageEnvelope(parsed.payload)) {
       const err = {
-        type: 'invalid_command' as const,
+        type: ROOM_ERROR_TYPE.invalidCommand,
         reason: 'not a valid message envelope',
       };
       await this.storage.putDedupOutcome(this.topic, commandId, {
@@ -233,7 +235,7 @@ export class RoomServer<
       });
       send({
         v: WIRE_VERSION,
-        kind: 'rejected',
+        kind: ROOM_WIRE_KIND.rejected,
         commandId,
         error: err,
       });
@@ -262,7 +264,7 @@ export class RoomServer<
       });
       send({
         v: WIRE_VERSION,
-        kind: 'rejected',
+        kind: ROOM_WIRE_KIND.rejected,
         commandId,
         error: result.error,
       });
@@ -281,9 +283,9 @@ export class RoomServer<
     if (send === undefined) return;
 
     const parsed = parseClientToServerWire(raw);
-    if (parsed === null || parsed.kind === 'ping') return;
+    if (parsed === null || parsed.kind === ROOM_WIRE_KIND.ping) return;
 
-    if (parsed.kind === 'sync') {
+    if (parsed.kind === ROOM_WIRE_KIND.sync) {
       this.sendWelcomeTo(connectionId, parsed.fromSeq);
       return;
     }

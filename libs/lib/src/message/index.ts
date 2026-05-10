@@ -1,5 +1,6 @@
 export {
   acceptUnknownPayload,
+  assertMessageEnvelope,
   createMessageNamespace,
   isMessageEnvelope,
   isPlainRecord,

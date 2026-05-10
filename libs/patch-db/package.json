@@ -43,6 +43,7 @@
     "./impl-sqlite/migrate": "./src/impl-sqlite/migrate.ts",
     "./impl-sqlite/impl-sqlite": "./src/impl-sqlite/impl-sqlite.ts",
     "./impl-sqlite/query-builder": "./src/impl-sqlite/query-builder.ts",
+    "./impl-sqlite/index-dialect-sqlite": "./src/impl-sqlite/index-dialect-sqlite.ts",
     "./metadata/patch-metadata": "./src/metadata/patch-metadata.ts",
     "./metadata/patch-metadata-stamper": "./src/metadata/patch-metadata-stamper.ts",
     "./policy/compaction-policy": "./src/policy/compaction-policy.ts",
@@ -52,6 +53,11 @@
     "./scheduling/microtask-batcher": "./src/scheduling/microtask-batcher.ts",
     "./forbidden-error": "./src/forbidden-error.ts",
     "./interface": "./src/interface.ts",
+    "./indexes": "./src/indexes/index.ts",
+    "./indexes/index": "./src/indexes/index.ts",
+    "./indexes/index-spec": "./src/indexes/index-spec.ts",
+    "./indexes/dialect": "./src/indexes/dialect.ts",
+    "./indexes/reconcile": "./src/indexes/reconcile.ts",
     "./sim/playground-sim": "./src/sim/playground-sim.ts",
     "./sim/event-recorder": "./src/sim/event-recorder.ts",
     "./sim/server-port": "./src/sim/server-port.ts",
@@ -71,7 +77,8 @@
     "./sim/deterministic-scheduler": "./src/sim/deterministic-scheduler.ts",
     "./impl-postgres/query-builder-pg": "./src/impl-postgres/query-builder-pg.ts",
     "./impl-postgres/json-path": "./src/impl-postgres/json-path.ts",
-    "./impl-postgres/impl-postgres": "./src/impl-postgres/impl-postgres.ts"
+    "./impl-postgres/impl-postgres": "./src/impl-postgres/impl-postgres.ts",
+    "./impl-postgres/index-dialect-pg": "./src/impl-postgres/index-dialect-pg.ts"
   },
   "dependencies": {
     "@gamezilla/lib": "workspace:*",

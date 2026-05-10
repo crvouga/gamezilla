@@ -1,6 +1,6 @@
 import { Assert } from '@gamezilla/lib/assert';
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
-import { isNamespacedKeyword } from '../keyword/keyword';
+import { asKeyword, isNamespacedKeyword } from '../keyword/keyword';
 import {
   acceptUnknownPayload,
   createMessageNamespace,
@@ -61,7 +61,7 @@ describe('createMessageNamespace', () => {
       'foo',
       (p): p is { x: number } => isPlainRecord(p) && typeof p['x'] === 'number'
     );
-    expect(Foo.type).toBe('tic.tac.toe/foo');
+    expect(Foo.type).toBe(asKeyword('tic.tac.toe/foo'));
   });
 
   it('builds full type as prefix/name', () => {
@@ -70,9 +70,12 @@ describe('createMessageNamespace', () => {
       'foo',
       (p): p is { x: number } => isPlainRecord(p) && typeof p['x'] === 'number'
     );
-    expect(Foo.type).toBe('tic-tac-toe/foo');
+    expect(Foo.type).toBe(asKeyword('tic-tac-toe/foo'));
     const m = Foo({ x: 1 });
-    expect(m).toEqual({ type: 'tic-tac-toe/foo', payload: { x: 1 } });
+    expect(m).toEqual({
+      type: asKeyword('tic-tac-toe/foo'),
+      payload: { x: 1 },
+    });
   });
 
   it('constructor throws when validator rejects', () => {
@@ -110,7 +113,9 @@ describe('createMessageNamespace', () => {
     const ns = createMessageNamespace('tic-tac-toe');
     const Foo = ns('foo', acceptUnknownPayload);
     expect(ns.owns(Foo({}))).toBe(true);
-    expect(ns.owns({ type: 'other/foo', payload: null })).toBe(false);
+    expect(ns.owns({ type: asKeyword('other/foo'), payload: null })).toBe(
+      false
+    );
   });
 
   it('tag type is a valid namespaced keyword', () => {

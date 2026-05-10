@@ -1,5 +1,8 @@
 import type { Logger } from '@gamezilla/lib/logger';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { reconcileSnapshotIndexes } from '../indexes/reconcile';
+import type { PatchDbIndexSpec } from '../indexes/index-spec';
+import { postgresIndexDialect } from './index-dialect-pg';
 import { MIGRATIONS } from './sql-constants';
 
 type PgLikeError = {
@@ -54,11 +57,21 @@ async function runPatchDbPostgresMigrations(
 export async function migratePatchDbPostgres(args: {
   sqlClient: SqlClient;
   logger: Logger;
+  /** Declarative snapshot indexes; reconciled after base DDL. */
+  indexes?: readonly PatchDbIndexSpec[];
 }): Promise<void> {
   const log = args.logger.child({ migration: 'patch-db-postgres' });
   log.info('patch-db postgres migrate: start');
   try {
     await runPatchDbPostgresMigrations(args.sqlClient, log);
+    if (args.indexes !== undefined) {
+      await reconcileSnapshotIndexes({
+        sqlClient: args.sqlClient,
+        logger: args.logger,
+        dialect: postgresIndexDialect,
+        indexes: args.indexes,
+      });
+    }
     log.info('patch-db postgres migrate: complete');
   } catch (error) {
     log.error('patch-db postgres migrate: failed', {

@@ -10,10 +10,11 @@ import {
 const crash: Assert = Assert.crash();
 
 /**
- * Serializable message envelope: a type tag plus an extensible payload.
- * `type` is a namespaced keyword string at runtime; see {@link MessageTag.type} for branded tags.
+ * Serializable message envelope: a {@link Keyword} type tag plus an extensible payload.
+ * `type` is branded so raw strings cannot be assigned; produce envelopes via a
+ * {@link MessageTag} from {@link createMessageNamespace}.
  */
-export type Message<P = unknown> = { type: string; payload: P };
+export type Message<P = unknown> = { type: Keyword; payload: P };
 
 /**
  * Runtime check for `payload` before a message is constructed or after `type` matches.
@@ -58,6 +59,21 @@ export function isMessageEnvelope(value: unknown): value is Message {
   if (!isNamespacedKeyword(value['type'])) return false;
   if (!('payload' in value)) return false;
   return true;
+}
+
+/**
+ * Tiger-style hard assert: crashes when `value` is not a wire-valid message
+ * envelope. Use at trust boundaries (router dispatch, wire ingress, persistent
+ * log replay) so corrupted data fails fast instead of silently dispatching.
+ */
+export function assertMessageEnvelope(
+  value: unknown
+): asserts value is Message {
+  crash.ok(
+    isMessageEnvelope(value),
+    'value is not a valid Message envelope ({ type: Keyword, payload })',
+    { value }
+  );
 }
 
 /**
@@ -128,7 +144,7 @@ export function createMessageNamespace<
     assertValidMessageSegment('message name', name);
     const fullTypeStr = `${prefix as string}/${name}`;
     assertNamespacedKeyword(fullTypeStr);
-    return createMessageTag(fullTypeStr as Keyword, validatePayload);
+    return createMessageTag(fullTypeStr, validatePayload);
   }
 
   Object.defineProperty(bind, 'prefix', {

@@ -13,6 +13,7 @@ import {
   type AppAuthContext,
 } from './abac-policies';
 import { createGamezillaCompactionPolicyRegistry } from './default-compaction-policies';
+import { APP_SNAPSHOT_INDEXES } from './snapshot-indexes';
 
 const uninstallByDb = new WeakMap<PatchDb, () => void>();
 
@@ -44,6 +45,7 @@ export function createRequestPatchDb(sqlClient: SqlClient): PatchDb {
   const innerPostgres = new PatchDbImplPostgres(sqlClient, {
     autoCompactOnWrite: true,
     compactionPolicy: compaction.resolve,
+    indexes: APP_SNAPSHOT_INDEXES,
   });
   installDefaultPatchDbPolicies(innerPostgres);
   return createPatchDbReadBatcher(innerPostgres);

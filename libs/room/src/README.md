@@ -41,11 +41,11 @@ A new runtime (Node HTTP server, Postgres-backed storage, WebRTC transport, etc.
 - **`RoomModule<S, C, E, Identity>`** — `initialState`, `handle(state, command, identity)`, `reduce(state, event)`.
 - **`RoomCommand<C>`** — `{ id, ts, payload }` (client generates `id`; server treats it as idempotency key).
 - **`HandleResult<E>`** — `{ ok: true, events }` or `{ ok: false, error: RoomError }`.
-- **`RoomError`** — small union: `invalid_command`, `unauthorized`, `conflict`, `rate_limited`, `internal`.
+- **`RoomError`** — small union; `type` is a Clojure-style namespaced keyword: `room.error/invalid-command`, `room.error/unauthorized`, `room.error/conflict`, `room.error/rate-limited`, `room.error/internal`. Constants live in `ROOM_ERROR_TYPE`.
 
 ## Wire protocol
 
-Versioned JSON frames (`wireVersion` on envelopes). Client → server: `command`, `sync`, `ping`. Server → client: `welcome`, `committed`, `rejected`. Each committed event has a monotonic **`seq`** per topic.
+Versioned JSON frames (`v` on envelopes). Each envelope `kind` is a plain string-literal discriminator (constants in `ROOM_WIRE_KIND`); the wire is a static contract, not dynamic app data, so it is a rigid TypeScript discriminated union and intentionally does not use the `Keyword`/attribute machinery reserved for room state and message types. Client → server: `command`, `sync`, `ping`. Server → client: `welcome`, `committed`, `rejected`. Each committed event has a monotonic **`seq`** per topic.
 
 ## Ports (inject, do not singleton)
 

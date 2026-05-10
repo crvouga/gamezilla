@@ -1,5 +1,9 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { PubSub, Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
+import {
+  PATCHES_DB_INVALIDATED_TYPE,
+  PATCHES_DB_TOPIC,
+} from './impl-sync/active-query-registry';
 import type {
   PatchDb,
   PatchDbContext,
@@ -9,8 +13,6 @@ import type {
   WritePatchesResult,
 } from './interface';
 import { OPEN_PATCHES_DB_CONTEXT } from './interface';
-
-const PATCHES_DB_TOPIC = 'patch-db';
 
 /** Any PatchDb that exposes subscribe.entities and subscribe.patches (e.g. SubscribablePatchDb, SyncPatchDb) */
 export type SubscribablePatchDbLike = PatchDb & {
@@ -67,7 +69,9 @@ export class SubscribablePatchDb implements PatchDb {
     ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<WritePatchesResult> {
     const result = await this.db.write(patches, ctx);
-    this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
+    this.pubSub.publish(PATCHES_DB_TOPIC, {
+      type: PATCHES_DB_INVALIDATED_TYPE,
+    });
     return result;
   }
 

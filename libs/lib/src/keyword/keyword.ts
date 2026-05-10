@@ -7,11 +7,15 @@ import { Assert } from '@gamezilla/lib/assert';
 
 const crash: Assert = Assert.crash();
 
+declare const KeywordBrand: unique symbol;
+
 /**
  * Namespaced keyword string `prefix/local` (validated by {@link isNamespacedKeyword}).
- * Structural alias of `string` so attribute maps and query literals stay ergonomic; use tags for stable keys.
+ * Branded so raw `string` cannot be assigned to a {@link Keyword} slot at compile time;
+ * obtain a `Keyword` only via {@link asKeyword}, {@link assertKeyword}, {@link joinKeywordSegments},
+ * or factories built on top of them ({@link createAttrNamespace}, {@link createMessageNamespace}).
  */
-export type Keyword = string;
+export type Keyword = string & { readonly [KeywordBrand]: 'keyword' };
 
 /**
  * One kebab-case segment: lowercase letter first, then lowercase alphanumerics and
@@ -97,24 +101,6 @@ export function isNamespacePrefix(prefix: unknown): prefix is string {
   return isWireNamespacePrefix(prefix);
 }
 
-/**
- * Lenient prefix check: kebab shape only, segments may be 1+ chars.
- * Prefer {@link isNamespacePrefix} for wire / PatchDB; kept for rare compatibility checks.
- */
-export function isNamespacePrefixLenient(prefix: unknown): prefix is string {
-  if (typeof prefix !== 'string') return false;
-  if (prefix.length === 0) return false;
-  if (prefix.startsWith('.')) return false;
-  if (prefix.endsWith('.')) return false;
-  if (prefix.includes('..')) return false;
-  const segments = prefix.split('.');
-  for (const seg of segments) {
-    if (seg.length === 0) return false;
-    if (!CLOJURE_KEBAB_SEGMENT.test(seg)) return false;
-  }
-  return true;
-}
-
 /** True when `name` is valid local part after `/`. */
 export function isLocalName(name: unknown): name is string {
   if (typeof name !== 'string') return false;
@@ -154,13 +140,45 @@ export function isNamespacedKeyword(key: unknown): key is Keyword {
   return true;
 }
 
-/** Assert runtime shape then return the same string (typed as {@link Keyword}). */
-export function asKeyword(key: string): Keyword {
+/**
+ * Assert runtime shape then return the same string typed as a {@link Keyword}.
+ * Preserves a literal-string input type so call sites like
+ * `asKeyword('room.wire.s2c/welcome')` discriminate against literal-keyed unions.
+ */
+export function asKeyword<const S extends string>(key: S): S & Keyword {
   crash.ok(
     isNamespacedKeyword(key),
-    'Tiger: asKeyword requires a valid namespaced keyword'
+    'Tiger: asKeyword requires a valid namespaced keyword',
+    { key }
   );
-  return key;
+  return key as S & Keyword;
+}
+
+/** Alias for {@link asKeyword}, framed as an assertion helper for ergonomic call sites. */
+export function assertKeyword<const S extends string>(key: S): S & Keyword {
+  return asKeyword(key);
+}
+
+/**
+ * Tiger guard for record-shaped values: every own enumerable key must be a
+ * valid namespaced keyword. Crashes on the first violation; useful at wire /
+ * persistence boundaries (patch attributes, room state, etc.).
+ */
+export function assertKeywordRecord(
+  record: Record<string, unknown>,
+  label: string
+): asserts record is Record<Keyword, unknown> {
+  crash.ok(
+    record !== null && typeof record === 'object' && !Array.isArray(record),
+    `${label} must be a plain record`
+  );
+  for (const key of Object.keys(record)) {
+    crash.ok(
+      isNamespacedKeyword(key),
+      `${label} contains a non-keyword key: must be a Clojure-style namespaced keyword`,
+      { key }
+    );
+  }
 }
 
 /** Dot-separated namespace prefix before `/`, or null if not exactly one slash. */
@@ -188,15 +206,19 @@ export function assertLocalName(value: string): void {
   );
 }
 
-export function assertNamespacedKeyword(fullKey: string): void {
+export function assertNamespacedKeyword(
+  fullKey: string
+): asserts fullKey is Keyword {
   crash.ok(
     isNamespacedKeyword(fullKey),
-    `keyword must be ASCII namespaced kebab-case, at most ${KEYWORD_MAX_LENGTH} chars, one '/', strict segment lengths`
+    `keyword must be ASCII namespaced kebab-case, at most ${KEYWORD_MAX_LENGTH} chars, one '/', strict segment lengths`,
+    { fullKey }
   );
 }
 
 /**
  * Joins validated namespace segments with `.` into a prefix (no trailing slash).
+ * Result is **not** a {@link Keyword} (no `/`); use {@link asKeyword} after appending a local name.
  */
 export function joinKeywordSegments<const Segments extends readonly string[]>(
   ...segments: Segments

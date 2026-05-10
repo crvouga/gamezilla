@@ -10,7 +10,7 @@ export const GAMEZILLA_COMPACTION_POLICIES: Readonly<
   profile: { keepLatest: 2 },
   'profile.private': { keepLatest: 2 },
   space: { keepLatest: 2 },
-  'space-membership': { keepLatest: 2 },
+  'space.membership': { keepLatest: 2 },
   friendship: { keepLatest: 2 },
   'friend.request': { keepLatest: 2 },
   match: { keepLatest: 2 },

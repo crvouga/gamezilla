@@ -1,6 +1,10 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
 import {
+  PATCHES_DB_INVALIDATED_TYPE,
+  PATCHES_DB_TOPIC,
+} from '../impl-sync/active-query-registry';
+import {
   assertPatch,
   assertPatchInput,
   OPEN_PATCHES_DB_CONTEXT,
@@ -14,8 +18,6 @@ import {
 } from '../interface';
 import { assertWriteResponse } from '../validate-remote';
 import type { PatchDbSyncHost } from './interface';
-
-const PATCHES_DB_TOPIC = 'patch-db';
 
 function resolvePatchDb(db: PatchDbResolvable): PatchDb {
   return typeof db === 'function' ? db() : db;
@@ -133,7 +135,9 @@ export class PatchDbImplSyncHost implements PatchDbSyncHost {
       assertPatch(assert, p);
     }
 
-    this.pubSub.publish(PATCHES_DB_TOPIC, { type: 'invalidated' });
+    this.pubSub.publish(PATCHES_DB_TOPIC, {
+      type: PATCHES_DB_INVALIDATED_TYPE,
+    });
     return out;
   }
 }

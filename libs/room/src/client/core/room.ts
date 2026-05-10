@@ -1,9 +1,11 @@
 import { Assert } from '@gamezilla/lib/assert';
-import { isClojureNamespacedKey } from '@gamezilla/lib/attribute';
+import { isNamespacedKeyword } from '@gamezilla/lib/keyword';
+import { isMessageEnvelope } from '@gamezilla/lib/message';
 
 import { newCommandId } from '../../protocol/ids';
 import {
   parseServerToClientWire,
+  ROOM_WIRE_KIND,
   WIRE_VERSION,
   type ServerToClientWire,
 } from '../../protocol/wire';
@@ -162,7 +164,7 @@ export class Room<
         { k }
       );
       crash.ok(
-        isClojureNamespacedKey(k),
+        isNamespacedKeyword(k),
         'Tiger: room module state keys must be Clojure-style namespaced keywords (prefix/local)',
         { k }
       );
@@ -190,6 +192,13 @@ export class Room<
 
   private async hydrateLocal(): Promise<void> {
     const { lastSeq, entries } = await this.storage.loadCommitted();
+    for (const e of entries) {
+      crash.ok(
+        isMessageEnvelope(e.event),
+        'persisted committed entry must carry a valid message envelope; refusing to hydrate corrupt log',
+        { seq: e.seq, event: e.event }
+      );
+    }
     const folded = foldEntries(this.module, entries as LogEntry<E>[]);
     this.committedState = folded.state;
     this.committedEntries = [...(entries as LogEntry<E>[])];
@@ -246,7 +255,7 @@ export class Room<
   private sendSync(): void {
     this.transport.sendJson({
       v: WIRE_VERSION,
-      kind: 'sync',
+      kind: ROOM_WIRE_KIND.sync,
       fromSeq: this.lastSeq,
     });
   }
@@ -265,7 +274,7 @@ export class Room<
   }
 
   private async onWelcomeWire(
-    msg: Extract<ServerToClientWire, { kind: 'welcome' }>
+    msg: Extract<ServerToClientWire, { kind: typeof ROOM_WIRE_KIND.welcome }>
   ): Promise<void> {
     this.appendCommittedEntries(msg.entries as LogEntry<E>[]);
     crash.ok(
@@ -281,7 +290,7 @@ export class Room<
   }
 
   private async onCommittedWire(
-    msg: Extract<ServerToClientWire, { kind: 'committed' }>
+    msg: Extract<ServerToClientWire, { kind: typeof ROOM_WIRE_KIND.committed }>
   ): Promise<void> {
     this.appendCommittedEntries(msg.entries as LogEntry<E>[]);
     await this.storage.saveCommitted(this.lastSeq, this.committedEntries);
@@ -296,7 +305,7 @@ export class Room<
   }
 
   private async onRejectedWire(
-    msg: Extract<ServerToClientWire, { kind: 'rejected' }>
+    msg: Extract<ServerToClientWire, { kind: typeof ROOM_WIRE_KIND.rejected }>
   ): Promise<void> {
     this.optimistic.delete(msg.commandId);
     this.pendingQueue = this.pendingQueue.filter((c) => c.id !== msg.commandId);
@@ -309,8 +318,9 @@ export class Room<
     if (this.destroyed) return;
     const msg = parseServerToClientWire(raw);
     if (msg === null) return;
-    if (msg.kind === 'welcome') await this.onWelcomeWire(msg);
-    else if (msg.kind === 'committed') await this.onCommittedWire(msg);
+    if (msg.kind === ROOM_WIRE_KIND.welcome) await this.onWelcomeWire(msg);
+    else if (msg.kind === ROOM_WIRE_KIND.committed)
+      await this.onCommittedWire(msg);
     else await this.onRejectedWire(msg);
   }
 
@@ -319,7 +329,7 @@ export class Room<
     for (const c of this.pendingQueue) {
       this.transport.sendJson({
         v: WIRE_VERSION,
-        kind: 'command',
+        kind: ROOM_WIRE_KIND.command,
         id: c.id,
         ts: c.ts,
         payload: c.payload,
@@ -372,7 +382,7 @@ export class Room<
     if (this.transport.isConnected && this.synced) {
       this.transport.sendJson({
         v: WIRE_VERSION,
-        kind: 'command',
+        kind: ROOM_WIRE_KIND.command,
         id: cmd.id,
         ts: cmd.ts,
         payload: cmd.payload,

@@ -6,16 +6,7 @@ import { Assert } from '@gamezilla/lib/assert';
 import {
   assertLocalName,
   assertNamespacedKeyword,
-  CLOJURE_KEBAB_SEGMENT,
-  CLOJURE_NAMESPACED_KEYWORD_REGEX,
-  isLocalName,
-  isNamespacedKeyword,
-  isNamespacePrefix,
   joinKeywordSegments,
-  KEYWORD_MAX_LENGTH,
-  KEYWORD_NAMESPACE_MAX_SEGMENTS,
-  KEYWORD_SEGMENT_MAX_LENGTH,
-  KEYWORD_SEGMENT_MIN_LENGTH,
   namespacePrefixOf,
   type JoinDot,
   type Keyword,
@@ -23,50 +14,10 @@ import {
 
 const crash: Assert = Assert.crash();
 
-/** @deprecated Use {@link KEYWORD_SEGMENT_MIN_LENGTH} from `@gamezilla/lib/keyword`. */
-export const ATTRIBUTE_SEGMENT_MIN_LENGTH = KEYWORD_SEGMENT_MIN_LENGTH;
-
-/** @deprecated Use {@link KEYWORD_SEGMENT_MAX_LENGTH} from `@gamezilla/lib/keyword`. */
-export const ATTRIBUTE_SEGMENT_MAX_LENGTH = KEYWORD_SEGMENT_MAX_LENGTH;
-
-/** @deprecated Use {@link KEYWORD_NAMESPACE_MAX_SEGMENTS} from `@gamezilla/lib/keyword`. */
-export const ATTRIBUTE_NAMESPACE_MAX_SEGMENTS = KEYWORD_NAMESPACE_MAX_SEGMENTS;
-
-/** @deprecated Use {@link KEYWORD_MAX_LENGTH} from `@gamezilla/lib/keyword`. */
-export const ATTRIBUTE_KEY_MAX_LENGTH = KEYWORD_MAX_LENGTH;
-
-export { CLOJURE_KEBAB_SEGMENT };
-
-/** @deprecated Use {@link CLOJURE_NAMESPACED_KEYWORD_REGEX} from `@gamezilla/lib/keyword`. */
-export const CLOJURE_NAMESPACED_ATTRIBUTE_REGEX =
-  CLOJURE_NAMESPACED_KEYWORD_REGEX;
-
 export type { JoinDot, Keyword };
 
-/**
- * True when `prefix` is a valid dot-separated kebab namespace (before `/`),
- * with strict per-segment length (same rules as PatchDB attributes and message types).
- */
-export function isClojureNamespacePrefix(prefix: unknown): prefix is string {
-  return isNamespacePrefix(prefix);
-}
-
-/**
- * True when `name` is a valid local name (after `/`): kebab, bounded length, ASCII.
- */
-export function isClojureLocalName(name: unknown): name is string {
-  return isLocalName(name);
-}
-
-/**
- * True when `key` is a valid namespaced attribute key for wire / PatchDB storage.
- */
-export function isClojureNamespacedKey(key: unknown): key is Keyword {
-  return isNamespacedKeyword(key);
-}
-
 /** Flat state bag keyed by full attribute keys (`prefix/name`). */
-export type AttributeState = Record<string, unknown>;
+export type AttributeState = Record<Keyword, unknown>;
 
 /**
  * Parse and validate a raw stored value into `T`. May throw if invalid.
