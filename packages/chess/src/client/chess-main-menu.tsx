@@ -12,15 +12,15 @@ import {
 } from '../shared/chess-main-menu';
 import { Trans } from '@lingui/react/macro';
 import { useCallback, useMemo, type ReactNode } from 'react';
-import { ChessBoardCanvasBootstrap } from './chess-board-canvas-bootstrap';
+import { ChessBoardCanvasBootstrap } from './chess-board/chess-board-canvas-bootstrap';
 import { ChessMainMenuScreenAttr } from '../shared/chess-main-menu';
-import { PuzzleMainMenu } from './chess-puzzle-main-menu';
-import { PuzzlePickerScreen } from './chess-puzzle-picker-screen';
-import { PuzzlePlayScreen } from './chess-puzzle-play-screen';
-import { ChessSettingsDeveloperScreen } from './chess-settings-developer-screen';
-import { ChessSettingsDeveloperUiComponentDetailScreen } from './chess-settings-developer-ui-component-detail-screen';
-import { ChessSettingsDeveloperUiComponentsScreen } from './chess-settings-developer-ui-components-screen';
-import { ChessSettingsScreen } from './chess-settings-screen';
+import { PuzzleMainMenu } from './chess-puzzle/chess-puzzle-main-menu';
+import { PuzzlePickerScreen } from './chess-puzzle/chess-puzzle-picker-screen';
+import { PuzzlePlayScreen } from './chess-puzzle/chess-puzzle-play-screen';
+import { ChessSettingsDeveloperScreen } from './chess-settings/chess-settings-developer-screen';
+import { ChessSettingsDeveloperUiComponentDetailScreen } from './chess-settings/chess-settings-developer-ui-component-detail-screen';
+import { ChessSettingsDeveloperUiComponentsScreen } from './chess-settings/chess-settings-developer-ui-components-screen';
+import { ChessSettingsScreen } from './chess-settings/chess-settings-screen';
 
 export type ChessMainMenuProps = {
   /** Called by chess's root menu to return to the games picker. */

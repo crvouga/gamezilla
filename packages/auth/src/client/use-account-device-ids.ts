@@ -1,4 +1,4 @@
-import { useMyDeviceId } from './use-my-device-id';
+import { useMyDeviceId } from './use-current-user';
 import {
   ACCOUNT_SESSION_ENTITY_TYPE,
   AccountSessionAttr,

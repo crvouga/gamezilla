@@ -11,8 +11,24 @@ export type HostedBetterAuth = {
   handler: (request: Request) => Promise<Response>;
   readonly api: {
     getSession: (args: { headers: Headers }) => Promise<{
-      user?: { id?: unknown; email?: unknown };
+      user?: {
+        id?: unknown;
+        email?: unknown;
+        name?: unknown;
+        image?: unknown;
+      };
     } | null>;
+    listUserAccounts: (args: { headers: Headers }) => Promise<
+      ReadonlyArray<{
+        id?: unknown;
+        providerId?: unknown;
+        accountId?: unknown;
+        userId?: unknown;
+        createdAt?: unknown;
+        updatedAt?: unknown;
+        scopes?: unknown;
+      }>
+    >;
   };
 };
 

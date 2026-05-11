@@ -1,12 +1,16 @@
-import { useAuth } from './auth-context';
 import { Box, Button } from '@gamezilla/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback, type ReactNode } from 'react';
 
+import { useSignInModal, useSignOutModal } from './auth-modals-provider';
+import { useIsSignedIn } from './use-current-user';
+
 /** Sign in / sign out actions for the account screen. */
 export function AccountActionsRow(): ReactNode {
   const { t } = useLingui();
-  const { isAuthenticated, openSignInModal, openSignOutConfirm } = useAuth();
+  const isSignedIn = useIsSignedIn();
+  const { open: openSignInModal } = useSignInModal();
+  const { open: openSignOutConfirm } = useSignOutModal();
   const onSignIn = useCallback(() => {
     openSignInModal();
   }, [openSignInModal]);
@@ -16,7 +20,7 @@ export function AccountActionsRow(): ReactNode {
 
   return (
     <Box sx={{ gap: 2 }}>
-      {isAuthenticated ? (
+      {isSignedIn ? (
         <Button
           title={t`Sign out`}
           intent="danger"

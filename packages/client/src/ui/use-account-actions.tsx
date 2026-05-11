@@ -1,4 +1,8 @@
-import { useAuth } from '@gamezilla/auth/client/auth-context';
+import {
+  useSignInModal,
+  useSignOutModal,
+} from '@gamezilla/auth/client/auth-modals-provider';
+import { useIsSignedIn } from '@gamezilla/auth/client/use-current-user';
 import { useServerStatus } from '@gamezilla/client/connection/use-server-status';
 import { useLogger } from '@gamezilla/lib/logger/react';
 import { useAsync } from '@gamezilla/lib/async/use-async';
@@ -171,7 +175,9 @@ function buildActions(args: {
  */
 export function useAccountActions(): ScreenBaseAction[] {
   const { t } = useLingui();
-  const { isAuthenticated, openSignOutConfirm, openSignInModal } = useAuth();
+  const isAuthenticated = useIsSignedIn();
+  const { open: openSignInModal } = useSignInModal();
+  const { open: openSignOutConfirm } = useSignOutModal();
   const serverStatus = useServerStatus();
   const { onProfile, onSettings, onServerStatus } = useAccountNav();
   const onAuth = useAuthAction(

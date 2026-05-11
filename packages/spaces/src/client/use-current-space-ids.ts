@@ -1,4 +1,4 @@
-import { useMyId } from '@gamezilla/auth/client/identity-context';
+import { useMyId } from '@gamezilla/auth/client/use-current-user';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,

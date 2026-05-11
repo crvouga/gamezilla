@@ -1,7 +1,7 @@
-import { chessGameClient } from '@gamezilla/chess/client/chess-game';
-import type { GameClientDefinition } from '@gamezilla/spaces/shared/game';
+import { chessGameClient } from '@gamezilla/chess/client/chess-game-def';
 import { GamesRegistryProvider } from '@gamezilla/spaces/client/games-registry-context';
 import { SpaceModuleProvider } from '@gamezilla/spaces/client/space-module-context';
+import type { GameClientDefinition } from '@gamezilla/spaces/shared/game';
 import { type ReactNode } from 'react';
 
 import { APP_SPACE_MODULE } from '../shared/games';

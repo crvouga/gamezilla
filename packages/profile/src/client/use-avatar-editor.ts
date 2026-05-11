@@ -11,7 +11,7 @@ import {
   serializeAvatarConfig,
 } from '../shared/avatar-config';
 import { PROFILE_ENTITY_TYPE, ProfileAttr } from '../shared/profile-entities';
-import { useDeviceService } from '@gamezilla/auth/client/device-service-context';
+import { useDeviceId } from '@gamezilla/auth/client/use-device-id';
 import { usePatchDb } from '@gamezilla/patch-db/react';
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
@@ -22,7 +22,7 @@ import { useProfileEntityById } from './use-profile-entity-by-id';
 
 function usePersistedConfig() {
   const profileId = useMyProfileId();
-  const deviceId = useDeviceService().getDeviceId();
+  const deviceId = useDeviceId();
   const entity = useProfileEntityById(profileId);
   const persisted = useMemo(() => {
     const attrs = entity?.attributes as Record<string, unknown> | undefined;

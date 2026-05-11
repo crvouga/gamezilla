@@ -3,8 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./shared/games": "./src/shared/games.ts",
-    "./client/games-bootstrap": "./src/client/games-bootstrap.tsx"
+    "./client/*": [
+      "./src/client/*.ts",
+      "./src/client/*.tsx"
+    ],
+    "./shared/*": [
+      "./src/shared/*.ts",
+      "./src/shared/*.tsx"
+    ]
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",

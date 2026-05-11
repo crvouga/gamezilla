@@ -3,7 +3,11 @@ import type { SecretStore } from '@gamezilla/lib/secret-store';
 import { BetterAuthDopplerKey } from './better-auth-doppler-keys';
 
 /** Expo / deep-link schemes — not sensitive; always allowed unless overridden by Doppler list. */
-const DEFAULT_MOBILE_TRUSTED = ['myapp://', 'myapp://*', 'exp://**'] as const;
+const DEFAULT_MOBILE_TRUSTED = [
+  'gamezilla://',
+  'gamezilla://*',
+  'exp://**',
+] as const;
 
 /** Worker / API origin in local dev (wrangler, etc.). */
 const LOCAL_DEV_TRUSTED = [

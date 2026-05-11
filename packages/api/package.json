@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "exports": {
-    "./rpc": "./src/rpc.ts",
-    "./config/env": "./src/config/env.ts",
-    "./config/secret-names": "./src/config/secret-names.ts"
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts"
+    ]
   },
   "scripts": {
     "build": "bun -e \"process.exit(0)\"",

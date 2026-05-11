@@ -3,20 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./abac-policies": "./src/abac-policies.ts",
-    "./doppler-keys": "./src/doppler-keys.ts",
-    "./script-secret-store": "./src/script-secret-store.ts",
-    "./make-stripe-client": "./src/make-stripe-client.ts",
-    "./stripe-script-patch-db": "./src/stripe-script-patch-db.ts",
-    "./stripe-checkout-route": "./src/stripe-checkout-route.ts",
-    "./stripe-app": "./src/stripe-app.ts",
-    "./stripe-catalog-mirror": "./src/stripe-catalog-mirror.ts",
-    "./catalog-spec": "./src/catalog-spec.ts",
-    "./backfill-entities": "./src/backfill-entities.ts",
-    "./sync": "./src/sync/index.ts",
-    "./secret-keys": "./src/secret-keys.ts",
-    "./stripe-attrs": "./src/stripe-attrs.ts",
-    "./webhooks-sync-shared": "./src/webhooks-sync-shared.ts"
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts"
+    ]
   },
   "scripts": {
     "check": "bun run scripts/check-catalog.ts",

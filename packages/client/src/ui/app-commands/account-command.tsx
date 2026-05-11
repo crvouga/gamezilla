@@ -1,11 +1,17 @@
-import { useAuth } from '@gamezilla/auth/client/auth-context';
+import { useIsSignedIn } from '@gamezilla/auth/client/use-current-user';
+import {
+  useSignInModal,
+  useSignOutModal,
+} from '@gamezilla/auth/client/auth-modals-provider';
 import { RegisterCommand } from '@gamezilla/ui';
 import { useAsync } from '@gamezilla/lib/async/use-async';
 import { useLingui } from '@lingui/react/macro';
 
 export function AccountCommand() {
   const { t } = useLingui();
-  const { isAuthenticated, openSignOutConfirm, openSignInModal } = useAuth();
+  const isAuthenticated = useIsSignedIn();
+  const { open: openSignInModal } = useSignInModal();
+  const { open: openSignOutConfirm } = useSignOutModal();
   const { run } = useAsync({
     operation: async () => {
       if (isAuthenticated) {

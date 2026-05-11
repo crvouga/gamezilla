@@ -3,9 +3,11 @@
  * one DB per app instance there is no per-account file to delete; this just
  * clears web persistence + reloads, or unlinks the native file.
  */
-import { writeLastLocalAccountId } from '@gamezilla/auth/client/account-local-state';
-import type { AccountIdModel } from '@gamezilla/auth/client/account-id-context';
-import type { SessionTokenModel } from '@gamezilla/auth/client/session-token-context';
+import {
+  LAST_LOCAL_ACCOUNT_ID_KEY,
+  SESSION_TOKEN_KEY,
+} from '@gamezilla/auth/client/auth-storage-keys';
+import { writeSecureStorageItem } from '@gamezilla/lib/secure-storage/use-secure-storage-item';
 import { clearWebClientPersistentState } from '@gamezilla/lib/browser/clear-web-client-state';
 import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
 import * as SQLite from 'expo-sqlite';
@@ -15,8 +17,6 @@ import { MAIN_SQLITE_DB_NAME } from '../storage/open-main-sql-client';
 
 export type PatchDbLocalDataDeps = {
   secure: SecureStorage;
-  sessionToken: SessionTokenModel;
-  accountId: AccountIdModel;
 };
 
 export async function clearLocalDatabaseAndReloadWithDeps(
@@ -30,8 +30,7 @@ export async function clearLocalDatabaseAndReloadWithDeps(
     return;
   }
 
-  d.accountId.setAccountId(null);
-  d.sessionToken.setSessionToken(null);
+  await writeSecureStorageItem(d.secure, SESSION_TOKEN_KEY, null);
+  await writeSecureStorageItem(d.secure, LAST_LOCAL_ACCOUNT_ID_KEY, null);
   await SQLite.deleteDatabaseAsync(MAIN_SQLITE_DB_NAME).catch(() => {});
-  await writeLastLocalAccountId(d.secure, null);
 }

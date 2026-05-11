@@ -1,35 +1,36 @@
-import { useDeviceService } from '@gamezilla/auth/client/device-service-context';
 import { ensureDeviceEntity } from '@gamezilla/auth/client/ensure-device-entity';
+import { useDeviceId } from '@gamezilla/auth/client/use-device-id';
 import { usePatchDb } from '@gamezilla/patch-db/react';
 import { useEffect, type ReactNode } from 'react';
 
 /**
- * Idempotently writes the device entity into the patch-db on mount. Runs once
- * — there is no longer a stack swap that could re-trigger it.
+ * Idempotently writes / refreshes the local `device/<deviceId>` entity. The
+ * server-side `POST /auth/refresh` re-asserts the row authoritatively after
+ * sign-in, so this is just a best-effort cold-start ping for the offline
+ * "what device am I?" UX.
  */
 export function DeviceEntityBootstrapProvider({
   children,
 }: {
   children: ReactNode;
 }): ReactNode {
-  const device = useDeviceService();
   const db = usePatchDb();
+  const deviceId = useDeviceId();
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       try {
-        const installId = device.getDeviceId();
-        await ensureDeviceEntity(db, installId);
+        await ensureDeviceEntity(db, deviceId);
         if (cancelled) return;
       } catch {
-        // Best-effort: device row will be re-asserted on the next mount.
+        // Best-effort: the next refresh from the server will re-assert.
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [db, device]);
+  }, [db, deviceId]);
 
   return <>{children}</>;
 }

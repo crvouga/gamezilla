@@ -1,7 +1,7 @@
-import { useMyId } from '@gamezilla/auth/client/identity-context';
+import { useMyId } from '@gamezilla/auth/client/use-current-user';
 import { useConfigService } from '@gamezilla/auth/client/config-service-context';
-import { useDeviceService } from '@gamezilla/auth/client/device-service-context';
-import { useSessionToken } from '@gamezilla/auth/client/session-token-context';
+import { useDeviceId } from '@gamezilla/auth/client/use-device-id';
+import { useSessionToken } from '@gamezilla/auth/client/use-session-token';
 import { useKeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
 import { useCurrentSpaceIds } from './use-current-space-ids';
 import {
@@ -39,7 +39,7 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
   const isLive = endedAt === null;
   const { entries } = useCurrentSpaceIds();
   const myId = useMyId();
-  const deviceService = useDeviceService();
+  const deviceId = useDeviceId();
   const configService = useConfigService();
   const storage = useKeyValueStorage();
   const sessionToken = useSessionToken();
@@ -56,9 +56,9 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
     return {
       spaceId,
       myId,
-      installId: deviceService.getDeviceId(),
+      installId: deviceId,
     };
-  }, [spaceId, isLive, inThisSpace, myId, deviceService]);
+  }, [spaceId, isLive, inThisSpace, myId, deviceId]);
 
   const { room } = useSpaceRoomConnection(
     bootstrap,

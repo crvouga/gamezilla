@@ -1,8 +1,7 @@
-import { useAccountIdModel } from '@gamezilla/auth/client/account-id-context';
-import { AuthProvider } from '@gamezilla/auth/client/auth-context';
-import { useDeviceService } from '@gamezilla/auth/client/device-service-context';
+import { useDeviceId } from '@gamezilla/auth/client/use-device-id';
+import { useCurrentAccountId } from '@gamezilla/auth/client/use-current-account-id';
 import { usePatchDb } from '@gamezilla/patch-db/react';
-import { useEffect, useSyncExternalStore, type ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 
 import { ensureProfile } from './ensure-profile-entity';
 
@@ -13,23 +12,14 @@ import { ensureProfile } from './ensure-profile-entity';
  */
 function ProfileEntityBootstrap(): null {
   const db = usePatchDb();
-  const device = useDeviceService();
-  const accountModel = useAccountIdModel();
-  const accountIdStr = useSyncExternalStore(
-    accountModel.subscribe,
-    () => accountModel.getAccountId(),
-    () => accountModel.getAccountId()
-  );
+  const deviceId = useDeviceId();
+  const accountId = useCurrentAccountId();
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       try {
-        const installId = device.getDeviceId();
-        const myId =
-          accountIdStr !== null && accountIdStr.length > 0
-            ? accountIdStr
-            : installId;
+        const myId = accountId !== null ? accountId : deviceId;
         await ensureProfile(db, myId);
         if (cancelled) return;
       } catch {
@@ -39,15 +29,14 @@ function ProfileEntityBootstrap(): null {
     return () => {
       cancelled = true;
     };
-  }, [db, device, accountIdStr]);
+  }, [db, deviceId, accountId]);
 
   return null;
 }
 
 /**
- * Wraps {@link AuthProvider} with the `ensureProfile` callback the auth
- * sign-in finalizer needs, plus the post-identity-change ensure effect. Keeps
- * `app-providers.tsx` ignorant of profile internals.
+ * Mounts {@link ProfileEntityBootstrap}. The identity-change ensure effect
+ * reacts to sign-in / sign-out via `useCurrentAccountId`.
  */
 export function ProfileProvider({
   children,
@@ -55,9 +44,9 @@ export function ProfileProvider({
   children: ReactNode;
 }): ReactNode {
   return (
-    <AuthProvider ensureProfile={ensureProfile}>
+    <>
       <ProfileEntityBootstrap />
       {children}
-    </AuthProvider>
+    </>
   );
 }

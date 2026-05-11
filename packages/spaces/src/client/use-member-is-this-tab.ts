@@ -1,4 +1,4 @@
-import { useMyId } from '@gamezilla/auth/client/identity-context';
+import { useMyId } from '@gamezilla/auth/client/use-current-user';
 import { useSpacePresence } from './use-space-presence';
 
 /**

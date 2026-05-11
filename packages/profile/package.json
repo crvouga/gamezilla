@@ -3,39 +3,18 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./client/profile-screen": "./src/client/profile-screen.tsx",
-    "./client/profile-edit-screen": "./src/client/profile-edit-screen.tsx",
-    "./client/profile-username-screen": "./src/client/profile-username-screen.tsx",
-    "./client/profile-actions": "./src/client/profile-actions.ts",
-    "./client/ensure-profile-entity": "./src/client/ensure-profile-entity.ts",
-    "./client/profile-provider": "./src/client/profile-provider.tsx",
-    "./client/use-profile-entity-by-id": "./src/client/use-profile-entity-by-id.ts",
-    "./client/use-my-profile-id": "./src/client/use-my-profile-id.ts",
-    "./client/user-display-name": "./src/client/user-display-name.tsx",
-    "./client/user-profile-avatar": "./src/client/user-profile-avatar.tsx",
-    "./client/my-profile-avatar": "./src/client/my-profile-avatar.tsx",
-    "./client/my-display-name": "./src/client/my-display-name.tsx",
-    "./client/avatar-editor-screen": "./src/client/avatar-editor-screen.tsx",
-    "./client/avatar-editor-preview": "./src/client/avatar-editor-preview.tsx",
-    "./client/avatar-editor-trigger-row": "./src/client/avatar-editor-trigger-row.tsx",
-    "./client/avatar-editor-transform-block": "./src/client/avatar-editor-transform-block.tsx",
-    "./client/avatar-editor-style-block": "./src/client/avatar-editor-style-block.tsx",
-    "./client/avatar-editor-features-block": "./src/client/avatar-editor-features-block.tsx",
-    "./client/avatar-editor-effects-block": "./src/client/avatar-editor-effects-block.tsx",
-    "./client/avatar-editor-colors-block": "./src/client/avatar-editor-colors-block.tsx",
-    "./client/avatar-editor-background-block": "./src/client/avatar-editor-background-block.tsx",
-    "./client/avatar-editor-style-picker-strip": "./src/client/avatar-editor-style-picker-strip.tsx",
-    "./client/avatar-editor-variant-swatch-strip": "./src/client/avatar-editor-variant-swatch-strip.tsx",
-    "./client/use-avatar-editor": "./src/client/use-avatar-editor.ts",
-    "./client/option-helpers": "./src/client/option-helpers.ts",
-    "./client/device-avatar": "./src/client/device-avatar.tsx",
-    "./client/profile-dicebear-avatar": "./src/client/profile-dicebear-avatar.tsx",
-    "./client/profile-dicebear": "./src/client/profile-dicebear.ts",
-    "./client/dicebear-styles": "./src/client/dicebear-styles.ts",
-    "./client/dicebear-schema": "./src/client/dicebear-schema.ts",
-    "./shared/profile-entities": "./src/shared/profile-entities.ts",
-    "./shared/avatar-config": "./src/shared/avatar-config.ts",
-    "./shared/display-name-generator": "./src/shared/display-name-generator.ts"
+    "./client/*": [
+      "./src/client/*.ts",
+      "./src/client/*.tsx"
+    ],
+    "./server/*": [
+      "./src/server/*.ts",
+      "./src/server/*.tsx"
+    ],
+    "./shared/*": [
+      "./src/shared/*.ts",
+      "./src/shared/*.tsx"
+    ]
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",

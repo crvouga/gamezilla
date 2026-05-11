@@ -39,7 +39,7 @@ Feature code lives in `packages/<name>/` workspace packages. Inside each one, ru
 
 ```
 packages/<name>/
-  package.json          # name "@gamezilla/<name>", per-file `exports`
+  package.json          # name "@gamezilla/<name>", subpath-pattern `exports`
   tsconfig.json         # extends ../../tsconfig.json
   eslint.config.js      # createSharedBlocks + linguiRules
   src/
@@ -48,7 +48,25 @@ packages/<name>/
     shared/             # isomorphic — entities, ports, pure logic
 ```
 
-Cross-package imports always use deep paths: `@gamezilla/<name>/client/<file>`, `@gamezilla/<name>/server/<file>`, `@gamezilla/<name>/shared/<file>`. Every file gets an `exports` entry; do **not** add `index.ts` barrels across the runtime boundary (Metro / Wrangler need `exports` + tree-shaking to drop the wrong runtime from the bundle).
+Cross-package imports always use deep paths: `@gamezilla/<name>/client/<file>`, `@gamezilla/<name>/server/<file>`, `@gamezilla/<name>/shared/<file>`. The `exports` field uses one Node subpath pattern per runtime folder (with `.ts` / `.tsx` array fallback) so adding/removing/renaming a file requires zero `package.json` change while bundlers still see one module per import site:
+
+```jsonc
+"exports": {
+  "./client/*": ["./src/client/*.ts", "./src/client/*.tsx"],
+  "./server/*": ["./src/server/*.ts", "./src/server/*.tsx"],
+  "./shared/*": ["./src/shared/*.ts", "./src/shared/*.tsx"]
+}
+```
+
+Do **not** add `index.ts` barrels that mix `client` / `server` / `shared` (Metro / Wrangler need per-runtime resolution to drop the wrong runtime from the bundle). A per-runtime `client/index.ts` / `server/index.ts` / `shared/index.ts` is fine when there's a real reason to expose a curated facade (see `packages/auth/src/server/index.ts`); add it as an explicit `"./server": "./src/server/index.ts"` entry alongside the wildcard.
+
+Flat (runtime-agnostic) packages — `lib`, `ui`, `api`, `patch-db`, `patch-db-example`, `room-example`, `stripe` — use a single pattern that also resolves bare folder imports via per-folder `index.ts`:
+
+```jsonc
+"exports": {
+  "./*": ["./src/*.ts", "./src/*.tsx", "./src/*/index.ts"]
+}
+```
 
 Within a feature package, prefer **relative** imports between sibling files (`./foo`, `../shared/bar`); use the `@gamezilla/<name>/...` alias only for imports from a different feature package.
 

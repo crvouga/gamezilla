@@ -5,7 +5,7 @@ import { type Href, useRouter } from 'expo-router';
 import { useCallback } from 'react';
 import { AccountActionsRow } from './account-actions-row';
 import { AccountDevicesCard } from './account-device/account-devices-card';
-import { useMyAccountId } from './identity-context';
+import { useMyAccountId } from './use-current-user';
 import { LinkedProvidersCard } from './linked-providers/linked-providers-card';
 
 export function AccountScreen() {

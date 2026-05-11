@@ -29,11 +29,11 @@ msgstr "({count})"
 msgid "(untitled)"
 msgstr "(untitled)"
 
-#: packages/auth/src/client/account-device-session-caption-text.tsx
+#: packages/auth/src/client/account-device/account-device-session-caption-text.tsx
 msgid "{active} active — expires {latestExpires}"
 msgstr "{active} active — expires {latestExpires}"
 
-#: packages/auth/src/client/account-device-active-session-line.tsx
+#: packages/auth/src/client/account-device/account-device-active-session-line.tsx
 msgid "{active} active session(s) — latest expires {latestExpires}"
 msgstr "{active} active session(s) — latest expires {latestExpires}"
 
@@ -50,7 +50,7 @@ msgstr "{count} people here"
 msgid "{count} selected"
 msgstr "{count} selected"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "{count} user arrow(s) drawn"
 msgstr "{count} user arrow(s) drawn"
 
@@ -141,13 +141,13 @@ msgstr "500 ms"
 msgid "About"
 msgstr "About"
 
-#: packages/auth/src/client/account-device-detail-screen.tsx
+#: packages/auth/src/client/account-device/account-device-detail-screen.tsx
 #: packages/auth/src/client/account-screen.tsx
 #: packages/client/src/ui/app-commands/account-command.tsx
 msgid "Account"
 msgstr "Account"
 
-#: packages/auth/src/client/account-devices-card.tsx
+#: packages/auth/src/client/account-device/account-devices-card.tsx
 msgid "Account ID"
 msgstr "Account ID"
 
@@ -205,7 +205,7 @@ msgstr "API endpoint"
 msgid "API origin (no helper)"
 msgstr "API origin (no helper)"
 
-#: packages/auth/src/client/account-device-meta-grid.tsx
+#: packages/auth/src/client/account-device/account-device-meta-grid.tsx
 #: packages/client/src/settings/about-screen.tsx
 msgid "App"
 msgstr "App"
@@ -238,7 +238,7 @@ msgstr "Are you sure you want to delete \"{name}\"? This cannot be undone."
 msgid "Are you sure you want to delete the local database? All todos and lists will be permanently removed. The app will reload."
 msgstr "Are you sure you want to delete the local database? All todos and lists will be permanently removed. The app will reload."
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Arrows"
 msgstr "Arrows"
 
@@ -267,10 +267,10 @@ msgstr "Avatar"
 msgid "Avatar style"
 msgstr "Avatar style"
 
-#: packages/chess/src/client/chess-puzzle-picker-screen.tsx
-#: packages/chess/src/client/chess-puzzle-play-screen.tsx
-#: packages/chess/src/client/chess-settings-developer-ui-component-detail-screen.tsx
-#: packages/chess/src/client/chess-settings-developer-ui-components-screen.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-picker-screen.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
+#: packages/chess/src/client/chess-settings/chess-settings-developer-ui-component-detail-screen.tsx
+#: packages/chess/src/client/chess-settings/chess-settings-developer-ui-components-screen.tsx
 #: packages/spaces/src/client/space-back-button.tsx
 #: packages/ui/src/components/main-menu-screen/main-menu-screen.tsx
 #: packages/ui/src/components/screen-base/screen-base-header.tsx
@@ -281,7 +281,7 @@ msgstr "Back"
 msgid "Back to Dev"
 msgstr "Back to Dev"
 
-#: packages/chess/src/client/chess-puzzle-play-screen.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
 msgid "Back to puzzle menu"
 msgstr "Back to puzzle menu"
 
@@ -294,15 +294,15 @@ msgstr "Background"
 msgid "Background colors"
 msgstr "Background colors"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Basics"
 msgstr "Basics"
 
-#: packages/chess/src/client/chess-board-promotion.tsx
+#: packages/chess/src/client/chess-board/chess-board-promotion.tsx
 msgid "Bishop"
 msgstr "Bishop"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Black"
 msgstr "Black"
 
@@ -322,7 +322,7 @@ msgstr "Both"
 msgid "bright"
 msgstr "bright"
 
-#: packages/chess/src/client/chess-settings-developer-screen.tsx
+#: packages/chess/src/client/chess-settings/chess-settings-developer-screen.tsx
 msgid "Browse design system primitives in this space."
 msgstr "Browse design system primitives in this space."
 
@@ -342,9 +342,8 @@ msgstr "Build"
 msgid "Build mode: {buildMode}"
 msgstr "Build mode: {buildMode}"
 
-#: packages/auth/src/client/use-account-remove-local-data.ts
 #: packages/auth/src/client/use-sign-out-confirmation.tsx
-#: packages/chess/src/client/chess-board-promotion.tsx
+#: packages/chess/src/client/chess-board/chess-board-promotion.tsx
 #: packages/patch-db-example/src/todo/list/todo-list-delete-confirmation-modal.tsx
 #: packages/patch-db-example/src/todo/list/todo-lists-overview.tsx
 #: packages/spaces/src/client/end-space-confirm-modal.tsx
@@ -353,7 +352,7 @@ msgstr "Build mode: {buildMode}"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: packages/chess/src/client/chess-board-promotion.tsx
+#: packages/chess/src/client/chess-board/chess-board-promotion.tsx
 msgid "Cancel promotion"
 msgstr "Cancel promotion"
 
@@ -361,11 +360,11 @@ msgstr "Cancel promotion"
 msgid "Cannot edit"
 msgstr "Cannot edit"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Cell feedback"
 msgstr "Cell feedback"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Cell highlights"
 msgstr "Cell highlights"
 
@@ -382,16 +381,16 @@ msgstr "Check again"
 msgid "Checking…"
 msgstr "Checking…"
 
-#: packages/chess/src/client/chess-game.tsx
+#: packages/chess/src/client/chess-game-def.tsx
 #: packages/chess/src/client/chess-main-menu.tsx
 msgid "Chess"
 msgstr "Chess"
 
-#: packages/chess/src/client/chess-settings-screen.tsx
+#: packages/chess/src/client/chess-settings/chess-settings-screen.tsx
 msgid "Chess preferences and developer tools."
 msgstr "Chess preferences and developer tools."
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "ChessBoard"
 msgstr "ChessBoard"
 
@@ -399,7 +398,7 @@ msgstr "ChessBoard"
 msgid "Choose"
 msgstr "Choose"
 
-#: packages/chess/src/client/chess-board-promotion.tsx
+#: packages/chess/src/client/chess-board/chess-board-promotion.tsx
 msgid "Choose a piece to promote to."
 msgstr "Choose a piece to promote to."
 
@@ -439,7 +438,7 @@ msgstr "Clear All Data"
 msgid "Clear data"
 msgstr "Clear data"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Clear log"
 msgstr "Clear log"
 
@@ -465,7 +464,7 @@ msgid "Clients"
 msgstr "Clients"
 
 #: packages/auth/src/client/sign-in-modal.tsx
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 #: packages/patch-db-example/src/db-client/query-screen.tsx
 #: packages/ui/src/components/responsive-surface/responsive-surface-header.tsx
 msgid "Close"
@@ -477,7 +476,7 @@ msgstr "Colors"
 
 #: packages/chess/src/client/chess-main-menu.tsx
 #: packages/chess/src/client/chess-main-menu.tsx
-#: packages/chess/src/client/chess-puzzle-main-menu.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-main-menu.tsx
 msgid "Coming soon"
 msgstr "Coming soon"
 
@@ -517,7 +516,7 @@ msgstr "Connected"
 msgid "Connected to {url}"
 msgstr "Connected to {url}"
 
-#: packages/auth/src/client/linked-provider-connected-at-text.tsx
+#: packages/auth/src/client/linked-providers/linked-provider-connected-at-text.tsx
 msgid "Connected: {connectedAt}"
 msgstr "Connected: {connectedAt}"
 
@@ -561,14 +560,14 @@ msgid "CopyToClipboardField"
 msgstr "CopyToClipboardField"
 
 #: packages/auth/src/client/use-account-remove-local-data.ts
-msgid "Could not remove local data"
-msgstr "Could not remove local data"
+#~ msgid "Could not remove local data"
+#~ msgstr "Could not remove local data"
 
 #: packages/spaces/src/client/space-counter-panel.tsx
 msgid "Counter unavailable — sign in and open this space on the device where you created it to host, or wait for the host to come online."
 msgstr "Counter unavailable — sign in and open this space on the device where you created it to host, or wait for the host to come online."
 
-#: packages/auth/src/client/account-device-meta-grid.tsx
+#: packages/auth/src/client/account-device/account-device-meta-grid.tsx
 msgid "Created"
 msgstr "Created"
 
@@ -606,7 +605,7 @@ msgstr "Debug"
 msgid "Decrement"
 msgstr "Decrement"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Default board, drag or tap-to-move, orientation toggle."
 msgstr "Default board, drag or tap-to-move, orientation toggle."
 
@@ -624,8 +623,8 @@ msgstr "Delete List"
 msgid "Demos and internal tools"
 msgstr "Demos and internal tools"
 
-#: packages/chess/src/client/chess-settings-developer-screen.tsx
-#: packages/chess/src/client/chess-settings-screen.tsx
+#: packages/chess/src/client/chess-settings/chess-settings-developer-screen.tsx
+#: packages/chess/src/client/chess-settings/chess-settings-screen.tsx
 #: packages/client-config/src/client/client-config-screen.tsx
 #: packages/client/src/developer/db-client-screen.tsx
 #: packages/client/src/developer/developer-screen.tsx
@@ -643,15 +642,15 @@ msgstr "Developer"
 msgid "development"
 msgstr "development"
 
-#: packages/auth/src/client/account-device-detail-screen.tsx
+#: packages/auth/src/client/account-device/account-device-detail-screen.tsx
 msgid "Device"
 msgstr "Device"
 
-#: packages/auth/src/client/account-device-id-field.tsx
+#: packages/auth/src/client/account-device/account-device-id-field.tsx
 msgid "Device ID"
 msgstr "Device ID"
 
-#: packages/auth/src/client/account-device-meta-grid.tsx
+#: packages/auth/src/client/account-device/account-device-meta-grid.tsx
 msgid "Device name"
 msgstr "Device name"
 
@@ -659,7 +658,7 @@ msgstr "Device name"
 msgid "Device network"
 msgstr "Device network"
 
-#: packages/auth/src/client/account-devices-card.tsx
+#: packages/auth/src/client/account-device/account-devices-card.tsx
 msgid "Devices"
 msgstr "Devices"
 
@@ -707,19 +706,19 @@ msgstr "Display name"
 msgid "Display name shown in the app"
 msgstr "Display name shown in the app"
 
-#: packages/chess/src/client/chess-puzzle-play-screen.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
 msgid "Drag or tap pieces. Play the solution line."
 msgstr "Drag or tap pieces. Play the solution line."
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Drag overlay"
 msgstr "Drag overlay"
 
-#: packages/chess/src/client/chess-puzzle-picker.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
 msgid "e.g. 1500"
 msgstr "e.g. 1500"
 
-#: packages/chess/src/client/chess-puzzle-picker.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
 msgid "e.g. 2000"
 msgstr "e.g. 2000"
 
@@ -727,11 +726,11 @@ msgstr "e.g. 2000"
 msgid "e.g. ff5733"
 msgstr "e.g. ff5733"
 
-#: packages/chess/src/client/chess-puzzle-picker.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
 msgid "e.g. fork, mateIn2"
 msgstr "e.g. fork, mateIn2"
 
-#: packages/auth/src/client/account-devices-card.tsx
+#: packages/auth/src/client/account-device/account-devices-card.tsx
 msgid "Each install has its own device id. Tap a row for full details."
 msgstr "Each install has its own device id. Tap a row for full details."
 
@@ -754,7 +753,7 @@ msgstr "Email"
 msgid "Empty read result"
 msgstr "Empty read result"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Enable user arrows"
 msgstr "Enable user arrows"
 
@@ -813,7 +812,7 @@ msgstr "Filter loaded rows (id or attributes)…"
 msgid "Filter types…"
 msgstr "Filter types…"
 
-#: packages/auth/src/client/account-device-meta-grid.tsx
+#: packages/auth/src/client/account-device/account-device-meta-grid.tsx
 msgid "First seen"
 msgstr "First seen"
 
@@ -893,7 +892,7 @@ msgstr "Inbox"
 msgid "Increment"
 msgstr "Increment"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Inline"
 msgstr "Inline"
 
@@ -901,7 +900,7 @@ msgstr "Inline"
 msgid "Internet reachable: {reachable}"
 msgstr "Internet reachable: {reachable}"
 
-#: packages/chess/src/client/chess-puzzle-play-screen.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
 msgid "Invalid puzzle data"
 msgstr "Invalid puzzle data"
 
@@ -917,11 +916,11 @@ msgstr "Join space"
 msgid "Join this space to see who is here and hang out."
 msgstr "Join this space to see who is here and hang out."
 
-#: packages/chess/src/client/chess-board-promotion.tsx
+#: packages/chess/src/client/chess-board/chess-board-promotion.tsx
 msgid "Knight"
 msgstr "Knight"
 
-#: packages/auth/src/client/account-device-meta-grid.tsx
+#: packages/auth/src/client/account-device/account-device-meta-grid.tsx
 msgid "Last seen"
 msgstr "Last seen"
 
@@ -990,7 +989,7 @@ msgstr "List name..."
 msgid "Live"
 msgstr "Live"
 
-#: packages/chess/src/client/chess-puzzle-picker.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
 #: packages/patch-db-example/src/db-client/entities-screen.tsx
 msgid "Load more"
 msgstr "Load more"
@@ -999,7 +998,7 @@ msgstr "Load more"
 msgid "Loading entity…"
 msgstr "Loading entity…"
 
-#: packages/chess/src/client/chess-puzzle-play-screen.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
 msgid "Loading puzzle…"
 msgstr "Loading puzzle…"
 
@@ -1023,7 +1022,7 @@ msgstr "login"
 msgid "Matchmaking"
 msgstr "Matchmaking"
 
-#: packages/chess/src/client/chess-puzzle-picker.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
 msgid "Max rating (optional)"
 msgstr "Max rating (optional)"
 
@@ -1031,7 +1030,7 @@ msgstr "Max rating (optional)"
 msgid "Max rotation"
 msgstr "Max rotation"
 
-#: packages/chess/src/client/chess-puzzle-picker.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
 msgid "Maximum rating"
 msgstr "Maximum rating"
 
@@ -1039,7 +1038,7 @@ msgstr "Maximum rating"
 #~ msgid "members"
 #~ msgstr "members"
 
-#: packages/chess/src/client/chess-puzzle-picker.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
 msgid "Min rating (optional)"
 msgstr "Min rating (optional)"
 
@@ -1047,23 +1046,23 @@ msgstr "Min rating (optional)"
 msgid "Min rotation"
 msgstr "Min rotation"
 
-#: packages/chess/src/client/chess-puzzle-picker.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
 msgid "Minimum rating"
 msgstr "Minimum rating"
 
-#: packages/auth/src/client/account-device-detail-screen.tsx
+#: packages/auth/src/client/account-device/account-device-detail-screen.tsx
 msgid "Missing device id."
 msgstr "Missing device id."
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Modal (legacy)"
 msgstr "Modal (legacy)"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Modal above the board"
 msgstr "Modal above the board"
 
-#: packages/auth/src/client/account-device-meta-grid.tsx
+#: packages/auth/src/client/account-device/account-device-meta-grid.tsx
 msgid "Model"
 msgstr "Model"
 
@@ -1071,11 +1070,11 @@ msgstr "Model"
 msgid "More"
 msgstr "More"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Move log"
 msgstr "Move log"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Move the white pawn to a8 to trigger promotion. Inline picker is the default."
 msgstr "Move the white pawn to a8 to trigger promotion. Inline picker is the default."
 
@@ -1116,8 +1115,8 @@ msgstr "night"
 msgid "No"
 msgstr "No"
 
-#: packages/auth/src/client/account-device-active-session-line.tsx
-#: packages/auth/src/client/account-device-session-caption-text.tsx
+#: packages/auth/src/client/account-device/account-device-active-session-line.tsx
+#: packages/auth/src/client/account-device/account-device-session-caption-text.tsx
 msgid "No active session"
 msgstr "No active session"
 
@@ -1129,11 +1128,11 @@ msgstr "No active todos."
 msgid "No completed todos."
 msgstr "No completed todos."
 
-#: packages/chess/src/client/chess-settings-developer-ui-component-detail-screen.tsx
+#: packages/chess/src/client/chess-settings/chess-settings-developer-ui-component-detail-screen.tsx
 msgid "No component selected"
 msgstr "No component selected"
 
-#: packages/auth/src/client/account-devices-card.tsx
+#: packages/auth/src/client/account-device/account-devices-card.tsx
 msgid "No device data yet."
 msgstr "No device data yet."
 
@@ -1162,7 +1161,7 @@ msgstr "No lists yet. Create one above or add todos to Inbox."
 msgid "No live spaces. Tap + New space to start one."
 msgstr "No live spaces. Tap + New space to start one."
 
-#: packages/auth/src/client/linked-providers-list.tsx
+#: packages/auth/src/client/linked-providers/linked-providers-list.tsx
 msgid "No OAuth provider records on file for this user."
 msgstr "No OAuth provider records on file for this user."
 
@@ -1170,7 +1169,7 @@ msgstr "No OAuth provider records on file for this user."
 msgid "No patches for this entity."
 msgstr "No patches for this entity."
 
-#: packages/chess/src/client/chess-puzzle-play-screen.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
 msgid "No puzzle selected"
 msgstr "No puzzle selected"
 
@@ -1182,8 +1181,8 @@ msgstr "No rows match filter."
 msgid "No shapes yet"
 msgstr "No shapes yet"
 
-#: packages/chess/src/client/chess-puzzle-picker.tsx
-#: packages/chess/src/client/chess-puzzle-play-screen.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
 msgid "No themes listed"
 msgstr "No themes listed"
 
@@ -1208,7 +1207,7 @@ msgstr "null"
 msgid "num"
 msgstr "num"
 
-#: packages/auth/src/client/linked-providers-card.tsx
+#: packages/auth/src/client/linked-providers/linked-providers-card.tsx
 msgid "OAuth provider details are listed here once you are signed in."
 msgstr "OAuth provider details are listed here once you are signed in."
 
@@ -1239,11 +1238,11 @@ msgstr "Online"
 msgid "Open {componentName} example"
 msgstr "Open {componentName} example"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Open a modal above the board"
 msgstr "Open a modal above the board"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Open a modal, then drag a piece — the dragged piece must stay above the modal when the overlay portal is enabled."
 msgstr "Open a modal, then drag a piece — the dragged piece must stay above the modal when the overlay portal is enabled."
 
@@ -1251,7 +1250,7 @@ msgstr "Open a modal, then drag a piece — the dragged piece must stay above th
 msgid "Open command palette"
 msgstr "Open command palette"
 
-#: packages/chess/src/client/chess-puzzle-play-screen.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
 msgid "Open puzzle picker"
 msgstr "Open puzzle picker"
 
@@ -1259,7 +1258,7 @@ msgstr "Open puzzle picker"
 msgid "Open space {resolvedTitle}"
 msgstr "Open space {resolvedTitle}"
 
-#: packages/chess/src/client/chess-puzzle-play-screen.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
 msgid "Open the picker to choose a puzzle from PatchDB."
 msgstr "Open the picker to choose a puzzle from PatchDB."
 
@@ -1267,7 +1266,7 @@ msgstr "Open the picker to choose a puzzle from PatchDB."
 msgid "os"
 msgstr "os"
 
-#: packages/auth/src/client/account-device-meta-grid.tsx
+#: packages/auth/src/client/account-device/account-device-meta-grid.tsx
 msgid "OS"
 msgstr "OS"
 
@@ -1284,7 +1283,7 @@ msgstr "Overall"
 msgid "Partition"
 msgstr "Partition"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Pass `theme` to override any board color (squares, highlights, arrows, feedback)."
 msgstr "Pass `theme` to override any board color (squares, highlights, arrows, feedback)."
 
@@ -1328,7 +1327,7 @@ msgstr "Patches"
 msgid "People in this space"
 msgstr "People in this space"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Per-square indicators; pulse animation for highlighted moves."
 msgstr "Per-square indicators; pulse animation for highlighted moves."
 
@@ -1336,19 +1335,19 @@ msgstr "Per-square indicators; pulse animation for highlighted moves."
 msgid "Pick a game to play."
 msgstr "Pick a game to play."
 
-#: packages/chess/src/client/chess-puzzle-picker.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
 msgid "Pick a puzzle"
 msgstr "Pick a puzzle"
 
-#: packages/chess/src/client/chess-puzzle-main-menu.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-main-menu.tsx
 msgid "Pick a puzzle mode."
 msgstr "Pick a puzzle mode."
 
-#: packages/chess/src/client/chess-settings-developer-ui-component-detail-screen.tsx
+#: packages/chess/src/client/chess-settings/chess-settings-developer-ui-component-detail-screen.tsx
 msgid "Pick one from the previous screen."
 msgstr "Pick one from the previous screen."
 
-#: packages/auth/src/client/account-device-meta-grid.tsx
+#: packages/auth/src/client/account-device/account-device-meta-grid.tsx
 msgid "Platform"
 msgstr "Platform"
 
@@ -1356,7 +1355,7 @@ msgstr "Platform"
 msgid "Platform: {platformOs}"
 msgstr "Platform: {platformOs}"
 
-#: packages/chess/src/client/chess-puzzle-main-menu.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-main-menu.tsx
 msgid "Play"
 msgstr "Play"
 
@@ -1368,7 +1367,7 @@ msgstr "Playground"
 msgid "Playground failed to start"
 msgstr "Playground failed to start"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Plays a fresh game and prints SAN moves as they happen."
 msgstr "Plays a fresh game and prints SAN moves as they happen."
 
@@ -1388,7 +1387,7 @@ msgstr "Preview updates as you edit. Save to keep changes."
 msgid "production"
 msgstr "production"
 
-#: packages/chess/src/client/chess-puzzle-main-menu.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-main-menu.tsx
 #: packages/client/src/app/(tabs)/_layout.tsx
 #: packages/client/src/ui/sidebar/app-sidebar.tsx
 #: packages/client/src/ui/sidebar/sidebar-account-menu.tsx
@@ -1400,28 +1399,28 @@ msgstr "production"
 msgid "Profile"
 msgstr "Profile"
 
-#: packages/chess/src/client/chess-board-promotion.tsx
+#: packages/chess/src/client/chess-board/chess-board-promotion.tsx
 msgid "Promote pawn"
 msgstr "Promote pawn"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Promotion"
 msgstr "Promotion"
 
-#: packages/auth/src/client/linked-provider-user-id-text.tsx
+#: packages/auth/src/client/linked-providers/linked-provider-user-id-text.tsx
 msgid "Provider user id: {providerUserId}"
 msgstr "Provider user id: {providerUserId}"
 
 #: packages/chess/src/client/chess-main-menu.tsx
-#: packages/chess/src/client/chess-puzzle-main-menu.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-main-menu.tsx
 msgid "Puzzle"
 msgstr "Puzzle"
 
-#: packages/chess/src/client/chess-puzzle-play-screen.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
 msgid "Puzzle {puzzleId} · rating {rating}"
 msgstr "Puzzle {puzzleId} · rating {rating}"
 
-#: packages/chess/src/client/chess-board-promotion.tsx
+#: packages/chess/src/client/chess-board/chess-board-promotion.tsx
 msgid "Queen"
 msgstr "Queen"
 
@@ -1434,7 +1433,7 @@ msgstr "Query"
 msgid "Random"
 msgstr "Random"
 
-#: packages/chess/src/client/chess-puzzle-picker.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
 msgid "Rating {rating} · popularity {popularity}"
 msgstr "Rating {rating} · popularity {popularity}"
 
@@ -1442,11 +1441,11 @@ msgstr "Rating {rating} · popularity {popularity}"
 msgid "Reachable"
 msgstr "Reachable"
 
-#: packages/auth/src/client/linked-providers-card.tsx
+#: packages/auth/src/client/linked-providers/linked-providers-card.tsx
 msgid "Read-only: OAuth identities stored for your account."
 msgstr "Read-only: OAuth identities stored for your account."
 
-#: packages/chess/src/client/chess-puzzle-play-screen.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
 msgid "Ready"
 msgstr "Ready"
 
@@ -1477,18 +1476,18 @@ msgid "Reload"
 msgstr "Reload"
 
 #: packages/auth/src/client/use-account-remove-local-data.ts
-msgid "Remove"
-msgstr "Remove"
+#~ msgid "Remove"
+#~ msgstr "Remove"
 
 #: packages/auth/src/client/account-actions-row.tsx
-msgid "Remove local data for this account"
-msgstr "Remove local data for this account"
+#~ msgid "Remove local data for this account"
+#~ msgstr "Remove local data for this account"
 
 #: packages/auth/src/client/use-account-remove-local-data.ts
-msgid "Remove local data?"
-msgstr "Remove local data?"
+#~ msgid "Remove local data?"
+#~ msgstr "Remove local data?"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Render dragged piece in app overlay portal"
 msgstr "Render dragged piece in app overlay portal"
 
@@ -1505,11 +1504,11 @@ msgstr "reset"
 msgid "Reset"
 msgstr "Reset"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Reset position"
 msgstr "Reset position"
 
-#: packages/chess/src/client/chess-puzzle-play-screen.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
 msgid "Reset puzzle"
 msgstr "Reset puzzle"
 
@@ -1517,11 +1516,11 @@ msgstr "Reset puzzle"
 msgid "Result"
 msgstr "Result"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Right-click + drag to draw arrows. Hold Shift (red), Alt (blue), Ctrl/Cmd (yellow). Right-click the same arrow to erase."
 msgstr "Right-click + drag to draw arrows. Hold Shift (red), Alt (blue), Ctrl/Cmd (yellow). Right-click the same arrow to erase."
 
-#: packages/chess/src/client/chess-board-promotion.tsx
+#: packages/chess/src/client/chess-board/chess-board-promotion.tsx
 msgid "Rook"
 msgstr "Rook"
 
@@ -1558,7 +1557,7 @@ msgstr "Run read([query])"
 msgid "Running…"
 msgstr "Running…"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "SAN"
 msgstr "SAN"
 
@@ -1571,7 +1570,7 @@ msgstr "Save"
 msgid "Scanning snapshots…"
 msgstr "Scanning snapshots…"
 
-#: packages/chess/src/client/chess-puzzle-picker.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
 msgid "Search by theme keyword and optional rating bounds. Data loads from PatchDB."
 msgstr "Search by theme keyword and optional rating bounds. Data loads from PatchDB."
 
@@ -1600,14 +1599,14 @@ msgstr "Server Connection"
 msgid "Server health"
 msgstr "Server health"
 
-#: packages/auth/src/client/account-devices-card.tsx
+#: packages/auth/src/client/account-device/account-devices-card.tsx
 msgid "Server-side account; tap to copy"
 msgstr "Server-side account; tap to copy"
 
-#: packages/auth/src/client/account-device-detail-screen.tsx
+#: packages/auth/src/client/account-device/account-device-detail-screen.tsx
 #: packages/auth/src/client/account-screen.tsx
 #: packages/chess/src/client/chess-main-menu.tsx
-#: packages/chess/src/client/chess-settings-screen.tsx
+#: packages/chess/src/client/chess-settings/chess-settings-screen.tsx
 #: packages/client-config/src/client/client-config-screen.tsx
 #: packages/client/src/connection/server-status-screen.tsx
 #: packages/client/src/developer/db-client-screen.tsx
@@ -1641,7 +1640,7 @@ msgstr "Shared counter"
 msgid "Shared UI explorer"
 msgstr "Shared UI explorer"
 
-#: packages/chess/src/client/chess-puzzle-picker.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
 msgid "Showing first {shownCount} by popularity"
 msgstr "Showing first {shownCount} by popularity"
 
@@ -1661,7 +1660,7 @@ msgstr "sign in"
 msgid "Sign in"
 msgstr "Sign in"
 
-#: packages/auth/src/client/account-devices-card.tsx
+#: packages/auth/src/client/account-device/account-devices-card.tsx
 msgid "Sign in to link this device to a server account and see all devices for that account."
 msgstr "Sign in to link this device to a server account and see all devices for that account."
 
@@ -1693,7 +1692,7 @@ msgstr "Sign up with Google"
 msgid "Sign-in is not available."
 msgstr "Sign-in is not available."
 
-#: packages/auth/src/client/linked-providers-card.tsx
+#: packages/auth/src/client/linked-providers/linked-providers-card.tsx
 msgid "Sign-in providers"
 msgstr "Sign-in providers"
 
@@ -1717,7 +1716,7 @@ msgstr "Singleton clientConfig entity and server refresh"
 msgid "Singleton entity + server refresh"
 msgstr "Singleton entity + server refresh"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Skia-rendered chess board with annotation primitives, inline promotion, an app-level drag overlay, and theming."
 msgstr "Skia-rendered chess board with annotation primitives, inline promotion, an app-level drag overlay, and theming."
 
@@ -1725,11 +1724,11 @@ msgstr "Skia-rendered chess board with annotation primitives, inline promotion, 
 msgid "Solid"
 msgstr "Solid"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Solid fills and ring borders — for color-coded threats, defended squares, etc."
 msgstr "Solid fills and ring borders — for color-coded threats, defended squares, etc."
 
-#: packages/chess/src/client/chess-puzzle-play-screen.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
 msgid "Solved"
 msgstr "Solved"
 
@@ -1741,7 +1740,7 @@ msgstr "Solved"
 msgid "Space debug"
 msgstr "Space debug"
 
-#: packages/auth/src/client/account-device-detail-screen.tsx
+#: packages/auth/src/client/account-device/account-device-detail-screen.tsx
 #: packages/auth/src/client/account-screen.tsx
 #: packages/client-config/src/client/client-config-screen.tsx
 #: packages/client/src/app/(tabs)/_layout.tsx
@@ -1768,7 +1767,7 @@ msgstr "Spaces"
 msgid "sqlite"
 msgstr "sqlite"
 
-#: packages/auth/src/client/account-device-id-field.tsx
+#: packages/auth/src/client/account-device/account-device-id-field.tsx
 msgid "Stable per-device identifier; tap to copy"
 msgstr "Stable per-device identifier; tap to copy"
 
@@ -1784,7 +1783,7 @@ msgstr "Status: {serverLine}"
 msgid "str"
 msgstr "str"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Straight and knight L-shape arrows, dashed plan lines, and color overrides."
 msgstr "Straight and knight L-shape arrows, dashed plan lines, and color overrides."
 
@@ -1833,15 +1832,15 @@ msgstr "The OS reports the device as offline, but the server is reachable. This 
 msgid "Theme"
 msgstr "Theme"
 
-#: packages/chess/src/client/chess-puzzle-picker.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
 msgid "Theme contains"
 msgstr "Theme contains"
 
-#: packages/chess/src/client/chess-puzzle-picker.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
 msgid "Theme search"
 msgstr "Theme search"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Themed boards"
 msgstr "Themed boards"
 
@@ -1850,10 +1849,10 @@ msgid "This deletes all local SQLite data and reloads the app. You cannot undo t
 msgstr "This deletes all local SQLite data and reloads the app. You cannot undo this."
 
 #: packages/auth/src/client/use-account-remove-local-data.ts
-msgid "This deletes the offline database file for this account on this device. You stay signed in; data will re-download from the server."
-msgstr "This deletes the offline database file for this account on this device. You stay signed in; data will re-download from the server."
+#~ msgid "This deletes the offline database file for this account on this device. You stay signed in; data will re-download from the server."
+#~ msgstr "This deletes the offline database file for this account on this device. You stay signed in; data will re-download from the server."
 
-#: packages/auth/src/client/account-device-current-badge.tsx
+#: packages/auth/src/client/account-device/account-device-current-badge.tsx
 msgid "This device"
 msgstr "This device"
 
@@ -1883,7 +1882,7 @@ msgstr "Todos"
 msgid "Todos, UI explorer, Patch DB and Room playgrounds"
 msgstr "Todos, UI explorer, Patch DB and Room playgrounds"
 
-#: packages/chess/src/client/chess-settings-developer-screen.tsx
+#: packages/chess/src/client/chess-settings/chess-settings-developer-screen.tsx
 msgid "Tools for debugging and exploring the UI."
 msgstr "Tools for debugging and exploring the UI."
 
@@ -1891,7 +1890,7 @@ msgstr "Tools for debugging and exploring the UI."
 msgid "Transform"
 msgstr "Transform"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Try dragging a piece on the board with this modal open. With the overlay portal enabled, the dragged piece floats above this modal."
 msgstr "Try dragging a piece on the board with this modal open. With the overlay portal enabled, the dragged piece floats above this modal."
 
@@ -1915,7 +1914,7 @@ msgstr "Type something..."
 msgid "Type: {networkTypeLabel}"
 msgstr "Type: {networkTypeLabel}"
 
-#: packages/chess/src/client/chess-settings-developer-screen.tsx
+#: packages/chess/src/client/chess-settings/chess-settings-developer-screen.tsx
 #: packages/client/src/developer/developer-screen.tsx
 #: packages/client/src/ui/app-commands/ui-components-commands.tsx
 #: packages/client/src/ui/explorer/ui-explorer-detail-screen.tsx
@@ -1923,7 +1922,7 @@ msgstr "Type: {networkTypeLabel}"
 msgid "UI Components"
 msgstr "UI Components"
 
-#: packages/chess/src/client/chess-settings-screen.tsx
+#: packages/chess/src/client/chess-settings/chess-settings-screen.tsx
 msgid "UI explorer, debug tools."
 msgstr "UI explorer, debug tools."
 
@@ -1956,7 +1955,7 @@ msgstr "Use system theme"
 msgid "User"
 msgstr "User"
 
-#: packages/auth/src/client/account-device-user-agent-block.tsx
+#: packages/auth/src/client/account-device/account-device-user-agent-block.tsx
 msgid "User agent"
 msgstr "User agent"
 
@@ -1964,7 +1963,7 @@ msgstr "User agent"
 msgid "User menu"
 msgstr "User menu"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "User-drawn arrows"
 msgstr "User-drawn arrows"
 
@@ -1994,7 +1993,7 @@ msgstr "View profile"
 msgid "Waiting for metrics from server..."
 msgstr "Waiting for metrics from server..."
 
-#: packages/chess/src/client/chess-puzzle-picker-screen.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-picker-screen.tsx
 msgid "Waiting for space sync…"
 msgstr "Waiting for space sync…"
 
@@ -2002,7 +2001,7 @@ msgstr "Waiting for space sync…"
 msgid "where (JSON, optional)"
 msgstr "where (JSON, optional)"
 
-#: packages/chess/src/client/chess-board.example.tsx
+#: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "White"
 msgstr "White"
 
@@ -2022,7 +2021,7 @@ msgstr "Wipe local database"
 msgid "Wipe local database?"
 msgstr "Wipe local database?"
 
-#: packages/chess/src/client/chess-puzzle-play-screen.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
 msgid "Wrong — try again"
 msgstr "Wrong — try again"
 
@@ -2063,7 +2062,7 @@ msgstr "Your changes are saved locally and will sync when you are back online."
 msgid "Your full name"
 msgstr "Your full name"
 
-#: packages/chess/src/client/chess-puzzle-play-screen.tsx
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
 msgid "Your move"
 msgstr "Your move"
 

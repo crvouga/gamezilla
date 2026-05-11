@@ -9,7 +9,7 @@ import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { usePatchDb } from '@gamezilla/patch-db/react';
 import { useCallback } from 'react';
 
-import { useMyId } from '@gamezilla/auth/client/identity-context';
+import { useMyId } from '@gamezilla/auth/client/use-current-user';
 
 function isoNow(): string {
   return new Date().toISOString();

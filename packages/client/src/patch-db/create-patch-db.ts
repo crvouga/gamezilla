@@ -1,12 +1,12 @@
+import { getCachedDeviceId } from '@gamezilla/auth/client/use-device-id';
+import { getCachedSessionToken } from '@gamezilla/auth/client/use-session-token';
+import { getCachedCurrentAccountId } from '@gamezilla/auth/client/use-current-account-id';
 import type { ConfigService } from '@gamezilla/auth/client/config-service-types';
-import type { DeviceService } from '@gamezilla/auth/client/device-service';
-import { readSessionToken } from '@gamezilla/auth/client/session-token-storage';
 import {
   ACCOUNT_SESSION_ENTITY_TYPE,
   assertDeviceId,
 } from '@gamezilla/auth/shared';
 import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
-import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbImplClientTransport } from '@gamezilla/patch-db/impl-client-transport';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
@@ -25,41 +25,31 @@ import { createPatchDbHcTransport } from '../api/patch-db-hc-transport';
 export type CreatePatchDbArgs = {
   sql: SqlClient;
   config: ConfigService;
-  deviceService: DeviceService;
-  storage: SecureStorage;
-  getSessionToken: () => string | null;
-  setSessionToken: (token: string | null) => void;
-  getAccountId: () => string | null;
   apiClient: ApiClient;
 };
 
 /**
- * Builds the single, app-lifetime patch-db on top of an already-open `SqlClient`:
- * sqlite local + remote sync transport + in-memory entity mirror.
+ * Builds the single, app-lifetime patch-db on top of an already-open
+ * `SqlClient`. Auth identity (deviceId / sessionToken / accountId) is read
+ * lazily from the secure-storage cache (`getCachedSecureStorageValue`) so the
+ * transport rotates seamlessly across sign-in / sign-out without rebuilding.
  *
- * Compared to the old "stack" plumbing this does *not* register cleanups, accept
- * an `AbortSignal`, or coordinate with a SQL lifecycle queue — there is exactly
- * one of these per process and it lives until the app dies.
+ * One per process, lives until the app dies.
  */
 export async function createPatchDb(
   args: CreatePatchDbArgs
 ): Promise<PatchDbValue> {
-  const persistedToken = await readSessionToken(args.storage);
-  if (persistedToken !== null) {
-    args.setSessionToken(persistedToken);
-  }
-
   const local = new PatchDbImplSqlite(args.sql);
   await local.migrate();
 
-  const installId = args.deviceService.getDeviceId();
+  const installId = getCachedDeviceId();
   assertDeviceId(installId);
 
   const remote = new PatchDbImplClientTransport(
     createPatchDbHcTransport(args.apiClient, {
       patchDbBaseUrl: `${args.config.getApiUrl()}/patch-db`,
-      getAuthToken: () => args.getSessionToken(),
-      getAnonId: () => installId,
+      getAuthToken: () => getCachedSessionToken(),
+      getAnonId: () => getCachedDeviceId(),
     })
   );
 
@@ -72,7 +62,7 @@ export async function createPatchDb(
   const stamper = new PatchMetadataStamper(sync, {
     getDeviceId: () => installId,
     getMyId: () => {
-      const aid = args.getAccountId();
+      const aid = getCachedCurrentAccountId();
       return aid !== null && aid.length > 0 ? aid : installId;
     },
     assertDeviceId: (id) => assertDeviceId(id),
@@ -84,13 +74,13 @@ export async function createPatchDb(
   const decorated = new PatchDbWriteThroughMirror(stamper, store);
   setInMemoryStoreForDb(decorated as SubscribablePatchDbLike, store);
 
-  // Re-hydrate the in-memory mirror whenever the sync engine writes new patches.
-  // No teardown: the patch-db lives for the entire app lifetime.
   pubSub.subscribe(PATCHES_DB_TOPIC, () => {
     void hydrateInMemoryStoreFromSqlite(local, store);
   });
 
   await stamper.clearRejectedPushes();
+  // accountSession is now strictly server-managed (system context only); drop
+  // any locally-pending rows the old client logic might have created.
   await sync.markAllUnsyncedPatchesForEntityTypeAsAlreadyOnRemote(
     ACCOUNT_SESSION_ENTITY_TYPE
   );

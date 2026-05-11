@@ -43,7 +43,7 @@ import {
   authOnlyRead,
   type AppAuthContext,
 } from './abac-policies-context';
-import { assertAccountSessionClientRevokeOnly } from '@gamezilla/auth/server/account-session-client-revoke';
+import { rejectAccountSessionClientWrite } from '@gamezilla/auth/server/account-session-client-revoke';
 import { STRIPE_PATCH_DB_VISIBILITY_POLICIES } from '@gamezilla/stripe/abac-policies';
 
 type AppVisibilityPolicy = VisibilityPolicy<AppAuthContext>;
@@ -99,22 +99,9 @@ const accountSessionPolicy: AppVisibilityPolicy = {
       value: ctx.deviceId,
     };
   }),
-  write: async (ctx, patch, tx) => {
+  write: async (ctx) => {
     if (isPatchDbSystemContext(ctx)) return;
-    const appCtx = appAuthFromWriteContext(ctx);
-    if (appCtx === null) {
-      throw new ForbiddenError('accountSession is system-managed');
-    }
-    if (appCtx.accountId === null) {
-      throw new ForbiddenError('accountSession requires sign-in');
-    }
-    assertCreatedByMatchesAuthor(appCtx, patch);
-    await assertAccountSessionClientRevokeOnly({
-      deviceId: appCtx.deviceId,
-      accountId: appCtx.accountId,
-      patch,
-      tx,
-    });
+    rejectAccountSessionClientWrite();
   },
 };
 

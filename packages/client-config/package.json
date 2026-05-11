@@ -3,12 +3,18 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./client/client-config-entity-card": "./src/client/client-config-entity-card.tsx",
-    "./client/client-config-screen": "./src/client/client-config-screen.tsx",
-    "./client/client-config-server-refresh": "./src/client/client-config-server-refresh.tsx",
-    "./client/read-client-runtime-config": "./src/client/read-client-runtime-config.ts",
-    "./server/route": "./src/server/route.ts",
-    "./shared/client-config-entities": "./src/shared/client-config-entities.ts"
+    "./client/*": [
+      "./src/client/*.ts",
+      "./src/client/*.tsx"
+    ],
+    "./server/*": [
+      "./src/server/*.ts",
+      "./src/server/*.tsx"
+    ],
+    "./shared/*": [
+      "./src/shared/*.ts",
+      "./src/shared/*.tsx"
+    ]
   },
   "scripts": {
     "dev:refresh": "bun run scripts/dev-refresh-client-config.ts",

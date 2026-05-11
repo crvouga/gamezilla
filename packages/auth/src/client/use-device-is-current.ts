@@ -1,4 +1,4 @@
-import { useMyDeviceId } from './use-my-device-id';
+import { useMyDeviceId } from './use-current-user';
 
 /** Whether `deviceId` is the current install device. */
 export function useDeviceIsCurrent(deviceId: string): boolean {

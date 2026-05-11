@@ -1,6 +1,4 @@
-import { useAccountIdModel } from '@gamezilla/auth/client/account-id-context';
 import { PatchDbLocalDataActionsContext } from '@gamezilla/auth/client/patch-db-local-data-actions-context';
-import { useSessionTokenModel } from '@gamezilla/auth/client/session-token-context';
 import { useSecureStorage } from '@gamezilla/lib/secure-storage/interface';
 import { useMemo, type ReactNode } from 'react';
 
@@ -15,13 +13,8 @@ export function PatchDbLocalDataActionsProvider({
   children: ReactNode;
 }): ReactNode {
   const secure = useSecureStorage();
-  const sessionToken = useSessionTokenModel();
-  const accountId = useAccountIdModel();
 
-  const deps: PatchDbLocalDataDeps = useMemo(
-    () => ({ secure, sessionToken, accountId }),
-    [secure, sessionToken, accountId]
-  );
+  const deps: PatchDbLocalDataDeps = useMemo(() => ({ secure }), [secure]);
 
   const actions = useMemo(
     () => ({

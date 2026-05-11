@@ -1,9 +1,6 @@
-import { useAccountIdModel } from '@gamezilla/auth/client/account-id-context';
 import { useConfigService } from '@gamezilla/auth/client/config-service-context';
-import { useDeviceService } from '@gamezilla/auth/client/device-service-context';
-import { useSessionTokenModel } from '@gamezilla/auth/client/session-token-context';
+import { useDeviceId } from '@gamezilla/auth/client/use-device-id';
 import { useCachedPromise } from '@gamezilla/lib/async/use-cached-promise';
-import { useSecureStorage } from '@gamezilla/lib/secure-storage/interface';
 import { useSqlClient } from '@gamezilla/lib/sql-client/react-context';
 import { PatchDbContextProvider } from '@gamezilla/patch-db/react';
 import { use, type ReactNode } from 'react';
@@ -15,9 +12,11 @@ import { MAIN_SQLITE_DB_NAME } from '../storage/open-main-sql-client';
 /**
  * Builds the patch-db once per app instance on top of the static SQL client
  * exposed by {@link SqlClientProvider} and publishes it as the only patch-db
- * value. Account / session token changes still propagate through the
- * patch-db's own getters (auth/session metadata stamping) but never trigger a
- * rebuild — there is no swap.
+ * value. Auth identity is read lazily from the secure-storage cache, so
+ * sign-in / sign-out / token rotation never trigger a rebuild.
+ *
+ * Calls `useDeviceId()` so the secure-storage cache is hydrated (and a fresh
+ * UUID seeded on first run) **before** {@link createPatchDb} reads it.
  */
 export function PatchDbProvider({
   children,
@@ -26,23 +25,20 @@ export function PatchDbProvider({
 }): ReactNode {
   const sql = useSqlClient();
   const apiClient = useApiClient();
-  const device = useDeviceService();
-  const secure = useSecureStorage();
   const config = useConfigService();
-  const accountId = useAccountIdModel();
-  const sessionToken = useSessionTokenModel();
+  // Ensures the device id is hydrated/seeded into the secure-storage cache
+  // before patch-db boot reads it via `getCachedDeviceId`.
+  useDeviceId();
 
-  const patchDbPromise = useCachedPromise(MAIN_SQLITE_DB_NAME, () =>
-    createPatchDb({
-      sql,
-      config,
-      deviceService: device,
-      storage: secure,
-      apiClient,
-      getAccountId: () => accountId.getAccountId(),
-      getSessionToken: () => sessionToken.getSessionToken(),
-      setSessionToken: (t) => sessionToken.setSessionToken(t),
-    })
+  const patchDbPromise = useCachedPromise(
+    // eslint-disable-next-line lingui/no-unlocalized-strings -- Internal cache key, not user-facing.
+    `patch-db:${MAIN_SQLITE_DB_NAME}`,
+    () =>
+      createPatchDb({
+        sql,
+        config,
+        apiClient,
+      })
   );
   const value = use(patchDbPromise);
 
