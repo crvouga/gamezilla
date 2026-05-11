@@ -18,7 +18,7 @@ export type PatchDbApiConfig = {
   pubSub: PubSub;
   /** Default: `/patch-db`. */
   basePath?: string;
-  /** When set, patch-db HTTP routes resolve {@link import('./interface').PatchDbContext} per request. */
+  /** When set, patch-db HTTP routes resolve a caller context (`Readonly<Record<string, unknown>>`) per request. */
   patchDbHttpAuth?: PatchDbHttpAuthOptions;
   instrumentation?:
     | boolean

@@ -21,7 +21,6 @@ describe('buildAppAuthContextFromBearer', () => {
       },
       bearerToken: 'bad',
       deviceId: DEVICE,
-      loadMemberOfSpaceIds: async () => [],
     });
     expect(ctx).toBeNull();
   });

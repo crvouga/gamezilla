@@ -2,8 +2,10 @@ export {
   appAuthFromWriteContext,
   assertCreatedByMatchesAuthor,
   authOnlyRead,
-} from '@gamezilla/patch-db/abac/app-auth-context';
+  buildAppAuthContext,
+} from '@gamezilla/auth/shared/auth-context';
 export type {
+  AppAuth,
   AppAuthContext,
   AppClientContext,
-} from '@gamezilla/patch-db/abac/app-auth-context';
+} from '@gamezilla/auth/shared/auth-context';

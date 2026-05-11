@@ -1,5 +1,4 @@
 import type {
-  PatchDbContext,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
@@ -35,7 +34,7 @@ export class PatchDbWriteThroughMirror implements SubscribablePatchDbLike {
 
   async write(
     patches: PatchInput[],
-    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
   ): Promise<WritePatchesResult> {
     // Optimistic: ensures navigate-first flows render synchronously from the store.
     this.store.applyPatchInputs(patches);
@@ -46,14 +45,14 @@ export class PatchDbWriteThroughMirror implements SubscribablePatchDbLike {
 
   read(
     queries: PatchDbQuery[],
-    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
   ): Promise<PatchDbResult[]> {
     return this.inner.read(queries, ctx);
   }
 
   update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
-    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
   ): Promise<void> {
     return this.inner.update(updates, ctx);
   }

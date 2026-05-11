@@ -2,7 +2,6 @@ import { assert } from '@gamezilla/lib/assert';
 import { PatchDbHookRegistry } from '../hook-registry';
 import type {
   PatchDb,
-  PatchDbContext,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
@@ -32,21 +31,21 @@ export class PatchDbImplClientTransport implements PatchDb {
 
   async read(
     queries: PatchDbQuery[],
-    ctx?: PatchDbContext
+    ctx?: Readonly<Record<string, unknown>>
   ): Promise<PatchDbResult[]> {
     return this.transport.read(queries, ctx);
   }
 
   async write(
     patches: PatchInput[],
-    ctx?: PatchDbContext
+    ctx?: Readonly<Record<string, unknown>>
   ): Promise<WritePatchesResult> {
     return this.transport.write(patches, ctx);
   }
 
   async update(
     _updates: { patchId: string; attributes: Record<string, unknown> }[],
-    _ctx?: PatchDbContext
+    _ctx?: Readonly<Record<string, unknown>>
   ): Promise<void> {
     void _ctx;
     assert.fail(

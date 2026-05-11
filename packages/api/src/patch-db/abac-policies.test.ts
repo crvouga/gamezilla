@@ -1,3 +1,4 @@
+import { buildAppAuthContext } from '@gamezilla/auth/shared/auth-context';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
@@ -75,14 +76,11 @@ describe('gamezilla default policies (system + auth writes)', () => {
   test('authenticated write rejects patch/created-by-id mismatch', async () => {
     const deviceId = '00000000-0000-4000-8000-000000000011';
     const userId = '00000000-0000-4000-8000-000000000022';
-    const ctx = {
+    const ctx = buildAppAuthContext({
       deviceId,
       accountId: userId,
       myId: userId,
-      memberOfSpaceIds: [] as readonly string[],
-      friendUserIds: [] as readonly string[],
-      blockedUserIds: [] as readonly string[],
-    };
+    });
     const out = await db.write(
       [
         {

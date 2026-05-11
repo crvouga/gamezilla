@@ -9,7 +9,6 @@ import type {
   Patch,
   PatchDb,
   PatchDbCompaction,
-  PatchDbContext,
   PatchDbEngineOptions,
   PatchDbQuery,
   PatchDbResult,
@@ -293,16 +292,17 @@ export class PatchDbImplPostgres implements PatchDb {
 
   async write(
     patches: PatchInput[],
-    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
   ): Promise<WritePatchesResult> {
     this.assertPatchInputs(patches);
     const withIds = this.assignPatchIdsIfMissing(patches);
+    const enrichedCtx = await this.hooks.runEnrichContext(ctx);
     let writtenPatches: Patch[] = [];
     let hookRejected: PatchRejectionReason[] = [];
     await this.sqlClient.transaction(async (tx) => {
       const { accepted, rejected } = await this.hooks.runBeforeWrite(
         withIds,
-        ctx,
+        enrichedCtx,
         tx
       );
       hookRejected = rejected;
@@ -321,7 +321,7 @@ export class PatchDbImplPostgres implements PatchDb {
         await this.insertPatchRowsBatch(tx, acc.batchRows);
       }
       await recomputeTouchedSnapshots(tx, acc.touchedEntities);
-      await this.hooks.runAfterWrite(writtenPatches, ctx, tx);
+      await this.hooks.runAfterWrite(writtenPatches, enrichedCtx, tx);
       await this.runAfterWriteCompactionPass(tx, acc.touchedEntities);
     });
     return { accepted: writtenPatches, rejected: hookRejected };
@@ -329,11 +329,12 @@ export class PatchDbImplPostgres implements PatchDb {
 
   async read(
     queries: PatchDbQuery[],
-    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
   ): Promise<PatchDbResult[]> {
+    const enrichedCtx = await this.hooks.runEnrichContext(ctx);
     const rewritten: PatchDbQuery[] = [];
     for (const q of queries) {
-      rewritten.push(await this.hooks.runBeforeRead(q, ctx));
+      rewritten.push(await this.hooks.runBeforeRead(q, enrichedCtx));
     }
     return readPatches(this.sqlClient, rewritten);
   }
@@ -359,7 +360,7 @@ export class PatchDbImplPostgres implements PatchDb {
 
   async update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
-    _ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+    _ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
   ): Promise<void> {
     void _ctx;
     if (updates.length === 0) return;
@@ -398,7 +399,7 @@ export class PatchDbImplPostgres implements PatchDb {
   async compactEntity(
     key: { entityId: string; entityType: string },
     options: { keepLatest: number },
-    _ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+    _ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
   ): Promise<{ removedPatchIds: string[]; compactionPatchId: string | null }> {
     void _ctx;
     let result: {
@@ -418,7 +419,7 @@ export class PatchDbImplPostgres implements PatchDb {
 
   async compactAll(
     options: { keepLatest?: number; entityType?: string },
-    _ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+    _ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
   ): Promise<{ entitiesCompacted: number }> {
     void _ctx;
     const keepLatest = options.keepLatest ?? 2;

@@ -1,7 +1,29 @@
 # https://github.com/crvouga/gamezilla/actions/workflows/deployment-pipeline.yml
 # https://minimumcd.org/
-# Remote Turbo cache: set TURBO_API, TURBO_TOKEN, TURBO_TEAM, TURBO_CACHE=remote:rw
-# in Doppler `local` (used by DOPPLER_CONFIG=local in check/qa scripts).
+#
+# CI/CD design guidelines (Turbo-first + atomic deploy):
+#
+# 1. Turbo-cacheable tasks (format, syncpack/catalog, knip, depcruise,
+#    circular-deps, audit, i18n, tc, lint, test, build) all run inside a
+#    single `turbo-ci` job that invokes `bun run check:ci`. Turbo's task
+#    graph + remote cache (configured through Doppler's `local` config:
+#    TURBO_API / TURBO_TOKEN / TURBO_TEAM / TURBO_CACHE=remote:rw) gives
+#    us maximum parallelism and cross-PR cache reuse with zero extra
+#    GitHub Actions machinery.
+#
+# 2. Non-Turbo tasks live in their own jobs only when they need a runner
+#    shape Turbo can't share: `static` (actionlint + gitleaks both want
+#    a fresh binary download, gitleaks needs `fetch-depth: 0`), `qa-api`,
+#    `qa-browser` (Playwright browser cache, screenshots/videos as
+#    artifacts).
+#
+# 3. The production deploy is a single atomic `deploy` job: one checkout,
+#    one `infra-setup` install of wrangler + Stripe + Postgres, and the
+#    `infra deploy` CLI runs every phase (provision → migrate →
+#    deploy-resources → stripe-sync → smoke → refresh-config) in one
+#    process so `InfraContext` flows in-memory between phases. A tiny
+#    always-run `lock-release` job is the safety net for the
+#    PlanetScale-backed global lock when `deploy` is cancelled / crashed.
 name: Deployment Pipeline
 
 permissions:
@@ -23,178 +45,58 @@ on:
   workflow_dispatch:
 
 jobs:
-  format:
+  # Single Turbo-orchestrated job for every cacheable repo gate: format,
+  # syncpack + catalog + no-patches, knip, depcruise, circular-deps,
+  # audit, i18n, plus per-package `tc` / `lint` / `test` / `build`. Turbo
+  # parallelizes across the task graph and reuses the remote cache (via
+  # Doppler-injected TURBO_* env) for cross-PR hits.
+  turbo-ci:
     runs-on: ubuntu-latest
     concurrency:
-      group: format-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      group: turbo-ci-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
       cancel-in-progress: true
-    timeout-minutes: 10
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v6
       - uses: ./.github/actions/setup
-        with:
-          doppler: 'false'
-      - name: Format
-        run: bun run check:format
-
-  tc:
-    runs-on: ubuntu-latest
-    concurrency:
-      group: tc-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
-      cancel-in-progress: true
-    timeout-minutes: 15
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - uses: ./.github/actions/setup
-      - name: Typecheck
+      - name: Turbo CI (cacheable gates + tc/lint/test/build)
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
-        run: bun run check:tc
+        run: bun run check:ci
 
-  lint:
+  # Static repo gates that don't fit Turbo's task graph: actionlint
+  # downloads its own binary, and gitleaks needs `fetch-depth: 0` for
+  # PR-range diff scans. Grouped into one job to avoid two near-empty
+  # runners.
+  static:
     runs-on: ubuntu-latest
     concurrency:
-      group: lint-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
-      cancel-in-progress: true
-    timeout-minutes: 15
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - uses: ./.github/actions/setup
-      - name: Lint
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
-        run: bun run check:lint
-
-  test:
-    runs-on: ubuntu-latest
-    concurrency:
-      group: test-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
-      cancel-in-progress: true
-    timeout-minutes: 20
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - uses: ./.github/actions/setup
-      - name: Test
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
-        run: bun run check:test
-
-  build:
-    runs-on: ubuntu-latest
-    concurrency:
-      group: build-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
-      cancel-in-progress: true
-    timeout-minutes: 20
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - uses: ./.github/actions/setup
-      - name: Build
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
-        run: bun run check:build
-
-  i18n:
-    runs-on: ubuntu-latest
-    concurrency:
-      group: i18n-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
-      cancel-in-progress: true
-    timeout-minutes: 15
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - uses: ./.github/actions/setup
-        with:
-          doppler: 'false'
-      - name: i18n
-        run: bun run i18n:check
-
-  syncpack:
-    runs-on: ubuntu-latest
-    concurrency:
-      group: syncpack-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
-      cancel-in-progress: true
-    timeout-minutes: 10
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - uses: ./.github/actions/setup
-        with:
-          doppler: 'false'
-      - name: Syncpack + catalog-only deps
-        run: bun run check:syncpack-workspace
-
-  knip:
-    runs-on: ubuntu-latest
-    concurrency:
-      group: knip-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
-      cancel-in-progress: true
-    timeout-minutes: 15
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - uses: ./.github/actions/setup
-        with:
-          doppler: 'false'
-      - name: Knip
-        run: bun run knip:ci
-
-  depcruise:
-    runs-on: ubuntu-latest
-    concurrency:
-      group: depcruise-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
-      cancel-in-progress: true
-    timeout-minutes: 15
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - uses: ./.github/actions/setup
-        with:
-          doppler: 'false'
-      - name: Circular dependencies (packages/)
-        run: bun run check:circular-deps
-      - name: Dependency cruiser
-        run: bun run depcruise:ci
-
-  actionlint:
-    runs-on: ubuntu-latest
-    concurrency:
-      group: actionlint-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
-      cancel-in-progress: true
-    timeout-minutes: 5
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - name: Install actionlint
-        run: bash <(curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.7/scripts/download-actionlint.bash)
-        shell: bash
-      - name: Actionlint
-        run: ./actionlint -color
-
-  gitleaks:
-    runs-on: ubuntu-latest
-    concurrency:
-      group: gitleaks-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      group: static-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
       cancel-in-progress: true
     timeout-minutes: 10
     permissions:
       contents: read
     steps:
-      # Need full history so PR scans can diff base..head.
+      # `fetch-depth: 0` is for gitleaks PR-range scans (base..head).
       - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      # `gitleaks/gitleaks-action@v2` pins gitleaks 8.24.3, which has a bug
-      # where top-level `[[allowlists]]` are silently dropped when combined
-      # with `[extend].useDefault = true` (fixed in 8.25+). It also targets
-      # the deprecated Node.js 20 runtime. Install the latest gitleaks
-      # release directly so our `.gitleaks.toml` allowlist actually applies.
+      - name: Install actionlint
+        run: bash <(curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.7/scripts/download-actionlint.bash)
+        shell: bash
+
+      - name: Actionlint
+        run: ./actionlint -color
+
+      # `gitleaks/gitleaks-action@v2` pins gitleaks 8.24.3, which has a
+      # bug where top-level `[[allowlists]]` are silently dropped when
+      # combined with `[extend].useDefault = true` (fixed in 8.25+). It
+      # also targets the deprecated Node.js 20 runtime. Install the
+      # latest gitleaks release directly so our `.gitleaks.toml`
+      # allowlist actually applies.
       - name: Install gitleaks
         run: |
           GITLEAKS_VERSION=$(curl -fsSL https://api.github.com/repos/gitleaks/gitleaks/releases/latest | jq -r '.tag_name' | sed 's/^v//')
@@ -220,21 +122,6 @@ jobs:
             --exit-code 1 \
             --log-opts="$LOG_OPTS"
 
-  audit:
-    runs-on: ubuntu-latest
-    concurrency:
-      group: audit-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
-      cancel-in-progress: true
-    timeout-minutes: 10
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - uses: ./.github/actions/setup
-        with:
-          doppler: 'false'
-      - name: Bun audit
-        run: bun audit --audit-level high
-
   qa-api:
     runs-on: ubuntu-latest
     concurrency:
@@ -251,10 +138,10 @@ jobs:
         run: bun run qa:api
 
   qa-browser:
-    # Intentionally not `needs: [build]`. The `build` job filters
-    # `@gamezilla/client` out of `check:build` (see root package.json),
+    # Intentionally not `needs: [turbo-ci]`. The CI `build` task filters
+    # `@gamezilla/client` out (see `check:ci:build` in root package.json),
     # so qa-browser is the only place the web client is actually built
-    # in CI before deploy. Sequencing on `build` would just delay this
+    # in CI before deploy. Sequencing on `turbo-ci` would just delay this
     # job for no cache benefit -- the playwright `webServer` overrides
     # `EXPO_PUBLIC_API_URL` to a localhost origin before spawning
     # `turbo run preview`, so its `^build` hash for `@gamezilla/client`
@@ -356,211 +243,62 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v5
 
-  # ── Deploy pipeline ──────────────────────────────────────────────────
-  # The legacy single `deploy` job was decomposed into a chain of atomic
-  # jobs (lock-acquire → provision → migrate → deploy-resources →
-  # stripe-sync → smoke → refresh-config → lock-release). Each job calls
-  # one `infra` subcommand; the global PlanetScale lock is held by
-  # `lock-acquire` for the duration and removed by `lock-release` (which
-  # runs `if: always()` so a crash in any phase still releases the lock).
-  #
-  # `InfraContext` (zoneId, nameservers, pagesSubdomain) is built up by
-  # `provision` and round-tripped to downstream jobs as JSON via
-  # `needs.provision.outputs.infra_context`.
-
-  lock-acquire:
+  # ── Atomic production deploy ─────────────────────────────────────────
+  # One job, one checkout, one `infra-setup`. `bun run infra deploy`
+  # acquires the global PlanetScale lock, runs every phase in-process
+  # (provision → migrate → deploy-resources → stripe-sync → smoke →
+  # refresh-config), and emits `lock_id` / deploy URLs / nameservers as
+  # step outputs for the report and the always-run `lock-release` safety
+  # net below.
+  deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs:
-      [
-        format,
-        tc,
-        lint,
-        test,
-        build,
-        i18n,
-        syncpack,
-        knip,
-        depcruise,
-        actionlint,
-        gitleaks,
-        audit,
-        qa-api,
-        qa-browser,
-      ]
+    needs: [turbo-ci, static, qa-api, qa-browser]
     runs-on: ubuntu-latest
     outputs:
-      lock_id: ${{ steps.acquire.outputs.lock_id }}
-    permissions:
-      contents: read
-    # GitHub-level mutex (belt-and-suspenders alongside the PlanetScale
-    # lock). Only `lock-acquire` carries it, so the chain serializes at
-    # the entrypoint without queuing every individual phase.
-    concurrency:
-      group: deploy
-      cancel-in-progress: false
-    timeout-minutes: 10
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - uses: ./.github/actions/infra-setup
-        with:
-          postgres: 'true'
-      - name: Acquire global deploy lock
-        id: acquire
-        working-directory: packages/infra
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
-        run: bun run infra lock-acquire
-
-  provision:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [lock-acquire]
-    runs-on: ubuntu-latest
-    outputs:
-      infra_context: ${{ steps.provision.outputs.infra_context }}
-      zone_id: ${{ steps.provision.outputs.zone_id }}
-      pages_subdomain: ${{ steps.provision.outputs.pages_subdomain }}
-      cloudflare_nameservers: ${{ steps.provision.outputs.cloudflare_nameservers }}
-    permissions:
-      contents: read
-    timeout-minutes: 30
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - uses: ./.github/actions/infra-setup
-        with:
-          wrangler: 'true'
-          postgres: 'true'
-      - name: Provision resources
-        id: provision
-        working-directory: packages/infra
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
-        run: bun run infra provision
-
-  migrate:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [provision]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    timeout-minutes: 15
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - uses: ./.github/actions/infra-setup
-        with:
-          postgres: 'true'
-      - name: Migrate database
-        working-directory: packages/infra
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
-        run: bun run infra migrate
-
-  deploy-resources:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [provision, migrate]
-    runs-on: ubuntu-latest
-    outputs:
+      lock_id: ${{ steps.deploy.outputs.lock_id }}
       client_url: ${{ steps.deploy.outputs.client_url }}
       api_url: ${{ steps.deploy.outputs.api_url }}
       turbo_cache_url: ${{ steps.deploy.outputs.turbo_cache_url }}
       pages_project_name: ${{ steps.deploy.outputs.pages_project_name }}
+      pages_subdomain: ${{ steps.deploy.outputs.pages_subdomain }}
+      cloudflare_nameservers: ${{ steps.deploy.outputs.cloudflare_nameservers }}
+      zone_id: ${{ steps.deploy.outputs.zone_id }}
     permissions:
       contents: read
-    timeout-minutes: 30
+    # GitHub-level mutex (belt-and-suspenders alongside the PlanetScale
+    # lock acquired inside `infra deploy`). `cancel-in-progress: false`
+    # so a queued push to main never preempts an in-flight deploy mid
+    # phase.
+    concurrency:
+      group: deploy
+      cancel-in-progress: false
+    timeout-minutes: 60
     steps:
       - name: Checkout
         uses: actions/checkout@v6
       - uses: ./.github/actions/infra-setup
         with:
           wrangler: 'true'
+          stripe: 'true'
           postgres: 'true'
-      - name: Deploy resources (turbo-cache, api-worker, client)
+      - name: Deploy (lock-acquire → provision → migrate → deploy-resources → stripe-sync → smoke → refresh-config)
         id: deploy
         working-directory: packages/infra
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
-          INFRA_CONTEXT: ${{ needs.provision.outputs.infra_context }}
-        run: bun run infra deploy-resources
+        run: bun run infra deploy
 
-  stripe-sync:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [deploy-resources]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    timeout-minutes: 15
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - uses: ./.github/actions/infra-setup
-        with:
-          stripe: 'true'
-          postgres: 'true'
-      - name: Sync Stripe catalog + webhooks
-        working-directory: packages/infra
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
-        run: bun run infra stripe-sync
-
-  smoke:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [provision, stripe-sync]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    timeout-minutes: 15
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - uses: ./.github/actions/infra-setup
-        with:
-          postgres: 'true'
-      - name: Smoke tests (DNS + HTTP)
-        working-directory: packages/infra
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
-          INFRA_CONTEXT: ${{ needs.provision.outputs.infra_context }}
-        run: bun run infra smoke
-
-  refresh-config:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [provision, smoke]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    timeout-minutes: 10
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - uses: ./.github/actions/infra-setup
-        with:
-          postgres: 'true'
-      - name: Refresh PatchDB client config
-        working-directory: packages/infra
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
-          INFRA_CONTEXT: ${{ needs.provision.outputs.infra_context }}
-        run: bun run infra refresh-config
-
-  # Always-run safety net for the global deploy lock. Even on a crashed /
-  # cancelled / timed-out upstream job, this still runs and removes the
-  # lock row by id (`releaseIfHeldById` is idempotent if another run
-  # somehow grabbed it). Replaces the inline `Unlock on failure` step
-  # from the legacy single-job deploy.
+  # Safety-net lock release. The happy-path release happens in-process
+  # inside `infra deploy` (the same trap-handlers that release on
+  # SIGINT / uncaughtException). This job runs only when `deploy`
+  # crashed, was cancelled, or timed out so hard that the in-process
+  # release couldn't finish; `releaseIfHeldById` is idempotent so it's
+  # a no-op if the lock was already cleared. The lock id is emitted by
+  # `infra deploy` immediately after acquire (before any mutating phase)
+  # so `lock_id` is set even when a later phase fails hard.
   lock-release:
-    if: always() && needs.lock-acquire.result == 'success' && needs.lock-acquire.outputs.lock_id != ''
-    needs:
-      [
-        lock-acquire,
-        provision,
-        migrate,
-        deploy-resources,
-        stripe-sync,
-        smoke,
-        refresh-config,
-      ]
+    if: always() && needs.deploy.result != 'success' && needs.deploy.result != 'skipped' && needs.deploy.outputs.lock_id != ''
+    needs: [deploy]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -575,35 +313,19 @@ jobs:
         working-directory: packages/infra
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
-          INFRA_LOCK_ID: ${{ needs.lock-acquire.outputs.lock_id }}
+          INFRA_LOCK_ID: ${{ needs.deploy.outputs.lock_id }}
         run: bun run infra lock-release
 
   report:
     if: always()
     needs:
       [
-        format,
-        tc,
-        lint,
-        test,
-        build,
-        i18n,
-        syncpack,
-        knip,
-        depcruise,
-        actionlint,
-        gitleaks,
-        audit,
+        turbo-ci,
+        static,
         qa-api,
         qa-browser,
         publish-playwright-report,
-        lock-acquire,
-        provision,
-        migrate,
-        deploy-resources,
-        stripe-sync,
-        smoke,
-        refresh-config,
+        deploy,
         lock-release,
       ]
     runs-on: ubuntu-latest

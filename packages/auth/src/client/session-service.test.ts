@@ -4,7 +4,6 @@ import type {
   Entity,
   PatchDb,
   PatchDbCompactionResult,
-  PatchDbContext,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
@@ -24,7 +23,7 @@ class MemoryPatchDb implements PatchDb {
     compactEntity: (
       _key: { entityId: string; entityType: string },
       _options: { keepLatest: number },
-      _ctx: PatchDbContext
+      _ctx: Readonly<Record<string, unknown>>
     ): Promise<PatchDbCompactionResult> =>
       Promise.resolve({
         removedPatchIds: [],
@@ -32,7 +31,7 @@ class MemoryPatchDb implements PatchDb {
       }),
     compactAll: (
       _options: { keepLatest?: number; entityType?: string },
-      _ctx: PatchDbContext
+      _ctx: Readonly<Record<string, unknown>>
     ): Promise<{ entitiesCompacted: number }> =>
       Promise.resolve({ entitiesCompacted: 0 }),
   };
@@ -42,7 +41,7 @@ class MemoryPatchDb implements PatchDb {
 
   read(
     queries: PatchDbQuery[],
-    _ctx?: PatchDbContext
+    _ctx?: Readonly<Record<string, unknown>>
   ): Promise<PatchDbResult[]> {
     void _ctx;
     return Promise.resolve(
@@ -77,7 +76,7 @@ class MemoryPatchDb implements PatchDb {
 
   write(
     patches: PatchInput[],
-    _ctx?: PatchDbContext
+    _ctx?: Readonly<Record<string, unknown>>
   ): Promise<WritePatchesResult> {
     void _ctx;
     this.writeCalls += 1;
@@ -105,7 +104,7 @@ class MemoryPatchDb implements PatchDb {
 
   update(
     _updates: { patchId: string; attributes: Record<string, unknown> }[],
-    _ctx?: PatchDbContext
+    _ctx?: Readonly<Record<string, unknown>>
   ): Promise<void> {
     void _updates;
     void _ctx;

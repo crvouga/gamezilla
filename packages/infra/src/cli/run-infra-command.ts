@@ -10,7 +10,7 @@ import { DopplerResource } from './resources/doppler';
  * Hard upper bound on a single lock-release/disconnect attempt. Sized to
  * fit inside GitHub Actions' ~7.5s SIGTERM-to-SIGKILL grace window so the
  * happy-path in-process release can win the cleanup race on cancelled /
- * timed-out steps. The `Unlock on failure` job step in
+ * timed-out steps. The always-run `lock-release` job in
  * `.github/workflows/deployment-pipeline.yml` is the safety net for
  * everything that doesn't fit (full SIGKILL, runner death, OOM).
  */
@@ -39,7 +39,7 @@ const EXIT_SIGNALS = [
  */
 export async function runInfraCommand(
   command: Command,
-  _platform: CiPlatform
+  platform: CiPlatform
 ): Promise<void> {
   // Hydrate Doppler secrets into env for every command except `setup` itself
   // (setup is what installs Doppler and seeds these secrets in the first place).
@@ -160,6 +160,12 @@ export async function runInfraCommand(
       }
       throw e;
     }
+
+    // Emit `lock_id` to GITHUB_OUTPUT immediately so the workflow's
+    // always-run `lock-release` job has a fence id available even if a
+    // later phase crashes hard enough to skip the in-process cleanup
+    // path (OOM, runner termination).
+    platform.setOutput('lock_id', handle.id);
 
     await command.execute();
   } finally {

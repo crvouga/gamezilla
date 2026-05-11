@@ -1,9 +1,7 @@
 import { createLogger } from '@gamezilla/lib/logger';
 import type { SecretStore } from '@gamezilla/lib/secret-store';
-import type {
-  PatchDb,
-  PatchDbSystemContext,
-} from '@gamezilla/patch-db/interface';
+import type { PatchDb } from '@gamezilla/patch-db/interface';
+import { patchDbSystemContext } from '@gamezilla/patch-db/interface';
 import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
 import { Hono } from 'hono';
@@ -13,10 +11,8 @@ import { resolveAccountIdByStripeCustomerId } from './resolve-account-by-stripe-
 import { StripeAttr, StripeEntityAttr } from './stripe-attrs';
 
 /** Stripe webhook handler — bypasses ABAC like other system contexts. */
-const PATCHES_DB_STRIPE_WEBHOOK_CONTEXT: PatchDbSystemContext = {
-  deviceId: null,
-  reason: 'stripe-webhook',
-};
+const PATCHES_DB_STRIPE_WEBHOOK_CONTEXT =
+  patchDbSystemContext('stripe-webhook');
 
 const log = createLogger({ name: 'stripe:webhook' });
 

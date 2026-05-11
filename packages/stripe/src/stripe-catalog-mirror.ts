@@ -1,4 +1,4 @@
-import type { PatchDb, PatchDbContext } from '@gamezilla/patch-db/interface';
+import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
 import type Stripe from 'stripe';
@@ -31,7 +31,7 @@ export function stripePriceIdFromCatalogRowData(data: unknown): string | null {
 
 export async function getStripeCatalogPriceStripeId(
   db: PatchDb,
-  ctx: PatchDbContext,
+  ctx: Readonly<Record<string, unknown>>,
   priceLookupKey: string
 ): Promise<string | null> {
   const [res] = await db.read(
@@ -56,7 +56,7 @@ export async function getStripeCatalogPriceStripeId(
  */
 export async function upsertCatalogPriceFromStripeApi(
   db: PatchDb,
-  ctx: PatchDbContext,
+  ctx: Readonly<Record<string, unknown>>,
   rowId: string,
   price: Stripe.Price
 ): Promise<void> {
@@ -83,7 +83,7 @@ export async function upsertCatalogPriceFromStripeApi(
  */
 export async function upsertCatalogProductFromStripeApi(
   db: PatchDb,
-  ctx: PatchDbContext,
+  ctx: Readonly<Record<string, unknown>>,
   rowId: string,
   product: Stripe.Product
 ): Promise<void> {

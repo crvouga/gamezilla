@@ -7,7 +7,6 @@ import {
 } from '../impl-sync/active-query-registry';
 import type {
   PatchDb,
-  PatchDbContext,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
@@ -89,7 +88,7 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
 
   async read(
     queries: PatchDbQuery[],
-    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
   ): Promise<PatchDbResult[]> {
     this.touchActivity();
     if (queries.length > 0) {
@@ -100,7 +99,7 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
 
   async write(
     patches: PatchInput[],
-    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
   ): Promise<WritePatchesResult> {
     this.touchActivity();
     this.counters.totalPatchesWritten += patches.length;

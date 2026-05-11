@@ -1,24 +1,20 @@
 /**
- * Mirrors `.github/workflows/deployment-pipeline.yml` `deploy.needs` check
- * jobs (everything before `publish-playwright-report` / `deploy`). Each
- * `bunScript` is a script in the repo root `package.json`.
+ * Local mirror of the gate jobs in
+ * `.github/workflows/deployment-pipeline.yml`. Each `bunScript` is a
+ * script in the repo root `package.json` and each `jobId` matches the
+ * corresponding GitHub Actions job key so failure output (LLM fix
+ * prompts, `write-pipeline-report.ts` tables) lines up with CI naming.
  *
- * Keep job ids identical to workflow job keys so local output matches CI
- * naming in LLM prompts and `write-pipeline-report.ts` tables.
+ * The CI pipeline collapses every Turbo-cacheable task (format,
+ * syncpack/catalog, knip, depcruise, circular-deps, audit, i18n, tc,
+ * lint, test, build) into one `turbo-ci` job; the local mirror runs the
+ * same `bun run check:ci` command so a failure in any underlying Turbo
+ * task is captured. `static` covers actionlint + gitleaks, and the two
+ * `qa-*` entries match the per-job Playwright / Hono integration runs.
  */
 export const DEPLOYMENT_PIPELINE_CHECK_STEPS = [
-  { jobId: 'format', bunScript: 'check:format' },
-  { jobId: 'tc', bunScript: 'check:tc' },
-  { jobId: 'lint', bunScript: 'check:lint' },
-  { jobId: 'test', bunScript: 'check:test' },
-  { jobId: 'build', bunScript: 'check:build' },
-  { jobId: 'i18n', bunScript: 'i18n:check' },
-  { jobId: 'syncpack', bunScript: 'check:syncpack-workspace' },
-  { jobId: 'knip', bunScript: 'knip:ci' },
-  { jobId: 'depcruise', bunScript: 'depcruise:ci' },
-  { jobId: 'actionlint', bunScript: 'check:actionlint' },
-  { jobId: 'gitleaks', bunScript: 'check:gitleaks' },
-  { jobId: 'audit', bunScript: 'check:audit' },
+  { jobId: 'turbo-ci', bunScript: 'check:ci' },
+  { jobId: 'static', bunScript: 'check:static' },
   { jobId: 'qa-api', bunScript: 'qa:api' },
   { jobId: 'qa-browser', bunScript: 'qa:browser' },
 ] as const;

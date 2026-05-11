@@ -5,28 +5,12 @@ import type { NeedState } from './pipeline-needs';
 
 /** Stable display order for known jobs; unknown ids sort after, alphabetically. */
 const KNOWN_JOB_ORDER: readonly string[] = [
-  'format',
-  'tc',
-  'lint',
-  'test',
-  'build',
-  'i18n',
-  'syncpack',
-  'knip',
-  'depcruise',
-  'actionlint',
-  'gitleaks',
-  'audit',
+  'turbo-ci',
+  'static',
   'qa-api',
   'qa-browser',
   'publish-playwright-report',
-  'lock-acquire',
-  'provision',
-  'migrate',
-  'deploy-resources',
-  'stripe-sync',
-  'smoke',
-  'refresh-config',
+  'deploy',
   'lock-release',
 ];
 

@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import type { ApiHonoEnv } from '@gamezilla/api-types/api-hono-types';
+import { appAuth } from '@gamezilla/auth/shared/auth-context';
 import type { SessionAuth } from './session-middleware';
 import type { AuthContext } from './types';
 import { UnauthorizedError } from './unauthorized-error';
@@ -15,8 +16,9 @@ export function createAuthApiRoutes() {
     const db = c.get('patchDb');
     const sessionAuth = c.get('sessionAuth');
     try {
-      const auth = await sessionAuth.requireAuthContext(db, c.req.raw);
-      return c.json({ accountId: auth.accountId }, 200);
+      const ctx = await sessionAuth.requireAuthContext(db, c.req.raw);
+      const auth = appAuth(ctx);
+      return c.json({ accountId: auth?.accountId ?? null }, 200);
     } catch (err) {
       if (err instanceof UnauthorizedError) {
         return c.json({ error: err.message }, 401);

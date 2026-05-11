@@ -6,7 +6,6 @@ import type {
   Patch,
   PatchDb,
   PatchDbCompaction,
-  PatchDbContext,
   PatchDbEngineOptions,
   PatchDbQuery,
   PatchDbResult,
@@ -327,14 +326,15 @@ export class PatchDbImplSqlite implements PatchDb {
 
   private async executeWritePatchesTransaction(
     withIds: PatchInput[],
-    ctx: PatchDbContext
+    ctx: Readonly<Record<string, unknown>>
   ): Promise<WritePatchesResult> {
+    const enrichedCtx = await this.hooks.runEnrichContext(ctx);
     const writtenPatches: Patch[] = [];
     let hookRejected: PatchRejectionReason[] = [];
     await this.sqlClient.transaction(async (tx) => {
       const { accepted, rejected } = await this.hooks.runBeforeWrite(
         withIds,
-        ctx,
+        enrichedCtx,
         tx
       );
       hookRejected = rejected;
@@ -376,7 +376,7 @@ export class PatchDbImplSqlite implements PatchDb {
         touchedEntities.add(`${patch.entityId}\0${patch.entityType}`);
       }
       await recomputeTouchedSnapshots(tx, touchedEntities);
-      await this.hooks.runAfterWrite(writtenPatches, ctx, tx);
+      await this.hooks.runAfterWrite(writtenPatches, enrichedCtx, tx);
       await this.runAfterWriteCompactionPass(tx, touchedEntities);
     });
     return { accepted: writtenPatches, rejected: hookRejected };
@@ -384,7 +384,7 @@ export class PatchDbImplSqlite implements PatchDb {
 
   async write(
     patches: PatchInput[],
-    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
   ): Promise<WritePatchesResult> {
     await this.ensureCoreTables();
     this.assertPatchInputs(patches);
@@ -406,13 +406,14 @@ export class PatchDbImplSqlite implements PatchDb {
 
   async read(
     queries: PatchDbQuery[],
-    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
   ): Promise<PatchDbResult[]> {
     await this.ensureCoreTables();
+    const enrichedCtx = await this.hooks.runEnrichContext(ctx);
     try {
       const rewritten: PatchDbQuery[] = [];
       for (const q of queries) {
-        rewritten.push(await this.hooks.runBeforeRead(q, ctx));
+        rewritten.push(await this.hooks.runBeforeRead(q, enrichedCtx));
       }
       return readPatches(this.sqlClient, rewritten);
     } catch (error) {
@@ -421,7 +422,7 @@ export class PatchDbImplSqlite implements PatchDb {
         await this.ensureCoreTables(true);
         const rewrittenRetry: PatchDbQuery[] = [];
         for (const q of queries) {
-          rewrittenRetry.push(await this.hooks.runBeforeRead(q, ctx));
+          rewrittenRetry.push(await this.hooks.runBeforeRead(q, enrichedCtx));
         }
         return readPatches(this.sqlClient, rewrittenRetry);
       }
@@ -431,7 +432,7 @@ export class PatchDbImplSqlite implements PatchDb {
 
   async update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
-    _ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+    _ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
   ): Promise<void> {
     void _ctx;
     await this.ensureCoreTables();
@@ -465,7 +466,7 @@ export class PatchDbImplSqlite implements PatchDb {
   async compactEntity(
     key: { entityId: string; entityType: string },
     options: { keepLatest: number },
-    _ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+    _ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
   ): Promise<{ removedPatchIds: string[]; compactionPatchId: string | null }> {
     void _ctx;
     let result: {
@@ -485,7 +486,7 @@ export class PatchDbImplSqlite implements PatchDb {
 
   async compactAll(
     options: { keepLatest?: number; entityType?: string },
-    _ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+    _ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
   ): Promise<{ entitiesCompacted: number }> {
     void _ctx;
     const keepLatest = options.keepLatest ?? 2;

@@ -3,13 +3,13 @@ import { createLogger } from '@gamezilla/lib/logger';
 import type { PatchDbApiConfig } from '@gamezilla/patch-db/api';
 import { createPatchDbApiHandler } from '@gamezilla/patch-db/api';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
-import type { PatchDbContext } from '@gamezilla/patch-db/interface';
 import { makeStripeClient } from '@gamezilla/stripe/make-stripe-client';
 import { createStripeApp } from '@gamezilla/stripe/stripe-app';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { mountHostedAuthHandler } from '@gamezilla/auth/server';
 import { createAuthApiRoutes } from '@gamezilla/auth/server/auth-routes';
+import { appAuth } from '@gamezilla/auth/shared/auth-context';
 import type { AuthContext } from '@gamezilla/auth/server/types';
 import { UnauthorizedError } from '@gamezilla/auth/server/unauthorized-error';
 import { createClientConfigApp } from '@gamezilla/client-config/server/route';
@@ -39,7 +39,7 @@ function isAssertionCrash(
 
 function toPatchDbApiConfig(
   config: ApiHandlerConfig,
-  resolvePatchDbContext: (req: Request) => Promise<PatchDbContext>
+  resolvePatchDbContext: (req: Request) => Promise<Readonly<Record<string, unknown>>>
 ): PatchDbApiConfig {
   const { pubSub, basePath, instrumentation } = config;
   const patchDbConfig: PatchDbApiConfig = {
@@ -148,10 +148,17 @@ export async function createApiApp(config: ApiHandlerConfig) {
         },
         secretStore,
         stripe,
-        requireAuth: (d, req) => {
+        requireAuth: async (d, req) => {
           const s = apiRequestAsyncLocalStorage.getStore();
           assert.defined(s, 'stripe auth: request store missing');
-          return s.sessionAuth.requireAuthContext(d, req);
+          const ctx = await s.sessionAuth.requireAuthContext(d, req);
+          const auth = appAuth(ctx);
+          if (auth === null || auth.accountId === null) {
+            throw new UnauthorizedError(
+              'Stripe routes require a signed-in account'
+            );
+          }
+          return { accountId: auth.accountId, deviceId: auth.deviceId };
         },
         webhookSecretDopplerKey: ApiSecretName.stripeWebhookSecret,
       })

@@ -1,6 +1,5 @@
 import type {
   PatchDb,
-  PatchDbContext,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
@@ -14,7 +13,7 @@ type PendingSlice = {
 };
 
 type PendingBucket = {
-  readonly ctx: PatchDbContext;
+  readonly ctx: Readonly<Record<string, unknown>>;
   queries: PatchDbQuery[];
   slices: PendingSlice[];
 };
@@ -35,7 +34,7 @@ class PatchDbReadBatcher implements PatchDb {
   readonly hooks;
   readonly compaction;
 
-  private readonly buckets = new Map<PatchDbContext, PendingBucket>();
+  private readonly buckets = new Map<Readonly<Record<string, unknown>>, PendingBucket>();
   private flushScheduled = false;
 
   constructor(private readonly inner: PatchDb) {
@@ -43,7 +42,7 @@ class PatchDbReadBatcher implements PatchDb {
     this.compaction = inner.compaction;
   }
 
-  read(queries: PatchDbQuery[], ctx: PatchDbContext): Promise<PatchDbResult[]> {
+  read(queries: PatchDbQuery[], ctx: Readonly<Record<string, unknown>>): Promise<PatchDbResult[]> {
     if (queries.length === 0) {
       return Promise.resolve([]);
     }
@@ -65,14 +64,14 @@ class PatchDbReadBatcher implements PatchDb {
 
   write(
     patches: PatchInput[],
-    ctx?: PatchDbContext
+    ctx?: Readonly<Record<string, unknown>>
   ): Promise<WritePatchesResult> {
     return this.inner.write(patches, ctx);
   }
 
   update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
-    ctx?: PatchDbContext
+    ctx?: Readonly<Record<string, unknown>>
   ): Promise<void> {
     return this.inner.update(updates, ctx);
   }

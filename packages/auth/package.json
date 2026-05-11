@@ -5,6 +5,7 @@
   "exports": {
     "./shared": "./src/shared/index.ts",
     "./shared/index": "./src/shared/index.ts",
+    "./shared/auth-context": "./src/shared/auth-context.ts",
     "./shared/auth-entities": "./src/shared/auth-entities.ts",
     "./shared/device-id": "./src/shared/device-id.ts",
     "./client/account-db": "./src/client/account-db.ts",

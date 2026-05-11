@@ -1,4 +1,9 @@
+import {
+  authOnlyRead,
+  type AppAuthContext,
+} from '@gamezilla/auth/shared/auth-context';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
+import { AbacEntityAttr } from '@gamezilla/patch-db/abac/abac-entity-attr';
 import type { PatchDbQueryWhereClause } from '@gamezilla/patch-db/interface';
 import {
   isPatchDbSystemContext,
@@ -6,12 +11,6 @@ import {
   READ_WHERE_NEVER_TRUE,
 } from '@gamezilla/patch-db/interface';
 import type { VisibilityPolicy } from '@gamezilla/patch-db/policy/visibility-policy-registry';
-
-import { AbacEntityAttr } from '@gamezilla/patch-db/abac/abac-entity-attr';
-import {
-  authOnlyRead,
-  type AppAuthContext,
-} from '@gamezilla/patch-db/abac/app-auth-context';
 
 type AppVisibilityPolicy = VisibilityPolicy<AppAuthContext>;
 

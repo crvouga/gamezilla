@@ -4,6 +4,7 @@ import {
   DEVICE_ENTITY_TYPE,
   DeviceAttr,
 } from '@gamezilla/auth/shared';
+import { buildAppAuthContext } from '@gamezilla/auth/shared/auth-context';
 import { ClientConfigAttr } from '@gamezilla/client-config/shared/client-config-entities';
 import {
   PROFILE_ENTITY_TYPE,
@@ -13,15 +14,11 @@ import { assert } from '@gamezilla/lib/assert';
 import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
-import type {
-  PatchDb,
-  PatchDbClientContext,
-} from '@gamezilla/patch-db/interface';
+import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import type { AppAuthContext } from './abac-policies';
 import { AbacEntityAttr } from './abac-patch-attrs';
 import { installDefaultPatchDbPolicies } from './patch-db';
 
@@ -78,26 +75,20 @@ describe('default ABAC policies (sqlite)', () => {
       PATCHES_DB_SYSTEM_CONTEXT
     );
 
-    const ctxA: AppAuthContext = {
+    const ctxA = buildAppAuthContext({
       deviceId: '00000000-0000-4000-8000-00000000a001',
       accountId: accountA,
       myId: accountA,
-      memberOfSpaceIds: [],
-      friendUserIds: [],
-      blockedUserIds: [],
-    };
+    });
     const [forA] = await db.read([{ entityType: 'profile.private' }], ctxA);
     assert.defined(forA, 'forA');
     expect(forA.entities.map((e) => e.entityId)).toEqual(['priv-a']);
 
-    const ctxB: AppAuthContext = {
+    const ctxB = buildAppAuthContext({
       deviceId: '00000000-0000-4000-8000-00000000b002',
       accountId: accountB,
       myId: accountB,
-      memberOfSpaceIds: [],
-      friendUserIds: [],
-      blockedUserIds: [],
-    };
+    });
     const [forB] = await db.read([{ entityType: 'profile.private' }], ctxB);
     assert.defined(forB, 'forB');
     expect(forB.entities.map((e) => e.entityId)).toEqual(['priv-b']);
@@ -121,14 +112,11 @@ describe('default ABAC policies (sqlite)', () => {
       PATCHES_DB_SYSTEM_CONTEXT
     );
 
-    const ctxB: AppAuthContext = {
+    const ctxB = buildAppAuthContext({
       deviceId: '00000000-0000-4000-8000-00000000c003',
       accountId: accountB,
       myId: accountB,
-      memberOfSpaceIds: [],
-      friendUserIds: [],
-      blockedUserIds: [],
-    };
+    });
     const [forB] = await db.read(
       [{ entityType: 'profile.private', entityId: 'priv-x' }],
       ctxB
@@ -138,14 +126,11 @@ describe('default ABAC policies (sqlite)', () => {
   });
 
   test('query without entityType is denied for auth context', async () => {
-    const ctx: AppAuthContext = {
+    const ctx = buildAppAuthContext({
       deviceId: '00000000-0000-4000-8000-00000000e004',
       accountId: '00000000-0000-4000-8000-0000000000ee',
       myId: '00000000-0000-4000-8000-0000000000ee',
-      memberOfSpaceIds: [],
-      friendUserIds: [],
-      blockedUserIds: [],
-    };
+    });
     const [r] = await db.read([{ on: 'patches', limit: 5 }], ctx);
     assert.defined(r, 'r');
     expect(r.entities).toHaveLength(0);
@@ -153,22 +138,20 @@ describe('default ABAC policies (sqlite)', () => {
   });
 
   test('non-system write to stripe.webhook-event is forbidden', async () => {
-    const ctx: AppAuthContext = {
+    const accountId = '00000000-0000-4000-8000-0000000000ff';
+    const ctx = buildAppAuthContext({
       deviceId: '00000000-0000-4000-8000-00000000f005',
-      accountId: '00000000-0000-4000-8000-0000000000ff',
-      myId: '00000000-0000-4000-8000-0000000000ff',
-      memberOfSpaceIds: [],
-      friendUserIds: [],
-      blockedUserIds: [],
-    };
+      accountId,
+      myId: accountId,
+    });
     const out = await db.write(
       [
         {
           entityId: 'evt_bad',
           entityType: 'stripe.webhook-event',
           attributes: {
-            ...AbacEntityAttr.owner(ctx.accountId),
-            ...PatchMetaAttr.createdById(ctx.myId),
+            ...AbacEntityAttr.owner(accountId),
+            ...PatchMetaAttr.createdById(accountId),
           },
         },
       ],
@@ -194,7 +177,7 @@ describe('default ABAC policies (sqlite)', () => {
       PATCHES_DB_SYSTEM_CONTEXT
     );
 
-    const clientCtx: PatchDbClientContext = {};
+    const clientCtx: Readonly<Record<string, unknown>> = {};
     const [r] = await db.read([{ entityType: 'client-config' }], clientCtx);
     assert.defined(r, 'r');
     expect(r.entities).toHaveLength(1);
@@ -217,14 +200,14 @@ describe('default ABAC policies (sqlite)', () => {
       PATCHES_DB_SYSTEM_CONTEXT
     );
 
-    const clientCtx: PatchDbClientContext = {};
+    const clientCtx: Readonly<Record<string, unknown>> = {};
     const [r] = await db.read([{ entityType: 'profile.private' }], clientCtx);
     assert.defined(r, 'r');
     expect(r.entities).toHaveLength(0);
   });
 
   test('client context can write patches (registry dispatches to policy)', async () => {
-    const clientCtx: PatchDbClientContext = {};
+    const clientCtx: Readonly<Record<string, unknown>> = {};
     const deviceId = '00000000-0000-4000-8000-00000000a0b1';
     const written = await db.write(
       [
@@ -245,7 +228,7 @@ describe('default ABAC policies (sqlite)', () => {
   });
 
   test('client write to system-only entity (clientConfig) is rejected by policy', async () => {
-    const clientCtx: PatchDbClientContext = {};
+    const clientCtx: Readonly<Record<string, unknown>> = {};
     const out = await db.write(
       [
         {
@@ -288,14 +271,11 @@ describe('default ABAC policies (sqlite)', () => {
       PATCHES_DB_SYSTEM_CONTEXT
     );
 
-    const ctx: AppAuthContext = {
+    const ctx = buildAppAuthContext({
       deviceId,
       accountId,
       myId: accountId,
-      memberOfSpaceIds: [],
-      friendUserIds: [],
-      blockedUserIds: [],
-    };
+    });
     const epoch = new Date(0).toISOString();
     const out = await db.write(
       [
@@ -318,14 +298,11 @@ describe('default ABAC policies (sqlite)', () => {
   test('accountSession: client cannot create row without server snapshot', async () => {
     const deviceId = '00000000-0000-4000-8000-00000000d0e2';
     const accountId = '00000000-0000-4000-8000-0000000000e2';
-    const ctx: AppAuthContext = {
+    const ctx = buildAppAuthContext({
       deviceId,
       accountId,
       myId: accountId,
-      memberOfSpaceIds: [],
-      friendUserIds: [],
-      blockedUserIds: [],
-    };
+    });
     const out = await db.write(
       [
         {
@@ -368,14 +345,11 @@ describe('default ABAC policies (sqlite)', () => {
       PATCHES_DB_SYSTEM_CONTEXT
     );
 
-    const ctx: AppAuthContext = {
+    const ctx = buildAppAuthContext({
       deviceId,
       accountId,
       myId: accountId,
-      memberOfSpaceIds: [],
-      friendUserIds: [],
-      blockedUserIds: [],
-    };
+    });
     const out = await db.write(
       [
         {
@@ -396,14 +370,11 @@ describe('default ABAC policies (sqlite)', () => {
 
   test('todo-list-item: authenticated write succeeds when createdBy matches', async () => {
     const accountId = '00000000-0000-4000-8000-0000000000a1';
-    const ctx: AppAuthContext = {
+    const ctx = buildAppAuthContext({
       deviceId: '00000000-0000-4000-8000-00000000a101',
       accountId,
       myId: accountId,
-      memberOfSpaceIds: [],
-      friendUserIds: [],
-      blockedUserIds: [],
-    };
+    });
     const out = await db.write(
       [
         {
@@ -427,14 +398,11 @@ describe('default ABAC policies (sqlite)', () => {
 
   test('todo-list: authenticated write succeeds and is readable', async () => {
     const accountId = '00000000-0000-4000-8000-0000000000b1';
-    const ctx: AppAuthContext = {
+    const ctx = buildAppAuthContext({
       deviceId: '00000000-0000-4000-8000-00000000b101',
       accountId,
       myId: accountId,
-      memberOfSpaceIds: [],
-      friendUserIds: [],
-      blockedUserIds: [],
-    };
+    });
     const out = await db.write(
       [
         {
@@ -470,7 +438,7 @@ describe('default ABAC policies (sqlite)', () => {
       PATCHES_DB_SYSTEM_CONTEXT
     );
 
-    const clientCtx: PatchDbClientContext = {};
+    const clientCtx: Readonly<Record<string, unknown>> = {};
     const [r] = await db.read([{ entityType: 'todo-list-item' }], clientCtx);
     assert.defined(r, 'r');
     expect(r.entities).toHaveLength(0);
@@ -478,14 +446,11 @@ describe('default ABAC policies (sqlite)', () => {
 
   test('todo-list-item: authenticated write rejects mismatched created-by-id', async () => {
     const accountId = '00000000-0000-4000-8000-0000000000d1';
-    const ctx: AppAuthContext = {
+    const ctx = buildAppAuthContext({
       deviceId: '00000000-0000-4000-8000-00000000d1de',
       accountId,
       myId: accountId,
-      memberOfSpaceIds: [],
-      friendUserIds: [],
-      blockedUserIds: [],
-    };
+    });
     const out = await db.write(
       [
         {
@@ -509,14 +474,11 @@ describe('default ABAC policies (sqlite)', () => {
   test('authenticated write still enforces patch/created-by-id match', async () => {
     const deviceId = '00000000-0000-4000-8000-00000000c0d2';
     const accountId = '00000000-0000-4000-8000-0000000000c2';
-    const ctx: AppAuthContext = {
+    const ctx = buildAppAuthContext({
       deviceId,
       accountId,
       myId: accountId,
-      memberOfSpaceIds: [],
-      friendUserIds: [],
-      blockedUserIds: [],
-    };
+    });
     const out = await db.write(
       [
         {

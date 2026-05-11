@@ -8,6 +8,16 @@
 
 GitHub Actions runs checks with `DOPPLER_CONFIG=local`. For Turbo Remote Cache hits in CI, ensure the Doppler **`local`** config defines `TURBO_API`, `TURBO_TOKEN`, `TURBO_TEAM`, and `TURBO_CACHE` (e.g. `remote:rw`). See `packages/infra/src/cli/secrets/turbo-token.ts` for hints.
 
+## CI/CD job layout
+
+The deployment pipeline (`.github/workflows/deployment-pipeline.yml`) follows three rules:
+
+1. **Turbo-cacheable tasks run inside one `turbo-ci` job.** Format, syncpack + catalog + no-patches, knip, depcruise, circular-deps, audit, i18n, plus per-package `tc` / `lint` / `test` / `build` all live under root `ci:*` scripts and per-package tasks in `turbo.json`. CI invokes them with `bun run check:ci` so Turbo's task graph + remote cache (via the Doppler-injected `TURBO_*` env) handles ordering and reuse with zero extra YAML.
+2. **Non-Turbo tasks get their own job only when they need a different runner shape.** `static` runs actionlint + gitleaks (gitleaks needs `fetch-depth: 0`); `qa-api` and `qa-browser` need Playwright browsers and artifact uploads.
+3. **The production deploy is one atomic `deploy` job.** A single checkout + `infra-setup` runs `bun run infra deploy`, which holds the PlanetScale-backed global lock in-process across every phase (provision → migrate → deploy-resources → stripe-sync → smoke → refresh-config). A tiny always-run `lock-release` job is the safety net for crashed / cancelled deploys.
+
+When adding a new check, default to a turbo task under `ci:*` (or extend an existing one). Only carve out a new GitHub Actions job if the check truly needs a unique runner shape.
+
 ## Local database
 
 Local dev runs a **real PostgreSQL cluster** managed by `@gamezilla/pg` — no Docker, no PGlite. The wrapper spawns `postgres` directly (in our process group, so it can never be orphaned by the dev shell), waits on `pg_isready`, and translates `SIGINT`/`SIGTERM` from `turbo dev` into a `pg_ctl stop -m fast`. Required CLI tooling (`postgres`, `pg_ctl`, `initdb`, `pg_isready`) is enforced by `bun run infra setup` / `status` via the `PostgresDep` class.

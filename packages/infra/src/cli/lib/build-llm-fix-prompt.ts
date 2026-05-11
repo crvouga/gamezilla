@@ -176,7 +176,7 @@ function renderLocalPromptBody(
   );
   lines.push('');
   lines.push(
-    'For each failing job below, identify the root cause from the captured output and fix it — do not just suppress the rule. After fixing, re-run `bun run check:deployment-pipeline` or the matching `bun run <script>` from the repo root `package.json` (e.g. `bun run check:format`, `bun run knip:ci`, `bun run qa:browser`).'
+    'For each failing job below, identify the root cause from the captured output and fix it — do not just suppress the rule. After fixing, re-run `bun run check:deployment-pipeline` or the matching `bun run <script>` from the repo root `package.json` (e.g. `bun run check:ci`, `bun run check:static`, `bun run ci:knip`, `bun run qa:browser`).'
   );
   lines.push('');
   for (const f of failures) {
@@ -212,7 +212,7 @@ function renderPromptBody(
   }
   lines.push('');
   lines.push(
-    `The Deployment Pipeline failed on ${String(sections.length)} job(s). For each job, identify the root cause from the logs below and fix it -- do not just suppress the rule. After fixing, run the matching \`bun run ...\` command locally to verify (e.g. \`bun run format:check\`, \`bun run knip:ci\`, \`bun run depcruise:ci\`, \`bun run check:syncpack-workspace\`, \`bun run qa:api\`, \`bun run qa:browser\`).`
+    `The Deployment Pipeline failed on ${String(sections.length)} job(s). For each job, identify the root cause from the logs below and fix it -- do not just suppress the rule. After fixing, run the matching \`bun run ...\` command locally to verify (e.g. \`bun run check:ci\`, \`bun run check:static\`, \`bun run ci:knip\`, \`bun run ci:depcruise\`, \`bun run ci:syncpack\`, \`bun run qa:api\`, \`bun run qa:browser\`).`
   );
   lines.push('');
   for (const s of sections) {

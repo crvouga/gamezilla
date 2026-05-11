@@ -1,8 +1,8 @@
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { isPatchDbSystemContext } from './context';
 import type {
   Patch,
   PatchDbBeforeWriteHookResult,
-  PatchDbContext,
   PatchDbHooks,
   PatchDbQuery,
   PatchInput,
@@ -12,20 +12,24 @@ import type {
 
 type BeforeReadFn = (
   query: PatchDbQuery,
-  ctx: PatchDbContext
+  ctx: Readonly<Record<string, unknown>>
 ) => PatchDbQuery | Promise<PatchDbQuery>;
 
 type BeforeWriteFn = (
   patches: PatchInput[],
-  ctx: PatchDbContext,
+  ctx: Readonly<Record<string, unknown>>,
   tx: SqlClient
 ) => PatchDbBeforeWriteHookResult | Promise<PatchDbBeforeWriteHookResult>;
 
 type AfterWriteFn = (
   written: Patch[],
-  ctx: PatchDbContext,
+  ctx: Readonly<Record<string, unknown>>,
   tx: SqlClient
 ) => void | Promise<void>;
+
+type EnrichContextFn = (
+  ctx: Readonly<Record<string, unknown>>
+) => Readonly<Record<string, unknown>> | Promise<Readonly<Record<string, unknown>>>;
 
 export function normalizeBeforeWriteHookResult(
   result: PatchDbBeforeWriteHookResult
@@ -41,9 +45,18 @@ export function normalizeBeforeWriteHookResult(
  * invoke these inside the read path and inside the write transaction.
  */
 export class PatchDbHookRegistry implements PatchDbHooks {
+  private enrichContextFns: EnrichContextFn[] = [];
   private beforeReadFns: BeforeReadFn[] = [];
   private beforeWriteFns: BeforeWriteFn[] = [];
   private afterWriteFns: AfterWriteFn[] = [];
+
+  enrichContext(fn: EnrichContextFn): Unsubscribe {
+    this.enrichContextFns.push(fn);
+    return () => {
+      const i = this.enrichContextFns.indexOf(fn);
+      if (i >= 0) this.enrichContextFns.splice(i, 1);
+    };
+  }
 
   beforeRead(fn: BeforeReadFn): Unsubscribe {
     this.beforeReadFns.push(fn);
@@ -69,9 +82,24 @@ export class PatchDbHookRegistry implements PatchDbHooks {
     };
   }
 
+  /**
+   * Runs every registered enricher in registration order, threading each
+   * one's output into the next. System contexts bypass enrichment entirely so
+   * privileged callers (migrations, scripts, webhooks) never trigger the
+   * (potentially DB-touching) enrichment pipeline.
+   */
+  async runEnrichContext(ctx: Readonly<Record<string, unknown>>): Promise<Readonly<Record<string, unknown>>> {
+    if (isPatchDbSystemContext(ctx)) return ctx;
+    let c = ctx;
+    for (const fn of this.enrichContextFns) {
+      c = await fn(c);
+    }
+    return c;
+  }
+
   async runBeforeRead(
     query: PatchDbQuery,
-    ctx: PatchDbContext
+    ctx: Readonly<Record<string, unknown>>
   ): Promise<PatchDbQuery> {
     let q = query;
     for (const fn of this.beforeReadFns) {
@@ -82,7 +110,7 @@ export class PatchDbHookRegistry implements PatchDbHooks {
 
   async runBeforeWrite(
     patches: PatchInput[],
-    ctx: PatchDbContext,
+    ctx: Readonly<Record<string, unknown>>,
     tx: SqlClient
   ): Promise<{ accepted: PatchInput[]; rejected: PatchRejectionReason[] }> {
     let acc = patches;
@@ -97,7 +125,7 @@ export class PatchDbHookRegistry implements PatchDbHooks {
 
   async runAfterWrite(
     written: Patch[],
-    ctx: PatchDbContext,
+    ctx: Readonly<Record<string, unknown>>,
     tx: SqlClient
   ): Promise<void> {
     for (const fn of this.afterWriteFns) {

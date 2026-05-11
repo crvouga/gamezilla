@@ -1,15 +1,14 @@
 import { assertDeviceId } from '@gamezilla/auth/shared/device-id';
 import { ANON_ID_HEADER } from '@gamezilla/api-types/auth-ports';
-import { assert } from '@gamezilla/lib/assert';
-import type { PatchDb, PatchDbContext } from '@gamezilla/patch-db/interface';
-import type {
-  AppAuthContext,
-  AppClientContext,
-} from '@gamezilla/patch-db/abac/app-auth-context';
 import {
-  buildAppAuthContextFromBearer,
-  type LoadMemberOfSpaceIds,
-} from './bearer-resolve';
+  appAuth,
+  type AppAuthContext,
+  type AppClientContext,
+  buildAppAuthContext,
+} from '@gamezilla/auth/shared/auth-context';
+import { assert } from '@gamezilla/lib/assert';
+import type { PatchDb } from '@gamezilla/patch-db/interface';
+import { buildAppAuthContextFromBearer } from './bearer-resolve';
 import type { AuthSessionPort, HttpBearerAuthPorts } from './ports';
 import type { AuthContext } from './types';
 import { UnauthorizedError } from './unauthorized-error';
@@ -24,49 +23,41 @@ export { ANON_ID_HEADER };
 
 const UNAUTH_CLIENT_CONTEXT: AppClientContext = {};
 
-/** Re-export so callers can import all session auth types from one place. */
-export type { LoadMemberOfSpaceIds } from './bearer-resolve';
+export type SessionAuthDeps = HttpBearerAuthPorts;
 
-export type SessionAuthDeps = HttpBearerAuthPorts & {
-  loadMemberOfSpaceIds: LoadMemberOfSpaceIds;
-};
-
-async function buildAnonAppAuthContext(
-  db: PatchDb,
-  anonId: string,
-  loadMemberOfSpaceIds: LoadMemberOfSpaceIds
-): Promise<AppAuthContext> {
+function buildAnonAppAuthContext(anonId: string): AppAuthContext {
   assertDeviceId(anonId);
-  const memberOfSpaceIds = await loadMemberOfSpaceIds(db, anonId);
-  return {
+  return buildAppAuthContext({
     deviceId: anonId,
     accountId: null,
     myId: anonId,
-    memberOfSpaceIds,
-    friendUserIds: [],
-    blockedUserIds: [],
-  } satisfies AppAuthContext;
+  });
 }
 
 export function createSessionAuth(deps: SessionAuthDeps): AuthSessionPort {
-  const { loadMemberOfSpaceIds, ...bearerAuth } = deps;
+  const bearerAuth = deps;
 
   /**
    * Token-only request resolution. Session JWT in `Authorization: Bearer …` plus
    * {@link ANON_ID_HEADER} (install UUID) for `deviceId`; or anonymous
    * {@link AppAuthContext} when only `x-anon-id` is set; or unauthenticated
    * marker when neither applies.
+   *
+   * Domain-scoped claims (e.g. `spaces/member-of-space-ids`) are **not**
+   * stamped here — they're attached lazily by their own packages via
+   * patch-db `enrichContext` hooks, so this resolver stays free of
+   * feature-package dependencies.
    */
   async function resolvePatchDbContext(
     db: PatchDb,
     request: Request
-  ): Promise<PatchDbContext> {
+  ): Promise<Readonly<Record<string, unknown>>> {
     const header = request.headers.get('Authorization');
     const anonRaw = request.headers.get(ANON_ID_HEADER)?.trim() ?? '';
 
     if (header === null || !header.startsWith('Bearer ')) {
       if (anonRaw.length > 0) {
-        return await buildAnonAppAuthContext(db, anonRaw, loadMemberOfSpaceIds);
+        return buildAnonAppAuthContext(anonRaw);
       }
       return UNAUTH_CLIENT_CONTEXT;
     }
@@ -83,7 +74,6 @@ export function createSessionAuth(deps: SessionAuthDeps): AuthSessionPort {
       bearerAuth,
       bearerToken: token,
       deviceId: anonRaw,
-      loadMemberOfSpaceIds,
     });
     return auth ?? UNAUTH_CLIENT_CONTEXT;
   }
@@ -105,14 +95,11 @@ export function createSessionAuth(deps: SessionAuthDeps): AuthSessionPort {
       throw new UnauthorizedError('Missing x-anon-id for device binding');
     }
     const ctx = await resolvePatchDbContext(db, request);
-    if (typeof ctx.deviceId !== 'string') {
+    const auth = appAuth(ctx);
+    if (auth === null || auth.accountId === null) {
       throw new UnauthorizedError('Invalid or expired session');
     }
-    const auth = ctx as AppAuthContext;
-    if (auth.accountId === null) {
-      throw new UnauthorizedError('Invalid or expired session');
-    }
-    return auth as AuthContext;
+    return ctx as AuthContext;
   }
 
   return { resolvePatchDbContext, requireAuthContext };

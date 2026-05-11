@@ -20,6 +20,7 @@ import {
   SpaceAttr,
   SpaceMembershipAttr,
 } from '@gamezilla/spaces/shared/space-entities';
+import { memberOfSpaceIdsFromContext } from '@gamezilla/spaces/server/space-auth-claim';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
 import type { PatchDbQueryWhereClause } from '@gamezilla/patch-db/interface';
 import {
@@ -242,12 +243,13 @@ const spacePolicy: AppVisibilityPolicy = {
 };
 
 const spaceMembershipPolicy: AppVisibilityPolicy = {
-  read: authOnlyRead((ctx): PatchDbQueryWhereClause => {
-    if (ctx.memberOfSpaceIds.length === 0) {
+  read: authOnlyRead((auth, ctx): PatchDbQueryWhereClause => {
+    const spaceIds = memberOfSpaceIdsFromContext(ctx);
+    if (spaceIds.length === 0) {
       return {
         type: '=',
         attribute: SpaceMembershipAttr.guestId.key,
-        value: ctx.myId,
+        value: auth.myId,
       };
     }
     return {
@@ -256,12 +258,12 @@ const spaceMembershipPolicy: AppVisibilityPolicy = {
         {
           type: '=',
           attribute: SpaceMembershipAttr.guestId.key,
-          value: ctx.myId,
+          value: auth.myId,
         },
         {
           type: 'in',
           attribute: SpaceMembershipAttr.spaceId.key,
-          values: [...ctx.memberOfSpaceIds],
+          values: [...spaceIds],
         },
       ],
     };
@@ -279,9 +281,10 @@ const spaceMembershipPolicy: AppVisibilityPolicy = {
 };
 
 const chatMessagePolicy: AppVisibilityPolicy = {
-  read: authOnlyRead((ctx): PatchDbQueryWhereClause => {
-    if (ctx.accountId === null) return READ_WHERE_NEVER_TRUE;
-    if (ctx.memberOfSpaceIds.length === 0) {
+  read: authOnlyRead((auth, ctx): PatchDbQueryWhereClause => {
+    if (auth.accountId === null) return READ_WHERE_NEVER_TRUE;
+    const spaceIds = memberOfSpaceIdsFromContext(ctx);
+    if (spaceIds.length === 0) {
       return {
         type: '=',
         attribute: ChatMessageAttr.spaceId.key,
@@ -291,7 +294,7 @@ const chatMessagePolicy: AppVisibilityPolicy = {
     return {
       type: 'in',
       attribute: ChatMessageAttr.spaceId.key,
-      values: [...ctx.memberOfSpaceIds],
+      values: [...spaceIds],
     };
   }),
   write: async (ctx, patch, _tx) => {
@@ -303,7 +306,8 @@ const chatMessagePolicy: AppVisibilityPolicy = {
     }
     assertCreatedByMatchesAuthor(appCtx, patch);
     const sid = patch.attributes[ChatMessageAttr.spaceId.key];
-    if (typeof sid !== 'string' || !appCtx.memberOfSpaceIds.includes(sid)) {
+    const spaceIds = memberOfSpaceIdsFromContext(ctx);
+    if (typeof sid !== 'string' || !spaceIds.includes(sid)) {
       throw new ForbiddenError('chat.message space membership required');
     }
   },

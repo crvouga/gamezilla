@@ -1,9 +1,10 @@
 import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '@gamezilla/auth/shared';
+import {
+  type AppAuthContext,
+  buildAppAuthContext,
+} from '@gamezilla/auth/shared/auth-context';
 import { createLogger } from '@gamezilla/lib/logger';
-import type {
-  PatchDb,
-  PatchDbAuthContext,
-} from '@gamezilla/patch-db/interface';
+import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
 import { zValidator } from '@hono/zod-validator';
 import type { Context } from 'hono';
@@ -40,24 +41,19 @@ const portalBodySchema = z.object({
 type CheckoutValidated = z.infer<typeof checkoutBodySchema>;
 type PortalValidated = z.infer<typeof portalBodySchema>;
 
-function stripePatchDbContext(auth: StripeAuthContext): PatchDbAuthContext {
-  // `accountId` / `memberOfSpaceIds` / etc. are app-level claims consumed by
-  // visibility policies. They're plain extra keys on the auth context — the
-  // patch-db library itself only needs `deviceId`.
-  return {
+function stripePatchDbContext(auth: StripeAuthContext): AppAuthContext {
+  return buildAppAuthContext({
     deviceId: auth.deviceId,
     accountId: auth.accountId,
-    memberOfSpaceIds: [] as readonly string[],
-    friendUserIds: [] as readonly string[],
-    blockedUserIds: [] as readonly string[],
-  };
+    myId: auth.accountId,
+  });
 }
 
 async function ensureStripeCustomerId(args: {
   readonly db: PatchDb;
   readonly stripe: Stripe;
   readonly auth: StripeAuthContext;
-  readonly patchCtx: PatchDbAuthContext;
+  readonly patchCtx: AppAuthContext;
 }): Promise<string> {
   const { db, stripe, auth, patchCtx } = args;
   const { accountId, deviceId } = auth;

@@ -1,7 +1,6 @@
 import type { Assert } from '@gamezilla/lib/assert';
 import { assert } from '@gamezilla/lib/assert';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
-import type { PatchDbContext } from './context';
 import {
   assertAttribute,
   assertAttributes,
@@ -375,17 +374,10 @@ export type PatchDbResult = {
 export type Unsubscribe = () => void;
 
 export {
-  isPatchDbAuthContext,
-  isPatchDbClientContext,
   isPatchDbSystemContext,
   OPEN_PATCHES_DB_CONTEXT,
   PATCHES_DB_SYSTEM_CONTEXT,
-} from './context';
-export type {
-  PatchDbAuthContext,
-  PatchDbClientContext,
-  PatchDbContext,
-  PatchDbSystemContext,
+  patchDbSystemContext,
 } from './context';
 
 /** AND-combines an optional existing where-clause with an additional clause. */
@@ -438,12 +430,12 @@ export type PatchDbCompaction = {
   compactEntity(
     key: { entityId: string; entityType: string },
     options: { keepLatest: number },
-    ctx: PatchDbContext
+    ctx: Readonly<Record<string, unknown>>
   ): Promise<PatchDbCompactionResult>;
 
   compactAll(
     options: { keepLatest?: number; entityType?: string },
-    ctx: PatchDbContext
+    ctx: Readonly<Record<string, unknown>>
   ): Promise<{ entitiesCompacted: number }>;
 };
 
@@ -453,17 +445,31 @@ export type PatchDbBeforeWriteHookResult =
   | { accepted: PatchInput[]; rejected: PatchRejectionReason[] };
 
 export type PatchDbHooks = {
+  /**
+   * Async pipeline that mutates / extends the caller's context once per
+   * `read` / `write` batch, before any visibility check runs. Use to lazily
+   * resolve identity claims (e.g. group memberships, account roles) at the
+   * last moment so simple reads pay nothing extra. System contexts bypass
+   * enrichment entirely.
+   *
+   * Enrichers run in registration order; each receives the previous one's
+   * output. Throwing aborts the read / write.
+   */
+  enrichContext(
+    fn: (ctx: Readonly<Record<string, unknown>>) => Readonly<Record<string, unknown>> | Promise<Readonly<Record<string, unknown>>>
+  ): Unsubscribe;
+
   beforeRead(
     fn: (
       query: PatchDbQuery,
-      ctx: PatchDbContext
+      ctx: Readonly<Record<string, unknown>>
     ) => PatchDbQuery | Promise<PatchDbQuery>
   ): Unsubscribe;
 
   beforeWrite(
     fn: (
       patches: PatchInput[],
-      ctx: PatchDbContext,
+      ctx: Readonly<Record<string, unknown>>,
       tx: SqlClient
     ) => PatchDbBeforeWriteHookResult | Promise<PatchDbBeforeWriteHookResult>
   ): Unsubscribe;
@@ -471,7 +477,7 @@ export type PatchDbHooks = {
   afterWrite(
     fn: (
       written: Patch[],
-      ctx: PatchDbContext,
+      ctx: Readonly<Record<string, unknown>>,
       tx: SqlClient
     ) => void | Promise<void>
   ): Unsubscribe;
@@ -479,14 +485,14 @@ export type PatchDbHooks = {
 
 /** Query side of {@link PatchDb}; contract varies by implementation (local read vs sync merge-then-read). */
 export type PatchDbRead = {
-  read(queries: PatchDbQuery[], ctx?: PatchDbContext): Promise<PatchDbResult[]>;
+  read(queries: PatchDbQuery[], ctx?: Readonly<Record<string, unknown>>): Promise<PatchDbResult[]>;
 };
 
 /** Write side of {@link PatchDb}; contract varies by implementation (local persist vs sync + invalidation). */
 export type PatchDbWrite = {
   write(
     patches: PatchInput[],
-    ctx?: PatchDbContext
+    ctx?: Readonly<Record<string, unknown>>
   ): Promise<WritePatchesResult>;
 };
 
@@ -494,7 +500,7 @@ export type PatchDbWrite = {
 export type PatchDbUpdate = {
   update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
-    ctx?: PatchDbContext
+    ctx?: Readonly<Record<string, unknown>>
   ): Promise<void>;
 };
 

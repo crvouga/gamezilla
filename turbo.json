@@ -2,6 +2,7 @@
   "$schema": "https://v2-9-12.turborepo.dev/schema.json",
   "ui": "tui",
   "concurrency": "10",
+  "globalDependencies": ["bun.lock", "tsconfig.json", "package.json"],
   "globalPassThroughEnv": [
     "GITHUB_*",
     "POST_DEPLOY_*",
@@ -32,9 +33,6 @@
     },
     "kill": {
       "cache": false
-    },
-    "check": {
-      "dependsOn": ["tc", "lint", "test"]
     },
     "tc": {
       "dependsOn": ["^tc"],
@@ -76,6 +74,52 @@
       "cache": false
     },
     "qa": {
+      "cache": false
+    },
+    "//#ci:format": {
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:syncpack": {
+      "inputs": [
+        "package.json",
+        "packages/*/package.json",
+        ".syncpackrc.cjs",
+        "scripts/check-catalog-deps.ts",
+        "scripts/check-no-patches.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:knip": {
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md", "!**/*.test.ts"],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:depcruise": {
+      "inputs": [
+        "packages/**/*.ts",
+        "packages/**/*.tsx",
+        ".dependency-cruiser.cjs"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:circular-deps": {
+      "inputs": [
+        "packages/**/*.ts",
+        "packages/**/*.tsx",
+        "packages/*/package.json",
+        "scripts/check-circular-deps.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:audit": {
+      "cache": false
+    },
+    "//#ci:i18n": {
       "cache": false
     }
   }

@@ -8,6 +8,7 @@ import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-post
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { VisibilityPolicyRegistry } from '@gamezilla/patch-db/policy/visibility-policy-registry';
 import { createPatchDbReadBatcher } from '@gamezilla/patch-db/scheduling/microtask-batcher';
+import { createMemberOfSpaceIdsEnricher } from '@gamezilla/spaces/server/enrich-member-of-space-ids';
 import {
   DEFAULT_PATCH_DB_VISIBILITY_POLICIES,
   type AppAuthContext,
@@ -19,16 +20,20 @@ const uninstallByDb = new WeakMap<PatchDb, () => void>();
 
 /**
  * Registers gamezilla's default ABAC visibility policies on {@link PatchDb.hooks}.
- * Idempotent per db instance.
+ * Idempotent per db instance. Also wires the lazy `member-of-space-ids`
+ * enricher so visibility policies see fresh memberships without forcing the
+ * session middleware to fetch them up-front on every request.
  */
 export function installDefaultPatchDbPolicies(db: PatchDb): () => void {
   const existing = uninstallByDb.get(db);
   if (existing !== undefined) return existing;
   const reg = new VisibilityPolicyRegistry<AppAuthContext>();
   reg.registerAll(DEFAULT_PATCH_DB_VISIBILITY_POLICIES);
-  const off = reg.install(db);
+  const offEnrich = db.hooks.enrichContext(createMemberOfSpaceIdsEnricher(db));
+  const offPolicies = reg.install(db);
   const all = () => {
-    off();
+    offEnrich();
+    offPolicies();
     uninstallByDb.delete(db);
   };
   uninstallByDb.set(db, all);

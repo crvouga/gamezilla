@@ -94,7 +94,7 @@ const STALE_KEYS_TO_DELETE: ReadonlyArray<string> = [
  * Secrets shared between the deployed Turbo cache Worker and the
  * CI/dev clients that authenticate against it. The Worker secret is
  * written by `TurboCacheResource` from the active (prod) config, so the
- * `local` Doppler config — which `bun run check:tc` reads — must hold
+ * `local` Doppler config — which `bun run check:ci` reads — must hold
  * the *same* values or every cache request 401s. Mirrored prod → local
  * after defaults are populated so drift is structurally impossible.
  */
@@ -208,7 +208,7 @@ export class DopplerResource extends ResourceBase {
   /**
    * Invariant: the Turbo cache token (and friends) must be identical in
    * the active config and `local`. The Worker is gated by `TURBO_TOKEN`
-   * pulled from the active config; `bun run check:tc` reads `local`. If
+   * pulled from the active config; `bun run check:ci` reads `local`. If
    * they diverge every cache request 401s, silently destroying CI cache
    * hits. Mirror unconditionally so this is structurally impossible.
    */

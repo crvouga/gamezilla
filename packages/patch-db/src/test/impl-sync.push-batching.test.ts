@@ -2,7 +2,6 @@ import { assert } from '@gamezilla/lib/assert';
 import { describe, expect, test } from 'bun:test';
 import type {
   PatchDb,
-  PatchDbContext,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
@@ -29,14 +28,14 @@ class WireContractRecordingRemote implements PatchDb {
 
   read(
     queries: PatchDbQuery[],
-    ctx?: PatchDbContext
+    ctx?: Readonly<Record<string, unknown>>
   ): Promise<PatchDbResult[]> {
     return this.inner.read(queries, ctx);
   }
 
   async write(
     patches: PatchInput[],
-    ctx?: PatchDbContext
+    ctx?: Readonly<Record<string, unknown>>
   ): Promise<WritePatchesResult> {
     assert.ok(
       patches.length > 0,
@@ -54,7 +53,7 @@ class WireContractRecordingRemote implements PatchDb {
 
   update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
-    ctx?: PatchDbContext
+    ctx?: Readonly<Record<string, unknown>>
   ): Promise<void> {
     return this.inner.update(updates, ctx);
   }

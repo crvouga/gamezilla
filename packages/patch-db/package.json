@@ -49,7 +49,6 @@
     "./policy/compaction-policy": "./src/policy/compaction-policy.ts",
     "./policy/visibility-policy-registry": "./src/policy/visibility-policy-registry.ts",
     "./policy/system-device": "./src/policy/system-device.ts",
-    "./abac/app-auth-context": "./src/abac/app-auth-context.ts",
     "./abac/abac-entity-attr": "./src/abac/abac-entity-attr.ts",
     "./hook-registry": "./src/hook-registry.ts",
     "./scheduling/microtask-batcher": "./src/scheduling/microtask-batcher.ts",

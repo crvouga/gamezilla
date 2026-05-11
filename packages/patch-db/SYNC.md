@@ -22,6 +22,6 @@
 ## Identity vocabulary (patch-db context)
 
 - **device** — per-install replication identity (`patch/createdById` when authoring as anon, `device/*` attrs). For unauthenticated patch-db requests the host carries the device id in the `x-anon-id` header.
-- **client** — unauthenticated HTTP caller (no `Authorization`, no `x-anon-id`); `PatchDbClientContext`. Carries no identity claims.
+- **client** — unauthenticated HTTP caller (no `Authorization`, no `x-anon-id`); a caller-context bag with no identity claims.
 - **account** — registered account id after login; `account/*` entity types.
 - **accountSession** — authenticated session rows (`accountSession/*`). Distinct from **`patch/sessionId`**, which is write-batch correlation only.

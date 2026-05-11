@@ -3,12 +3,9 @@ import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { ForbiddenError } from '../forbidden-error';
 import type {
   PatchDb,
-  PatchDbAuthContext,
   PatchDbBeforeWriteHookResult,
-  PatchDbContext,
   PatchDbQuery,
   PatchDbQueryWhereClause,
-  PatchDbClientContext,
   PatchInput,
   PatchRejectionReason,
 } from '../interface';
@@ -21,41 +18,35 @@ import {
 } from '../interface';
 
 /**
- * Read context passed to a {@link VisibilityPolicy.read}. Excludes the
- * {@link PatchDbSystemContext} branch — system reads bypass the registry
- * before reaching the policy.
- */
-export type VisibilityPolicyReadContext<
-  TCtx extends PatchDbAuthContext = PatchDbAuthContext,
-> = TCtx | PatchDbClientContext;
-
-/**
  * Per-entity-type ABAC policy.
  *
- * `TCtx` lets apps narrow the authenticated branch of `read` to a richer
- * context (e.g. a base {@link PatchDbAuthContext} intersected with
- * `userId`, `memberOfSpaceIds`, etc). The library never inspects the extra
- * claims; `install` passes whatever context arrives from the hook through to
- * the policy.
+ * `TCtx` lets apps narrow context for `read` to whatever shape they enrich it
+ * with (a claim bag intersected with whatever domain claims policies need).
+ * The library never inspects claim keys; `install` passes whatever context
+ * arrives from the hook through to the policy.
  *
- * `read` receives either an authenticated context or a client-only context and
- * must return the where-clause to AND with the caller's query. To deny a
- * particular context (e.g. private entities for unauthenticated clients) return
- * {@link READ_WHERE_NEVER_TRUE}.
+ * `read` may be async to allow last-moment claim fetches inside a policy
+ * (the registry awaits the result before merging the where-clause). To deny
+ * a particular context (e.g. private entities for unauthenticated clients)
+ * return {@link READ_WHERE_NEVER_TRUE}.
  */
 export type VisibilityPolicy<
-  TCtx extends PatchDbAuthContext = PatchDbAuthContext,
+  TCtx extends Readonly<Record<string, unknown>> = Readonly<
+    Record<string, unknown>
+  >,
 > = {
-  read: (ctx: VisibilityPolicyReadContext<TCtx>) => PatchDbQueryWhereClause;
+  read: (ctx: TCtx) => PatchDbQueryWhereClause | Promise<PatchDbQueryWhereClause>;
   write: (
-    ctx: PatchDbContext,
+    ctx: Readonly<Record<string, unknown>>,
     patch: PatchInput,
     tx: SqlClient
   ) => void | Promise<void>;
 };
 
 export class VisibilityPolicyRegistry<
-  TCtx extends PatchDbAuthContext = PatchDbAuthContext,
+  TCtx extends Readonly<Record<string, unknown>> = Readonly<
+    Record<string, unknown>
+  >,
 > {
   private readonly policies = new Map<string, VisibilityPolicy<TCtx>>();
 
@@ -79,13 +70,13 @@ export class VisibilityPolicyRegistry<
    * Wires ABAC read filtering + write checks onto {@link PatchDb.hooks}.
    * Returns an unsubscribe that removes both hook registrations.
    *
-   * System contexts bypass the registry entirely. Auth and client contexts
-   * are passed verbatim to `policy.read`; per-policy code decides what (if
+   * System contexts bypass the registry entirely. Non-system contexts are
+   * passed verbatim to `policy.read`; per-policy code decides what (if
    * anything) each may see by returning `READ_WHERE_ALWAYS_TRUE`,
    * `READ_WHERE_NEVER_TRUE`, or any other where-clause.
    *
    * Writes dispatch to each entity type's `policy.write` for every non-system
-   * context (including client-only). Authorization lives in those hooks only.
+   * context. Authorization lives in those hooks only.
    */
   install(db: PatchDb): () => void {
     const offRead = db.hooks.beforeRead((query, ctx) =>
@@ -101,10 +92,10 @@ export class VisibilityPolicyRegistry<
     };
   }
 
-  private applyReadPolicy(
+  private async applyReadPolicy(
     query: PatchDbQuery,
-    ctx: PatchDbContext
-  ): PatchDbQuery {
+    ctx: Readonly<Record<string, unknown>>
+  ): Promise<PatchDbQuery> {
     if (isPatchDbSystemContext(ctx)) return query;
 
     if (query.entityType === undefined || query.entityType === '') {
@@ -115,8 +106,8 @@ export class VisibilityPolicyRegistry<
       return denyAllReadsQuery(query);
     }
 
-    const readCtx = ctx as VisibilityPolicyReadContext<TCtx>;
-    const filter = policy.read(readCtx);
+    const readCtx = ctx as TCtx;
+    const filter = await policy.read(readCtx);
     // Short-circuit the sentinels: `READ_WHERE_*` are encoded as
     // `exists/not_exists patch/created-by-id` (a JSON-path key the snapshot
     // recompute strips out via PATCH_META_KEYS). They evaluate correctly,
@@ -138,7 +129,7 @@ export class VisibilityPolicyRegistry<
 
   private async applyWritePolicy(
     patches: PatchInput[],
-    ctx: PatchDbContext,
+    ctx: Readonly<Record<string, unknown>>,
     tx: SqlClient
   ): Promise<PatchDbBeforeWriteHookResult> {
     if (isPatchDbSystemContext(ctx)) {
@@ -184,3 +175,10 @@ export class VisibilityPolicyRegistry<
     return { accepted, rejected };
   }
 }
+
+/** @deprecated Use {@link VisibilityPolicy} `read` parameter type directly. */
+export type VisibilityPolicyReadContext<
+  TCtx extends Readonly<Record<string, unknown>> = Readonly<
+    Record<string, unknown>
+  >,
+> = TCtx;

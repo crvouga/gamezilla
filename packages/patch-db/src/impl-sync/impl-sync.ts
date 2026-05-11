@@ -6,7 +6,6 @@ import type { PubSub, Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
 import type {
   Patch,
   PatchDb,
-  PatchDbContext,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
@@ -290,7 +289,7 @@ export class SyncPatchDb implements PatchDb {
 
   async write(
     patches: PatchInput[],
-    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
   ): Promise<WritePatchesResult> {
     const withUnsynced = patches.map((p) => ({
       ...p,
@@ -313,14 +312,14 @@ export class SyncPatchDb implements PatchDb {
 
   read(
     queries: PatchDbQuery[],
-    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
   ): Promise<PatchDbResult[]> {
     return this.local.read(queries, ctx);
   }
 
   async update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
-    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
+    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
   ): Promise<void> {
     return this.local.update(updates, ctx);
   }

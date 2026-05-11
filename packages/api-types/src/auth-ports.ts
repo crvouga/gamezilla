@@ -1,5 +1,5 @@
 import { assertUuid } from '@gamezilla/lib/uuid';
-import type { PatchDb, PatchDbContext } from '@gamezilla/patch-db/interface';
+import type { PatchDb } from '@gamezilla/patch-db/interface';
 
 /** Header carrying the install-scoped device id on HTTP / WebSocket requests. */
 export const ANON_ID_HEADER = 'x-anon-id';
@@ -37,7 +37,10 @@ export type HttpBearerAuthPorts = {
  * declares its concrete `AuthSessionPort<AuthContext>` at the type boundary.
  */
 export interface AuthSessionPort<TAuthContext = unknown> {
-  resolvePatchDbContext(db: PatchDb, request: Request): Promise<PatchDbContext>;
+  resolvePatchDbContext(
+    db: PatchDb,
+    request: Request
+  ): Promise<Readonly<Record<string, unknown>>>;
   requireAuthContext(db: PatchDb, request: Request): Promise<TAuthContext>;
 }
 
