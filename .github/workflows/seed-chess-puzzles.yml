@@ -5,6 +5,13 @@
 # patch IDs + `INSERT … ON CONFLICT DO NOTHING` skip unchanged rows, and the
 # script resumes from the saved cursor when the source ETag is unchanged.
 #
+# The seed uses a fast-path that writes `patches` + `snapshots` in one
+# transaction (no per-batch CTE re-read, no snapshot UPDATE). Default knobs
+# (`batch_size=1000`, `pace_ms=250`, `checkpoint_every=25`,
+# `progress_every=10`) keep WAL pressure low enough to fit comfortably in
+# the PlanetScale free-tier 10 GB cap, at the cost of taking longer than a
+# full-throttle seed.
+#
 # All production credentials come from Doppler — the only repository secret
 # this workflow needs is `DOPPLER_TOKEN_SHARED`. `doppler run -- …` injects
 # `DB_URL` (and any other prod secrets) into the script's process env.
@@ -31,6 +38,31 @@ on:
         required: false
         default: false
         type: boolean
+      batch_size:
+        description: 'Rows per fast-path INSERT transaction (default 1000). Smaller = less WAL per commit.'
+        required: false
+        default: '1000'
+        type: string
+      pace_ms:
+        description: 'Sleep (ms) after each batch flush so autovacuum / WAL writer keep up (default 250).'
+        required: false
+        default: '250'
+        type: string
+      checkpoint_every:
+        description: 'Issue CHECKPOINT + lightweight VACUUM ANALYZE every N batches (default 25, set 0 to disable).'
+        required: false
+        default: '25'
+        type: string
+      progress_every:
+        description: 'Persist the resume cursor every N batches instead of every batch (default 10).'
+        required: false
+        default: '10'
+        type: string
+      rebuild_indexes:
+        description: 'After the seed completes, REINDEX `pdb_idx_chess_puzzle__*` concurrently to reclaim index bloat.'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   seed:
@@ -41,10 +73,11 @@ jobs:
     concurrency:
       group: seed-chess-puzzles-prod
       cancel-in-progress: false
-    # Full Lichess puzzle CSV is several million rows; allow plenty of
-    # headroom. Doppler `prod` `DB_URL` connection latency dominates over the
-    # ~150 MB download.
-    timeout-minutes: 360
+    # Throttled seed (small batches + per-batch sleep + periodic CHECKPOINT)
+    # is significantly slower than the legacy 5k-batch path. 600 minutes is a
+    # generous ceiling for a full ~2.65M-row pass; resume-from-cursor will
+    # pick up where a previous run left off if we still hit the cap.
+    timeout-minutes: 600
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -71,6 +104,11 @@ jobs:
           SEED_LIMIT: ${{ inputs.limit }}
           SEED_DRY_RUN: ${{ inputs.dry_run }}
           SEED_NO_RESUME: ${{ inputs.no_resume }}
+          SEED_BATCH_SIZE: ${{ inputs.batch_size }}
+          SEED_PACE_MS: ${{ inputs.pace_ms }}
+          SEED_CHECKPOINT_EVERY: ${{ inputs.checkpoint_every }}
+          SEED_PROGRESS_EVERY: ${{ inputs.progress_every }}
+          SEED_REBUILD_INDEXES: ${{ inputs.rebuild_indexes }}
         run: |
           set -euo pipefail
           args=()
@@ -82,6 +120,21 @@ jobs:
           fi
           if [ "${SEED_NO_RESUME}" = "true" ]; then
             args+=(--no-resume)
+          fi
+          if [ -n "${SEED_BATCH_SIZE}" ]; then
+            args+=(--batch-size "${SEED_BATCH_SIZE}")
+          fi
+          if [ -n "${SEED_PACE_MS}" ]; then
+            args+=(--pace-ms "${SEED_PACE_MS}")
+          fi
+          if [ -n "${SEED_CHECKPOINT_EVERY}" ]; then
+            args+=(--checkpoint-every "${SEED_CHECKPOINT_EVERY}")
+          fi
+          if [ -n "${SEED_PROGRESS_EVERY}" ]; then
+            args+=(--progress-every "${SEED_PROGRESS_EVERY}")
+          fi
+          if [ "${SEED_REBUILD_INDEXES}" = "true" ]; then
+            args+=(--rebuild-indexes)
           fi
           # `--no-pretty` for clean GH Actions log lines (no ANSI carriage
           # returns). `doppler run` injects `DB_URL` from the `prod` config so
