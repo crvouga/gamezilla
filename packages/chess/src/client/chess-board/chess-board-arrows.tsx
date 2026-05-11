@@ -12,7 +12,7 @@ import type {
   BoardOrientation,
   BoardTheme,
   Square,
-} from '../chess-board-types';
+} from './chess-board-types';
 import { squareToXY } from './chess-board-geometry';
 
 function squareCenter(

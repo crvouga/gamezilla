@@ -1,4 +1,3 @@
-/* eslint-disable lingui/no-unlocalized-strings -- file contains agent debug instrumentation */
 import { useLogger } from '@gamezilla/lib/logger/react';
 import { useSecureStorage } from '@gamezilla/lib/secure-storage/interface';
 import { writeSecureStorageItem } from '@gamezilla/lib/secure-storage/use-secure-storage-item';
@@ -17,9 +16,9 @@ import {
 import { collectDeviceSnapshot } from './collect-device-snapshot';
 import { useConfigService } from './config-service-context';
 import { refreshAuth } from './refresh-auth-fetch';
+import { useCurrentAccountId } from './use-current-account-id';
 import { useDeviceId } from './use-device-id';
 import { useSessionToken } from './use-session-token';
-import { useCurrentAccountId } from './use-current-account-id';
 
 type Storage = ReturnType<typeof useSecureStorage>;
 type Logger = ReturnType<typeof useLogger>;
@@ -36,6 +35,34 @@ type RefreshDeps = {
   inFlightRef: FlagRef;
 };
 
+function isSnapshotSignedIn(snapshot: SessionSnapshot): boolean {
+  return (
+    (snapshot.error === null || snapshot.error === undefined) &&
+    snapshot.data !== null &&
+    snapshot.data !== undefined
+  );
+}
+
+function normalizeToken(raw: unknown): string | null {
+  return typeof raw === 'string' && raw.length > 0 ? raw : null;
+}
+
+function normalizeExpiresAt(raw: unknown): string | null {
+  if (raw instanceof Date) return raw.toISOString();
+  if (typeof raw === 'string' && raw.length > 0) return raw;
+  return null;
+}
+
+function getSessionRecord(
+  snapshot: SessionSnapshot
+): { token?: unknown; expiresAt?: unknown } | null {
+  if (!isSnapshotSignedIn(snapshot)) return null;
+  const data = snapshot.data as {
+    session?: { token?: unknown; expiresAt?: unknown };
+  };
+  return data.session ?? null;
+}
+
 /**
  * Extracts the bearer token + expiresAt from the live Better Auth session
  * snapshot returned by `authClient.useSession()`. We deliberately avoid
@@ -46,68 +73,12 @@ function extractSessionFromSnapshot(snapshot: SessionSnapshot): {
   token: string | null;
   expiresAt: string | null;
 } {
-  if (snapshot.error !== null && snapshot.error !== undefined) {
-    return { token: null, expiresAt: null };
-  }
-  if (snapshot.data === null || snapshot.data === undefined) {
-    return { token: null, expiresAt: null };
-  }
-  const record = snapshot.data as {
-    session?: { token?: string; expiresAt?: unknown };
+  const session = getSessionRecord(snapshot);
+  return {
+    token: normalizeToken(session?.token),
+    expiresAt: normalizeExpiresAt(session?.expiresAt),
   };
-  const tok = record.session?.token;
-  const token = typeof tok === 'string' && tok.length > 0 ? tok : null;
-  const exp = record.session?.expiresAt;
-  let expiresAt: string | null = null;
-  if (exp instanceof Date) expiresAt = exp.toISOString();
-  else if (typeof exp === 'string' && exp.length > 0) expiresAt = exp;
-  return { token, expiresAt };
 }
-
-// #region agent log
-function __dbg(message: string, data: Record<string, unknown>): void {
-  fetch(
-    'http://127.0.0.1:7510/ingest/c52c9028-9c01-42a4-9186-01f9b18984a5',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Debug-Session-Id': '0ed6e8',
-      },
-      body: JSON.stringify({
-        sessionId: '0ed6e8',
-        location: 'auth-bridge.tsx',
-        message,
-        data,
-        timestamp: Date.now(),
-      }),
-    }
-  ).catch(() => {});
-}
-// #endregion
-
-function isSnapshotSignedIn(snapshot: SessionSnapshot): boolean {
-  return (
-    (snapshot.error === null || snapshot.error === undefined) &&
-    snapshot.data !== null &&
-    snapshot.data !== undefined
-  );
-}
-
-// #region agent log
-let __reconcileEffectCount = 0;
-const __depsIdMap = new WeakMap<object, number>();
-let __depsIdSeq = 0;
-function __depsIdOf(d: object): number {
-  let id = __depsIdMap.get(d);
-  if (id === undefined) {
-    __depsIdSeq += 1;
-    id = __depsIdSeq;
-    __depsIdMap.set(d, id);
-  }
-  return id;
-}
-// #endregion
 
 function useReconcileBetterAuthSession(args: {
   snapshot: SessionSnapshot;
@@ -119,19 +90,6 @@ function useReconcileBetterAuthSession(args: {
   const isPending = snapshot.isPending;
   const isSignedIn = isSnapshotSignedIn(snapshot);
   useEffect(() => {
-    // #region agent log
-    __reconcileEffectCount += 1;
-    __dbg('useReconcileBetterAuthSession:effect', {
-      hypothesisId: 'H2,H3,post-fix',
-      runId: 'post-fix',
-      effectCount: __reconcileEffectCount,
-      isPending,
-      isSignedIn,
-      tokenPresent: token !== null,
-      expiresAtPresent: expiresAt !== null,
-      depsId: __depsIdOf(deps),
-    });
-    // #endregion
     if (isPending) return;
     void (async () => {
       if (!isSignedIn || token === null) {
@@ -163,6 +121,7 @@ function useRefreshOnAppForeground(args: {
         force: true,
       });
     };
+    // eslint-disable-next-line lingui/no-unlocalized-strings -- React Native AppState event name.
     const sub = AppState.addEventListener('change', onChange);
     return () => sub.remove();
   }, [enabled, tokenRef, expiresAtRef, deps]);
@@ -208,26 +167,12 @@ export function AuthBridge(): ReactNode {
     [apiUrl, deviceId, storage, log]
   );
 
-  // #region agent log
-  const renderCountRef = useRef(0);
-  renderCountRef.current += 1;
-  __dbg('AuthBridge:render', {
-    hypothesisId: 'H2,H3,H5,post-fix',
-    runId: 'post-fix',
-    renderCount: renderCountRef.current,
-    isPending: snapshot.isPending,
-    isRefetching: (snapshot as { isRefetching?: boolean }).isRefetching,
-    snapshotDataPresent: snapshot.data !== null && snapshot.data !== undefined,
-    snapshotErrorPresent: snapshot.error !== null && snapshot.error !== undefined,
-    tokenPresent: token !== null,
-    expiresAtPresent: expiresAt !== null,
-    sessionTokenPresent: sessionToken !== null,
-    currentAccountIdPresent: currentAccountId !== null,
-    depsId: __depsIdOf(deps),
+  useReconcileBetterAuthSession({
+    snapshot,
+    token,
+    expiresAt,
+    deps,
   });
-  // #endregion
-
-  useReconcileBetterAuthSession({ snapshot, token, expiresAt, deps });
   useRefreshOnAppForeground({
     enabled: sessionToken !== null && currentAccountId !== null,
     tokenRef,
@@ -244,15 +189,6 @@ async function handleSignedIn(args: {
   expiresAt: string | null;
 }): Promise<void> {
   const { deps, token, expiresAt } = args;
-  // #region agent log
-  __dbg('handleSignedIn:enter', {
-    hypothesisId: 'H1,H2,post-fix',
-    runId: 'post-fix',
-    lastSyncedTokenPresent: deps.lastSyncedTokenRef.current !== null,
-    tokenPresent: true,
-    expiresAtPresent: expiresAt !== null,
-  });
-  // #endregion
   await writeSecureStorageItem(deps.storage, SESSION_TOKEN_KEY, token);
   if (deps.lastSyncedTokenRef.current === token) return;
   await runRefresh({ deps, token, expiresAt, force: false });
@@ -265,23 +201,13 @@ async function runRefresh(args: {
   force: boolean;
 }): Promise<void> {
   const { deps, token, expiresAt, force } = args;
-  // #region agent log
-  __dbg('runRefresh:enter', {
-    hypothesisId: 'H1,H4,post-fix',
-    runId: 'post-fix',
-    force,
-    inFlight: deps.inFlightRef.current,
-    lastSyncedTokenMatches: deps.lastSyncedTokenRef.current === token,
-  });
-  // #endregion
   if (deps.inFlightRef.current) return;
   if (!force && deps.lastSyncedTokenRef.current === token) return;
   deps.inFlightRef.current = true;
   try {
     await writeSecureStorageItem(deps.storage, SESSION_TOKEN_KEY, token);
     const resolvedExpiresAt =
-      expiresAt ??
-      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+      expiresAt ?? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     const { accountId } = await refreshAuth({
       apiUrl: deps.apiUrl,
       bearerToken: token,

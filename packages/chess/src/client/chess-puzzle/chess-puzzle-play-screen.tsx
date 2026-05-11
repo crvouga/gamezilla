@@ -264,7 +264,6 @@ function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
           maxWidth: BOARD_MAX_WIDTH,
           gap: 4,
           pb: 8,
-          px: 4,
         }}
         style={{ width: '100%' }}
       >
