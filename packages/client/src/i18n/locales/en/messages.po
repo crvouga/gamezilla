@@ -157,12 +157,36 @@ msgid "A dovetail mate. The king runs out of squares."
 msgstr "A dovetail mate. The king runs out of squares."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "A few moves only. Re-check candidates."
+msgstr "A few moves only. Re-check candidates."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "A fork is here. Knight, queen, or pawn?"
+msgstr "A fork is here. Knight, queen, or pawn?"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "A knight does the work in this one."
 msgstr "A knight does the work in this one."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "A knight on promotion might be sharper."
+msgstr "A knight on promotion might be sharper."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "A knight or rook on promotion might be the trick."
+msgstr "A knight or rook on promotion might be the trick."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "A longer line. Take your time with it."
 msgstr "A longer line. Take your time with it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "A mate is in this position. Find the king hunt."
+msgstr "A mate is in this position. Find the king hunt."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "A Morphy classic, well played."
+msgstr "A Morphy classic, well played."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "A Morphy classic. Style and substance."
@@ -177,8 +201,24 @@ msgid "A pawn promotion is part of the answer."
 msgstr "A pawn promotion is part of the answer."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "A piece has no good square. Seal it in."
+msgstr "A piece has no good square. Seal it in."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "A piece has nowhere to go. Trap it for good."
 msgstr "A piece has nowhere to go. Trap it for good."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "A piece is doing too many jobs. Deflect it."
+msgstr "A piece is doing too many jobs. Deflect it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "A piece is in the wrong place. Close the net."
+msgstr "A piece is in the wrong place. Close the net."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "A pin is in the position. Apply more pressure."
+msgstr "A pin is in the position. Apply more pressure."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "A quiet move with a loud effect. Lovely."
@@ -195,6 +235,10 @@ msgstr "A short combination. Calculate it to the end."
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "A three-move mate is here. Trace the forcing line."
 msgstr "A three-move mate is here. Trace the forcing line."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "A three-mover. Forcing moves only."
+msgstr "A three-mover. Forcing moves only."
 
 #: packages/client/src/settings/about-screen.tsx
 #: packages/client/src/settings/settings-screen.tsx
@@ -214,6 +258,14 @@ msgstr "Account ID"
 #: packages/patch-db-example/src/todo/list/todo-list-detail.tsx
 msgid "Active"
 msgstr "Active"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Active rook first. Pawns second."
+msgstr "Active rook first. Pawns second."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Active rook. Don't trade it down."
+msgstr "Active rook. Don't trade it down."
 
 #: packages/patch-db-example/src/todo/item/todo-add-bar.tsx
 #: packages/patch-db-example/src/todo/list/todo-list-create-bar.tsx
@@ -250,6 +302,10 @@ msgid "Advantage growing. Convert it carefully."
 msgstr "Advantage growing. Convert it carefully."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Aim at the f-pawn. King has no good defender."
+msgstr "Aim at the f-pawn. King has no good defender."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Aim at the weakest square — f2 or f7. Classic."
 msgstr "Aim at the weakest square — f2 or f7. Classic."
 
@@ -260,6 +316,14 @@ msgstr "All"
 #: packages/client-config/src/client/client-config-entity-card.tsx
 msgid "All attributes (JSON)"
 msgstr "All attributes (JSON)"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Almost there — board's coming together."
+msgstr "Almost there — board's coming together."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Almost. Picture both moves before you play the first."
+msgstr "Almost. Picture both moves before you play the first."
 
 #: packages/profile/src/client/avatar-editor-effects-block.tsx
 msgid "Always"
@@ -274,12 +338,24 @@ msgid "An Arabian mate may be the idea."
 msgstr "An Arabian mate may be the idea."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Anastasia delivered. Lovely coordination."
+msgstr "Anastasia delivered. Lovely coordination."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Anastasia setup taking shape. Keep coordinating."
+msgstr "Anastasia setup taking shape. Keep coordinating."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Anastasia's mate — textbook execution."
 msgstr "Anastasia's mate — textbook execution."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Anastasia's mate. Knight and rook working together."
 msgstr "Anastasia's mate. Knight and rook working together."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Anastasia's pattern — knight blocks the escape, rook delivers."
+msgstr "Anastasia's pattern — knight blocks the escape, rook delivers."
 
 #: packages/client/src/settings/about-screen.tsx
 msgid "API"
@@ -322,6 +398,18 @@ msgstr "Appearance"
 msgid "Arabian mate — sharp and elegant."
 msgstr "Arabian mate — sharp and elegant."
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Arabian mate. Rook and knight do the job."
+msgstr "Arabian mate. Rook and knight do the job."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Arabian pattern, perfectly executed."
+msgstr "Arabian pattern, perfectly executed."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Arabian setup is right. Bring the rook."
+msgstr "Arabian setup is right. Bring the rook."
+
 #: packages/patch-db-example/src/todo/list/todo-list-delete-confirmation-modal.tsx
 msgid "Are you sure you want to delete \"{name}\"? This cannot be undone."
 msgstr "Are you sure you want to delete \"{name}\"? This cannot be undone."
@@ -333,6 +421,14 @@ msgstr "Are you sure you want to delete the local database? All todos and lists 
 #: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Arrows"
 msgstr "Arrows"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Attraction — drag a piece to a bad square."
+msgstr "Attraction — drag a piece to a bad square."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Attraction worked. Piece pulled to its doom."
+msgstr "Attraction worked. Piece pulled to its doom."
 
 #: packages/patch-db-example/src/db-client/entity-detail-screen.tsx
 msgid "Attributes"
@@ -373,6 +469,18 @@ msgstr "Back"
 msgid "Back rank — exactly the right idea."
 msgstr "Back rank — exactly the right idea."
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Back rank mate. Classic, well done."
+msgstr "Back rank mate. Classic, well done."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Back rank weakness exposed. Finish it."
+msgstr "Back rank weakness exposed. Finish it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Back rank weakness. Find the heavy piece to deliver."
+msgstr "Back rank weakness. Find the heavy piece to deliver."
+
 #: packages/client/src/developer/modal-screen.tsx
 msgid "Back to Dev"
 msgstr "Back to Dev"
@@ -380,6 +488,14 @@ msgstr "Back to Dev"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
 msgid "Back to puzzle menu"
 msgstr "Back to puzzle menu"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Back to the start. Drive the king step by step."
+msgstr "Back to the start. Drive the king step by step."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Back to the start. You're closer than you think."
+msgstr "Back to the start. You're closer than you think."
 
 #: packages/profile/src/client/avatar-editor-background-block.tsx
 msgid "Background"
@@ -391,20 +507,56 @@ msgid "Background colors"
 msgstr "Background colors"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Balance holding. Stay solid."
+msgstr "Balance holding. Stay solid."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Balestra mate. Beautifully coordinated."
 msgstr "Balestra mate. Beautifully coordinated."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Balestra pattern. Bishop covers, queen delivers."
+msgstr "Balestra pattern. Bishop covers, queen delivers."
 
 #: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Basics"
 msgstr "Basics"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Beautiful first move. Stay with the plan."
+msgstr "Beautiful first move. Stay with the plan."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Beautiful. The plan is working."
+msgstr "Beautiful. The plan is working."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Beautifully done! You worked that out."
 msgstr "Beautifully done! You worked that out."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Before recapturing — what's stronger first?"
+msgstr "Before recapturing — what's stronger first?"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Before you take back — is there something stronger first?"
+msgstr "Before you take back — is there something stronger first?"
 
 #: packages/chess/src/client/chess-board/chess-board-promotion.tsx
 msgid "Bishop"
 msgstr "Bishop"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Bishop activity good. Stay on color."
+msgstr "Bishop activity good. Stay on color."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Bishop covers, queen delivers — Balestra."
+msgstr "Bishop covers, queen delivers — Balestra."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Bishop endgame — colors matter."
+msgstr "Bishop endgame — colors matter."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Bishop endgame mastered. Colors held."
@@ -415,12 +567,28 @@ msgid "Bishop endgame. Mind the color squares."
 msgstr "Bishop endgame. Mind the color squares."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Bishop ending — color-square awareness paid off."
+msgstr "Bishop ending — color-square awareness paid off."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Bishop pair mate. Diagonals dominated."
+msgstr "Bishop pair mate. Diagonals dominated."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Bishop pair mate. Long diagonals do the work."
+msgstr "Bishop pair mate. Long diagonals do the work."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Bishops crossing nicely. Keep coordinating."
 msgstr "Bishops crossing nicely. Keep coordinating."
 
 #: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Black"
 msgstr "Black"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Blind swines feeding on the seventh rank."
+msgstr "Blind swines feeding on the seventh rank."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Blind swines on the seventh — fantastic."
@@ -431,8 +599,24 @@ msgid "Bluetooth"
 msgstr "Bluetooth"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Boden pattern emerging. Cross-diagonals lined up."
+msgstr "Boden pattern emerging. Cross-diagonals lined up."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Boden pattern, executed perfectly."
+msgstr "Boden pattern, executed perfectly."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Boden's mate — crossed bishops are deadly."
 msgstr "Boden's mate — crossed bishops are deadly."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Boden's mate. Crossed bishop diagonals."
+msgstr "Boden's mate. Crossed bishop diagonals."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Bold sac, big reward. Brilliant."
+msgstr "Bold sac, big reward. Brilliant."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Bold sacrifice — now follow through."
@@ -449,6 +633,18 @@ msgstr "Both"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Both checkers ready. Strike with confidence."
 msgstr "Both checkers ready. Strike with confidence."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Both moves accurate. Beautiful."
+msgstr "Both moves accurate. Beautiful."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Break a defensive line by placing a piece in it."
+msgstr "Break a defensive line by placing a piece in it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Break the connection between defender and defended."
+msgstr "Break the connection between defender and defended."
 
 #: packages/client/src/ui/app-commands/appearance-commands.tsx
 msgid "bright"
@@ -505,6 +701,10 @@ msgid "Cannot edit"
 msgstr "Cannot edit"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Castled to safety. Press your edge."
+msgstr "Castled to safety. Press your edge."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Castling could solve this — or refute it."
 msgstr "Castling could solve this — or refute it."
 
@@ -513,8 +713,16 @@ msgid "Castling might be the move — or the refutation."
 msgstr "Castling might be the move — or the refutation."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Castling might be the surprise resource here."
+msgstr "Castling might be the surprise resource here."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Castling solved it — great king safety."
 msgstr "Castling solved it — great king safety."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Castling was the move. Calm and strong."
+msgstr "Castling was the move. Calm and strong."
 
 #: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Cell feedback"
@@ -587,6 +795,14 @@ msgid "Choose what to update"
 msgstr "Choose what to update"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Classic smother. Beautifully done."
+msgstr "Classic smother. Beautifully done."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Clean checkmate. Well spotted."
+msgstr "Clean checkmate. Well spotted."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Clean fork! Material in hand."
 msgstr "Clean fork! Material in hand."
 
@@ -619,6 +835,14 @@ msgid "Clear SQLite and reload (same as Clear data in Todos)"
 msgstr "Clear SQLite and reload (same as Clear data in Todos)"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Clearance done. Path opened, blow landed."
+msgstr "Clearance done. Path opened, blow landed."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Clearance sacrifice. Move the blocker."
+msgstr "Clearance sacrifice. Move the blocker."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Cleared the path and struck. Excellent."
 msgstr "Cleared the path and struck. Excellent."
 
@@ -645,6 +869,10 @@ msgstr "Clients"
 #: packages/ui/src/components/responsive-surface/responsive-surface-header.tsx
 msgid "Close"
 msgstr "Close"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Close — but something better is hiding. Keep searching."
+msgstr "Close — but something better is hiding. Keep searching."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Close. Two moves end this — take it from the top."
@@ -727,6 +955,10 @@ msgstr "Connection and server status. {statusWord}. {latency}."
 msgid "Connection cut. Keep going."
 msgstr "Connection cut. Keep going."
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Construct the kill box around the king."
+msgstr "Construct the kill box around the king."
+
 #: packages/ui/src/components/social-sign-in-button/social-provider-config.ts
 msgid "Continue with Google"
 msgstr "Continue with Google"
@@ -746,6 +978,18 @@ msgstr "Copy to clipboard"
 #: packages/ui/src/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx
 msgid "CopyToClipboardField"
 msgstr "CopyToClipboardField"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Corner mate. No escape, well done."
+msgstr "Corner mate. No escape, well done."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Corner mate. The escape squares are gone."
+msgstr "Corner mate. The escape squares are gone."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Corner trap. No escape squares."
+msgstr "Corner trap. No escape squares."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Cornered the king. Lovely work."
@@ -768,12 +1012,24 @@ msgid "Created"
 msgstr "Created"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Creative under-promotion. Keep going."
+msgstr "Creative under-promotion. Keep going."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Crossed bishops — think Boden."
 msgstr "Crossed bishops — think Boden."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Crushing finish. They had nothing."
+msgstr "Crushing finish. They had nothing."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Crushing line completed. Total domination."
 msgstr "Crushing line completed. Total domination."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Crushing move available. Find the dagger."
+msgstr "Crushing move available. Find the dagger."
 
 #: apps/client/src/spaces/debug/space-debug-current-spaces-section.tsx
 #~ msgid "currentSpaces"
@@ -813,6 +1069,18 @@ msgstr "Debug"
 msgid "Decrement"
 msgstr "Decrement"
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Deep calculation paid off. Bravo."
+msgstr "Deep calculation paid off. Bravo."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Deep combination — patience and precision combined."
+msgstr "Deep combination — patience and precision combined."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Deep mate, fully calculated. Brilliant."
+msgstr "Deep mate, fully calculated. Brilliant."
+
 #: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Default board, drag or tap-to-move, orientation toggle."
 msgstr "Default board, drag or tap-to-move, orientation toggle."
@@ -820,6 +1088,22 @@ msgstr "Default board, drag or tap-to-move, orientation toggle."
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Defended like a wall. Excellent only-move."
 msgstr "Defended like a wall. Excellent only-move."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Defender deflected — target collected."
+msgstr "Defender deflected — target collected."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Defender deflected. The target is open."
+msgstr "Defender deflected. The target is open."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Defender eliminated. Take the goods."
+msgstr "Defender eliminated. Take the goods."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Defender gone, target taken. Crisp."
+msgstr "Defender gone, target taken. Crisp."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Defender gone. The target is yours."
@@ -838,6 +1122,22 @@ msgid "Defense first. Find the one move that holds."
 msgstr "Defense first. Find the one move that holds."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Defense held. Found the only saving move."
+msgstr "Defense held. Found the only saving move."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Defense held. Keep watching."
+msgstr "Defense held. Keep watching."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Defensive resource needed. Stay calm."
+msgstr "Defensive resource needed. Stay calm."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Deflect the defender. Force it off duty."
+msgstr "Deflect the defender. Force it off duty."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Deflection complete. Defender was the key."
 msgstr "Deflection complete. Defender was the key."
 
@@ -854,6 +1154,10 @@ msgstr "Delete List"
 #: packages/client/src/developer/developer-screen.tsx
 msgid "Demos and internal tools"
 msgstr "Demos and internal tools"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Develop with threats. Look once more."
+msgstr "Develop with threats. Look once more."
 
 #: packages/chess/src/client/chess-settings/chess-settings-developer-screen.tsx
 #: packages/chess/src/client/chess-settings/chess-settings-screen.tsx
@@ -927,8 +1231,32 @@ msgid "Disconnected"
 msgstr "Disconnected"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Discovered attack — move one piece, hit with another."
+msgstr "Discovered attack — move one piece, hit with another."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Discovered attack landed. Material won."
+msgstr "Discovered attack landed. Material won."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Discovered check — perfectly timed."
 msgstr "Discovered check — perfectly timed."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Discovered check. Pick the front piece carefully."
+msgstr "Discovered check. Pick the front piece carefully."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Discovery loaded. Now release it."
+msgstr "Discovery loaded. Now release it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Discovery primed. Pull the trigger."
+msgstr "Discovery primed. Pull the trigger."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Discovery sprung. Beautiful."
+msgstr "Discovery sprung. Beautiful."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Discovery sprung. Great vision."
@@ -955,12 +1283,68 @@ msgid "Don't auto-queen — under-promotion may be sharper."
 msgstr "Don't auto-queen — under-promotion may be sharper."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Don't be afraid to give. The compensation is real."
+msgstr "Don't be afraid to give. The compensation is real."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Don't forget — castling is a move too."
+msgstr "Don't forget — castling is a move too."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Don't forget — the king has no luft."
+msgstr "Don't forget — the king has no luft."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Don't forget castling counts as a move."
+msgstr "Don't forget castling counts as a move."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Don't forget en passant — it's right there."
+msgstr "Don't forget en passant — it's right there."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Don't worry. Reset and check every candidate."
+msgstr "Don't worry. Reset and check every candidate."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Double check armed. Fire it."
+msgstr "Double check armed. Fire it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Double check available. Both pieces check at once."
+msgstr "Double check available. Both pieces check at once."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Double check coming. The king must move."
+msgstr "Double check coming. The king must move."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Double check delivered. Unstoppable."
+msgstr "Double check delivered. Unstoppable."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Double check! Devastating."
 msgstr "Double check! Devastating."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Dovetail done — king pieces trapped their own."
+msgstr "Dovetail done — king pieces trapped their own."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Dovetail forming up. King runs out of squares."
+msgstr "Dovetail forming up. King runs out of squares."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Dovetail mate — beautiful pattern."
 msgstr "Dovetail mate — beautiful pattern."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Dovetail pattern — king has no flight."
+msgstr "Dovetail pattern — king has no flight."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Dovetail pattern — pieces block the king's flight."
+msgstr "Dovetail pattern — pieces block the king's flight."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
 msgid "Drag or tap pieces. Play the solution line."
@@ -990,6 +1374,22 @@ msgstr "e.g. fork, mateIn2"
 msgid "Each install has its own device id. Tap a row for full details."
 msgstr "Each install has its own device id. Tap a row for full details."
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Each move is forcing. Don't waver."
+msgstr "Each move is forcing. Don't waver."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Early in the game. Coordinate before attacking."
+msgstr "Early in the game. Coordinate before attacking."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Edge increasing. Stay patient."
+msgstr "Edge increasing. Stay patient."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Edge turned into a win. Solid technique."
+msgstr "Edge turned into a win. Solid technique."
+
 #: packages/profile/src/client/profile-edit-screen.tsx
 #: packages/profile/src/client/profile-screen.tsx
 #: packages/profile/src/client/profile-username-screen.tsx
@@ -1012,6 +1412,14 @@ msgstr "Empty read result"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "En passant — clever and surprising."
 msgstr "En passant — clever and surprising."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "En passant captured. Continue the plan."
+msgstr "En passant captured. Continue the plan."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "En passant captured. Sneaky and effective."
+msgstr "En passant captured. Sneaky and effective."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "En passant might be the surprise. Watch the pawns."
@@ -1037,6 +1445,10 @@ msgid "End space?"
 msgstr "End space?"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Endgame on track. Calculate each move."
+msgstr "Endgame on track. Calculate each move."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Endgame precision — beautifully done."
 msgstr "Endgame precision — beautifully done."
 
@@ -1045,12 +1457,24 @@ msgid "Endgame precision — let's calculate again."
 msgstr "Endgame precision — let's calculate again."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Endgame precision required. Slow down."
+msgstr "Endgame precision required. Slow down."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Endgame precision. Slow and accurate."
 msgstr "Endgame precision. Slow and accurate."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Endgame technique needed. Slow and exact."
+msgstr "Endgame technique needed. Slow and exact."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Endgame technique showing. Stay precise."
 msgstr "Endgame technique showing. Stay precise."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Endgame technique, well demonstrated."
+msgstr "Endgame technique, well demonstrated."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Endgame. Every single move matters."
@@ -1073,12 +1497,32 @@ msgid "entityType (optional)"
 msgstr "entityType (optional)"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Epaulette in place. The king's pieces betray it."
+msgstr "Epaulette in place. The king's pieces betray it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Epaulette mate. The king's pieces failed it."
 msgstr "Epaulette mate. The king's pieces failed it."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Epaulette pattern — the king's pieces block escape."
 msgstr "Epaulette pattern — the king's pieces block escape."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Epaulettes block the king's escape."
+msgstr "Epaulettes block the king's escape."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Epaulettes choked the king. Crisp."
+msgstr "Epaulettes choked the king. Crisp."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Equality is the goal. Just stay solid."
+msgstr "Equality is the goal. Just stay solid."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Equality maintained. Patience over greed."
+msgstr "Equality maintained. Patience over greed."
 
 #: packages/ui/src/components/text-input/text-input.example.tsx
 msgid "Error state"
@@ -1088,9 +1532,25 @@ msgstr "Error state"
 msgid "Ethernet"
 msgstr "Ethernet"
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Every move forcing. Excellent."
+msgstr "Every move forcing. Excellent."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Every move they have is bad. Find the waiting move."
+msgstr "Every move they have is bad. Find the waiting move."
+
 #: packages/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
 msgid "Everyone will leave this space. This cannot be undone."
 msgstr "Everyone will leave this space. This cannot be undone."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Exactly. Now what follows?"
+msgstr "Exactly. Now what follows?"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Excellent! That's real chess thinking."
+msgstr "Excellent! That's real chess thinking."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Excellent. Keep the king on the run."
@@ -1101,12 +1561,48 @@ msgid "Exposed king, finished off. Strong."
 msgstr "Exposed king, finished off. Strong."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Exposed king. Bring more attackers in."
+msgstr "Exposed king. Bring more attackers in."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Eyes on the back rank. The king has no luft."
+msgstr "Eyes on the back rank. The king has no luft."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Eyes on the whole board. Where are the threats?"
+msgstr "Eyes on the whole board. Where are the threats?"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "f-pawn is the weakest. Strike there."
+msgstr "f-pawn is the weakest. Strike there."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "f-square is breaking. Drive through."
+msgstr "f-square is breaking. Drive through."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "f2 or f7 — that's the weak square."
 msgstr "f2 or f7 — that's the weak square."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "f2 or f7 — the king's soft spot. Hit it hard."
+msgstr "f2 or f7 — the king's soft spot. Hit it hard."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "f2/f7 cracked. Classic finish."
 msgstr "f2/f7 cracked. Classic finish."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Far pawn is the hero. Use it."
+msgstr "Far pawn is the hero. Use it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Far pawn marching. Back it up."
+msgstr "Far pawn marching. Back it up."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Far pawn was the hero. Well used."
+msgstr "Far pawn was the hero. Well used."
 
 #: packages/profile/src/client/avatar-editor-features-block.tsx
 msgid "Features"
@@ -1121,8 +1617,24 @@ msgid "Filter types…"
 msgstr "Filter types…"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Find the move that attacks two pieces at once."
+msgstr "Find the move that attacks two pieces at once."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Find the move that delivers two checks at once."
+msgstr "Find the move that delivers two checks at once."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Find the move that forces the lineup."
 msgstr "Find the move that forces the lineup."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Find the piece that moves and reveals check."
+msgstr "Find the piece that moves and reveals check."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "First move locked in. Deliver the mate."
+msgstr "First move locked in. Deliver the mate."
 
 #: packages/auth/src/client/account-device/account-device-meta-grid.tsx
 msgid "First seen"
@@ -1133,8 +1645,24 @@ msgid "First, remove the defender."
 msgstr "First, remove the defender."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Five moves of forcing play. Outstanding."
+msgstr "Five moves of forcing play. Outstanding."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Five moves to mate. Each one should narrow the king's world."
+msgstr "Five moves to mate. Each one should narrow the king's world."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Five moves. Don't rush — picture the final square."
+msgstr "Five moves. Don't rush — picture the final square."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Five-move mate! Excellent precision."
 msgstr "Five-move mate! Excellent precision."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Five-move plan on track. Stay precise."
+msgstr "Five-move plan on track. Stay precise."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Force the bigger piece to step aside. Skewer time."
@@ -1145,16 +1673,76 @@ msgid "Force them into a worse spot. Zugzwang."
 msgstr "Force them into a worse spot. Zugzwang."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fork executed. Nice eye."
+msgstr "Fork executed. Nice eye."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fork is hiding. Knights and queens are great forkers."
+msgstr "Fork is hiding. Knights and queens are great forkers."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fork sprung. Collect the material."
+msgstr "Fork sprung. Collect the material."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Forked them — two pieces, one move."
+msgstr "Forked them — two pieces, one move."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Found what the master found. Excellent."
+msgstr "Found what the master found. Excellent."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Four moves to mate — re-examine your candidates."
 msgstr "Four moves to mate — re-examine your candidates."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Four moves to mate. Drive the king somewhere worse."
+msgstr "Four moves to mate. Drive the king somewhere worse."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Four-move mate. That's real calculation."
 msgstr "Four-move mate. That's real calculation."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Four-mover done — every move precise."
+msgstr "Four-mover done — every move precise."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Free material out there — go collect it."
+msgstr "Free material out there — go collect it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Free piece on the board. Find it."
+msgstr "Free piece on the board. Find it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh eyes. Don't rush — the edge is real."
+msgstr "Fresh eyes. Don't rush — the edge is real."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh eyes. Epaulette mate idea."
+msgstr "Fresh eyes. Epaulette mate idea."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh eyes. Find the piece stuck in front of a bigger one."
+msgstr "Fresh eyes. Find the piece stuck in front of a bigger one."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh eyes. Free material somewhere."
+msgstr "Fresh eyes. Free material somewhere."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh eyes. Mate in two means the second move can't be stopped."
+msgstr "Fresh eyes. Mate in two means the second move can't be stopped."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Fresh eyes. Pin first, then deliver."
 msgstr "Fresh eyes. Pin first, then deliver."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh eyes. Place a piece in the way."
+msgstr "Fresh eyes. Place a piece in the way."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Fresh eyes. The king has nowhere safe."
@@ -1165,16 +1753,60 @@ msgid "Fresh eyes. Two checkers at once."
 msgstr "Fresh eyes. Two checkers at once."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh look. Active rook beats material."
+msgstr "Fresh look. Active rook beats material."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh look. Bring attackers to the king."
+msgstr "Fresh look. Bring attackers to the king."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Fresh look. Clear the square or the line."
 msgstr "Fresh look. Clear the square or the line."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh look. Drive through the kingside."
+msgstr "Fresh look. Drive through the kingside."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh look. Every move matters here."
+msgstr "Fresh look. Every move matters here."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh look. Help the runner home."
+msgstr "Fresh look. Help the runner home."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh look. King has no escape from the back."
+msgstr "Fresh look. King has no escape from the back."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh look. King's pieces are trapping it."
+msgstr "Fresh look. King's pieces are trapping it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh look. Opposition and squares."
+msgstr "Fresh look. Opposition and squares."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh look. Push or support that far pawn."
+msgstr "Fresh look. Push or support that far pawn."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Fresh look. The best move may be quiet."
 msgstr "Fresh look. The best move may be quiet."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh look. The strongest move may cost material."
+msgstr "Fresh look. The strongest move may cost material."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Fresh look. The tactic is there."
 msgstr "Fresh look. The tactic is there."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh look. Top-tier puzzle. Stay exact."
+msgstr "Fresh look. Top-tier puzzle. Stay exact."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Fresh look. Two targets, one move."
@@ -1185,20 +1817,76 @@ msgid "Fresh look. Under-promotion may be the trick."
 msgstr "Fresh look. Under-promotion may be the trick."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh look. Which piece is overworked?"
+msgstr "Fresh look. Which piece is overworked?"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh start. A master found this idea — so can you."
+msgstr "Fresh start. A master found this idea — so can you."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Fresh start. A short combination is hiding."
 msgstr "Fresh start. A short combination is hiding."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh start. Before you take back, find something stronger."
+msgstr "Fresh start. Before you take back, find something stronger."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh start. Check if a pawn just pushed two."
+msgstr "Fresh start. Check if a pawn just pushed two."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh start. Combine the heavy pieces."
+msgstr "Fresh start. Combine the heavy pieces."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh start. Don't reach for too much."
+msgstr "Fresh start. Don't reach for too much."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Fresh start. Force the heavy piece aside."
 msgstr "Fresh start. Force the heavy piece aside."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh start. Heavy pieces on the seventh."
+msgstr "Fresh start. Heavy pieces on the seventh."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh start. Knight + rook + pawn hook."
+msgstr "Fresh start. Knight + rook + pawn hook."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh start. Knight in the corner, rook in support."
+msgstr "Fresh start. Knight in the corner, rook in support."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh start. Mistakes are how we learn — try again."
+msgstr "Fresh start. Mistakes are how we learn — try again."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Fresh start. One forcing move does it."
 msgstr "Fresh start. One forcing move does it."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh start. One move saves it."
+msgstr "Fresh start. One move saves it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Fresh start. Press on the queenside."
 msgstr "Fresh start. Press on the queenside."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh start. Single move only — be precise."
+msgstr "Fresh start. Single move only — be precise."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh start. Stay calm — the mate is there."
+msgstr "Fresh start. Stay calm — the mate is there."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh start. Take the protector, then the target."
+msgstr "Fresh start. Take the protector, then the target."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Fresh start. The knight does the smothering."
@@ -1209,8 +1897,28 @@ msgid "Fresh start. The position is winning."
 msgstr "Fresh start. The position is winning."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh start. The weakest square is f2 or f7."
+msgstr "Fresh start. The weakest square is f2 or f7."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh start. Very long line — don't lose focus."
+msgstr "Fresh start. Very long line — don't lose focus."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh start. Watch bishop colors."
+msgstr "Fresh start. Watch bishop colors."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Fresh start. Who's blocking a checking line?"
+msgstr "Fresh start. Who's blocking a checking line?"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "From a master game. Treat it with respect."
 msgstr "From a master game. Treat it with respect."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Front piece moved. Take the prize."
+msgstr "Front piece moved. Take the prize."
 
 #: packages/client/src/settings/about-screen.tsx
 msgid "Full commit"
@@ -1228,6 +1936,30 @@ msgstr "Gamezilla"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Geometric finish — pieces in line."
 msgstr "Geometric finish — pieces in line."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Geometry working. Keep the alignment."
+msgstr "Geometry working. Keep the alignment."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Get that pawn to the eighth rank."
+msgstr "Get that pawn to the eighth rank."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Get the friendly piece out of your own way."
+msgstr "Get the friendly piece out of your own way."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Get your rook active. Material is secondary."
+msgstr "Get your rook active. Material is secondary."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Get your rook behind the passer."
+msgstr "Get your rook behind the passer."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Getting the position ready. Breathe and focus."
+msgstr "Getting the position ready. Breathe and focus."
 
 #: packages/patch-db-example/src/playground-header.tsx
 msgid "Global latency"
@@ -1253,6 +1985,10 @@ msgstr "Go to {target}"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Good attempt. There's a stronger move — let's look again."
 msgstr "Good attempt. There's a stronger move — let's look again."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Good early move. Stay coordinated."
+msgstr "Good early move. Stay coordinated."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Good eye. Now cash it in."
@@ -1291,8 +2027,40 @@ msgid "Guests"
 msgstr "Guests"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Have a careful look. There's an idea waiting for you."
+msgstr "Have a careful look. There's an idea waiting for you."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Heavy piece eyeing the back rank. Deliver."
+msgstr "Heavy piece eyeing the back rank. Deliver."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Heavy pieces — combine their threats."
+msgstr "Heavy pieces — combine their threats."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Heavy pieces feasted on the seventh. Brutal."
+msgstr "Heavy pieces feasted on the seventh. Brutal."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Heavy pieces in harmony. Excellent."
+msgstr "Heavy pieces in harmony. Excellent."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Heavy pieces in sync. Press on."
+msgstr "Heavy pieces in sync. Press on."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Heavy pieces in tandem. Look for mating nets."
+msgstr "Heavy pieces in tandem. Look for mating nets."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Heavy pieces on the seventh — the blind swines!"
 msgstr "Heavy pieces on the seventh — the blind swines!"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Heavy pieces on the seventh."
+msgstr "Heavy pieces on the seventh."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Held it together. Stay alert."
@@ -1303,16 +2071,36 @@ msgid "Held the balance. Smart play."
 msgstr "Held the balance. Smart play."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Hmm, the mate was right there. Keep going."
+msgstr "Hmm, the mate was right there. Keep going."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Hmm, we couldn't load that one. Let's try a different puzzle."
 msgstr "Hmm, we couldn't load that one. Let's try a different puzzle."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Hold the balance — don't reach."
+msgstr "Hold the balance — don't reach."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Hold the balance. Don't reach for too much."
 msgstr "Hold the balance. Don't reach for too much."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Hook mate idea — knight, rook, and pawn."
+msgstr "Hook mate idea — knight, rook, and pawn."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Hook mate setup. Knight + rook + pawn = trouble."
+msgstr "Hook mate setup. Knight + rook + pawn = trouble."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Hook mate. Smooth coordination."
 msgstr "Hook mate. Smooth coordination."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Hook setup is right. Bring it home."
+msgstr "Hook setup is right. Bring it home."
 
 #: packages/spaces/src/client/lifecycle/space-join-host-section.tsx
 #: packages/spaces/src/client/members/member-host-badge.tsx
@@ -1341,8 +2129,28 @@ msgid "Inline"
 msgstr "Inline"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Interference clean. Defender isolated."
+msgstr "Interference clean. Defender isolated."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Interference. Place a piece in the defensive line."
+msgstr "Interference. Place a piece in the defensive line."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Interference. You cut the line perfectly."
 msgstr "Interference. You cut the line perfectly."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Intermezzo found. Order of moves mattered."
+msgstr "Intermezzo found. Order of moves mattered."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Intermezzo landed. Now continue."
+msgstr "Intermezzo landed. Now continue."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Intermezzo. Insert a forcing move before the recapture."
+msgstr "Intermezzo. Insert a forcing move before the recapture."
 
 #: packages/client/src/connection/server-status-screen.tsx
 msgid "Internet reachable: {reachable}"
@@ -1369,20 +2177,68 @@ msgid "Just one move — let's narrow it down."
 msgstr "Just one move — let's narrow it down."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Just one move. Scan every check."
+msgstr "Just one move. Scan every check."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Kill box almost built. Seal it."
+msgstr "Kill box almost built. Seal it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Kill box sealed. Nice technique."
+msgstr "Kill box sealed. Nice technique."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "King had no shelter — attack converted."
+msgstr "King had no shelter — attack converted."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "King has no cover. Pour it on."
+msgstr "King has no cover. Pour it on."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "King has no shelter. Bring more attackers."
+msgstr "King has no shelter. Bring more attackers."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "King in the corner — its own pieces trap it."
+msgstr "King in the corner — its own pieces trap it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "King is cornered. Close the last squares."
+msgstr "King is cornered. Close the last squares."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "King is wide open. Keep attacking."
 msgstr "King is wide open. Keep attacking."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Kingside assault. Bring everyone over."
+msgstr "Kingside assault. Bring everyone over."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Kingside attack succeeded. Pressure paid off."
 msgstr "Kingside attack succeeded. Pressure paid off."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Kingside broken open. Attack converted."
+msgstr "Kingside broken open. Attack converted."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Kingside is breaking down. Press on."
 msgstr "Kingside is breaking down. Press on."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Kingside is the target. Drive through."
+msgstr "Kingside is the target. Drive through."
 
 #: packages/chess/src/client/chess-board/chess-board-promotion.tsx
 msgid "Knight"
 msgstr "Knight"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Knight endgame — watch for forks."
+msgstr "Knight endgame — watch for forks."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Knight endgame done. Forks dodged."
@@ -1393,12 +2249,32 @@ msgid "Knight endgame. Watch out for forks."
 msgstr "Knight endgame. Watch out for forks."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Knight ending handled. Tricky and won."
+msgstr "Knight ending handled. Tricky and won."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Knight in position. Time to finish."
 msgstr "Knight in position. Time to finish."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Knight in the corner — keep building."
 msgstr "Knight in the corner — keep building."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Knight in the corner, rook checking."
+msgstr "Knight in the corner, rook checking."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Knight is well placed. Keep maneuvering."
+msgstr "Knight is well placed. Keep maneuvering."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Knight, rook, pawn — perfect hook."
+msgstr "Knight, rook, pawn — perfect hook."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Knights are tricky in endings. Stay alert."
+msgstr "Knights are tricky in endings. Stay alert."
 
 #: packages/auth/src/client/account-device/account-device-meta-grid.tsx
 msgid "Last seen"
@@ -1451,6 +2327,10 @@ msgstr "light"
 msgid "Light, dark, or system theme"
 msgstr "Light, dark, or system theme"
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Like Morphy at the opera. Pin and finish."
+msgstr "Like Morphy at the opera. Pin and finish."
+
 #: packages/patch-db-example/src/db-client/query-screen.tsx
 msgid "limit"
 msgstr "limit"
@@ -1459,6 +2339,18 @@ msgstr "limit"
 #: packages/client/src/ui/sidebar/sidebar-account-menu.tsx
 msgid "Limited or checking"
 msgstr "Limited or checking"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Line broken. Defender isolated."
+msgstr "Line broken. Defender isolated."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Line up the king or queen — the piece behind falls."
+msgstr "Line up the king or queen — the piece behind falls."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Lines opening up. Keep the pressure."
+msgstr "Lines opening up. Keep the pressure."
 
 #: packages/patch-db-example/src/todo/list/todo-list-create-bar.tsx
 msgid "List name..."
@@ -1481,6 +2373,10 @@ msgstr "Loading entity…"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
 #~ msgid "Loading puzzle…"
 #~ msgstr "Loading puzzle…"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Loading your next challenge. You've got this."
+msgstr "Loading your next challenge. You've got this."
 
 #: packages/patch-db-example/src/db-client/entities-screen.tsx
 msgid "Loading…"
@@ -1507,6 +2403,26 @@ msgid "Long line — keep tracing it move by move."
 msgstr "Long line — keep tracing it move by move."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Long line on track. Stay sharp."
+msgstr "Long line on track. Stay sharp."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Long line, every move correct. Real depth."
+msgstr "Long line, every move correct. Real depth."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Longer combination — pace yourself."
+msgstr "Longer combination — pace yourself."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Longer combination. Stay patient."
+msgstr "Longer combination. Stay patient."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Look again — what move attacks two pieces?"
+msgstr "Look again — what move attacks two pieces?"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Look for a hook mate — knight, rook, and pawn."
 msgstr "Look for a hook mate — knight, rook, and pawn."
 
@@ -1515,8 +2431,36 @@ msgid "Look for an in-between move. Don't capture yet."
 msgstr "Look for an in-between move. Don't capture yet."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Look for the Anastasia setup. Knight cuts squares, rook checks."
+msgstr "Look for the Anastasia setup. Knight cuts squares, rook checks."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Look for the fork — one move, two threats."
+msgstr "Look for the fork — one move, two threats."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Look for the giving move. The compensation is there."
+msgstr "Look for the giving move. The compensation is there."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Look for the Morphy idea."
 msgstr "Look for the Morphy idea."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Look for the piece that opens fire when it moves."
+msgstr "Look for the piece that opens fire when it moves."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Look for the piece that unblocks a teammate."
+msgstr "Look for the piece that unblocks a teammate."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Look for the queen sac that boxes the king in."
+msgstr "Look for the queen sac that boxes the king in."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Look for the quiet move that finishes the plan."
+msgstr "Look for the quiet move that finishes the plan."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Look harder for the tactic."
@@ -1527,6 +2471,14 @@ msgid "Look right through the front piece — X-ray attack."
 msgstr "Look right through the front piece — X-ray attack."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Loose piece collected. Nice scan."
+msgstr "Loose piece collected. Nice scan."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Lovely. You found every move."
+msgstr "Lovely. You found every move."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Lure the king or a piece into trouble."
 msgstr "Lure the king or a piece into trouble."
 
@@ -1535,20 +2487,56 @@ msgid "Lured and finished. Beautifully done."
 msgstr "Lured and finished. Beautifully done."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Lured into place. Now punish."
+msgstr "Lured into place. Now punish."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Make them move into something worse. Zugzwang."
 msgstr "Make them move into something worse. Zugzwang."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Make them move. Every option is bad."
+msgstr "Make them move. Every option is bad."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Master vs master — and you matched it."
+msgstr "Master vs master — and you matched it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Master vs master — precise play required."
+msgstr "Master vs master — precise play required."
 
 #: packages/chess/src/client/chess-main-menu.tsx
 msgid "Matchmaking"
 msgstr "Matchmaking"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Mate found. Beautiful work."
+msgstr "Mate found. Beautiful work."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Mate in five. Picture the final position first."
+msgstr "Mate in five. Picture the final position first."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Mate in five. Stay patient — you've got the time."
 msgstr "Mate in five. Stay patient — you've got the time."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Mate in four. Cut squares, then deliver."
+msgstr "Mate in four. Cut squares, then deliver."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Mate in four. Walk the king down one step at a time."
 msgstr "Mate in four. Walk the king down one step at a time."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Mate in one. Which check leaves no escape?"
+msgstr "Mate in one. Which check leaves no escape?"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Mate in three. Find the move that strips the king's escape."
+msgstr "Mate in three. Find the move that strips the king's escape."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Mate in three. Trust your calculation — it's all forcing."
@@ -1563,12 +2551,44 @@ msgid "Mate in two. Picture both moves before you play."
 msgstr "Mate in two. Picture both moves before you play."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Mate in two. The first move sets up the finish."
+msgstr "Mate in two. The first move sets up the finish."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Mate is five away. Take a breath and recalculate."
 msgstr "Mate is five away. Take a breath and recalculate."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Mate is one move away. I know you can find it."
 msgstr "Mate is one move away. I know you can find it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Material given for a reason. Cash in."
+msgstr "Material given for a reason. Cash in."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Material given, position won. Beautiful chess."
+msgstr "Material given, position won. Beautiful chess."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Material isn't everything. What's the sacrifice for?"
+msgstr "Material isn't everything. What's the sacrifice for?"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Mating attack converted. Excellent."
+msgstr "Mating attack converted. Excellent."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Mating attack incoming. Calculate it through."
+msgstr "Mating attack incoming. Calculate it through."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Mating net forming. Keep weaving it."
+msgstr "Mating net forming. Keep weaving it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Mating pattern available. Trust the position."
+msgstr "Mating pattern available. Trust the position."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
 msgid "Max rating (optional)"
@@ -1589,6 +2609,18 @@ msgstr "Maybe a square needs clearing first."
 #: apps/client/src/spaces/debug/space-debug-members-section.tsx
 #~ msgid "members"
 #~ msgstr "members"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Middlegame combination found. Sharp."
+msgstr "Middlegame combination found. Sharp."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Middlegame combination hiding. Search again."
+msgstr "Middlegame combination hiding. Search again."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Middlegame mayhem. Look for the combination."
+msgstr "Middlegame mayhem. Look for the combination."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Middlegame on track. Keep the tension."
@@ -1642,6 +2674,10 @@ msgstr "Morphy himself would smile."
 msgid "Morphy would smile. Continue."
 msgstr "Morphy would smile. Continue."
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Morphy's mate idea. Bishop and rook, beautiful."
+msgstr "Morphy's mate idea. Bishop and rook, beautiful."
+
 #: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Move log"
 msgstr "Move log"
@@ -1670,6 +2706,10 @@ msgstr "Name: {appName}"
 #: packages/client/src/ui/app-commands/navigation-commands.tsx
 msgid "Navigation"
 msgstr "Navigation"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Net is tightening. Keep restricting."
+msgstr "Net is tightening. Keep restricting."
 
 #: packages/client/src/connection/server-status-screen.tsx
 msgid "Network and API status"
@@ -1704,6 +2744,10 @@ msgstr "No active session"
 msgid "No active todos."
 msgstr "No active todos."
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "No check, no capture — just a strong move."
+msgstr "No check, no capture — just a strong move."
+
 #: packages/patch-db-example/src/todo/list/todo-list-detail.tsx
 msgid "No completed todos."
 msgstr "No completed todos."
@@ -1724,6 +2768,10 @@ msgstr "No entities for this type."
 msgid "No entities in this database."
 msgstr "No entities in this database."
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "No good moves for them. Squeeze."
+msgstr "No good moves for them. Squeeze."
+
 #: packages/spaces/src/client/members/no-guests-text.tsx
 #: packages/spaces/src/client/members/space-members-guests-block.tsx
 msgid "No guests yet"
@@ -1741,6 +2789,10 @@ msgstr "No lists yet. Create one above or add todos to Inbox."
 msgid "No live spaces. Tap + New space to start one."
 msgstr "No live spaces. Tap + New space to start one."
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "No luck loading this position. On to the next."
+msgstr "No luck loading this position. On to the next."
+
 #: packages/auth/src/client/linked-providers/linked-providers-list.tsx
 msgid "No OAuth provider records on file for this user."
 msgstr "No OAuth provider records on file for this user."
@@ -1756,6 +2808,10 @@ msgstr "No puzzle selected"
 #: packages/patch-db-example/src/db-client/entities-screen.tsx
 msgid "No rows match filter."
 msgstr "No rows match filter."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "No rush — let the pattern come to you."
+msgstr "No rush — let the pattern come to you."
 
 #: packages/patch-db-example/src/shape-list.tsx
 msgid "No shapes yet"
@@ -1782,8 +2838,16 @@ msgid "None"
 msgstr "None"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Not every winning move is a check or capture."
+msgstr "Not every winning move is a check or capture."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Not every winning move is loud — try quiet."
 msgstr "Not every winning move is loud — try quiet."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Not quite, but I love that you tried it. Look once more."
+msgstr "Not quite, but I love that you tried it. Look once more."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Now go pick up the loose piece."
@@ -1814,6 +2878,14 @@ msgstr "obj"
 msgid "Off"
 msgstr "Off"
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Offer something tempting. Drag them into trouble."
+msgstr "Offer something tempting. Drag them into trouble."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Offer something to pull the target onto the wrong square."
+msgstr "Offer something to pull the target onto the wrong square."
+
 #: packages/client/src/connection/offline-indicator.tsx
 #: packages/client/src/connection/server-status-screen.tsx
 #: packages/client/src/ui/sidebar/sidebar-account-menu.tsx
@@ -1825,21 +2897,49 @@ msgid "offset"
 msgstr "offset"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "On the Morphy path. Stay with it."
+msgstr "On the Morphy path. Stay with it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "One down, one to go. Bring it home."
+msgstr "One down, one to go. Bring it home."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "One forcing move ends this. Look for the check that locks it."
+msgstr "One forcing move ends this. Look for the check that locks it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "One move — perfectly chosen."
 msgstr "One move — perfectly chosen."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "One move only. Scan every check carefully."
+msgstr "One move only. Scan every check carefully."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "One move solves this. Find the right one."
 msgstr "One move solves this. Find the right one."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "One sec while I lay out the pieces."
+msgstr "One sec while I lay out the pieces."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "One step done. Two more — keep going."
 msgstr "One step done. Two more — keep going."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "One-move mate — perfect."
+msgstr "One-move mate — perfect."
 
 #: packages/client/src/connection/server-status-screen.tsx
 #: packages/client/src/ui/sidebar/sidebar-account-menu.tsx
 msgid "Online"
 msgstr "Online"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Only one move saves it. Where?"
+msgstr "Only one move saves it. Where?"
 
 #: packages/client/src/ui/app-commands/ui-components-commands.tsx
 msgid "Open {componentName} example"
@@ -1878,6 +2978,10 @@ msgid "Opening — develop with purpose."
 msgstr "Opening — develop with purpose."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Opening idea found. Good development sense."
+msgstr "Opening idea found. Good development sense."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Opening phase — develop and threaten at once."
 msgstr "Opening phase — develop and threaten at once."
 
@@ -1890,12 +2994,28 @@ msgid "Opening principles still apply — try again."
 msgstr "Opening principles still apply — try again."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Opera mate delivered. Beautiful."
+msgstr "Opera mate delivered. Beautiful."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Opera mate in the air. Pin first, then deliver."
 msgstr "Opera mate in the air. Pin first, then deliver."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Opera mate. A real classic."
 msgstr "Opera mate. A real classic."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Opera mate. Like Morphy did at the opera."
+msgstr "Opera mate. Like Morphy did at the opera."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Opera setup right. Time to finish."
+msgstr "Opera setup right. Time to finish."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Opposition matters here. Watch the king."
+msgstr "Opposition matters here. Watch the king."
 
 #: packages/client/src/ui/app-commands/appearance-commands.tsx
 msgid "os"
@@ -1908,6 +3028,10 @@ msgstr "OS"
 #: packages/client/src/connection/server-status-screen.tsx
 msgid "Other"
 msgstr "Other"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Outstanding work. Onto the next one?"
+msgstr "Outstanding work. Onto the next one?"
 
 #: packages/client/src/connection/server-status-screen.tsx
 msgid "Overall"
@@ -1974,12 +3098,32 @@ msgid "Pawn endgame. Count the tempi carefully."
 msgstr "Pawn endgame. Count the tempi carefully."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Pawn endings are math. Count squares."
+msgstr "Pawn endings are math. Count squares."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Pawn is rolling — support it."
 msgstr "Pawn is rolling — support it."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Pawn made it home. Promotion done."
+msgstr "Pawn made it home. Promotion done."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Pawn marching beautifully. Don't stop."
 msgstr "Pawn marching beautifully. Don't stop."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Pawn race math. Recount the squares."
+msgstr "Pawn race math. Recount the squares."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Pawn race on. Calculate the queening squares."
+msgstr "Pawn race on. Calculate the queening squares."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Pawn's almost home. One more push."
+msgstr "Pawn's almost home. One more push."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Pawns are racing. Count the tempi."
@@ -1993,6 +3137,10 @@ msgstr "People in this space"
 #: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Per-square indicators; pulse animation for highlighted moves."
 msgstr "Per-square indicators; pulse animation for highlighted moves."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Perfect calculation. Well done."
+msgstr "Perfect calculation. Well done."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Perfect first move. Now finish the job."
@@ -2023,6 +3171,14 @@ msgid "Pieces line up — use the geometry."
 msgstr "Pieces line up — use the geometry."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Pillsbury pattern, perfectly handled."
+msgstr "Pillsbury pattern, perfectly handled."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Pillsbury pattern. Bishop and rook combine."
+msgstr "Pillsbury pattern. Bishop and rook combine."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Pillsbury's mate — well spotted."
 msgstr "Pillsbury's mate — well spotted."
 
@@ -2031,12 +3187,28 @@ msgid "Pillsbury's mate. Watch the long diagonal."
 msgstr "Pillsbury's mate. Watch the long diagonal."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Pin available — but maybe a different piece."
+msgstr "Pin available — but maybe a different piece."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Pin first, then deliver — Opera style."
 msgstr "Pin first, then deliver — Opera style."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Pin is in place. Time to exploit it."
 msgstr "Pin is in place. Time to exploit it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Pin paid off. Pressure converted to material."
+msgstr "Pin paid off. Pressure converted to material."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Pin set. Now win the piece."
+msgstr "Pin set. Now win the piece."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Pin them down, then hit the pinned piece."
+msgstr "Pin them down, then hit the pinned piece."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Pinned and won — well done."
@@ -2054,6 +3226,10 @@ msgstr "Platform: {platformOs}"
 msgid "Play"
 msgstr "Play"
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Played by a master. Their idea is in here."
+msgstr "Played by a master. Their idea is in here."
+
 #: packages/patch-db-example/src/nav.tsx
 msgid "Playground"
 msgstr "Playground"
@@ -2065,6 +3241,14 @@ msgstr "Playground failed to start"
 #: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Plays a fresh game and prints SAN moves as they happen."
 msgstr "Plays a fresh game and prints SAN moves as they happen."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Position is winning. Find the dagger."
+msgstr "Position is winning. Find the dagger."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Position rich with chances. Stay focused."
+msgstr "Position rich with chances. Stay focused."
 
 #: packages/client-config/src/client/client-config-server-refresh.tsx
 msgid "POST /client-config/refresh writes the Worker secret into PatchDB on the server (deploy pipeline uses this too)."
@@ -2111,6 +3295,10 @@ msgid "Promotion"
 msgstr "Promotion"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Promotion is the goal. Clear the path."
+msgstr "Promotion is the goal. Clear the path."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Promotion sealed it. Pawn becomes queen."
 msgstr "Promotion sealed it. Pawn becomes queen."
 
@@ -2148,6 +3336,10 @@ msgid "Queen and rook together. Combine the threats."
 msgstr "Queen and rook together. Combine the threats."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Queen endgame — check every check."
+msgstr "Queen endgame — check every check."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Queen endgame. Big piece, big result."
 msgstr "Queen endgame. Big piece, big result."
 
@@ -2156,12 +3348,40 @@ msgid "Queen endgame. Checks, skewers, perpetuals."
 msgstr "Queen endgame. Checks, skewers, perpetuals."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Queen ending — calculate all the checks."
+msgstr "Queen ending — calculate all the checks."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Queen ending — perpetual avoided, win secured."
+msgstr "Queen ending — perpetual avoided, win secured."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Queen finding targets. Stay precise."
+msgstr "Queen finding targets. Stay precise."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Queen isn't always best. Think under-promotion."
+msgstr "Queen isn't always best. Think under-promotion."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Queenside attack done. Patience rewarded."
 msgstr "Queenside attack done. Patience rewarded."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Queenside break needed. Find the lever."
+msgstr "Queenside break needed. Find the lever."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Queenside cracked. Slow build, sharp finish."
+msgstr "Queenside cracked. Slow build, sharp finish."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Queenside is cracking. Keep pushing."
 msgstr "Queenside is cracking. Keep pushing."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Queenside pressure. Break through."
+msgstr "Queenside pressure. Break through."
 
 #: packages/patch-db-example/src/db-client/query-screen.tsx
 msgid "Query"
@@ -2171,6 +3391,10 @@ msgstr "Query"
 msgid "Quiet and strong. Just keep going."
 msgstr "Quiet and strong. Just keep going."
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Quiet move found. Subtle but decisive."
+msgstr "Quiet move found. Subtle but decisive."
+
 #: packages/profile/src/client/avatar-editor-effects-block.tsx
 #: packages/profile/src/client/avatar-editor-features-block.tsx
 msgid "Random"
@@ -2179,6 +3403,10 @@ msgstr "Random"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
 msgid "Rating {rating} · popularity {popularity}"
 msgstr "Rating {rating} · popularity {popularity}"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Re-examine the candidates. The forcing line wins."
+msgstr "Re-examine the candidates. The forcing line wins."
 
 #: packages/client/src/connection/server-status-screen.tsx
 msgid "Reachable"
@@ -2264,16 +3492,48 @@ msgid "Reset puzzle"
 msgstr "Reset puzzle"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. A few moves and it's done."
+msgstr "Reset. A few moves and it's done."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. A mate is hiding here."
+msgstr "Reset. A mate is hiding here."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Reset. A pawn wants to queen."
 msgstr "Reset. A pawn wants to queen."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. A piece has no good square — find it."
+msgstr "Reset. A piece has no good square — find it."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Reset. A piece unblocks and check appears."
 msgstr "Reset. A piece unblocks and check appears."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Activate the rook."
+msgstr "Reset. Activate the rook."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Aim at the f-pawn."
+msgstr "Reset. Aim at the f-pawn."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Reset. An in-between move comes first."
 msgstr "Reset. An in-between move comes first."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Both pieces deliver check simultaneously."
+msgstr "Reset. Both pieces deliver check simultaneously."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Build the box around the king."
+msgstr "Reset. Build the box around the king."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Check every check."
+msgstr "Reset. Check every check."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Reset. Consider what you can give up."
@@ -2284,8 +3544,32 @@ msgid "Reset. Convert the edge calmly."
 msgstr "Reset. Convert the edge calmly."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Coordinate the pieces."
+msgstr "Reset. Coordinate the pieces."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Count the pawn tempi."
+msgstr "Reset. Count the pawn tempi."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Crossed bishops."
+msgstr "Reset. Crossed bishops."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Reset. Cut the line between defender and target."
 msgstr "Reset. Cut the line between defender and target."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Don't overlook castling."
+msgstr "Reset. Don't overlook castling."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Dovetail pattern."
+msgstr "Reset. Dovetail pattern."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Each move must be a check or unstoppable threat."
+msgstr "Reset. Each move must be a check or unstoppable threat."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Reset. En passant might still be there."
@@ -2296,20 +3580,84 @@ msgid "Reset. Find the defender that has to go."
 msgstr "Reset. Find the defender that has to go."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Force them into the worst option."
+msgstr "Reset. Force them into the worst option."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Just hold the balance."
+msgstr "Reset. Just hold the balance."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Reset. Just one move solves it."
 msgstr "Reset. Just one move solves it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. King is exposed — find the route."
+msgstr "Reset. King is exposed — find the route."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. King or queen in front — prize behind."
+msgstr "Reset. King or queen in front — prize behind."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Reset. Knight and rook in Anastasia's pattern."
 msgstr "Reset. Knight and rook in Anastasia's pattern."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Knight forks especially can be sneaky."
+msgstr "Reset. Knight forks especially can be sneaky."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Knight on promotion can be sharper than queen."
+msgstr "Reset. Knight on promotion can be sharper than queen."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Knights and forks."
+msgstr "Reset. Knights and forks."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Look for the combination."
+msgstr "Reset. Look for the combination."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Morphy's beautiful pattern."
+msgstr "Reset. Morphy's beautiful pattern."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Move one, attack with another."
+msgstr "Reset. Move one, attack with another."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Move your own piece out of the way with purpose."
+msgstr "Reset. Move your own piece out of the way with purpose."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. No check, no capture — just strong."
+msgstr "Reset. No check, no capture — just strong."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Offer something to drag a piece to a bad square."
+msgstr "Reset. Offer something to drag a piece to a bad square."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Reset. Open the kingside."
 msgstr "Reset. Open the kingside."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Opera mate idea."
+msgstr "Reset. Opera mate idea."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Queenside break needed."
+msgstr "Reset. Queenside break needed."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Reset. Remove the defender first."
 msgstr "Reset. Remove the defender first."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Sac to seal the king's pocket."
+msgstr "Reset. Sac to seal the king's pocket."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Reset. Spot the undefended piece."
@@ -2320,20 +3668,48 @@ msgid "Reset. Stay patient — every move is forcing."
 msgstr "Reset. Stay patient — every move is forcing."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. The advanced pawn is your hero."
+msgstr "Reset. The advanced pawn is your hero."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Reset. The back rank is the target."
 msgstr "Reset. The back rank is the target."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-msgid "Reset. The king is open — find the route."
-msgstr "Reset. The king is open — find the route."
+#~ msgid "Reset. The king is open — find the route."
+#~ msgstr "Reset. The king is open — find the route."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. There's a crushing move here."
+msgstr "Reset. There's a crushing move here."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Reset. There's a defensive resource here."
 msgstr "Reset. There's a defensive resource here."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Trace the longer line patiently."
+msgstr "Reset. Trace the longer line patiently."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Triangle of pressure."
+msgstr "Reset. Triangle of pressure."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Try every check in turn."
+msgstr "Reset. Try every check in turn."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Two masters played sharply — match their precision."
+msgstr "Reset. Two masters played sharply — match their precision."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Reset. Two moves to mate — picture them both."
 msgstr "Reset. Two moves to mate — picture them both."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Reset. Use the alignment of pieces."
+msgstr "Reset. Use the alignment of pieces."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Reset. Walk through the line one move at a time."
@@ -2347,9 +3723,21 @@ msgstr "Reset. What can't move out of the way?"
 msgid "Result"
 msgstr "Result"
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Right idea — and that's it!"
+msgstr "Right idea — and that's it!"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Right move! Stay with it."
+msgstr "Right move! Stay with it."
+
 #: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Right-click + drag to draw arrows. Hold Shift (red), Alt (blue), Ctrl/Cmd (yellow). Right-click the same arrow to erase."
 msgstr "Right-click + drag to draw arrows. Hold Shift (red), Alt (blue), Ctrl/Cmd (yellow). Right-click the same arrow to erase."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Rip the kingside open. The king is the target."
+msgstr "Rip the kingside open. The king is the target."
 
 #: packages/chess/src/client/chess-board/chess-board-promotion.tsx
 msgid "Rook"
@@ -2366,6 +3754,10 @@ msgstr "Rook endgame — activity rewarded."
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Rook endgame. Activity beats material here."
 msgstr "Rook endgame. Activity beats material here."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Rook ending won by activity. Textbook."
+msgstr "Rook ending won by activity. Textbook."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Rooks are active. Keep them working."
@@ -2404,6 +3796,18 @@ msgstr "Run read([query])"
 msgid "Running…"
 msgstr "Running…"
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Sac accepted. Now the combination flows."
+msgstr "Sac accepted. Now the combination flows."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Sacrifice to box the king in. Knight delivers."
+msgstr "Sacrifice to box the king in. Knight delivers."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Same-color bishops? Opposite? It changes everything."
+msgstr "Same-color bishops? Opposite? It changes everything."
+
 #: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "SAN"
 msgstr "SAN"
@@ -2425,6 +3829,10 @@ msgstr "Scan again — something is undefended."
 msgid "Scan the board — a piece is hanging."
 msgstr "Scan the board — a piece is hanging."
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Scan the position before you touch a piece."
+msgstr "Scan the position before you touch a piece."
+
 #: packages/patch-db-example/src/db-client/entity-types-screen.tsx
 msgid "Scanning snapshots…"
 msgstr "Scanning snapshots…"
@@ -2432,6 +3840,18 @@ msgstr "Scanning snapshots…"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
 msgid "Search by theme keyword and optional rating bounds. Data loads from PatchDB."
 msgstr "Search by theme keyword and optional rating bounds. Data loads from PatchDB."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "See the alignment on rank, file, or diagonal."
+msgstr "See the alignment on rank, file, or diagonal."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "See the alignment. Make it count."
+msgstr "See the alignment. Make it count."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "See through the obstacle — X-ray tactic."
+msgstr "See through the obstacle — X-ray tactic."
 
 #: packages/ui/src/components/picker/picker.tsx
 msgid "Select…"
@@ -2489,6 +3909,10 @@ msgstr "Setting up the puzzle. Take a moment to settle in."
 msgid "Settings"
 msgstr "Settings"
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Setup is right. Two more moves to mate."
+msgstr "Setup is right. Two more moves to mate."
+
 #: packages/patch-db-example/src/client-node-panel.tsx
 #: packages/patch-db-example/src/server-node-panel.tsx
 msgid "Shapes ({entityCount})"
@@ -2504,8 +3928,20 @@ msgid "Shared UI explorer"
 msgstr "Shared UI explorer"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Short and sharp. A few moves does it."
+msgstr "Short and sharp. A few moves does it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Short combination — recalculate the line."
 msgstr "Short combination — recalculate the line."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Short combination, fully accurate."
+msgstr "Short combination, fully accurate."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Short line going well. Finish strong."
+msgstr "Short line going well. Finish strong."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
 msgid "Showing first {shownCount} by popularity"
@@ -2575,6 +4011,22 @@ msgstr "Signing in…"
 msgid "Signing out…"
 msgstr "Signing out…"
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Single move puzzle. Spot it."
+msgstr "Single move puzzle. Spot it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Single move saves it. Calculate again."
+msgstr "Single move saves it. Calculate again."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Single move solved. Clean."
+msgstr "Single move solved. Clean."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Single move. Eliminate the wrong ones."
+msgstr "Single move. Eliminate the wrong ones."
+
 #: packages/client/src/developer/developer-screen.tsx
 msgid "Singleton clientConfig entity and server refresh"
 msgstr "Singleton clientConfig entity and server refresh"
@@ -2582,6 +4034,18 @@ msgstr "Singleton clientConfig entity and server refresh"
 #: packages/client-config/src/client/client-config-screen.tsx
 msgid "Singleton entity + server refresh"
 msgstr "Singleton entity + server refresh"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Skewer worked. Front piece moved, back piece taken."
+msgstr "Skewer worked. Front piece moved, back piece taken."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Skewer. Big piece in front, prize behind."
+msgstr "Skewer. Big piece in front, prize behind."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Skewer's possible. Force the bigger piece to move."
+msgstr "Skewer's possible. Force the bigger piece to move."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Skewered. Big piece moves, big piece falls."
@@ -2600,6 +4064,14 @@ msgid "Smart in-between move. Keep going."
 msgstr "Smart in-between move. Keep going."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Smothered — knight delivers the final blow."
+msgstr "Smothered — knight delivers the final blow."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Smothered mate setup. Sacrifice, then knight delivers."
+msgstr "Smothered mate setup. Sacrifice, then knight delivers."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Smothered mate! Always satisfying."
 msgstr "Smothered mate! Always satisfying."
 
@@ -2610,6 +4082,10 @@ msgstr "So close — a forcing move ends it in one."
 #: packages/profile/src/client/avatar-editor-background-block.tsx
 msgid "Solid"
 msgstr "Solid"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Solid edge here. Don't rush it."
+msgstr "Solid edge here. Don't rush it."
 
 #: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Solid fills and ring borders — for color-coded threats, defended squares, etc."
@@ -2624,12 +4100,28 @@ msgid "Solved a master-game puzzle. Great work."
 msgstr "Solved a master-game puzzle. Great work."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Something can't move. Now pile on it."
+msgstr "Something can't move. Now pile on it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Something is pinned. Let's punish it."
 msgstr "Something is pinned. Let's punish it."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Something went sideways with that puzzle. Skipping ahead."
+msgstr "Something went sideways with that puzzle. Skipping ahead."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Something's undefended. Find it and take it."
+msgstr "Something's undefended. Find it and take it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Sometimes the strongest move is the quiet one."
 msgstr "Sometimes the strongest move is the quiet one."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Sometimes the strongest move loses material — for now."
+msgstr "Sometimes the strongest move loses material — for now."
 
 #: apps/client/src/spaces/debug/space-debug-space-section.tsx
 #~ msgid "space"
@@ -2662,9 +4154,17 @@ msgstr "Space debug"
 msgid "Spaces"
 msgstr "Spaces"
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Spot on. Onward."
+msgstr "Spot on. Onward."
+
 #: packages/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "sqlite"
 msgstr "sqlite"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Square cleared. Now occupy it."
+msgstr "Square cleared. Now occupy it."
 
 #: packages/auth/src/client/account-device/account-device-id-field.tsx
 msgid "Stable per-device identifier; tap to copy"
@@ -2694,9 +4194,17 @@ msgstr "Straight and knight L-shape arrows, dashed plan lines, and color overrid
 msgid "Strong opening move. Keep developing."
 msgstr "Strong opening move. Keep developing."
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Strongest move loses material. Try again."
+msgstr "Strongest move loses material. Try again."
+
 #: packages/profile/src/client/avatar-editor-style-block.tsx
 msgid "Style"
 msgstr "Style"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Subtle move, big effect. Stay calm."
+msgstr "Subtle move, big effect. Stay calm."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Super-GM level. World-class precision required."
@@ -2707,12 +4215,24 @@ msgid "Super-GM puzzle solved. Real precision."
 msgstr "Super-GM puzzle solved. Real precision."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Surround the trapped piece. No escape."
+msgstr "Surround the trapped piece. No escape."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Swallow's tail — squeeze the king from all sides."
 msgstr "Swallow's tail — squeeze the king from all sides."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Swallow's tail mate. Tight and exact."
 msgstr "Swallow's tail mate. Tight and exact."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Swallow's tail pattern — well executed."
+msgstr "Swallow's tail pattern — well executed."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Swallow's tail pattern. King is hemmed in."
+msgstr "Swallow's tail pattern. King is hemmed in."
 
 #: packages/client/src/connection/offline-indicator.tsx
 msgid "Sync issue"
@@ -2748,6 +4268,10 @@ msgid "Take a breath. The line is long but clear."
 msgstr "Take a breath. The line is long but clear."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Take a breath. The position will tell you what it needs."
+msgstr "Take a breath. The position will tell you what it needs."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Take a breath. They have no good move."
 msgstr "Take a breath. They have no good move."
 
@@ -2763,6 +4287,10 @@ msgstr "Take a breath. Which piece steps away with effect?"
 msgid "Take another look — check what's pinned first."
 msgstr "Take another look — check what's pinned first."
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Take out the defender first."
+msgstr "Take out the defender first."
+
 #: packages/ui/src/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx
 msgid "Tap the field or icon to copy"
 msgstr "Tap the field or icon to copy"
@@ -2775,9 +4303,37 @@ msgstr "Tap to copy"
 msgid "Tap to return to your space"
 msgstr "Tap to return to your space"
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Tempi counted, pawn ending won. Nice."
+msgstr "Tempi counted, pawn ending won. Nice."
+
 #: packages/ui/src/components/text-input/text-input.example.tsx
 msgid "TextInput"
 msgstr "TextInput"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "That far pawn isn't just a pawn — it's a threat."
+msgstr "That far pawn isn't just a pawn — it's a threat."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "That one didn't want to cooperate — let's grab another."
+msgstr "That one didn't want to cooperate — let's grab another."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "That pawn just pushed two. En passant is on."
+msgstr "That pawn just pushed two. En passant is on."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "That pawn wants to be a queen."
+msgstr "That pawn wants to be a queen."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "That's a reasonable idea. There's a sharper one though."
+msgstr "That's a reasonable idea. There's a sharper one though."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "That's the one. Keep calculating."
+msgstr "That's the one. Keep calculating."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
@@ -2801,12 +4357,32 @@ msgid "The back rank looks weak. How can we punish that?"
 msgstr "The back rank looks weak. How can we punish that?"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "The bishops cut from two angles. Boden style."
+msgstr "The bishops cut from two angles. Boden style."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "The corner trap is working."
+msgstr "The corner trap is working."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "The fork is still there. Two targets, one move."
 msgstr "The fork is still there. Two targets, one move."
 
 #: packages/spaces/src/client/module/games-main-menu.tsx
 msgid "The host picks the game for this space."
 msgstr "The host picks the game for this space."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "The king has fewer squares now. Press on."
+msgstr "The king has fewer squares now. Press on."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "The king has no cover. Strike now."
+msgstr "The king has no cover. Strike now."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "The king is choked by its own epaulettes."
+msgstr "The king is choked by its own epaulettes."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "The king is cornered — finish it off."
@@ -2823,6 +4399,10 @@ msgstr "The king is out in the open. Press the attack."
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "The king is stuck in the corner. Box it in."
 msgstr "The king is stuck in the corner. Box it in."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "The king's own pawns betrayed it. Nice."
+msgstr "The king's own pawns betrayed it. Nice."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "The knight does the work. Find the smother."
@@ -2845,8 +4425,24 @@ msgid "The pattern is forming. Knight and rook in sync."
 msgstr "The pattern is forming. Knight and rook in sync."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "The pawn that just pushed two can be captured."
+msgstr "The pawn that just pushed two can be captured."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "The pawns trap their own king on the back rank."
+msgstr "The pawns trap their own king on the back rank."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "The pin is set. Now you can deliver."
 msgstr "The pin is set. Now you can deliver."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "The pin theme is there. Find the right pressure."
+msgstr "The pin theme is there. Find the right pressure."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "The pinned piece can't run. Pile on."
+msgstr "The pinned piece can't run. Pile on."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "The position is collapsing. Finish it."
@@ -2863,6 +4459,14 @@ msgstr "The sacrifice paid off! Brave and accurate."
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "The setup is right. Reveal the check."
 msgstr "The setup is right. Reveal the check."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "The smother is set up. Sac and mate."
+msgstr "The smother is set up. Sac and mate."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "The target is protected. Take the protector."
+msgstr "The target is protected. Take the protector."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "The weak square is cracking. Press on."
@@ -2885,6 +4489,10 @@ msgid "Themed boards"
 msgstr "Themed boards"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "There's a clear edge to grab here."
+msgstr "There's a clear edge to grab here."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "There's a crushing line — keep searching."
 msgstr "There's a crushing line — keep searching."
 
@@ -2905,12 +4513,20 @@ msgid "They took the bait. Spring the trap."
 msgstr "They took the bait. Spring the trap."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "They're falling apart. Press it home."
+msgstr "They're falling apart. Press it home."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "They're stuck. Press the advantage."
 msgstr "They're stuck. Press the advantage."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Think Anastasia — knight and rook together."
 msgstr "Think Anastasia — knight and rook together."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Think Arabian — the knight covers, the rook strikes."
+msgstr "Think Arabian — the knight covers, the rook strikes."
 
 #: packages/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "This deletes all local SQLite data and reloads the app. You cannot undo this."
@@ -2945,8 +4561,20 @@ msgid "This tab"
 msgstr "This tab"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Three moves — and every one should be forcing."
+msgstr "Three moves — and every one should be forcing."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Three moves to mate. Every move should be a check or threat."
+msgstr "Three moves to mate. Every move should be a check or threat."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Three-move mate, calculated cleanly. Wonderful."
 msgstr "Three-move mate, calculated cleanly. Wonderful."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Three-mover solved. Real calculation."
+msgstr "Three-mover solved. Real calculation."
 
 #: packages/spaces/src/client/games-main-menu.tsx
 #~ msgid "Tic-tac-toe"
@@ -2970,6 +4598,14 @@ msgstr "Todos, UI explorer, Patch DB and Room playgrounds"
 msgid "Tools for debugging and exploring the UI."
 msgstr "Tools for debugging and exploring the UI."
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Top-tier puzzle done. Outstanding chess."
+msgstr "Top-tier puzzle done. Outstanding chess."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Top-tier puzzle. Be exact."
+msgstr "Top-tier puzzle. Be exact."
+
 #: packages/profile/src/client/avatar-editor-transform-block.tsx
 msgid "Transform"
 msgstr "Transform"
@@ -2977,6 +4613,14 @@ msgstr "Transform"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Trapped and won. Patient work."
 msgstr "Trapped and won. Patient work."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Trapped piece can't run. Collect it."
+msgstr "Trapped piece can't run. Collect it."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Trapped piece secured. No escape."
+msgstr "Trapped piece secured. No escape."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Triangle mate — nicely coordinated."
@@ -2987,6 +4631,26 @@ msgid "Triangle mate pattern. Coordinate the pieces."
 msgstr "Triangle mate pattern. Coordinate the pieces."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Triangle mate. Three points of pressure."
+msgstr "Triangle mate. Three points of pressure."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Triangle of pressure on the king."
+msgstr "Triangle of pressure on the king."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Triangle of pressure. Lovely."
+msgstr "Triangle of pressure. Lovely."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Triangle pattern emerging. Coordinate."
+msgstr "Triangle pattern emerging. Coordinate."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Try a check. One of them mates."
+msgstr "Try a check. One of them mates."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Try an in-between move before capturing."
 msgstr "Try an in-between move before capturing."
 
@@ -2995,8 +4659,16 @@ msgid "Try dragging a piece on the board with this modal open. With the overlay 
 msgstr "Try dragging a piece on the board with this modal open. With the overlay portal enabled, the dragged piece floats above this modal."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Two attacked. Take the bigger one."
+msgstr "Two attacked. Take the bigger one."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Two bishops crossing? That's Boden's territory."
 msgstr "Two bishops crossing? That's Boden's territory."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Two bishops on intersecting diagonals."
+msgstr "Two bishops on intersecting diagonals."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Two bishops, one cage. Elegant."
@@ -3027,8 +4699,24 @@ msgid "Two masters, one solver — you."
 msgstr "Two masters, one solver — you."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Two moves and it's done. Visualize the second move first."
+msgstr "Two moves and it's done. Visualize the second move first."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Two rooks on the seventh — devastating."
+msgstr "Two rooks on the seventh — devastating."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Two targets, one move. Hunt for the fork."
 msgstr "Two targets, one move. Hunt for the fork."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Two-move mate. Start with the move that limits their reply."
+msgstr "Two-move mate. Start with the move that limits their reply."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Two-mover finished cleanly. Nice."
+msgstr "Two-mover finished cleanly. Nice."
 
 #: packages/profile/src/client/avatar-editor-background-block.tsx
 msgid "Type"
@@ -3062,6 +4750,10 @@ msgstr "UI explorer, debug tools."
 msgid "Under-promotion — really creative."
 msgstr "Under-promotion — really creative."
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Under-promotion worked. Don't always queen."
+msgstr "Under-promotion worked. Don't always queen."
+
 #: packages/client/src/connection/server-status-screen.tsx
 #: packages/client/src/connection/server-status-screen.tsx
 msgid "Unknown"
@@ -3086,6 +4778,14 @@ msgstr "Use light theme"
 #: packages/client/src/ui/app-commands/appearance-commands.tsx
 msgid "Use system theme"
 msgstr "Use system theme"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Use the advanced pawn. It changes the whole position."
+msgstr "Use the advanced pawn. It changes the whole position."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Used the alignment perfectly."
+msgstr "Used the alignment perfectly."
 
 #: packages/client/src/settings/settings-screen.tsx
 msgid "User"
@@ -3118,8 +4818,20 @@ msgid "Version: {appVersion}"
 msgstr "Version: {appVersion}"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Very long combination flowing. Don't lose focus."
+msgstr "Very long combination flowing. Don't lose focus."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Very long line — every move found. Brilliant."
 msgstr "Very long line — every move found. Brilliant."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Very long line. Don't lose focus on move six."
+msgstr "Very long line. Don't lose focus on move six."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Very long line. Every move should be forcing."
+msgstr "Very long line. Every move should be forcing."
 
 #: packages/patch-db-example/src/db-client/patch-detail-screen.tsx
 msgid "View parent patch"
@@ -3128,6 +4840,18 @@ msgstr "View parent patch"
 #: packages/client/src/ui/sidebar/sidebar-account-menu.tsx
 msgid "View profile"
 msgstr "View profile"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Visualize move two first, then find what gets you there."
+msgstr "Visualize move two first, then find what gets you there."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Vukovic pattern done. Rook and minor in harmony."
+msgstr "Vukovic pattern done. Rook and minor in harmony."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Vukovic pattern. Rook and minor piece combo."
+msgstr "Vukovic pattern. Rook and minor piece combo."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Vukovic's mate — finished beautifully."
@@ -3150,8 +4874,20 @@ msgid "Waiting for space sync…"
 msgstr "Waiting for space sync…"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Walk it one step at a time. The king has no run."
+msgstr "Walk it one step at a time. The king has no run."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Watch for en passant."
 msgstr "Watch for en passant."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "We'll get there. Look with fresh eyes."
+msgstr "We'll get there. Look with fresh eyes."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Weak square broken. Old-school attack."
+msgstr "Weak square broken. Old-school attack."
 
 #: packages/patch-db-example/src/db-client/query-screen.tsx
 msgid "where (JSON, optional)"
@@ -3165,9 +4901,25 @@ msgstr "Which defender needs to be removed?"
 msgid "Which piece can move and reveal an attack?"
 msgstr "Which piece can move and reveal an attack?"
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Which piece is overworked? Deflect it."
+msgstr "Which piece is overworked? Deflect it."
+
 #: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "White"
 msgstr "White"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Who unblocks the line for a free check?"
+msgstr "Who unblocks the line for a free check?"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Who's holding things together? Capture them."
+msgstr "Who's holding things together? Capture them."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Wing crumbling. Don't ease up."
+msgstr "Wing crumbling. Don't ease up."
 
 #: packages/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "wipe"
@@ -3193,6 +4945,18 @@ msgstr "Wipe local database?"
 msgid "X-ray attack — great geometric thinking."
 msgstr "X-ray attack — great geometric thinking."
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "X-ray landed. Long-range vision."
+msgstr "X-ray landed. Long-range vision."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "X-ray pressure. The piece beyond is the target."
+msgstr "X-ray pressure. The piece beyond is the target."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "X-ray ready. Hit through."
+msgstr "X-ray ready. Hit through."
+
 #: packages/client/src/connection/server-status-screen.tsx
 msgid "Yes"
 msgstr "Yes"
@@ -3200,6 +4964,10 @@ msgstr "Yes"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Yes — that's the idea. Keep the line going."
 msgstr "Yes — that's the idea. Keep the line going."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Yes! Clean solve."
+msgstr "Yes! Clean solve."
 
 #: packages/spaces/src/client/members/member-you-badge.tsx
 msgid "You"
@@ -3212,6 +4980,10 @@ msgstr "You can join again later if the space is still live."
 #: packages/profile/src/client/avatar-editor-screen.tsx
 msgid "You have unsaved avatar changes."
 msgstr "You have unsaved avatar changes."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "You saw it. Take the piece."
+msgstr "You saw it. Take the piece."
 
 #: packages/auth/src/client/use-sign-out-confirmation.tsx
 msgid "You will need to sign in again to sync with your user."
@@ -3247,12 +5019,24 @@ msgid "Your name"
 msgstr "Your name"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Your own piece is in the way. Move it with effect."
+msgstr "Your own piece is in the way. Move it with effect."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Your patience is paying off. The net is closing."
 msgstr "Your patience is paying off. The net is closing."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Your turn. Take your time and look at the whole board."
 msgstr "Your turn. Take your time and look at the whole board."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Zugzwang — they'd rather pass. Don't let them."
+msgstr "Zugzwang — they'd rather pass. Don't let them."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+msgid "Zugzwang executed. Every option was bad for them."
+msgstr "Zugzwang executed. Every option was bad for them."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Zugzwang. They had no good move."
