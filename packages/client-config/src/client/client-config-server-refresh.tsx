@@ -1,6 +1,6 @@
 import { createTypedApiRpcClient } from '../typed-api-rpc-client';
-import { useConfigService } from '@gamezilla/client-runtime/runtime-hooks';
-import type { ConfigService } from '@gamezilla/client-runtime/config-service';
+import { useConfigService } from '@gamezilla/auth/client/runtime-hooks';
+import type { ConfigService } from '@gamezilla/auth/client/config-service-types';
 import { useAsync, type AsyncRunContext } from '@gamezilla/lib/async/use-async';
 import { Button, Card, Text } from '@gamezilla/ui';
 import { Trans, useLingui } from '@lingui/react/macro';

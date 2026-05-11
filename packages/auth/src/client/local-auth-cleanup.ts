@@ -1,14 +1,7 @@
 import { ACCOUNT_SESSION_ENTITY_TYPE } from '../shared';
-import {
-  accountIdAtom,
-  loggerAtom,
-  patchDbStackAtom,
-  secureStorageAtom,
-  sessionServiceAtom,
-  sessionTokenAtom,
-} from '@gamezilla/client-runtime/atoms';
-import { getDefaultStore } from 'jotai';
-import { writeLastLocalAccountId } from '@gamezilla/auth/client/account-local-state';
+import { writeLastLocalAccountId } from './account-local-state';
+
+import { getRegisteredClientStore } from './client-store-register';
 import { writeSessionToken } from './session-token-storage';
 
 /**
@@ -18,9 +11,9 @@ import { writeSessionToken } from './session-token-storage';
 let clearMirrorsTail: Promise<unknown> = Promise.resolve();
 
 async function runClearLocalAuthMirrorsOnce(): Promise<void> {
-  const store = getDefaultStore();
-  const log = store.get(loggerAtom).child({ namespace: 'auth-cleanup' });
-  const storage = store.get(secureStorageAtom);
+  const store = getRegisteredClientStore();
+  const log = store.getLogger().child({ namespace: 'auth-cleanup' });
+  const storage = store.getSecureStorage();
   try {
     await writeSessionToken(storage, null);
   } catch (e) {
@@ -28,11 +21,11 @@ async function runClearLocalAuthMirrorsOnce(): Promise<void> {
       error: e instanceof Error ? e.message : String(e),
     });
   }
-  store.set(sessionTokenAtom, null);
+  store.setSessionToken(null);
   try {
-    const sessionSvc = await store.get(sessionServiceAtom);
+    const sessionSvc = await store.getSessionService();
     await sessionSvc.clearSession();
-    const stack = await store.get(patchDbStackAtom);
+    const stack = await store.getPatchDbStack();
     await stack.sync.markAllUnsyncedPatchesForEntityTypeAsAlreadyOnRemote(
       ACCOUNT_SESSION_ENTITY_TYPE
     );
@@ -41,7 +34,7 @@ async function runClearLocalAuthMirrorsOnce(): Promise<void> {
       error: e instanceof Error ? e.message : String(e),
     });
   } finally {
-    store.set(accountIdAtom, null);
+    store.setAccountId(null);
     try {
       await writeLastLocalAccountId(storage, null);
     } catch (e) {
@@ -53,12 +46,12 @@ async function runClearLocalAuthMirrorsOnce(): Promise<void> {
 }
 
 /**
- * Clears Gamezilla session atoms + legacy PatchDB session mirrors (no hosted-provider calls).
+ * Clears local session token + legacy PatchDB session mirrors (no hosted-provider calls).
  *
- * Clears `sessionTokenAtom` first, then runs PatchDB session cleanup while `accountIdAtom`
- * is still set so `sqlClientAtom` / `patchDbStackAtom` keep the same on-disk DB until
- * `clearSession` and `markAllUnsyncedPatchesForEntityTypeAsAlreadyOnRemote` finish (avoids
- * tearing down expo-sqlite mid-flight on web). Invocations are globally serialized.
+ * Clears `sessionToken` first, then runs PatchDB session cleanup while `accountId`
+ * is still set so the SQLite file stays the same until `clearSession` and
+ * `markAllUnsyncedPatchesForEntityTypeAsAlreadyOnRemote` finish (avoids tearing down
+ * expo-sqlite mid-flight on web). Invocations are globally serialized.
  */
 export async function clearLocalAuthMirrors(): Promise<void> {
   const done = clearMirrorsTail.then(() => runClearLocalAuthMirrorsOnce());

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { useMyId } from '@gamezilla/client-runtime/identity-context';
+import { useMyId } from '@gamezilla/auth/client/identity-context';
 import {
   SPACE_ROOM_NAME,
   useSpaceRoomSelector,

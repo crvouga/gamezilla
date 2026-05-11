@@ -1,5 +1,4 @@
-import { loggerAtom } from '@gamezilla/client-runtime/atoms';
-import { getDefaultStore } from 'jotai';
+import { getRegisteredClientStore } from './client-store-register';
 import { clearLocalAuthMirrors } from './local-auth-cleanup';
 
 export interface AuthService {
@@ -16,7 +15,7 @@ type CreateAuthServiceDeps = {
 /**
  * Hosted provider handles credentials; local PatchDB session rows are legacy-only.
  * Sign-out clears the remote session, then always runs {@link clearLocalAuthMirrors}
- * (success or failure) so local atoms and PatchDB session mirrors are not left stale.
+ * (success or failure) so local state and PatchDB session mirrors are not left stale.
  */
 export function createAuthService(deps: CreateAuthServiceDeps): AuthService {
   return {
@@ -30,8 +29,7 @@ function createSignOutHandler(
 ): AuthService['signOut'] {
   const { hostedSignOut } = deps;
   return async function signOut(): Promise<void> {
-    const store = getDefaultStore();
-    const log = store.get(loggerAtom);
+    const log = getRegisteredClientStore().getLogger();
     try {
       await hostedSignOut();
     } catch (err) {
@@ -39,7 +37,6 @@ function createSignOutHandler(
         error: err instanceof Error ? err.message : String(err),
       });
     } finally {
-      // Always clear local atoms + PatchDB session mirrors (idempotent with bridge).
       await clearLocalAuthMirrors();
     }
   };

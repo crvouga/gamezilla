@@ -1,17 +1,14 @@
 /**
- * Dependency-injection seam between the feature packages (auth, profile, …)
- * and the `client-runtime` leaf. Composition root calls
- * {@link initRuntimeFactories} at app boot with all the concrete factories;
- * the leaf atoms then construct services lazily from this registry.
- *
- * Keeps `client-runtime` free of feature imports so it remains a true leaf.
+ * Dependency-injection seam: the Expo app calls {@link initRuntimeFactories}
+ * at bootstrap; the client data plane reads concrete factories via
+ * {@link getRuntimeFactories}.
  */
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import type { PatchDbClientTransport } from '@gamezilla/patch-db/transport/interface';
 import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
-import type { DeviceService } from './device-service-interface';
-import type { SessionService } from './session-service-interface';
+import type { DeviceService } from './device-service';
+import type { SessionService } from './session-service';
 
 export type EnsureProfileFn = (db: PatchDb, accountId: string) => Promise<void>;
 
@@ -27,7 +24,6 @@ export type PatchDbHcTransportFactory = (
 ) => PatchDbClientTransport;
 
 export type RuntimeFactories = {
-  /** Persists non-encrypted device id + per-account small secrets. */
   createSecureStorage: () => SecureStorage;
   createDeviceService: (storage: SecureStorage) => Promise<DeviceService>;
   createSessionService: (
@@ -47,7 +43,6 @@ export type RuntimeFactories = {
   openAccountDb: (accountId: string) => Promise<SqlClient>;
   openAnonymousDb: (deviceId: string) => Promise<SqlClient>;
   assertDeviceId: (id: string) => void;
-  /** Constant for the entity type that flags revoked sessions. */
   accountSessionEntityType: string;
   createApiClient: (apiUrl: string) => ApiClient;
   createPatchDbHcTransport: PatchDbHcTransportFactory;
@@ -62,7 +57,7 @@ export function initRuntimeFactories(factories: RuntimeFactories): void {
 export function getRuntimeFactories(): RuntimeFactories {
   if (_factories === null) {
     throw new Error(
-      'client-runtime: runtime factories not initialized — call initRuntimeFactories at app bootstrap before atoms are read'
+      'Runtime factories not initialized — call initRuntimeFactories at app bootstrap before the client data plane mounts.'
     );
   }
   return _factories;

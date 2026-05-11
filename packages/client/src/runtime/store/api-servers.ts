@@ -1,17 +1,13 @@
 import { assert } from '@gamezilla/lib/assert';
+import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@gamezilla/lib/default-local-preview-api-origin';
+
+export { DEFAULT_LOCAL_PREVIEW_API_ORIGIN };
 
 /**
  * Production Worker hostname(s). Development must not target these unless
  * {@link productionApiUrlTigerExceptionEnabled} (Tiger Style: fail loud, never silent drift to prod).
  */
 export const PRODUCTION_API_HTTP_HOSTNAMES = ['api.gamezilla.app'] as const;
-
-/**
- * Loopback origin for `wrangler dev` in this repo (`packages/api` uses port 8788).
- * Used when `LOCAL_PREVIEW_API_ORIGIN` is unset in env and absent or blank in Doppler.
- */
-export const DEFAULT_LOCAL_PREVIEW_API_ORIGIN =
-  'http://127.0.0.1:8788' as const;
 
 function isProductionApiHttpHostname(hostname: string): boolean {
   return (PRODUCTION_API_HTTP_HOSTNAMES as readonly string[]).includes(
@@ -71,8 +67,7 @@ export function assertTigerPolicyForResolvedApiOrigin(
 }
 
 export function getApiBaseUrl(): string {
-  // `noPropertyAccessFromIndexSignature` requires bracket notation for
-  // process.env; Expo's bundler still inlines `EXPO_PUBLIC_*` literals.
+  // eslint-disable-next-line expo/no-dynamic-env-var -- `noPropertyAccessFromIndexSignature` requires bracket `process.env` access; Expo still inlines `EXPO_PUBLIC_*`.
   const raw = process.env['EXPO_PUBLIC_API_URL'];
   assert.nonEmptyString(
     raw,

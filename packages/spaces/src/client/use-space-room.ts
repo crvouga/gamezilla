@@ -1,10 +1,10 @@
-import { useMyId } from '@gamezilla/client-runtime/identity-context';
+import { useMyId } from '@gamezilla/auth/client/identity-context';
 import {
   useConfigService,
   useDeviceService,
   useKeyValueStorage,
-} from '@gamezilla/client-runtime/runtime-hooks';
-import { sessionTokenAtom } from '@gamezilla/client-runtime/atoms';
+  useSessionToken,
+} from '@gamezilla/auth/client/runtime-hooks';
 import { useCurrentSpaceIds } from './use-current-space-ids';
 import {
   SPACE_ENTITY_TYPE,
@@ -18,7 +18,6 @@ import type {
   RoomState,
 } from '@gamezilla/room';
 import { RoomMetaAttr, useRoomSnapshot } from '@gamezilla/room';
-import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
@@ -45,7 +44,7 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
   const deviceService = useDeviceService();
   const configService = useConfigService();
   const storage = useKeyValueStorage();
-  const sessionToken = useAtomValue(sessionTokenAtom);
+  const sessionToken = useSessionToken();
 
   const inThisSpace = useMemo(
     () => entries.some((e) => e.spaceId === spaceId),

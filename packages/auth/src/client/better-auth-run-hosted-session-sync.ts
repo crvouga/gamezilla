@@ -1,27 +1,16 @@
-import { writeLastLocalAccountId } from '@gamezilla/auth/client/account-local-state';
-import { writeSessionToken } from './session-token-storage';
+import { writeLastLocalAccountId } from './account-local-state';
+import type { Logger } from '@gamezilla/lib/logger/logger';
+
+import { getRegisteredClientStore } from './client-store-register';
+import { fetchAuthWhoAmI } from './better-auth-fetch-auth-whoami';
 import {
   finalizeLocalSignInAfterServerAccount,
   type EnsureProfileFn,
 } from './finalize-local-sign-in';
 import { clearLocalAuthMirrors } from './local-auth-cleanup';
-import {
-  accountIdAtom,
-  configServiceAtom,
-  deviceServiceAtom,
-  loggerAtom,
-  patchDbStackAtom,
-  secureStorageAtom,
-  sessionTokenAtom,
-} from '@gamezilla/client-runtime/atoms';
-import type { Logger } from '@gamezilla/lib/logger/logger';
-import type { getDefaultStore } from 'jotai';
-import { fetchAuthWhoAmI } from './better-auth-fetch-auth-whoami';
-
-type JotaiStore = ReturnType<typeof getDefaultStore>;
+import { writeSessionToken } from './session-token-storage';
 
 type SyncArgs = {
-  store: JotaiStore;
   isLoaded: boolean;
   isSignedIn: boolean;
   getSessionToken: () => Promise<string | null>;
@@ -41,34 +30,36 @@ export async function runHostedSessionSync(args: SyncArgs): Promise<void> {
 }
 
 async function handleHostedSignedOut(args: SyncArgs): Promise<void> {
-  const { store, lastSyncedRef } = args;
+  const { lastSyncedRef } = args;
   lastSyncedRef.current = null;
+  const store = getRegisteredClientStore();
   const hadLocal =
-    store.get(sessionTokenAtom) !== null || store.get(accountIdAtom) !== null;
+    store.getSessionToken() !== null || store.getAccountId() !== null;
   if (hadLocal) {
     await clearLocalAuthMirrors();
   }
 }
 
 async function handleHostedSignedIn(args: SyncArgs): Promise<void> {
-  const { store, getSessionToken, lastSyncedRef } = args;
+  const { getSessionToken, lastSyncedRef } = args;
   const token = await getSessionToken();
   if (token === null || token.length === 0) {
     return;
   }
 
-  const storage = store.get(secureStorageAtom);
+  const store = getRegisteredClientStore();
+  const storage = store.getSecureStorage();
   await writeSessionToken(storage, token);
-  store.set(sessionTokenAtom, token);
+  store.setSessionToken(token);
 
   if (lastSyncedRef.current === token) {
     return;
   }
 
-  const log = store.get(loggerAtom).child({ namespace: 'hosted_auth_bridge' });
-  const deviceService = await store.get(deviceServiceAtom);
+  const log = store.getLogger().child({ namespace: 'hosted_auth_bridge' });
+  const deviceService = await store.getDeviceService();
   const deviceId = deviceService.getDeviceId();
-  const config = store.get(configServiceAtom);
+  const config = store.getConfigService();
 
   try {
     const { accountId } = await fetchAuthWhoAmI({
@@ -76,9 +67,9 @@ async function handleHostedSignedIn(args: SyncArgs): Promise<void> {
       bearerToken: token,
       deviceId,
     });
-    store.set(accountIdAtom, accountId);
+    store.setAccountId(accountId);
     await writeLastLocalAccountId(storage, accountId);
-    const stack = await store.get(patchDbStackAtom);
+    const stack = await store.getPatchDbStack();
     await finalizeLocalSignInAfterServerAccount({
       db: stack.db,
       deviceId,

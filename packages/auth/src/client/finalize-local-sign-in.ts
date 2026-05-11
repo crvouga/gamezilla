@@ -1,12 +1,8 @@
 import { deleteAnonymousDatabaseFileBestEffort } from '@gamezilla/auth/client/account-db';
 import { writeLastLocalAccountId } from '@gamezilla/auth/client/account-local-state';
-import {
-  enqueueSqlClientLifecycle,
-  secureStorageAtom,
-  sessionServiceAtom,
-} from '@gamezilla/client-runtime/atoms';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
-import { getDefaultStore } from 'jotai';
+
+import { getRegisteredClientStore } from './client-store-register';
 import { ensureDeviceEntity } from './ensure-device-entity';
 
 /**
@@ -27,14 +23,14 @@ export async function finalizeLocalSignInAfterServerAccount(args: {
   ensureProfile: EnsureProfileFn;
 }): Promise<void> {
   const { db, deviceId, accountId, ensureProfile } = args;
-  const store = getDefaultStore();
-  const storage = store.get(secureStorageAtom);
+  const store = getRegisteredClientStore();
+  const storage = store.getSecureStorage();
   await writeLastLocalAccountId(storage, accountId);
-  await enqueueSqlClientLifecycle(() =>
+  await store.enqueueSqlClientLifecycle(() =>
     deleteAnonymousDatabaseFileBestEffort(deviceId)
   );
   await ensureDeviceEntity(db, deviceId);
   await ensureProfile(db, accountId);
-  const sessionSvc = await store.get(sessionServiceAtom);
+  const sessionSvc = await store.getSessionService();
   await sessionSvc.refresh();
 }

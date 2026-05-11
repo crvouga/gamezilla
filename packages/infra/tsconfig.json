@@ -12,7 +12,6 @@
       "@gamezilla/api/*": ["../api/src/*"],
       "@gamezilla/auth/*": ["../auth/src/*"],
       "@gamezilla/client/*": ["../client/src/*"],
-      "@gamezilla/client-runtime/*": ["../client-runtime/src/*"],
       "@gamezilla/lib/*": ["../lib/src/*"],
       "@gamezilla/spaces/*": ["../spaces/src/*"],
       "@gamezilla/client-config/*": ["../client-config/src/*"]

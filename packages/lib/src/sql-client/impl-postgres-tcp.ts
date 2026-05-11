@@ -8,5 +8,8 @@
  *
  * Re-exports {@link SqlClientImplBunPostgres}; prefer this module path when the
  * intent is “native TCP Postgres” in docs and infra wiring.
+ *
+ * Connection strings are sanitized (e.g. `sslrootcert` removed) before Bun
+ * `SQL` opens TCP — same URL as Neon HTTP may include libpq-only TLS keys.
  */
 export { SqlClientImplBunPostgres as SqlClientImplPostgresTcp } from './impl-bun-postgres';

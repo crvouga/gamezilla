@@ -2,9 +2,9 @@
 import { expoClient } from '@better-auth/expo/client';
 import { createAuthClient } from 'better-auth/react';
 import * as SecureStore from 'expo-secure-store';
-import { getDefaultStore, useAtomValue } from 'jotai';
 import { useEffect, useMemo, useRef, type ReactNode } from 'react';
-import { configServiceAtom } from '@gamezilla/client-runtime/atoms';
+
+import { useConfigService } from './config-service-hooks';
 import { HostedAuthPortsProvider } from './hosted-auth-ports-context';
 import type { HostedAuthPorts } from './ports';
 import { HostedAuthUiBetterAuthAdapter } from './better-auth-hosted-auth-ui-adapter';
@@ -43,7 +43,7 @@ function InnerHostedAuth({
   children: ReactNode;
   ensureProfile: EnsureProfileFn;
 }): React.ReactElement {
-  const apiUrl = useAtomValue(configServiceAtom).getApiUrl();
+  const apiUrl = useConfigService().getApiUrl();
   const baseURL = useMemo(() => authBaseUrl(apiUrl), [apiUrl]);
 
   const authClient = useMemo(
@@ -72,7 +72,6 @@ function InnerHostedAuth({
       snapshot.data !== null &&
       snapshot.data !== undefined;
     void runHostedSessionSync({
-      store: getDefaultStore(),
       isLoaded,
       isSignedIn: computedSignedIn,
       getSessionToken: async () => {

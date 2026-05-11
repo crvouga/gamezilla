@@ -94,7 +94,9 @@
     "./polyfill/index": "./src/polyfill/index.ts",
     "./sql-client/impl-planetscale": "./src/sql-client/impl-planetscale-postgres.ts",
     "./uuid": "./src/uuid/index.ts",
-    "./uuid/uuid": "./src/uuid/uuid.ts"
+    "./uuid/uuid": "./src/uuid/uuid.ts",
+    "./commit-hash-regex": "./src/commit-hash-regex.ts",
+    "./default-local-preview-api-origin": "./src/default-local-preview-api-origin.ts"
   },
   "scripts": {
     "lint": "eslint . --no-cache --max-warnings 0",

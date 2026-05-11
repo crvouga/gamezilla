@@ -36,6 +36,9 @@ yarn-error.*
 .turbo/
 /out
 
+# dependency-cruiser HTML (bun run deps:graph)
+tmp/package-deps-graph.html
+
 # Lichess puzzle CSV cache (seed:puzzles)
 packages/api/.cache/
 # Legacy Lichess cache locations (kept ignored so old checkouts don't dirty

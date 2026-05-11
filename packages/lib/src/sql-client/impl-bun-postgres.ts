@@ -2,6 +2,7 @@ import { SQL } from 'bun';
 import { assert } from '../assert';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
 import { questionMarkParamsToDollarParams } from './positional-params';
+import { sanitizePostgresUrlForBunSql } from './sanitize-postgres-url-for-bun-sql';
 
 type BunSql = InstanceType<typeof SQL>;
 
@@ -11,7 +12,7 @@ export class SqlClientImplBunPostgres implements SqlClient {
   constructor(connection: string | URL | BunSql) {
     const sql =
       typeof connection === 'string' || connection instanceof URL
-        ? new SQL(connection as string)
+        ? new SQL(sanitizePostgresUrlForBunSql(connection))
         : connection;
     this.client = createClient(sql);
   }

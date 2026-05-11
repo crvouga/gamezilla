@@ -110,7 +110,6 @@
   },
   "dependencies": {
     "@gamezilla/auth": "workspace:*",
-    "@gamezilla/client-runtime": "workspace:*",
     "@gamezilla/lib": "workspace:*",
     "@gamezilla/patch-db": "workspace:*",
     "@gamezilla/room": "workspace:*",
@@ -119,7 +118,6 @@
     "@lingui/react": "catalog:",
     "expo-router": "catalog:",
     "hono": "catalog:",
-    "jotai": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:",
     "react-native-safe-area-context": "catalog:"

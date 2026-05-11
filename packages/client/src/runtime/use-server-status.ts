@@ -1,6 +1,6 @@
+import { useConfigService } from '@gamezilla/auth/client/config-service-hooks';
 import { useNetworkState } from 'expo-network';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useConfigService } from './runtime-hooks';
 
 export type HealthCheckPhase = 'idle' | 'loading' | 'success' | 'error';
 
@@ -120,10 +120,6 @@ function computeAggregateStatus(
   isConnected: boolean | null | undefined,
   phase: HealthCheckPhase
 ): 'online' | 'offline' | 'warning' {
-  // A successful health check is the strongest possible signal that the
-  // device is online — trust it over OS-reported network flags, which
-  // can be wrong (e.g. expo-network on web frequently reports
-  // isConnected=false even when the network works).
   if (phase === 'success') return 'online';
   if (phase === 'loading') return 'warning';
   if (isConnected === false) return 'offline';

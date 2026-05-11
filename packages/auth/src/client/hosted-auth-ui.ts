@@ -1,7 +1,7 @@
 import { HOSTED_SIGN_IN_UNAVAILABLE_REASON } from './auth-errors';
 import type { HostedAuthUiPort } from './ports';
 
-/** Hosted sign-in needs a non-empty API origin (see {@link configServiceAtom}). */
+/** Hosted sign-in needs a non-empty API origin (see `useConfigService().getApiUrl()`). */
 export function deriveHostedAuthUiFromApiUrl(
   apiUrl: string | null | undefined
 ): HostedAuthUiPort {

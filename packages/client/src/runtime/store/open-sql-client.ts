@@ -2,10 +2,10 @@
  * Local SQLite for patch-db: per-account (or anonymous-by-device-id) file
  * via expo-sqlite. The actual open/recovery logic lives in
  * `@gamezilla/auth/client/account-db`; here we just delegate via injected
- * factories so client-runtime stays a leaf.
+ * factories so this module stays a leaf.
  */
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
-import { getRuntimeFactories } from './runtime-factories';
+import { getRuntimeFactories } from '@gamezilla/auth/client/runtime-factories';
 
 export type OpenSqlClientRuntimeDeps = {
   getAccountId: () => string | null;

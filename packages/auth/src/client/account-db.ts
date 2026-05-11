@@ -2,7 +2,7 @@
  * Per-account local SQLite (Expo) — structural isolation without SQLCipher.
  *
  * **Web note:** `sqlClientAtom` opens patch-db with **sql.js** in-memory (see
- * `@gamezilla/client-runtime/open-sql-client`); this module is for **native** file-backed opens only.
+ * `@gamezilla/client/runtime/store/open-sql-client`); this module is for **native** file-backed opens only.
  *
  * **Invariant:** Callers (Jotai `sqlClientAtom`) own at most one open connection at a time;
  * abort the previous `SqlClient` before opening another. All native opens for patch-db

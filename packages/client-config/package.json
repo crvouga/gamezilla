@@ -18,7 +18,6 @@
   },
   "dependencies": {
     "@gamezilla/auth": "workspace:*",
-    "@gamezilla/client-runtime": "workspace:*",
     "@gamezilla/lib": "workspace:*",
     "@gamezilla/patch-db": "workspace:*",
     "@gamezilla/ui": "workspace:*",

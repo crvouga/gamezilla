@@ -1,4 +1,3 @@
-/** Backwards-compat shim; hooks live in `@gamezilla/client-runtime/runtime-hooks`. */
 export {
   useConfigService,
   useDeviceService,
@@ -6,4 +5,5 @@ export {
   useLogger,
   useSecureStorage,
   useSessionService,
-} from '@gamezilla/client-runtime/runtime-hooks';
+  useSessionToken,
+} from '@gamezilla/auth/client/runtime-hooks';

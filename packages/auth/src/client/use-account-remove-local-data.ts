@@ -1,12 +1,10 @@
-import { removeLocalDataForAccount } from '@gamezilla/client-runtime/patch-db-runtime';
-import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
+import { removeLocalDataForAccount } from './remove-local-data-for-account-bridge';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback } from 'react';
 import { Alert, Platform } from 'react-native';
 
 type UseAccountRemoveLocalDataArgs = {
   readonly accountId: string | null;
-  readonly secureStorage: SecureStorage;
   readonly refreshSession: () => Promise<void>;
 };
 
@@ -15,7 +13,6 @@ type UseAccountRemoveLocalDataArgs = {
  */
 export function useAccountRemoveLocalData({
   accountId,
-  secureStorage,
   refreshSession,
 }: UseAccountRemoveLocalDataArgs): () => void {
   const { t } = useLingui();
@@ -37,7 +34,7 @@ export function useAccountRemoveLocalData({
           onPress: () => {
             void (async () => {
               try {
-                await removeLocalDataForAccount(id, secureStorage);
+                await removeLocalDataForAccount(id);
                 await refreshSession();
               } catch (err: unknown) {
                 Alert.alert(
@@ -50,5 +47,5 @@ export function useAccountRemoveLocalData({
         },
       ]
     );
-  }, [accountId, refreshSession, secureStorage, t]);
+  }, [accountId, refreshSession, t]);
 }
