@@ -1,4 +1,4 @@
-import { useDeviceService } from './runtime-hooks';
+import { useDeviceService } from './device-service-context';
 
 /** Install device id for the current install. */
 export function useMyDeviceId(): string {

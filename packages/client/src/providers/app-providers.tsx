@@ -1,0 +1,83 @@
+import { ProfileProvider } from '@gamezilla/profile/client/profile-provider';
+import { preventSplashAutoHide } from '@gamezilla/ui';
+import type { ReactNode } from 'react';
+
+import { AccountIdProviderWrapper } from './account-id-provider';
+import { ApiClientProviderWrapper } from './api-client-provider';
+import { AppI18nProviderWrapper } from './app-i18n-provider';
+import { AppThemeProvider } from './app-theme-provider';
+import { CommandRegistryProviderWrapper } from './command-registry-provider';
+import { ConfigServiceProviderWrapper } from './config-service-provider';
+import { DeviceEntityBootstrapProvider } from './device-entity-bootstrap-provider';
+import { DeviceServiceProviderWrapper } from './device-service-provider';
+import { FontsProvider } from './fonts-provider';
+import { GamesBootstrapProvider } from './games-bootstrap-provider';
+import { GestureHandlerProvider } from './gesture-handler-provider';
+import { KeyValueStorageProvider } from './key-value-storage-provider';
+import { LoggerProvider } from './logger-provider';
+import { PatchDbLocalDataActionsProvider } from './patch-db-local-data-actions-provider';
+import { PatchDbProvider } from './patch-db-provider';
+import { SafeAreaProviderWrapper } from './safe-area-provider';
+import { SecureStorageProvider } from './secure-storage-provider';
+import { ClientSessionServiceProvider } from './session-service-provider';
+import { SessionTokenProviderWrapper } from './session-token-provider';
+import { SkiaRootProvider } from './skia-root-provider';
+import { SqlClientProvider } from './sql-client-provider';
+import { SuspenseRootProvider } from './suspense-root-provider';
+import { UiPortalsProvider } from './ui-portals-provider';
+
+void preventSplashAutoHide();
+
+export function AppProviders({ children }: { children: ReactNode }): ReactNode {
+  return (
+    <GestureHandlerProvider>
+      <SafeAreaProviderWrapper>
+        <FontsProvider>
+          <AppThemeProvider>
+            <SuspenseRootProvider>
+              <SkiaRootProvider>
+                <AppI18nProviderWrapper>
+                  <UiPortalsProvider>
+                    <LoggerProvider>
+                      <SecureStorageProvider>
+                        <KeyValueStorageProvider>
+                          <ConfigServiceProviderWrapper>
+                            <ApiClientProviderWrapper>
+                              <DeviceServiceProviderWrapper>
+                                <SessionTokenProviderWrapper>
+                                  <AccountIdProviderWrapper>
+                                    <SqlClientProvider>
+                                      <PatchDbProvider>
+                                        <DeviceEntityBootstrapProvider>
+                                          <ClientSessionServiceProvider>
+                                            <PatchDbLocalDataActionsProvider>
+                                              <ProfileProvider>
+                                                <GamesBootstrapProvider>
+                                                  <CommandRegistryProviderWrapper>
+                                                    {children}
+                                                  </CommandRegistryProviderWrapper>
+                                                </GamesBootstrapProvider>
+                                              </ProfileProvider>
+                                            </PatchDbLocalDataActionsProvider>
+                                          </ClientSessionServiceProvider>
+                                        </DeviceEntityBootstrapProvider>
+                                      </PatchDbProvider>
+                                    </SqlClientProvider>
+                                  </AccountIdProviderWrapper>
+                                </SessionTokenProviderWrapper>
+                              </DeviceServiceProviderWrapper>
+                            </ApiClientProviderWrapper>
+                          </ConfigServiceProviderWrapper>
+                        </KeyValueStorageProvider>
+                      </SecureStorageProvider>
+                    </LoggerProvider>
+                  </UiPortalsProvider>
+                </AppI18nProviderWrapper>
+              </SkiaRootProvider>
+            </SuspenseRootProvider>
+          </AppThemeProvider>
+        </FontsProvider>
+      </SafeAreaProviderWrapper>
+    </GestureHandlerProvider>
+  );
+}

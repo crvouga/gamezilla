@@ -1,11 +1,20 @@
 import { expo } from '@better-auth/expo';
-import type { HostedBetterAuth } from './api-hono-env';
 import type { SecretStore } from '@gamezilla/lib/secret-store';
 import { betterAuth } from 'better-auth';
 import { bearer } from 'better-auth/plugins';
 import { Kysely, PostgresDialect } from 'kysely';
 import { Pool } from 'pg';
 import { loadBetterAuthSecretsWorker } from './better-auth-load-secrets';
+
+/** Narrow surface — Better Auth's `Auth` generic does not match our `createBetterAuth` options. */
+export type HostedBetterAuth = {
+  handler: (request: Request) => Promise<Response>;
+  readonly api: {
+    getSession: (args: { headers: Headers }) => Promise<{
+      user?: { id?: unknown; email?: unknown };
+    } | null>;
+  };
+};
 
 export type BetterAuthRequestStack = {
   readonly auth: HostedBetterAuth;

@@ -13,18 +13,15 @@ import { ACTOR_ID_HEADER, authorizeSpaceDoWebSocket } from './space-do-auth';
 export function createSpaceApp() {
   return new Hono<ApiHonoEnv>().get('/space/ws', async (c) => {
     const db = c.get('patchDb');
-    const bearerAuth = c.get('bearerAuth');
+    const betterAuth = c.get('betterAuth');
     const topic = c.req.query('topic');
     if (typeof topic !== 'string' || topic.length === 0) {
       return c.json({ error: 'missing or empty topic query parameter' }, 400);
     }
 
-    const auth = await authorizeSpaceDoWebSocket(
-      db,
-      c.req.raw,
-      topic,
-      bearerAuth
-    );
+    const auth = await authorizeSpaceDoWebSocket(db, c.req.raw, topic, {
+      auth: betterAuth,
+    });
     if (auth instanceof Response) {
       return auth;
     }

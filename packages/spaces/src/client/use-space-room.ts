@@ -1,10 +1,8 @@
 import { useMyId } from '@gamezilla/auth/client/identity-context';
-import {
-  useConfigService,
-  useDeviceService,
-  useKeyValueStorage,
-  useSessionToken,
-} from '@gamezilla/auth/client/runtime-hooks';
+import { useConfigService } from '@gamezilla/auth/client/config-service-context';
+import { useDeviceService } from '@gamezilla/auth/client/device-service-context';
+import { useSessionToken } from '@gamezilla/auth/client/session-token-context';
+import { useKeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
 import { useCurrentSpaceIds } from './use-current-space-ids';
 import {
   SPACE_ENTITY_TYPE,

@@ -13,11 +13,12 @@ export {
   type CachedEntitySnapshot,
 } from './entity-store';
 export {
-  PatchDbStackContextProvider,
-  usePatchDbStack,
-  type PatchDbStackValue,
-} from './patch-db-stack-context';
-export { usePatchDb } from './use-patch-db';
+  PatchDbContextProvider,
+  usePatchDb,
+  usePubSub,
+  useSync,
+  type PatchDbValue,
+} from './patch-db-context';
 export { useEntity } from './use-entity';
 export { useEntityAttribute } from './use-entity-attribute';
 export { useQuery, type UseQueryResult } from './use-query';

@@ -6,7 +6,7 @@
 
 import { useAuth } from '@gamezilla/auth/client/auth-context';
 import { useServerStatus } from '@gamezilla/client/connection/use-server-status';
-import { useLogger } from '@gamezilla/client/runtime/runtime-hooks';
+import { useLogger } from '@gamezilla/lib/logger/react';
 import { SidebarAccountMenuHeader } from '@gamezilla/client/ui/sidebar/sidebar-account-menu-header';
 import { SidebarAccountTrigger } from '@gamezilla/client/ui/sidebar/sidebar-account-trigger';
 import { useAsync } from '@gamezilla/lib/async/use-async';
@@ -31,11 +31,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type AnchorRect = { x: number; y: number; width: number; height: number };
 
-type Auth = ReturnType<typeof useAuth>;
 type ServerStatus = ReturnType<typeof useServerStatus>;
 
-function useAccountMenuActions(args: { auth: Auth; close: () => void }) {
-  const { auth, close } = args;
+function useAccountMenuActions(args: {
+  isAuthenticated: boolean;
+  openSignOutConfirm: () => void;
+  openSignInModal: () => void;
+  close: () => void;
+}) {
+  const { isAuthenticated, openSignOutConfirm, openSignInModal, close } = args;
   const router = useRouter();
   const log = useLogger('sidebar-account-menu');
 
@@ -56,10 +60,10 @@ function useAccountMenuActions(args: { auth: Auth; close: () => void }) {
 
   const { run: runAuth } = useAsync({
     operation: async () => {
-      if (auth.isAuthenticated) {
-        auth.openSignOutConfirm();
+      if (isAuthenticated) {
+        openSignOutConfirm();
       } else {
-        auth.openSignInModal();
+        openSignInModal();
       }
     },
     options: {
@@ -141,30 +145,34 @@ function buildConnectionRow(args: {
   };
 }
 
-function buildAuthRow(auth: Auth, onAuth: () => void): MenuRow {
-  const label = auth.isAuthenticated ? t`Sign out` : t`Sign in`;
+function buildAuthRow(isAuthenticated: boolean, onAuth: () => void): MenuRow {
+  const label = isAuthenticated ? t`Sign out` : t`Sign in`;
   return {
     type: 'item',
     id: 'sign-in',
     label,
-    icon: auth.isAuthenticated
-      ? 'arrow.right.from.bracket'
-      : 'right.to.bracket',
+    icon: isAuthenticated ? 'arrow.right.from.bracket' : 'right.to.bracket',
     onPress: onAuth,
     accessibilityLabel: label,
   };
 }
 
 function buildMenuContent(args: {
-  auth: Auth;
+  isAuthenticated: boolean;
   serverStatus: ServerStatus;
   onProfile: () => void;
   onServerStatus: () => void;
   onAuth: () => void;
   onSettings: () => void;
 }): FloatingMenuContent {
-  const { auth, serverStatus, onProfile, onServerStatus, onAuth, onSettings } =
-    args;
+  const {
+    isAuthenticated,
+    serverStatus,
+    onProfile,
+    onServerStatus,
+    onAuth,
+    onSettings,
+  } = args;
   return {
     header: { title: <SidebarAccountMenuHeader /> },
     rows: [
@@ -177,7 +185,7 @@ function buildMenuContent(args: {
         accessibilityLabel: t`View profile`,
       },
       buildConnectionRow({ serverStatus, onServerStatus }),
-      buildAuthRow(auth, onAuth),
+      buildAuthRow(isAuthenticated, onAuth),
       { type: 'divider', id: 'after-auth' },
       {
         type: 'item',
@@ -192,7 +200,7 @@ function buildMenuContent(args: {
 }
 
 export function SidebarAccountMenu() {
-  const auth = useAuth();
+  const { isAuthenticated, openSignOutConfirm, openSignInModal } = useAuth();
   const insets = useSafeAreaInsets();
   const triggerRef = useRef<ElementRef<typeof Box>>(null);
   const serverStatus = useServerStatus();
@@ -218,19 +226,31 @@ export function SidebarAccountMenu() {
   }, []);
 
   const { onProfile, onSettings, onServerStatus, onAuth } =
-    useAccountMenuActions({ auth, close });
+    useAccountMenuActions({
+      isAuthenticated,
+      openSignOutConfirm,
+      openSignInModal,
+      close,
+    });
 
   const menuContent = useMemo(
     () =>
       buildMenuContent({
-        auth,
+        isAuthenticated,
         serverStatus,
         onProfile,
         onServerStatus,
         onAuth,
         onSettings,
       }),
-    [auth, serverStatus, onProfile, onServerStatus, onAuth, onSettings]
+    [
+      isAuthenticated,
+      serverStatus,
+      onProfile,
+      onServerStatus,
+      onAuth,
+      onSettings,
+    ]
   );
 
   return (

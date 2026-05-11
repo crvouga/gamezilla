@@ -1,32 +1,23 @@
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 
-import type {
-  AuthSessionPort,
-  BetterAuthSessionApi,
-  HttpBearerAuthPorts,
-} from './auth-ports';
 import type { ApiWorkerBindings } from './api-worker-bindings';
+import type { HostedBetterAuth } from './better-auth-create';
+import type { SessionAuth } from './session-middleware';
 
-/** Better Auth instance mounted on Hono (`handler` + {@link BetterAuthSessionApi}). */
-export type HostedBetterAuth = BetterAuthSessionApi & {
-  handler: (request: Request) => Promise<Response>;
-};
+export type { HostedBetterAuth } from './better-auth-create';
 
 /**
  * Hono `Bindings` + `Variables` for the API Worker (Hyperdrive-per-request DB + auth).
  *
- * Generic over the concrete auth-context returned by
- * {@link AuthSessionPort.requireAuthContext}. Auth declares
- * `Hono<ApiHonoEnv<AuthContext>>` at the type boundary; other features that
- * only read other variables use the default `unknown` and never touch
- * `sessionAuth.requireAuthContext`.
+ * `TAuthContext` is unused now that `sessionAuth` resolves directly to the
+ * concrete `AuthContext`, but kept as a phantom parameter so existing
+ * `Hono<ApiHonoEnv<AuthContext>>` annotations stay valid during the cleanup.
  */
-export type ApiHonoEnv<TAuthContext = unknown> = {
+export type ApiHonoEnv<_TAuthContext = unknown> = {
   Bindings: ApiWorkerBindings;
   Variables: {
     patchDb: PatchDb;
-    sessionAuth: AuthSessionPort<TAuthContext>;
+    sessionAuth: SessionAuth;
     betterAuth: HostedBetterAuth;
-    bearerAuth: HttpBearerAuthPorts;
   };
 };

@@ -8,6 +8,7 @@
     "./client/profile-username-screen": "./src/client/profile-username-screen.tsx",
     "./client/profile-actions": "./src/client/profile-actions.ts",
     "./client/ensure-profile-entity": "./src/client/ensure-profile-entity.ts",
+    "./client/profile-provider": "./src/client/profile-provider.tsx",
     "./client/use-profile-entity-by-id": "./src/client/use-profile-entity-by-id.ts",
     "./client/use-my-profile-id": "./src/client/use-my-profile-id.ts",
     "./client/user-display-name": "./src/client/user-display-name.tsx",

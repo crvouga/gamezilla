@@ -12,8 +12,8 @@ import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import {
   ANON_ID_HEADER,
   resolveAccountIdFromBearer,
-  type HttpBearerAuthPorts,
-} from '@gamezilla/auth/server/auth-ports';
+  type HostedBetterAuth,
+} from '@gamezilla/auth/server';
 
 const ROOM_TOPIC_PREFIX = 'space:' as const;
 
@@ -115,7 +115,9 @@ function guestMembershipDenied(
   return null;
 }
 
-export type SpaceDoAuthDeps = HttpBearerAuthPorts;
+export type SpaceDoAuthDeps = {
+  readonly auth: HostedBetterAuth;
+};
 
 async function resolveActorIdForSpaceWebSocket(
   db: PatchDb,
@@ -134,7 +136,7 @@ async function resolveActorIdForSpaceWebSocket(
     assertUuid(installId, 'deviceId must be a valid UUID');
     const myId = await resolveAccountIdFromBearer({
       db,
-      bearerAuth: deps,
+      auth: deps.auth,
       bearerToken: bearer,
       deviceId: installId,
     });

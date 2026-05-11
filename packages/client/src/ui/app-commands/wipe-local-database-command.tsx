@@ -1,10 +1,11 @@
-import { clearLocalDatabaseAndReload } from '@gamezilla/client/ui/patch-db-bootstrap';
+import { usePatchDbLocalDataActions } from '@gamezilla/auth/client/patch-db-local-data-actions-context';
 import { ConfirmationModal, RegisterCommand } from '@gamezilla/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 
 export function WipeLocalDatabaseCommand() {
   const { t } = useLingui();
+  const { clearLocalDatabaseAndReload } = usePatchDbLocalDataActions();
   const [visible, setVisible] = useState(false);
   return (
     <>

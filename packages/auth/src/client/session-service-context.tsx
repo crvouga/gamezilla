@@ -8,7 +8,7 @@ export function useSessionService(): SessionService {
   const v = useContext(SessionServiceContext);
   if (v === null) {
     throw new Error(
-      'useSessionService: missing provider — wrap the app with ClientDataPlaneProvider from @gamezilla/client'
+      'useSessionService: missing provider — wrap the app with AppProviders from @gamezilla/client'
     );
   }
   return v;

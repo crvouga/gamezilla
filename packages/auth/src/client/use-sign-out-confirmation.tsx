@@ -1,12 +1,12 @@
 import { ConfirmationModal } from '@gamezilla/ui';
-import { useLogger } from './runtime-hooks';
+import { useLogger } from '@gamezilla/lib/logger/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 
 /**
  * Wraps the sign-out {@link ConfirmationModal}: closes on success, keeps the
  * modal open and shows a localized error only for unexpected programmer-error
- * throws. `auth-service.signOut` swallows offline / server-revoke failures so
+ * throws. The provided `signOut` swallows offline / server-revoke failures so
  * the happy path (including offline) always closes the modal.
  */
 export function useSignOutConfirmationModal(args: {

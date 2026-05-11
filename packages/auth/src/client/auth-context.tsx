@@ -1,38 +1,30 @@
-import { usePatchDbStack } from '@gamezilla/patch-db/react';
+/* eslint-disable lingui/no-unlocalized-strings -- Better Auth / Expo wiring (not user-facing copy). */
+import { expoClient } from '@better-auth/expo/client';
+import { createAuthClient } from 'better-auth/react';
+import * as SecureStore from 'expo-secure-store';
 import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
-  useLayoutEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from 'react';
 
-import { ACCOUNT_SESSION_ENTITY_TYPE, AccountSessionAttr } from '../shared';
-import { createAuthService } from './auth-service';
-import { deriveStateFromSession, type SessionDerivedState } from './auth-atoms';
-import { useClientStore } from './client-store-context';
-import { useDeviceService } from './device-service-context';
+import {
+  useDerivedSessionState,
+  useHostedSessionSyncEffect,
+  useHostedSyncRuntime,
+  useSignOut,
+  type AuthClient,
+} from './auth-context-hooks';
+import type { SessionDerivedState } from './auth-atoms';
+import { HOSTED_SIGN_IN_UNAVAILABLE_REASON } from './auth-errors';
+import { useConfigService } from './config-service-context';
 import type { EnsureProfileFn } from './finalize-local-sign-in';
-import { deriveHostedAuthUiFromApiUrl } from './hosted-auth-ui';
-import { HostedAuthRuntime } from './hosted-auth-runtime';
-import { useHostedAuthPorts } from './hosted-auth-ports-context';
 import { IdentityProvider } from './identity-context';
-import type { HostedAuthUiPort } from './ports';
 import { SignInModal } from './sign-in-modal';
-import { useSessionService } from './session-service-context';
 import { useSignOutConfirmationModal } from './use-sign-out-confirmation';
-
-const emptyDerived: SessionDerivedState = {
-  deviceId: '',
-  session: null,
-  accountId: null,
-  isAuthenticated: false,
-  myId: '',
-};
 
 export type AuthState = {
   deviceId: string;
@@ -40,7 +32,8 @@ export type AuthState = {
   isAuthenticated: boolean;
   myId: string;
   session: SessionDerivedState['session'];
-  providers: { hosted: HostedAuthUiPort };
+  signInAvailable: boolean;
+  signInUnavailableReason: string | null;
   signInModalOpen: boolean;
   openSignInModal: () => void;
   closeSignInModal: () => void;
@@ -52,277 +45,175 @@ export type AuthState = {
   refreshSession: () => Promise<void>;
 };
 
-const AuthStateContext = createContext<AuthState | null>(null);
+const AuthCtx = createContext<AuthState | null>(null);
 
-const authNotMountedAsync = async (): Promise<void> => {
-  throw new Error('AuthProvider not mounted');
-};
-
-type AuthActions = {
-  signInWithHosted: () => Promise<void>;
-  signOut: () => Promise<void>;
-  refreshSession: () => Promise<void>;
-};
-
-const defaultActions: AuthActions = {
-  signInWithHosted: authNotMountedAsync,
-  signOut: authNotMountedAsync,
-  refreshSession: async () => {},
-};
-
-function AuthSessionSync({
-  setDerived,
-}: {
-  setDerived: (next: SessionDerivedState) => void;
-}): null {
-  const store = useClientStore();
-  const deviceService = useDeviceService();
-  const sessionService = useSessionService();
-  const stack = usePatchDbStack();
-  const deviceId = deviceService.getDeviceId();
-
-  const pushDerived = useCallback(async () => {
+function authBaseUrl(apiUrl: string): string {
+  const trimmed = apiUrl.trim();
+  let origin =
+    trimmed.length > 0 ? trimmed.replace(/\/$/, '') : 'http://127.0.0.1:8788';
+  // Keep hosted auth on same-site host during local web dev to preserve
+  // Better Auth state cookie across /sign-in -> /callback.
+  if (
+    typeof window !== 'undefined' &&
+    window.location.hostname === 'localhost'
+  ) {
     try {
-      await sessionService.refresh();
-      setDerived(
-        deriveStateFromSession({
-          deviceId,
-          sessionService,
-          sessionToken: store.getSessionToken(),
-          accountIdFromStore: store.getAccountId(),
-        })
-      );
-    } catch {
-      // Stale `sessionService.refresh` after stack replacement.
-    }
-  }, [deviceId, sessionService, setDerived, store]);
-
-  useEffect(() => {
-    return store.subscribe(() => {
-      void pushDerived();
-    });
-  }, [store, pushDerived]);
-
-  useEffect(() => {
-    void pushDerived();
-  }, [pushDerived, stack]);
-
-  useEffect(() => {
-    let cancelled = false;
-    let unsub: (() => void) | null = null;
-
-    void (async () => {
-      try {
-        await pushDerived();
-        if (cancelled) return;
-        unsub = stack.decorated.subscribe.entities(
-          {
-            entityType: ACCOUNT_SESSION_ENTITY_TYPE,
-            where: {
-              type: '=',
-              attribute: AccountSessionAttr.deviceId.key,
-              value: deviceId,
-            },
-          },
-          () => {
-            void pushDerived();
-          }
-        );
-      } catch {
-        // Stale derivation transients.
+      const u = new URL(origin);
+      if (u.hostname === '127.0.0.1') {
+        u.hostname = 'localhost';
+        origin = u.origin;
       }
-    })();
-
-    return () => {
-      cancelled = true;
-      unsub?.();
-    };
-  }, [stack, deviceId, pushDerived]);
-
-  return null;
+    } catch {
+      /* keep origin when URL parsing fails */
+    }
+  }
+  return `${origin}/api/auth`;
 }
 
-function AuthActionsMount({
-  setDerived,
-  actionsRef,
-}: {
-  setDerived: (next: SessionDerivedState) => void;
-  actionsRef: React.MutableRefObject<AuthActions>;
-}): null {
-  const ports = useHostedAuthPorts();
-  const startHostedSignIn = useCallback(async () => {
-    await ports.signIn.startSignIn();
-  }, [ports]);
-  const hostedSignOut = useCallback(async () => {
-    await ports.signIn.signOut();
-  }, [ports]);
-  const authService = useMemo(
+function resolveCallbackUrl(): string {
+  if (typeof window !== 'undefined') {
+    return `${window.location.origin}/sso-callback`;
+  }
+  return '/sso-callback';
+}
+
+type SignInSocialResult = {
+  error?: { message?: string } | null;
+  data?: { url?: string; redirect?: boolean } | null;
+};
+
+function navigateIfRedirectUrl(res: SignInSocialResult): void {
+  const url = res.data?.url;
+  if (typeof url !== 'string' || url.length === 0) return;
+  if (typeof window === 'undefined') return;
+  if (window.location.href === url) return;
+  window.location.href = url;
+}
+
+function useAuthClient(baseURL: string): AuthClient {
+  return useMemo(
     () =>
-      createAuthService({
-        startHostedSignIn,
-        hostedSignOut,
+      createAuthClient({
+        baseURL,
+        plugins: [
+          expoClient({
+            scheme: 'myapp',
+            storagePrefix: 'gamezilla',
+            storage: SecureStore,
+          }),
+        ],
       }),
-    [startHostedSignIn, hostedSignOut]
+    [baseURL]
   );
-
-  const deviceService = useDeviceService();
-  const sessionService = useSessionService();
-  const store = useClientStore();
-  const deviceId = deviceService.getDeviceId();
-
-  const refreshSession = useCallback(async () => {
-    await sessionService.refresh();
-    setDerived(
-      deriveStateFromSession({
-        deviceId,
-        sessionService,
-        sessionToken: store.getSessionToken(),
-        accountIdFromStore: store.getAccountId(),
-      })
-    );
-  }, [deviceId, sessionService, setDerived, store]);
-
-  const signInWithHosted = useCallback(async () => {
-    await authService.startHostedSignIn();
-    await refreshSession();
-  }, [authService, refreshSession]);
-
-  const signOut = useCallback(async () => {
-    await authService.signOut();
-    await refreshSession();
-  }, [authService, refreshSession]);
-
-  useLayoutEffect(() => {
-    actionsRef.current = {
-      signInWithHosted,
-      signOut,
-      refreshSession,
-    };
-    return () => {
-      actionsRef.current = defaultActions;
-    };
-  }, [actionsRef, signInWithHosted, signOut, refreshSession]);
-
-  return null;
 }
 
-function AuthModals({
-  actionsRef,
-  signOutCallbacksRef,
-  signInModalOpen,
-  setSignInModalOpen,
-  signOutConfirmOpen,
-  setSignOutConfirmOpen,
-  hostedUi,
-}: {
-  actionsRef: React.MutableRefObject<AuthActions>;
-  signOutCallbacksRef: React.MutableRefObject<{
-    openSignOutConfirm: () => void;
-    closeSignOutConfirm: () => void;
-  }>;
+function useSignInAction(args: {
+  authClient: AuthClient;
+  refreshSession: () => Promise<void>;
+}): () => Promise<void> {
+  const { authClient, refreshSession } = args;
+  return useCallback(async () => {
+    const callbackURL = resolveCallbackUrl();
+    const res = (await authClient.signIn.social({
+      provider: 'google',
+      callbackURL,
+    })) as SignInSocialResult;
+    if (res.error !== undefined && res.error !== null) {
+      throw new Error(res.error.message ?? 'Hosted sign-in failed');
+    }
+    navigateIfRedirectUrl(res);
+    await refreshSession();
+  }, [authClient, refreshSession]);
+}
+
+type ModalState = {
   signInModalOpen: boolean;
-  setSignInModalOpen: (v: boolean) => void;
+  openSignInModal: () => void;
+  closeSignInModal: () => void;
   signOutConfirmOpen: boolean;
-  setSignOutConfirmOpen: (v: boolean) => void;
-  hostedUi: HostedAuthUiPort;
-}): ReactNode {
+  openSignOutConfirm: () => void;
+  closeSignOutConfirm: () => void;
+  signOutModal: ReactNode;
+};
+
+function useModalState(signOut: () => Promise<void>): ModalState {
+  const [signInModalOpen, setSignInModalOpen] = useState(false);
+  const [signOutConfirmOpen, setSignOutConfirmOpen] = useState(false);
+
+  const openSignInModal = useCallback(() => setSignInModalOpen(true), []);
+  const closeSignInModal = useCallback(() => setSignInModalOpen(false), []);
+
   const { openSignOutConfirm, closeSignOutConfirm, modal } =
     useSignOutConfirmationModal({
-      signOut: () => actionsRef.current.signOut(),
+      signOut: () => signOut(),
       signOutConfirmOpen,
       openSignOutConfirmBase: () => setSignOutConfirmOpen(true),
       closeSignOutConfirmBase: () => setSignOutConfirmOpen(false),
     });
 
-  useLayoutEffect(() => {
-    signOutCallbacksRef.current = {
-      openSignOutConfirm,
-      closeSignOutConfirm,
-    };
-    return () => {
-      signOutCallbacksRef.current = {
-        openSignOutConfirm: () => {
-          throw new Error('AuthProvider not mounted');
-        },
-        closeSignOutConfirm: () => {},
-      };
-    };
-  }, [openSignOutConfirm, closeSignOutConfirm, signOutCallbacksRef]);
-
-  return (
-    <>
-      <SignInModal
-        visible={signInModalOpen}
-        onClose={() => setSignInModalOpen(false)}
-        hostedUi={hostedUi}
-        onSignInWithHosted={() => actionsRef.current.signInWithHosted()}
-      />
-      {modal}
-    </>
-  );
+  return {
+    signInModalOpen,
+    openSignInModal,
+    closeSignInModal,
+    signOutConfirmOpen,
+    openSignOutConfirm,
+    closeSignOutConfirm,
+    signOutModal: modal,
+  };
 }
 
-function AuthShell({ children }: { children: ReactNode }): ReactNode {
-  const [derived, setDerived] = useState<SessionDerivedState>(emptyDerived);
-  const [signInModalOpen, setSignInModalOpen] = useState(false);
-  const [signOutConfirmOpen, setSignOutConfirmOpen] = useState(false);
-  const store = useClientStore();
-  const actionsRef = useRef<AuthActions>(defaultActions);
-  const signOutCallbacksRef = useRef({
-    openSignOutConfirm: () => {
-      throw new Error('AuthProvider not mounted');
-    },
-    closeSignOutConfirm: () => {},
-  });
+function buildAuthValue(args: {
+  derived: SessionDerivedState;
+  signInAvailable: boolean;
+  signInUnavailableReason: string | null;
+  modals: ModalState;
+  signInWithHosted: () => Promise<void>;
+  signOut: () => Promise<void>;
+  refreshSession: () => Promise<void>;
+}): AuthState {
+  const { derived, modals } = args;
+  return {
+    deviceId: derived.deviceId,
+    accountId: derived.accountId,
+    isAuthenticated: derived.isAuthenticated,
+    myId: derived.myId,
+    session: derived.session,
+    signInAvailable: args.signInAvailable,
+    signInUnavailableReason: args.signInUnavailableReason,
+    signInModalOpen: modals.signInModalOpen,
+    openSignInModal: modals.openSignInModal,
+    closeSignInModal: modals.closeSignInModal,
+    signOutConfirmOpen: modals.signOutConfirmOpen,
+    openSignOutConfirm: modals.openSignOutConfirm,
+    closeSignOutConfirm: modals.closeSignOutConfirm,
+    signInWithHosted: args.signInWithHosted,
+    signOut: args.signOut,
+    refreshSession: args.refreshSession,
+  };
+}
 
-  const hostedUi = useMemo(
-    () => deriveHostedAuthUiFromApiUrl(store.getConfigService().getApiUrl()),
-    [store]
-  );
-
-  const identity = useMemo(
-    () => ({
-      deviceId: derived.deviceId,
-      accountId: derived.accountId,
-      myId: derived.myId,
-    }),
-    [derived.deviceId, derived.accountId, derived.myId]
-  );
-
-  const authState = useMemo<AuthState>(
-    () => ({
-      ...derived,
-      providers: { hosted: hostedUi },
-      signInModalOpen,
-      openSignInModal: () => setSignInModalOpen(true),
-      closeSignInModal: () => setSignInModalOpen(false),
-      signOutConfirmOpen,
-      openSignOutConfirm: () =>
-        signOutCallbacksRef.current.openSignOutConfirm(),
-      closeSignOutConfirm: () =>
-        signOutCallbacksRef.current.closeSignOutConfirm(),
-      signInWithHosted: () => actionsRef.current.signInWithHosted(),
-      signOut: () => actionsRef.current.signOut(),
-      refreshSession: () => actionsRef.current.refreshSession(),
-    }),
-    [derived, hostedUi, signInModalOpen, signOutConfirmOpen]
-  );
-
+function AuthRender(props: {
+  value: AuthState;
+  modals: ModalState;
+  signInAvailable: boolean;
+  signInUnavailableReason: string | null;
+  signInWithHosted: () => Promise<void>;
+  identity: { deviceId: string; accountId: string | null; myId: string };
+  children: ReactNode;
+}): ReactNode {
+  const { value, modals, identity, children } = props;
   return (
-    <AuthStateContext.Provider value={authState}>
-      <AuthSessionSync setDerived={setDerived} />
-      <AuthActionsMount setDerived={setDerived} actionsRef={actionsRef} />
-      <AuthModals
-        actionsRef={actionsRef}
-        signOutCallbacksRef={signOutCallbacksRef}
-        signInModalOpen={signInModalOpen}
-        setSignInModalOpen={setSignInModalOpen}
-        signOutConfirmOpen={signOutConfirmOpen}
-        setSignOutConfirmOpen={setSignOutConfirmOpen}
-        hostedUi={hostedUi}
+    <AuthCtx.Provider value={value}>
+      <SignInModal
+        visible={modals.signInModalOpen}
+        onClose={modals.closeSignInModal}
+        signInAvailable={props.signInAvailable}
+        signInUnavailableReason={props.signInUnavailableReason}
+        onSignInWithHosted={() => props.signInWithHosted()}
       />
+      {modals.signOutModal}
       <IdentityProvider value={identity}>{children}</IdentityProvider>
-    </AuthStateContext.Provider>
+    </AuthCtx.Provider>
   );
 }
 
@@ -333,15 +224,77 @@ export function AuthProvider({
   children: ReactNode;
   ensureProfile: EnsureProfileFn;
 }): ReactNode {
+  const apiUrl = useConfigService().getApiUrl();
+  const authClient = useAuthClient(
+    useMemo(() => authBaseUrl(apiUrl), [apiUrl])
+  );
+  const snapshot = authClient.useSession();
+  const syncRuntime = useHostedSyncRuntime();
+  useHostedSessionSyncEffect({
+    authClient,
+    snapshot,
+    ensureProfile,
+    syncRuntime,
+  });
+
+  const { derived, pushDerived } = useDerivedSessionState();
+  const refreshSession = useCallback(() => pushDerived(), [pushDerived]);
+  const signInWithHosted = useSignInAction({ authClient, refreshSession });
+  const signOut = useSignOut(authClient, syncRuntime, refreshSession);
+  const modals = useModalState(signOut);
+
+  const signInAvailable = apiUrl.trim().length > 0;
+  const signInUnavailableReason = signInAvailable
+    ? null
+    : HOSTED_SIGN_IN_UNAVAILABLE_REASON;
+
+  const identity = useMemo(
+    () => ({
+      deviceId: derived.deviceId,
+      accountId: derived.accountId,
+      myId: derived.myId,
+    }),
+    [derived.deviceId, derived.accountId, derived.myId]
+  );
+
+  const value = useMemo<AuthState>(
+    () =>
+      buildAuthValue({
+        derived,
+        signInAvailable,
+        signInUnavailableReason,
+        modals,
+        signInWithHosted,
+        signOut,
+        refreshSession,
+      }),
+    [
+      derived,
+      signInAvailable,
+      signInUnavailableReason,
+      modals,
+      signInWithHosted,
+      signOut,
+      refreshSession,
+    ]
+  );
+
   return (
-    <HostedAuthRuntime ensureProfile={ensureProfile}>
-      <AuthShell>{children}</AuthShell>
-    </HostedAuthRuntime>
+    <AuthRender
+      value={value}
+      modals={modals}
+      signInAvailable={signInAvailable}
+      signInUnavailableReason={signInUnavailableReason}
+      signInWithHosted={signInWithHosted}
+      identity={identity}
+    >
+      {children}
+    </AuthRender>
   );
 }
 
 export function useAuth(): AuthState {
-  const v = useContext(AuthStateContext);
+  const v = useContext(AuthCtx);
   if (v === null) {
     throw new Error('useAuth: missing AuthProvider');
   }

@@ -1,9 +1,7 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { SecretStore } from '@gamezilla/lib/secret-store';
 import type { MiddlewareHandler } from 'hono';
-import { betterAuthAccountProvisioning } from '@gamezilla/auth/server/better-auth-account-provisioning';
 import { createBetterAuthRequestStack } from '@gamezilla/auth/server/better-auth-create';
-import { SessionClaimsBetterAuthAdapter } from '@gamezilla/auth/server/better-auth-session-claims-port';
 import { createSessionAuth } from '@gamezilla/auth/server/session-middleware';
 import type { AuthContext } from '@gamezilla/auth/server/types';
 import { ConfigurationError } from '../config/env';
@@ -41,18 +39,13 @@ export function createRequestDbMiddleware(
       secretStore,
       cs
     );
-    const bearerPorts = {
-      sessionClaims: new SessionClaimsBetterAuthAdapter(betterAuth),
-      accountProvisioning: betterAuthAccountProvisioning,
-    };
-    const sessionAuth = createSessionAuth(bearerPorts);
+    const sessionAuth = createSessionAuth({ auth: betterAuth });
 
     const store = { patchDb, sessionAuth };
     return await apiRequestAsyncLocalStorage.run(store, async () => {
       c.set('patchDb', patchDb);
       c.set('sessionAuth', sessionAuth);
       c.set('betterAuth', betterAuth);
-      c.set('bearerAuth', bearerPorts);
       try {
         await next();
       } finally {

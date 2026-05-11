@@ -13,9 +13,8 @@ import type {
 } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
-import type { AccountProvisioningPort } from './ports';
 
-/** Stored in {@link AccountProviderAttr.provider} — only referenced inside this adapter. */
+/** Stored in {@link AccountProviderAttr.provider}. */
 const INTERNAL_AUTH_PROVIDER = 'better-auth' as const;
 
 async function findAuthAccountProvider(
@@ -82,7 +81,7 @@ function patchesForNewAuthUserAccount(args: {
   ];
 }
 
-async function ensureInternalAccountIdForExternalUser(args: {
+export async function ensureInternalAccountIdForExternalUser(args: {
   db: PatchDb;
   externalUserId: string;
   email: string | null;
@@ -104,19 +103,3 @@ async function ensureInternalAccountIdForExternalUser(args: {
   await db.write(patches, PATCHES_DB_SYSTEM_CONTEXT);
   return accountId;
 }
-
-export class AccountProvisioningBetterAuthAdapter implements AccountProvisioningPort {
-  async resolveInternalAccountId({
-    db,
-    claims,
-  }: Parameters<AccountProvisioningPort['resolveInternalAccountId']>[0]) {
-    return await ensureInternalAccountIdForExternalUser({
-      db,
-      externalUserId: claims.subject,
-      email: claims.email,
-    });
-  }
-}
-
-export const betterAuthAccountProvisioning: AccountProvisioningPort =
-  new AccountProvisioningBetterAuthAdapter();

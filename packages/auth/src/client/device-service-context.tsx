@@ -8,7 +8,7 @@ export function useDeviceService(): DeviceService {
   const v = useContext(DeviceServiceContext);
   if (v === null) {
     throw new Error(
-      'useDeviceService: missing provider — wrap the app with ClientDataPlaneProvider from @gamezilla/client'
+      'useDeviceService: missing provider — wrap the app with AppProviders from @gamezilla/client'
     );
   }
   return v;

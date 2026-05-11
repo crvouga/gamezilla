@@ -27,8 +27,8 @@ import {
 } from '@gamezilla/ui';
 import {
   useEntityAttribute,
-  usePatchDbStack,
   useQuery,
+  useSync,
 } from '@gamezilla/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useMemo, type ReactNode } from 'react';
@@ -126,7 +126,7 @@ function statusLabelNode(status: SolveStatus): ReactNode {
 
 function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
   const dispatch = useSpaceRoomDispatch();
-  const { sync } = usePatchDbStack();
+  const sync = useSync();
   /**
    * Keep this puzzle in {@link SyncPatchDb} active entity queries while playing.
    * Otherwise closing the picker tears down the list subscription and poll may

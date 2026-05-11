@@ -13,10 +13,15 @@ export const LoggerContextProvider = LoggerContext.Provider;
  * @param namespace - Required label that appears in every log entry
  *                    (e.g. `'account-menu'`, `'patch-bootstrap'`).
  */
-export function useLogger(namespace: string): Logger {
+export function useRootLogger(): Logger {
   const root = useContext(LoggerContext);
   if (root === null) {
-    throw new Error('useLogger: LoggerContextProvider missing');
+    throw new Error('useRootLogger: LoggerContextProvider missing');
   }
+  return root;
+}
+
+export function useLogger(namespace: string): Logger {
+  const root = useRootLogger();
   return useMemo(() => root.child({ namespace }), [root, namespace]);
 }

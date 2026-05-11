@@ -1,5 +1,4 @@
 import { assertDeviceId } from '@gamezilla/auth/shared/device-id';
-import { ANON_ID_HEADER } from './auth-ports';
 import {
   appAuth,
   type AppAuthContext,
@@ -8,22 +7,21 @@ import {
 } from '@gamezilla/auth/shared/auth-context';
 import { assert } from '@gamezilla/lib/assert';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
+import type { HostedBetterAuth } from './better-auth-create';
 import { buildAppAuthContextFromBearer } from './bearer-resolve';
-import type { AuthSessionPort, HttpBearerAuthPorts } from './ports';
 import type { AuthContext } from './types';
 import { UnauthorizedError } from './unauthorized-error';
 
 export type { AuthContext } from './types';
 
-/**
- * Re-export so existing imports (`@gamezilla/auth/server/session-middleware`)
- * keep working; the source of truth lives in `./auth-ports`.
- */
-export { ANON_ID_HEADER };
+/** Header carrying the install-scoped device id on HTTP / WebSocket requests. */
+export const ANON_ID_HEADER = 'x-anon-id';
 
 const UNAUTH_CLIENT_CONTEXT: AppClientContext = {};
 
-export type SessionAuthDeps = HttpBearerAuthPorts;
+export type SessionAuthDeps = {
+  readonly auth: HostedBetterAuth;
+};
 
 function buildAnonAppAuthContext(anonId: string): AppAuthContext {
   assertDeviceId(anonId);
@@ -34,8 +32,16 @@ function buildAnonAppAuthContext(anonId: string): AppAuthContext {
   });
 }
 
-export function createSessionAuth(deps: SessionAuthDeps): AuthSessionPort {
-  const bearerAuth = deps;
+export type SessionAuth = {
+  resolvePatchDbContext(
+    db: PatchDb,
+    request: Request
+  ): Promise<Readonly<Record<string, unknown>>>;
+  requireAuthContext(db: PatchDb, request: Request): Promise<AuthContext>;
+};
+
+export function createSessionAuth(deps: SessionAuthDeps): SessionAuth {
+  const { auth } = deps;
 
   /**
    * Token-only request resolution. Session JWT in `Authorization: Bearer …` plus
@@ -69,13 +75,13 @@ export function createSessionAuth(deps: SessionAuthDeps): AuthSessionPort {
       return UNAUTH_CLIENT_CONTEXT;
     }
 
-    const auth = await buildAppAuthContextFromBearer({
+    const ctx = await buildAppAuthContextFromBearer({
       db,
-      bearerAuth,
+      auth,
       bearerToken: token,
       deviceId: anonRaw,
     });
-    return auth ?? UNAUTH_CLIENT_CONTEXT;
+    return ctx ?? UNAUTH_CLIENT_CONTEXT;
   }
 
   /**
@@ -104,5 +110,3 @@ export function createSessionAuth(deps: SessionAuthDeps): AuthSessionPort {
 
   return { resolvePatchDbContext, requireAuthContext };
 }
-
-export type SessionAuth = ReturnType<typeof createSessionAuth>;

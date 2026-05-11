@@ -1,15 +1,21 @@
 import { Box, ModalBody, SocialSignInButton, Text } from '@gamezilla/ui';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
-import type { HostedAuthUiPort } from './ports';
 
 export function SignInModalBody(props: {
-  hostedUi: HostedAuthUiPort;
+  signInAvailable: boolean;
+  signInUnavailableReason: string | null;
   errorMessage: string | undefined;
   loading: boolean;
   onPressGoogle: () => void;
 }) {
-  const { hostedUi, errorMessage, loading, onPressGoogle } = props;
+  const {
+    signInAvailable,
+    signInUnavailableReason,
+    errorMessage,
+    loading,
+    onPressGoogle,
+  } = props;
   return (
     <ModalBody>
       <Text
@@ -32,15 +38,15 @@ export function SignInModalBody(props: {
           action="signIn"
           theme={'light' as const}
           onPress={onPressGoogle}
-          loading={loading && hostedUi.available}
-          disabled={!hostedUi.available}
+          loading={loading && signInAvailable}
+          disabled={!signInAvailable}
         />
       </Box>
-      {!hostedUi.available ? (
+      {!signInAvailable ? (
         <Text
           variant="caption"
           sx={{ color: 'textSecondary' }}
-          label={hostedUi.unavailableReason ?? t`Sign-in is not available.`}
+          label={signInUnavailableReason ?? t`Sign-in is not available.`}
         />
       ) : null}
       {typeof errorMessage === 'string' && errorMessage.length > 0 ? (

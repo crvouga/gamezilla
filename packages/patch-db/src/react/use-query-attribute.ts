@@ -5,7 +5,7 @@ import type {
 } from '../interface';
 import type { PatchDbEntityStore } from './entity-store';
 import { getEntityStoreForDb } from './entity-store';
-import { usePatchDbStack } from './patch-db-stack-context';
+import { usePatchDb } from './patch-db-context';
 import {
   buildQueryAttributeDescriptor,
   type QueryAttributeDescriptor,
@@ -98,7 +98,7 @@ export function useQueryAttribute<T>(args: {
   orderBy?: PatchDbQueryOrderBy[];
   attribute: QueryAttributeLike<T>;
 }): T {
-  const { decorated: db } = usePatchDbStack();
+  const db = usePatchDb();
   const entityStore = useMemo(() => getEntityStoreForDb(db), [db]);
   const queryCache = useMemo(() => getCacheForDb(db), [db]);
 

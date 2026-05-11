@@ -1,4 +1,4 @@
-import { clearLocalDatabaseAndReload } from '@gamezilla/client/ui/patch-db-bootstrap';
+import { usePatchDbLocalDataActions } from '@gamezilla/auth/client/patch-db-local-data-actions-context';
 import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
 import { TodoListsOverview } from '@gamezilla/patch-db-example/todo';
 import { Trans } from '@lingui/react/macro';
@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 export function TodoListsScreen() {
   const router = useRouter();
   const nav = useBreadcrumbNav();
+  const { clearLocalDatabaseAndReload } = usePatchDbLocalDataActions();
 
   return (
     <TodoListsOverview

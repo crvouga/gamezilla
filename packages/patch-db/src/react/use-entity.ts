@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useSyncExternalStore } from 'react';
 import type { Entity } from '../interface';
-import { usePatchDbStack } from './patch-db-stack-context';
+import { usePatchDb } from './patch-db-context';
 import { getEntityStoreForDb } from './entity-store';
 
 /**
@@ -8,7 +8,7 @@ import { getEntityStoreForDb } from './entity-store';
  * underlying `subscribe.entities` per id (shared across attribute atoms).
  */
 export function useEntity(entityType: string, entityId: string): Entity | null {
-  const { decorated: db } = usePatchDbStack();
+  const db = usePatchDb();
   const store = useMemo(() => getEntityStoreForDb(db), [db]);
 
   const subscribe = useCallback(

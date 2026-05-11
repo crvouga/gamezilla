@@ -5,24 +5,22 @@ import { useLingui } from '@lingui/react/macro';
 
 export function AccountCommand() {
   const { t } = useLingui();
-  const auth = useAuth();
+  const { isAuthenticated, openSignOutConfirm, openSignInModal } = useAuth();
   const { run } = useAsync({
     operation: async () => {
-      if (auth.isAuthenticated) {
-        auth.openSignOutConfirm();
+      if (isAuthenticated) {
+        openSignOutConfirm();
       } else {
-        auth.openSignInModal();
+        openSignInModal();
       }
     },
   });
   return (
     <RegisterCommand
       id="auth-toggle"
-      title={auth.isAuthenticated ? t`Sign out` : t`Sign in`}
+      title={isAuthenticated ? t`Sign out` : t`Sign in`}
       category={t`Account`}
-      icon={
-        auth.isAuthenticated ? 'arrow.right.from.bracket' : 'right.to.bracket'
-      }
+      icon={isAuthenticated ? 'arrow.right.from.bracket' : 'right.to.bracket'}
       keywords={[t`sign in`, t`login`, t`google`, t`auth`]}
       run={async () => {
         try {

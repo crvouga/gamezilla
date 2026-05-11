@@ -237,10 +237,12 @@
       "dependencies": {
         "@jlongster/sql.js": "catalog:",
         "@neondatabase/serverless": "catalog:",
+        "@react-native-async-storage/async-storage": "catalog:",
         "absurd-sql": "catalog:",
         "buffer": "catalog:",
         "expo-clipboard": "catalog:",
         "expo-crypto": "catalog:",
+        "expo-secure-store": "catalog:",
         "expo-sqlite": "catalog:",
         "make-plural": "catalog:",
         "pg": "catalog:",

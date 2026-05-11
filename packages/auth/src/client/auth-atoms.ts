@@ -12,6 +12,14 @@ export type SessionDerivedState = {
   myId: string;
 };
 
+export const emptyDerived: SessionDerivedState = {
+  deviceId: '',
+  session: null,
+  accountId: null,
+  isAuthenticated: false,
+  myId: '',
+};
+
 function resolveReplicationIdentity(args: {
   deviceId: string;
   isAuthenticated: boolean;

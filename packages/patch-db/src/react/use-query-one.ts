@@ -5,12 +5,12 @@ import {
   buildQueryOneDescriptor,
   type QueryOneDescriptor,
 } from './query-one-descriptor';
-import { usePatchDbStack } from './patch-db-stack-context';
+import { usePatchDb } from './patch-db-context';
 import { getEntityStoreForDb } from './entity-store';
 import { getCacheForDb } from './query-cache';
 
 export function useQueryOne(query: PatchDbQuery): Entity | null {
-  const { decorated: db } = usePatchDbStack();
+  const db = usePatchDb();
   const entityStore = useMemo(() => getEntityStoreForDb(db), [db]);
   const queryCache = useMemo(() => getCacheForDb(db), [db]);
 

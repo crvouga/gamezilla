@@ -1,19 +1,34 @@
 import { ACCOUNT_SESSION_ENTITY_TYPE } from '../shared';
-import { writeLastLocalAccountId } from './account-local-state';
+import type { Logger } from '@gamezilla/lib/logger/logger';
+import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
+import type { SyncPatchDb } from '@gamezilla/patch-db/impl-sync/impl-sync';
 
-import { getRegisteredClientStore } from './client-store-register';
+import { writeLastLocalAccountId } from './account-local-state';
+import type { AccountIdModel } from './account-id-context';
+import type { SessionTokenModel } from './session-token-context';
 import { writeSessionToken } from './session-token-storage';
+import type { SessionService } from './session-service';
 
 /**
- * `auth-service` sign-out and `runHostedSessionSync` (Better Auth snapshot) can both
- * call clear in the same tick; serialize so two flows never overlap PatchDB/SQLite.
+ * `signOut` and `runHostedSessionSync` (Better Auth snapshot) can both call
+ * clear in the same tick; serialize so two flows never overlap PatchDB writes.
  */
 let clearMirrorsTail: Promise<unknown> = Promise.resolve();
 
-async function runClearLocalAuthMirrorsOnce(): Promise<void> {
-  const store = getRegisteredClientStore();
-  const log = store.getLogger().child({ namespace: 'auth-cleanup' });
-  const storage = store.getSecureStorage();
+export type LocalAuthCleanupDeps = {
+  logger: Logger;
+  secure: SecureStorage;
+  sessionToken: SessionTokenModel;
+  accountId: AccountIdModel;
+  getSessionService: () => SessionService;
+  getSync: () => SyncPatchDb;
+};
+
+async function runClearLocalAuthMirrorsOnce(
+  deps: LocalAuthCleanupDeps
+): Promise<void> {
+  const log = deps.logger.child({ namespace: 'auth-cleanup' });
+  const storage = deps.secure;
   try {
     await writeSessionToken(storage, null);
   } catch (e) {
@@ -21,20 +36,21 @@ async function runClearLocalAuthMirrorsOnce(): Promise<void> {
       error: e instanceof Error ? e.message : String(e),
     });
   }
-  store.setSessionToken(null);
+  deps.sessionToken.setSessionToken(null);
   try {
-    const sessionSvc = await store.getSessionService();
+    const sessionSvc = deps.getSessionService();
     await sessionSvc.clearSession();
-    const stack = await store.getPatchDbStack();
-    await stack.sync.markAllUnsyncedPatchesForEntityTypeAsAlreadyOnRemote(
-      ACCOUNT_SESSION_ENTITY_TYPE
-    );
+    await deps
+      .getSync()
+      .markAllUnsyncedPatchesForEntityTypeAsAlreadyOnRemote(
+        ACCOUNT_SESSION_ENTITY_TYPE
+      );
   } catch (e) {
     log.warn('local session cleanup failed', {
       error: e instanceof Error ? e.message : String(e),
     });
   } finally {
-    store.setAccountId(null);
+    deps.accountId.setAccountId(null);
     try {
       await writeLastLocalAccountId(storage, null);
     } catch (e) {
@@ -46,15 +62,17 @@ async function runClearLocalAuthMirrorsOnce(): Promise<void> {
 }
 
 /**
- * Clears local session token + legacy PatchDB session mirrors (no hosted-provider calls).
+ * Clears the in-memory + persisted session token / accountId and tells the sync
+ * engine to drop pending pushes for `ACCOUNT_SESSION_ENTITY_TYPE`. With a
+ * single shared `main` SQLite database there is no per-account file to detach
+ * or delete; sign-out only retires server-bound auth state.
  *
- * Clears `sessionToken` first, then runs PatchDB session cleanup while `accountId`
- * is still set so the SQLite file stays the same until `clearSession` and
- * `markAllUnsyncedPatchesForEntityTypeAsAlreadyOnRemote` finish (avoids tearing down
- * expo-sqlite mid-flight on web). Invocations are globally serialized.
+ * Invocations are globally serialized so racing sign-out paths never overlap.
  */
-export async function clearLocalAuthMirrors(): Promise<void> {
-  const done = clearMirrorsTail.then(() => runClearLocalAuthMirrorsOnce());
+export async function clearLocalAuthMirrors(
+  deps: LocalAuthCleanupDeps
+): Promise<void> {
+  const done = clearMirrorsTail.then(() => runClearLocalAuthMirrorsOnce(deps));
   clearMirrorsTail = done.then(
     () => undefined,
     () => undefined

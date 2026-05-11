@@ -1,42 +1,27 @@
 import { useAuth } from './auth-context';
-import { useAccountRemoveLocalData } from './use-account-remove-local-data';
 import { Box, Button } from '@gamezilla/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback, type ReactNode } from 'react';
-import { Platform } from 'react-native';
 
-/** Sign in / sign out / remove-local-data actions for the account screen. */
+/** Sign in / sign out actions for the account screen. */
 export function AccountActionsRow(): ReactNode {
   const { t } = useLingui();
-  const auth = useAuth();
-  const onRemoveLocalData = useAccountRemoveLocalData({
-    accountId: auth.accountId,
-    refreshSession: auth.refreshSession,
-  });
+  const { isAuthenticated, openSignInModal, openSignOutConfirm } = useAuth();
   const onSignIn = useCallback(() => {
-    auth.openSignInModal();
-  }, [auth]);
+    openSignInModal();
+  }, [openSignInModal]);
   const onRequestSignOut = useCallback(() => {
-    auth.openSignOutConfirm();
-  }, [auth]);
+    openSignOutConfirm();
+  }, [openSignOutConfirm]);
 
   return (
     <Box sx={{ gap: 2 }}>
-      {auth.isAuthenticated ? (
-        <>
-          {Platform.OS !== 'web' ? (
-            <Button
-              title={t`Remove local data for this account`}
-              intent="danger"
-              onPress={onRemoveLocalData}
-            />
-          ) : null}
-          <Button
-            title={t`Sign out`}
-            intent="danger"
-            onPress={onRequestSignOut}
-          />
-        </>
+      {isAuthenticated ? (
+        <Button
+          title={t`Sign out`}
+          intent="danger"
+          onPress={onRequestSignOut}
+        />
       ) : (
         <Button title={t`Sign in`} onPress={onSignIn} />
       )}

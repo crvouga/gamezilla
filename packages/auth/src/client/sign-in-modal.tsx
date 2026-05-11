@@ -7,20 +7,21 @@ import { ModalButton, ModalFooter, ResponsiveSurface } from '@gamezilla/ui';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import { useCallback, useEffect } from 'react';
-import type { HostedAuthUiPort } from './ports';
 import { SignInModalBody } from './sign-in-modal-body';
 
 export type SignInModalProps = {
   visible: boolean;
   onClose: () => void;
-  hostedUi: HostedAuthUiPort;
+  signInAvailable: boolean;
+  signInUnavailableReason: string | null;
   onSignInWithHosted: () => Promise<void>;
 };
 
 export function SignInModal({
   visible,
   onClose,
-  hostedUi,
+  signInAvailable,
+  signInUnavailableReason,
   onSignInWithHosted,
 }: SignInModalProps) {
   const signIn = useAsync({
@@ -40,13 +41,13 @@ export function SignInModal({
   }, [cancelAll, reset, visible]);
 
   const handleHostedSignIn = useCallback(async () => {
-    if (!hostedUi.available || loading) return;
+    if (!signInAvailable || loading) return;
     try {
       await run();
     } catch {
       // Hook state already captures and exposes the error.
     }
-  }, [hostedUi.available, loading, run]);
+  }, [signInAvailable, loading, run]);
 
   const errorMessage =
     error === null || error === undefined ? undefined : error.message;
@@ -54,7 +55,8 @@ export function SignInModal({
   return (
     <ResponsiveSurface visible={visible} onClose={onClose} title={t`Sign in`}>
       <SignInModalBody
-        hostedUi={hostedUi}
+        signInAvailable={signInAvailable}
+        signInUnavailableReason={signInUnavailableReason}
         errorMessage={errorMessage}
         loading={loading}
         onPressGoogle={() => {

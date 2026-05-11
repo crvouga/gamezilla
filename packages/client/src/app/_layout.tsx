@@ -1,11 +1,10 @@
 import { SpaceMiniplayer } from '@gamezilla/spaces/client/space-miniplayer';
-import { AppProviders } from '@gamezilla/client/ui/app-providers';
+import { AppProviders } from '@gamezilla/client/providers/app-providers';
 import { Box, useStackProps } from '@gamezilla/ui';
 import { Stack } from 'expo-router';
 import 'react-native-reanimated';
 
 import '@gamezilla/client/polyfill-entry';
-import '@gamezilla/client/runtime/bootstrap-client-runtime';
 
 export const unstable_settings = {
   anchor: '(tabs)',

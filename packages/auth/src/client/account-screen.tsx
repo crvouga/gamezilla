@@ -1,17 +1,17 @@
-import { AccountActionsRow } from './account-actions-row';
-import { AccountDevicesCard } from './account-devices-card';
-import { LinkedProvidersCard } from './linked-providers-card';
-import { useAuth } from './auth-context';
-import { useBreadcrumbNav } from '@gamezilla/ui/components/use-breadcrumb-nav';
 import { Box, ScreenBase } from '@gamezilla/ui';
+import { useBreadcrumbNav } from '@gamezilla/ui/components/use-breadcrumb-nav';
 import { Trans } from '@lingui/react/macro';
 import { type Href, useRouter } from 'expo-router';
 import { useCallback } from 'react';
+import { AccountActionsRow } from './account-actions-row';
+import { AccountDevicesCard } from './account-device/account-devices-card';
+import { useMyAccountId } from './identity-context';
+import { LinkedProvidersCard } from './linked-providers/linked-providers-card';
 
 export function AccountScreen() {
   const nav = useBreadcrumbNav();
   const router = useRouter();
-  const auth = useAuth();
+  const accountId = useMyAccountId();
   const onOpenDevice = useCallback(
     (deviceId: string) => {
       router.push(`/more/account/device/${deviceId}` as Href);
@@ -33,10 +33,10 @@ export function AccountScreen() {
       content={({ sx }) => (
         <Box style={{ ...sx, gap: 12 }}>
           <AccountDevicesCard
-            accountId={auth.accountId}
+            accountId={accountId}
             onOpenDevice={onOpenDevice}
           />
-          <LinkedProvidersCard accountId={auth.accountId} />
+          <LinkedProvidersCard accountId={accountId} />
           <AccountActionsRow />
         </Box>
       )}

@@ -1,14 +1,36 @@
 import { writeLastLocalAccountId } from './account-local-state';
-import type { Logger } from '@gamezilla/lib/logger/logger';
-
-import { getRegisteredClientStore } from './client-store-register';
+import type { DeviceService } from './device-service';
+import type { ConfigService } from './config-service-types';
 import { fetchAuthWhoAmI } from './better-auth-fetch-auth-whoami';
 import {
   finalizeLocalSignInAfterServerAccount,
   type EnsureProfileFn,
 } from './finalize-local-sign-in';
-import { clearLocalAuthMirrors } from './local-auth-cleanup';
+import {
+  clearLocalAuthMirrors,
+  type LocalAuthCleanupDeps,
+} from './local-auth-cleanup';
 import { writeSessionToken } from './session-token-storage';
+import type { Logger } from '@gamezilla/lib/logger/logger';
+import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
+import type { SyncPatchDb } from '@gamezilla/patch-db/impl-sync/impl-sync';
+import type { SubscribablePatchDbLike } from '@gamezilla/patch-db/subscribable';
+
+import type { AccountIdModel } from './account-id-context';
+import type { SessionTokenModel } from './session-token-context';
+import type { SessionService } from './session-service';
+
+export type HostedSessionSyncRuntime = {
+  secure: SecureStorage;
+  sessionToken: SessionTokenModel;
+  accountId: AccountIdModel;
+  loggerRoot: Logger;
+  getDeviceService: () => DeviceService;
+  getConfigService: () => ConfigService;
+  getSessionService: () => SessionService;
+  getDb: () => SubscribablePatchDbLike;
+  getSync: () => SyncPatchDb;
+};
 
 type SyncArgs = {
   isLoaded: boolean;
@@ -16,6 +38,7 @@ type SyncArgs = {
   getSessionToken: () => Promise<string | null>;
   lastSyncedRef: { current: string | null };
   ensureProfile: EnsureProfileFn;
+  runtime: HostedSessionSyncRuntime;
 };
 
 export async function runHostedSessionSync(args: SyncArgs): Promise<void> {
@@ -29,37 +52,47 @@ export async function runHostedSessionSync(args: SyncArgs): Promise<void> {
   await handleHostedSignedIn(args);
 }
 
+function toMirrorDeps(r: HostedSessionSyncRuntime): LocalAuthCleanupDeps {
+  return {
+    logger: r.loggerRoot,
+    secure: r.secure,
+    sessionToken: r.sessionToken,
+    accountId: r.accountId,
+    getSessionService: r.getSessionService,
+    getSync: r.getSync,
+  };
+}
+
 async function handleHostedSignedOut(args: SyncArgs): Promise<void> {
-  const { lastSyncedRef } = args;
+  const { lastSyncedRef, runtime } = args;
   lastSyncedRef.current = null;
-  const store = getRegisteredClientStore();
   const hadLocal =
-    store.getSessionToken() !== null || store.getAccountId() !== null;
+    runtime.sessionToken.getSessionToken() !== null ||
+    runtime.accountId.getAccountId() !== null;
   if (hadLocal) {
-    await clearLocalAuthMirrors();
+    await clearLocalAuthMirrors(toMirrorDeps(runtime));
   }
 }
 
 async function handleHostedSignedIn(args: SyncArgs): Promise<void> {
-  const { getSessionToken, lastSyncedRef } = args;
+  const { getSessionToken, lastSyncedRef, ensureProfile, runtime } = args;
   const token = await getSessionToken();
   if (token === null || token.length === 0) {
     return;
   }
 
-  const store = getRegisteredClientStore();
-  const storage = store.getSecureStorage();
+  const storage = runtime.secure;
   await writeSessionToken(storage, token);
-  store.setSessionToken(token);
+  runtime.sessionToken.setSessionToken(token);
 
   if (lastSyncedRef.current === token) {
     return;
   }
 
-  const log = store.getLogger().child({ namespace: 'hosted_auth_bridge' });
-  const deviceService = await store.getDeviceService();
+  const log = runtime.loggerRoot.child({ namespace: 'hosted_auth_bridge' });
+  const deviceService = runtime.getDeviceService();
   const deviceId = deviceService.getDeviceId();
-  const config = store.getConfigService();
+  const config = runtime.getConfigService();
 
   try {
     const { accountId } = await fetchAuthWhoAmI({
@@ -67,14 +100,19 @@ async function handleHostedSignedIn(args: SyncArgs): Promise<void> {
       bearerToken: token,
       deviceId,
     });
-    store.setAccountId(accountId);
+    runtime.accountId.setAccountId(accountId);
     await writeLastLocalAccountId(storage, accountId);
-    const stack = await store.getPatchDbStack();
     await finalizeLocalSignInAfterServerAccount({
-      db: stack.db,
+      db: runtime.getDb(),
       deviceId,
       accountId,
-      ensureProfile: args.ensureProfile,
+      ensureProfile,
+      deps: {
+        storage,
+        refreshSession: async () => {
+          await runtime.getSessionService().refresh();
+        },
+      },
     });
     lastSyncedRef.current = token;
   } catch (e) {

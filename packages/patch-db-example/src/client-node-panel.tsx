@@ -11,10 +11,11 @@ import {
 import { useTheme } from '@gamezilla/ui/theme';
 import type { Entity } from '@gamezilla/patch-db/interface';
 import {
-  PatchDbStackContextProvider,
+  PatchDbContextProvider,
   useQuery,
-  type PatchDbStackValue,
+  type PatchDbValue,
 } from '@gamezilla/patch-db/react';
+import type { SubscribablePatchDbLike } from '@gamezilla/patch-db/subscribable';
 import {
   nextShapeOrder,
   playgroundCreateShape,
@@ -310,19 +311,18 @@ export function ClientNodePanel({
 }: {
   client: PlaygroundClientHandle;
 }) {
-  const stack = useMemo((): PatchDbStackValue => {
+  const value = useMemo((): PatchDbValue => {
     const pubSub = new InMemoryPubSub();
     return {
-      db: client.syncDb,
+      db: client.syncDb as unknown as SubscribablePatchDbLike,
       sync: client.syncDb,
       pubSub,
-      decorated: client.syncDb,
     };
   }, [client.syncDb]);
 
   return (
-    <PatchDbStackContextProvider value={stack}>
+    <PatchDbContextProvider value={value}>
       <ClientNodePanelInner client={client} />
-    </PatchDbStackContextProvider>
+    </PatchDbContextProvider>
   );
 }

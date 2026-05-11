@@ -1,0 +1,21 @@
+import { Platform } from 'react-native';
+
+import { createExpoKeyValueStorage } from './impl-expo';
+import { createWebKeyValueStorage } from './impl-web';
+import type { KeyValueStorage } from './interface';
+
+/**
+ * Platform-specific bulk async key-value storage:
+ * - web: `localStorage`
+ * - native: `@react-native-async-storage/async-storage`
+ *
+ * For small encrypted-at-rest secrets (deviceId, session tokens) use
+ * `createSecureStorage` instead — that path enforces the expo-secure-store
+ * 2048-byte limit and is unsuitable for cache/queue blobs.
+ */
+export function createKeyValueStorage(): KeyValueStorage {
+  if (Platform.OS === 'web') {
+    return createWebKeyValueStorage();
+  }
+  return createExpoKeyValueStorage();
+}

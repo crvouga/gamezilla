@@ -1,13 +1,12 @@
 import { useAuth } from '@gamezilla/auth/client/auth-context';
 import { useServerStatus } from '@gamezilla/client/connection/use-server-status';
-import { useLogger } from '@gamezilla/client/runtime/runtime-hooks';
+import { useLogger } from '@gamezilla/lib/logger/react';
 import { useAsync } from '@gamezilla/lib/async/use-async';
 import { Box, StatusDot, Text, type ScreenBaseAction } from '@gamezilla/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
 
-type Auth = ReturnType<typeof useAuth>;
 type ServerStatus = ReturnType<typeof useServerStatus>;
 
 function useAccountNav() {
@@ -24,14 +23,18 @@ function useAccountNav() {
   return { onProfile, onSettings, onServerStatus };
 }
 
-function useAuthAction(auth: Auth) {
+function useAuthAction(
+  isAuthenticated: boolean,
+  openSignOutConfirm: () => void,
+  openSignInModal: () => void
+) {
   const log = useLogger('use-account-actions');
   const { run } = useAsync({
     operation: async () => {
-      if (auth.isAuthenticated) {
-        auth.openSignOutConfirm();
+      if (isAuthenticated) {
+        openSignOutConfirm();
       } else {
-        auth.openSignInModal();
+        openSignInModal();
       }
     },
     options: {
@@ -109,15 +112,13 @@ function buildConnectionAction(
 
 function buildAuthAction(
   labels: Labels,
-  auth: Auth,
+  isAuthenticated: boolean,
   onAuth: () => Promise<void>
 ): ScreenBaseAction {
   return {
     type: 'default',
-    label: auth.isAuthenticated ? labels.signOut : labels.signIn,
-    icon: auth.isAuthenticated
-      ? 'arrow.right.from.bracket'
-      : 'right.to.bracket',
+    label: isAuthenticated ? labels.signOut : labels.signIn,
+    icon: isAuthenticated ? 'arrow.right.from.bracket' : 'right.to.bracket',
     overflow: 'always',
     onPress: () => {
       void onAuth();
@@ -128,7 +129,7 @@ function buildAuthAction(
 
 function buildActions(args: {
   labels: Labels;
-  auth: Auth;
+  isAuthenticated: boolean;
   serverStatus: ServerStatus;
   onProfile: () => void;
   onSettings: () => void;
@@ -137,7 +138,7 @@ function buildActions(args: {
 }): ScreenBaseAction[] {
   const {
     labels,
-    auth,
+    isAuthenticated,
     serverStatus,
     onProfile,
     onSettings,
@@ -153,7 +154,7 @@ function buildActions(args: {
       overflow: 'always',
     },
     buildConnectionAction(labels, serverStatus, onServerStatus),
-    buildAuthAction(labels, auth, onAuth),
+    buildAuthAction(labels, isAuthenticated, onAuth),
     {
       type: 'default',
       label: labels.settings,
@@ -170,10 +171,14 @@ function buildActions(args: {
  */
 export function useAccountActions(): ScreenBaseAction[] {
   const { t } = useLingui();
-  const auth = useAuth();
+  const { isAuthenticated, openSignOutConfirm, openSignInModal } = useAuth();
   const serverStatus = useServerStatus();
   const { onProfile, onSettings, onServerStatus } = useAccountNav();
-  const onAuth = useAuthAction(auth);
+  const onAuth = useAuthAction(
+    isAuthenticated,
+    openSignOutConfirm,
+    openSignInModal
+  );
 
   const labels = useMemo<Labels>(
     () => ({
@@ -190,13 +195,21 @@ export function useAccountActions(): ScreenBaseAction[] {
     () =>
       buildActions({
         labels,
-        auth,
+        isAuthenticated,
         serverStatus,
         onProfile,
         onSettings,
         onServerStatus,
         onAuth,
       }),
-    [labels, auth, serverStatus, onProfile, onSettings, onServerStatus, onAuth]
+    [
+      labels,
+      isAuthenticated,
+      serverStatus,
+      onProfile,
+      onSettings,
+      onServerStatus,
+      onAuth,
+    ]
   );
 }

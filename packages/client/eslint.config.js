@@ -73,7 +73,7 @@ module.exports = defineConfig([
     },
   },
   {
-    files: ['src/ui/patch-db-bootstrap.tsx'],
+    files: ['src/providers/app-providers.tsx'],
     rules: {
       'max-lines': 'off',
       'max-lines-per-function': 'off',
