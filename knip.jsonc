@@ -17,6 +17,8 @@
     "expo-updates",
     "@react-navigation/bottom-tabs",
     "@react-navigation/elements",
+    // `packages/client/scripts/bundle-skia-canvaskit-wasm.ts` uses createRequire only.
+    "@shopify/react-native-skia",
     "absurd-sql",
     "canvaskit-wasm",
     "expo-font",
