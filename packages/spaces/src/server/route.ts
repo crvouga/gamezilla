@@ -36,11 +36,11 @@ export function createSpaceApp() {
     const headers = new Headers(c.req.raw.headers);
     headers.set(ACTOR_ID_HEADER, auth.myId);
 
-    return stub.fetch(
-      new Request(c.req.raw.url, {
-        method: c.req.raw.method,
-        headers,
-      })
-    );
+    // Use `new Request(originalRequest, init)` (not `new Request(url, init)`)
+    // so the Workers runtime preserves the WebSocket upgrade context when
+    // forwarding to the Durable Object. The URL+init form treats `Upgrade`
+    // and `Connection` as forbidden fetch headers and strips them, causing
+    // the DO to reply 426 ("Expected WebSocket Upgrade").
+    return stub.fetch(new Request(c.req.raw, { headers }));
   });
 }
