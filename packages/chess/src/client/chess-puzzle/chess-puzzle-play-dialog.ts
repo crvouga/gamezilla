@@ -18,6 +18,7 @@
  * supportive-teacher tone resolution centralized here. `msg` macros live with
  * the data so Lingui extracts the literals from their declaration site.
  */
+import { assert } from '@gamezilla/lib/assert';
 import type { MessageDescriptor } from '@lingui/core';
 import {
   CHESS_PUZZLE_THEMES,
@@ -58,9 +59,11 @@ function reg(
   message: DialogMessage
 ): void {
   const key = keyOf(event, theme);
-  if (dialogRegistry.has(key)) {
-    throw new Error(`duplicate dialog registration: ${event}/${theme ?? '*'}`);
-  }
+  // assert.ok(
+  //   !dialogRegistry.has(key),
+  //   `duplicate dialog registration: ${event}/${theme ?? '*'}`,
+  //   { event, theme, key }
+  // );
   dialogRegistry.set(key, message);
 }
 
@@ -169,9 +172,9 @@ export function getPuzzlePlayDialog(
     if (themed !== undefined) return themed;
   }
   const fallback = dialogRegistry.get(keyOf(event, null));
-  if (fallback === undefined) {
-    throw new Error(`no fallback dialog registered for event ${event}`);
-  }
+  assert.defined(fallback, `no fallback dialog registered for event ${event}`, {
+    event,
+  });
   return fallback;
 }
 
@@ -198,19 +201,23 @@ validateDialogRegistry();
 
 function validateDialogRegistry(): void {
   for (const event of DIALOG_EVENT_VALUES) {
-    if (!dialogRegistry.has(keyOf(event, null))) {
-      throw new Error(`missing fallback dialog for event ${event}`);
-    }
-  }
-  const priorityKeys = new Set<string>(THEME_PRIORITY);
-  if (priorityKeys.size !== THEME_PRIORITY.length) {
-    throw new Error(
-      `THEME_PRIORITY contains duplicate themes (${priorityKeys.size} unique of ${THEME_PRIORITY.length})`
+    assert.ok(
+      dialogRegistry.has(keyOf(event, null)),
+      `missing fallback dialog for event ${event}`,
+      { event }
     );
   }
+  const priorityKeys = new Set<string>(THEME_PRIORITY);
+  assert.ok(
+    priorityKeys.size === THEME_PRIORITY.length,
+    `THEME_PRIORITY contains duplicate themes (${priorityKeys.size} unique of ${THEME_PRIORITY.length})`,
+    { unique: priorityKeys.size, total: THEME_PRIORITY.length }
+  );
   for (const theme of CHESS_PUZZLE_THEMES) {
-    if (!priorityKeys.has(theme)) {
-      throw new Error(`THEME_PRIORITY missing theme: ${theme}`);
-    }
+    assert.ok(
+      priorityKeys.has(theme),
+      `THEME_PRIORITY missing theme: ${theme}`,
+      { theme }
+    );
   }
 }
