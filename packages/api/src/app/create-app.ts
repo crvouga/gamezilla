@@ -39,7 +39,9 @@ function isAssertionCrash(
 
 function toPatchDbApiConfig(
   config: ApiHandlerConfig,
-  resolvePatchDbContext: (req: Request) => Promise<Readonly<Record<string, unknown>>>
+  resolvePatchDbContext: (
+    req: Request
+  ) => Promise<Readonly<Record<string, unknown>>>
 ): PatchDbApiConfig {
   const { pubSub, basePath, instrumentation } = config;
   const patchDbConfig: PatchDbApiConfig = {

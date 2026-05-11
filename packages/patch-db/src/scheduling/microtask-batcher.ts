@@ -34,7 +34,10 @@ class PatchDbReadBatcher implements PatchDb {
   readonly hooks;
   readonly compaction;
 
-  private readonly buckets = new Map<Readonly<Record<string, unknown>>, PendingBucket>();
+  private readonly buckets = new Map<
+    Readonly<Record<string, unknown>>,
+    PendingBucket
+  >();
   private flushScheduled = false;
 
   constructor(private readonly inner: PatchDb) {
@@ -42,7 +45,10 @@ class PatchDbReadBatcher implements PatchDb {
     this.compaction = inner.compaction;
   }
 
-  read(queries: PatchDbQuery[], ctx: Readonly<Record<string, unknown>>): Promise<PatchDbResult[]> {
+  read(
+    queries: PatchDbQuery[],
+    ctx: Readonly<Record<string, unknown>>
+  ): Promise<PatchDbResult[]> {
     if (queries.length === 0) {
       return Promise.resolve([]);
     }

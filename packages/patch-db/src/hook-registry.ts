@@ -29,7 +29,9 @@ type AfterWriteFn = (
 
 type EnrichContextFn = (
   ctx: Readonly<Record<string, unknown>>
-) => Readonly<Record<string, unknown>> | Promise<Readonly<Record<string, unknown>>>;
+) =>
+  | Readonly<Record<string, unknown>>
+  | Promise<Readonly<Record<string, unknown>>>;
 
 export function normalizeBeforeWriteHookResult(
   result: PatchDbBeforeWriteHookResult
@@ -88,7 +90,9 @@ export class PatchDbHookRegistry implements PatchDbHooks {
    * privileged callers (migrations, scripts, webhooks) never trigger the
    * (potentially DB-touching) enrichment pipeline.
    */
-  async runEnrichContext(ctx: Readonly<Record<string, unknown>>): Promise<Readonly<Record<string, unknown>>> {
+  async runEnrichContext(
+    ctx: Readonly<Record<string, unknown>>
+  ): Promise<Readonly<Record<string, unknown>>> {
     if (isPatchDbSystemContext(ctx)) return ctx;
     let c = ctx;
     for (const fn of this.enrichContextFns) {

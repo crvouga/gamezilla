@@ -1,6 +1,13 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "ignoreBinaries": ["actionlint", "gitleaks", "lsof", "pkill", "wrangler"],
+  "ignoreBinaries": [
+    "actionlint",
+    "doppler",
+    "gitleaks",
+    "lsof",
+    "pkill",
+    "wrangler",
+  ],
   "ignore": [
     "**/*.bench.ts",
     "packages/client/babel.config.js",
@@ -51,7 +58,7 @@
   ],
   "workspaces": {
     ".": {
-      "entry": ["package.json"],
+      "entry": ["package.json", "scripts/*.ts"],
     },
     "packages/stripe-cli": {
       "entry": "src/dev.ts",

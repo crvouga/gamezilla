@@ -35,7 +35,9 @@ export type VisibilityPolicy<
     Record<string, unknown>
   >,
 > = {
-  read: (ctx: TCtx) => PatchDbQueryWhereClause | Promise<PatchDbQueryWhereClause>;
+  read: (
+    ctx: TCtx
+  ) => PatchDbQueryWhereClause | Promise<PatchDbQueryWhereClause>;
   write: (
     ctx: Readonly<Record<string, unknown>>,
     patch: PatchInput,

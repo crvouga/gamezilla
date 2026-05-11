@@ -456,7 +456,11 @@ export type PatchDbHooks = {
    * output. Throwing aborts the read / write.
    */
   enrichContext(
-    fn: (ctx: Readonly<Record<string, unknown>>) => Readonly<Record<string, unknown>> | Promise<Readonly<Record<string, unknown>>>
+    fn: (
+      ctx: Readonly<Record<string, unknown>>
+    ) =>
+      | Readonly<Record<string, unknown>>
+      | Promise<Readonly<Record<string, unknown>>>
   ): Unsubscribe;
 
   beforeRead(
@@ -485,7 +489,10 @@ export type PatchDbHooks = {
 
 /** Query side of {@link PatchDb}; contract varies by implementation (local read vs sync merge-then-read). */
 export type PatchDbRead = {
-  read(queries: PatchDbQuery[], ctx?: Readonly<Record<string, unknown>>): Promise<PatchDbResult[]>;
+  read(
+    queries: PatchDbQuery[],
+    ctx?: Readonly<Record<string, unknown>>
+  ): Promise<PatchDbResult[]>;
 };
 
 /** Write side of {@link PatchDb}; contract varies by implementation (local persist vs sync + invalidation). */

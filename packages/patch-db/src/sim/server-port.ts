@@ -10,7 +10,10 @@ import type {
  * Server-side port for {@link SimulatedPatchDbClientTransport}: read/write only.
  */
 export type SimServerPort = {
-  read(queries: PatchDbQuery[], ctx?: Readonly<Record<string, unknown>>): Promise<PatchDbResult[]>;
+  read(
+    queries: PatchDbQuery[],
+    ctx?: Readonly<Record<string, unknown>>
+  ): Promise<PatchDbResult[]>;
   write(
     patches: PatchInput[],
     ctx?: Readonly<Record<string, unknown>>
