@@ -8,6 +8,7 @@
  * `DB_URL` must be `postgres://` or `postgresql://` (TCP Postgres).
  */
 import { SqlClientImplPg } from '@gamezilla/lib/sql-client/impl-pg';
+import { sanitizePostgresUrlForNodePg } from '@gamezilla/lib/sql-client/sanitize-postgres-url-for-node-pg';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { Pool } from 'pg';
 import type { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
@@ -78,7 +79,9 @@ export async function resolveOptionalDbUrl(): Promise<string | undefined> {
 
 /** Build a {@link SqlClient} for the given `DB_URL` (TCP Postgres). */
 export function createSqlClientFromDbUrl(dbUrl: string): SqlClient {
-  return new SqlClientImplPg(new Pool({ connectionString: dbUrl }));
+  return new SqlClientImplPg(
+    new Pool({ connectionString: sanitizePostgresUrlForNodePg(dbUrl) })
+  );
 }
 
 export function createStripeClientFromSecret(secretKey: string): Stripe {

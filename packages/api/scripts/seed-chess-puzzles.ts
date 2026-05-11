@@ -25,6 +25,7 @@ import { assert } from '@gamezilla/lib/assert';
 import { createLogger } from '@gamezilla/lib/logger';
 import { createDopplerSecretStoreForScripts } from '@gamezilla/lib/secret-store';
 import { SqlClientImplPg } from '@gamezilla/lib/sql-client/impl-pg';
+import { sanitizePostgresUrlForNodePg } from '@gamezilla/lib/sql-client/sanitize-postgres-url-for-node-pg';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
 import {
@@ -62,7 +63,9 @@ function createSqlClient(databaseUrl: string): {
   sql: SqlClient;
   pool: Pool;
 } {
-  const pool = new Pool({ connectionString: databaseUrl });
+  const pool = new Pool({
+    connectionString: sanitizePostgresUrlForNodePg(databaseUrl),
+  });
   return { sql: new SqlClientImplPg(pool), pool };
 }
 

@@ -2,6 +2,7 @@ import { assert } from '@gamezilla/lib/assert';
 import { createLogger } from '@gamezilla/lib/logger';
 import { createDopplerSecretStoreForScripts } from '@gamezilla/lib/secret-store';
 import { SqlClientImplPg } from '@gamezilla/lib/sql-client/impl-pg';
+import { sanitizePostgresUrlForNodePg } from '@gamezilla/lib/sql-client/sanitize-postgres-url-for-node-pg';
 import { Pool } from 'pg';
 import { loadBetterAuthOptionsForMigration } from '@gamezilla/auth/server/better-auth-doppler-options';
 import { runPostgresMigrations } from '../src/migrations/run-postgres-migrations';
@@ -9,7 +10,9 @@ import { runPostgresMigrations } from '../src/migrations/run-postgres-migrations
 async function main(): Promise<void> {
   const store = createDopplerSecretStoreForScripts();
   const databaseUrl = await store.getRequired('DB_URL');
-  const pool = new Pool({ connectionString: databaseUrl });
+  const pool = new Pool({
+    connectionString: sanitizePostgresUrlForNodePg(databaseUrl),
+  });
   const sqlClient = new SqlClientImplPg(pool);
   const log = createLogger({ name: 'api:migrate' });
   await sqlClient.connect();

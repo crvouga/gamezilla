@@ -1,5 +1,6 @@
 import { expo } from '@better-auth/expo';
 import type { SecretStore } from '@gamezilla/lib/secret-store';
+import { sanitizePostgresUrlForNodePg } from '@gamezilla/lib/sql-client/sanitize-postgres-url-for-node-pg';
 import { betterAuth } from 'better-auth';
 import { bearer } from 'better-auth/plugins';
 import { Kysely, PostgresDialect } from 'kysely';
@@ -48,7 +49,7 @@ export async function createBetterAuthRequestStack(
 ): Promise<BetterAuthRequestStack> {
   const cfg = await loadBetterAuthSecretsWorker(secretStore);
   const pool = new Pool({
-    connectionString: hyperdriveConnectionString,
+    connectionString: sanitizePostgresUrlForNodePg(hyperdriveConnectionString),
     max: 1,
   });
   await pool.query('SELECT 1');
