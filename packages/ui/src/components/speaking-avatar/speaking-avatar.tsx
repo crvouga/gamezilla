@@ -74,15 +74,22 @@ export function SpeakingAvatar({
    */
   const ttsRef = useRef(tts);
   ttsRef.current = tts;
+  const lastSpokenRef = useRef<string | null>(null);
 
   /**
    * Kick off TTS when the message text changes — the audio fetch happens in
    * parallel with the typewriter reveal so they finish around the same time
    * on cache hits.
    *
-   * Overlap prevention: each render captures its own `AbortController` and
-   * `t` in the cleanup closure. When the effect re-runs (or React StrictMode
-   * fires its dev-only mount→unmount→mount cycle) we
+   * `lastSpokenRef` dedupes against React re-renders so each distinct
+   * message is spoken exactly once. It also keeps the cleanup function from
+   * being registered when we early-return — that's what makes the next
+   * pass's abort logic safe: cleanups only run for utterances we actually
+   * started.
+   *
+   * Overlap prevention: each kept-utterance captures its own
+   * `AbortController` and `t` in the cleanup closure. When the effect
+   * re-runs we
    *   1. `controller.abort()` — cancels the prior message's in-flight
    *      `synthesize` fetch so its resolved `player.play(url)` cannot fire
    *      after we've moved on, and
@@ -96,8 +103,9 @@ export function SpeakingAvatar({
     const t = ttsRef.current;
     if (!speak || t === null) return;
     if (message.trim().length === 0) return;
+    if (lastSpokenRef.current === message) return;
+    lastSpokenRef.current = message;
 
-    t.stop();
     const controller = new AbortController();
     void t.play(message, { signal: controller.signal }).catch(() => {});
 

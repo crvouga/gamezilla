@@ -105,28 +105,20 @@ function createApiErrorHandler() {
   };
 }
 
-/**
- * Composes the API Worker app from mounted sub-apps (`app.route()`), per
- * [Hono best practices](https://hono.dev/docs/guides/best-practices).
- */
-export async function createApiApp(config: ApiHandlerConfig) {
+async function resolveStripeClient(
+  secretStore: ApiHandlerConfig['secretStore']
+): Promise<ReturnType<typeof makeStripeClient> | null> {
+  const raw = await secretStore.getOptional(ApiSecretName.stripeSecretKey);
+  const key =
+    typeof raw === 'string' && raw.trim().length > 0 ? raw.trim() : null;
+  return key !== null ? makeStripeClient(key) : null;
+}
+
+async function resolveTtsApp(config: ApiHandlerConfig) {
   const { secretStore, ttsAudioBucket } = config;
-
-  const stripeRaw = await secretStore.getOptional(
-    ApiSecretName.stripeSecretKey
-  );
-  const stripeKey =
-    typeof stripeRaw === 'string' && stripeRaw.trim().length > 0
-      ? stripeRaw.trim()
-      : null;
-  const stripe = stripeKey !== null ? makeStripeClient(stripeKey) : null;
-
   const ttsApp =
     ttsAudioBucket !== undefined
-      ? await createTtsAppFromBindings({
-          secretStore,
-          r2Bucket: ttsAudioBucket,
-        })
+      ? await createTtsAppFromBindings({ secretStore, r2Bucket: ttsAudioBucket })
       : null;
   if (ttsApp === null) {
     log.warn('tts routes not mounted', {
@@ -140,6 +132,47 @@ export async function createApiApp(config: ApiHandlerConfig) {
       paths: ['/tts/synthesize', '/tts/audio/:hash'],
     });
   }
+  return ttsApp;
+}
+
+function buildStripeSubApp(
+  config: ApiHandlerConfig,
+  stripe: ReturnType<typeof makeStripeClient> | null
+) {
+  return createStripeApp({
+    getPatchDb: () => {
+      const s = apiRequestAsyncLocalStorage.getStore();
+      assert.defined(s, 'stripe: request store missing');
+      return s.patchDb;
+    },
+    secretStore: config.secretStore,
+    stripe,
+    requireAuth: async (d, req) => {
+      const s = apiRequestAsyncLocalStorage.getStore();
+      assert.defined(s, 'stripe auth: request store missing');
+      const ctx = await s.sessionAuth.requireAuthContext(d, req);
+      const auth = appAuth(ctx);
+      if (auth === null || auth.accountId === null) {
+        throw new UnauthorizedError(
+          'Stripe routes require a signed-in account'
+        );
+      }
+      return { accountId: auth.accountId, deviceId: auth.deviceId };
+    },
+    webhookSecretDopplerKey: ApiSecretName.stripeWebhookSecret,
+  });
+}
+
+/**
+ * Composes the API Worker app from mounted sub-apps (`app.route()`), per
+ * [Hono best practices](https://hono.dev/docs/guides/best-practices).
+ */
+export async function createApiApp(config: ApiHandlerConfig) {
+  const { secretStore } = config;
+  const [stripe, ttsApp] = await Promise.all([
+    resolveStripeClient(secretStore),
+    resolveTtsApp(config),
+  ]);
 
   const { honoApp: patchDbApp, basePath: resolvedBase } =
     createPatchDbApiHandler(
@@ -163,31 +196,7 @@ export async function createApiApp(config: ApiHandlerConfig) {
     .route('/', createAuthApiRoutes());
 
   const app = (ttsApp !== null ? baseApp.route('/', ttsApp) : baseApp)
-    .route(
-      '/',
-      createStripeApp({
-        getPatchDb: () => {
-          const s = apiRequestAsyncLocalStorage.getStore();
-          assert.defined(s, 'stripe: request store missing');
-          return s.patchDb;
-        },
-        secretStore,
-        stripe,
-        requireAuth: async (d, req) => {
-          const s = apiRequestAsyncLocalStorage.getStore();
-          assert.defined(s, 'stripe auth: request store missing');
-          const ctx = await s.sessionAuth.requireAuthContext(d, req);
-          const auth = appAuth(ctx);
-          if (auth === null || auth.accountId === null) {
-            throw new UnauthorizedError(
-              'Stripe routes require a signed-in account'
-            );
-          }
-          return { accountId: auth.accountId, deviceId: auth.deviceId };
-        },
-        webhookSecretDopplerKey: ApiSecretName.stripeWebhookSecret,
-      })
-    )
+    .route('/', buildStripeSubApp(config, stripe))
     .route('/', createSpaceApp())
     .route(patchMount, patchDbApp)
     .onError(createApiErrorHandler());
