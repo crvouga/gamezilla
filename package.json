@@ -17,6 +17,7 @@
     "check:gitleaks": "gitleaks detect --redact --verbose --no-banner --log-opts=-1",
     "check:lint": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run lint",
     "check:no-patches": "bun run scripts/check-no-patches.ts",
+    "check:syncpack-workspace": "bun run syncpack:lint && bun run check:catalog-deps",
     "check:tc": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run tc",
     "check:test": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run test",
     "chess:puzzles:seed": "bun run --filter @gamezilla/api seed:puzzles",
@@ -42,7 +43,6 @@
     "stripe:check": "bun run --filter '@gamezilla/stripe' check",
     "stripe:listen": "bun run --filter '@gamezilla/stripe-cli' dev",
     "stripe:sync": "bun run --filter '@gamezilla/stripe' sync",
-    "check:syncpack-workspace": "bun run syncpack:lint && bun run check:catalog-deps",
     "syncpack:lint": "syncpack lint --dependency-types prod,dev",
     "wipe": "git clean -xfd"
   },
