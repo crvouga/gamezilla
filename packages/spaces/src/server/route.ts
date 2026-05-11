@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import type { ApiHonoEnv } from '@gamezilla/api-types/api-hono-types';
+import type { ApiHonoEnv } from '@gamezilla/auth/server/api-hono-env';
 import { ACTOR_ID_HEADER, authorizeSpaceDoWebSocket } from './space-do-auth';
 
 /**

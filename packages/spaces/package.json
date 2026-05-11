@@ -109,7 +109,6 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@gamezilla/api-types": "workspace:*",
     "@gamezilla/auth": "workspace:*",
     "@gamezilla/client-runtime": "workspace:*",
     "@gamezilla/lib": "workspace:*",

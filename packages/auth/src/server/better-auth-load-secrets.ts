@@ -1,5 +1,6 @@
 import type { SecretStore } from '@gamezilla/lib/secret-store';
-import { ApiSecretName } from '@gamezilla/api-types/secret-names';
+
+import { BetterAuthDopplerKey } from './better-auth-doppler-keys';
 
 /** Expo / deep-link schemes — not sensitive; always allowed unless overridden by Doppler list. */
 const DEFAULT_MOBILE_TRUSTED = ['myapp://', 'myapp://*', 'exp://**'] as const;
@@ -64,7 +65,7 @@ function parseTrustedOriginsMultiline(raw: string | null): string[] {
 }
 
 /**
- * When {@link ApiSecretName.betterAuthTrustedOrigins} is set in Doppler, it is
+ * When {@link BetterAuthDopplerKey.betterAuthTrustedOrigins} is set in Doppler, it is
  * the source of truth (plus API origin). Otherwise we derive a safe default
  * (API origin + mobile schemes + local wrangler + common web dev origins when API_URL is local).
  */
@@ -107,21 +108,21 @@ export async function loadBetterAuthSecretsWorker(
   secretStore: SecretStore
 ): Promise<LoadedBetterAuthSecretsWorker> {
   const secret = (
-    await secretStore.getRequired(ApiSecretName.betterAuthSecret)
+    await secretStore.getRequired(BetterAuthDopplerKey.betterAuthSecret)
   ).trim();
   const googleClientId = (
-    await secretStore.getRequired(ApiSecretName.googleWebClientId)
+    await secretStore.getRequired(BetterAuthDopplerKey.googleWebClientId)
   ).trim();
   const googleClientSecret = (
-    await secretStore.getRequired(ApiSecretName.googleWebClientSecret)
+    await secretStore.getRequired(BetterAuthDopplerKey.googleWebClientSecret)
   ).trim();
-  const apiUrlRaw = await secretStore.getRequired(ApiSecretName.apiUrl);
+  const apiUrlRaw = await secretStore.getRequired(BetterAuthDopplerKey.apiUrl);
   const apiOrigin = apiUrlRaw.replace(/\/$/, '');
   const hostedAuthOrigin = normalizeLocalHostedAuthOrigin(apiOrigin);
   const baseURL = `${hostedAuthOrigin}/api/auth`;
 
   const appNameRaw = await secretStore.getOptional(
-    ApiSecretName.betterAuthAppName
+    BetterAuthDopplerKey.betterAuthAppName
   );
   const appName =
     typeof appNameRaw === 'string' && appNameRaw.trim().length > 0
@@ -129,7 +130,7 @@ export async function loadBetterAuthSecretsWorker(
       : 'gamezilla';
 
   const trustedRaw = await secretStore.getOptional(
-    ApiSecretName.betterAuthTrustedOrigins
+    BetterAuthDopplerKey.betterAuthTrustedOrigins
   );
   const trustedOrigins = buildTrustedOrigins(apiOrigin, trustedRaw);
 
@@ -148,6 +149,6 @@ export async function loadBetterAuthSecrets(
   secretStore: SecretStore
 ): Promise<LoadedBetterAuthSecrets> {
   const worker = await loadBetterAuthSecretsWorker(secretStore);
-  const dbUrl = await secretStore.getRequired(ApiSecretName.dbUrl);
+  const dbUrl = await secretStore.getRequired(BetterAuthDopplerKey.dbUrl);
   return { ...worker, dbUrl };
 }

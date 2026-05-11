@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "exports": {
-    "./rpc": "./src/rpc.ts"
+    "./rpc": "./src/rpc.ts",
+    "./config/env": "./src/config/env.ts",
+    "./config/secret-names": "./src/config/secret-names.ts"
   },
   "scripts": {
     "build": "bun -e \"process.exit(0)\"",
@@ -20,8 +22,6 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@gamezilla/api-rpc": "workspace:*",
-    "@gamezilla/api-types": "workspace:*",
     "@gamezilla/app": "workspace:*",
     "@gamezilla/auth": "workspace:*",
     "@gamezilla/chess": "workspace:*",

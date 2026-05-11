@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import type { ApiHonoEnv } from '@gamezilla/api-types/api-hono-types';
+import type { ApiHonoEnv } from './api-hono-env';
 import { appAuth } from '@gamezilla/auth/shared/auth-context';
 import type { SessionAuth } from './session-middleware';
 import type { AuthContext } from './types';

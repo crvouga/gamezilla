@@ -1,5 +1,4 @@
-import { createApiRpcClient } from '@gamezilla/api-rpc';
-import type { AppType } from '@gamezilla/api/rpc';
+import { createTypedApiRpcClient } from '../typed-api-rpc-client';
 import { useConfigService } from '@gamezilla/client-runtime/runtime-hooks';
 import type { ConfigService } from '@gamezilla/client-runtime/config-service';
 import { useAsync, type AsyncRunContext } from '@gamezilla/lib/async/use-async';
@@ -12,7 +11,7 @@ async function postClientConfigRefresh(
   ctx: AsyncRunContext
 ): Promise<void> {
   const apiUrl = configService.getApiUrl();
-  const client = createApiRpcClient<AppType>(apiUrl);
+  const client = createTypedApiRpcClient(apiUrl);
   const res = await client['client-config']['refresh'].$post(undefined, {
     init: { signal: ctx.signal },
   });

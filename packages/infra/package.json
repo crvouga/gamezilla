@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@gamezilla/api": "workspace:*",
-    "@gamezilla/api-rpc": "workspace:*",
     "@gamezilla/client-runtime": "workspace:*",
     "@gamezilla/lib": "workspace:*",
     "@neondatabase/serverless": "catalog:",

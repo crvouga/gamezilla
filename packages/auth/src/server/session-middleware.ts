@@ -1,5 +1,5 @@
 import { assertDeviceId } from '@gamezilla/auth/shared/device-id';
-import { ANON_ID_HEADER } from '@gamezilla/api-types/auth-ports';
+import { ANON_ID_HEADER } from './auth-ports';
 import {
   appAuth,
   type AppAuthContext,
@@ -17,7 +17,7 @@ export type { AuthContext } from './types';
 
 /**
  * Re-export so existing imports (`@gamezilla/auth/server/session-middleware`)
- * keep working; the source of truth lives in `@gamezilla/api-types`.
+ * keep working; the source of truth lives in `./auth-ports`.
  */
 export { ANON_ID_HEADER };
 

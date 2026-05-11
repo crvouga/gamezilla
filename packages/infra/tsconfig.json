@@ -10,7 +10,6 @@
     "baseUrl": ".",
     "paths": {
       "@gamezilla/api/*": ["../api/src/*"],
-      "@gamezilla/api-rpc": ["../api-rpc/src/index.ts"],
       "@gamezilla/auth/*": ["../auth/src/*"],
       "@gamezilla/client/*": ["../client/src/*"],
       "@gamezilla/client-runtime/*": ["../client-runtime/src/*"],

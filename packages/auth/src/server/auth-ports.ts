@@ -33,8 +33,7 @@ export type HttpBearerAuthPorts = {
 
 /**
  * Hono `Variables.sessionAuth` port. Generic over the concrete auth-context
- * type so this leaf does not need to import the app's `AppAuthContext`. Auth
- * declares its concrete `AuthSessionPort<AuthContext>` at the type boundary.
+ * type. The auth package binds `AuthSessionPort<AuthContext>` at the app boundary.
  */
 export interface AuthSessionPort<TAuthContext = unknown> {
   resolvePatchDbContext(
@@ -55,9 +54,7 @@ export type BetterAuthSessionApi = {
 
 /**
  * Validates the bearer token and resolves the internal account id, or `null`
- * if verification fails. Lives in `api-types` so server-side feature packages
- * (`spaces`, `client-config`, …) can use it without importing from
- * `@gamezilla/auth` (which would create a feature -> feature cycle).
+ * if verification fails.
  */
 export async function resolveAccountIdFromBearer(args: {
   db: PatchDb;

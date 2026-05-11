@@ -1,8 +1,8 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { SecretStore } from '@gamezilla/lib/secret-store';
 import type { Hono } from 'hono';
-import type { ApiHonoEnv } from '@gamezilla/api-types/api-hono-types';
-import { withBetterAuthBrowserCorsForRequest } from '@gamezilla/api-types/cors';
+import type { ApiHonoEnv } from './api-hono-env';
+import { withBetterAuthBrowserCorsForRequest } from './better-auth-cors';
 
 import type { AuthContext } from './types';
 

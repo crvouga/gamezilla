@@ -1,5 +1,4 @@
-import type { ApiHonoEnv } from '@gamezilla/api-types/api-hono-types';
-import { ApiSecretName } from '@gamezilla/api-types/secret-names';
+import type { ApiHonoEnv } from '@gamezilla/auth/server/api-hono-env';
 import { isEqual } from '@gamezilla/lib/equal/is-equal';
 import type { Logger } from '@gamezilla/lib/logger';
 import type { SecretStore } from '@gamezilla/lib/secret-store';
@@ -29,11 +28,14 @@ function snapshotAttributes(
   return { ...attrs };
 }
 
+/** Doppler key — keep aligned with `packages/api/src/config/secret-names.ts`. */
+const DOPPLER_WEB_CLIENT_GOOGLE_CLIENT_ID = 'WEB_CLIENT_GOOGLE_CLIENT_ID';
+
 async function loadClientConfigAttributesFromDoppler(
   secretStore: SecretStore
 ): Promise<Record<string, unknown>> {
   const googleWebClientId = await secretStore.getOptional(
-    ApiSecretName.googleWebClientId
+    DOPPLER_WEB_CLIENT_GOOGLE_CLIENT_ID
   );
   return ClientConfigAttr.googleWebClientId(googleWebClientId);
 }

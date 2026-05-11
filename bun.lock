@@ -31,8 +31,6 @@
       "name": "@gamezilla/api",
       "version": "1.0.0",
       "dependencies": {
-        "@gamezilla/api-rpc": "workspace:*",
-        "@gamezilla/api-types": "workspace:*",
         "@gamezilla/app": "workspace:*",
         "@gamezilla/auth": "workspace:*",
         "@gamezilla/chess": "workspace:*",
@@ -55,30 +53,6 @@
         "wrangler": "catalog:",
       },
     },
-    "packages/api-rpc": {
-      "name": "@gamezilla/api-rpc",
-      "version": "0.0.0",
-      "dependencies": {
-        "hono": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "packages/api-types": {
-      "name": "@gamezilla/api-types",
-      "version": "0.0.0",
-      "dependencies": {
-        "@gamezilla/lib": "workspace:*",
-        "@gamezilla/patch-db": "workspace:*",
-        "hono": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "packages/app": {
       "name": "@gamezilla/app",
       "version": "0.0.0",
@@ -99,7 +73,6 @@
       "dependencies": {
         "@better-auth/core": "catalog:",
         "@better-auth/expo": "catalog:",
-        "@gamezilla/api-types": "workspace:*",
         "@gamezilla/client-runtime": "workspace:*",
         "@gamezilla/lib": "workspace:*",
         "@gamezilla/patch-db": "workspace:*",
@@ -160,7 +133,6 @@
       "dependencies": {
         "@expo-google-fonts/nunito": "catalog:",
         "@gamezilla/api": "workspace:*",
-        "@gamezilla/api-rpc": "workspace:*",
         "@gamezilla/app": "workspace:*",
         "@gamezilla/auth": "workspace:*",
         "@gamezilla/chess": "workspace:*",
@@ -236,8 +208,7 @@
       "name": "@gamezilla/client-config",
       "version": "0.0.0",
       "dependencies": {
-        "@gamezilla/api-rpc": "workspace:*",
-        "@gamezilla/api-types": "workspace:*",
+        "@gamezilla/auth": "workspace:*",
         "@gamezilla/client-runtime": "workspace:*",
         "@gamezilla/lib": "workspace:*",
         "@gamezilla/patch-db": "workspace:*",
@@ -276,7 +247,6 @@
       "name": "@gamezilla/infra",
       "dependencies": {
         "@gamezilla/api": "workspace:*",
-        "@gamezilla/api-rpc": "workspace:*",
         "@gamezilla/client-runtime": "workspace:*",
         "@gamezilla/lib": "workspace:*",
         "@neondatabase/serverless": "catalog:",
@@ -463,7 +433,6 @@
       "name": "@gamezilla/spaces",
       "version": "0.0.0",
       "dependencies": {
-        "@gamezilla/api-types": "workspace:*",
         "@gamezilla/auth": "workspace:*",
         "@gamezilla/client-runtime": "workspace:*",
         "@gamezilla/lib": "workspace:*",
@@ -1164,10 +1133,6 @@
     "@expo/xcpretty": ["@expo/xcpretty@4.4.3", "", { "dependencies": { "@babel/code-frame": "^7.20.0", "chalk": "^4.1.0", "js-yaml": "^4.1.0" }, "bin": { "excpretty": "build/cli.js" } }, "sha512-wC562eD3gS6vO2tWHToFhlFnmHKfKHgF1oyvojeSkLK/ZYop1bMU+7cOMiF9Sq70CzcsLy/EMRy/uRc76QmNRw=="],
 
     "@gamezilla/api": ["@gamezilla/api@workspace:packages/api"],
-
-    "@gamezilla/api-rpc": ["@gamezilla/api-rpc@workspace:packages/api-rpc"],
-
-    "@gamezilla/api-types": ["@gamezilla/api-types@workspace:packages/api-types"],
 
     "@gamezilla/app": ["@gamezilla/app@workspace:packages/app"],
 

@@ -1,5 +1,4 @@
-import { createApiRpcClient } from '@gamezilla/api-rpc';
-import type { AppType } from '@gamezilla/api/rpc';
+import { createTypedApiRpcClient } from '../src/typed-api-rpc-client';
 
 const API_URL = 'http://localhost:8788';
 const MAX_WAIT_MS = 60_000;
@@ -10,7 +9,7 @@ function sleep(ms: number): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  const client = createApiRpcClient<AppType>(API_URL);
+  const client = createTypedApiRpcClient(API_URL);
   const started = performance.now();
 
   for (let attempt = 1; ; attempt++) {

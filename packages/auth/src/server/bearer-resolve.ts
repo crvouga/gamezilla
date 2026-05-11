@@ -3,7 +3,7 @@ import {
   type AppAuthContext,
   buildAppAuthContext,
 } from '@gamezilla/auth/shared/auth-context';
-import { resolveAccountIdFromBearer } from '@gamezilla/api-types/auth-ports';
+import { resolveAccountIdFromBearer } from './auth-ports';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import type { HttpBearerAuthPorts } from './ports';
 

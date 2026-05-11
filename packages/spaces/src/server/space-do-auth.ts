@@ -13,7 +13,7 @@ import {
   ANON_ID_HEADER,
   resolveAccountIdFromBearer,
   type HttpBearerAuthPorts,
-} from '@gamezilla/api-types/auth-ports';
+} from '@gamezilla/auth/server/auth-ports';
 
 const ROOM_TOPIC_PREFIX = 'space:' as const;
 

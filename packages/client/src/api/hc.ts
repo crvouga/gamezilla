@@ -1,5 +1,4 @@
-import { createApiRpcClient } from '@gamezilla/api-rpc';
-import type { AppType } from '@gamezilla/api/rpc';
+import { createApiRpcClient } from '@gamezilla/api/rpc';
 import { assertTigerPolicyForResolvedApiOrigin } from '@gamezilla/client/config/api-servers';
 
 /**
@@ -23,7 +22,7 @@ export function createApiClient(apiUrl: string) {
     parsed.origin,
     'forbid-prod-in-expo-dev-bundle'
   );
-  return createApiRpcClient<AppType>(parsed.toString());
+  return createApiRpcClient(parsed.toString());
 }
 
 export type ApiClient = ReturnType<typeof createApiClient>;

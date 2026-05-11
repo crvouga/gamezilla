@@ -29,7 +29,6 @@
   "dependencies": {
     "@expo-google-fonts/nunito": "catalog:",
     "@gamezilla/api": "workspace:*",
-    "@gamezilla/api-rpc": "workspace:*",
     "@gamezilla/app": "workspace:*",
     "@gamezilla/auth": "workspace:*",
     "@gamezilla/chess": "workspace:*",
