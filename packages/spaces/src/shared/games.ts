@@ -6,45 +6,31 @@ import {
 } from '@gamezilla/lib/message';
 import type { HandleResult, RoomState } from '@gamezilla/room';
 
-import {
-  CHESS_SCREEN,
-  ChessMainMenuScreenAttr,
-} from '@gamezilla/chess/shared/chess-main-menu';
-import { ChessPuzzleSessionAttr } from '@gamezilla/chess/shared/chess-puzzle-session';
+import type { GameDefinition } from './game';
 
-export const SpaceGame = {
-  chess: 'chess',
-} as const;
+export type SelectedGameId = string | null;
 
-export type SpaceGameDiscriminator = (typeof SpaceGame)[keyof typeof SpaceGame];
-export type SelectedSpaceGame = SpaceGameDiscriminator | null;
-
-const validSpaceGames = new Set<string>(Object.values(SpaceGame));
-
-export function isSpaceGameDiscriminator(
-  value: unknown
-): value is SpaceGameDiscriminator {
-  return typeof value === 'string' && validSpaceGames.has(value);
-}
-
-export function readSelectedSpaceGame(value: unknown): SelectedSpaceGame {
-  return isSpaceGameDiscriminator(value) ? value : null;
+function readSelectedGameId(value: unknown): SelectedGameId {
+  if (value === null) return null;
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
 }
 
 const gamesRoomNs = createAttrNamespace('games');
 
 /** Namespaced keys in {@link RoomState} for the space games slice. */
 export const GamesRoomAttr = {
-  selected: gamesRoomNs('selected', readSelectedSpaceGame),
+  selected: gamesRoomNs('selected', readSelectedGameId),
 } as const;
 
-export function validateSelectGamePayload(
+function validateSelectGamePayload(
   payload: unknown
-): payload is { game: SelectedSpaceGame } {
+): payload is { game: SelectedGameId } {
   if (!isPlainRecord(payload)) return false;
   if (!('game' in payload)) return false;
   const game = payload['game'];
-  return game === null || isSpaceGameDiscriminator(game);
+  return game === null || (typeof game === 'string' && game.trim().length > 0);
 }
 
 export const gamesCmdNs = createMessageNamespace('games-cmd');
@@ -53,28 +39,51 @@ export const SelectGame = gamesCmdNs('select-game', validateSelectGamePayload);
 export const gamesEvtNs = createMessageNamespace('games-evt');
 export const GameSelected = gamesEvtNs('selected', validateSelectGamePayload);
 
-export const gamesCommandRouter = createMessageRouter<
-  RoomState,
-  string,
-  HandleResult
->(gamesCmdNs).on(SelectGame, (_state, _identity, cmd) => ({
-  ok: true,
-  events: [GameSelected({ game: cmd.payload.game })],
-}));
+/**
+ * Factory for the games command router. The set of allowed game ids comes
+ * from the runtime registry passed at composition time; spaces itself is
+ * game-agnostic and never references any specific game module.
+ */
+export function createGamesCommandRouter(games: readonly GameDefinition[]) {
+  const allowedIds = new Set(games.map((g) => g.id));
+  return createMessageRouter<RoomState, string, HandleResult>(gamesCmdNs).on(
+    SelectGame,
+    (_state, _identity, cmd) => {
+      const game = cmd.payload.game;
+      if (game !== null && !allowedIds.has(game)) {
+        return {
+          ok: true,
+          events: [GameSelected({ game: null })],
+        };
+      }
+      return {
+        ok: true,
+        events: [GameSelected({ game })],
+      };
+    }
+  );
+}
 
-export const gamesEventReducer = createMessageRouter<
-  RoomState,
-  void,
-  RoomState
->(gamesEvtNs).on(GameSelected, (state, _identity, event) => {
-  const game = readSelectedSpaceGame(event.payload.game);
-  let next = { ...state, ...GamesRoomAttr.selected(game) };
-  if (game !== SpaceGame.chess) {
-    next = {
-      ...next,
-      ...ChessMainMenuScreenAttr.screen(CHESS_SCREEN.root),
-      ...ChessPuzzleSessionAttr.selectedPuzzleId(null),
-    };
-  }
-  return next;
-});
+/**
+ * Factory for the games event reducer. Applies the `selected` attr and
+ * invokes the previously-selected game's `resetRoomState` (if any) so per-game
+ * attributes are cleared when the host switches away.
+ */
+export function createGamesEventReducer(games: readonly GameDefinition[]) {
+  const byId = new Map(games.map((g) => [g.id, g]));
+  return createMessageRouter<RoomState, void, RoomState>(gamesEvtNs).on(
+    GameSelected,
+    (state, _identity, event) => {
+      const previous = GamesRoomAttr.selected.from(state);
+      const next = event.payload.game;
+      let result: RoomState = { ...state, ...GamesRoomAttr.selected(next) };
+      if (previous !== null && previous !== next) {
+        const game = byId.get(previous);
+        if (game?.resetRoomState !== undefined) {
+          result = game.resetRoomState(result);
+        }
+      }
+      return result;
+    }
+  );
+}

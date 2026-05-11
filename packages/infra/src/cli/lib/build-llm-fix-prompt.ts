@@ -212,7 +212,7 @@ function renderPromptBody(
   }
   lines.push('');
   lines.push(
-    `The Deployment Pipeline failed on ${String(sections.length)} job(s). For each job, identify the root cause from the logs below and fix it -- do not just suppress the rule. After fixing, run the matching \`bun run ...\` command locally to verify (e.g. \`bun run format:check\`, \`bun run knip:ci\`, \`bun run depcruise:ci\`, \`bun run syncpack:lint\`, \`bun run qa:api\`, \`bun run qa:browser\`).`
+    `The Deployment Pipeline failed on ${String(sections.length)} job(s). For each job, identify the root cause from the logs below and fix it -- do not just suppress the rule. After fixing, run the matching \`bun run ...\` command locally to verify (e.g. \`bun run format:check\`, \`bun run knip:ci\`, \`bun run depcruise:ci\`, \`bun run check:syncpack-workspace\`, \`bun run qa:api\`, \`bun run qa:browser\`).`
   );
   lines.push('');
   for (const s of sections) {

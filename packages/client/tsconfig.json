@@ -23,7 +23,8 @@
       "@gamezilla/spaces/*": ["../spaces/src/*"],
       "@gamezilla/client-config/*": ["../client-config/src/*"],
       "@gamezilla/room-example/*": ["../room-example/src/*"],
-      "@gamezilla/patch-db-example/*": ["../patch-db-example/src/*"]
+      "@gamezilla/patch-db-example/*": ["../patch-db-example/src/*"],
+      "@gamezilla/app/*": ["../app/src/*"]
     }
   }
 }

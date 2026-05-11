@@ -13,7 +13,7 @@ import {
   patchDbStackAtom,
   secureStorageAtom,
   sessionTokenAtom,
-} from '@gamezilla/client/runtime/atoms';
+} from '@gamezilla/client-runtime/atoms';
 import type { Logger } from '@gamezilla/lib/logger/logger';
 import type { getDefaultStore } from 'jotai';
 import { fetchAuthWhoAmI } from './better-auth-fetch-auth-whoami';

@@ -271,8 +271,8 @@ msgstr "Avatar style"
 #: packages/chess/src/client/chess-puzzle-play-screen.tsx
 #: packages/chess/src/client/chess-settings-developer-ui-component-detail-screen.tsx
 #: packages/chess/src/client/chess-settings-developer-ui-components-screen.tsx
-#: packages/spaces/src/client/main-menu-screen.tsx
 #: packages/spaces/src/client/space-back-button.tsx
+#: packages/ui/src/components/main-menu-screen/main-menu-screen.tsx
 #: packages/ui/src/components/screen-base/screen-base-header.tsx
 msgid "Back"
 msgstr "Back"
@@ -382,8 +382,8 @@ msgstr "Check again"
 msgid "Checking…"
 msgstr "Checking…"
 
+#: packages/chess/src/client/chess-game.tsx
 #: packages/chess/src/client/chess-main-menu.tsx
-#: packages/spaces/src/client/games-main-menu.tsx
 msgid "Chess"
 msgstr "Chess"
 
@@ -478,9 +478,6 @@ msgstr "Colors"
 #: packages/chess/src/client/chess-main-menu.tsx
 #: packages/chess/src/client/chess-main-menu.tsx
 #: packages/chess/src/client/chess-puzzle-main-menu.tsx
-#: packages/spaces/src/client/games-main-menu.tsx
-#: packages/spaces/src/client/games-main-menu.tsx
-#: packages/spaces/src/client/games-main-menu.tsx
 msgid "Coming soon"
 msgstr "Coming soon"
 
@@ -509,8 +506,8 @@ msgid "Connect"
 msgstr "Connect"
 
 #: packages/spaces/src/client/games-main-menu.tsx
-msgid "Connect Four"
-msgstr "Connect Four"
+#~ msgid "Connect Four"
+#~ msgstr "Connect Four"
 
 #: packages/client/src/connection/server-status-screen.tsx
 msgid "Connected"
@@ -851,8 +848,8 @@ msgid "Go to {target}"
 msgstr "Go to {target}"
 
 #: packages/spaces/src/client/games-main-menu.tsx
-msgid "Gomoku"
-msgstr "Gomoku"
+#~ msgid "Gomoku"
+#~ msgstr "Gomoku"
 
 #: packages/client/src/ui/app-commands/account-command.tsx
 msgid "google"
@@ -1873,8 +1870,8 @@ msgid "This tab"
 msgstr "This tab"
 
 #: packages/spaces/src/client/games-main-menu.tsx
-msgid "Tic-tac-toe"
-msgstr "Tic-tac-toe"
+#~ msgid "Tic-tac-toe"
+#~ msgstr "Tic-tac-toe"
 
 #: packages/client/src/developer/developer-screen.tsx
 #: packages/client/src/todos/todo-list-detail-screen.tsx

@@ -2,19 +2,21 @@
   "name": "@gamezilla/infra",
   "private": true,
   "scripts": {
-    "lint": "eslint src --max-warnings 0",
-    "tc": "tsc --noEmit -p ./tsconfig.json",
     "infra": "DOPPLER_PROJECT=gamezilla DOPPLER_CONFIG=prod bun run ./src/bin/cli.ts",
-    "pipeline-report": "bun run ./src/bin/pipeline-report.ts"
+    "lint": "eslint src --max-warnings 0",
+    "pipeline-report": "bun run ./src/bin/pipeline-report.ts",
+    "tc": "tsc --noEmit -p ./tsconfig.json"
   },
   "dependencies": {
     "@gamezilla/api": "workspace:*",
+    "@gamezilla/api-rpc": "workspace:*",
+    "@gamezilla/client-runtime": "workspace:*",
     "@gamezilla/lib": "workspace:*",
-    "@neondatabase/serverless": "^1.0.0",
-    "picocolors": "^1.1.1"
+    "@neondatabase/serverless": "catalog:",
+    "picocolors": "catalog:"
   },
   "devDependencies": {
-    "@types/node": "^20.17.0",
-    "typescript": "~5.9.2"
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
   }
 }

@@ -5,6 +5,8 @@ import { betterAuthAccountProvisioning } from '@gamezilla/auth/server/better-aut
 import { createBetterAuthRequestStack } from '@gamezilla/auth/server/better-auth-create';
 import { SessionClaimsBetterAuthAdapter } from '@gamezilla/auth/server/better-auth-session-claims-port';
 import { createSessionAuth } from '@gamezilla/auth/server/session-middleware';
+import type { AuthContext } from '@gamezilla/auth/server/types';
+import { loadMemberOfSpaceIds } from '@gamezilla/spaces/server/load-member-of-space-ids';
 import { ConfigurationError } from '../config/env';
 import { createRequestPatchDb } from '../patch-db/patch-db';
 import { openRequestDb } from '../patch-db/sql-client';
@@ -16,7 +18,7 @@ import type { ApiHonoEnv } from './api-hono-types';
  */
 export function createRequestDbMiddleware(
   secretStore: SecretStore
-): MiddlewareHandler<ApiHonoEnv> {
+): MiddlewareHandler<ApiHonoEnv<AuthContext>> {
   return async (c, next) => {
     if (c.req.path === '/health') {
       return next();
@@ -44,7 +46,10 @@ export function createRequestDbMiddleware(
       sessionClaims: new SessionClaimsBetterAuthAdapter(betterAuth),
       accountProvisioning: betterAuthAccountProvisioning,
     };
-    const sessionAuth = createSessionAuth(bearerPorts);
+    const sessionAuth = createSessionAuth({
+      ...bearerPorts,
+      loadMemberOfSpaceIds,
+    });
 
     const store = { patchDb, sessionAuth };
     return await apiRequestAsyncLocalStorage.run(store, async () => {

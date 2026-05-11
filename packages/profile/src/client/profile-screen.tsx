@@ -1,20 +1,29 @@
 import { MyDisplayName } from './my-display-name';
 import { MyProfileAvatar } from './my-profile-avatar';
-import { useAccountActions } from '@gamezilla/client/ui/use-account-actions';
-import { Box, Button, ScreenBase, useBreakpoint } from '@gamezilla/ui';
+import {
+  Box,
+  Button,
+  ScreenBase,
+  useBreakpoint,
+  type ScreenBaseAction,
+} from '@gamezilla/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 
-export function ProfileScreen() {
+export type ProfileScreenProps = {
+  /** Header overflow actions for user / connection / settings on mobile. */
+  readonly accountActions: readonly ScreenBaseAction[];
+};
+
+export function ProfileScreen({ accountActions }: ProfileScreenProps) {
   const { t } = useLingui();
   const router = useRouter();
-  const accountActions = useAccountActions();
   const isMobile = useBreakpoint() === 'mobile';
 
   return (
     <ScreenBase
       breadcrumbs={[{ name: <Trans>Profile</Trans> }]}
-      actions={isMobile ? accountActions : []}
+      actions={isMobile ? [...accountActions] : []}
       content={({ sx }) => (
         <Box style={sx}>
           <Box sx={{ alignItems: 'center', gap: 2 }}>

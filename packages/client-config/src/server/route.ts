@@ -1,5 +1,5 @@
-import type { ApiHonoEnv } from '@gamezilla/api/app/api-hono-types';
-import { ApiSecretName } from '@gamezilla/api/config/secret-names';
+import type { ApiHonoEnv } from '@gamezilla/api-types/api-hono-types';
+import { ApiSecretName } from '@gamezilla/api-types/secret-names';
 import { isEqual } from '@gamezilla/lib/equal/is-equal';
 import type { Logger } from '@gamezilla/lib/logger';
 import type { SecretStore } from '@gamezilla/lib/secret-store';

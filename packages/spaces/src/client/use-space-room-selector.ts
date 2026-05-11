@@ -1,23 +1,35 @@
 import {
-  SPACE_ROOM_NAME,
   type RoomCommandPayload,
   type RoomState,
   useRoomDispatch,
   useRoomSelector,
 } from '@gamezilla/room';
 
-export { SPACE_ROOM_NAME } from '@gamezilla/room';
+/**
+ * Registry key for the primary collaborative room in a space session.
+ *
+ * Colocated with the `useSpaceRoom*` hooks so the `@gamezilla/room` engine
+ * stays domain-agnostic (it knows nothing about "spaces"). Every game plugin
+ * that wants to read or dispatch on the space room reaches in via the hooks
+ * below, never via this literal directly.
+ */
+export const SPACE_ROOM_NAME = 'space';
 
 /**
- * Select from the default space room (`{@link SPACE_ROOM_NAME}`).
+ * Select from the default space room (`{@link SPACE_ROOM_NAME}`). Use this in
+ * any game plugin (chess, future games) that participates in the host's
+ * space session — chess gets its own slice of state via its room namespace
+ * but reads it through this hook.
  */
-export function useSpaceSelector<R>(selector: (state: RoomState) => R): R {
+export function useSpaceRoomSelector<R>(selector: (state: RoomState) => R): R {
   return useRoomSelector(SPACE_ROOM_NAME, selector);
 }
 
 /**
- * Dispatch to the default space room (`{@link SPACE_ROOM_NAME}`).
+ * Dispatch a command to the default space room (`{@link SPACE_ROOM_NAME}`).
+ * Used by every game plugin to mutate room state through the same Room the
+ * host has open.
  */
-export function useSpaceDispatch(): (payload: RoomCommandPayload) => void {
+export function useSpaceRoomDispatch(): (payload: RoomCommandPayload) => void {
   return useRoomDispatch(SPACE_ROOM_NAME);
 }

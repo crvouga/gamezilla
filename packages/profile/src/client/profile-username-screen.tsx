@@ -1,6 +1,6 @@
 import { useMyProfileId } from './use-my-profile-id';
 import { useProfileEntityById } from './use-profile-entity-by-id';
-import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
+import { useBreadcrumbNav } from '@gamezilla/ui/components/use-breadcrumb-nav';
 import { PROFILE_ENTITY_TYPE, ProfileAttr } from '../shared/profile-entities';
 import {
   Box,

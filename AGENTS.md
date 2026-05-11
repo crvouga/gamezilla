@@ -49,7 +49,7 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `p
 ### Current feature packages
 
 - `@gamezilla/auth` — sign-in flows, sessions, devices, account-scoped local SQLite (`account-db*`), Better Auth bootstrap + Postgres migrations runner.
-- `@gamezilla/chess` — chess board UI, puzzle play / picker, settings, plus the puzzle seeding script (`scripts/seed-chess-puzzles.ts`).
+- `@gamezilla/chess` — chess board UI, puzzle play / picker, settings. The chess puzzle seeding script lives in `packages/api/scripts/seed-chess-puzzles.ts` (run via `bun run chess:puzzles:seed`).
 - `@gamezilla/client-config` — server-pushed runtime config (singleton `clientConfig` entity): shared entity defs, server `POST /client-config/refresh` route, client cards / screens, and `dev-refresh-client-config.ts`.
 - `@gamezilla/profile` — public profile, dicebear avatar editor, display-name generator.
 - `@gamezilla/spaces` — spaces / lobby / multiplayer plumbing, game dispatch via `space-module.ts`.

@@ -1,4 +1,4 @@
-import { useMyId } from '@gamezilla/auth/client/auth-context';
+import { useMyId } from '@gamezilla/client-runtime/identity-context';
 
 /**
  * Profile entity id for the current session: account id when signed in,

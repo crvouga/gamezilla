@@ -2,24 +2,25 @@
   "name": "@gamezilla/qa",
   "version": "1.0.0",
   "private": true,
-  "dependencies": {
-    "@gamezilla/lib": "workspace:*"
-  },
   "scripts": {
-    "lint": "eslint src --max-warnings 0",
     "api": "bun test ./src/api/",
     "browser": "bun --bun x playwright test --config src/browser/playwright.config.ts",
-    "qa": "bun run api && bun run browser",
-    "browser:ui": "bun --bun x playwright test --config src/browser/playwright.config.ts --ui",
     "browser:headed": "bun --bun x playwright test --config src/browser/playwright.config.ts --headed",
-    "tc": "tsc --noEmit -p ./tsconfig.json",
-    "install:browsers": "bun --bun x playwright install --with-deps chromium"
+    "browser:ui": "bun --bun x playwright test --config src/browser/playwright.config.ts --ui",
+    "install:browsers": "bun --bun x playwright install --with-deps chromium",
+    "lint": "eslint src --max-warnings 0",
+    "qa": "bun run api && bun run browser",
+    "tc": "tsc --noEmit -p ./tsconfig.json"
+  },
+  "dependencies": {
+    "@gamezilla/client-runtime": "workspace:*",
+    "@gamezilla/lib": "workspace:*"
   },
   "devDependencies": {
-    "@playwright/test": "^1.56.0",
-    "@types/bun": "^1.3.9",
-    "@types/node": "^20.17.0",
-    "typescript": "~5.9.2",
-    "wrangler": "^4.54.0"
+    "@playwright/test": "catalog:",
+    "@types/bun": "catalog:",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "wrangler": "catalog:"
   }
 }

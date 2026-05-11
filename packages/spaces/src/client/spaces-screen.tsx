@@ -2,7 +2,6 @@ import { useSpaceActions } from './space-actions';
 import { SpaceCard } from './space-card';
 import { useCurrentSpaceCount } from './use-current-space-count';
 import { useLiveSpaceIds } from './use-live-space-ids';
-import { useAccountActions } from '@gamezilla/client/ui/use-account-actions';
 import {
   Box,
   Button,
@@ -10,6 +9,7 @@ import {
   ScrollView,
   Text,
   useBreakpoint,
+  type ScreenBaseAction,
 } from '@gamezilla/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
@@ -42,8 +42,12 @@ function SpacesList() {
   );
 }
 
-export function SpacesScreen() {
-  const accountActions = useAccountActions();
+export type SpacesScreenProps = {
+  /** Header overflow actions for user / connection / settings on mobile. */
+  readonly accountActions: readonly ScreenBaseAction[];
+};
+
+export function SpacesScreen({ accountActions }: SpacesScreenProps) {
   const isMobile = useBreakpoint() === 'mobile';
   const router = useRouter();
   const { createSpace } = useSpaceActions();
@@ -65,7 +69,7 @@ export function SpacesScreen() {
           subtitle: <Trans>Rooms to play with friends</Trans>,
         },
       ]}
-      actions={isMobile ? accountActions : []}
+      actions={isMobile ? [...accountActions] : []}
       content={({ sx }) => (
         <Box style={sx} sx={{ gap: 3 }}>
           <Button

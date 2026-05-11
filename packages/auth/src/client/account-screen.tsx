@@ -2,7 +2,7 @@ import { AccountActionsRow } from './account-actions-row';
 import { AccountDevicesCard } from './account-devices-card';
 import { LinkedProvidersCard } from './linked-providers-card';
 import { useAuth } from './auth-context';
-import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
+import { useBreadcrumbNav } from '@gamezilla/ui/components/use-breadcrumb-nav';
 import { Box, ScreenBase } from '@gamezilla/ui';
 import { Trans } from '@lingui/react/macro';
 import { type Href, useRouter } from 'expo-router';

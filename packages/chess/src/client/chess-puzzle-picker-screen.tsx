@@ -9,8 +9,8 @@ import { RoomMetaAttr } from '@gamezilla/room';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, type ReactNode } from 'react';
 import {
-  useSpaceDispatch,
-  useSpaceSelector,
+  useSpaceRoomDispatch,
+  useSpaceRoomSelector,
 } from '@gamezilla/spaces/client/use-space-room-selector';
 import { PuzzlePicker } from './chess-puzzle-picker';
 
@@ -49,8 +49,8 @@ function BackButtonRow({ onPress }: { onPress: () => void }): ReactNode {
 }
 
 export function PuzzlePickerScreen(): ReactNode {
-  const dispatch = useSpaceDispatch();
-  const isSynced = useSpaceSelector(RoomMetaAttr.isSynced.from);
+  const dispatch = useSpaceRoomDispatch();
+  const isSynced = useSpaceRoomSelector(RoomMetaAttr.isSynced.from);
 
   const backToPuzzleMenu = useCallback(() => {
     dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.puzzle }));

@@ -33,8 +33,8 @@ import {
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useMemo, type ReactNode } from 'react';
 import {
-  useSpaceDispatch,
-  useSpaceSelector,
+  useSpaceRoomDispatch,
+  useSpaceRoomSelector,
 } from '@gamezilla/spaces/client/use-space-room-selector';
 
 import type { SolveStatus } from './use-chess-puzzle-solver';
@@ -76,7 +76,7 @@ function BackButtonRow({ onPress }: { onPress: () => void }): ReactNode {
 }
 
 function EmptyPickPuzzle(): ReactNode {
-  const dispatch = useSpaceDispatch();
+  const dispatch = useSpaceRoomDispatch();
   const theme = useTheme();
   const openPicker = useCallback(() => {
     dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.puzzlePicker }));
@@ -125,7 +125,7 @@ function statusLabelNode(status: SolveStatus): ReactNode {
 }
 
 function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
-  const dispatch = useSpaceDispatch();
+  const dispatch = useSpaceRoomDispatch();
   const { sync } = usePatchDbStack();
   /**
    * Keep this puzzle in {@link SyncPatchDb} active entity queries while playing.
@@ -278,7 +278,7 @@ function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
 }
 
 export function PuzzlePlayScreen(): ReactNode {
-  const selectedId = useSpaceSelector(
+  const selectedId = useSpaceRoomSelector(
     ChessPuzzleSessionAttr.selectedPuzzleId.from
   );
   if (selectedId === null) {

@@ -7,11 +7,11 @@ import {
 } from '@gamezilla/patch-db/interface';
 import type { VisibilityPolicy } from '@gamezilla/patch-db/policy/visibility-policy-registry';
 
-import { AbacEntityAttr } from '@gamezilla/api/patch-db/abac-patch-attrs';
+import { AbacEntityAttr } from '@gamezilla/patch-db/abac/abac-entity-attr';
 import {
   authOnlyRead,
   type AppAuthContext,
-} from '@gamezilla/api/patch-db/abac-policies-context';
+} from '@gamezilla/patch-db/abac/app-auth-context';
 
 type AppVisibilityPolicy = VisibilityPolicy<AppAuthContext>;
 

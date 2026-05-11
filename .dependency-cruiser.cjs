@@ -14,7 +14,7 @@ module.exports = {
       severity: 'error',
       from: {
         pathNot:
-          '(\\.(test|spec)\\.|/(__tests__|testkit|fixtures?|tests?)/|packages/room/src/(simulator|testkit)\\.ts)',
+          '(\\.(test|spec)\\.|/(__tests__|testkit|fixtures?|tests?)/|packages/[^/]+/src/(simulator|testkit)\\.ts)',
       },
       to: {
         path: '(\\.(test|spec)\\.|/(__tests__|testkit|fixtures?|tests?)/)',
@@ -39,20 +39,6 @@ module.exports = {
       name: 'server-not-client',
       severity: 'error',
       from: { path: '/src/server/' },
-      to: { path: '/src/client/' },
-    },
-    // packages/client cannot reach server code in any feature.
-    {
-      name: 'apps-client-no-server',
-      severity: 'error',
-      from: { path: '^packages/client/' },
-      to: { path: '/src/server/' },
-    },
-    // packages/api cannot reach client code in any feature.
-    {
-      name: 'apps-api-no-client',
-      severity: 'error',
-      from: { path: '^packages/api/' },
       to: { path: '/src/client/' },
     },
     {

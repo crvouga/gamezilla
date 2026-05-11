@@ -1,0 +1,24 @@
+{
+  "name": "@gamezilla/app",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./shared/games": "./src/shared/games.ts",
+    "./client/games-bootstrap": "./src/client/games-bootstrap.tsx"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "tc": "tsc --noEmit",
+    "test": "bun test --pass-with-no-tests"
+  },
+  "dependencies": {
+    "@gamezilla/chess": "workspace:*",
+    "@gamezilla/spaces": "workspace:*",
+    "react": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/react": "catalog:",
+    "typescript": "catalog:"
+  }
+}

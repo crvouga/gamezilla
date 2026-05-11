@@ -1,5 +1,5 @@
 import { ConfirmationModal } from '@gamezilla/ui';
-import { useLogger } from '@gamezilla/client/runtime/runtime-hooks';
+import { useLogger } from '@gamezilla/client-runtime/runtime-hooks';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 

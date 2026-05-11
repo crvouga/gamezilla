@@ -3,12 +3,6 @@ import { createContext, useContext, type ReactNode } from 'react';
 import type { RoomCommandPayload, RoomEvent, RoomState } from '../../types';
 import type { Room } from '../core/room';
 
-/**
- * Default registry key for the primary collaborative room in a space session.
- * Apps may register additional names for multi-room UIs.
- */
-export const SPACE_ROOM_NAME = 'space';
-
 /** Type-erased room instance for multi-room React registries. */
 export type AnyRoom = Room<RoomState, RoomCommandPayload, RoomEvent, unknown>;
 

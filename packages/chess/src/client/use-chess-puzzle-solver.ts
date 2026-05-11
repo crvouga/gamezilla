@@ -9,8 +9,8 @@ import {
 import { useCallback, useEffect } from 'react';
 
 import {
-  useSpaceDispatch,
-  useSpaceSelector,
+  useSpaceRoomDispatch,
+  useSpaceRoomSelector,
 } from '@gamezilla/spaces/client/use-space-room-selector';
 import { uciFromMove } from './chess-puzzle-play-chess-utils';
 
@@ -41,13 +41,15 @@ export function usePuzzleSolver(args: {
   onMove: (m: Move) => void;
 } {
   const { fen, movesStr, puzzleId } = args;
-  const dispatch = useSpaceDispatch();
+  const dispatch = useSpaceRoomDispatch();
 
-  const roomStatus = useSpaceSelector(ChessPuzzlePlayAttr.status.from);
-  const roomPuzzleId = useSpaceSelector(ChessPuzzlePlayAttr.puzzleId.from);
-  const displayFen = useSpaceSelector(ChessPuzzlePlayAttr.displayFen.from);
-  const layoutKey = useSpaceSelector(ChessPuzzlePlayAttr.layoutKey.from);
-  const orientation = useSpaceSelector(ChessPuzzlePlayAttr.orientation.from);
+  const roomStatus = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
+  const roomPuzzleId = useSpaceRoomSelector(ChessPuzzlePlayAttr.puzzleId.from);
+  const displayFen = useSpaceRoomSelector(ChessPuzzlePlayAttr.displayFen.from);
+  const layoutKey = useSpaceRoomSelector(ChessPuzzlePlayAttr.layoutKey.from);
+  const orientation = useSpaceRoomSelector(
+    ChessPuzzlePlayAttr.orientation.from
+  );
 
   useEffect(() => {
     if (roomStatus !== CHESS_PUZZLE_PLAY_STATUS.idle) return;

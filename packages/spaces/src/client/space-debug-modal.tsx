@@ -9,7 +9,7 @@
  * size when the user switches tabs; long payloads scroll inside `JsonView`.
  */
 
-import { useSpaceSelector } from './use-space-room-selector';
+import { useSpaceRoomSelector } from './use-space-room-selector';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
@@ -42,7 +42,7 @@ export function SpaceDebugModal({
 }: SpaceDebugModalProps): ReactNode {
   const [tab, setTab] = useState<Tab>('space');
   const space = useEntity(SPACE_ENTITY_TYPE, spaceId);
-  const room = useSpaceSelector((state) => state);
+  const room = useSpaceRoomSelector((state) => state);
   const memberships = useQuery({
     entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
     where: {

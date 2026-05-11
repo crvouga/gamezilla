@@ -3,7 +3,7 @@ import { SpaceJoinBlockedNote } from './space-join-blocked-note';
 import { SpaceJoinButton } from './space-join-button';
 import { SpaceJoinHostSection } from './space-join-host-section';
 import { SpaceTitleText } from './space-title-text';
-import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
+import { useBreadcrumbNav } from '@gamezilla/ui/components/use-breadcrumb-nav';
 import {
   Box,
   Card,

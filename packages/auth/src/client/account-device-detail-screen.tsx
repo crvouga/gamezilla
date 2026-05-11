@@ -1,6 +1,6 @@
 import { AccountDeviceDetailBody } from './account-device-detail-body';
 import { AccountDeviceDetailHeader } from './account-device-detail-header';
-import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
+import { useBreadcrumbNav } from '@gamezilla/ui/components/use-breadcrumb-nav';
 import { Box, Card, ScreenBase, Text } from '@gamezilla/ui';
 import { Trans } from '@lingui/react/macro';
 import { type Href, useLocalSearchParams } from 'expo-router';

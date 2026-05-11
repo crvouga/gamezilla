@@ -9,6 +9,7 @@ import { AppI18nProvider } from '@gamezilla/client/i18n/i18n-provider';
 import { PwaUpdatePromptBanner } from '@gamezilla/client/pwa/update-prompt';
 import { AppCommands } from '@gamezilla/client/ui/app-commands';
 import { CommandPaletteNativeGesture } from '@gamezilla/client/ui/command-palette-native-gesture';
+import { GamesBootstrap } from '@gamezilla/app/client/games-bootstrap';
 import { PatchBootstrap } from '@gamezilla/client/ui/patch-db-bootstrap';
 import { SkiaWebRoot } from '@gamezilla/client/ui/skia-web-root';
 import { ensureProfile } from '@gamezilla/profile/client/ensure-profile-entity';
@@ -84,14 +85,16 @@ export function AppProviders({ children }: { children: ReactNode }) {
                     <BottomSheetModalProvider>
                       <PatchBootstrap>
                         <AuthProvider ensureProfile={ensureProfile}>
-                          <CommandRegistryProvider storage={AsyncStorage}>
-                            <AppCommands />
-                            <CommandPalette />
-                            <CommandPaletteNativeGesture>
-                              {children}
-                              <PwaUpdatePromptBanner />
-                            </CommandPaletteNativeGesture>
-                          </CommandRegistryProvider>
+                          <GamesBootstrap>
+                            <CommandRegistryProvider storage={AsyncStorage}>
+                              <AppCommands />
+                              <CommandPalette />
+                              <CommandPaletteNativeGesture>
+                                {children}
+                                <PwaUpdatePromptBanner />
+                              </CommandPaletteNativeGesture>
+                            </CommandRegistryProvider>
+                          </GamesBootstrap>
                         </AuthProvider>
                       </PatchBootstrap>
                     </BottomSheetModalProvider>

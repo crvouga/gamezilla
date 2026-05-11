@@ -4,12 +4,9 @@
  */
 import { createAttrNamespace } from '@gamezilla/lib/attribute';
 
-const passthrough = (v: unknown) => v;
+export { AbacEntityAttr } from '@gamezilla/patch-db/abac/abac-entity-attr';
 
-const entityNs = createAttrNamespace('entity');
-export const AbacEntityAttr = {
-  owner: entityNs('owner', passthrough),
-} as const;
+const passthrough = (v: unknown) => v;
 
 const chatMessageNs = createAttrNamespace('chat', 'message');
 export const ChatMessageAttr = {

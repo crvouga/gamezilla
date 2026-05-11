@@ -1,6 +1,6 @@
 # https://github.com/crvouga/gamezilla/actions/workflows/seed-chess-puzzles.yml
 #
-# Manual workflow that runs `packages/chess/scripts/seed-chess-puzzles.ts` against
+# Manual workflow that runs `packages/api/scripts/seed-chess-puzzles.ts` against
 # the Doppler `prod` config (Postgres `DB_URL`). Idempotent: content-addressed
 # patch IDs + `INSERT … ON CONFLICT DO NOTHING` skip unchanged rows, and the
 # script resumes from the saved cursor when the source ETag is unchanged.
@@ -52,7 +52,7 @@ jobs:
       - uses: ./.github/actions/setup
 
       # Cache the downloaded `.csv.zst` archive between runs. The script
-      # writes to `packages/chess/.cache/lichess/<name>` and stores an
+      # writes to `packages/api/.cache/lichess/<name>` and stores an
       # ETag manifest alongside it; the cache key uses the workflow file hash
       # so a manual rerun on the same SHA reuses the archive, and a new push
       # that bumps this workflow forces a fresh fetch (cheap relative to a
@@ -60,7 +60,7 @@ jobs:
       - name: Cache Lichess puzzle archive
         uses: actions/cache@v5
         with:
-          path: packages/chess/.cache/lichess
+          path: packages/api/.cache/lichess
           key: lichess-puzzles-${{ runner.os }}-${{ hashFiles('.github/workflows/seed-chess-puzzles.yml') }}
           restore-keys: |
             lichess-puzzles-${{ runner.os }}-
@@ -88,6 +88,6 @@ jobs:
           # the script's `createDopplerSecretStoreForScripts()` can also read
           # any additional secrets it needs.
           env DOPPLER_CONFIG=prod doppler run -- \
-            bun run --filter '@gamezilla/chess' seed:puzzles \
+            bun run --filter '@gamezilla/api' seed:puzzles \
               --no-pretty \
               "${args[@]}"

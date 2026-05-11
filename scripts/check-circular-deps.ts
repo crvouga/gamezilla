@@ -34,6 +34,29 @@ const MAX_IMPORTER_SAMPLES = 3;
 const IMPORT_PATTERN =
   /(?:\bfrom|\bimport\s*\(|\brequire\s*\()\s*['"]@gamezilla\/([^/'"\s)]+)/g;
 
+// Strips `//` line comments and `/* */` block comments while preserving line
+// counts so error reports stay accurate. Cheap regex pass instead of a real
+// TS parser — sufficient because we only need to avoid false-positive matches
+// inside JSDoc / inline doc examples (e.g. an `import { X } from '@gamezilla/y'`
+// shown inside a `/** ... */` block).
+function stripComments(source: string): string {
+  return source
+    .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '))
+    .replace(/(^|[^:\\])\/\/[^\n]*/g, (_full, prefix: string) => prefix);
+}
+
+// Strips type-only `import type` / `export type` statements so they don't
+// register as runtime edges in the cycle graph. Type-only imports are erased
+// at compile time and cannot cause runtime circular initialization. Without
+// this, a leaf package that re-exports type signatures from a root package
+// would appear cyclic when it has no runtime dependency at all.
+function stripTypeOnlyImports(source: string): string {
+  return source.replace(
+    /\b(?:import|export)\s+type\s+(?:\*\s+as\s+\w+|\w+(?:\s*,\s*\{[^}]*\})?|\{[^}]*\})\s+from\s*['"][^'"]+['"]\s*;?/g,
+    (m) => m.replace(/[^\n]/g, ' ')
+  );
+}
+
 type PackageName = string;
 
 type EdgeSamples = Map<PackageName, string[]>;
@@ -76,6 +99,8 @@ function buildGraph(packages: Map<PackageName, string>): Graph {
       } catch {
         continue;
       }
+      source = stripComments(source);
+      source = stripTypeOnlyImports(source);
 
       for (const match of source.matchAll(IMPORT_PATTERN)) {
         const target = match[1];
@@ -191,7 +216,7 @@ function main(): never {
   const packages = discoverPackages();
   if (packages.size === 0) {
     console.error(
-      'check:circular-deps: no @gamezilla/* packages found under packages/.',
+      'check:circular-deps: no @gamezilla/* packages found under packages/.'
     );
     process.exit(1);
   }
@@ -201,20 +226,20 @@ function main(): never {
 
   if (cycles.length === 0) {
     console.log(
-      `check:circular-deps OK — ${packages.size} packages scanned, no package-level cycles.`,
+      `check:circular-deps OK — ${packages.size} packages scanned, no package-level cycles.`
     );
     process.exit(0);
   }
 
   console.error(
-    `check:circular-deps FAILED — ${cycles.length} package-level cycle(s) detected:\n`,
+    `check:circular-deps FAILED — ${cycles.length} package-level cycle(s) detected:\n`
   );
   for (const scc of cycles) {
     for (const line of describeCycle(scc, graph)) console.error(line);
     console.error('');
   }
   console.error(
-    'Break the cycle by moving shared types/logic into a leaf package (e.g. @gamezilla/lib), inverting a dependency, or merging the packages.',
+    'Break the cycle by moving shared types/logic into a leaf package (e.g. @gamezilla/lib), inverting a dependency, or merging the packages.'
   );
   process.exit(1);
 }

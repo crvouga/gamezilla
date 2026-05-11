@@ -1,34 +1,23 @@
-import type { PatchDb, PatchDbContext } from '@gamezilla/patch-db/interface';
+/**
+ * Auth ports. The pure interfaces live in `@gamezilla/api-types/auth-ports`
+ * so feature packages (and the api composition root) can depend on them
+ * without taking on the auth package.
+ *
+ * `AuthSessionPort` is re-exported here in its specialized form (bound to
+ * the auth-local {@link AuthContext}) so existing imports inside auth keep
+ * working with the same type.
+ */
+import type { AuthSessionPort as GenericAuthSessionPort } from '@gamezilla/api-types/auth-ports';
+
 import type { AuthContext } from './types';
 
-/**
- * Provider-agnostic session token claims (OIDC-style `sub` → neutral `subject`).
- */
-export type SessionClaims = {
-  readonly subject: string;
-  readonly email: string | null;
-};
+export type {
+  AccountProvisioningPort,
+  BetterAuthSessionApi,
+  HttpBearerAuthPorts,
+  SessionClaims,
+  SessionClaimsPort,
+} from '@gamezilla/api-types/auth-ports';
 
-/** Verifies an HTTP `Authorization: Bearer` token and returns claims or null. */
-export interface SessionClaimsPort {
-  verifyBearer(token: string): Promise<SessionClaims | null>;
-}
-
-/** Maps external identity claims to the internal PatchDB account UUID. */
-export interface AccountProvisioningPort {
-  resolveInternalAccountId(args: {
-    db: PatchDb;
-    claims: SessionClaims;
-  }): Promise<string>;
-}
-
-/** Combined HTTP bearer auth (verification + account binding). */
-export type HttpBearerAuthPorts = {
-  readonly sessionClaims: SessionClaimsPort;
-  readonly accountProvisioning: AccountProvisioningPort;
-};
-
-export interface AuthSessionPort {
-  resolvePatchDbContext(db: PatchDb, request: Request): Promise<PatchDbContext>;
-  requireAuthContext(db: PatchDb, request: Request): Promise<AuthContext>;
-}
+/** Auth-bound specialization — `requireAuthContext` resolves to {@link AuthContext}. */
+export type AuthSessionPort = GenericAuthSessionPort<AuthContext>;

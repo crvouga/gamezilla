@@ -13,7 +13,7 @@ export const DEPLOYMENT_PIPELINE_CHECK_STEPS = [
   { jobId: 'test', bunScript: 'check:test' },
   { jobId: 'build', bunScript: 'check:build' },
   { jobId: 'i18n', bunScript: 'i18n:check' },
-  { jobId: 'syncpack', bunScript: 'syncpack:lint' },
+  { jobId: 'syncpack', bunScript: 'check:syncpack-workspace' },
   { jobId: 'knip', bunScript: 'knip:ci' },
   { jobId: 'depcruise', bunScript: 'depcruise:ci' },
   { jobId: 'actionlint', bunScript: 'check:actionlint' },

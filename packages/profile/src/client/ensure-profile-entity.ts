@@ -1,4 +1,4 @@
-import { assertUuid } from '@gamezilla/auth/shared/device-id';
+import { assertUuid } from '@gamezilla/lib/uuid';
 import { serializeDefaultAvatarConfig } from '../shared/avatar-config';
 import { generateRandomDisplayName } from '../shared/display-name-generator';
 import { PROFILE_ENTITY_TYPE, ProfileAttr } from '../shared/profile-entities';

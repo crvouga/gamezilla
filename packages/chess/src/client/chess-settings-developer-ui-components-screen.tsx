@@ -1,5 +1,5 @@
 import { ensureChessBoardExampleRegistered } from './chess-board-register-example';
-import { useSpaceDispatch } from '@gamezilla/spaces/client/use-space-room-selector';
+import { useSpaceRoomDispatch } from '@gamezilla/spaces/client/use-space-room-selector';
 import {
   CHESS_SCREEN,
   SetChessMainMenuScreen,
@@ -50,7 +50,7 @@ function BackButtonRow({ onPress }: { onPress: () => void }): ReactNode {
 }
 
 export function ChessSettingsDeveloperUiComponentsScreen(): ReactNode {
-  const dispatch = useSpaceDispatch();
+  const dispatch = useSpaceRoomDispatch();
 
   /**
    * Side-effect import: registers the chess board example into the lib's

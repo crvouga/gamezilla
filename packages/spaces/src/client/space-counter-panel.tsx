@@ -1,29 +1,29 @@
-import { useSpaceDispatch, useSpaceSelector } from './use-space-room-selector';
+import {
+  SPACE_ROOM_NAME,
+  useSpaceRoomDispatch,
+  useSpaceRoomSelector,
+} from './use-space-room-selector';
 import {
   CounterRoomAttr,
   Decrement,
   Increment,
 } from '@gamezilla/spaces/shared/counter';
 import { Box, Button, Text } from '@gamezilla/ui';
-import {
-  RoomMetaAttr,
-  SPACE_ROOM_NAME,
-  useRoomFromRegistry,
-} from '@gamezilla/room';
+import { RoomMetaAttr, useRoomFromRegistry } from '@gamezilla/room';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, type ReactNode } from 'react';
 
 /**
  * Counter panel for a space. Reads shared room state via
- * {@link useSpaceSelector} under {@link SpaceRoomProvider}.
+ * {@link useSpaceRoomSelector} under {@link SpaceRoomProvider}.
  */
 export function SpaceCounterPanel(): ReactNode {
   const { t } = useLingui();
   const room = useRoomFromRegistry(SPACE_ROOM_NAME);
   const roomActive = room !== null;
-  const count = useSpaceSelector(CounterRoomAttr.count.from);
-  const isSynced = useSpaceSelector(RoomMetaAttr.isSynced.from);
-  const dispatch = useSpaceDispatch();
+  const count = useSpaceRoomSelector(CounterRoomAttr.count.from);
+  const isSynced = useSpaceRoomSelector(RoomMetaAttr.isSynced.from);
+  const dispatch = useSpaceRoomDispatch();
   const increment = useCallback(() => {
     dispatch(Increment({}));
   }, [dispatch]);

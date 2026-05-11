@@ -1,0 +1,44 @@
+{
+  "name": "@gamezilla/client-runtime",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./atoms": "./src/atoms.ts",
+    "./runtime-hooks": "./src/runtime-hooks.ts",
+    "./runtime-bridge": "./src/runtime-bridge.tsx",
+    "./runtime-factories": "./src/runtime-factories.ts",
+    "./hydrate": "./src/hydrate.ts",
+    "./config-service": "./src/config-service.ts",
+    "./api-servers": "./src/api-servers.ts",
+    "./app-metadata": "./src/app-metadata.ts",
+    "./create-key-value-storage": "./src/create-key-value-storage.ts",
+    "./device-service-interface": "./src/device-service-interface.ts",
+    "./session-service-interface": "./src/session-service-interface.ts",
+    "./patch-db-runtime": "./src/patch-db-runtime.ts",
+    "./use-server-status": "./src/use-server-status.ts",
+    "./open-sql-client": "./src/open-sql-client.ts",
+    "./key-value-storage-web": "./src/key-value-storage-web.ts",
+    "./key-value-storage-expo": "./src/key-value-storage-expo.ts",
+    "./identity-context": "./src/identity-context.tsx"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "tc": "tsc --noEmit",
+    "test": "bun test --pass-with-no-tests"
+  },
+  "dependencies": {
+    "@gamezilla/lib": "workspace:*",
+    "@gamezilla/patch-db": "workspace:*",
+    "@react-native-async-storage/async-storage": "catalog:",
+    "expo-network": "catalog:",
+    "jotai": "catalog:",
+    "jotai-effect": "catalog:",
+    "react": "catalog:",
+    "react-native": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/react": "catalog:",
+    "typescript": "catalog:"
+  }
+}

@@ -1,18 +1,3 @@
-import { createApiClient } from '@gamezilla/client/api/hc';
-import { createPatchDbHcTransport } from '@gamezilla/client/api/patch-db-hc-transport';
-import { createSecureStorage } from '@gamezilla/auth/client/create-secure-storage';
-import { createDeviceService } from '@gamezilla/auth/client/device-service';
-import { ensureDeviceEntity } from '@gamezilla/auth/client/ensure-device-entity';
-import { ensureProfile } from '@gamezilla/profile/client/ensure-profile-entity';
-import { createSessionService } from '@gamezilla/auth/client/session-service';
-import { readSessionToken } from '@gamezilla/auth/client/session-token-storage';
-import { readLastLocalAccountId } from '@gamezilla/auth/client/account-local-state';
-import { createKeyValueStorage } from '@gamezilla/client/runtime/create-key-value-storage';
-import {
-  ACCOUNT_SESSION_ENTITY_TYPE,
-  assertDeviceId,
-} from '@gamezilla/auth/shared';
-import { createConfigService } from '@gamezilla/client/config/config-service';
 import type { KeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
 import { createLogger } from '@gamezilla/lib/logger/logger';
 import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
@@ -34,7 +19,12 @@ import { setInMemoryStoreForDb } from '@gamezilla/patch-db/react/in-memory-store
 import { PatchDbWriteThroughMirror } from '@gamezilla/patch-db/react/write-through-mirror';
 import { atom, getDefaultStore } from 'jotai';
 import { atomEffect } from 'jotai-effect';
+import { createConfigService } from './config-service';
+import { createKeyValueStorage } from './create-key-value-storage';
+import type { DeviceService } from './device-service-interface';
 import { openSqlClientForPlatform } from './open-sql-client';
+import { getRuntimeFactories } from './runtime-factories';
+import type { SessionService } from './session-service-interface';
 
 /**
  * expo-sqlite **web** multiplexes every DB into one shared {@link Worker}. If
@@ -136,7 +126,9 @@ export const configServiceAtom = atom(createConfigService());
 
 export const loggerAtom = atom(createLogger({ name: 'client' }));
 
-export const secureStorageAtom = atom<SecureStorage>(createSecureStorage());
+export const secureStorageAtom = atom<SecureStorage>(() =>
+  getRuntimeFactories().createSecureStorage()
+);
 
 /**
  * Bulk async key-value storage (localStorage on web, AsyncStorage on native).
@@ -147,9 +139,9 @@ export const keyValueStorageAtom = atom<KeyValueStorage>(
   createKeyValueStorage()
 );
 
-export const deviceServiceAtom = atom(async (get) => {
+export const deviceServiceAtom = atom<Promise<DeviceService>>(async (get) => {
   const storage = get(secureStorageAtom);
-  return await createDeviceService(storage);
+  return await getRuntimeFactories().createDeviceService(storage);
 });
 
 /**
@@ -160,9 +152,10 @@ export const deviceServiceAtom = atom(async (get) => {
 export const sqlClientAtom = atom(async (get, { signal }) => {
   const deviceService = await get(deviceServiceAtom);
   const storage = get(secureStorageAtom);
+  const factories = getRuntimeFactories();
   const fromAtom = get(accountIdAtom);
   const fromDisk =
-    fromAtom === null ? await readLastLocalAccountId(storage) : null;
+    fromAtom === null ? await factories.readLastLocalAccountId(storage) : null;
   if (fromAtom === null && fromDisk !== null) {
     getDefaultStore().set(accountIdAtom, fromDisk);
   }
@@ -221,13 +214,14 @@ export const sqlClientAtom = atom(async (get, { signal }) => {
 async function createPatchDbStack(args: {
   sql: SqlClient;
   config: ReturnType<typeof createConfigService>;
-  deviceService: Awaited<ReturnType<typeof createDeviceService>>;
+  deviceService: DeviceService;
   storage: SecureStorage;
   signal: AbortSignal;
 }): Promise<PatchDbStackValue> {
   const { sql, config, deviceService, storage, signal } = args;
+  const factories = getRuntimeFactories();
 
-  const persistedToken = await readSessionToken(storage);
+  const persistedToken = await factories.readSessionToken(storage);
   if (persistedToken !== null) {
     getDefaultStore().set(sessionTokenAtom, persistedToken);
   }
@@ -236,10 +230,10 @@ async function createPatchDbStack(args: {
   await local.migrate();
 
   const installId = deviceService.getDeviceId();
-  assertDeviceId(installId);
+  factories.assertDeviceId(installId);
 
-  const transport = createPatchDbHcTransport(
-    createApiClient(config.getApiUrl()),
+  const transport = factories.createPatchDbHcTransport(
+    factories.createApiClient(config.getApiUrl()),
     {
       patchDbBaseUrl: `${config.getApiUrl()}/patch-db`,
       getAuthToken: () => getDefaultStore().get(sessionTokenAtom),
@@ -260,7 +254,7 @@ async function createPatchDbStack(args: {
       const aid = getDefaultStore().get(accountIdAtom);
       return aid !== null && aid.length > 0 ? aid : installId;
     },
-    assertDeviceId: (id) => assertDeviceId(id),
+    assertDeviceId: (id) => factories.assertDeviceId(id),
   });
 
   const store = new InMemoryEntityStore();
@@ -279,7 +273,7 @@ async function createPatchDbStack(args: {
   await stamper.clearRejectedPushes();
 
   await sync.markAllUnsyncedPatchesForEntityTypeAsAlreadyOnRemote(
-    ACCOUNT_SESSION_ENTITY_TYPE
+    factories.accountSessionEntityType
   );
 
   return {
@@ -304,10 +298,10 @@ export const patchDbStackAtom = atom(async (get, { signal }) => {
   });
 });
 
-export const sessionServiceAtom = atom(async (get) => {
+export const sessionServiceAtom = atom<Promise<SessionService>>(async (get) => {
   const stack = await get(patchDbStackAtom);
   const deviceService = await get(deviceServiceAtom);
-  return createSessionService(stack.db, deviceService);
+  return getRuntimeFactories().createSessionService(stack.db, deviceService);
 });
 
 /**
@@ -318,16 +312,17 @@ export const entityBootstrapEffect = atomEffect((get) => {
   let cancelled = false;
   void (async () => {
     try {
+      const factories = getRuntimeFactories();
       const deviceService = await get(deviceServiceAtom);
       const stack = await get(patchDbStackAtom);
       const accountId = get(accountIdAtom);
       if (cancelled) return;
       const installId = deviceService.getDeviceId();
-      await ensureDeviceEntity(stack.db, installId);
+      await factories.ensureDeviceEntity(stack.db, installId);
       if (cancelled) return;
       const myId =
         accountId !== null && accountId.length > 0 ? accountId : installId;
-      await ensureProfile(stack.db, myId);
+      await factories.ensureProfile(stack.db, myId);
     } catch {
       // Stale derivations see `client disconnecting or already closed` when
       // `sqlClientAtom` is replaced mid-flight (sign-in/sign-out). The next

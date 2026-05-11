@@ -19,7 +19,8 @@ import { useSignOutConfirmationModal } from './use-sign-out-confirmation';
 import {
   useDeviceService,
   useSessionService,
-} from '@gamezilla/client/runtime/runtime-hooks';
+} from '@gamezilla/client-runtime/runtime-hooks';
+import { IdentityProvider } from '@gamezilla/client-runtime/identity-context';
 import { getDefaultStore, useAtom, useAtomValue } from 'jotai';
 import { useCallback, useLayoutEffect, useMemo, type ReactNode } from 'react';
 
@@ -158,12 +159,25 @@ function AuthModals() {
   );
 }
 
+function AuthIdentityBridge({ children }: { children: ReactNode }) {
+  const derived = useAtomValue(authSessionDerivedAtom);
+  const identity = useMemo(
+    () => ({
+      deviceId: derived.deviceId,
+      accountId: derived.accountId,
+      myId: derived.myId,
+    }),
+    [derived.deviceId, derived.accountId, derived.myId]
+  );
+  return <IdentityProvider value={identity}>{children}</IdentityProvider>;
+}
+
 function AuthShell({ children }: { children: ReactNode }) {
   return (
     <>
       <AuthActionsMount />
       <AuthModals />
-      {children}
+      <AuthIdentityBridge>{children}</AuthIdentityBridge>
     </>
   );
 }

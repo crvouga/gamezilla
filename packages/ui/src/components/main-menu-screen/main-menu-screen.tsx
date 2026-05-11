@@ -1,15 +1,12 @@
-import {
-  Box,
-  Card,
-  IconButton,
-  IconSymbol,
-  Pressable,
-  Text,
-  useTheme,
-  type Theme,
-} from '@gamezilla/ui';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
+import { useTheme, type Theme } from '../../theme';
+import { Box } from '../box';
+import { Card } from '../card';
+import { IconButton } from '../icon-button';
+import { IconSymbol } from '../symbol-icon';
+import { Pressable } from '../pressable';
+import { Text } from '../text';
 
 export type MainMenuItem = {
   /** Stable id for list keys. */

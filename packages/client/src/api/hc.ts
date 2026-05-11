@@ -1,6 +1,6 @@
-import type { AppTypeWithGlobalErrors } from '@gamezilla/api/rpc';
+import { createApiRpcClient } from '@gamezilla/api-rpc';
+import type { AppType } from '@gamezilla/api/rpc';
 import { assertTigerPolicyForResolvedApiOrigin } from '@gamezilla/client/config/api-servers';
-import { hc } from 'hono/client';
 
 /**
  * Typed Hono RPC client for the gamezilla API Worker. Base URL must be the API
@@ -23,8 +23,7 @@ export function createApiClient(apiUrl: string) {
     parsed.origin,
     'forbid-prod-in-expo-dev-bundle'
   );
-  const base = apiUrl.replace(/\/$/, '');
-  return hc<AppTypeWithGlobalErrors>(`${base}/`);
+  return createApiRpcClient<AppType>(parsed.toString());
 }
 
 export type ApiClient = ReturnType<typeof createApiClient>;

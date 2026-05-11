@@ -1,5 +1,5 @@
 import { useAuth } from './auth-context';
-import { useSecureStorage } from '@gamezilla/client/runtime/runtime-hooks';
+import { useSecureStorage } from '@gamezilla/client-runtime/runtime-hooks';
 import { useAccountRemoveLocalData } from './use-account-remove-local-data';
 import { Box, Button } from '@gamezilla/ui';
 import { useLingui } from '@lingui/react/macro';

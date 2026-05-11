@@ -1,13 +1,10 @@
-import type { SessionClaims, SessionClaimsPort } from './ports';
+import type {
+  BetterAuthSessionApi,
+  SessionClaims,
+  SessionClaimsPort,
+} from './ports';
 
-/** Narrow surface — Better Auth’s `Auth` generic does not match our `createBetterAuth` options. */
-export type BetterAuthSessionApi = {
-  readonly api: {
-    getSession: (args: { headers: Headers }) => Promise<{
-      user?: { id?: unknown; email?: unknown };
-    } | null>;
-  };
-};
+export type { BetterAuthSessionApi };
 
 export class SessionClaimsBetterAuthAdapter implements SessionClaimsPort {
   readonly #auth: BetterAuthSessionApi;

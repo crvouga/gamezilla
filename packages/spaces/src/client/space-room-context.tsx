@@ -1,9 +1,6 @@
 import { useSpaceRoom } from './use-space-room';
-import {
-  RoomClientsProvider,
-  SPACE_ROOM_NAME,
-  type AnyRoom,
-} from '@gamezilla/room';
+import { RoomClientsProvider, type AnyRoom } from '@gamezilla/room';
+import { SPACE_ROOM_NAME } from './use-space-room-selector';
 import { useMemo, type ReactNode } from 'react';
 
 export type SpaceRoomProviderProps = {
@@ -13,7 +10,7 @@ export type SpaceRoomProviderProps = {
 
 /**
  * Opens the space room connection and registers it under {@link SPACE_ROOM_NAME}
- * for {@link useSpaceSelector} / {@link useSpaceDispatch}.
+ * for {@link useSpaceRoomSelector} / {@link useSpaceRoomDispatch}.
  */
 export function SpaceRoomProvider({
   spaceId,

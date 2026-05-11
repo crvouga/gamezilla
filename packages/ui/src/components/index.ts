@@ -212,6 +212,12 @@ export { SectionCard, type SectionCardProps } from './section-card';
 export { MenuRow, type MenuRowProps } from './menu-row';
 
 export {
+  MainMenuScreen,
+  type MainMenuItem,
+  type MainMenuScreenProps,
+} from './main-menu-screen';
+
+export {
   ScreenBase,
   ScreenBaseHeader,
   partitionScreenActions,

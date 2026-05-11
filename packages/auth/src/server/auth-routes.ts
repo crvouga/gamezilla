@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
-import type { ApiHonoEnv } from '@gamezilla/api/app/api-hono-types';
+import type { ApiHonoEnv } from '@gamezilla/api-types/api-hono-types';
 import type { SessionAuth } from './session-middleware';
+import type { AuthContext } from './types';
 import { UnauthorizedError } from './unauthorized-error';
 
 export type { SessionAuth };
@@ -10,7 +11,7 @@ export type { SessionAuth };
  * Requires `Authorization: Bearer` (session JWT) and `x-anon-id` (install UUID).
  */
 export function createAuthApiRoutes() {
-  return new Hono<ApiHonoEnv>().get('/auth/whoami', async (c) => {
+  return new Hono<ApiHonoEnv<AuthContext>>().get('/auth/whoami', async (c) => {
     const db = c.get('patchDb');
     const sessionAuth = c.get('sessionAuth');
     try {

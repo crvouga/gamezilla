@@ -1,22 +1,18 @@
-import { hc, type ApplyGlobalResponse } from 'hono/client';
+import {
+  createApiRpcClient as createGenericApiRpcClient,
+  type WithGlobalApiErrors,
+} from '@gamezilla/api-rpc';
 import type { createApiApp } from './app/create-app';
 
 /** Hono app shape for `hono/client` RPC. Use `import type` from client — no runtime import. */
 export type AppType = Awaited<ReturnType<typeof createApiApp>>;
 
 /** Includes `app.onError` 401/500 JSON bodies for typed client narrowing. */
-export type AppTypeWithGlobalErrors = ApplyGlobalResponse<
-  AppType,
-  {
-    401: { json: { error: string } };
-    500: { json: { error: string } };
-  }
->;
+export type AppTypeWithGlobalErrors = WithGlobalApiErrors<AppType>;
 
 /** Typed Hono RPC client for API callers (base URL should be API origin). */
 export function createApiRpcClient(apiUrl: string) {
-  const base = apiUrl.replace(/\/+$/, '');
-  return hc<AppTypeWithGlobalErrors>(`${base}/`);
+  return createGenericApiRpcClient<AppType>(apiUrl);
 }
 
 export type ApiRpcClient = ReturnType<typeof createApiRpcClient>;

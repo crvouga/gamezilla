@@ -5,7 +5,7 @@ import {
   type RoomState,
 } from '@gamezilla/room';
 
-import { SpaceModule } from '@gamezilla/spaces/shared/space-module';
+import { ChessModule } from './chess-module';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,
@@ -33,13 +33,13 @@ function cmd(payload: RoomCommand['payload'], ts = 1): RoomCommand {
 function reduceAll(state: RoomState, events: readonly unknown[]): RoomState {
   let next = state;
   for (const ev of events) {
-    next = SpaceModule.reduce(next, ev as never);
+    next = ChessModule.reduce(next, ev as never);
   }
   return next;
 }
 
 function startValid(state: RoomState, identity = HOST): RoomState {
-  const res = SpaceModule.handle(
+  const res = ChessModule.handle(
     state,
     cmd(
       StartChessPuzzlePlay({
@@ -56,7 +56,7 @@ function startValid(state: RoomState, identity = HOST): RoomState {
 
 describe('chess puzzle play FSM — Start', () => {
   test('valid multi-move payload transitions to solving with host captured', () => {
-    const state = startValid(SpaceModule.initialState());
+    const state = startValid(ChessModule.initialState());
     expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
       CHESS_PUZZLE_PLAY_STATUS.solving
     );
@@ -71,8 +71,8 @@ describe('chess puzzle play FSM — Start', () => {
   });
 
   test('valid one-token payload transitions straight to solved', () => {
-    let state = SpaceModule.initialState();
-    const res = SpaceModule.handle(
+    let state = ChessModule.initialState();
+    const res = ChessModule.handle(
       state,
       cmd(
         StartChessPuzzlePlay({
@@ -94,8 +94,8 @@ describe('chess puzzle play FSM — Start', () => {
   });
 
   test('bad FEN transitions to invalid but still captures host', () => {
-    let state = SpaceModule.initialState();
-    const res = SpaceModule.handle(
+    let state = ChessModule.initialState();
+    const res = ChessModule.handle(
       state,
       cmd(
         StartChessPuzzlePlay({
@@ -117,8 +117,8 @@ describe('chess puzzle play FSM — Start', () => {
   });
 
   test('illegal opening move transitions to invalid', () => {
-    let state = SpaceModule.initialState();
-    const res = SpaceModule.handle(
+    let state = ChessModule.initialState();
+    const res = ChessModule.handle(
       state,
       cmd(
         StartChessPuzzlePlay({
@@ -138,8 +138,8 @@ describe('chess puzzle play FSM — Start', () => {
   });
 
   test('Start while session already running rejects with conflict', () => {
-    const state = startValid(SpaceModule.initialState());
-    const res = SpaceModule.handle(
+    const state = startValid(ChessModule.initialState());
+    const res = ChessModule.handle(
       state,
       cmd(
         StartChessPuzzlePlay({
@@ -158,9 +158,9 @@ describe('chess puzzle play FSM — Start', () => {
 
 describe('chess puzzle play FSM — Submit', () => {
   test('correct move from host advances index past opponent reply', () => {
-    let state = startValid(SpaceModule.initialState());
+    let state = startValid(ChessModule.initialState());
     const before = ChessPuzzlePlayAttr.displayFen.from(state);
-    const res = SpaceModule.handle(
+    const res = ChessModule.handle(
       state,
       cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
       HOST
@@ -179,15 +179,15 @@ describe('chess puzzle play FSM — Submit', () => {
   });
 
   test('final correct move transitions to solved', () => {
-    let state = startValid(SpaceModule.initialState());
-    const r1 = SpaceModule.handle(
+    let state = startValid(ChessModule.initialState());
+    const r1 = ChessModule.handle(
       state,
       cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
       HOST
     );
     if (!r1.ok) throw new Error('first move failed');
     state = reduceAll(state, r1.events);
-    const r2 = SpaceModule.handle(
+    const r2 = ChessModule.handle(
       state,
       cmd(SubmitChessPuzzleMove({ uci: 'f2e3' })),
       HOST
@@ -202,10 +202,10 @@ describe('chess puzzle play FSM — Submit', () => {
   });
 
   test('wrong move flips status to wrong and bumps layoutKey', () => {
-    let state = startValid(SpaceModule.initialState());
+    let state = startValid(ChessModule.initialState());
     const before = ChessPuzzlePlayAttr.layoutKey.from(state);
     const beforeFen = ChessPuzzlePlayAttr.displayFen.from(state);
-    const res = SpaceModule.handle(
+    const res = ChessModule.handle(
       state,
       cmd(SubmitChessPuzzleMove({ uci: 'h1h2' })),
       HOST
@@ -222,8 +222,8 @@ describe('chess puzzle play FSM — Submit', () => {
   });
 
   test('wrong then correct returns to solving and advances', () => {
-    let state = startValid(SpaceModule.initialState());
-    const wrong = SpaceModule.handle(
+    let state = startValid(ChessModule.initialState());
+    const wrong = ChessModule.handle(
       state,
       cmd(SubmitChessPuzzleMove({ uci: 'h1h2' })),
       HOST
@@ -233,7 +233,7 @@ describe('chess puzzle play FSM — Submit', () => {
     expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
       CHESS_PUZZLE_PLAY_STATUS.wrong
     );
-    const correct = SpaceModule.handle(
+    const correct = ChessModule.handle(
       state,
       cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
       HOST
@@ -248,8 +248,8 @@ describe('chess puzzle play FSM — Submit', () => {
   });
 
   test('non-host move is rejected as unauthorized', () => {
-    const state = startValid(SpaceModule.initialState());
-    const res = SpaceModule.handle(
+    const state = startValid(ChessModule.initialState());
+    const res = ChessModule.handle(
       state,
       cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
       GUEST
@@ -260,8 +260,8 @@ describe('chess puzzle play FSM — Submit', () => {
   });
 
   test('move from solved is rejected as conflict', () => {
-    let state = SpaceModule.initialState();
-    const start = SpaceModule.handle(
+    let state = ChessModule.initialState();
+    const start = ChessModule.handle(
       state,
       cmd(
         StartChessPuzzlePlay({
@@ -274,7 +274,7 @@ describe('chess puzzle play FSM — Submit', () => {
     );
     if (!start.ok) throw new Error('start failed');
     state = reduceAll(state, start.events);
-    const res = SpaceModule.handle(
+    const res = ChessModule.handle(
       state,
       cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
       HOST
@@ -285,8 +285,8 @@ describe('chess puzzle play FSM — Submit', () => {
   });
 
   test('move from idle is rejected as unauthorized (no host yet)', () => {
-    const state = SpaceModule.initialState();
-    const res = SpaceModule.handle(
+    const state = ChessModule.initialState();
+    const res = ChessModule.handle(
       state,
       cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
       HOST
@@ -299,10 +299,10 @@ describe('chess puzzle play FSM — Submit', () => {
 
 describe('chess puzzle play FSM — Reset', () => {
   test('host reset returns to post-opening state and bumps layoutKey', () => {
-    let state = startValid(SpaceModule.initialState());
+    let state = startValid(ChessModule.initialState());
     const startedFen = ChessPuzzlePlayAttr.displayFen.from(state);
     const startedLk = ChessPuzzlePlayAttr.layoutKey.from(state);
-    const submit = SpaceModule.handle(
+    const submit = ChessModule.handle(
       state,
       cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
       HOST
@@ -311,7 +311,7 @@ describe('chess puzzle play FSM — Reset', () => {
     state = reduceAll(state, submit.events);
     expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(3);
 
-    const reset = SpaceModule.handle(
+    const reset = ChessModule.handle(
       state,
       cmd(ResetChessPuzzlePlay({})),
       HOST
@@ -331,16 +331,16 @@ describe('chess puzzle play FSM — Reset', () => {
   });
 
   test('non-host reset is unauthorized', () => {
-    const state = startValid(SpaceModule.initialState());
-    const res = SpaceModule.handle(state, cmd(ResetChessPuzzlePlay({})), GUEST);
+    const state = startValid(ChessModule.initialState());
+    const res = ChessModule.handle(state, cmd(ResetChessPuzzlePlay({})), GUEST);
     expect(res.ok).toBe(false);
     if (res.ok) return;
     expect(res.error.type).toBe(ROOM_ERROR_TYPE.unauthorized);
   });
 
   test('reset while idle is unauthorized (no host yet)', () => {
-    const res = SpaceModule.handle(
-      SpaceModule.initialState(),
+    const res = ChessModule.handle(
+      ChessModule.initialState(),
       cmd(ResetChessPuzzlePlay({})),
       HOST
     );
@@ -352,8 +352,8 @@ describe('chess puzzle play FSM — Reset', () => {
 
 describe('chess puzzle play FSM — Clear', () => {
   test('host clear resets all attrs to defaults', () => {
-    let state = startValid(SpaceModule.initialState());
-    const res = SpaceModule.handle(state, cmd(ClearChessPuzzlePlay({})), HOST);
+    let state = startValid(ChessModule.initialState());
+    const res = ChessModule.handle(state, cmd(ClearChessPuzzlePlay({})), HOST);
     expect(res.ok).toBe(true);
     if (!res.ok) return;
     state = reduceAll(state, res.events);
@@ -371,22 +371,22 @@ describe('chess puzzle play FSM — Clear', () => {
   });
 
   test('clear with no host succeeds (no-op)', () => {
-    const state = SpaceModule.initialState();
-    const res = SpaceModule.handle(state, cmd(ClearChessPuzzlePlay({})), GUEST);
+    const state = ChessModule.initialState();
+    const res = ChessModule.handle(state, cmd(ClearChessPuzzlePlay({})), GUEST);
     expect(res.ok).toBe(true);
   });
 
   test('non-host clear during running session is unauthorized', () => {
-    const state = startValid(SpaceModule.initialState());
-    const res = SpaceModule.handle(state, cmd(ClearChessPuzzlePlay({})), GUEST);
+    const state = startValid(ChessModule.initialState());
+    const res = ChessModule.handle(state, cmd(ClearChessPuzzlePlay({})), GUEST);
     expect(res.ok).toBe(false);
     if (res.ok) return;
     expect(res.error.type).toBe(ROOM_ERROR_TYPE.unauthorized);
   });
 
   test('start, clear, start again succeeds with possibly different host', () => {
-    let state = startValid(SpaceModule.initialState());
-    const c = SpaceModule.handle(state, cmd(ClearChessPuzzlePlay({})), HOST);
+    let state = startValid(ChessModule.initialState());
+    const c = ChessModule.handle(state, cmd(ClearChessPuzzlePlay({})), HOST);
     if (!c.ok) throw new Error('clear failed');
     state = reduceAll(state, c.events);
     state = startValid(state, GUEST);

@@ -1,4 +1,4 @@
-import { assertDeviceId } from '@gamezilla/auth/shared/device-id';
+import { assertUuid } from '@gamezilla/lib/uuid';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
@@ -9,9 +9,11 @@ import { spaceGuestMembershipEntityId } from '@gamezilla/spaces/shared/membershi
 import type { Entity, PatchDb } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 
-import { resolveAccountIdFromBearer } from '@gamezilla/auth/server/bearer-resolve';
-import type { HttpBearerAuthPorts } from '@gamezilla/auth/server/ports';
-import { ANON_ID_HEADER } from '@gamezilla/auth/server/session-middleware';
+import {
+  ANON_ID_HEADER,
+  resolveAccountIdFromBearer,
+  type HttpBearerAuthPorts,
+} from '@gamezilla/api-types/auth-ports';
 
 const ROOM_TOPIC_PREFIX = 'space:' as const;
 
@@ -129,7 +131,7 @@ async function resolveActorIdForSpaceWebSocket(
         'missing anonId (install id) for authenticated websocket'
       );
     }
-    assertDeviceId(installId);
+    assertUuid(installId, 'deviceId must be a valid UUID');
     const myId = await resolveAccountIdFromBearer({
       db,
       bearerAuth: deps,
@@ -146,7 +148,7 @@ async function resolveActorIdForSpaceWebSocket(
   if (anon === null || anon.length === 0) {
     return jsonResponse(401, 'missing session token or anon id');
   }
-  assertDeviceId(anon);
+  assertUuid(anon, 'deviceId must be a valid UUID');
   return { myId: anon };
 }
 

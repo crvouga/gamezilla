@@ -31,7 +31,6 @@ export type {
 } from './client/core/transport';
 export {
   RoomClientsProvider,
-  SPACE_ROOM_NAME,
   useRoomFromRegistry,
   type AnyRoom,
 } from './client/react/room-clients-context';

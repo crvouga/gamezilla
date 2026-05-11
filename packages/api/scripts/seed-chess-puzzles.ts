@@ -39,7 +39,7 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { Pool } from 'pg';
 import { loadBetterAuthOptionsForMigration } from '@gamezilla/auth/server/better-auth-doppler-options';
-import { runPostgresMigrations } from '@gamezilla/api/migrations/run-postgres-migrations';
+import { runPostgresMigrations } from '../src/migrations/run-postgres-migrations';
 import {
   createPuzzleSeedReporter,
   type PuzzleSeedReporter,
@@ -55,8 +55,8 @@ const DEFAULT_PUZZLE_URL =
   'https://database.lichess.org/lichess_db_puzzle.csv.zst';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
-const FEATURE_CHESS_ROOT = resolve(SCRIPT_DIR, '..');
-const DEFAULT_CACHE_DIR = join(FEATURE_CHESS_ROOT, '.cache', 'lichess');
+const API_ROOT = resolve(SCRIPT_DIR, '..');
+const DEFAULT_CACHE_DIR = join(API_ROOT, '.cache', 'lichess');
 
 function createSqlClient(databaseUrl: string): {
   sql: SqlClient;

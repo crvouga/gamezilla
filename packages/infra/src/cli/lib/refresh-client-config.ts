@@ -1,4 +1,5 @@
-import { createApiRpcClient } from '@gamezilla/api/rpc';
+import { createApiRpcClient } from '@gamezilla/api-rpc';
+import type { AppType } from '@gamezilla/api/rpc';
 import { assert } from '@gamezilla/lib/assert';
 import type { CiPlatform } from '../platform/platform';
 import { fail, fmtElapsed, fmtMs, info, ok, warn } from './fmt';
@@ -37,7 +38,7 @@ export async function refreshClientConfig(
   platform: CiPlatform,
   outputs: InfraOutputs
 ): Promise<void> {
-  const client = createApiRpcClient(outputs.api_url);
+  const client = createApiRpcClient<AppType>(outputs.api_url);
   const url = clientConfigRefreshUrl(outputs.api_url);
   info('Target', url);
 

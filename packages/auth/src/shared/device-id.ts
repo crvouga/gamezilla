@@ -1,23 +1,11 @@
-import { assert } from '@gamezilla/lib/assert/singleton';
-
-/** RFC 4122 UUID v4 pattern (lowercase hex with hyphens). */
-export const UUID_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-export function isUuid(value: unknown): value is string {
-  return typeof value === 'string' && UUID_REGEX.test(value);
-}
-
 /**
- * Asserts value is a valid UUID string at trust boundaries. Crashes on violation.
+ * Auth-semantic wrapper around the generic UUID utilities from `@gamezilla/lib`.
+ * `deviceId` is always a v4 UUID so most call sites just need the assertion
+ * form; the underlying utilities are re-exported for backwards compatibility
+ * with existing import sites inside the auth package.
  */
-export function assertUuid(
-  value: unknown,
-  message: string
-): asserts value is string {
-  assert.string(value, message);
-  assert.ok(UUID_REGEX.test(value), message, { value });
-}
+export { UUID_REGEX, assertUuid, isUuid } from '@gamezilla/lib/uuid';
+import { assertUuid } from '@gamezilla/lib/uuid';
 
 /**
  * Asserts deviceId is a valid UUID. Crashes on violation.

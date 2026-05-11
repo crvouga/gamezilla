@@ -11,6 +11,16 @@ import { reconcileSnapshotIndexes } from './reconcile';
 
 const silent = createLogger({ name: 'test', level: 'silent' });
 
+/** Strips savepoint bookkeeping; {@link reconcileSnapshotIndexes} wraps each DDL in SAVEPOINT/RELEASE. */
+function ddlOnly(ran: readonly string[]): string[] {
+  return ran.filter(
+    (s) =>
+      !s.startsWith('SAVEPOINT ') &&
+      !s.startsWith('RELEASE SAVEPOINT ') &&
+      !s.startsWith('ROLLBACK TO SAVEPOINT ')
+  );
+}
+
 class FakeSqlClient implements SqlClient {
   readonly ran: string[] = [];
   async connect(): Promise<void> {}
@@ -64,7 +74,9 @@ describe('reconcileSnapshotIndexes', () => {
     expect(result.created.length).toBe(2);
     expect(result.dropped.length).toBe(0);
     expect(result.unchanged.length).toBe(0);
-    expect(sql.ran.every((s) => s.startsWith('CREATE_'))).toBe(true);
+    const ddl = ddlOnly(sql.ran);
+    expect(ddl.length).toBe(2);
+    expect(ddl.every((s) => s.startsWith('CREATE_'))).toBe(true);
   });
 
   test('drops indexes in db that are not declared', async () => {
@@ -78,7 +90,7 @@ describe('reconcileSnapshotIndexes', () => {
     });
     expect(result.dropped).toEqual([stranded]);
     expect(result.created.length).toBe(0);
-    expect(sql.ran).toEqual([`DROP_${stranded}`]);
+    expect(ddlOnly(sql.ran)).toEqual([`DROP_${stranded}`]);
   });
 
   test('leaves declared indexes that already exist unchanged', async () => {
@@ -104,7 +116,7 @@ describe('reconcileSnapshotIndexes', () => {
     expect(result.created).toEqual([]);
     expect(result.dropped).toEqual([]);
     expect(result.unchanged).toEqual([dbName]);
-    expect(sql.ran).toEqual([]);
+    expect(ddlOnly(sql.ran)).toEqual([]);
   });
 
   test('drift: spec content change rolls dbName -> drop old, create new', async () => {
@@ -142,8 +154,9 @@ describe('reconcileSnapshotIndexes', () => {
     expect(result.created.length).toBe(1);
     expect(result.created[0]).not.toBe(oldDbName);
     // Drop happens before create so we never collide on a name.
-    expect(sql.ran[0]!.startsWith('DROP_')).toBe(true);
-    expect(sql.ran[1]!.startsWith('CREATE_')).toBe(true);
+    const ddl = ddlOnly(sql.ran);
+    expect(ddl[0]!.startsWith('DROP_')).toBe(true);
+    expect(ddl[1]!.startsWith('CREATE_')).toBe(true);
   });
 
   test('tolerates 42501 must be owner of relation errors', async () => {

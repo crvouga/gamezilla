@@ -6,7 +6,7 @@ import {
   patchDbStackAtom,
   sessionServiceAtom,
   sessionTokenAtom,
-} from '@gamezilla/client/runtime/atoms';
+} from '@gamezilla/client-runtime/atoms';
 import { atom, getDefaultStore } from 'jotai';
 import { atomEffect } from 'jotai-effect';
 import { deriveHostedAuthUiFromApiUrl } from './hosted-auth-ui';

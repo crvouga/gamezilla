@@ -1,28 +1,40 @@
 import { assertDeviceId } from '@gamezilla/auth/shared/device-id';
+import { ANON_ID_HEADER } from '@gamezilla/api-types/auth-ports';
 import { assert } from '@gamezilla/lib/assert';
 import type { PatchDb, PatchDbContext } from '@gamezilla/patch-db/interface';
 import type {
   AppAuthContext,
   AppClientContext,
-} from '@gamezilla/api/patch-db/abac-policies';
-import { buildAppAuthContextFromBearer } from './bearer-resolve';
-import { loadMemberOfSpaceIds } from './member-of-spaces';
+} from '@gamezilla/patch-db/abac/app-auth-context';
+import {
+  buildAppAuthContextFromBearer,
+  type LoadMemberOfSpaceIds,
+} from './bearer-resolve';
 import type { AuthSessionPort, HttpBearerAuthPorts } from './ports';
 import type { AuthContext } from './types';
 import { UnauthorizedError } from './unauthorized-error';
 
 export type { AuthContext } from './types';
 
-/** HTTP header: install id for patch-db device binding (UUID). Required with Bearer session. */
-export const ANON_ID_HEADER = 'x-anon-id';
+/**
+ * Re-export so existing imports (`@gamezilla/auth/server/session-middleware`)
+ * keep working; the source of truth lives in `@gamezilla/api-types`.
+ */
+export { ANON_ID_HEADER };
 
 const UNAUTH_CLIENT_CONTEXT: AppClientContext = {};
 
-export type SessionAuthDeps = HttpBearerAuthPorts;
+/** Re-export so callers can import all session auth types from one place. */
+export type { LoadMemberOfSpaceIds } from './bearer-resolve';
+
+export type SessionAuthDeps = HttpBearerAuthPorts & {
+  loadMemberOfSpaceIds: LoadMemberOfSpaceIds;
+};
 
 async function buildAnonAppAuthContext(
   db: PatchDb,
-  anonId: string
+  anonId: string,
+  loadMemberOfSpaceIds: LoadMemberOfSpaceIds
 ): Promise<AppAuthContext> {
   assertDeviceId(anonId);
   const memberOfSpaceIds = await loadMemberOfSpaceIds(db, anonId);
@@ -37,7 +49,7 @@ async function buildAnonAppAuthContext(
 }
 
 export function createSessionAuth(deps: SessionAuthDeps): AuthSessionPort {
-  const bearerAuth = deps;
+  const { loadMemberOfSpaceIds, ...bearerAuth } = deps;
 
   /**
    * Token-only request resolution. Session JWT in `Authorization: Bearer …` plus
@@ -54,7 +66,7 @@ export function createSessionAuth(deps: SessionAuthDeps): AuthSessionPort {
 
     if (header === null || !header.startsWith('Bearer ')) {
       if (anonRaw.length > 0) {
-        return await buildAnonAppAuthContext(db, anonRaw);
+        return await buildAnonAppAuthContext(db, anonRaw, loadMemberOfSpaceIds);
       }
       return UNAUTH_CLIENT_CONTEXT;
     }
@@ -71,6 +83,7 @@ export function createSessionAuth(deps: SessionAuthDeps): AuthSessionPort {
       bearerAuth,
       bearerToken: token,
       deviceId: anonRaw,
+      loadMemberOfSpaceIds,
     });
     return auth ?? UNAUTH_CLIENT_CONTEXT;
   }

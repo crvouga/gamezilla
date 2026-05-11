@@ -1,20 +1,19 @@
 import {
   MainMenuScreen,
   type MainMenuItem,
-} from '@gamezilla/spaces/client/main-menu-screen';
+} from '@gamezilla/ui/components/main-menu-screen';
 import {
-  useSpaceDispatch,
-  useSpaceSelector,
+  useSpaceRoomDispatch,
+  useSpaceRoomSelector,
 } from '@gamezilla/spaces/client/use-space-room-selector';
 import {
   CHESS_SCREEN,
-  ChessMainMenuScreenAttr,
   SetChessMainMenuScreen,
 } from '../shared/chess-main-menu';
-import { SelectGame } from '@gamezilla/spaces/shared/games';
 import { Trans } from '@lingui/react/macro';
 import { useCallback, useMemo, type ReactNode } from 'react';
 import { ChessBoardCanvasBootstrap } from './chess-board-canvas-bootstrap';
+import { ChessMainMenuScreenAttr } from '../shared/chess-main-menu';
 import { PuzzleMainMenu } from './chess-puzzle-main-menu';
 import { PuzzlePickerScreen } from './chess-puzzle-picker-screen';
 import { PuzzlePlayScreen } from './chess-puzzle-play-screen';
@@ -23,8 +22,13 @@ import { ChessSettingsDeveloperUiComponentDetailScreen } from './chess-settings-
 import { ChessSettingsDeveloperUiComponentsScreen } from './chess-settings-developer-ui-components-screen';
 import { ChessSettingsScreen } from './chess-settings-screen';
 
-function ChessScreenSwitch(): ReactNode {
-  const screen = useSpaceSelector(ChessMainMenuScreenAttr.screen.from);
+export type ChessMainMenuProps = {
+  /** Called by chess's root menu to return to the games picker. */
+  onBackToGames: () => void;
+};
+
+function ChessScreenSwitch({ onBackToGames }: ChessMainMenuProps): ReactNode {
+  const screen = useSpaceRoomSelector(ChessMainMenuScreenAttr.screen.from);
 
   switch (screen) {
     case CHESS_SCREEN.puzzle:
@@ -42,7 +46,7 @@ function ChessScreenSwitch(): ReactNode {
     case CHESS_SCREEN.settingsDeveloperUiDetail:
       return <ChessSettingsDeveloperUiComponentDetailScreen />;
     default:
-      return <RootMainMenu />;
+      return <RootMainMenu onBackToGames={onBackToGames} />;
   }
 }
 
@@ -56,20 +60,23 @@ function ChessScreenSwitch(): ReactNode {
  * Bootstrap is mounted here — the highest point inside the chess package —
  * to keep `@gamezilla/client` decoupled from any feature package; the only
  * cross-package responsibility at the app root is `SkiaWebRoot`.
+ *
+ * `onBackToGames` is supplied by the games registry host
+ * (`<GamesMainMenu>` in `@gamezilla/spaces`) so chess never has to import
+ * the spaces-specific `SelectGame` command.
  */
-export function ChessMainMenu(): ReactNode {
+export function ChessMainMenu({
+  onBackToGames,
+}: ChessMainMenuProps): ReactNode {
   return (
     <ChessBoardCanvasBootstrap>
-      <ChessScreenSwitch />
+      <ChessScreenSwitch onBackToGames={onBackToGames} />
     </ChessBoardCanvasBootstrap>
   );
 }
 
-function RootMainMenu(): ReactNode {
-  const dispatch = useSpaceDispatch();
-  const onBackToGames = useCallback(() => {
-    dispatch(SelectGame({ game: null }));
-  }, [dispatch]);
+function RootMainMenu({ onBackToGames }: ChessMainMenuProps): ReactNode {
+  const dispatch = useSpaceRoomDispatch();
   const items = useMemo(
     (): readonly MainMenuItem[] => [
       {
@@ -100,12 +107,15 @@ function RootMainMenu(): ReactNode {
     ],
     [dispatch]
   );
+  const onPressBack = useCallback(() => {
+    onBackToGames();
+  }, [onBackToGames]);
   return (
     <MainMenuScreen
       title={<Trans>Chess</Trans>}
       subtitle={<Trans>Choose how you want to play.</Trans>}
       items={items}
-      onPressBack={onBackToGames}
+      onPressBack={onPressBack}
     />
   );
 }

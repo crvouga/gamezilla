@@ -3,16 +3,16 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "dev": "wrangler dev --port 8787 --inspector-port 9230",
     "lint": "eslint src --max-warnings 0",
-    "tc": "tsc --noEmit -p ../../tsconfig.json",
     "setup": "bun -e \"process.exit(0)\"",
-    "dev": "wrangler dev --port 8787 --inspector-port 9230"
-  },
-  "devDependencies": {
-    "typescript": "~5.9.2"
+    "tc": "tsc --noEmit -p ../../tsconfig.json"
   },
   "dependencies": {
     "@gamezilla/lib": "workspace:*",
-    "hono": "^4.7.0"
+    "hono": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
   }
 }

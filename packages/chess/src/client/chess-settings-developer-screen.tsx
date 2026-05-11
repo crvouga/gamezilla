@@ -1,8 +1,8 @@
 import {
   MainMenuScreen,
   type MainMenuItem,
-} from '@gamezilla/spaces/client/main-menu-screen';
-import { useSpaceDispatch } from '@gamezilla/spaces/client/use-space-room-selector';
+} from '@gamezilla/ui/components/main-menu-screen';
+import { useSpaceRoomDispatch } from '@gamezilla/spaces/client/use-space-room-selector';
 import {
   CHESS_SCREEN,
   SetChessMainMenuScreen,
@@ -11,7 +11,7 @@ import { Trans } from '@lingui/react/macro';
 import { useCallback, useMemo, type ReactNode } from 'react';
 
 export function ChessSettingsDeveloperScreen(): ReactNode {
-  const dispatch = useSpaceDispatch();
+  const dispatch = useSpaceRoomDispatch();
   const backToSettings = useCallback(() => {
     dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.settings }));
   }, [dispatch]);

@@ -1,4 +1,4 @@
-import { loggerAtom } from '@gamezilla/client/runtime/atoms';
+import { loggerAtom } from '@gamezilla/client-runtime/atoms';
 import { getDefaultStore } from 'jotai';
 import { clearLocalAuthMirrors } from './local-auth-cleanup';
 

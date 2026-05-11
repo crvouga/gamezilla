@@ -1,5 +1,5 @@
 import { assert } from '@gamezilla/lib/assert';
-import { COMMIT_HASH_HEX_REGEX } from '@gamezilla/client/config/app-metadata';
+import { COMMIT_HASH_HEX_REGEX } from '@gamezilla/client-runtime/app-metadata';
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { PROJECT_CONFIG } from '../../project-config';

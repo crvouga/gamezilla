@@ -1,4 +1,4 @@
-import type { ConfigService } from '@gamezilla/client/config/config-service';
+import type { ConfigService } from '@gamezilla/client-runtime/config-service';
 import type { KeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
 import type {
   Room,
@@ -11,6 +11,7 @@ import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 
 import { createSpaceRoom } from './create-space-room';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
+import { useSpaceModule } from './space-module-context';
 
 type SpaceRoom = Room<RoomState, RoomCommandPayload, RoomEvent, string>;
 
@@ -25,6 +26,7 @@ type OpenArgs = {
   token: string | null;
   configService: ConfigService;
   storage: KeyValueStorage;
+  module: ReturnType<typeof useSpaceModule>;
   setRoom: (r: SpaceRoom | null) => void;
   setTransport: (t: WebSocketRoomTransport | null) => void;
   roomRef: MutableRefObject<SpaceRoom | null>;
@@ -37,6 +39,7 @@ function openConnection(args: OpenArgs): () => void {
     const { room, transport } = await createSpaceRoom({
       spaceId: args.bootstrap.spaceId,
       apiUrl: args.configService.getApiUrl(),
+      module: args.module,
       storage: args.storage,
       myId: args.bootstrap.myId,
       installId: args.bootstrap.installId,
@@ -74,6 +77,7 @@ export function useSpaceRoomConnection(
   );
   const transportRef = useRef<WebSocketRoomTransport | null>(null);
   const roomRef = useRef<SpaceRoom | null>(null);
+  const module = useSpaceModule();
 
   useEffect(() => {
     roomRef.current = null;
@@ -94,6 +98,7 @@ export function useSpaceRoomConnection(
       token,
       configService,
       storage,
+      module,
       setRoom,
       setTransport,
       roomRef,
@@ -110,7 +115,7 @@ export function useSpaceRoomConnection(
       r?.destroy();
       t?.destroy();
     };
-  }, [bootstrap, configService, storage, sessionToken]);
+  }, [bootstrap, configService, storage, sessionToken, module]);
 
   return { room, roomRef, transport };
 }

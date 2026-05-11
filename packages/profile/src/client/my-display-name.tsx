@@ -1,6 +1,6 @@
 import { useMyProfileId } from './use-my-profile-id';
 import { UserDisplayName } from './user-display-name';
-import { optionalProps } from '@gamezilla/client/ui/optional-props';
+import { optionalProps } from '@gamezilla/ui/components/optional-props';
 import type { SxProps, TextVariant } from '@gamezilla/ui';
 import type { ReactNode } from 'react';
 

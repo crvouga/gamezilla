@@ -5,6 +5,7 @@ import { Stack } from 'expo-router';
 import 'react-native-reanimated';
 
 import '@gamezilla/client/polyfill-entry';
+import '@gamezilla/client/runtime/bootstrap-client-runtime';
 
 export const unstable_settings = {
   anchor: '(tabs)',

@@ -125,8 +125,8 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           doppler: 'false'
-      - name: Syncpack
-        run: bun run syncpack:lint
+      - name: Syncpack + catalog-only deps
+        run: bun run check:syncpack-workspace
 
   knip:
     runs-on: ubuntu-latest

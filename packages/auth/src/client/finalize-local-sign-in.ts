@@ -4,7 +4,7 @@ import {
   enqueueSqlClientLifecycle,
   secureStorageAtom,
   sessionServiceAtom,
-} from '@gamezilla/client/runtime/atoms';
+} from '@gamezilla/client-runtime/atoms';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { getDefaultStore } from 'jotai';
 import { ensureDeviceEntity } from './ensure-device-entity';

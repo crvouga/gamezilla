@@ -1,6 +1,8 @@
 import { createLogger } from '@gamezilla/lib/logger';
 import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import { isSecretStoreError } from '@gamezilla/lib/secret-store';
+import { APP_SPACE_MODULE } from '@gamezilla/app/shared/games';
+import { createDurableObjectAdapter } from '@gamezilla/room/server/adapters/durable-object';
 import { createApiApp } from './app/create-app';
 import { tryBetterAuthOptionsResponse } from './app/cors';
 import type { ApiWorkerEnv } from './config/env';
@@ -10,7 +12,16 @@ import {
   readDopplerScopeBindings,
 } from './config/env';
 import { createApiSecretStore } from './config/secret-store';
-import Space from '@gamezilla/spaces/server/space-do';
+
+/**
+ * Space Durable Object class for the real-time room. The composed module is
+ * sourced from `@gamezilla/app` so the server and client share the exact
+ * same game registry and can never disagree on routers/reducers.
+ *
+ * Exported as `Space` so Wrangler's `class_name = "Space"` binding (see
+ * `packages/api/wrangler.toml`) finds the DO class on the worker entry.
+ */
+const Space = createDurableObjectAdapter({ module: APP_SPACE_MODULE });
 
 const log = createLogger({ name: 'api' });
 

@@ -4,7 +4,7 @@ import { createAuthClient } from 'better-auth/react';
 import * as SecureStore from 'expo-secure-store';
 import { getDefaultStore, useAtomValue } from 'jotai';
 import { useEffect, useMemo, useRef, type ReactNode } from 'react';
-import { configServiceAtom } from '@gamezilla/client/runtime/atoms';
+import { configServiceAtom } from '@gamezilla/client-runtime/atoms';
 import { HostedAuthPortsProvider } from './hosted-auth-ports-context';
 import type { HostedAuthPorts } from './ports';
 import { HostedAuthUiBetterAuthAdapter } from './better-auth-hosted-auth-ui-adapter';

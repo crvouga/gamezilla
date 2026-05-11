@@ -1,70 +1,60 @@
-import { ChessMainMenu } from '@gamezilla/chess/client/chess-main-menu';
-import { MainMenuScreen, type MainMenuItem } from './main-menu-screen';
-import { useSpaceSessionUi } from './space-session-ui-context';
-import { useSpaceDispatch, useSpaceSelector } from './use-space-room-selector';
-import { useCurrentSpaceRole } from './use-current-space-role';
 import {
-  GamesRoomAttr,
-  SelectGame,
-  SpaceGame,
-  type SelectedSpaceGame,
-} from '@gamezilla/spaces/shared/games';
+  MainMenuScreen,
+  type MainMenuItem,
+} from '@gamezilla/ui/components/main-menu-screen';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { useCallback, useMemo } from 'react';
 
-function buildSpaceGameMenuItems(
-  isHost: boolean,
-  selectedGame: SelectedSpaceGame,
-  onSelectGame: (game: SelectedSpaceGame) => void
-): MainMenuItem[] {
-  const chessItem: MainMenuItem = {
-    key: 'chess',
-    title: <Trans>Chess</Trans>,
-    selected: selectedGame === SpaceGame.chess,
-    ...(isHost ? { onPress: () => onSelectGame(SpaceGame.chess) } : {}),
-  };
+import { useGamesRegistry } from './games-registry-context';
+import { useSpaceSessionUi } from './space-session-ui-context';
+import {
+  useSpaceRoomDispatch,
+  useSpaceRoomSelector,
+} from './use-space-room-selector';
+import { useCurrentSpaceRole } from './use-current-space-role';
+import {
+  GamesRoomAttr,
+  SelectGame,
+  type SelectedGameId,
+} from '@gamezilla/spaces/shared/games';
+import type { GameClientDefinition } from '@gamezilla/spaces/shared/game';
 
-  return [
-    chessItem,
-    {
-      key: 'tic-tac-toe',
-      title: <Trans>Tic-tac-toe</Trans>,
-      caption: <Trans>Coming soon</Trans>,
-      disabled: true,
-    },
-    {
-      key: 'connect-four',
-      title: <Trans>Connect Four</Trans>,
-      caption: <Trans>Coming soon</Trans>,
-      disabled: true,
-    },
-    {
-      key: 'gomoku',
-      title: <Trans>Gomoku</Trans>,
-      caption: <Trans>Coming soon</Trans>,
-      disabled: true,
-    },
-  ];
+function buildSpaceGameMenuItems(
+  games: readonly GameClientDefinition[],
+  isHost: boolean,
+  selectedGame: SelectedGameId,
+  onSelectGame: (game: SelectedGameId) => void
+): MainMenuItem[] {
+  return games.map((game) => ({
+    key: game.id,
+    title: game.title,
+    selected: selectedGame === game.id,
+    ...(isHost ? { onPress: () => onSelectGame(game.id) } : {}),
+  }));
 }
 
-function GameListMenu(): ReactNode {
+function GameListMenu({
+  games,
+}: {
+  games: readonly GameClientDefinition[];
+}): ReactNode {
   const { spaceId } = useSpaceSessionUi();
   const role = useCurrentSpaceRole(spaceId);
   const isHost = role === 'host';
-  const selectedGame = useSpaceSelector(GamesRoomAttr.selected.from);
+  const selectedGame = useSpaceRoomSelector(GamesRoomAttr.selected.from);
 
-  const dispatch = useSpaceDispatch();
+  const dispatch = useSpaceRoomDispatch();
   const onSelectGame = useCallback(
-    (game: SelectedSpaceGame) => {
+    (game: SelectedGameId) => {
       dispatch(SelectGame({ game }));
     },
     [dispatch]
   );
 
   const items = useMemo(
-    () => buildSpaceGameMenuItems(isHost, selectedGame, onSelectGame),
-    [isHost, onSelectGame, selectedGame]
+    () => buildSpaceGameMenuItems(games, isHost, selectedGame, onSelectGame),
+    [games, isHost, onSelectGame, selectedGame]
   );
 
   return (
@@ -83,15 +73,24 @@ function GameListMenu(): ReactNode {
 
 /**
  * Top-level games menu for a space. Routes to the selected game's main menu
- * (e.g. {@link ChessMainMenu}) or shows the game list when no game is
- * selected. Reads room state via {@link useSpaceSelector}.
+ * (via {@link GameClientDefinition.MainMenu}) or shows the game list when no
+ * game is selected. Game registry is provided by the composition root via
+ * {@link GamesRegistryProvider}.
  */
 export function GamesMainMenu(): ReactNode {
-  const selectedGame = useSpaceSelector(GamesRoomAttr.selected.from);
-  switch (selectedGame) {
-    case SpaceGame.chess:
-      return <ChessMainMenu />;
-    default:
-      return <GameListMenu />;
+  const games = useGamesRegistry();
+  const selectedGame = useSpaceRoomSelector(GamesRoomAttr.selected.from);
+  const dispatch = useSpaceRoomDispatch();
+  const onBackToGames = useCallback(() => {
+    dispatch(SelectGame({ game: null }));
+  }, [dispatch]);
+
+  if (selectedGame !== null) {
+    const game = games.find((g) => g.id === selectedGame);
+    if (game !== undefined) {
+      const SelectedMenu = game.MainMenu;
+      return <SelectedMenu onBackToGames={onBackToGames} />;
+    }
   }
+  return <GameListMenu games={games} />;
 }

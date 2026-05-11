@@ -1,4 +1,4 @@
-import { optionalProps } from '@gamezilla/client/ui/optional-props';
+import { optionalProps } from '@gamezilla/ui/components/optional-props';
 import { PROFILE_ENTITY_TYPE, ProfileAttr } from '../shared/profile-entities';
 import { Text, type SxProps, type TextVariant } from '@gamezilla/ui';
 import { useQueryAttribute } from '@gamezilla/patch-db/react';

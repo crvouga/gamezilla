@@ -1,5 +1,5 @@
 import { UserDisplayName } from '@gamezilla/profile/client/user-display-name';
-import { optionalProps } from '@gamezilla/client/ui/optional-props';
+import { optionalProps } from '@gamezilla/ui/components/optional-props';
 import {
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceMembershipAttr,

@@ -12,6 +12,7 @@
     "kill": "lsof -ti :8788 | xargs kill -9 2>/dev/null || true",
     "lint": "eslint src --max-warnings 0",
     "preview": "wrangler dev --port 8788",
+    "seed:puzzles": "bun run scripts/seed-chess-puzzles.ts",
     "setup": "bun run scripts/setup-dev-vars.ts && bun run scripts/setup-better-auth-secret.ts",
     "stripe:check": "bun run --filter @gamezilla/stripe check",
     "stripe:sync": "bun run --filter @gamezilla/stripe sync",
@@ -19,21 +20,27 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@gamezilla/api-rpc": "workspace:*",
+    "@gamezilla/api-types": "workspace:*",
+    "@gamezilla/app": "workspace:*",
     "@gamezilla/auth": "workspace:*",
     "@gamezilla/chess": "workspace:*",
     "@gamezilla/client-config": "workspace:*",
     "@gamezilla/lib": "workspace:*",
     "@gamezilla/patch-db": "workspace:*",
     "@gamezilla/profile": "workspace:*",
+    "@gamezilla/room": "workspace:*",
     "@gamezilla/spaces": "workspace:*",
     "@gamezilla/stripe": "workspace:*",
-    "hono": "^4.7.0",
-    "pg": "^8.16.3"
+    "csv-parse": "catalog:",
+    "fzstd": "catalog:",
+    "hono": "catalog:",
+    "pg": "catalog:"
   },
   "devDependencies": {
-    "@types/bun": "^1.3.9",
-    "@types/pg": "^8.11.10",
-    "typescript": "~5.9.2",
-    "wrangler": "^4.54.0"
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "typescript": "catalog:",
+    "wrangler": "catalog:"
   }
 }

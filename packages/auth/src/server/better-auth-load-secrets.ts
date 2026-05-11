@@ -1,5 +1,5 @@
 import type { SecretStore } from '@gamezilla/lib/secret-store';
-import { ApiSecretName } from '@gamezilla/api/config/secret-names';
+import { ApiSecretName } from '@gamezilla/api-types/secret-names';
 
 /** Expo / deep-link schemes — not sensitive; always allowed unless overridden by Doppler list. */
 const DEFAULT_MOBILE_TRUSTED = ['myapp://', 'myapp://*', 'exp://**'] as const;

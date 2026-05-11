@@ -1,5 +1,5 @@
 import { expo } from '@better-auth/expo';
-import type { HostedBetterAuth } from '@gamezilla/api/app/api-hono-types';
+import type { HostedBetterAuth } from '@gamezilla/api-types/api-hono-types';
 import type { SecretStore } from '@gamezilla/lib/secret-store';
 import { betterAuth } from 'better-auth';
 import { bearer } from 'better-auth/plugins';

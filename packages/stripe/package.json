@@ -29,15 +29,15 @@
     "@gamezilla/auth": "workspace:*",
     "@gamezilla/lib": "workspace:*",
     "@gamezilla/patch-db": "workspace:*",
-    "@hono/zod-validator": "^0.7.6",
-    "hono": "^4.7.0",
-    "pg": "^8.16.3",
-    "stripe": "^18.0.0",
-    "zod": "^4.3.6"
+    "@hono/zod-validator": "catalog:",
+    "hono": "catalog:",
+    "pg": "catalog:",
+    "stripe": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "@types/bun": "^1.3.9",
-    "@types/pg": "^8.11.10",
-    "typescript": "~5.9.2"
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "typescript": "catalog:"
   }
 }

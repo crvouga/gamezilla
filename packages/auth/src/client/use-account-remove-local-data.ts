@@ -1,4 +1,4 @@
-import { removeLocalDataForAccount } from '@gamezilla/client/ui/patch-db-bootstrap';
+import { removeLocalDataForAccount } from '@gamezilla/client-runtime/patch-db-runtime';
 import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback } from 'react';

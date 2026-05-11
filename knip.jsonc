@@ -4,7 +4,6 @@
   "ignore": [
     "**/*.bench.ts",
     "packages/client/babel.config.js",
-    "packages/client/public/**/*.worker.js",
     "packages/client/scripts/shims/**",
     "packages/lib/src/sql-client/absurd-sql-db.worker.ts",
     "packages/lib/src/ts-reset.ts",
@@ -46,9 +45,7 @@
     "@gamezilla/api",
     "@gamezilla/auth",
     "@gamezilla/chess",
-    "@gamezilla/client",
     "@gamezilla/profile",
-    "@gamezilla/spaces",
   ],
   "workspaces": {
     ".": {

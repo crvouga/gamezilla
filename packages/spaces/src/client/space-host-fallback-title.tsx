@@ -1,4 +1,4 @@
-import { optionalProps } from '@gamezilla/client/ui/optional-props';
+import { optionalProps } from '@gamezilla/ui/components/optional-props';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,

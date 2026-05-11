@@ -1,7 +1,7 @@
 import { ensureChessBoardExampleRegistered } from './chess-board-register-example';
 import {
-  useSpaceDispatch,
-  useSpaceSelector,
+  useSpaceRoomDispatch,
+  useSpaceRoomSelector,
 } from '@gamezilla/spaces/client/use-space-room-selector';
 import {
   CHESS_SCREEN,
@@ -55,8 +55,8 @@ function BackButtonRow({ onPress }: { onPress: () => void }): ReactNode {
 }
 
 export function ChessSettingsDeveloperUiComponentDetailScreen(): ReactNode {
-  const dispatch = useSpaceDispatch();
-  const selectedName = useSpaceSelector(
+  const dispatch = useSpaceRoomDispatch();
+  const selectedName = useSpaceRoomSelector(
     ChessMainMenuScreenAttr.selectedUiComponentName.from
   );
 

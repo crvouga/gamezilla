@@ -1,5 +1,4 @@
 import type { KeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
-import { SpaceModule } from '@gamezilla/spaces/shared/space-module';
 import {
   Room,
   type RoomCommandPayload,
@@ -9,11 +8,18 @@ import {
 import { KeyValueClientRoomStorage } from '@gamezilla/room/client/adapters/storage/key-value';
 import { WebSocketRoomTransport } from '@gamezilla/room/client/adapters/transport/websocket';
 
+import type { SpaceRoomModule } from './space-module-context';
 import { apiUrlToRoomWebSocketUrl } from './space-room-url';
 
 export type CreateSpaceRoomParams = {
   spaceId: string;
   apiUrl: string;
+  /**
+   * Composed space {@link RoomModule}, constructed by the composition root
+   * via `createSpaceModule([...])`. Threaded in (rather than imported here)
+   * so `@gamezilla/spaces` stays game-agnostic.
+   */
+  module: SpaceRoomModule;
   /**
    * Bulk async key-value storage (localStorage on web, AsyncStorage on
    * native). Must NOT be {@link SecureStorage}: room committed log + outbound
@@ -36,7 +42,8 @@ export type CreateSpaceRoomResult = {
 export async function createSpaceRoom(
   params: CreateSpaceRoomParams
 ): Promise<CreateSpaceRoomResult> {
-  const { spaceId, apiUrl, storage, myId, installId, sessionToken } = params;
+  const { spaceId, apiUrl, module, storage, myId, installId, sessionToken } =
+    params;
   const topic = `space:${spaceId}`;
   const transport = new WebSocketRoomTransport({
     url: apiUrlToRoomWebSocketUrl(apiUrl, topic, sessionToken, installId),
@@ -48,7 +55,7 @@ export async function createSpaceRoom(
 
   const room = await Room.open({
     topic,
-    module: SpaceModule,
+    module,
     storage: clientStorage,
     transport,
     identity: myId,

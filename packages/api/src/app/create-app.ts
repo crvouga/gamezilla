@@ -10,6 +10,7 @@ import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { mountHostedAuthHandler } from '@gamezilla/auth/server';
 import { createAuthApiRoutes } from '@gamezilla/auth/server/auth-routes';
+import type { AuthContext } from '@gamezilla/auth/server/types';
 import { UnauthorizedError } from '@gamezilla/auth/server/unauthorized-error';
 import { createClientConfigApp } from '@gamezilla/client-config/server/route';
 import { ApiSecretName } from '../config/secret-names';
@@ -131,7 +132,7 @@ export async function createApiApp(config: ApiHandlerConfig) {
   /** RPC client keys use the literal mount path; wire URL stays `basePath`-driven. */
   const patchMount = resolvedBase as '/patch-db';
 
-  const app = new Hono<ApiHonoEnv>()
+  const app = new Hono<ApiHonoEnv<AuthContext>>()
     .use('*', createRequestDbMiddleware(secretStore))
     .use('*', apiCors)
     .route('/', healthApp)
