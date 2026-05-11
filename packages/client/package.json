@@ -51,6 +51,7 @@
     "@react-navigation/elements": "catalog:",
     "@react-navigation/native": "catalog:",
     "@react-navigation/native-stack": "catalog:",
+    "@shopify/react-native-skia": "catalog:",
     "absurd-sql": "catalog:",
     "canvaskit-wasm": "catalog:",
     "expo": "catalog:",
