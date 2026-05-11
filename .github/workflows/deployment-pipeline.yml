@@ -155,6 +155,8 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           doppler: 'false'
+      - name: Circular dependencies (packages/)
+        run: bun run check:circular-deps
       - name: Dependency cruiser
         run: bun run depcruise:ci
 

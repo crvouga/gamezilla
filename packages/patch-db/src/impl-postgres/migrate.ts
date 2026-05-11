@@ -23,6 +23,41 @@ function isIgnorableOwnershipError(error: unknown): boolean {
   );
 }
 
+function isNoActiveTransactionError(error: unknown): boolean {
+  const e = toPgLikeError(error);
+  return (
+    e.code === '25P01' &&
+    /savepoint can only be used in transaction blocks/i.test(e.message ?? '')
+  );
+}
+
+async function runStatementWithSavepoint(
+  sqlClient: SqlClient,
+  statement: string
+): Promise<void> {
+  const savepointName = 'patch_db_migrate_stmt';
+  let hasSavepoint = false;
+  try {
+    await sqlClient.run(`SAVEPOINT ${savepointName}`);
+    hasSavepoint = true;
+  } catch (error) {
+    if (!isNoActiveTransactionError(error)) throw error;
+  }
+
+  try {
+    await sqlClient.run(statement);
+    if (hasSavepoint) {
+      await sqlClient.run(`RELEASE SAVEPOINT ${savepointName}`);
+    }
+  } catch (error) {
+    if (hasSavepoint) {
+      await sqlClient.run(`ROLLBACK TO SAVEPOINT ${savepointName}`);
+      await sqlClient.run(`RELEASE SAVEPOINT ${savepointName}`);
+    }
+    throw error;
+  }
+}
+
 /** Idempotent Postgres DDL for patches + snapshots (runs every time; IF NOT EXISTS). */
 async function runPatchDbPostgresMigrations(
   sqlClient: SqlClient,
@@ -36,7 +71,7 @@ async function runPatchDbPostgresMigrations(
   });
   for (const stmt of statements) {
     try {
-      await sqlClient.run(stmt);
+      await runStatementWithSavepoint(sqlClient, stmt);
     } catch (error) {
       if (isIgnorableOwnershipError(error)) {
         const e = toPgLikeError(error);

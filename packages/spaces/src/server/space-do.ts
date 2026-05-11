@@ -1,5 +1,5 @@
-import { SpaceModule } from '@gamezilla/spaces/shared/space-module';
 import { createDurableObjectAdapter } from '@gamezilla/room/server/adapters/durable-object';
+import { SpaceModule } from '@gamezilla/spaces/shared/space-module';
 
 /**
  * Durable Object: one instance per space topic (`idFromName(topic)`).

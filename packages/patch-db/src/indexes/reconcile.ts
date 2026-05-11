@@ -34,6 +34,14 @@ function isIgnorableOwnershipError(error: unknown): boolean {
   );
 }
 
+function isNoActiveTransactionError(error: unknown): boolean {
+  const e = toPgLike(error);
+  return (
+    e.code === '25P01' &&
+    /savepoint can only be used in transaction blocks/i.test(e.message ?? '')
+  );
+}
+
 export type ReconcileSnapshotIndexesArgs = {
   sqlClient: SqlClient;
   logger: Logger;
@@ -100,9 +108,25 @@ async function runOrSkip(
   stmt: string,
   log: Logger
 ): Promise<void> {
+  const savepointName = 'patch_db_reconcile_stmt';
+  let hasSavepoint = false;
   try {
+    try {
+      await sqlClient.run(`SAVEPOINT ${savepointName}`);
+      hasSavepoint = true;
+    } catch (error) {
+      if (!isNoActiveTransactionError(error)) throw error;
+    }
+
     await sqlClient.run(stmt);
+    if (hasSavepoint) {
+      await sqlClient.run(`RELEASE SAVEPOINT ${savepointName}`);
+    }
   } catch (error) {
+    if (hasSavepoint) {
+      await sqlClient.run(`ROLLBACK TO SAVEPOINT ${savepointName}`);
+      await sqlClient.run(`RELEASE SAVEPOINT ${savepointName}`);
+    }
     if (isIgnorableOwnershipError(error)) {
       log.warn('patch-db index reconcile: skipping ddl (non-owner)', {
         statement: stmt.slice(0, 80),

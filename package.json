@@ -6,10 +6,11 @@
     "packages/*"
   ],
   "scripts": {
-    "check": "bun run check:format && bun run syncpack:lint && bun run check:audit && bun run check:actionlint && bun run check:gitleaks && bun run check:tc && bun run check:lint && bun run knip:ci && bun run depcruise:ci && bun run check:test && bun run check:build && bun run i18n:check",
+    "check": "bun run check:format && bun run syncpack:lint && bun run check:audit && bun run check:actionlint && bun run check:gitleaks && bun run check:tc && bun run check:lint && bun run knip:ci && bun run check:circular-deps && bun run depcruise:ci && bun run check:test && bun run check:build && bun run i18n:check",
     "check:actionlint": "actionlint -color",
     "check:audit": "bun audit --audit-level high",
     "check:build": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo run build --filter='!@gamezilla/client'",
+    "check:circular-deps": "bun run scripts/check-circular-deps.ts",
     "check:deployment-pipeline": "bun run packages/infra/src/bin/run-deployment-pipeline-checks.ts",
     "check:format": "prettier --check .",
     "check:gitleaks": "gitleaks detect --redact --verbose --no-banner --log-opts=-1",
