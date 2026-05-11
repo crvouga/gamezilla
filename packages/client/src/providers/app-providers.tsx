@@ -22,6 +22,7 @@ import { SecureStorageProvider } from './secure-storage-provider';
 import { SkiaRootProvider } from './skia-root-provider';
 import { SqlClientProvider } from './sql-client-provider';
 import { SuspenseRootProvider } from './suspense-root-provider';
+import { TtsProviderWrapper } from './tts-provider';
 import { UiPortalsProvider } from './ui-portals-provider';
 
 void preventSplashAutoHide();
@@ -40,26 +41,28 @@ export function AppProviders({ children }: { children: ReactNode }): ReactNode {
                       <SecureStorageProvider>
                         <KeyValueStorageProvider>
                           <ConfigServiceProviderWrapper>
-                            <ApiClientProviderWrapper>
-                              <SqlClientProvider>
-                                <PatchDbProvider>
-                                  <DeviceEntityBootstrapProvider>
-                                    <PatchDbLocalDataActionsProvider>
-                                      <ProfileProvider>
-                                        <AuthBridge />
-                                        <AuthModalsProvider>
-                                          <GamesBootstrapProvider>
-                                            <CommandRegistryProviderWrapper>
-                                              {children}
-                                            </CommandRegistryProviderWrapper>
-                                          </GamesBootstrapProvider>
-                                        </AuthModalsProvider>
-                                      </ProfileProvider>
-                                    </PatchDbLocalDataActionsProvider>
-                                  </DeviceEntityBootstrapProvider>
-                                </PatchDbProvider>
-                              </SqlClientProvider>
-                            </ApiClientProviderWrapper>
+                            <TtsProviderWrapper>
+                              <ApiClientProviderWrapper>
+                                <SqlClientProvider>
+                                  <PatchDbProvider>
+                                    <DeviceEntityBootstrapProvider>
+                                      <PatchDbLocalDataActionsProvider>
+                                        <ProfileProvider>
+                                          <AuthBridge />
+                                          <AuthModalsProvider>
+                                            <GamesBootstrapProvider>
+                                              <CommandRegistryProviderWrapper>
+                                                {children}
+                                              </CommandRegistryProviderWrapper>
+                                            </GamesBootstrapProvider>
+                                          </AuthModalsProvider>
+                                        </ProfileProvider>
+                                      </PatchDbLocalDataActionsProvider>
+                                    </DeviceEntityBootstrapProvider>
+                                  </PatchDbProvider>
+                                </SqlClientProvider>
+                              </ApiClientProviderWrapper>
+                            </TtsProviderWrapper>
                           </ConfigServiceProviderWrapper>
                         </KeyValueStorageProvider>
                       </SecureStorageProvider>

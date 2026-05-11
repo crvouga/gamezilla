@@ -16,7 +16,10 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@dicebear/collection": "catalog:",
+    "@dicebear/core": "catalog:",
     "@gamezilla/lib": "workspace:*",
+    "@gamezilla/tts": "workspace:*",
     "@gorhom/bottom-sheet": "catalog:",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",

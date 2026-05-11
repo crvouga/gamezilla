@@ -1,0 +1,91 @@
+/*
+select distinct theme
+from snapshots,
+     jsonb_array_elements_text(attributes->'chess.puzzle/themes') as theme
+where entity_type = 'chess.puzzle';
+*/
+export const CHESS_PUZZLE_THEMES = [
+  'advancedPawn',
+  'advantage',
+  'anastasiaMate',
+  'arabianMate',
+  'attackingF2F7',
+  'attraction',
+  'backRankMate',
+  'balestraMate',
+  'bishopEndgame',
+  'blindSwineMate',
+  'bodenMate',
+  'capturingDefender',
+  'castling',
+  'clearance',
+  'collinearMove',
+  'cornerMate',
+  'crushing',
+  'defensiveMove',
+  'deflection',
+  'discoveredAttack',
+  'discoveredCheck',
+  'doubleBishopMate',
+  'doubleCheck',
+  'dovetailMate',
+  'enPassant',
+  'endgame',
+  'epauletteMate',
+  'equality',
+  'exposedKing',
+  'fork',
+  'hangingPiece',
+  'hookMate',
+  'interference',
+  'intermezzo',
+  'killBoxMate',
+  'kingsideAttack',
+  'knightEndgame',
+  'long',
+  'master',
+  'masterVsMaster',
+  'mate',
+  'mateIn1',
+  'mateIn2',
+  'mateIn3',
+  'mateIn4',
+  'mateIn5',
+  'middlegame',
+  'morphysMate',
+  'oneMove',
+  'opening',
+  'operaMate',
+  'pawnEndgame',
+  'pillsburysMate',
+  'pin',
+  'promotion',
+  'queenEndgame',
+  'queenRookEndgame',
+  'queensideAttack',
+  'quietMove',
+  'rookEndgame',
+  'sacrifice',
+  'short',
+  'skewer',
+  'smotheredMate',
+  'superGM',
+  'swallowstailMate',
+  'trappedPiece',
+  'triangleMate',
+  'underPromotion',
+  'veryLong',
+  'vukovicMate',
+  'xRayAttack',
+  'zugzwang',
+] as const;
+
+export type ChessPuzzleTheme = (typeof CHESS_PUZZLE_THEMES)[number];
+
+export const CHESS_PUZZLE_THEME_SET: ReadonlySet<ChessPuzzleTheme> = new Set(
+  CHESS_PUZZLE_THEMES
+);
+
+export function isChessPuzzleTheme(s: string): s is ChessPuzzleTheme {
+  return (CHESS_PUZZLE_THEME_SET as ReadonlySet<string>).has(s);
+}

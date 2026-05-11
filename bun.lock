@@ -41,6 +41,7 @@
         "@gamezilla/room": "workspace:*",
         "@gamezilla/spaces": "workspace:*",
         "@gamezilla/stripe": "workspace:*",
+        "@gamezilla/tts": "workspace:*",
         "csv-parse": "catalog:",
         "fzstd": "catalog:",
         "hono": "catalog:",
@@ -139,6 +140,7 @@
         "@gamezilla/profile": "workspace:*",
         "@gamezilla/room-example": "workspace:*",
         "@gamezilla/spaces": "workspace:*",
+        "@gamezilla/tts": "workspace:*",
         "@gamezilla/ui": "workspace:*",
         "@gorhom/bottom-sheet": "catalog:",
         "@jlongster/sql.js": "catalog:",
@@ -456,6 +458,23 @@
         "typescript": "catalog:",
       },
     },
+    "packages/tts": {
+      "name": "@gamezilla/tts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@gamezilla/lib": "workspace:*",
+        "@lingui/core": "catalog:",
+        "@lingui/react": "catalog:",
+        "expo-audio": "catalog:",
+        "hono": "catalog:",
+        "react": "catalog:",
+        "react-native": "catalog:",
+      },
+      "devDependencies": {
+        "@types/react": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "packages/turbo-cache": {
       "name": "@gamezilla/turbo-cache",
       "version": "1.0.0",
@@ -471,7 +490,10 @@
       "name": "@gamezilla/ui",
       "version": "0.0.0",
       "dependencies": {
+        "@dicebear/collection": "catalog:",
+        "@dicebear/core": "catalog:",
         "@gamezilla/lib": "workspace:*",
+        "@gamezilla/tts": "workspace:*",
         "@gorhom/bottom-sheet": "catalog:",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
@@ -1135,6 +1157,8 @@
     "@gamezilla/stripe": ["@gamezilla/stripe@workspace:packages/stripe"],
 
     "@gamezilla/stripe-cli": ["@gamezilla/stripe-cli@workspace:packages/stripe-cli"],
+
+    "@gamezilla/tts": ["@gamezilla/tts@workspace:packages/tts"],
 
     "@gamezilla/turbo-cache": ["@gamezilla/turbo-cache@workspace:packages/turbo-cache"],
 

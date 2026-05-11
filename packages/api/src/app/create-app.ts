@@ -1,22 +1,23 @@
+import { mountHostedAuthHandler } from '@gamezilla/auth/server';
+import { createAuthApiRoutes } from '@gamezilla/auth/server/auth-routes';
+import type { AuthContext } from '@gamezilla/auth/server/types';
+import { UnauthorizedError } from '@gamezilla/auth/server/unauthorized-error';
+import { appAuth } from '@gamezilla/auth/shared/auth-context';
+import { createClientConfigApp } from '@gamezilla/client-config/server/route';
 import { assert, ValidationError } from '@gamezilla/lib/assert';
 import { createLogger } from '@gamezilla/lib/logger';
 import type { PatchDbApiConfig } from '@gamezilla/patch-db/api';
 import { createPatchDbApiHandler } from '@gamezilla/patch-db/api';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
+import { createSpaceApp } from '@gamezilla/spaces/server/route';
 import { makeStripeClient } from '@gamezilla/stripe/make-stripe-client';
 import { createStripeApp } from '@gamezilla/stripe/stripe-app';
+import { createTtsAppFromBindings } from '@gamezilla/tts/server';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import { mountHostedAuthHandler } from '@gamezilla/auth/server';
-import { createAuthApiRoutes } from '@gamezilla/auth/server/auth-routes';
-import { appAuth } from '@gamezilla/auth/shared/auth-context';
-import type { AuthContext } from '@gamezilla/auth/server/types';
-import { UnauthorizedError } from '@gamezilla/auth/server/unauthorized-error';
-import { createClientConfigApp } from '@gamezilla/client-config/server/route';
 import { ApiSecretName } from '../config/secret-names';
 import { healthApp } from '../health/route';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
-import { createSpaceApp } from '@gamezilla/spaces/server/route';
 import type { ApiHonoEnv } from './api-hono-types';
 import type { ApiHandlerConfig } from './config';
 import { apiCors } from './cors';
@@ -109,7 +110,7 @@ function createApiErrorHandler() {
  * [Hono best practices](https://hono.dev/docs/guides/best-practices).
  */
 export async function createApiApp(config: ApiHandlerConfig) {
-  const { secretStore } = config;
+  const { secretStore, ttsAudioBucket } = config;
 
   const stripeRaw = await secretStore.getOptional(
     ApiSecretName.stripeSecretKey
@@ -119,6 +120,26 @@ export async function createApiApp(config: ApiHandlerConfig) {
       ? stripeRaw.trim()
       : null;
   const stripe = stripeKey !== null ? makeStripeClient(stripeKey) : null;
+
+  const ttsApp =
+    ttsAudioBucket !== undefined
+      ? await createTtsAppFromBindings({
+          secretStore,
+          r2Bucket: ttsAudioBucket,
+        })
+      : null;
+  if (ttsApp === null) {
+    log.warn('tts routes not mounted', {
+      reason:
+        ttsAudioBucket === undefined
+          ? 'TTS_AUDIO R2 binding missing — add [[r2_buckets]] to wrangler.toml'
+          : `${ApiSecretName.elevenLabsApiKey} unset in Doppler — set it to enable TTS`,
+    });
+  } else {
+    log.info('tts routes mounted', {
+      paths: ['/tts/synthesize', '/tts/audio/:hash'],
+    });
+  }
 
   const { honoApp: patchDbApp, basePath: resolvedBase } =
     createPatchDbApiHandler(
@@ -134,12 +155,14 @@ export async function createApiApp(config: ApiHandlerConfig) {
   /** RPC client keys use the literal mount path; wire URL stays `basePath`-driven. */
   const patchMount = resolvedBase as '/patch-db';
 
-  const app = new Hono<ApiHonoEnv<AuthContext>>()
+  const baseApp = new Hono<ApiHonoEnv<AuthContext>>()
     .use('*', createRequestDbMiddleware(secretStore))
     .use('*', apiCors)
     .route('/', healthApp)
     .route('/', createClientConfigApp(log, secretStore))
-    .route('/', createAuthApiRoutes())
+    .route('/', createAuthApiRoutes());
+
+  const app = (ttsApp !== null ? baseApp.route('/', ttsApp) : baseApp)
     .route(
       '/',
       createStripeApp({

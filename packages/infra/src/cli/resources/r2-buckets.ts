@@ -8,6 +8,7 @@ const CF_API = 'https://api.cloudflare.com/client/v4';
 
 const BUCKET_NAMES: readonly string[] = [
   PROJECT_CONFIG.cloudflare.turboCacheBucket,
+  PROJECT_CONFIG.cloudflare.ttsAudioBucket,
 ];
 
 const BUCKET_LOCATION = 'ENAM';

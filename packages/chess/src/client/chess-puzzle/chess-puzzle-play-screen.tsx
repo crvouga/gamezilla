@@ -14,6 +14,7 @@ import {
   IconButton,
   IconSymbol,
   Pressable,
+  SpeakingAvatar,
   Text,
   useTheme,
 } from '@gamezilla/ui';
@@ -37,8 +38,9 @@ import {
 } from '../../shared/chess-puzzle-session';
 import { ChessBoard } from '../chess-board/chess-board';
 
-import type { SolveStatus } from './use-chess-puzzle-solver';
+import { getPuzzlePlayDialog } from './chess-puzzle-play-dialog';
 import { usePuzzleSolver } from './use-chess-puzzle-solver';
+import { usePuzzleDialogEvent } from './use-puzzle-dialog-event';
 
 const BOARD_MAX_WIDTH = 720;
 const BACK_BUTTON_SIZE = 40;
@@ -115,15 +117,6 @@ function EmptyPickPuzzle(): ReactNode {
   );
 }
 
-function statusLabelNode(status: SolveStatus): ReactNode {
-  if (status === 'loading') return <Trans>Loading puzzle…</Trans>;
-  if (status === 'solving') return <Trans>Your move</Trans>;
-  if (status === 'wrong') return <Trans>Wrong — try again</Trans>;
-  if (status === 'solved') return <Trans>Solved</Trans>;
-  if (status === 'invalid') return <Trans>Invalid puzzle data</Trans>;
-  return <Trans>Ready</Trans>;
-}
-
 /**
  * Keep this puzzle in {@link SyncPatchDb} active entity queries while playing.
  * Otherwise closing the picker tears down the list subscription and poll may
@@ -179,55 +172,6 @@ function usePuzzleEntity(puzzleId: string): {
   return { fen, movesStr, rating, themes };
 }
 
-/**
- * Each text row is pinned to a fixed line count so transitioning from
- * loading → loaded (rating 0 → 1234, no themes → comma list, status
- * text length changes) can never wrap and shift the rows below.
- */
-function PuzzleHeaderTexts({
-  puzzleId,
-  rating,
-  themes,
-  status,
-}: {
-  puzzleId: string;
-  rating: number;
-  themes: readonly string[];
-  status: SolveStatus;
-}): ReactNode {
-  const themesLine =
-    themes.length > 0 ? themes.slice(0, 6).join(', ') : undefined;
-  return (
-    <Box sx={{ gap: 2, alignItems: 'center' }}>
-      <Text
-        variant="title"
-        numberOfLines={1}
-        ellipsizeMode="tail"
-        sx={{ textAlign: 'center' }}
-        label={
-          <Trans>
-            Puzzle {puzzleId} · rating {rating}
-          </Trans>
-        }
-      />
-      <Text
-        variant="caption"
-        numberOfLines={1}
-        ellipsizeMode="tail"
-        sx={{ color: 'textSecondary', textAlign: 'center' }}
-        label={themesLine ?? <Trans>No themes listed</Trans>}
-      />
-      <Text
-        variant="body"
-        numberOfLines={1}
-        ellipsizeMode="tail"
-        sx={{ textAlign: 'center', opacity: 0.9 }}
-        label={statusLabelNode(status)}
-      />
-    </Box>
-  );
-}
-
 function ResetPuzzleButton({ onPress }: { onPress: () => void }): ReactNode {
   return (
     <Pressable onPress={onPress}>
@@ -240,10 +184,14 @@ function ResetPuzzleButton({ onPress }: { onPress: () => void }): ReactNode {
 
 function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
   const dispatch = useSpaceRoomDispatch();
-  const { fen, movesStr, rating, themes } = usePuzzleEntity(puzzleId);
+  const { i18n } = useLingui();
+  const { fen, movesStr, themes } = usePuzzleEntity(puzzleId);
 
-  const { displayFen, layoutKey, status, orientation, onMove } =
+  const { displayFen, layoutKey, status, orientation, onMove, solveIdx } =
     usePuzzleSolver({ fen, movesStr, puzzleId });
+
+  const dialogEvent = usePuzzleDialogEvent({ status, solveIdx });
+  const coachMessage = i18n._(getPuzzlePlayDialog(dialogEvent, themes));
 
   const backToPuzzleMenu = useCallback(() => {
     dispatch(ClearChessPuzzlePlay({}));
@@ -267,12 +215,7 @@ function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
         }}
         style={{ width: '100%' }}
       >
-        <PuzzleHeaderTexts
-          puzzleId={puzzleId}
-          rating={rating}
-          themes={themes}
-          status={status}
-        />
+        <SpeakingAvatar message={coachMessage} />
         <ChessBoard
           controlled
           fen={displayFen ?? ''}

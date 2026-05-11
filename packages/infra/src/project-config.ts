@@ -7,6 +7,8 @@ export const PROJECT_CONFIG = {
   cloudflare: {
     pagesProject: 'gamezilla-client',
     turboCacheBucket: 'turborepo-cache',
+    /** R2 bucket for cached TTS audio — must match `packages/api/wrangler.toml` `[[r2_buckets]] bucket_name`. */
+    ttsAudioBucket: 'gamezilla-tts-audio',
     /** Worker name — must match `packages/api/wrangler.toml` `name`. */
     apiWorker: 'gamezilla-api',
     /** Worker name — must match `packages/turbo-cache/wrangler.toml` `name`. */

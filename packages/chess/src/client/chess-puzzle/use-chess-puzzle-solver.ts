@@ -39,6 +39,10 @@ export function usePuzzleSolver(args: {
   /** Side the human sits on for this puzzle — fixed for the session, not derived from live FEN. */
   orientation: 'white' | 'black';
   onMove: (m: Move) => void;
+  /** Index of the next expected token in the solution line (server-authoritative). */
+  solveIdx: number;
+  /** Total number of solution tokens (incl. opponent's setup move). */
+  totalTokens: number;
 } {
   const { fen, movesStr, puzzleId } = args;
   const dispatch = useSpaceRoomDispatch();
@@ -50,6 +54,8 @@ export function usePuzzleSolver(args: {
   const orientation = useSpaceRoomSelector(
     ChessPuzzlePlayAttr.orientation.from
   );
+  const solveIdx = useSpaceRoomSelector(ChessPuzzlePlayAttr.solveIdx.from);
+  const roomMoves = useSpaceRoomSelector(ChessPuzzlePlayAttr.moves.from);
 
   useEffect(() => {
     if (roomStatus !== CHESS_PUZZLE_PLAY_STATUS.idle) return;
@@ -69,5 +75,16 @@ export function usePuzzleSolver(args: {
       ? 'loading'
       : roomStatus;
 
-  return { displayFen, layoutKey, status, orientation, onMove };
+  const totalTokens =
+    roomMoves.trim().length === 0 ? 0 : roomMoves.trim().split(/\s+/).length;
+
+  return {
+    displayFen,
+    layoutKey,
+    status,
+    orientation,
+    onMove,
+    solveIdx,
+    totalTokens,
+  };
 }

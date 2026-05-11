@@ -27,4 +27,10 @@ export const ApiSecretName = {
   apiUrl: 'API_URL',
   stripeSecretKey: 'STRIPE_SECRET_KEY',
   stripeWebhookSecret: 'STRIPE_WEBHOOK_SECRET',
+  /** ElevenLabs API key for TTS synthesis. When unset, TTS is not mounted. */
+  elevenLabsApiKey: 'ELEVEN_LABS_API_KEY',
+  /** Optional default ElevenLabs voice id; mirrors `TtsDopplerKey.elevenLabsDefaultVoiceId`. */
+  elevenLabsDefaultVoiceId: 'ELEVEN_LABS_DEFAULT_VOICE_ID',
+  /** Optional default ElevenLabs model; mirrors `TtsDopplerKey.elevenLabsDefaultModel`. */
+  elevenLabsDefaultModel: 'ELEVEN_LABS_DEFAULT_MODEL',
 } as const;

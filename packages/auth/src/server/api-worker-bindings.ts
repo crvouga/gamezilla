@@ -1,3 +1,5 @@
+import type { R2Bucket } from '@gamezilla/lib/object-store/impl-r2';
+
 /**
  * Worker `Bindings` shape for `ApiHonoEnv`. Duplicated from
  * `packages/api/src/config/env.ts` (`ApiWorkerEnv`) so `@gamezilla/auth` does not
@@ -18,4 +20,6 @@ export type ApiWorkerBindings = {
   DOPPLER_CONFIG?: string;
   HYPERDRIVE: HyperdriveBinding;
   SPACE?: SpaceNamespace;
+  /** Cloudflare R2 bucket for cached TTS audio blobs. Optional — omit to disable TTS. */
+  TTS_AUDIO?: R2Bucket;
 };

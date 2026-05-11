@@ -19,6 +19,8 @@ export type SpaceNamespace = {
   get(id: object): { fetch(request: Request): Promise<Response> };
 };
 
+import type { R2Bucket } from '@gamezilla/lib/object-store/impl-r2';
+
 /** Cloudflare Hyperdrive binding (`[[hyperdrive]]` in wrangler). */
 export type HyperdriveBinding = {
   readonly connectionString: string;
@@ -32,6 +34,8 @@ export type ApiWorkerEnv = {
   HYPERDRIVE: HyperdriveBinding;
   /** Space Durable Object namespace (one DO per space topic). Omitted in unit tests. */
   SPACE?: SpaceNamespace;
+  /** R2 bucket binding for cached TTS audio. Omitted in environments without TTS. */
+  TTS_AUDIO?: R2Bucket;
 };
 
 /**

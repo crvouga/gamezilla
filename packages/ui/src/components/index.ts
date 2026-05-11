@@ -72,6 +72,7 @@ export { List, ListItem, type ListProps, type ListItemProps } from './list';
 export { Spinner, type SpinnerProps } from './spinner';
 export { Skeleton, type SkeletonProps } from './skeleton';
 export { ProgressBar, type ProgressBarProps } from './progress-bar';
+export { SpeakingAvatar, type SpeakingAvatarProps } from './speaking-avatar';
 export {
   DismissibleBanner,
   DismissibleBannerPortalProvider,

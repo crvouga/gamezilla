@@ -113,6 +113,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   return await createApiApp({
     pubSub,
     secretStore,
+    ...(env.TTS_AUDIO !== undefined ? { ttsAudioBucket: env.TTS_AUDIO } : {}),
   });
 }
 

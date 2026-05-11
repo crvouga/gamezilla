@@ -1,0 +1,43 @@
+/**
+ * Content-addressed binary object storage.
+ *
+ * Tiny, async, transport-agnostic surface — exactly what a "blob keyed by id"
+ * cache needs (TTS audio, exported files, derived avatars, etc.). Implementations
+ * live in sibling `impl-*.ts` files (R2, in-memory, future S3 / fs / Bun.s3).
+ *
+ * Mirrors the {@link ../sql-client/interface.ts SqlClient} shape: one interface,
+ * multiple `impl-*.ts` siblings, plus a conformance suite in `interface.test.ts`.
+ *
+ * Read semantics:
+ *   - {@link ObjectStore.get} returns `null` when the key is missing. Transport /
+ *     parse errors throw.
+ *   - {@link ObjectStore.head} returns `false` for a missing key (never throws on
+ *     "not found"). Transport errors throw.
+ *
+ * Write semantics:
+ *   - {@link ObjectStore.put} MUST be idempotent: writing the same key twice
+ *     overwrites without error. Stored `contentType` MUST round-trip through
+ *     {@link ObjectStore.get}.
+ *   - {@link ObjectStore.delete} on a missing key is a no-op (does not throw).
+ */
+
+export interface StoredObject {
+  /** Stream of stored bytes. Single-use; consume or discard before issuing more I/O on the same store. */
+  readonly body: ReadableStream<Uint8Array>;
+  readonly contentType: string;
+  readonly size: number;
+}
+
+export interface ObjectStore {
+  /** Returns the stored object, or `null` if no value exists for `key`. */
+  get(key: string): Promise<StoredObject | null>;
+
+  /** Idempotently writes `bytes` under `key` with the given `contentType`. */
+  put(key: string, bytes: Uint8Array, contentType: string): Promise<void>;
+
+  /** `true` iff a value exists for `key`. Never throws on "not found". */
+  head(key: string): Promise<boolean>;
+
+  /** Removes the value at `key` if present. No-op when missing. */
+  delete(key: string): Promise<void>;
+}

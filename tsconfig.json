@@ -31,6 +31,7 @@
       "@gamezilla/profile/*": ["./packages/profile/src/*"],
       "@gamezilla/auth/*": ["./packages/auth/src/*"],
       "@gamezilla/spaces/*": ["./packages/spaces/src/*"],
+      "@gamezilla/tts/*": ["./packages/tts/src/*"],
       "@gamezilla/client-config/*": ["./packages/client-config/src/*"],
       "@gamezilla/app/*": ["./packages/app/src/*"]
     }
@@ -63,6 +64,8 @@
     "packages/auth/src/**/*.tsx",
     "packages/spaces/src/**/*.ts",
     "packages/spaces/src/**/*.tsx",
+    "packages/tts/src/**/*.ts",
+    "packages/tts/src/**/*.tsx",
     "packages/client-config/src/**/*.ts",
     "packages/client-config/src/**/*.tsx",
     "packages/client-config/scripts/**/*.ts",

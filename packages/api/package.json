@@ -34,6 +34,7 @@
     "@gamezilla/room": "workspace:*",
     "@gamezilla/spaces": "workspace:*",
     "@gamezilla/stripe": "workspace:*",
+    "@gamezilla/tts": "workspace:*",
     "csv-parse": "catalog:",
     "fzstd": "catalog:",
     "hono": "catalog:",

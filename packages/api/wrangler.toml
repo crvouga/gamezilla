@@ -12,6 +12,10 @@ binding = "HYPERDRIVE"
 id = "3b8852ba7f4a43a981f672e3140b6acd"
 localConnectionString = "postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable"
 
+[[r2_buckets]]
+binding = "TTS_AUDIO"
+bucket_name = "gamezilla-tts-audio"
+
 [[durable_objects.bindings]]
 name = "SPACE"
 class_name = "Space"
