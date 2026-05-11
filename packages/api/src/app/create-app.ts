@@ -118,7 +118,10 @@ async function resolveTtsApp(config: ApiHandlerConfig) {
   const { secretStore, ttsAudioBucket } = config;
   const ttsApp =
     ttsAudioBucket !== undefined
-      ? await createTtsAppFromBindings({ secretStore, r2Bucket: ttsAudioBucket })
+      ? await createTtsAppFromBindings({
+          secretStore,
+          r2Bucket: ttsAudioBucket,
+        })
       : null;
   if (ttsApp === null) {
     log.warn('tts routes not mounted', {

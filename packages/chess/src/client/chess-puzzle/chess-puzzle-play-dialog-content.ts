@@ -12,7 +12,7 @@
 import type { MessageDescriptor } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import type { ChessPuzzleTheme } from '../../shared/chess-puzzle-themes';
-import type { DialogEvent } from './chess-puzzle-play-dialog';
+import type { DialogEvent } from './chess-puzzle-play-dialog-event';
 
 type ThemedEntry = readonly [ChessPuzzleTheme, MessageDescriptor];
 type FallbackEntry = readonly [DialogEvent, MessageDescriptor];

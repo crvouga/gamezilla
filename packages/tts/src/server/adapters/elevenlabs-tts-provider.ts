@@ -10,7 +10,8 @@ import {
  * shared "Rachel" voice and the latest low-latency turbo model are both
  * available on the free / starter tiers.
  */
-export const ELEVEN_LABS_DEFAULT_VOICE_ID = '7WggD3IoWTIPT19PNyrW';
+export const ELEVEN_LABS_DEFAULT_VOICE_ID = 'Zv7P8CISODgj9wDHyyI9';
+// '7WggD3IoWTIPT19PNyrW';
 // '1SM7GgM6IMuvQlz2BwM3';
 // '21m00Tcm4TlvDq8ikWAM';
 export const ELEVEN_LABS_DEFAULT_MODEL = 'eleven_turbo_v2_5';

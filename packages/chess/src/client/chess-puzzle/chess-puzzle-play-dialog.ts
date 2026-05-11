@@ -32,20 +32,14 @@ import {
   START_ENTRIES,
   WRONG_ENTRIES,
 } from './chess-puzzle-play-dialog-content';
+import {
+  DIALOG_EVENT,
+  type DialogEvent,
+} from './chess-puzzle-play-dialog-event';
+
+export { DIALOG_EVENT, type DialogEvent };
 
 type DialogMessage = MessageDescriptor;
-
-export const DIALOG_EVENT = {
-  loading: 'loading',
-  invalid: 'invalid',
-  start: 'start',
-  progress: 'progress',
-  wrong: 'wrong',
-  retry: 'retry',
-  solved: 'solved',
-} as const;
-
-export type DialogEvent = (typeof DIALOG_EVENT)[keyof typeof DIALOG_EVENT];
 
 const DIALOG_EVENT_VALUES: readonly DialogEvent[] = Object.values(DIALOG_EVENT);
 
