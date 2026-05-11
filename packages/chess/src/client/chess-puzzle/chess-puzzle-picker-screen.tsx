@@ -2,7 +2,7 @@ import { RoomMetaAttr } from '@gamezilla/room';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
-} from '@gamezilla/spaces/client/use-space-room-selector';
+} from '@gamezilla/spaces/client/room/use-space-room-selector';
 import { Box, IconButton, IconSymbol, Text, useTheme } from '@gamezilla/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, type ReactNode } from 'react';

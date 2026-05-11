@@ -1,5 +1,5 @@
-import { SpaceMembersGuestsBlock } from './space-members-guests-block';
-import { SpaceMembersHostBlock } from './space-members-host-block';
+import { SpaceMembersGuestsBlock } from '../members/space-members-guests-block';
+import { SpaceMembersHostBlock } from '../members/space-members-host-block';
 import { Box, ScrollView } from '@gamezilla/ui';
 import type { ReactNode } from 'react';
 

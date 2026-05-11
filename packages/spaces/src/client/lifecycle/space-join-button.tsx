@@ -1,6 +1,6 @@
 import { useSpaceActions } from './space-actions';
-import { useCurrentSpaceCount } from './use-current-space-count';
-import { useCurrentSpaceRole } from './use-current-space-role';
+import { useCurrentSpaceCount } from '../use-current-space-count';
+import { useCurrentSpaceRole } from '../use-current-space-role';
 import { Button } from '@gamezilla/ui';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';

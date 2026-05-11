@@ -9,7 +9,7 @@
  * size when the user switches tabs; long payloads scroll inside `JsonView`.
  */
 
-import { useSpaceRoomSelector } from './use-space-room-selector';
+import { useSpaceRoomSelector } from '../room/use-space-room-selector';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,

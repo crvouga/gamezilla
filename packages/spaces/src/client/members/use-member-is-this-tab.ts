@@ -1,5 +1,5 @@
 import { useMyId } from '@gamezilla/auth/client/use-current-user';
-import { useSpacePresence } from './use-space-presence';
+import { useSpacePresence } from '../room/use-space-presence';
 
 /**
  * Whether `profileId` corresponds to the current user *and* the active room

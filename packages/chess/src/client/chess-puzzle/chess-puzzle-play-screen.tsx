@@ -7,7 +7,7 @@ import {
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
-} from '@gamezilla/spaces/client/use-space-room-selector';
+} from '@gamezilla/spaces/client/room/use-space-room-selector';
 import {
   Box,
   Card,

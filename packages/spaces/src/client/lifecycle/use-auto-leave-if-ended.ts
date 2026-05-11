@@ -1,5 +1,5 @@
 import { useSpaceActions } from './space-actions';
-import { useMyGuestMembershipId } from './use-my-guest-membership-id';
+import { useMyGuestMembershipId } from '../members/use-my-guest-membership-id';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,

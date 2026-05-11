@@ -1,5 +1,5 @@
 import { isSpaceMiniplayerHidden } from './space-miniplayer-layout';
-import { useCurrentSpaceIds } from './use-current-space-ids';
+import { useCurrentSpaceIds } from '../use-current-space-ids';
 import { usePathname } from 'expo-router';
 
 /**

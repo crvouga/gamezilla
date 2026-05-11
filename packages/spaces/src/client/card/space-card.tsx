@@ -1,9 +1,9 @@
 import { SpaceCardOpenLink } from './space-card-open-link';
-import { SpaceGuestSection } from './space-guest-section';
-import { SpaceHostAvatar } from './space-host-avatar';
-import { SpaceHostNameText } from './space-host-name-text';
-import { SpaceLiveBadge } from './space-live-badge';
-import { SpaceTitleText } from './space-title-text';
+import { SpaceGuestSection } from '../members/space-guest-section';
+import { SpaceHostAvatar } from '../members/space-host-avatar';
+import { SpaceHostNameText } from '../members/space-host-name-text';
+import { SpaceLiveBadge } from '../space-live-badge';
+import { SpaceTitleText } from '../space-title-text';
 import { Box, elevation, GradientBox, useTheme } from '@gamezilla/ui';
 import type { ReactNode } from 'react';
 

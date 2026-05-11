@@ -1,9 +1,9 @@
-import { ActiveSpace } from './active-space';
-import { SpaceDebugModal } from './space-debug-modal';
-import { SpaceJoinPrompt } from './space-join-prompt';
+import { ActiveSpace } from './active-space/active-space';
+import { SpaceDebugModal } from './debug/space-debug-modal';
+import { SpaceJoinPrompt } from './lifecycle/space-join-prompt';
 import { SpaceLoadingScreen } from './space-loading-screen';
-import { SpaceRoomProvider } from './space-room-context';
-import { useAutoLeaveIfEnded } from './use-auto-leave-if-ended';
+import { SpaceRoomProvider } from './room/space-room-context';
+import { useAutoLeaveIfEnded } from './lifecycle/use-auto-leave-if-ended';
 import { useCurrentSpaceIds } from './use-current-space-ids';
 import { useCurrentSpaceRole } from './use-current-space-role';
 import { useLocalSearchParams } from 'expo-router';

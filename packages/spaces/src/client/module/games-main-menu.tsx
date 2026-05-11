@@ -7,12 +7,12 @@ import type { ReactNode } from 'react';
 import { useCallback, useMemo } from 'react';
 
 import { useGamesRegistry } from './games-registry-context';
-import { useSpaceSessionUi } from './space-session-ui-context';
+import { useSpaceSessionUi } from '../active-space/space-session-ui-context';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
-} from './use-space-room-selector';
-import { useCurrentSpaceRole } from './use-current-space-role';
+} from '../room/use-space-room-selector';
+import { useCurrentSpaceRole } from '../use-current-space-role';
 import {
   GamesRoomAttr,
   SelectGame,

@@ -8,7 +8,7 @@ import {
 import { KeyValueClientRoomStorage } from '@gamezilla/room/client/adapters/storage/key-value';
 import { WebSocketRoomTransport } from '@gamezilla/room/client/adapters/transport/websocket';
 
-import type { SpaceRoomModule } from './space-module-context';
+import type { SpaceRoomModule } from '../module/space-module-context';
 import { apiUrlToRoomWebSocketUrl } from './space-room-url';
 
 export type CreateSpaceRoomParams = {

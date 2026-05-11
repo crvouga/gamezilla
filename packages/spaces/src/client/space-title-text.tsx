@@ -1,4 +1,4 @@
-import { SpaceHostFallbackTitle } from './space-host-fallback-title';
+import { SpaceHostFallbackTitle } from './members/space-host-fallback-title';
 import { optionalProps } from '@gamezilla/ui/components/optional-props';
 import {
   SPACE_ENTITY_TYPE,

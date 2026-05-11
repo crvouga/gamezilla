@@ -1,4 +1,4 @@
-import { useSpaceRoomDispatch } from '@gamezilla/spaces/client/use-space-room-selector';
+import { useSpaceRoomDispatch } from '@gamezilla/spaces/client/room/use-space-room-selector';
 import {
   MainMenuScreen,
   type MainMenuItem,

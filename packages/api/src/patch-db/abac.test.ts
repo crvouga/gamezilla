@@ -6,10 +6,6 @@ import {
 } from '@gamezilla/auth/shared';
 import { buildAppAuthContext } from '@gamezilla/auth/shared/auth-context';
 import { ClientConfigAttr } from '@gamezilla/client-config/shared/client-config-entities';
-import {
-  PROFILE_ENTITY_TYPE,
-  ProfileAttr,
-} from '@gamezilla/profile/shared/profile-entities';
 import { assert } from '@gamezilla/lib/assert';
 import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
@@ -18,6 +14,10 @@ import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
 import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
+import {
+  PROFILE_ENTITY_TYPE,
+  ProfileAttr,
+} from '@gamezilla/profile/shared/profile-entities';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { AbacEntityAttr } from './abac-patch-attrs';
 import { installDefaultPatchDbPolicies } from './patch-db';
@@ -248,7 +248,7 @@ describe('default ABAC policies (sqlite)', () => {
     expect(out.rejected[0]?.reason).toContain('system-only');
   });
 
-  test('accountSession: client may push revoke-only for own row', async () => {
+  test('accountSession: client cannot push revoke patch (server-managed)', async () => {
     const deviceId = '00000000-0000-4000-8000-00000000d0e1';
     const accountId = '00000000-0000-4000-8000-0000000000e1';
     const sessionEntityId = crypto.randomUUID();
@@ -291,8 +291,9 @@ describe('default ABAC policies (sqlite)', () => {
       ],
       ctx
     );
-    expect(out.rejected).toHaveLength(0);
-    expect(out.accepted).toHaveLength(1);
+    expect(out.accepted).toHaveLength(0);
+    expect(out.rejected).toHaveLength(1);
+    expect(out.rejected[0]?.code).toBe('forbidden');
   });
 
   test('accountSession: client cannot create row without server snapshot', async () => {

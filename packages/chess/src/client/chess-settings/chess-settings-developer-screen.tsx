@@ -2,7 +2,7 @@ import {
   MainMenuScreen,
   type MainMenuItem,
 } from '@gamezilla/ui/components/main-menu-screen';
-import { useSpaceRoomDispatch } from '@gamezilla/spaces/client/use-space-room-selector';
+import { useSpaceRoomDispatch } from '@gamezilla/spaces/client/room/use-space-room-selector';
 import {
   CHESS_SCREEN,
   SetChessMainMenuScreen,

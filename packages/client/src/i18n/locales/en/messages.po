@@ -37,11 +37,11 @@ msgstr "{active} active — expires {latestExpires}"
 msgid "{active} active session(s) — latest expires {latestExpires}"
 msgstr "{active} active session(s) — latest expires {latestExpires}"
 
-#: packages/spaces/src/client/space-guest-count-text.tsx
+#: packages/spaces/src/client/members/space-guest-count-text.tsx
 msgid "{count} guests"
 msgstr "{count} guests"
 
-#: packages/spaces/src/client/miniplayer-member-count-text.tsx
+#: packages/spaces/src/client/miniplayer/miniplayer-member-count-text.tsx
 msgid "{count} people here"
 msgstr "{count} people here"
 
@@ -62,8 +62,8 @@ msgstr "{createdAt} · {createdBy}"
 msgid "{entityType} / {entityIdShort} · {patchCount} patches"
 msgstr "{entityType} / {entityIdShort} · {patchCount} patches"
 
-#: packages/spaces/src/client/space-card-open-link.tsx
-#: packages/spaces/src/client/space-host-fallback-title.tsx
+#: packages/spaces/src/client/card/space-card-open-link.tsx
+#: packages/spaces/src/client/members/space-host-fallback-title.tsx
 msgid "{hostDisplayName}'s space"
 msgstr "{hostDisplayName}'s space"
 
@@ -108,7 +108,7 @@ msgstr "💻 System"
 msgid "0 ms"
 msgstr "0 ms"
 
-#: packages/spaces/src/client/space-guest-count-text.tsx
+#: packages/spaces/src/client/members/space-guest-count-text.tsx
 msgid "1 guest"
 msgstr "1 guest"
 
@@ -271,7 +271,7 @@ msgstr "Avatar style"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
 #: packages/chess/src/client/chess-settings/chess-settings-developer-ui-component-detail-screen.tsx
 #: packages/chess/src/client/chess-settings/chess-settings-developer-ui-components-screen.tsx
-#: packages/spaces/src/client/space-back-button.tsx
+#: packages/spaces/src/client/active-space/space-back-button.tsx
 #: packages/ui/src/components/main-menu-screen/main-menu-screen.tsx
 #: packages/ui/src/components/screen-base/screen-base-header.tsx
 msgid "Back"
@@ -346,8 +346,8 @@ msgstr "Build mode: {buildMode}"
 #: packages/chess/src/client/chess-board/chess-board-promotion.tsx
 #: packages/patch-db-example/src/todo/list/todo-list-delete-confirmation-modal.tsx
 #: packages/patch-db-example/src/todo/list/todo-lists-overview.tsx
-#: packages/spaces/src/client/end-space-confirm-modal.tsx
-#: packages/spaces/src/client/leave-space-confirm-modal.tsx
+#: packages/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
+#: packages/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
 #: packages/ui/src/components/modal/confirmation-modal.tsx
 msgid "Cancel"
 msgstr "Cancel"
@@ -524,7 +524,7 @@ msgstr "Connected: {connectedAt}"
 msgid "Connecting to {url}"
 msgstr "Connecting to {url}"
 
-#: packages/spaces/src/client/space-counter-panel.tsx
+#: packages/spaces/src/client/debug/space-counter-panel.tsx
 msgid "Connecting to room…"
 msgstr "Connecting to room…"
 
@@ -563,7 +563,7 @@ msgstr "CopyToClipboardField"
 #~ msgid "Could not remove local data"
 #~ msgstr "Could not remove local data"
 
-#: packages/spaces/src/client/space-counter-panel.tsx
+#: packages/spaces/src/client/debug/space-counter-panel.tsx
 msgid "Counter unavailable — sign in and open this space on the device where you created it to host, or wait for the host to come online."
 msgstr "Counter unavailable — sign in and open this space on the device where you created it to host, or wait for the host to come online."
 
@@ -595,13 +595,13 @@ msgstr "database"
 msgid "day"
 msgstr "day"
 
-#: packages/spaces/src/client/space-active-layout-mobile.tsx
-#: packages/spaces/src/client/space-join-prompt.tsx
-#: packages/spaces/src/client/space-wide-rail-footer.tsx
+#: packages/spaces/src/client/active-space/space-active-layout-mobile.tsx
+#: packages/spaces/src/client/active-space/space-wide-rail-footer.tsx
+#: packages/spaces/src/client/lifecycle/space-join-prompt.tsx
 msgid "Debug"
 msgstr "Debug"
 
-#: packages/spaces/src/client/space-counter-panel.tsx
+#: packages/spaces/src/client/debug/space-counter-panel.tsx
 msgid "Decrement"
 msgstr "Decrement"
 
@@ -757,18 +757,18 @@ msgstr "Empty read result"
 msgid "Enable user arrows"
 msgstr "Enable user arrows"
 
-#: packages/spaces/src/client/space-end-or-leave-button.tsx
+#: packages/spaces/src/client/lifecycle/space-end-or-leave-button.tsx
 msgid "End"
 msgstr "End"
 
-#: packages/spaces/src/client/end-space-confirm-modal.tsx
-#: packages/spaces/src/client/space-end-or-leave-button.tsx
-#: packages/spaces/src/client/space-session-chrome-actions.tsx
-#: packages/spaces/src/client/space-session-chrome-actions.tsx
+#: packages/spaces/src/client/active-space/space-session-chrome-actions.tsx
+#: packages/spaces/src/client/active-space/space-session-chrome-actions.tsx
+#: packages/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
+#: packages/spaces/src/client/lifecycle/space-end-or-leave-button.tsx
 msgid "End space"
 msgstr "End space"
 
-#: packages/spaces/src/client/end-space-confirm-modal.tsx
+#: packages/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
 msgid "End space?"
 msgstr "End space?"
 
@@ -796,7 +796,7 @@ msgstr "Error state"
 msgid "Ethernet"
 msgstr "Ethernet"
 
-#: packages/spaces/src/client/end-space-confirm-modal.tsx
+#: packages/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
 msgid "Everyone will leave this space. This cannot be undone."
 msgstr "Everyone will leave this space. This cannot be undone."
 
@@ -820,7 +820,7 @@ msgstr "First seen"
 msgid "Full commit"
 msgstr "Full commit"
 
-#: packages/spaces/src/client/games-main-menu.tsx
+#: packages/spaces/src/client/module/games-main-menu.tsx
 msgid "Games"
 msgstr "Games"
 
@@ -837,8 +837,8 @@ msgstr "Global latency"
 msgid "Go back"
 msgstr "Go back"
 
-#: packages/spaces/src/client/space-active-layout-mobile.tsx
-#: packages/spaces/src/client/space-wide-rail-header.tsx
+#: packages/spaces/src/client/active-space/space-active-layout-mobile.tsx
+#: packages/spaces/src/client/active-space/space-wide-rail-header.tsx
 msgid "Go home"
 msgstr "Go home"
 
@@ -870,13 +870,13 @@ msgstr "Gradient rotation (°)"
 msgid "Group your todos by list"
 msgstr "Group your todos by list"
 
-#: packages/spaces/src/client/space-members-guests-block.tsx
+#: packages/spaces/src/client/members/space-members-guests-block.tsx
 msgid "Guests"
 msgstr "Guests"
 
-#: packages/spaces/src/client/member-host-badge.tsx
-#: packages/spaces/src/client/space-join-host-section.tsx
-#: packages/spaces/src/client/space-members-host-block.tsx
+#: packages/spaces/src/client/lifecycle/space-join-host-section.tsx
+#: packages/spaces/src/client/members/member-host-badge.tsx
+#: packages/spaces/src/client/members/space-members-host-block.tsx
 msgid "Host"
 msgstr "Host"
 
@@ -888,7 +888,7 @@ msgstr "https://..."
 msgid "Inbox"
 msgstr "Inbox"
 
-#: packages/spaces/src/client/space-counter-panel.tsx
+#: packages/spaces/src/client/debug/space-counter-panel.tsx
 msgid "Increment"
 msgstr "Increment"
 
@@ -908,11 +908,11 @@ msgstr "Invalid puzzle data"
 msgid "John Doe"
 msgstr "John Doe"
 
-#: packages/spaces/src/client/space-join-button.tsx
+#: packages/spaces/src/client/lifecycle/space-join-button.tsx
 msgid "Join space"
 msgstr "Join space"
 
-#: packages/spaces/src/client/space-join-prompt.tsx
+#: packages/spaces/src/client/lifecycle/space-join-prompt.tsx
 msgid "Join this space to see who is here and hang out."
 msgstr "Join this space to see who is here and hang out."
 
@@ -948,18 +948,18 @@ msgstr "Latency: {latencyLabel}"
 msgid "Latency: {latencyMs} ms"
 msgstr "Latency: {latencyMs} ms"
 
-#: packages/spaces/src/client/leave-space-confirm-modal.tsx
-#: packages/spaces/src/client/space-end-or-leave-button.tsx
+#: packages/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
+#: packages/spaces/src/client/lifecycle/space-end-or-leave-button.tsx
 msgid "Leave"
 msgstr "Leave"
 
-#: packages/spaces/src/client/space-end-or-leave-button.tsx
-#: packages/spaces/src/client/space-session-chrome-actions.tsx
-#: packages/spaces/src/client/space-session-chrome-actions.tsx
+#: packages/spaces/src/client/active-space/space-session-chrome-actions.tsx
+#: packages/spaces/src/client/active-space/space-session-chrome-actions.tsx
+#: packages/spaces/src/client/lifecycle/space-end-or-leave-button.tsx
 msgid "Leave space"
 msgstr "Leave space"
 
-#: packages/spaces/src/client/leave-space-confirm-modal.tsx
+#: packages/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
 msgid "Leave space?"
 msgstr "Leave space?"
 
@@ -984,7 +984,7 @@ msgstr "Limited or checking"
 msgid "List name..."
 msgstr "List name..."
 
-#: packages/spaces/src/client/miniplayer-live-badge.tsx
+#: packages/spaces/src/client/miniplayer/miniplayer-live-badge.tsx
 #: packages/spaces/src/client/space-live-badge.tsx
 msgid "Live"
 msgstr "Live"
@@ -1144,12 +1144,12 @@ msgstr "No entities for this type."
 msgid "No entities in this database."
 msgstr "No entities in this database."
 
-#: packages/spaces/src/client/no-guests-text.tsx
-#: packages/spaces/src/client/space-members-guests-block.tsx
+#: packages/spaces/src/client/members/no-guests-text.tsx
+#: packages/spaces/src/client/members/space-members-guests-block.tsx
 msgid "No guests yet"
 msgstr "No guests yet"
 
-#: packages/spaces/src/client/space-members-host-block.tsx
+#: packages/spaces/src/client/members/space-members-host-block.tsx
 msgid "No host listed"
 msgstr "No host listed"
 
@@ -1254,7 +1254,7 @@ msgstr "Open command palette"
 msgid "Open puzzle picker"
 msgstr "Open puzzle picker"
 
-#: packages/spaces/src/client/space-card-open-link.tsx
+#: packages/spaces/src/client/card/space-card-open-link.tsx
 msgid "Open space {resolvedTitle}"
 msgstr "Open space {resolvedTitle}"
 
@@ -1322,8 +1322,8 @@ msgstr "patches"
 msgid "Patches"
 msgstr "Patches"
 
-#: packages/spaces/src/client/space-members-avatar-group.tsx
-#: packages/spaces/src/client/space-members-list-modal.tsx
+#: packages/spaces/src/client/members/space-members-avatar-group.tsx
+#: packages/spaces/src/client/members/space-members-list-modal.tsx
 msgid "People in this space"
 msgstr "People in this space"
 
@@ -1331,7 +1331,7 @@ msgstr "People in this space"
 msgid "Per-square indicators; pulse animation for highlighted moves."
 msgstr "Per-square indicators; pulse animation for highlighted moves."
 
-#: packages/spaces/src/client/games-main-menu.tsx
+#: packages/spaces/src/client/module/games-main-menu.tsx
 msgid "Pick a game to play."
 msgstr "Pick a game to play."
 
@@ -1631,7 +1631,7 @@ msgstr "Settings"
 msgid "Shapes ({entityCount})"
 msgstr "Shapes ({entityCount})"
 
-#: packages/spaces/src/client/space-counter-panel.tsx
+#: packages/spaces/src/client/debug/space-counter-panel.tsx
 msgid "Shared counter"
 msgstr "Shared counter"
 
@@ -1736,7 +1736,7 @@ msgstr "Solved"
 #~ msgid "space"
 #~ msgstr "space"
 
-#: packages/spaces/src/client/space-debug-modal.tsx
+#: packages/spaces/src/client/debug/space-debug-modal.tsx
 msgid "Space debug"
 msgstr "Space debug"
 
@@ -1757,7 +1757,7 @@ msgstr "Space debug"
 #: packages/client/src/ui/explorer/ui-explorer-detail-screen.tsx
 #: packages/client/src/ui/explorer/ui-explorer-screen.tsx
 #: packages/client/src/ui/sidebar/app-sidebar.tsx
-#: packages/spaces/src/client/space-join-prompt.tsx
+#: packages/spaces/src/client/lifecycle/space-join-prompt.tsx
 #: packages/spaces/src/client/space-loading-screen.tsx
 #: packages/spaces/src/client/spaces-screen.tsx
 msgid "Spaces"
@@ -1812,7 +1812,7 @@ msgstr "Tap the field or icon to copy"
 msgid "Tap to copy"
 msgstr "Tap to copy"
 
-#: packages/spaces/src/client/miniplayer-open-space-pressable.tsx
+#: packages/spaces/src/client/miniplayer/miniplayer-open-space-pressable.tsx
 msgid "Tap to return to your space"
 msgstr "Tap to return to your space"
 
@@ -1820,7 +1820,7 @@ msgstr "Tap to return to your space"
 msgid "TextInput"
 msgstr "TextInput"
 
-#: packages/spaces/src/client/games-main-menu.tsx
+#: packages/spaces/src/client/module/games-main-menu.tsx
 msgid "The host picks the game for this space."
 msgstr "The host picks the game for this space."
 
@@ -1864,7 +1864,7 @@ msgstr "This field is required"
 msgid "This is a modal screen."
 msgstr "This is a modal screen."
 
-#: packages/spaces/src/client/member-this-tab-badge.tsx
+#: packages/spaces/src/client/members/member-this-tab-badge.tsx
 msgid "This tab"
 msgstr "This tab"
 
@@ -2029,11 +2029,11 @@ msgstr "Wrong — try again"
 msgid "Yes"
 msgstr "Yes"
 
-#: packages/spaces/src/client/member-you-badge.tsx
+#: packages/spaces/src/client/members/member-you-badge.tsx
 msgid "You"
 msgstr "You"
 
-#: packages/spaces/src/client/leave-space-confirm-modal.tsx
+#: packages/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
 msgid "You can join again later if the space is still live."
 msgstr "You can join again later if the space is still live."
 
@@ -2045,7 +2045,7 @@ msgstr "You have unsaved avatar changes."
 msgid "You will need to sign in again to sync with your user."
 msgstr "You will need to sign in again to sync with your user."
 
-#: packages/spaces/src/client/space-join-blocked-note.tsx
+#: packages/spaces/src/client/lifecycle/space-join-blocked-note.tsx
 #: packages/spaces/src/client/spaces-screen.tsx
 msgid "You’re already in a space"
 msgstr "You’re already in a space"

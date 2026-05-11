@@ -187,4 +187,3 @@ export function useHydratedSecureStorageItem(
   }
   return result;
 }
-

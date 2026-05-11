@@ -2,7 +2,7 @@ import {
   SPACE_ROOM_NAME,
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
-} from './use-space-room-selector';
+} from '../room/use-space-room-selector';
 import {
   CounterRoomAttr,
   Decrement,

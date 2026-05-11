@@ -1,4 +1,4 @@
-import { GamesMainMenu } from './games-main-menu';
+import { GamesMainMenu } from '../module/games-main-menu';
 import { SpaceActiveLayout } from './space-active-layout';
 import {
   SpaceSessionUiProvider,

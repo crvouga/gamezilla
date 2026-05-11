@@ -52,7 +52,13 @@ function makeFakeAuth(args: {
 async function readAllProviders(
   db: PatchDb,
   accountId: string
-): Promise<ReadonlyArray<{ provider: string; providerUserId: string; email: string | null }>> {
+): Promise<
+  ReadonlyArray<{
+    provider: string;
+    providerUserId: string;
+    email: string | null;
+  }>
+> {
   const [res] = await db.read(
     [
       {
@@ -74,10 +80,13 @@ async function readAllProviders(
   }));
 }
 
-async function readSessions(
-  db: PatchDb
-): Promise<
-  ReadonlyArray<{ deviceId: string; accountId: string; token: string; expiresAt: string | null }>
+async function readSessions(db: PatchDb): Promise<
+  ReadonlyArray<{
+    deviceId: string;
+    accountId: string;
+    token: string;
+    expiresAt: string | null;
+  }>
 > {
   const [res] = await db.read(
     [{ entityType: ACCOUNT_SESSION_ENTITY_TYPE }],

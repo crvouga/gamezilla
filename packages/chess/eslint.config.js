@@ -31,19 +31,6 @@ module.exports = [
     },
   },
   {
-    files: [
-      'src/client/chess-puzzle-picker.tsx',
-      'src/client/chess-puzzle-picker-screen.tsx',
-      'src/client/chess-puzzle-play-screen.tsx',
-      'src/client/use-chess-puzzle-solver.ts',
-    ],
-    rules: {
-      'max-lines-per-function': 'off',
-      'max-statements': 'off',
-      complexity: 'off',
-    },
-  },
-  {
     files: ['**/*.test.{ts,tsx}'],
     rules: {
       'lingui/no-unlocalized-strings': 'off',

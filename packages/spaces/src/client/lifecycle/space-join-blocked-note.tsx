@@ -1,5 +1,5 @@
-import { useCurrentSpaceCount } from './use-current-space-count';
-import { useCurrentSpaceRole } from './use-current-space-role';
+import { useCurrentSpaceCount } from '../use-current-space-count';
+import { useCurrentSpaceRole } from '../use-current-space-role';
 import { Text } from '@gamezilla/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';

@@ -1,7 +1,7 @@
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
-} from '@gamezilla/spaces/client/use-space-room-selector';
+} from '@gamezilla/spaces/client/room/use-space-room-selector';
 import {
   Box,
   ExplorerDetail,
@@ -18,7 +18,10 @@ import {
   SetChessMainMenuScreen,
   SetChessSelectedUiComponent,
 } from '../../shared/chess-main-menu';
-import { ensureChessBoardExampleRegistered } from '../chess-board/chess-board-register-example';
+import {
+  CHESS_COMPONENT_ENTRIES,
+  ensureChessBoardExampleRegistered,
+} from '../chess-board/chess-board-register-example';
 
 const BACK_BUTTON_SIZE = 40;
 const BACK_ROW_PADDING_TOP = 12;
@@ -89,7 +92,10 @@ export function ChessSettingsDeveloperUiComponentDetailScreen(): ReactNode {
           />
         </Box>
       ) : (
-        <ExplorerDetail componentName={selectedName} />
+        <ExplorerDetail
+          componentName={selectedName}
+          entries={CHESS_COMPONENT_ENTRIES}
+        />
       )}
     </Box>
   );

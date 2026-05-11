@@ -1,5 +1,5 @@
-import { useSpaceActions } from './space-actions';
-import { SpaceCard } from './space-card';
+import { useSpaceActions } from './lifecycle/space-actions';
+import { SpaceCard } from './card/space-card';
 import { useCurrentSpaceCount } from './use-current-space-count';
 import { useLiveSpaceIds } from './use-live-space-ids';
 import {

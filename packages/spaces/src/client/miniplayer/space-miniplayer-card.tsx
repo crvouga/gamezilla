@@ -3,8 +3,8 @@ import { MiniplayerLiveBadge } from './miniplayer-live-badge';
 import { MiniplayerMemberCountText } from './miniplayer-member-count-text';
 import { MiniplayerOpenSpacePressable } from './miniplayer-open-space-pressable';
 import { MiniplayerSpaceTitle } from './miniplayer-space-title';
-import { SpaceEndOrLeaveButton } from './space-end-or-leave-button';
-import { SpaceHostAvatar } from './space-host-avatar';
+import { SpaceEndOrLeaveButton } from '../lifecycle/space-end-or-leave-button';
+import { SpaceHostAvatar } from '../members/space-host-avatar';
 import { Box, elevation, GradientBox, Text, useTheme } from '@gamezilla/ui';
 import type { ReactNode } from 'react';
 

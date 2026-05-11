@@ -1,8 +1,13 @@
 /**
- * `ExplorerList` -- renders all registered components grouped by category.
+ * `ExplorerList` -- renders registered components grouped by category.
  *
  * App-agnostic: navigation is handled via the `onSelect` callback. Reactive
- * to runtime registrations via {@link useComponentRegistry}.
+ * to runtime registrations via {@link useComponentRegistry} when no
+ * `entries` override is supplied.
+ *
+ * Pass `entries` to render a fixed, caller-owned list (e.g. the chess
+ * settings screen passes only chess components so the global UI registry
+ * is hidden).
  */
 
 import { useMemo } from 'react';
@@ -11,15 +16,20 @@ import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { ScrollView } from '../scroll-view';
 import { Text } from '../text';
-import { useComponentRegistry } from './component-registry';
+import {
+  useComponentRegistry,
+  type ComponentEntry,
+} from './component-registry';
 
 export type ExplorerListProps = {
   onSelect: (name: string) => void;
+  entries?: readonly ComponentEntry[];
 };
 
-export function ExplorerList({ onSelect }: ExplorerListProps) {
+export function ExplorerList({ onSelect, entries }: ExplorerListProps) {
   const theme = useTheme();
-  const registry = useComponentRegistry();
+  const globalRegistry = useComponentRegistry();
+  const registry = entries ?? globalRegistry;
   const categories = useMemo(
     () => [...new Set(registry.map((c) => c.category))],
     [registry]

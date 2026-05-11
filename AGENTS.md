@@ -4,6 +4,8 @@
 
 - **Never patch dependencies.** Do not use `bun patch`, `patch-package`, `pnpm patch`, or any other dependency-patching mechanism. Do not add a `patches/` directory or a `patchedDependencies` / `pnpm.patchedDependencies` / `resolutions` field to `package.json`. If a third-party library has a bug, work around it in our own code or accept the behavior — never fork the dep in-tree. CI enforces this via `bun run check:no-patches`.
 
+- **Never disable structural size limits for app code.** The Tiger-Style caps in `packages/eslint-rules/size-limits.cjs` (`max-lines`, `max-lines-per-function`, `max-statements`, `max-depth`, `max-params`, `max-nested-callbacks`, `complexity`, `max-classes-per-file`, `max-statements-per-line`) are load-bearing. Do **not** add per-file `'off'` overrides in any `packages/*/eslint.config.js`, and do **not** add `/* eslint-disable max-lines-per-function */` (or sibling) comments in source files. If a function tripped the cap, refactor it: extract sub-components, helper hooks, or pure helpers. The cap is the constraint, not a suggestion. The only legitimate exemption is `testOverrides()` (already wired in via the shared base config). Run `bun run scripts/check-no-size-limit-overrides.ts` to scan for offenders.
+
 ## CI / Turbo Remote Cache
 
 GitHub Actions runs checks with `DOPPLER_CONFIG=local`. For Turbo Remote Cache hits in CI, ensure the Doppler **`local`** config defines `TURBO_API`, `TURBO_TOKEN`, `TURBO_TEAM`, and `TURBO_CACHE` (e.g. `remote:rw`). See `packages/infra/src/cli/secrets/turbo-token.ts` for hints.
@@ -101,7 +103,7 @@ Each game is its own package modelled after `@gamezilla/chess`. To add `@gamezil
    - `client/<game>-main-menu.tsx`, `client/<game>-board.tsx`, `client/<game>-settings-screen.tsx`, etc. — flat under `client/`.
 5. Register the game in `packages/spaces/src/shared/games.ts` (composed game module) and `packages/spaces/src/shared/space-module.ts` (top-level router).
 6. Register ABAC policies for any new entity types in `packages/api/src/patch-db/abac-policies-registry.ts`.
-7. Wire the client entry in `packages/spaces/src/client/games-main-menu.tsx` so the new game shows up in the games list.
+7. Wire the client entry in `packages/spaces/src/client/module/games-main-menu.tsx` so the new game shows up in the games list.
 
 `packages/api` and `packages/client` themselves do **not** need to be edited beyond the registries above — game packages compose into spaces, and spaces is already wired into the shells.
 

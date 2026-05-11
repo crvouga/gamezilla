@@ -3,7 +3,7 @@ import { useConfigService } from '@gamezilla/auth/client/config-service-context'
 import { useDeviceId } from '@gamezilla/auth/client/use-device-id';
 import { useSessionToken } from '@gamezilla/auth/client/use-session-token';
 import { useKeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
-import { useCurrentSpaceIds } from './use-current-space-ids';
+import { useCurrentSpaceIds } from '../use-current-space-ids';
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,

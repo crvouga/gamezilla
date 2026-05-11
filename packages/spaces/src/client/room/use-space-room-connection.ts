@@ -11,7 +11,7 @@ import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 
 import { createSpaceRoom } from './create-space-room';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
-import { useSpaceModule } from './space-module-context';
+import { useSpaceModule } from '../module/space-module-context';
 
 type SpaceRoom = Room<RoomState, RoomCommandPayload, RoomEvent, string>;
 
