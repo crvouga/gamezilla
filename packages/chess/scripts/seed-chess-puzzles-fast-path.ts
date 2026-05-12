@@ -284,4 +284,3 @@ export async function runFinalMaintenance(args: {
   reporter.phase('Rebuild puzzle indexes (REINDEX CONCURRENTLY)');
   await reindexPuzzleIndexes(sql, log);
 }
-

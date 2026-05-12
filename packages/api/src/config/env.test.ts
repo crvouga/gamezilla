@@ -1,13 +1,17 @@
 import { describe, expect, it } from 'bun:test';
+import type { R2Bucket } from '@gamezilla/lib/object-store/impl-r2';
 import {
   assertDopplerTokenBinding,
   ConfigurationError,
   type ApiWorkerEnv,
 } from './env';
 
+const stubR2Bucket = {} as R2Bucket;
+
 const mockEnv = (token: string): ApiWorkerEnv => ({
   DOPPLER_TOKEN: token,
   HYPERDRIVE: { connectionString: 'postgres://localhost/postgres' },
+  TTS_AUDIO: stubR2Bucket,
 });
 
 describe('assertDopplerTokenBinding', () => {

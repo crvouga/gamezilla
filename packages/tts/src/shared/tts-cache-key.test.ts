@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import { ttsCacheKey, type TtsCacheKeyInput } from './tts-cache-key';
+import { Voices, type Voice } from './tts-voice';
 
 const baseInput: TtsCacheKeyInput = {
   providerId: 'elevenlabs',
-  model: 'eleven_turbo_v2_5',
-  voiceId: 'rachel',
+  voice: Voices.Rachel,
   text: 'Hello world',
   format: 'mp3',
 };
@@ -24,16 +24,14 @@ describe('ttsCacheKey', () => {
   test('field ordering does not matter (canonicalised)', async () => {
     const a = await ttsCacheKey({
       providerId: 'p',
-      model: 'm',
-      voiceId: 'v',
+      voice: Voices.David,
       text: 't',
       format: 'mp3',
     });
     const b = await ttsCacheKey({
       format: 'mp3',
       text: 't',
-      voiceId: 'v',
-      model: 'm',
+      voice: Voices.David,
       providerId: 'p',
     });
     expect(a).toBe(b);
@@ -51,24 +49,31 @@ describe('ttsCacheKey', () => {
     expect(a).not.toBe(b);
   });
 
-  test('different voiceId → different key', async () => {
-    const a = await ttsCacheKey(baseInput);
-    const b = await ttsCacheKey({ ...baseInput, voiceId: 'adam' });
-    expect(a).not.toBe(b);
-  });
-
-  test('different model → different key', async () => {
-    const a = await ttsCacheKey(baseInput);
-    const b = await ttsCacheKey({
-      ...baseInput,
-      model: 'eleven_multilingual_v2',
-    });
+  test('different voice variant → different key', async () => {
+    const a = await ttsCacheKey({ ...baseInput, voice: Voices.Rachel });
+    const b = await ttsCacheKey({ ...baseInput, voice: Voices.David });
     expect(a).not.toBe(b);
   });
 
   test('different format → different key', async () => {
     const a = await ttsCacheKey(baseInput);
     const b = await ttsCacheKey({ ...baseInput, format: 'wav' });
+    expect(a).not.toBe(b);
+  });
+
+  test('renaming a Voice (same voiceId/model, different name) → different key', async () => {
+    /**
+     * Guarantees that operators relabelling a `Voices.*` constant invalidate
+     * the existing R2 cache. Two inputs share `voiceId` + `model` + provider
+     * but differ in the human-facing `name` — they MUST hash to different
+     * keys so the rename can't serve stale audio.
+     */
+    const renamedDavid: Voice = {
+      ...Voices.David,
+      name: 'Sam',
+    } as unknown as Voice;
+    const a = await ttsCacheKey({ ...baseInput, voice: Voices.David });
+    const b = await ttsCacheKey({ ...baseInput, voice: renamedDavid });
     expect(a).not.toBe(b);
   });
 });

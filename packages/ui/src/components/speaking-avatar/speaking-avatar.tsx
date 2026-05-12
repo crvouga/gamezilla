@@ -1,24 +1,28 @@
 /**
  * `SpeakingAvatar` -- a DiceBear "person" avatar paired with a speech
- * bubble that types out a message one character at a time, and (when a
- * `<TtsProvider>` is mounted) speaks the message aloud via the TTS module.
+ * bubble that types out a message one character at a time, and speaks the
+ * message aloud via the TTS module.
  *
  * Purely presentational for the visual layer: the message comes in via
  * props, callers resolve any i18n to a plain string before passing it in
  * (the typewriter walks `string.charAt`, which can't operate on JSX).
  *
- * Audio is best-effort: when no `<TtsProvider>` is mounted (storybook,
- * tests) the component silently falls back to visual-only.
+ * Audio always runs through `<TtsProvider>` — there is no anonymous /
+ * optional fallback. Callers MUST mount this component beneath a
+ * `<TtsProvider>` (storybook previews and tests do the same in their own
+ * harness) and MUST pass an explicit `voice`. Pass `speak={false}` to
+ * mute audio (the typewriter still runs).
  *
  * @example
  * ```tsx
- * <SpeakingAvatar message="Your move" />
- * <SpeakingAvatar message={t`Solved`} avatarSize={48} seed="lichess-coach" />
- * <SpeakingAvatar message="silent" speak={false} />
+ * <SpeakingAvatar message="Your move" voice={Voices.David} />
+ * <SpeakingAvatar message={t`Solved`} voice={Voices.Sam} avatarSize={48} />
+ * <SpeakingAvatar message="silent" voice={Voices.David} speak={false} />
  * ```
  */
 
-import { useTtsOptional } from '@gamezilla/tts/client/tts-context';
+import { useTts } from '@gamezilla/tts/client/tts-context';
+import type { Voice } from '@gamezilla/tts/shared/tts-voice';
 import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { View, type StyleProp, type ViewStyle } from 'react-native';
 import { Avatar } from '../avatar';
@@ -33,6 +37,8 @@ const ROW_GAP = 12;
 
 export type SpeakingAvatarProps = {
   message: string;
+  /** Voice to speak with. Pin one of the `Voices.*` constants per call site. */
+  voice: Voice;
   /** Diameter of the DiceBear avatar in pixels. Defaults to `64`. */
   avatarSize?: number;
   /** Milliseconds between typed characters. Defaults to `30`. */
@@ -40,9 +46,8 @@ export type SpeakingAvatarProps = {
   /** DiceBear seed (controls which face is generated). Defaults to `'speaking-avatar'`. */
   seed?: string;
   /**
-   * When `true` (default) and a `<TtsProvider>` is in scope, speaks the
-   * message aloud via the TTS module. Set to `false` for muted/decorative
-   * usage.
+   * When `true` (default), speaks the message aloud. Set to `false` for
+   * muted/decorative usage; the typewriter still runs.
    */
   speak?: boolean;
   style?: StyleProp<ViewStyle>;
@@ -50,6 +55,7 @@ export type SpeakingAvatarProps = {
 
 export function SpeakingAvatar({
   message,
+  voice,
   avatarSize = DEFAULT_AVATAR_SIZE,
   charDelayMs = DEFAULT_CHAR_DELAY_MS,
   seed = DEFAULT_SEED,
@@ -63,8 +69,7 @@ export function SpeakingAvatar({
   const shown = useTypewriter(message, charDelayMs);
   const stillTyping = shown.length < message.length;
 
-  const tts = useTtsOptional();
-  const hasTts = tts !== null;
+  const tts = useTts();
   /**
    * Held in a ref so the playback effect can read the latest `tts` without
    * listing it as a dependency. `TtsProvider`'s context value re-memoizes
@@ -74,6 +79,8 @@ export function SpeakingAvatar({
    */
   const ttsRef = useRef(tts);
   ttsRef.current = tts;
+  const voiceRef = useRef(voice);
+  voiceRef.current = voice;
   const lastSpokenRef = useRef<string | null>(null);
 
   /**
@@ -101,19 +108,22 @@ export function SpeakingAvatar({
    */
   useEffect(() => {
     const t = ttsRef.current;
-    if (!speak || t === null) return;
+    const v = voiceRef.current;
+    if (!speak) return;
     if (message.trim().length === 0) return;
     if (lastSpokenRef.current === message) return;
     lastSpokenRef.current = message;
 
     const controller = new AbortController();
-    void t.play(message, { signal: controller.signal }).catch(() => {});
+    void t
+      .play(message, { voice: v, format: 'mp3', signal: controller.signal })
+      .catch(() => {});
 
     return () => {
       controller.abort();
       t.stop();
     };
-  }, [message, speak, hasTts]);
+  }, [message, speak]);
 
   return (
     <View

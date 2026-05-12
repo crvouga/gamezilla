@@ -7,6 +7,13 @@ import {
   type TtsSynthesizeResponse,
 } from '../shared/tts-types';
 import {
+  VOICE_NAMES,
+  VOICE_PROVIDERS,
+  type Voice,
+  type VoiceName,
+  type VoiceProvider,
+} from '../shared/tts-voice';
+import {
   TtsProviderError,
   isTtsProviderError,
   type TtsProvider,
@@ -17,40 +24,32 @@ const TEXT_MAX_LEN = 5000;
 const HASH_PATTERN = /^[0-9a-f]{32}$/;
 
 /**
- * Optional auth gate. The host injects e.g. the API Worker's
- * `sessionAuth.requireAuthContext`; when omitted the package is fully
- * standalone and the synthesize endpoint is unauthenticated. Throwing from
- * `requireAuth` (typically `UnauthorizedError`) bubbles up to the host's
- * global `app.onError` for status mapping.
+ * Auth gate. The host injects e.g. the API Worker's
+ * `sessionAuth.requireAuthContext`. There is no anonymous mode any more —
+ * `POST /tts/synthesize` is always gated. Throwing from `requireAuth`
+ * (typically `UnauthorizedError`) bubbles up to the host's global
+ * `app.onError` for status mapping.
  */
 export type TtsRequireAuth = (req: Request) => Promise<unknown>;
 
 export type CreateTtsAppOptions = {
   readonly provider: TtsProvider;
   readonly objectStore: ObjectStore;
-  readonly requireAuth?: TtsRequireAuth;
+  readonly requireAuth: TtsRequireAuth;
 };
 
 type ParsedSynthesizeBody =
   | {
       readonly ok: true;
       readonly text: string;
-      readonly voiceId: string;
-      readonly model: string;
+      readonly voice: Voice;
       readonly format: TtsAudioFormat;
     }
   | { readonly ok: false; readonly error: string };
 
-function pickStringOrDefault(raw: unknown, fallback: string): string {
-  if (typeof raw !== 'string') return fallback;
-  const trimmed = raw.trim();
-  return trimmed.length > 0 ? trimmed : fallback;
-}
-
 function parseFormat(
   raw: unknown
 ): TtsAudioFormat | { readonly error: string } {
-  if (raw === undefined || raw === null || raw === '') return 'mp3';
   if (typeof raw !== 'string') {
     return { error: 'format must be a string' };
   }
@@ -76,10 +75,49 @@ function parseText(raw: unknown): string | { readonly error: string } {
   return trimmed;
 }
 
-function parseSynthesizeBody(
-  raw: unknown,
-  provider: TtsProvider
-): ParsedSynthesizeBody {
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.length > 0;
+}
+
+function parseVoice(raw: unknown): Voice | { readonly error: string } {
+  if (raw === null || typeof raw !== 'object') {
+    return { error: 'voice must be a JSON object' };
+  }
+  const obj = raw as Record<string, unknown>;
+
+  const provider = obj['provider'];
+  if (
+    typeof provider !== 'string' ||
+    !(VOICE_PROVIDERS as readonly string[]).includes(provider)
+  ) {
+    return {
+      error: `voice.provider must be one of: ${VOICE_PROVIDERS.join(', ')}`,
+    };
+  }
+  const name = obj['name'];
+  if (
+    typeof name !== 'string' ||
+    !(VOICE_NAMES as readonly string[]).includes(name)
+  ) {
+    return {
+      error: `voice.name must be one of: ${VOICE_NAMES.join(', ')}`,
+    };
+  }
+  if (!isNonEmptyString(obj['voiceId'])) {
+    return { error: 'voice.voiceId must be a non-empty string' };
+  }
+  if (!isNonEmptyString(obj['model'])) {
+    return { error: 'voice.model must be a non-empty string' };
+  }
+  return {
+    name: name as VoiceName,
+    provider: provider as VoiceProvider,
+    voiceId: obj['voiceId'],
+    model: obj['model'],
+  } as Voice;
+}
+
+function parseSynthesizeBody(raw: unknown): ParsedSynthesizeBody {
   if (raw === null || typeof raw !== 'object') {
     return { ok: false, error: 'request body must be a JSON object' };
   }
@@ -88,16 +126,13 @@ function parseSynthesizeBody(
   const text = parseText(obj['text']);
   if (typeof text !== 'string') return { ok: false, error: text.error };
 
+  const voice = parseVoice(obj['voice']);
+  if ('error' in voice) return { ok: false, error: voice.error };
+
   const format = parseFormat(obj['format']);
   if (typeof format !== 'string') return { ok: false, error: format.error };
 
-  return {
-    ok: true,
-    text,
-    voiceId: pickStringOrDefault(obj['voiceId'], provider.defaultVoiceId),
-    model: pickStringOrDefault(obj['model'], provider.defaultModel),
-    format,
-  };
+  return { ok: true, text, voice, format };
 }
 
 /**
@@ -127,11 +162,14 @@ function audioCacheHeaders(contentType: string): Record<string, string> {
  *
  * Routes:
  *   - `POST /tts/synthesize` — generate (or cache-hit) audio for a text.
- *   - `GET  /tts/audio/:hash` — stream the cached audio bytes. The `:hash`
- *     param accepts an optional `.mp3` / `.wav` suffix purely as a hint to
- *     downstream caches / players; the suffix participates in the
- *     {@link ObjectStore} key so callers must pass back the URL the
- *     synthesize response returned (don't strip the extension).
+ *     Always gated by `requireAuth`. Body must include `text`, `voice`, and
+ *     `format`; missing or malformed fields return `400`.
+ *   - `GET  /tts/audio/:hash` — stream the cached audio bytes (anonymous;
+ *     audio URLs are content-addressed and not enumerable). The `:hash`
+ *     param accepts a `.mp3` / `.wav` suffix as a hint to downstream caches /
+ *     players; the suffix participates in the {@link ObjectStore} key so
+ *     callers must pass back the URL the synthesize response returned
+ *     (don't strip the extension).
  *
  * Mount at `/` on a parent app that supplies its own Bindings. The package
  * never declares Worker bindings of its own.
@@ -141,11 +179,10 @@ export function createTtsApp(options: CreateTtsAppOptions) {
 
   return new Hono()
     .post('/tts/synthesize', async (c) => {
-      if (requireAuth !== undefined) {
-        await requireAuth(c.req.raw);
-      }
+      await requireAuth(c.req.raw);
+
       const raw: unknown = await c.req.json().catch(() => null);
-      const parsed = parseSynthesizeBody(raw, provider);
+      const parsed = parseSynthesizeBody(raw);
       if (!parsed.ok) {
         return c.json({ error: parsed.error }, 400);
       }
@@ -155,8 +192,7 @@ export function createTtsApp(options: CreateTtsAppOptions) {
           { provider, objectStore },
           {
             text: parsed.text,
-            voiceId: parsed.voiceId,
-            model: parsed.model,
+            voice: parsed.voice,
             format: parsed.format,
           }
         );

@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'bun:test';
 import { ObjectStoreImplInMemory } from '@gamezilla/lib/object-store/impl-in-memory';
+import { Voices } from '../shared/tts-voice';
 import { InMemoryTtsProvider } from './adapters/in-memory-tts-provider';
-import { TtsProviderError } from './ports/tts-provider';
+import { TtsProviderError, type TtsProvider } from './ports/tts-provider';
 import { synthesizeWithCache, ttsObjectKey } from './tts-synthesize';
 
 const SAMPLE_INPUT = {
   text: 'Hello world',
-  voiceId: 'test-voice',
-  model: 'test-model',
+  voice: Voices.David,
   format: 'mp3' as const,
 };
 
@@ -89,10 +89,8 @@ describe('synthesizeWithCache', () => {
   });
 
   test('provider failure surfaces and nothing is written to the store', async () => {
-    const failing = {
+    const failing: TtsProvider = {
       id: 'fail',
-      defaultVoiceId: 'v',
-      defaultModel: 'm',
       synthesize: () =>
         Promise.reject(new TtsProviderError('upstream down', 'fail', 503)),
     };

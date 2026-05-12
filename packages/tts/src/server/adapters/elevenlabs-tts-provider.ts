@@ -1,3 +1,4 @@
+import { Assert } from '@gamezilla/lib/assert';
 import {
   TtsProviderError,
   type TtsProvider,
@@ -5,18 +6,26 @@ import {
   type TtsSynthesizeOutput,
 } from '../ports/tts-provider';
 
-/**
- * Default voice + model used when the client doesn't specify one. ElevenLabs's
- * shared "Rachel" voice and the latest low-latency turbo model are both
- * available on the free / starter tiers.
- */
-export const ELEVEN_LABS_DEFAULT_VOICE_ID = 'Zv7P8CISODgj9wDHyyI9';
-// '7WggD3IoWTIPT19PNyrW';
-// '1SM7GgM6IMuvQlz2BwM3';
-// '21m00Tcm4TlvDq8ikWAM';
-export const ELEVEN_LABS_DEFAULT_MODEL = 'eleven_turbo_v2_5';
-
 const ELEVEN_LABS_BASE_URL = 'https://api.elevenlabs.io/v1';
+
+/**
+ * `validation` mode (throws {@link ValidationError}) instead of `crash` mode:
+ *
+ * - The constructor's `apiKey` check fires at adapter wire-time, before any
+ *   request lands. The host (`createTtsAppFromBindings`) already calls
+ *   `secretStore.getRequired`, which itself crashes on a missing key — so by
+ *   the time we reach the constructor a non-empty string is guaranteed and
+ *   this check is a defense-in-depth guard. A thrown `ValidationError`
+ *   bubbles up the boot path and surfaces in the api `onError` handler as a
+ *   `400`-shaped log entry rather than exiting the Worker isolate.
+ * - The `synthesize` voice-provider check is a per-request guard against a
+ *   wiring bug (someone passes an `openai` voice into the elevenlabs
+ *   adapter). The routes layer's `parseVoice` already rejects unknown
+ *   discriminants with a `400`, so this assertion only fires on internal
+ *   misuse — `ValidationError` keeps it recoverable and observable instead
+ *   of taking the whole isolate down with `process.exit(1)`.
+ */
+const assert: Assert = Assert.validation();
 
 type FetchFn = (
   input: RequestInfo | URL,
@@ -25,8 +34,6 @@ type FetchFn = (
 
 export type ElevenLabsTtsProviderOptions = {
   readonly apiKey: string;
-  readonly defaultVoiceId?: string;
-  readonly defaultModel?: string;
   /** Override for tests. Defaults to `globalThis.fetch`. */
   readonly fetch?: FetchFn;
   /** Override the ElevenLabs base URL (for proxies / staging). */
@@ -50,32 +57,39 @@ function contentTypeFor(format: TtsSynthesizeInput['format']): string {
  * Errors from the API are surfaced as {@link TtsProviderError} so the routes
  * can map them to a `502` instead of a generic `500`.
  *
+ * The adapter rejects any `Voice` whose `provider` is not `'eleven-labs'` —
+ * the discriminated union guarantees ids/models match the upstream API, so a
+ * mismatch indicates a wiring bug at the call site.
+ *
  * @see https://elevenlabs.io/docs/api-reference/text-to-speech
  */
 export class ElevenLabsTtsProvider implements TtsProvider {
   readonly id = 'elevenlabs';
-  readonly defaultVoiceId: string;
-  readonly defaultModel: string;
   private readonly apiKey: string;
   private readonly fetchFn: FetchFn;
   private readonly baseUrl: string;
 
   constructor(options: ElevenLabsTtsProviderOptions) {
-    if (options.apiKey.trim().length === 0) {
-      throw new Error('ElevenLabsTtsProvider: apiKey must be non-empty');
-    }
+    assert.nonEmptyString(
+      options.apiKey.trim(),
+      'ElevenLabsTtsProvider: apiKey must be non-empty'
+    );
     this.apiKey = options.apiKey;
-    this.defaultVoiceId =
-      options.defaultVoiceId ?? ELEVEN_LABS_DEFAULT_VOICE_ID;
-    this.defaultModel = options.defaultModel ?? ELEVEN_LABS_DEFAULT_MODEL;
     this.fetchFn =
       options.fetch ?? ((input, init) => globalThis.fetch(input, init));
     this.baseUrl = options.baseUrl ?? ELEVEN_LABS_BASE_URL;
   }
 
   async synthesize(input: TtsSynthesizeInput): Promise<TtsSynthesizeOutput> {
+    assert.equals(
+      input.voice.provider,
+      'eleven-labs',
+      'ElevenLabsTtsProvider only handles eleven-labs voices',
+      { received: input.voice.provider, voiceName: input.voice.name }
+    );
+
     const url = new URL(
-      `${this.baseUrl}/text-to-speech/${encodeURIComponent(input.voiceId)}`
+      `${this.baseUrl}/text-to-speech/${encodeURIComponent(input.voice.voiceId)}`
     );
     url.searchParams.set('output_format', outputFormatFor(input.format));
 
@@ -88,7 +102,7 @@ export class ElevenLabsTtsProvider implements TtsProvider {
       },
       body: JSON.stringify({
         text: input.text,
-        model_id: input.model,
+        model_id: input.voice.model,
       }),
     });
 

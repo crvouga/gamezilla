@@ -21,3 +21,13 @@ export {
 } from './ports/tts-provider';
 export { ElevenLabsTtsProvider } from './adapters/elevenlabs-tts-provider';
 export { InMemoryTtsProvider } from './adapters/in-memory-tts-provider';
+export {
+  VOICES,
+  VOICE_NAMES,
+  VOICE_PROVIDERS,
+  Voices,
+  type ElevenLabsVoice,
+  type Voice,
+  type VoiceName,
+  type VoiceProvider,
+} from '../shared/tts-voice';

@@ -1,14 +1,17 @@
 import type { TtsAudioFormat } from '../../shared/tts-types';
+import type { Voice } from '../../shared/tts-voice';
 
 /**
- * Resolved synthesize input — every field is required by the time it reaches a
- * provider. The orchestrator fills in defaults from the provider before calling
- * `synthesize`, so adapters never have to worry about "missing voiceId".
+ * Resolved synthesize input. Every field is required at the routes layer
+ * before reaching a provider — there are no server-side defaults to fall
+ * back to. Adapters may further narrow `voice` via an
+ * `assert(input.voice.provider === '<own provider>')` check (e.g. the
+ * ElevenLabs adapter rejects voices from other providers rather than
+ * silently coercing).
  */
 export interface TtsSynthesizeInput {
   readonly text: string;
-  readonly voiceId: string;
-  readonly model: string;
+  readonly voice: Voice;
   readonly format: TtsAudioFormat;
 }
 
@@ -21,17 +24,12 @@ export interface TtsSynthesizeOutput {
  * Pluggable text-to-speech backend. The only abstraction owned by this package;
  * storage is consumed via {@link @gamezilla/lib/object-store/interface ObjectStore}.
  *
- * `id` is participated in the cache key so swapping providers (e.g. elevenlabs
+ * `id` participates in the cache key so swapping providers (e.g. elevenlabs
  * → openai) cannot serve stale audio synthesised by the previous provider for
- * the same text/voice/model triple.
- *
- * `defaultVoiceId` / `defaultModel` are consulted by the orchestrator when the
- * client request omits the field. Adapters MUST set sensible defaults.
+ * the same text/voice/format triple.
  */
 export interface TtsProvider {
   readonly id: string;
-  readonly defaultVoiceId: string;
-  readonly defaultModel: string;
   synthesize(input: TtsSynthesizeInput): Promise<TtsSynthesizeOutput>;
 }
 

@@ -53,8 +53,7 @@ export async function synthesizeWithCache(
 ): Promise<TtsSynthesizeResult> {
   const hash = await ttsCacheKey({
     providerId: deps.provider.id,
-    model: input.model,
-    voiceId: input.voiceId,
+    voice: input.voice,
     text: input.text,
     format: input.format,
   });

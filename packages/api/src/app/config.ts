@@ -8,8 +8,9 @@ export type ApiHandlerConfig = {
   readonly basePath?: string;
   readonly instrumentation?: PatchDbApiConfig['instrumentation'];
   /**
-   * R2 bucket for cached TTS audio. When omitted, the TTS sub-app is not
-   * mounted (handy for local dev when ElevenLabs is not set up).
+   * R2 bucket for cached TTS audio. Required: the TTS sub-app is mounted
+   * unconditionally and `createTtsAppFromBindings` asserts this binding
+   * is present.
    */
-  readonly ttsAudioBucket?: R2Bucket;
+  readonly ttsAudioBucket: R2Bucket;
 };

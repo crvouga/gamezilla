@@ -10,11 +10,11 @@ import type { PatchDbApiConfig } from '@gamezilla/patch-db/api';
 import { createPatchDbApiHandler } from '@gamezilla/patch-db/api';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
 import { createSpaceApp } from '@gamezilla/spaces/server/route';
-import { makeStripeClient } from '@gamezilla/stripe/make-stripe-client';
 import { createStripeApp } from '@gamezilla/stripe/stripe-app';
 import { createTtsAppFromBindings } from '@gamezilla/tts/server';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
+import Stripe from 'stripe';
 import { ApiSecretName } from '../config/secret-names';
 import { healthApp } from '../health/route';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
@@ -105,43 +105,32 @@ function createApiErrorHandler() {
   };
 }
 
-async function resolveStripeClient(
+async function createStripeClient(
   secretStore: ApiHandlerConfig['secretStore']
-): Promise<ReturnType<typeof makeStripeClient> | null> {
+): Promise<Stripe> {
   const raw = await secretStore.getOptional(ApiSecretName.stripeSecretKey);
   const key =
-    typeof raw === 'string' && raw.trim().length > 0 ? raw.trim() : null;
-  return key !== null ? makeStripeClient(key) : null;
+    typeof raw === 'string' && raw.trim().length > 0
+      ? raw.trim()
+      : assert.fail('stripe secret key is required');
+  return new Stripe(key, {
+    httpClient: Stripe.createFetchHttpClient(),
+  });
 }
 
-async function resolveTtsApp(config: ApiHandlerConfig) {
-  const { secretStore, ttsAudioBucket } = config;
-  const ttsApp =
-    ttsAudioBucket !== undefined
-      ? await createTtsAppFromBindings({
-          secretStore,
-          r2Bucket: ttsAudioBucket,
-        })
-      : null;
-  if (ttsApp === null) {
-    log.warn('tts routes not mounted', {
-      reason:
-        ttsAudioBucket === undefined
-          ? 'TTS_AUDIO R2 binding missing — add [[r2_buckets]] to wrangler.toml'
-          : `${ApiSecretName.elevenLabsApiKey} unset in Doppler — set it to enable TTS`,
-    });
-  } else {
-    log.info('tts routes mounted', {
-      paths: ['/tts/synthesize', '/tts/audio/:hash'],
-    });
-  }
-  return ttsApp;
+async function createTtsApp(config: ApiHandlerConfig) {
+  return await createTtsAppFromBindings({
+    secretStore: config.secretStore,
+    r2Bucket: config.ttsAudioBucket,
+    requireAuth: async (req) => {
+      const s = apiRequestAsyncLocalStorage.getStore();
+      assert.defined(s, 'tts auth: request store missing');
+      await s.sessionAuth.resolvePatchDbContext(s.patchDb, req);
+    },
+  });
 }
 
-function buildStripeSubApp(
-  config: ApiHandlerConfig,
-  stripe: ReturnType<typeof makeStripeClient> | null
-) {
+function createStripeSubApp(config: ApiHandlerConfig, stripe: Stripe) {
   return createStripeApp({
     getPatchDb: () => {
       const s = apiRequestAsyncLocalStorage.getStore();
@@ -173,8 +162,8 @@ function buildStripeSubApp(
 export async function createApiApp(config: ApiHandlerConfig) {
   const { secretStore } = config;
   const [stripe, ttsApp] = await Promise.all([
-    resolveStripeClient(secretStore),
-    resolveTtsApp(config),
+    createStripeClient(secretStore),
+    createTtsApp(config),
   ]);
 
   const { honoApp: patchDbApp, basePath: resolvedBase } =
@@ -198,8 +187,9 @@ export async function createApiApp(config: ApiHandlerConfig) {
     .route('/', createClientConfigApp(log, secretStore))
     .route('/', createAuthApiRoutes());
 
-  const app = (ttsApp !== null ? baseApp.route('/', ttsApp) : baseApp)
-    .route('/', buildStripeSubApp(config, stripe))
+  const app = baseApp
+    .route('/', ttsApp)
+    .route('/', createStripeSubApp(config, stripe))
     .route('/', createSpaceApp())
     .route(patchMount, patchDbApp)
     .onError(createApiErrorHandler());

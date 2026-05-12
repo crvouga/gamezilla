@@ -6,8 +6,11 @@
  * Canonicalisation sorts object keys so callers building the input object in
  * different orders still hash to the same key.
  *
- * `providerId` is part of the input so the same `text` / `voiceId` cached under
- * a different provider doesn't collide on the same key.
+ * `providerId` is part of the input so the same `text` cached under a
+ * different provider doesn't collide on the same key. The full `Voice`
+ * discriminant (`name`, `provider`, `voiceId`, `model`) is folded in too —
+ * renaming a `Voice` entry (or pointing it at a different ElevenLabs id)
+ * counts as a different voice and invalidates the existing R2 cache.
  *
  * Uses `crypto.subtle` which is available in every runtime that hosts the
  * server (Workers, Bun, Node 18+, browsers). This module is `shared/` so it
@@ -16,11 +19,11 @@
  */
 
 import type { TtsAudioFormat } from './tts-types';
+import type { Voice } from './tts-voice';
 
 export type TtsCacheKeyInput = {
   readonly providerId: string;
-  readonly model: string;
-  readonly voiceId: string;
+  readonly voice: Voice;
   readonly text: string;
   readonly format: TtsAudioFormat;
 };
@@ -30,10 +33,12 @@ const HASH_HEX_LEN = 32;
 function canonicalJson(input: TtsCacheKeyInput): string {
   const ordered = {
     format: input.format,
-    model: input.model,
     providerId: input.providerId,
     text: input.text,
-    voiceId: input.voiceId,
+    voiceModel: input.voice.model,
+    voiceName: input.voice.name,
+    voiceProvider: input.voice.provider,
+    voiceVoiceId: input.voice.voiceId,
   };
   return JSON.stringify(ordered);
 }

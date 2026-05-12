@@ -110,10 +110,15 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
       'HYPERDRIVE Worker binding is required — add [[hyperdrive]] to packages/api/wrangler.toml'
     );
   }
+  if (env.TTS_AUDIO === undefined || env.TTS_AUDIO === null) {
+    throw new ConfigurationError(
+      'TTS_AUDIO R2 binding is required — add [[r2_buckets]] to packages/api/wrangler.toml'
+    );
+  }
   return await createApiApp({
     pubSub,
     secretStore,
-    ...(env.TTS_AUDIO !== undefined ? { ttsAudioBucket: env.TTS_AUDIO } : {}),
+    ttsAudioBucket: env.TTS_AUDIO,
   });
 }
 

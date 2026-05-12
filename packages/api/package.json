@@ -35,7 +35,8 @@
     "@gamezilla/stripe": "workspace:*",
     "@gamezilla/tts": "workspace:*",
     "hono": "catalog:",
-    "pg": "catalog:"
+    "pg": "catalog:",
+    "stripe": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

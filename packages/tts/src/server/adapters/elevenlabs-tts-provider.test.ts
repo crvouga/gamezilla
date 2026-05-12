@@ -1,10 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
+import { Voices, type Voice } from '../../shared/tts-voice';
 import { TtsProviderError } from '../ports/tts-provider';
-import {
-  ELEVEN_LABS_DEFAULT_MODEL,
-  ELEVEN_LABS_DEFAULT_VOICE_ID,
-  ElevenLabsTtsProvider,
-} from './elevenlabs-tts-provider';
+import { ElevenLabsTtsProvider } from './elevenlabs-tts-provider';
 
 function okResponse(bytes: Uint8Array, contentType = 'audio/mpeg'): Response {
   return new Response(new Blob([bytes as BlobPart]), {
@@ -20,21 +17,9 @@ describe('ElevenLabsTtsProvider', () => {
     );
   });
 
-  test('uses defaults when none supplied', () => {
+  test('exposes provider id', () => {
     const provider = new ElevenLabsTtsProvider({ apiKey: 'k' });
     expect(provider.id).toBe('elevenlabs');
-    expect(provider.defaultVoiceId).toBe(ELEVEN_LABS_DEFAULT_VOICE_ID);
-    expect(provider.defaultModel).toBe(ELEVEN_LABS_DEFAULT_MODEL);
-  });
-
-  test('honours explicit defaults', () => {
-    const provider = new ElevenLabsTtsProvider({
-      apiKey: 'k',
-      defaultVoiceId: 'voice-x',
-      defaultModel: 'model-x',
-    });
-    expect(provider.defaultVoiceId).toBe('voice-x');
-    expect(provider.defaultModel).toBe('model-x');
   });
 
   test('synthesize sends correct URL, headers, and body', async () => {
@@ -45,8 +30,7 @@ describe('ElevenLabsTtsProvider', () => {
     });
     const result = await provider.synthesize({
       text: 'Hello',
-      voiceId: 'rachel',
-      model: 'eleven_turbo_v2_5',
+      voice: Voices.Rachel,
       format: 'mp3',
     });
 
@@ -57,7 +41,7 @@ describe('ElevenLabsTtsProvider', () => {
     const call0 = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
     const urlArg = call0[0];
     const initArg = call0[1];
-    expect(urlArg).toContain('/v1/text-to-speech/rachel');
+    expect(urlArg).toContain(`/v1/text-to-speech/${Voices.Rachel.voiceId}`);
     expect(urlArg).toContain('output_format=mp3_44100_128');
     const headers = initArg.headers as Record<string, string>;
     expect(headers['xi-api-key']).toBe('sk-test');
@@ -66,7 +50,7 @@ describe('ElevenLabsTtsProvider', () => {
     expect(initArg.method).toBe('POST');
     expect(JSON.parse(initArg.body as string)).toEqual({
       text: 'Hello',
-      model_id: 'eleven_turbo_v2_5',
+      model_id: Voices.Rachel.model,
     });
   });
 
@@ -80,8 +64,7 @@ describe('ElevenLabsTtsProvider', () => {
     });
     const result = await provider.synthesize({
       text: 'Hi',
-      voiceId: 'v',
-      model: 'm',
+      voice: Voices.David,
       format: 'wav',
     });
     expect(result.contentType).toBe('audio/wav');
@@ -97,10 +80,18 @@ describe('ElevenLabsTtsProvider', () => {
       apiKey: 'sk',
       fetch: fetchMock,
     });
+    /**
+     * Construct an in-test voice that bypasses the discriminated union to
+     * exercise URL encoding for unusual ids — production callers always use
+     * the `Voices.*` constants whose ids are already URL-safe.
+     */
+    const spacedVoice = {
+      ...Voices.David,
+      voiceId: 'spaced voice/id',
+    } as unknown as Voice;
     await provider.synthesize({
       text: 't',
-      voiceId: 'spaced voice/id',
-      model: 'm',
+      voice: spacedVoice,
       format: 'mp3',
     });
     const encCall = fetchMock.mock.calls[0] as unknown as [string];
@@ -119,8 +110,7 @@ describe('ElevenLabsTtsProvider', () => {
     try {
       await provider.synthesize({
         text: 't',
-        voiceId: 'v',
-        model: 'm',
+        voice: Voices.David,
         format: 'mp3',
       });
     } catch (e) {
@@ -133,5 +123,31 @@ describe('ElevenLabsTtsProvider', () => {
       expect(caught.message).toContain('429');
       expect(caught.message).toContain('quota_exceeded');
     }
+  });
+
+  test('synthesize crashes on a non-eleven-labs voice', async () => {
+    const fetchMock = mock(async () => okResponse(new Uint8Array([0])));
+    const provider = new ElevenLabsTtsProvider({
+      apiKey: 'sk',
+      fetch: fetchMock,
+    });
+    /**
+     * Forge a `Voice` with a different `provider` discriminant. The
+     * adapter must reject it instead of forwarding to ElevenLabs with the
+     * wrong ids/model — this is the safety net that catches a future
+     * second-provider wiring bug.
+     */
+    const wrongProviderVoice = {
+      ...Voices.David,
+      provider: 'openai',
+    } as unknown as Voice;
+    expect(() =>
+      provider.synthesize({
+        text: 't',
+        voice: wrongProviderVoice,
+        format: 'mp3',
+      })
+    ).toThrow();
+    expect(fetchMock).toHaveBeenCalledTimes(0);
   });
 });

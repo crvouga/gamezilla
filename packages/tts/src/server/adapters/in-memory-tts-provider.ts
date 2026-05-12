@@ -55,21 +55,15 @@ function buildFakeMp3(text: string): Uint8Array {
 
 export type InMemoryTtsProviderOptions = {
   readonly id?: string;
-  readonly defaultVoiceId?: string;
-  readonly defaultModel?: string;
 };
 
 export class InMemoryTtsProvider implements TtsProvider {
   readonly id: string;
-  readonly defaultVoiceId: string;
-  readonly defaultModel: string;
   /** Number of times {@link synthesize} has been called — handy for cache tests. */
   callCount = 0;
 
   constructor(options: InMemoryTtsProviderOptions = {}) {
     this.id = options.id ?? 'in-memory';
-    this.defaultVoiceId = options.defaultVoiceId ?? 'test-voice';
-    this.defaultModel = options.defaultModel ?? 'test-model';
   }
 
   synthesize(input: TtsSynthesizeInput): Promise<TtsSynthesizeOutput> {

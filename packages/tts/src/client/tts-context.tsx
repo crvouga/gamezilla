@@ -10,6 +10,7 @@ import type {
   TtsAudioFormat,
   TtsSynthesizeResponse,
 } from '../shared/tts-types';
+import type { Voice } from '../shared/tts-voice';
 import { TtsClient } from './tts-client';
 import { useTtsPlayer } from './use-tts-player';
 
@@ -19,9 +20,8 @@ type FetchFn = (
 ) => Promise<Response>;
 
 export type UseTtsOptions = {
-  readonly voiceId?: string;
-  readonly model?: string;
-  readonly format?: TtsAudioFormat;
+  readonly voice: Voice;
+  readonly format: TtsAudioFormat;
   readonly signal?: AbortSignal;
 };
 
@@ -29,15 +29,15 @@ export type UseTtsResult = {
   /** Resolve a `text` to a synthesised audio URL (cache-aware). */
   synthesize: (
     text: string,
-    opts?: UseTtsOptions
+    opts: UseTtsOptions
   ) => Promise<TtsSynthesizeResponse>;
   /** Synthesise but don't play — primes the server cache for an upcoming `play`. */
   prefetch: (
     text: string,
-    opts?: UseTtsOptions
+    opts: UseTtsOptions
   ) => Promise<TtsSynthesizeResponse>;
   /** Synthesise (or cache-hit) then play through `expo-audio`. */
-  play: (text: string, opts?: UseTtsOptions) => Promise<void>;
+  play: (text: string, opts: UseTtsOptions) => Promise<void>;
   /** Stop playback if currently playing. */
   stop: () => void;
   isPlaying: boolean;
@@ -53,18 +53,15 @@ export type TtsProviderProps = {
   readonly apiUrl: string;
   /** Optional fetch override (for adding `Authorization` headers, etc.). */
   readonly fetch?: FetchFn;
-  /** Default voice id; per-call `opts.voiceId` overrides. */
-  readonly defaultVoiceId?: string;
-  /** Default model id; per-call `opts.model` overrides. */
-  readonly defaultModel?: string;
-  /** Default audio format; per-call `opts.format` overrides. Default `'mp3'`. */
-  readonly defaultFormat?: TtsAudioFormat;
   readonly children: ReactNode;
 };
 
 /**
  * Mounts the TTS context. Wrap once near the app root; child components use
- * {@link useTts} to synthesise and play audio.
+ * {@link useTts} to synthesise and play audio. Voice and format are passed
+ * per-call (no provider-wide defaults) so each component owns its own
+ * `Voice` choice — the chess puzzle screen, for example, hard-codes
+ * `Voices.David`.
  *
  * `apiUrl` should be the same origin the rest of your `@gamezilla/api` client
  * code already targets — typically resolved from the runtime config service
@@ -73,9 +70,6 @@ export type TtsProviderProps = {
 export function TtsProvider({
   apiUrl,
   fetch: fetchOverride,
-  defaultVoiceId,
-  defaultModel,
-  defaultFormat,
   children,
 }: TtsProviderProps): ReactNode {
   const client = useMemo(
@@ -91,28 +85,23 @@ export function TtsProvider({
   const currentTextRef = useRef<string | null>(null);
 
   const synthesize = useCallback(
-    // eslint-disable-next-line complexity
-    async (text: string, opts?: UseTtsOptions) => {
-      const voiceId = opts?.voiceId ?? defaultVoiceId;
-      const model = opts?.model ?? defaultModel;
-      return client.synthesize({
+    (text: string, opts: UseTtsOptions) =>
+      client.synthesize({
         text,
-        ...(voiceId !== undefined ? { voiceId } : {}),
-        ...(model !== undefined ? { model } : {}),
-        format: opts?.format ?? defaultFormat ?? ('mp3' as const),
-        ...(opts?.signal !== undefined ? { signal: opts.signal } : {}),
-      });
-    },
-    [client, defaultVoiceId, defaultModel, defaultFormat]
+        voice: opts.voice,
+        format: opts.format,
+        ...(opts.signal !== undefined ? { signal: opts.signal } : {}),
+      }),
+    [client]
   );
 
   const prefetch = useCallback(
-    (text: string, opts?: UseTtsOptions) => synthesize(text, opts),
+    (text: string, opts: UseTtsOptions) => synthesize(text, opts),
     [synthesize]
   );
 
   const play = useCallback(
-    async (text: string, opts?: UseTtsOptions) => {
+    async (text: string, opts: UseTtsOptions) => {
       const result = await synthesize(text, opts);
       currentTextRef.current = text;
       await player.play(result.url);
@@ -155,13 +144,4 @@ export function useTts(): UseTtsResult {
     throw new Error('useTts: TtsProvider missing — wrap with <TtsProvider>');
   }
   return value;
-}
-
-/**
- * Non-throwing variant — returns `null` when no `<TtsProvider>` is mounted.
- * Use from low-level UI components that may be rendered in isolated contexts
- * (tests, design-system previews) where TTS is not available.
- */
-export function useTtsOptional(): UseTtsResult | null {
-  return useContext(Ctx);
 }

@@ -18,6 +18,7 @@ import {
   Text,
   useTheme,
 } from '@gamezilla/ui';
+import { Voices } from '@gamezilla/tts/shared/tts-voice';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useMemo, type ReactNode } from 'react';
 import {
@@ -215,7 +216,7 @@ function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
         }}
         style={{ width: '100%' }}
       >
-        <SpeakingAvatar message={coachMessage} />
+        <SpeakingAvatar message={coachMessage} voice={Voices.David} />
         <ChessBoard
           controlled
           fen={displayFen ?? ''}

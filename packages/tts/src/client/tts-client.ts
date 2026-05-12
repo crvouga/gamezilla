@@ -1,5 +1,5 @@
 import type {
-  TtsAudioFormat,
+  TtsSynthesizeRequest,
   TtsSynthesizeResponse,
 } from '../shared/tts-types';
 import { TtsClientError } from './tts-client-error';
@@ -16,11 +16,7 @@ export type TtsClientOptions = {
   readonly fetch?: FetchFn;
 };
 
-export type TtsSynthesizeRequest = {
-  readonly text: string;
-  readonly voiceId?: string;
-  readonly model?: string;
-  readonly format?: TtsAudioFormat;
+export type TtsClientSynthesizeRequest = TtsSynthesizeRequest & {
   readonly signal?: AbortSignal;
 };
 
@@ -32,6 +28,10 @@ function trimBaseUrl(url: string): string {
  * Thin fetch wrapper for `POST /tts/synthesize`. The audio bytes themselves
  * are streamed by the playback layer (`use-tts-player`) via a plain GET to
  * `response.url`, so this client only deals in JSON.
+ *
+ * Every request body carries the full `text` / `voice` / `format` triple —
+ * the server does not fill in defaults and will return `400` if any field
+ * is missing.
  *
  * The caller's `fetch` is used verbatim — if you need to attach an
  * `Authorization` header, supply a wrapped fetch (the same pattern
@@ -47,11 +47,14 @@ export class TtsClient {
       options.fetch ?? ((input, init) => globalThis.fetch(input, init));
   }
 
-  async synthesize(req: TtsSynthesizeRequest): Promise<TtsSynthesizeResponse> {
-    const body: Record<string, unknown> = { text: req.text };
-    if (req.voiceId !== undefined) body['voiceId'] = req.voiceId;
-    if (req.model !== undefined) body['model'] = req.model;
-    if (req.format !== undefined) body['format'] = req.format;
+  async synthesize(
+    req: TtsClientSynthesizeRequest
+  ): Promise<TtsSynthesizeResponse> {
+    const body: TtsSynthesizeRequest = {
+      text: req.text,
+      voice: req.voice,
+      format: req.format,
+    };
 
     const init: RequestInit = {
       method: 'POST',

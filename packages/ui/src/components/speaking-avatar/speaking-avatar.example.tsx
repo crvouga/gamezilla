@@ -1,3 +1,5 @@
+import { TtsProvider } from '@gamezilla/tts/client/tts-context';
+import { Voices } from '@gamezilla/tts/shared/tts-voice';
 import { useEffect, useState } from 'react';
 import { Box } from '../box';
 import { Text } from '../text';
@@ -22,29 +24,51 @@ function RotatingMessage() {
       clearInterval(id);
     };
   }, []);
-  return <SpeakingAvatar message={ROTATING_LINES[index] ?? ''} />;
+  return (
+    <SpeakingAvatar
+      message={ROTATING_LINES[index] ?? ''}
+      voice={Voices.David}
+      speak={false}
+    />
+  );
 }
 
 export default function SpeakingAvatarExample() {
+  // Storybook preview: mount a `<TtsProvider>` so the avatar's `useTts()`
+  // resolves. Audio is muted via `speak={false}` because the placeholder
+  // `apiUrl` is unreachable from the design-system harness.
   return (
-    <Box sx={{ p: 4, gap: 6 }}>
-      <Text variant="heading" label="SpeakingAvatar" />
+    <TtsProvider apiUrl="http://localhost">
+      <Box sx={{ p: 4, gap: 6 }}>
+        <Text variant="heading" label="SpeakingAvatar" />
 
-      <Text variant="caption" label="Static message" />
-      <SpeakingAvatar message="Hello! I'm your puzzle coach." />
+        <Text variant="caption" label="Static message" />
+        <SpeakingAvatar
+          message="Hello! I'm your puzzle coach."
+          voice={Voices.David}
+          speak={false}
+        />
 
-      <Text variant="caption" label="Rotating message (re-types on change)" />
-      <RotatingMessage />
+        <Text variant="caption" label="Rotating message (re-types on change)" />
+        <RotatingMessage />
 
-      <Text variant="caption" label="Custom seed (different face)" />
-      <SpeakingAvatar message="Different seed, different face." seed="bishop" />
+        <Text variant="caption" label="Custom seed (different face)" />
+        <SpeakingAvatar
+          message="Different seed, different face."
+          voice={Voices.Sam}
+          seed="bishop"
+          speak={false}
+        />
 
-      <Text variant="caption" label="Smaller avatar + faster typing" />
-      <SpeakingAvatar
-        message="Tighter layout for compact screens."
-        avatarSize={40}
-        charDelayMs={15}
-      />
-    </Box>
+        <Text variant="caption" label="Smaller avatar + faster typing" />
+        <SpeakingAvatar
+          message="Tighter layout for compact screens."
+          voice={Voices.Olivia}
+          avatarSize={40}
+          charDelayMs={15}
+          speak={false}
+        />
+      </Box>
+    </TtsProvider>
   );
 }
