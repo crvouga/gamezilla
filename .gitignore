@@ -40,10 +40,10 @@ yarn-error.*
 tmp/package-deps-graph.html
 
 # Lichess puzzle CSV cache (seed:puzzles)
-packages/api/.cache/
-# Legacy Lichess cache locations (kept ignored so old checkouts don't dirty
-# the tree).
 packages/chess/.cache/
+# Legacy Lichess cache location (kept ignored so old checkouts that still
+# have files under packages/api/.cache don't dirty the tree).
+packages/api/.cache/
 
 # Local PostgreSQL cluster + lifecycle artifacts (packages/pg)
 packages/pg/.postgres/

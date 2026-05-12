@@ -17,7 +17,8 @@
     ]
   },
   "scripts": {
-    "lint": "eslint src --max-warnings 0",
+    "lint": "eslint src scripts --max-warnings 0",
+    "seed:puzzles": "bun run scripts/seed-chess-puzzles.ts",
     "tc": "tsc --noEmit",
     "test": "bun test --pass-with-no-tests"
   },
@@ -31,14 +32,19 @@
     "@lingui/react": "catalog:",
     "@shopify/react-native-skia": "catalog:",
     "chess.js": "catalog:",
+    "csv-parse": "catalog:",
     "expo-audio": "catalog:",
     "expo-haptics": "catalog:",
+    "fzstd": "catalog:",
+    "pg": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:",
     "react-native-gesture-handler": "catalog:",
     "react-native-reanimated": "catalog:"
   },
   "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
     "@types/react": "catalog:",
     "typescript": "catalog:"
   }

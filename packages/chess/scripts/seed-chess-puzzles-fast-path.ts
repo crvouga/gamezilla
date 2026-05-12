@@ -10,7 +10,6 @@
 import type { Logger } from '@gamezilla/lib/logger';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { INSERT_PATCHES_BATCH } from '@gamezilla/patch-db/impl-postgres/sql-constants';
-import type { Pool, PoolClient } from 'pg';
 import {
   CHESS_PUZZLE_ENTITY_TYPE,
   type PuzzleBatchEntry,
@@ -18,11 +17,20 @@ import {
 import type { PuzzleSeedReporter } from './seed-chess-puzzles-reporter';
 
 /**
- * Per-connection tuning applied via `pool.on('connect', …)`. These knobs
- * trade durability of the *most recent* committed batches for far less
- * WAL fsync pressure during a multi-million-row bulk seed. The seed is
- * fully resumable from the persisted `chess.puzzle.load` cursor, so
- * losing the last few unflushed commits on a crash is acceptable.
+ * Per-session tuning, applied **once** synchronously after the single
+ * seed `pg.Client` connects (see `createSqlClient` in the entry script).
+ *
+ * The previous implementation registered an async `pool.on('connect', …)`
+ * handler — but `pg.Pool` does not await that handler before returning a
+ * client to the caller, so the first few batches could run with the
+ * server's default `synchronous_commit = on`, defeating the WAL win.
+ * Awaiting these statements on a single dedicated `Client` removes that
+ * race entirely while also capping connection count at 1.
+ *
+ * These knobs trade durability of the *most recent* committed batches for
+ * far less WAL fsync pressure during a multi-million-row bulk seed. The
+ * seed is fully resumable from the persisted `chess.puzzle.load` cursor,
+ * so losing the last few unflushed commits on a crash is acceptable.
  *
  * - `synchronous_commit = off` — commit returns before the WAL record is
  *   fsync'd to disk; PlanetScale still persists WAL on its own cadence,
@@ -31,27 +39,35 @@ import type { PuzzleSeedReporter } from './seed-chess-puzzles-reporter';
  *   run between batches so they finish before the next checkpoint.
  * - `work_mem = '64MB'` — keeps the recursive-CTE reads in patch-db's
  *   start-of-seed `chess.puzzle.load` lookup cheap.
+ * - `statement_timeout = 0` — explicit unlimited; managed Postgres
+ *   defaults can be aggressive and our `VACUUM ANALYZE` may run for
+ *   minutes on a multi-GB table.
+ * - `idle_in_transaction_session_timeout = '60s'` — defensive: if the
+ *   seed were ever stuck in a transaction, the server kills the session
+ *   instead of silently holding locks (and a connection slot) forever.
  */
 const SESSION_TUNING_SQL: readonly string[] = [
   "SET synchronous_commit = 'off'",
   "SET maintenance_work_mem = '256MB'",
   "SET work_mem = '64MB'",
+  'SET statement_timeout = 0',
+  "SET idle_in_transaction_session_timeout = '60s'",
 ];
 
-export function applySessionTuningOnConnect(pool: Pool, log: Logger): void {
-  pool.on('connect', (client: PoolClient) => {
-    void (async () => {
-      try {
-        for (const stmt of SESSION_TUNING_SQL) {
-          await client.query(stmt);
-        }
-      } catch (err) {
-        log.warn('seed:puzzles: session tuning failed (continuing)', {
-          error: err instanceof Error ? err.message : String(err),
-        });
-      }
-    })();
-  });
+export async function applySessionTuning(
+  sql: SqlClient,
+  log: Logger
+): Promise<void> {
+  for (const stmt of SESSION_TUNING_SQL) {
+    try {
+      await sql.run(stmt);
+    } catch (err) {
+      log.warn('seed:puzzles: session tuning failed (continuing)', {
+        stmt,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
+  }
 }
 
 export type SeedStats = {
@@ -169,18 +185,19 @@ export async function flushPuzzleBatchFast(args: {
 
 const SEEDED_TABLES: readonly string[] = ['public.patches', 'public.snapshots'];
 
-async function tryRun(
-  sql: SqlClient,
-  log: Logger,
-  stmt: string,
-  message: string,
-  detail: Record<string, unknown> = {}
-): Promise<void> {
+async function tryRun(args: {
+  sql: SqlClient;
+  log: Logger;
+  stmt: string;
+  message: string;
+  detail?: Record<string, unknown>;
+}): Promise<void> {
+  const { sql, log, stmt, message, detail } = args;
   try {
     await sql.run(stmt);
   } catch (err) {
     log.warn(message, {
-      ...detail,
+      ...(detail ?? {}),
       stmt,
       error: err instanceof Error ? err.message : String(err),
     });
@@ -208,20 +225,20 @@ export async function runInterimMaintenance(args: {
     batchesFlushedSoFar: state.batchesFlushed,
     processedSoFar: state.processed,
   });
-  await tryRun(
+  await tryRun({
     sql,
     log,
-    'CHECKPOINT',
-    'seed:puzzles: CHECKPOINT skipped (insufficient privilege?)'
-  );
+    stmt: 'CHECKPOINT',
+    message: 'seed:puzzles: CHECKPOINT skipped (insufficient privilege?)',
+  });
   for (const table of SEEDED_TABLES) {
-    await tryRun(
+    await tryRun({
       sql,
       log,
-      `VACUUM (ANALYZE, INDEX_CLEANUP off) ${table}`,
-      'seed:puzzles: interim VACUUM failed (continuing)',
-      { table }
-    );
+      stmt: `VACUUM (ANALYZE, INDEX_CLEANUP off) ${table}`,
+      message: 'seed:puzzles: interim VACUUM failed (continuing)',
+      detail: { table },
+    });
   }
 }
 
@@ -236,13 +253,13 @@ async function reindexPuzzleIndexes(
     "SELECT indexname FROM pg_indexes WHERE schemaname = current_schema() AND indexname LIKE 'pdb_idx_chess_puzzle__%' ORDER BY indexname"
   );
   for (const { indexname } of idxRows) {
-    await tryRun(
+    await tryRun({
       sql,
       log,
-      `REINDEX INDEX CONCURRENTLY "${indexname}"`,
-      'seed:puzzles: REINDEX failed (continuing)',
-      { indexname }
-    );
+      stmt: `REINDEX INDEX CONCURRENTLY "${indexname}"`,
+      message: 'seed:puzzles: REINDEX failed (continuing)',
+      detail: { indexname },
+    });
   }
 }
 
@@ -255,15 +272,16 @@ export async function runFinalMaintenance(args: {
   const { sql, reporter, log, rebuildIndexes } = args;
   reporter.phase('Final maintenance (VACUUM ANALYZE)');
   for (const table of SEEDED_TABLES) {
-    await tryRun(
+    await tryRun({
       sql,
       log,
-      `VACUUM (ANALYZE) ${table}`,
-      'seed:puzzles: final VACUUM failed (continuing)',
-      { table }
-    );
+      stmt: `VACUUM (ANALYZE) ${table}`,
+      message: 'seed:puzzles: final VACUUM failed (continuing)',
+      detail: { table },
+    });
   }
   if (!rebuildIndexes) return;
   reporter.phase('Rebuild puzzle indexes (REINDEX CONCURRENTLY)');
   await reindexPuzzleIndexes(sql, log);
 }
+

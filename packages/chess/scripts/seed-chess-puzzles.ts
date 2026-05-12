@@ -20,11 +20,27 @@
  * `ON CONFLICT DO NOTHING` on both tables. The patch row is still written
  * so sync semantics remain intact for downstream clients.
  *
+ * The seed assumes the `patches` and `snapshots` tables and the
+ * `pdb_idx_chess_puzzle__*` declarative indexes already exist. Run the
+ * standard migration step first (`bun run --filter @gamezilla/api db:migrate`)
+ * before invoking this script on a fresh database. Keeping migrations out
+ * of the seed lets `@gamezilla/chess` stay independent of `@gamezilla/api`
+ * (and Better Auth) and avoids a workspace-level dependency cycle.
+ *
+ * Connection model: the seed opens **exactly one** TCP session to Postgres
+ * via `pg.Client` (not `pg.Pool`). The seed loop is fully serial — one
+ * batch transaction at a time with awaited `CHECKPOINT` / `VACUUM` /
+ * progress-write statements between batches — so a pool only adds idle
+ * connections that count against PlanetScale's `max_connections` budget
+ * without speeding anything up. PgBouncer-fronted endpoints work too as
+ * long as they run in **session pooling** mode (transaction mode breaks
+ * `SET …` statements that need to persist across the seed's batches).
+ *
  * Local (Doppler `local`, `DB_URL` → PGlite socket or other Postgres):
- *   DOPPLER_CONFIG=local doppler run -- bun run --filter @gamezilla/api seed:puzzles
+ *   DOPPLER_CONFIG=local doppler run -- bun run --filter @gamezilla/chess seed:puzzles
  *
  * Production (Doppler `prod`, `DB_URL` → Postgres):
- *   DOPPLER_CONFIG=prod doppler run -- bun run --filter @gamezilla/api seed:puzzles
+ *   DOPPLER_CONFIG=prod doppler run -- bun run --filter @gamezilla/chess seed:puzzles
  *
  * Options: `--source`, `--cache-dir`, `--batch-size` (default 1000),
  *   `--limit`, `--no-resume`, `--dry-run`, `--pace-ms` (default 250),
@@ -43,7 +59,7 @@ import {
 import { assert } from '@gamezilla/lib/assert';
 import { createLogger, type Logger } from '@gamezilla/lib/logger';
 import { createDopplerSecretStoreForScripts } from '@gamezilla/lib/secret-store';
-import { SqlClientImplPg } from '@gamezilla/lib/sql-client/impl-pg';
+import { SqlClientImplPgClient } from '@gamezilla/lib/sql-client/impl-pg-client';
 import { sanitizePostgresUrlForNodePg } from '@gamezilla/lib/sql-client/sanitize-postgres-url-for-node-pg';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
@@ -53,12 +69,10 @@ import {
   type PatchInput,
 } from '@gamezilla/patch-db/interface';
 import { PatchDbCompactionPolicyRegistry } from '@gamezilla/patch-db/policy/compaction-policy';
-import { Pool } from 'pg';
-import { loadBetterAuthOptionsForMigration } from '@gamezilla/auth/server/better-auth-doppler-options';
-import { runPostgresMigrations } from '../src/migrations/run-postgres-migrations';
+import { Client } from 'pg';
 import { parseCli, type Cli } from './seed-chess-puzzles-cli';
 import {
-  applySessionTuningOnConnect,
+  applySessionTuning,
   createSeedStats,
   flushPuzzleBatchFast,
   runFinalMaintenance,
@@ -81,15 +95,30 @@ import {
   type ResolvedSource,
 } from './seed-chess-puzzles-streaming';
 
-function createSqlClient(
-  databaseUrl: string,
-  log: Logger
-): { sql: SqlClient; pool: Pool } {
-  const pool = new Pool({
+/**
+ * Open exactly one TCP session to Postgres for the entire seed run.
+ *
+ * - `keepAlive: true` + a 10s initial probe keeps long-running idle stretches
+ *   (e.g. parsing a chunk of CSV between batches) from being silently
+ *   killed by load-balancers / NAT timers in front of managed Postgres.
+ * - `application_name=seed:puzzles` makes this session easy to spot in
+ *   `pg_stat_activity` and PlanetScale's connection dashboard.
+ *
+ * Pools (`pg.Pool`) are intentionally not used: the seed loop is fully
+ * serial, so a pool only adds idle connections that count against the
+ * primary's `max_connections` budget without any throughput benefit.
+ */
+function createSqlClient(databaseUrl: string): {
+  sql: SqlClient;
+  client: Client;
+} {
+  const client = new Client({
     connectionString: sanitizePostgresUrlForNodePg(databaseUrl),
+    keepAlive: true,
+    keepAliveInitialDelayMillis: 10_000,
+    application_name: 'seed:puzzles',
   });
-  applySessionTuningOnConnect(pool, log);
-  return { sql: new SqlClientImplPg(pool), pool };
+  return { sql: new SqlClientImplPgClient(client), client };
 }
 
 function createSeedPatchDb(sql: SqlClient): PatchDb {
@@ -456,18 +485,15 @@ async function runSeed(
   reporter: PuzzleSeedReporter,
   log: Logger
 ): Promise<void> {
-  reporter.phase('Connect database & run migrations');
+  reporter.phase('Connect database (single TCP session)', {
+    note: 'Schema (patches/snapshots + pdb_idx_chess_puzzle__*) must already exist; run `bun run --filter @gamezilla/api db:migrate` first on a fresh database.',
+  });
   const store = createDopplerSecretStoreForScripts();
   const databaseUrl = await store.getRequired('DB_URL');
-  const { sql: sqlClient, pool } = createSqlClient(databaseUrl, log);
-  await sqlClient.connect();
+  const { sql: sqlClient, client } = createSqlClient(databaseUrl);
+  await client.connect();
   try {
-    await runPostgresMigrations({
-      sqlClient,
-      databaseUrl,
-      logger: log,
-      betterAuthOptions: await loadBetterAuthOptionsForMigration(store),
-    });
+    await applySessionTuning(sqlClient, log);
     const patchDb = createSeedPatchDb(sqlClient);
     await runSeedInner({
       cli,
@@ -478,7 +504,7 @@ async function runSeed(
       patchDb,
     });
   } finally {
-    await pool.end();
+    await sqlClient.disconnect();
   }
 }
 

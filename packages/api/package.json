@@ -16,7 +16,6 @@
     "kill": "lsof -ti :8788 | xargs kill -9 2>/dev/null || true",
     "lint": "eslint src --max-warnings 0",
     "preview": "wrangler dev --port 8788",
-    "seed:puzzles": "bun run scripts/seed-chess-puzzles.ts",
     "setup": "bun run scripts/setup-dev-vars.ts && bun run scripts/setup-better-auth-secret.ts",
     "stripe:check": "bun run --filter @gamezilla/stripe check",
     "stripe:sync": "bun run --filter @gamezilla/stripe sync",
@@ -35,8 +34,6 @@
     "@gamezilla/spaces": "workspace:*",
     "@gamezilla/stripe": "workspace:*",
     "@gamezilla/tts": "workspace:*",
-    "csv-parse": "catalog:",
-    "fzstd": "catalog:",
     "hono": "catalog:",
     "pg": "catalog:"
   },

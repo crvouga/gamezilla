@@ -16,7 +16,7 @@
     "check:no-patches": "bun run scripts/check-no-patches.ts",
     "check:static": "bun run check:actionlint && bun run check:gitleaks",
     "check:turbo-remote-cache": "DOPPLER_CONFIG=local doppler run -- bun run scripts/check-turbo-remote-cache.ts",
-    "chess:puzzles:seed": "bun run --filter @gamezilla/api seed:puzzles",
+    "chess:puzzles:seed": "bun run --filter @gamezilla/chess seed:puzzles",
     "ci:audit": "bun audit --audit-level high",
     "ci:circular-deps": "bun run scripts/check-circular-deps.ts",
     "ci:depcruise": "NODE_OPTIONS=--max-old-space-size=8192 dependency-cruise packages --validate .dependency-cruiser.cjs --output-type err",

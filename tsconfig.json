@@ -57,6 +57,7 @@
     "packages/stripe/src/**/*.ts",
     "packages/chess/src/**/*.ts",
     "packages/chess/src/**/*.tsx",
+    "packages/chess/scripts/**/*.ts",
     "packages/api/scripts/**/*.ts",
     "packages/profile/src/**/*.ts",
     "packages/profile/src/**/*.tsx",
