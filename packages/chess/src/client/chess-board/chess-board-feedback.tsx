@@ -9,6 +9,7 @@ import {
   type SkFont,
 } from '@shopify/react-native-skia';
 import { useEffect, useMemo, type ReactNode } from 'react';
+import { Platform } from 'react-native';
 import {
   Easing,
   useDerivedValue,
@@ -237,13 +238,18 @@ export function ChessBoardFeedback(props: ChessBoardFeedbackProps): ReactNode {
   const cell = size / 8;
   const badgeRadius = Math.max(8, cell * 0.16);
 
-  // See `chess-board-canvas.tsx` for why `matchFont` is used instead of
-  // `Skia.Font(undefined, …)` — iOS's JSI binding rejects an explicit
-  // undefined typeface arg with `Value is undefined, expected an Object`.
-  const font = useMemo(
-    () => matchFont({ fontSize: Math.max(10, Math.floor(cell * 0.28)) }),
-    [cell]
-  );
+  /**
+   * Per-platform system-font construction. See `chess-board-canvas.tsx`
+   * for the full rationale — short version: iOS's JSI rejects an
+   * explicit-undefined typeface arg to `Skia.Font`, but Web's CanvasKit
+   * stub throws `Not implemented on React Native Web` for `matchFont`'s
+   * underlying `matchFamilyStyle` call. Branch per platform.
+   */
+  const font = useMemo(() => {
+    const fontSize = Math.max(10, Math.floor(cell * 0.28));
+    if (Platform.OS === 'ios') return matchFont({ fontSize });
+    return Skia.Font(undefined, fontSize);
+  }, [cell]);
 
   const entries = useMemo<readonly [Square, CellFeedback][]>(() => {
     if (!cellFeedback) return [];

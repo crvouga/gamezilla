@@ -11,4 +11,4 @@ const COLORS = {
   CLAUDE,
 } as const;
 
-export const COLOR_PALETTE: ColorPalette = COLORS.PURPLE;
+export const COLOR_PALETTE: ColorPalette = COLORS.BLUE;

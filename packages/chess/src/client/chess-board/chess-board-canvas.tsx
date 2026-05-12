@@ -11,6 +11,7 @@ import {
   matchFont,
   MipmapMode,
   Rect,
+  Skia,
   Text as SkiaText,
 } from '@shopify/react-native-skia';
 import {
@@ -21,7 +22,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,
@@ -306,17 +307,26 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
     },
   });
 
-  // `matchFont` resolves a real system typeface via `Skia.FontMgr.System()`
-  // before constructing the font. Previously this called
-  // `Skia.Font(undefined, size)` — that works on web/Android because the
-  // CanvasKit fallback coerces `undefined` typeface to `null`, but the iOS
-  // JSI binding throws `Value is undefined, expected an Object` for any
-  // explicit-undefined typeface arg. `matchFont` is the cross-platform
-  // helper the Skia docs recommend for system-font text labels.
-  const font = useMemo(
-    () => matchFont({ fontSize: Math.max(10, Math.floor(cell * 0.22)) }),
-    [cell]
-  );
+  /**
+   * Per-platform branching for system-font construction:
+   *
+   * - **iOS**: `Skia.Font(undefined, size)` throws `Value is undefined,
+   *   expected an Object` (the JSI binding refuses an explicit-undefined
+   *   typeface). We need `matchFont`, which resolves a real system
+   *   typeface via `Skia.FontMgr.System()` first.
+   * - **Web**: `matchFont` ultimately calls `JsiSkFontMgr.matchFamilyStyle`,
+   *   which is a stub that throws `Not implemented on React Native Web`.
+   *   Web's CanvasKit, however, happily coerces `undefined` typeface to
+   *   `null`, so `Skia.Font(undefined, size)` works fine there.
+   * - **Android**: same as web (CanvasKit fallback).
+   *
+   * Anything other than iOS gets the `Skia.Font` path; iOS gets `matchFont`.
+   */
+  const font = useMemo(() => {
+    const fontSize = Math.max(10, Math.floor(cell * 0.22));
+    if (Platform.OS === 'ios') return matchFont({ fontSize });
+    return Skia.Font(undefined, fontSize);
+  }, [cell]);
 
   const checkKingSquare = useMemo((): Square | null => {
     if (!inCheck) return null;

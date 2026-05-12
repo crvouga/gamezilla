@@ -23,7 +23,7 @@ function showAssertionAlert(fullText: string): void {
       {
         text: 'Copy error',
         onPress: () => {
-          void Clipboard.setStringAsync(fullText);
+          void Clipboard.setStringAsync(`'Assertion failed: ${fullText}`);
           setTimeout(() => showAssertionAlert(fullText), 0);
         },
       },

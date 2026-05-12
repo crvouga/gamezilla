@@ -273,10 +273,45 @@ export class Room<
     }
   }
 
+  /**
+   * Server is authoritative: drop the local committed cache (state, entries,
+   * persisted blob, synced flag) so the next welcome can rebuild from
+   * scratch. Used when we detect the server's log has diverged from ours
+   * (e.g. server storage was reset to a shorter log, or a broadcast carries
+   * a seq at or below our local tail). The outbound command queue is
+   * preserved so any user intent in flight gets re-submitted against the
+   * fresh server log.
+   */
+  private async resetCommittedToEmpty(): Promise<void> {
+    this.committedState = this.module.initialState();
+    this.committedEntries = [];
+    this.lastSeq = 0;
+    this.synced = false;
+    await this.storage.saveCommitted(0, []);
+    this.rebuildOptimisticSync();
+    this.notify();
+  }
+
   private async onWelcomeWire(
     msg: Extract<ServerToClientWire, { kind: typeof ROOM_WIRE_KIND.welcome }>
   ): Promise<void> {
-    this.appendCommittedEntries(msg.entries as LogEntry<E>[]);
+    // Skip entries we already hold so a re-sync from a lower `fromSeq` is
+    // idempotent; only the suffix actually extends our tail.
+    const suffix = (msg.entries as LogEntry<E>[]).filter(
+      (e) => e.seq > this.lastSeq
+    );
+    const suffixContiguous =
+      suffix.length === 0 || suffix[0]!.seq === this.lastSeq + 1;
+    const serverBehind = msg.lastSeq < this.lastSeq;
+    if (serverBehind || !suffixContiguous) {
+      // Server log diverged from our local cache (e.g. server storage was
+      // reset to a shorter log). Server is the source of truth: wipe local
+      // committed state and request a full fresh sync from seq 0.
+      await this.resetCommittedToEmpty();
+      this.sendSync();
+      return;
+    }
+    this.appendCommittedEntries(suffix);
     crash.ok(
       msg.lastSeq === this.lastSeq,
       'welcome lastSeq must match last applied entry seq',
@@ -292,6 +327,27 @@ export class Room<
   private async onCommittedWire(
     msg: Extract<ServerToClientWire, { kind: typeof ROOM_WIRE_KIND.committed }>
   ): Promise<void> {
+    const first = msg.entries[0];
+    if (first !== undefined) {
+      if (first.seq <= this.lastSeq) {
+        // Server log diverged: a broadcast seq at or below our tail means
+        // the server reset / replayed under a shorter log while our local
+        // cache still holds the older, higher-seq entries. Server wins:
+        // wipe and re-sync from scratch.
+        await this.resetCommittedToEmpty();
+        this.sendSync();
+        return;
+      }
+      if (first.seq !== this.lastSeq + 1) {
+        // Forward gap: we missed one or more committed frames. Ask the
+        // server to fill from our current tail; local state is still
+        // valid, so don't wipe it.
+        this.synced = false;
+        this.sendSync();
+        this.notify();
+        return;
+      }
+    }
     this.appendCommittedEntries(msg.entries as LogEntry<E>[]);
     await this.storage.saveCommitted(this.lastSeq, this.committedEntries);
     if (typeof msg.commandId === 'string' && msg.commandId.length > 0) {

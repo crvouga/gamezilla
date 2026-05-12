@@ -66,10 +66,10 @@ export function useTtsPlayer(): TtsPlayerState {
 
   const stop = useCallback(() => {
     requestedUrlRef.current = null;
-    if (status.isLoaded) {
+    if (status.isLoaded && status.playing) {
       player.pause();
     }
-  }, [player, status.isLoaded]);
+  }, [player, status.isLoaded, status.playing]);
 
   const durationMs =
     status.duration > 0 ? Math.round(status.duration * 1000) : null;

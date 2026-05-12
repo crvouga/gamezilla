@@ -5,9 +5,11 @@ import type { ObjectStore, StoredObject } from './interface';
 
 /**
  * Local-first {@link ObjectStore} for the Expo client. On native (iOS / Android)
- * bytes are stored as files under `Paths.document/<baseDir>/<key>.bin` with a
+ * bytes are stored as files under `Paths.document/<baseDir>/<key><ext>` with a
  * sibling `<key>.meta` JSON sidecar holding the `contentType` (the new
  * `expo-file-system` `File` API does not persist mime type for arbitrary bytes).
+ * `<ext>` is derived from `contentType` via {@link extensionForContentType} so
+ * iOS AVFoundation can decode cached audio (it MIME-sniffs by extension).
  * On web `expo-file-system` is a no-op (the package warns + returns empty
  * stubs), so this impl falls back to the Origin-Private File System (OPFS)
  * exposed via `navigator.storage.getDirectory()` — same persistence semantics.
@@ -26,6 +28,33 @@ import type { ObjectStore, StoredObject } from './interface';
 const KEY_PATTERN = /^[A-Za-z0-9._-]+$/;
 const META_SUFFIX = '.meta';
 const BIN_SUFFIX = '.bin';
+
+/**
+ * Map a stored object's `contentType` to a file extension iOS AVFoundation
+ * recognises. iOS detects audio MIME type from the file extension alone —
+ * blobs saved as `.bin` never finish loading and `useAudioPlayer.status.isLoaded`
+ * stays false indefinitely, surfacing as "speaking avatar loading forever".
+ * Web doesn't need this: `getUriWeb` returns a `blob:` URL whose MIME type
+ * is encoded in the `Blob` object, not the file extension.
+ */
+function extensionForContentType(contentType: string): string {
+  const normalized = contentType.toLowerCase().split(';')[0]?.trim() ?? '';
+  switch (normalized) {
+    case 'audio/mpeg':
+    case 'audio/mp3':
+      return '.mp3';
+    case 'audio/wav':
+    case 'audio/x-wav':
+      return '.wav';
+    case 'audio/aac':
+    case 'audio/mp4':
+      return '.aac';
+    case 'audio/ogg':
+      return '.ogg';
+    default:
+      return BIN_SUFFIX;
+  }
+}
 
 export type ObjectStoreImplExpoFileSystemOptions = {
   /**
@@ -131,9 +160,11 @@ export class ObjectStoreImplExpoFileSystem implements ObjectStore {
   }
 
   private getNative(key: string): StoredObject | null {
-    const file = new File(this.nativeDir(), `${key}${BIN_SUFFIX}`);
-    if (!file.exists) return null;
     const meta = this.readNativeMeta(key);
+    if (meta === null) return null;
+    const ext = extensionForContentType(meta.contentType);
+    const file = new File(this.nativeDir(), `${key}${ext}`);
+    if (!file.exists) return null;
     const bytes = file.bytesSync();
     const stream = bytesStream(bytes);
     return {
@@ -174,10 +205,15 @@ export class ObjectStoreImplExpoFileSystem implements ObjectStore {
   private putNative(key: string, bytes: Uint8Array, contentType: string): void {
     this.ensureNativeDir();
     const dir = this.nativeDir();
-    const binFile = new File(dir, `${key}${BIN_SUFFIX}`);
-    if (binFile.exists) binFile.delete();
-    binFile.create();
-    binFile.write(bytes);
+    const ext = extensionForContentType(contentType);
+    // Clean up any prior body written under a different extension so
+    // the directory doesn't accumulate orphans when `contentType` changes.
+    const legacyBin = new File(dir, `${key}${BIN_SUFFIX}`);
+    if (ext !== BIN_SUFFIX && legacyBin.exists) legacyBin.delete();
+    const bodyFile = new File(dir, `${key}${ext}`);
+    if (bodyFile.exists) bodyFile.delete();
+    bodyFile.create();
+    bodyFile.write(bytes);
     const metaFile = new File(dir, `${key}${META_SUFFIX}`);
     if (metaFile.exists) metaFile.delete();
     metaFile.create();
@@ -201,7 +237,10 @@ export class ObjectStoreImplExpoFileSystem implements ObjectStore {
       const dir = await this.ensureOpfsDir();
       return (await tryGetOpfsFile(dir, `${key}${BIN_SUFFIX}`)) !== null;
     }
-    return new File(this.nativeDir(), `${key}${BIN_SUFFIX}`).exists;
+    const meta = this.readNativeMeta(key);
+    if (meta === null) return false;
+    const ext = extensionForContentType(meta.contentType);
+    return new File(this.nativeDir(), `${key}${ext}`).exists;
   }
 
   async delete(key: string): Promise<void> {
@@ -213,10 +252,18 @@ export class ObjectStoreImplExpoFileSystem implements ObjectStore {
       return;
     }
     const dir = this.nativeDir();
-    const bin = new File(dir, `${key}${BIN_SUFFIX}`);
-    if (bin.exists) bin.delete();
-    const meta = new File(dir, `${key}${META_SUFFIX}`);
-    if (meta.exists) meta.delete();
+    const meta = this.readNativeMeta(key);
+    if (meta !== null) {
+      const ext = extensionForContentType(meta.contentType);
+      const body = new File(dir, `${key}${ext}`);
+      if (body.exists) body.delete();
+    }
+    // Always clean up the legacy `.bin` body in case a record was written
+    // before the extension fix landed.
+    const legacyBin = new File(dir, `${key}${BIN_SUFFIX}`);
+    if (legacyBin.exists) legacyBin.delete();
+    const metaFile = new File(dir, `${key}${META_SUFFIX}`);
+    if (metaFile.exists) metaFile.delete();
   }
 
   async getUri(key: string): Promise<string | null> {
@@ -226,7 +273,10 @@ export class ObjectStoreImplExpoFileSystem implements ObjectStore {
   }
 
   private getUriNative(key: string): string | null {
-    const file = new File(this.nativeDir(), `${key}${BIN_SUFFIX}`);
+    const meta = this.readNativeMeta(key);
+    if (meta === null) return null;
+    const ext = extensionForContentType(meta.contentType);
+    const file = new File(this.nativeDir(), `${key}${ext}`);
     if (!file.exists) return null;
     return file.uri;
   }
@@ -242,9 +292,9 @@ export class ObjectStoreImplExpoFileSystem implements ObjectStore {
     return URL.createObjectURL(new Blob([ab], { type: stored.contentType }));
   }
 
-  private readNativeMeta(key: string): { contentType: string } {
+  private readNativeMeta(key: string): { contentType: string } | null {
     const metaFile = new File(this.nativeDir(), `${key}${META_SUFFIX}`);
-    if (!metaFile.exists) return { contentType: 'application/octet-stream' };
+    if (!metaFile.exists) return null;
     try {
       const parsed = JSON.parse(metaFile.textSync()) as {
         contentType?: unknown;

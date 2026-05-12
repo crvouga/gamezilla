@@ -91,4 +91,4 @@ export const TestCounterModule: RoomModule<
   },
 };
 
-export { Decrement, Increment };
+export { CounterDecremented, CounterIncremented, Decrement, Increment };
