@@ -22,7 +22,7 @@
  */
 
 import { useTts } from '@gamezilla/tts/client/tts-context';
-import type { Voice } from '@gamezilla/tts/shared/tts-voice';
+import { Voices, type Voice } from '@gamezilla/tts/shared/tts-voice';
 import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { View, type StyleProp, type ViewStyle } from 'react-native';
 import { Avatar } from '../avatar';
@@ -38,7 +38,7 @@ const ROW_GAP = 12;
 export type SpeakingAvatarProps = {
   message: string;
   /** Voice to speak with. Pin one of the `Voices.*` constants per call site. */
-  voice: Voice;
+  voice?: Voice;
   /** Diameter of the DiceBear avatar in pixels. Defaults to `64`. */
   avatarSize?: number;
   /** Milliseconds between typed characters. Defaults to `30`. */
@@ -116,7 +116,12 @@ export function SpeakingAvatar({
 
     const controller = new AbortController();
     void t
-      .play(message, { voice: v, format: 'mp3', signal: controller.signal })
+      .play({
+        text: message,
+        voice: v ?? Voices.David,
+        format: 'mp3',
+        signal: controller.signal,
+      })
       .catch(() => {});
 
     return () => {

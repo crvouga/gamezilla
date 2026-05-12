@@ -19,25 +19,20 @@ type FetchFn = (
   init?: RequestInit
 ) => Promise<Response>;
 
-export type UseTtsOptions = {
+export type UseTtsArgs = {
+  readonly text: string;
   readonly voice: Voice;
   readonly format: TtsAudioFormat;
-  readonly signal?: AbortSignal;
+  readonly signal: AbortSignal;
 };
 
 export type UseTtsResult = {
-  /** Resolve a `text` to a synthesised audio URL (cache-aware). */
-  synthesize: (
-    text: string,
-    opts: UseTtsOptions
-  ) => Promise<TtsSynthesizeResponse>;
+  /** Resolve `args.text` to a synthesised audio URL (cache-aware). */
+  synthesize: (args: UseTtsArgs) => Promise<TtsSynthesizeResponse>;
   /** Synthesise but don't play — primes the server cache for an upcoming `play`. */
-  prefetch: (
-    text: string,
-    opts: UseTtsOptions
-  ) => Promise<TtsSynthesizeResponse>;
+  prefetch: (args: UseTtsArgs) => Promise<TtsSynthesizeResponse>;
   /** Synthesise (or cache-hit) then play through `expo-audio`. */
-  play: (text: string, opts: UseTtsOptions) => Promise<void>;
+  play: (args: UseTtsArgs) => Promise<void>;
   /** Stop playback if currently playing. */
   stop: () => void;
   isPlaying: boolean;
@@ -85,25 +80,25 @@ export function TtsProvider({
   const currentTextRef = useRef<string | null>(null);
 
   const synthesize = useCallback(
-    (text: string, opts: UseTtsOptions) =>
+    (args: UseTtsArgs) =>
       client.synthesize({
-        text,
-        voice: opts.voice,
-        format: opts.format,
-        ...(opts.signal !== undefined ? { signal: opts.signal } : {}),
+        text: args.text,
+        voice: args.voice,
+        format: args.format,
+        ...(args.signal !== undefined ? { signal: args.signal } : {}),
       }),
     [client]
   );
 
   const prefetch = useCallback(
-    (text: string, opts: UseTtsOptions) => synthesize(text, opts),
+    (args: UseTtsArgs) => synthesize(args),
     [synthesize]
   );
 
   const play = useCallback(
-    async (text: string, opts: UseTtsOptions) => {
-      const result = await synthesize(text, opts);
-      currentTextRef.current = text;
+    async (args: UseTtsArgs) => {
+      const result = await synthesize(args);
+      currentTextRef.current = args.text;
       await player.play(result.url);
     },
     [synthesize, player]
