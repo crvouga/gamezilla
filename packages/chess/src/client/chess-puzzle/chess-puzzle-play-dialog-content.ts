@@ -24,12 +24,6 @@ type ThemedEntry = readonly [ChessPuzzleTheme, MessageDescriptor];
 type FallbackEntry = readonly [DialogEvent, MessageDescriptor];
 
 export const FALLBACK_ENTRIES: readonly FallbackEntry[] = [
-  ['loading', msg`Setting up the board…`],
-  ['loading', msg`Almost ready.`],
-  ['loading', msg`One moment…`],
-  ['loading', msg`Getting things ready for you.`],
-  ['loading', msg`Here we go…`],
-  ['loading', msg`Loading your puzzle.`],
   ['invalid', msg`Couldn't load that one — let's try a different puzzle.`],
   ['invalid', msg`Something went wrong there. Skipping ahead.`],
   ['invalid', msg`That one didn't cooperate. On to the next.`],

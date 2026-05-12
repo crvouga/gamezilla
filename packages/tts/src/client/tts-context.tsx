@@ -1,3 +1,4 @@
+import { useObjectStore } from '@gamezilla/lib/object-store/react-context';
 import {
   createContext,
   useCallback,
@@ -37,6 +38,13 @@ export type UseTtsResult = {
   stop: () => void;
   isPlaying: boolean;
   current: { text: string; url: string } | null;
+  /**
+   * Total length of the currently-loaded audio in milliseconds, or `null`
+   * if not yet known. Useful for syncing UI animations (e.g. typewriter
+   * reveal) to the actual speech duration instead of guessing from text
+   * length.
+   */
+  durationMs: number | null;
 };
 
 type ContextValue = UseTtsResult;
@@ -67,13 +75,15 @@ export function TtsProvider({
   fetch: fetchOverride,
   children,
 }: TtsProviderProps): ReactNode {
+  const objectStore = useObjectStore();
   const client = useMemo(
     () =>
       new TtsClient({
         apiUrl,
+        objectStore,
         ...(fetchOverride !== undefined ? { fetch: fetchOverride } : {}),
       }),
-    [apiUrl, fetchOverride]
+    [apiUrl, objectStore, fetchOverride]
   );
 
   const player = useTtsPlayer();
@@ -115,6 +125,7 @@ export function TtsProvider({
         player.currentUrl !== null && currentTextRef.current !== null
           ? { text: currentTextRef.current, url: player.currentUrl }
           : null,
+      durationMs: player.durationMs,
     }),
     [
       synthesize,
@@ -123,6 +134,7 @@ export function TtsProvider({
       player.stop,
       player.isPlaying,
       player.currentUrl,
+      player.durationMs,
     ]
   );
 

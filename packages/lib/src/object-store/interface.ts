@@ -19,6 +19,12 @@
  *     overwrites without error. Stored `contentType` MUST round-trip through
  *     {@link ObjectStore.get}.
  *   - {@link ObjectStore.delete} on a missing key is a no-op (does not throw).
+ *
+ * URI semantics:
+ *   - {@link ObjectStore.getUri} returns a URL the host runtime can load
+ *     directly (`file://` on native, `blob:` on web). Stores that don't expose
+ *     direct URLs (e.g. the R2 binding — bytes must be streamed through HTTP)
+ *     return `null`. Returns `null` when the key is missing.
  */
 
 export interface StoredObject {
@@ -40,4 +46,11 @@ export interface ObjectStore {
 
   /** Removes the value at `key` if present. No-op when missing. */
   delete(key: string): Promise<void>;
+
+  /**
+   * Returns a URL that the host runtime can load directly without reading bytes
+   * through {@link ObjectStore.get} again. Returns `null` for missing keys, and
+   * `null` for stores whose backend has no addressable URL (e.g. R2 binding).
+   */
+  getUri(key: string): Promise<string | null>;
 }

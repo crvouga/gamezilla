@@ -112,4 +112,23 @@ describe.each(implementations)('ObjectStore — $name', ({ create }) => {
     expect(await store.head('a')).toBe(false);
     expect(await store.head('b')).toBe(true);
   });
+
+  test('getUri returns null for missing key', async () => {
+    expect(await store.getUri('missing')).toBeNull();
+  });
+
+  test('getUri returns a non-empty string after put when blob URLs are supported', async () => {
+    await store.put('k', new Uint8Array([1, 2, 3]), 'application/octet-stream');
+    const uri = await store.getUri('k');
+    if (
+      typeof URL !== 'undefined' &&
+      typeof URL.createObjectURL === 'function' &&
+      typeof Blob !== 'undefined'
+    ) {
+      expect(typeof uri).toBe('string');
+      expect((uri ?? '').length).toBeGreaterThan(0);
+    } else {
+      expect(uri).toBeNull();
+    }
+  });
 });

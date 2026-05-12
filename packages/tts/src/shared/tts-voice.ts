@@ -81,3 +81,17 @@ export const VOICE_PROVIDERS = ['eleven-labs'] as const satisfies readonly [
 export const VOICE_NAMES = ['David', 'Sam', 'Olivia', 'Rachel'] as const;
 
 export const VOICES: readonly Voice[] = Object.values(Voices);
+
+/**
+ * Maps the {@link Voice} discriminant to the server-side `TtsProvider.id`
+ * (the namespace under which audio is cached). The two strings are
+ * intentionally different — `'eleven-labs'` (hyphenated) is the public-facing
+ * Voice tag, `'elevenlabs'` (no hyphen) is the internal R2 cache namespace
+ * — so this mapping is the single source of truth for the client cache key
+ * to match the server cache key.
+ */
+export function ttsProviderIdForVoice(voice: Voice): string {
+  if (voice.provider === 'eleven-labs') return 'elevenlabs';
+  const exhaustive: never = voice.provider;
+  throw new Error(`unknown voice provider: ${exhaustive as string}`);
+}

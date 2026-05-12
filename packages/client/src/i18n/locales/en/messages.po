@@ -362,8 +362,8 @@ msgid "All good — let's go again."
 msgstr "All good — let's go again."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-msgid "Almost ready."
-msgstr "Almost ready."
+#~ msgid "Almost ready."
+#~ msgstr "Almost ready."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Almost there — board's coming together."
@@ -2487,8 +2487,8 @@ msgstr "Get your rook behind the passer."
 #~ msgstr "Getting the position ready. Breathe and focus."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-msgid "Getting things ready for you."
-msgstr "Getting things ready for you."
+#~ msgid "Getting things ready for you."
+#~ msgstr "Getting things ready for you."
 
 #: packages/patch-db-example/src/playground-header.tsx
 msgid "Global latency"
@@ -2652,8 +2652,8 @@ msgstr "Held it together — stay alert."
 #~ msgstr "Held the balance. Smart play."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-msgid "Here we go…"
-msgstr "Here we go…"
+#~ msgid "Here we go…"
+#~ msgstr "Here we go…"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "Hmm, let's grab another puzzle instead."
@@ -3140,8 +3140,8 @@ msgstr "Loading entity…"
 #~ msgstr "Loading your next challenge. You've got this."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-msgid "Loading your puzzle."
-msgstr "Loading your puzzle."
+#~ msgid "Loading your puzzle."
+#~ msgstr "Loading your puzzle."
 
 #: packages/patch-db-example/src/db-client/entities-screen.tsx
 msgid "Loading…"
@@ -3830,8 +3830,8 @@ msgstr "One forcing move ends it — try every check."
 #~ msgstr "One forcing move ends this. Look for the check that locks it."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-msgid "One moment…"
-msgstr "One moment…"
+#~ msgid "One moment…"
+#~ msgstr "One moment…"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 msgid "One move — perfectly chosen."
@@ -5108,8 +5108,8 @@ msgid "Server-side account; tap to copy"
 msgstr "Server-side account; tap to copy"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-msgid "Setting up the board…"
-msgstr "Setting up the board…"
+#~ msgid "Setting up the board…"
+#~ msgstr "Setting up the board…"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Setting up the puzzle. Take a moment to settle in."

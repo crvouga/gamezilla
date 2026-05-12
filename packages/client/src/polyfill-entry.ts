@@ -45,3 +45,7 @@ assert.ok(
   typeof TextEncoder === 'function',
   'TextEncoder must exist for room crypto'
 );
+assert.ok(
+  typeof globalThis.crypto.subtle?.digest === 'function',
+  'crypto.subtle.digest must be a function (TtsClient cache key uses SHA-256)'
+);

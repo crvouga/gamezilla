@@ -26,6 +26,7 @@ export {
   VOICE_NAMES,
   VOICE_PROVIDERS,
   Voices,
+  ttsProviderIdForVoice,
   type ElevenLabsVoice,
   type Voice,
   type VoiceName,

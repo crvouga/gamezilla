@@ -27,7 +27,6 @@
     "@gamezilla/patch-db": "workspace:*",
     "@gamezilla/room": "workspace:*",
     "@gamezilla/spaces": "workspace:*",
-    "@gamezilla/tts": "workspace:*",
     "@gamezilla/ui": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",

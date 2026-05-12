@@ -76,4 +76,13 @@ export class ObjectStoreImplR2 implements ObjectStore {
   async delete(key: string): Promise<void> {
     await this.bucket.delete(key);
   }
+
+  /**
+   * R2 has no public direct URL from the worker binding — the API Worker
+   * streams bytes back through Hono (`/tts/audio/:hash`). Returning `null`
+   * forces callers down the byte-streaming path via {@link ObjectStore.get}.
+   */
+  async getUri(_key: string): Promise<string | null> {
+    return null;
+  }
 }

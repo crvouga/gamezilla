@@ -14,6 +14,14 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 export type TtsPlayerState = {
   readonly isPlaying: boolean;
   readonly currentUrl: string | null;
+  /**
+   * Total length of the currently-loaded audio in milliseconds, or `null`
+   * if not yet known (no source, still loading, or the player hasn't
+   * reported a duration yet). `expo-audio` reports duration in seconds;
+   * we convert here so callers can mix the value with `setTimeout` /
+   * `Animated.timing` durations directly.
+   */
+  readonly durationMs: number | null;
   readonly play: (url: string) => Promise<void>;
   readonly stop: () => void;
 };
@@ -63,9 +71,13 @@ export function useTtsPlayer(): TtsPlayerState {
     }
   }, [player, status.isLoaded]);
 
+  const durationMs =
+    status.duration > 0 ? Math.round(status.duration * 1000) : null;
+
   return {
     isPlaying: status.playing,
     currentUrl,
+    durationMs,
     play,
     stop,
   };

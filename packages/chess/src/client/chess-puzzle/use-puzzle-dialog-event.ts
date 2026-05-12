@@ -10,6 +10,8 @@
  * from `status` alone.
  *
  * We reconstruct the missing transitions client-side:
+ * - `status === 'loading'` → `null` (coach stays silent; no `'loading'`
+ *   variant exists on `DialogEvent`).
  * - `solveIdx <= 1` and `status === 'solving'` → host hasn't played yet → `start`.
  * - `status === 'solving'` after `prevStatus === 'wrong'` → `retry`.
  * - `status === 'solving'` otherwise (host has at least one accepted move) → `progress`.
@@ -26,9 +28,9 @@ function deriveDialogEvent(args: {
   status: SolveStatus;
   solveIdx: number;
   prevStatus: SolveStatus | null;
-}): DialogEvent {
+}): DialogEvent | null {
   const { status, solveIdx, prevStatus } = args;
-  if (status === 'loading') return 'loading';
+  if (status === 'loading') return null;
   if (status === 'invalid') return 'invalid';
   if (status === 'wrong') return 'wrong';
   if (status === 'solved') return 'solved';
@@ -40,7 +42,7 @@ function deriveDialogEvent(args: {
 export function usePuzzleDialogEvent(args: {
   status: SolveStatus;
   solveIdx: number;
-}): DialogEvent {
+}): DialogEvent | null {
   const prevStatusRef = useRef<SolveStatus | null>(null);
   const event = deriveDialogEvent({
     status: args.status,

@@ -38,7 +38,12 @@ async function checkToken(apiBase: string, token: string): Promise<void> {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) {
-    throw new Error(`HTTP ${res.status} from ${url}`);
+    const hint =
+      res.status === 401
+        ? ' (Doppler TURBO_TOKEN does not match the Worker secret — ' +
+          'run `bun run sync:turbo-token` to push the current Doppler value)'
+        : '';
+    throw new Error(`HTTP ${res.status} from ${url}${hint}`);
   }
 }
 

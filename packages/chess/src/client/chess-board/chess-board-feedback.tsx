@@ -2,6 +2,7 @@
 import {
   Circle,
   Group,
+  matchFont,
   Path,
   Skia,
   Text as SkiaText,
@@ -236,9 +237,13 @@ export function ChessBoardFeedback(props: ChessBoardFeedbackProps): ReactNode {
   const cell = size / 8;
   const badgeRadius = Math.max(8, cell * 0.16);
 
-  const font = useMemo(() => {
-    return Skia.Font(undefined, Math.max(10, Math.floor(cell * 0.28)));
-  }, [cell]);
+  // See `chess-board-canvas.tsx` for why `matchFont` is used instead of
+  // `Skia.Font(undefined, …)` — iOS's JSI binding rejects an explicit
+  // undefined typeface arg with `Value is undefined, expected an Object`.
+  const font = useMemo(
+    () => matchFont({ fontSize: Math.max(10, Math.floor(cell * 0.28)) }),
+    [cell]
+  );
 
   const entries = useMemo<readonly [Square, CellFeedback][]>(() => {
     if (!cellFeedback) return [];

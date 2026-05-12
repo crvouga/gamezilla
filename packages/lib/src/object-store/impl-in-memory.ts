@@ -47,4 +47,23 @@ export class ObjectStoreImplInMemory implements ObjectStore {
     this.store.delete(key);
     return Promise.resolve();
   }
+
+  /**
+   * Materialises a `blob:` URL for the entry when the runtime supports
+   * `URL.createObjectURL` (browsers, Bun, JSDOM); returns `null` everywhere
+   * else (Workers, plain Node) and for missing keys. Callers that need a
+   * playable URL on those runtimes should fall back to {@link get} + manual
+   * conversion.
+   */
+  getUri(key: string): Promise<string | null> {
+    const entry = this.store.get(key);
+    if (entry === undefined) return Promise.resolve(null);
+    if (typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function')
+      return Promise.resolve(null);
+    if (typeof Blob === 'undefined') return Promise.resolve(null);
+    const ab = new ArrayBuffer(entry.bytes.byteLength);
+    new Uint8Array(ab).set(entry.bytes);
+    const blob = new Blob([ab], { type: entry.contentType });
+    return Promise.resolve(URL.createObjectURL(blob));
+  }
 }

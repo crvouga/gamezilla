@@ -8,9 +8,9 @@ import {
   FilterMode,
   Group,
   Image,
+  matchFont,
   MipmapMode,
   Rect,
-  Skia,
   Text as SkiaText,
 } from '@shopify/react-native-skia';
 import {
@@ -306,10 +306,17 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
     },
   });
 
-  const font = useMemo(() => {
-    const f = Skia.Font(undefined, Math.max(10, Math.floor(cell * 0.22)));
-    return f;
-  }, [cell]);
+  // `matchFont` resolves a real system typeface via `Skia.FontMgr.System()`
+  // before constructing the font. Previously this called
+  // `Skia.Font(undefined, size)` — that works on web/Android because the
+  // CanvasKit fallback coerces `undefined` typeface to `null`, but the iOS
+  // JSI binding throws `Value is undefined, expected an Object` for any
+  // explicit-undefined typeface arg. `matchFont` is the cross-platform
+  // helper the Skia docs recommend for system-font text labels.
+  const font = useMemo(
+    () => matchFont({ fontSize: Math.max(10, Math.floor(cell * 0.22)) }),
+    [cell]
+  );
 
   const checkKingSquare = useMemo((): Square | null => {
     if (!inCheck) return null;

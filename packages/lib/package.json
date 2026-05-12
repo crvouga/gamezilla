@@ -22,6 +22,7 @@
     "buffer": "catalog:",
     "expo-clipboard": "catalog:",
     "expo-crypto": "catalog:",
+    "expo-file-system": "catalog:",
     "expo-secure-store": "catalog:",
     "expo-sqlite": "catalog:",
     "make-plural": "catalog:",
