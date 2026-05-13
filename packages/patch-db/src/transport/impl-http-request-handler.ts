@@ -6,11 +6,12 @@ import { ForbiddenError } from '../forbidden-error';
 import {
   OPEN_PATCHES_DB_CONTEXT,
   assertPatchDbContext,
-  type PatchDbQuery,
-  type PatchInput,
   assertQuery,
   assertWirePatchInput,
   stripKnownPatchesFromQuery,
+  type PatchDbContext,
+  type PatchDbQuery,
+  type PatchInput,
 } from '../interface';
 import type { PatchDbSyncHost } from './interface';
 import {
@@ -33,7 +34,7 @@ function applyNoCacheHeaders(c: Context): void {
 export type PatchDbHttpAuthOptions = {
   resolvePatchDbContext?: (
     req: Request
-  ) => Promise<import('../interface').PatchDbContext | null | undefined>;
+  ) => Promise<PatchDbContext | null | undefined>;
   /** When true, missing / null context from resolver yields 401. */
   requirePatchDbAuth?: boolean;
 };
@@ -42,7 +43,7 @@ async function resolveRequestContext(
   c: Context,
   auth: PatchDbHttpAuthOptions | undefined
 ): Promise<
-  | { ok: true; ctx: import('../interface').PatchDbContext }
+  | { ok: true; ctx: PatchDbContext }
   | { ok: false; status: 401 | 403; message: string }
 > {
   const resolve = auth?.resolvePatchDbContext;

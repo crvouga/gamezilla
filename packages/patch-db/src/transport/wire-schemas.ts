@@ -23,7 +23,7 @@ export const zKeywordKeyRecord = z
     for (const k of Object.keys(rec)) {
       if (!isNamespacedKeyword(k)) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: `invalid keyword key: ${k}`,
           path: [k],
         });
@@ -47,12 +47,27 @@ function refinePatchAttributesInRecord(
     for (const k of Object.keys(a)) {
       if (!isNamespacedKeyword(k)) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: `invalid attribute key: ${k}`,
           path: [...rootPath, 'attributes', k],
         });
       }
     }
+  }
+}
+
+function refineWhereLeafAttribute(
+  o: Record<string, unknown>,
+  ctx: z.RefinementCtx,
+  path: (string | number)[]
+): void {
+  const attr = o['attribute'];
+  if (typeof attr === 'string' && !isNamespacedKeyword(attr)) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'where clause attribute must be a namespaced keyword',
+      path: [...path, 'attribute'],
+    });
   }
 }
 
@@ -77,14 +92,7 @@ function refineWhereClauseShape(
     refineWhereClauseShape(o['clause'], ctx, [...path, 'clause']);
     return;
   }
-  const attr = o['attribute'];
-  if (typeof attr === 'string' && !isNamespacedKeyword(attr)) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'where clause attribute must be a namespaced keyword',
-      path: [...path, 'attribute'],
-    });
-  }
+  refineWhereLeafAttribute(o, ctx, path);
 }
 
 function refineQueryKeywordFields(
@@ -103,7 +111,7 @@ function refineQueryKeywordFields(
         const attr = (item as Record<string, unknown>)['attribute'];
         if (typeof attr === 'string' && !isNamespacedKeyword(attr)) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             message: 'orderBy attribute must be a namespaced keyword',
             path: [...rootPath, 'orderBy', j, 'attribute'],
           });
@@ -164,48 +172,73 @@ const patchRejectionReasonSchema = z
     }
   });
 
+function refineReadWireResultEntities(
+  r: Record<string, unknown>,
+  ctx: z.RefinementCtx,
+  ri: number
+): void {
+  const entities = r['entities'];
+  if (!Array.isArray(entities)) return;
+  for (let ei = 0; ei < entities.length; ei++) {
+    const e = entities[ei];
+    if (e !== null && typeof e === 'object' && !Array.isArray(e)) {
+      refinePatchAttributesInRecord(e as Record<string, unknown>, ctx, [
+        'results',
+        ri,
+        'entities',
+        ei,
+      ]);
+    }
+  }
+}
+
+function refineReadWireResultPatches(
+  r: Record<string, unknown>,
+  ctx: z.RefinementCtx,
+  ri: number
+): void {
+  const patches = r['patches'];
+  if (!Array.isArray(patches)) return;
+  for (let pi = 0; pi < patches.length; pi++) {
+    const p = patches[pi];
+    if (p !== null && typeof p === 'object' && !Array.isArray(p)) {
+      refinePatchAttributesInRecord(p as Record<string, unknown>, ctx, [
+        'results',
+        ri,
+        'patches',
+        pi,
+      ]);
+    }
+  }
+}
+
+function refineReadWireResultRecord(
+  r: Record<string, unknown>,
+  ctx: z.RefinementCtx,
+  ri: number
+): void {
+  refineReadWireResultEntities(r, ctx, ri);
+  refineReadWireResultPatches(r, ctx, ri);
+  if (r['query'] !== undefined && r['query'] !== null) {
+    refineQueryKeywordFields(r['query'] as Record<string, unknown>, ctx, [
+      'results',
+      ri,
+      'query',
+    ]);
+  }
+}
+
 /** Successful `/patches/read` response: flat `{ results }`. */
 export const patchDbReadWireResponseSchema = z.object({
   results: z
     .array(z.record(z.string(), z.unknown()))
     .superRefine((results, ctx) => {
       for (let ri = 0; ri < results.length; ri++) {
-        const r = results[ri] as Record<string, unknown>;
-        const entities = r['entities'];
-        if (Array.isArray(entities)) {
-          for (let ei = 0; ei < entities.length; ei++) {
-            const e = entities[ei];
-            if (e !== null && typeof e === 'object' && !Array.isArray(e)) {
-              refinePatchAttributesInRecord(e as Record<string, unknown>, ctx, [
-                'results',
-                ri,
-                'entities',
-                ei,
-              ]);
-            }
-          }
-        }
-        const patches = r['patches'];
-        if (Array.isArray(patches)) {
-          for (let pi = 0; pi < patches.length; pi++) {
-            const p = patches[pi];
-            if (p !== null && typeof p === 'object' && !Array.isArray(p)) {
-              refinePatchAttributesInRecord(p as Record<string, unknown>, ctx, [
-                'results',
-                ri,
-                'patches',
-                pi,
-              ]);
-            }
-          }
-        }
-        if (r['query'] !== undefined && r['query'] !== null) {
-          refineQueryKeywordFields(r['query'] as Record<string, unknown>, ctx, [
-            'results',
-            ri,
-            'query',
-          ]);
-        }
+        refineReadWireResultRecord(
+          results[ri] as Record<string, unknown>,
+          ctx,
+          ri
+        );
       }
     }),
 });

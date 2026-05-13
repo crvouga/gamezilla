@@ -3,15 +3,6 @@ import { fireAndForget } from '@gamezilla/lib/async/fire-and-forget';
 import { asKeyword, type Keyword } from '@gamezilla/lib/keyword';
 import { createLogger, type Logger } from '@gamezilla/lib/logger';
 import type { PubSub, Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
-import type {
-  Patch,
-  PatchDb,
-  PatchDbContext,
-  PatchDbQuery,
-  PatchDbResult,
-  PatchInput,
-  WritePatchesResult,
-} from '../interface';
 import {
   OPEN_PATCHES_DB_CONTEXT,
   PATCH_REJECTED,
@@ -19,6 +10,13 @@ import {
   PATCH_SYNC_REJECTED_REASON,
   PATCH_SYNCED_AT,
   toAttributeState,
+  type Patch,
+  type PatchDb,
+  type PatchDbContext,
+  type PatchDbQuery,
+  type PatchDbResult,
+  type PatchInput,
+  type WritePatchesResult,
 } from '../interface';
 import { PatchDbTransportRejectedError } from '../transport/transport-rejected-error';
 import { MAX_PATCHES_PER_REQUEST } from '../transport/wire-schemas';
