@@ -23,6 +23,43 @@ function emptyPersisted(): Persisted {
   return { events: [], dedup: {} };
 }
 
+function parseDedup(raw: Persisted): Record<string, CommandDedupOutcome> {
+  if (
+    raw.dedup !== undefined &&
+    raw.dedup !== null &&
+    typeof raw.dedup === 'object'
+  ) {
+    return raw.dedup as Record<string, CommandDedupOutcome>;
+  }
+  return {};
+}
+
+function assertOptionalPersistedState(raw: Persisted): void {
+  const maybeState = (raw as Record<string, unknown>)['state'];
+  if (
+    maybeState !== undefined &&
+    maybeState !== null &&
+    typeof maybeState === 'object' &&
+    !Array.isArray(maybeState)
+  ) {
+    assertKeywordRecord(
+      maybeState as Record<string, unknown>,
+      'room.do persisted state'
+    );
+  }
+}
+
+/** Normalize KV blob into {@link Persisted}; invalid shapes yield an empty log. */
+function parsePersistedBlob(raw: unknown): Persisted {
+  if (raw === undefined || raw === null || typeof raw !== 'object') {
+    return emptyPersisted();
+  }
+  const typed = raw as Persisted;
+  const events = Array.isArray(typed.events) ? typed.events : [];
+  assertOptionalPersistedState(typed);
+  return { events, dedup: parseDedup(typed) };
+}
+
 /**
  * Single-topic room log persisted in a Durable Object's KV `storage` binding.
  * Suitable for any module that fits in one DO (one topic per instance).
@@ -32,33 +69,7 @@ export class DurableObjectRoomStorage implements RoomStorage {
 
   private async load(): Promise<Persisted> {
     const raw = await this.kv.get<Persisted>(STATE_KEY);
-    if (raw === undefined || raw === null) {
-      return emptyPersisted();
-    }
-    if (typeof raw !== 'object') {
-      return emptyPersisted();
-    }
-    const events = Array.isArray(raw.events) ? raw.events : [];
-    const dedup =
-      raw.dedup !== undefined &&
-      raw.dedup !== null &&
-      typeof raw.dedup === 'object'
-        ? (raw.dedup as Record<string, CommandDedupOutcome>)
-        : {};
-    const rec = raw as Record<string, unknown>;
-    const maybeState = rec['state'];
-    if (
-      maybeState !== undefined &&
-      maybeState !== null &&
-      typeof maybeState === 'object' &&
-      !Array.isArray(maybeState)
-    ) {
-      assertKeywordRecord(
-        maybeState as Record<string, unknown>,
-        'room.do persisted state'
-      );
-    }
-    return { events, dedup };
+    return parsePersistedBlob(raw);
   }
 
   private async save(p: Persisted): Promise<void> {
