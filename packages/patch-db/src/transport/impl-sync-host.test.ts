@@ -1,6 +1,7 @@
 import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import { describe, expect, test } from 'bun:test';
 import type { PatchDbQuery } from '../interface';
+import { toAttributeState } from '../interface';
 import { createSqliteFactory } from '../test/test-helpers';
 import { PatchDbImplSyncHost } from './impl-sync-host';
 
@@ -15,12 +16,12 @@ describe('PatchDbImplSyncHost', () => {
         {
           entityId: 'e1',
           entityType: 'task',
-          attributes: { 'task/title': 'A' },
+          attributes: toAttributeState({ 'task/title': 'A' }),
         },
         {
           entityId: 'e1',
           entityType: 'task',
-          attributes: { 'task/title': 'B' },
+          attributes: toAttributeState({ 'task/title': 'B' }),
         },
       ]);
 

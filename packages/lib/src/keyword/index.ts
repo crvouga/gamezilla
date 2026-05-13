@@ -1,6 +1,7 @@
 export {
   assertKeyword,
   assertKeywordRecord,
+  asKeywordRecord,
   assertLocalName,
   assertNamespacedKeyword,
   assertNamespacePrefix,
@@ -17,5 +18,6 @@ export {
   KEYWORD_SEGMENT_MAX_LENGTH,
   KEYWORD_SEGMENT_MIN_LENGTH,
   namespacePrefixOf,
+  freezeAsKeywordMap,
 } from './keyword';
 export type { JoinDot, Keyword } from './keyword';

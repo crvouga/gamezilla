@@ -9,6 +9,7 @@ import {
   assertPatchInput,
   OPEN_PATCHES_DB_CONTEXT,
   type PatchDb,
+  type PatchDbContext,
   type PatchDbQuery,
   type PatchDbResolvable,
   type PatchDbResult,
@@ -62,7 +63,7 @@ export class PatchDbImplSyncHost implements PatchDbSyncHost {
 
   async read(
     queries: PatchDbQuery[],
-    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<PatchDbResult[]> {
     assert.array(queries, 'PatchDbImplSyncHost.read: queries must be an array');
     if (queries.length === 0) {
@@ -98,7 +99,7 @@ export class PatchDbImplSyncHost implements PatchDbSyncHost {
 
   async write(
     patches: PatchInput[],
-    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<WritePatchesResult> {
     assert.array(
       patches,

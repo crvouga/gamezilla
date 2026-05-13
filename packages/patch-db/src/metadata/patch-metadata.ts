@@ -19,6 +19,22 @@ function readPatchBooleanish(v: unknown): boolean {
 
 const patchMetaNs = createAttrNamespace('patch');
 
+const patchRejectNs = createAttrNamespace('patch', 'reject');
+
+function rejectCodeParse(_: unknown): true {
+  return true;
+}
+
+/**
+ * Machine rejection codes on the wire (`PatchRejectionReason.code`).
+ * Keys are validated {@link Keyword}s under `patch.reject/*`.
+ */
+export const PATCH_REJECT_CODE = {
+  forbidden: patchRejectNs('forbidden', rejectCodeParse),
+  unknownEntityType: patchRejectNs('unknown-entity-type', rejectCodeParse),
+  hook1: patchRejectNs('hook1', rejectCodeParse),
+} as const;
+
 /** Attribute tags from `@gamezilla/lib/attribute` — single source of truth for patch meta wire strings. */
 export const PatchMetaAttr = {
   createdById: patchMetaNs('created-by-id', readPatchString),
@@ -65,7 +81,7 @@ function readBooleanish(v: unknown): boolean {
  * (transport or partial write rejection, or explicit flag).
  */
 export function isSyncRejectedPatchAttributes(
-  attrs: Record<string, unknown>
+  attrs: Readonly<Record<string, unknown>>
 ): boolean {
   const rej = attrs[PATCH_REJECTED];
   if (readBooleanish(rej)) return true;

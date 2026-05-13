@@ -1,6 +1,5 @@
 import { Hono } from 'hono';
 
-/** GET `/health` — liveness for load balancers and deploy checks. */
-export const healthApp = new Hono().get('/health', (c) =>
-  c.json({ status: 'ok' as const }, 200)
-);
+export const healthApp = new Hono()
+  /** GET `/health` — liveness for load balancers and deploy checks. */
+  .get('/health', (c) => c.json({ status: 'ok' }, 200));

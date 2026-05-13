@@ -3,6 +3,7 @@ import { isPatchDbSystemContext } from './context';
 import type {
   Patch,
   PatchDbBeforeWriteHookResult,
+  PatchDbContext,
   PatchDbHooks,
   PatchDbQuery,
   PatchInput,
@@ -12,26 +13,24 @@ import type {
 
 type BeforeReadFn = (
   query: PatchDbQuery,
-  ctx: Readonly<Record<string, unknown>>
+  ctx: PatchDbContext
 ) => PatchDbQuery | Promise<PatchDbQuery>;
 
 type BeforeWriteFn = (
   patches: PatchInput[],
-  ctx: Readonly<Record<string, unknown>>,
+  ctx: PatchDbContext,
   tx: SqlClient
 ) => PatchDbBeforeWriteHookResult | Promise<PatchDbBeforeWriteHookResult>;
 
 type AfterWriteFn = (
   written: Patch[],
-  ctx: Readonly<Record<string, unknown>>,
+  ctx: PatchDbContext,
   tx: SqlClient
 ) => void | Promise<void>;
 
 type EnrichContextFn = (
-  ctx: Readonly<Record<string, unknown>>
-) =>
-  | Readonly<Record<string, unknown>>
-  | Promise<Readonly<Record<string, unknown>>>;
+  ctx: PatchDbContext
+) => PatchDbContext | Promise<PatchDbContext>;
 
 export function normalizeBeforeWriteHookResult(
   result: PatchDbBeforeWriteHookResult
@@ -90,9 +89,7 @@ export class PatchDbHookRegistry implements PatchDbHooks {
    * privileged callers (migrations, scripts, webhooks) never trigger the
    * (potentially DB-touching) enrichment pipeline.
    */
-  async runEnrichContext(
-    ctx: Readonly<Record<string, unknown>>
-  ): Promise<Readonly<Record<string, unknown>>> {
+  async runEnrichContext(ctx: PatchDbContext): Promise<PatchDbContext> {
     if (isPatchDbSystemContext(ctx)) return ctx;
     let c = ctx;
     for (const fn of this.enrichContextFns) {
@@ -103,7 +100,7 @@ export class PatchDbHookRegistry implements PatchDbHooks {
 
   async runBeforeRead(
     query: PatchDbQuery,
-    ctx: Readonly<Record<string, unknown>>
+    ctx: PatchDbContext
   ): Promise<PatchDbQuery> {
     let q = query;
     for (const fn of this.beforeReadFns) {
@@ -114,7 +111,7 @@ export class PatchDbHookRegistry implements PatchDbHooks {
 
   async runBeforeWrite(
     patches: PatchInput[],
-    ctx: Readonly<Record<string, unknown>>,
+    ctx: PatchDbContext,
     tx: SqlClient
   ): Promise<{ accepted: PatchInput[]; rejected: PatchRejectionReason[] }> {
     let acc = patches;
@@ -129,7 +126,7 @@ export class PatchDbHookRegistry implements PatchDbHooks {
 
   async runAfterWrite(
     written: Patch[],
-    ctx: Readonly<Record<string, unknown>>,
+    ctx: PatchDbContext,
     tx: SqlClient
   ): Promise<void> {
     for (const fn of this.afterWriteFns) {

@@ -1,7 +1,9 @@
+import type { Keyword } from '@gamezilla/lib/keyword';
 import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react';
 import type {
   PatchDbQueryOrderBy,
   PatchDbQueryWhereClause,
+  PatchEntityType,
 } from '../interface';
 import type { PatchDbEntityStore } from './entity-store';
 import { getEntityStoreForDb } from './entity-store';
@@ -15,7 +17,7 @@ import { getCacheForDb } from './query-cache';
 
 function descriptorFromShapeKey(shapeKey: string): QueryAttributeDescriptor {
   const parsed = JSON.parse(shapeKey) as {
-    entityType: string;
+    entityType: PatchEntityType;
     entityId?: string | string[];
     where?: PatchDbQueryWhereClause;
     orderBy?: PatchDbQueryOrderBy[];
@@ -37,7 +39,7 @@ type ParseCache<T> = {
 
 function readRawForQueryAttribute(
   desc: QueryAttributeDescriptor,
-  attributeKey: string,
+  attributeKey: Keyword,
   entityStore: PatchDbEntityStore,
   queryCache: PatchDbQueryCache
 ): unknown {
@@ -57,7 +59,7 @@ function readRawForQueryAttribute(
  * `parse` are required for {@link useQueryAttribute}.
  */
 export type QueryAttributeLike<T = unknown> = {
-  key: string;
+  key: Keyword;
   parse: (raw: unknown) => T;
 };
 
@@ -92,7 +94,7 @@ function reuseOrParse<T>(
  * the attribute is absent). Pass an attribute tag (e.g. `TodoAttr.title`).
  */
 export function useQueryAttribute<T>(args: {
-  entityType: string;
+  entityType: PatchEntityType;
   entityId?: string | string[];
   where?: PatchDbQueryWhereClause;
   orderBy?: PatchDbQueryOrderBy[];

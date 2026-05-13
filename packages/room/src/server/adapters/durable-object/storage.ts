@@ -1,4 +1,8 @@
-import { asKeyword, type Keyword } from '@gamezilla/lib/keyword';
+import {
+  assertKeywordRecord,
+  asKeyword,
+  type Keyword,
+} from '@gamezilla/lib/keyword';
 import type { LogEntry } from '../../../types';
 import type { CommandDedupOutcome, RoomStorage } from '../../core/storage';
 import type { DurableObjectKvStorage } from './types';
@@ -41,6 +45,19 @@ export class DurableObjectRoomStorage implements RoomStorage {
       typeof raw.dedup === 'object'
         ? (raw.dedup as Record<string, CommandDedupOutcome>)
         : {};
+    const rec = raw as Record<string, unknown>;
+    const maybeState = rec['state'];
+    if (
+      maybeState !== undefined &&
+      maybeState !== null &&
+      typeof maybeState === 'object' &&
+      !Array.isArray(maybeState)
+    ) {
+      assertKeywordRecord(
+        maybeState as Record<string, unknown>,
+        'room.do persisted state'
+      );
+    }
     return { events, dedup };
   }
 

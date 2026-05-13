@@ -1,6 +1,11 @@
 import { assert } from '@gamezilla/lib/assert';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import type { PatchDb } from '../interface';
+import {
+  PATCH_REJECT_CODE,
+  toAttributeState,
+  type PatchDb,
+  type PatchRejectionReason,
+} from '../interface';
 import { createSqliteFactory } from './test-helpers';
 
 describe('PatchDb hooks (sqlite)', () => {
@@ -23,12 +28,12 @@ describe('PatchDb hooks (sqlite)', () => {
       {
         entityId: 'h1',
         entityType: 'hook-task',
-        attributes: { 'hook-task/num': 1 },
+        attributes: toAttributeState({ 'hook-task/num': 1 }),
       },
       {
         entityId: 'h2',
         entityType: 'hook-task',
-        attributes: { 'hook-task/num': 2 },
+        attributes: toAttributeState({ 'hook-task/num': 2 }),
       },
     ]);
     const [r] = await db.read([{ entityType: 'hook-task' }]);
@@ -37,7 +42,7 @@ describe('PatchDb hooks (sqlite)', () => {
   });
 
   test('beforeWrite throw prevents persistence', async () => {
-    db.hooks.beforeWrite(() => {
+    db.hooks.beforeWrite((_patches, _ctx, _tx) => {
       throw new Error('abort write');
     });
     await expect(
@@ -45,7 +50,7 @@ describe('PatchDb hooks (sqlite)', () => {
         {
           entityId: 'x',
           entityType: 'hook-abort',
-          attributes: { 'hook-abort/val': 1 },
+          attributes: toAttributeState({ 'hook-abort/val': 1 }),
         },
       ])
     ).rejects.toThrow('abort write');
@@ -57,18 +62,14 @@ describe('PatchDb hooks (sqlite)', () => {
   test('beforeWrite can partition into accepted and rejected', async () => {
     const idKeep = crypto.randomUUID();
     const idDrop = crypto.randomUUID();
-    db.hooks.beforeWrite(async (patches) => {
+    db.hooks.beforeWrite(async (patches, _ctx, _tx) => {
       const accepted: typeof patches = [];
-      const rejected: {
-        patchId: string;
-        code: string;
-        reason: string;
-      }[] = [];
+      const rejected: PatchRejectionReason[] = [];
       for (const p of patches) {
         if (p.entityType === 'hook-drop') {
           rejected.push({
             patchId: p.patchId!,
-            code: 'hook1',
+            code: PATCH_REJECT_CODE.hook1.key,
             reason: 'dropped by hook1',
           });
         } else {
@@ -82,13 +83,13 @@ describe('PatchDb hooks (sqlite)', () => {
         patchId: idKeep,
         entityId: 'e-keep',
         entityType: 'hook-keep',
-        attributes: { 'hook-keep/num': 1 },
+        attributes: toAttributeState({ 'hook-keep/num': 1 }),
       },
       {
         patchId: idDrop,
         entityId: 'e-drop',
         entityType: 'hook-drop',
-        attributes: { 'hook-drop/num': 2 },
+        attributes: toAttributeState({ 'hook-drop/num': 2 }),
       },
     ]);
     expect(out.rejected.some((r) => r.patchId === idDrop)).toBe(true);

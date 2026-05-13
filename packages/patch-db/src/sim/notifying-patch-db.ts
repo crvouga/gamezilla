@@ -5,6 +5,7 @@ import {
 } from '../impl-sync/active-query-registry';
 import type {
   PatchDb,
+  PatchDbContext,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
@@ -32,14 +33,14 @@ export class NotifyingPatchDb implements PatchDb {
 
   read(
     queries: PatchDbQuery[],
-    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<PatchDbResult[]> {
     return this.inner.read(queries, ctx);
   }
 
   async write(
     patches: PatchInput[],
-    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<WritePatchesResult> {
     const out = await this.inner.write(patches, ctx);
     this.pubSub.publish(PATCHES_DB_TOPIC, {
@@ -50,7 +51,7 @@ export class NotifyingPatchDb implements PatchDb {
 
   update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
-    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<void> {
     return this.inner.update(updates, ctx);
   }

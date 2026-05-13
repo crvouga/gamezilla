@@ -8,9 +8,11 @@ import { SyncPatchDb } from '../../impl-sync';
 import type { PatchDb, PatchInput } from '../../interface';
 import {
   OPEN_PATCHES_DB_CONTEXT,
+  PATCH_REJECT_CODE,
   PATCH_REJECTED,
   PATCH_SYNC_REJECTED_AT,
   PATCH_SYNCED_AT,
+  toAttributeState,
 } from '../../interface';
 import { PatchDbTransportRejectedError } from '../../transport/transport-rejected-error';
 
@@ -64,7 +66,7 @@ function createPartialPolicyRejectRemote(inner: PatchDb): PatchDb {
         rejected: [
           {
             patchId: b.patchId!,
-            code: 'forbidden',
+            code: PATCH_REJECT_CODE.forbidden.key,
             reason: 'simulated partial reject',
           },
         ],
@@ -108,7 +110,7 @@ describe('SyncPatchDb push rejection (401/403)', () => {
     const patchInput: PatchInput = {
       entityId: 'e1',
       entityType: 'item',
-      attributes: { 'item/name': 'one' },
+      attributes: toAttributeState({ 'item/name': 'one' }),
     };
     await syncDb.write([patchInput]);
     await syncDb.runPushNow();
@@ -161,12 +163,12 @@ describe('SyncPatchDb push rejection (401/403)', () => {
       {
         entityId: 'a',
         entityType: 'item',
-        attributes: { 'item/name': 'first' },
+        attributes: toAttributeState({ 'item/name': 'first' }),
       },
       {
         entityId: 'b',
         entityType: 'item',
-        attributes: { 'item/name': 'second' },
+        attributes: toAttributeState({ 'item/name': 'second' }),
       },
     ]);
     await syncDb.runPushNow();
@@ -223,7 +225,7 @@ describe('SyncPatchDb push rejection (401/403)', () => {
       {
         entityId: 'z1',
         entityType: 'item',
-        attributes: { 'item/name': 'z' },
+        attributes: toAttributeState({ 'item/name': 'z' }),
       },
     ]);
     await syncDb.runPushNow();
@@ -265,12 +267,12 @@ describe('SyncPatchDb push rejection (401/403)', () => {
       {
         entityId: 'p1',
         entityType: 'item',
-        attributes: { 'item/name': 'a' },
+        attributes: toAttributeState({ 'item/name': 'a' }),
       },
       {
         entityId: 'p2',
         entityType: 'item',
-        attributes: { 'item/name': 'b' },
+        attributes: toAttributeState({ 'item/name': 'b' }),
       },
     ]);
     await syncDb.runPushNow();
@@ -330,12 +332,12 @@ describe('SyncPatchDb push rejection (401/403)', () => {
       {
         entityId: 'strict1',
         entityType: 'item',
-        attributes: { 'item/name': 'a' },
+        attributes: toAttributeState({ 'item/name': 'a' }),
       },
       {
         entityId: 'strict2',
         entityType: 'item',
-        attributes: { 'item/name': 'b' },
+        attributes: toAttributeState({ 'item/name': 'b' }),
       },
     ]);
     await expect(syncDb.runPushNowStrict()).rejects.toThrow(

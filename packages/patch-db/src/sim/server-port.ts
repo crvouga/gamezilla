@@ -1,5 +1,6 @@
 import type { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import type {
+  PatchDbContext,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
@@ -10,13 +11,10 @@ import type {
  * Server-side port for {@link SimulatedPatchDbClientTransport}: read/write only.
  */
 export type SimServerPort = {
-  read(
-    queries: PatchDbQuery[],
-    ctx?: Readonly<Record<string, unknown>>
-  ): Promise<PatchDbResult[]>;
+  read(queries: PatchDbQuery[], ctx?: PatchDbContext): Promise<PatchDbResult[]>;
   write(
     patches: PatchInput[],
-    ctx?: Readonly<Record<string, unknown>>
+    ctx?: PatchDbContext
   ): Promise<WritePatchesResult>;
 };
 

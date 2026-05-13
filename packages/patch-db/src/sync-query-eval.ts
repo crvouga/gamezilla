@@ -1,6 +1,8 @@
 /* eslint-disable complexity */
+import type { AttributeState } from '@gamezilla/lib/attribute';
 import { assert } from '@gamezilla/lib/assert';
 import type {
+  AttributeKey,
   Entity,
   PatchDbQuery,
   PatchDbQueryWhereClause,
@@ -9,14 +11,14 @@ import type {
 import { assertDirection, patchDbAttributeKey } from './interface';
 import type { InMemoryEntityStore } from './in-memory-store';
 
-function readAttr(attrs: Record<string, unknown>, attribute: string): unknown {
+function readAttr(attrs: AttributeState, attribute: AttributeKey): unknown {
   const key = patchDbAttributeKey(attribute);
   return attrs[key];
 }
 
 export function evaluateWhere(
   clause: PatchDbQueryWhereClause,
-  attrs: Record<string, unknown>
+  attrs: AttributeState
 ): boolean {
   if (clause.type === 'and') {
     return clause.clauses.length === 0
@@ -82,8 +84,8 @@ export function evaluateWhere(
 type SortKey = string | number | boolean | null | undefined;
 
 function sortKeyForAttribute(
-  attrs: Record<string, unknown>,
-  attribute: string
+  attrs: AttributeState,
+  attribute: AttributeKey
 ): SortKey {
   const v = readAttr(attrs, attribute);
   if (

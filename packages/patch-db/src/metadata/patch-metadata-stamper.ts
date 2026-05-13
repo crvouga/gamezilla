@@ -1,5 +1,6 @@
 import { assert } from '@gamezilla/lib/assert';
 import type {
+  PatchDbContext,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
@@ -48,7 +49,7 @@ export class PatchMetadataStamper implements SubscribablePatchDbLike {
 
   async write(
     patches: PatchInput[],
-    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<WritePatchesResult> {
     const deviceId = this.config.getDeviceId();
     this.config.assertDeviceId?.(deviceId);
@@ -70,14 +71,14 @@ export class PatchMetadataStamper implements SubscribablePatchDbLike {
 
   read(
     queries: PatchDbQuery[],
-    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<PatchDbResult[]> {
     return this.inner.read(queries, ctx);
   }
 
   async update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
-    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<void> {
     return this.inner.update(updates, ctx);
   }

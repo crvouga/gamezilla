@@ -4,8 +4,10 @@ import { ForbiddenError } from '../forbidden-error';
 import type {
   PatchDb,
   PatchDbBeforeWriteHookResult,
+  PatchDbContext,
   PatchDbQuery,
   PatchDbQueryWhereClause,
+  PatchEntityType,
   PatchInput,
   PatchRejectionReason,
 } from '../interface';
@@ -13,6 +15,7 @@ import {
   andWhereClause,
   denyAllReadsQuery,
   isPatchDbSystemContext,
+  PATCH_REJECT_CODE,
   READ_WHERE_ALWAYS_TRUE,
   READ_WHERE_NEVER_TRUE,
 } from '../interface';
@@ -22,7 +25,7 @@ import {
  *
  * `TCtx` lets apps narrow context for `read` to whatever shape they enrich it
  * with (a claim bag intersected with whatever domain claims policies need).
- * The library never inspects claim keys; `install` passes whatever context
+ * The library never inspects claim values; `install` passes whatever context
  * arrives from the hook through to the policy.
  *
  * `read` may be async to allow last-moment claim fetches inside a policy
@@ -30,29 +33,23 @@ import {
  * a particular context (e.g. private entities for unauthenticated clients)
  * return {@link READ_WHERE_NEVER_TRUE}.
  */
-export type VisibilityPolicy<
-  TCtx extends Readonly<Record<string, unknown>> = Readonly<
-    Record<string, unknown>
-  >,
-> = {
+export type VisibilityPolicy<TCtx extends PatchDbContext = PatchDbContext> = {
   read: (
     ctx: TCtx
   ) => PatchDbQueryWhereClause | Promise<PatchDbQueryWhereClause>;
   write: (
-    ctx: Readonly<Record<string, unknown>>,
+    ctx: PatchDbContext,
     patch: PatchInput,
     tx: SqlClient
   ) => void | Promise<void>;
 };
 
 export class VisibilityPolicyRegistry<
-  TCtx extends Readonly<Record<string, unknown>> = Readonly<
-    Record<string, unknown>
-  >,
+  TCtx extends PatchDbContext = PatchDbContext,
 > {
   private readonly policies = new Map<string, VisibilityPolicy<TCtx>>();
 
-  register(entityType: string, policy: VisibilityPolicy<TCtx>): this {
+  register(entityType: PatchEntityType, policy: VisibilityPolicy<TCtx>): this {
     this.policies.set(entityType, policy);
     return this;
   }
@@ -96,7 +93,7 @@ export class VisibilityPolicyRegistry<
 
   private async applyReadPolicy(
     query: PatchDbQuery,
-    ctx: Readonly<Record<string, unknown>>
+    ctx: PatchDbContext
   ): Promise<PatchDbQuery> {
     if (isPatchDbSystemContext(ctx)) return query;
 
@@ -131,7 +128,7 @@ export class VisibilityPolicyRegistry<
 
   private async applyWritePolicy(
     patches: PatchInput[],
-    ctx: Readonly<Record<string, unknown>>,
+    ctx: PatchDbContext,
     tx: SqlClient
   ): Promise<PatchDbBeforeWriteHookResult> {
     if (isPatchDbSystemContext(ctx)) {
@@ -150,7 +147,7 @@ export class VisibilityPolicyRegistry<
       if (policy === undefined) {
         rejected.push({
           patchId,
-          code: 'unknown_entity_type',
+          code: PATCH_REJECT_CODE.unknownEntityType.key,
           reason: truncate(
             `no visibility policy for entity type ${p.entityType}`
           ),
@@ -165,7 +162,7 @@ export class VisibilityPolicyRegistry<
         if (e instanceof ForbiddenError) {
           rejected.push({
             patchId,
-            code: 'forbidden',
+            code: PATCH_REJECT_CODE.forbidden.key,
             reason: truncate(e.message),
             patch: p,
           });
@@ -180,7 +177,5 @@ export class VisibilityPolicyRegistry<
 
 /** @deprecated Use {@link VisibilityPolicy} `read` parameter type directly. */
 export type VisibilityPolicyReadContext<
-  TCtx extends Readonly<Record<string, unknown>> = Readonly<
-    Record<string, unknown>
-  >,
+  TCtx extends PatchDbContext = PatchDbContext,
 > = TCtx;

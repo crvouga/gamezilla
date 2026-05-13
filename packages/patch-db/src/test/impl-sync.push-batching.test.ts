@@ -1,11 +1,13 @@
 import { assert } from '@gamezilla/lib/assert';
 import { describe, expect, test } from 'bun:test';
-import type {
-  PatchDb,
-  PatchDbQuery,
-  PatchDbResult,
-  PatchInput,
-  WritePatchesResult,
+import {
+  toAttributeState,
+  type PatchDb,
+  type PatchDbContext,
+  type PatchDbQuery,
+  type PatchDbResult,
+  type PatchInput,
+  type WritePatchesResult,
 } from '../interface';
 import { MAX_PATCHES_PER_REQUEST } from '../transport/wire-schemas';
 import { createSyncDbFactory } from './test-helpers';
@@ -28,14 +30,14 @@ class WireContractRecordingRemote implements PatchDb {
 
   read(
     queries: PatchDbQuery[],
-    ctx?: Readonly<Record<string, unknown>>
+    ctx?: PatchDbContext
   ): Promise<PatchDbResult[]> {
     return this.inner.read(queries, ctx);
   }
 
   async write(
     patches: PatchInput[],
-    ctx?: Readonly<Record<string, unknown>>
+    ctx?: PatchDbContext
   ): Promise<WritePatchesResult> {
     assert.ok(
       patches.length > 0,
@@ -53,7 +55,7 @@ class WireContractRecordingRemote implements PatchDb {
 
   update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
-    ctx?: Readonly<Record<string, unknown>>
+    ctx?: PatchDbContext
   ): Promise<void> {
     return this.inner.update(updates, ctx);
   }
@@ -81,11 +83,11 @@ describe('SyncPatchDb push batching', () => {
       inputs.push({
         entityId: `list-${i}`,
         entityType: 'todo-list',
-        attributes: {
+        attributes: toAttributeState({
           'todo-list/name': `List ${i}`,
           'todo-list/order': i,
           'todo-list/created-at': new Date(0).toISOString(),
-        },
+        }),
       });
     }
     await syncDb.write(inputs);

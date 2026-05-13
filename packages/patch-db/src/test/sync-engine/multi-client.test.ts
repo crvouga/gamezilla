@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { DELETED_CLAUSE } from './constants';
 import { getTwoClientSim, registerTwoClientSimHooks } from './two-client-sim';
+import { toAttributeState } from '../../interface';
 
 const VIZ_FILE = import.meta.path;
 
@@ -32,11 +33,11 @@ describe('SyncPatchDb (deterministic sim, multi-client)', () => {
       {
         entityId: listId,
         entityType: 'todo-list',
-        attributes: {
+        attributes: toAttributeState({
           'todo-list/name': 'Shared',
           'todo-list/order': 0,
           'todo-list/created-at': new Date().toISOString(),
-        },
+        }),
       },
     ]);
     await a.push();
@@ -86,22 +87,22 @@ describe('SyncPatchDb (deterministic sim, multi-client)', () => {
       {
         entityId: listA,
         entityType: 'todo-list',
-        attributes: {
+        attributes: toAttributeState({
           'todo-list/name': 'By A',
           'todo-list/order': 0,
           'todo-list/created-at': created,
-        },
+        }),
       },
     ]);
     await b.write([
       {
         entityId: listB,
         entityType: 'todo-list',
-        attributes: {
+        attributes: toAttributeState({
           'todo-list/name': 'By B',
           'todo-list/order': 1,
           'todo-list/created-at': created,
-        },
+        }),
       },
     ]);
 

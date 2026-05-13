@@ -1,13 +1,18 @@
 import { assert } from '@gamezilla/lib/assert';
+import { asKeyword } from '@gamezilla/lib/keyword';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { PatchDb } from '../interface';
-import { OPEN_PATCHES_DB_CONTEXT, PATCH_SYNC_REJECTED_AT } from '../interface';
+import {
+  OPEN_PATCHES_DB_CONTEXT,
+  PATCH_SYNC_REJECTED_AT,
+  toAttributeState,
+} from '../interface';
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '../policy/system-device';
 import { createSqliteFactory } from './test-helpers';
 
 const WIDGET_ENTITY_TYPE = 'widget';
-const WIDGET_ID_ATTR = 'widget/id';
-const WIDGET_NAME_ATTR = 'widget/display-name';
+const WIDGET_ID_ATTR = asKeyword('widget/id');
+const WIDGET_NAME_ATTR = asKeyword('widget/display-name');
 
 describe('compaction (sqlite)', () => {
   let db: PatchDb;
@@ -30,11 +35,11 @@ describe('compaction (sqlite)', () => {
         {
           entityId,
           entityType: WIDGET_ENTITY_TYPE,
-          attributes: {
+          attributes: toAttributeState({
             [WIDGET_ID_ATTR]: entityId,
             [WIDGET_NAME_ATTR]: `v${i}`,
             'patch/created-by-id': PATCH_DB_SYSTEM_DEVICE_ID,
-          },
+          }),
         },
       ]);
     }
@@ -61,7 +66,7 @@ describe('compaction (sqlite)', () => {
       (p) => p.patchId === compacted.compactionPatchId
     );
     assert.defined(compactPatch, 'compact patch');
-    expect(compactPatch.attributes['patch/compacted']).toBe('1');
+    expect(compactPatch.attributes[asKeyword('patch/compacted')]).toBe('1');
     expect(after.entities[0]?.attributes[WIDGET_NAME_ATTR]).toBe('v4');
   });
 
@@ -72,11 +77,11 @@ describe('compaction (sqlite)', () => {
         {
           entityId,
           entityType: WIDGET_ENTITY_TYPE,
-          attributes: {
+          attributes: toAttributeState({
             [WIDGET_ID_ATTR]: entityId,
             [WIDGET_NAME_ATTR]: `x${i}`,
             'patch/created-by-id': PATCH_DB_SYSTEM_DEVICE_ID,
-          },
+          }),
         },
       ]);
     }
@@ -96,11 +101,11 @@ describe('compaction (sqlite)', () => {
         {
           entityId,
           entityType: WIDGET_ENTITY_TYPE,
-          attributes: {
+          attributes: toAttributeState({
             [WIDGET_ID_ATTR]: entityId,
             [WIDGET_NAME_ATTR]: `r${i}`,
             'patch/created-by-id': PATCH_DB_SYSTEM_DEVICE_ID,
-          },
+          }),
         },
       ]);
       expect(w.rejected).toHaveLength(0);
@@ -110,9 +115,9 @@ describe('compaction (sqlite)', () => {
         await db.update([
           {
             patchId: p.patchId,
-            attributes: {
+            attributes: toAttributeState({
               [PATCH_SYNC_REJECTED_AT]: new Date().toISOString(),
-            },
+            }),
           },
         ]);
       }

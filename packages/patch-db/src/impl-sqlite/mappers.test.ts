@@ -1,4 +1,6 @@
 import { describe, expect, test } from 'bun:test';
+import { PatchMetaAttr } from '../metadata/patch-metadata';
+import { QTask } from '../test/query-test-attrs';
 import { toEntity, toPatch } from './mappers';
 
 describe('mappers', () => {
@@ -18,9 +20,9 @@ describe('mappers', () => {
       parent_id: null,
     };
     const patch = toPatch(row);
-    expect(patch.attributes['task/title']).toBe('valid');
-    expect(patch.attributes['patch/created-by-id']).toBe('user');
-    expect(patch.attributes['patch/session-id']).toBe('s1');
+    expect(patch.attributes[QTask.title.key]).toBe('valid');
+    expect(patch.attributes[PatchMetaAttr.createdById.key]).toBe('user');
+    expect(patch.attributes[PatchMetaAttr.sessionId.key]).toBe('s1');
     expect(patch.attributes).not.toHaveProperty('completed');
   });
 
@@ -34,7 +36,7 @@ describe('mappers', () => {
       }),
     };
     const entity = toEntity(row);
-    expect(entity.attributes['task/title']).toBe('valid');
+    expect(entity.attributes[QTask.title.key]).toBe('valid');
     expect(entity.attributes).not.toHaveProperty('completed');
   });
 });

@@ -5,7 +5,11 @@ import {
   assertSqlPrefix,
   assertWhereFragment,
 } from '@gamezilla/lib/sqlite';
-import type { PatchDbQuery, PatchDbQueryWhereClause } from '../interface';
+import type {
+  AttributeKey,
+  PatchDbQuery,
+  PatchDbQueryWhereClause,
+} from '../interface';
 import {
   assertAttribute,
   assertDirection,
@@ -27,7 +31,7 @@ function toTextParam(v: unknown): string {
 }
 
 /** Builds JSON path for keys; uses same quoting rules as SQLite query-builder */
-function jsonPathForAttribute(attribute: string): string {
+function jsonPathForAttribute(attribute: AttributeKey): string {
   assertAttribute(attribute);
   return /[./[\]]/.test(attribute)
     ? `$."${attribute.replace(/"/g, '""')}"`

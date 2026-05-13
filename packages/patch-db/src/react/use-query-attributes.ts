@@ -1,8 +1,10 @@
+import type { Keyword } from '@gamezilla/lib/keyword';
 import { useMemo } from 'react';
 import type {
   PatchDbQuery,
   PatchDbQueryOrderBy,
   PatchDbQueryWhereClause,
+  PatchEntityType,
 } from '../interface';
 import { useQuery } from './use-query';
 
@@ -10,11 +12,11 @@ import { useQuery } from './use-query';
  * Returns a list of parsed attribute values for every entity matching a query.
  */
 export function useQueryAttributes<T>(args: {
-  entityType: string;
+  entityType: PatchEntityType;
   where?: PatchDbQueryWhereClause;
   orderBy?: PatchDbQueryOrderBy[];
   limit?: number;
-  attributeKey: string;
+  attributeKey: Keyword;
   parse: (raw: unknown) => T;
 }): T[] {
   const { entityType, where, orderBy, limit, attributeKey, parse } = args;

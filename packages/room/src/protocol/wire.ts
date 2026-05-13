@@ -1,7 +1,8 @@
 import { isMessageEnvelope } from '@gamezilla/lib/message';
+import { isNamespacedKeyword } from '@gamezilla/lib/keyword';
 import {
+  ROOM_ERROR_TYPE,
   ROOM_ERROR_TYPES,
-  type Keyword,
   type LogEntry,
   type RoomCommandPayload,
   type RoomError,
@@ -72,15 +73,16 @@ function isRoomErrorWire(value: unknown): value is RoomError {
   if (!isRecord(value)) return false;
   const t = value['type'];
   if (typeof t !== 'string') return false;
-  if (!ROOM_ERROR_TYPES.has(t as Keyword)) return false;
-  if (t === 'room.error/rate-limited') {
+  if (!isNamespacedKeyword(t)) return false;
+  if (!ROOM_ERROR_TYPES.has(t)) return false;
+  if (t === ROOM_ERROR_TYPE.rateLimited) {
     return true;
   }
   // All other variants carry a `reason` (required for invalid-command,
   // unauthorized, conflict; optional for internal). Be strict on the wire:
   // any non-rate-limited tag must carry a string reason if present.
   if ('reason' in value && typeof value['reason'] !== 'string') return false;
-  if (t !== 'room.error/internal' && typeof value['reason'] !== 'string') {
+  if (t !== ROOM_ERROR_TYPE.internal && typeof value['reason'] !== 'string') {
     return false;
   }
   return true;

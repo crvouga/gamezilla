@@ -20,6 +20,8 @@ import {
   PaperplaneFillFa,
   PersonFillFa,
   RightToBracketFa,
+  VolumeHighFa,
+  VolumeXmarkFa,
   WifiFa,
   XmarkFa,
   type FaIconProps,
@@ -44,6 +46,8 @@ export const ICON_REGISTRY = {
   copy: CopyFa,
   'check.circle.fill': CircleCheckFa,
   xmark: XmarkFa,
+  'speaker.wave.fill': VolumeHighFa,
+  'speaker.slash.fill': VolumeXmarkFa,
 } as const satisfies Record<string, FaIconComponent>;
 
 export type IconSymbolName = keyof typeof ICON_REGISTRY;

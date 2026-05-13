@@ -38,12 +38,19 @@ export function useTtsPlayer(): TtsPlayerState {
    * When the audio finishes loading the URL we asked for, kick off playback.
    * Without this, `play(url)` followed immediately by `player.play()` races
    * the source replacement and silently does nothing on first call.
+   *
+   * The `requestedUrlRef.current === requestedUrl` re-check inside `.finally`
+   * guards against the user calling `stop()` mid-seek: `stop()` clears
+   * `requestedUrlRef.current`, and without this check the queued
+   * `player.play()` would fire after our pause and resume audio.
    */
   useEffect(() => {
     if (requestedUrlRef.current === null) return;
     if (currentUrl !== requestedUrlRef.current) return;
     if (status.isLoaded) {
+      const requestedUrl = requestedUrlRef.current;
       void player.seekTo(0).finally(() => {
+        if (requestedUrlRef.current !== requestedUrl) return;
         player.play();
         requestedUrlRef.current = null;
       });
@@ -55,6 +62,7 @@ export function useTtsPlayer(): TtsPlayerState {
       requestedUrlRef.current = url;
       if (currentUrl === url) {
         await player.seekTo(0);
+        if (requestedUrlRef.current !== url) return;
         player.play();
         requestedUrlRef.current = null;
         return;
@@ -64,12 +72,26 @@ export function useTtsPlayer(): TtsPlayerState {
     [currentUrl, player]
   );
 
+  /**
+   * Pause unconditionally when a source is loaded rather than gating on
+   * `status.playing`. The player's status event propagates through React
+   * state asynchronously, so during the window between `player.play()` and
+   * the status update reflecting `playing=true`, a `stop()` request would
+   * otherwise be silently dropped (the audio is _about_ to start playing
+   * but `status.playing` is still `false`). Calling `pause()` on an
+   * already-paused player is a no-op, so this is safe.
+   *
+   * Clearing `requestedUrlRef.current` first also cancels any pending
+   * autoplay -- both the load-then-play effect above and the
+   * `seekTo`-then-play branch in `play()` re-check the ref in their
+   * `.finally` and bail out when it no longer matches.
+   */
   const stop = useCallback(() => {
     requestedUrlRef.current = null;
-    if (status.isLoaded && status.playing) {
+    if (currentUrl !== null) {
       player.pause();
     }
-  }, [player, status.isLoaded, status.playing]);
+  }, [player, currentUrl]);
 
   const durationMs =
     status.duration > 0 ? Math.round(status.duration * 1000) : null;

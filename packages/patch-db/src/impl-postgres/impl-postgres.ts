@@ -1,3 +1,4 @@
+import type { Keyword } from '@gamezilla/lib/keyword';
 import { assert } from '@gamezilla/lib/assert';
 import type { Logger } from '@gamezilla/lib/logger';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
@@ -5,9 +6,9 @@ import { assertWhereFragment } from '@gamezilla/lib/sqlite';
 import { PatchDbHookRegistry } from '../hook-registry';
 import type { PatchRow } from '../impl-sqlite/types';
 import type {
-  Attribute,
   Patch,
   PatchDb,
+  PatchDbContext,
   PatchDbCompaction,
   PatchDbEngineOptions,
   PatchDbQuery,
@@ -144,9 +145,8 @@ export class PatchDbImplPostgres implements PatchDb {
       ) {
         assertPatchId(raw['patchId']);
       }
-      assert.all(
-        Object.keys(patch.attributes),
-        (key): asserts key is Attribute => assertAttribute(key)
+      assert.all(Object.keys(patch.attributes), (key): asserts key is Keyword =>
+        assertAttribute(key)
       );
     });
   }
@@ -292,7 +292,7 @@ export class PatchDbImplPostgres implements PatchDb {
 
   async write(
     patches: PatchInput[],
-    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<WritePatchesResult> {
     this.assertPatchInputs(patches);
     const withIds = this.assignPatchIdsIfMissing(patches);
@@ -329,7 +329,7 @@ export class PatchDbImplPostgres implements PatchDb {
 
   async read(
     queries: PatchDbQuery[],
-    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<PatchDbResult[]> {
     const enrichedCtx = await this.hooks.runEnrichContext(ctx);
     const rewritten: PatchDbQuery[] = [];
@@ -360,7 +360,7 @@ export class PatchDbImplPostgres implements PatchDb {
 
   async update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
-    _ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    _ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<void> {
     void _ctx;
     if (updates.length === 0) return;
@@ -399,7 +399,7 @@ export class PatchDbImplPostgres implements PatchDb {
   async compactEntity(
     key: { entityId: string; entityType: string },
     options: { keepLatest: number },
-    _ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    _ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<{ removedPatchIds: string[]; compactionPatchId: string | null }> {
     void _ctx;
     let result: {
@@ -419,7 +419,7 @@ export class PatchDbImplPostgres implements PatchDb {
 
   async compactAll(
     options: { keepLatest?: number; entityType?: string },
-    _ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    _ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<{ entitiesCompacted: number }> {
     void _ctx;
     const keepLatest = options.keepLatest ?? 2;

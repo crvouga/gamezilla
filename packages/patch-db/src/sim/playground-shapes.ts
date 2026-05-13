@@ -1,20 +1,22 @@
+import { asKeyword } from '@gamezilla/lib/keyword';
 import type {
   Entity,
   PatchDbQuery,
   PatchDbQueryWhereClause,
   PatchInput,
 } from '../interface';
+import { toAttributeState } from '../interface';
 import { playgroundPollAllClients, type PlaygroundSim } from './playground-sim';
 
 export const SHAPE_ENTITY_TYPE = 'shape';
 
 /** Namespaced keys for playground shape entities. */
 export const SHAPE_ATTR = {
-  kind: 'shape/kind' as const,
-  fill: 'shape/fill' as const,
-  points: 'shape/points' as const,
-  order: 'shape/order' as const,
-  deleted: 'shape/deleted' as const,
+  kind: asKeyword('shape/kind'),
+  fill: asKeyword('shape/fill'),
+  points: asKeyword('shape/points'),
+  order: asKeyword('shape/order'),
+  deleted: asKeyword('shape/deleted'),
 } as const;
 
 export const SHAPE_NOT_DELETED_CLAUSE: PatchDbQueryWhereClause = {
@@ -130,12 +132,12 @@ export function createShapeInput(order: number): PatchInput {
   return {
     entityId: randomEntityId(),
     entityType: SHAPE_ENTITY_TYPE,
-    attributes: {
+    attributes: toAttributeState({
       [SHAPE_ATTR.kind]: resolved.id,
       [SHAPE_ATTR.fill]: randomHueColor(),
       [SHAPE_ATTR.points]: resolved.svgPoints(),
       [SHAPE_ATTR.order]: order,
-    },
+    }),
   };
 }
 
@@ -204,7 +206,7 @@ export async function playgroundSoftDeleteRandomShape(
     {
       entityId: entity.entityId,
       entityType: SHAPE_ENTITY_TYPE,
-      attributes: { [SHAPE_ATTR.deleted]: true },
+      attributes: toAttributeState({ [SHAPE_ATTR.deleted]: true }),
     },
   ]);
   await sim.syncNow(clientId);
@@ -267,7 +269,7 @@ export async function playgroundServerSoftDeleteRandomShape(
     {
       entityId: entity.entityId,
       entityType: SHAPE_ENTITY_TYPE,
-      attributes: { [SHAPE_ATTR.deleted]: true },
+      attributes: toAttributeState({ [SHAPE_ATTR.deleted]: true }),
     },
   ]);
   await playgroundPollAllClients(sim);
@@ -286,7 +288,7 @@ export async function playgroundDeleteShape(
     {
       entityId,
       entityType: SHAPE_ENTITY_TYPE,
-      attributes: { [SHAPE_ATTR.deleted]: true },
+      attributes: toAttributeState({ [SHAPE_ATTR.deleted]: true }),
     },
   ]);
   await sim.syncNow(clientId);
@@ -300,7 +302,7 @@ export async function playgroundServerDeleteShape(
     {
       entityId,
       entityType: SHAPE_ENTITY_TYPE,
-      attributes: { [SHAPE_ATTR.deleted]: true },
+      attributes: toAttributeState({ [SHAPE_ATTR.deleted]: true }),
     },
   ]);
   await playgroundPollAllClients(sim);
@@ -321,11 +323,11 @@ export async function playgroundRandomizeShape(
     {
       entityId,
       entityType: SHAPE_ENTITY_TYPE,
-      attributes: {
+      attributes: toAttributeState({
         [SHAPE_ATTR.kind]: def.id,
         [SHAPE_ATTR.fill]: randomHueColor(),
         [SHAPE_ATTR.points]: def.svgPoints(),
-      },
+      }),
     },
   ]);
   await sim.syncNow(clientId);
@@ -342,11 +344,11 @@ export async function playgroundServerRandomizeShape(
     {
       entityId,
       entityType: SHAPE_ENTITY_TYPE,
-      attributes: {
+      attributes: toAttributeState({
         [SHAPE_ATTR.kind]: def.id,
         [SHAPE_ATTR.fill]: randomHueColor(),
         [SHAPE_ATTR.points]: def.svgPoints(),
-      },
+      }),
     },
   ]);
   await playgroundPollAllClients(sim);
@@ -364,7 +366,7 @@ export async function playgroundReorderShapes(
   const patches = orderedEntityIds.map((entityId, i) => ({
     entityId,
     entityType: SHAPE_ENTITY_TYPE,
-    attributes: { [SHAPE_ATTR.order]: i },
+    attributes: toAttributeState({ [SHAPE_ATTR.order]: i }),
   }));
   if (patches.length > 0) {
     await client.syncDb.write(patches);
@@ -379,7 +381,7 @@ export async function playgroundServerReorderShapes(
   const patches = orderedEntityIds.map((entityId, i) => ({
     entityId,
     entityType: SHAPE_ENTITY_TYPE,
-    attributes: { [SHAPE_ATTR.order]: i },
+    attributes: toAttributeState({ [SHAPE_ATTR.order]: i }),
   }));
   if (patches.length > 0) {
     await sim.serverBacking.write(patches);
@@ -400,7 +402,7 @@ export async function playgroundClearAllShapes(
   const patches = localEntities.map((e) => ({
     entityId: e.entityId,
     entityType: SHAPE_ENTITY_TYPE,
-    attributes: { [SHAPE_ATTR.deleted]: true },
+    attributes: toAttributeState({ [SHAPE_ATTR.deleted]: true }),
   }));
   await client.syncDb.write(patches);
   await sim.syncNow(clientId);
@@ -414,7 +416,7 @@ export async function playgroundServerClearAllShapes(
   const patches = entities.map((e) => ({
     entityId: e.entityId,
     entityType: SHAPE_ENTITY_TYPE,
-    attributes: { [SHAPE_ATTR.deleted]: true },
+    attributes: toAttributeState({ [SHAPE_ATTR.deleted]: true }),
   }));
   await sim.serverBacking.write(patches);
   await playgroundPollAllClients(sim);

@@ -1,6 +1,7 @@
 import { assert } from '@gamezilla/lib/assert';
 import { assertUrl } from '../assert-url';
 import type {
+  PatchDbContext,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
@@ -69,7 +70,7 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
 
   async read(
     queries: PatchDbQuery[],
-    _ctx?: Readonly<Record<string, unknown>>
+    _ctx?: PatchDbContext
   ): Promise<PatchDbResult[]> {
     void _ctx;
     if (queries.length === 0) {
@@ -107,7 +108,7 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
 
   async write(
     patches: PatchInput[],
-    _ctx?: Readonly<Record<string, unknown>>
+    _ctx?: PatchDbContext
   ): Promise<WritePatchesResult> {
     void _ctx;
     assert.ok(

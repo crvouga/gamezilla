@@ -194,6 +194,22 @@ export function assertKeywordRecord(
   }
 }
 
+/**
+ * Validates every own-enumerable key with {@link assertKeywordRecord}, then returns
+ * the same object as `Record<Keyword, T>` for assignment into branded slots
+ * (`AttributeState`, `RoomState`, etc.).
+ */
+export function asKeywordRecord<T>(
+  record: Record<string, T>,
+  label: string
+): Record<Keyword, T> {
+  assertKeywordRecord(record as Record<string, unknown>, label);
+  return record as Record<Keyword, T>;
+}
+
+/** Alias for {@link asKeywordRecord}. */
+export const freezeAsKeywordMap = asKeywordRecord;
+
 /** Dot-separated namespace prefix before `/`, or null if not exactly one slash. */
 export function namespacePrefixOf(key: string): string | null {
   const slash = key.indexOf('/');

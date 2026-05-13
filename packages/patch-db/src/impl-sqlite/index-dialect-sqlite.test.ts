@@ -2,6 +2,7 @@ import { createLogger } from '@gamezilla/lib/logger';
 import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite';
 import { Database } from 'bun:sqlite';
 import { describe, expect, test } from 'bun:test';
+import { asKeyword } from '@gamezilla/lib/keyword';
 import {
   normalizeIndexSpec,
   PATCH_DB_INDEX_NAME_PREFIX,
@@ -20,7 +21,7 @@ describe('sqliteDdlCreate', () => {
     const spec = normalizeIndexSpec({
       name: 'space-host',
       entityType: 'space',
-      fields: [{ kind: 'attribute', attribute: 'space/host-id' }],
+      fields: [{ kind: 'attribute', attribute: asKeyword('space/host-id') }],
     });
     const ddl = sqliteDdlCreate(spec);
     expect(ddl).toContain(`json_extract(attributes, '$."space/host-id"')`);
@@ -32,7 +33,9 @@ describe('sqliteDdlCreate', () => {
       name: 'space-live',
       entityType: 'space',
       fields: [{ kind: 'entityType' }, { kind: 'entityId' }],
-      where: [{ kind: 'attributeAbsent', attribute: 'space/ended-at' }],
+      where: [
+        { kind: 'attributeAbsent', attribute: asKeyword('space/ended-at') },
+      ],
     });
     const ddl = sqliteDdlCreate(spec);
     expect(ddl).toContain(`(entity_type, entity_id)`);
@@ -47,7 +50,10 @@ describe('sqliteDdlCreate', () => {
       entityType: 'space.membership',
       fields: [{ kind: 'entityId' }],
       where: [
-        { kind: 'attributeExists', attribute: 'space.membership/guest-id' },
+        {
+          kind: 'attributeExists',
+          attribute: asKeyword('space.membership/guest-id'),
+        },
       ],
     });
     const ddl = sqliteDdlCreate(spec);
@@ -77,14 +83,16 @@ describe('sqlite index reconciliation (in-memory bun:sqlite)', () => {
   const SPEC_HOST: PatchDbIndexSpec = {
     name: 'space-host',
     entityType: 'space',
-    fields: [{ kind: 'attribute', attribute: 'space/host-id' }],
+    fields: [{ kind: 'attribute', attribute: asKeyword('space/host-id') }],
   };
 
   const SPEC_LIVE: PatchDbIndexSpec = {
     name: 'space-live',
     entityType: 'space',
     fields: [{ kind: 'entityType' }, { kind: 'entityId' }],
-    where: [{ kind: 'attributeAbsent', attribute: 'space/ended-at' }],
+    where: [
+      { kind: 'attributeAbsent', attribute: asKeyword('space/ended-at') },
+    ],
   };
 
   test('migrate -> reconcile creates declared indexes; second pass is no-op', async () => {
@@ -141,7 +149,7 @@ describe('sqlite index reconciliation (in-memory bun:sqlite)', () => {
     const evolved: PatchDbIndexSpec = {
       ...SPEC_HOST,
       fields: [
-        { kind: 'attribute', attribute: 'space/host-id' },
+        { kind: 'attribute', attribute: asKeyword('space/host-id') },
         { kind: 'entityType' },
       ],
     };

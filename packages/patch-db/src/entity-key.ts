@@ -6,7 +6,9 @@
  */
 import type { Assert } from '@gamezilla/lib/assert';
 import { assert } from '@gamezilla/lib/assert';
+import type { AttributeState } from '@gamezilla/lib/attribute';
 import {
+  assertKeywordRecord,
   isNamespacedKeyword,
   isNamespacePrefix,
   type Keyword,
@@ -14,12 +16,10 @@ import {
 
 /**
  * Namespaced attribute key used in queries and the `attributes` map.
- * Producers (factories, tags, validators) always emit a {@link Keyword} brand;
- * this alias stays `string` at the type level so query literals stay ergonomic
- * (`{ attribute: 'task/title', … }`) while every wire / persistence boundary
- * runtime-validates via {@link assertAttribute} / {@link assertAttributes}.
+ * Same brand as {@link Keyword}; obtain via {@link assertAttribute}, {@link asKeyword},
+ * or {@link @gamezilla/lib/attribute.createAttrNamespace} tags (`.key`).
  */
-export type AttributeKey = string;
+export type AttributeKey = Keyword;
 
 /**
  * Dot-separated kebab namespace for entity types
@@ -29,9 +29,6 @@ export type AttributeKey = string;
  * boundaries pipe untrusted inputs through it before the rest of the pipeline.
  */
 export type PatchEntityType = string;
-
-/** @deprecated Use {@link AttributeKey} (alias of {@link Keyword}); collapsed to a single brand. */
-export type Attribute = Keyword;
 
 const ID_MAX_LEN = 1024;
 
@@ -124,7 +121,7 @@ export function assertAttribute(
  */
 export function patchDbAttributeKey(
   attribute: string | null | undefined
-): string {
+): Keyword {
   assert.ok(
     attribute !== null && attribute !== undefined && attribute !== '',
     'query clause attribute is required'
@@ -136,9 +133,19 @@ export function patchDbAttributeKey(
 export function assertAttributes(
   attributes: unknown,
   a: Assert = assert
-): asserts attributes is Record<string, unknown> {
+): asserts attributes is Record<Keyword, unknown> {
   a.record(attributes, 'attributes must be object');
-  for (const key of Object.keys(attributes)) {
-    assertAttribute(key, a);
-  }
+  assertKeywordRecord(attributes as Record<string, unknown>, 'attributes');
+}
+
+/**
+ * Validates every key is a namespaced keyword, then returns the same object as
+ * {@link AttributeState} for {@link PatchInput.attributes} / {@link Entity.attributes}.
+ */
+export function toAttributeState(
+  record: Record<string, unknown>,
+  label = 'attributes'
+): AttributeState {
+  assertKeywordRecord(record, label);
+  return record as AttributeState;
 }

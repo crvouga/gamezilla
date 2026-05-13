@@ -9,7 +9,10 @@ import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
-import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
+import {
+  PatchMetaAttr,
+  PATCH_REJECT_CODE,
+} from '@gamezilla/patch-db/metadata/patch-metadata';
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
 import { StripeAttr } from '@gamezilla/stripe/stripe-attrs';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
@@ -98,6 +101,6 @@ describe('gamezilla default policies (system + auth writes)', () => {
     );
     expect(out.accepted).toHaveLength(0);
     expect(out.rejected).toHaveLength(1);
-    expect(out.rejected[0]?.code).toBe('forbidden');
+    expect(out.rejected[0]?.code).toBe(PATCH_REJECT_CODE.forbidden.key);
   });
 });

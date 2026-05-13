@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'bun:test';
+import { asKeyword } from '@gamezilla/lib/keyword';
 import { PatchDbHookRegistry } from '../../hook-registry';
 import type { PatchDb, PatchDbQuery, PatchDbResult } from '../../interface';
-import { OPEN_PATCHES_DB_CONTEXT } from '../../interface';
+import { OPEN_PATCHES_DB_CONTEXT, toAttributeState } from '../../interface';
 import {
   shouldSkipTargetedEntityReread,
   type ActiveQuery,
@@ -122,7 +123,7 @@ describe('buildSyncQueriesForPoll', () => {
                   recordedAt: 't',
                   createdBy: '',
                   sessionId: '',
-                  attributes: {},
+                  attributes: toAttributeState({}),
                 },
               ],
             };
@@ -147,7 +148,7 @@ describe('buildSyncQueriesForPoll', () => {
     await buildSyncQueriesForPoll(inner, [
       mk({
         entityType: 'todo',
-        where: { type: 'exists', attribute: 'todo/title' },
+        where: { type: 'exists', attribute: asKeyword('todo/title') },
         limit: 10,
       }),
     ]);
@@ -168,7 +169,12 @@ describe('buildSyncQueriesForPoll', () => {
     const syncQs = await buildSyncQueriesForPoll(inner, [
       mk({
         entityType: 'chess.puzzle',
-        orderBy: [{ attribute: 'chess.puzzle/popularity', direction: 'desc' }],
+        orderBy: [
+          {
+            attribute: asKeyword('chess.puzzle/popularity'),
+            direction: 'desc',
+          },
+        ],
       }),
     ]);
     expect(syncQs[0]?.limit).toBe(SYNC_POLL_REMOTE_ENTITY_ROW_CAP);
@@ -188,7 +194,12 @@ describe('buildSyncQueriesForPoll', () => {
     const syncQs = await buildSyncQueriesForPoll(inner, [
       mk({
         entityType: 'chess.puzzle',
-        orderBy: [{ attribute: 'chess.puzzle/popularity', direction: 'desc' }],
+        orderBy: [
+          {
+            attribute: asKeyword('chess.puzzle/popularity'),
+            direction: 'desc',
+          },
+        ],
         limit: 50,
       }),
     ]);
@@ -230,7 +241,7 @@ describe('shouldSkipTargetedEntityReread', () => {
   test('does not skip predicate queries', () => {
     const q: PatchDbQuery = {
       entityType: 'todo',
-      where: { type: 'exists', attribute: 'todo/title' },
+      where: { type: 'exists', attribute: asKeyword('todo/title') },
     };
     const msg = {
       type: 'invalidated' as const,

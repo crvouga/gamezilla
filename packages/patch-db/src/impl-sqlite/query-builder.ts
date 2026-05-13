@@ -1,11 +1,16 @@
 import { assert } from '@gamezilla/lib/assert';
+import { asKeyword } from '@gamezilla/lib/keyword';
 import {
   assertOffsetLimitFragment,
   assertOrderByFragment,
   assertSqlPrefix,
   assertWhereFragment,
 } from '@gamezilla/lib/sqlite';
-import type { PatchDbQuery, PatchDbQueryWhereClause } from '../interface';
+import type {
+  AttributeKey,
+  PatchDbQuery,
+  PatchDbQueryWhereClause,
+} from '../interface';
 import {
   assertAttribute,
   assertDirection,
@@ -15,26 +20,26 @@ import {
 export type WhereFragment = { sql: string; params: unknown[] };
 
 /** Builds JSON path for keys; uses quoted form for keys with . / [ ] */
-function jsonPathForAttribute(attribute: string): string {
+function jsonPathForAttribute(attribute: AttributeKey): string {
   assertAttribute(attribute);
   return /[./[\]]/.test(attribute)
     ? `$."${attribute.replace(/"/g, '""')}"`
     : `$.${attribute}`;
 }
 assert.equals(
-  jsonPathForAttribute('todo/title'),
+  jsonPathForAttribute(asKeyword('todo/title')),
   '$."todo/title"',
   'Invalid attribute name',
   { attribute: 'todo/title' }
 );
 assert.equals(
-  jsonPathForAttribute('my.namespace/attr-name'),
+  jsonPathForAttribute(asKeyword('my.namespace/attr-name')),
   '$."my.namespace/attr-name"',
   'Invalid attribute name',
   { attribute: 'my.namespace/attr-name' }
 );
 assert.equals(
-  jsonPathForAttribute('todo/title'),
+  jsonPathForAttribute(asKeyword('todo/title')),
   '$."todo/title"',
   'Invalid attribute name.',
   { attribute: 'todo/title' }

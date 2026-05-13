@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { assert } from '@gamezilla/lib/assert';
+import { asKeyword } from '@gamezilla/lib/keyword';
 import { QTask } from '../test/query-test-attrs';
 import {
   buildLimitSQL,
@@ -34,7 +35,7 @@ describe('tiger-style invariants in sqlite query-builder', () => {
   test('empty `in` short-circuits to (1 = 0) with no params', () => {
     const { sql, params } = buildWhereClause({
       type: 'in',
-      attribute: QTask.status,
+      attribute: QTask.status.key,
       values: [],
     });
     expect(sql).toBe('(1 = 0)');
@@ -44,7 +45,7 @@ describe('tiger-style invariants in sqlite query-builder', () => {
   test('empty `not_in` short-circuits to (1 = 1) with no params', () => {
     const { sql, params } = buildWhereClause({
       type: 'not_in',
-      attribute: QTask.status,
+      attribute: QTask.status.key,
       values: [],
     });
     expect(sql).toBe('(1 = 1)');
@@ -67,8 +68,8 @@ describe('tiger-style invariants in sqlite query-builder', () => {
     const { sql, params } = buildWhereClause({
       type: 'and',
       clauses: [
-        { type: '=', attribute: QTask.title, value: 'a' },
-        { type: 'in', attribute: QTask.status, values: [] },
+        { type: '=', attribute: QTask.title.key, value: 'a' },
+        { type: 'in', attribute: QTask.status.key, values: [] },
       ],
     });
     expect(sql).toContain('(1 = 0)');
@@ -80,8 +81,8 @@ describe('tiger-style invariants in sqlite query-builder', () => {
     const { sql, params } = buildWhereClause({
       type: 'or',
       clauses: [
-        { type: '=', attribute: QTask.title, value: 'a' },
-        { type: 'not_in', attribute: QTask.status, values: [] },
+        { type: '=', attribute: QTask.title.key, value: 'a' },
+        { type: 'not_in', attribute: QTask.status.key, values: [] },
       ],
     });
     expect(sql).toContain('(1 = 1)');
@@ -103,7 +104,10 @@ describe('tiger-style invariants in sqlite query-builder', () => {
 
   test('rejects unsafe column prefix interpolated into WHERE', () => {
     expect(() =>
-      buildWhereClause({ type: 'exists', attribute: QTask.title }, 'p; DROP--')
+      buildWhereClause(
+        { type: 'exists', attribute: QTask.title.key },
+        'p; DROP--'
+      )
     ).toThrow();
   });
 
@@ -124,7 +128,7 @@ describe('tiger-style invariants in sqlite query-builder', () => {
   test('rejects unsafe attributePrefix in ORDER BY', () => {
     expect(() =>
       buildOrderSQL(
-        { orderBy: [{ attribute: QTask.title, direction: 'asc' }] },
+        { orderBy: [{ attribute: QTask.title.key, direction: 'asc' }] },
         'ORDER BY id ASC',
         'p; DROP--'
       )
@@ -134,12 +138,12 @@ describe('tiger-style invariants in sqlite query-builder', () => {
   test('wire query: string attribute in ORDER BY matches tag .key', () => {
     const def = 'ORDER BY id ASC';
     const tag = buildOrderSQL(
-      { orderBy: [{ attribute: QTask.title, direction: 'desc' }] },
+      { orderBy: [{ attribute: QTask.title.key, direction: 'desc' }] },
       def,
       ''
     );
     const wire = buildOrderSQL(
-      { orderBy: [{ attribute: 'task/title', direction: 'desc' }] },
+      { orderBy: [{ attribute: asKeyword('task/title'), direction: 'desc' }] },
       def,
       ''
     );
@@ -149,7 +153,7 @@ describe('tiger-style invariants in sqlite query-builder', () => {
   test('happy path: builds well-formed `in` clause for non-empty values', () => {
     const { sql, params } = buildWhereClause({
       type: 'in',
-      attribute: QTask.status,
+      attribute: QTask.status.key,
       values: ['open'],
     });
     expect(sql).toContain('IN (?)');
@@ -159,12 +163,12 @@ describe('tiger-style invariants in sqlite query-builder', () => {
   test('wire query: string attribute key matches tag .key SQL', () => {
     const tag = buildWhereClause({
       type: '=',
-      attribute: QTask.status,
+      attribute: QTask.status.key,
       value: 'open',
     });
     const wire = buildWhereClause({
       type: '=',
-      attribute: 'task/status',
+      attribute: asKeyword('task/status'),
       value: 'open',
     });
     expect(wire.sql).toBe(tag.sql);

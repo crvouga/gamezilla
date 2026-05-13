@@ -8,6 +8,7 @@ import {
   PATCH_SYNC_REJECTED_AT,
   PATCH_SYNC_REJECTED_REASON,
   PATCH_SYNCED_AT,
+  toAttributeState,
 } from '../interface';
 import type { PatchDbTransportRejectedError } from '../transport/transport-rejected-error';
 import {
@@ -100,11 +101,11 @@ export async function clearRejectedPushMarkersOnLocal(
   await local.update(
     result.patches.map((p) => ({
       patchId: p.patchId,
-      attributes: {
+      attributes: toAttributeState({
         [PATCH_SYNC_REJECTED_AT]: null,
         [PATCH_SYNC_REJECTED_REASON]: null,
         [PATCH_REJECTED]: null,
-      },
+      }),
     })),
     OPEN_PATCHES_DB_CONTEXT
   );

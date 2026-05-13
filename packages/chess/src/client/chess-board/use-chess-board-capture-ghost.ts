@@ -55,6 +55,29 @@ export function useChessBoardCaptureGhost(
     code: PieceCode;
   } | null>(null);
 
+  /**
+   * Timer is owned by a ref (not effect cleanup) so unrelated re-renders that
+   * re-run this effect with the same `position` (e.g. controlled board where
+   * `useExternalFenSync` flips `lastMove` to `null` after the parent FEN
+   * arrives) don't cancel the in-flight ghost timeout. Without this, the last
+   * move of a controlled flow (puzzle solver) would clear the timer in the
+   * cleanup step and the early-return branch below would leave `captureGhost`
+   * stuck forever — visually stacking the captured piece on top of the mover.
+   */
+  const ghostTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clearGhostTimer = (): void => {
+    if (ghostTimerRef.current !== null) {
+      clearTimeout(ghostTimerRef.current);
+      ghostTimerRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      clearGhostTimer();
+    };
+  }, []);
+
   useEffect(() => {
     const prev = prevPositionRef.current;
     if (prev === null) {
@@ -74,13 +97,17 @@ export function useChessBoardCaptureGhost(
         ? buildCaptureGhostPayload(position, captureMove)
         : null;
     if (!payload) {
+      clearGhostTimer();
       setCaptureGhost(null);
       return;
     }
 
+    clearGhostTimer();
     setCaptureGhost(payload);
-    const t = setTimeout(() => setCaptureGhost(null), CHESS_PIECE_MOVE_MS);
-    return () => clearTimeout(t);
+    ghostTimerRef.current = setTimeout(() => {
+      ghostTimerRef.current = null;
+      setCaptureGhost(null);
+    }, CHESS_PIECE_MOVE_MS);
   }, [position, lastMove]);
 
   return { captureGhost };

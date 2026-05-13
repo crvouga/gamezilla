@@ -1,5 +1,7 @@
 import type { Assert } from '@gamezilla/lib/assert';
 import { assert } from '@gamezilla/lib/assert';
+import type { AttributeState } from '@gamezilla/lib/attribute';
+import type { Keyword } from '@gamezilla/lib/keyword';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import {
   assertAttribute,
@@ -10,6 +12,7 @@ import {
   type AttributeKey,
   type PatchEntityType,
 } from './entity-key';
+import type { PatchDbContext } from './context';
 import type { PatchDbIndexSpec } from './indexes/index-spec';
 import { PatchMetaAttr } from './metadata/patch-metadata';
 import type { PatchDbCompactionPolicyResolver } from './policy/compaction-policy';
@@ -24,7 +27,7 @@ export {
   assertPatchId,
   isValidAttribute,
   patchDbAttributeKey,
-  type Attribute,
+  toAttributeState,
   type AttributeKey,
   type PatchEntityType,
 } from './entity-key';
@@ -34,7 +37,7 @@ export type PatchInput = {
   /** Dot-kebab namespace segments only (e.g. `todo`, `todo-list`, `chess.puzzle`). */
   entityType: PatchEntityType;
   /** Keys validated at write time by {@link assertPatchInput} / {@link assertAttribute}. */
-  attributes: Record<string, unknown>;
+  attributes: AttributeState;
   /** When set, storage uses this id instead of generating one (e.g. synced patches). */
   patchId?: string;
   /**
@@ -60,8 +63,8 @@ export type Patch = PatchInput & {
 /** Per-patch rejection from {@link PatchDb.write} (e.g. ABAC). */
 export type PatchRejectionReason = {
   patchId: string;
-  /** Machine-readable, e.g. `forbidden`, `unknown_entity_type`. */
-  code: string;
+  /** Machine-readable namespaced keyword (see {@link PATCH_REJECT_CODE}). */
+  code: Keyword;
   /** Human-readable; keep short for `patch/sync-rejected-reason` storage. */
   reason: string;
   /**
@@ -97,9 +100,7 @@ export function assertPatchInput(
     a.string(p['recordedAt'], 'patch.recordedAt must be string');
   }
   a.record(p['attributes'], 'patch.attributes must be object');
-  for (const key of Object.keys(p['attributes'] as Record<string, unknown>)) {
-    assertAttribute(key, a);
-  }
+  assertAttributes(p['attributes'], a);
 }
 
 /** Wire `/patches/write` requires stable `patchId` on every patch for partial reject. */
@@ -123,6 +124,7 @@ export {
   isSyncRejectedPatchAttributes,
   PATCH_CREATED_BY_ID,
   PATCH_META_KEYS,
+  PATCH_REJECT_CODE,
   PATCH_REJECTED,
   PATCH_SESSION_ID,
   PATCH_SYNC_REJECTED_AT,
@@ -141,8 +143,8 @@ type PatchInputWithOptionalMeta = PatchInput &
  */
 export function normalizePatchAttributesForStorage(
   patch: PatchInputWithOptionalMeta
-): Record<string, unknown> {
-  const attrs = patch.attributes as Record<string, unknown>;
+): AttributeState {
+  const attrs = patch.attributes;
   const createdBy =
     ('createdBy' in patch
       ? patch.createdBy
@@ -168,7 +170,7 @@ export function normalizePatchAttributesForStorage(
  * Implementations should use this instead of interpreting metadata keys.
  */
 export function getPatchTopLevelFromAttributes(
-  attrs: Record<string, unknown>
+  attrs: AttributeState
 ): Pick<Patch, 'createdBy' | 'sessionId'> {
   const createdBy = attrs[PatchMetaAttr.createdById.key];
   const sessionId = attrs[PatchMetaAttr.sessionId.key];
@@ -182,7 +184,7 @@ export function getPatchTopLevelFromAttributes(
 export type Entity = {
   entityId: string;
   entityType: PatchEntityType;
-  attributes: Record<string, unknown>;
+  attributes: AttributeState;
 };
 
 export function assertEntity(
@@ -194,7 +196,7 @@ export function assertEntity(
   a.field(e, 'entityType', 'entity.entityType must be string');
   assertEntityKey(e['entityId'], e['entityType'], a);
   a.record(e['attributes'], 'entity.attributes must be object');
-  assertAttributes(e['attributes'] as Record<string, unknown>, a);
+  assertAttributes(e['attributes'], a);
 }
 
 export type PatchDbQueryWhereClause =
@@ -374,10 +376,15 @@ export type PatchDbResult = {
 export type Unsubscribe = () => void;
 
 export {
+  assertPatchDbContext,
   isPatchDbSystemContext,
   OPEN_PATCHES_DB_CONTEXT,
+  PATCH_DB_SYSTEM_BRAND,
   PATCHES_DB_SYSTEM_CONTEXT,
   patchDbSystemContext,
+  type PatchDbClaimsContext,
+  type PatchDbContext,
+  type PatchDbSystemContext,
 } from './context';
 
 /** AND-combines an optional existing where-clause with an additional clause. */
@@ -428,14 +435,14 @@ export type PatchDbCompactionResult = {
 
 export type PatchDbCompaction = {
   compactEntity(
-    key: { entityId: string; entityType: string },
+    key: { entityId: string; entityType: PatchEntityType },
     options: { keepLatest: number },
-    ctx: Readonly<Record<string, unknown>>
+    ctx: PatchDbContext
   ): Promise<PatchDbCompactionResult>;
 
   compactAll(
-    options: { keepLatest?: number; entityType?: string },
-    ctx: Readonly<Record<string, unknown>>
+    options: { keepLatest?: number; entityType?: PatchEntityType },
+    ctx: PatchDbContext
   ): Promise<{ entitiesCompacted: number }>;
 };
 
@@ -456,24 +463,20 @@ export type PatchDbHooks = {
    * output. Throwing aborts the read / write.
    */
   enrichContext(
-    fn: (
-      ctx: Readonly<Record<string, unknown>>
-    ) =>
-      | Readonly<Record<string, unknown>>
-      | Promise<Readonly<Record<string, unknown>>>
+    fn: (ctx: PatchDbContext) => PatchDbContext | Promise<PatchDbContext>
   ): Unsubscribe;
 
   beforeRead(
     fn: (
       query: PatchDbQuery,
-      ctx: Readonly<Record<string, unknown>>
+      ctx: PatchDbContext
     ) => PatchDbQuery | Promise<PatchDbQuery>
   ): Unsubscribe;
 
   beforeWrite(
     fn: (
       patches: PatchInput[],
-      ctx: Readonly<Record<string, unknown>>,
+      ctx: PatchDbContext,
       tx: SqlClient
     ) => PatchDbBeforeWriteHookResult | Promise<PatchDbBeforeWriteHookResult>
   ): Unsubscribe;
@@ -481,7 +484,7 @@ export type PatchDbHooks = {
   afterWrite(
     fn: (
       written: Patch[],
-      ctx: Readonly<Record<string, unknown>>,
+      ctx: PatchDbContext,
       tx: SqlClient
     ) => void | Promise<void>
   ): Unsubscribe;
@@ -489,25 +492,22 @@ export type PatchDbHooks = {
 
 /** Query side of {@link PatchDb}; contract varies by implementation (local read vs sync merge-then-read). */
 export type PatchDbRead = {
-  read(
-    queries: PatchDbQuery[],
-    ctx?: Readonly<Record<string, unknown>>
-  ): Promise<PatchDbResult[]>;
+  read(queries: PatchDbQuery[], ctx?: PatchDbContext): Promise<PatchDbResult[]>;
 };
 
 /** Write side of {@link PatchDb}; contract varies by implementation (local persist vs sync + invalidation). */
 export type PatchDbWrite = {
   write(
     patches: PatchInput[],
-    ctx?: Readonly<Record<string, unknown>>
+    ctx?: PatchDbContext
   ): Promise<WritePatchesResult>;
 };
 
 /** Update side of {@link PatchDb}; contract varies by implementation (local persist vs sync + invalidation). */
 export type PatchDbUpdate = {
   update(
-    updates: { patchId: string; attributes: Record<string, unknown> }[],
-    ctx?: Readonly<Record<string, unknown>>
+    updates: { patchId: string; attributes: AttributeState }[],
+    ctx?: PatchDbContext
   ): Promise<void>;
 };
 

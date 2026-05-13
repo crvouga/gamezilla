@@ -1,4 +1,5 @@
 import type {
+  PatchDbContext,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
@@ -33,7 +34,7 @@ export class SimulatedPatchDbClientTransport implements PatchDbClientTransport {
 
   read(
     queries: PatchDbQuery[],
-    ctx?: Readonly<Record<string, unknown>>
+    ctx?: PatchDbContext
   ): Promise<PatchDbResult[]> {
     return this.link.invoke('read', async () => {
       const results = await this.server.read(queries, ctx);
@@ -54,7 +55,7 @@ export class SimulatedPatchDbClientTransport implements PatchDbClientTransport {
 
   write(
     patches: PatchInput[],
-    ctx?: Readonly<Record<string, unknown>>
+    ctx?: PatchDbContext
   ): Promise<WritePatchesResult> {
     return this.link.invoke('write', async () => {
       const out: WritePatchesResult = await this.server.write(patches, ctx);

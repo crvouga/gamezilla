@@ -1,7 +1,8 @@
 import { assert } from '@gamezilla/lib/assert';
+import { asKeyword } from '@gamezilla/lib/keyword';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { PatchDb } from '../interface';
-import { PATCH_SYNCED_AT } from '../interface';
+import { PATCH_SYNCED_AT, toAttributeState } from '../interface';
 import { implementations } from './test-helpers';
 
 describe.each(implementations)('$name', ({ factory }) => {
@@ -22,23 +23,26 @@ describe.each(implementations)('$name', ({ factory }) => {
     const p1 = {
       entityId: 'e1',
       entityType: 'task',
-      attributes: {
+      attributes: toAttributeState({
         'task/title': 'Buy milk',
         'task/priority': 'low',
         'task/status': 'open',
-      },
+      }),
     };
 
     const p2 = {
       entityId: 'e1',
       entityType: 'task',
-      attributes: { 'task/priority': 'high', 'task/assignee': 'alice' },
+      attributes: toAttributeState({
+        'task/priority': 'high',
+        'task/assignee': 'alice',
+      }),
     };
 
     const p3 = {
       entityId: 'e1',
       entityType: 'task',
-      attributes: { 'task/priority': null },
+      attributes: toAttributeState({ 'task/priority': null }),
     };
 
     const w = await db.write([p1, p2, p3]);
@@ -76,17 +80,29 @@ describe.each(implementations)('$name', ({ factory }) => {
     assert.defined(entity, 'entity must be defined');
     expect(entity.entityId).toBe('e1');
     expect(entity.entityType).toBe('task');
-    expect(entity.attributes['task/title']).toBe('Buy milk');
-    expect(entity.attributes['task/assignee']).toBe('alice');
-    expect(entity.attributes['task/status']).toBe('open');
+    expect(entity.attributes[asKeyword('task/title')]).toBe('Buy milk');
+    expect(entity.attributes[asKeyword('task/assignee')]).toBe('alice');
+    expect(entity.attributes[asKeyword('task/status')]).toBe('open');
     expect(entity.attributes).not.toHaveProperty('task/priority');
   });
 
   test('patches ordered by lineage, nextCursor is patchId for pagination', async () => {
     await db.write([
-      { entityId: 'e2', entityType: 'task', attributes: { 'task/seq': 1 } },
-      { entityId: 'e2', entityType: 'task', attributes: { 'task/seq': 2 } },
-      { entityId: 'e2', entityType: 'task', attributes: { 'task/seq': 3 } },
+      {
+        entityId: 'e2',
+        entityType: 'task',
+        attributes: toAttributeState({ 'task/seq': 1 }),
+      },
+      {
+        entityId: 'e2',
+        entityType: 'task',
+        attributes: toAttributeState({ 'task/seq': 2 }),
+      },
+      {
+        entityId: 'e2',
+        entityType: 'task',
+        attributes: toAttributeState({ 'task/seq': 3 }),
+      },
     ]);
 
     const page1Results = await db.read([
@@ -115,15 +131,23 @@ describe.each(implementations)('$name', ({ factory }) => {
     expect(page2.patches).toHaveLength(1);
     const page2First = page2.patches[0];
     assert.defined(page2First, 'page2First must be defined');
-    expect(page2First.attributes['task/seq']).toBe(3);
+    expect(page2First.attributes[asKeyword('task/seq')]).toBe(3);
     expect(page2.nextCursor).toBe(page2First.patchId);
     expect(page2.hasMore).toBe(false);
   });
 
   test('synced patches preserve parentId from client', async () => {
     const p1Written = await db.write([
-      { entityId: 'e3', entityType: 'task', attributes: { 'task/val': 1 } },
-      { entityId: 'e3', entityType: 'task', attributes: { 'task/val': 2 } },
+      {
+        entityId: 'e3',
+        entityType: 'task',
+        attributes: toAttributeState({ 'task/val': 1 }),
+      },
+      {
+        entityId: 'e3',
+        entityType: 'task',
+        attributes: toAttributeState({ 'task/val': 2 }),
+      },
     ]);
     expect(p1Written.rejected).toHaveLength(0);
     const p1 = p1Written.accepted[0];
@@ -131,7 +155,7 @@ describe.each(implementations)('$name', ({ factory }) => {
     const syncedP3 = {
       entityId: 'e3',
       entityType: 'task',
-      attributes: { 'task/val': 3 },
+      attributes: toAttributeState({ 'task/val': 3 }),
       patchId: crypto.randomUUID(),
       parentId: p1.patchId,
       createdAt: new Date().toISOString(),
@@ -153,7 +177,7 @@ describe.each(implementations)('$name', ({ factory }) => {
       {
         entityId: 'e4',
         entityType: 'todo',
-        attributes: { 'todo/done': false },
+        attributes: toAttributeState({ 'todo/done': false }),
       },
     ]);
     expect(root.rejected).toHaveLength(0);
@@ -170,12 +194,12 @@ describe.each(implementations)('$name', ({ factory }) => {
     const makeSynced = (patchId: string, parentId: string, value: unknown) => ({
       entityId: 'e4',
       entityType: 'todo',
-      attributes: {
+      attributes: toAttributeState({
         'todo/done': value,
         'patch/synced-at': null,
         'patch/created-by-id': '',
         'patch/session-id': '',
-      },
+      }),
       patchId,
       parentId,
       createdAt: now,
@@ -207,13 +231,21 @@ describe.each(implementations)('$name', ({ factory }) => {
     const last = result.patches[result.patches.length - 1];
     assert.defined(last, 'last patch must be defined');
     expect(last.patchId).toBe(idE);
-    expect(last.attributes['todo/done']).toBe(true);
+    expect(last.attributes[asKeyword('todo/done')]).toBe(true);
   });
 
   test('synced patch whose parentId is absent on server re-anchors to chain leaf', async () => {
     const chain = await db.write([
-      { entityId: 'e7', entityType: 'todo', attributes: { 'todo/num': 0 } },
-      { entityId: 'e7', entityType: 'todo', attributes: { 'todo/num': 1 } },
+      {
+        entityId: 'e7',
+        entityType: 'todo',
+        attributes: toAttributeState({ 'todo/num': 0 }),
+      },
+      {
+        entityId: 'e7',
+        entityType: 'todo',
+        attributes: toAttributeState({ 'todo/num': 1 }),
+      },
     ]);
     expect(chain.rejected).toHaveLength(0);
     const leaf = chain.accepted[1];
@@ -225,12 +257,12 @@ describe.each(implementations)('$name', ({ factory }) => {
       {
         entityId: 'e7',
         entityType: 'todo',
-        attributes: {
+        attributes: toAttributeState({
           'todo/num': 2,
           'patch/synced-at': null,
           'patch/created-by-id': '',
           'patch/session-id': '',
-        },
+        }),
         patchId: childId,
         parentId: phantomParent,
         createdAt: now,
@@ -255,11 +287,11 @@ describe.each(implementations)('$name', ({ factory }) => {
       {
         entityId: listId,
         entityType: 'todo-list',
-        attributes: {
+        attributes: toAttributeState({
           'todo-list/name': 'My List',
           'todo-list/order': 0,
           'todo-list/created-at': new Date().toISOString(),
-        },
+        }),
       },
     ]);
     expect(createWritten.rejected).toHaveLength(0);
@@ -269,7 +301,7 @@ describe.each(implementations)('$name', ({ factory }) => {
       {
         entityId: listId,
         entityType: 'todo-list',
-        attributes: { 'todo-list/deleted': true },
+        attributes: toAttributeState({ 'todo-list/deleted': true }),
       },
     ]);
     expect(deleteWritten.rejected).toHaveLength(0);
@@ -298,7 +330,7 @@ describe.each(implementations)('$name', ({ factory }) => {
     await db.update(
       unsynced.map((p) => ({
         patchId: p.patchId,
-        attributes: { [PATCH_SYNCED_AT]: '1' },
+        attributes: toAttributeState({ [PATCH_SYNCED_AT]: '1' }),
       }))
     );
     const afterSyncResults = await db.read([
@@ -321,12 +353,12 @@ describe.each(implementations)('$name', ({ factory }) => {
       {
         entityId,
         entityType: 'task',
-        attributes: { 'task/title': 'Before reject' },
+        attributes: toAttributeState({ 'task/title': 'Before reject' }),
       },
       {
         entityId,
         entityType: 'task',
-        attributes: { 'task/priority': 'high' },
+        attributes: toAttributeState({ 'task/priority': 'high' }),
       },
     ]);
     expect(w.rejected).toHaveLength(0);
@@ -335,11 +367,11 @@ describe.each(implementations)('$name', ({ factory }) => {
     await db.update([
       {
         patchId: second.patchId,
-        attributes: {
+        attributes: toAttributeState({
           'patch/sync-rejected-at': new Date().toISOString(),
           'patch/sync-rejected-reason': 'forbidden: test',
           'patch/rejected': true,
-        },
+        }),
       },
     ]);
     const [r] = await db.read([{ entityType: 'task', entityId }]);
@@ -347,7 +379,7 @@ describe.each(implementations)('$name', ({ factory }) => {
     expect(r.entities).toHaveLength(1);
     const ent = r.entities[0];
     assert.defined(ent, 'entity');
-    expect(ent.attributes['task/title']).toBe('Before reject');
+    expect(ent.attributes[asKeyword('task/title')]).toBe('Before reject');
     expect(ent.attributes).not.toHaveProperty('task/priority');
   });
 });

@@ -1,5 +1,6 @@
 import type { AttributeTag } from '@gamezilla/lib/attribute';
 import { useMemo } from 'react';
+import type { PatchEntityType } from '../interface';
 import { useEntity } from './use-entity';
 
 /**
@@ -7,7 +8,7 @@ import { useEntity } from './use-entity';
  * when you have a stable `entityId` string — shares one subscription per entity.
  */
 export function useEntityAttribute<T, K extends string>(
-  entityType: string,
+  entityType: PatchEntityType,
   entityId: string,
   attr: AttributeTag<T, K>
 ): T {

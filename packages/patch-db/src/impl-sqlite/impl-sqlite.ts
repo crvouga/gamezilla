@@ -1,10 +1,11 @@
+import type { Keyword } from '@gamezilla/lib/keyword';
 import { assert } from '@gamezilla/lib/assert';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbHookRegistry } from '../hook-registry';
 import type {
-  Attribute,
   Patch,
   PatchDb,
+  PatchDbContext,
   PatchDbCompaction,
   PatchDbEngineOptions,
   PatchDbQuery,
@@ -189,9 +190,8 @@ export class PatchDbImplSqlite implements PatchDb {
       ) {
         assertPatchId(raw['patchId']);
       }
-      assert.all(
-        Object.keys(patch.attributes),
-        (key): asserts key is Attribute => assertAttribute(key)
+      assert.all(Object.keys(patch.attributes), (key): asserts key is Keyword =>
+        assertAttribute(key)
       );
     });
   }
@@ -326,7 +326,7 @@ export class PatchDbImplSqlite implements PatchDb {
 
   private async executeWritePatchesTransaction(
     withIds: PatchInput[],
-    ctx: Readonly<Record<string, unknown>>
+    ctx: PatchDbContext
   ): Promise<WritePatchesResult> {
     const enrichedCtx = await this.hooks.runEnrichContext(ctx);
     const writtenPatches: Patch[] = [];
@@ -384,7 +384,7 @@ export class PatchDbImplSqlite implements PatchDb {
 
   async write(
     patches: PatchInput[],
-    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<WritePatchesResult> {
     await this.ensureCoreTables();
     this.assertPatchInputs(patches);
@@ -406,7 +406,7 @@ export class PatchDbImplSqlite implements PatchDb {
 
   async read(
     queries: PatchDbQuery[],
-    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<PatchDbResult[]> {
     await this.ensureCoreTables();
     const enrichedCtx = await this.hooks.runEnrichContext(ctx);
@@ -432,7 +432,7 @@ export class PatchDbImplSqlite implements PatchDb {
 
   async update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
-    _ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    _ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<void> {
     void _ctx;
     await this.ensureCoreTables();
@@ -466,7 +466,7 @@ export class PatchDbImplSqlite implements PatchDb {
   async compactEntity(
     key: { entityId: string; entityType: string },
     options: { keepLatest: number },
-    _ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    _ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<{ removedPatchIds: string[]; compactionPatchId: string | null }> {
     void _ctx;
     let result: {
@@ -486,7 +486,7 @@ export class PatchDbImplSqlite implements PatchDb {
 
   async compactAll(
     options: { keepLatest?: number; entityType?: string },
-    _ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    _ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<{ entitiesCompacted: number }> {
     void _ctx;
     const keepLatest = options.keepLatest ?? 2;

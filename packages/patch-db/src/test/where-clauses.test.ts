@@ -37,14 +37,14 @@ describe.each(implementations)('$name', ({ factory }) => {
       expect(result.entities).toHaveLength(1);
       const entity = result.entities[0];
       assert.defined(entity, 'entity must be defined');
-      expect(entity.attributes[QItem.tag]).toBe('a');
+      expect(entity.attributes[QItem.tag.key]).toBe('a');
     });
 
     test('where = matches exact value', async () => {
       const results = await db.read([
         {
           entityType: 'item',
-          where: { type: '=', attribute: QItem.tag, value: 'a' },
+          where: { type: '=', attribute: QItem.tag.key, value: 'a' },
         },
       ]);
       const result = results[0];
@@ -58,7 +58,7 @@ describe.each(implementations)('$name', ({ factory }) => {
       const results = await db.read([
         {
           entityType: 'item',
-          where: { type: '!=', attribute: QItem.tag, value: 'a' },
+          where: { type: '!=', attribute: QItem.tag.key, value: 'a' },
         },
       ]);
       const result = results[0];
@@ -71,7 +71,7 @@ describe.each(implementations)('$name', ({ factory }) => {
       const results = await db.read([
         {
           entityType: 'item',
-          where: { type: 'in', attribute: QItem.score, values: [10, 30] },
+          where: { type: 'in', attribute: QItem.score.key, values: [10, 30] },
         },
       ]);
       const result = results[0];
@@ -86,7 +86,7 @@ describe.each(implementations)('$name', ({ factory }) => {
           entityType: 'item',
           where: {
             type: 'not_in',
-            attribute: QItem.score,
+            attribute: QItem.score.key,
             values: [10, 30],
           },
         },
@@ -101,7 +101,7 @@ describe.each(implementations)('$name', ({ factory }) => {
       const results = await db.read([
         {
           entityType: 'item',
-          where: { type: 'gt', attribute: QItem.score, value: 20 },
+          where: { type: 'gt', attribute: QItem.score.key, value: 20 },
         },
       ]);
       const result = results[0];
@@ -114,7 +114,7 @@ describe.each(implementations)('$name', ({ factory }) => {
       const results = await db.read([
         {
           entityType: 'item',
-          where: { type: 'gte', attribute: QItem.score, value: 20 },
+          where: { type: 'gte', attribute: QItem.score.key, value: 20 },
         },
       ]);
       const result = results[0];
@@ -127,7 +127,7 @@ describe.each(implementations)('$name', ({ factory }) => {
       const results = await db.read([
         {
           entityType: 'item',
-          where: { type: 'lt', attribute: QItem.score, value: 20 },
+          where: { type: 'lt', attribute: QItem.score.key, value: 20 },
         },
       ]);
       const result = results[0];
@@ -140,7 +140,7 @@ describe.each(implementations)('$name', ({ factory }) => {
       const results = await db.read([
         {
           entityType: 'item',
-          where: { type: 'lte', attribute: QItem.score, value: 20 },
+          where: { type: 'lte', attribute: QItem.score.key, value: 20 },
         },
       ]);
       const result = results[0];
@@ -155,7 +155,7 @@ describe.each(implementations)('$name', ({ factory }) => {
           entityType: 'item',
           where: {
             type: 'contains',
-            attribute: QItem.name,
+            attribute: QItem.name.key,
             value: 'Gadget',
           },
         },
@@ -172,7 +172,7 @@ describe.each(implementations)('$name', ({ factory }) => {
       const results = await db.read([
         {
           entityType: 'item',
-          where: { type: 'exists', attribute: QItem.tag },
+          where: { type: 'exists', attribute: QItem.tag.key },
         },
       ]);
       const result = results[0];
@@ -185,7 +185,7 @@ describe.each(implementations)('$name', ({ factory }) => {
       const results = await db.read([
         {
           entityType: 'item',
-          where: { type: 'not_exists', attribute: QItem.tag },
+          where: { type: 'not_exists', attribute: QItem.tag.key },
         },
       ]);
       const result = results[0];
@@ -203,8 +203,8 @@ describe.each(implementations)('$name', ({ factory }) => {
           where: {
             type: 'and',
             clauses: [
-              { type: '=', attribute: QItem.tag, value: 'a' },
-              { type: 'gt', attribute: QItem.score, value: 15 },
+              { type: '=', attribute: QItem.tag.key, value: 'a' },
+              { type: 'gt', attribute: QItem.score.key, value: 15 },
             ],
           },
         },
@@ -224,8 +224,8 @@ describe.each(implementations)('$name', ({ factory }) => {
           where: {
             type: 'or',
             clauses: [
-              { type: '=', attribute: QItem.score, value: 10 },
-              { type: '=', attribute: QItem.score, value: 40 },
+              { type: '=', attribute: QItem.score.key, value: 10 },
+              { type: '=', attribute: QItem.score.key, value: 40 },
             ],
           },
         },
@@ -242,7 +242,7 @@ describe.each(implementations)('$name', ({ factory }) => {
           entityType: 'item',
           where: {
             type: 'not',
-            clause: { type: '=', attribute: QItem.tag, value: 'a' },
+            clause: { type: '=', attribute: QItem.tag.key, value: 'a' },
           },
         },
       ]);
@@ -261,9 +261,9 @@ describe.each(implementations)('$name', ({ factory }) => {
             clauses: [
               {
                 type: 'not',
-                clause: { type: '=', attribute: QItem.tag, value: 'a' },
+                clause: { type: '=', attribute: QItem.tag.key, value: 'a' },
               },
-              { type: 'not_exists', attribute: QItem.tag },
+              { type: 'not_exists', attribute: QItem.tag.key },
             ],
           },
         },

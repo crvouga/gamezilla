@@ -7,6 +7,7 @@ import {
 } from '../impl-sync/active-query-registry';
 import type {
   PatchDb,
+  PatchDbContext,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
@@ -15,6 +16,7 @@ import type {
 import {
   OPEN_PATCHES_DB_CONTEXT,
   PATCHES_DB_SYSTEM_CONTEXT,
+  toAttributeState,
 } from '../interface';
 import { PatchMetaAttr } from '../metadata/patch-metadata';
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '../policy/system-device';
@@ -88,7 +90,7 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
 
   async read(
     queries: PatchDbQuery[],
-    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<PatchDbResult[]> {
     this.touchActivity();
     if (queries.length > 0) {
@@ -99,7 +101,7 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
 
   async write(
     patches: PatchInput[],
-    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<WritePatchesResult> {
     this.touchActivity();
     this.counters.totalPatchesWritten += patches.length;
@@ -129,14 +131,14 @@ export class PatchDbImplInstrumentedSyncHost implements PatchDbSyncHost {
           {
             entityId: ADMIN_METRIC_ENTITY_ID,
             entityType: ADMIN_METRIC_ENTITY_TYPE,
-            attributes: {
+            attributes: toAttributeState({
               ...PatchMetaAttr.createdById(PATCH_DB_SYSTEM_DEVICE_ID),
               'admin/started-at': this.startedAt,
               'admin/uptime-seconds': uptimeSeconds,
               'admin/total-patches-written': this.counters.totalPatchesWritten,
               'admin/total-reads-served': this.counters.totalReadsServed,
               'admin/last-activity-at': this.lastActivityAt,
-            },
+            }),
           },
         ],
         PATCHES_DB_SYSTEM_CONTEXT

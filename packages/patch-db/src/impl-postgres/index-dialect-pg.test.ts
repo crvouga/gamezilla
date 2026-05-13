@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { asKeyword } from '@gamezilla/lib/keyword';
 import { normalizeIndexSpec } from '../indexes/index-spec';
 import {
   postgresDdlCreate,
@@ -11,7 +12,7 @@ describe('postgresDdlCreate', () => {
     const spec = normalizeIndexSpec({
       name: 'space-host',
       entityType: 'space',
-      fields: [{ kind: 'attribute', attribute: 'space/host-id' }],
+      fields: [{ kind: 'attribute', attribute: asKeyword('space/host-id') }],
     });
     const ddl = postgresDdlCreate(spec);
     expect(ddl).toContain(`CREATE INDEX IF NOT EXISTS "${spec.dbName}"`);
@@ -26,7 +27,9 @@ describe('postgresDdlCreate', () => {
       name: 'space-live',
       entityType: 'space',
       fields: [{ kind: 'entityType' }, { kind: 'entityId' }],
-      where: [{ kind: 'attributeAbsent', attribute: 'space/ended-at' }],
+      where: [
+        { kind: 'attributeAbsent', attribute: asKeyword('space/ended-at') },
+      ],
     });
     const ddl = postgresDdlCreate(spec);
     expect(ddl).toContain('(entity_type, entity_id)');
@@ -40,7 +43,10 @@ describe('postgresDdlCreate', () => {
       entityType: 'space.membership',
       fields: [{ kind: 'entityId' }],
       where: [
-        { kind: 'attributeExists', attribute: 'space.membership/guest-id' },
+        {
+          kind: 'attributeExists',
+          attribute: asKeyword('space.membership/guest-id'),
+        },
       ],
     });
     const ddl = postgresDdlCreate(spec);
@@ -52,7 +58,7 @@ describe('postgresDdlCreate', () => {
     const spec = normalizeIndexSpec({
       name: 'x',
       entityType: 'space',
-      fields: [{ kind: 'attribute', attribute: 'space/host-id' }],
+      fields: [{ kind: 'attribute', attribute: asKeyword('space/host-id') }],
     });
     const ddl = postgresDdlCreate(spec);
     expect(ddl).toContain(`"${spec.dbName}"`);

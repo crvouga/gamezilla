@@ -1,4 +1,5 @@
 import { assert } from '@gamezilla/lib/assert';
+import { asKeyword, type Keyword } from '@gamezilla/lib/keyword';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import {
   normalizeIndexSpec,
@@ -30,7 +31,7 @@ afterAll(() => {
 
 describe('normalizeIndexSpec', () => {
   test('extracts .key from AttributeTag-like refs', () => {
-    const tag = { key: 'space/host-id' };
+    const tag = { key: asKeyword('space/host-id') };
     const out = normalizeIndexSpec({
       name: 'space-host',
       entityType: 'space',
@@ -38,7 +39,7 @@ describe('normalizeIndexSpec', () => {
     });
     expect(out.fields[0]).toEqual({
       kind: 'attribute',
-      attribute: 'space/host-id',
+      attribute: asKeyword('space/host-id'),
     });
   });
 
@@ -46,11 +47,11 @@ describe('normalizeIndexSpec', () => {
     const out = normalizeIndexSpec({
       name: 'space-host',
       entityType: 'space',
-      fields: [{ kind: 'attribute', attribute: 'space/host-id' }],
+      fields: [{ kind: 'attribute', attribute: asKeyword('space/host-id') }],
     });
     expect(out.fields[0]).toEqual({
       kind: 'attribute',
-      attribute: 'space/host-id',
+      attribute: asKeyword('space/host-id'),
     });
   });
 
@@ -58,12 +59,12 @@ describe('normalizeIndexSpec', () => {
     const a = normalizeIndexSpec({
       name: 'space-host',
       entityType: 'space',
-      fields: [{ kind: 'attribute', attribute: 'space/host-id' }],
+      fields: [{ kind: 'attribute', attribute: asKeyword('space/host-id') }],
     });
     const b = normalizeIndexSpec({
       name: 'space-host',
       entityType: 'space',
-      fields: [{ kind: 'attribute', attribute: 'space/host-id' }],
+      fields: [{ kind: 'attribute', attribute: asKeyword('space/host-id') }],
     });
     expect(a.dbName).toBe(b.dbName);
     expect(a.dbName.startsWith(PATCH_DB_INDEX_NAME_PREFIX)).toBe(true);
@@ -74,12 +75,12 @@ describe('normalizeIndexSpec', () => {
     const a = normalizeIndexSpec({
       name: 'space-host',
       entityType: 'space',
-      fields: [{ kind: 'attribute', attribute: 'space/host-id' }],
+      fields: [{ kind: 'attribute', attribute: asKeyword('space/host-id') }],
     });
     const b = normalizeIndexSpec({
       name: 'space-host',
       entityType: 'space',
-      fields: [{ kind: 'attribute', attribute: 'space/title' }],
+      fields: [{ kind: 'attribute', attribute: asKeyword('space/title') }],
     });
     expect(a.dbName).not.toBe(b.dbName);
   });
@@ -90,7 +91,10 @@ describe('normalizeIndexSpec', () => {
       entityType: 'space.membership',
       fields: [{ kind: 'entityType' }, { kind: 'entityId' }],
       where: [
-        { kind: 'attributeAbsent', attribute: 'space.membership/left-at' },
+        {
+          kind: 'attributeAbsent',
+          attribute: asKeyword('space.membership/left-at'),
+        },
       ],
     });
     expect(out.dbName.includes('space_membership__mship_active__')).toBe(true);
@@ -122,7 +126,10 @@ describe('normalizeIndexSpec', () => {
         name: 'x',
         entityType: 'space',
         fields: [
-          { kind: 'attribute', attribute: 'no-namespace' as unknown as string },
+          {
+            kind: 'attribute',
+            attribute: 'no-namespace' as unknown as Keyword,
+          },
         ],
       })
     ).toThrow();
@@ -145,12 +152,12 @@ describe('normalizeIndexSpecs', () => {
       {
         name: 'host',
         entityType: 'space',
-        fields: [{ kind: 'attribute', attribute: 'space/host-id' }],
+        fields: [{ kind: 'attribute', attribute: asKeyword('space/host-id') }],
       },
       {
         name: 'host',
         entityType: 'space',
-        fields: [{ kind: 'attribute', attribute: 'space/title' }],
+        fields: [{ kind: 'attribute', attribute: asKeyword('space/title') }],
       },
     ];
     expect(() => normalizeIndexSpecs(specs)).toThrow();
@@ -161,12 +168,17 @@ describe('normalizeIndexSpecs', () => {
       {
         name: 'lookup',
         entityType: 'space',
-        fields: [{ kind: 'attribute', attribute: 'space/host-id' }],
+        fields: [{ kind: 'attribute', attribute: asKeyword('space/host-id') }],
       },
       {
         name: 'lookup',
         entityType: 'space.membership',
-        fields: [{ kind: 'attribute', attribute: 'space.membership/guest-id' }],
+        fields: [
+          {
+            kind: 'attribute',
+            attribute: asKeyword('space.membership/guest-id'),
+          },
+        ],
       },
     ];
     const out = normalizeIndexSpecs(specs);

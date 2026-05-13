@@ -5,6 +5,7 @@ import {
   type SyncPatchDbScheduler,
 } from '../impl-sync';
 import { createSyncDbFactory } from './test-helpers';
+import { toAttributeState } from '../interface';
 
 describe('SyncPatchDb scheduler hooks', () => {
   test('pushDriver manual does not push until runPushNow', async () => {
@@ -17,11 +18,11 @@ describe('SyncPatchDb scheduler hooks', () => {
       {
         entityId: listId,
         entityType: 'todo-list',
-        attributes: {
+        attributes: toAttributeState({
           'todo-list/name': 'X',
           'todo-list/order': 0,
           'todo-list/created-at': new Date(0).toISOString(),
-        },
+        }),
       },
     ]);
 
@@ -52,11 +53,11 @@ describe('SyncPatchDb scheduler hooks', () => {
       {
         entityId: listId,
         entityType: 'todo-list',
-        attributes: {
+        attributes: toAttributeState({
           'todo-list/name': 'Remote Only',
           'todo-list/order': 0,
           'todo-list/created-at': new Date(0).toISOString(),
-        },
+        }),
       },
     ]);
 

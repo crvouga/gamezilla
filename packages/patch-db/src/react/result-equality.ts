@@ -1,4 +1,6 @@
+import type { Keyword } from '@gamezilla/lib/keyword';
 import type { Entity, Patch, PatchDbQuery, PatchDbResult } from '../interface';
+import { assertAttribute } from '../interface';
 
 /**
  * Snapshot returned to React consumers. `isLoading` is `true` until the
@@ -53,7 +55,8 @@ function entityShallowEqual(a: Entity, b: Entity | undefined): boolean {
   const bk = Object.keys(b.attributes);
   if (ak.length !== bk.length) return false;
   for (const k of ak) {
-    if (a.attributes[k] !== b.attributes[k]) return false;
+    assertAttribute(k);
+    if (a.attributes[k as Keyword] !== b.attributes[k as Keyword]) return false;
   }
   return true;
 }

@@ -9,22 +9,28 @@
  * change reflows anything above or below:
  *
  *   - `loading=true` -> three-dot "typing" indicator (`./typing-dots.tsx`).
- *   - `loading=false` -> per-glyph opacity reveal (`./revealed-text.tsx`).
+ *   - `loading=false` -> the full message rendered as plain `<Text>`.
+ *
+ * Entrance animation: instead of a per-glyph reveal, the whole bubble
+ * (tail + surface together) slides in from the left and fades in
+ * whenever `text` changes. Driven by a single `Animated.Value` with
+ * `useNativeDriver: true`, so only `opacity` + `transform` are touched
+ * per frame -- no layout/paint, no React state churn.
  *
  * Layout-shift lockdown: the bubble has a *fixed* `height` derived from
  * `numberOfLines * BUBBLE_LINE_HEIGHT + 2 * BUBBLE_PADDING_VERTICAL`. The
- * inner reveal is also clipped to `numberOfLines` with
+ * inner `<Text>` is also clipped to `numberOfLines` with
  * `ellipsizeMode="tail"` and pinned to the same explicit `lineHeight`.
  * The result: messages of any length, dots/text swaps, and font-metric
  * drift across web/iOS/Android cannot move anything that lives below the
  * bubble (e.g. the chess board on `chess-puzzle-play-screen`).
  */
 
-import { type ReactNode } from 'react';
-import { View } from 'react-native';
+import { useEffect, useRef, type ReactNode } from 'react';
+import { Animated, Easing, View } from 'react-native';
 import { defaultColors } from '../../theme';
 import { borderRadius, elevation } from '../../theme/scale';
-import { RevealedText } from './revealed-text';
+import { Text } from '../text';
 import { TypingDots } from './typing-dots';
 
 const TAIL_SIZE = 12;
@@ -34,15 +40,13 @@ const BUBBLE_PADDING_HORIZONTAL = 16;
 const BUBBLE_LINE_HEIGHT = 26;
 /** Default lines reserved in the bubble; sized to cover typical coach copy without truncating. */
 const DEFAULT_NUMBER_OF_LINES = 2;
+/** Total length of the slide+fade entrance, in ms. */
+const ENTER_DURATION_MS = 600;
+/** How many px the bubble translates rightward over the entrance (starts left of resting). */
+const ENTER_TRANSLATE_X = 24;
 
 export type SpeechBubbleProps = {
   text: string;
-  /**
-   * Per-character cadence in ms used as a *fallback* when no
-   * {@link SpeechBubbleProps.revealDurationMs} is supplied. Defaults to
-   * `30`.
-   */
-  charDelayMs?: number;
   /**
    * Number of lines reserved in the bubble. The bubble's height is
    * pinned to `numberOfLines * 26 + 24 px` (independent of `text`) so
@@ -56,20 +60,43 @@ export type SpeechBubbleProps = {
    * Defaults to `false`.
    */
   loading?: boolean;
-  /**
-   * When set, overrides the char-based reveal duration so the typewriter
-   * finishes in lockstep with TTS audio. Pass the player's reported
-   * `durationMs`. Defaults to `undefined` (use `charDelayMs`).
-   */
-  revealDurationMs?: number;
 };
+
+/**
+ * Drives the slide-up + fade-in entrance. Re-runs whenever `text`
+ * changes so each new message visually "pops" in. Deliberately *not*
+ * keyed off `loading`: the dots-to-text swap inside the same bubble
+ * shouldn't re-animate the whole surface.
+ */
+function useBubbleEnterAnim(text: string): {
+  opacity: Animated.Value;
+  translateX: Animated.AnimatedInterpolation<number>;
+} {
+  const progress = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    progress.setValue(0);
+    const animation = Animated.timing(progress, {
+      toValue: 1,
+      duration: ENTER_DURATION_MS,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    });
+    animation.start();
+    return () => {
+      animation.stop();
+    };
+  }, [text, progress]);
+  const translateX = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-ENTER_TRANSLATE_X, 0],
+  });
+  return { opacity: progress, translateX };
+}
 
 export function SpeechBubble({
   text,
-  charDelayMs = 30,
   numberOfLines = DEFAULT_NUMBER_OF_LINES,
   loading = false,
-  revealDurationMs,
 }: SpeechBubbleProps): ReactNode {
   // Keep the bubble visually "light" in both schemes: in dark mode we
   // intentionally invert to the light palette's surface/text so the bubble
@@ -77,9 +104,18 @@ export function SpeechBubble({
   const bubbleSurface = defaultColors.light.surface;
   const bubbleHeight =
     numberOfLines * BUBBLE_LINE_HEIGHT + 2 * BUBBLE_PADDING_VERTICAL;
+  const { opacity, translateX } = useBubbleEnterAnim(text);
 
   return (
-    <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+    <Animated.View
+      style={{
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        opacity,
+        transform: [{ translateX }],
+      }}
+    >
       <View
         style={{
           width: TAIL_SIZE,
@@ -109,16 +145,19 @@ export function SpeechBubble({
             height={BUBBLE_LINE_HEIGHT}
           />
         ) : (
-          <RevealedText
-            text={text}
-            color={defaultColors.light.text}
+          <Text
+            variant="bodyBold"
             numberOfLines={numberOfLines}
-            charDelayMs={charDelayMs}
-            revealDurationMs={revealDurationMs}
-            lineHeight={BUBBLE_LINE_HEIGHT}
-          />
+            ellipsizeMode="tail"
+            style={{
+              color: defaultColors.light.text,
+              lineHeight: BUBBLE_LINE_HEIGHT,
+            }}
+          >
+            {text}
+          </Text>
         )}
       </View>
-    </View>
+    </Animated.View>
   );
 }

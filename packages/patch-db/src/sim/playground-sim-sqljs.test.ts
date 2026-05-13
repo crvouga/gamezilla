@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import type { PatchDbResult } from '../interface';
+import { type PatchDbResult, toAttributeState } from '../interface';
 import { sqlJsPlaygroundDbFactory } from './playground-db-factory-sqljs';
-import { shapeListQuery } from './playground-shapes';
+import { shapeListQuery, SHAPE_ATTR } from './playground-shapes';
 import { createPlaygroundSim } from './playground-sim';
 
 const dbFactory = sqlJsPlaygroundDbFactory();
@@ -33,12 +33,12 @@ describe('playground sim (sql.js)', () => {
         {
           entityId: crypto.randomUUID(),
           entityType: 'shape',
-          attributes: {
+          attributes: toAttributeState({
             'shape/kind': 'square',
             'shape/fill': '#33aa77',
             'shape/points': '10,10 90,10 90,90 10,90',
             'shape/order': 0,
-          },
+          }),
         },
       ]);
       await sim.syncNow(a.id);
@@ -46,7 +46,7 @@ describe('playground sim (sql.js)', () => {
 
       const br = await b.syncDb.read([q]);
       expect(br[0]?.entities.length).toBe(1);
-      expect(br[0]?.entities[0]?.attributes['shape/fill']).toBe('#33aa77');
+      expect(br[0]?.entities[0]?.attributes[SHAPE_ATTR.fill]).toBe('#33aa77');
 
       const sr = await sim.serverBacking.read([q]);
       expect(sr[0]?.entities.length).toBe(1);
@@ -73,12 +73,12 @@ describe('playground sim (sql.js)', () => {
         {
           entityId: shapeId,
           entityType: 'shape',
-          attributes: {
+          attributes: toAttributeState({
             'shape/kind': 'circle',
             'shape/fill': '#ff0000',
             'shape/points': '50,50',
             'shape/order': 0,
-          },
+          }),
         },
       ]);
       await sim.syncNow(a.id);
@@ -96,12 +96,12 @@ describe('playground sim (sql.js)', () => {
         {
           entityId: offlineShapeId,
           entityType: 'shape',
-          attributes: {
+          attributes: toAttributeState({
             'shape/kind': 'square',
             'shape/fill': '#00ff00',
             'shape/points': '10,10 90,10 90,90 10,90',
             'shape/order': 1,
-          },
+          }),
         },
       ]);
 

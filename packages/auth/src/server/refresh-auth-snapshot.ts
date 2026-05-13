@@ -12,7 +12,10 @@ import type {
   PatchDb,
   PatchInput,
 } from '@gamezilla/patch-db/interface';
-import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
+import {
+  PATCHES_DB_SYSTEM_CONTEXT,
+  toAttributeState,
+} from '@gamezilla/patch-db/interface';
 import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
 
 import type { HostedBetterAuth } from './better-auth-create';
@@ -310,13 +313,13 @@ async function upsertDeviceEntity(args: {
   const now = new Date().toISOString();
 
   if (existing === undefined) {
-    const attrs = {
+    const attrs = toAttributeState({
       ...DeviceAttr.id(deviceId),
       ...DeviceAttr.createdAt(now),
       ...DeviceAttr.firstSeenAt(now),
       ...DeviceAttr.lastSeenAt(now),
       ...attributes,
-    };
+    } as Record<string, unknown>);
     await db.write(
       [
         {
@@ -331,6 +334,7 @@ async function upsertDeviceEntity(args: {
   }
 
   const stored = existing.attributes;
+  const storedRec = stored as Record<string, unknown>;
   const existingFirst = readNullableString(stored[DeviceAttr.firstSeenAt.key]);
   const created = readNullableString(stored[DeviceAttr.createdAt.key]);
   const updates: Record<string, unknown> = {
@@ -340,7 +344,7 @@ async function upsertDeviceEntity(args: {
       : {}),
   };
   for (const [key, next] of Object.entries(attributes)) {
-    if (stored[key] !== next) {
+    if (storedRec[key] !== next) {
       updates[key] = next;
     }
   }
@@ -349,7 +353,7 @@ async function upsertDeviceEntity(args: {
       {
         entityId: deviceId,
         entityType: DEVICE_ENTITY_TYPE,
-        attributes: updates,
+        attributes: toAttributeState(updates),
       },
     ],
     PATCHES_DB_SYSTEM_CONTEXT

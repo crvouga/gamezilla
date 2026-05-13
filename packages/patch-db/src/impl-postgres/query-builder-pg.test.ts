@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { assert } from '@gamezilla/lib/assert';
+import { asKeyword } from '@gamezilla/lib/keyword';
 import { questionMarkParamsToDollarParams } from '@gamezilla/lib/sql-client/positional-params';
 import { QGameSession, QTask } from '../test/query-test-attrs';
 import {
@@ -41,7 +42,7 @@ describe('buildWhereClause with namespaced attributes', () => {
   test('= clause with namespaced attribute', () => {
     const { sql, params } = buildWhereClause({
       type: '=',
-      attribute: QTask.title,
+      attribute: QTask.title.key,
       value: 'hello',
     });
     expect(sql).toContain('->>');
@@ -53,7 +54,7 @@ describe('buildWhereClause with namespaced attributes', () => {
   test('!= clause with namespaced attribute', () => {
     const { sql, params } = buildWhereClause({
       type: '!=',
-      attribute: QTask.done,
+      attribute: QTask.done.key,
       value: true,
     });
     expect(sql).toContain('IS DISTINCT FROM ?::text');
@@ -64,7 +65,7 @@ describe('buildWhereClause with namespaced attributes', () => {
   test('in clause with namespaced attribute', () => {
     const { sql, params } = buildWhereClause({
       type: 'in',
-      attribute: QTask.status,
+      attribute: QTask.status.key,
       values: ['open', 'closed'],
     });
     expect(sql).toContain('IN');
@@ -77,12 +78,12 @@ describe('buildWhereClause with namespaced attributes', () => {
   test('wire query: string attribute key matches tag .key SQL', () => {
     const tag = buildWhereClause({
       type: '=',
-      attribute: QTask.title,
+      attribute: QTask.title.key,
       value: 'hello',
     });
     const wire = buildWhereClause({
       type: '=',
-      attribute: 'task/title',
+      attribute: asKeyword('task/title'),
       value: 'hello',
     });
     expect(wire.sql).toBe(tag.sql);
@@ -93,8 +94,8 @@ describe('buildWhereClause with namespaced attributes', () => {
     const { sql, params } = buildWhereClause({
       type: 'and',
       clauses: [
-        { type: '=', attribute: QTask.title, value: 'a' },
-        { type: '=', attribute: QTask.done, value: false },
+        { type: '=', attribute: QTask.title.key, value: 'a' },
+        { type: '=', attribute: QTask.done.key, value: false },
       ],
     });
     expect(sql).toContain('AND');
@@ -104,7 +105,7 @@ describe('buildWhereClause with namespaced attributes', () => {
   test('attribute with dot in namespace', () => {
     const { sql, params } = buildWhereClause({
       type: '=',
-      attribute: QGameSession.score,
+      attribute: QGameSession.score.key,
       value: 42,
     });
     expect(sql).toContain('->>');
@@ -116,24 +117,32 @@ describe('buildWhereClause with namespaced attributes', () => {
 
 describe('->> value params cast to ::text (prevents PG "operator does not exist: text = <type>")', () => {
   test('= with boolean produces $N::text, not bare $N', () => {
-    const pgSql = toPgSql({ type: '=', attribute: QTask.done, value: true });
+    const pgSql = toPgSql({
+      type: '=',
+      attribute: QTask.done.key,
+      value: true,
+    });
     expect(pgSql).toContain('$2::text');
     expect(pgSql).not.toMatch(/= \$2(?!::text)/);
   });
 
   test('= with number produces $N::text', () => {
-    const pgSql = toPgSql({ type: '=', attribute: QTask.score, value: 42 });
+    const pgSql = toPgSql({ type: '=', attribute: QTask.score.key, value: 42 });
     expect(pgSql).toContain('$2::text');
   });
 
   test('!= with boolean produces $N::text', () => {
-    const pgSql = toPgSql({ type: '!=', attribute: QTask.done, value: false });
+    const pgSql = toPgSql({
+      type: '!=',
+      attribute: QTask.done.key,
+      value: false,
+    });
     expect(pgSql).toContain('$2::text');
   });
 
   test('gt/gte/lt/lte cast value to ::text', () => {
     for (const type of ['gt', 'gte', 'lt', 'lte'] as const) {
-      const pgSql = toPgSql({ type, attribute: QTask.score, value: 10 });
+      const pgSql = toPgSql({ type, attribute: QTask.score.key, value: 10 });
       expect(pgSql).toContain('$2::text');
     }
   });
@@ -141,7 +150,7 @@ describe('->> value params cast to ::text (prevents PG "operator does not exist:
   test('in with mixed types casts every value to ::text', () => {
     const pgSql = toPgSql({
       type: 'in',
-      attribute: QTask.status,
+      attribute: QTask.status.key,
       values: ['open', true, 7],
     });
     expect(pgSql).toContain('$2::text');
@@ -152,7 +161,7 @@ describe('->> value params cast to ::text (prevents PG "operator does not exist:
   test('not_in casts every value to ::text', () => {
     const pgSql = toPgSql({
       type: 'not_in',
-      attribute: QTask.status,
+      attribute: QTask.status.key,
       values: [false, 'closed'],
     });
     expect(pgSql).toContain('$3::text');
@@ -162,7 +171,7 @@ describe('->> value params cast to ::text (prevents PG "operator does not exist:
   test('contains casts value to ::text', () => {
     const pgSql = toPgSql({
       type: 'contains',
-      attribute: QTask.name,
+      attribute: QTask.name.key,
       value: 'foo',
     });
     expect(pgSql).toContain('$2::text');
@@ -173,7 +182,7 @@ describe('tiger-style invariants in query-builder-pg', () => {
   test('empty `in` short-circuits to (1 = 0) with no params', () => {
     const { sql, params } = buildWhereClause({
       type: 'in',
-      attribute: QTask.status,
+      attribute: QTask.status.key,
       values: [],
     });
     expect(sql).toBe('(1 = 0)');
@@ -183,7 +192,7 @@ describe('tiger-style invariants in query-builder-pg', () => {
   test('empty `not_in` short-circuits to (1 = 1) with no params', () => {
     const { sql, params } = buildWhereClause({
       type: 'not_in',
-      attribute: QTask.status,
+      attribute: QTask.status.key,
       values: [],
     });
     expect(sql).toBe('(1 = 1)');
@@ -206,8 +215,8 @@ describe('tiger-style invariants in query-builder-pg', () => {
     const { sql, params } = buildWhereClause({
       type: 'and',
       clauses: [
-        { type: '=', attribute: QTask.title, value: 'a' },
-        { type: 'in', attribute: QTask.status, values: [] },
+        { type: '=', attribute: QTask.title.key, value: 'a' },
+        { type: 'in', attribute: QTask.status.key, values: [] },
       ],
     });
     expect(sql).toContain('(1 = 0)');
@@ -219,8 +228,8 @@ describe('tiger-style invariants in query-builder-pg', () => {
     const { sql, params } = buildWhereClause({
       type: 'or',
       clauses: [
-        { type: '=', attribute: QTask.title, value: 'a' },
-        { type: 'not_in', attribute: QTask.status, values: [] },
+        { type: '=', attribute: QTask.title.key, value: 'a' },
+        { type: 'not_in', attribute: QTask.status.key, values: [] },
       ],
     });
     expect(sql).toContain('(1 = 1)');
@@ -242,7 +251,10 @@ describe('tiger-style invariants in query-builder-pg', () => {
 
   test('rejects unsafe column prefix interpolated into WHERE', () => {
     expect(() =>
-      buildWhereClause({ type: 'exists', attribute: QTask.title }, 'p; DROP--')
+      buildWhereClause(
+        { type: 'exists', attribute: QTask.title.key },
+        'p; DROP--'
+      )
     ).toThrow();
   });
 
@@ -263,7 +275,7 @@ describe('tiger-style invariants in query-builder-pg', () => {
   test('rejects unsafe attributePrefix in ORDER BY', () => {
     expect(() =>
       buildOrderSQL(
-        { orderBy: [{ attribute: QTask.title, direction: 'asc' }] },
+        { orderBy: [{ attribute: QTask.title.key, direction: 'asc' }] },
         'ORDER BY id ASC',
         'p; DROP--'
       )
@@ -273,12 +285,12 @@ describe('tiger-style invariants in query-builder-pg', () => {
   test('wire query: string attribute in ORDER BY matches tag .key', () => {
     const def = 'ORDER BY id ASC';
     const tag = buildOrderSQL(
-      { orderBy: [{ attribute: QTask.title, direction: 'desc' }] },
+      { orderBy: [{ attribute: QTask.title.key, direction: 'desc' }] },
       def,
       ''
     );
     const wire = buildOrderSQL(
-      { orderBy: [{ attribute: 'task/title', direction: 'desc' }] },
+      { orderBy: [{ attribute: asKeyword('task/title'), direction: 'desc' }] },
       def,
       ''
     );
@@ -288,7 +300,7 @@ describe('tiger-style invariants in query-builder-pg', () => {
   test('happy path: builds well-formed `in` clause for non-empty values', () => {
     const { sql, params } = buildWhereClause({
       type: 'in',
-      attribute: QTask.status,
+      attribute: QTask.status.key,
       values: ['open'],
     });
     expect(sql).toContain('IN (?::text)');

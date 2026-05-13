@@ -6,6 +6,7 @@ import type { PubSub, Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
 import type {
   Patch,
   PatchDb,
+  PatchDbContext,
   PatchDbQuery,
   PatchDbResult,
   PatchInput,
@@ -17,6 +18,7 @@ import {
   PATCH_SYNC_REJECTED_AT,
   PATCH_SYNC_REJECTED_REASON,
   PATCH_SYNCED_AT,
+  toAttributeState,
 } from '../interface';
 import { PatchDbTransportRejectedError } from '../transport/transport-rejected-error';
 import { MAX_PATCHES_PER_REQUEST } from '../transport/wire-schemas';
@@ -289,14 +291,14 @@ export class SyncPatchDb implements PatchDb {
 
   async write(
     patches: PatchInput[],
-    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<WritePatchesResult> {
     const withUnsynced = patches.map((p) => ({
       ...p,
-      attributes: {
+      attributes: toAttributeState({
         ...p.attributes,
         [PATCH_SYNCED_AT]: null,
-      },
+      }),
     }));
     const result = await this.local.write(withUnsynced, ctx);
     const touched =
@@ -312,14 +314,14 @@ export class SyncPatchDb implements PatchDb {
 
   read(
     queries: PatchDbQuery[],
-    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<PatchDbResult[]> {
     return this.local.read(queries, ctx);
   }
 
   async update(
     updates: { patchId: string; attributes: Record<string, unknown> }[],
-    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<void> {
     return this.local.update(updates, ctx);
   }
@@ -404,16 +406,16 @@ export class SyncPatchDb implements PatchDb {
     const updates = [
       ...result.accepted.map((p) => ({
         patchId: p.patchId,
-        attributes: { [PATCH_SYNCED_AT]: '1' },
+        attributes: toAttributeState({ [PATCH_SYNCED_AT]: '1' }),
       })),
       ...result.rejected.map((r) => ({
         patchId: r.patchId,
-        attributes: {
+        attributes: toAttributeState({
           [PATCH_SYNC_REJECTED_AT]: now,
           [PATCH_SYNC_REJECTED_REASON]:
             `${String(r.code)}: ${String(r.reason)}`.slice(0, 256),
           [PATCH_REJECTED]: true,
-        },
+        }),
       })),
     ];
     if (updates.length > 0) {
@@ -443,7 +445,7 @@ export class SyncPatchDb implements PatchDb {
     await this.local.update(
       patchIds.map((patchId) => ({
         patchId,
-        attributes: { [PATCH_SYNCED_AT]: '1' },
+        attributes: toAttributeState({ [PATCH_SYNCED_AT]: '1' }),
       })),
       OPEN_PATCHES_DB_CONTEXT
     );

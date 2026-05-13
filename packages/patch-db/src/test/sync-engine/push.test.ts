@@ -3,6 +3,8 @@ import { describe, expect, test } from 'bun:test';
 import { type SyncErrorEvent } from '../../impl-sync';
 import { DELETED_CLAUSE } from './constants';
 import { getSim, registerSyncEngineHooks } from './harness';
+import { toAttributeState } from '../../interface';
+import { QTodoList } from '../query-test-attrs';
 
 const VIZ_FILE = import.meta.path;
 
@@ -32,11 +34,11 @@ describe('SyncPatchDb (deterministic sim)', () => {
       {
         entityId: listId,
         entityType: 'todo-list',
-        attributes: {
+        attributes: toAttributeState({
           'todo-list/name': 'My List',
           'todo-list/order': 0,
           'todo-list/created-at': new Date().toISOString(),
-        },
+        }),
       },
     ]);
 
@@ -83,11 +85,11 @@ describe('SyncPatchDb (deterministic sim)', () => {
       {
         entityId: listId,
         entityType: 'todo-list',
-        attributes: {
+        attributes: toAttributeState({
           'todo-list/name': 'My List',
           'todo-list/order': 0,
           'todo-list/created-at': new Date().toISOString(),
-        },
+        }),
       },
     ]);
 
@@ -97,7 +99,7 @@ describe('SyncPatchDb (deterministic sim)', () => {
       {
         entityId: listId,
         entityType: 'todo-list',
-        attributes: { 'todo-list/deleted': true },
+        attributes: toAttributeState({ 'todo-list/deleted': true }),
       },
     ]);
 
@@ -112,11 +114,13 @@ describe('SyncPatchDb (deterministic sim)', () => {
     const deletePatch = remoteResult.patches.find(
       (p) =>
         p.attributes &&
-        'todo-list/deleted' in p.attributes &&
-        p.attributes['todo-list/deleted'] === true
+        QTodoList.deleted.key in p.attributes &&
+        p.attributes[QTodoList.deleted.key] === true
     );
     assert.defined(deletePatch, 'deletePatch must be defined');
-    expect(deletePatch.attributes).toMatchObject({ 'todo-list/deleted': true });
+    expect(deletePatch.attributes).toMatchObject({
+      [QTodoList.deleted.key]: true,
+    });
 
     await c.poll();
     unsub();
@@ -147,20 +151,20 @@ describe('SyncPatchDb (deterministic sim)', () => {
       {
         entityId: listId1,
         entityType: 'todo-list',
-        attributes: {
+        attributes: toAttributeState({
           'todo-list/name': 'List 1',
           'todo-list/order': 0,
           'todo-list/created-at': new Date().toISOString(),
-        },
+        }),
       },
       {
         entityId: listId2,
         entityType: 'todo-list',
-        attributes: {
+        attributes: toAttributeState({
           'todo-list/name': 'List 2',
           'todo-list/order': 1,
           'todo-list/created-at': new Date().toISOString(),
-        },
+        }),
       },
     ]);
 
@@ -216,11 +220,11 @@ describe('SyncPatchDb (deterministic sim)', () => {
       {
         entityId: listId,
         entityType: 'todo-list',
-        attributes: {
+        attributes: toAttributeState({
           'todo-list/name': 'Needs push',
           'todo-list/order': 0,
           'todo-list/created-at': new Date().toISOString(),
-        },
+        }),
       },
     ]);
 
@@ -268,11 +272,11 @@ describe('SyncPatchDb (deterministic sim)', () => {
       {
         entityId: listId,
         entityType: 'todo-list',
-        attributes: {
+        attributes: toAttributeState({
           'todo-list/name': 'Eventually ok',
           'todo-list/order': 0,
           'todo-list/created-at': new Date().toISOString(),
-        },
+        }),
       },
     ]);
 

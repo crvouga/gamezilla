@@ -2,6 +2,8 @@ import { afterEach, describe, expect, test } from 'bun:test';
 import { assert } from '@gamezilla/lib/assert';
 import { type Sim, PatchDbScenarioBuilder } from '../sim/scenario';
 import { DELETED_CLAUSE } from './sync-engine/constants';
+import { toAttributeState } from '../interface';
+import { QTodoList } from './query-test-attrs';
 
 describe('patch-db deterministic simulation', () => {
   let sim: Sim | null = null;
@@ -39,11 +41,11 @@ describe('patch-db deterministic simulation', () => {
       {
         entityId: listId,
         entityType: 'todo-list',
-        attributes: {
+        attributes: toAttributeState({
           'todo-list/name': 'From client',
           'todo-list/order': 0,
           'todo-list/created-at': new Date(0).toISOString(),
-        },
+        }),
       },
     ]);
     await c.push();
@@ -51,7 +53,9 @@ describe('patch-db deterministic simulation', () => {
       {
         entityId: listId,
         entityType: 'todo-list',
-        attributes: { 'todo-list/name': 'From other writer on server' },
+        attributes: toAttributeState({
+          'todo-list/name': 'From other writer on server',
+        }),
       },
     ]);
     const listQuery = {
@@ -64,7 +68,7 @@ describe('patch-db deterministic simulation', () => {
     const loc = local[0];
     assert.defined(loc, 'local');
     const names = loc.entities.map(
-      (e) => e.attributes?.['todo-list/name'] as string
+      (e) => e.attributes?.[QTodoList.name.key] as string
     );
     expect(names.some((n) => n === 'From other writer on server')).toBe(true);
     unsub();

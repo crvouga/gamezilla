@@ -1,11 +1,14 @@
+import type { Keyword } from '@gamezilla/lib/keyword';
 import type { Entity } from '../interface';
+import { assertAttribute } from '../interface';
 
 export type NodeSnapshot = { nodeId: string; entities: Entity[] };
 
 function canonicalizeEntity(e: Entity): string {
   const sortedAttrs: Record<string, unknown> = {};
   for (const key of Object.keys(e.attributes).sort()) {
-    sortedAttrs[key] = e.attributes[key];
+    assertAttribute(key);
+    sortedAttrs[key] = e.attributes[key as Keyword];
   }
   return JSON.stringify({
     entityId: e.entityId,

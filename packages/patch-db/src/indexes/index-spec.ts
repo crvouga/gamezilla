@@ -19,10 +19,11 @@ import {
   assertEntityType,
   type PatchEntityType,
 } from '../entity-key';
+import type { Keyword } from '@gamezilla/lib/keyword';
 
-/** Attribute reference for index specs. Accepts a raw keyword string or any
+/** Attribute reference for index specs. Accepts a {@link Keyword} or any
  * object with a `.key` property (e.g. an `AttributeTag` from `@gamezilla/lib/attribute`). */
-export type PatchDbIndexAttributeRef = string | { readonly key: string };
+export type PatchDbIndexAttributeRef = Keyword | { readonly key: Keyword };
 
 export type PatchDbIndexField =
   | { readonly kind: 'attribute'; readonly attribute: PatchDbIndexAttributeRef }
@@ -57,13 +58,13 @@ export type PatchDbIndexSpec = {
 };
 
 export type NormalizedIndexField =
-  | { readonly kind: 'attribute'; readonly attribute: string }
+  | { readonly kind: 'attribute'; readonly attribute: Keyword }
   | { readonly kind: 'entityId' }
   | { readonly kind: 'entityType' };
 
 export type NormalizedIndexWhere =
-  | { readonly kind: 'attributeExists'; readonly attribute: string }
-  | { readonly kind: 'attributeAbsent'; readonly attribute: string };
+  | { readonly kind: 'attributeExists'; readonly attribute: Keyword }
+  | { readonly kind: 'attributeAbsent'; readonly attribute: Keyword };
 
 export type NormalizedIndexSpec = {
   /** Original author-facing short name (kebab-case). */
@@ -72,7 +73,7 @@ export type NormalizedIndexSpec = {
    * Stable for a given normalized content; any change rolls the hash so the
    * old index becomes an orphan and is dropped on the next reconcile. */
   readonly dbName: string;
-  readonly entityType: string;
+  readonly entityType: PatchEntityType;
   readonly fields: readonly NormalizedIndexField[];
   readonly where: readonly NormalizedIndexWhere[];
 };
@@ -87,7 +88,7 @@ const MAX_DB_NAME_LEN = 63;
 
 const INDEX_LOCAL_NAME_PATTERN = /^[a-z][a-z0-9-]*$/;
 
-function attributeKeyOf(ref: PatchDbIndexAttributeRef, a: Assert): string {
+function attributeKeyOf(ref: PatchDbIndexAttributeRef, a: Assert): Keyword {
   if (typeof ref === 'string') {
     assertAttribute(ref, a);
     return ref;

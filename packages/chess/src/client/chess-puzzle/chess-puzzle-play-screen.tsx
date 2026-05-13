@@ -195,7 +195,9 @@ function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
   // string so `SpeakingAvatar` stays mounted (the bubble's fixed height
   // keeps the chess board from shifting) but says nothing.
   const coachMessage =
-    dialogEvent !== null ? i18n._(getPuzzlePlayDialog(dialogEvent, themes)) : '';
+    dialogEvent !== null
+      ? i18n._(getPuzzlePlayDialog(dialogEvent, themes))
+      : '';
 
   const backToPuzzleMenu = useCallback(() => {
     dispatch(ClearChessPuzzlePlay({}));

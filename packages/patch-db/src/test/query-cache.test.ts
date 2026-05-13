@@ -2,7 +2,7 @@ import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
 import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
-import type { PatchDbQuery } from '../interface';
+import { toAttributeState, type PatchDbQuery } from '../interface';
 import { hydrateInMemoryStoreFromSqlite } from '../react/hydrate-in-memory-store';
 import { InMemoryEntityStore } from '../react/in-memory-entity-store';
 import { setInMemoryStoreForDb } from '../react/in-memory-store-registry';
@@ -118,7 +118,11 @@ describe('PatchDbQueryCache', () => {
     expect(cache.size()).toBe(1);
 
     await db.write([
-      { entityId: 'a1', entityType: 'todo', attributes: { 'todo/num': 1 } },
+      {
+        entityId: 'a1',
+        entityType: 'todo',
+        attributes: toAttributeState({ 'todo/num': 1 }),
+      },
     ]);
 
     expect(calls.a).toBeGreaterThan(0);
@@ -136,7 +140,11 @@ describe('PatchDbQueryCache', () => {
 
     const unsubFirst = cache.subscribe(queryKey, query, () => {});
     await db.write([
-      { entityId: 'b1', entityType: 'todo', attributes: { 'todo/num': 1 } },
+      {
+        entityId: 'b1',
+        entityType: 'todo',
+        attributes: toAttributeState({ 'todo/num': 1 }),
+      },
     ]);
 
     const cached = cache.getResult(queryKey);
@@ -162,7 +170,11 @@ describe('PatchDbQueryCache', () => {
 
     const unsub = cache.subscribe(queryKey, query, () => {});
     await db.write([
-      { entityId: 'c1', entityType: 'todo', attributes: { 'todo/num': 1 } },
+      {
+        entityId: 'c1',
+        entityType: 'todo',
+        attributes: toAttributeState({ 'todo/num': 1 }),
+      },
     ]);
 
     expect(cache.getResult(queryKey)?.entities.length).toBe(1);
@@ -205,7 +217,11 @@ describe('PatchDbQueryCache', () => {
 
     cache.subscribe(queryKey, query, () => {});
     await db.write([
-      { entityId: 'd1', entityType: 'todo', attributes: { 'todo/num': 1 } },
+      {
+        entityId: 'd1',
+        entityType: 'todo',
+        attributes: toAttributeState({ 'todo/num': 1 }),
+      },
     ]);
 
     const before = cache.getResult(queryKey);
@@ -215,7 +231,7 @@ describe('PatchDbQueryCache', () => {
       {
         entityId: 'd2',
         entityType: 'unrelated',
-        attributes: { 'unrelated/num': 1 },
+        attributes: toAttributeState({ 'unrelated/num': 1 }),
       },
     ]);
 

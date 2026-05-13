@@ -30,11 +30,12 @@ function entityMatchesSearch(entity: Entity, q: string): boolean {
 }
 
 function previewAttributes(entity: Entity): string {
-  const keys = Object.keys(entity.attributes).slice(0, 4);
+  const attrs = entity.attributes as Record<string, unknown>;
+  const keys = Object.keys(attrs).slice(0, 4);
   if (keys.length === 0) return '—';
   return keys
     .map((k) => {
-      const v = entity.attributes[k];
+      const v = attrs[k];
       const s = formatAttrValue(v);
       return `${k}: ${s.length > 40 ? s.slice(0, 39) + '…' : s}`;
     })

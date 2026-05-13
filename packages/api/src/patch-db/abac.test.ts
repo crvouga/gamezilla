@@ -7,12 +7,16 @@ import {
 import { buildAppAuthContext } from '@gamezilla/auth/shared/auth-context';
 import { ClientConfigAttr } from '@gamezilla/client-config/shared/client-config-entities';
 import { assert } from '@gamezilla/lib/assert';
+import { asKeyword } from '@gamezilla/lib/keyword';
 import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
-import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
+import {
+  PatchMetaAttr,
+  PATCH_REJECT_CODE,
+} from '@gamezilla/patch-db/metadata/patch-metadata';
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
 import {
   PROFILE_ENTITY_TYPE,
@@ -159,7 +163,7 @@ describe('default ABAC policies (sqlite)', () => {
     );
     expect(out.accepted).toHaveLength(0);
     expect(out.rejected).toHaveLength(1);
-    expect(out.rejected[0]?.code).toBe('forbidden');
+    expect(out.rejected[0]?.code).toBe(PATCH_REJECT_CODE.forbidden.key);
   });
 
   test('client context can read clientConfig (public)', async () => {
@@ -244,7 +248,7 @@ describe('default ABAC policies (sqlite)', () => {
     );
     expect(out.accepted).toHaveLength(0);
     expect(out.rejected).toHaveLength(1);
-    expect(out.rejected[0]?.code).toBe('forbidden');
+    expect(out.rejected[0]?.code).toBe(PATCH_REJECT_CODE.forbidden.key);
     expect(out.rejected[0]?.reason).toContain('system-only');
   });
 
@@ -293,7 +297,7 @@ describe('default ABAC policies (sqlite)', () => {
     );
     expect(out.accepted).toHaveLength(0);
     expect(out.rejected).toHaveLength(1);
-    expect(out.rejected[0]?.code).toBe('forbidden');
+    expect(out.rejected[0]?.code).toBe(PATCH_REJECT_CODE.forbidden.key);
   });
 
   test('accountSession: client cannot create row without server snapshot', async () => {
@@ -320,7 +324,7 @@ describe('default ABAC policies (sqlite)', () => {
     );
     expect(out.accepted).toHaveLength(0);
     expect(out.rejected).toHaveLength(1);
-    expect(out.rejected[0]?.code).toBe('forbidden');
+    expect(out.rejected[0]?.code).toBe(PATCH_REJECT_CODE.forbidden.key);
   });
 
   test('accountSession: client cannot set a new token', async () => {
@@ -382,7 +386,7 @@ describe('default ABAC policies (sqlite)', () => {
           entityId: 'todo-1',
           entityType: 'todo-list-item',
           attributes: {
-            'todo-list-item/title': 'hello',
+            [asKeyword('todo-list-item/title')]: 'hello',
             ...PatchMetaAttr.createdById(accountId),
           },
         },
@@ -410,7 +414,7 @@ describe('default ABAC policies (sqlite)', () => {
           entityId: 'list-1',
           entityType: 'todo-list',
           attributes: {
-            'todo-list/name': 'mine',
+            [asKeyword('todo-list/name')]: 'mine',
             ...PatchMetaAttr.createdById(accountId),
           },
         },
@@ -431,7 +435,7 @@ describe('default ABAC policies (sqlite)', () => {
           entityId: 'todo-sys',
           entityType: 'todo-list-item',
           attributes: {
-            'todo-list-item/title': 'sys',
+            [asKeyword('todo-list-item/title')]: 'sys',
             ...PatchMetaAttr.createdById(PATCH_DB_SYSTEM_DEVICE_ID),
           },
         },
@@ -458,7 +462,7 @@ describe('default ABAC policies (sqlite)', () => {
           entityId: 'todo-mismatch',
           entityType: 'todo-list-item',
           attributes: {
-            'todo-list-item/title': 'x',
+            [asKeyword('todo-list-item/title')]: 'x',
             ...PatchMetaAttr.createdById(
               '00000000-0000-4000-8000-00000000dead'
             ),
@@ -469,7 +473,7 @@ describe('default ABAC policies (sqlite)', () => {
     );
     expect(out.accepted).toHaveLength(0);
     expect(out.rejected).toHaveLength(1);
-    expect(out.rejected[0]?.code).toBe('forbidden');
+    expect(out.rejected[0]?.code).toBe(PATCH_REJECT_CODE.forbidden.key);
   });
 
   test('authenticated write still enforces patch/created-by-id match', async () => {
@@ -497,6 +501,6 @@ describe('default ABAC policies (sqlite)', () => {
     );
     expect(out.accepted).toHaveLength(0);
     expect(out.rejected).toHaveLength(1);
-    expect(out.rejected[0]?.code).toBe('forbidden');
+    expect(out.rejected[0]?.code).toBe(PATCH_REJECT_CODE.forbidden.key);
   });
 });

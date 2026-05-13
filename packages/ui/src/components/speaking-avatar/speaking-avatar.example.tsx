@@ -68,12 +68,11 @@ export default function SpeakingAvatarExample() {
             speak={false}
           />
 
-          <Text variant="caption" label="Smaller avatar + faster typing" />
+          <Text variant="caption" label="Smaller avatar (compact layout)" />
           <SpeakingAvatar
             message="Tighter layout for compact screens."
             voice={Voices.Olivia}
             avatarSize={40}
-            charDelayMs={15}
             speak={false}
           />
         </Box>

@@ -7,13 +7,14 @@ import {
 
 type CryptoTarget = typeof globalThis & { crypto?: Crypto };
 
-const SUBTLE_DIGEST_ALGORITHMS: Readonly<Record<string, CryptoDigestAlgorithm>> =
-  {
-    'SHA-1': CryptoDigestAlgorithm.SHA1,
-    'SHA-256': CryptoDigestAlgorithm.SHA256,
-    'SHA-384': CryptoDigestAlgorithm.SHA384,
-    'SHA-512': CryptoDigestAlgorithm.SHA512,
-  };
+const SUBTLE_DIGEST_ALGORITHMS: Readonly<
+  Record<string, CryptoDigestAlgorithm>
+> = {
+  'SHA-1': CryptoDigestAlgorithm.SHA1,
+  'SHA-256': CryptoDigestAlgorithm.SHA256,
+  'SHA-384': CryptoDigestAlgorithm.SHA384,
+  'SHA-512': CryptoDigestAlgorithm.SHA512,
+};
 
 function normaliseAlgorithm(algorithm: AlgorithmIdentifier): string {
   const name = typeof algorithm === 'string' ? algorithm : algorithm.name;
@@ -72,8 +73,7 @@ function installSubtleDigest(target: CryptoTarget) {
   // `Object.defineProperty` so we work on RN's native `crypto` object too.
   const existingSubtle = cryptoObj.subtle as SubtleCrypto | undefined;
   const subtleImpl =
-    existingSubtle ??
-    ({} as SubtleCrypto & { digest: typeof subtleDigest });
+    existingSubtle ?? ({} as SubtleCrypto & { digest: typeof subtleDigest });
   Object.defineProperty(subtleImpl, 'digest', {
     value: subtleDigest,
     configurable: true,

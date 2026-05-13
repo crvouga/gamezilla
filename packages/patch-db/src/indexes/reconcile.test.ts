@@ -1,6 +1,7 @@
 import { createLogger } from '@gamezilla/lib/logger/logger';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { describe, expect, test } from 'bun:test';
+import { asKeyword } from '@gamezilla/lib/keyword';
 import type { IndexDialect } from './dialect';
 import {
   PATCH_DB_INDEX_NAME_PREFIX,
@@ -53,13 +54,13 @@ function fakeDialect(existing: readonly string[]): IndexDialect {
 const SPEC_HOST: PatchDbIndexSpec = {
   name: 'space-host',
   entityType: 'space',
-  fields: [{ kind: 'attribute', attribute: 'space/host-id' }],
+  fields: [{ kind: 'attribute', attribute: asKeyword('space/host-id') }],
 };
 const SPEC_LIVE: PatchDbIndexSpec = {
   name: 'space-live',
   entityType: 'space',
   fields: [{ kind: 'entityType' }, { kind: 'entityId' }],
-  where: [{ kind: 'attributeAbsent', attribute: 'space/ended-at' }],
+  where: [{ kind: 'attributeAbsent', attribute: asKeyword('space/ended-at') }],
 };
 
 describe('reconcileSnapshotIndexes', () => {
@@ -125,12 +126,12 @@ describe('reconcileSnapshotIndexes', () => {
     const oldSpec: PatchDbIndexSpec = {
       name: 'space-host',
       entityType: 'space',
-      fields: [{ kind: 'attribute', attribute: 'space/host-id' }],
+      fields: [{ kind: 'attribute', attribute: asKeyword('space/host-id') }],
     };
     const newSpec: PatchDbIndexSpec = {
       ...oldSpec,
       fields: [
-        { kind: 'attribute', attribute: 'space/host-id' },
+        { kind: 'attribute', attribute: asKeyword('space/host-id') },
         { kind: 'entityType' },
       ],
     };

@@ -1,5 +1,8 @@
 import { Assert } from '@gamezilla/lib/assert';
-import { isNamespacedKeyword } from '@gamezilla/lib/keyword';
+import {
+  assertKeywordRecord,
+  isNamespacedKeyword,
+} from '@gamezilla/lib/keyword';
 import { isMessageEnvelope } from '@gamezilla/lib/message';
 
 import { newCommandId } from '../../protocol/ids';
@@ -46,6 +49,7 @@ function foldEntries<S extends RoomState, E extends RoomEvent>(
   let lastSeq = 0;
   for (const e of entries) {
     state = module.reduce(state, e.event);
+    assertKeywordRecord(state as Record<string, unknown>, 'room.foldEntries');
     lastSeq = e.seq;
   }
   return { state, lastSeq };
@@ -68,6 +72,7 @@ function foldDisplay<
     if (ev === undefined) continue;
     for (const e of ev) {
       s = module.reduce(s, e);
+      assertKeywordRecord(s as Record<string, unknown>, 'room.foldDisplay');
     }
   }
   return s;
@@ -268,6 +273,10 @@ export class Room<
         { lastSeq: this.lastSeq, got: e.seq }
       );
       this.committedState = this.module.reduce(this.committedState, e.event);
+      assertKeywordRecord(
+        this.committedState as Record<string, unknown>,
+        'room.appendCommittedEntries'
+      );
       this.committedEntries.push(e);
       this.lastSeq = e.seq;
     }

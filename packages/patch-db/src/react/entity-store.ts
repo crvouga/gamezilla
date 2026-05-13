@@ -1,6 +1,8 @@
 import { assert } from '@gamezilla/lib/assert';
+import type { Keyword } from '@gamezilla/lib/keyword';
 import type { Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
-import type { Entity } from '../interface';
+import type { Entity, PatchEntityType } from '../interface';
+import { assertAttribute } from '../interface';
 import type { SubscribablePatchDbLike } from '../subscribable';
 import {
   DEFAULT_TEARDOWN_GRACE_MS,
@@ -18,7 +20,7 @@ export type CachedEntitySnapshot = {
 type Listener = () => void;
 
 type EntityCacheEntry = {
-  entityType: string;
+  entityType: PatchEntityType;
   entityId: string;
   /** Stable snapshot; replaced when data changes. */
   result: CachedEntitySnapshot;
@@ -26,7 +28,7 @@ type EntityCacheEntry = {
   teardownTimer: unknown | null;
 };
 
-function entityKey(entityType: string, entityId: string): string {
+function entityKey(entityType: PatchEntityType, entityId: string): string {
   return `${entityType}\0${entityId}`;
 }
 
@@ -38,7 +40,8 @@ function entityShallowEqual(a: Entity | null, b: Entity | null): boolean {
   const bk = Object.keys(b.attributes);
   if (ak.length !== bk.length) return false;
   for (const k of ak) {
-    if (a.attributes[k] !== b.attributes[k]) return false;
+    assertAttribute(k);
+    if (a.attributes[k as Keyword] !== b.attributes[k as Keyword]) return false;
   }
   return true;
 }
@@ -66,7 +69,7 @@ export class PatchDbEntityStore {
   }
 
   subscribe(
-    entityType: string,
+    entityType: PatchEntityType,
     entityId: string,
     listener: Listener
   ): Unsubscribe {
@@ -100,12 +103,15 @@ export class PatchDbEntityStore {
     };
   }
 
-  getResult(entityType: string, entityId: string): CachedEntitySnapshot | null {
+  getResult(
+    entityType: PatchEntityType,
+    entityId: string
+  ): CachedEntitySnapshot | null {
     return this.entries.get(entityKey(entityType, entityId))?.result ?? null;
   }
 
   getOrCreateResult(
-    entityType: string,
+    entityType: PatchEntityType,
     entityId: string
   ): CachedEntitySnapshot {
     return this.getOrCreate(
@@ -119,7 +125,7 @@ export class PatchDbEntityStore {
     return this.entries.size;
   }
 
-  isOpen(entityType: string, entityId: string): boolean {
+  isOpen(entityType: PatchEntityType, entityId: string): boolean {
     const entry = this.entries.get(entityKey(entityType, entityId));
     return entry !== undefined && this.storeUnsub !== null;
   }
@@ -141,7 +147,7 @@ export class PatchDbEntityStore {
 
   private getOrCreate(
     key: string,
-    entityType: string,
+    entityType: PatchEntityType,
     entityId: string
   ): EntityCacheEntry {
     const existing = this.entries.get(key);

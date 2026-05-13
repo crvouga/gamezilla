@@ -11,7 +11,7 @@ import {
   type SyncPatchDbOptions,
   type SyncPatchDbScheduler,
 } from '../impl-sync';
-import type { PatchDb, PatchInput } from '../interface';
+import { toAttributeState, type PatchDb, type PatchInput } from '../interface';
 import { PatchDbTransportInProcess } from '../transport/impl-in-process';
 import { PatchDbImplSyncHost } from '../transport/impl-sync-host';
 
@@ -135,33 +135,36 @@ export const whereClauseFixtures: PatchInput[] = [
   {
     entityId: 't1',
     entityType: 'item',
-    attributes: {
+    attributes: toAttributeState({
       'item/name': 'Alpha Widget',
       'item/score': 10,
       'item/tag': 'a',
-    },
+    }),
   },
   {
     entityId: 't2',
     entityType: 'item',
-    attributes: {
+    attributes: toAttributeState({
       'item/name': 'Beta Gadget',
       'item/score': 20,
       'item/tag': 'b',
-    },
+    }),
   },
   {
     entityId: 't3',
     entityType: 'item',
-    attributes: {
+    attributes: toAttributeState({
       'item/name': 'Gamma Tool',
       'item/score': 30,
       'item/tag': 'a',
-    },
+    }),
   },
   {
     entityId: 't4',
     entityType: 'item',
-    attributes: { 'item/name': 'Delta Device', 'item/score': 40 },
+    attributes: toAttributeState({
+      'item/name': 'Delta Device',
+      'item/score': 40,
+    }),
   },
 ];

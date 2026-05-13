@@ -32,6 +32,7 @@ import { default as SpinnerExample } from '../spinner/spinner.example';
 import { default as SkeletonExample } from '../skeleton/skeleton.example';
 import { default as ProgressBarExample } from '../progress-bar/progress-bar.example';
 import { default as DismissibleBannerExample } from '../dismissible-top-banner/dismissible-top-banner.example';
+import { default as SoundIndicatorExample } from '../sound-indicator/sound-indicator.example';
 import { default as SpeakingAvatarExample } from '../speaking-avatar/speaking-avatar.example';
 
 import { default as CollapsibleExample } from '../collapsible/collapsible.example';
@@ -118,6 +119,11 @@ const builtInEntries: ComponentEntry[] = [
     name: 'DismissibleBanner',
     category: 'Feedback',
     Example: DismissibleBannerExample,
+  },
+  {
+    name: 'SoundIndicator',
+    category: 'Feedback',
+    Example: SoundIndicatorExample,
   },
   {
     name: 'SpeakingAvatar',

@@ -1,8 +1,15 @@
 import { describe, expect, test } from 'bun:test';
-import type { PatchDb, PatchDbResult, PatchInput } from '../../interface';
+import type { Keyword } from '@gamezilla/lib/keyword';
+import {
+  toAttributeState,
+  type PatchDb,
+  type PatchDbResult,
+  type PatchInput,
+} from '../../interface';
 import type { SimClient } from '../../sim/scenario';
 import { DELETED_CLAUSE } from './constants';
 import { getTwoClientSim, registerTwoClientSimHooks } from './two-client-sim';
+import { QTodoList } from '../query-test-attrs';
 
 const VIZ_FILE = import.meta.path;
 
@@ -17,7 +24,7 @@ function pickEntityIds(results: PatchDbResult[]): Set<string> {
   return new Set((results[0]?.entities ?? []).map((e) => e.entityId));
 }
 
-function getAttr(results: PatchDbResult[], key: string): unknown {
+function getAttr(results: PatchDbResult[], key: Keyword): unknown {
   return results[0]?.entities[0]?.attributes?.[key];
 }
 
@@ -38,11 +45,11 @@ async function setupSharedList(
     {
       entityId: sharedId,
       entityType: 'todo-list',
-      attributes: {
+      attributes: toAttributeState({
         'todo-list/name': 'Shared',
         'todo-list/order': 0,
         'todo-list/created-at': created,
-      },
+      }),
     },
   ]);
   await a.push();
@@ -59,11 +66,11 @@ async function writeBatchFromA(
       {
         entityId: id,
         entityType: 'todo-list',
-        attributes: {
+        attributes: toAttributeState({
           'todo-list/name': `From-A-${i}`,
           'todo-list/order': i + 1,
           'todo-list/created-at': created,
-        },
+        }),
       },
     ]);
   }
@@ -79,18 +86,18 @@ async function divergentEditsWhileOffline(
     {
       entityId: bOfflineNew,
       entityType: 'todo-list',
-      attributes: {
+      attributes: toAttributeState({
         'todo-list/name': 'Created-by-B-while-offline',
         'todo-list/order': 99,
         'todo-list/created-at': created,
-      },
+      }),
     },
   ]);
   await writeTodoList(b, [
     {
       entityId: sharedId,
       entityType: 'todo-list',
-      attributes: { 'todo-list/order': 42 },
+      attributes: toAttributeState({ 'todo-list/order': 42 }),
     },
   ]);
 }
@@ -155,12 +162,12 @@ async function assertSharedMerged(
     b.read([sharedQuery]),
     srvDb.read([sharedQuery]),
   ]);
-  expect(getAttr(sa, 'todo-list/name')).toBe(mergedName);
-  expect(getAttr(sb, 'todo-list/name')).toBe(mergedName);
-  expect(getAttr(sr, 'todo-list/name')).toBe(mergedName);
-  expect(getAttr(sa, 'todo-list/order')).toBe(42);
-  expect(getAttr(sb, 'todo-list/order')).toBe(42);
-  expect(getAttr(sr, 'todo-list/order')).toBe(42);
+  expect(getAttr(sa, QTodoList.name.key)).toBe(mergedName);
+  expect(getAttr(sb, QTodoList.name.key)).toBe(mergedName);
+  expect(getAttr(sr, QTodoList.name.key)).toBe(mergedName);
+  expect(getAttr(sa, QTodoList.order.key)).toBe(42);
+  expect(getAttr(sb, QTodoList.order.key)).toBe(42);
+  expect(getAttr(sr, QTodoList.order.key)).toBe(42);
 }
 
 describe('SyncPatchDb (deterministic sim, multi-client offline)', () => {
@@ -203,7 +210,9 @@ describe('SyncPatchDb (deterministic sim, multi-client offline)', () => {
       {
         entityId: sharedId,
         entityType: 'todo-list',
-        attributes: { 'todo-list/name': 'Renamed-by-A-while-B-offline' },
+        attributes: toAttributeState({
+          'todo-list/name': 'Renamed-by-A-while-B-offline',
+        }),
       },
     ]);
     await a.push();
@@ -230,7 +239,7 @@ describe('SyncPatchDb (deterministic sim, multi-client offline)', () => {
     const bNameA = await a.read([
       { entityType: 'todo-list', entityId: bOfflineNew },
     ]);
-    expect(getAttr(bNameA, 'todo-list/name')).toBe(
+    expect(getAttr(bNameA, QTodoList.name.key)).toBe(
       'Created-by-B-while-offline'
     );
 

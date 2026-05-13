@@ -1,9 +1,12 @@
-import type {
-  PatchDb,
-  PatchDbQuery,
-  PatchDbResult,
-  PatchInput,
-  WritePatchesResult,
+import type { AttributeState } from '@gamezilla/lib/attribute';
+import {
+  OPEN_PATCHES_DB_CONTEXT,
+  type PatchDb,
+  type PatchDbContext,
+  type PatchDbQuery,
+  type PatchDbResult,
+  type PatchInput,
+  type WritePatchesResult,
 } from '../interface';
 
 type PendingSlice = {
@@ -13,7 +16,7 @@ type PendingSlice = {
 };
 
 type PendingBucket = {
-  readonly ctx: Readonly<Record<string, unknown>>;
+  readonly ctx: PatchDbContext;
   queries: PatchDbQuery[];
   slices: PendingSlice[];
 };
@@ -34,10 +37,7 @@ class PatchDbReadBatcher implements PatchDb {
   readonly hooks;
   readonly compaction;
 
-  private readonly buckets = new Map<
-    Readonly<Record<string, unknown>>,
-    PendingBucket
-  >();
+  private readonly buckets = new Map<PatchDbContext, PendingBucket>();
   private flushScheduled = false;
 
   constructor(private readonly inner: PatchDb) {
@@ -47,7 +47,7 @@ class PatchDbReadBatcher implements PatchDb {
 
   read(
     queries: PatchDbQuery[],
-    ctx: Readonly<Record<string, unknown>>
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<PatchDbResult[]> {
     if (queries.length === 0) {
       return Promise.resolve([]);
@@ -70,14 +70,14 @@ class PatchDbReadBatcher implements PatchDb {
 
   write(
     patches: PatchInput[],
-    ctx?: Readonly<Record<string, unknown>>
+    ctx?: PatchDbContext
   ): Promise<WritePatchesResult> {
     return this.inner.write(patches, ctx);
   }
 
   update(
-    updates: { patchId: string; attributes: Record<string, unknown> }[],
-    ctx?: Readonly<Record<string, unknown>>
+    updates: { patchId: string; attributes: AttributeState }[],
+    ctx?: PatchDbContext
   ): Promise<void> {
     return this.inner.update(updates, ctx);
   }

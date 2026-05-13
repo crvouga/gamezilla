@@ -112,22 +112,24 @@ export function useSpeak({
    * around the same time on cache hits.
    *
    * `lastSpokenRef` dedupes against React re-renders so each distinct
-   * value is spoken exactly once. It also keeps the cleanup function from
-   * being registered when we early-return — that's what makes the next
-   * pass's abort logic safe: cleanups only run for utterances we actually
-   * started.
+   * value is spoken exactly once.
    *
-   * Overlap prevention: each kept-utterance captures its own
-   * `AbortController` and `t` in the cleanup closure. When the effect
-   * re-runs we
+   * Overlap / interrupt prevention: each kept-utterance captures its
+   * own `AbortController` in the cleanup closure. When the effect
+   * re-runs (because `text` changed OR `enabled` flipped to `false`)
+   * we
    *   1. `controller.abort()` — cancels the prior message's in-flight
-   *      `synthesize` fetch so its resolved `player.play(url)` cannot fire
-   *      after we've moved on, and
-   *   2. `t.stop()` — pauses any audio currently playing from a prior
-   *      message.
+   *      `synthesize` fetch so its resolved `player.play(url)` cannot
+   *      fire after we've moved on, and
+   *   2. `ttsRef.current.stop()` — pauses any audio currently playing
+   *      from a prior message and cancels any autoplay queued by an
+   *      in-flight `play()` (the player tracks the latest requested
+   *      URL and bails out of its post-seek `player.play()` once we
+   *      clear it). This is what makes flipping `enabled` to `false`
+   *      actually interrupt audio that's already playing.
    * The two together make it impossible for a previous utterance to
-   * overlap with the new one, even when text changes faster than the
-   * synthesize fetch can resolve.
+   * overlap with the new one or to keep playing after the caller
+   * disables the hook.
    */
   useEffect(() => {
     if (!enabled) {
@@ -143,9 +145,8 @@ export function useSpeak({
 
     setState({ isLoading: true, durationMs: null });
 
-    const t = ttsRef.current;
     const controller = new AbortController();
-    void t
+    void ttsRef.current
       .play({
         text,
         voice: voiceRef.current,
@@ -166,7 +167,7 @@ export function useSpeak({
 
     return () => {
       controller.abort();
-      t.stop();
+      ttsRef.current.stop();
     };
   }, [text, enabled]);
 
@@ -179,20 +180,20 @@ export function useSpeak({
    * updates around `play()` resolving: first with `duration === 0`
    * (`durationMs === null`), then again a tick later once the audio
    * metadata resolves with the real duration. If we let every update
-   * write through to state, `revealDurationMs` would change from
-   * `undefined` → `X` mid-reveal and `RevealedText`'s effect would
-   * `progress.setValue(0)` and restart — i.e. the typewriter would
-   * "double-play". The `prev.isLoading` guard turns the second emission
-   * into a no-op so the duration captured at the leading edge of
-   * playback is the one we commit to for this utterance.
+   * write through to state, `durationMs` would flip from
+   * `null` → `X` mid-utterance and any caller-driven animation keyed
+   * off it (e.g. a typewriter reveal synced to audio length) would
+   * restart and "double-play". The `prev.isLoading` guard turns the
+   * second emission into a no-op so the duration captured at the
+   * leading edge of playback is the one we commit to for this
+   * utterance.
    *
    * Trade-off: if the duration races behind `isPlaying` (`durationMs`
-   * still `null` when playback starts), the reveal falls back to the
-   * char-based cadence for this utterance rather than briefly running
-   * with a wrong duration and snapping. On native, duration is typically
-   * ready before `isPlaying` flips — this only really matters on web
-   * where `HTMLAudioElement.duration` can populate slightly after
-   * `playing`.
+   * still `null` when playback starts), callers that want to sync to
+   * audio length will see `null` for this utterance and have to fall
+   * back to their own default. On native, duration is typically ready
+   * before `isPlaying` flips — this only really matters on web where
+   * `HTMLAudioElement.duration` can populate slightly after `playing`.
    */
   const ttsCurrentText = tts.current?.text ?? null;
   const ttsIsPlaying = tts.isPlaying;

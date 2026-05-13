@@ -4,6 +4,7 @@ import {
   assertPatchInput,
   assertQuery,
   OPEN_PATCHES_DB_CONTEXT,
+  type PatchDbContext,
   type PatchDbQuery,
   type PatchDbResult,
   type PatchInput,
@@ -64,7 +65,7 @@ export class PatchDbTransportInProcess implements PatchDbClientTransport {
 
   async read(
     queries: PatchDbQuery[],
-    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<PatchDbResult[]> {
     assert.array(
       queries,
@@ -123,7 +124,7 @@ export class PatchDbTransportInProcess implements PatchDbClientTransport {
 
   async write(
     patches: PatchInput[],
-    ctx: Readonly<Record<string, unknown>> = OPEN_PATCHES_DB_CONTEXT
+    ctx: PatchDbContext = OPEN_PATCHES_DB_CONTEXT
   ): Promise<WritePatchesResult> {
     assert.array(
       patches,

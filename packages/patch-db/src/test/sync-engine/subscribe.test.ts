@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { DELETED_CLAUSE } from './constants';
 import { getSim, registerSyncEngineHooks } from './harness';
+import { toAttributeState } from '../../interface';
+import { QTodoList } from '../query-test-attrs';
 
 const VIZ_FILE = import.meta.path;
 
@@ -26,11 +28,11 @@ describe('SyncPatchDb (deterministic sim)', () => {
       {
         entityId: listId,
         entityType: 'todo-list',
-        attributes: {
+        attributes: toAttributeState({
           'todo-list/name': 'Ref',
           'todo-list/order': 0,
           'todo-list/created-at': new Date().toISOString(),
-        },
+        }),
       },
     ]);
 
@@ -46,7 +48,9 @@ describe('SyncPatchDb (deterministic sim)', () => {
       {
         entityId: listId,
         entityType: 'todo-list',
-        attributes: { 'todo-list/name': 'Updated After Partial Unsub' },
+        attributes: toAttributeState({
+          'todo-list/name': 'Updated After Partial Unsub',
+        }),
       },
     ]);
 
@@ -57,7 +61,7 @@ describe('SyncPatchDb (deterministic sim)', () => {
     expect(
       (local[0]?.entities ?? []).some(
         (e) =>
-          e.attributes?.['todo-list/name'] === 'Updated After Partial Unsub'
+          e.attributes?.[QTodoList.name.key] === 'Updated After Partial Unsub'
       )
     ).toBe(true);
 
@@ -82,11 +86,11 @@ describe('SyncPatchDb (deterministic sim)', () => {
       {
         entityId: listId,
         entityType: 'todo-list',
-        attributes: {
+        attributes: toAttributeState({
           'todo-list/name': 'Patch sub',
           'todo-list/order': 0,
           'todo-list/created-at': new Date().toISOString(),
-        },
+        }),
       },
     ]);
 
