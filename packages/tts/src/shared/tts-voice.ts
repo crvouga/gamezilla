@@ -45,6 +45,12 @@ export type ElevenLabsVoice =
       readonly provider: 'eleven-labs';
       readonly voiceId: '8Ln42OXYupYsag45MAUy';
       readonly model: 'eleven_turbo_v2_5';
+    }
+  | {
+      readonly name: 'Leo V2';
+      readonly provider: 'eleven-labs';
+      readonly voiceId: 'bbGtsRRKUfYO634UxSjz';
+      readonly model: 'eleven_turbo_v2_5';
     };
 
 export type Voice = ElevenLabsVoice;
@@ -83,6 +89,12 @@ export const Voices = {
     voiceId: '8Ln42OXYupYsag45MAUy',
     model: 'eleven_turbo_v2_5',
   },
+  LeoV2: {
+    name: 'Leo V2',
+    provider: 'eleven-labs',
+    voiceId: 'bbGtsRRKUfYO634UxSjz',
+    model: 'eleven_turbo_v2_5',
+  },
 } as const satisfies Record<string, Voice>;
 
 export const VOICE_PROVIDERS = ['eleven-labs'] as const satisfies readonly [
@@ -96,6 +108,7 @@ export const VOICE_NAMES = [
   'Olivia',
   'Rachel',
   'Jay Wayne',
+  'Leo V2',
 ] as const;
 
 export const VOICES: readonly Voice[] = Object.values(Voices);
